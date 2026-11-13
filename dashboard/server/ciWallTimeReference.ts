@@ -8,6 +8,7 @@ import {
 import { z } from "zod";
 import {
   priorBuildReferenceOf,
+  type PriorBuildReference,
   type PriorBuildSample,
 } from "../src/ciPriorBuildReference.ts";
 import { historyWallTimeMs } from "../src/landedCiHistory.ts";
@@ -61,9 +62,19 @@ export function wallTimeReadingOf(build: KeptBuild | undefined): {
 // default is the latest represented landing in the retained trunk order.
 export function wallTimeReferenceOf(
   history: ProjectHistory,
+  endpoint: string,
+  order?: readonly string[],
+): PriorBuildReference;
+export function wallTimeReferenceOf(
+  history: ProjectHistory,
+  endpoint?: undefined,
+  order?: readonly string[],
+): PriorBuildReference | undefined;
+export function wallTimeReferenceOf(
+  history: ProjectHistory,
   endpoint?: string,
   order: readonly string[] | undefined = history.trunkOrder,
-) {
+): PriorBuildReference | undefined {
   const landings = Object.values(history.landings);
   const resolvedEndpoint =
     endpoint ??

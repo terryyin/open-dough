@@ -33,7 +33,7 @@ test("configured trunk keeps its observed endpoint through failed and empty loca
         .please(),
     ],
   });
-  const empty = makeMe.aCiScopeHistory
+  const empty = makeMe.aScopeHistoryGlance
     .with({
       path: "dashboard/tests",
       selectedRevision: frontendRevision,
@@ -103,7 +103,7 @@ test("project endpoint words mark a measured zero and explain partial-unit gaps 
   frontendServices,
 }) => {
   const revision = frontendServices.revision;
-  const history = makeMe.aCiScopeHistory
+  const history = makeMe.aScopeHistoryGlance
     .with({
       path: "dashboard/tests",
       selectedRevision: revision,
@@ -114,30 +114,20 @@ test("project endpoint words mark a measured zero and explain partial-unit gaps 
           kind: "point",
           date: "2026-11-07T10:00:00Z",
           selected: true,
-          landings: [
-            {
-              revision,
-              receivedAt: "2026-11-07T10:10:00Z",
-              selected: true,
-              provenance: "exact",
-            },
-          ],
-          build: {
-            revision,
-            runId: 31,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/31",
-            provenance: "exact",
-          },
+          landings: [{ selected: true, provenance: "exact" }],
           readings: [
             {
               kind: "point",
               unit: "case",
               ms: 0,
-              entry: "dashboard/tests",
               segment: "case/0",
             },
-            { kind: "gap", unit: "file", reason: "Partial · missing part 2" },
+            {
+              kind: "gap",
+              unit: "file",
+              status: "unavailable",
+              reason: "Partial · missing part 2",
+            },
           ],
         },
       ],

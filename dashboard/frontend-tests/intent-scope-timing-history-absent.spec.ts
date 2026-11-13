@@ -30,7 +30,7 @@ for (const variant of ["empty", "all gaps"] as const) {
     const facts = summaryScopeFacts();
     serveComparison(comparisonServices, facts, facts.entries);
     const setup = { completion: facts.work.revision };
-    const collected = makeMe.aCiScopeHistory
+    const collected = makeMe.aScopeHistoryGlance
       .with({
         path: "dashboard/tests",
         selectedRevision: setup.completion,
@@ -44,28 +44,19 @@ for (const variant of ["empty", "all gaps"] as const) {
                   kind: "gap",
                   date: "2026-11-06T10:00:00Z",
                   selected: true,
-                  landings: [
-                    {
-                      revision: setup.completion,
-                      receivedAt: "2026-11-06T10:00:00Z",
-                      selected: true,
-                    },
-                  ],
-                  build: {
-                    revision: setup.completion,
-                    runId: 43,
-                    runAttempt: 1,
-                    runUrl: "https://ci.invalid/runs/43",
-                    provenance: "exact",
-                  },
+                  landings: [{ selected: true, provenance: "exact" }],
                   readings: [
                     {
                       kind: "gap",
                       unit: "case",
+                      status: "unavailable",
                       reason: "Partial: part 2 of 2 missing",
                     },
                   ],
-                  reason: "Partial: part 2 of 2 missing",
+                  gap: {
+                    status: "unavailable",
+                    reason: "Partial: part 2 of 2 missing",
+                  },
                 },
               ],
         ...(variant === "empty"
@@ -81,7 +72,6 @@ for (const variant of ["empty", "all gaps"] as const) {
                       date: "2026-11-06T10:00:00Z",
                       reason: "Partial: part 2 of 2 missing",
                     },
-                    evidence: [],
                     sampleCount: 0,
                   },
                 },

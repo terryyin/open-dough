@@ -12,7 +12,7 @@ import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { IntentCiHistoryPanel } from "./IntentCiHistoryPanel.tsx";
 import { IntentScopeTimingHistoryUnits } from "./IntentScopeTimingHistoryUnits.tsx";
 import { useIntentCiScopeHistory } from "./useIntentCiScopeHistory.ts";
-import type { CiScopeHistory } from "./ciScopeHistory.ts";
+import type { ScopeHistoryGlance } from "./ciScopeHistory.ts";
 import {
   scopeHistoryAvailabilityWords,
   scopeHistoryContextOf,
@@ -40,13 +40,16 @@ function MeasureNote({ context }: { readonly context: ScopeHistoryContext }) {
 
 // The history's brief status: why it is not simply retained at the endpoint,
 // or, with no declared unit to chart, why the endpoint's build has no timing.
-function statusWords(history: CiScopeHistory, context: ScopeHistoryContext) {
+function statusWords(
+  history: ScopeHistoryGlance,
+  context: ScopeHistoryContext,
+) {
   const selected = history.entries.find((entry) => entry.selected);
   const unread =
     history.entries.every((entry) => entry.readings.length === 0) &&
     selected?.kind === "gap" &&
-    selected.reason !== undefined
-      ? scopeHistoryReason(context, selected.reason)
+    selected.gap !== undefined
+      ? scopeHistoryReason(context, selected.gap.reason)
       : undefined;
   return scopeHistoryAvailabilityWords(context, history.availability) ?? unread;
 }

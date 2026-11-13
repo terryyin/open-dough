@@ -18,16 +18,19 @@ import {
   executionTimeWords,
 } from "./ciProofTimeWords.ts";
 import { reasonStatus } from "./ciHistoryChart.ts";
-import type { PriorBuildReference } from "./ciPriorBuildReference.ts";
+import type {
+  PriorBuildFigures,
+  PriorBuildReference,
+} from "./ciPriorBuildReference.ts";
 import { HistoryRunAttempt } from "./HistoryRunAttempt.tsx";
-import { evidenceOfEntry } from "./landedCiHistorySeries.ts";
+import { evidenceOfEntry } from "./landedCiBuildKey.ts";
 import type { MeasuredEntry } from "./landedCiHistory.ts";
 import { PriorBuildReferenceEvidenceList } from "./PriorBuildReferenceEvidenceList.tsx";
 import { relativeDirectionOf } from "./storyCiRelativeChange.ts";
 import "./intent-ci-cues.css";
 import "./intent-ci-history.css";
 
-type Difference = NonNullable<PriorBuildReference["difference"]>;
+type Difference = NonNullable<PriorBuildFigures["difference"]>;
 
 // "+17 s (+17%)", or with a zero average "+1.2 s (percentage unavailable:
 // average is zero)".
@@ -51,7 +54,7 @@ export function IntentCiPriorBuildReference({
   selectedNote,
   reasonWords = (reason: string) => reason,
 }: {
-  readonly reference: PriorBuildReference;
+  readonly reference: PriorBuildFigures;
   readonly precise?: boolean;
   readonly unavailableReason?: string | undefined;
   readonly endpointLabel?: string;

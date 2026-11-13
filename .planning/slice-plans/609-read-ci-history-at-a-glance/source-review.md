@@ -15,8 +15,8 @@ Reviewer ambiguity note: the fewer-than-five insufficient-history threshold and 
 | G2 | …can "spot failed builds" | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: chart.failed 1 and inspect 'Nov 2 · Failed build' |
 | G3 | …can "drill into test execution cost by entry, folder, and file" | slice 3 | observed: dashboard/tests/intent/intent-scope-glance.spec.ts: compact readouts at entry (1.4 s vs 618 ms, +822 ms (+133%)), folder (720 ms vs 309 ms) and file (120 ms vs 103 ms) |
 | G4 | "The same reading serves test timing in Project Intent" | slice 3 | observed: dashboard/frontend-tests/intent-project-scope-glance.spec.ts and intent-project-scope-timing-history.spec.ts: Project Intent entry → folder → file history readouts |
-| G5 | "The chart and a few figures carry the answer without asking the reader to scan build records or reference membership" | slice 4 | |
-| G6 | A slower landing or a costly test area "is noticed while reviewing rather than left unread" | slice 4 | |
+| G5 | "The chart and a few figures carry the answer without asking the reader to scan build records or reference membership" | slice 4 | observed: Done and scope views typed on PriorBuildFigures/ScopeHistoryGlance without membership (typecheck); intent-ci-done-glance.spec.ts and intent-scope-glance.spec.ts read chart and compact figures with evidence count 0 through the real glance read |
+| G6 | A slower landing or a costly test area "is noticed while reviewing rather than left unread" | slice 4 | observed: slower/faster cues: intent-ci-done-glance.spec.ts expectChangeCue faster, intent-scope-glance.spec.ts and intent-project-scope-glance.spec.ts slower, intent-ci-compact-readout.spec.ts slower |
 | V1.1 | Done story → CI comparison: add the CI wall-time chart to the reference section | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: 'CI wall time history' region with the shared chart (9 marks) in the Done comparison |
 | V1.2 | Chart placed "below the Baseline, Branch, and Landed comparison and above the by-entry table" | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts and intent-ci-done-reference-lifecycle.spec.ts test 2: expectStackedInOrder(endpointTable, history.region, entryTable); intent-ci-comparison.spec.ts heading order |
 | V1.3 | Keep the comparison's endpoint proof available | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts and lifecycle spec: Landed wall time '4 min' in the endpoint table |
@@ -79,39 +79,39 @@ Reviewer ambiguity note: the fewer-than-five insufficient-history threshold and 
 | H4.6 | Replace the reference methodology paragraphs with the chart and its compact metrics | slice 3 | observed: dashboard/tests/intent/intent-scope-glance.spec.ts: no 'Median' or 'calibration' methodology text; intent-ci-done-glance.spec.ts likewise for Done |
 | H4.7 | Replace repeated provenance paragraphs with the chart and its compact metrics | slice 3 | observed: dashboard/tests/intent/intent-scope-glance.spec.ts: no 'Represents' or 'Observed scope at each build' provenance paragraphs |
 | H4.8 | Affected shared metric and list owners: IntentCiPriorBuildReference and IntentScopePriorBuildReference | slice 3 | observed: IntentScopePriorBuildReference.tsx delegates only to IntentCiPriorBuildReference.tsx |
-| H5.1 | Slim the selected and scoped authenticated history responses at the API boundary | slice 4 | |
-| H5.2 | Send dated measurements | slice 4 | |
-| H5.3 | Send typed gap statuses and reasons | slice 4 | |
-| H5.4 | Send compatible segment information | slice 4 | |
-| H5.5 | Send the selected endpoint and relevant provenance | slice 4 | |
-| H5.6 | Send the compact prior-reference figures | slice 4 | |
-| H5.7 | Omit per-build membership | slice 4 | |
-| H5.8 | Omit median and filtering details | slice 4 | |
-| H5.9 | Omit duplicated run and landing metadata used only by the removed lists | slice 4 | |
-| H5.10 | Project Intent's top-level CI status history still consumes the richer response | slice 4 | |
-| H5.11 | A dashboard page already open before deployment keeps reading the response it understands | slice 4 | |
-| H5.12 | The new reader asks for the slim response explicitly, as the existing gap-reason capability does | slice 4 | |
-| H6.1 | Derive the display from the existing retained history and Git-ordered cohort | slice 4 | |
-| H6.2 | Keep current measurement eligibility | slice 4 | |
-| H6.3 | Keep current retention | slice 4 | |
-| H6.4 | Keep current reference math | slice 4 | |
-| H6.5 | The automatic follow-up ledger keeps its full decision evidence server-side | slice 4 | |
-| H6.6 | Browsing history remains a local read | slice 4 | |
+| H5.1 | Slim the selected and scoped authenticated history responses at the API boundary | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts: history=glance Done and scoped answers through the real local boundary |
+| H5.2 | Send dated measurements | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts: Done entries 1–7 with dated points; scope entries with dated readings |
+| H5.3 | Send typed gap statuses and reasons | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts scoped test: gap {status: 'failed', reason: 'Failed CI build'} typed |
+| H5.4 | Send compatible segment information | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts scoped test: readings carry segments '1' and '2' |
+| H5.5 | Send the selected endpoint and relevant provenance | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts: selectedRevision and reference.endpoint; scope landings [{selected, provenance: 'exact'}] |
+| H5.6 | Send the compact prior-reference figures | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts: reference equals {endpoint, selected, sampleCount, averageMs, difference} of the default reference |
+| H5.7 | Omit per-build membership | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts: glance JSON contains no 'evidence' |
+| H5.8 | Omit median and filtering details | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts: glance JSON contains no medianMs, from, to; Done entries already filtered through the landing (later landing absent) |
+| H5.9 | Omit duplicated run and landing metadata used only by the removed lists | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts: no runUrl in Done glance; no runId/revision/receivedAt/build/run in scope glance (Done keeps attempt identity and landing revisions the chart keys and readout use) |
+| H5.10 | Project Intent's top-level CI status history still consumes the richer response | slice 4 | observed: unchanged intent-ci-wall-time-history*.spec.ts (8) and intent-ci-prior-build-average/states pass; readIntentCiHistory sends no capability |
+| H5.11 | A dashboard page already open before deployment keeps reading the response it understands | slice 4 | observed: dashboard/backend-tests/intent/ci-history-glance-compatibility.spec.ts: frozen previous Done and scoped readers (tests/support/previousCiHistoryReader) parse the default answers including membership |
+| H5.12 | The new reader asks for the slim response explicitly, as the existing gap-reason capability does | slice 4 | observed: dashboard/backend-tests/intent/ci-history-glance-compatibility.spec.ts records history=glance on both current readers' requests; tests/support/dashboard-ci-history-glance-read.test.mjs; ci-history-reader-compatibility.spec.ts 400 for glance on project read |
+| H6.1 | Derive the display from the existing retained history and Git-ordered cohort | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts: glance equals the projection of the default answer from the same retained history (order of entries and keys) |
+| H6.2 | Keep current measurement eligibility | slice 4 | observed: unchanged default-answer unit tests intent-ci-scope-history*.test.mjs and ci-attempt-wall-time-basis pass |
+| H6.3 | Keep current retention | slice 4 | observed: unchanged ci-done-wall-reference availability and landed-ci-scope-build-provenance/legacy-gap backend specs pass |
+| H6.4 | Keep current reference math | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts: glance figures equal the default reference's averageMs/sampleCount/difference; ci-prior-build-*.test.mjs pass |
+| H6.5 | The automatic follow-up ledger keeps its full decision evidence server-side | slice 4 | observed: unchanged intent-ci-follow-up.spec.ts and landed-ci-follow-up-reading.spec.ts pass; ledger keeps rich priorBuildReferenceSchema |
+| H6.6 | Browsing history remains a local read | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts and dashboard/backend-tests/intent/ci-history-glance-compatibility.spec.ts: github.calls unchanged across reads |
 | H6.7 | Update the wall-time and reference specification (currently requires the evidence lists) | slice 2 | observed: docs/dashboard-development-intent-ci-reference.md updated: Done reference is chart + compact readout, lists only for follow-up and top-level |
 | H6.8 | Update the applicable CI comparison guidance | slice 2 | observed: docs/dashboard-development-intent-ci-comparison.md updated: history between endpoints and entry table |
-| H6.9 | Display remains derived under ADR 0008 | slice 4 | |
-| S1 | Project Intent's top-level CI status history keeps its lists | slice 4 | |
-| S2 | Project Intent's top-level CI status history keeps its richer response | slice 4 | |
-| S3 | Story CI follow-up reading keeps its saved reference membership | slice 4 | |
-| S4 | Either may show the improved chart marks or compact metrics because it shares them, "with no separate delivery commitment" | slice 4 | |
+| H6.9 | Display remains derived under ADR 0008 | slice 4 | observed: ciHistoryGlance.ts projects the existing default answer (ADR 0008 derived local read); no store added |
+| S1 | Project Intent's top-level CI status history keeps its lists | slice 4 | observed: unchanged intent-ci-wall-time-history*.spec.ts with Builds and evidence pass |
+| S2 | Project Intent's top-level CI status history keeps its richer response | slice 4 | observed: readIntentCiHistory sends no capability; ci-history-reader-compatibility.spec.ts compares project points exactly |
+| S3 | Story CI follow-up reading keeps its saved reference membership | slice 4 | observed: intent-ci-follow-up.spec.ts lines 105/112 '× Excluded' and '◆ Selected' |
+| S4 | Either may show the improved chart marks or compact metrics because it shares them, "with no separate delivery commitment" | slice 4 | observed: top-level and follow-up share IntentCiHistoryChart and IntentCiPriorBuildReference; their unchanged specs pass |
 | A1 | One dated history chart serves Done CI wall time and every scope and file timing view | slice 3 | observed: IntentCiHistoryChart read by the shared historyChart page object in intent-ci-done-glance.spec.ts and dashboard/tests/intent/intent-scope-glance.spec.ts/dashboard/frontend-tests/intent-project-scope-glance.spec.ts |
 | A2 | One compact comparison readout serves those same views | slice 3 | observed: IntentCiPriorBuildReference read by compactReadout in intent-ci-done-glance.spec.ts and dashboard/tests/intent/intent-scope-glance.spec.ts/dashboard/frontend-tests/intent-project-scope-glance.spec.ts |
 | A3 | The shared history chart gains the failed row, unavailable marks, and per-mark readouts once | slice 1 | observed: IntentCiHistoryChart.tsx MarkReadout + IntentCiHistoryPlot.tsx shared by scope chart (both new specs) and top-level chart (intent-ci-wall-time-history-later.spec.ts ×) |
 | A4 | The prior-build metrics both views already share become that compact readout | slice 2 | observed: IntentCiPriorBuildReference.tsx compact readout shared by Done (dashboard/tests/intent/intent-ci-done-glance.spec.ts), top-level, scope and follow-up specs (s2 gate) |
 | A5 | Done and scope views stop composing the membership list, which stays only for the follow-up reading | slice 3 | observed: PriorBuildReferenceEvidenceList imported only by IntentCiFollowUp.tsx and the top-level PriorBuildReferenceEvidence; Done and scope specs assert evidence count 0 |
 | A6 | "no view keeps its own chart or metric copy" | slice 3 | observed: Done and scope views compose only IntentCiHistoryChart and IntentCiPriorBuildReference (IntentScopeTimingHistoryEvidence.tsx deleted) |
-| A7 | Slim selected and scoped history is a server projection of existing retained history behind the explicit reader capability | slice 4 | |
-| A8 | It "adds no second store or calculation" | slice 4 | |
+| A7 | Slim selected and scoped history is a server projection of existing retained history behind the explicit reader capability | slice 4 | observed: dashboard/server/ciHistoryGlance.ts called from performIntentCiHistoryRead behind history=glance |
+| A8 | It "adds no second store or calculation" | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts: glance.reference toEqual figuresOf(full.reference); no new store module |
 | E1.1 | Done landing 8m 04s vs six comparable builds averaging 8m 24s → shows −20s and −4% | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: 8 min 4 s vs six priors at 8 min 24 s → '−20 s (−4%)' |
 | E1.2 | …with a selected diamond and the dashed average | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: chart.selected 1 and dashed average stroke-dasharray |
 | E1.3 | A failed build and a missing measurement appear as distinct dated marks below the timing plot | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: chart.failed 1 and chart.unavailable 1 below the plot |
@@ -129,5 +129,5 @@ Reviewer ambiguity note: the fewer-than-five insufficient-history threshold and 
 | E3.5 | Later trunk build supplies the selected measurement → keep that provenance visible | slice 3 | observed: intent-scope-timing-history-provenance.spec.ts readout '· Later trunk build, includes later changes'; gap-build spec; Done end to end in intent-ci-done-prior-provenance.spec.ts |
 | E4.1 | History refresh fails while the Done comparison or scope Proof remains usable | slice 3 | observed: intent-scope-timing-history-reading.spec.ts history failure with comparison rows intact; intent-ci-done-reference-lifecycle.spec.ts for Done |
 | E4.2 | Retained history and compact retry stay available independently of the endpoint comparison | slice 3 | observed: intent-project-scope-history-refresh.spec.ts retained history + Retry history with Summary table visible |
-| E4.3 | Selected and scoped responses contain the chart data without the former lists | slice 4 | |
-| E4.4 | Saved follow-up reference retains its membership and exact decision evidence | slice 4 | |
+| E4.3 | Selected and scoped responses contain the chart data without the former lists | slice 4 | observed: dashboard/backend-tests/intent/ci-history-slim-response.spec.ts: Done and scoped glance answers carry chart data without evidence/median/run links |
+| E4.4 | Saved follow-up reference retains its membership and exact decision evidence | slice 4 | observed: intent-ci-follow-up.spec.ts membership rows; landed-ci-follow-up-reading.spec.ts |

@@ -35,6 +35,17 @@ export const priorBuildReferenceSchema = z.object({
 });
 export type PriorBuildReference = z.infer<typeof priorBuildReferenceSchema>;
 export type PriorBuildEvidence = PriorBuildReference["evidence"][number];
+// The compact figures a glance view reads: the selected measurement, the
+// prior-build average, how many builds it used and the change, without the
+// membership, median and dates behind them.
+export const priorBuildFiguresSchema = priorBuildReferenceSchema.pick({
+  endpoint: true,
+  selected: true,
+  sampleCount: true,
+  averageMs: true,
+  difference: true,
+});
+export type PriorBuildFigures = z.infer<typeof priorBuildFiguresSchema>;
 export type PriorBuildSample = z.infer<z.ZodObject<typeof measurement>> & {
   readonly revision?: string;
   readonly landings: readonly string[];

@@ -4,10 +4,7 @@
 // (../../frontend-tests/intent-*ci-history-chart-marks.spec.ts).
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  failedBuildReason,
-  type ScopeHistoryEntry,
-} from "../../src/ciScopeHistory.ts";
+import type { ScopeGlanceEntry } from "../../src/ciScopeHistory.ts";
 import {
   centreOf,
   expectMarkOver,
@@ -20,41 +17,33 @@ import { expect } from "../dashboardTest.ts";
 // unavailable, one more measured build and the selected build, whose scope
 // measurement is incompatible with the builds before it.
 export function markedScopeHistory(selectedRevision: string) {
-  const build = (day: number) => {
-    const revision = String(day).repeat(40);
-    const date = `2026-11-0${String(day)}T10:00:00Z`;
-    return {
-      key: `run/${String(day)}/1`,
-      date,
-      selected: false,
-      landings: [{ revision, receivedAt: date, selected: false }],
-      build: {
-        revision,
-        runId: day,
-        runAttempt: 1,
-        provenance: "exact" as const,
-      },
-    };
-  };
+  const build = (day: number) => ({
+    key: `run/${String(day)}/1`,
+    date: `2026-11-0${String(day)}T10:00:00Z`,
+    selected: false,
+    landings: [{ selected: false, provenance: "exact" as const }],
+  });
   const measured = (
     day: number,
     ms: number,
     segment = "case/1",
-  ): ScopeHistoryEntry => ({
+  ): ScopeGlanceEntry => ({
     ...build(day),
     kind: "point",
-    readings: [
-      { kind: "point", unit: "case", ms, entry: "dashboard/tests", segment },
-    ],
+    readings: [{ kind: "point", unit: "case", ms, segment }],
   });
-  const untimed = (day: number, reason: string): ScopeHistoryEntry => ({
+  const untimed = (
+    day: number,
+    status: "failed" | "unavailable",
+    reason: string,
+  ): ScopeGlanceEntry => ({
     ...build(day),
     kind: "gap",
-    reason,
-    readings: [{ kind: "gap", unit: "case", reason }],
+    gap: { status, reason },
+    readings: [{ kind: "gap", unit: "case", status, reason }],
   });
   const selected = measured(8, 1500, "case/2");
-  return makeMe.aCiScopeHistory
+  return makeMe.aScopeHistoryGlance
     .with({
       path: "dashboard/tests",
       selectedRevision,
@@ -62,20 +51,14 @@ export function markedScopeHistory(selectedRevision: string) {
       entries: [
         measured(2, 1000),
         measured(3, 1200),
-        untimed(4, failedBuildReason),
+        untimed(4, "failed", "Failed CI build"),
         measured(5, 0),
-        untimed(6, "Expired CI proof summary"),
+        untimed(6, "unavailable", "Expired CI proof summary"),
         measured(7, 1600),
         {
           ...selected,
           selected: true,
-          landings: [
-            {
-              revision: selectedRevision,
-              receivedAt: selected.date,
-              selected: true,
-            },
-          ],
+          landings: [{ selected: true, provenance: "exact" }],
         },
       ],
       references: [
@@ -83,7 +66,6 @@ export function markedScopeHistory(selectedRevision: string) {
           unit: "case",
           reference: {
             endpoint: selectedRevision,
-            evidence: [],
             sampleCount: 4,
             averageMs: 950,
           },

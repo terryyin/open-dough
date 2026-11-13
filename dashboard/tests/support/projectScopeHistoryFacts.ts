@@ -3,9 +3,10 @@ import type { Page } from "@playwright/test";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 // One measured selected build of `ms` test-case time, with its unit's
-// reference: the compact readout names the endpoint and that time.
+// reference, as the glance read answers it: the compact readout names the
+// endpoint and that time.
 export function scopeHistoryPoint(revision: string, path: string, ms: number) {
-  return makeMe.aCiScopeHistory
+  return makeMe.aScopeHistoryGlance
     .with({
       path,
       selectedRevision: revision,
@@ -16,30 +17,8 @@ export function scopeHistoryPoint(revision: string, path: string, ms: number) {
           kind: "point",
           date: "2026-11-07T10:00:00Z",
           selected: true,
-          landings: [
-            {
-              revision,
-              receivedAt: "2026-11-07T10:10:00Z",
-              selected: true,
-              provenance: "exact",
-            },
-          ],
-          build: {
-            revision,
-            runId: 310,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/310",
-            provenance: "exact",
-          },
-          readings: [
-            {
-              kind: "point",
-              unit: "case",
-              ms,
-              entry: "dashboard/tests",
-              segment: "case/0",
-            },
-          ],
+          landings: [{ selected: true, provenance: "exact" }],
+          readings: [{ kind: "point", unit: "case", ms, segment: "case/0" }],
         },
       ],
       references: [
@@ -48,7 +27,6 @@ export function scopeHistoryPoint(revision: string, path: string, ms: number) {
           reference: {
             endpoint: revision,
             selected: { key: "run/310/1", date: "2026-11-07T10:00:00Z", ms },
-            evidence: [],
             sampleCount: 0,
           },
         },
@@ -58,7 +36,7 @@ export function scopeHistoryPoint(revision: string, path: string, ms: number) {
 }
 
 // Five prior trunk builds and the endpoint's, each measured in test cases
-// and in test files at a tenth, with each unit's reference as the local read
+// and in test files at a tenth, with each unit's reference as the glance read
 // answers it: test cases 120 ms against 103 ms, test files 12 ms against
 // 10.3 ms, both 17% slower.
 export function scopeUnitsHistory(revision: string, path: string) {
@@ -66,25 +44,16 @@ export function scopeUnitsHistory(revision: string, path: string) {
   const entries = caseMs.map((ms, index) => {
     const day = String(index + 1);
     const selected = index === caseMs.length - 1;
-    const built = selected ? revision : day.repeat(40);
-    const date = `2026-11-0${day}T10:00:00Z`;
     return {
       key: `run/${day}/1`,
       kind: "point" as const,
-      date,
+      date: `2026-11-0${day}T10:00:00Z`,
       selected,
-      landings: [{ revision: built, receivedAt: date, selected }],
-      build: {
-        revision: built,
-        runId: index + 1,
-        runAttempt: 1,
-        provenance: "exact" as const,
-      },
+      landings: [{ selected, provenance: "exact" as const }],
       readings: (["case", "file"] as const).map((unit) => ({
         kind: "point" as const,
         unit,
         ms: unit === "case" ? ms : ms / 10,
-        entry: "dashboard/tests",
         segment: `${unit}/1`,
       })),
     };
@@ -92,7 +61,6 @@ export function scopeUnitsHistory(revision: string, path: string) {
   const reference = (averageMs: number, ms: number, text: string) => ({
     endpoint: revision,
     selected: { key: "run/6/1", date: "2026-11-06T10:00:00Z", ms },
-    evidence: [],
     sampleCount: 5,
     averageMs,
     difference: {
@@ -101,7 +69,7 @@ export function scopeUnitsHistory(revision: string, path: string) {
       relative: (ms - averageMs) / averageMs,
     },
   });
-  return makeMe.aCiScopeHistory
+  return makeMe.aScopeHistoryGlance
     .with({
       path,
       selectedRevision: revision,

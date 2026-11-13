@@ -2,7 +2,7 @@
 // in scope words, with precise execution times, saying when an equivalent or
 // later trunk build supplies the endpoint's measurement.
 import { standInBuildWords } from "./ciHistoryWords.ts";
-import type { CiScopeHistory } from "./ciScopeHistory.ts";
+import type { ScopeHistoryGlance } from "./ciScopeHistory.ts";
 import { IntentCiPriorBuildReference } from "./IntentCiPriorBuildReference.tsx";
 import {
   scopeHistoryEndpointWords,
@@ -11,15 +11,10 @@ import {
 } from "./intentScopeHistoryContext.ts";
 
 // How the endpoint's measurement stands for it, when another build supplies it.
-function standInWords(entries: CiScopeHistory["entries"]) {
+function standInWords(entries: ScopeHistoryGlance["entries"]) {
   for (const entry of entries) {
-    const landing = entry.landings.find((each) => each.selected);
-    const provenance = landing?.provenance ?? entry.build?.provenance;
-    if (
-      landing !== undefined &&
-      provenance !== undefined &&
-      provenance !== "exact"
-    )
+    const provenance = entry.landings.find((each) => each.selected)?.provenance;
+    if (provenance !== undefined && provenance !== "exact")
       return standInBuildWords[provenance];
   }
   return undefined;
@@ -31,8 +26,8 @@ export function IntentScopePriorBuildReference({
   context,
 }: {
   readonly comparison:
-    NonNullable<CiScopeHistory["references"]>[number] | undefined;
-  readonly entries: CiScopeHistory["entries"];
+    NonNullable<ScopeHistoryGlance["references"]>[number] | undefined;
+  readonly entries: ScopeHistoryGlance["entries"];
   readonly context: ScopeHistoryContext;
 }) {
   if (comparison === undefined) return null;

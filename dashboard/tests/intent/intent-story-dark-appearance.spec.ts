@@ -136,8 +136,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
   });
 
   await test.step("Summary timing history marks stay readable on the dark chart", async () => {
-    const previous = "1".repeat(40);
-    const collected = makeMe.aCiScopeHistory
+    const collected = makeMe.aScopeHistoryGlance
       .with({
         path: "dashboard/tests",
         selectedRevision: setup.completion,
@@ -148,26 +147,12 @@ test("a Done story's Intent evidence stays readable under the system dark appear
             kind: "point",
             date: "2026-11-05T10:00:00Z",
             selected: false,
-            landings: [
-              {
-                revision: previous,
-                receivedAt: "2026-11-05T10:00:00Z",
-                selected: false,
-              },
-            ],
-            build: {
-              revision: previous,
-              runId: 1,
-              runAttempt: 1,
-              runUrl: "https://ci.invalid/runs/1",
-              provenance: "exact",
-            },
+            landings: [{ selected: false, provenance: "exact" }],
             readings: [
               {
                 kind: "point",
                 unit: "case",
                 ms: 1200,
-                entry: "dashboard/tests",
                 segment: "case/1",
               },
             ],
@@ -177,26 +162,12 @@ test("a Done story's Intent evidence stays readable under the system dark appear
             kind: "point",
             date: "2026-11-06T10:00:00Z",
             selected: true,
-            landings: [
-              {
-                revision: setup.completion,
-                receivedAt: "2026-11-06T10:00:00Z",
-                selected: true,
-              },
-            ],
-            build: {
-              revision: setup.completion,
-              runId: 2,
-              runAttempt: 1,
-              runUrl: "https://ci.invalid/runs/2",
-              provenance: "exact",
-            },
+            landings: [{ selected: true, provenance: "exact" }],
             readings: [
               {
                 kind: "point",
                 unit: "case",
                 ms: 900,
-                entry: "dashboard/tests",
                 segment: "case/1",
               },
             ],

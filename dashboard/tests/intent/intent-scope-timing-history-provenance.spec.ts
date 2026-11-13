@@ -25,11 +25,8 @@ test("a later trunk build that supplies the selected timing stays named in the r
   origin,
 }) => {
   const setup = await publishSummaryComparisonStory(page, origin);
-  const equivalent = "a".repeat(40);
-  const preparation = "b".repeat(40);
-  const skipped = "c".repeat(40);
   const later = "d".repeat(40);
-  const collected = makeMe.aCiScopeHistory
+  const collected = makeMe.aScopeHistoryGlance
     .with({
       path: "dashboard/tests",
       selectedRevision: setup.completion,
@@ -40,33 +37,13 @@ test("a later trunk build that supplies the selected timing stays named in the r
           kind: "point",
           date: "2026-11-04T10:00:00Z",
           selected: false,
+          // A preparation and a skipped landing share one equivalent build.
           landings: [
-            {
-              revision: preparation,
-              receivedAt: "2026-11-05T10:00:00Z",
-              selected: false,
-            },
-            {
-              revision: skipped,
-              receivedAt: "2026-11-06T10:00:00Z",
-              selected: false,
-            },
+            { selected: false, provenance: "equivalent" },
+            { selected: false, provenance: "equivalent" },
           ],
-          build: {
-            revision: equivalent,
-            runId: 41,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/41",
-            provenance: "equivalent",
-          },
           readings: [
-            {
-              kind: "point",
-              unit: "case",
-              ms: 1200,
-              entry: "dashboard/tests",
-              segment: "case/1",
-            },
+            { kind: "point", unit: "case", ms: 1200, segment: "case/1" },
           ],
         },
         {
@@ -74,28 +51,9 @@ test("a later trunk build that supplies the selected timing stays named in the r
           kind: "point",
           date: "2026-11-08T10:00:00Z",
           selected: true,
-          landings: [
-            {
-              revision: setup.completion,
-              receivedAt: "2026-11-07T10:00:00Z",
-              selected: true,
-            },
-          ],
-          build: {
-            revision: later,
-            runId: 42,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/42",
-            provenance: "later",
-          },
+          landings: [{ selected: true, provenance: "later" }],
           readings: [
-            {
-              kind: "point",
-              unit: "case",
-              ms: 2400,
-              entry: "dashboard/tests",
-              segment: "case/1",
-            },
+            { kind: "point", unit: "case", ms: 2400, segment: "case/1" },
           ],
         },
       ],
@@ -109,7 +67,6 @@ test("a later trunk build that supplies the selected timing stays named in the r
               date: "2026-11-08T10:00:00Z",
               ms: 2400,
             },
-            evidence: [],
             sampleCount: 1,
           },
         },

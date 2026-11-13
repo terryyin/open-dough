@@ -28,7 +28,7 @@ test("unverified local landing order explains the partial cohort while the selec
 }) => {
   const setup = await publishSummaryComparisonStory(page, origin);
   const unknownRevision = "e".repeat(40);
-  const collected = makeMe.aCiScopeHistory
+  const collected = makeMe.aScopeHistoryGlance
     .with({
       path: "dashboard/tests",
       selectedRevision: setup.completion,
@@ -39,30 +39,8 @@ test("unverified local landing order explains the partial cohort while the selec
           kind: "point",
           date: "2026-11-08T10:00:00Z",
           selected: true,
-          landings: [
-            {
-              revision: setup.completion,
-              receivedAt: "2026-11-08T10:00:00Z",
-              selected: true,
-              provenance: "exact",
-            },
-          ],
-          build: {
-            revision: setup.completion,
-            runId: 42,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/42",
-            provenance: "exact",
-          },
-          readings: [
-            {
-              kind: "point",
-              unit: "case",
-              ms: 0,
-              entry: "dashboard/tests",
-              segment: "case/1",
-            },
-          ],
+          landings: [{ selected: true, provenance: "exact" }],
+          readings: [{ kind: "point", unit: "case", ms: 0, segment: "case/1" }],
         },
       ],
     })
@@ -94,7 +72,7 @@ test("a pending selected build reads its brief status without presenting a measu
   origin,
 }) => {
   const setup = await publishSummaryComparisonStory(page, origin);
-  const collected = makeMe.aCiScopeHistory
+  const collected = makeMe.aScopeHistoryGlance
     .with({
       path: "dashboard/tests",
       selectedRevision: setup.completion,
@@ -105,19 +83,11 @@ test("a pending selected build reads its brief status without presenting a measu
           kind: "gap",
           date: "2026-11-06T10:00:00Z",
           selected: true,
-          landings: [
-            {
-              revision: setup.completion,
-              receivedAt: "2026-11-06T10:00:00Z",
-              selected: true,
-            },
-          ],
+          landings: [{ selected: true }],
           readings: [],
-          reason: "Pending · CI queued or running",
-          run: {
-            runId: 51,
-            runAttempt: 2,
-            runUrl: "https://ci.invalid/runs/51",
+          gap: {
+            status: "unavailable",
+            reason: "Pending · CI queued or running",
           },
         },
       ],

@@ -22,7 +22,7 @@ test("legacy-only collected evidence states its unknown unit without declaring a
   origin,
 }) => {
   const setup = await publishSummaryComparisonStory(page, origin);
-  const collected = makeMe.aCiScopeHistory
+  const collected = makeMe.aScopeHistoryGlance
     .with({
       path: "dashboard/tests",
       selectedRevision: setup.completion,
@@ -33,23 +33,9 @@ test("legacy-only collected evidence states its unknown unit without declaring a
           key: "run/42/1",
           date: "2026-11-05T10:00:00Z",
           selected: true,
-          landings: [
-            {
-              revision: setup.completion,
-              receivedAt: "2026-11-05T10:00:00Z",
-              selected: true,
-              provenance: "exact",
-            },
-          ],
-          build: {
-            revision: setup.completion,
-            runId: 42,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/42",
-            provenance: "exact",
-          },
+          landings: [{ selected: true, provenance: "exact" }],
           readings: [],
-          reason: "legacy unit unknown",
+          gap: { status: "unavailable", reason: "legacy unit unknown" },
         },
       ],
     })

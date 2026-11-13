@@ -89,6 +89,19 @@ and exclusions remain fixed while this ordinary reference follows retention.
 Causal attribution, configurable thresholds/windows and more retention/backfill
 remain deferred.
 
+<a id="glance-history-read"></a>
+The Done and scope views read their history with `history=glance`
+(`dashboard/server/ciHistoryGlance.ts`), a projection of the same answer from
+the same retained snapshot and Git-ordered cohort. It sends the dated
+measurements, gaps with their reasons (a scope gap typed `failed` or
+`unavailable`), segments, the selected build and how each build stands for its
+landings, and only the reference's selected timing, average, count and change.
+The Done glance answers only the observations verified through its landing.
+Per-build membership, the median and dates behind the average, and run links
+or landing records used only by the former lists stay out. Without the
+capability the answer is unchanged, so a page opened before it existed keeps
+reading; project history and the follow-up ledger keep their full references.
+
 The rule lives in `dashboard/src/ciPriorBuildReference.ts`; wall-time projection
 is `dashboard/server/ciWallTimeReference.ts`. It reuses the collector/store,
 authenticated history reader and attempt/provenance owners under

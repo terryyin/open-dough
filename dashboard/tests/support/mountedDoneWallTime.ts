@@ -1,9 +1,11 @@
 // A mounted Done comparison (./comparisonMountPage.ts) whose local CI wall
 // time history read answers from retained landings as the server projects
-// them at its published landing (../../server/intentCiHistoryRead.ts), for
-// the compact readout's states
+// them at its published landing (../../server/intentCiHistoryRead.ts), in
+// the glance shape the Done view asks for (../../server/ciHistoryGlance.ts),
+// for the compact readout's states
 // (../../frontend-tests/intent-ci-compact-readout.spec.ts).
 import type { Page } from "@playwright/test";
+import { doneWallTimeGlanceOf } from "../../server/ciHistoryGlance.ts";
 import { doneWallTimeHistoryOf } from "../../server/intentCiHistoryRead.ts";
 import { windowedHistory } from "../../server/landedCiMeasuredBuilds.ts";
 import type { ProjectHistory } from "../../server/landedCiHistoryStore.ts";
@@ -44,7 +46,8 @@ export function preparedDoneComparison() {
 }
 
 // Each Done history read answers what `answer` holds when it is read:
-// retained landings as projected at the Landed revision, or a reply.
+// retained landings as the glance read projects them at the Landed revision,
+// or a reply.
 export async function serveDoneWallTimeHistory(
   page: Page,
   answer: () => ProjectHistory | ComparisonReply,
@@ -57,11 +60,13 @@ export async function serveDoneWallTimeHistory(
       const held = answer();
       if ("landings" in held)
         await route.fulfill({
-          json: doneWallTimeHistoryOf(
-            windowedHistory(held),
-            landed,
-            held.trunkOrder,
-            "timing-basis",
+          json: doneWallTimeGlanceOf(
+            doneWallTimeHistoryOf(
+              windowedHistory(held),
+              landed,
+              held.trunkOrder,
+              "timing-basis",
+            ),
           ),
         });
       else await route.fulfill({ status: held.status ?? 200, json: held.json });

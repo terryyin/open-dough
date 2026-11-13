@@ -1,11 +1,17 @@
 // A scope's collected test execution time, through one published Done result.
 // The local read derives these observations from retained attempt proof; the
-// browser never acquires historical CI evidence.
+// browser never acquires historical CI evidence. The default answer
+// (`CiScopeHistory`) keeps each build's landings, run and reference
+// membership; the glance views read its slim projection (`ScopeHistoryGlance`,
+// `../server/ciHistoryGlance.ts`).
 import { z } from "zod";
 import { runIdentityShape } from "./baseCiConfirmation.ts";
 import { commitIdSchema } from "./launchLanding.ts";
 import { runUrlSchema } from "./landedCiHistory.ts";
-import { priorBuildReferenceSchema } from "./ciPriorBuildReference.ts";
+import {
+  priorBuildFiguresSchema,
+  priorBuildReferenceSchema,
+} from "./ciPriorBuildReference.ts";
 
 // The gap reason a failed measured build gives every requested unit.
 export const failedBuildReason = "Failed CI build";
@@ -39,40 +45,43 @@ const entryFields = z.object({
   selected: z.boolean(),
   legacyReason: z.string().min(1).optional(),
 });
+const unitSchema = z.enum(["case", "file"]);
+const pointReadingSchema = z.object({
+  kind: z.literal("point"),
+  unit: unitSchema,
+  ms: z.number().nonnegative(),
+  entry: z.string().min(1),
+  segment: z.string().min(1),
+});
+const gapReadingSchema = z.object({
+  kind: z.literal("gap"),
+  unit: unitSchema,
+  reason: z.string().min(1),
+});
 export const scopeHistoryReadingSchema = z.discriminatedUnion("kind", [
-  z.object({
-    kind: z.literal("point"),
-    unit: z.enum(["case", "file"]),
-    ms: z.number().nonnegative(),
-    entry: z.string().min(1),
-    segment: z.string().min(1),
-  }),
-  z.object({
-    kind: z.literal("gap"),
-    unit: z.enum(["case", "file"]),
-    reason: z.string().min(1),
-  }),
+  pointReadingSchema,
+  gapReadingSchema,
 ]);
 export type ScopeHistoryReading = z.infer<typeof scopeHistoryReadingSchema>;
-const readingsSchema = z
-  .array(scopeHistoryReadingSchema)
-  .refine(
-    (readings) =>
-      new Set(readings.map((reading) => reading.unit)).size === readings.length,
-  );
+// A build reads each unit at most once; a measured build measures at least
+// one unit, and a build without timing reads only gaps.
+type UnitReading = { readonly kind: string; readonly unit: string };
+const uniqueUnits = (readings: readonly UnitReading[]) =>
+  new Set(readings.map((reading) => reading.unit)).size === readings.length;
+const measuresAUnit = (readings: readonly UnitReading[]) =>
+  readings.some((reading) => reading.kind === "point");
+const onlyGaps = (readings: readonly UnitReading[]) =>
+  readings.every((reading) => reading.kind === "gap");
+const readingsSchema = z.array(scopeHistoryReadingSchema).refine(uniqueUnits);
 export const ciScopeHistoryEntrySchema = z.discriminatedUnion("kind", [
   entryFields.extend({
     kind: z.literal("point"),
-    readings: readingsSchema.refine((readings) =>
-      readings.some((reading) => reading.kind === "point"),
-    ),
+    readings: readingsSchema.refine(measuresAUnit),
   }),
   entryFields
     .extend({
       kind: z.literal("gap"),
-      readings: readingsSchema.refine((readings) =>
-        readings.every((reading) => reading.kind === "gap"),
-      ),
+      readings: readingsSchema.refine(onlyGaps),
       reason: z.string().min(1).optional(),
     })
     .refine((entry) => entry.reason !== undefined || entry.readings.length > 0),
@@ -92,7 +101,7 @@ export const ciScopeHistorySchema = z.object({
   references: z
     .array(
       z.object({
-        unit: z.enum(["case", "file"]),
+        unit: unitSchema,
         reason: z.string().optional(),
         reference: priorBuildReferenceSchema,
       }),
@@ -100,3 +109,62 @@ export const ciScopeHistorySchema = z.object({
     .optional(),
 });
 export type CiScopeHistory = z.infer<typeof ciScopeHistorySchema>;
+
+// How a build without timing for a unit reads: a failed build, or any other
+// unavailable timing, with its reason.
+const typedGapSchema = z.object({
+  status: z.enum(["failed", "unavailable"]),
+  reason: gapReadingSchema.shape.reason,
+});
+// Each unit's reading without the entry it was read from, a gap typed.
+const glanceReadingsSchema = z
+  .array(
+    z.discriminatedUnion("kind", [
+      pointReadingSchema.omit({ entry: true }),
+      gapReadingSchema.extend(typedGapSchema.shape),
+    ]),
+  )
+  .refine(uniqueUnits);
+// A dated build: whether it is the selected one, how it stands for each
+// landing it represents, and its reading of each unit.
+const glanceEntryFields = entryFields
+  .pick({ key: true, date: true, selected: true })
+  .extend({
+    landings: z
+      .array(landingSchema.pick({ selected: true, provenance: true }))
+      .min(1),
+  });
+export const scopeHistoryGlanceSchema = z.object({
+  path: ciScopeHistorySchema.shape.path,
+  selectedRevision: commitIdSchema,
+  availability: ciScopeHistorySchema.shape.availability,
+  entries: z.array(
+    z.discriminatedUnion("kind", [
+      glanceEntryFields.extend({
+        kind: z.literal("point"),
+        readings: glanceReadingsSchema.refine(measuresAUnit),
+      }),
+      glanceEntryFields
+        .extend({
+          kind: z.literal("gap"),
+          readings: glanceReadingsSchema.refine(onlyGaps),
+          // Why the build has no timing for a unit it has no reading of.
+          gap: typedGapSchema.optional(),
+        })
+        .refine(
+          (entry) => entry.gap !== undefined || entry.readings.length > 0,
+        ),
+    ]),
+  ),
+  references: z
+    .array(
+      z.object({
+        unit: unitSchema,
+        reason: z.string().optional(),
+        reference: priorBuildFiguresSchema,
+      }),
+    )
+    .optional(),
+});
+export type ScopeHistoryGlance = z.infer<typeof scopeHistoryGlanceSchema>;
+export type ScopeGlanceEntry = ScopeHistoryGlance["entries"][number];

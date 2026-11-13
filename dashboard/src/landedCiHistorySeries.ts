@@ -1,9 +1,10 @@
 // Collected CI wall time as the shared chart's dated series
 // (`./ciHistoryChart.ts`): each measured build a point, each gap a dated mark
 // with its status words, and a gap starting a new line segment. Project CI
-// status draws its whole window. A Done endpoint draws only the verified
-// observations through it, marking the build selected for it, so newer
-// landings never enter its chart.
+// status draws its whole window. A Done endpoint's glance read
+// (`./ciDoneWallTimeHistory.ts`) answers only the verified observations
+// through it, so its chart marks the build selected for it and newer
+// landings never enter it.
 import {
   buildDateWords,
   gapReasonWords,
@@ -16,40 +17,18 @@ import {
   type HistoryChartBuild,
   type HistoryChartSeries,
 } from "./ciHistoryChart.ts";
-import {
-  isThroughEndpoint,
-  type PriorBuildEvidence,
-  type PriorBuildReference,
-} from "./ciPriorBuildReference.ts";
+import type { PriorBuildFigures } from "./ciPriorBuildReference.ts";
 import { wholeSecondWords } from "./ciProofTimeWords.ts";
-import { buildKeyOf } from "./landedCiBuildKey.ts";
+import { evidenceOfEntry } from "./landedCiBuildKey.ts";
 import {
   entryDate,
   landedCiEntryKey,
   type MeasuredEntry,
 } from "./landedCiHistory.ts";
 
-// The reference sample an entry stands for: its measured attempt, or a gap's
-// landing or the build named for it.
-export function evidenceOfEntry(
-  entry: MeasuredEntry,
-  evidence: readonly PriorBuildEvidence[],
-): PriorBuildEvidence | undefined {
-  const keys =
-    entry.kind === "point"
-      ? [buildKeyOf(entry)]
-      : [
-          `landing/${entry.revision}`,
-          ...(entry.reason !== "pending" && entry.build !== undefined
-            ? [buildKeyOf(entry.build)]
-            : []),
-        ];
-  return evidence.find((sample) => keys.includes(sample.key));
-}
-
 // The prior-build average as the chart's dashed line.
 export const averageLineOf = (
-  reference: PriorBuildReference | undefined,
+  reference: PriorBuildFigures | undefined,
 ): HistoryChartSeries["reference"] =>
   reference?.averageMs === undefined
     ? undefined
@@ -97,22 +76,20 @@ export function landedHistorySeries(
   };
 }
 
-// A Done endpoint's chart: its selected build and the verified retained
-// observations through it, with its prior-build average.
+// A Done endpoint's chart: the observations its glance read answers through
+// it, the build selected for it marked, with its prior-build average.
 export function doneWallTimeSeries(
   entries: readonly MeasuredEntry[],
-  reference: PriorBuildReference,
+  reference: PriorBuildFigures,
 ): HistoryChartSeries {
-  const through = entries.filter((entry) => {
-    const sample = evidenceOfEntry(entry, reference.evidence);
-    return sample !== undefined && isThroughEndpoint(sample);
-  });
+  const { selected } = reference;
   return {
-    ...landedHistorySeries(through, {
+    ...landedHistorySeries(entries, {
       label: "CI wall time by build date; selected landing marked",
       reference: averageLineOf(reference),
       isSelected: (entry) =>
-        evidenceOfEntry(entry, reference.evidence)?.status === "selected",
+        selected !== undefined &&
+        evidenceOfEntry(entry, [selected]) !== undefined,
     }),
     selectedLabel: "Selected landing",
   };

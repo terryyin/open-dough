@@ -24,7 +24,7 @@ test("a selected proof gap from a later trunk build reads its status and stand-i
 }) => {
   const setup = await publishSummaryComparisonStory(page, origin);
   const later = "d".repeat(40);
-  const collected = makeMe.aCiScopeHistory
+  const collected = makeMe.aScopeHistoryGlance
     .with({
       path: "dashboard/tests",
       selectedRevision: setup.completion,
@@ -35,25 +35,16 @@ test("a selected proof gap from a later trunk build reads its status and stand-i
           kind: "gap",
           date: "2026-11-07T10:00:00Z",
           selected: true,
-          reason: "Expired CI proof summary",
+          gap: { status: "unavailable", reason: "Expired CI proof summary" },
           readings: [
-            { kind: "gap", unit: "case", reason: "Expired CI proof summary" },
-          ],
-          landings: [
             {
-              revision: setup.completion,
-              receivedAt: "2026-11-07T10:00:00Z",
-              selected: true,
-              provenance: "later",
+              kind: "gap",
+              unit: "case",
+              status: "unavailable",
+              reason: "Expired CI proof summary",
             },
           ],
-          build: {
-            revision: later,
-            provenance: "later",
-            runId: 42,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/42",
-          },
+          landings: [{ selected: true, provenance: "later" }],
         },
       ],
       references: [
@@ -66,7 +57,6 @@ test("a selected proof gap from a later trunk build reads its status and stand-i
               date: "2026-11-07T10:00:00Z",
               reason: "Expired CI proof summary",
             },
-            evidence: [],
             sampleCount: 0,
           },
         },

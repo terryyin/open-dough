@@ -5,7 +5,11 @@
 
 import type { ProfileAddition } from "./ghProfileAddition.ts";
 import type { LandedCiHistory } from "../src/landedCiHistory.ts";
-import type { CiScopeHistory } from "../src/ciScopeHistory.ts";
+import type {
+  CiScopeHistory,
+  ScopeHistoryGlance,
+} from "../src/ciScopeHistory.ts";
+import type { DoneWallTimeGlance } from "../src/ciDoneWallTimeHistory.ts";
 import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";
 import type { IntentCiProofAnswer } from "./intentCiProofRead.ts";
 import type {
@@ -91,9 +95,12 @@ type Answer =
   | IntentCiStatusNone
   | IntentCiProofAnswer
   | StoryCiComparisonAnswer
-  // The project's measured landed builds (`./intentCiHistoryRead.ts`).
+  // The project's measured landed builds (`./intentCiHistoryRead.ts`), and
+  // a selected or scoped read's history, in full or as its glance.
   | LandedCiHistory
   | CiScopeHistory
+  | DoneWallTimeGlance
+  | ScopeHistoryGlance
   // A path read at a branch head: null when that head does not have it.
   | {
       readonly revision: string;

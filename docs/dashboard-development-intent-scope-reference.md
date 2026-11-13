@@ -34,7 +34,10 @@ observations, an endpoint gap mark and a brief status. Unknown ancestry is conse
 neither an older CI measured revision nor the latest collected landing silently
 replaces the observed head. Background landing collection retains each measured attempt's validated
 GitHub Actions or adapter proof once. History reads use that local evidence,
-including after server restart.
+including after server restart, as their
+[glance answer](dashboard-development-intent-ci-reference.md#glance-history-read):
+each build's dated reading per unit or its typed gap and reason, and each
+unit's compact reference figures, without membership, run or landing records.
 Opening, drilling or revisiting Summary or file Proof, including history Retry,
 never acquires historical CI proof. Folder readings include every published
 descendant, even files absent from the visible source tree; membership is the

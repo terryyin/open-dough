@@ -54,9 +54,10 @@ export const gapStatus = (
         words: reason === undefined ? "No timing" : `No timing · ${reason}`,
       };
 
-// A timing reason's status and short words: a failed build's wall-time or
-// scope reason reads "Failed build"; any other reads "No timing" with the
-// reason as its reader words it.
+// A reference's selected timing reason as status and short words: a failed
+// build's wall-time or scope reason reads "Failed build"; any other reads
+// "No timing" with the reason as its reader words it. Scope history marks
+// carry their typed status instead.
 export const reasonStatus = (
   reason: string | undefined,
   words: (reason: string) => string = (reason) => reason,

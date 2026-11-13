@@ -6,10 +6,10 @@ import { useId, useState } from "react";
 import { buildDateWords, standInBuildWords } from "./ciHistoryWords.ts";
 import { declaredUnits, unitName, type DeclaredUnit } from "./ciProofUnits.ts";
 import { executionTimeWords } from "./ciProofTimeWords.ts";
-import type { CiScopeHistory, ScopeHistoryEntry } from "./ciScopeHistory.ts";
+import type { ScopeHistoryGlance, ScopeGlanceEntry } from "./ciScopeHistory.ts";
 import {
+  gapStatus,
   isMeasured,
-  reasonStatus,
   type HistoryChartBuild,
 } from "./ciHistoryChart.ts";
 import { IntentCiHistoryChart } from "./IntentCiHistoryChart.tsx";
@@ -22,12 +22,8 @@ import {
 import { IntentScopePriorBuildReference } from "./IntentScopePriorBuildReference.tsx";
 
 // How a measured build stands for the landings it represents.
-function provenanceWords(entry: ScopeHistoryEntry): string {
-  const roles = new Set(
-    entry.landings.map(
-      (landing) => landing.provenance ?? entry.build?.provenance,
-    ),
-  );
+function provenanceWords(entry: ScopeGlanceEntry): string {
+  const roles = new Set(entry.landings.map((landing) => landing.provenance));
   if (roles.size > 1) return "Measured build";
   const role = roles.values().next().value;
   return role === "later" || role === "equivalent"
@@ -50,7 +46,7 @@ function UnitHistory({
   context,
   heading,
 }: {
-  readonly history: CiScopeHistory;
+  readonly history: ScopeHistoryGlance;
   readonly unit: DeclaredUnit;
   readonly context: ScopeHistoryContext;
   readonly heading: boolean;
@@ -78,12 +74,14 @@ function UnitHistory({
         segment: reading.segment,
         description: `${buildDateWords(entry.date)} · ${executionTimeWords(reading.ms)} · ${name} · ${provenanceWords(entry)}${entry.selected ? ` · ${endpointWords}` : ""}`,
       };
-    const reason =
-      reading?.reason ?? (entry.kind === "gap" ? entry.reason : undefined);
+    const gap = reading ?? (entry.kind === "gap" ? entry.gap : undefined);
     return {
       ...common,
       kind: "gap",
-      ...reasonStatus(reason, (reason) => scopeHistoryReason(context, reason)),
+      ...gapStatus(
+        gap?.status === "failed",
+        gap === undefined ? undefined : scopeHistoryReason(context, gap.reason),
+      ),
     };
   });
   return (
@@ -129,7 +127,7 @@ export function IntentScopeTimingHistoryUnits({
   context,
   file,
 }: {
-  readonly history: CiScopeHistory;
+  readonly history: ScopeHistoryGlance;
   readonly context: ScopeHistoryContext;
   // Whether the scope is one test file rather than an entry or folder.
   readonly file: boolean;

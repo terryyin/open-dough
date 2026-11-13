@@ -29,8 +29,7 @@ test("one collected attempt charts case and file timing one unit at a time, each
   const facts = summaryScopeFacts();
   serveComparison(comparisonServices, facts, facts.entries);
   const setup = { completion: facts.work.revision };
-  const previous = "1".repeat(40);
-  const collected = makeMe.aCiScopeHistory
+  const collected = makeMe.aScopeHistoryGlance
     .with({
       path: "dashboard/tests",
       selectedRevision: setup.completion,
@@ -41,35 +40,18 @@ test("one collected attempt charts case and file timing one unit at a time, each
           key: "run/41/1",
           date: "2026-11-04T10:00:00Z",
           selected: false,
-          landings: [
-            {
-              revision: previous,
-              receivedAt: "2026-11-04T10:00:00Z",
-              selected: false,
-              provenance: "exact",
-            },
-          ],
-          build: {
-            revision: previous,
-            runId: 41,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/41",
-            provenance: "exact",
-          },
-          legacyReason: "legacy unit unknown",
+          landings: [{ selected: false, provenance: "exact" }],
           readings: [
             {
               kind: "point",
               unit: "case",
               ms: 100,
-              entry: "dashboard/tests",
               segment: "case/1",
             },
             {
               kind: "point",
               unit: "file",
               ms: 1000,
-              entry: "dashboard/tests",
               segment: "file/1",
             },
           ],
@@ -79,30 +61,20 @@ test("one collected attempt charts case and file timing one unit at a time, each
           key: "run/42/1",
           date: "2026-11-05T10:00:00Z",
           selected: true,
-          landings: [
-            {
-              revision: setup.completion,
-              receivedAt: "2026-11-05T10:00:00Z",
-              selected: true,
-              provenance: "exact",
-            },
-          ],
-          build: {
-            revision: setup.completion,
-            runId: 42,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/42",
-            provenance: "exact",
-          },
+          landings: [{ selected: true, provenance: "exact" }],
           readings: [
             {
               kind: "point",
               unit: "case",
               ms: 0,
-              entry: "dashboard/tests",
               segment: "case/1",
             },
-            { kind: "gap", unit: "file", reason: "Part 2 untimed" },
+            {
+              kind: "gap",
+              unit: "file",
+              status: "unavailable",
+              reason: "Part 2 untimed",
+            },
           ],
         },
       ],

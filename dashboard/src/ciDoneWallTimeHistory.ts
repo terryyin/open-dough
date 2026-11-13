@@ -1,22 +1,27 @@
 // Collected wall time through the exact represented Done publication, separate
-// from the measured attempt and the project's latest represented endpoint.
+// from the measured attempt and the project's latest represented endpoint, as
+// its glance read answers it (`../server/ciHistoryGlance.ts`): only the
+// observations verified through the endpoint, in the project history's entry
+// shape without run links, and the reference's compact figures.
 import { z } from "zod";
+import { priorBuildFiguresSchema } from "./ciPriorBuildReference.ts";
 import { ciScopeHistorySchema } from "./ciScopeHistory.ts";
 import {
   landedCiHistorySchema,
-  type MeasuredHistory,
+  type MeasuredEntry,
 } from "./landedCiHistory.ts";
 import { commitIdSchema } from "./launchLanding.ts";
 
-export const ciDoneWallTimeHistorySchema = landedCiHistorySchema.extend({
+export const doneWallTimeGlanceSchema = z.object({
   selectedRevision: commitIdSchema,
   availability: ciScopeHistorySchema.shape.availability,
+  entries: landedCiHistorySchema.shape.entries,
+  reference: priorBuildFiguresSchema,
 });
-export type DoneWallTimeHistory = MeasuredHistory &
-  Pick<
-    z.infer<typeof ciDoneWallTimeHistorySchema>,
-    "selectedRevision" | "availability"
-  >;
+export type DoneWallTimeGlance = z.infer<typeof doneWallTimeGlanceSchema>;
+export type DoneWallTimeHistory = Omit<DoneWallTimeGlance, "entries"> & {
+  readonly entries: readonly MeasuredEntry[];
+};
 
 // The brief status of the retained history at the Done endpoint, when it is
 // not simply retained there.

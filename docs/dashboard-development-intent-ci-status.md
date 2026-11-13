@@ -226,12 +226,12 @@ wait. Later first-parent CI and the existing walk limit remain independent
 ways to settle a no-run gap.
 
 The local authenticated `intent=ci-history` response keeps open tabs readable
-across dashboard updates by defaulting to the prior final-gap vocabulary.
-Newer final reasons appear as `not-recorded` with the existing “CI wall time
-not recorded” wording. Current project and Done wall-time readers request
-`gap-reasons=timing-basis` to show that specific retained-timing reason;
-other new reasons still use the compatible fallback. This projection changes
-neither collected observations nor timing calculations or scoped history.
+across dashboard updates: a newer shape is sent only to a reader that names
+it. By default newer final reasons read `not-recorded` (“CI wall time not
+recorded”); project and Done readers request `gap-reasons=timing-basis` for
+that retained-timing reason. Done and scope readers request `history=glance`,
+the [slim projection](dashboard-development-intent-ci-reference.md#glance-history-read).
+Neither changes collected observations, timing calculations or the cohort.
 
 Each landing is kept by its receipt, with its own reference (revision, when
 it was recorded, its story), and each build once by its run and attempt, in

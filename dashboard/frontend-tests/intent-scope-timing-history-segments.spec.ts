@@ -26,9 +26,7 @@ test("earlier supported owning-entry segments stay readable beside a selected pr
   const facts = summaryScopeFacts();
   serveComparison(comparisonServices, facts, facts.entries);
   const setup = { completion: facts.work.revision };
-  const older = "1".repeat(40);
-  const changed = "2".repeat(40);
-  const collected = makeMe.aCiScopeHistory
+  const collected = makeMe.aScopeHistoryGlance
     .with({
       path: "dashboard/tests",
       selectedRevision: setup.completion,
@@ -39,26 +37,12 @@ test("earlier supported owning-entry segments stay readable beside a selected pr
           kind: "point",
           date: "2026-11-04T10:00:00Z",
           selected: false,
-          landings: [
-            {
-              revision: older,
-              receivedAt: "2026-11-04T10:00:00Z",
-              selected: false,
-            },
-          ],
-          build: {
-            revision: older,
-            runId: 41,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/41",
-            provenance: "exact",
-          },
+          landings: [{ selected: false, provenance: "exact" }],
           readings: [
             {
               kind: "point",
               unit: "case",
               ms: 1200,
-              entry: "dashboard/tests",
               segment: "case/1",
             },
           ],
@@ -68,26 +52,12 @@ test("earlier supported owning-entry segments stay readable beside a selected pr
           kind: "point",
           date: "2026-11-05T10:00:00Z",
           selected: false,
-          landings: [
-            {
-              revision: changed,
-              receivedAt: "2026-11-05T10:00:00Z",
-              selected: false,
-            },
-          ],
-          build: {
-            revision: changed,
-            runId: 42,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/42",
-            provenance: "exact",
-          },
+          landings: [{ selected: false, provenance: "exact" }],
           readings: [
             {
               kind: "point",
               unit: "case",
               ms: 2400,
-              entry: "dashboard",
               segment: "case/owner-2",
             },
           ],
@@ -97,24 +67,16 @@ test("earlier supported owning-entry segments stay readable beside a selected pr
           kind: "gap",
           date: "2026-11-06T10:00:00Z",
           selected: true,
-          landings: [
+          landings: [{ selected: true, provenance: "exact" }],
+          readings: [
             {
-              revision: setup.completion,
-              receivedAt: "2026-11-06T10:00:00Z",
-              selected: true,
+              kind: "gap",
+              unit: "case",
+              status: "unavailable",
+              reason: "CI proof summary expired",
             },
           ],
-          build: {
-            revision: setup.completion,
-            runId: 43,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/43",
-            provenance: "exact",
-          },
-          readings: [
-            { kind: "gap", unit: "case", reason: "CI proof summary expired" },
-          ],
-          reason: "CI proof summary expired",
+          gap: { status: "unavailable", reason: "CI proof summary expired" },
         },
       ],
     })

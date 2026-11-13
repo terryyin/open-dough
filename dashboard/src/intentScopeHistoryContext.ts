@@ -1,7 +1,10 @@
 // Endpoint meaning travels with the shared scope history, readout and chart.
 // A measured CI ancestor never replaces the project's observed trunk head.
 import { doneWallTimeAvailabilityWords } from "./ciDoneWallTimeHistory.ts";
-import type { CiScopeHistory, ScopeHistoryEndpoint } from "./ciScopeHistory.ts";
+import type {
+  ScopeHistoryGlance,
+  ScopeHistoryEndpoint,
+} from "./ciScopeHistory.ts";
 import type { CiEvidence } from "./IntentCiEvidence.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 
@@ -61,7 +64,7 @@ export const scopeHistoryReason = (
 // words it, when it is not simply retained there.
 export const scopeHistoryAvailabilityWords = (
   context: ScopeHistoryContext,
-  availability: CiScopeHistory["availability"],
+  availability: ScopeHistoryGlance["availability"],
 ) => {
   const words = doneWallTimeAvailabilityWords(availability);
   return words === undefined ? undefined : scopeHistoryReason(context, words);

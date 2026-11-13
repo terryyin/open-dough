@@ -187,7 +187,7 @@ refactor focused set 11/11; Done and scope histories share
 
 ### 4. Send only the history the glance views read
 Type: Behavior
-Status: planned
+Status: done
 Proof: New backend slim-response spec; extended
 `ci-history-reader-compatibility.spec.ts` with frozen Done and scoped readers;
 `tests/support/dashboard-ci-scope-history-read.test.mjs`;
@@ -203,6 +203,14 @@ Freeze the current Done and scoped reader schemas under
 `previousCiHistoryReader/` before changing the client schema. Update
 frontend-test response fixtures to the slim shape. The follow-up ledger keeps
 its stored membership.
+
+Accepted proof: new `backend-tests/intent/ci-history-slim-response.spec.ts`
+and `ci-history-glance-compatibility.spec.ts` (frozen previous Done and
+scoped readers parse the default answer; current readers send
+`history=glance`); `tests/support/dashboard-ci-history-glance-read.test.mjs`;
+unchanged follow-up and top-level history specs. The capability is
+`history=glance` on selected reads only; the Done glance is filtered
+through the landing on the server; scope gaps carry a typed status.
 
 ## Gates and delivery
 

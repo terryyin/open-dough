@@ -35,8 +35,7 @@ test("a failed local entry history read keeps the selected Done story and compar
   const setup = { completion: facts.work.revision };
   const previous = "1".repeat(40);
   const adapterAttemptId = "opaque-attempt+#";
-  const adapterUrl = "https://ci.invalid/adapter-proof";
-  const collected = makeMe.aCiScopeHistory
+  const collected = makeMe.aScopeHistoryGlance
     .with({
       path: "dashboard/tests",
       selectedRevision: setup.completion,
@@ -47,26 +46,12 @@ test("a failed local entry history read keeps the selected Done story and compar
           kind: "point",
           date: "2026-11-05T10:00:00Z",
           selected: false,
-          landings: [
-            {
-              revision: previous,
-              receivedAt: "2026-11-05T10:00:00Z",
-              selected: false,
-              provenance: "exact",
-            },
-          ],
-          build: {
-            revision: previous,
-            adapterAttempt: { runId: "run-a", attemptId: adapterAttemptId },
-            runUrl: adapterUrl,
-            provenance: "exact",
-          },
+          landings: [{ selected: false, provenance: "exact" }],
           readings: [
             {
               kind: "point",
               unit: "case",
               ms: 1200,
-              entry: "dashboard/tests",
               segment: "case/1",
             },
           ],
@@ -76,26 +61,12 @@ test("a failed local entry history read keeps the selected Done story and compar
           kind: "point",
           date: "2026-11-06T10:00:00Z",
           selected: true,
-          landings: [
-            {
-              revision: setup.completion,
-              receivedAt: "2026-11-06T10:00:00Z",
-              selected: true,
-            },
-          ],
-          build: {
-            revision: setup.completion,
-            runId: 42,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/42",
-            provenance: "exact",
-          },
+          landings: [{ selected: true, provenance: "exact" }],
           readings: [
             {
               kind: "point",
               unit: "case",
               ms: 0,
-              entry: "dashboard/tests",
               segment: "case/1",
             },
           ],

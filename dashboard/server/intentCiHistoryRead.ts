@@ -1,5 +1,7 @@
 // Local collected project/scoped history. The shared retained window and
 // accepted landing ancestry determine its cohort; browsing acquires no CI.
+// A selected or scoped read naming the glance capability answers the glance
+// projection of its default answer (`./ciHistoryGlance.ts`).
 
 import {
   readingCiHistoryOf,
@@ -10,6 +12,11 @@ import { parseSafeRepositoryPath } from "./reachablePaths.ts";
 import { isPinnedRevision } from "./refusedParameters.ts";
 import { historyEndpointOf } from "./ciHistoryEndpoint.ts";
 import { scopeHistoryOf } from "./ciScopeHistory.ts";
+import { historyGlance } from "../src/ciHistoryGlanceCapability.ts";
+import {
+  doneWallTimeGlanceOf,
+  scopeHistoryGlanceOf,
+} from "./ciHistoryGlance.ts";
 import { readLandingOrder } from "./launchLandingGit.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { wallTimeReferenceOf } from "./ciWallTimeReference.ts";
@@ -30,6 +37,7 @@ export type IntentCiHistoryRead =
   | {
       readonly kind: "intent-ci-history";
       readonly gapReasons?: "timing-basis";
+      readonly history?: never;
       readonly scope?: never;
       readonly revision?: never;
       readonly through?: never;
@@ -37,6 +45,7 @@ export type IntentCiHistoryRead =
   | {
       readonly kind: "intent-ci-history";
       readonly gapReasons?: "timing-basis";
+      readonly history?: typeof historyGlance.value;
       readonly scope?: string;
       readonly revision: string;
       readonly through: string;
@@ -67,8 +76,10 @@ export function parseIntentCiHistoryRead(
       "revision",
       "through",
       ...(params.has("gap-reasons") ? ["gap-reasons"] : []),
+      ...(params.has(historyGlance.name) ? [historyGlance.name] : []),
       ...(params.has("scope") ? ["scope"] : []),
     ];
+    const glance = params.get(historyGlance.name);
     const scope = params.has("scope")
       ? parseSafeRepositoryPath(params.get("scope") ?? "")
       : undefined;
@@ -80,6 +91,7 @@ export function parseIntentCiHistoryRead(
         (name) => name !== "source" && !names.includes(name),
       ) ||
       (params.has("scope") && scope === undefined) ||
+      (glance !== null && glance !== historyGlance.value) ||
       !isPinnedRevision(revision) ||
       !z.iso.datetime({ offset: true }).safeParse(through).success ||
       through === null
@@ -90,6 +102,7 @@ export function parseIntentCiHistoryRead(
     return {
       kind: "intent-ci-history",
       ...vocabulary,
+      ...(glance === null ? {} : { history: historyGlance.value }),
       ...(scope === undefined ? {} : { scope }),
       revision,
       through,
@@ -176,20 +189,25 @@ export async function performIntentCiHistoryRead(
     order === undefined
       ? stored
       : windowedHistory({ ...stored, trunkOrder: [...order] });
+  const glance = read?.history === historyGlance.value;
   if (read?.scope !== undefined) {
-    return answered(
-      scopeHistoryOf(
-        history,
-        read.scope,
-        { revision: read.revision, at: read.through },
-        order,
-      ),
+    const scoped = scopeHistoryOf(
+      history,
+      read.scope,
+      { revision: read.revision, at: read.through },
+      order,
     );
+    return answered(glance ? scopeHistoryGlanceOf(scoped) : scoped);
   }
-  if (read?.revision !== undefined)
-    return answered(
-      doneWallTimeHistoryOf(history, read.revision, order, read.gapReasons),
+  if (read?.revision !== undefined) {
+    const done = doneWallTimeHistoryOf(
+      history,
+      read.revision,
+      order,
+      read.gapReasons,
     );
+    return answered(glance ? doneWallTimeGlanceOf(done) : done);
+  }
   return answered({
     entries: readableHistoryEntries(historyEntries(history), read?.gapReasons),
     reference: wallTimeReferenceOf(history, undefined, order),
