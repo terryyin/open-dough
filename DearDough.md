@@ -56,7 +56,7 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Slice 2 `b2899a8f5` extracted `ci-command-attempt.mjs`, imported by promoted `ci-proof-read.mjs`, without its payload declaration. CI run43235536671/1 failed four native evidence families. The repair reproduced both those omissions and actual installed `ERR_MODULE_NOT_FOUND`; `b51be060e2efde855d8cdb27d51bee0d7cd6667b` added the declaration and installed-reader proof in both roots after fresh install/update and unavailable release source. Plan606 source-review at that repair retains exact commands; 17 focused checks passed.
   - Observed effect: one owned published CI failure paused in-flight slice3, which was preserved and restored around an independent repair. Source transport/proof tests alone had not established installed dependency closure.
   - Inference: Matches the existing indirect-consumer omission: extracting a promoted runtime dependency immediately reaches the assembled payload and native fixture identity, regardless of the later documentation slice. No claim of measured isolated cost or released-user impact.
-- Execution: SEED-331#read-ci-history-at-a-glance (plan 609; first implementation `147fb83afa7f3e6a517862bb286bdb6e314f79cb`)
+- Execution: SEED-331#read-ci-history-at-a-glance (spent plan 609 recoverable at before-cleanup `33eb3f8cd99cb7e9131d072bf06576ef01cf3eaa`; first implementation `147fb83afa7f3e6a517862bb286bdb6e314f79cb`)
   - Timestamp: unknown (2026-11-13, slice 4 published about 16:00+08:00; CI failure reported shortly after)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -990,7 +990,7 @@ A story promised the same compact reading and marks across Done and scope views.
 
 ### Occurrences
 
-- Execution: SEED-331#read-ci-history-at-a-glance (plan 609; first implementation `147fb83afa7f3e6a517862bb286bdb6e314f79cb`)
+- Execution: SEED-331#read-ci-history-at-a-glance (spent plan 609 recoverable at before-cleanup `33eb3f8cd99cb7e9131d072bf06576ef01cf3eaa`; first implementation `147fb83afa7f3e6a517862bb286bdb6e314f79cb`)
   - Timestamp: unknown (2026-11-13, slice 3 acceptance about 15:00+08:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5

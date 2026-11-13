@@ -5,7 +5,9 @@
 
 ## Source and provenance
 
-Execution retrospective of SEED-331#read-ci-history-at-a-glance (plan 609),
+Execution retrospective of SEED-331#read-ci-history-at-a-glance (spent plan
+609 recoverable at before-cleanup
+`33eb3f8cd99cb7e9131d072bf06576ef01cf3eaa:.planning/slice-plans/609-read-ci-history-at-a-glance/PLAN.md`),
 reviewing `4f7214879..56dde3c7d`: 147fb83 (shared chart marks), 3157545
 (Done glance), 92574cc (scope glance), 56dde3c (slim `history=glance`
 response). That story promised "the same compact reading order and marks
