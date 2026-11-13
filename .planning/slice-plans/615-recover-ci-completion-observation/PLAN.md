@@ -311,6 +311,9 @@ command-adapter proof outcomes from slices 3–4. Link the outcome from
   last-unavailable event reader. Stub mailbox workers need stop-file polling;
   `fs.watch` alone can miss the stop on this host, and `process.title` is not a
   reliable `ps` stand-in for unknown liveness.
+- CI repair on `79238f1` (run 43442318159/1): Rolldown server-bundle must set
+  `output.codeSplitting: false` with `output.file` when the graph has dynamic
+  imports; that harness defect failed every dashboard shard and concurrent-runs.
 
 
 ## Story obligations
