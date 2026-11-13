@@ -14,12 +14,12 @@ limits), Key examples 1–7, Architecture, and Completion evidence from
 | 3 | That recovery ends in the ordinary completion receipt that wrap-up’s retirement gate checks: effective evidence and confirmed shutdown on success; retained resources otherwise. | slice 3 |  |
 | 4 | Nobody polls an exact SHA by hand; an ignored-only closure (e.g. Pygardon’s merge landing `a5ceb3881`) reaches its applicable basis instead of waiting for a run that never starts. | slice 4 |  |
 | 5 | This removes the closure stall behind ODF-259, ODF-298 and ODF-334. | slice 6 |  |
-| 6 | A budget-expiry `CI_MONITOR_UNAVAILABLE` says that the budget expired. | slice 2 |  |
-| 7 | Budget expiry is distinct from a transport loss such as Doughnut’s HTTP 502 or TLS handshake timeout (ODF-121). | slice 2 |  |
+| 6 | A budget-expiry `CI_MONITOR_UNAVAILABLE` says that the budget expired. | slice 2 | observed: watch-ci-execution-wake.test.mjs budget expiry CI_MONITOR_UNAVAILABLE cause budget_expired |
+| 7 | Budget expiry is distinct from a transport loss such as Doughnut’s HTTP 502 or TLS handshake timeout (ODF-121). | slice 2 | observed: watch-ci-execution-wake.test.mjs provider outage cause observation_error distinct from budget_expired |
 | 8.1 | Guidance at every completion point names the one managed recovery for an ended observer: execution/review handoff | slice 3 |  |
 | 8.2 | Guidance at every completion point names the one managed recovery for an ended observer: Trunk Mode `finish` | slice 5 |  |
 | 8.3 | Guidance at every completion point names the one managed recovery for an ended observer: Story Branch integration | slice 4 |  |
-| 9 | Receipts and reports keep the two causes (budget expiry vs transport loss) distinguishable. | slice 2 |  |
+| 9 | Receipts and reports keep the two causes (budget expiry vs transport loss) distinguishable. | slice 2 | observed: ci-mailbox-completion-cause.test.mjs receipt observation.detail.cause; ci-notify-codex.test.mjs notify text |
 | 10 | The recovery covers the already accepted SHA on its authorized target only. | slice 3 |  |
 | 11 | The recovery finishes through the existing completion operation and its `CI_OBSERVER` receipt, with no second receipt format. | slice 3 |  |
 | 12 | Success carries the effective evidence and `shutdown: confirmed`. | slice 3 |  |
@@ -81,4 +81,4 @@ limits), Key examples 1–7, Architecture, and Completion evidence from
 | 68 | Example 4b — Applicable pending: `B` running → pending; resume keeps first completion deadline. | slice 4 |  |
 | 69 | Example 5 — Unresolved evidence: no ancestor or adapter cannot list history → unresolved receipt; resources retained. | slice 4 |  |
 | 70 | Example 6 — Repeat and interruption: one live observation and one receipt; deadline is the first recorded. | slice 3 |  |
-| 71 | Example 7 — Cause stays visible: TLS timeout → transport loss; budget expiry → budget expiry; in event and recovery receipt. | slice 2 |  |
+| 71 | Example 7 — Cause stays visible: TLS timeout → transport loss; budget expiry → budget expiry; in event and recovery receipt. | slice 2 | observed: wake + completion-cause + host-hook-unavailable-cause + Codex notify cover example 7 |

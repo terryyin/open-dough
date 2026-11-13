@@ -81,13 +81,13 @@ try {
   }
   if (!terminal) {
     store(key, { status: 'lost', sessionId: undefined, directory, pid, tail })
-    notify({ type: 'CI_MONITOR_UNAVAILABLE', key, reason: 'observer stream ended without a terminal result' })
+    notify({ type: 'CI_MONITOR_UNAVAILABLE', key, reason: 'observer stream ended without a terminal result', cause: 'observation_error' })
   } else {
     store(key, { status: terminal.status === 'stopped' ? 'stopped' : 'finished', sessionId: undefined, directory, pid, tail, terminal })
   }
 } catch (error) {
   store(key, { status: 'lost' })
-  notify({ type: 'CI_MONITOR_UNAVAILABLE', key, reason: String(error).slice(-1000) })
+  notify({ type: 'CI_MONITOR_UNAVAILABLE', key, reason: String(error).slice(-1000), cause: 'observation_error' })
 }
 ```
 
@@ -149,7 +149,7 @@ try {
   if (receipt.directory !== directory || receipt.terminal?.status !== 'stopped') throw new Error('observer stop did not confirm')
   text({ key, status: 'stopped', directory, terminal: receipt.terminal, pendingCi: receipt.terminal.coverage?.pendingCi ?? 'unobserved' })
 } catch (error) {
-  notify({ type: 'CI_MONITOR_UNAVAILABLE', key, reason: String(error).slice(-1000) })
+  notify({ type: 'CI_MONITOR_UNAVAILABLE', key, reason: String(error).slice(-1000), cause: 'observation_error' })
 }
 ```
 

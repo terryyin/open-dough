@@ -81,6 +81,17 @@ export function completionState(directory, sha, options = {}) {
   };
 }
 
+// Maps a CI_MONITOR_UNAVAILABLE event onto the completion/await observation
+// shape, preserving an additive cause when the event named one.
+export function monitorUnavailableObservation(event) {
+  return {
+    unresolvedReason: "observation_unavailable",
+    detail: "monitor_unavailable",
+    ...(event.cause ? { cause: event.cause } : {}),
+    event,
+  };
+}
+
 export function completionExpired(awaited) {
   const unresolved = { ...awaited };
   delete unresolved.verdict;
@@ -90,6 +101,7 @@ export function completionExpired(awaited) {
       ? {
           unresolvedReason: awaited.unresolvedReason,
           ...(awaited.detail ? { detail: awaited.detail } : {}),
+          ...(awaited.cause ? { cause: awaited.cause } : {}),
         }
       : undefined;
   return {

@@ -76,7 +76,9 @@ export async function stopMailbox(directory, options = {}) {
   }
   if (terminal) {
     try {
-      await awaitMailboxWorkerExit(readWorkerIdentity(directory), directory);
+      await awaitMailboxWorkerExit(readWorkerIdentity(directory), directory, {
+        readCommand,
+      });
     } catch (error) {
       if (error.code !== "ENOENT") throw error;
     }
@@ -100,11 +102,12 @@ function unreadActionableFailures(directory) {
     .filter((event) => event?.type === "CI_FAILURE");
 }
 
-function shutdownConfirmed(directory, terminal) {
+function shutdownConfirmed(directory, terminal, { readCommand } = {}) {
   try {
     const liveness = checkMailboxWorkerLiveness(
       readWorkerIdentity(directory),
       directory,
+      { readCommand },
     );
     if (liveness !== "dead")
       return {
@@ -192,7 +195,10 @@ export async function completeRevision(directory, sha, options = {}) {
 
   try {
     const terminal = await stopMailbox(directory, options);
-    return { ...awaited, shutdown: shutdownConfirmed(directory, terminal) };
+    return {
+      ...awaited,
+      shutdown: shutdownConfirmed(directory, terminal, options),
+    };
   } catch (error) {
     return {
       ...awaited,

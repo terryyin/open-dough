@@ -163,7 +163,7 @@ completion owner without growing an oversized file.
 
 ### 2. Budget expiry reads differently from transport loss
 Type: Behavior
-Status: planned
+Status: done
 Proof: Example 7. `watch-ci-execution` tests with a controlled clock assert
 `cause: "budget_expired"` with the budget, and transport failure asserts
 `cause: "observation_error"`. A completion receipt on each kind of ended
@@ -307,6 +307,10 @@ command-adapter proof outcomes from slices 3–4. Link the outcome from
   mean receipt mechanics must target `#completion-command-and-receipt-mechanics`,
   not the file root. The finish-row keeps one unanchored link to that file to
   avoid read-budget double-counting the same completion home.
+- Slice 2: terminal finished cause and await observation must share one
+  last-unavailable event reader. Stub mailbox workers need stop-file polling;
+  `fs.watch` alone can miss the stop on this host, and `process.title` is not a
+  reliable `ps` stand-in for unknown liveness.
 
 
 ## Story obligations

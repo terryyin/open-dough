@@ -92,11 +92,13 @@ managed_files+=(
   dough-execute-plan/scripts/ci-host-hook.mjs
   dough-execute-plan/scripts/ci-mailbox-await.mjs
   dough-execute-plan/scripts/ci-mailbox-change-watch.mjs
+  dough-execute-plan/scripts/ci-mailbox-cli.mjs
   dough-execute-plan/scripts/ci-mailbox-complete.mjs
   dough-execute-plan/scripts/ci-mailbox-completion-state.mjs
   dough-execute-plan/scripts/ci-mailbox-json-file.mjs
   dough-execute-plan/scripts/ci-mailbox-location.mjs
   dough-execute-plan/scripts/ci-mailbox-match.mjs
+  dough-execute-plan/scripts/ci-mailbox-operations.mjs
   dough-execute-plan/scripts/ci-observer-owner.mjs
   dough-execute-plan/scripts/ci-mailbox-revision-records.mjs
   dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs
@@ -104,6 +106,8 @@ managed_files+=(
   dough-execute-plan/scripts/ci-mailbox-queue-progress.mjs
   dough-execute-plan/scripts/ci-mailbox-worker-process.mjs
   dough-execute-plan/scripts/ci-mailbox.mjs
+  dough-execute-plan/scripts/ci-monitor-unavailable.mjs
+  dough-execute-plan/scripts/ci-observation-throttle.mjs
   dough-execute-plan/scripts/ci-observer-stream.mjs
   dough-execute-plan/scripts/ci-path-applicability.mjs
   dough-execute-plan/scripts/ci-revision-applicability-classification.mjs

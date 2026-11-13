@@ -62,7 +62,8 @@ ${showExitingCommand}  const result = join(directory, "result.json");
   renameSync(result + ".tmp", result);
 ${exit}};
 watch(directory, check);
+// Poll as well as watch: some hosts deliver no watch event for the stop file.
+setInterval(check, 20);
 check();
-setInterval(() => {}, 1000);
 `;
 }
