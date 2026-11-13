@@ -69,7 +69,7 @@ test("settlement requires inspected terminal results before dependent operations
     /Receive and inspect the terminal result in a separate tool-result boundary before launching dependent work/,
     /shell chain.*parallel check and delivery.*sequential awaited calls.*uninspected orchestration/,
     /`amended`, `conflict` or refusal.*source freshness/,
-    /absorb amendments.*promises and source review.*recheck until `unchanged`/,
+    /absorb amendments or reconcile conflicts.*promises and source review.*recheck until `unchanged` or stop as directed/,
     /Receive and inspect that result before dependent work too/,
     /affected sibling holds refactoring and expensive proof, as well as delivery.*reconciliation.*renewed proof/,
     /unchanged check adds no full run/,
@@ -168,7 +168,7 @@ test("the reference names the results, absorb, and the conflict stop", () => {
   );
 });
 
-test("the reference names each record's base and the route after a conflict decision", () => {
+test("the reference names the trunk revision used as each record's base", () => {
   const reference = read("dough-execute-plan/references/source-freshness.md");
   const flat = (text) => text.replace(/\s+/g, " ");
   assert.ok(
@@ -177,12 +177,26 @@ test("the reference names each record's base and the route after a conflict deci
     ),
     "names the base each record is compared from",
   );
-  const stop = flat(section(reference, "## Stop on a conflict"));
-  for (const term of [
-    "Resolve nothing without the developer's decision and write nothing to trunk",
-    "When the decision keeps trunk's text, write it into the branch copy in the increment, reopening a done slice under plan refinement when the decision reopens it",
-    "when it keeps the branch's text, the developer changes trunk",
-    "Then rerun `check` at the stopped boundary and continue only on `unchanged`",
+});
+
+test("conflicts allow compatible branch edits and hold unresolved decisions", () => {
+  const reference = read("dough-execute-plan/references/source-freshness.md");
+  const resolution = section(reference, "## Resolve a conflict").replace(
+    /\s+/g,
+    " ",
+  );
+  for (const pattern of [
+    /Reconcile in the branch copy when you can carry trunk's amendment and preserve the agreed requirements and their accepted proof/,
+    /move a branch proof note away from the trunk edit/,
+    /changed or removed `done` slice.*proof still covers the agreed behavior or reopen it under plan refinement when already authorized/,
+    /When scope, expected behavior, or what counts as done still needs a developer decision, record `awaiting story review` or `awaiting correction review`/,
+    /decision keeps trunk's text, apply it to the branch copy/,
+    /keeps the branch's text, the developer changes trunk/,
+    /Rerun `check` at the blocked boundary on the reconciled working copy with its proof in place\. Continue only on `unchanged`/,
   ])
-    assert.ok(stop.includes(term), `names ${term}`);
+    assert.match(resolution, pattern);
+  assert.match(
+    section(reference, "## At wrap-up's deletion").replace(/\s+/g, " "),
+    /On `amended` or `conflict`, wrap-up deletes nothing.*handle the conflict.*deletes only on `unchanged`/,
+  );
 });
