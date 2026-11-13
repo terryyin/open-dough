@@ -15,7 +15,7 @@ Dashboard browser cases built on the plain `test` from
 `dashboard/tests/support/preparationPage.ts` acquire the queued origin, the
 app build and the server bundle through test-scoped fixtures. The first case a
 worker runs pays that one-time preparation inside its own 30 s budget. While
-SEED-300#express-session-test-intent-through-page-objects was being executed,
+[Express session discovery and report test intent through page objects](https://github.com/terryyin/open-dough/blob/891a05400ffabebbe64505d67561c0a6e20afd42/.planning/seeds/SEED-300-dashboard-test-page-objects.md#express-session-test-intent-through-page-objects) was being executed,
 `navigation/side-panel-content-replacement.spec.ts` timed out three times as the
 first case of a fresh run at load 31–46. Its traces showed 15.4–24.7 s of
 in-budget `origin` and `dashboard` fixture time before the page opened, against

@@ -18,9 +18,10 @@ import {
   openDependencies,
   referenceNotice,
   retryReference,
+  storyReference,
 } from "../storyReference.ts";
 import {
-  donePathsThrough,
+  donePathsWithSuppliersThrough,
   doneTitlesThrough,
   farDone,
   expiredDone,
@@ -41,9 +42,13 @@ test("expired and unlisted references remain unavailable without fabricated bloc
   await expectEntries(recent, doneTitlesThrough(10));
   const consumer = storyCard(backlog, "Story A");
   await openDependencies(consumer);
+  await expect(storyReference(consumer, expiredDone.title)).toBeVisible();
   const before = githubFor(page).calls.length;
   for (const entry of [expiredDone, unlisted]) {
-    await followReference(consumer, entry.identity);
+    await followReference(
+      consumer,
+      entry === expiredDone ? entry.title : entry.identity,
+    );
     await expect(referenceNotice(page)).toContainText(
       `${entry.identity} is unavailable in Open Dough's dashboard`,
     );
@@ -52,7 +57,7 @@ test("expired and unlisted references remain unavailable without fabricated bloc
   await untilPageRests(page);
   expect(githubFor(page).calls.slice(before)).toEqual([]);
   expect(recordsAsked(githubFor(page)).toSorted()).toEqual(
-    donePathsThrough(10).toSorted(),
+    donePathsWithSuppliersThrough(10).toSorted(),
   );
   await consumer.getByRole("button", { name: "Inspect story" }).click();
   await expect(
@@ -100,7 +105,7 @@ test("Done catalog loading and failure stay distinct from absence and story retr
   await expect(destination).toBeInViewport({ ratio: 0.5 });
   await expect(notice).toBeEmpty();
   expect(recordsAsked(githubFor(page)).toSorted()).toEqual(
-    donePathsThrough(27).toSorted(),
+    donePathsWithSuppliersThrough(27).toSorted(),
   );
 });
 

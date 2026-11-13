@@ -12,6 +12,8 @@ import {
   twoDependencies,
   recordDependency,
   publishDependencies,
+  secondInSeedB,
+  suppliersInOneSeed,
 } from "../storyDependencyFixture.ts";
 import {
   openUntilRead,
@@ -23,6 +25,9 @@ import {
   dependencyDisclosure,
   dependencyList,
   dependencySummary,
+  followReference,
+  openDependencies,
+  storyReference,
 } from "../storyReference.ts";
 import {
   hideDetail,
@@ -184,4 +189,35 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
   expect(await origin.takenProfiles()).toEqual([]);
   expect(published.requests.length).toBeGreaterThan(0);
+});
+
+test("two suppliers sharing one seed display their titles and open their own stories", async ({
+  page,
+  origin,
+}) => {
+  await origin.publishRevision(suppliersInOneSeed());
+  recordDependency(origin, { supplier: secondInSeedB, state: "waiting" });
+  const revision = await publishDependencies(origin);
+  await publishCommittedOrigin(page, {
+    repoDir: origin.project,
+    revision,
+    repository: "terryyin/open-dough",
+  });
+  await openUntilRead(page);
+  const card = storyCard(parts(page).backlog, "Story A");
+  await openDependencies(card);
+  await expect(storyReference(card, "Story B")).toHaveAttribute(
+    "href",
+    `https://github.com/terryyin/open-dough/blob/${revision}/.planning/seeds/B.md#b`,
+  );
+  await expect(storyReference(card, "Second story in seed B")).toHaveAttribute(
+    "href",
+    `https://github.com/terryyin/open-dough/blob/${revision}/.planning/seeds/B.md#second`,
+  );
+  await followReference(card, "Story B");
+  await expect(storyCard(parts(page).backlog, "Story B")).toBeFocused();
+  await followReference(card, "Second story in seed B");
+  await expect(
+    storyCard(parts(page).backlog, "Second story in seed B"),
+  ).toBeFocused();
 });

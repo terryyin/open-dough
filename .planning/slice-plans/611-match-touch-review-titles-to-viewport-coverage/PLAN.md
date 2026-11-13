@@ -1,6 +1,6 @@
 # Touch review titles name what each viewport runs
 
-**Source:** [selected story](../../seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage)
+**Source:** [Match touch review titles to what each viewport runs](../../seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage)
 **Identity:** SEED-321#match-touch-review-titles-to-viewport-coverage
 
 ## Goal and scope
@@ -28,7 +28,7 @@ with the phone's portrait width; it is consumed there and in
 [storyReviewTouchContext.ts](../../../dashboard/tests/support/storyReviewTouchContext.ts)
 after the rotation loop. The phone-only beats are already cohesive functions:
 `observeSharedControlsByTouch` and `keepReviewContextThroughPanelControls`.
-The review, side panel and control owners SEED-300 left in place stay as they
+The review, side panel and control owners [Express review and Side panel test intent through page objects](https://github.com/terryyin/open-dough/blob/26bcdab755a81875c698cb51eb941037646bcb7f/.planning/seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects) left in place stay as they
 are; no new helper family.
 
 Direction: the spec declares, per touch viewport, each case's title and whether

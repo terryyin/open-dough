@@ -1,5 +1,5 @@
 // A story reference: a consumer card's Dependencies disclosure lists each
-// supplier by its story identity, and following one moves the reader to that
+// supplier by its title (or identity while unavailable), and following one moves the reader to that
 // story's card. While a destination is still being read, the Board's one
 // Story reference navigation notice says why, and a Recently done destination
 // waits in place under its identity. What the reader does next, and when the
@@ -27,18 +27,18 @@ export async function openDependencies(
 export const dependencyList = (card: Locator) =>
   card.getByRole("list", { name: "Story dependencies" });
 
-// The card's reference to a supplier, by the supplier's story identity.
-export const storyReference = (card: Locator, identity: string) =>
-  dependencyList(card).getByRole("link", { name: identity, exact: true });
+// The card's reference to a supplier, by the supplier's displayed title or fallback identity.
+export const storyReference = (card: Locator, title: string) =>
+  dependencyList(card).getByRole("link", { name: title, exact: true });
 
-// Follows the card's reference to `identity` by pointer, touch, or from the
+// Follows the card's reference labelled `title` by pointer, touch, or from the
 // keyboard (focused, then Enter), in its open Dependencies disclosure.
 export async function followReference(
   card: Locator,
-  identity: string,
+  title: string,
   using: "click" | "tap" | "keyboard" = "click",
 ) {
-  const reference = storyReference(card, identity);
+  const reference = storyReference(card, title);
   if (using === "keyboard") await reference.press("Enter");
   else await reference[using]();
 }

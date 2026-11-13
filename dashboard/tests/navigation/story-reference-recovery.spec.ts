@@ -24,6 +24,7 @@ import {
   openDependencies,
   referenceNotice,
   retryReference,
+  storyReference,
 } from "../storyReference.ts";
 
 // Story A waits on Story B and needs a decision about Story C, whose seed is
@@ -62,6 +63,7 @@ test("missing, reading and failed reference destinations stay distinct and retry
     element.setAttribute("data-known", "true");
   });
   await openDependencies(consumer);
+  await expect(storyReference(consumer, "SEED-C#c")).toBeVisible();
   await followReference(consumer, "SEED-C#c");
   await expect(notice).toHaveAttribute("data-known", "true");
   await expect(notice).toContainText(
