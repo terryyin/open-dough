@@ -109,12 +109,14 @@ test("completion targets the final accepted SHA, including the last consumer pub
     /shared completion on the final\s+accepted SHA: the integrated SHA, or the last consumer publication/,
   );
   assert.doesNotMatch(integration, /on the accepted\s+integrated SHA/);
-  const monitor = read("dough-execute-plan/references/ci-monitor.md");
+  const completion = read(
+    "dough-execute-plan/references/ci-completion-wait.md",
+  );
   assert.match(
-    monitor,
+    completion,
     /final accepted SHA: the closure or integrated SHA, or the last consumer\s+publication/,
   );
-  assert.doesNotMatch(monitor, /final accepted closure or integrated SHA/);
+  assert.doesNotMatch(completion, /final accepted closure or integrated SHA/);
 
   const retirement = section(integration, "## Retire Story Branch resources");
   assert.match(

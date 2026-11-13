@@ -3,7 +3,14 @@ import { once } from "node:events";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { receiptPrefix } from "./ci-mailbox.mjs";
+import {
+  createMailbox,
+  receiptPrefix,
+  recordWorkerIdentity,
+  registerPushedRevision,
+} from "./ci-mailbox.mjs";
+import { claimMailbox, codexStreamOwner } from "./ci-observer-owner.mjs";
+import { runMailboxWorkerUntilBudget } from "./ci-mailbox-budget-test-fixtures.mjs";
 import { deferChildExit } from "./fixture-teardown-test-fixtures.mjs";
 
 export const launcher = fileURLToPath(
@@ -34,6 +41,36 @@ export function waitForExit(child) {
     );
     child.once("error", reject);
   });
+}
+
+// Ends a Codex stream mailbox by budget with a controlled clock: stream-mode
+// identity so retained-stream classification applies, never a wall-clock wait.
+export async function endCodexStreamByBudget({
+  root,
+  storage,
+  repo,
+  branch = "main",
+  coordinator,
+  sha,
+  observeRoot = root,
+}) {
+  const directory = createMailbox(
+    { mode: "execution", repo, branch, maxDurationMs: 5_000 },
+    { root, storage },
+  );
+  const owner = codexStreamOwner({ root, coordinator });
+  if (!claimMailbox(directory, owner)) {
+    throw new Error(`Codex claim failed for ${directory}`);
+  }
+  recordWorkerIdentity(directory, { pid: 1, mode: "stream" });
+  if (sha) registerPushedRevision(directory, sha);
+  await runMailboxWorkerUntilBudget({
+    directory,
+    root,
+    storage,
+    observeRoot,
+  });
+  return directory;
 }
 
 // Replays Codex's stream lifecycle. Each stream child `setup` spawns is ended

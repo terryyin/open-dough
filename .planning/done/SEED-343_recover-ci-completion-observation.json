@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-343#recover-ci-completion-observation",
+  "title": "Recover CI completion after the observer expires",
+  "completedAt": "2026-11-13T16:52:29.490Z",
+  "developer": "Terry Yin",
+  "agent": "chaifeng-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "Verdict: Caught. Maintained assertion\nexecution-completion-recovery.test.mjs → \"carried deadline from the ended\nmailbox expires under controlled now\" →\nassert.equal(recovered.receipt.unresolvedReason, \"completion_expired\")\nfailed when predecessor deadline inheritance was disabled in\nci-mailbox-completion-state.mjs. Baseline and restored runs passed. Next\nproof action: none for this promise/path.\n"
+  }
+}

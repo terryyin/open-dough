@@ -80,6 +80,7 @@ test("documented Codex stop binding reports bounded unavailability from one fail
   assert.equal(notifications.length, 1);
   assert.equal(notifications[0].type, "CI_MONITOR_UNAVAILABLE");
   assert.equal(notifications[0].key, key);
+  assert.equal(notifications[0].cause, "observation_error");
   assert.equal(notifications[0].reason, `Error: ${reason}`.slice(-1000));
   assert.equal(notifications[0].reason.length, 1000);
 });
@@ -105,5 +106,6 @@ test("documented Codex stop binding reports an unconfirmed stop as unavailable",
   assert.equal(notifications.length, 1);
   assert.equal(notifications[0].type, "CI_MONITOR_UNAVAILABLE");
   assert.equal(notifications[0].key, key);
+  assert.equal(notifications[0].cause, "observation_error");
   assert.match(notifications[0].reason, /observer stop still running/);
 });

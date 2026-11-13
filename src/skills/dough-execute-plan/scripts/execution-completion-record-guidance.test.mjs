@@ -11,7 +11,9 @@ const skills = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const read = (path) => readFileSync(join(skills, path), "utf8");
 
 const finish = read("dough-execute-plan/references/finish-or-stop.md");
-const monitor = read("dough-execute-plan/references/ci-monitor.md");
+const waitMechanics = read(
+  "dough-execute-plan/references/ci-completion-wait.md",
+);
 const planning = read("dough-story-refinement/references/planning.md");
 const retrospective = read("dough-execution-retrospective/SKILL.md");
 const wrapUp = read("dough-story-wrap-up/SKILL.md");
@@ -74,7 +76,7 @@ test("the record and the retrospective's records form one published commit befor
     /[Pp]ublish[\s\S]+\]\(trunk-publication\.md#publish-an-execution-increment-or-repair\)[\s\S]+before the completion operation[\s\S]+not start\s+another CI or publication path/,
   );
   assert.match(
-    monitor,
+    waitMechanics,
     new RegExp(
       `publish[\\s\\S]+${recordLink.source}[\\s\\S]+exactly one completion action`,
     ),

@@ -35,7 +35,9 @@ export {
 // naming a user refuses only that user. Once `on-end` stands, a call asked
 // to end records `told-to-end` and ends, or stays when the file says `stay`.
 // A listed run's own route answers that run; `attemptJobs["RUN/ATTEMPT"]`
-// names one attempt's jobs, else every attempt has `jobs`.
+// names one attempt's jobs, else every attempt has `jobs`. Workflow run
+// listings use `branchRuns` when the query names a branch and
+// `allBranchRuns` for a repository-wide listing; either falls back to `runs`.
 
 // A fixture directory holding that `gh` and what its GitHub holds. `env` puts
 // it first on PATH for a child process; `enter` does so for this process.
