@@ -40,8 +40,9 @@ function endedPredecessors({ repo, branch, owner, root, storage }) {
 
 // Reuses establishObservation for live or replacement observation; records
 // ended predecessors only when this coordinator's host owner is known and a
-// new mailbox is attached. Codex keeps establishObservation's retained-stream
-// path (slice 6 arms a fresh stream before calling complete).
+// new mailbox is attached. Codex never starts a stream: without a live one the
+// gap names arming a fresh stream for complete; with --coordinator and
+// --observer-directory it registers and completes on that stream.
 async function recoverObservationForCompletion(request) {
   const {
     repo,
@@ -89,6 +90,7 @@ async function recoverObservationForCompletion(request) {
     env,
     root,
     storage,
+    command: "complete",
   });
   if (
     established.observation.state !== "unobserved" &&

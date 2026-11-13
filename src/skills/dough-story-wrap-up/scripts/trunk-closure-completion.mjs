@@ -62,12 +62,9 @@ export async function completeFinalClosure({
       };
     }
   }
-  // Codex keeps the retained-stream gap until a fresh stream can be armed.
-  if (
-    host !== "codex" &&
-    existsSync(workspace) &&
-    recoverOwnership.has(observation?.ownership)
-  ) {
+  // Claude/Cursor establish a replacement; Codex completes only when a live
+  // stream is already supplied, otherwise names arming a fresh one.
+  if (existsSync(workspace) && recoverOwnership.has(observation?.ownership)) {
     const recovered = await recoverExecutionCompletion({
       targetRef,
       repo,

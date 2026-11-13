@@ -11,6 +11,7 @@ import {
   registerPushedRevision,
   runMailboxWorker,
 } from "./ci-mailbox.mjs";
+import { runMailboxWorkerUntilBudget } from "./ci-mailbox-budget-test-fixtures.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
 
 const sha = "a".repeat(40);
@@ -32,21 +33,10 @@ function endedMailbox(t) {
 }
 
 async function endByBudget(directory, options) {
-  let elapsed = 0;
-  await runMailboxWorker(directory, {
-    ...options,
-    observe: (request) =>
-      watchCiExecution({
-        ...request,
-        maxDurationMs: 5_000,
-        now: () => elapsed,
-        pollMs: 10 * 60 * 1000,
-        sleep: async () => undefined,
-        gh: githubApi(() => {
-          elapsed += 1_000;
-          return [];
-        }),
-      }),
+  await runMailboxWorkerUntilBudget({
+    directory,
+    root: options.root,
+    storage: options.storage,
   });
 }
 

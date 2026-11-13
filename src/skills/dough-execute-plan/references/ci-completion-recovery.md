@@ -9,3 +9,6 @@ owner input as `resume` (`--workspace`, `--accepted-sha`, `--target-ref`,
 this coordinator's observation of that SHA on its authorized target, and ends
 in the ordinary `CI_OBSERVER` completion receipt under
 [completion command and receipt mechanics](ci-completion-wait.md#completion-command-and-receipt-mechanics).
+On Codex, arm a fresh yielded stream for the same target and coordinator first
+([Codex adapter](ci-notify-codex.md)); never restart a finished stream. Then
+pass `--coordinator` and `--observer-directory` to the same command.

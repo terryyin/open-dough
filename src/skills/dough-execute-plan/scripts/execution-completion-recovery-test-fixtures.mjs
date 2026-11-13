@@ -2,8 +2,7 @@
 // whose observer of the target ended in-process by budget, with optional
 // first completion start, unread failure, and the installed recovery CLI.
 import { execFile, spawn } from "node:child_process";
-import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, readdirSync } from "node:fs";
+import { mkdirSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
@@ -13,15 +12,16 @@ import {
   publishMailboxEvent,
   readMailboxEvents,
   registerPushedRevision,
-  runMailboxWorker,
 } from "./ci-mailbox.mjs";
+import {
+  runMailboxWorkerUntilBudget,
+  snapshotMailboxRecords,
+} from "./ci-mailbox-budget-test-fixtures.mjs";
 import { completeRevision } from "./ci-mailbox-complete.mjs";
 import { isLiveMatchingMailbox } from "./ci-mailbox-match.mjs";
 import { claimMailbox } from "./ci-observer-owner.mjs";
 import { createManagedFixture } from "./execution-increment-managed-delivery-test-fixtures.mjs";
-import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { revParse } from "./publication-test-fixtures.mjs";
-import { watchCiExecution } from "./watch-ci-execution.mjs";
 
 const exec = promisify(execFile);
 export const sessionId = "completion-recovery-coordinator";
@@ -60,39 +60,13 @@ export async function recoveryFixture(t) {
     );
     assertClaimed(claimMailbox(directory, owner), directory);
     registerPushedRevision(directory, sha);
-    let elapsed = 0;
-    await runMailboxWorker(directory, {
-      ...options,
-      observe: (request) =>
-        watchCiExecution({
-          ...request,
-          root: observeRoot,
-          maxDurationMs: 5_000,
-          now: () => elapsed,
-          pollMs: 10 * 60 * 1000,
-          sleep: async () => undefined,
-          gh: githubApi(() => {
-            elapsed += 1_000;
-            return [];
-          }),
-        }),
+    await runMailboxWorkerUntilBudget({
+      directory,
+      root,
+      storage,
+      observeRoot,
     });
     return directory;
-  }
-
-  function snapshot(directory) {
-    const eventsDir = join(directory, "events");
-    const events = readdirSync(eventsDir)
-      .filter((name) => name.endsWith(".json"))
-      .sort()
-      .map((name) => `${name}:${readFileSync(join(eventsDir, name), "utf8")}`)
-      .join("\n");
-    const result = readFileSync(join(directory, "result.json"), "utf8");
-    return {
-      events,
-      result,
-      digest: createHash("sha256").update(events).update(result).digest("hex"),
-    };
   }
 
   function liveObservers() {
@@ -165,7 +139,7 @@ export async function recoveryFixture(t) {
     sha,
     session,
     endObserverByBudget,
-    snapshot,
+    snapshot: snapshotMailboxRecords,
     liveObservers,
     stopLiveObservers,
     recoverThroughCli,

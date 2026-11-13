@@ -65,6 +65,10 @@ test("budget-expiry notice and completion guidance name the recovery command", (
     recoveryGuidance,
     /same\s+owner input as `resume`[\s\S]+ordinary `CI_OBSERVER` completion receipt/,
   );
+  assert.match(
+    recoveryGuidance,
+    /On Codex, arm a fresh yielded stream[\s\S]+never restart a finished stream/,
+  );
 });
 
 test("Story Branch integration names recovery for branch tip and integrated SHA", () => {

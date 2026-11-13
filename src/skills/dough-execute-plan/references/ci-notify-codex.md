@@ -162,9 +162,14 @@ Older unidentified observers, including a stream armed without
 evidence, or unconfirmed exit mean unresolved shutdown; never force termination
 or claim closure. Keep acknowledgment and repair unchanged. On resume, rearm
 only absent, `stopped`, or `lost` observers after the old process ended; never
-restart terminal `finished` observers. Normal and repair pushes retain the key,
-coordinator, session, directory, process, and cell. Changed HEAD/SHA never requires setup
-again.
+restart terminal `finished` observers. At completion recovery only — when this
+coordinator's stream `finished` (including by budget) before the accepted SHA
+has a receipt — arm a **fresh** stream for the same target and coordinator;
+never restart the finished directory. Pass that new stream to
+`execution-completion-recovery.mjs complete` as `--coordinator` and
+`--observer-directory`. Ordinary resume and mid-story rearm keep the rule
+above. Normal and repair pushes retain the key, coordinator, session,
+directory, process, and cell. Changed HEAD/SHA never requires setup again.
 
 For shared completion `pending`, retain the stream session and yielded cell with
 the resources and recovery under [completion mechanics](ci-completion-wait.md#completion-command-and-receipt-mechanics).

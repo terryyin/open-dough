@@ -232,7 +232,7 @@ of returning the deliver-and-rerun `step: "observation"`. The
 
 ### 6. Codex coordinators recover through a fresh stream
 Type: Behavior
-Status: planned
+Status: done
 Proof: A Codex lifecycle fixture (`ci-codex-lifecycle-test-fixtures.mjs`): a
 stream ends by budget, the operation without a live stream returns the
 arm-a-fresh-stream step, and after arming, the operation with `--coordinator
@@ -323,6 +323,7 @@ command-adapter proof outcomes from slices 3–4. Link the outcome from
 - Slice 4: keep dist(B,L) < dist(M,L) in fixtures or branch-listed M wins on equal distance; fold merge gh into instrumented GitHub fixture.
 - Slice 5: Trunk finish calls recoverExecutionCompletion for Claude/Cursor; Codex ended-stream gap stays for slice 6.
 - CI repair on `2a1c1f0` (run 43462861301/1): supplier trunk-closure visit recovery expects finish to recover without a prior deliver when the worktree exists.
+- Slice 6: Codex complete arms a fresh stream only; Trunk finish uses the same recovery for Codex ended observers.
 
 
 ## Story obligations
