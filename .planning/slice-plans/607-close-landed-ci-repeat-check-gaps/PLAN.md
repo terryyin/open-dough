@@ -383,7 +383,7 @@ fails, as the base case did.
 
 ### 2. A queued repeat reads "CI rerun in progress" on a phone
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/intent/recently-done-ci-automatic-repeat.spec.ts` passes three
 consecutive times at two workers with `setRepeat({ status: "queued" })`. F27
 fails it at "progress saved" (P4). `landed-ci-repeat-accepted-request.spec.ts`
@@ -592,3 +592,27 @@ no changed runtime boundary. The added local assertion exports no operation.
 Root inspected the setup and helper’s browser measurements. Source freshness
 was unchanged at trunk `a0490eb7a66a3a337723d087a088812ac7c95ec0`; incoming
 guidance/preparation commits change no named sibling product behavior.
+
+Slice 1 independent refactor returned `none — already clean`, no edits or
+test reruns. Delivery accepted `1c04004870edef23d1628a70a06e79e83fee2db7`
+on the recorded remote execution branch, suffix base
+`36df77116cbcf8779eaa7ff6700ab647c39d8fdf`; the existing observer was reused.
+
+### Slice 2 accepted proof
+
+The phone’s kept accepted request now receives `queued`. The unchanged
+“progress saved” poll observes collection, the 390 px card reads “CI rerun
+in progress,” and its controlled-clock continuation reads the finished
+106-second repeat and red textual warning. Three consecutive
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm run --silent test:dashboard -- tests/intent/recently-done-ci-automatic-repeat.spec.ts --workers=2 --reporter=list`
+runs passed one case each in 4.7, 7.4, 11.2 s; natural loads
+26.41 → 23.97, 23.97 → 27.97, 27.97 → 42.41.
+P4/F27 discrimination is reused with unchanged product/helper/fixture/locked
+dependencies since `2a607e93b` and identical queued edit. F16 remains owned
+by the unchanged backend accepted-request case (`in_progress`), with its
+“progress read” failure and final replay retained in plan 599 at `854a1ae30`.
+Root inspected the phone progression and backend owner. The ten-file focused
+consumer trace `/tmp/seed324-slice2-effect-trace.md` accounts for the unchanged
+status mapper, separate adapter contract, backend owner and record references;
+the changed test input exports no runtime effect. Source freshness remains
+unchanged at trunk `a0490eb7a66a3a337723d087a088812ac7c95ec0`.

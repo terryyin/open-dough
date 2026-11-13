@@ -16,7 +16,7 @@ identifiers distinguish the latter two sections of its actual return.
 | 1 | When a maintainer changes automatic CI follow-up or support shared by the landed CI repeat checks, maintained checks fail for each regression those checks caught before the high-load story moved them to kept state. | slice 8 |  |
 | 2 | The maintainer finds one owner for each shared support responsibility. | slice 8 |  |
 | 3 | A dashboard check again covers a second dashboard’s spend. | slice 5 |  |
-| 4 | A check again covers a queued repeat being read as progress. | slice 2 |  |
+| 4 | A check again covers a queued repeat being read as progress. | slice 2 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts progress saved/card and finished warning; Slice 2 accepted proof with matching P4/F27 |
 | 5 | A phone check again covers sideways scrolling across the whole comparison. | slice 1 | observed: dashboard/tests/intent/intent-ci-follow-up.spec.ts whole-comparison assertion; Slice 1 accepted proof and matching P3 F26 observation |
 | 6 | A check compares the kept scope support proof with what collection keeps. | slice 6 |  |
 | 7 | Rerun answering has one owner. | slice 4 |  |
@@ -38,8 +38,8 @@ identifiers distinguish the latter two sections of its actual return.
 | E1.4 | Bypassing collection’s answer check also fails the dashboard check. | slice 5 |  |
 | E2.1 | A published-landing line scrolling inside itself fails the settled comparison check on a 390 px phone. | slice 1 | observed: dashboard/tests/intent/intent-ci-follow-up.spec.ts whole-comparison assertion; Slice 1 accepted proof and matching P3 F26 observation |
 | E2.2 | That failure is required even when the three existing part checks pass. | slice 1 | observed: dashboard/tests/intent/intent-ci-follow-up.spec.ts whole-comparison assertion; Slice 1 accepted proof and matching P3 F26 observation |
-| E3.1 | An accepted request’s queued repeat reads “CI rerun in progress” on its phone card. | slice 2 |  |
-| E3.2 | The same journey subsequently reads the finished repeat’s warning. | slice 2 |  |
+| E3.1 | An accepted request’s queued repeat reads “CI rerun in progress” on its phone card. | slice 2 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts progress saved/card and finished warning; Slice 2 accepted proof with matching P4/F27 |
+| E3.2 | The same journey subsequently reads the finished repeat’s warning. | slice 2 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts progress saved/card and finished warning; Slice 2 accepted proof with matching P4/F27 |
 | E4.1 | The support builder’s proof for run 63’s case and file evidence, including a zero-duration file, equals collection’s kept proof for those same facts. | slice 6 |  |
 | E5.1 | Starting the origin preserves the declared ancestry when a later revision names its first revision as a parent. | slice 7 |  |
 | Q1 | This is a bounded retrospective correction of Make landed CI repeat checks pass under moderately high load. | slice 8 |  |
