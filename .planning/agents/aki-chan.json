@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "aki-chan",
-  "email": "aki-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-344#settle-reads-before-passing-page-time",
-  "host": "cursor",
-  "model": "auto"
-}
