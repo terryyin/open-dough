@@ -1,6 +1,7 @@
 # Dashboard checks answer fake GitHub reads without a process per call
 
 **Source:** [selected story](../../seeds/SEED-332-answer-fake-gh-in-process.md#answer-fake-gh-reads-in-process)
+**Source review:** [independent commitments](source-review.md)
 **Identity:** SEED-332#answer-fake-gh-reads-in-process
 
 ## Goal and scope
@@ -107,7 +108,7 @@ their 2026-11-20 expiry, or select a newer comparable successful baseline.
 
 ### 1. A dashboard can answer faithful fake API calls without launching a process
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/backend-tests/runtime/fake-gh-in-process.spec.ts` plus
 the existing two `runtime/fake-gh-client*.spec.ts` files, through
 `npm run test:dashboard -- <three spec paths> --workers=2`.
@@ -214,3 +215,7 @@ Slice-plan refinement was not needed: no unresolved boundary, cumulative design,
 sizing or proof-ownership concern was identified. Final candidate contracts,
 other startup profiles and performance are implementation acceptance work with
 explicit owners above, not claimed complete by the scratch preview experiment.
+
+## Execution context and proof
+
+[Retained execution and acceptance evidence](execution-evidence.md) records the established identity, setup, observer, source comparison and literal proof commands.

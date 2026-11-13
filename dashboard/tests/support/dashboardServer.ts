@@ -115,7 +115,7 @@ export async function startDashboardServer(
       publishes({ revision: defaultBaseCiRevision }),
     );
   }
-  const gh = installFakeGh(tempRoot);
+  const gh = installFakeGh(tempRoot, { transport: options.ghTransport });
   const ghEnv = fakeGhEnv(gh, github.url);
   const claude = installFakeClaude(
     tempRoot,

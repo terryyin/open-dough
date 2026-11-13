@@ -4,7 +4,12 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { installAuthenticatedReadMiddleware } from "../../server/authenticatedRead.ts";
 import type { BoundaryInstall } from "../../server/localBoundary.ts";
-import { endFakeGh, fakeGhEnv, installFakeGh } from "./fakeGh.ts";
+import {
+  endFakeGh,
+  fakeGhEnv,
+  installFakeGh,
+  type FakeGhTransport,
+} from "./fakeGh.ts";
 import { startFakeGitHub } from "./fakeGitHub.ts";
 import { startInProcessBoundaryHttp } from "./inProcessBoundaryHttp.ts";
 import { configureDevelopmentProjects } from "./projectConfiguration.ts";
@@ -13,9 +18,11 @@ import { withRestoredEnv } from "./testEnv.ts";
 export async function startInProcessAuthenticatedRead({
   extraEnv = () => ({}),
   install = installAuthenticatedReadMiddleware,
+  ghTransport,
 }: {
   readonly extraEnv?: (tempRoot: string) => Readonly<Record<string, string>>;
   readonly install?: BoundaryInstall;
+  readonly ghTransport?: FakeGhTransport;
 } = {}) {
   const cleanups: Array<() => void | Promise<void>> = [];
   const close = async () => {
@@ -43,7 +50,7 @@ export async function startInProcessAuthenticatedRead({
     });
     const github = await startFakeGitHub();
     cleanups.push(() => github.close());
-    const gh = installFakeGh(tempRoot);
+    const gh = installFakeGh(tempRoot, { transport: ghTransport });
     cleanups.push(() => endFakeGh(gh));
     const home = path.join(tempRoot, "home");
     configureDevelopmentProjects(home);
