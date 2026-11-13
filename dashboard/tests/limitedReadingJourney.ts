@@ -106,7 +106,9 @@ function boundaryRequestsOf(page: Page): string[] {
   return sent;
 }
 
-// Opens a second tab of the same browser on Doughnut, read whole.
+// Opens Doughnut whole in a second tab, then hides it until the journey
+// explicitly shows it: advancing the shared context clock must not let its
+// periodic check learn the limit before that step.
 async function secondTabOnDoughnut(page: Page): Promise<Page> {
   githubFor(page).serve(
     doughnutRepository,
@@ -119,6 +121,7 @@ async function secondTabOnDoughnut(page: Page): Promise<Page> {
   await other.goto("/?project=doughnut");
   await expectSettledPage(other, doughnutTitles);
   await expect(parts(other).problem).toHaveCount(0);
+  await setPageVisibility(other, "hidden");
   return other;
 }
 
