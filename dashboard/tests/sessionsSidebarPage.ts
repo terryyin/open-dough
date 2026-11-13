@@ -13,6 +13,9 @@ export function sessionsSidebarParts(page: Page) {
     exact: true,
   });
   const banner = page.getByRole("banner");
+  const entries = sidebar.locator(
+    ".sessions-sidebar-sessions li.sessions-sidebar-session-entry",
+  );
   return {
     sidebar,
     button: banner.getByRole("button", { name: "Sessions" }),
@@ -28,9 +31,11 @@ export function sessionsSidebarParts(page: Page) {
     // The one badge holding working and/or attention counts on the toggle.
     countsBadge: banner.locator(".sessions-toggle-counts"),
     // The open session list's entries, apart from optional section rows.
-    entries: sidebar.locator(
-      ".sessions-sidebar-sessions li.sessions-sidebar-session-entry",
-    ),
+    entries,
+    row: (title: string) =>
+      entries.filter({
+        has: page.getByRole("heading", { name: title, exact: true }),
+      }),
     // The open-list control of the entry for the story with this title.
     entry: (title: string) =>
       sidebar
@@ -40,6 +45,9 @@ export function sessionsSidebarParts(page: Page) {
     attentionSentence: sidebar.getByText(/\d+ sessions? needs? attention/),
   };
 }
+
+export const unreadSessionReport = (row: Locator) =>
+  row.getByRole("img", { name: /Unread/ });
 
 // Opens the Sessions sidebar unless it is already open. The button's state
 // waits for the page to render, which a reload's kept open sidebar may not

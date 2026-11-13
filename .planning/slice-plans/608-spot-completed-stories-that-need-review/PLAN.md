@@ -8,6 +8,7 @@
 
 - Mode: story-branch; owned/reused workspace `/Users/terryyin/git/open-dough/.worktrees/spot-completed-stories-that-need-review`, branch `codex/spot-completed-stories-that-need-review`; remote `origin`, trunk `main`.
 - Established start: publisher `dashboard-territory.local-open-dough`, agent `joey-chan`; start `8f70215aca94f40e3a42fbe2ed5e239d6e5f6489`, accepted claim/candidate `7eae86d553974c1b60bfe997df6c826ed73ac4ef` on origin/main. Claim CI: unobserved.
+- Slice 1 publication accepted on origin/codex/spot-completed-stories-that-need-review: `1d95951e0e7457dcd3620eecf6568067b097a3fc`; candidate same, suffix base claim SHA; observer reused and revision attached. This is the next increment's published base.
 - Checkout setup: `npm ci` and `npm run typecheck:dashboard` passed in this checkout with unchanged locked dependencies on 2026-11-13. Hook is check-only staged lint plus script-change dashboard typecheck; formatter is changed-file `npm run format`.
 - CI: GitHub Actions `terryyin/open-dough`, execution branch, verified `ci.yml` (CI, id 351271804); coordinator `seed333-joey`, yielded cell `g278:19`, stream session `37185`, directory `/tmp/dough-ci-501/watch-dI5jKt`, PID `33962`, watching.
 - Replanning: preserve existing planning authority; no numeric slice budget or hard limit supplied.
@@ -95,11 +96,7 @@ maintained Playwright fixture profiles that execution will extend.
 | Cross-project story links and confirmed Ad hoc links are usable without a new identity source (slice 2). | Same command passed both `recently-done-sessions-select.spec.ts` cases and the real completion-publish case in `recently-done-sessions-select-ad-hoc.spec.ts`: linked story selection, independent Open, standalone miss, and retained Ad hoc identity. Trace: shown row → selection → catalog/association reader → page-selected story. | Move observation ahead of selection; new cue proof must reach an unselected row through these real boundaries. Do not mock the completed association in its sole integration proof. |
 | The named proof route works in this worktree (both slices). | The runner's `--list` with the same three file paths exited 0. The first actual run failed before product setup because the worktree lacked local `node_modules`; `npm ci` installed it. The same actual command then exited 0, reaching all six existing journeys. | No waived test failure and no product/test scratch edits. |
 
-Baseline command:
-
-```sh
-caffeinate -s -i npm run test:dashboard -- --workers=1 dashboard/tests/stories/recently-done-review-state.spec.ts dashboard/tests/sessions/recently-done-sessions-select.spec.ts dashboard/tests/sessions/recently-done-sessions-select-ad-hoc.spec.ts
-```
+Baseline command: `caffeinate -s -i npm run test:dashboard -- --workers=1 dashboard/tests/stories/recently-done-review-state.spec.ts dashboard/tests/sessions/recently-done-sessions-select.spec.ts dashboard/tests/sessions/recently-done-sessions-select-ad-hoc.spec.ts`.
 
 Proof ownership below describes new tests, not proof already supplied by this
 baseline. Execution must observe their pre-change failure and changed pass;
@@ -113,7 +110,7 @@ disabling the cue or propagation must fail the corresponding assertion.
 | Example 2: every linked row, including confirmed Ad hoc, updates without selection | 2 | New `dashboard/tests/sessions/recently-done-sessions-review-cue.spec.ts`: one story with multiple retained sessions, a real confirmed Ad hoc association, visible Needs review before a click, card Mark clears all, Unreview restores all. |
 | Example 3: other projects and standalone/reviewed rows | 2 | Same cue journey includes another configured project's row while Board stays put; equal story identities across projects retain independent review states. Reviewed and standalone rows have no cue. Newly revealed rows use the same rule. |
 | Example 4: pending, failed, and obsolete evidence; recovery | 2 | New `dashboard/tests/sessions/recently-done-sessions-review-cue-evidence.spec.ts`: hold/fail catalog, association, and review-state answers at external boundaries; no initial warning, Select/Open remain usable, successful retry/read supplies it, late old answers cannot restore a cleared cue or transfer it to another project/row. Use observable response gates and controlled polling clock. |
-| Example 5: unread, selection and failure are independent | 2 | Cue journey keeps unread mark and selection signal alongside Needs review; Select/read-report do not mark reviewed. A refused save preserves card/row cues with existing error feedback. |
+| Example 5: unread, selection and failure are independent | 2 | Cue journey keeps selection alongside Needs review; a separate open row retains unread meaning (G1). Select/read-report do not mark reviewed. A refused save preserves card/row cues with existing error feedback. |
 | UI: non-color access, narrow/touch, long titles, keyboard controls | 1 and 2 | Card proof owns action text/focus/contrast. Sidebar cue proof observes visible words and accessible description at the row, readable contrast in both appearances, and a narrow touch case with a long title and usable Select/Open. |
 
 Known consumers traced before planning: Board cards consume the shared reviewed
@@ -158,7 +155,10 @@ useful stopping point; sidebar delivery remains unfinished until slice 2.
 
 ### 2. Show the linked story's review need in every shown done-session row
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed333-slice2-final-focused-proof.json caffeinate -s -i npm run test:dashboard -- --workers=1 dashboard/tests/sessions/recently-done-sessions dashboard/tests/sessions/sessions-sidebar-row.spec.ts dashboard/tests/sessions/sessions-sidebar-state-edge.spec.ts dashboard/tests/sessions/sessions-sidebar-keyboard.spec.ts dashboard/tests/sessions/sessions-sidebar-touch.spec.ts dashboard/tests/stories/recently-done-review` passed 56/56, strict status passed (268.724s), plus `npm run typecheck:dashboard`, `git diff --check`, and `python3 /tmp/seed333-slice2-check-doc-move.py`. Inspected all new setups/assertions, shared project store/grouped observer, real association publication, original touch navigation assertions, exact notification move and links. All 19 candidate hashes matched; consumer dispositions `/tmp/seed333-slice2-final-consumer-trace.md`, commitment mapping `/tmp/seed333-slice2-obligation-proof-map.md`. Source freshness unchanged at trunk `a9ddb54a786d7d64d2bf63500f93cec1c9c5952d`; no named sibling hold.
+Negative proof: initial cross-project cue test failed before implementation. Isolated `/tmp/seed333-propagation-vmrbkp_n` disabled only shared review provider; equal-identity case failed after Unreview because the linked row lacked Needs review, with preconditions passed (`/tmp/seed333-slice2-propagation-fault-proof.json`). Test repairs preserved unread meaning, used valid reporting UUIDs, showed the Board column before actions, and settled initial background reads before the existing touch click gate. G1/G2 record the actual semantic limitation and fixed ownership defect. Host: AC, natural load 35/35/37, 42% free; one guarded worker. Race assertions moved intact to their cohesive owner; notification prose moved verbatim to its existing observation owner to satisfy size limits.
+Refactor: independent `refactor2` returned `## REFACTOR COMPLETE`; production unchanged, existing focused page owners now hold repeated cue/report/save-error locators and explicit Tab-target assertions close G3. `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed333-slice2-refactor-focused-proof.json caffeinate -s -i npm run test:dashboard -- --workers=1 dashboard/tests/sessions/recently-done-sessions-review-cue.spec.ts dashboard/tests/sessions/recently-done-sessions-review-cue-ad-hoc.spec.ts dashboard/tests/stories/recently-done-review-state-failed-save.spec.ts` passed 6/6 first attempts/strict status (43.002s), plus typecheck/whitespace; other 50 accepted observations unchanged. Seven refactor hashes retained `/tmp/seed333-refactor2-final-candidate.json`; all 116 refactor consumer dispositions `/tmp/seed333-refactor2-consumer-trace.md`; no gaps. Host AC, natural load 8/16/26, 43% free, one guarded worker. Guarded formatting then found three mechanical lint findings before commit: used the same subscription body as a stable arrow callback (the suggested `this: void` conflicted with another lint rule), aliased the same scroll element, and constructed identical 0..23 indices without an unused argument. Accepted observations remain equivalent; fresh preparation retried after whitespace and unchanged freshness checks.
 Proof: New sidebar cue/evidence specs, card-state regressions, and the affected
 Recently done sessions and shared sidebar-row cohorts described below.
 
@@ -218,25 +218,32 @@ temporary North Star topic into maintained behavior at wrap-up.
 
 ## Plan review
 
-Slice-plan refinement was not needed: card prominence is an independent useful
-increment; sidebar observation, shared review state, and row presentation form
-one remaining externally observable result and proof loop. Cross-project and
-Ad hoc examples exercise the same project/identity review rule rather than
-adding separate handlers. Both slices include their proof and cleanup. No numeric
-slice target or hard limit is supplied; neither slice contains a release or
-other trunk-only operation. No remaining slice-specific concern was identified
-after the successful baseline. Readiness is recorded by the shared recorder.
+Slice-plan refinement was not needed: card prominence is an independent useful increment; sidebar observation, shared review state, and row presentation form one remaining observable result and proof loop. Cross-project and Ad hoc examples share the project/identity rule. Both slices include proof and cleanup. No numeric target/hard limit or trunk-only operation applies; the successful baseline left no slice-specific concern. Readiness is recorded by the shared recorder.
 
 ## Current decisions
 
-- Preserve the established scope and completed-story association rules.
-- A warning needs confirmed link plus successfully read unreviewed state.
-- Share the project's state across page consumers; do not persist session flags.
-- Background evidence reads have no selection or native-session effects.
-- Review cue text must coexist with unread, failure, selection, and focus meaning.
+Preserve scope and association rules. A warning needs confirmed link plus successfully read unreviewed state. Share project state across page consumers without session flags; background reads have no selection/native effects. Keep review words distinct from unread, failure, selection and focus meaning.
 
 ## Learnings
 
-The fresh preparation worktree needed its own `npm ci`: ancestor-resolved tooling
-could list tests but the real fixture's bundle allocation needed local
-`node_modules`. Setup is now complete; all six baseline journeys passed.
+The fresh preparation worktree needed its own `npm ci`: ancestor-resolved tooling could list tests but real fixture bundle allocation needed local `node_modules`; setup and all six baseline journeys passed.
+
+## Story obligations
+
+### G1. Conditional unread-report coexistence is unreachable on a Done row
+Reported: slice 2 — "Unread-coexist assertion found a conflicting premise: sessionShown returns Done with no unreadReport whenever doneAt is defined; Mark as done acknowledges the report."
+Story clause: "Keep the review cue distinguishable from an unread session report, a failure, and the selected row."
+Disposition: no user cost "can spot completed stories that still need review without selecting each entry": completionReport.ts reportUnread requires doneAt absent and sessionShown.ts gives Done precedence; maintained AGENT-LAUNCH-COMPLETION.md says Done acknowledges the report. Thus unread plus review cue has no reachable Done-row trigger while existing disposition/unread meaning is preserved. The selected alternative in example 5 and a real open unread report staying independent of review are observed in dashboard/tests/sessions/recently-done-sessions-review-cue-ad-hoc.spec.ts; final focused proof passed 56/56.
+Commitment: 7.1
+### G2. Preserve known review state through Board/sidebar project handoff
+Reported: slice 2 — "Subscribing only once completedStory existed dropped the project subscriber during the Board project-switch catalog gap, reset known review state, and left the card unknown under a held GET."
+Story clause: "The Board and sidebar need one coherent page view of each project's existing machine-local review state, keyed by project and story identity."
+Disposition: proved by slice 2: dashboard/tests/sessions/recently-done-sessions-review-cue-races.spec.ts pending local review/pre-save GET case; shown rows retain the project subscription across Board handoff, POST clears cue, released older empty GET cannot restore it; final focused proof passed 56/56.
+Commitment: 8.8
+
+
+### G3. Observe actual Tab targets before focus contrast (independent refactor)
+Reported: slice 2 — "the new Ad hoc test presses Tab and then calls expectFocusReadable(), whose existing implementation focuses the target itself, so its current assertions can pass with the wrong Tab order."
+Story clause: "Light and dark appearance preserve readable text, visible keyboard focus, and usable Select and Open controls."
+Disposition: proved by slice 2: dashboard/tests/sessions/recently-done-sessions-review-cue-ad-hoc.spec.ts explicit Select/Open toBeFocused assertions now precede self-focusing contrast helper for light/dark; /tmp/seed333-slice2-refactor-focused-proof.json passed 6/6 first attempts including those observations; production unchanged and other 50 accepted focused cases remain valid.
+Commitment: 3.13

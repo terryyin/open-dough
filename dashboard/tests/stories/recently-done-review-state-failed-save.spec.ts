@@ -17,6 +17,7 @@ import {
   openRecentlyDone,
   publishDoneStories,
   reviewStatesFile,
+  reviewSaveFailure,
   storyA,
   unreview,
 } from "../recentlyDoneReviewState.ts";
@@ -24,8 +25,7 @@ import { expect, test } from "../support/preparationPage.ts";
 
 const notSaved = "The review state could not be saved.";
 
-const saidOf = (card: Locator) =>
-  card.getByRole("status").filter({ hasText: notSaved });
+const saidOf = (card: Locator) => reviewSaveFailure(card, notSaved);
 
 test("a change that could not be saved keeps the state last saved and says so until the action is used again and saved", async ({
   page,

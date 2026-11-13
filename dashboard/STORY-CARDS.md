@@ -25,8 +25,8 @@ story**, or a click on an empty area of the card, makes the story the page's
 selected story, which Intent reads, and highlights its card with an inset accent
 ring and a pale fill; toggling it again clears the selection. Opening the
 story's terminal, final report, or review in the Side panel selects it too;
-closing the Side panel, or showing a session attached to no story, clears the
-selection, and selecting a card leaves the Side panel as it is. The page has one
+closing the Side panel preserves the selection. Showing a session attached to
+no story clears it, and selecting a card leaves the Side panel as it is. The page has one
 selected story across its projects, so a project that does not hold it shows
 none. The highlight is the card's only selection mark. Selecting never opens or
 closes detail, and stays available while the story starts. The
@@ -59,5 +59,8 @@ again at the shared revision check interval, so every page of that server
 shows a change at its next read; the page making a change shows it at once.
 Its request is a same-origin GET or POST to
 `/__project-configuration/story-review-states?id=<project>`, the POST naming
-the story identity and the state, never a path. Backlog and Taken cards,
-session entries, the Sessions sidebar and Intent show no review state.
+the story identity and the state, never a path. Recently done sessions share
+that page/project state: a confirmed link to an unreviewed completed story
+shows red **Needs review** words before selection. A successful card change
+updates every linked row on the page. Backlog and Taken cards, other session
+entries and Intent show no review state.

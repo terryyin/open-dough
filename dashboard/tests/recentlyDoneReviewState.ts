@@ -98,6 +98,9 @@ export const markAsReviewed = (card: Locator) =>
 export const unreview = (card: Locator) =>
   storyActions(card).getByRole("button", { name: "Unreview", exact: true });
 
+export const reviewSaveFailure = (card: Locator, message: string) =>
+  card.getByRole("status").filter({ hasText: message });
+
 // A warning remains an action in words, with a filled red surface that is
 // readable and distinguishable as a control in the caller's appearance.
 export async function expectReviewWarning(
