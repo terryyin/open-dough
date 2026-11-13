@@ -36,6 +36,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Settle detail reads by default before passing page time to a check](seeds/SEED-344-settle-reads-before-passing-page-time.md#settle-reads-before-passing-page-time) — SEED-344#settle-reads-before-passing-page-time
 - [Recover CI completion after the observer expires](seeds/SEED-343-recover-ci-completion-observation.md#recover-ci-completion-observation) — SEED-343#recover-ci-completion-observation
 - [Record source-review evidence once per independently observable promise](seeds/SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises) — SEED-010#review-independently-observable-promises
 - [Simplify the remaining session tests](seeds/SEED-341-simplify-session-tests.md#simplify-remaining-session-tests) — SEED-341#simplify-remaining-session-tests
