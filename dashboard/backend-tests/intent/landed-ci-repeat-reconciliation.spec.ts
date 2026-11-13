@@ -1,5 +1,8 @@
 // Retained intent and incomparable later attempts remain honest after restart.
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  expect,
+  queuedClaudeBoundaryTest as test,
+} from "../../tests/support/landedCiHistoryTest.ts";
 import type { ProjectHistory } from "../../server/landedCiHistoryStore.ts";
 import {
   followUpCards,
@@ -21,6 +24,7 @@ test("interruption while the provider reply is lost retains intent and reconcile
     release = resolve;
   });
   scenario.holdSubmission(() => reply);
+  await scenario.collectPriors(first);
   await scenario.ingest(first);
   await expect.poll(() => scenario.repeatCalls.length).toBe(1);
   expect(
@@ -49,6 +53,7 @@ for (const unavailable of ["repeat proof", "multiple attempts"] as const) {
   }) => {
     const scenario = await prepareRepeatScenario(origin, github);
     const server = await startServer();
+    await scenario.collectPriors(server);
     await scenario.ingest(server);
     await expect.poll(() => scenario.repeatCalls.length).toBe(1);
     if (unavailable === "repeat proof") scenario.repeatProofAvailable(false);
@@ -79,6 +84,7 @@ test("new current reference and history eviction cannot rewrite the frozen decis
     await import("../../tests/support/landedCiHistory.ts");
   const scenario = await prepareRepeatScenario(origin, github, 120);
   const server = await startServer();
+  await scenario.collectPriors(server);
   await scenario.ingest(server);
   await expect.poll(() => scenario.repeatCalls.length).toBe(1);
   scenario.setRepeat({ status: "in_progress" });

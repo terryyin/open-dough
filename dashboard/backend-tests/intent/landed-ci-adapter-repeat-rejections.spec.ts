@@ -1,5 +1,8 @@
 // Admission failures retain one spent request without later attribution.
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  expect,
+  queuedClaudeBoundaryTest as test,
+} from "../../tests/support/landedCiHistoryTest.ts";
 import { prepareAdapterRepeatScenario } from "../../tests/support/ciFollowUpAdapterScenario.ts";
 import { followUpCards } from "../../tests/support/ciFollowUpScenario.ts";
 import {
@@ -73,17 +76,19 @@ for (const [condition, answer, explanation] of submissions) {
       startServer,
       condition === "timeout" ? 1000 : undefined,
     );
+    let observedCards: Awaited<ReturnType<typeof followUpCards>> | undefined;
     await expect
-      .poll(() => followUpCards(server))
+      .poll(async () => {
+        observedCards = await followUpCards(server);
+        return observedCards;
+      })
       .toMatchObject([
         {
           kind: "unverified",
           explanation: expect.stringContaining(explanation),
         },
       ]);
-    expect((await followUpCards(server))[0]?.explanation).toContain(
-      "will not be resent",
-    );
+    expect(observedCards?.[0]?.explanation).toContain("will not be resent");
     expect(requestOf(server)?.submission.kind).toBe(
       condition.startsWith("already") || condition === "refused"
         ? "refused"

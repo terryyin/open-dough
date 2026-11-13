@@ -1,7 +1,5 @@
 // Real landed receipts and collection with a project-owned custom CI command.
 import path from "node:path";
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   adapterProject,
@@ -17,6 +15,7 @@ import type { FakeGitHub } from "./fakeGitHub.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { expect } from "./pageTest.ts";
 import type { Answers } from "../intentCiAdapterFixture.ts";
+import { collectFollowUps } from "./ciFollowUpCollectionCommands.ts";
 
 type AdapterAttempt = ReturnType<
   ReturnType<typeof makeMe.aCiAdapterAttempt.with>["please"]
@@ -183,44 +182,13 @@ export async function prepareAdapterRepeatScenario(
     },
     // A completed call to the actual collection function observes the entire
     // no-trigger pass, including the point where a provider would submit.
-    async collectFollowUps(
+    collectFollowUps(
       server: DashboardServer,
       history?: ProjectHistory,
       environment = "production",
       signal?: AbortSignal,
     ) {
-      const module = (name: string) =>
-        new URL(`../../server/${name}.ts`, import.meta.url).href;
-      const collected = promisify(execFile)(
-        process.execPath,
-        [
-          "--experimental-transform-types",
-          "--input-type=module",
-          "-e",
-          `
-        import {initializeProjectConfiguration,publishedProjects,projectConfigurationFile} from ${JSON.stringify(module("projectConfiguration"))};
-        import {keptLandedCiHistory} from ${JSON.stringify(module("landedCiHistoryStore"))};
-        import {collectCiFollowUps} from ${JSON.stringify(module("ciFollowUpCollection"))};
-        import {readFileSync} from 'node:fs';
-        initializeProjectConfiguration(${JSON.stringify(environment)});
-        const projects = ${JSON.stringify(environment)} === 'production' ? publishedProjects() : JSON.parse(readFileSync(projectConfigurationFile('production'),'utf8'));
-        const source = projects.find(s => s.id === 'open-dough');
-        const controller = new AbortController();
-        ${signal === undefined ? "" : 'process.stdin.once("data", () => controller.abort());'}
-        await collectCiFollowUps(source, ${history === undefined ? "await keptLandedCiHistory(source.id)" : JSON.stringify(history)}, controller.signal);
-        process.stdin.destroy();
-      `,
-        ],
-        { env: { ...process.env, HOME: server.home, NODE_NO_WARNINGS: "1" } },
-      );
-      const interrupt = () => collected.child.stdin?.end("interrupt");
-      signal?.addEventListener("abort", interrupt, { once: true });
-      if (signal?.aborted) interrupt();
-      try {
-        await collected;
-      } finally {
-        signal?.removeEventListener("abort", interrupt);
-      }
+      return collectFollowUps(origin, server, history, environment, signal);
     },
   };
 }

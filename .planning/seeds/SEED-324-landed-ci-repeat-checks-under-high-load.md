@@ -42,6 +42,13 @@ answering, provider layering, the automatic-repeat spec and start-origin
 preparation each get one owner. A later start-origin revision may name the
 first revision as its parent. No product behavior changes, and no new product
 promise. Every check still passes at load 30–50 within the default timeouts.
+**Approved scope extension (Terry, 2026-11-13).** The correction may also
+optimize repeated immutable completion/claim-history reads in the existing
+product history-read path. Functional behavior, mutable-ref observation,
+error/abort handling and every existing test gate remain unchanged. This
+permits the bounded product-code change needed by the retained load failure;
+it does not authorize a transport redesign or a relaxed acceptance bound.
+
 Plan:
 [607-close-landed-ci-repeat-check-gaps](../slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md).
 

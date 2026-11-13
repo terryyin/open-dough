@@ -16,6 +16,7 @@
 import {
   spawn,
   spawnSync,
+  type ChildProcess,
   type ChildProcessByStdio,
   type SpawnOptions,
 } from "node:child_process";
@@ -149,7 +150,7 @@ export async function endRunningProcesses(
 }
 
 // Each running leader's withdrawal of its group's kill at exit.
-const groupAtExit = new WeakMap<GroupLeader, () => void>();
+const groupAtExit = new WeakMap<ChildProcess, () => void>();
 
 // stdout and stderr are piped for the caller to read or drain.
 export function spawnGroupLeader(
@@ -197,7 +198,7 @@ function groupRunning(group: number): boolean {
 // once no process of the group is still running. A leader that exits on
 // SIGTERM without ending its children used to leave endGroup waiting forever
 // on those orphans — Playwright then timed out fixture teardown.
-export async function endGroup(leader: GroupLeader): Promise<void> {
+export async function endGroup(leader: ChildProcess): Promise<void> {
   const group = leader.pid;
   if (group === undefined) {
     return;

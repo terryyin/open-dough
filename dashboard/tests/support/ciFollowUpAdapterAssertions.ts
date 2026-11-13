@@ -34,8 +34,12 @@ export async function retained(
   unattributed = false,
 ) {
   const check = async (server: DashboardServer) => {
+    let observedCards: Awaited<ReturnType<typeof followUpCards>> | undefined;
     await expect
-      .poll(() => followUpCards(server))
+      .poll(async () => {
+        observedCards = await followUpCards(server);
+        return observedCards;
+      })
       .toMatchObject([
         {
           kind: "unverified",
@@ -43,7 +47,7 @@ export async function retained(
         },
       ]);
     if (unattributed) {
-      expect((await followUpCards(server))[0]?.repeatMs).toBeUndefined();
+      expect(observedCards?.[0]?.repeatMs).toBeUndefined();
       expect(requestOf(server)?.outcome.observed).toBeUndefined();
       expect(requestOf(server)?.outcome.repeat).toBeUndefined();
     }

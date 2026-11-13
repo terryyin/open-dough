@@ -1,5 +1,8 @@
 // Custom CI uses the same real receipt, allowance and saved-reference flow.
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  expect,
+  queuedClaudeBoundaryTest as test,
+} from "../../tests/support/landedCiHistoryTest.ts";
 import { prepareAdapterRepeatScenario } from "../../tests/support/ciFollowUpAdapterScenario.ts";
 import {
   followUpCards,
