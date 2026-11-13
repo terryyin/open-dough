@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "yusuke-chan",
-  "email": "yusuke-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-321#match-touch-review-titles-to-viewport-coverage",
-  "host": "claude",
-  "model": "opus"
-}
