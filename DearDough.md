@@ -772,6 +772,8 @@ A changed browser journey failed in some local runs at the 30 s test timeout whi
   - Observed effect: one owned CI failure, a stash and restore of slice 2's uncommitted work, and one repair commit.
   - Inference: the failure's line was inside code the slice added, unlike the unchanged journeys that timed out in fixtures or polls; that difference was visible in the first failing log and was not used to separate it. The base-content comparison the coordinator ran for two other specs was not run for this one.
 
+The dashboard test-helper defect and its repair are recorded in [ProjectFindings.md](ProjectFindings.md#dd-496).
+
 ## DD-497 — A plan premise that two entry points share a component stood in for observing the second entry point's keyboard outcome
 
 The plan settled "the page rule is one condition for Start session and Follow up alike" by noting that Follow up renders the same component, and promised the keyboard return for both. The second entry point sits inside a list with its own focus rescue.
@@ -801,21 +803,6 @@ To compare a changed test selection with its base under host load, the coordinat
   - Evidence: coordinator conversation, interleaved base/after loop piping `npm run test:dashboard` through `grep -E "✓|✘|passed|failed|^real"`; "after 2" printed `auto (31.4s)`, `a rate (22.8s)`, `1 failed`, `1 passed (1.9m)`, `real 116.78` at load 55. Eleven further runs with full logs and two under added load all passed; the plan's Execution state records the failure as explained, not observed.
   - Observed effect: about 20 minutes of repeat and added-load runs produced no reproduction, and the slice was accepted with a supported but unobserved explanation (a 30 s default timeout during a load spike). Later delegations were told to keep one full log per run.
   - Inference: a filtered measurement loop is a proof run like any other; the failure policy's diagnosis needs the output the filter discarded. Generality is unmeasured.
-
-## DD-499 — An unrelated neighbor's load-induced timeout took a repair whose gain is below noise
-
-A neighbor run at one worker on a saturated host timed out a case that does not use the changed fixture. The failure policy made its repair the executor's; the measured diagnosis put most of the cost in product behavior the executor may not change.
-
-### Occurrences
-
-- Execution: SEED-315#speed-up-provider-rate-limit-checks (plan 598; first implementation `9b471af203402da781472742b50c0bce1929689b`)
-  - Timestamp: unknown (2026-11-12; neighbor run in slice 1, repair delegated after slice 2)
-  - Tool: Claude Code
-  - Model: claude-fable-5-2
-  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
-  - Evidence: slice 1 return, `intent-ci-comparison-pending-proof.spec.ts:31` "later proof recovers…" at 30.4 s, load about 70; repair return with phase timings (walk and `gh` starts about 10 s of 15.5 s at load 45) and `449a0b919889ea357dca764eb73075b7485fdf31`; `.planning/TEST-OPTIMIZATION-CANDIDATES.md` entry `later-comparison-walk-gh-starts`.
-  - Observed effect: one implementation delegation of about 13 minutes and one refactor pass delivered a 1–2 s saving that end-to-end runs cannot show (the same case ran 4.4–17.7 s across loads 20–43). The remaining margin needs a product or suite-wide decision and is kept as a live candidate.
-  - Inference: the diagnosis was necessary to learn where the time goes; whether a test-only repair should follow when the diagnosis names product cost is a judgment the policy leaves to the executor. One occurrence.
 
 ## DD-500 — A story promised an absolute case time at a load profile whose premises were measured only on a quiet host
 
