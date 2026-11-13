@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "pyo-chan",
+  "email": "pyo-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-334#run-and-observe-product-wide-end-to-end-tests",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
