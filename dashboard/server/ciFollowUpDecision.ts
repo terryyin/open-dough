@@ -26,10 +26,9 @@ export function repeatDecisionOf(history: ProjectHistory, receipt: string) {
     return undefined;
   const ms = wallTimeReadingOf(original).ms;
   const reference = wallTimeReferenceOf(history, landing.revision);
-  const average = reference?.averageMs;
+  const average = reference.averageMs;
   if (
     ms === undefined ||
-    reference === undefined ||
     average === undefined ||
     average <= 0 ||
     !reachesFollowUpThreshold(ms, average, followUpRule)

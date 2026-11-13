@@ -294,3 +294,7 @@ on the first attempt.
   averageMs,difference}}`; they no longer read `reference.evidence`,
   `medianMs`, `from`/`to`, run metadata or landing revisions. Frontend
   fixtures still send `evidence: []` for the current schema.
+- CI repair after slice 4 (run 43387096022, `lint`): the `wallTimeReferenceOf`
+  overloads made guards in the untouched `ciFollowUpDecision.ts` unnecessary;
+  selective lint skipped that consumer. Run the full check-only `npm run lint`
+  locally when a changed type narrows for untouched callers.
