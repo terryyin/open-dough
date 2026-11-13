@@ -2,7 +2,7 @@
 // history that is unreadable, missing, empty, unrelated or from another
 // workspace. The synthetic Codex app server records the protocol. Input
 // refusal and resumed conversations on the page:
-// ../../tests/launches/agent-launch-codex-reconciliation.spec.ts.
+// ../../../e2e/launches/agent-launch-codex-reconciliation.spec.ts.
 import {
   startDashboardServer,
   sharedDashboardBuild,

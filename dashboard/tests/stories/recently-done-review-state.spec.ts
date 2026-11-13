@@ -10,7 +10,7 @@
 // It neither reads nor changes the story review's snapshot marks, and writes
 // nothing to the project's repository. Cards whose record is not read, and
 // touch input: ./recently-done-review-state-offer.spec.ts. Saves that fail:
-// ./recently-done-review-state-failed-save.spec.ts. Request refusals:
+// ../../../e2e/stories/recently-done-review-state-failed-save.spec.ts. Request refusals:
 // ../../backend-tests/review/story-review-state-admission.spec.ts.
 
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";

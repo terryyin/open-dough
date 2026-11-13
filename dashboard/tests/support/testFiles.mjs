@@ -8,10 +8,17 @@ import {
   shareLabels,
 } from "../../../scripts/share-deal.mjs";
 
-// The roots `npm run test:dashboard` discovers. A runner owning one group
-// names its own roots (../../frontend.playwright.config.ts,
-// ../../backend.playwright.config.ts).
-export const dashboardRoots = ["tests", "frontend-tests", "backend-tests"];
+// The roots `npm run test:dashboard` discovers, relative to `dashboard/`:
+// until each group has its own CI runner, the umbrella also discovers the
+// repository's sibling `e2e/` root, labelled `../e2e/<path>`. A runner owning
+// one group names its own roots (../../frontend.playwright.config.ts,
+// ../../backend.playwright.config.ts, ../../../e2e/playwright.config.ts).
+export const dashboardRoots = [
+  "tests",
+  "frontend-tests",
+  "backend-tests",
+  "../e2e",
+];
 
 // The specs under `roots` of the common dashboard `directory`, as paths
 // relative to it: the labels `longest-first` and the
@@ -64,10 +71,11 @@ function filePatterns(testDir, files) {
 // file's shard; native projects queue the long, serial production chains first
 // in the same phase. No dependency makes ordinary checks wait for those chains.
 // Complementary matches retain exactly one execution of every selected file.
-export function dashboardTestProjects(testDir, split) {
-  const files = selectedFiles(testDir, split);
+// `selection` names a runner's own `roots` and `splitVariable`.
+export function dashboardTestProjects(testDir, split, selection) {
+  const files = selectedFiles(testDir, split, selection);
   const isProductionChain = (file) =>
-    file.startsWith("tests/") &&
+    /^(?:tests|\.\.\/e2e)\//.test(file) &&
     /^production-watcher(?:-.*)?\.spec\.ts$/.test(basename(file));
   return [
     {

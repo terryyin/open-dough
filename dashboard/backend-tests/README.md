@@ -12,8 +12,8 @@ are substituted, and each spec names its substitutes: GitHub through the
 synthetic `gh` and `FakeGitHub`, agent hosts through the synthetic `claude`,
 `codex` and `cursor`, and the notification sender through the synthetic
 `terminal-notifier`. A case that needs a browser to observe a product rule
-stays an integrated journey in `../tests/`, and a presentation case belongs
-in `../frontend-tests/`.
+belongs to a representative workflow in [`../../e2e/`](../../e2e/README.md),
+and a presentation case in `../frontend-tests/`.
 
 The test runtime's own contracts are proved here too, in `runtime/`: the
 runners' reporter, selection, settings, output and cleanup, which run
@@ -40,7 +40,7 @@ as with the umbrella, for example
 behaves the same from any working directory.
 
 Until CI switches to the separate groups, `npm run test:dashboard` still
-selects these files exactly once beside the other two roots, with shared
+selects these files exactly once beside the other roots, with shared
 setup and thirteen CI shards; their seconds stay in `../longest-first`.
 
 ## Placement

@@ -3,7 +3,7 @@
 // mismatched workspace or conversation keep blank recovery uncertain, and
 // only the known refusal establishes persistence. Lost acknowledgments across
 // a restart, on the page:
-// ../../tests/launches/agent-launch-ad-hoc-codex-recovery.spec.ts.
+// ../../../e2e/launches/agent-launch-ad-hoc-codex-recovery.spec.ts.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";

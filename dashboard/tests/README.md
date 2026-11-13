@@ -1,11 +1,11 @@
 # Dashboard tests
 
 Run `npm run test:dashboard` from the repository root. One Playwright run and
-shard selection covers integrated browser journeys, **Dashboard Frontend Test**
-(`../frontend-tests/`) and **Dashboard Backend Test** (`../backend-tests/`).
-`npm run test:dashboard:frontend` and `npm run test:dashboard:backend` run each
-focused group alone under its own configuration ([frontend](../frontend-tests/README.md),
-[backend](../backend-tests/README.md)).
+shard selection covers **E2E Test** (`../../e2e/`), the browser specs here,
+**Dashboard Frontend Test** (`../frontend-tests/`) and **Dashboard Backend Test**
+(`../backend-tests/`). `npm run test:e2e`, `npm run test:dashboard:frontend` and
+`npm run test:dashboard:backend` run each group alone under its own configuration
+([E2E](../../e2e/README.md), [frontend](../frontend-tests/README.md), [backend](../backend-tests/README.md)).
 See [journey writing](writing-journeys.md) for waits, clocks, commands and fake
 GitHub answers; [native-host fixtures](native-host-fixtures.md) for synthetic
 hosts; the per-run [proof record](proof-record.md), the caller-owned
@@ -23,9 +23,10 @@ their performance measurements.
 
 A **browser journey** proves one representative, integrated user journey in
 the real page: an observable precondition, the user's trigger, and the state
-change it causes. Journeys live in the ten [feature folders](feature-groups.md) and run under
+change it causes. Journeys live in [`../../e2e/`](../../e2e/README.md)'s [feature folders](feature-groups.md) and run under
 `dashboardTest.ts` or a fixture module built on it, each against its own
-built-preview server, which the `page` fixture opens.
+built-preview server, which the `page` fixture opens. Specs left in this tree's
+feature folders are detailed UI or mixed checks awaiting that conversion.
 
 A **frontend-only test** proves DOM geometry, presentation or interaction, or
 UI recovery, formatting, polling, or refusal feedback against controlled
@@ -57,8 +58,7 @@ servers mount the same boundaries and use those entries.
 
 `../backend-tests/` holds every spec that opens no page, whatever it drives,
 and the test runtime's own contracts; a frontend-only page spec belongs in
-`../frontend-tests/`; an integrated page journey belongs here. All three roots are one suite, run and sharded together
-(below).
+`../frontend-tests/`; an integrated page journey belongs in `../../e2e/`. All four roots are one suite, run and sharded together (below).
 
 ## Where a check goes
 
@@ -182,10 +182,10 @@ asserts the answer, the file or command. Only
 `../backend-tests/runtime/serving-modes.spec.ts` needs a build. A spec starting
 no server still takes `test` from `pageTest.ts`, as lint requires.
 
-A **browser journey** goes in `<feature>/<journey>.spec.ts`, with exactly one
-[feature owner](feature-groups.md). It imports `test` from `../dashboardTest.ts`
-or its family fixture (`../responsiveStart.ts`, `../support/preparationPage.ts`,
-`../support/voiceTest.ts`, `../support/codexLaunch.ts`), takes `page`, `dashboard`
+A **browser journey** goes in `../../e2e/<feature>/<journey>.spec.ts`, with exactly one
+[feature owner](feature-groups.md). It imports `test` from this tree's `dashboardTest.ts`
+or its family fixture (`responsiveStart.ts`, `support/preparationPage.ts`,
+`support/voiceTest.ts`, `support/codexLaunch.ts`), takes `page`, `dashboard`
 and `github` (and `launchJourney` for the Taken backlog), opens with
 `openUntilRead(page)`, acts as the user, and asserts the state change; a
 sibling of an existing journey joins that file and asserts its delta. A
@@ -198,7 +198,7 @@ once per worker, so such a call applies only to the first spec file that
 loads it there.
 
 Discovery and sharding follow the file: `support/testFiles.mjs` finds every
-`*.spec.ts` under `dashboard/tests/` and `dashboard/backend-tests/` recursively and CI's split ([dashboard
+`*.spec.ts` under `e2e/` and the three `dashboard/` roots recursively and CI's split ([dashboard
 shards](shards.md)) deals whole files by the seconds `../longest-first` records
 for them, so a new file needs no registration; unrecorded there, it is dealt
 after the recorded files at their median duration until that list is next
@@ -209,7 +209,7 @@ and their assignment to exactly one shard.
 
 ## Running the suite
 
-Run from the repository root; `npm run test:dashboard -- tests/intent/`,
+Run from the repository root; `npm run test:e2e -- intent/`,
 `npm run test:dashboard -- backend-tests/` or
 `-- --grep 'published Board'` selects files or tests
 (`npm run test:dashboard:frontend` or `:backend` selects within its group alone), and `npx playwright

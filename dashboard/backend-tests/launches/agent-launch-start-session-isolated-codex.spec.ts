@@ -5,7 +5,7 @@
 // worktree as its working directory and the same established block, its
 // reporting context and the developer's text. Slug variations and collisions
 // belong to ./launch-workspace.spec.ts; the dialog's journeys to
-// ../../tests/launches/agent-launch-start-session-isolated.spec.ts.
+// ../../../e2e/launches/agent-launch-start-session-isolated.spec.ts.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";

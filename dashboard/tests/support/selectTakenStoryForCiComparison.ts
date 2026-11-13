@@ -1,5 +1,5 @@
 // Select a Taken Story A and open Intent's CI timing comparison panel for
-// the Taken provisional journeys in ../intent/intent-ci-comparison-taken.spec.ts.
+// the Taken provisional journeys in ../../../e2e/intent/intent-ci-comparison-taken.spec.ts.
 
 import { expect } from "./preparationPage.ts";
 import { parts } from "../dashboardPage.ts";

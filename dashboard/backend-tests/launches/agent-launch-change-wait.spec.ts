@@ -8,7 +8,7 @@
 // change bound (`DOUGH_CHANGE_WAIT_MS`, production default 30 seconds) instead
 // of waking at once. What the page says from those answers is
 // ../../tests/launches/agent-launch-start-story-card.spec.ts and
-// ../../tests/launches/agent-launch-second-server.spec.ts.
+// ../../../e2e/launches/agent-launch-second-server.spec.ts.
 
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";

@@ -8,8 +8,8 @@ import { expectFileComparisonRow } from "../intentFileProofPage.ts";
 // story's CI comparison (../../src/intentStoryTabs.tsx), Changed tests keeping
 // the file and Proof for the way back. Added, renamed-across-units and
 // unchanged files keep Proof. Landed unchanged source is covered in
-// ./intent-summary-story-comparison-source.spec.ts; story-free Purpose and
-// judged-run Proof are in ./intent-file-purpose-proof.spec.ts.
+// ../../../e2e/intent/intent-summary-story-comparison-source.spec.ts; story-free Purpose and
+// judged-run Proof are in ../../../e2e/intent/intent-file-purpose-proof.spec.ts.
 
 import { expect, test } from "../support/preparationPage.ts";
 import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";

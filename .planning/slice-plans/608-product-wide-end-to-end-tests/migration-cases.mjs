@@ -24,8 +24,9 @@ const json = (file, empty) =>
   file ? JSON.parse(readFileSync(file, "utf8")) : empty;
 
 // Every declared case of a native list, by enclosing spec, declaring source,
-// describe › title path and project.
-export function cases(listFile) {
+// describe › title path and project. `prefix` makes a runner's own labels
+// relative to `dashboard/` (E2E Test lists paths relative to `e2e/`).
+export function cases(listFile, prefix = "") {
   const list = JSON.parse(readFileSync(listFile, "utf8"));
   if (list.errors.length > 0) throw new Error(`${listFile} has list errors`);
   const found = [];
@@ -33,8 +34,8 @@ export function cases(listFile) {
     for (const declared of suite.specs ?? [])
       for (const test of declared.tests)
         found.push({
-          spec,
-          source: declared.file,
+          spec: `${prefix}${spec}`,
+          source: `${prefix}${declared.file}`,
           line: declared.line,
           title: [...titles, declared.title].join(" › "),
           project: test.projectName,
@@ -43,7 +44,10 @@ export function cases(listFile) {
       walk(child, spec, [...titles, child.title]);
   };
   for (const file of list.suites) walk(file, file.file, []);
-  return { specs: list.suites.map((suite) => suite.file), cases: found };
+  return {
+    specs: list.suites.map((suite) => `${prefix}${suite.file}`),
+    cases: found,
+  };
 }
 
 export function count(items, key) {
@@ -72,8 +76,9 @@ export function shards() {
 // --case-moves: [{ spec, source?, title, to, toSource?, slice }] for a case
 // that left its spec while the spec stayed (its new spec, and its new source
 // when that is not the new spec).
-// --classes: integrated spec → purpose note, for a spec read and left for a
-// later slice.
+// --classes: integrated spec → its proof-purpose class and note, for a spec
+// read and left in `tests/` for a later conversion (slice 3 classified every
+// one; ./migration-purpose.json holds each spec's full reading).
 export const moves = json(options.moves, {});
 const caseMoves = json(options["case-moves"], []);
 const classes = json(options.classes, {});
@@ -84,7 +89,7 @@ export function destination(file) {
   const move = moves[file];
   if (move !== undefined) return { destination: move.to, slice: move.slice };
   if (classes[file] !== undefined)
-    return { destination: `pending: slice 3 — ${classes[file]}` };
+    return { destination: `pending: ${classes[file]}` };
   if (file.startsWith("tests/")) return { destination: "pending: slice 2/3 inventory" };
   return { destination: file, slice: "unchanged" };
 }

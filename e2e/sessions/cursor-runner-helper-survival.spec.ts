@@ -1,0 +1,102 @@
+import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+// A same-build runner whose helper proof alone drifted keeps its held
+// sessions running when another Cursor session starts. Stale-build
+// observation and replacement recovery live in
+// ./cursor-runner-replacement.spec.ts.
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { storyA, storyB } from "../../tests/support/queued-repository.mjs";
+import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/runnerPaths.ts";
+import { cursorRunnerSpawnHelper } from "../../dashboard/server/hosts/cursor/runnerSpawnHelper.ts";
+import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
+import { openRunningList } from "../../dashboard/tests/runningCursorSessionsPage.ts";
+import { makeRecordedHelperProofMissing } from "../../dashboard/tests/support/cursorRunnerRecordedAddress.ts";
+import { keptRecords } from "../../dashboard/tests/support/cursorSessionRecovery.ts";
+import { openHeldCursorExecutions } from "../../dashboard/tests/support/heldCursorExecutions.ts";
+import {
+  expect,
+  workingCursorTest,
+} from "../../dashboard/tests/support/cursorStart.ts";
+import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
+import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
+import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
+
+const helperGoneSecondId = "a1b2c3d4-e5f6-4789-abcd-ef0123456789";
+const helperGoneThirdId = "b2c3d4e5-f6a7-489a-bcde-f01234567890";
+
+workingCursorTest(
+  "a same-build runner whose helper proof drifted keeps held sessions running when another Cursor session starts",
+  async ({ page, dashboard, origin, cursor }) => {
+    workingCursorTest.skip(
+      cursorRunnerSpawnHelper() === undefined,
+      "this install's node-pty ships no separate terminal helper",
+    );
+    await openHeldCursorExecutions(page, dashboard, origin, cursor, [
+      { story: storyA, sessionId: cursor.sessionId, model: "gpt-5.2" },
+      { story: storyB, sessionId: helperGoneSecondId },
+    ]);
+    const heldPids = cursor.attaches().map((each) => each.pid);
+    expect(heldPids).toHaveLength(2);
+    const runnerBefore = readCursorRunnerAddress(dashboard.home);
+    expect(runnerBefore?.pid).toBeGreaterThan(0);
+    expect(runnerBefore?.spawnHelper).toBeTruthy();
+    expect(existsSync(runnerBefore?.spawnHelper ?? "")).toBe(true);
+
+    makeRecordedHelperProofMissing(
+      dashboard.home,
+      path.join(dashboard.home, "missing-spawn-helper"),
+    );
+
+    const running = await openRunningList(page);
+    await expect(running.region).toContainText("The Cursor runner is running.");
+    await expect(
+      running.region.getByRole("button", { name: /Open Dough/ }),
+    ).toHaveCount(2);
+    expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(
+      runnerBefore?.pid,
+    );
+    for (const pid of heldPids) expect(processRunning(pid)).toBe(true);
+
+    cursor.queueCreateChatId(helperGoneThirdId);
+    await page
+      .getByRole("button", { name: "Start session in Open Dough" })
+      .click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
+    await startSessionField(dialog).fill(
+      "start another session after helper proof drifted",
+    );
+    await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    await expect
+      .poll(() => keptRecords(dashboard.home).length, {
+        timeout: launchWaitMs,
+      })
+      .toBe(3);
+    await expect
+      .poll(
+        () =>
+          cursor
+            .attaches()
+            .filter((each) => each.sessionId === helperGoneThirdId).length,
+        { timeout: launchWaitMs },
+      )
+      .toBe(1);
+
+    const panel = terminalPanel(page);
+    if ((await panel.count()) > 0) {
+      await closeSidePanel(panel);
+      await expect(panel).toHaveCount(0);
+    }
+    expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(
+      runnerBefore?.pid,
+    );
+    for (const pid of heldPids) expect(processRunning(pid)).toBe(true);
+    expect(cursor.attaches()).toHaveLength(3);
+    // Sidebar stayed open from the earlier Running Cursor sessions read;
+    // wait for the new session to join the two held rows there.
+    await expect(
+      running.region.getByRole("button", { name: /Open Dough/ }),
+    ).toHaveCount(3);
+    for (const pid of heldPids) expect(processRunning(pid)).toBe(true);
+  },
+);

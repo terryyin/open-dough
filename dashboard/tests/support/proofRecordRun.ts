@@ -56,7 +56,7 @@ export function startProofCommand(
         !name.startsWith("TEST_") &&
         !name.startsWith("PW_") &&
         // Every runner's share, record and times (./runnerConfig.mjs).
-        !/^OPEN_DOUGH_DASHBOARD(?:_FRONTEND|_BACKEND)?_(?:SPLIT|PROOF_RECORD|TIMES)$/.test(
+        !/^OPEN_DOUGH_(?:DASHBOARD(?:_FRONTEND|_BACKEND)?|E2E)_(?:SPLIT|PROOF_RECORD|TIMES)$/.test(
           name,
         ) &&
         name !== "FORCE_COLOR" &&

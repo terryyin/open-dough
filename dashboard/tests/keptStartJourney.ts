@@ -5,7 +5,7 @@
 // first launch. The card then says "Launch failed:" and that the story is
 // Taken by the Agent its claim names, no session started, with the workspace;
 // once origin shows the story Taken and the page is reloaded, Story A's Taken
-// card offers Start execution (./launches/agent-launch-start-taken.spec.ts).
+// card offers Start execution (../../e2e/launches/agent-launch-start-taken.spec.ts).
 
 import { existsSync } from "node:fs";
 import path from "node:path";

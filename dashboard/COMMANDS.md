@@ -10,6 +10,7 @@ Run these from the repository root after the [native setup](../tests/native-setu
 | `npm run test:dashboard`      | Build the production app, serve it, and run the Playwright suite against it in Chromium.   |
 | `npm run test:dashboard:frontend` | Run only **Dashboard Frontend Test** (`dashboard/frontend-tests/`) under its own setup, settings and output; no dashboard server or synthetic host starts. |
 | `npm run test:dashboard:backend` | Run only **Dashboard Backend Test** (`dashboard/backend-tests/`) under its own setup, settings and output; no comparison mount is built. |
+| `npm run test:e2e` | Run only **E2E Test** (`e2e/`), the representative product workflows, under its own setup, settings and output ([e2e/README.md](../e2e/README.md)). |
 | `npm run build:dashboard`     | Write production assets to `dashboard/dist/`.                                              |
 | `npm run preview:dashboard`   | Serve the production assets that `build:dashboard` wrote.                                  |
 | `npm run setup-notifier:dashboard` | Prepare Open Dough's own macOS notification sender; `-- --test` posts a test notification. |

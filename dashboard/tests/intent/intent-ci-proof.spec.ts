@@ -21,7 +21,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 // the collector's own, served as a real zip from the run's artifact download
 // through the controlled `gh` (../support/ciProofArtifacts.ts). Each other
 // reason no proof can be shown, a running result's ancestor proof and the
-// per-attempt memory: ./intent-ci-proof-reasons.spec.ts. Query-shape refusals
+// per-attempt memory: ../../../e2e/intent/intent-ci-proof-reasons.spec.ts. Query-shape refusals
 // of `parseIntentCiProofRead`:
 // ../../../tests/support/dashboard-ci-proof-parse.test.mjs.
 

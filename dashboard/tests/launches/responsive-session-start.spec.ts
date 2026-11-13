@@ -3,7 +3,7 @@
 // the real installed starts against a real bare origin
 // (../support/startOrigin.ts) whose `pre-receive` hook holds the published
 // assignment, with the synthetic `claude` holding the native launch
-// (Codex: ./responsive-session-start-codex.spec.ts). Pressing Start commits
+// (Codex: ../../../e2e/launches/responsive-session-start-codex.spec.ts). Pressing Start commits
 // the request at once: Cancel and Start are unavailable, Escape does nothing,
 // and the submitted choices cannot change. The dialog closes once the local
 // service accepted the launch, while its work is still held; from submission
@@ -14,7 +14,7 @@
 // card. A lost acknowledgment is uncertain, never accepted success. Before
 // Start, Cancel and Escape send nothing. Once settled, the story's actions
 // return where the published read places it
-// (./responsive-session-reconciliation.spec.ts tells how). Only the delivery
+// (../../../e2e/launches/responsive-session-reconciliation.spec.ts tells how). Only the delivery
 // of the acceptance answer to the page is held here; the service's admission,
 // publication, and outcome are the real ones.
 

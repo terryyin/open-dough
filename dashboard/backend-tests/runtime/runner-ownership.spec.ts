@@ -1,6 +1,7 @@
-// Each focused dashboard runner owns its selection, settings and output:
-// Dashboard Frontend Test (../../frontend.playwright.config.ts) and Dashboard
-// Backend Test (../../backend.playwright.config.ts), started through npm or
+// Each runner owning one group owns its selection, settings and output:
+// Dashboard Frontend Test (../../frontend.playwright.config.ts), Dashboard
+// Backend Test (../../backend.playwright.config.ts) and E2E Test
+// (../../../e2e/playwright.config.ts), started through npm or
 // as a direct config from another working directory, record only their own
 // selection through their own proof variable into their own run directory,
 // whichever umbrella share or other runner's record the caller's environment
@@ -22,29 +23,39 @@ import {
 
 test.afterAll(removeProofDirectories);
 
-// Each focused runner, with one quick case of its own as its arguments.
+// Each runner owning one group, with one quick case of its own as its
+// arguments; `config` and `root` are relative to the repository.
 const runners = [
   {
     name: "Dashboard Frontend Test",
     script: "test:dashboard:frontend",
-    config: "frontend.playwright.config.ts",
+    config: "dashboard/frontend.playwright.config.ts",
     prefix: "OPEN_DOUGH_DASHBOARD_FRONTEND",
-    root: "frontend-tests",
+    root: "dashboard/frontend-tests",
     spec: "control-reachability-observation.spec.ts",
     grep: "a control revealed by earlier scrolling is still checked",
   },
   {
     name: "Dashboard Backend Test",
     script: "test:dashboard:backend",
-    config: "backend.playwright.config.ts",
+    config: "dashboard/backend.playwright.config.ts",
     prefix: "OPEN_DOUGH_DASHBOARD_BACKEND",
-    root: "backend-tests",
+    root: "dashboard/backend-tests",
     spec: "launches/agent-launch-options-rules.spec.ts",
     grep: "the shipped definition is valid",
   },
+  {
+    name: "E2E Test",
+    script: "test:e2e",
+    config: "e2e/playwright.config.ts",
+    prefix: "OPEN_DOUGH_E2E",
+    root: "e2e",
+    spec: "runtime/browser-identity.spec.ts",
+    grep: "tab, bookmark and touch icons",
+  },
 ] as const;
 type Runner = (typeof runners)[number];
-const [frontend, backend] = runners;
+const [frontend, backend, e2e] = runners;
 
 const selection = (runner: Pick<Runner, "spec" | "grep">) => [
   runner.spec,
@@ -53,7 +64,7 @@ const selection = (runner: Pick<Runner, "spec" | "grep">) => [
   "--workers=1",
 ];
 const cli = path.join(repoRoot, "node_modules/playwright/cli.js");
-const configOf = (config: string) => path.join(repoRoot, "dashboard", config);
+const configOf = (config: string) => path.join(repoRoot, config);
 
 for (const runner of runners)
   for (const entry of [
@@ -64,7 +75,7 @@ for (const runner of runners)
       const directory = proofDirectory();
       const recordPath = path.join(directory, "own-proof.json");
       const configFile = configOf(runner.config);
-      const target = path.join(repoRoot, "dashboard", runner.root, runner.spec);
+      const target = path.join(repoRoot, runner.root, runner.spec);
       const direct = entry !== "normal npm";
       const args = direct
         ? [cli, "test", "--config", configFile, ...selection(runner)]
@@ -112,22 +123,23 @@ for (const runner of runners)
         location: { file: target },
         attempts: [{ status: "passed" }],
       });
-      expect(record.run.outputDirs).toEqual([
+      // E2E Test's two projects share its run's one directory.
+      expect([...new Set(record.run.outputDirs)]).toEqual([
         expect.stringContaining(
-          path.join(repoRoot, "dashboard", runner.root, "test-results/"),
+          path.join(repoRoot, runner.root, "test-results/"),
         ),
       ]);
       expect(record.run.outputDirs.every((dir) => !existsSync(dir))).toBe(true);
     });
 
-test("focused runs started beside each other and the umbrella keep their own run directories and records", async () => {
+test("group runs started beside each other and the umbrella keep their own run directories and records", async () => {
   const directory = proofDirectory();
   const umbrella = {
     ...frontend,
-    config: "playwright.config.ts",
+    config: "dashboard/playwright.config.ts",
     prefix: "OPEN_DOUGH_DASHBOARD",
   };
-  const runs = [frontend, frontend, backend, backend, umbrella].map(
+  const runs = [frontend, frontend, backend, backend, e2e, e2e, umbrella].map(
     ({ config, prefix, ...runner }, index) => {
       const record = path.join(directory, `${String(index)}.json`);
       const args = [
@@ -167,9 +179,11 @@ test("focused runs started beside each other and the umbrella keep their own run
     "frontend-tests/test-results",
     "backend-tests/test-results",
     "backend-tests/test-results",
+    "../e2e/test-results",
+    "../e2e/test-results",
     "test-results",
   ]);
-  expect(new Set(outputs).size).toBe(5);
+  expect(new Set(outputs).size).toBe(7);
   expect(outputs.every((output) => !existsSync(output))).toBe(true);
 });
 

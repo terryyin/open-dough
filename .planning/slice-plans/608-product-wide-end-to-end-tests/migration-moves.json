@@ -150,5 +150,1241 @@
  "tests/launches/feedbackMaintenanceLaunchEligibilityCases.ts": {
   "to": "backend-tests/launches/feedbackMaintenanceLaunchEligibilityCases.ts",
   "slice": 2
+ },
+ "tests/configuration/project-configuration.spec.ts": {
+  "to": "../e2e/configuration/project-configuration.spec.ts",
+  "slice": 3
+ },
+ "tests/configuration/project-hide-sessions.spec.ts": {
+  "to": "../e2e/configuration/project-hide-sessions.spec.ts",
+  "slice": 3
+ },
+ "tests/configuration/project-remove.spec.ts": {
+  "to": "../e2e/configuration/project-remove.spec.ts",
+  "slice": 3
+ },
+ "tests/configuration/system-settings-client-configuration.spec.ts": {
+  "to": "../e2e/configuration/system-settings-client-configuration.spec.ts",
+  "slice": 3
+ },
+ "tests/configuration/system-settings-feedback-maintenance-unchanged.spec.ts": {
+  "to": "../e2e/configuration/system-settings-feedback-maintenance-unchanged.spec.ts",
+  "slice": 3
+ },
+ "tests/configuration/system-settings-feedback-maintenance.spec.ts": {
+  "to": "../e2e/configuration/system-settings-feedback-maintenance.spec.ts",
+  "slice": 3
+ },
+ "tests/configuration/system-settings-openai-unusable-credential.spec.ts": {
+  "to": "../e2e/configuration/system-settings-openai-unusable-credential.spec.ts",
+  "slice": 3
+ },
+ "tests/configuration/system-settings-openai.spec.ts": {
+  "to": "../e2e/configuration/system-settings-openai.spec.ts",
+  "slice": 3
+ },
+ "tests/configuration/system-settings-terminal-theme-recovery.spec.ts": {
+  "to": "../e2e/configuration/system-settings-terminal-theme-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/runtime/browser-identity.spec.ts": {
+  "to": "../e2e/runtime/browser-identity.spec.ts",
+  "slice": 3
+ },
+ "tests/runtime/production-watcher-failures.spec.ts": {
+  "to": "../e2e/runtime/production-watcher-failures.spec.ts",
+  "slice": 3
+ },
+ "tests/runtime/production-watcher-updates.spec.ts": {
+  "to": "../e2e/runtime/production-watcher-updates.spec.ts",
+  "slice": 3
+ },
+ "tests/runtime/production-watcher.spec.ts": {
+  "to": "../e2e/runtime/production-watcher.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/sessions-sidebar.spec.ts": {
+  "to": "../e2e/sessions/sessions-sidebar.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-candidates-read-recovery.spec.ts": {
+  "to": "../e2e/intent/intent-candidates-read-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-comparison-adapter-planning-skip.spec.ts": {
+  "to": "../e2e/intent/intent-ci-comparison-adapter-planning-skip.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-comparison-adapter-taken.spec.ts": {
+  "to": "../e2e/intent/intent-ci-comparison-adapter-taken.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-comparison-adapter.spec.ts": {
+  "to": "../e2e/intent/intent-ci-comparison-adapter.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-comparison-cancelled-landing.spec.ts": {
+  "to": "../e2e/intent/intent-ci-comparison-cancelled-landing.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-comparison-missing-run.spec.ts": {
+  "to": "../e2e/intent/intent-ci-comparison-missing-run.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-comparison-pending-proof.spec.ts": {
+  "to": "../e2e/intent/intent-ci-comparison-pending-proof.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-comparison-retry.spec.ts": {
+  "to": "../e2e/intent/intent-ci-comparison-retry.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-comparison-skipped-landed.spec.ts": {
+  "to": "../e2e/intent/intent-ci-comparison-skipped-landed.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-comparison-taken.spec.ts": {
+  "to": "../e2e/intent/intent-ci-comparison-taken.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-comparison-trunk-finality.spec.ts": {
+  "to": "../e2e/intent/intent-ci-comparison-trunk-finality.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-comparison.spec.ts": {
+  "to": "../e2e/intent/intent-ci-comparison.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-done-endpoint-readiness.spec.ts": {
+  "to": "../e2e/intent/intent-ci-done-endpoint-readiness.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-done-prior-build.spec.ts": {
+  "to": "../e2e/intent/intent-ci-done-prior-build.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-done-prior-provenance.spec.ts": {
+  "to": "../e2e/intent/intent-ci-done-prior-provenance.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-done-prior-states.spec.ts": {
+  "to": "../e2e/intent/intent-ci-done-prior-states.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-follow-up-custom.spec.ts": {
+  "to": "../e2e/intent/intent-ci-follow-up-custom.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-follow-up-proof.spec.ts": {
+  "to": "../e2e/intent/intent-ci-follow-up-proof.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-follow-up-return.spec.ts": {
+  "to": "../e2e/intent/intent-ci-follow-up-return.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-follow-up.spec.ts": {
+  "to": "../e2e/intent/intent-ci-follow-up.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-prior-build-average.spec.ts": {
+  "to": "../e2e/intent/intent-ci-prior-build-average.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-prior-build-states.spec.ts": {
+  "to": "../e2e/intent/intent-ci-prior-build-states.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-proof-adapter-reasons.spec.ts": {
+  "to": "../e2e/intent/intent-ci-proof-adapter-reasons.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-proof-adapter.spec.ts": {
+  "to": "../e2e/intent/intent-ci-proof-adapter.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-proof-ancestor.spec.ts": {
+  "to": "../e2e/intent/intent-ci-proof-ancestor.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-proof-legacy-results.spec.ts": {
+  "to": "../e2e/intent/intent-ci-proof-legacy-results.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-proof-reasons.spec.ts": {
+  "to": "../e2e/intent/intent-ci-proof-reasons.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-proof-sources.spec.ts": {
+  "to": "../e2e/intent/intent-ci-proof-sources.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-proof-units.spec.ts": {
+  "to": "../e2e/intent/intent-ci-proof-units.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-status-reads.spec.ts": {
+  "to": "../e2e/intent/intent-ci-status-reads.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-status-story-gaps.spec.ts": {
+  "to": "../e2e/intent/intent-ci-status-story-gaps.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-status-story.spec.ts": {
+  "to": "../e2e/intent/intent-ci-status-story.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-status-wall-time.spec.ts": {
+  "to": "../e2e/intent/intent-ci-status-wall-time.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-status.spec.ts": {
+  "to": "../e2e/intent/intent-ci-status.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-wall-time-history-adapter.spec.ts": {
+  "to": "../e2e/intent/intent-ci-wall-time-history-adapter.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-wall-time-history-later.spec.ts": {
+  "to": "../e2e/intent/intent-ci-wall-time-history-later.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-wall-time-history-pending.spec.ts": {
+  "to": "../e2e/intent/intent-ci-wall-time-history-pending.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-ci-wall-time-history-provenance.spec.ts": {
+  "to": "../e2e/intent/intent-ci-wall-time-history-provenance.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-code-browse-projects.spec.ts": {
+  "to": "../e2e/intent/intent-code-browse-projects.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-code-browse-sources.spec.ts": {
+  "to": "../e2e/intent/intent-code-browse-sources.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-code-browse.spec.ts": {
+  "to": "../e2e/intent/intent-code-browse.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-done-completion-provenance.spec.ts": {
+  "to": "../e2e/intent/intent-done-completion-provenance.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-done-default-answer-selection.spec.ts": {
+  "to": "../e2e/intent/intent-done-default-answer-selection.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-done-prior-execution.spec.ts": {
+  "to": "../e2e/intent/intent-done-prior-execution.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-done-project-refresh.spec.ts": {
+  "to": "../e2e/intent/intent-done-project-refresh.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-done-retained-landing.spec.ts": {
+  "to": "../e2e/intent/intent-done-retained-landing.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-done-retained-workspace.spec.ts": {
+  "to": "../e2e/intent/intent-done-retained-workspace.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-file-purpose-proof.spec.ts": {
+  "to": "../e2e/intent/intent-file-purpose-proof.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-gherkin-browse.spec.ts": {
+  "to": "../e2e/intent/intent-gherkin-browse.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-gherkin-unusable.spec.ts": {
+  "to": "../e2e/intent/intent-gherkin-unusable.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-project-scope-timing-history.spec.ts": {
+  "to": "../e2e/intent/intent-project-scope-timing-history.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-project-scope-timing-refresh.spec.ts": {
+  "to": "../e2e/intent/intent-project-scope-timing-refresh.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-project-visit-ci.spec.ts": {
+  "to": "../e2e/intent/intent-project-visit-ci.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-read-boundary-recovery.spec.ts": {
+  "to": "../e2e/intent/intent-read-boundary-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-scope-collected-file-timing-gaps.spec.ts": {
+  "to": "../e2e/intent/intent-scope-collected-file-timing-gaps.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-scope-collected-file-timing-history.spec.ts": {
+  "to": "../e2e/intent/intent-scope-collected-file-timing-history.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-scope-collected-timing-history.spec.ts": {
+  "to": "../e2e/intent/intent-scope-collected-timing-history.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-scope-prior-build-average.spec.ts": {
+  "to": "../e2e/intent/intent-scope-prior-build-average.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-scope-prior-build-states.spec.ts": {
+  "to": "../e2e/intent/intent-scope-prior-build-states.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-story-becomes-done.spec.ts": {
+  "to": "../e2e/intent/intent-story-becomes-done.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-story-changes-landed-run.spec.ts": {
+  "to": "../e2e/intent/intent-story-changes-landed-run.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-story-changes-marked.spec.ts": {
+  "to": "../e2e/intent/intent-story-changes-marked.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-story-changes-moves.spec.ts": {
+  "to": "../e2e/intent/intent-story-changes-moves.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-story-changes.spec.ts": {
+  "to": "../e2e/intent/intent-story-changes.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-story-completed-source.spec.ts": {
+  "to": "../e2e/intent/intent-story-completed-source.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-story-completed.spec.ts": {
+  "to": "../e2e/intent/intent-story-completed.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-summary-ci-proof.spec.ts": {
+  "to": "../e2e/intent/intent-summary-ci-proof.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-summary-story-comparison-renamed.spec.ts": {
+  "to": "../e2e/intent/intent-summary-story-comparison-renamed.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/intent-summary-story-comparison-source.spec.ts": {
+  "to": "../e2e/intent/intent-summary-story-comparison-source.spec.ts",
+  "slice": 3
+ },
+ "tests/intent/recently-done-ci-automatic-repeat.spec.ts": {
+  "to": "../e2e/intent/recently-done-ci-automatic-repeat.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-ad-hoc-attachments-codex.spec.ts": {
+  "to": "../e2e/launches/agent-launch-ad-hoc-attachments-codex.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-ad-hoc-attachments-continuation.spec.ts": {
+  "to": "../e2e/launches/agent-launch-ad-hoc-attachments-continuation.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-ad-hoc-attachments-cursor.spec.ts": {
+  "to": "../e2e/launches/agent-launch-ad-hoc-attachments-cursor.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-ad-hoc-attachments.spec.ts": {
+  "to": "../e2e/launches/agent-launch-ad-hoc-attachments.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-ad-hoc-codex-recovery.spec.ts": {
+  "to": "../e2e/launches/agent-launch-ad-hoc-codex-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-ad-hoc-codex.spec.ts": {
+  "to": "../e2e/launches/agent-launch-ad-hoc-codex.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-ad-hoc-cursor-split-screen.spec.ts": {
+  "to": "../e2e/launches/agent-launch-ad-hoc-cursor-split-screen.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-ad-hoc-cursor.spec.ts": {
+  "to": "../e2e/launches/agent-launch-ad-hoc-cursor.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-ad-hoc-problems.spec.ts": {
+  "to": "../e2e/launches/agent-launch-ad-hoc-problems.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-ad-hoc-resolved.spec.ts": {
+  "to": "../e2e/launches/agent-launch-ad-hoc-resolved.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-base-ci-adapter.spec.ts": {
+  "to": "../e2e/launches/agent-launch-base-ci-adapter.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-base-ci-completed-history.spec.ts": {
+  "to": "../e2e/launches/agent-launch-base-ci-completed-history.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-base-ci-recheck.spec.ts": {
+  "to": "../e2e/launches/agent-launch-base-ci-recheck.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-base-ci-unread.spec.ts": {
+  "to": "../e2e/launches/agent-launch-base-ci-unread.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-base-ci.spec.ts": {
+  "to": "../e2e/launches/agent-launch-base-ci.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-claude-own-record-verification.spec.ts": {
+  "to": "../e2e/launches/agent-launch-claude-own-record-verification.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-claude-verification.spec.ts": {
+  "to": "../e2e/launches/agent-launch-claude-verification.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-codex-creation.spec.ts": {
+  "to": "../e2e/launches/agent-launch-codex-creation.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-codex-recheck.spec.ts": {
+  "to": "../e2e/launches/agent-launch-codex-recheck.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-codex-reconciliation.spec.ts": {
+  "to": "../e2e/launches/agent-launch-codex-reconciliation.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-codex-recovery.spec.ts": {
+  "to": "../e2e/launches/agent-launch-codex-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-codex.spec.ts": {
+  "to": "../e2e/launches/agent-launch-codex.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-continuation.spec.ts": {
+  "to": "../e2e/launches/agent-launch-continuation.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-creation-gates.spec.ts": {
+  "to": "../e2e/launches/agent-launch-creation-gates.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-cursor-model-verification.spec.ts": {
+  "to": "../e2e/launches/agent-launch-cursor-model-verification.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-default-checkout-warning.spec.ts": {
+  "to": "../e2e/launches/agent-launch-default-checkout-warning.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-follow-up-session.spec.ts": {
+  "to": "../e2e/launches/agent-launch-follow-up-session.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-host-switch-fresh.spec.ts": {
+  "to": "../e2e/launches/agent-launch-host-switch-fresh.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-preparation-codex-recovery.spec.ts": {
+  "to": "../e2e/launches/agent-launch-preparation-codex-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-preparation-codex-retry.spec.ts": {
+  "to": "../e2e/launches/agent-launch-preparation-codex-retry.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-preparation-codex.spec.ts": {
+  "to": "../e2e/launches/agent-launch-preparation-codex.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-preparation-cursor.spec.ts": {
+  "to": "../e2e/launches/agent-launch-preparation-cursor.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-preparation-kept.spec.ts": {
+  "to": "../e2e/launches/agent-launch-preparation-kept.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-preparation-phases.spec.ts": {
+  "to": "../e2e/launches/agent-launch-preparation-phases.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-publication-receipt-failure.spec.ts": {
+  "to": "../e2e/launches/agent-launch-publication-receipt-failure.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-second-server-orphan.spec.ts": {
+  "to": "../e2e/launches/agent-launch-second-server-orphan.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-second-server.spec.ts": {
+  "to": "../e2e/launches/agent-launch-second-server.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-session-choices.spec.ts": {
+  "to": "../e2e/launches/agent-launch-session-choices.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-codex.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-codex.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-cursor.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-cursor.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-dependencies.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-dependencies.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-phases.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-phases.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-session-existing-changes-attachments.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-session-existing-changes-attachments.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-session-existing-changes.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-session-existing-changes.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-session-failed.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-session-failed.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-session-isolated-boundary.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-session-isolated-boundary.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-session-isolated.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-session-isolated.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-session-landing-context.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-session-landing-context.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-session-landing.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-session-landing.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-session-recovery.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-session-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-session-touch.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-session-touch.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-start-taken.spec.ts": {
+  "to": "../e2e/launches/agent-launch-start-taken.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-story-card-open-session.spec.ts": {
+  "to": "../e2e/launches/agent-launch-story-card-open-session.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/agent-launch-unconfirmed-input.spec.ts": {
+  "to": "../e2e/launches/agent-launch-unconfirmed-input.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/cursor-startup-trust.spec.ts": {
+  "to": "../e2e/launches/cursor-startup-trust.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/feedback-maintenance-due-row.spec.ts": {
+  "to": "../e2e/launches/feedback-maintenance-due-row.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/feedback-maintenance-launch.spec.ts": {
+  "to": "../e2e/launches/feedback-maintenance-launch.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/responsive-session-reconciliation-completed.spec.ts": {
+  "to": "../e2e/launches/responsive-session-reconciliation-completed.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/responsive-session-reconciliation-kept.spec.ts": {
+  "to": "../e2e/launches/responsive-session-reconciliation-kept.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/responsive-session-reconciliation-refusals.spec.ts": {
+  "to": "../e2e/launches/responsive-session-reconciliation-refusals.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/responsive-session-reconciliation.spec.ts": {
+  "to": "../e2e/launches/responsive-session-reconciliation.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/responsive-session-recovery-ad-hoc.spec.ts": {
+  "to": "../e2e/launches/responsive-session-recovery-ad-hoc.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/responsive-session-recovery-restart.spec.ts": {
+  "to": "../e2e/launches/responsive-session-recovery-restart.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/responsive-session-recovery-verification.spec.ts": {
+  "to": "../e2e/launches/responsive-session-recovery-verification.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/responsive-session-recovery.spec.ts": {
+  "to": "../e2e/launches/responsive-session-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/responsive-session-refinement-restart.spec.ts": {
+  "to": "../e2e/launches/responsive-session-refinement-restart.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/responsive-session-start-codex.spec.ts": {
+  "to": "../e2e/launches/responsive-session-start-codex.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/session-instruction-voice-key-failures.spec.ts": {
+  "to": "../e2e/launches/session-instruction-voice-key-failures.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/session-instruction-voice-provider-failures.spec.ts": {
+  "to": "../e2e/launches/session-instruction-voice-provider-failures.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/session-instruction-voice.spec.ts": {
+  "to": "../e2e/launches/session-instruction-voice.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/start-eligibility.spec.ts": {
+  "to": "../e2e/launches/start-eligibility.spec.ts",
+  "slice": 3
+ },
+ "tests/navigation/side-panel-content-replacement.spec.ts": {
+  "to": "../e2e/navigation/side-panel-content-replacement.spec.ts",
+  "slice": 3
+ },
+ "tests/navigation/side-panel-content-switching.spec.ts": {
+  "to": "../e2e/navigation/side-panel-content-switching.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/authenticated-project-observation.spec.ts": {
+  "to": "../e2e/observation/authenticated-project-observation.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/authenticated-read-owner-failures.spec.ts": {
+  "to": "../e2e/observation/authenticated-read-owner-failures.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/authenticated-read-retained-answers-reload.spec.ts": {
+  "to": "../e2e/observation/authenticated-read-retained-answers-reload.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/auto-refresh-branches.spec.ts": {
+  "to": "../e2e/observation/auto-refresh-branches.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/auto-refresh-detail-recovery.spec.ts": {
+  "to": "../e2e/observation/auto-refresh-detail-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/auto-refresh-project-isolation.spec.ts": {
+  "to": "../e2e/observation/auto-refresh-project-isolation.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/auto-refresh-rate-limit.spec.ts": {
+  "to": "../e2e/observation/auto-refresh-rate-limit.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/auto-refresh-recovery.spec.ts": {
+  "to": "../e2e/observation/auto-refresh-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/auto-refresh-unusable-branch.spec.ts": {
+  "to": "../e2e/observation/auto-refresh-unusable-branch.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/auto-refresh-visibility.spec.ts": {
+  "to": "../e2e/observation/auto-refresh-visibility.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/auto-refresh.spec.ts": {
+  "to": "../e2e/observation/auto-refresh.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/limit-recovery-check.spec.ts": {
+  "to": "../e2e/observation/limit-recovery-check.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/limit-recovery-credit-commit.spec.ts": {
+  "to": "../e2e/observation/limit-recovery-credit-commit.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/limit-recovery-credit-history.spec.ts": {
+  "to": "../e2e/observation/limit-recovery-credit-history.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/limit-recovery-detail.spec.ts": {
+  "to": "../e2e/observation/limit-recovery-detail.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/limit-recovery-tabs.spec.ts": {
+  "to": "../e2e/observation/limit-recovery-tabs.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/limited-reading-check.spec.ts": {
+  "to": "../e2e/observation/limited-reading-check.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/limited-reading-detail.spec.ts": {
+  "to": "../e2e/observation/limited-reading-detail.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/limited-reading-membership.spec.ts": {
+  "to": "../e2e/observation/limited-reading-membership.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/limited-reading-profile-history.spec.ts": {
+  "to": "../e2e/observation/limited-reading-profile-history.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/owner-replacement-recovery.spec.ts": {
+  "to": "../e2e/observation/owner-replacement-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/profile-addition-latency.spec.ts": {
+  "to": "../e2e/observation/profile-addition-latency.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/project-read-recovery.spec.ts": {
+  "to": "../e2e/observation/project-read-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/published-facts-arrival.spec.ts": {
+  "to": "../e2e/observation/published-facts-arrival.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/published-facts-failures.spec.ts": {
+  "to": "../e2e/observation/published-facts-failures.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/published-facts-isolation.spec.ts": {
+  "to": "../e2e/observation/published-facts-isolation.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/read-failure.spec.ts": {
+  "to": "../e2e/observation/read-failure.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/read-turns-across-tabs.spec.ts": {
+  "to": "../e2e/observation/read-turns-across-tabs.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/reopened-project-reads.spec.ts": {
+  "to": "../e2e/observation/reopened-project-reads.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/revision-stream-lost.spec.ts": {
+  "to": "../e2e/observation/revision-stream-lost.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/revision-stream-stopped.spec.ts": {
+  "to": "../e2e/observation/revision-stream-stopped.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/revision-stream-visibility.spec.ts": {
+  "to": "../e2e/observation/revision-stream-visibility.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/shared-observer-check-reuse.spec.ts": {
+  "to": "../e2e/observation/shared-observer-check-reuse.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/shared-observer-reads.spec.ts": {
+  "to": "../e2e/observation/shared-observer-reads.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/story-cards-before-comparison.spec.ts": {
+  "to": "../e2e/observation/story-cards-before-comparison.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/transient-credit-recovery.spec.ts": {
+  "to": "../e2e/observation/transient-credit-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/transient-detail-recovery.spec.ts": {
+  "to": "../e2e/observation/transient-detail-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/transient-read-exclusions.spec.ts": {
+  "to": "../e2e/observation/transient-read-exclusions.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/transient-read-recovery.spec.ts": {
+  "to": "../e2e/observation/transient-read-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/transient-recovery-currentness.spec.ts": {
+  "to": "../e2e/observation/transient-recovery-currentness.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/transient-recovery-lifecycle.spec.ts": {
+  "to": "../e2e/observation/transient-recovery-lifecycle.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/unchanged-assignment-credit.spec.ts": {
+  "to": "../e2e/observation/unchanged-assignment-credit.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/unchanged-records-refresh.spec.ts": {
+  "to": "../e2e/observation/unchanged-records-refresh.spec.ts",
+  "slice": 3
+ },
+ "tests/review/one-shot-landing-recovery.spec.ts": {
+  "to": "../e2e/review/one-shot-landing-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/review/recently-done-one-shot-review.spec.ts": {
+  "to": "../e2e/review/recently-done-one-shot-review.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-commit-renames.spec.ts": {
+  "to": "../e2e/review/story-review-commit-renames.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-commit-trunk.spec.ts": {
+  "to": "../e2e/review/story-review-commit-trunk.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-commit-worktree.spec.ts": {
+  "to": "../e2e/review/story-review-commit-worktree.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-commits.spec.ts": {
+  "to": "../e2e/review/story-review-commits.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-comparison-files.spec.ts": {
+  "to": "../e2e/review/story-review-comparison-files.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-completed-merge-edits.spec.ts": {
+  "to": "../e2e/review/story-review-completed-merge-edits.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-completed.spec.ts": {
+  "to": "../e2e/review/story-review-completed.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-landed.spec.ts": {
+  "to": "../e2e/review/story-review-landed.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-line-counts.spec.ts": {
+  "to": "../e2e/review/story-review-line-counts.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-mark.spec.ts": {
+  "to": "../e2e/review/story-review-mark.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-nothing.spec.ts": {
+  "to": "../e2e/review/story-review-nothing.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-one-shot-choice-refresh.spec.ts": {
+  "to": "../e2e/review/story-review-one-shot-choice-refresh.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-one-shot-choice.spec.ts": {
+  "to": "../e2e/review/story-review-one-shot-choice.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-one-shot-unavailable.spec.ts": {
+  "to": "../e2e/review/story-review-one-shot-unavailable.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-one-shot.spec.ts": {
+  "to": "../e2e/review/story-review-one-shot.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-refresh.spec.ts": {
+  "to": "../e2e/review/story-review-refresh.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-since-trunk.spec.ts": {
+  "to": "../e2e/review/story-review-since-trunk.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-since.spec.ts": {
+  "to": "../e2e/review/story-review-since.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-story-branch-landed.spec.ts": {
+  "to": "../e2e/review/story-review-story-branch-landed.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-trunk-own-changes.spec.ts": {
+  "to": "../e2e/review/story-review-trunk-own-changes.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-trunk-own-flagged.spec.ts": {
+  "to": "../e2e/review/story-review-trunk-own-flagged.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-trunk-own-older-git.spec.ts": {
+  "to": "../e2e/review/story-review-trunk-own-older-git.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-trunk-own-since.spec.ts": {
+  "to": "../e2e/review/story-review-trunk-own-since.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-trunk-worktree-ambiguity.spec.ts": {
+  "to": "../e2e/review/story-review-trunk-worktree-ambiguity.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review-trunk-worktree.spec.ts": {
+  "to": "../e2e/review/story-review-trunk-worktree.spec.ts",
+  "slice": 3
+ },
+ "tests/review/story-review.spec.ts": {
+  "to": "../e2e/review/story-review.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-completion-attention.spec.ts": {
+  "to": "../e2e/sessions/agent-completion-attention.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-completion-cursor.spec.ts": {
+  "to": "../e2e/sessions/agent-completion-cursor.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-completion-execution.spec.ts": {
+  "to": "../e2e/sessions/agent-completion-execution.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-completion-quiet-claude.spec.ts": {
+  "to": "../e2e/sessions/agent-completion-quiet-claude.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-completion-quiet.spec.ts": {
+  "to": "../e2e/sessions/agent-completion-quiet.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-launch-attention.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-attention.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-launch-codex-observation-workspace.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-codex-observation-workspace.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-launch-codex-observation.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-codex-observation.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-launch-done-listing.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-done-listing.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-launch-done-question-follows.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-done-question-follows.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-launch-done-question.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-done-question.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-launch-held-revision-after-action.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-held-revision-after-action.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-launch-recent-delete-unavailable.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-recent-delete-unavailable.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-launch-recent-delete.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-recent-delete.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-launch-recent-sessions.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-recent-sessions.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-launch-session-state-pace.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-session-state-pace.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-launch-story-card-session-states.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-story-card-session-states.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-launch-story-card-sessions.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-story-card-sessions.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-session-cursor-done.spec.ts": {
+  "to": "../e2e/sessions/agent-session-cursor-done.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-session-cursor-stop-several.spec.ts": {
+  "to": "../e2e/sessions/agent-session-cursor-stop-several.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-session-cursor-stop.spec.ts": {
+  "to": "../e2e/sessions/agent-session-cursor-stop.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-session-cursor.spec.ts": {
+  "to": "../e2e/sessions/agent-session-cursor.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-terminal-delete.spec.ts": {
+  "to": "../e2e/sessions/agent-terminal-delete.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-terminal-done-codex-page.spec.ts": {
+  "to": "../e2e/sessions/agent-terminal-done-codex-page.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-terminal-done-reopen.spec.ts": {
+  "to": "../e2e/sessions/agent-terminal-done-reopen.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/agent-terminal-done-report.spec.ts": {
+  "to": "../e2e/sessions/agent-terminal-done-report.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/cursor-runner-helper-survival.spec.ts": {
+  "to": "../e2e/sessions/cursor-runner-helper-survival.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/cursor-runner-replacement-controls.spec.ts": {
+  "to": "../e2e/sessions/cursor-runner-replacement-controls.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/cursor-runner-replacement.spec.ts": {
+  "to": "../e2e/sessions/cursor-runner-replacement.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/cursor-runner-sessions-quiet-rate.spec.ts": {
+  "to": "../e2e/sessions/cursor-runner-sessions-quiet-rate.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/cursor-runner-sessions.spec.ts": {
+  "to": "../e2e/sessions/cursor-runner-sessions.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/cursor-session-recovery-replacement.spec.ts": {
+  "to": "../e2e/sessions/cursor-session-recovery-replacement.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/cursor-session-recovery-restart.spec.ts": {
+  "to": "../e2e/sessions/cursor-session-recovery-restart.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/cursor-session-recovery-stops.spec.ts": {
+  "to": "../e2e/sessions/cursor-session-recovery-stops.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/cursor-session-recovery-wait.spec.ts": {
+  "to": "../e2e/sessions/cursor-session-recovery-wait.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/cursor-session-recovery.spec.ts": {
+  "to": "../e2e/sessions/cursor-session-recovery.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/cursor-session-scope-continuation.spec.ts": {
+  "to": "../e2e/sessions/cursor-session-scope-continuation.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/cursor-session-scope-noninterference.spec.ts": {
+  "to": "../e2e/sessions/cursor-session-scope-noninterference.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/project-restored-session.spec.ts": {
+  "to": "../e2e/sessions/project-restored-session.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/recently-done-sessions-select-ad-hoc-development.spec.ts": {
+  "to": "../e2e/sessions/recently-done-sessions-select-ad-hoc-development.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/recently-done-sessions-select-ad-hoc-review.spec.ts": {
+  "to": "../e2e/sessions/recently-done-sessions-select-ad-hoc-review.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/recently-done-sessions-select-ad-hoc.spec.ts": {
+  "to": "../e2e/sessions/recently-done-sessions-select-ad-hoc.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/session-alerts-navigation.spec.ts": {
+  "to": "../e2e/sessions/session-alerts-navigation.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/session-alerts-unavailable.spec.ts": {
+  "to": "../e2e/sessions/session-alerts-unavailable.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/session-alerts.spec.ts": {
+  "to": "../e2e/sessions/session-alerts.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/session-attribution.spec.ts": {
+  "to": "../e2e/sessions/session-attribution.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/session-column-membership.spec.ts": {
+  "to": "../e2e/sessions/session-column-membership.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/session-management-touch.spec.ts": {
+  "to": "../e2e/sessions/session-management-touch.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/session-unread-report.spec.ts": {
+  "to": "../e2e/sessions/session-unread-report.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/session-workspace-retirement-attach.spec.ts": {
+  "to": "../e2e/sessions/session-workspace-retirement-attach.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/session-workspace-retirement-claude.spec.ts": {
+  "to": "../e2e/sessions/session-workspace-retirement-claude.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/session-workspace-retirement-cursor.spec.ts": {
+  "to": "../e2e/sessions/session-workspace-retirement-cursor.spec.ts",
+  "slice": 3
+ },
+ "tests/sessions/session-workspace-retirement-done.spec.ts": {
+  "to": "../e2e/sessions/session-workspace-retirement-done.spec.ts",
+  "slice": 3
+ },
+ "tests/stories/agent-roster-avatar.spec.ts": {
+  "to": "../e2e/stories/agent-roster-avatar.spec.ts",
+  "slice": 3
+ },
+ "tests/stories/backlog-preparing.spec.ts": {
+  "to": "../e2e/stories/backlog-preparing.spec.ts",
+  "slice": 3
+ },
+ "tests/stories/branch-slice-progress.spec.ts": {
+  "to": "../e2e/stories/branch-slice-progress.spec.ts",
+  "slice": 3
+ },
+ "tests/stories/recently-done-follow-up.spec.ts": {
+  "to": "../e2e/stories/recently-done-follow-up.spec.ts",
+  "slice": 3
+ },
+ "tests/stories/recently-done-review-state-failed-save.spec.ts": {
+  "to": "../e2e/stories/recently-done-review-state-failed-save.spec.ts",
+  "slice": 3
+ },
+ "tests/stories/recently-done-stories.spec.ts": {
+  "to": "../e2e/stories/recently-done-stories.spec.ts",
+  "slice": 3
+ },
+ "tests/stories/story-dependencies.spec.ts": {
+  "to": "../e2e/stories/story-dependencies.spec.ts",
+  "slice": 3
+ },
+ "tests/stories/story-readiness.spec.ts": {
+  "to": "../e2e/stories/story-readiness.spec.ts",
+  "slice": 3
+ },
+ "tests/stories/taken-admitted-investigation.spec.ts": {
+  "to": "../e2e/stories/taken-admitted-investigation.spec.ts",
+  "slice": 3
+ },
+ "tests/stories/taken-agent-profile.spec.ts": {
+  "to": "../e2e/stories/taken-agent-profile.spec.ts",
+  "slice": 3
+ },
+ "tests/terminals/agent-terminal-codex-page.spec.ts": {
+  "to": "../e2e/terminals/agent-terminal-codex-page.spec.ts",
+  "slice": 3
+ },
+ "tests/terminals/agent-terminal-cursor-launch-page.spec.ts": {
+  "to": "../e2e/terminals/agent-terminal-cursor-launch-page.spec.ts",
+  "slice": 3
+ },
+ "tests/terminals/agent-terminal-cursor-page.spec.ts": {
+  "to": "../e2e/terminals/agent-terminal-cursor-page.spec.ts",
+  "slice": 3
+ },
+ "tests/terminals/agent-terminal-cursor-trust-page.spec.ts": {
+  "to": "../e2e/terminals/agent-terminal-cursor-trust-page.spec.ts",
+  "slice": 3
+ },
+ "tests/terminals/agent-terminal-lifetime.spec.ts": {
+  "to": "../e2e/terminals/agent-terminal-lifetime.spec.ts",
+  "slice": 3
+ },
+ "tests/terminals/agent-terminal-pending-readiness-input.spec.ts": {
+  "to": "../e2e/terminals/agent-terminal-pending-readiness-input.spec.ts",
+  "slice": 3
+ },
+ "tests/terminals/agent-terminal-touch-paste-image.spec.ts": {
+  "to": "../e2e/terminals/agent-terminal-touch-paste-image.spec.ts",
+  "slice": 3
+ },
+ "tests/terminals/agent-terminal-touch-select.spec.ts": {
+  "to": "../e2e/terminals/agent-terminal-touch-select.spec.ts",
+  "slice": 3
+ },
+ "tests/terminals/agent-terminal-touch.spec.ts": {
+  "to": "../e2e/terminals/agent-terminal-touch.spec.ts",
+  "slice": 3
+ },
+ "tests/terminals/agent-terminal.spec.ts": {
+  "to": "../e2e/terminals/agent-terminal.spec.ts",
+  "slice": 3
+ },
+ "tests/observation/first-open-waits-for-read.spec.ts": {
+  "to": "backend-tests/runtime/first-open-waits-for-read.spec.ts",
+  "slice": 3
+ },
+ "tests/launches/feedbackMaintenanceDueHeldCases.ts": {
+  "to": "../e2e/launches/feedbackMaintenanceDueHeldCases.ts",
+  "slice": 3
+ },
+ "tests/runtime/productionUpdatePolicies.ts": {
+  "to": "../e2e/runtime/productionUpdatePolicies.ts",
+  "slice": 3
+ },
+ "tests/runtime/productionUpdateJourney.ts": {
+  "to": "../e2e/runtime/productionUpdateJourney.ts",
+  "slice": 3
+ },
+ "tests/runtime/productionHeldUpdate.ts": {
+  "to": "../e2e/runtime/productionHeldUpdate.ts",
+  "slice": 3
+ },
+ "tests/runtime/productionWatcherClient.ts": {
+  "to": "../e2e/runtime/productionWatcherClient.ts",
+  "slice": 3
+ },
+ "tests/runtime/productionWatcherMachine.ts": {
+  "to": "../e2e/runtime/productionWatcherMachine.ts",
+  "slice": 3
+ },
+ "tests/sessions/agentSessionCursorUnavailableCases.ts": {
+  "to": "../e2e/sessions/agentSessionCursorUnavailableCases.ts",
+  "slice": 3
  }
 }

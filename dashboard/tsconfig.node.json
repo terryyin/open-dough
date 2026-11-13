@@ -16,6 +16,7 @@
     "server",
     "tests",
     "frontend-tests",
-    "backend-tests"
+    "backend-tests",
+    "../e2e"
   ]
 }

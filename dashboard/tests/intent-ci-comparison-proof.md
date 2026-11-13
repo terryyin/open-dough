@@ -19,7 +19,7 @@ rule count alone does not measure the developer's feedback path.
 | Navigation and preferences | `intent-ci-comparison-drilldown-relative.spec.ts`, `intent-ci-comparison-relative.spec.ts`, `intent-summary-story-comparison-file.spec.ts`, `-renamed.spec.ts`, `-sort.spec.ts` and `-source.spec.ts`: built-app scope navigation, keyboard/Purpose/Review, source pinning and cross-story preference continuity |
 | Held reads and retry | `intent-ci-comparison-locations.spec.ts` and `intent-ci-comparison-retry.spec.ts`: comparison visibility during held/failing reads, actual API and upstream request accounting, same-process recovery and real shallow-history recovery |
 | Landed recovery connections | Backend `intent-ci-comparison-pending-proof.spec.ts` keeps three real-server connections: an equivalent landing's malformed listing bytes through the default parsers to the public pending gap, the measured point and final reuse; and, for each provenance, a provider-directed wait under the request owner's controlled clock and one owner process. `intent-ci-comparison-receipt.spec.ts` and `landed-ci-history-comparison-run.spec.ts` retain the persisted receipt lifetime and public history. A later landing's proof wait past the revision walk has no real-server case; see the [later pending-proof coverage map](#later-pending-proof-coverage-map). Browser `intent-ci-comparison-missing-run.spec.ts`, `-pending-proof.spec.ts` and `-trunk-finality.spec.ts` retain actual controls, timing/source cues and Trunk NoBuild despite an available later build. |
-| Retained review records | `backend-tests/review/story-review-stored-*.spec.ts`: actual store replacement, stable reporting identity, newest captured preference, deletion and retention; `tests/review/story-review-one-shot-choice-refresh.spec.ts` connects stored records to displayed Refresh choices |
+| Retained review records | `backend-tests/review/story-review-stored-*.spec.ts`: actual store replacement, stable reporting identity, newest captured preference, deletion and retention; `e2e/review/story-review-one-shot-choice-refresh.spec.ts` connects stored records to displayed Refresh choices |
 
 Backend filenames above are under `dashboard/backend-tests/intent/`;
 presentation filenames under `dashboard/frontend-tests/intent/`; other browser
@@ -84,9 +84,11 @@ npm run test:dashboard -- \
   backend-tests/intent/ci-time-without-runner-waits.spec.ts \
   tests/intent/intent-ci-comparison \
   tests/intent/intent-summary-story-comparison \
+  e2e/intent/intent-ci-comparison \
+  e2e/intent/intent-summary-story-comparison \
   frontend-tests/intent/intent-ci-comparison \
   frontend-tests/intent/intent-summary-story-comparison \
-  tests/review/story-review-one-shot-choice-refresh.spec.ts \
+  e2e/review/story-review-one-shot-choice-refresh.spec.ts \
   backend-tests/review/story-review-stored- \
   backend-tests/intent/intent-ci-comparison-pending-proof.spec.ts \
   backend-tests/intent/intent-ci-comparison-receipt.spec.ts \
@@ -95,7 +97,7 @@ npm run test:dashboard -- \
 ```
 
 Measure native launch/capture preservation separately with
-`npm run test:dashboard -- tests/review/recently-done-one-shot-review.spec.ts tests/review/story-review-one-shot.spec.ts`.
+`npm run test:e2e -- review/recently-done-one-shot-review.spec.ts review/story-review-one-shot.spec.ts`.
 The last four ordinary selectors retain eight backend connections omitted by
 the broad `ci-comparison` prefix; include them when comparing whole feedback.
 

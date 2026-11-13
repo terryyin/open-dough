@@ -1,6 +1,6 @@
 // Shared by the responsive start specs (./responsive-session-start*.spec.ts,
 // ./responsive-session-reconciliation*.spec.ts, ./launches/responsive-session-access.spec.ts,
-// ./launches/responsive-session-refinement-restart.spec.ts): a test against a real start
+// ../../e2e/launches/responsive-session-refinement-restart.spec.ts): a test against a real start
 // origin, the stories it publishes, commits made beside them, the
 // acceptance answers held from the page, and what a submitted dialog, a
 // protected story, and the rest of the page show meanwhile.

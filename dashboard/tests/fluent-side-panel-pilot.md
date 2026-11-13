@@ -44,9 +44,9 @@ revision. [ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-
 
 | Journey | What the fluent spec makes visible | Revised list run |
 | --- | --- | --- |
-| [Story review and Final report replacement](navigation/side-panel-content-replacement.spec.ts#L66) | Phases show that the held response cannot overwrite the other story's review, that reviews and reports replace each other, and that the Panel divider works by mouse and keyboard. | Passed, 5.3 s |
-| [Story review and Final report retention](navigation/side-panel-content-replacement.spec.ts#L182) | The review keeps its chosen file and diff across Board and Intent, and the Final report keeps its session's text. The request log between phases shows Intent's separate comparison. | Passed, 4.1 s |
-| [Story review and Terminal replacement](navigation/side-panel-content-switching.spec.ts#L40) | The phases follow the swaps beside a usable Board. The native attach count and kept record between phases show reattachment to the same session. | Passed, 4.4 s |
+| [Story review and Final report replacement](../../e2e/navigation/side-panel-content-replacement.spec.ts#L70) | Phases show that the held response cannot overwrite the other story's review, that reviews and reports replace each other, and that the Panel divider works by mouse and keyboard. | Passed, 5.3 s |
+| [Story review and Final report retention](../../e2e/navigation/side-panel-content-replacement.spec.ts#L175) | The review keeps its chosen file and diff across Board and Intent, and the Final report keeps its session's text. The request log between phases shows Intent's separate comparison. | Passed, 4.1 s |
+| [Story review and Terminal replacement](../../e2e/navigation/side-panel-content-switching.spec.ts#L50) | The phases follow the swaps beside a usable Board. The native attach count and kept record between phases show reattachment to the same session. | Passed, 4.4 s |
 
 The [procedural runs](https://github.com/terryyin/open-dough/blob/e0d4735e14ff40c64151d878d504af9aeab1515c/.planning/slice-plans/506-pilot-fluent-dashboard-page-objects/PLAN.md#decisive-premises)
 passed all three cases. The original pilot replaced 5

@@ -1,5 +1,5 @@
-// Each focused dashboard runner (dashboard/frontend.playwright.config.ts,
-// dashboard/backend.playwright.config.ts) takes the same repository admission
+// Each runner owning one group (dashboard/frontend.playwright.config.ts,
+// dashboard/backend.playwright.config.ts, e2e/playwright.config.ts) takes the same repository admission
 // as the umbrella when unfiltered, and only then: its focused runs, its
 // listing and its own CI split stay independent, and the umbrella's split
 // does not make its run focused.
@@ -26,6 +26,11 @@ const runners = [
     name: "Dashboard Backend Test",
     config: "controlled-backend.config.mts",
     split: "OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT",
+  },
+  {
+    name: "E2E Test",
+    config: "controlled-e2e.config.mts",
+    split: "OPEN_DOUGH_E2E_SPLIT",
   },
 ];
 

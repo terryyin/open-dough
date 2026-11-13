@@ -1,0 +1,198 @@
+// The automatic check follows every published branch: while trunk stays
+// still, one conditional listing of every branch head tells the page when a
+// story branch a Taken profile records has moved, and only that story's
+// progress is read again -- its plan and its commit time at the new head --
+// without Refresh. Other branches moving read nothing; trunk moving reads
+// the whole snapshot as before; an unchanged listing is answered by GitHub's
+// `304`; a completion commit on the recorded branch shows the story awaiting
+// wrap-up; a recorded branch deleted becomes that gap. The fake GitHub only
+// publishes trunk and branch heads that move (../../dashboard/tests/publishedFiles.ts); the local
+// read boundary, the shared readers, and the page decide everything shown.
+// A recorded branch whose name cannot be used:
+// ./auto-refresh-unusable-branch.spec.ts. Hidden-page and rate-limit
+// behavior: ./auto-refresh-visibility.spec.ts and
+// ./auto-refresh-rate-limit.spec.ts.
+
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import {
+  expect,
+  githubFor,
+  test,
+} from "../../dashboard/tests/dashboardTest.ts";
+import { shortRevision, parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  callsSince,
+  expectSteadyPace,
+  passTimeUntilChecked,
+  headsCheckArgv,
+  headsChecks,
+} from "../../dashboard/tests/autoRefreshJourney.ts";
+import {
+  branchHead,
+  branches,
+  onBranch,
+  planPath,
+  repository,
+  revision,
+  trunk,
+} from "../../dashboard/tests/branchProgressRecords.ts";
+import {
+  branchPlanPublication,
+  openedSettled,
+  sevenDoneOnBranch,
+  trunkMoved,
+} from "../../dashboard/tests/branchRefreshJourney.ts";
+import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
+import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+import type { PublishedRevision } from "../../dashboard/tests/publishedFiles.ts";
+
+const example = "story/example";
+const unrelated = "story/unrelated-work";
+const movedHead = "e6".repeat(20);
+const completedHead = "e7".repeat(20);
+
+// The branch heads published beside trunk, by name.
+function headsOf(
+  published: Readonly<Record<string, PublishedRevision>>,
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(published).map(([branch, at]) => [branch, at.revision]),
+  );
+}
+
+test("the automatic check follows each recorded story branch, reading only the progress on a branch that moved", async ({
+  page,
+}) => {
+  const { origin, progress } = await openedSettled(page);
+  const { taken, readRevision } = parts(page);
+  const published = { ...branches };
+  // The card qualifies its count briefly; the exact branch head is in the
+  // story's detail, which stays open as the branch moves.
+  await expect(progress).toContainText("From story branch; not in trunk.");
+  const branchCard = taken.getByRole("article", { name: onBranch });
+  await branchCard.getByRole("button", { name: "Inspect story" }).click();
+  const branchSource = branchCard
+    .getByRole("region", { name: `Detail for ${onBranch}` })
+    .locator(".progress-source");
+  await expect(branchSource).toContainText(
+    `From branch ${example} at ${shortRevision(branchHead)}; not in trunk.`,
+  );
+  await expect(progress).toContainText("Current slice started 7 min ago");
+
+  await test.step("while nothing moves, checks read nothing, and a repeated check is answered by GitHub's 304", async () => {
+    const from = githubFor(page).calls.length;
+    expectSteadyPace(await passTimeUntilChecked(page));
+    expectSteadyPace(await passTimeUntilChecked(page));
+    const calls = callsSince(page, from);
+    expect(headsChecks(calls).map(({ argv }) => argv)).toEqual([
+      headsCheckArgv(undefined, repository),
+      // Conditional on the listing still naming every head as shown.
+      headsCheckArgv(revision, repository, headsOf(published)),
+    ]);
+    expect(readsBesideChecks(calls)).toEqual([]);
+  });
+
+  await test.step("a new slice commit on the recorded branch shows its count and a restarted clock within the check pace, reading only its plan and commit time there", async () => {
+    const now = await page.evaluate(() => Date.now());
+    published[example] = branchPlanPublication(
+      movedHead,
+      new Date(now - 2 * 60_000),
+      sevenDoneOnBranch,
+    );
+    origin.moveBranch(example, published[example]);
+    const from = githubFor(page).calls.length;
+    expectSteadyPace(await passTimeUntilChecked(page));
+    await expect(
+      progress.getByRole("img", { name: "7 of 8 slices recorded complete" }),
+    ).toBeVisible();
+    await expect(branchSource).toContainText(
+      `From branch ${example} at ${shortRevision(movedHead)}; not in trunk.`,
+    );
+    await expect(progress).toContainText("Current slice started 2 min ago");
+    await expect(readRevision).toContainText(shortRevision(revision));
+    expect(readsBesideChecks(callsSince(page, from)).sort()).toEqual(
+      [
+        `content ${planPath("on-branch")}@${movedHead}`,
+        `commit-list ${planPath("on-branch")}@${movedHead}`,
+      ].sort(),
+    );
+  });
+
+  await test.step("an unrelated branch moving reads nothing further", async () => {
+    published[unrelated] = { revision: "f6".repeat(20), files: trunk.files };
+    origin.moveBranch(unrelated, published[unrelated]);
+    const from = githubFor(page).calls.length;
+    expectSteadyPace(await passTimeUntilChecked(page));
+    // The next check comes at the steady pace: nothing was read between.
+    expectSteadyPace(await passTimeUntilChecked(page));
+    expect(readsBesideChecks(callsSince(page, from))).toEqual([]);
+    await expect(
+      progress.getByRole("img", { name: "7 of 8 slices recorded complete" }),
+    ).toBeVisible();
+  });
+
+  await test.step("trunk moving reads the whole snapshot at its new revision, as before", async () => {
+    origin.moveTrunk({ ...trunk, revision: trunkMoved });
+    const from = githubFor(page).calls.length;
+    expectSteadyPace(await passTimeUntilChecked(page));
+    await expect(readRevision).toContainText(shortRevision(trunkMoved));
+    // The shown progress stays while the new revision is read, so only the
+    // page's own reads say the read has ended.
+    await untilPageReadsAnswered(page);
+    await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
+    await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
+    await expect(
+      progress.getByRole("img", { name: "7 of 8 slices recorded complete" }),
+    ).toBeVisible();
+    const reads = readsBesideChecks(callsSince(page, from));
+    expect(reads).toContain(
+      `content .planning/PRODUCT-BACKLOG.md@${trunkMoved}`,
+    );
+    expect(reads).toContain(`branch ${example}`);
+    expect(reads).not.toContain("ref main");
+  });
+
+  await test.step("a completion commit on the recorded branch shows the story awaiting wrap-up within the check pace, reading only its plan and commit time there", async () => {
+    const now = await page.evaluate(() => Date.now());
+    published[example] = branchPlanPublication(
+      completedHead,
+      new Date(now - 60_000),
+      makeMe.aSlicePlan
+        .withStatuses(
+          ["done", "done", "done", "done", "done", "done", "done", "done"],
+          { advice: "Queue the next story." },
+        )
+        .please(),
+    );
+    origin.moveBranch(example, published[example]);
+    const from = githubFor(page).calls.length;
+    expectSteadyPace(await passTimeUntilChecked(page));
+    await expect(progress).toContainText(
+      "Execution complete, awaiting wrap-up",
+    );
+    await expect(progress).toContainText("Completed 1 min ago");
+    await expect(branchSource).toContainText(
+      `From branch ${example} at ${shortRevision(completedHead)}; not in trunk.`,
+    );
+    await expect(progress).not.toContainText("Current slice started");
+    expect(readsBesideChecks(callsSince(page, from)).sort()).toEqual(
+      [
+        `content ${planPath("on-branch")}@${completedHead}`,
+        `commit-list ${planPath("on-branch")}@${completedHead}`,
+      ].sort(),
+    );
+  });
+
+  await test.step("the recorded branch deleted shows, at the next check, that it is no longer published", async () => {
+    origin.moveBranch(example, undefined);
+    const from = githubFor(page).calls.length;
+    expectSteadyPace(await passTimeUntilChecked(page));
+    await expect(progress).toContainText(
+      `The recorded branch ${example} is no longer published`,
+    );
+    await expect(progress.getByRole("img")).toHaveCount(0);
+    await expect(progress).not.toContainText("recorded complete");
+    await expect(progress).not.toContainText("Current slice started");
+    expect(readsBesideChecks(callsSince(page, from))).toEqual([]);
+  });
+});

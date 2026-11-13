@@ -194,6 +194,29 @@ sources, and selects every destination exactly once across all old shards;
 discovery roots, mapped timing labels and proof expectations agree. Prove
 helper attribution from the produced report. Slice 4 removes this umbrella.
 
+Progress (2026-11-13, published with hosted observation pending): `npm run test:e2e`
+→ `e2e/playwright.config.ts` (prefix `OPEN_DOUGH_E2E`, setup
+`dashboard/tests/support/e2eGlobalSetup.ts`, `chromium-deployments` for the
+production chains). All 566 remaining integrated specs were read by purpose
+(`migration-purpose.json`): 301 workflows moved to `e2e/<feature>/` with 7
+modules (4 registering), `first-open-waits-for-read` to backend. Intent entry
+`e2e` (**E2E Test**) and CI `entries`/`expect` `e2e=13:case` added beside the
+kept `dashboard/tests` entry. Native lists: umbrella 1,033 / 2,731, e2e 302 /
+560, frontend 52 / 153, backend 415 / 1,407; `migration-reconciliation-slice-3.json`
+every base case once; each of 13 umbrella shards selects every destination once.
+Full e2e run 549 passed; the production chain failure (also at base) was an
+`fs.watch` latency defect in `watcherEvents.ts`/`productionBuildGate.ts`,
+repaired (30/30 at `--repeat-each=3`); two Intent prior-build cases are
+load-sensitive (G8). The refactor reorganized all 18 moved specs that exceeded
+250 lines along existing support owners (32/32 e2e, 8/8 umbrella, 7/7 backend).
+Oversized: about 72 minutes implementation plus 25 minutes refactor. Failed
+sizing assumption: detailed UI checks could reach the frontend group with
+existing controlled answers. 204 detailed-UI and 59 mixed specs need new
+substitutes (settings, launch, sessions/terminals WebSockets, story review,
+Intent CI/proof/history, board/navigation), 145 of them large; batches and
+per-case splits are in `migration-conversion-batches.json`. They stay selected
+once in `dashboard/tests/` until a scope decision; G1 stays open.
+
 ### 4. Run and publish three independently owned test groups
 Type: Behavior
 Status: planned
@@ -306,3 +329,18 @@ Commitment: R4
 Reported: slice 2 — "cursor-runner-sessions-sharing (delay(reuseMs+200)) and cursor-session-alerts (awaitAlertPolls, a 350 ms wait) moved unchanged and still wait on wall-clock time. Fixing them needs a controlled reuse/alert clock in the server, which is a product change."
 Story clause: "throughout the migration, including failures attributed to the prior layout"
 Disposition: no user cost "understand their purpose and observed results in Intent and CI": the waits predate this story and were relocated byte-for-byte; both specs pass under the backend runner and in the umbrella, so the move changes neither their observed results nor their stability; replacing the waits needs a server-side controlled clock outside this story's runner migration.
+
+### G8. Two Intent prior-build cases time out at high host load
+Reported: slice 3 — "intent-scope-prior-build-average and -prior-build-states failed at load ~38. They passed alone (8.7 s, 7.4 s) and at load ~18 with 2 workers ×3 took 12.9–24.1 s and 10.6–19.2 s against the 30 s budget."
+Story clause: "throughout the migration, including failures attributed to the prior layout"
+Disposition: receiving slice 4
+
+### G9. Moved E2E specs still wait on wall-clock time
+Reported: slice 3 — "Wall-clock waits in moved specs (left unchanged, as G3 was): limited-reading-detail (3 s setTimeout), published-facts-isolation (1 s), revision-stream-stopped/-visibility (page.waitForTimeout); and in a shared helper, support/voiceRecovery.ts waitForTimeout(200)."
+Story clause: "throughout the migration, including failures attributed to the prior layout"
+Disposition: no user cost "understand their purpose and observed results in Intent and CI": the waits predate this story and moved with only import-path changes; their specs pass in the E2E run, so relocation changes neither their observed results nor their stability; replacing them belongs to each journey's own synchronization work, not to the runner migration.
+
+### G10. Moved E2E specs lack enduring boundary descriptions
+Reported: slice 3 — "103 moved specs have none; their boundaries are recorded only in migration-purpose.json. The README states the shared boundary set."
+Story clause: "Identify each representative journey's real integrations and simulated external boundaries"
+Disposition: receiving slice 5

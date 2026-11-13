@@ -5,7 +5,7 @@
 // confirmation in the launch's records. A real bare origin
 // (../../tests/support/startOrigin.ts) and the synthetic `claude`. The
 // dialog's warning, Back, Cancel and Continue:
-// ../../tests/launches/agent-launch-start-session-existing-changes.spec.ts.
+// ../../../e2e/launches/agent-launch-start-session-existing-changes.spec.ts.
 
 import { realpathSync } from "node:fs";
 import type { RecordedLaunchRequest } from "../../src/launchRequest.ts";

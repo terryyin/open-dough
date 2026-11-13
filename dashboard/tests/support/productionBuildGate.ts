@@ -25,8 +25,11 @@ if (process.argv[2] === "completed") {
   const ordinal = readFileSync(log, "utf8").trim().split("\\n").length;
   hold = path.join(homedir(), "hold-build-" + ordinal);
 }
+// macOS can deliver the release's directory event late or not at all under
+// load, so the gate also looks for the release itself at a short interval.
 if (existsSync(hold)) {
   let observer;
+  let looking;
   try {
     await new Promise((resolve, reject) => {
       function check() {
@@ -34,9 +37,11 @@ if (existsSync(hold)) {
       }
       observer = watch(homedir(), check);
       observer.once("error", reject);
+      looking = setInterval(check, 20);
       check();
     });
   } finally {
+    clearInterval(looking);
     observer?.close();
   }
 }

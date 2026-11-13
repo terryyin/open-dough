@@ -72,6 +72,7 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
     ),
     JSON.stringify(
       locatedRecord(cwd, [
+        [`${cwd}/e2e/workflow.spec.ts`, "expected", [40]],
         [`${cwd}/dashboard/tests/browser.spec.ts`, "expected", [35]],
         [`${cwd}/dashboard/frontend-tests/dom.spec.ts`, "expected", [20]],
         [`${cwd}/dashboard/backend-tests/server.spec.ts`, "expected", [50]],
@@ -103,6 +104,7 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
   assert.equal(
     summary.stdout,
     [
+      `e2e: 1 passed, 0 failed, 0 other test cases; ${missingAfterFirst(13)}`,
       `dashboard/tests: 1 passed, 0 failed, 0 other test cases; ${missingAfterFirst(13)}`,
       `dashboard/frontend-tests: 1 passed, 0 failed, 0 other test cases; ${missingAfterFirst(13)}`,
       `dashboard/backend-tests: 1 passed, 1 failed, 0 other test cases; ${missingAfterFirst(13)}`,
@@ -128,6 +130,7 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
       ),
     ),
     [
+      "e2e 40 ms: e2e/workflow.spec.ts 1 passed 0 failed",
       "dashboard/tests 35 ms: dashboard/tests/browser.spec.ts 1 passed 0 failed",
       "dashboard/frontend-tests 20 ms: dashboard/frontend-tests/dom.spec.ts 1 passed 0 failed",
       "dashboard/backend-tests 65 ms: dashboard/backend-tests/problem.spec.ts 0 passed 1 failed",

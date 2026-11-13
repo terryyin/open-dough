@@ -205,7 +205,9 @@ test("native projects queue production chains first and partition every shard wi
       const path = new URL(file, suite).pathname;
       assert.equal(matched(matches, path), matched(selected, path), file);
       const expected =
-        /^tests\/(?:[^/]+\/)*production-watcher(?:-.*)?\.spec\.ts$/.test(file)
+        /^(?:tests|\.\.\/e2e)\/(?:[^/]+\/)*production-watcher(?:-.*)?\.spec\.ts$/.test(
+          file,
+        )
           ? 0
           : 1;
       if (matched(matches, path)) {

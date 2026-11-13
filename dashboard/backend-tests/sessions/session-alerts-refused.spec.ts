@@ -3,7 +3,7 @@
 // its diagnostics, so the refusal is explained in a fixed sentence without
 // its raw stderr, and the next transition's notification recovers it. The
 // sidebar note that shows the reading:
-// ../../tests/sessions/session-alerts-unavailable.spec.ts. The synthetic
+// ../../../e2e/sessions/session-alerts-unavailable.spec.ts. The synthetic
 // `claude` (../../tests/fixtures/fake-claude) and the sender
 // (../../tests/fixtures/fake-terminal-notifier) are all the server reaches; a
 // real notification is never raised.

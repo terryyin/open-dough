@@ -2,7 +2,8 @@
 // both independent arrivals and failures. These assertions observe rendered
 // evidence; raw published records remain in publishedFactsArrival.ts.
 
-import type { Locator } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
+import { parts } from "./dashboardParts.ts";
 import { inspectedDetail } from "./storyCardControls.ts";
 import { expect } from "./dashboardTest.ts";
 import { preparer, preparingPath, purpose } from "./publishedFactsArrival.ts";
@@ -60,6 +61,20 @@ export async function expectStoryCardAssignments(
   await expect(queuedCard.locator(".story-card-preparing")).toContainText(
     `PreparingKirara-chan · ${preparer} · Codex`,
   );
+}
+
+// Every fact group has settled: none is still shown as being read.
+export async function expectNoOrphanReading(page: Page) {
+  for (const reading of [
+    "Reading preparation…",
+    "Reading agent profile…",
+    "Reading plan slices…",
+    "Reading current slice time…",
+    "Reading human developer…",
+  ]) {
+    await expect(page.getByText(reading, { exact: true })).toHaveCount(0);
+  }
+  await expect(parts(page).reading).toHaveCount(0);
 }
 
 export async function expectDoneFacts(doneCard: Locator) {

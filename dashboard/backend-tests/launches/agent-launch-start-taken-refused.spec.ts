@@ -2,7 +2,7 @@
 // (../../server/agentLaunches.ts), over the launch boundary: its answer names
 // the Agent and workspace, and the machine names the kept start, with no
 // second claim, until a later launch opens a session. The Taken card's Start
-// that offer leads to: ../../tests/launches/agent-launch-start-taken.spec.ts.
+// that offer leads to: ../../../e2e/launches/agent-launch-start-taken.spec.ts.
 
 import { keptStarts, launch } from "../../tests/agentLaunchBoundary.ts";
 import { expect } from "../../tests/dashboardTest.ts";

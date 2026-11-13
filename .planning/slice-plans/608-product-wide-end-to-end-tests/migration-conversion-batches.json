@@ -1,0 +1,2336 @@
+[
+ {
+  "name": "configuration settings answers",
+  "folders": [
+   "configuration"
+  ],
+  "substitutes": "one shared settings substitute: /__openai-configuration, /__terminal-theme(+save), /__feedback-maintenance, /__project-configuration/{settings,add,remove,visibility}",
+  "counts": {
+   "frontend/small": 5,
+   "split/small": 6
+  },
+  "specs": [
+   {
+    "spec": "tests/configuration/project-add-refusal.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/configuration/project-add.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "Add selects, reads the repository's default branch, launches in its configured folder and survives restart",
+      "to": "e2e"
+     },
+     {
+      "title": "Add in empty development leaves the production list on the same machine unchanged",
+      "to": "e2e"
+     },
+     {
+      "title": "Cancel and Escape save nothing, return focus and keep project arrows inside the modal",
+      "to": "frontend"
+     },
+     {
+      "title": "retained workspace explanations use the configured folder and keep actual start and stored evidence intact",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/configuration/project-hide.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "hiding a project removes it from tabs, compact selector and cycling while keeping its settings row, saved inventory entry and Remove confirmation, and showing restores it",
+      "to": "e2e"
+     },
+     {
+      "title": "hiding the selected project selects another visible project, hiding all projects shows no Board or Intent while keeping settings usable, and deep links or prior history to a hidden project do not present it",
+      "to": "frontend"
+     },
+     {
+      "title": "development visibility stays separate from production configuration",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/configuration/system-settings-look.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/configuration/system-settings-openai-race.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/configuration/system-settings-openai-recovery.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "${name} OpenAI settings recovery › touch keeps the password draft and predecessor through reduced height, rotation, failed writes and explicit recovery",
+      "to": "frontend"
+     },
+     {
+      "title": "failed save/removal preserve predecessor bytes and allow explicit retries with the entered draft",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/configuration/system-settings-project-management-touch.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/configuration/system-settings-project-management.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "project settings errors retain the form draft and predecessor and allow explicit retry",
+      "to": "e2e"
+     },
+     {
+      "title": "failed row removal keeps configuration, confirmation feedback and retry",
+      "to": "e2e"
+     },
+     {
+      "title": "long configured facts reflow at narrow width and 200 percent zoom with keyboard return",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/configuration/system-settings-terminal-theme-appearance.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/configuration/system-settings-terminal-theme.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "${name} terminal theme recovery › touch reads the theme, preserves the saved predecessor after failure, and reaches Retry after rotation",
+      "to": "frontend"
+     },
+     {
+      "title": "terminal theme is chosen in System settings, saved on choosing, kept across reload, restart and the dev server, and a failed save returns to the saved theme",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/configuration/system-settings.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "global settings has narrow local facts, returns to roster with focus, and browser back/forward keeps project selection",
+      "to": "frontend"
+     },
+     {
+      "title": "direct settings reload knows the selected project; unselected removal preserves it and selected removal chooses the next neighbor",
+      "to": "e2e"
+     },
+     {
+      "title": "opening settings preserves one running native session and its attached terminal context",
+      "to": "e2e"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "launch dialog, start and voice",
+  "folders": [
+   "launches"
+  ],
+  "substitutes": "launch POST and /accept answers, attempt-progress polling, model/option machine answers (MachineAnswerBuilder definitions, sessionPolicies), /__instruction-transcription",
+  "counts": {
+   "frontend/small": 6,
+   "split/none": 1,
+   "split/large": 6,
+   "split/small": 9,
+   "frontend/large": 5
+  },
+  "specs": [
+   {
+    "spec": "tests/launches/agent-launch-ad-hoc-attachments-cancel.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/launches/agent-launch-ad-hoc-attachments-paste.spec.ts",
+    "class": "split",
+    "effort": "none",
+    "cases": [
+     {
+      "title": "pasting an image into the instruction field attaches it as pasted.png and Start sends its path",
+      "to": "e2e"
+     },
+     {
+      "title": "pasting text into the instruction field still inserts the text",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/agent-launch-ad-hoc-instructed.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "an instructed Start session leaves the open final report in the Side panel, requests no terminal, and its Taken entry's Open terminal shows the session",
+      "to": "e2e"
+     },
+     {
+      "title": "an instructed Start session with the Side panel closed leaves it closed and returns the keyboard to Start session",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/agent-launch-ad-hoc.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "Start session sits at the end opposite Near-future direction beside the help, is named for the selected project, and is hidden with the roster",
+      "to": "frontend"
+     },
+     {
+      "title": "Start session is offered while the published read is still reading",
+      "to": "frontend"
+     },
+     {
+      "title": "Start session is offered after the published read failed",
+      "to": "frontend"
+     },
+     {
+      "title": "the dialog names the project and Claude Code, says the session has no story or skill, starts empty with focus in its field, and Escape or Cancel send nothing",
+      "to": "frontend"
+     },
+     {
+      "title": "starting with text sends it in the Open Dough folder, and the session reads in Taken and the sidebar with no card listing it",
+      "to": "e2e"
+     },
+     {
+      "title": "starting with ${blank === \"\" ? \"an empty field\" : \"only spaces\"} sends no instruction",
+      "to": "e2e"
+     },
+     {
+      "title": "starting on Pygardon uses Pygardon's folder and lists the session in the sidebar under Pygardon, not in Open Dough's Recently done",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/agent-launch-codex-model.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "execution chooses a discovered model before preparation and native creation",
+      "to": "e2e"
+     },
+     {
+      "title": "ad-hoc chooses a discovered model before native creation",
+      "to": "e2e"
+     },
+     {
+      "title": "slow/unavailable discovery retains focus, retry works, host changes and fresh openings reset; cancel creates nothing",
+      "to": "frontend"
+     },
+     {
+      "title": "a vanished explicit model is explained; deliberate default and former dynamic labels remain safe in the real UI",
+      "to": "e2e"
+     },
+     {
+      "title": "a late catalog reply cannot replace another host's current options",
+      "to": "frontend"
+     },
+     {
+      "title": "project catalog isolation › a late reply from the previous project cannot replace the current project's choices",
+      "to": "frontend"
+     },
+     {
+      "title": "model changes preserve compatible effort and retain incompatible selection with linked keyboard feedback",
+      "to": "frontend"
+     },
+     {
+      "title": "unknown configured custom model leaves defaults usable and efforts delegated; narrow and 200% reading retains Start",
+      "to": "frontend"
+     },
+     {
+      "title": "stale explicit effort is explained and a deliberate default retry sends neither override",
+      "to": "e2e"
+     },
+     {
+      "title": "effort-only story startup validates the actual established workspace rather than the project folder",
+      "to": "e2e"
+     },
+     {
+      "title": "effort-only ad hoc dialog uses the configured model while omitting model override",
+      "to": "e2e"
+     },
+     {
+      "title": "workspace confirmation keeps model and effort through Back and Continue",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/agent-launch-cursor-model.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "execution on a Cursor-listed model sends it on the prompted run only, scopes it to this session, and says the choice applies to this session",
+      "to": "e2e"
+     },
+     {
+      "title": "an unreadable Cursor list is explained, Retry rereads it, and Default still starts",
+      "to": "e2e"
+     },
+     {
+      "title": "a multi-effort Cursor model lists effort choices and Start sends the composed listed id",
+      "to": "e2e"
+     },
+     {
+      "title": "switching Cursor model retains unsupported effort as invalid and blocks Start",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/agent-launch-dialog-layout.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/launches/agent-launch-dialog-touch.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/launches/agent-launch-model-entries.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/launches/agent-launch-model.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "the refinement dialog offers Model after the instruction on Default, and choosing Opus starts the session with --model opus",
+      "to": "e2e"
+     },
+     {
+      "title": "the execution dialog offers Claude Code's efforts whatever the model, and Opus with high starts the session with --effort high",
+      "to": "e2e"
+     },
+     {
+      "title": "low chosen for Claude Code, switching the host to Codex returns the effort to Use Codex setting",
+      "to": "frontend"
+     },
+     {
+      "title": "the session dialog left on Default starts the session without --model",
+      "to": "e2e"
+     },
+     {
+      "title": "Fable chosen then ${dismiss} starts nothing, and every dialog opens again on Default",
+      "to": "frontend"
+     },
+     {
+      "title": "Opus launched from a dialog, the same dialog opens again on Default",
+      "to": "e2e"
+     },
+     {
+      "title": "the dialog opens in the instruction field, and Tab reaches Record, Attach images, Host, Model, Reasoning effort, the session's tracking, Command details, Cancel, then Start",
+      "to": "frontend"
+     },
+     {
+      "title": "a refused launch with Opus says Launch failed beside its action, closes the dialog, and lists no session",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/agent-launch-options-entries.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/launches/agent-launch-options-exclusive.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "a group is radios with a No choice and other options stay checkboxes, choosing a member replaces another, and the command line and launch follow in definition order",
+      "to": "e2e"
+     },
+     {
+      "title": "choosing No Approach clears the group's choice and leaves the others",
+      "to": "frontend"
+     },
+     {
+      "title": "${name}: the dialog says why in one quiet line with no options, and Start launches default refinement",
+      "to": "e2e"
+     },
+     {
+      "title": "until the sessions read answers, refinement is not offered; while the options are read again, the dialog says so and Start launches default refinement",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/agent-launch-options-kept.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "a launch the boundary refuses says Launch failed naming the option, and the next opening keeps the selection",
+      "to": "e2e"
+     },
+     {
+      "title": "a kept selection the project no longer offers at all is named, and Start launches default refinement",
+      "to": "e2e"
+     },
+     {
+      "title": "after a refusal, Cancel drops the kept selection",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/agent-launch-options.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "the refinement dialog offers the installed definition's entries with label, summary and flag, and a changed definition shows with no code change",
+      "to": "e2e"
+     },
+     {
+      "title": "selecting Explore and Borrow shows them in the command line and starts the session with those flags",
+      "to": "e2e"
+     },
+     {
+      "title": "a dialog with nothing selected starts as before, and opens again with nothing selected",
+      "to": "e2e"
+     },
+     {
+      "title": "the execution and session dialogs offer no options",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/agent-launch-start-session-answer-touch.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/launches/agent-launch-start-session-layout.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/launches/agent-launch-start-story-card.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "the execution dialog of a project that establishes a start says Start also publishes the Take to the trunk on origin and creates a workspace under .worktrees/, and the refinement dialog does not",
+      "to": "frontend"
+     },
+     {
+      "title": "the execution dialog of a project whose installed skill cannot continue from a start adds no sentence about a Take or a workspace",
+      "to": "frontend"
+     },
+     {
+      "title": "while the launch request is pending › an execution card of a project whose installed skill cannot continue from a start reads Starting execution in Claude Code…",
+      "to": "frontend"
+     },
+     {
+      "title": "while the launch request is pending › an execution card of a project that establishes a start reads Preparing execution… and stays in the Backlog, shown neither Taken nor assigned",
+      "to": "frontend"
+     },
+     {
+      "title": "while the launch request is pending › a refinement card keeps Starting refinement in Claude Code…",
+      "to": "frontend"
+     },
+     {
+      "title": "a session whose start or preparation established a workspace says Workspace <folder> beneath the project folder, never the home directory, one without says none, and none is listed in Recently done",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/agent-launch-story-attachments.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "Start execution and Start refinement dialogs offer the same Attach images control",
+      "to": "frontend"
+     },
+     {
+      "title": "Start refinement with two picked images and no text ends the first input with their copied paths after the handoff",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/agent-launch-story-card-noted-start.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/launches/agent-launch-story-card-problems.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "without the project's folder › the card explains the folder was not found and keeps Start execution",
+      "to": "frontend"
+     },
+     {
+      "title": "without the project's folder › the failure shows beside Start refinement, which it describes, and leaves Start execution without an answer",
+      "to": "frontend"
+     },
+     {
+      "title": "when Claude Code does not answer within the launch wait › phone touch recovery › a constrained-height Start reports uncertainty and only the explicit recovery choice starts its kept instruction again",
+      "to": "e2e"
+     },
+     {
+      "title": "when Claude Code does not answer within the launch wait › Start is disabled while in flight, and the uncertain answer needs reconciliation under Startup recovery while the card stays protected",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/agent-launch-story-card.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "every Backlog card offers Start execution, described as not assessed as ready unless its assessment is Ready, then Start refinement, and a Taken card offers neither",
+      "to": "frontend"
+     },
+     {
+      "title": "the ${launch.action} dialog names the story, Claude Code, and its command, takes focus to its instruction, and Escape or Cancel sends nothing",
+      "to": "frontend"
+     },
+     {
+      "title": "starting sends the instruction after the execution command in the Open Dough folder, and the card lists the session, with the keyboard on it, beside Start execution",
+      "to": "e2e"
+     },
+     {
+      "title": "starting refinement sends its instruction in the Open Dough folder and lists its session beside both Start actions",
+      "to": "e2e"
+     },
+     {
+      "title": "phone touch submission › only explicit Start sends the exact multiline draft and the card distinguishes accepted startup from a launched session",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/responsive-session-access.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/launches/responsive-session-recovery-reads.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/launches/responsive-session-start.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "${start.action} in Claude Code closes at acceptance while its start is held, protecting only that story",
+      "to": "e2e"
+     },
+     {
+      "title": "before Start, Cancel and Escape send nothing and leave the story's actions available",
+      "to": "frontend"
+     },
+     {
+      "title": "a lost acknowledgment says the launch is uncertain, never accepted, and the story is protected once its attempt is read",
+      "to": "frontend"
+     },
+     {
+      "title": "Start session in Claude Code closes at acceptance while its launch is held, with its progress beside the action and no card",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/session-instruction-voice-capture-failures.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/launches/session-instruction-voice-lifecycle.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "held provider result is aborted on Cancel; reopening stays empty and microphone tracks are released",
+      "to": "e2e"
+     },
+     {
+      "title": "Escape stops active capture; a late permission grant after dismissal cannot record into a reopened dialog",
+      "to": "frontend"
+     },
+     {
+      "title": "unexpected real microphone track end preserves typed text and makes no transcription request",
+      "to": "frontend"
+     },
+     {
+      "title": "a completed real response delivered after Cancel cannot populate the next launch dialog",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/launches/session-instruction-voice-overflow.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "exactly 4,000 combined characters, including the separator, append ordinarily and reach the story launch unchanged",
+      "to": "e2e"
+     },
+     {
+      "title": "one character over retains both drafts; keyboard shortening adds once and edited final text reaches the native session",
+      "to": "frontend"
+     },
+     {
+      "title": "the complete transcript beyond 4,000 remains editable; keyboard discard and launch dismissal clear only transient review",
+      "to": "frontend"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "sessions and terminals",
+  "folders": [
+   "sessions",
+   "terminals"
+  ],
+  "substitutes": "delete-record and done-mark answers, session listings/history, polled machine-answer sequences, final-report result, terminal WebSocket/directed applications, /__instruction-transcription, /__terminal-theme",
+  "counts": {
+   "split/small": 9,
+   "frontend/small": 26,
+   "frontend/large": 19,
+   "split/large": 7,
+   "frontend/none": 1
+  },
+  "specs": [
+   {
+    "spec": "tests/sessions/agent-launch-ad-hoc-sessions.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "its Sessions sidebar Session entry opens Open Dough's stories, the terminal and its Taken entry; Mark as done takes it out of the sidebar and Open terminal puts it back, through a reload",
+      "to": "e2e"
+     },
+     {
+      "title": "a blocked ad hoc session reads Needs input in Taken and the sidebar, and the sidebar counts it",
+      "to": "frontend"
+     },
+     {
+      "title": "with the listing unreadable, an ad hoc session's record can be deleted from Taken, leaving the sidebar and moving the keyboard to the next entry",
+      "to": "frontend"
+     },
+     {
+      "title": "with Open Dough already shown, its Sessions sidebar Session entry brings its Taken entry into view",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/agent-launch-retained-history.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "one history read per opening, none while nothing retained is opened, and again only once its revision moves",
+      "to": "e2e"
+     },
+     {
+      "title": "a failed history read leaves retained sessions as shown and the next opening asks again",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/agent-launch-sessions-unanswered.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/agent-launch-story-card-delete-problems.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/agent-launch-story-card-delete.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/agent-launch-story-card-done.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "marking a card's session done › Mark as done on a card's session Claude Code no longer lists takes it off the card and Recently done shows it Done",
+      "to": "e2e"
+     },
+     {
+      "title": "marking a card's session done › a refused mark keeps the session on its card and says so on its entry",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/agent-terminal-done-pending.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "pending Mark as done from the terminal › Maximize and Close stay usable while Done is held, and releasing still closes the panel",
+      "to": "frontend"
+     },
+     {
+      "title": "pending Mark as done from the terminal › a held Done past the wait bound leaves a recoverable unresolved state without claiming the mark failed",
+      "to": "e2e"
+     },
+     {
+      "title": "pending Mark as done from the terminal › a failed Done answer leaves the same recoverable unresolved state without claiming the mark failed",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/agent-terminal-done-question.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/agent-terminal-done.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "marking a session done from its terminal › Mark as done closes the panel, the session leaves its card, and Recently done shows it Done until its terminal opens again",
+      "to": "e2e"
+     },
+     {
+      "title": "marking a session done from its terminal › a refused mark keeps the panel open and says so as a problem, as an ended terminal does",
+      "to": "frontend"
+     },
+     {
+      "title": "marking a session done from its terminal › a mark answered after another session replaced the panel leaves the keyboard in the new terminal",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/compact-session-entry.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/cursor-sessions-sidebar-layout.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/cursor-sessions-sidebar-navigation.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "in a wide window, choosing a held row opens that client's terminal",
+      "to": "e2e"
+     },
+     {
+      "title": "in a narrow window, choosing a held row opens that client's terminal",
+      "to": "e2e"
+     },
+     {
+      "title": "with two projects › expansion survives project and view changes and closing the sidebar, and a reload starts collapsed",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/cursor-sessions-sidebar-resize-lasting.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/cursor-sessions-sidebar-resize.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/cursor-sessions-sidebar-size-kept.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/cursor-sessions-sidebar-size-unkept.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/final-report-touch-divider.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/final-report-touch.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "short phone 320 › reads the question and touches each full choice, retaining identity through resize and rotation",
+      "to": "e2e"
+     },
+     {
+      "title": "tablet › keeps report reading, choices, Escape restoration and the panel shortcut",
+      "to": "frontend"
+     },
+     {
+      "title": "desktop › keeps report reading, choices, Escape restoration and the panel shortcut",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/recently-done-active-story-sessions.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-select-ad-hoc-check.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-select-check.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-select-development.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-select-supersede.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-select-touch.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-select.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "selecting a linked done story from Intent shows that project's story in Intent, keeps the report in the Side panel and attaches nothing; Open still opens its terminal",
+      "to": "e2e"
+     },
+     {
+      "title": "selecting standalone rows from Intent keeps the project, file, Selected story and Side panel, including a Taken story's session with no done record",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-sidebar-navigation.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-sidebar-paging-board.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-sidebar-paging.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-sidebar-projects.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-sidebar-reopen.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "a held Cursor attach from Recently done keeps Done membership",
+      "to": "frontend"
+     },
+     {
+      "title": "a successful Cursor attach from Recently done removes the Done row",
+      "to": "e2e"
+     },
+     {
+      "title": "on a narrow window, closing the panel after a successful reopen returns focus to Sessions",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-sidebar-room.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-sidebar-touch.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/recently-done-sessions-sidebar.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/recently-done-story-sessions.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/session-unread-report-message.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "a card entry's unread message is marked read in its message part, beside the entry's own Mark as done",
+      "to": "frontend"
+     },
+     {
+      "title": "an ad-hoc session's message is read and marked read on its Recently done entry",
+      "to": "e2e"
+     },
+     {
+      "title": "a long unread message scrolls inside its message part, with Mark as read and the entry's Mark as done in view",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/session-workspace-retirement-claude-done.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "a Recently done entry's Mark as done stays where a settled page shows it",
+      "to": "frontend"
+     },
+     {
+      "title": "Recently done renames a retired-workspace Claude session › Recently done renames a retired-workspace Claude session with the old ${cause} problem",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/session-workspace-retirement-lifetime.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/session-workspace-retirement.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "card, Recently done and sidebar review the retained report with attention, association and keyboard focus, without continuing",
+      "to": "e2e"
+     },
+     {
+      "title": "changing or closing selection cancels a held report and never shows its text as the next session",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/sessions-sidebar-host-status.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "the Sessions sidebar's title row status › counts active and waiting open sessions by the attention grouping, and follows the next sessions reading",
+      "to": "e2e"
+     },
+     {
+      "title": "the Sessions sidebar's title row status › keeps a zero waiting count visible, and shows the figures only while the sidebar is open",
+      "to": "frontend"
+     },
+     {
+      "title": "the Sessions sidebar's title row status › shows the host's CPU usage and free disk from the page's host read, only while the sidebar is open",
+      "to": "e2e"
+     },
+     {
+      "title": "the Sessions sidebar's title row status › a hidden page asks no host status; seen again, it asks at once and keeps the steady pace",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/sessions-sidebar-keyboard.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/sessions-sidebar-navigation-cases.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/sessions-sidebar-navigation.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/sessions-sidebar-order.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/sessions-sidebar-reading.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "the Sessions sidebar's reading › says it is reading until the machine's sessions are first read, then that none are kept, then none open",
+      "to": "frontend"
+     },
+     {
+      "title": "the Sessions sidebar's reading › no Start is offered before the first read while the lists keep reading; once read, a launch's session joins what was read",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/sessions/sessions-sidebar-row.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/sessions-sidebar-state-edge.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/sessions/sessions-sidebar-stays-as-left.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/sessions/sessions-sidebar-touch.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/terminals/agent-launch-ad-hoc-terminal.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "starting with nothing typed opens the session in the terminal with the keyboard in it, and Close returns the keyboard to Start session",
+      "to": "e2e"
+     },
+     {
+      "title": "a terminal the developer closed while its session started stays closed once it starts, and Open terminal still opens it",
+      "to": "frontend"
+     },
+     {
+      "title": "a terminal the developer reopened while its session started stays open, attached as it was, once it starts",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/terminals/agent-terminal-avatar.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/terminals/agent-terminal-ended-input-recovery.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/terminals/agent-terminal-keyboard.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/terminals/agent-terminal-maximize.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/terminals/agent-terminal-theme.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/terminals/agent-terminal-touch-composer.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/terminals/agent-terminal-touch-keyboard-fit.spec.ts",
+    "class": "frontend",
+    "effort": "none"
+   },
+   {
+    "spec": "tests/terminals/agent-terminal-touch-keys.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/terminals/agent-terminal-touch-paste.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/terminals/session-terminal-prompts.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/terminals/session-terminal-voice-lifecycle.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/terminals/session-terminal-voice-recovery.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/terminals/session-terminal-voice.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "keyboard dictation preserves typed input, offers one safe transcript, then edits and submits only on Enter",
+      "to": "e2e"
+     },
+     {
+      "title": "terminal dictation preserves a transcript beyond the launch field limit without submitting",
+      "to": "frontend"
+     },
+     {
+      "title": "phone terminal microphone › touch records and stops with compact ordered actions and input room at reduced height",
+      "to": "frontend"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "story review",
+  "folders": [
+   "review"
+  ],
+  "substitutes": "story-review snapshot, range, file diff, file text and mark endpoints (src/storyReviewContract.ts)",
+  "counts": {
+   "frontend/small": 1,
+   "frontend/large": 11,
+   "split/large": 3
+  },
+  "specs": [
+   {
+    "spec": "tests/review/story-review-action.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/review/story-review-commit-races.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/review/story-review-commit-ranges.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "two ends select three commits in either direction, reset to one, and survive switching comparisons",
+      "to": "frontend"
+     },
+     {
+      "title": "older Git explains a range across integration with no files, while one below it works",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/review/story-review-commit-refresh.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/review/story-review-comparison.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "the switch shows the same snapshot against trunk and back without reading it again",
+      "to": "frontend"
+     },
+     {
+      "title": "Refresh keeps all changes shown, of a new snapshot",
+      "to": "frontend"
+     },
+     {
+      "title": "each opening starts on the changes since the review",
+      "to": "frontend"
+     },
+     {
+      "title": "a marked story with no later change says nothing changed since the review and offers all changes",
+      "to": "e2e"
+     },
+     {
+      "title": "an unmarked story's review opens on all its changes and offers Commits",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/review/story-review-context-line.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/review/story-review-diff-context.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/review/story-review-file-moves.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/review/story-review-one-shot-choice-races.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/review/story-review-panes.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/review/story-review-touch.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/review/story-review-tree-collapse.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/review/story-review-tree.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/review/story-review-uncommitted-check-refresh.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/review/story-review-uncommitted-check.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "the check leaves uncommitted changes out of all changes and back without reading the snapshot again",
+      "to": "e2e"
+     },
+     {
+      "title": "the selected file stays selected while the committed files list it, and otherwise the first file is",
+      "to": "frontend"
+     },
+     {
+      "title": "a worktree without uncommitted changes offers no check",
+      "to": "e2e"
+     },
+     {
+      "title": "with nothing committed, the check off says so, lists no files, and stays to turn back on",
+      "to": "e2e"
+     },
+     {
+      "title": "Mark reviewed with the check off marks the whole snapshot, and the review says so before and after",
+      "to": "e2e"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "Intent CI, proof, history and Purpose",
+  "folders": [
+   "intent"
+  ],
+  "substitutes": "ci-status, ci-proof, ci-history and ci-comparison answers for the full Intent page, done records/story-review answers, revision polling (since) sequences",
+  "counts": {
+   "frontend/small": 21,
+   "frontend/large": 40,
+   "split/large": 4,
+   "split/small": 4
+  },
+  "specs": [
+   {
+    "spec": "tests/intent/intent-ci-comparison-count-gaps.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-ci-comparison-drilldown-relative.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-ci-comparison-locations.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-ci-comparison-relative.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-ci-done-reference-lifecycle.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-ci-proof-accessibility.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-ci-proof-grouped-location.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-ci-proof.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "a failed run with a summary shows Failed as before, then Proof of that run's revision, link and attempt with each entry's counts and timing",
+      "to": "e2e"
+     },
+     {
+      "title": "a missing part is shown as a gap and its counts are not counted",
+      "to": "frontend"
+     },
+     {
+      "title": "a CI proof query that omits the attempt is refused before asking GitHub",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/intent/intent-ci-status-execution-time.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-ci-status-freshness.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-ci-status-homepage.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-ci-status-kept.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "CI homepage shows again across Development and back; Optimization Candidates stays chosen; a project change starts again on Intent",
+      "to": "frontend"
+     },
+     {
+      "title": "a new trunk revision re-reads the homepage judgment at the new head; time alone and another branch moving read none",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/intent/intent-ci-status-side-panel.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-ci-status-sort.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-ci-wall-time-history-gaps.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-ci-wall-time-history-order.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-ci-wall-time-history-window.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-ci-wall-time-history.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "a collected landing's exact build is a point of CI wall time beside the trunk's judgment and Proof, listed with its date, wall time, exact revision and run, by keyboard on a phone",
+      "to": "e2e"
+     },
+     {
+      "title": "a project with no recorded landing says no landing has been measured yet, draws no chart, and keeps its judgment and Proof",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/intent/intent-code-browse-java.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "Intent lists configured nested JUnit source, reads exact pinned Java with line numbers and theme styling, and shares Purpose/Proof with other source",
+      "to": "e2e"
+     },
+     {
+      "title": "a failed Java grammar load leaves configured source readable as exact plain text",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/intent/intent-done-landed-review-mode.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-done-project-refresh-proof.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-done-project-refresh-reading.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-done-review-modes.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-done-source-selection.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-entry-folder-summaries-folders.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-entry-folder-summaries.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-gherkin-groups.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-gherkin-layout.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-gherkin-settings-problems.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "unreadable and malformed Intent settings stay distinct from not-configured",
+      "to": "e2e"
+     },
+     {
+      "title": "an Intent locations read that fails names its cause, and Retry reads it again",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/intent/intent-home-activation.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-project-visit-selection.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-project-visit.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-purpose-case.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-read-recovery.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "unreachable Intent locations recover after 15, 30, 60 and 60 seconds while revision checks continue",
+      "to": "frontend"
+     },
+     {
+      "title": "Intent locations make no recovery request while hidden and ask once on reveal",
+      "to": "frontend"
+     },
+     {
+      "title": "published detail and Intent locations share a wait, and healing detail leaves Intent pending",
+      "to": "frontend"
+     },
+     {
+      "title": "malformed Intent settings stay visible until manual Retry",
+      "to": "frontend"
+     },
+     {
+      "title": "rate-limited Intent locations reread when the standing limit ends",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/intent/intent-read-reuse-story.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-read-reuse.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-reading-place.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-revision-notice.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-revision-planning-only.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-revision-settings-update.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-revision-update-boundaries.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-revision-update-outcomes.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-scope-timing-history-gap-build.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-scope-timing-history-gaps.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-scope-timing-history-legacy.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-scope-timing-history-provenance.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-selection-reads.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-sidebar-toggle.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-source-target-recovery.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-story-changes-gaps.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "an active story with no workspace explains that no comparison is available and leaves the tree usable",
+      "to": "e2e"
+     },
+     {
+      "title": "a failed comparison read explains itself with a retry that then shows the story's changes",
+      "to": "frontend"
+     },
+     {
+      "title": "without configured Intent locations the header names the selected story, CI comparison shows its CI status, Changed tests the explanation, and Project Intent main's CI status beside it",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/intent/intent-story-changes-only.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-story-ci-cues.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-story-coverage.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-story-dark-appearance.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-story-review-return.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-story-summary-title.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-story-views-narrow.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-summary-ci-proof-gaps.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-summary-ci-proof-kept.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-summary-ci-proof-sort.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-summary-ci-proof-table.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-summary-story-comparison-file.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "a selected done story's changed test file shows Purpose as the diff and Proof as the compact comparison with clean merges",
+      "to": "frontend"
+     },
+     {
+      "title": "a selected done story's changed test file shows Purpose as the diff and Proof as the compact comparison with own-conflict-extra",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/intent/intent-summary-story-comparison-sort.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-test-optimization-candidates-case.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-test-optimization-candidates-live.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-test-optimization-candidates-open.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-test-optimization-candidates-revision.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/intent/intent-test-optimization-candidates-states.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/intent/intent-test-optimization-candidates.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   }
+  ]
+ },
+ {
+  "name": "Board, navigation, stories and observation reading",
+  "folders": [
+   "navigation",
+   "stories",
+   "observation"
+  ],
+  "substitutes": "done catalog and bodies, per-project authenticated-read answers, held/failed/polling read sequences, launch POST, EventSource stream slots",
+  "counts": {
+   "frontend/large": 46,
+   "frontend/small": 23,
+   "split/small": 6,
+   "split/large": 4
+  },
+  "specs": [
+   {
+    "spec": "tests/navigation/accessible-board-keyboard.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/accessible-board-scroll.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/navigation/accessible-board-touch.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/accessible-board.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/board-clamp.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/navigation/board-height.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/board-kept.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/navigation/board-native-reading.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/navigation/board-paging-launch-dialog.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/board-paging-sessions-sidebar.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/board-paging-side-panel.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/board-paging.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/navigation/board-reading.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/board-scroll.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/board-session-reading.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/dashboard-header-compact.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/navigation/dashboard-header.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "selected project banner remains reachable at ${viewport.width} CSS pixels${fontFamily ? ` in ${fontFamily}` : \"\"}",
+      "to": "frontend"
+     },
+     {
+      "title": "banner project selection reads the selected project's actual published work",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/navigation/development-intent-frame-keyboard.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/navigation/development-intent-frame-sessions.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/development-intent-frame.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/navigation/frame-board-look.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/navigation/frame-launch-look.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/navigation/frame-sessions-look.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/notification-story-navigation.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/project-keyboard-navigation-eligibility.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/navigation/project-keyboard-navigation-focus.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/project-keyboard-navigation.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/navigation/project-selection.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "project selection shows each project's own Board, and returning to a project asks its ref again",
+      "to": "e2e"
+     },
+     {
+      "title": "project selection preserves empty Taken/Backlog groups and no-direction handling for the newly selected project",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/navigation/side-panel-width-covering.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/side-panel-width-kept.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/side-panel-width.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/source-navigation.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "source navigation opens canonical and plan records at the inspected revision",
+      "to": "e2e"
+     },
+     {
+      "title": "source navigation keeps an external reference apart from files in this snapshot",
+      "to": "frontend"
+     },
+     {
+      "title": "source navigation shows unsafe or invalid targets as text that cannot be followed",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/navigation/story-card-dependency-selection.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/navigation/story-card-selection.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/story-destination-repeat-cue.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/story-reference-done-cancellation.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/story-reference-done-recovery.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/story-reference-done.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/story-reference-identity.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/story-reference-navigation.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "a dependency opens its active story, keeping the dashboard and inspection on repeated activation",
+      "to": "frontend"
+     },
+     {
+      "title": "a reference reveals a starting story without opening its protected inspection or starting another host action",
+      "to": "e2e"
+     },
+     {
+      "title": "an identified active block with unreadable detail still opens with its existing read gap",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/navigation/story-reference-recovery.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/navigation/story-reference-scroll-completion.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/observation/project-read-isolation.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "project read isolation › a late success from a deselected project's outstanding read never replaces the newly selected project's shown work, and the selector stays keyboard-operable throughout",
+      "to": "frontend"
+     },
+     {
+      "title": "project read isolation › a late failure from a deselected project's outstanding read never surfaces as the newly selected project's failure",
+      "to": "frontend"
+     },
+     {
+      "title": "project read isolation › returning to a project whose read is still outstanding elsewhere starts a third, fresh read rather than replaying its first snapshot, even with a shared work identity",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/observation/published-facts-reading.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/observation/revision-stream.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "a streaming page sends no since request over a quiet minute",
+      "to": "e2e"
+     },
+     {
+      "title": "shared publication listing › two streaming pages show a publication from one listing with one backlog read",
+      "to": "e2e"
+     },
+     {
+      "title": "a watched branch move reads only that entry's plan and commit time; the other page reads nothing further",
+      "to": "e2e"
+     },
+     {
+      "title": "after reading a publication the page reopens its stream at the new revision",
+      "to": "e2e"
+     },
+     {
+      "title": "seven pages of one context: two stream and five check; hiding a holder lets a checker stream",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/observation/steady-refresh-bound.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/observation/steady-refresh-carry.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/observation/steady-refresh-inspection.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/observation/steady-refresh.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/stories/agent-roster-collection.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/stories/agent-roster.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/branch-progress-reading.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/direction-disclosure.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "direction starts collapsed and opens by pointer and keyboard without reading again",
+      "to": "frontend"
+     },
+     {
+      "title": "the opened direction reads across the whole project actions row beneath Start session, which stays in place, and closing restores the row",
+      "to": "frontend"
+     },
+     {
+      "title": "same-project refresh retains expanded and collapsed choices through loading, replacement, and failure",
+      "to": "frontend"
+     },
+     {
+      "title": "changing projects removes previous direction while reading and starts each observation collapsed",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/stories/nerds-cartoon-portrait.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/stories/plan-execution-complete-detail.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/stories/preparation-legend.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/stories/published-work.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "published Board shows Backlog and Taken work read at one revision",
+      "to": "e2e"
+     },
+     {
+      "title": "published Board accepts successfully empty groups and no recorded direction",
+      "to": "frontend"
+     }
+    ]
+   },
+   {
+    "spec": "tests/stories/recently-done-progressive-added-project.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/recently-done-progressive-after-sessions.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/recently-done-progressive-failed-read-refresh.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/recently-done-progressive-loading.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/recently-done-progressive-navigation-cursor.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/recently-done-progressive-navigation-report.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/recently-done-progressive-navigation.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/recently-done-progressive-refresh.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/recently-done-progressive-reset.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/recently-done-progressive-state.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/recently-done-read-latency.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/recently-done-review-state-offer.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/recently-done-review-state.spec.ts",
+    "class": "split",
+    "effort": "large",
+    "cases": [
+     {
+      "title": "Mark as reviewed and Unreview keep each story's state on this machine, through reload and restart, leaving the card, the selection, the snapshot mark and the repository as they were",
+      "to": "e2e"
+     },
+     {
+      "title": "Mark as reviewed and Unreview keep the card's sessions as they were",
+      "to": "frontend"
+     },
+     {
+      "title": "a project refresh keeps the review state, and another page of the same server shows it at its next read",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/stories/story-card-inspection.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/stories/story-dependencies-malformed.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/stories/story-dependencies-touch.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/stories/story-readiness-accessible.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/story-readiness-gaps.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/taken-agent-profile-refresh.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   },
+   {
+    "spec": "tests/stories/taken-execution-complete.spec.ts",
+    "class": "frontend",
+    "effort": "large"
+   },
+   {
+    "spec": "tests/stories/taken-slice-clock.spec.ts",
+    "class": "split",
+    "effort": "small",
+    "cases": [
+     {
+      "title": "each Taken card's clock measures from the later of its last plan commit and its Take, ticking with page time",
+      "to": "e2e"
+     },
+     {
+      "title": "when agent profiles cannot be read, the clock is a gap rather than a plan-only clock",
+      "to": "frontend"
+     },
+     {
+      "title": "a Take whose profile addition is not found, or names no usable time, is a clock gap",
+      "to": "e2e"
+     }
+    ]
+   },
+   {
+    "spec": "tests/stories/taken-slice-progress.spec.ts",
+    "class": "frontend",
+    "effort": "small"
+   }
+  ]
+ },
+ {
+  "name": "server boundary through a page",
+  "folders": [
+   "intent"
+  ],
+  "substitutes": "none: send its requests with support/rawHttp.ts in backend-tests/intent/",
+  "counts": {
+   "backend": 1
+  },
+  "specs": [
+   {
+    "spec": "tests/intent/intent-ci-status-read-boundary.spec.ts",
+    "class": "backend",
+    "effort": "small"
+   }
+  ]
+ }
+]

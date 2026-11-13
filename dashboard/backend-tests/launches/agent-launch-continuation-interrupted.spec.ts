@@ -7,7 +7,7 @@
 // submitting it again. A continuation the service cannot match to a kept
 // attempt that needs it is refused with nothing started; such an attempt, or
 // one this machine does not keep, is never noted reconciled. Unreadable kept
-// attempts: ../../tests/launches/agent-launch-continuation.spec.ts. A story
+// attempts: ../../../e2e/launches/agent-launch-continuation.spec.ts. A story
 // whose latest attempt settled uncertain blocks a fresh start the same way
 // (./agent-launch-uncertain-continuation.spec.ts).
 

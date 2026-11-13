@@ -8,7 +8,7 @@
 // ./intent-scope-proof-units.test.mjs; timing gaps and time words:
 // ./intent-ci-proof-timing.test.mjs.
 // Browser journey:
-// ../../dashboard/tests/intent/intent-summary-ci-proof.spec.ts.
+// ../../e2e/intent/intent-summary-ci-proof.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {

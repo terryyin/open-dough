@@ -1,5 +1,5 @@
 // Published projects, settings, and Gherkin texts for Intent Gherkin browse,
-// exclusive-group, and layout journeys (`./intent/intent-gherkin-browse.spec.ts`,
+// exclusive-group, and layout journeys (`../../e2e/intent/intent-gherkin-browse.spec.ts`,
 // `./intent/intent-gherkin-groups.spec.ts`, `./intent/intent-gherkin-layout.spec.ts`).
 
 import { catalogPublications } from "./catalogProjectRecords.ts";

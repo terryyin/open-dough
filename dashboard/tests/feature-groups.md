@@ -1,8 +1,10 @@
 # Dashboard feature groups
 
-Every integrated browser spec belongs to one feature folder. Case-definition
-modules live with that same feature; reusable fixtures and support stay outside
-the groups. The sibling `../frontend-tests/` suite is the independent
+Every integrated browser spec belongs to one feature folder: a representative
+workflow under the repository's [`e2e/`](../../e2e/README.md) (**E2E Test**), a
+detailed UI or mixed check awaiting conversion under this tree. Both use the
+folders below. Case-definition modules live with that same feature; reusable
+fixtures and support stay outside the groups, in this tree. The sibling `../frontend-tests/` suite is the independent
 **Dashboard Frontend Test** entry (flat while it holds ten or fewer files) and
 does not add another browser feature group here. The sibling `../backend-tests/`
 suite is the independent **Dashboard Backend Test** entry and likewise does not

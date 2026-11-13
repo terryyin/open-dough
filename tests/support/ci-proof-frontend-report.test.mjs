@@ -72,7 +72,12 @@ test("with frontend-entry the summarize action writes the upload-named report fo
   // only reads that written summary.
   assert.deepEqual(
     summary.written.entries.map(({ path }) => path),
-    ["dashboard/tests", "dashboard/frontend-tests", "dashboard/backend-tests"],
+    [
+      "e2e",
+      "dashboard/tests",
+      "dashboard/frontend-tests",
+      "dashboard/backend-tests",
+    ],
   );
   assert.match(summaryAction, /scripts\/frontend-test-proof\.mjs/);
   assert.match(

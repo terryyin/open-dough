@@ -2,7 +2,7 @@
 // unreadable launch evidence refuses Codex before native creation but admits
 // Claude, and preserves the unreadable file beside the new store. A saved
 // creation whose host lacks recovery, on the page:
-// ../../tests/launches/agent-launch-creation-gates.spec.ts.
+// ../../../e2e/launches/agent-launch-creation-gates.spec.ts.
 import { readFileSync } from "node:fs";
 import { test, expect } from "../../tests/support/codexLaunch.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";

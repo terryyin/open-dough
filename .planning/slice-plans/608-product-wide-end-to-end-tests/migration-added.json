@@ -13,9 +13,9 @@
  },
  {
   "spec": "backend-tests/runtime/runner-ownership.spec.ts",
-  "title": "focused runs started beside each other and the umbrella keep their own run directories and records",
-  "slice": 2,
-  "proves": "concurrent frontend×2, backend×2 and umbrella runs keep separate run directories and records (replaces slice 1's frontend-only case)"
+  "title": "group runs started beside each other and the umbrella keep their own run directories and records",
+  "slice": 3,
+  "proves": "concurrent frontend×2, backend×2, E2E×2 and umbrella runs keep separate run directories and records (slice 3 renamed and extended slice 2's case)"
  },
  {
   "spec": "backend-tests/observation/run-processes.spec.ts",
@@ -58,5 +58,29 @@
   "title": "a shared real Dashboard Backend Test app build can interrupt while workers are waiting",
   "slice": 2,
   "proves": "backend run interruption cleanup"
+ },
+ {
+  "spec": "backend-tests/runtime/runner-ownership.spec.ts",
+  "title": "E2E Test normal npm records only its own selection under its own settings",
+  "slice": 3,
+  "proves": "E2E runner npm invocation, own settings, selection and output"
+ },
+ {
+  "spec": "backend-tests/runtime/runner-ownership.spec.ts",
+  "title": "E2E Test direct config from another working directory records only its own selection under its own settings",
+  "slice": 3,
+  "proves": "E2E runner direct config from another working directory, own settings, selection and output"
+ },
+ {
+  "spec": "backend-tests/observation/run-processes.spec.ts",
+  "title": "E2E Test: a run's own teardown ends a process its workers could not reach and fails naming it",
+  "slice": 3,
+  "proves": "E2E setup's teardown sweep"
+ },
+ {
+  "spec": "backend-tests/runtime/dashboard-artifact-demand.spec.ts",
+  "title": "a shared real E2E Test app build can interrupt while workers are waiting",
+  "slice": 3,
+  "proves": "E2E setup's interruption cleanup of its shared app build"
  }
 ]

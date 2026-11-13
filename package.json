@@ -15,7 +15,8 @@
     "setup-notifier:dashboard": "node dashboard/server/notifierSetup.ts",
     "test:dashboard": "playwright test --config dashboard/playwright.config.ts",
     "test:dashboard:frontend": "playwright test --config dashboard/frontend.playwright.config.ts",
-    "test:dashboard:backend": "playwright test --config dashboard/backend.playwright.config.ts"
+    "test:dashboard:backend": "playwright test --config dashboard/backend.playwright.config.ts",
+    "test:e2e": "playwright test --config e2e/playwright.config.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

@@ -1,4 +1,8 @@
-import { closeSidePanel, control } from "../sidePanelFrame.ts";
+import {
+  closeSidePanel,
+  control,
+  expectTitleOnOneCutLine,
+} from "../sidePanelFrame.ts";
 // Retained unfinished reports use the real page/store/native boundary. The
 // vendor fixture supplies history only; coordinates and finger strokes prove access.
 import { existsSync } from "node:fs";
@@ -70,13 +74,7 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
         name: title,
         exact: true,
       });
-      expect(
-        await titleToggle.evaluate(
-          (element) =>
-            getComputedStyle(element).whiteSpace === "nowrap" &&
-            element.scrollWidth > element.clientWidth,
-        ),
-      ).toBe(true);
+      await expectTitleOnOneCutLine(titleToggle);
       const initial = state();
       await expect(reading).toHaveText("Ready for review");
       await expectTopBarsShareHeight(page, 2);

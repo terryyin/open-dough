@@ -8,7 +8,7 @@
 // journeys: ./session-alerts-input-continuity.spec.ts). A session marked done
 // never alerts (a report's arrival: ./session-alerts-unread-report.spec.ts).
 // Closing the server ends a sender it started. Its naming, sound and repeat
-// across a page reload: ../../tests/sessions/session-alerts.spec.ts. The
+// across a page reload: ../../../e2e/sessions/session-alerts.spec.ts. The
 // synthetic `claude` (../../tests/fixtures/fake-claude) and sender
 // (../../tests/fixtures/fake-terminal-notifier) are all the server reaches; a
 // real notification is never raised. The server reads the sessions every

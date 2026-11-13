@@ -2,7 +2,7 @@
 // (../../dashboard/src/ciScopeComparisonCues.ts) on the seed's key examples,
 // only between figures of one declared unit, and the cue several unit rows
 // or units agree on (../../dashboard/src/ciScopeComparisonAgreedCues.ts).
-// Browser journeys: ../../dashboard/tests/intent/intent-ci-comparison.spec.ts,
+// Browser journeys: ../../e2e/intent/intent-ci-comparison.spec.ts,
 // intent-summary-story-comparison*.spec.ts, intent-ci-comparison-units.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";

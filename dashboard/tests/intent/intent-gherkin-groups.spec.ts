@@ -20,10 +20,7 @@ import {
   intentGroupToggle,
   intentLocationName,
 } from "../intentPerspectivePage.ts";
-import {
-  intentLocationHeader,
-  locationHeaderLook,
-} from "../intentLocationHeaderLook.ts";
+import { locationHeaderLookAt } from "../intentLocationHeaderLook.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
   doughnut,
@@ -177,7 +174,7 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
 
     const looks = new Map<
       string,
-      Awaited<ReturnType<typeof locationHeaderLook>>
+      Awaited<ReturnType<typeof locationHeaderLookAt>>
     >();
     for (const location of [
       expandedPath,
@@ -185,10 +182,7 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
       "empty_features",
       "frontend/src",
     ])
-      looks.set(
-        location,
-        await locationHeaderLook(intentLocationHeader(intent, location)),
-      );
+      looks.set(location, await locationHeaderLookAt(intent, location));
     const expanded = looks.get(expandedPath);
     const selected = looks.get(selectedPath);
     await expect(intentGroupToggle(intent, expandedPath)).toHaveAttribute(

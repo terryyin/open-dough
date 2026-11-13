@@ -6,7 +6,10 @@ import {
   runnerVariables,
 } from "./tests/support/runnerConfig.mjs";
 
-// The umbrella run of all three dashboard roots. Its environment scrubbing,
+// The umbrella run of the three dashboard roots and, until each group has its
+// own CI runner, the repository's sibling `e2e/` root: its projects search
+// from the repository root, while spec labels stay relative to this
+// directory (`../e2e/<path>`, ./tests/support/testFiles.mjs). Its environment scrubbing,
 // local full-suite admission, run-stamped output directory, workers,
 // deadline and reporters are prepared by ./tests/support/runnerConfig.mjs
 // from the OPEN_DOUGH_DASHBOARD_* settings. CI names the times file per shard
@@ -23,7 +26,11 @@ export default defineConfig({
   projects: dashboardTestProjects(
     new URL("./", import.meta.url),
     run.split,
-  ).map((project) => ({ ...project, use: { ...devices["Desktop Chrome"] } })),
+  ).map((project) => ({
+    ...project,
+    testDir: "..",
+    use: { ...devices["Desktop Chrome"] },
+  })),
   // Page journeys share the app build on demand, then serve it from their
   // own servers. Integrated previews answer through synthetic GitHub
   // (tests/dashboardTest.ts).

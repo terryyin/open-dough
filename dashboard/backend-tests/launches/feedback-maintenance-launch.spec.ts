@@ -5,7 +5,7 @@
 // date. Not due, off, no block, a failed read, or a developer's open session
 // with the same invocation start nothing
 // (./feedbackMaintenanceLaunchEligibilityCases.ts). The started session on
-// the page: ../../tests/launches/feedback-maintenance-launch.spec.ts. Real
+// the page: ../../../e2e/launches/feedback-maintenance-launch.spec.ts. Real
 // start, launch, installed reporting command, store and gh path; Claude,
 // GitHub and the notification sender are fakes. Checks run every 100 ms;
 // "nothing more" is asserted only after the server has asked GitHub, or

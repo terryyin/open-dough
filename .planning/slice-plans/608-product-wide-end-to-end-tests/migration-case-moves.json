@@ -177,5 +177,11 @@
   "title": "a session that starts needing the developer raises one macOS notification › closing the server ends a notifier it started and stops reading the sessions",
   "to": "backend-tests/sessions/session-alerts.spec.ts",
   "slice": 2
+ },
+ {
+  "spec": "tests/sessions/agent-launch-session-state-pace.spec.ts",
+  "title": "a session's attention stays through opening and closing its terminal, clears when it works again or is marked done, and never returns once marked done",
+  "to": "../e2e/sessions/agent-launch-session-acknowledgment.spec.ts",
+  "slice": 3
  }
 ]

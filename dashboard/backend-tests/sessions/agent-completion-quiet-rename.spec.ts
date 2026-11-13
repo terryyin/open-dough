@@ -5,7 +5,7 @@
 // pending mark and hangs up its attachment. Real start, launch, installed
 // reporting command and store; only Claude and GitHub are fakes. The
 // receipt's pending mark on the page and its rename once idle:
-// ../../tests/sessions/agent-completion-quiet-claude.spec.ts.
+// ../../../e2e/sessions/agent-completion-quiet-claude.spec.ts.
 
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";

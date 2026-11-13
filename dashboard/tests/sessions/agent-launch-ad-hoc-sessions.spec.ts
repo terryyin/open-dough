@@ -3,7 +3,7 @@
 // Blocked sessions count as needing attention; deletion under an unread native
 // listing returns focus to the next Taken entry. The real boundary drives fake Claude.
 // Related journeys: ../launches/agent-launch-ad-hoc.spec.ts, ./sessions-sidebar-navigation-cases.spec.ts,
-// ./agent-terminal-done.spec.ts, ./agent-launch-recent-delete.spec.ts (./fixtures/fake-claude).
+// ./agent-terminal-done.spec.ts, ../../../e2e/sessions/agent-launch-recent-delete.spec.ts (./fixtures/fake-claude).
 
 import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 import {

@@ -1,6 +1,6 @@
 // Navigating with Running Cursor sessions in the Sessions sidebar. Choosing a
 // held row opens that client's terminal as the runner spec does
-// (./cursor-runner-sessions.spec.ts), on a narrow window closing the sidebar
+// (../../../e2e/sessions/cursor-runner-sessions.spec.ts), on a narrow window closing the sidebar
 // lying over the page, while the saved session stays the session list's own.
 // Expansion lasts for the page, across project and view changes and closing
 // the sidebar, but a reload starts collapsed. The section's layout is

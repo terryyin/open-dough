@@ -1,7 +1,7 @@
 import { readFailure, readRetry } from "../intentReadRecoveryPage.ts";
 // Unreadable and malformed Intent settings stay distinct from not-configured,
 // and a failed Intent locations read names its cause
-// (../../src/IntentPerspective.tsx). Companion to ./intent-gherkin-unusable.spec.ts
+// (../../src/IntentPerspective.tsx). Companion to ../../../e2e/intent/intent-gherkin-unusable.spec.ts
 // location-body explanations.
 
 import { expect, test } from "../dashboardTest.ts";

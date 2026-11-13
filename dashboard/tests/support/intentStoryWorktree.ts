@@ -1,5 +1,5 @@
 // A story's worktree whose changes Intent overlays on its published tests
-// (../intent/intent-story-changes.spec.ts): trunk publishes Intent locations for
+// (../../../e2e/intent/intent-story-changes.spec.ts): trunk publishes Intent locations for
 // `dashboard/tests` (TypeScript specs) and `tests` (shell scripts) with test
 // files in nested folders, and the story modifies one spec, adds another as
 // an untracked file, deletes one, renames one between the two locations, one

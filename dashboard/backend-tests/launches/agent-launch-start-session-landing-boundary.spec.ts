@@ -6,7 +6,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 // "Established session" block, the reporting context, then the developer's
 // text; Wait for review, named or not, runs no start, and confirming existing
 // changes never selects an automatic landing. The dialog's journeys are in
-// ../../tests/launches/agent-launch-start-session-landing.spec.ts.
+// ../../../e2e/launches/agent-launch-start-session-landing.spec.ts.
 
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";

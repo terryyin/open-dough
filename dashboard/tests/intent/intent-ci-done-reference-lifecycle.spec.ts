@@ -1,12 +1,11 @@
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 // CI state transitions cannot own or discard the independent local reference.
-import { readFileSync, writeFileSync } from "node:fs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../support/preparationPage.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
 import { doneWallReferenceHistory } from "../support/doneWallReferenceHistory.ts";
 import { keepLandedCiHistory } from "../support/landedCiHistory.ts";
-import { historyFile } from "../support/collectedScopeHistory.ts";
+import { withBrokenCollectedHistory } from "../support/collectedScopeHistory.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 
 test("initial failed and unavailable CI comparisons keep the local prior reference, and later CI failure cannot remount or discard it", async ({
@@ -81,10 +80,7 @@ test("initial failed and unavailable CI comparisons keep the local prior referen
   const actions = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const before = actions().length;
-  const file = historyFile(dashboard.home);
-  const retained = readFileSync(file, "utf8");
-  try {
-    writeFileSync(file, "{broken local history");
+  await withBrokenCollectedHistory(dashboard.home, async (restore) => {
     mode = "failed";
     await checkAgain.click();
     await expect(comparisonReading(panel).gap).toContainText(
@@ -100,7 +96,7 @@ test("initial failed and unavailable CI comparisons keep the local prior referen
       "The collected CI history could not be read",
     );
     await expect(history).toContainText("Prior-build average · 1 min 43 s");
-    writeFileSync(file, retained);
+    restore();
     await history
       .getByRole("button", { name: "Retry history", exact: true })
       .click();
@@ -114,7 +110,5 @@ test("initial failed and unavailable CI comparisons keep the local prior referen
     await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
     await expect(history).toContainText("Prior-build average · 1 min 43 s");
     expect(actions()).toHaveLength(before);
-  } finally {
-    writeFileSync(file, retained);
-  }
+  });
 });

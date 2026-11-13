@@ -1,7 +1,7 @@
 // The verification endpoint over raw HTTP: a direct verification request for
 // an uncertain Codex start that is not a story launch is answered unresolved
 // without asking the host, and its attempt is kept unchanged. Recheck on the
-// page: ../../tests/launches/agent-launch-codex-recheck.spec.ts.
+// page: ../../../e2e/launches/agent-launch-codex-recheck.spec.ts.
 import { agentVerifyEndpoint } from "../../src/agentLaunch.ts";
 import {
   notRefinedIdentity,

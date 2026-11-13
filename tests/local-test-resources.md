@@ -3,10 +3,11 @@
 Only one full repository or dashboard suite runs at a time across this
 repository's linked Git worktrees. `npm test` / `bash scripts/test.sh` with no
 paths against this checkout's own suite directory and unfiltered dashboard runs
-share admission, including unfiltered `npm run test:dashboard:frontend` and
-`npm run test:dashboard:backend` runs and direct Playwright commands using
-`dashboard/playwright.config.ts`, `dashboard/frontend.playwright.config.ts` or
-`dashboard/backend.playwright.config.ts`. The next full run waits before starting its
+share admission, including unfiltered `npm run test:dashboard:frontend`,
+`npm run test:dashboard:backend` and `npm run test:e2e` runs and direct
+Playwright commands using `dashboard/playwright.config.ts`,
+`dashboard/frontend.playwright.config.ts`,
+`dashboard/backend.playwright.config.ts` or `e2e/playwright.config.ts`. The next full run waits before starting its
 jobs or dashboard build. Named checks, dashboard path/grep/project/shard/
 test-list selections, list-only runs, explicit suite shares, and pathless
 runner fixtures whose `OPEN_DOUGH_TEST_DIR` is an outside-checkout substitute

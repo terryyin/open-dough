@@ -10,7 +10,7 @@
 // and Changed tests the explanation; Project Intent shows main's CI status
 // beside the explanation, which Optimization Candidates also shows, and Back
 // to selected story returns to Changed tests. The highlighted journey:
-// ./intent-story-changes.spec.ts.
+// ../../../e2e/intent/intent-story-changes.spec.ts.
 
 import type { Locator } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";

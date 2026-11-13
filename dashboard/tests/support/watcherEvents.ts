@@ -76,6 +76,8 @@ export function observeWatcherOutput<T>(
   );
 }
 
+// macOS can deliver a file event late or not at all under load, so the wait
+// also reads the state itself at a short interval.
 export function waitForWatcherFile<T>(
   command: WatchCommand,
   file: string,
@@ -84,7 +86,9 @@ export function waitForWatcherFile<T>(
   return observeWatcher(command, read, (check, fail) => {
     const observer = watch(file, { persistent: false }, check);
     observer.once("error", fail);
+    const looking = setInterval(check, 20);
     return () => {
+      clearInterval(looking);
       observer.close();
     };
   });

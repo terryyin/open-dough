@@ -79,7 +79,7 @@ Reuse windows, such as `checkReuseMs`, and launch waits run on server time
 `dashboard.advanceObservationClock` to pass a window, or fix an exact deadline
 with `dashboard.setObservationClock(at)` (an ISO instant), then advance from it.
 For a launch wait, set `launchWaitEnd`, observe the kept record, held client or trust prompt,
-then call `dashboard.endLaunchWait` (`sessions/cursor-session-recovery-wait.spec.ts`).
+then call `dashboard.endLaunchWait` (`../../e2e/sessions/cursor-session-recovery-wait.spec.ts`).
 
 ### Authenticated-read backend clocks
 
@@ -142,9 +142,9 @@ wants a missing addition or an unpublished history says so. Which commit added
 a profile is walked at the boundary
 (`../backend-tests/observation/authenticated-read-profile-addition.spec.ts`, its refusals in
 `../backend-tests/observation/authenticated-read-profile-addition-refusal.spec.ts`); the credited human and avatar
-on cards and the roster are `stories/agent-roster-avatar.spec.ts`; how a slow or
+on cards and the roster are `../../e2e/stories/agent-roster-avatar.spec.ts`; how a slow or
 stalled addition read delays only its own profile's clock and human is
-`observation/profile-addition-latency.spec.ts`; the roster itself is
+`../../e2e/observation/profile-addition-latency.spec.ts`; the roster itself is
 `stories/agent-roster.spec.ts`, whose locators live in `dashboardPage.ts`.
 
 ## Review and Side panel owners
@@ -207,8 +207,8 @@ teardown is the backstop: global setup gives the run an identity,
 `OPEN_DOUGH_DASHBOARD_RUN_ID`, that every process of the run inherits, and
 once the workers have exited the teardown ends every process still carrying
 it and fails the run naming each (`support/runLifecycle.ts`, shared by
-`support/globalSetup.ts` and the focused runners'
-`support/frontendGlobalSetup.ts` and `support/backendGlobalSetup.ts`;
+`support/globalSetup.ts` and the group runners'
+`support/frontendGlobalSetup.ts`, `support/backendGlobalSetup.ts` and `support/e2eGlobalSetup.ts`;
 `support/runProcesses.ts`). A named process is a leak to stop where it
 starts, never a reason to widen the sweep; processes of other runs, other
 checkouts and this machine's own dashboard carry no such identity and are

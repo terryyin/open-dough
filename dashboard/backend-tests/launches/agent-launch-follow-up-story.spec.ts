@@ -7,7 +7,7 @@
 // own block before the request. Two stories with the same words are two
 // launches; repeating one resumes its kept start. A story that revision does
 // not publish, or whose record cannot be read, refuses the follow-up. The
-// page journey is ../../tests/stories/recently-done-follow-up.spec.ts.
+// page journey is ../../../e2e/stories/recently-done-follow-up.spec.ts.
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { doneRecordPath } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";

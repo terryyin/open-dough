@@ -5,7 +5,7 @@
 // which records what it was asked; the real one is never reached. A launch
 // that did not start is ./agent-launch-story-card-problems.spec.ts; how a card's
 // sessions stay listed, two launches as two entries newest first, is
-// ../sessions/agent-launch-story-card-sessions.spec.ts. A noted Start's tooltip and look are
+// ../../../e2e/sessions/agent-launch-story-card-sessions.spec.ts. A noted Start's tooltip and look are
 // ./agent-launch-story-card-noted-start.spec.ts. On a phone, only an explicit
 // Start sends the draft, and the card tells accepted startup from a launched
 // session.

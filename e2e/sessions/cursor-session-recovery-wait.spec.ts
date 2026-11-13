@@ -1,0 +1,90 @@
+// Recover keep-wait expiry: when attach cannot settle before the shared
+// launch wait, Recover answers failed with Start's instruction-delivery
+// wording, leaves the client running, and does not hang it up.
+import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
+import { instructionDeliveryTimedOutExplanation } from "../../dashboard/server/hosts/cursor/instructionDelivery.ts";
+import {
+  expectReadingWithoutScreenLabel,
+  instruction,
+} from "../../dashboard/tests/support/cursorSessionReading.ts";
+import {
+  agentNotRunningLabel,
+  endHeldClient,
+  keptRecords,
+} from "../../dashboard/tests/support/cursorSessionRecovery.ts";
+import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
+import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+
+test.describe("Recover keep-wait expiry", () => {
+  // The first paint stays held, so keep cannot settle: Start and Recover
+  // both end at the shared launch wait, which the test ends once each
+  // client is kept. Setup hangs up without waiting on a terminal that
+  // Start's timed-out answer never presented.
+  test.use({ launchWaitEnd: true, cursorHoldPaint: true });
+
+  test("Recover answers failed when keep cannot settle before the shared launch wait", async ({
+    page,
+    dashboard,
+    origin,
+    cursor,
+  }) => {
+    const revision = (await origin.originGit("rev-parse", "main")).trim();
+    await publishCommittedOrigin(page, {
+      repoDir: origin.origin,
+      revision,
+      repository: "terryyin/open-dough",
+      follows: true,
+    });
+    await page.goto("/");
+    await page
+      .getByRole("button", { name: "Start session in Open Dough" })
+      .click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
+    await startSessionField(dialog).fill(instruction);
+    await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    await expect.poll(() => cursor.attaches()).toHaveLength(1);
+    await dashboard.endLaunchWait();
+    const taken = parts(page).taken.locator(".session-entry");
+    await expect(taken).toHaveCount(1);
+    await endHeldClient(page, cursor, dashboard.home);
+    await reloadUntilRead(page);
+    const entry = parts(page).taken.locator(".session-entry");
+    await expectReadingWithoutScreenLabel(entry, agentNotRunningLabel);
+    await expect(entry.getByRole("button", { name: "Recover" })).toHaveCount(1);
+    const [record] = keptRecords(dashboard.home);
+    if (record?.session.host !== "cursor") {
+      throw new Error("Expected a Cursor session.");
+    }
+    const before = cursor.attaches().length;
+    const recoverResponse = page.waitForResponse((response) =>
+      response.url().includes("/__agent-launch/recover"),
+    );
+    await entry.getByRole("button", { name: "Recover" }).click();
+    await expect.poll(() => cursor.attaches().length).toBe(before + 1);
+    await dashboard.endLaunchWait();
+    const recover = await recoverResponse;
+    const body = (await recover.json()) as {
+      kind: string;
+      explanation?: string;
+    };
+    expect(
+      {
+        status: recover.status(),
+        kind: body.kind,
+        explanation: body.explanation,
+      },
+      "recover keep-wait expiry",
+    ).toMatchObject({
+      status: 200,
+      kind: "failed",
+      explanation: instructionDeliveryTimedOutExplanation(record.session),
+    });
+    const resumed = cursor.attaches().at(-1);
+    expect(processRunning(resumed?.pid)).toBe(true);
+    expect(cursor.signals(resumed?.pid ?? 0)).not.toMatch(/SIGHUP|SIGTERM/u);
+  });
+});

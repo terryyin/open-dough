@@ -3,7 +3,7 @@
 // command resumes that conversation; a later Start stays uncertain without
 // creating another. The synthetic Codex app server records the protocol.
 // Durable creation evidence across restarts and reloads:
-// ../../tests/launches/agent-launch-codex-creation.spec.ts.
+// ../../../e2e/launches/agent-launch-codex-creation.spec.ts.
 import { chmodSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";

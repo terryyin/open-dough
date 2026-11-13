@@ -25,15 +25,16 @@ as a malformed split does. CI runs the dashboard type-check once in the lint
 job. Each of the thirteen shards uses its deadline for setup and the browser
 suite. With the variable unset, `npm run test:dashboard` runs every spec.
 The configuration discovers
-`dashboard/tests/`, `dashboard/frontend-tests/`, and `dashboard/backend-tests/`;
-labels in the timing lists and artifacts are relative to their common
-`dashboard/` root. Independent proof
+`dashboard/tests/`, `dashboard/frontend-tests/`, `dashboard/backend-tests/` and
+the repository's sibling `e2e/`; labels in the timing lists and artifacts are
+relative to the common `dashboard/` root, so E2E Test's specs are
+`../e2e/<path>`. `npm run test:e2e` deals its own split by those rows too. Independent proof
 subprocesses choose their own selection; their harness
 (`support/proofRecordRun.ts`) removes the inherited split before launching
 them.
 
 Within a shard, two complementary native Playwright projects queue the serial
-`tests/runtime/production-watcher*.spec.ts` chains before ordinary files. They share one phase
+`e2e/runtime/production-watcher*.spec.ts` chains before ordinary files. They share one phase
 and one global setup: there are no project dependencies, so the other workers
 run ordinary checks while a chain builds and replaces its deployments. The
 projects partition the existing selected files; they neither add shards nor

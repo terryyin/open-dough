@@ -8,7 +8,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 // once the default checkout holds no unconfirmed change; and a conversation
 // whose first input is unconfirmed is recovered by its continuation, which
 // runs no start and makes no second workspace. The page journey and a start
-// lost with its server: ../../tests/launches/agent-launch-start-session-recovery.spec.ts.
+// lost with its server: ../../../e2e/launches/agent-launch-start-session-recovery.spec.ts.
 
 import { realpathSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";

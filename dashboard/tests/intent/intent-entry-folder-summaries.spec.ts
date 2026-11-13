@@ -4,7 +4,7 @@
 // unselected name selects keeping open state; selected name toggles and
 // keeps selection; closed location name selects without opening. A summary
 // lists its immediate folders and files in the tree's order; their CI proof:
-// ./intent-summary-ci-proof.spec.ts. Folder controls, keyboard, and toggle
+// ../../../e2e/intent/intent-summary-ci-proof.spec.ts. Folder controls, keyboard, and toggle
 // reader preservation: ./intent-entry-folder-summaries-folders.spec.ts.
 // Review changes keeps disclosure-only folders (./story-review-tree*.spec.ts).
 

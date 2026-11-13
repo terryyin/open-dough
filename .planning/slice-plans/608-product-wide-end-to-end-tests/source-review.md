@@ -15,15 +15,15 @@ coordinator's slice allocation.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| G1 | A developer can run representative Open Dough product workflows with `npm run test:e2e` | slice 3 | |
+| G1 | A developer can run representative Open Dough product workflows with `npm run test:e2e` | slice 3 | observed: package.json test:e2e → e2e/playwright.config.ts (prefix OPEN_DOUGH_E2E, setup dashboard/tests/support/e2eGlobalSetup.ts); native list 301 specs / 560 cases under e2e/; full run executed 560 cases |
 | G2 | The developer can understand those workflows' purpose and observed results in Intent | slice 6 | |
 | G3 | The developer can understand those workflows' purpose and observed results in CI | slice 4 | |
-| G4 | A workflow crosses its participating components to an observable product outcome | slice 3 | |
+| G4 | A workflow crosses its participating components to an observable product outcome | slice 3 | observed: migration-purpose.json: each of the 301 e2e specs read and classified "workflow" with its real integrations (preview server, Git origins, launched hosts) and simulated boundaries |
 | G5 | The workflows include released Open Dough commands in an installed project | slice 5 | |
-| G6 | The dashboard is a common entry point | slice 3 | |
-| G7 | The group is product-wide and can also hold a workflow that begins elsewhere when such a workflow exists | slice 3 | |
-| T1.1 | Entry **E2E Test**: sources `e2e/`, command `npm run test:e2e` | slice 3 | |
-| T1.2 | E2E Test's responsibility: representative product workflows from a supported entry point through the participating components to an observable outcome | slice 3 | |
+| G6 | The dashboard is a common entry point | slice 3 | observed: e2e/README.md "The dashboard page is the common entry point"; migration-purpose.json entry points |
+| G7 | The group is product-wide and can also hold a workflow that begins elsewhere when such a workflow exists | slice 3 | observed: e2e/ at repository root; e2e/README.md admits workflows beginning elsewhere; e2e/review/one-shot-landing-recovery.spec.ts drives CLI and server without the page |
+| T1.1 | Entry **E2E Test**: sources `e2e/`, command `npm run test:e2e` | slice 3 | observed: .planning/open-dough.json location e2e, label "E2E Test", includes **/*.spec.ts + 4 registering modules; package.json test:e2e; test-entry-rules resolves e2e specs makeMe+pageObjects |
+| T1.2 | E2E Test's responsibility: representative product workflows from a supported entry point through the participating components to an observable outcome | slice 3 | observed: e2e/README.md opening paragraph and "Real and substituted" section; 301 workflow specs moved by purpose (migration-purpose.json) |
 | T2.1 | Entry **Dashboard Frontend Test**: sources `dashboard/frontend-tests/`, command `npm run test:dashboard:frontend` | slice 1 | observed: package.json test:dashboard:frontend → dashboard/frontend.playwright.config.ts; native --list selects 153 cases, frontend-tests only (coordinator rerun); full run 153/153 strict pass |
 | T2.2 | Dashboard Frontend Test's responsibility: focused presentation, interaction and recovery with controlled backend answers | slice 1 | observed: dashboard/tests/support/frontendGlobalSetup.ts registers only app + comparison-mount builds (no dashboard server/fake hosts); moved specs use pageTest.ts controlled DOM rendering; backend-tests/intent/proof-record-entry.spec.ts "Dashboard Frontend Test … records only its own selection under its own settings" |
 | T3.1 | Entry **Dashboard Backend Test**: sources `dashboard/backend-tests/`, command `npm run test:dashboard:backend` | slice 2 | observed: package.json test:dashboard:backend → dashboard/backend.playwright.config.ts; native list 414 specs / 1,399 cases, backend-tests only (sameMultiset with umbrella, migration-reconciliation-slice-2.json); full run 1,398 passed + 1 opt-in skip; backend-tests/runtime/runner-ownership.spec.ts "Dashboard Backend Test {normal npm\|direct config from another working directory} records only its own selection under its own settings" |
@@ -42,16 +42,16 @@ coordinator's slice allocation.
 | 1f.2 | Preserve the existing cleanup | slice 4 | |
 | 1f.3 | Preserve the existing failure diagnostics | slice 4 | |
 | 1f.4 | Preserve the existing local full-suite resource admission across linked worktrees | slice 4 | |
-| 2a | Review the inventory by the behavior each case proves | slice 3 | |
-| 2b | Keep representative integrations in E2E | slice 3 | |
+| 2a | Review the inventory by the behavior each case proves | slice 3 | observed: migration-purpose.json: all 566 integrated specs read in full and classified (301 e2e, 204 frontend detailed UI, 59 split, 2 backend) with per-case splits in migration-conversion-batches.json |
+| 2b | Keep representative integrations in E2E | slice 3 | observed: migration-moves.json: 301 workflow specs + 7 registering/journey modules moved to e2e/<feature>/; reconciliation-slice-3 every base case once |
 | 2c.1 | Move detailed UI checks to their focused owner |  | G1 |
 | 2c.2 | Move detailed server checks to their focused owner | slice 2 | observed: migration-moves.json + migration-case-moves.json: 3 whole server specs to backend-tests/sessions, feedbackMaintenanceLaunchEligibilityCases.ts to backend-tests/launches, 29 server-boundary cases split from 17 integrated specs into focused backend specs (assertions unchanged, e.g. agent-launch-start-taken-refused.spec.ts); 63/63 backend + 38/38 trimmed integrated |
 | 2c.3 | Move detailed harness checks to their focused owner | slice 2 | observed: quiet-reporter, page-teardown-drain, settled-page, observation-measurements moved to backend-tests/runtime/ and run under test:dashboard:backend (full run pass) |
 | 2d.1 | Account for every maintained spec, naming its destination and surviving proof | slice 4 | |
 | 2d.2 | Account for every maintained case, naming its destination and surviving proof | slice 4 | |
 | 2d.3 | Account for every test-registering helper, naming its destination and surviving proof | slice 4 | |
-| 2e | Splitting or replacing redundant cases must keep their behavior | slice 3 | |
-| 2f | Splitting or replacing redundant cases must keep their meaningful integration proof | slice 3 | |
+| 2e | Splitting or replacing redundant cases must keep their behavior | slice 3 | observed: migration-reconciliation-slice-3.json: no case split or replaced in slice 3; every base case selected exactly once; redundancy recorded only as candidates with surviving proof |
+| 2f | Splitting or replacing redundant cases must keep their meaningful integration proof | slice 3 | observed: migration-reconciliation-slice-3.json + migration-purpose.json: integration proof kept unchanged in moved e2e specs (only import paths changed) |
 | 3a | Keep working-tree skill journeys for feedback on current changes | slice 5 | |
 | 3b | Add one representative dashboard preparation-start journey that uses a real installation from an explicitly pinned, published numeric release tag | slice 5 | |
 | 3c | Observe the published assignment at the project's Git origin | slice 5 | |
@@ -82,7 +82,7 @@ coordinator's slice allocation.
 | 6c | Keep the frontend proof artifact specific to frontend files | slice 4 | |
 | 6d | Missing reports or parts stay distinguishable from passes and from reported zeros | slice 4 | |
 | 6e | Verify a hosted run on the migrated revision | slice 4 | |
-| 7a | Update Intent locations | slice 3 | |
+| 7a | Update Intent locations | slice 3 | observed: .planning/open-dough.json e2e location (label E2E Test) added beside the kept dashboard/tests entry; ci.yml entries/expect include e2e=13:case |
 | 7b.1 | Update affected readers so Project Intent identifies the correct group and source | slice 6 | |
 | 7b.2 | Update affected readers so Purpose identifies the correct group and source | slice 6 | |
 | 7b.3 | Update affected readers so Proof identifies the correct group and source | slice 6 | |
@@ -127,7 +127,7 @@ coordinator's slice allocation.
 | KE2.1 | A frontend recovery or layout case uses controlled answers, and a server refusal case uses its public boundary; the developer runs their focused commands | slice 4 | |
 | KE2.2 | Each of those cases runs and reports in its own group | slice 4 | |
 | KE2.3 | Changing E2E workers or shard allocation changes neither focused runner's selection nor its settings | slice 4 | |
-| KE3.1 | A spec that registers cases through another source module moves to its owning group | slice 3 | |
+| KE3.1 | A spec that registers cases through another source module moves to its owning group | slice 3 | observed: feedbackMaintenanceDueHeldCases.ts, productionUpdateJourney.ts, productionUpdatePolicies.ts, agentSessionCursorUnavailableCases.ts moved with their specs to e2e/; produced proof record and CI fragment attribute 305 files (301 specs + 4 modules) under e2e/ |
 | KE3.2 | Selection and timing ownership follow the correct sources | slice 4 | |
 | KE3.3 | Declared case-file proof follows the correct sources | slice 4 | |
 | KE3.4 | Purpose and Proof open those sources | slice 6 | |

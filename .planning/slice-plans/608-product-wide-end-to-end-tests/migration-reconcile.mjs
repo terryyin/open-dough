@@ -5,7 +5,8 @@
 //   node .planning/slice-plans/608-product-wide-end-to-end-tests/migration-reconcile.mjs \
 //     --manifest <manifest.jsonl> --moves <moves.json> [--case-moves <case-moves.json>] \
 //     --after <umbrella-list.json> [--frontend <frontend-list.json>] \
-//     [--backend <backend-list.json>] [--added <added.json>] --after-out <result.json>
+//     [--backend <backend-list.json>] [--e2e <e2e-list.json>] [--added <added.json>] \
+//     --after-out <result.json>
 //
 // Every base case must be selected exactly once at its destination
 // (./migration-cases.mjs) and no case may appear that the base did not have,
@@ -34,6 +35,8 @@ const recorded = readFileSync(options.manifest, "utf8")
     project: line.project ?? "chromium",
   }));
 const after = cases(options.after);
+// `e2e` for the sibling root (`../e2e/…`), else the first segment.
+const root = (file) => (file.startsWith("../e2e/") ? "e2e" : file.split("/")[0]);
 const key = (one) => `${one.spec}\0${one.source}\0${one.title}\0${one.project}`;
 const expected = new Map();
 for (const one of recorded) {
@@ -55,8 +58,8 @@ const result = {
   kind: "reconciliation",
   specs: after.specs.length,
   cases: after.cases.length,
-  specsByRoot: count(after.specs, (spec) => spec.split("/")[0]),
-  casesBySourceRoot: count(after.cases, (one) => one.source.split("/")[0]),
+  specsByRoot: count(after.specs, root),
+  casesBySourceRoot: count(after.cases, (one) => root(one.source)),
   missingOrRepeated: missing.map(([at]) => at.split("\0")),
   addedProofCases: added.length,
   unexpected: unexpected.map(([at]) => at.split("\0")),
@@ -77,13 +80,15 @@ if (missing.length > 0 || unexpected.length > 0) process.exitCode = 1;
 
 // Each focused runner's own list selects exactly the umbrella's cases under
 // its root (project names differ by runner).
-for (const [runner, root] of [
-  ["frontend", "frontend-tests/"],
-  ["backend", "backend-tests/"],
+// E2E Test lists paths relative to `e2e/`.
+for (const [runner, root, prefix] of [
+  ["frontend", "frontend-tests/", ""],
+  ["backend", "backend-tests/", ""],
+  ["e2e", "../e2e/", "../e2e/"],
 ]) {
   if (!options[runner]) continue;
   const own = (one) => `${one.spec}\0${one.source}\0${one.title}`;
-  const list = cases(options[runner]);
+  const list = cases(options[runner], prefix);
   const umbrella = after.cases.filter((one) => one.spec.startsWith(root)).map(own).sort();
   const selected = list.cases.map(own).sort();
   result[`${runner}Runner`] = {

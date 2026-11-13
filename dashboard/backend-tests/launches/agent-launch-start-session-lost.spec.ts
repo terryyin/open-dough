@@ -6,7 +6,7 @@
 // start again for the kept workspace and branch, which makes it or takes it
 // as it is, opens the session there, and leaves default main's existing
 // changes unasked. A start that outlasts its wait and Continue on the page:
-// ../../tests/launches/agent-launch-start-session-recovery.spec.ts.
+// ../../../e2e/launches/agent-launch-start-session-recovery.spec.ts.
 
 import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";

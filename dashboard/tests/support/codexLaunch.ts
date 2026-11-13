@@ -1,4 +1,5 @@
-// Shared Codex native protocol fixture; it supplies vendor answers only.
+// Shared Codex native protocol fixture; it supplies vendor answers only, and
+// records what a launch asked of it.
 import {
   mkdtempSync,
   mkdirSync,
@@ -9,7 +10,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { test as base } from "../dashboardTest.ts";
+import { expect, test as base } from "../dashboardTest.ts";
 import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 export { expect } from "../dashboardTest.ts";
@@ -38,6 +39,14 @@ export const test = base.extend({
   },
   codexProtocol,
 });
+// The launches started exactly one native thread, in the project checkout
+// `cwd`, with no model or effort of their own.
+export function expectOneThreadStarted(native: FakeCodex, cwd: string) {
+  expect(native.calls.filter((call) => call.method === "thread/start")).toEqual(
+    [{ method: "thread/start", params: { cwd } }],
+  );
+}
+
 export const stored = (home: string): LaunchRecord[] =>
   (
     JSON.parse(

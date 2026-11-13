@@ -21,8 +21,8 @@ const framework = pathToFileURL(
 // The runner tooling a controlled suite runs, copied from this repository:
 // what `copy_runner` copies, the budget and reporter helpers, the dashboard
 // suite selection and run preparation, and the umbrella, Dashboard Frontend
-// Test and Dashboard Backend Test Playwright configurations importing this
-// repository's framework. Read once per process.
+// Test, Dashboard Backend Test and E2E Test Playwright configurations
+// importing this repository's framework. Read once per process.
 let runnerLayer;
 export function suiteRunnerLayer() {
   if (runnerLayer) return runnerLayer;
@@ -75,6 +75,7 @@ export function suiteRunnerLayer() {
         "dashboard/backend.playwright.config.mts": withFramework(
           "dashboard/backend.playwright.config.ts",
         ),
+        "e2e/playwright.config.mts": withFramework("e2e/playwright.config.ts"),
       },
       executables: [...runner.executables, ...helpers.executables],
     };
@@ -119,10 +120,14 @@ export default { ...config, projects: [{name:'controlled'}], testMatch: /probe[.
   timeout: 120_000, reporter: 'line', use: {}, globalSetup: './controlled-setup.mjs' };
 `,
         ...Object.fromEntries(
-          ["frontend", "backend"].map((runner) => [
+          [
+            ["frontend", "./frontend.playwright.config.mts"],
+            ["backend", "./backend.playwright.config.mts"],
+            ["e2e", "../e2e/playwright.config.mts"],
+          ].map(([runner, config]) => [
             `dashboard/controlled-${runner}.config.mts`,
             `
-import config from './${runner}.playwright.config.mts';
+import config from '${config}';
 export default { ...config, projects: [{name:'controlled'}], testMatch: /probe[.]spec[.]mts$/,
   timeout: 120_000, reporter: 'line', use: {}, globalSetup: './controlled-setup.mjs' };
 `,

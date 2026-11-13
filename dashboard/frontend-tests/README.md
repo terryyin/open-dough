@@ -20,8 +20,8 @@ Dashboard harness helpers and fixtures stay in `../tests/`. Use the shared
 [MakeMe library](../../tests/README.md#test-data-architecture) for domain data.
 A spec moved from an integrated feature folder keeps that folder name here
 (`intent/`), beside the specs extracted earlier at this root; a module that
-registers cases for a spec moves with it. Integrated service journeys remain
-in `../tests/`.
+registers cases for a spec moves with it. Representative workflows live in
+[`../../e2e/`](../../e2e/README.md).
 
 `npm run test:dashboard:frontend` runs only this group from its own
 configuration (`../frontend.playwright.config.ts`): its global setup prepares
@@ -35,7 +35,7 @@ when unfiltered. Select files or tests as with the umbrella, for example
 behaves the same from any working directory.
 
 Until CI switches to the separate groups, `npm run test:dashboard` still
-selects these files exactly once beside the other two roots, with shared
+selects these files exactly once beside the other roots, with shared
 setup and thirteen CI shards; their seconds stay in `../longest-first`.
 
 The [dashboard test guide](../tests/README.md) owns placement across the three

@@ -213,7 +213,7 @@ jobs:
         with:
           part: ${{ matrix.shard }}
           parts: ${{ strategy.job-total }}
-          entries: dashboard/tests dashboard/frontend-tests dashboard/backend-tests
+          entries: e2e dashboard/tests dashboard/frontend-tests dashboard/backend-tests
           report-format: playwright-record
           report: ${{ runner.temp }}/dashboard-proof.json
       # The HTML report records how many browser tests the shard executed; on
@@ -246,5 +246,5 @@ jobs:
       - name: Summarize CI proof
         uses: ./.github/actions/ci-proof-summary
         with:
-          expect: dashboard/tests=13:case dashboard/frontend-tests=13:case dashboard/backend-tests=13:case tests=3:file src/skills=3:file
+          expect: e2e=13:case dashboard/tests=13:case dashboard/frontend-tests=13:case dashboard/backend-tests=13:case tests=3:file src/skills=3:file
           frontend-entry: dashboard/frontend-tests
