@@ -114,6 +114,16 @@ unit test. The consolidated `intent-scope-glance.spec.ts` and
 timeout under this machine's usual external load (see Learnings), with the
 measured before/after times recorded.
 
+## Execution complete
+
+Product advice: no change. The correction delivers its promises without
+changing product direction; the retrospective planned no follow-up correction
+(manifest dfda3d8e, 1f7d11a7, 7c0a62b3; no remaining old wording or
+string-decided failed status) and recorded no process findings. Reasoned
+hypothesis only: other real-server Done journeys that still publish through
+the CLI inside test time could move to the worker-kept story if they approach
+the default timeout under load; no current failure supports queueing it.
+
 ## Gates and delivery
 
 - Follow [the failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests) as written.
