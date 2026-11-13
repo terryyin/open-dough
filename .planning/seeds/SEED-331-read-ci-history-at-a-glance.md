@@ -12,15 +12,22 @@ scope: story
 ### Read CI history at a glance in story comparison and test Proof
 
 **Identity:** SEED-331#read-ci-history-at-a-glance
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/609-read-ci-history-at-a-glance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"24bb40fe374f70bfc9448b13b67b928df92dd8a53a0d05b1c58ee1923eb6dd85","plan":"22a286740c802393a0d5a9cfbae3cf79aaadc40e8582dc776a3243949d7f3147"}}
+```
 
 #### Goal
 
 A developer reviewing a Done story in Dashboard Intent can see how the landing
 compares with recent builds, spot failed builds, and drill into test execution
-cost by entry, folder, and file. The chart and a few figures carry the answer
-without asking the reader to scan build records or reference membership.
+cost by entry, folder, and file. The same reading serves test timing in Project
+Intent. The chart and a few figures carry the answer without asking the reader
+to scan build records or reference membership, so a slower landing or a costly
+test area is noticed while reviewing rather than left unread.
 
-#### Views
+#### Scope
+
+##### Views
 
 - **Done story → CI comparison.** Add the CI wall-time chart to the reference
   section below the Baseline, Branch, and Landed comparison and above the
@@ -46,7 +53,7 @@ without asking the reader to scan build records or reference membership.
   and its [unit charts](../../dashboard/src/IntentScopeTimingHistoryUnits.tsx)
   in both story and Project Intent contexts.
 
-#### History design and response
+##### History design and response
 
 - Use the same compact reading order and marks across the views. Show the
   selected timing, the prior-build average and count, and the signed elapsed and
@@ -79,8 +86,10 @@ without asking the reader to scan build records or reference membership.
   and the compact prior-reference figures. Omit per-build membership, median and
   filtering details, and duplicated run and landing metadata used only by the
   removed lists. Project Intent's top-level [CI status history](../../dashboard/src/IntentCiHistory.tsx)
-  still consumes the richer response. Preserve compatibility for that reader
-  and supported dashboard versions.
+  still consumes the richer response. A dashboard page already open before
+  deployment keeps reading the response it understands, so the new reader asks
+  for the slim response explicitly, as the history read's existing gap-reason
+  capability does.
 - Derive the display from the existing retained history and Git-ordered cohort,
   and keep the current measurement eligibility, retention, and reference math.
   The [automatic follow-up ledger](../../docs/dashboard-ci-follow-up.md) keeps
@@ -89,6 +98,25 @@ without asking the reader to scan build records or reference membership.
   which currently requires the evidence lists, and the applicable [CI comparison
   guidance](../../docs/dashboard-development-intent-ci-comparison.md). The display
   remains derived under [ADR 0008 — Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+
+##### Scope limits
+
+Project Intent's top-level CI status history keeps its lists and its richer
+response, and the story CI follow-up reading keeps its saved reference
+membership. Either may show the improved chart marks or compact metrics because
+it shares them, with no separate delivery commitment.
+
+#### Architecture
+
+One dated history chart and one compact comparison readout serve the Done CI
+wall time and every scope and file timing view. The shared
+[history chart](../../dashboard/src/IntentCiHistoryChart.tsx) gains the failed
+row, unavailable marks, and per-mark readouts once. The prior-build metrics
+that both views already share become that compact readout. The Done and
+scope views stop composing the membership list, which stays only for the
+follow-up reading; no view keeps its own chart or metric copy. The slim selected and scoped history is a server projection of the
+existing retained history behind the explicit reader capability above; it
+adds no second store or calculation.
 
 #### Key examples
 
