@@ -18,11 +18,13 @@ execution. The independent review also found genuine proof gaps. Its response
 keeps that review and gives one observation to each independently checkable
 promise. [ODF-470](findings/ODF-470.md) also repeats across executions, with
 additional timing runs and scratch setup; the latest source-review evidence
-shows broader ongoing use across projects. [ODF-488](findings/ODF-488.md)
-contributed two Windows repair cycles. Lizard's local writer is already fixed.
+shows broader ongoing use across projects. [ODF-329](findings/ODF-329.md) adds further mechanical delivery retries, with
+publication guards working. [ODF-488](findings/ODF-488.md) contributed two
+Windows repair cycles. Lizard's local writer is already fixed.
 The Taken list and the relative order of other queued work were preserved.
 
-New identities ODF-481 through ODF-495 retain distinct findings. Related causes
+New identities ODF-481 through ODF-495 retain distinct findings, with interim
+ODF-483 folded into the existing ODF-368 slice-section reader finding. Related causes
 and uncertain responses stay linked to their existing owners. Clipboard supplied
 two qualifying [ODF-418](findings/ODF-418.md) uses, which also meet the
 [ODF-275](findings/ODF-275.md) criterion. Lizard supplied another ODF-275 use;
@@ -347,7 +349,6 @@ Unknown execution releases cannot establish post-fix recurrence.
 
 ## ODF-482 — [A pre-Take merge base causes a false source-freshness hold](findings/ODF-482.md) <a id="odf-482"></a>
 
-## ODF-483 — [Preparation accepts a slices heading execution cannot read](findings/ODF-483.md) <a id="odf-483"></a>
 
 ## ODF-484 — [A retained Status hard break blocks guarded slice delivery](findings/ODF-484.md) <a id="odf-484"></a>
 
