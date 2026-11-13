@@ -119,9 +119,10 @@ one per compared unit, stay last, and its sort survives drilling down. **Counts*
 after endpoint's counted results, and **Change** keeps its existing meaning.
 At every depth, an unused Landed endpoint has the same explanation and the
 same active Branch comparison, or Provisional comparison in Taken Trunk Mode.
-For a Done story, entry and folder **Summary**, and file **Proof**, also show
+For a Done story, entry and folder **Summary**, and file **Proof**, first show
 [Test execution time history and prior-build references](dashboard-development-intent-scope-reference.md)
-from the collected evidence through that published landing.
+from the collected evidence through that published landing, above the table
+or comparison.
 
 Summary and file Proof reuse the evidence already held by Intent; drilling
 adds no CI request, and Summary reads no file text. GitHub Actions

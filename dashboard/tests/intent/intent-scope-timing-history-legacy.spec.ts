@@ -1,4 +1,3 @@
-import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
   scopeHistoryReading,
@@ -62,19 +61,15 @@ test("legacy-only collected evidence states its unknown unit without declaring a
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
   const history = scopeHistory(summary);
-  const row = scopeHistoryReading(history).rows;
-  await expect(row).toHaveCount(1);
-  await expect(row).toContainText("legacy unit unknown");
-  await expect(row).toContainText("Selected landing");
-  await expect(row).not.toContainText(/\d+(?:\.\d+)?\s*(?:ms|s)\b/);
-  await expect(history).toContainText("0 measured builds");
+  // Its unknown unit as the brief status, with no declared history or timing.
+  await expect(scopeHistoryReading(history).status).toHaveText(
+    "legacy unit unknown",
+  );
+  await expect(history).not.toContainText(/\d+(?:\.\d+)?\s*(?:ms|s)\b/);
   await expect(scopeHistoryReading(history).charts).toHaveCount(0);
+  await expect(scopeHistoryReading(history).units).toHaveCount(0);
   await expect(scopeHistoryUnit(history, "Test cases")).toHaveCount(0);
   await expect(scopeHistoryUnit(history, "Test files")).toHaveCount(0);
-  await expect(attemptLink(row, "Run 42 · attempt 1")).toHaveAttribute(
-    "href",
-    "https://ci.invalid/runs/42",
-  );
   await expectComparisonScopeRows(
     summary,
     "dashboard/tests",

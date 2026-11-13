@@ -1,4 +1,3 @@
-import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
   scopeHistoryReading,
@@ -75,21 +74,14 @@ test("unverified local landing order explains the partial cohort while the selec
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
   const history = scopeHistory(summary);
-  await expect(history).toContainText(
-    "Some retained landing positions could not be verified from local Git evidence. Only the selected observation and independently verified preceding history are shown.",
+  // A brief status for the partial cohort; the selected measurement charts.
+  await expect(scopeHistoryReading(history).status).toHaveText(
+    "Landing order unverified",
   );
-  await expect(history).toContainText("1 measured build");
-  const rows = scopeHistoryReading(history).rows;
-  await expect(rows).toHaveCount(1);
-  await expect(rows).toHaveText(
-    `Nov 8 · 0 ms · test cases · entry dashboard/tests · Selected landing · Exact build ${shortSha(setup.completion)} · Run 42 · attempt 1 · Represents ${shortSha(setup.completion)} (selected landing) (exact build)`,
-  );
+  const chart = scopeHistoryChart(history, "test cases");
+  await expect(chart.marks).toHaveCount(1);
+  await expect(chart.readout).toHaveText("Nov 8 · Selected · 0 ms");
   await expect(history).not.toContainText(shortSha(unknownRevision));
-  await expect(scopeHistoryChart(history, "test cases")).toBeVisible();
-  await expect(attemptLink(rows, "Run 42 · attempt 1")).toHaveAttribute(
-    "href",
-    "https://ci.invalid/runs/42",
-  );
   await expectComparisonScopeRows(
     summary,
     "dashboard/tests",
@@ -97,7 +89,7 @@ test("unverified local landing order explains the partial cohort while the selec
   );
 });
 
-test("a pending scope gap links its known run without presenting a measured build or execution time", async ({
+test("a pending selected build reads its brief status without presenting a measured build or execution time", async ({
   page,
   origin,
 }) => {
@@ -139,19 +131,15 @@ test("a pending scope gap links its known run without presenting a measured buil
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
   const history = scopeHistory(summary);
-  const row = scopeHistoryReading(history).rows;
-  await expect(row).toContainText(
-    "Pending · CI queued or running · Selected landing",
+  await expect(scopeHistoryReading(history).status).toHaveText(
+    "Pending · CI queued or running",
   );
-  await expect(row).not.toContainText(
+  await expect(history).not.toContainText(
     /(?:\d[\d.]*\s*(?:ms|s|min)\b|(?:Exact|Measured|Reused|Later trunk) build)/,
   );
-  const link = attemptLink(row, "Run 51 · attempt 2");
-  await expect(link).toHaveAttribute("href", "https://ci.invalid/runs/51");
-  await scopeHistoryReading(history).disclosure.focus();
-  await page.keyboard.press("Tab");
-  await expect(link).toBeFocused();
-  await expect(history).toContainText("0 measured builds");
+  await expect(history).toContainText(
+    "No complete test execution times are available for this scope.",
+  );
   await expect(scopeHistoryReading(history).charts).toHaveCount(0);
   await expectComparisonScopeRows(
     summary,

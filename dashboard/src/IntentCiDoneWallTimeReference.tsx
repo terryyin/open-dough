@@ -6,8 +6,8 @@
 // (`useDoneWallTimeReading`) across its reading, failed, unavailable and shown
 // states, so moving this view between them neither rereads nor discards it.
 // A labelled icon refreshes it; a failed read keeps the last history of the
-// same landing beside its alert and a short retry.
-import { useId } from "react";
+// same landing beside the shared panel's alert and short retry
+// (`./IntentCiHistoryPanel.tsx`).
 import { RefreshCw } from "lucide-react";
 import { shortSha } from "./baseCiWording.ts";
 import { isMeasured } from "./ciHistoryChart.ts";
@@ -19,6 +19,7 @@ import { standInBuildWords } from "./ciHistoryWords.ts";
 import { IconButton } from "./Icon.tsx";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { IntentCiHistoryChart } from "./IntentCiHistoryChart.tsx";
+import { IntentCiHistoryPanel } from "./IntentCiHistoryPanel.tsx";
 import { IntentCiPriorBuildReference } from "./IntentCiPriorBuildReference.tsx";
 import { doneWallTimeSeries } from "./landedCiHistorySeries.ts";
 import { useIntentCiDoneWallTimeHistory } from "./useIntentCiDoneWallTimeHistory.ts";
@@ -71,7 +72,6 @@ export function IntentCiDoneWallTimeReference({
 }: {
   readonly reading: DoneWallTimeReading;
 }) {
-  const heading = useId();
   if (reading === undefined) return null;
   const { endpoint, shown, failed, retry } = reading;
   const reference = shown?.reference;
@@ -84,23 +84,21 @@ export function IntentCiDoneWallTimeReference({
       ? undefined
       : doneWallTimeAvailabilityWords(shown.availability);
   return (
-    <section
-      className="intent-ci-history intent-ci-done-history"
-      aria-labelledby={heading}
-    >
-      <div className="intent-ci-history-head">
-        <h4 id={heading}>CI wall time history</h4>
-        {status !== undefined && (
-          <span className="intent-ci-history-status">{status}</span>
-        )}
-        {endpoint !== undefined && (
+    <IntentCiHistoryPanel
+      title="CI wall time history"
+      status={status}
+      action={
+        endpoint !== undefined && (
           <IconButton
             label="Refresh history"
             icon={RefreshCw}
             onClick={retry}
           />
-        )}
-      </div>
+        )
+      }
+      failed={failed}
+      retry={retry}
+    >
       {shown === undefined || reference === undefined ? (
         failed === undefined && (
           <p className="intent-ci-history-note">{waitingWords(reading)}</p>
@@ -114,14 +112,6 @@ export function IntentCiDoneWallTimeReference({
       {series?.builds.some(isMeasured) === true && (
         <IntentCiHistoryChart series={series} />
       )}
-      {failed !== undefined && (
-        <div className="intent-ci-history-failure">
-          <p role="alert">{failed}</p>
-          <button type="button" onClick={retry}>
-            Retry history
-          </button>
-        </div>
-      )}
-    </section>
+    </IntentCiHistoryPanel>
   );
 }

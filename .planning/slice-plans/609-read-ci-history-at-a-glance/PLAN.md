@@ -163,7 +163,7 @@ real comparison read after Check again, now inside the shared selection wait.
 
 ### 3. Read test execution history before the test table
 Type: Behavior
-Status: planned
+Status: done
 Proof: New scope-glance spec; rewritten scope Summary/Proof history specs in
 `dashboard/tests/intent` and `dashboard/frontend-tests` listed above.
 
@@ -176,6 +176,14 @@ are gone.
 
 Update `docs/dashboard-development-intent-scope-reference.md`. Own the
 reorganization of the near-limit specs named above.
+
+Accepted proof: new `intent-scope-glance.spec.ts` (Done drill-down, touch,
+keyboard, dark) and `frontend-tests/intent-project-scope-glance.spec.ts`;
+rewritten scope specs; `intent-scope-prior-build-average.spec.ts` replaced
+by the glance spec. Precise series now take a range floor of
+max(10 ms, highest/5) so sub-second units read on their own scale. Post-
+refactor focused set 11/11; Done and scope histories share
+`IntentCiHistoryPanel.tsx`.
 
 ### 4. Send only the history the glance views read
 Type: Behavior
@@ -271,3 +279,10 @@ on the first attempt.
 - Broad slice-2 gate at external load 37–50 timed out 15 comparison, summary
   and scope journeys (some in `page.goto`); all passed once load fell, and
   slice 1's hosted CI passed the same families.
+- Slice 3: scope views still read `entries[].{key,date,selected,kind,reason,
+  readings}`, `entries[].landings[].{selected,provenance}`,
+  `entries[].build.provenance`, `availability` and
+  `references[].{unit,reason,reference.{endpoint,selected,sampleCount,
+  averageMs,difference}}`; they no longer read `reference.evidence`,
+  `medianMs`, `from`/`to`, run metadata or landing revisions. Frontend
+  fixtures still send `evidence: []` for the current schema.

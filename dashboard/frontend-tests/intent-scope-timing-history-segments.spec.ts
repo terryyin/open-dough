@@ -1,11 +1,10 @@
-import { attemptLink } from "../tests/ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
-  scopeHistoryReading,
+  scopeHistoryChart,
 } from "../tests/intentScopeHistoryPage.ts";
-// Supplemental UI recovery proof for the locally collected scope history.
-// The collection-to-Summary journey owns actual retained evidence; this
-// substitute fails only the local history read beside an existing comparison.
+// Supplemental presentation of owning-entry segments in the locally collected
+// scope history. The collection-to-Summary journey owns actual retained
+// evidence; this substitute supplies one retained history.
 
 import {
   expect,
@@ -16,8 +15,6 @@ import {
   summaryScopeFacts,
   serveComparison,
 } from "../tests/support/comparisonScopeFacts.ts";
-import { expectComparisonScopeRows } from "../tests/intentScopeProofPage.ts";
-import { entryComparisonRows } from "../tests/support/summaryComparisonExpectedRows.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
 
@@ -133,109 +130,16 @@ test("earlier supported owning-entry segments stay readable beside a selected pr
   });
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   const history = scopeHistory(summary);
-  await expect(history).toContainText("2 measured builds · Nov 4–Nov 5");
-  const rows = scopeHistoryReading(history).rows;
-  await expect(rows.nth(0)).toContainText("1.2 s · test cases");
-  await expect(rows.nth(1)).toContainText(
-    "2.4 s · test cases · entry dashboard",
+  const chart = scopeHistoryChart(history, "test cases");
+  await expect(chart.mark("Nov 4 · 1.2 s")).toHaveCount(1);
+  await expect(chart.mark("Nov 5 · 2.4 s")).toHaveCount(1);
+  await expect(chart.readout).toHaveText(
+    "Nov 6 · Selected · No timing · CI proof summary expired",
   );
-  await expect(rows.nth(2)).toContainText(
-    "CI proof summary expired · Selected landing",
-  );
-  await expect(rows.nth(2)).not.toContainText("ms");
-  await expect(scopeHistoryReading(history).selectedGap).toBeVisible();
-  await expect(scopeHistoryReading(history).line).toHaveAttribute(
-    "d",
-    /^M[^M]+ M/,
-  );
-  await expect(scopeHistoryReading(history).unselectedPoints).toHaveCount(2);
+  await expect(chart.unavailable).toHaveCount(1);
+  await expect(chart.selected).toHaveCount(0);
+  // Two owning-entry segments: two strokes, never joined.
+  await expect(chart.line).toHaveAttribute("d", /^M[^ML]+M[^ML]+$/);
+  await expect(chart.measured).toHaveCount(2);
   await expectNoSidewaysScrollIn(page, history);
 });
-
-for (const variant of ["empty", "all gaps"] as const) {
-  test(`${variant} scope history explains the absence of measurements without drawing an empty chart`, async ({
-    page,
-    comparisonServer,
-    comparisonServices,
-  }) => {
-    const facts = summaryScopeFacts();
-    serveComparison(comparisonServices, facts, facts.entries);
-    const setup = { completion: facts.work.revision };
-    const collected = makeMe.aCiScopeHistory
-      .with({
-        path: "dashboard/tests",
-        selectedRevision: setup.completion,
-        availability: variant === "empty" ? "empty" : "retained",
-        entries:
-          variant === "empty"
-            ? []
-            : [
-                {
-                  key: "run/43/1",
-                  kind: "gap",
-                  date: "2026-11-06T10:00:00Z",
-                  selected: true,
-                  landings: [
-                    {
-                      revision: setup.completion,
-                      receivedAt: "2026-11-06T10:00:00Z",
-                      selected: true,
-                    },
-                  ],
-                  build: {
-                    revision: setup.completion,
-                    runId: 43,
-                    runAttempt: 1,
-                    runUrl: "https://ci.invalid/runs/43",
-                    provenance: "exact",
-                  },
-                  readings: [
-                    {
-                      kind: "gap",
-                      unit: "case",
-                      reason: "Partial: part 2 of 2 missing",
-                    },
-                  ],
-                  reason: "Partial: part 2 of 2 missing",
-                },
-              ],
-      })
-      .please();
-    await page.route(
-      /\/__authenticated-read\?.*intent=ci-history.*scope=/,
-      (route) => route.fulfill({ json: collected }),
-    );
-    await mountComparison(page, comparisonServer, {
-      ...facts,
-      doneEndpoint: { revision: setup.completion, at: "2026-11-09T00:00:00Z" },
-    });
-    const summary = page.getByRole("region", { name: "Summary", exact: true });
-    const history = scopeHistory(summary);
-    await expect(history).toContainText("0 measured builds");
-    await expect(history).toContainText(
-      "No complete test execution times are available for this scope.",
-    );
-    await expect(scopeHistoryReading(history).charts).toHaveCount(0);
-    if (variant === "empty") {
-      await expect(history).toContainText(
-        "No dashboard-recorded landing history has been collected.",
-      );
-      await expect(history.getByRole("list")).toHaveCount(0);
-    } else {
-      const evidence = scopeHistoryReading(history).evidence;
-      await expect(scopeHistoryReading(history).rows).toContainText(
-        "Partial: part 2 of 2 missing · Selected landing",
-      );
-      await expect(evidence).not.toContainText("ms");
-      await expect(attemptLink(evidence, "Run 43 · attempt 1")).toHaveAttribute(
-        "href",
-        "https://ci.invalid/runs/43",
-      );
-    }
-    await expectComparisonScopeRows(
-      summary,
-      "dashboard/tests",
-      entryComparisonRows,
-    );
-  });
-}

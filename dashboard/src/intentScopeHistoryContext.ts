@@ -1,6 +1,7 @@
-// Endpoint meaning travels with the shared scope history, chart and evidence.
+// Endpoint meaning travels with the shared scope history, readout and chart.
 // A measured CI ancestor never replaces the project's observed trunk head.
-import type { ScopeHistoryEndpoint } from "./ciScopeHistory.ts";
+import { doneWallTimeAvailabilityWords } from "./ciDoneWallTimeHistory.ts";
+import type { CiScopeHistory, ScopeHistoryEndpoint } from "./ciScopeHistory.ts";
 import type { CiEvidence } from "./IntentCiEvidence.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 
@@ -55,3 +56,13 @@ export const scopeHistoryReason = (
   context.kind === "done"
     ? reason
     : reason.replace(/^Selected landing/, "Observed trunk endpoint");
+
+// The history's brief status at the endpoint, as the Done wall time history
+// words it, when it is not simply retained there.
+export const scopeHistoryAvailabilityWords = (
+  context: ScopeHistoryContext,
+  availability: CiScopeHistory["availability"],
+) => {
+  const words = doneWallTimeAvailabilityWords(availability);
+  return words === undefined ? undefined : scopeHistoryReason(context, words);
+};

@@ -93,15 +93,16 @@ test("a newer timestamp at the same head issues no history read, and a late old 
         })
         .please(),
     });
-    await expect(history).toContainText(
-      `Observed trunk endpoint main ${shortSha(next)}`,
+    const shown = scopeHistoryReading(history).selected;
+    await expect(shown).toHaveText(
+      `Observed trunk endpoint ${shortSha(next)} · 11.0 s`,
     );
-    await expect(scopeHistoryReading(history).rows).toContainText("11.0 s");
     release?.();
     await oldAnswered;
     await untilPageReadsAnswered(page);
-    await expect(history).not.toContainText("8.0 s");
-    await expect(scopeHistoryReading(history).rows).toContainText("11.0 s");
+    await expect(shown).toHaveText(
+      `Observed trunk endpoint ${shortSha(next)} · 11.0 s`,
+    );
     expect(requests).toEqual([first, next]);
   } finally {
     release?.();

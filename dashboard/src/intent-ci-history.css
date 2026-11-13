@@ -171,18 +171,6 @@
   stroke-dasharray: 3 3;
 }
 
-.intent-scope-timing-history code {
-  overflow-wrap: anywhere;
-}
-
-.intent-scope-timing-history h4 {
-  margin: 0 0 var(--space-1);
-}
-
-.intent-scope-timing-history .intent-ci-history-evidence li {
-  overflow-wrap: anywhere;
-}
-
 .intent-ci-history-reference line {
   stroke: var(--ci-history-words);
   stroke-width: 2;
@@ -201,11 +189,12 @@
 .intent-ci-prior-change[data-direction="faster"] strong { color: var(--ci-cue-faster); }
 .intent-ci-prior-change[data-direction="slower"] strong { color: var(--ci-cue-slower); }
 
-/* A Done comparison's history (./IntentCiDoneWallTimeReference.tsx): its
-   heading, brief status and refresh icon on one row, and a failed read's
+/* A glance history's panel (./IntentCiHistoryPanel.tsx): its heading, brief
+   status and any action on one row, long names wrapping, and a failed read's
    alert beside its retry. */
-.intent-ci-done-history .intent-ci-history-head { align-items: center; justify-content: flex-start; }
-.intent-ci-done-history h4 { margin: 0; margin-inline-end: auto; }
+.intent-ci-history-panel .intent-ci-history-head { align-items: center; justify-content: flex-start; }
+.intent-ci-history-panel h4 { margin: 0; margin-inline-end: auto; }
+.intent-ci-history-panel code { overflow-wrap: anywhere; }
 .intent-ci-history-status { color: var(--quiet); font-size: var(--text-sm); }
 
 .intent-ci-history-failure {
@@ -217,3 +206,9 @@
 
 .intent-ci-history-failure p { margin: var(--space-1) 0; font-size: var(--text-sm); }
 .intent-ci-reference-evidence { font-size: var(--text-sm); overflow-wrap: anywhere; }
+
+/* A scope's Test cases / Test file choice: pressed in the accent. */
+.intent-ci-history-units { display: inline-flex; flex-wrap: wrap; gap: 2px; margin-block: var(--space-1); padding: 2px; border-radius: var(--radius-sm); background: var(--hover); }
+.intent-ci-history-units button { min-height: calc(var(--control-size) - 8px); padding: 0 var(--space-2); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--quiet); font: inherit; font-size: var(--text-sm); cursor: pointer; }
+.intent-ci-history-units button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: var(--weight-strong); }
+@media (any-pointer: coarse) { .intent-ci-history-units button { min-height: var(--control-size); } }

@@ -27,10 +27,13 @@ const tickStepsSeconds = [
 const dateRoom = 64;
 const dateEdgeRoom = 22;
 
+// Precise execution time keeps a range floor of a fifth of its highest value
+// (at least 10 ms), so each scope and unit reads on its own scale, sub-second
+// ones included, without magnifying jitter; wall time keeps two minutes.
 function timeTicks(values: readonly number[], precise: boolean): number[] {
-  const minimumRange = precise ? 2_000 : shortestRangeMs;
   let low = Math.min(...values);
   let high = Math.max(...values);
+  const minimumRange = precise ? Math.max(10, high / 5) : shortestRangeMs;
   if (high - low < minimumRange) {
     const middle = (low + high) / 2;
     low = middle - minimumRange / 2;

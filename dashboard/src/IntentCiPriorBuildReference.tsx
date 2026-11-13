@@ -87,7 +87,7 @@ export function IntentCiPriorBuildReference({
               : reasonWords(unavailableReason)
             : durationWords(averageMs)}
         </strong>
-        {` · ${String(sampleCount)} prior builds used`}
+        {` · ${String(sampleCount)} prior build${sampleCount === 1 ? "" : "s"} used`}
       </p>
       {difference !== undefined && (
         <p className="intent-ci-prior-change" data-direction={direction}>

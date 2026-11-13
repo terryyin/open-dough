@@ -70,7 +70,9 @@ the compact readout, and the shared chart of the selected landing and the
 verified retained observations through it, never newer landings. A labelled
 refresh icon reads it again; a failed read keeps the last history of the same
 landing beside its alert and a short **Retry history**. It lists no build
-records or membership.
+records or membership. A scope's test execution time history reads in the
+same panel (`dashboard/src/IntentCiHistoryPanel.tsx`): heading, brief status
+and any action on one row, its reading, then a failed read's alert and retry.
 
 Project history's **Builds and evidence** keeps the observed values and gaps,
 plus dated reference evidence labelled ✓ Included, × Excluded, and ◆ Selected

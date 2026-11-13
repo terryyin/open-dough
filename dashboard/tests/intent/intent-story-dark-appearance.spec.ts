@@ -1,5 +1,6 @@
 import {
   scopeHistory,
+  scopeHistoryChart,
   scopeHistoryReading,
 } from "../intentScopeHistoryPage.ts";
 // Dark system appearance for a selected Done story's Intent reading: CI
@@ -211,10 +212,11 @@ test("a Done story's Intent evidence stays readable under the system dark appear
     );
     const summary = await openSummaryComparison(intent, "dashboard/tests");
     const history = scopeHistory(summary);
-    const reading = scopeHistoryReading(history);
+    const chart = scopeHistoryChart(history, "test cases");
     await expect(history).toBeVisible();
-    await expectReadableContrast(reading.extent);
-    await expectChartMarkContrast(reading.unselectedPoints.first());
+    await expectReadableContrast(scopeHistoryReading(history).measure);
+    await expectReadableContrast(chart.readout);
+    await expectChartMarkContrast(chart.measured.first());
   });
 
   await test.step("changing system appearance keeps the selected story and reading place", async () => {

@@ -1,17 +1,29 @@
-// Precise scope metrics and unit-specific membership reuse the common rule's
-// evidence. The original history list keeps every observed reading and gap.
+// One unit's compact prior-build readout (`./IntentCiPriorBuildReference.tsx`)
+// in scope words, with precise execution times, saying when an equivalent or
+// later trunk build supplies the endpoint's measurement.
+import { standInBuildWords } from "./ciHistoryWords.ts";
+import type { CiScopeHistory } from "./ciScopeHistory.ts";
+import { IntentCiPriorBuildReference } from "./IntentCiPriorBuildReference.tsx";
 import {
   scopeHistoryEndpointWords,
-  scopeHistorySelectionWords,
   scopeHistoryReason,
   type ScopeHistoryContext,
 } from "./intentScopeHistoryContext.ts";
-import type { CiScopeHistory } from "./ciScopeHistory.ts";
-import { shortSha } from "./baseCiWording.ts";
-import { IntentCiPriorBuildReference } from "./IntentCiPriorBuildReference.tsx";
-import { HistoryRunAttempt } from "./HistoryRunAttempt.tsx";
-import { scopeHistoryProvenance } from "./IntentScopeTimingHistoryEvidence.tsx";
-import { PriorBuildReferenceEvidenceList } from "./PriorBuildReferenceEvidenceList.tsx";
+
+// How the endpoint's measurement stands for it, when another build supplies it.
+function standInWords(entries: CiScopeHistory["entries"]) {
+  for (const entry of entries) {
+    const landing = entry.landings.find((each) => each.selected);
+    const provenance = landing?.provenance ?? entry.build?.provenance;
+    if (
+      landing !== undefined &&
+      provenance !== undefined &&
+      provenance !== "exact"
+    )
+      return standInBuildWords[provenance];
+  }
+  return undefined;
+}
 
 export function IntentScopePriorBuildReference({
   comparison,
@@ -23,41 +35,15 @@ export function IntentScopePriorBuildReference({
   readonly entries: CiScopeHistory["entries"];
   readonly context: ScopeHistoryContext;
 }) {
-  if (comparison === undefined) {
-    return null;
-  }
+  if (comparison === undefined) return null;
   return (
-    <>
-      <IntentCiPriorBuildReference
-        reference={comparison.reference}
-        precise
-        endpointLabel={scopeHistoryEndpointWords(context)}
-        reasonWords={(reason) => scopeHistoryReason(context, reason)}
-        unavailableReason={comparison.reason}
-      />
-      <PriorBuildReferenceEvidenceList
-        evidence={comparison.reference.evidence}
-        medianMs={comparison.reference.medianMs}
-        selectedLabel={scopeHistorySelectionWords(context)}
-        reasonWords={(reason) => scopeHistoryReason(context, reason)}
-        precise
-        details={(sample) => {
-          const entry = entries.find((entry) => entry.key === sample.key);
-          const run = entry?.build ?? entry?.run;
-          return (
-            <>
-              {entry === undefined ? "" : ` · ${scopeHistoryProvenance(entry)}`}
-              {entry?.build !== undefined && (
-                <>
-                  {" "}
-                  <code>{shortSha(entry.build.revision)}</code>
-                </>
-              )}
-              {run !== undefined && <HistoryRunAttempt run={run} />}
-            </>
-          );
-        }}
-      />
-    </>
+    <IntentCiPriorBuildReference
+      reference={comparison.reference}
+      precise
+      endpointLabel={scopeHistoryEndpointWords(context)}
+      selectedNote={standInWords(entries)}
+      reasonWords={(reason) => scopeHistoryReason(context, reason)}
+      unavailableReason={comparison.reason}
+    />
   );
 }

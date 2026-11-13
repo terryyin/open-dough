@@ -2,8 +2,9 @@
 // timing history shares (../src/IntentCiPriorBuildReference.tsx), a Done CI
 // comparison's wall-time history around it
 // (../src/IntentCiDoneWallTimeReference.tsx), and membership in
-// PriorBuildReferenceEvidenceList, kept by build, scope and follow-up
-// readings. Expected dates, values, reasons and provenance stay with callers.
+// PriorBuildReferenceEvidenceList, kept by top-level CI status history and
+// follow-up readings. Expected dates, values, reasons and provenance stay
+// with callers.
 import type { Locator, Page } from "@playwright/test";
 import { historyChart } from "./ciHistoryChartPage.ts";
 import { expect } from "./dashboardTest.ts";

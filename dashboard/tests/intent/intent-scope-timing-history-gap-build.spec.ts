@@ -1,9 +1,9 @@
-import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import {
+  expectScopeReadout,
   scopeHistory,
   scopeHistoryReading,
 } from "../intentScopeHistoryPage.ts";
-// Presentation of a named stand-in build beside an unmeasured scoped gap.
+// Presentation of a later stand-in build beside an unmeasured selected gap.
 // Actual collection-to-public metadata is proved in landed-ci-history-gaps.
 import {
   expect,
@@ -18,7 +18,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 
-test("a final proof gap names its later build and keyboard link without counting it as measured", async ({
+test("a selected proof gap from a later trunk build reads its status and stand-in without counting it as measured", async ({
   page,
   origin,
 }) => {
@@ -36,7 +36,9 @@ test("a final proof gap names its later build and keyboard link without counting
           date: "2026-11-07T10:00:00Z",
           selected: true,
           reason: "Expired CI proof summary",
-          readings: [],
+          readings: [
+            { kind: "gap", unit: "case", reason: "Expired CI proof summary" },
+          ],
           landings: [
             {
               revision: setup.completion,
@@ -54,6 +56,21 @@ test("a final proof gap names its later build and keyboard link without counting
           },
         },
       ],
+      references: [
+        {
+          unit: "case",
+          reference: {
+            endpoint: setup.completion,
+            selected: {
+              key: "landing/expired",
+              date: "2026-11-07T10:00:00Z",
+              reason: "Expired CI proof summary",
+            },
+            evidence: [],
+            sampleCount: 0,
+          },
+        },
+      ],
     })
     .please();
   await page.route(
@@ -64,25 +81,15 @@ test("a final proof gap names its later build and keyboard link without counting
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
   const history = scopeHistory(summary);
+  // Its status and the later build standing for the landing, no change.
+  await expectScopeReadout(history, {
+    selected: `Selected landing ${shortSha(setup.completion)} · No timing · Expired CI proof summary · Later trunk build, includes later changes`,
+    average: "Prior-build average · Insufficient history · 0 prior builds used",
+  });
   await expect(history).toContainText(
-    "No complete test execution times are available for this scope.",
+    "No complete test execution times are available for test cases.",
   );
-  await expect(history).toContainText("0 measured builds");
   await expect(scopeHistoryReading(history).charts).toHaveCount(0);
-  const row = scopeHistoryReading(history).rows;
-  await expect(row).toHaveText(
-    `Nov 7 · Expired CI proof summary · Selected landing · Later trunk build, includes later changes ${shortSha(later)} · Run 42 · attempt 1 · Represents ${shortSha(setup.completion)} (selected landing) (later trunk build, includes later changes)`,
-  );
-  const link = attemptLink(row, "Run 42 · attempt 1");
-  await expect(link).toHaveAttribute("href", "https://ci.invalid/runs/42");
-  await link.focus();
-  await page.keyboard.press("Shift+Tab");
-  await expect(link).not.toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(link).toBeFocused();
-  await expect(row.locator("time")).toHaveAttribute(
-    "datetime",
-    "2026-11-07T10:00:00Z",
-  );
+  await expect(history).not.toContainText(shortSha(later));
   await expectNoSidewaysScrollIn(page, history);
 });

@@ -1,89 +1,70 @@
-// Dated execution time through the project or Done endpoint, from local history.
-// Its local read and retry leave the story comparison and other Proof intact.
+// A scope's dated test execution time through the project or Done endpoint,
+// from local history, read before the Summary's child table or the file's
+// Proof (`./IntentScopeProof.tsx`, `./IntentFileProof.tsx`): a brief status,
+// the compact prior-build readout and the shared chart of one measured unit
+// (`./IntentScopeTimingHistoryUnits.tsx`), as the Done CI wall time history
+// reads (`./IntentCiDoneWallTimeReference.tsx`), in the panel they share
+// (`./IntentCiHistoryPanel.tsx`). Its local read keeps the last history of the
+// same endpoint beside a failed refresh's alert and short retry, leaving the
+// story comparison and other Proof intact.
 
-import { useId } from "react";
-import { shortSha } from "./baseCiWording.ts";
-import { buildDateWords, measuredBuildsWords } from "./ciHistoryWords.ts";
-import type { CiScopeHistory } from "./ciScopeHistory.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
-import { IntentScopeTimingHistoryEvidence } from "./IntentScopeTimingHistoryEvidence.tsx";
+import { IntentCiHistoryPanel } from "./IntentCiHistoryPanel.tsx";
 import { IntentScopeTimingHistoryUnits } from "./IntentScopeTimingHistoryUnits.tsx";
 import { useIntentCiScopeHistory } from "./useIntentCiScopeHistory.ts";
+import type { CiScopeHistory } from "./ciScopeHistory.ts";
 import {
+  scopeHistoryAvailabilityWords,
   scopeHistoryContextOf,
-  scopeHistoryEndpointWords,
-  scopeHistorySelectionWords,
+  scopeHistoryReason,
   type ScopeHistoryContext,
 } from "./intentScopeHistoryContext.ts";
 import "./intent-ci-history.css";
 
-function CollectedHistory({
-  history,
-  context,
-}: {
-  readonly history: CiScopeHistory;
-  readonly context: ScopeHistoryContext;
-}) {
-  const endpoint = scopeHistoryEndpointWords(context).toLowerCase();
-  const points = history.entries.filter((entry) =>
-    entry.readings.some((reading) => reading.kind === "point"),
-  );
-  const measuredBuilds = new Set(points.map((entry) => entry.key)).size;
-  const dated = [...points].sort(
-    (a, b) => Date.parse(a.date) - Date.parse(b.date),
-  );
-  const first = dated[0];
-  const last = dated.at(-1);
-  const unavailable =
-    history.availability === "outside-retention"
-      ? `The ${endpoint} is outside the retained history.`
-      : history.availability === "empty"
-        ? "No dashboard-recorded landing history has been collected."
-        : history.availability === "uncollected"
-          ? `The ${endpoint} has no matching collected observation; earlier retained evidence is shown.`
-          : history.availability === "order-unavailable"
-            ? `Some retained landing positions could not be verified from local Git evidence. Only the ${scopeHistorySelectionWords(context).toLowerCase()} observation and independently verified preceding history are shown.`
-            : undefined;
+// What the history measures, and for the project which trunk observation it
+// runs through.
+function MeasureNote({ context }: { readonly context: ScopeHistoryContext }) {
   return (
-    <>
-      {unavailable !== undefined && (
-        <p className="intent-ci-history-note">{unavailable}</p>
+    <p className="intent-ci-history-note">
+      {context.kind === "project" && context.endpoint !== undefined && (
+        <>
+          Trunk <code>{context.branch}</code> observed{" "}
+          <time dateTime={context.endpoint.at}>{context.endpoint.at}</time>
+          .{" "}
+        </>
       )}
-      <p className="intent-ci-history-extent">
-        {measuredBuildsWords(measuredBuilds)}
-        {first !== undefined && last !== undefined && (
-          <>
-            {" "}
-            · <time dateTime={first.date}>{buildDateWords(first.date)}</time>–
-            <time dateTime={last.date}>{buildDateWords(last.date)}</time>
-          </>
-        )}
-      </p>
-      {points.length === 0 && (
-        <p className="intent-ci-history-note">
-          No complete test execution times are available for this scope.
-        </p>
-      )}
-      <IntentScopeTimingHistoryUnits history={history} context={context} />
-      {history.entries.length > 0 && (
-        <details className="intent-ci-history-evidence" open>
-          <summary>Builds and evidence</summary>
-          <ul aria-label="Test execution history evidence">
-            {history.entries.map((entry) => (
-              <IntentScopeTimingHistoryEvidence
-                key={entry.key}
-                entry={entry}
-                context={context}
-              />
-            ))}
-          </ul>
-        </details>
-      )}
-    </>
+      Cumulative test execution time at each build, not CI wall time.
+    </p>
   );
 }
 
-export function IntentScopeTimingHistory({ path }: { readonly path: string }) {
+// The history's brief status: why it is not simply retained at the endpoint,
+// or, with no declared unit to chart, why the endpoint's build has no timing.
+function statusWords(history: CiScopeHistory, context: ScopeHistoryContext) {
+  const selected = history.entries.find((entry) => entry.selected);
+  const unread =
+    history.entries.every((entry) => entry.readings.length === 0) &&
+    selected?.kind === "gap" &&
+    selected.reason !== undefined
+      ? scopeHistoryReason(context, selected.reason)
+      : undefined;
+  return scopeHistoryAvailabilityWords(context, history.availability) ?? unread;
+}
+
+function waitingWords(context: ScopeHistoryContext) {
+  return context.endpoint === undefined
+    ? (context.reason ?? "Reading the selected story’s published landing…")
+    : "Reading collected test execution times…";
+}
+
+export function IntentScopeTimingHistory({
+  path,
+  file = false,
+}: {
+  readonly path: string;
+  // Whether the scope is one test file rather than an entry or folder.
+  readonly file?: boolean;
+}) {
   const evidence = useIntentCiEvidence();
   const context = scopeHistoryContextOf(evidence);
   const { shown, failed, retry, reading, previouslyRetrieved, answeredAt } =
@@ -93,45 +74,25 @@ export function IntentScopeTimingHistory({ path }: { readonly path: string }) {
       context?.endpoint,
       context?.kind === "project" ? context.checkedAgain : undefined,
     );
-  const heading = useId();
   if (context === undefined) return null;
   return (
-    <section
-      className="intent-ci-history intent-scope-timing-history"
-      aria-labelledby={heading}
+    <IntentCiHistoryPanel
+      title="Test execution time history"
+      status={shown === undefined ? undefined : statusWords(shown, context)}
+      failed={failed}
+      retry={retry}
     >
-      <h4 id={heading}>Test execution time history</h4>
-      {context.endpoint !== undefined && (
-        <p className="intent-ci-history-note">
-          {scopeHistoryEndpointWords(context)}{" "}
-          {context.kind === "project" && (
-            <>
-              <code>{context.branch}</code>{" "}
-            </>
-          )}
-          <code>{shortSha(context.endpoint.revision)}</code>.
-          {context.kind === "project" && (
-            <>
-              {" "}
-              Trunk observed{" "}
-              <time dateTime={context.endpoint.at}>{context.endpoint.at}</time>.
-            </>
-          )}{" "}
-          Observed scope at each build; cumulative test execution time, distinct
-          from CI wall time.
-        </p>
-      )}
+      <MeasureNote context={context} />
       {shown === undefined ? (
         failed === undefined && (
-          <p className="intent-ci-history-note">
-            {context.endpoint === undefined
-              ? (context.reason ??
-                "Reading the selected story’s published landing…")
-              : "Reading collected test execution times…"}
-          </p>
+          <p className="intent-ci-history-note">{waitingWords(context)}</p>
         )
       ) : (
-        <CollectedHistory history={shown} context={context} />
+        <IntentScopeTimingHistoryUnits
+          history={shown}
+          context={context}
+          file={file}
+        />
       )}
       {shown !== undefined && answeredAt !== undefined && (
         <p className="intent-ci-history-note">
@@ -142,14 +103,6 @@ export function IntentScopeTimingHistory({ path }: { readonly path: string }) {
           {reading === true && " Checking collected evidence again…"}
         </p>
       )}
-      {failed !== undefined && (
-        <p className="intent-ci-history-note" role="alert">
-          {failed}{" "}
-          <button type="button" onClick={retry}>
-            Retry history
-          </button>
-        </p>
-      )}
-    </section>
+    </IntentCiHistoryPanel>
   );
 }

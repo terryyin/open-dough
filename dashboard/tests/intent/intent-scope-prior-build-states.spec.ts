@@ -1,9 +1,10 @@
 import {
+  chooseTimingUnit,
+  expectScopeReadout,
   scopeHistory,
-  scopeHistoryReading,
-  scopeHistoryUnit,
+  scopeHistoryChart,
 } from "../intentScopeHistoryPage.ts";
-import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
+import { shortSha } from "../../src/baseCiWording.ts";
 // Normal local readers of canonical raw proof expose the selection signature
 // separately from measured completeness; never supply a finished average.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -77,12 +78,14 @@ test("zero, partial selected timing and missing terminal identity retain honest 
   const before = ciCalls().length;
   const summary = await openSummaryComparison(intent, "dashboard/tests");
   const history = scopeHistory(summary);
-  const cases = scopeHistoryUnit(history, "Test cases");
-  await expect(cases).toContainText("Prior-build average · 0 ms");
-  await expect(cases).toContainText(
-    "+1.2 s (percentage unavailable: average is zero)",
-  );
-  await expect(cases).toContainText("5 prior builds used");
+  const landing = `Selected landing ${shortSha(setup.completion)}`;
+  const zeroAverage = "Prior-build average · 0 ms · 5 prior builds used";
+  await expectScopeReadout(history, {
+    selected: `${landing} · 1.2 s`,
+    average: zeroAverage,
+    change:
+      "vs. prior average · +1.2 s (percentage unavailable: average is zero)",
+  });
   const revisit = async () => {
     await intentFile(intent, summaryComparisonChanges.modified).click();
     await intentLocationName(intent, "dashboard/tests").click();
@@ -94,13 +97,12 @@ test("zero, partial selected timing and missing terminal identity retain honest 
     }),
   );
   await revisit();
-  await expect(cases).toContainText("Prior-build average · 0 ms");
-  await expect(cases).toContainText("No timing · Partial: part 2 of 2 missing");
-  await expect(cases).not.toContainText("+1.2 s");
-  await expect(scopeHistoryReading(cases).reference).toHaveCount(1);
-  const partial = priorBuildReferenceReading(cases).selected;
-  await expect(partial).toContainText("part 2 of 2 missing");
-  await expect(partial).not.toContainText("1.2 s");
+  // A partial selected timing: its status beside the usable average, no change.
+  await expectScopeReadout(history, {
+    selected: `${landing} · No timing · Partial: part 2 of 2 missing`,
+    average: zeroAverage,
+  });
+  await expect(scopeHistoryChart(history, "test cases").average).toHaveCount(1);
   // No terminal signature: keep both declared units and a different owner's
   // complete reading, without choosing either as a combined reference.
   await keepLandedCiHistory(
@@ -114,20 +116,20 @@ test("zero, partial selected timing and missing terminal identity retain honest 
   );
   await revisit();
   await childName(summary, "folder/").first().click();
-  await expect(cases).toContainText(
-    "Selected scope identity unavailable: no comparable reference can be established",
+  const unidentified =
+    "Prior-build average · Selected scope identity unavailable: no comparable reference can be established; historical units and owning entries remain separate · 0 prior builds used";
+  await expectScopeReadout(history, {
+    selected: `${landing} · No timing · Expired CI proof summary`,
+    average: unidentified,
+  });
+  const cases = scopeHistoryChart(history, "test cases");
+  await expect(cases.average).toHaveCount(0);
+  await expect(cases.readout).toContainText("Expired CI proof summary");
+  await chooseTimingUnit(history, "Test files", "pointer");
+  await expect(scopeHistoryChart(history, "test files").measured).toHaveCount(
+    6,
   );
-  await expect(cases).toContainText("0 prior builds used");
-  await expect(scopeHistoryReading(history).reference).toHaveCount(0);
-  const readings = scopeHistoryReading(history).evidence;
-  await expect(readings).toContainText("test cases · entry dashboard/tests");
-  await expect(readings).toContainText(
-    "test files · entry dashboard/tests/folder",
-  );
-  await expect(readings).toContainText("Expired CI proof summary");
-  await expect(scopeHistoryUnit(history, "Test files")).toContainText(
-    "no comparable reference can be established",
-  );
+  await expect(history).toContainText(unidentified);
   await intentFile(intent, summaryComparisonChanges.modified).click();
   await fileReadingTab(intent, "Proof").click();
   await expect(proofRegion(intent)).toContainText(
