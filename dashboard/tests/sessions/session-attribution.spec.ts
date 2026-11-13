@@ -1,7 +1,7 @@
 import {
   closeSessionDetails,
-  sessionActions,
   sessionDetails,
+  sessionAction,
 } from "../support/sessionEntryDisclosure.ts";
 import {
   failFirstHistoricalCreditRead,
@@ -12,13 +12,14 @@ import {
 } from "../support/historicalCreditReads.ts";
 import { openSessionAttributionBoard } from "../support/sessionAttributionFixture.ts";
 import { expect, test } from "../dashboardTest.ts";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import { storyCardSessions, parts, sessionStateOf } from "../dashboardPage.ts";
 import {
   publishPreparingJourney,
   storyA,
   storyC,
 } from "../preparingJourney.ts";
 import { authenticatedReadRoute } from "../holdAuthenticatedReads.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 import { credit } from "../agentCredit.ts";
 import { storyCard } from "../storyCardControls.ts";
 
@@ -127,14 +128,8 @@ test("a retained session keeps its allocation credit after release and a later p
   await expect(
     duplicate.getByRole("button", { name: "Mark as read" }),
   ).toBeVisible();
-  await expect(
-    duplicate.getByRole("button", { name: "Open terminal" }),
-  ).toBeVisible();
-  await expect(
-    (await sessionActions(duplicate)).getByRole("button", {
-      name: "Mark as done",
-    }),
-  ).toBeVisible();
+  await expect(openTerminalControl(duplicate)).toBeVisible();
+  await expect(await sessionAction(duplicate, "Mark as done")).toBeVisible();
   await expect(
     parts(page)
       .recentlyDone.getByRole("article")
@@ -174,10 +169,8 @@ test("a retained session keeps its allocation credit after release and a later p
   await sessionDetails(original);
   await expect(original).toContainText(historical);
   await expect(original).toContainText("Model: Fable (requested)");
-  await expect(original.locator(".session-state")).toHaveText("Working");
-  await expect(
-    original.getByRole("button", { name: "Open terminal" }),
-  ).toBeVisible();
+  await expect(sessionStateOf(original)).toHaveText("Working");
+  await expect(openTerminalControl(original)).toBeVisible();
   await expect(credit(card).activity).toHaveCount(0);
   await sessionDetails(legacySession);
   await expect(legacySession).toContainText(unknown);

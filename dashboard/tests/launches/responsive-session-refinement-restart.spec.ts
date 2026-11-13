@@ -48,7 +48,7 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
     story.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled({ timeout: 30_000 });
   await expect(otherHide).toBeFocused();
-  await openTerminalControl(entry, { exact: false }).click();
+  await openTerminalControl(entry).click();
   await expect(entry).toContainText("Shown in terminal");
 
   idleBetweenSteps(dashboard, await sessionNamedBy(entry));

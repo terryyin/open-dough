@@ -179,7 +179,11 @@ reason to relax existing assertions or deadlines.
   `intent-scope-collected-file-timing-history.spec.ts`,
   `intent-scope-collected-timing-history.spec.ts`,
   `intent-scope-prior-build-states.spec.ts`,
-  `intent-scope-prior-build-average.spec.ts`,
+  `intent-scope-glance.spec.ts` (SEED-331 replaced the source's
+  `intent-scope-prior-build-average.spec.ts` with it at `92574ccd3`, keeping
+  its collected-artifact, raw-prior and authenticated-read journey; after
+  merging trunk, prove that spec's commitment through it, since Playwright
+  silently skips a deleted path among others),
   `intent-project-scope-timing-refresh.spec.ts`,
   `recently-done-ci-automatic-repeat.spec.ts`, and the four
   `intent-ci-follow-up{,-proof,-return,-custom}.spec.ts` files;

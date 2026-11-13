@@ -18,6 +18,7 @@ import { expect, test } from "../support/cursorStart.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 import { credit } from "../agentCredit.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
@@ -71,9 +72,7 @@ test("a queued story starts Cursor refinement and the published assignment is wh
     timeout: launchWaitMs,
   });
   await expect(entry).toContainText(cursor.sessionId);
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toHaveCount(1);
+  await expect(openTerminalControl(entry)).toHaveCount(1);
 
   expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
   const created = cursor.calls()[0];

@@ -18,7 +18,7 @@ import {
   storyB,
   storyC,
   storyActions,
-  unreview,
+  unreviewStory,
 } from "../recentlyDoneReviewState.ts";
 import {
   sharedDashboardBuild,
@@ -84,8 +84,7 @@ test("review state survives reload and restart, with keyboard Unreview preservin
       // selected again.
       await selectStory(c).click();
       await expectSelected(c, true);
-      await unreview(a).focus();
-      await page.keyboard.press("Enter");
+      await unreviewStory(a, "Unreview this story?", "keyboard");
       await expectReviewed(a, false);
       await expect(markAsReviewed(a)).toBeFocused();
       await expect(storyActions(a).getByRole("status")).toHaveText(

@@ -4,7 +4,7 @@ import { fileDiff, listedFile } from "../support/reviewTreeRows.ts";
 import { reviewRegion, comparisonChoice } from "../support/storyReviewMark.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import { expect, test } from "../support/preparationPage.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { readReview, refreshReview } from "../support/launchLandingReview.ts";
@@ -32,7 +32,7 @@ test("a CLI-completed story without a local launch opens fixed published changes
     name: "Story A",
     exact: true,
   });
-  await expect(card.locator(".session-entry")).toHaveCount(0);
+  await expect(sessionEntriesIn(card)).toHaveCount(0);
   await expect(reviewChanges(card)).toBeVisible();
   const first = await readReview(page, card);
   expect(first.kind).toBe("published");

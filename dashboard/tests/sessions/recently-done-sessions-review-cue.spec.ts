@@ -1,5 +1,5 @@
 // Shown Recently done rows expose their linked story's outstanding local review.
-import { expect, test } from "../dashboardTest.ts";
+import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import { linked, openSelectionPage } from "../recentlyDoneSelectionJourney.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import { expectSessionReviewCue } from "../recentlyDoneSessionsSidebarPage.ts";
@@ -23,7 +23,7 @@ import {
   doneCard,
   expectReviewed,
   markAsReviewed,
-  unreview,
+  unreviewStory,
 } from "../recentlyDoneReviewState.ts";
 import { keepMoreLaunchRecords } from "../support/launchStore.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
@@ -39,10 +39,10 @@ test("an unselected cross-project done-story row exposes its review need while t
 }) => {
   const { shown } = await openSelectionPage(page, dashboard);
   await expect(shown.reviewCue(linked.title)).toBeVisible();
-  await expect(shown.entry(linked.title)).toHaveAccessibleDescription(
+  await expect(shown.select(linked.title)).toHaveAccessibleDescription(
     /Needs review/,
   );
-  await expect(shown.entry(linked.title)).toHaveAttribute(
+  await expect(shown.select(linked.title)).toHaveAttribute(
     "aria-pressed",
     "false",
   );
@@ -54,6 +54,9 @@ test("equal identities use their own project's review state; every shown matchin
   page,
   dashboard,
 }) => {
+  // The shown rows' recurring catalog read waits for page time, so only the
+  // reads the shown rows lead to are counted.
+  await pausePageClockAt(page, new Date());
   await keepReviewCueProjects(page, dashboard);
   let catalogs = 0;
   page.on("request", (request) => {
@@ -75,7 +78,7 @@ test("equal identities use their own project's review state; every shown matchin
   const card = doneCard(page, localTitle);
   await showColumn(page, "Recently done");
   await expectReviewed(card, true);
-  await unreview(card).click();
+  await unreviewStory(card, "Unreview this story?", "mouse");
   await expectSessionReviewCue(shown.row(localSessionTitle), true);
   await expectSessionReviewCue(shown.row(linked.title), true);
   await markAsReviewed(card).click();
@@ -88,6 +91,9 @@ test("a newly revealed batch resolves the same published story without per-row c
   page,
   dashboard,
 }) => {
+  // The shown rows' recurring catalog read waits for page time, so only the
+  // reads the shown batches lead to are counted.
+  await pausePageClockAt(page, new Date());
   await keepReviewCueProjects(page, dashboard);
   const older = Array.from(Array(24).keys(), (index) =>
     cueSession(dashboard, `Older review session ${String(index)}`, index + 100),
@@ -132,12 +138,12 @@ test.describe("narrow touch review cue", () => {
       bounds.x + bounds.width,
     );
     for (const control of [
-      shown.entry(longSessionTitle),
+      shown.select(longSessionTitle),
       shown.open(longSessionTitle),
     ])
       expect((await box(control)).height).toBeGreaterThanOrEqual(44);
-    await tapWhereShown(shown.entry(longSessionTitle));
-    await expect(shown.entry(longSessionTitle)).toHaveAttribute(
+    await tapWhereShown(shown.select(longSessionTitle));
+    await expect(shown.select(longSessionTitle)).toHaveAttribute(
       "aria-pressed",
       "true",
     );

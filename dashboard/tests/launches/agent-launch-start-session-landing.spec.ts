@@ -17,7 +17,7 @@ import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { attempts, keptStarts, recordsOf } from "../agentLaunchBoundary.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { startSession, startSessionDialog } from "../launchStoryCardPage.ts";
 import { status } from "../support/defaultCheckoutChanges.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
@@ -125,7 +125,7 @@ test("Automatically land with no text names the push beside Start, runs the inst
   for (const absent of ["start", "preparation"])
     expect(record).not.toHaveProperty(absent);
   // The session's entry names the default checkout it was established in.
-  await expect(parts(page).taken.locator(".session-entry")).toContainText(
+  await expect(sessionEntriesIn(parts(page).taken)).toContainText(
     "Workspace ~/git/open-dough (default main)",
   );
   for (const kept of [record, ...(await attempts(dashboard))])

@@ -221,9 +221,10 @@ technology, before selection. Confirmed Ad hoc associations keep their Ad hoc
 label and can name older catalogued Done stories; story launches keep the Board's
 recent window. Cross-project rows use their own project's evidence without moving
 the Board. Cards and rows share one page/project review state: successful Mark as
-reviewed clears every matching row and Unreview restores them; failed saves keep
-the last saved cues and card feedback. Unknown or failed evidence supplies no
-warning and never asserts reviewed. Shown batches recover on the shared check
+reviewed clears the cue from every matching row. Choosing Reviewed and confirming
+Unreview restores those cues; failed saves keep the last saved cues and card
+feedback. Unknown or failed evidence supplies no warning and never asserts
+reviewed. Shown batches recover on the shared check
 pace; obsolete project, revision, association or shown-row answers are ignored.
 Background observation never selects, navigates, opens or attaches a session.
 The words remain visible with narrow/touch long titles, apart from selection and

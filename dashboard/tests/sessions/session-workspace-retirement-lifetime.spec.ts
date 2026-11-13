@@ -16,6 +16,7 @@ import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { save, retained } from "../support/retainedReport.ts";
 import { launchStoreFile } from "../support/launchStore.ts";
 import { codexAttaches } from "../support/codexTerminal.ts";
+import { finalReportParts } from "../finalReportPages.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -55,9 +56,7 @@ test("a disposed attachment cannot redirect or write into a current retry of the
   });
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  await openTerminalControl(storyCardSessions(card(notRefinedStory)), {
-    exact: false,
-  }).click();
+  await openTerminalControl(storyCardSessions(card(notRefinedStory))).click();
   const panel = terminalPanel(page);
   const { rows } = terminalScreenParts(panel);
   await expect(rows).toContainText("original retained history");
@@ -91,9 +90,7 @@ test("a disposed attachment cannot redirect or write into a current retry of the
   await page.keyboard.press("Enter");
   await expect(rows).toContainText("echo current retry input");
   await expect(rows).not.toContainText("late disposed output");
-  await expect(page.getByRole("region", { name: "Final report" })).toHaveCount(
-    0,
-  );
+  await expect(finalReportParts(page).panel).toHaveCount(0);
   expect(resultReads).toBe(0);
   expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
 });

@@ -5,9 +5,10 @@ import { launch } from "../agentLaunchBoundary.ts";
 import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   pageReadReopened,
-  recentlyDoneParts,
+  showRecentlyDone,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
+import { expectSessionsSidebar } from "../sessionsSidebarPage.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
 import { rem } from "../boardPage.ts";
 import { expect, keptRecord, test } from "../support/cursorStart.ts";
@@ -45,12 +46,10 @@ test("a held Cursor attach from Recently done keeps Done membership", async ({
   // real attach win the race, clear Done, and flake this assertion.
   await page.routeWebSocket(new RegExp(agentTerminalEndpoint), () => {});
   await showThreeProjectPage(page, origin);
-  const shown = recentlyDoneParts(page);
-  await shown.button.click();
-  await shown.header.click();
+  const shown = await showRecentlyDone(page);
   await shown.open(title).click();
   await expect(terminalPanel(page)).toBeVisible();
-  await expect(shown.entry(title)).toHaveCount(1);
+  await expect(shown.select(title)).toHaveCount(1);
 });
 
 test("a successful Cursor attach from Recently done removes the Done row", async ({
@@ -76,14 +75,12 @@ test("a successful Cursor attach from Recently done removes the Done row", async
     ],
   });
   await showThreeProjectPage(page, origin);
-  const shown = recentlyDoneParts(page);
-  await shown.button.click();
-  await shown.header.click();
-  await expect(shown.entry(title)).toHaveCount(1);
+  const shown = await showRecentlyDone(page);
+  await expect(shown.select(title)).toHaveCount(1);
   await shown.open(title).click();
   const panel = terminalPanel(page);
   await expect(terminalScreenParts(panel).rows).toContainText("ctrl+c to stop");
-  await expect(shown.entry(title)).toHaveCount(0);
+  await expect(shown.select(title)).toHaveCount(0);
   await expect(
     shown.openEntries.getByRole("button", { name: title }),
   ).toHaveCount(1);
@@ -113,12 +110,10 @@ test("on a narrow window, closing the panel after a successful reopen returns fo
     ],
   });
   await showThreeProjectPage(page, origin);
-  const shown = recentlyDoneParts(page);
-  await shown.button.click();
-  await expect(shown.sidebar).toBeVisible();
-  await shown.header.click();
+  const shown = await showRecentlyDone(page);
   const reopened = pageReadReopened(page, held);
   await shown.open(title).click();
+  // The covering panel hides the banner, so only the sidebar is read here.
   await expect(shown.sidebar).toBeHidden();
   const panel = terminalPanel(page);
   await expect(terminalScreenParts(panel).rows).toContainText("ctrl+c to stop");
@@ -126,12 +121,12 @@ test("on a narrow window, closing the panel after a successful reopen returns fo
   await reopened;
   // Covering hides the banner Sessions control while the panel is open; Close
   // first, then reopen the overlay to observe Done cleared into the open list.
-  await closeSidePanel(panel, { using: "mouse", exact: false });
+  await closeSidePanel(panel, { using: "mouse" });
   await expect(panel).toHaveCount(0);
   await expect(shown.button).toBeFocused();
   await shown.button.click();
-  await expect(shown.sidebar).toBeVisible();
-  await expect(shown.entry(title)).toHaveCount(0);
+  await expectSessionsSidebar(page, "open");
+  await expect(shown.select(title)).toHaveCount(0);
   await expect(
     shown.openEntries.getByRole("button", { name: title }),
   ).toHaveCount(1);

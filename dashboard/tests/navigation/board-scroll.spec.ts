@@ -13,7 +13,7 @@ import {
   wheelBy,
 } from "../boardReading.ts";
 import { expectSettledPage, parts, rosterParts } from "../dashboardPage.ts";
-import { box, closeSidePanel } from "../pageLayout.ts";
+import { box, closeSidePanelToBoard } from "../pageLayout.ts";
 import { publishRosterOrigins } from "../agentRosterRecords.ts";
 import {
   dragDivider,
@@ -68,7 +68,7 @@ for (const viewport of [
     const region = boardScroll(page);
     if (viewport.width === 700) {
       await expectCoveringFillsWindow(panel, parts(page));
-      await closeSidePanel(panel);
+      await closeSidePanelToBoard(panel);
       await expect(banner).toBeVisible();
       const firstTop = (await box(card)).y;
       await wheelBy(page, 600);

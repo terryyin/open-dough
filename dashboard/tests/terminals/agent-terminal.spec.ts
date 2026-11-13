@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../sidePanelFrame.ts";
+import { closeSidePanel, sidePanelNamesOf } from "../sidePanelFrame.ts";
 // A session launched from this dashboard opens in the page's one terminal,
 // on the committed origin from ../launchJourney.ts:
 // a card's session entry or a standalone Taken entry offers Open terminal, the page
@@ -92,7 +92,6 @@ test.describe("the terminal beside the page", () => {
       taken.getByRole("article", {
         name: standaloneSessionName("Execution", title),
       });
-    const openIn = (place: Locator) => openTerminalControl(place);
     const attachesEnded = (sessionId: string) =>
       dashboard
         .claudeAttaches()
@@ -120,19 +119,21 @@ test.describe("the terminal beside the page", () => {
     await launch(readyStory, "Execution");
     const first = await sessionNamedBy(cardEntries(notRefinedStory));
     const second = await sessionNamedBy(cardEntries(readyStory));
-    await expect(openIn(cardEntries(notRefinedStory))).toBeVisible();
+    await expect(
+      openTerminalControl(cardEntries(notRefinedStory)),
+    ).toBeVisible();
     await expect(entry(notRefinedStory)).toHaveCount(0);
     await expect(panel).toHaveCount(0);
     await expect(page.locator("body")).not.toContainText("claude attach");
     await expect(page.getByRole("button", { name: /copy/i })).toHaveCount(0);
 
     await test.step("a card's session entry opens its session to the right of the page, and an answer typed there reaches it", async () => {
-      await openIn(cardEntries(notRefinedStory)).click();
+      await openTerminalControl(cardEntries(notRefinedStory)).click();
       await expectTerminalIdentity(panel, notRefinedStory);
-      await expect(panel.locator(".side-panel-names p")).toHaveText(
+      await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
         "Execution session",
       );
-      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+      await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
       await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       // The page, showing Backlog, stays on the left, and the terminal is to
@@ -171,32 +172,36 @@ test.describe("the terminal beside the page", () => {
 
     await test.step("opening another active card's session detaches the first, which keeps running, and shows the second in its place", async () => {
       await showColumn(page, "Backlog");
-      await openIn(cardEntries(readyStory)).click();
+      await openTerminalControl(cardEntries(readyStory)).click();
       await expect(panel).toHaveCount(1);
       await expectTerminalIdentity(panel, readyStory);
-      await expect(panel.locator(".side-panel-names p")).toHaveText(
+      await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
         "Execution session",
       );
-      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+      await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
       await expect(rows).toContainText(`attached ${shortId(second)}`);
       await expect(rows).not.toContainText("echo yes, go on");
       await expect.poll(() => attachesEnded(first)).toBe(true);
       await stillListed(first);
-      await expect(openIn(cardEntries(notRefinedStory))).toBeVisible();
+      await expect(
+        openTerminalControl(cardEntries(notRefinedStory)),
+      ).toBeVisible();
     });
 
     await test.step("Close ends the panel and detaches only, and the keyboard returns to the card entry that opened it", async () => {
       await showColumn(page, "Backlog");
-      await openIn(cardEntries(notRefinedStory)).click();
+      await openTerminalControl(cardEntries(notRefinedStory)).click();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
-      await closeSidePanel(panel, { using: "mouse", exact: false });
+      await closeSidePanel(panel, { using: "mouse" });
       await expect(panel).toHaveCount(0);
       // The card still lists the session, so its entry's Open terminal, not
       // another entry, has the keyboard.
-      await expect(openIn(cardEntries(notRefinedStory))).toBeFocused();
+      await expect(
+        openTerminalControl(cardEntries(notRefinedStory)),
+      ).toBeFocused();
       await expect.poll(() => attachesEnded(first)).toBe(true);
       await stillListed(first);
-      await expect(openIn(cardEntries(readyStory))).toBeVisible();
+      await expect(openTerminalControl(cardEntries(readyStory))).toBeVisible();
       await expectMembership(page, queued);
     });
 
@@ -207,7 +212,7 @@ test.describe("the terminal beside the page", () => {
         backlog: [takenStory],
       });
       await showColumn(page, "Taken");
-      await openIn(entry(notRefinedStory)).click();
+      await openTerminalControl(entry(notRefinedStory)).click();
       await expectTerminalIdentity(panel, notRefinedStory);
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       await page.keyboard.type("carry on");

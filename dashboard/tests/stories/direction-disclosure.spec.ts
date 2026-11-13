@@ -1,4 +1,8 @@
-import { passTimeUntilChecked, pausePageClock } from "../autoRefreshJourney.ts";
+import {
+  passTimeUntilChecked,
+  passTimeUntilCheckedAfterSettled,
+  pausePageClock,
+} from "../autoRefreshJourney.ts";
 import { expect, test } from "../dashboardTest.ts";
 import {
   chooseProject,
@@ -107,7 +111,7 @@ test("same-project refresh retains expanded and collapsed choices through loadin
 
   origin.push(revisionB, withDirection("The next published direction."));
   const release = origin.hold(revisionB);
-  await passTimeUntilChecked(page);
+  await passTimeUntilCheckedAfterSettled(page);
   await expect(reading).toBeVisible();
   await expect(body).toBeVisible();
   await expect(body).toHaveText(fullDirection);
@@ -117,7 +121,7 @@ test("same-project refresh retains expanded and collapsed choices through loadin
   await expect(body).toHaveText("The next published direction.");
 
   const restore = origin.answerWith("main", noConnection);
-  await passTimeUntilChecked(page, 502);
+  await passTimeUntilCheckedAfterSettled(page, 502);
   await expect(problem).toBeVisible();
   await expect(body).toBeVisible();
   await expect(body).toHaveText("The next published direction.");

@@ -1,4 +1,4 @@
-import { readFinalReportControl } from "../finalReportPages.ts";
+import { readFinalReport } from "../finalReportPages.ts";
 import { closeSidePanel } from "../sidePanelFrame.ts";
 // The project row's Start session offers where the session runs (Workspace)
 // beside After checks, with the story dialogs' words and no Tracking. With a
@@ -28,9 +28,12 @@ import {
   existingChangesHeading as heading,
   status,
 } from "../support/defaultCheckoutChanges.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { expectReportingBlock } from "../support/reportingInputAssertions.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { openBacklog, originMain, radio } from "../support/sessionDialog.ts";
@@ -174,12 +177,10 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   await closeSidePanel(terminal);
   rmSync(session.workspace, { recursive: true });
   await page.reload();
-  const kept = parts(page).taken.locator(".session-entry");
+  const kept = sessionEntriesIn(parts(page).taken);
   await expect(kept).toContainText("saved workspace is missing");
-  await readFinalReportControl(kept, { exact: false }).click();
-  await expect(
-    page.getByRole("region", { name: "Final report" }),
-  ).toContainText(`Saved workspace ${session.workspace}`);
+  const { panel } = await readFinalReport(kept);
+  await expect(panel).toContainText(`Saved workspace ${session.workspace}`);
 });
 
 test("with existing changes in default main, Isolated workspace · Automatically land starts at once with no text, in `.worktrees/session`, and leaves the changes untouched", async ({

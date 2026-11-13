@@ -10,7 +10,7 @@ import {
   useIntentCiEndpointHistory,
   type EndpointHistoryAnswer,
 } from "./useIntentCiEndpointHistory.ts";
-import type { CiScopeHistory } from "./ciScopeHistory.ts";
+import type { ScopeHistoryGlance } from "./ciScopeHistory.ts";
 import { useKeptReading } from "./pageIntentReading.tsx";
 
 export function useIntentCiScopeHistory(
@@ -20,7 +20,7 @@ export function useIntentCiScopeHistory(
   checkedAgain?: string,
 ) {
   const [kept, remember] = useKeptReading<
-    EndpointHistoryAnswer<CiScopeHistory> | undefined
+    EndpointHistoryAnswer<ScopeHistoryGlance> | undefined
   >("ciScopeHistory", () => undefined);
   const read = useCallback(
     (

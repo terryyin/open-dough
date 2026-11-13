@@ -95,8 +95,33 @@ export const markAsReviewed = (card: Locator) =>
     exact: true,
   });
 
-export const unreview = (card: Locator) =>
-  storyActions(card).getByRole("button", { name: "Unreview", exact: true });
+export const reviewedButton = (card: Locator) =>
+  storyActions(card).getByRole("button", { name: "Reviewed", exact: true });
+
+export const unreviewQuestion = (card: Locator, question: string) =>
+  storyActions(card).getByRole("group", { name: question, exact: true });
+
+export const cancelUnreview = (question: Locator) =>
+  question.getByRole("button", { name: "Cancel", exact: true });
+
+export const confirmUnreview = (question: Locator) =>
+  question.getByRole("button", { name: "Unreview", exact: true });
+
+export async function unreviewStory(
+  card: Locator,
+  question: string,
+  using: "mouse" | "keyboard",
+) {
+  const button = reviewedButton(card);
+  const confirm = confirmUnreview(unreviewQuestion(card, question));
+  if (using === "keyboard") {
+    await button.press("Enter");
+    await confirm.press("Enter");
+  } else {
+    await button.click();
+    await confirm.click();
+  }
+}
 
 export const reviewSaveFailure = (card: Locator, message: string) =>
   card.getByRole("status").filter({ hasText: message });
@@ -121,31 +146,28 @@ export async function expectQuietReviewed(
   surfaceColor: string,
 ) {
   await expectReviewed(card, true);
-  await expect(unreview(card)).toHaveCSS("color", quietColor);
-  await expect(unreview(card)).toHaveCSS("background-color", surfaceColor);
-  await expectReadableContrast(unreview(card));
-  await expectReadableContrast(
-    storyActions(card).getByText("Reviewed", { exact: true }),
+  await expect(reviewedButton(card)).toHaveCSS("color", quietColor);
+  await expect(reviewedButton(card)).toHaveCSS(
+    "background-color",
+    surfaceColor,
   );
+  await expectReadableContrast(reviewedButton(card));
 }
 
-// What the Story actions say of the card's review state: the Reviewed status
-// words with Unreview beside them, or Mark as reviewed alone; never a
-// control named Reviewed, nor an "unreviewed" badge.
+// A story's saved state occupies one action, with no separate status badge.
 export async function expectReviewed(card: Locator, reviewed: boolean) {
   const actions = storyActions(card);
-  const indicator = actions.getByText("Reviewed", { exact: true });
   if (reviewed) {
-    await expect(indicator).toBeVisible();
-    await expect(unreview(card)).toBeVisible();
+    await expect(reviewedButton(card)).toBeVisible();
     await expect(markAsReviewed(card)).toHaveCount(0);
   } else {
     await expect(markAsReviewed(card)).toBeVisible();
-    await expect(indicator).toHaveCount(0);
-    await expect(unreview(card)).toHaveCount(0);
   }
+  await expect(actions.getByText("Reviewed", { exact: true })).toHaveCount(
+    reviewed ? 1 : 0,
+  );
   await expect(
-    actions.getByRole("button", { name: "Reviewed", exact: true }),
+    actions.getByRole("button", { name: "Unreview", exact: true }),
   ).toHaveCount(0);
   await expect(card.getByText(/unreviewed/i)).toHaveCount(0);
 }

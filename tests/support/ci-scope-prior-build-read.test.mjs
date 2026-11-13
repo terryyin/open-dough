@@ -6,6 +6,7 @@ import {
   scopeReferenceReading,
 } from "./scopePriorReferenceTestData.mjs";
 import { readIntentCiScopeHistory } from "../../dashboard/src/authenticatedIntentCiHistoryRead.ts";
+import { scopeHistoryGlanceOf } from "../../dashboard/server/ciHistoryGlance.ts";
 
 test("the browser scope reader rejects a reference for another landing even when the outer path and selected revision match", async () => {
   const source = makeMe.aPublishedSource
@@ -15,8 +16,10 @@ test("the browser scope reader rejects a reference for another landing even when
       label: "Open Dough",
     })
     .please();
-  const answer = scopeReferenceReading(
-    [100, 100, 100, 100, 100, 120].map((ms) => [scopeReferenceEntry(ms)]),
+  const answer = scopeHistoryGlanceOf(
+    scopeReferenceReading(
+      [100, 100, 100, 100, 100, 120].map((ms) => [scopeReferenceEntry(ms)]),
+    ),
   );
   const endpoint = {
     revision: answer.selectedRevision,

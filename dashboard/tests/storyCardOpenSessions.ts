@@ -1,8 +1,9 @@
 // Sessions already open on the story cards of a paused page, kept in the
 // machine's launch store and listed by the synthetic `claude` before the page
 // first reads them, so a journey starts with them without replaying Start:
-// the attention journey (./sessions/agent-launch-attention.spec.ts) and the
-// card session-state journey
+// the attention journeys (./sessions/agent-launch-attention.spec.ts and
+// ./sessions/agent-launch-attention-taken.spec.ts) and the card session-state
+// journey
 // (./sessions/agent-launch-story-card-session-states.spec.ts). The production
 // records reader joins the two, so listing failure and recovery stay real.
 
@@ -16,10 +17,20 @@ import {
   agentVerifyEndpoint,
 } from "../src/launchOutcome.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
+import {
+  identityA,
+  identityB,
+} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { parts, sessionNamedBy, storyCardSessionOf } from "./dashboardPage.ts";
-import type { StoryColumnsJourney } from "./launchJourney.ts";
+import {
+  notRefinedIdentity,
+  notRefinedStory,
+  readyStory,
+  takenStory,
+  type StoryColumnsJourney,
+} from "./launchJourney.ts";
 import { expectSessionShown, watchRecordReads } from "./sessionStatePace.ts";
 import type { Workflow } from "./storyColumnsPage.ts";
 import {
@@ -29,16 +40,38 @@ import {
 import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
 import { keepLaunchStore } from "./support/launchStore.ts";
 
-// A Claude session already open on a story's card when the page opens: the
-// project that keeps it, the story it works on, its workflow, and the state
-// Claude Code lists it in.
+// A Claude session already open and working on a story's card when the page
+// opens: the project that keeps it, the story it works on, and its workflow.
 export type OpenSession = {
   readonly project: string;
   readonly identity: string;
   readonly title: string;
   readonly workflow: Workflow;
-  readonly state: ClaudeSessionChange;
 };
+
+// Open Dough's three sessions, each working when the page opens on the
+// Backlog: an Execution on the ready and the not-refined story and a
+// Refinement on Story A.
+export const openDoughWorkingSessions: readonly OpenSession[] = [
+  {
+    project: "open-dough",
+    identity: identityB,
+    title: readyStory,
+    workflow: "Execution",
+  },
+  {
+    project: "open-dough",
+    identity: notRefinedIdentity,
+    title: notRefinedStory,
+    workflow: "Execution",
+  },
+  {
+    project: "open-dough",
+    identity: identityA,
+    title: takenStory,
+    workflow: "Refinement",
+  },
+];
 
 // The Start requests a page sends for a launch, from acceptance through
 // reconciliation.
@@ -59,14 +92,13 @@ function keepOpenSessions(
   const now = Date.now();
   const byProject: Record<string, LaunchRecord[]> = {};
   const sessionOf = new Map<string, string>();
-  sessions.forEach(({ project, identity, title, workflow, state }, index) => {
+  sessions.forEach(({ project, identity, title, workflow }, index) => {
     const startedAt = now - (sessions.length - index) * 1_000;
     const sessionId = dashboard.claudeListsSession({
       name: title,
       cwd: path.join(dashboard.home, "git", project),
       startedAt,
     });
-    if (state !== "working") dashboard.claudeSessionBecomes(sessionId, state);
     const story = { identity, title, source: project };
     const launch =
       workflow === "Execution"
@@ -91,7 +123,7 @@ export async function openWithOpenSessions(
   page: Page,
   dashboard: DashboardServer,
   columnsJourney: StoryColumnsJourney,
-  sessions: readonly OpenSession[],
+  sessions: readonly OpenSession[] = openDoughWorkingSessions,
 ) {
   const sessionOf = keepOpenSessions(dashboard, sessions);
   const startsAsked: string[] = [];
@@ -120,17 +152,21 @@ export async function openWithOpenSessions(
   ) => expectSessionShown(entryOf(title, workflow), words, needsAttention);
   const sessionIdOf = (title: string, workflow: Workflow) =>
     sessionOf.get(`${title} ${workflow}`) ?? "?";
-  // The shown card's entry names the session kept for it, working as
-  // listed when it was listed working.
-  const expectOpen = async ({ title, workflow, state }: OpenSession) => {
-    if (state === "working") await shows(title, workflow, "Working", false);
+  // The shown card's entry names the session kept for it.
+  const expectSameSession = async ({ title, workflow }: OpenSession) => {
     expect(await sessionNamedBy(entryOf(title, workflow))).toBe(
       sessionIdOf(title, workflow),
     );
   };
-  for (const session of sessions) {
-    if (session.project === "open-dough") await expectOpen(session);
-  }
+  const expectOpen = async (session: OpenSession) => {
+    await shows(session.title, session.workflow, "Working", false);
+    await expectSameSession(session);
+  };
+  const openDough = sessions.filter(({ project }) => project === "open-dough");
+  const expectSameSessions = async () => {
+    for (const session of openDough) await expectSameSession(session);
+  };
+  for (const session of openDough) await expectOpen(session);
   // Claude Code lists the story's session in this workflow anew.
   const becomes = (
     title: string,
@@ -155,6 +191,7 @@ export async function openWithOpenSessions(
     action,
     entryOf,
     expectOpen,
+    expectSameSessions,
     expectNothingStarted,
     shows,
     becomes,

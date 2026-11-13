@@ -3,7 +3,7 @@
 // Done, each under its own project, while open ones stay among open sessions.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
-  recentlyDoneParts,
+  showRecentlyDone,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
@@ -56,9 +56,7 @@ test("of two projects' kept executions, Recently done lists only the one marked 
   });
 
   await showThreeProjectPage(page, origin);
-  const shown = recentlyDoneParts(page);
-  await shown.button.click();
-  await shown.header.click();
+  const shown = await showRecentlyDone(page);
 
   // The open execution is kept and listed among open sessions, not here.
   await expect(

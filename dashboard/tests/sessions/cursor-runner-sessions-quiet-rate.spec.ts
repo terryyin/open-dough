@@ -8,12 +8,12 @@ import { cursorHeldLabel } from "../../src/cursorHeldLabel.ts";
 import { askGapMs } from "../../src/cursorRunnerSessions.ts";
 import { passPageMsAnswered, pausePageClock } from "../autoRefreshJourney.ts";
 import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
+import { collapseRunningList, openRunningList } from "../runningCursorList.ts";
 import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   heldSessionsAnswer,
   holdSession,
   instruction,
-  openRunningList,
   showPageWithTaken,
   withRunningCursor,
 } from "../runningCursorSessionsPage.ts";
@@ -38,8 +38,9 @@ quiet(
       await showPageWithTaken(page, origin);
       const demand = trackCursorSessionsDemand(page);
       const shownTerminal = terminalPanel(page);
-      const { sidebar, region, header } = await openRunningList(page);
-      const row = region.getByRole("button", { name: /Open Dough/ });
+      const running = await openRunningList(page);
+      const { sidebar, region } = running;
+      const row = running.heldRows(/Open Dough/);
       await expect(region).toContainText("The Cursor runner is running.");
       await expect(row).toContainText("working");
       await expect.poll(() => demand.started()).toBeGreaterThanOrEqual(1);
@@ -69,8 +70,7 @@ quiet(
       await expect(row).toContainText(cursorHeldLabel.followUp);
       await expect(shownTerminal).toHaveCount(0);
 
-      await header.click();
-      await expect(region.locator(".running-cursor-body")).toHaveCount(0);
+      await collapseRunningList(running);
       await untilPageRequestsAnswered(page);
       const afterCollapse = demand.started();
       await passPageMsAnswered(page, askGapMs * 3);
@@ -93,8 +93,8 @@ membership(
   async ({ page, dashboard, origin, cursor }) => {
     await holdSession(dashboard, cursor);
     await showPageWithTaken(page, origin);
-    const { region } = await openRunningList(page);
-    const rows = region.getByRole("button", { name: /Open Dough/ });
+    const { region, listed, heldRows } = await openRunningList(page);
+    const rows = heldRows(/Open Dough/);
     await expect(rows).toHaveCount(1);
     await expect(rows).toContainText("working");
 
@@ -105,6 +105,6 @@ membership(
     await hangupCursorClient(record.session, dashboard.home);
     await expect(rows).toHaveCount(0, { timeout: changeWithinBoundMs });
     await expect(region).toContainText("The Cursor runner is running.");
-    await expect(region.getByRole("listitem")).toHaveCount(0);
+    await expect(listed).toHaveCount(0);
   },
 );

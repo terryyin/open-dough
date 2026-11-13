@@ -19,7 +19,12 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import { credit } from "../agentCredit.ts";
-import { columnCountOf, expectMembership, parts } from "../dashboardPage.ts";
+import {
+  columnCountOf,
+  expectMembership,
+  parts,
+  sessionEntriesIn,
+} from "../dashboardPage.ts";
 import { publishFiles, type ObservedRequest } from "../publishedOrigin.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
@@ -95,7 +100,7 @@ test("Recently done lists published done stories among the sessions, newest firs
       executed.title,
       removedQueued.title,
     ]);
-    await expect(parts(page).backlog.locator(".session-entry")).toHaveCount(1);
+    await expect(sessionEntriesIn(parts(page).backlog)).toHaveCount(1);
   });
 
   await test.step("a done card names its title, completion time, developer, and agent with host", async () => {
@@ -156,7 +161,7 @@ test("a revision with no done records lists the sessions as before, and one whos
     await page.goto("/");
     await expectMembership(page, { taken: [], backlog: [queuedTitle] });
     await expectEntries(recent, [adHocEntry]);
-    await expect(parts(page).backlog.locator(".session-entry")).toHaveCount(1);
+    await expect(sessionEntriesIn(parts(page).backlog)).toHaveCount(1);
     await expect(recent.locator(".done-story")).toHaveCount(0);
     await expect(recent).not.toContainText(/could not be read|unreadable/);
   });
@@ -173,7 +178,7 @@ test("a revision with no done records lists the sessions as before, and one whos
     await expect(recent).toContainText("Done stories could not be read.");
     await expect(recent).not.toContainText("catalog-done");
     await expectEntries(recent, [adHocEntry]);
-    await expect(parts(page).backlog.locator(".session-entry")).toHaveCount(1);
+    await expect(sessionEntriesIn(parts(page).backlog)).toHaveCount(1);
     await expect(recent.locator(".done-story")).toHaveCount(0);
     await expect(columnCountOf(recent)).toHaveText("Entry count incomplete");
   });

@@ -141,8 +141,7 @@
   color: var(--accent);
 }
 
-/* In-place questions (Delete record…, Mark as done) keep both choices
-   beside their words, styled as launch controls. */
+/* In-place questions keep both choices beside their words. */
 .in-place-question-actions {
   display: flex;
   flex-wrap: wrap;
@@ -191,7 +190,7 @@
 @media (any-pointer: coarse) {
   .start-launch-button,
   .session-entry .launch-open button,
-  .side-panel-question button {
+  .in-place-question button {
     box-sizing: border-box;
     min-width: var(--control-size);
     min-height: var(--control-size);

@@ -1,5 +1,8 @@
+import {
+  askToDeleteRecord,
+  sessionAction,
+} from "../support/sessionEntryDisclosure.ts";
 import { closeSidePanel } from "../sidePanelFrame.ts";
-import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { renameSync } from "node:fs";
 import path from "node:path";
@@ -18,6 +21,8 @@ import {
   expectMembership,
   shortRevision,
   parts,
+  sessionEntriesIn,
+  sessionEntryShowing,
   sessionNamedBy,
   sessionStateOf,
 } from "../dashboardPage.ts";
@@ -79,9 +84,9 @@ test("one Taken story with two sessions and one local session means two entries;
   await showColumn(page, "Taken");
   const { taken, recentlyDone } = parts(page);
   await expect(columnCountOf(taken)).toHaveText("2 entries");
-  await expect(taken.locator("[data-story-card] .session-entry")).toHaveCount(
-    2,
-  );
+  await expect(
+    sessionEntriesIn(taken.locator("[data-story-card]")),
+  ).toHaveCount(2);
   await expect(localEntries(page)).toHaveCount(1);
   for (const [index, name] of [
     queuedTitle,
@@ -93,7 +98,7 @@ test("one Taken story with two sessions and one local session means two entries;
   await expect(
     localEntries(page).locator(".story-card-meta, .slice-progress"),
   ).toHaveCount(0);
-  await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
+  await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
   await expect(taken).not.toContainText("No Taken entries");
   await publishMembership(page, { at: "d3".repeat(20) });
   await page.reload();
@@ -115,9 +120,7 @@ test("one Taken story with two sessions and one local session means two entries;
     secondId,
   ]) {
     await showColumn(page, "Taken");
-    const entry = parts(page).taken.locator(
-      `[data-shows-session="claude:${session}"]`,
-    );
+    const entry = sessionEntryShowing(parts(page).taken, `claude:${session}`);
     idleBetweenSteps(dashboard, session);
     await markDoneAnyway(entry);
     await expect(entry).toHaveCount(0);
@@ -125,7 +128,7 @@ test("one Taken story with two sessions and one local session means two entries;
   await expect(localEntries(page)).toHaveCount(0);
   await expect(columnCountOf(taken)).toHaveText("0 entries");
   await expect(taken).toContainText("No Taken entries are recorded.");
-  await expect(recentlyDone.locator(".session-entry")).toHaveCount(3);
+  await expect(sessionEntriesIn(recentlyDone)).toHaveCount(3);
   await expect(parts(page).readRevision).toContainText(
     shortRevision("d3".repeat(20)),
   );
@@ -158,9 +161,7 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   await expect(active).toHaveCount(1);
   const native = await sessionNamedBy(active);
   const key = `claude:${native}`;
-  const recent = parts(page).recentlyDone.locator(
-    `[data-shows-session="${key}"]`,
-  );
+  const recent = sessionEntryShowing(parts(page).recentlyDone, key);
   await expect(columnCountOf(parts(page).taken)).toHaveText("1 entry");
   await expect(parts(page).taken).not.toContainText("No Taken entries");
   await expect(recent).toHaveCount(0);
@@ -186,7 +187,7 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   await showColumn(page, "Recently done");
   const beforeReopen = dashboard.claudeAttaches().length;
   dashboard.claudeSessionBecomes(native, "forgotten");
-  await openTerminalControl(recent, { exact: false }).click();
+  await openTerminalControl(recent).click();
   await expect(terminal.getByRole("status")).toContainText(
     "Disconnected from the session",
   );
@@ -194,10 +195,8 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   expect(dashboard.claudeAttaches()).toHaveLength(beforeReopen);
   await expect(recent).toHaveCount(1);
   await expect(active).toHaveCount(0);
-  await closeSidePanel(terminal, { using: "mouse", exact: false });
-  await expect(
-    recent.getByRole("button", { name: "Open terminal" }),
-  ).toBeFocused();
+  await closeSidePanel(terminal);
+  await expect(openTerminalControl(recent)).toBeFocused();
 });
 
 test("deleting its last local Taken entry returns the keyboard to Taken and settles its empty count", async ({
@@ -213,10 +212,7 @@ test("deleting its last local Taken entry returns the keyboard to Taken and sett
   const entry = localEntries(page);
   await expect(sessionStateOf(entry)).toContainText("State unknown");
   await showColumn(page, "Taken");
-  await (await sessionAction(entry, "Delete record…")).click();
-  await entry
-    .getByRole("button", { name: "Delete record", exact: true })
-    .click();
+  await (await askToDeleteRecord(entry)).confirm.click();
   await expect(entry).toHaveCount(0);
   const { taken } = parts(page);
   await expect(taken).toBeFocused();

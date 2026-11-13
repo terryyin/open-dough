@@ -1,8 +1,10 @@
 import {
+  chooseTimingUnit,
   scopeHistory,
   scopeHistoryReading,
   scopeHistoryChart,
 } from "../intentScopeHistoryPage.ts";
+import { expectStackedInOrder } from "../partArrangement.ts";
 // Real collector → Project Intent, without selecting a story. Independent
 // scope totals include a measured descendant absent from the visible tree.
 import { shortSha } from "../../src/baseCiWording.ts";
@@ -14,7 +16,7 @@ import {
   proofRegion,
   purposeRegion,
 } from "../intentPerspectivePage.ts";
-import { childName } from "../intentScopeProofPage.ts";
+import { childName, scopeTable } from "../intentScopeProofPage.ts";
 import { openSummary } from "../intentSummaryCiProofFixtures.ts";
 import { intentFile } from "../support/intentStoryPage.ts";
 import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
@@ -144,43 +146,39 @@ test("Project Intent reads dated entry, nested folder and file history through i
     const before = historicalAcquisitions();
     const history = scopeHistory(intent);
     const shown = scopeHistoryReading(history);
-    const { evidence, rows } = shown;
-    const expectBuildRows = async (
-      cases: readonly string[],
-      files: readonly string[],
-    ) => {
-      await expect(rows.filter({ hasText: /Run \d/ })).toHaveText(
-        revisions.map(
-          (revision, index) =>
-            `Nov ${String(index + 5)} · ${cases[index]} · test cases · entry dashboard/tests · ${files[index]} · test files · entry dashboard/tests · Exact build ${shortSha(revision)} · Run ${String(index + 101)} · attempt 1 · Represents ${shortSha(revision)} (exact build)`,
-        ),
+    const endpointChart = (unit: string) =>
+      scopeHistoryChart(history, unit, "observed trunk endpoint");
+    // Three measured trunk builds, then the uncollected endpoint's gap.
+    const expectBuilds = async (unit: string, timings: readonly string[]) => {
+      const chart = endpointChart(unit);
+      await expect(chart.marks).toHaveCount(4);
+      for (const [index, timing] of timings.entries())
+        await expect(
+          chart.mark(`Nov ${String(index + 5)} · ${timing}`),
+        ).toHaveCount(1);
+      await expect(chart.readout).toContainText(
+        "Endpoint · No timing · Observed trunk endpoint was not collected",
       );
     };
-    await expect(history).toContainText(
-      `Observed trunk endpoint main ${shortSha(endpoint)}`,
+    // History reads above the Summary's child table.
+    const expectAboveTable = (path: string) =>
+      expectStackedInOrder([history, scopeTable(summary, path)]);
+    await expect(shown.selected).toContainText(
+      `Observed trunk endpoint ${shortSha(endpoint)}`,
     );
     await expect(shown.endpointTime).toHaveAttribute("datetime", /T.*Z$/);
-    await expect(history).toContainText(
-      "The observed trunk endpoint has no matching collected observation; earlier retained evidence is shown.",
+    await expect(shown.status).toHaveText(
+      "Observed trunk endpoint not collected",
     );
-    await expect(history).toContainText("3 measured builds · Nov 5–Nov 7");
-    await expectBuildRows(
-      ["11.0 s", "14.0 s", "12.0 s"],
-      ["110 ms", "140 ms", "120 ms"],
-    );
-    await expect(rows.last()).toContainText(
-      "Observed trunk endpoint was not collected",
-    );
+    await expectBuilds("test cases", ["11.0 s", "14.0 s", "12.0 s"]);
+    await expectAboveTable("dashboard/tests");
+    await chooseTimingUnit(history, "Test files", "keyboard");
+    await expectBuilds("test files", ["110 ms", "140 ms", "120 ms"]);
     await childName(summary, "folder/").first().click();
-    await expectBuildRows(
-      ["9.0 s", "12.0 s", "10.0 s"],
-      ["90 ms", "120 ms", "100 ms"],
-    );
+    await expectBuilds("test cases", ["9.0 s", "12.0 s", "10.0 s"]);
+    await expectAboveTable("dashboard/tests/folder");
     await childName(summary, "nested/").first().click();
-    await expectBuildRows(
-      ["8.0 s", "11.0 s", "9.0 s"],
-      ["80 ms", "110 ms", "90 ms"],
-    );
+    await expectBuilds("test cases", ["8.0 s", "11.0 s", "9.0 s"]);
     await expect(
       intentFile(intent, "dashboard/tests/folder/ghost.spec.ts"),
     ).toHaveCount(0);
@@ -188,31 +186,13 @@ test("Project Intent reads dated entry, nested folder and file history through i
     await expect(purposeRegion(intent)).toBeVisible();
     await fileReadingTab(intent, "Proof").click();
     const file = proofRegion(intent);
-    await expect(rows).toHaveCount(4);
-    await expect(rows.nth(0)).toContainText("8.0 s · test cases");
-    await expect(rows.nth(1)).toContainText("11.0 s · test cases");
-    await expect(rows.nth(2)).toContainText("9.0 s · test cases");
-    await expect(
-      scopeHistoryChart(history, "test cases", "observed trunk endpoint"),
-    ).toBeVisible();
-    await expect(
-      scopeHistoryChart(history, "test files", "observed trunk endpoint"),
-    ).toBeVisible();
+    await expectBuilds("test cases", ["8.0 s", "11.0 s", "9.0 s"]);
+    await chooseTimingUnit(history, "Test file", "keyboard");
+    await expectBuilds("test files", ["80 ms", "110 ms", "90 ms"]);
     await fileReadingTab(intent, "Purpose").click();
     await expect(purposeRegion(intent)).toBeVisible();
     await fileReadingTab(intent, "Proof").click();
-    await expect(rows.nth(2)).toContainText("9.0 s · test cases");
-    const links = evidence.getByRole("link");
-    await shown.disclosure.focus();
-    await expect(shown.disclosure).toBeFocused();
-    for (const [index, id] of [101, 102, 103].entries()) {
-      await page.keyboard.press("Tab");
-      await expect(links.nth(index)).toBeFocused();
-      await expect(links.nth(index)).toHaveAttribute(
-        "href",
-        `https://ci.invalid/runs/${String(id)}`,
-      );
-    }
+    await expectBuilds("test files", ["80 ms", "110 ms", "90 ms"]);
     await expectNoSidewaysScrollIn(page, history);
     // Real store corruption fails the HTTP read; navigation keeps file Proof.
     const store = historyFile(dashboard.home);
@@ -239,7 +219,7 @@ test("Project Intent reads dated entry, nested folder and file history through i
       writeFileSync(store, retained, "utf8");
       await shown.retry.click();
       await expect(shown.failure).toHaveCount(0);
-      await expect(rows).toHaveCount(4);
+      await expect(endpointChart("test cases").marks).toHaveCount(4);
     } finally {
       writeFileSync(store, retained, "utf8");
     }

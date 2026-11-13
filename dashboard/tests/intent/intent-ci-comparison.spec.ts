@@ -52,6 +52,7 @@ for (const variant of [undefined] as readonly (
 
     await expect(panel.getByRole("heading")).toHaveText([
       /^Baseline compared with /,
+      "CI wall time history",
       "CI entry timing comparison",
     ]);
     await expect(panel).toContainText(observedNotAttributedInFull);

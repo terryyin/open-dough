@@ -94,10 +94,7 @@ export class StoryCard extends PageObject {
   readFinalReport() {
     return this.cue(
       `${this.#named}: Read final report`,
-      () =>
-        readFinalReportControl(storyCardSessions(this.#card), {
-          exact: false,
-        }).click(),
+      () => readFinalReportControl(storyCardSessions(this.#card)).click(),
       this.pages.finalReport,
     );
   }
@@ -106,10 +103,7 @@ export class StoryCard extends PageObject {
   openTerminal() {
     return this.cue(
       `${this.#named}: Open terminal`,
-      () =>
-        openTerminalControl(storyCardSessions(this.#card), {
-          exact: false,
-        }).click(),
+      () => openTerminalControl(storyCardSessions(this.#card)).click(),
       this.pages.terminal,
     );
   }

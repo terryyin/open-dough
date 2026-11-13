@@ -27,8 +27,7 @@ import {
   expectEntries,
   sessionsOutsideDoneStories,
 } from "../recentlyDoneColumn.ts";
-import { openSessionsSidebar } from "../sessionsSidebarPage.ts";
-import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
+import { showRecentlyDone } from "../recentlyDoneSessionsSidebarPage.ts";
 import {
   emptyArea,
   expectInspected,
@@ -132,11 +131,7 @@ test("Select story and empty-area clicks toggle the selected story on active and
   });
 
   await test.step("showing a session attached to no story clears the selection", async () => {
-    await openSessionsSidebar(page);
-    const shown = recentlyDoneParts(page);
-    if ((await shown.header.getAttribute("aria-expanded")) !== "true") {
-      await shown.header.click();
-    }
+    const shown = await showRecentlyDone(page);
     await shown.open("Open Dough session").click();
     await expect(
       page.getByRole("region", { name: /Terminal|Final report/ }),

@@ -1,4 +1,4 @@
-import { sessionAction } from "../support/sessionEntryDisclosure.ts";
+import { askToDeleteRecord } from "../support/sessionEntryDisclosure.ts";
 // Open-session cards disable both Starts and explain why. Mark as done and
 // Cursor Delete record return them without reload; another card stays usable.
 // Taken kept starts and already-open launch dialogs enforce the same refusal.
@@ -16,7 +16,6 @@ import {
   parts,
   sessionNamedBy,
 } from "../dashboardPage.ts";
-import { openSessionStartReason } from "../../src/agentLaunch.ts";
 import { sessionOpenExplanation } from "../../src/launchOutcome.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
 import {
@@ -26,6 +25,10 @@ import {
   takenStory,
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
+import {
+  expectStartsBlocked,
+  describedBy,
+} from "../storyCardSessionListing.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { expectStartNote, launchGroup } from "../storyCardControls.ts";
 import { identityB } from "../../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
@@ -35,14 +38,14 @@ import {
   markDoneAnyway,
 } from "../support/markDone.ts";
 
+// What every blocked Start says while its card has an open session.
+const openSessionNote =
+  "This story has an open session. Mark it done or delete its record to start another.";
+
 test.use({
   projectFolders: ["open-dough"],
   extraEnv: briefDoneRenameWait,
 });
-
-const openSessionDescription = new RegExp(
-  openSessionStartReason.replace(/[.]/g, "\\."),
-);
 
 test.describe("a story's card while its session is open", () => {
   let columnsJourney: StoryColumnsJourney;
@@ -68,16 +71,6 @@ test.describe("a story's card while its session is open", () => {
     await expectMembership(page, queued);
     await settled();
 
-    const expectBlocked = async (title: string) => {
-      await expect(action(title, "Execution")).toBeDisabled();
-      await expect(action(title, "Refinement")).toBeDisabled();
-      await expect(action(title, "Execution")).toHaveAccessibleDescription(
-        openSessionDescription,
-      );
-      await expect(action(title, "Refinement")).toHaveAccessibleDescription(
-        openSessionDescription,
-      );
-    };
     const expectOffered = async (title: string) => {
       await expect(action(title, "Execution")).toBeEnabled();
       await expect(action(title, "Refinement")).toBeEnabled();
@@ -86,7 +79,7 @@ test.describe("a story's card while its session is open", () => {
     await test.step("an open session disables both Starts and leaves another story's Starts", async () => {
       await launch(readyStory, "Execution");
       await expect(storyCardSessions(card(readyStory))).toHaveCount(1);
-      await expectBlocked(readyStory);
+      await expectStartsBlocked(action, [readyStory], openSessionNote);
       await expectOffered(notRefinedStory);
       expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
     });
@@ -121,12 +114,9 @@ test.describe("a story's card while its session is open", () => {
       await page.reload();
       await settled();
       await expect(storyCardSessions(card(readyStory))).toHaveCount(1);
-      await expectBlocked(readyStory);
+      await expectStartsBlocked(action, [readyStory], openSessionNote);
       const entry = storyCardSessions(card(readyStory)).first();
-      await (await sessionAction(entry, "Delete record…")).click();
-      await entry
-        .getByRole("button", { name: "Delete record", exact: true })
-        .click();
+      await (await askToDeleteRecord(entry)).confirm.click();
       await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
       await expectOffered(readyStory);
     });
@@ -184,7 +174,7 @@ test.describe("a story's card while its session is open", () => {
       );
       await expect(keptStart).toBeDisabled();
       await expect(keptStart).toHaveAccessibleDescription(
-        openSessionDescription,
+        describedBy(openSessionNote),
       );
       await expectOffered(notRefinedStory);
     });
@@ -231,7 +221,7 @@ test.describe("a story's card while its session is open", () => {
       );
       await expect(action(readyStory, "Execution")).toBeDisabled();
       await expect(action(readyStory, "Execution")).toHaveAccessibleDescription(
-        openSessionDescription,
+        describedBy(openSessionNote),
       );
       expect(dashboard.claudeLaunchCalls()).toHaveLength(launchesBefore);
       await other.close();

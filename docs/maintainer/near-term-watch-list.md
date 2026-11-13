@@ -1,10 +1,13 @@
 # Near-term watch list
 
 ```json dough-feedback-review
-{"schemaVersion":1,"reviewed":"2026-11-11","reviewAfter":"2026-11-17"}
+{ "schemaVersion": 1, "reviewed": "2026-11-13", "reviewAfter": "2026-11-20" }
 ```
 
-Reviewed 2026-11-11 (Asia/Singapore) for Open Dough only. The next shared review remains due 2026-11-17.
+Reviewed 2026-11-13 (Asia/Singapore): Open Dough, Doughnut, Pygardon, Lizard
+and Clipboard supplied shared logs. Terry Talks has process retrospective off.
+The examined executions supplied no verified qualifying scope-restriction use.
+The watch remains pending.
 
 <a id="scope-limits-and-required-restrictions"></a>
 

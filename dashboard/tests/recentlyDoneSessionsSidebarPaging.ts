@@ -4,8 +4,11 @@
 import type { Page } from "@playwright/test";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
+import type { RecentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
 import { expect } from "./support/cursorStart.ts";
+
+// The three configured projects these fixtures keep Done sessions under.
+const threeProjects = ["open-dough", "doughnut", "pygardon"] as const;
 
 // Forty-five retained Done sessions across the three configured projects,
 // or the `sources` given, newest completion first as titles Done session
@@ -13,7 +16,7 @@ import { expect } from "./support/cursorStart.ts";
 // tie. `titles[0]` is newest; `titles[44]` is oldest.
 export function fortyFiveDoneSessions(
   now: number,
-  sources: readonly string[] = ["open-dough", "doughnut", "pygardon"],
+  sources: readonly string[] = threeProjects,
 ): {
   readonly titles: readonly string[];
   readonly byProject: Record<string, LaunchRecord[]>;
@@ -39,6 +42,15 @@ export function fortyFiveDoneSessions(
       .markedDoneAt(doneAt)
       .please();
   });
+  return { titles, byProject: byProjectOf(records, sources), records };
+}
+
+// The records kept under each of these projects, in the order given; a record
+// of any other project is a fixture mistake.
+export function byProjectOf(
+  records: readonly LaunchRecord[],
+  sources: readonly string[] = threeProjects,
+): Record<string, LaunchRecord[]> {
   const byProject: Record<string, LaunchRecord[]> = Object.fromEntries(
     sources.map((source) => [source, []]),
   );
@@ -49,14 +61,14 @@ export function fortyFiveDoneSessions(
     }
     bucket.push(record);
   }
-  return { titles, byProject, records };
+  return byProject;
 }
 
 // Reaches the Recently done body's end once per batch until its entry count
 // reaches `count`. One scroll-to-end arms one reveal; returning to the top
 // between batches re-arms without chaining through continuous wheel motion.
 export async function revealRecentlyDoneThrough(
-  shown: ReturnType<typeof recentlyDoneParts>,
+  shown: RecentlyDoneParts,
   count: number,
 ) {
   for (;;) {

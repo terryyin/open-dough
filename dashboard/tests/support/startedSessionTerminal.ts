@@ -8,11 +8,6 @@ import { expectQuietAdHocActionsRow } from "../launchStoryCardPage.ts";
 import { openTerminalFromEntry, terminalPanel } from "../terminalScreenPage.ts";
 import { launchWaitMs } from "./launchWait.ts";
 
-// Opens the terminal of the session `entry` lists, as a developer would.
-export async function openEntryTerminal(entry: Locator) {
-  await openTerminalFromEntry(entry);
-}
-
 // `entry` is the started session's entry, which may not be listed yet, and
 // the page shows no other session's terminal. A terminal covering a narrow
 // page hides the Board, entry included, from every reader, so a presented
@@ -27,7 +22,7 @@ export async function startedSessionTerminal(
   const panel = terminalPanel(page);
   await expect(panel.or(entry)).not.toHaveCount(0, { timeout: launchWaitMs });
   await expectQuietAdHocActionsRow(page);
-  if ((await panel.count()) === 0) await openEntryTerminal(entry);
+  if ((await panel.count()) === 0) await openTerminalFromEntry(entry);
   await expect(panel).toHaveCount(1);
   return panel;
 }

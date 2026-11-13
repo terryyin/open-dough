@@ -1,13 +1,17 @@
-import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import {
+  chooseTimingUnit,
   scopeHistory,
+  scopeHistoryChart,
   scopeHistoryReading,
-  expectScopeHistoryEvidence,
 } from "../intentScopeHistoryPage.ts";
 import { readFileSync, writeFileSync } from "node:fs";
 import { historyFile } from "../support/collectedScopeHistory.ts";
-import { expectComparisonUnitFigures } from "../intentScopeProofPage.ts";
+import {
+  expectComparisonUnitFigures,
+  scopeTable,
+} from "../intentScopeProofPage.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
+import { expectStackedInOrder } from "../partArrangement.ts";
 // A real collector-to-Summary journey. Published CLI history supplies the Done
 // endpoint. Historical landing/Done inputs are arranged through MakeMe; an
 // additional real landing submission nudges collection with Intent closed.
@@ -129,27 +133,10 @@ test("a Done entry shows collector-acquired test timing through its middle landi
     readers,
   );
   expect(collected.status).toBe(200);
+  // The page's charts below read each unit's collected readings.
   expect(collected.body).toMatchObject({
     selectedRevision: setup.completion,
     availability: "retained",
-    entries: [
-      {
-        kind: "point",
-        readings: [
-          { kind: "point", unit: "case", ms: 1200 },
-          { kind: "point", unit: "file", ms: 80 },
-        ],
-        selected: false,
-      },
-      {
-        kind: "point",
-        readings: [
-          { kind: "point", unit: "case", ms: 0 },
-          { kind: "point", unit: "file", ms: 900 },
-        ],
-        selected: true,
-      },
-    ],
   });
   expect(
     github.calls.filter(
@@ -164,25 +151,29 @@ test("a Done entry shows collector-acquired test timing through its middle landi
   const beforeHistory = ciCalls().length;
   const summary = await openSummaryComparison(intent, "dashboard/tests");
   const history = scopeHistory(summary);
-  await expectScopeHistoryEvidence(history, {
-    selected: `Selected landing ${shortSha(setup.completion)}`,
-    absent: [shortSha(newest.revision), "Run 104"],
-    chartUnits: ["test cases", "test files"],
-    selectedMarks: ["Selected", "Selected"],
-    extent: "2 measured builds · Nov 5–Nov 6",
-    rows: [
-      `Nov 5 · 1.2 s · test cases · entry dashboard/tests · 80 ms · test files · entry dashboard/tests · Exact build ${shortSha(setup.baseline)} · Run 101 · attempt 1 · Represents ${shortSha(setup.baseline)} (exact build)`,
-      `Nov 6 · 0 ms · test cases · entry dashboard/tests · 900 ms · test files · entry dashboard/tests · Selected landing · Exact build ${shortSha(setup.completion)} · Run 103 · attempt 1 · Represents ${shortSha(setup.completion)} (selected landing) (exact build)`,
-    ],
-  });
-  const evidence = scopeHistoryReading(history).evidence;
-  const build = attemptLink(evidence, "Run 103 · attempt 1");
-  await expect(build).toHaveAttribute("href", "https://ci.invalid/runs/103");
-  await scopeHistoryReading(history).disclosure.focus();
-  await page.keyboard.press("Tab");
-  await expect(attemptLink(evidence, "Run 101 · attempt 1")).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(build).toBeFocused();
+  // Two builds through the selected landing, above the child table.
+  const reading = scopeHistoryReading(history);
+  await expect(reading.selected).toHaveText(
+    `Selected landing ${shortSha(setup.completion)} · 0 ms`,
+  );
+  // One comparable prior: its observations, no average and no change.
+  await expect(reading.average).toHaveText(
+    "Prior-build average · Insufficient history · 1 prior build used",
+  );
+  await expect(reading.change).toHaveCount(0);
+  const cases = scopeHistoryChart(history, "test cases");
+  await expect(cases.marks).toHaveCount(2);
+  await expect(cases.mark("Nov 5 · 1.2 s")).toHaveCount(1);
+  await expect(cases.readout).toHaveText("Nov 6 · Selected · 0 ms");
+  await expect(history).not.toContainText(shortSha(newest.revision));
+  await expectStackedInOrder([history, scopeTable(summary, "dashboard/tests")]);
+  await chooseTimingUnit(history, "Test files", "keyboard");
+  await expect(reading.selected).toHaveText(
+    `Selected landing ${shortSha(setup.completion)} · 900 ms`,
+  );
+  const files = scopeHistoryChart(history, "test files");
+  await expect(files.marks).toHaveCount(2);
+  await expect(files.mark("Nov 5 · 80 ms")).toHaveCount(1);
   await expectNoSidewaysScrollIn(page, history);
   const entry = "dashboard/tests";
   const expectComparison = async () => {
@@ -209,7 +200,7 @@ test("a Done entry shows collector-acquired test timing through its middle landi
   await intentFile(intent, "dashboard/tests/root.spec.ts").click();
   await expect(purposeRegion(intent)).toBeVisible();
   await intentLocationName(intent, "dashboard/tests").click();
-  await expect(scopeHistoryReading(history).rows).toHaveCount(2);
+  await expect(scopeHistoryChart(history, "test cases").marks).toHaveCount(2);
   await expect(storyTitle(intent)).toHaveText("Story A");
   await expectComparison();
   expect(ciCalls()).toHaveLength(beforeHistory);
@@ -219,11 +210,12 @@ test("a Done entry shows collector-acquired test timing through its middle landi
   const retained = readFileSync(file, "utf8");
   try {
     writeFileSync(file, "{broken collected history", "utf8");
-    const failed = await read();
-    expect(failed.status).toBe(502);
-    expect(failed.body).toMatchObject({
-      error:
-        "The collected CI history could not be read. Retry the local history read.",
+    expect(await read()).toMatchObject({
+      status: 502,
+      body: {
+        error:
+          "The collected CI history could not be read. Retry the local history read.",
+      },
     });
     await intentFile(intent, "dashboard/tests/root.spec.ts").click();
     await expect(purposeRegion(intent)).toBeVisible();
@@ -238,9 +230,10 @@ test("a Done entry shows collector-acquired test timing through its middle landi
     writeFileSync(file, retained, "utf8");
     await shown.retry.click();
     await expect(shown.failure).toHaveCount(0);
-    await expect(shown.rows).toHaveCount(2);
-    await expect(history).toContainText("2 measured builds · Nov 5–Nov 6");
-    await expect(history).toContainText("0 ms");
+    await expect(shown.selected).toHaveText(
+      `Selected landing ${shortSha(setup.completion)} · 0 ms`,
+    );
+    await expect(scopeHistoryChart(history, "test cases").marks).toHaveCount(2);
   } finally {
     writeFileSync(file, retained, "utf8");
   }

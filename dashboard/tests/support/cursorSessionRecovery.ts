@@ -10,7 +10,7 @@ import { sessionKey } from "../../src/sessionReference.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { hangupCursorClient } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerLastHeld } from "../../server/hosts/cursor/runnerPaths.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
   agentCalls,
@@ -70,7 +70,7 @@ export async function openStoppedCursorEntry(
   const attaches = cursor.attaches().length;
   await endHeldClient(page, cursor, home);
   await page.reload();
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
   await expect(entry).toHaveCount(1);
   await expectReadingWithoutScreenLabel(entry, agentNotRunningLabel);
   await expect(entry.getByRole("button", { name: "Recover" })).toHaveCount(1);

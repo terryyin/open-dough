@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "viktor-chan",
+  "email": "viktor-chan@example.org",
+  "identity": "SEED-342#follow-story-references-by-title",
+  "mode": "story-branch",
+  "branch": "codex/follow-story-references-by-title",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

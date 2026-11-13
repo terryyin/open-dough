@@ -27,7 +27,11 @@ import {
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
 import { expectRoute } from "../agentRosterRecords.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  expectCurrentEntry,
+  expectSessionsSidebar,
+  sessionsSidebarParts,
+} from "../sessionsSidebarPage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import {
   attachesOf,
@@ -60,7 +64,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       dashboard,
       columnsJourney,
     );
-    const { sidebar, button, entries, entry } = sessionsSidebarParts(page);
+    const { button, entries, entry } = sessionsSidebarParts(page);
     const { roster } = rosterParts(page);
     const { backlog } = parts(page);
     const panel = terminalPanel(page);
@@ -89,10 +93,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
         `attached ${sessions.pygardon.slice(0, 8)}`,
       );
       expect(await keyboardInside(page, "Terminal")).toBe(true);
-      await expect(entry(pygardonStory.title)).toHaveAttribute(
-        "aria-current",
-        "true",
-      );
+      await expectCurrentEntry(page, pygardonStory.title);
       // Nothing is brought into view while Pygardon's stories are unread.
       expect(await revealsOf(page)).toEqual([]);
 
@@ -110,8 +111,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
         pygardonStoryCard.getByText("Shown in terminal"),
       ).toBeVisible();
       await expect(entries.and(page.locator(".in-side-panel"))).toHaveCount(1);
-      await expect(sidebar).toBeVisible();
-      await expect(button).toHaveAttribute("aria-expanded", "true");
+      await expectSessionsSidebar(page, "open");
       expect(await keyboardInside(page, "Terminal")).toBe(true);
     });
 
@@ -120,10 +120,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       await expect(roster).toBeVisible();
       expectRoute(page, { project: "open-dough", view: "roster" });
       await expect(panel.getByRole("heading")).toHaveText(pygardonStory.title);
-      await expect(entry(pygardonStory.title)).toHaveAttribute(
-        "aria-current",
-        "true",
-      );
+      await expectCurrentEntry(page, pygardonStory.title);
     });
 
     await test.step("an Open Dough entry replaces the terminal's session and moves both marks there", async () => {
@@ -139,7 +136,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       await expect(
         card(readyStory).getByText("Shown in terminal"),
       ).toBeVisible();
-      await expect(entry(readyStory)).toHaveAttribute("aria-current", "true");
+      await expectCurrentEntry(page, readyStory);
       await expect(entry(pygardonStory.title)).not.toHaveAttribute(
         "aria-current",
       );
@@ -163,7 +160,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
     });
 
     await test.step("closing the terminal clears both marks, keeps the story selected, and returns the keyboard to the entry", async () => {
-      await closeSidePanel(panel, { using: "mouse", exact: false });
+      await closeSidePanel(panel, { using: "mouse" });
       await expect(panel).toHaveCount(0);
       await expect(shownMark).toHaveCount(0);
       await expect(page.locator(".in-side-panel")).toHaveCount(0);
@@ -171,13 +168,13 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       for (const other of [takenStory, notRefinedStory]) {
         await expectSelected(card(other), false);
       }
-      await expect(sidebar.locator("[aria-current]")).toHaveCount(0);
+      await expectCurrentEntry(page);
       await expect(entry(readyStory)).toBeFocused();
     });
 
     await test.step("with the keyboard on an entry, Command+B closes the sidebar and the keyboard lands on Sessions", async () => {
       await page.keyboard.press("Meta+b");
-      await expect(sidebar).toBeHidden();
+      await expectSessionsSidebar(page, "closed");
       await expect(button).toBeFocused();
     });
 

@@ -14,12 +14,15 @@ import { browserLocaleString } from "../browserLocale.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { terminalPanel } from "../terminalScreenPage.ts";
 import {
+  expectRecentlyDone,
   recentlyDoneParts,
+  showRecentlyDone,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
 import {
   expectRowShows,
+  expectSessionsSidebar,
   expectTooltipLine,
   openSessionsSidebar,
 } from "../sessionsSidebarPage.ts";
@@ -99,8 +102,7 @@ test("finds and opens the newest completed sessions across projects from a colla
   await shown.button.click();
 
   await test.step("on a fresh load the section is collapsed and the open list keeps launch ages", async () => {
-    await expect(shown.header).toHaveAttribute("aria-expanded", "false");
-    await expect(shown.body).toHaveCount(0);
+    await expectRecentlyDone(shown, "collapsed");
     await expect(shown.entries).toHaveCount(0);
     await expect(shown.openEntries).toHaveCount(1);
     await expectRowShows(shown.openEntries.first(), openTitle, "4m");
@@ -112,10 +114,9 @@ test("finds and opens the newest completed sessions across projects from a colla
 
   await test.step("expanding from Pygardon lists only Done entries by completion, with completion ages", async () => {
     await shown.header.click();
-    await expect(shown.header).toHaveAttribute("aria-expanded", "true");
+    await expectRecentlyDone(shown, "expanded");
     await expect(shown.entries).toHaveCount(4);
-    const titles = shown.entries.getByRole("heading", { level: 3 });
-    await expect(titles).toHaveText([
+    await expect(shown.titles).toHaveText([
       newestTitle,
       middleTitle,
       unattachedTitle,
@@ -155,19 +156,17 @@ test("finds and opens the newest completed sessions across projects from a colla
       name: standaloneSessionName("Ad hoc", newestTitle),
     });
     await expect(local).toBeVisible();
-    await closeSidePanel(panel, { using: "mouse", exact: false });
+    await closeSidePanel(panel, { using: "mouse" });
     await expect(panel).toHaveCount(0);
   });
 
   await test.step("an unavailable Done entry offers no Open, and choosing it selects it and brings its Board entry into view in its project without inventing a terminal", async () => {
-    await openSessionsSidebar(page);
-    if ((await shown.header.getAttribute("aria-expanded")) !== "true")
-      await shown.header.click();
+    await showRecentlyDone(page);
     const attaches = dashboard.claudeAttaches().length;
     await expect(shown.open(newestTitle)).toHaveCount(1);
     await expect(shown.open(olderTitle)).toHaveCount(0);
-    await shown.entry(olderTitle).click();
-    await expect(shown.entry(olderTitle)).toHaveAttribute(
+    await shown.select(olderTitle).click();
+    await expect(shown.select(olderTitle)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -186,8 +185,7 @@ test("finds and opens the newest completed sessions across projects from a colla
     await page.reload();
     await chooseProject(page, "Pygardon");
     await openSessionsSidebar(page);
-    await expect(shown.header).toHaveAttribute("aria-expanded", "false");
-    await expect(shown.body).toHaveCount(0);
+    await expectRecentlyDone(shown, "collapsed");
   });
 });
 
@@ -202,9 +200,7 @@ test("empty and reading states stay distinct, and fewer than 20 shows every Done
     pygardon: [],
   });
   await showThreeProjectPage(page, origin);
-  const shown = recentlyDoneParts(page);
-  await shown.button.click();
-  await shown.header.click();
+  const shown = await showRecentlyDone(page);
   await expect(shown.body).toContainText("No sessions marked done are kept.");
   await expect(shown.entries).toHaveCount(0);
 
@@ -226,8 +222,8 @@ test("empty and reading states stay distinct, and fewer than 20 shows every Done
     page.getByRole("button", { name: /Start session in/ }),
   ).toBeVisible();
   // Open preference survives reload; do not toggle it closed.
-  await expect(shown.sidebar).toBeVisible();
-  await expect(shown.header).toHaveAttribute("aria-expanded", "false");
+  await expectSessionsSidebar(page, "open");
+  await expectRecentlyDone(shown, "collapsed");
   await shown.header.click();
   await expect(shown.entries).toHaveCount(3);
   await expect(shown.body).not.toContainText("No sessions marked done");

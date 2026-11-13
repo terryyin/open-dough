@@ -15,7 +15,7 @@ import {
 } from "../recentlyDoneSessionsSidebarPaging.ts";
 import {
   recentlyDoneHeightKey,
-  recentlyDoneParts,
+  showRecentlyDone,
 } from "../recentlyDoneSessionsSidebarPage.ts";
 import { recentlyDoneSessionsInitialLimit } from "../../src/agentLaunch.ts";
 import { expect, test } from "../support/cursorStart.ts";
@@ -45,9 +45,7 @@ test("scrolling Recently done does not eagerly read older Board done-story detai
     expect(recordsAsked(github).toSorted()).toEqual(
       storiesThrough(10).toSorted(),
     );
-    const shown = recentlyDoneParts(page);
-    await shown.button.click();
-    await shown.header.click();
+    const shown = await showRecentlyDone(page);
     await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);
     const before = recordsAsked(github).length;
     await revealRecentlyDoneThrough(shown, 40);

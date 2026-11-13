@@ -85,13 +85,13 @@ test.describe("beside the side panel", () => {
     });
 
     await test.step("the side panel closes: all three show and both controls go", async () => {
-      await closeSidePanel(terminal, { using: "mouse", exact: false });
+      await closeSidePanel(terminal, { using: "mouse" });
       await expect(terminal).toHaveCount(0);
       await expectShown(columns, []);
     });
 
     await test.step("the side panel reopens: Taken and Recently done show again", async () => {
-      await openTerminalControl(taken, { exact: false }).click();
+      await openTerminalControl(taken).click();
       await expect(terminalScreenParts(terminal).rows).toContainText(
         "attached",
       );

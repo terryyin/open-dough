@@ -86,7 +86,8 @@ export type FrontendServiceState = {
   files: Record<string, string>;
   locations: IntentLocationsAnswer;
   candidates: IntentCandidatesAnswer;
-  machine: MachineAnswer;
+  // Undefined while the machine's sessions are unread, as hostStatus.
+  machine: MachineAnswer | undefined;
   hostStatus: HostStatus | undefined;
   hostOptions: unknown;
 };
@@ -129,7 +130,7 @@ export function defaultFrontendServiceState(
 // Mutates substitute answers in place; Object.assign keeps no-param-reassign clean.
 export function putFrontendMachine(
   services: FrontendServiceState,
-  machine: MachineAnswer,
+  machine: MachineAnswer | undefined,
 ): void {
   Object.assign(services, { machine });
 }

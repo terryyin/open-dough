@@ -1,4 +1,8 @@
-import { sessionAction } from "../support/sessionEntryDisclosure.ts";
+import {
+  askToDeleteRecord,
+  deleteRecordQuestion,
+  sessionAction,
+} from "../support/sessionEntryDisclosure.ts";
 import { launchStoreFile } from "../support/launchStore.ts";
 // On the committed story-columns origin (../launchJourney.ts), an unreadable
 // listing says State unknown and offers Delete record… on each card session.
@@ -29,6 +33,7 @@ import {
 } from "../launchJourney.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -72,6 +77,7 @@ test.describe("deleting a card's session record", () => {
       });
     const deleteButton = async (entry: typeof execution) =>
       await sessionAction(entry, "Delete record…");
+    const asked = deleteRecordQuestion(execution);
 
     await test.step("with the listing unreadable, the entry says State unknown and offers Delete record…", async () => {
       dashboard.claudeListingFails(true);
@@ -94,49 +100,38 @@ test.describe("deleting a card's session record", () => {
         });
       const before = await cardTop();
 
-      await (await deleteButton(execution)).click();
+      await askToDeleteRecord(execution);
 
-      await expect(execution.getByText(question)).toBeVisible();
-      await expect(
-        execution.getByRole("button", { name: "Delete record", exact: true }),
-      ).toBeEnabled();
-      await expect(
-        execution.getByRole("button", { name: "Keep" }),
-      ).toBeFocused();
+      await expect(asked.question).toHaveAccessibleName(question);
+      await expect(asked.confirm).toBeEnabled();
+      await expect(asked.keep).toBeFocused();
       await expect(await deleteButton(execution)).toHaveCount(0);
       await expect(sessionStateOf(execution)).toContainText("State unknown");
-      await expect(
-        execution.getByRole("button", { name: "Open terminal" }),
-      ).toBeVisible();
+      await expect(openTerminalControl(execution)).toBeVisible();
       expect(await cardTop()).toBe(before);
     });
 
     await test.step("Keep restores the button with the keyboard on it and deletes nothing", async () => {
-      await execution.getByRole("button", { name: "Keep" }).click();
+      await asked.keep.click();
 
       await expect(await deleteButton(execution)).toBeFocused();
-      await expect(execution.getByText(question)).toHaveCount(0);
+      await expect(asked.question).toHaveCount(0);
       expect(stored()).toContain(kept);
     });
 
     await test.step("Escape does the same", async () => {
-      await (await deleteButton(execution)).click();
-      await expect(
-        execution.getByRole("button", { name: "Keep" }),
-      ).toBeFocused();
+      await askToDeleteRecord(execution);
+      await expect(asked.keep).toBeFocused();
 
       await page.keyboard.press("Escape");
 
       await expect(await deleteButton(execution)).toBeFocused();
-      await expect(execution.getByText(question)).toHaveCount(0);
+      await expect(asked.question).toHaveCount(0);
       expect(stored()).toContain(kept);
     });
 
     await test.step("Delete record removes the entry from the card, Recently done and the sidebar without a success announcement, and moves the keyboard to the card", async () => {
-      await (await deleteButton(execution)).click();
-      await execution
-        .getByRole("button", { name: "Delete record", exact: true })
-        .click();
+      await (await askToDeleteRecord(execution)).confirm.click();
 
       await expect(execution).toHaveCount(0);
       await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
@@ -178,16 +173,12 @@ test.describe("deleting a card's session record", () => {
     await expect(sidebar.entries).toHaveCount(1);
     await expect(sessionStateOf(unavailable)).toHaveText("Session unavailable");
 
-    await (await sessionAction(unavailable, "Delete record…")).click();
+    const asked = await askToDeleteRecord(unavailable);
 
-    await expect(unavailable.getByText(question)).toBeVisible();
-    await expect(
-      unavailable.getByRole("button", { name: "Keep" }),
-    ).toBeFocused();
+    await expect(asked.question).toHaveAccessibleName(question);
+    await expect(asked.keep).toBeFocused();
 
-    await unavailable
-      .getByRole("button", { name: "Delete record", exact: true })
-      .click();
+    await asked.confirm.click();
 
     await expect(unavailable).toHaveCount(0);
     await expect(

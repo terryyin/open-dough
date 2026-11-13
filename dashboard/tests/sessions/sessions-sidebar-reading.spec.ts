@@ -12,6 +12,7 @@ import {
   columnCountOf,
   storyCardSessions,
   parts,
+  sessionEntryShowing,
   standaloneSessionName,
 } from "../dashboardPage.ts";
 import {
@@ -22,7 +23,10 @@ import {
 import { markDone } from "../agentLaunchBoundary.ts";
 import { launched } from "../agentTerminalBoundary.ts";
 import { holdSessionReads } from "../sessionStatePace.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  expectSessionsSidebar,
+  sessionsSidebarParts,
+} from "../sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { columnPagingControl, showColumn } from "../boardPage.ts";
 
@@ -95,7 +99,7 @@ test.describe("the Sessions sidebar's reading", () => {
     await markDone(dashboard, { source: "doughnut", session: sessionId });
     await page.reload();
     // Open as it was left.
-    await expect(button).toHaveAttribute("aria-expanded", "true");
+    await expectSessionsSidebar(page, "open");
     await expect(sidebar).toContainText(
       "No sessions launched from this dashboard are open.",
     );
@@ -115,7 +119,7 @@ test.describe("the Sessions sidebar's reading", () => {
       columnsJourney,
     );
     const { sidebar, button, entries } = sessionsSidebarParts(page);
-    const { recentlyDone } = parts(page);
+    const { recentlyDone, board } = parts(page);
     await settled();
     await button.click();
 
@@ -142,19 +146,15 @@ test.describe("the Sessions sidebar's reading", () => {
       }),
     ).toHaveCount(0);
     await expect(own).toHaveCount(1);
-    const key = await own.getAttribute("data-shows-session");
-    await expect(
-      page.locator(`.board [data-shows-session="${key}"]`),
-    ).toHaveCount(1);
+    const key = (await own.getAttribute("data-shows-session")) ?? "?";
+    await expect(sessionEntryShowing(board, key)).toHaveCount(1);
     await expect(recentlyDone).toContainText(
       "No sessions are listed in Recently done.",
     );
     await page.reload();
     await settled();
     await expect(entries).toHaveCount(2);
-    await expect(own).toHaveAttribute("data-shows-session", key ?? "?");
-    await expect(
-      page.locator(`.board [data-shows-session="${key}"]`),
-    ).toHaveCount(1);
+    await expect(own).toHaveAttribute("data-shows-session", key);
+    await expect(sessionEntryShowing(board, key)).toHaveCount(1);
   });
 });

@@ -6,9 +6,9 @@
 // kinds of row live in ./recently-done-sessions-select-development.spec.ts.
 
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
+import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
-import { closeSidePanel, tapWhereShown } from "../pageLayout.ts";
+import { closeSidePanelToBoard, tapWhereShown } from "../pageLayout.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import {
   adHoc,
@@ -17,10 +17,10 @@ import {
   report,
 } from "../recentlyDoneSelectionJourney.ts";
 import { expectDevelopmentKept } from "../recentlyDoneSelectionReport.ts";
-import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
 import { holdPygardonCatalog } from "../pygardonCatalogReads.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
+import { finalReportParts } from "../finalReportPages.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 
@@ -37,13 +37,13 @@ test.describe("on coarse input", () => {
       expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
       expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
     };
-    await atLeastTouchSize(shown.entry(adHoc.title));
+    await atLeastTouchSize(shown.select(adHoc.title));
     await atLeastTouchSize(shown.open(report.title));
 
     // The section's own scrolling brings an older row in reach.
-    await shown.entry(adHoc.title).scrollIntoViewIfNeeded();
-    await tapWhereShown(shown.entry(adHoc.title));
-    await expect(shown.entry(adHoc.title)).toHaveAttribute(
+    await shown.select(adHoc.title).scrollIntoViewIfNeeded();
+    await tapWhereShown(shown.select(adHoc.title));
+    await expect(shown.select(adHoc.title)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -52,24 +52,20 @@ test.describe("on coarse input", () => {
       page.getByRole("region", { name: /^(Terminal|Final report)$/ }),
     ).toHaveCount(0);
 
-    await shown.entry(report.title).scrollIntoViewIfNeeded();
-    await tapWhereShown(shown.entry(report.title));
-    await expect(shown.entry(report.title)).toHaveAttribute(
+    await shown.select(report.title).scrollIntoViewIfNeeded();
+    await tapWhereShown(shown.select(report.title));
+    await expect(shown.select(report.title)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
-    await expect(
-      page.getByRole("region", { name: "Final report" }),
-    ).toHaveCount(0);
+    const { panel, reportText } = finalReportParts(page);
+    await expect(panel).toHaveCount(0);
 
     await shown.open(report.title).scrollIntoViewIfNeeded();
     await tapWhereShown(shown.open(report.title));
-    const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".final-report-text")).toHaveText(
-      report.message,
-    );
+    await expect(reportText).toHaveText(report.message);
     await expect(shown.sidebar).toBeHidden();
-    await closeSidePanel(panel);
+    await closeSidePanelToBoard(panel);
     await expect(shown.button).toBeFocused();
   });
 
@@ -77,18 +73,17 @@ test.describe("on coarse input", () => {
     page,
     dashboard,
   }) => {
+    // The shown rows' recurring catalog read waits for page time.
+    await pausePageClockAt(page, new Date());
     const { shown } = await openSelectionPage(page, dashboard, tapWhereShown, {
       // Its done card stands behind six newer Pygardon sessions.
       newer: { pygardon: 6 },
     });
     // The row's check reads the catalog; the Board's own read of it is still
     // under way when the overlay is closed.
-    // Initial shown-row observation is independent of this click. Settle it
-    // before passing Select's read and holding the subsequent Board read.
-    await untilPageRequestsAnswered(page);
     const boardRead = await holdPygardonCatalog(page, 1);
-    await shown.entry(linked.title).scrollIntoViewIfNeeded();
-    await tapWhereShown(shown.entry(linked.title));
+    await shown.select(linked.title).scrollIntoViewIfNeeded();
+    await tapWhereShown(shown.select(linked.title));
     await boardRead.asked;
     await expectProjectChoice(page, "Pygardon");
     await expect(shown.sidebar).toBeVisible();

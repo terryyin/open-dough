@@ -9,6 +9,7 @@
 // chart's drawn points and line.
 
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { historyChart } from "./ciHistoryChartPage.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
@@ -38,17 +39,22 @@ export const historyOf = (panel: Locator) =>
 export const buildEvidenceRows = (builds: Locator) =>
   builds.getByRole("listitem");
 
+// The history's chart of CI wall time by build date (./ciHistoryChartPage.ts).
+export const wallTimeChart = (history: Locator) =>
+  historyChart(history, "CI wall time by build date");
+
 // The displayed build history, without choosing its dates, values or evidence.
 export function buildHistoryReading(history: Locator) {
+  const chart = wallTimeChart(history);
   const reference = history.locator(".intent-ci-history-reference");
   const evidence = history.getByRole("list", { name: "Builds and evidence" });
   return {
     heading: history.getByRole("heading"),
     latest: history.getByRole("definition"),
     latestLabel: history.getByRole("term"),
-    chart: history.getByRole("img", { name: "CI wall time by build date" }),
+    chart: chart.drawing,
     charts: history.getByRole("img"),
-    points: history.locator("circle.intent-ci-history-point"),
+    points: chart.measured,
     disclosure: history.locator("summary"),
     evidence,
     samples: buildEvidenceRows(evidence),
@@ -175,15 +181,15 @@ export const runLink = (id: number) => ({
 // The chart's drawn points, in drawing order, each at its place, and the
 // line through them as its strokes, each a run of points no gap breaks.
 export async function chartOf(history: Locator) {
-  const chart = buildHistoryReading(history).chart;
-  const points = await chart.locator("circle").evaluateAll((circles) =>
+  const chart = wallTimeChart(history);
+  const points = await chart.measured.evaluateAll((circles) =>
     circles.map((circle) => ({
       x: Number(circle.getAttribute("cx")),
       y: Number(circle.getAttribute("cy")),
     })),
   );
   // How many points each stroke of the line joins.
-  const strokes = await chart.locator("path").evaluateAll((paths) =>
+  const strokes = await chart.line.evaluateAll((paths) =>
     paths.flatMap((line) =>
       (line.getAttribute("d") ?? "")
         .split("M")

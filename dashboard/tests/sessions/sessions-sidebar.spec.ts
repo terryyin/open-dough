@@ -25,10 +25,11 @@ import { launched } from "../agentTerminalBoundary.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
 import {
   expectEntries,
+  expectSessionsSidebar,
   expectSessionsSidebarSessionEntryShown,
-  expectSessionsSidebarLayout,
   sessionsSidebarParts,
 } from "../sessionsSidebarPage.ts";
+import { expectSessionsSidebarLayout } from "../sessionsSidebarLayout.ts";
 import { expectClosedToggleCounts } from "../sessionsTogglePage.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { briefDoneRenameWait, markDoneAnyway } from "../support/markDone.ts";
@@ -78,6 +79,7 @@ test.describe("the Sessions sidebar", () => {
       sidebar,
       button,
       entries,
+      titles,
       entry,
       badge,
       workingBadge,
@@ -98,11 +100,9 @@ test.describe("the Sessions sidebar", () => {
       // first read is elsewhere.
       await expectClosedToggleCounts(page, 4, 0);
       await expect(button.locator("img.product-mark")).toBeVisible();
-      await expect(button).toHaveAttribute("aria-expanded", "false");
-      await expect(sidebar).toBeHidden();
+      await expectSessionsSidebar(page, "closed");
       await button.click();
-      await expect(button).toHaveAttribute("aria-expanded", "true");
-      await expect(sidebar).toBeVisible();
+      await expectSessionsSidebar(page, "open");
       await expect(sidebar).toHaveAccessibleName("Sessions sidebar");
       await expect(button).toHaveAttribute(
         "aria-controls",
@@ -160,7 +160,7 @@ test.describe("the Sessions sidebar", () => {
       await expect(entries).toHaveCount(5);
       // Closed: 3 working then 2 attention; open: attention only.
       await button.click();
-      await expect(sidebar).toBeHidden();
+      await expectSessionsSidebar(page, "closed");
       await expectClosedToggleCounts(page, 3, 2);
 
       // One working starts waiting for input → 2 working / 3 attention.
@@ -173,14 +173,14 @@ test.describe("the Sessions sidebar", () => {
 
       // Open: attention only; closing restores both.
       await button.click();
-      await expect(sidebar).toBeVisible();
+      await expectSessionsSidebar(page, "open");
       await expect(workingBadge).toHaveCount(0);
       await expect(badge).toHaveText("3");
       await button.click();
-      await expect(sidebar).toBeHidden();
+      await expectSessionsSidebar(page, "closed");
       await expectClosedToggleCounts(page, 2, 3);
       await button.click();
-      await expect(sidebar).toBeVisible();
+      await expectSessionsSidebar(page, "open");
       await expectMembership(page, { taken: [], backlog: queued });
     });
 
@@ -194,7 +194,7 @@ test.describe("the Sessions sidebar", () => {
         "Ready for review",
         "ready",
       );
-      await expect(entries.nth(2).getByRole("heading")).toHaveText(readyStory);
+      await expect(titles.nth(2)).toHaveText(readyStory);
     });
 
     await test.step("sessions marked done leave the sidebar; closed with only attention shows that count alone", async () => {
@@ -214,10 +214,10 @@ test.describe("the Sessions sidebar", () => {
         entries.getByRole("heading", { name: readyStory }),
       ).toHaveCount(0);
       await button.click();
-      await expect(sidebar).toBeHidden();
+      await expectSessionsSidebar(page, "closed");
       await expectClosedToggleCounts(page, 0, 1);
       await button.click();
-      await expect(sidebar).toBeVisible();
+      await expectSessionsSidebar(page, "open");
     });
 
     await test.step("wide, the sidebar is a column left of the page and the terminal right of it; narrow, it lies over the page", async () => {

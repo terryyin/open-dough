@@ -1,4 +1,7 @@
-import { readFinalReportControl } from "../finalReportPages.ts";
+import {
+  readFinalReportControl,
+  finalReportParts,
+} from "../finalReportPages.ts";
 import { closeSidePanel } from "../sidePanelFrame.ts";
 // The Side panel sets and clears the page's selected story, which Intent's
 // lens and CI status read (../../src/pageSidePanel.ts, ../../src/intentCiTarget.ts):
@@ -66,13 +69,11 @@ test("the Side panel's content selects its story for Intent's lens and CI status
   await expectCiScope(await chooseCiStatus(intent), "main");
   await expect(intent).not.toHaveAttribute("data-selected-story");
   await development.click();
-  const report = page.getByRole("region", { name: "Final report" });
+  const { panel: report } = finalReportParts(page);
   // By keyboard: beside the panel, a lower card's control can sit below the
   // page's fold, where a pointer cannot reach it without scrolling.
   const readReport = async (title: string) => {
-    await readFinalReportControl(storyCardSessions(card(page, title)), {
-      exact: false,
-    }).focus();
+    await readFinalReportControl(storyCardSessions(card(page, title))).focus();
     await page.keyboard.press("Enter");
   };
   // Intent, still on CI status, as the page now selects.

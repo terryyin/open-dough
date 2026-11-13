@@ -36,12 +36,13 @@ dependency explanation opens in place from the card's **Dependencies** summary
 A done story card in Recently done also holds the story's review state among
 its Story actions, after **Review changes**. An unreviewed story offers **Mark
 as reviewed** with a prominent red warning fill and readable action words in
-light and dark appearance, and shows no badge; a reviewed one says **Reviewed**,
-a status in words rather than a control, with the quieter **Unreview** beside it. Both
-actions offer the shared touch control height. Either keeps the card at its
-place with its sessions and other actions, the shown range, the entry count,
-the selected story and the Side panel as they were, leaves the keyboard on the
-action that then shows, and is announced once. A change that could not be
+light and dark appearance. A reviewed story offers one quieter **Reviewed**
+button. It asks whether to unreview the story; **Cancel** or Escape leaves it
+reviewed, and confirming **Unreview** brings back **Mark as reviewed**. Both
+actions offer the shared touch control height. Saving either change keeps the
+card at its place with its sessions and other actions, the shown range, the
+entry count, the selected story and the Side panel as they were, leaves the
+keyboard on the action that then shows, and is announced once. A change that could not be
 saved, because the machine could not write its local records or the dashboard
 was not reached, leaves the card showing the state last saved, with the
 keyboard on the action still shown, and says "The review state could not be

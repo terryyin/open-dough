@@ -166,7 +166,7 @@ test("an execution's exact build and the refinements reusing it are one point na
   // The selected proofless equivalent keeps its observed point, while the
   // two complete prior attempts are insufficient for a numeric reference.
   await expect(history).toContainText("2 prior builds used");
-  await expect(history).toContainText("Insufficient comparable history");
+  await expect(history).toContainText("Insufficient history");
   await expect(history).toContainText(`Selected landing ${sha(r4.revision)}`);
   await expect(history).toContainText("CI proof unavailable: none");
   await expect(buildHistoryReading(history).reference).toHaveCount(0);

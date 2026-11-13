@@ -40,6 +40,10 @@ export const markAsDone = (scope: Locator) =>
 export const doneQuestion = (scope: Locator) =>
   scope.getByRole("group", { name: anyway });
 
+// The question's answer that keeps the session open.
+export const keepOpen = (question: Locator) =>
+  question.getByRole("button", { name: "Keep open", exact: true });
+
 // Presses Mark as done and expects the question that opens with this
 // statement (`expectQuestion`).
 export async function expectAsked(scope: Locator, statement: string) {
@@ -55,9 +59,7 @@ export async function expectQuestion(scope: Locator, statement: string) {
   const question = scope.getByRole("group", { name: words, exact: true });
   await expect(question).toBeVisible();
   await expect(question.getByRole("paragraph").first()).toHaveText(words);
-  await expect(
-    question.getByRole("button", { name: "Keep open" }),
-  ).toBeFocused();
+  await expect(keepOpen(question)).toBeFocused();
   await expect(markAsDone(question)).toBeEnabled();
   return question;
 }

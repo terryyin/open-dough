@@ -60,7 +60,7 @@ test.describe("pending Mark as done from the terminal", () => {
     const listed = storyCardSessions(card(readyStory));
     await settled();
     await launch(readyStory, "Execution");
-    await openTerminalControl(listed, { exact: false }).click();
+    await openTerminalControl(listed).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     const [session] = dashboard.claudeListing();
     idleBetweenSteps(dashboard, String(session?.["sessionId"]));
@@ -70,7 +70,7 @@ test.describe("pending Mark as done from the terminal", () => {
     await expect(marking).toBeVisible();
     await expect(headerMarkAsDone(panel)).toBeDisabled();
 
-    await maximizeSidePanel(panel, "click", { exact: false });
+    await maximizeSidePanel(panel, "click");
     await expect(panel.getByRole("button", { name: "Restore" })).toBeVisible();
     await expect(
       panel.getByRole("button", { name: "Close", exact: true }),
@@ -97,7 +97,7 @@ test.describe("pending Mark as done from the terminal", () => {
     const listed = storyCardSessions(card(readyStory));
     await settled();
     await launch(readyStory, "Execution");
-    await openTerminalControl(listed, { exact: false }).click();
+    await openTerminalControl(listed).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     const [session] = dashboard.claudeListing();
     idleBetweenSteps(dashboard, String(session?.["sessionId"]));
@@ -150,9 +150,7 @@ test.describe("pending Mark as done from the terminal", () => {
     const panel = terminalPanel(page);
     await settled();
     await launch(readyStory, "Execution");
-    await openTerminalControl(storyCardSessions(card(readyStory)), {
-      exact: false,
-    }).click();
+    await openTerminalControl(storyCardSessions(card(readyStory))).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await page.route(`**${agentDoneEndpoint}`, (route) =>
       route.abort("failed"),

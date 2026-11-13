@@ -1,4 +1,4 @@
-import { readFinalReportControl } from "../finalReportPages.ts";
+import { finalReportParts, readFinalReport } from "../finalReportPages.ts";
 import { closeSidePanel } from "../sidePanelFrame.ts";
 // Recorded Claude workspace retirement uses the shared passive final report.
 import { readFileSync, rmSync } from "node:fs";
@@ -7,10 +7,11 @@ import { test, expect } from "../dashboardTest.ts";
 import { stored } from "../support/codexLaunch.ts";
 import { openTerminalControl, terminalPanel } from "../terminalScreenPage.ts";
 import {
-  storyCardAttentionOf,
-  storyCardSessions,
   parts,
   sessionStateOf,
+  sessionUnreadReportOf,
+  storyCardAttentionOf,
+  storyCardSessions,
 } from "../dashboardPage.ts";
 import {
   expectSessionsSidebarSessionEntryShown,
@@ -72,9 +73,8 @@ test("retired Claude preparation opens retained report after refresh without wak
   );
   await sidebar.button.click();
   await expect(entry).toContainText("saved workspace is missing");
-  await readFinalReportControl(entry, { exact: false }).click();
-  const panel = page.getByRole("region", { name: "Final report" });
-  await expect(panel.locator(".final-report-text")).toHaveText(report);
+  const { panel, reportText } = await readFinalReport(entry);
+  await expect(reportText).toHaveText(report);
   await expect(panel).toContainText(
     "Mark as done acknowledges this session; it does not complete the story.",
   );
@@ -87,7 +87,7 @@ test("retired Claude preparation opens retained report after refresh without wak
     .poll(() => stored(dashboard.home)[0]?.reportRead)
     .toBe(record.completion?.receipt);
   await expect(sessionStateOf(entry)).toContainText("Completed with attention");
-  await expect(entry.locator(".session-unread-report")).toHaveCount(0);
+  await expect(sessionUnreadReportOf(entry)).toHaveCount(0);
   await sidebar.button.click();
   await expectSessionsSidebarSessionEntryShown(
     sidebar.entries,
@@ -95,7 +95,7 @@ test("retired Claude preparation opens retained report after refresh without wak
     "ready",
   );
   await sidebar.button.click();
-  await readFinalReportControl(entry, { exact: false }).click();
+  await readFinalReport(entry);
   await markDone(panel);
   await expect(panel).toHaveCount(0);
   const doneAt = stored(dashboard.home)[0]?.doneAt;
@@ -112,8 +112,8 @@ test("retired Claude preparation opens retained report after refresh without wak
     card(notRefinedStory).getByRole("button", { name: "Start execution" }),
   ).toBeEnabled();
   await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(0);
-  await readFinalReportControl(recent, { exact: false }).click();
-  await expect(panel.locator(".final-report-text")).toHaveText(report);
+  await readFinalReport(recent);
+  await expect(reportText).toHaveText(report);
   expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
 });
 
@@ -152,12 +152,12 @@ for (const context of ["preparation", "start"] as const) {
     const entry = parts(page)
       .recentlyDone.getByRole("article")
       .filter({ hasText: record.session.sessionId });
-    const open = openTerminalControl(entry, { exact: false });
+    const open = openTerminalControl(entry);
     await expect(open).toBeVisible();
     rmSync(workspace, { recursive: true });
     await open.click();
-    const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".final-report-text")).toHaveText(report);
+    const { panel, reportText } = finalReportParts(page);
+    await expect(reportText).toHaveText(report);
     await expect(panel).toContainText("saved workspace is missing");
     await expect(terminalPanel(page)).toHaveCount(0);
     await expect(markAsDone(panel)).toHaveCount(0);
@@ -179,10 +179,9 @@ test("missing Claude workspace with quiet empty completion keeps report and dire
   const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  await readFinalReportControl(storyCardSessions(card(notRefinedStory)), {
-    exact: false,
-  }).click();
-  const panel = page.getByRole("region", { name: "Final report" });
+  const { panel, reportText } = await readFinalReport(
+    storyCardSessions(card(notRefinedStory)),
+  );
   await expect(panel).toContainText(
     "Quiet completion was recorded with no attention message.",
   );
@@ -193,7 +192,7 @@ test("missing Claude workspace with quiet empty completion keeps report and dire
   await expect(panel).not.toContainText(
     "No retained final report is available.",
   );
-  await expect(panel.locator(".final-report-text")).toHaveCount(0);
+  await expect(reportText).toHaveCount(0);
   expect(dashboard.claudeAttaches()).toEqual([]);
   expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
 });
@@ -211,7 +210,7 @@ for (const context of ["existing", "legacy"] as const) {
     const { card, settled } = await openStoryColumnsJourney(page, journey);
     await settled();
     const entry = storyCardSessions(card(notRefinedStory));
-    await openTerminalControl(entry, { exact: false }).click();
+    await openTerminalControl(entry).click();
     const panel = terminalPanel(page);
     await expect(panel).toBeVisible();
     await expect

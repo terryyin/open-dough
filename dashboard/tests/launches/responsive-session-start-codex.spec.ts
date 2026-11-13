@@ -9,7 +9,11 @@
 // session's progress stays beside its own action.
 
 import { attempts, keptStarts } from "../agentLaunchBoundary.ts";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import {
+  storyCardSessions,
+  parts,
+  sessionEntriesIn,
+} from "../dashboardPage.ts";
 import { expectStartNote } from "../storyCardControls.ts";
 import {
   expectOthersWork,
@@ -142,7 +146,7 @@ test("Start session closes at acceptance while Codex holds its input", async ({
 
   native.hold = false;
   native.release();
-  await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1, {
+  await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1, {
     timeout: 30_000,
   });
   await expect(button).toBeEnabled();

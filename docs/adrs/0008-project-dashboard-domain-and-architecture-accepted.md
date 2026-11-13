@@ -187,6 +187,9 @@ Keep record maintenance, remote integration, and local workspace management in
 the workflow. Let the dashboard observe their evidence without requiring a GUI
 for agent cooperation.
 
+Prefer server-sent events (SSE) for live dashboard status updates and WebSocket for interactive terminal input and output, as described in the [Architectural North Star](../../.planning/NORTH-STAR.md#dashboard-status-delivery).
+Dashboard data maps directly to the domain model across the wire and in each layer, with the minimum necessary translation under [ADR 0002](./0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution).
+
 [ADR 0009](./0009-git-branching-and-integration.md) proposes branching and
 integration direction and remains Proposed.
 Owned workspaces publish to remote destinations; remote trunk is the shared

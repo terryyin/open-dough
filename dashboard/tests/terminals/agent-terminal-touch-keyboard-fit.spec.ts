@@ -68,7 +68,7 @@ test.describe("phone terminal soft-keyboard and orientation fit", () => {
     const { sizes } = noteTerminalTraffic(page);
     await tapWhereShown(sidebar.entry(title));
     const panel = terminalPanel(page);
-    const close = control(panel, "Close", { exact: false });
+    const close = control(panel, "Close");
     const hide = hideKeyboardControl(panel);
     await expectTerminalText(panel, `attached ${native.shortId}`);
     await expect(terminalKeyToolbar(panel)).toBeVisible();

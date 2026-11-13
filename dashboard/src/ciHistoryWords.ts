@@ -86,6 +86,15 @@ const provenanceWordsOf: Readonly<Record<Provenance, string>> = {
   later: "later trunk build",
 };
 
+// A selected measurement's brief status when another build stands for its
+// landing, in a history readout and its compact metrics.
+export const standInBuildWords: Readonly<
+  Record<Exclude<Provenance, "exact">, string>
+> = {
+  equivalent: "Reused equivalent first-parent build",
+  later: "Later trunk build, includes later changes",
+};
+
 // How a build stands for `landings`: "exact revision a1b2c3d (SEED-9#e)" for
 // the landed revisions' own; "reused equivalent a1b2c3d for b2c3d4e
 // (SEED-9#r1)" or "later trunk build d6e7f8a for d4e5f6a (SEED-9#f)" with

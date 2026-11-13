@@ -43,7 +43,6 @@ new plans, not an invented slice history.
 
 | Order | Receiving story | Findings | Preparation / scheduling |
 | --- | --- | --- | --- |
-| 5 | [Express session discovery and report test intent through page objects](#express-session-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
 | 6 | [Express launch dialog and startup test intent through page objects](#express-launch-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
 | 7 | [Express settings test intent through page objects](#express-settings-test-intent-through-page-objects) | 2 | Provisional plan; queued 2026-11-11 |
 | 8 | [Express browser measurement test intent through shared setup](#express-browser-measurement-test-intent) | 1 | Provisional plan; queued 2026-11-11 |
@@ -200,133 +199,6 @@ North Star direction needs no addition for this test-side change.
   specs and the applicable dashboard gates under the project's
   [failing and flaky test policy](../../AGENTS.md#failing-and-flaky-tests).
 
-<a id="express-session-test-intent-through-page-objects"></a>
-
-### Express session discovery and report test intent through page objects
-
-**Identity:** SEED-300#express-session-test-intent-through-page-objects
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/585-session-test-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"92ca878355e8a8dc660f27a09cb7ab9ef4811eda45acde8bf1053fe56b04ea16","plan":"9834ff6f6c5c4a607c09f63018b08029ef5d3150487d2e0dde0543d527aad931"}}
-```
-
-#### Goal
-
-A developer reading session tests in Intent can follow which session is
-found, selected, acted on or read across the Board and Sessions sidebar.
-Shared session controls and observations have one browser owner, reducing
-mechanics edit sites while each scenario still explains the behavior it proves.
-
-#### Scope
-
-Resolve the three audit findings below and current same-control or
-same-sequence sibling callers:
-
-- Express Session entry disclosure, state/attention, open, Done/Delete,
-  confirmation/cancellation and column placement through shared session owners.
-  Keep independent observations of the same session in a Story card, Column
-  and Sessions sidebar when their agreement is the promise.
-- Express open and Recently done sidebar navigation, keyboard focus, paging,
-  retained scroll and host figures through suitable shared observations.
-  Counts, CPU/disk values and accessible words remain caller facts; controlled
-  reads and clocks still explain when a reading changes.
-- Express Running Cursor discovery, selection, reachability and resizing
-  through shared browser controls. Frontend synthetic answers remain separate
-  from integrated runner setup and native attachment evidence.
-- Express retained-session selection separately from opening its Terminal or
-  Final report. Share report identity, title, exact text and read/open/close
-  mechanics while preserving passive access after workspace retirement,
-  attention/read state, completion receipts and independent filesystem,
-  request and native-session observations.
-
-Required preservation constraints prevent abstractions from concealing a
-regression: keep session identity, expected state/badges and placement, report
-text, exact key/touch/pointer input and focus expectations, held answers and
-release order, and native/HTTP/Git/record evidence explicit where they
-separate outcomes. Domain setup stays with MakeMe. Browser observations must
-not manufacture expected facts from the production value being checked or
-complete a held read as an incidental wait. Accessibility and geometry contract
-checks retain their independent expectations.
-
-Scope limits: no dashboard behavior change, test-speed promise, fewer-case
-promise, universal fluent conversion or new page-object framework. Unrelated
-Terminal, launch, Board, review and settings workflows remain with their
-stories; shared session/report controls in those callers are included. Reuse
-existing owners without making those stories execution prerequisites. Necessary
-proof-harness repair follows the project's failing/flaky-test policy.
-
-**Plan:** [Executable plan](../slice-plans/585-session-test-intent/PLAN.md)
-
-#### Key examples
-
-1. A compact entry hides technical details and lifecycle actions independently
-   → the user discloses, opens, confirms or cancels an action → named session
-   operations expose those steps while the case still specifies its native
-   session, state, focus and resulting membership in each relevant surface.
-2. Open and Recently done lists contain more sessions than fit → the user walks
-   them by keyboard, pages older entries or changes view and returns → shared
-   sidebar operations express the destination and retained reading place;
-   exact keys, expected order/count and no-unintended-action evidence stay in
-   the scenario.
-3. Frontend synthetic and integrated host-status cases read the same figures
-   → a controlled host/session read changes or is unavailable → one browser
-   observation checks the caller's count, text, accessible name and title;
-   fixtures keep their tiers and the case still explains read timing.
-4. A Running Cursor list has a held native client, or a frontend held answer
-   → the user expands, chooses, collapses or resizes the list → shared controls
-   expose the actual input and expected row/geometry/focus, while native
-   attachment and frontend request ownership remain separately observed.
-5. A retained row is linked to a completed story, or is standalone → the user
-   selects it, then separately opens its report → selection preserves the
-   required perspective, Selected story and existing Side panel; opening shows
-   the chosen session's exact report. A retired workspace remains passively
-   readable without resuming or attaching a conversation.
-6. A maintainer reviews the migration → each finding and affected sibling has
-   an evidence-backed disposition and representative before/after → user
-   actions and expected outcomes are clearer, shared mechanics have fewer
-   edit sites, and that gain justifies the added helper cost. Every distinct
-   behavior check and existing test tier remains represented.
-
-#### Audit findings owned by this story
-
-- **Session rows, actions and membership.** Board, sidebar and retained
-  session tests repeat the row selector, disclosures, state/badge locators
-  and Done/Delete controls. Share row operations and observations for open,
-  inspect, confirm/cancel and placement in Taken or Recently done, using the
-  existing session-entry and mark-done helpers. Keep separate checks for the
-  same session shown in different surfaces where that is the promise.
-  [Compact entry](../../dashboard/tests/sessions/compact-session-entry.spec.ts#L69),
-  [story-card session rows](../../dashboard/tests/sessions/agent-launch-story-card-sessions.spec.ts#L203),
-  [Delete](../../dashboard/tests/sessions/agent-launch-story-card-delete.spec.ts#L99),
-  [column membership](../../dashboard/tests/sessions/session-column-membership.spec.ts#L82),
-  [unread reports](../../dashboard/tests/sessions/session-unread-report.spec.ts#L91),
-  [Cursor recovery](../../dashboard/tests/sessions/cursor-session-recovery-stops.spec.ts#L56).
-
-- **Sessions sidebar and Running Cursor sessions.** Keyboard walks,
-  selection, paging, scroll retention and resize are still built from
-  locators, coordinates and raw focus checks. The frontend and integrated
-  host-status specs each define `expectFigure`. The frontend Running Cursor
-  spec duplicates opening the list. Share those observations and actions
-  without coupling frontend fixtures to integrated servers.
-  [Sidebar keyboard](../../dashboard/tests/sessions/sessions-sidebar-keyboard.spec.ts#L81),
-  [kept scroll](../../dashboard/tests/sessions/sessions-sidebar-stays-as-left.spec.ts#L129),
-  [Recently done paging](../../dashboard/tests/sessions/recently-done-sessions-sidebar-paging.spec.ts#L174),
-  [Cursor resize](../../dashboard/tests/sessions/cursor-sessions-sidebar-resize.spec.ts#L96),
-  [integrated host status](../../dashboard/tests/sessions/sessions-sidebar-host-status.spec.ts#L21),
-  [frontend host status](../../dashboard/frontend-tests/sessions-sidebar-host-status.spec.ts#L20),
-  [frontend Running Cursor](../../dashboard/frontend-tests/cursor-runner-sessions-ui.spec.ts#L73).
-
-- **Final report, retained sessions and workspace retirement.** The
-  Recently done selection, unread report, completion and retirement families
-  repeat report text, panel title, session ID and read/open/close mechanics.
-  Expose those facts through the report and session pages. Keep exact
-  report text, the distinction between selecting a session and opening its
-  report, and retired-workspace evidence visible.
-  [Recently done selection](../../dashboard/tests/sessions/recently-done-sessions-select.spec.ts#L82),
-  [report reading by touch](../../dashboard/tests/sessions/final-report-touch.spec.ts#L57),
-  [completion attention](../../dashboard/tests/sessions/agent-completion-attention.spec.ts#L160),
-  [retirement attach](../../dashboard/tests/sessions/session-workspace-retirement-attach.spec.ts#L85),
-  [retirement and reports](../../dashboard/tests/sessions/session-workspace-retirement.spec.ts#L47).
-
 <a id="express-launch-test-intent-through-page-objects"></a>
 
 ### Express launch dialog and startup test intent through page objects
@@ -391,6 +263,14 @@ execution prerequisite on another story.
   [responsive access](../../dashboard/tests/launches/responsive-session-access.spec.ts#L100),
   [recovery verification](../../dashboard/tests/launches/responsive-session-recovery-verification.spec.ts#L93),
   [frontend startup words](../../dashboard/frontend-tests/startup-host-words.spec.ts#L52).
+  Two siblings of this finding remain. `recoveryOf` is a pure alias of
+  `parts(page).startupRecovery` in both `responsiveRecovery.ts` and
+  `claudeVerification.ts`. `agent-launch-claude-verification`,
+  `agent-launch-claude-own-record-verification`,
+  `responsive-session-reconciliation` and its `-refusals` spec each build
+  `openSessionDescription` from production `openSessionStartReason`. The
+  shared `describedBy` in `storyCardSessionListing.ts` takes the
+  caller-written note instead.
 
 <a id="express-settings-test-intent-through-page-objects"></a>
 

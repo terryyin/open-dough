@@ -38,10 +38,8 @@ import {
   storiesThrough,
 } from "../recentlyDoneProgressiveJourney.ts";
 import { recordReveals, revealsOf } from "../sessionNavigationJourney.ts";
-import {
-  openSessionsSidebar,
-  sessionsSidebarParts,
-} from "../sessionsSidebarPage.ts";
+import { openRunningList } from "../runningCursorList.ts";
+import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { expect, keptRecord, test } from "../support/cursorStart.ts";
 
 test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
@@ -82,7 +80,7 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
   await expect(revealAction(recent)).toHaveText("Show 10 of 24 older entries");
   await expect(showLatestAction(recent)).toHaveCount(0);
 
-  await openTerminalControl(view.taken(destination), { exact: false }).click();
+  await openTerminalControl(view.taken(destination)).click();
   await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   await showColumn(page, "Recently done");
 
@@ -177,18 +175,8 @@ test("Show latest 10 while a Running Cursor sessions row's done entry 27 is stil
   const entry = recent.getByRole("article", { name: entryName });
   const terminal = terminalOf(page);
   const { sidebar, button } = sessionsSidebarParts(page);
-  const region = sidebar.getByRole("region", {
-    name: "Running Cursor sessions",
-  });
-  const row = region.getByRole("button", { name: /Open Dough/ });
   const choose = async () => {
-    await openSessionsSidebar(page);
-    if ((await row.count()) === 0) {
-      await region
-        .getByRole("button", { name: "Running Cursor sessions" })
-        .click();
-    }
-    await row.click();
+    await (await openRunningList(page)).heldRows(/Open Dough/).click();
   };
 
   await choose();

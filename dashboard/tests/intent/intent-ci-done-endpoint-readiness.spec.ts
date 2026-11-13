@@ -1,5 +1,6 @@
 import { storySummary } from "../intentModePage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
+import { doneWallTimeHistory } from "../priorBuildReferencePage.ts";
 // Pending, absent protocol ownership, and real unavailable published history
 // stay distinct; no endpoint is invented from completion or the measured run.
 import type { Route } from "@playwright/test";
@@ -56,10 +57,12 @@ test("a Done reference waits for pending publication evidence, explains a settle
   };
   await page.route(pattern, omitOwner);
   const { panel, intent } = await selectDoneStoryForCiComparison(page);
-  const history = panel.getByRole("region", {
-    name: "Done CI wall time reference",
-    exact: true,
-  });
+  const {
+    region: history,
+    refresh,
+    selected,
+    average,
+  } = doneWallTimeHistory(panel);
   try {
     await reached;
     await expect(history).toContainText(
@@ -73,9 +76,7 @@ test("a Done reference waits for pending publication evidence, explains a settle
     await expect(history).not.toContainText(
       "Reading the selected story’s published landing…",
     );
-    await expect(
-      history.getByRole("button", { name: "Refresh history" }),
-    ).toHaveCount(0);
+    await expect(refresh).toHaveCount(0);
     expect(historyRequests).toEqual([]);
   } finally {
     release?.();
@@ -117,10 +118,10 @@ test("a Done reference waits for pending publication evidence, explains a settle
   await storySummary(intent)
     .getByRole("button", { name: "Retry", exact: true })
     .click();
-  await expect(history).toContainText(
+  await expect(selected).toContainText(
     `Selected landing ${shortSha(setup.completion)}`,
   );
-  await expect(history).toContainText("Prior-build average");
+  await expect(average).toContainText("Prior-build average");
   await expect(history).not.toContainText(
     "No prior-build reference can be established",
   );

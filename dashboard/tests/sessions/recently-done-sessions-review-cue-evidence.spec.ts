@@ -53,9 +53,9 @@ for (const evidence of ["catalog", "review state", "association"] as const) {
     await failed;
     const name = evidence === "association" ? adHoc.title : linked.title;
     await expectSessionReviewCue(row(name), false);
-    await expect(shown.entry(name)).toBeEnabled();
+    await expect(shown.select(name)).toBeEnabled();
     if (name === linked.title) await expect(shown.open(name)).toBeEnabled();
-    await expect(shown.entry(name)).toHaveAttribute("aria-pressed", "false");
+    await expect(shown.select(name)).toHaveAttribute("aria-pressed", "false");
     failing = false;
     const recovered = page.waitForResponse(
       (response) => matches(new URL(response.url())) && response.ok(),
@@ -63,7 +63,7 @@ for (const evidence of ["catalog", "review state", "association"] as const) {
     await passCheckPace(page);
     await recovered;
     await expectSessionReviewCue(row(name), true);
-    await expect(shown.entry(name)).toHaveAttribute("aria-pressed", "false");
+    await expect(shown.select(name)).toHaveAttribute("aria-pressed", "false");
     await expectProjectChoice(page, "Open Dough");
     expect(dashboard.claudeAttaches()).toEqual([]);
   });
@@ -102,14 +102,14 @@ for (const evidence of ["catalog", "association"] as const) {
     await received;
     const name = evidence === "catalog" ? linked.title : adHoc.title;
     await expectSessionReviewCue(row(name), false);
-    await expect(shown.entry(name)).toBeEnabled();
+    await expect(shown.select(name)).toBeEnabled();
     const answered = page.waitForResponse((response) =>
       matches(new URL(response.url())),
     );
     release();
     await answered;
     await expectSessionReviewCue(row(name), true);
-    await expect(shown.entry(name)).toHaveAttribute("aria-pressed", "false");
+    await expect(shown.select(name)).toHaveAttribute("aria-pressed", "false");
     await expectProjectChoice(page, "Open Dough");
   });
 }

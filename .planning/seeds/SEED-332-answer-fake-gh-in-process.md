@@ -29,7 +29,8 @@ are this story's first evidence: `start-origin-isolation.spec.ts:140`
 specs (`intent-scope-collected-file-timing-gaps`,
 `intent-scope-collected-file-timing-history`,
 `intent-scope-collected-timing-history`, `intent-scope-prior-build-states`,
-`intent-scope-prior-build-average`).
+`intent-scope-prior-build-average`, whose journey SEED-331 moved into
+`intent-scope-glance` at `92574ccd3`).
 
 <a id="answer-fake-gh-reads-in-process"></a>
 

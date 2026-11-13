@@ -28,6 +28,29 @@ its decisions are recoverable from the
 
 ## Stories
 
+<a id="review-independently-observable-promises"></a>
+
+### 1. Record source-review evidence once per independently observable promise
+
+**Identity:** SEED-010#review-independently-observable-promises
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** Let planned-execution coordinators use an independent review to catch
+missing product proof while recording a shared observation once when several
+qualifications describe the same promise. Keep user-visible alternatives,
+restrictions that need their own check, and post-execution owners traceable to
+the original source.
+
+**Evaluation:** Replay a small and a compound story from [ODF-481](../../docs/maintainer/findings/ODF-481.md).
+Compare the number of independent allocations and repeated observations with the
+current review. Show that the previously missed pronunciation behavior and a
+separately checkable alternative still require proof. Show that a settled
+baseline, effort hypothesis, or proof-method explanation cannot add an
+independent observation. Reuse the existing source review and obligation
+record. Record the delivered response and containing release at ODF-481.
+
 ## Separately pending lifecycle validation obligations
 
 These obligations remain pending under the recorded release exceptions. This
