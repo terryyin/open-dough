@@ -1,6 +1,8 @@
 // A reader of the collecting server's same private machine history, with
-// collection disabled. The caller closes it; a collector may finish in parallel
-// but must be closed before acquisition-count observations begin.
+// collection disabled, or of what a machine keeps where no collector ran: it
+// takes the provider its reads reach and, of a collector, its build. The
+// caller closes it; a collector may finish in parallel but must be closed
+// before acquisition-count observations begin.
 import {
   sharedDashboardBuild,
   startDashboardServer,
@@ -9,7 +11,8 @@ import {
 import type { StartOrigin } from "./startOrigin.ts";
 
 export function startLandedCiReader(
-  dashboard: DashboardServer,
+  dashboard: Pick<DashboardServer, "github"> &
+    Partial<Pick<DashboardServer, "outDir">>,
   origin: Pick<StartOrigin, "machine">,
   mode: "boundary" | "preview",
   prebuilt = dashboard.outDir ?? sharedDashboardBuild,

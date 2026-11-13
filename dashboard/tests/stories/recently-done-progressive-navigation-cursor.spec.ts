@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A Running Cursor sessions row the runner still holds, for a session whose
 // record is marked done and placed 27th in Recently done, chosen from another
 // project: Open Dough's stories show, Recently done extends exactly through
@@ -162,7 +163,7 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
       await button.click();
       await expect(row).toHaveCount(0);
       const terminal = terminalPanel(page);
-      await terminal.getByRole("button", { name: "Close" }).click();
+      await closeSidePanel(terminal, { using: "mouse", exact: false });
       await expect(terminal).toHaveCount(0);
       await expect(entry).toBeFocused();
     });

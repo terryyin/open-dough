@@ -1,7 +1,15 @@
+import {
+  closeSidePanel,
+  maximizeSidePanel,
+  restoreSidePanel,
+} from "../sidePanelFrame.ts";
 // The touch review journey that keeps its context: the chosen file and both
 // panes' reading places through rotation and panel controls, on story A's
 // comparison opened by touch (./storyReviewTouchJourney.ts), which also says
 // which viewport owns what no arrangement changes.
+import { listedFile, fileDiff } from "./reviewTreeRows.ts";
+import { comparisonChoice } from "./storyReviewMark.ts";
+import { reviewRefresh } from "./reviewControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
@@ -15,7 +23,7 @@ import type { DashboardServer } from "./dashboardServer.ts";
 import { longA, longB } from "./largeReviewFiles.ts";
 import { expect } from "./preparationPage.ts";
 import { reviewFeedback } from "./reviewContextLine.ts";
-import { pageFits, scrollTopOf } from "./reviewPanes.ts";
+import { pageFits, scrollTopOf, codePane, diffHeading } from "./reviewPanes.ts";
 import { expectReviewRead } from "./reviewRead.ts";
 import {
   chooseLargeChangesCommitByTouch,
@@ -41,13 +49,11 @@ type ChosenFile = {
 // Rotation, Maximize and Restore, and Hide files and Show files each keep the
 // chosen file, All changes and both panes' reading places.
 async function expectKept(
-  { browser, comparison }: TouchReview,
+  { browser, review }: TouchReview,
   { selected, code, codeAt, browserAt }: ChosenFile,
 ) {
   await expect(selected).toHaveAttribute("aria-pressed", "true");
-  await expect(
-    comparison.getByRole("radio", { name: "All changes" }),
-  ).toBeChecked();
+  await expect(comparisonChoice(review, "All changes")).toBeChecked();
   expect(await scrollTopOf(code)).toBe(codeAt);
   expect(await scrollTopOf(browser)).toBe(browserAt);
 }
@@ -69,7 +75,7 @@ export async function keepReviewContextThroughTouch(
   const opened = await openReviewByTouch(page, dashboard, origin);
   const { review, browser } = opened;
   const diff = await selectAddedFileByTouch(review, longA);
-  const code = diff.locator(".story-review-code");
+  const code = codePane(diff);
   await expect(code).toContainText("+first 0");
   await scrollByTouch(page, code, -300, "vertical", undefined, code);
   await expect.poll(() => scrollTopOf(code)).toBeGreaterThan(0);
@@ -77,7 +83,7 @@ export async function keepReviewContextThroughTouch(
   await scrollByTouch(page, browser, 100, "vertical", undefined, browser);
   await expect.poll(() => scrollTopOf(browser)).toBeLessThan(browserBefore);
   const chosen = {
-    selected: browser.getByRole("button", { name: `Added ${longA}` }),
+    selected: listedFile(browser, `Added ${longA}`),
     code,
     codeAt: await scrollTopOf(code),
     browserAt: await scrollTopOf(browser),
@@ -93,10 +99,10 @@ export async function keepReviewContextThroughTouch(
     expect(await pageFits(page)).toBe(true);
     if (viewport.width <= 800) await expectCovering(review);
     else {
-      await tapWhereShown(control(review, "Maximize"));
+      await maximizeSidePanel(review, "touch");
       await expect(control(review, "Restore")).toBeVisible();
       await expectKept(opened, chosen);
-      await tapWhereShown(control(review, "Restore"));
+      await restoreSidePanel(review, "touch");
       await expect(control(review, "Maximize")).toBeVisible();
       await expectKept(opened, chosen);
     }
@@ -124,26 +130,27 @@ async function keepReviewContextThroughPanelControls(
   portrait: Viewport,
   landscape: Viewport,
 ) {
-  const { action, review, browser, comparison, changedFiles } = opened;
+  const { action, review, browser, changedFiles } = opened;
   await tapWhereShown(control(review, "Hide files"));
   await expect(browser).toBeHidden();
   expect(await scrollTopOf(chosen.code)).toBe(chosen.codeAt);
   await tapWhereShown(control(review, "Show files"));
   await expectKept(opened, chosen);
   await tapWhereShown(control(review, "Next file"));
-  const next = review.getByRole("region", { name: `Added ${longB}` });
-  await expect(next.locator(".story-review-code")).toContainText("+second 0");
-  expect(await scrollTopOf(next.locator(".story-review-code"))).toBe(0);
-  await tapWhereShown(control(review, "Refresh"));
+  const next = fileDiff(review, `Added ${longB}`);
+  await expect(codePane(next)).toContainText("+second 0");
+  expect(await scrollTopOf(codePane(next))).toBe(0);
+  await tapWhereShown(reviewRefresh(review, { exact: true }));
   await expectReviewRead(review);
   await expect(reviewFeedback(review)).toHaveText(
     new RegExp(
       `^Review refreshed: ${String(changedFiles)} changed files against baseline [0-9a-f]{7}\\.$`,
     ),
   );
-  await expect(
-    browser.getByRole("button", { name: `Added ${longB}` }),
-  ).toHaveAttribute("aria-pressed", "true");
+  await expect(listedFile(browser, `Added ${longB}`)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
   // Explicit Commits on the range that holds every changed file, chosen here
   // where it is read; with files hidden its reading place survives rotation.
   await chooseLargeChangesCommitByTouch(review, browser, changedFiles);
@@ -152,15 +159,15 @@ async function keepReviewContextThroughPanelControls(
   );
   await selectAddedFileByTouch(review, longB);
   await tapWhereShown(control(review, "Hide files"));
-  const nextCode = next.locator(".story-review-code");
+  const nextCode = codePane(next);
   await scrollByTouch(page, nextCode, -180, "vertical", undefined, nextCode);
   await expect.poll(() => scrollTopOf(nextCode)).toBeGreaterThan(0);
   const nextAt = await scrollTopOf(nextCode);
   await resizeUntilArranged(review, landscape);
   await expect(
-    comparison.getByRole("radio", { name: "Commits", exact: true }),
+    comparisonChoice(review, "Commits", { exact: true }),
   ).toBeChecked();
-  await expect(next.getByRole("heading")).toHaveText(`Added ${longB}`);
+  await expect(diffHeading(next)).toHaveText(`Added ${longB}`);
   expect(await scrollTopOf(nextCode)).toBe(nextAt);
   expect((await box(nextCode)).height).toBeGreaterThanOrEqual(44);
   expect(await pageFits(page)).toBe(true);
@@ -171,7 +178,7 @@ async function keepReviewContextThroughPanelControls(
     portrait,
     changedFiles - 1,
   );
-  await tapWhereShown(control(review, "Close"));
+  await closeSidePanel(review, { using: "touch" });
   await expect(review).toHaveCount(0);
   await expect(action).toBeFocused();
   expect(await pageFits(page)).toBe(true);

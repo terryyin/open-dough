@@ -21,7 +21,11 @@ import { avatarPng } from "../avatarAnswers.ts";
 import { expectTerminalPreviewFits } from "../terminalPortraitPreview.ts";
 import { box } from "../pageLayout.ts";
 import { takenIdentity, takenStory } from "../agentRosterRecords.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   keepLaunchRecords,
   keptLaunchStore,
@@ -91,7 +95,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
       .poll(() => recordsOf(dashboard, "open-dough"))
       .toEqual([expect.objectContaining(record)]);
     await page.reload();
-    await entry.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalControl(entry, { exact: false }).click();
     await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
   };
 

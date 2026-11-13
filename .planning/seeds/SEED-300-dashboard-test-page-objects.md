@@ -14,9 +14,9 @@ scope: eight stories
 A developer reading dashboard tests in Intent can follow what the user does,
 what changes, and what the test proves. When a shared control changes, its
 browser mechanics have one maintained owner across the affected tests.
-All 26 original findings, including sibling specs that repeat the same
-sequence or selector, remain allocated below. Each story owns its allocated
-findings; no individual story must complete the entire family.
+The remaining findings, including sibling specs that repeat the same
+sequence or selector, are allocated below. Each remaining story owns its
+allocated findings; no individual story must complete the entire family.
 
 Preserve distinct behavior checks and existing test tiers. Shared browser
 helpers accept caller-supplied expected facts; domain setup stays with MakeMe.
@@ -43,7 +43,6 @@ new plans, not an invented slice history.
 
 | Order | Receiving story | Findings | Preparation / scheduling |
 | --- | --- | --- | --- |
-| 2 | [Express review and Side panel test intent through page objects](#express-review-test-intent-through-page-objects) | 3 | Story refined and existing plan realigned; queued |
 | 5 | [Express session discovery and report test intent through page objects](#express-session-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
 | 6 | [Express launch dialog and startup test intent through page objects](#express-launch-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
 | 7 | [Express settings test intent through page objects](#express-settings-test-intent-through-page-objects) | 2 | Provisional plan; queued 2026-11-11 |
@@ -181,7 +180,7 @@ North Star direction needs no addition for this test-side change.
   action and expected outcome in domain terms, with repeated locators and
   interaction sequences owned by shared helpers. Prefer existing procedural
   helpers and component owners. The
-  [fluent pilot](../../dashboard/tests/writing-journeys.md#what-the-pilot-earned)
+  [fluent pilot](../../dashboard/tests/fluent-side-panel-pilot.md#what-the-pilot-earned)
   supplies evidence for shared controls and recurring handoffs. Adopt fluent
   phases where those benefits justify the extra code.
 - A shared control edit, such as the Story card's Review changes action or
@@ -200,121 +199,6 @@ North Star direction needs no addition for this test-side change.
   MakeMe for domain data and the existing causal waits. Run the changed
   specs and the applicable dashboard gates under the project's
   [failing and flaky test policy](../../AGENTS.md#failing-and-flaky-tests).
-
-<a id="express-review-test-intent-through-page-objects"></a>
-
-### Express review and Side panel test intent through page objects
-
-**Identity:** SEED-300#express-review-test-intent-through-page-objects
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/582-review-test-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a08be905afac3bb73c694817039fb480e495f7496c52e86967ed70eb109f34cf","plan":"a62d10a47db3d4b2d036245d8ae7dfeda61c49bcbccf21f98d9eea437c134d39"}}
-```
-
-#### Goal
-
-A developer reading review and Side panel tests in Intent can follow what the
-reviewer opens, compares, refreshes and keeps beside the Board. Shared review
-and divider controls have one browser owner, so a control change needs one
-mechanics edit while each scenario still states the behavior it proves.
-
-#### Scope
-
-Resolve the three audit findings below and their current same-control or
-same-sequence sibling callers, including review entry from Intent and panel
-interactions in Final report and Terminal journeys:
-
-- Express branch, trunk, completed and one-shot review entry and comparison
-  through shared controls. Procedural and fluent Review changes callers use
-  the same control owner; snapshot waits remain with the operation needing them.
-- Express file-tree choice, diff/context reading, retained focus/scroll and
-  freshness through the existing suitable review owners. The scenario supplies
-  its expected revisions, file order, diff text, line counts and check facts.
-- Express Side panel opening/closing, divider drag/cancellation, keyboard
-  resizing, covering, retained width and Board return through shared operations.
-  Actual input modality, chosen widths/bounds, before/after measurements,
-  request counts and native attach evidence remain visible where they explain
-  the outcome. Closing the panel preserves the Selected story (ADR 0008).
-
-Required preservation constraints prevent helpers from concealing a regression:
-keep held responses and their release order, later choices, exact input and
-focus expectations, and independent accessibility/geometry observations.
-Domain setup stays with MakeMe. A helper must not derive an expected fact from
-the production value it observes or silently make a pending read complete.
-
-Scope limits: no dashboard behavior change, suite-wide speed claim, universal
-fluent conversion, new page-object framework, or wholesale migration of the
-Terminal, session/report, Board or Intent sibling stories. Shared panel/control
-callers in those families are included where these findings reach them; their
-unrelated workflows remain with their own stories. Necessary proof-harness
-repair follows the project's failing/flaky-test policy and preserves the
-default timeout and complete journeys.
-
-**Plan:** [Executable plan](../slice-plans/582-review-test-intent/PLAN.md)
-
-#### Key examples
-
-1. A procedural comparison case and a fluent Board-to-review journey open a
-   story's review → the developer follows the named entry and comparison
-   operations → both use one Review changes control owner, while each exposes
-   its chosen story, baseline/run and expected changed files or diff. The
-   action-contract case still states its own accessible name and keyboard order.
-2. A review has a selected file and a reading place → the reviewer changes
-   context, scrolls or uses touch/keyboard to choose another file → the test
-   names the selected file, exact lines, input and retained reading place;
-   shared tree/pane operations own their browser mechanics.
-3. A review or file answer is held and the reviewer makes a later choice → the
-   old answer is released, then the review is refreshed or resized → the test
-   keeps the holds/releases and expected old/new facts explicit, and still
-   checks which run/file stays selected and which requests occurred.
-4. A Terminal, review or Final report occupies the Side panel → the reviewer
-   drags or cancels the divider, uses arrow keys, maximizes/restores, narrows
-   the window or closes/reopens content → shared panel operations expose the
-   actual input; caller facts still prove width/bounds, focus, retained content,
-   no unintended review read or attachment, and the preserved Selected story.
-5. A maintainer changes a shared control → affected procedural and fluent
-   callers need one selector edit → a finding/caller disposition and one
-   before/after per finding demonstrate clearer actions and outcomes, fewer
-   mechanics edit sites, and helper cost justified by that gain. Every distinct
-   behavior check and test tier remains represented.
-
-#### Audit findings owned by this story
-
-- **Opening review and reading a comparison.** The fluent pilot owns
-  `Review changes` within its three journeys. A literal role-name search
-  still finds that control in 22 specs. Procedural review, Intent handoffs
-  and panel resize cases repeatedly select the review region, comparison,
-  file, additions/removals and line counts. Share those controls with the
-  existing review helpers across branch, trunk, completed and one-shot
-  review. Keep the revision, file and diff expectations at the call site.
-  [Review entry](../../dashboard/tests/review/story-review-action.spec.ts#L49),
-  [trunk commit review](../../dashboard/tests/review/story-review-commit-trunk.spec.ts#L29),
-  [completed review](../../dashboard/tests/review/story-review-completed.spec.ts#L34),
-  [one-shot choice](../../dashboard/tests/review/story-review-one-shot-choice.spec.ts#L44),
-  [review from Intent](../../dashboard/tests/intent/intent-story-review-return.spec.ts#L32).
-
-- **Review tree, diff and freshness.** Tree, pane, diff context and refresh
-  specs duplicate selected-file, diff-row, focus and scroll mechanics.
-  Commit refresh and uncommitted check specs also rebuild refresh controls
-  and displayed file checks. Compose these observations using the tree,
-  pane and commit-choice helpers, while leaving held responses and the
-  ordering of their release in the test.
-  [Tree](../../dashboard/tests/review/story-review-tree.spec.ts#L71),
-  [diff context](../../dashboard/tests/review/story-review-diff-context.spec.ts#L79),
-  [refresh](../../dashboard/tests/review/story-review-refresh.spec.ts#L56),
-  [commit refresh](../../dashboard/tests/review/story-review-commit-refresh.spec.ts#L35),
-  [uncommitted check refresh](../../dashboard/tests/review/story-review-uncommitted-check-refresh.spec.ts#L46).
-
-- **Divider, covering and returning to the Board.** The width specs already
-  share geometry helpers, yet repeat panel open/close, drag cancellation,
-  arrow-key loops, viewport transitions and xterm access. Share panel and
-  divider actions with Final report and Terminal journeys. Keep chosen
-  widths, bounds, input modality, before/after measurements and attach or
-  request counts legible.
-  [Width and cancellation](../../dashboard/tests/navigation/side-panel-width.spec.ts#L87),
-  [covering](../../dashboard/tests/navigation/side-panel-width-covering.spec.ts#L94),
-  [kept width](../../dashboard/tests/navigation/side-panel-width-kept.spec.ts#L34),
-  [Final report divider](../../dashboard/tests/sessions/final-report-touch-divider.spec.ts#L48),
-  [Terminal maximize](../../dashboard/tests/terminals/agent-terminal-maximize.spec.ts#L165).
 
 <a id="express-session-test-intent-through-page-objects"></a>
 

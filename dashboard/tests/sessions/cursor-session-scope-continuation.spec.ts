@@ -11,7 +11,11 @@ import path from "node:path";
 import { storyA } from "../../../tests/support/queued-repository.mjs";
 import { parts } from "../dashboardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   expectContinuationThroughScope,
   expectContinuationWithoutScope,
@@ -80,7 +84,7 @@ test("recovery and terminal open resume a scoped session through its recorded sc
   await endHeldClient(page, cursor, dashboard.home);
   await page.reload();
   const attachesBeforeOpen = cursor.attaches().length;
-  await entry.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalControl(entry, { exact: false }).click();
   const panel = terminalPanel(page);
   await expect(terminalScreenParts(panel).rows).toContainText(
     "Add a follow-up",
@@ -192,7 +196,7 @@ test("a missing or unreadable recorded scope refuses recovery and terminal open,
   // Missing: the whole scope is gone, so terminal open also refuses and
   // still spawns nothing against the shared configuration.
   rmSync(scope, { recursive: true, force: true });
-  await entry.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalControl(entry, { exact: false }).click();
   const panel = terminalPanel(page);
   await expect(panel).toContainText(scopeRefusal);
   await expect(panel).toContainText(

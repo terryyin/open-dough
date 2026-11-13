@@ -4,6 +4,8 @@
 // ownership stays with story-review-uncommitted-check.spec.ts. The phone owns
 // what no arrangement changes, so each case title describes the phone's
 // journey; any other viewport repeats only what its own arrangement changes.
+import { changedFilesList, treeFolder } from "./reviewTreeRows.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
@@ -21,6 +23,7 @@ import {
   pageFits,
   scrollLeftOf,
   scrollTopOf,
+  codePane,
 } from "./reviewPanes.ts";
 import { expectReviewRead } from "./reviewRead.ts";
 import {
@@ -35,7 +38,12 @@ import {
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { keepLaunchRecord } from "./storyLaunchRecord.ts";
-import { uncommittedLabel } from "./storyReviewMark.ts";
+import {
+  uncommittedLabel,
+  reviewRegion,
+  comparisonChoice,
+  comparisonLabel,
+} from "./storyReviewMark.ts";
 import { largeWorktree } from "./storyReviewWorktree.ts";
 
 // The comparison holds what the touch assertions distinguish, as the phone
@@ -69,21 +77,18 @@ export async function openReviewByTouch(
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await expectSettledPage(page);
-  const action = card.getByRole("button", { name: "Review changes" });
+  const action = reviewChanges(card);
   await action.scrollIntoViewIfNeeded();
   await tapWhereShown(action);
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   await expect(reviewBody(review)).toBeFocused();
   await expectReviewRead(review);
   const browser = fileBrowser(review);
   await expect(
-    browser.getByRole("list", {
-      name: `${String(changedFiles)} changed files`,
-    }),
+    changedFilesList(browser, `${String(changedFiles)} changed files`),
   ).toBeVisible();
-  const comparison = review.getByRole("radiogroup", { name: "Comparison" });
-  const all = comparison.locator("label", { hasText: "All changes" });
-  return { action, review, browser, comparison, all, changedFiles };
+  const all = comparisonLabel(review, "All changes");
+  return { action, review, browser, all, changedFiles };
 }
 
 export type TouchReview = Awaited<ReturnType<typeof openReviewByTouch>>;
@@ -99,25 +104,22 @@ export function ownsSharedObservations(page: Page) {
 async function chooseCommitThenAllChangesByTouch({
   review,
   browser,
-  comparison,
   all,
   changedFiles,
 }: TouchReview) {
   await chooseLargeChangesCommitByTouch(review, browser, changedFiles);
   await reachReviewControl(review, all);
   await tapWhereShown(all);
-  await expect(
-    comparison.getByRole("radio", { name: "All changes" }),
-  ).toBeChecked();
+  await expect(comparisonChoice(review, "All changes")).toBeChecked();
 }
 
 // What no arrangement changes, before the long file is chosen: tap-sized
 // controls, the context shown in full and back, the folder closed and opened,
 // and the large-changes commit followed by All changes.
 async function observeSharedControlsByTouch(opened: TouchReview) {
-  const { review, browser, comparison, all } = opened;
-  const commits = comparison.locator("label", { hasText: "Commits" });
-  const folder = browser.getByRole("button", { name: /^many\b/ });
+  const { review, all } = opened;
+  const commits = comparisonLabel(review, "Commits");
+  const folder = treeFolder(review, /^many\b/);
   const label = uncommittedLabel(review);
   for (const target of [contextValues(review), all, commits, folder, label]) {
     expect(
@@ -148,7 +150,7 @@ export async function chooseComparisonAndReadByTouch(
   const { review, browser } = opened;
   if (ownsSharedObservations(page)) await observeSharedControlsByTouch(opened);
   const diff = await selectAddedFileByTouch(review, longA);
-  const code = diff.locator(".story-review-code");
+  const code = codePane(diff);
   await expect(code).toContainText("+first 0");
   await expect(code).toContainText(`+${wideLine}`);
   expect((await box(code)).height).toBeGreaterThanOrEqual(44);

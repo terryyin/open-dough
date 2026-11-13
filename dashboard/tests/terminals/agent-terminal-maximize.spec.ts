@@ -6,9 +6,14 @@
 // reopening starts split. This page's dashboard attaches only synthetic Claude
 // (./fixtures/fake-claude).
 
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+  typeLine,
+} from "../terminalScreenPage.ts";
 import {
   storyCardSessions,
   expectMembership,
@@ -25,7 +30,13 @@ import {
 } from "../launchJourney.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { box, expectFills, pressWhereShown } from "../pageLayout.ts";
+import { box, expectFills } from "../pageLayout.ts";
+import {
+  closeSidePanel,
+  control as frameControl,
+  maximizeSidePanel,
+  restoreSidePanel,
+} from "../sidePanelFrame.ts";
 import { expectCovering } from "../sidePanelWidthPage.ts";
 import { expectFrameIconControl } from "../frameIconControl.ts";
 
@@ -62,10 +73,7 @@ test.describe("maximizing the terminal", () => {
     const pageColumn = page.locator(".page-column");
     const panel = terminalPanel(page);
     const { rows } = terminalScreenParts(panel);
-    const control = (name: string) =>
-      panel.getByRole("button", { name, exact: true });
-    const openIn = (place: Locator) =>
-      place.getByRole("button", { name: "Open terminal" });
+    const control = (name: string) => frameControl(panel, name);
     const queued = {
       taken: [],
       backlog: [takenStory, readyStory, notRefinedStory],
@@ -80,10 +88,11 @@ test.describe("maximizing the terminal", () => {
     const second = await sessionNamedBy(storyCardSessions(card(readyStory)));
     const attachCount = () => dashboard.claudeAttaches().length;
 
-    await openIn(storyCardSessions(card(notRefinedStory))).click();
+    await openTerminalControl(storyCardSessions(card(notRefinedStory)), {
+      exact: false,
+    }).click();
     await expect(rows).toContainText(`attached ${shortId(first)}`);
-    await page.keyboard.type("keep this line");
-    await page.keyboard.press("Enter");
+    await typeLine(page, "keep this line");
     await expect(rows).toContainText("echo keep this line");
 
     await test.step("the header's icon controls, Mark as done included, are quiet, compact frame icon controls named by label and tooltip", async () => {
@@ -111,7 +120,7 @@ test.describe("maximizing the terminal", () => {
     const attachedBefore = attachCount();
 
     await test.step("Maximize gives the panel the page column's room, hides the banner and stories, keeps the same session's lines, and offers Restore", async () => {
-      await pressWhereShown(control("Maximize"));
+      await maximizeSidePanel(panel);
       await expectFrameIconControl(control("Restore"), "Restore");
       await expect(control("Maximize")).toHaveCount(0);
       const room = await windowOf(page);
@@ -129,7 +138,7 @@ test.describe("maximizing the terminal", () => {
     });
 
     await test.step("Restore returns the left/right split with the same session's lines", async () => {
-      await pressWhereShown(control("Restore"));
+      await restoreSidePanel(panel);
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();
       await expect(board).toBeVisible();
@@ -142,7 +151,7 @@ test.describe("maximizing the terminal", () => {
     await test.step("with the Sessions sidebar open, the maximized panel stays beside it, and opening another entry shows that session in the normal split", async () => {
       await sidebar.button.click();
       await expect(sidebar.sidebar).toBeVisible();
-      await pressWhereShown(control("Maximize"));
+      await maximizeSidePanel(panel);
       await expect(banner).toBeHidden();
       const side = await box(sidebar.sidebar);
       const room = await windowOf(page);
@@ -181,13 +190,13 @@ test.describe("maximizing the terminal", () => {
       const splitBesideSidebar = await box(panel);
       expect(splitBesideSidebar.x).toBeGreaterThan(besideSidebar.x + 1);
       expect(splitBesideSidebar.width).toBeLessThan(besideSidebar.width - 1);
-      await pressWhereShown(control("Maximize"));
+      await maximizeSidePanel(panel);
       await expect(banner).toBeHidden();
       await expectFills(panel, besideSidebar);
     });
 
     await test.step("Close hides the maximized panel, the session keeps running and is not marked done, and the next opened session shows in the split", async () => {
-      await control("Close").click();
+      await closeSidePanel(panel);
       await expect(panel).toHaveCount(0);
       await expect(banner).toBeVisible();
       await expect(sidebar.entry(readyStory)).toBeFocused();
@@ -201,7 +210,9 @@ test.describe("maximizing the terminal", () => {
       await sidebar.button.click();
       await expect(sidebar.sidebar).toBeHidden();
 
-      await openIn(storyCardSessions(card(readyStory))).click();
+      await openTerminalControl(storyCardSessions(card(readyStory)), {
+        exact: false,
+      }).click();
       await expect(rows).toContainText(`attached ${shortId(second)}`);
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();

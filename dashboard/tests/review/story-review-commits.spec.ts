@@ -1,5 +1,6 @@
 // A snapshot's own first-parent commits, and one commit's comparison in the
 // same file browser and diff as All changes. Trunk merges remain selectable.
+import { changedFilesList, listedFile } from "../support/reviewTreeRows.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../support/preparationPage.ts";
@@ -7,7 +8,11 @@ import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
 import { showCommits } from "../support/reviewRead.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
-import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
+import {
+  openStoryReview,
+  reviewRegion,
+  comparisonChoice,
+} from "../support/storyReviewMark.ts";
 import {
   git,
   observed,
@@ -53,7 +58,7 @@ test("Commits lists the first-parent line below Uncommitted changes and shows a 
     "story file",
     "rename with a small edit",
   ]);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
@@ -79,12 +84,9 @@ test("Commits lists the first-parent line below Uncommitted changes and shows a 
   await expect(review.locator(".story-review-since")).toContainText(
     `From ${snapshot.commits[0]?.shortRevision} newest story edit to ${snapshot.commits[0]?.shortRevision} newest story edit.`,
   );
-  const files = review.getByRole("list", {
-    name: "1 changed file",
-    exact: true,
-  });
+  const files = changedFilesList(review, "1 changed file", { exact: true });
   await expect(
-    files.getByRole("button", { name: "Modified story.txt", exact: true }),
+    listedFile(files, "Modified story.txt", { exact: true }),
   ).toBeVisible();
   await expect(review.locator(".story-review-diff")).toContainText(
     "newest story",
@@ -97,10 +99,7 @@ test("Commits lists the first-parent line below Uncommitted changes and shows a 
   await chooseCommit(review, rows.last());
   await expect(rows.last()).toHaveAttribute("aria-pressed", "true");
   await expect(
-    files.getByRole("button", {
-      name: "Renamed old.txt → new.txt",
-      exact: true,
-    }),
+    listedFile(files, "Renamed old.txt → new.txt", { exact: true }),
   ).toBeVisible();
   await expect(review.locator(".story-review-diff")).toContainText("renamed");
   await expect(review.locator(".story-review-diff")).not.toContainText(
@@ -122,7 +121,7 @@ test("a clean merge selected alone changed nothing by itself", async ({
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
@@ -131,18 +130,17 @@ test("a clean merge selected alone changed nothing by itself", async ({
   await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
   await expect(rows.first()).toBeEnabled();
   await expect(review).toContainText("The chosen commits changed nothing.");
-  await expect(review.getByRole("list", { name: /changed file/ })).toHaveCount(
-    0,
-  );
+  await expect(changedFilesList(review, /changed file/)).toHaveCount(0);
   await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
     0,
   );
   await chooseCommit(review, rows.nth(3));
   await chooseCommit(review, rows.nth(3));
   await expect(
-    review
-      .getByRole("list", { name: "1 changed file", exact: true })
-      .getByRole("button", { name: "Added story.txt" }),
+    changedFilesList(review, "1 changed file", { exact: true }).getByRole(
+      "button",
+      { name: "Added story.txt" },
+    ),
   ).toBeVisible();
 });
 
@@ -161,7 +159,7 @@ test("no commits and no uncommitted changes offers no Commits", async ({
     "No changes: the worktree matches baseline",
   );
   await expect(
-    review.getByRole("radio", { name: "Commits", exact: true }),
+    comparisonChoice(review, "Commits", { exact: true }),
   ).toHaveCount(0);
 });
 
@@ -188,9 +186,7 @@ test("an empty plain commit names its range and lists no files", async ({
     review.getByRole("heading", { name: "Changes in 1 commit" }),
   ).toBeVisible();
   await expect(review).toContainText("The chosen commits changed nothing.");
-  await expect(review.getByRole("list", { name: /changed file/ })).toHaveCount(
-    0,
-  );
+  await expect(changedFilesList(review, /changed file/)).toHaveCount(0);
   await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
     0,
   );

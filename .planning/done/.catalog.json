@@ -8,10 +8,52 @@
       "blob": "651291035b260a9c823bc21f840fc689c041f12e"
     },
     {
+      "fileName": "SEED-333_spot-completed-stories-that-need-review.json",
+      "identity": "SEED-333#spot-completed-stories-that-need-review",
+      "completedAt": "2026-11-13T01:47:20.467Z",
+      "blob": "0cda224a4a62d214b2ec8856b235d7a766e58c31"
+    },
+    {
+      "fileName": "SEED-324_pass-landed-ci-repeat-checks-under-high-load.json",
+      "identity": "SEED-324#pass-landed-ci-repeat-checks-under-high-load",
+      "completedAt": "2026-11-12T22:58:16.699Z",
+      "blob": "9475692e454cfce88e3f4fe9e0ea1394218320c4"
+    },
+    {
+      "fileName": "SEED-330_invoke-custom-ci-rebuilds.json",
+      "identity": "SEED-330#invoke-custom-ci-rebuilds",
+      "completedAt": "2026-11-12T16:07:10.780Z",
+      "blob": "fc02310c374cf56db3f74d7664356a0c5b59a744"
+    },
+    {
+      "fileName": "SEED-300_express-review-test-intent-through-page-objects.json",
+      "identity": "SEED-300#express-review-test-intent-through-page-objects",
+      "completedAt": "2026-11-12T14:52:45.009Z",
+      "blob": "50cf45750f01e5f3555d121915413f7b4f08d2b9"
+    },
+    {
+      "fileName": "SEED-329_guard-scheduled-test-makeme-selection.json",
+      "identity": "SEED-329#guard-scheduled-test-makeme-selection",
+      "completedAt": "2026-11-12T12:58:56.844Z",
+      "blob": "d74a2b17d20a3ef21a58d4d5dfc498e217613e0b"
+    },
+    {
+      "fileName": "SEED-330_make-ci-follow-up-automatic.json",
+      "identity": "SEED-330#make-ci-follow-up-automatic",
+      "completedAt": "2026-11-12T12:08:38.549Z",
+      "blob": "0dbbd93b8faeedcb3210b88e8d2a66f564cc649b"
+    },
+    {
       "fileName": "SEED-300_express-terminal-test-intent-through-page-objects.json",
       "identity": "SEED-300#express-terminal-test-intent-through-page-objects",
       "completedAt": "2026-11-12T10:36:32.890Z",
       "blob": "584e21fbd34ccabf75a1f926eaa1f2fc037a50f7"
+    },
+    {
+      "fileName": "SEED-329_use-shared-test-guidance.json",
+      "identity": "SEED-329#use-shared-test-guidance",
+      "completedAt": "2026-11-12T10:35:01.135Z",
+      "blob": "8ec60b598ac0bc1483726abf7d6a0dea78aed1ec"
     },
     {
       "fileName": "SEED-328_mark-recently-done-stories-as-reviewed.json",

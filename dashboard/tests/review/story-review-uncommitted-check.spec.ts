@@ -25,6 +25,8 @@ import {
   expectLineCounts,
   expectTreeRows,
   fileRow,
+  changedFilesList,
+  fileDiff,
 } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import type { StartOrigin } from "../support/startOrigin.ts";
@@ -77,8 +79,8 @@ test("the check leaves uncommitted changes out of all changes and back without r
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
-  const whole = review.getByRole("list", { name: "7 changed files" });
-  const diff = review.getByRole("region", { name: "Added story.txt" });
+  const whole = changedFilesList(review, "7 changed files");
+  const diff = fileDiff(review, "Added story.txt");
 
   // On at opening: the whole snapshot.
   await expect(whole).toBeVisible();
@@ -93,7 +95,7 @@ test("the check leaves uncommitted changes out of all changes and back without r
 
   // Off: the committed files, lines, and counts alone.
   await check(review).uncheck();
-  const committed = review.getByRole("list", { name: "4 changed files" });
+  const committed = changedFilesList(review, "4 changed files");
   await expectTreeRows(committed, [
     "gone.txt",
     "image.png",
@@ -137,9 +139,7 @@ test("the selected file stays selected while the committed files list it, and ot
 
   await fileRow(review, "Added story.txt").press("Enter");
   await check(review).uncheck();
-  await expect(
-    review.getByRole("list", { name: "4 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "4 changed files")).toBeVisible();
   await expectSelected("Added story.txt");
 
   await check(review).check();
@@ -161,9 +161,7 @@ test("a worktree without uncommitted changes offers no check", async ({
   const card = await openBacklog(page, origin);
   const snapshot = await openStoryReview(page, card);
   const review = reviewRegion(page);
-  await expect(
-    review.getByRole("list", { name: "6 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "6 changed files")).toBeVisible();
   await expect(review.getByRole("checkbox")).toHaveCount(0);
   expect(snapshot.committed).toBeUndefined();
 });
@@ -179,7 +177,7 @@ test("with nothing committed, the check off says so, lists no files, and stays t
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
-  const whole = review.getByRole("list", { name: "1 changed file" });
+  const whole = changedFilesList(review, "1 changed file");
   await expect(whole).toBeVisible();
   await expect(check(review)).toBeChecked();
 
@@ -209,7 +207,7 @@ test("Mark reviewed with the check off marks the whole snapshot, and the review 
   const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);
   await check(review).uncheck();
-  const committed = review.getByRole("list", { name: "4 changed files" });
+  const committed = changedFilesList(review, "4 changed files");
   await expect(committed).toBeVisible();
   await expect(review.getByText(leftOut)).toBeVisible();
   expect(shown.committed?.tree).not.toBe(shown.tree);

@@ -43,6 +43,7 @@ export type { BaseCiJudgment } from "./baseCiNearest.ts";
 type CiConfiguration = {
   readonly adapter: readonly string[] | undefined;
   readonly workflow: string;
+  readonly rebuild: readonly string[] | undefined;
 };
 
 // The project folder's CI settings: its configured ciAdapter command, if

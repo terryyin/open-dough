@@ -13,6 +13,7 @@ import type { Locator, Page } from "@playwright/test";
 import { direction } from "../../tests/support/product-backlog-fixture.mjs";
 import { storyB } from "../../tests/support/queued-repository.mjs";
 import { writeRevisionFiles } from "../../tests/support/repository-revision-files.mjs";
+import { parts } from "./dashboardParts.ts";
 import { expect } from "./dashboardTest.ts";
 import { expectProtected } from "./responsiveStart.ts";
 import {
@@ -33,8 +34,7 @@ export const needsReconciliation = "Startup needs reconciliation";
 export const subject = `Story A (${queuedIdentity})`;
 export const continueLabel = `Continue execution start of ${subject}`;
 
-export const recoveryOf = (page: Page) =>
-  page.getByRole("region", { name: "Startup recovery" });
+export const recoveryOf = (page: Page) => parts(page).startupRecovery;
 
 // The story's frame is protected and said statically, with nothing moving
 // and no answer beside its unavailable actions, which, like the card, are

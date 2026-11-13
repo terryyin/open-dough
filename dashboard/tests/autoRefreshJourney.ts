@@ -150,8 +150,8 @@ export async function passTimeUntilAsked(page: Page): Promise<number> {
 
 // Lets page time pass until the page asks for the next revision check, then
 // waits -- with page time standing still, so nothing the check starts can
-// time out -- until that check is answered, successfully unless the local
-// boundary is expected to report a failed check (`502`). Says how much page
+// time out -- until that check's whole body is answered, successfully unless
+// the local boundary is expected to report a failed check (`502`). Says how much page
 // time passed before the check was asked.
 export async function passTimeUntilChecked(
   page: Page,
@@ -159,7 +159,9 @@ export async function passTimeUntilChecked(
 ): Promise<number> {
   const answer = page.waitForResponse((response) => isCheck(response.url()));
   const passed = await passTimeUntilAsked(page);
-  expect((await answer).status()).toBe(answeredWith);
+  const response = await answer;
+  expect(response.status()).toBe(answeredWith);
+  await response.body();
   return passed;
 }
 

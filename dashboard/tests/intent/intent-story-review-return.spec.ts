@@ -5,6 +5,9 @@
 // the review (../../src/keyboardReturn.ts). The header's count:
 // ./intent-story-changes.spec.ts.
 
+import { closeSidePanel } from "../sidePanelFrame.ts";
+import { fileBrowser } from "../support/reviewContextLine.ts";
+import { reviewRegion } from "../support/storyReviewMark.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
   fileReadingTab,
@@ -12,7 +15,10 @@ import {
   proofRegion,
   scrollIntentReadingHalfway,
 } from "../intentPerspectivePage.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { expectReviewRead } from "../support/reviewRead.ts";
 import {
   expectOutsideCount,
@@ -32,11 +38,10 @@ import {
 async function reviewByKeyboard(page: Page, intent: Locator) {
   await outsideCount(intent).focus();
   await page.keyboard.press("Enter");
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   await expectReviewRead(review);
-  await expect(review.locator(".story-review-files")).toBeVisible();
-  await review.getByRole("button", { name: "Close", exact: true }).focus();
-  await page.keyboard.press("Enter");
+  await expect(fileBrowser(review)).toBeVisible();
+  await closeSidePanel(review, { using: "keyboard", key: "Enter" });
   await expect(review).toHaveCount(0);
 }
 

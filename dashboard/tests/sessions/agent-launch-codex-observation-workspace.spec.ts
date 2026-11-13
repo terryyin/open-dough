@@ -1,3 +1,5 @@
+import { readFinalReportControl } from "../finalReportPages.ts";
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // What a saved Codex session offers when its continuation is unknown or its
 // workspace is gone: a predecessor without continuation gains no command, and
 // a missing workspace keeps passive final-report access, through reload, with
@@ -85,17 +87,17 @@ test("predecessor without continuation gains no command; missing workspace prese
   expect(stored(dashboard.home)).toEqual(before);
   passive(native.calls);
   for (const list of entries()) {
-    await list
-      .filter({
+    await readFinalReportControl(
+      list.filter({
         has: page.locator(`code:text-is("${missing.session.sessionId}")`),
-      })
-      .getByRole("button", { name: "Read final report" })
-      .click();
+      }),
+      { exact: false },
+    ).click();
     const panel = page.getByRole("region", { name: "Final report" });
     await expect(panel.locator(".final-report-text")).toHaveText(
       "The saved conversation's final report.",
     );
-    await panel.getByRole("button", { name: "Close", exact: true }).click();
+    await closeSidePanel(panel);
   }
   expect(stored(dashboard.home)).toEqual(before);
   passiveReport(native, 0);

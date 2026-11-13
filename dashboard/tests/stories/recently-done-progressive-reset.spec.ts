@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // What keeps Recently done's requested range and what starts it again at
 // ten. A refresh's old revision answering late changes nothing it shows.
 // Opening and closing the terminal and the sidebar, resizing the panel, and
@@ -13,7 +14,10 @@ import { expect, test } from "../dashboardTest.ts";
 import { shownProjectControl, chooseProject, parts } from "../dashboardPage.ts";
 import { rem, showColumn } from "../boardPage.ts";
 import { expectEntries, revealAction } from "../recentlyDoneColumn.ts";
-import { terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   entryName,
   revision as revisionA,
@@ -40,7 +44,7 @@ import {
   refreshedTo,
   retitled,
 } from "../recentlyDoneRefresh.ts";
-import { panelDivider } from "../sidePanelWidthPage.ts";
+import { focusDivider, pressDividerKey } from "../sidePanelWidthPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { holding } from "../support/heldGitHubAnswer.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
@@ -99,17 +103,18 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
 
   await test.step("opening a terminal, resizing its panel, closing it, opening and closing the sidebar, and a narrow window keep twenty, reading nothing", async () => {
     const terminal = terminalOf(page);
-    await parts(page)
-      .taken.getByRole("article", { name: entryName(entryAt(destination)) })
-      .getByRole("button", { name: "Open terminal" })
-      .click();
+    await openTerminalControl(
+      parts(page).taken.getByRole("article", {
+        name: entryName(entryAt(destination)),
+      }),
+      { exact: false },
+    ).click();
     await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     await expectEntries(recent, twenty);
-    await panelDivider(page).focus();
-    await page.keyboard.press("ArrowLeft");
-    await page.keyboard.press("ArrowLeft");
+    await focusDivider(page);
+    await pressDividerKey(page, "ArrowLeft", 2);
     await expectEntries(recent, twenty);
-    await terminal.getByRole("button", { name: "Close" }).click();
+    await closeSidePanel(terminal, { using: "mouse", exact: false });
     await expect(terminal).toHaveCount(0);
     await expectEntries(recent, twenty);
     const { button } = sessionsSidebarParts(page);

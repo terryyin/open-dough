@@ -1,3 +1,5 @@
+import { readFinalReportControl } from "../finalReportPages.ts";
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // The Side panel sets and clears the page's selected story, which Intent's
 // lens and CI status read (../../src/pageSidePanel.ts, ../../src/intentCiTarget.ts):
 // reading a Taken story's final report from its card selects and highlights
@@ -68,9 +70,9 @@ test("the Side panel's content selects its story for Intent's lens and CI status
   // By keyboard: beside the panel, a lower card's control can sit below the
   // page's fold, where a pointer cannot reach it without scrolling.
   const readReport = async (title: string) => {
-    await storyCardSessions(card(page, title))
-      .getByRole("button", { name: "Read final report" })
-      .focus();
+    await readFinalReportControl(storyCardSessions(card(page, title)), {
+      exact: false,
+    }).focus();
     await page.keyboard.press("Enter");
   };
   // Intent, still on CI status, as the page now selects.
@@ -112,7 +114,7 @@ test("the Side panel's content selects its story for Intent's lens and CI status
     await expectSelected(card(page, failing.title), true);
     await expectSelected(card(page, running.title), false);
     await expect(report).toContainText(running.title);
-    await report.getByRole("button", { name: "Close", exact: true }).click();
+    await closeSidePanel(report);
     await expect(report).toHaveCount(0);
     await expectSelected(card(page, failing.title), true);
     await expectSelected(card(page, running.title), false);
@@ -141,7 +143,7 @@ test("the Side panel's content selects its story for Intent's lens and CI status
   await test.step("closing that session's terminal with no story selected leaves Intent at project scope", async () => {
     await development.click();
     const terminal = terminalPanel(page);
-    await terminal.getByRole("button", { name: "Close", exact: true }).click();
+    await closeSidePanel(terminal);
     await expect(terminal).toHaveCount(0);
     await expectSelected(card(page, failing.title), false);
     await expectSelected(card(page, running.title), false);

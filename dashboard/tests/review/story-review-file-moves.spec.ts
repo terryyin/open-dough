@@ -16,8 +16,10 @@ import {
   scrollPane,
   scrollTopOf,
   shownInPane,
+  diffHeading,
+  codePane,
 } from "../support/reviewPanes.ts";
-import { treeFolder } from "../support/reviewTreeRows.ts";
+import { treeFolder, listedFile, fileDiff } from "../support/reviewTreeRows.ts";
 import { openReview } from "../support/reviewRead.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { nestedWorktree } from "../support/storyReviewWorktree.ts";
@@ -41,11 +43,11 @@ const moves = (review: Locator) => ({
 
 // The selected file: pressed in the browser, and its diff shown from the top.
 async function expectSelected(review: Locator, name: string) {
-  const row = fileBrowser(review).getByRole("button", { name, exact: true });
+  const row = listedFile(fileBrowser(review), name, { exact: true });
   await expect(row).toHaveAttribute("aria-pressed", "true");
-  const diff = review.getByRole("region", { name, exact: true });
-  await expect(diff.getByRole("heading", { level: 3 })).toHaveText(name);
-  const code = diff.locator(".story-review-code");
+  const diff = fileDiff(review, name, { exact: true });
+  await expect(diffHeading(diff, { level: 3 })).toHaveText(name);
+  const code = codePane(diff);
   if ((await code.count()) > 0) expect(await scrollTopOf(code)).toBe(0);
   return row;
 }
@@ -89,9 +91,7 @@ test("Previous file and Next file move through the browser's order", async ({
   });
 
   await test.step("Next file into a collapsed folder expands it and brings its first file into view", async () => {
-    await browser
-      .getByRole("button", { name: "Modified dashboard/src/b.ts" })
-      .click();
+    await listedFile(browser, "Modified dashboard/src/b.ts").click();
     await treeFolder(review, "docs/adrs/drafts").click();
     const folder = treeFolder(review, "docs/adrs/drafts 1 changed file");
     await expect(folder).toHaveAttribute("aria-expanded", "false");

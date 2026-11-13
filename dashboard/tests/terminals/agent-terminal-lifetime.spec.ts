@@ -14,6 +14,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test as base, expect } from "../dashboardTest.ts";
 import {
+  openTerminalControl,
   expectTerminalIdentity,
   terminalPanel,
   terminalScreenParts,
@@ -94,7 +95,7 @@ test.describe("the terminal's lifetime", () => {
 
     await launch(notRefinedStory, "Execution");
     const listed = storyCardSessions(card(notRefinedStory));
-    await listed.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalControl(listed, { exact: false }).click();
     await expect(rows).toContainText("attached ");
     const [attach] = dashboard.claudeAttaches();
     const shortId = attach?.id ?? "";

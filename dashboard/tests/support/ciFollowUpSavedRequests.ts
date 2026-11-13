@@ -3,23 +3,19 @@
 // a landing of the origin's repository that machine keeps no prior build,
 // published story or receipt of, with the provider's facts for the run each
 // names (./ciFollowUpRepeatRun.ts): what a collecting production dashboard
-// observes of requests it already spent.
-import { mkdirSync, writeFileSync } from "node:fs";
-import path from "node:path";
+// observes of requests it already spent. They are kept as every kept landing
+// is (./ciFollowUpKeptLanding.ts), alone or beside a published story's.
 import { repeatLedgerFacts } from "../../../tests/support/ciFollowUpLedgerFacts.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  followUpKey,
-  type FollowUpLedger,
-  type RepeatRequest,
-} from "../../server/ciFollowUpStore.ts";
+import type { RepeatRequest } from "../../server/ciFollowUpStore.ts";
 import { historyWallTimeMs } from "../../src/landedCiHistory.ts";
-import { machineHome } from "../machineLaunchRecords.ts";
-import { providerRepeatRun, serveRepeatRuns } from "./ciFollowUpRepeatRun.ts";
-import { followUpFile, readFollowUpLedger } from "./ciFollowUpScenario.ts";
+import { keepRepeats, type KeptRepeat } from "./ciFollowUpKeptLanding.ts";
+import { providerRepeatRun } from "./ciFollowUpRepeatRun.ts";
+import { readFollowUpLedger } from "./ciFollowUpScenario.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
 import { passedBetween } from "./landedCiTrunk.ts";
+import { expect } from "./pageTest.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 
 // One saved request: the run whose first attempt took `seconds` against an
@@ -31,68 +27,50 @@ export type SavedRepeat = {
   readonly submission: RepeatRequest["submission"];
 };
 
-// `saved` held by the origin's machine, in that order, each for a landing of
-// its own on trunk, and the provider serving each request's run as the request
-// names it, with no repeat yet: the provider's facts for one of those runs.
-export function saveRepeatRequests(
+// A landing of its own on trunk as a machine keeps it once its request is
+// spent as `facts` name, and the provider's facts for the request's run as the
+// request names it, with no repeat yet.
+export function heldRequest(facts: SavedRepeat): KeptRepeat {
+  const { landing, request } = repeatLedgerFacts({
+    ...facts,
+    repository: "terryyin/open-dough",
+    revision: facts.run.toString(16).padStart(40, "0"),
+  });
+  const { startedAt, completedAt } = request.original;
+  if (startedAt === undefined || completedAt === undefined)
+    throw new Error("A saved request's original names its bounds.");
+  const entry = makeMe.aCiFollowUpEntry
+    .with({
+      project: "open-dough",
+      revision: landing.revision,
+      target: landing.target,
+      receipts: [
+        `cccccccc-0000-4000-8000-${String(facts.run).padStart(12, "0")}`,
+      ],
+      eligible: true,
+      request,
+    })
+    .please();
+  const provider = providerRepeatRun(
+    landing.revision,
+    facts.run,
+    {
+      ...passedBetween(startedAt, completedAt),
+      workflowId: request.workflowId,
+      headBranch: "main",
+    },
+    request.originalJobs[0],
+  );
+  return { run: facts.run, entry, provider };
+}
+
+// `saved` held by the origin's machine, in that order, and the provider
+// serving each request's run: the provider's facts for one of those runs.
+export const saveRepeatRequests = async (
   origin: StartOrigin,
   github: FakeGitHub,
   saved: readonly SavedRepeat[],
-) {
-  const held = saved.map((facts) => {
-    const { landing, request } = repeatLedgerFacts({
-      ...facts,
-      repository: "terryyin/open-dough",
-      revision: facts.run.toString(16).padStart(40, "0"),
-    });
-    const { startedAt, completedAt } = request.original;
-    if (startedAt === undefined || completedAt === undefined)
-      throw new Error("A saved request's original names its bounds.");
-    const entry = makeMe.aCiFollowUpEntry
-      .with({
-        project: "open-dough",
-        revision: landing.revision,
-        target: landing.target,
-        receipts: [
-          `cccccccc-0000-4000-8000-${String(facts.run).padStart(12, "0")}`,
-        ],
-        eligible: true,
-        request,
-      })
-      .please();
-    const provider = providerRepeatRun(
-      landing.revision,
-      facts.run,
-      {
-        ...passedBetween(startedAt, completedAt),
-        workflowId: request.workflowId,
-        headBranch: "main",
-      },
-      request.originalJobs[0],
-    );
-    return { run: facts.run, entry, provider };
-  });
-  const ledger: FollowUpLedger = {
-    projects: {},
-    landings: Object.fromEntries(
-      held.map(({ entry }) => [followUpKey(entry.project, entry), entry]),
-    ),
-  };
-  const file = followUpFile({ home: machineHome(origin.machine) });
-  mkdirSync(path.dirname(file), { recursive: true });
-  writeFileSync(file, JSON.stringify(ledger));
-  serveRepeatRuns(
-    github,
-    origin,
-    held.map(({ provider }) => provider),
-  );
-  return (run: number) => {
-    const found = held.find((each) => each.run === run);
-    if (found === undefined)
-      throw new Error(`No saved request names run ${String(run)}.`);
-    return found.provider;
-  };
-}
+) => keepRepeats(origin, github, saved.map(heldRequest));
 
 // The request the machine's ledger holds for `run`, as collection left it.
 export const savedRepeatRequest = (
@@ -122,8 +100,31 @@ export function savedRepeatComparison(
   };
 }
 
-// The rerun requests the provider received.
-export const rerunRequests = (github: FakeGitHub) =>
-  github.calls.filter(
-    ({ request }) => request.kind === "actions-workflow-rerun",
+// The runs the provider was asked to rerun, in the order it was asked.
+export const rerunRuns = (github: FakeGitHub) =>
+  github.calls.flatMap(({ request }) =>
+    request.kind === "actions-workflow-rerun" ? [request.runId] : [],
   );
+
+// Waits until a whole collection pass, its reads and its spending, has ended
+// after the provider's first `after` calls. A collecting dashboard reads the
+// run of every request it still waits on once in each pass, before that pass
+// spends any receipt: the second such read of `run` belongs to a pass that
+// began once a whole pass had ended. `run` is the run of a waiting request
+// for a landing no pass can spend on (`heldRequest`, its repeat not started),
+// so a pass reads it that once whatever it spends: a pass preparing a rerun
+// request reads the run it is about to rerun again before it asks.
+export async function aWholePass(
+  github: FakeGitHub,
+  run: number,
+  after = 0,
+): Promise<void> {
+  const reads = () =>
+    github.calls
+      .slice(after)
+      .filter(
+        ({ request }) =>
+          request.kind === "actions-current-run" && request.runId === run,
+      ).length;
+  await expect.poll(reads, "a whole pass").toBeGreaterThanOrEqual(2);
+}

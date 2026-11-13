@@ -1,12 +1,16 @@
 // One test's start origin: a copy of its description's prepared origin and a
 // project checkout of it. A copy of a shared prepared origin receives the
-// description's later revisions from the project checkout.
+// description's later revisions from the project checkout, each on the
+// parents it names, as a materialized history has them.
 
 import { execFile } from "node:child_process";
 import { cpSync, mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
-import { commitDeclaredRevision } from "../../../tests/support/repository-fixture.mjs";
+import {
+  commitDeclaredRevision,
+  declaredParents,
+} from "../../../tests/support/repository-fixture.mjs";
 import {
   createStartOriginPreparationDirectory,
   dashboardDeveloper,
@@ -70,8 +74,17 @@ export async function initializeStartOrigin(
     ]);
     const later = shared ? description.revisions.slice(1) : [];
     if (later.length > 0) {
+      const commits = new Map<string, string>();
       for (const revision of later)
-        await commitDeclaredRevision(project, revision, dashboardDeveloper);
+        commits.set(
+          revision.name,
+          await commitDeclaredRevision(
+            project,
+            revision,
+            dashboardDeveloper,
+            declaredParents(revision, commits),
+          ),
+        );
       await exec("git", ["-C", project, "push", "--quiet", "origin", "main"]);
     }
   } finally {

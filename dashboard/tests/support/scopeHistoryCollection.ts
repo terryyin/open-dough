@@ -116,7 +116,8 @@ export function serveCollectedScopeFileRuns(
   );
 }
 
-// Serve actual serialized producer output through the same Actions boundary.
+// Serve each run's serialized summary through the same Actions boundary: the
+// producer's actual output, or the summary of a proof the machine keeps.
 export function serveCollectedScopeProofs(
   setup: StoryCiComparisonSetup,
   observations: readonly (readonly [

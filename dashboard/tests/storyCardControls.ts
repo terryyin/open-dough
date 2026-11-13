@@ -28,6 +28,10 @@ export async function enabledStoryCardLaunchActions(card: Locator) {
 // A card's Inspect story, by either name it holds.
 export const detailToggle = /^(?:Inspect story|Hide detail)$/;
 
+// The card's Review changes action; pressing and waiting stay with its caller.
+export const reviewChanges = (card: Locator) =>
+  card.getByRole("button", { name: "Review changes" });
+
 // A card's detail, opened unless it is already open.
 export async function inspectedDetail(card: Locator): Promise<Locator> {
   const toggle = card.getByRole("button", { name: detailToggle });

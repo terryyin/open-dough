@@ -22,7 +22,10 @@ import {
   showLatestAction,
   shownEntries,
 } from "../recentlyDoneColumn.ts";
-import { terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   recordsAsked,
   terminalOf,
@@ -79,10 +82,7 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
   await expect(revealAction(recent)).toHaveText("Show 10 of 24 older entries");
   await expect(showLatestAction(recent)).toHaveCount(0);
 
-  await view
-    .taken(destination)
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalControl(view.taken(destination), { exact: false }).click();
   await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   await showColumn(page, "Recently done");
 

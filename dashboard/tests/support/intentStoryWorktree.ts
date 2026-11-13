@@ -11,6 +11,7 @@
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import { intentSettingsText } from "./intentSettingsFile.ts";
@@ -37,24 +38,28 @@ export const intentSettings = makeMe.intentSettings
   )
   .please();
 
-// Trunk's files: Intent settings and the sources.
+// Trunk's revision: Intent settings and the sources.
+export const intentTrunkRevision = {
+  message: "intent locations and tests",
+  files: {
+    ".planning/open-dough.json": intentSettingsText(intentSettings),
+    "dashboard/tests/a.spec.ts": lines("a"),
+    "dashboard/tests/gone.spec.ts": lines("gone"),
+    "dashboard/tests/boundary/kept.spec.ts": lines("kept"),
+    "dashboard/tests/other/c.spec.ts": lines("c"),
+    "dashboard/tests/between/moved.spec.ts": lines("between"),
+    "dashboard/tests/out/leaving.spec.ts": lines("leaving"),
+    "scripts/arriving.spec.ts": lines("arriving"),
+    "tests/check.sh": lines("check"),
+    "dashboard/src/App.tsx": lines("app"),
+    "docs/notes.md": lines("notes"),
+  },
+} satisfies RevisionFacts;
+
+// Publishes that revision onto trunk from the project checkout.
 export function publishIntentTrunk(project: string) {
-  writeRevisionFiles(project, {
-    files: {
-      ".planning/open-dough.json": intentSettingsText(intentSettings),
-      "dashboard/tests/a.spec.ts": lines("a"),
-      "dashboard/tests/gone.spec.ts": lines("gone"),
-      "dashboard/tests/boundary/kept.spec.ts": lines("kept"),
-      "dashboard/tests/other/c.spec.ts": lines("c"),
-      "dashboard/tests/between/moved.spec.ts": lines("between"),
-      "dashboard/tests/out/leaving.spec.ts": lines("leaving"),
-      "scripts/arriving.spec.ts": lines("arriving"),
-      "tests/check.sh": lines("check"),
-      "dashboard/src/App.tsx": lines("app"),
-      "docs/notes.md": lines("notes"),
-    },
-  });
-  commitAll(project, "intent locations and tests");
+  writeRevisionFiles(project, intentTrunkRevision);
+  commitAll(project, intentTrunkRevision.message);
   git(project, "push", "--quiet", "origin", "main");
 }
 

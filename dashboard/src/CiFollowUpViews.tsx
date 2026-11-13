@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ciFollowUpAnswerSchema,
   ciFollowUpEndpoint,
@@ -6,71 +6,19 @@ import {
   type CiFollowUpAnswer,
 } from "./ciFollowUp.ts";
 import { localSettingRequest } from "./localSettingRequest.ts";
-import { useLocalSetting } from "./useLocalSetting.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import { executionTimeWords } from "./ciProofTimeWords.ts";
 import "./ci-follow-up.css";
 import { FollowUpLink } from "./ciFollowUpNavigation.tsx";
 
 const failure = "Automatic CI follow-up evidence could not be read.";
-async function request(
-  project: string,
-  enabled?: boolean,
-): Promise<CiFollowUpAnswer> {
+async function request(project: string): Promise<CiFollowUpAnswer> {
   return ciFollowUpAnswerSchema.parse(
     await localSettingRequest(
       `${ciFollowUpEndpoint}?id=${encodeURIComponent(project)}`,
-      enabled === undefined ? undefined : { enabled },
+      undefined,
       failure,
     ),
-  );
-}
-export function CiFollowUpSetting({ project }: { readonly project: string }) {
-  const read = useCallback(() => request(project), [project]);
-  const { value, problem, busy, change, retryRead } = useLocalSetting(
-    read,
-    failure,
-    "Automatic CI follow-up could not be updated.",
-  );
-  return (
-    <div className="ci-follow-up-setting">
-      <p>
-        Automatic CI follow-up:{" "}
-        {value === undefined ? "Loading…" : value.enabled ? "On" : "Off"}
-      </p>
-      <p className="settings-note">{value?.explanation}</p>
-      {value !== undefined && (
-        <p className="settings-note">
-          Production action machine: {value.machine}
-        </p>
-      )}
-      <p className="settings-note">
-        {provisionalRepeatRule} Enabling applies to new receipts only; disabling
-        stops new requests. Spent allowances never renew.
-      </p>
-      {value !== undefined && (
-        <button
-          type="button"
-          className="frame-button"
-          disabled={busy || (!value.available && !value.enabled)}
-          onClick={() => {
-            void change(() => request(project, !value.enabled));
-          }}
-        >
-          {value.enabled
-            ? "Disable automatic CI follow-up"
-            : "Enable automatic CI follow-up on this machine"}
-        </button>
-      )}
-      {problem !== undefined && (
-        <p role="alert">
-          {problem}{" "}
-          <button type="button" className="frame-button" onClick={retryRead}>
-            Retry follow-up settings
-          </button>
-        </p>
-      )}
-    </div>
   );
 }
 

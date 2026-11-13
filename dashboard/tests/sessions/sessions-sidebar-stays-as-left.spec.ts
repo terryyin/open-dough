@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // The Sessions sidebar stays as the developer left it. It starts closed;
 // open, it stays open across project switches, the agent roster and back, the
 // terminal opening and closing, and reloads, since this browser keeps the
@@ -7,7 +8,7 @@
 // never reached.
 
 import { expect, test } from "../dashboardTest.ts";
-import { terminalPanel } from "../terminalScreenPage.ts";
+import { openTerminalControl, terminalPanel } from "../terminalScreenPage.ts";
 import {
   chooseProject,
   storyCardSessionOf,
@@ -83,10 +84,10 @@ test.describe("the Sessions sidebar as left", () => {
       await launch(readyStory, "Execution");
       const entry = storyCardSessionOf(card(readyStory), "Execution");
       await sessionNamedBy(entry);
-      await entry.getByRole("button", { name: "Open terminal" }).click();
+      await openTerminalControl(entry, { exact: false }).click();
       await expect(panel).toBeVisible();
       await expectOpen();
-      await panel.getByRole("button", { name: "Close" }).click();
+      await closeSidePanel(panel, { using: "mouse", exact: false });
       await expect(panel).toHaveCount(0);
       await expectOpen();
     });

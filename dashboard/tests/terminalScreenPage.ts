@@ -8,6 +8,8 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import { closeSidePanel } from "./pageLayout.ts";
+import { openTerminalControl } from "./sessionEntryAccess.ts";
+export { openTerminalControl } from "./sessionEntryAccess.ts";
 
 export function terminalPanel(page: Page) {
   return page.getByRole("region", { name: "Terminal", exact: true });
@@ -72,10 +74,6 @@ export async function pressTerminalKey(page: Page, key: string) {
 export async function typeLine(page: Page, line: string) {
   await insertTerminalText(page, line);
   await pressTerminalKey(page, "Enter");
-}
-
-export function openTerminalControl(entry: Locator) {
-  return entry.getByRole("button", { name: "Open terminal", exact: true });
 }
 
 // Keyboard focus first reveals a Board column the Side panel pages out.

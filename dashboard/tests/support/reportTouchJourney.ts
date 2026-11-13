@@ -1,3 +1,4 @@
+import { readFinalReportControl } from "../finalReportPages.ts";
 // Starting preconditions only: a wrapped saved identity, its native history,
 // an unfinished completion already read, and a privately missing workspace.
 import type { Page } from "@playwright/test";
@@ -42,7 +43,7 @@ export async function openUnfinishedReport(
   await settled();
   const entry = storyCardSessions(card(notRefinedStory));
   await expect(entry).toContainText("saved workspace is missing");
-  const open = entry.getByRole("button", { name: "Read final report" });
+  const open = readFinalReportControl(entry, { exact: false });
   await open.focus();
   await page.keyboard.press("Enter");
   const panel = page.getByRole("region", { name: "Final report" });

@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Story A's review as its marking tests (../review/story-review-mark.spec.ts,
 // ../../backend-tests/review/story-review-mark-admission.spec.ts,
 // ../review/story-review-since.spec.ts, ../story-review-comparison*.spec.ts) drive
@@ -6,6 +7,8 @@
 // repository keep of a story's review mark. Story A's twelve-file worktree is
 // the one the since-the-review tests mark and change.
 
+import { changedFilesList } from "./reviewTreeRows.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
@@ -27,31 +30,18 @@ import {
   lines,
 } from "./storyReviewWorktree.ts";
 
-export const reviewRegion = (page: Page) =>
-  page.getByRole("region", { name: "Story review" });
-
-// A marked story's comparison switch.
-export const comparison = (review: Locator) =>
-  review.getByRole("radiogroup", { name: "Comparison" });
-
-// The comparison switch says the one comparison shown.
-export async function expectShown(review: Locator, shown: string) {
-  const choices = comparison(review);
-  await expect(choices.getByRole("radio", { name: shown })).toBeChecked();
-  await expect(choices.getByRole("radio", { checked: true })).toHaveCount(1);
-}
-
-// The check that leaves uncommitted changes out of all changes, among the
-// marking controls, and the line they show while it is off.
-export const uncommittedCheck = (review: Locator) =>
-  review.getByRole("checkbox", { name: "Include uncommitted changes" });
-
-// The visible label is the touch tap target for that check.
-export const uncommittedLabel = (review: Locator) =>
-  review.locator("label", { hasText: "Include uncommitted changes" });
-
-export const uncommittedLeftOut =
-  "Uncommitted changes are left out. Mark reviewed still marks the whole snapshot.";
+import { reviewRegion, reviewRefresh } from "./reviewControls.ts";
+export {
+  reviewRegion,
+  comparison,
+  comparisonChoice,
+  comparisonLabel,
+  landedRunChoice,
+  expectShown,
+  uncommittedCheck,
+  uncommittedLabel,
+  uncommittedLeftOut,
+} from "./reviewControls.ts";
 
 // The snapshot the page's next review read answers.
 export async function nextSnapshot(page: Page): Promise<TakenStoryReview> {
@@ -71,14 +61,17 @@ export async function nextSnapshot(page: Page): Promise<TakenStoryReview> {
 export async function openStoryReview(page: Page, card: Locator) {
   await expect(card).not.toContainText(/Reading [^…]*…/);
   const snapshot = nextSnapshot(page);
-  await card.getByRole("button", { name: "Review changes" }).click();
+  await reviewChanges(card).click();
   return snapshot;
 }
 
 // Refreshes the review and answers the snapshot it then shows.
-export async function refreshReview(review: Locator) {
+export async function refreshReview(
+  review: Locator,
+  options: { exact?: boolean } = {},
+) {
   const refreshed = nextSnapshot(review.page());
-  await review.getByRole("button", { name: "Refresh" }).click();
+  await reviewRefresh(review, options).click();
   return refreshed;
 }
 
@@ -89,9 +82,7 @@ export const changedPaths = (files: TakenStoryReview["files"] | undefined) =>
 // Closes the review and opens it again from the card, answering the fresh
 // snapshot it shows.
 export async function reopenStoryReview(page: Page, card: Locator) {
-  await reviewRegion(page)
-    .getByRole("button", { name: "Close", exact: true })
-    .click();
+  await closeSidePanel(reviewRegion(page));
   await expect(reviewRegion(page)).toHaveCount(0);
   return openStoryReview(page, card);
 }
@@ -223,8 +214,6 @@ export async function markedThenChanged(
   editLater(workspace, 9);
   writeFileSync(path.join(workspace, storyFile(13)), "added later\n");
   await reopenStoryReview(page, card);
-  await expect(
-    review.getByRole("list", { name: "3 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "3 changed files")).toBeVisible();
   return { workspace, card, review };
 }

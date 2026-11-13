@@ -1,4 +1,4 @@
-import { readCommandJobs } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
+import { readCommandJobs } from "../../src/skills/dough-execute-plan/scripts/ci-command-attempt.mjs";
 import { isSafeBranchName } from "../src/authenticatedReadRules.ts";
 import { shortSha } from "../src/baseCiWording.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";

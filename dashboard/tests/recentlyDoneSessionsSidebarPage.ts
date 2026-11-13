@@ -1,3 +1,4 @@
+import { sessionEntryAccessControl } from "./sessionEntryAccess.ts";
 // The Sessions sidebar's Recently done sessions section and the shared
 // three-list room its journeys observe with the open list and Running Cursor
 // sessions. Seeds use the real machine store; destinations reuse PageFrame.
@@ -40,6 +41,10 @@ export function recentlyDoneParts(page: Page) {
     name: "Recently done sessions",
   });
   const entries = region.locator("li.sessions-sidebar-session-entry");
+  const row = (title: string) =>
+    entries.filter({
+      has: page.getByRole("heading", { name: title, exact: true }),
+    });
   return {
     sidebar,
     button,
@@ -50,20 +55,49 @@ export function recentlyDoneParts(page: Page) {
     header: region.getByRole("button", { name: "Recently done sessions" }),
     list: sidebar.locator(".sessions-sidebar-sessions"),
     body: region.locator(".recently-done-sessions-body"),
+    revealOlder: () =>
+      region.locator(".recently-done-sessions-body").evaluate((element) => {
+        const body = element;
+        body.scrollTop = body.scrollHeight;
+        body.dispatchEvent(new Event("scroll", { bubbles: true }));
+      }),
     entries,
+    row,
+    reviewCue: (title: string) => sessionReviewCue(row(title)),
     // A row's Select control, named by its title, and its separate Open
     // control, named by the access it opens and described by the title.
     entry: (title: string) => region.getByRole("button", { name: title }),
     open: (title: string) =>
-      entries
-        .filter({ has: page.getByRole("button", { name: title }) })
-        .getByRole("button", { name: /^(Open terminal|Read final report)$/ }),
+      sessionEntryAccessControl(
+        entries.filter({ has: page.getByRole("button", { name: title }) }),
+        { name: /^(Open terminal|Read final report)$/, exact: false },
+      ),
     divider: sidebar.getByRole("separator", {
       name: "Recently done sessions divider",
       exact: true,
     }),
     running: runningCursorParts(page),
   };
+}
+
+const sessionReviewCue = (row: Locator) =>
+  row.getByText("Needs review", { exact: true });
+
+export async function expectSessionReviewCue(row: Locator, needed: boolean) {
+  const cue = sessionReviewCue(row);
+  if (needed) {
+    await expect(cue).toBeVisible();
+    await expect(
+      row.locator(".sessions-sidebar-session-entry-open"),
+    ).toHaveAccessibleDescription(
+      /Needs review.*not been marked reviewed on this machine/,
+    );
+  } else {
+    await expect(cue).toHaveCount(0);
+    await expect(
+      row.locator(".sessions-sidebar-session-entry-open"),
+    ).not.toHaveAccessibleDescription(/Reviewed|Needs review/);
+  }
 }
 
 // Resolves on the page's sessions read that shows `held` reopened. Only the

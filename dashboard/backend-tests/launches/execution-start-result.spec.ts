@@ -137,6 +137,9 @@ test("words every stop status the start command reports, keeping a stop's worksp
   expect(stop("source-refused", "published preparation is not-ready")).toBe(
     "The story's published source cannot be started: published preparation is not-ready. Nothing was launched.",
   );
+  expect(stop("source-refused", "published preparation is absent")).toBe(
+    "This story has no published readiness assessment. Finish and publish its readiness assessment before starting execution. Nothing was launched.",
+  );
   expect(stop("source-conflict", "x")).toBe(
     "The story's published source conflicts with origin: x. Nothing was launched.",
   );

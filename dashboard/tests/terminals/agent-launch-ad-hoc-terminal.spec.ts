@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A confirmed ad hoc launch with nothing typed opens its session in the page's
 // terminal at once, on the committed origin of ../launches/agent-launch-story-card.spec.ts (../launchJourney.ts):
 // the keyboard is in the terminal, its toolbar names the label, "Ad hoc
@@ -81,7 +82,7 @@ test("starting with nothing typed opens the session in the terminal with the key
     "true",
   );
 
-  await panel.getByRole("button", { name: "Close" }).click();
+  await closeSidePanel(panel, { using: "mouse", exact: false });
   await expect(panel).toHaveCount(0);
   await expect(button).toBeFocused();
   await expect(entry).not.toContainText("Shown in terminal");
@@ -101,7 +102,7 @@ test("a terminal the developer closed while its session started stays closed onc
   dashboard.claudeScenario("launched");
   const { release, panel, shows, sessionId, openTerminal, terminalSockets } =
     await openWhileStarting(page, launchJourney);
-  await panel.getByRole("button", { name: "Close" }).click();
+  await closeSidePanel(panel, { using: "mouse", exact: false });
   await expect(panel).toHaveCount(0);
   await expect(openTerminal).toBeFocused();
   const attachments = terminalSockets.length;
@@ -140,7 +141,7 @@ test("a terminal the developer reopened while its session started stays open, at
     openTerminal,
     terminalSockets,
   } = await openWhileStarting(page, launchJourney);
-  await panel.getByRole("button", { name: "Close" }).click();
+  await closeSidePanel(panel, { using: "mouse", exact: false });
   await expect(panel).toHaveCount(0);
   await openTerminal.click();
   await shows(`attached ${sessionId.slice(0, 8)}`);

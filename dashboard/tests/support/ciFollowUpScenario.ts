@@ -1,8 +1,10 @@
 // Real publication, receipt ingestion and collection; only provider facts are synthetic.
 import { prepareRepeatPriors } from "./ciFollowUpPriors.ts";
-import { json, providerRepeatRun } from "./ciFollowUpRepeatRun.ts";
+import { json, storyLandingRun } from "./ciFollowUpRepeatRun.ts";
 import type { CiFollowUpAnswer } from "../../src/ciFollowUp.ts";
 import type { FollowUpLedger } from "../../server/ciFollowUpStore.ts";
+import { followUpKey } from "../../server/ciFollowUpStore.ts";
+import { keepMachineDocument } from "./machineDocument.ts";
 import path from "node:path";
 import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -11,7 +13,7 @@ import type { FakeGitHub, RepositoryAnswerer } from "./fakeGitHub.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { completedPublishedStory } from "./completedPublishedStory.ts";
-import { passedFrom, trunkActions, usableProofOf } from "./landedCiTrunk.ts";
+import { trunkActions, usableProofOf } from "./landedCiTrunk.ts";
 import { commonGitDir, git } from "./launchLanding.ts";
 import { keepMoreLaunchRecords } from "./launchStore.ts";
 import { postLanding } from "./startSessionLandingCapture.ts";
@@ -23,21 +25,26 @@ export const followUpFile = (server: Pick<DashboardServer, "home">) =>
   path.join(server.home, ".open-dough/dashboard/ci-follow-up.json");
 export const readFollowUpLedger = (server: Pick<DashboardServer, "home">) =>
   JSON.parse(readFileSync(followUpFile(server), "utf8")) as FollowUpLedger;
-export async function followUpSettings(
-  server: DashboardServer,
-  enabled?: boolean,
+
+// The machine's follow-up ledger holding exactly `entries`, kept through the
+// atomic machine-document boundary its running dashboard's writers use.
+export async function keepFollowUpEntries(
+  server: Pick<DashboardServer, "home">,
+  entries: readonly FollowUpLedger["landings"][string][],
 ) {
+  await keepMachineDocument(followUpFile(server), {
+    landings: Object.fromEntries(
+      entries.map((entry) => [followUpKey(entry.project, entry), entry]),
+    ),
+  });
+}
+// The Recently done cards this dashboard reads for the project's follow-ups.
+export async function followUpCards(server: DashboardServer) {
   const response = await rawRequest({
     url: `${server.origin}/__project-configuration/ci-follow-up?id=open-dough`,
-    headers: { Origin: server.origin, "Content-Type": "application/json" },
-    ...(enabled === undefined
-      ? {}
-      : { method: "POST", body: JSON.stringify({ enabled }) }),
+    headers: { Origin: server.origin },
   });
-  return {
-    status: response.status,
-    body: JSON.parse(response.body) as CiFollowUpAnswer,
-  };
+  return (JSON.parse(response.body) as CiFollowUpAnswer).cards;
 }
 
 export async function prepareRepeatScenario(
@@ -56,14 +63,8 @@ export async function prepareRepeatScenario(
     undefined,
     { interleaved: false, retainWorkspace: true },
   );
-  const provider = providerRepeatRun(story.completion, 71, {
-    ...passedFrom("2026-11-10T06:00:00.000Z", seconds * 1000),
-    workflowId: 7001,
-    url: "https://github.com/terryyin/open-dough/actions/runs/71",
-    headBranch: "main",
-  });
+  const provider = storyLandingRun(story.completion, 71, seconds);
   const original = provider.original;
-  let submissionStatus = 201;
   let hold: (() => Promise<void>) | undefined;
   const repeatCalls: number[] = [];
   let fallback: RepositoryAnswerer | undefined;
@@ -72,7 +73,7 @@ export async function prepareRepeatScenario(
     if (request.kind === "actions-workflow-rerun") {
       repeatCalls.push(request.runId);
       await hold?.();
-      return json({}, submissionStatus);
+      return json({}, 201);
     }
     const exact = provider.answer(request);
     if (exact !== undefined) return exact;
@@ -106,16 +107,10 @@ export async function prepareRepeatScenario(
     setRepeat: provider.setRepeat,
     originalJobsAvailable: provider.originalJobsAvailable,
     repeatProofAvailable: provider.repeatProofAvailable,
-    refuse(status: number) {
-      submissionStatus = status;
-    },
     holdSubmission(until: () => Promise<void>) {
       hold = until;
     },
-    async ingest(
-      server: DashboardServer,
-      { prepareOnly = false, identity = queuedIdentity } = {},
-    ) {
+    async ingest(server: DashboardServer, { identity = queuedIdentity } = {}) {
       const reference = "11111111-0000-4000-8000-000000000071";
       const reporting = {
         origin: server.origin,
@@ -156,7 +151,6 @@ export async function prepareRepeatScenario(
         .please();
       const prepared = await postLanding(server, submission);
       expect(prepared.status, prepared.body).toBe(200);
-      if (prepareOnly) return submission;
       const accepted = await postLanding(server, submission, false);
       expect(accepted.status, accepted.body).toBe(200);
       return submission;

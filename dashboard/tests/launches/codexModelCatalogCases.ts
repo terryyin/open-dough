@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Catalog interaction cases registered by agent-launch-codex-model.spec.ts.
 // None starts installed work, so each reads the worker's launch journey.
 import { existsSync } from "node:fs";
@@ -109,9 +110,7 @@ test("a vanished explicit model is explained; deliberate default and former dyna
         : undefined,
     )
     .toBe("not-requested");
-  await terminalPanel(page)
-    .getByRole("button", { name: "Close", exact: true })
-    .click();
+  await closeSidePanel(terminalPanel(page));
   expect(stored(dashboard.home)[0]?.request).not.toHaveProperty("model");
   codexProtocol.models = [dynamic];
   codexProtocol.threadId = "dynamic-model-thread";

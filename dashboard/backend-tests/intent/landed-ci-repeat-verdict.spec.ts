@@ -2,9 +2,12 @@
 // They are read from saved accepted requests, which real collection observes
 // with no journey.
 import { historyWallTimeMs } from "../../src/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import {
-  rerunRequests,
+  expect,
+  queuedClaudeBoundaryTest as test,
+} from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  rerunRuns,
   saveRepeatRequests,
   savedRepeatComparison,
   savedRepeatRequest,
@@ -35,7 +38,7 @@ test("saved accepted requests never invent a failure or a success from an absent
   ] as const;
   const named = (verdict: string | null | undefined) =>
     `conclusion ${verdict === undefined ? "absent" : String(verdict)}`;
-  const provider = saveRepeatRequests(
+  const provider = await saveRepeatRequests(
     origin,
     github,
     repeats.map(({ run }) => ({ run, ...accepted })),
@@ -79,5 +82,5 @@ test("saved accepted requests never invent a failure or a success from an absent
       decided,
     ).toBe(106000);
   }
-  expect(rerunRequests(github)).toEqual([]);
+  expect(rerunRuns(github)).toEqual([]);
 });

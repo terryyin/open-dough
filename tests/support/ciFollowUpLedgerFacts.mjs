@@ -41,6 +41,7 @@ export function repeatLedgerFacts({
   const original = history.builds[`run/${String(run)}/1`];
   const request = makeMe.aCiRepeatRequest
     .with({
+      provider: "github",
       repository,
       workflow: "ci.yml",
       workflowId: 7,
@@ -70,5 +71,7 @@ export function repeatLedgerFacts({
       outcome: { kind: "unverified", explanation: submission.kind },
     })
     .please();
+  if (request.provider !== "github")
+    throw new Error("GitHub ledger facts require a GitHub request");
   return { project: "project", landing, request };
 }

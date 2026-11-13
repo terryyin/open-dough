@@ -1,3 +1,5 @@
+import { readFinalReportControl } from "../finalReportPages.ts";
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // The project row's Start session offers where the session runs (Workspace)
 // beside After checks, with the story dialogs' words and no Tracking. With a
 // real bare origin (../support/startOrigin.ts), the installed start recorded
@@ -169,12 +171,12 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   await expect(terminal).toContainText(text);
   await expect(terminal).toContainText("Ad hoc session");
   await expect(terminal).not.toContainText(".worktrees");
-  await terminal.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(terminal);
   rmSync(session.workspace, { recursive: true });
   await page.reload();
   const kept = parts(page).taken.locator(".session-entry");
   await expect(kept).toContainText("saved workspace is missing");
-  await kept.getByRole("button", { name: "Read final report" }).click();
+  await readFinalReportControl(kept, { exact: false }).click();
   await expect(
     page.getByRole("region", { name: "Final report" }),
   ).toContainText(`Saved workspace ${session.workspace}`);

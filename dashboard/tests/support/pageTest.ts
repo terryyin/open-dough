@@ -34,30 +34,39 @@ import type { ComparisonRenderer } from "./comparisonRendering.ts";
 import type { LaunchJourney } from "../launchJourney.ts";
 import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
 import { endDescendantsAtExit } from "./processGroup.ts";
+import type { StartRepository } from "./startOriginPreparation.ts";
 
 export { expect } from "@playwright/test";
 
 // No process a test started outlives its worker (./processGroup.ts).
 endDescendantsAtExit();
 
-async function preparePreviewInputs(host?: "claude" | "codex") {
-  const [artifacts, origins, app, server] = await Promise.all([
+// Requests what a worker's servers start from, so the first test waits for
+// none of it in its own time: the host's queued origin when it has one, the
+// server bundle, and the app build unless only boundary servers start.
+// Cold shared preparation has its own bounded worker lifetime. It can outlast
+// a case's default 30 seconds without extending any case or hook timeout.
+const serverInputPreparation = { scope: "worker", timeout: 60_000 } as const;
+
+async function prepareServerInputs(
+  host: "claude" | "codex" | undefined,
+  serverMode: "preview" | "boundary",
+) {
+  const [artifacts, origins, app, bundle] = await Promise.all([
     import("./runArtifacts.ts"),
     import("./startOriginPreparation.ts"),
     import("./dashboardBuild.ts"),
     import("./serverBundle.ts"),
   ]);
-  await Promise.all([
-    ...(host === undefined
-      ? []
-      : [
-          artifacts.requestRunArtifact(
-            origins.startOriginArtifactKey(host, "queued"),
-          ),
-        ]),
-    artifacts.requestRunArtifact(app.dashboardAppArtifactKey),
-    artifacts.requestRunArtifact(server.serverBundleArtifactKey),
-  ]);
+  await Promise.all(
+    [
+      ...(host === undefined
+        ? []
+        : [origins.startOriginArtifactKey(host, "queued")]),
+      ...(serverMode === "preview" ? [app.dashboardAppArtifactKey] : []),
+      bundle.serverBundleArtifactKey,
+    ].map((key) => artifacts.requestRunArtifact(key)),
+  );
 }
 
 // Playwright's worker-only extension takes an empty test-fixture type.
@@ -69,18 +78,22 @@ export const test = base.extend<
     dashboardPreviewReady: undefined;
     queuedCodexOriginReady: undefined;
     queuedClaudePreviewReady: undefined;
+    queuedClaudeBoundaryReady: undefined;
     queuedCodexPreviewReady: undefined;
     publishedApplicationSourceReady: undefined;
+    keptStory: StartRepository;
+    keptIntentStory: StartRepository;
+    keptSummaryComparisonStory: StartRepository;
   }
 >({
   // Reading-only previews need the app and boundaries, with no installed origin.
   dashboardPreviewReady: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
-      await preparePreviewInputs();
+      await prepareServerInputs(undefined, "preview");
       await use(undefined);
     },
-    { scope: "worker" },
+    serverInputPreparation,
   ],
   // Only readers of the real published app request this immutable source.
   // Its cold preparation stays in run elapsed, within the default worker budget.
@@ -103,18 +116,27 @@ export const test = base.extend<
   queuedClaudePreviewReady: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
-      await preparePreviewInputs("claude");
+      await prepareServerInputs("claude", "preview");
       await use(undefined);
     },
-    { scope: "worker" },
+    serverInputPreparation,
+  ],
+  // Boundary servers on the queued Claude origin open no app.
+  queuedClaudeBoundaryReady: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      await prepareServerInputs("claude", "boundary");
+      await use(undefined);
+    },
+    serverInputPreparation,
   ],
   queuedCodexPreviewReady: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
-      await preparePreviewInputs("codex");
+      await prepareServerInputs("codex", "preview");
       await use(undefined);
     },
-    { scope: "worker" },
+    serverInputPreparation,
   ],
   // Requested only by native readers that need this installed queued input.
   // Its setup has the worker's default budget, before a reading test starts.
@@ -128,6 +150,35 @@ export const test = base.extend<
         ]);
       await requestRunArtifact(startOriginArtifactKey("codex", "queued"));
       await use(undefined);
+    },
+    { scope: "worker" },
+  ],
+  // Story A published as completed and kept (./keptPublishedStory.ts), on the
+  // queued trunk, on Intent's and on the summary comparison's: the worker
+  // that takes one prepares it before its first such case and answers the
+  // description those cases' origins start from, so none publishes the story
+  // in its own time.
+  keptStory: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const { prepareKeptStory } = await import("./keptPublishedStory.ts");
+      await use(await prepareKeptStory("queued"));
+    },
+    { scope: "worker" },
+  ],
+  keptIntentStory: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const { prepareKeptStory } = await import("./keptPublishedStory.ts");
+      await use(await prepareKeptStory("intent"));
+    },
+    { scope: "worker" },
+  ],
+  keptSummaryComparisonStory: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const { prepareKeptStory } = await import("./keptPublishedStory.ts");
+      await use(await prepareKeptStory("summary comparison"));
     },
     { scope: "worker" },
   ],

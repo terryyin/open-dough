@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Mark reviewed marks Story A's shown snapshot (../support/storyReviewWorktree.ts)
 // with a time; later work stays unmarked. Its ref survives Git housekeeping and
 // restart, when reopening compares with it; worktree index/status stay unchanged.
@@ -5,6 +6,7 @@
 // story's mark/ref. Mark requests naming paths, malformed objects, or missing
 // objects are in ../../backend-tests/review/story-review-mark-admission.spec.ts.
 
+import { changedFilesList } from "../support/reviewTreeRows.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { parts } from "../dashboardPage.ts";
@@ -25,7 +27,7 @@ import {
   keptReviewMarks,
   keptStoryAMark,
   markReviewed,
-  nextSnapshot,
+  refreshReview,
   openStoryReview,
   reviewedRefs,
   reviewRegion,
@@ -53,9 +55,7 @@ test("Mark reviewed marks the snapshot shown, which outlives Git's housekeeping,
   const card = await openBacklog(page, origin);
   const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);
-  await expect(
-    review.getByRole("list", { name: "7 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "7 changed files")).toBeVisible();
   await expect(review.locator("time")).toHaveCount(0);
 
   // The agent writes after the snapshot; nothing refreshes it.
@@ -146,7 +146,7 @@ test("opening, closing, refreshing, and replacing a review marks nothing", async
 
   await openStoryReview(page, cardA);
   await unmarked();
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   await expect(review).toHaveCount(0);
   await openStoryReview(page, cardA);
   await unmarked();
@@ -176,14 +176,10 @@ test("marking again replaces the story's one mark and its ref", async ({
   await markReviewed(review);
 
   writeFileSync(path.join(workspace, "later.txt"), "later\n");
-  const refreshed = nextSnapshot(page);
-  await review.getByRole("button", { name: "Refresh" }).click();
-  const second = await refreshed;
+  const second = await refreshReview(review);
   expect(second.tree).not.toBe(first.tree);
   // The refreshed review compares with the first mark.
-  await expect(
-    review.getByRole("list", { name: "1 changed file" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "1 changed file")).toBeVisible();
   await expect(review).toContainText("From the snapshot marked reviewed");
 
   await markReviewed(review);

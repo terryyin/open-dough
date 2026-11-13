@@ -1,14 +1,17 @@
 // The provider's facts for one original run and its repeat, as GitHub answers
 // the dashboard's exact reads of that run: the run as it stands, each attempt,
-// each attempt's jobs, and the CI proof of the attempt it stands at. The
-// journey scenario (./ciFollowUpScenario.ts) states the run it admits, and
-// saved requests (./ciFollowUpSavedRequests.ts) the runs they name.
+// each attempt's jobs, and the CI proof of the attempt it stands at; and its
+// reply to a request to rerun that run. The journey scenario
+// (./ciFollowUpScenario.ts) states the run it admits, saved requests
+// (./ciFollowUpSavedRequests.ts) the runs they name, and a kept landing
+// (./ciFollowUpKeptLanding.ts) the run of its landed revision.
 import { apiJob } from "../../../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import type { KeptBuild } from "../../server/landedCiObservation.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import type { CiRunAnswer } from "./baseCiActions.ts";
 import { providerVerdict } from "./ciFollowUpProviderVerdict.ts";
-import type { FakeGitHub } from "./fakeGitHub.ts";
+import type { FakeGitHub, RepositoryAnswerer } from "./fakeGitHub.ts";
 import type { GhRequest } from "./ghRequest.ts";
 import {
   passedFrom,
@@ -52,8 +55,11 @@ export function providerRepeatRun(
   let full = true;
   let originalJobsReadable = true;
   let repeatProofReadable = true;
+  let rerunReply = 201;
   return {
     original,
+    // The first attempt's one job.
+    job,
     // The attempt the run stands at.
     latest: () => current,
     setRepeat: (facts: RepeatFacts) => {
@@ -75,9 +81,16 @@ export function providerRepeatRun(
     repeatProofAvailable: (available: boolean) => {
       repeatProofReadable = available;
     },
-    // GitHub's answer to an exact read of this run, undefined for any other
-    // request.
+    // The HTTP status GitHub answers a request to rerun this run with: it
+    // accepts (201) unless the case states a refusal or a failure.
+    replyToRerun: (status: number) => {
+      rerunReply = status;
+    },
+    // GitHub's answer to an exact read of this run or a request to rerun it,
+    // undefined for any other request.
     answer: (request: GhRequest): OriginAnswer | undefined => {
+      if (request.kind === "actions-workflow-rerun" && request.runId === id)
+        return json({}, rerunReply);
       if (request.kind === "actions-current-run" && request.runId === id)
         return json(verdict.of(current));
       if (request.kind === "actions-run-attempt" && request.runId === id)
@@ -117,15 +130,60 @@ export function providerRepeatRun(
   };
 }
 
-// `runs` as GitHub answers the origin's repository: each run's exact reads as
-// its facts stand, then trunk's Actions with those runs and their CI proof,
-// and the origin's `main` as published.
+// The build a machine keeps of `attempt`, a passed attempt of a run on `main`
+// as the provider has it, with the CI `proof` kept of it.
+export function keptAttempt(attempt: CiRunAnswer, proof: KeptBuild["proof"]) {
+  const { id, startedAt, completedAt } = attempt;
+  if (id === undefined || startedAt === undefined || completedAt === undefined)
+    throw new Error("A kept attempt names its run and bounds.");
+  return makeMe.aKeptBuild
+    .with({
+      revision: attempt.headSha,
+      state: "pass",
+      ...(attempt.url === undefined ? {} : { runUrl: attempt.url }),
+      runId: id,
+      runAttempt: attempt.attempt ?? 1,
+      runBranch: "main",
+      startedAt,
+      completedAt,
+      timingBasis: "attempt-start",
+      proof,
+      proofPending: false,
+    })
+    .please();
+}
+
+// The run that measured a story's landing at `revision` on `main`: workflow
+// 7001's run `id`, whose first attempt passed in `seconds`.
+export const storyLandingRun = (
+  revision: string,
+  id: number,
+  seconds: number,
+) =>
+  providerRepeatRun(revision, id, {
+    ...passedFrom("2026-11-10T06:00:00.000Z", seconds * 1000),
+    workflowId: 7001,
+    url: `https://github.com/terryyin/open-dough/actions/runs/${String(id)}`,
+    headBranch: "main",
+  });
+
+// What answers a request that no run and no read of trunk's Actions answers:
+// the origin's `main` as published, or whatever answered the repository until
+// now, as a page's committed origin (../committedOrigin.ts) keeps answering
+// the page's own reads beneath the provider.
+export type OtherAnswers = "published main" | "as served before";
+
+// `runs` as GitHub answers the origin's repository from now on: each run's
+// exact reads as its facts stand, then trunk's Actions with those runs and
+// their CI proof, and `otherwise` for the rest.
 export function serveRepeatRuns(
   github: FakeGitHub,
   origin: StartOrigin,
   runs: readonly ReturnType<typeof providerRepeatRun>[],
+  otherwise: OtherAnswers = "published main",
 ): void {
-  github.serve("terryyin/open-dough", async (call) => {
+  let before: RepositoryAnswerer | undefined;
+  const replaced = github.serve("terryyin/open-dough", async (call) => {
     const exact = runs
       .map((run) => run.answer(call.request))
       .find((answer) => answer !== undefined);
@@ -137,7 +195,8 @@ export function serveRepeatRuns(
     const latest = runs.map((run) => run.latest());
     return (
       trunkActions(latest, proofs)(call.argv, main) ??
-      publishes({ revision: main })(call)
+      (before ?? publishes({ revision: main }))(call)
     );
   });
+  if (otherwise === "as served before") before = replaced;
 }
