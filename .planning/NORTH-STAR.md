@@ -112,8 +112,11 @@ parallel ones:
   selection; cards, Recently done, and the Sessions sidebar
   each derive their view by project and identity from it. Actions on one
   session (attach, stop, Mark as done) still run in its project's folder.
-  Published observation stays one project at a time; later hosts join the
-  same read through their own module.
+  The Board's published work view observes one selected project at a time.
+  Shown Recently done rows' bounded completed-story link observations and
+  shared machine-local review cues now follow the maintained
+  [session history contract](../dashboard/AGENT-LAUNCH-HISTORY.md).
+  Later hosts join the same session read through their own module.
 
 Each host normalizes its native activity; common presentation owns its user
 meaning. Saved conversation existence, current native activity and the

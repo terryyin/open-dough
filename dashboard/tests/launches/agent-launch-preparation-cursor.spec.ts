@@ -19,6 +19,7 @@ import { launchWaitMs } from "../support/launchWait.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { openTerminalControl } from "../terminalScreenPage.ts";
+import { credit } from "../agentCredit.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 const instruction = "Focus on the examples.";
@@ -209,7 +210,7 @@ test("a queued story starts Cursor refinement and the published assignment is wh
   await expect(
     parts(page).taken.getByRole("article", { name: "Story A", exact: true }),
   ).toHaveCount(0);
-  await expect(prepared.locator(".preparing-activity")).toHaveText("Preparing");
+  await expect(credit(prepared).activity).toHaveText("Preparing");
   await expectStartNote(prepared, "Start refinement", "Being prepared");
   await expect(
     prepared.getByRole("article", { name: "Refinement session" }),

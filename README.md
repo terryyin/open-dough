@@ -113,6 +113,10 @@ See [Installation and updates](docs/installation-and-updates.md) for the exact
 client payload, shared installation procedure, updater safety contract,
 legacy bootstrap path, and contributor checks.
 
+If you enable `makeMe` or `pageObjects` in your project, follow the
+[adoption instructions](docs/installation-and-updates.md#adopt-makeme-or-page-objects)
+to copy the test rule into your `AGENTS.md`.
+
 ## Distribution
 
 The initial distribution channel is the [Open Dough GitHub repository](https://github.com/terryyin/open-dough). The intention is to let projects install and update directly from GitHub without requiring publication to a package registry such as npm.

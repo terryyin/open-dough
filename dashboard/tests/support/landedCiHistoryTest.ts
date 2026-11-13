@@ -66,3 +66,15 @@ export const test = base.extend<{
     await Promise.all(started.map((server) => server.close()));
   },
 });
+
+// Cases whose worker prepares the queued Claude origin and the server bundle
+// before they start (./pageTest.ts), so none waits for them in its own time.
+export const queuedClaudeBoundaryTest = test.extend({
+  originRepository: async (
+    { queuedClaudeBoundaryReady, originRepository },
+    use,
+  ) => {
+    await Promise.resolve(queuedClaudeBoundaryReady);
+    await use(originRepository);
+  },
+});

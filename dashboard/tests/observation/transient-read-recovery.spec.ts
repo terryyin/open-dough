@@ -196,17 +196,9 @@ test("a stalled read at the wait bound recovers on its own without a reload", as
 
   await test.step("the late first answer publishes nothing; the next read is asked after settlement", async () => {
     const failed = await failedAt(page);
-    const recoversAt = failed + 15_000;
-    expect(
-      Date.parse(
-        (await problem
-          .locator("p", { hasText: transientRecovery })
-          .locator("time")
-          .getAttribute("datetime")) ?? "",
-      ),
-    ).toBe(recoversAt);
+    await expectRecoversAfter(page, failed, 15);
     releaseRef();
-    const remaining = recoversAt - (await page.evaluate(() => Date.now()));
+    const remaining = failed + 15_000 - (await page.evaluate(() => Date.now()));
     await page.clock.runFor(Math.max(0, remaining - 1_000));
     expect(pathsRead(origin)).toEqual(["main"]);
     expect(headsChecks(githubFor(page).calls)).toEqual([]);

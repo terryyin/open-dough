@@ -7,8 +7,11 @@
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { pausePageClock } from "../autoRefreshJourney.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
+import { parts } from "../dashboardPage.ts";
 import { expectCueEnds, expectDestinationCue } from "../destinationCue.ts";
 import { expectInspected, expectSelected } from "../storyCardSelection.ts";
+import { storyCard } from "../storyCardControls.ts";
+import { expectRoute } from "../agentRosterRecords.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { originMain } from "../support/sessionDialog.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
@@ -38,7 +41,7 @@ test("asking again for the selected, inspected and reviewed destination cues it 
   });
   await pausePageClock(page);
   await page.goto(storyUrl);
-  const card = page.getByRole("article", { name: "Story A", exact: true });
+  const card = storyCard(parts(page).board, "Story A");
   await expect(card).toBeFocused();
   await expectDestinationCue(page, card, { motion: true });
   await expectCueEnds(page, card);
@@ -67,7 +70,7 @@ test("asking again for the selected, inspected and reviewed destination cues it 
   ];
   for (const askAgain of askedAgain) {
     await askAgain();
-    expect(new URL(page.url()).searchParams.get("story")).toBe(queuedIdentity);
+    expectRoute(page, { story: queuedIdentity });
     await expect(card).toBeFocused();
     await expectDestinationCue(page, card, { motion: true });
     await expectSelected(card, true);

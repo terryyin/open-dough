@@ -1,6 +1,6 @@
 // Only published files and delayed external reads: the preview page owns the
 // route, membership resolution, focus, and reveal.
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { describedBacklog } from "./describedRevisions.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
@@ -14,6 +14,35 @@ export const targetRevision = "ba".repeat(20);
 
 export const storyUrl = (project = "doughnut", story = notifiedIdentity) =>
   `/?${new URLSearchParams({ project, story })}`;
+
+// The notified story's card, by Doughnut's title for it.
+export const notifiedCard = (page: Page) =>
+  page.getByRole("article", { name: notifiedTitle, exact: true });
+
+// What the page says of a story destination it cannot show yet or at all.
+export const storyDestination = (page: Page) =>
+  page.getByRole("region", { name: "Story destination" });
+
+// The reader arrived at the card: it holds the keyboard and is wholly in the
+// window, but for rounding.
+export async function expectArrivedAt(card: Locator) {
+  await expect(card).toBeFocused();
+  await expect(card).toBeInViewport({ ratio: 0.99 });
+}
+
+// The keyboard is on the card or on one of its controls.
+export async function expectKeyboardWithin(card: Locator) {
+  await expect
+    .poll(() =>
+      card.evaluate((element) => element.contains(document.activeElement)),
+    )
+    .toBe(true);
+}
+
+// No story card holds the keyboard.
+export async function expectNoCardFocused(page: Page) {
+  expect(await page.locator("[data-story-card]:focus").count()).toBe(0);
+}
 
 // The notified identity, as each project records it with its own title.
 const sharedIdentity = (title: string) =>

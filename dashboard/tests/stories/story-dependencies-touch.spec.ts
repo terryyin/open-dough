@@ -9,6 +9,9 @@ import {
   tapWhereShown,
 } from "../pageLayout.ts";
 import { reason, condition, decision } from "../storyDependencyFixture.ts";
+import { dependencyList, dependencySummary } from "../storyReference.ts";
+import { canonicalRecord, storyCard } from "../storyCardControls.ts";
+import { expectBadges } from "../storyCardFacts.ts";
 
 // Story A waits on Story B and needs a decision about Story C, and is not
 // ready for an unrelated reason.
@@ -38,22 +41,17 @@ test("touch inspection reads dependency, readiness and Start limitations without
     repository: "terryyin/open-dough",
   });
   await openUntilRead(page);
-  const card = parts(page).backlog.getByRole("article", {
-    name: consumer.title,
-    exact: true,
-  });
+  const card = storyCard(parts(page).backlog, consumer.title);
   const execution = card.getByRole("button", { name: "Start execution" });
   await expect(execution).toBeDisabled();
-  await expect(
-    card.getByText("Not assessed as ready", { exact: true }),
-  ).toBeVisible();
+  await expectBadges(card, { shown: ["Not assessed as ready"] });
   await expect(card.locator(".dependency-start-reason")).toContainText(
     "2 blocking dependencies",
   );
-  const summary = card.locator(".story-dependencies summary");
+  const summary = dependencySummary(card);
   await summary.scrollIntoViewIfNeeded();
   await tapWhereShown(summary);
-  const dependencies = card.getByRole("list", { name: "Story dependencies" });
+  const dependencies = dependencyList(card);
   for (const explanation of [reason, condition, decision]) {
     const text = dependencies.getByText(explanation, { exact: false }).first();
     await text.scrollIntoViewIfNeeded();
@@ -69,9 +67,7 @@ test("touch inspection reads dependency, readiness and Start limitations without
   );
   await readiness.scrollIntoViewIfNeeded();
   await expect(readiness).toBeInViewport({ ratio: 1 });
-  await expect(
-    detail.getByRole("link", { name: /^Canonical record/ }),
-  ).toHaveAttribute(
+  await expect(canonicalRecord(detail)).toHaveAttribute(
     "href",
     `https://github.com/terryyin/open-dough/blob/${revision}/.planning/seeds/A.md#a`,
   );

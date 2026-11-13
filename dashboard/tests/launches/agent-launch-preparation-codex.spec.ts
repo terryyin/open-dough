@@ -5,7 +5,7 @@ import path from "node:path";
 import { keptStarts, launch, launchRequest } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expectCodexRetryProgress } from "../support/codexRetryPage.ts";
-import { expectSettledPage, parts } from "../dashboardPage.ts";
+import { parts } from "../dashboardPage.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import { expectStartNote } from "../storyCardControls.ts";
 import {
@@ -21,10 +21,7 @@ import {
 } from "../support/dashboardServer.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
 import type { EstablishedPreparation } from "../../src/agentLaunch.ts";
-import {
-  reloadUntilRead,
-  untilPageRequestsAnswered,
-} from "../pageRequestNotes.ts";
+import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 
@@ -66,7 +63,6 @@ test("Codex refusal retains its published preparation; the page resumes the same
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   const attemptId = await acceptance;
   await settledOutcome(dashboard, attemptId);
-  await untilPageRequestsAnswered(page);
   await expect(card.locator(".launch-problem")).toContainText(
     "Codex refused to create a conversation",
   );
@@ -132,7 +128,9 @@ test("Codex refusal retains its published preparation; the page resumes the same
   });
   try {
     await reloadUntilRead(page);
-    await expectSettledPage(page);
+    await expect(
+      card.getByText("Ready for execution", { exact: true }),
+    ).toBeVisible();
     await expectStartNote(
       card,
       "Start refinement",
@@ -196,7 +194,6 @@ test("Codex refusal retains its published preparation; the page resumes the same
     native.release();
     await observer.close();
     await settledOutcome(restarted, retryAttemptId);
-    await untilPageRequestsAnswered(page);
     await expect(card.getByRole("list", { name: "Sessions" })).toContainText(
       "Refinement started in Codex",
     );

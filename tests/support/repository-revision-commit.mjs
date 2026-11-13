@@ -36,6 +36,22 @@ export async function configureIdentity(
 }
 
 /**
+ * The commits of the parents `revision` names, each an earlier revision of
+ * `commits` (revision name to commit), or undefined when it names none.
+ * @param {{ name: string; parents?: readonly string[] }} revision
+ * @param {ReadonlyMap<string, string>} commits
+ * @returns {string[] | undefined}
+ */
+export function declaredParents(revision, commits) {
+  return revision.parents?.map((parent) => {
+    const commit = commits.get(parent);
+    if (!commit)
+      throw new Error(`Unknown parent ${parent} for ${revision.name}`);
+    return commit;
+  });
+}
+
+/**
  * Write a declared revision's files in a checkout and commit them: the
  * committer named, or else the checkout's identity; the author named, or else
  * the committer; the message given, or else the revision's name.

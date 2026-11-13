@@ -12,8 +12,7 @@ import {
 } from "../support/preparationPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
-import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
-import { openSessionsSidebar } from "../sessionsSidebarPage.ts";
+import { showRecentlyDone } from "../recentlyDoneSessionsSidebarPage.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { completedStoryAssociationEndpoint } from "../../src/completedStoryAssociation.ts";
 import { retainAdHocCompletedStory } from "../support/adHocCompletedAssociation.ts";
@@ -79,12 +78,8 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
   await page.goto("/?perspective=intent");
   const { intentChoice, intent } = parts(page);
   await expect(intentChoice).toBeChecked();
-  await openSessionsSidebar(page);
-  const shown = recentlyDoneParts(page);
-  await shown.header.click();
-  const row = shown.entries.filter({
-    has: page.getByRole("heading", { name: sessionTitle }),
-  });
+  const shown = await showRecentlyDone(page);
+  const row = shown.row(sessionTitle);
   const { reportText } = finalReportParts(page);
 
   await test.step("Open a report in the Side panel before selecting the ad hoc row", async () => {
@@ -194,9 +189,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
     keepLaunchRecords(dashboard, [linked.record, reported, alone]);
     await page.reload();
     await expect(intentChoice).toBeChecked();
-    await openSessionsSidebar(page);
-    const after = recentlyDoneParts(page);
-    await after.header.click();
+    const after = await showRecentlyDone(page);
     await expect(after.select(sessionTitle)).toBeVisible();
     await expect(after.entries).toHaveCount(3);
     await after.select(sessionTitle).click();

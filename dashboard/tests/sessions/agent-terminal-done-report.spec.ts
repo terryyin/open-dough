@@ -18,7 +18,10 @@ import {
   sessionUnreadReportOf,
 } from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  sessionsSidebarParts,
+  unreadSessionReport,
+} from "../sessionsSidebarPage.ts";
 import {
   openTerminalControl,
   terminalPanel,
@@ -65,7 +68,7 @@ test("Mark as done in the terminal closes a session with an unread report as any
     .sidebar.getByRole("listitem")
     .filter({ hasText: titleA });
   await expect(sessionUnreadReportOf(card)).toHaveText(unreadWords);
-  await expect(row.getByRole("img", { name: unreadWords })).toBeVisible();
+  await expect(unreadSessionReport(row, unreadWords)).toBeVisible();
   const doneName = doneNameOf(dashboard, sessionId);
   const shortId = shortIdOf(dashboard, sessionId);
   await openTerminalControl(card).click();

@@ -13,17 +13,15 @@ import {
   doneRecordFileName,
   renderDoneRecord,
 } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { rem } from "../boardPage.ts";
-import { expectEntries } from "../recentlyDoneColumn.ts";
+import { expectEntries, revealAction } from "../recentlyDoneColumn.ts";
 import { noConnection } from "../originAnswers.ts";
 import { doneDirectory } from "../recentlyDoneProgressive.ts";
 import {
   isRecord,
   opened,
-  revealAction,
-  settle,
+  untilPageRests,
 } from "../recentlyDoneProgressivePage.ts";
 import { entries, entryAt, names } from "../recentlyDoneProgressiveJourney.ts";
 import {
@@ -35,6 +33,7 @@ import {
   refreshedTo,
 } from "../recentlyDoneRefresh.ts";
 import { answeringFirst } from "../support/heldGitHubAnswer.ts";
+import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -137,10 +136,10 @@ test("a newer revision asks once again for the failed records still shown, not f
     await expect(retry).toBeVisible();
     await expect(failed).toContainText("This done story could not be read.");
     const before = demanded.count();
-    await page.clock.fastForward(checkIntervalMs);
-    await settle(page);
-    await page.clock.fastForward(checkIntervalMs);
-    await settle(page);
+    await passTimeUntilChecked(page);
+    await untilPageRests(page);
+    await passTimeUntilChecked(page);
+    await untilPageRests(page);
     expect(demanded.count()).toBe(before);
     await expect(failed).toContainText("This done story could not be read.");
   });
@@ -159,7 +158,7 @@ test("a newer revision asks once again for the failed records still shown, not f
     await expect(recent).toContainText("Done stories could not be read.");
     await expect(retry).toBeVisible();
     await expect(recent).toContainText(refusal);
-    await settle(page);
+    await untilPageRests(page);
     expect(demanded.at(revisionB).toSorted()).toEqual(askedAtB);
     expect(recordsAskedAt(github, revisionB)).toContain(failingPath);
   });
@@ -172,7 +171,7 @@ test("a newer revision asks once again for the failed records still shown, not f
     await expect(recent).not.toContainText("could not be read");
     await expect(retry).toHaveCount(0);
     await expect(recent).toContainText(refusal);
-    await settle(page);
+    await untilPageRests(page);
     const asked = [newer.path, newest.path, ...storiesFrom(11, 18)];
     expect(demanded.at(revisionC).toSorted()).toEqual(asked.toSorted());
     expect(recordsAskedAt(github, revisionC)).toContain(failingPath);

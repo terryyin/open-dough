@@ -16,8 +16,9 @@ import { entryName } from "../recentlyDoneProgressive.ts";
 import {
   opened,
   recordsAsked,
-  settle,
+  untilPageRests,
 } from "../recentlyDoneProgressivePage.ts";
+import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import {
   entries,
   firstTen,
@@ -46,7 +47,7 @@ test("while the saved sessions are still being read after the done catalog answe
     await expect(
       recent.getByRole("article", { name: thirteenth.identity }),
     ).toBeVisible();
-    await settle(page);
+    await untilPageReadsAnswered(page);
     expect(bodiesAsked).toEqual([]);
 
     sessions.answer();
@@ -54,7 +55,7 @@ test("while the saved sessions are still being read after the done catalog answe
     expect(recordsAsked(github).toSorted()).toEqual(
       storiesOf(firstTen).toSorted(),
     );
-    await settle(page);
+    await untilPageRests(page);
     expect(recordsAsked(github).toSorted()).toEqual(
       storiesOf(firstTen).toSorted(),
     );

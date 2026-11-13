@@ -20,6 +20,7 @@ import { crowd, showPage } from "./runningCursorSessionsPage.ts";
 import {
   openSessionsSidebar,
   sessionsSidebarParts,
+  sessionsSidebarSessionEntryTooltipOf,
 } from "./sessionsSidebarPage.ts";
 import { expect } from "./support/cursorStart.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
@@ -41,7 +42,12 @@ export function recentlyDoneParts(page: Page) {
   const region = sidebar.getByRole("region", {
     name: "Recently done sessions",
   });
+  const body = region.locator(".recently-done-sessions-body");
   const entries = region.locator("li.sessions-sidebar-session-entry");
+  const row = (title: string) =>
+    entries.filter({
+      has: page.getByRole("heading", { name: title, exact: true }),
+    });
   return {
     sidebar,
     button,
@@ -51,20 +57,29 @@ export function recentlyDoneParts(page: Page) {
     region,
     header: region.getByRole("button", { name: "Recently done sessions" }),
     list,
-    body: region.locator(".recently-done-sessions-body"),
+    body,
+    // Scrolls the body to its end, where the section reveals older rows.
+    revealOlder: () =>
+      body.evaluate((element) => {
+        const scrolled = element;
+        scrolled.scrollTop = scrolled.scrollHeight;
+        scrolled.dispatchEvent(new Event("scroll", { bubbles: true }));
+      }),
     entries,
     // Their titles, in the order the section shows them.
     titles: entries.getByRole("heading", { level: 3 }),
+    // The row with exactly this title, and the review cue it shows.
+    row,
+    reviewCue: (title: string) => sessionReviewCue(row(title)),
     // A row's Select control, named by its title: it selects the session or
     // its done story and opens nothing. Its separate Open control is named by
     // the access it opens (Open terminal or Read final report), described by
     // the title.
     select: (title: string) => region.getByRole("button", { name: title }),
     open: (title: string) =>
-      sessionEntryAccessControl(
-        entries.filter({ has: page.getByRole("button", { name: title }) }),
-        { name: /^(Open terminal|Read final report)$/ },
-      ),
+      sessionEntryAccessControl(row(title), {
+        name: /^(Open terminal|Read final report)$/,
+      }),
     divider: sidebar.getByRole("separator", {
       name: "Recently done sessions divider",
       exact: true,
@@ -99,6 +114,26 @@ export async function expectRecentlyDone(
   await (expected === "expanded"
     ? expect(shown.body).toBeVisible()
     : expect(shown.body).toHaveCount(0));
+}
+
+const sessionReviewCue = (row: Locator) =>
+  row.getByText("Needs review", { exact: true });
+
+export async function expectSessionReviewCue(row: Locator, needed: boolean) {
+  const cue = sessionReviewCue(row);
+  if (needed) {
+    await expect(cue).toBeVisible();
+    await expect(
+      sessionsSidebarSessionEntryTooltipOf(row),
+    ).toHaveAccessibleDescription(
+      /Needs review.*not been marked reviewed on this machine/,
+    );
+  } else {
+    await expect(cue).toHaveCount(0);
+    await expect(
+      sessionsSidebarSessionEntryTooltipOf(row),
+    ).not.toHaveAccessibleDescription(/Reviewed|Needs review/);
+  }
 }
 
 // Resolves on the page's sessions read that shows `held` reopened. Only the

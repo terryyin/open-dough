@@ -183,9 +183,11 @@ or its family fixture (`../responsiveStart.ts`, `../support/preparationPage.ts`,
 and `github` (and `launchJourney` for the Taken backlog), opens with
 `openUntilRead(page)`, acts as the user, and asserts the state change; a
 sibling of an existing journey joins that file and asserts its delta. A
-worker-scoped fixture, or a `launchOptions` value, is declared once, in
-`support/pageTest.ts`, whose header says why a second home splits the
-workers.
+worker-scoped fixture is declared once, in `support/pageTest.ts`, whose header
+says why a second home splits the workers. Every browser starts with the
+arguments in `support/browserArgs.ts`, configured in `playwright.config.ts`;
+a spec or fixture family that sets its own `launchOptions` splits the workers
+the same way and spreads `dashboardBrowserArgs` into its `args`.
 A fixture module declares its option defaults on its fixtures (overrides in
 its `test.extend`), not with a module-level `test.use`: a module is evaluated
 once per worker, so such a call applies only to the first spec file that

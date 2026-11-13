@@ -17,6 +17,8 @@ import {
   expectNewSnapshotPreservesOrAnnouncesIdentity,
 } from "../storyReadinessAccessible.ts";
 import { expectScanToDetailAt420AndTwiceZoom } from "../storyReadinessScan.ts";
+import { storyCard } from "../storyCardControls.ts";
+import { expectBadges } from "../storyCardFacts.ts";
 import {
   buildOpenDoughReadinessRepo,
   plannedBlocked,
@@ -52,11 +54,9 @@ test("story readiness reads preparation and progress accessibly", async ({
       taken: [plannedReady.title],
       backlog: [unrefined.title, plannedBlocked.title],
     });
-    await expect(
-      taken
-        .getByRole("article", { name: plannedReady.title })
-        .getByText("Ready for execution", { exact: true }),
-    ).toBeVisible();
+    await expectBadges(storyCard(taken, plannedReady.title), {
+      shown: ["Ready for execution"],
+    });
   });
 
   await test.step("keyboard opens and closes detail, returning focus to the card", async () => {

@@ -11,8 +11,7 @@ import {
 } from "../support/preparationPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { shortRevision } from "../dashboardParts.ts";
-import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
-import { openSessionsSidebar } from "../sessionsSidebarPage.ts";
+import { showRecentlyDone } from "../recentlyDoneSessionsSidebarPage.ts";
 import { retainAdHocCompletedStory } from "../support/adHocCompletedAssociation.ts";
 import {
   chooseStoryTab,
@@ -61,9 +60,7 @@ test("selecting a completed ad hoc session shows historical Review and Intent co
 
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/?perspective=intent");
-  await openSessionsSidebar(page);
-  const shown = recentlyDoneParts(page);
-  await shown.header.click();
+  const shown = await showRecentlyDone(page);
   await shown.select(sessionTitle).click();
   const { intent } = parts(page);
   await expect(intent).toHaveAttribute("data-selected-story", linked.identity);

@@ -20,6 +20,7 @@ import { failing } from "../intentCiStoryBoard.ts";
 import {
   branchJudgmentCalls,
   failedRun,
+  freshCiStatusReadSettled,
   mainRun,
   revision,
   publishStoryCi,
@@ -74,7 +75,9 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     ];
     const before = calls.length;
     ci.push("main", nextTrunk, "Advance the trunk");
+    const trunkJudged = freshCiStatusReadSettled(page);
     await passTimeUntilCheckedAfterSettled(page);
+    await trunkJudged;
     await untilPageReadsAnswered(page);
     expect(branchJudgmentCalls(calls.slice(before))).toEqual([
       "actions-runs main",
@@ -110,6 +113,7 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     const before = calls.length;
     ci.push(failing.branch, nextStory, "Fix the story during a visit");
     const held = await holdNextRevisionCheckBody(page);
+    const storyJudged = freshCiStatusReadSettled(page, failing.branch);
     let checkSettled = false;
     const checked = passTimeUntilCheckedAfterSettled(page).then(() => {
       checkSettled = true;
@@ -127,6 +131,7 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
         await held.close();
       }
     }
+    await storyJudged;
     await untilPageReadsAnswered(page);
     expect(branchJudgmentCalls(calls.slice(before))).toEqual([
       "actions-runs codex/example-story",

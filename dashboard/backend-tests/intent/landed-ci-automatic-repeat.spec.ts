@@ -1,10 +1,22 @@
-// Full product admission and outcome loop, through real receipt ingestion.
-// Receipt acceptance precedes collection; observe the actual rerun POST.
-// What provider facts decide after an accepted request is read from saved
-// accepted requests, which real collection observes with no journey.
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+// Automatic CI repeat admission, through the one real receipt journey: a
+// receipt is ingested over prior builds the machine keeps measured, and the
+// actual rerun POST, the request saved around it and its card are observed.
+// What each provider reply to that POST saves is read from a landing the
+// machine keeps with its unspent eligible receipt, and what provider facts
+// decide after an accepted request from saved accepted requests
+// (a published story's: ./landed-ci-repeat-accepted-request.spec.ts): real
+// collection observes both with no journey.
 import {
-  rerunRequests,
+  expect,
+  queuedClaudeBoundaryTest as test,
+} from "../../tests/support/landedCiHistoryTest.ts";
+import { keepRepeatLanding } from "../../tests/support/ciFollowUpKeptLanding.ts";
+import { keepRecordedPriorsMeasured } from "../../tests/support/ciFollowUpKeptPriors.ts";
+import { startingFromKeptStory } from "../../tests/support/keptPublishedStory.ts";
+import {
+  aWholePass,
+  heldRequest,
+  rerunRuns,
   saveRepeatRequests,
   savedRepeatComparison,
   savedRepeatRequest,
@@ -12,20 +24,41 @@ import {
 import {
   followUpCards,
   prepareRepeatScenario,
-  readFollowUpLedger,
 } from "../../tests/support/ciFollowUpScenario.ts";
-import { landedCiHistory } from "../../tests/support/landedCiHistory.ts";
 import { postLanding } from "../../tests/support/startSessionLandingCapture.ts";
 
 test.use({ serverMode: "boundary" });
+// The cases whose origin starts from the kept published story.
+const keptStoryTest = test.extend(startingFromKeptStory);
 
-test("new Done receipt at exactly105 seconds gets one full POST after sufficient prior collection, then106 seconds shows possible slowdown", async ({
+// Another landing's accepted request whose repeat the provider has not
+// started. No story published that landing and the history keeps no build of
+// it, so no pass can spend on it: a pass reads its run 72 once and no more.
+const waiting = {
+  run: 72,
+  seconds: 120,
+  averageSeconds: 100,
+  submission: { kind: "accepted" },
+} as const;
+
+test("a Done receipt at exactly 105 seconds against five kept 100 second prior builds gets one rerun request, saved as intent before it is sent and as accepted after the reply, and reads as a card", async ({
   origin,
   github,
   startServer,
 }) => {
-  const scenario = await prepareRepeatScenario(origin, github);
-  const first = await startServer();
+  const scenario = await prepareRepeatScenario(origin, github, 105);
+  // The five landings the scenario published and recorded before the story's,
+  // already measured: collection has no prior build left to ask about.
+  await keepRecordedPriorsMeasured(
+    origin,
+    scenario.prior.map((run) => run.headSha),
+    100,
+  );
+  // The waiting request, and the scenario's provider served again over the
+  // one that answers its run.
+  await saveRepeatRequests(origin, github, [waiting]);
+  scenario.serve();
+  const server = await startServer();
   let release!: () => void;
   const reply = new Promise<void>((resolve) => {
     release = resolve;
@@ -34,100 +67,112 @@ test("new Done receipt at exactly105 seconds gets one full POST after sufficient
   const submitted = new Promise<void>((resolve) => {
     began = resolve;
   });
+  // What the ledger holds of the request while the provider holds its reply.
+  let heldAs: string | undefined;
   scenario.holdSubmission(async () => {
-    expect(
-      Object.values(readFollowUpLedger(first).landings).find(
-        (landing) => landing.request,
-      )?.request?.submission.kind,
-    ).toBe("intent");
+    heldAs ??=
+      savedRepeatRequest(server, 71)?.submission.kind ?? "nothing saved";
     began();
     await reply;
   });
-  const second = await startServer();
-  const submission = await scenario.ingest(first);
+  const submission = await scenario.ingest(server);
   await submitted;
-  expect(scenario.repeatCalls).toEqual([71]);
-  expect(
-    Object.values(readFollowUpLedger(first).landings).find(
-      (landing) => landing.request,
-    )?.request?.original.runId,
-  ).toBe(71);
-  expect((await postLanding(first, submission, false)).status).toBe(200);
+  expect(heldAs, "intent saved before the request is sent").toBe("intent");
+  expect(rerunRuns(github), "one rerun request").toEqual([71]);
+  expect((await postLanding(server, submission, false)).status).toBe(200);
   release();
   await expect
     .poll(
-      () =>
-        Object.values(readFollowUpLedger(first).landings).find(
-          (landing) => landing.request,
-        )?.request?.submission.kind,
+      () => savedRepeatRequest(server, 71)?.submission.kind,
+      "accepted saved after the reply",
     )
     .toBe("accepted");
-  scenario.setRepeat({ status: "in_progress" });
-  await expect
-    .poll(() => followUpCards(second))
-    .toMatchObject([{ kind: "progress", explanation: "CI rerun in progress" }]);
-  scenario.setRepeat({ seconds: 106 });
-  await expect
-    .poll(() => followUpCards(first))
-    .toMatchObject([
-      {
-        kind: "slow",
-        explanation: "Possible CI slowdown",
-        originalMs: 105000,
-        repeatMs: 106000,
-        averageMs: 100000,
-      },
-    ]);
-  expect(scenario.repeatCalls).toEqual([71]);
-  expect(await landedCiHistory(first)).toMatchObject({
-    body: { reference: { selected: { key: "run/71/1", ms: 105000 } } },
-  });
-  await first.close();
-  await second.close();
-  const restarted = await startServer();
-  expect((await followUpCards(restarted))[0]?.kind).toBe("slow");
-  expect(scenario.repeatCalls).toEqual([71]);
+  const replied = github.calls.length;
+  await aWholePass(github, waiting.run, replied);
+  expect(rerunRuns(github), "rerun requests").toEqual([71]);
+  expect(await followUpCards(server), "accepted request's card").toMatchObject([
+    {
+      kind: "unverified",
+      explanation: "No later attempt of the original run has been observed",
+      reviewable: true,
+      originalMs: 105000,
+      averageMs: 100000,
+    },
+  ]);
 });
 
-for (const [outcome, expected] of [
-  ["refused", "refused"],
-  ["uncertain", "uncertain"],
-] as const) {
-  test(`collected repeat ${outcome} retains the original and its particular honest outcome`, async ({
-    origin,
-    github,
-    startServer,
-  }) => {
-    const scenario = await prepareRepeatScenario(origin, github, 120);
-    const submitted = new Promise<void>((resolve) => {
-      scenario.holdSubmission(() => {
-        resolve();
-        return Promise.resolve();
-      });
+// A landing the machine keeps with its unspent eligible receipt: Story A,
+// published as completed, whose run 71 first passed in 120 s against five
+// prior builds of 100 s each.
+const eligible = {
+  stage: "eligible receipt",
+  run: 71,
+  seconds: 120,
+  averageSeconds: 100,
+} as const;
+const beside120And100 = { originalMs: 120000, averageMs: 100000 };
+
+keptStoryTest(
+  "a kept eligible receipt whose rerun request the provider refuses reads refused beside its original and average, and no later pass asks again",
+  async ({ origin, github, startServer }) => {
+    const kept = await keepRepeatLanding(origin, github, {
+      ...eligible,
+      beside: [heldRequest(waiting)],
     });
-    if (outcome === "refused") scenario.refuse(403);
-    if (outcome === "uncertain") scenario.refuse(503);
+    kept.provider(71).replyToRerun(403);
     const server = await startServer();
-    await scenario.ingest(server);
-    await submitted;
-    expect(scenario.repeatCalls).toEqual([71]);
-    if (outcome === "uncertain") scenario.setRepeat({ seconds: 104 });
     await expect
-      .poll(async () => (await followUpCards(server))[0]?.explanation)
-      .toContain(expected);
-    if (outcome === "uncertain")
-      await expect
-        .poll(() => followUpCards(server))
-        .toMatchObject([{ repeatMs: 104000, kind: "unverified" }]);
-    const card = (await followUpCards(server))[0];
-    expect(card).toMatchObject({
-      originalMs: 120000,
-      averageMs: 100000,
+      .poll(
+        () => savedRepeatRequest(server, 71)?.submission.kind,
+        "saved reply",
+      )
+      .toBe("refused");
+    const replied = github.calls.length;
+    const refused = {
       kind: "unverified",
-    });
-    expect(scenario.repeatCalls).toEqual([71]);
-  });
-}
+      explanation: expect.stringContaining("refused"),
+      ...beside120And100,
+    };
+    expect(await followUpCards(server), "refused card").toMatchObject([
+      refused,
+    ]);
+    await aWholePass(github, waiting.run, replied);
+    expect(rerunRuns(github), "rerun requests").toEqual([71]);
+  },
+);
+
+keptStoryTest(
+  "a kept eligible receipt whose rerun request gets no definitive reply stays unverified and shows the later 104 second passing repeat",
+  async ({ origin, github, startServer }) => {
+    const kept = await keepRepeatLanding(origin, github, eligible);
+    kept.provider(71).replyToRerun(503);
+    const server = await startServer();
+    await expect
+      .poll(
+        () => savedRepeatRequest(server, 71)?.submission.kind,
+        "saved reply",
+      )
+      .toBe("uncertain");
+    kept.provider(71).setRepeat({ seconds: 104 });
+    // The repeat is read after the reply; its measurement settles the request.
+    await expect
+      .poll(
+        () => savedRepeatRequest(server, 71)?.outcome.settled,
+        "repeat read",
+      )
+      .toBe(true);
+    const unverified = {
+      kind: "unverified",
+      explanation: expect.stringContaining("uncertain"),
+      repeatMs: 104000,
+      ...beside120And100,
+    };
+    expect(await followUpCards(server), "stays unverified").toMatchObject([
+      unverified,
+    ]);
+    expect(rerunRuns(github), "rerun requests").toEqual([71]);
+  },
+);
 
 test("saved accepted requests read the outcome their provider repeat decides beside the original and average", async ({
   origin,
@@ -172,7 +217,7 @@ test("saved accepted requests read the outcome their provider repeat decides bes
       outcome: unverified("Full comparable repeat is unverified"),
     },
   ] as const;
-  const provider = saveRepeatRequests(
+  const provider = await saveRepeatRequests(
     origin,
     github,
     repeats.map(({ run }) => ({ run, ...accepted })),
@@ -191,5 +236,5 @@ test("saved accepted requests read the outcome their provider repeat decides bes
       originalMs: 120000,
       averageMs: 100000,
     });
-  expect(rerunRequests(github)).toEqual([]);
+  expect(rerunRuns(github)).toEqual([]);
 });

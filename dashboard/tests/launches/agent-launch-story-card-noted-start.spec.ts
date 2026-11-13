@@ -38,6 +38,7 @@ import {
 } from "../pageLayout.ts";
 import { tooltipOf } from "../frameIconControl.ts";
 import { selectStory } from "../storyCardSelection.ts";
+import { credit } from "../agentCredit.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -179,7 +180,7 @@ test.describe("a Backlog card's Starts", () => {
     // lengthens its Preparing line, moving its Starts; wait for it so a hover
     // stays on the Start it is aimed at.
     await expect(
-      card(readyStory).locator(".story-card-preparing .owner-human-name"),
+      credit(credit(card(readyStory)).preparing).humanName,
     ).toBeVisible();
 
     const notedRefine = action(readyStory, "Refinement");

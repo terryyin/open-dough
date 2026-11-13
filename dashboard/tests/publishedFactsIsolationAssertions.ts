@@ -9,7 +9,13 @@ import {
   parts,
   rosterParts,
 } from "./dashboardPage.ts";
-import { inspectedDetail } from "./storyCardControls.ts";
+import {
+  canonicalRecord,
+  focusCanonicalRecord,
+  slicePlanLink,
+} from "./storyCardControls.ts";
+import { credit } from "./agentCredit.ts";
+import { sliceProgress, storyPurpose } from "./storyCardFacts.ts";
 import {
   contentReads,
   headsCheckArgv,
@@ -63,12 +69,9 @@ export async function expectHeldGroups(
     .toEqual(paths);
 }
 
-export async function focusCanonical(page: Page, facts: PublishedFacts) {
-  const detail = await inspectedDetail(factStoryCards(page, facts).taken);
-  const link = detail.getByRole("link", { name: /^Canonical record/ });
-  await link.focus();
-  return link;
-}
+// Puts the keyboard on the Taken story's Canonical record, in its detail.
+export const focusCanonical = (page: Page, facts: PublishedFacts) =>
+  focusCanonicalRecord(factStoryCards(page, facts).taken);
 
 // The selected publication's facts, with `pending` groups still unanswered:
 // reading as on a first visit, or, while a new revision of the shown project
@@ -91,39 +94,27 @@ export async function expectCurrentFacts(
   );
   await expect(problem).toHaveCount(0);
   await expect(parts(page).notice).toBeEmpty();
-  await expect(taken.locator(".story-card-owner .owner-line")).toContainText(
-    `${facts.owner}-chan`,
-  );
-  await expect(taken.locator(".story-card-owner")).toContainText(
-    `model-at-${facts.label}`,
-  );
-  await expect(queued.locator(".story-card-preparing")).toContainText(
-    `${facts.preparer}-chan`,
-  );
-  await expect(queued.locator(".story-card-preparing")).toContainText(
-    `preparer-at-${facts.label}`,
-  );
+  const { owner } = credit(taken);
+  await expect(credit(owner).line).toContainText(`${facts.owner}-chan`);
+  await expect(owner).toContainText(`model-at-${facts.label}`);
+  const { preparing } = credit(queued);
+  await expect(preparing).toContainText(`${facts.preparer}-chan`);
+  await expect(preparing).toContainText(`preparer-at-${facts.label}`);
   await expect(
     taken.getByRole("button", { name: "Hide detail" }),
   ).toBeVisible();
-  await expect(
-    taken.getByRole("link", { name: /^Canonical record/ }),
-  ).toHaveAttribute(
+  await expect(canonicalRecord(taken)).toHaveAttribute(
     "href",
     `https://github.com/${repository}/blob/${facts.revision}/${canonicalPath}#shared-story`,
   );
   if (pending.includes("preparation") && carriedFrom !== undefined) {
     // The Taken story was shown before; the queued one is new.
     await expect(taken).not.toContainText("Reading preparation…");
-    await expect(taken.locator(".story-purpose")).toHaveText(
-      carriedFrom.purpose,
-    );
-    await expect(taken.locator(".story-card-progress")).toContainText(
+    await expect(storyPurpose(taken)).toHaveText(carriedFrom.purpose);
+    await expect(sliceProgress(taken)).toContainText(
       "1 of 2 slices recorded complete",
     );
-    await expect(
-      taken.getByRole("link", { name: /^Slice plan/ }),
-    ).toHaveAttribute(
+    await expect(slicePlanLink(taken)).toHaveAttribute(
       "href",
       `https://github.com/${repository}/blob/${carriedFrom.revision}/${planPath}`,
     );
@@ -132,22 +123,16 @@ export async function expectCurrentFacts(
     await expect(taken).toContainText("Reading preparation…");
     await expect(queued).toContainText("Reading preparation…");
     await expect(taken).toContainText("Reading purpose…");
-    await expect(taken.locator(".story-purpose")).toHaveCount(0);
-    await expect(taken.locator(".story-card-progress")).toContainText(
-      "Reading plan slices…",
-    );
-    await expect(taken.getByRole("link", { name: /^Slice plan/ })).toHaveCount(
-      0,
-    );
+    await expect(storyPurpose(taken)).toHaveCount(0);
+    await expect(sliceProgress(taken)).toContainText("Reading plan slices…");
+    await expect(slicePlanLink(taken)).toHaveCount(0);
   } else {
-    await expect(taken.locator(".story-purpose")).toHaveText(facts.purpose);
+    await expect(storyPurpose(taken)).toHaveText(facts.purpose);
     await expect(taken).not.toContainText("Reading preparation…");
-    await expect(taken.locator(".story-card-progress")).toContainText(
+    await expect(sliceProgress(taken)).toContainText(
       `${facts.label === "A" ? 1 : 0} of 2 slices recorded complete`,
     );
-    await expect(
-      taken.getByRole("link", { name: /^Slice plan/ }),
-    ).toHaveAttribute(
+    await expect(slicePlanLink(taken)).toHaveAttribute(
       "href",
       `https://github.com/${repository}/blob/${facts.revision}/${planPath}`,
     );

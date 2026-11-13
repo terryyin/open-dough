@@ -33,12 +33,15 @@ export function parts(page: Page) {
     preparationHelp: page.getByRole("button", {
       name: "Preparation badge legend",
     }),
-    // Settled starts still waiting to reconcile with published state, shown
-    // above the board until they do.
-    startupRecovery: page.getByRole("region", { name: "Startup recovery" }),
     // The selected project's sessions launched from this dashboard.
     recentlyDone: page.getByRole("region", {
       name: "Recently done",
+      exact: true,
+    }),
+    // Startups the page still reconciles with published story state; it
+    // leaves once none does, moving what the Board shows below it.
+    startupRecovery: page.getByRole("region", {
+      name: "Startup recovery",
       exact: true,
     }),
     problem: page.getByRole("alert"),
@@ -65,6 +68,11 @@ export function parts(page: Page) {
 
 // Short revision form the product says in a sentence (status, alerts, progress).
 export { shortRevision } from "../src/publishedWork.ts";
+
+// What a column's header says of how many entries it holds, such as
+// "35 entries" or "Entry count incomplete".
+export const columnCountOf = (column: Locator) =>
+  column.locator(".column-count");
 
 // A standalone session entry, named for its launch's workflow and title.
 export const standaloneSessionName = (workflow: string, title: string) =>

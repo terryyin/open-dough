@@ -13,6 +13,7 @@
 // never reached.
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { expectSettledPage } from "../dashboardPage.ts";
 import { type SidePanelPages, sidePanelPages } from "../sidePanelPages.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
@@ -65,6 +66,7 @@ test("review and terminal take turns in the one side panel beside a usable Board
   ]);
   const reviewReads = storyReviewReads(page);
   await openBacklog(page, origin);
+  await expectSettledPage(page);
   const journey = sidePanelPages(page);
   const attachedA = `attached ${sessionA.slice(0, 8)}`;
   // Story A's session's attachments the synthetic `claude` saw so far.

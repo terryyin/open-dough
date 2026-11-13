@@ -12,8 +12,6 @@ import {
   queuedTitle,
 } from "../accessibleBoard.ts";
 import {
-  bottomOf,
-  columnPagingControl,
   expectEndsWithShown,
   expectLongerThanTheBoard,
   expectView,
@@ -22,6 +20,10 @@ import {
   showColumn,
   wheelTo,
 } from "../boardPage.ts";
+import {
+  expectAtBoardBottom,
+  expectPagingControlInSight,
+} from "../boardReading.ts";
 
 test("a long Backlog read far down: shorter columns clamp the Board to their bottom, a position they hold stays, and widening or narrowing keeps the Board as long as the columns it shows", async ({
   page,
@@ -48,13 +50,10 @@ test("a long Backlog read far down: shorter columns clamp the Board to their bot
     await showColumn(page, "Recently done");
     await expectView(page, ["Taken", "Recently done"], [backlogControl]);
     await expectLongerThanTheBoard(lastCard);
-    const clamped = await scrollYOf(page);
-    expect(clamped).toBe(await bottomOf(page));
+    const clamped = await expectAtBoardBottom(page);
     expect(clamped).toBeGreaterThan(0);
     expect(clamped).toBeLessThan(1500);
-    await expect(columnPagingControl(page, "Backlog")).toBeInViewport({
-      ratio: 1,
-    });
+    await expectPagingControlInSight(page, "Backlog");
     await expectEndsWithShown(page, ["Taken", "Recently done"]);
   });
 

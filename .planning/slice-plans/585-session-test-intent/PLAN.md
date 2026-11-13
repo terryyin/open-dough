@@ -288,6 +288,27 @@ from production; they belong to the launch story.
 The cold-preparation risk recorded as G8 is queued first as
 [SEED-335#keep-one-time-test-preparation-out-of-case-budgets](../../seeds/SEED-335-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets).
 
+### 8. Reconcile with the Board story's landing
+Type: Structure
+Status: done
+Proof: every conflicted and reconciled spec plus consumers of each kept owner; typecheck; full `--list` equals trunk's; branch CI on the merged revision.
+
+Structure: after slice 7 published, trunk closed SEED-300#express-board-test-intent-through-page-objects
+(5f9534460) and moved 73 commits, conflicting in 13 test files including
+`sessionsSidebarPage.ts` and `recentlyDoneSessionsSidebarPage.ts`. Apply slice 7's
+approved rule: one owner per shared control, trunk's landed owner kept where both
+sides built one, exact-name matching and causal waits kept, no behavior check lost.
+
+Result (slice 8): merged trunk 4f7214879. Kept trunk's exact-heading
+`sessionsSidebarParts.row`, `recentlyDoneParts.row`/review cue and `unreadSessionReport`
+(now taking optional exact words) beside this branch's `select`, `showRecentlyDone`,
+`titles` and list/heading owners; trunk's review-cue specs, `openSelectionPage` and four
+select-ad-hoc/touch specs moved onto them; duplicate `startupRecovery` and trunk's second
+quiet-completion wait and retry loop removed. `--list` 2732 equals trunk; 126/127 over 65
+specs plus refactor 4/4 (`s8/run-aa..ac.log`, `s8r/run.log`). `session-unread-report:58`
+timed out cold at load ~54 (10.3 s in origin preparation) and passed 3/3 at load 18–20;
+that cold-preparation cost is SEED-335's.
+
 ## Verification, current decisions and concern review
 
 - Each slice runs changed specs and transitive consumers, using `npm run

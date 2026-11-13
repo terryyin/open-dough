@@ -13,6 +13,13 @@ import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import { shortRevision, expectSettledPage, parts } from "../dashboardPage.ts";
 import { publishMovingFiles, type MovingFiles } from "../publishedFiles.ts";
 import { readsBesideChecks } from "../originObservation.ts";
+import { projectTab } from "../projectChoice.ts";
+import {
+  canonicalRecord,
+  inspectedDetail,
+  storyCard,
+} from "../storyCardControls.ts";
+import { sliceBar, sliceProgress } from "../storyCardFacts.ts";
 import {
   doughnutBacklog,
   doughnutRecords,
@@ -67,11 +74,11 @@ async function expectSettled(
   await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
   await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
   await expect(readRevision).toContainText(shortRevision(revision));
-  const card = taken.getByRole("article", { name: takenTitle });
-  const progress = card.locator(".story-card-progress");
+  const card = storyCard(taken, takenTitle);
+  const progress = sliceProgress(card);
   await expect(progress).toContainText("From story branch; not in trunk.");
   await expect(
-    progress.getByRole("img", { name: "6 of 8 slices recorded complete" }),
+    sliceBar(progress, "6 of 8 slices recorded complete"),
   ).toBeVisible();
   await expect(progress).toContainText("Current slice started 7 min ago");
   await expect(card).toContainText("Akiho");
@@ -79,9 +86,9 @@ async function expectSettled(
 
 // The canonical record link a card's detail gives.
 async function canonicalLinkOf(page: Page, title: string) {
-  const card = page.getByRole("article", { name: title });
-  await card.getByRole("button", { name: "Inspect story" }).click();
-  return card.getByRole("link", { name: /^Canonical record/ });
+  return canonicalRecord(
+    await inspectedDetail(storyCard(parts(page).board, title)),
+  );
 }
 
 test("reopening an unchanged project asks only which commits its ref and story branch name and what was missing, and a new commit reads only what it changed", async ({
@@ -101,7 +108,7 @@ test("reopening an unchanged project asks only which commits its ref and story b
       ...doughnutRecords,
     },
   });
-  const { project, readRevision } = parts(page);
+  const { readRevision } = parts(page);
 
   await page.goto("/");
   await expectSettled(page, { revision: revisionA, queued: queuedTitle });
@@ -127,16 +134,14 @@ test("reopening an unchanged project asks only which commits its ref and story b
   });
 
   await test.step("returning from another project asks the same and nothing more", async () => {
-    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+    await projectTab(page, "Doughnut").check();
     await expectSettledPage(page, {
       taken: [],
       backlog: [doughnutSharedTitle],
     });
     await expect(readRevision).toContainText(shortRevision(revisionDoughnut));
     const before = origin.requests.length;
-    await project
-      .getByRole("radio", { name: "Open Dough", exact: true })
-      .check();
+    await projectTab(page, "Open Dough").check();
     await expectSettled(page, { revision: revisionA, queued: queuedTitle });
     expect(askedSince(origin, before)).toEqual(reopenedAtA);
   });

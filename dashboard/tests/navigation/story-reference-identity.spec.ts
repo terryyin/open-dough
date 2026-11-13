@@ -10,6 +10,7 @@ import {
 import { expect } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { chooseProject, parts } from "../dashboardPage.ts";
+import { expectRoute } from "../agentRosterRecords.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
   test,
@@ -19,6 +20,13 @@ import {
   takeSupplier,
 } from "../storyDependencyFixture.ts";
 import { startOrigin } from "../support/startOrigin.ts";
+import { storyCard } from "../storyCardControls.ts";
+import {
+  dependencySummary,
+  followReference,
+  openDependencies,
+  storyReference,
+} from "../storyReference.ts";
 
 // Story A waits on Story B and needs a decision about Story C.
 test.use({
@@ -82,25 +90,11 @@ test("distinct stories in one seed follow their recorded identities by keyboard 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await recordReveals(page);
   await openUntilRead(page);
-  const consumer = parts(page).backlog.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  const first = parts(page).taken.getByRole("article", {
-    name: "Story B",
-    exact: true,
-  });
-  const second = parts(page).backlog.getByRole("article", {
-    name: "Second story in seed B",
-    exact: true,
-  });
-  await consumer.locator(".story-dependencies summary").tap();
-  const reference = consumer.getByRole("link", {
-    name: "SEED-B#second",
-    exact: true,
-  });
-  await reference.focus();
-  await page.keyboard.press("Enter");
+  const consumer = storyCard(parts(page).backlog, "Story A");
+  const first = storyCard(parts(page).taken, "Story B");
+  const second = storyCard(parts(page).backlog, "Second story in seed B");
+  await openDependencies(consumer, "tap");
+  await followReference(consumer, "SEED-B#second", "keyboard");
   await expect(
     second.getByRole("region", { name: "Detail for Second story in seed B" }),
   ).toBeVisible();
@@ -115,7 +109,7 @@ test("distinct stories in one seed follow their recorded identities by keyboard 
         ).storyReveals.at(-1)?.behavior,
     ),
   ).toBe("auto");
-  await consumer.getByRole("link", { name: "SEED-B#b", exact: true }).tap();
+  await followReference(consumer, "SEED-B#b", "tap");
   await expect(
     first.getByRole("region", { name: "Detail for Story B" }),
   ).toBeVisible();
@@ -178,31 +172,20 @@ test("each project's rendered pinned reference opens its own telling of the same
     repository: "terryyin/pygardon",
   });
   await openUntilRead(page);
-  const consumer = parts(page).backlog.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  await consumer.locator(".story-dependencies summary").click();
-  await consumer.getByRole("link", { name: "SEED-B#b", exact: true }).click();
-  await expect(
-    parts(page).backlog.getByRole("article", { name: "Story B", exact: true }),
-  ).toBeFocused();
+  const consumer = storyCard(parts(page).backlog, "Story A");
+  await openDependencies(consumer);
+  await followReference(consumer, "SEED-B#b");
+  await expect(storyCard(parts(page).backlog, "Story B")).toBeFocused();
   await chooseProject(page, "Pygardon");
-  await expect(consumer.locator(".story-dependencies summary")).toBeVisible();
-  await consumer.locator(".story-dependencies summary").click();
-  const reference = consumer.getByRole("link", {
-    name: "SEED-B#b",
-    exact: true,
-  });
+  await expect(dependencySummary(consumer)).toBeVisible();
+  await openDependencies(consumer);
+  const reference = storyReference(consumer, "SEED-B#b");
   await expect(reference).toHaveAttribute(
     "href",
     `https://github.com/terryyin/pygardon/blob/${targetRevision}/.planning/${pygardonHome}`,
   );
   await reference.click();
-  const destination = parts(page).backlog.getByRole("article", {
-    name: "Pygardon selected story",
-    exact: true,
-  });
+  const destination = storyCard(parts(page).backlog, "Pygardon selected story");
   await expect(
     destination.getByRole("region", {
       name: "Detail for Pygardon selected story",
@@ -210,10 +193,8 @@ test("each project's rendered pinned reference opens its own telling of the same
   ).toBeVisible();
   await expect(destination).toBeFocused();
   await expect(destination).toBeInViewport({ ratio: 0.5 });
-  await expect(
-    parts(page).backlog.getByRole("article", { name: "Story B", exact: true }),
-  ).toHaveCount(0);
-  expect(new URL(page.url()).searchParams.get("project")).toBe("pygardon");
+  await expect(storyCard(parts(page).backlog, "Story B")).toHaveCount(0);
+  expectRoute(page, { project: "pygardon" });
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
   expect(dashboard.claudeAttaches()).toEqual([]);
 });

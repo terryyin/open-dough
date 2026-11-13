@@ -34,6 +34,7 @@ import {
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { sidePanelNamesOf } from "../sidePanelFrame.ts";
+import { credit } from "../agentCredit.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -59,10 +60,9 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
   await openTakenBacklog(page, launchJourney);
   const panel = terminalPanel(page);
   const { rows } = terminalScreenParts(panel);
-  const names = sidePanelNamesOf(panel).names;
+  const sessionRow = sidePanelNamesOf(panel).sessionName;
   const heading = terminalScreenParts(panel).heading;
-  const sessionRow = names.locator("p");
-  const portrait = panel.locator(".agent-portrait");
+  const portrait = credit(panel).portrait;
   const entry = sessionEntriesIn(parts(page).taken);
 
   await page

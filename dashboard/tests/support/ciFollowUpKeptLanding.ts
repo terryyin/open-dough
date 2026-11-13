@@ -1,0 +1,201 @@
+// Landings the origin's machine keeps, each at a stage of its automatic CI
+// repeat, before a dashboard starts there: what a real receipt journey
+// (./ciFollowUpScenario.ts) leaves in the follow-up ledger
+// (../../server/ciFollowUpStore.ts), the landed CI history
+// (../../server/landedCiHistoryStore.ts) and the launch records, with the
+// provider's facts for each landing's run (./ciFollowUpRepeatRun.ts). A case
+// starts real collection and reading from the stage it states.
+//
+// `keepRepeatLanding` keeps the landing of Story A, which the origin already
+// holds published as completed (./keptPublishedStory.ts), after five measured
+// prior builds (./ciFollowUpKeptPriors.ts), at the stage the case states
+// (./ciFollowUpRepeatStage.ts). `keepRepeats` keeps any landings' ledger
+// entries and serves their runs; saved requests for landings no story
+// published (./ciFollowUpSavedRequests.ts) state theirs to it. A dashboard
+// may already run on the machine, as a page's does: the provider answers
+// before the ledger names its runs, and the ledger is kept as that
+// dashboard's own writers keep it (`keepFollowUpEntries`,
+// ./ciFollowUpScenario.ts).
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import type { CiProofEntry } from "../../src/ciProof.ts";
+import type { FollowUpLedger } from "../../server/ciFollowUpStore.ts";
+import { machineHome } from "../machineLaunchRecords.ts";
+import {
+  keptAttempt,
+  serveRepeatRuns,
+  storyLandingRun,
+  type OtherAnswers,
+  type providerRepeatRun,
+} from "./ciFollowUpRepeatRun.ts";
+import { heldAt, type AtStage } from "./ciFollowUpRepeatStage.ts";
+import { keepFollowUpEntries } from "./ciFollowUpScenario.ts";
+import type { FakeGitHub } from "./fakeGitHub.ts";
+import {
+  keptPriors,
+  keptProofOf,
+  landingsNoRepositoryHolds,
+  type ExcludedPrior,
+} from "./ciFollowUpKeptPriors.ts";
+import { keptStoryCompletion } from "./keptPublishedStory.ts";
+import { keepLandedCiHistory, minutesAgo } from "./landedCiHistory.ts";
+import { commonGitDir, git } from "./launchLanding.ts";
+import { keepMoreLaunchRecords } from "./launchStore.ts";
+import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
+
+type LedgerEntry = FollowUpLedger["landings"][string];
+
+// One kept landing: the run of its landed revision, the ledger entry the
+// machine holds for it, and the provider's facts for that run.
+export type KeptRepeat = {
+  readonly run: number;
+  readonly entry: LedgerEntry;
+  readonly provider: ReturnType<typeof providerRepeatRun>;
+};
+
+// `kept` held by the origin's machine in that order, and the provider serving
+// each kept landing's run, with `otherwise` for the repository's other
+// answers: the provider's facts for one of those runs.
+export async function keepRepeats(
+  origin: StartOrigin,
+  github: FakeGitHub,
+  kept: readonly KeptRepeat[],
+  otherwise?: OtherAnswers,
+) {
+  serveRepeatRuns(
+    github,
+    origin,
+    kept.map(({ provider }) => provider),
+    otherwise,
+  );
+  await keepFollowUpEntries(
+    { home: machineHome(origin.machine) },
+    kept.map(({ entry }) => entry),
+  );
+  return (run: number) => {
+    const found = kept.find((each) => each.run === run);
+    if (found === undefined)
+      throw new Error(`No kept landing names run ${String(run)}.`);
+    return found.provider;
+  };
+}
+
+// What a case states of Story A's landing: measured by `run`, whose first
+// attempt passed in `seconds`, after five prior landings whose builds each
+// passed in `averageSeconds`. `excludedPrior` is a sixth prior landing, the
+// latest, whose build the frozen reference excludes. `proof` are the entries
+// the CI proof of each of the run's attempts counts, where a case reads them.
+export type RepeatLandingFacts = {
+  readonly run: number;
+  readonly seconds: number;
+  readonly averageSeconds: number;
+  readonly excludedPrior?: ExcludedPrior;
+  readonly proof?: readonly CiProofEntry[];
+};
+
+// The landing of Story A, published as completed on the trunk the origin
+// started from (./keptPublishedStory.ts), as the machine keeps it at the
+// stage `facts` state: recorded for the story's execution and measured as
+// they state, every build with its CI proof; the story's receipt admitted by
+// this machine, which recorded it. `beside` are other landings the machine keeps, and
+// `otherwise` the repository's answers beside the provider's. Answers the
+// provider's facts by run, and the story's completion.
+export async function keepRepeatLanding(
+  origin: StartOrigin,
+  github: FakeGitHub,
+  facts: RepeatLandingFacts &
+    AtStage & {
+      readonly beside?: readonly KeptRepeat[];
+      readonly otherwise?: OtherAnswers;
+    },
+) {
+  const { run, seconds, averageSeconds, excludedPrior, beside = [] } = facts;
+  const home = machineHome(origin.machine);
+  const target = "refs/heads/main";
+  const completion = await keptStoryCompletion(origin);
+  const capture = makeMe.aLaunchLanding
+    .capturedFrom({
+      repository: commonGitDir(origin.project),
+      identity: queuedIdentity,
+    })
+    .forLaunch(`11111111-0000-4000-8000-${String(run).padStart(12, "0")}`)
+    .deliveredAs({
+      delivery: "33333333-3333-4333-8333-333333333333",
+      receipt: `cccccccc-0000-4000-8000-${String(run).padStart(12, "0")}`,
+    })
+    .comparing({
+      base: git(origin.project, "rev-parse", `${completion}^`),
+      revision: completion,
+    })
+    .receivedAt(new Date().toISOString())
+    .please();
+  const priors = keptPriors(
+    landingsNoRepositoryHolds(excludedPrior === undefined ? 5 : 6),
+    averageSeconds,
+    target,
+    excludedPrior,
+  );
+  const provider = storyLandingRun(completion, run, seconds);
+  const key = `run/${String(run)}/1`;
+  const { workflowId } = provider.original;
+  if (workflowId === undefined)
+    throw new Error("A story landing's run names its workflow.");
+  // The build the machine keeps of an attempt as the provider has it.
+  const kept = (attempt: typeof provider.original) =>
+    keptAttempt(
+      attempt,
+      keptProofOf(
+        { revision: completion, runId: run, runAttempt: attempt.attempt ?? 1 },
+        facts.proof,
+      ),
+    );
+  const original = kept(provider.original);
+  let repeat: typeof original | undefined;
+  if (facts.stage === "settled request") {
+    provider.setRepeat({ seconds: facts.repeatSeconds });
+    repeat = kept(provider.latest());
+  }
+  const history = priors
+    .measuredIn(makeMe.aLandedCiHistory)
+    .recording(capture, key, original)
+    .inTrunkOrder([...priors.revisions, completion]);
+  await keepLandedCiHistory(home, history.please());
+  keepMoreLaunchRecords(home, [
+    ...priors.records,
+    makeMe.aLaunchRecord
+      .executing({ identity: queuedIdentity, title: "Story A" })
+      .launchedAt(minutesAgo(1))
+      .withLanding(capture)
+      .please(),
+  ]);
+  const entry = makeMe.aCiFollowUpEntry
+    .with({
+      project: "open-dough",
+      revision: completion,
+      target,
+      identity: queuedIdentity,
+      receipts: [capture.receipt],
+      eligible: true,
+      capture,
+      ...heldAt(facts.stage, {
+        original,
+        workflowId,
+        reference: priors.referenceFor(completion, {
+          key,
+          date: original.startedAt,
+          ms: seconds * 1000,
+        }),
+        job: provider.job,
+        ...(repeat === undefined ? {} : { repeat }),
+      }),
+    })
+    .please();
+  return {
+    completion,
+    provider: await keepRepeats(
+      origin,
+      github,
+      [{ run, entry, provider }, ...beside],
+      facts.otherwise,
+    ),
+  };
+}

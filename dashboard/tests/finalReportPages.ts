@@ -12,7 +12,7 @@ import { sidePanelNamesOf } from "./sidePanelFrame.ts";
 import { expect } from "./support/preparationPage.ts";
 export { readFinalReportControl } from "./sessionEntryAccess.ts";
 
-function finalReportPanel(page: Page) {
+export function finalReportPanel(page: Page) {
   return page.getByRole("region", { name: "Final report" });
 }
 

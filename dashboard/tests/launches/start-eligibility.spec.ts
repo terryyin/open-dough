@@ -17,6 +17,8 @@ import {
 } from "../storyDependencyFixture.ts";
 import { recordAssessed } from "../storyReadinessCli.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
+import { storyCard } from "../storyCardControls.ts";
+import { blockedByAnyDependency, expectBadges } from "../storyCardFacts.ts";
 
 // The story-state record of the consumer's canonical home, as published.
 function storyStateRecord(project: string): string {
@@ -55,16 +57,12 @@ test("a ready story waits on its dependency and becomes startable once it is sat
   });
   await pausePageClock(page);
   await openUntilRead(page);
-  const card = parts(page).backlog.getByRole("article", {
-    name: consumer.title,
-    exact: true,
-  });
+  const card = storyCard(parts(page).backlog, consumer.title);
   const execution = card.getByRole("button", { name: "Start execution" });
-  await expect(
-    card.getByText("Blocked by 1 dependency", { exact: true }),
-  ).toBeVisible();
-  await expect(card.locator(".badge-ready")).toHaveCount(0);
-  await expect(card.getByText("Not ready", { exact: true })).toHaveCount(0);
+  await expectBadges(card, {
+    shown: ["Blocked by 1 dependency"],
+    absent: ["Ready for execution", "Not ready"],
+  });
   await expect(execution).toBeDisabled();
   await expect(execution).toHaveAccessibleDescription(/1 blocking dependency/);
 
@@ -82,15 +80,12 @@ test("a ready story waits on its dependency and becomes startable once it is sat
   await expect(parts(page).readRevision).toContainText(
     shortRevision(satisfied),
   );
-  await expect(
-    card.getByText("Ready for execution", { exact: true }),
-  ).toBeVisible();
-  await expect(card.locator(".badge-blocked-by-dependencies")).toHaveCount(0);
+  await expectBadges(card, {
+    shown: ["Ready for execution"],
+    absent: [blockedByAnyDependency, "Changed since readiness review"],
+  });
   await expect(execution).toBeEnabled();
   await expect(card.locator(".dependency-start-reason")).toHaveCount(0);
-  await expect(
-    card.getByText("Changed since readiness review", { exact: true }),
-  ).toHaveCount(0);
   // Only the dependency state changed; readiness was not rerecorded.
   expect(storyStateRecord(origin.project)).toBe(readiness);
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
@@ -124,14 +119,11 @@ test("a Taken card's green badge waits on its dependency like a Backlog card's",
   });
   await pausePageClock(page);
   await openUntilRead(page);
-  const card = parts(page).taken.getByRole("article", {
-    name: consumer.title,
-    exact: true,
+  const card = storyCard(parts(page).taken, consumer.title);
+  await expectBadges(card, {
+    shown: ["Blocked by 1 dependency"],
+    absent: ["Ready for execution"],
   });
-  await expect(
-    card.getByText("Blocked by 1 dependency", { exact: true }),
-  ).toBeVisible();
-  await expect(card.locator(".badge-ready")).toHaveCount(0);
 
   recordDependency(origin, {
     supplier: supplierB,
@@ -147,8 +139,8 @@ test("a Taken card's green badge waits on its dependency like a Backlog card's",
   await expect(parts(page).readRevision).toContainText(
     shortRevision(satisfied),
   );
-  await expect(
-    card.getByText("Ready for execution", { exact: true }),
-  ).toBeVisible();
-  await expect(card.locator(".badge-blocked-by-dependencies")).toHaveCount(0);
+  await expectBadges(card, {
+    shown: ["Ready for execution"],
+    absent: [blockedByAnyDependency],
+  });
 });

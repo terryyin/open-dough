@@ -1,6 +1,6 @@
 // Real publication, receipt ingestion and collection; only provider facts are synthetic.
 import { prepareRepeatPriors } from "./ciFollowUpPriors.ts";
-import { json, providerRepeatRun } from "./ciFollowUpRepeatRun.ts";
+import { json, storyLandingRun } from "./ciFollowUpRepeatRun.ts";
 import type { CiFollowUpAnswer } from "../../src/ciFollowUp.ts";
 import type { FollowUpLedger } from "../../server/ciFollowUpStore.ts";
 import { followUpKey } from "../../server/ciFollowUpStore.ts";
@@ -13,7 +13,7 @@ import type { FakeGitHub, RepositoryAnswerer } from "./fakeGitHub.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { completedPublishedStory } from "./completedPublishedStory.ts";
-import { passedFrom, trunkActions, usableProofOf } from "./landedCiTrunk.ts";
+import { trunkActions, usableProofOf } from "./landedCiTrunk.ts";
 import { commonGitDir, git } from "./launchLanding.ts";
 import { keepMoreLaunchRecords } from "./launchStore.ts";
 import { postLanding } from "./startSessionLandingCapture.ts";
@@ -26,8 +26,8 @@ export const followUpFile = (server: Pick<DashboardServer, "home">) =>
 export const readFollowUpLedger = (server: Pick<DashboardServer, "home">) =>
   JSON.parse(readFileSync(followUpFile(server), "utf8")) as FollowUpLedger;
 
-// Settled evidence is a reading precondition; collection behavior stays in
-// the receipt journeys. Use the same atomic machine-document boundary.
+// The machine's follow-up ledger holding exactly `entries`, kept through the
+// atomic machine-document boundary its running dashboard's writers use.
 export async function keepFollowUpEntries(
   server: Pick<DashboardServer, "home">,
   entries: readonly FollowUpLedger["landings"][string][],
@@ -63,14 +63,8 @@ export async function prepareRepeatScenario(
     undefined,
     { interleaved: false, retainWorkspace: true },
   );
-  const provider = providerRepeatRun(story.completion, 71, {
-    ...passedFrom("2026-11-10T06:00:00.000Z", seconds * 1000),
-    workflowId: 7001,
-    url: "https://github.com/terryyin/open-dough/actions/runs/71",
-    headBranch: "main",
-  });
+  const provider = storyLandingRun(story.completion, 71, seconds);
   const original = provider.original;
-  let submissionStatus = 201;
   let hold: (() => Promise<void>) | undefined;
   const repeatCalls: number[] = [];
   let fallback: RepositoryAnswerer | undefined;
@@ -79,7 +73,7 @@ export async function prepareRepeatScenario(
     if (request.kind === "actions-workflow-rerun") {
       repeatCalls.push(request.runId);
       await hold?.();
-      return json({}, submissionStatus);
+      return json({}, 201);
     }
     const exact = provider.answer(request);
     if (exact !== undefined) return exact;
@@ -113,9 +107,6 @@ export async function prepareRepeatScenario(
     setRepeat: provider.setRepeat,
     originalJobsAvailable: provider.originalJobsAvailable,
     repeatProofAvailable: provider.repeatProofAvailable,
-    refuse(status: number) {
-      submissionStatus = status;
-    },
     holdSubmission(until: () => Promise<void>) {
       hold = until;
     },

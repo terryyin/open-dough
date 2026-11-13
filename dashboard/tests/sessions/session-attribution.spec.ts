@@ -20,6 +20,8 @@ import {
 } from "../preparingJourney.ts";
 import { authenticatedReadRoute } from "../holdAuthenticatedReads.ts";
 import { openTerminalControl } from "../terminalScreenPage.ts";
+import { credit } from "../agentCredit.ts";
+import { storyCard } from "../storyCardControls.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -49,7 +51,7 @@ test("a retained session keeps its allocation credit after release and a later p
     historical,
     unknown,
   } = await openSessionAttributionBoard(page, dashboard, afterGitHubStops);
-  await expect(card.locator(".story-card-preparing .owner-line")).toHaveText(
+  await expect(credit(credit(card).preparing).line).toHaveText(
     `${journey.preparers.refining} · Integration Checkout · Claude Code · claude-opus-5-5`,
   );
   await expect(original.locator(".session-entry-host")).toHaveCount(0);
@@ -169,14 +171,14 @@ test("a retained session keeps its allocation credit after release and a later p
   await expect(original).toContainText("Model: Fable (requested)");
   await expect(sessionStateOf(original)).toHaveText("Working");
   await expect(openTerminalControl(original)).toBeVisible();
-  await expect(card.locator(".preparing-activity")).toHaveCount(0);
+  await expect(credit(card).activity).toHaveCount(0);
   await sessionDetails(legacySession);
   await expect(legacySession).toContainText(unknown);
   await sessionDetails(missing);
   await expect(missing).toContainText(unknown);
   await expect(missing).toContainText("Model: claude-opus-5-5 (requested)");
   await show(journey.planningAnnounced);
-  await expect(card.locator(".story-card-preparing")).toContainText(
+  await expect(credit(card).preparing).toContainText(
     journey.preparers.planning,
   );
   await sessionDetails(original);
@@ -189,15 +191,14 @@ test("a retained session keeps its allocation credit after release and a later p
   ).toHaveCount(0);
   await show(reused);
   await expect(
-    parts(page)
-      .backlog.getByRole("article", { name: storyA })
-      .locator(".owner-line")
-      .filter({ hasText: journey.preparers.refining }),
+    credit(storyCard(parts(page).backlog, storyA)).line.filter({
+      hasText: journey.preparers.refining,
+    }),
   ).toHaveText(
     `${journey.preparers.refining} · Later Allocator · Cursor · later-model`,
   );
   const originalAfterReuse = storyCardSessions(
-    parts(page).backlog.getByRole("article", { name: storyC }),
+    storyCard(parts(page).backlog, storyC),
   ).filter({ hasText: sessionId });
   await sessionDetails(originalAfterReuse);
   await expect(originalAfterReuse).toContainText(historical);

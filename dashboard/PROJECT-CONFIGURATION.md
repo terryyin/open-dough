@@ -113,6 +113,10 @@ Set `"pageObjects": true` independently to apply the shared
 selected by that location. The same membership and opt-in rules apply; neither
 flag implies the other. Both rules share the standalone selection command.
 
+When you enable either flag, follow the
+[adoption instructions](../docs/installation-and-updates.md#adopt-makeme-or-page-objects)
+to copy the test rule into your project's `AGENTS.md`.
+
 Absence of the `intent` key
 means Intent shows that no locations are configured. An unreadable settings
 file and malformed JSON are distinct from that absence. The dashboard reads

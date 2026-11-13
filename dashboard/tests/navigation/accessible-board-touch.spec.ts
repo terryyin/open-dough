@@ -16,6 +16,7 @@ import {
   parts,
 } from "../dashboardPage.ts";
 import { columnPagingControl, expectView, wheelTo } from "../boardPage.ts";
+import { expectReadWholeInCard } from "../boardReading.ts";
 import {
   commitAnswer,
   publishMovingOrigin,
@@ -26,7 +27,6 @@ import { describedBacklog } from "../describedRevisions.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   compactProjectSelectCut,
-  expectInside,
   expectNoSidewaysScrollAndWholeText,
   tapWhereShown,
 } from "../pageLayout.ts";
@@ -75,10 +75,8 @@ test.describe("touch reading", () => {
     );
     const card = taken.getByRole("article", { name: longTitle });
     const title = card.getByRole("heading", { level: 3 });
-    await title.scrollIntoViewIfNeeded();
     await expect(title).toHaveText(longTitle);
-    await expect(title).toBeInViewport({ ratio: 1 });
-    await expectInside(title, card);
+    await expectReadWholeInCard(title, card);
     const inspect = card.getByRole("button", { name: "Inspect story" });
     await inspect.scrollIntoViewIfNeeded();
     await tapWhereShown(inspect);
@@ -89,12 +87,13 @@ test.describe("touch reading", () => {
     await expect(detail).toContainText(longIdentity);
     await expect(detail).toContainText(longPlan);
     for (const fullText of [longIdentity, longPlan]) {
-      const text = detail.getByText(fullText, { exact: true });
-      await text.scrollIntoViewIfNeeded();
-      await expect(text).toBeInViewport({ ratio: 1 });
-      await expectInside(text, card);
+      await expectReadWholeInCard(
+        detail.getByText(fullText, { exact: true }),
+        card,
+      );
     }
     await expectNoSidewaysScrollAndWholeText(page, phoneWholeTextCut);
+    const hide = card.getByRole("button", { name: "Hide detail" });
     for (const size of [
       { width: 844, height: 390 },
       { width: 768, height: 1024 },
@@ -102,12 +101,9 @@ test.describe("touch reading", () => {
     ]) {
       await page.setViewportSize(size);
       await expect(detail).toBeVisible();
-      await expect(
-        card.getByRole("button", { name: "Hide detail" }),
-      ).toHaveAttribute("aria-expanded", "true");
+      await expect(hide).toHaveAttribute("aria-expanded", "true");
       await expectNoSidewaysScrollAndWholeText(page, phoneWholeTextCut);
     }
-    const hide = card.getByRole("button", { name: "Hide detail" });
     await hide.scrollIntoViewIfNeeded();
     await tapWhereShown(hide);
     await expect(detail).toHaveCount(0);
@@ -150,10 +146,10 @@ test.describe("touch reading", () => {
     await page.goto("/");
     await expectSettledPage(page);
     const card = parts(page).backlog.getByRole("article", { name: title });
-    const reason = card.getByText(openSessionStartReason, { exact: true });
-    await reason.scrollIntoViewIfNeeded();
-    await expect(reason).toBeInViewport({ ratio: 1 });
-    await expectInside(reason, card);
+    await expectReadWholeInCard(
+      card.getByText(openSessionStartReason, { exact: true }),
+      card,
+    );
     for (const name of ["Start execution", "Start refinement"]) {
       await expect(card.getByRole("button", { name })).toBeDisabled();
       await expect(

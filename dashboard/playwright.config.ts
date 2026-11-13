@@ -2,6 +2,7 @@ import { mkdirSync } from "node:fs";
 import { availableParallelism } from "node:os";
 import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
+import { dashboardBrowserArgs } from "./tests/support/browserArgs.ts";
 import { remainingSuiteTime } from "./tests/support/suiteDeadline.mjs";
 import { dashboardTestProjects } from "./tests/support/testFiles.mjs";
 import type { QuietReporterOptions } from "./tests/support/quietReporter.ts";
@@ -106,6 +107,7 @@ export default defineConfig({
     : [quietReporter],
   use: {
     trace: "retain-on-failure",
+    launchOptions: { args: dashboardBrowserArgs },
   },
   projects: dashboardTestProjects(
     new URL("./", import.meta.url),

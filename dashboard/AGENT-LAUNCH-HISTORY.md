@@ -175,50 +175,8 @@ never-policy run does not establish approval parity.
 notification reads, explicit fresh re-reads, unchanged answers, waits, alerts
 and the one-second reuse retention tradeoff.
 
-Open Dough's notification sender shows its icon and name. Explicitly prepare it
-with `npm run setup-notifier:dashboard` at
-`~/.open-dough/dashboard/notifier/Open Dough.app`, outside checkouts/deployments;
-see [Dashboard commands](COMMANDS.md). It copies separately installed
-`terminal-notifier` 3.1 or newer (tested 3.1.0, Homebrew, macOS 26.6.2) and needs
-its own permission: **System Settings → Notifications → Open Dough**.
-`npm run setup-notifier:dashboard -- --test` makes macOS ask; the dashboard never
-prepares the sender or asks for permission. At startup and before retrying after
-failure, harmless sender version/permission diagnostics post and request nothing.
-Old or unrecognized copies are unavailable even if an executable exists or an
-unknown option exits zero. Missing setup, unsupported copies, and denied,
-not-yet-requested or refused notifications produce fixed explanations naming the
-setup command/settings entry in the open Sessions sidebar; raw stderr is hidden.
-Restart after setup/refresh. Observation continues; a successful notification clears a refusal.
-
-Title/message are literal argument data with the tested helper's one-leading-
-backslash escape; the sound remains Glass. `-execute` stores a fixed inline
-browser callback using `/usr/bin/osascript` and a safely quoted HTTP URL argument.
-Clicks need no checkout file, Node process or dashboard response. The URL origin
-uses the server's actual listening loopback address and bound port, including a
-dynamic port; before listening or without a usable local address, no invented
-destination is sent. The shared URL contract is
-`/?project=<encoded-project-id>&story=<encoded-complete-identity>`; the complete
-identity includes its `#` fragment as query data. A changed title does not
-change the target. Ad hoc sessions keep their notifications with only the
-project parameter. No new target registry is persisted.
-
-Receipt/dismissal do not navigate. After the sending process exits, a click
-uses the current default Safari or Google Chrome, reusing a root dashboard tab
-at this origin and selecting/foregrounding its window. Other ports and API or
-asset pages are preserved. With no matching tab it creates one in an existing
-window, or opens a window if needed. Allow browser control through the first
-click's macOS prompt, or enable your default Safari or Google Chrome browser
-under **System Settings → Privacy & Security → Automation → Open Dough**.
-A refused inspection shows recovery instead of opening an extra tab. Open the
-dashboard manually; after granting access, future notifications can reuse it.
-This click permission is separate from notification-delivery availability above.
-The page selects the project and stories view, waits for published membership,
-then reveals/focuses the card without starting/resuming work or attaching a terminal.
-Unknown projects, missing stories and failed reads have distinct destination
-explanations; a later user navigation supersedes a pending reveal. A stopped
-dashboard produces the browser's connection failure, not successful navigation.
-Closing the server aborts every owned helper operation (startup diagnostics and
-in-flight delivery); shutdown is not recorded as a notification refusal.
+[Notification delivery and destinations](AGENT-LAUNCH-OBSERVATION.md#notification-delivery-and-destinations)
+covers sender setup, permissions, literal notifications and browser click behavior.
 
 Sessions sidebar lists unclosed records across projects (attention first oldest first, others
 newest first); badge counts attention only. While open, its title row shows display-only icon
@@ -243,8 +201,9 @@ project's stories and brings its done story card, or its session's entry, marked
 ring, "Selected session"), into view, extending Recently done's range as an Open's reveal does,
 while the keyboard stays on the row and the Side panel stays as it was; Intent reveals nothing.
 Its Open control (Open terminal or Read final report) shows only where that access is
-available. A foreign catalog is read on demand; an
-unread or failed one is said on the row apart from a confirmed miss, and a later choice, Open or
+available. Shown rows observe completed-story links independently of selection, sharing one
+catalog read per relevant project and reusing the Board's current catalog. An
+unread or failed selection check is said on the row apart from a confirmed miss, and a later choice, Open or
 project change supersedes it. Deleting moves keyboard within the same list, else previous, else done/story
 card, else column. Closing a terminal or report keeps its return control while usable, else the
 session in its current home. Membership movement alone never attaches or detaches its terminal.
@@ -255,7 +214,22 @@ Scrolling that list alone reveals older batches of up to 20; end of history is i
 reconciles by identity/completion, keeping reached older sessions and admitting new ones; focused
 removed rows return nearby or to the section header. Collapse, hide and project changes keep the
 page range; reload starts at 20. Board Recently done keeps its own range and story-detail reads;
-this section does not eagerly read older Board done-story details. Expanded optional sections share
+this section does not eagerly read older Board done-story details.
+A shown row with a confirmed completed-story link and successfully read local
+unreviewed state shows red **Needs review** words, also described to assistive
+technology, before selection. Confirmed Ad hoc associations keep their Ad hoc
+label and can name older catalogued Done stories; story launches keep the Board's
+recent window. Cross-project rows use their own project's evidence without moving
+the Board. Cards and rows share one page/project review state: successful Mark as
+reviewed clears every matching row and Unreview restores them; failed saves keep
+the last saved cues and card feedback. Unknown or failed evidence supplies no
+warning and never asserts reviewed. Shown batches recover on the shared check
+pace; obsolete project, revision, association or shown-row answers are ignored.
+Background observation never selects, navigates, opens or attaches a session.
+The words remain visible with narrow/touch long titles, apart from selection and
+session-state styling. Mark as done already acknowledges a session's report;
+reading an open session's report does not mark its story reviewed. There is no
+sidebar review action, count, sorting, filtering or separate session review flag. Expanded optional sections share
 one room owner with the open list (disposable preferred heights, independent scroll, short-window reach, page-lasting expansion/reached range; preferred sizes only across reload). Successful native reopen removes a Done row; failed reopen keeps feedback and membership.
 
 The Side panel also holds [Review changes](AGENT-LAUNCH-REVIEW.md). On phone and tablet, Close and Maximize/Restore stay reachable beside the story identity; file browser, diff and context scroll independently; rotation keeps comparison/file/reading context; Close returns focus to the origin.

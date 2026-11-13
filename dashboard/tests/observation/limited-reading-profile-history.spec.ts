@@ -5,7 +5,8 @@
 
 import { expect, githubFor, test } from "../dashboardTest.ts";
 import { expectSettledPage, parts, rosterParts } from "../dashboardPage.ts";
-import { inspectedDetail } from "../storyCardControls.ts";
+import { storyCard } from "../storyCardControls.ts";
+import { credit, detailHuman } from "../agentCredit.ts";
 import {
   openedBeside,
   waitSeconds,
@@ -58,21 +59,20 @@ test("limiting a profile's history leaves its human unknown in the scan view, na
   const until = await limitedUntil(page, resumesAt);
   const akihoUnknown = `Human developer unknown. GitHub's rate limit withheld the commit that added ${profilePath("Akiho")} at ${clockRevision}. ${until}`;
   const { taken, problem } = parts(page);
-  const akihoCard = taken.getByRole("article", { name: afterTake });
-  const yumaCard = taken.getByRole("article", { name: justTaken });
+  const akihoCard = storyCard(taken, afterTake);
+  const yumaCard = storyCard(taken, justTaken);
 
   await test.step("the scan view says the human is unknown, the detail names the limit and its time, the Take clock is withheld by the limit, and another profile stays credited", async () => {
-    await expect(
-      akihoCard.locator(".story-card-owner .owner-human-gap"),
-    ).toHaveText("Human developer unknown");
+    await expect(credit(akihoCard).humanGap).toHaveText(
+      "Human developer unknown",
+    );
     await expect(akihoCard).toContainText(
       "Current slice time unavailable: GitHub's rate limit withheld",
     );
-    const human = (await inspectedDetail(akihoCard)).locator(".owner-human");
-    await expect(human).toHaveText(akihoUnknown);
-    await expect(
-      (await inspectedDetail(yumaCard)).locator(".owner-human"),
-    ).toHaveText(`Human developer: ${creditedHuman}`);
+    await expect(await detailHuman(akihoCard)).toHaveText(akihoUnknown);
+    await expect(await detailHuman(yumaCard)).toHaveText(
+      `Human developer: ${creditedHuman}`,
+    );
     await expect(page.locator("body")).not.toContainText(
       "no commit adding this agent profile was found",
     );
@@ -89,10 +89,8 @@ test("limiting a profile's history leaves its human unknown in the scan view, na
   await test.step("the roster names the same limit and time for that human, and keeps the other credit", async () => {
     const { member, opener, back } = rosterParts(page);
     await opener("Akiho-chan").click();
-    await expect(member("Akiho-chan").locator(".owner-human")).toHaveText(
-      akihoUnknown,
-    );
-    await expect(member("Yuma-chan").locator(".owner-human")).toHaveText(
+    await expect(credit(member("Akiho-chan")).human).toHaveText(akihoUnknown);
+    await expect(credit(member("Yuma-chan")).human).toHaveText(
       `Human developer: ${creditedHuman}`,
     );
     expect(await noticedResumeTime(page)).toBe(resumesAt);

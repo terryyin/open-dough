@@ -199,7 +199,6 @@
 8.2	tests/observation/story-cards-before-comparison.spec.ts
 8.2	tests/review/story-review.spec.ts
 8.2	tests/sessions/cursor-session-recovery-stops.spec.ts
-8.0	tests/navigation/story-reference-scroll-completion.spec.ts
 7.9	tests/observation/limit-recovery-check.spec.ts
 7.8	tests/observation/auto-refresh-unusable-branch.spec.ts
 7.6	tests/sessions/cursor-sessions-sidebar-layout.spec.ts

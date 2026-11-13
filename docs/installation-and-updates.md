@@ -76,6 +76,21 @@ Ordinary installation and update preserve an existing file byte-for-byte,
 including unrecognized keys, and leave the path absent when the project has not
 created it. Explicit `--force` replacement of managed skills does the same.
 
+## Adopt MakeMe or Page Objects
+
+In your project's `.planning/open-dough.json`, set `makeMe: true` for shared
+test-data builders or `pageObjects: true` for shared browser page-object
+guidance on the relevant `intent.locations` entries. Each entry can enable the
+two conventions independently.
+
+When you enable either convention, copy this rule into your project's `AGENTS.md`.
+
+```markdown
+- Before adding or changing a test, use the shared test-entry selector described
+  in the installed `dough-execute-plan/references/test-entry-rules.md` to resolve
+  the test's path. Follow the conventions it selects for that test.
+```
+
 ## Common installation flow
 
 The installing agent follows this procedure in stages, keeping the same captured

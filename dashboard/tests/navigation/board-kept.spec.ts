@@ -9,7 +9,7 @@
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
+import { chooseProject } from "../dashboardPage.ts";
 import { watchPageErrors } from "../pageErrors.ts";
 import {
   doughnutProject,
@@ -29,12 +29,6 @@ const expectAtBacklog = (page: Page) =>
   expectView(page, ["Backlog", "Taken"], ["Recently done 0 entries"]);
 const expectAtTaken = (page: Page) =>
   expectView(page, ["Taken", "Recently done"], ["Backlog 1 entry"]);
-
-async function chooseProject(page: Page, label: string) {
-  await parts(page)
-    .project.getByRole("radio", { name: label, exact: true })
-    .check();
-}
 
 test("the chosen columns stay across a project switch, a reload, and a wide Board", async ({
   page,

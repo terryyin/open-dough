@@ -7,6 +7,8 @@ import {
   zoomedWindow,
 } from "../accessibleReading.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
+import { storyCard } from "../storyCardControls.ts";
+import { expectBadges } from "../storyCardFacts.ts";
 import {
   expectProjectChoice,
   expectSettledPage,
@@ -93,21 +95,16 @@ for (const viewport of [
     await page.setViewportSize(viewport.size);
     await page.emulateMedia({ reducedMotion: "reduce" });
     await openUntilRead(page);
-    const { taken } = parts(page);
-    const ready = taken.getByRole("article", { name: plannedReady.title });
-    await expect(
-      ready.getByText("Ready for execution", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      page
-        .getByRole("article", { name: unrefined.title })
-        .getByText("Not refined", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      page
-        .getByRole("article", { name: plannedBlocked.title })
-        .getByText("Not ready", { exact: true }),
-    ).toBeVisible();
+    const { taken, backlog } = parts(page);
+    await expectBadges(storyCard(taken, plannedReady.title), {
+      shown: ["Ready for execution"],
+    });
+    await expectBadges(storyCard(backlog, unrefined.title), {
+      shown: ["Not refined"],
+    });
+    await expectBadges(storyCard(backlog, plannedBlocked.title), {
+      shown: ["Not ready"],
+    });
     const badges = page.locator(".story-card .badge");
     const originalBadges = await badges.allTextContents();
     const reads = origin.requests.length;
@@ -171,8 +168,8 @@ for (const viewport of [
     await expect(
       dialog.getByRole("heading", { name: "Preparation badges" }),
     ).toBeInViewport({ ratio: 1 });
-    // Keyboard scrolling is animated. A busy browser drops an End pressed
-    // while Home's scroll is still finishing, so End waits until Home has
+    // Native key scrolling acts on the scroll place the page last drew,
+    // which lags while the browser is busy, so End waits until Home has
     // reached the top and the frames after it have been drawn.
     await expect
       .poll(() => content.evaluate((element) => element.scrollTop))

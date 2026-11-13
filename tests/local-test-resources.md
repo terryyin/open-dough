@@ -26,6 +26,13 @@ or quiet testing window is not a prerequisite. Diagnose setup and observation
 cost when that supported context exposes a failure, retaining the complete
 journey and the project's failing/flaky-test policy.
 
+Shared server-input preparation has a separate 60-second worker-fixture budget
+for the app, server bundle and any queued installed origin that profile needs.
+These cold inputs are prepared on demand and shared read-only within the run;
+their setup remains in the runner's elapsed time. The default 30-second test
+budget still covers a scenario's private setup and observations. The worker
+budget changes no case, suite or hook timeout.
+
 Admission lives in the common Git directory as the private
 `refs/dough/local-test-suite` ref, outside branches and ordinary pushes. Nested
 suite fixtures that still use an in-checkout test directory reuse a live
@@ -71,3 +78,15 @@ run as invalid for sleep and rerun under the guard. The
 to the rerun as written, and no test is excused. No sleep in the window
 excludes sleep; continue under the ordinary policy, for example by classifying
 external load.
+
+## Load while measuring
+
+A load figure counts runnable work, not contention. When a measurement names a
+one-minute load range, the load is the natural load other work puts on the
+machine. CPU burners started for the measurement inform but do not stand in
+for it: a `yes` burner started from a backgrounded agent shell runs at nice 5
+and took 6–14% of a CPU on this 16-core machine, so twenty of them lifted the
+load past 30 while the machine stayed about half idle. Foreground burners take
+about half a CPU each and do contend. Record with every loaded run the load
+before and after and whether it was natural or from burners, and at which
+priority burners ran (`ps -o pid,nice,%cpu,command -p <pid>`).

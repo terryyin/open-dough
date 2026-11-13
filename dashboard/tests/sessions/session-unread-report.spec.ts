@@ -19,6 +19,7 @@ import {
   expectTooltipLine,
   sessionsSidebarParts,
   sessionsSidebarSessionEntryTooltipOf,
+  unreadSessionReport,
 } from "../sessionsSidebarPage.ts";
 import { idleBetweenSteps, markDoneAnyway } from "../support/markDone.ts";
 import { launchedStory, reportedMessage } from "../support/reportedLaunch.ts";
@@ -44,7 +45,7 @@ const titleB = "Story B";
 
 // Unread reports add a named mark, matching tooltip line and distinct tint.
 async function expectMarked(row: Locator, unmarked: Locator): Promise<void> {
-  await expect(row.getByRole("img", { name: unreadWords })).toBeVisible();
+  await expect(unreadSessionReport(row, unreadWords)).toBeVisible();
   await expectTooltipLine(row, unreadWords);
   const background = (entry: Locator) =>
     entry.evaluate((element) => getComputedStyle(element).backgroundColor);
@@ -137,7 +138,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   dashboard.claudeSessionBecomes(sessionA, "working");
   await storyB.report();
   await passOnePace();
-  await expect(rowB.getByRole("img", { name: unreadWords })).toBeVisible();
+  await expect(unreadSessionReport(rowB, unreadWords)).toBeVisible();
   dashboard.claudeSessionBecomes(sessionB, "forgotten");
   await passOnePace();
   await expectSessionsSidebarSessionEntryShown(
@@ -145,7 +146,7 @@ test("an unread report is its own mark beside the session's native reading", asy
     "Session unavailable",
     "unsettled",
   );
-  await expect(rowB.getByRole("img", { name: unreadWords })).toBeVisible();
+  await expect(unreadSessionReport(rowB, unreadWords)).toBeVisible();
   await expectTooltipLine(rowB, unreadWords);
   await expect(badge).toHaveCount(0);
   await expect.poll(() => sidebarTitles(page)).toEqual([titleB, titleA]);

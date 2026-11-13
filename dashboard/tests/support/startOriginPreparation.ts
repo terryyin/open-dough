@@ -6,6 +6,7 @@
 
 import { execFile } from "node:child_process";
 import {
+  cpSync,
   mkdtempSync,
   readdirSync,
   readFileSync,
@@ -172,22 +173,39 @@ export async function prepareStartOrigin(
   }
 }
 
-// Each description the run does not prepare is prepared once per process and
-// layout, on top of the same installation, and removed when the process ends.
+// The origins this process holds, by layout and description: each description
+// the run does not prepare, prepared once on top of the same installation, and
+// each a worker keeps whole. All are removed when the process ends.
 const privatelyPrepared = new Map<string, Promise<string>>();
 const privateDirectories: string[] = [];
 process.once("exit", () => {
   for (const directory of privateDirectories)
     rmSync(directory, { recursive: true, force: true });
 });
+const privateKey = (layout: StartOriginLayout, description: StartRepository) =>
+  `${layout}\n${JSON.stringify(description)}`;
+
+// Keeps a copy of `origin`, the bare origin a start of `description` left, as
+// that description's prepared origin in this process: a later start of it is
+// a copy that already holds every revision. A worker does so before its tests
+// start (./pageTest.ts).
+export function keepStartedOrigin(
+  layout: StartOriginLayout,
+  description: StartRepository,
+  origin: string,
+) {
+  const directory = createStartOriginPreparationDirectory();
+  privateDirectories.push(directory);
+  cpSync(origin, path.join(directory, layout), { recursive: true });
+  const key = privateKey(layout, description);
+  privatelyPrepared.set(key, Promise.resolve(directory));
+}
 
 function preparedPrivately(
   layout: StartOriginLayout,
   description: StartRepository,
 ): Promise<string> {
-  const key = `${layout}\n${JSON.stringify(description)}`;
-  const known = privatelyPrepared.get(key);
-  if (known !== undefined) return known;
+  const key = privateKey(layout, description);
   const directory = createStartOriginPreparationDirectory();
   privateDirectories.push(directory);
   const prepared = prepareStartOrigin(directory, layout, description).then(
@@ -201,15 +219,18 @@ function preparedPrivately(
   return prepared;
 }
 
-// The prepared origin a description starts from. An explicit fixture override,
-// or the run-wide origin whose first revision the description shares, is
-// `shared`: its copy still needs the description's later revisions. Any other
-// description is prepared privately, once per process. A run-wide description
-// with no inherited run owner has no prepared origin.
+// The prepared origin a description starts from. One this process holds for it
+// is that. Otherwise an explicit fixture override, or the run-wide origin
+// whose first revision the description shares, is `shared`: its copy still
+// needs the description's later revisions. Any other description is prepared
+// privately, once per process. A run-wide description with no inherited run
+// owner has no prepared origin.
 export async function preparedStartOrigin(
   layout: StartOriginLayout,
   description: StartRepository,
 ): Promise<{ readonly directory?: string; readonly shared: boolean }> {
+  const held = privatelyPrepared.get(privateKey(layout, description));
+  if (held !== undefined) return { directory: await held, shared: false };
   const [first] = description.revisions;
   const runWide = runWideKeys.get(JSON.stringify({ revisions: [first] }));
   // An explicit fixture override still takes precedence over the run owner.

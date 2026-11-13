@@ -1,6 +1,9 @@
 // A held done record leaves Taken facts readable and keeps the done card's
 // place. The wait bound distinguishes a record read from a catalog read.
 import { expect, test } from "../dashboardTest.ts";
+import { credit } from "../agentCredit.ts";
+import { columnCountOf, storyCardSessions } from "../dashboardPage.ts";
+import { sliceBar } from "../storyCardFacts.ts";
 import {
   adHocEntry,
   expectEntries,
@@ -11,7 +14,6 @@ import {
   isHeldCatalog,
   openedWithHeldDoneRecord,
 } from "./recentlyDoneReadLatencyFixture.ts";
-import { sessionEntriesIn } from "../dashboardPage.ts";
 import { openTerminalControl } from "../terminalScreenPage.ts";
 
 test("a slow done-record read never holds back a Taken card's owner, preparation, or clock, and done cards fill in when it answers", async ({
@@ -22,11 +24,11 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
     await openedWithHeldDoneRecord(page, dashboard);
 
   await test.step("while a done record's read is held, the Taken card shows its owner, preparation, and clock, and each done story holds its place and sessions under its identity", async () => {
-    await expect(card.locator(".owner-line")).toContainText(
+    await expect(credit(card).line).toContainText(
       "Akiho-chan · Fixture Committer · Claude Code",
     );
     await expect(
-      card.getByRole("img", { name: "1 of 2 slices recorded complete" }),
+      sliceBar(card, "1 of 2 slices recorded complete"),
     ).toBeVisible();
     await expect(card).toContainText("Current slice started 12 min ago");
     await expectEntries(recent, [
@@ -38,10 +40,10 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
     await expect(
       recent.getByRole("article", { name: executed.identity }),
     ).toContainText("Reading done story…");
-    await expect(recent.locator(".column-count")).toHaveText("4 entries");
+    await expect(columnCountOf(recent)).toHaveText("4 entries");
     await expect(closed).toHaveCount(1);
     await expect(
-      sessionEntriesIn(
+      storyCardSessions(
         recent.getByRole("article", { name: executed.identity }),
       ),
     ).toHaveCount(1);
@@ -58,9 +60,7 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
     ]);
     await expect(closed).toHaveCount(1);
     await expect(
-      sessionEntriesIn(
-        recent.locator(".done-story").filter({ hasText: executed.title }),
-      ),
+      storyCardSessions(recent.getByRole("article", { name: executed.title })),
     ).toHaveCount(1);
     await expect(card).toContainText("Current slice started 12 min ago");
     await expect(problem).toHaveCount(0);
@@ -91,9 +91,9 @@ test("a done-record read still unanswered at the wait bound is the Recently done
   ]);
   const unread = recent.getByRole("article", { name: executed.identity });
   await expect(unread).toContainText("This done story could not be read.");
-  await expect(sessionEntriesIn(unread)).toHaveCount(1);
+  await expect(storyCardSessions(unread)).toHaveCount(1);
   await expect(openTerminalControl(closed)).toBeEnabled();
-  await expect(card.locator(".owner-line")).toContainText(
+  await expect(credit(card).line).toContainText(
     "Akiho-chan · Fixture Committer · Claude Code",
   );
   await expect(card).toContainText("Current slice started 12 min ago");
@@ -116,7 +116,7 @@ test("a done catalog read still unanswered at the wait bound is the Recently don
     "Done stories could not be read. GitHub did not answer within 30 seconds while reading the done catalog.",
   );
   await expect(openTerminalControl(closed)).toBeEnabled();
-  await expect(card.locator(".owner-line")).toContainText(
+  await expect(credit(card).line).toContainText(
     "Akiho-chan · Fixture Committer · Claude Code",
   );
   await expect(card).toContainText("Current slice started 12 min ago");

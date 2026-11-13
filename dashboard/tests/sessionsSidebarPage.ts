@@ -34,14 +34,23 @@ export function sessionsSidebarParts(page: Page) {
     entries,
     // Their story titles, in the order the list shows them.
     titles: entries.getByRole("heading", { level: 3 }),
-    // The open-list entry, as a whole row, for the story with this title.
-    row: (title: string) => entries.filter({ hasText: title }),
+    // The open-list entry, as a whole row, for the story with exactly this
+    // title.
+    row: (title: string) =>
+      entries.filter({
+        has: page.getByRole("heading", { name: title, exact: true }),
+      }),
     // The open-list control of the entry for the story with this title.
     entry: (title: string) => list.getByRole("button", { name: title }),
     // The card's attention sentence, which the sidebar never shows.
     attentionSentence: sidebar.getByText(/\d+ sessions? needs? attention/),
   };
 }
+
+// A row's unread-report mark, named by its words, such as "Unread report:
+// Completed with attention"; given none, any unread report's mark.
+export const unreadSessionReport = (row: Locator, words?: string) =>
+  row.getByRole("img", { name: words ?? /^Unread report/, exact: true });
 
 // Opens the Sessions sidebar unless it is already open. The button's state
 // waits for the page to render, which a reload's kept open sidebar may not

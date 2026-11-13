@@ -47,7 +47,7 @@ test.describe("touch Session details for Done entries", () => {
     await tapWhereShown(shown.button);
     // Section headers are not the coarse Session details control under test.
     await shown.header.click();
-    const row = shown.entries.filter({ hasText: title });
+    const row = shown.row(title);
     await expect(row).toHaveCount(1);
     await expect(sessionsSidebarElapsedOf(row)).toHaveAttribute(
       "aria-label",

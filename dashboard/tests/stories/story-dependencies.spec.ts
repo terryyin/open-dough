@@ -19,6 +19,17 @@ import {
 } from "../pageRequestNotes.ts";
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
+import {
+  dependencyDisclosure,
+  dependencyList,
+  dependencySummary,
+} from "../storyReference.ts";
+import {
+  hideDetail,
+  inspectedDetail,
+  storyCard,
+} from "../storyCardControls.ts";
+import { blockedByAnyDependency, expectBadges } from "../storyCardFacts.ts";
 
 // The accessible disclosure check taps the dependencies summary. Story A
 // waits on Story B and needs a decision about Story C, and is not ready for
@@ -50,12 +61,9 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   });
   await pausePageClock(page);
   await openUntilRead(page);
-  const card = parts(page).backlog.getByRole("article", {
-    name: consumer.title,
-    exact: true,
-  });
+  const card = storyCard(parts(page).backlog, consumer.title);
   const execution = card.getByRole("button", { name: "Start execution" });
-  const summary = card.locator(".story-dependencies summary");
+  const summary = dependencySummary(card);
   await expect(summary).toHaveText("Dependencies · 2 blocking");
   await expect(execution).toBeDisabled();
   await expect(execution).toHaveAccessibleDescription(
@@ -64,19 +72,14 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   await expect(
     card.getByRole("button", { name: "Start refinement" }),
   ).toBeEnabled();
-  await card.getByRole("button", { name: "Inspect story" }).click();
-  await expect(
-    card.getByRole("region", { name: "Detail for Story A" }),
-  ).toBeVisible();
-  await card.getByRole("button", { name: "Hide detail" }).click();
+  await inspectedDetail(card);
+  await hideDetail(card);
   await expect(card).toBeFocused();
-  await expect(card.getByText("Slice planned", { exact: true })).toBeVisible();
-  await expect(card.getByText("Not ready", { exact: true })).toBeVisible();
   // Start eligibility counts the dependencies beside the assessment.
-  await expect(
-    card.getByText("Blocked by 2 dependencies", { exact: true }),
-  ).toBeVisible();
-  await expect(card.locator(".badge-ready")).toHaveCount(0);
+  await expectBadges(card, {
+    shown: ["Slice planned", "Not ready", "Blocked by 2 dependencies"],
+    absent: ["Ready for execution"],
+  });
   await expect(card.getByText("Priority 1")).toBeVisible();
   await card.getByRole("button", { name: "Start refinement" }).click();
   await expect(
@@ -95,16 +98,13 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   await expect(
     card.getByRole("button", { name: "Start refinement" }),
   ).toBeFocused();
-  const supplierCard = parts(page).backlog.getByRole("article", {
-    name: "Story B",
-    exact: true,
-  });
-  await expect(supplierCard.locator(".story-dependencies")).toHaveCount(0);
+  const supplierCard = storyCard(parts(page).backlog, "Story B");
+  await expect(dependencyDisclosure(supplierCard)).toHaveCount(0);
   await expect(
     supplierCard.getByRole("button", { name: "Start execution" }),
   ).toBeEnabled();
 
-  const list = card.getByRole("list", { name: "Story dependencies" });
+  const list = dependencyList(card);
   await expectDependencyAccessibly(page, card, revision);
 
   recordDependency(origin, {
@@ -123,9 +123,7 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   await expect(card).toBeFocused();
   await expect(summary).toHaveText("Dependencies · 1 blocking");
   await expect(execution).toBeDisabled();
-  await expect(
-    card.getByText("Blocked by 1 dependency", { exact: true }),
-  ).toBeVisible();
+  await expectBadges(card, { shown: ["Blocked by 1 dependency"] });
   // The dependencies the developer opened stay open across the refresh.
   await expect(list).toBeVisible();
   await expect(list).toContainText("Satisfied");
@@ -152,23 +150,24 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   await expect(summary).toHaveText("Dependencies · 0 blocking");
   await expect(execution).toBeEnabled();
   await expect(execution).toHaveAccessibleDescription(/Not assessed as ready/);
-  await expect(card.getByText("Not ready", { exact: true })).toBeVisible();
-  await expect(card.locator(".badge-blocked-by-dependencies")).toHaveCount(0);
-  await expect(card.locator(".badge-ready")).toHaveCount(0);
   // A supplier's resolution leaves the reviewed agreement unchanged.
-  await expect(
-    card.getByText("Changed since readiness review", { exact: true }),
-  ).toHaveCount(0);
+  await expectBadges(card, {
+    shown: ["Not ready"],
+    absent: [
+      blockedByAnyDependency,
+      "Ready for execution",
+      "Changed since readiness review",
+    ],
+  });
   // The readiness reason is secondary detail, read without another source
   // read; the Not ready badge stays in the scan view.
   await expect(card).not.toContainText(
     "Unrelated consumer design decision remains.",
   );
   const readsBeforeDetail = published.requests.length;
-  await card.getByRole("button", { name: "Inspect story" }).click();
-  await expect(
-    card.getByRole("region", { name: "Detail for Story A" }),
-  ).toContainText("Unrelated consumer design decision remains.");
+  await expect(await inspectedDetail(card)).toContainText(
+    "Unrelated consumer design decision remains.",
+  );
   expect(published.requests.length).toBe(readsBeforeDetail);
   // Removing the dependency gate restores the existing noted action. The
   // independent readiness judgment still refuses at the real startup command.

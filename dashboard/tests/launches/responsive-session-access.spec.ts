@@ -28,8 +28,8 @@ import {
   inspectByKeyboard,
   marksOf,
   recordAnnouncements,
-  tabTo,
 } from "../responsiveAccess.ts";
+import { tabTo } from "../accessibleReading.ts";
 import {
   expectInspected,
   expectSelected,

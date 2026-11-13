@@ -10,8 +10,7 @@ import {
 } from "../support/preparationPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
-import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
-import { openSessionsSidebar } from "../sessionsSidebarPage.ts";
+import { showRecentlyDone } from "../recentlyDoneSessionsSidebarPage.ts";
 import { completedStoryAssociationEndpoint } from "../../src/completedStoryAssociation.ts";
 import { retainAdHocCompletedStory } from "../support/adHocCompletedAssociation.ts";
 import { choiceStatus } from "../recentlyDoneSelectionJourney.ts";
@@ -85,12 +84,8 @@ test("an unanswered ad hoc association is superseded by another row, and a faile
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/?perspective=intent");
   const { intentChoice, intent } = parts(page);
-  await openSessionsSidebar(page);
-  const shown = recentlyDoneParts(page);
-  await shown.header.click();
-  const linkedRow = shown.entries.filter({
-    has: page.getByRole("heading", { name: linkedTitle }),
-  });
+  const shown = await showRecentlyDone(page);
+  const linkedRow = shown.row(linkedTitle);
 
   await test.step("while the association is held the row says checking; choosing another row abandons it", async () => {
     const held = await holdAssociation(page);

@@ -9,6 +9,7 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import {
+  columnCountOf,
   storyCardSessions,
   parts,
   sessionEntryShowing,
@@ -58,9 +59,7 @@ test.describe("the Sessions sidebar's reading", () => {
     await expect(badge).toHaveCount(0);
     await expect(workingBadge).toHaveCount(0);
     await button.click();
-    await expect(taken.locator(".column-count")).toHaveText(
-      "Entry count incomplete",
-    );
+    await expect(columnCountOf(taken)).toHaveText("Entry count incomplete");
     await expect(taken).toContainText("Reading sessions…");
     await expect(taken).not.toContainText("No Taken entries");
     for (const place of [sidebar, recentlyDone]) {
@@ -90,7 +89,7 @@ test.describe("the Sessions sidebar's reading", () => {
       );
       await expect(place).not.toContainText("Reading sessions…");
     }
-    await expect(taken.locator(".column-count")).toHaveText("0 entries");
+    await expect(columnCountOf(taken)).toHaveText("0 entries");
     await expect(taken).toContainText("No Taken entries are recorded.");
     await expect(entries).toHaveCount(0);
     await expect(badge).toHaveCount(0);

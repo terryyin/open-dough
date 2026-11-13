@@ -17,6 +17,8 @@ import {
 } from "../pageRequestNotes.ts";
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
+import { dependencyDisclosure } from "../storyReference.ts";
+import { storyCard } from "../storyCardControls.ts";
 
 test("a blocker published after the card rendered refuses real startup before claim or native launch", async ({
   page,
@@ -32,10 +34,7 @@ test("a blocker published after the card rendered refuses real startup before cl
   });
   await openUntilRead(page);
   await expectSettledPage(page);
-  const card = parts(page).backlog.getByRole("article", {
-    name: consumer.title,
-    exact: true,
-  });
+  const card = storyCard(parts(page).backlog, consumer.title);
   const start = card.getByRole("button", { name: "Start execution" });
   await expect(start).toBeEnabled();
   await expect(
@@ -44,7 +43,7 @@ test("a blocker published after the card rendered refuses real startup before cl
   await origin.publishRevision(twoDependencies());
   // Deliberately retain the rendered revision: the installed start fetches
   // origin and must enforce the newly published agreement itself.
-  await expect(card.locator(".story-dependencies")).toHaveCount(0);
+  await expect(dependencyDisclosure(card)).toHaveCount(0);
   const acceptance = nextAcceptedAttemptId(page);
   await start.click();
   await page
