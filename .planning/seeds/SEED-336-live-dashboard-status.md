@@ -243,7 +243,7 @@ dashboard through server-sent events (SSE), without waiting for a poll.
 
 #### Background
 
-[SEED-333](../done/SEED-333_spot-completed-stories-that-need-review.json) added
+[Spot completed stories that need review](https://github.com/terryyin/open-dough/blob/00295c11c7e28959be063196ae152921c51f2c6d/.planning/seeds/SEED-333-spot-completed-stories-that-need-review.md#spot-completed-stories-that-need-review) added
 the cue. [The review store](../../dashboard/src/storyReviewStates.ts) polls
 once per project every 15 seconds. [The sidebar link reader](../../dashboard/src/recentlyDoneShownLinks.ts)
 also refreshes every 15 seconds and publishes partial results from a fresh

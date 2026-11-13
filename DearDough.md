@@ -8,7 +8,7 @@ observations and context beyond those catalog records. See
 ## Retention
 
 - Highest allocated local number: 513. Removed numbers are never reused.
-- Recovery: `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
+- Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -51,6 +51,17 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
 [Meaning, evidence and response](docs/maintainer/findings/ODF-264.md).
 
 [Occurrences retained in the catalog](docs/maintainer/findings/ODF-264.md).
+
+### Occurrences
+
+- Execution: SEED-342#follow-story-references-by-title (plan 613; first implementation `0e5785c3c19875ccb025340b8a45f239231bbee5`)
+  - Timestamp: unknown (2026-11-13 execution; exact read-event times not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted claim `de4da5c4a48418becb30b10deedc68c17e7e2237`)
+  - Evidence: launch `9f65084a-e179-403e-b57c-2281c15a2588`; tool `5b2ba4` first-delegation batch reported 11,733 original tokens with truncation; `e0f55e` emitted complete consumer traces (45,075 original tokens), and `b3a290` emitted full lint-process arguments (125,291), both truncated. Bounded decision/consumer/assertion reads recovered the needed context.
+  - Observed effect: broad whole-file/generated-output reads omitted requested passages and needed targeted recovery; command handles, source review and terminal proof remained intact. Intent Coverage later caught the same-seed lookup fault and restored cleanly (348,488 ms invocation-to-report; isolated effort unavailable).
+  - Inference: recurrence of agent read/output-scoping deviation under existing guidance, not missing workflow instructions; no isolated time/token saving is measured.
+
 
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
 

@@ -2,6 +2,18 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-344_settle-reads-before-passing-page-time.json",
+      "identity": "SEED-344#settle-reads-before-passing-page-time",
+      "completedAt": "2026-11-13T10:47:04.784Z",
+      "blob": "8e9edeeab0e900badf55981e45ac97520f48e23d"
+    },
+    {
+      "fileName": "SEED-342_follow-story-references-by-title.json",
+      "identity": "SEED-342#follow-story-references-by-title",
+      "completedAt": "2026-11-13T09:34:58.797Z",
+      "blob": "5e520671d50c5ea44d9eb1aff585e00e35bae8fb"
+    },
+    {
       "fileName": "SEED-331_read-ci-history-at-a-glance.json",
       "identity": "SEED-331#read-ci-history-at-a-glance",
       "completedAt": "2026-11-13T08:37:04.837Z",

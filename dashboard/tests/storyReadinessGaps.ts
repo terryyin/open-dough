@@ -4,7 +4,7 @@
 // gap labels themselves.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { passTimeUntilCheckedAfterSettled } from "./autoRefreshJourney.ts";
+import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import { planHref } from "./queuedPlanNavigation.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
@@ -40,7 +40,7 @@ export async function expectChangedReviewAfterContentChange(
   origin.advanceTo(nextRevision);
   origin.requests.splice(0, origin.requests.length);
 
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   await expectSettledPage(page);
   await expect(parts(page).readRevision).toContainText(
     shortRevision(nextRevision),
@@ -95,7 +95,7 @@ export async function expectPlanAssociationConflict(
   origin.advanceTo(nextRevision);
   origin.requests.splice(0, origin.requests.length);
 
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   await expectSettledPage(page);
   await expect(parts(page).readRevision).toContainText(
     shortRevision(nextRevision),
@@ -151,7 +151,7 @@ export async function expectFailedPlanKeepsSupportedFacts(
   );
   origin.requests.splice(0, origin.requests.length);
 
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   await expectSettledPage(page);
   await expect(parts(page).readRevision).toContainText(shortRevision(next));
 

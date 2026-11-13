@@ -1,10 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, type Page } from "@playwright/test";
-import {
-  passTimeUntilChecked,
-  passTimeUntilCheckedAfterSettled,
-} from "./autoRefreshJourney.ts";
+import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { shortRevision, parts } from "./dashboardPage.ts";
 import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
@@ -70,7 +67,7 @@ export async function expectQueuedPlanFocusDuringEnrichment(
   repo.advanceTo(revision);
   origin.advanceTo(revision);
   await plan.focus();
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   await expectBadges(card, { shown: ["Planless"] });
   await expect(plan).toHaveCount(0);
   await expect(card).toBeFocused();

@@ -10,10 +10,7 @@ import {
   politeRegionsOfferedThenMarked,
   zoomedWindow,
 } from "./accessibleReading.ts";
-import {
-  passTimeUntilChecked,
-  passTimeUntilCheckedAfterSettled,
-} from "./autoRefreshJourney.ts";
+import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import {
   expectMembership,
@@ -179,7 +176,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   await legend.getByRole("button", { name: "Close" }).click();
 
   const restore = origin.answerWith("main", noConnection);
-  await passTimeUntilCheckedAfterSettled(page, 502);
+  await passTimeUntilChecked(page, 502);
   const { problem } = parts(page);
   await expect(problem).toContainText("Published work could not be read");
   await problem.scrollIntoViewIfNeeded();
@@ -187,7 +184,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   await expect(shownProjectControl(page)).toBeVisible();
   await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   restore();
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   await expect(problem).toHaveCount(0);
 }
 

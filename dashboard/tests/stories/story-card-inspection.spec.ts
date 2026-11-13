@@ -13,12 +13,7 @@ import {
 import { expect } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
-import {
-  consumer,
-  supplierB,
-  test,
-  twoDependencies,
-} from "../storyDependencyFixture.ts";
+import { consumer, test, twoDependencies } from "../storyDependencyFixture.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { pausePageClock } from "../autoRefreshJourney.ts";
 import { detailToggle, hideDetail, storyCard } from "../storyCardControls.ts";
@@ -97,7 +92,7 @@ test("Inspect story and a dependency reference open details beside each other wi
   await test.step("Story A's reference to Story B opens B's detail, keeps A and C open, and leaves C selected", async () => {
     await openDependencies(a);
     await expectSelected(a, false);
-    await followReference(a, supplierB.identity);
+    await followReference(a, "Story B");
     await expect(b).toBeFocused();
     for (const each of [a, b, c]) await expectInspected(each, true);
     await expectSelected(b, false);

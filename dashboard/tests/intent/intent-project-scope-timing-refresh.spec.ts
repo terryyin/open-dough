@@ -15,7 +15,7 @@ import {
 } from "../intentPerspectivePage.ts";
 import { childName } from "../intentScopeProofPage.ts";
 import { openSummary } from "../intentSummaryCiProofFixtures.ts";
-import { passTimeUntilCheckedAfterSettled } from "../autoRefreshJourney.ts";
+import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import {
   readKeptProjectHistory,
@@ -177,7 +177,7 @@ test("Project Intent refresh keeps collected history and Proof when the new trun
   ).trim();
   await origin.originGit("update-ref", "refs/heads/main", next, main);
   git(origin.project, "fetch", "--quiet", "origin", "main");
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   await untilPageReadsAnswered(page);
   await expect(reading.selected).toContainText(
     `Observed trunk endpoint ${shortSha(next)} · No timing`,

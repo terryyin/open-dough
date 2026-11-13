@@ -148,12 +148,22 @@ export async function passTimeUntilAsked(page: Page): Promise<number> {
   });
 }
 
-// Lets page time pass until the page asks for the next revision check, then
-// waits -- with page time standing still, so nothing the check starts can
-// time out -- until that check's whole body is answered, successfully unless
-// the local boundary is expected to report a failed check (`502`). Says how much page
-// time passed before the check was asked.
+// Settles outstanding detail reads before passing page time: advancing time
+// inside a detail's wait bound arms recovery that suspends revision checks.
+// Says how much page time passed before the next check was asked.
 export async function passTimeUntilChecked(
+  page: Page,
+  answeredWith: 200 | 502 = 200,
+): Promise<number> {
+  await untilPageReadsAnswered(page);
+  return passTimeUntilCheckedWhileReadsOutstanding(page, answeredWith);
+}
+
+// Lets page time pass while reads stay outstanding until the page asks for
+// its next revision check. Then, with page time standing still so nothing
+// the check starts can time out, waits for the check's whole body to answer,
+// successfully unless the boundary is expected to report a failed check (502).
+export async function passTimeUntilCheckedWhileReadsOutstanding(
   page: Page,
   answeredWith: 200 | 502 = 200,
 ): Promise<number> {
@@ -163,16 +173,6 @@ export async function passTimeUntilChecked(
   expect(response.status()).toBe(answeredWith);
   await response.body();
   return passed;
-}
-
-// Settles outstanding detail reads first: advancing page time while a detail
-// ask is still inside its wait bound arms detail recovery that blocks checks.
-export async function passTimeUntilCheckedAfterSettled(
-  page: Page,
-  answeredWith: 200 | 502 = 200,
-): Promise<number> {
-  await untilPageReadsAnswered(page);
-  return passTimeUntilChecked(page, answeredWith);
 }
 
 // Lets `ms` of page time pass in the same small steps, then waits, with page

@@ -9,10 +9,7 @@ import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { openUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
 import { expandIntentGroup } from "./intentPerspectivePage.ts";
-import {
-  pausePageClock,
-  passTimeUntilCheckedAfterSettled,
-} from "./autoRefreshJourney.ts";
+import { pausePageClock, passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import { pygardon } from "./intentCodeBrowseFixtures.ts";
 import {
@@ -87,7 +84,7 @@ export async function openWithFeatureSelected(
     moved: Readonly<Record<string, string>>,
   ) => {
     origin.moveTrunk({ revision, files: moved });
-    await passTimeUntilCheckedAfterSettled(page);
+    await passTimeUntilChecked(page);
     await untilPageReadsAnswered(page);
   };
   return { moveTrunk, intent, feature, source };

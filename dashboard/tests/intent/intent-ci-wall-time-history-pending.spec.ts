@@ -14,7 +14,7 @@ import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { passTimeUntilCheckedAfterSettled } from "../autoRefreshJourney.ts";
+import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import {
   buildEvidenceRows,
@@ -180,7 +180,7 @@ test.describe("checking pending landings again", () => {
       });
 
     await test.step("time alone, with a revision check that finds the trunk where it was, reads nothing again", async () => {
-      await passTimeUntilCheckedAfterSettled(page);
+      await passTimeUntilChecked(page);
       await untilPageReadsAnswered(page);
       expect(reads).toEqual({ judgment: 1, history: 1 });
       await expect(buildEvidenceRows(builds)).toHaveText([
@@ -191,7 +191,7 @@ test.describe("checking pending landings again", () => {
 
     await test.step("the trunk moves on: the refreshed trunk reading reads the history again, and the point appears", async () => {
       await advanceTrunk(origin);
-      await passTimeUntilCheckedAfterSettled(page);
+      await passTimeUntilChecked(page);
       await untilPageReadsAnswered(page);
       await expect(buildEvidenceRows(builds)).toHaveText([
         firstPoint,

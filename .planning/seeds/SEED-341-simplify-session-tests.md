@@ -12,7 +12,7 @@ scope: story
 ## Parent goal and scope
 
 Terry reviewed the session-related dashboard tests that
-SEED-300#express-session-test-intent-through-page-objects changed and found
+[Express session discovery and report test intent through page objects](https://github.com/terryyin/open-dough/blob/891a05400ffabebbe64505d67561c0a6e20afd42/.planning/seeds/SEED-300-dashboard-test-page-objects.md#express-session-test-intent-through-page-objects) changed and found
 them verbose: long cases, loops over case tables outside and inside tests, and
 long comments explaining what the code already says. A developer reading a
 session test should see only the facts that matter to its case. MakeMe

@@ -31,12 +31,10 @@ intent introduced or affected by a newly developed story.
 - [Close the landed CI repeat checks’ coverage gaps](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps) — SEED-324#close-landed-ci-repeat-check-gaps ([plan](slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md))
 - [Run and observe product-wide end-to-end tests](seeds/SEED-334-product-wide-end-to-end-tests.md#run-and-observe-product-wide-end-to-end-tests) — SEED-334#run-and-observe-product-wide-end-to-end-tests ([plan](slice-plans/608-product-wide-end-to-end-tests/PLAN.md))
 - [Answer fake GitHub reads without a process per call](seeds/SEED-332-answer-fake-gh-in-process.md#answer-fake-gh-reads-in-process) — SEED-332#answer-fake-gh-reads-in-process ([plan](slice-plans/610-answer-fake-gh-reads-in-process/PLAN.md))
-- [Follow story references by title](seeds/SEED-342-follow-story-references-by-title.md#follow-story-references-by-title) — SEED-342#follow-story-references-by-title ([plan](slice-plans/613-follow-story-references-by-title/PLAN.md))
 - [Make CI glance wording and failed status one rule](seeds/SEED-331-read-ci-history-at-a-glance.md#make-ci-glance-wording-and-status-one-rule) — SEED-331#make-ci-glance-wording-and-status-one-rule ([plan](slice-plans/614-make-ci-glance-wording-and-status-one-rule/PLAN.md))
 
 ## Backlog list
 
-- [Settle detail reads by default before passing page time to a check](seeds/SEED-344-settle-reads-before-passing-page-time.md#settle-reads-before-passing-page-time) — SEED-344#settle-reads-before-passing-page-time
 - [Recover CI completion after the observer expires](seeds/SEED-343-recover-ci-completion-observation.md#recover-ci-completion-observation) — SEED-343#recover-ci-completion-observation
 - [Record source-review evidence once per independently observable promise](seeds/SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises) — SEED-010#review-independently-observable-promises
 - [Simplify the remaining session tests](seeds/SEED-341-simplify-session-tests.md#simplify-remaining-session-tests) — SEED-341#simplify-remaining-session-tests

@@ -2,9 +2,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
 import {
   queuedReadyRepository,
-  reviewedStorySeed,
   storyA,
-  storyB,
   storySeed,
 } from "../../../tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
@@ -18,6 +16,8 @@ import {
   recordDependency,
   publishDependencies,
   takeSupplier,
+  secondInSeedB,
+  suppliersInOneSeed,
 } from "../storyDependencyFixture.ts";
 import { startOrigin } from "../support/startOrigin.ts";
 import { storyCard } from "../storyCardControls.ts";
@@ -61,22 +61,9 @@ test("distinct stories in one seed follow their recorded identities by keyboard 
   origin,
   dashboard,
 }) => {
-  // A second story in Story B's seed, queued after it.
-  const secondInSeedB = makeMe.aBacklogEntry
-    .with({
-      identity: "SEED-B#second",
-      href: "seeds/B.md#second",
-      title: "Second story in seed B",
-    })
-    .please();
-  await origin.publishRevision({
-    backlog: { direction, queued: [storyA, storyB, secondInSeedB] },
-    files: {
-      ".planning/seeds/B.md": `${reviewedStorySeed(storyB)}\n<a id="second"></a>\n\n### Second story in seed B\n\n**Identity:** SEED-B#second\n\nAnother outcome.\n`,
-    },
-  });
+  await origin.publishRevision(suppliersInOneSeed());
   recordDependency(origin, {
-    supplier: { identity: "SEED-B#second", href: "seeds/B.md#second" },
+    supplier: secondInSeedB,
     state: "waiting",
   });
   takeSupplier(origin);
@@ -94,7 +81,7 @@ test("distinct stories in one seed follow their recorded identities by keyboard 
   const first = storyCard(parts(page).taken, "Story B");
   const second = storyCard(parts(page).backlog, "Second story in seed B");
   await openDependencies(consumer, "tap");
-  await followReference(consumer, "SEED-B#second", "keyboard");
+  await followReference(consumer, "Second story in seed B", "keyboard");
   await expect(
     second.getByRole("region", { name: "Detail for Second story in seed B" }),
   ).toBeVisible();
@@ -109,7 +96,7 @@ test("distinct stories in one seed follow their recorded identities by keyboard 
         ).storyReveals.at(-1)?.behavior,
     ),
   ).toBe("auto");
-  await followReference(consumer, "SEED-B#b", "tap");
+  await followReference(consumer, "Story B", "tap");
   await expect(
     first.getByRole("region", { name: "Detail for Story B" }),
   ).toBeVisible();
@@ -174,12 +161,12 @@ test("each project's rendered pinned reference opens its own telling of the same
   await openUntilRead(page);
   const consumer = storyCard(parts(page).backlog, "Story A");
   await openDependencies(consumer);
-  await followReference(consumer, "SEED-B#b");
+  await followReference(consumer, "Story B");
   await expect(storyCard(parts(page).backlog, "Story B")).toBeFocused();
   await chooseProject(page, "Pygardon");
   await expect(dependencySummary(consumer)).toBeVisible();
   await openDependencies(consumer);
-  const reference = storyReference(consumer, "SEED-B#b");
+  const reference = storyReference(consumer, "Pygardon selected story");
   await expect(reference).toHaveAttribute(
     "href",
     `https://github.com/terryyin/pygardon/blob/${targetRevision}/.planning/${pygardonHome}`,
