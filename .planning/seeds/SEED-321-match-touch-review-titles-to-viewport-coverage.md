@@ -11,7 +11,7 @@ scope: story
 
 ## Why this matters
 
-SEED-312#speed-up-touch-review-checks cut the touch review journey so the
+[Speed up touch review checks](https://github.com/terryyin/open-dough/blob/03dff46c07c05315a026cafac77fccdbf30234bc/.planning/seeds/SEED-312-touch-review-checks.md#speed-up-touch-review-checks) cut the touch review journey so the
 phone alone chooses the comparison, file browser controls, and panel controls
 that no arrangement changes, while the tablet repeats only what its layout
 changes. The four cases in
@@ -20,18 +20,18 @@ still share the titles "chooses a comparison and file and reads within each
 pane" and "keeps the chosen file and reading places through rotation and panel
 controls", a comment that still counts 31 strokes, helpers that decide the
 owning viewport from page width, and `largeReviewRevision` /
-`largeWorktree` names that still imply an 18-file comparison. SEED-312 left
-that file byte-identical so SEED-287's branch could merge over it cleanly;
+`largeWorktree` names that still imply an 18-file comparison. [Speed up touch review checks](https://github.com/terryyin/open-dough/blob/03dff46c07c05315a026cafac77fccdbf30234bc/.planning/seeds/SEED-312-touch-review-checks.md#speed-up-touch-review-checks) left
+that file byte-identical so [Make dashboard journeys fit the default timeout under load](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)'s branch could merge over it cleanly;
 comments in
 [storyReviewTouchJourney.ts](../../dashboard/tests/support/storyReviewTouchJourney.ts)
 already say what each viewport runs. Until titles and helper wording match
 that split, a tablet failure's title overstates what broke.
 
-SEED-300#express-review-test-intent-through-page-objects will own the review
+[Express review and Side panel test intent through page objects](https://github.com/terryyin/open-dough/blob/26bcdab755a81875c698cb51eb941037646bcb7f/.planning/seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects) will own the review
 helpers and call sites that express this intent. Settling the titles and
 comments before that ownership lands would race the page-object rewrite or be
 rewritten again. This story waits for that supplier, then aligns the wording
-with the viewport split SEED-312 already runs.
+with the viewport split [Speed up touch review checks](https://github.com/terryyin/open-dough/blob/03dff46c07c05315a026cafac77fccdbf30234bc/.planning/seeds/SEED-312-touch-review-checks.md#speed-up-touch-review-checks) already runs.
 
 <a id="match-touch-review-titles-to-viewport-coverage"></a>
 
@@ -74,7 +74,7 @@ skip beats its title claims.
   journey so they say each viewport's title describes its own.
 - Preserve the phone-and-tablet behavioral split, the four cases, every
   reading, context and panel assertion, the native touch input, and the
-  comparison facts. Use the review and side panel owners SEED-300 left in
+  comparison facts. Use the review and side panel owners [Express review and Side panel test intent through page objects](https://github.com/terryyin/open-dough/blob/26bcdab755a81875c698cb51eb941037646bcb7f/.planning/seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects) left in
   place; add no second helper family for the same controls.
 
 ##### Scope limits

@@ -11,8 +11,8 @@ scope: epic
 
 ## Why This Matters
 
-On 2026-11-10, Intent's Taken card for Doughnut's "See Doughnut test cases and
-test files in Intent" showed two red launch failures. Neither sentence was the
+On 2026-11-10, Intent's Taken card for Doughnut's [See Doughnut test cases and
+test files in Intent](https://github.com/nerds-odd-e/doughnut/blob/59bfff83beee80ba7a6cdcf0cff5c3fe3b3ded77/.planning/seeds/SEED-112-publish-explicit-ci-test-counts.md#publish-explicit-ci-test-counts) showed two red launch failures. Neither sentence was the
 failure that happened. A developer cannot tell a crashed preparation command
 from an ownership mismatch, or tell a missing Cursor runner from a listener
 that does not speak the runner protocol. The Take itself had already published.

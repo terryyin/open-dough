@@ -26,36 +26,36 @@ Reviewer launch: `/root/source_review`, fresh context (`fork_turns: none`). Its 
 | C18 | Keep dependency navigation working to the exact Recently done story. | slice 3 |  |
 | C19 | Show the recorded identity when a supplier title is unavailable. | slice 3 |  |
 | C20 | Update Dashboard navigation documentation where it describes the dependency label. | slice 3 |  |
-| C21 | Apply the convention to the still-relevant SEED-337 history-story CI-history reference. | slice 2 |  |
-| C22 | Apply it to the still-relevant SEED-336 live-status Done-record reference. | slice 2 |  |
-| C23 | Apply it to the relevant SEED-321 references concerning speedup, default timeout, and review/Side panel page objects. | slice 2 |  |
-| C24 | Apply it to the relevant plan 611 references concerning those subjects. | slice 2 |  |
-| C25 | Apply it to the relevant SEED-341 session-discovery/report page-object references. | slice 2 |  |
-| C26 | Apply it to the relevant SEED-340 session-discovery/report page-object references. | slice 2 |  |
-| C27 | Apply it to the relevant SEED-332 correction references concerning high-load completion, default Actions, and custom rebuilds. | slice 2 |  |
-| C28 | Apply it to the relevant SEED-324 correction references concerning those subjects. | slice 2 |  |
-| C29 | Apply it to the relevant plan 607 references concerning those subjects. | slice 2 |  |
-| C30 | Apply it to the relevant SEED-319 mobile-terminal, default-timeout, and repeat-check-speedup references. | slice 2 |  |
-| C31 | Apply it to the relevant SEED-292 Donut explicit-CI-count references. | slice 2 |  |
-| C32 | Apply it to the SEED-053 native-guidance acceptance retained links. | slice 2 |  |
-| C33 | Apply it to the SEED-053 companion-case retained links. | slice 2 |  |
-| C34 | When touching ODF-436, apply it to the execution reference “Publish Donut CI proof for Intent.” | slice 2 |  |
+| C21 | Apply the convention to the still-relevant SEED-337 history-story CI-history reference. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| C22 | Apply it to the still-relevant SEED-336 live-status Done-record reference. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| C23 | Apply it to the relevant SEED-321 references concerning speedup, default timeout, and review/Side panel page objects. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| C24 | Apply it to the relevant plan 611 references concerning those subjects. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| C25 | Apply it to the relevant SEED-341 session-discovery/report page-object references. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| C26 | Apply it to the relevant SEED-340 session-discovery/report page-object references. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| C27 | Apply it to the relevant SEED-332 correction references concerning high-load completion, default Actions, and custom rebuilds. | slice 2 | observed: Taken recheck and plan slice 2 gate: SEED-332, SEED-324 correction and plans 607/610 preserved; each held reference retained in /tmp/seed342-slice2-held-references.md for execution-completion reporting |
+| C28 | Apply it to the relevant SEED-324 correction references concerning those subjects. | slice 2 | observed: Taken recheck and plan slice 2 gate: SEED-332, SEED-324 correction and plans 607/610 preserved; each held reference retained in /tmp/seed342-slice2-held-references.md for execution-completion reporting |
+| C29 | Apply it to the relevant plan 607 references concerning those subjects. | slice 2 | observed: Taken recheck and plan slice 2 gate: SEED-332, SEED-324 correction and plans 607/610 preserved; each held reference retained in /tmp/seed342-slice2-held-references.md for execution-completion reporting |
+| C30 | Apply it to the relevant SEED-319 mobile-terminal, default-timeout, and repeat-check-speedup references. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| C31 | Apply it to the relevant SEED-292 Donut explicit-CI-count references. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| C32 | Apply it to the SEED-053 native-guidance acceptance retained links. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| C33 | Apply it to the SEED-053 companion-case retained links. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| C34 | When touching ODF-436, apply it to the execution reference “Publish Donut CI proof for Intent.” | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
 | Q01 | The understandable-label and exact-navigation promises cover references in stories, plans, and dashboard dependencies. | slice 3 |  |
 | Q02 | Those promises hold when several stories share one seed. | slice 3 |  |
 | Q03 | Those promises hold after the referenced story completes. | slice 3 |  |
-| Q04 | Recheck current story ownership before editing audited references. | slice 2 |  |
-| Q05 | Recheck current destinations before editing audited references. | slice 2 |  |
-| Q06 | Coordinate changes to Taken stories with their owners. | slice 2 |  |
-| Q07 | Coordinate changes to Taken plans with their owners. | slice 2 |  |
-| Q08 | Respect existing readiness-review rules. | slice 2 |  |
+| Q04 | Recheck current story ownership before editing audited references. | slice 2 | observed: Taken recheck and plan slice 2 gate: SEED-332, SEED-324 correction and plans 607/610 preserved; each held reference retained in /tmp/seed342-slice2-held-references.md for execution-completion reporting |
+| Q05 | Recheck current destinations before editing audited references. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| Q06 | Coordinate changes to Taken stories with their owners. | slice 2 | observed: Taken recheck and plan slice 2 gate: SEED-332, SEED-324 correction and plans 607/610 preserved; each held reference retained in /tmp/seed342-slice2-held-references.md for execution-completion reporting |
+| Q07 | Coordinate changes to Taken plans with their owners. | slice 2 | observed: Taken recheck and plan slice 2 gate: SEED-332, SEED-324 correction and plans 607/610 preserved; each held reference retained in /tmp/seed342-slice2-held-references.md for execution-completion reporting |
+| Q08 | Respect existing readiness-review rules. | slice 2 | observed: Taken recheck and plan slice 2 gate: SEED-332, SEED-324 correction and plans 607/610 preserved; each held reference retained in /tmp/seed342-slice2-held-references.md for execution-completion reporting |
 | Q09 | An existing format link may be retargeted if necessary. | slice 1 | observed: src/skills/dough-story-decomposition/references/seed-format.md:74 and dough-story-refinement/references/planning.md:131 retain existing links to the contract without restatement |
-| Q10 | Apply audited-reference changes only where the references remain relevant. | slice 2 |  |
-| Q11 | The source groups some audit subjects across multiple documents; it does not establish their exact document-to-target mapping. | slice 2 |  |
+| Q10 | Apply audited-reference changes only where the references remain relevant. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| Q11 | The source groups some audit subjects across multiple documents; it does not establish their exact document-to-target mapping. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
 | E01 | An agent reading only contract item 3 can write a plan reference labelled “Read CI history at a glance in story comparison and test Proof” targeting `SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance`. | slice 1 | observed: src/skills/dough-product-backlog/references/identity.md item 3; coordinator diff review and representative CI-history title-and-anchor walkthrough, no new paragraph or section |
-| E02 | References into one page-object seed distinguish review/Side panel work from session-discovery/report work. | slice 2 |  |
-| E03 | Each of those page-object references opens its own section at a retained revision. | slice 2 |  |
-| E04 | “Spot completed stories that need review,” referenced from the live dashboard status seed, opens its completed section at a retained revision. | slice 2 |  |
-| E05 | A reference to the whole live dashboard status seed uses that seed’s title. | slice 2 |  |
+| E02 | References into one page-object seed distinguish review/Side panel work from session-discovery/report work. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| E03 | Each of those page-object references opens its own section at a retained revision. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| E04 | “Spot completed stories that need review,” referenced from the live dashboard status seed, opens its completed section at a retained revision. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
+| E05 | A reference to the whole live dashboard status seed uses that seed’s title. | slice 2 | observed: SEED-336 H1 Keep dashboard status current with SSE; whole-seed behavior walk uses that title and SEED-336-live-dashboard-status.md, no audited whole-seed link needed an edit |
 | E06 | Two dependency suppliers sharing a seed display their individual story titles. | slice 3 |  |
 | E07 | Each supplier link opens its own story in the correct project. | slice 3 |  |
 | E08 | A completed supplier link opens its Recently done card. | slice 3 |  |
@@ -65,7 +65,7 @@ Reviewer launch: `/root/source_review`, fresh context (`fork_turns: none`). Its 
 | X02 | Add no new guidance paragraph; keep the guidance change to about one sentence in the existing contract item. | slice 1 | observed: src/skills/dough-product-backlog/references/identity.md item 3; coordinator diff review and representative CI-history title-and-anchor walkthrough, no new paragraph or section |
 | X03 | Do not restate the rule in the seed format. | slice 1 | observed: src/skills/dough-story-decomposition/references/seed-format.md:74 and dough-story-refinement/references/planning.md:131 retain existing links to the contract without restatement |
 | X04 | Do not restate the rule in the executable plan format. | slice 1 | observed: src/skills/dough-story-decomposition/references/seed-format.md:74 and dough-story-refinement/references/planning.md:131 retain existing links to the contract without restatement |
-| X05 | Change other older prose only when touched for another reason. | slice 2 |  |
+| X05 | Change other older prose only when touched for another reason. | slice 2 | observed: audited links manifest /tmp/seed342-slice2-links.json: exact title and anchor validation, structured facts and line counts unchanged |
 | X06 | Preserve the backlog format. | slice 3 |  |
 | X07 | Preserve structured identities. | slice 3 |  |
 | X08 | Preserve the dependency record’s supplier identity. | slice 3 |  |
