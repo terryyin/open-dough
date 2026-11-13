@@ -18,6 +18,22 @@ const recoveryGuidance = readFileSync(
   join(skills, "dough-execute-plan/references/ci-completion-recovery.md"),
   "utf8",
 );
+const integrationObservation = readFileSync(
+  join(skills, "dough-execute-plan/references/wrap-up-closure-publication.md"),
+  "utf8",
+);
+const storyBranchIntegration = readFileSync(
+  join(skills, "dough-story-wrap-up/references/story-branch-integration.md"),
+  "utf8",
+);
+
+function section(markdown, heading) {
+  const start = markdown.indexOf(`\n## ${heading}`);
+  assert.notEqual(start, -1, heading);
+  const from = start + 1;
+  const end = markdown.indexOf("\n## ", from);
+  return markdown.slice(from, end === -1 ? undefined : end);
+}
 
 test("budget-expiry notice and completion guidance name the recovery command", () => {
   assert.equal(
@@ -49,4 +65,27 @@ test("budget-expiry notice and completion guidance name the recovery command", (
     recoveryGuidance,
     /same\s+owner input as `resume`[\s\S]+ordinary `CI_OBSERVER` completion receipt/,
   );
+});
+
+test("Story Branch integration names recovery for branch tip and integrated SHA", () => {
+  const observe = section(
+    integrationObservation,
+    "Observe Story Branch integration",
+  );
+  assert.match(
+    observe,
+    /execution-completion-recovery\.mjs complete[\s\S]+branch tip/,
+  );
+  assert.match(
+    observe,
+    /execution-completion-recovery\.mjs complete[\s\S]+integrated SHA/,
+  );
+  assert.match(observe, /instead of polling by hand/);
+  assert.doesNotMatch(observe, /ci-mailbox\.mjs' start/);
+  assert.doesNotMatch(observe, /register-push[\s\S]+complete-revision/);
+  assert.match(
+    storyBranchIntegration,
+    /execution-completion-recovery\.mjs complete[\s\S]+branch tip[\s\S]+integrated SHA/,
+  );
+  assert.match(storyBranchIntegration, /do not poll either target by hand/);
 });

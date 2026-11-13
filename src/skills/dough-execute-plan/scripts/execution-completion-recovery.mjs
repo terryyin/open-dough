@@ -117,6 +117,8 @@ export async function recoverExecutionCompletion(request) {
     storage,
     maxDurationMs = executionBudgetMs,
     now,
+    sleep,
+    deadlineMs,
     cancellation,
   } = request;
 
@@ -162,6 +164,8 @@ export async function recoverExecutionCompletion(request) {
     root: observerRoot,
     storage: observerStorage,
     ...(now ? { now } : {}),
+    ...(sleep ? { sleep } : {}),
+    ...(deadlineMs !== undefined ? { deadlineMs } : {}),
     ...(cancellation ? { cancellation } : {}),
   });
   return {

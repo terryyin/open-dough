@@ -194,7 +194,7 @@ observer the operation reuses it and only registers and completes.
 
 ### 4. Recover an ignored-only merge landing through either provider
 Type: Behavior
-Status: planned
+Status: done
 Proof: Examples 2–5 on a fixture merge built with `makeMe.aRepository` and
 `materializeRepository`. The command adapter uses a fixture `discover` script
 that lists `B` branchless and `M` on `main`. GitHub uses a fake `gh` whose
@@ -320,6 +320,7 @@ command-adapter proof outcomes from slices 3–4. Link the outcome from
 - CI repair on `7f906b8` (run 43450433756/1): named recovery lives in
   `ci-completion-recovery.md` so the finish-row read of `ci-completion-wait.md`
   stays under the 30KB tool-result budget.
+- Slice 4: keep dist(B,L) < dist(M,L) in fixtures or branch-listed M wins on equal distance; fold merge gh into instrumented GitHub fixture.
 
 
 ## Story obligations

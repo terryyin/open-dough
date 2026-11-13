@@ -153,7 +153,10 @@ Story Branch wrap-up changes publication targets. Before integrating its saved,
 published final-closure tip, close the observer bound to the remote execution
 branch with
 [the shared completion operation](ci-completion-wait.md#await-the-applicable-revision-at-completion)
-for that tip when it is the last accepted registered revision. A green
+for that tip when it is the last accepted registered revision. When that
+branch observer has ended before the tip has a completion receipt, run
+`execution-completion-recovery.mjs complete` for the branch tip on the
+execution-branch target instead of polling by hand. A green
 execution-branch receipt covers only that branch and never releases later trunk
 observation.
 
@@ -184,7 +187,11 @@ target, register each accepted SHA with that trunk observer, and finish or
 explicitly retain the visit. Then invoke
 [the shared completion operation](ci-completion-wait.md#await-the-applicable-revision-at-completion)
 once for the final accepted SHA, the integrated SHA or the last consumer
-publication, on that trunk observer and handle its combined receipt. With
+publication, on that trunk observer and handle its combined receipt. When
+that trunk observer has ended before the integrated SHA (or last consumer
+publication) has a completion receipt, run
+`execution-completion-recovery.mjs complete` for that SHA on the trunk
+target instead of polling by hand. With
 a `success` receipt with confirmed shutdown as its gate, wrap-up then retires
 the execution resources under the same
 [Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree).
