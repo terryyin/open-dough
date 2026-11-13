@@ -325,6 +325,17 @@ command-adapter proof outcomes from slices 3–4. Link the outcome from
 - CI repair on `2a1c1f0` (run 43462861301/1): supplier trunk-closure visit recovery expects finish to recover without a prior deliver when the worktree exists.
 - Slice 6: Codex complete arms a fresh stream only; Trunk finish uses the same recovery for Codex ended observers.
 
+## Execution complete
+
+Product advice:
+1. At wrap-up, record the delivered recovery, containing release, and GitHub
+   Actions plus command-adapter proof outcomes at ODF-259; link from ODF-298
+   (finish/Codex) and ODF-334 (exact-SHA polling).
+2. No new backlog story from this review; ODF-121 transport retry stays out of
+   scope.
+3. Process review is deferred into wrap-up pending Intent Coverage
+   (`intentCoverage: true`).
+4. Final CI for `13b7e55e2` was pending at review; completion owns that wait.
 
 ## Story obligations
 
