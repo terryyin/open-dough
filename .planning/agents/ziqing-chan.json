@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "identity": "SEED-331#make-ci-glance-wording-and-status-one-rule",
+  "mode": "story-branch",
+  "branch": "claude/make-ci-glance-wording-and-failed-status-one-rul",
+  "host": "claude",
+  "model": "opus"
+}
