@@ -3,7 +3,12 @@
 // shared check interval so every page of the server shows another page's
 // change at its next read, and a change shown at once from its own answer. An
 // answer to a request started before the latest one shown is not shown.
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useSyncExternalStore,
+} from "react";
 import { localSettingRequest } from "./localSettingRequest.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import {
@@ -38,34 +43,74 @@ async function request(project: string, change?: StoryReviewStateChange) {
   );
 }
 
-export function useStoryReviewStates(project: string): StoryReviewStates {
-  const [reviewed, setReviewed] = useState<ReadonlySet<string>>();
-  const order = useRef({ project, issued: 0, shown: 0 });
-  const answered = useCallback(async (asked: Promise<ReadonlySet<string>>) => {
-    const sequence = (order.current.issued += 1);
-    const from = order.current.project;
+// One page/project owner. Subscribers share both periodic reads and save answers;
+// an older read cannot replace a newer successful save. An unanswered/failed
+// initial read stays unknown rather than becoming an empty reviewed set.
+function projectReviewStates(project: string) {
+  let reviewed: ReadonlySet<string> | undefined;
+  let issued = 0;
+  let shown = 0;
+  let generation = 0;
+  let interval: ReturnType<typeof setInterval> | undefined;
+  const listeners = new Set<() => void>();
+  const answered = async (asked: Promise<ReadonlySet<string>>) => {
+    const sequence = ++issued;
+    const from = generation;
     const answer = await asked;
-    const now = order.current;
-    if (now.project !== from || sequence <= now.shown) return;
-    now.shown = sequence;
-    setReviewed(answer);
-  }, []);
-  useEffect(() => {
-    order.current = { project, issued: 0, shown: 0 };
-    setReviewed(undefined);
-    const read = () => {
-      answered(request(project)).catch(() => undefined);
-    };
-    read();
-    const interval = setInterval(read, checkIntervalMs);
-    return () => {
-      clearInterval(interval);
-      order.current = { project: "", issued: 0, shown: 0 };
-    };
-  }, [project, answered]);
-  const change = useCallback(
-    (asked: StoryReviewStateChange) => answered(request(project, asked)),
-    [project, answered],
+    if (from !== generation || sequence <= shown) return;
+    shown = sequence;
+    reviewed = answer;
+    for (const listener of listeners) listener();
+  };
+  const read = () => {
+    void answered(request(project)).catch(() => undefined);
+  };
+  return {
+    snapshot: () => reviewed,
+    subscribe: (listener: () => void) => {
+      listeners.add(listener);
+      if (listeners.size === 1) {
+        read();
+        interval = setInterval(read, checkIntervalMs);
+      }
+      return () => {
+        listeners.delete(listener);
+        if (listeners.size !== 0) return;
+        clearInterval(interval);
+        generation += 1;
+        reviewed = undefined;
+      };
+    },
+    change: (change: StoryReviewStateChange) =>
+      answered(request(project, change)),
+  };
+}
+
+type ProjectReviewStates = ReturnType<typeof projectReviewStates>;
+export const StoryReviewStatesOnPage = createContext<
+  Map<string, ProjectReviewStates> | undefined
+>(undefined);
+export function usePageStoryReviewStates() {
+  return useMemo(() => new Map<string, ProjectReviewStates>(), []);
+}
+
+const unknown = () => undefined;
+const unsubscribed = () => () => undefined;
+export function useStoryReviewStates(
+  project: string,
+  enabled = true,
+): StoryReviewStates {
+  const page = useContext(StoryReviewStatesOnPage);
+  const state = useMemo(() => {
+    const existing = page?.get(project);
+    if (existing !== undefined) return existing;
+    const created = projectReviewStates(project);
+    page?.set(project, created);
+    return created;
+  }, [page, project]);
+  const reviewed = useSyncExternalStore(
+    enabled ? state.subscribe : unsubscribed,
+    enabled ? state.snapshot : unknown,
   );
-  return { reviewed, change };
+  return { reviewed, change: state.change };
 }

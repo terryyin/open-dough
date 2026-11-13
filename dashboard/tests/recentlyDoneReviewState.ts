@@ -11,6 +11,10 @@ import type { Locator, Page } from "@playwright/test";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { doneRecordPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { showColumn } from "./boardPage.ts";
+import {
+  expectControlContrast,
+  expectReadableContrast,
+} from "./accessibleReading.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardParts.ts";
 import { expect } from "./dashboardTest.ts";
@@ -93,6 +97,37 @@ export const markAsReviewed = (card: Locator) =>
 
 export const unreview = (card: Locator) =>
   storyActions(card).getByRole("button", { name: "Unreview", exact: true });
+
+export const reviewSaveFailure = (card: Locator, message: string) =>
+  card.getByRole("status").filter({ hasText: message });
+
+// A warning remains an action in words, with a filled red surface that is
+// readable and distinguishable as a control in the caller's appearance.
+export async function expectReviewWarning(
+  card: Locator,
+  colors: { readonly background: string; readonly foreground: string },
+) {
+  const action = markAsReviewed(card);
+  await expect(action).toBeVisible();
+  await expect(action).toHaveCSS("background-color", colors.background);
+  await expect(action).toHaveCSS("color", colors.foreground);
+  await expectReadableContrast(action);
+  await expectControlContrast(action);
+}
+
+export async function expectQuietReviewed(
+  card: Locator,
+  quietColor: string,
+  surfaceColor: string,
+) {
+  await expectReviewed(card, true);
+  await expect(unreview(card)).toHaveCSS("color", quietColor);
+  await expect(unreview(card)).toHaveCSS("background-color", surfaceColor);
+  await expectReadableContrast(unreview(card));
+  await expectReadableContrast(
+    storyActions(card).getByText("Reviewed", { exact: true }),
+  );
+}
 
 // What the Story actions say of the card's review state: the Reviewed status
 // words with Unreview beside them, or Mark as reviewed alone; never a

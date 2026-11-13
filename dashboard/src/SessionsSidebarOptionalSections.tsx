@@ -114,6 +114,7 @@ export function SessionsSidebarOptionalSections({
   return (
     <>
       <RecentlyDoneSessions
+        shown={sidebarOpen}
         open={recentlyDoneOpen}
         onToggle={onToggleRecentlyDone}
         records={records}

@@ -9,7 +9,7 @@ import type { Locator, Page } from "@playwright/test";
 import { readFinalReportControl } from "./sessionEntryAccess.ts";
 export { readFinalReportControl } from "./sessionEntryAccess.ts";
 
-function finalReportPanel(page: Page) {
+export function finalReportPanel(page: Page) {
   return page.getByRole("region", { name: "Final report" });
 }
 

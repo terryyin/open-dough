@@ -113,15 +113,10 @@ parallel ones:
   each derive their view by project and identity from it. Actions on one
   session (attach, stop, Mark as done) still run in its project's folder.
   The Board's published work view observes one selected project at a time.
-  Shown Recently done sessions rows may make bounded completed-story link
-  checks for their own configured projects without replacing that view or
-  navigating; reuse the existing published catalog and confirmed Ad hoc
-  association readers. Their review cues share each project's machine-local
-  review state with its Board cards, keyed by project and story identity,
-  rather than storing review flags on sessions. This supports
-  [SEED-333](seeds/SEED-333-spot-completed-stories-that-need-review.md#spot-completed-stories-that-need-review)
-  using the existing link and review-state boundaries. Later hosts join the
-  same session read through their own module.
+  Shown Recently done rows' bounded completed-story link observations and
+  shared machine-local review cues now follow the maintained
+  [session history contract](../dashboard/AGENT-LAUNCH-HISTORY.md).
+  Later hosts join the same session read through their own module.
 
 Each host normalizes its native activity; common presentation owns its user
 meaning. Saved conversation existence, current native activity and the

@@ -21,6 +21,7 @@ import { sessionKey } from "./sessionReference.ts";
 // available, opens as the row did. It is current, and outlined, while the
 // Side panel shows its session.
 
+import { useStoryReviewStates } from "./storyReviewStates.ts";
 import { useId } from "react";
 import { ChevronRight, MessageSquareText } from "lucide-react";
 import { Icon, IconButton } from "./Icon.tsx";
@@ -61,14 +62,26 @@ export function SessionsSidebarSessionEntry({
   record,
   onOpen,
   selection,
+  completedStory,
+  reviewObserved = true,
 }: {
   readonly record: LaunchWithState;
   readonly onOpen: OpenSessionsSidebarSessionEntry;
   // Present in Recently done sessions, where the row selects.
   readonly selection?: RecentlyDoneRowSelection;
+  readonly completedStory?: string | undefined;
+  readonly reviewObserved?: boolean;
 }) {
   const projects = useProjects();
   const { source } = record.request;
+  const { reviewed } = useStoryReviewStates(
+    source,
+    selection !== undefined && reviewObserved,
+  );
+  const needsReview =
+    completedStory !== undefined &&
+    reviewed !== undefined &&
+    !reviewed.has(completedStory);
   const { title, identity, name, modelWords } = launchSubject(record.request);
   const { entryClass, label, tone, unreadReportWords } = shownSession(record);
   const { note } = sessionShown(record);
@@ -87,11 +100,17 @@ export function SessionsSidebarSessionEntry({
   const limitation = workspaceLimitation(record);
   const titleId = useId();
   const choiceId = useId();
+  const reviewId = useId();
   const whenWords =
     completedAt !== undefined
       ? `Completed ${completedAt.toLocaleString()}`
       : `${record.firstInput !== undefined && record.firstInput.state !== "confirmed" ? "Conversation created" : "Launched"} ${launchedAt.toLocaleString()}`;
   const facts = [
+    ...(needsReview
+      ? [
+          "Needs review: this story has not been marked reviewed on this machine.",
+        ]
+      : []),
     ...(limitation === undefined ? [] : [limitation]),
     note === undefined ? label : `${label}: ${note}`,
     ...(unreadReportWords === undefined ? [] : [unreadReportWords]),
@@ -112,9 +131,13 @@ export function SessionsSidebarSessionEntry({
           ? {}
           : {
               "aria-pressed": choice !== undefined,
-              ...(chosenWords === undefined
-                ? {}
-                : { "aria-describedby": choiceId }),
+              "aria-describedby":
+                [
+                  chosenWords === undefined ? undefined : choiceId,
+                  needsReview ? reviewId : undefined,
+                ]
+                  .filter(Boolean)
+                  .join(" ") || undefined,
             })}
         title={facts.join("\n")}
         onClick={(event) => {
@@ -126,6 +149,15 @@ export function SessionsSidebarSessionEntry({
       <h3 id={titleId} className="sessions-sidebar-session-entry-title">
         {title}
       </h3>
+      {needsReview && (
+        <span
+          id={reviewId}
+          className="sessions-sidebar-session-entry-review"
+          aria-label="Needs review: this story has not been marked reviewed on this machine."
+        >
+          Needs review
+        </span>
+      )}
       {unreadReportWords !== undefined && (
         <span
           role="img"
