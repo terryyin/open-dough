@@ -309,6 +309,21 @@ specs plus refactor 4/4 (`s8/run-aa..ac.log`, `s8r/run.log`). `session-unread-re
 timed out cold at load ~54 (10.3 s in origin preparation) and passed 3/3 at load 18–20;
 that cold-preparation cost is SEED-335's.
 
+## Execution complete
+
+Product advice:
+- The retrospective's reconciliation and residue advice is delivered by slices 7 and 8:
+  one owner per shared session and report control across this story and the review,
+  Terminal and Board stories now on trunk.
+- Four launch-family specs (`agent-launch-claude-verification`,
+  `agent-launch-claude-own-record-verification`, `responsive-session-reconciliation`,
+  `-refusals`) still derive `openSessionDescription` from production, and
+  `recoveryOf` is aliased in two launch helpers; leave them to
+  SEED-300#express-launch-test-intent-through-page-objects.
+- Cold one-time preparation inside first-case budgets is queued first as
+  SEED-335#keep-one-time-test-preparation-out-of-case-budgets; until it lands,
+  first cases such as `session-unread-report:58` can time out at load above about 50.
+
 ## Verification, current decisions and concern review
 
 - Each slice runs changed specs and transitive consumers, using `npm run
