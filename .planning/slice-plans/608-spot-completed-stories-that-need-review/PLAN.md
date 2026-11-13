@@ -8,31 +8,21 @@
 
 - Mode: story-branch; owned/reused workspace `/Users/terryyin/git/open-dough/.worktrees/spot-completed-stories-that-need-review`, branch `codex/spot-completed-stories-that-need-review`; remote `origin`, trunk `main`.
 - Established start: publisher `dashboard-territory.local-open-dough`, agent `joey-chan`; start `8f70215aca94f40e3a42fbe2ed5e239d6e5f6489`, accepted claim/candidate `7eae86d553974c1b60bfe997df6c826ed73ac4ef` on origin/main. Claim CI: unobserved.
-- Slice 1 publication accepted on origin/codex/spot-completed-stories-that-need-review: `1d95951e0e7457dcd3620eecf6568067b097a3fc`; candidate same, suffix base claim SHA; observer reused and revision attached. This is the next increment's published base.
+- Execution publications accepted on origin/codex/spot-completed-stories-that-need-review: slice 1 `1d95951e0e7457dcd3620eecf6568067b097a3fc` (suffix base claim), slice 2 `40e6e66c06afe45f7034d89522bb74e5f7a32c83` (base slice 1); latest candidate/published base is slice 2. Observer reused and both revisions attached. No unpublished implementation suffix remains.
 - Checkout setup: `npm ci` and `npm run typecheck:dashboard` passed in this checkout with unchanged locked dependencies on 2026-11-13. Hook is check-only staged lint plus script-change dashboard typecheck; formatter is changed-file `npm run format`.
 - CI: GitHub Actions `terryyin/open-dough`, execution branch, verified `ci.yml` (CI, id 351271804); coordinator `seed333-joey`, yielded cell `g278:19`, stream session `37185`, directory `/tmp/dough-ci-501/watch-dI5jKt`, PID `33962`, watching.
 - Replanning: preserve existing planning authority; no numeric slice budget or hard limit supplied.
+- Retrospective: product/proof review complete at slice 2; related implementation manifest is the two accepted execution commits above, with Take/preparation as provenance only and unrelated trunk work excluded. Original Ready source remains the basis; G1 preserves existing meaning and G2/G3 are proved. ADRs 0001/0002/0008 honored, cohesive shared local state/grouped observation, meaningful integrated journeys retained; no correction or duplicate queue advice. Process remains selected (`skipProcessRetrospective: false`), deferred into wrap-up after enabled Intent Coverage report/dispositions; no process log access yet.
+- Dashboard launch `275cb85a-0cce-40c2-8c58-23ce07cea95e`: first trunk publication must supply `--landing-context /Users/terryyin/.open-dough/dashboard/reporting/275cb85a-0cce-40c2-8c58-23ce07cea95e/landing-context.json`; final reporting uses the supplied outside-checkout dashboard-completion.mjs command for open-dough/codex, origin http://127.0.0.1:4173, same reference, after all closure gates.
 - Proof decision: this Mac on AC, 40% memory free, natural load 74/54/52; Board/session test worktrees are active. Run only focused proof with one worker under `caffeinate -s -i`; implementation owner rechecks host before launch/repeat and diagnoses failures under the linked failure policy. Duration unknown; no unrelated processes modified.
 
 ## Goal and scope
 
-A developer scanning the Board's Recently done cards and the Sessions sidebar's
-Recently done sessions can spot completed stories not yet marked reviewed on
-this machine, before selecting them. Give the card's Mark as reviewed action
-prominent red warning styling and linked rows the same warning meaning with
-visible, accessible Needs review words. Preserve quiet Reviewed/Unreview styling.
+A developer scanning the Board's Recently done cards and the Sessions sidebar's Recently done sessions can spot completed stories not yet marked reviewed on this machine, before selecting them. Give the card's Mark as reviewed action prominent red warning styling and linked rows the same warning meaning with visible, accessible Needs review words. Preserve quiet Reviewed/Unreview styling.
 
-Use the linked project's existing machine-local review state. A successful card
-change updates every linked row on the page; Unreview restores the cues. Include
-story launches and confirmed Ad hoc associations, including other configured
-projects while the Board remains on its current project. Unknown evidence never
-becomes an inferred warning or a claim that a story was reviewed. Preserve
-Select/Open, focus, selection, perspective, Side panel, unread-report meaning,
-session disposition, and failed-save behavior.
+Use the linked project's existing machine-local review state. A successful card change updates every linked row on the page; Unreview restores the cues. Include story launches and confirmed Ad hoc associations, including other configured projects while the Board remains on its current project. Unknown evidence never becomes an inferred warning or a claim that a story was reviewed. Preserve Select/Open, focus, selection, perspective, Side panel, unread-report meaning, session disposition, and failed-save behavior.
 
-No sidebar review action, review-based ordering/filter, count, new persistence,
-published review fact, retention change, or new completed-story linking rule.
-Necessary shared-state and observation work belongs to the cue's delivery.
+No sidebar review action, review-based ordering/filter, count, new persistence, published review fact, retention change, or new completed-story linking rule. Necessary shared-state and observation work belongs to the cue's delivery.
 
 ## Architecture and existing solutions
 
@@ -176,6 +166,10 @@ Retain the server's local store and association authority. Update the maintained
 sidebar contract in `dashboard/AGENT-LAUNCH-HISTORY.md` and remove STORY-CARDS'
 now-obsolete statement that the sidebar never shows review state. Reconcile the
 temporary North Star topic into maintained behavior at wrap-up.
+
+## Execution complete
+
+Product advice: no change. The visible card/row cue fulfills the scanning goal while keeping review local, preserving navigation and session meaning, and retaining bounded integration and race proof. Existing queue priorities remain appropriate.
 
 ## Gates and delivery
 
