@@ -476,6 +476,12 @@ ran above it. Other proof:
 load 55+ (O9). No browser proof now covers `pageMovement.ts` handling a
 reveal still in motion (accepted with O8).
 
+CI repair after slice 9 (run 43349861593/1, `local-test-suite.test.mjs:125`):
+the local-suite runner layer copies the Playwright config with a fixed list of
+its imports, and that list lacked the new `browserArgs.ts`. Adding it fixed
+the run (`bash scripts/test.sh tests/support/local-test-suite.test.mjs` quiet
+pass). Every other job in that run, including all 13 dashboard shards, passed.
+
 ## Proof commands and execution gates
 
 For each Cn regex below, run `caffeinate -i npm run test:dashboard -- '<regex>' --workers=1`
