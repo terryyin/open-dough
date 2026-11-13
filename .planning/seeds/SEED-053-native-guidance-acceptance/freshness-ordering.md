@@ -1,6 +1,6 @@
 # Freshness ordering native acceptance
 
-Extension of [guarded local delivery acceptance](../SEED-053-native-guidance-acceptance.md#guarded-local-delivery-prerequisites).
+Extension of [Accept guarded local preparation, commit and publication on each host](../SEED-053-native-guidance-acceptance.md#guarded-local-delivery-prerequisites).
 
 **Freshness ordering extension:** For planned Story Branch implementation
 returns, observe source and named-sibling checks before refactoring and expensive

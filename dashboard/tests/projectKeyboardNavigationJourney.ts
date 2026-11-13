@@ -10,6 +10,7 @@ import {
   expectProjectChoice,
   openDirection,
   parts,
+  projectTab,
 } from "./dashboardPage.ts";
 import {
   catalogExpectations,
@@ -31,6 +32,17 @@ export async function publishCatalogProjects(page: Page): Promise<void> {
   }
 }
 
+// The Board shows this catalog project's one Taken and one Backlog story.
+export async function expectCatalogStories(
+  page: Page,
+  expected: CatalogExpectation,
+): Promise<void> {
+  await expectMembership(page, {
+    taken: [expected.taken],
+    backlog: [expected.queued],
+  });
+}
+
 export async function expectSelectedProject(
   page: Page,
   expected: CatalogExpectation,
@@ -42,14 +54,9 @@ export async function expectSelectedProject(
     readonly checkDirection?: boolean;
   } = {},
 ): Promise<void> {
-  const { project, direction, readRevision } = parts(page);
-  await expect(
-    project.getByRole("radio", { name: expected.label, exact: true }),
-  ).toBeChecked();
-  await expectMembership(page, {
-    taken: [expected.taken],
-    backlog: [expected.queued],
-  });
+  const { direction, readRevision } = parts(page);
+  await expect(projectTab(page, expected.label)).toBeChecked();
+  await expectCatalogStories(page, expected);
   if (checkDirection) {
     await openDirection(page);
     await expect(direction).toContainText(expected.direction);
@@ -76,10 +83,7 @@ export async function expectFocusedRadio(
   page: Page,
   label: string,
 ): Promise<void> {
-  const radio = parts(page).project.getByRole("radio", {
-    name: label,
-    exact: true,
-  });
+  const radio = projectTab(page, label);
   await expect(radio).toBeChecked();
   await expect(radio).toBeFocused();
 }

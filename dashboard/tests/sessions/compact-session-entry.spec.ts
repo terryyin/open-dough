@@ -10,6 +10,8 @@ import {
 } from "../terminalScreenPage.ts";
 import {
   parts,
+  sessionEntriesIn,
+  sessionIdLineOf,
   sessionNamedBy,
   sessionStateOf,
   storyCardSessions,
@@ -19,7 +21,16 @@ import { readyStory } from "../launchJourney.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { workingCursorTest } from "../support/cursorStart.ts";
 import { openTakenCursorSession } from "../support/cursorSessionReading.ts";
-import { markDoneAnyway } from "../support/markDone.ts";
+import {
+  doneQuestion,
+  keepOpen,
+  markAsDone,
+  markDoneAnyway,
+} from "../support/markDone.ts";
+import {
+  sessionActionsControl,
+  sessionDetailsControl,
+} from "../support/sessionEntryDisclosure.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -45,14 +56,9 @@ test.describe(() => {
     const entry = storyCardSessions(card(readyStory));
     await expect(sessionStateOf(entry)).toHaveText("Working");
     const id = await sessionNamedBy(entry);
-    const details = entry.getByRole("button", {
-      name: "Session details",
-      exact: true,
-    });
+    const details = sessionDetailsControl(entry);
     await expect(details).toHaveAttribute("aria-expanded", "false");
-    await expect(
-      entry.getByText(`Session ${id}`, { exact: true }),
-    ).toBeHidden();
+    await expect(sessionIdLineOf(entry, id)).toBeHidden();
     await expect(
       entry.getByText("Model: Sonnet (requested)", { exact: true }),
     ).toBeVisible();
@@ -69,34 +75,25 @@ test.describe(() => {
     await card(readyStory)
       .getByRole("button", { name: "Hide detail", exact: true })
       .click();
-    await expect(
-      entry.getByRole("button", { name: "Open terminal", exact: true }),
-    ).toBeVisible();
-    await expect(
-      entry.getByRole("button", { name: "Mark as done", exact: true }),
-    ).toBeHidden();
+    const open = openTerminalControl(entry);
+    await expect(open).toBeVisible();
+    await expect(markAsDone(entry)).toBeHidden();
 
     await details.focus();
     await page.keyboard.press("Enter");
     await expect(details).toHaveAttribute("aria-expanded", "true");
-    await expect(
-      entry.getByText(`Session ${id}`, { exact: true }),
-    ).toBeVisible();
+    await expect(sessionIdLineOf(entry, id)).toBeVisible();
     await page.keyboard.press("Space");
     await expect(details).toHaveAttribute("aria-expanded", "false");
     await expect(details).toBeFocused();
 
-    const open = openTerminalControl(entry, { exact: true });
     await open.click();
     const terminal = terminalPanel(page);
     await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     await closeSidePanel(terminal);
     await expect(open).toBeFocused();
 
-    const actions = entry.getByRole("button", {
-      name: "More session actions",
-      exact: true,
-    });
+    const actions = sessionActionsControl(entry);
     await actions.focus();
     await page.keyboard.press("Enter");
     await expect(actions).toHaveAttribute("aria-expanded", "true");
@@ -104,15 +101,10 @@ test.describe(() => {
     await expect(actions).toHaveAttribute("aria-expanded", "false");
     await expect(actions).toBeFocused();
     await page.keyboard.press("Space");
-    await entry
-      .getByRole("button", { name: "Mark as done", exact: true })
-      .click();
-    const keep = entry.getByRole("button", { name: "Keep open", exact: true });
-    await expect(keep).toBeFocused();
+    await markAsDone(entry).click();
+    await expect(keepOpen(doneQuestion(entry))).toBeFocused();
     await page.keyboard.press("Escape");
-    await expect(
-      entry.getByRole("button", { name: "Mark as done", exact: true }),
-    ).toBeFocused();
+    await expect(markAsDone(entry)).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(actions).toHaveAttribute("aria-expanded", "false");
     await expect(actions).toBeFocused();
@@ -130,18 +122,14 @@ test.describe(() => {
     await expect(open).toBeVisible();
     await page.setViewportSize({ width: 360, height: 800 });
     await details.click();
-    await expect(
-      entry.getByText(`Session ${id}`, { exact: true }),
-    ).toBeVisible();
+    await expect(sessionIdLineOf(entry, id)).toBeVisible();
     const bounds = await entry.boundingBox();
     if (bounds === null) throw new Error("The session entry is not laid out.");
     expect(bounds.width).toBeLessThanOrEqual(360);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(360);
-    await expect(
-      parts(page).recentlyDone.locator(".session-entry"),
-    ).toHaveCount(0);
+    await expect(sessionEntriesIn(parts(page).recentlyDone)).toHaveCount(0);
     await markDoneAnyway(entry);
     await expect(entry).toHaveCount(0);
     await expect(
@@ -169,10 +157,7 @@ workingCursorTest(
     await expect(
       entry.getByText("Model: auto (requested)", { exact: true }),
     ).toBeVisible();
-    const details = entry.getByRole("button", {
-      name: "Session details",
-      exact: true,
-    });
+    const details = sessionDetailsControl(entry);
     await expect(details).toHaveAttribute("aria-expanded", "false");
     await expect(
       entry.locator("p", { hasText: /^Continue in Cursor:/ }),
@@ -229,8 +214,6 @@ workingCursorTest(
     await expect(commandLine.locator("code")).toHaveText(command ?? "");
     await details.click();
     await expect(entry.getByRole("status")).toBeVisible();
-    await expect(
-      entry.getByRole("button", { name: "Open terminal", exact: true }),
-    ).toBeVisible();
+    await expect(openTerminalControl(entry)).toBeVisible();
   },
 );

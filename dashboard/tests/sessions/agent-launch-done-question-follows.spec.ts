@@ -133,7 +133,7 @@ test("in the terminal, the open question follows the session's reading and goes 
     dashboard,
     origin,
   );
-  await openTerminalControl(entry, { exact: false }).click();
+  await openTerminalControl(entry).click();
   const panel = terminalPanel(page);
   await expect(terminalScreenParts(panel).rows).toContainText("attached");
   const before = dashboard.claudeStopCalls().length;

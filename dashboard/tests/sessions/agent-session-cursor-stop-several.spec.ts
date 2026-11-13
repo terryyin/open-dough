@@ -2,8 +2,8 @@
 // running under Running Cursor sessions. Single-session stop and
 // unconfirmed-stop journeys live in ./agent-session-cursor-stop.spec.ts.
 import { sessionAction } from "../support/sessionEntryDisclosure.ts";
-import { parts } from "../dashboardPage.ts";
-import { openRunningList } from "../runningCursorSessionsPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
+import { openRunningList } from "../runningCursorList.ts";
 import { closeTerminal, terminalPanel } from "../terminalScreenPage.ts";
 import {
   launchSecondHeldSession,
@@ -28,7 +28,7 @@ workingCursorTest(
     const panel = terminalPanel(page);
     if ((await panel.count()) > 0) await closeTerminal(panel);
 
-    const entries = parts(page).taken.locator(".session-entry");
+    const entries = sessionEntriesIn(parts(page).taken);
     await expect(entries).toHaveCount(2);
     const scopedEntry = entries.filter({ hasText: cursor.sessionId });
     const otherEntry = entries.filter({ hasText: stopOneSecondId });
@@ -43,10 +43,8 @@ workingCursorTest(
     const otherPid = otherAttach?.pid ?? 0;
     expect(processRunning(otherPid)).toBe(true);
 
-    const runningBefore = await openRunningList(page);
-    await expect(
-      runningBefore.region.getByRole("button", { name: /Open Dough/ }),
-    ).toHaveCount(2);
+    const heldRows = (await openRunningList(page)).heldRows(/Open Dough/);
+    await expect(heldRows).toHaveCount(2);
 
     await (await sessionAction(scopedEntry, "Stop")).click();
     await expect(scopedEntry).toContainText("Session stopped.");
@@ -56,9 +54,7 @@ workingCursorTest(
     expect(processRunning(otherPid)).toBe(true);
     expect(cursor.signals(otherPid)).not.toContain("SIGHUP");
 
-    await expect(
-      runningBefore.region.getByRole("button", { name: /Open Dough/ }),
-    ).toHaveCount(1);
+    await expect(heldRows).toHaveCount(1);
     await expect(otherEntry).toContainText("Working");
     expect(processRunning(otherPid)).toBe(true);
   },

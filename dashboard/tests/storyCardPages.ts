@@ -13,7 +13,12 @@ import type { Locator } from "@playwright/test";
 import { parts, storyCardSessions } from "./dashboardParts.ts";
 import { PageObject } from "./fluentPageObject.ts";
 import type { SidePanelPages } from "./sidePanelPages.ts";
-import { expectInspected, expectSelected } from "./storyCardSelection.ts";
+import { hideDetail, storyCard } from "./storyCardControls.ts";
+import {
+  emptyArea,
+  expectInspected,
+  expectSelected,
+} from "./storyCardSelection.ts";
 import { expect } from "./support/preparationPage.ts";
 
 export class Board extends PageObject {
@@ -39,10 +44,7 @@ export class StoryCard extends PageObject {
   constructor(pages: SidePanelPages, title: string) {
     super(pages);
     this.#title = title;
-    this.#card = parts(pages.page).board.getByRole("article", {
-      name: title,
-      exact: true,
-    });
+    this.#card = storyCard(parts(pages.page).board, title);
   }
 
   // The card's one Review changes action.
@@ -92,10 +94,7 @@ export class StoryCard extends PageObject {
   readFinalReport() {
     return this.cue(
       `${this.#named}: Read final report`,
-      () =>
-        readFinalReportControl(storyCardSessions(this.#card), {
-          exact: false,
-        }).click(),
+      () => readFinalReportControl(storyCardSessions(this.#card)).click(),
       this.pages.finalReport,
     );
   }
@@ -104,10 +103,7 @@ export class StoryCard extends PageObject {
   openTerminal() {
     return this.cue(
       `${this.#named}: Open terminal`,
-      () =>
-        openTerminalControl(storyCardSessions(this.#card), {
-          exact: false,
-        }).click(),
+      () => openTerminalControl(storyCardSessions(this.#card)).click(),
       this.pages.terminal,
     );
   }
@@ -117,14 +113,16 @@ export class StoryCard extends PageObject {
   }
 
   hideDetail() {
-    return this.#press("Hide detail");
+    return this.cueHere(`${this.#named}: Hide detail`, () =>
+      hideDetail(this.#card),
+    );
   }
 
   // A click on the card's heading, an empty area of the card, which
   // selects its story or clears that selection.
   clickEmptyArea() {
     return this.cueHere(`${this.#named}: click its empty area`, () =>
-      this.#card.getByRole("heading", { level: 3 }).click(),
+      emptyArea(this.#card).click(),
     );
   }
 

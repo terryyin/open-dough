@@ -10,6 +10,7 @@ import {
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
+import { sessionDetailsControl } from "../support/sessionEntryDisclosure.ts";
 import { shellCommand } from "../../src/sessionCapabilities.ts";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import {
@@ -68,9 +69,10 @@ for (const resumedStatus of ["completed", "unexpectedNativeStatus"]) {
       await expect(
         pending.getByText("First input acceptance uncertain", { exact: true }),
       ).toBeVisible();
-      await expect(
-        pending.getByRole("button", { name: "Session details", exact: true }),
-      ).toHaveAttribute("aria-expanded", "false");
+      await expect(sessionDetailsControl(pending)).toHaveAttribute(
+        "aria-expanded",
+        "false",
+      );
       await expect(pending).not.toContainText("Refinement started in Codex");
       const record = stored(limited.home)[0];
       if (record?.session.host !== "codex")

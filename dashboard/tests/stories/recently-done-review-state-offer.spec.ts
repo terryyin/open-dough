@@ -7,6 +7,8 @@
 
 import { noConnection } from "../originAnswers.ts";
 import {
+  cancelUnreview,
+  confirmUnreview,
   doneCard,
   expectReviewed,
   markAsReviewed,
@@ -16,7 +18,8 @@ import {
   storyA,
   storyB,
   storyC,
-  unreview,
+  reviewedButton,
+  unreviewQuestion,
 } from "../recentlyDoneReviewState.ts";
 import { expect, test } from "../support/preparationPage.ts";
 
@@ -53,7 +56,7 @@ test("a card whose record is still being read offers Mark as reviewed and keeps 
 test.describe("on coarse input", () => {
   test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
 
-  test("Mark as reviewed and Unreview offer the shared 44px control height", async ({
+  test("Review actions and both confirmation choices offer the shared 44px control height", async ({
     page,
     origin,
   }) => {
@@ -66,6 +69,13 @@ test.describe("on coarse input", () => {
     expect(await height(markAsReviewed(card))).toBeGreaterThanOrEqual(44);
     await markAsReviewed(card).tap();
     await expectReviewed(card, true);
-    expect(await height(unreview(card))).toBeGreaterThanOrEqual(44);
+    expect(await height(reviewedButton(card))).toBeGreaterThanOrEqual(44);
+    await reviewedButton(card).tap();
+    const question = unreviewQuestion(card, "Unreview this story?");
+    await expect(question).toBeVisible();
+    expect(await height(confirmUnreview(question))).toBeGreaterThanOrEqual(44);
+    expect(await height(cancelUnreview(question))).toBeGreaterThanOrEqual(44);
+    await cancelUnreview(question).tap();
+    await expectReviewed(card, true);
   });
 });

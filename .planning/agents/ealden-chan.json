@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-334#run-and-observe-product-wide-end-to-end-tests",
+  "mode": "story-branch",
+  "branch": "claude/run-and-observe-product-wide-end-to-end-tests",
+  "host": "claude",
+  "model": "opus"
+}

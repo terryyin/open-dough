@@ -1,85 +1,117 @@
-// A compact reference beside Baseline/Branch/Landed, using the published
-// Done endpoint even when its selected measurement is equivalent or later.
+// A Done CI comparison's wall-time history, between its endpoints and its
+// entry table (`./IntentCiComparisonContent.tsx`): a brief status of the
+// history at the published Done landing, the compact prior-build readout and
+// the shared dated chart through that landing, even when an equivalent or
+// later build supplies its measurement. The comparison owns the local read
+// (`useDoneWallTimeReading`) across its reading, failed, unavailable and shown
+// states, so moving this view between them neither rereads nor discards it.
+// A labelled icon refreshes it; a failed read keeps the last history of the
+// same landing beside the shared panel's alert and short retry
+// (`./IntentCiHistoryPanel.tsx`).
+import { RefreshCw } from "lucide-react";
 import { shortSha } from "./baseCiWording.ts";
-import { doneWallTimeAvailabilityWords } from "./ciDoneWallTimeHistory.ts";
-import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
+import { isMeasured } from "./ciHistoryChart.ts";
 import {
-  IntentCiPriorBuildReference,
-  PriorBuildReferenceEvidence,
-} from "./IntentCiPriorBuildReference.tsx";
+  doneStandInOf,
+  doneWallTimeAvailabilityWords,
+} from "./ciDoneWallTimeHistory.ts";
+import { standInBuildWords } from "./ciHistoryWords.ts";
+import { IconButton } from "./Icon.tsx";
+import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
+import { IntentCiHistoryChart } from "./IntentCiHistoryChart.tsx";
+import { IntentCiHistoryPanel } from "./IntentCiHistoryPanel.tsx";
+import { IntentCiPriorBuildReference } from "./IntentCiPriorBuildReference.tsx";
+import { doneWallTimeSeries } from "./landedCiHistorySeries.ts";
 import { useIntentCiDoneWallTimeHistory } from "./useIntentCiDoneWallTimeHistory.ts";
 import "./intent-ci-history.css";
 
-export function IntentCiDoneWallTimeReference() {
+export function useDoneWallTimeReading() {
   const evidence = useIntentCiEvidence();
   const selected =
     evidence.kind === "comparison" && evidence.phase === "done"
       ? evidence
       : undefined;
-  const { shown, failed, retry } = useIntentCiDoneWallTimeHistory(
+  const history = useIntentCiDoneWallTimeHistory(
     selected?.source,
     selected?.doneEndpoint,
     selected?.comparison.checkedAgain,
   );
-  if (selected === undefined) return null;
-  const unavailable =
+  return selected === undefined
+    ? undefined
+    : {
+        endpoint: selected.doneEndpoint,
+        endpointReason: selected.doneEndpointReason,
+        ...history,
+      };
+}
+
+export type DoneWallTimeReading = ReturnType<typeof useDoneWallTimeReading>;
+
+function waitingWords({
+  endpoint,
+  endpointReason,
+}: NonNullable<DoneWallTimeReading>) {
+  if (endpoint !== undefined)
+    return `Reading collected CI wall time through ${shortSha(endpoint.revision)}…`;
+  return endpointReason === undefined
+    ? "Reading the selected story’s published landing…"
+    : `${endpointReason} No prior-build reference can be established.`;
+}
+
+function standInWords(
+  shown: NonNullable<NonNullable<DoneWallTimeReading>["shown"]>,
+  endpoint: string | undefined,
+) {
+  const standIn =
+    endpoint === undefined ? undefined : doneStandInOf(shown, endpoint);
+  return standIn === undefined ? undefined : standInBuildWords[standIn];
+}
+
+export function IntentCiDoneWallTimeReference({
+  reading,
+}: {
+  readonly reading: DoneWallTimeReading;
+}) {
+  if (reading === undefined) return null;
+  const { endpoint, shown, failed, retry } = reading;
+  const reference = shown?.reference;
+  const series =
+    shown === undefined || reference === undefined
+      ? undefined
+      : doneWallTimeSeries(shown.entries, reference);
+  const status =
     shown === undefined
       ? undefined
       : doneWallTimeAvailabilityWords(shown.availability);
-  const later = shown?.entries.some(
-    (entry) =>
-      entry.kind === "point" &&
-      entry.landings.some(
-        (landing) =>
-          landing.revision === selected.doneEndpoint?.revision &&
-          landing.provenance === "later",
-      ),
-  );
   return (
-    <section
-      className="intent-ci-history"
-      aria-label="Done CI wall time reference"
+    <IntentCiHistoryPanel
+      title="CI wall time history"
+      status={status}
+      action={
+        endpoint !== undefined && (
+          <IconButton
+            label="Refresh history"
+            icon={RefreshCw}
+            onClick={retry}
+          />
+        )
+      }
+      failed={failed}
+      retry={retry}
     >
-      <p>
-        <strong>CI wall time reference</strong>
-      </p>
-      <p>
-        Current retained evidence for this published Done landing; retention can
-        change its prior sample.
-      </p>
-      {unavailable !== undefined && <p>{unavailable}</p>}
-      {later && (
-        <p>
-          Selected measurement uses a later trunk build and includes later
-          changes.
-        </p>
-      )}
-      {shown?.reference === undefined ? (
-        <p>
-          {selected.doneEndpoint === undefined
-            ? selected.doneEndpointReason === undefined
-              ? "Reading the selected story’s published landing…"
-              : `${selected.doneEndpointReason} No prior-build reference can be established.`
-            : `Reading collected CI wall time through ${shortSha(selected.doneEndpoint.revision)}…`}
-        </p>
+      {shown === undefined || reference === undefined ? (
+        failed === undefined && (
+          <p className="intent-ci-history-note">{waitingWords(reading)}</p>
+        )
       ) : (
-        <>
-          <IntentCiPriorBuildReference reference={shown.reference} />
-          <details open>
-            <summary>Builds and reference evidence</summary>
-            <PriorBuildReferenceEvidence
-              reference={shown.reference}
-              entries={shown.entries}
-            />
-          </details>
-        </>
+        <IntentCiPriorBuildReference
+          reference={reference}
+          selectedNote={standInWords(shown, endpoint?.revision)}
+        />
       )}
-      {failed !== undefined && <p role="alert">{failed}</p>}
-      {selected.doneEndpoint !== undefined && (
-        <button type="button" onClick={retry}>
-          {failed === undefined ? "Refresh history" : "Retry history"}
-        </button>
+      {series?.builds.some(isMeasured) === true && (
+        <IntentCiHistoryChart series={series} />
       )}
-    </section>
+    </IntentCiHistoryPanel>
   );
 }

@@ -53,6 +53,7 @@ export function suiteRunnerLayer() {
       "tests/support/check-stop-report.bash",
       "dashboard/tests/support/testFiles.mjs",
       "dashboard/tests/support/suiteDeadline.mjs",
+      "dashboard/tests/support/browserArgs.ts",
       "dashboard/tests/support/fullSuiteSelection.mjs",
     ]);
     runnerLayer = {

@@ -1,17 +1,20 @@
 // How the progressive Recently done journeys
 // (./stories/recently-done-progressive-loading.spec.ts) open the page over a
 // published list (./recentlyDoneProgressive.ts) and observe it: which done
-// records' reads reached the fake GitHub, the reveal action, and where the
-// shown entries stand and when the Board's scrolling rests, and the open
-// terminal. Nothing here decides what the page shows or reads.
+// records' reads reached the fake GitHub, where the shown entries stand, when
+// the page has done what a move or an answer led it to, and the open
+// terminal. The column's range actions are ./recentlyDoneColumn.ts's. Nothing
+// here decides what the page shows or reads.
 
 import type { Locator, Page } from "@playwright/test";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
-import { boardScroll, scrollYOf } from "./boardPage.ts";
+import { scrollYOf } from "./boardPage.ts";
+import { untilBoardRests } from "./boardReading.ts";
 import { githubFor } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { shownEntries } from "./recentlyDoneColumn.ts";
 import { queuedTitle } from "./recentlyDoneRecords.ts";
+import { untilPageAnsweredButChangeWaits } from "./pageRequestNotes.ts";
 import { publishes, type FakeGitHub } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import { terminalPanel } from "./terminalScreenPage.ts";
@@ -93,9 +96,6 @@ export async function opened(
 // The side panel's open terminal.
 export const terminalOf = (page: Page) => terminalPanel(page);
 
-export const revealAction = (recent: Locator) =>
-  recent.getByRole("button", { name: /older entr(y|ies)$|^Reading done/ });
-
 // Where the shown entries stand on the page.
 export const standing = async (page: Page, recent: Locator, count: number) => {
   const shown = shownEntries(recent);
@@ -109,44 +109,14 @@ export const standing = async (page: Page, recent: Locator, count: number) => {
   };
 };
 
-// Lets the page settle after a movement that must ask for nothing.
-export const settle = (page: Page) =>
-  page.evaluate(
-    () =>
-      new Promise((resolve) => {
-        requestAnimationFrame(() => setTimeout(resolve, 500));
-      }),
-  );
-
-// Watches the Board's scrolling from before a movement: the returned wait
-// ends once a scroll the movement started has ended (`scrollend`), such as
-// Show latest 10's smooth move to the heading, or two frames after it is
-// asked when nothing scrolled. A place read sooner can be a move short.
-export async function watchBoardScroll(page: Page) {
-  const watch = await boardScroll(page).evaluateHandle((region) => {
-    let moved = false;
-    region.addEventListener(
-      "scroll",
-      () => {
-        moved = true;
-      },
-      { once: true },
-    );
-    const ended = new Promise<void>((resolve) => {
-      region.addEventListener(
-        "scrollend",
-        () => {
-          resolve();
-        },
-        { once: true },
-      );
-    });
-    return { moved: () => moved, ended };
-  });
-  return () =>
-    watch.evaluate(async ({ moved, ended }) => {
-      for (let frame = 0; frame < 2; frame += 1)
-        await new Promise((resolve) => requestAnimationFrame(resolve));
-      if (moved()) await ended;
-    });
+// Waits until the page has done all that a move or an answer led it to: the
+// Board has come to rest, and every request the page sent, but its waits on
+// a launch attempt's next change, is answered, with nothing more asked on
+// those answers. Which records were read can then be counted at once: a read
+// the move or answer was to send has been sent and answered. A journey still
+// holding a read waits for the Board alone (`untilBoardRests`), or for the
+// reads it does not hold (`untilPageReadsAnswered`).
+export async function untilPageRests(page: Page) {
+  await untilBoardRests(page);
+  await untilPageAnsweredButChangeWaits(page);
 }

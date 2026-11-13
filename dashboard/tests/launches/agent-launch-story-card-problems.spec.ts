@@ -8,7 +8,7 @@
 // (./fixtures/fake-claude); the real one is never reached.
 
 import { expect, test } from "../dashboardTest.ts";
-import { storyCardSessions } from "../dashboardPage.ts";
+import { parts, storyCardSessions } from "../dashboardPage.ts";
 import { inspectionGroup, launchGroup } from "../storyCardControls.ts";
 import {
   expectOnOneLine,
@@ -124,7 +124,7 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
       );
       await expect(dialog).toBeHidden();
       await expect(card(readyStory)).toContainText("Local startup in progress");
-      const recovery = page.getByRole("region", { name: "Startup recovery" });
+      const recovery = parts(page).startupRecovery;
       await expect(recovery).toContainText(
         "Claude Code did not answer in time, so the session may or may not have started.",
       );
@@ -183,7 +183,7 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
       "Starting execution in Claude Code…",
     );
     await expect(start(readyStory)).toBeDisabled();
-    const recovery = page.getByRole("region", { name: "Startup recovery" });
+    const recovery = parts(page).startupRecovery;
     await expect(recovery).toContainText(
       "Its last answer: Claude Code did not answer in time, so the session may or may not have started. Check claude agents for it.",
     );

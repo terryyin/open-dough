@@ -1,4 +1,3 @@
-import { attemptLink } from "../tests/ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
   scopeHistoryReading,
@@ -17,11 +16,14 @@ import {
   summaryScopeFacts,
   serveComparison,
 } from "../tests/support/comparisonScopeFacts.ts";
-import { expectComparisonScopeRows } from "../tests/intentScopeProofPage.ts";
+import {
+  expectComparisonScopeRows,
+  scopeTable,
+} from "../tests/intentScopeProofPage.ts";
+import { expectStackedInOrder } from "../tests/partArrangement.ts";
 import { entryComparisonRows } from "../tests/support/summaryComparisonExpectedRows.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
-import { shortSha } from "../src/baseCiWording.ts";
 
 test("a failed local entry history read keeps the selected Done story and comparison and offers its own retry", async ({
   page,
@@ -33,8 +35,7 @@ test("a failed local entry history read keeps the selected Done story and compar
   const setup = { completion: facts.work.revision };
   const previous = "1".repeat(40);
   const adapterAttemptId = "opaque-attempt+#";
-  const adapterUrl = "https://ci.invalid/adapter-proof";
-  const collected = makeMe.aCiScopeHistory
+  const collected = makeMe.aScopeHistoryGlance
     .with({
       path: "dashboard/tests",
       selectedRevision: setup.completion,
@@ -45,26 +46,12 @@ test("a failed local entry history read keeps the selected Done story and compar
           kind: "point",
           date: "2026-11-05T10:00:00Z",
           selected: false,
-          landings: [
-            {
-              revision: previous,
-              receivedAt: "2026-11-05T10:00:00Z",
-              selected: false,
-              provenance: "exact",
-            },
-          ],
-          build: {
-            revision: previous,
-            adapterAttempt: { runId: "run-a", attemptId: adapterAttemptId },
-            runUrl: adapterUrl,
-            provenance: "exact",
-          },
+          landings: [{ selected: false, provenance: "exact" }],
           readings: [
             {
               kind: "point",
               unit: "case",
               ms: 1200,
-              entry: "dashboard/tests",
               segment: "case/1",
             },
           ],
@@ -74,26 +61,12 @@ test("a failed local entry history read keeps the selected Done story and compar
           kind: "point",
           date: "2026-11-06T10:00:00Z",
           selected: true,
-          landings: [
-            {
-              revision: setup.completion,
-              receivedAt: "2026-11-06T10:00:00Z",
-              selected: true,
-            },
-          ],
-          build: {
-            revision: setup.completion,
-            runId: 42,
-            runAttempt: 1,
-            runUrl: "https://ci.invalid/runs/42",
-            provenance: "exact",
-          },
+          landings: [{ selected: true, provenance: "exact" }],
           readings: [
             {
               kind: "point",
               unit: "case",
               ms: 0,
-              entry: "dashboard/tests",
               segment: "case/1",
             },
           ],
@@ -143,9 +116,6 @@ test("a failed local entry history read keeps the selected Done story and compar
       "Reading collected test execution times…",
     );
     await expect(scopeHistoryReading(history).failure).toHaveCount(0);
-    await expect(history).toContainText(
-      `Selected landing ${shortSha(setup.completion)}`,
-    );
     await expectComparisonScopeRows(
       summary,
       "dashboard/tests",
@@ -160,27 +130,11 @@ test("a failed local entry history read keeps the selected Done story and compar
     "dashboard/tests",
     entryComparisonRows,
   );
-  await expect(history).toContainText(
-    `Selected landing ${shortSha(setup.completion)}`,
-  );
-  await expect(history).toContainText("2 measured builds · Nov 5–Nov 6");
-  const evidence = scopeHistoryReading(history).evidence;
-  await expect(scopeHistoryReading(history).rows).toHaveText([
-    `Nov 5 · 1.2 s · test cases · entry dashboard/tests · Exact build ${shortSha(previous)} · Attempt ${adapterAttemptId} · Represents ${shortSha(previous)} (exact build)`,
-    `Nov 6 · 0 ms · test cases · entry dashboard/tests · Selected landing · Exact build ${shortSha(setup.completion)} · Run 42 · attempt 1 · Represents ${shortSha(setup.completion)} (selected landing)`,
-  ]);
-  await expect(scopeHistoryChart(history, "test cases")).toBeVisible();
-  await expect(scopeHistoryReading(history).selectedLabels).toHaveText(
-    "Selected",
-  );
-  const build = attemptLink(evidence, "Run 42 · attempt 1");
-  await expect(build).toHaveAttribute("href", "https://ci.invalid/runs/42");
-  const adapter = attemptLink(evidence, `Attempt ${adapterAttemptId}`);
-  await expect(adapter).toHaveAttribute("href", adapterUrl);
-  await scopeHistoryReading(history).disclosure.focus();
-  await page.keyboard.press("Tab");
-  await expect(adapter).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(build).toBeFocused();
+  // The history reads above the comparison it leaves intact.
+  const chart = scopeHistoryChart(history, "test cases");
+  await expect(chart.readout).toHaveText("Nov 6 · Selected landing · 0 ms");
+  await expect(chart.mark("Nov 5 · 1.2 s")).toHaveCount(1);
+  await expect(chart.marks).toHaveCount(2);
+  await expectStackedInOrder([history, scopeTable(summary, "dashboard/tests")]);
   await expectNoSidewaysScrollIn(page, history);
 });

@@ -36,6 +36,7 @@ import {
   control as frameControl,
   maximizeSidePanel,
   restoreSidePanel,
+  sidePanelNamesOf,
 } from "../sidePanelFrame.ts";
 import { expectCovering } from "../sidePanelWidthPage.ts";
 import { expectFrameIconControl } from "../frameIconControl.ts";
@@ -88,9 +89,7 @@ test.describe("maximizing the terminal", () => {
     const second = await sessionNamedBy(storyCardSessions(card(readyStory)));
     const attachCount = () => dashboard.claudeAttaches().length;
 
-    await openTerminalControl(storyCardSessions(card(notRefinedStory)), {
-      exact: false,
-    }).click();
+    await openTerminalControl(storyCardSessions(card(notRefinedStory))).click();
     await expect(rows).toContainText(`attached ${shortId(first)}`);
     await typeLine(page, "keep this line");
     await expect(rows).toContainText("echo keep this line");
@@ -172,10 +171,10 @@ test.describe("maximizing the terminal", () => {
         exact: true,
       });
       await expect(heading).toHaveAccessibleName(readyStory);
-      await expect(panel.locator(".side-panel-names p")).toHaveText(
+      await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
         "Execution session",
       );
-      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+      await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
       await expect(titleToggle).toHaveAttribute("aria-expanded", "false");
       await titleToggle.focus();
       await page.keyboard.press("Enter");
@@ -210,9 +209,7 @@ test.describe("maximizing the terminal", () => {
       await sidebar.button.click();
       await expect(sidebar.sidebar).toBeHidden();
 
-      await openTerminalControl(storyCardSessions(card(readyStory)), {
-        exact: false,
-      }).click();
+      await openTerminalControl(storyCardSessions(card(readyStory))).click();
       await expect(rows).toContainText(`attached ${shortId(second)}`);
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();

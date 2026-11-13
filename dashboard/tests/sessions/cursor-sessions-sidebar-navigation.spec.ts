@@ -6,16 +6,18 @@
 // the sidebar, but a reload starts collapsed. The section's layout is
 // ./cursor-sessions-sidebar-layout.spec.ts's.
 import { chooseProject, parts } from "../dashboardPage.ts";
+import { openRunningList } from "../runningCursorList.ts";
 import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   changesAsked,
   holdSession,
   instruction,
-  runningCursorParts,
   showPage,
 } from "../runningCursorSessionsPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
+import { back, settings } from "../support/systemSettingsPage.ts";
 import { publishOnePygardonStory } from "../pygardonProject.ts";
+import { keyboardWithin } from "../pageShortcutsPage.ts";
 
 const wide = { width: 1440, height: 900 };
 
@@ -34,12 +36,10 @@ for (const { name, size } of [
     await page.setViewportSize(size);
     const pid = await holdSession(dashboard, cursor);
     await showPage(page, origin);
-    const { sidebar, button, entries, header, region, list } =
-      runningCursorParts(page);
     const terminal = terminalPanel(page);
-    await button.click();
-    await header.click();
-    const row = region.getByRole("button", { name: /Open Dough/ });
+    const { sidebar, entries, header, list, heldRows } =
+      await openRunningList(page);
+    const row = heldRows(/Open Dough/);
     await expect(row).toContainText("working");
     // The saved session stays the session list's one entry beside its row.
     await expect(entries).toHaveCount(1);
@@ -53,11 +53,7 @@ for (const { name, size } of [
     await expect(terminalScreenParts(terminal).rows).toContainText(
       "ctrl+c to stop",
     );
-    expect(
-      await terminal.evaluate((element) =>
-        element.contains(document.activeElement),
-      ),
-    ).toBe(true);
+    expect(await keyboardWithin(terminal)).toBe(true);
     if (size.width <= 800) {
       await expect(sidebar).toBeHidden();
     } else {
@@ -82,14 +78,12 @@ test.describe("with two projects", () => {
     await publishOnePygardonStory(page);
     const asked = changesAsked(page);
     await showPage(page, origin);
-    const { sidebar, button, header, body } = runningCursorParts(page);
+    const { sidebar, button, header, body } = await openRunningList(page);
     const { backlog } = parts(page);
     const expanded = async () => {
       await expect(header).toHaveAttribute("aria-expanded", "true");
       await expect(body).toBeVisible();
     };
-    await button.click();
-    await header.click();
     await expanded();
 
     await test.step("choosing another project keeps it expanded", async () => {
@@ -99,15 +93,11 @@ test.describe("with two projects", () => {
     });
 
     await test.step("System settings and back keeps it expanded", async () => {
-      await page
-        .getByRole("button", { name: "System settings", exact: true })
-        .click();
+      await settings(page).click();
       await expect(
         page.getByRole("heading", { name: "System settings", exact: true }),
       ).toBeVisible();
-      await page
-        .getByRole("button", { name: "Back to dashboard", exact: true })
-        .click();
+      await back(page).click();
       await expect(backlog).toContainText("A Pygardon story");
       await expanded();
     });

@@ -24,7 +24,7 @@ import { useId, useRef, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import { Icon } from "./Icon.tsx";
 import "./frame-controls.css";
-import type { WorkEntry } from "./publishedWork.ts";
+import type { PublishedWork, WorkEntry } from "./publishedWork.ts";
 import { StoryCardDependencies } from "./StoryCardDependencies.tsx";
 import { StoryCardPreparationFacts } from "./StoryCardPreparation.tsx";
 import { SliceProgress } from "./SliceProgress.tsx";
@@ -48,7 +48,7 @@ import { SelectStory, toggleOnEmptyArea } from "./pageStorySelection.tsx";
 import { ProtectedFrameReason } from "./protectedFrame.ts";
 
 export function StoryCard({
-  sourceId,
+  work,
   entry,
   priority,
   showsSliceProgress,
@@ -60,8 +60,8 @@ export function StoryCard({
   onInspect,
   onOpenRoster,
 }: {
-  // The project the snapshot shows.
-  sourceId: string;
+  // The published project snapshot containing this entry.
+  work: PublishedWork;
   entry: WorkEntry;
   priority: number | undefined;
   // Taken cards only: queued work shows no progress.
@@ -77,6 +77,7 @@ export function StoryCard({
   onInspect: (identity: string) => void;
   onOpenRoster: OpenRoster;
 }) {
+  const sourceId = work.source.id;
   const cardRef = useRef<HTMLElement>(null);
   const detailId = `story-detail-${entry.identity.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
   // Every startup of the story protects its frame.
@@ -123,10 +124,7 @@ export function StoryCard({
             entry.identity,
           ).some((record) => record.request.workflow === "execution")}
         />
-        <StoryCardDependencies
-          sourceId={sourceId}
-          dependencies={entry.dependencies}
-        />
+        <StoryCardDependencies work={work} dependencies={entry.dependencies} />
         {showsSliceProgress && (
           <SliceProgress
             planSlices={entry.planSlices}

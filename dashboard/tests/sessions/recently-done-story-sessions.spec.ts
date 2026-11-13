@@ -1,4 +1,8 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import {
+  sessionAction,
+  sessionActionsControl,
+  sessionDetailsControl,
+} from "../support/sessionEntryDisclosure.ts";
 // Only saved Done sessions are nested in done-story cards. Open former-story
 // sessions stay local Taken; completion time orders cards, and local retention
 // preserves a closed standalone session after its published card expires.
@@ -10,6 +14,7 @@ import {
   parts,
   standaloneSessionName,
   sessionStateOf,
+  storyCardSessions,
 } from "../dashboardPage.ts";
 import { expectSessionEntrySetOff } from "../pageColours.ts";
 import { publishFiles } from "../publishedOrigin.ts";
@@ -34,6 +39,7 @@ import {
   listed,
   sessionsOutsideDoneStories,
 } from "../recentlyDoneColumn.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 test("a done story's card holds this machine's sessions for it, marked done, newest first, and a session of a record past the window is its own entry", async ({
   page,
@@ -77,8 +83,7 @@ test("a done story's card holds this machine's sessions for it, marked done, new
   const { recentlyDone: recent } = parts(page);
   const card = (title: string) =>
     recent.getByRole("article", { name: title, exact: true });
-  const sessionsIn = (title: string) =>
-    card(title).getByRole("list", { name: "Sessions" }).getByRole("article");
+  const sessionsIn = (title: string) => storyCardSessions(card(title));
   const executedOpen = standaloneSessionName("Refinement", executed.title);
   const executedDone = standaloneSessionName("Execution", executed.title);
   const lastWeekSession = standaloneSessionName("Execution", lastWeek.title);
@@ -120,26 +125,19 @@ test("a done story's card holds this machine's sessions for it, marked done, new
     await expect(local.locator(".record-identity")).toHaveText(
       executed.identity,
     );
-    await expect(
-      local.getByRole("button", { name: "Open terminal", exact: true }),
-    ).toBeVisible();
-    await expect(
-      local.getByRole("button", { name: "Session details", exact: true }),
-    ).toHaveAttribute("aria-expanded", "false");
-    await sessionActions(local);
-    await expect(
-      local.getByRole("button", { name: "Mark as done", exact: true }),
-    ).toBeVisible();
-    await expect(
-      inside
-        .first()
-        .getByRole("button", { name: "Session details", exact: true }),
-    ).toHaveAttribute("aria-expanded", "false");
-    await expect(
-      inside
-        .first()
-        .getByRole("button", { name: /Open terminal|More session actions/ }),
-    ).toHaveCount(0);
+    await expect(openTerminalControl(local)).toBeVisible();
+    await expect(sessionDetailsControl(local)).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    await expect(await sessionAction(local, "Mark as done")).toBeVisible();
+    const closedFirst = inside.first();
+    await expect(sessionDetailsControl(closedFirst)).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    await expect(openTerminalControl(closedFirst)).toHaveCount(0);
+    await expect(sessionActionsControl(closedFirst)).toHaveCount(0);
     for (const entry of await inside.all())
       await expectSessionEntrySetOff(entry);
     await expect(

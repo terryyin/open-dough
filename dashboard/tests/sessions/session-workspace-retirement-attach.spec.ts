@@ -9,7 +9,7 @@ import {
 } from "node:fs";
 import type { APIResponse } from "@playwright/test";
 import { test, expect, stored } from "../support/codexLaunch.ts";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import { parts, storyCardSessions } from "../dashboardPage.ts";
 import { openTerminalControl, terminalPanel } from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
@@ -26,6 +26,8 @@ import {
 } from "../support/codexTerminal.ts";
 import { processRunning } from "../support/processGroup.ts";
 import { expectSelected } from "../storyCardSelection.ts";
+import { finalReportParts } from "../finalReportPages.ts";
+import { markAsDone } from "../support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -68,7 +70,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
         : parts(page)
             .recentlyDone.getByRole("article")
             .filter({ hasText: native.threadId });
-    const open = openTerminalControl(entry, { exact: false });
+    const open = openTerminalControl(entry);
     await expect(open).toBeVisible();
     await expect(entry).toContainText(
       doneAt === undefined ? "Ready for review" : "Done",
@@ -89,16 +91,17 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     const read = new URL((await resultRead).url());
     expect(read.searchParams.get("session")).toBe(record.session.sessionId);
     expect(read.searchParams.get("host")).toBe("codex");
-    const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".final-report-text")).toHaveText(report);
-    await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
-    await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+    const { panel, reportText, reportBody, sessionName, shownSessionId } =
+      finalReportParts(page);
+    await expect(reportText).toHaveText(report);
+    await expect(sessionName).toHaveText(/ session$/);
+    await expect(shownSessionId).toHaveCount(0);
     await expect(panel).toContainText(
       loss === "unknown"
         ? "saved workspace availability could not be established"
         : "saved workspace is missing",
     );
-    await expect(panel.locator(".final-report-body")).toBeFocused();
+    await expect(reportBody).toBeFocused();
     await expect(terminalPanel(page)).toHaveCount(0);
     await expect(
       page.getByText("The session could not be attached", { exact: true }),
@@ -107,9 +110,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     await expectSelected(card(notRefinedStory), true);
     if (loss === "unknown")
       await expect(panel).not.toContainText("workspace is missing");
-    await expect(
-      panel.getByRole("button", { name: "Mark as done" }),
-    ).toHaveCount(doneAt === undefined ? 1 : 0);
+    await expect(markAsDone(panel)).toHaveCount(doneAt === undefined ? 1 : 0);
     await page.keyboard.press("Meta+Shift+Escape");
     await expect(panel).toHaveCount(0);
     await expect(open).toBeFocused();

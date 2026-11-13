@@ -83,7 +83,7 @@ test.describe("Command+Shift+Escape and the terminal", () => {
     await launch(readyStory, "Execution");
     const entry = storyCardSessionOf(card(readyStory), "Execution");
     const session = await sessionNamedBy(entry);
-    const opener = openTerminalControl(entry, { exact: false });
+    const opener = openTerminalControl(entry);
     const attaches = () =>
       dashboard
         .claudeAttaches()

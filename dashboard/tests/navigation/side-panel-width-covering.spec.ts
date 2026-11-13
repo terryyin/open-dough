@@ -23,7 +23,10 @@ import {
   expectEveryControlReachable,
   expectNoSidewaysScrollAndWholeText,
 } from "../pageLayout.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  sessionsSidebarParts,
+  sessionsSidebarTitleCut,
+} from "../sessionsSidebarPage.ts";
 import {
   control,
   dragDivider,
@@ -56,7 +59,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
   );
   const { banner, board } = parts(page);
 
-  await openTerminalControl(storyCardSessions(card), { exact: false }).click();
+  await openTerminalControl(storyCardSessions(card)).click();
   await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   const room = await split(page, terminal);
   const chosen = Math.floor(room.pageColumn + room.sidePanel - usableMinimum);
@@ -86,7 +89,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
     await expectNoSidewaysScrollAndWholeText(page, [
       ...scrollsOnItsOwn,
       // The sidebar's entries are cut by design, read whole by their tooltip.
-      ".sessions-sidebar-session-entry-title",
+      sessionsSidebarTitleCut,
       // The panel header title truncates by design with disclosure
       // (./SidePanelTitle.tsx), read whole once activated.
       ".side-panel-title-toggle",
@@ -115,9 +118,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
     await page.setViewportSize(wideWindow);
     await closeSidePanel(review, { using: "pointer" });
     await expect(review).toHaveCount(0);
-    await openTerminalControl(storyCardSessions(card), {
-      exact: false,
-    }).click();
+    await openTerminalControl(storyCardSessions(card)).click();
     await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     await expectWidth(terminal, chosen);
     await maximizeSidePanel(terminal);
@@ -144,7 +145,7 @@ test("beside the open sidebar with too little room, the panel covers the page co
   const sidebar = sessionsSidebarParts(page);
   const { banner } = parts(page);
 
-  await openTerminalControl(storyCardSessions(card), { exact: false }).click();
+  await openTerminalControl(storyCardSessions(card)).click();
   await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   await sidebar.button.click();
   await expect(sidebar.sidebar).toBeVisible();

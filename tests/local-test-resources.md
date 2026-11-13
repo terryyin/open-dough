@@ -26,6 +26,13 @@ or quiet testing window is not a prerequisite. Diagnose setup and observation
 cost when that supported context exposes a failure, retaining the complete
 journey and the project's failing/flaky-test policy.
 
+Shared server-input preparation has a separate 60-second worker-fixture budget
+for the app, server bundle and any queued installed origin that profile needs.
+These cold inputs are prepared on demand and shared read-only within the run;
+their setup remains in the runner's elapsed time. The default 30-second test
+budget still covers a scenario's private setup and observations. The worker
+budget changes no case, suite or hook timeout.
+
 Admission lives in the common Git directory as the private
 `refs/dough/local-test-suite` ref, outside branches and ordinary pushes. Nested
 suite fixtures that still use an in-checkout test directory reuse a live

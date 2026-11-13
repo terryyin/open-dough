@@ -1,6 +1,11 @@
-import { passTimeUntilChecked, pausePageClock } from "../autoRefreshJourney.ts";
+import {
+  passTimeUntilChecked,
+  expectSteadyPace,
+  pausePageClock,
+} from "../autoRefreshJourney.ts";
 import { expect, test } from "../dashboardTest.ts";
 import {
+  chooseProject,
   shortRevision,
   expectDirectionOpensAcrossRow,
   openDirection,
@@ -14,7 +19,7 @@ import {
 import { describedBacklog } from "../describedRevisions.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expectFocusedAndIndicated } from "../accessibleReading.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+import { givePageItsTurns, openUntilRead } from "../pageRequestNotes.ts";
 
 const revisionA = "a".repeat(40);
 const revisionB = "b".repeat(40);
@@ -110,14 +115,25 @@ test("same-project refresh retains expanded and collapsed choices through loadin
   await expect(reading).toBeVisible();
   await expect(body).toBeVisible();
   await expect(body).toHaveText(fullDirection);
+  const restore = origin.answerWith("main", noConnection);
+  const heldAt = await page.evaluate(() => Date.now());
+  const nextCheck = passTimeUntilChecked(page, 502);
+  // The next check must let B's held read answer before passing page time;
+  // otherwise its read deadline can arm detail recovery and suspend checks.
+  await givePageItsTurns(page);
+  expect(await page.evaluate(() => Date.now())).toBe(heldAt);
+  await expect(reading).toBeVisible();
+  await expect(problem).toHaveCount(0);
   release();
   await expect(readRevision).toContainText(shortRevision(revisionB));
   await expect(body).toBeVisible();
   await expect(body).toHaveText("The next published direction.");
 
-  const restore = origin.answerWith("main", noConnection);
-  await passTimeUntilChecked(page, 502);
+  expectSteadyPace(await nextCheck);
   await expect(problem).toBeVisible();
+  await expect(problem).toContainText(
+    "Automatic checks continue every 15 seconds",
+  );
   await expect(body).toBeVisible();
   await expect(body).toHaveText("The next published direction.");
   await directionToggle.click();
@@ -140,17 +156,11 @@ test("changing projects removes previous direction while reading and starts each
   const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
   doughnut.push(revisionB, describedBacklog(makeMe.aRepository.please()));
   await page.goto("/");
-  const {
-    direction,
-    directionText: body,
-    project,
-    reading,
-    readRevision,
-  } = parts(page);
+  const { direction, directionText: body, reading, readRevision } = parts(page);
   await openDirection(page);
 
   const release = doughnut.hold("main");
-  await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+  await chooseProject(page, "Doughnut");
   await expect(reading).toBeVisible();
   await expect(direction).toHaveCount(0);
   await expect(page.getByText(fullDirection)).toHaveCount(0);
@@ -161,7 +171,7 @@ test("changing projects removes previous direction while reading and starts each
   await expect(body).toHaveText("No near-future direction is recorded.");
   expect(pathsRead(doughnut)).toHaveLength(2);
 
-  await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
+  await chooseProject(page, "Open Dough");
   await expect(readRevision).toContainText(shortRevision(revisionA));
   await expect(body).toBeHidden();
   await openDirection(page);

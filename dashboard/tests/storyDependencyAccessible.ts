@@ -9,20 +9,23 @@ import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
 } from "./pageLayout.ts";
+import { reason, condition, decision } from "./storyDependencyFixture.ts";
 import {
-  supplierB,
-  reason,
-  condition,
-  decision,
-} from "./storyDependencyFixture.ts";
+  dependencyList,
+  dependencySummary,
+  followReference,
+  storyReference,
+} from "./storyReference.ts";
+import { storyCard } from "./storyCardControls.ts";
+import { parts } from "./dashboardParts.ts";
 
 export async function expectDependencyAccessibly(
   page: Page,
   card: Locator,
   revision: string,
 ) {
-  const summary = card.locator(".story-dependencies summary");
-  const list = card.getByRole("list", { name: "Story dependencies" });
+  const summary = dependencySummary(card);
+  const list = dependencyList(card);
   await summary.focus();
   await page.keyboard.press("Tab");
   await page.keyboard.press("Shift+Tab");
@@ -34,18 +37,12 @@ export async function expectDependencyAccessibly(
   await expect(list).toContainText("Waiting");
   await expect(list).toContainText("Decision needed");
   await expect(list).toContainText(decision);
-  await expect(
-    list.getByRole("link", { name: supplierB.identity }),
-  ).toHaveAttribute(
+  await expect(storyReference(card, "Story B")).toHaveAttribute(
     "href",
     `https://github.com/terryyin/open-dough/blob/${revision}/.planning/seeds/B.md#b`,
   );
-  const supplierReference = list.getByRole("link", {
-    name: supplierB.identity,
-  });
-  await supplierReference.focus();
-  await page.keyboard.press("Enter");
-  const supplier = page.getByRole("article", { name: "Story B", exact: true });
+  await followReference(card, "Story B", "keyboard");
+  const supplier = storyCard(parts(page).board, "Story B");
   await expect(supplier).toBeFocused();
   await expect(
     supplier.getByRole("region", { name: "Detail for Story B" }),

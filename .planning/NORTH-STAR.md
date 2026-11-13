@@ -61,6 +61,37 @@ project configuration per environment on this machine: built production and
 live development. These are machine-local settings; the observed repository
 continues to own project state.
 
+## Dashboard status delivery
+
+Prefer one shared SSE connection per streaming page for live dashboard status,
+including published revision status, story review state, session status,
+CI follow-up status, and host status as each migrates. Reuse the existing
+connection budget and observe only status the visible views need. Send compact
+state changes or revision notifications, share backend observations among pages,
+and give a page a way to catch up after reconnecting or when it has no stream
+slot. Retain each status's source and freshness independently.
+
+Every event, HTTP response, and chart or list projection maps directly to the
+dashboard's domain concepts and their meanings under
+[ADR 0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution).
+Keep names, identities, units, and distinctions such as unknown versus absent
+consistent across layers. Smaller payloads can carry a subset of domain data
+or a domain-defined summary, with only the translation needed at the boundary.
+
+The backend owns GitHub backoff and schedules the next attempt. It sends
+waiting, retrying, and recovered status as it observes them. The browser renders
+those states and keeps the dashboard stream open for machine-local updates.
+Track stream health independently of GitHub progress. A source failure keeps
+the last confirmed state available with its own freshness information.
+
+Keep interactive terminal input and output on WebSocket. Let each history or
+chart view determine the domain data it needs for its initial display and fetch
+additional evidence on inspection. Exact payload shapes and windows remain open.
+Evaluate the status delivery preference with request counts, bytes transferred,
+backend observation cost, and time from an observed change to a stable display.
+The [UX/UI North Star](../docs/dashboard-ux-ui-north-star.md#live-status-and-source-freshness)
+describes how these updates should read.
+
 ## Agent launch as a requested assignment
 
 Starting agent work from the dashboard adds its first action, as proposed in
@@ -113,22 +144,17 @@ parallel ones:
   each derive their view by project and identity from it. Actions on one
   session (attach, stop, Mark as done) still run in its project's folder.
   The Board's published work view observes one selected project at a time.
-  Shown Recently done sessions rows may make bounded completed-story link
-  checks for their own configured projects without replacing that view or
-  navigating; reuse the existing published catalog and confirmed Ad hoc
-  association readers. Their review cues share each project's machine-local
-  review state with its Board cards, keyed by project and story identity,
-  rather than storing review flags on sessions. This supports
-  [SEED-333](seeds/SEED-333-spot-completed-stories-that-need-review.md#spot-completed-stories-that-need-review)
-  using the existing link and review-state boundaries. Later hosts join the
-  same session read through their own module.
+  Shown Recently done rows' bounded completed-story link observations and
+  shared machine-local review cues now follow the maintained
+  [session history contract](../dashboard/AGENT-LAUNCH-HISTORY.md).
+  Later hosts join the same session read through their own module.
 
 Each host normalizes its native activity; common presentation owns its user
 meaning. Saved conversation existence, current native activity and the
 developer's local done mark are distinct: an unloaded conversation can retain
 resumable history, and a completed turn does not complete its story. Read-only
 monitoring must not resume a conversation or take its interactive control.
-Hosts reuse the shared polling, alerts and terminal transport; client
+Hosts reuse the shared session observation, alerts and terminal transport; client
 detachment stays distinct from explicit per-conversation interruption. Cursor
 proves its own native boundary rather than inheriting Claude's or Codex's, and
 composable session policy supplies actual context without another registry or

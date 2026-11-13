@@ -571,3 +571,11 @@ queued.
   - Observed effect: earlier counted burner passes overstated the fit, and the gap surfaced only after the trunk merge.
 
 **Response:** [Load while measuring](tests/local-test-resources.md#load-while-measuring) records natural load as the measured condition and how to read a burner's priority.
+
+<a id="dd-496"></a>
+
+## DD-496 — The shared terminal test step could wait on a hidden page
+
+In SEED-320#open-terminal-only-without-a-custom-instruction (plan 597, recoverable at `f595336fb608dcfebfaa01685141db1b61fbcaf6`), the narrow terminal set `aria-hidden` on the page column while `startedSessionTerminal` waited for a role locator inside it. The changed journey failed in two of four implementer runs, both refactor runs, and hosted CI run 43139863774 at the same wait. The initial attribution to host load was corrected after hosted CI.
+
+Repair `b6f325ffb` accepts the presented terminal as evidence of start. The test-helper repair belongs to this repository. The shared diagnosis and full occurrence are preserved in [the original retrospective](https://github.com/terryyin/open-dough/blob/de4da5c4a48418becb30b10deedc68c17e7e2237/DearDough.md#dd-496--an-intermittent-local-failure-in-a-journey-the-slice-changed-was-attributed-to-machine-load-and-hosted-ci-failed-it-on-a-deterministic-cause).

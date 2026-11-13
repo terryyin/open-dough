@@ -5,7 +5,10 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import { test as base } from "../dashboardTest.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
-import { keepLaunchStore, keptLaunchRecords } from "./launchStore.ts";
+import {
+  keepLaunchStore,
+  keepMoreLaunchRecordsBesideServer,
+} from "./launchStore.ts";
 import {
   startOrigin,
   type StartOrigin,
@@ -70,11 +73,7 @@ export async function storedCapturedChoice(
     )
     .markedDoneAt(new Date().toISOString())
     .please();
-  keepLaunchStore(
-    dashboard,
-    { "open-dough": [...keptLaunchRecords(dashboard), record] },
-    { atomically: true },
-  );
+  await keepMoreLaunchRecordsBesideServer(dashboard, [record]);
   return { record, key: reference, name };
 }
 

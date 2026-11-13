@@ -11,7 +11,7 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../launchStoryCardPage.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import {
   box,
   expectEveryControlReachable,
@@ -184,7 +184,7 @@ test.describe("390×844 touch, held", () => {
     const terminal = terminalPanel(page);
     await expect(terminal).toBeVisible({ timeout: 30_000 });
     await closeTerminal(terminal);
-    await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+    await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
     await expect(parts(page).adHocStarted).toHaveCount(0);
     await expect(progress).toHaveCount(0);
   });

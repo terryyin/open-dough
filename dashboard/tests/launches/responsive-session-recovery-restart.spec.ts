@@ -25,6 +25,7 @@ import {
 } from "../responsiveRecovery.ts";
 import { openStories, test } from "../responsiveStart.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
+import { projectTab } from "../projectChoice.ts";
 import {
   openUntilRead,
   passCheckPace,
@@ -78,10 +79,9 @@ test("a start a closed server left unsettled stays protected after restart, relo
       ),
     ).toMatchObject({ kind: "failed", reason: "already-starting" });
 
-    const { project } = parts(page);
-    await project.getByRole("radio", { name: "Doughnut" }).click();
+    await projectTab(page, "Doughnut").click();
     await expect(recoveryOf(page)).toHaveCount(0);
-    await project.getByRole("radio", { name: "Open Dough" }).click();
+    await projectTab(page, "Open Dough").click();
     await expectStaticallyProtected(takenStory);
     await expectRecoveryOffered(page);
 

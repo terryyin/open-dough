@@ -1,4 +1,7 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import {
+  askToDeleteRecord,
+  sessionAction,
+} from "../support/sessionEntryDisclosure.ts";
 import { launchStoreFile } from "../support/launchStore.ts";
 // Delete record… on an entry that reads Session unavailable, on its active
 // card or in Recently done after its story completes
@@ -17,6 +20,7 @@ import {
   standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
+  sessionEntriesIn,
 } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { markDone } from "../agentLaunchBoundary.ts";
@@ -78,11 +82,7 @@ test.describe("deleting an unavailable session's record from its current home", 
 
     for (const entry of [unavailable, becomesKnown]) {
       await expect(sessionStateOf(entry)).toHaveText("Session unavailable");
-      await expect(
-        (await sessionActions(entry)).getByRole("button", {
-          name: "Delete record…",
-        }),
-      ).toBeVisible();
+      await expect(await sessionAction(entry, "Delete record…")).toBeVisible();
     }
     await expect(sidebar.entries).toHaveCount(2);
     await expect(
@@ -93,16 +93,9 @@ test.describe("deleting an unavailable session's record from its current home", 
       // Marked done elsewhere, it no longer reads Session unavailable.
       await markDone(dashboard, { source: "open-dough", session: becameKnown });
       await showColumn(page, "Taken");
-      await (
-        await sessionActions(becomesKnown)
-      )
-        .getByRole("button", { name: "Delete record…" })
-        .click();
-      await becomesKnown
-        .getByRole("button", { name: "Delete record", exact: true })
-        .click();
+      await (await askToDeleteRecord(becomesKnown)).confirm.click();
 
-      await expect(recent.locator(".session-entry")).toHaveCount(1);
+      await expect(sessionEntriesIn(recent)).toHaveCount(1);
       expect(stored()).toContain(becameKnown);
       // Read again, it is Done: it offers no delete and leaves the sidebar.
       await expect(sessionStateOf(becomesKnown)).toHaveText("Done");
@@ -114,18 +107,11 @@ test.describe("deleting an unavailable session's record from its current home", 
 
     await test.step("an unavailable active session's record is deleted from its card and the sidebar", async () => {
       await showColumn(page, "Taken");
-      await (
-        await sessionActions(unavailable)
-      )
-        .getByRole("button", { name: "Delete record…" })
-        .click();
-      await unavailable
-        .getByRole("button", { name: "Delete record", exact: true })
-        .click();
+      await (await askToDeleteRecord(unavailable)).confirm.click();
 
       await expect(unavailable).toHaveCount(0);
       await expect(sidebar.entries).toHaveCount(0);
-      await expect(recent.locator(".session-entry")).toHaveCount(1);
+      await expect(sessionEntriesIn(recent)).toHaveCount(1);
       expect(stored()).not.toContain(gone);
       await expect(
         page.getByText("Session record deleted", { exact: true }),

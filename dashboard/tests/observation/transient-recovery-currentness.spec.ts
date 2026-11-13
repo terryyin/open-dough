@@ -47,10 +47,10 @@ import {
   titlesOfB,
 } from "../refreshJourney.ts";
 import { publishes } from "../support/fakeGitHub.ts";
-import { transientRecovery } from "../transientRecoveryPage.ts";
+import { inspectedDetail, storyCard } from "../storyCardControls.ts";
+import { detailRecovery, transientRecovery } from "../transientRecoveryPage.ts";
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
-const detailRecovery = "this page reads it";
 
 test("recovery discovering a new revision replaces the snapshot with current facts", async ({
   page,
@@ -94,10 +94,8 @@ test("switching projects abandons a late detail answer from the previous observa
       ),
     )
     .toBe(true);
-  const card = parts(page).backlog.getByRole("article", {
-    name: dashboardStory,
-  });
-  await card.getByRole("button", { name: "Inspect story" }).click();
+  const card = storyCard(parts(page).backlog, dashboardStory);
+  await inspectedDetail(card);
   await expect(card).toContainText("Reading preparation…");
 
   const shown = await selectSettledDoughnut(page);
@@ -130,9 +128,7 @@ test("outstanding detail recovery excludes revision checks until it settles", as
   await page.goto("/");
   await expectSettledPage(page, titlesBesideUnreachable);
   const { backlog, problem, readRevision } = parts(page);
-  const unreachableCard = backlog.getByRole("article", {
-    name: unreachableTitle,
-  });
+  const unreachableCard = storyCard(backlog, unreachableTitle);
   await expect(unreachableCard).toContainText(unreachableGap);
   await expect(problem).toContainText(detailRecovery);
   await untilPageReadsAnswered(page);
@@ -144,9 +140,7 @@ test("outstanding detail recovery excludes revision checks until it settles", as
       [],
     );
     await expect(readRevision).toContainText(shortRevision(revision));
-    await expect(
-      backlog.getByRole("article", { name: plannedTitle }),
-    ).toBeVisible();
+    await expect(storyCard(backlog, plannedTitle)).toBeVisible();
   });
 
   await test.step("due recovery heals the gap and then checks may resume", async () => {

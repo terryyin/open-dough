@@ -11,7 +11,7 @@ scope: story
 
 ## Why this matters
 
-During SEED-316's execution, under local load 30–50 from other worktrees,
+During [Select and copy text in the Dashboard terminal on mobile](https://github.com/terryyin/open-dough/blob/ebaf16f6336d2d9111f95984b907a006b67f3c04/.planning/seeds/SEED-316-mobile-terminal-text-selection.md#select-and-copy-terminal-text-on-mobile)'s execution, under local load 30–50 from other worktrees,
 these checks missed their 5 s observations on the base revision as well as on
 the story branch, so the misses predate that story:
 
@@ -28,15 +28,15 @@ Line numbers are from `main` at `c13bd4a06`. The landed-CI specs are under
 `dashboard/backend-tests/intent/`, the `intent-*` specs under
 `dashboard/tests/intent/`.
 
-SEED-316's report recommended adding them to
-SEED-287#fit-dashboard-journeys-in-default-timeout, whose in-flight repair
+[Select and copy text in the Dashboard terminal on mobile](https://github.com/terryyin/open-dough/blob/ebaf16f6336d2d9111f95984b907a006b67f3c04/.planning/seeds/SEED-316-mobile-terminal-text-selection.md#select-and-copy-terminal-text-on-mobile)'s report recommended adding them to
+[Make dashboard journeys fit the default timeout under load](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout), whose in-flight repair
 around `ciFollowUpScenario`/`ciFollowUpPriors` addresses the same miss: a
 current receipt observed before its predecessor builds' proof has been
 collected. On 2026-11-12 Terry approved that recommendation on condition that
-the receiving story is not already picked up. SEED-287 was Taken and being
+the receiving story is not already picked up. [Make dashboard journeys fit the default timeout under load](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) was Taken and being
 executed, so this story holds the checks until that repair lands.
-SEED-314#speed-up-landed-ci-repeat-checks owns the automatic-repeat and
-verdict specs, and SEED-287 owns the five repeat-admission cases and
+[Speed up landed CI repeat checks](https://github.com/terryyin/open-dough/blob/4eb1f6a74f42111c185be8521dbbd6d36f411d5f/.planning/seeds/SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks) owns the automatic-repeat and
+verdict specs, and [Make dashboard journeys fit the default timeout under load](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) owns the five repeat-admission cases and
 `landed-ci-history-no-proof-recovery`.
 
 <a id="hold-landed-ci-follow-up-observations-under-load"></a>
@@ -56,12 +56,12 @@ CI, with every 5 s observation and assertion kept.
 
 #### Scope to refine
 
-- Start from `main` after SEED-287 lands. Rerun the named checks at 2 workers
-  under local load 20–30 and drop any that SEED-287's predecessor-collection
+- Start from `main` after [Make dashboard journeys fit the default timeout under load](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) lands. Rerun the named checks at 2 workers
+  under local load 20–30 and drop any that [Make dashboard journeys fit the default timeout under load](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)'s predecessor-collection
   readiness already settles; record which ones.
 - For each remaining miss, find the causal boundary (for example, prior proof
   not yet collected, or a request still settling) and wait for that observable
-  event. Reuse SEED-287's readiness rather than adding a second one.
+  event. Reuse [Make dashboard journeys fit the default timeout under load](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)'s readiness rather than adding a second one.
 - Preserve real receipt ingestion, collection and admission, and every
   assertion. Do not seed the card or result under test.
 - Use shared MakeMe for domain data and existing external-provider fixtures.
@@ -75,6 +75,6 @@ until it is stable locally and in CI.
 #### Key examples to refine
 
 - At local load 20–30 on 2 workers, each named check that remains after
-  SEED-287 lands passes in three consecutive runs with its 5 s observations.
-- A check that SEED-287 already settles is recorded as covered there and gets
+  [Make dashboard journeys fit the default timeout under load](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) lands passes in three consecutive runs with its 5 s observations.
+- A check that [Make dashboard journeys fit the default timeout under load](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) already settles is recorded as covered there and gets
   no second repair.

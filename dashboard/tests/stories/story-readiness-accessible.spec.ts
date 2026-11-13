@@ -3,10 +3,7 @@
 // shared accessibility helpers against the real CLI-committed fixture.
 
 import { expectQueuedPlanFocusDuringEnrichment } from "../queuedPlanFocus.ts";
-import {
-  passTimeUntilCheckedAfterSettled,
-  pausePageClock,
-} from "../autoRefreshJourney.ts";
+import { passTimeUntilChecked, pausePageClock } from "../autoRefreshJourney.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expectMembership, shortRevision, parts } from "../dashboardPage.ts";
@@ -17,6 +14,8 @@ import {
   expectNewSnapshotPreservesOrAnnouncesIdentity,
 } from "../storyReadinessAccessible.ts";
 import { expectScanToDetailAt420AndTwiceZoom } from "../storyReadinessScan.ts";
+import { storyCard } from "../storyCardControls.ts";
+import { expectBadges } from "../storyCardFacts.ts";
 import {
   buildOpenDoughReadinessRepo,
   plannedBlocked,
@@ -52,11 +51,9 @@ test("story readiness reads preparation and progress accessibly", async ({
       taken: [plannedReady.title],
       backlog: [unrefined.title, plannedBlocked.title],
     });
-    await expect(
-      taken
-        .getByRole("article", { name: plannedReady.title })
-        .getByText("Ready for execution", { exact: true }),
-    ).toBeVisible();
+    await expectBadges(storyCard(taken, plannedReady.title), {
+      shown: ["Ready for execution"],
+    });
   });
 
   await test.step("keyboard opens and closes detail, returning focus to the card", async () => {
@@ -76,7 +73,7 @@ test("story readiness reads preparation and progress accessibly", async ({
     publishRestoreUnrefined(openDough);
     const restored = publishAssessedContentChange(openDough);
     openDoughOrigin.advanceTo(restored);
-    await passTimeUntilCheckedAfterSettled(page);
+    await passTimeUntilChecked(page);
     await expect(parts(page).readRevision).toContainText(
       shortRevision(restored),
     );

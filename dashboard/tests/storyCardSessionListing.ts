@@ -1,4 +1,3 @@
-import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // Observations of sessions launched from active story cards. The launch
 // crosses the real page/boundary; expectations remember the returned native
 // identity and check one column entry through published membership changes.
@@ -11,8 +10,10 @@ import {
   storyCardSessionName,
   storyCardSessions,
   parts,
+  sessionEntryShowing,
   sessionNamedBy,
 } from "./dashboardPage.ts";
+import { sessionAction } from "./support/sessionEntryDisclosure.ts";
 import {
   notRefinedStory,
   readyStory,
@@ -21,7 +22,6 @@ import {
 } from "./launchJourney.ts";
 import { openStoryColumnsJourney, type Workflow } from "./storyColumnsPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { openSessionStartReason } from "../src/agentLaunch.ts";
 import { openTerminalControl } from "./terminalScreenPage.ts";
 
 export function storyCardSessionListing(
@@ -30,17 +30,15 @@ export function storyCardSessionListing(
   launch: (title: string, workflow: Workflow) => Promise<void>,
   titles: readonly string[],
 ) {
-  const recent = parts(page).recentlyDone;
+  const { board, recentlyDone: recent } = parts(page);
   const listed = new Map<
     string,
     { workflow: Workflow; session: string; key: string }[]
   >(titles.map((title) => [title, []]));
   const expectUnique = (key: string) =>
     Promise.all([
-      expect(page.locator(`.board [data-shows-session="${key}"]`)).toHaveCount(
-        1,
-      ),
-      expect(recent.locator(`[data-shows-session="${key}"]`)).toHaveCount(0),
+      expect(sessionEntryShowing(board, key)).toHaveCount(1),
+      expect(sessionEntryShowing(recent, key)).toHaveCount(0),
     ]);
   const launchListed = async (title: string, workflow: Workflow) => {
     const entries = storyCardSessions(card(title));
@@ -82,11 +80,7 @@ export function storyCardSessionListing(
       ]),
     );
     for (const { entry } of each) {
-      await expect(
-        (await sessionActions(entry)).getByRole("button", {
-          name: "Mark as done",
-        }),
-      ).toBeVisible();
+      await expect(await sessionAction(entry, "Mark as done")).toBeVisible();
     }
   };
   return { listed, launchListed, expectListed };
@@ -114,7 +108,7 @@ export async function openQueuedStoryCards(
 // Launches, from the Backlog cards, an Execution on the ready and the
 // not-refined story and a Refinement on takenStory, in that order; each
 // launch is the caller's, which observes it.
-export async function launchEachQueuedStory(
+async function launchEachQueuedStory(
   launch: (title: string, workflow: Workflow) => Promise<void>,
 ) {
   await launch(readyStory, "Execution");
@@ -122,7 +116,8 @@ export async function launchEachQueuedStory(
   await launch(takenStory, "Refinement");
 }
 
-// Launches on each queued card; each session is listed on its own card.
+// Opens the queued cards and launches on each (`launchEachQueuedStory`), each
+// session listed on its own card as it is launched.
 export async function launchOnEachQueuedCard(
   page: Page,
   dashboard: DashboardServer,
@@ -139,21 +134,24 @@ export async function launchOnEachQueuedCard(
   return { ...opened, ...listing };
 }
 
-export const openSessionDescription = new RegExp(
-  openSessionStartReason.replace(/[.]/g, "\\."),
-);
+// Matches an accessible description that contains this note word for word.
+export const describedBy = (note: string) =>
+  new RegExp(note.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
 
-// Read together: checking a Start action changes nothing on the page.
+// Every Start on these cards is disabled and its description contains the
+// caller's open-session note. Read together: checking a Start action changes
+// nothing on the page.
 export function expectStartsBlocked(
   action: (title: string, workflow: Workflow) => Locator,
   titles: readonly string[],
+  note: string,
 ) {
   return Promise.all(
     titles.flatMap((title) =>
       (["Execution", "Refinement"] as const).flatMap((workflow) => [
         expect(action(title, workflow)).toBeDisabled(),
         expect(action(title, workflow)).toHaveAccessibleDescription(
-          openSessionDescription,
+          describedBy(note),
         ),
       ]),
     ),

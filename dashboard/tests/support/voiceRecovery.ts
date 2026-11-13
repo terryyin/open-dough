@@ -2,6 +2,7 @@ import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import { realpathSync } from "node:fs";
 import path from "node:path";
+import { dashboardBrowserArgs } from "./browserArgs.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { voiceProvider } from "./voiceProvider.ts";
 import type { LaunchJourney } from "../launchJourney.ts";
@@ -22,6 +23,7 @@ export const voiceBrowserOptions = {
   permissions: ["microphone"],
   launchOptions: {
     args: [
+      ...dashboardBrowserArgs,
       "--use-fake-device-for-media-stream",
       "--use-fake-ui-for-media-stream",
     ],

@@ -62,11 +62,13 @@ test("missing registration, incomplete coverage, unavailable observation, and ex
       repo: "owner/repo",
       branch: "main",
       reason: "provider unavailable",
+      cause: "observation_error",
     });
     const completed = await waiting.completed;
     const result = parseReceipt(completed.stdout);
     assert.equal(result.unresolvedReason, "observation_unavailable");
     assert.equal(result.detail, "monitor_unavailable");
+    assert.equal(result.cause, "observation_error");
   });
 
   await t.test("wait cancellation", async (t) => {

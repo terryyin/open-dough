@@ -16,7 +16,10 @@ import {
   takenStory,
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  sessionsSidebarParts,
+  sessionsSidebarTitleCut,
+} from "../sessionsSidebarPage.ts";
 import {
   expectRevealsSince,
   openNavigationJourney,
@@ -72,7 +75,7 @@ test.describe("a Sessions sidebar choice in a hidden column", () => {
         ["Taken 1 entry"],
         [
           ...scrollsOnItsOwn,
-          ".sessions-sidebar-session-entry-title",
+          sessionsSidebarTitleCut,
           ".side-panel-title-toggle",
         ],
       );

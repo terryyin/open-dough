@@ -6,7 +6,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { hangupCursorClient } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { makeRecordedRunnerProofStale } from "../support/cursorRunnerRecordedAddress.ts";
@@ -16,7 +16,6 @@ import {
   failSessionId,
   secondSessionId,
   thirdSessionId,
-  writeKeptRecords,
   writeLastHeld,
 } from "../support/cursorRunnerReplacement.ts";
 import { expectReadingWithoutScreenLabel } from "../support/cursorSessionReading.ts";
@@ -26,6 +25,7 @@ import {
 } from "../support/cursorSessionRecovery.ts";
 import { openHeldCursorExecutions } from "../support/heldCursorExecutions.ts";
 import { expect, test } from "../support/cursorStart.ts";
+import { keepMoreLaunchRecordsBesideServer } from "../support/launchStore.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 
 const replacementTest = test.extend({ cursorSubmitPaintMs: 300 });
@@ -75,7 +75,12 @@ replacementTest(
       })
       .launchedAt(new Date(Date.now() - 90_000).toISOString())
       .please();
-    writeKeptRecords(dashboard.home, [scoped, other, doneRecord, failRecord]);
+    // The page may still be noting its held starts reconciled, which
+    // rewrites these records too.
+    await keepMoreLaunchRecordsBesideServer(dashboard.home, [
+      doneRecord,
+      failRecord,
+    ]);
     // last-held names the still-revivable scoped session, a finished one,
     // and a failing workspace — not the hung-up never-held session.
     writeLastHeld(dashboard.home, [
@@ -127,7 +132,7 @@ replacementTest(
       .toBe(scopedAttachesBeforeReplace + 1);
 
     await reloadUntilRead(page);
-    const entries = parts(page).taken.locator(".session-entry");
+    const entries = sessionEntriesIn(parts(page).taken);
     const revived = entries.filter({ hasText: cursor.sessionId });
     const neverHeld = entries.filter({ hasText: secondSessionId });
     const failed = entries.filter({ hasText: failSessionId });
@@ -144,7 +149,7 @@ replacementTest(
       1,
     );
     await expect(
-      parts(page).recentlyDone.locator(".session-entry").filter({
+      sessionEntriesIn(parts(page).recentlyDone).filter({
         hasText: doneSessionId,
       }),
     ).toHaveCount(1);

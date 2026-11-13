@@ -17,7 +17,7 @@ import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 import type { Locator } from "@playwright/test";
 import { parts } from "../dashboardPage.ts";
 import { intentGroupToggle, revisionNotice } from "../intentPerspectivePage.ts";
-import { expectSelected } from "../storyCardSelection.ts";
+import { emptyArea, expectSelected } from "../storyCardSelection.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
   folderToggle,
@@ -40,10 +40,7 @@ import {
 } from "../support/intentStoryWorktree.ts";
 import { shortRevision } from "../dashboardParts.ts";
 import { commitAll, git, writeAt } from "../support/storyReviewWorktree.ts";
-import {
-  pausePageClock,
-  passTimeUntilCheckedAfterSettled,
-} from "../autoRefreshJourney.ts";
+import { pausePageClock, passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import { openProjectIntent, returnToStory } from "../intentModePage.ts";
 
@@ -146,7 +143,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
       "false",
     );
     await development.click();
-    await card.getByRole("heading", { level: 3 }).click();
+    await emptyArea(card).click();
     await expectSelected(card, true);
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
@@ -217,7 +214,7 @@ test("Selected story only stays on through a new trunk revision and refreshing P
   commitAll(origin.project, "a later trunk change");
   git(origin.project, "push", "--quiet", "origin", "main");
   const later = (await origin.originGit("rev-parse", "main")).trim();
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   await untilPageReadsAnswered(page);
   await expect(parts(page).status).toContainText(
     `Published work read at revision ${shortRevision(later)}`,

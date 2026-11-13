@@ -1,7 +1,11 @@
-import { closeSidePanel } from "../sidePanelFrame.ts";
+import {
+  deleteRecordQuestion,
+  sessionAction,
+  sessionActionsControl,
+} from "../support/sessionEntryDisclosure.ts";
+import { closeSidePanel, sidePanelNamesOf } from "../sidePanelFrame.ts";
 // Exact touch actions on real submitted reports and dashboard records.
 
-import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
@@ -20,6 +24,7 @@ import { messagePartOf } from "../support/sessionMessagePart.ts";
 import {
   briefDoneRenameWait,
   doneQuestion,
+  keepOpen,
   markAsDone,
 } from "../support/markDone.ts";
 import { launchedStory, shortIdOf } from "../support/reportedLaunch.ts";
@@ -74,28 +79,24 @@ test.describe(`${name} session management`, () => {
     await sidebar.entry("Story B").scrollIntoViewIfNeeded();
     await tapWhereShown(sidebar.entry("Story B"));
     const panel = terminalPanel(page);
-    await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
-    await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+    await expect(sidePanelNamesOf(panel).sessionName).toHaveText(/ session$/);
+    await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
     // Scroll stacked panels before reading: xterm pauses offscreen rendering.
     // Header taps never scroll a control into view.
     await panel.scrollIntoViewIfNeeded();
     await expect(terminalScreenParts(panel).rows).toContainText(
       `attached ${intended.sessionId.slice(0, 8)}`,
     );
-    await tapWhereShown(
-      panel.getByRole("button", { name: "Mark as done", exact: true }),
-    );
+    await tapWhereShown(markAsDone(panel));
     const panelQuestion = doneQuestion(panel);
     await expect(panelQuestion).toContainText(
       "This session reported unfinished work.",
     );
     const beforeKeep = await recordOf(dashboard, intended.sessionId);
-    await tapWhereShown(
-      panelQuestion.getByRole("button", { name: "Keep open", exact: true }),
-    );
+    await tapWhereShown(keepOpen(panelQuestion));
     await expect(panelQuestion).toHaveCount(0);
-    await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
-    await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+    await expect(sidePanelNamesOf(panel).sessionName).toHaveText(/ session$/);
+    await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
     expect(dashboard.claudeStopCalls()).toEqual([]);
     expect(
       (await recordOf(dashboard, intended.sessionId))?.doneAt,
@@ -132,10 +133,7 @@ test.describe(`${name} session management`, () => {
     expect(read?.doneAt).toBeUndefined();
     expect(dashboard.claudeStopCalls()).toEqual([]);
     // Choice-through-rotation: sessions-sidebar-touch
-    const moreActions = entryB.getByRole("button", {
-      name: "More session actions",
-      exact: true,
-    });
+    const moreActions = sessionActionsControl(entryB);
     await moreActions.scrollIntoViewIfNeeded();
     await tapWhereShown(moreActions);
     await markAsDone(entryB).scrollIntoViewIfNeeded();
@@ -144,12 +142,8 @@ test.describe(`${name} session management`, () => {
     await expect(question).toContainText(
       "This session reported unfinished work.",
     );
-    const keepOpen = question.getByRole("button", {
-      name: "Keep open",
-      exact: true,
-    });
-    await keepOpen.scrollIntoViewIfNeeded();
-    await tapWhereShown(keepOpen);
+    await keepOpen(question).scrollIntoViewIfNeeded();
+    await tapWhereShown(keepOpen(question));
     await expect(markAsDone(entryB)).toBeFocused();
     expect((await recordOf(dashboard, intended.sessionId))?.reportRead).toBe(
       read?.reportRead,
@@ -197,25 +191,16 @@ test.describe(`${name} session management`, () => {
     const deleteRecord = await sessionAction(entryA, "Delete record…");
     await deleteRecord.scrollIntoViewIfNeeded();
     await tapWhereShown(deleteRecord);
-    const deleteQuestion = entryA.getByRole("group", {
-      name: /^Delete this session's dashboard record/,
-    });
-    await expect(deleteQuestion).toContainText(
+    const asked = deleteRecordQuestion(entryA);
+    await expect(asked.question).toContainText(
       "a running session keeps running",
     );
-    const keep = deleteQuestion.getByRole("button", {
-      name: "Keep",
-      exact: true,
-    });
+    const { keep, confirm: confirmDelete } = asked;
     await keep.scrollIntoViewIfNeeded();
     await tapWhereShown(keep);
     expect(await recordOf(dashboard, ordinary.sessionId)).toBeDefined();
     await deleteRecord.scrollIntoViewIfNeeded();
     await tapWhereShown(deleteRecord);
-    const confirmDelete = deleteQuestion.getByRole("button", {
-      name: "Delete record",
-      exact: true,
-    });
     await confirmDelete.scrollIntoViewIfNeeded();
     await tapWhereShown(confirmDelete);
     await expect(entryA).toHaveCount(0);

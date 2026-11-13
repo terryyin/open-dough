@@ -1,7 +1,8 @@
-// The human-credit recovery journeys (limit-recovery-credit-*.spec.ts): a
-// Taken profile's human and Take, withheld by GitHub's rate limit while trunk
-// stays at the shown revision, are read on their own once the wait ends,
-// asking GitHub only for the ref and the walk's steps not yet answered.
+// The human-credit recovery journeys: a Taken profile's human and Take,
+// withheld by GitHub's rate limit (limit-recovery-credit-*.spec.ts) or
+// refused for a moment (transient-credit-recovery.spec.ts) while trunk stays
+// at the shown revision, are read on their own once the wait ends, asking
+// GitHub only for the ref and the walk's steps not yet answered.
 //
 // The records are the slice clock journey's (./sliceClockRecords.ts): Yuma's
 // story was Taken 5 minutes before the page opened, so its clock measures
@@ -12,7 +13,8 @@
 import type { Page } from "@playwright/test";
 import { expect, githubFor, pausePageClockAt, test } from "./dashboardTest.ts";
 import { expectSettledPage, parts, rosterParts } from "./dashboardPage.ts";
-import { inspectedDetail } from "./storyCardControls.ts";
+import { storyCard } from "./storyCardControls.ts";
+import { credit, detailHuman, expectHumanInitials } from "./agentCredit.ts";
 import { limiting } from "./limitedReadingJourney.ts";
 import { limitedUntil } from "./limitNotice.ts";
 import { readsBesideChecks } from "./originObservation.ts";
@@ -52,8 +54,7 @@ export const isYumaHistory = (request: GhRequest) =>
 export const isCommit = (sha: string) => (request: GhRequest) =>
   request.kind === "commit" && request.sha === sha;
 
-const card = (page: Page, title: string) =>
-  parts(page).taken.getByRole("article", { name: title });
+const card = (page: Page, title: string) => storyCard(parts(page).taken, title);
 
 // What a recovery asks of GitHub, in the order it was asked, as
 // `readsBesideChecks` names it, with each commit by its sha.
@@ -133,15 +134,13 @@ export async function openedWithYumaWithheld(
   );
   const withheld = `GitHub's rate limit withheld the commit that added ${profilePath("Yuma")} at ${revision}. ${until}`;
   const yumaCard = card(page, justTaken);
-  await expect(
-    yumaCard.locator(".story-card-owner .owner-human-gap"),
-  ).toHaveText("Human developer unknown");
+  await expect(credit(yumaCard).humanGap).toHaveText("Human developer unknown");
   await expect(yumaCard).toContainText(
     `Current slice time unavailable: ${withheld}`,
   );
-  await expect(
-    (await inspectedDetail(yumaCard)).locator(".owner-human"),
-  ).toHaveText(`Human developer unknown. ${withheld}`);
+  await expect(await detailHuman(yumaCard)).toHaveText(
+    `Human developer unknown. ${withheld}`,
+  );
   await expect(parts(page).problem).toHaveCount(1);
   return { limitSeenAt, asked: githubFor(page).calls.length };
 }
@@ -164,38 +163,30 @@ export async function waitedOut(page: Page, limitSeenAt: number) {
 // the unreadable plan time keeps its own gap.
 export async function expectRecovered(page: Page, solaExplained: string) {
   await test.step("the credited human appears on its card, detail, and roster, and its Take clock beside it, with the notice gone", async () => {
-    // Rate-limit notice is gone; an unrelated empty/missing plan history
-    // stays a terminal gap and does not arm project-local recovery.
-    await expect(page.locator("body")).not.toContainText(
+    // Neither a limit nor its withheld detail is said any more; an unrelated
+    // empty/missing plan history stays a terminal gap and does not arm
+    // project-local recovery.
+    for (const said of [
+      "GitHub limited the rate",
       "GitHub's rate limit withheld",
-    );
+    ])
+      await expect(page.locator("body")).not.toContainText(said);
     const yumaCard = card(page, justTaken);
-    await expect(yumaCard.locator(".story-card-owner")).toContainText(
-      recoveredHuman,
-    );
+    await expect(credit(yumaCard).owner).toContainText(recoveredHuman);
     await expect(yumaCard).toContainText("Current slice started 5 min ago");
-    const human = (await inspectedDetail(yumaCard)).locator(".owner-human");
-    await expect(human).toHaveText(`Human developer: ${recoveredHuman}`);
-    await expect(
-      (await inspectedDetail(card(page, afterTake))).locator(".owner-human"),
-    ).toHaveText("Human developer: Fixture Committer");
+    await expect(await detailHuman(yumaCard)).toHaveText(
+      `Human developer: ${recoveredHuman}`,
+    );
+    await expect(await detailHuman(card(page, afterTake))).toHaveText(
+      "Human developer: Fixture Committer",
+    );
     await expect(card(page, timeUnread)).not.toContainText(
       "Current slice started",
     );
-    await expect(page.locator("body")).not.toContainText(
-      "GitHub's rate limit withheld",
-    );
     const { member, opener, back } = rosterParts(page);
     await opener("Yuma-chan").click();
-    await expect(member("Yuma-chan").locator(".owner-human")).toHaveText(
-      `Human developer: ${recoveredHuman}`,
-    );
-    await expect(
-      member("Yuma-chan").locator(".human-avatar-fallback"),
-    ).toHaveText("YC");
-    await expect(member("Sola-chan").locator(".owner-human")).toHaveText(
-      solaExplained,
-    );
+    await expectHumanInitials(member("Yuma-chan"), recoveredHuman, "YC");
+    await expect(credit(member("Sola-chan")).human).toHaveText(solaExplained);
     await back.click();
   });
 }

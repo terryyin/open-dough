@@ -11,26 +11,29 @@ import type { Page } from "@playwright/test";
 import {
   dragDivider,
   expectCollapsed,
-  expectDividerSays,
+  expectCursorHeight,
   expectSplit,
   heightKey,
   keepInBrowser,
   keptHeight,
+  keyDivider,
   keyStep,
-  press,
   roomOf,
   valueOf,
   wide,
-  type Shown,
 } from "../cursorSessionsSidebarResizePage.ts";
 import { chooseProject, parts } from "../dashboardPage.ts";
 import {
+  type RunningCursorParts,
+  runningCursorParts,
+} from "../runningCursorList.ts";
+import {
   changesAsked,
   listFloor as floor,
-  runningCursorParts,
   showPage,
 } from "../runningCursorSessionsPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
+import { back, settings } from "../support/systemSettingsPage.ts";
 import { publishOnePygardonStory } from "../pygardonProject.ts";
 
 const sessionsSidebarOpenKey = "open-dough.sessionsSidebar.open";
@@ -48,12 +51,11 @@ const otherPreferences = (page: Page) =>
   );
 
 // Expanded, the two lists share the room equally; returns that room.
-async function expandToEqualShare(shown: Shown) {
+async function expandToEqualShare(shown: RunningCursorParts) {
   await shown.header.click();
   await expect(shown.body).toBeVisible();
   const room = await roomOf(shown);
-  await expectSplit(shown, room, Math.round(room / 2));
-  await expectDividerSays(shown.divider, Math.round(room / 2));
+  await expectCursorHeight(shown, room, Math.round(room / 2));
   return room;
 }
 
@@ -94,13 +96,11 @@ test.describe("with two projects", () => {
     const room = await expandToEqualShare(shown);
     // Expanding at the default is no choice: nothing is kept yet.
     expect(await keptHeight(page)).toBeNull();
-    await divider.focus();
-    await press(page, "ArrowUp", 3);
+    await keyDivider(divider, "ArrowUp", 3);
     const chosen = Math.round(room / 2) + 3 * keyStep;
     const expectChosen = async () => {
       await expect(header).toHaveAttribute("aria-expanded", "true");
-      await expectDividerSays(divider, chosen);
-      await expectSplit(shown, room, chosen);
+      await expectCursorHeight(shown, room, chosen);
       expect(await keptHeight(page)).toBe(String(chosen));
     };
     await expectChosen();
@@ -117,12 +117,8 @@ test.describe("with two projects", () => {
       await chooseProject(page, "Pygardon");
       await expect(backlog).toContainText("A Pygardon story");
       await expectChosen();
-      await page
-        .getByRole("button", { name: "System settings", exact: true })
-        .click();
-      await page
-        .getByRole("button", { name: "Back to dashboard", exact: true })
-        .click();
+      await settings(page).click();
+      await back(page).click();
       await expect(backlog).toContainText("A Pygardon story");
       await expectChosen();
     });
@@ -193,8 +189,7 @@ test("less room fits the shown height, also after a reload, without replacing th
 
   await test.step("less room fits the shown height and keeps the chosen one", async () => {
     await page.setViewportSize({ width: wide.width, height: less });
-    await expectDividerSays(divider, fitted);
-    await expectSplit(shown, less - taken, fitted);
+    await expectCursorHeight(shown, less - taken, fitted);
     await expectKept();
   });
 
@@ -212,15 +207,13 @@ test("less room fits the shown height, also after a reload, without replacing th
     await page.reload();
     await expectCollapsed(shown);
     await header.click();
-    await expectDividerSays(divider, fitted);
-    await expectSplit(shown, less - taken, fitted);
+    await expectCursorHeight(shown, less - taken, fitted);
     await expectKept();
   });
 
   await test.step("more room recovers the chosen height", async () => {
     await page.setViewportSize(wide);
-    await expectDividerSays(divider, chosen);
-    await expectSplit(shown, room, chosen);
+    await expectCursorHeight(shown, room, chosen);
     await expectKept();
   });
 });

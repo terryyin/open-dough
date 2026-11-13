@@ -13,12 +13,18 @@
 import type { Locator, Page } from "@playwright/test";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
-import { storyCardSessions, parts, sessionStateOf } from "../dashboardPage.ts";
+import {
+  storyCardSessions,
+  parts,
+  sessionStateOf,
+  sessionUnreadReportOf,
+} from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 import {
   doneQuestion,
   expectAsked,
+  keepOpen,
   markAsDone,
   markDone,
   stillWorking,
@@ -88,7 +94,7 @@ async function expectAskedThenKept(
   const stopsBefore = dashboard.claudeStopCalls().length;
   const question = await expectAsked(entry, statement);
   if (answer === "Escape") await entry.page().keyboard.press("Escape");
-  else await question.getByRole("button", { name: "Keep open" }).click();
+  else await keepOpen(question).click();
   await expect(doneQuestion(entry)).toHaveCount(0);
   await expect(markAsDone(entry)).toBeFocused();
   await expect(entry).toHaveCount(1);
@@ -189,7 +195,7 @@ test("a completed report marks done at once only while the session neither works
   });
 
   await test.step("(f) reported unfinished, read, Ready for review: asks that it reported unfinished work; Keep open leaves the report read", async () => {
-    await expect(entryB.locator(".session-unread-report")).toHaveText(
+    await expect(sessionUnreadReportOf(entryB)).toHaveText(
       "Unread report: Unfinished work",
     );
     await markReportRead(entryB);
@@ -199,7 +205,7 @@ test("a completed report marks done at once only while the session neither works
       entryB,
       "This session reported unfinished work.",
     );
-    await expect(entryB.locator(".session-unread-report")).toHaveCount(0);
+    await expect(sessionUnreadReportOf(entryB)).toHaveCount(0);
     const record = await recordOf(dashboard, storyB.sessionId);
     expect(record?.reportRead).toBe(record?.completion?.receipt);
   });

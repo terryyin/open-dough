@@ -16,20 +16,25 @@ import {
 import { pausePageClockAt } from "../dashboardTest.ts";
 import { terminalPanel } from "../terminalScreenPage.ts";
 import {
+  byProjectOf,
   fortyFiveDoneSessions,
   preferShortRecentlyDoneBody,
   revealRecentlyDoneThrough,
 } from "../recentlyDoneSessionsSidebarPaging.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
+  expectRecentlyDone,
   recentlyDoneHeightKey,
-  recentlyDoneParts,
+  showRecentlyDone,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
 import { wheelToEnd } from "../runningCursorSessionsPage.ts";
 import { holdSessionReads, watchRecordReads } from "../sessionStatePace.ts";
-import { openSessionsSidebar } from "../sessionsSidebarPage.ts";
+import {
+  expectSessionsSidebar,
+  openSessionsSidebar,
+} from "../sessionsSidebarPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
 
 test.use({
@@ -50,12 +55,8 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
   await preferShortRecentlyDoneBody(page, recentlyDoneHeightKey);
   keepLaunchStore(dashboard, byProject);
   await showThreeProjectPage(page, origin);
-  const shown = recentlyDoneParts(page);
-  await shown.button.click();
-  await shown.header.click();
-
-  const titlesOf = () =>
-    shown.entries.getByRole("heading", { level: 3 }).allTextContents();
+  const shown = await showRecentlyDone(page);
+  const titlesOf = () => shown.titles.allTextContents();
 
   await test.step("first expansion shows the newest 20 only", async () => {
     await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);
@@ -109,11 +110,11 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
 
   await test.step("collapse, hide, and project change keep the reached range", async () => {
     await shown.header.click();
-    await expect(shown.body).toHaveCount(0);
+    await expectRecentlyDone(shown, "collapsed");
     await shown.header.click();
     await expect(shown.entries).toHaveCount(45);
     await shown.button.click();
-    await expect(shown.sidebar).toBeHidden();
+    await expectSessionsSidebar(page, "closed");
     await shown.button.click();
     await expect(shown.entries).toHaveCount(45);
     await chooseProject(page, "Doughnut");
@@ -127,8 +128,8 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
   const olderCrossProject = titles[40] ?? "";
   expect(olderCrossProject).not.toBe("");
   await test.step("choosing an older cross-project session selects it and brings its Board entry into view in its project", async () => {
-    await shown.entry(olderCrossProject).click();
-    await expect(shown.entry(olderCrossProject)).toHaveAttribute(
+    await shown.select(olderCrossProject).click();
+    await expect(shown.select(olderCrossProject)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -159,22 +160,9 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
     const withoutRemoved = records.filter(
       (record) => record.request.title !== removedTitle,
     );
-    const refreshed = [newer, ...withoutRemoved];
-    const nextByProject: Record<string, LaunchRecord[]> = {
-      "open-dough": [],
-      doughnut: [],
-      pygardon: [],
-    };
-    for (const record of refreshed) {
-      const bucket = nextByProject[record.request.source];
-      if (bucket === undefined) {
-        throw new Error(`Unexpected project ${record.request.source}`);
-      }
-      bucket.push(record);
-    }
-    await shown.entry(removedTitle).focus();
-    await expect(shown.entry(removedTitle)).toBeFocused();
-    keepLaunchStore(dashboard, nextByProject);
+    await shown.select(removedTitle).focus();
+    await expect(shown.select(removedTitle)).toBeFocused();
+    keepLaunchStore(dashboard, byProjectOf([newer, ...withoutRemoved]));
     await passOnePace();
 
     const shownTitles = await titlesOf();
@@ -187,7 +175,7 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
     expect(shownTitles).toHaveLength(45);
     const focused = page.locator(":focus");
     await expect(focused).toBeVisible();
-    await expect(shown.entry(removedTitle)).toHaveCount(0);
+    await expect(shown.select(removedTitle)).toHaveCount(0);
     // Focus left the removed control for a nearby entry or the section header.
     await expect(focused).not.toHaveText(removedTitle);
   });
@@ -196,7 +184,7 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
     await page.reload();
     await chooseProject(page, "Pygardon");
     await openSessionsSidebar(page);
-    await expect(shown.header).toHaveAttribute("aria-expanded", "false");
+    await expectRecentlyDone(shown, "collapsed");
     await shown.header.click();
     await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);
   });
@@ -215,16 +203,14 @@ test("delayed first session read and a failed refresh keep existing read semanti
   const { answer } = await holdSessionReads(page);
   keepLaunchStore(dashboard, byProject);
   await showThreeProjectPage(page, origin);
-  const shown = recentlyDoneParts(page);
-  await shown.button.click();
-  await shown.header.click();
+  const shown = await showRecentlyDone(page);
   await expect(shown.body).toContainText("Reading sessions…");
   await expect(shown.entries).toHaveCount(0);
   answer();
   await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);
-  expect(
-    await shown.entries.getByRole("heading", { level: 3 }).allTextContents(),
-  ).toEqual(titles.slice(0, recentlyDoneSessionsInitialLimit));
+  expect(await shown.titles.allTextContents()).toEqual(
+    titles.slice(0, recentlyDoneSessionsInitialLimit),
+  );
 
   await revealRecentlyDoneThrough(shown, 40);
   await page.route(

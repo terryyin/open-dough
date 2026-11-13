@@ -29,6 +29,7 @@ import {
 } from "../recentlyDoneSelectionJourney.ts";
 import { showReport } from "../recentlyDoneSelectionReport.ts";
 import { pygardonCatalogRead } from "../pygardonCatalogReads.ts";
+import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { expectSelected, selectStory } from "../storyCardSelection.ts";
 import {
   chooseStoryTab,
@@ -44,10 +45,10 @@ test("selecting a linked done story from Intent shows that project's story in In
 }) => {
   const { shown, row } = await openSelectionPage(page, dashboard);
   const { development, intentChoice, intent } = parts(page);
-  const panel = await showReport(page, shown);
+  const opened = await showReport(page, shown);
   await intentChoice.click();
   await expect(intent).toBeVisible();
-  const select = shown.entry(linked.title);
+  const select = shown.select(linked.title);
 
   await test.step("Tab reaches the row's Select, then its separate Open", async () => {
     await shown.header.focus();
@@ -86,19 +87,17 @@ test("selecting a linked done story from Intent shows that project's story in In
     await expect(select).toHaveAttribute("aria-pressed", "true");
     await expect(row(linked.title)).toHaveClass(/\bchosen\b/);
     await expect(choiceStatus(row(linked.title))).toHaveCount(0);
-    await expect(panel.locator(".final-report-text")).toHaveText(
-      report.message,
-    );
+    await expect(opened.reportText).toHaveText(report.message);
     await expect(terminalPanel(page)).toHaveCount(0);
     expect(dashboard.claudeAttaches()).toEqual([]);
     // Selection and the Side panel's session keep separate marks.
     await expect(select).not.toHaveAttribute("aria-current");
     await expect(row(linked.title)).not.toHaveClass(/in-side-panel/);
-    await expect(shown.entry(report.title)).toHaveAttribute(
+    await expect(shown.select(report.title)).toHaveAttribute(
       "aria-current",
       "true",
     );
-    await expect(shown.entry(report.title)).toHaveAttribute(
+    await expect(shown.select(report.title)).toHaveAttribute(
       "aria-pressed",
       "false",
     );
@@ -117,9 +116,7 @@ test("selecting a linked done story from Intent shows that project's story in In
       "data-selected-story",
       linked.identity,
     );
-    await expect(panel.locator(".final-report-text")).toHaveText(
-      report.message,
-    );
+    await expect(opened.reportText).toHaveText(report.message);
     expect(dashboard.claudeAttaches()).toEqual([]);
   });
 
@@ -141,9 +138,7 @@ test("selecting a linked done story from Intent shows that project's story in In
     await expect(intent).toHaveCount(0);
     await expect.poll(() => dashboard.claudeAttaches()).toHaveLength(1);
     // Reopened, the session leaves Recently done for the open list.
-    const reopened = shown.openEntries.getByRole("button", {
-      name: linked.title,
-    });
+    const reopened = sessionsSidebarParts(page).entry(linked.title);
     await expect(reopened).toHaveAttribute("aria-current", "true");
     await expect(select).toHaveCount(0);
     await closeTerminal(terminal);
@@ -159,7 +154,7 @@ test("selecting standalone rows from Intent keeps the project, file, Selected st
 }) => {
   const { shown, row } = await openSelectionPage(page, dashboard);
   const { taken, intentChoice, intent } = parts(page);
-  const panel = await showReport(page, shown);
+  const opened = await showReport(page, shown);
   const card = taken.getByRole("article", { name: openDoughTaken.title });
   // Beside the sidebar and the report the keyboard reaches the card's Select
   // story where a pointer would land on the sidebar.
@@ -181,18 +176,16 @@ test("selecting standalone rows from Intent keeps the project, file, Selected st
       openDoughTaken.identity,
     );
     await expect(file).toHaveAttribute("aria-pressed", "true");
-    await expect(panel.locator(".final-report-text")).toHaveText(
-      report.message,
-    );
+    await expect(opened.reportText).toHaveText(report.message);
     await expect(terminalPanel(page)).toHaveCount(0);
     expect(dashboard.claudeAttaches()).toEqual([]);
   };
 
   await test.step("Pygardon's Taken story session, with no done record, is selected as a session", async () => {
     const read = pygardonCatalogRead(page);
-    await shown.entry(takenElsewhere.title).click();
+    await shown.select(takenElsewhere.title).click();
     await read;
-    await expect(shown.entry(takenElsewhere.title)).toHaveAttribute(
+    await expect(shown.select(takenElsewhere.title)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -203,12 +196,12 @@ test("selecting standalone rows from Intent keeps the project, file, Selected st
 
   await test.step("a Doughnut ad hoc session, which offers no Open, is selected as a session", async () => {
     await expect(shown.open(adHoc.title)).toHaveCount(0);
-    await shown.entry(adHoc.title).click();
-    await expect(shown.entry(adHoc.title)).toHaveAttribute(
+    await shown.select(adHoc.title).click();
+    await expect(shown.select(adHoc.title)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
-    await expect(shown.entry(takenElsewhere.title)).toHaveAttribute(
+    await expect(shown.select(takenElsewhere.title)).toHaveAttribute(
       "aria-pressed",
       "false",
     );

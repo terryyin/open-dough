@@ -11,7 +11,10 @@ import {
   expectProblemAndNoSnapshot,
   parts,
   rosterParts,
+  selectedProjectId,
 } from "../dashboardPage.ts";
+import { credit } from "../agentCredit.ts";
+import { inspectedDetail, storyCard } from "../storyCardControls.ts";
 import {
   agentIdentity,
   agentNames,
@@ -41,18 +44,18 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
   const { taken, backlog } = parts(page);
   await expectMembership(page, { taken: [takenStory], backlog: [queuedStory] });
   await expect(page.getByText("Reading agent profile…")).toHaveCount(0);
-  const takenStoryCard = taken.getByRole("article", { name: takenStory });
+  const takenStoryCard = storyCard(taken, takenStory);
   const { roster, members, member, opener, back } = rosterParts(page);
 
   await test.step("the Taken card's portrait opens the roster and history walks back and forward", async () => {
-    await takenStoryCard.getByRole("button", { name: "Inspect story" }).click();
+    await inspectedDetail(takenStoryCard);
     await opener("Akiho-chan").click();
     await expect(roster).toBeVisible();
     await expect(taken).toBeHidden();
     expectRoute(page, { project: "open-dough", view: "roster" });
     await expect(members.getByRole("heading")).toHaveText(everyAgent);
-    await expect(members.locator(".agent-portrait")).toHaveCount(29);
-    for (const portrait of await members.locator(".agent-portrait").all()) {
+    await expect(credit(members).portrait).toHaveCount(29);
+    for (const portrait of await credit(members).portrait.all()) {
       await expect(portrait).toBeVisible();
     }
     await expect(roster.locator('[aria-current="true"]')).toHaveCount(1);
@@ -94,10 +97,8 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
   });
 
   await test.step("the Preparing card's portrait opens the roster from the keyboard, and Back returns there", async () => {
-    const queuedCard = backlog.getByRole("article", { name: queuedStory });
-    await expect(queuedCard.locator(".story-card-preparing")).toContainText(
-      "Kirara-chan",
-    );
+    const queuedCard = storyCard(backlog, queuedStory);
+    await expect(credit(queuedCard).preparing).toContainText("Kirara-chan");
     await expect(queuedCard).not.toContainText(/Sola-chan|Conflicting records/);
     await opener("Kirara-chan").focus();
     await page.keyboard.press("Enter");
@@ -191,13 +192,10 @@ test("direct roster load, reload, unknown project fallback, and direct failure k
 
   await test.step("direct roster load selects project and focuses heading, reload keeps it, and Back returns to project stories", async () => {
     await openUntilRead(page, "/?project=doughnut&view=roster");
-    const { project, board } = parts(page);
+    const { board } = parts(page);
     const { roster, back } = rosterParts(page);
 
-    await expect(project.getByRole("radio", { checked: true })).toHaveAttribute(
-      "value",
-      "doughnut",
-    );
+    await expect.poll(() => selectedProjectId(page)).toBe("doughnut");
     await expect(roster).toBeVisible();
     await expect(
       roster.getByRole("heading", { name: "Agent roster" }),
@@ -226,11 +224,7 @@ test("direct roster load, reload, unknown project fallback, and direct failure k
   await test.step("unknown project route resolves to default project stories and normalizes URL", async () => {
     await page.goto("/?project=unknown-project&view=roster");
     await expect(page).toHaveURL(new URL("/", page.url()).href);
-    const { project } = parts(page);
-    await expect(project.getByRole("radio", { checked: true })).toHaveAttribute(
-      "value",
-      "open-dough",
-    );
+    await expect.poll(() => selectedProjectId(page)).toBe("open-dough");
     await expect(rosterParts(page).roster).toHaveCount(0);
     await expectMembership(page, {
       taken: [takenStory],

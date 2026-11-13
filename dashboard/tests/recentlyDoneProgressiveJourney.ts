@@ -9,7 +9,7 @@
 import type { Locator, Page } from "@playwright/test";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
+import { columnCountOf, parts } from "./dashboardPage.ts";
 import { expectEntries, shownEntries } from "./recentlyDoneColumn.ts";
 import {
   entryName,
@@ -146,7 +146,7 @@ export async function expectThroughDestination(
     arrived ?? through.at(-1) ?? "",
   ]);
   await expect(recent).toContainText("Showing 27 of 35 entries.");
-  await expect(recent.locator(".column-count")).toHaveText("35 entries");
+  await expect(columnCountOf(recent)).toHaveText("35 entries");
   expect(recordsAsked(github).toSorted()).toEqual(
     storiesThrough(destination).toSorted(),
   );

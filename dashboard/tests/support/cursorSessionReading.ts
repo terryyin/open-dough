@@ -5,16 +5,19 @@ import { readFileSync } from "node:fs";
 import { machineSessions } from "../agentLaunchBoundary.ts";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts, sessionStateOf } from "../dashboardPage.ts";
+import { parts, sessionStateOf, sessionEntriesIn } from "../dashboardPage.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import { cursorHeldLabels } from "../../src/cursorHeldLabel.ts";
 import { hostDescriptions } from "../../src/hostDescription.ts";
 import { agentLaunchEndpoint } from "../../src/launchRequest.ts";
 import type { HostOperations } from "../../src/sessionCapabilities.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { sessionActions } from "./sessionEntryDisclosure.ts";
+import { sessionAction, sessionActions } from "./sessionEntryDisclosure.ts";
 import { startedSessionTerminal } from "./startedSessionTerminal.ts";
-import { expectTerminalText } from "../terminalScreenPage.ts";
+import {
+  expectTerminalText,
+  openTerminalControl,
+} from "../terminalScreenPage.ts";
 
 export const instruction = "inspect this session";
 
@@ -109,7 +112,7 @@ export async function openTakenCursorSession(
     await dialog.getByRole("combobox", { name: "Model" }).selectOption(model);
   await startSessionField(dialog).fill(instruction);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  const recent = parts(page).taken.locator(".session-entry");
+  const recent = sessionEntriesIn(parts(page).taken);
   await expect(recent).toHaveCount(1);
   // The session's terminal joins the held client once it shows the screen. A
   // join arriving after a later hangup or runner stop would attach a new
@@ -127,12 +130,8 @@ export async function expectCursorSessionActions(
   entry: Locator,
 ): Promise<void> {
   await sessionActions(entry);
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toHaveCount(1);
-  await expect(
-    entry.getByRole("button", { name: "Delete record…" }),
-  ).toHaveCount(0);
+  await expect(openTerminalControl(entry)).toHaveCount(1);
+  await expect(await sessionAction(entry, "Delete record…")).toHaveCount(0);
   await expect(entry.getByRole("button", { name: "Stop" })).toHaveCount(1);
   await expect(page.getByRole("button", { name: /rename/i })).toHaveCount(0);
 }

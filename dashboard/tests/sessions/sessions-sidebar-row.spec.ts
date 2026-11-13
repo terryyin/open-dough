@@ -12,6 +12,8 @@ import {
   expectRowShows,
   expectSessionsSidebarSessionEntryShown,
   expectTooltipLine,
+  sessionsSidebarDetailsOf,
+  sessionsSidebarElapsedOf,
   sessionsSidebarParts,
 } from "../sessionsSidebarPage.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
@@ -59,10 +61,9 @@ test.describe("a Sessions sidebar Session entry", () => {
     await test.step("its text is the title and the elapsed time alone", async () => {
       await expectRowShows(short, shortWork.title, "<1m");
       await expectRowShows(long, longWork.title, "<1m");
-      await expect(
-        short.locator(".sessions-sidebar-session-entry-details"),
-      ).toBeHidden();
-      await expect(short.locator("summary")).toBeHidden();
+      const { details, disclosure } = sessionsSidebarDetailsOf(short);
+      await expect(details).toBeHidden();
+      await expect(disclosure).toBeHidden();
       await expect(short.getByRole("button")).toHaveCount(1);
     });
 
@@ -96,9 +97,7 @@ test.describe("a Sessions sidebar Session entry", () => {
       );
       expect((await box(title)).height).toBeLessThanOrEqual(lineHeight + 1);
       expect((await box(long)).height).toBe((await box(short)).height);
-      const elapsed = await box(
-        long.locator(".sessions-sidebar-session-entry-elapsed"),
-      );
+      const elapsed = await box(sessionsSidebarElapsedOf(long));
       const row = await box(long);
       expect(elapsed.x + elapsed.width).toBeLessThanOrEqual(row.x + row.width);
       expect(elapsed.y).toBeGreaterThanOrEqual(row.y);
@@ -120,7 +119,7 @@ test.describe("a Sessions sidebar Session entry", () => {
       const second = 1_000;
       const minute = 60 * second;
       const hour = 60 * minute;
-      const elapsed = short.locator(".sessions-sidebar-session-entry-elapsed");
+      const elapsed = sessionsSidebarElapsedOf(short);
 
       await tickAt(20 * second);
       await expect(elapsed).toHaveText("<1m");
@@ -136,12 +135,8 @@ test.describe("a Sessions sidebar Session entry", () => {
         [3 * 24 * hour + hour, "3d"],
       ] as const) {
         await tickAt(afterLaunch);
-        await expect(
-          short.locator(".sessions-sidebar-session-entry-elapsed"),
-        ).toHaveText(words);
-        await expect(
-          long.locator(".sessions-sidebar-session-entry-elapsed"),
-        ).toHaveText(words);
+        await expect(elapsed).toHaveText(words);
+        await expect(sessionsSidebarElapsedOf(long)).toHaveText(words);
       }
     });
   });

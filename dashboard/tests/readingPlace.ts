@@ -4,6 +4,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
+import { scrollYOf } from "./boardPage.ts";
 
 // A card with enough Board content after it aligns with the configured reading
 // edge, including the clearance for the sticky column heading: the CSS reading
@@ -41,11 +42,7 @@ export async function expectReadingTop(card: Locator) {
 export async function expectVisibleReadingFocus(page: Page, control: Locator) {
   await expect(control).toBeFocused();
   await expect(control).toBeInViewport({ ratio: 1 });
-  await expect
-    .poll(() =>
-      page.locator(".board-scroll").evaluate((region) => region.scrollTop),
-    )
-    .toBeGreaterThan(0);
+  await expect.poll(() => scrollYOf(page)).toBeGreaterThan(0);
   // Intersection alone would also count a control hidden under the banner.
   const banner = await parts(page).banner.boundingBox();
   const at = await control.boundingBox();

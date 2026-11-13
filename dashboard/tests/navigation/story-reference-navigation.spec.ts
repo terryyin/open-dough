@@ -7,12 +7,23 @@ import { expect } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { shortRevision, parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
-import { test, twoDependencies, supplierB } from "../storyDependencyFixture.ts";
+import { test, twoDependencies } from "../storyDependencyFixture.ts";
 import { notFoundAnswer } from "../originAnswers.ts";
 import { pausePageClock, passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { expectReadingTop } from "../readingPlace.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { expectSelected, selectStory } from "../storyCardSelection.ts";
+import {
+  canonicalRecord,
+  hideDetail,
+  storyCard,
+} from "../storyCardControls.ts";
+import {
+  dependencySummary,
+  followReference,
+  openDependencies,
+  referenceNotice,
+} from "../storyReference.ts";
 import {
   expectCueEnds,
   expectDestinationCue,
@@ -60,18 +71,10 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   );
   await pausePageClock(page);
   await openUntilRead(page);
-  const consumer = parts(page).backlog.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  const supplier = parts(page).backlog.getByRole("article", {
-    name: "Story B",
-    exact: true,
-  });
-  await consumer.locator(".story-dependencies summary").click();
-  await consumer
-    .getByRole("link", { name: supplierB.identity, exact: true })
-    .click();
+  const consumer = storyCard(parts(page).backlog, "Story A");
+  const supplier = storyCard(parts(page).backlog, "Story B");
+  await openDependencies(consumer);
+  await followReference(consumer, "Story B");
   await expect(
     supplier.getByRole("region", { name: "Detail for Story B" }),
   ).toBeVisible();
@@ -87,11 +90,7 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   expect(new URL(page.url()).hostname).toBe("127.0.0.1");
   await selectStory(supplier).click();
   await expectSelected(supplier, true);
-  const reference = consumer.getByRole("link", {
-    name: supplierB.identity,
-    exact: true,
-  });
-  await reference.click();
+  await followReference(consumer, "Story B");
   await expectDestinationCue(page, supplier, { motion: true });
   await expectSelected(supplier, true);
   await expect(
@@ -100,7 +99,7 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   await expectReadingTop(supplier);
   await passPartOfCue(page, 1000);
   const fadingTime = await holdDestinationCueWhileFading(supplier, 1000);
-  await reference.click();
+  await followReference(consumer, "Story B");
   await expectDestinationCue(page, supplier, { motion: true });
   await expectDestinationCueRestarted(supplier, fadingTime);
   await expectSelected(supplier, true);
@@ -117,7 +116,7 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   ).toBeVisible();
   await expect(supplier).toBeFocused();
   const popup = page.waitForEvent("popup");
-  await supplier.getByRole("link", { name: /^Canonical record/ }).click();
+  await canonicalRecord(supplier).click();
   const evidence = await popup;
   await expect(
     evidence.getByRole("heading", { name: "Source evidence" }),
@@ -126,7 +125,7 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
     `https://github.com/terryyin/open-dough/blob/${revision}/.planning/seeds/B.md#b`,
   );
   await evidence.close();
-  await supplier.getByRole("button", { name: "Hide detail" }).click();
+  await hideDetail(supplier);
   await consumer.getByRole("button", { name: "Inspect story" }).focus();
   const refreshed = await origin.publishRevision({
     files: {
@@ -162,7 +161,7 @@ test("a reference reveals a starting story without opening its protected inspect
   });
   dashboard.claudeScenario("held");
   await openUntilRead(page);
-  const supplier = page.getByRole("article", { name: "Story B", exact: true });
+  const supplier = storyCard(parts(page).board, "Story B");
   await supplier.getByRole("button", { name: "Start execution" }).click();
   await page
     .getByRole("dialog")
@@ -177,19 +176,14 @@ test("a reference reveals a starting story without opening its protected inspect
     .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })
     .toHaveLength(1);
   const before = dashboard.claudeLaunchCalls().length;
-  const consumer = parts(page).backlog.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  await consumer.locator(".story-dependencies summary").click();
-  await consumer.getByRole("link", { name: "SEED-B#b", exact: true }).click();
+  const consumer = storyCard(parts(page).backlog, "Story A");
+  await openDependencies(consumer);
+  await followReference(consumer, "Story B");
   await expect(supplier).toBeFocused();
   await expect(
     supplier.getByRole("region", { name: "Detail for Story B" }),
   ).toHaveCount(0);
-  await expect(
-    supplier.getByRole("link", { name: /^Canonical record/ }),
-  ).toBeVisible();
+  await expect(canonicalRecord(supplier)).toBeVisible();
   expect(dashboard.claudeLaunchCalls().length).toBe(before);
   expect(dashboard.claudeAttaches()).toEqual([]);
   dashboard.releaseHeldClaude();
@@ -210,20 +204,14 @@ test("an identified active block with unreadable detail still opens with its exi
   });
   published.answerWith(".planning/seeds/B.md", notFoundAnswer());
   await openUntilRead(page);
-  const consumer = parts(page).backlog.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  await expect(consumer.locator(".story-dependencies summary")).toBeVisible();
-  await consumer.locator(".story-dependencies summary").click();
-  await consumer.getByRole("link", { name: "SEED-B#b", exact: true }).click();
-  const supplier = parts(page).backlog.getByRole("article", {
-    name: "Story B",
-    exact: true,
-  });
+  const consumer = storyCard(parts(page).backlog, "Story A");
+  await expect(dependencySummary(consumer)).toBeVisible();
+  await openDependencies(consumer);
+  await followReference(consumer, "Story B");
+  const supplier = storyCard(parts(page).backlog, "Story B");
   const detail = supplier.getByRole("region", { name: "Detail for Story B" });
   await expect(detail.locator(".preparation-problem").first()).toBeVisible();
   await expect(supplier).toBeFocused();
   await expect(supplier).toBeInViewport({ ratio: 0.5 });
-  await expect(page.locator(".story-reference-notice")).toBeEmpty();
+  await expect(referenceNotice(page)).toBeEmpty();
 });

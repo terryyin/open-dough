@@ -13,9 +13,10 @@ import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scrip
 import { expect, githubFor } from "./dashboardTest.ts";
 import {
   expectProblemAndNoSnapshot,
-  parts,
   rosterParts,
+  selectedProjectId,
 } from "./dashboardPage.ts";
+import { credit } from "./agentCredit.ts";
 import { publishFiles } from "./publishedOrigin.ts";
 import {
   commitAnswer,
@@ -165,17 +166,14 @@ export async function publishRosterOrigins(page: Page) {
   await publishFiles(page, pygardon);
 }
 
+// The address names each given project, view and story; null means none.
 export function expectRoute(
   page: Page,
-  expected: { project?: string; view?: string | null },
+  expected: Partial<Record<"project" | "view" | "story", string | null>>,
 ) {
-  const url = new URL(page.url());
-  if (expected.project !== undefined) {
-    expect(url.searchParams.get("project")).toBe(expected.project);
-  }
-  if (expected.view !== undefined) {
-    expect(url.searchParams.get("view")).toBe(expected.view);
-  }
+  const params = new URL(page.url()).searchParams;
+  for (const [name, value] of Object.entries(expected))
+    expect(params.get(name), name).toBe(value);
 }
 
 export const backlogUnreadable =
@@ -189,7 +187,7 @@ export async function expectOpenDoughAssignments(
   await expect(akiho.locator(".roster-activity")).toHaveText("Taken");
   await expect(akiho).toContainText(takenStory);
   await expect(akiho).toContainText(takenIdentity);
-  await expect(akiho.locator(".owner-summary")).toHaveText(
+  await expect(credit(akiho).summary).toHaveText(
     "Trunk Mode · Claude Code · claude-opus-5-5",
   );
 
@@ -205,7 +203,7 @@ export async function expectOpenDoughAssignments(
     "Task title not found: the published backlog at this revision lists no entry with this identity.",
   );
 
-  await expect(member("Mana-chan").locator(".assignment-gap")).toHaveText(
+  await expect(credit(member("Mana-chan")).gap).toHaveText(
     "Assignment uncertain: agent profile mana-chan.json is unreadable: profile is not JSON.",
   );
   await expect(member("Mana-chan")).not.toContainText("No assignment recorded");
@@ -223,13 +221,9 @@ export async function expectOpenDoughAssignments(
 
 export async function expectDirectRosterFailure(page: Page) {
   await openUntilRead(page, "/?project=pygardon&view=roster");
-  const { project } = parts(page);
   const { roster, back } = rosterParts(page);
 
-  await expect(project.getByRole("radio", { checked: true })).toHaveAttribute(
-    "value",
-    "pygardon",
-  );
+  await expect.poll(() => selectedProjectId(page)).toBe("pygardon");
   await expect(roster).toBeVisible();
   await expect(roster).toContainText(
     "Pygardon: no published work has been read, so no assignment is known.",

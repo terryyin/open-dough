@@ -25,8 +25,8 @@ story**, or a click on an empty area of the card, makes the story the page's
 selected story, which Intent reads, and highlights its card with an inset accent
 ring and a pale fill; toggling it again clears the selection. Opening the
 story's terminal, final report, or review in the Side panel selects it too;
-closing the Side panel, or showing a session attached to no story, clears the
-selection, and selecting a card leaves the Side panel as it is. The page has one
+closing the Side panel preserves the selection. Showing a session attached to
+no story clears it, and selecting a card leaves the Side panel as it is. The page has one
 selected story across its projects, so a project that does not hold it shows
 none. The highlight is the card's only selection mark. Selecting never opens or
 closes detail, and stays available while the story starts. The
@@ -35,12 +35,14 @@ dependency explanation opens in place from the card's **Dependencies** summary
 
 A done story card in Recently done also holds the story's review state among
 its Story actions, after **Review changes**. An unreviewed story offers **Mark
-as reviewed** and shows no badge; a reviewed one says **Reviewed**, a status in
-words rather than a control, with the quieter **Unreview** beside it. Both
-actions offer the shared touch control height. Either keeps the card at its
-place with its sessions and other actions, the shown range, the entry count,
-the selected story and the Side panel as they were, leaves the keyboard on the
-action that then shows, and is announced once. A change that could not be
+as reviewed** with a prominent red warning fill and readable action words in
+light and dark appearance. A reviewed story offers one quieter **Reviewed**
+button. It asks whether to unreview the story; **Cancel** or Escape leaves it
+reviewed, and confirming **Unreview** brings back **Mark as reviewed**. Both
+actions offer the shared touch control height. Saving either change keeps the
+card at its place with its sessions and other actions, the shown range, the
+entry count, the selected story and the Side panel as they were, leaves the
+keyboard on the action that then shows, and is announced once. A change that could not be
 saved, because the machine could not write its local records or the dashboard
 was not reached, leaves the card showing the state last saved, with the
 keyboard on the action still shown, and says "The review state could not be
@@ -58,5 +60,8 @@ again at the shared revision check interval, so every page of that server
 shows a change at its next read; the page making a change shows it at once.
 Its request is a same-origin GET or POST to
 `/__project-configuration/story-review-states?id=<project>`, the POST naming
-the story identity and the state, never a path. Backlog and Taken cards,
-session entries, the Sessions sidebar and Intent show no review state.
+the story identity and the state, never a path. Recently done sessions share
+that page/project state: a confirmed link to an unreviewed completed story
+shows red **Needs review** words before selection. A successful card change
+updates every linked row on the page. Backlog and Taken cards, other session
+entries and Intent show no review state.

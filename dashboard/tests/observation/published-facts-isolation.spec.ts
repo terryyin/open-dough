@@ -8,6 +8,7 @@ import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import {
   doughnutRepository,
   doughnutSharedGoal,
+  doughnutSharedTitle,
   revisionDoughnut,
 } from "../doughnutProject.ts";
 import { selectSettledDoughnut } from "../doughnutJourney.ts";
@@ -33,9 +34,13 @@ import {
   expectOnlyDoughnut,
   expectPublishedReadState,
   openHeldPublication,
-  pageErrors,
   publishedReadState,
 } from "../publishedFactsIsolationJourney.ts";
+import { credit } from "../agentCredit.ts";
+import { projectTab } from "../projectChoice.ts";
+import { watchPageErrors } from "../pageErrors.ts";
+import { canonicalRecord, storyCard } from "../storyCardControls.ts";
+import { preparationFacts } from "../storyCardFacts.ts";
 
 const factsA = factsAt(revisionA, "A");
 const factsB = factsAt(revisionB, "B");
@@ -44,7 +49,7 @@ const pendingB = ["preparation", "done"] as const;
 test("new membership and fast B assignments replace a complete A's, while B's held preparation keeps A's facts for the same story until B answers it", async ({
   page,
 }) => {
-  const errors = pageErrors(page);
+  const errors = watchPageErrors(page);
   await pausePageClockAt(page, opened);
   const origin = publishFactsOrigin(page);
   origin.push(factsA);
@@ -55,10 +60,8 @@ test("new membership and fast B assignments replace a complete A's, while B's he
   // Published status follows membership. The two credited humans and the
   // clock establish that A's remaining independent detail has really read.
   const cardsA = factStoryCards(page, factsA);
-  await expect(cardsA.taken.locator(".story-card-owner")).toContainText(
-    "Fixture Committer",
-  );
-  await expect(cardsA.queued.locator(".story-card-preparing")).toContainText(
+  await expect(credit(cardsA.taken).owner).toContainText("Fixture Committer");
+  await expect(credit(cardsA.queued).preparing).toContainText(
     "Fixture Committer",
   );
   await expect(cardsA.taken).toContainText("Current slice started 5 min ago");
@@ -103,12 +106,19 @@ test("the settled alternate project finishes its independent reads before a retu
     if (url.searchParams.get("agents") === "profiles") profilesRead = true;
     if (url.searchParams.get("done") === "catalog") doneRead = true;
   });
-  // Independent profile work can start later than preparation. Delay only
-  // its local request dispatch; the real preview and gh still do the read.
+  // Independent profile work can finish after everything else the reader
+  // sees. Hold only its local request dispatch until Doughnut's card shows
+  // its preparation and the reader's keyboard is on its canonical link; the
+  // real preview and gh still do the read.
   await page.route(
     /__authenticated-read\?source=doughnut&.*agents=profiles$/,
     async (route) => {
-      await new Promise<void>((resolve) => setTimeout(resolve, 1_000));
+      const card = storyCard(parts(page).backlog, doughnutSharedTitle);
+      await expect(preparationFacts(card)).toBeVisible();
+      await expect(preparationFacts(card)).not.toHaveText(
+        "Reading preparation…",
+      );
+      await expect(canonicalRecord(card)).toBeFocused();
       await route.continue();
     },
   );
@@ -123,7 +133,7 @@ for (const outcome of ["success", "failure"] as const) {
   test(`switching projects abandons every unfinished fact group, including its late ${outcome}`, async ({
     page,
   }) => {
-    const errors = pageErrors(page);
+    const errors = watchPageErrors(page);
     const { abandoned } = await openHeldPublication(page, factsA);
     const atSwitch = githubFor(page).calls.length;
     const shown = await selectSettledDoughnut(page);
@@ -147,14 +157,12 @@ for (const outcome of ["success", "failure"] as const) {
   test(`returning reads partial B afresh while the same project's abandoned A still owes a ${outcome}`, async ({
     page,
   }) => {
-    const errors = pageErrors(page);
+    const errors = watchPageErrors(page);
     const { origin, abandoned } = await openHeldPublication(page, factsA);
     await selectSettledDoughnut(page);
     const current = origin.push(factsB, pendingB);
     const atReturn = githubFor(page).calls.length;
-    await parts(page)
-      .project.getByRole("radio", { name: "Open Dough", exact: true })
-      .check();
+    await projectTab(page, "Open Dough").check();
     await expectMembership(page, factsB.membership);
     await expectHeldGroups(page, factsB, pendingB);
     const link = await focusCanonical(page, factsB);
@@ -168,12 +176,7 @@ for (const outcome of ["success", "failure"] as const) {
       await expectNoEarlierFacts(page, factsA);
       await expectPublishedReadState(page, saved);
       await expect(link).toBeFocused();
-      await expect(
-        parts(page).project.getByRole("radio", {
-          name: "Open Dough",
-          exact: true,
-        }),
-      ).toBeChecked();
+      await expect(projectTab(page, "Open Dough")).toBeChecked();
       await expect(parts(page).board).not.toContainText(doughnutSharedGoal);
       await expect(
         parts(page).board.locator(`a[href*="${revisionDoughnut}"]`),

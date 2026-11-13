@@ -94,7 +94,7 @@ test.describe("reopening a session marked done from its Recently done entry", ()
 
     // Opening its terminal again reopens it, without waiting for the next
     // read of the records.
-    await openTerminalControl(entry, { exact: false }).click();
+    await openTerminalControl(entry).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await expect(listed).toHaveCount(1);
     await expect(listed).toHaveAttribute("data-shows-session", key ?? "?");
@@ -111,7 +111,7 @@ test.describe("reopening a session marked done from its Recently done entry", ()
 
     // Reload closed the attachment. With a terminal open again, this mark
     // types the rename into it rather than opening another.
-    await openTerminalControl(listed, { exact: false }).click();
+    await openTerminalControl(listed).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     const opened = dashboard.claudeAttaches().length;
     // Attached, it runs again.

@@ -26,7 +26,8 @@
 // into worker populations that cannot share a worker, and each switch
 // between them stops a worker and starts a fresh one. A `test.use` of a
 // worker-scoped option (`launchOptions`) has the same effect, with one
-// population per distinct value object.
+// population per distinct value object; that value also replaces the
+// configured browser arguments, so it spreads them in (./browserArgs.ts).
 
 import { test as base } from "@playwright/test";
 import type { ComparisonRenderer } from "./comparisonRendering.ts";
@@ -43,6 +44,10 @@ endDescendantsAtExit();
 // Requests what a worker's servers start from, so the first test waits for
 // none of it in its own time: the host's queued origin when it has one, the
 // server bundle, and the app build unless only boundary servers start.
+// Cold shared preparation has its own bounded worker lifetime. It can outlast
+// a case's default 30 seconds without extending any case or hook timeout.
+const serverInputPreparation = { scope: "worker", timeout: 60_000 } as const;
+
 async function prepareServerInputs(
   host: "claude" | "codex" | undefined,
   serverMode: "preview" | "boundary",
@@ -88,7 +93,7 @@ export const test = base.extend<
       await prepareServerInputs(undefined, "preview");
       await use(undefined);
     },
-    { scope: "worker" },
+    serverInputPreparation,
   ],
   // Only readers of the real published app request this immutable source.
   // Its cold preparation stays in run elapsed, within the default worker budget.
@@ -114,7 +119,7 @@ export const test = base.extend<
       await prepareServerInputs("claude", "preview");
       await use(undefined);
     },
-    { scope: "worker" },
+    serverInputPreparation,
   ],
   // Boundary servers on the queued Claude origin open no app.
   queuedClaudeBoundaryReady: [
@@ -123,7 +128,7 @@ export const test = base.extend<
       await prepareServerInputs("claude", "boundary");
       await use(undefined);
     },
-    { scope: "worker" },
+    serverInputPreparation,
   ],
   queuedCodexPreviewReady: [
     // eslint-disable-next-line no-empty-pattern
@@ -131,7 +136,7 @@ export const test = base.extend<
       await prepareServerInputs("codex", "preview");
       await use(undefined);
     },
-    { scope: "worker" },
+    serverInputPreparation,
   ],
   // Requested only by native readers that need this installed queued input.
   // Its setup has the worker's default budget, before a reading test starts.

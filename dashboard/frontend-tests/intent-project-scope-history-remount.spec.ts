@@ -56,7 +56,7 @@ test("reentering Intent after a same-head snapshot refresh keeps the observed en
   });
   await mountComparison(page, comparisonServer, project);
   const history = scopeHistory(page);
-  await expect(scopeHistoryReading(history).rows).toContainText("8.0 s");
+  await expect(scopeHistoryReading(history).selected).toContainText("8.0 s");
   await updateComparison(page, { ...project, shown: false });
   await expect(history).toHaveCount(0);
   const refreshed = makeMe.aPublishedWork
@@ -71,7 +71,7 @@ test("reentering Intent after a same-head snapshot refresh keeps the observed en
     "datetime",
     "2026-11-11T07:00:00.000Z",
   );
-  await expect(scopeHistoryReading(history).rows).toContainText("8.0 s");
+  await expect(scopeHistoryReading(history).selected).toContainText("8.0 s");
   await expect(history).toContainText("Previously retrieved history");
   expect(through).toEqual([
     "2026-11-11T07:00:00.000Z",

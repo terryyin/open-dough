@@ -131,3 +131,50 @@ viewers at once stayed within the baseline's spread, since the encoding
 runs off the event loop. Compare a latency only between runs at similar
 load, and weigh it against the transferred bytes saved: over a 10 Mbit/s
 connection each changed overview's 1.7 MB saved is about 1.4 s.
+
+## Notification delivery and destinations
+
+Open Dough's notification sender shows its icon and name. Explicitly prepare it
+with `npm run setup-notifier:dashboard` at
+`~/.open-dough/dashboard/notifier/Open Dough.app`, outside checkouts/deployments;
+see [Dashboard commands](COMMANDS.md). It copies separately installed
+`terminal-notifier` 3.1 or newer (tested 3.1.0, Homebrew, macOS 26.6.2) and needs
+its own permission: **System Settings → Notifications → Open Dough**.
+`npm run setup-notifier:dashboard -- --test` makes macOS ask; the dashboard never
+prepares the sender or asks for permission. At startup and before retrying after
+failure, harmless sender version/permission diagnostics post and request nothing.
+Old or unrecognized copies are unavailable even if an executable exists or an
+unknown option exits zero. Missing setup, unsupported copies, and denied,
+not-yet-requested or refused notifications produce fixed explanations naming the
+setup command/settings entry in the open Sessions sidebar; raw stderr is hidden.
+Restart after setup/refresh. Observation continues; a successful notification clears a refusal.
+
+Title/message are literal argument data with the tested helper's one-leading-
+backslash escape; the sound remains Glass. `-execute` stores a fixed inline
+browser callback using `/usr/bin/osascript` and a safely quoted HTTP URL argument.
+Clicks need no checkout file, Node process or dashboard response. The URL origin
+uses the server's actual listening loopback address and bound port, including a
+dynamic port; before listening or without a usable local address, no invented
+destination is sent. The shared URL contract is
+`/?project=<encoded-project-id>&story=<encoded-complete-identity>`; the complete
+identity includes its `#` fragment as query data. A changed title does not
+change the target. Ad hoc sessions keep their notifications with only the
+project parameter. No new target registry is persisted.
+
+Receipt/dismissal do not navigate. After the sending process exits, a click
+uses the current default Safari or Google Chrome, reusing a root dashboard tab
+at this origin and selecting/foregrounding its window. Other ports and API or
+asset pages are preserved. With no matching tab it creates one in an existing
+window, or opens a window if needed. Allow browser control through the first
+click's macOS prompt, or enable your default Safari or Google Chrome browser
+under **System Settings → Privacy & Security → Automation → Open Dough**.
+A refused inspection shows recovery instead of opening an extra tab. Open the
+dashboard manually; after granting access, future notifications can reuse it.
+This click permission is separate from notification-delivery availability above.
+The page selects the project and stories view, waits for published membership,
+then reveals/focuses the card without starting/resuming work or attaching a terminal.
+Unknown projects, missing stories and failed reads have distinct destination
+explanations; a later user navigation supersedes a pending reveal. A stopped
+dashboard produces the browser's connection failure, not successful navigation.
+Closing the server aborts every owned helper operation (startup diagnostics and
+in-flight delivery); shutdown is not recorded as a notification refusal.

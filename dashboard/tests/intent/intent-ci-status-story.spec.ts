@@ -21,7 +21,7 @@ import {
 // judge: ./intent-ci-status-story-gaps.spec.ts.
 
 import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
-import { passTimeUntilCheckedAfterSettled } from "../autoRefreshJourney.ts";
+import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { parts } from "../dashboardPage.ts";
 
 import { failing, planningOnly, running } from "../intentCiStoryBoard.ts";
@@ -170,8 +170,8 @@ test("a push to the shown story branch, seen by the revision check, reads its ju
   await test.step("time passing with nothing moved reads no judgment", async () => {
     await untilPageReadsAnswered(page);
     const before = calls.length;
-    await passTimeUntilCheckedAfterSettled(page);
-    await passTimeUntilCheckedAfterSettled(page);
+    await passTimeUntilChecked(page);
+    await passTimeUntilChecked(page);
     await untilPageReadsAnswered(page);
     expect(branchJudgmentCalls(calls.slice(before))).toEqual([]);
     await expect(ciStatusReading(panel).checkedTime).toHaveAttribute(
@@ -189,7 +189,7 @@ test("a push to the shown story branch, seen by the revision check, reads its ju
     ];
     ci.push(failing.branch, fixed, "Fix the login");
     const before = calls.length;
-    await passTimeUntilCheckedAfterSettled(page);
+    await passTimeUntilChecked(page);
     await expectCiAnswer(panel, "Passed at c0ffee1 (Fix the login)");
     await untilPageReadsAnswered(page);
     expect(branchJudgmentCalls(calls.slice(before))).toEqual([
@@ -212,7 +212,7 @@ test("a push to the shown story branch, seen by the revision check, reads its ju
     const tidied = "c0ffee2".padEnd(40, "0");
     ci.push(failing.branch, tidied, "Tidy the login");
     const before = calls.length;
-    await passTimeUntilCheckedAfterSettled(page);
+    await passTimeUntilChecked(page);
     await untilPageReadsAnswered(page);
     // The moved branch's plan is read again at its new head; no judgment is.
     expect(

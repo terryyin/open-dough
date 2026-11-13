@@ -6,7 +6,7 @@ import type { Page } from "@playwright/test";
 import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
 import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { passTimeUntilCheckedAfterSettled } from "../autoRefreshJourney.ts";
+import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { commitAll, git } from "./storyReviewWorktree.ts";
@@ -40,7 +40,7 @@ export async function advanceDoneProject(
   commitAll(origin.project, "planning only after the story");
   push(origin.project);
   const laterRevision = git(origin.origin, "rev-parse", "main");
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   await untilPageReadsAnswered(page);
   return laterRevision;
 }

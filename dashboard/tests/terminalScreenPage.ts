@@ -7,8 +7,9 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
-import { closeSidePanel } from "./pageLayout.ts";
+import { closeSidePanelToBoard } from "./pageLayout.ts";
 import { openTerminalControl } from "./sessionEntryAccess.ts";
+import { sidePanelNamesOf } from "./sidePanelFrame.ts";
 export { openTerminalControl } from "./sessionEntryAccess.ts";
 
 export function terminalPanel(page: Page) {
@@ -21,6 +22,8 @@ export function terminalScreenParts(panel: Locator) {
     screen: panel.locator(".xterm-screen"),
     input: panel.locator("textarea.xterm-helper-textarea"),
     heading: panel.getByRole("heading", { level: 2 }),
+    // The session's name beside the heading, and where an id would show.
+    ...sidePanelNamesOf(panel),
   };
 }
 
@@ -84,7 +87,7 @@ export async function openTerminalFromEntry(entry: Locator) {
 }
 
 export async function closeTerminal(panel: Locator) {
-  await closeSidePanel(panel);
+  await closeSidePanelToBoard(panel);
 }
 
 export function openAgainControl(panel: Locator) {

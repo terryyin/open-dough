@@ -17,15 +17,16 @@ import {
   openRecentlyDone,
   publishDoneStories,
   reviewStatesFile,
+  reviewSaveFailure,
   storyA,
-  unreview,
+  reviewedButton,
+  unreviewStory,
 } from "../recentlyDoneReviewState.ts";
 import { expect, test } from "../support/preparationPage.ts";
 
 const notSaved = "The review state could not be saved.";
 
-const saidOf = (card: Locator) =>
-  card.getByRole("status").filter({ hasText: notSaved });
+const saidOf = (card: Locator) => reviewSaveFailure(card, notSaved);
 
 test("a change that could not be saved keeps the state last saved and says so until the action is used again and saved", async ({
   page,
@@ -59,26 +60,26 @@ test("a change that could not be saved keeps the state last saved and says so un
     await page.keyboard.press("Enter");
     await expectReviewed(a, true);
     await expect(saidOf(a)).toHaveCount(0);
-    await expect(unreview(a)).toBeFocused();
+    await expect(reviewedButton(a)).toBeFocused();
     expect(
       Object.keys(keptReviewStates(dashboard)?.["open-dough"] ?? {}),
     ).toEqual([storyA.identity]);
   });
 
-  await test.step("Unreview while the dashboard cannot be reached: still Reviewed with Unreview, focused, saying it could not be saved", async () => {
+  await test.step("Unreview while the dashboard cannot be reached: still Reviewed, focused, saying it could not be saved", async () => {
     const endpoint = `**${storyReviewStateEndpoint}?*`;
     await page.route(endpoint, (route) =>
       route.request().method() === "POST" ? route.abort() : route.fallback(),
     );
-    await page.keyboard.press("Enter");
+    await unreviewStory(a, "Unreview this story?", "keyboard");
     await expect(saidOf(a)).toBeVisible();
     await expectReviewed(a, true);
-    await expect(unreview(a)).toBeFocused();
+    await expect(reviewedButton(a)).toBeFocused();
     await page.unroute(endpoint);
   });
 
   await test.step("Unreview again once the dashboard is reached: not reviewed, and the message is gone", async () => {
-    await page.keyboard.press("Enter");
+    await unreviewStory(a, "Unreview this story?", "keyboard");
     await expectReviewed(a, false);
     await expect(saidOf(a)).toHaveCount(0);
     await expect(markAsReviewed(a)).toBeFocused();

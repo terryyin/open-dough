@@ -6,7 +6,6 @@
 import type { Page } from "@playwright/test";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import { parts } from "../dashboardPage.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { launchWaitMs } from "./launchWait.ts";
@@ -28,11 +27,6 @@ export const newerMessage =
 
 export const takenStoryCard = (page: Page, title: string) =>
   parts(page).taken.getByRole("article", { name: title, exact: true });
-
-export const sidebarRow = (page: Page, title: string) =>
-  sessionsSidebarParts(page)
-    .sidebar.getByRole("listitem")
-    .filter({ hasText: title });
 
 // The session's stored record.
 export async function recordOf(

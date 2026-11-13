@@ -1,7 +1,7 @@
-/* A done story card's review state (./StoryReviewStateAction.tsx): the
-   Reviewed words beside Unreview, which is quieter than the card's other
-   actions, and what it says when a change could not be saved; its touch
-   height follows `.start-launch-button`'s. */
+/* A done story card's review state (./StoryReviewStateAction.tsx): the red
+   Mark as reviewed action, quiet Reviewed action, and what it
+   says when a change could not be saved; its touch height follows
+   `.start-launch-button`'s. */
 
 .story-review-state {
   /* Holds its spoken status, so a hidden Recently done clips it with the
@@ -13,11 +13,15 @@
   gap: var(--space-2);
 }
 
-.story-review-state-reviewed {
-  font-weight: 600;
+/* An outstanding review is conspicuous while the action's words distinguish
+   it from a failure. Existing adaptive warning colours keep it readable. */
+.story-review-state .story-review-state-needed {
+  color: var(--on-problem);
+  background: var(--problem);
+  border-color: var(--problem);
 }
 
-.story-review-state .story-review-state-undo {
+.story-review-state .story-review-state-reviewed {
   color: var(--quiet);
   border-color: var(--line);
 }

@@ -11,6 +11,7 @@ import { publishFiles } from "../publishedOrigin.ts";
 import { enlargedView, expectPortrait } from "../agentPortrait.ts";
 import { avatarPng } from "../avatarAnswers.ts";
 import { describedRevision } from "../describedRevisions.ts";
+import { credit } from "../agentCredit.ts";
 
 const nerdStory = "See who owns Taken work";
 const atlasStory = "Show every agent's portrait";
@@ -77,8 +78,8 @@ test("a nerds member's card shows the photo as its portrait, enlarged on hover, 
   const taken = await openBoard(page);
   const card = taken.getByRole("article", { name: nerdStory });
 
-  const portrait = card.locator(".agent-portrait");
-  await expect(card.locator(".owner-agent")).toHaveText("stanly-chan");
+  const portrait = credit(card).portrait;
+  await expect(credit(card).agent).toHaveText("stanly-chan");
   await expect(portrait).toBeVisible();
   await expect(portrait).toHaveAttribute("aria-hidden", "true");
   await expect(portrait).toHaveCSS("background-image", /stanly\.webp"\)$/);
@@ -116,8 +117,8 @@ test("a nerds member's card without the photo shows the name and no portrait, an
   const taken = await openBoard(page);
   const card = taken.getByRole("article", { name: nerdStory });
 
-  await expect(card.locator(".owner-agent")).toHaveText("stanly-chan");
-  await expect(card.locator(".agent-portrait")).toHaveCount(0);
+  await expect(credit(card).agent).toHaveText("stanly-chan");
+  await expect(credit(card).portrait).toHaveCount(0);
   await expect(card).not.toContainText(/error|failed|missing/i);
   expect(problems).toEqual([]);
 });

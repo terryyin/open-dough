@@ -2,6 +2,60 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-343_recover-ci-completion-observation.json",
+      "identity": "SEED-343#recover-ci-completion-observation",
+      "completedAt": "2026-11-13T16:52:29.490Z",
+      "blob": "ebfdec82854ab3ba9e317c537cc51d01f286a90e"
+    },
+    {
+      "fileName": "SEED-331_make-ci-glance-wording-and-status-one-rule.json",
+      "identity": "SEED-331#make-ci-glance-wording-and-status-one-rule",
+      "completedAt": "2026-11-13T12:45:50.854Z",
+      "blob": "cbe61794fa050a042c9674b5e2721c87f7228394"
+    },
+    {
+      "fileName": "SEED-344_settle-reads-before-passing-page-time.json",
+      "identity": "SEED-344#settle-reads-before-passing-page-time",
+      "completedAt": "2026-11-13T10:47:04.784Z",
+      "blob": "8e9edeeab0e900badf55981e45ac97520f48e23d"
+    },
+    {
+      "fileName": "SEED-342_follow-story-references-by-title.json",
+      "identity": "SEED-342#follow-story-references-by-title",
+      "completedAt": "2026-11-13T09:34:58.797Z",
+      "blob": "5e520671d50c5ea44d9eb1aff585e00e35bae8fb"
+    },
+    {
+      "fileName": "SEED-331_read-ci-history-at-a-glance.json",
+      "identity": "SEED-331#read-ci-history-at-a-glance",
+      "completedAt": "2026-11-13T08:37:04.837Z",
+      "blob": "5bb26f898ba262bb0a9a843e173f163bf5e269c9"
+    },
+    {
+      "fileName": "SEED-341_simplify-session-state-tests.json",
+      "identity": "SEED-341#simplify-session-state-tests",
+      "completedAt": "2026-11-13T08:03:19.981Z",
+      "blob": "8f9de4ff13bcad3023669e046e89ff6ef5b1e693"
+    },
+    {
+      "fileName": "SEED-300_express-session-test-intent-through-page-objects.json",
+      "identity": "SEED-300#express-session-test-intent-through-page-objects",
+      "completedAt": "2026-11-13T06:56:25.478Z",
+      "blob": "20bbf24e60c0be8ccd7d18d0d6ae66558050fd37"
+    },
+    {
+      "fileName": "SEED-300_express-board-test-intent-through-page-objects.json",
+      "identity": "SEED-300#express-board-test-intent-through-page-objects",
+      "completedAt": "2026-11-13T02:41:28.596Z",
+      "blob": "651291035b260a9c823bc21f840fc689c041f12e"
+    },
+    {
+      "fileName": "SEED-333_spot-completed-stories-that-need-review.json",
+      "identity": "SEED-333#spot-completed-stories-that-need-review",
+      "completedAt": "2026-11-13T01:47:20.467Z",
+      "blob": "0cda224a4a62d214b2ec8856b235d7a766e58c31"
+    },
+    {
       "fileName": "SEED-324_pass-landed-ci-repeat-checks-under-high-load.json",
       "identity": "SEED-324#pass-landed-ci-repeat-checks-under-high-load",
       "completedAt": "2026-11-12T22:58:16.699Z",
@@ -2088,42 +2142,6 @@
       "identity": "SEED-008#coalesced-ci-validation",
       "completedAt": "2026-10-14T22:23:11.243Z",
       "blob": "a9891af1f74d818fe2c341dfc74c7d3f7e4d0c04"
-    },
-    {
-      "fileName": "SEED-008_reuse-ci-validation-at-integration.json",
-      "identity": "SEED-008#reuse-ci-validation-at-integration",
-      "completedAt": "2026-10-14T04:11:57.317Z",
-      "blob": "c0adcd0646577387b90710e5fc08c7ac573aa958"
-    },
-    {
-      "fileName": "SEED-008_registered-ci-history-coverage.json",
-      "identity": "SEED-008#registered-ci-history-coverage",
-      "completedAt": "2026-10-14T01:05:40.847Z",
-      "blob": "0a1190e89933311221a7deca96df6bb908de6426"
-    },
-    {
-      "fileName": "SEED-066_unattached-session-native-observation.json",
-      "identity": "SEED-066#unattached-session-native-observation",
-      "completedAt": "2026-10-14T00:59:42.055Z",
-      "blob": "fe0ca076666fbc528c7ee0c8a6702e71a4c9b951"
-    },
-    {
-      "fileName": "SEED-066_cursor-trust-prompt-at-session-start.json",
-      "identity": "SEED-066#cursor-trust-prompt-at-session-start",
-      "completedAt": "2026-10-13T23:30:14.188Z",
-      "blob": "71897117fbd1ed523ca76fd224a042e83930c16e"
-    },
-    {
-      "fileName": "SEED-066_retire-established-session-worktree.json",
-      "identity": "SEED-066#retire-established-session-worktree",
-      "completedAt": "2026-10-13T23:13:35.408Z",
-      "blob": "cab71567d6fa4beb7e5e299554f5917452a62244"
-    },
-    {
-      "fileName": "SEED-135_reach-final-report-done-choices-on-short-phone.json",
-      "identity": "SEED-135#reach-final-report-done-choices-on-short-phone",
-      "completedAt": "2026-10-13T23:11:53.923Z",
-      "blob": "633b49d2ec800c577e11532bdd348ecf752ab28d"
     }
   ],
   "unreadable": []

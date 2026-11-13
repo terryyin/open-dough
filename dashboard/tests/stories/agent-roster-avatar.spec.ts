@@ -2,7 +2,6 @@
 // and the roster show a fetched avatar once per source, or initials; an
 // unavailable allocation remains a gap. Fake GitHub supplies the profiles,
 // histories and avatar images.
-import type { Locator, Page } from "@playwright/test";
 import { expect, githubFor, test } from "../dashboardTest.ts";
 import {
   chooseProject,
@@ -10,7 +9,12 @@ import {
   parts,
   rosterParts,
 } from "../dashboardPage.ts";
-import { inspectedDetail } from "../storyCardControls.ts";
+import { inspectedDetail, storyCard } from "../storyCardControls.ts";
+import {
+  credit,
+  expectHumanAvatar,
+  expectHumanInitials,
+} from "../agentCredit.ts";
 import { publishMovingFiles } from "../publishedFiles.ts";
 import { avatarPathsRead } from "../avatarAnswers.ts";
 import { loadedWidth } from "../agentPortrait.ts";
@@ -40,42 +44,6 @@ import {
   queuedStory,
   takenStory,
 } from "../agentRosterRecords.ts";
-// The credited human beside an agent: their avatar or initials, and name.
-function creditOf(holder: Locator) {
-  const credit = holder.locator(".owner-human-credit");
-  return {
-    name: credit.locator(".owner-human"),
-    image: credit.locator("img.human-avatar"),
-    initials: credit.locator(".human-avatar-fallback"),
-  };
-}
-async function expectAvatar(
-  page: Page,
-  holder: Locator,
-  name: string,
-  width: number,
-  revision: string,
-) {
-  const { name: named, image, initials } = creditOf(holder);
-  await expect(named).toHaveText(`Human developer: ${name}`);
-  await expect(image).toBeVisible();
-  await expect.poll(() => loadedWidth(image)).toBe(width);
-  await expect(initials).toHaveCount(0);
-  const src = new URL(
-    await image.evaluate((element: HTMLImageElement) => element.currentSrc),
-  );
-  expect(src.origin).toBe(new URL(page.url()).origin);
-  expect(src.searchParams.get("revision")).toBe(revision);
-}
-
-async function expectInitials(holder: Locator, name: string, shown: string) {
-  const { name: named, image, initials } = creditOf(holder);
-  await expect(named).toHaveText(`Human developer: ${name}`);
-  await expect(initials).toHaveText(shown);
-  await expect(initials).toBeVisible();
-  await expect(image).toHaveCount(0);
-}
-
 test("each assignment credits the committer who added its profile's current allocation, with an avatar read once through the local boundary, on cards and the roster, and says when that cannot be established", async ({
   page,
 }) => {
@@ -89,8 +57,8 @@ test("each assignment credits the committer who added its profile's current allo
 
   const { taken, backlog, reading } = parts(page);
   await expectMembership(page, { taken: [takenStory], backlog: [queuedStory] });
-  const takenStoryCard = taken.getByRole("article", { name: takenStory });
-  const preparingCard = backlog.getByRole("article", { name: queuedStory });
+  const takenStoryCard = storyCard(taken, takenStory);
+  const preparingCard = storyCard(backlog, queuedStory);
   const { roster, member, opener, back } = rosterParts(page);
   const openRoster = (agent: string) => opener(agent).click();
   const reads = (path: string) =>
@@ -98,24 +66,22 @@ test("each assignment credits the committer who added its profile's current allo
 
   await test.step("the Taken card shows the addition committer with their avatar from the local boundary, and the unmatched Preparing human keeps initials", async () => {
     const { revision } = firstRevision;
-    await expectAvatar(
-      page,
-      await inspectedDetail(takenStoryCard),
-      credited,
-      creditedWidth,
+    await expectHumanAvatar(await inspectedDetail(takenStoryCard), credited, {
+      width: creditedWidth,
       revision,
+    });
+    await expectHumanInitials(
+      await inspectedDetail(preparingCard),
+      preparer,
+      "PP",
     );
-    await expectInitials(await inspectedDetail(preparingCard), preparer, "PP");
     // The card's scan line shows the same avatar beside the credited name;
     // a name with no matched account stands alone there.
-    const takenScan = takenStoryCard.locator(".owner-line");
-    await expect(takenScan.locator(".owner-human-name")).toHaveText(credited);
-    const scanImage = takenScan.locator("img.human-avatar");
-    await expect(scanImage).toBeVisible();
-    await expect.poll(() => loadedWidth(scanImage)).toBe(creditedWidth);
-    await expect(
-      preparingCard.locator(".owner-line .human-avatar"),
-    ).toHaveCount(0);
+    const takenScan = credit(credit(takenStoryCard).line);
+    await expect(takenScan.humanName).toHaveText(credited);
+    await expect(takenScan.avatar).toBeVisible();
+    await expect.poll(() => loadedWidth(takenScan.avatar)).toBe(creditedWidth);
+    await expect(credit(credit(preparingCard).line).avatar).toHaveCount(0);
     for (const card of [takenStoryCard, preparingCard]) {
       await expect(card).not.toContainText(modifier);
       await expect(card).not.toContainText(olderAllocator);
@@ -125,28 +91,26 @@ test("each assignment credits the committer who added its profile's current allo
   await test.step("the roster credits the same humans, a rejected or failed avatar leaves the name with initials, and a missing addition or a failed read is unknown without guessing", async () => {
     await openRoster("Akiho-chan");
     const { revision } = firstRevision;
-    await expectAvatar(
-      page,
-      member("Akiho-chan"),
-      credited,
-      creditedWidth,
+    await expectHumanAvatar(member("Akiho-chan"), credited, {
+      width: creditedWidth,
       revision,
-    );
-    await expectInitials(member("Kirara-chan"), preparer, "PP");
-    await expectInitials(member("Yuma-chan"), offHost, "RR");
-    await expectInitials(member("Sola-chan"), unfetched, "FF");
-    await expect(
-      member("Rina-chan").locator(".owner-human.assignment-gap"),
-    ).toHaveText(
+    });
+    await expectHumanInitials(member("Kirara-chan"), preparer, "PP");
+    await expectHumanInitials(member("Yuma-chan"), offHost, "RR");
+    await expectHumanInitials(member("Sola-chan"), unfetched, "FF");
+    await expect(credit(member("Rina-chan")).human).toHaveText(
       "Human developer unknown: no commit adding this agent profile was found in its recent published history.",
     );
-    await expect(member("Nana-chan").locator(".owner-human")).toHaveText(
+    await expect(credit(member("Rina-chan")).human).toHaveClass(
+      /\bassignment-gap\b/,
+    );
+    await expect(credit(member("Nana-chan")).human).toHaveText(
       `Human developer unknown. The local GitHub CLI could not reach GitHub while reading the commit that added .planning/agents/nana-chan.json at ${revision}.`,
     );
     await expect(roster).not.toContainText(modifier);
     await expect(roster).not.toContainText(olderAllocator);
     // An unreadable profile has no assignment to credit.
-    await expect(member("Mana-chan").locator(".owner-human")).toHaveCount(0);
+    await expect(credit(member("Mana-chan")).human).toHaveCount(0);
   });
 
   await test.step("showing the avatar again, after Back and a reload at the same revision, reads the avatar host no more", async () => {
@@ -157,21 +121,14 @@ test("each assignment credits the committer who added its profile's current allo
     await page.reload();
     await expect.poll(refsRead).toBeGreaterThan(before);
     await expect(reading).toHaveCount(0);
-    await expectAvatar(
-      page,
+    const shown = { width: creditedWidth, revision: firstRevision.revision };
+    await expectHumanAvatar(
       await inspectedDetail(takenStoryCard),
       credited,
-      creditedWidth,
-      firstRevision.revision,
+      shown,
     );
     await openRoster("Akiho-chan");
-    await expectAvatar(
-      page,
-      member("Akiho-chan"),
-      credited,
-      creditedWidth,
-      firstRevision.revision,
-    );
+    await expectHumanAvatar(member("Akiho-chan"), credited, shown);
     expect(reads(creditedAvatar)).toHaveLength(1);
     expect(reads(unfetchedAvatar).length).toBeGreaterThanOrEqual(1);
     // Only the addition committer's account is ever fetched, never the
@@ -186,38 +143,24 @@ test("each assignment credits the committer who added its profile's current allo
     origin.moveTrunk(secondRevision);
     await page.reload();
     const { revision } = secondRevision;
-    await expectAvatar(
-      page,
+    const reallocated = { width: reallocatorWidth, revision };
+    const carried = { width: creditedWidth, revision };
+    await expectHumanAvatar(
       await inspectedDetail(takenStoryCard),
       reallocator,
-      reallocatorWidth,
-      revision,
+      reallocated,
     );
     await expect(takenStoryCard).not.toContainText(credited);
     // The Preparing agent's new allocation credits the account the Taken
     // card showed before: its avatar is served from the boundary's memory.
-    await expectAvatar(
-      page,
+    await expectHumanAvatar(
       await inspectedDetail(preparingCard),
       credited,
-      creditedWidth,
-      revision,
+      carried,
     );
     await openRoster("Akiho-chan");
-    await expectAvatar(
-      page,
-      member("Akiho-chan"),
-      reallocator,
-      reallocatorWidth,
-      revision,
-    );
-    await expectAvatar(
-      page,
-      member("Kirara-chan"),
-      credited,
-      creditedWidth,
-      revision,
-    );
+    await expectHumanAvatar(member("Akiho-chan"), reallocator, reallocated);
+    await expectHumanAvatar(member("Kirara-chan"), credited, carried);
     expect(reads(reallocatorAvatar)).toHaveLength(1);
     expect(reads(creditedAvatar)).toHaveLength(1);
   });
@@ -228,12 +171,12 @@ test("each assignment credits the committer who added its profile's current allo
       `Doughnut: agent profiles published at revision ${doughnut.revision.slice(0, 7)}.`,
     );
     await expect(roster).not.toContainText("Human developer");
-    await expect(roster.locator(".human-avatar")).toHaveCount(0);
+    await expect(credit(roster).avatar).toHaveCount(0);
     await back.click();
     for (const card of await taken.getByRole("article").all()) {
       await inspectedDetail(card);
       await expect(card).not.toContainText("Human developer");
-      await expect(card.locator(".human-avatar")).toHaveCount(0);
+      await expect(credit(card).avatar).toHaveCount(0);
     }
   });
 

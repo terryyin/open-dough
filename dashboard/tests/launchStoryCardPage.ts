@@ -8,7 +8,7 @@ import { cpSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { expectSettledPage, parts, sessionEntriesIn } from "./dashboardPage.ts";
 import {
   notRefinedStory,
   readyStory,
@@ -163,7 +163,7 @@ export async function expectQuietAdHocActionsRow(page: Page): Promise<void> {
 // quiet settlement, as long as the start itself may.
 export async function startedSession(page: Page): Promise<Locator> {
   await expectQuietAdHocActionsRow(page);
-  const recent = parts(page).taken.locator(".session-entry");
+  const recent = sessionEntriesIn(parts(page).taken);
   await expect(recent).toHaveCount(1, { timeout: launchWaitMs });
   return recent;
 }

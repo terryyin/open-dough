@@ -9,6 +9,8 @@ import { makeMe } from "../../tests/support/makeMe.mjs";
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
+import { storyCard } from "./storyCardControls.ts";
+import { sliceProgress } from "./storyCardFacts.ts";
 import {
   branches,
   fromTrunk,
@@ -78,6 +80,8 @@ export async function openedSettled(
   });
   await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
   await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
-  const card = parts(page).taken.getByRole("article", { name: onBranch });
-  return { origin, progress: card.locator(".story-card-progress") };
+  return {
+    origin,
+    progress: sliceProgress(storyCard(parts(page).taken, onBranch)),
+  };
 }

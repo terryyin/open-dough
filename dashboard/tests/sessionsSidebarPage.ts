@@ -1,11 +1,8 @@
-// Where a reader finds the Sessions sidebar and its button, and what its
-// entries show.
+// Where a reader finds the Sessions sidebar and its button, whether it is
+// open, which entry is current, and what its entries show. Where it lies
+// beside the page is ./sessionsSidebarLayout.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { expectCovering, resizeUntilArranged } from "./sidePanelWidthPage.ts";
-import { parts } from "./dashboardPage.ts";
-import { columnPagingControl, pagingRoom } from "./boardPage.ts";
-import { box, expectSideBySideInOrder } from "./pageLayout.ts";
 
 export function sessionsSidebarParts(page: Page) {
   const sidebar = page.getByRole("complementary", {
@@ -13,9 +10,15 @@ export function sessionsSidebarParts(page: Page) {
     exact: true,
   });
   const banner = page.getByRole("banner");
+  // The open session list, which scrolls on its own.
+  const list = sidebar.locator(".sessions-sidebar-sessions");
+  const entries = list.locator("li.sessions-sidebar-session-entry");
   return {
     sidebar,
     button: banner.getByRole("button", { name: "Sessions" }),
+    // The sidebar's own title.
+    heading: sidebar.getByRole("heading", { level: 2, name: "Sessions" }),
+    list,
     // How many sessions need attention, as the number on the button's badge,
     // when any do.
     badge: banner.getByRole("img", {
@@ -28,18 +31,26 @@ export function sessionsSidebarParts(page: Page) {
     // The one badge holding working and/or attention counts on the toggle.
     countsBadge: banner.locator(".sessions-toggle-counts"),
     // The open session list's entries, apart from optional section rows.
-    entries: sidebar.locator(
-      ".sessions-sidebar-sessions li.sessions-sidebar-session-entry",
-    ),
+    entries,
+    // Their story titles, in the order the list shows them.
+    titles: entries.getByRole("heading", { level: 3 }),
+    // The open-list entry, as a whole row, for the story with exactly this
+    // title.
+    row: (title: string) =>
+      entries.filter({
+        has: page.getByRole("heading", { name: title, exact: true }),
+      }),
     // The open-list control of the entry for the story with this title.
-    entry: (title: string) =>
-      sidebar
-        .locator(".sessions-sidebar-sessions")
-        .getByRole("button", { name: title }),
+    entry: (title: string) => list.getByRole("button", { name: title }),
     // The card's attention sentence, which the sidebar never shows.
     attentionSentence: sidebar.getByText(/\d+ sessions? needs? attention/),
   };
 }
+
+// A row's unread-report mark, named by its words, such as "Unread report:
+// Completed with attention"; given none, any unread report's mark.
+export const unreadSessionReport = (row: Locator, words?: string) =>
+  row.getByRole("img", { name: words ?? /^Unread report/, exact: true });
 
 // Opens the Sessions sidebar unless it is already open. The button's state
 // waits for the page to render, which a reload's kept open sidebar may not
@@ -49,6 +60,59 @@ export async function openSessionsSidebar(page: Page): Promise<void> {
   if ((await button.getAttribute("aria-expanded")) !== "true")
     await button.click();
 }
+
+// The sidebar is shown or not, and its banner toggle says the same. While a
+// side panel covers the page, its banner and toggle are hidden from reading,
+// so there a caller reads the sidebar alone instead.
+export async function expectSessionsSidebar(
+  page: Page,
+  expected: "open" | "closed",
+): Promise<void> {
+  const { sidebar, button } = sessionsSidebarParts(page);
+  await (expected === "open"
+    ? expect(sidebar).toBeVisible()
+    : expect(sidebar).toBeHidden());
+  await expect(button).toHaveAttribute(
+    "aria-expanded",
+    String(expected === "open"),
+  );
+}
+
+// The entry for the story with this title is the sidebar's one current entry,
+// the one whose session the side panel shows; with no title, none is.
+export async function expectCurrentEntry(
+  page: Page,
+  title?: string,
+): Promise<void> {
+  const { sidebar, entry } = sessionsSidebarParts(page);
+  const current = sidebar.locator("[aria-current]");
+  if (title === undefined) {
+    await expect(current).toHaveCount(0);
+    return;
+  }
+  await expect(entry(title)).toHaveAttribute("aria-current", "true");
+  await expect(current).toHaveCount(1);
+}
+
+// How long ago an entry's session was launched, or for a Done entry completed,
+// at the row's end.
+export const sessionsSidebarElapsedOf = (entry: Locator) =>
+  entry.locator(".sessions-sidebar-session-entry-elapsed");
+
+// An entry's Session details, the coarse-input disclosure, and the facts it
+// shows once open.
+export function sessionsSidebarDetailsOf(entry: Locator) {
+  const details = entry.locator(".sessions-sidebar-session-entry-details");
+  return {
+    details,
+    disclosure: details.locator("summary", { hasText: "Session details" }),
+    facts: details.locator(".sessions-sidebar-session-entry-facts"),
+  };
+}
+
+// Entry titles, cut with an ellipsis by design, for layout checks that
+// otherwise expect whole text.
+export const sessionsSidebarTitleCut = ".sessions-sidebar-session-entry-title";
 
 // How a Sessions sidebar Session entry's left border says its session's state: needing input,
 // solid thick red; ready for review, solid thick green; failed or stopped,
@@ -109,9 +173,7 @@ export async function expectRowShows(
   elapsed: string | RegExp = /^(<1m|\d+[mhd])$/,
 ): Promise<void> {
   await expect(entry.getByRole("heading", { level: 3 })).toHaveText(title);
-  await expect(
-    entry.locator(".sessions-sidebar-session-entry-elapsed"),
-  ).toHaveText(elapsed);
+  await expect(sessionsSidebarElapsedOf(entry)).toHaveText(elapsed);
   const seen = (await seenTextOf(entry)).split("|");
   expect(seen).toHaveLength(2);
   expect(seen[0]).toBe(title);
@@ -177,62 +239,4 @@ export async function expectEntries(
     await expectTooltipLine(entry, `Launched ${launched}`);
     await expectSessionsSidebarSessionEntryShown(entry, words, tone);
   }
-}
-
-// With a terminal open, the sidebar sits beside the page in a wide window.
-// Toggling it preserves column paging; narrowing the window overlays the page.
-export async function expectSessionsSidebarLayout(
-  page: Page,
-  panel: Locator,
-): Promise<void> {
-  const { sidebar, button } = sessionsSidebarParts(page);
-  const main = page.getByRole("main");
-  await expectSideBySideInOrder([sidebar, main, panel]);
-  const view = page.viewportSize() ?? { width: 0, height: 0 };
-  const column = await box(sidebar);
-  expect(column.x).toBe(0);
-  expect(column.y).toBe(0);
-  expect(column.height).toBe(view.height);
-  await expect(sidebar).toHaveCSS("overflow-y", "auto");
-  // The page column lays out as narrow beside both sidebar and terminal.
-  await expectOneColumnShown(page);
-  await button.click();
-  await expect(sidebar).toBeHidden();
-  await expectOneColumnShown(page);
-  await button.click();
-  await expect(sidebar).toBeVisible();
-
-  await resizeUntilArranged(panel, { width: 700, height: view.height });
-  // Covering aria-hides and opacifies the page column; the sidebar still
-  // overlays from the left and receives the hit test over that column.
-  await expectCovering(panel);
-  await expect(parts(page).banner).toBeHidden();
-  const overlay = await box(sidebar);
-  expect(overlay.x).toBe(0);
-  const center = {
-    x: overlay.x + overlay.width / 2,
-    y: overlay.y + overlay.height / 2,
-  };
-  expect(
-    await page.evaluate(
-      ({ x, y }) => document.elementFromPoint(x, y)?.closest("aside")?.id ?? "",
-      center,
-    ),
-  ).toBe(await sidebar.evaluate((element) => element.id));
-}
-
-// The Board lays out as on a narrow window, when its scrolling content is that
-// narrow whatever the window's width: Backlog alone fills the Board except for its
-// column paging controls' slim room, the right one naming Taken, and
-// each card is as wide as the unframed column.
-async function expectOneColumnShown(page: Page): Promise<void> {
-  const { backlog } = parts(page);
-  await expect(columnPagingControl(page, "Taken")).toBeVisible();
-  const pageColumn = await box(page.getByRole("main"));
-  const column = await box(backlog);
-  expect(column.width).toBeGreaterThanOrEqual(
-    pageColumn.width - 2 * pagingRoom - 1,
-  );
-  const card = await box(backlog.getByRole("article").first());
-  expect(card.width).toBeGreaterThanOrEqual(column.width - 1);
 }

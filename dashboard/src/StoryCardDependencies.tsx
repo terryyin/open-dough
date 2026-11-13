@@ -1,3 +1,10 @@
+// Supplier references show titles from active work or catalogued done records,
+// falling back to the recorded identity. Opening Dependencies requests completed
+// titles; a replacement explanation starts closed. Navigation always follows
+// the project and full story identity, independently of the displayed label.
+import { useState } from "react";
+import type { PublishedWork } from "./publishedWork.ts";
+import { useDoneDetails } from "./doneDetails.ts";
 import type { WorkDependencies } from "./storyDependencies.ts";
 import type { SourceLink } from "./sourceLink.ts";
 import "./story-dependencies.css";
@@ -22,10 +29,12 @@ function DependencyLink({
 function StoryReference({
   sourceId,
   identity,
+  title,
   link,
 }: {
   sourceId: string;
   identity: string;
+  title: string;
   link: SourceLink;
 }) {
   const { follow } = useStoryNavigation();
@@ -37,17 +46,17 @@ function StoryReference({
         follow({ project: sourceId, identity });
       }}
     >
-      {identity}
+      {title}
     </a>
   );
 }
 
 export function StoryCardDependencies({
   dependencies,
-  sourceId,
+  work,
 }: {
   dependencies: WorkDependencies | undefined;
-  sourceId: string;
+  work: PublishedWork;
 }) {
   if (dependencies === undefined || dependencies.status === "not-recorded")
     return null;
@@ -57,16 +66,57 @@ export function StoryCardDependencies({
         Dependency facts unavailable: {dependencies.problem}
       </p>
     );
+  return <DependencyExplanation dependencies={dependencies} work={work} />;
+}
+
+function DependencyExplanation({
+  dependencies,
+  work,
+}: {
+  dependencies: Exclude<WorkDependencies, { readonly status: "unavailable" }>;
+  work: PublishedWork;
+}) {
+  const [open, setOpen] = useState(false);
+  const active = [...work.taken, ...work.backlog];
+  const catalogued = work.done?.status === "catalogued" ? work.done : undefined;
+  const suppliers = dependencies.entries.map(
+    ({ supplier }) => supplier.identity,
+  );
+  const needed =
+    catalogued?.records.filter(
+      ({ identity }) =>
+        suppliers.includes(identity) &&
+        !active.some((entry) => entry.identity === identity),
+    ) ?? [];
+  const { detailOf } = useDoneDetails(
+    work.source,
+    catalogued?.revision ?? "",
+    needed,
+    open,
+  );
+  const titleOf = (identity: string) => {
+    const entry = active.find((each) => each.identity === identity);
+    if (entry !== undefined) return entry.title || identity;
+    const record = needed.find((each) => each.identity === identity);
+    const detail = record === undefined ? undefined : detailOf(record);
+    return detail?.status === "read" ? detail.story.title : identity;
+  };
   return (
-    <details className="story-dependencies">
+    <details
+      className="story-dependencies"
+      onToggle={(event) => {
+        setOpen(event.currentTarget.open);
+      }}
+    >
       <summary>Dependencies · {dependencies.blocking.length} blocking</summary>
       <ul aria-label="Story dependencies">
         {dependencies.entries.map((dependency) => (
           <li key={dependency.supplier.identity}>
             <p>
               <StoryReference
-                sourceId={sourceId}
+                sourceId={work.source.id}
                 identity={dependency.supplier.identity}
+                title={titleOf(dependency.supplier.identity)}
                 link={dependency.supplierLink}
               />
             </p>

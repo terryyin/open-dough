@@ -220,3 +220,20 @@
     overflow-wrap: anywhere;
   }
 }
+
+/* Outstanding story review has words and its own red text, apart from the
+   session-state edge, unread-report icon and selection ring. */
+.sessions-sidebar-session-entry-review {
+  flex: none;
+  white-space: nowrap;
+  color: var(--problem);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+@media (any-pointer: coarse) {
+  .sessions-sidebar-session-entry-review {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}

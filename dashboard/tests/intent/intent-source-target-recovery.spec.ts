@@ -42,7 +42,9 @@ import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import { publishMovingFiles } from "../publishedFiles.ts";
 import {
   pausePageClock,
-  passTimeUntilCheckedAfterSettled,
+  passTimeUntilChecked,
+  passTimeUntilCheckedWhileReadsOutstanding,
+  expectSteadyPace,
 } from "../autoRefreshJourney.ts";
 import { intentSettingsText } from "../support/intentSettingsFile.ts";
 
@@ -109,7 +111,7 @@ for (const outcome of ["held then released", "failed then retried"] as const) {
     ]);
 
     origin.moveTrunk(revisions.after);
-    await passTimeUntilCheckedAfterSettled(page);
+    await passTimeUntilChecked(page);
     await untilPageReadsAnswered(page);
     await expect(revisionNotice(intent)).toBeVisible();
     await expect(source).toBeFocused();
@@ -143,6 +145,13 @@ for (const outcome of ["held then released", "failed then retried"] as const) {
       const problem = readFailure(purposeRegion(intent));
       if (outcome === "held then released") {
         await expect(problem).toHaveCount(0);
+        // Keep the source read held across a revision check: the reading
+        // stays pinned to its previous answer while the project is checked.
+        expectSteadyPace(await passTimeUntilCheckedWhileReadsOutstanding(page));
+        await expect(source).toContainText("assert True");
+        await expect(sourceRevision(intent, pygardonClipPath)).toHaveText(
+          `${pygardonClipPath} at revision ${shortRevision(beforeRevision)}`,
+        );
         latest.release();
       } else {
         latest.fail();

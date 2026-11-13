@@ -16,7 +16,7 @@ import { listedAttemptJobPages } from "../support/storyCiComparisonRequests.ts";
 import { observedRerunJobs } from "../support/storyCiObservedJobs.ts";
 import { publishTakenComparedStoryBranch } from "../support/storyCiComparisonTakenFixture.ts";
 import { selectTakenStoryForCiComparison } from "../support/selectTakenStoryForCiComparison.ts";
-import { passTimeUntilCheckedAfterSettled } from "../autoRefreshJourney.ts";
+import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { githubFor, pausePageClockAt } from "../dashboardTest.ts";
 import { commitAll, git, writeAt } from "../support/storyReviewWorktree.ts";
 import path from "node:path";
@@ -108,7 +108,7 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
       ],
     });
     setup.serveJobs({ "103/2": observedRerunJobs });
-    await passTimeUntilCheckedAfterSettled(page);
+    await passTimeUntilChecked(page);
     await expect(comparisonReading(panel).identities.nth(1)).toContainText(
       shortSha(nextTip),
     );

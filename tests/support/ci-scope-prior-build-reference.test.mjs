@@ -119,7 +119,7 @@ test("missing selected identity retains separately labelled historical owners an
     ),
   );
   for (const candidate of answer.references) {
-    assert.match(candidate.reason, /Selected scope identity unavailable/);
+    assert.equal(candidate.reason, "Scope identity unavailable");
     assert.equal(candidate.reference.averageMs, undefined);
     assert.equal(candidate.reference.sampleCount, 0);
   }

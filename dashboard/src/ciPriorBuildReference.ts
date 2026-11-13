@@ -16,9 +16,15 @@ const evidenceSchema = z.object({
   ...measurement,
   status: z.enum(["included", "excluded", "selected"]),
 });
+// The selected measurement, typed failed when the dashboard knows its build
+// failed (`./ciFailedBuild.ts`).
+const selectedSchema = z.object({
+  ...measurement,
+  failed: z.literal(true).optional(),
+});
 export const priorBuildReferenceSchema = z.object({
   endpoint: z.string(),
-  selected: z.object(measurement).optional(),
+  selected: selectedSchema.optional(),
   evidence: z.array(evidenceSchema),
   sampleCount: z.number().int().nonnegative(),
   medianMs: z.number().nonnegative().optional(),
@@ -35,10 +41,40 @@ export const priorBuildReferenceSchema = z.object({
 });
 export type PriorBuildReference = z.infer<typeof priorBuildReferenceSchema>;
 export type PriorBuildEvidence = PriorBuildReference["evidence"][number];
-export type PriorBuildSample = z.infer<z.ZodObject<typeof measurement>> & {
+// The compact figures a glance view reads: the selected measurement, the
+// prior-build average, how many builds it used and the change, without the
+// membership, median and dates behind them.
+export const priorBuildFiguresSchema = priorBuildReferenceSchema.pick({
+  endpoint: true,
+  selected: true,
+  sampleCount: true,
+  averageMs: true,
+  difference: true,
+});
+export type PriorBuildFigures = z.infer<typeof priorBuildFiguresSchema>;
+export type PriorBuildSample = z.infer<typeof selectedSchema> & {
   readonly revision?: string;
   readonly landings: readonly string[];
 };
+
+// Exclusions by local Git order: evidence after the endpoint, or whose place
+// relative to it is unverified.
+const orderExclusions = {
+  endpointUnordered:
+    "Landing endpoint order unavailable from local Git evidence",
+  noPriorLanding: "No represented landing before the selected endpoint",
+  measuredUnordered:
+    "Measured revision order unavailable from local Git evidence",
+  measuredAtOrAfter: "Measured build is at or after the selected endpoint",
+} as const;
+const outsideEndpoint: ReadonlySet<string> = new Set(
+  Object.values(orderExclusions),
+);
+
+// A verified retained observation through the endpoint: the selected build or
+// one ordered before it, whatever the reference made of its measurement.
+export const isThroughEndpoint = (sample: PriorBuildEvidence) =>
+  sample.status !== "excluded" || !outsideEndpoint.has(sample.reason ?? "");
 
 function isIncludedMeasurement(
   sample: PriorBuildEvidence,
@@ -97,13 +133,13 @@ export function priorBuildReferenceOf({
         : positions.get(sample.revision);
     const exclusion =
       end === undefined
-        ? "Landing endpoint order unavailable from local Git evidence"
+        ? orderExclusions.endpointUnordered
         : !priorLanding
-          ? "No represented landing before the selected endpoint"
+          ? orderExclusions.noPriorLanding
           : sample.revision !== undefined && measured === undefined
-            ? "Measured revision order unavailable from local Git evidence"
+            ? orderExclusions.measuredUnordered
             : measured !== undefined && measured >= end
-              ? "Measured build is at or after the selected endpoint"
+              ? orderExclusions.measuredAtOrAfter
               : (reason ??
                 (ms === undefined ? "Measurement unavailable" : undefined));
     return exclusion === undefined
@@ -167,6 +203,7 @@ export function priorBuildReferenceOf({
             ...(selected.reason === undefined
               ? {}
               : { reason: selected.reason }),
+            ...(selected.failed === true ? { failed: true } : {}),
           },
         }),
     evidence,

@@ -71,7 +71,7 @@ test.describe("the Sessions sidebar's state edge", () => {
       button,
       entries,
       entry: entryControl,
-      sidebar,
+      row,
     } = sessionsSidebarParts(page);
     await settled();
     await button.click();
@@ -80,17 +80,15 @@ test.describe("the Sessions sidebar's state edge", () => {
 
     for (const [index, [, words, tone]] of states.entries()) {
       const title = titles[index] ?? "?";
-      const row = sidebar.getByRole("listitem").filter({ hasText: title });
-      await expectSessionsSidebarSessionEntryShown(row, words, tone);
+      await expectSessionsSidebarSessionEntryShown(row(title), words, tone);
       await expect(entryControl(title)).toHaveCount(1);
     }
 
     // The thick borders are thicker than the thin ones, as drawn.
     const widthOf = (title: string) =>
-      sidebar
-        .getByRole("listitem")
-        .filter({ hasText: title })
-        .evaluate((row) => parseFloat(getComputedStyle(row).borderLeftWidth));
+      row(title).evaluate((shown) =>
+        parseFloat(getComputedStyle(shown).borderLeftWidth),
+      );
     const thick = await widthOf(titles[1] ?? "?");
     expect(await widthOf(titles[2] ?? "?")).toBe(thick);
     expect(thick).toBeGreaterThan(await widthOf(titles[0] ?? "?"));

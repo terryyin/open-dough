@@ -7,7 +7,7 @@
 // view; each move shows the diff from the top. In a large review, Next to a
 // file below the browser's fold scrolls the browser, not the page, to it.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 import { expect, test } from "../support/preparationPage.ts";
 import { longA, longB } from "../support/largeReviewFiles.ts";
 import { fileBrowser } from "../support/reviewContextLine.ts";
@@ -24,6 +24,7 @@ import { openReview } from "../support/reviewRead.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { nestedWorktree } from "../support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
+import { scrollYOf } from "../boardPage.ts";
 
 // The nested worktree's files in the browser's order.
 const nestedOrder = [
@@ -50,9 +51,6 @@ async function expectSelected(review: Locator, name: string) {
   if ((await code.count()) > 0) expect(await scrollTopOf(code)).toBe(0);
   return row;
 }
-
-const pageScroll = (page: Page) =>
-  page.locator(".board-scroll").evaluate((region) => region.scrollTop);
 
 test("Previous file and Next file move through the browser's order", async ({
   page,
@@ -151,7 +149,7 @@ test("Next file to a file below the browser's fold scrolls the browser to it", a
     expect(await scrollPane(browser, 0)).toBe(0);
     // Opening the review from its card may have scrolled the page; the move
     // must leave it where it is.
-    const pageAt = await pageScroll(page);
+    const pageAt = await scrollYOf(page);
     await next.click();
     const row = await expectSelected(
       review,
@@ -159,6 +157,6 @@ test("Next file to a file below the browser's fold scrolls the browser to it", a
     );
     await expect.poll(() => scrollTopOf(browser)).toBeGreaterThan(0);
     expect(await shownInPane(browser, row)).toBe(true);
-    expect(await pageScroll(page)).toBe(pageAt);
+    expect(await scrollYOf(page)).toBe(pageAt);
   });
 });

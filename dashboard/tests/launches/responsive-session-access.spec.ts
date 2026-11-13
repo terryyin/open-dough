@@ -9,7 +9,11 @@
 // a refinement settling, then starting again, is in
 // ./responsive-session-refinement-restart.spec.ts.
 
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import {
+  storyCardSessions,
+  parts,
+  sessionEntriesIn,
+} from "../dashboardPage.ts";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
 import { terminalPanel } from "../terminalScreenPage.ts";
 import {
@@ -24,8 +28,8 @@ import {
   inspectByKeyboard,
   marksOf,
   recordAnnouncements,
-  tabTo,
 } from "../responsiveAccess.ts";
+import { tabTo } from "../accessibleReading.ts";
 import {
   expectInspected,
   expectSelected,
@@ -214,7 +218,7 @@ for (const typed of ["", "why is CI slow?"]) {
     // The startup has ended once Start session is offered again.
     await expect(button).toBeEnabled();
     await expect(panel).toHaveCount(typed === "" ? 1 : 0);
-    const entry = parts(page).taken.locator(".session-entry").first();
+    const entry = sessionEntriesIn(parts(page).taken).first();
     if (typed === "") await expect(entry).toContainText("Shown in terminal");
     else await expect(entry).not.toContainText("Shown in terminal");
     await expect(parts(page).adHocStarted).toHaveCount(0);

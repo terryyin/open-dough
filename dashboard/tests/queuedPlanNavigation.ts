@@ -9,6 +9,15 @@ import {
   planReadyPath,
   type ReadinessRepo,
 } from "./storyReadinessFixture.ts";
+import {
+  canonicalRecord,
+  focusCanonicalRecord,
+  hideDetail,
+  inspectedDetail,
+  slicePlanLink,
+  storyCard,
+} from "./storyCardControls.ts";
+import { expectBadges } from "./storyCardFacts.ts";
 
 export function planHref(
   repository: string,
@@ -24,29 +33,24 @@ export async function expectQueuedPlanStoryCardAndDetail(
   repo: ReadinessRepo,
   readCount: () => number,
 ) {
-  const card = backlog.getByRole("article", { name: plannedBlocked.title });
-  await expect(card.getByText("Not ready", { exact: true })).toBeVisible();
+  const card = storyCard(backlog, plannedBlocked.title);
+  await expectBadges(card, { shown: ["Not ready"] });
   // The scan view offers no link; Inspect story reveals them without a read.
   await expect(card.getByRole("link")).toHaveCount(0);
   const reads = readCount();
-  await card.getByRole("button", { name: "Inspect story" }).click();
-  const detail = card.getByRole("region", {
-    name: `Detail for ${plannedBlocked.title}`,
-  });
-  const plan = detail.getByRole("link", { name: /^Slice plan / });
+  const detail = await inspectedDetail(card);
+  const plan = slicePlanLink(detail);
   await expect(plan).toHaveCount(1);
   await expect(plan).toHaveAttribute(
     "href",
     planHref(repository, repo.revision),
   );
-  await expect(
-    detail.getByRole("link", { name: /^Canonical record / }),
-  ).toHaveAttribute(
+  await expect(canonicalRecord(detail)).toHaveAttribute(
     "href",
     `https://github.com/${repository}/blob/${repo.revision}/.planning/${plannedBlocked.href}`,
   );
   expect(readCount()).toBe(reads);
-  await card.getByRole("button", { name: "Hide detail" }).click();
+  await hideDetail(card);
   await expect(card).toBeFocused();
   await expect(card.getByRole("link")).toHaveCount(0);
 }
@@ -68,11 +72,10 @@ export async function expectPlanKeyboardDestination(
       body: "<h1>Published blocked slice plan</h1>",
     }),
   );
-  const card = backlog.getByRole("article", { name: plannedBlocked.title });
-  await card.getByRole("button", { name: "Inspect story" }).click();
-  await card.getByRole("link", { name: /^Canonical record / }).focus();
+  const card = storyCard(backlog, plannedBlocked.title);
+  await focusCanonicalRecord(card);
   await page.keyboard.press("Tab");
-  await expect(card.getByRole("link", { name: /^Slice plan / })).toBeFocused();
+  await expect(slicePlanLink(card)).toBeFocused();
   const [popup] = await Promise.all([
     page.waitForEvent("popup"),
     page.keyboard.press("Enter"),
@@ -90,17 +93,15 @@ export async function expectAgreeingFragment(
   repository: string,
   revision: string,
 ) {
-  const card = taken.getByRole("article", { name: plannedReady.title });
-  const plan = card.getByRole("link", { name: /^Slice plan / });
-  await card.getByRole("button", { name: "Inspect story" }).click();
+  const card = storyCard(taken, plannedReady.title);
+  const plan = slicePlanLink(card);
+  await inspectedDetail(card);
   await expect(plan).toHaveCount(1);
   await expect(plan).toHaveAttribute(
     "href",
     `${planHref(repository, revision, planReadyPath)}#ordered-slices`,
   );
-  await expect(
-    card.getByText("Plan association conflict", { exact: true }),
-  ).toHaveCount(0);
-  await card.getByRole("button", { name: "Hide detail" }).click();
+  await expectBadges(card, { absent: ["Plan association conflict"] });
+  await hideDetail(card);
   await expect(card).toBeFocused();
 }

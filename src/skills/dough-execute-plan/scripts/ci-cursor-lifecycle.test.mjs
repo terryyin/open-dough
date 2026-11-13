@@ -78,11 +78,12 @@ test("Cursor reuses one execution observer through pushes and stops its exact ma
   publishMailboxEvent(attached.directory, {
     type: "CI_MONITOR_UNAVAILABLE",
     repo: "owner/repo",
-    reason: "fixture lost coverage",
+    reason: "TLS handshake timeout",
+    cause: "observation_error",
   });
   assert.match(
     (await replay.boundary()).additional_context,
-    /"type":"CI_MONITOR_UNAVAILABLE"/,
+    /"type":"CI_MONITOR_UNAVAILABLE".*"cause":"observation_error"/s,
   );
 
   publishMailboxEvent(attached.directory, {

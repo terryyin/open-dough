@@ -1,8 +1,10 @@
 // Trunk Mode closure whose owner evidence is missing, another coordinator's,
 // ended, or ambiguous keeps the accepted publication beside an unresolved
-// coverage obligation and the workspace, through the installed `finish` with
-// real workers and a bare remote. A sibling coordinator's live observer of
-// the same target is never registered on, completed, or stopped for it.
+// coverage obligation and the workspace when recovery cannot settle it, through
+// the installed `finish` with real workers and a bare remote. When this
+// coordinator's observers have ended while the worktree exists, finish recovers
+// completion on a replacement. A sibling coordinator's live observer of the
+// same target is never registered on, completed, or stopped for it.
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { test } from "node:test";
@@ -12,6 +14,7 @@ import {
   startReceipt,
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-owner-test-fixtures.mjs";
 import {
+  assertCompletedAndStopped,
   assertUnresolvedCoverage,
   closureBesideSibling,
 } from "./trunk-closure-owner-test-fixtures.mjs";
@@ -20,7 +23,7 @@ import {
   releaseCi,
 } from "./trunk-closure-test-fixtures.mjs";
 
-test("finish without the owner's identity, as another coordinator, or after the owner's observer ended reports the accepted closure unobserved, keeps the worktree, and leaves the live sibling alone; a replacing session that follows the gap completes on its own observer", async (t) => {
+test("finish without the owner's identity or as another coordinator reports the accepted closure unobserved, keeps the worktree, and leaves the live sibling alone; a replacing session that follows the gap completes on its own observer", async (t) => {
   const journey = await closureBesideSibling(t, "claude");
   const { fixture, publisher, sibling } = journey;
   const beforeCleanup = await acceptedIncrement(fixture);
@@ -58,23 +61,11 @@ test("finish without the owner's identity, as another coordinator, or after the 
   assert.equal(existsSync(`${publisher}/result.json`), false);
   journey.assertSiblingUntouched();
 
-  // The owner's observer ended before it was told of the final closure.
-  await fixture.stopObserver(publisher);
-  const ended = await finish();
-  await assertUnresolvedCoverage(fixture, ended, {
-    final,
-    ownership: "ended",
-    reason: new RegExp(
-      `${publisher} ended \\(.*next \`deliver\` from the execution worktree establishes its own.*rerunning this finish`,
-    ),
-  });
-  assert.deepEqual(coverage(publisher), []);
-  assert.equal(pushes(), 1);
-  journey.assertSiblingUntouched();
-
-  // The session that replaced that coordinator follows the gap reason: the
+  // The owner's observer ended before it was told of the final closure. The
+  // session that replaced that coordinator follows the missing gap: the
   // recorded observer is stopped, its `deliver` establishes its own without a
-  // second push, and its rerun completes there.
+  // second push, and its finish completes there.
+  await fixture.stopObserver(publisher);
   const { delivered } = await journey.deliver(
     beforeCleanup,
     [],
@@ -109,7 +100,7 @@ test("finish without the owner's identity, as another coordinator, or after the 
   journey.assertSiblingUntouched(4);
 });
 
-test("finish whose coordinator's ended observers each registered the final closure reports them ended with the deliver step; its rerun after that deliver completes on the new observer and retires; a rerun after retirement repeats completion on that observer for its owner only", async (t) => {
+test("finish whose coordinator's ended observers each registered the final closure recovers on a replacement and retires; a rerun after retirement repeats completion on that observer for its owner only", async (t) => {
   const journey = await closureBesideSibling(t, "claude");
   const { fixture, publisher } = journey;
   const beforeCleanup = await acceptedIncrement(fixture);
@@ -129,30 +120,17 @@ test("finish whose coordinator's ended observers each registered the final closu
   await fixture.stopObserver(second);
   for (const ended of [publisher, second])
     assert.deepEqual(coverage(ended), [final]);
-
-  const several = await finish();
-  await assertUnresolvedCoverage(fixture, several, {
-    final,
-    ownership: "ended",
-    reason:
-      /ended \(.*2 of its observers each registered this revision and none is live.*next `deliver` from the execution worktree establishes its own.*rerunning this finish/,
-  });
-  assert.deepEqual(
-    several.result.observation.directories.toSorted(),
-    [publisher, second].toSorted(),
-  );
-
-  const own = await established();
-  assert.equal(own.state, "attached", own.reason);
   releaseCi(fixture, { [final]: "success" });
-  const rerun = await finish();
-  assert.equal(rerun.code, 0, rerun.stderr);
-  assert.equal(rerun.result.observation.directory, own.directory);
-  assert.deepEqual(coverage(own.directory), [final]);
-  assert.equal(rerun.result.completion.verdict, "success");
-  assert.equal(rerun.result.completion.shutdown.status, "confirmed");
-  assert.equal(rerun.result.cleanup.worktree, "removed");
-  // Each establishing delivery added its readiness probe and its observer.
+
+  const recovered = await finish();
+  assert.equal(recovered.code, 0, recovered.stderr);
+  const own = recovered.result.observation.directory;
+  assert.notEqual(own, publisher);
+  assert.notEqual(own, second);
+  assert.deepEqual(coverage(own), [final]);
+  assertCompletedAndStopped(recovered.result, own, final);
+  assert.equal(recovered.result.cleanup.worktree, "removed");
+  // Recovery added its readiness probe and its observer after two ended ones.
   journey.assertSiblingUntouched(6);
 
   // After retirement three of the owner's ended observers each registered the
@@ -171,7 +149,7 @@ test("finish whose coordinator's ended observers each registered the final closu
   const again = await settled(journey.owner);
   assert.equal(again.code, 0, JSON.stringify(again.result));
   assert.equal(again.result.pushCount, 0);
-  assert.equal(again.result.observation.directory, own.directory);
+  assert.equal(again.result.observation.directory, own);
   assert.equal(again.result.completion.requestedSha, final);
   assert.equal(again.result.completion.verdict, "success");
   assert.equal(again.result.completion.shutdown.status, "confirmed");
@@ -179,7 +157,7 @@ test("finish whose coordinator's ended observers each registered the final closu
     [again.result.cleanup.worktree, again.result.cleanup.branch],
     ["already-absent", "already-absent"],
   );
-  for (const ended of [publisher, second, own.directory])
+  for (const ended of [publisher, second, own])
     assert.deepEqual(coverage(ended), [final]);
   journey.assertSiblingUntouched(6);
 });

@@ -1,5 +1,5 @@
-// What the attention journey (./sessions/agent-launch-attention.spec.ts)
-// observes on the cards while the sessions already open on them
+// What the attention journeys (./sessions/agent-launch-attention.spec.ts and
+// ./sessions/agent-launch-attention-taken.spec.ts) observe on the cards while the sessions already open on them
 // (./storyCardOpenSessions.ts) change: each card's attention count, and its
 // published facts apart from its local session presentation.
 

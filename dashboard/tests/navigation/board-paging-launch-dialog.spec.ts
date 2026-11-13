@@ -8,7 +8,10 @@
 import { expect } from "../dashboardTest.ts";
 import { expectView, showColumn } from "../boardPage.ts";
 import { reachKeptStart, startAction, test } from "../keptStartJourney.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  sessionsSidebarParts,
+  sessionsSidebarTitleCut,
+} from "../sessionsSidebarPage.ts";
 import { scrollsOnItsOwn } from "../sidePanelWidthPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 
@@ -28,7 +31,7 @@ test("opening and leaving Start execution on a shown Taken card keeps the view o
       page,
       ["Taken", "Recently done"],
       ["Backlog 0 entries"],
-      [...scrollsOnItsOwn, ".sessions-sidebar-session-entry-title"],
+      [...scrollsOnItsOwn, sessionsSidebarTitleCut],
     );
   await expectTakenAndRecentlyDone();
 

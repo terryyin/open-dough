@@ -3,12 +3,14 @@
 // a later row choice abandons it so a late answer moves nothing. Story-catalog
 // check/supersede coverage remains in ./recently-done-sessions-select-check.spec.ts
 // and ./recently-done-sessions-select-supersede.spec.ts.
-import type { Page, Route } from "@playwright/test";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedCodexPreviewTest as test,
+} from "../support/preparationPage.ts";
+import { pausePageClockAt } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
-import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
-import { openSessionsSidebar } from "../sessionsSidebarPage.ts";
+import { showRecentlyDone } from "../recentlyDoneSessionsSidebarPage.ts";
 import { completedStoryAssociationEndpoint } from "../../src/completedStoryAssociation.ts";
 import { retainAdHocCompletedStory } from "../support/adHocCompletedAssociation.ts";
 import { choiceStatus } from "../recentlyDoneSelectionJourney.ts";
@@ -18,6 +20,7 @@ import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import { git } from "../support/storyReviewWorktree.ts";
+import { holdNextReads, routeNextReads } from "../nextActionReads.ts";
 import { randomUUID } from "node:crypto";
 
 test.use({ preparationHost: "codex", projectFolders: ["open-dough"] });
@@ -28,27 +31,6 @@ const otherTitle = "Other done session";
 const isAssociation = (url: URL) =>
   url.pathname.endsWith(completedStoryAssociationEndpoint) ||
   url.pathname.includes(completedStoryAssociationEndpoint);
-
-async function holdAssociation(page: Page) {
-  let asked: () => void = () => undefined;
-  const askedOnce = new Promise<void>((resolve) => {
-    asked = resolve;
-  });
-  let release: () => void = () => undefined;
-  const released = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  await page.route(isAssociation, async (route: Route) => {
-    if (route.request().method() !== "GET") {
-      await route.fallback();
-      return;
-    }
-    asked();
-    await released;
-    await route.fallback().catch(() => undefined);
-  });
-  return { asked: askedOnce, release };
-}
 
 test("an unanswered ad hoc association is superseded by another row, and a failed one retries without moving the story", async ({
   page,
@@ -79,37 +61,35 @@ test("an unanswered ad hoc association is superseded by another row, and a faile
     follows: true,
   });
 
+  // The shown ad hoc rows' recurring association read waits for page time.
+  await pausePageClockAt(page, new Date());
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/?perspective=intent");
   const { intentChoice, intent } = parts(page);
-  await openSessionsSidebar(page);
-  const shown = recentlyDoneParts(page);
-  await shown.header.click();
-  const linkedRow = shown.entries.filter({
-    has: page.getByRole("heading", { name: linkedTitle }),
-  });
+  const shown = await showRecentlyDone(page);
+  const linkedRow = shown.row(linkedTitle);
 
   await test.step("while the association is held the row says checking; choosing another row abandons it", async () => {
-    const held = await holdAssociation(page);
+    const held = await holdNextReads(page, isAssociation);
     const abandoned = page.waitForEvent("requestfailed", (request) =>
       isAssociation(new URL(request.url())),
     );
     try {
-      await shown.entry(linkedTitle).click();
+      await shown.select(linkedTitle).click();
       await held.asked;
       await expect(choiceStatus(linkedRow)).toHaveText(
         "Checking for its published done story…",
       );
-      await shown.entry(otherTitle).click();
+      await shown.select(otherTitle).click();
       await abandoned;
     } finally {
       held.release();
     }
-    await expect(shown.entry(otherTitle)).toHaveAttribute(
+    await expect(shown.select(otherTitle)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
-    await expect(shown.entry(linkedTitle)).toHaveAttribute(
+    await expect(shown.select(linkedTitle)).toHaveAttribute(
       "aria-pressed",
       "false",
     );
@@ -121,23 +101,19 @@ test("an unanswered ad hoc association is superseded by another row, and a faile
   });
 
   await test.step("a failed association says unknown apart from a miss; selecting again links", async () => {
-    await page.route(isAssociation, async (route) => {
-      if (route.request().method() !== "GET") {
-        await route.fallback();
-        return;
-      }
-      await route.fulfill({
+    await routeNextReads(page, isAssociation, (route) =>
+      route.fulfill({
         status: 502,
         contentType: "application/json",
         body: JSON.stringify({ error: "GitHub could not be reached." }),
-      });
-    });
+      }),
+    );
     const failed = page.waitForResponse(
       (response) =>
         isAssociation(new URL(response.url())) &&
         response.request().method() === "GET",
     );
-    await shown.entry(linkedTitle).click();
+    await shown.select(linkedTitle).click();
     await failed;
     await expect(choiceStatus(linkedRow)).toContainText(
       "Its published done story could not be checked.",
@@ -154,7 +130,7 @@ test("an unanswered ad hoc association is superseded by another row, and a faile
         response.request().method() === "GET" &&
         response.ok(),
     );
-    await shown.entry(linkedTitle).click();
+    await shown.select(linkedTitle).click();
     await recovered;
     await expect(intent).toHaveAttribute(
       "data-selected-story",

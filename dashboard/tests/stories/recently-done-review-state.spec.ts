@@ -2,11 +2,12 @@
 // per project and story identity on the machine serving the dashboard: an
 // unreviewed card, including a story completed on another machine and never
 // run here, offers Mark as reviewed among its Story actions; a reviewed card
-// says Reviewed in words and offers Unreview beside it. Either action keeps
+// offers Reviewed, which asks before undoing review. Either saved change keeps
 // the card, its place, its sessions, the column's count, the Selected story
 // and the Side panel as they were, keeps the keyboard on the card, and is
 // announced once. The state outlives reload, a project refresh and a
 // dashboard restart, and every page of that server shows it at its next read.
+// Reload/restart persistence is observed in ./recently-done-review-state-persistence.spec.ts.
 // It neither reads nor changes the story review's snapshot marks, and writes
 // nothing to the project's repository. Cards whose record is not read, and
 // touch input: ./recently-done-review-state-offer.spec.ts. Saves that fail:
@@ -15,9 +16,11 @@
 
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 import { parts, storyCardSessions } from "../dashboardParts.ts";
+import { readFinalReportControl } from "../finalReportPages.ts";
 import { expectEntries } from "../recentlyDoneColumn.ts";
 import { refreshedTo } from "../recentlyDoneRefresh.ts";
 import {
+  cancelUnreview,
   doneCard,
   doneStories,
   expectReviewed,
@@ -31,22 +34,23 @@ import {
   storyActions,
   storyB,
   storyC,
-  unreview,
+  reviewedButton,
+  unreviewQuestion,
+  unreviewStory,
 } from "../recentlyDoneReviewState.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  sharedDashboardBuild,
-  startDashboardServer,
-} from "../support/dashboardServer.ts";
 import { quietStorySessions } from "../support/followUpStories.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { sidePanelContents } from "../support/sidePanelContents.ts";
 import { expectSelected, selectStory } from "../storyCardSelection.ts";
 
 const titles = doneStories.map(({ title }) => title);
 
-test("Mark as reviewed and Unreview keep each story's state on this machine, through reload and restart, leaving the card, the selection, the snapshot mark and the repository as they were", async ({
+test("Mark as reviewed keeps the card, selection, snapshot mark and repository as they were", async ({
   page,
   dashboard,
   origin,
@@ -73,7 +77,7 @@ test("Mark as reviewed and Unreview keep each story's state on this machine, thr
     ).toHaveCount(3);
   });
 
-  await test.step("Mark as reviewed on A, by keyboard, with C selected: A says Reviewed with focus on Unreview, once announced; B, the order, the count, the selection and the Side panel stay", async () => {
+  await test.step("Mark as reviewed on A, by keyboard, with C selected: A says Reviewed with focus on Reviewed, once announced; B, the order, the count, the selection and the Side panel stay", async () => {
     await selectStory(c).click();
     await expectSelected(c, true);
     await expect(sidePanelContents(page)).toHaveCount(0);
@@ -83,14 +87,14 @@ test("Mark as reviewed and Unreview keep each story's state on this machine, thr
     await markAsReviewed(a).focus();
     await page.keyboard.press("Enter");
     await expectReviewed(a, true);
-    await expect(unreview(a)).toBeFocused();
+    await expect(reviewedButton(a)).toBeFocused();
     await expect(storyActions(a).getByRole("status")).toHaveText(
       "Marked as reviewed.",
     );
     await expect(page.getByText("Marked as reviewed.")).toHaveCount(1);
     expect(await storyActions(a).getByRole("button").allTextContents()).toEqual(
       actionsOfA.map((name) =>
-        name === "Mark as reviewed" ? "Unreview" : name,
+        name === "Mark as reviewed" ? "Reviewed" : name,
       ),
     );
     await expectReviewed(b, false);
@@ -105,73 +109,37 @@ test("Mark as reviewed and Unreview keep each story's state on this machine, thr
     ).toEqual([storyA.identity]);
   });
 
+  await test.step("Cancel leaves A reviewed, with focus on Reviewed and C still selected", async () => {
+    await reviewedButton(a).click();
+    const question = unreviewQuestion(a, "Unreview this story?");
+    await expect(cancelUnreview(question)).toBeFocused();
+    const saved = keptReviewStates(dashboard);
+    await cancelUnreview(question).click();
+    await expect(question).toHaveCount(0);
+    await expectReviewed(a, true);
+    await expect(reviewedButton(a)).toBeFocused();
+    await expectSelected(c, true);
+    await expectSelected(a, false);
+    expect(keptReviewStates(dashboard)).toEqual(saved);
+  });
+
+  await test.step("Escape closes the prompt and leaves A reviewed", async () => {
+    await reviewedButton(a).press("Enter");
+    const question = unreviewQuestion(a, "Unreview this story?");
+    await expect(cancelUnreview(question)).toBeFocused();
+    await cancelUnreview(question).press("Escape");
+    await expect(question).toHaveCount(0);
+    await expectReviewed(a, true);
+    await expect(reviewedButton(a)).toBeFocused();
+  });
+
   await test.step("the snapshot mark and the project's repository are as they were", async () => {
     expect(snapshotMark()).toBe(marked);
     expect(await repositoryState(origin)).toEqual(repository);
   });
-
-  await test.step("after a reload A is still reviewed; marking B then keeps both reviewed", async () => {
-    await page.reload();
-    await expectEntries(recent, titles);
-    await expectReviewed(a, true);
-    await expectReviewed(b, false);
-    await expect(storyActions(a).getByRole("status")).toHaveText("");
-    await markAsReviewed(b).click();
-    await page.reload();
-    await expectReviewed(a, true);
-    await expectReviewed(b, true);
-  });
-
-  await test.step("after the dashboard restarts the same holds", async () => {
-    const port = Number(new URL(dashboard.baseURL).port);
-    await dashboard.close();
-    const restarted = await startDashboardServer({
-      mode: "preview",
-      prebuilt: sharedDashboardBuild,
-      machine: origin.machine,
-      github: dashboard.github,
-      projectFolders: ["open-dough"],
-      port,
-    });
-    try {
-      await page.reload();
-      await expectEntries(recent, titles);
-      await expectReviewed(a, true);
-      await expectReviewed(b, true);
-      await expectReviewed(c, false);
-
-      // Unreview restores Mark as reviewed, with the keyboard on it, C
-      // selected again.
-      await selectStory(c).click();
-      await expectSelected(c, true);
-      await unreview(a).focus();
-      await page.keyboard.press("Enter");
-      await expectReviewed(a, false);
-      await expect(markAsReviewed(a)).toBeFocused();
-      await expect(storyActions(a).getByRole("status")).toHaveText(
-        "Marked as not reviewed.",
-      );
-      await expectEntries(recent, titles);
-      await expect(count).toBeVisible();
-      await expectSelected(c, true);
-      await expectSelected(a, false);
-      await expect(sidePanelContents(page)).toHaveCount(0);
-      expect(
-        Object.keys(keptReviewStates(dashboard)?.["open-dough"] ?? {}),
-      ).toEqual([storyB.identity]);
-
-      await page.reload();
-      await expectReviewed(a, false);
-      await expectReviewed(b, true);
-      expect(snapshotMark()).toBe(marked);
-      expect(await repositoryState(origin)).toEqual(repository);
-    } finally {
-      await restarted.close();
-    }
-  });
 });
 
-test("Mark as reviewed and Unreview keep the card's sessions as they were", async ({
+test("Marking and unreviewing a story keep the card's sessions as they were", async ({
   page,
   dashboard,
   origin,
@@ -193,16 +161,14 @@ test("Mark as reviewed and Unreview keep the card's sessions as they were", asyn
     await expect(sessions).toHaveCount(names.length);
     for (const name of names)
       await expect(
-        a.getByRole("article", { name, exact: true }).getByRole("button", {
-          name: "Read final report",
-        }),
+        readFinalReportControl(a.getByRole("article", { name, exact: true })),
       ).toBeVisible();
   };
   await expectSessions();
   await markAsReviewed(a).click();
   await expectReviewed(a, true);
   await expectSessions();
-  await unreview(a).click();
+  await unreviewStory(a, "Unreview this story?", "mouse");
   await expectReviewed(a, false);
   await expectSessions();
 });

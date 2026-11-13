@@ -15,9 +15,9 @@
 // (`./ciScopeComparison.ts`), mark rows the story changed, and reuse the
 // homepage's observed-not-attributed statement. Without usable evidence, the
 // rows stay for drilling down, the group and rows say why in a word or two,
-// and one line says why as the homepage says it. Project and Done scopes add local
-// collected execution-time history beside these existing readings, with its
-// own failed-read feedback and retry (./IntentScopeTimingHistory.tsx).
+// and one line says why as the homepage says it. Project and Done scopes read
+// local collected execution-time history first, above these readings, with
+// its own failed-read feedback and retry (./IntentScopeTimingHistory.tsx).
 
 import type { CiProofSorting } from "./CiProofTable.tsx";
 import type { ColumnSort } from "./ciProofSort.ts";
@@ -57,8 +57,8 @@ export function IntentScopeProof(
 ) {
   return (
     <>
-      <ScopeProofContent {...props} />
       <IntentScopeTimingHistory path={props.path} />
+      <ScopeProofContent {...props} />
     </>
   );
 }

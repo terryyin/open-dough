@@ -14,13 +14,19 @@ import {
 import { queuedIdentity, queuedTitle } from "../support/startOrigin.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import {
+  parts,
+  sessionStateOf,
+  sessionUnreadReportOf,
+  storyCardSessions,
+} from "../dashboardPage.ts";
 import { markAsDone, markDone } from "../support/markDone.ts";
 import { occupyRunner } from "../support/cursorRunnerJourney.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { cursorRunnerSentence } from "../../src/cursorRunnerSessions.ts";
 import { messagePartOf } from "../support/sessionMessagePart.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 const exec = promisify(execFile);
 
@@ -111,9 +117,7 @@ test("Cursor installed report offers local Done without a native stop capability
   const part = messagePartOf(card);
   await expect(part.text).toHaveText(readFileSync(message, "utf8"));
   // The message is read on the entry; the side panel offers the terminal only.
-  await expect(
-    card.getByRole("button", { name: "Open terminal" }),
-  ).toBeVisible();
+  await expect(openTerminalControl(card)).toBeVisible();
   await expect(card.getByRole("button", { name: /^Read / })).toHaveCount(0);
   const before = cursor.calls().length;
   const listed = storyCardSessions(card);
@@ -123,7 +127,7 @@ test("Cursor installed report offers local Done without a native stop capability
   await expect(markAsDone(card)).toBeVisible();
   await part.markRead.click();
   // Reading leaves the session open on its card with its existing Mark as done.
-  await expect(card.locator(".session-unread-report")).toHaveCount(0);
+  await expect(sessionUnreadReportOf(card)).toHaveCount(0);
   await expect(markAsDone(card)).toBeVisible();
   await expect(listed).toHaveCount(1);
   expect(cursor.calls()).toHaveLength(before);
@@ -137,7 +141,7 @@ test("Cursor installed report offers local Done without a native stop capability
   expect(done?.doneAt).toBeDefined();
   expect(done?.doneProblem).toBeUndefined();
   const recent = parts(page).recentlyDone.getByRole("article");
-  await expect(recent.locator(".session-state")).toContainText("Done");
+  await expect(sessionStateOf(recent)).toContainText("Done");
   await expect(recent).not.toContainText("Named done-");
   expect(done?.completion?.receipt).toBe(receipt.receipt);
   expect(
@@ -164,7 +168,7 @@ test("a Cursor session with a read completed report whose runner cannot be reach
     cursor,
   });
   await messagePartOf(card).markRead.click();
-  await expect(card.locator(".session-unread-report")).toHaveCount(0);
+  await expect(sessionUnreadReportOf(card)).toHaveCount(0);
   const [read] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(read?.reportRead).toBe(receipt.receipt);
   await stopCursorRunner(dashboard.home);
@@ -172,7 +176,7 @@ test("a Cursor session with a read completed report whose runner cannot be reach
   try {
     await reloadUntilRead(page);
     const listed = storyCardSessions(card);
-    await expect(listed.locator(".session-state")).toHaveText(
+    await expect(sessionStateOf(listed)).toHaveText(
       cursorRunnerSentence("unreachable"),
     );
     const before = cursor.calls().length;
@@ -184,7 +188,7 @@ test("a Cursor session with a read completed report whose runner cannot be reach
     expect(done?.doneAt).toBeDefined();
     expect(cursor.calls()).toHaveLength(before);
     const recent = parts(page).recentlyDone.getByRole("article");
-    await expect(recent.locator(".session-state")).toContainText("Done");
+    await expect(sessionStateOf(recent)).toContainText("Done");
   } finally {
     await release();
   }

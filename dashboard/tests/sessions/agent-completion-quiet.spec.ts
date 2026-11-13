@@ -1,5 +1,5 @@
-import { finalReportText, readReportUntilText } from "../finalReportPages.ts";
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../support/sessionEntryDisclosure.ts";
+import { readFinalReport } from "../finalReportPages.ts";
 import { launchResultSchema } from "../../src/launchOutcome.ts";
 import type { submitCompletion } from "../../server/completionReporting.ts";
 // Real installed closure/retirement, Git, receiver, storage and browser. Native and CI provider transports are synthetic.
@@ -41,10 +41,6 @@ for (const closure of [
     origin,
     codexProtocol: native,
   }) => {
-    // Story Branch Wrap Up runs real retirement, a write-fault retry, and a
-    // duplicate report under the same default timeout as Land; CI workers and
-    // parallel local load push that path over 30s before the final report open.
-    if (closure === "Story Branch Wrap Up") test.setTimeout(60_000);
     if (native === undefined) throw new Error("Missing native fixture");
     const nativeSession = native;
     // The native calls of `methods` made since call `from`.
@@ -172,16 +168,16 @@ for (const closure of [
           .filter({ hasText: native.threadId });
         await expect(recent).toContainText("Done");
         await expect(recent).toContainText("Native session is still working");
+        // The settled start reconciles once the page's snapshot is fully read;
+        // its Startup recovery leaves then, moving the entry under a press.
+        await expect(parts(page).startupRecovery).toHaveCount(0);
         if (closure === "Trunk Wrap Up") {
           await expect(recent).toContainText("Native rename refused.");
           expect(stored(dashboard.home)[0]?.doneProblem).toContain(
             "Native rename refused.",
           );
           await expect(
-            (await sessionActions(recent)).getByRole("button", {
-              name: "Mark as done",
-              exact: true,
-            }),
+            await sessionAction(recent, "Mark as done"),
           ).toBeVisible();
           nativeSession.renameError = undefined;
           const { delivery } = receipt;
@@ -216,18 +212,15 @@ for (const closure of [
         await expect(recent.locator(".session-attention-message")).toHaveCount(
           0,
         );
+        // Quiet completion has no explicit text; the native final report remains independently readable.
         keepFinalReport(nativeSession, workspace, "Done.");
         const beforeRead = native.calls.length;
-        await expect(parts(page).startupRecovery).toHaveCount(0); // Startup recovery leaves after the read; a press before then can lose its release.
-        await readReportUntilText(recent, finalReportText(page), "Done.");
+        const { reportText } = await readFinalReport(recent);
+        await expect(reportText).toHaveText("Done.");
         expect(
-          native.calls
-            .slice(beforeRead)
-            .some(
-              (call) =>
-                call.method === "thread/read" &&
-                call.params["includeTurns"] === true,
-            ),
+          callsSince(beforeRead, "thread/read").some(
+            (call) => call.params["includeTurns"] === true,
+          ),
         ).toBe(true);
         expect(stored(dashboard.home)[0]?.doneAt).toBe(receipt.receivedAt);
         await reloadUntilRead(page);
@@ -242,9 +235,7 @@ for (const closure of [
         });
         expect(stored(dashboard.home)[0]?.landing).toBeDefined();
         expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
-        expect(
-          native.calls.filter((call) => call.method === "thread/name/set"),
-        ).toEqual([]);
+        expect(callsSince(0, "thread/name/set")).toEqual([]);
       },
     );
   });

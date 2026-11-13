@@ -1,5 +1,6 @@
 // Published Done facts and semantic references only: the real range decides
 // what is shown and read. No local sessions or pre-expanded range are supplied.
+import type { Page } from "@playwright/test";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
   queuedSeedWithDependencies,
@@ -9,9 +10,10 @@ import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
 import { placedAt, progressiveEntries } from "./recentlyDoneProgressive.ts";
 import { agreement, consumer } from "./storyDependencyFixture.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
+import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
-export const doneEntries = progressiveEntries(35, []).map((entry) => {
+const doneEntries = progressiveEntries(35, []).map((entry) => {
   if (entry.kind !== "story") throw new Error("Expected only Done stories");
   return entry;
 });
@@ -22,6 +24,7 @@ function entryAt(index: number) {
 }
 export const nearDone = entryAt(2);
 export const farDone = entryAt(26);
+export const laterDone = entryAt(30);
 export const expiredDone = {
   kind: "story" as const,
   place: 31 * 24,
@@ -35,6 +38,12 @@ export const unlisted = {
 };
 export const donePathsThrough = (count: number) =>
   doneEntries.slice(0, count).map(({ path }) => path);
+// Opening Dependencies also asks for the catalogued suppliers beyond the shown range.
+export const donePathsWithSuppliersThrough = (count: number) => [
+  ...new Set([...donePathsThrough(count), farDone.path, expiredDone.path]),
+];
+export const doneTitlesThrough = (count: number) =>
+  doneEntries.slice(0, count).map(({ title }) => title);
 
 // Done records for the retained stories and one completed outside the
 // retained window, placed before `now`; a seed for each referenced story; and
@@ -89,4 +98,19 @@ export function publishDoneReferences(
   options: { omitDestination?: boolean } = {},
 ) {
   return origin.publishRevision(doneReferences(Date.now(), options));
+}
+
+// Publishes the Done references and serves them as Open Dough's committed
+// origin; holds and substitute answers stay with the caller.
+export async function serveDoneReferences(
+  page: Page,
+  origin: StartOrigin,
+  options: { omitDestination?: boolean; follows?: boolean } = {},
+) {
+  return publishCommittedOrigin(page, {
+    repoDir: origin.project,
+    revision: await publishDoneReferences(origin, options),
+    repository: "terryyin/open-dough",
+    follows: options.follows === true,
+  });
 }

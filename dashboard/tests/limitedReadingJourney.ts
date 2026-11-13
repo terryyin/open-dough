@@ -39,6 +39,8 @@ import {
 import { backlogPath, repository } from "./limitedReadingRecords.ts";
 import { publishes, type RepositoryAnswerer } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
+import { projectTab } from "./projectChoice.ts";
+import { expectEarlierSnapshotKept } from "./transientRecoveryPage.ts";
 
 // GitHub's limit, directing a wait no journey waits out.
 export const waitSeconds = 900;
@@ -104,7 +106,9 @@ function boundaryRequestsOf(page: Page): string[] {
   return sent;
 }
 
-// Opens a second tab of the same browser on Doughnut, read whole.
+// Opens Doughnut whole in a second tab, then hides it until the journey
+// explicitly shows it: advancing the shared context clock must not let its
+// periodic check learn the limit before that step.
 async function secondTabOnDoughnut(page: Page): Promise<Page> {
   githubFor(page).serve(
     doughnutRepository,
@@ -117,6 +121,7 @@ async function secondTabOnDoughnut(page: Page): Promise<Page> {
   await other.goto("/?project=doughnut");
   await expectSettledPage(other, doughnutTitles);
   await expect(parts(other).problem).toHaveCount(0);
+  await setPageVisibility(other, "hidden");
   return other;
 }
 
@@ -173,19 +178,11 @@ export async function whileTheLimitStands(
     await expect(problem).toContainText("Automatic checks resume then.");
     await expectSameResumeTime(other, resumesAt, refusedAt);
     await expectSettledPage(other, doughnutTitles);
-    await expect(problem).toContainText(
-      "What is shown is the earlier snapshot, retrieved at",
-    );
-    await expect(problem.locator("time").nth(1)).toHaveAttribute(
-      "datetime",
-      retrieved ?? "",
-    );
+    await expectEarlierSnapshotKept(other, retrieved ?? "");
   });
 
   await test.step("selecting another project asks nothing and shows that nothing has been read, with the same limit and time", async () => {
-    await parts(page)
-      .project.getByRole("radio", { name: "Doughnut", exact: true })
-      .check();
+    await projectTab(page, "Doughnut").check();
     await expectProblemAndNoSnapshot(
       page,
       doughnutWithheld,
