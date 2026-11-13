@@ -107,6 +107,7 @@ for (const viewport of [
     });
     const badges = page.locator(".story-card .badge");
     const originalBadges = await badges.allTextContents();
+    await expectSettledPage(page);
     const reads = origin.requests.length;
     const launcher = parts(page).preparationHelp;
     const direction = parts(page).directionToggle;

@@ -12,7 +12,11 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
-import { parts, standaloneSessionName } from "../dashboardPage.ts";
+import {
+  parts,
+  standaloneSessionName,
+  sessionEntriesIn,
+} from "../dashboardPage.ts";
 import {
   startSessionDialog,
   startSessionField,
@@ -38,6 +42,8 @@ import {
 import { radio } from "../support/sessionDialog.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { openTerminalControl } from "../terminalScreenPage.ts";
+import { readFinalReportControl } from "../finalReportPages.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -85,9 +91,7 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
 
   await test.step("a card holding a session that opens its terminal offers no Follow up", async () => {
     const held = cardOf(page, reopenableStory.title);
-    await expect(
-      held.getByRole("button", { name: "Open terminal" }),
-    ).toBeVisible();
+    await expect(openTerminalControl(held)).toBeVisible();
     await expect(followUp(held, reopenableStory)).toHaveCount(0);
   });
 
@@ -105,15 +109,13 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
     // Both the refinement's and the execution's worktrees were retired.
     for (const workflow of ["Refinement", "Execution"])
       await expect(
-        card
-          .getByRole("article", {
+        readFinalReportControl(
+          card.getByRole("article", {
             name: `${workflow} session for ${recoverStory.title}`,
-          })
-          .getByRole("button", { name: "Read final report" }),
+          }),
+        ),
       ).toBeVisible();
-    await expect(
-      card.getByRole("button", { name: "Open terminal" }),
-    ).toHaveCount(0);
+    await expect(openTerminalControl(card)).toHaveCount(0);
     await followUp(card, recoverStory).click();
     await expect(dialog).toBeVisible();
     await expect(dialog).toContainText(
@@ -150,7 +152,7 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
   });
 
   await test.step("the card stays in Recently done as it was, and its sessions as kept", async () => {
-    await expect(card.locator(".session-entry")).toHaveCount(2);
+    await expect(sessionEntriesIn(card)).toHaveCount(2);
     await expect(followUp(card, recoverStory)).toBeVisible();
     expect(stored(dashboard.home).slice(0, 3)).toEqual([...quiet, reopenable]);
   });

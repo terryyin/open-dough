@@ -14,6 +14,7 @@ import {
   isHeldCatalog,
   openedWithHeldDoneRecord,
 } from "./recentlyDoneReadLatencyFixture.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 test("a slow done-record read never holds back a Taken card's owner, preparation, or clock, and done cards fill in when it answers", async ({
   page,
@@ -46,9 +47,7 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
         recent.getByRole("article", { name: executed.identity }),
       ),
     ).toHaveCount(1);
-    await expect(
-      closed.getByRole("button", { name: "Open terminal" }),
-    ).toBeEnabled();
+    await expect(openTerminalControl(closed)).toBeEnabled();
   });
 
   await test.step("the record's answer shows the done cards, with no read problem", async () => {
@@ -93,9 +92,7 @@ test("a done-record read still unanswered at the wait bound is the Recently done
   const unread = recent.getByRole("article", { name: executed.identity });
   await expect(unread).toContainText("This done story could not be read.");
   await expect(storyCardSessions(unread)).toHaveCount(1);
-  await expect(
-    closed.getByRole("button", { name: "Open terminal" }),
-  ).toBeEnabled();
+  await expect(openTerminalControl(closed)).toBeEnabled();
   await expect(credit(card).line).toContainText(
     "Akiho-chan · Fixture Committer · Claude Code",
   );
@@ -118,9 +115,7 @@ test("a done catalog read still unanswered at the wait bound is the Recently don
   await expect(recent).toContainText(
     "Done stories could not be read. GitHub did not answer within 30 seconds while reading the done catalog.",
   );
-  await expect(
-    closed.getByRole("button", { name: "Open terminal" }),
-  ).toBeEnabled();
+  await expect(openTerminalControl(closed)).toBeEnabled();
   await expect(credit(card).line).toContainText(
     "Akiho-chan · Fixture Committer · Claude Code",
   );

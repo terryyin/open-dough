@@ -6,6 +6,7 @@ import { storyCardSessions, parts } from "./dashboardPage.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import type { CodexSession } from "../src/agentLaunch.ts";
 import { sessionDetails } from "./support/sessionEntryDisclosure.ts";
+import { openTerminalControl } from "./terminalScreenPage.ts";
 
 export async function expectMixedContinuation(
   page: Page,
@@ -40,7 +41,5 @@ export async function expectMixedContinuation(
   await expect(claude.locator("p", { hasText: /^Continue in / })).toHaveCount(
     0,
   );
-  await expect(
-    claude.getByRole("button", { name: "Open terminal" }),
-  ).toBeVisible();
+  await expect(openTerminalControl(claude)).toBeVisible();
 }

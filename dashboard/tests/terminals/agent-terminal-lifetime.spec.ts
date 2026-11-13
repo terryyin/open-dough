@@ -95,7 +95,7 @@ test.describe("the terminal's lifetime", () => {
 
     await launch(notRefinedStory, "Execution");
     const listed = storyCardSessions(card(notRefinedStory));
-    await openTerminalControl(listed, { exact: false }).click();
+    await openTerminalControl(listed).click();
     await expect(rows).toContainText("attached ");
     const [attach] = dashboard.claudeAttaches();
     const shortId = attach?.id ?? "";

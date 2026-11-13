@@ -1,4 +1,4 @@
-import { readFinalReportControl } from "../finalReportPages.ts";
+import { readFinalReport } from "../finalReportPages.ts";
 import type { submitCompletion } from "../../server/completionReporting.ts";
 import { launchStoreFile } from "../support/launchStore.ts";
 // Real preview/launch/installed report child/store/polling/rendering. Only native transport is fake.
@@ -11,7 +11,11 @@ import { machineSessions } from "../agentLaunchBoundary.ts";
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
+import {
+  parts,
+  sessionStateOf,
+  sessionUnreadReportOf,
+} from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { expectInstalledReportingScript } from "../support/reportingInputAssertions.ts";
 import { keepFinalReport } from "../support/retainedReport.ts";
@@ -129,8 +133,8 @@ test("installed attention report stays open, durable and readable through column
   await expect(queued.locator(".session-attention-message script")).toHaveCount(
     0,
   );
-  await expect(queued.locator(".session-state")).toHaveText("Working");
-  await expect(queued.locator(".session-unread-report")).toHaveText(
+  await expect(sessionStateOf(queued)).toHaveText("Working");
+  await expect(sessionUnreadReportOf(queued)).toHaveText(
     "Unread report: Completed with attention",
   );
   await expect(
@@ -171,9 +175,8 @@ test("installed attention report stays open, durable and readable through column
     );
     keepFinalReport(native, workspace, nativeReport);
     // The final report is Codex's own; the message stays on the entry.
-    await readFinalReportControl(claimed, { exact: false }).click();
-    const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".final-report-text")).toHaveText(nativeReport);
+    const { panel, reportText } = await readFinalReport(claimed);
+    await expect(reportText).toHaveText(nativeReport);
     await expect(panel).not.toContainText("Reminder: inspect the migration");
     await expect(
       panel.getByRole("button", { name: "Mark as read" }),
@@ -205,15 +208,15 @@ test("installed attention report stays open, durable and readable through column
     const recent = parts(page)
       .recentlyDone.getByRole("article")
       .filter({ hasText: native.threadId });
-    await expect(recent.locator(".session-state")).toHaveText("Done");
+    await expect(sessionStateOf(recent)).toHaveText("Done");
     await expect(recent).toContainText(`Named ${doneName}`);
     // Done, the message is collapsed under its label until expanded.
     const heading = recent.getByRole("button", { name: "Unfinished work" });
     await expect(heading).toHaveAttribute("aria-expanded", "false");
     await heading.click();
     await expect(messagePartOf(recent).text).toHaveText(text);
-    await readFinalReportControl(recent, { exact: false }).click();
-    await expect(panel.locator(".final-report-text")).toHaveText(nativeReport);
+    await readFinalReport(recent);
+    await expect(reportText).toHaveText(nativeReport);
     expect(
       nativeSince(nativeBeforeDone, [...steering, "thread/resume"]),
     ).toEqual([

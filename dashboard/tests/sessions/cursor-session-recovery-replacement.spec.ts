@@ -4,7 +4,7 @@
 import { cursorCannotLoadChat } from "../../src/cursorCannotLoad.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { expectNormalizedReading } from "../support/cursorSessionReading.ts";
 import {
   endHeldClient,
@@ -36,7 +36,7 @@ test("cannot-load resume replaces the chat on the same launch", async ({
     .calls()
     .filter((call) => call.args.includes("create-chat")).length;
   await page.reload();
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
   const recoverResponse = page.waitForResponse((response) =>
     response.url().includes("/__agent-launch/recover"),
   );

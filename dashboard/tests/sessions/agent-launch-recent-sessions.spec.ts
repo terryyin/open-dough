@@ -39,6 +39,7 @@ import {
   idleBetweenSteps,
   markDoneAnyway,
 } from "../support/markDone.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 test.use({
   projectFolders: ["open-dough", "doughnut"],
@@ -100,9 +101,7 @@ test.describe("retained launches in their current column homes", () => {
         await expect(entry).toContainText(
           `Session ${sessionIds[index] ?? "?"}`,
         );
-        await expect(
-          entry.getByRole("button", { name: "Open terminal" }),
-        ).toBeVisible();
+        await expect(openTerminalControl(entry)).toBeVisible();
       }
     };
     const queued = [takenStory, readyStory, notRefinedStory];

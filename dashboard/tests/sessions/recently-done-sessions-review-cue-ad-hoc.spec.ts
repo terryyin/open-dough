@@ -18,11 +18,10 @@ import {
   unreviewStory,
 } from "../recentlyDoneReviewState.ts";
 import {
-  recentlyDoneParts,
   expectSessionReviewCue,
+  showRecentlyDone,
 } from "../recentlyDoneSessionsSidebarPage.ts";
 import {
-  openSessionsSidebar,
   sessionsSidebarParts,
   unreadSessionReport,
 } from "../sessionsSidebarPage.ts";
@@ -91,16 +90,14 @@ test("confirmed Ad hoc and repeated story sessions share review changes while un
   });
   await page.setViewportSize({ width: 1600, height: 900 });
   await openRecentlyDone(page);
-  await openSessionsSidebar(page);
-  const shown = recentlyDoneParts(page);
-  await shown.header.click();
+  const shown = await showRecentlyDone(page);
   const a = doneCard(page, linked.title);
   await expectReviewed(a, false);
   for (const name of [title, secondTitle]) {
     await expectSessionReviewCue(shown.row(name), true);
-    await expect(shown.entry(name)).toHaveAttribute("aria-pressed", "false");
+    await expect(shown.select(name)).toHaveAttribute("aria-pressed", "false");
   }
-  await expect(shown.entry(title)).toHaveAttribute(
+  await expect(shown.select(title)).toHaveAttribute(
     "title",
     /Open Dough · Ad hoc/,
   );
@@ -109,7 +106,7 @@ test("confirmed Ad hoc and repeated story sessions share review changes while un
   );
   expect(dashboard.claudeAttaches()).toEqual([]);
 
-  await shown.entry(secondTitle).click();
+  await shown.select(secondTitle).click();
   await expect(shown.row(secondTitle)).toHaveClass(/\bchosen\b/);
   await expectSessionReviewCue(shown.row(secondTitle), true);
   // Mark as done acknowledges a session's report (COMPLETION.md). Actual
@@ -164,8 +161,8 @@ test("confirmed Ad hoc and repeated story sessions share review changes while un
     await expectReadableContrast(shown.reviewCue(title));
     await shown.header.focus();
     await page.keyboard.press("Tab");
-    await expect(shown.entry(title)).toBeFocused();
-    await expectFocusReadable(page, shown.entry(title));
+    await expect(shown.select(title)).toBeFocused();
+    await expectFocusReadable(page, shown.select(title));
     await page.keyboard.press("Tab");
     await expect(shown.open(title)).toBeFocused();
     await expectFocusReadable(page, shown.open(title));

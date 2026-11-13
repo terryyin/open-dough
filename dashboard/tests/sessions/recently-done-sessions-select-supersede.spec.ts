@@ -6,7 +6,7 @@
 // in ./recently-done-sessions-select-check.spec.ts.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
+import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { chooseProject, expectProjectChoice } from "../projectChoice.ts";
 import {
@@ -34,7 +34,7 @@ async function goElsewhereWhileChecking<T>(
   const held = await holdPygardonCatalog(page);
   const abandoned = pygardonCatalogAbandoned(page);
   try {
-    await shown.entry(linked.title).click();
+    await shown.select(linked.title).click();
     await held.asked;
     const went = await goElsewhere();
     await abandoned;
@@ -48,6 +48,8 @@ test("choosing another project while a linked row is still checked abandons the 
   page,
   dashboard,
 }) => {
+  // The shown rows' recurring catalog read waits for page time.
+  await pausePageClockAt(page, new Date());
   const { shown, row } = await openSelectionPage(page, dashboard);
   const { intentChoice, intent } = parts(page);
   await intentChoice.click();
@@ -60,7 +62,7 @@ test("choosing another project while a linked row is still checked abandons the 
   await expectProjectChoice(page, "Doughnut");
   await expect(intentChoice).toBeChecked();
   await expect(intent).not.toHaveAttribute("data-selected-story");
-  await expect(shown.entry(linked.title)).toHaveAttribute(
+  await expect(shown.select(linked.title)).toHaveAttribute(
     "aria-pressed",
     "false",
   );
@@ -71,18 +73,20 @@ test("another row's Open while a linked row is still checked abandons the check,
   page,
   dashboard,
 }) => {
+  // The shown rows' recurring catalog read waits for page time.
+  await pausePageClockAt(page, new Date());
   const { shown, row } = await openSelectionPage(page, dashboard);
   const { development, intentChoice, intent } = parts(page);
   await expect(development).toBeChecked();
 
-  const panel = await goElsewhereWhileChecking(page, shown, () =>
+  const opened = await goElsewhereWhileChecking(page, shown, () =>
     showReport(page, shown),
   );
 
   await expectProjectChoice(page, "Open Dough");
   await expect(development).toBeChecked();
-  await expect(panel.locator(".final-report-text")).toHaveText(report.message);
-  await expect(shown.entry(linked.title)).toHaveAttribute(
+  await expect(opened.reportText).toHaveText(report.message);
+  await expect(shown.select(linked.title)).toHaveAttribute(
     "aria-pressed",
     "false",
   );

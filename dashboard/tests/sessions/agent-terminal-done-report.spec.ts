@@ -11,9 +11,17 @@
 import type { Page } from "@playwright/test";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
-import { storyCardSessions, parts, sessionStateOf } from "../dashboardPage.ts";
+import {
+  storyCardSessions,
+  parts,
+  sessionStateOf,
+  sessionUnreadReportOf,
+} from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  sessionsSidebarParts,
+  unreadSessionReport,
+} from "../sessionsSidebarPage.ts";
 import {
   openTerminalControl,
   terminalPanel,
@@ -59,11 +67,11 @@ test("Mark as done in the terminal closes a session with an unread report as any
   const row = sessionsSidebarParts(page)
     .sidebar.getByRole("listitem")
     .filter({ hasText: titleA });
-  await expect(card.locator(".session-unread-report")).toHaveText(unreadWords);
-  await expect(row.getByRole("img", { name: unreadWords })).toBeVisible();
+  await expect(sessionUnreadReportOf(card)).toHaveText(unreadWords);
+  await expect(unreadSessionReport(row, unreadWords)).toBeVisible();
   const doneName = doneNameOf(dashboard, sessionId);
   const shortId = shortIdOf(dashboard, sessionId);
-  await openTerminalControl(card, { exact: false }).click();
+  await openTerminalControl(card).click();
   const terminal = terminalPanel(page);
   await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   const stopsBefore = dashboard.claudeStopCalls().length;
@@ -72,13 +80,13 @@ test("Mark as done in the terminal closes a session with an unread report as any
   await markDoneAnyway(terminal);
 
   await expect(terminal).toHaveCount(0);
-  await expect(card.locator(".session-state")).toHaveCount(0);
+  await expect(sessionStateOf(card)).toHaveCount(0);
   await expect(row).toHaveCount(0);
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: titleA });
-  await expect(recent.locator(".session-state")).toHaveText("Done");
-  await expect(recent.locator(".session-unread-report")).toHaveCount(0);
+  await expect(sessionStateOf(recent)).toHaveText("Done");
+  await expect(sessionUnreadReportOf(recent)).toHaveCount(0);
   await expect(recent).toContainText(`Named ${doneName}`);
   expect(
     dashboard
@@ -106,7 +114,7 @@ test("in the terminal, a session with a read completed report that reads Ready f
   await expect(sessionStateOf(entry)).toHaveText("Ready for review");
   const shortId = shortIdOf(dashboard, story.sessionId);
   const before = dashboard.claudeStopCalls().length;
-  await openTerminalControl(entry, { exact: false }).click();
+  await openTerminalControl(entry).click();
   const panel = terminalPanel(page);
   await expect(terminalScreenParts(panel).rows).toContainText("attached");
 

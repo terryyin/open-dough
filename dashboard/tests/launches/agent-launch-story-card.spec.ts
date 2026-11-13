@@ -25,6 +25,7 @@ import {
   notRefinedStory,
   readyStory,
 } from "../launchJourney.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -170,9 +171,7 @@ test("starting sends the instruction after the execution command in the Open Dou
   expect(launchedAt).toBeLessThanOrEqual(Date.now());
 
   await expect(entry).toContainText(/Session [0-9a-f]{8}-/);
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toBeVisible();
+  await expect(openTerminalControl(entry)).toBeVisible();
 
   expect(dashboard.claudeLaunchCalls()).toEqual(
     launched(

@@ -22,7 +22,10 @@ import {
 } from "../support/completedPublishedStory.ts";
 import { publishCompletedStory } from "../support/completedStoryPublication.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import {
   chooseStoryTab,
   intentFile,
@@ -144,7 +147,7 @@ test("a newly selected Done story shows only its own historical source after hel
   await openSessionsSidebar(page);
   const sessions = recentlyDoneParts(page);
   await sessions.header.click();
-  await sessions.entry(storyB.title).click();
+  await sessions.select(storyB.title).click();
   await expect(intent).toHaveAttribute("data-selected-story", storyB.identity);
   await expect(storyTitle(intent)).toHaveText(storyB.title);
   await expect.poll(() => comparisonHeld).toBeGreaterThan(0);

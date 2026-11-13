@@ -28,6 +28,7 @@ import {
 import { runnerEnvironment } from "../support/cursorRunnerJourney.ts";
 import { fakeCursorHost } from "../support/fakeCursor.ts";
 import { expectDeveloperShellEnvironment } from "../support/launchEnvironment.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 
@@ -81,9 +82,7 @@ for (const text of ["", "why is the CI slow?"]) {
     );
     await expect(recent.getByRole("heading")).toHaveText(title);
     await expect(recent).toContainText(cursor.sessionId);
-    await expect(
-      recent.getByRole("button", { name: "Open terminal" }),
-    ).toHaveCount(1);
+    await expect(openTerminalControl(recent)).toHaveCount(1);
     if (blank) {
       await expect(recent).toContainText("Opened without an instruction");
       await expect(recent).toContainText("Conversation created in Cursor");

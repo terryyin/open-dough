@@ -15,10 +15,14 @@ import {
   sessionsRevisionHeader,
 } from "../../src/machineSessionsRevision.ts";
 import { parts } from "../dashboardPage.ts";
+import { sessionDetailsControl } from "../support/sessionEntryDisclosure.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import { givePageItsTurns } from "../pageRequestNotes.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
+import {
+  recentlyDoneParts,
+  showRecentlyDone,
+} from "../recentlyDoneSessionsSidebarPage.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
 import { showPage } from "../runningCursorSessionsPage.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
@@ -98,7 +102,7 @@ test("one history read per opening, none while nothing retained is opened, and a
     [first],
   );
   const entry = onBoard("First retained session");
-  const details = entry.getByRole("button", { name: "Session details" });
+  const details = sessionDetailsControl(entry);
   const sidebar = recentlyDoneParts(page);
 
   await test.step("polls while nothing retained is opened ask no history", async () => {
@@ -109,8 +113,7 @@ test("one history read per opening, none while nothing retained is opened, and a
   });
 
   await test.step("expanding Recently done sessions reads it once, gzip-encoded", async () => {
-    await sidebar.button.click();
-    await sidebar.header.click();
+    await showRecentlyDone(page);
     await expect(sidebar.entries).toHaveCount(1);
     await expect.poll(() => asked).toEqual([undefined]);
     await expect.poll(() => codings).toEqual(["gzip"]);
@@ -162,7 +165,7 @@ test("a failed history read leaves retained sessions as shown and the next openi
     record,
   ]);
   const entry = onBoard("Retained through a failure");
-  const details = entry.getByRole("button", { name: "Session details" });
+  const details = sessionDetailsControl(entry);
   const summary = entry.locator(".session-entry-summary");
   await expect(summary).toBeVisible();
   const shown = await summary.textContent();

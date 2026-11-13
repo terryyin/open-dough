@@ -35,6 +35,7 @@ import {
   type DashboardServer,
 } from "../support/dashboardServer.ts";
 import { changeLaunchStore } from "../support/launchStore.ts";
+import { markAsDone } from "../support/markDone.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
@@ -80,12 +81,10 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   const panel = terminalPanel(page);
   const { screen } = terminalScreenParts(panel);
   codexTerminalMode(native, "review");
-  await openTerminalControl(recent, { exact: false }).click();
+  await openTerminalControl(recent).click();
   await expectTerminalText(panel, "Hooks need review");
   expect(stored(dashboard.home)[0]?.doneAt).toBeDefined();
-  await expect(panel.getByRole("button", { name: "Mark as done" })).toHaveCount(
-    1,
-  );
+  await expect(markAsDone(panel)).toHaveCount(1);
   await screen.click();
   await pressTerminalKey(page, "Escape");
   await expectTerminalText(panel, "GPT-6.1-Sol default");
@@ -113,18 +112,14 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
     .poll(() => codexEnded(native, codexAttaches(native)[0]?.pid ?? 0))
     .toBe("SIGHUP");
   codexTerminalMode(native, "ready");
-  await openTerminalControl(storyCardSessions(card(notRefinedStory)), {
-    exact: false,
-  }).click();
+  await openTerminalControl(storyCardSessions(card(notRefinedStory))).click();
   await expectTerminalText(panel, "original retained history");
   await page.reload();
   await expect(panel).toHaveCount(0);
   await expect
     .poll(() => codexEnded(native, codexAttaches(native)[1]?.pid ?? 0))
     .toBe("SIGHUP");
-  await openTerminalControl(storyCardSessions(card(notRefinedStory)), {
-    exact: false,
-  }).click();
+  await openTerminalControl(storyCardSessions(card(notRefinedStory))).click();
   await expectTerminalText(panel, "original retained history");
   const port = Number(new URL(dashboard.baseURL).port);
   let restarted: DashboardServer | undefined;
@@ -195,7 +190,6 @@ test("a native startup title/composer and an incomplete repaint cannot clear don
     parts(page)
       .recentlyDone.getByRole("article")
       .filter({ hasText: native.threadId }),
-    { exact: false },
   ).click();
   const panel = terminalPanel(page);
   await expectTerminalText(panel, "retained startup draft");

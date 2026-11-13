@@ -48,7 +48,7 @@ test("pending local review evidence stays unknown and its pre-save answer cannot
   const { shown, row } = await openSelectionPage(page, dashboard);
   await received;
   await expectSessionReviewCue(row(linked.title), false);
-  await expect(shown.entry(linked.title)).toBeEnabled();
+  await expect(shown.select(linked.title)).toBeEnabled();
   const answered = page.waitForResponse((response) =>
     matches(new URL(response.url())),
   );
@@ -152,7 +152,7 @@ for (const replacement of ["project", "association"] as const) {
     release();
     await givePageItsTurns(page);
     await expectSessionReviewCue(shown.row(title), false);
-    await expect(shown.entry(title)).toHaveAttribute(
+    await expect(shown.select(title)).toHaveAttribute(
       "title",
       replacement === "project" ? /Pygardon · Ad hoc/ : /Doughnut · Ad hoc/,
     );

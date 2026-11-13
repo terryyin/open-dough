@@ -76,9 +76,7 @@ workingCursorTest(
     await expectNormalizedReading(entry, "Working", false);
     const client = cursor.attaches()[0];
     expect(client).toBeDefined();
-    await expect(
-      panel.locator("header").getByRole("button", { name: "Mark as done" }),
-    ).toHaveCount(1);
+    await expect(markAsDone(panel.locator("header"))).toHaveCount(1);
     const signalsBefore = cursor.signals(client?.pid ?? 0);
     const callsBefore = cursor.calls().length;
 

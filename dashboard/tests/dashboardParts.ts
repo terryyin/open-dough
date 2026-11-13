@@ -98,9 +98,34 @@ export const storyCardSessionOf = (card: Locator, workflow: string) =>
     }),
   );
 
+// What a card says of its sessions' unread reports, when any are unread.
+export const storyCardUnreadReportsOf = (card: Locator) =>
+  card.locator(".story-card-unread-reports");
+
+// Every session entry within a scope: a column, a card, or Recently done.
+export const sessionEntriesIn = (scope: Locator) =>
+  scope.locator(".session-entry");
+
+// The entry within a scope that shows the session this key names
+// (`claude:<native id>`); the Board shows each session once.
+export const sessionEntryShowing = (scope: Locator, key: string) =>
+  scope.locator(`[data-shows-session="${key}"]`);
+
 // The state words a session entry shows, on a card or in Recently done.
 export const sessionStateOf = (entry: Locator) =>
   entry.locator(".session-state");
+
+// The unread-report words a session entry shows beside its state.
+export const sessionUnreadReportOf = (entry: Locator) =>
+  entry.locator(".session-unread-report");
+
+// The problem an entry says its last action, such as Recover, came to.
+export const sessionProblemOf = (entry: Locator) =>
+  entry.locator(".launch-problem");
+
+// The line naming an entry's session, shown once Session details is open.
+export const sessionIdLineOf = (entry: Locator, sessionId: string) =>
+  entry.getByText(`Session ${sessionId}`, { exact: true });
 
 // The session id a session entry names, on a card or in Recently done.
 export async function sessionNamedBy(record: Locator): Promise<string> {

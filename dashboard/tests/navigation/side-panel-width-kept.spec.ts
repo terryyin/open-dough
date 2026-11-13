@@ -40,9 +40,7 @@ const storyA = (page: Page) =>
   parts(page).backlog.getByRole("article", { name: "Story A" });
 
 async function openTerminal(page: Page) {
-  await openTerminalControl(storyCardSessions(storyA(page)), {
-    exact: false,
-  }).click();
+  await openTerminalControl(storyCardSessions(storyA(page))).click();
   const terminal = terminalPanel(page);
   await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   return terminal;

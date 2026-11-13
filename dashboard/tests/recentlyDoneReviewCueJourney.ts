@@ -15,8 +15,7 @@ import {
 } from "./recentlyDoneSelectionJourney.ts";
 import { keepMoreLaunchRecords } from "./support/launchStore.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import { openSessionsSidebar } from "./sessionsSidebarPage.ts";
-import { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
+import { showRecentlyDone } from "./recentlyDoneSessionsSidebarPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { storyReviewStateEndpoint } from "../src/storyReviewState.ts";
 import { showColumn } from "./boardPage.ts";
@@ -97,8 +96,5 @@ export async function keepReviewCueProjects(
 export async function showReviewCueSessions(page: Page) {
   await openUntilRead(page);
   await showColumn(page, "Recently done");
-  await openSessionsSidebar(page);
-  const shown = recentlyDoneParts(page);
-  await shown.header.click();
-  return shown;
+  return showRecentlyDone(page);
 }

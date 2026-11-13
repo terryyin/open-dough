@@ -54,7 +54,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
   const sidebar = sessionsSidebarParts(page);
   const projectUrl = () => page.url();
 
-  await openTerminalControl(storyCardSessions(card), { exact: false }).click();
+  await openTerminalControl(storyCardSessions(card)).click();
   await expect(rows).toContainText(`attached ${session.slice(0, 8)}`);
   await typeLine(page, "keep this line");
   await expect(rows).toContainText("echo keep this line");
@@ -223,9 +223,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
   await test.step("closing and reopening the terminal uses the chosen width, attached anew", async () => {
     await closeSidePanel(review, { using: "pointer" });
     await expect(review).toHaveCount(0);
-    await openTerminalControl(storyCardSessions(card), {
-      exact: false,
-    }).click();
+    await openTerminalControl(storyCardSessions(card)).click();
     await expect(rows).toContainText(`attached ${session.slice(0, 8)}`);
     await expectWidth(terminal, kept);
     await expectDividerSays(page, kept);

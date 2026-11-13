@@ -7,7 +7,7 @@ import {
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
 
@@ -59,7 +59,7 @@ for (const blank of [true, false]) {
       keepLaunchStore(dashboard, { "open-dough": [saved] });
     }
     await reloadUntilRead(page);
-    const recent = parts(page).taken.locator(".session-entry");
+    const recent = sessionEntriesIn(parts(page).taken);
     await expect(recent).toContainText(
       blank
         ? "Blank conversation persistence unconfirmed"

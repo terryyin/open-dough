@@ -8,11 +8,15 @@
 // `keepLaunchStoreText`. The file and its location are harness, never facts
 // a record's builder states.
 
-import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { CreationRecord } from "../../src/launchCreation.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
+import {
+  changeMachineDocument,
+  heldMachineDocument,
+} from "./machineDocument.ts";
 
 // A machine's home directory, or a dashboard server running on it.
 export type MachineHome = string | Pick<DashboardServer, "home">;
@@ -49,21 +53,10 @@ export function keptLaunchRecords(
 
 // Writes exactly `text` as the store, for cases whose store text is under
 // test.
-export function keepLaunchStoreText(
-  home: MachineHome,
-  text: string,
-  { atomically = false }: { readonly atomically?: boolean } = {},
-): void {
+export function keepLaunchStoreText(home: MachineHome, text: string): void {
   const file = launchStoreFile(home);
   mkdirSync(path.dirname(file), { recursive: true });
-  if (!atomically) {
-    writeFileSync(file, text);
-    return;
-  }
-  // A running dashboard can read the store while it changes.
-  const temporary = `${file}.fixture.tmp`;
-  writeFileSync(temporary, text);
-  renameSync(temporary, file);
+  writeFileSync(file, text);
 }
 
 // Keeps these records, by project, as the whole store, and answers the
@@ -71,10 +64,9 @@ export function keepLaunchStoreText(
 export function keepLaunchStore(
   home: MachineHome,
   byProject: Readonly<Record<string, readonly KeptLaunch[]>>,
-  options: { readonly atomically?: boolean } = {},
 ): string {
   const text = JSON.stringify(byProject);
-  keepLaunchStoreText(home, text, options);
+  keepLaunchStoreText(home, text);
   return text;
 }
 
@@ -86,13 +78,23 @@ export function changeLaunchStore(
     kept: LaunchStoreDocument,
   ) => Readonly<Record<string, readonly KeptLaunch[]>>,
 ): void {
-  let kept: LaunchStoreDocument = {};
-  try {
-    kept = keptLaunchStore(home);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-  }
-  keepLaunchStore(home, change(kept));
+  keepLaunchStore(
+    home,
+    change(
+      (heldMachineDocument(launchStoreFile(home)) as
+        LaunchStoreDocument | undefined) ?? {},
+    ),
+  );
+}
+
+// The document `kept` with `records` appended to the project `source`'s,
+// leaving every other project's as kept.
+function withMoreRecords(
+  kept: LaunchStoreDocument,
+  records: readonly KeptLaunch[],
+  source: string,
+): LaunchStoreDocument {
+  return { ...kept, [source]: [...(kept[source] ?? []), ...records] };
 }
 
 // Appends `records` to the project `source`'s records already kept in the
@@ -102,10 +104,25 @@ export function keepMoreLaunchRecords(
   records: readonly KeptLaunch[],
   source = "open-dough",
 ): void {
-  changeLaunchStore(home, (kept) => ({
-    ...kept,
-    [source]: [...(kept[source] ?? []), ...records],
-  }));
+  changeLaunchStore(home, (kept) => withMoreRecords(kept, records, source));
+}
+
+// Appends `records` as `keepMoreLaunchRecords` does, while a running
+// dashboard server may be rewriting the store: read and replaced under that
+// server's write lock (./machineDocument.ts), so neither write undoes the
+// other.
+export function keepMoreLaunchRecordsBesideServer(
+  home: MachineHome,
+  records: readonly KeptLaunch[],
+  source = "open-dough",
+): Promise<void> {
+  return changeMachineDocument(launchStoreFile(home), (held) =>
+    withMoreRecords(
+      (held as LaunchStoreDocument | undefined) ?? {},
+      records,
+      source,
+    ),
+  );
 }
 
 // The kept launch records of the project `source`, written into the machine

@@ -5,7 +5,7 @@
 // compared in partArrangement.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { closeSidePanel as closePanelFrame } from "./sidePanelFrame.ts";
+import { closeSidePanel } from "./sidePanelFrame.ts";
 import { untilPublishedWorkRead } from "./pageRequestNotes.ts";
 
 export {
@@ -210,10 +210,12 @@ export async function pageColumnProjectValue(
   });
 }
 
-// Covering aria-hides preparation text. Board readers wait for it in the
-// restored tree; callers proving held Close causality use the frame action.
-export async function closeSidePanel(panel: Locator) {
-  await closePanelFrame(panel);
+// Closes the Side panel and waits until the Board reads again: the panel is
+// gone and, since covering aria-hides preparation text, that reading has left
+// the restored tree. Callers proving held Close causality press the frame's
+// closeSidePanel instead.
+export async function closeSidePanelToBoard(panel: Locator) {
+  await closeSidePanel(panel);
   await expect(panel).toHaveCount(0);
   await expect(panel.page().getByText("Reading preparation…")).toHaveCount(0);
 }

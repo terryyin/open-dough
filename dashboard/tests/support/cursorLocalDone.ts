@@ -1,7 +1,7 @@
 // Marking a Cursor session done locally, through the ask-first question
 // whose wording claims only a dashboard acknowledgement, never a stop.
 import { expect, type Locator, type Page } from "@playwright/test";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { expectQuestion, markAsDone, markDone } from "./markDone.ts";
 import { sessionActions } from "./sessionEntryDisclosure.ts";
 
@@ -20,7 +20,7 @@ async function answerLocalDone(
   await expect(surface).not.toContainText("Marking it done asks it to stop.");
   const question = await expectQuestion(surface, localWorkingStatement);
   await markDone(question);
-  const recent = parts(page).recentlyDone.locator(".session-entry");
+  const recent = sessionEntriesIn(parts(page).recentlyDone);
   await expect(recent).toHaveCount(1);
   return recent;
 }

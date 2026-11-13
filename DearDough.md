@@ -7,8 +7,8 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 511. Removed numbers are never reused.
-- Recovery: `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the exact log before the latest retention (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
+- Highest allocated local number: 512. Removed numbers are never reused.
+- Recovery: `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -558,14 +558,13 @@ A Take-ready plan headed its only slice under `## Slice`. The obligations / plan
   - Evidence: Take base `19e0e454a` PLAN.md has `## Ordered slices and proof ownership`; `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice`; published `19442de20` has `## Ordered slices`. Plans 589 and 590 at that base carry the same longer heading (`589-…/PLAN.md:92`, `590-…/PLAN.md:87`). The seed's recorded assessment was `ready`.
   - Observed effect: one refusal and a one-line plan edit before slice 1 delegation.
   - Inference: same reader contract as the singular-heading occurrence, reached through a descriptive suffix instead; matching rests on that shared contract.
-- Execution: SEED-318#remove-unused-taken-comparison-navigation (plan 596; first implementation `d368840eedcab86a7090228751d27afaa4789bcb`)
-  - Timestamp: unknown (2026-11-12, before the first implementation delegation, about 09:37 +08:00)
+- Execution: SEED-300#express-session-test-intent-through-page-objects (plan 585; claim `2467be8a5`; first implementation `70c34e8c5`)
+  - Timestamp: 2026-11-12T17:33:00+08:00
   - Tool: Claude Code
-  - Model: claude-fable-5-2
-  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` in the execution checkout at Take `d9320ac4e`)
-  - Evidence: Take `d9320ac4e` PLAN.md has `## Ordered slice` for its single slice; `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice`; published `d368840ee` has `## Ordered slices`. The seed's recorded assessment was `ready`.
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.97 (installed `.claude/skills/dough-update/VERSION` at Take `2467be8a5`)
+  - Evidence: Take `2467be8a5` PLAN.md headed its slices `## Outside-in proof ownership and ordered slices`; `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice`; published `70c34e8c5` has `## Ordered slices`.
   - Observed effect: one refusal and a one-line plan edit before slice 1 delegation.
-  - Inference: third near-miss form of the same heading; a one-slice plan invites the singular, and readiness still does not run the reader execution uses.
 
 ## DD-488 — Guarded slice delivery rejects its retained Markdown hard break
 
@@ -623,20 +622,6 @@ integration. The installed mode guard agrees with the specific branch procedure.
   - Observed effect: The coordinator compared the contradictory paths and retained the explicit established Story Branch sequence: published closure tip, then history-preserving integration. No mode change or wrong-target publication was made at this review boundary.
   - Inference: Same guidance-consistency issue, not new publication authority; align the generic opening with its mode-specific owner. No guidance edit is authorized by this review.
 
-
-## DD-490 — Linking further commitments to an obligation leaves its Commitment field naming only the first
-
-`story-obligations.mjs record --commitment <id> --obligation <entry>` with entry fields writes the entry and its `Commitment:` line for that one id. Later `record --commitment <other> --obligation <entry>` calls set the review rows but leave the entry's `Commitment:` line unchanged, so the next `list` refuses `mismatched-commitment` until the line is edited by hand.
-
-### Occurrences
-
-- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
-  - Timestamp: unknown (2026-11-11, before the first implementation delegation, about 20:30+08:00)
-  - Tool: Claude Code
-  - Model: claude-fable-5-2
-  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION` at accepted Take `19e0e454a`)
-  - Evidence: five `record` calls linked S1.7, S1.8, S1.9, X5.2 and X5.9 to O1, each returning `ok: true`; the plan then read `Commitment: S1.7` and `list --slice 1` returned four `mismatched-commitment` problems naming the other rows. The coordinator rewrote the line to list all five.
-  - Observed effect: one refusal and one hand edit of the plan, the kind of edit the `record` operation exists to avoid.
 
 ## DD-491 — A proof limitation accepted at slice acceptance returned as a queued correction after Intent Coverage
 
@@ -998,3 +983,18 @@ The coordinator offered `--disable-smooth-scrolling` to the developer as "Key sc
   - Evidence: coordinator stop message `/Users/terryyin/.claude/jobs/7c2dd325/tmp/stop-message-2.md` (option 1 text); slice 9 agent probes `slice9b-instant*.log` and `slice9b-programmatic-*.log` in that directory; plan 584 slice 9 decision paragraphs; `story-reference-scroll-completion.spec.ts` failed 3/3 with the flag and passed 3/3 without it.
   - Observed effect: the developer approved an option whose stated scope was wrong; two extra human decisions followed; no wrong change landed, because the agent stopped before proof and publication.
   - Inference: the diagnosis measured the flag only on key scrolling. The coordinator turned that measurement into the option's scope without checking what else the setting changes.
+
+## DD-512 — Sibling stories of one family built parallel owners for the same test controls while running concurrently
+
+Three SEED-300 stories (review, Terminal, Board) landed on trunk while this story ran on its branch, and each built its own owner for shared session and report controls. Source freshness compares only the story and plan records, and the plan named no sibling for coordination, so the overlap surfaced only in the retrospective's whole-product review.
+
+### Occurrences
+
+- Execution: SEED-300#express-session-test-intent-through-page-objects (plan 585; claim `2467be8a5`; first implementation `70c34e8c5`)
+  - Timestamp: unknown (2026-11-13, retrospective outcome review before the first trunk merge)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.97 (installed `.claude/skills/dough-update/VERSION` at Take `2467be8a5`)
+  - Evidence: trunk `67bb91d54` added `sessionEntryAccess.ts` and `2137dfd0d` `terminalScreenPage.ts` while the branch built `openTerminalOf`/`readFinalReportOf` in `dashboardParts.ts`; merging `68bdc4f10` conflicted in 77 files and the Board landing `4f7214879` in 13; `source-freshness.mjs check` returned `unchanged` at every slice; plan 585 recorded shared code as "no blocking story dependency".
+  - Observed effect: a developer decision, two added reconciliation slices (7, 8) with a full dashboard run, and three CI repairs for trunk-introduced test races that the merged revision exposed.
+  - Inference: when a family is split into concurrently runnable stories over shared test owners, owner allocation at split time or named-sibling coordination in each plan would surface the overlap per slice; record freshness alone does not.

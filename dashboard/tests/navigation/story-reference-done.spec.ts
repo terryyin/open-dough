@@ -1,6 +1,6 @@
 import { expect, githubFor } from "../dashboardTest.ts";
 import { test } from "../storyDependencyFixture.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { expectEntries } from "../recentlyDoneColumn.ts";
 import { recordsAsked } from "../recentlyDoneProgressivePage.ts";
@@ -67,7 +67,7 @@ test("a Done reference without sessions reveals exactly through its existing des
   expect(recordsAsked(githubFor(page)).toSorted()).toEqual(
     donePathsThrough(27).toSorted(),
   );
-  await expect(recent.locator(".session-entry")).toHaveCount(0);
+  await expect(sessionEntriesIn(recent)).toHaveCount(0);
   await expect(referenceNotice(page)).toBeEmpty();
   expect(new URL(page.url()).hostname).toBe("127.0.0.1");
   expect(dashboard.claudeLaunchCalls()).toEqual([]);

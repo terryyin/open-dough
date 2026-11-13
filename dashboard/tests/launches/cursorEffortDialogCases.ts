@@ -1,5 +1,5 @@
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import { expect, keptRecord, test } from "../support/cursorStart.ts";
@@ -97,7 +97,7 @@ test("a multi-effort Cursor model lists effort choices and Start sends the compo
   await effort.selectOption("high-fast");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
-  await expect(parts(page).taken.locator(".session-entry")).toContainText(
+  await expect(sessionEntriesIn(parts(page).taken)).toContainText(
     "First input accepted",
     { timeout: launchWaitMs },
   );

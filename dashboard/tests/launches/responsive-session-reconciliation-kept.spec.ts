@@ -11,6 +11,7 @@ import {
   storyCardSessions,
   expectSettledPage,
   parts,
+  sessionEntriesIn,
 } from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
 import {
@@ -37,9 +38,9 @@ async function expectRemovedSettled(page: Page, revision: string) {
       .locator("[data-story-card]")
       .and(page.getByRole("article", { name: "Story A" })),
   ).toHaveCount(0);
-  await expect(taken.locator(".session-entry")).toHaveCount(1);
-  await expect(taken.locator(".session-entry")).toContainText("Story A");
-  await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
+  await expect(sessionEntriesIn(taken)).toHaveCount(1);
+  await expect(sessionEntriesIn(taken)).toContainText("Story A");
+  await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
   const other = backlog.getByRole("article", { name: "Story B" });
   await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
   await expect(recoveryOf(page)).toHaveCount(0);

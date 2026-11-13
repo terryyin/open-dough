@@ -4,7 +4,13 @@ import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // messages: session-unread-report-message.spec.ts. Real page/server, synthetic hosts/GitHub.
 
 import type { Locator, Page } from "@playwright/test";
-import { parts } from "../dashboardPage.ts";
+import {
+  parts,
+  sessionStateOf,
+  sessionUnreadReportOf,
+  storyCardAttentionOf,
+  storyCardUnreadReportsOf,
+} from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
@@ -13,6 +19,7 @@ import {
   expectTooltipLine,
   sessionsSidebarParts,
   sessionsSidebarSessionEntryTooltipOf,
+  unreadSessionReport,
 } from "../sessionsSidebarPage.ts";
 import { idleBetweenSteps, markDoneAnyway } from "../support/markDone.ts";
 import { launchedStory, reportedMessage } from "../support/reportedLaunch.ts";
@@ -28,7 +35,6 @@ import {
   publishOrigin,
   recordOf,
   shortIdOf,
-  sidebarRow,
   takenStoryCard,
   test,
   titleA,
@@ -39,7 +45,7 @@ const titleB = "Story B";
 
 // Unread reports add a named mark, matching tooltip line and distinct tint.
 async function expectMarked(row: Locator, unmarked: Locator): Promise<void> {
-  await expect(row.getByRole("img", { name: unreadWords })).toBeVisible();
+  await expect(unreadSessionReport(row, unreadWords)).toBeVisible();
   await expectTooltipLine(row, unreadWords);
   const background = (entry: Locator) =>
     entry.evaluate((element) => getComputedStyle(element).backgroundColor);
@@ -47,7 +53,7 @@ async function expectMarked(row: Locator, unmarked: Locator): Promise<void> {
 }
 
 const sidebarTitles = (page: Page) =>
-  sessionsSidebarParts(page).entries.locator("h3").allTextContents();
+  sessionsSidebarParts(page).titles.allTextContents();
 
 test("an unread report is its own mark beside the session's native reading", async ({
   page,
@@ -69,12 +75,12 @@ test("an unread report is its own mark beside the session's native reading", asy
   await pausePageClockAt(page, new Date());
   const { passOnePace } = await watchRecordReads(page);
   await page.goto("/");
-  const { button, badge } = sessionsSidebarParts(page);
+  const { button, badge, row } = sessionsSidebarParts(page);
   const cardA = takenStoryCard(page, titleA);
   const cardB = takenStoryCard(page, titleB);
   await button.click();
-  const rowA = sidebarRow(page, titleA);
-  const rowB = sidebarRow(page, titleB);
+  const rowA = row(titleA);
+  const rowB = row(titleB);
 
   // 1. Reported and natively done: ready, needing attention, marked apart.
   await expectSessionsSidebarSessionEntryShown(
@@ -88,14 +94,12 @@ test("an unread report is its own mark beside the session's native reading", asy
   expect(await sidebarTitles(page)).toEqual([titleA, titleB]);
   await expect(badge).toHaveText("1");
   await expect(badge).toHaveAccessibleName("1 session needs attention");
-  await expect(cardA.locator(".story-card-attention")).toHaveText(
+  await expect(storyCardAttentionOf(cardA)).toHaveText(
     "1 session needs attention",
   );
-  await expect(cardA.locator(".story-card-unread-reports")).toHaveText(
-    "1 unread report",
-  );
-  await expect(cardA.locator(".session-state")).toHaveText("Ready for review");
-  await expect(cardA.locator(".session-unread-report")).toHaveText(unreadWords);
+  await expect(storyCardUnreadReportsOf(cardA)).toHaveText("1 unread report");
+  await expect(sessionStateOf(cardA)).toHaveText("Ready for review");
+  await expect(sessionUnreadReportOf(cardA)).toHaveText(unreadWords);
   // Reconcile both starts before advancing page time beyond the read bound.
   for (const card of [cardA, cardB])
     await expect(
@@ -109,12 +113,10 @@ test("an unread report is its own mark beside the session's native reading", asy
   await expect.poll(() => sidebarTitles(page)).toEqual([titleB, titleA]);
   await expectMarked(rowA, rowB);
   await expect(badge).toHaveCount(0);
-  await expect(cardA.locator(".story-card-attention")).toHaveCount(0);
-  await expect(cardA.locator(".story-card-unread-reports")).toHaveText(
-    "1 unread report",
-  );
-  await expect(cardA.locator(".session-state")).toHaveText("Working");
-  await expect(cardA.locator(".session-unread-report")).toHaveText(unreadWords);
+  await expect(storyCardAttentionOf(cardA)).toHaveCount(0);
+  await expect(storyCardUnreadReportsOf(cardA)).toHaveText("1 unread report");
+  await expect(sessionStateOf(cardA)).toHaveText("Working");
+  await expect(sessionUnreadReportOf(cardA)).toHaveText(unreadWords);
 
   // 3. Then waiting for input: into the attention group, counted, marked.
   dashboard.claudeSessionBecomes(sessionA, "blocked");
@@ -128,7 +130,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   await expectMarked(rowA, rowB);
   await expect(badge).toHaveText("1");
   await expect(badge).toHaveAccessibleName("1 session needs attention");
-  await expect(cardA.locator(".story-card-attention")).toHaveText(
+  await expect(storyCardAttentionOf(cardA)).toHaveText(
     "1 session needs attention",
   );
 
@@ -136,7 +138,7 @@ test("an unread report is its own mark beside the session's native reading", asy
   dashboard.claudeSessionBecomes(sessionA, "working");
   await storyB.report();
   await passOnePace();
-  await expect(rowB.getByRole("img", { name: unreadWords })).toBeVisible();
+  await expect(unreadSessionReport(rowB, unreadWords)).toBeVisible();
   dashboard.claudeSessionBecomes(sessionB, "forgotten");
   await passOnePace();
   await expectSessionsSidebarSessionEntryShown(
@@ -144,14 +146,12 @@ test("an unread report is its own mark beside the session's native reading", asy
     "Session unavailable",
     "unsettled",
   );
-  await expect(rowB.getByRole("img", { name: unreadWords })).toBeVisible();
+  await expect(unreadSessionReport(rowB, unreadWords)).toBeVisible();
   await expectTooltipLine(rowB, unreadWords);
   await expect(badge).toHaveCount(0);
   await expect.poll(() => sidebarTitles(page)).toEqual([titleB, titleA]);
-  await expect(cardB.locator(".story-card-attention")).toHaveCount(0);
-  await expect(cardB.locator(".story-card-unread-reports")).toHaveText(
-    "1 unread report",
-  );
+  await expect(storyCardAttentionOf(cardB)).toHaveCount(0);
+  await expect(storyCardUnreadReportsOf(cardB)).toHaveText("1 unread report");
   // Its message is read on its entry only: nothing opens a side panel for it.
   await expect(
     cardB.getByRole("button", { name: /^(Read|Open) / }),
@@ -167,8 +167,8 @@ test("an unread report is its own mark beside the session's native reading", asy
   await expectExpanded(messageA, "Completed with attention", reportedMessage);
   const stopsBefore = dashboard.claudeStopCalls().length;
   await messageA.markRead.click();
-  await expect(cardA.locator(".story-card-unread-reports")).toHaveCount(0);
-  await expect(cardA.locator(".session-unread-report")).toHaveCount(0);
+  await expect(storyCardUnreadReportsOf(cardA)).toHaveCount(0);
+  await expect(sessionUnreadReportOf(cardA)).toHaveCount(0);
   await expect(rowA.getByRole("img")).toHaveCount(0);
   await expect(sessionsSidebarSessionEntryTooltipOf(rowA)).not.toHaveAttribute(
     "title",
@@ -176,12 +176,10 @@ test("an unread report is its own mark beside the session's native reading", asy
   );
   await expectCollapsed(messageA, "Completed with attention");
   await expectSessionsSidebarSessionEntryShown(rowA, "Working", "working");
-  await expect(cardA.locator(".session-state")).toHaveText("Working");
+  await expect(sessionStateOf(cardA)).toHaveText("Working");
   await expect(await sessionAction(entryA, "Mark as done")).toBeVisible();
   expect(await sidebarTitles(page)).toEqual([titleB, titleA]);
-  await expect(cardB.locator(".story-card-unread-reports")).toHaveText(
-    "1 unread report",
-  );
+  await expect(storyCardUnreadReportsOf(cardB)).toHaveText("1 unread report");
   const recordA = await recordOf(dashboard, sessionA);
   expect(recordA?.reportRead).toBeDefined();
   expect(recordA?.reportRead).toBe(recordA?.completion?.receipt);
@@ -200,17 +198,17 @@ test("an unread report is its own mark beside the session's native reading", asy
   await expect(rowA.getByRole("img")).toHaveCount(0);
   await expect(badge).toHaveText("1");
   await expect(badge).toHaveAccessibleName("1 session needs attention");
-  await expect(cardA.locator(".story-card-attention")).toHaveText(
+  await expect(storyCardAttentionOf(cardA)).toHaveText(
     "1 session needs attention",
   );
-  await expect(cardA.locator(".story-card-unread-reports")).toHaveCount(0);
+  await expect(storyCardUnreadReportsOf(cardA)).toHaveCount(0);
 
   // A newer report supersedes expansion choice: unread/expanded, then collapsed on Read.
   await messageA.heading.click();
   await expectExpanded(messageA, "Completed with attention", reportedMessage);
   await storyA.report({ outcome: "unfinished", message: newerMessage });
   await passOnePace();
-  await expect(cardA.locator(".session-unread-report")).toHaveText(
+  await expect(sessionUnreadReportOf(cardA)).toHaveText(
     "Unread report: Unfinished work",
   );
   await expectExpanded(messageA, "Unfinished work", newerMessage);
@@ -226,12 +224,12 @@ test("an unread report is its own mark beside the session's native reading", asy
   await markDoneAnyway(entryA);
   await expect(rowA).toHaveCount(0);
   await expect(badge).toHaveCount(0);
-  await expect(cardA.locator(".session-state")).toHaveCount(0);
+  await expect(sessionStateOf(cardA)).toHaveCount(0);
   const recentA = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: titleA });
-  await expect(recentA.locator(".session-state")).toHaveText("Done");
-  await expect(recentA.locator(".session-unread-report")).toHaveCount(0);
+  await expect(sessionStateOf(recentA)).toHaveText("Done");
+  await expect(sessionUnreadReportOf(recentA)).toHaveCount(0);
   await expect(recentA).toContainText(`Named ${doneNameA}`);
   await expect(recentA).not.toContainText("rename failed");
   expect((await recordOf(dashboard, sessionA))?.doneProblem).toBeUndefined();

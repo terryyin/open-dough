@@ -16,6 +16,7 @@
 
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 import { parts, storyCardSessions } from "../dashboardParts.ts";
+import { readFinalReportControl } from "../finalReportPages.ts";
 import { expectEntries } from "../recentlyDoneColumn.ts";
 import { refreshedTo } from "../recentlyDoneRefresh.ts";
 import {
@@ -160,9 +161,7 @@ test("Marking and unreviewing a story keep the card's sessions as they were", as
     await expect(sessions).toHaveCount(names.length);
     for (const name of names)
       await expect(
-        a.getByRole("article", { name, exact: true }).getByRole("button", {
-          name: "Read final report",
-        }),
+        readFinalReportControl(a.getByRole("article", { name, exact: true })),
       ).toBeVisible();
   };
   await expectSessions();

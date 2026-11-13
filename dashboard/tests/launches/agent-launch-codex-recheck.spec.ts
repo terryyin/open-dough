@@ -1,6 +1,7 @@
 // Codex Recheck rereads startup evidence without requesting native verification;
 // a direct verification request is refused without changing the attempt.
 import { agentVerifyEndpoint } from "../../src/agentLaunch.ts";
+import { parts } from "../dashboardPage.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
 import { attempts, launch } from "../agentLaunchBoundary.ts";
@@ -34,7 +35,7 @@ test("Recheck rereads evidence and published state without verifying a Codex sta
   });
   const [before] = await attempts(dashboard);
   await page.reload();
-  const recovery = page.getByRole("region", { name: "Startup recovery" });
+  const recovery = parts(page).startupRecovery;
   const recheck = recovery.getByRole("button", { name: `Recheck ${subject}` });
   await expect(recheck).toBeEnabled();
   const verifications: string[] = [];

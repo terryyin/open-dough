@@ -20,7 +20,11 @@
 
 import { agentAcceptEndpoint } from "../../src/agentLaunch.ts";
 import { attempts } from "../agentLaunchBoundary.ts";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import {
+  storyCardSessions,
+  parts,
+  sessionEntriesIn,
+} from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
 import {
   countAcceptanceRequests,
@@ -231,7 +235,7 @@ test("Start session in Claude Code closes at acceptance while its launch is held
   ]);
 
   dashboard.releaseHeldClaude();
-  await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1, {
+  await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1, {
     timeout: 30_000,
   });
   await expect(button).toBeEnabled();

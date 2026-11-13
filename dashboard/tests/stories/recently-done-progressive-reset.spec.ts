@@ -107,14 +107,13 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
       parts(page).taken.getByRole("article", {
         name: entryName(entryAt(destination)),
       }),
-      { exact: false },
     ).click();
     await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     await expectEntries(recent, twenty);
     await focusDivider(page);
     await pressDividerKey(page, "ArrowLeft", 2);
     await expectEntries(recent, twenty);
-    await closeSidePanel(terminal, { using: "mouse", exact: false });
+    await closeSidePanel(terminal, { using: "mouse" });
     await expect(terminal).toHaveCount(0);
     await expectEntries(recent, twenty);
     const { button } = sessionsSidebarParts(page);

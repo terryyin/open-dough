@@ -17,7 +17,6 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import type { Locator } from "@playwright/test";
 import {
   identityA,
   identityB,
@@ -32,7 +31,6 @@ import {
   sessionStateOf,
 } from "../dashboardPage.ts";
 import { doughnutSharedTitle } from "../doughnutProject.ts";
-import { openSessionStartReason } from "../../src/agentLaunch.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
@@ -46,6 +44,10 @@ import {
   type OpenSession,
 } from "../storyCardOpenSessions.ts";
 import {
+  expectStartsBlocked,
+  describedBy,
+} from "../storyCardSessionListing.ts";
+import {
   sharedDashboardBuild,
   startDashboardServer,
   type DashboardServer,
@@ -54,6 +56,11 @@ import type { ClaudeSessionChange } from "../support/fakeClaude.ts";
 import { expectNotReloaded, markNotReloaded } from "../sessionStatePace.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import { readsBesideChecks } from "../originObservation.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
+
+// What every blocked Start says while its card has an open session.
+const openSessionNote =
+  "This story has an open session. Mark it done or delete its record to start another.";
 
 const projectFolders = ["open-dough"];
 
@@ -141,32 +148,22 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
       queued: backlog,
     } = await openWithOpenSessions(page, dashboard, columnsJourney, sessions);
     const queued = { taken: [], backlog };
-    const openIn = (entry: Locator) =>
-      entry.getByRole("button", { name: "Open terminal" });
     // Every card with an open session keeps both Starts unavailable, with
-    // their notes still in the accessible description.
-    const openSessionDescription = new RegExp(
-      openSessionStartReason.replace(/[.]/g, "\\."),
-    );
-    const expectStartsBlocked = async () => {
-      for (const title of queued.backlog) {
-        await expect(action(title, "Execution")).toBeDisabled();
-        await expect(action(title, "Refinement")).toBeDisabled();
-        await expect(action(title, "Execution")).toHaveAccessibleDescription(
-          openSessionDescription,
-        );
-      }
+    // their notes still in the accessible description; the not-refined
+    // story's Start execution also keeps its not-ready note first.
+    const expectEveryStartBlocked = async () => {
+      await expectStartsBlocked(action, queued.backlog, openSessionNote);
       await expect(
         action(notRefinedStory, "Execution"),
       ).toHaveAccessibleDescription(
-        new RegExp(`${notReadyNote}.*${openSessionDescription.source}`),
+        new RegExp(`${notReadyNote}.*${describedBy(openSessionNote).source}`),
       );
     };
     const expectShown = async () => {
       for (const session of sessions) {
         const entry = entryOf(session.title, session.workflow);
         await expect(sessionStateOf(entry)).toHaveText(session.shows);
-        await expect(openIn(entry)).toHaveCount(
+        await expect(openTerminalControl(entry)).toHaveCount(
           session.shows === "Session unavailable" ? 0 : 1,
         );
         // The same session the page opened with, now listed as changed,
@@ -176,7 +173,7 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
       await expect(storyCardSessions(page.locator("body"))).toHaveCount(
         sessions.length,
       );
-      await expectStartsBlocked();
+      await expectEveryStartBlocked();
     };
 
     // Claude Code's listing cannot be read, and then every session changes.
@@ -192,7 +189,7 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
       for (const { title, workflow } of sessions) {
         const entry = entryOf(title, workflow);
         await expect(sessionStateOf(entry)).toContainText("State unknown");
-        await expect(openIn(entry)).toBeVisible();
+        await expect(openTerminalControl(entry)).toBeVisible();
       }
       await expect(storyCardSessions(page.locator("body"))).toHaveCount(
         sessions.length,

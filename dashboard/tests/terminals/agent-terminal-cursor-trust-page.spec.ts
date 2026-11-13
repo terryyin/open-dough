@@ -18,6 +18,7 @@ import {
   keptCursor,
 } from "../support/keptCursorTurn.ts";
 import { terminalReplaySchema } from "../../src/agentTerminal.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 
 // The launch wait ends once the runner holds the client on the trust prompt.
 test.use({ cursorScreen: "trust-unframed", launchWaitEnd: true });
@@ -64,7 +65,7 @@ test("a fitted terminal restores the held trust rendition and hidden cursor on j
     });
   });
   await page.goto("/");
-  const open = openTerminalControl(page.locator(".session-entry"));
+  const open = openTerminalControl(sessionEntriesIn(parts(page).board));
   await showColumn(page, "Taken");
   await open.click();
   const panel = terminalPanel(page);

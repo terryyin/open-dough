@@ -1,3 +1,4 @@
+import { askToDeleteRecord } from "../support/sessionEntryDisclosure.ts";
 // Ad hoc sessions occupy Taken without a story card. Sidebar selection opens
 // their project/terminal; Done moves them to Recently done and reopen survives reload.
 // Blocked sessions count as needing attention; deletion under an unread native
@@ -5,7 +6,6 @@
 // Related journeys: ../launches/agent-launch-ad-hoc.spec.ts, ./sessions-sidebar-navigation-cases.spec.ts,
 // ./agent-terminal-done.spec.ts, ./agent-launch-recent-delete.spec.ts (./fixtures/fake-claude).
 
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 import {
   openTerminalControl,
   closeTerminal,
@@ -113,7 +113,7 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
 
   await test.step("Open terminal reopens it into the sidebar, and a reload keeps it there", async () => {
     await showColumn(page, "Recently done");
-    await openTerminalControl(recent, { exact: false }).click();
+    await openTerminalControl(recent).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await expect(entries).toHaveCount(1);
     await expect(recent).toHaveCount(0);
@@ -184,27 +184,13 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
   const unknown = "State unknown: Claude Code's session list could not be read";
   await expect(sessionStateOf(newer)).toHaveText(unknown);
   await showColumn(page, "Taken");
-  await (
-    await sessionActions(newer)
-  )
-    .getByRole("button", { name: "Delete record…" })
-    .click();
-  await newer
-    .getByRole("button", { name: "Delete record", exact: true })
-    .click();
+  await (await askToDeleteRecord(newer)).confirm.click();
 
   await expect(newer).toHaveCount(0);
   await expect(entries).toHaveCount(1);
   await expect(entries.first()).toContainText("the older question");
   await expect(older).toBeFocused();
-  await (
-    await sessionActions(older)
-  )
-    .getByRole("button", { name: "Delete record…" })
-    .click();
-  await older
-    .getByRole("button", { name: "Delete record", exact: true })
-    .click();
+  await (await askToDeleteRecord(older)).confirm.click();
   await expect(older).toHaveCount(0);
   await expect(
     parts(page).taken.getByRole("article", { name: takenStory, exact: true }),

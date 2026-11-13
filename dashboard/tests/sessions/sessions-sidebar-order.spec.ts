@@ -50,13 +50,12 @@ test.describe("the Sessions sidebar's attention order", () => {
       if (work === working11) toBlock = sessionId;
     }
     const { settled } = await openStoryColumnsJourney(page, columnsJourney);
-    const { button, entries, badge } = sessionsSidebarParts(page);
+    const { button, entries, titles, badge } = sessionsSidebarParts(page);
     await settled();
     await button.click();
-    const titles = () => entries.getByRole("heading", { level: 3 });
 
     await test.step("a needs-input and a failed session lead, earliest first, then the working ones newest first", async () => {
-      await expect(titles()).toHaveText([
+      await expect(titles).toHaveText([
         blocked09.title,
         failed10.title,
         working12.title,
@@ -70,7 +69,7 @@ test.describe("the Sessions sidebar's attention order", () => {
       dashboard.claudeSessionBecomes(toBlock, "blocked");
       await passOnePace();
       await expect(badge).toHaveText("3");
-      await expect(titles()).toHaveText([
+      await expect(titles).toHaveText([
         blocked09.title,
         failed10.title,
         working11.title,

@@ -22,6 +22,7 @@ import {
   parts,
   sessionNamedBy,
   standaloneSessionName,
+  sessionEntriesIn,
 } from "../dashboardPage.ts";
 import {
   openTakenBacklog,
@@ -54,7 +55,7 @@ test("each active card entry shows why its session needs attention, or that it d
   const { card, start, dialog, refine, refinementDialog } =
     await openTakenBacklog(page, launchJourney);
   const { recentlyDone: recent } = parts(page);
-  const entries = parts(page).board.locator(".session-entry");
+  const entries = sessionEntriesIn(parts(page).board);
 
   for (const { title, workflow } of attentionLaunches.toReversed()) {
     const before = await entries.count();
@@ -92,9 +93,9 @@ test("each active card entry shows why its session needs attention, or that it d
       const { shows, needsAttention } = changes[round];
       const entry = entryAt(index);
       await expectSessionShown(entry, shows, needsAttention);
-      await expect(
-        entry.getByRole("button", { name: "Open terminal" }),
-      ).toHaveCount(shows === "Session unavailable" ? 0 : 1);
+      await expect(openTerminalControl(entry)).toHaveCount(
+        shows === "Session unavailable" ? 0 : 1,
+      );
     }
   };
   const change = async (round: 0 | 1) => {
@@ -140,9 +141,7 @@ test("each active card entry shows why its session needs attention, or that it d
     for (const index of attentionLaunches.keys()) {
       const entry = entryAt(index);
       await expectSessionShown(entry, unknownShown, false);
-      await expect(
-        entry.getByRole("button", { name: "Open terminal" }),
-      ).toHaveCount(1);
+      await expect(openTerminalControl(entry)).toHaveCount(1);
     }
 
     dashboard.claudeListingFails(false);
@@ -151,7 +150,7 @@ test("each active card entry shows why its session needs attention, or that it d
   });
 
   await expectNotReloaded(page);
-  await expect(recent.locator(".session-entry")).toHaveCount(0);
+  await expect(sessionEntriesIn(recent)).toHaveCount(0);
   await expectMembership(page, takenBacklogStories);
   expect(dashboard.claudeLaunchCalls()).toHaveLength(attentionLaunches.length);
 });
@@ -168,7 +167,6 @@ test("a session's attention stays through opening and closing its terminal, clea
   dashboard.claudeScenario("launched");
   const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
   const { recentlyDone: recent } = parts(page);
-  const panel = terminalPanel(page);
   const onStoryCard = storyCardSessionOf(card(readyStory), "Execution");
   const inRecent = recent.getByRole("article", {
     name: standaloneSessionName("Execution", readyStory),
@@ -203,7 +201,7 @@ test("a session's attention stays through opening and closing its terminal, clea
     await page.keyboard.press("Enter");
     await expect.poll(() => attach()?.lines).toEqual(["red"]);
     await expectOpen(needsInput, true);
-    await closeTerminal(panel);
+    await closeTerminal(terminalPanel(page));
     await expect.poll(() => attach()?.endedBy).toBeDefined();
 
     await passOnePace();
@@ -243,9 +241,7 @@ test("a session's attention stays through opening and closing its terminal, clea
     dashboard.claudeSessionBecomes(session, "forgotten");
     await passOnePace();
     await expectSessionShown(inRecent, "Done", false);
-    await expect(
-      inRecent.getByRole("button", { name: "Open terminal" }),
-    ).toHaveCount(0);
+    await expect(openTerminalControl(inRecent)).toHaveCount(0);
     await expect(onStoryCard).toHaveCount(0);
   });
 

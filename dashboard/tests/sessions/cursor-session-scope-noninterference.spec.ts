@@ -1,4 +1,4 @@
-import { sessionAction } from "../support/sessionEntryDisclosure.ts";
+import { askToDeleteRecord } from "../support/sessionEntryDisclosure.ts";
 // Non-interference across scoped Cursor sessions and scope lifetime:
 // overlapping chosen-model launches keep separate scopes and models with
 // the shared configuration untouched; a subsequent Default launch follows
@@ -9,7 +9,7 @@ import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // shared configuration and saved conversation stay untouched.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { recordedScope } from "../support/cursorScopeAssertions.ts";
 import { expectReadingWithoutScreenLabel } from "../support/cursorSessionReading.ts";
@@ -125,7 +125,7 @@ test("a subsequent Default launch follows a deliberate new shared default while 
   const sharedAfterChange = cursor.sharedConfig();
   await reloadUntilRead(page);
   await expectReadingWithoutScreenLabel(
-    parts(page).taken.locator(".session-entry"),
+    sessionEntriesIn(parts(page).taken),
     agentNotRunningLabel,
   );
   expect(JSON.parse(cursor.configIn(scope)) as unknown).toMatchObject({
@@ -197,16 +197,13 @@ test("deleting a scoped session's launch record removes exactly its scope, leavi
   expect(existsSync(scope)).toBe(true);
   await endHeldClient(page, cursor, dashboard.home);
   await reloadUntilRead(page);
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
   await expectReadingWithoutScreenLabel(entry, agentNotRunningLabel);
   // The record still keeps the session resumable, so its scope is
   // retained until the record itself is removed, never before.
   expect(existsSync(scope)).toBe(true);
 
-  await (await sessionAction(entry, "Delete record…")).click();
-  await entry
-    .getByRole("button", { name: "Delete record", exact: true })
-    .click();
+  await (await askToDeleteRecord(entry)).confirm.click();
   await expect(entry).toHaveCount(0);
 
   expect(keptRecords(dashboard.home)).toEqual([]);
