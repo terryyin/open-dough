@@ -96,7 +96,11 @@ test("a host change shows on its entry within one pace, without a reload", async
   await test.step("an unreadable listing shows State unknown until the listing reads again", async () => {
     dashboard.claudeListingFails(true);
     await passOnePace();
-    await expect(entry).toContainText("State unknown");
+    await expectSessionShown(
+      entry,
+      "State unknown: Claude Code's session list could not be read",
+      false,
+    );
     await expect(openTerminalControl(entry)).toHaveCount(1);
     dashboard.claudeListingFails(false);
     await passOnePace();
