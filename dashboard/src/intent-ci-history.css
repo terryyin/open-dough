@@ -196,4 +196,24 @@
 }
 
 .intent-ci-prior-reference p { margin-block: var(--space-1); }
+
+/* The change's sign carries its direction; the cue colour repeats it. */
+.intent-ci-prior-change[data-direction="faster"] strong { color: var(--ci-cue-faster); }
+.intent-ci-prior-change[data-direction="slower"] strong { color: var(--ci-cue-slower); }
+
+/* A Done comparison's history (./IntentCiDoneWallTimeReference.tsx): its
+   heading, brief status and refresh icon on one row, and a failed read's
+   alert beside its retry. */
+.intent-ci-done-history .intent-ci-history-head { align-items: center; justify-content: flex-start; }
+.intent-ci-done-history h4 { margin: 0; margin-inline-end: auto; }
+.intent-ci-history-status { color: var(--quiet); font-size: var(--text-sm); }
+
+.intent-ci-history-failure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+}
+
+.intent-ci-history-failure p { margin: var(--space-1) 0; font-size: var(--text-sm); }
 .intent-ci-reference-evidence { font-size: var(--text-sm); overflow-wrap: anywhere; }

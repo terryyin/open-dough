@@ -11,19 +11,19 @@ Reviewer ambiguity note: the fewer-than-five insufficient-history threshold and 
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| G1 | A developer reviewing a Done story in Dashboard Intent "can see how the landing compares with recent builds" | slice 2 | |
-| G2 | …can "spot failed builds" | slice 2 | |
+| G1 | A developer reviewing a Done story in Dashboard Intent "can see how the landing compares with recent builds" | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: selected 8 min 4 s vs 'Prior-build average · 8 min 24 s · 6 prior builds used' and 'vs. prior average · −20 s (−4%)' from real retained history |
+| G2 | …can "spot failed builds" | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: chart.failed 1 and inspect 'Nov 2 · Failed build' |
 | G3 | …can "drill into test execution cost by entry, folder, and file" | slice 3 | |
 | G4 | "The same reading serves test timing in Project Intent" | slice 3 | |
 | G5 | "The chart and a few figures carry the answer without asking the reader to scan build records or reference membership" | slice 4 | |
 | G6 | A slower landing or a costly test area "is noticed while reviewing rather than left unread" | slice 4 | |
-| V1.1 | Done story → CI comparison: add the CI wall-time chart to the reference section | slice 2 | |
-| V1.2 | Chart placed "below the Baseline, Branch, and Landed comparison and above the by-entry table" | slice 2 | |
-| V1.3 | Keep the comparison's endpoint proof available | slice 2 | |
-| V1.4 | Keep "CI time without runner waits" available | slice 2 | |
-| V1.5 | Keep the comparison's navigation available | slice 2 | |
-| V1.6 | The chart shows the selected published landing and verified retained observations through it | slice 2 | |
-| V1.7 | Context: current Done wall-time reference has metrics and an open **Builds and reference evidence** list; existing history chart already renders project wall time and scope execution time | slice 2 | |
+| V1.1 | Done story → CI comparison: add the CI wall-time chart to the reference section | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: 'CI wall time history' region with the shared chart (9 marks) in the Done comparison |
+| V1.2 | Chart placed "below the Baseline, Branch, and Landed comparison and above the by-entry table" | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts and intent-ci-done-reference-lifecycle.spec.ts test 2: expectStackedInOrder(endpointTable, history.region, entryTable); intent-ci-comparison.spec.ts heading order |
+| V1.3 | Keep the comparison's endpoint proof available | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts and lifecycle spec: Landed wall time '4 min' in the endpoint table |
+| V1.4 | Keep "CI time without runner waits" available | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: endpoint table column header 'CI time without runner waits' visible |
+| V1.5 | Keep the comparison's navigation available | slice 2 | observed: unchanged intent-ci-comparison, -retry and locations specs passing in the slice 2 gate (s2- logs) |
+| V1.6 | The chart shows the selected published landing and verified retained observations through it | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: selected diamond and readout 'Nov 9 · Selected landing · 8 min 4 s' with retained priors through it |
+| V1.7 | Context: current Done wall-time reference has metrics and an open **Builds and reference evidence** list; existing history chart already renders project wall time and scope execution time | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: evidence list removed; chart shared with project and scope history (IntentCiHistoryChart via landedCiHistorySeries.ts) |
 | V2.1 | Changed tests → entry or folder Summary: put test execution history above the sortable child table | slice 3 | |
 | V2.2 | Immediate folders and files "still opening their own views" | slice 3 | |
 | V2.3 | Both depths (entry and folder) use IntentScopeProof, which currently appends history after the table | slice 3 | |
@@ -39,13 +39,13 @@ Reviewer ambiguity note: the fewer-than-five insufficient-history threshold and 
 | V3.9 | Retain the return to story CI comparison | slice 3 | |
 | V3.10 | File Proof and Summary share scope timing history and its unit charts in both story and Project Intent contexts | slice 3 | |
 | H1.1 | Same compact reading order and marks across the views | slice 3 | |
-| H1.2 | Show the selected timing | slice 2 | |
-| H1.3 | Show the prior-build average and count | slice 2 | |
-| H1.4 | Show the signed elapsed change | slice 2 | |
-| H1.5 | Show the signed percentage change | slice 2 | |
-| H1.6 | Green for faster timing, amber for slower timing | slice 2 | |
-| H1.7 | "the sign carrying the meaning in either appearance" (light/dark; not color alone) | slice 2 | |
-| H1.8 | Label CI wall time explicitly | slice 2 | |
+| H1.2 | Show the selected timing | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: history.selected 'Selected landing <sha> · 8 min 4 s' |
+| H1.3 | Show the prior-build average and count | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: history.average 'Prior-build average · 8 min 24 s · 6 prior builds used' |
+| H1.4 | Show the signed elapsed change | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: history.change 'vs. prior average · −20 s (−4%)' |
+| H1.5 | Show the signed percentage change | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: history.change '(−4%)' |
+| H1.6 | Green for faster timing, amber for slower timing | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts expectChangeCue faster; intent-ci-done-prior-build.spec.ts and dashboard/frontend-tests/intent-ci-compact-readout.spec.ts slower (--ci-cue-faster/--ci-cue-slower) |
+| H1.7 | "the sign carrying the meaning in either appearance" (light/dark; not color alone) | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: signed text and faster cue rechecked under dark emulateMedia |
+| H1.8 | Label CI wall time explicitly | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: region named 'CI wall time history' |
 | H1.9 | Label cumulative test execution time explicitly | slice 3 | |
 | H1.10 | Plot by build date | slice 1 | observed: dashboard/tests/support/scopeHistoryMarksScenario.ts expectMarkedScopeHistoryDrawn via frontend-tests/intent-ci-history-chart-marks.spec.ts and intent-project-ci-history-chart-marks.spec.ts: mark x positions increase with build date; Nov 2 and Nov 8 date labels |
 | H1.11 | Readable units | slice 1 | observed: dashboard/tests/support/scopeHistoryMarksScenario.ts expectMarkedScopeHistoryDrawn via frontend-tests/intent-ci-history-chart-marks.spec.ts and intent-project-ci-history-chart-marks.spec.ts: axis 0 ms/500 ms/1.0 s; intent-project-ci-history-chart-marks.spec.ts narrowest-width test keeps labels inside |
@@ -60,18 +60,18 @@ Reviewer ambiguity note: the fewer-than-five insufficient-history threshold and 
 | H2.7 | …via keyboard | slice 1 | observed: ciHistoryChartPage.ts expectMarksByTab in both new specs: Tab in date order shows each readout; focus indicated (project spec) |
 | H2.8 | …via touch | slice 1 | observed: intent-ci-history-chart-marks.spec.ts 'on a touch phone' test: tapping failed, unavailable, selected marks at 390x844 shows each readout |
 | H2.9 | Keep actual measured zero on the duration axis | slice 1 | observed: dashboard/tests/support/scopeHistoryMarksScenario.ts expectMarkedScopeHistoryDrawn via frontend-tests/intent-ci-history-chart-marks.spec.ts and intent-project-ci-history-chart-marks.spec.ts: zero point centred on the 0 ms grid line, readout 'Nov 5 · 0 ms' |
-| H3.1 | Brief status label for pending history | slice 2 | |
-| H3.2 | Brief status label for missing history | slice 2 | |
-| H3.3 | Brief status label for out-of-retention history | slice 2 | |
-| H3.4 | Brief status label for insufficient history | slice 2 | |
-| H3.5 | Brief status label for a selected measurement that reused an equivalent or later trunk build | slice 2 | |
-| H3.6 | When a later build stands for the landing, say its timing includes later changes | slice 2 | |
-| H3.7 | If only the prior average is available, still show it | slice 2 | |
-| H3.8 | Keep the Done reference's refresh as a labeled icon | slice 2 | |
+| H3.1 | Brief status label for pending history | slice 2 | observed: dashboard/frontend-tests/intent-ci-compact-readout.spec.ts statuses test: pending status |
+| H3.2 | Brief status label for missing history | slice 2 | observed: dashboard/frontend-tests/intent-ci-compact-readout.spec.ts statuses test: missing / not collected status |
+| H3.3 | Brief status label for out-of-retention history | slice 2 | observed: dashboard/frontend-tests/intent-ci-compact-readout.spec.ts statuses test and intent-ci-done-prior-states.spec.ts: outside retention status, no chart |
+| H3.4 | Brief status label for insufficient history | slice 2 | observed: dashboard/frontend-tests/intent-ci-compact-readout.spec.ts statuses test: 'Insufficient history' with 5 chart marks |
+| H3.5 | Brief status label for a selected measurement that reused an equivalent or later trunk build | slice 2 | observed: dashboard/frontend-tests/intent-ci-compact-readout.spec.ts stand-in test: 'Reused equivalent first-parent build'; intent-ci-done-prior-provenance.spec.ts end to end |
+| H3.6 | When a later build stands for the landing, say its timing includes later changes | slice 2 | observed: dashboard/frontend-tests/intent-ci-compact-readout.spec.ts stand-in test and intent-ci-done-prior-provenance.spec.ts: 'Later trunk build, includes later changes' |
+| H3.7 | If only the prior average is available, still show it | slice 2 | observed: dashboard/frontend-tests/intent-ci-compact-readout.spec.ts statuses test: average kept with no change line |
+| H3.8 | Keep the Done reference's refresh as a labeled icon | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts refresh icon 'Refresh history' visible; clicked in dashboard/frontend-tests/intent-ci-compact-readout.spec.ts and intent-ci-done-prior-states.spec.ts |
 | H3.9 | Show a short retry action when a history read fails | slice 3 | |
 | H3.10 | Preserve the last successful history when a refresh fails for the same endpoint | slice 3 | |
 | H3.11 | …independently of comparison refresh | slice 3 | |
-| H4.1 | Remove **Builds and reference evidence** from the affected views | slice 2 | |
+| H4.1 | Remove **Builds and reference evidence** from the affected views | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: evidence group count 0; no 'Builds and reference evidence', 'Median', 'calibration' text |
 | H4.2 | Remove **Builds and evidence** from the affected views | slice 3 | |
 | H4.3 | Remove the Included membership rows | slice 3 | |
 | H4.4 | Remove the Excluded membership rows | slice 3 | |
@@ -97,8 +97,8 @@ Reviewer ambiguity note: the fewer-than-five insufficient-history threshold and 
 | H6.4 | Keep current reference math | slice 4 | |
 | H6.5 | The automatic follow-up ledger keeps its full decision evidence server-side | slice 4 | |
 | H6.6 | Browsing history remains a local read | slice 4 | |
-| H6.7 | Update the wall-time and reference specification (currently requires the evidence lists) | slice 2 | |
-| H6.8 | Update the applicable CI comparison guidance | slice 2 | |
+| H6.7 | Update the wall-time and reference specification (currently requires the evidence lists) | slice 2 | observed: docs/dashboard-development-intent-ci-reference.md updated: Done reference is chart + compact readout, lists only for follow-up and top-level |
+| H6.8 | Update the applicable CI comparison guidance | slice 2 | observed: docs/dashboard-development-intent-ci-comparison.md updated: history between endpoints and entry table |
 | H6.9 | Display remains derived under ADR 0008 | slice 4 | |
 | S1 | Project Intent's top-level CI status history keeps its lists | slice 4 | |
 | S2 | Project Intent's top-level CI status history keeps its richer response | slice 4 | |
@@ -107,16 +107,16 @@ Reviewer ambiguity note: the fewer-than-five insufficient-history threshold and 
 | A1 | One dated history chart serves Done CI wall time and every scope and file timing view | slice 3 | |
 | A2 | One compact comparison readout serves those same views | slice 3 | |
 | A3 | The shared history chart gains the failed row, unavailable marks, and per-mark readouts once | slice 1 | observed: IntentCiHistoryChart.tsx MarkReadout + IntentCiHistoryPlot.tsx shared by scope chart (both new specs) and top-level chart (intent-ci-wall-time-history-later.spec.ts ×) |
-| A4 | The prior-build metrics both views already share become that compact readout | slice 2 | |
+| A4 | The prior-build metrics both views already share become that compact readout | slice 2 | observed: IntentCiPriorBuildReference.tsx compact readout shared by Done (dashboard/tests/intent/intent-ci-done-glance.spec.ts), top-level, scope and follow-up specs (s2 gate) |
 | A5 | Done and scope views stop composing the membership list, which stays only for the follow-up reading | slice 3 | |
 | A6 | "no view keeps its own chart or metric copy" | slice 3 | |
 | A7 | Slim selected and scoped history is a server projection of existing retained history behind the explicit reader capability | slice 4 | |
 | A8 | It "adds no second store or calculation" | slice 4 | |
-| E1.1 | Done landing 8m 04s vs six comparable builds averaging 8m 24s → shows −20s and −4% | slice 2 | |
-| E1.2 | …with a selected diamond and the dashed average | slice 2 | |
-| E1.3 | A failed build and a missing measurement appear as distinct dated marks below the timing plot | slice 2 | |
-| E1.4 | Inspecting either shows its status in one line | slice 2 | |
-| E1.5 | The chart omits unrelated newer landings | slice 2 | |
+| E1.1 | Done landing 8m 04s vs six comparable builds averaging 8m 24s → shows −20s and −4% | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: 8 min 4 s vs six priors at 8 min 24 s → '−20 s (−4%)' |
+| E1.2 | …with a selected diamond and the dashed average | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: chart.selected 1 and dashed average stroke-dasharray |
+| E1.3 | A failed build and a missing measurement appear as distinct dated marks below the timing plot | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: chart.failed 1 and chart.unavailable 1 below the plot |
+| E1.4 | Inspecting either shows its status in one line | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: inspectMark 'Nov 2 · Failed build' and 'Nov 4 · No timing · No CI proof summary' |
+| E1.5 | The chart omits unrelated newer landings | slice 2 | observed: dashboard/tests/intent/intent-ci-done-glance.spec.ts: no 'Nov 8 · 1 min 40 s' mark for the later landing; intent-ci-done-prior-build.spec.ts still 7 marks after later publications |
 | E2.1 | From that story, open the dashboard test entry, drill into a folder, open a test file (journey) | slice 3 | |
 | E2.2 | In both Summaries, history is visible before the child table | slice 3 | |
 | E2.3 | In file Proof, switching test-case/test-file timings changes selected value, average, and chart scale together | slice 3 | |

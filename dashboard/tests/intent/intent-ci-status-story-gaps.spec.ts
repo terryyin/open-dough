@@ -68,7 +68,9 @@ test("a selected story without a published story branch is named and explained, 
       name: "CI timing comparison",
       exact: true,
     });
-    await expect(panel.getByRole("heading")).toHaveText("CI timing changes");
+    await expect(panel.getByRole("heading", { level: 3 })).toHaveText(
+      "CI timing changes",
+    );
     // This synthetic board has no recoverable published completion in the
     // local checkout, so the comparison explains that gap rather than
     // inventing figures or judging another branch.
@@ -87,7 +89,9 @@ test("a selected story without a published story branch is named and explained, 
       name: "CI timing comparison",
       exact: true,
     });
-    await expect(panel.getByRole("heading")).toHaveText("CI timing changes");
+    await expect(panel.getByRole("heading", { level: 3 })).toHaveText(
+      "CI timing changes",
+    );
     // Synthetic board has no recoverable published claim in the local
     // checkout, so the comparison explains that gap rather than inventing
     // figures or judging main as the story's branch.

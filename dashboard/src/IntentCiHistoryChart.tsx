@@ -1,32 +1,14 @@
 // One responsive dated timing chart for collected history. Project CI status
-// supplies its window of ordered points and gaps, including each measured
-// build's represented landings; scope Proof supplies precise execution time,
-// compatible segments and its builds without timing. Both use the same
+// and a Done CI comparison supply wall time (`./landedCiHistorySeries.ts`);
+// scope Proof supplies precise execution time, compatible segments and its
+// builds without timing. All use the same
 // placement and marks (`./ciHistoryChartLayout.ts`, `./IntentCiHistoryPlot.tsx`):
 // a gap never acquires a numeric point or joining stroke. Every mark is also
 // a button laid over the drawing, in history order, so pointer, keyboard focus
 // and touch each show its short date and timing or status in one readout.
 
 import { useLayoutEffect, useRef, useState } from "react";
-import {
-  buildDateWords,
-  gapReasonWords,
-  plainWords,
-  pointLandingsWords,
-  pointWallTimeWords,
-} from "./ciHistoryWords.ts";
-import {
-  entryDate,
-  landedCiEntryKey,
-  type MeasuredEntry,
-} from "./landedCiHistory.ts";
-
-import {
-  gapStatus,
-  isMeasured,
-  type HistoryChartBuild,
-  type HistoryChartSeries,
-} from "./ciHistoryChart.ts";
+import { isMeasured, type HistoryChartSeries } from "./ciHistoryChart.ts";
 import {
   chartHeight,
   chartLayout,
@@ -53,37 +35,6 @@ function useBoxWidth() {
     };
   }, []);
   return { box, width };
-}
-
-function projectSeries(
-  entries: readonly MeasuredEntry[],
-  reference?: HistoryChartSeries["reference"],
-): HistoryChartSeries {
-  let segment = 0;
-  const builds = entries.map((entry): HistoryChartBuild => {
-    const key = landedCiEntryKey(entry);
-    if (entry.kind === "point")
-      return {
-        kind: "point",
-        key,
-        date: entry.startedAt,
-        ms: entry.wallTimeMs,
-        segment: String(segment),
-        description: `${buildDateWords(entry.startedAt)} · ${pointWallTimeWords(entry)} · ${plainWords(pointLandingsWords(entry))}`,
-      };
-    segment++;
-    return {
-      kind: "gap",
-      key,
-      date: entryDate(entry),
-      ...gapStatus(entry.reason === "failed", gapReasonWords(entry)),
-    };
-  });
-  return {
-    label: "CI wall time by build date",
-    builds,
-    ...(reference === undefined ? {} : { reference }),
-  };
 }
 
 const isSelected = (mark: ChartMark) => mark.build.selected === true;
@@ -127,19 +78,11 @@ function MarkReadout({ layout }: { readonly layout: ChartLayout }) {
   );
 }
 
-export function IntentCiHistoryChart(
-  props: { readonly reference?: HistoryChartSeries["reference"] } & (
-    | {
-        readonly entries: readonly MeasuredEntry[];
-        readonly series?: never;
-      }
-    | {
-        readonly series: HistoryChartSeries;
-        readonly entries?: never;
-      }
-  ),
-) {
-  const series = props.series ?? projectSeries(props.entries, props.reference);
+export function IntentCiHistoryChart({
+  series,
+}: {
+  readonly series: HistoryChartSeries;
+}) {
   const { box, width } = useBoxWidth();
   const layout =
     width > minimumChartWidth && series.builds.some(isMeasured)

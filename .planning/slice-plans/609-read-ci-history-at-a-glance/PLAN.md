@@ -133,7 +133,7 @@ typecheck pass. Commitment observations are in the source review.
 
 ### 2. Compare a Done landing with recent builds at a glance
 Type: Behavior
-Status: planned
+Status: done
 Proof: New Done-glance spec; rewritten `intent-ci-done-prior-build`,
 `intent-ci-done-prior-provenance`, `intent-ci-done-prior-states`,
 `intent-ci-done-reference-lifecycle`, `intent-ci-done-endpoint-readiness`,
@@ -151,6 +151,15 @@ cause, not a rerun), then rewrite them for the new layout. Keep the history
 hook mounted across comparison states. Update
 `docs/dashboard-development-intent-ci-reference.md` and the applicable part of
 `docs/dashboard-development-intent-ci-comparison.md`.
+
+Accepted proof: new `intent-ci-done-glance.spec.ts` (Example 1 end to end)
+and `frontend-tests/intent-ci-compact-readout.spec.ts` (statuses, stand-in,
+zero average, retry); rewritten Done prior-build, provenance, states,
+lifecycle and endpoint-readiness specs; unchanged follow-up spec. Flake
+causes: prior-build took 31–36 s against the 30 s timeout (the "could not
+be reached" alert was teardown), split by concern; lifecycle forced the first
+real comparison read after Check again, now inside the shared selection wait.
+`--repeat-each=5` 20/20; post-refactor focused set 12/12.
 
 ### 3. Read test execution history before the test table
 Type: Behavior
@@ -251,3 +260,14 @@ on the first attempt.
   10 collector-backed `dashboard/tests/intent` journeys at unrelated setup
   steps; all passed at load below 35 and in the post-refactor run at load ~5.
   Hosted CI shards are the verdict; a CI failure there stays owned.
+- Slice 2: one compact readout (`IntentCiPriorBuildReference.tsx`) now serves
+  Done, top-level, scope and follow-up; the methodology text moved into
+  `PriorBuildReferenceEvidenceList` (`medianMs`), which slice 3 stops composing
+  in scope views. `reasonStatus` in `ciHistoryChart.ts` decides failed versus
+  unavailable for every series. Slice 4: the Done chart's filtering through
+  the landing (`isThroughEndpoint`, `evidenceOfEntry` in
+  `landedCiHistorySeries.ts`) relies on per-build evidence membership in the
+  response; a slim response must send those entries already filtered.
+- Broad slice-2 gate at external load 37–50 timed out 15 comparison, summary
+  and scope journeys (some in `page.goto`); all passed once load fell, and
+  slice 1's hosted CI passed the same families.

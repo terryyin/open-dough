@@ -37,6 +37,7 @@ export function IntentScopePriorBuildReference({
       />
       <PriorBuildReferenceEvidenceList
         evidence={comparison.reference.evidence}
+        medianMs={comparison.reference.medianMs}
         selectedLabel={scopeHistorySelectionWords(context)}
         reasonWords={(reason) => scopeHistoryReason(context, reason)}
         precise

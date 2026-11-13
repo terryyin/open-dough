@@ -18,19 +18,41 @@ export type DoneWallTimeHistory = MeasuredHistory &
     "selectedRevision" | "availability"
   >;
 
+// The brief status of the retained history at the Done endpoint, when it is
+// not simply retained there.
 export function doneWallTimeAvailabilityWords(
   availability: DoneWallTimeHistory["availability"],
 ) {
   switch (availability) {
     case "empty":
-      return "No dashboard-recorded landing history has been collected.";
+      return "No collected history";
     case "outside-retention":
-      return "The selected landing is outside the retained history. Its historical comparison is unavailable.";
+      return "Outside retained history";
     case "uncollected":
-      return "The selected landing has no matching collected observation; independently verified earlier retained evidence is shown.";
+      return "Selected landing not collected";
     case "order-unavailable":
-      return "Some retained landing positions could not be verified from local Git evidence. Only independently verified preceding builds can supply the reference.";
+      return "Landing order unverified";
     case "retained":
       return undefined;
   }
+}
+
+// How another trunk build stands for the Done endpoint when it supplies the
+// selected measurement: a reused equivalent or a later build.
+export function doneStandInOf(
+  history: DoneWallTimeHistory,
+  endpoint: string,
+): "equivalent" | "later" | undefined {
+  for (const entry of history.entries) {
+    const provenance =
+      entry.kind === "point"
+        ? entry.landings.find((landing) => landing.revision === endpoint)
+            ?.provenance
+        : entry.revision === endpoint && entry.reason !== "pending"
+          ? entry.build?.provenance
+          : undefined;
+    if (provenance === "equivalent" || provenance === "later")
+      return provenance;
+  }
+  return undefined;
 }

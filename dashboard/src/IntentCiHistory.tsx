@@ -27,7 +27,7 @@ import {
   IntentCiPriorBuildReference,
   PriorBuildReferenceEvidence,
 } from "./IntentCiPriorBuildReference.tsx";
-import { wholeSecondWords } from "./ciProofTimeWords.ts";
+import { averageLineOf, landedHistorySeries } from "./landedCiHistorySeries.ts";
 import { useId } from "react";
 import { shortSha } from "./baseCiWording.ts";
 import {
@@ -176,15 +176,9 @@ export function IntentCiHistory({
                 <dd>{pointWallTimeWords(latest)}</dd>
               </dl>
               <IntentCiHistoryChart
-                entries={entries}
-                reference={
-                  shown.reference?.averageMs === undefined
-                    ? undefined
-                    : {
-                        ms: shown.reference.averageMs,
-                        label: `Prior-build average ${wholeSecondWords(shown.reference.averageMs)}`,
-                      }
-                }
+                series={landedHistorySeries(entries, {
+                  reference: averageLineOf(shown.reference),
+                })}
               />
             </>
           )}

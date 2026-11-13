@@ -40,6 +40,25 @@ export type PriorBuildSample = z.infer<z.ZodObject<typeof measurement>> & {
   readonly landings: readonly string[];
 };
 
+// Exclusions by local Git order: evidence after the endpoint, or whose place
+// relative to it is unverified.
+const orderExclusions = {
+  endpointUnordered:
+    "Landing endpoint order unavailable from local Git evidence",
+  noPriorLanding: "No represented landing before the selected endpoint",
+  measuredUnordered:
+    "Measured revision order unavailable from local Git evidence",
+  measuredAtOrAfter: "Measured build is at or after the selected endpoint",
+} as const;
+const outsideEndpoint: ReadonlySet<string> = new Set(
+  Object.values(orderExclusions),
+);
+
+// A verified retained observation through the endpoint: the selected build or
+// one ordered before it, whatever the reference made of its measurement.
+export const isThroughEndpoint = (sample: PriorBuildEvidence) =>
+  sample.status !== "excluded" || !outsideEndpoint.has(sample.reason ?? "");
+
 function isIncludedMeasurement(
   sample: PriorBuildEvidence,
 ): sample is PriorBuildEvidence & { readonly ms: number } {
@@ -97,13 +116,13 @@ export function priorBuildReferenceOf({
         : positions.get(sample.revision);
     const exclusion =
       end === undefined
-        ? "Landing endpoint order unavailable from local Git evidence"
+        ? orderExclusions.endpointUnordered
         : !priorLanding
-          ? "No represented landing before the selected endpoint"
+          ? orderExclusions.noPriorLanding
           : sample.revision !== undefined && measured === undefined
-            ? "Measured revision order unavailable from local Git evidence"
+            ? orderExclusions.measuredUnordered
             : measured !== undefined && measured >= end
-              ? "Measured build is at or after the selected endpoint"
+              ? orderExclusions.measuredAtOrAfter
               : (reason ??
                 (ms === undefined ? "Measurement unavailable" : undefined));
     return exclusion === undefined

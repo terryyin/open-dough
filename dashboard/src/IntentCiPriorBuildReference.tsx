@@ -1,8 +1,11 @@
-// Compact metrics and inspectable membership beside the unchanged observed
-// history. The linked raw evidence remains readable with no reference.
+// The compact prior-build readout every timing history shares: the selected
+// timing or its status, the prior-build average and how many builds it used,
+// then the signed elapsed and percentage change in the faster/slower cue
+// colour, the sign carrying the direction in either appearance. Without a
+// usable selected timing or average, no change is shown. The membership
+// behind it stays readable where a view keeps its evidence list.
 import { shortSha } from "./baseCiWording.ts";
 import {
-  buildDateWords,
   landingWords,
   plainWords,
   pointLandingsWords,
@@ -14,83 +17,84 @@ import {
   relativePercentWords,
   executionTimeWords,
 } from "./ciProofTimeWords.ts";
+import { reasonStatus } from "./ciHistoryChart.ts";
 import type { PriorBuildReference } from "./ciPriorBuildReference.ts";
 import { HistoryRunAttempt } from "./HistoryRunAttempt.tsx";
-import { buildKeyOf } from "./landedCiBuildKey.ts";
+import { evidenceOfEntry } from "./landedCiHistorySeries.ts";
 import type { MeasuredEntry } from "./landedCiHistory.ts";
 import { PriorBuildReferenceEvidenceList } from "./PriorBuildReferenceEvidenceList.tsx";
+import { relativeDirectionOf } from "./storyCiRelativeChange.ts";
+import "./intent-ci-cues.css";
+import "./intent-ci-history.css";
+
+type Difference = NonNullable<PriorBuildReference["difference"]>;
+
+// "+17 s (+17%)", or with a zero average "+1.2 s (percentage unavailable:
+// average is zero)".
+function changeWords(difference: Difference, precise: boolean) {
+  const elapsed =
+    precise || difference.changeMs % 1000 !== 0
+      ? difference.text
+      : wholeSecondDifferenceWords(difference.changeMs);
+  return `${elapsed} (${
+    difference.relative === undefined
+      ? "percentage unavailable: average is zero"
+      : relativePercentWords(difference.relative)
+  })`;
+}
 
 export function IntentCiPriorBuildReference({
   reference,
   precise = false,
   unavailableReason,
   endpointLabel = "Selected landing",
+  selectedNote,
   reasonWords = (reason: string) => reason,
 }: {
   readonly reference: PriorBuildReference;
   readonly precise?: boolean;
   readonly unavailableReason?: string | undefined;
   readonly endpointLabel?: string;
+  // How the selected measurement stands for the endpoint, when not its own.
+  readonly selectedNote?: string | undefined;
   readonly reasonWords?: (reason: string) => string;
 }) {
-  const { averageMs, selected, difference, from, to } = reference;
+  const { averageMs, selected, difference, sampleCount } = reference;
   const durationWords = precise ? executionTimeWords : wholeSecondWords;
+  const reason = selected?.reason;
+  const selectedWords =
+    selected?.ms !== undefined && reason === undefined
+      ? durationWords(selected.ms)
+      : reasonStatus(reason, reasonWords).words;
+  const direction =
+    difference === undefined
+      ? undefined
+      : relativeDirectionOf(difference.relative ?? difference.changeMs);
   return (
     <div className="intent-ci-prior-reference">
       <p>
-        <strong>Prior-build average</strong>
-        {" · "}
-        {averageMs === undefined
-          ? reasonWords(
-              unavailableReason ??
-                "Insufficient comparable history: at least 5 prior builds are required after filtering",
-            )
-          : durationWords(averageMs)}
-      </p>
-      <p>
         {endpointLabel} <code>{shortSha(reference.endpoint)}</code>
         {" · "}
-        {selected?.ms === undefined
-          ? reasonWords(selected?.reason ?? "Selected measurement unavailable")
-          : durationWords(selected.ms)}
+        <strong>{selectedWords}</strong>
+        {selectedNote === undefined ? "" : ` · ${selectedNote}`}
       </p>
       <p>
-        {difference === undefined
-          ? `Difference unavailable: ${
-              averageMs === undefined
-                ? reasonWords(
-                    unavailableReason ?? "insufficient comparable history",
-                  )
-                : reasonWords(
-                    selected?.reason ?? "selected measurement unavailable",
-                  )
-            }`
-          : `${precise ? difference.text : difference.changeMs % 1000 === 0 ? wholeSecondDifferenceWords(difference.changeMs) : difference.text} (${
-              difference.relative === undefined
-                ? "percentage unavailable: average is zero"
-                : relativePercentWords(difference.relative)
-            })`}
+        Prior-build average{" · "}
+        <strong>
+          {averageMs === undefined
+            ? unavailableReason === undefined
+              ? "Insufficient history"
+              : reasonWords(unavailableReason)
+            : durationWords(averageMs)}
+        </strong>
+        {` · ${String(sampleCount)} prior builds used`}
       </p>
-      <p>
-        {reference.sampleCount} prior builds used
-        {from === undefined
-          ? ""
-          : ` · ${buildDateWords(from)}${to === undefined || buildDateWords(to) === buildDateWords(from) ? "" : `–${buildDateWords(to)}`}`}
-      </p>
-      <p>
-        Median{" "}
-        {reference.medianMs === undefined
-          ? "unavailable"
-          : durationWords(reference.medianMs)}
-        ; exclude values strictly more than 15% above that median, once.
-        Complete fast values and measured zeros stay eligible.
-      </p>
-      <p>
-        These initial calibration choices are a reference for normal timing, not
-        a statistical confidence interval or slowdown judgment. The retained
-        window holds 20 measured builds total; excluded samples are not
-        replaced.
-      </p>
+      {difference !== undefined && (
+        <p className="intent-ci-prior-change" data-direction={direction}>
+          vs. prior average{" · "}
+          <strong>{changeWords(difference, precise)}</strong>
+        </p>
+      )}
     </div>
   );
 }
@@ -105,14 +109,10 @@ export function PriorBuildReferenceEvidence({
   return (
     <PriorBuildReferenceEvidenceList
       evidence={reference.evidence}
+      medianMs={reference.medianMs}
       details={(sample) => {
-        const entry = entries.find((entry) =>
-          entry.kind === "point"
-            ? buildKeyOf(entry) === sample.key
-            : sample.key === `landing/${entry.revision}` ||
-              (entry.reason !== "pending" &&
-                entry.build !== undefined &&
-                buildKeyOf(entry.build) === sample.key),
+        const entry = entries.find(
+          (entry) => evidenceOfEntry(entry, [sample]) !== undefined,
         );
         const build =
           entry?.kind === "point"

@@ -50,14 +50,35 @@ For prior values 100, 100, 100, 100, 115 and 116 seconds, the median is 100;
 120-second landing shows +17 seconds and the rounded percentage from 17/103.
 A zero average still permits an elapsed difference, with percentage explicitly
 unavailable. If selected proof or timing is unusable, a usable prior average
-remains visible with the reason a difference cannot be calculated.
+remains visible beside the selected status that says why, without a change.
 
-**Builds and evidence** keeps the observed values and gaps, plus dated
-reference evidence labelled ✓ Included, × Excluded, and ◆ Selected. It states
-the median and 15% rule and keeps provenance and build links available to
-keyboard, screen-reader and phone readers. The line and metrics are derived
-again whenever the endpoint or retained snapshot changes. History retains its
-own failure feedback and independent refresh lifecycle. Reading, refreshing,
+Every timing history shares one compact readout
+(`dashboard/src/IntentCiPriorBuildReference.tsx`): the selected timing, or its
+status in the chart's own words (**Failed build**, **No timing** with its
+reason, such as a pending build); the **Prior-build average** with how many
+prior builds it used, or **Insufficient history**; then the signed elapsed and
+percentage change against that average. The change shows only when both are
+usable. Its sign carries the direction in either appearance, and the figure
+repeats it in the faster or slower CI cue colour. A build that stands in for
+the selected landing is named briefly (**Reused equivalent first-parent
+build**, **Later trunk build, includes later changes**).
+
+A Done CI comparison shows its wall-time history between the Baseline, Branch
+and Landed endpoints and the by-entry table: a brief status when the history
+at its published landing is missing, out of retention, empty or unordered,
+the compact readout, and the shared chart of the selected landing and the
+verified retained observations through it, never newer landings. A labelled
+refresh icon reads it again; a failed read keeps the last history of the same
+landing beside its alert and a short **Retry history**. It lists no build
+records or membership.
+
+Project history's **Builds and evidence** keeps the observed values and gaps,
+plus dated reference evidence labelled ✓ Included, × Excluded, and ◆ Selected
+after the median and 15% rule, as the saved follow-up reference does. Both
+keep provenance and build links available to keyboard, screen-reader and phone
+readers. The line and metrics are derived again whenever the endpoint or
+retained snapshot changes. History retains its own failure feedback and
+independent refresh lifecycle. Reading, refreshing,
 revisiting and restarting use only retained local evidence, without CI
 acquisition caused by browsing.
 [Automatic landed CI follow-up](dashboard-ci-follow-up.md) can separately retain

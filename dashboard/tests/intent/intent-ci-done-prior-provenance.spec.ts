@@ -1,5 +1,4 @@
-import { attemptLink } from "../ciEvidenceLabelsPage.ts";
-import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
+import { doneWallTimeHistory } from "../priorBuildReferencePage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 import {
   storyReviewEndpoint,
@@ -81,40 +80,35 @@ for (const selection of ["equivalent", "later"] as const) {
       completion: setup.completion,
       landingRevision: endpoint,
     });
-    const history = panel.getByRole("region", {
-      name: "Done CI wall time reference",
-      exact: true,
-    });
-    await expect(history).toContainText(
-      `Selected landing ${shortSha(endpoint)}`,
+    const history = doneWallTimeHistory(panel);
+    const standIn =
+      selection === "equivalent"
+        ? "Reused equivalent first-parent build"
+        : "Later trunk build, includes later changes";
+    const timing = selection === "equivalent" ? "5 min" : "4 min";
+    await expect(history.selected).toHaveText(
+      `Selected landing ${shortSha(endpoint)} · ${timing} · ${standIn}`,
     );
-    await expect(history).toContainText("Prior-build average · 1 min 40 s");
-    await expect(history).toContainText("5 prior builds used");
+    await expect(history.average).toHaveText(
+      "Prior-build average · 1 min 40 s · 5 prior builds used",
+    );
     expect(representedRequests).toContain(endpoint);
     expect(representedRequests).not.toContain(setup.completion);
-    const samples = priorBuildReferenceReading(history);
-    await expect(samples.selected).toHaveCount(1);
-    await expect(samples.included).toHaveCount(5);
-    const selected = samples.selected;
-    await expect(selected).toContainText(shortSha(measured));
-    await expect(
-      attemptLink(selected, `Run ${runId} · attempt 1`),
-    ).toHaveAttribute("href", `https://ci.invalid/runs/${runId}`);
+    await expect(history.chart.selected).toHaveCount(1);
+    await expect(history.chart.readout).toHaveText(
+      `Nov 5 · Selected landing · ${timing}`,
+    );
     if (selection === "equivalent") {
-      await expect(selected).toContainText("reused equivalent");
-      await expect(samples.excluded).toContainText(
-        "Measured build is at or after the selected endpoint",
+      await expect(history.change).toHaveText(
+        "vs. prior average · +3 min 20 s (+200%)",
       );
-      await expect(history).toContainText("+3 min 20 s (+200%)");
       await expect(comparisonReading(panel).identities.nth(2)).toContainText(
         "equivalent build",
       );
     } else {
-      await expect(selected).toContainText("later trunk build");
-      await expect(history).toContainText(
-        "Selected measurement uses a later trunk build and includes later changes",
+      await expect(history.change).toHaveText(
+        "vs. prior average · +2 min 20 s (+140%)",
       );
-      await expect(history).toContainText("+2 min 20 s (+140%)");
       await expect(comparisonReading(panel).identities.nth(2)).toContainText(
         `Cancelled at ${shortSha(endpoint)}`,
       );

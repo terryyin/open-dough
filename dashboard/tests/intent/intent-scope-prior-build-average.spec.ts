@@ -144,7 +144,7 @@ test("each Done scope compares its own collected time through restart, accessibl
     await expect(cases).toContainText(`Prior-build average · ${average}`);
     await expect(cases).toContainText(selected);
     await expect(cases).toContainText(difference);
-    await expect(cases).toContainText("5 prior builds used · Nov 1–Nov 5");
+    await expect(cases).toContainText("5 prior builds used");
     await expect(cases).toContainText("reference for normal timing");
     await expect(cases).toContainText(
       "exclude values strictly more than 15% above that median, once",

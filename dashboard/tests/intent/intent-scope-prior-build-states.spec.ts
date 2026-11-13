@@ -95,9 +95,7 @@ test("zero, partial selected timing and missing terminal identity retain honest 
   );
   await revisit();
   await expect(cases).toContainText("Prior-build average · 0 ms");
-  await expect(cases).toContainText(
-    "Difference unavailable: Partial: part 2 of 2 missing",
-  );
+  await expect(cases).toContainText("No timing · Partial: part 2 of 2 missing");
   await expect(cases).not.toContainText("+1.2 s");
   await expect(scopeHistoryReading(cases).reference).toHaveCount(1);
   const partial = priorBuildReferenceReading(cases).selected;

@@ -15,7 +15,10 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import { wallTimeReferenceOf } from "./ciWallTimeReference.ts";
 import { historyEntries } from "./landedCiHistoryEntries.ts";
 import { readableHistoryEntries } from "./ciHistoryGapVocabulary.ts";
-import { readLandedCiHistory } from "./landedCiHistoryStore.ts";
+import {
+  readLandedCiHistory,
+  type ProjectHistory,
+} from "./landedCiHistoryStore.ts";
 import {
   mostCompleteLandingOrder,
   windowedHistory,
@@ -114,6 +117,23 @@ export function readingIntentCiHistoryOf(
     : readingCiScopeHistoryOf(source.repository, read.scope, read.revision);
 }
 
+// The wall-time history at an exact Done endpoint: its availability there,
+// the readable entries, and the prior-build reference through it.
+export function doneWallTimeHistoryOf(
+  history: ProjectHistory,
+  revision: string,
+  order: readonly string[] | undefined,
+  gapReasons?: "timing-basis",
+) {
+  const { availability } = historyEndpointOf(history, revision, order);
+  return {
+    selectedRevision: revision,
+    availability,
+    entries: readableHistoryEntries(historyEntries(history), gapReasons),
+    reference: wallTimeReferenceOf(history, revision, order),
+  };
+}
+
 export async function performIntentCiHistoryRead(
   source: PublishedSource,
   read?: IntentCiHistoryRead,
@@ -166,15 +186,10 @@ export async function performIntentCiHistoryRead(
       ),
     );
   }
-  if (read?.revision !== undefined) {
-    const { availability } = historyEndpointOf(history, read.revision, order);
-    return answered({
-      selectedRevision: read.revision,
-      availability,
-      entries: readableHistoryEntries(historyEntries(history), read.gapReasons),
-      reference: wallTimeReferenceOf(history, read.revision, order),
-    });
-  }
+  if (read?.revision !== undefined)
+    return answered(
+      doneWallTimeHistoryOf(history, read.revision, order, read.gapReasons),
+    );
   return answered({
     entries: readableHistoryEntries(historyEntries(history), read?.gapReasons),
     reference: wallTimeReferenceOf(history, undefined, order),

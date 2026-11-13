@@ -12,6 +12,7 @@ import {
 } from "../src/ciPriorBuildReference.ts";
 import { historyWallTimeMs } from "../src/landedCiHistory.ts";
 import { gapReasonWords } from "../src/ciHistoryGapWords.ts";
+import { failedBuildWords } from "../src/ciHistoryChart.ts";
 import { historyEntries } from "./landedCiHistoryEntries.ts";
 import type { KeptBuild, ProjectHistory } from "./landedCiHistoryStore.ts";
 
@@ -22,7 +23,7 @@ export function wallTimeReadingOf(build: KeptBuild | undefined): {
   readonly reason?: string;
 } {
   if (build === undefined) return { reason: "Measured build is not retained" };
-  if (build.state !== "pass") return { reason: "Failed build" };
+  if (build.state !== "pass") return { reason: failedBuildWords };
   if (!hasAttemptTiming(build)) return { reason: unverifiedAttemptTiming };
   const ms = historyWallTimeMs(build.startedAt, build.completedAt);
   if (ms === undefined)

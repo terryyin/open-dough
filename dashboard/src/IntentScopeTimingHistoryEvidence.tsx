@@ -1,6 +1,6 @@
 // One retained attempt's shared provenance and independently named readings.
 import { shortSha } from "./baseCiWording.ts";
-import { buildDateWords } from "./ciHistoryWords.ts";
+import { buildDateWords, standInBuildWords } from "./ciHistoryWords.ts";
 import { declaredUnits, unitName } from "./ciProofUnits.ts";
 import { executionTimeWords } from "./ciProofTimeWords.ts";
 import type { ScopeHistoryEntry } from "./ciScopeHistory.ts";
@@ -20,9 +20,9 @@ export function scopeHistoryProvenance(entry: ScopeHistoryEntry): string {
   if (roles.size > 1)
     return entry.kind === "point" ? "Measured build" : "Build";
   const role = roles.values().next().value;
-  if (role === "later") return "Later trunk build, includes later changes";
-  if (role === "equivalent") return "Reused equivalent first-parent build";
-  return "Exact build";
+  return role === "later" || role === "equivalent"
+    ? standInBuildWords[role]
+    : "Exact build";
 }
 
 export function IntentScopeTimingHistoryEvidence({

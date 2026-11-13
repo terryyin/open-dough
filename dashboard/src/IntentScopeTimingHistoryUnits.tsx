@@ -3,10 +3,10 @@ import { useId } from "react";
 import { buildDateWords } from "./ciHistoryWords.ts";
 import { declaredUnits, unitName, type DeclaredUnit } from "./ciProofUnits.ts";
 import { executionTimeWords } from "./ciProofTimeWords.ts";
-import { failedBuildReason, type CiScopeHistory } from "./ciScopeHistory.ts";
+import type { CiScopeHistory } from "./ciScopeHistory.ts";
 import {
-  gapStatus,
   isMeasured,
+  reasonStatus,
   type HistoryChartBuild,
 } from "./ciHistoryChart.ts";
 import { IntentCiHistoryChart } from "./IntentCiHistoryChart.tsx";
@@ -57,10 +57,7 @@ function UnitHistory({
     return {
       ...common,
       kind: "gap",
-      ...gapStatus(
-        reason === failedBuildReason,
-        reason === undefined ? undefined : scopeHistoryReason(context, reason),
-      ),
+      ...reasonStatus(reason, (reason) => scopeHistoryReason(context, reason)),
     };
   });
   return (
