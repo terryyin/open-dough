@@ -19,11 +19,11 @@ and pending state. After review — or with `--skip-retro` or another explicit
 review omission — publish the plan's [execution-complete record](finish-or-stop.md#record-execution-completion),
 then invoke exactly one completion action. Wrap-up uses it after registering the
 final accepted SHA: the closure or integrated SHA, or the last consumer
-publication. Follow [completion command and receipt mechanics](#completion-command-and-receipt-mechanics),
+publication. Follow [completion mechanics](#completion-command-and-receipt-mechanics),
 including its live-Claude Story Branch background handoff; handle delivered failures at safe boundaries.
 
 Success with confirmed shutdown ends observation; report `integrated_state` under
-[completion command and receipt mechanics](#completion-command-and-receipt-mechanics).
+[completion mechanics](#completion-command-and-receipt-mechanics).
 Another writer's failure creates no repair obligation. Success completes only once
 every actionable failure delivered for this execution is repaired, proved infrastructure,
 held by a reported active owner or explicitly excepted; no passing rerun or later green tip settles one.
@@ -32,7 +32,7 @@ never retries until green. Missing repair authority, ownership or a required
 decision leaves incomplete work with failed revision and partial review preserved,
 with no completion marker. An unresolved receipt establishes no success: report
 its reason, effective evidence and shutdown. Pending or unconfirmed shutdown
-retains resources; follow [completion command and receipt mechanics](#completion-command-and-receipt-mechanics)
+retains resources; follow [completion mechanics](#completion-command-and-receipt-mechanics)
 for recovery or expiry. Observation cancellation is not execution or wrap-up cancellation.
 Authorized repair uses publish/register and invalidates only affected review conclusions;
 complete its new accepted revision at a later boundary. The retrospective gains
@@ -41,10 +41,9 @@ no repair, commit, push, backlog or observer authority.
 ## Completion command and receipt mechanics
 
 At a final managed Story Branch execution/review handoff, the same live
-interactive Claude coordinator may explicitly choose the bounded
-[background handoff](ci-background-handoff.md) and end its coding turn with CI
-pending. Its command verifies that route. All other completion paths below
-retain this operation.
+interactive Claude coordinator may choose the bounded
+[background handoff](ci-background-handoff.md). All other completion paths
+below retain this operation.
 
 Invoke the completion action with the exact retained mailbox and accepted
 revision:
@@ -53,14 +52,8 @@ revision:
 node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs' complete-revision '/EXACT/RECORDED/MAILBOX' FULL_ACCEPTED_SHA
 ```
 
-When this coordinator's observer for that target has ended before the accepted
-SHA has a completion receipt — including a budget-expiry notice that names
-`execution-completion-recovery.mjs complete` — run that one managed recovery
-instead of polling by hand or inventing a second receipt. It takes the same
-owner input as `resume` (`--workspace`, `--accepted-sha`, `--target-ref`,
-`--repo`, `--host`, and the host session or Codex stream flags), re-establishes
-this coordinator's observation of that SHA on its authorized target, and ends
-in the ordinary `CI_OBSERVER` completion receipt below.
+When the observer ended before a receipt, follow
+[managed completion recovery](ci-completion-recovery.md).
 
 The command stays silent while waiting and keeps its ten-minute foreground bound.
 Before waiting it exclusively records the first completion start and a sixty-minute

@@ -317,6 +317,9 @@ command-adapter proof outcomes from slices 3–4. Link the outcome from
 - Slice 3: record predecessors before the first `completeRevision` or the
   exclusive deadline claim is fresh; in-process budget end needs a config-free
   observe root with a controlled clock, not the fixture command-adapter root.
+- CI repair on `7f906b8` (run 43450433756/1): named recovery lives in
+  `ci-completion-recovery.md` so the finish-row read of `ci-completion-wait.md`
+  stays under the 30KB tool-result budget.
 
 
 ## Story obligations

@@ -21,6 +21,7 @@ managed_files+=(
   dough-execute-plan/references/admit-accepted-work.md
   dough-execute-plan/references/agent-commits.md
   dough-execute-plan/references/ci-background-handoff.md
+  dough-execute-plan/references/ci-completion-recovery.md
   dough-execute-plan/references/ci-completion-wait.md
   dough-execute-plan/references/ci-monitor.md
   dough-execute-plan/references/ci-notify-codex.md
