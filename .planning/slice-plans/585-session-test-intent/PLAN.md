@@ -325,6 +325,11 @@ through `keepMoreLaunchRecordsBesideServer`, built on the lock-held
 `changeMachineDocument`. Forced interleaving failed 6/6 before and passed 6/6 after;
 20/20 and 12/12 at four workers.
 
+CI repair (run 43376251490 on cd70177): `preparation-legend`'s desktop/zoom case counted
+origin reads before the page's opening agent-profiles read had caused its
+`open-dough.json` read (expected 5, got 6). It now settles with `expectSettledPage`
+before counting, as its touch variant does. Reproduced 4/4 before; 8/8 after.
+
 ## Execution complete
 
 Product advice:
