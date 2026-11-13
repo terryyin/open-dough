@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 504. Removed numbers are never reused.
+- Highest allocated local number: 506. Removed numbers are never reused.
 - Recovery: `abc1e0a2cee4912f1c87fb15f929772f6c52ce0e:DearDough.md` contains the full pre-cleanup log and links to earlier recovery revisions.
 - Occurrence history is partial.
 
@@ -84,6 +84,14 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: slice 1 changed `dashboard/tests/support/cursorSessionReading.ts` `openTakenCursorSession`. The implementation return listed its consumers as the Cursor session specs of the plan's premises table and ran those; the refactor agent's trace found `support/cursorSessionRecovery.ts` also calls it, reaching nine more specs (`cursor-session-recovery-wait`, `-restart`, `-replacement`, `cursor-runner-replacement`, `-controls`, `cursor-runner-helper-survival`, `cursor-session-scope-continuation`, `-noninterference`, `cursor-session-alerts`). The coordinator computed the transitive importers (22 specs) and ran them before publishing `43782e67d`.
   - Observed effect: one extra 7-minute local run before publication; no failure reached CI from this cause.
   - Inference: the implementer selected proof from the plan's list of failing specs, not from importers of the support module it changed; the consumer-trace output was dominated by plan-file matches.
+- Execution: SEED-300#express-board-test-intent-through-page-objects (plan 584; first implementation `7bb1e73355fdb4b9c4d0c729f8df17892dfeb128`)
+  - Timestamp: unknown (2026-11-13, slice 9 delivery about 08:30+08:00; CI failure reported about 09:50+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.97 (installed `.claude/skills/dough-update/VERSION` at Take `6d102beae`)
+  - Evidence: slice 9 made `dashboard/playwright.config.ts` import the new `tests/support/browserArgs.ts`. Its consumer trace listed `innerPlaywright.ts`, `proofRecordRun.ts` and backend runner specs as out of scope, but did not reach `tests/support/local-test-suite-checkout.mjs`, which copies the config together with a fixed list of its imports. CI run 43349861593 job "test (2/3)" failed `tests/support/local-test-suite.test.mjs:125` with ERR_MODULE_NOT_FOUND for `browserArgs.ts`; repair `974e2b7f` added the path to that list.
+  - Observed effect: one failed CI run and one repair publication after the slice was published.
+  - Inference: the trace was run from the changed module's importers; a file that reads the config as text and copies its relative imports is not an importer, so path-based tracing missed it.
 
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
@@ -548,6 +556,14 @@ A Take-ready plan headed its only slice under `## Slice`. The obligations / plan
   - Evidence: Take `d9320ac4e` PLAN.md has `## Ordered slice` for its single slice; `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice`; published `d368840ee` has `## Ordered slices`. The seed's recorded assessment was `ready`.
   - Observed effect: one refusal and a one-line plan edit before slice 1 delegation.
   - Inference: third near-miss form of the same heading; a one-slice plan invites the singular, and readiness still does not run the reader execution uses.
+- Execution: SEED-300#express-board-test-intent-through-page-objects (plan 584; first implementation `7bb1e73355fdb4b9c4d0c729f8df17892dfeb128`)
+  - Timestamp: unknown (2026-11-12, before the first implementation delegation, about 19:50+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.97 (installed `.claude/skills/dough-update/VERSION` at Take `6d102beae`)
+  - Evidence: Take `6d102beae` PLAN.md has `## Ordered slices and outside-in proof`; `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice`; published `7bb1e733` has `## Ordered slices`. The seed's recorded assessment was `ready`.
+  - Observed effect: one refusal and a one-line plan edit before slice 1 delegation.
+  - Inference: fourth near-miss form of the same heading (descriptive suffix again).
 
 ## DD-488 — Guarded slice delivery rejects its retained Markdown hard break
 
@@ -875,3 +891,31 @@ the run.
   - Evidence: plan 602 "Consumer trace and local gates": "Run the whole local suite (`npm test`, Homebrew Bash first on `PATH`) once … 132 dashboard specs render Recently done cards"; `package.json` `"test": "exec bash scripts/test.sh"` and a separate `test:dashboard`; no `dashboard/test-results` entry from the 16:55–17:19+08:00 run. That run (battery, load up to 36) ended with one `workspace-publication.test.mjs` TIMEOUT reported after 1357.8 s, which passed alone in 118 s.
   - Observed effect: about 23 minutes of a full node/Bash run on battery that observed none of the named dashboard journeys; the dashboard whole-suite verdict came only from branch CI's 13 shards, and the remaining battery forced wrap-up to stop before closure.
   - Inference: observing the command's coverage when writing the gate (one look at `package.json`) would have named `test:dashboard` or deferred the gate to CI. This has happened once.
+
+## DD-505 — A coordinator offered a suite-wide setting with an understated reach, and the human approved that description
+
+The coordinator offered `--disable-smooth-scrolling` to the developer as "Key scrolls become instant … changes every dashboard test's key scrolling" and the developer chose it. Before the load proof, the implementing agent probed the flag and found it also makes programmatic smooth reveals instant, which removed the only browser proof of a reveal still in motion. A second decision was needed, and later a third: whether to delete the one spec that tested a reveal in motion.
+
+### Occurrences
+- Execution: SEED-300#express-board-test-intent-through-page-objects (plan 584; first implementation `7bb1e73355fdb4b9c4d0c729f8df17892dfeb128`)
+  - Timestamp: unknown (2026-11-13, about 06:55–08:00+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.97 (installed `.claude/skills/dough-update/VERSION` at Take `6d102beae`)
+  - Evidence: coordinator stop message `/Users/terryyin/.claude/jobs/7c2dd325/tmp/stop-message-2.md` (option 1 text); slice 9 agent probes `slice9b-instant*.log` and `slice9b-programmatic-*.log` in that directory; plan 584 slice 9 decision paragraphs; `story-reference-scroll-completion.spec.ts` failed 3/3 with the flag and passed 3/3 without it.
+  - Observed effect: the developer approved an option whose stated scope was wrong; two extra human decisions followed; no wrong change landed, because the agent stopped before proof and publication.
+  - Inference: the diagnosis measured the flag only on key scrolling. The coordinator turned that measurement into the option's scope without checking what else the setting changes.
+
+## DD-506 — A delegated agent resent the same final report several times after its work finished
+
+A slice 9 diagnosis agent delivered its complete hand-back, then delivered the same report three more times, each time saying "resent because the delivery check fired again". Each copy cost the coordinator a turn, and in one turn the coordinator gave the developer a second, redundant summary.
+
+### Occurrences
+- Execution: SEED-300#express-board-test-intent-through-page-objects (plan 584; first implementation `7bb1e73355fdb4b9c4d0c729f8df17892dfeb128`)
+  - Timestamp: unknown (2026-11-13, about 04:40–06:50+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.97 (installed `.claude/skills/dough-update/VERSION` at Take `6d102beae`)
+  - Evidence: coordinator conversation after the slice 9 first-attempt hand-back: four identical "Slice 9: native reading keys under the decided load. Outcome 2, nothing changed" reports between the "is waiting on its own background work" notifications, before the final "finished" notification.
+  - Observed effect: three extra coordinator turns spent acknowledging repeated reports; no state change.
+  - Inference: the agent's background run was still alive at hand-back (a stopped load run, r1), so the host kept re-invoking it and it re-delivered its report; the cause is not established.

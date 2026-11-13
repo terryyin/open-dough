@@ -754,6 +754,11 @@ A developer can read the exact browser measurement contract being proved while r
 
 Resolve only repeated surrounding fixture DOM access, coordinate plumbing and CDP touch setup in the measurement finding. Keep direct utility calls and independent measurements visible, including runtime browser-turn, trace, metadata and request-drain observations that are themselves the contract. A naturally direct observation can retain that form with an evidence-backed disposition.
 
+Dashboard test browsers start with `--disable-smooth-scrolling`
+(`dashboard/tests/support/browserArgs.ts`), so key scrolls and programmatic
+smooth reveals are instant. A measurement that needs smooth scrolling sets its
+own `launchOptions` group without that argument and states why.
+
 **Plan:** [Mapped plan](../slice-plans/588-browser-measurement-test-intent/PLAN.md)
 
 #### Preparation hold
