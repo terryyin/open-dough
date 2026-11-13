@@ -19,6 +19,8 @@ import {
 import { publishMovingFiles } from "../publishedFiles.ts";
 import { avatarHost } from "../agentAttributionRecords.ts";
 import { inspectedDetail } from "../storyCardControls.ts";
+import { credit } from "../agentCredit.ts";
+import { expectNoPlaceholderShown } from "../retainedFacts.ts";
 import {
   contentReads,
   openSettledAtA,
@@ -43,10 +45,9 @@ const syncRecord = ".planning/seeds/SEED-008-sync.md";
 const cardCredits = (page: Page) =>
   Promise.all(
     agents.map((agent) =>
-      parts(page)
-        .taken.getByRole("article", { name: titleOf(agent) })
-        .locator(".story-card-owner")
-        .innerText(),
+      credit(
+        parts(page).taken.getByRole("article", { name: titleOf(agent) }),
+      ).owner.innerText(),
     ),
   );
 
@@ -73,11 +74,11 @@ test("assignments keep their agents, credited humans, and portraits on cards and
   await page.goto("/");
   await expectSettledPage(page);
   const { taken } = parts(page);
-  await expect(taken.locator(".owner-line .owner-human-name")).toHaveText(
+  await expect(credit(credit(taken).line).humanName).toHaveText(
     agents.map(() => human),
   );
   const before = await credits(page);
-  const portraits = await taken.locator(".agent-portrait").count();
+  const portraits = await credit(taken).portrait.count();
 
   const release = origin.holdComparisons();
   origin.moveTrunk(toB.at, toB.by);
@@ -89,9 +90,11 @@ test("assignments keep their agents, credited humans, and portraits on cards and
     );
     expect(await cardCredits(page)).toEqual(before.cards);
     expect(await credits(page)).toEqual(before);
-    await expect(page.getByText("Reading human developer…")).toHaveCount(0);
-    await expect(page.getByText("Reading agent profile…")).toHaveCount(0);
-    await expect(taken.locator(".agent-portrait")).toHaveCount(portraits);
+    await expectNoPlaceholderShown(page, [
+      "Reading human developer…",
+      "Reading agent profile…",
+    ]);
+    await expect(credit(taken).portrait).toHaveCount(portraits);
   });
 
   await test.step("once B answers, the same credits show", async () => {

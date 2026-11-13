@@ -20,6 +20,7 @@ import {
   titles,
 } from "../limitedReadingRecords.ts";
 import { publishes } from "../support/fakeGitHub.ts";
+import { expectEarlierSnapshotKept } from "../transientRecoveryPage.ts";
 
 test("limiting a revision check keeps the snapshot, says once when reading resumes, and asks nothing until then", async ({
   page,
@@ -47,13 +48,7 @@ test("limiting a revision check keeps the snapshot, says once when reading resum
   await expectSettledPage(page, titles);
   // Standing limit / failed check: status names no revision; the alert keeps
   // the earlier retrieval time and Board membership proves the snapshot.
-  await expect(problem).toContainText(
-    "What is shown is the earlier snapshot, retrieved at",
-  );
-  await expect(problem.locator("time").nth(1)).toHaveAttribute(
-    "datetime",
-    opened.toISOString(),
-  );
+  await expectEarlierSnapshotKept(page, opened.toISOString());
 
   await whileTheLimitStands(page, other, resumesAt, answers.refusedAt());
 });

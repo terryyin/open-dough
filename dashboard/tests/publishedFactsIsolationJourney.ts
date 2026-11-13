@@ -11,6 +11,7 @@ import {
   revisionDoughnut,
 } from "./doughnutProject.ts";
 import { selectSettledDoughnut } from "./doughnutJourney.ts";
+import { projectTab } from "./projectChoice.ts";
 import { opened } from "./sliceClockRecords.ts";
 import {
   groups,
@@ -21,12 +22,6 @@ import {
   expectHeldGroups,
   expectNoEarlierFacts,
 } from "./publishedFactsIsolationAssertions.ts";
-
-export function pageErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
-  return errors;
-}
 
 export async function openHeldPublication(page: Page, facts: PublishedFacts) {
   await pausePageClockAt(page, opened);
@@ -65,9 +60,7 @@ export async function expectOnlyDoughnut(
   saved: Awaited<ReturnType<typeof publishedReadState>>,
 ) {
   await expectMembership(page, { taken: [], backlog: [doughnutSharedTitle] });
-  await expect(
-    parts(page).project.getByRole("radio", { name: "Doughnut", exact: true }),
-  ).toBeChecked();
+  await expect(projectTab(page, "Doughnut")).toBeChecked();
   await expect(parts(page).readRevision).toContainText(
     shortRevision(revisionDoughnut),
   );

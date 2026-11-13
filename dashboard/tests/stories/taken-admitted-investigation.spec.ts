@@ -12,6 +12,7 @@ import {
   stillQueued,
   type Admission,
 } from "../admittedWork.ts";
+import { credit } from "../agentCredit.ts";
 
 let admission: Admission;
 const cleanups: Array<() => Promise<void>> = [];
@@ -35,7 +36,7 @@ test("an admitted investigation that was never queued shows its purpose, owner, 
   const card = parts(page).taken.getByRole("article", {
     name: admitted.title,
   });
-  await expect(card.locator(".owner-agent")).toHaveText("Yui-chan");
+  await expect(credit(card).agent).toHaveText("Yui-chan");
   await expect(card.getByText("Refined", { exact: true })).toBeVisible();
   await expect(
     card.getByText("Ready for execution", { exact: true }),

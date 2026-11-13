@@ -21,6 +21,8 @@ import {
   openTakenExecutionComplete,
   queued,
 } from "./takenExecutionCompleteFixture.ts";
+import { inspectedDetail, storyCard } from "../storyCardControls.ts";
+import { progressSource, sliceBar, sliceProgress } from "../storyCardFacts.ts";
 
 const complete = "Execution complete, awaiting wrap-up";
 
@@ -29,10 +31,8 @@ test("a Taken card whose plan records its execution as complete shows it awaitin
 }) => {
   const { taken: takenColumn, backlog: backlogColumn } =
     await openTakenExecutionComplete(page);
-  const card = (title: string) =>
-    takenColumn.getByRole("article", { name: title });
-  const progress = (title: string) =>
-    card(title).locator(".story-card-progress");
+  const card = (title: string) => storyCard(takenColumn, title);
+  const progress = (title: string) => sliceProgress(card(title));
 
   await test.step("a Story Branch Mode plan completed 40 min ago on its branch is complete there, not in trunk, with no current slice clock", async () => {
     await expect(progress(onBranch)).toContainText(complete);
@@ -44,10 +44,7 @@ test("a Taken card whose plan records its execution as complete shows it awaitin
     await expect(progress(onBranch)).not.toContainText("0 of 3");
     // The exact branch and revision are the detail's.
     await expect(card(onBranch)).not.toContainText(branch);
-    await card(onBranch).getByRole("button", { name: "Inspect story" }).click();
-    await expect(
-      card(onBranch).getByRole("region", { name: `Detail for ${onBranch}` }),
-    ).toContainText(
+    await expect(await inspectedDetail(card(onBranch))).toContainText(
       `From branch ${branch} at ${branchHead.slice(0, 7)}; not in trunk.`,
     );
   });
@@ -55,19 +52,14 @@ test("a Taken card whose plan records its execution as complete shows it awaitin
   await test.step("a Trunk Mode record of no product change is complete, and the detail shows that advice", async () => {
     await expect(progress(onTrunk)).toContainText(complete);
     await expect(progress(onTrunk)).toContainText("Completed 15 min ago");
-    await expect(progress(onTrunk).locator(".progress-source")).toHaveCount(0);
-    await card(onTrunk).getByRole("button", { name: "Inspect story" }).click();
-    const detail = card(onTrunk).getByRole("region", {
-      name: `Detail for ${onTrunk}`,
-    });
+    await expect(progressSource(progress(onTrunk))).toHaveCount(0);
+    const detail = await inspectedDetail(card(onTrunk));
     await expect(detail.locator(".product-advice")).toHaveText(noChange);
   });
 
   await test.step("all slices done without the record is slice progress and its clock, not complete", async () => {
     await expect(
-      progress(allDone).getByRole("img", {
-        name: "2 of 2 slices recorded complete",
-      }),
+      sliceBar(progress(allDone), "2 of 2 slices recorded complete"),
     ).toBeVisible();
     await expect(progress(allDone)).toContainText(
       "Current slice started 20 min ago",
@@ -85,7 +77,7 @@ test("a Taken card whose plan records its execution as complete shows it awaitin
   });
 
   await test.step("a queued entry whose plan records completion shows no complete state", async () => {
-    const queuedCard = backlogColumn.getByRole("article", { name: queued });
+    const queuedCard = storyCard(backlogColumn, queued);
     await expect(queuedCard).toBeVisible();
     await expect(queuedCard).not.toContainText("Execution complete");
     await expect(queuedCard).not.toContainText("Completed");

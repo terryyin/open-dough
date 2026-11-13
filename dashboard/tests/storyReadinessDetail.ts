@@ -11,22 +11,18 @@ import {
   type ReadinessRepo,
 } from "./storyReadinessFixture.ts";
 import { reloadUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
-
-async function inspectReadyDetail(taken: Locator): Promise<Locator> {
-  const readyCard = taken.getByRole("article", { name: plannedReady.title });
-  await readyCard.getByRole("button", { name: "Inspect story" }).click();
-  return readyCard.getByRole("region", {
-    name: `Detail for ${plannedReady.title}`,
-  });
-}
+import {
+  canonicalRecord,
+  inspectedDetail,
+  storyCard,
+} from "./storyCardControls.ts";
 
 export async function expectReadyDetailZeroComplete(
   taken: Locator,
   origin: CommittedOrigin,
 ) {
   const before = origin.requests.length;
-  const detail = await inspectReadyDetail(taken);
-  await expect(detail).toBeVisible();
+  const detail = await inspectedDetail(storyCard(taken, plannedReady.title));
   await expect(detail.getByRole("heading", { name: "Purpose" })).toBeVisible();
   await expect(detail).toContainText(
     "Show recorded slice progress for a Taken story",
@@ -37,9 +33,7 @@ export async function expectReadyDetailZeroComplete(
   await expect(detail).toContainText("Status: planned");
   await expect(detail).toContainText("Prospective proof recipe:");
   await expect(detail.getByText("Accepted evidence:")).toHaveCount(0);
-  await expect(
-    detail.getByRole("link", { name: /Canonical record/ }),
-  ).toBeVisible();
+  await expect(canonicalRecord(detail)).toBeVisible();
   await expect(detail.getByRole("link", { name: /Slice plan/ })).toBeVisible();
   expect(origin.requests.length).toBe(before);
 }
@@ -61,13 +55,8 @@ export async function expectReadyDetailTwoCompleteAfterPublish(
   );
   await untilPageReadsAnswered(page);
 
-  const readyCard = taken.getByRole("article", { name: plannedReady.title });
-  const detail = readyCard.getByRole("region", {
-    name: `Detail for ${plannedReady.title}`,
-  });
-  if (!(await detail.isVisible())) {
-    await readyCard.getByRole("button", { name: "Inspect story" }).click();
-  }
+  // Its detail may still be open from earlier.
+  const detail = await inspectedDetail(storyCard(taken, plannedReady.title));
   await expect(detail).toContainText("2 of 5 slices recorded complete");
   await expect(detail).toContainText("Status: done (recorded complete)");
   await expect(detail).toContainText("Accepted evidence:");
@@ -88,11 +77,9 @@ export async function expectReadyDetailTwoCompleteAfterPublish(
 }
 
 export async function expectPlanlessDetailAbsentPlan(backlog: Locator) {
-  const planlessCard = backlog.getByRole("article", { name: planless.title });
-  await planlessCard.getByRole("button", { name: "Inspect story" }).click();
-  const planlessDetail = planlessCard.getByRole("region", {
-    name: `Detail for ${planless.title}`,
-  });
+  const planlessDetail = await inspectedDetail(
+    storyCard(backlog, planless.title),
+  );
   await expect(planlessDetail).toContainText("Approach: Planless");
   await expect(planlessDetail).toContainText("No associated plan is recorded");
 }

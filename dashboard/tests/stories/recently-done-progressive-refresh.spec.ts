@@ -13,8 +13,12 @@
 // revision.
 
 import { expect, test } from "../dashboardTest.ts";
-import { rem } from "../boardPage.ts";
-import { expectEntries, shownEntries } from "../recentlyDoneColumn.ts";
+import { bottomOf, rem, scrollYOf, wheelToBoardEnd } from "../boardPage.ts";
+import {
+  expectEntries,
+  revealAction,
+  shownEntries,
+} from "../recentlyDoneColumn.ts";
 import {
   entryName,
   type ProgressiveEntry,
@@ -22,8 +26,7 @@ import {
 import {
   opened,
   recordsAsked,
-  revealAction,
-  settle,
+  untilPageRests,
 } from "../recentlyDoneProgressivePage.ts";
 import {
   destination,
@@ -111,27 +114,17 @@ test("a refresh keeps twenty entries in their current order, reading only the ne
     ({ place, kind }) => place <= 10 || kind === "session",
   );
   await test.step("with the Board scrolled to its end, a shorter list keeps the scroll within the Board, and the keyboard on the last entry", async () => {
-    await page.locator(".board-scroll").evaluate((region) => {
-      region.scrollTo(0, region.scrollHeight);
-    });
-    await settle(page);
-    const before = await page
-      .locator(".board-scroll")
-      .evaluate((region) => region.scrollTop);
+    await wheelToBoardEnd(page);
+    const before = await scrollYOf(page);
     const revisionE = main.publish(now, atE);
     await refreshedTo(page, revisionE);
     await expectEntries(recent, namesOf(atE, atE.length));
     await expect(recent).toContainText("All 17 entries are shown.");
     await expect(shownEntries(recent).last()).toBeFocused();
-    await settle(page);
-    const { scrolled, end } = await page
-      .locator(".board-scroll")
-      .evaluate((region) => ({
-        scrolled: region.scrollTop,
-        end: region.scrollHeight - region.clientHeight,
-      }));
+    await untilPageRests(page);
+    const scrolled = await scrollYOf(page);
     expect(scrolled).toBeLessThan(before);
-    expect(scrolled).toBeLessThanOrEqual(end);
+    expect(scrolled).toBeLessThanOrEqual(await bottomOf(page));
     expect(recordsAskedAt(github, revisionE)).toEqual([]);
   });
 });

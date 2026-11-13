@@ -69,6 +69,11 @@ export function parts(page: Page) {
 // Short revision form the product says in a sentence (status, alerts, progress).
 export { shortRevision } from "../src/publishedWork.ts";
 
+// What a column's header says of how many entries it holds, such as
+// "35 entries" or "Entry count incomplete".
+export const columnCountOf = (column: Locator) =>
+  column.locator(".column-count");
+
 // A standalone session entry, named for its launch's workflow and title.
 export const standaloneSessionName = (workflow: string, title: string) =>
   `${workflow} session for ${title}`;

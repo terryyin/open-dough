@@ -21,8 +21,13 @@ import {
 } from "../storyDependencyFixture.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { pausePageClock } from "../autoRefreshJourney.ts";
-import { detailToggle } from "../storyCardControls.ts";
-import { expectInspected, expectSelected } from "../storyCardSelection.ts";
+import { detailToggle, hideDetail, storyCard } from "../storyCardControls.ts";
+import {
+  emptyArea,
+  expectInspected,
+  expectSelected,
+} from "../storyCardSelection.ts";
+import { followReference, openDependencies } from "../storyReference.ts";
 
 // Story A waits on Story B and needs a decision about Story C, the second
 // supplier, queued as a third card; Story A is not ready for an unrelated
@@ -53,9 +58,11 @@ test("Inspect story and a dependency reference open details beside each other wi
   await pausePageClock(page);
   await openUntilRead(page);
   const { backlog } = parts(page);
-  const card = (name: string) =>
-    backlog.getByRole("article", { name, exact: true });
-  const [a, b, c] = [card(consumer.title), card("Story B"), card("Story C")];
+  const [a, b, c] = [
+    storyCard(backlog, consumer.title),
+    storyCard(backlog, "Story B"),
+    storyCard(backlog, "Story C"),
+  ];
 
   const expectNoneSelected = async () => {
     for (const each of [a, b, c]) await expectSelected(each, false);
@@ -66,13 +73,13 @@ test("Inspect story and a dependency reference open details beside each other wi
     await expectInspected(a, true);
     await expectNoneSelected();
     await b.getByRole("button", { name: "Inspect story" }).click();
-    await b.getByRole("button", { name: "Hide detail" }).click();
+    await hideDetail(b);
     await expectInspected(b, false);
     await expectNoneSelected();
   });
 
   await test.step("with Story C selected, Story B's detail opens and closes and C stays selected", async () => {
-    await c.getByRole("heading", { level: 3 }).click();
+    await emptyArea(c).click();
     await expectSelected(c, true);
     const inspectB = b.getByRole("button", { name: detailToggle });
     await inspectB.click();
@@ -88,11 +95,9 @@ test("Inspect story and a dependency reference open details beside each other wi
   });
 
   await test.step("Story A's reference to Story B opens B's detail, keeps A and C open, and leaves C selected", async () => {
-    await a.locator(".story-dependencies summary").click();
+    await openDependencies(a);
     await expectSelected(a, false);
-    await a
-      .getByRole("link", { name: supplierB.identity, exact: true })
-      .click();
+    await followReference(a, supplierB.identity);
     await expect(b).toBeFocused();
     for (const each of [a, b, c]) await expectInspected(each, true);
     await expectSelected(b, false);

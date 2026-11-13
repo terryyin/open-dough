@@ -1,5 +1,6 @@
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
+import { expectDocumentStill } from "../boardReading.ts";
 import { closeTerminal, terminalPanel } from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
@@ -68,6 +69,6 @@ for (const height of [800, 900, 1600]) {
     } else {
       await expectWhollyInView(page, pygardonStory.title);
     }
-    expect(await page.evaluate(() => scrollY)).toBe(0);
+    await expectDocumentStill(page);
   });
 }

@@ -40,8 +40,7 @@ import {
   titlesOfB,
 } from "../refreshJourney.ts";
 import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
-
-const canonical = { name: /^Canonical record/ };
+import { canonicalRecord, storyCard } from "../storyCardControls.ts";
 
 test("auto refresh: quiet main is only checked, and newly published main appears with its own detail and keeps focus", async ({
   page,
@@ -113,9 +112,7 @@ test("auto refresh: quiet main is only checked, and newly published main appears
     ).toContainText(`${dashboardStory}, as published at B.`);
     await expect(page.locator("body")).not.toContainText("as published at A");
     await expect(
-      taken
-        .getByRole("article", { name: dashboardStory })
-        .getByRole("link", canonical),
+      canonicalRecord(storyCard(taken, dashboardStory)),
     ).toHaveAttribute("href", new RegExp(`/blob/${revisionB}/`));
   });
 

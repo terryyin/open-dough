@@ -18,6 +18,15 @@ import {
   expectStoryCardAssignments,
   expectDoneFacts,
 } from "../publishedFactsAssertions.ts";
+import { credit } from "../agentCredit.ts";
+import {
+  badge,
+  progressSource,
+  sliceBar,
+  sliceProgress,
+} from "../storyCardFacts.ts";
+import { expectNoPlaceholderShown } from "../retainedFacts.ts";
+import { watchPageErrors } from "../pageErrors.ts";
 
 async function expectAssignments(
   page: Page,
@@ -52,8 +61,7 @@ for (const order of [
   test(`published facts accumulate as ${order.join(", then ")} answer`, async ({
     page,
   }) => {
-    const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
+    const errors = watchPageErrors(page);
     const { branchCard, trunkCard, queuedCard, doneCard, problem, release } =
       await heldFactGroups(page);
     const complete = new Set<FactGroup>();
@@ -67,9 +75,7 @@ for (const order of [
         complete.add(group);
         if (complete.has("preparation")) {
           await expectCanonicalFacts(queuedCard);
-          await expect(
-            branchCard.getByText("Slice planned", { exact: true }),
-          ).toBeVisible();
+          await expect(badge(branchCard, "Slice planned")).toBeVisible();
         } else {
           await expect(branchCard).toContainText("Reading preparation…");
           await expect(queuedCard).toContainText("Reading preparation…");
@@ -79,9 +85,7 @@ for (const order of [
         } else {
           await expect(branchCard).toContainText("Reading agent profile…");
           await expect(branchCard).not.toContainText("Owner not recorded");
-          await expect(queuedCard.locator(".story-card-preparing")).toHaveCount(
-            0,
-          );
+          await expect(credit(queuedCard).preparing).toHaveCount(0);
         }
         if (complete.has("done")) {
           await expectDoneFacts(doneCard);
@@ -89,9 +93,9 @@ for (const order of [
           await expect(doneCard).toHaveCount(0);
         }
         if (complete.has("profiles") && complete.has("preparation")) {
-          await expect(
-            branchCard.locator(".story-card-progress"),
-          ).toContainText("0 of 2 slices recorded complete");
+          await expect(sliceProgress(branchCard)).toContainText(
+            "0 of 2 slices recorded complete",
+          );
           await expect(branchCard).toContainText(
             "From story branch; not in trunk.",
           );
@@ -106,22 +110,24 @@ for (const order of [
           );
         } else {
           for (const card of [branchCard, trunkCard]) {
-            await expect(card.locator(".story-card-progress")).toContainText(
+            await expect(sliceProgress(card)).toContainText(
               "Reading plan slices…",
             );
             await expect(
-              card.getByRole("img", { name: /slices recorded complete/ }),
+              sliceBar(card, /slices recorded complete/),
             ).toHaveCount(0);
             await expect(card).not.toContainText("Current slice started");
-            await expect(card.locator(".progress-source")).toHaveCount(0);
+            await expect(progressSource(card)).toHaveCount(0);
           }
         }
         await expect(problem).toHaveCount(0);
       });
     }
-    await expect(page.getByText("Reading agent profile…")).toHaveCount(0);
-    await expect(page.getByText("Reading preparation…")).toHaveCount(0);
-    await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
+    await expectNoPlaceholderShown(page, [
+      "Reading agent profile…",
+      "Reading preparation…",
+      "Reading current slice time…",
+    ]);
     expect(errors).toEqual([]);
   });
 }

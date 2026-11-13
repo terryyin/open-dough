@@ -7,6 +7,7 @@ import {
 } from "../accessibleBoard.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";
 import { scrollYOf } from "../boardPage.ts";
+import { readWithKey } from "../boardReading.ts";
 import { enabledStoryCardLaunchActions } from "../storyCardControls.ts";
 import { box, expectNoSidewaysScrollAndWholeText } from "../pageLayout.ts";
 
@@ -30,7 +31,7 @@ test("accessible Board reads a backlog longer than one screen by scrolling the B
   await expect(lastInspect).not.toBeInViewport();
 
   await test.step("the Board scrolls to the last queued work", async () => {
-    await page.keyboard.press("End");
+    await readWithKey(page, "End");
     await expect(lastInspect).toBeInViewport({ ratio: 1 });
     expect(await scrollYOf(page)).toBeGreaterThan(0);
     await expectNoSidewaysScrollAndWholeText(page);

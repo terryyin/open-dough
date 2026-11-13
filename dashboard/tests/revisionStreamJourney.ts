@@ -24,6 +24,7 @@ import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import { backlogA, revisionA, titlesOfA } from "./refreshJourney.ts";
 import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
+import { expectEarlierSnapshotKept } from "./transientRecoveryPage.ts";
 
 // Server pace for stream journeys; wall-clock ticks, not page time.
 export const streamPaceMs = 80;
@@ -115,13 +116,7 @@ export async function expectLostFreshnessProblem(
   const { problem } = parts(page);
   await expect(problem).toContainText("Published work could not be read");
   await expect(problem).toContainText("freshness was lost");
-  await expect(problem).toContainText(
-    "What is shown is the earlier snapshot, retrieved at",
-  );
-  await expect(problem.locator("time").nth(1)).toHaveAttribute(
-    "datetime",
-    retrievedDatetime,
-  );
+  await expectEarlierSnapshotKept(page, retrievedDatetime);
   await expect(problem).toContainText(
     `Automatic checks continue every ${String(checkIntervalMs / 1000)} seconds while this page is visible.`,
   );

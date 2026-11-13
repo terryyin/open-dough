@@ -9,6 +9,13 @@ import { planHref } from "./queuedPlanNavigation.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import { notFoundAnswer } from "./originAnswers.ts";
+import {
+  hideDetail,
+  inspectedDetail,
+  slicePlanLink,
+  storyCard,
+} from "./storyCardControls.ts";
+import { expectBadges } from "./storyCardFacts.ts";
 import { commitPaths, writePlanning } from "./storyReadinessCli.ts";
 import {
   openDoughProductBacklog,
@@ -42,58 +49,39 @@ export async function expectChangedReviewAfterContentChange(
     shortRevision(priorRevision),
   );
 
-  const readyCard = taken.getByRole("article", { name: plannedReady.title });
-  const blockedCard = backlog.getByRole("article", {
-    name: plannedBlocked.title,
+  const readyCard = storyCard(taken, plannedReady.title);
+  const blockedCard = storyCard(backlog, plannedBlocked.title);
+  const changed = "Changed since readiness review";
+  await expectBadges(readyCard, {
+    shown: ["Slice planned", changed, "Ready for execution"],
   });
-  await expect(
-    readyCard.getByText("Slice planned", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    readyCard.getByText("Changed since readiness review", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    readyCard.getByText("Ready for execution", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    blockedCard.getByText("Slice planned", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    blockedCard.getByText("Changed since readiness review", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    blockedCard.getByText("Not ready", { exact: true }),
-  ).toBeVisible();
-  for (const [card, title, judgment] of [
-    [readyCard, plannedReady.title, "Assessment: Ready;"],
-    [
-      blockedCard,
-      plannedBlocked.title,
-      "Not ready (A blocking decision remains in the plan.)",
-    ],
+  await expectBadges(blockedCard, {
+    shown: ["Slice planned", changed, "Not ready"],
+  });
+  for (const [card, judgment] of [
+    [readyCard, "Assessment: Ready;"],
+    [blockedCard, "Not ready (A blocking decision remains in the plan.)"],
   ] as const) {
     // The badge is the scan view's warning; the judgment it qualifies is
     // explained in the detail.
     await expect(card.getByText("Assessment:")).toHaveCount(0);
-    await card.getByRole("button", { name: "Inspect story" }).click();
-    const detail = card.getByRole("region", { name: `Detail for ${title}` });
+    const detail = await inspectedDetail(card);
     await expect(detail.getByText("Assessment:")).toContainText(judgment);
     await expect(detail.getByText("Assessment:")).toContainText(
       "Changed since readiness review",
     );
     if (card === blockedCard) {
-      await expect(
-        detail.getByRole("link", { name: /^Slice plan / }),
-      ).toHaveAttribute("href", planHref("terryyin/open-dough", nextRevision));
+      await expect(slicePlanLink(detail)).toHaveAttribute(
+        "href",
+        planHref("terryyin/open-dough", nextRevision),
+      );
     }
-    await card.getByRole("button", { name: "Hide detail" }).click();
+    await hideDetail(card);
     await expect(card).toBeFocused();
   }
-  await expect(
-    backlog
-      .getByRole("article", { name: unrefined.title })
-      .getByText("Not refined", { exact: true }),
-  ).toBeVisible();
+  await expectBadges(storyCard(backlog, unrefined.title), {
+    shown: ["Not refined"],
+  });
 }
 
 export async function expectPlanAssociationConflict(
@@ -113,28 +101,15 @@ export async function expectPlanAssociationConflict(
     shortRevision(nextRevision),
   );
 
-  const readyCard = taken.getByRole("article", { name: plannedReady.title });
-  await expect(
-    readyCard.getByText("Slice planned", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    readyCard.getByText("Plan association conflict", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    readyCard.getByText("Ready for execution", { exact: true }),
-  ).toHaveCount(0);
-  await expect(
-    readyCard.getByText("Changed since readiness review", { exact: true }),
-  ).toHaveCount(0);
-  await readyCard.getByRole("button", { name: "Inspect story" }).click();
-  const detail = readyCard.getByRole("region", {
-    name: `Detail for ${plannedReady.title}`,
+  const readyCard = storyCard(taken, plannedReady.title);
+  await expectBadges(readyCard, {
+    shown: ["Slice planned", "Plan association conflict"],
+    absent: ["Ready for execution", "Changed since readiness review"],
   });
+  const detail = await inspectedDetail(readyCard);
   await expect(detail.getByText("Assessment:")).toContainText("disagree");
   await expect(detail.getByText("Assessment:")).toContainText(planBlockedPath);
-  await expect(
-    readyCard.getByRole("link", { name: /^Slice plan / }),
-  ).toHaveCount(0);
+  await expect(slicePlanLink(readyCard)).toHaveCount(0);
   await expect(
     detail.getByRole("link", { name: /^Disputed backlog plan / }),
   ).toHaveCount(1);
@@ -143,14 +118,10 @@ export async function expectPlanAssociationConflict(
   ).toHaveCount(1);
   await expect(detail).toContainText("does not choose between them");
   await expect(detail.getByText("recorded complete")).toHaveCount(0);
-  await expect(
-    page
-      .getByRole("article", { name: unrefined.title })
-      .getByText("Not refined", { exact: true }),
-  ).toBeVisible();
-  await expect(readyCard.getByText("Not refined", { exact: true })).toHaveCount(
-    0,
-  );
+  await expectBadges(storyCard(parts(page).board, unrefined.title), {
+    shown: ["Not refined"],
+  });
+  await expectBadges(readyCard, { absent: ["Not refined"] });
 }
 
 export async function expectFailedPlanKeepsSupportedFacts(
@@ -184,43 +155,27 @@ export async function expectFailedPlanKeepsSupportedFacts(
   await expectSettledPage(page);
   await expect(parts(page).readRevision).toContainText(shortRevision(next));
 
-  const blockedCard = backlog.getByRole("article", {
-    name: plannedBlocked.title,
+  const blockedCard = storyCard(backlog, plannedBlocked.title);
+  await expectBadges(blockedCard, {
+    shown: ["Slice planned", "Readiness unavailable"],
+    absent: ["Not ready", "Not refined"],
   });
-  await expect(
-    blockedCard.getByText("Slice planned", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    blockedCard.getByText("Readiness unavailable", { exact: true }),
-  ).toBeVisible();
-  await expect(blockedCard.getByText("Not ready", { exact: true })).toHaveCount(
-    0,
-  );
-  await expect(
-    blockedCard.getByText("Not refined", { exact: true }),
-  ).toHaveCount(0);
 
-  await blockedCard.getByRole("button", { name: "Inspect story" }).click();
-  const detail = blockedCard.getByRole("region", {
-    name: `Detail for ${plannedBlocked.title}`,
-  });
+  const detail = await inspectedDetail(blockedCard);
   await expect(detail).toContainText("Approach: Slice planned");
   await expect(detail).toContainText("associated plan could not be read");
-  await expect(
-    detail.getByRole("link", { name: /^Slice plan / }),
-  ).toHaveAttribute("href", planHref("terryyin/open-dough", next));
+  await expect(slicePlanLink(detail)).toHaveAttribute(
+    "href",
+    planHref("terryyin/open-dough", next),
+  );
   await expect(detail.getByText("recorded complete")).toHaveCount(0);
 
   const { taken } = parts(page);
-  const readyCard = taken.getByRole("article", { name: plannedReady.title });
-  await expect(
-    readyCard.getByText("Plan association conflict", { exact: true }),
-  ).toHaveCount(0);
   // The plan failure stays the blocked story's own gap: the Taken story's
   // agreeing association shows no conflict and no change since review.
-  await expect(
-    readyCard.getByText("Changed since readiness review", { exact: true }),
-  ).toHaveCount(0);
+  await expectBadges(storyCard(taken, plannedReady.title), {
+    absent: ["Plan association conflict", "Changed since readiness review"],
+  });
 
   failPlan();
 }

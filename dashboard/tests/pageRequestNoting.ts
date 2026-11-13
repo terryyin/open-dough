@@ -27,9 +27,12 @@ export function isCheck(url: string): boolean {
 // nothing else. Every other read names what it reads besides. With them is
 // kept the read of the project list, which the page awaits before it reads
 // any project's published work. Apart from its reads, it notes the done marks
-// it has sent the local launch boundary.
+// it has sent the local launch boundary, and how many of its requests, those
+// held open until a launch attempt changes aside, have been answered, failed
+// or been abandoned so far.
 export type RequestsNoted = {
   revisionChecksAskedAt?: number[];
+  requestsSettled?: number;
   requestsUnanswered?: Set<Promise<unknown>>;
   requestsUnansweredButChangeWaits?: Set<Promise<unknown>>;
   readsUnanswered?: Set<Promise<unknown>>;
@@ -71,6 +74,7 @@ function noteRequestsInPage({
   const publishedWorkReadsUnanswered = new Set<Promise<unknown>>();
   const doneMarksUnanswered = new Set<Promise<unknown>>();
   noted.revisionChecksAskedAt = askedAt;
+  noted.requestsSettled = 0;
   noted.requestsUnanswered = unanswered;
   noted.requestsUnansweredButChangeWaits = unansweredButChangeWaits;
   noted.readsUnanswered = readsUnanswered;
@@ -86,6 +90,7 @@ function noteRequestsInPage({
     if (check) {
       askedAt.push(Date.now());
     }
+    const changeWait = url.pathname === changeWaitPath;
     const read = !check && url.pathname === readPath;
     const projectListRead = url.pathname === projectListPath;
     const publishedWorkRead =
@@ -99,6 +104,9 @@ function noteRequestsInPage({
       .then((response) => response.clone().arrayBuffer())
       .catch(() => undefined)
       .finally(() => {
+        if (!changeWait) {
+          noted.requestsSettled = (noted.requestsSettled ?? 0) + 1;
+        }
         unanswered.delete(answered);
         unansweredButChangeWaits.delete(answered);
         readsUnanswered.delete(answered);
@@ -106,7 +114,7 @@ function noteRequestsInPage({
         doneMarksUnanswered.delete(answered);
       });
     unanswered.add(answered);
-    if (url.pathname !== changeWaitPath) {
+    if (!changeWait) {
       unansweredButChangeWaits.add(answered);
     }
     if (read) {

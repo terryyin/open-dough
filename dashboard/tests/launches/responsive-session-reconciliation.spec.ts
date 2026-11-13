@@ -29,6 +29,7 @@ import {
   openStory,
   test,
 } from "../responsiveStart.ts";
+import { credit } from "../agentCredit.ts";
 
 const openSessionDescription = new RegExp(
   openSessionStartReason.replace(/[.]/g, "\\."),
@@ -124,9 +125,9 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(story).toHaveCount(0);
   // Profiles now arrive independently; their known assignment still cannot
   // reconcile a snapshot whose canonical preparation remains unread.
-  await expect(
-    takenStory.locator(".story-card-owner .owner-line"),
-  ).toContainText("Claude Code");
+  await expect(credit(credit(takenStory).owner).line).toContainText(
+    "Claude Code",
+  );
   await expect(takenStory).toContainText(waiting);
   await expectProtected(takenStory);
   releaseSeed();
@@ -200,7 +201,7 @@ test("a refinement's announcement, read before its session settles, keeps the st
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${accepted.slice(0, 7)}`,
   );
-  await expect(story.locator(".story-card-preparing")).toBeVisible();
+  await expect(credit(story).preparing).toBeVisible();
   await expect(story).toContainText("Local startup in progress");
   await expectProtected(story);
 

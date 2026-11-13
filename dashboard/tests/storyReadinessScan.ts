@@ -13,11 +13,14 @@ import {
   expectNoSidewaysScrollAndWholeText,
 } from "./pageLayout.ts";
 import {
+  canonicalRecord,
+  storyCard,
   storyCardLaunchActions,
   detailToggle,
   inspectionGroup,
   launchGroup,
 } from "./storyCardControls.ts";
+import { expectBadges } from "./storyCardFacts.ts";
 import { selectStory } from "./storyCardSelection.ts";
 import { plannedBlocked, plannedReady } from "./storyReadinessFixture.ts";
 import { showColumn } from "./boardPage.ts";
@@ -30,10 +33,8 @@ export async function expectScanToDetailAt420AndTwiceZoom(
   taken: Locator,
   backlog: Locator,
 ) {
-  const readyCard = taken.getByRole("article", { name: plannedReady.title });
-  const blockedCard = backlog.getByRole("article", {
-    name: plannedBlocked.title,
-  });
+  const readyCard = storyCard(taken, plannedReady.title);
+  const blockedCard = storyCard(backlog, plannedBlocked.title);
   for (const window of [narrowWindow, twiceZoomedWindow]) {
     await page.setViewportSize(window);
     const hide = readyCard.getByRole("button", { name: "Hide detail" });
@@ -46,13 +47,9 @@ export async function expectScanToDetailAt420AndTwiceZoom(
       readyCard.getByRole("heading", { name: plannedReady.title }),
     ).toBeVisible();
     await expect(readyCard).toContainText("0 of 5 slices recorded complete");
-    await expect(
-      readyCard.getByText("Ready for execution", { exact: true }),
-    ).toBeVisible();
+    await expectBadges(readyCard, { shown: ["Ready for execution"] });
     await expect(blockedCard.getByText("Priority 2")).toBeVisible();
-    await expect(
-      blockedCard.getByText("Not ready", { exact: true }),
-    ).toBeVisible();
+    await expectBadges(blockedCard, { shown: ["Not ready"] });
     // Not ready does not itself disable Start execution, and the Backlog
     // card's Starts, Select story, and Inspect story read in order, whole,
     // within the card.
@@ -88,7 +85,7 @@ export async function expectScanToDetailAt420AndTwiceZoom(
       name: `Detail for ${plannedReady.title}`,
     });
     await expect(detail).toContainText(plannedReady.identity);
-    const canonical = detail.getByRole("link", { name: /^Canonical record/ });
+    const canonical = canonicalRecord(detail);
     await page.keyboard.press("Tab");
     await expect(canonical).toBeInViewport({ ratio: 1 });
     await expectFocusedAndIndicated(page, canonical);

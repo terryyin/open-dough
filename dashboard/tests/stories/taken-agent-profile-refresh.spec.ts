@@ -10,6 +10,8 @@ import {
   publishFiles,
 } from "../publishedOrigin.ts";
 import { expectMark, expectPortrait } from "../agentPortrait.ts";
+import { credit } from "../agentCredit.ts";
+import { inspectedDetail, storyCard } from "../storyCardControls.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
 import { describedRevisions } from "../describedRevisions.ts";
 
@@ -56,12 +58,12 @@ test("a project without agent profiles still loads, and a reload shows a profile
   await openUntilRead(page);
 
   const { taken, problem, readRevision } = parts(page);
-  const card = taken.getByRole("article", { name: trunkStory });
+  const card = storyCard(taken, trunkStory);
 
   await test.step("with no profile directory at the revision, the owner is not recorded and nothing fails", async () => {
     await expect(readRevision).toContainText(shortRevision(A.revision));
     await expect(card).toContainText("Owner not recorded");
-    await expect(card.locator(".agent-portrait")).toHaveCount(0);
+    await expect(credit(card).portrait).toHaveCount(0);
     await expect(card.locator("img")).toHaveCount(0);
     await expect(problem).toHaveCount(0);
   });
@@ -77,20 +79,18 @@ test("a project without agent profiles still loads, and a reload shows a profile
     });
     // The scan view shows the unrecorded host and model as gaps; the mode is
     // in the card's detail.
-    await expect(card.locator(".owner-line")).toHaveText(
+    const { line, host, hostMark } = credit(card);
+    await expect(line).toHaveText(
       "Akiho-chan · Fixture Committer · host not recorded · model not recorded",
     );
-    await card.getByRole("button", { name: "Inspect story" }).click();
+    await inspectedDetail(card);
     await expect(card).toContainText(
       "Akiho-chan · Trunk Mode · host not recorded · model not recorded",
     );
     // The unrecorded host stays a text gap, on the scan line and in the
     // detail: no tool mark is invented.
-    await expect(card.locator(".owner-host")).toHaveText([
-      "host not recorded",
-      "host not recorded",
-    ]);
-    await expect(card.locator(".owner-host img")).toHaveCount(0);
+    await expect(host).toHaveText(["host not recorded", "host not recorded"]);
+    await expect(hostMark).toHaveCount(0);
     await expectMark(card, "mode", "Trunk Mode", "mode-icons/trunk.svg");
     await expect(card.locator("img")).toHaveCount(1);
   });

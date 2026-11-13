@@ -31,6 +31,8 @@ import {
   titlesOfB,
 } from "../refreshJourney.ts";
 import { readsBesideChecks } from "../originObservation.ts";
+import { storyCard } from "../storyCardControls.ts";
+import { sliceBar, sliceProgress } from "../storyCardFacts.ts";
 import {
   onBranch,
   opened,
@@ -152,9 +154,10 @@ test("a watched branch move reads only that entry's plan and commit time; the ot
   origin.moveBranch("story/example", moved);
   await page.clock.runFor(checkIntervalMs);
   await other.clock.runFor(checkIntervalMs);
-  await expect(
-    progress.getByRole("img", { name: "7 of 8 slices recorded complete" }),
-  ).toBeVisible({ timeout: 15_000 });
+  const sevenOfEight = "7 of 8 slices recorded complete";
+  await expect(sliceBar(progress, sevenOfEight)).toBeVisible({
+    timeout: 15_000,
+  });
   await expect(progress).toContainText("Current slice started 2 min ago");
   expect(readsBesideChecks(callsSince(page, before)).sort()).toEqual(
     [
@@ -162,12 +165,8 @@ test("a watched branch move reads only that entry's plan and commit time; the ot
       `commit-list ${planPath("on-branch")}@${movedHead}`,
     ].sort(),
   );
-  await expect(
-    other
-      .getByRole("article", { name: onBranch })
-      .locator(".story-card-progress")
-      .getByRole("img", { name: "7 of 8 slices recorded complete" }),
-  ).toBeVisible();
+  const otherCard = storyCard(parts(other).taken, onBranch);
+  await expect(sliceBar(sliceProgress(otherCard), sevenOfEight)).toBeVisible();
   await other.close();
 });
 

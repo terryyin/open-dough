@@ -5,16 +5,23 @@ import { appendFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../support/preparationPage.ts";
 import { largeBacklog, publishLargeBacklog } from "../accessibleBoard.ts";
-import { boardScroll, expectView, scrollYOf, wheelTo } from "../boardPage.ts";
+import { boardScroll, expectView, scrollYOf } from "../boardPage.ts";
+import {
+  expectDocumentStill,
+  pressScrollbarTrack,
+  untilBoardRests,
+  wheelBy,
+} from "../boardReading.ts";
 import { expectSettledPage, parts, rosterParts } from "../dashboardPage.ts";
 import { box, closeSidePanel } from "../pageLayout.ts";
 import { publishRosterOrigins } from "../agentRosterRecords.ts";
 import {
   dragDivider,
-  expectCovering,
+  expectCoveringFillsWindow,
   panelDivider,
 } from "../sidePanelWidthPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
+import { dashboardBrowserArgs } from "../support/browserArgs.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
@@ -24,7 +31,12 @@ import {
 } from "../support/storyReviewWorktree.ts";
 
 // Exercise the browser's actual scrollbar; Playwright normally hides it.
-test.use({ launchOptions: { ignoreDefaultArgs: ["--hide-scrollbars"] } });
+test.use({
+  launchOptions: {
+    args: dashboardBrowserArgs,
+    ignoreDefaultArgs: ["--hide-scrollbars"],
+  },
+});
 
 for (const viewport of [
   { width: 1400, height: 420 },
@@ -55,16 +67,13 @@ for (const viewport of [
     const banner = parts(page).banner;
     const region = boardScroll(page);
     if (viewport.width === 700) {
-      await expectCovering(panel);
-      expect((await box(panel)).height).toBe(viewport.height);
-      await expect(banner).toBeHidden();
+      await expectCoveringFillsWindow(panel, parts(page));
       await closeSidePanel(panel);
       await expect(banner).toBeVisible();
-      const before = await scrollYOf(page);
       const firstTop = (await box(card)).y;
-      await wheelTo(page, before + 600);
+      await wheelBy(page, 600);
       expect((await box(card)).y).toBeLessThan(firstTop - 500);
-      expect(await page.evaluate(() => scrollY)).toBe(0);
+      await expectDocumentStill(page);
       return;
     }
     const initial = {
@@ -72,14 +81,13 @@ for (const viewport of [
       banner: await box(banner),
       region: await box(region),
     };
-    const before = await scrollYOf(page);
     const firstTop = (await box(card)).y;
-    await wheelTo(page, before + 600);
+    await wheelBy(page, 600);
     expect((await box(card)).y).toBeLessThan(firstTop - 500);
     expect(await box(panel)).toEqual(initial.panel);
     expect(await box(banner)).toEqual(initial.banner);
     expect(await box(region)).toEqual(initial.region);
-    expect(await page.evaluate(() => scrollY)).toBe(0);
+    await expectDocumentStill(page);
     expect(
       await page.evaluate(() => document.documentElement.scrollHeight),
     ).toBe(viewport.height);
@@ -109,22 +117,11 @@ for (const viewport of [
       "the Board scrollbar edge cannot target the Panel divider",
     ).toMatchObject({ divider: false });
     const beforeTrack = await scrollYOf(page);
-    await page.mouse.click(
-      initial.region.x + initial.region.width - 1,
-      initial.region.y + initial.region.height - 24,
-    );
+    await pressScrollbarTrack(page);
     await expect.poll(() => scrollYOf(page)).toBeGreaterThan(beforeTrack);
-    let last: number | undefined;
-    await expect
-      .poll(async () => {
-        const now = await scrollYOf(page);
-        const settled = now === last;
-        last = now;
-        return settled;
-      })
-      .toBe(true);
+    await untilBoardRests(page);
     expect(await box(panel)).toEqual(initial.panel);
-    expect(await page.evaluate(() => scrollY)).toBe(0);
+    await expectDocumentStill(page);
     const divider = await box(panelDivider(page));
     expect(
       initial.region.x + initial.region.width,
@@ -140,12 +137,12 @@ for (const viewport of [
     await expect(banner).toBeVisible();
     expect(await scrollYOf(page)).toBe(position);
     expect(await box(panel)).toEqual(initial.panel);
-    expect(await page.evaluate(() => scrollY)).toBe(0);
+    await expectDocumentStill(page);
     await dragDivider(page, 60);
     await expect
       .poll(async () => (await box(panel)).width)
       .toBe(initial.panel.width - 60);
-    expect(await page.evaluate(() => scrollY)).toBe(0);
+    await expectDocumentStill(page);
   });
 }
 
@@ -166,10 +163,10 @@ test("the agent roster scrolls below its stationary banner without scrolling the
     .poll(() => region.evaluate((element) => element.scrollTop))
     .toBeGreaterThan(0);
   expect(await box(banner)).toEqual(before);
-  expect(await page.evaluate(() => scrollY)).toBe(0);
+  await expectDocumentStill(page);
   await members.last().scrollIntoViewIfNeeded();
   await expect(members.last()).toBeInViewport({ ratio: 1 });
-  expect(await page.evaluate(() => scrollY)).toBe(0);
+  await expectDocumentStill(page);
 });
 
 test("a classic Board scrollbar's width owns the Column boundary and keeps a saved position", async ({

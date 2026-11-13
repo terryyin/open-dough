@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-300_express-board-test-intent-through-page-objects.json",
+      "identity": "SEED-300#express-board-test-intent-through-page-objects",
+      "completedAt": "2026-11-13T02:41:28.596Z",
+      "blob": "651291035b260a9c823bc21f840fc689c041f12e"
+    },
+    {
       "fileName": "SEED-333_spot-completed-stories-that-need-review.json",
       "identity": "SEED-333#spot-completed-stories-that-need-review",
       "completedAt": "2026-11-13T01:47:20.467Z",

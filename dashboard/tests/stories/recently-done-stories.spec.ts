@@ -18,7 +18,8 @@
 // ../sessions/recently-done-story-sessions.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
-import { expectMembership, parts } from "../dashboardPage.ts";
+import { credit } from "../agentCredit.ts";
+import { columnCountOf, expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles, type ObservedRequest } from "../publishedOrigin.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
@@ -103,10 +104,10 @@ test("Recently done lists published done stories among the sessions, newest firs
       executed.title,
     );
     await expect(done).toContainText(executed.identity);
-    await expect(done.locator(".owner-line")).toHaveText(
+    await expect(credit(done).line).toHaveText(
       "Yui-chan · Terry Yin · Claude Code",
     );
-    await expect(done.locator(".agent-portrait")).toHaveCount(1);
+    await expect(credit(done).portrait).toHaveCount(1);
     await expect(done).toContainText("Done");
     expect(
       Date.parse((await done.locator("time").getAttribute("datetime")) ?? ""),
@@ -115,8 +116,8 @@ test("Recently done lists published done stories among the sessions, newest firs
 
   await test.step("a card whose record names no agent shows its developer and no agent", async () => {
     const done = card(removedQueued.title);
-    await expect(done.locator(".owner-line")).toHaveText("Terry Yin");
-    await expect(done.locator(".agent-portrait")).toHaveCount(0);
+    await expect(credit(done).line).toHaveText("Terry Yin");
+    await expect(credit(done).portrait).toHaveCount(0);
     await expect(done).not.toContainText(/-chan|Claude Code|Codex|Cursor/);
   });
 
@@ -174,9 +175,7 @@ test("a revision with no done records lists the sessions as before, and one whos
     await expectEntries(recent, [adHocEntry]);
     await expect(parts(page).backlog.locator(".session-entry")).toHaveCount(1);
     await expect(recent.locator(".done-story")).toHaveCount(0);
-    await expect(recent.locator(".column-count")).toHaveText(
-      "Entry count incomplete",
-    );
+    await expect(columnCountOf(recent)).toHaveText("Entry count incomplete");
   });
 
   await test.step("done records published without a catalog: the column names the gap and its repair, reads no record, and still lists the sessions", async () => {
@@ -191,9 +190,7 @@ test("a revision with no done records lists the sessions as before, and one whos
       "Done stories could not be read. The done catalog does not describe the published done records: done catalog is not published beside the 3 done records. Run the product backlog's `catalog-done` to rebuild it from the done records, then publish the rebuilt catalog.",
     );
     await expectEntries(recent, [adHocEntry]);
-    await expect(recent.locator(".column-count")).toHaveText(
-      "Entry count incomplete",
-    );
+    await expect(columnCountOf(recent)).toHaveText("Entry count incomplete");
     expect(doneRecordsRead(requests)).toEqual([]);
   });
 

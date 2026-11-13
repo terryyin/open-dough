@@ -12,25 +12,25 @@
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { renderStorySection } from "../../../tests/support/published-seed.mjs";
-import { inspectedDetail } from "../storyCardControls.ts";
+import { hideDetail, inspectedDetail } from "../storyCardControls.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { expectSettledPage, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
-import { pressWhereShown } from "../pageLayout.ts";
 import {
-  bottomOf,
-  columnPagingControl,
   expectEndsWithShown,
   expectLongerThanTheBoard,
   expectView,
   extentOf,
   rem,
-  scrollYOf,
   showColumn,
   wheelTo,
 } from "../boardPage.ts";
+import {
+  expectAtBoardBottom,
+  expectPagingControlInSight,
+} from "../boardReading.ts";
 import { heldFactGroups, moreDoneTitle } from "../publishedFactsArrival.ts";
-import { revealAction } from "../recentlyDoneProgressivePage.ts";
+import { revealAction } from "../recentlyDoneColumn.ts";
 import {
   at,
   publishedFiles,
@@ -113,13 +113,8 @@ test.describe("in a two-column Board", () => {
     });
 
     await test.step("closing it shortens the Board again", async () => {
-      const hide = card.getByRole("button", { name: "Hide detail" });
       await wheelTo(page, 0);
-      await hide.scrollIntoViewIfNeeded();
-      await pressWhereShown(hide);
-      await expect(
-        card.getByRole("button", { name: "Inspect story" }),
-      ).toBeVisible();
+      await hideDetail(card);
       await expect.poll(() => extentOf(page)).toBe(before);
       await expectEndsWithShown(page, ["Backlog", "Taken"]);
     });
@@ -135,11 +130,9 @@ test.describe("in a two-column Board", () => {
         ["Backlog", "Taken"],
         ["Recently done 40 entries"],
       );
-      expect(await scrollYOf(page)).toBe(await bottomOf(page));
+      await expectAtBoardBottom(page);
       await expectEndsWithShown(page, ["Backlog", "Taken"]);
-      await expect(columnPagingControl(page, "Recently done")).toBeInViewport({
-        ratio: 1,
-      });
+      await expectPagingControlInSight(page, "Recently done");
     });
   });
 

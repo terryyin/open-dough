@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mike.li-chan",
+  "email": "mike.li-chan@example.org",
+  "identity": "SEED-331#read-ci-history-at-a-glance",
+  "mode": "story-branch",
+  "branch": "claude/read-ci-history-at-a-glance-in-story-comparison",
+  "host": "claude",
+  "model": "opus"
+}

@@ -12,12 +12,16 @@
 import { expect, test } from "../dashboardTest.ts";
 import { historyLength } from "../sessionNavigationJourney.ts";
 import {
+  expectBelowBanner,
+  expectPinnedShortBanner,
+} from "../bannerReading.ts";
+import {
   chooseProject,
-  expectMembership,
   expectProblemAndNoSnapshot,
   expectProjectChoice,
   openDirection,
   parts,
+  projectTab,
   rosterParts,
   shortRevision,
 } from "../dashboardPage.ts";
@@ -26,7 +30,6 @@ import {
   expectNotConfiguredIntent,
 } from "../intentPerspectivePage.ts";
 import {
-  box,
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
 } from "../pageLayout.ts";
@@ -34,6 +37,7 @@ import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
 import { expectPerspectiveMeaningMarks } from "../perspectiveMarks.ts";
 import {
   doughnutProject,
+  expectCatalogStories,
   openDoughProject,
   publishCatalogProjects,
 } from "../projectKeyboardNavigationJourney.ts";
@@ -51,16 +55,10 @@ test("Intent keeps the selected project and says no intent locations are configu
   await page.setViewportSize({ width: 1280, height: 800 });
   await publishCatalogProjects(page);
   await openUntilRead(page);
-  const { development, intentChoice, perspective, project, readRevision } =
-    parts(page);
-  const radio = (label: string) =>
-    project.getByRole("radio", { name: label, exact: true });
+  const { development, intentChoice, perspective, readRevision } = parts(page);
   // Development is the first-visit default, with its stories and direction.
   await expect(development).toBeChecked();
-  await expectMembership(page, {
-    taken: [openDoughProject.taken],
-    backlog: [openDoughProject.queued],
-  });
+  await expectCatalogStories(page, openDoughProject);
   await openDirection(page);
   await expect(parts(page).direction).toContainText(openDoughProject.direction);
   const before = await historyLength(page);
@@ -76,14 +74,14 @@ test("Intent keeps the selected project and says no intent locations are configu
   await test.step("choosing Intent keeps Open Dough selected and says no intent locations are configured", async () => {
     await intentChoice.click();
     await expectNotConfiguredIntent(page, "Open Dough");
-    await expect(radio("Open Dough")).toBeChecked();
+    await expect(projectTab(page, "Open Dough")).toBeChecked();
     await expectProjectChoice(page, "Open Dough");
     expect(await historyLength(page)).toBe(before + 1);
     expectAddress(page, { project: null, perspective: "intent" });
   });
 
   await test.step("choosing Doughnut keeps Intent, with the same not-configured content", async () => {
-    await radio("Doughnut").check();
+    await projectTab(page, "Doughnut").check();
     await expectProjectChoice(page, "Doughnut");
     await expectNotConfiguredIntent(page, "Doughnut");
     // The published read status still names what was read of Doughnut.
@@ -95,32 +93,26 @@ test("Intent keeps the selected project and says no intent locations are configu
 
   await test.step("Back returns to Open Dough's Intent, then its Development stories; Forward and reload keep Doughnut's Intent", async () => {
     await page.goBack();
-    await expect(radio("Open Dough")).toBeChecked();
+    await expect(projectTab(page, "Open Dough")).toBeChecked();
     await expectNotConfiguredIntent(page, "Open Dough");
     await page.goBack();
     await expect(development).toBeChecked();
-    await expectMembership(page, {
-      taken: [openDoughProject.taken],
-      backlog: [openDoughProject.queued],
-    });
+    await expectCatalogStories(page, openDoughProject);
     await expect(parts(page).intent).toHaveCount(0);
     expectAddress(page, { project: null, perspective: null });
     await page.goForward();
     await page.goForward();
-    await expect(radio("Doughnut")).toBeChecked();
+    await expect(projectTab(page, "Doughnut")).toBeChecked();
     await expectNotConfiguredIntent(page, "Doughnut");
     await reloadUntilRead(page);
-    await expect(radio("Doughnut")).toBeChecked();
+    await expect(projectTab(page, "Doughnut")).toBeChecked();
     await expectNotConfiguredIntent(page, "Doughnut");
   });
 
   await test.step("Development resumes Doughnut's stories, direction and Start session", async () => {
     await development.click();
     await expect(intentChoice).not.toBeChecked();
-    await expectMembership(page, {
-      taken: [doughnutProject.taken],
-      backlog: [doughnutProject.queued],
-    });
+    await expectCatalogStories(page, doughnutProject);
     await openDirection(page);
     await expect(parts(page).direction).toContainText(
       doughnutProject.direction,
@@ -208,12 +200,8 @@ test("at a phone width the perspective stays reachable under the compact title, 
   await expect(projectCompact).toBeFocused();
   await expectNotConfiguredIntent(page, "Doughnut");
   expectAddress(page, { project: "doughnut", perspective: "intent" });
-  const [banner, message] = await Promise.all([
-    box(parts(page).banner),
-    box(parts(page).intent),
-  ]);
-  expect(banner.height).toBeLessThan(portrait.height / 2);
-  expect(message.y).toBeGreaterThanOrEqual(banner.y + banner.height);
+  await expectPinnedShortBanner(page, portrait.height);
+  await expectBelowBanner(parts(page).intent);
   // Compact project select may ellipsis on the one-line phone banner.
   await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
 });

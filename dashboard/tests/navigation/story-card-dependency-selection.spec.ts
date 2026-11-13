@@ -15,7 +15,9 @@ import {
 } from "../storyDependencyFixture.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { pausePageClock } from "../autoRefreshJourney.ts";
-import { expectSelected } from "../storyCardSelection.ts";
+import { emptyArea, expectSelected } from "../storyCardSelection.ts";
+import { storyCard } from "../storyCardControls.ts";
+import { dependencyDisclosure, openDependencies } from "../storyReference.ts";
 
 // Story A waits on Story B and needs a decision about Story C, and is not
 // ready for an unrelated reason.
@@ -44,19 +46,15 @@ test("a dependency disclosure and its explanation text do not change the selecte
   });
   await pausePageClock(page);
   await openUntilRead(page);
-  const card = parts(page).backlog.getByRole("article", {
-    name: consumer.title,
-    exact: true,
-  });
-  const disclosure = card.locator(".story-dependencies");
+  const card = storyCard(parts(page).backlog, consumer.title);
+  const disclosure = dependencyDisclosure(card);
   const explanation = disclosure.getByText(reason).first();
   const detail = card.getByRole("region", {
     name: `Detail for ${consumer.title}`,
   });
 
   await test.step("opening the disclosure and clicking its explanation leave an unselected card unselected", async () => {
-    await disclosure.locator("summary").click();
-    await expect(disclosure).toHaveAttribute("open", "");
+    await openDependencies(card);
     await expectSelected(card, false);
     await explanation.click();
     await expectSelected(card, false);
@@ -65,13 +63,13 @@ test("a dependency disclosure and its explanation text do not change the selecte
   });
 
   await test.step("clicking the opened explanation keeps a selected card selected without opening detail", async () => {
-    await card.getByRole("heading", { level: 3 }).click();
+    await emptyArea(card).click();
     await expectSelected(card, true);
     await expect(disclosure).toHaveAttribute("open", "");
     await explanation.click();
     await expectSelected(card, true);
     await expect(detail).toHaveCount(0);
-    await card.getByRole("heading", { level: 3 }).click();
+    await emptyArea(card).click();
     await expectSelected(card, false);
   });
 });

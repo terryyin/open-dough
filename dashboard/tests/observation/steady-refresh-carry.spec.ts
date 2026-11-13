@@ -33,55 +33,16 @@ import {
 } from "../refreshJourney.ts";
 import { givePageItsTurns } from "../pageRequestNotes.ts";
 import type { MovingOrigin } from "../publishedOrigin.ts";
+import {
+  notePlaceholders,
+  shownCards,
+  type ShownCard,
+} from "../retainedFacts.ts";
 
 const dashboardRecord = ".planning/seeds/SEED-021-progress.md";
 const syncRecord = ".planning/seeds/SEED-008-sync.md";
 const claimsRecord = ".planning/seeds/SEED-040-claims.md";
 const claimsStory = "Publish shared backlog claims";
-
-// Each card's title, text, and box, measured in one browser turn.
-async function cards(page: Page) {
-  return parts(page)
-    .board.locator("[data-story-card]")
-    .evaluateAll((nodes) =>
-      nodes.map((node) => {
-        const { x, y, width, height } = node.getBoundingClientRect();
-        return {
-          title: node.querySelector("fieldset > h3")?.textContent ?? "",
-          text: (node as HTMLElement).innerText,
-          box: { x, y, width, height },
-        };
-      }),
-    );
-}
-
-// From now on, the page notes every reading placeholder any card shows, by
-// the card's title, however briefly it shows it.
-async function notePlaceholders(page: Page): Promise<() => Promise<string[]>> {
-  await page.evaluate(() => {
-    const seen = new Set<string>();
-    (window as unknown as { placeholders: Set<string> }).placeholders = seen;
-    const scan = () => {
-      for (const card of document.querySelectorAll("[data-story-card]")) {
-        const title = card.querySelector("fieldset > h3")?.textContent ?? "";
-        for (const found of (card as HTMLElement).innerText.matchAll(
-          /Reading [^…]*…/g,
-        )) {
-          seen.add(`${title}: ${found[0]}`);
-        }
-      }
-    };
-    new MutationObserver(scan).observe(document.body, {
-      subtree: true,
-      childList: true,
-      characterData: true,
-    });
-  });
-  return () =>
-    page.evaluate(() => [
-      ...(window as unknown as { placeholders: Set<string> }).placeholders,
-    ]);
-}
 
 // B's membership is shown, and the held record has been asked for at B.
 async function untilBShownWhileHeld(
@@ -102,7 +63,7 @@ test("an unchanged revision keeps every card's content and place while it is rea
   page,
 }) => {
   const origin = await openSettledAtA(page);
-  const before = await cards(page);
+  const before = await shownCards(page);
   const placeholders = await notePlaceholders(page);
   const release = origin.hold(dashboardRecord);
   origin.push(revisionB, backlogA, recordsAt("A"));
@@ -110,14 +71,14 @@ test("an unchanged revision keeps every card's content and place while it is rea
 
   await test.step("while B's record is held, every card shows what it showed, where it showed it", async () => {
     await untilBShownWhileHeld(page, origin, dashboardRecord);
-    expect(await cards(page)).toEqual(before);
+    expect(await shownCards(page)).toEqual(before);
     expect(await placeholders()).toEqual([]);
   });
 
   await test.step("once B answers, every card still shows the same, and the source shows B", async () => {
     release();
     await expectSettledPage(page, titlesOfA);
-    expect((await cards(page)).map(({ text }) => text)).toEqual(
+    expect((await shownCards(page)).map(({ text }) => text)).toEqual(
       before.map(({ text }) => text),
     );
     expect(await placeholders()).toEqual([]);
@@ -129,7 +90,7 @@ test("an unchanged revision keeps every card's content and place while it is rea
 
 // The open detail's pinned links name the revision shown, which is B's as
 // soon as its membership is: those links are part of B's membership.
-const pinnedAtB = (shown: Awaited<ReturnType<typeof cards>>) =>
+const pinnedAtB = (shown: readonly ShownCard[]) =>
   shown.map((card) => ({
     ...card,
     text: card.text.replace(/at revision [0-9a-f]{7}/g, "at revision b2b2b2b"),
@@ -143,7 +104,7 @@ test("only the story B changed updates, when B answers for it", async ({
   const dashboardCard = board.getByRole("article", { name: dashboardStory });
   const detail = await inspectedDetail(dashboardCard);
   await expect(detail).toContainText(`${dashboardStory}, as published at A.`);
-  const before = await cards(page);
+  const before = await shownCards(page);
   const placeholders = await notePlaceholders(page);
   const releaseDashboard = origin.hold(dashboardRecord);
   origin.push(revisionB, backlogA, {
@@ -155,14 +116,14 @@ test("only the story B changed updates, when B answers for it", async ({
   await test.step("while B's record is held, the inspected purpose is still A's and no card changes", async () => {
     await untilBShownWhileHeld(page, origin, dashboardRecord);
     await expect(detail).toContainText(`${dashboardStory}, as published at A.`);
-    expect(pinnedAtB(await cards(page))).toEqual(pinnedAtB(before));
+    expect(pinnedAtB(await shownCards(page))).toEqual(pinnedAtB(before));
   });
 
   await test.step("B's answer for the changed story updates its purpose in place; the others keep theirs", async () => {
     releaseDashboard();
     await expect(detail).toContainText(`${dashboardStory}, as published at B.`);
-    const after = await cards(page);
-    const others = (all: typeof before) =>
+    const after = await shownCards(page);
+    const others = (all: readonly ShownCard[]) =>
       all.filter(({ title }) => title !== dashboardStory);
     expect(others(after)).toEqual(others(before));
     expect(await placeholders()).toEqual([]);
@@ -187,7 +148,7 @@ test("a new entry reads as on a first visit, a removed one leaves, and the rest 
   const { board, taken, backlog } = parts(page);
   // The queue card's text but for its priority, which B changes.
   const queueText = async () =>
-    (await cards(page))
+    (await shownCards(page))
       .find(({ title }) => title === queueStory)
       ?.text.replace(/Priority \d+/, "Priority");
   const queueAtA = await queueText();

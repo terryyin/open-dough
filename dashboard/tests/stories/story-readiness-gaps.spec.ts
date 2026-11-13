@@ -34,6 +34,12 @@ import {
   expectNoRereadAfterSettlement,
   expectProjectSwitchRejectsLateHeldRead,
 } from "../storyReadinessRefresh.ts";
+import {
+  hideDetail,
+  inspectedDetail,
+  storyCard,
+} from "../storyCardControls.ts";
+import { expectBadges } from "../storyCardFacts.ts";
 
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";
@@ -83,11 +89,9 @@ test("story readiness keeps changed and conflicting evidence truthful", async ({
     await openReadiness(page, afterGitHubStops);
 
   await test.step("baseline membership arrives with supported preparation facts", async () => {
-    await expect(
-      taken
-        .getByRole("article", { name: plannedReady.title })
-        .getByText("Ready for execution", { exact: true }),
-    ).toBeVisible();
+    await expectBadges(storyCard(taken, plannedReady.title), {
+      shown: ["Ready for execution"],
+    });
     await expect(readRevision).toContainText(shortRevision(openDough.revision));
   });
 
@@ -112,16 +116,15 @@ test("story readiness keeps changed and conflicting evidence truthful", async ({
       [taken, plannedReady.title, "Ready for execution"],
       [backlog, plannedBlocked.title, "Not ready"],
     ] as const) {
-      const card = list.getByRole("article", { name: title });
-      await expect(card.getByText(judgment, { exact: true })).toBeVisible();
-      await expect(
-        card.getByText("Changed since readiness review", { exact: true }),
-      ).toHaveCount(0);
-      await card.getByRole("button", { name: "Inspect story" }).click();
-      await expect(
-        card.getByRole("region", { name: `Detail for ${title}` }),
-      ).not.toContainText("Changed since readiness review");
-      await card.getByRole("button", { name: "Hide detail" }).click();
+      const card = storyCard(list, title);
+      await expectBadges(card, {
+        shown: [judgment],
+        absent: ["Changed since readiness review"],
+      });
+      await expect(await inspectedDetail(card)).not.toContainText(
+        "Changed since readiness review",
+      );
+      await hideDetail(card);
     }
   });
 
@@ -145,7 +148,6 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
     doughnut,
     openDoughOrigin,
     doughnutOrigin,
-    project,
     backlog,
     taken,
     problem,
@@ -174,7 +176,6 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
   await test.step("switching projects during a held read cannot leak its late result", async () => {
     await expectProjectSwitchRejectsLateHeldRead(
       page,
-      project,
       openDoughOrigin,
       openDough,
       doughnut,

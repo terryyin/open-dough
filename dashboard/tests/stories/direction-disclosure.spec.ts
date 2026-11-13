@@ -1,6 +1,7 @@
 import { passTimeUntilChecked, pausePageClock } from "../autoRefreshJourney.ts";
 import { expect, test } from "../dashboardTest.ts";
 import {
+  chooseProject,
   shortRevision,
   expectDirectionOpensAcrossRow,
   openDirection,
@@ -140,17 +141,11 @@ test("changing projects removes previous direction while reading and starts each
   const doughnut = await publishMovingOrigin(page, "nerds-odd-e/doughnut");
   doughnut.push(revisionB, describedBacklog(makeMe.aRepository.please()));
   await page.goto("/");
-  const {
-    direction,
-    directionText: body,
-    project,
-    reading,
-    readRevision,
-  } = parts(page);
+  const { direction, directionText: body, reading, readRevision } = parts(page);
   await openDirection(page);
 
   const release = doughnut.hold("main");
-  await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+  await chooseProject(page, "Doughnut");
   await expect(reading).toBeVisible();
   await expect(direction).toHaveCount(0);
   await expect(page.getByText(fullDirection)).toHaveCount(0);
@@ -161,7 +156,7 @@ test("changing projects removes previous direction while reading and starts each
   await expect(body).toHaveText("No near-future direction is recorded.");
   expect(pathsRead(doughnut)).toHaveLength(2);
 
-  await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
+  await chooseProject(page, "Open Dough");
   await expect(readRevision).toContainText(shortRevision(revisionA));
   await expect(body).toBeHidden();
   await openDirection(page);

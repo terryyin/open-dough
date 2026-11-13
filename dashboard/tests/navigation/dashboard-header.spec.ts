@@ -20,11 +20,18 @@ import {
 } from "../accessibleBoard.ts";
 import { zoomedWindow } from "../accessibleReading.ts";
 import {
+  bannerStops,
+  expectBannerRow,
+  expectBelowBanner,
+  expectPinnedShortBanner,
+} from "../bannerReading.ts";
+import {
   parts,
   expectCompactProjectSelect,
   expectMembership,
   expectProjectChoice,
   expectSettledPage,
+  projectTab,
 } from "../dashboardPage.ts";
 import { expectFrameIconControl } from "../frameIconControl.ts";
 import { publishMovingOrigin } from "../publishedOrigin.ts";
@@ -32,7 +39,6 @@ import {
   box,
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
-  expectSideBySideInOrder,
 } from "../pageLayout.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { settings } from "../support/systemSettingsPage.ts";
@@ -81,12 +87,7 @@ for (const viewport of layouts) {
     await last.scrollIntoViewIfNeeded();
     await expect(last).toBeInViewport({ ratio: 1 });
     const titleControl = viewport.compact ? projectCompact : project;
-    await expect(titleControl).toBeInViewport({ ratio: 1 });
-    for (const control of [
-      viewport.compact ? projectCompact : project,
-      perspective,
-      settings(page),
-    ]) {
+    for (const control of [titleControl, perspective, settings(page)]) {
       await expect(control).toBeInViewport({ ratio: 1 });
     }
     // Configured banner: mark is Sessions, not a passive product image; no
@@ -99,9 +100,7 @@ for (const viewport of layouts) {
     await expect(
       banner.getByRole("button", { name: /^(Refresh|Retry)$/ }),
     ).toHaveCount(0);
-    const pinned = await box(banner);
-    expect(pinned.y).toBe(0);
-    expect(pinned.height).toBeLessThan(viewport.height / 2);
+    await expectPinnedShortBanner(page, viewport.height);
     if (viewport.compact) {
       await expectCompactProjectSelect(page, "Open Dough");
     } else {
@@ -125,27 +124,16 @@ for (const viewport of layouts) {
 
     await test.step("the column lays the banner in one row, from Sessions to System settings", async () => {
       const gear = settings(page);
-      const projectName = viewport.compact ? projectCompact : project;
-      const inOrder = [sessions, perspective, projectName, gear];
-      await expectSideBySideInOrder(inOrder);
-      const middles = (await Promise.all(inOrder.map(box))).map(
-        ({ y, height }) => y + height / 2,
-      );
-      for (const middle of middles)
-        expect(middle).toBeCloseTo(middles[0] ?? 0, 0);
-      const controls = banner
-        .locator(
-          "button, input, select, textarea, summary, a[href], [tabindex]",
-        )
-        .filter({ visible: true });
-      await expect(controls.last()).toHaveAccessibleName("System settings");
+      await expectBannerRow([sessions, perspective, titleControl, gear]);
+      const stops = bannerStops(page);
+      await expect(stops.last()).toHaveAccessibleName("System settings");
       // Sessions (mark) leads the banner as the first keyboard stop.
-      await expect(controls.first()).toHaveAccessibleName("Sessions");
-      await controls.first().focus();
+      await expect(stops.first()).toHaveAccessibleName("Sessions");
+      await stops.first().focus();
       await page.keyboard.press("Shift+Tab");
       await expect(banner.locator(":focus")).toHaveCount(0);
       const gearBox = await box(gear);
-      for (const right of await controls.evaluateAll((all) =>
+      for (const right of await stops.evaluateAll((all) =>
         all.map((element) => element.getBoundingClientRect().right),
       )) {
         expect(right).toBeLessThanOrEqual(gearBox.x + gearBox.width + 0.5);
@@ -159,11 +147,7 @@ for (const viewport of layouts) {
       await page.keyboard.press("Shift+Tab");
       const focused = page.locator(":focus");
       await expect(focused).toBeInViewport({ ratio: 1 });
-      const [headerBox, focusBox] = await Promise.all([
-        box(banner),
-        box(focused),
-      ]);
-      expect(focusBox.y).toBeGreaterThanOrEqual(headerBox.y + headerBox.height);
+      await expectBelowBanner(focused);
     }
   });
 }
@@ -205,19 +189,11 @@ test("banner project selection reads the selected project's actual published wor
     "Sessions",
     "Sessions (⌘B)",
   );
-  const openDoughChoice = project.getByRole("radio", {
-    name: "Open Dough",
-    exact: true,
-  });
-  const doughnutChoice = project.getByRole("radio", {
-    name: "Doughnut",
-    exact: true,
-  });
   await expect(project.getByRole("radio")).toHaveCount(4);
-  await expect(openDoughChoice).toBeChecked();
-  await doughnutChoice.click();
-  await expect(doughnutChoice).toBeChecked();
-  await expect(openDoughChoice).not.toBeChecked();
+  await expect(projectTab(page, "Open Dough")).toBeChecked();
+  await projectTab(page, "Doughnut").click();
+  await expect(projectTab(page, "Doughnut")).toBeChecked();
+  await expect(projectTab(page, "Open Dough")).not.toBeChecked();
   await expectMembership(page, {
     taken: [],
     backlog: ["Doughnut's next story"],

@@ -4,12 +4,19 @@
 // and roster update without reload. Page time is paused.
 
 import { expect, githubFor, pausePageClockAt, test } from "../dashboardTest.ts";
-import { expectSettledPage, parts, rosterParts } from "../dashboardPage.ts";
-import { inspectedDetail } from "../storyCardControls.ts";
+import { expectSettledPage, parts } from "../dashboardPage.ts";
+import { storyCard } from "../storyCardControls.ts";
+import { credit, detailHuman } from "../agentCredit.ts";
+import {
+  askedSince,
+  expectRecovered,
+  isCommit,
+  isYumaHistory,
+  yumaAddition,
+} from "../limitRecoveryCredit.ts";
 import { noConnection } from "../originAnswers.ts";
-import { readsBesideChecks } from "../originObservation.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
-import { pathChange } from "../pathHistoryAnswers.ts";
+import { pathChange, type PathChange } from "../pathHistoryAnswers.ts";
 import { publishes } from "../support/fakeGitHub.ts";
 import type { GhRequest } from "../support/ghRequest.ts";
 import {
@@ -17,48 +24,28 @@ import {
   files,
   history,
   opened,
-  afterTake,
   justTaken,
   profilePath,
   revision,
   takes,
-  timeUnread,
 } from "../sliceClockRecords.ts";
+import { detailRecovery } from "../transientRecoveryPage.ts";
 
-const recoveredHuman = "Yuri Credited";
-const yumaAddition = {
-  ...takes.Yuma,
-  committer: recoveredHuman,
-  login: "yuri-credited",
-};
-const detailRecovery = "this page reads it";
-const isYumaHistory = (request: GhRequest) =>
-  request.kind === "commit-list" && request.path === profilePath("Yuma");
-const isCommit = (sha: string) => (request: GhRequest) =>
-  request.kind === "commit" && request.sha === sha;
+type Page = Parameters<typeof parts>[0];
 
-const card = (page: Parameters<typeof parts>[0], title: string) =>
-  parts(page).taken.getByRole("article", { name: title });
-
-function askedSince(page: Parameters<typeof parts>[0], from: number): string[] {
-  return githubFor(page)
-    .calls.slice(from)
-    .map((call) =>
-      call.request.kind === "commit"
-        ? `commit ${call.request.sha}`
-        : (readsBesideChecks([call])[0] ?? call.request.kind),
-    );
-}
-
+// Opens the clock records (../limitRecoveryCredit.ts) with Yuma's profile
+// history `yumaHistory` and Sola's `solaHistory`; GitHub cannot be reached for
+// each request `refused` picks until `heal` is called. The page shows the
+// snapshot with Yuma's human and clock unknown, and says it reads them again.
 async function openWithYumaRefused(
-  page: Parameters<typeof parts>[0],
+  page: Page,
   {
     yumaHistory,
     solaHistory,
     refused,
   }: {
-    readonly yumaHistory: readonly ReturnType<typeof pathChange>[];
-    readonly solaHistory: readonly ReturnType<typeof pathChange>[];
+    readonly yumaHistory: readonly PathChange[];
+    readonly solaHistory: readonly PathChange[];
     readonly refused: (request: GhRequest) => boolean;
   },
 ) {
@@ -81,14 +68,12 @@ async function openWithYumaRefused(
   );
   await page.goto("/");
   await expectSettledPage(page);
-  const yumaCard = card(page, justTaken);
-  await expect(
-    yumaCard.locator(".story-card-owner .owner-human-gap"),
-  ).toHaveText("Human developer unknown");
+  const yumaCard = storyCard(parts(page).taken, justTaken);
+  await expect(credit(yumaCard).humanGap).toHaveText("Human developer unknown");
   await expect(yumaCard).toContainText("Current slice time unavailable");
-  await expect(
-    (await inspectedDetail(yumaCard)).locator(".owner-human"),
-  ).toContainText("Human developer unknown");
+  await expect(await detailHuman(yumaCard)).toContainText(
+    "Human developer unknown",
+  );
   await expect(parts(page).problem).toContainText(detailRecovery);
   await untilPageReadsAnswered(page);
   return {
@@ -97,43 +82,6 @@ async function openWithYumaRefused(
     },
     asked: githubFor(page).calls.length,
   };
-}
-
-async function expectCreditRecovered(
-  page: Parameters<typeof parts>[0],
-  solaExplained: string,
-) {
-  // Credit is restored; an unrelated unread plan time may still schedule
-  // project-local recovery of its own eligible gap.
-  await expect(page.locator("body")).not.toContainText(
-    "GitHub limited the rate",
-  );
-  await expect(page.locator("body")).not.toContainText(
-    "GitHub's rate limit withheld",
-  );
-  const yumaCard = card(page, justTaken);
-  await expect(yumaCard.locator(".story-card-owner")).toContainText(
-    recoveredHuman,
-  );
-  await expect(yumaCard).toContainText("Current slice started 5 min ago");
-  await expect(
-    (await inspectedDetail(yumaCard)).locator(".owner-human"),
-  ).toHaveText(`Human developer: ${recoveredHuman}`);
-  await expect(
-    (await inspectedDetail(card(page, afterTake))).locator(".owner-human"),
-  ).toHaveText("Human developer: Fixture Committer");
-  await expect(card(page, timeUnread)).not.toContainText(
-    "Current slice started",
-  );
-  const { member, opener, back } = rosterParts(page);
-  await opener("Yuma-chan").click();
-  await expect(member("Yuma-chan").locator(".owner-human")).toHaveText(
-    `Human developer: ${recoveredHuman}`,
-  );
-  await expect(member("Sola-chan").locator(".owner-human")).toHaveText(
-    solaExplained,
-  );
-  await back.click();
 }
 
 test("a refused profile history recovers human credit and Take clock from one shared addition without reload", async ({
@@ -147,7 +95,7 @@ test("a refused profile history recovers human credit and Take clock from one sh
   heal();
   await page.clock.runFor(15_250);
   await untilPageReadsAnswered(page);
-  await expectCreditRecovered(
+  await expectRecovered(
     page,
     "Human developer unknown: the commit that added this agent profile names no usable committer.",
   );
@@ -172,7 +120,7 @@ test("a refused addition commit mid-walk recovers without re-asking answered his
   heal();
   await page.clock.runFor(15_250);
   await untilPageReadsAnswered(page);
-  await expectCreditRecovered(
+  await expectRecovered(
     page,
     "Human developer unknown: no commit adding this agent profile was found in its recent published history.",
   );
