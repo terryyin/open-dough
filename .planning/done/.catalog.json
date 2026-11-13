@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-341_simplify-session-state-tests.json",
+      "identity": "SEED-341#simplify-session-state-tests",
+      "completedAt": "2026-11-13T08:03:19.981Z",
+      "blob": "8f9de4ff13bcad3023669e046e89ff6ef5b1e693"
+    },
+    {
       "fileName": "SEED-300_express-session-test-intent-through-page-objects.json",
       "identity": "SEED-300#express-session-test-intent-through-page-objects",
       "completedAt": "2026-11-13T06:56:25.478Z",
