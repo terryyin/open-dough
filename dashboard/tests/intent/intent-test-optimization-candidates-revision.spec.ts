@@ -21,10 +21,7 @@ import {
   moveOpenDoughTrunk,
   publishMovingOpenDough,
 } from "../intentMovingOpenDough.ts";
-import {
-  pausePageClock,
-  passTimeUntilCheckedAfterSettled,
-} from "../autoRefreshJourney.ts";
+import { pausePageClock, passTimeUntilChecked } from "../autoRefreshJourney.ts";
 
 test("Optimization Candidates shown across a new revision stays chosen and reads that revision's record after Show latest", async ({
   page,
@@ -49,7 +46,7 @@ test("Optimization Candidates shown across a new revision stays chosen and reads
       "launch-records-page-clock",
     ),
   );
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   await untilPageReadsAnswered(page);
 
   await expectIntentModeChosen(intent, "Optimization Candidates");

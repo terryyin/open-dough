@@ -3,10 +3,7 @@
 // shared accessibility helpers against the real CLI-committed fixture.
 
 import { expectQueuedPlanFocusDuringEnrichment } from "../queuedPlanFocus.ts";
-import {
-  passTimeUntilCheckedAfterSettled,
-  pausePageClock,
-} from "../autoRefreshJourney.ts";
+import { passTimeUntilChecked, pausePageClock } from "../autoRefreshJourney.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expectMembership, shortRevision, parts } from "../dashboardPage.ts";
@@ -76,7 +73,7 @@ test("story readiness reads preparation and progress accessibly", async ({
     publishRestoreUnrefined(openDough);
     const restored = publishAssessedContentChange(openDough);
     openDoughOrigin.advanceTo(restored);
-    await passTimeUntilCheckedAfterSettled(page);
+    await passTimeUntilChecked(page);
     await expect(parts(page).readRevision).toContainText(
       shortRevision(restored),
     );

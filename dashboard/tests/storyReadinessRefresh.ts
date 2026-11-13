@@ -6,7 +6,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import {
   expectSteadyPace,
   passTimeUntilAsked,
-  passTimeUntilCheckedAfterSettled,
+  passTimeUntilChecked,
 } from "./autoRefreshJourney.ts";
 import { planHref } from "./queuedPlanNavigation.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
@@ -47,7 +47,7 @@ export async function expectFailedCheckKeepsPriorRevision(
   const restore = origin.answerWith("main", noConnection);
   origin.requests.splice(0, origin.requests.length);
 
-  await passTimeUntilCheckedAfterSettled(page, 502);
+  await passTimeUntilChecked(page, 502);
   await expect(problem).toContainText("Published work could not be read");
   await expect(problem).toContainText("earlier snapshot");
   // Failed check: status names no revision; Board links prove the retained one.
@@ -127,7 +127,7 @@ export async function expectNoRereadAfterSettlement(
   origins: readonly CommittedOrigin[],
 ) {
   const settled = origins.map((origin) => origin.requests.length);
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   const passed = await passTimeUntilAsked(page);
   expect(origins.map((origin) => origin.requests.length)).toEqual(settled);
   expectSteadyPace(passed);

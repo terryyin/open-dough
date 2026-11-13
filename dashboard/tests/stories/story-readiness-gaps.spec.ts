@@ -4,10 +4,7 @@
 
 import type { Page } from "@playwright/test";
 import { expectChangedQueuedAssociations } from "../queuedPlanGaps.ts";
-import {
-  passTimeUntilCheckedAfterSettled,
-  pausePageClock,
-} from "../autoRefreshJourney.ts";
+import { passTimeUntilChecked, pausePageClock } from "../autoRefreshJourney.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { shortRevision, expectSettledPage, parts } from "../dashboardPage.ts";
@@ -109,7 +106,7 @@ test("story readiness keeps changed and conflicting evidence truthful", async ({
   await test.step("a fresh published assessment clears changes for both recorded judgments", async () => {
     const next = publishFreshAssessment(openDough);
     openDoughOrigin.advanceTo(next);
-    await passTimeUntilCheckedAfterSettled(page);
+    await passTimeUntilChecked(page);
     await expectSettledPage(page);
     await expect(readRevision).toContainText(shortRevision(next));
     for (const [list, title, judgment] of [

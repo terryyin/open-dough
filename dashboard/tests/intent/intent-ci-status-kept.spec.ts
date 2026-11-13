@@ -34,10 +34,7 @@ import {
   filesColumn,
 } from "../intentModePage.ts";
 import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
-import {
-  pausePageClock,
-  passTimeUntilCheckedAfterSettled,
-} from "../autoRefreshJourney.ts";
+import { pausePageClock, passTimeUntilChecked } from "../autoRefreshJourney.ts";
 
 test("CI homepage shows again across Development and back; Optimization Candidates stays chosen; a project change starts again on Intent", async ({
   page,
@@ -119,12 +116,12 @@ test("a new trunk revision re-reads the homepage judgment at the new head; time 
 
   await test.step("time alone and another branch moving read no judgment", async () => {
     await untilPageReadsAnswered(page);
-    await passTimeUntilCheckedAfterSettled(page);
+    await passTimeUntilChecked(page);
     published.moveBranch("story/unrelated-work", {
       revision: "f6".repeat(20),
       files: {},
     });
-    await passTimeUntilCheckedAfterSettled(page);
+    await passTimeUntilChecked(page);
     await untilPageReadsAnswered(page);
     expect(judgmentCalls(published.requests)).toEqual(firstCalls);
     await expect(ciStatusReading(panel).checkedTime).toHaveAttribute(
@@ -146,7 +143,7 @@ test("a new trunk revision re-reads the homepage judgment at the new head; time 
     ]),
   );
   moveOpenDoughTrunk(published, head);
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   await untilPageReadsAnswered(page);
 
   await expectIntentModeChosen(intent, "CI status");

@@ -3,6 +3,8 @@
 **Identity:** SEED-344#settle-reads-before-passing-page-time
 **Source:** [Settle detail reads by default before passing page time to a check](../../seeds/SEED-344-settle-reads-before-passing-page-time.md#settle-reads-before-passing-page-time)
 
+**Source review:** [Source-only review](source-review.md)
+
 ## Goal and scope
 
 Maintainers stop getting revision-check timeouts caused by page time passing
@@ -56,7 +58,7 @@ Observed at `071db1eaf` in this workspace (AC power; `caffeinate -s -i`).
 ### 1. Settle reads by default before passing page time to a check
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: focused dashboard specs and call-site grep above; consumer trace over
 `autoRefreshJourney.ts` exports; `npm run typecheck:dashboard` and full
 check-only `npm run lint`
@@ -102,3 +104,30 @@ Remaining slice-specific concern: none.
   is already outstanding.
 
 ## Learnings
+
+## Execution context
+
+- Mode: story-branch. Owned linked worktree: `/Users/terryyin/git/open-dough/.worktrees/settle-detail-reads-by-default-before-passing-pa`; branch `codex/settle-detail-reads-by-default-before-passing-pa`. Originating and execution checkout are this worktree; default/integration checkout: `/Users/terryyin/git/open-dough`.
+- Publisher: `dashboard-territory.local-open-dough`; agent: `YeongSheng-chan`; authorized remote: `origin` (`terryyin/open-dough`); final target: `main`. Accepted Take on trunk and execution branch: `50b59da0bf7a83e633c67077e5de4e61b3351816`; starting revision: `e6e615bdd08e8e13337c8ea25770eefc5e6e52b0`; initial candidate matches Take. Claim CI: unobserved.
+- Checkout preparation: `npm ci` with unchanged locked metadata, then passing `npm run typecheck:dashboard` on Node v24.21.0. Hook is check-only staged lint/typecheck; selective formatter is `npm run --silent format`.
+- CI: GitHub Actions, verified `ci.yml` / `CI` / workflow 351271804. Story observer coordinator `seed344-codex`, directory `/tmp/dough-ci-501/watch-maUSNv`, PID 51833, stream session 9474, yielded cell `g34:11`; checkout as above; target execution branch.
+- Replanning: preserve existing planning authority; no explicit overrun option. No numeric slice target or hard limit supplied; one coherent Behavior slice and proof loop.
+- Proof decision (local macOS host): AC power; 48 GiB RAM, 39% system-wide memory free, load 5.40/7.13/10.60, no active heavy proof identified in process snapshot. Run focused/consumer browser proof at two workers with `caffeinate -s -i`; source promises all journeys locally, so a full dashboard run may be required after consumer audit, under shared suite admission. Keep unrelated active work untouched. Implementation agent owns commands through terminal results; reconsider on failure/contention or changed workload.
+
+## Accepted slice 1 proof
+
+Source-review IDs were compared to the unchanged source, implementation and concrete observations, then recorded with the installed obligations tool. No uncovered slice promise remains. Final hosted CI and incoming sibling reconciliation retain their target CI and landing lifecycle owners.
+
+Default ordering: direction-disclosure starts a second check with B still held, observes unchanged page time, loading and no problem, releases B, observes the next check at 15–15.25 seconds and ordinary failed-check continuation. Held-read variant: Intent source-target recovery keeps a source read held across a check and asserts previous source/revision before release; its original focus, offset and eventual new-content assertions remain.
+
+Consumer audit: 53 whole direct/indirect browser spec files, 104 cases, terminal success under default timeouts. Exact command:
+
+```sh
+caffeinate -s -i npm run test:dashboard -- dashboard/tests/intent/intent-ci-comparison-taken.spec.ts dashboard/tests/intent/intent-ci-status-kept.spec.ts dashboard/tests/intent/intent-ci-status-story.spec.ts dashboard/tests/intent/intent-ci-wall-time-history-pending.spec.ts dashboard/tests/intent/intent-done-project-refresh-proof.spec.ts dashboard/tests/intent/intent-done-project-refresh-reading.spec.ts dashboard/tests/intent/intent-done-project-refresh.spec.ts dashboard/tests/intent/intent-home-activation.spec.ts dashboard/tests/intent/intent-project-scope-timing-refresh.spec.ts dashboard/tests/intent/intent-project-visit-ci.spec.ts dashboard/tests/intent/intent-revision-notice.spec.ts dashboard/tests/intent/intent-revision-planning-only.spec.ts dashboard/tests/intent/intent-revision-settings-update.spec.ts dashboard/tests/intent/intent-revision-update-boundaries.spec.ts dashboard/tests/intent/intent-revision-update-outcomes.spec.ts dashboard/tests/intent/intent-source-target-recovery.spec.ts dashboard/tests/intent/intent-story-becomes-done.spec.ts dashboard/tests/intent/intent-story-changes-only.spec.ts dashboard/tests/intent/intent-test-optimization-candidates-revision.spec.ts dashboard/tests/launches/responsive-session-reconciliation.spec.ts dashboard/tests/launches/start-eligibility.spec.ts dashboard/tests/navigation/accessible-board-keyboard.spec.ts dashboard/tests/navigation/accessible-board.spec.ts dashboard/tests/navigation/frame-board-look.spec.ts dashboard/tests/navigation/story-reference-done-recovery.spec.ts dashboard/tests/navigation/story-reference-done.spec.ts dashboard/tests/navigation/story-reference-navigation.spec.ts dashboard/tests/observation/auto-refresh-branches.spec.ts dashboard/tests/observation/auto-refresh-detail-recovery.spec.ts dashboard/tests/observation/auto-refresh-project-isolation.spec.ts dashboard/tests/observation/auto-refresh-rate-limit.spec.ts dashboard/tests/observation/auto-refresh-recovery.spec.ts dashboard/tests/observation/auto-refresh-unusable-branch.spec.ts dashboard/tests/observation/auto-refresh-visibility.spec.ts dashboard/tests/observation/auto-refresh.spec.ts dashboard/tests/observation/limit-recovery-check.spec.ts dashboard/tests/observation/owner-replacement-recovery.spec.ts dashboard/tests/observation/project-read-recovery.spec.ts dashboard/tests/observation/published-facts-isolation.spec.ts dashboard/tests/observation/shared-observer-check-reuse.spec.ts dashboard/tests/observation/steady-refresh-bound.spec.ts dashboard/tests/observation/steady-refresh-carry.spec.ts dashboard/tests/observation/steady-refresh-inspection.spec.ts dashboard/tests/observation/steady-refresh.spec.ts dashboard/tests/observation/story-cards-before-comparison.spec.ts dashboard/tests/observation/unchanged-assignment-credit.spec.ts dashboard/tests/observation/unchanged-records-refresh.spec.ts dashboard/tests/stories/branch-progress-reading.spec.ts dashboard/tests/stories/direction-disclosure.spec.ts dashboard/tests/stories/recently-done-progressive-failed-read-refresh.spec.ts dashboard/tests/stories/story-dependencies.spec.ts dashboard/tests/stories/story-readiness-accessible.spec.ts dashboard/tests/stories/story-readiness-gaps.spec.ts
+```
+
+Additional terminal passes: named six-file focused proof (including Intent variant), strengthened direction-disclosure alone, `npm run typecheck:dashboard`, `git diff --check`; old helper code search empty. Detailed setup/assertion mapping: `/tmp/seed344-implementation-evidence.md`; recursive installed-script consumer trace with every listed disposition: `/tmp/seed344-consumer-trace.md`; actual selected list: `/tmp/seed344-selected-test-list.txt`.
+
+Freshness at acceptance: unchanged at trunk/base `50b59da0bf7a83e633c67077e5de4e61b3351816`. Named SEED-324, SEED-332 and SEED-334 remain Taken, with no incoming commits; no accepted sibling change affects this slice.
+
+Independent refactor `/root/refactor_slice`: `none — already clean`, `## REFACTOR COMPLETE`; no edits, tests skipped, accepted proof unchanged. All checked files under 250 lines (largest test source 241). Delivery freshness repeated unchanged at Take; named siblings still Taken, no incoming accepted change.

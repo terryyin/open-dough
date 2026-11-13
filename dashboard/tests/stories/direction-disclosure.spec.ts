@@ -1,6 +1,6 @@
 import {
   passTimeUntilChecked,
-  passTimeUntilCheckedAfterSettled,
+  expectSteadyPace,
   pausePageClock,
 } from "../autoRefreshJourney.ts";
 import { expect, test } from "../dashboardTest.ts";
@@ -19,7 +19,7 @@ import {
 import { describedBacklog } from "../describedRevisions.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expectFocusedAndIndicated } from "../accessibleReading.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+import { givePageItsTurns, openUntilRead } from "../pageRequestNotes.ts";
 
 const revisionA = "a".repeat(40);
 const revisionB = "b".repeat(40);
@@ -111,18 +111,29 @@ test("same-project refresh retains expanded and collapsed choices through loadin
 
   origin.push(revisionB, withDirection("The next published direction."));
   const release = origin.hold(revisionB);
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   await expect(reading).toBeVisible();
   await expect(body).toBeVisible();
   await expect(body).toHaveText(fullDirection);
+  const restore = origin.answerWith("main", noConnection);
+  const heldAt = await page.evaluate(() => Date.now());
+  const nextCheck = passTimeUntilChecked(page, 502);
+  // The next check must let B's held read answer before passing page time;
+  // otherwise its read deadline can arm detail recovery and suspend checks.
+  await givePageItsTurns(page);
+  expect(await page.evaluate(() => Date.now())).toBe(heldAt);
+  await expect(reading).toBeVisible();
+  await expect(problem).toHaveCount(0);
   release();
   await expect(readRevision).toContainText(shortRevision(revisionB));
   await expect(body).toBeVisible();
   await expect(body).toHaveText("The next published direction.");
 
-  const restore = origin.answerWith("main", noConnection);
-  await passTimeUntilCheckedAfterSettled(page, 502);
+  expectSteadyPace(await nextCheck);
   await expect(problem).toBeVisible();
+  await expect(problem).toContainText(
+    "Automatic checks continue every 15 seconds",
+  );
   await expect(body).toBeVisible();
   await expect(body).toHaveText("The next published direction.");
   await directionToggle.click();
