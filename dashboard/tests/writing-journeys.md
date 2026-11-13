@@ -205,8 +205,9 @@ that passes its own `machine` calls `stopCursorRunner` itself. The run's own
 teardown is the backstop: global setup gives the run an identity,
 `OPEN_DOUGH_DASHBOARD_RUN_ID`, that every process of the run inherits, and
 once the workers have exited the teardown ends every process still carrying
-it and fails the run naming each (`support/globalSetup.ts`,
-`support/runProcesses.ts`). A named process is a leak to stop where it
+it and fails the run naming each (`support/runLifecycle.ts`, shared by
+`support/globalSetup.ts` and **Dashboard Frontend Test**'s
+`support/frontendGlobalSetup.ts`; `support/runProcesses.ts`). A named process is a leak to stop where it
 starts, never a reason to widen the sweep; processes of other runs, other
 checkouts and this machine's own dashboard carry no such identity and are
 left alone. `../backend-tests/observation/run-processes.spec.ts` proves each of the three, and

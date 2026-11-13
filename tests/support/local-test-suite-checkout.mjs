@@ -20,8 +20,9 @@ const framework = pathToFileURL(
 
 // The runner tooling a controlled suite runs, copied from this repository:
 // what `copy_runner` copies, the budget and reporter helpers, the dashboard
-// suite selection, and the Playwright configuration importing this
-// repository's framework. Read once per process.
+// suite selection and run preparation, and the umbrella and Dashboard
+// Frontend Test Playwright configurations importing this repository's
+// framework. Read once per process.
 let runnerLayer;
 export function suiteRunnerLayer() {
   if (runnerLayer) return runnerLayer;
@@ -54,15 +55,23 @@ export function suiteRunnerLayer() {
       "dashboard/tests/support/testFiles.mjs",
       "dashboard/tests/support/suiteDeadline.mjs",
       "dashboard/tests/support/fullSuiteSelection.mjs",
+      "dashboard/tests/support/runnerConfig.mjs",
     ]);
+    const withFramework = (config) =>
+      readFileSync(path.join(source, config), "utf8").replace(
+        '"@playwright/test"',
+        JSON.stringify(framework),
+      );
     runnerLayer = {
       files: {
         ...runner.files,
         ...helpers.files,
-        "dashboard/playwright.config.mts": readFileSync(
-          path.join(source, "dashboard/playwright.config.ts"),
-          "utf8",
-        ).replace('"@playwright/test"', JSON.stringify(framework)),
+        "dashboard/playwright.config.mts": withFramework(
+          "dashboard/playwright.config.ts",
+        ),
+        "dashboard/frontend.playwright.config.mts": withFramework(
+          "dashboard/frontend.playwright.config.ts",
+        ),
       },
       executables: [...runner.executables, ...helpers.executables],
     };
@@ -103,6 +112,11 @@ exit "\${PROBE_EXIT:-0}"
           '#!/usr/bin/env bash\nmkdir -p "$OBSERVE"\ntouch "$OBSERVE/start"\n',
         "dashboard/controlled.config.mts": `
 import config from './playwright.config.mts';
+export default { ...config, projects: [{name:'controlled'}], testMatch: /probe[.]spec[.]mts$/,
+  timeout: 120_000, reporter: 'line', use: {}, globalSetup: './controlled-setup.mjs' };
+`,
+        "dashboard/controlled-frontend.config.mts": `
+import config from './frontend.playwright.config.mts';
 export default { ...config, projects: [{name:'controlled'}], testMatch: /probe[.]spec[.]mts$/,
   timeout: 120_000, reporter: 'line', use: {}, globalSetup: './controlled-setup.mjs' };
 `,

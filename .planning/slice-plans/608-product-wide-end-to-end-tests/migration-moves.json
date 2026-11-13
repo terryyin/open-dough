@@ -1,0 +1,122 @@
+{
+ "tests/intent/intent-ci-comparison-mounted-entries.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-mounted-entries.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-mounted-gaps.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-mounted-gaps.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-mounted-head.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-mounted-head.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-mounted-legacy.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-mounted-legacy.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-mounted-relative.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-mounted-relative.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-mounted-retry.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-mounted-retry.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-mounted-scope-running.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-mounted-scope-running.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-mounted-scope-selection.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-mounted-scope-selection.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-mounted-selection.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-mounted-selection.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-mounted-sort.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-mounted-sort.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-mounted-units.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-mounted-units.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-mounted-wording.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-mounted-wording.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-presentation-bindings.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-presentation-bindings.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-strict-mode.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-strict-mode.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-comparison-units-bindings.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-comparison-units-bindings.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-ci-cues-dark-contrast.spec.ts": {
+  "to": "frontend-tests/intent/intent-ci-cues-dark-contrast.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-summary-story-comparison-mounted-fallback.spec.ts": {
+  "to": "frontend-tests/intent/intent-summary-story-comparison-mounted-fallback.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-summary-story-comparison-mounted-file.spec.ts": {
+  "to": "frontend-tests/intent/intent-summary-story-comparison-mounted-file.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-summary-story-comparison-mounted-gaps.spec.ts": {
+  "to": "frontend-tests/intent/intent-summary-story-comparison-mounted-gaps.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-summary-story-comparison-mounted-outside.spec.ts": {
+  "to": "frontend-tests/intent/intent-summary-story-comparison-mounted-outside.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-summary-story-comparison-mounted-relative.spec.ts": {
+  "to": "frontend-tests/intent/intent-summary-story-comparison-mounted-relative.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-summary-story-comparison-mounted-signed-sort.spec.ts": {
+  "to": "frontend-tests/intent/intent-summary-story-comparison-mounted-signed-sort.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-summary-story-comparison-mounted-sort.spec.ts": {
+  "to": "frontend-tests/intent/intent-summary-story-comparison-mounted-sort.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-summary-story-comparison-mounted.spec.ts": {
+  "to": "frontend-tests/intent/intent-summary-story-comparison-mounted.spec.ts",
+  "slice": 1
+ },
+ "tests/intent/intent-summary-story-comparison-presentation-bindings.spec.ts": {
+  "to": "frontend-tests/intent/intent-summary-story-comparison-presentation-bindings.spec.ts",
+  "slice": 1
+ },
+ "tests/support/mountedComparisonAdapterCases.ts": {
+  "to": "frontend-tests/intent/mountedComparisonAdapterCases.ts",
+  "slice": 1
+ },
+ "tests/support/mountedComparisonCancelledCases.ts": {
+  "to": "frontend-tests/intent/mountedComparisonCancelledCases.ts",
+  "slice": 1
+ },
+ "tests/support/mountedComparisonEndpointCases.ts": {
+  "to": "frontend-tests/intent/mountedComparisonEndpointCases.ts",
+  "slice": 1
+ },
+ "tests/support/mountedComparisonGapCases.ts": {
+  "to": "frontend-tests/intent/mountedComparisonGapCases.ts",
+  "slice": 1
+ },
+ "tests/support/mountedComparisonTakenCases.ts": {
+  "to": "frontend-tests/intent/mountedComparisonTakenCases.ts",
+  "slice": 1
+ }
+}

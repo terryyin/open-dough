@@ -1,11 +1,13 @@
 // Selection is determined at the actual Playwright config entry, including
 // direct CLI calls. Nonselecting options (workers, reporter, timeout, etc.) do
 // not turn a full suite into a focused one. Listing/UI do not own admission.
+// `splitVariable` is the configuration's own CI share setting.
 export function fullDashboardSuite(
   argv = process.argv.slice(2),
   env = process.env,
+  splitVariable = "OPEN_DOUGH_DASHBOARD_SPLIT",
 ) {
-  if (env["OPEN_DOUGH_DASHBOARD_SPLIT"]) return false;
+  if (env[splitVariable]) return false;
   const args = argv[0] === "test" ? argv.slice(1) : argv;
   const selections =
     /^(?:-g|-G|--grep|--grep-invert|--project|--shard|--test-list|--test-list-invert|--last-failed|--only-changed|--list|--ui|--ui-host|--ui-port)(?:=|$)/;

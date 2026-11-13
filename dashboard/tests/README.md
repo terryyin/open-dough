@@ -3,6 +3,8 @@
 Run `npm run test:dashboard` from the repository root. One Playwright run and
 shard selection covers integrated browser journeys, **Dashboard Frontend Test**
 (`../frontend-tests/`) and **Dashboard Backend Test** (`../backend-tests/`).
+`npm run test:dashboard:frontend` runs **Dashboard Frontend Test** alone under
+its own configuration ([frontend-tests README](../frontend-tests/README.md)).
 See [journey writing](writing-journeys.md) for waits, clocks, commands and fake
 GitHub answers; [native-host fixtures](native-host-fixtures.md) for synthetic
 hosts; the per-run [proof record](proof-record.md), the caller-owned
@@ -24,11 +26,14 @@ change it causes. Journeys live in the ten [feature folders](feature-groups.md) 
 `dashboardTest.ts` or a fixture module built on it, each against its own
 built-preview server, which the `page` fixture opens.
 
-A **frontend-only test** proves DOM geometry or UI recovery, formatting,
-polling, or refusal feedback against synthetic backend answers. Those specs live
-in `../frontend-tests/` (**Dashboard Frontend Test**), import `pageTest.ts` or
-`support/frontendApp.ts`, and never start `dashboardServer`, fake hosts, or
-`FakeGitHub`. See [frontend-tests README](../frontend-tests/README.md).
+A **frontend-only test** proves DOM geometry, presentation or interaction, or
+UI recovery, formatting, polling, or refusal feedback against controlled
+backend answers. Those specs live in `../frontend-tests/` (**Dashboard
+Frontend Test**), import `pageTest.ts`, `support/frontendApp.ts` or
+`support/comparisonMountPage.ts`, and never start `dashboardServer`, fake
+hosts, or `FakeGitHub`. A case that needs the real server, Git or a synthetic
+host to observe its rule stays an integrated journey here. See
+[frontend-tests README](../frontend-tests/README.md).
 
 A **boundary test** proves the detailed variants, failure cases and contract
 details of one behavior at a stable public boundary of the dashboard server
@@ -205,7 +210,8 @@ and their assignment to exactly one shard.
 
 Run from the repository root; `npm run test:dashboard -- tests/intent/`,
 `npm run test:dashboard -- backend-tests/` or
-`-- --grep 'published Board'` selects files or tests, and `npx playwright
+`-- --grep 'published Board'` selects files or tests
+(`npm run test:dashboard:frontend` selects within the frontend group alone), and `npx playwright
 test` from `tests/` finds no configuration, so it would run without the
 build, the quiet reporter and the run's identity. Local runs default to two
 workers, CI runs every core.

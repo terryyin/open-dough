@@ -2,6 +2,7 @@
 
 **Identity:** SEED-334#run-and-observe-product-wide-end-to-end-tests
 **Source:** [Story](../../seeds/SEED-334-product-wide-end-to-end-tests.md#run-and-observe-product-wide-end-to-end-tests)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -99,7 +100,7 @@ behavior; replacement proof must pass before any variant is removed.
 
 ### 1. Run focused dashboard presentation checks independently
 Type: Behavior
-Status: planned
+Status: done
 Proof: Native JSON selection for `npm run test:dashboard:frontend -- --list`,
 focused actual frontend runs and moved presentation cases; current CI remains green.
 
@@ -115,6 +116,23 @@ interruption cleanup and full-suite admission when introducing this runner.
 Preserve enduring real/substituted-boundary descriptions for retained journeys.
 The old umbrella remains the CI entry temporarily through slice 4; it still
 selects the moved frontend sources exactly once.
+
+Accepted proof (2026-11-13): baseline manifest and reconciliation beside this
+plan ([migration-manifest.md](migration-manifest.md)): umbrella 1,015 specs /
+2,722 cases (all 2,717 base cases once, plus 5 new lifecycle cases in
+`migration-added.json`); frontend runner native list 52 specs / 153 cases,
+only `frontend-tests/`, full run 153/153. Moved: 25 mounted-comparison specs
+and their 5 registering `mountedComparison*Cases.ts` modules to
+`frontend-tests/intent/` (imports only). Runner settings share
+`dashboard/tests/support/runnerConfig.mjs` (per-prefix split/times/proof
+record/deadline/run stamp, admission, run options) and `runLifecycle.ts`
+teardown. Lifecycle proof in `backend-tests/intent/proof-record-entry.spec.ts`
+(direct config from another CWD, concurrent frontend×2 + umbrella outputs),
+`dashboard-artifact-demand`/`run-processes` (interruption, teardown sweep) and
+`tests/support/local-test-suite-frontend.test.mjs` (admission).
+Learnings: the frontend runner still deals by the shared `dashboard/longest-first`
+(labels relative to `dashboard/`); slice 4 gives each producer its own list. The
+remaining 573 integrated specs are pending inventory (obligation G1).
 
 ### 2. Run focused dashboard boundary and harness checks independently
 Type: Behavior
@@ -246,3 +264,12 @@ Accepted prerequisite repair, 2026-11-13, based on `8f70215aca94`:
 - `caffeinate -s -i env -u OPEN_DOUGH_START_ORIGIN_PREPARATION OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed334-worker-budget-recovery-proof.json npm run test:dashboard -- tests/launches/agent-launch-preparation-codex.spec.ts tests/launches/agent-launch-start-codex.spec.ts --workers=1` passed 2/2 (13.253 s preparation, 12.664 s execution).
 - `caffeinate -s -i env OPEN_DOUGH_START_ORIGIN_PREPARATION=/tmp/seed334-ready-tagged-tjiWvS/prepared OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed334-worker-budget-tagged-proof.json npm run test:dashboard -- tests/launches/agent-launch-preparation-codex.spec.ts --workers=1` passed the complete tagged scenario (6.542 s). Setup and pinned identity: `/tmp/seed334-setup-tagged.mjs`, `/tmp/seed334-ready-tagged-input.json`.
 - Under AC `caffeinate -s -i`, `npm run test:dashboard -- backend-tests/runtime/dashboard-artifact-demand.spec.ts --workers=1` passed all five app/bundle completion, failure and interruption cases; `npm run test:dashboard -- tests/launches/responsive-session-start.spec.ts tests/intent/intent-summary-story-comparison-sort.spec.ts backend-tests/intent/landed-ci-repeat-verdict.spec.ts --grep 'before Start|Summary keeps its sort|saved accepted requests never invent' --workers=1` passed three cases covering the other changed worker profiles. Both used ordinary input; proof is `/tmp/seed334-worker-budget-artifact-lifecycle-proof.json` and `/tmp/seed334-worker-budget-other-profiles-proof.json`.
+
+
+## Story obligations
+
+### G1. Detailed UI checks remain in the integrated root
+Reported: slice 1 — "The remaining 573 tests/ specs are not inventoried by behavior yet. The manifest marks them pending: slice 2/3 inventory."
+Story clause: "move detailed UI, server and harness checks to their focused owner"
+Disposition: receiving slice 3
+Commitment: 2c.1

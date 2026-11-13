@@ -12,6 +12,24 @@ import {
 
 test.afterAll(removeProofDirectories);
 
+// The umbrella share (`OPEN_DOUGH_DASHBOARD_SPLIT`) that does not select
+// `target`.
+function umbrellaSplitExcluding(target: string): string {
+  return dashboardTestMatch(new URL("../../", import.meta.url), "1/2").some(
+    (pattern: RegExp) => pattern.test(target),
+  )
+    ? "2/2"
+    : "1/2";
+}
+
+// One quick Dashboard Frontend Test case, as a runner's arguments.
+const frontendSelection = [
+  "control-reachability-observation.spec.ts",
+  "--grep",
+  "a control revealed by earlier scrolling is still checked",
+  "--workers=1",
+];
+
 for (const entry of [
   "normal npm",
   "direct config from another working directory",
@@ -44,12 +62,7 @@ for (const entry of [
       repoRoot,
       "dashboard/tests/runtime/quiet-reporter.spec.ts",
     );
-    const excludingSplit = dashboardTestMatch(
-      new URL("../../", import.meta.url),
-      "1/2",
-    ).some((pattern: RegExp) => pattern.test(nestedTarget))
-      ? "2/2"
-      : "1/2";
+    const excludingSplit = umbrellaSplitExcluding(nestedTarget);
     let run: ReturnType<typeof startProofCommand>;
     try {
       process.env[splitVariable] = excludingSplit;
@@ -105,3 +118,121 @@ for (const entry of [
     ).toBe(false);
   });
 }
+
+// Dashboard Frontend Test owns its selection, settings and output: it records
+// through its own proof variable into its own run directory, whichever
+// umbrella split or record the caller's environment also names.
+for (const entry of [
+  "normal npm",
+  "direct config from another working directory",
+]) {
+  test(`Dashboard Frontend Test ${entry} records only its own selection under its own settings`, async () => {
+    const directory = proofDirectory();
+    const recordPath = path.join(directory, "frontend-proof.json");
+    const umbrellaRecord = path.join(directory, "umbrella-proof.json");
+    const configFile = path.join(
+      repoRoot,
+      "dashboard/frontend.playwright.config.ts",
+    );
+    const target = path.join(
+      repoRoot,
+      "dashboard/frontend-tests/control-reachability-observation.spec.ts",
+    );
+    const direct = entry !== "normal npm";
+    const args = direct
+      ? [
+          path.join(repoRoot, "node_modules/playwright/cli.js"),
+          "test",
+          "--config",
+          configFile,
+          ...frontendSelection,
+        ]
+      : [
+          "run",
+          "--silent",
+          "test:dashboard:frontend",
+          "--",
+          ...frontendSelection,
+        ];
+    const cwd = direct ? directory : repoRoot;
+    // An umbrella share that excludes the target, and an umbrella record.
+    const run = startProofCommand(
+      direct ? process.execPath : "npm",
+      args,
+      cwd,
+      {
+        OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD: recordPath,
+        OPEN_DOUGH_DASHBOARD_SPLIT: umbrellaSplitExcluding(target),
+        OPEN_DOUGH_DASHBOARD_PROOF_RECORD: umbrellaRecord,
+      },
+    );
+    expect(await run.result).toMatchObject({
+      status: 0,
+      stdout: "",
+      stderr: "",
+    });
+    expect(existsSync(umbrellaRecord)).toBe(false);
+    const record = readProof(recordPath);
+    expect(record).toMatchObject({
+      phase: "completed",
+      selectedCount: 1,
+      run: { cwd: realpathSync(cwd), configFile, listing: false },
+      terminal: { runnerStatus: "passed", strictStatus: "passed" },
+    });
+    expect(record.tests[0]).toMatchObject({
+      project: "chromium",
+      location: { file: target },
+      attempts: [{ status: "passed" }],
+    });
+    expect(record.run.outputDirs).toEqual([
+      expect.stringContaining(
+        path.join(repoRoot, "dashboard/frontend-tests/test-results/"),
+      ),
+    ]);
+    expect(record.run.outputDirs.every((dir) => !existsSync(dir))).toBe(true);
+  });
+}
+
+test("Dashboard Frontend Test runs started beside each other and the umbrella keep their own run directories and records", async () => {
+  const directory = proofDirectory();
+  const runs = [
+    ["frontend.playwright.config.ts", "OPEN_DOUGH_DASHBOARD_FRONTEND"],
+    ["frontend.playwright.config.ts", "OPEN_DOUGH_DASHBOARD_FRONTEND"],
+    ["playwright.config.ts", "OPEN_DOUGH_DASHBOARD"],
+  ].map(([config = "", prefix = ""], index) => {
+    const record = path.join(directory, `${String(index)}.json`);
+    const cli = path.join(repoRoot, "node_modules/playwright/cli.js");
+    const configFile = path.join(repoRoot, "dashboard", config);
+    const args = [cli, "test", "--config", configFile, ...frontendSelection];
+    const env = { [`${prefix}_PROOF_RECORD`]: record };
+    return {
+      record,
+      run: startProofCommand(process.execPath, args, repoRoot, env),
+    };
+  });
+  const outputs: string[] = [];
+  for (const { record, run } of runs) {
+    expect(await run.result).toMatchObject({
+      status: 0,
+      stdout: "",
+      stderr: "",
+    });
+    const proof = readProof(record);
+    expect(proof).toMatchObject({
+      selectedCount: 1,
+      terminal: { strictStatus: "passed" },
+    });
+    // The umbrella's two projects share their run's one directory.
+    outputs.push(...new Set(proof.run.outputDirs));
+  }
+  const root = path.join(repoRoot, "dashboard");
+  expect(
+    outputs.map((output) => path.relative(root, path.dirname(output))),
+  ).toEqual([
+    "frontend-tests/test-results",
+    "frontend-tests/test-results",
+    "test-results",
+  ]);
+  expect(new Set(outputs).size).toBe(3);
+  expect(outputs.every((output) => !existsSync(output))).toBe(true);
+});

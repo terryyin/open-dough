@@ -1,0 +1,32 @@
+[
+ {
+  "spec": "backend-tests/intent/proof-record-entry.spec.ts",
+  "title": "Dashboard Frontend Test normal npm records only its own selection under its own settings",
+  "slice": 1,
+  "proves": "frontend runner npm/direct-config invocation, own settings and output"
+ },
+ {
+  "spec": "backend-tests/intent/proof-record-entry.spec.ts",
+  "title": "Dashboard Frontend Test direct config from another working directory records only its own selection under its own settings",
+  "slice": 1,
+  "proves": "frontend runner npm/direct-config invocation, own settings and output"
+ },
+ {
+  "spec": "backend-tests/intent/proof-record-entry.spec.ts",
+  "title": "Dashboard Frontend Test runs started beside each other and the umbrella keep their own run directories and records",
+  "slice": 1,
+  "proves": "concurrent frontend and umbrella runs keep separate run directories and records"
+ },
+ {
+  "spec": "backend-tests/observation/run-processes.spec.ts",
+  "title": "Dashboard Frontend Test: a run's own teardown ends a process its workers could not reach and fails naming it",
+  "slice": 1,
+  "proves": "frontend run teardown sweep"
+ },
+ {
+  "spec": "backend-tests/runtime/dashboard-artifact-demand.spec.ts",
+  "title": "a shared real Dashboard Frontend Test app build can interrupt while workers are waiting",
+  "slice": 1,
+  "proves": "frontend run interruption cleanup"
+ }
+]

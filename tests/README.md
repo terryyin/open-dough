@@ -6,6 +6,7 @@ The [dashboard suite](../dashboard/tests/README.md) runs browser tests in its
 [feature folders](../dashboard/tests/feature-groups.md), frontend-only tests in
 `dashboard/frontend-tests/`, and backend tests in `dashboard/backend-tests/`
 through `npm run test:dashboard`; `npm test` does not discover those specs.
+`npm run test:dashboard:frontend` runs only the frontend-only tests.
 
 Run every check through the runner. `npm test` (or `bash scripts/test.sh`) runs
 the whole suite; named `.sh`, `.mjs`, or `.js` paths select exactly those checks:

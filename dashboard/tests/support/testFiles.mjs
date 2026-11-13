@@ -8,12 +8,16 @@ import {
   shareLabels,
 } from "../../../scripts/share-deal.mjs";
 
-// The browser, frontend, and backend specs under the common dashboard
-// `directory`, as paths relative to it: the labels `longest-first` and the
+// The roots `npm run test:dashboard` discovers. A runner owning one group
+// names its own roots (../../frontend.playwright.config.ts).
+export const dashboardRoots = ["tests", "frontend-tests", "backend-tests"];
+
+// The specs under `roots` of the common dashboard `directory`, as paths
+// relative to it: the labels `longest-first` and the
 // `dashboard-times-<shard>` artifacts carry (support/specTimes.ts writes the
 // same relative path).
-export function dashboardSpecFiles(directory) {
-  return ["tests", "frontend-tests", "backend-tests"]
+export function dashboardSpecFiles(directory, roots = dashboardRoots) {
+  return roots
     .flatMap((root) =>
       existsSync(resolve(directory, root))
         ? readdirSync(resolve(directory, root), { recursive: true }).map(
@@ -25,17 +29,21 @@ export function dashboardSpecFiles(directory) {
     .sort();
 }
 
-// Selected spec files for share `split` (`<i>/<n>`, the value of
-// `OPEN_DOUGH_DASHBOARD_SPLIT`) under `testDir`: the files
+// Selected spec files for share `split` (`<i>/<n>`, the value of the
+// runner's `splitVariable`) under `testDir`'s `roots`: the files
 // scripts/share-deal.mjs deals to that share by the recorded seconds in
 // `testDir/longest-first` (shards.md). A malformed split or list line throws,
 // naming it, before any test is selected.
 /** @returns {string[]} */
-function selectedFiles(testDir, split) {
+function selectedFiles(
+  testDir,
+  split,
+  { roots = dashboardRoots, splitVariable = "OPEN_DOUGH_DASHBOARD_SPLIT" } = {},
+) {
   const directory = fileURLToPath(testDir);
-  const files = dashboardSpecFiles(directory);
+  const files = dashboardSpecFiles(directory, roots);
   if (split === undefined) return files;
-  const { share, count } = parseSplit(split, "OPEN_DOUGH_DASHBOARD_SPLIT");
+  const { share, count } = parseSplit(split, splitVariable);
   const { seconds } = readDurationList(resolve(directory, "longest-first"));
   const allocation = dealShares(files, seconds, count);
   return shareLabels(allocation, share);
@@ -75,7 +83,8 @@ export function dashboardTestProjects(testDir, split) {
   ];
 }
 
+// `selection` names a runner's own `roots` and `splitVariable`.
 /** @returns {RegExp[]} */
-export function dashboardTestMatch(testDir, split) {
-  return filePatterns(testDir, selectedFiles(testDir, split));
+export function dashboardTestMatch(testDir, split, selection) {
+  return filePatterns(testDir, selectedFiles(testDir, split, selection));
 }

@@ -64,6 +64,20 @@ test("the config deals recorded specs by their seconds and new specs after them 
   });
 });
 
+test("a runner owning one root deals only its specs and names its own split", () => {
+  const files = ["tests/a.spec.ts", "frontend-tests/b.spec.ts"];
+  const list = "9.0\ttests/a.spec.ts\n2.0\tfrontend-tests/b.spec.ts\n";
+  withSpecDirectory(files, list, (directory, path) => {
+    const own = { roots: ["frontend-tests"], splitVariable: "OWN_SPLIT" };
+    // Alone in its runner, the frontend spec takes the first share.
+    const first = dashboardTestMatch(directory, "1/2", own);
+    assert.equal(first.length, 1);
+    assert.equal(matched(first, join(path, "frontend-tests/b.spec.ts")), 1);
+    assert.equal(dashboardTestMatch(directory, "2/2", own).length, 0);
+    assert.throws(() => dashboardTestMatch(directory, "x", own), /OWN_SPLIT=x/);
+  });
+});
+
 test("invalid shares fail before selecting tests", () => {
   withSpecDirectory(
     ["tests/a.spec.ts"],

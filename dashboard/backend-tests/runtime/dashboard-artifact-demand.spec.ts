@@ -23,6 +23,10 @@ const fixtures = path.join(
   "dashboard/tests/fixtures/artifact-demand",
 );
 const setup = path.join(repoRoot, "dashboard/tests/support/globalSetup.ts");
+const frontendSetup = path.join(
+  repoRoot,
+  "dashboard/tests/support/frontendGlobalSetup.ts",
+);
 
 type Trace = { event: string; key: string; directory?: string };
 type Consumer = { pid: number; directory?: string; error?: string };
@@ -52,6 +56,8 @@ function proveArtifact(
     readonly spec: string;
     readonly partial: string;
     readonly error: RegExp;
+    // The run's global setup; the umbrella's unless named.
+    readonly setup?: string;
   },
   outcomes: readonly Outcome[],
 ): void {
@@ -103,7 +109,7 @@ function proveArtifact(
           testDir: fixtures,
           fullyParallel: true,
           workers: 2,
-          globalSetup: setup,
+          globalSetup: artifact.setup ?? setup,
         },
         args: outcome === "interrupt" ? ["--grep", "static server"] : [],
         env: {
@@ -225,4 +231,19 @@ proveArtifact(
     error: /boundaryServer\.mjs.*(?:os error 21|is a directory)/is,
   },
   ["complete", "fail"],
+);
+
+// Dashboard Frontend Test's own setup shares the app build the same way and
+// removes it when interrupted.
+proveArtifact(
+  {
+    name: "Dashboard Frontend Test app build",
+    key: dashboardAppArtifactKey,
+    preload: "buildGate.mjs",
+    spec: "app.proof.ts",
+    partial: "partial",
+    error: /Vite app build failed at the proof gate/,
+    setup: frontendSetup,
+  },
+  ["interrupt"],
 );

@@ -14,31 +14,28 @@
 // No process a run starts outlives it. The run's identity is set here, before
 // any worker starts, so every process of the run carries it, and the teardown
 // runs after every worker has exited: whatever of the run is still running
-// then is ended and named, and the run fails (./runProcesses.ts).
+// then is ended and named, and the run fails (./runLifecycle.ts,
+// ./runProcesses.ts).
 
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { releaseLocalSuites } from "../../../scripts/local-test-suite.mjs";
 import { ownerlessRequestRoot } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import {
   storyColumnsPrefixArtifact,
   storyColumnsPrefixArtifactKey,
 } from "../launchJourney.ts";
-import { buildDashboardTo, dashboardAppArtifactKey } from "./dashboardBuild.ts";
+import { dashboardAppArtifact } from "./dashboardBuild.ts";
 import { runFixtureExecutablesOnce } from "./fixtureExecutable.ts";
-import { requestRunArtifact, startRunArtifacts } from "./runArtifacts.ts";
+import { requestRunArtifact } from "./runArtifacts.ts";
 import {
   bundleServerEntries,
   createServerBundleDirectory,
   serverBundleArtifactKey,
 } from "./serverBundle.ts";
-import {
-  describeRunProcesses,
-  endRunProcesses,
-  identifyRun,
-} from "./runProcesses.ts";
+import { identifyRun } from "./runProcesses.ts";
+import { ownDashboardRun } from "./runLifecycle.ts";
 import { startOriginArtifacts } from "./startOriginPreparation.ts";
 import { comparisonMountArtifact } from "./comparisonMountArtifact.ts";
 import { publishedMainSourceArtifact } from "./publishedMainSource.ts";
@@ -76,16 +73,10 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
   // Exit also covers interruption while asynchronous setup is still pending.
   process.once("exit", remove);
   bindSelectedGit();
-  const closeArtifacts = await startRunArtifacts(
+  const teardown = await ownDashboardRun(
+    runId,
     new Map([
-      [
-        dashboardAppArtifactKey,
-        {
-          create: () =>
-            mkdtempSync(path.join(tmpdir(), "dough-dashboard-build-")),
-          prepare: buildDashboardTo,
-        },
-      ],
+      dashboardAppArtifact(),
       [
         serverBundleArtifactKey,
         {
@@ -99,32 +90,21 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
       publishedMainSourceArtifact(undefined, "application"),
       storyColumnsPrefixArtifact(),
     ]),
-  ).catch(async (error: unknown) => {
-    remove();
-    await releaseLocalSuites();
-    throw error;
-  });
+    {
+      remove,
+      check: () => {
+        if (existsSync(ownerless))
+          throw new Error(
+            "A test asked GitHub without a request owner of its own: give every process that can run `gh` the environment of `fakeGhEnv` (dashboard/tests/support/fakeGh.ts).",
+          );
+      },
+    },
+  );
   // The story-columns history is built now, overlapping the workers' start and
   // the app build, so the first page journeys find it ready instead of waiting
   // for one cold build. A failure here is kept for the workers that ask: each
   // receives it as its own setup failure.
   void requestRunArtifact(storyColumnsPrefixArtifactKey).catch(() => {});
   process.env["DOUGH_GITHUB_REQUEST_OWNER_ROOT"] = ownerless;
-  const checkRun = async () => {
-    try {
-      const survived = await endRunProcesses(runId);
-      if (survived.length > 0)
-        throw new Error(
-          `The run left ${String(survived.length)} of its processes running after its workers exited, now ended. Stop each where it is started (dashboard/tests/README.md, "No process outlives its run"):\n${describeRunProcesses(survived)}`,
-        );
-      if (existsSync(ownerless))
-        throw new Error(
-          "A test asked GitHub without a request owner of its own: give every process that can run `gh` the environment of `fakeGhEnv` (dashboard/tests/support/fakeGh.ts).",
-        );
-    } finally {
-      remove();
-      await releaseLocalSuites();
-    }
-  };
-  return () => closeArtifacts().finally(checkRun);
+  return teardown;
 }

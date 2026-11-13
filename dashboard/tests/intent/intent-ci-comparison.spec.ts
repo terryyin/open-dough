@@ -1,6 +1,6 @@
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Real GitHub acquisition reaches the named, historical comparison and entry rows.
-// Fast presentation rules live in ./intent-ci-comparison-mounted-*.spec.ts.
+// Fast presentation rules live in ../../frontend-tests/intent/intent-ci-comparison-mounted-*.spec.ts.
 
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";

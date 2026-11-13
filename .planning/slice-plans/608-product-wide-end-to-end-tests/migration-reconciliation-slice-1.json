@@ -1,0 +1,55 @@
+{
+ "kind": "reconciliation",
+ "specs": 1015,
+ "cases": 2722,
+ "specsByRoot": {
+  "tests": 573,
+  "backend-tests": 390,
+  "frontend-tests": 52
+ },
+ "casesBySourceRoot": {
+  "tests": 1221,
+  "backend-tests": 1348,
+  "frontend-tests": 153
+ },
+ "missingOrRepeated": [],
+ "addedProofCases": 5,
+ "unexpected": [],
+ "movedSpecShards": {
+  "frontend-tests/intent/intent-ci-comparison-mounted-entries.spec.ts": 10,
+  "frontend-tests/intent/intent-ci-comparison-mounted-gaps.spec.ts": 3,
+  "frontend-tests/intent/intent-ci-comparison-mounted-head.spec.ts": 4,
+  "frontend-tests/intent/intent-ci-comparison-mounted-legacy.spec.ts": 6,
+  "frontend-tests/intent/intent-ci-comparison-mounted-relative.spec.ts": 10,
+  "frontend-tests/intent/intent-ci-comparison-mounted-retry.spec.ts": 5,
+  "frontend-tests/intent/intent-ci-comparison-mounted-scope-running.spec.ts": 13,
+  "frontend-tests/intent/intent-ci-comparison-mounted-scope-selection.spec.ts": 11,
+  "frontend-tests/intent/intent-ci-comparison-mounted-selection.spec.ts": 11,
+  "frontend-tests/intent/intent-ci-comparison-mounted-sort.spec.ts": 11,
+  "frontend-tests/intent/intent-ci-comparison-mounted-units.spec.ts": 12,
+  "frontend-tests/intent/intent-ci-comparison-mounted-wording.spec.ts": 12,
+  "frontend-tests/intent/intent-ci-comparison-presentation-bindings.spec.ts": 8,
+  "frontend-tests/intent/intent-ci-comparison-strict-mode.spec.ts": 9,
+  "frontend-tests/intent/intent-ci-comparison-units-bindings.spec.ts": 1,
+  "frontend-tests/intent/intent-ci-cues-dark-contrast.spec.ts": 1,
+  "frontend-tests/intent/intent-summary-story-comparison-mounted-fallback.spec.ts": 6,
+  "frontend-tests/intent/intent-summary-story-comparison-mounted-file.spec.ts": 5,
+  "frontend-tests/intent/intent-summary-story-comparison-mounted-gaps.spec.ts": 13,
+  "frontend-tests/intent/intent-summary-story-comparison-mounted-outside.spec.ts": 13,
+  "frontend-tests/intent/intent-summary-story-comparison-mounted-relative.spec.ts": 6,
+  "frontend-tests/intent/intent-summary-story-comparison-mounted-signed-sort.spec.ts": 12,
+  "frontend-tests/intent/intent-summary-story-comparison-mounted-sort.spec.ts": 5,
+  "frontend-tests/intent/intent-summary-story-comparison-mounted.spec.ts": 1,
+  "frontend-tests/intent/intent-summary-story-comparison-presentation-bindings.spec.ts": 12
+ },
+ "frontendRunner": {
+  "specs": 52,
+  "cases": 153,
+  "projects": [
+   "chromium"
+  ],
+  "onlyUmbrella": 0,
+  "onlyRunner": 0,
+  "sameMultiset": true
+ }
+}

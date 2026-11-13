@@ -1,6 +1,6 @@
 // Cross-story reading preferences: Summary keeps its sort while drilling, uses
 // tree order for a missing column, and restores that sort when its story returns.
-// Column ordering and zoom rules live in ./intent-summary-story-comparison-mounted-sort.spec.ts.
+// Column ordering and zoom rules live in ../../frontend-tests/intent/intent-summary-story-comparison-mounted-sort.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../support/intentSummarySortTest.ts";
