@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Express session discovery and report test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-session-test-intent-through-page-objects) — SEED-300#express-session-test-intent-through-page-objects ([plan](slice-plans/585-session-test-intent/PLAN.md))
 - [Express Board and published-read test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-board-test-intent-through-page-objects) — SEED-300#express-board-test-intent-through-page-objects ([plan](slice-plans/584-board-test-intent/PLAN.md))
 - [Close the landed CI repeat checks’ coverage gaps](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps) — SEED-324#close-landed-ci-repeat-check-gaps ([plan](slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md))
-- [Spot completed stories that need review](seeds/SEED-333-spot-completed-stories-that-need-review.md#spot-completed-stories-that-need-review) — SEED-333#spot-completed-stories-that-need-review ([plan](slice-plans/608-spot-completed-stories-that-need-review/PLAN.md))
 
 ## Backlog list
 
