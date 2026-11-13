@@ -26,7 +26,7 @@ export type StoryReviewStates = {
 
 const notRead = "The review state could not be read.";
 
-// What a card says when Mark as reviewed or Unreview could not be saved (the
+// What a card says when a review state change could not be saved (the
 // machine could not write its local records or the dashboard was not reached),
 // and a rejected change's message when the dashboard gives none.
 export const reviewStateNotSaved = "The review state could not be saved.";

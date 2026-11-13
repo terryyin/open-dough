@@ -11,7 +11,8 @@ import {
   publishDoneStories,
   storyA,
   storyB,
-  unreview,
+  reviewedButton,
+  unreviewStory,
 } from "../recentlyDoneReviewState.ts";
 import {
   expectFocusReadable,
@@ -51,12 +52,12 @@ for (const appearance of [
     await expectQuietReviewed(b, appearance.quiet, appearance.surface);
     await expectReviewWarning(a, appearance);
 
-    await unreview(b).press("Tab");
+    await reviewedButton(b).press("Tab");
     await expectFocusReadable(page, markAsReviewed(a));
     await markAsReviewed(a).press("Enter");
     await expectQuietReviewed(a, appearance.quiet, appearance.surface);
-    await expect(unreview(a)).toBeFocused();
-    await unreview(a).press("Enter");
+    await expect(reviewedButton(a)).toBeFocused();
+    await unreviewStory(a, "Unreview this story?", "keyboard");
     await expectReviewed(a, false);
     await expectReviewWarning(a, appearance);
     await expect(markAsReviewed(a)).toBeFocused();

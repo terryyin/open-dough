@@ -23,7 +23,7 @@ import {
   doneCard,
   expectReviewed,
   markAsReviewed,
-  unreview,
+  unreviewStory,
 } from "../recentlyDoneReviewState.ts";
 import { keepMoreLaunchRecords } from "../support/launchStore.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
@@ -75,7 +75,7 @@ test("equal identities use their own project's review state; every shown matchin
   const card = doneCard(page, localTitle);
   await showColumn(page, "Recently done");
   await expectReviewed(card, true);
-  await unreview(card).click();
+  await unreviewStory(card, "Unreview this story?", "mouse");
   await expectSessionReviewCue(shown.row(localSessionTitle), true);
   await expectSessionReviewCue(shown.row(linked.title), true);
   await markAsReviewed(card).click();

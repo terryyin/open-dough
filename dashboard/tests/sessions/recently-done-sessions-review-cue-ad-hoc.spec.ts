@@ -15,7 +15,7 @@ import {
   markAsReviewed,
   openRecentlyDone,
   reviewSaveFailure,
-  unreview,
+  unreviewStory,
 } from "../recentlyDoneReviewState.ts";
 import {
   recentlyDoneParts,
@@ -146,7 +146,7 @@ test("confirmed Ad hoc and repeated story sessions share review changes while un
   await expectReviewed(a, true);
   for (const name of [title, secondTitle])
     await expectSessionReviewCue(shown.row(name), false);
-  await unreview(a).click();
+  await unreviewStory(a, "Unreview this story?", "mouse");
   for (const name of [title, secondTitle])
     await expectSessionReviewCue(shown.row(name), true);
   await expect(finalReportText(page)).toHaveText(
