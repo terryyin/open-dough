@@ -1,0 +1,123 @@
+# Source review
+
+Launch provenance: `/root/source_review`; `fork_turns: none`.
+
+Original input: the verbatim Goal, Scope, restrictions, limits, Key examples, UI and Architecture supplied in the coordinator's launch message for SEED-333, with only those inputs and no project-file access before review.
+
+Source-only review of **SEED-333#spot-completed-stories-that-need-review**. These are promises derived from the supplied text; they do not assign slice ownership or acceptance.
+
+The numbered source groups from the actual return are retained here:
+
+1. **Scanning outcome**
+2. **Story-card treatment**
+3. **Session-row treatment**
+4. **Evidence and warning meaning**
+5. **Association behavior**
+6. **Review-state changes**
+7. **Independent interaction states**
+8. **Architectural constraints**
+9. **Trigger and journey examples**
+10. **Explicit scope exclusions**
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1.1 | A developer can identify completed stories needing review while scanning the Board’s Recently done column, without selecting each card. | slice 1 | observed: dashboard/tests/stories/recently-done-review-cue.spec.ts light/dark journeys via expectReviewWarning/expectQuietReviewed; /tmp/seed333-slice1-corrected-proof.json (10 selected, all passed) |
+| 1.2 | A developer can identify completed stories needing review while scanning Recently done session rows, without selecting each row. | slice 2 | |
+| 2.1 | An unreviewed story’s existing **Mark as reviewed** button receives prominent red warning styling. | slice 1 | observed: dashboard/tests/stories/recently-done-review-cue.spec.ts light/dark journeys via expectReviewWarning/expectQuietReviewed; /tmp/seed333-slice1-corrected-proof.json (10 selected, all passed) |
+| 2.2 | Its action label remains readable in light and dark appearance. | slice 1 | observed: dashboard/tests/stories/recently-done-review-cue.spec.ts light/dark journeys via expectReviewWarning/expectQuietReviewed; /tmp/seed333-slice1-corrected-proof.json (10 selected, all passed) |
+| 2.3 | A reviewed card displays **Reviewed**. | slice 1 | observed: dashboard/tests/stories/recently-done-review-cue.spec.ts light/dark journeys via expectReviewWarning/expectQuietReviewed; /tmp/seed333-slice1-corrected-proof.json (10 selected, all passed) |
+| 2.4 | A reviewed card offers **Unreview**. | slice 1 | observed: dashboard/tests/stories/recently-done-review-cue.spec.ts light/dark journeys via expectReviewWarning/expectQuietReviewed; /tmp/seed333-slice1-corrected-proof.json (10 selected, all passed) |
+| 2.5 | The reviewed state and Unreview action retain quieter styling. | slice 1 | observed: dashboard/tests/stories/recently-done-review-cue.spec.ts light/dark journeys via expectReviewWarning/expectQuietReviewed; /tmp/seed333-slice1-corrected-proof.json (10 selected, all passed) |
+| 3.1 | A Recently done row linked to a known unreviewed completed story receives the corresponding red warning treatment. | slice 2 | |
+| 3.2 | The row displays the visible words **Needs review**. | slice 2 | |
+| 3.3 | The review cue communicates its meaning without relying on color. | slice 2 | |
+| 3.4 | The review cue is available when assistive technology reaches the row. | slice 2 | |
+| 3.5 | The cue appears before row selection. | slice 2 | |
+| 3.6 | Cross-project rows can display the cue while the Board remains on its current project. | slice 2 | |
+| 3.7 | The label remains visible with long titles. | slice 2 | |
+| 3.8 | The label remains visible in narrow presentation. | slice 2 | |
+| 3.9 | The label remains visible in touch presentation. | slice 2 | |
+| 3.10 | Existing row Select behavior remains available. | slice 2 | |
+| 3.11 | Existing row Open behavior remains available. | slice 2 | |
+| 3.12 | Select and Open controls remain usable in light and dark appearance. | slice 2 | |
+| 3.13 | Keyboard focus remains visible in light and dark appearance. | slice 2 | |
+| 4.1 | A warning requires both a confirmed completed-story link and a successfully read unreviewed state. | slice 2 | |
+| 4.2 | An unknown, loading, or unavailable link does not establish warning eligibility. | slice 2 | |
+| 4.3 | An unknown, loading, or failed review-state read does not establish warning eligibility. | slice 2 | |
+| 4.4 | A row remains usable while its review evidence is unknown. | slice 2 | |
+| 4.5 | A later successful read can supply the cue without row selection. | slice 2 | |
+| 4.6 | Absence of a warning does not assert that the story was reviewed. | slice 2 | |
+| 4.7 | The warning means the story has not been marked reviewed on this machine. | slice 2 | |
+| 4.8 | The warning does not assert execution failure. | slice 2 | |
+| 4.9 | The warning does not assert an unread session report. | slice 2 | |
+| 4.10 | A standalone session has no story review state. | slice 2 | |
+| 4.11 | Session Done status alone cannot establish an unreviewed completed story. | slice 2 | |
+| 4.12 | An unread report alone cannot establish an unreviewed completed story. | slice 2 | |
+| 4.13 | An unavailable read cannot establish an unreviewed completed story. | slice 2 | |
+| 4.14 | An identically named story in another project cannot supply the row’s review evidence. | slice 2 | |
+| 5.1 | Shown rows’ completed-story links are resolved without requiring a click. | slice 2 | |
+| 5.2 | Resolving those links does not require moving the Board to the rows’ projects. | slice 2 | |
+| 5.3 | Existing completed-story association meaning is preserved. | slice 2 | |
+| 5.4 | An Ad hoc session’s confirmed association participates in the review cue. | slice 2 | |
+| 5.5 | An associated Ad hoc session retains its Ad hoc label. | slice 2 | |
+| 5.6 | A late answer for an obsolete project or association cannot give another row a warning. | slice 2 | |
+| 6.1 | Review state uses the existing machine-local state for the linked project and story identity. | slice 2 | |
+| 6.2 | Successfully marking a story reviewed updates its card. | slice 1 | observed: dashboard/tests/stories/recently-done-review-state.spec.ts keyboard Mark and selection/order/count/Side panel assertions; persistence.spec.ts real restart and keyboard Unreview; corrected proof record passed |
+| 6.3 | Successfully marking a story reviewed clears the cue from every linked row on the page. | slice 2 | |
+| 6.4 | Successfully unreviewing a story updates its card. | slice 1 | observed: dashboard/tests/stories/recently-done-review-state.spec.ts keyboard Mark and selection/order/count/Side panel assertions; persistence.spec.ts real restart and keyboard Unreview; corrected proof record passed |
+| 6.5 | Successfully unreviewing a story restores the cue on every linked row on the page. | slice 2 | |
+| 6.6 | A failed save preserves the last saved review state. | slice 1 | observed: dashboard/tests/stories/recently-done-review-state-failed-save.spec.ts refused Mark/Unreview preserve saved state/focus/error then recover; corrected proof record passed |
+| 6.7 | A failed save retains the existing failure feedback. | slice 1 | observed: dashboard/tests/stories/recently-done-review-state-failed-save.spec.ts refused Mark/Unreview preserve saved state/focus/error then recover; corrected proof record passed |
+| 6.8 | In the illustrated failed Mark as reviewed case, the card and linked rows retain their unreviewed cues. | slice 2 | |
+| 6.9 | In that failed-save case, the card explains the save failure. | slice 2 | |
+| 7.1 | The review cue remains distinguishable from an unread-report mark when both apply. | slice 2 | |
+| 7.2 | The review cue remains distinguishable from failure feedback. | slice 2 | |
+| 7.3 | The review cue remains distinguishable from row selection when both apply. | slice 2 | |
+| 7.4 | Selecting a session does not mark its story reviewed. | slice 2 | |
+| 7.5 | Reading a session report does not mark its story reviewed. | slice 2 | |
+| 7.6 | Reviewing and unreviewing preserve the developer’s selection. | slice 1 | observed: dashboard/tests/stories/recently-done-review-state.spec.ts keyboard Mark and selection/order/count/Side panel assertions; persistence.spec.ts real restart and keyboard Unreview; corrected proof record passed |
+| 7.7 | Reviewing and unreviewing preserve the developer’s perspective. | slice 1 | observed: dashboard/src/StoryReviewStateAction.tsx act only saves review state; unchanged handler and navigation boundary inspected; style-only production diff cannot change perspective |
+| 7.8 | Reviewing and unreviewing preserve the Side panel. | slice 1 | observed: dashboard/tests/stories/recently-done-review-state.spec.ts keyboard Mark and selection/order/count/Side panel assertions; persistence.spec.ts real restart and keyboard Unreview; corrected proof record passed |
+| 7.9 | Reviewing and unreviewing preserve keyboard behavior. | slice 1 | observed: dashboard/tests/stories/recently-done-review-state.spec.ts keyboard Mark and selection/order/count/Side panel assertions; persistence.spec.ts real restart and keyboard Unreview; corrected proof record passed |
+| 7.10 | Existing selection-check feedback remains available. | slice 2 | |
+| 7.11 | Existing selection-check recovery remains available. | slice 2 | |
+| 8.1 | Shown sidebar rows’ completed-story links are observed independently of navigation. | slice 2 | |
+| 8.2 | Link observation reuses the current published done-catalog responsibility. | slice 2 | |
+| 8.3 | Link observation reuses the current confirmed Ad hoc association responsibility. | slice 2 | |
+| 8.4 | Observing a link does not select a story. | slice 2 | |
+| 8.5 | Observing a link does not switch projects. | slice 2 | |
+| 8.6 | Observing a link does not open a session. | slice 2 | |
+| 8.7 | Observing a link does not attach a terminal. | slice 2 | |
+| 8.8 | The Board and sidebar have one coherent page view of each project’s existing machine-local review state. | slice 2 | |
+| 8.9 | That state is keyed by project and story identity. | slice 2 | |
+| 8.10 | The page view reuses existing successful-save updates. | slice 2 | |
+| 8.11 | The page view reuses existing periodic reads. | slice 2 | |
+| 8.12 | Sessions do not acquire independent review flags. | slice 2 | |
+| 8.13 | Cross-project rows obtain evidence from their own project. | slice 2 | |
+| 8.14 | Obtaining that evidence does not replace the Board’s project. | slice 2 | |
+| 8.15 | Unknown evidence remains distinct from confirmed unreviewed evidence. | slice 2 | |
+| 8.16 | Obsolete asynchronous answers cannot overwrite newer evidence. | slice 2 | |
+| 8.17 | Review state remains local operational evidence under ADR 0008. | slice 2 | |
+| 8.18 | The change requires no new persistence. | slice 2 | |
+| 8.19 | The change requires no ADR exception. | slice 2 | |
+| 9.1 | With reviewed and unreviewed done cards visible together, the red Mark as reviewed action identifies the unreviewed card in either appearance. | slice 1 | observed: dashboard/tests/stories/recently-done-review-cue.spec.ts light/dark journeys via expectReviewWarning/expectQuietReviewed; /tmp/seed333-slice1-corrected-proof.json (10 selected, all passed) |
+| 9.2 | With multiple sessions associated with one unreviewed completed story—including a confirmed Ad hoc association—all corresponding rows show Needs review before selection; reviewing clears their cues, and unreviewing restores them. | slice 2 | |
+| 9.3 | While the Board shows one project, another project’s row can show Needs review using that other project’s evidence; reviewed-story and standalone rows show no cue. | slice 2 | |
+| 9.4 | While evidence is loading or unavailable, the row stays usable without a false warning; a subsequent successful read can reveal the cue without selection. | slice 2 | |
+| 9.5 | After a project or association changes, an older asynchronous answer cannot supply a warning to the newer row context. | slice 2 | |
+| 9.6 | When a warned row is selected or also has an unread report, those states remain distinguishable; selecting or reading does not review the story. | slice 2 | |
+| 9.7 | When marking reviewed fails to save, the existing unreviewed state remains visible and the card provides failure feedback. | slice 2 | |
+| 10.1 | No sidebar review actions are added. | slice 2 | |
+| 10.2 | No review-based sorting is added. | slice 2 | |
+| 10.3 | No review-based filtering is added. | slice 2 | |
+| 10.4 | No review count is added. | slice 2 | |
+| 10.5 | No new review workflow is added. | slice 2 | |
+| 10.6 | Review state is not published. | slice 2 | |
+| 10.7 | Session retention rules do not change. | slice 2 | |
+| 10.8 | Which sessions are listed does not change. | slice 2 | |
+
+These examples illustrate the promises; their particular counts and combinations are not exclusive eligibility rules.
+
+The supplied text names ADR 0008 but does not supply its contents; no additional ADR requirements are inferred.

@@ -2,6 +2,16 @@
 
 **Identity:** SEED-333#spot-completed-stories-that-need-review
 **Source:** [Story](../../seeds/SEED-333-spot-completed-stories-that-need-review.md#spot-completed-stories-that-need-review)
+**Source review:** [Independent source commitments](source-review.md)
+
+## Execution context
+
+- Mode: story-branch; owned/reused workspace `/Users/terryyin/git/open-dough/.worktrees/spot-completed-stories-that-need-review`, branch `codex/spot-completed-stories-that-need-review`; remote `origin`, trunk `main`.
+- Established start: publisher `dashboard-territory.local-open-dough`, agent `joey-chan`; start `8f70215aca94f40e3a42fbe2ed5e239d6e5f6489`, accepted claim/candidate `7eae86d553974c1b60bfe997df6c826ed73ac4ef` on origin/main. Claim CI: unobserved.
+- Checkout setup: `npm ci` and `npm run typecheck:dashboard` passed in this checkout with unchanged locked dependencies on 2026-11-13. Hook is check-only staged lint plus script-change dashboard typecheck; formatter is changed-file `npm run format`.
+- CI: GitHub Actions `terryyin/open-dough`, execution branch, verified `ci.yml` (CI, id 351271804); coordinator `seed333-joey`, yielded cell `g278:19`, stream session `37185`, directory `/tmp/dough-ci-501/watch-dI5jKt`, PID `33962`, watching.
+- Replanning: preserve existing planning authority; no numeric slice budget or hard limit supplied.
+- Proof decision: this Mac on AC, 40% memory free, natural load 74/54/52; Board/session test worktrees are active. Run only focused proof with one worker under `caffeinate -s -i`; implementation owner rechecks host before launch/repeat and diagnoses failures under the linked failure policy. Duration unknown; no unrelated processes modified.
 
 ## Goal and scope
 
@@ -129,7 +139,10 @@ implementation change reaches them.
 
 ### 1. Make an unreviewed done card recognizable at a glance
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed333-slice1-corrected-proof.json caffeinate -s -i npm run test:dashboard -- --workers=1 dashboard/tests/stories/recently-done-review-cue.spec.ts dashboard/tests/stories/recently-done-review-state` passed 10/10 (78.34s), plus `npm run typecheck:dashboard` and `git diff --check`. Both cue cases failed before the action class/CSS edit. Inspected MakeMe published-record setup, rendered red/quiet/contrast/focus assertions, failed-save recovery, and retained real restart/selection/repository observations. Consumer dispositions: `/tmp/seed333-slice1-final-consumer-trace.md`; actual rendering owners DoneStoryCard/RecentlyDoneEntry covered by the gate; no persistence/native protocol change. Source freshness unchanged at trunk `15377f89304821fdb8bc29c71b45e1d30926e0a7`; no named sibling coordination hold.
+Test repair: cold new-spec setup uses maintained worker-prepared preview fixture; focus assertion establishes real keyboard modality; long state/restart case split into interaction and prefix-selected persistence specs with all assertions retained. Final proof has no timeout changes or waived failures. Reused proof after test-title-only correction.
+Refactor: independent `refactor1` returned `## REFACTOR COMPLETE`, none — already clean; no edits/tests, all accepted proof unchanged. Final delivery freshness unchanged at the same pinned trunk; no named sibling hold.
 Proof: New card cue spec plus the existing review-state, offer, and failed-save
 specs; light/dark rendered contrast and the preserved keyboard/save journey.
 

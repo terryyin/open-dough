@@ -35,8 +35,9 @@ dependency explanation opens in place from the card's **Dependencies** summary
 
 A done story card in Recently done also holds the story's review state among
 its Story actions, after **Review changes**. An unreviewed story offers **Mark
-as reviewed** and shows no badge; a reviewed one says **Reviewed**, a status in
-words rather than a control, with the quieter **Unreview** beside it. Both
+as reviewed** with a prominent red warning fill and readable action words in
+light and dark appearance, and shows no badge; a reviewed one says **Reviewed**,
+a status in words rather than a control, with the quieter **Unreview** beside it. Both
 actions offer the shared touch control height. Either keeps the card at its
 place with its sessions and other actions, the shown range, the entry count,
 the selected story and the Side panel as they were, leaves the keyboard on the

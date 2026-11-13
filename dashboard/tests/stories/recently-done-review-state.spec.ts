@@ -7,6 +7,7 @@
 // and the Side panel as they were, keeps the keyboard on the card, and is
 // announced once. The state outlives reload, a project refresh and a
 // dashboard restart, and every page of that server shows it at its next read.
+// Reload/restart persistence is observed in ./recently-done-review-state-persistence.spec.ts.
 // It neither reads nor changes the story review's snapshot marks, and writes
 // nothing to the project's repository. Cards whose record is not read, and
 // touch input: ./recently-done-review-state-offer.spec.ts. Saves that fail:
@@ -34,19 +35,18 @@ import {
   unreview,
 } from "../recentlyDoneReviewState.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  sharedDashboardBuild,
-  startDashboardServer,
-} from "../support/dashboardServer.ts";
 import { quietStorySessions } from "../support/followUpStories.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { sidePanelContents } from "../support/sidePanelContents.ts";
 import { expectSelected, selectStory } from "../storyCardSelection.ts";
 
 const titles = doneStories.map(({ title }) => title);
 
-test("Mark as reviewed and Unreview keep each story's state on this machine, through reload and restart, leaving the card, the selection, the snapshot mark and the repository as they were", async ({
+test("Mark as reviewed keeps the card, selection, snapshot mark and repository as they were", async ({
   page,
   dashboard,
   origin,
@@ -108,66 +108,6 @@ test("Mark as reviewed and Unreview keep each story's state on this machine, thr
   await test.step("the snapshot mark and the project's repository are as they were", async () => {
     expect(snapshotMark()).toBe(marked);
     expect(await repositoryState(origin)).toEqual(repository);
-  });
-
-  await test.step("after a reload A is still reviewed; marking B then keeps both reviewed", async () => {
-    await page.reload();
-    await expectEntries(recent, titles);
-    await expectReviewed(a, true);
-    await expectReviewed(b, false);
-    await expect(storyActions(a).getByRole("status")).toHaveText("");
-    await markAsReviewed(b).click();
-    await page.reload();
-    await expectReviewed(a, true);
-    await expectReviewed(b, true);
-  });
-
-  await test.step("after the dashboard restarts the same holds", async () => {
-    const port = Number(new URL(dashboard.baseURL).port);
-    await dashboard.close();
-    const restarted = await startDashboardServer({
-      mode: "preview",
-      prebuilt: sharedDashboardBuild,
-      machine: origin.machine,
-      github: dashboard.github,
-      projectFolders: ["open-dough"],
-      port,
-    });
-    try {
-      await page.reload();
-      await expectEntries(recent, titles);
-      await expectReviewed(a, true);
-      await expectReviewed(b, true);
-      await expectReviewed(c, false);
-
-      // Unreview restores Mark as reviewed, with the keyboard on it, C
-      // selected again.
-      await selectStory(c).click();
-      await expectSelected(c, true);
-      await unreview(a).focus();
-      await page.keyboard.press("Enter");
-      await expectReviewed(a, false);
-      await expect(markAsReviewed(a)).toBeFocused();
-      await expect(storyActions(a).getByRole("status")).toHaveText(
-        "Marked as not reviewed.",
-      );
-      await expectEntries(recent, titles);
-      await expect(count).toBeVisible();
-      await expectSelected(c, true);
-      await expectSelected(a, false);
-      await expect(sidePanelContents(page)).toHaveCount(0);
-      expect(
-        Object.keys(keptReviewStates(dashboard)?.["open-dough"] ?? {}),
-      ).toEqual([storyB.identity]);
-
-      await page.reload();
-      await expectReviewed(a, false);
-      await expectReviewed(b, true);
-      expect(snapshotMark()).toBe(marked);
-      expect(await repositoryState(origin)).toEqual(repository);
-    } finally {
-      await restarted.close();
-    }
   });
 });
 

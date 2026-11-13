@@ -1,6 +1,6 @@
 // A done story card's review state among its Story actions
 // (`./DoneStoryCard.tsx`), from the project's shared states
-// (`./storyReviewStates.ts`): an unreviewed story offers Mark as reviewed; a
+// (`./storyReviewStates.ts`): an unreviewed story offers a red Mark as reviewed; a
 // reviewed one says Reviewed, a status in words rather than a control, and
 // offers the quieter Unreview beside it. An unreviewed story shows no badge.
 // Nothing shows until the project's states are first read. Using either
@@ -85,7 +85,7 @@ export function StoryReviewStateAction({
         <button
           ref={control}
           type="button"
-          className="start-launch-button"
+          className="start-launch-button story-review-state-needed"
           aria-disabled={busy}
           onClick={act}
         >
