@@ -274,6 +274,21 @@ bound, keeping the 30 s case budget. `landed-ci-follow-up-reading` ×2,
 execution SEED-324#close-landed-ci-repeat-check-gaps (its own G2
 and uncommitted `landedCiHistoryTest.ts` edits); no duplicate repair here.
 
+Hosted proof (2026-11-13): run 43411925055 on `da25819` passed with jobs e2e
+×6, dashboard-integrated ×5, dashboard-frontend ×1, dashboard-backend ×4; its
+summary has every part present per entry with files only inside each entry,
+and `frontend-test-proof` names only `dashboard/frontend-tests` files. Repairs
+after it: G2 worker fixtures (`publishedMainWorkerFixtures.ts`,
+`pinnedDeployment.ts`; 39/39 repeats at load 39.6), G11 worker-prepared
+queued origin (repeats at load 27–30), G12 (deadline-stopped jobs now report
+their own elapsed seconds; repeat-transport `fs.watch` hang; workspace
+publication and native admission jobs split by journey), G13 (CI mailbox polls
+instead of macOS FSEvents watches, whose close blocked the worker past its
+stop deadline; ESRCH during termination counts as gone; 48–72 concurrent
+stress passes). Final `npm test` (22:11–22:53, load 77→14 on the 15-minute
+average) had no TIMEOUT and no G13 failure but failed two native admission
+journeys (G14).
+
 ### 5. Observe a complete tagged installed preparation workflow
 Type: Behavior
 Status: planned
@@ -385,5 +400,15 @@ Disposition: return
 
 ### G12. Repository test jobs outlived their safety deadline
 Reported: slice 4 — "Run 2 failed with three safety-deadline TIMEOUTs: workspace-publication.test.mjs after 2,202 s, git-publication-native-admission.sh after 2,122 s, and ci-github-workflow-repeat-transport.test.mjs after 215 s ... a runner job outlived its 180 s safety deadline by about 33 minutes, so the deadline did not end it."
+Story clause: "throughout the migration, including failures attributed to the prior layout"
+Disposition: return
+
+### G13. CI mailbox lifecycle checks fail under whole-suite load
+Reported: slice 4 — "src/skills/dough-execute-plan/scripts/ci-mailbox-removed-worktree.test.mjs:112 ... failed in the whole-suite run at load up to about 49. The observer ended in state lost with 'CI observer terminal result was not published before its lifecycle deadline' instead of ended. It passed 3/3 alone right after ... The earlier slice-4 full run had ci-mailbox-complete.test.mjs fail in a similar way."
+Story clause: "throughout the migration, including failures attributed to the prior layout"
+Disposition: return
+
+### G14. Native admission substitute journeys end with an empty stream
+Reported: slice 4 — "FAIL: tests/git-publication-native-admission-correction.sh: substitute claude admission-correction exited 1, assessment fail: incomplete or stale native stream (missing) ... the claude substitute admitted the claim (claim-owned: true, claim-admitted: true) but left events.jsonl, response.md and stderr.log empty."
 Story clause: "throughout the migration, including failures attributed to the prior layout"
 Disposition: return

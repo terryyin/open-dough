@@ -19,7 +19,8 @@
 // `@playwright/test` under `dashboard/tests/`.
 //
 // Every worker-scoped fixture of the suite is declared here, whichever specs
-// take it. Playwright runs a test only in a worker whose fixture pool
+// take it; the published-main ones come from ./publishedMainWorkerFixtures.ts.
+// Playwright runs a test only in a worker whose fixture pool
 // declares the same worker-scoped fixtures (the worker hash is the set of
 // those registrations, not the fixtures a test uses), so a worker-scoped
 // fixture declared in one fixture module but not another splits the specs
@@ -33,7 +34,11 @@ import type { ComparisonRenderer } from "./comparisonRendering.ts";
 import type { LaunchJourney } from "../launchJourney.ts";
 import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
 import { endDescendantsAtExit } from "./processGroup.ts";
-import type { PublishedMainSourceProfile } from "./publishedMainSource.ts";
+import {
+  coldInputPreparation,
+  publishedMainWorkerFixtures,
+  type PublishedMainWorkerFixtures,
+} from "./publishedMainWorkerFixtures.ts";
 import type { StartRepository } from "./startOriginPreparation.ts";
 
 export { expect } from "@playwright/test";
@@ -43,11 +48,9 @@ endDescendantsAtExit();
 
 // Requests what a worker's servers start from, so the first test waits for
 // none of it in its own time: the host's queued origin when it has one, the
-// server bundle, and the app build unless only boundary servers start.
-// Cold shared preparation has its own bounded worker lifetime. It can outlast
-// a case's default 30 seconds without extending any case or hook timeout.
-const serverInputPreparation = { scope: "worker", timeout: 60_000 } as const;
-
+// server bundle, and the app build unless only boundary servers start. Its
+// fixtures, like the published-main ones, take the bounded worker lifetime of
+// cold shared preparation (coldInputPreparation).
 async function prepareServerInputs(
   host: "claude" | "codex" | undefined,
   serverMode: "preview" | "boundary",
@@ -69,21 +72,10 @@ async function prepareServerInputs(
   );
 }
 
-// Requests one profile's live-source snapshot (./publishedMainSource.ts).
-async function requestPublishedMainSource(profile: PublishedMainSourceProfile) {
-  const [artifacts, source] = await Promise.all([
-    import("./runArtifacts.ts"),
-    import("./publishedMainSource.ts"),
-  ]);
-  await artifacts.requestRunArtifact(
-    source.publishedMainSourceArtifactKeys[profile],
-  );
-}
-
 // Playwright's worker-only extension takes an empty test-fixture type.
 export const test = base.extend<
   object,
-  {
+  PublishedMainWorkerFixtures & {
     launchJourney: LaunchJourney;
     comparisonRenderer: ComparisonRenderer;
     dashboardPreviewReady: undefined;
@@ -91,8 +83,6 @@ export const test = base.extend<
     queuedClaudePreviewReady: undefined;
     queuedClaudeBoundaryReady: undefined;
     queuedCodexPreviewReady: undefined;
-    publishedApplicationSourceReady: undefined;
-    publishedRepositorySourceReady: undefined;
     keptStory: StartRepository;
     keptIntentStory: StartRepository;
     keptSummaryComparisonStory: StartRepository;
@@ -105,29 +95,9 @@ export const test = base.extend<
       await prepareServerInputs(undefined, "preview");
       await use(undefined);
     },
-    serverInputPreparation,
+    coldInputPreparation,
   ],
-  // Only readers of the real published app request this immutable source.
-  // Its cold preparation stays in run elapsed, within the default worker budget.
-  publishedApplicationSourceReady: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      await requestPublishedMainSource("application");
-      await use(undefined);
-    },
-    { scope: "worker" },
-  ],
-  // Only full-repository publication readers request the whole live source.
-  // Copying and committing every file is cold shared preparation: the worker
-  // does it before such a case starts, within the shared input lifetime.
-  publishedRepositorySourceReady: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      await requestPublishedMainSource("repository");
-      await use(undefined);
-    },
-    serverInputPreparation,
-  ],
+  ...publishedMainWorkerFixtures,
   // Each host's preview needs its queued origin and the same immutable app inputs.
   queuedClaudePreviewReady: [
     // eslint-disable-next-line no-empty-pattern
@@ -135,7 +105,7 @@ export const test = base.extend<
       await prepareServerInputs("claude", "preview");
       await use(undefined);
     },
-    serverInputPreparation,
+    coldInputPreparation,
   ],
   // Boundary servers on the queued Claude origin open no app.
   queuedClaudeBoundaryReady: [
@@ -144,7 +114,7 @@ export const test = base.extend<
       await prepareServerInputs("claude", "boundary");
       await use(undefined);
     },
-    serverInputPreparation,
+    coldInputPreparation,
   ],
   queuedCodexPreviewReady: [
     // eslint-disable-next-line no-empty-pattern
@@ -152,7 +122,7 @@ export const test = base.extend<
       await prepareServerInputs("codex", "preview");
       await use(undefined);
     },
-    serverInputPreparation,
+    coldInputPreparation,
   ],
   // Requested only by native readers that need this installed queued input.
   // Its setup has the worker's default budget, before a reading test starts.

@@ -19,7 +19,13 @@ import {
   restart,
   startExecution,
 } from "../../dashboard/tests/responsiveRecovery.ts";
-import { openStories, test } from "../../dashboard/tests/responsiveStart.ts";
+// The worker prepares the queued Claude origin and preview inputs before a
+// case starts (queuedClaudePreviewTest), so no case pays that cold shared
+// preparation in its own default budget.
+import {
+  openStories,
+  queuedClaudePreviewTest as test,
+} from "../../dashboard/tests/responsiveStart.ts";
 import type { Locator, Page } from "@playwright/test";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });

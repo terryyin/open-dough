@@ -2,7 +2,7 @@
 // selecting and verifying it, staging and serving it pinned, and cancelling
 // a commit while it installs.
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
   resolvePublishedMain,
@@ -10,14 +10,13 @@ import {
   startDeploymentPreview,
   verifyPublishedCommit,
 } from "../../server/productionDeployment.mjs";
+import { nerdsAvatarPath } from "../../tests/support/pinnedDeployment.ts";
 import { publishedMainFixture } from "../../tests/support/publishedMainFixture.ts";
 import { processRunning } from "../../tests/support/processGroup.ts";
 import { deploymentCheckout } from "../../tests/support/productionWatcher.ts";
-import { repoRoot } from "../../tests/support/repositoryRoot.ts";
 import { expectSuppliedIcons } from "../../tests/support/brandIcons.ts";
 import { expectOwnOriginReadsOnly } from "../../tests/support/localOriginReads.ts";
 import { incidentEntries } from "../../tests/support/readDiagnostics.ts";
-import { productionBuildEnvironment } from "../../tests/support/productionWatcherFixture.ts";
 
 test("deployment selects origin main's commit, never local commits or edits", async () => {
   const fixture = await publishedMainFixture();
@@ -61,43 +60,14 @@ test("deployment verifies the exact selected commit before running its code", as
 
 test("deployment installs, builds, and serves its pinned commit in isolation after main advances, with the real preview boundaries", async ({
   request,
-  publishedApplicationSourceReady,
+  pinnedDeployment,
 }) => {
-  await Promise.resolve(publishedApplicationSourceReady);
-  const fixture = await publishedMainFixture(true, "application");
-  const env = productionBuildEnvironment(fixture.env);
-  let staged: Awaited<ReturnType<typeof stageDeployment>> | undefined;
+  // The worker staged the pinned commit after main advanced, beside untracked
+  // local avatars (../../tests/support/pinnedDeployment.ts).
+  const { fixture, env, commit, published, cartoon, staged } = pinnedDeployment;
   let preview: Awaited<ReturnType<typeof startDeploymentPreview>> | undefined;
   try {
-    const commit = await fixture.publish(
-      fixture.markerChanges("PINNED DASHBOARD COMMIT"),
-      "Pinned",
-    );
-    const published = await resolvePublishedMain(
-      fixture.development,
-      fixture.env,
-    );
-    // Main advances after selection; staging still builds the selected commit.
-    await fixture.publish(fixture.markerChanges("LATER MAIN"), "Later main");
-    const nerdsPath = "dashboard/public/agent-avatars/odd-e-nerds";
-    const cartoons = path.join(fixture.development, nerdsPath, "cartoon");
-    await mkdir(cartoons, { recursive: true });
-    const cartoon = await readFile(
-      path.join(repoRoot, "dashboard/public/agent-avatars/atlas-1.webp"),
-    );
-    await writeFile(path.join(cartoons, "stanly.webp"), cartoon);
-    await writeFile(path.join(cartoons, "notes.txt"), "LOCAL NOTES");
-    await writeFile(
-      path.join(fixture.development, nerdsPath, "stanly.jpg"),
-      "PRIVATE RAW PHOTO",
-    );
-    expect(await fixture.git("ls-files", "--", nerdsPath)).toBe("");
-    staged = await stageDeployment({
-      developmentRoot: fixture.development,
-      published,
-      deploymentsRoot: fixture.deploymentsRoot,
-      env,
-    });
+    expect(await fixture.git("ls-files", "--", nerdsAvatarPath)).toBe("");
     expect(path.basename(staged.directory)).toEqual(deploymentCheckout(commit));
     expect(path.relative(fixture.development, staged.directory)).toMatch(
       /^\.\./,
@@ -115,6 +85,9 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
         "utf8",
       ),
     ).not.toContain("LATER MAIN");
+    // The fixture's root is its machine directory, holding its HOME; this
+    // preview's incident entries follow any an earlier case of the worker left.
+    const earlierEntries = incidentEntries(fixture.root).length;
     preview = await startDeploymentPreview({
       directory: staged.directory,
       port: 0,
@@ -154,15 +127,14 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
     preview = undefined;
     // Stopped as a replacement stops it, the preview closed cleanly: its
     // incident record (../../server/incidentLifecycle.ts) has its start and
-    // end. The fixture's root is its machine directory, holding its HOME.
+    // end.
     const recorded = incidentEntries(fixture.root)
+      .slice(earlierEntries)
       .map((entry) => entry.kind)
       .filter((kind) => kind.startsWith("process-"));
     expect(recorded).toEqual(["process-started", "process-ended"]);
   } finally {
     await preview?.stop();
-    await staged?.remove();
-    await fixture.cleanup();
   }
 });
 

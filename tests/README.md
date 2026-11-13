@@ -93,10 +93,11 @@ deadline actively stops a never-ending check; it is not a slow-test or build
 threshold. At expiry the runner ends the job's process group with bounded
 TERM-then-KILL cleanup, fails the run as
 `TIMEOUT: <job> (safety deadline 180s; after <seconds>s)` with useful captured
-output, records the failed outcome and timing, and lets other queued checks
-continue under ordinary failure behavior
-(`tests/support/test-runner-deadline.test.mjs`,
-`tests/support/test-runner-deadline-continuation.test.mjs`). In CI the share
+output, records the failed outcome and the seconds the job ran until stopped,
+however long the run continues, and lets other queued checks continue under
+ordinary failure behavior (`tests/support/test-runner-deadline.test.mjs`,
+`tests/support/test-runner-deadline-continuation.test.mjs`,
+`tests/support/test-runner-deadline-elapsed.test.mjs`). In CI the share
 also ends at the 320-second absolute epoch established with setup
 (`OPEN_DOUGH_TEST_DEADLINE_MS`), before the six-minute outer cancellation:
 running groups stop through the same bounded cleanup and TIMEOUT reporting

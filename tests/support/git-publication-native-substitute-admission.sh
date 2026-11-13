@@ -9,29 +9,56 @@
 # investigating before admission, continuing through admission instead of
 # ordinary startup, admitting a new story instead of the retrospective's
 # correction story, and closing an admitted investigation while keeping its
-# seed or by force-pushing a stale closure.
+# seed or by force-pushing a stale closure. Each journey is its own job
+# (tests/git-publication-native-admission-*.sh), so each stays well within
+# the runner's safety deadline.
 run_substitute_admission_journeys() {
-  local journey journey_host
-  prepare_substitute_hosts
+  local journey
   for journey in admission-investigation admission-continuation \
     admission-correction admission-closure; do
-    for journey_host in codex claude; do
-      substitute_run_passes "${journey_host}-${journey}" "${journey_host}" \
-        "${journey}"
-    done
+    run_substitute_admission_journey "${journey}"
+  done
+}
+
+# Admission journey $1 on the Codex and Claude substitutes, then its rejected
+# cases against the Codex run.
+run_substitute_admission_journey() {
+  local journey=$1 journey_host
+  prepare_substitute_hosts
+  for journey_host in codex claude; do
+    substitute_run_passes "${journey_host}-${journey}" "${journey_host}" \
+      "${journey}"
   done
 
-  substitute_admission_rejects admission-investigation probe-first probe-order \
-    'investigation started before' NATIVE_ADMISSION_ORDER=probe-first
-  substitute_admission_rejects admission-continuation continue-by-admission \
-    start-kind 'did not continue the claim' \
-    'NATIVE_ADMISSION_CONTINUE_FLAGS=--admit --link seeds/N.md#slow --title Investigate'
-  substitute_admission_rejects admission-correction correction-new-story \
-    admitted-identity 'exactly one owned claim' NATIVE_ADMISSION_CORRECTION=new-story
-  substitute_admission_rejects admission-closure closure-keep-seed closed-home \
-    'still holds the closed investigation' NATIVE_ADMISSION_CLOSURE=keep-seed
-  substitute_admission_rejects admission-closure closure-stale-force trunk-kept \
-    'rewrote or removed other trunk content' NATIVE_ADMISSION_CLOSURE=stale-force
+  case ${journey} in
+    admission-investigation)
+      substitute_admission_rejects admission-investigation probe-first \
+        probe-order 'investigation started before' \
+        NATIVE_ADMISSION_ORDER=probe-first
+      ;;
+    admission-continuation)
+      substitute_admission_rejects admission-continuation \
+        continue-by-admission start-kind 'did not continue the claim' \
+        'NATIVE_ADMISSION_CONTINUE_FLAGS=--admit --link seeds/N.md#slow --title Investigate'
+      ;;
+    admission-correction)
+      substitute_admission_rejects admission-correction correction-new-story \
+        admitted-identity 'exactly one owned claim' \
+        NATIVE_ADMISSION_CORRECTION=new-story
+      ;;
+    admission-closure)
+      substitute_admission_rejects admission-closure closure-keep-seed \
+        closed-home 'still holds the closed investigation' \
+        NATIVE_ADMISSION_CLOSURE=keep-seed
+      substitute_admission_rejects admission-closure closure-stale-force \
+        trunk-kept 'rewrote or removed other trunk content' \
+        NATIVE_ADMISSION_CLOSURE=stale-force
+      ;;
+    *)
+      printf 'Unknown admission journey: %s\n' "${journey}" >&2
+      return 2
+      ;;
+  esac
 }
 
 # Rejected case $2 of signal $3: journey $1 on the Cursor substitute under the

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync, rmSync, watch } from "node:fs";
+import { existsSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { publishJson } from "./ci-mailbox-json-file.mjs";
 import {
@@ -9,6 +9,7 @@ import {
 
 const eventFilePattern = /^(\d{12})\.json$/;
 const defaultTerminalResultDeadlineMs = 5_000;
+const terminalResultPollMs = 20;
 export const terminalResultDeadlineCode = "CI_OBSERVER_TERMINAL_DEADLINE";
 export const terminalResultDeadlineReason =
   "CI observer terminal result was not published before its lifecycle deadline";
@@ -165,7 +166,7 @@ export async function waitForTerminalResult(
       const close = () => {
         if (settled) return false;
         settled = true;
-        subscription?.close();
+        clearInterval(poll);
         deadline.removeEventListener("abort", atDeadline);
         return true;
       };
@@ -185,8 +186,10 @@ export async function waitForTerminalResult(
         error.code = terminalResultDeadlineCode;
         reject(error);
       };
+      // Polled, not watched: on macOS a busy fseventsd can hold a directory
+      // notification for seconds, and closing the watch blocks this process.
+      const poll = setInterval(finished, terminalResultPollMs);
       deadline.addEventListener("abort", atDeadline, { once: true });
-      const subscription = watch(directory, finished);
       if (deadline.aborted) atDeadline();
       finished();
     });
