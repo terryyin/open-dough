@@ -2,6 +2,7 @@
 
 **Identity:** SEED-343#recover-ci-completion-observation
 **Source:** [Story](../../seeds/SEED-343-recover-ci-completion-observation.md#recover-ci-completion-observation)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -150,7 +151,7 @@ Every listed consumer gets `run`, `reused` or `excluded: <reason>`.
 
 ### 1. One completion reference owns when and how to complete
 Type: Structure
-Status: planned
+Status: done
 Proof: Guidance and link tests that read `ci-monitor.md` and `ci-completion-wait.md`,
 including the installed-payload link check, pass unchanged in meaning. The 11
 anchor links resolve. `ci-monitor.md` ends at 250 lines or fewer.
@@ -302,4 +303,59 @@ command-adapter proof outcomes from slices 3–4. Link the outcome from
 
 ## Learnings
 
-None yet.
+- Slice 1: after moving when-policy to `ci-completion-wait.md` H1, links that
+  mean receipt mechanics must target `#completion-command-and-receipt-mechanics`,
+  not the file root. The finish-row keeps one unanchored link to that file to
+  avoid read-budget double-counting the same completion home.
+
+
+## Story obligations
+
+### X1. No eight-hour budget change
+Reported: slice 1 — "source review — scope limit: no change to the eight-hour budget"
+Story clause: "No change to the eight-hour budget or renewal of observation at each slice publication."
+Disposition: excluded "No change to the eight-hour budget or renewal of observation at each slice publication."
+Commitment: 47, 48
+
+
+### X2. Mid-story reattach already exists
+Reported: slice 1 — "source review — mid-story expiry already reattaches; completion recovery closes remaining gap"
+Story clause: "Mid-story expiry already reattaches at the next delivery, and the completion recovery closes the remaining gap."
+Disposition: excluded "Mid-story expiry already reattaches at the next delivery, and the completion recovery closes the remaining gap."
+Commitment: 49
+
+### X3. No transport retry policy
+Reported: slice 1 — "source review — no retry policy for transient transport errors (ODF-121)"
+Story clause: "No retry policy for transient transport errors (ODF-121)."
+Disposition: excluded "No retry policy for transient transport errors (ODF-121)."
+Commitment: 50
+
+### X4. Budget-expiry path verified
+Reported: slice 1 — "source review — transport-loss recovery allowed but story verifies budget-expiry path"
+Story clause: "An observer that ended by transport loss may use the same recovery at completion, but this story verifies the budget-expiry path."
+Disposition: excluded "An observer that ended by transport loss may use the same recovery at completion, but this story verifies the budget-expiry path."
+Commitment: 51
+
+### X5. completion_expired stays closed
+Reported: slice 1 — "source review — completion_expired stays closed as it is today"
+Story clause: "`completion_expired` stays closed as it is today."
+Disposition: excluded "`completion_expired` stays closed as it is today."
+Commitment: 52
+
+### X6. No new read-only verdict command
+Reported: slice 1 — "source review — no new read-only effective-verdict command unless needed"
+Story clause: "No new read-only effective-verdict command unless the recovery design needs another caller to read the verdict; any such entry point exposes the same calculation."
+Disposition: excluded "No new read-only effective-verdict command unless the recovery design needs another caller to read the verdict; any such entry point exposes the same calculation."
+Commitment: 53, 54
+
+### X7. Pygardon admission stays elsewhere
+Reported: slice 1 — "source review — Pygardon production release admission stays in its own owner"
+Story clause: "Pygardon's production release admission stays in its own owner."
+Disposition: excluded "Pygardon's production release admission stays in its own owner."
+Commitment: 55
+
+### X8. No paid native host runs
+Reported: slice 1 — "source review — no paid native host runs; fixtures substitute both providers"
+Story clause: "No paid native host runs; fixtures substitute both providers."
+Disposition: excluded "No paid native host runs; fixtures substitute both providers."
+Commitment: 56

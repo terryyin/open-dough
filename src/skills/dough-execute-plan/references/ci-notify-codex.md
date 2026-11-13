@@ -126,7 +126,7 @@ When the shared [observer lifecycle](ci-monitor.md#own-one-observer) calls for
 an explicit stop — human-judgment stop, cancellation, or coordinator
 replacement — consume delivered failures first. Normal execution completion
 uses the shared
-[completion operation](ci-monitor.md#await-the-applicable-revision-at-completion)
+[completion operation](ci-completion-wait.md#await-the-applicable-revision-at-completion)
 instead; do not run this stop binding, `write_stdin` the stream session, or poll a
 PID after that receipt. This stop binding never substitutes for that completion
 operation. Copy it with the note's exact `directory`; do not `write_stdin` the
@@ -167,4 +167,4 @@ coordinator, session, directory, process, and cell. Changed HEAD/SHA never requi
 again.
 
 For shared completion `pending`, retain the stream session and yielded cell with
-the resources and recovery under [completion mechanics](ci-completion-wait.md).
+the resources and recovery under [completion mechanics](ci-completion-wait.md#completion-command-and-receipt-mechanics).

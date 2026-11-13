@@ -88,7 +88,7 @@ the closure stall behind [ODF-259](../../docs/maintainer/findings/ODF-259.md),
 - Recovery never registers or completes a newer tip, another writer's
   revision, an unpublished candidate or another target, and never uses another
   coordinator's observer. Completion evidence must describe this execution's
-  accepted publication ([CI observation](../../src/skills/dough-execute-plan/references/ci-monitor.md#await-the-applicable-revision-at-completion)).
+  accepted publication ([await the applicable revision at completion](../../src/skills/dough-execute-plan/references/ci-completion-wait.md#await-the-applicable-revision-at-completion)).
 - An unresolved receipt never grants retirement; wrap-up's existing gate
   requires success with confirmed shutdown.
 

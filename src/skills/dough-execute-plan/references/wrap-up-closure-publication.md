@@ -54,7 +54,7 @@ node <installed>/dough-story-wrap-up/scripts/trunk-closure.mjs finish \
 
 It confirms the fetched target contains the before-cleanup commit, publishes
 the final closure through managed delivery on this coordinator's own observer,
-runs [the shared completion operation](ci-monitor.md#await-the-applicable-revision-at-completion)
+runs [the shared completion operation](ci-completion-wait.md#await-the-applicable-revision-at-completion)
 once for the accepted SHA there, attempts the default-checkout refresh when one is
 given, and only after a `success` receipt whose shutdown is confirmed retires
 the worktree and branch under Dough Land's
@@ -71,7 +71,7 @@ Codex pass the observer note's coordinator and exact stream directory.
 `finish` registers on, completes, and stops only the observer that owner
 claimed. It prints one JSON line, exits 1 when `ok` is not true and 2 on a
 usage error. An `integrated_state` success gates retirement as any success
-does; report it as [completion mechanics](ci-completion-wait.md) describe.
+does; report it as [completion mechanics](ci-completion-wait.md#completion-command-and-receipt-mechanics) describe.
 
 Pass the closed work's identity as `--supplier-identity` under the
 [visit rule](../../dough-product-backlog/references/supplier-dependencies.md#which-completed-work-takes-the-visit);
@@ -104,7 +104,7 @@ not count. Without `--visit-settled`, a rerun repeats the visit only.
 | `step: "retire"`                  | Act on `cleanup` as Dough Land's retirement result table says                                                                                                                                                                                                                                                                         |
 | `step: "git"`                     | Report `error` as the unfinished step; nothing after it ran                                                                                                                                                                                                                                                                           |
 
-For completion `pending`, use [completion mechanics](ci-completion-wait.md)'s
+For completion `pending`, use [completion mechanics](ci-completion-wait.md#completion-command-and-receipt-mechanics)'s
 retained recovery, then rerun `finish` to continue closure. `completion_expired`
 keeps closure unresolved; both outcomes retain the worktree and branch.
 
@@ -137,7 +137,7 @@ after all closure/retirement work and final wording settle.
 ## Complete current-branch closure
 
 After the last wrap-up publication this invocation will perform, invoke
-[the shared completion operation](ci-monitor.md#await-the-applicable-revision-at-completion)
+[the shared completion operation](ci-completion-wait.md#await-the-applicable-revision-at-completion)
 once for that final accepted SHA on this coordinator's observer. Handle its combined
 CI and shutdown receipt, retaining the exact published closure SHAs, that
 receipt, and remaining coverage. Apply [completion attention](../../dough-land/SKILL.md#completion-attention)
@@ -152,7 +152,7 @@ recovery-record publications.
 Story Branch wrap-up changes publication targets. Before integrating its saved,
 published final-closure tip, close the observer bound to the remote execution
 branch with
-[the shared completion operation](ci-monitor.md#await-the-applicable-revision-at-completion)
+[the shared completion operation](ci-completion-wait.md#await-the-applicable-revision-at-completion)
 for that tip when it is the last accepted registered revision. A green
 execution-branch receipt covers only that branch and never releases later trunk
 observation.
@@ -182,7 +182,7 @@ publish its owned consumer changes from the same workspace through
 [the common sequence](trunk-publication.md#publish-the-candidate) to the trunk
 target, register each accepted SHA with that trunk observer, and finish or
 explicitly retain the visit. Then invoke
-[the shared completion operation](ci-monitor.md#await-the-applicable-revision-at-completion)
+[the shared completion operation](ci-completion-wait.md#await-the-applicable-revision-at-completion)
 once for the final accepted SHA, the integrated SHA or the last consumer
 publication, on that trunk observer and handle its combined receipt. With
 a `success` receipt with confirmed shutdown as its gate, wrap-up then retires
