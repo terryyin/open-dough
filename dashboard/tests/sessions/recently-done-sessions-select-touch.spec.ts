@@ -17,7 +17,6 @@ import {
   report,
 } from "../recentlyDoneSelectionJourney.ts";
 import { expectDevelopmentKept } from "../recentlyDoneSelectionReport.ts";
-import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
 import { holdPygardonCatalog } from "../pygardonCatalogReads.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
@@ -83,9 +82,6 @@ test.describe("on coarse input", () => {
     });
     // The row's check reads the catalog; the Board's own read of it is still
     // under way when the overlay is closed.
-    // Initial shown-row observation is independent of this click. Settle it
-    // before passing Select's read and holding the subsequent Board read.
-    await untilPageRequestsAnswered(page);
     const boardRead = await holdPygardonCatalog(page, 1);
     await shown.entry(linked.title).scrollIntoViewIfNeeded();
     await tapWhereShown(shown.entry(linked.title));

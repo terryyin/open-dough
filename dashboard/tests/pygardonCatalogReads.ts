@@ -4,11 +4,16 @@
 
 import type { Page, Route } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
+import { untilPageReadsAnswered } from "./pageRequestNotes.ts";
 
 // Holds Pygardon's done catalog reads from now on, after letting the first
 // `passing` through: `asked` resolves once a held one reaches the page's
-// boundary, and `release` lets every held one through.
+// boundary, and `release` lets every held one through. The reads already
+// under way are answered first, so the shown rows' own read of the catalog
+// (../src/recentlyDoneShownLinks.ts) is neither held nor counted, and only a
+// read the journey's next action sends is.
 export async function holdPygardonCatalog(page: Page, passing = 0) {
+  await untilPageReadsAnswered(page);
   let passed = 0;
   let asked: () => void = () => undefined;
   const askedOnce = new Promise<void>((resolve) => {

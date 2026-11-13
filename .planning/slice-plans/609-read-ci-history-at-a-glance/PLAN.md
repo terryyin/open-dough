@@ -316,3 +316,8 @@ on the first attempt.
   overloads made guards in the untouched `ciFollowUpDecision.ts` unnecessary;
   selective lint skipped that consumer. Run the full check-only `npm run lint`
   locally when a changed type narrows for untouched callers.
+- CI repair after the execution-complete record (run 43389461454, dashboard
+  5/13): `holdPygardonCatalog` held the shown Recently done rows' background
+  catalog read (added on main by `recentlyDoneShownLinks.ts`) instead of the
+  check's, timing out `recently-done-sessions-select-supersede.spec.ts:70`;
+  the helper now answers reads already under way before holding.
