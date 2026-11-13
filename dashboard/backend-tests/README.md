@@ -34,14 +34,14 @@ artifact fails naming it. The run reads its own
 `OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT`, `_TIMES`, `_PROOF_RECORD` and
 `_DEADLINE_MS`, keeps a failed run in `test-results/<start time>/` here, and
 takes local full-suite admission only when unfiltered. Select files or tests
-as with the umbrella, for example
+as with any group, for example
 `npm run test:dashboard:backend -- sessions/ --grep 'alert'`; a direct
 `npx playwright test --config <repository>/dashboard/backend.playwright.config.ts`
 behaves the same from any working directory.
 
-Until CI switches to the separate groups, `npm run test:dashboard` still
-selects these files exactly once beside the other roots, with shared
-setup and thirteen CI shards; their seconds stay in `../longest-first`.
+CI runs this group as its own producer, the `dashboard-backend` job's shards,
+dealt by its own duration list (`../backend.longest-first`), and publishes
+its cases under the **Dashboard Backend Test** entry.
 
 ## Placement
 

@@ -155,7 +155,7 @@ trap 'interrupt TERM 143' TERM
 trap 'handle_run_deadline_signal' USR1
 
 # Absolute CI run cutoff (OPEN_DOUGH_TEST_DEADLINE_MS), when set: same epoch
-# model as the dashboard suite. Local named checks omit it by default.
+# model as the browser test groups. Local named checks omit it by default.
 arm_run_deadline
 
 # run_deadline_hit is assigned in scripts/test-run-deadline.bash.

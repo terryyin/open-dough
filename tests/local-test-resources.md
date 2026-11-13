@@ -1,14 +1,15 @@
 # Local full-suite resource use
 
-Only one full repository or dashboard suite runs at a time across this
-repository's linked Git worktrees. `npm test` / `bash scripts/test.sh` with no
-paths against this checkout's own suite directory and unfiltered dashboard runs
-share admission, including unfiltered `npm run test:dashboard:frontend`,
-`npm run test:dashboard:backend` and `npm run test:e2e` runs and direct
-Playwright commands using `dashboard/playwright.config.ts`,
-`dashboard/frontend.playwright.config.ts`,
-`dashboard/backend.playwright.config.ts` or `e2e/playwright.config.ts`. The next full run waits before starting its
-jobs or dashboard build. Named checks, dashboard path/grep/project/shard/
+Only one full repository suite or whole browser test group runs at a time
+across this repository's linked Git worktrees. `npm test` /
+`bash scripts/test.sh` with no paths against this checkout's own suite
+directory and unfiltered group runs share admission: `npm run test:e2e`,
+`npm run test:dashboard:integrated`, `npm run test:dashboard:frontend` and
+`npm run test:dashboard:backend`, and direct Playwright commands using
+`e2e/playwright.config.ts`, `dashboard/integrated.playwright.config.ts`,
+`dashboard/frontend.playwright.config.ts` or
+`dashboard/backend.playwright.config.ts`. The next full run waits before
+starting its jobs or dashboard build. Named checks, group path/grep/project/shard/
 test-list selections, list-only runs, explicit suite shares, and pathless
 runner fixtures whose `OPEN_DOUGH_TEST_DIR` is an outside-checkout substitute
 checks directory remain independent. Independent repositories and copied
@@ -19,7 +20,7 @@ it from the runner's own reported duration when comparing runs.
 Local defaults are four repository jobs and two dashboard workers, conservative
 starting values for a shared development machine. Override them explicitly with
 `OPEN_DOUGH_TEST_JOBS=6 npm test` or
-`npm run test:dashboard -- --workers=4`. Worker overrides alone still select a
+`npm run test:e2e -- --workers=4`. Worker overrides alone still select a
 full suite. CI keeps its existing CPU-derived concurrency and takes no admission.
 These bounds control peak concurrency; no elapsed-time improvement is claimed.
 
@@ -52,7 +53,7 @@ cross-worktree admission.
 
 Start every long run from a fully awake machine. On AC power, wrap a full run
 in `caffeinate -s -i`, for example `caffeinate -s -i npm test` or
-`caffeinate -s -i npm run test:dashboard`. `-s` prevents system sleep and is
+`caffeinate -s -i npm run test:e2e`. `-s` prevents system sleep and is
 honored only on AC. `-i` alone prevents idle sleep from a fully awake machine
 but has no effect once the machine is in its sleep/dark-wake cycle; two whole
 dashboard runs under `-i` failed that way on 2026-11-03
@@ -70,8 +71,8 @@ pmset -g log | grep -E 'Entering Sleep|Wake from'
 ```
 
 Look for `Sleep` and `Wake` entries inside the run's window: its start time
-plus the runner-reported duration. For the dashboard suite the start time is
-the `dashboard/test-results/<stamp>` directory name: an ISO UTC time with
+plus the runner-reported duration. For a browser test group the start time is
+its root's `test-results/<stamp>` directory name: an ISO UTC time with
 colons written as `-`, then the runner's pid; the log prints local time. The
 log reaches back about a week, so read it soon.
 

@@ -183,5 +183,12 @@
   "title": "a session's attention stays through opening and closing its terminal, clears when it works again or is marked done, and never returns once marked done",
   "to": "../e2e/sessions/agent-launch-session-acknowledgment.spec.ts",
   "slice": 3
+ },
+ {
+  "spec": "backend-tests/observation/run-processes.spec.ts",
+  "title": "a run's own teardown ends a process its workers could not reach and fails naming it",
+  "to": "backend-tests/observation/run-processes.spec.ts",
+  "toTitle": "Dashboard Integrated UI Test: a run's own teardown ends a process its workers could not reach and fails naming it",
+  "slice": 4
  }
 ]

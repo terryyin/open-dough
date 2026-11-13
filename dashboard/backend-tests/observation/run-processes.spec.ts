@@ -55,7 +55,7 @@ function innerConfig(workDir: string, spec: string) {
 
 // Preview substitutes open a page under this run's shared app and server
 // bundle. Prepare both here so the nested 5s budget is not spent waiting for
-// a cold first consumer (../../tests/support/globalSetup.ts).
+// a cold first consumer (../../tests/support/integratedGlobalSetup.ts).
 async function readyPreviewArtifacts(): Promise<void> {
   await Promise.all([sharedDashboardBuild(), sharedServerBundle()]);
 }
@@ -111,9 +111,9 @@ test("a run that times out while a production process runs leaves none of its pr
   expect(run.remaining).toEqual([]);
 });
 
-// The umbrella's and each group runner's setups share this sweep.
+// Each group runner's setup shares this sweep.
 for (const [runner, globalSetup] of [
-  ["", "globalSetup.ts"],
+  ["Dashboard Integrated UI Test: ", "integratedGlobalSetup.ts"],
   ["Dashboard Frontend Test: ", "frontendGlobalSetup.ts"],
   ["Dashboard Backend Test: ", "backendGlobalSetup.ts"],
   ["E2E Test: ", "e2eGlobalSetup.ts"],

@@ -26,7 +26,7 @@ concurrency:
 
 jobs:
   # Lint and the shard-independent dashboard type-check run once outside the
-  # test matrices and the browser deadline.
+  # test matrices and the browser deadlines.
   lint:
     runs-on: ubuntu-24.04
     timeout-minutes: 8
@@ -129,6 +129,7 @@ jobs:
         if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
         uses: ./.github/actions/ci-proof-fragments
         with:
+          producer: test
           part: ${{ matrix.share }}
           parts: ${{ strategy.job-total }}
           entries: tests src/skills
@@ -137,103 +138,51 @@ jobs:
           report: ${{ runner.temp }}/test-outcomes.txt
           times: ${{ runner.temp }}/test-times.txt
 
-  # The dashboard's browser suite, which `npm test` never discovers, runs
-  # against controlled GitHub responses (no credentials, no live project
-  # contents) as one Playwright shard job per matrix shard, each running its
-  # deal of the spec files (dashboard/tests/shards.md) and failing on its own
-  # failing test. Tests that serve the production app share a build within
-  # their shard and fail if the build fails.
-  dashboard:
-    name: dashboard (${{ matrix.shard }}/${{ strategy.job-total }})
-    runs-on: ubuntu-24.04
-    timeout-minutes: 6
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      # Both deadlines count from the job's start, so a slow setup shortens
-      # the browser suite's time rather than pushing it past the job bound.
-      - name: Start prerequisite acquisition (180 seconds) and browser suite (320 seconds) deadlines
-        run: |
-          started=$(( $(date +%s) * 1000 ))
-          echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( started + 180000 ))" >> "$GITHUB_ENV"
-          echo "OPEN_DOUGH_DASHBOARD_DEADLINE_MS=$(( started + 320000 ))" >> "$GITHUB_ENV"
-      - *start-node-setup
-      - *cache-npm
-      - *setup-node
-      - *diagnose-node
-      - name: Install npm dependencies
-        run: node scripts/setup-native.mjs npm
-      - name: Cache Playwright Chromium
-        uses: actions/cache@v6
-        id: playwright-cache
-        timeout-minutes: 1
-        continue-on-error: true
-        env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
-      - name: Use a clean browser directory after cache failure
-        if: steps.playwright-cache.outcome == 'failure'
-        run: |
-          echo '::warning::Chromium cache restore failed. Installing the locked browser directly.'
-          echo "PLAYWRIGHT_BROWSERS_PATH=${RUNNER_TEMP}/playwright-chromium" >> "$GITHUB_ENV"
-      - name: Install Playwright Chromium
-        run: node scripts/setup-native.mjs browser
-      # The suite ends itself, naming the deadline, at OPEN_DOUGH_DASHBOARD_DEADLINE_MS,
-      # about 30 seconds inside the job's 6 minutes, so a shard out of time
-      # fails instead of being cancelled and the report below is kept.
-      - name: Run the dashboard browser suite
-        id: suite
-        env:
-          OPEN_DOUGH_DASHBOARD_SPLIT: ${{ matrix.shard }}/${{ strategy.job-total }}
-          OPEN_DOUGH_DASHBOARD_TIMES: ${{ runner.temp }}/dashboard-times.txt
-          OPEN_DOUGH_DASHBOARD_PROOF_RECORD: ${{ runner.temp }}/dashboard-proof.json
-        run: npm run test:dashboard
-      # This shard's per-spec-file seconds, written however the run ended, for
-      # refreshing dashboard/longest-first (dashboard/tests/shards.md).
-      - name: Keep per-spec dashboard times
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: dashboard-times-${{ matrix.shard }}
-          path: ${{ runner.temp }}/dashboard-times.txt
-          if-no-files-found: ignore
-          retention-days: 7
-      # This shard's test cases of each dashboard proof entry, from its shared
-      # proof record (dashboard/tests/proof-record.md).
-      - name: Keep the CI proof fragments
-        if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
-        uses: ./.github/actions/ci-proof-fragments
-        with:
-          part: ${{ matrix.shard }}
-          parts: ${{ strategy.job-total }}
-          entries: e2e dashboard/tests dashboard/frontend-tests dashboard/backend-tests
-          report-format: playwright-record
-          report: ${{ runner.temp }}/dashboard-proof.json
-      # The HTML report records how many browser tests the shard executed; on
-      # failure, including the suite's deadline, it and test-results/ keep the
-      # completed tests' diagnostics and name the unfinished ones.
-      - name: Keep the Playwright report
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: dashboard-playwright-report-${{ matrix.shard }}
-          path: |
-            dashboard/playwright-report/
-            dashboard/test-results/
-          if-no-files-found: ignore
-          retention-days: 7
+  # The browser test groups, which `npm test` never discovers: each is its own
+  # producer (./browser-test-group.yml) with its own command, settings,
+  # shards, duration list, outputs and CI proof entry (tests/README.md).
+  e2e:
+    uses: ./.github/workflows/browser-test-group.yml
+    with:
+      group: e2e
+      command: test:e2e
+      settings: OPEN_DOUGH_E2E
+      root: e2e
+      shards: "[1, 2, 3, 4, 5, 6]"
+  dashboard-integrated:
+    uses: ./.github/workflows/browser-test-group.yml
+    with:
+      group: dashboard-integrated
+      command: test:dashboard:integrated
+      settings: OPEN_DOUGH_DASHBOARD_INTEGRATED
+      root: dashboard/tests
+      shards: "[1, 2, 3, 4, 5]"
+  dashboard-frontend:
+    uses: ./.github/workflows/browser-test-group.yml
+    with:
+      group: dashboard-frontend
+      command: test:dashboard:frontend
+      settings: OPEN_DOUGH_DASHBOARD_FRONTEND
+      root: dashboard/frontend-tests
+      shards: "[1]"
+  dashboard-backend:
+    uses: ./.github/workflows/browser-test-group.yml
+    with:
+      group: dashboard-backend
+      command: test:dashboard:backend
+      settings: OPEN_DOUGH_DASHBOARD_BACKEND
+      root: dashboard/backend-tests
+      shards: "[1, 2, 3, 4]"
 
   # One CI proof summary per run attempt once the proof jobs settle, however they
   # ended, against declared Intent locations, parts and units their reports give.
   ci-proof:
-    needs: [test, dashboard]
+    needs:
+      - test
+      - e2e
+      - dashboard-integrated
+      - dashboard-frontend
+      - dashboard-backend
     if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 4
@@ -246,5 +195,5 @@ jobs:
       - name: Summarize CI proof
         uses: ./.github/actions/ci-proof-summary
         with:
-          expect: e2e=13:case dashboard/tests=13:case dashboard/frontend-tests=13:case dashboard/backend-tests=13:case tests=3:file src/skills=3:file
+          expect: e2e=6:case dashboard/tests=5:case dashboard/frontend-tests=1:case dashboard/backend-tests=4:case tests=3:file src/skills=3:file
           frontend-entry: dashboard/frontend-tests

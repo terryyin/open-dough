@@ -7,6 +7,9 @@ export type WorkflowJob = {
   readonly id: string;
   readonly name?: string;
   readonly needs: readonly string[];
+  // A job that calls a reusable workflow (`uses:`): GitHub reports each of
+  // that workflow's jobs as `<this job's label> / <its own name>`.
+  readonly calls?: true;
 };
 
 const jobId = /^[a-zA-Z_][a-zA-Z0-9_-]*$/;
@@ -97,6 +100,7 @@ function readJob(
 ): WorkflowJob | undefined {
   let name: string | undefined;
   let needs: string[] | undefined;
+  let calls = false;
   const seen = new Set<string>();
   const fields = blocks(properties);
   if (fields.length === 0) return undefined;
@@ -118,8 +122,14 @@ function readJob(
       needs = needIds(property.value, children);
       if (needs === undefined) return undefined;
     }
+    if (property.key === "uses") calls = true;
   }
-  return { id, ...(name === undefined ? {} : { name }), needs: needs ?? [] };
+  return {
+    id,
+    ...(name === undefined ? {} : { name }),
+    needs: needs ?? [],
+    ...(calls ? { calls } : {}),
+  };
 }
 
 export function readWorkflowJobs(workflow: string): WorkflowJob[] | undefined {
@@ -168,6 +178,17 @@ function matchesDeclaredJobLabel(
 export function workflowJobNameMatcher(
   job: WorkflowJob,
 ): (name: string) => boolean {
+  const matchesLabel = jobLabelMatcher(job);
+  if (!job.calls) return matchesLabel;
+  // A calling job owns each `<its label> / <called job>` GitHub reports.
+  return (name) => {
+    const separator = name.indexOf(" / ");
+    return separator > 0 && matchesLabel(name.slice(0, separator));
+  };
+}
+
+// The job's own label: its id, or its declared name with any expressions.
+function jobLabelMatcher(job: WorkflowJob): (name: string) => boolean {
   if (job.name === undefined) return matchesDeclaredJobLabel(job.id, false);
   const [first = "", ...rest] = job.name.split(expression);
   if (rest.length === 0) return matchesDeclaredJobLabel(first, true);

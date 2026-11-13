@@ -4,20 +4,24 @@
 //
 //   node .planning/slice-plans/608-product-wide-end-to-end-tests/migration-reconcile.mjs \
 //     --manifest <manifest.jsonl> --moves <moves.json> [--case-moves <case-moves.json>] \
-//     --after <umbrella-list.json> [--frontend <frontend-list.json>] \
-//     [--backend <backend-list.json>] [--e2e <e2e-list.json>] [--added <added.json>] \
-//     --after-out <result.json>
+//     (--after <umbrella-list.json> | --integrated <integrated-list.json>) \
+//     [--frontend <frontend-list.json>] [--backend <backend-list.json>] \
+//     [--e2e <e2e-list.json>] [--added <added.json>] --after-out <result.json>
 //
 // Every base case must be selected exactly once at its destination
 // (./migration-cases.mjs) and no case may appear that the base did not have,
-// except new proof cases --added lists; each focused runner's own list must
-// select exactly the umbrella's cases under its root. It exits 1 otherwise.
+// except new proof cases --added lists. Through slice 3 each focused runner's
+// own list must select exactly the umbrella's cases under its root; from
+// slice 4, with no umbrella, the four groups' own lists (--integrated and the
+// rest) together are the selection, each spec in one group's CI shard. It
+// exits 1 otherwise.
 import { readFileSync, writeFileSync } from "node:fs";
 import {
   caseDestination,
   cases,
   count,
   moves,
+  groupShards,
   options,
   shards,
 } from "./migration-cases.mjs";
@@ -34,7 +38,19 @@ const recorded = readFileSync(options.manifest, "utf8")
     title: line.title,
     project: line.project ?? "chromium",
   }));
-const after = cases(options.after);
+// From slice 4 the groups' own lists, labelled relative to `dashboard/`.
+const union = (lists) => ({
+  specs: lists.flatMap((list) => list.specs),
+  cases: lists.flatMap((list) => list.cases),
+});
+const after = options.after
+  ? cases(options.after)
+  : union([
+      cases(options.integrated),
+      cases(options.frontend),
+      cases(options.backend),
+      cases(options.e2e, "../e2e/"),
+    ]);
 // `e2e` for the sibling root (`../e2e/…`), else the first segment.
 const root = (file) => (file.startsWith("../e2e/") ? "e2e" : file.split("/")[0]);
 const key = (one) => `${one.spec}\0${one.source}\0${one.title}\0${one.project}`;
@@ -53,7 +69,7 @@ const seen = new Map();
 for (const one of after.cases) seen.set(key(one), (seen.get(key(one)) ?? 0) + 1);
 const missing = [...expected].filter(([at, n]) => seen.get(at) !== n);
 const unexpected = [...seen].filter(([at]) => !expected.has(at));
-const afterMembership = shards();
+const afterMembership = options.after ? shards() : await groupShards();
 const result = {
   kind: "reconciliation",
   specs: after.specs.length,
@@ -86,7 +102,7 @@ for (const [runner, root, prefix] of [
   ["backend", "backend-tests/", ""],
   ["e2e", "../e2e/", "../e2e/"],
 ]) {
-  if (!options[runner]) continue;
+  if (!options[runner] || !options.after) continue;
   const own = (one) => `${one.spec}\0${one.source}\0${one.title}`;
   const list = cases(options[runner], prefix);
   const umbrella = after.cases.filter((one) => one.spec.startsWith(root)).map(own).sort();
@@ -100,5 +116,22 @@ for (const [runner, root, prefix] of [
     sameMultiset: JSON.stringify(umbrella) === JSON.stringify(selected),
   };
   if (!result[`${runner}Runner`].sameMultiset) process.exitCode = 1;
+}
+// Slice 4 onward: each group's own selection, and every selected spec in
+// exactly one CI shard of its own group.
+if (!options.after) {
+  for (const runner of ["integrated", "frontend", "backend", "e2e"]) {
+    const list = cases(options[runner]);
+    result[`${runner}Runner`] = {
+      specs: list.specs.length,
+      cases: list.cases.length,
+      projects: [...new Set(list.cases.map((one) => one.project))],
+    };
+  }
+  const unsharded = after.specs.filter((spec) => !afterMembership.has(spec));
+  result.specsWithoutGroupShard = unsharded;
+  result.groupShardSpecs = count(after.specs, (spec) => afterMembership.get(spec));
+  if (unsharded.length > 0 || afterMembership.size !== after.specs.length)
+    process.exitCode = 1;
 }
 writeFileSync(options["after-out"], `${JSON.stringify(result, null, 1)}\n`);

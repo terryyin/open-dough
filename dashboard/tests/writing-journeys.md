@@ -1,9 +1,9 @@
 # Writing a browser journey
 
-How a journey of the dashboard suite waits, keeps time, and ends what it
-starts. The [README](README.md) owns the strategy: which tier a check
-belongs to, what is real and what is replaced, and how the suite runs and is
-measured; this guide holds the rules a journey's own code follows. The
+How a browser journey waits, keeps time, and ends what it starts. The
+[README](README.md) owns the strategy: which tier a check belongs to, what is
+real and what is replaced, and how each group runs and is measured; this
+guide holds the rules a journey's own code follows. The
 [native-host fixture guide](native-host-fixtures.md) describes the synthetic
 hosts a launch, listing or terminal journey drives.
 
@@ -51,8 +51,8 @@ milliseconds. A failing run's kept `trace.zip` holds it in the `*.network`
 records of each `/__authenticated-read` answer, which shows where a slow
 read spent its time; the browser's time beyond `total` was spent outside the
 handler. To record traces of a passing run, add `--trace on --reporter=dot`.
-The run's global setup (`support/serviceRunSetup.ts`, for the umbrella and
-**Dashboard Backend Test**) runs the synthetic `gh`, `claude`, and
+The run's global setup (`support/serviceRunSetup.ts`, for E2E Test,
+Dashboard Integrated UI Test and Dashboard Backend Test) runs the synthetic `gh`, `claude`, and
 `terminal-notifier` once before any worker starts, because macOS assesses a
 new executable on its first run and a fresh checkout's first reads would
 otherwise wait on it.
@@ -206,8 +206,8 @@ that passes its own `machine` calls `stopCursorRunner` itself. The run's own
 teardown is the backstop: global setup gives the run an identity,
 `OPEN_DOUGH_DASHBOARD_RUN_ID`, that every process of the run inherits, and
 once the workers have exited the teardown ends every process still carrying
-it and fails the run naming each (`support/runLifecycle.ts`, shared by
-`support/globalSetup.ts` and the group runners'
+it and fails the run naming each (`support/runLifecycle.ts`, shared by the
+group runners' `support/integratedGlobalSetup.ts`,
 `support/frontendGlobalSetup.ts`, `support/backendGlobalSetup.ts` and `support/e2eGlobalSetup.ts`;
 `support/runProcesses.ts`). A named process is a leak to stop where it
 starts, never a reason to widen the sweep; processes of other runs, other

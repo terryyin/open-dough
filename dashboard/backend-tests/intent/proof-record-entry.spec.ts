@@ -7,7 +7,7 @@ import {
   readProof,
   removeProofDirectories,
   startProofCommand,
-  umbrellaSplitExcluding,
+  splitExcluding,
 } from "../../tests/support/proofRecordRun.ts";
 
 test.afterAll(removeProofDirectories);
@@ -31,25 +31,29 @@ for (const entry of [
           path.join(repoRoot, "node_modules/playwright/cli.js"),
           "test",
           "--config",
-          path.join(repoRoot, "dashboard/playwright.config.ts"),
+          path.join(repoRoot, "dashboard/backend.playwright.config.ts"),
           ...selection,
         ]
-      : ["run", "--silent", "test:dashboard", "--", ...selection];
+      : ["run", "--silent", "test:dashboard:backend", "--", ...selection];
     const cwd = direct ? directory : repoRoot;
     // The surrounding CI share excludes the target of this independent run.
     // Exercise that inherited condition even when this spec runs locally.
-    const splitVariable = "OPEN_DOUGH_DASHBOARD_SPLIT";
+    const splitVariable = "OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT";
     const inheritedSplit = process.env[splitVariable];
     const nestedTarget = path.join(
       repoRoot,
       "dashboard/backend-tests/runtime/quiet-reporter.spec.ts",
     );
-    const excludingSplit = umbrellaSplitExcluding(nestedTarget);
+    const excludingSplit = splitExcluding(nestedTarget, {
+      directory: "dashboard",
+      root: "backend-tests",
+      durations: "backend.longest-first",
+    });
     let run: ReturnType<typeof startProofCommand>;
     try {
       process.env[splitVariable] = excludingSplit;
       run = startProofCommand(direct ? process.execPath : "npm", args, cwd, {
-        OPEN_DOUGH_DASHBOARD_PROOF_RECORD: recordPath,
+        OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD: recordPath,
         // On CI this config also writes an HTML report, which empties its
         // folder first. Concurrent nested runs sharing the checkout's
         // folder would remove one another's report mid-write, so each
@@ -58,7 +62,7 @@ for (const entry of [
       });
     } finally {
       if (inheritedSplit === undefined)
-        delete process.env["OPEN_DOUGH_DASHBOARD_SPLIT"];
+        delete process.env["OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT"];
       else process.env[splitVariable] = inheritedSplit;
     }
     expect(await run.result).toMatchObject({
@@ -72,7 +76,10 @@ for (const entry of [
       selectedCount: 1,
       run: {
         cwd: realpathSync(cwd),
-        configFile: path.join(repoRoot, "dashboard/playwright.config.ts"),
+        configFile: path.join(
+          repoRoot,
+          "dashboard/backend.playwright.config.ts",
+        ),
         listing: false,
       },
       terminal: { runnerStatus: "passed", strictStatus: "passed" },

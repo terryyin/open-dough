@@ -123,10 +123,11 @@ export function storyColumnsRepository(completedAt: string) {
 }
 
 // The run artifact holding the story-columns history before completion
-// (support/runArtifacts.ts): the run owner prepares it once, the umbrella as
-// soon as it starts (support/globalSetup.ts) and Dashboard Backend Test on
-// its first request (support/backendGlobalSetup.ts), and removes it when the
-// run ends.
+// (support/runArtifacts.ts): the run owner prepares it once, Dashboard
+// Integrated UI Test and E2E Test as soon as they start
+// (support/integratedGlobalSetup.ts, support/e2eGlobalSetup.ts) and Dashboard
+// Backend Test on its first request (support/backendGlobalSetup.ts), and
+// removes it when the run ends.
 export const storyColumnsPrefixArtifactKey = "story-columns-prefix";
 const storyColumnsPrefix = storyColumnsHistory().please();
 

@@ -52,7 +52,7 @@ function launch(t, cwd, args, extra = {}, command = process.execPath) {
     "TEST_WORKER_INDEX",
     "FORCE_COLOR",
     "NO_COLOR",
-    "OPEN_DOUGH_DASHBOARD_SPLIT",
+    "OPEN_DOUGH_DASHBOARD_INTEGRATED_SPLIT",
     "OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT",
     "OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT",
     "OPEN_DOUGH_E2E_SPLIT",
@@ -137,15 +137,15 @@ export function repository(t, project, observation, env = {}, args = []) {
   );
 }
 
-// `config` is the controlled umbrella or a focused runner's
-// `controlled-<runner>.config.mts`.
+// `config` is a group runner's controlled `controlled-<runner>.config.mts`,
+// Dashboard Integrated UI Test's unless named.
 export function dashboard(
   t,
   project,
   observation,
   args = [],
   env = {},
-  config = "controlled.config.mts",
+  config = "controlled-integrated.config.mts",
 ) {
   return launch(
     t,

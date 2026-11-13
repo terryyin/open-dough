@@ -1,11 +1,11 @@
-// What every dashboard Playwright configuration does for its own run before
-// Playwright starts it, and the run options they share. Each configuration
-// (../../playwright.config.ts, ../../frontend.playwright.config.ts,
-// ../../backend.playwright.config.ts, ../../../e2e/playwright.config.ts)
-// names its own settings prefix and output directory and keeps its own global
-// setup, so no run reads another runner's split, times, proof record,
-// deadline or output directory. A focused runner also selects only its own
-// root's specs (prepareFocusedRun).
+// What every test group's Playwright configuration does for its own run
+// before Playwright starts it, and the run options they share. Each
+// configuration (../../integrated.playwright.config.ts,
+// ../../frontend.playwright.config.ts, ../../backend.playwright.config.ts,
+// ../../../e2e/playwright.config.ts) names its own settings prefix, root,
+// duration list and output directory and keeps its own global setup, so no
+// run reads another runner's split, times, proof record, deadline or output
+// directory, and each selects only its own root's specs (prepareFocusedRun).
 import { availableParallelism } from "node:os";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
@@ -16,7 +16,6 @@ import { remainingSuiteTime } from "./suiteDeadline.mjs";
 import { dashboardTestMatch, dashboardTestProjects } from "./testFiles.mjs";
 
 const repository = fileURLToPath(new URL("../../../", import.meta.url));
-const dashboard = new URL("../../", import.meta.url);
 
 /**
  * `<prefix>_SPLIT`, `_TIMES`, `_PROOF_RECORD`, `_DEADLINE_MS` and
@@ -35,7 +34,7 @@ export function runnerVariables(prefix) {
 
 /**
  * Prepares this process for the run and returns its share and the run
- * options every dashboard configuration shares.
+ * options every group's configuration shares.
  * @param {ReturnType<typeof runnerVariables>} variables
  * @param {string} outputs absolute directory holding the runner's
  *   `test-results/` run directories and CI `playwright-report/`
@@ -44,7 +43,7 @@ export function runnerVariables(prefix) {
  *   options: import("@playwright/test").PlaywrightTestConfig,
  * }>}
  */
-export async function prepareDashboardRun(variables, outputs) {
+async function prepareGroupRun(variables, outputs) {
   // Fixtures create independent Git repositories. Inherited repository paths
   // can redirect their writes or make their local transport miss objects, as
   // in the shell runner's isolation (scripts/test-environment.bash).
@@ -110,7 +109,10 @@ export async function prepareDashboardRun(variables, outputs) {
   // CI's recorded deadline ends the run, build included, before the job's
   // own bound, so the run fails naming it and keeps what completed
   // (./suiteDeadline.mjs). Without it the run is unbounded.
-  const globalTimeout = remainingSuiteTime(process.env[variables.deadline]);
+  const globalTimeout = remainingSuiteTime(
+    process.env[variables.deadline],
+    variables.deadline,
+  );
   // Only this configuration grants the requested paths to its own reporter.
   // Custom nested configurations do not acquire an outer run's evidence or
   // times path.
@@ -156,32 +158,38 @@ export async function prepareDashboardRun(variables, outputs) {
 }
 
 /**
- * Prepares a focused runner's run: it reads only `<prefix>_*` settings,
- * keeps its run directories under its own `root` (relative to `dashboard/`;
- * E2E Test's is the repository's sibling `../e2e`), and selects only that
- * root's specs, dealt by its own `<prefix>_SPLIT`. Spec labels stay relative
- * to `dashboard/`, so the split deals them by the seconds `longest-first`
- * records for them. `projects` partitions the selection into the
- * `chromium-deployments` production chains and the `chromium` rest
- * (./testFiles.mjs).
+ * Prepares one group's run: it reads only `<prefix>_*` settings, keeps its
+ * run directories under its own `root` of `directory` (the configuration's
+ * testDir; `.` is the directory itself), and selects only that root's specs,
+ * dealt by its own `<prefix>_SPLIT` and the seconds its own duration list
+ * (`durations`, relative to `directory`) records for them. Spec labels are
+ * relative to `directory`, as its times file names them. `projects`
+ * partitions the selection into the `chromium-deployments` production chains
+ * and the `chromium` rest (./testFiles.mjs).
  * @param {string} prefix
+ * @param {URL} directory
  * @param {string} root
+ * @param {string} durations
  * @returns {Promise<{
  *   options: import("@playwright/test").PlaywrightTestConfig,
  *   testMatch: RegExp[],
  *   projects: { name: string, testMatch: RegExp[] }[],
  * }>}
  */
-export async function prepareFocusedRun(prefix, root) {
+export async function prepareFocusedRun(prefix, directory, root, durations) {
   const variables = runnerVariables(prefix);
-  const run = await prepareDashboardRun(
+  const run = await prepareGroupRun(
     variables,
-    fileURLToPath(new URL(`${root}/`, dashboard)),
+    fileURLToPath(new URL(`${root}/`, directory)),
   );
-  const selection = { roots: [root], splitVariable: variables.split };
+  const selection = {
+    roots: [root],
+    splitVariable: variables.split,
+    durations,
+  };
   return {
     options: run.options,
-    testMatch: dashboardTestMatch(dashboard, run.split, selection),
-    projects: dashboardTestProjects(dashboard, run.split, selection),
+    testMatch: dashboardTestMatch(directory, run.split, selection),
+    projects: dashboardTestProjects(directory, run.split, selection),
   };
 }

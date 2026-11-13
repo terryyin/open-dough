@@ -7,11 +7,11 @@ import {
 // Actual selected artifact collection, raw retained priors and the normal
 // authenticated read own the entry → folder → file comparison promise.
 import type { Locator } from "@playwright/test";
+import { expect } from "../../dashboard/tests/support/preparationPage.ts";
 import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
-import { publishSummaryComparisonStory } from "../../dashboard/tests/support/intentSummaryStoryComparisonFixture.ts";
+  keptComparisonTest as test,
+  serveKeptComparisonStory,
+} from "../../dashboard/tests/support/projectScopeHistoryFixture.ts";
 import { scopePriorReferenceHistory } from "../../dashboard/tests/support/scopePriorReferenceHistory.ts";
 import {
   keepLandedCiHistory,
@@ -56,7 +56,7 @@ test("each Done scope compares its own collected time through restart, accessibl
   origin,
   github,
 }) => {
-  const setup = await publishSummaryComparisonStory(page, origin);
+  const setup = await serveKeptComparisonStory(page, origin);
   await keepLandedCiHistory(
     dashboard.home,
     scopePriorReferenceHistory(origin, setup, [100, 100, 100, 100, 115, 116]),

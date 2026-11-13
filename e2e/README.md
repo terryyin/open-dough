@@ -41,8 +41,9 @@ controlled answers can supply belongs in
 [Dashboard Frontend Test](../dashboard/frontend-tests/README.md); a server
 variant, failure or test-runtime contract at a stable boundary belongs in
 [Dashboard Backend Test](../dashboard/backend-tests/README.md). Specs still in
-`../dashboard/tests/` are detailed UI checks, or mixed specs, awaiting that
-conversion. Workflows reuse the dashboard's fixtures, page objects and
+`../dashboard/tests/` are the interim **Dashboard Integrated UI Test** group
+(`npm run test:dashboard:integrated`): detailed UI checks, or mixed specs,
+awaiting that conversion. Workflows reuse the dashboard's fixtures, page objects and
 [MakeMe builders](../tests/README.md#test-data-architecture) from
 `../dashboard/tests/` and `../tests/support/`; follow
 [journey writing](../dashboard/tests/writing-journeys.md) for waits, clocks
@@ -63,11 +64,11 @@ keeps a failed run in `test-results/<start time>/` here, and takes local
 full-suite admission only when unfiltered. Select files or tests as usual,
 for example `npm run test:e2e -- launches/ --grep 'Start'`; a direct
 `npx playwright test --config <repository>/e2e/playwright.config.ts` behaves
-the same from any working directory. Its listing and times name specs
-relative to this directory; proof records name them as `e2e/<path>`.
+the same from any working directory. Its listing, times and duration list
+(`longest-first`) name specs relative to this directory; proof records name
+them as `e2e/<path>`.
 
-Until CI runs each group on its own, `npm run test:dashboard` also discovers
-this root and selects each workflow exactly once in its thirteen shards,
-labelled `../e2e/<path>` relative to `dashboard/`; their seconds stay in
-`../dashboard/longest-first` under that label, and CI publishes their cases
-under the **E2E Test** entry (`e2e`).
+CI runs this group as its own producer, the `e2e` job's shards
+([CI shards](../dashboard/tests/shards.md)), and publishes their cases under
+the **E2E Test** entry (`e2e`). Its shard count, settings and duration list
+change without touching the other groups'.

@@ -33,6 +33,7 @@ import type { ComparisonRenderer } from "./comparisonRendering.ts";
 import type { LaunchJourney } from "../launchJourney.ts";
 import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
 import { endDescendantsAtExit } from "./processGroup.ts";
+import type { PublishedMainSourceProfile } from "./publishedMainSource.ts";
 import type { StartRepository } from "./startOriginPreparation.ts";
 
 export { expect } from "@playwright/test";
@@ -68,6 +69,17 @@ async function prepareServerInputs(
   );
 }
 
+// Requests one profile's live-source snapshot (./publishedMainSource.ts).
+async function requestPublishedMainSource(profile: PublishedMainSourceProfile) {
+  const [artifacts, source] = await Promise.all([
+    import("./runArtifacts.ts"),
+    import("./publishedMainSource.ts"),
+  ]);
+  await artifacts.requestRunArtifact(
+    source.publishedMainSourceArtifactKeys[profile],
+  );
+}
+
 // Playwright's worker-only extension takes an empty test-fixture type.
 export const test = base.extend<
   object,
@@ -80,6 +92,7 @@ export const test = base.extend<
     queuedClaudeBoundaryReady: undefined;
     queuedCodexPreviewReady: undefined;
     publishedApplicationSourceReady: undefined;
+    publishedRepositorySourceReady: undefined;
     keptStory: StartRepository;
     keptIntentStory: StartRepository;
     keptSummaryComparisonStory: StartRepository;
@@ -99,17 +112,21 @@ export const test = base.extend<
   publishedApplicationSourceReady: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
-      const [
-        { requestRunArtifact },
-        { publishedApplicationSourceArtifactKey },
-      ] = await Promise.all([
-        import("./runArtifacts.ts"),
-        import("./publishedMainSource.ts"),
-      ]);
-      await requestRunArtifact(publishedApplicationSourceArtifactKey);
+      await requestPublishedMainSource("application");
       await use(undefined);
     },
     { scope: "worker" },
+  ],
+  // Only full-repository publication readers request the whole live source.
+  // Copying and committing every file is cold shared preparation: the worker
+  // does it before such a case starts, within the shared input lifetime.
+  publishedRepositorySourceReady: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      await requestPublishedMainSource("repository");
+      await use(undefined);
+    },
+    serverInputPreparation,
   ],
   // Each host's preview needs its queued origin and the same immutable app inputs.
   queuedClaudePreviewReady: [

@@ -141,10 +141,8 @@ test("a file a command cannot read fails naming it, without a stack trace", () =
   }
 });
 
-test("preview lists a dashboard spec directory as its configuration discovers it, without a ceiling", () => {
+test("preview lists a browser group's root of its spec directory as its configuration discovers it, without a ceiling", () => {
   const specs = join(scratch, "specs");
-  mkdirSync(join(specs, "backend-tests"), { recursive: true });
-  mkdirSync(join(specs, "frontend-tests"), { recursive: true });
   for (const name of [
     "tests/a.spec.ts",
     "frontend-tests/dom.spec.ts",
@@ -174,17 +172,20 @@ test("preview lists a dashboard spec directory as its configuration discovers it
     "2",
     "--spec-dir",
     specs,
+    "--root",
+    "tests",
   ]);
   assert.equal(previewRun.status, 0, previewRun.stderr);
-  // b (4.0) to share 1, dom (3.0) and a (2.0) to share 2, c unrecorded at the
-  // median 3.0 to share 1; support/helper.ts is no spec file.
+  // Only the tests root's spec files: a (2.0) to share 1, c unrecorded at
+  // the selected recorded median 2.0 to share 2; the other roots' specs,
+  // support/helper.ts and src/ignored.spec.ts are not its specs.
   assert.equal(
     previewRun.stdout,
-    `Predicted job-seconds per share from ${specs}/longest-first: 4 jobs, 3 recorded, 1 unrecorded at 3.0 s each (the recorded median).\n` +
-      "share 1/2: 7.0 predicted (2 jobs, 1 unrecorded)\n" +
-      "share 2/2: 5.0 predicted (2 jobs, 0 unrecorded)\n" +
-      `unrecorded jobs (1), each assumed at 3.0 s; a refresh of ${specs}/longest-first records them:\n` +
-      "  share 1/2  tests/c.spec.ts\n",
+    `Predicted job-seconds per share from ${specs}/longest-first: 2 jobs, 1 recorded, 1 unrecorded at 2.0 s each (the recorded median).\n` +
+      "share 1/2: 2.0 predicted (1 jobs, 0 unrecorded)\n" +
+      "share 2/2: 2.0 predicted (1 jobs, 1 unrecorded)\n" +
+      `unrecorded jobs (1), each assumed at 2.0 s; a refresh of ${specs}/longest-first records them:\n` +
+      "  share 2/2  tests/c.spec.ts\n",
   );
   const both = run([
     "preview",
@@ -199,6 +200,11 @@ test("preview lists a dashboard spec directory as its configuration discovers it
   assert.equal(
     both.stderr,
     "FAIL: preview takes --test-dir or --spec-dir, not both.\n",
+  );
+  const rootAlone = run(["preview", "--split-count", "2", "--root", "tests"]);
+  assert.deepEqual(
+    [rootAlone.status, rootAlone.stderr],
+    [1, "FAIL: preview takes --root with --spec-dir.\n"],
   );
 });
 

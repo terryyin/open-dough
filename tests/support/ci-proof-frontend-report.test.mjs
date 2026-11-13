@@ -8,9 +8,12 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import test from "node:test";
 import { summaryProblems } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
-import { runAttempt, summaryAction } from "./ci-proof-action-fixtures.mjs";
+import { locatedRecord } from "../../src/skills/dough-test-optimization/scripts/ci-proof-test-fixtures.mjs";
+import { summaryAction } from "./ci-proof-action-fixtures.mjs";
+import { runAttempt } from "./ci-proof-action-replay.mjs";
 import {
-  declaredDashboard,
+  declaredFrontend,
+  declaredGroup,
   expect,
   frontendEntry,
 } from "./ci-proof-frontend-report-support.mjs";
@@ -24,29 +27,26 @@ function writeProof(path, record) {
 
 test("with frontend-entry the summarize action writes the upload-named report for frontend only", (t) => {
   const run = runAttempt(t);
-  const shard = run.runner("dashboard", 1);
-  const declared = declaredDashboard(1, shard);
-  writeProof(
-    declared.report,
-    makeMe.aDashboardProofRecord
-      .from(cwd)
-      .completed()
-      .withTest(`${cwd}/dashboard/frontend-tests/pass.spec.ts`, "expected", [0])
-      .withTest(
-        `${cwd}/dashboard/frontend-tests/fail.spec.ts`,
-        "unexpected",
-        [30],
-      )
-      .withTest(`${cwd}/dashboard/frontend-tests/other.spec.ts`, undefined, [])
-      .withTest(`${cwd}/dashboard/tests/browser.spec.ts`, "expected", [90])
-      .withTest(
-        `${cwd}/dashboard/backend-tests/server.spec.ts`,
-        "expected",
-        [60],
-      )
-      .please(),
-  );
-  assert.equal(run.fragments("dashboard", 1, shard, declared.inputs).status, 0);
+  // The frontend producer's shard and two other groups' shards.
+  const records = {
+    "dashboard-frontend": [
+      [`${cwd}/dashboard/frontend-tests/pass.spec.ts`, "expected", [0]],
+      [`${cwd}/dashboard/frontend-tests/fail.spec.ts`, "unexpected", [30]],
+      [`${cwd}/dashboard/frontend-tests/other.spec.ts`, undefined, []],
+    ],
+    "dashboard-integrated": [
+      [`${cwd}/dashboard/tests/browser.spec.ts`, "expected", [90]],
+    ],
+    "dashboard-backend": [
+      [`${cwd}/dashboard/backend-tests/server.spec.ts`, "expected", [60]],
+    ],
+  };
+  for (const [group, tests] of Object.entries(records)) {
+    const shard = run.runner(group, 1);
+    const declared = declaredGroup(group, 1, shard);
+    writeProof(declared.report, locatedRecord(cwd, tests));
+    assert.equal(run.fragments(1, shard, declared.inputs).status, 0);
+  }
 
   const summary = run.summary({ expect, "frontend-entry": frontendEntry });
   assert.deepEqual([summary.status, summary.stderr], [0, ""]);
@@ -88,8 +88,8 @@ test("with frontend-entry the summarize action writes the upload-named report fo
 
 test("without frontend-entry the summarize action still writes only the combined summary", (t) => {
   const run = runAttempt(t);
-  const shard = run.runner("dashboard", 1);
-  const declared = declaredDashboard(1, shard);
+  const shard = run.runner("dashboard-frontend", 1);
+  const declared = declaredFrontend(1, shard);
   writeProof(
     declared.report,
     makeMe.aDashboardProofRecord
@@ -98,7 +98,7 @@ test("without frontend-entry the summarize action still writes only the combined
       .withTest(`${cwd}/dashboard/frontend-tests/dom.spec.ts`, "expected", [20])
       .please(),
   );
-  assert.equal(run.fragments("dashboard", 1, shard, declared.inputs).status, 0);
+  assert.equal(run.fragments(1, shard, declared.inputs).status, 0);
   const summary = run.summary(expect);
   assert.deepEqual([summary.status, summary.stderr], [0, ""]);
   assert.equal(summary.report, undefined);
@@ -107,11 +107,13 @@ test("without frontend-entry the summarize action still writes only the combined
 
 test("a failed and unfinished frontend selection stays failed/other, and a present empty shard stays zero beside missing parts", (t) => {
   const run = runAttempt(t);
-  const first = run.runner("dashboard", 1);
-  const second = run.runner("dashboard", 2);
-  const third = run.runner("dashboard", 3);
+  // The frontend producer as if it ran three shards.
+  const declared = (part, temp) => declaredFrontend(part, temp, 3);
+  const first = run.runner("dashboard-frontend", 1);
+  const second = run.runner("dashboard-frontend", 2);
+  const third = run.runner("dashboard-frontend", 3);
   writeProof(
-    declaredDashboard(1, first).report,
+    declared(1, first).report,
     makeMe.aDashboardProofRecord
       .from(cwd)
       .completed()
@@ -124,34 +126,25 @@ test("a failed and unfinished frontend selection stays failed/other, and a prese
       .please(),
   );
   writeProof(
-    declaredDashboard(2, second).report,
+    declared(2, second).report,
     makeMe.aDashboardProofRecord.from(cwd).completed().please(),
   );
   writeProof(
-    declaredDashboard(3, third).report,
+    declared(3, third).report,
     makeMe.aDashboardProofRecord
       .from(cwd)
       .running()
       .withTest(`${cwd}/dashboard/frontend-tests/late.spec.ts`, "expected", [5])
       .please(),
   );
-  assert.equal(
-    run.fragments("dashboard", 1, first, declaredDashboard(1, first).inputs)
-      .status,
-    0,
-  );
-  assert.equal(
-    run.fragments("dashboard", 2, second, declaredDashboard(2, second).inputs)
-      .status,
-    0,
-  );
-  assert.equal(
-    run.fragments("dashboard", 3, third, declaredDashboard(3, third).inputs)
-      .status,
-    1,
-  );
+  assert.equal(run.fragments(1, first, declared(1, first).inputs).status, 0);
+  assert.equal(run.fragments(2, second, declared(2, second).inputs).status, 0);
+  assert.equal(run.fragments(3, third, declared(3, third).inputs).status, 1);
 
-  const summary = run.summary({ expect, "frontend-entry": frontendEntry });
+  const summary = run.summary({
+    expect: `${frontendEntry}=3:case`,
+    "frontend-entry": frontendEntry,
+  });
   assert.equal(summary.status, 0);
   assert.deepEqual(summaryProblems(summary.written), []);
   const frontend = summary.written.entries.find(
@@ -164,8 +157,8 @@ test("a failed and unfinished frontend selection stays failed/other, and a prese
   assert.match(summary.report, /0 passed, 1 failed, 1 other test cases/);
   assert.match(summary.report, /fail\.spec\.ts \| 0 \| 1 \| 0 \| 30 ms/);
   assert.match(summary.report, /hang\.spec\.ts \| 0 \| 0 \| 1 \| unavailable/);
-  assert.match(summary.report, /Part 2 of 13: present zero/);
-  assert.match(summary.report, /Part 3 of 13: missing/);
+  assert.match(summary.report, /Part 2 of 3: present zero/);
+  assert.match(summary.report, /Part 3 of 3: missing/);
   assert.doesNotMatch(summary.report, /late\.spec\.ts/);
   assert.match(summary.report, /Incomplete/);
   assert.doesNotMatch(summary.report, /All declared parts are present/);

@@ -27,17 +27,31 @@ import { originMain } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { git } from "./storyReviewWorktree.ts";
 
+// Each case's origin starts from the worker's kept comparison story, so no
+// case completes Story A through the installed CLI in its own time.
+export const keptComparisonTest = queuedClaudePreviewTest.extend(
+  startingFromKeptSummaryComparisonStory,
+);
+
+// The kept story's endpoints, served with their CI runs as the CLI-published
+// story's are (./intentSummaryStoryComparisonServing.ts).
+export function serveKeptComparisonStory(page: Page, origin: StartOrigin) {
+  return serveSummaryComparisonStory(
+    page,
+    origin,
+    declaredSummaryComparisonEndpointsIn(origin.project),
+  );
+}
+
 // The page's dashboard is the reader itself: no collecting dashboard runs on
 // the machine before it or beside it.
-export const test = queuedClaudePreviewTest
-  .extend(startingFromKeptSummaryComparisonStory)
-  .extend({
-    dashboard: async ({ github, origin }, use) => {
-      const reader = await startLandedCiReader({ github }, origin, "preview");
-      await use(reader);
-      await reader.close();
-    },
-  });
+export const test = keptComparisonTest.extend({
+  dashboard: async ({ github, origin }, use) => {
+    const reader = await startLandedCiReader({ github }, origin, "preview");
+    await use(reader);
+    await reader.close();
+  },
+});
 
 type Point = "baseline" | "branchSide" | "completion" | "latest";
 

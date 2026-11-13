@@ -2,14 +2,21 @@
 
 Prepare [native prerequisites](native-setup.md) once per lockfile version.
 
-The [dashboard suite](../dashboard/tests/README.md) runs representative
-product workflows in `e2e/`, browser tests awaiting conversion in its
-[feature folders](../dashboard/tests/feature-groups.md), frontend-only tests in
-`dashboard/frontend-tests/`, and backend tests in `dashboard/backend-tests/`
-through `npm run test:dashboard`; `npm test` does not discover those specs.
-`npm run test:e2e` runs only the [workflows](../e2e/README.md),
-`npm run test:dashboard:frontend` only the frontend-only tests and
-`npm run test:dashboard:backend` only the backend tests.
+Four browser test groups run with Playwright, each under its own command,
+configuration, setup, settings, outputs and CI producer; `npm test` does not
+discover their specs ([dashboard tests](../dashboard/tests/README.md)):
+
+| Group | Command | Sources |
+| --- | --- | --- |
+| **E2E Test** | `npm run test:e2e` | representative product [workflows](../e2e/README.md) in `e2e/` |
+| **Dashboard Integrated UI Test** | `npm run test:dashboard:integrated` | detailed UI checks awaiting controlled answers, in the [feature folders](../dashboard/tests/feature-groups.md) of `dashboard/tests/` |
+| **Dashboard Frontend Test** | `npm run test:dashboard:frontend` | [frontend-only tests](../dashboard/frontend-tests/README.md) in `dashboard/frontend-tests/` |
+| **Dashboard Backend Test** | `npm run test:dashboard:backend` | [backend tests](../dashboard/backend-tests/README.md) in `dashboard/backend-tests/` |
+
+Before delivering a change to a group's specs or shared browser support, run
+the affected group's command (named specs, then the group when shared support
+changed); CI runs each group as its own sharded producer
+([CI shards](../dashboard/tests/shards.md)).
 
 Run every check through the runner. `npm test` (or `bash scripts/test.sh`) runs
 the whole suite; named `.sh`, `.mjs`, or `.js` paths select exactly those checks:

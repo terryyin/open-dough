@@ -29,14 +29,16 @@ only the app and comparison mount builds (`../tests/support/frontendGlobalSetup.
 it reads its own `OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT`, `_TIMES`,
 `_PROOF_RECORD` and `_DEADLINE_MS`, keeps a failed run in
 `test-results/<start time>/` here, and takes local full-suite admission only
-when unfiltered. Select files or tests as with the umbrella, for example
+when unfiltered. Select files or tests as with any group, for example
 `npm run test:dashboard:frontend -- intent/ --grep 'wording'`; a direct
 `npx playwright test --config <repository>/dashboard/frontend.playwright.config.ts`
 behaves the same from any working directory.
 
-Until CI switches to the separate groups, `npm run test:dashboard` still
-selects these files exactly once beside the other roots, with shared
-setup and thirteen CI shards; their seconds stay in `../longest-first`.
+CI runs this group as its own producer, the `dashboard-frontend` job, dealt
+by its own duration list (`../frontend.longest-first`), and publishes its
+cases under the **Dashboard Frontend Test** entry and the frontend test proof
+artifact.
 
-The [dashboard test guide](../tests/README.md) owns placement across the three
-roots; the [shard guide](../tests/shards.md) owns shared allocation and timing.
+The [dashboard test guide](../tests/README.md) owns placement across the
+roots; the [shard guide](../tests/shards.md) owns each group's allocation and
+timing.

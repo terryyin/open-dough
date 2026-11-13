@@ -251,6 +251,29 @@ and full-suite admission at the final switch, reusing sufficient proof from 1–
 Inspect hosted artifacts at the published revision; local replay cannot
 substitute for that receipt. Failures stop dependent completion under policy.
 
+Progress (2026-11-13, hosted observation pending): four group runners via
+`prepareFocusedRun`; interim `npm run test:dashboard:integrated`
+(`dashboard/integrated.playwright.config.ts`, `integratedGlobalSetup.ts`);
+`test:dashboard` and the umbrella config retired. CI: `ci.yml` callers `e2e`
+(6 shards), `dashboard-integrated` (5), `dashboard-frontend` (1),
+`dashboard-backend` (4) of reusable `browser-test-group.yml`, each with its own
+duration list, artifacts and fragments; `expect` e2e=6, dashboard/tests=5,
+dashboard/frontend-tests=1, dashboard/backend-tests=4. The CI-time reader
+(`dashboard/server/ciWorkflowJobs.ts`) now reads reusable-workflow callers;
+comparison fixtures read a frozen `fixtures/observed-runs-ci.yml`. Native lists
+E2E 302/560, integrated 264/611, frontend 52/153, backend 415/1,411;
+`migration-reconciliation-slice-4.json` every base case once plus 18 added.
+Local gate: frontend 153/153, integrated 611/611, backend and E2E passed after
+two found defects were fixed (G11 open); lifecycle 33/33; G8 repaired (6/6,
+8/8 at 4 workers). G2: three cases repaired; Terry chose (2026-11-13) to move
+`production-deployment:62` and `production-publication-fixture:175`
+preparation into worker fixtures under the existing 60 s cold-input worker
+bound, keeping the 30 s case budget. `landed-ci-follow-up-reading` ×2,
+`landed-ci-repeat-reconciliation` ×3, `landed-ci-scope-*` ×3 and
+`story-branch-landing-capture` ×3 are owned by the active
+execution SEED-324#close-landed-ci-repeat-check-gaps (its own G2
+and uncommitted `landedCiHistoryTest.ts` edits); no duplicate repair here.
+
 ### 5. Observe a complete tagged installed preparation workflow
 Type: Behavior
 Status: planned
@@ -354,3 +377,13 @@ Disposition: no user cost "understand their purpose and observed results in Inte
 Reported: slice 3 — "103 moved specs have none; their boundaries are recorded only in migration-purpose.json. The README states the shared boundary set."
 Story clause: "Identify each representative journey's real integrations and simulated external boundaries"
 Disposition: receiving slice 5
+
+### G11. A reconciliation E2E case nears its budget at moderate load
+Reported: slice 4 — "e2e/launches/responsive-session-reconciliation-kept.spec.ts:58 timed out in the full E2E run at load ~9–16. With --repeat-each=4 --workers=4 it passed 8/8 but took 17–25 s of its 30 s budget."
+Story clause: "throughout the migration, including failures attributed to the prior layout"
+Disposition: return
+
+### G12. Repository test jobs outlived their safety deadline
+Reported: slice 4 — "Run 2 failed with three safety-deadline TIMEOUTs: workspace-publication.test.mjs after 2,202 s, git-publication-native-admission.sh after 2,122 s, and ci-github-workflow-repeat-transport.test.mjs after 215 s ... a runner job outlived its 180 s safety deadline by about 33 minutes, so the deadline did not end it."
+Story clause: "throughout the migration, including failures attributed to the prior layout"
+Disposition: return

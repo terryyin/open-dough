@@ -30,9 +30,8 @@ export default async function e2eGlobalSetup(): Promise<() => Promise<void>> {
       storyColumnsPrefixArtifact(),
     ]),
   );
-  // As in the umbrella's setup (./globalSetup.ts), the story-columns history
-  // is built now, beside the workers' start and the app build; a failure is
-  // kept for the workers that ask.
+  // The story-columns history is built now, beside the workers' start and the
+  // app build; a failure is kept for the workers that ask.
   void requestRunArtifact(storyColumnsPrefixArtifactKey).catch(() => {});
   return teardown;
 }

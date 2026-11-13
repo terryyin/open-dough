@@ -7,14 +7,12 @@ import { priorBuildReferenceReading } from "../../dashboard/tests/priorBuildRefe
 // Normal local readers of canonical raw proof expose the selection signature
 // separately from measured completeness; never supply a finished average.
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { expect } from "../../dashboard/tests/support/preparationPage.ts";
+import { summaryComparisonChanges } from "../../dashboard/tests/support/intentSummaryStoryComparisonFixture.ts";
 import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../../dashboard/tests/support/preparationPage.ts";
-import {
-  publishSummaryComparisonStory,
-  summaryComparisonChanges,
-} from "../../dashboard/tests/support/intentSummaryStoryComparisonFixture.ts";
+  keptComparisonTest as test,
+  serveKeptComparisonStory,
+} from "../../dashboard/tests/support/projectScopeHistoryFixture.ts";
 import { scopePriorReferenceHistory } from "../../dashboard/tests/support/scopePriorReferenceHistory.ts";
 import {
   keepLandedCiHistory,
@@ -45,7 +43,7 @@ test("zero, partial selected timing and missing terminal identity retain honest 
   origin,
   github,
 }) => {
-  const setup = await publishSummaryComparisonStory(page, origin);
+  const setup = await serveKeptComparisonStory(page, origin);
   const proof = (partial: boolean) => {
     const evidence = makeMe.aCiProofEvidence.inUnit("case").brokenDown({
       path: "dashboard/tests/folder/a.spec.ts",

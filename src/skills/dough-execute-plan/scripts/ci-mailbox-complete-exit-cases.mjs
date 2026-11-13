@@ -85,11 +85,12 @@ test("explicit stop returns only after a worker showing a transient command whil
 });
 
 test("completion does not confirm shutdown for a worker whose liveness stays unknown past the exit wait", async (t) => {
-  // The transient command outlasts the one-second exit wait, so the observer
-  // is neither known gone nor known running when the receipt is written.
+  // The transient command stays until teardown, outlasting the one-second
+  // exit wait, so the observer is neither known gone nor known running when
+  // the receipt is written.
   const { storage, directory } = await mailboxWithStubWorker(
     t,
-    publishThenExitSource({ exitingCommand: "[node]", exitDelayMs: 2500 }),
+    publishThenExitSource({ exitingCommand: "[node]", exitDelayMs: null }),
   );
   registerPushedRevision(directory, sha);
   publishRevisionRecord(
@@ -120,7 +121,8 @@ const check = () => {
 };
 watch(directory, check);
 check();
-setInterval(() => {}, 1000);
+// A late or missed macOS directory event must not hide the stop request.
+setInterval(check, 20);
 `,
   );
 

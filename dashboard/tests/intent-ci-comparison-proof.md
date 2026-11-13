@@ -69,36 +69,40 @@ shared mutable server, persistent warm cache or elapsed wait.
 
 ## Measuring changes
 
-Run through `npm run test:dashboard`, with ordinary worker, trace and timeout
-settings. Save the strict per-case record outside disposable output using
-`OPEN_DOUGH_DASHBOARD_PROOF_RECORD` and shared preparation events using
-`OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE`. Follow [local resource use](../../tests/local-test-resources.md),
-including the maintained macOS sleep guard on AC power.
+Run each group's part through its own command, with ordinary worker, trace
+and timeout settings. Save each run's strict per-case record outside
+disposable output using that group's `<prefix>_PROOF_RECORD` and shared
+preparation events using `OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE`. Follow
+[local resource use](../../tests/local-test-resources.md), including the
+maintained macOS sleep guard on AC power.
 
 The replacement-inclusive ordinary selection is:
 
 ```sh
-npm run test:dashboard -- \
+npm run test:dashboard:backend -- \
   backend-tests/intent/ci-comparison \
   backend-tests/intent/ci-proof-memory \
   backend-tests/intent/ci-time-without-runner-waits.spec.ts \
-  tests/intent/intent-ci-comparison \
-  tests/intent/intent-summary-story-comparison \
-  e2e/intent/intent-ci-comparison \
-  e2e/intent/intent-summary-story-comparison \
-  frontend-tests/intent/intent-ci-comparison \
-  frontend-tests/intent/intent-summary-story-comparison \
-  e2e/review/story-review-one-shot-choice-refresh.spec.ts \
   backend-tests/review/story-review-stored- \
   backend-tests/intent/intent-ci-comparison-pending-proof.spec.ts \
   backend-tests/intent/intent-ci-comparison-receipt.spec.ts \
   backend-tests/intent/landed-ci-history-comparison-run.spec.ts \
   backend-tests/intent/landed-ci-history-no-proof-recovery.spec.ts
+npm run test:dashboard:integrated -- \
+  tests/intent/intent-ci-comparison \
+  tests/intent/intent-summary-story-comparison
+npm run test:e2e -- \
+  intent/intent-ci-comparison \
+  intent/intent-summary-story-comparison \
+  review/story-review-one-shot-choice-refresh.spec.ts
+npm run test:dashboard:frontend -- \
+  frontend-tests/intent/intent-ci-comparison \
+  frontend-tests/intent/intent-summary-story-comparison
 ```
 
 Measure native launch/capture preservation separately with
 `npm run test:e2e -- review/recently-done-one-shot-review.spec.ts review/story-review-one-shot.spec.ts`.
-The last four ordinary selectors retain eight backend connections omitted by
+The backend command's last four selectors retain eight backend connections omitted by
 the broad `ci-comparison` prefix; include them when comparing whole feedback.
 
 Each rule must take less than 1,000 ms including its arrangement, actions,
@@ -113,7 +117,7 @@ infrastructure `ps` during worker exit. Record their arguments, folder, stack
 and timing separately. They do not permit rule-level Git/gh/Node acquisition,
 and their guessed cost must never be subtracted from a rule profile.
 
-CI retains `dashboard-playwright-report-<shard>` artifacts for each shard.
+CI retains `<group>-playwright-report-<shard>` artifacts for each group's shard.
 The HTML report's embedded `report.json` gives per-case durations and outcomes.
 Match the owning spec filename and test title, because imported case helpers
 can have a different declaration location. File totals and a green workflow

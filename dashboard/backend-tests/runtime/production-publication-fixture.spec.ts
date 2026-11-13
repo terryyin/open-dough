@@ -13,7 +13,10 @@ import { startRunArtifacts } from "../../tests/support/runArtifacts.ts";
 
 const exec = promisify(execFile);
 
-test("a documentation-only publication pushes only its requested paths to origin main", async () => {
+test("a documentation-only publication pushes only its requested paths to origin main", async ({
+  publishedRepositorySourceReady,
+}) => {
+  await Promise.resolve(publishedRepositorySourceReady);
   const fixture = await publishedMainFixture(true);
   const origin = async (...args: string[]) =>
     (await exec("git", ["--git-dir", fixture.origin, ...args])).stdout;

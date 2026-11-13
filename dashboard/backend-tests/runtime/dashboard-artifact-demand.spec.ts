@@ -24,7 +24,7 @@ const fixtures = path.join(
 );
 const setupOf = (file: string) =>
   path.join(repoRoot, "dashboard/tests/support", file);
-const setup = setupOf("globalSetup.ts");
+const setup = setupOf("integratedGlobalSetup.ts");
 
 type Trace = { event: string; key: string; directory?: string };
 type Consumer = { pid: number; directory?: string; error?: string };
@@ -54,7 +54,7 @@ function proveArtifact(
     readonly spec: string;
     readonly partial: string;
     readonly error: RegExp;
-    // The run's global setup; the umbrella's unless named.
+    // The run's global setup; Dashboard Integrated UI Test's unless named.
     readonly setup?: string;
   },
   outcomes: readonly Outcome[],
@@ -230,7 +230,7 @@ proveArtifact(
   ["complete", "fail"],
 );
 
-// Each group runner's own setup shares the app build the same way and
+// Each other group runner's own setup shares the app build the same way and
 // removes it when interrupted.
 for (const [runner, file] of [
   ["Dashboard Frontend Test", "frontendGlobalSetup.ts"],

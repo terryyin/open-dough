@@ -1,0 +1,5 @@
+# E2E Test spec durations, <seconds><TAB><file> relative to e2e/, in the included parts.
+# Preview/refresh: dashboard/tests/shards.md. Each part names its recorded source;
+# rows were mapped from the former combined dashboard list, seconds unchanged.
+# Include: longest-first-agents
+# Include: longest-first-project

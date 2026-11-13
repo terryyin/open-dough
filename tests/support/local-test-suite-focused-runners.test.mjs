@@ -1,8 +1,9 @@
-// Each runner owning one group (dashboard/frontend.playwright.config.ts,
-// dashboard/backend.playwright.config.ts, e2e/playwright.config.ts) takes the same repository admission
-// as the umbrella when unfiltered, and only then: its focused runs, its
-// listing and its own CI split stay independent, and the umbrella's split
-// does not make its run focused.
+// Each runner owning one group (dashboard/integrated.playwright.config.ts,
+// dashboard/frontend.playwright.config.ts,
+// dashboard/backend.playwright.config.ts, e2e/playwright.config.ts) takes
+// the repository admission when unfiltered, and only then: its focused runs,
+// its listing and its own CI split stay independent, and another group's
+// split does not make its run focused.
 import assert from "node:assert/strict";
 import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -17,6 +18,11 @@ import {
 } from "./local-test-suite-fixtures.mjs";
 
 const runners = [
+  {
+    name: "Dashboard Integrated UI Test",
+    config: "controlled-integrated.config.mts",
+    split: "OPEN_DOUGH_DASHBOARD_INTEGRATED_SPLIT",
+  },
   {
     name: "Dashboard Frontend Test",
     config: "controlled-frontend.config.mts",
@@ -72,10 +78,9 @@ for (const runner of runners) {
       fullDashboardSuite(["test"], { [runner.split]: "1/2" }, runner.split),
       false,
     );
-    for (const other of [
-      "OPEN_DOUGH_DASHBOARD_SPLIT",
-      ...runners.map(({ split }) => split).filter((s) => s !== runner.split),
-    ])
+    for (const other of runners
+      .map(({ split }) => split)
+      .filter((s) => s !== runner.split))
       assert.equal(
         fullDashboardSuite(["test"], { [other]: "1/2" }, runner.split),
         true,

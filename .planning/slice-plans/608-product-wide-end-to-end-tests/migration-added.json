@@ -13,9 +13,10 @@
  },
  {
   "spec": "backend-tests/runtime/runner-ownership.spec.ts",
-  "title": "group runs started beside each other and the umbrella keep their own run directories and records",
+  "title": "group runs started beside each other keep their own run directories and records",
   "slice": 3,
-  "proves": "concurrent frontend×2, backend×2, E2E×2 and umbrella runs keep separate run directories and records (slice 3 renamed and extended slice 2's case)"
+  "proves": "concurrent frontend×2, backend×2, E2E×2 and umbrella runs keep separate run directories and records (slice 3 renamed and extended slice 2's case); slice 4 retired the umbrella and added Dashboard Integrated UI Test ×2",
+  "formerTitle": "group runs started beside each other and the umbrella keep their own run directories and records"
  },
  {
   "spec": "backend-tests/observation/run-processes.spec.ts",
@@ -82,5 +83,29 @@
   "title": "a shared real E2E Test app build can interrupt while workers are waiting",
   "slice": 3,
   "proves": "E2E setup's interruption cleanup of its shared app build"
+ },
+ {
+  "spec": "backend-tests/runtime/runner-ownership.spec.ts",
+  "title": "Dashboard Integrated UI Test normal npm records only its own selection under its own settings",
+  "slice": 4,
+  "proves": "integrated runner npm/direct-config invocation, own selection, settings and output while every other group's split, record, times and passed deadline are set"
+ },
+ {
+  "spec": "backend-tests/runtime/runner-ownership.spec.ts",
+  "title": "Dashboard Integrated UI Test direct config from another working directory records only its own selection under its own settings",
+  "slice": 4,
+  "proves": "integrated runner npm/direct-config invocation, own selection, settings and output while every other group's split, record, times and passed deadline are set"
+ },
+ {
+  "spec": "backend-tests/intent/ci-time-without-runner-waits.spec.ts",
+  "title": "a job calling a reusable workflow owns every called job GitHub reports under its label",
+  "slice": 4,
+  "proves": "CI time without runner waits reads the browser test groups' reusable-workflow caller jobs (`<job> / shard i/n`) and refuses an unrelated name"
+ },
+ {
+  "spec": "backend-tests/intent/ci-time-without-runner-waits.spec.ts",
+  "title": "this repository's own workflow keeps every job it reports readable",
+  "slice": 4,
+  "proves": "the current ci.yml stays readable by the CI-time reader with every job it reports, including the block-list ci-proof needs"
  }
 ]

@@ -5,7 +5,10 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { dashboardTestProjects } from "../../../dashboard/tests/support/testFiles.mjs";
+import {
+  dashboardTestMatch,
+  dashboardTestProjects,
+} from "../../../dashboard/tests/support/testFiles.mjs";
 
 export const shardCount = 13;
 export const repo = process.cwd();
@@ -56,7 +59,8 @@ export function count(items, key) {
   return totals;
 }
 
-// Spec → shard i of 13, as the umbrella's OPEN_DOUGH_DASHBOARD_SPLIT deals it.
+// Spec → shard i of 13, as the umbrella's OPEN_DOUGH_DASHBOARD_SPLIT dealt it
+// before slice 4 retired the umbrella (run at a revision that has it).
 export function shards() {
   const membership = new Map();
   for (let share = 1; share <= shardCount; share++)
@@ -72,10 +76,43 @@ export function shards() {
   return membership;
 }
 
+// Spec (relative to `dashboard/`; E2E Test's as `../e2e/<path>`) → its
+// group's CI shard `<job> i/n`, as each group's own `<prefix>_SPLIT` deals
+// it over the shards ci.yml gives that group (slice 4 onward).
+export async function groupShards() {
+  const { browserGroupConfigs } = await import(
+    "../../../tests/support/browserGroupConfigs.mjs"
+  );
+  const membership = new Map();
+  for (const group of browserGroupConfigs) {
+    const testDir = pathToFileURL(`${path.join(repo, group.directory)}/`);
+    const selection = {
+      roots: [group.root],
+      splitVariable: `${group.prefix}_SPLIT`,
+      durations: group.durations,
+    };
+    for (let share = 1; share <= group.shards; share++)
+      for (const pattern of dashboardTestMatch(
+        testDir,
+        `${share}/${group.shards}`,
+        selection,
+      ))
+        membership.set(
+          path.relative(
+            dashboard,
+            pattern.source.slice(1, -1).replace(/\\(.)/g, "$1"),
+          ),
+          `${group.job} ${share}/${group.shards}`,
+        );
+  }
+  return membership;
+}
+
 // --moves: old spec or registering-module path → { to, slice }.
-// --case-moves: [{ spec, source?, title, to, toSource?, slice }] for a case
-// that left its spec while the spec stayed (its new spec, and its new source
-// when that is not the new spec).
+// --case-moves: [{ spec, source?, title, to, toSource?, toTitle?, slice }]
+// for a case that left its spec while the spec stayed (its new spec, and its
+// new source when that is not the new spec), or that a slice renamed in
+// place (`toTitle`).
 // --classes: integrated spec → its proof-purpose class and note, for a spec
 // read and left in `tests/` for a later conversion (slice 3 classified every
 // one; ./migration-purpose.json holds each spec's full reading).
@@ -98,7 +135,12 @@ export function destination(file) {
 export function caseDestination(one) {
   const move = movedCases.get(caseKey(one));
   if (move !== undefined)
-    return { spec: move.to, source: move.toSource ?? move.to, slice: move.slice };
+    return {
+      spec: move.to,
+      source: move.toSource ?? move.to,
+      ...(move.toTitle === undefined ? {} : { title: move.toTitle }),
+      slice: move.slice,
+    };
   const moved = (file) => moves[file]?.to ?? file;
   return { spec: moved(one.spec), source: moved(one.source ?? one.spec) };
 }

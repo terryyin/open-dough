@@ -57,7 +57,7 @@ Status: planned
 Proof: Share only repeated fixture lookup/coordinate setup around direct
 arrangement utility calls. Preserve independent cross-turn scrolling,
 overlap/absence mutations and expected failure evidence. Illustrative:
-`npm run test:dashboard -- 'frontend-tests/observation-measurements.spec.ts'`.
+`npm run test:dashboard:frontend -- 'frontend-tests/observation-measurements.spec.ts'`.
 
 Behavior: A developer reads a browser arrangement case → sees the direct
 utility call beside independent fixture and measurement facts → repeated setup
@@ -69,7 +69,7 @@ Status: planned
 Proof: Reuse repeated fixture/coordinate primitives only where they do not
 derive expected reachability through the function being tested. Preserve exact
 dimensions, direct call and discriminating movement/visibility observations.
-Illustrative: `npm run test:dashboard -- 'frontend-tests/control-reachability-observation.spec.ts'`.
+Illustrative: `npm run test:dashboard:frontend -- 'frontend-tests/control-reachability-observation.spec.ts'`.
 
 Behavior: A developer reads a control-reachability case → sees the direct
 operation and its independent geometry expectation → repeated surrounding
@@ -83,7 +83,8 @@ retain native dispatch calls, frame observations, reading predicate, exact
 movement and cleanup. Inspect runtime observation-measurements callers and
 retain direct browser-turn/trace/metadata/drain evidence that serves the
 contract. Illustrative:
-`npm run test:dashboard -- 'frontend-tests/touch-reading-observation.spec.ts' 'backend-tests/runtime/observation-measurements.spec.ts'`.
+`npm run test:dashboard:frontend -- 'frontend-tests/touch-reading-observation.spec.ts'` and
+`npm run test:dashboard:backend -- 'backend-tests/runtime/observation-measurements.spec.ts'`.
 
 Behavior: A developer reads a touch-observation case → follows the direct
 utility call and independent frame/event evidence → setup ownership improves

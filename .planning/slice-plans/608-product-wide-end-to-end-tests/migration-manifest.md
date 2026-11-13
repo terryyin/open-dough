@@ -10,12 +10,13 @@ and registering module goes. Later slices reconcile against it.
 | --- | --- |
 | `migration-manifest.jsonl` | One JSON record per line: one `inputs` record, then one `spec` record per selected spec and one `case` record per declared case, at the base revision |
 | `migration-moves.json` | Old path → `{ to, slice }` for every moved spec and registering module (paths relative to `dashboard/`) |
-| `migration-case-moves.json` | `{ spec, source?, title, to, toSource?, slice }` for each case that left a spec that stayed: its new spec, and its new source when that is a moved module |
+| `migration-case-moves.json` | `{ spec, source?, title, to, toSource?, toTitle?, slice }` for each case that left a spec that stayed: its new spec, and its new source when that is a moved module; `toTitle` for a case a slice renamed in place |
 | `migration-classification.json` | Integrated spec → proof-purpose class and note, for each spec left in `tests/` for a later conversion |
 | `migration-purpose.json` | Slice 3's reading of all 566 integrated specs: class (`e2e`, `frontend`, `split`, `backend`), purpose, real integrations, simulated boundaries, conversion effort, per-case split, redundancy candidates and destination |
 | `migration-conversion-batches.json` | The 264 specs left in `tests/`, grouped into proposed conversion batches by the controlled answers each batch needs, with class, effort and per-case split |
 | `migration-added.json` | New proof cases a slice wrote (not migrated), with what each proves |
 | `migration-reconciliation-slice-<n>.json` | Slice n's native lists checked against the manifest |
+| `migration-duration-rows.json` | Slice 4: every row of the former `dashboard/longest-first` parts, its seconds and the group list and label it moved to (`to: null` when its spec no longer exists) |
 | `migration-manifest.mjs`, `migration-reconcile.mjs` | The generator and the reconciler; `migration-cases.mjs` holds what they share, including each record's destination |
 
 ## Records
@@ -87,7 +88,24 @@ node .planning/slice-plans/608-product-wide-end-to-end-tests/migration-reconcile
 
 It exits 1 unless every base case is selected exactly once at its destination,
 no case appears beyond those and the listed new proof cases, and each focused
-runner selects exactly the umbrella's cases under its root. Slice 1 ran the
+runner selects exactly the umbrella's cases under its root. From slice 4,
+with the umbrella retired, the four groups' own lists are the selection and
+every selected spec must fall in exactly one CI shard of its own group:
+
+```sh
+npm run test:e2e -- --list --reporter=json > e2e-list.json
+npm run test:dashboard:integrated -- --list --reporter=json > integrated-list.json
+npm run test:dashboard:frontend -- --list --reporter=json > frontend-list.json
+npm run test:dashboard:backend -- --list --reporter=json > backend-list.json
+node .planning/slice-plans/608-product-wide-end-to-end-tests/migration-reconcile.mjs \
+  --manifest .planning/slice-plans/608-product-wide-end-to-end-tests/migration-manifest.jsonl \
+  --moves .planning/slice-plans/608-product-wide-end-to-end-tests/migration-moves.json \
+  --case-moves .planning/slice-plans/608-product-wide-end-to-end-tests/migration-case-moves.json \
+  --integrated integrated-list.json --frontend frontend-list.json \
+  --backend backend-list.json --e2e e2e-list.json \
+  --added .planning/slice-plans/608-product-wide-end-to-end-tests/migration-added.json \
+  --after-out .planning/slice-plans/608-product-wide-end-to-end-tests/migration-reconciliation-slice-4.json
+``` Slice 1 ran the
 same check from `migration-manifest.mjs` before the reconciler had its own
 file.
 
@@ -103,6 +121,8 @@ file.
 | After slice 3, umbrella | 1,032: 264 `tests` / 52 / 415 / 301 `e2e` | 2,731: 611 / 153 / 1,407 / 560 (all 2,717 base cases once, plus 14 new proof cases) |
 | After slice 3, `test:e2e` | 301 | 560: `chromium-deployments` for the three production chains, `chromium` for the rest |
 | After slice 3, `test:dashboard:backend` / `:frontend` | 415 / 52 | 1,407 / 153 |
+| After slice 4, the four groups (no umbrella) | 1,033: 264 / 52 / 415 / 302 | 2,735: 611 / 153 / 1,411 / 560 (all 2,717 base cases once, plus 18 new proof cases) |
+| After slice 4, `test:e2e` / `:integrated` / `:frontend` / `:backend` | 302 / 264 / 52 / 415 | 560 (`chromium-deployments` + `chromium`) / 611 / 153 / 1,411, each one `chromium` project otherwise |
 
 Slice 1 moved 25 mounted-comparison presentation specs (98 cases) and the five
 `mountedComparison*Cases.ts` registering modules to `frontend-tests/intent/`;
@@ -136,3 +156,27 @@ totals are unchanged, while bytewise tie order moved 499 specs to another
 shard. The 204 detailed UI specs, the 59 mixed specs and the boundary spec
 remain in `tests/` for conversion with controlled answers
 (`migration-classification.json`).
+
+Slice 4 retired the umbrella (`test:dashboard`, `dashboard/playwright.config.ts`)
+and ran each group under its own configuration and CI producer, the interim
+**Dashboard Integrated UI Test** (`npm run test:dashboard:integrated`) owning
+the 264 specs left in `tests/`. Each group deals its specs by its own duration
+list: the 960 rows of the former `dashboard/longest-first` parts went, seconds
+unchanged, to `e2e/longest-first` (292, relabelled from `../e2e/<path>` to
+`<path>`), `dashboard/integrated.longest-first` (255),
+`dashboard/frontend.longest-first` (38) and `dashboard/backend.longest-first`
+(374) (`migration-duration-rows.json`). Three rows still named the integrated
+paths of `intent-scope-timing-history-{segments,units,reading}`, moved to
+`frontend-tests/` before this story, and now time those specs; one row timed
+`tests/sessions/agent-completion-recovery.spec.ts`, deleted on 2026-11-11
+(8e93b1d24) before this story, and has no spec to time. The lifecycle case of
+`backend-tests/observation/run-processes.spec.ts` that swept the umbrella's
+setup now sweeps the integrated group's and is renamed
+(`migration-case-moves.json`, `toTitle`); `runner-ownership.spec.ts` adds
+the integrated runner's two invocation cases and drops the umbrella from its
+concurrent-run case, and `ci-time-without-runner-waits.spec.ts` adds two
+cases for reading reusable-workflow caller jobs and this repository's own
+workflow (`migration-added.json`). CI shard counts (6 / 5 / 1 / 4)
+were sized from each group's membership and the per-spec seconds of the last
+thirteen-shard run (43374366861); `migration-reconciliation-slice-4.json`
+records each group's shard membership.

@@ -10,6 +10,7 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import { existsSync, unlinkSync, writeFileSync } from "node:fs";
 import http from "node:http";
 import path from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import {
   everyRepository,
   type FakeGitHub,
@@ -20,7 +21,6 @@ import {
   openEventStream,
 } from "../../tests/support/rawHttp.ts";
 import { sharedReadsPublished } from "../../tests/support/sharedReads.ts";
-import { waitUntil } from "../../tests/support/waitUntil.ts";
 import { revisionA } from "./revisionCheckBoundary.ts";
 
 const knownSourceId = "open-dough";
@@ -44,11 +44,10 @@ function streamUrl(origin: string, query: string): string {
   return `${origin}/__authenticated-read?source=${knownSourceId}${query}`;
 }
 
+// The held `gh auth` marks its arrival once its process runs, however long a
+// loaded machine takes to start it: the case's own budget bounds this wait.
 async function waitAuthReached(holdPath: string): Promise<void> {
-  const reached = await waitUntil(() => existsSync(`${holdPath}.reached`), {
-    timeoutMs: 5_000,
-  });
-  expect(reached).toBe(true);
+  while (!existsSync(`${holdPath}.reached`)) await delay(20);
 }
 
 function releaseAuth(holdPath: string): void {

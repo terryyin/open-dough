@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # scripts/ci-container.sh stops, naming the missing runtime, when no `docker`
 # is on PATH or its daemon cannot be reached, and refuses by name a directory
-# or path outside the checkout, each before any image work. Its Ubuntu and
-# Node versions and dashboard checks agree with .github/workflows/ci.yml;
-# its bare image bootstraps system libraries that native CI already has,
-# supplies the hosted font inventory, and keeps cache and run isolation.
+# or path outside the checkout, each before any image work. Its bare image
+# bootstraps system libraries that native CI already has, supplies the hosted
+# font inventory, and keeps cache and run isolation. Its stated versions and
+# checks agree with CI: tests/ci-container-workflow.sh.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -14,7 +14,6 @@ source "${source_dir}/tests/helpers/expect-in-log.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 script="${source_dir}/scripts/ci-container.sh"
-workflow="${source_dir}/.github/workflows/ci.yml"
 
 # An empty PATH directory: CI's runner keeps docker beside bash in /usr/bin,
 # so dropping one directory from the real PATH would not hide it.
@@ -89,73 +88,6 @@ expect_in_log "${temporary_dir}/relative.log" -F -- 'path ../../outside.sh is ou
 expect_refusal "${temporary_dir}/caller.log" "${temporary_dir}" up
 expect_in_log "${temporary_dir}/caller.log" -F -- \
   "the current directory ${outside_dir} is outside this checkout"
-
-# Prints the value the script states once for NAME, without its quotes and
-# across every line a quoted value spans.
-stated() {
-  awk -v prefix="readonly $1=" -v q="'" '
-    !found && index($0, prefix) == 1 {
-      found = 1
-      $0 = substr($0, length(prefix) + 1)
-      quoted = sub("^" q, "")
-    }
-    found && (!quoted || sub(q "$", "")) { print; exit }
-    found { print }
-  ' "${script}"
-}
-ubuntu_version=$(stated ubuntu_version)
-node_version=$(cat -- "${source_dir}/.node-version")
-if [[ -z ${ubuntu_version} || -z ${node_version} ]]; then
-  echo 'FAIL: scripts/ci-container.sh does not state its Ubuntu and Node versions.' >&2
-  exit 1
-fi
-
-# The diagnostic image uses the exact shared selection, not latest-v24.x.
-# shellcheck disable=SC2016 # Literal source contract.
-expect_in_log "${script}" -Fx -- 'node_version=$(cat -- "${source_dir}/.node-version")'
-# shellcheck disable=SC2016 # Literal source contract.
-expect_in_log "${script}" -F -- 'base=https://nodejs.org/dist/v${node_version}'
-
-# Every job's runner and every Node setup in the workflow must agree.
-sed -n 's/^[[:space:]]*runs-on:[[:space:]]*//p' "${workflow}" > "${temporary_dir}/runners"
-sed -n 's/^[[:space:]]*run: bash scripts\/setup-ci-node\.sh[[:space:]]*//p' "${workflow}" > "${temporary_dir}/nodes"
-expect_in_log "${temporary_dir}/runners" -Fx -- "ubuntu-${ubuntu_version}"
-expect_in_log "${temporary_dir}/nodes" -Fx -- ".node-version"
-if grep -vFx -- "ubuntu-${ubuntu_version}" "${temporary_dir}/runners" \
-  || grep -vFx -- ".node-version" "${temporary_dir}/nodes"; then
-  printf 'FAIL: ci.yml runs on a version other than ubuntu-%s and Node %s (above).\n' \
-    "${ubuntu_version}" "${node_version}" >&2
-  exit 1
-fi
-
-# The diagnostic image bootstraps system libraries on bare Ubuntu; native CI
-# uses the runner's libraries and the locked local Playwright package. The
-# diagnostic runs the workflow's type-check and browser suite together. In CI
-# the type-check belongs to lint so it cannot spend a shard's browser deadline.
-# Keep the bootstrap explicit rather than removing --with-deps from the image.
-dashboard_install=$(stated dashboard_install)
-if [[ ${dashboard_install} != 'npx playwright install --with-deps chromium' ]]; then
-  echo 'FAIL: scripts/ci-container.sh must bootstrap Chromium system dependencies.' >&2
-  exit 1
-fi
-stated dashboard_steps | sed '1a\
-node scripts/setup-native.mjs browser
-' > "${temporary_dir}/stated-dashboard"
-if ! awk '
-  /^  [^ #]/ { job = $1; installed = 0; next }
-  /^[[:space:]]*(- )?run:/ {
-    sub(/^[[:space:]]*(- )?run:[[:space:]]*/, "")
-    if ($0 == "node scripts/setup-native.mjs npm") installed = 1
-    else if ($0 == "npm run typecheck:dashboard") {
-      if (job != "lint:" || !installed) exit 1
-      print
-    } else if (job == "dashboard:" && installed && $0 !~ /^\|$/) print
-  }
-' "${workflow}" > "${temporary_dir}/ci-dashboard" \
-  || ! diff -- "${temporary_dir}/stated-dashboard" "${temporary_dir}/ci-dashboard" >&2; then
-  echo 'FAIL: the workflow must type-check after npm ci in lint and install Chromium before the browser suite in each shard.' >&2
-  exit 1
-fi
 
 # Observe the Dockerfile actually sent to `docker build`, rather than a font
 # declaration that the recipe could stop consuming. Fake runtime captures and

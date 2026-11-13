@@ -33,7 +33,7 @@ import { appendFileSync, existsSync, writeFileSync } from "node:fs";
 const note = (text) => appendFileSync(${JSON.stringify(events)}, text + "\\n");
 `;
   // The first ordinary job gates both workers, so it must precede the later
-  // job in the discovered paths, across the browser and backend roots.
+  // job in the discovered paths of a root holding folders, as E2E Test's does.
   writeFileSync(
     path.join(directory, "backend-tests/a-ordinary.spec.ts"),
     `${preamble}
@@ -101,7 +101,11 @@ export default () => appendFileSync(${JSON.stringify(events)}, "global:setup\\n"
 import { dashboardTestProjects } from ${JSON.stringify(projectModule)};
 export default {
   ...${JSON.stringify(options)},
-  projects: dashboardTestProjects(new URL(${JSON.stringify(pathToFileURL(`${directory}/`).href)})),
+  projects: dashboardTestProjects(
+    new URL(${JSON.stringify(pathToFileURL(`${directory}/`).href)}),
+    undefined,
+    { roots: ["."], splitVariable: "UNSET_SPLIT", durations: "longest-first" },
+  ),
 };
 `,
   );

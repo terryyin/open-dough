@@ -1,13 +1,14 @@
 // Each runner owning one group owns its selection, settings and output:
+// Dashboard Integrated UI Test (../../integrated.playwright.config.ts),
 // Dashboard Frontend Test (../../frontend.playwright.config.ts), Dashboard
 // Backend Test (../../backend.playwright.config.ts) and E2E Test
-// (../../../e2e/playwright.config.ts), started through npm or
-// as a direct config from another working directory, record only their own
-// selection through their own proof variable into their own run directory,
-// whichever umbrella share or other runner's record the caller's environment
-// also names; runs started beside each other and the umbrella
-// (../../playwright.config.ts) keep their own run directories and records.
-// A runner's setup registers only the artifacts its own specs request.
+// (../../../e2e/playwright.config.ts), started through npm or as a direct
+// config from another working directory, record only their own selection
+// through their own proof variable into their own run directory, whichever
+// other runner's share, record, times or deadline the caller's environment
+// also names; runs started beside each other keep their own run directories
+// and records. A runner's setup registers only the artifacts its own specs
+// request.
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { existsSync, realpathSync } from "node:fs";
 import path from "node:path";
@@ -18,20 +19,34 @@ import {
   removeProofDirectories,
   startProofCommand,
   startProofRun,
-  umbrellaSplitExcluding,
+  splitExcluding,
 } from "../../tests/support/proofRecordRun.ts";
 
 test.afterAll(removeProofDirectories);
 
 // Each runner owning one group, with one quick case of its own as its
-// arguments; `config` and `root` are relative to the repository.
+// arguments; `config`, `directory` (the config's testDir) and `root` are
+// relative to the repository, `durations` to `directory`.
 const runners = [
+  {
+    name: "Dashboard Integrated UI Test",
+    script: "test:dashboard:integrated",
+    config: "dashboard/integrated.playwright.config.ts",
+    prefix: "OPEN_DOUGH_DASHBOARD_INTEGRATED",
+    directory: "dashboard",
+    root: "dashboard/tests",
+    durations: "integrated.longest-first",
+    spec: "configuration/project-add-refusal.spec.ts",
+    grep: "origin mismatch stays linked to the path",
+  },
   {
     name: "Dashboard Frontend Test",
     script: "test:dashboard:frontend",
     config: "dashboard/frontend.playwright.config.ts",
     prefix: "OPEN_DOUGH_DASHBOARD_FRONTEND",
+    directory: "dashboard",
     root: "dashboard/frontend-tests",
+    durations: "frontend.longest-first",
     spec: "control-reachability-observation.spec.ts",
     grep: "a control revealed by earlier scrolling is still checked",
   },
@@ -40,7 +55,9 @@ const runners = [
     script: "test:dashboard:backend",
     config: "dashboard/backend.playwright.config.ts",
     prefix: "OPEN_DOUGH_DASHBOARD_BACKEND",
+    directory: "dashboard",
     root: "dashboard/backend-tests",
+    durations: "backend.longest-first",
     spec: "launches/agent-launch-options-rules.spec.ts",
     grep: "the shipped definition is valid",
   },
@@ -49,13 +66,15 @@ const runners = [
     script: "test:e2e",
     config: "e2e/playwright.config.ts",
     prefix: "OPEN_DOUGH_E2E",
+    directory: "e2e",
     root: "e2e",
+    durations: "longest-first",
     spec: "runtime/browser-identity.spec.ts",
     grep: "tab, bookmark and touch icons",
   },
 ] as const;
 type Runner = (typeof runners)[number];
-const [frontend, backend, e2e] = runners;
+const [integrated, frontend, backend, e2e] = runners;
 
 const selection = (runner: Pick<Runner, "spec" | "grep">) => [
   runner.spec,
@@ -81,28 +100,38 @@ for (const runner of runners)
         ? [cli, "test", "--config", configFile, ...selection(runner)]
         : ["run", "--silent", runner.script, "--", ...selection(runner)];
       const cwd = direct ? directory : repoRoot;
-      // An umbrella share that excludes the target, and every other runner's
-      // record.
-      const others = [
-        "OPEN_DOUGH_DASHBOARD",
-        ...runners.map(({ prefix }) => prefix),
-      ].filter((prefix) => prefix !== runner.prefix);
-      const otherRecords = others.map((prefix) =>
+      // Every other runner's settings as its CI shard sets them: a share
+      // that would exclude the target from this runner's own deal, a record,
+      // a times file, and a deadline already passed. Reading any of them
+      // would deselect the target, write elsewhere or fail the run.
+      const others = runners
+        .map(({ prefix }) => prefix)
+        .filter((prefix) => prefix !== runner.prefix);
+      const otherOutputs = others.flatMap((prefix) => [
         path.join(directory, `${prefix}.json`),
-      );
+        path.join(directory, `${prefix}-times.txt`),
+      ]);
+      const excluding = splitExcluding(target, {
+        ...runner,
+        root: path.relative(runner.directory, runner.root) || ".",
+      });
       const run = startProofCommand(
         direct ? process.execPath : "npm",
         args,
         cwd,
         {
           ...Object.fromEntries(
-            others.map((prefix, index) => [
-              `${prefix}_PROOF_RECORD`,
-              otherRecords[index] ?? "",
+            others.flatMap((prefix) => [
+              [`${prefix}_SPLIT`, excluding],
+              [
+                `${prefix}_PROOF_RECORD`,
+                path.join(directory, `${prefix}.json`),
+              ],
+              [`${prefix}_TIMES`, path.join(directory, `${prefix}-times.txt`)],
+              [`${prefix}_DEADLINE_MS`, "1"],
             ]),
           ),
           [`${runner.prefix}_PROOF_RECORD`]: recordPath,
-          OPEN_DOUGH_DASHBOARD_SPLIT: umbrellaSplitExcluding(target),
         },
       );
       expect(await run.result).toMatchObject({
@@ -110,7 +139,7 @@ for (const runner of runners)
         stdout: "",
         stderr: "",
       });
-      expect(otherRecords.filter((record) => existsSync(record))).toEqual([]);
+      expect(otherOutputs.filter((output) => existsSync(output))).toEqual([]);
       const record = readProof(recordPath);
       expect(record).toMatchObject({
         phase: "completed",
@@ -132,30 +161,32 @@ for (const runner of runners)
       expect(record.run.outputDirs.every((dir) => !existsSync(dir))).toBe(true);
     });
 
-test("group runs started beside each other and the umbrella keep their own run directories and records", async () => {
+test("group runs started beside each other keep their own run directories and records", async () => {
   const directory = proofDirectory();
-  const umbrella = {
-    ...frontend,
-    config: "dashboard/playwright.config.ts",
-    prefix: "OPEN_DOUGH_DASHBOARD",
-  };
-  const runs = [frontend, frontend, backend, backend, e2e, e2e, umbrella].map(
-    ({ config, prefix, ...runner }, index) => {
-      const record = path.join(directory, `${String(index)}.json`);
-      const args = [
-        cli,
-        "test",
-        "--config",
-        configOf(config),
-        ...selection(runner),
-      ];
-      const env = { [`${prefix}_PROOF_RECORD`]: record };
-      return {
-        record,
-        run: startProofCommand(process.execPath, args, repoRoot, env),
-      };
-    },
-  );
+  const runs = [
+    integrated,
+    integrated,
+    frontend,
+    frontend,
+    backend,
+    backend,
+    e2e,
+    e2e,
+  ].map(({ config, prefix, ...runner }, index) => {
+    const record = path.join(directory, `${String(index)}.json`);
+    const args = [
+      cli,
+      "test",
+      "--config",
+      configOf(config),
+      ...selection(runner),
+    ];
+    const env = { [`${prefix}_PROOF_RECORD`]: record };
+    return {
+      record,
+      run: startProofCommand(process.execPath, args, repoRoot, env),
+    };
+  });
   const outputs: string[] = [];
   for (const { record, run } of runs) {
     expect(await run.result).toMatchObject({
@@ -168,22 +199,23 @@ test("group runs started beside each other and the umbrella keep their own run d
       selectedCount: 1,
       terminal: { strictStatus: "passed" },
     });
-    // The umbrella's two projects share their run's one directory.
+    // E2E Test's two projects share their run's one directory.
     outputs.push(...new Set(proof.run.outputDirs));
   }
   const root = path.join(repoRoot, "dashboard");
   expect(
     outputs.map((output) => path.relative(root, path.dirname(output))),
   ).toEqual([
+    "tests/test-results",
+    "tests/test-results",
     "frontend-tests/test-results",
     "frontend-tests/test-results",
     "backend-tests/test-results",
     "backend-tests/test-results",
     "../e2e/test-results",
     "../e2e/test-results",
-    "test-results",
   ]);
-  expect(new Set(outputs).size).toBe(7);
+  expect(new Set(outputs).size).toBe(8);
   expect(outputs.every((output) => !existsSync(output))).toBe(true);
 });
 

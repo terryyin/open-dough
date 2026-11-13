@@ -20,9 +20,9 @@ const framework = pathToFileURL(
 
 // The runner tooling a controlled suite runs, copied from this repository:
 // what `copy_runner` copies, the budget and reporter helpers, the dashboard
-// suite selection and run preparation, and the umbrella, Dashboard Frontend
-// Test, Dashboard Backend Test and E2E Test Playwright configurations
-// importing this repository's framework. Read once per process.
+// suite selection and run preparation, and the Dashboard Integrated UI Test,
+// Dashboard Frontend Test, Dashboard Backend Test and E2E Test Playwright
+// configurations importing this repository's framework. Read once per process.
 let runnerLayer;
 export function suiteRunnerLayer() {
   if (runnerLayer) return runnerLayer;
@@ -66,8 +66,8 @@ export function suiteRunnerLayer() {
       files: {
         ...runner.files,
         ...helpers.files,
-        "dashboard/playwright.config.mts": withFramework(
-          "dashboard/playwright.config.ts",
+        "dashboard/integrated.playwright.config.mts": withFramework(
+          "dashboard/integrated.playwright.config.ts",
         ),
         "dashboard/frontend.playwright.config.mts": withFramework(
           "dashboard/frontend.playwright.config.ts",
@@ -114,13 +114,9 @@ exit "\${PROBE_EXIT:-0}"
         ...files,
         "nested/pass.sh":
           '#!/usr/bin/env bash\nmkdir -p "$OBSERVE"\ntouch "$OBSERVE/start"\n',
-        "dashboard/controlled.config.mts": `
-import config from './playwright.config.mts';
-export default { ...config, projects: [{name:'controlled'}], testMatch: /probe[.]spec[.]mts$/,
-  timeout: 120_000, reporter: 'line', use: {}, globalSetup: './controlled-setup.mjs' };
-`,
         ...Object.fromEntries(
           [
+            ["integrated", "./integrated.playwright.config.mts"],
             ["frontend", "./frontend.playwright.config.mts"],
             ["backend", "./backend.playwright.config.mts"],
             ["e2e", "../e2e/playwright.config.mts"],

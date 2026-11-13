@@ -1,22 +1,17 @@
-// The umbrella run's setup (../../playwright.config.ts). Workers request the
-// app build, server bundle, an installed origin layout, the comparison mount
-// or the story-columns history when they need it. Each completed artifact is
-// shared read-only across the run. The run removes its own directories.
-//
-// The run's fixture executables, GitHub request root and Git are prepared as
-// for any run whose workers start servers and hosts (./serviceRunSetup.ts).
-//
-// No process a run starts outlives it. The run's identity is set here, before
-// any worker starts, so every process of the run carries it, and the teardown
-// runs after every worker has exited: whatever of the run is still running
-// then is ended and named, and the run fails (./runLifecycle.ts,
-// ./runProcesses.ts).
+// The Dashboard Integrated UI Test run's setup
+// (../../integrated.playwright.config.ts). Its detailed UI checks start
+// dashboard servers, real Git origins and synthetic hosts, prepared as for any
+// such run (./serviceRunSetup.ts), and may request what those serve from: the
+// app build, the server bundle, the installed start origins, the published
+// main sources and the story-columns history. It builds no comparison mount,
+// which only Dashboard Frontend Test renders; a spec requesting an artifact
+// this run does not register fails naming it (./runArtifacts.ts). Its run
+// identity and teardown are the shared run lifecycle's (./runLifecycle.ts).
 
 import {
   storyColumnsPrefixArtifact,
   storyColumnsPrefixArtifactKey,
 } from "../launchJourney.ts";
-import { comparisonMountArtifact } from "./comparisonMountArtifact.ts";
 import { dashboardAppArtifact } from "./dashboardBuild.ts";
 import { publishedMainSourceArtifact } from "./publishedMainSource.ts";
 import { requestRunArtifact } from "./runArtifacts.ts";
@@ -24,13 +19,14 @@ import { serverBundleArtifact } from "./serverBundle.ts";
 import { ownServiceRun } from "./serviceRunSetup.ts";
 import { startOriginArtifacts } from "./startOriginPreparation.ts";
 
-export default async function globalSetup(): Promise<() => Promise<void>> {
+export default async function integratedGlobalSetup(): Promise<
+  () => Promise<void>
+> {
   const teardown = await ownServiceRun(
     new Map([
       dashboardAppArtifact(),
       serverBundleArtifact(),
       ...startOriginArtifacts(),
-      comparisonMountArtifact(),
       publishedMainSourceArtifact(),
       publishedMainSourceArtifact(undefined, "application"),
       storyColumnsPrefixArtifact(),

@@ -90,9 +90,10 @@ run_view() {
     shift 2
   done
   for job in lint 'test (1/3)' 'test (2/3)' 'test (3/3)' \
-    'dashboard (1/9)' 'dashboard (2/9)' 'dashboard (3/9)' 'dashboard (4/9)' \
-    'dashboard (5/9)' 'dashboard (6/9)' 'dashboard (7/9)' 'dashboard (8/9)' \
-    'dashboard (9/9)'; do
+    'e2e / shard 1/3' 'e2e / shard 2/3' 'e2e / shard 3/3' \
+    'dashboard-integrated / shard 1/3' 'dashboard-integrated / shard 2/3' \
+    'dashboard-integrated / shard 3/3' 'dashboard-frontend / shard 1/1' \
+    'dashboard-backend / shard 1/2' 'dashboard-backend / shard 2/2'; do
     printf '%s\t%s\n' "${job}" "${failed[${job}]:-success}" >> "${dir}/view"
   done
 }

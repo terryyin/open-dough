@@ -24,6 +24,7 @@
       },
       {
         "path": "dashboard/tests",
+        "label": "Dashboard Integrated UI Test",
         "kind": "typescript",
         "include": ["**/*.spec.ts"],
         "makeMe": true,
