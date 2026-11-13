@@ -4,21 +4,23 @@
 // gaps from this machine's collected history, which asks CI nothing
 // (`./landedCiHistory.ts`), each point with its CI wall time. A Done scope
 // names its published endpoint/date and path at that same boundary, reading
-// collected test execution time.
+// collected test execution time. The Done and scope views ask for the glance
+// answer (`./ciHistoryGlanceCapability.ts`); CI status keeps the full one.
 
 import {
-  ciDoneWallTimeHistorySchema,
+  doneWallTimeGlanceSchema,
   type DoneWallTimeHistory,
 } from "./ciDoneWallTimeHistory.ts";
+import { historyGlance } from "./ciHistoryGlanceCapability.ts";
 import { authenticatedGet, unexpectedAnswer } from "./authenticatedGet.ts";
 import {
   readingCiHistoryOf,
   readingCiScopeHistoryOf,
 } from "./authenticatedReadRules.ts";
 import {
-  ciScopeHistorySchema,
-  type CiScopeHistory,
+  scopeHistoryGlanceSchema,
   type ScopeHistoryEndpoint,
+  type ScopeHistoryGlance,
 } from "./ciScopeHistory.ts";
 import {
   landedCiHistorySchema,
@@ -49,7 +51,7 @@ export async function readIntentCiScopeHistory(
   path: string,
   endpoint: ScopeHistoryEndpoint,
   signal: AbortSignal,
-): Promise<CiScopeHistory> {
+): Promise<ScopeHistoryGlance> {
   const reading = readingCiScopeHistoryOf(
     source.repository,
     path,
@@ -61,8 +63,9 @@ export async function readIntentCiScopeHistory(
     scope: path,
     revision: endpoint.revision,
     through: endpoint.at,
+    [historyGlance.name]: historyGlance.value,
   });
-  const parsed = ciScopeHistorySchema.safeParse(
+  const parsed = scopeHistoryGlanceSchema.safeParse(
     await authenticatedGet(query.toString(), reading, signal, { local: true }),
   );
   if (
@@ -90,21 +93,20 @@ export async function readIntentCiDoneWallTimeHistory(
     "gap-reasons": "timing-basis",
     revision: endpoint.revision,
     through: endpoint.at,
+    [historyGlance.name]: historyGlance.value,
   });
-  const parsed = ciDoneWallTimeHistorySchema.safeParse(
+  const parsed = doneWallTimeGlanceSchema.safeParse(
     await authenticatedGet(query.toString(), reading, signal, { local: true }),
   );
-  const measured = parsed.success ? measuredHistoryOf(parsed.data) : undefined;
+  const measured = parsed.success
+    ? measuredHistoryOf({ entries: parsed.data.entries })
+    : undefined;
   if (
     !parsed.success ||
     measured === undefined ||
     parsed.data.selectedRevision !== endpoint.revision ||
-    parsed.data.reference?.endpoint !== endpoint.revision
+    parsed.data.reference.endpoint !== endpoint.revision
   )
     throw unexpectedAnswer(reading);
-  return {
-    ...measured,
-    selectedRevision: parsed.data.selectedRevision,
-    availability: parsed.data.availability,
-  };
+  return { ...parsed.data, entries: measured.entries };
 }

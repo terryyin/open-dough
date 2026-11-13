@@ -1,36 +1,63 @@
 // Collected wall time through the exact represented Done publication, separate
-// from the measured attempt and the project's latest represented endpoint.
+// from the measured attempt and the project's latest represented endpoint, as
+// its glance read answers it (`../server/ciHistoryGlance.ts`): only the
+// observations verified through the endpoint, in the project history's entry
+// shape without run links, and the reference's compact figures.
 import { z } from "zod";
+import { priorBuildFiguresSchema } from "./ciPriorBuildReference.ts";
 import { ciScopeHistorySchema } from "./ciScopeHistory.ts";
 import {
   landedCiHistorySchema,
-  type MeasuredHistory,
+  type MeasuredEntry,
 } from "./landedCiHistory.ts";
 import { commitIdSchema } from "./launchLanding.ts";
 
-export const ciDoneWallTimeHistorySchema = landedCiHistorySchema.extend({
+export const doneWallTimeGlanceSchema = z.object({
   selectedRevision: commitIdSchema,
   availability: ciScopeHistorySchema.shape.availability,
+  entries: landedCiHistorySchema.shape.entries,
+  reference: priorBuildFiguresSchema,
 });
-export type DoneWallTimeHistory = MeasuredHistory &
-  Pick<
-    z.infer<typeof ciDoneWallTimeHistorySchema>,
-    "selectedRevision" | "availability"
-  >;
+export type DoneWallTimeGlance = z.infer<typeof doneWallTimeGlanceSchema>;
+export type DoneWallTimeHistory = Omit<DoneWallTimeGlance, "entries"> & {
+  readonly entries: readonly MeasuredEntry[];
+};
 
+// The brief status of the retained history at the Done endpoint, when it is
+// not simply retained there.
 export function doneWallTimeAvailabilityWords(
   availability: DoneWallTimeHistory["availability"],
 ) {
   switch (availability) {
     case "empty":
-      return "No dashboard-recorded landing history has been collected.";
+      return "No collected history";
     case "outside-retention":
-      return "The selected landing is outside the retained history. Its historical comparison is unavailable.";
+      return "Outside retained history";
     case "uncollected":
-      return "The selected landing has no matching collected observation; independently verified earlier retained evidence is shown.";
+      return "Selected landing not collected";
     case "order-unavailable":
-      return "Some retained landing positions could not be verified from local Git evidence. Only independently verified preceding builds can supply the reference.";
+      return "Landing order unverified";
     case "retained":
       return undefined;
   }
+}
+
+// How another trunk build stands for the Done endpoint when it supplies the
+// selected measurement: a reused equivalent or a later build.
+export function doneStandInOf(
+  history: DoneWallTimeHistory,
+  endpoint: string,
+): "equivalent" | "later" | undefined {
+  for (const entry of history.entries) {
+    const provenance =
+      entry.kind === "point"
+        ? entry.landings.find((landing) => landing.revision === endpoint)
+            ?.provenance
+        : entry.revision === endpoint && entry.reason !== "pending"
+          ? entry.build?.provenance
+          : undefined;
+    if (provenance === "equivalent" || provenance === "later")
+      return provenance;
+  }
+  return undefined;
 }

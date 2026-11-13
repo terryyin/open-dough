@@ -30,7 +30,7 @@ import { ciReusePolicyMakeMeProperties } from "./ciReusePolicyTestData.mjs";
 import { ciComparisonAnswerMakeMeProperties } from "./ciComparisonAnswerTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 
-/** @typedef {import("../../dashboard/src/ciScopeHistory.ts").CiScopeHistory} CiScopeHistory */
+/** @typedef {import("../../dashboard/src/ciScopeHistory.ts").ScopeHistoryGlance} ScopeHistoryGlance */
 /** @typedef {import("../../dashboard/src/storyCiComparisonEntries.ts").ComparisonEndpointProof} ComparisonEndpointProof */
 /**
  * @template {object} Facts
@@ -46,7 +46,7 @@ import { copyFacts } from "./factBuilder.mjs";
  * @property {import("./ciProofTestData.mjs").CiProofBuilder} aCiProof
  * @property {FactBuilder<ComparisonEndpointProof>} aComparisonEndpointProof
  * @property {import("./landedCiProofTestData.mjs").LandedCiResolutionBuilder} aLandedCiResolution
- * @property {FactBuilder<CiScopeHistory>} aCiScopeHistory
+ * @property {FactBuilder<ScopeHistoryGlance>} aScopeHistoryGlance
  * @property {import("./comparisonViewTestData.mjs").PublishedWorkBuilder} aPublishedWork
  * @property {import("./comparisonViewTestData.mjs").StoryCiComparisonBuilder} aStoryCiComparison
  * @property {import("./ciComparisonTestData.mjs").PublishedStoryEndpointBuilder} aPublishedStoryEndpoint
@@ -114,9 +114,9 @@ export function ciMakeMeProperties() {
         return new LandedCiResolutionBuilder();
       },
     },
-    aCiScopeHistory: {
+    aScopeHistoryGlance: {
       enumerable: true,
-      /** @returns {FactBuilder<CiScopeHistory>} */
+      /** @returns {FactBuilder<ScopeHistoryGlance>} */
       get() {
         return { with: copyFacts };
       },

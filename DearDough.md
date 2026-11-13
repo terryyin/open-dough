@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 512. Removed numbers are never reused.
+- Highest allocated local number: 513. Removed numbers are never reused.
 - Recovery: `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
@@ -22,6 +22,17 @@ Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: 
 Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/findings/ODF-150.md).
 
 [Occurrences retained in the catalog](docs/maintainer/findings/ODF-150.md).
+
+### Occurrences
+
+- Execution: SEED-331#read-ci-history-at-a-glance (spent plan 609 recoverable at before-cleanup `33eb3f8cd99cb7e9131d072bf06576ef01cf3eaa`; first implementation `147fb83afa7f3e6a517862bb286bdb6e314f79cb`)
+  - Timestamp: unknown (2026-11-13, slice 4 published about 16:00+08:00; CI failure reported shortly after)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.98 (checkout-bound installed `VERSION`)
+  - Evidence: slice 4 `56dde3c` added `wallTimeReferenceOf` overloads so an explicit endpoint always returns a reference. Its consumer trace listed `server/ciFollowUpDecision.ts` as run through follow-up specs, and delivery formatting linted only changed files. CI run 43387096022 job `lint` failed `no-unnecessary-condition` at `ciFollowUpDecision.ts:29,32`; repair `45e6965` removed the now-dead guards.
+  - Observed effect: one owned CI failure and repair publication; behavior proof of the consumer passed, its static check did not run.
+  - Inference: a narrowed type reaches untouched callers' lint, which selective formatting skips; running the check-only full lint when a changed signature narrows would have caught it.
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -436,3 +447,18 @@ Three SEED-300 stories (review, Terminal, Board) landed on trunk while this stor
   - Evidence: trunk `67bb91d54` added `sessionEntryAccess.ts` and `2137dfd0d` `terminalScreenPage.ts` while the branch built `openTerminalOf`/`readFinalReportOf` in `dashboardParts.ts`; merging `68bdc4f10` conflicted in 77 files and the Board landing `4f7214879` in 13; `source-freshness.mjs check` returned `unchanged` at every slice; plan 585 recorded shared code as "no blocking story dependency".
   - Observed effect: a developer decision, two added reconciliation slices (7, 8) with a full dashboard run, and three CI repairs for trunk-introduced test races that the merged revision exposed.
   - Inference: when a family is split into concurrently runnable stories over shared test owners, owner allocation at split time or named-sibling coordination in each plan would surface the overlap per slice; record freshness alone does not.
+
+## DD-513 — Acceptance observed a cross-view "same reading" promise through the shared component while the views' words differed
+
+A story promised the same compact reading and marks across Done and scope views. Slice acceptance recorded the promise observed because both views render the shared readout and chart, without comparing the words each view supplies. Possibly related to DD-497 (shared component standing in for an outcome), which concerned a plan premise rather than acceptance.
+
+### Occurrences
+
+- Execution: SEED-331#read-ci-history-at-a-glance (spent plan 609 recoverable at before-cleanup `33eb3f8cd99cb7e9131d072bf06576ef01cf3eaa`; first implementation `147fb83afa7f3e6a517862bb286bdb6e314f79cb`)
+  - Timestamp: unknown (2026-11-13, slice 3 acceptance about 15:00+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.98 (checkout-bound installed `VERSION`)
+  - Evidence: source-review commitment H1.1 was recorded `observed` at slice 3 on "expectScopeReadout uses the compactReadout lines that intent-ci-done-glance.spec.ts asserts". The retrospective's aggregate review found Done marks say "Selected landing" and scope "Selected" (`landedCiHistorySeries.ts:95`, `intentScopeHistoryContext.ts:52`), different average-line labels and pending wording; correction SEED-331#make-ci-glance-wording-and-status-one-rule was queued.
+  - Observed effect: one queued correction story after closure instead of a slice-3 return.
+  - Inference: a promise of identical wording across views needs both views' words compared side by side; a shared component only guarantees the layout.

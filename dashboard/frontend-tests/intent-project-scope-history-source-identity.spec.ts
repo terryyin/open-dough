@@ -51,7 +51,7 @@ for (const changed of ["repository", "ref"] as const) {
     });
     await mountComparison(page, comparisonServer, project);
     const history = scopeHistory(page);
-    const evidence = scopeHistoryReading(history).evidence;
+    const evidence = scopeHistoryReading(history).readout;
     await expect(evidence).toContainText("8.0 s");
     const source = makeMe.aPublishedSource
       .with({

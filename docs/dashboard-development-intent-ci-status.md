@@ -102,16 +102,16 @@ time in whole seconds (`6 min 5 s`), as the
 [CI timing comparison](dashboard-development-intent-ci-comparison.md) words
 a build's. The [Prior-build average](dashboard-development-intent-ci-reference.md)
 compares the latest represented landing with eligible prior retained builds. An image named “CI wall time by build date”, drawn in the page
-without a chart library, places each measured build once at its date and CI
-wall time, higher for a longer time, and joins them in date order, against
-whole-step time words, so a rising, falling or varying line reads at a
-glance; its words keep their size at phone width. Each gap stands at the
-date the dashboard recorded its landing; the line breaks there and draws
-nothing for it, so a failed build has no point and a gap after the last
-point leaves the line ended before it. **Builds and evidence**, a disclosure
-reached by Tab, lists each point and gap in that order, in words. A landing
-is named by its landed revision's short form and, when it landed for a
-story, that story's identity: `a1b2c3d (SEED-9#e)`.
+without a chart library, places each measured build at its date and CI wall
+time, higher for longer, and joins them in date order against whole-step time
+words, so a rising, falling or varying line reads at a glance; its words keep
+their size at phone width. A gap breaks the line and gets no point: at its
+landing's recorded date, below the time axis, it is a red × for a failed build
+or else a hollow mark. Pointing at, focusing or tapping a mark shows its date
+and CI wall time or status under the chart: `Nov 5 · Failed build`,
+`Nov 6 · No timing · Cancelled`. **Builds and evidence**, a disclosure reached
+by Tab, lists each point and gap in that order, in words, naming a landing by
+its landed revision's short form and any story it landed for: `a1b2c3d (SEED-9#e)`.
 
 One build is one point, however many landings it measures. A point gives
 its date, CI wall time, each landing it stands for and how, with the build's
@@ -226,12 +226,12 @@ wait. Later first-parent CI and the existing walk limit remain independent
 ways to settle a no-run gap.
 
 The local authenticated `intent=ci-history` response keeps open tabs readable
-across dashboard updates by defaulting to the prior final-gap vocabulary.
-Newer final reasons appear as `not-recorded` with the existing “CI wall time
-not recorded” wording. Current project and Done wall-time readers request
-`gap-reasons=timing-basis` to show that specific retained-timing reason;
-other new reasons still use the compatible fallback. This projection changes
-neither collected observations nor timing calculations or scoped history.
+across dashboard updates: a newer shape is sent only to a reader that names
+it. By default newer final reasons read `not-recorded` (“CI wall time not
+recorded”); project and Done readers request `gap-reasons=timing-basis` for
+that retained-timing reason. Done and scope readers request `history=glance`,
+the [slim projection](dashboard-development-intent-ci-reference.md#glance-history-read).
+Neither changes collected observations, timing calculations or the cohort.
 
 Each landing is kept by its receipt, with its own reference (revision, when
 it was recorded, its story), and each build once by its run and attempt, in

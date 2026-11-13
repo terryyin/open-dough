@@ -142,8 +142,11 @@ test("the previous reader keeps measured builds and understandable gaps by defau
       expect(
         new URL(request.url, dashboard.origin).searchParams.get("gap-reasons"),
       ).toBe("timing-basis");
+      // The Done glance names each build without its run link.
       expect(current.entries.filter((entry) => entry.kind === "point")).toEqual(
-        previous?.entries.filter((entry) => entry.kind === "point"),
+        previous?.entries
+          .filter((entry) => entry.kind === "point")
+          .map((point) => (selected ? { ...point, runUrl: undefined } : point)),
       );
       const specific = current.entries.find(
         (entry) => entry.kind === "gap" && entry.revision === timingRevision,
@@ -163,7 +166,7 @@ test("the previous reader keeps measured builds and understandable gaps by defau
   expect(github.calls).toHaveLength(before);
 });
 
-test("history capability negotiation refuses unsupported or repeated values and mixed scope reads", async ({
+test("history capability negotiation refuses unsupported or repeated values, mixed scope reads and a glance of the project history", async ({
   dashboard,
 }) => {
   for (const query of [
@@ -171,6 +174,8 @@ test("history capability negotiation refuses unsupported or repeated values and 
     "gap-reasons=",
     "gap-reasons=timing-basis&gap-reasons=timing-basis",
     `scope=tests&revision=${"b".repeat(40)}&through=2026-11-05T10:00:00Z&gap-reasons=timing-basis`,
+    "history=glance",
+    `revision=${"b".repeat(40)}&through=2026-11-05T10:00:00Z&history=full`,
   ]) {
     const response = await rawRequest({
       url: `${dashboard.origin}/__authenticated-read?source=open-dough&intent=ci-history&${query}`,

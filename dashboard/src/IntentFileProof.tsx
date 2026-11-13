@@ -1,7 +1,7 @@
 // CI Proof of a selected test file (`./IntentFileReading.tsx`): Intent's one
 // CI evidence owner (`./IntentCiEvidence.tsx`) with no further acquisition.
-// Project and Done files also read locally collected timing history beside that
-// evidence, independently of usable live Proof. For a
+// Project and Done files first read locally collected timing history above
+// that evidence, independently of usable live Proof. For a
 // judged-run summary, one row of counts and execution time for each unit of
 // results the file shows, such as its test cases and its own test file
 // outcome, with the same gap wording Summaries use (`./ciScopeProof.ts`,
@@ -34,8 +34,8 @@ function FileProofContent(
 export function IntentFileProof(props: Parameters<typeof FileProofContent>[0]) {
   return (
     <>
+      <IntentScopeTimingHistory path={props.path} file />
       <FileProofContent {...props} />
-      <IntentScopeTimingHistory path={props.path} />
     </>
   );
 }

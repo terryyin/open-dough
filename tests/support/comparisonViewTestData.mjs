@@ -2,7 +2,6 @@
 // Prepared canonical answers for the production Intent providers.
 import { copyFacts } from "./factBuilder.mjs";
 
-/** @typedef {import("../../dashboard/src/ciScopeHistory.ts").CiScopeHistory} CiScopeHistory */
 /** @typedef {import("../../dashboard/src/storyCiComparisonEntries.ts").ComparisonEndpointProof} ComparisonEndpointProof */
 /**
  * @template {object} Facts
@@ -13,10 +12,6 @@ import { copyFacts } from "./factBuilder.mjs";
 export const comparisonViewFacts = {
   /** @returns {FactBuilder<ComparisonEndpointProof>} */
   get aComparisonEndpointProof() {
-    return { with: copyFacts };
-  },
-  /** @returns {FactBuilder<CiScopeHistory>} */
-  get aCiScopeHistory() {
     return { with: copyFacts };
   },
   /** @returns {FactBuilder<import("../../dashboard/server/storyPublishedEvidence.ts").ReviewedStory>} */

@@ -19,6 +19,9 @@ export function comparisonReading(panel: Locator) {
     overallWallTime: panel.locator(".intent-ci-comparison-overall-wall"),
     entryEvidence: panel.locator(".intent-ci-comparison-entries"),
     gap: panel.locator(".intent-ci-gap"),
+    endpointTable: panel.getByRole("table", {
+      name: "Baseline, branch and landed CI builds with timing",
+    }),
     entryTable: panel.getByRole("table", {
       name: "CI entry timing comparison",
     }),

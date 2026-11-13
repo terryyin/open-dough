@@ -126,6 +126,7 @@ export function IntentCiFollowUp({
         <summary>Saved builds and reference evidence</summary>
         <PriorBuildReferenceEvidenceList
           evidence={reading.reference.evidence}
+          medianMs={reading.reference.medianMs}
           precise
           details={(sample) => {
             const attempt = runAttemptOfBuildKey(sample.key);

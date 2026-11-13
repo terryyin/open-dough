@@ -74,7 +74,7 @@ test("Check again refreshes the same observed head, while time-only checks and f
   const { intent } = parts(page);
   const summary = await openSummary(intent, "dashboard/tests");
   const history = scopeHistory(summary);
-  const evidence = scopeHistoryReading(history).evidence;
+  const evidence = scopeHistoryReading(history).selected;
   await expect(evidence).toContainText("8.0 s");
   await expect(history).toContainText("History read");
   const observed =
@@ -133,11 +133,10 @@ test("Check again refreshes the same observed head, while time-only checks and f
   Object.assign(frontendServices, { revision: next });
   await passCheckPace(page);
   await untilPageReadsAnswered(page);
-  await expect(history).toContainText(
-    `Observed trunk endpoint main ${shortSha(next)}`,
+  await expect(evidence).toHaveText(
+    `Observed trunk endpoint ${shortSha(next)} · 9.0 s`,
   );
   expect(endpoints).toEqual([revision, revision, revision, revision, next]);
-  await expect(evidence).toContainText("9.0 s");
   await expect(scopeHistoryReading(history).endpointTime).not.toHaveAttribute(
     "datetime",
     observed ?? "",

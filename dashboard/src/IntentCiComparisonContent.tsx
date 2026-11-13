@@ -1,4 +1,5 @@
-// The production comparison content over its held answer and proof summaries.
+// The production comparison content over its held answer and proof summaries:
+// summary, endpoints, any Done wall-time history, then the entry table.
 import type { ReactNode } from "react";
 import type { CiProofSorting } from "./CiProofTable.tsx";
 import { ComparisonEndpointsTable } from "./IntentCiComparisonEndpoints.tsx";
@@ -39,6 +40,7 @@ export function IntentCiComparisonContent({
   answer,
   proofs,
   checkAgainButton,
+  history,
   preference,
   sorting,
   labelled = true,
@@ -46,6 +48,8 @@ export function IntentCiComparisonContent({
   readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
   readonly proofs: ComparisonEndpointProofs | undefined;
   readonly checkAgainButton: ReactNode;
+  // A Done comparison's wall-time history, between endpoints and entries.
+  readonly history?: ReactNode;
   readonly preference: ComparisonPreference;
   readonly sorting: CiProofSorting;
   readonly labelled?: boolean;
@@ -88,6 +92,7 @@ export function IntentCiComparisonContent({
         landed={answer.landed}
         branchProvisional={taken && answer.mode === "story-branch"}
       />
+      {history}
       <EntryComparisonView entries={entries} sorting={sorting} />
       {checkAgainButton}
     </IntentCiComparisonFrameView>

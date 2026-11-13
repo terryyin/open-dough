@@ -1,4 +1,8 @@
-import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
+import { shortSha } from "../../src/baseCiWording.ts";
+import {
+  doneHistoryRead,
+  doneWallTimeHistory,
+} from "../priorBuildReferencePage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Missing local selected evidence leaves the existing Done comparison readable.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -8,7 +12,7 @@ import { doneWallReferenceHistory } from "../support/doneWallReferenceHistory.ts
 import { keepLandedCiHistory } from "../support/landedCiHistory.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 
-test("uncollected and incomplete selected evidence retain the prior reference, while an evicted Done endpoint explains historical unavailability", async ({
+test("uncollected and incomplete selected evidence keep the prior average without a change, while an evicted Done endpoint says it is outside retained history", async ({
   page,
   dashboard,
   origin,
@@ -20,17 +24,14 @@ test("uncollected and incomplete selected evidence retain the prior reference, w
     doneWallReferenceHistory(origin, setup),
   );
   const { panel } = await selectDoneStoryForCiComparison(page);
-  const history = panel.getByRole("region", {
-    name: "Done CI wall time reference",
-    exact: true,
-  });
-  await expect(history).toContainText(
-    "The selected landing has no matching collected observation",
+  const history = doneWallTimeHistory(panel);
+  const landing = `Selected landing ${shortSha(setup.completion)}`;
+  await expect(history.status).toHaveText("Selected landing not collected");
+  await expect(history.selected).toHaveText(`${landing} · No timing`);
+  await expect(history.average).toHaveText(
+    "Prior-build average · 1 min 43 s · 5 prior builds used",
   );
-  await expect(history).toContainText("Prior-build average · 1 min 43 s");
-  await expect(history).toContainText(
-    "Difference unavailable: selected measurement unavailable",
-  );
+  await expect(history.change).toHaveCount(0);
   await expect(comparisonReading(panel).entryTable).toBeVisible();
   await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
   const before = github.calls.length;
@@ -50,29 +51,29 @@ test("uncollected and incomplete selected evidence retain the prior reference, w
     dashboard.home,
     doneWallReferenceHistory(origin, setup, { selected }),
   );
-  await history
-    .getByRole("button", { name: "Refresh history", exact: true })
-    .click();
-  await expect(history).toContainText("Prior-build average · 1 min 43 s");
-  await expect(history).toContainText(
-    "Difference unavailable: Validated CI proof summary is not retained",
+  let refreshed = doneHistoryRead(page);
+  await history.refresh.click();
+  await refreshed;
+  await expect(history.status).toHaveCount(0);
+  await expect(history.selected).toHaveText(
+    `${landing} · No timing · Validated CI proof summary is not retained`,
   );
-  await expect(priorBuildReferenceReading(history).selected).toContainText(
-    "Validated CI proof summary is not retained",
+  await expect(history.average).toHaveText(
+    "Prior-build average · 1 min 43 s · 5 prior builds used",
   );
+  await expect(history.change).toHaveCount(0);
   await keepLandedCiHistory(
     dashboard.home,
     doneWallReferenceHistory(origin, setup, { drop: 6, later: true }),
   );
-  await history
-    .getByRole("button", { name: "Refresh history", exact: true })
-    .click();
-  await expect(history).toContainText(
-    "The selected landing is outside the retained history. Its historical comparison is unavailable.",
+  refreshed = doneHistoryRead(page);
+  await history.refresh.click();
+  await refreshed;
+  await expect(history.status).toHaveText("Outside retained history");
+  await expect(history.average).toHaveText(
+    "Prior-build average · Insufficient history · 0 prior builds used",
   );
-  await expect(history).toContainText("0 prior builds used");
-  await expect(history).toContainText("Insufficient comparable history");
-  await expect(history).not.toContainText("Prior-build average · 1 min 43 s");
+  await expect(history.chart.box).toHaveCount(0);
   await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
   expect(github.calls).toHaveLength(before);
 });

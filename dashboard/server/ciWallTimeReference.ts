@@ -8,10 +8,12 @@ import {
 import { z } from "zod";
 import {
   priorBuildReferenceOf,
+  type PriorBuildReference,
   type PriorBuildSample,
 } from "../src/ciPriorBuildReference.ts";
 import { historyWallTimeMs } from "../src/landedCiHistory.ts";
 import { gapReasonWords } from "../src/ciHistoryGapWords.ts";
+import { failedBuildWords } from "../src/ciHistoryChart.ts";
 import { historyEntries } from "./landedCiHistoryEntries.ts";
 import type { KeptBuild, ProjectHistory } from "./landedCiHistoryStore.ts";
 
@@ -22,7 +24,7 @@ export function wallTimeReadingOf(build: KeptBuild | undefined): {
   readonly reason?: string;
 } {
   if (build === undefined) return { reason: "Measured build is not retained" };
-  if (build.state !== "pass") return { reason: "Failed build" };
+  if (build.state !== "pass") return { reason: failedBuildWords };
   if (!hasAttemptTiming(build)) return { reason: unverifiedAttemptTiming };
   const ms = historyWallTimeMs(build.startedAt, build.completedAt);
   if (ms === undefined)
@@ -60,9 +62,19 @@ export function wallTimeReadingOf(build: KeptBuild | undefined): {
 // default is the latest represented landing in the retained trunk order.
 export function wallTimeReferenceOf(
   history: ProjectHistory,
+  endpoint: string,
+  order?: readonly string[],
+): PriorBuildReference;
+export function wallTimeReferenceOf(
+  history: ProjectHistory,
+  endpoint?: undefined,
+  order?: readonly string[],
+): PriorBuildReference | undefined;
+export function wallTimeReferenceOf(
+  history: ProjectHistory,
   endpoint?: string,
   order: readonly string[] | undefined = history.trunkOrder,
-) {
+): PriorBuildReference | undefined {
   const landings = Object.values(history.landings);
   const resolvedEndpoint =
     endpoint ??
