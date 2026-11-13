@@ -1,39 +1,37 @@
 # Finding names and current follow-up
 
-## Combined maintenance — 2026-11-10 (Asia/Singapore)
+## Combined maintenance — 2026-11-13 (Asia/Singapore)
 
-All six production projects received a local assessment. Five supplied shared
-process sources; Terry Talks skips process review. Doughnut queued SEED-116
-locally and Open Dough queued SEED-289; Clipboard, Lizard and Pygardon added no
-local stories.
+The six production projects received a local assessment. Five supplied shared
+process sources. Terry Talks has process review off. Doughnut queued a bounded
+CI package-setup story. Pygardon linked its existing release-revision guard and
+kept the shared observer response with Open Dough. Lizard and Open Dough
+settled locally owned findings. Clipboard needed no local edit.
 
-Retained evidence covers 40 distinct executions from 2026-11-08 and 2026-11-09,
-mostly Open Dough on 0.3.91 and 0.3.92, plus older ODF-446 rows moved from
-Open Dough project findings. It adds ODF-457 to ODF-480 and new occurrences at 24 existing
-findings. Two successful practices were pruned from the source logs as not
-problems. Open Dough's import-closure and empty test-path reports moved to its
-project findings. Three 0.3.92 executions met the
-[ODF-429](findings/ODF-429.md) ordinary-use criterion: the check held delivery
-in two and ran too late in one. Three 0.3.92 integrations met the
-[ODF-451](findings/ODF-451.md) criterion. Two more uses met
-[ODF-367](findings/ODF-367.md)'s. The scope [watch](near-term-watch-list.md)
-gained one qualified candidate and remains unstarted.
+The first shared priority is [ODF-259](findings/ODF-259.md). Pygardon's
+DD-501 adds a blocked closure after the same eight-hour expiry observed in
+GitHub Actions executions. Doughnut's related observer loss came from GitHub
+transport errors and is retained at [ODF-121](findings/ODF-121.md). The second
+priority is [ODF-481](findings/ODF-481.md). Repeated row allocation and evidence
+recording were observed in three projects, including hundreds of calls on one
+execution. The independent review also found genuine proof gaps. Its response
+keeps that review and gives one observation to each independently checkable
+promise. [ODF-470](findings/ODF-470.md) also repeats across executions, with
+additional timing runs and scratch setup; the latest source-review evidence
+shows broader ongoing use across projects. [ODF-488](findings/ODF-488.md)
+contributed two Windows repair cycles. Lizard's local writer is already fixed.
+The Taken list and the relative order of other queued work were preserved.
 
-The leading responses settle [trunk freshness before expensive proof and
-delivery](findings/ODF-465.md) and plan the [cohesive reorganization of
-already-oversized files](findings/ODF-152.md). Two executions lost about 2.6
-and 1.5 hours of refactor and suite time to a later merge. One publish preceded
-an `amended` result, and one preceded a landed-sibling check. The file-size
-family has 19 ODF-152 executions plus related ODF-189, ODF-195 and ODF-207
-across three projects. Its latest case cost about 1.1M tokens after Terry
-declined an exception. [ODF-470](findings/ODF-470.md) (sequential timings, five
-executions) was the strongest alternative, followed by
-[ODF-329](findings/ODF-329.md) (eight more late-lint executions). Each costs
-less per occurrence. Existing Taken work retains its order.
+New identities ODF-481 through ODF-495 retain distinct findings. Related causes
+and uncertain responses stay linked to their existing owners. Clipboard supplied
+two qualifying [ODF-418](findings/ODF-418.md) uses, which also meet the
+[ODF-275](findings/ODF-275.md) criterion. Lizard supplied another ODF-275 use;
+its exact observation command remains unrecovered. The [ODF-391](findings/ODF-391.md)
+writer was observed in Pygardon and Doughnut. Its release provenance is now
+verified. The scope watch remains unstarted.
 
-Earlier dated reviews, coverage, priority decisions and recovery paths are in
-[the preceding catalog revision](https://github.com/terryyin/open-dough/blob/220026a4e1b8409ffa81f50cd8e3130945ff8472/docs/maintainer/finding-names.md).
-Codes are permanent. Highest allocated is ODF-480.
+Earlier decisions and recovery paths are in the [preceding catalog revision](https://github.com/terryyin/open-dough/blob/07407e12b40115862205041f03e27851b361cfb2/docs/maintainer/finding-names.md).
+Codes are permanent. Highest allocated is ODF-495.
 
 ## Retained evidence
 
@@ -345,3 +343,32 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-478 — [Slice delivery publishes without that slice’s source-review observations](findings/ODF-478.md) <a id="odf-478"></a>
 ## ODF-479 — [Admission refuses one workspace serving as both integration and owned workspace](findings/ODF-479.md) <a id="odf-479"></a>
 ## ODF-480 — [Admission accepts only the colon Goal label](findings/ODF-480.md) <a id="odf-480"></a>
+## ODF-481 — [Source-only review allocates rows that have no independent proof](findings/ODF-481.md) <a id="odf-481"></a>
+
+## ODF-482 — [A pre-Take merge base causes a false source-freshness hold](findings/ODF-482.md) <a id="odf-482"></a>
+
+## ODF-483 — [Preparation accepts a slices heading execution cannot read](findings/ODF-483.md) <a id="odf-483"></a>
+
+## ODF-484 — [A retained Status hard break blocks guarded slice delivery](findings/ODF-484.md) <a id="odf-484"></a>
+
+## ODF-485 — [Generic closure guidance conflicts with Story Branch publication order](findings/ODF-485.md) <a id="odf-485"></a>
+
+## ODF-486 — [Fresh observer completion succeeds while terminal coverage is reported lost](findings/ODF-486.md) <a id="odf-486"></a>
+
+## ODF-487 — [A partially merged CI-repair stash is classified as unapplied](findings/ODF-487.md) <a id="odf-487"></a>
+
+## ODF-488 — [The shared CI proof collector leaves CR in a TSV path](findings/ODF-488.md) <a id="odf-488"></a>
+
+## ODF-489 — [An unterminated plan record makes appended evidence look like source drift](findings/ODF-489.md) <a id="odf-489"></a>
+
+## ODF-490 — [CI repair repeats a fix that already landed on trunk](findings/ODF-490.md) <a id="odf-490"></a>
+
+## ODF-491 — [A test configuration change was offered with incomplete scope](findings/ODF-491.md) <a id="odf-491"></a>
+
+## ODF-492 — [The execution host re-asks permission after a release checkpoint](findings/ODF-492.md) <a id="odf-492"></a>
+
+## ODF-493 — [An Intent Coverage run repeats a failing command before testing its cause](findings/ODF-493.md) <a id="odf-493"></a>
+
+## ODF-494 — [Formatted-size proof measures the candidate before formatting](findings/ODF-494.md) <a id="odf-494"></a>
+
+## ODF-495 — [The whole-suite gate names a command that excludes its target suite](findings/ODF-495.md) <a id="odf-495"></a>

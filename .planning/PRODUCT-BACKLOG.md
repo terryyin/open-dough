@@ -36,6 +36,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Recover CI completion after the observer expires](seeds/SEED-343-recover-ci-completion-observation.md#recover-ci-completion-observation) — SEED-343#recover-ci-completion-observation
+- [Record source-review evidence once per independently observable promise](seeds/SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises) — SEED-010#review-independently-observable-promises
 - [Simplify the remaining session tests](seeds/SEED-341-simplify-session-tests.md#simplify-remaining-session-tests) — SEED-341#simplify-remaining-session-tests
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets
 - [Show GitHub retry on the dashboard](seeds/SEED-336-live-dashboard-status.md#show-github-retry-on-the-dashboard) — SEED-336#show-github-retry-on-the-dashboard
