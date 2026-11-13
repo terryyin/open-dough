@@ -50,15 +50,13 @@ Observed 2026-11-13 at `66375ceaaa2e08dbc7ce3ec90bce207abaece4e0`:
 | Case provenance differs from spec timing; slices 1–4 and 6 consume it | JSON declared locations include 17 non-spec registering modules. `ProofRecord` records location; `ci-proof-fragments.mjs` consumes it; `SpecTimes.specFile` consumes the enclosing file suite. Preserve both mappings and test the actual transformed reports in slice 4. |
 | Existing collection supports independent parts and strict absence; slice 4 consumes it | `PATH="/opt/homebrew/bin:$PATH" npm test -- tests/support/ci-proof-actions.test.mjs src/skills/dough-test-optimization/scripts/ci-proof-collect.test.mjs tests/support/intent-ci-scope-history-gaps.test.mjs tests/support/intent-ci-scope-history-timing.test.mjs tests/support/intent-ci-comparison-sort.test.mjs` passed (silent, exit 0). Actual YAML shell replay with different part counts, missing report and file attribution passed. New producer declarations/hosted run remain delivery proof. |
 | Existing comparison/history distinguishes changed scopes; slice 6 consumes it | Same focused run passed: absent entries and changed owning entries become gaps; new comparison paths have no unsupported timing delta. Inspected current/historical settings readers. Add explicit old `dashboard/tests`/new `e2e` navigation and label regressions, rather than claiming those new examples already passed. |
-| A published tagged installation supports preparation; slice 5 consumes it | `git ls-remote --tags origin refs/tags/v0.3.97 'refs/tags/v0.3.97^{}'` matched commit `d2d303b6215e3c707a75a8a257b98dc257e1bc7b`. Real tag installer into an isolated project recorded 0.3.97; installed `preparation-assignment.mjs start --integration <fixture> --workspace <fixture>/.worktrees/release-preparation --branch codex/release-preparation --identity SEED-A#a --remote origin --target main --push-authorized --host codex` announced; independent bare-origin read matched SHA and preparation profile. The complete-install one-start dashboard scratch probe then passed: 1/1, 16.770 s attempt, 42.565 s runner, default budget, one worker under AC guard. It asserted installed version/22 skills, independent published profile, workspace version and confirmed installed command input. The expanded refusal/restart/retry adaptation failed its default 30 s budget (33.654 s); the ordinary working-tree-input case also failed (35.734 s) at restart read settlement (`agent-launch-preparation-codex.spec.ts:135`). Both remain failures requiring repair. Commands: `caffeinate -s -i npm run test:dashboard -- tests/launches/agent-launch-preparation-codex.spec.ts --workers=1` with and without the prepared release override; passing one-start scratch command used `tests/launches/seed334-tagged-preparation-probe.spec.ts` and a complete installed origin. Raw evidence/setup: `/tmp/seed334-observation-evidence-RBcpBv` (14 MB). Natural load 44.75–88.03 on 16 CPUs, AC/awake under `caffeinate -s -i`, no sleep in either window; overload is correlation, not an exclusive diagnosed cause. |
+| A published tagged installation supports preparation; slice 5 consumes it | Published `v0.3.97` peels to `d2d303b6215e3c707a75a8a257b98dc257e1bc7b` (verified with `git ls-remote --tags origin refs/tags/v0.3.97 'refs/tags/v0.3.97^{}'`). Its real installer produced version 0.3.97 and 22 skills in an isolated queued project; a packed bare origin supplied the complete installed input. The full maintained refusal/restart/retry scenario now passes with ordinary and complete tagged inputs at the unchanged 30 s case budget; see accepted prerequisite proof below. Earlier failures and their traces remain at `/tmp/seed334-observation-evidence-RBcpBv`; the start-only pass was not used to clear them. |
 
-The 17 registration sources are the production update journey/policies,
-Codex boundary effort cases, five mounted comparison case modules, Codex
-model/effort dialog/workspace cases, Cursor effort dialog cases, story-card
-touch start cases, feedback-maintenance due/eligibility cases, agent-session
-Cursor unavailability and former-height sidebar cases. Derive exact current
-paths from native JSON; include them explicitly in Intent membership as needed,
-without exposing all fixture support as test sources.
+Derive all 17 registering sources and exact paths from native JSON: production
+update journeys/policies; Codex boundary effort and model/effort dialog/workspace;
+five mounted comparison modules; Cursor effort dialogs; story-card touch start;
+feedback-maintenance due/eligibility; agent-session Cursor unavailability and
+former-height sidebar. Include their paths in Intent without exposing fixture-only support.
 
 Before the first migration edit, capture selected spec → registration-source →
 case identity/behavior → destination/surviving proof, real integrations and
@@ -195,9 +193,9 @@ revision/installation version and actual installed command path; retain those
 inputs with the case's proof. Use real installer/repository builders and the
 existing prepared-origin seam; isolate tagged and working-tree cache identities.
 A missing/unverifiable pinned source fails clearly without branch fallback.
-Repair the maintained preparation refusal/restart/retry timeout with ordinary
-and complete-tagged inputs before accepting fixture compatibility; preserve the
-scenario and default budget. The one-start pass clears neither failure.
+Reuse the full refusal/restart/retry prerequisite proof below; after migration,
+verify that scenario and tagged provenance at the new path. Preserve the default
+30 s case budget and separately bounded shared-input worker preparation.
 Name browser/server/Git/script
 integration and synthetic GitHub/native protocol boundaries in enduring docs.
 
@@ -239,12 +237,12 @@ parallel proof schemas, fixture registries or a framework for future services.
 
 ## Preparation assessment
 
-Slice-plan refinement ran: retained six boundaries; retyped 3 as Behavior and
-moved its local runner/lifecycle proof out of 4. Each runner now owns its
-lifecycle proof on introduction; CI switch and historical reading keep their
-separate observations; no resplit or sizing exception was needed.
-Remaining concern (slice 5; before Take): the maintained preparation recovery
-case times out with ordinary and complete-tagged inputs. Diagnose and repair
-the cause, then verify the full scenario within its default budget; retain
-Not ready until settled. The one-start pass proves only its own boundary.
-Future implementation/hosted observations remain execution acceptance work.
+Six slices remain: each runner owns its lifecycle proof on introduction; CI switching and historical reading retain their own observations. Migration and hosted proof remain execution acceptance work.
+
+Accepted prerequisite repair, 2026-11-13, based on `8f70215aca94`:
+
+- The recovery case waits for Story A's preparation and refusal/session results instead of draining unrelated page reads. Full restart, retry, observer/reload, native-input, durable-record and independent Git-origin assertions remain.
+- Cold shared inputs exceeded the inherited 30 s worker slot, then completed before a replacement worker received them in 18 ms. Their owning worker fixtures now have a separate 60 s bound; every scenario, private setup and observation keeps the default 30 s case budget. Demand, failure, interruption and cleanup stay owned by the existing run.
+- `caffeinate -s -i env -u OPEN_DOUGH_START_ORIGIN_PREPARATION OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed334-worker-budget-recovery-proof.json npm run test:dashboard -- tests/launches/agent-launch-preparation-codex.spec.ts tests/launches/agent-launch-start-codex.spec.ts --workers=1` passed 2/2 (13.253 s preparation, 12.664 s execution).
+- `caffeinate -s -i env OPEN_DOUGH_START_ORIGIN_PREPARATION=/tmp/seed334-ready-tagged-tjiWvS/prepared OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed334-worker-budget-tagged-proof.json npm run test:dashboard -- tests/launches/agent-launch-preparation-codex.spec.ts --workers=1` passed the complete tagged scenario (6.542 s). Setup and pinned identity: `/tmp/seed334-setup-tagged.mjs`, `/tmp/seed334-ready-tagged-input.json`.
+- Under AC `caffeinate -s -i`, `npm run test:dashboard -- backend-tests/runtime/dashboard-artifact-demand.spec.ts --workers=1` passed all five app/bundle completion, failure and interruption cases; `npm run test:dashboard -- tests/launches/responsive-session-start.spec.ts tests/intent/intent-summary-story-comparison-sort.spec.ts backend-tests/intent/landed-ci-repeat-verdict.spec.ts --grep 'before Start|Summary keeps its sort|saved accepted requests never invent' --workers=1` passed three cases covering the other changed worker profiles. Both used ordinary input; proof is `/tmp/seed334-worker-budget-artifact-lifecycle-proof.json` and `/tmp/seed334-worker-budget-other-profiles-proof.json`.

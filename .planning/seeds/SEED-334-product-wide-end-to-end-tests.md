@@ -14,7 +14,7 @@ scope: story
 
 **Identity:** SEED-334#run-and-observe-product-wide-end-to-end-tests
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/608-product-wide-end-to-end-tests/PLAN.md","assessment":"not-ready","reasons":["The maintained Codex preparation refusal/restart/retry journey times out at its default 30-second budget with ordinary working-tree input (35.734 s) and complete v0.3.97 input (33.654 s). Diagnose and repair the cause and verify the full unchanged-budget scenario before Take; the passing one-start released-installation probe does not settle this failure. Plan slice 5 owns the repair/proof; retained traces and setup are at /tmp/seed334-observation-evidence-RBcpBv."],"basis":{"document":"ceca8a126a3be87befe9c6d46800e1102230ebcae62a208d3766e18325639b42","plan":"f56d0b6121fa61a804702d1c67ed7a987cb0d6a0efb507888746fd70438629a6"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/608-product-wide-end-to-end-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c4f0eb48d831101d43b5955bf5812b2b91bbb0760718da0710f41e85a693023b","plan":"1f8658854dce2895b9c9c256249d78c275b2710650d8e3a8259b832b9ff07538"}}
 ```
 
 #### Goal
@@ -175,12 +175,14 @@ loss and double assignment visible. Its limit is semantic: matching totals
 cannot establish surviving behavior or real integration, so execution remains
 required.
 
-Published tag identity and real complete installation → dashboard preparation
-start → installed command → Git-origin assignment passed a focused one-start
-probe at the default budget. Applying the same complete installation to the
-existing refusal/restart/retry case timed out. Its ordinary working-tree-input
-run also timed out during restart recovery; the maintained journey requires
-diagnosis, repair and successful default-budget verification before readiness. Existing
-focused CI action/history/comparison checks passed for independent part counts,
-missing reports, file attribution and changed-scope gaps; the migrated hosted
-run remains execution proof, not a refinement claim.
+The full preparation refusal/restart/retry journey now passes with both ordinary
+working-tree skills and the complete published `v0.3.97` installation. The test
+waits for the selected story's own results; all publication, restart, retry,
+observer/reload and durable-state assertions remain. Its default case budget is
+still 30 seconds. Cold shared inputs have a separate bounded worker-preparation
+budget after an observed cold setup outlasted its inherited 30-second slot.
+The plan retains the diagnosis, full-scenario commands and accepted evidence;
+the earlier start-only pass did not clear those failures. Existing focused CI
+action/history/comparison checks passed for independent parts, missing reports,
+file attribution and changed-scope gaps; migrated hosted proof remains execution
+acceptance work.
