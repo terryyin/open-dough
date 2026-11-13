@@ -87,7 +87,7 @@ vocabulary. Correct the four doc sentences in the same slice.
 
 ### 2. Read a failed build as failed from its known state
 Type: Structure
-Status: planned
+Status: done
 Proof: `tests/support` server tests for scope timing and the glance
 projection; `ci-history-slim-response.spec.ts`; chart-marks and compact
 readout specs unchanged and passing; a focused test showing a reworded
@@ -160,3 +160,12 @@ none.
   observation is final with reason `failed`): it reads "No timing · Failed"
   with status unavailable today, the same string-decided status the slice
   removes.
+- Slice 2 (accepted 2026-11-13): `dashboard/src/ciFailedBuild.ts` owns the
+  failed-build rule (`isKnownFailed` from build state or final gap reason,
+  `gapStatusOf`, `gapStatus`, `timingGapStatusSchema`). Responses only gained
+  optional `failed: true` (scope gap entries, wall-time and scope
+  `reference.selected`); default reason strings are unchanged, so a page opened
+  before deployment still reads a final failed landing as "No timing · Failed".
+  `intent-scope-glance.spec.ts` now draws a failed sixth prior instead of the
+  116 ms outlier; outlier exclusion stays proved in the prior-build reference
+  tests and specs.

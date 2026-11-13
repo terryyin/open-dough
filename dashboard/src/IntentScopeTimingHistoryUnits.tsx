@@ -7,11 +7,8 @@ import { buildDateWords, standInBuildWords } from "./ciHistoryWords.ts";
 import { declaredUnits, unitName, type DeclaredUnit } from "./ciProofUnits.ts";
 import { executionTimeWords } from "./ciProofTimeWords.ts";
 import type { ScopeHistoryGlance, ScopeGlanceEntry } from "./ciScopeHistory.ts";
-import {
-  gapStatus,
-  isMeasured,
-  type HistoryChartBuild,
-} from "./ciHistoryChart.ts";
+import { isMeasured, type HistoryChartBuild } from "./ciHistoryChart.ts";
+import { gapStatus } from "./ciFailedBuild.ts";
 import { IntentCiHistoryChart } from "./IntentCiHistoryChart.tsx";
 import {
   scopeHistoryEndpointWords,

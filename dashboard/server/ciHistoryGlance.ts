@@ -13,12 +13,12 @@ import {
   type PriorBuildReference,
 } from "../src/ciPriorBuildReference.ts";
 import type { DoneWallTimeGlance } from "../src/ciDoneWallTimeHistory.ts";
-import {
-  failedBuildReason,
-  type CiScopeHistory,
-  type ScopeGlanceEntry,
-  type ScopeHistoryGlance,
+import type {
+  CiScopeHistory,
+  ScopeGlanceEntry,
+  ScopeHistoryGlance,
 } from "../src/ciScopeHistory.ts";
+import { gapStatusOf } from "../src/ciFailedBuild.ts";
 import type { BaseCiRunIdentity } from "../src/baseCiConfirmation.ts";
 import { evidenceOfEntry } from "../src/landedCiBuildKey.ts";
 import type { LandedCiEntry } from "../src/landedCiHistory.ts";
@@ -111,18 +111,12 @@ export function doneWallTimeGlanceOf(done: {
   };
 }
 
-// A timing reason with its typed status.
-const gapOf = (reason: string) => ({
-  status:
-    reason === failedBuildReason
-      ? ("failed" as const)
-      : ("unavailable" as const),
-  reason,
-});
-
 function scopeEntryOf(
   entry: CiScopeHistory["entries"][number],
 ): ScopeGlanceEntry {
+  // A timing reason with the status the read carries for its build.
+  const status = gapStatusOf(entry.kind === "gap" && entry.failed === true);
+  const gapOf = (reason: string) => ({ status, reason });
   const common = {
     key: entry.key,
     date: entry.date,

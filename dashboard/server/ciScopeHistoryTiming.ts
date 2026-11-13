@@ -10,7 +10,7 @@ import {
   unitName,
   type DeclaredUnit,
 } from "../src/ciProofUnits.ts";
-import { failedBuildReason } from "../src/ciScopeHistory.ts";
+import { isKnownFailed } from "../src/ciFailedBuild.ts";
 import { owningEntryOf, scopeFiguresOf } from "../src/ciScopeProof.ts";
 import type { StoryCiBuildSelection } from "../src/storyCiComparison.ts";
 import type { KeptBuild } from "./landedCiObservation.ts";
@@ -79,7 +79,11 @@ type ScopeTimings = {
   readonly readings: readonly ScopeUnitTiming[];
   readonly reason?: string;
   readonly legacyReason?: string;
+  readonly failed?: true;
 };
+
+// The gap reason a failed measured build gives every requested unit.
+const failedBuildReason = "Failed CI build";
 
 // Every requested declared unit is evaluated independently, including absent
 // units. unitResultsAt's first-result placeholder never chooses a history.
@@ -97,7 +101,8 @@ export function scopeHistoryTimingsOf(
   });
   if (selection === "ancestor")
     return gap("Unsupported landing build selection");
-  if (build?.state === "failed") return gap(failedBuildReason);
+  if (build !== undefined && isKnownFailed(build))
+    return { ...gap(failedBuildReason), failed: true };
   if (!hasMeasuredDate) return gap("Measured build date unavailable");
   const parsed = ciProofSchema.safeParse(build?.proof);
   if (!parsed.success) return gap("CI proof has not been collected");

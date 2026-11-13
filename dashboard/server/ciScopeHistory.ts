@@ -162,6 +162,7 @@ export function scopeHistoryOf(
         kind: "gap",
         readings: readings.filter((reading) => reading.kind === "gap"),
         ...(timing.reason === undefined ? {} : { reason: timing.reason }),
+        ...(timing.failed === true ? { failed: true } : {}),
       });
   }
   if (selected === undefined) {

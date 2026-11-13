@@ -34,6 +34,9 @@ export function scopeHistoryReferencesOf(
               ? {}
               : { revision: entry.build.revision }),
             ...(reading?.kind === "point" ? { ms: reading.ms } : {}),
+            ...(entry.kind === "gap" && entry.failed === true
+              ? { failed: true }
+              : {}),
             ...(reason !== undefined && !entry.selected
               ? {
                   reason:

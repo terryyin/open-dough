@@ -1,5 +1,6 @@
-// Raw retained attempts before a real published Done endpoint. The selected
-// proof is acquired by the normal collector in the receiving journey.
+// Raw retained attempts before a real published Done endpoint, each a scope
+// duration or a failed build. The selected proof is acquired by the normal
+// collector in the receiving journey.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import type { StoryCiComparisonSetup } from "./storyCiComparisonFixture.ts";
@@ -11,7 +12,7 @@ import { keptScopeFileProof } from "./scopeHistoryProofs.ts";
 export function scopePriorReferenceHistory(
   origin: StartOrigin,
   setup: StoryCiComparisonSetup,
-  values: readonly number[],
+  values: readonly (number | "failed")[],
   options: {
     selectedProof?: CiProof;
     priorIdentities?: Readonly<
@@ -41,7 +42,7 @@ export function scopePriorReferenceHistory(
     }
     const runId = index + 201;
     const at = `2026-11-0${index + 1}T10:00:00Z`;
-    history.measuredLanding({
+    const landing = {
       receipt: `prior-scope-${index}`,
       revision,
       identity: setup.identity,
@@ -50,7 +51,12 @@ export function scopePriorReferenceHistory(
       runId,
       startedAt: at,
       completedAt: new Date(Date.parse(at) + 60_000).toISOString(),
-    });
+    };
+    if (ms === "failed") {
+      history.failedLanding(landing);
+      continue;
+    }
+    history.measuredLanding(landing);
     history.proofFor(
       `run/${runId}/1`,
       keptScopeFileProof(

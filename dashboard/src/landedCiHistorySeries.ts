@@ -12,11 +12,11 @@ import {
   pointLandingsWords,
   pointWallTimeWords,
 } from "./ciHistoryWords.ts";
-import {
-  gapStatus,
-  type HistoryChartBuild,
-  type HistoryChartSeries,
+import type {
+  HistoryChartBuild,
+  HistoryChartSeries,
 } from "./ciHistoryChart.ts";
+import { gapStatus, isKnownFailed } from "./ciFailedBuild.ts";
 import type { PriorBuildFigures } from "./ciPriorBuildReference.ts";
 import { evidenceOfEntry } from "./landedCiBuildKey.ts";
 import {
@@ -53,7 +53,7 @@ export function landedHistorySeries(
       key,
       date: entryDate(entry),
       selected,
-      ...gapStatus(entry.reason === "failed", gapReasonWords(entry)),
+      ...gapStatus(isKnownFailed(entry), gapReasonWords(entry)),
     };
   });
   return {

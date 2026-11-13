@@ -1,5 +1,6 @@
 // A retained unresolved or final landing remains a gap, with the build or
 // attempt the shared Landed resolver named, without inventing scoped timing.
+import { isKnownFailed } from "../src/ciFailedBuild.ts";
 import { gapReasonWords } from "../src/ciHistoryGapWords.ts";
 import type { DeclaredUnit } from "../src/ciProofUnits.ts";
 import type { ScopeHistoryEntry } from "../src/ciScopeHistory.ts";
@@ -43,6 +44,9 @@ export function scopeHistoryGapOf(
     selected: represented.selected,
     reason,
     readings: units.map((unit) => ({ kind: "gap", unit, reason })),
+    ...(observed.kind === "gap" && isKnownFailed(observed)
+      ? { failed: true }
+      : {}),
     ...(build === undefined
       ? {}
       : { build: historyBuildOf(build, build.provenance) }),

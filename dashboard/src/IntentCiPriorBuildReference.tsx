@@ -18,7 +18,7 @@ import {
   relativePercentWords,
   executionTimeWords,
 } from "./ciProofTimeWords.ts";
-import { reasonStatus } from "./ciHistoryChart.ts";
+import { gapStatus } from "./ciFailedBuild.ts";
 import type {
   PriorBuildFigures,
   PriorBuildReference,
@@ -69,7 +69,10 @@ export function IntentCiPriorBuildReference({
   const selectedWords =
     selected?.ms !== undefined && reason === undefined
       ? durationWords(selected.ms)
-      : reasonStatus(reason, reasonWords).words;
+      : gapStatus(
+          selected?.failed,
+          reason === undefined ? undefined : reasonWords(reason),
+        ).words;
   const direction =
     difference === undefined
       ? undefined

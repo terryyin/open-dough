@@ -8,6 +8,8 @@ import { shortSha } from "../../src/baseCiWording.ts";
 import { expectReadableContrast } from "../accessibleReading.ts";
 import {
   centreOf,
+  expectFailedMarkPainted,
+  expectMarkOver,
   expectMarksByTab,
   inspectMark,
 } from "../ciHistoryChartPage.ts";
@@ -68,12 +70,13 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
   github,
 }) => {
   const setup = await publishSummaryComparisonStory(page, origin);
-  // Six priors per test case of a.spec.ts, c.spec.ts at twice and root.spec.ts
-  // at three times; each test file outcome takes a tenth. The last prior is a
-  // slow outlier, so five priors make each average.
+  // Five priors per test case of a.spec.ts, c.spec.ts at twice and root.spec.ts
+  // at three times, each test file outcome a tenth, make each average; the
+  // sixth prior build failed.
+  const priorBuilds = [100, 100, 100, 100, 115, "failed"] as const;
   await keepLandedCiHistory(
     dashboard.home,
-    scopePriorReferenceHistory(origin, setup, [100, 100, 100, 100, 115, 116]),
+    scopePriorReferenceHistory(origin, setup, priorBuilds),
   );
   serveCollectedScopeFileRuns(setup, [
     [
@@ -138,9 +141,12 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
     "Nov 3 · 600 ms",
     "Nov 4 · 600 ms",
     "Nov 5 · 690 ms",
-    "Nov 6 · 696 ms",
+    "Nov 6 · Failed build",
     "Nov 7 · Selected landing · 1.4 s",
   ]);
+  // The failed build is its red × below the axis, under its mark.
+  await expectMarkOver(entryChart, "Nov 6 · Failed build", entryChart.failed);
+  await expectFailedMarkPainted(page, entryChart);
   await expect(entryChart.averageLabel).toHaveText(
     "Prior-build average 618 ms",
   );
