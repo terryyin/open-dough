@@ -2,6 +2,15 @@
 
 **Identity:** SEED-342#follow-story-references-by-title
 **Source:** [Follow story references by title](../../seeds/SEED-342-follow-story-references-by-title.md#follow-story-references-by-title)
+**Source review:** [Source-only commitments](source-review.md)
+
+## Execution context
+
+Story Branch Mode; established owned worktree `/Users/terryyin/git/open-dough/.worktrees/follow-story-references-by-title`, branch `codex/follow-story-references-by-title`; originating and default checkout `/Users/terryyin/git/open-dough`. Starting revision `e06bdfb8c056a277a332672f6cf417d7cefe29d0`; accepted claim and candidate `de4da5c4a48418becb30b10deedc68c17e7e2237` on `origin/main` and the execution branch. Publisher `dashboard-territory.local-open-dough`; agent `viktor-chan`. Replanning retains ordinary planning authority; no numeric slice budget is supplied.
+
+Checkout readiness: locked `npm ci` and `npm run typecheck:dashboard` passed. Formatter is changed-files-only `npm run format`; the check-only pre-commit hook runs staged lint and dashboard typecheck for scripts. No generated payload update: author guidance in `src/skills` only.
+
+CI: GitHub Actions `ci.yml` (verified workflow `CI`, ID 351271804), observing the execution branch. Coordinator `seed342-viktor`; cell `g92:13`, session 63487, directory `/tmp/dough-ci-501/watch-OrVuNu`, PID 910. Claim CI on trunk is unobserved. Installed runtime is checkout-bound at `.agents/skills/dough-execute-plan`.
 
 ## Goal and scope
 
@@ -63,7 +72,7 @@ Observed at `db49ccfb9` in this workspace.
 ### 1. Write story references a reader can follow
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: diff review and behavior review above; `npm run lint`
 
 Behavior: an agent writing a seed or plan that names another story → reads
@@ -129,4 +138,4 @@ concern was identified.
 
 ## Learnings
 
-None yet.
+Slice 1: full `npm run lint` passed; independent refactor returned none — already clean (no edits or tests). Slice 1 acceptance: item 3 adds one sentence, no paragraph or section, in a 96-line source file. Existing seed-format line 74 and planning line 131 links already reach the contract. Representative walk from the contract yields `[Read CI history at a glance in story comparison and test Proof](SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance)`; the same sentence covers seed titles, retained revisions and resolving or flagging uncertainty. `git diff --check` passed. Consumer trace command: `node .agents/skills/dough-execute-plan/scripts/consumer-trace.mjs --checkout /Users/terryyin/git/open-dough/.worktrees/follow-story-references-by-title --base de4da5c4a48418becb30b10deedc68c17e7e2237 --term 'Work item identity' --term 'identity.md' --term 'story links'`; dispositions retained at `/tmp/seed342-slice1-consumer-trace.md`. Direct source guidance consumers reuse inspected contract links; installed copies and unchanged allocation/provenance matches are unaffected. Freshness returned unchanged at claim revision; no incoming sibling change exists at that pinned trunk.
