@@ -1,3 +1,7 @@
+// Supplier references show titles from active work or catalogued done records,
+// falling back to the recorded identity. Opening Dependencies requests completed
+// titles; a replacement explanation starts closed. Navigation always follows
+// the project and full story identity, independently of the displayed label.
 import { useState } from "react";
 import type { PublishedWork } from "./publishedWork.ts";
 import { useDoneDetails } from "./doneDetails.ts";

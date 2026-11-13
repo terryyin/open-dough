@@ -8,7 +8,7 @@ observations and context beyond those catalog records. See
 ## Retention
 
 - Highest allocated local number: 512. Removed numbers are never reused.
-- Recovery: `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
+- Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -31,7 +31,6 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
 
 ### Occurrences
 
-
 - Execution: SEED-298#insert-common-prompts-in-the-dashboard-terminal (plan 574; first implementation `0e258a2f7441b8a253f54860f0b9e56ed56a984d`)
   - Timestamp: unknown
   - Tool: Codex
@@ -46,7 +45,6 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: CI run 42800107133/1 at `8aeda2ade` failed native identity from a new shared MakeMe runtime import of the dashboard timing marker. Native fixture roots intentionally copy tests and src. Repair `0fb7f0226` removed that runtime dependency and retained independent test-domain timing facts; plan 569 `ci-repair-1.md` preserves diagnostics and native proof. Later owned runs42832244638/1 and42845502760/1 exposed the enclosing settings touch journey's last-fact/action adjacency assumption after the new follow-up setting; plan569 `ci-repair-3.md` retains the exact failing baseline and seven-case repaired proof with unchanged strict touch checks.
   - Observed effect: an owned published failure required pause, independent repair/proof and restoration of in-flight slice 2. No installation boundary was widened.
   - Inference: shared builders' fixture-materialization consumers belong in the changed import contract's proof; full dashboard timing proof could not expose the absent dashboard tree.
-
 
 - Execution: SEED-307#apply-shared-page-object-rules-per-entry (plan 590; first implementation `48fd7667f08c15e5121be38593e11fb659f20298`)
   - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
@@ -79,7 +77,6 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Slice 2 `b2899a8f5` extracted `ci-command-attempt.mjs`, imported by promoted `ci-proof-read.mjs`, without its payload declaration. CI run43235536671/1 failed four native evidence families. The repair reproduced both those omissions and actual installed `ERR_MODULE_NOT_FOUND`; `b51be060e2efde855d8cdb27d51bee0d7cd6667b` added the declaration and installed-reader proof in both roots after fresh install/update and unavailable release source. Plan606 source-review at that repair retains exact commands; 17 focused checks passed.
   - Observed effect: one owned published CI failure paused in-flight slice3, which was preserved and restored around an independent repair. Source transport/proof tests alone had not established installed dependency closure.
   - Inference: Matches the existing indirect-consumer omission: extracting a promoted runtime dependency immediately reaches the assembled payload and native fixture identity, regardless of the later documentation slice. No claim of measured isolated cost or released-user impact.
-
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -139,6 +136,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
 
 ### Occurrences
 
+- Execution: SEED-342#follow-story-references-by-title (plan 613; first implementation `0e5785c3c19875ccb025340b8a45f239231bbee5`)
+  - Timestamp: unknown (2026-11-13 execution; exact read-event times not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted claim `de4da5c4a48418becb30b10deedc68c17e7e2237`)
+  - Evidence: launch `9f65084a-e179-403e-b57c-2281c15a2588`; tool `5b2ba4` first-delegation batch reported 11,733 original tokens with truncation; `e0f55e` emitted complete consumer traces (45,075 original tokens), and `b3a290` emitted full lint-process arguments (125,291), both truncated. Bounded decision/consumer/assertion reads recovered the needed context.
+  - Observed effect: broad whole-file/generated-output reads omitted requested passages and needed targeted recovery; command handles, source review and terminal proof remained intact. Intent Coverage later caught the same-seed lookup fault and restored cleanly (348,488 ms invocation-to-report; isolated effort unavailable).
+  - Inference: recurrence of agent read/output-scoping deviation under existing guidance, not missing workflow instructions; no isolated time/token saving is measured.
+
 - Execution: SEED-289#match-hosted-fonts-in-ci-container (plan 564; first product implementation `fa8eba6b9f26038388ef96b471c74f07a23b62fb`)
   - Timestamp: unknown (2026-11-10 execution; exact read-event times unavailable)
   - Tool: Codex
@@ -182,7 +187,6 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Dashboard launch39024964-857a-4f8a-9668-fb62a939fb7e: coordinator combined source/owner reads returned21,058original tokens with truncation; retrospective context batch returned17,041; a process-log match batch also truncated. The coordinator recovered selected story/owner and finding sections and parsed proof JSON fields before acceptance.
   - Observed effect: Repeated bounded retrieval recovered omitted text; command/session handles and actual proof verdicts were retained.
   - Inference: Matches the existing agent output-scoping deviation under targeted-retrieval guidance; no measured total-token/time saving or missing final observation is claimed.
-
 
 - Execution: SEED-329#guard-scheduled-test-makeme-selection (plan 605; implementation `7ea0f13015410c406a75a78c7ccae46329f2ccf6`)
   - Timestamp: unknown (2026-11-12 execution; exact read-event times not retained)
@@ -336,7 +340,6 @@ Former local code: DD-387. Former local code: DD-401. Former local code: DD-394 
   - Observed effect: One mid-execution human stop and `--keep-worktree` land before live production observation; slice 1 branch CI left unobserved when that stop closed its observer.
   - Inference: Plan Trunk Mode prose did not change the Take's story-branch mode or name a retained-landing checkpoint, so the trunk-before-completion gate recurred. Distinct from lifecycle-commitment allocation (DD-387 facet).
 
-
 ## ODF-337 — Fresh delivery ownedPaths cannot stage a deleted rename source
 
 Former local code: DD-391. [Evidence and current response](docs/maintainer/findings/ODF-337.md).
@@ -409,7 +412,6 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: launch cf7e0024-2e9e-4725-83d5-51fda295de55; /tmp/seed305-consumer-dispositions.md and /tmp/seed305-direct-consumer-dispositions.md; combined coordinator read reported 81,029 original tokens before output truncation, including PLAN.md/source-review.md and broad schema matches.
   - Observed effect: Targeted follow-up reads recovered actual response, hook and browser consumers; every affected consumer passed. No missed consumer is established; isolated trace cost is unmeasured.
 
-
 - Execution: SEED-307#apply-shared-page-object-rules-per-entry (plan 590; first implementation `48fd7667f08c15e5121be38593e11fb659f20298`)
   - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
   - Tool: Codex
@@ -467,7 +469,6 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Observed effect: hundreds of exclusions and repeated targeted retrieval accompanied useful runtime/payload tracing. Later small refactor traces had18/108 consumers in narrower scopes; they are not equivalent replacement measurements.
   - Inference: Planning-basename noise recurred. Isolated trace effort/token savings are unmeasured, and this row does not claim a missed product consumer from that noise.
 
-
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
 Former local code: DD-425. [Evidence and current response](docs/maintainer/findings/ODF-427.md).
@@ -481,7 +482,6 @@ Former local code: DD-425. [Evidence and current response](docs/maintainer/findi
   - Evidence: Coordinator transcript `2dce1ff7-595f-4119-8243-6da1ce9127bb` turns 71–76: `history-preserving-publication.mjs integrate --help` then inline `node --input-type=module` calling `publishHistoryPreservingCandidate` with `onFetchedTarget`/`affectedCheck`; land accepted as merge `28cf896d38d64aaff6af0f7c3954704ff360f169`.
   - Observed effect: Keep-worktree landing required a hand-written publication wrapper again before slice 2 could observe production.
   - Inference: Same CLI/callback gap as prior ODF-427; not resolved by 0.3.94.
-
 
 ## ODF-428 — A refactor moved tests after acceptance had cited them, leaving source-review observations stale
 
@@ -622,7 +622,6 @@ integration. The installed mode guard agrees with the specific branch procedure.
   - Observed effect: The coordinator compared the contradictory paths and retained the explicit established Story Branch sequence: published closure tip, then history-preserving integration. No mode change or wrong-target publication was made at this review boundary.
   - Inference: Same guidance-consistency issue, not new publication authority; align the generic opening with its mode-specific owner. No guidance edit is authorized by this review.
 
-
 ## DD-491 — A proof limitation accepted at slice acceptance returned as a queued correction after Intent Coverage
 
 At slice acceptance the coordinator returned the proof for the state the story's example names and explicitly let two further states the plan's decision enumerates stand as a named limitation. The wrap-up Intent Coverage check then confirmed that limitation as a missing test path, and closure had to create a correction story, a plan, a premise observation, a readiness record and a queue entry for it.
@@ -675,7 +674,6 @@ The source-only reviewer returned every clause of the story's Goal, Scope, key e
   - Evidence: `source-review.md` beside plan 597 holds 44 rows for a two-slice story, among them 1.4 ("Reason for 1.3: a session started with nothing typed waits for the developer"), 3.3, 5.5 ("5.1 to 5.4 are existing behavior that is retained, not new behavior") and 9.3, which restate a reason or another row. The coordinator recorded 44 `observed:` cells in one batch; five (1.4, 5.5, 8.1, 8.2, 5.4) cite an unchanged product location because no assertion can observe a reason or an absence.
   - Observed effect: every promise had a location at acceptance; the reason and restatement rows added cells that repeat neighbouring rows.
 
-
 - Execution: SEED-315#speed-up-provider-rate-limit-checks (plan 598; first implementation `9b471af203402da781472742b50c0bce1929689b`)
   - Timestamp: unknown (2026-11-12; review returned before the first delegation, observations recorded at two acceptances)
   - Tool: Claude Code
@@ -700,7 +698,6 @@ The source-only reviewer returned every clause of the story's Goal, Scope, key e
   - Evidence: `4980feb6d:.planning/slice-plans/600-review-junit-tests-in-intent/source-review.md` retains 76 C/Q/J/X rows for one slice, including eight deferred-capability exclusions and separate no-fixed-Maven/no-fixed-Gradle qualifications. Coordinator accepted them through 76 sequential `record` operations; multiple rows cite the same inspected production diff or journey.
   - Observed effect: every source promise had an inspected location; qualification and exclusion rows also required observation cells restating existing selection or absence of deferred implementation. No missed source promise was found.
   - Inference: recurrence of the source-review extraction/observation-granularity issue; no isolated cost or benefit of a different grain was measured.
-
 
 ## DD-494 — A story's "still proves" example named a result the base's checks never asserted
 
