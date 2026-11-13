@@ -13,6 +13,7 @@
   --ci-history-ring: var(--raised-surface);
   --ci-history-grid: var(--line);
   --ci-history-words: var(--quiet);
+  --ci-history-failed: var(--problem);
 }
 
 .intent-ci-history {
@@ -97,6 +98,54 @@
   fill: var(--ci-history-mark);
   stroke: var(--ci-history-ring);
   stroke-width: 2;
+}
+
+/* Builds without timing, on their own row below the duration axis. */
+.intent-ci-history-failed {
+  fill: none;
+  stroke: var(--ci-history-failed);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.intent-ci-history-unavailable {
+  fill: var(--ci-history-ring);
+  stroke: var(--ci-history-words);
+  stroke-width: 2;
+}
+
+/* Each mark's button lies over its drawing; its readout follows the plot. */
+.intent-ci-history-plot {
+  position: relative;
+}
+
+.intent-ci-history-mark {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+.intent-ci-history-mark[aria-current="true"] {
+  box-shadow: 0 0 0 1px var(--ci-history-words);
+}
+
+.intent-ci-history-mark:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+}
+
+.intent-ci-history-readout {
+  min-height: 1.5em;
+  margin: 0 var(--space-1) var(--space-1);
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
 }
 
 .intent-ci-history-evidence {

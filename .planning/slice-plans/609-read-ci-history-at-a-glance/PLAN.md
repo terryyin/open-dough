@@ -2,6 +2,7 @@
 
 **Identity:** SEED-331#read-ci-history-at-a-glance
 **Source:** [Story](../../seeds/SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance)
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -106,7 +107,7 @@ slice 4 `--term 'intent=ci-history' --term 'evidence' --term 'medianMs'`.
 
 ### 1. Read each build's status and timing from the history chart
 Type: Behavior
-Status: planned
+Status: done
 Proof: New chart-marks frontend spec; existing scope segments/units/reading
 frontend specs, top-level `intent-ci-wall-time-history*.spec.ts`, and
 `intent-story-dark-appearance.spec.ts`.
@@ -121,6 +122,14 @@ by pointer, keyboard focus and touch.
 Implement once in the shared chart so every series gains it; the top-level
 CI status chart changes only as a consequence. Keep axis labels readable in
 the chart's narrowest supported width.
+
+Accepted proof: `dashboard/frontend-tests/intent-ci-history-chart-marks.spec.ts`
+(Done scope chart, pointer, keyboard, touch) and
+`intent-project-ci-history-chart-marks.spec.ts` (Project Intent, light/dark,
+narrowest width) through `tests/support/scopeHistoryMarksScenario.ts` and the
+`tests/ciHistoryChartPage.ts` page object; 33-file history spec set 48 passed
+after the refactor pass at `--workers=2`; scope history server tests and
+typecheck pass. Commitment observations are in the source review.
 
 ### 2. Compare a Done landing with recent builds at a glance
 Type: Behavior
@@ -231,3 +240,14 @@ under the failure policy; they bound no premise of the approach.
 
 The fresh worktree needed `setup-native.mjs npm|browser|check`; all succeeded
 on the first attempt.
+
+- Slice 1: the chart model is one ordered `builds` list of points and gaps
+  (`ciHistoryChart.ts`); `gapStatus` there is the single home of the mark
+  words "Failed build" and "No timing · <reason>". Slices 2–3 reuse those
+  words for compact status labels. Scope gaps are recognised as failed by
+  the shared `failedBuildReason` string; slice 4's typed gap statuses may
+  replace that match. Every mark is a Tab stop in history order.
+- During one slice-1 run an external load spike (55–63 on 16 cores) timed out
+  10 collector-backed `dashboard/tests/intent` journeys at unrelated setup
+  steps; all passed at load below 35 and in the post-refactor run at load ~5.
+  Hosted CI shards are the verdict; a CI failure there stays owned.

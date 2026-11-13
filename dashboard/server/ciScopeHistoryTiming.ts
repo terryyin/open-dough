@@ -10,6 +10,7 @@ import {
   unitName,
   type DeclaredUnit,
 } from "../src/ciProofUnits.ts";
+import { failedBuildReason } from "../src/ciScopeHistory.ts";
 import { owningEntryOf, scopeFiguresOf } from "../src/ciScopeProof.ts";
 import type { StoryCiBuildSelection } from "../src/storyCiComparison.ts";
 import type { KeptBuild } from "./landedCiObservation.ts";
@@ -96,7 +97,7 @@ export function scopeHistoryTimingsOf(
   });
   if (selection === "ancestor")
     return gap("Unsupported landing build selection");
-  if (build?.state === "failed") return gap("Failed CI build");
+  if (build?.state === "failed") return gap(failedBuildReason);
   if (!hasMeasuredDate) return gap("Measured build date unavailable");
   const parsed = ciProofSchema.safeParse(build?.proof);
   if (!parsed.success) return gap("CI proof has not been collected");

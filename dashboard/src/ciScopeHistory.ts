@@ -7,6 +7,9 @@ import { commitIdSchema } from "./launchLanding.ts";
 import { runUrlSchema } from "./landedCiHistory.ts";
 import { priorBuildReferenceSchema } from "./ciPriorBuildReference.ts";
 
+// The gap reason a failed measured build gives every requested unit.
+export const failedBuildReason = "Failed CI build";
+
 export type ScopeHistoryEndpoint = {
   readonly revision: string;
   readonly at: string;
