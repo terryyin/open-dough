@@ -14,13 +14,7 @@ import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
-import {
-  parts,
-  sessionNamedBy,
-  openTerminalOf,
-  sessionEntriesIn,
-  sidePanelNamesOf,
-} from "../dashboardPage.ts";
+import { parts, sessionNamedBy, sessionEntriesIn } from "../dashboardPage.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import { expectServed } from "../agentPortrait.ts";
 import { avatarPng } from "../avatarAnswers.ts";
@@ -28,12 +22,18 @@ import { expectTerminalPreviewFits } from "../terminalPortraitPreview.ts";
 import { box } from "../pageLayout.ts";
 import { takenIdentity, takenStory } from "../agentRosterRecords.ts";
 import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
   keepLaunchRecords,
   keptLaunchStore,
   launchStoreFile,
 } from "../support/launchStore.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { sidePanelNamesOf } from "../sidePanelFrame.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -57,10 +57,10 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     (route) => route.fulfill({ status: 404 }),
   );
   await openTakenBacklog(page, launchJourney);
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   const names = sidePanelNamesOf(panel).names;
-  const heading = panel.getByRole("heading", { level: 2 });
+  const heading = terminalScreenParts(panel).heading;
   const sessionRow = names.locator("p");
   const portrait = panel.locator(".agent-portrait");
   const entry = sessionEntriesIn(parts(page).taken);
@@ -95,7 +95,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
       .poll(() => recordsOf(dashboard, "open-dough"))
       .toEqual([expect.objectContaining(record)]);
     await page.reload();
-    await openTerminalOf(entry).click();
+    await openTerminalControl(entry).click();
     await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
   };
 

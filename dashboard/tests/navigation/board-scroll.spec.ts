@@ -1,12 +1,19 @@
+import { maximizeSidePanel, restoreSidePanel } from "../sidePanelFrame.ts";
+import { reviewChanges } from "../storyCardControls.ts";
+import { reviewRegion } from "../support/storyReviewMark.ts";
 import { appendFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../support/preparationPage.ts";
 import { largeBacklog, publishLargeBacklog } from "../accessibleBoard.ts";
 import { boardScroll, expectView, scrollYOf, wheelTo } from "../boardPage.ts";
 import { expectSettledPage, parts, rosterParts } from "../dashboardPage.ts";
-import { box, closeSidePanel, pressWhereShown } from "../pageLayout.ts";
+import { box, closeSidePanelToBoard } from "../pageLayout.ts";
 import { publishRosterOrigins } from "../agentRosterRecords.ts";
-import { dragDivider, expectCovering } from "../sidePanelWidthPage.ts";
+import {
+  dragDivider,
+  expectCovering,
+  panelDivider,
+} from "../sidePanelWidthPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
@@ -40,11 +47,8 @@ for (const viewport of [
     git(origin.project, "push", "--quiet", "origin", "main");
     const card = await openBacklog(page, origin);
     await expectSettledPage(page);
-    await card.getByRole("button", { name: "Review changes" }).click();
-    const panel = page.getByRole("region", {
-      name: "Story review",
-      exact: true,
-    });
+    await reviewChanges(card).click();
+    const panel = reviewRegion(page, { exact: true });
     await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
       "Story A",
     );
@@ -54,7 +58,7 @@ for (const viewport of [
       await expectCovering(panel);
       expect((await box(panel)).height).toBe(viewport.height);
       await expect(banner).toBeHidden();
-      await closeSidePanel(panel);
+      await closeSidePanelToBoard(panel);
       await expect(banner).toBeVisible();
       const before = await scrollYOf(page);
       const firstTop = (await box(card)).y;
@@ -121,9 +125,7 @@ for (const viewport of [
       .toBe(true);
     expect(await box(panel)).toEqual(initial.panel);
     expect(await page.evaluate(() => scrollY)).toBe(0);
-    const divider = await box(
-      page.getByRole("separator", { name: "Panel divider", exact: true }),
-    );
+    const divider = await box(panelDivider(page));
     expect(
       initial.region.x + initial.region.width,
       "the Board region meets the panel without a gap",
@@ -132,13 +134,9 @@ for (const viewport of [
       divider.x,
     );
     const position = await scrollYOf(page);
-    await pressWhereShown(
-      panel.getByRole("button", { name: "Maximize", exact: true }),
-    );
+    await maximizeSidePanel(panel, "mouse");
     await expect(banner).toBeHidden();
-    await pressWhereShown(
-      panel.getByRole("button", { name: "Restore", exact: true }),
-    );
+    await restoreSidePanel(panel, "mouse");
     await expect(banner).toBeVisible();
     expect(await scrollYOf(page)).toBe(position);
     expect(await box(panel)).toEqual(initial.panel);

@@ -1,9 +1,14 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // The accepted Compact card hierarchy, through the real synthetic-host launch:
 // status and main access stay visible, routine facts and lifecycle controls
 // disclose independently, and keyboard/narrow reading keeps both reachable.
 import { expect, test } from "../dashboardTest.ts";
 import {
-  openTerminalOf,
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
   parts,
   sessionEntriesIn,
   sessionIdLineOf,
@@ -70,7 +75,7 @@ test.describe(() => {
     await card(readyStory)
       .getByRole("button", { name: "Hide detail", exact: true })
       .click();
-    const open = openTerminalOf(entry);
+    const open = openTerminalControl(entry);
     await expect(open).toBeVisible();
     await expect(markAsDone(entry)).toBeHidden();
 
@@ -83,12 +88,9 @@ test.describe(() => {
     await expect(details).toBeFocused();
 
     await open.click();
-    const terminal = page.getByRole("region", {
-      name: "Terminal",
-      exact: true,
-    });
-    await expect(terminal.locator(".xterm-rows")).toContainText("attached");
-    await terminal.getByRole("button", { name: "Close", exact: true }).click();
+    const terminal = terminalPanel(page);
+    await expect(terminalScreenParts(terminal).rows).toContainText("attached");
+    await closeSidePanel(terminal);
     await expect(open).toBeFocused();
 
     const actions = sessionActionsControl(entry);
@@ -149,10 +151,7 @@ workingCursorTest(
   "a working Cursor entry keeps its resume command selectable and reports copied, refused and unavailable clipboard access truthfully",
   async ({ page, origin }) => {
     const entry = await openTakenCursorSession(page, origin, "auto");
-    await page
-      .getByRole("region", { name: "Terminal" })
-      .getByRole("button", { name: "Close", exact: true })
-      .click();
+    await closeSidePanel(terminalPanel(page));
     await expect(sessionStateOf(entry)).toHaveText("Working");
     await expect(entry.getByText("Cursor", { exact: true })).toBeVisible();
     await expect(
@@ -215,6 +214,6 @@ workingCursorTest(
     await expect(commandLine.locator("code")).toHaveText(command ?? "");
     await details.click();
     await expect(entry.getByRole("status")).toBeVisible();
-    await expect(openTerminalOf(entry)).toBeVisible();
+    await expect(openTerminalControl(entry)).toBeVisible();
   },
 );

@@ -1,3 +1,5 @@
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { filesColumn } from "../intentModePage.ts";
 import { sourceRevision } from "../intentCodeBrowsePage.ts";
 // A Done story's historical source comes from its landing, even after trunk
@@ -139,8 +141,6 @@ test("a completed story whose comparison cannot be recovered keeps saved coverag
   // Review changes gives the completed story the same explanation.
   const { development } = parts(page);
   await development.click();
-  await card.getByRole("button", { name: "Review changes" }).click();
-  await expect(
-    page.getByRole("region", { name: "Story review" }),
-  ).toContainText(unrecoverable);
+  await reviewChanges(card).click();
+  await expect(reviewRegion(page)).toContainText(unrecoverable);
 });

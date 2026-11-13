@@ -7,8 +7,8 @@
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
-import { finalReportParts, parts } from "../dashboardPage.ts";
-import { closeSidePanel, tapWhereShown } from "../pageLayout.ts";
+import { parts } from "../dashboardPage.ts";
+import { closeSidePanelToBoard, tapWhereShown } from "../pageLayout.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import {
   adHoc,
@@ -20,6 +20,7 @@ import { expectDevelopmentKept } from "../recentlyDoneSelectionReport.ts";
 import { holdPygardonCatalog } from "../pygardonCatalogReads.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
+import { finalReportParts } from "../finalReportPages.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 
@@ -64,7 +65,7 @@ test.describe("on coarse input", () => {
     await tapWhereShown(shown.open(report.title));
     await expect(reportText).toHaveText(report.message);
     await expect(shown.sidebar).toBeHidden();
-    await closeSidePanel(panel);
+    await closeSidePanelToBoard(panel);
     await expect(shown.button).toBeFocused();
   });
 

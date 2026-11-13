@@ -22,6 +22,11 @@ import type { Locator } from "@playwright/test";
 import { agentDoneEndpoint } from "../../src/doneMark.ts";
 import { expect, test } from "../dashboardTest.ts";
 import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
   storyCardSessionName,
   storyCardSessionOf,
   storyCardSessions,
@@ -29,7 +34,6 @@ import {
   parts,
   standaloneSessionName,
   sessionStateOf,
-  openTerminalOf,
 } from "../dashboardPage.ts";
 import {
   notRefinedStory,
@@ -77,7 +81,7 @@ test.describe("marking a session done from its terminal", () => {
       columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const listed = storyCardSessions(card(readyStory));
     const entry = recent.getByRole("article", {
       name: standaloneSessionName("Execution", readyStory),
@@ -92,12 +96,12 @@ test.describe("marking a session done from its terminal", () => {
     await expect(listed).toHaveAccessibleName(
       storyCardSessionName("Execution"),
     );
-    await openTerminalOf(listed).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await openTerminalControl(listed).click();
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await expectSelected(card(readyStory), true);
     const [session] = dashboard.claudeListing();
     const doneName = `done-${String(session?.["name"])}`;
-    const rows = panel.locator(".xterm-rows");
+    const { rows } = terminalScreenParts(panel);
     for (const answer of ["Keep open", "Escape"] as const) {
       const question = await expectAsked(panel, stillWorking);
       await expect(rows).toBeVisible();
@@ -130,7 +134,7 @@ test.describe("marking a session done from its terminal", () => {
     await expect(sessionStateOf(entry)).toHaveText("Done");
     await expect(entry).toContainText(`Named ${doneName}`);
     // Claude Code keeps the conversation, so the entry still opens it.
-    await expect(openTerminalOf(entry)).toBeVisible();
+    await expect(openTerminalControl(entry)).toBeVisible();
     await expectMembership(page, queued);
 
     await page.reload();
@@ -150,12 +154,12 @@ test.describe("marking a session done from its terminal", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const status = panel.getByRole("status");
     await settled();
     await launch(readyStory, "Execution");
-    await openTerminalOf(storyCardSessions(card(readyStory))).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await openTerminalControl(storyCardSessions(card(readyStory))).click();
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     // The project folder moves away, so the boundary refuses the mark.
     const folder = path.join(dashboard.home, "git", "open-dough");
     renameSync(folder, `${folder}.moved`);
@@ -166,13 +170,11 @@ test.describe("marking a session done from its terminal", () => {
     await expect(refused).toBeVisible();
     expect(await colourOf(refused)).toBe(await tokenColour(page, "--problem"));
     await expect(panel).toBeVisible();
-    await expect(
-      panel.getByRole("button", { name: "Mark as done" }),
-    ).toBeEnabled();
+    await expect(markAsDone(panel)).toBeEnabled();
     expect(dashboard.claudeStopCalls()).toEqual([]);
 
     // The attached CLI ending on its own still shows as a problem.
-    await panel.locator(".xterm-helper-textarea").focus();
+    await terminalScreenParts(panel).input.focus();
     await page.keyboard.press("Control+z");
     const ended = status.getByText("The terminal ended");
     await expect(ended).toBeVisible();
@@ -188,23 +190,23 @@ test.describe("marking a session done from its terminal", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await settled();
     await launch(readyStory, "Execution");
     await launch(notRefinedStory, "Refinement");
-    await openTerminalOf(
+    await openTerminalControl(
       storyCardSessionOf(card(readyStory), "Execution"),
     ).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     const release = await holdDoneRequests(page);
     await sendDoneMarkAnyway(panel);
     await expect(panel.getByRole("status")).toHaveText("Marking as done…");
 
-    await openTerminalOf(
+    await openTerminalControl(
       storyCardSessionOf(card(notRefinedStory), "Refinement"),
     ).click();
     await expect(panel).toContainText("Refinement session");
-    const typing = panel.locator(".xterm-helper-textarea");
+    const typing = terminalScreenParts(panel).input;
     await expect(typing).toBeFocused();
     const doneAnswered = page.waitForResponse((response) =>
       response.url().endsWith(agentDoneEndpoint),

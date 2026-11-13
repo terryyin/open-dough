@@ -16,7 +16,9 @@
 // history supplies the fallback when no usable local comparison remains.
 // Empty-area clicks and Select story toggle the page's selected story
 // (`./pageStorySelection.tsx`); nested controls keep their own behavior.
-// Its Story actions also hold its Follow up, when one is offered
+// Its Story actions also hold its review state, from the identity the done
+// catalog names whether or not its record is read
+// (`./StoryReviewStateAction.tsx`), and its Follow up, when one is offered
 // (`./FollowUp.tsx`).
 
 import { useId, type ReactNode } from "react";
@@ -57,6 +59,7 @@ export function DoneStoryCard({
   onSelect,
   followUp,
   ciFollowUp,
+  reviewState,
 }: {
   // The story and when it was done, as its done catalog names it.
   readonly identity: string;
@@ -75,6 +78,8 @@ export function DoneStoryCard({
   // The story's Follow up, when it offers one.
   readonly followUp?: ReactNode;
   readonly ciFollowUp?: ReactNode;
+  // The story's review state and its action.
+  readonly reviewState?: ReactNode;
 }) {
   const heading = useId();
   const title = story?.title ?? identity;
@@ -145,6 +150,7 @@ export function DoneStoryCard({
           records={launchRecords}
           work={{ identity, title }}
         />
+        {reviewState}
         {followUp}
       </div>
     </article>

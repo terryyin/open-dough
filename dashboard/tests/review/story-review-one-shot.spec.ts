@@ -1,4 +1,12 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Captured-through-CLI evidence survives actual retirement and changing trunk.
+import {
+  changedFilesList,
+  listedFile,
+  fileDiff,
+} from "../support/reviewTreeRows.ts";
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { mkdirSync, readFileSync } from "node:fs";
 import { test, expect } from "../support/codexStart.ts";
 import {
@@ -55,7 +63,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
     },
     { kind: "modified", path: "text.txt", lines: { added: 2, removed: 1 } },
   ]);
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   await expect(
     review.getByRole("heading", { name: "Landed run" }),
   ).toBeVisible();
@@ -66,32 +74,24 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   await expect(
     review.getByRole("button", { name: "Mark reviewed" }),
   ).toHaveCount(0);
-  const files = review.getByRole("list", { name: "5 changed files" });
+  const files = changedFilesList(review, "5 changed files");
   await expect(files).toBeVisible();
   await expect(
-    files.getByRole("button", { name: "Added added.txt" }),
+    listedFile(files, "Added added.txt"),
   ).toHaveAccessibleDescription("2 lines added, 0 lines removed");
-  await files.getByRole("button", { name: "Added added.txt" }).click();
-  await expect(
-    review.getByRole("region", { name: "Added added.txt" }),
-  ).toContainText("+one");
+  await listedFile(files, "Added added.txt").click();
+  await expect(fileDiff(review, "Added added.txt")).toContainText("+one");
   await review.getByRole("button", { name: "Next file", exact: true }).click();
+  await expect(fileDiff(review, "Modified binary.bin")).toContainText(
+    "Git reads it as binary",
+  );
+  await listedFile(files, "Renamed old.txt → new/moved.txt").click();
   await expect(
-    review.getByRole("region", { name: "Modified binary.bin" }),
-  ).toContainText("Git reads it as binary");
-  await files
-    .getByRole("button", { name: "Renamed old.txt → new/moved.txt" })
-    .click();
-  await expect(
-    review.getByRole("region", { name: "Renamed old.txt → new/moved.txt" }),
+    fileDiff(review, "Renamed old.txt → new/moved.txt"),
   ).toContainText("+renamed addition");
-  await files.getByRole("button", { name: "Modified text.txt" }).click();
-  await expect(
-    review.getByRole("region", { name: "Modified text.txt" }),
-  ).toContainText("-before");
-  await expect(
-    review.getByRole("region", { name: "Modified text.txt" }),
-  ).toContainText("+extra");
+  await listedFile(files, "Modified text.txt").click();
+  await expect(fileDiff(review, "Modified text.txt")).toContainText("-before");
+  await expect(fileDiff(review, "Modified text.txt")).toContainText("+extra");
   await review.getByRole("button", { name: "Hide files" }).click();
   await expect(files).toBeHidden();
   await review.getByRole("button", { name: "Show files" }).click();
@@ -101,14 +101,10 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   advanceAndRevert(origin.project, receipt);
   const afterTrunk = repositoryObservation(origin.project);
   expect(await refreshReview(page, review)).toEqual(answer);
-  await expect(
-    review.getByRole("region", { name: "Modified text.txt" }),
-  ).toContainText("+extra");
+  await expect(fileDiff(review, "Modified text.txt")).toContainText("+extra");
   expect(repositoryObservation(origin.project)).toEqual(afterTrunk);
-  await review.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(
-    card.getByRole("button", { name: "Review changes" }),
-  ).toBeFocused();
+  await closeSidePanel(review);
+  await expect(reviewChanges(card)).toBeFocused();
   const port = Number(new URL(dashboard.baseURL).port);
   await dashboard.close();
   const restarted = await startDashboardServer({
@@ -129,12 +125,10 @@ test("a retired one-shot's common file browser reads only its captured pair afte
       ),
     ).toEqual(answer);
     await expect(
-      review.getByRole("region", { name: "Renamed old.txt → new/moved.txt" }),
+      fileDiff(review, "Renamed old.txt → new/moved.txt"),
     ).toContainText("+renamed addition");
-    await review.getByRole("button", { name: "Added added.txt" }).click();
-    await expect(
-      review.getByRole("region", { name: "Added added.txt" }),
-    ).toContainText("+one");
+    await listedFile(review, "Added added.txt").click();
+    await expect(fileDiff(review, "Added added.txt")).toContainText("+one");
     expect(repositoryObservation(origin.project)).toEqual(afterTrunk);
   } finally {
     await restarted.close();

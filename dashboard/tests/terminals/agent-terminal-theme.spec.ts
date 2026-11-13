@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // The page's terminal shows the terminal theme chosen in System settings
 // (../configuration/system-settings-terminal-theme.spec.ts covers choosing and keeping it).
 // With no saved choice it shows today's white on black. A choice made in
@@ -12,8 +13,13 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
-import { parts, openTerminalOf, sessionEntriesIn } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { back, settings } from "../support/systemSettingsPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   computedPalettes,
   themeChoice,
@@ -24,7 +30,7 @@ test.use({ projectFolders: ["open-dough"] });
 
 async function expectTheme(panel: Locator, label: ComputedPalette) {
   const { background, foreground } = computedPalettes[label];
-  await expect(panel.locator(".xterm-rows")).toHaveCSS("color", foreground);
+  await expect(terminalScreenParts(panel).rows).toHaveCSS("color", foreground);
   for (const surface of [
     ".xterm-scrollable-element",
     ".xterm-viewport",
@@ -54,10 +60,10 @@ test("the page's terminal shows the theme chosen in System settings, live withou
 }) => {
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, launchJourney);
-  const panel = page.getByRole("region", { name: "Terminal", exact: true });
-  const rows = panel.locator(".xterm-rows");
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   const entry = sessionEntriesIn(parts(page).taken);
-  const openTerminal = openTerminalOf(entry);
+  const openTerminal = openTerminalControl(entry);
 
   await page
     .getByRole("button", { name: "Start session in Open Dough" })
@@ -81,7 +87,7 @@ test("the page's terminal shows the theme chosen in System settings, live withou
   await expect(panel.locator(".terminal-status")).toBeEmpty();
   expect(dashboard.claudeAttaches()).toHaveLength(attaches);
 
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(panel);
   await expect(panel).toHaveCount(0);
   await openTerminal.click();
   await expect(rows).toContainText("attached");

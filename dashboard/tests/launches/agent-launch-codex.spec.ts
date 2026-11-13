@@ -1,5 +1,12 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // The real shared host choice, native input, mixed history and continuation journey.
+
+import { sessionAction } from "../support/sessionEntryDisclosure.ts";
+import {
+  terminalPanel,
+  terminalScreenParts,
+  openTerminalControl,
+} from "../terminalScreenPage.ts";
 import path from "node:path";
 import {
   startDashboardServer,
@@ -11,11 +18,7 @@ import {
   showOptions,
 } from "../launchStoryCardPage.ts";
 import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
-import {
-  storyCardSessions,
-  openTerminalOf,
-  sessionStateOf,
-} from "../dashboardPage.ts";
+import { storyCardSessions, sessionStateOf } from "../dashboardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { markDone } from "../agentLaunchBoundary.ts";
@@ -109,10 +112,8 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   // Fresh shared polling replaces launch-time unknown.
   await reloadUntilRead(page);
   await expect(sessionStateOf(codex)).toHaveText("Working");
-  await expect(openTerminalOf(codex)).toHaveCount(1);
-  await expect(
-    (await sessionActions(codex)).getByRole("button", { name: "Mark as done" }),
-  ).toHaveCount(1);
+  await expect(openTerminalControl(codex)).toHaveCount(1);
+  await expect(await sessionAction(codex, "Mark as done")).toHaveCount(1);
   expect(native.calls.filter((call) => call.method === "thread/start")).toEqual(
     [
       {
@@ -171,13 +172,11 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   // Both hosts share the opaque ID; the open Codex session is the Sessions sidebar Session entry.
   await sidebar.entries.first().getByRole("button").click();
   await expect(page.locator(".side-panel")).toHaveCount(1);
-  await expect(page.locator(".xterm-rows")).toContainText(
+  const panel = terminalPanel(page);
+  await expect(terminalScreenParts(panel).rows).toContainText(
     "original retained history",
   );
-  await page
-    .getByRole("region", { name: "Terminal" })
-    .getByRole("button", { name: "Close", exact: true })
-    .click();
+  await closeSidePanel(panel);
   const before = dashboard.claudeCalls().length;
   expect(
     (

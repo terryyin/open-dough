@@ -18,8 +18,6 @@ import type { StartOrigin } from "./support/startOrigin.ts";
 import { keepLaunchRecords } from "./support/launchStore.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 
-export { runningCursorParts } from "./runningCursorList.ts";
-
 export const instruction = "hold this session";
 
 type CursorScreen = "working" | "waiting" | "trust";

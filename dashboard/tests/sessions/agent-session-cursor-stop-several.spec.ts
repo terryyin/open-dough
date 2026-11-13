@@ -2,21 +2,15 @@
 // running under Running Cursor sessions. Single-session stop and
 // unconfirmed-stop journeys live in ./agent-session-cursor-stop.spec.ts.
 import { sessionAction } from "../support/sessionEntryDisclosure.ts";
-import type { Page } from "@playwright/test";
 import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { openRunningList } from "../runningCursorList.ts";
+import { closeTerminal, terminalPanel } from "../terminalScreenPage.ts";
 import {
   launchSecondHeldSession,
   startScopedCursorExecution,
 } from "../support/cursorSessionRecovery.ts";
 import { expect, workingCursorTest } from "../support/cursorStart.ts";
 import { processRunning } from "../support/processGroup.ts";
-
-async function closeTerminal(page: Page): Promise<void> {
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(panel).toHaveCount(0);
-}
 
 const stopOneSecondId = "f6a7b8c9-d0e1-4cdf-b012-3456789abcde";
 
@@ -31,8 +25,8 @@ workingCursorTest(
       dashboard.home,
       stopOneSecondId,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
-    if ((await panel.count()) > 0) await closeTerminal(page);
+    const panel = terminalPanel(page);
+    if ((await panel.count()) > 0) await closeTerminal(panel);
 
     const entries = sessionEntriesIn(parts(page).taken);
     await expect(entries).toHaveCount(2);

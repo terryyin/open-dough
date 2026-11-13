@@ -1,6 +1,8 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Cursor reopen from Recently done sessions: held attach keeps membership;
 // successful attach clears the Done row; narrow overlay returns focus.
 import { launch } from "../agentLaunchBoundary.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   pageReadReopened,
   showRecentlyDone,
@@ -46,7 +48,7 @@ test("a held Cursor attach from Recently done keeps Done membership", async ({
   await showThreeProjectPage(page, origin);
   const shown = await showRecentlyDone(page);
   await shown.open(title).click();
-  await expect(page.getByRole("region", { name: "Terminal" })).toBeVisible();
+  await expect(terminalPanel(page)).toBeVisible();
   await expect(shown.select(title)).toHaveCount(1);
 });
 
@@ -76,8 +78,8 @@ test("a successful Cursor attach from Recently done removes the Done row", async
   const shown = await showRecentlyDone(page);
   await expect(shown.select(title)).toHaveCount(1);
   await shown.open(title).click();
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel.locator(".xterm-rows")).toContainText("ctrl+c to stop");
+  const panel = terminalPanel(page);
+  await expect(terminalScreenParts(panel).rows).toContainText("ctrl+c to stop");
   await expect(shown.select(title)).toHaveCount(0);
   await expect(
     shown.openEntries.getByRole("button", { name: title }),
@@ -113,13 +115,13 @@ test("on a narrow window, closing the panel after a successful reopen returns fo
   await shown.open(title).click();
   // The covering panel hides the banner, so only the sidebar is read here.
   await expect(shown.sidebar).toBeHidden();
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel.locator(".xterm-rows")).toContainText("ctrl+c to stop");
+  const panel = terminalPanel(page);
+  await expect(terminalScreenParts(panel).rows).toContainText("ctrl+c to stop");
   // First paint precedes admission; Close only once the page read the reopen.
   await reopened;
   // Covering hides the banner Sessions control while the panel is open; Close
   // first, then reopen the overlay to observe Done cleared into the open list.
-  await panel.getByRole("button", { name: "Close" }).click();
+  await closeSidePanel(panel, { using: "mouse" });
   await expect(panel).toHaveCount(0);
   await expect(shown.button).toBeFocused();
   await shown.button.click();

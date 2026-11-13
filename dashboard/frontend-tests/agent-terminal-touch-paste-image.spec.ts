@@ -6,6 +6,8 @@
 import { expect, test } from "../tests/support/frontendApp.ts";
 import { openFrontendTerminalByTouch } from "../tests/support/frontendTouchTerminal.ts";
 import { echoingApplication } from "../tests/support/terminalSubstituteApplication.ts";
+import { copyClipboardText } from "../tests/terminalPastePage.ts";
+import { terminalStatus } from "../tests/terminalScreenPage.ts";
 import { focusByTouch, tapTerminalKey } from "../tests/touchTerminalPage.ts";
 import { sessionAttachmentEndpoint } from "../src/agentTerminal.ts";
 import {
@@ -37,6 +39,7 @@ test("phone Paste shows the server's oversized image refusal and keeps the termi
       application: echoingApplication("attached paste01\r\nClaude Code\r\n"),
     },
   );
+  const status = terminalStatus(panel);
   await expect(rows).toContainText("attached paste01");
   await expect(rows).toContainText("Claude Code");
   await focusByTouch(panel);
@@ -73,7 +76,7 @@ test("phone Paste shows the server's oversized image refusal and keeps the termi
   expect((await post).postDataBuffer()?.length).toBeGreaterThan(
     launchAttachmentLimitBytes,
   );
-  await expect(panel.getByRole("status")).toHaveText(launchAttachmentTooLarge);
+  await expect(status).toHaveText(launchAttachmentTooLarge);
   expect(sent).toEqual([]);
   await input.press("x");
   await expect.poll(() => sent).toEqual(["x"]);
@@ -107,8 +110,8 @@ test("phone Paste while the terminal is still connecting says so, sends nothing,
       opens,
     },
   );
-  const status = panel.getByRole("status");
-  await page.evaluate(() => navigator.clipboard.writeText("after connecting"));
+  const status = terminalStatus(panel);
+  await copyClipboardText(page, "after connecting");
 
   await tapTerminalKey(panel, "Paste");
   await expect(status).toHaveText(
@@ -117,6 +120,7 @@ test("phone Paste while the terminal is still connecting says so, sends nothing,
   await expect(rows).not.toContainText("attached conn01");
   expect(sent).toEqual([]);
 
+  // Release the held substitute, then explicit Paste retry.
   open();
   await expect(rows).toContainText("attached conn01");
   await tapTerminalKey(panel, "Paste");

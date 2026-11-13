@@ -1,14 +1,13 @@
 // An ad hoc session started with typed text only as a journey's setup, on the
 // synthetic `claude`: attached, with its terminal closed again.
 import type { Locator, Page } from "@playwright/test";
-import { expect } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
 } from "../launchStoryCardPage.ts";
-import { closeSidePanel } from "../pageLayout.ts";
+import { closeTerminal, expectTerminalText } from "../terminalScreenPage.ts";
 import { startedSessionTerminal } from "./startedSessionTerminal.ts";
 
 // The Taken entry of the ad hoc session started with `text`.
@@ -30,6 +29,6 @@ export async function startAdHocAndClose(
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   const entry = takenAdHocSession(page, text);
   const panel = await startedSessionTerminal(page, entry);
-  await expect(panel.locator(".xterm-rows")).toContainText("attached");
-  await closeSidePanel(panel);
+  await expectTerminalText(panel, "attached");
+  await closeTerminal(panel);
 }

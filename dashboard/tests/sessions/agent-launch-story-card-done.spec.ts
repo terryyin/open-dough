@@ -14,7 +14,6 @@ import { expect, test } from "../dashboardTest.ts";
 import {
   storyCardSessionOf,
   expectMembership,
-  openTerminalOf,
   parts,
   sessionEntriesIn,
   standaloneSessionName,
@@ -30,6 +29,7 @@ import {
 } from "../launchJourney.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { markDoneAnyway } from "../support/markDone.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -88,7 +88,7 @@ test.describe("marking a card's session done", () => {
         "Claude Code rename failed: The session is no longer running, so it was not renamed.",
       );
       await expect(await sessionAction(entry, "Mark as done")).toBeEnabled();
-      await expect(openTerminalOf(entry)).toHaveCount(0);
+      await expect(openTerminalControl(entry)).toHaveCount(0);
       expect(dashboard.claudeAttaches()).toEqual([]);
       expect(dashboard.claudeStopCalls()).toEqual([]);
     });

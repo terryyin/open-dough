@@ -4,6 +4,7 @@ import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { launch, launchRequest, recordsOf } from "../agentLaunchBoundary.ts";
 import { launched } from "../agentTerminalBoundary.ts";
 import { expect, test } from "../dashboardTest.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
@@ -26,7 +27,7 @@ import {
 } from "../sessionsTogglePage.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
-import { sidePanelNamesOf } from "../dashboardPage.ts";
+import { sidePanelNamesOf } from "../sidePanelFrame.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 let journey: StoryColumnsJourney;
@@ -129,14 +130,12 @@ test.describe(`${name} session discovery`, () => {
     // Ordinary list scrolling is explicit; activation itself cannot scroll.
     await entry(intended.title).scrollIntoViewIfNeeded();
     await tapWhereShown(entry(intended.title));
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await panel.scrollIntoViewIfNeeded();
-    await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
-      intended.title,
-    );
+    await expect(terminalScreenParts(panel).heading).toHaveText(intended.title);
     await expect(sidePanelNamesOf(panel).sessionName).toHaveText(/ session$/);
     await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
-    await expect(panel.locator(".xterm-rows")).toContainText(
+    await expect(terminalScreenParts(panel).rows).toContainText(
       `attached ${record.session.sessionId.slice(0, 8)}`,
     );
     // Covering (landscape with sidebar open) aria-hides the page column.

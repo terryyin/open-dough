@@ -7,7 +7,6 @@ import { expect, test } from "../dashboardTest.ts";
 import {
   chooseProject,
   expectMembership,
-  openTerminalOf,
   standaloneSessionName,
 } from "../dashboardPage.ts";
 import {
@@ -33,6 +32,7 @@ import {
   type OpenSession,
 } from "../storyCardOpenSessions.ts";
 import { markDoneAnyway } from "../support/markDone.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 // Cursor operations are outside this journey's proof; the harness
 // stand-in skips an unused real runner while keeping the built preview.
@@ -147,7 +147,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
         name: standaloneSessionName("Execution", notRefinedStory),
       });
       await expectSessionShown(kept, "Ready for review", true);
-      await expect(openTerminalOf(kept)).toBeVisible();
+      await expect(openTerminalControl(kept)).toBeVisible();
     });
     expectNothingStarted();
   });

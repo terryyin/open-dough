@@ -32,8 +32,13 @@
       },
       {
         "path": "tests",
-        "kind": "shell",
-        "include": ["*.sh"],
+        "sources": [
+          { "include": ["*.sh"], "syntax": "shell" },
+          {
+            "include": ["*.test.mjs", "support/*.test.mjs"],
+            "syntax": "javascript"
+          }
+        ],
         "makeMe": true
       },
       {

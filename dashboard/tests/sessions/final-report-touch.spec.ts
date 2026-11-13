@@ -1,3 +1,4 @@
+import { closeSidePanel, control } from "../sidePanelFrame.ts";
 // Retained unfinished reports use the real page/store/native boundary. The
 // vendor fixture supplies history only; coordinates and finger strokes prove access.
 import { existsSync } from "node:fs";
@@ -54,7 +55,8 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
         shownSessionId,
         mark,
         question,
-        choice,
+        markAnyway,
+        keep,
         state,
         underlying,
         reading,
@@ -83,9 +85,9 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
       await readReportByTouch(panel, mark);
       await tapWhereShown(mark);
       await expect(question).toBeVisible();
-      await expect(choice("Keep open")).toBeFocused();
-      await readReportByTouch(panel, choice("Mark as done"));
-      await readReportByTouch(panel, choice("Keep open"));
+      await expect(keep).toBeFocused();
+      await readReportByTouch(panel, markAnyway);
+      await readReportByTouch(panel, keep);
       await readReportByTouch(panel, question.getByRole("paragraph").first());
       expect(state()).toEqual(initial);
       passive(native, since);
@@ -104,9 +106,9 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
         ).toHaveAccessibleName(title);
         await expect(shownSessionId).toHaveCount(0);
         await readReportByTouch(panel, question.getByRole("paragraph").first());
-        for (const name of ["Mark as done", "Keep open"]) {
-          await readReportByTouch(panel, choice(name));
-          expect(await reportGeometry(choice(name))).toMatchObject({
+        for (const answer of [markAnyway, keep]) {
+          await readReportByTouch(panel, answer);
+          expect(await reportGeometry(answer)).toMatchObject({
             visible: true,
             hit: true,
           });
@@ -115,8 +117,8 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
         await expect(reading).toHaveText("Ready for review");
         passive(native, since);
       }
-      await readReportByTouch(panel, choice("Keep open"));
-      await tapWhereShown(choice("Keep open"));
+      await readReportByTouch(panel, keep);
+      await tapWhereShown(keep);
       await expect(question).toHaveCount(0);
       await expect(mark).toBeFocused();
       expect(state()).toEqual(initial);
@@ -134,9 +136,9 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
         reportText,
         "<script>window.reportExecuted=true</script>",
       );
-      const close = panel.getByRole("button", { name: "Close", exact: true });
+      const close = control(panel, "Close");
       await readReportByTouch(panel, close);
-      await tapWhereShown(close);
+      await closeSidePanel(panel, { using: "touch" });
       await expect(panel).toHaveCount(0);
       await expect(open).toBeFocused();
       expect(state()).toEqual(initial);
@@ -149,10 +151,10 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
       await tapWhereShown(mark);
       await expect(question).toHaveCount(1);
       await readReportByTouch(panel, question.getByRole("paragraph").first());
-      await readReportByTouch(panel, choice("Mark as done"));
+      await readReportByTouch(panel, markAnyway);
       expect(state()).toEqual(initial);
       passive(native, since);
-      await tapWhereShown(choice("Mark as done"));
+      await tapWhereShown(markAnyway);
       await expect(panel).toHaveCount(0);
       await expect.poll(() => stored(dashboard.home)[0]?.doneAt).toBeDefined();
       expect(stored(dashboard.home)[0]?.reportRead).toBe(initial.reportRead);
@@ -204,6 +206,8 @@ for (const { name, viewport, hasTouch } of [
         reportText,
         mark,
         question,
+        markAnyway,
+        keep,
       } = await openUnfinishedReport(page, dashboard, codexProtocol, journey);
       const initial = stored(dashboard.home)[0];
       await expect(reportText).toHaveText(report);
@@ -215,21 +219,19 @@ for (const { name, viewport, hasTouch } of [
       await press(mark);
       for (const target of [
         question.getByRole("paragraph").first(),
-        question.getByRole("button", { name: "Mark as done" }),
-        question.getByRole("button", { name: "Keep open" }),
+        markAnyway,
+        keep,
       ]) {
         expect(await reportGeometry(target)).toMatchObject({
           visible: true,
           hit: true,
         });
       }
-      await press(question.getByRole("button", { name: "Keep open" }));
+      await press(keep);
       await expect(question).toHaveCount(0);
       await expect(mark).toBeFocused();
       await press(mark);
-      await expect(
-        question.getByRole("button", { name: "Keep open" }),
-      ).toBeFocused();
+      await expect(keep).toBeFocused();
       await page.keyboard.press("Escape");
       await expect(question).toHaveCount(0);
       await expect(mark).toBeFocused();

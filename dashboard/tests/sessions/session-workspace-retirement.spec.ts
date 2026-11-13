@@ -1,14 +1,16 @@
+import {
+  readFinalReportControl,
+  finalReportParts,
+  readFinalReport,
+} from "../finalReportPages.ts";
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Outside-in review through the real store, HTTP/native boundary and browser.
 import { existsSync, readFileSync } from "node:fs";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import {
   expectProjectChoice,
   chooseProject,
-  finalReportParts,
-  openTerminalOf,
   parts,
-  readFinalReport,
-  readFinalReportOf,
   sessionEntriesIn,
   storyCardSessions,
 } from "../dashboardPage.ts";
@@ -22,8 +24,8 @@ import { report, save, retained, passive } from "../support/retainedReport.ts";
 import { launchStoreFile } from "../support/launchStore.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { expectSelected } from "../storyCardSelection.ts";
-import { closeSidePanel } from "../pageLayout.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -45,8 +47,8 @@ test("card, Recently done and sidebar review the retained report with attention,
   const entry = storyCardSessions(card(notRefinedStory));
   await expect(entry).toContainText("Ready for review");
   await expect(entry).toContainText("saved workspace is missing");
-  await expect(openTerminalOf(entry)).toHaveCount(0);
-  const open = readFinalReportOf(entry);
+  await expect(openTerminalControl(entry)).toHaveCount(0);
+  const open = readFinalReportControl(entry);
   // The fixture's launch protects the story's card until a published read
   // after its outcome reconciles it.
   await expect(open).toBeEnabled();
@@ -79,7 +81,7 @@ test("card, Recently done and sidebar review the retained report with attention,
   await readFinalReport(local);
   await expect(reportText).toHaveText(report);
   await closeSidePanel(panel);
-  await expect(readFinalReportOf(local)).toBeFocused();
+  await expect(readFinalReportControl(local)).toBeFocused();
   await show(journey.queued);
   await expect(recent).toHaveCount(0);
   await expect(entry).toContainText(record.session.sessionId);
@@ -173,7 +175,7 @@ test("changing or closing selection cancels a held report and never shows its te
   await expect(reportText).toHaveText("Second conversation's own result");
   await expect(panel).not.toContainText("a5df85d90a");
   await closeSidePanel(panel);
-  await expect(readFinalReportOf(second)).toBeFocused();
+  await expect(readFinalReportControl(second)).toBeFocused();
   expect(stored(dashboard.home).map((value) => value.doneAt)).toEqual([
     undefined,
     undefined,

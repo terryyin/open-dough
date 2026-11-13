@@ -1,13 +1,13 @@
+import { finalReportParts, readFinalReport } from "../finalReportPages.ts";
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Recorded Claude workspace retirement uses the shared passive final report.
 import { readFileSync, rmSync } from "node:fs";
 import type { APIResponse } from "@playwright/test";
 import { test, expect } from "../dashboardTest.ts";
 import { stored } from "../support/codexLaunch.ts";
+import { openTerminalControl, terminalPanel } from "../terminalScreenPage.ts";
 import {
-  finalReportParts,
-  openTerminalOf,
   parts,
-  readFinalReport,
   sessionStateOf,
   sessionUnreadReportOf,
   storyCardAttentionOf,
@@ -31,7 +31,6 @@ import {
 import { launchStoreFile } from "../support/launchStore.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { markAsDone, markDone } from "../support/markDone.ts";
-import { closeSidePanel } from "../pageLayout.ts";
 import { workspaceMissing } from "../../src/sessionAccess.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -153,16 +152,14 @@ for (const context of ["preparation", "start"] as const) {
     const entry = parts(page)
       .recentlyDone.getByRole("article")
       .filter({ hasText: record.session.sessionId });
-    const open = openTerminalOf(entry);
+    const open = openTerminalControl(entry);
     await expect(open).toBeVisible();
     rmSync(workspace, { recursive: true });
     await open.click();
     const { panel, reportText } = finalReportParts(page);
     await expect(reportText).toHaveText(report);
     await expect(panel).toContainText("saved workspace is missing");
-    await expect(
-      page.getByRole("region", { name: "Terminal", exact: true }),
-    ).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
     await expect(markAsDone(panel)).toHaveCount(0);
     expect(dashboard.claudeAttaches()).toEqual([]);
     expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(
@@ -213,8 +210,8 @@ for (const context of ["existing", "legacy"] as const) {
     const { card, settled } = await openStoryColumnsJourney(page, journey);
     await settled();
     const entry = storyCardSessions(card(notRefinedStory));
-    await openTerminalOf(entry).click();
-    const panel = page.getByRole("region", { name: "Terminal", exact: true });
+    await openTerminalControl(entry).click();
+    const panel = terminalPanel(page);
     await expect(panel).toBeVisible();
     await expect
       .poll(() => dashboard.claudeAttaches().map((attach) => attach.id))

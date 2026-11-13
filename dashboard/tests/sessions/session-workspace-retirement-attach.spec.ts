@@ -9,12 +9,8 @@ import {
 } from "node:fs";
 import type { APIResponse } from "@playwright/test";
 import { test, expect, stored } from "../support/codexLaunch.ts";
-import {
-  finalReportParts,
-  openTerminalOf,
-  parts,
-  storyCardSessions,
-} from "../dashboardPage.ts";
+import { parts, storyCardSessions } from "../dashboardPage.ts";
+import { openTerminalControl, terminalPanel } from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -30,6 +26,8 @@ import {
 } from "../support/codexTerminal.ts";
 import { processRunning } from "../support/processGroup.ts";
 import { expectSelected } from "../storyCardSelection.ts";
+import { finalReportParts } from "../finalReportPages.ts";
+import { markAsDone } from "../support/markDone.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -72,7 +70,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
         : parts(page)
             .recentlyDone.getByRole("article")
             .filter({ hasText: native.threadId });
-    const open = openTerminalOf(entry);
+    const open = openTerminalControl(entry);
     await expect(open).toBeVisible();
     await expect(entry).toContainText(
       doneAt === undefined ? "Ready for review" : "Done",
@@ -104,9 +102,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
         : "saved workspace is missing",
     );
     await expect(reportBody).toBeFocused();
-    await expect(
-      page.getByRole("region", { name: "Terminal", exact: true }),
-    ).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
     await expect(
       page.getByText("The session could not be attached", { exact: true }),
     ).toHaveCount(0);
@@ -114,9 +110,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     await expectSelected(card(notRefinedStory), true);
     if (loss === "unknown")
       await expect(panel).not.toContainText("workspace is missing");
-    await expect(
-      panel.getByRole("button", { name: "Mark as done" }),
-    ).toHaveCount(doneAt === undefined ? 1 : 0);
+    await expect(markAsDone(panel)).toHaveCount(doneAt === undefined ? 1 : 0);
     await page.keyboard.press("Meta+Shift+Escape");
     await expect(panel).toHaveCount(0);
     await expect(open).toBeFocused();

@@ -1,9 +1,10 @@
+import { openTerminalControl } from "../terminalScreenPage.ts";
 // Cursor lists native model choices after Default, validates the prompted run,
 // and preserves the configured model. The fixture records native argv; sibling
 // launch journeys prove that Default sends no --model.
 import path from "node:path";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts, openTerminalOf, sessionEntriesIn } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import {
@@ -104,7 +105,7 @@ test("execution on a Cursor-listed model sends it on the prompted run only, scop
   });
   expectChosenModelScope(record, dashboard.home, cursor, client, sharedBefore);
   await stayedUp(cursor, client.pid, 500);
-  await openTerminalOf(entry).click();
+  await openTerminalControl(entry).click();
   await expect.poll(() => cursor.attaches()).toHaveLength(1);
   expect(cursor.attaches()[0]?.pid).toBe(client.pid);
   expect(cursor.attaches()[0]?.args).toEqual([

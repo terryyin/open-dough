@@ -1,3 +1,4 @@
+import { reviewRefresh } from "../support/reviewControls.ts";
 // A Trunk Mode story taken in a terminal (./story-review-trunk-worktree.spec.ts)
 // beside other worktrees of the project's checkout, each added by Git and
 // authored through the real per-worktree authorship
@@ -10,6 +11,7 @@
 // file browser, diff, or marking controls, and the boundary refuses to read
 // or mark either.
 
+import { reviewChanges } from "../storyCardControls.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
@@ -36,7 +38,7 @@ import {
   reviewBody,
   reviewFeedback,
 } from "../support/reviewContextLine.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows, changedFilesList } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import {
   otherQueuedIdentity,
@@ -93,7 +95,7 @@ async function expectStoryWorktreeReviewedAlone(
   await expect(contextValues(review)).toHaveAccessibleName(
     contextWords({ branch, baseline: claim, workspace: shown("trunk-a") }),
   );
-  await expectTreeRows(review.getByRole("list", { name: "1 changed file" }), [
+  await expectTreeRows(changedFilesList(review, "1 changed file"), [
     "slice.txt",
   ]);
 }
@@ -149,7 +151,7 @@ test("two worktrees holding the story's claim open a review that names both and 
   const answered = page.waitForResponse(
     (response) => new URL(response.url()).pathname === storyReviewEndpoint,
   );
-  await card.getByRole("button", { name: "Review changes" }).click();
+  await reviewChanges(card).click();
   expect(storyReviewSchema.parse(await (await answered).json())).toEqual({
     kind: "unavailable",
     explanation,
@@ -166,7 +168,7 @@ test("two worktrees holding the story's claim open a review that names both and 
   await expect(
     review.getByRole("button", { name: "Mark reviewed" }),
   ).toHaveCount(0);
-  await expect(review.getByRole("button", { name: "Refresh" })).toBeVisible();
+  await expect(reviewRefresh(review)).toBeVisible();
 
   // The boundary refuses to mark or read either worktree, with the same
   // words.

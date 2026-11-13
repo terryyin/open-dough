@@ -1,3 +1,4 @@
+import { closeSidePanel, sidePanelNamesOf } from "../sidePanelFrame.ts";
 // A confirmed ad hoc launch with nothing typed opens its session in the page's
 // terminal at once, on the committed origin of ../launches/agent-launch-story-card.spec.ts (../launchJourney.ts):
 // the keyboard is in the terminal, its toolbar names the label, "Ad hoc
@@ -9,17 +10,16 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import {
+  terminalPanel,
+  terminalScreenParts,
+  openTerminalControl,
+} from "../terminalScreenPage.ts";
+import {
   expectQuietAdHocActionsRow,
   openTakenBacklog,
   startSessionField,
 } from "../launchStoryCardPage.ts";
-import {
-  parts,
-  sessionNamedBy,
-  openTerminalOf,
-  sessionEntriesIn,
-  sidePanelNamesOf,
-} from "../dashboardPage.ts";
+import { parts, sessionNamedBy, sessionEntriesIn } from "../dashboardPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { openWhileStarting } from "../support/adHocTerminalStartup.ts";
 
@@ -42,8 +42,8 @@ test("starting with nothing typed opens the session in the terminal with the key
   const dialog = page.getByRole("dialog", {
     name: "Start a session in Open Dough in Claude Code",
   });
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   const { taken } = parts(page);
 
   // A window short enough that the Board scrolls well past 40 px both
@@ -69,14 +69,12 @@ test("starting with nothing typed opens the session in the terminal with the key
   const sessionId = await sessionNamedBy(entry);
   const title = await entry.getByRole("heading", { level: 3 }).textContent();
   await expect(panel).toHaveCount(1);
-  await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
-    title ?? "",
-  );
+  await expect(terminalScreenParts(panel).heading).toHaveText(title ?? "");
   await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
     "Ad hoc session",
   );
   await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
-  await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
+  await expect(terminalScreenParts(panel).input).toBeFocused();
   await page.keyboard.type("hello there");
   await page.keyboard.press("Enter");
   await expect(rows).toContainText("echo hello there");
@@ -93,11 +91,11 @@ test("starting with nothing typed opens the session in the terminal with the key
     "true",
   );
 
-  await panel.getByRole("button", { name: "Close" }).click();
+  await closeSidePanel(panel, { using: "mouse" });
   await expect(panel).toHaveCount(0);
   await expect(button).toBeFocused();
   await expect(entry).not.toContainText("Shown in terminal");
-  await expect(openTerminalOf(entry)).toBeVisible();
+  await expect(openTerminalControl(entry)).toBeVisible();
   expect(dashboard.claudeAttaches().map((attach) => attach.id)).toEqual([
     sessionId.slice(0, 8),
   ]);
@@ -111,7 +109,7 @@ test("a terminal the developer closed while its session started stays closed onc
   dashboard.claudeScenario("launched");
   const { release, panel, shows, sessionId, openTerminal, terminalSockets } =
     await openWhileStarting(page, launchJourney);
-  await panel.getByRole("button", { name: "Close" }).click();
+  await closeSidePanel(panel, { using: "mouse" });
   await expect(panel).toHaveCount(0);
   await expect(openTerminal).toBeFocused();
   const attachments = terminalSockets.length;
@@ -150,7 +148,7 @@ test("a terminal the developer reopened while its session started stays open, at
     openTerminal,
     terminalSockets,
   } = await openWhileStarting(page, launchJourney);
-  await panel.getByRole("button", { name: "Close" }).click();
+  await closeSidePanel(panel, { using: "mouse" });
   await expect(panel).toHaveCount(0);
   await openTerminal.click();
   await shows(`attached ${sessionId.slice(0, 8)}`);

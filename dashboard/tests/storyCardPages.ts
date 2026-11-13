@@ -1,3 +1,5 @@
+import { readFinalReportControl } from "./finalReportPages.ts";
+import { openTerminalControl } from "./terminalScreenPage.ts";
 // The Board and its Story cards as fluent page objects for the Side panel
 // journeys (./sidePanelPages.ts): what a reader does on a card, which Side
 // panel content that opens, taken from the phase's page-object set, and how
@@ -6,13 +8,9 @@
 // the page object the reader is then at (./fluentPageObject.ts); the phase
 // runs the cues.
 
+import { reviewChanges } from "./storyCardControls.ts";
 import type { Locator } from "@playwright/test";
-import {
-  openTerminalOf,
-  parts,
-  readFinalReportOf,
-  storyCardSessions,
-} from "./dashboardParts.ts";
+import { parts, storyCardSessions } from "./dashboardParts.ts";
 import { PageObject } from "./fluentPageObject.ts";
 import type { SidePanelPages } from "./sidePanelPages.ts";
 import { expectInspected, expectSelected } from "./storyCardSelection.ts";
@@ -49,7 +47,7 @@ export class StoryCard extends PageObject {
 
   // The card's one Review changes action.
   get #reviewChanges() {
-    return this.#card.getByRole("button", { name: "Review changes" });
+    return reviewChanges(this.#card);
   }
 
   get #shownInTerminal() {
@@ -94,7 +92,7 @@ export class StoryCard extends PageObject {
   readFinalReport() {
     return this.cue(
       `${this.#named}: Read final report`,
-      () => readFinalReportOf(storyCardSessions(this.#card)).click(),
+      () => readFinalReportControl(storyCardSessions(this.#card)).click(),
       this.pages.finalReport,
     );
   }
@@ -103,7 +101,7 @@ export class StoryCard extends PageObject {
   openTerminal() {
     return this.cue(
       `${this.#named}: Open terminal`,
-      () => openTerminalOf(storyCardSessions(this.#card)).click(),
+      () => openTerminalControl(storyCardSessions(this.#card)).click(),
       this.pages.terminal,
     );
   }

@@ -14,9 +14,9 @@ scope: eight stories
 A developer reading dashboard tests in Intent can follow what the user does,
 what changes, and what the test proves. When a shared control changes, its
 browser mechanics have one maintained owner across the affected tests.
-All 26 original findings, including sibling specs that repeat the same
-sequence or selector, remain allocated below. Each story owns its allocated
-findings; no individual story must complete the entire family.
+The remaining findings, including sibling specs that repeat the same
+sequence or selector, are allocated below. Each remaining story owns its
+allocated findings; no individual story must complete the entire family.
 
 Preserve distinct behavior checks and existing test tiers. Shared browser
 helpers accept caller-supplied expected facts; domain setup stays with MakeMe.
@@ -43,8 +43,6 @@ new plans, not an invented slice history.
 
 | Order | Receiving story | Findings | Preparation / scheduling |
 | --- | --- | --- | --- |
-| 2 | [Express review and Side panel test intent through page objects](#express-review-test-intent-through-page-objects) | 3 | Story refined and existing plan realigned; queued |
-| 3 | [Express Terminal test intent through page objects](#express-terminal-test-intent-through-page-objects) | 1 | Story refined and existing plan realigned; queued |
 | 4 | [Express Board and published-read test intent through page objects](#express-board-test-intent-through-page-objects) | 6 | Story refined and existing plan realigned; queued |
 | 5 | [Express session discovery and report test intent through page objects](#express-session-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
 | 6 | [Express launch dialog and startup test intent through page objects](#express-launch-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
@@ -183,7 +181,7 @@ North Star direction needs no addition for this test-side change.
   action and expected outcome in domain terms, with repeated locators and
   interaction sequences owned by shared helpers. Prefer existing procedural
   helpers and component owners. The
-  [fluent pilot](../../dashboard/tests/writing-journeys.md#what-the-pilot-earned)
+  [fluent pilot](../../dashboard/tests/fluent-side-panel-pilot.md#what-the-pilot-earned)
   supplies evidence for shared controls and recurring handoffs. Adopt fluent
   phases where those benefits justify the extra code.
 - A shared control edit, such as the Story card's Review changes action or
@@ -203,231 +201,13 @@ North Star direction needs no addition for this test-side change.
   specs and the applicable dashboard gates under the project's
   [failing and flaky test policy](../../AGENTS.md#failing-and-flaky-tests).
 
-<a id="express-review-test-intent-through-page-objects"></a>
-
-### Express review and Side panel test intent through page objects
-
-**Identity:** SEED-300#express-review-test-intent-through-page-objects
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/582-review-test-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a08be905afac3bb73c694817039fb480e495f7496c52e86967ed70eb109f34cf","plan":"a62d10a47db3d4b2d036245d8ae7dfeda61c49bcbccf21f98d9eea437c134d39"}}
-```
-
-#### Goal
-
-A developer reading review and Side panel tests in Intent can follow what the
-reviewer opens, compares, refreshes and keeps beside the Board. Shared review
-and divider controls have one browser owner, so a control change needs one
-mechanics edit while each scenario still states the behavior it proves.
-
-#### Scope
-
-Resolve the three audit findings below and their current same-control or
-same-sequence sibling callers, including review entry from Intent and panel
-interactions in Final report and Terminal journeys:
-
-- Express branch, trunk, completed and one-shot review entry and comparison
-  through shared controls. Procedural and fluent Review changes callers use
-  the same control owner; snapshot waits remain with the operation needing them.
-- Express file-tree choice, diff/context reading, retained focus/scroll and
-  freshness through the existing suitable review owners. The scenario supplies
-  its expected revisions, file order, diff text, line counts and check facts.
-- Express Side panel opening/closing, divider drag/cancellation, keyboard
-  resizing, covering, retained width and Board return through shared operations.
-  Actual input modality, chosen widths/bounds, before/after measurements,
-  request counts and native attach evidence remain visible where they explain
-  the outcome. Closing the panel preserves the Selected story (ADR 0008).
-
-Required preservation constraints prevent helpers from concealing a regression:
-keep held responses and their release order, later choices, exact input and
-focus expectations, and independent accessibility/geometry observations.
-Domain setup stays with MakeMe. A helper must not derive an expected fact from
-the production value it observes or silently make a pending read complete.
-
-Scope limits: no dashboard behavior change, suite-wide speed claim, universal
-fluent conversion, new page-object framework, or wholesale migration of the
-Terminal, session/report, Board or Intent sibling stories. Shared panel/control
-callers in those families are included where these findings reach them; their
-unrelated workflows remain with their own stories. Necessary proof-harness
-repair follows the project's failing/flaky-test policy and preserves the
-default timeout and complete journeys.
-
-**Plan:** [Executable plan](../slice-plans/582-review-test-intent/PLAN.md)
-
-#### Key examples
-
-1. A procedural comparison case and a fluent Board-to-review journey open a
-   story's review → the developer follows the named entry and comparison
-   operations → both use one Review changes control owner, while each exposes
-   its chosen story, baseline/run and expected changed files or diff. The
-   action-contract case still states its own accessible name and keyboard order.
-2. A review has a selected file and a reading place → the reviewer changes
-   context, scrolls or uses touch/keyboard to choose another file → the test
-   names the selected file, exact lines, input and retained reading place;
-   shared tree/pane operations own their browser mechanics.
-3. A review or file answer is held and the reviewer makes a later choice → the
-   old answer is released, then the review is refreshed or resized → the test
-   keeps the holds/releases and expected old/new facts explicit, and still
-   checks which run/file stays selected and which requests occurred.
-4. A Terminal, review or Final report occupies the Side panel → the reviewer
-   drags or cancels the divider, uses arrow keys, maximizes/restores, narrows
-   the window or closes/reopens content → shared panel operations expose the
-   actual input; caller facts still prove width/bounds, focus, retained content,
-   no unintended review read or attachment, and the preserved Selected story.
-5. A maintainer changes a shared control → affected procedural and fluent
-   callers need one selector edit → a finding/caller disposition and one
-   before/after per finding demonstrate clearer actions and outcomes, fewer
-   mechanics edit sites, and helper cost justified by that gain. Every distinct
-   behavior check and test tier remains represented.
-
-#### Audit findings owned by this story
-
-- **Opening review and reading a comparison.** The fluent pilot owns
-  `Review changes` within its three journeys. A literal role-name search
-  still finds that control in 22 specs. Procedural review, Intent handoffs
-  and panel resize cases repeatedly select the review region, comparison,
-  file, additions/removals and line counts. Share those controls with the
-  existing review helpers across branch, trunk, completed and one-shot
-  review. Keep the revision, file and diff expectations at the call site.
-  [Review entry](../../dashboard/tests/review/story-review-action.spec.ts#L49),
-  [trunk commit review](../../dashboard/tests/review/story-review-commit-trunk.spec.ts#L29),
-  [completed review](../../dashboard/tests/review/story-review-completed.spec.ts#L34),
-  [one-shot choice](../../dashboard/tests/review/story-review-one-shot-choice.spec.ts#L44),
-  [review from Intent](../../dashboard/tests/intent/intent-story-review-return.spec.ts#L32).
-
-- **Review tree, diff and freshness.** Tree, pane, diff context and refresh
-  specs duplicate selected-file, diff-row, focus and scroll mechanics.
-  Commit refresh and uncommitted check specs also rebuild refresh controls
-  and displayed file checks. Compose these observations using the tree,
-  pane and commit-choice helpers, while leaving held responses and the
-  ordering of their release in the test.
-  [Tree](../../dashboard/tests/review/story-review-tree.spec.ts#L71),
-  [diff context](../../dashboard/tests/review/story-review-diff-context.spec.ts#L79),
-  [refresh](../../dashboard/tests/review/story-review-refresh.spec.ts#L56),
-  [commit refresh](../../dashboard/tests/review/story-review-commit-refresh.spec.ts#L35),
-  [uncommitted check refresh](../../dashboard/tests/review/story-review-uncommitted-check-refresh.spec.ts#L46).
-
-- **Divider, covering and returning to the Board.** The width specs already
-  share geometry helpers, yet repeat panel open/close, drag cancellation,
-  arrow-key loops, viewport transitions and xterm access. Share panel and
-  divider actions with Final report and Terminal journeys. Keep chosen
-  widths, bounds, input modality, before/after measurements and attach or
-  request counts legible.
-  [Width and cancellation](../../dashboard/tests/navigation/side-panel-width.spec.ts#L87),
-  [covering](../../dashboard/tests/navigation/side-panel-width-covering.spec.ts#L94),
-  [kept width](../../dashboard/tests/navigation/side-panel-width-kept.spec.ts#L34),
-  [Final report divider](../../dashboard/tests/sessions/final-report-touch-divider.spec.ts#L48),
-  [Terminal maximize](../../dashboard/tests/terminals/agent-terminal-maximize.spec.ts#L165).
-
-<a id="express-terminal-test-intent-through-page-objects"></a>
-
-### Express Terminal test intent through page objects
-
-**Identity:** SEED-300#express-terminal-test-intent-through-page-objects
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/583-terminal-test-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"905bbc6a9a0c895526f2add17ec8fd7a3e2ba4b1ee9288cf161f4e3e822b692e","plan":"68ce3ccab41e56fd0dd8322ec309464e3c3d32d94802cd6a2a13330cbec114e7"}}
-```
-
-#### Goal
-
-A developer reading Terminal tests in Intent can follow which session opens,
-what the user enters or receives, and how input recovers. Shared Terminal
-screen and input controls have one browser owner, so a control change needs
-one mechanics edit while each scenario keeps the evidence that distinguishes
-its outcome.
-
-#### Scope
-
-Resolve the Terminal input/output finding and its current same-control or
-same-sequence siblings across integrated and frontend tests, including launch,
-session, navigation, configuration and story-reading callers. The 63 audited
-direct-selector specs at `7eab3d6ca` are a historical starting set, not a
-completion count. Reconcile moved mechanics and newly added callers.
-
-- Share screen/output, input/draft/focus and Terminal identity observations,
-  composing the existing session-entry and Side panel controls for opening,
-  closing and recovery. Procedural and fluent callers use the same control
-  owner without requiring a suite-wide fluent conversion.
-- Express keyboard input, trust and prompt choices, connecting/refused/ended
-  input and deliberate recovery through named actions and observations.
-- Express touch keys, soft-keyboard fit, composition, selection/copy, paste
-  and voice through the existing focused owners. Selection/copy is a current
-  same-control sibling; preserve its paused-screen and application-mode proof.
-
-Required preservation constraints prevent helpers from hiding regressions:
-literal commands, draft and output expectations, input modality, focus and
-session identity stay visible where they explain the case. Keep held answers,
-provider events, clock advances and release/retry order explicit. Preserve
-native attach/PTY lines, WebSocket frames, request counts and kept records at
-their independent observing boundaries. Direct accessibility, rendition and
-geometry observations remain independent when that interface is the contract.
-Helpers receive caller facts and never infer expected values from production
-state or silently complete a held read. Domain data stays with MakeMe and each
-test keeps its existing tier.
-
-Scope limits: no dashboard behavior change, new browser-test framework,
-universal fluent conversion, fewer-case or faster-suite claim, or wholesale
-migration of the sibling launch, session/report, Board, review, settings or
-measurement workflows. Their Terminal-control callers are included; unrelated
-workflow mechanics stay with their own stories. Necessary proof-harness
-repair follows the project's failing/flaky-test policy.
-
-**Plan:** [Executable plan](../slice-plans/583-terminal-test-intent/PLAN.md)
-
-#### Key examples
-
-1. A procedural host/reconnect case and a fluent Side panel journey open a
-   session → each reads output through the shared Terminal owner → the source
-   names the chosen session and expected text, while native attach counts,
-   retained records and later reconnect identity remain independently checked.
-2. A Terminal is connecting, refused, on a trust prompt or ended → the user
-   makes the case's explicit input or recovery choice → the test still shows
-   which exact bytes reached which session, what was withheld, and which
-   deliberate choice makes input available again. Recovery never hides a
-   queued input replay or an extra native session.
-3. A phone user types with Terminal keys or composes a draft while the soft
-   keyboard changes the available room → the test names the actual key,
-   gesture, viewport and draft → focus and fitting remain observable, Insert
-   sends the draft once without Enter, and deliberate Enter alone submits.
-   A paused selection case still distinguishes copied text from application
-   input and scrolling.
-4. A clipboard payload is available while attachment readiness is held, or
-   the server refuses an image → the user chooses Paste and then explicitly
-   retries when ready → the source retains the payload, refusal and release
-   order; draft, sent bytes and native output prove insertion or refusal.
-   Frontend substitutes remain frontend proof rather than claiming PTY proof.
-5. Voice transcription is held while the user types or changes sessions →
-   recording, provider release and the chosen follow-up remain separate →
-   expected transcript, retained draft, cancellation and final submitted line
-   are visible in the case, with provider and native evidence independent.
-6. A developer reviews the migration → every historical finding/current
-   caller has an evidence-backed disposition → representative scenarios read
-   in user terms, shared controls have one mechanics owner, and clarity/edit
-   savings justify the added helper cost without losing distinct checks.
-
-#### Audit findings owned by this story
-
-- **Terminal input and output.** Direct xterm rows or helper-textarea selectors
-  occur in 63 browser specs, across Terminal, launch, session, navigation,
-  configuration and frontend tests. Share reading output, sending commands,
-  checking the current draft and terminal identity, and opening or closing
-  the panel. Use the existing Terminal, touch and paste helpers to cover
-  prompts, trust, ended-input recovery, keyboard, soft keyboard, compose,
-  paste, and voice. Keep actual input, output, and native attach/PTY evidence
-  as test facts.
-  [Keyboard](../../dashboard/tests/terminals/agent-terminal-keyboard.spec.ts#L103),
-  [touch keys](../../dashboard/tests/terminals/agent-terminal-touch-keys.spec.ts#L59),
-  [keyboard fit](../../dashboard/tests/terminals/agent-terminal-touch-keyboard-fit.spec.ts#L85),
-  [voice](../../dashboard/tests/terminals/session-terminal-voice.spec.ts#L32),
-  [frontend paste](../../dashboard/frontend-tests/agent-terminal-touch-paste-image.spec.ts#L66),
-  [frontend prompts](../../dashboard/frontend-tests/terminal-prompts-recovery.spec.ts#L100).
-
 <a id="express-board-test-intent-through-page-objects"></a>
 
 ### Express Board and published-read test intent through page objects
 
 **Identity:** SEED-300#express-board-test-intent-through-page-objects
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/584-board-test-intent/PLAN.md","assessment":"not-ready","reasons":["Slice 2: native End reproducibly focuses Board but leaves scrollTop 0 instead of 5457 in the real integrated journey; the same-profile ordinary-document End comparison passes. Diagnose and repair the Board handoff, then pass the complete native/control/modal reading journey before reassessing readiness."],"basis":{"document":"e9b268d68c30ba3523cd5f3d3eafc62c55f499081346de375177fee88440e9d6","plan":"c3af40e34ed1a88473465879565b1e9184febf52f9e9031065d6efa274110788"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/584-board-test-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"209f91a50aa25a8f55a6d5af7aac2ad3e550e7b82f0c497eb65a7e700a309cd2","plan":"86d6bf4a32b3211f138dac9f894714add84d55787bf9c094a9e9cf7d8ae560a0"}}
 ```
 
 #### Goal
@@ -569,7 +349,7 @@ No new product rejection constraint or dependency on a sibling story is added.
   which requests answer, visible entry order, and the distinction between
   showing fewer stories and abandoning a pending destination.
   [Progressive loading](../../dashboard/tests/stories/recently-done-progressive-loading.spec.ts#L81),
-  [retained state](../../dashboard/tests/stories/recently-done-progressive-state.spec.ts#L111),
+  [retained state](../../dashboard/tests/stories/recently-done-progressive-state.spec.ts#L113),
   [refresh](../../dashboard/tests/stories/recently-done-progressive-refresh.spec.ts#L113),
   [read latency](../../dashboard/tests/stories/recently-done-read-latency.spec.ts#L38).
 

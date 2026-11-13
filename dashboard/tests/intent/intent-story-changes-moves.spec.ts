@@ -11,6 +11,7 @@
 // tree shows, the story's added one included. The highlighted journey:
 // ./intent-story-changes.spec.ts.
 
+import { reviewRegion } from "../support/storyReviewMark.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
   expectOutsideCount,
@@ -110,7 +111,7 @@ test("deletions and renames admitted by either path stay reviewable in Intent wi
     for (const [name, diff] of inIntent)
       expect(await reviewDiff(page, name), name).toBe(diff);
     await expect(
-      page.getByRole("region", { name: "Story review" }).getByRole("button", {
+      reviewRegion(page).getByRole("button", {
         name: "Renamed docs/notes.md → docs/renamed-notes.md",
         exact: true,
       }),

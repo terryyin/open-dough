@@ -15,7 +15,6 @@ import { queuedIdentity, queuedTitle } from "../support/startOrigin.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
-  openTerminalOf,
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
@@ -27,6 +26,7 @@ import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { cursorRunnerSentence } from "../../src/cursorRunnerSessions.ts";
 import { messagePartOf } from "../support/sessionMessagePart.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 const exec = promisify(execFile);
 
@@ -117,7 +117,7 @@ test("Cursor installed report offers local Done without a native stop capability
   const part = messagePartOf(card);
   await expect(part.text).toHaveText(readFileSync(message, "utf8"));
   // The message is read on the entry; the side panel offers the terminal only.
-  await expect(openTerminalOf(card)).toBeVisible();
+  await expect(openTerminalControl(card)).toBeVisible();
   await expect(card.getByRole("button", { name: /^Read / })).toHaveCount(0);
   const before = cursor.calls().length;
   const listed = storyCardSessions(card);

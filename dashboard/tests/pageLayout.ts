@@ -5,11 +5,12 @@
 // compared in partArrangement.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
+import { closeSidePanel } from "./sidePanelFrame.ts";
 import { untilPublishedWorkRead } from "./pageRequestNotes.ts";
-import { box } from "./partArrangement.ts";
 
 export {
   expectEveryControlReachable,
+  pressWhereShown,
   tapWhereShown,
 } from "./controlReachability.ts";
 
@@ -189,14 +190,6 @@ export async function expectNoSidewaysScrollIn(page: Page, area: Locator) {
   ).toEqual([]);
 }
 
-// Presses the control with the mouse where it shows. Locator.click() would
-// first scroll the window to bring a pinned control into view, which a
-// developer's click never does, moving the page a journey compares.
-export async function pressWhereShown(control: Locator) {
-  const { x, y, width, height } = await box(control);
-  await control.page().mouse.click(x + width / 2, y + height / 2);
-}
-
 // Selected project id under the page column. Covering aria-hides the column,
 // so role queries miss it; CSS still reaches the checked project radio, or at the
 // compact project control the title button's data-project-id
@@ -217,15 +210,14 @@ export async function pageColumnProjectValue(
   });
 }
 
-// After Close, the Board (and banner) are readable again; use this when a
-// journey opened a covering panel and still needs Board assertions.
-// Covering also aria-hides preparation text, so wait for it to finish in the
-// restored tree before Board reads.
-export async function closeSidePanel(panel: Locator) {
-  const page = panel.page();
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+// Closes the Side panel and waits until the Board reads again: the panel is
+// gone and, since covering aria-hides preparation text, that reading has left
+// the restored tree. Callers proving held Close causality press the frame's
+// closeSidePanel instead.
+export async function closeSidePanelToBoard(panel: Locator) {
+  await closeSidePanel(panel);
   await expect(panel).toHaveCount(0);
-  await expect(page.getByText("Reading preparation…")).toHaveCount(0);
+  await expect(panel.page().getByText("Reading preparation…")).toHaveCount(0);
 }
 
 // The frame's top bars laid out on the page — the banner, the open Sessions

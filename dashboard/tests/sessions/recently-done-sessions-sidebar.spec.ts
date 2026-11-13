@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Recently done sessions in the Sessions sidebar: collapsed by default,
 // completion-ordered across configured projects, completion ages, newest 20,
 // and opening through each row's Open control in PageFrame. Room sharing,
@@ -11,6 +12,7 @@ import {
 } from "../dashboardPage.ts";
 import { browserLocaleString } from "../browserLocale.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   expectRecentlyDone,
   recentlyDoneParts,
@@ -147,14 +149,14 @@ test("finds and opens the newest completed sessions across projects from a colla
 
   await test.step("choosing a Done entry in another project opens its destination and switches project", async () => {
     await shown.open(newestTitle).click();
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await expect(panel.getByRole("heading")).toHaveText(newestTitle);
     await expectProjectChoice(page, "Doughnut");
     const local = parts(page).recentlyDone.getByRole("article", {
       name: standaloneSessionName("Ad hoc", newestTitle),
     });
     await expect(local).toBeVisible();
-    await panel.getByRole("button", { name: "Close" }).click();
+    await closeSidePanel(panel, { using: "mouse" });
     await expect(panel).toHaveCount(0);
   });
 
@@ -175,7 +177,7 @@ test("finds and opens the newest completed sessions across projects from a colla
     await expect(local).toBeInViewport();
     await expect(local).toHaveClass(/\bselected-session\b/);
     await expect(parts(page).development).toBeChecked();
-    await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
     expect(dashboard.claudeAttaches()).toHaveLength(attaches);
   });
 

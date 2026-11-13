@@ -7,6 +7,8 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 # shellcheck source=tests/helpers/payload-bytes.bash
 source "${source_dir}/tests/helpers/payload-bytes.bash"
+# shellcheck source=tests/helpers/installed-ci-proof-fixture.bash
+source "${source_dir}/tests/helpers/installed-ci-proof-fixture.bash"
 
 if (($# < 2)); then
   echo "Usage: $0 <codex|cursor|claude> <managed-file>..." >&2
@@ -60,6 +62,7 @@ bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
 expected_source=$(cd -- "${source_dir}" && pwd -P)
 for skill_root in "${skill_roots[@]}"; do
   assert_payload_bytes_match "${source_dir}/src/skills" "${target}/${skill_root}"
+  assert_installed_ci_proof "${target}/${skill_root}"
   # Load the actual installed completion entry points and their relative imports.
   node --input-type=module - "${target}/${skill_root}" << 'NODE'
 import { pathToFileURL } from "node:url";

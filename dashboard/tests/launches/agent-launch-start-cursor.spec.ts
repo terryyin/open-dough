@@ -8,11 +8,12 @@ import { execFileSync } from "node:child_process";
 import { keptLaunchRecords } from "../support/launchStore.ts";
 import path from "node:path";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts, openTerminalOf } from "../dashboardPage.ts";
+import { parts } from "../dashboardPage.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { expect, test } from "../support/cursorStart.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 
@@ -61,7 +62,7 @@ test("a queued story starts Cursor execution in the dashboard workspace and the 
     timeout: launchWaitMs,
   });
   await expect(entry).toContainText(cursor.sessionId);
-  await expect(openTerminalOf(entry)).toHaveCount(1);
+  await expect(openTerminalControl(entry)).toHaveCount(1);
 
   expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
   const created = cursor.calls()[0];

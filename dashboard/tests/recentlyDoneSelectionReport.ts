@@ -4,14 +4,12 @@
 
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import {
-  finalReportParts,
-  parts,
-  type FinalReportParts,
-} from "./dashboardPage.ts";
+import { parts } from "./dashboardPage.ts";
+import { finalReportParts, type FinalReportParts } from "./finalReportPages.ts";
 import { report } from "./recentlyDoneSelectionJourney.ts";
 import type { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
+import { terminalPanel } from "./terminalScreenPage.ts";
 
 // Opens the reported session's final report through its row's Open, not its
 // Select, and returns that report, showing exactly the session's message.
@@ -46,7 +44,7 @@ export async function expectDevelopmentKept(
     ).toHaveCount(0);
   } else {
     await expect(shownReport.reportText).toHaveText(report.message);
-    await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
   }
   expect(dashboard.claudeAttaches()).toEqual([]);
 }

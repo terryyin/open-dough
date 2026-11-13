@@ -1,11 +1,12 @@
 // A disposed socket cannot control a later mounted attachment of the same request.
 import { mkdirSync, readFileSync } from "node:fs";
 import { test, expect } from "../support/codexLaunch.ts";
+import { storyCardSessions } from "../dashboardPage.ts";
 import {
-  finalReportParts,
-  openTerminalOf,
-  storyCardSessions,
-} from "../dashboardPage.ts";
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -15,6 +16,7 @@ import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { save, retained } from "../support/retainedReport.ts";
 import { launchStoreFile } from "../support/launchStore.ts";
 import { codexAttaches } from "../support/codexTerminal.ts";
+import { finalReportParts } from "../finalReportPages.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -54,9 +56,9 @@ test("a disposed attachment cannot redirect or write into a current retry of the
   });
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  await openTerminalOf(storyCardSessions(card(notRefinedStory))).click();
-  const panel = page.getByRole("region", { name: "Terminal", exact: true });
-  const rows = panel.locator(".xterm-rows");
+  await openTerminalControl(storyCardSessions(card(notRefinedStory))).click();
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   await expect(rows).toContainText("original retained history");
   await page.keyboard.press("Control+z");
   await expect(panel.getByRole("status")).toContainText("The terminal ended");

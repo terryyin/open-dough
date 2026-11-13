@@ -4,17 +4,9 @@
 // Open terminal, as a developer would. A journey whose promise is the
 // presentation itself does not use this.
 import { expect, type Locator, type Page } from "@playwright/test";
-import { openTerminalOf } from "../dashboardParts.ts";
 import { expectQuietAdHocActionsRow } from "../launchStoryCardPage.ts";
+import { openTerminalFromEntry, terminalPanel } from "../terminalScreenPage.ts";
 import { launchWaitMs } from "./launchWait.ts";
-
-// Opens the terminal of the session `entry` lists, as a developer would.
-export async function openEntryTerminal(entry: Locator) {
-  const open = openTerminalOf(entry);
-  // Keyboard focus first reveals a Board column the Side panel pages out.
-  await open.focus();
-  await open.click();
-}
 
 // `entry` is the started session's entry, which may not be listed yet, and
 // the page shows no other session's terminal. A terminal covering a narrow
@@ -27,10 +19,10 @@ export async function startedSessionTerminal(
   page: Page,
   entry: Locator,
 ): Promise<Locator> {
-  const panel = page.getByRole("region", { name: "Terminal" });
+  const panel = terminalPanel(page);
   await expect(panel.or(entry)).not.toHaveCount(0, { timeout: launchWaitMs });
   await expectQuietAdHocActionsRow(page);
-  if ((await panel.count()) === 0) await openEntryTerminal(entry);
+  if ((await panel.count()) === 0) await openTerminalFromEntry(entry);
   await expect(panel).toHaveCount(1);
   return panel;
 }

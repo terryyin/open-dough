@@ -10,12 +10,15 @@ export function sessionsSidebarParts(page: Page) {
     exact: true,
   });
   const banner = page.getByRole("banner");
-  const entries = sidebar.locator(
-    ".sessions-sidebar-sessions li.sessions-sidebar-session-entry",
-  );
+  // The open session list, which scrolls on its own.
+  const list = sidebar.locator(".sessions-sidebar-sessions");
+  const entries = list.locator("li.sessions-sidebar-session-entry");
   return {
     sidebar,
     button: banner.getByRole("button", { name: "Sessions" }),
+    // The sidebar's own title.
+    heading: sidebar.getByRole("heading", { level: 2, name: "Sessions" }),
+    list,
     // How many sessions need attention, as the number on the button's badge,
     // when any do.
     badge: banner.getByRole("img", {
@@ -34,10 +37,7 @@ export function sessionsSidebarParts(page: Page) {
     // The open-list entry, as a whole row, for the story with this title.
     row: (title: string) => entries.filter({ hasText: title }),
     // The open-list control of the entry for the story with this title.
-    entry: (title: string) =>
-      sidebar
-        .locator(".sessions-sidebar-sessions")
-        .getByRole("button", { name: title }),
+    entry: (title: string) => list.getByRole("button", { name: title }),
     // The card's attention sentence, which the sidebar never shows.
     attentionSentence: sidebar.getByText(/\d+ sessions? needs? attention/),
   };

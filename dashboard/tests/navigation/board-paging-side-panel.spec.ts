@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // The Board's own width decides how many Board Columns show, so the side
 // panel opening and closing pages them as a window would: beside it a 54rem
 // Board shows two columns and a column paging control naming the hidden one, a move
@@ -6,7 +7,12 @@
 // narrow window pages the columns is ./board-paging.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
-import { storyCardSessions, parts, openTerminalOf } from "../dashboardPage.ts";
+import { storyCardSessions, parts } from "../dashboardPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   openTakenBacklog,
   startSession,
@@ -39,7 +45,7 @@ test.describe("beside the side panel", () => {
   }) => {
     dashboard.claudeScenario("launched");
     const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
-    const terminal = page.getByRole("region", { name: "Terminal" });
+    const terminal = terminalPanel(page);
     const { taken } = parts(page);
     // The view, beside a terminal whose screen scrolls on its own; the panel
     // header title truncates by design with disclosure (./SidePanelTitle.tsx).
@@ -61,7 +67,9 @@ test.describe("beside the side panel", () => {
       const project = startSessionDialog(page, "Open Dough");
       await startSession(page, "Open Dough").click();
       await project.getByRole("button", { name: "Start" }).click();
-      await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+      await expect(terminalScreenParts(terminal).rows).toContainText(
+        "attached",
+      );
       expect((await box(page.locator(".page-column"))).width).toBeCloseTo(
         54 * rem,
         0,
@@ -77,14 +85,16 @@ test.describe("beside the side panel", () => {
     });
 
     await test.step("the side panel closes: all three show and both controls go", async () => {
-      await terminal.getByRole("button", { name: "Close" }).click();
+      await closeSidePanel(terminal, { using: "mouse" });
       await expect(terminal).toHaveCount(0);
       await expectShown(columns, []);
     });
 
     await test.step("the side panel reopens: Taken and Recently done show again", async () => {
-      await openTerminalOf(taken).click();
-      await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+      await openTerminalControl(taken).click();
+      await expect(terminalScreenParts(terminal).rows).toContainText(
+        "attached",
+      );
       await expectShown(["Taken", "Recently done"], ["Backlog 2 entries"]);
     });
 

@@ -4,21 +4,20 @@ import { exactRepeatRun, sameRun } from "./ciFollowUpGithub.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { attemptTimingBasis } from "../src/ciAttemptTiming.ts";
 import { collectedProofOf } from "./landedCiCollectedProof.ts";
-import { wallTimeReadingOf } from "./ciWallTimeReference.ts";
 import { fullRepeatJobs } from "./ciFollowUpDecision.ts";
-import type { RepeatRequest } from "./ciFollowUpStore.ts";
-import { reachesFollowUpThreshold } from "../src/ciFollowUpRule.ts";
+import type { GithubRepeatRequest } from "./ciFollowUpStore.ts";
+import { repeatTimingVerdict } from "./ciFollowUpVerdict.ts";
 
-const unverified = (explanation: string): RepeatRequest["outcome"] => ({
+const unverified = (explanation: string): GithubRepeatRequest["outcome"] => ({
   kind: "unverified",
   explanation,
 });
 
 export async function observeRepeat(
   source: PublishedSource,
-  request: RepeatRequest,
+  request: GithubRepeatRequest,
   signal: AbortSignal,
-): Promise<RepeatRequest["outcome"]> {
+): Promise<GithubRepeatRequest["outcome"]> {
   if (request.submission.kind === "refused")
     return {
       settled: true,
@@ -155,9 +154,8 @@ export async function observeRepeat(
       proof: collected.proof,
       proofPending: collected.pending,
     };
-    const ms = wallTimeReadingOf(measured).ms;
-    const average = request.reference.averageMs;
-    if (ms === undefined || average === undefined || average <= 0)
+    const verdict = repeatTimingVerdict(request, measured);
+    if (verdict === undefined)
       return {
         observed,
         settled: !collected.pending,
@@ -173,14 +171,10 @@ export async function observeRepeat(
         repeat: measured,
         ...unverified(acceptance),
       };
-    const slow = reachesFollowUpThreshold(ms, average, request.rule);
     return {
       observed,
       settled: true,
-      kind: slow ? "slow" : "recovered",
-      explanation: slow
-        ? "Possible CI slowdown"
-        : "CI timing returned to range",
+      ...verdict,
       repeat: measured,
     };
   } catch {

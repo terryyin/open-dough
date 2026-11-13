@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Sessions a replaced runner held: observation of a stale-proof runner
 // starts or replaces nothing, a third launch replaces it when recorded
 // build proof differs, and unfinished sessions that runner last held are
@@ -7,10 +8,15 @@
 // controls live in ./cursor-runner-replacement-controls.spec.ts.
 import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
-import { openTerminalOf, parts, sessionEntriesIn } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { openRunningList } from "../runningCursorList.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   holdSession,
   showPageWithTaken,
@@ -52,7 +58,7 @@ workingCursorTest(
     const calls = cursor.calls().length;
     const attaches = cursor.attaches().length;
     makeRecordedRunnerProofStale(dashboard.home);
-    const shownTerminal = page.getByRole("region", { name: "Terminal" });
+    const shownTerminal = terminalPanel(page);
     const { region, heldRows } = await openRunningList(page);
     await expect(region).toContainText("The Cursor runner is running.");
     const row = heldRows(/Open Dough/);
@@ -63,7 +69,7 @@ workingCursorTest(
     expect(cursor.attaches()).toHaveLength(attaches);
 
     await row.click();
-    await expect(shownTerminal.locator(".xterm-rows")).toContainText(
+    await expect(terminalScreenParts(shownTerminal).rows).toContainText(
       "ctrl+c to stop",
     );
     expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(runnerPid);
@@ -110,7 +116,7 @@ replacementTest(
     const running = await openRunningList(page);
     await expect(running.region).toContainText("The Cursor runner is running.");
     await expect(running.heldRows(/Open Dough/)).toHaveCount(2);
-    await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
     await running.button.click();
     await expect(running.sidebar).toBeHidden();
     const entries = sessionEntriesIn(parts(page).taken);
@@ -120,10 +126,12 @@ replacementTest(
     await sessionDetails(scopedEntry);
     await expect(scopedEntry.getByText("First input accepted")).toBeVisible();
     await closeSessionDetails(scopedEntry);
-    const panel = page.getByRole("region", { name: "Terminal" });
-    await openTerminalOf(scopedEntry).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("Add a follow-up");
-    await panel.getByRole("button", { name: "Close", exact: true }).click();
+    const panel = terminalPanel(page);
+    await openTerminalControl(scopedEntry).click();
+    await expect(terminalScreenParts(panel).rows).toContainText(
+      "Add a follow-up",
+    );
+    await closeSidePanel(panel);
     await expect(panel).toHaveCount(0);
     expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(stalePid);
     expect(agentCalls(cursor)).toEqual(callsBefore);
@@ -156,7 +164,7 @@ replacementTest(
       )
       .toBe(1);
     if ((await panel.count()) > 0) {
-      await panel.getByRole("button", { name: "Close", exact: true }).click();
+      await closeSidePanel(panel);
       await expect(panel).toHaveCount(0);
     }
     const replacement = readCursorRunnerAddress(dashboard.home);

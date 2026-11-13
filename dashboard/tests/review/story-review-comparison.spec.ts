@@ -7,6 +7,7 @@
 // changed since the review, without Hide files, and offers the same switch;
 // an unmarked story's review opens on all its changes and offers Commits.
 
+import { changedFilesList } from "../support/reviewTreeRows.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
@@ -14,17 +15,17 @@ import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import {
-  comparison,
   expectShown,
   expectSinceTheReview,
   keptStoryAMark,
   markedThenChanged,
   markReviewed,
-  nextSnapshot,
+  refreshReview,
   openStoryReview,
   reopenStoryReview,
   reviewRegion,
   twelveFileWorktree,
+  comparisonChoice,
 } from "../support/storyReviewMark.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 
@@ -52,26 +53,18 @@ test("the switch shows the same snapshot against trunk and back without reading 
 
   // The worktree changes meanwhile; the snapshot shown does not.
   writeFileSync(path.join(workspace, "meanwhile.txt"), "meanwhile\n");
-  await comparison(review)
-    .getByRole("radio", { name: "Since the review" })
-    .press("ArrowDown");
+  await comparisonChoice(review, "Since the review").press("ArrowDown");
   await expectShown(review, "All changes");
-  await expect(
-    review.getByRole("list", { name: "13 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "13 changed files")).toBeVisible();
   await expect(
     review.getByRole("heading", { name: "Changes since the review" }),
   ).toHaveCount(0);
   await expect(review).toContainText("An earlier snapshot is marked reviewed,");
 
-  await comparison(review)
-    .getByRole("radio", { name: "Since the review" })
-    .check();
+  await comparisonChoice(review, "Since the review").check();
   await expectShown(review, "Since the review");
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
-  await expect(
-    review.getByRole("list", { name: "3 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "3 changed files")).toBeVisible();
   expect(reads()).toBe(0);
 });
 
@@ -85,16 +78,13 @@ test("Refresh keeps all changes shown, of a new snapshot", async ({
     dashboard,
     origin,
   );
-  await comparison(review).getByRole("radio", { name: "All changes" }).check();
+  await comparisonChoice(review, "All changes").check();
   writeFileSync(path.join(workspace, "meanwhile.txt"), "meanwhile\n");
 
-  const refreshed = nextSnapshot(page);
-  await review.getByRole("button", { name: "Refresh" }).click();
-  expect((await refreshed).files).toHaveLength(14);
+  const refreshed = await refreshReview(review);
+  expect(refreshed.files).toHaveLength(14);
   await expectShown(review, "All changes");
-  await expect(
-    review.getByRole("list", { name: "14 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "14 changed files")).toBeVisible();
   await expect(review.getByRole("status").first()).toHaveText(
     /^Review refreshed: 14 changed files against baseline [0-9a-f]{7}\.$/,
   );
@@ -106,17 +96,13 @@ test("each opening starts on the changes since the review", async ({
   origin,
 }) => {
   const { card, review } = await markedThenChanged(page, dashboard, origin);
-  await comparison(review).getByRole("radio", { name: "All changes" }).check();
-  await expect(
-    review.getByRole("list", { name: "13 changed files" }),
-  ).toBeVisible();
+  await comparisonChoice(review, "All changes").check();
+  await expect(changedFilesList(review, "13 changed files")).toBeVisible();
 
   await reopenStoryReview(page, card);
   await expectShown(review, "Since the review");
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
-  await expect(
-    review.getByRole("list", { name: "3 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "3 changed files")).toBeVisible();
 });
 
 test("a marked story with no later change says nothing changed since the review and offers all changes", async ({
@@ -135,17 +121,13 @@ test("a marked story with no later change says nothing changed since the review 
   expect(since.since?.files).toEqual([]);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   await expect(review).toContainText("Nothing changed since the review.");
-  await expect(review.getByRole("list", { name: /changed file/ })).toHaveCount(
-    0,
-  );
+  await expect(changedFilesList(review, /changed file/)).toHaveCount(0);
   await expect(review.getByRole("button", { name: "Hide files" })).toHaveCount(
     0,
   );
   await expectShown(review, "Since the review");
-  await comparison(review).getByRole("radio", { name: "All changes" }).check();
-  await expect(
-    review.getByRole("list", { name: "12 changed files" }),
-  ).toBeVisible();
+  await comparisonChoice(review, "All changes").check();
+  await expect(changedFilesList(review, "12 changed files")).toBeVisible();
   await expect(
     review.getByRole("button", { name: "Hide files" }),
   ).toBeVisible();
@@ -163,16 +145,12 @@ test("an unmarked story's review opens on all its changes and offers Commits", a
   const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);
   expect(shown.since).toBeUndefined();
-  await expect(
-    review.getByRole("list", { name: "12 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "12 changed files")).toBeVisible();
   await expect(review).not.toContainText("since the review");
   await expect(review.locator("time")).toHaveCount(0);
   await expectShown(review, "All changes");
   await expect(
-    comparison(review).getByRole("radio", { name: "Commits", exact: true }),
+    comparisonChoice(review, "Commits", { exact: true }),
   ).toBeVisible();
-  await expect(
-    comparison(review).getByRole("radio", { name: "Since the review" }),
-  ).toHaveCount(0);
+  await expect(comparisonChoice(review, "Since the review")).toHaveCount(0);
 });

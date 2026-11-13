@@ -1,3 +1,4 @@
+import { control as frameControl } from "../sidePanelFrame.ts";
 // The Sessions sidebar and the terminal's header in the frame's look:
 // the open sidebar's Sessions button, its entries' words, and the header's
 // title, session row, and icon controls read clearly and keep their names,
@@ -9,6 +10,7 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import { launched } from "../agentTerminalBoundary.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   expectReadableContrast,
   narrowWindow,
@@ -64,10 +66,10 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
     dashboard.claudeSessionBecomes(needsInput, "blocked");
     await page.setViewportSize(narrowWindow);
     const { settled } = await openStoryColumnsJourney(page, columnsJourney);
-    const { sidebar, button, entries, entry } = sessionsSidebarParts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
-    const control = (name: string) =>
-      panel.getByRole("button", { name, exact: true });
+    const { sidebar, button, entries, entry, heading } =
+      sessionsSidebarParts(page);
+    const panel = terminalPanel(page);
+    const control = (name: string) => frameControl(panel, name);
     await settled();
     await expectClosedToggleCounts(page, 1, 1);
     await expectClosedToggleCountsFit(page);
@@ -76,9 +78,7 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
 
     await test.step("the open sidebar's button, heading, and entry read clearly", async () => {
       await expectFrameIconControl(button, "Sessions", "Sessions (⌘B)");
-      await expectReadableContrast(
-        sidebar.getByRole("heading", { level: 2, name: "Sessions" }),
-      );
+      await expectReadableContrast(heading);
       await expectReadableContrast(entries.first().getByRole("heading"));
       await expectReadableContrast(entries.first().locator("time"));
       for (const size of [narrowWindow, zoomedWindow]) {
@@ -95,7 +95,7 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
     await test.step("the terminal header's words and icon controls read clearly and keep their names", async () => {
       await entry(work.title).click();
       // Covering hides the Board; do not wait on Board settlement here.
-      await expect(panel.locator(".xterm-rows")).toContainText(
+      await expect(terminalScreenParts(panel).rows).toContainText(
         `attached ${sessionId.slice(0, 8)}`,
       );
       await expectReadableContrast(
@@ -117,7 +117,7 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
           .poll(async () => {
             const [screen, rows] = await Promise.all([
               box(panel.locator(terminalScreen)),
-              box(panel.locator(".xterm-screen")),
+              box(terminalScreenParts(panel).screen),
             ]);
             return rows.x + rows.width <= screen.x + screen.width + 0.5;
           })

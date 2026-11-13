@@ -15,7 +15,8 @@ import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import { expandIntentGroup } from "../intentPerspectivePage.ts";
-import { box, closeSidePanel } from "../pageLayout.ts";
+import { box } from "../pageLayout.ts";
+import { closeTerminal, terminalPanel } from "../terminalScreenPage.ts";
 import {
   adHoc,
   choiceStatus,
@@ -87,7 +88,7 @@ test("selecting a linked done story from Intent shows that project's story in In
     await expect(row(linked.title)).toHaveClass(/\bchosen\b/);
     await expect(choiceStatus(row(linked.title))).toHaveCount(0);
     await expect(opened.reportText).toHaveText(report.message);
-    await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
     expect(dashboard.claudeAttaches()).toEqual([]);
     // Selection and the Side panel's session keep separate marks.
     await expect(select).not.toHaveAttribute("aria-current");
@@ -131,7 +132,7 @@ test("selecting a linked done story from Intent shows that project's story in In
 
   await test.step("the row's Open goes to Development and reopens its terminal; Close returns the keyboard to its session's Board entry", async () => {
     await shown.open(linked.title).click();
-    const terminal = page.getByRole("region", { name: "Terminal" });
+    const terminal = terminalPanel(page);
     await expect(terminal.getByRole("heading")).toHaveText(linked.title);
     await expect(development).toBeChecked();
     await expect(intent).toHaveCount(0);
@@ -140,7 +141,7 @@ test("selecting a linked done story from Intent shows that project's story in In
     const reopened = sessionsSidebarParts(page).entry(linked.title);
     await expect(reopened).toHaveAttribute("aria-current", "true");
     await expect(select).toHaveCount(0);
-    await closeSidePanel(terminal);
+    await closeTerminal(terminal);
     await expect(page.locator(":focus")).toHaveAccessibleName(
       `Execution session for ${linked.title}`,
     );
@@ -176,7 +177,7 @@ test("selecting standalone rows from Intent keeps the project, file, Selected st
     );
     await expect(file).toHaveAttribute("aria-pressed", "true");
     await expect(opened.reportText).toHaveText(report.message);
-    await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
     expect(dashboard.claudeAttaches()).toEqual([]);
   };
 

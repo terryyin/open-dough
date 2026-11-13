@@ -100,7 +100,7 @@ A server that must find no `claude` gets a PATH holding only the fake `gh`
 and Node. Nothing here ever calls the real
 `claude`. Each case of the story-card-sessions file
 (`agent-launch-story-card-sessions.spec.ts`) launches the same three sessions
-from the Backlog cards (`launchEachQueuedStory`, `storyCardSessionListing.ts`)
+from the Backlog cards (`launchOnEachQueuedCard`, `storyCardSessionListing.ts`)
 and follows their listing through Preparing, the Take, and a story leaving
 every list. Each attention case (`agent-launch-attention.spec.ts` for Backlog
 and Preparing, `agent-launch-attention-taken.spec.ts` for Taken) and the case of the session-state file

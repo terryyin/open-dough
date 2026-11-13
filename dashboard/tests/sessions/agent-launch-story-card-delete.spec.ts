@@ -19,7 +19,6 @@ import {
   storyCardSessionOf,
   storyCardSessions,
   expectMembership,
-  openTerminalOf,
   parts,
   standaloneSessionName,
   sessionNamedBy,
@@ -34,6 +33,7 @@ import {
 } from "../launchJourney.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -107,7 +107,7 @@ test.describe("deleting a card's session record", () => {
       await expect(asked.keep).toBeFocused();
       await expect(await deleteButton(execution)).toHaveCount(0);
       await expect(sessionStateOf(execution)).toContainText("State unknown");
-      await expect(openTerminalOf(execution)).toBeVisible();
+      await expect(openTerminalControl(execution)).toBeVisible();
       expect(await cardTop()).toBe(before);
     });
 

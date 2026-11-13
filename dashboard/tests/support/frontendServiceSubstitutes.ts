@@ -153,6 +153,10 @@ export async function installFrontendServiceSubstitutes(
         await fulfillJson(route, { error: "Not used in frontend tests." }, 405);
         return;
       }
+      if (state.machine === undefined) {
+        await fulfillJson(route, { error: "Ask again." }, 503);
+        return;
+      }
       await fulfillJson(route, state.machine);
     },
   );

@@ -33,7 +33,7 @@ export function dashboardFixtureLifetime({
   readonly gh: FakeGhPaths;
   readonly github: FakeGitHub | undefined;
   readonly standIn: CursorRunnerStandIn | undefined;
-}): (ghCallPidsBeforeStop?: readonly number[]) => Promise<void> {
+}): () => Promise<void> {
   // SIGTERM hangs up the retained runner's clients and exits it. A stand-in's
   // address names this worker; never signal that pid as if it were the runner.
   let failedRunnerStop: number | undefined;
@@ -47,7 +47,7 @@ export function dashboardFixtureLifetime({
         endAtExit(() => {
           standIn.withdrawAddress();
         });
-  return async (ghCallPidsBeforeStop = []) => {
+  return async () => {
     const errors: unknown[] = [];
     // Preserve each failure while still retiring the other owned services.
     const close = async (resource: () => void | Promise<void>) => {
@@ -92,7 +92,7 @@ export function dashboardFixtureLifetime({
     }
     if (codex !== undefined) await close(() => codex.close());
     // Its owner's gh calls write into tempRoot and ask github.
-    await close(() => endFakeGh(gh, ghCallPidsBeforeStop));
+    await close(() => endFakeGh(gh));
     if (github !== undefined) await close(() => github.close());
     await close(() => {
       rmSync(tempRoot, { recursive: true, force: true });

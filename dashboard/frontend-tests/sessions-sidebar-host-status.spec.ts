@@ -8,7 +8,6 @@ import {
 } from "../tests/support/frontendApp.ts";
 import { pausePageClockAt } from "../tests/dashboardTest.ts";
 import { watchRecordReads } from "../tests/sessionStatePace.ts";
-import { unreadSessions } from "../tests/support/sessionHostStatus.ts";
 import { sessionsSidebarParts } from "../tests/sessionsSidebarPage.ts";
 import {
   expectFigure,
@@ -101,7 +100,7 @@ test.describe("the Sessions sidebar's title row status", () => {
     frontendServices,
   }) => {
     await pausePageClockAt(page, new Date());
-    await unreadSessions(page);
+    putFrontendMachine(frontendServices, undefined);
     putFrontendHostStatus(
       frontendServices,
       makeMe.aHostStatus

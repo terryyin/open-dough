@@ -1,12 +1,12 @@
 // Observations of sessions launched from active story cards. The launch
 // crosses the real page/boundary; expectations remember the returned native
 // identity and check one column entry through published membership changes.
+// Shared queued-card arrangement and blocked-Start observation live here so
+// each published Preparing, Taken and no-list journey keeps its own facts.
 import type { Locator, Page } from "@playwright/test";
-import { openSessionStartReason } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
 import {
   expectMembership,
-  openTerminalOf,
   storyCardSessionName,
   storyCardSessions,
   parts,
@@ -22,6 +22,7 @@ import {
 } from "./launchJourney.ts";
 import { openStoryColumnsJourney, type Workflow } from "./storyColumnsPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
+import { openTerminalControl } from "./terminalScreenPage.ts";
 
 export function storyCardSessionListing(
   page: Page,
@@ -74,7 +75,7 @@ export function storyCardSessionListing(
         expect(entry).toHaveAccessibleName(storyCardSessionName(workflow)),
         expect(entry).toContainText(`Session ${session}`),
         expect(entry).toContainText(`${workflow} started in Claude Code`),
-        expect(openTerminalOf(entry)).toBeVisible(),
+        expect(openTerminalControl(entry)).toBeVisible(),
         expectUnique(key),
       ]),
     );
@@ -107,7 +108,7 @@ export async function openQueuedStoryCards(
 // Launches, from the Backlog cards, an Execution on the ready and the
 // not-refined story and a Refinement on takenStory, in that order; each
 // launch is the caller's, which observes it.
-export async function launchEachQueuedStory(
+async function launchEachQueuedStory(
   launch: (title: string, workflow: Workflow) => Promise<void>,
 ) {
   await launch(readyStory, "Execution");
@@ -133,24 +134,26 @@ export async function launchOnEachQueuedCard(
   return { ...opened, ...listing };
 }
 
-// The note a Start action is described by while its card has an open session.
-export const openSessionDescription = new RegExp(
-  openSessionStartReason.replace(/[.]/g, "\\."),
-);
+// Matches an accessible description that contains this note word for word.
+export const describedBy = (note: string) =>
+  new RegExp(note.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
 
-// Every Start on these cards is disabled and described by the open-session
-// note. Read together: checking a Start action changes nothing on the page.
-export const expectStartsBlocked = (
+// Every Start on these cards is disabled and its description contains the
+// caller's open-session note. Read together: checking a Start action changes
+// nothing on the page.
+export function expectStartsBlocked(
   action: (title: string, workflow: Workflow) => Locator,
   titles: readonly string[],
-) =>
-  Promise.all(
+  note: string,
+) {
+  return Promise.all(
     titles.flatMap((title) =>
       (["Execution", "Refinement"] as const).flatMap((workflow) => [
         expect(action(title, workflow)).toBeDisabled(),
         expect(action(title, workflow)).toHaveAccessibleDescription(
-          openSessionDescription,
+          describedBy(note),
         ),
       ]),
     ),
   );
+}

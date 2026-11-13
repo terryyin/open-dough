@@ -1,4 +1,5 @@
 import { sessionAction } from "../support/sessionEntryDisclosure.ts";
+import { readFinalReport } from "../finalReportPages.ts";
 import { launchResultSchema } from "../../src/launchOutcome.ts";
 import type { submitCompletion } from "../../server/completionReporting.ts";
 // Real installed closure/retirement, Git, receiver, storage and browser. Native and CI provider transports are synthetic.
@@ -9,7 +10,7 @@ import { test, expect, stored } from "../support/codexStart.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { queuedIdentity, queuedTitle } from "../support/startOrigin.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts, readFinalReport } from "../dashboardPage.ts";
+import { parts } from "../dashboardPage.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expectInstalledCompletionGuidance } from "../support/installedCompletionGuidance.ts";

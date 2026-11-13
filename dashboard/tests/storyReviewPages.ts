@@ -5,8 +5,13 @@
 // (./support/cueSheet.ts) and returns the page object the reader is then at
 // (./fluentPageObject.ts).
 
+import {
+  changedFilesList,
+  listedFile,
+  fileDiff,
+} from "./support/reviewTreeRows.ts";
 import { PageObject } from "./fluentPageObject.ts";
-import { control } from "./sidePanelWidthPage.ts";
+import { closeSidePanel } from "./sidePanelFrame.ts";
 import { expect } from "./support/preparationPage.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { reviewBody, reviewFeedback } from "./support/reviewContextLine.ts";
@@ -18,11 +23,11 @@ export class StoryReview extends PageObject {
   }
 
   #files(list: string | RegExp) {
-    return this.#review.getByRole("list", { name: list });
+    return changedFilesList(this.#review, list);
   }
 
   #file(list: string, file: string) {
-    return this.#files(list).getByRole("button", { name: file });
+    return listedFile(this.#files(list), file);
   }
 
   // The story the review is headed by.
@@ -103,7 +108,7 @@ export class StoryReview extends PageObject {
 
   // The chosen file's diff, by the file's name, showing `text` if given.
   expectFileDiff(file: string, text?: string) {
-    const diff = this.#review.getByRole("region", { name: file });
+    const diff = fileDiff(this.#review, file);
     const shows = text === undefined ? "" : ` with "${text}"`;
     return this.cueHere(
       `Story review: shows the diff of ${file}${shows}`,
@@ -124,7 +129,7 @@ export class StoryReview extends PageObject {
   close() {
     return this.cue(
       "Story review: Close",
-      () => control(this.#review, "Close").click(),
+      () => closeSidePanel(this.#review),
       this.sidePanel,
     );
   }

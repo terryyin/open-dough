@@ -10,7 +10,7 @@ import {
   expect,
   queuedCodexPreviewTest as test,
 } from "../support/preparationPage.ts";
-import { finalReportParts, parts } from "../dashboardPage.ts";
+import { parts } from "../dashboardPage.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
 import { openSessionsSidebar } from "../sessionsSidebarPage.ts";
@@ -25,6 +25,8 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import { git } from "../support/storyReviewWorktree.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
+import { finalReportParts } from "../finalReportPages.ts";
 
 test.use({ preparationHost: "codex", projectFolders: ["open-dough"] });
 
@@ -160,7 +162,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
       /(^|\n)Open Dough · Ad hoc(\n|$)/,
     );
     await expect(reportText).toHaveText(reportMessage);
-    await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
     await expect(shown.select(reportTitle)).toHaveAttribute(
       "aria-current",
       "true",

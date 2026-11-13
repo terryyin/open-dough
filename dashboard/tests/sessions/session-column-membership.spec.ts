@@ -2,11 +2,13 @@ import {
   askToDeleteRecord,
   sessionAction,
 } from "../support/sessionEntryDisclosure.ts";
+import { closeSidePanel } from "../sidePanelFrame.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { renameSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../dashboardTest.ts";
 import { launched } from "../agentTerminalBoundary.ts";
+import { openTerminalControl, terminalPanel } from "../terminalScreenPage.ts";
 import {
   localEntries,
   publishMembership,
@@ -16,7 +18,6 @@ import {
 import { columnPagingControl, rem, showColumn } from "../boardPage.ts";
 import {
   expectMembership,
-  openTerminalOf,
   shortRevision,
   parts,
   sessionEntriesIn,
@@ -154,7 +155,7 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   await publishMembership(page);
   await page.goto("/");
   await startAdHocAndClose(page, "Open Dough", "inspect local work");
-  const terminal = page.getByRole("region", { name: "Terminal" });
+  const terminal = terminalPanel(page);
   const active = localEntries(page);
   await expect(active).toHaveCount(1);
   const native = await sessionNamedBy(active);
@@ -187,7 +188,7 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   await showColumn(page, "Recently done");
   const beforeReopen = dashboard.claudeAttaches().length;
   dashboard.claudeSessionBecomes(native, "forgotten");
-  await openTerminalOf(recent).click();
+  await openTerminalControl(recent).click();
   await expect(terminal.getByRole("status")).toContainText(
     "Disconnected from the session",
   );
@@ -195,8 +196,8 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   expect(dashboard.claudeAttaches()).toHaveLength(beforeReopen);
   await expect(recent).toHaveCount(1);
   await expect(active).toHaveCount(0);
-  await terminal.getByRole("button", { name: "Close" }).click();
-  await expect(openTerminalOf(recent)).toBeFocused();
+  await closeSidePanel(terminal);
+  await expect(openTerminalControl(recent)).toBeFocused();
 });
 
 test("deleting its last local Taken entry returns the keyboard to Taken and settles its empty count", async ({

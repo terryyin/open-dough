@@ -12,10 +12,10 @@ const cpuName = /^CPU /;
 const diskName = /( free|^Free disk unavailable)$/;
 
 export function sessionsSidebarFigures(page: Page) {
-  const { sidebar } = sessionsSidebarParts(page);
+  const { sidebar, heading } = sessionsSidebarParts(page);
   const titleRow = sidebar.locator(".sessions-sidebar-title-row");
   return {
-    heading: sidebar.getByRole("heading", { level: 2, name: "Sessions" }),
+    heading,
     figures: titleRow.getByRole("img"),
     active: titleRow.getByRole("img", { name: activeName }),
     waiting: titleRow.getByRole("img", { name: waitingName }),

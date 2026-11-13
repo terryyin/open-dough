@@ -21,6 +21,7 @@ import {
   directedApplication,
 } from "../tests/support/terminalSubstituteApplication.ts";
 import { selectedPlace } from "../tests/terminalPausedScrollPage.ts";
+import { expectTerminalText } from "../tests/terminalScreenPage.ts";
 import {
   expectLive,
   expectPaused,
@@ -74,7 +75,7 @@ for (const { device, lines, rowsOfWrapped, ...screen } of [
       frontendServices,
     }) => {
       const program = directedApplication(`${heldOpening}\r\n`);
-      const { panel, rows, sent, sizes } = await openFrontendTerminalByTouch(
+      const { panel, sent, sizes } = await openFrontendTerminalByTouch(
         page,
         frontendServices,
         makeMe.aLaunchRecord
@@ -84,13 +85,13 @@ for (const { device, lines, rowsOfWrapped, ...screen } of [
           .please(),
         { application: program.application },
       );
-      await expect(rows).toContainText(heldOpening);
+      await expectTerminalText(panel, heldOpening);
       await focusByTouch(panel);
       const size = reportedSize(sizes);
       expect(Math.ceil(wrapped / size.cols)).toBe(rowsOfWrapped);
       const held = heldOutput(size.cols, { lines, after: lines - 2, wrapped });
       program.print(held.printed);
-      await expect(rows).toContainText(conversationLine(lines));
+      await expectTerminalText(panel, conversationLine(lines));
 
       await tapTerminalKey(panel, "Select");
       await expectPaused(panel);

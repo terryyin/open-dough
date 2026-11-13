@@ -8,9 +8,13 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
   storyCardSessionOf,
   expectMembership,
-  openTerminalOf,
   parts,
   sessionNamedBy,
 } from "../dashboardPage.ts";
@@ -57,7 +61,7 @@ test.describe("Command+B and the Sessions sidebar", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await expectMembership(page, queued);
     await settled();
 
@@ -82,13 +86,13 @@ test.describe("Command+B and the Sessions sidebar", () => {
       await launch(readyStory, "Execution");
       const entry = storyCardSessionOf(card(readyStory), "Execution");
       const session = await sessionNamedBy(entry);
-      await openTerminalOf(entry).click();
+      await openTerminalControl(entry).click();
       const attach = () =>
         dashboard
           .claudeAttaches()
           .find((attached) => attached.id === session.slice(0, 8));
       await expect.poll(() => attach()?.id).toBeDefined();
-      await expect(panel.locator(".xterm-rows")).toContainText(
+      await expect(terminalScreenParts(panel).rows).toContainText(
         `attached ${session.slice(0, 8)}`,
       );
       expect(await keyboardWithin(panel)).toBe(true);

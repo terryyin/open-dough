@@ -1,17 +1,17 @@
 // Starting preconditions only: a wrapped saved identity, its native history,
 // an unfinished completion already read, and a privately missing workspace.
 import type { Page } from "@playwright/test";
+import {
+  finalReportParts,
+  readFinalReportControl,
+} from "../finalReportPages.ts";
+import { keepOpen, markAsDone } from "./markDone.ts";
 import { expect, stored } from "./codexLaunch.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { retained, report, save, keepFinalReport } from "./retainedReport.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  finalReportParts,
-  readFinalReportOf,
-  sessionStateOf,
-  storyCardSessions,
-} from "../dashboardPage.ts";
+import { sessionStateOf, storyCardSessions } from "../dashboardPage.ts";
 import { notRefinedStory, type StoryColumnsJourney } from "../launchJourney.ts";
 import { pageColumnProjectValue } from "../pageLayout.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
@@ -47,21 +47,20 @@ export async function openUnfinishedReport(
   await settled();
   const entry = storyCardSessions(card(notRefinedStory));
   await expect(entry).toContainText("saved workspace is missing");
-  const open = readFinalReportOf(entry);
+  const open = readFinalReportControl(entry);
   await open.focus();
   await page.keyboard.press("Enter");
   const report = finalReportParts(page);
   const { panel, reportText } = report;
   await expect(reportText).toHaveText(text);
-  const mark = panel
-    .locator(".side-panel-header")
-    .getByRole("button", { name: "Mark as done" });
+  const mark = markAsDone(panel.locator(".side-panel-header"));
   const question = panel.getByRole("group", {
     name: questionWords,
     exact: true,
   });
-  const choice = (name: string) =>
-    question.getByRole("button", { name, exact: true });
+  // The question's answers: Mark as done anyway, or Keep open.
+  const markAnyway = markAsDone(question);
+  const keep = keepOpen(question);
   const state = () => {
     const current = stored(dashboard.home)[0];
     return {
@@ -91,7 +90,8 @@ export async function openUnfinishedReport(
     ...report,
     mark,
     question,
-    choice,
+    markAnyway,
+    keep,
     state,
     underlying,
     reading: sessionStateOf(page.locator(".page-column")),

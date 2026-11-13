@@ -1,5 +1,9 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Actual held review answers cannot lend the other comparison mode's snapshot
 // or selected run to Done Intent or to the ordinary Done-card Review.
+import { fileBrowser } from "../support/reviewContextLine.ts";
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { parts } from "../dashboardPage.ts";
@@ -53,7 +57,7 @@ test("switching the open review between live workspace and Done Intent waits for
     "retained live local test",
   );
   await parts(page).intentChoice.click();
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   const heldHistorical = await holdNextReviewResponse(
     page,
     dashboard.origin,
@@ -68,7 +72,7 @@ test("switching the open review between live workspace and Done Intent waits for
     await expect(review.getByRole("status")).toHaveText(
       "Reading the story's changes…",
     );
-    await expect(review.locator(".story-review-files")).toHaveCount(0);
+    await expect(fileBrowser(review)).toHaveCount(0);
     await expect(review).not.toContainText("retained live local test");
     heldHistorical.release();
     await heldHistorical.delivery;
@@ -79,7 +83,7 @@ test("switching the open review between live workspace and Done Intent waits for
   }
   await parts(page).development.click();
   await showColumn(page, "Recently done");
-  const ordinary = card.getByRole("button", { name: "Review changes" });
+  const ordinary = reviewChanges(card);
   // Focus reveals its column using the remounted Board's current width.
   await ordinary.focus();
   await expect(ordinary).toBeInViewport();
@@ -96,7 +100,7 @@ test("switching the open review between live workspace and Done Intent waits for
     await expect(review.getByRole("status")).toHaveText(
       "Reading the story's changes…",
     );
-    await expect(review.locator(".story-review-files")).toHaveCount(0);
+    await expect(fileBrowser(review)).toHaveCount(0);
     await expect(review).not.toContainText("completed historical test");
     heldLive.release();
     await heldLive.delivery;
@@ -107,6 +111,6 @@ test("switching the open review between live workspace and Done Intent waits for
     heldLive.release();
     await heldLive.delivery;
   }
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   await expect(ordinary).toBeFocused();
 });

@@ -3,7 +3,10 @@ import {
   sessionAction,
   sessionActionsControl,
 } from "../support/sessionEntryDisclosure.ts";
+import { closeSidePanel, sidePanelNamesOf } from "../sidePanelFrame.ts";
 // Exact touch actions on real submitted reports and dashboard records.
+
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import {
@@ -12,7 +15,6 @@ import {
   expectSettledPage,
   parts,
   sessionStateOf,
-  sidePanelNamesOf,
 } from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
@@ -29,7 +31,6 @@ import { launchedStory, shortIdOf } from "../support/reportedLaunch.ts";
 import { otherQueuedIdentity, queuedIdentity } from "../support/startOrigin.ts";
 import { publishOrigin, test } from "../support/startOriginTest.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
-
 test.use({
   projectFolders: ["open-dough"],
   launchTimeoutMs: 30_000,
@@ -77,18 +78,16 @@ test.describe(`${name} session management`, () => {
     // Coarse Session details: sessions-sidebar-touch
     await sidebar.entry("Story B").scrollIntoViewIfNeeded();
     await tapWhereShown(sidebar.entry("Story B"));
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await expect(sidePanelNamesOf(panel).sessionName).toHaveText(/ session$/);
     await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
     // Scroll stacked panels before reading: xterm pauses offscreen rendering.
     // Header taps never scroll a control into view.
     await panel.scrollIntoViewIfNeeded();
-    await expect(panel.locator(".xterm-rows")).toContainText(
+    await expect(terminalScreenParts(panel).rows).toContainText(
       `attached ${intended.sessionId.slice(0, 8)}`,
     );
-    await tapWhereShown(
-      panel.getByRole("button", { name: "Mark as done", exact: true }),
-    );
+    await tapWhereShown(markAsDone(panel));
     const panelQuestion = doneQuestion(panel);
     await expect(panelQuestion).toContainText(
       "This session reported unfinished work.",
@@ -110,9 +109,7 @@ test.describe(`${name} session management`, () => {
         .claudeAttaches()
         .filter(({ id }) => id === intended.sessionId.slice(0, 8)),
     ).toHaveLength(1);
-    await tapWhereShown(
-      panel.getByRole("button", { name: "Close", exact: true }),
-    );
+    await closeSidePanel(panel, { using: "touch" });
     await expect(panel).toHaveCount(0);
 
     const cardB = parts(page).taken.getByRole("article", {

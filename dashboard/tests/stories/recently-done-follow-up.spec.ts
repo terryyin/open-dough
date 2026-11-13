@@ -15,8 +15,6 @@ import { expect, test } from "../dashboardTest.ts";
 import {
   parts,
   standaloneSessionName,
-  openTerminalOf,
-  readFinalReportOf,
   sessionEntriesIn,
 } from "../dashboardPage.ts";
 import {
@@ -44,6 +42,8 @@ import {
 import { radio } from "../support/sessionDialog.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { openTerminalControl } from "../terminalScreenPage.ts";
+import { readFinalReportControl } from "../finalReportPages.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -91,7 +91,7 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
 
   await test.step("a card holding a session that opens its terminal offers no Follow up", async () => {
     const held = cardOf(page, reopenableStory.title);
-    await expect(openTerminalOf(held)).toBeVisible();
+    await expect(openTerminalControl(held)).toBeVisible();
     await expect(followUp(held, reopenableStory)).toHaveCount(0);
   });
 
@@ -109,13 +109,13 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
     // Both the refinement's and the execution's worktrees were retired.
     for (const workflow of ["Refinement", "Execution"])
       await expect(
-        readFinalReportOf(
+        readFinalReportControl(
           card.getByRole("article", {
             name: `${workflow} session for ${recoverStory.title}`,
           }),
         ),
       ).toBeVisible();
-    await expect(openTerminalOf(card)).toHaveCount(0);
+    await expect(openTerminalControl(card)).toHaveCount(0);
     await followUp(card, recoverStory).click();
     await expect(dialog).toBeVisible();
     await expect(dialog).toContainText(

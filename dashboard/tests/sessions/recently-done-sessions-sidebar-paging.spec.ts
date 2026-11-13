@@ -14,6 +14,7 @@ import {
   parts,
 } from "../dashboardPage.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   byProjectOf,
   fortyFiveDoneSessions,
@@ -138,7 +139,7 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
         name: standaloneSessionName("Ad hoc", olderCrossProject),
       }),
     ).toBeInViewport();
-    await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
     await expect(shown.entries).toHaveCount(45);
   });
 

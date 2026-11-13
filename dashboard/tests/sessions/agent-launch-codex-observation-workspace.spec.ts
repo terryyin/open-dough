@@ -1,3 +1,8 @@
+import {
+  readFinalReportControl,
+  readFinalReport,
+} from "../finalReportPages.ts";
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // What a saved Codex session offers when its continuation is unknown or its
 // workspace is gone: a predecessor without continuation gains no command, and
 // a missing workspace keeps passive final-report access, through reload, with
@@ -6,14 +11,7 @@
 import path from "node:path";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { notRefinedStory } from "../launchJourney.ts";
-import {
-  openTerminalOf,
-  parts,
-  readFinalReport,
-  readFinalReportOf,
-  storyCardSessions,
-} from "../dashboardPage.ts";
-import { closeSidePanel } from "../pageLayout.ts";
+import { parts, storyCardSessions } from "../dashboardPage.ts";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { passive as passiveReport } from "../support/retainedReport.ts";
 import {
@@ -23,6 +21,7 @@ import {
   passive,
 } from "../support/codexObservation.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 test.use({ projectFolders: ["open-dough"] });
 
 test("predecessor without continuation gains no command; missing workspace preserves passive final-report access", async ({
@@ -69,8 +68,8 @@ test("predecessor without continuation gains no command; missing workspace prese
         await expect(
           entry.locator("p", { hasText: /^Continue in / }),
         ).toHaveCount(0);
-        await expect(openTerminalOf(entry)).toHaveCount(0);
-        await expect(readFinalReportOf(entry)).toBeVisible();
+        await expect(openTerminalControl(entry)).toHaveCount(0);
+        await expect(readFinalReportControl(entry)).toBeVisible();
         await expect(
           entry.locator("p", { hasText: /^Workspace / }),
         ).toHaveCount(id === legacy.session.sessionId ? 0 : 1);

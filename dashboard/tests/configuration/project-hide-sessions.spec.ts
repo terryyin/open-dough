@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 import { filesColumn } from "../intentModePage.ts";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
@@ -5,6 +6,7 @@ import { expect, test } from "../support/pageTest.ts";
 import { projectAddMachine } from "../support/projectAddMachine.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { identity } from "../agentLaunchBoundary.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   chooseProject,
   expectCompactProjectSelect,
@@ -84,7 +86,7 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   await expect(sidebar).toContainText(sessionTitle);
   await expect(entry(sessionTitle)).toBeVisible();
 
-  const terminal = page.getByRole("region", { name: "Terminal", exact: true });
+  const terminal = terminalPanel(page);
   await entry(sessionTitle).click();
   await expect(
     terminal.getByRole("heading", { name: sessionTitle, exact: true }),
@@ -123,7 +125,7 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   await expectCompactProjectSelect(page, "Pygardon", visibleWithoutDoughnut);
   await page.setViewportSize({ width: 1600, height: 720 });
 
-  await terminal.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(terminal);
   await expect(terminal).toHaveCount(0);
 
   await page.getByRole("radio", { name: "Intent", exact: true }).check();

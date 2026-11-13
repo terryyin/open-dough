@@ -30,7 +30,8 @@ import { openProjectIntent, returnToStory } from "../intentModePage.ts";
 import { browserRevision, revisionNotice } from "../intentPerspectivePage.ts";
 import { shortRevision } from "../dashboardParts.ts";
 import { parts } from "../dashboardPage.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import { holdNextRevisionCheckBody } from "../support/heldRevisionCheckBody.ts";
+import { expect, test } from "../dashboardTest.ts";
 
 test("a Project Intent visit reuses both CI readings, while hidden trunk and story heads each refresh only their own judgment", async ({
   page,
@@ -108,7 +109,24 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     ];
     const before = calls.length;
     ci.push(failing.branch, nextStory, "Fix the story during a visit");
-    await passTimeUntilCheckedAfterSettled(page);
+    const held = await holdNextRevisionCheckBody(page);
+    let checkSettled = false;
+    const checked = passTimeUntilCheckedAfterSettled(page).then(() => {
+      checkSettled = true;
+    });
+    try {
+      await held.headersReceived;
+      await untilPageReadsAnswered(page);
+      expect(branchJudgmentCalls(calls.slice(before))).toEqual([]);
+      expect(checkSettled, "the revision check body is still held").toBe(false);
+    } finally {
+      held.release();
+      try {
+        await checked;
+      } finally {
+        await held.close();
+      }
+    }
     await untilPageReadsAnswered(page);
     expect(branchJudgmentCalls(calls.slice(before))).toEqual([
       "actions-runs codex/example-story",

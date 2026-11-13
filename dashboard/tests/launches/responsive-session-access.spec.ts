@@ -15,6 +15,7 @@ import {
   sessionEntriesIn,
 } from "../dashboardPage.ts";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   passCheckPace,
   untilPageRequestsAnswered,
@@ -213,7 +214,7 @@ for (const typed of ["", "why is CI slow?"]) {
     dashboard.releaseHeldClaude();
     expect((await settledOutcome(dashboard, attemptId)).kind).toBe("launched");
     await untilPageRequestsAnswered(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     // The startup has ended once Start session is offered again.
     await expect(button).toBeEnabled();
     await expect(panel).toHaveCount(typed === "" ? 1 : 0);

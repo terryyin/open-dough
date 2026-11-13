@@ -15,11 +15,15 @@ import {
   storyCardSessions,
   parts,
   sessionStateOf,
-  openTerminalOf,
   sessionUnreadReportOf,
 } from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   idleBetweenSteps,
   markDone,
@@ -64,9 +68,9 @@ test("Mark as done in the terminal closes a session with an unread report as any
   await expect(row.getByRole("img", { name: unreadWords })).toBeVisible();
   const doneName = doneNameOf(dashboard, sessionId);
   const shortId = shortIdOf(dashboard, sessionId);
-  await openTerminalOf(card).click();
-  const terminal = page.getByRole("region", { name: "Terminal" });
-  await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+  await openTerminalControl(card).click();
+  const terminal = terminalPanel(page);
+  await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   const stopsBefore = dashboard.claudeStopCalls().length;
   idleBetweenSteps(dashboard, sessionId);
 
@@ -107,9 +111,9 @@ test("in the terminal, a session with a read completed report that reads Ready f
   await expect(sessionStateOf(entry)).toHaveText("Ready for review");
   const shortId = shortIdOf(dashboard, story.sessionId);
   const before = dashboard.claudeStopCalls().length;
-  await openTerminalOf(entry).click();
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel.locator(".xterm-rows")).toContainText("attached");
+  await openTerminalControl(entry).click();
+  const panel = terminalPanel(page);
+  await expect(terminalScreenParts(panel).rows).toContainText("attached");
 
   await markDone(panel);
 

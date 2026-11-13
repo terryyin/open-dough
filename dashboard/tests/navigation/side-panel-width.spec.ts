@@ -4,17 +4,24 @@
 // and Maximize/Restore reuse that width. Insufficient room covers the page.
 // Geometry observes the rendered page; only the synthetic Claude is reached.
 
+import { fileDiff, listedFile } from "../support/reviewTreeRows.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { expectFocusedAndIndicated } from "../accessibleReading.ts";
-import { storyCardSessions, openTerminalOf } from "../dashboardPage.ts";
+import { storyCardSessions } from "../dashboardPage.ts";
 import {
-  box,
-  expectSideBySideInOrder,
-  pressWhereShown,
-} from "../pageLayout.ts";
+  openTerminalControl,
+  pressTerminalKey,
+  terminalScreenParts,
+  typeLine,
+} from "../terminalScreenPage.ts";
+import { box, expectSideBySideInOrder } from "../pageLayout.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import {
   control,
+  focusDivider,
+  pressDividerKey,
   dragDivider,
+  cancelDividerDrag,
   expectCovering,
   expectDividerSays,
   expectStillHolds,
@@ -26,7 +33,13 @@ import {
   storyAWithSession,
   usableMinimum,
   wideWindow,
+  resizeUntilArranged,
 } from "../sidePanelWidthPage.ts";
+import {
+  closeSidePanel,
+  maximizeSidePanel,
+  restoreSidePanel,
+} from "../sidePanelFrame.ts";
 import { expect, test } from "../support/preparationPage.ts";
 
 test("mouse and keyboard choose one bounded width that the terminal and a review share", async ({
@@ -37,14 +50,13 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
   const { card, session, terminal, review, divider, attaches } =
     await storyAWithSession(page, dashboard, origin);
   const reviewReads = recordReviewReads(page);
-  const rows = terminal.locator(".xterm-rows");
+  const rows = terminalScreenParts(terminal).rows;
   const sidebar = sessionsSidebarParts(page);
   const projectUrl = () => page.url();
 
-  await openTerminalOf(storyCardSessions(card)).click();
+  await openTerminalControl(storyCardSessions(card)).click();
   await expect(rows).toContainText(`attached ${session.slice(0, 8)}`);
-  await page.keyboard.type("keep this line");
-  await page.keyboard.press("Enter");
+  await typeLine(page, "keep this line");
   await expect(rows).toContainText("echo keep this line");
   expect(attaches()).toHaveLength(1);
 
@@ -97,11 +109,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     await expect(control(terminal, "Close")).toBeInViewport({ ratio: 1 });
     await expect(terminal.getByRole("heading", { level: 2 })).toBeInViewport();
 
-    const { x, y, width, height } = await box(divider);
-    await page.mouse.move(x + width / 2, y + height / 2);
-    await page.mouse.down();
-    await divider.dispatchEvent("pointercancel", { pointerId: 1 });
-    await page.mouse.move(x - 300, y + height / 2, { steps: 4 });
+    await cancelDividerDrag(page, { pointerId: 1, by: -300, steps: 4 });
     await expectWidth(terminal, usableMinimum);
     await page.mouse.up();
     expect(attaches()).toHaveLength(1);
@@ -112,18 +120,16 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     await page.keyboard.press("Shift+Tab");
     await expectFocusedAndIndicated(page, divider);
     const before = projectUrl();
-    await page.keyboard.press("ArrowLeft");
+    await pressDividerKey(page, "ArrowLeft");
     await expectWidth(terminal, usableMinimum + keyStep);
     await expectDividerSays(page, usableMinimum + keyStep);
-    await page.keyboard.press("ArrowRight");
-    await page.keyboard.press("ArrowRight");
+    await pressDividerKey(page, "ArrowRight");
+    await pressDividerKey(page, "ArrowRight");
     await expectWidth(terminal, usableMinimum);
-    for (let press = 0; press < 40; press += 1)
-      await page.keyboard.press("ArrowLeft");
+    await pressDividerKey(page, "ArrowLeft", 40);
     await expectWidth(terminal, maximum);
     await expectDividerSays(page, maximum);
-    for (let press = 0; press < 8; press += 1)
-      await page.keyboard.press("ArrowRight");
+    await pressDividerKey(page, "ArrowRight", 8);
     await expectWidth(terminal, maximum - 8 * keyStep);
     expect(projectUrl()).toBe(before);
     await expect(divider).toBeFocused();
@@ -133,53 +139,53 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
   const chosen = maximum - 8 * keyStep;
 
   await test.step("resizing keys do nothing while the terminal holds the keyboard", async () => {
-    await terminal.locator(".xterm-screen").click();
-    await page.keyboard.press("ArrowLeft");
-    await page.keyboard.press("ArrowLeft");
+    await terminalScreenParts(terminal).screen.click();
+    await pressTerminalKey(page, "ArrowLeft");
+    await pressTerminalKey(page, "ArrowLeft");
     await expectWidth(terminal, chosen);
   });
 
   await test.step("Maximize offers no divider, and Restore recovers the chosen width", async () => {
-    await pressWhereShown(control(terminal, "Maximize"));
+    await maximizeSidePanel(terminal);
     await expect(control(terminal, "Restore")).toBeVisible();
     await expect(divider).toHaveCount(0);
     expect((await box(terminal)).width).toBeCloseTo(room, 0);
-    await pressWhereShown(control(terminal, "Restore"));
+    await restoreSidePanel(terminal);
     await expectWidth(terminal, chosen);
     await expect(divider).toBeVisible();
     expect(attaches()).toHaveLength(1);
   });
 
   await test.step("a review takes the same width, and resizing keeps its snapshot and selected file without another read", async () => {
-    await card.getByRole("button", { name: "Review changes" }).click();
+    await reviewChanges(card).click();
     await expect(terminal).toHaveCount(0);
     await expectWidth(review, chosen);
-    await review.getByRole("button", { name: "Modified unstaged.txt" }).click();
-    const diff = review.getByRole("region", { name: "Modified unstaged.txt" });
+    await listedFile(review, "Modified unstaged.txt").click();
+    const diff = fileDiff(review, "Modified unstaged.txt");
     await expect(diff).toContainText("+more wide");
     const readsBefore = reviewReads.length;
     expect(readsBefore).toBeGreaterThan(0);
     await dragDivider(page, 160);
     await expectWidth(review, chosen - 160);
-    await divider.focus();
-    await page.keyboard.press("ArrowLeft");
+    await focusDivider(page);
+    await pressDividerKey(page, "ArrowLeft");
     await expectWidth(review, chosen - 160 + keyStep);
-    await expect(
-      review.getByRole("button", { name: "Modified unstaged.txt" }),
-    ).toHaveAttribute("aria-pressed", "true");
+    await expect(listedFile(review, "Modified unstaged.txt")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
     await expect(diff).toContainText("+more wide");
-    await pressWhereShown(control(review, "Maximize"));
+    await maximizeSidePanel(review);
     await expect(divider).toHaveCount(0);
-    await pressWhereShown(control(review, "Restore"));
+    await restoreSidePanel(review);
     await expectWidth(review, chosen - 160 + keyStep);
     expect(reviewReads.length).toBe(readsBefore);
   });
 
   await test.step("the open sidebar narrows the room without losing the chosen width, which is used again when it closes", async () => {
     // Wider than the room beside the sidebar leaves for the page.
-    await divider.focus();
-    for (let press = 0; press < 40; press += 1)
-      await page.keyboard.press("ArrowLeft");
+    await focusDivider(page);
+    await pressDividerKey(page, "ArrowLeft", 40);
     await expectWidth(review, maximum);
     await sidebar.button.click();
     await expect(sidebar.sidebar).toBeVisible();
@@ -205,9 +211,8 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     await expectWidth(review, Math.floor(roomBeside - usableMinimum));
     await dragDivider(page, 2000);
     await expectWidth(review, usableMinimum);
-    await divider.focus();
-    for (let press = 0; press < 3; press += 1)
-      await page.keyboard.press("ArrowLeft");
+    await focusDivider(page);
+    await pressDividerKey(page, "ArrowLeft", 3);
     await expectWidth(review, usableMinimum + 3 * keyStep);
     await sidebar.button.click();
     await expect(sidebar.sidebar).toBeHidden();
@@ -216,9 +221,9 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
   const kept = usableMinimum + 3 * keyStep;
 
   await test.step("closing and reopening the terminal uses the chosen width, attached anew", async () => {
-    await pressWhereShown(control(review, "Close"));
+    await closeSidePanel(review, { using: "pointer" });
     await expect(review).toHaveCount(0);
-    await openTerminalOf(storyCardSessions(card)).click();
+    await openTerminalControl(storyCardSessions(card)).click();
     await expect(rows).toContainText(`attached ${session.slice(0, 8)}`);
     await expectWidth(terminal, kept);
     await expectDividerSays(page, kept);
@@ -232,7 +237,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     await expectCovering(terminal);
     await expectSideBySideInOrder([sidebar.sidebar, terminal]);
     await expect(rows).toContainText(`attached ${session.slice(0, 8)}`);
-    await page.setViewportSize(wideWindow);
+    await resizeUntilArranged(terminal, wideWindow);
     await expectWidth(terminal, kept);
     await expect(divider).toBeVisible();
     expect(attaches()).toHaveLength(2);

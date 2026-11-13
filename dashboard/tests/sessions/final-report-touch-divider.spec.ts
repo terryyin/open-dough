@@ -9,7 +9,15 @@ import { openUnfinishedReport } from "../support/reportTouchJourney.ts";
 import { readReportByTouch } from "../support/reportTouchPage.ts";
 import { passive } from "../support/retainedReport.ts";
 import { box } from "../pageLayout.ts";
-import { dragDivider, expectWidth, keyStep } from "../sidePanelWidthPage.ts";
+import {
+  dividerHitTarget,
+  dragDivider,
+  expectWidth,
+  focusDivider,
+  keyStep,
+  panelDivider,
+  pressDividerKey,
+} from "../sidePanelWidthPage.ts";
 
 test.use({ projectFolders: ["open-dough"], hasTouch: true });
 let journey: StoryColumnsJourney;
@@ -49,18 +57,10 @@ for (const { name, viewport, lines } of [
         text,
       );
       const initial = state();
-      const divider = panel.getByRole("separator", { name: "Panel divider" });
+      const divider = panelDivider(panel, { exact: false });
       const before = await box(divider);
       const reachesDivider = (fraction: number) =>
-        divider.evaluate((element, fraction) => {
-          const rect = element.getBoundingClientRect();
-          return element.contains(
-            document.elementFromPoint(
-              rect.x + rect.width * fraction,
-              rect.y + rect.height / 2,
-            ),
-          );
-        }, fraction);
+        dividerHitTarget(divider, fraction);
       const externalHit = await reachesDivider(0.25);
       expect(await reachesDivider(0.75)).toBe(true);
       await readReportByTouch(panel, reportText, "Report ending.");
@@ -75,8 +75,8 @@ for (const { name, viewport, lines } of [
       const width = (await box(panel)).width;
       await dragDivider(page, -20);
       await expectWidth(panel, width + 20);
-      await divider.focus();
-      await page.keyboard.press("ArrowRight");
+      await focusDivider(panel, { exact: false });
+      await pressDividerKey(page, "ArrowRight");
       await expectWidth(panel, width + 20 - keyStep);
       await expect(shownSessionId).toHaveCount(0);
       await expect(reportText).toHaveText(text);

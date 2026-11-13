@@ -16,7 +16,6 @@ import {
   expectMembership,
   parts,
   sessionNamedBy,
-  openTerminalOf,
   sessionEntriesIn,
 } from "../dashboardPage.ts";
 import {
@@ -39,6 +38,7 @@ import {
   expectNamedAdHocCall,
   expectNoSessionEstablishment,
 } from "../support/unattachedLaunchAssertions.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
@@ -157,7 +157,7 @@ test("starting with text sends it in the Open Dough folder, and the session read
     "Local: launched from this dashboard on this machine.",
   );
   await expect(entry).toContainText(`Session ${await sessionNamedBy(entry)}`);
-  await expect(openTerminalOf(entry)).toBeVisible();
+  await expect(openTerminalControl(entry)).toBeVisible();
   await expect(entry.locator(".record-identity")).toHaveCount(0);
   const launchedAt = Date.parse(
     (await entry.locator("time").getAttribute("datetime")) ?? "",

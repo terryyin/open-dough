@@ -1,3 +1,4 @@
+import { readFinalReport } from "../finalReportPages.ts";
 import type { submitCompletion } from "../../server/completionReporting.ts";
 import { launchStoreFile } from "../support/launchStore.ts";
 // Real preview/launch/installed report child/store/polling/rendering. Only native transport is fake.
@@ -12,7 +13,6 @@ import { settledOutcome } from "../acceptedAttempts.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
   parts,
-  readFinalReport,
   sessionStateOf,
   sessionUnreadReportOf,
 } from "../dashboardPage.ts";

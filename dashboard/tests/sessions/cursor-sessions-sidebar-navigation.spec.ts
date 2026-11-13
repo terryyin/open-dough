@@ -7,6 +7,7 @@
 // ./cursor-sessions-sidebar-layout.spec.ts's.
 import { chooseProject, parts } from "../dashboardPage.ts";
 import { openRunningList } from "../runningCursorList.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   changesAsked,
   holdSession,
@@ -16,6 +17,7 @@ import {
 import { expect, test } from "../support/cursorStart.ts";
 import { back, settings } from "../support/systemSettingsPage.ts";
 import { publishOnePygardonStory } from "../pygardonProject.ts";
+import { keyboardWithin } from "../pageShortcutsPage.ts";
 
 const wide = { width: 1440, height: 900 };
 
@@ -34,7 +36,7 @@ for (const { name, size } of [
     await page.setViewportSize(size);
     const pid = await holdSession(dashboard, cursor);
     await showPage(page, origin);
-    const terminal = page.getByRole("region", { name: "Terminal" });
+    const terminal = terminalPanel(page);
     const { sidebar, entries, header, list, heldRows } =
       await openRunningList(page);
     const row = heldRows(/Open Dough/);
@@ -48,14 +50,10 @@ for (const { name, size } of [
     expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
 
     await row.click();
-    await expect(terminal.locator(".xterm-rows")).toContainText(
+    await expect(terminalScreenParts(terminal).rows).toContainText(
       "ctrl+c to stop",
     );
-    expect(
-      await terminal.evaluate((element) =>
-        element.contains(document.activeElement),
-      ),
-    ).toBe(true);
+    expect(await keyboardWithin(terminal)).toBe(true);
     if (size.width <= 800) {
       await expect(sidebar).toBeHidden();
     } else {

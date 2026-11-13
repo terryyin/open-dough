@@ -14,10 +14,15 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test as base, expect } from "../dashboardTest.ts";
 import {
+  openTerminalControl,
+  expectTerminalIdentity,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
   chooseProject,
   storyCardSessions,
   expectMembership,
-  openTerminalOf,
 } from "../dashboardPage.ts";
 import { doughnutSharedTitle } from "../doughnutProject.ts";
 import {
@@ -77,8 +82,8 @@ test.describe("the terminal's lifetime", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
-    const rows = panel.locator(".xterm-rows");
+    const panel = terminalPanel(page);
+    const { rows } = terminalScreenParts(panel);
     const status = panel.getByRole("status");
     const button = (name: string) => panel.getByRole("button", { name });
     const queued = {
@@ -90,7 +95,7 @@ test.describe("the terminal's lifetime", () => {
 
     await launch(notRefinedStory, "Execution");
     const listed = storyCardSessions(card(notRefinedStory));
-    await openTerminalOf(listed).click();
+    await openTerminalControl(listed).click();
     await expect(rows).toContainText("attached ");
     const [attach] = dashboard.claudeAttaches();
     const shortId = attach?.id ?? "";
@@ -104,17 +109,15 @@ test.describe("the terminal's lifetime", () => {
         taken: [],
         backlog: [doughnutSharedTitle],
       });
-      await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
-        notRefinedStory,
-      );
-      await panel.locator(".xterm-screen").click();
+      await expectTerminalIdentity(panel, notRefinedStory);
+      await terminalScreenParts(panel).screen.click();
       await page.keyboard.type("still here");
       await page.keyboard.press("Enter");
       await expect(rows).toContainText("echo still here");
 
       await chooseProject(page, "Open Dough");
       await expectMembership(page, queued);
-      await panel.locator(".xterm-screen").click();
+      await terminalScreenParts(panel).screen.click();
       await page.keyboard.type("and back");
       await page.keyboard.press("Enter");
       await expect(rows).toContainText("echo and back");
@@ -130,9 +133,7 @@ test.describe("the terminal's lifetime", () => {
         await expect(status).toHaveText(
           /^Disconnected from the session\s*Reconnect$/,
         );
-        await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
-          notRefinedStory,
-        );
+        await expectTerminalIdentity(panel, notRefinedStory);
         // Losing the connection only detaches: the card still lists the
         // session.
         await expect(listed).toHaveCount(1);

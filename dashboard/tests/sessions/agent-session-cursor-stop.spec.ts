@@ -1,4 +1,3 @@
-import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // Stop on a held Cursor session, at the real page/server boundary with
 // the fake Cursor runner: a confirmed stop ends the held client through
 // the runner and reads stopped with the record un-done; an unconfirmed
@@ -7,9 +6,16 @@ import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // workspace until an explicit override carrying the competing-writer
 // risk. Stopping one of several held sessions lives in
 // ./agent-session-cursor-stop-several.spec.ts.
+
+import { sessionAction } from "../support/sessionEntryDisclosure.ts";
+import {
+  closeTerminal,
+  terminalPanel,
+  openTerminalControl,
+} from "../terminalScreenPage.ts";
 import { cursorRunnerSentence } from "../../src/cursorRunnerSessions.ts";
 import type { Page } from "@playwright/test";
-import { parts, openTerminalOf, sessionEntriesIn } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import {
   holdRunnerSessionsReads,
@@ -27,20 +33,15 @@ import {
 } from "../support/cursorSessionReading.ts";
 import { keptRecord, workingCursorTest } from "../support/cursorStart.ts";
 import { expect } from "../support/cursorStart.ts";
-
 // The launch presents the session's terminal beside the entry; closing
 // that panel leaves the kept client held and the entry clickable.
-async function closeTerminal(page: Page): Promise<void> {
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(panel).toHaveCount(0);
-}
+const closeOpenTerminal = (page: Page) => closeTerminal(terminalPanel(page));
 
 workingCursorTest(
   "Stop on an active working Cursor session ends the held fake client, reads stopped, and keeps the record un-done with reopen offered",
   async ({ page, dashboard, origin, cursor }) => {
     const entry = await openTakenCursorSession(page, origin);
-    await closeTerminal(page);
+    await closeOpenTerminal(page);
     await expectNormalizedReading(entry, "Working", false);
     const client = cursor.attaches()[0];
     expect(client).toBeDefined();
@@ -66,7 +67,7 @@ workingCursorTest(
     const again = sessionEntriesIn(parts(page).taken);
     await expect(again).toHaveCount(1);
     await expect(again).toContainText("The agent is not running.");
-    await expect(openTerminalOf(again)).toHaveCount(1);
+    await expect(openTerminalControl(again)).toHaveCount(1);
     await expect(again.getByRole("button", { name: "Recover" })).toHaveCount(1);
     expect(keptRecord(dashboard.home).doneAt).toBeUndefined();
   },
@@ -76,7 +77,7 @@ workingCursorTest(
   "an unconfirmed stop names the remaining state, is retained on the record, preserves recovery, blocks a replacement in the same workspace, and admits one only on explicit override",
   async ({ page, dashboard, origin, cursor }) => {
     const entry = await openTakenCursorSession(page, origin);
-    await closeTerminal(page);
+    await closeOpenTerminal(page);
     await expectNormalizedReading(entry, "Working", false);
 
     const { entry: again, release } = await entryWithRunnerUnreachable(
@@ -99,7 +100,7 @@ workingCursorTest(
       );
       expect(record.doneAt).toBeUndefined();
       // Reopen and recovery are preserved.
-      await expect(openTerminalOf(again)).toHaveCount(1);
+      await expect(openTerminalControl(again)).toHaveCount(1);
       await expect(again.getByRole("button", { name: "Recover" })).toHaveCount(
         1,
       );
@@ -115,7 +116,7 @@ workingCursorTest(
   "an unconfirmed stop on a locally done Cursor session retains its explanation on the done record, blocks a replacement in the same workspace, and admits one only on explicit override",
   async ({ page, dashboard, origin, cursor }) => {
     const entry = await openTakenCursorSession(page, origin);
-    await closeTerminal(page);
+    await closeOpenTerminal(page);
     await expectNormalizedReading(entry, "Working", false);
 
     const recent = await markLocallyDone(page, entry);
@@ -162,7 +163,7 @@ workingCursorTest(
     const gate = await holdRunnerSessionsReads(dashboard);
     try {
       const entry = await openTakenCursorSession(page, origin);
-      await closeTerminal(page);
+      await closeOpenTerminal(page);
       await expectNormalizedReading(entry, "Working", false);
       const client = cursor.attaches()[0];
       expect(client).toBeDefined();
@@ -204,7 +205,7 @@ workingCursorTest(
   "a later confirmed stop clears a retained unconfirmed stop",
   async ({ page, dashboard, origin, cursor }) => {
     const entry = await openTakenCursorSession(page, origin);
-    await closeTerminal(page);
+    await closeOpenTerminal(page);
     await expectNormalizedReading(entry, "Working", false);
     const { entry: again, release } = await entryWithRunnerUnreachable(
       page,

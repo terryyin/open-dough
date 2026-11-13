@@ -6,6 +6,7 @@
 // the real one is never reached.
 
 import { expect, test } from "../dashboardTest.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   storyCardSessions,
   expectDirectionOpensAcrossRow,
@@ -46,7 +47,7 @@ async function expectNothingStarted(page: Page) {
   const { recentlyDone } = parts(page);
   await expect(startSessionDialog(page, "Open Dough")).toBeHidden();
   await expect(recentlyDone.getByRole("article")).toHaveCount(0);
-  await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
+  await expect(terminalPanel(page)).toHaveCount(0);
   await expect(parts(page).adHocStarted).toHaveCount(0);
 }
 
@@ -81,7 +82,7 @@ for (const { scenario, words } of failures) {
 
     await expect(page.locator(".launch-problem")).toHaveCount(0);
     await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
-    await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(1);
+    await expect(terminalPanel(page)).toHaveCount(1);
     await expect(parts(page).adHocStarted).toHaveCount(0);
     await expect(button).toHaveAccessibleDescription("");
   });

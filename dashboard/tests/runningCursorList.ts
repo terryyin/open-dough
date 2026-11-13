@@ -11,7 +11,8 @@ import {
 } from "./sessionsSidebarPage.ts";
 
 export function runningCursorParts(page: Page) {
-  const { sidebar, button, entries } = sessionsSidebarParts(page);
+  const { sidebar, button, entries, heading, list } =
+    sessionsSidebarParts(page);
   const region = sidebar.getByRole("region", {
     name: "Running Cursor sessions",
   });
@@ -19,11 +20,11 @@ export function runningCursorParts(page: Page) {
     sidebar,
     button,
     entries,
-    heading: sidebar.getByRole("heading", { level: 2, name: "Sessions" }),
+    heading,
     region,
     header: region.getByRole("button", { name: "Running Cursor sessions" }),
     // The two areas that scroll on their own.
-    list: sidebar.locator(".sessions-sidebar-sessions"),
+    list,
     body: region.locator(".running-cursor-body"),
     // The divider between them, while expanded.
     divider: sidebar.getByRole("separator", {

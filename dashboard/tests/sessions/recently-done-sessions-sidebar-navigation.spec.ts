@@ -1,10 +1,10 @@
 // Destinations from Recently done sessions: Board reveal beyond the first ten
 // and a Codex final-report panel.
 import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   chooseProject,
   expectProjectChoice,
-  finalReportParts,
   standaloneSessionName,
   parts,
 } from "../dashboardPage.ts";
@@ -39,6 +39,7 @@ import {
 import { expect, keptRecord, test } from "../support/cursorStart.ts";
 import { retained, report, save } from "../support/retainedReport.ts";
 import { publishOnePygardonStory } from "../pygardonProject.ts";
+import { finalReportParts } from "../finalReportPages.ts";
 
 test.use({
   projectFolders: ["open-dough", "doughnut", "pygardon"],
@@ -164,9 +165,7 @@ codexTest.describe("Recently done final-report destination", () => {
       await expect(shown.select(notRefinedStory)).toHaveCount(1);
       await shown.open(notRefinedStory).click();
       await codexExpect(finalReportParts(page).reportText).toHaveText(report);
-      await codexExpect(
-        page.getByRole("region", { name: "Terminal" }),
-      ).toHaveCount(0);
+      await codexExpect(terminalPanel(page)).toHaveCount(0);
     },
   );
 });

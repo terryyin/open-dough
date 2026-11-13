@@ -17,10 +17,16 @@ The global banner keeps the project selector for visible projects and ends with
 the **System settings** gear at its far right, including when no project is
 visible or configured. Settings lists each configured name,
 repository, local path, and hidden state; **Add project** opens the existing dialog.
-[Automatic CI follow-up](../docs/dashboard-ci-follow-up.md) is a separate
-machine-local, default-off setting on each project row. Explicit enablement
-authorizes one full GitHub Actions repeat for qualifying new Done receipts
-on this production machine; disabling keeps existing evidence reviewable.
+[Automatic CI follow-up](../docs/dashboard-ci-follow-up.md) runs by default:
+the production dashboard that records a qualifying new Done receipt for a
+GitHub Actions project, or a custom CI project declaring both `ciAdapter` and
+`ciRebuild`, requests one full repeat. No follow-up setting is needed.
+`ciRebuild` is an argument array beside `ciAdapter` in the project's
+`.planning/open-dough.json`; see the [custom rebuild contract](../src/skills/dough-execute-plan/manuals/custom-ci-rebuild.md).
+Absent or empty `ciRebuild` preserves custom CI readings without a repeat,
+including retained GitHub Actions receipts. Development dashboards request none;
+existing follow-up evidence stays reviewable. The execution observer remains
+read-only and never invokes `ciRebuild`.
 Each project entry also shows that project's local Client configuration file text
 from `<localPath>/.planning/open-dough.json` when readable, or explains absence or
 unreadability for that project alone, without edit or save controls and without

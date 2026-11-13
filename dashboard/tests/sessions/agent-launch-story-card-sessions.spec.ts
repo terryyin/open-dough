@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A story's card lists the sessions launched on it that have not been marked
 // done, in every column origin shows it, on a committed origin the production
 // commands publish (../launchJourney.ts): a launch lists its session beside
@@ -39,15 +40,23 @@ import {
 import {
   expectStartsBlocked,
   launchOnEachQueuedCard,
-  openSessionDescription,
+  describedBy,
   queuedStories as queued,
 } from "../storyCardSessionListing.ts";
-import { openEntryTerminal } from "../support/startedSessionTerminal.ts";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,
   markDoneAnyway,
 } from "../support/markDone.ts";
+import {
+  terminalPanel,
+  terminalScreenParts,
+  openTerminalFromEntry,
+} from "../terminalScreenPage.ts";
+
+// What every blocked Start says while its card has an open session.
+const openSessionNote =
+  "This story has an open session. Mark it done or delete its record to start another.";
 
 test.use({
   projectFolders: ["open-dough"],
@@ -80,7 +89,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     );
     await expect(newest).not.toContainText(readyStory);
     await expectListed();
-    await expectStartsBlocked(action, queued);
+    await expectStartsBlocked(action, queued, openSessionNote);
     await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
     expect(launches()).toHaveLength(3);
 
@@ -91,15 +100,15 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
         card(readyStory).getByText("Preparing", { exact: true }),
       ).toBeVisible();
       await expectListed();
-      await expectStartsBlocked(action, queued);
+      await expectStartsBlocked(action, queued, openSessionNote);
       await expect(
         action(readyStory, "Refinement"),
       ).toHaveAccessibleDescription(
-        new RegExp(`Being prepared.*${openSessionDescription.source}`),
+        new RegExp(`Being prepared.*${describedBy(openSessionNote).source}`),
       );
       for (const title of [takenStory, notRefinedStory]) {
         await expect(action(title, "Refinement")).toHaveAccessibleDescription(
-          openSessionDescription,
+          describedBy(openSessionNote),
         );
       }
       // Each entry is set off from its Preparing card on the panel, in the
@@ -130,7 +139,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     const takenStoryCard = taken.getByRole("article", { name: readyStory });
     await expect(storyCardSessions(takenStoryCard)).toHaveCount(1);
     await expectListed([readyStory, ...backlog]);
-    await expectStartsBlocked(action, backlog);
+    await expectStartsBlocked(action, backlog, openSessionNote);
     await expect(
       takenStoryCard.getByRole("button", { name: /^Start / }),
     ).toHaveCount(0);
@@ -163,9 +172,9 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       const key = listed.get(notRefinedStory)?.[0]?.key;
       const native = listed.get(notRefinedStory)?.[0]?.session;
       if (!key || !native) throw new Error("No completed story session");
-      await openEntryTerminal(storyCardSessions(card(notRefinedStory)));
-      const panel = page.getByRole("region", { name: "Terminal" });
-      await expect(panel.locator(".xterm-rows")).toContainText("attached");
+      await openTerminalFromEntry(storyCardSessions(card(notRefinedStory)));
+      const panel = terminalPanel(page);
+      await expect(terminalScreenParts(panel).rows).toContainText("attached");
       const attaches = dashboard.claudeAttaches().length;
       await show(columnsJourney.completed, { reload: false });
       const completed = { taken: [readyStory], backlog: [takenStory] };
@@ -190,7 +199,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       expect(dashboard.claudeAttaches()).toHaveLength(attaches);
       await show(columnsJourney.completed, { reload: false });
       await expect(local).toContainText("Shown in terminal");
-      await panel.getByRole("button", { name: "Close" }).click();
+      await closeSidePanel(panel, { using: "mouse" });
       await expect(local).toBeFocused();
       await page.reload();
       await expectMembership(page, completed);

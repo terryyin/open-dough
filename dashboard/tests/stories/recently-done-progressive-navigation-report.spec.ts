@@ -1,3 +1,4 @@
+import { readFinalReport } from "../finalReportPages.ts";
 // Mark as done in the Final report, on a session placed 27th in
 // Recently done once done: a refinement session of a story no list shows,
 // whose prepared workspace is gone, so Taken offers only its final report.
@@ -11,11 +12,7 @@
 import path from "node:path";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
-import {
-  parts,
-  readFinalReport,
-  standaloneSessionName,
-} from "../dashboardPage.ts";
+import { parts, standaloneSessionName } from "../dashboardPage.ts";
 import { rem } from "../boardPage.ts";
 import { placedAt } from "../recentlyDoneProgressive.ts";
 import { recordsAsked } from "../recentlyDoneProgressivePage.ts";

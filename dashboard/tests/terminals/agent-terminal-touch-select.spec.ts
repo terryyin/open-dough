@@ -7,7 +7,19 @@
 // ../../frontend-tests/agent-terminal-touch-select*.spec.ts.
 import { expect } from "../dashboardTest.ts";
 import { box, expectOnOneLine, tapWhereShown } from "../pageLayout.ts";
-import { phonePasteJourney, test } from "../terminalPastePage.ts";
+import {
+  copyClipboardText,
+  pasteKey,
+  phonePasteJourney,
+  test,
+} from "../terminalPastePage.ts";
+import {
+  expectTerminalInputNotFocused,
+  expectTerminalText,
+  pressTerminalKey,
+  terminalStatus,
+  typeLine,
+} from "../terminalScreenPage.ts";
 import {
   expectLive,
   expectPaused,
@@ -33,13 +45,12 @@ test("Select pauses the shown lines in place as text, a copied range pastes back
   page,
   dashboard,
 }) => {
-  const { panel, rows, sent, sizes, native } = await openPasteTerminal(
+  const { panel, sent, sizes, native } = await openPasteTerminal(
     page,
     dashboard,
   );
   const select = selectKey(panel);
-  const paste = terminalKey(panel, "Paste");
-  const textarea = panel.locator("textarea.xterm-helper-textarea");
+  const paste = pasteKey(panel);
   const attach = () => dashboard.claudeAttaches()[0];
 
   await test.step("Select is one tap away, beside Paste", async () => {
@@ -59,10 +70,9 @@ test("Select pauses the shown lines in place as text, a copied range pastes back
   // The session prints a path, on a line of its own and in an answer.
   const path = "/work/open-dough/docs/notes.md";
   await focusByTouch(panel);
-  await page.keyboard.type(path);
-  await page.keyboard.press("Enter");
-  await expect(rows).toContainText(`echo ${path}`);
-  await page.evaluate(() => navigator.clipboard.writeText("copied earlier"));
+  await typeLine(page, path);
+  await expectTerminalText(panel, `echo ${path}`);
+  await copyClipboardText(page, "copied earlier");
   const typed = sent.length;
   const sizesBefore = [...sizes];
   const look = () =>
@@ -93,7 +103,7 @@ test("Select pauses the shown lines in place as text, a copied range pastes back
     // would: the terminal's input no longer has focus, so the platform's copy
     // is not a key the terminal takes.
     await tapWhereShown(pausedText(panel));
-    await expect(textarea).not.toBeFocused();
+    await expectTerminalInputNotFocused(panel);
     await expectPaused(panel);
     // Select still shows as on once the look its own tap left has gone.
     await expect(select).toHaveCSS("background-color", lookWhenOn);
@@ -101,7 +111,7 @@ test("Select pauses the shown lines in place as text, a copied range pastes back
     expect(
       await selectPausedRange(panel, "docs/notes.md", "echo /work/open-dough"),
     ).toBe(range);
-    await page.keyboard.press("ControlOrMeta+c");
+    await pressTerminalKey(page, "ControlOrMeta+c");
     await expect
       .poll(() => page.evaluate(() => navigator.clipboard.readText()))
       .toBe(range);
@@ -111,15 +121,15 @@ test("Select pauses the shown lines in place as text, a copied range pastes back
     await tapWhereShown(select);
     await expectLive(panel);
     await expect(select).not.toHaveCSS("background-color", lookWhenOn);
-    await expect(rows).toContainText(`echo ${path}`);
+    await expectTerminalText(panel, `echo ${path}`);
     expect(dashboard.claudeAttaches()).toHaveLength(1);
     expect(attach()?.id).toBe(native.shortId);
   });
 
   await test.step("Paste gives the session the copied text, the first thing it received since before pausing", async () => {
     await tapWhereShown(paste);
-    await expect(rows).toContainText("echo docs/notes.md");
-    await expect(panel.getByRole("status")).toBeEmpty();
+    await expectTerminalText(panel, "echo docs/notes.md");
+    await expect(terminalStatus(panel)).toBeEmpty();
     expect(sent.slice(typed)).toEqual(["docs/notes.md\recho /work/open-dough"]);
     expect(attach()?.lines).toEqual([path, "docs/notes.md"]);
     // The session printed no `resized` line before that echo: neither tap

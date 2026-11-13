@@ -11,7 +11,6 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import {
   expectMembership,
-  openTerminalOf,
   parts,
   standaloneSessionName,
   sessionStateOf,
@@ -40,6 +39,7 @@ import {
   listed,
   sessionsOutsideDoneStories,
 } from "../recentlyDoneColumn.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 test("a done story's card holds this machine's sessions for it, marked done, newest first, and a session of a record past the window is its own entry", async ({
   page,
@@ -125,7 +125,7 @@ test("a done story's card holds this machine's sessions for it, marked done, new
     await expect(local.locator(".record-identity")).toHaveText(
       executed.identity,
     );
-    await expect(openTerminalOf(local)).toBeVisible();
+    await expect(openTerminalControl(local)).toBeVisible();
     await expect(sessionDetailsControl(local)).toHaveAttribute(
       "aria-expanded",
       "false",
@@ -136,7 +136,7 @@ test("a done story's card holds this machine's sessions for it, marked done, new
       "aria-expanded",
       "false",
     );
-    await expect(openTerminalOf(closedFirst)).toHaveCount(0);
+    await expect(openTerminalControl(closedFirst)).toHaveCount(0);
     await expect(sessionActionsControl(closedFirst)).toHaveCount(0);
     for (const entry of await inside.all())
       await expectSessionEntrySetOff(entry);

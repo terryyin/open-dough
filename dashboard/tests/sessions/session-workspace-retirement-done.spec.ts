@@ -1,8 +1,9 @@
+import { readFinalReport } from "../finalReportPages.ts";
 // Report observation preserves done intent; only deliberate marking changes it.
 import { existsSync } from "node:fs";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { machineSessions } from "../agentLaunchBoundary.ts";
-import { parts, readFinalReport, storyCardSessions } from "../dashboardPage.ts";
+import { parts, storyCardSessions } from "../dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,

@@ -2,7 +2,7 @@
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import type { ProjectHistory } from "../../server/landedCiHistoryStore.ts";
 import {
-  followUpSettings,
+  followUpCards,
   prepareRepeatScenario,
   readFollowUpLedger,
 } from "../../tests/support/ciFollowUpScenario.ts";
@@ -16,7 +16,6 @@ test("interruption while the provider reply is lost retains intent and reconcile
 }) => {
   const scenario = await prepareRepeatScenario(origin, github);
   const first = await startServer();
-  await followUpSettings(first, true);
   let release!: () => void;
   const reply = new Promise<void>((resolve) => {
     release = resolve;
@@ -34,13 +33,11 @@ test("interruption while the provider reply is lost retains intent and reconcile
   scenario.setRepeat({ seconds: 106 });
   const restarted = await startServer();
   await expect
-    .poll(() => followUpSettings(restarted))
-    .toMatchObject({
-      body: { cards: [{ kind: "unverified", repeatMs: 106000 }] },
-    });
-  expect(
-    (await followUpSettings(restarted)).body.cards[0]?.explanation,
-  ).toContain("acceptance is unverified");
+    .poll(() => followUpCards(restarted))
+    .toMatchObject([{ kind: "unverified", repeatMs: 106000 }]);
+  expect((await followUpCards(restarted))[0]?.explanation).toContain(
+    "acceptance is unverified",
+  );
   expect(scenario.repeatCalls).toEqual([71]);
 });
 
@@ -52,7 +49,6 @@ for (const unavailable of ["repeat proof", "multiple attempts"] as const) {
   }) => {
     const scenario = await prepareRepeatScenario(origin, github);
     const server = await startServer();
-    await followUpSettings(server, true);
     await scenario.ingest(server);
     await expect.poll(() => scenario.repeatCalls.length).toBe(1);
     if (unavailable === "repeat proof") scenario.repeatProofAvailable(false);
@@ -61,17 +57,13 @@ for (const unavailable of ["repeat proof", "multiple attempts"] as const) {
       ...(unavailable === "multiple attempts" ? { attempt: 3 } : {}),
     });
     await expect
-      .poll(
-        async () => (await followUpSettings(server)).body.cards[0]?.explanation,
-      )
+      .poll(async () => (await followUpCards(server))[0]?.explanation)
       .toContain(
         unavailable === "repeat proof"
           ? "comparable CI proof is incomplete"
           : "Multiple later attempts",
       );
-    expect((await followUpSettings(server)).body.cards[0]?.kind).toBe(
-      "unverified",
-    );
+    expect((await followUpCards(server))[0]?.kind).toBe("unverified");
   });
 }
 
@@ -87,13 +79,12 @@ test("new current reference and history eviction cannot rewrite the frozen decis
     await import("../../tests/support/landedCiHistory.ts");
   const scenario = await prepareRepeatScenario(origin, github, 120);
   const server = await startServer();
-  await followUpSettings(server, true);
   await scenario.ingest(server);
   await expect.poll(() => scenario.repeatCalls.length).toBe(1);
   scenario.setRepeat({ status: "in_progress" });
   await expect
-    .poll(() => followUpSettings(server))
-    .toMatchObject({ body: { cards: [{ kind: "progress" }] } });
+    .poll(() => followUpCards(server))
+    .toMatchObject([{ kind: "progress" }]);
   const stored = (
     JSON.parse(
       readFileSync(
@@ -147,24 +138,20 @@ test("new current reference and history eviction cannot rewrite the frozen decis
     .toMatchObject({ body: { reference: { averageMs: 300000 } } });
   scenario.setRepeat({ seconds: 106 });
   await expect
-    .poll(() => followUpSettings(server))
-    .toMatchObject({
-      body: {
-        cards: [
-          {
-            kind: "slow",
-            originalMs: 120000,
-            repeatMs: 106000,
-            averageMs: 100000,
-          },
-        ],
+    .poll(() => followUpCards(server))
+    .toMatchObject([
+      {
+        kind: "slow",
+        originalMs: 120000,
+        repeatMs: 106000,
+        averageMs: 100000,
       },
-    });
+    ]);
   expect(await landedCiHistory(server)).toMatchObject({
     body: { reference: { selected: { key: "run/71/1", ms: 120000 } } },
   });
   await keepLandedCiHistory(server.home, makeMe.aLandedCiHistory.please());
-  expect((await followUpSettings(server)).body.cards[0]).toMatchObject({
+  expect((await followUpCards(server))[0]).toMatchObject({
     kind: "slow",
     averageMs: 100000,
     originalMs: 120000,
@@ -176,7 +163,7 @@ test("new current reference and history eviction cannot rewrite the frozen decis
     .toMatchObject({
       body: { reference: { selected: { key: "run/71/1", ms: 120000 } } },
     });
-  expect((await followUpSettings(restarted)).body.cards[0]).toMatchObject({
+  expect((await followUpCards(restarted))[0]).toMatchObject({
     kind: "slow",
     averageMs: 100000,
     repeatMs: 106000,

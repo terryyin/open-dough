@@ -12,6 +12,11 @@ import { askToDeleteRecord } from "../support/sessionEntryDisclosure.ts";
 // page's own dashboard server drives the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import { expect, test } from "../dashboardTest.ts";
 import {
   storyCardSessionOf,
@@ -20,7 +25,6 @@ import {
   standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
-  openTerminalOf,
 } from "../dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
@@ -51,7 +55,7 @@ test.describe("deleting the record of the session the terminal shows", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await settled();
     await launch(readyStory, "Execution");
     const entry = storyCardSessionOf(card(readyStory), "Execution");
@@ -64,8 +68,8 @@ test.describe("deleting the record of the session the terminal shows", () => {
     await page.reload();
     await settled();
     await expect(sessionStateOf(entry)).toContainText("State unknown");
-    await openTerminalOf(entry).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await openTerminalControl(entry).click();
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await expect(page.getByText("Shown in terminal")).not.toHaveCount(0);
     await expectSelected(card(readyStory), true);
 

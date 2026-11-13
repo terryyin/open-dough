@@ -10,7 +10,6 @@ import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { sessionsSidebarFigures } from "../sessionsSidebarFigures.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { hostStatusEndpoint, type HostStatus } from "../../src/hostStatus.ts";
-import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 
 export const story = (index: number) => ({
   identity: `SEED-902#status-${index}`,
@@ -42,31 +41,6 @@ export function statusJourney(test: typeof dashboardTest) {
   });
   test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
   return () => journey;
-}
-
-export async function hostStatusAnswer(
-  page: Page,
-  initial: HostStatus | undefined,
-) {
-  const host = { answer: initial };
-  await page.route(
-    (url) => url.pathname === hostStatusEndpoint,
-    (route) =>
-      host.answer === undefined
-        ? route.fulfill({ status: 503, json: { error: "Ask again." } })
-        : route.fulfill({ json: host.answer }),
-  );
-  return host;
-}
-
-export async function unreadSessions(page: Page) {
-  await page.route(
-    (url) => url.pathname === agentLaunchEndpoint,
-    (route) =>
-      route.request().method() === "GET"
-        ? route.fulfill({ status: 503, json: { error: "Ask again." } })
-        : route.continue(),
-  );
 }
 
 export async function readStatusView(page: Page, journey: StoryColumnsJourney) {

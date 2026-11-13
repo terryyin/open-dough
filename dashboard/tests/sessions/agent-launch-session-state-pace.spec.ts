@@ -11,13 +11,17 @@
 
 import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import {
+  closeTerminal,
+  openTerminalControl,
+  terminalPanel,
+} from "../terminalScreenPage.ts";
+import {
   storyCardSessionOf,
   storyCardSessionName,
   expectMembership,
   parts,
   sessionNamedBy,
   standaloneSessionName,
-  openTerminalOf,
   sessionEntriesIn,
 } from "../dashboardPage.ts";
 import {
@@ -89,7 +93,7 @@ test("each active card entry shows why its session needs attention, or that it d
       const { shows, needsAttention } = changes[round];
       const entry = entryAt(index);
       await expectSessionShown(entry, shows, needsAttention);
-      await expect(openTerminalOf(entry)).toHaveCount(
+      await expect(openTerminalControl(entry)).toHaveCount(
         shows === "Session unavailable" ? 0 : 1,
       );
     }
@@ -137,7 +141,7 @@ test("each active card entry shows why its session needs attention, or that it d
     for (const index of attentionLaunches.keys()) {
       const entry = entryAt(index);
       await expectSessionShown(entry, unknownShown, false);
-      await expect(openTerminalOf(entry)).toHaveCount(1);
+      await expect(openTerminalControl(entry)).toHaveCount(1);
     }
 
     dashboard.claudeListingFails(false);
@@ -163,7 +167,6 @@ test("a session's attention stays through opening and closing its terminal, clea
   dashboard.claudeScenario("launched");
   const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
   const { recentlyDone: recent } = parts(page);
-  const panel = page.getByRole("region", { name: "Terminal" });
   const onStoryCard = storyCardSessionOf(card(readyStory), "Execution");
   const inRecent = recent.getByRole("article", {
     name: standaloneSessionName("Execution", readyStory),
@@ -189,7 +192,7 @@ test("a session's attention stays through opening and closing its terminal, clea
     await passOnePace();
     await expectOpen(needsInput, true);
 
-    await openTerminalOf(onStoryCard).click();
+    await openTerminalControl(onStoryCard).click();
     // The stopped page clock holds the terminal's drawing, so the attach
     // and the answer are read from the synthetic `claude` itself.
     const attach = () => dashboard.claudeAttaches()[0];
@@ -198,8 +201,7 @@ test("a session's attention stays through opening and closing its terminal, clea
     await page.keyboard.press("Enter");
     await expect.poll(() => attach()?.lines).toEqual(["red"]);
     await expectOpen(needsInput, true);
-    await panel.getByRole("button", { name: "Close" }).click();
-    await expect(panel).toHaveCount(0);
+    await closeTerminal(terminalPanel(page));
     await expect.poll(() => attach()?.endedBy).toBeDefined();
 
     await passOnePace();
@@ -239,7 +241,7 @@ test("a session's attention stays through opening and closing its terminal, clea
     dashboard.claudeSessionBecomes(session, "forgotten");
     await passOnePace();
     await expectSessionShown(inRecent, "Done", false);
-    await expect(openTerminalOf(inRecent)).toHaveCount(0);
+    await expect(openTerminalControl(inRecent)).toHaveCount(0);
     await expect(onStoryCard).toHaveCount(0);
   });
 

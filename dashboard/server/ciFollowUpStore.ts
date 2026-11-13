@@ -1,6 +1,5 @@
-// Machine authority, receipt admission and spent allowances share one lock.
-// Never prune this ledger with the bounded chart history or recover it empty.
-import { hostname } from "node:os";
+// Receipt admission and spent allowances share one lock. Never prune this
+// ledger with the bounded chart history or recover it empty.
 import { z } from "zod";
 import { priorBuildReferenceSchema } from "../src/ciPriorBuildReference.ts";
 import { followUpRuleSchema } from "../src/ciFollowUpRule.ts";
@@ -26,27 +25,39 @@ const jobSchema = z.object({
   completed_at: z.string(),
   status: z.string(),
 });
-export const repeatRequestSchema = z.object({
+const sharedRepeatRequestSchema = z.object({
   repository: z.string(),
-  workflow: z.string(),
-  workflowId: z.number(),
   original: keptBuildSchema,
   reference: priorBuildReferenceSchema,
   rule: followUpRuleSchema,
-  originalJobs: z.array(jobSchema).min(1),
   requestedAt: z.string(),
   submission: z.object({
     kind: z.enum(["intent", "accepted", "refused", "uncertain"]),
     explanation: z.string().optional(),
+    attempt: z
+      .object({
+        runId: z.union([z.string(), z.number()]),
+        attemptId: z.union([z.string(), z.number()]),
+        sha: z.string(),
+      })
+      .optional(),
   }),
   outcome: z.object({
     settled: z.boolean().optional(),
     observed: z
       .object({
-        runId: z.number(),
-        runAttempt: z.number(),
+        runId: z.number().optional(),
+        runAttempt: z.number().optional(),
+        adapterAttempt: z
+          .object({
+            runId: z.union([z.string(), z.number()]),
+            attemptId: z.union([z.string(), z.number()]),
+          })
+          .optional(),
+        check: z.string().optional(),
+        context: z.string().optional(),
         revision: z.string(),
-        workflowId: z.number(),
+        workflowId: z.number().optional(),
         status: z.string().optional(),
         conclusion: z.string().nullable().optional(),
         runUrl: z.string().optional(),
@@ -59,6 +70,26 @@ export const repeatRequestSchema = z.object({
     repeat: keptBuildSchema.optional(),
   }),
 });
+// Untagged requests were saved before providers were explicit; their evidence
+// has always named a GitHub workflow and remains a spent GitHub request.
+export const githubRepeatRequestSchema = sharedRepeatRequestSchema.extend({
+  provider: z.literal("github").default("github"),
+  workflow: z.string(),
+  workflowId: z.number(),
+  originalJobs: z.array(jobSchema).min(1),
+});
+export const adapterRepeatRequestSchema = sharedRepeatRequestSchema.extend({
+  provider: z.literal("adapter"),
+  branch: z.string(),
+  check: z.string().optional(),
+  context: z.string().optional(),
+});
+export const repeatRequestSchema = z.union([
+  githubRepeatRequestSchema,
+  adapterRepeatRequestSchema,
+]);
+export type GithubRepeatRequest = z.infer<typeof githubRepeatRequestSchema>;
+export type AdapterRepeatRequest = z.infer<typeof adapterRepeatRequestSchema>;
 export type RepeatRequest = z.infer<typeof repeatRequestSchema>;
 export type RepeatJob = z.infer<typeof jobSchema>;
 const landingSchema = z.object({
@@ -79,17 +110,13 @@ const landingSchema = z.object({
   request: repeatRequestSchema.optional(),
 });
 const schema = z.object({
-  projects: z.record(
-    z.string(),
-    z.object({ enabled: z.boolean(), authority: z.string() }),
-  ),
   landings: z.record(z.string(), landingSchema),
 });
 export type FollowUpLedger = z.infer<typeof schema>;
 export const followUpStore = (): MachineJsonStore<FollowUpLedger> => ({
   file: machineDashboardPath("ci-follow-up.json"),
   schema,
-  empty: { projects: {}, landings: {} },
+  empty: { landings: {} },
   unreadable: "preserve" as const,
   durable: true,
 });
@@ -102,11 +129,3 @@ export const readFollowUps = (): Promise<StoreRead<FollowUpLedger>> =>
 export const changeFollowUps = (
   change: (ledger: FollowUpLedger) => FollowUpLedger | typeof leaveMachineJson,
 ) => replaceMachineJson(followUpStore(), change);
-
-export function hasRepeatAuthority(
-  ledger: FollowUpLedger,
-  project: string,
-): boolean {
-  const setting = ledger.projects[project];
-  return setting?.enabled === true && setting.authority === hostname();
-}

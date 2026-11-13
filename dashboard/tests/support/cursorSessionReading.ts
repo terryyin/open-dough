@@ -5,12 +5,7 @@ import { readFileSync } from "node:fs";
 import { machineSessions } from "../agentLaunchBoundary.ts";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import {
-  parts,
-  sessionStateOf,
-  openTerminalOf,
-  sessionEntriesIn,
-} from "../dashboardPage.ts";
+import { parts, sessionStateOf, sessionEntriesIn } from "../dashboardPage.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import { cursorHeldLabels } from "../../src/cursorHeldLabel.ts";
 import { hostDescriptions } from "../../src/hostDescription.ts";
@@ -19,6 +14,10 @@ import type { HostOperations } from "../../src/sessionCapabilities.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { sessionAction, sessionActions } from "./sessionEntryDisclosure.ts";
 import { startedSessionTerminal } from "./startedSessionTerminal.ts";
+import {
+  expectTerminalText,
+  openTerminalControl,
+} from "../terminalScreenPage.ts";
 
 export const instruction = "inspect this session";
 
@@ -119,7 +118,7 @@ export async function openTakenCursorSession(
   // join arriving after a later hangup or runner stop would attach a new
   // client instead.
   const terminal = await startedSessionTerminal(page, recent);
-  await expect(terminal.locator(".xterm-rows")).toContainText(/\S/u);
+  await expectTerminalText(terminal, /\S/u);
   return recent;
 }
 
@@ -131,7 +130,7 @@ export async function expectCursorSessionActions(
   entry: Locator,
 ): Promise<void> {
   await sessionActions(entry);
-  await expect(openTerminalOf(entry)).toHaveCount(1);
+  await expect(openTerminalControl(entry)).toHaveCount(1);
   await expect(await sessionAction(entry, "Delete record…")).toHaveCount(0);
   await expect(entry.getByRole("button", { name: "Stop" })).toHaveCount(1);
   await expect(page.getByRole("button", { name: /rename/i })).toHaveCount(0);

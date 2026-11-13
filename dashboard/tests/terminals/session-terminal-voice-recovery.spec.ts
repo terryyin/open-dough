@@ -2,6 +2,15 @@ import type { Locator, Page } from "@playwright/test";
 import { test as base, expect } from "../support/voiceTest.ts";
 import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
 import {
+  closeTerminal,
+  expectTerminalInputFocused,
+  expectTerminalText,
+  focusTerminalInput,
+  insertTerminalText,
+  pressTerminalKey,
+  reconnectTerminal,
+} from "../terminalScreenPage.ts";
+import {
   observeMicrophone,
   seedVoiceKey,
   stoppedTracks,
@@ -9,9 +18,16 @@ import {
 } from "../support/voicePage.ts";
 import {
   beginTerminalClip,
+  discardRetainedTranscript,
+  expectNoUnsentTranscript,
+  expectTerminalDictationAvailable,
+  expectUnsentTranscript,
+  expectVoiceStatus,
+  expectVoiceStatusEmpty,
+  insertRetainedTranscript,
+  insertTranscriptControl,
   openTerminalVoice,
   stopTerminalClip,
-  expectTerminalDictationAvailable,
 } from "../support/terminalVoicePage.ts";
 import {
   sharedDashboardBuild,
@@ -62,9 +78,7 @@ async function completeWhileDisconnected(
   await stopTerminalClip(page, panel);
   await delivery.ready();
   await server.disconnect();
-  await expect(panel.getByRole("status")).toContainText(
-    "Disconnected from the session",
-  );
+  await expectVoiceStatus(panel, "Disconnected from the session");
   await delivery.release();
 }
 
@@ -81,52 +95,47 @@ test("a retained transcript waits through reconnect, Insert offers it once, and 
   const { sent } = noteTerminalTraffic(page);
   const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
   const session = dashboard.claudeAttaches()[0]?.id;
-  const retained = panel.getByRole("textbox", { name: "Unsent transcript" });
-  const insert = panel.getByRole("button", { name: "Insert transcript" });
-  const input = panel.locator(".xterm-helper-textarea");
+  const insert = insertTranscriptControl(panel);
   await completeWhileDisconnected(page, panel, terminalServer);
-  await expect(retained).toHaveValue(transcript);
-  await expect(panel.getByRole("status")).toContainText(
+  await expectUnsentTranscript(panel, transcript);
+  await expectVoiceStatus(
+    panel,
     "The transcript was not inserted. Reconnect, then insert it here or discard it.",
   );
   await expectTerminalDictationAvailable(panel, false);
   await insert.click();
-  await expect(retained).toHaveValue(transcript);
+  await expectUnsentTranscript(panel, transcript);
   expect(sent).toEqual([]);
   await terminalServer.start();
-  await panel.getByRole("button", { name: "Reconnect", exact: true }).click();
-  await expect(panel.locator(".xterm-rows")).toContainText(
-    `attached ${session}`,
-  );
-  await expect(retained).toHaveValue(transcript);
+  await reconnectTerminal(panel);
+  await expectTerminalText(panel, `attached ${session}`);
+  await expectUnsentTranscript(panel, transcript);
   expect(sent).toEqual([]);
   await expectTerminalDictationAvailable(panel, false);
-  await input.focus();
-  await page.keyboard.type("Review ");
-  await insert.click();
-  await expect(retained).toHaveCount(0);
-  await expect(input).toBeFocused();
+  await focusTerminalInput(panel);
+  await insertTerminalText(page, "Review ");
+  await insertRetainedTranscript(panel);
+  await expectNoUnsentTranscript(panel);
+  await expectTerminalInputFocused(panel);
   await expect
     .poll(() => sent.filter((text) => text === transcript))
     .toEqual([transcript]);
-  await expect(panel.locator(".xterm-rows")).toContainText(transcript);
+  await expectTerminalText(panel, transcript);
   expect(dashboard.claudeAttaches().at(-1)?.id).toBe(session);
   expect(dashboard.claudeAttaches().at(-1)?.lines).toEqual([]);
-  await page.keyboard.press("Backspace");
-  await page.keyboard.type("!");
-  await page.keyboard.press("Enter");
+  await pressTerminalKey(page, "Backspace");
+  await insertTerminalText(page, "!");
+  await pressTerminalKey(page, "Enter");
   await expect
     .poll(() => dashboard.claudeAttaches().at(-1)?.lines)
     .toEqual(["Review the recovered header and control!"]);
   await expectTerminalDictationAvailable(panel, true);
   await terminalServer.disconnect();
-  await expect(panel.getByRole("status")).toContainText("Disconnected");
+  await expectVoiceStatus(panel, "Disconnected");
   await terminalServer.start();
-  await panel.getByRole("button", { name: "Reconnect", exact: true }).click();
-  await expect(panel.getByRole("status")).toBeEmpty();
-  await expect(panel.locator(".xterm-rows")).toContainText(
-    `attached ${session}`,
-  );
+  await reconnectTerminal(panel);
+  await expectVoiceStatusEmpty(panel);
+  await expectTerminalText(panel, `attached ${session}`);
   expect(sent.filter((text) => text === transcript)).toEqual([transcript]);
   expect(dashboard.claudeAttaches().at(-1)?.lines).toEqual([]);
   expect(provider.calls).toHaveLength(1);
@@ -145,19 +154,18 @@ test("Discard sends no retained text and makes another capture available", async
   const { sent } = noteTerminalTraffic(page);
   const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
   await completeWhileDisconnected(page, panel, terminalServer);
-  const retained = panel.getByRole("textbox", { name: "Unsent transcript" });
-  await expect(retained).toHaveValue(transcript);
+  await expectUnsentTranscript(panel, transcript);
   await terminalServer.start();
-  await panel.getByRole("button", { name: "Reconnect", exact: true }).click();
-  await expect(panel.locator(".xterm-rows")).toContainText("attached ");
-  await expect(retained).toHaveValue(transcript);
-  await panel.getByRole("button", { name: "Discard transcript" }).click();
-  await expect(retained).toHaveCount(0);
-  await expect(panel.getByRole("status")).toBeEmpty();
+  await reconnectTerminal(panel);
+  await expectTerminalText(panel, "attached ");
+  await expectUnsentTranscript(panel, transcript);
+  await discardRetainedTranscript(panel);
+  await expectNoUnsentTranscript(panel);
+  await expectVoiceStatusEmpty(panel);
   expect(sent).toEqual([]);
   expect(dashboard.claudeAttaches().at(-1)?.lines).toEqual([]);
   await beginTerminalClip(page, panel);
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeTerminal(panel);
   await expect.poll(() => stoppedTracks(page)).toBe(true);
   expect(provider.calls).toHaveLength(1);
 });
@@ -179,19 +187,18 @@ for (const action of ["Close", "switch"] as const) {
       launchJourney,
     );
     await completeWhileDisconnected(page, panel, terminalServer);
-    const retained = panel.getByRole("textbox", { name: "Unsent transcript" });
-    await expect(retained).toHaveValue("belongs only to this view of A");
+    await expectUnsentTranscript(panel, "belongs only to this view of A");
     await terminalServer.start();
     if (action === "Close") {
-      await panel.getByRole("button", { name: "Close", exact: true }).click();
+      await closeTerminal(panel);
       await expect(panel).toHaveCount(0);
     }
     await open("Voice session B");
-    await expect(retained).toHaveCount(0);
-    await expect(panel.getByRole("status")).toBeEmpty();
+    await expectNoUnsentTranscript(panel);
+    await expectVoiceStatusEmpty(panel);
     await open();
-    await expect(retained).toHaveCount(0);
-    await expect(panel.getByRole("status")).toBeEmpty();
+    await expectNoUnsentTranscript(panel);
+    await expectVoiceStatusEmpty(panel);
     await expectTerminalDictationAvailable(panel, true);
     expect(sent).toEqual([]);
     expect(

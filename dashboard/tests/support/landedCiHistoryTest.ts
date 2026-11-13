@@ -23,6 +23,7 @@ type ServerFacts = {
   readonly github?: FakeGitHub;
   readonly environment?: "development";
   readonly observationClock?: true;
+  readonly adapterTimeoutMs?: number;
 };
 
 export const test = base.extend<{
@@ -39,18 +40,29 @@ export const test = base.extend<{
   },
   startServer: async ({ origin, github }, use) => {
     const started: DashboardServer[] = [];
-    await use(async ({ github: answering = github, ...facts } = {}) => {
-      const server = await startDashboardServer({
-        mode: "boundary",
-        ...facts,
-        github: answering,
-        machine: origin.machine,
-        projectFolders: ["open-dough"],
-        extraEnv: recheckingLandedCi,
-      });
-      started.push(server);
-      return server;
-    });
+    await use(
+      async ({
+        github: answering = github,
+        adapterTimeoutMs,
+        ...facts
+      } = {}) => {
+        const server = await startDashboardServer({
+          mode: "boundary",
+          ...facts,
+          github: answering,
+          machine: origin.machine,
+          projectFolders: ["open-dough"],
+          extraEnv: {
+            ...recheckingLandedCi,
+            ...(adapterTimeoutMs === undefined
+              ? {}
+              : { DOUGH_CI_ADAPTER_TIMEOUT_MS: String(adapterTimeoutMs) }),
+          },
+        });
+        started.push(server);
+        return server;
+      },
+    );
     await Promise.all(started.map((server) => server.close()));
   },
 });

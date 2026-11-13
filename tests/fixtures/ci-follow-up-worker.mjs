@@ -9,7 +9,6 @@ import {
 } from "../../dashboard/server/ciFollowUpStore.ts";
 import {
   registerFollowUpReceipt,
-  saveFollowUpSetting,
   spendRepeat,
 } from "../../dashboard/server/ciFollowUpAdmission.ts";
 import {
@@ -21,12 +20,6 @@ process.once("message", async (input) => {
     let answer;
     if (input.action === "register")
       answer = await registerFollowUpReceipt(input.project, input.landing);
-    if (input.action === "setting")
-      answer = await saveFollowUpSetting(
-        input.project,
-        input.enabled,
-        input.prior ?? [],
-      );
     if (input.action === "spend" || input.action === "crash-before-send")
       answer = await spendRepeat(input.project, input.landing, input.request);
     if (input.action === "update")

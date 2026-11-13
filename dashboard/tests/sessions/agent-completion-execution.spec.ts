@@ -8,13 +8,10 @@ import { test, expect } from "../support/cursorStart.ts";
 import { launch, recordsOf } from "../agentLaunchBoundary.ts";
 import { queuedIdentity, queuedTitle } from "../support/startOrigin.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import {
-  openTerminalOf,
-  parts,
-  sessionUnreadReportOf,
-} from "../dashboardPage.ts";
+import { parts, sessionUnreadReportOf } from "../dashboardPage.ts";
 import { markDone } from "../support/markDone.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
+import { openTerminalControl } from "../terminalScreenPage.ts";
 
 const exec = promisify(execFile);
 
@@ -49,7 +46,7 @@ test("execution completion keeps its Taken terminal available until wrap-up, thr
     name: "Story A",
     exact: true,
   });
-  const terminal = openTerminalOf(card);
+  const terminal = openTerminalControl(card);
   await expect(terminal).toBeVisible();
   const before = cursor.calls().length;
   const receipt = JSON.parse(

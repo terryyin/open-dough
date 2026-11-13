@@ -4,15 +4,15 @@ import type { Page } from "@playwright/test";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import { sessionsAudienceParameter } from "../../src/machineSessionsRevision.ts";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
-import {
-  parts,
-  sessionNamedBy,
-  openTerminalOf,
-  sessionEntriesIn,
-} from "../dashboardPage.ts";
+import { parts, sessionNamedBy, sessionEntriesIn } from "../dashboardPage.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import type { LaunchJourney } from "../launchJourney.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import { isTerminalSocket, watchTerminalSockets } from "./terminalSockets.ts";
 
 // While withheld, the page reads every launch attempt of this machine as still
@@ -84,8 +84,8 @@ export async function openWhileStarting(
   const dialog = page.getByRole("dialog", {
     name: "Start a session in Open Dough in Claude Code",
   });
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   const shows = async (text: string) => {
     for (let pace = 0; pace < 3; pace += 1) {
       await passOnePace();
@@ -103,7 +103,7 @@ export async function openWhileStarting(
   await expect(
     parts(page).projectActions.getByText("Local startup in progress."),
   ).toBeVisible();
-  const openTerminal = openTerminalOf(entry);
+  const openTerminal = openTerminalControl(entry);
   // The browser requests attachment before the synthetic host has necessarily
   // started or written its record. Observe that causal request so an immediate
   // Close never races a later record of the original process.

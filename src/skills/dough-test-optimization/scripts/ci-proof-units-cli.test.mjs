@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
-import { readCommandProof } from "../../dough-execute-plan/scripts/ci-command-adapter.mjs";
+import { readCommandProof } from "../../dough-execute-plan/scripts/ci-command-attempt.mjs";
 import { summaryProblems } from "./ci-proof-summary.mjs";
 import { cli, fragmentTests, temporary } from "./ci-proof-cli-fixtures.mjs";
 import {

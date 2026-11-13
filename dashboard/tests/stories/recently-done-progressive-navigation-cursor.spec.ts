@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A Running Cursor sessions row the runner still holds, for a session whose
 // record is marked done and placed 27th in Recently done, chosen from another
 // project: Open Dough's stories show, Recently done extends exactly through
@@ -14,6 +15,7 @@
 import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { launch } from "../agentLaunchBoundary.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   chooseProject,
   expectProjectChoice,
@@ -153,8 +155,8 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
     await test.step("with the row hidden, closing its terminal returns the keyboard to the entry", async () => {
       await button.click();
       await expect(row).toHaveCount(0);
-      const terminal = page.getByRole("region", { name: "Terminal" });
-      await terminal.getByRole("button", { name: "Close" }).click();
+      const terminal = terminalPanel(page);
+      await closeSidePanel(terminal, { using: "mouse" });
       await expect(terminal).toHaveCount(0);
       await expect(entry).toBeFocused();
     });

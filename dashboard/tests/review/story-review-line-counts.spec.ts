@@ -6,9 +6,13 @@
 // image or the mode-only change, shows none, and a collapsed folder still
 // tells how many changed files it holds.
 
-import type { Locator } from "@playwright/test";
 import { expect, test } from "../support/preparationPage.ts";
-import { treeFolder } from "../support/reviewTreeRows.ts";
+import {
+  treeFolder,
+  fileLineCounts,
+  changedFilesList,
+  listedFile,
+} from "../support/reviewTreeRows.ts";
 import { openReview } from "../support/reviewRead.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import {
@@ -16,10 +20,6 @@ import {
   storyWorktree,
 } from "../support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
-
-// A file row's counts, read as shown with innerText.
-const countsOf = (control: Locator) =>
-  control.locator(".story-review-line-counts");
 
 test("each file's row shows the lines its diff adds and removes, in words to assistive technology", async ({
   page,
@@ -31,9 +31,8 @@ test("each file's row shows the lines its diff adds and removes, in words to ass
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const review = await openReview(page, card);
-  const files = review.getByRole("list", { name: "8 changed files" });
-  const file = (name: string) =>
-    files.getByRole("button", { name, exact: true });
+  const files = changedFilesList(review, "8 changed files");
+  const file = (name: string) => listedFile(files, name, { exact: true });
 
   for (const [name, shown, words] of [
     ["Modified unstaged.txt", "+2 −1", "2 lines added, 1 line removed"],
@@ -41,16 +40,16 @@ test("each file's row shows the lines its diff adds and removes, in words to ass
     ["Renamed old.txt → new.txt", "+1 −0", "1 line added, 0 lines removed"],
     ["Added fresh/new.txt", "+1 −0", "1 line added, 0 lines removed"],
   ] as const) {
-    await expect(countsOf(file(name))).toHaveText(shown, {
+    await expect(fileLineCounts(file(name))).toHaveText(shown, {
       useInnerText: true,
     });
-    await expect(countsOf(file(name))).toBeVisible();
+    await expect(fileLineCounts(file(name))).toBeVisible();
     await expect(file(name)).toHaveAccessibleDescription(words);
   }
   // Neither the image nor the mode-only change has lines to count.
   for (const name of ["Modified image.png", "Modified other.txt"]) {
     await expect(file(name)).toBeVisible();
-    await expect(countsOf(file(name))).toHaveCount(0);
+    await expect(fileLineCounts(file(name))).toHaveCount(0);
     await expect(file(name)).not.toHaveAccessibleDescription(/line/);
   }
 

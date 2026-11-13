@@ -4,6 +4,7 @@
 // the divider says as shown, each list scrolling on its own, the mouse and
 // keys that move the divider, and the preferred height this browser keeps.
 import type { Locator, Page } from "@playwright/test";
+import type { LaunchRecord } from "../src/launchRecord.ts";
 import { box, expectInside } from "./pageLayout.ts";
 import {
   openRunningList,
@@ -24,6 +25,7 @@ import { openSessionsSidebar } from "./sessionsSidebarPage.ts";
 import { expect, keptRecord } from "./support/cursorStart.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import type { FakeCursor } from "./support/fakeCursor.ts";
+import { keepMoreLaunchRecords } from "./support/launchStore.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 
 // One Up or Down key (2rem), in CSS px.
@@ -145,17 +147,21 @@ export async function expectScrollsOnItsOwn(
 }
 
 // The held session and the crowded lists, with the sidebar open showing every
-// session and Running Cursor sessions still collapsed.
+// session and Running Cursor sessions still collapsed. A case keeping more
+// records beside the crowd, such as done ones, makes them in `alsoKept`.
 export async function showCrowded(
   page: Page,
   dashboard: DashboardServer,
   origin: StartOrigin,
   cursor: FakeCursor,
+  alsoKept: () => readonly LaunchRecord[] = () => [],
 ) {
   await page.setViewportSize(wide);
   const pid = await holdSession(dashboard, cursor);
   const held = keptRecord(dashboard.home);
   keepCrowd(dashboard, held);
+  const also = alsoKept();
+  if (also.length > 0) keepMoreLaunchRecords(dashboard, also);
   const asked = changesAsked(page);
   await showPage(page, origin);
   await answerCrowd(page, held);

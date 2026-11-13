@@ -15,6 +15,11 @@ import {
   sessionEntriesIn,
 } from "../dashboardPage.ts";
 import {
+  closeTerminal,
+  expectTerminalText,
+  terminalPanel,
+} from "../terminalScreenPage.ts";
+import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
@@ -45,11 +50,10 @@ async function startWith(page: Page, model: string | undefined) {
 }
 
 // Closes the terminal an ad hoc launch opens at once.
-async function closeTerminal(page: Page) {
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel.locator(".xterm-rows")).toContainText("attached");
-  await panel.getByRole("button", { name: "Close" }).click();
-  await expect(panel).toHaveCount(0);
+async function closeAttachedTerminal(page: Page) {
+  const panel = terminalPanel(page);
+  await expectTerminalText(panel, "attached");
+  await closeTerminal(panel);
 }
 
 for (const [model, words] of [
@@ -117,7 +121,7 @@ test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, 
   await startSession(page, "Open Dough").click();
   await expect(startSessionDialog(page, "Open Dough")).toBeVisible();
   await startWith(page, "Sonnet");
-  await closeTerminal(page);
+  await closeAttachedTerminal(page);
 
   const expectWords = async () => {
     await openSessionsSidebar(page);

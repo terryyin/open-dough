@@ -250,31 +250,41 @@ call site, then `closeSidePanel`. Remaining raw sites are contract checks, diffe
 elements or sibling Terminal/launch workflows. G6 moved cold preparation out of seven
 specs' budgets; G7 replaced the only wall-clock wait. Proof 92/92 over 49 files.
 
-## Execution complete
+### 7. Reconcile shared session and report owners with trunk
+Type: Structure
+Status: done
+Proof: every conflicted and reconciled spec plus consumers of each kept owner; `npm run typecheck:dashboard`; full `--list` count compared with trunk plus this branch; then branch CI on the merged revision.
 
-Product advice:
-- Before integration, reconcile with trunk: since the claim, the review story
-  (67bb91d54) and Terminal story (2137dfd0d) landed parallel owners for the same
-  Open terminal, Read final report, Final report text and Side panel Close controls
-  (`sessionEntryAccess.ts`, `finalReportPages.ts` `finalReportText`/`readReportUntilText`,
-  `sidePanelFrame.ts`, `terminalScreenPage.ts`); merging trunk conflicts in 77 files.
-  Keep one owner per control and keep bbcbbc3's causal Startup recovery wait over
-  trunk's retry-until-text loop for the same flake; prove the merged state on branch
-  CI first.
-- Pass a literal open-session description into `storyCardSessionListing.ts`
-  `expectStartsBlocked` instead of deriving it from production `openSessionStartReason`
-  (story: observations must not manufacture expected facts from production values).
-- Small residue for the same reconciliation: remaining hand-built Mark as done / Keep
-  open / Session actions sites (session-attribution, final-report-touch,
-  agent-terminal-done, retirement-attach, agent-session-cursor-done,
-  session-management-touch, reportTouchJourney), the unused `runningCursorParts`
-  re-export, dead `hostStatusAnswer`, `native-host-fixtures.md` naming
-  `launchEachQueuedStory`, the frontend host-status spec importing `unreadSessions`
-  from integrated support, and the Sessions heading/list locators defined in three
-  sidebar owners.
-- G8: cold preparation still counted inside 148 preparation-page tests' first-case
-  budget is a latent flaky-test risk under the failure policy, not only speed; queue it
-  as its own story.
+Structure: Terry approved (2026-11-13) reconciling inside this story after the
+retrospective found that the review story (67bb91d54) and the Terminal story
+(2137dfd0d) landed parallel owners on trunk for Open terminal, Read final report,
+Final report text and Side panel Close (`sessionEntryAccess.ts`, `finalReportPages.ts`
+`finalReportText`/`readReportUntilText`, `sidePanelFrame.ts`, `terminalScreenPage.ts`),
+conflicting in 77 files. Merge trunk; trunk's landed names stay the single owner of
+each such control and this branch's callers move onto them; keep exact-name matching
+and bbcbbc3's causal Startup recovery wait instead of the retry-until-text loop.
+In the same pass: `expectStartsBlocked` takes a caller-supplied open-session
+description; remaining hand-built Mark as done / Keep open / Session actions sites
+move to their owners; drop the unused `runningCursorParts` re-export and dead
+`hostStatusAnswer`; `native-host-fixtures.md` names `launchOnEachQueuedCard`; the
+frontend host-status spec stops importing integrated support for `unreadSessions`;
+sidebar owners take the Sessions heading and list from `sessionsSidebarParts`.
+Safe stop: merged branch green with one owner per control.
+
+Result (slice 7): merged trunk 68bdc4f10. Trunk owners stay single owners:
+`sessionEntryAccess.ts` (`openTerminalControl`, `readFinalReportControl`, always exact),
+`finalReportPages.ts` (`finalReportText` plus moved-in `finalReportParts`/`readFinalReport`),
+`sidePanelFrame.ts` (`sidePanelNamesOf`, press-only exact `closeSidePanel`),
+`terminalScreenPage.ts`; the branch's duplicates, `openEntryTerminal` and trunk's
+`readReportUntilText` retry loop are gone, and the waiting close is renamed
+`pageLayout.closeSidePanelToBoard`. bbcbbc3's causal Startup recovery wait stays; trunk's
+per-test 60 s override in `agent-completion-quiet` was removed because Story Branch Wrap Up
+runs as fast as the other closures (5.4–8.9 s over 4 repeats). `expectStartsBlocked` takes
+a caller note through `describedBy`. Residue from the retrospective is done. Proof: full
+suite 2695/2712 with all 14 load timeouts passing on rerun (`s7-run2..5`), refactor 39/39
+and 12/12 (`s7r-proof.log`, `s7r-quiet-repeat.log`), note callers 5/5 (`s7-note.log`);
+`--list` 2712 equals trunk. Four launch-family specs still derive `openSessionDescription`
+from production; they belong to the launch story.
 
 ## Verification, current decisions and concern review
 
