@@ -15,7 +15,15 @@ if (!source || !destination)
   throw new Error("usage: native-identity-source.mjs SOURCE DESTINATION");
 const installerFiles = execFileSync(
   "git",
-  ["-C", source, "ls-files", "-z", "--", "Distribution/src/install"],
+  [
+    "-C",
+    source,
+    "ls-files",
+    "-z",
+    "--",
+    "Distribution/src/install",
+    "src/install",
+  ],
   { encoding: "utf8" },
 )
   .split("\0")

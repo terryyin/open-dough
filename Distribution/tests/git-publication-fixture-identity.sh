@@ -59,7 +59,7 @@ capture_family_hashes "${identity_out}/baseline"
 
 # Each family identifies the helpers its fixture reaches and the installer
 # inputs that put the guidance in its fixture.
-installer_inputs=$(git -C "${identity_source}" ls-files -- Distribution/src/install)
+installer_inputs=$(git -C "${identity_source}" ls-files -- Distribution/src/install 'src/install/*-payload.sh')
 installer_inputs+=' install.sh VERSION CHANGELOG.md
   Distribution/src/skills/dough-update/SKILL.md
   Distribution/src/skills/dough-execute-plan/assets/claude-hooks.json
