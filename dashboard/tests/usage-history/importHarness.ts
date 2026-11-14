@@ -69,6 +69,7 @@ export function runImport(
         cwd: repository,
         env: { ...process.env, HOME: home },
         encoding: "utf8",
+        stdio: "pipe",
       },
     ),
   );
