@@ -192,6 +192,12 @@ case_observe() {
   for file in ${case_partial_files}; do
     [[ -f ${workspace}/${file} ]] || partial=lost
   done
+  # The partial slice reads runs through the supplier's in-process reader; a
+  # shared fixture that no longer does was rerouted around the supplier.
+  if [[ ${partial} == preserved ]] \
+    && ! grep -q createFakeGhReader "${workspace}/tests/support/repeat-fixture.mjs"; then
+    partial=rerouted
+  fi
   if [[ -f ${workspace}/tests/repeat-verdict-stage.test.mjs && ! -e ${workspace}/tests/repeat-checks.test.mjs ]]; then
     slice3=filed
   fi

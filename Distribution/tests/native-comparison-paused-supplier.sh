@@ -25,7 +25,7 @@ fi
 
 # A substitute Codex holds until the supplier's completion is on main.
 mkdir -p -- "${work}/bin" "${work}/completion" "${work}/publication" \
-  "${work}/duplicate"
+  "${work}/duplicate" "${work}/reroute"
 cp -- "${source_dir}/Distribution/tests/support/native-agent-paused-supplier.sh" "${work}/bin/codex"
 chmod a+x "${work}/bin/codex"
 export PATH="${work}/bin:${PATH}"
@@ -94,6 +94,10 @@ rejected_journey() {
 # consumer's proof pass, and the journey still fails.
 rejected_journey publication 'turn-3-proof: passed' \
   'turn 3 (publication) integrated the supplier (diagnostic) before its requirement was satisfied'
+# Rerouting the partial slice's shared fixture around the supplier's reader
+# while holding keeps every file but not the dependency.
+rejected_journey reroute 'turn-1-partial-work: rerouted' \
+  "turn 1 rerouted the partial slice 3 work around the supplier's reader"
 # Filing slice 3 again in later commits continues twice.
 rejected_journey duplicate 'turn-4-slice3-filings: 2' \
   'turn 4 did not continue exactly once (1 supplier integrations, 2 slice 3 filings)'
@@ -113,6 +117,7 @@ early-reader-at-completion continuation turn-4-supplier-reader: diagnostic | com
 failing-proof proof turn-4-proof: failed | lacks slice 3's passing proof
 unproved-continuation proof turn-4-agent-proof: none | lacks slice 3's passing proof
 lost-partial-work partial-work turn-2-partial-work: lost | turn 2 lost the partial slice 3 work
+rerouted-partial-work partial-work turn-3-partial-work: rerouted | turn 3 rerouted the partial slice 3 work around the supplier's reader
 new-session session turn-3-thread: 00000000-0000-4000-8000-ffffffffffff | turn 3 is not a continuation
 kept-watching session turn-1-status: timeout | turn 1 did not complete (timeout)
 pushed remote turn-4-remote: changed | turn 4 changed the remote

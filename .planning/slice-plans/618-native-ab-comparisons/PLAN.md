@@ -182,7 +182,7 @@ only. Reuse/expose shared helper seams and preserve their existing consumers.
 
 ### 4. Refresh a case and recover its earlier comparison basis
 Type: Behavior
-Status: planned
+Status: done
 Proof: Version-change/recovery journey through the same maintainer entry.
 
 Revise one case's setup or assessment, run the new version, and recover the
@@ -327,6 +327,26 @@ own amendment/acceptance. Revisit the cited North Star during normal wrap-up.
   `9c20a808` rather than from the current tree (Slice 4 demonstrates this). Focused
   family proof and both helper-consumer sets passed on the merged state; the test-share
   preview keeps ~193s headroom per share with four unrecorded jobs.
+- **Branch CI repair for the merge (run 43562552359).** `Distribution Tests (2/4)` failed
+  at `native-comparison.sh:184`: the substitute-rule commit still wrote to
+  `payloads/src/skills/...`, absent after the move. The pre-commit merge proof passed only
+  because the substitute pair fixture clones the checkout's committed HEAD for payloads,
+  which was still the old layout; prove a merge after committing it. The repair
+  (`Distribution/src/skills/...`) rides with Slice 4's delivery, since no writer was live
+  and the fix sits inside Slice 4's moved pair fixture.
+- **Slice 4 accepted (2026-11-14).** Pairs now refuse an uncommitted case or harness input
+  before payloads freeze, and records name `case-basis-revision`. `native-comparison.sh
+  --recover RECORD` follows the record's Git history, verifies or searches the revision
+  whose inputs match the recorded hashes, states payload/tag/host drift as `rerun-limit`
+  without rerunning, and prints the report unchanged. The real Slice 3 records recover to
+  `9c20a808` (their named `e4c7cbe3` lacks inputs). The paused-supplier assessment was
+  refreshed to fail rerouting the partial slice around the supplier's reader; H1–H5 were
+  applied. No paid run: no agent-facing input changed. Recovery does not check the project
+  basis or its services.
+- **Follow-up outside this story.** About 12 test-support `.mjs` entries compare
+  `process.argv[1]` with `fileURLToPath(import.meta.url)` and print nothing when run
+  through a symlinked path (macOS `/var` → `/private/var`); the pair fixture uses
+  physical paths. A shared real-path "is main module" helper is unrelated cleanup.
 - **Deferred hash-bound cleanups for Slice 4's refresh rerun.** The records also hash the
   runner, `native-codex.sh` and `native-codex-session.mjs`. The Slice 3 refactor left:
   H1 duplicated load sampling in the runner; H2 source revision/dirty logic repeated in

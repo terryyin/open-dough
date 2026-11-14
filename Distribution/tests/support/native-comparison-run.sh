@@ -29,7 +29,7 @@
 #
 # Leaves native_comparison_status (pass or fail), _reason and _attempt (the
 # retained attempt directory, when RESULTS_DIR is given). Codex only so far;
-# the `codex` on PATH may be a substitute (Distribution/tests/native-comparison.sh), whose
+# a credential-free test may put a substitute `codex` first on PATH, whose
 # session records are read only under CODEX_HOME.
 # shellcheck disable=SC1090,SC1091,SC2030,SC2031,SC2034,SC2154,SC2312 # Sourced case and helper globals; the journey runs and retains in one subshell.
 
@@ -51,6 +51,11 @@ native_comparison_inputs=(
 
 native_comparison_now() {
   printf '%s\n' "${EPOCHREALTIME/./}"
+}
+
+# The host's load averages, as each record shows them at start and end.
+native_comparison_load() {
+  sysctl -n vm.loadavg 2> /dev/null | tr -d '{}' | xargs
 }
 
 native_comparison_seconds() {
@@ -109,7 +114,7 @@ native_comparison_run_case() {
     native_stderr="${native_comparison_controller}/stderr.log"
     platform=codex
     : > "${native_stderr}"
-    native_comparison_load_start=$(sysctl -n vm.loadavg 2> /dev/null | tr -d '{}' | xargs)
+    native_comparison_load_start=$(native_comparison_load)
     if ! case_materialize "${root}" "${native_comparison_payload_dir:-${source_dir}}" codex; then
       printf 'case: %s\nmaterialization: failed\n' "${case_name}" > "${work}/observations.txt"
       printf '%s\n' fail 'the case could not be materialized; no session started' '' \
@@ -208,7 +213,7 @@ native_comparison_retain() {
     native_comparison_retain_sessions "${source_dir}" "${dest}"
     printf 'thread: %s\n' "${native_comparison_thread:-unknown}"
     printf 'host-load-start: %s\nhost-load-end: %s\n' "${native_comparison_load_start}" \
-      "$(sysctl -n vm.loadavg 2> /dev/null | tr -d '{}' | xargs)"
+      "$(native_comparison_load)"
     printf 'source-revision: %s\n' "$(git -C "${source_dir}" rev-parse HEAD)"
     printf 'source-dirty: %s\n' "$(git -C "${source_dir}" status --porcelain | grep -q . && echo true || echo false)"
     printf 'project-basis: %s\n' "${case_project_basis}"

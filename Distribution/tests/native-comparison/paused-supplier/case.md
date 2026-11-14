@@ -69,8 +69,9 @@ record on main, its assignment profile removed). Wakes are identical, so only th
 ## Assessment
 
 `assess.bash` reads only the controller's observations, never the agent's
-claims: per turn the session's completion and thread, partial-work files,
-which supplier reader the checkout holds (absent, the supplier's diagnostic
+claims: per turn the session's completion and thread, partial-work files
+(present, and with the shared fixture still reading runs through the
+supplier's `createFakeGhReader`, not rerouted around it), which supplier reader the checkout holds (absent, the supplier's diagnostic
 or completed version, or the consumer's own), slice 3's filing, the recorded
 dependency state, supplier integrations and slice 3 filings since the
 starting basis, an independent run of the project's proof, the agent's own
@@ -115,7 +116,14 @@ acceptance steps; one journey is not a repeatable-cost estimate.
 
 Each pair's compact record (basis, criteria, conditions, sessions, outcomes,
 effort and limits) is kept under `comparisons/`, outside the case's identity;
-the raw arm evidence stays with the maintainer who ran it.
+the raw arm evidence stays with the maintainer who ran it. A record keeps the
+case basis it ran: `Distribution/tests/native-comparison.sh --recover RECORD`
+finds the commit holding its exact inputs and prints it unchanged.
+
+The 2026-11-14 assessment refresh rejects a hold that reroutes the partial
+slice around the supplier's reader; its agent-facing task, wake, overlays and
+events are unchanged. The record below ran the earlier case, recovered at
+`9c20a808` with its inputs under `tests/`.
 
 - [`20261114T045440-40bf`](comparisons/20261114T045440-40bf.txt), 2026-11-14:
   release v0.3.98 (`ad7aa7d`) against trunk `91f32d39`, arms concurrent at

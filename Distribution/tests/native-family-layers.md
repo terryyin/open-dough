@@ -19,7 +19,8 @@ prompt, install, launch and retention together in
 Reuse before writing a copy:
 
 - `native-observation.sh`: `native_observation_field FILE KEY` reads a field
-  value; `native_harness_inspected PATTERN FILE...` prints true or false.
+  value's first word and `native_observation_value FILE KEY` its whole value;
+  `native_harness_inspected PATTERN FILE...` prints true or false.
 - `native-completion-observation.sh`: `native_completion_measure` and the
   call, await, stop, shutdown and control-order helpers for one
   complete-revision call.

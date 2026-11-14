@@ -14,21 +14,33 @@
 # The caller sets native_comparison_pair_repository (where both revisions
 # live), _baseline and _candidate (revisions), _factor, _gain and _quality
 # (declared before any arm starts) and _arms (sequential or concurrent), with
-# native_codex_settings for both arms. Fails without starting an arm when a
-# revision names no commit. Leaves native_comparison_pair_attempt (the
-# retained pair directory) and the judge's native_comparison_verdict_*.
+# native_codex_settings for both arms. Fails without starting an arm when the
+# case basis is not committed in SOURCE_DIR (native-comparison-basis.sh), so
+# the record names the commit that holds it, or when a revision names no
+# commit. Leaves native_comparison_pair_attempt (the retained pair directory)
+# and the judge's native_comparison_verdict_*.
 # shellcheck disable=SC1090,SC1091,SC2034,SC2154,SC2312 # Sourced case and helper globals; fields print as observed.
 
 native_comparison_pair_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "${native_comparison_pair_dir}/native-comparison-run.sh"
 source "${native_comparison_pair_dir}/native-comparison-verdict.sh"
+source "${native_comparison_pair_dir}/native-comparison-basis.sh"
 
 native_comparison_pair_inputs=(
   Distribution/tests/support/native-comparison-pair.sh
   Distribution/tests/support/native-comparison-verdict.sh
+  Distribution/tests/support/native-comparison-basis.sh
 )
 
 native_comparison_pair_attempt=
+native_comparison_pair_basis_revision=
+
+# Leaves arm_status, arm_reason and arm_attempt from ARM's verdict under WORK
+# (the runner's three lines), each empty when the arm left none.
+native_comparison_pair_arm_verdict() {
+  arm_status='' arm_reason='' arm_attempt=''
+  { read -r arm_status && read -r arm_reason && read -r arm_attempt; } 2> /dev/null < "$1/$2/verdict" || true
+}
 
 # Freezes revision REV of the payload repository as ARM's payload under WORK:
 # its commit, its tree and its files, materialized once.
@@ -60,14 +72,15 @@ native_comparison_pair_arm() {
 # Prints ARM's pair fields from its observations and retained record, and
 # leaves the facts compared across arms in WORK/ARM.compare/.
 native_comparison_pair_observe_arm() {
-  local work=$1 arm=$2 turns=$3 empty_events=$4 attempt observations record compare
+  local work=$1 arm=$2 turns=$3 empty_events=$4 observations record compare
+  local arm_status arm_reason arm_attempt
   observations="${work}/${arm}/observations.txt"
-  attempt=$(sed -n 3p "${work}/${arm}/verdict" 2> /dev/null)
-  record="${attempt}/record"
+  native_comparison_pair_arm_verdict "${work}" "${arm}"
+  record="${arm_attempt}/record"
   compare="${work}/${arm}.compare"
   mkdir -p -- "${compare}"
   [[ -f ${observations} ]] || observations=/dev/null
-  [[ -n ${attempt} && -f ${record} ]] || record=/dev/null
+  [[ -n ${arm_attempt} && -f ${record} ]] || record=/dev/null
   # A fact an arm lacks leaves its file empty.
   grep '^input-hash: ' "${record}" > "${compare}/basis" || true
   grep '^project-basis: ' "${record}" > "${compare}/project-basis" || true
@@ -119,9 +132,15 @@ native_comparison_pair_match() {
 }
 
 native_comparison_pair() {
-  local case_name=$1 source_dir=$2 work=$3 results_dir=$4 arm case_files events empty_events
+  local case_name=$1 source_dir=$2 work=$3 results_dir=$4 arm condition case_files events empty_events
   local case_path="${source_dir}/Distribution/tests/native-comparison/${case_name}" observations dest
   native_comparison_pair_attempt=
+  # The case basis both arms must run: its files and the runner's inputs,
+  # committed, so the record can name the commit that holds them.
+  native_comparison_case_files "${source_dir}" "${case_name}"
+  native_comparison_pair_basis_revision=$(native_comparison_basis_commit "${source_dir}" \
+    "Distribution/tests/native-comparison/${case_name}" "${case_files[@]}" "${native_comparison_inputs[@]}" \
+    "${native_run_supervision_inputs[@]}" "${native_comparison_pair_inputs[@]}") || return
   native_comparison_pair_freeze baseline "${native_comparison_pair_baseline}" "${work}" \
     && native_comparison_pair_freeze candidate "${native_comparison_pair_candidate}" "${work}" \
     || return
@@ -129,8 +148,6 @@ native_comparison_pair() {
   { read -r events && read -r empty_events; } < <(source "${case_path}/case.bash" \
     && printf '%s\n%s\n' "${case_events}" "${case_empty_events-}")
   read -ra events <<< "${events}"
-  # The case basis both arms must run: its files and the runner's inputs.
-  native_comparison_case_files "${source_dir}" "${case_name}"
   {
     native_result_input_hash_lines "${case_files[@]}" "${native_comparison_inputs[@]}"
     native_result_supervision_input_hash_lines
@@ -158,8 +175,8 @@ native_comparison_pair() {
       native_comparison_pair_observe_arm "${work}" "${arm}" "$((${#events[@]} + 1))" "${empty_events}"
     done
     printf 'basis: %s\n' "$(native_comparison_pair_match "${work}" basis)"
-    for arm in project-basis host settings events; do
-      printf '%s: %s\n' "${arm}" "$(native_comparison_pair_match "${work}" "${arm}")"
+    for condition in project-basis host settings events; do
+      printf '%s: %s\n' "${condition}" "$(native_comparison_pair_match "${work}" "${condition}")"
     done
   } > "${observations}"
   native_comparison_judge "${observations}"
@@ -173,8 +190,7 @@ native_comparison_pair_declare() {
   printf 'declared-at: %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   printf 'factor: %s\nintended-gain: %s\nquality-criteria: %s\n' "${native_comparison_pair_factor}" \
     "${native_comparison_pair_gain}" "${native_comparison_pair_quality}"
-  printf 'case-source-revision: %s\n' "$(git -C "${source_dir}" rev-parse HEAD)"
-  printf 'case-source-dirty: %s\n' "$(git -C "${source_dir}" status --porcelain | grep -q . && echo true || echo false)"
+  printf 'case-basis-revision: %s\n' "${native_comparison_pair_basis_revision}"
   for arm in baseline candidate; do
     read -r commit tree requested < "${work}/payload-${arm}.id"
     printf '%s-payload: %s tree=%s requested=%s\n' "${arm}" "${commit}" "${tree}" "${requested}"
@@ -190,11 +206,12 @@ native_comparison_pair_declare() {
 
 # The record's arms, outcomes, proof, verdict, effort and limits.
 native_comparison_pair_report() {
-  local work=$1 source_dir=$2 results_dir=$3 observations=$4 arm attempt record file proof
+  local work=$1 source_dir=$2 results_dir=$3 observations=$4 arm record file proof
+  local arm_status arm_reason arm_attempt
   for arm in baseline candidate; do
-    attempt=$(sed -n 3p "${work}/${arm}/verdict" 2> /dev/null)
-    record="${attempt}/record"
-    printf '%s-attempt: %s\n' "${arm}" "${attempt#"${results_dir}/"}"
+    native_comparison_pair_arm_verdict "${work}" "${arm}"
+    record="${arm_attempt}/record"
+    printf '%s-attempt: %s\n' "${arm}" "${arm_attempt#"${results_dir}/"}"
     printf '%s-thread: %s\n' "${arm}" "$(sed -n 's/^thread: //p' "${record}" 2> /dev/null | grep . || echo unknown)"
     printf '%s-workers: %s\n' "${arm}" "$(awk '$1 == "codex-worker:" { printf "%s%s", n++ ? " " : "", $2 }' "${record}" 2> /dev/null | grep . || echo none)"
     printf '%s-payload-digest: %s\n' "${arm}" "$(sed -n 's/^payload-digest: //p' "${record}" 2> /dev/null)"
@@ -203,11 +220,10 @@ native_comparison_pair_report() {
     printf '%s-host: %s\n' "${arm}" "$(sed -n 's/^native-version: //p' "${record}" 2> /dev/null)"
     printf '%s-load: %s to %s\n' "${arm}" "$(sed -n 's/^host-load-start: //p' "${record}" 2> /dev/null)" \
       "$(sed -n 's/^host-load-end: //p' "${record}" 2> /dev/null)"
-    printf '%s-outcome: %s: %s\n' "${arm}" "$(sed -n 1p "${work}/${arm}/verdict" 2> /dev/null)" \
-      "$(sed -n 2p "${work}/${arm}/verdict" 2> /dev/null)"
+    printf '%s-outcome: %s: %s\n' "${arm}" "${arm_status}" "${arm_reason}"
     proof=()
     for file in observations.txt final-state.txt case-evidence; do
-      [[ ! -e ${attempt}/${file} ]] || proof+=("${file}")
+      [[ ! -e ${arm_attempt}/${file} ]] || proof+=("${file}")
     done
     printf '%s-proof: %s\n' "${arm}" "${proof[*]:-none}"
   done

@@ -14,8 +14,10 @@
 # and adds it again (slice 3 filed twice); `shortcut` continues like
 # `completion` in one command that also pushes its branch, and runs no proof
 # (fewer commands, a changed remote and no proof); `quiet` continues like
-# `completion` and holds without reading anything (fewer commands). Until
-# then it holds. It proves the runner, observer, assessor, pairing and
+# `completion` and holds without reading anything (fewer commands);
+# `reroute` continues like `completion` but holds by rewriting the shared
+# fixture onto the process-per-read reader, around the supplier. Until then
+# it holds. It proves the runner, observer, assessor, pairing and
 # retention around known decisions; it never stands in for native behavior.
 # shellcheck disable=SC2016 # jq programs name their own arguments.
 set -euo pipefail
@@ -91,7 +93,7 @@ event '{type:"turn.started"}'
 call fetch 'git fetch -q origin'
 ready=false
 case ${rule} in
-  completion | duplicate | shortcut | quiet)
+  completion | duplicate | shortcut | quiet | reroute)
     git -C "${workspace}" cat-file -e \
       origin/main:.planning/done/SEED-332_answer-fake-gh-reads-in-process.json 2> /dev/null \
       && ready=true
@@ -125,6 +127,8 @@ if [[ ${ready} == true && -e ${workspace}/tests/repeat-checks.test.mjs ]]; then
 else
   # Reads the project's proof command without running it.
   [[ ${rule} == quiet ]] || call status 'cat AGENTS.md'
+  [[ ${rule} != reroute ]] || call reroute 'sed s/createFakeGhReader/readFakeGh/g tests/support/repeat-fixture.mjs \
+> fixture.tmp && mv fixture.tmp tests/support/repeat-fixture.mjs'
   message='Slice 3 is held: the supplier requirement is not satisfied yet.'
 fi
 event --arg m "${message}" '{type:"item.completed",item:{id:"message",type:"agent_message",text:$m}}'
