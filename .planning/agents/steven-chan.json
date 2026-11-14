@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "steven-chan",
+  "email": "steven-chan@example.org",
+  "identity": "SEED-358#close-launches-returned-to-the-backlog",
+  "mode": "story-branch",
+  "branch": "claude/close-launches-returned-to-the-backlog",
+  "host": "claude",
+  "model": "opus"
+}
