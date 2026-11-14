@@ -201,7 +201,7 @@ test("empty and reading states stay distinct, and fewer than 20 shows every Done
   });
   await showThreeProjectPage(page, origin);
   const shown = await showRecentlyDone(page);
-  await expect(shown.body).toContainText("No sessions marked done are kept.");
+  await expect(shown.body).toContainText("No sessions marked done are listed.");
   await expect(shown.entries).toHaveCount(0);
 
   const now = Date.now();

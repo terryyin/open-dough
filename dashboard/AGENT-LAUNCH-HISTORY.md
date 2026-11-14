@@ -13,7 +13,7 @@ document it last parsed, so any process's replacement is seen on the next read
 and an unreadable replacement is never answered from an earlier parse. Writes
 parse afresh under a lock that serializes the complete read-and-replace
 operation across dashboard processes, so concurrent launches and done marks
-preserve both updates. Replacement is atomic. Unclosed records remain indefinitely; done records expire after 30 days. Unreadable files are preserved on reads and moved
+preserve both updates. Replacement is atomic. Unclosed records remain indefinitely; done records leave the operational records after 30 days and remain in launch history. Unreadable files are preserved on reads and moved
 to `.unreadable` (with timestamp suffix for an existing copy) on the next write.
 Page/server restarts preserve native identity, workspace, options and evidence.
 Cards list all unclosed sessions for their project/story newest first. An open

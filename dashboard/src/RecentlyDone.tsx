@@ -111,7 +111,7 @@ export function RecentlyDone({
       <SessionList sessions={records} none={none}>
         {() => (
           <p className="quiet">
-            Sessions marked done are kept for {launchRetentionDays} days after
+            Sessions marked done are listed for {launchRetentionDays} days after
             marking.
           </p>
         )}

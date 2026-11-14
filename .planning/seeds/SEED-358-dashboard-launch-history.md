@@ -7,76 +7,13 @@ trigger_when: selected from the product backlog
 scope: story
 ---
 
-# SEED-358 — Keep dashboard launch history
+# SEED-358 — Dashboard launch history follow-ons
 
-Three stories, in backlog order: keep launch records instead of deleting them,
-reconstruct earlier Codex and Claude Code work with its token usage, and close
-launches whose story returned to the backlog. Terry split the second and third
-out on 2026-11-14 so the first stays an internal change.
-
-<a id="keep-dashboard-launch-history"></a>
-
-### Keep dashboard launch history
-
-**Identity:** SEED-358#keep-dashboard-launch-history
-
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/623-keep-dashboard-launch-history/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3650502c5c1d335c261c452d83eee49cc49ea6d8e1c1991820c23ae4cc03b364","plan":"6c17f397a0be4dff13bac60c64a747f012243f91400cf1a725ed6de9dac09e10"}}
-```
-
-**For / why.** A developer can later account for each task the dashboard
-launched, after its session ages out of the recent views or is removed.
-
-Stop deleting launch records. A record that leaves the dashboard's operational
-records, because it was marked done more than 30 days ago or because the
-developer removed its session, moves to a dashboard-owned launch history
-instead. History keeps the record as it was recorded, its project, and when and
-why it left. A record leaves the operational records only after history holds
-it, and moving it again adds no second entry.
-
-Visible behavior stays as it is. Recently done and its count still cover the 30
-days after a session was marked done, a removed session still disappears, and
-the retirement of host-local state on removal (such as Cursor configuration
-scopes and landing pins) still runs. Routine dashboard reads and writes do not
-read or rewrite history. History is readable without native session files.
-Wording that says done sessions are kept for 30 days says they are listed for
-30 days instead.
-
-Scope limits: no history view, no token usage, and no recovery of records
-already pruned before delivery; the
-[reconstruction story](#reconstruct-codex-and-claude-code-usage-history) owns
-the last two. Temporary launch attempts, landing retries, and other dashboard
-files keep their own retention.
-
-#### Architecture
-
-Today `~/.open-dough/dashboard/agent-launches.json` holds every project's
-records in one document that each dashboard read parses and each write
-rewrites atomically ([record document](../../dashboard/server/launchRecordDocument.ts)).
-On 2026-11-14 it held 1,333 records from 30 days in 8.4 MB. Keeping records
-there permanently would grow every read and write by about 8 MB a month, so
-history is a separate, append-only, file-based store beside it under
-`~/.open-dough/dashboard/`. The 30-day write-time drop and explicit deletion
-([deletion](../../dashboard/server/launchRecordDeletion.ts)) become moves into
-that store. [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
-rules out an application database and keeps workflow facts in Git. Launch
-history is machine-local session evidence, so files fit both rules. Later
-usage records and the
-[backup story](SEED-361-dashboard-data-backup.md#back-up-and-restore-dashboard-data)
-build on this store.
-
-#### Key examples
-
-- A session marked done 31 days ago is out of Recently done and its count, as
-  today. After the next record write and a dashboard restart, history holds its
-  record once, and the operational records no longer do.
-- A session marked done 29 days ago stays in Recently done and its count, and
-  history does not hold it yet.
-- The developer removes a session. It disappears from the dashboard and its
-  host-local state is retired as before, and history holds its record, marked
-  as removed.
-- A write that moves records fails before history holds them. The records stay
-  in the operational records, and a later write moves them once.
+Two remaining stories, in backlog order: reconstruct earlier Codex and Claude
+Code work with its token usage, and close launches whose story returned to the
+backlog. Keep-dashboard launch history is delivered; machine-local history lives
+under `~/.open-dough/dashboard/launch-history/` as
+[AGENT-LAUNCH-HISTORY](../../dashboard/AGENT-LAUNCH-HISTORY.md) describes.
 
 <a id="reconstruct-codex-and-claude-code-usage-history"></a>
 
@@ -92,7 +29,7 @@ token usage in the dashboard's projects since Open Dough became stable on
 2026-09-16, including launches whose dashboard records were pruned.
 
 Define the dashboard-owned usage record in the
-[launch history](#keep-dashboard-launch-history) store. Tie each usage
+[launch history](../../dashboard/AGENT-LAUNCH-HISTORY.md) store. Tie each usage
 observation to its launch, native session and turn lineage, identity, source,
 scope, and coverage. Store model and effort when known, and keep uncached input,
 cache reads, cache writes, and output distinct. Represent missing or partial
