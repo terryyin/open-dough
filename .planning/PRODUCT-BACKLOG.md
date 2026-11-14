@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [View token usage for dashboard-launched tasks](seeds/SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks) — SEED-357#view-token-usage-for-dashboard-launched-tasks
 - [Save and reuse native A/B baselines](seeds/SEED-346-native-ab-comparisons.md#reuse-native-comparison-baselines) — SEED-346#reuse-native-comparison-baselines
 - [Reduce total model work during blocked execution](seeds/SEED-356-reduce-blocked-execution-effort.md#reduce-total-model-work-during-blocked-execution) — SEED-356#reduce-total-model-work-during-blocked-execution
 - [Remove tests that only assert configuration or data](seeds/SEED-354-remove-configuration-only-tests.md#remove-configuration-only-tests) — SEED-354#remove-configuration-only-tests

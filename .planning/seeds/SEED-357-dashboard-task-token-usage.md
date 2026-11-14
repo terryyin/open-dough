@@ -1,0 +1,47 @@
+---
+id: SEED-357
+status: active
+planted: 2026-11-14
+planted_during: Terry requested token usage for tasks started from the dashboard
+trigger_when: selected from the product backlog
+scope: story
+---
+
+# SEED-357 — View token usage for dashboard-launched tasks
+
+<a id="view-token-usage-for-dashboard-launched-tasks"></a>
+
+### View token usage for dashboard-launched tasks
+
+**Identity:** SEED-357#view-token-usage-for-dashboard-launched-tasks
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / why.** A developer can return to the dashboard to see how many tokens
+a task they started there used and which launch settings produced that usage.
+
+The dashboard automatically collects and persists a record for each task it
+starts, including story workflows and ad hoc tasks. It keeps the task type,
+project and story identity when applicable, the agent tool, model, effort,
+other relevant launch parameters, and the usage the tool makes available.
+
+#### Key examples
+
+- A developer launches two tasks for the same story with different settings.
+  After a dashboard restart, they can inspect each task's persisted launch
+  settings and token usage alongside its story identity.
+- An ad hoc task is visible with its launch settings and any available usage.
+  If the tool supplies only partial usage or no measurement, the dashboard
+  shows that state and distinguishes it from a measured zero.
+
+#### Open research
+
+Find out which usage each supported tool exposes for dashboard-launched tasks,
+what its counts include, and how reliably they can be attributed to a task,
+including resumed sessions and delegated work. Determine whether any shared
+measure supports fair cross-tool comparisons, and under what conditions.
+Keep the tool's own units and coverage visible while that question is open.
+Start from the [existing cross-tool audit](../../docs/maintainer/session-token-efficiency-research.md#window-scope-and-method)
+and the related [retained-history comparison story](SEED-345-session-token-efficiency.md#compare-agent-effort-on-comparable-runs).
