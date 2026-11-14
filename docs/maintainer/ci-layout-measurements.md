@@ -14,7 +14,9 @@ only with convincing no-worse evidence both alone and under equivalent two-run
 load. There is no positive regression allowance. Faster individual jobs,
 runner-seconds or a queue-free dependency chain cannot satisfy this decision.
 
-Baseline B is the four-Distribution-share layout at
+The original pair below is retained history; the replacement fixed workload
+at the end of this protocol governs new samples. Original baseline B is the
+four-Distribution-share layout at
 `d21aaf78c60ee03fb08f382397f2b6a4ea3270b1`, initially reachable at
 `codex/run-ci-on-as-few-jobs-as-its-wall-time-allows`. It has 21 initial jobs
 and 22 total jobs: lint, four Distribution shares, browser groups of 6/5/1/4,
@@ -37,6 +39,13 @@ repository runs before each block and retain every overlap with unrelated
 work. Repository visibility cannot establish account-wide idleness or verify
 the supplied 20-job account limit. Local CPU/memory figures cannot establish
 GitHub runner headroom.
+
+Before reading the first candidate result, classify its automatic push run as
+operational acquisition only, excluded from paired timing samples. The only
+event-dependent behavior found is the concurrency group: dispatches are
+independent while pushes share a branch cancellation group. Use workflow_dispatch
+for both arms' timing samples. Count the extra push run and its measured cost
+separately from the 40-dispatch comparison ceiling; it cannot replace a sample.
 
 ### Blocks and ceiling
 
@@ -122,34 +131,18 @@ acquisition probe, never the fixed-workload baseline or candidate evidence.
 At the first load check, the newest twelve visible runs were completed; the
 repository view gives no account-wide idle assertion.
 
-## Run ledger
+## Run evidence
 
-Raw acquisition root: `/tmp/seed350-ci-layout-20261114`. The pre-dispatch
-protocol copy, matching before/after run lists and load snapshot are retained
-there. All initial visible runs were completed; account-wide load is unknown.
-
-| Arm / block / context | Revision | Run / attempt | State | Initial / total | Created UTC | Last completion / seconds | Proof / load |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| B / 1 / solo acquisition | d21aaf78c | [43564792953](https://github.com/terryyin/open-dough/actions/runs/43564792953) / 1 | success | 21 / 22 observed | 2026-11-14 06:07:38 | 06:13:17 / 339 s | all 20 parts present; only this run active in repository view |
-
-Keep exact per-job creation/start/completion timestamps, setup, launch offsets,
-selected identities and artifacts for every attempt, including unsuccessful
-ones. Count only acquired jobs when reporting an observed total; declared
-counts above remain predictions until the completed inventory confirms them.
-
-Allocation proof before candidate dispatch: the real discovered 644 check
-identities deal as 159/161/161/163 at four shares and 216/214/214 at three.
-Sorted unions are equal, with every identity appearing exactly once in either
-allocation (`selection-4-vs-3.json` at the raw root). The supported four-check
-workflow/proof command in the plan passed on the unchanged baseline under
-Bash 5 and `caffeinate -s -i` on AC, exit 0.
+The [detailed run ledger](ci-layout-run-ledger.md) retains old-workload history,
+exact-attempt acquisition, failed runs and replacement-workload samples. Per-run
+[compact evidence](ci-layout-evidence/) retains job epochs and artifact identity.
 
 ## Candidate ledger
 
 | Layout | Initial / total jobs | State | Evidence and limits |
 | --- | --- | --- | --- |
-| B: Distribution 4, browser 6/5/1/4 | 21 / 22 | acquisition passed | B1 is one eligible solo observation; no comparison claim |
-| C: Distribution 3, browser 6/5/1/4 | 20 / 21 | unkept hypothesis | Same 644 discovered checks; no hosted comparison yet |
+| B: 3cc1495fa, Distribution 4, browser 6/5/1/4 | 21 / 22 | replacement acquisition pending | Frozen baseline alias, 645 checks, aggregate 694 |
+| C: 567f05894, Distribution 3, browser 6/5/1/4 | 20 / 21 | unkept hypothesis | Same 645 checks, aggregate 926; block 1 recorded, no passing comparison |
 
 Distribution 2/1, every browser group, combined reductions and physical packing
 remain open for subsequent measured search. Old packing budgets and producer
@@ -162,51 +155,6 @@ the original baseline as well as intermediate winners, then recheck final
 packing. Record measured, predicted-infeasible (with reasons) and unknown smaller
 layouts. A greedy one-count-at-a-time failure proves no general lower bound;
 the result is the smallest measured passing layout, never a global optimum.
-
-## First exact-attempt acquisition
-
-B1 succeeded with 3,596 runner-seconds, maximum job queue 78 s. Its proof
-job was created 06:12:52Z, started 06:12:55Z and completed 06:13:17Z:
-all 3 s of proof queue plus its 22 s execution remain inside the 339 s verdict.
-The 58 listed, unexpired artifacts were all downloaded (20 fragments, 20 time
-reports, 16 Playwright reports, summary and frontend proof). Summary metadata
-matched repository, SHA, run and attempt, schema validation passed, and every
-declared part was present with none missing or ambiguous.
-
-| Entry | Unit / parts | Passed / failed / other | Reported files |
-| --- | --- | --- | --- |
-| e2e | case / 6 | 561 / 0 / 1 | 307 |
-| dashboard/tests | case / 5 | 627 / 0 / 0 | 275 |
-| dashboard/frontend-tests | case / 1 | 161 / 0 / 0 | 62 |
-| dashboard/backend-tests | case / 4 | 1455 / 0 / 7 | 434 |
-| Distribution | file / 4 | 643 / 0 / 0 | 643 |
-
-All 2,812 browser case identities were extracted from the HTML reports’ embedded
-report.json, with no duplicated group/file/project/title/path identity: 562 E2E,
-627 integrated, 161 frontend and 1,462 backend. Their outcomes were 2,804
-expected and eight explicitly skipped (one E2E, seven backend), matching all
-eight summary “other” outcomes; none was unfinished or unexpectedly failing.
-These existing skips are retained as observed outcomes, not invented passes.
-The Distribution entry covers 643 check files; the 644th discovered check is
-`scripts/check-self-installation.sh`, outside that declared Intent entry.
-The real allocation union still preserves all 644.
-
-Reproduction/acquisition commands: `gh api repos/terryyin/open-dough/actions/runs/43564792953`,
-`gh api repos/terryyin/open-dough/actions/runs/43564792953/attempts/1/jobs --paginate`,
-`gh api repos/terryyin/open-dough/actions/runs/43564792953/artifacts --paginate`,
-and `gh run download 43564792953 --repo terryyin/open-dough --dir DEST`.
-Read the attempt-named summary with the maintained `summaryProblems` validator;
-check each evidence part’s status independently of the green summary job.
-The per-job epochs and setup-step timings are retained in B1-measurements.json
-at the raw root; case identities and complete artifact inventory are alongside it.
-
-Local trial preparation changes only the Distribution matrix/declaration and
-the proof replay test’s expected missing-part count. With only the YAML edit,
-ci-proof-actions.test.mjs failed on its obsolete fourth missing part; the
-expectation was adapted to three. The four named contract checks and the reached
-test-runner-deadline-cutoff.test.mjs then passed under supported Bash 5, AC
-and `caffeinate -s -i`. No test, timeout or budget was removed or relaxed.
-Hosted candidate proof and all matched comparisons remain pending.
 
 ## Replacement fixed workload — declared before its first result
 
@@ -222,7 +170,7 @@ four shares, aggregate 694, per-check 64. Its frozen remote alias is
 `codex/seed-350-ci-baseline`, confirmed by `git ls-remote`; creating the alias
 launched no CI run. Its matched candidate contains the
 same workload and per-check protection, with three shares and reviewed
-aggregate 926. The actual accepted candidate SHA will be recorded on publication.
+aggregate 926. The accepted candidate is `567f05894b0af0246252202a72195acc6ade0ec5`.
 There are now 645 discovered checks, including both native entries; previews
 give 160/161/161/163 checks at four shares and 217/214/214 at three.
 
@@ -234,3 +182,46 @@ operational push are additional explicitly recorded cost. Old-workload runs
 cannot fill new matched blocks. A further workload-changing repair requires
 reassessment rather than automatically renewing this budget. No failed run is
 erased or converted to a timing win. Freeze/check both refs before dispatch.
+
+## Fresh work ranking for later packing
+
+Repaired operational C2, [43568511716/1](https://github.com/terryyin/open-dough/actions/runs/43568511716),
+provides diagnostic slack only; matched B/C blocks still decide acceptance.
+
+| Job | Exact job id | Runner seconds | Queue seconds |
+| --- | --- | --- | --- |
+| dashboard-integrated / shard 5/5 | 132367533844 | 287 | 2 |
+| Distribution Tests (3/3) | 132367533677 | 236 | 1 |
+| e2e / shard 3/6 | 132367533946 | 212 | 2 |
+| dashboard-backend / shard 4/4 | 132367533842 | 210 | 1 |
+| e2e / shard 1/6 | 132367533894 | 205 | 2 |
+| e2e / shard 4/6 | 132367533930 | 197 | 2 |
+
+The [exact C2 records](ci-layout-evidence/43568511716-attempt-1.jsonl) retain
+job and setup epochs. Integrated 5/5 is the observed bottleneck; the shorter
+Distribution/E2E/backend jobs offer hypotheses for later packing, not evidence
+that a changed layout will preserve whole-run wall time.
+
+The [shared fixed-workload roster](ci-layout-evidence/workload-3cc1495fa/index.jsonl)
+retains source B run 43569186551/1 at 3cc1495fa: exact 2,828 case identities/outcomes
+and 645 checks in 20 existing producer/part partitions. These baseline partitions
+are provenance, not an allocation rule. Every matched run verifies the whole
+case/check union and references its hashes; candidate counts may differ.
+
+## First replacement block — observed, unkept
+
+| Context | B verdict seconds | C verdict seconds | Comparison limit |
+| --- | --- | --- | --- |
+| Solo | 278 | 388 | C proof queued 116 s amid unmatched background work |
+| Mixed B+C | 606 | 309 | C led by 1 s; a third workflow executed during both runs |
+| Same-layout pair, first launch | 369 | 250 | BB had unrelated work at its start; CC was quieter |
+| Same-layout pair, second launch | 489 | 483 | BB/CC creation offsets were 8/9 s; background differs |
+
+All eight workflows succeeded with complete declared proof, the exact shared
+roster/outcomes and four observed browser workers per shard. Their full queues
+remain included. This is one collection block with comparison limits, not
+repeated passing evidence or a causal layout win. The candidate stays unkept.
+Stop before block 2 while the [separate protocol proposal](ci-layout-protocol-proposal.md)
+awaits developer decision; the active strict rule and ceiling are unchanged.
+The [ledger](ci-layout-run-ledger.md) retains every run, raw start offsets,
+background job epochs, observation-command recovery and total resource cost.

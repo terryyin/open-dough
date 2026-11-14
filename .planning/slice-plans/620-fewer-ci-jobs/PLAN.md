@@ -212,22 +212,25 @@ No rerun-until-green, skipped test, or weakened proof can make a candidate pass.
 
 ## Current decisions and concern evidence
 
-No scope change or ADR exception. The supplied account limit of 20 was not
-independently verified. Report observed load and visibility limits; smaller
-layouts remain hypotheses for the probe and comparisons.
+No scope change or ADR exception. The supplied account limit of 20 remains
+unverified. The first replacement block cannot establish no-worse performance:
+unmatched background runs and launch priority confound its comparisons, and
+the declared 40-run cap cannot supply five eligible blocks after that loss.
+Stop before block 2 pending the developer's decision on the
+[prospective proposal](../../../docs/maintainer/ci-layout-protocol-proposal.md).
+The active protocol is unchanged; no reduction is kept and all slices stay open.
 
-Execution resumed 2026-11-14 in the established owned worktree and branch
-`codex/run-ci-on-as-few-jobs-as-its-wall-time-allows`, story-branch mode.
-Origin/main and the execution branch both confirmed accepted Take
-`d21aaf78c60ee03fb08f382397f2b6a4ea3270b1`; starting revision
-`c4117d407650eb1e037d1b0082f103699825cd5b`. Publisher
-`dashboard-territory.local-open-dough`, agent `aki-chan`. The default checkout
-is `/Users/terryyin/git/open-dough`; no originating integration checkout was
-supplied. No second start or claim. Locked `npm ci` succeeded in this checkout,
-then the real three-share preview succeeded with all 644 checks. The tracked
-pre-commit hook is check-only (staged lint, script-triggered typecheck);
-`npm run format` selects changed/new paths. Replanning retains the plan's
-existing authority; no numeric slice budget or exception was supplied.
+Execution resumed 2026-11-14 in the established owned worktree, branch `codex/run-ci-on-as-few-jobs-as-its-wall-time-allows`, story-branch mode.
+Accepted Take: `d21aaf78c60ee03fb08f382397f2b6a4ea3270b1`; starting revision:
+`c4117d407650eb1e037d1b0082f103699825cd5b`. Publisher `dashboard-territory.local-open-dough`,
+agent `aki-chan`; default checkout `/Users/terryyin/git/open-dough`, no originating
+integration checkout supplied. No second claim. Locked `npm ci` and applicable
+commands passed here. Hook: check-only staged lint and script-triggered typecheck;
+`npm run format` selects changed/new paths. No numeric slice budget was supplied.
+Latest accepted code: `567f05894b0af0246252202a72195acc6ade0ec5`, exact CI success
+43568511716/1, incorporating upstream repair at `3cc1495fa` and aggregate 926.
+Frozen baseline alias `codex/seed-350-ci-baseline` retains that upstream revision
+with four shares/694; both arms retain per-check 64 and the same 645-check workload.
 
 Observer: GitHub Actions `terryyin/open-dough`, verified active `ci.yml` / `CI`
 (351271804), execution-branch target. Coordinator `aki-chan-seed350`, checkout
@@ -235,11 +238,9 @@ as above; directory `/tmp/dough-ci-501/watch-fNDC3o`, PID 82547, yielded cell
 `g188:9`, stream session 28375. The Take's trunk CI is unobserved by this
 branch observer. Use the retained directory/coordinator for managed delivery.
 
-Slice-plan refinement was not needed: the four proof loops separate attribution,
-Distribution packing, whole-workflow packing and the maintained rule within one
-allocation/proof model. No remaining planning concern was found; slice 1 bounds
-state-changing measurement premises and stops dependent work if it fails.
-
+The four proof loops remain selected. The first block and independent method
+review invalidated the sampling-sufficiency premise; preserve its evidence and
+settle the evaluation decision before refining or extending dependent work.
 
 ## Story obligations
 
