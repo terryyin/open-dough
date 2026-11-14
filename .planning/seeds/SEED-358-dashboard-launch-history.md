@@ -46,20 +46,37 @@ Store model and effort when known and keep uncached input, cache reads, cache
 writes, and output distinct. Represent missing or partial measurements explicitly.
 Later host collectors and usage views use the same stored records.
 
-Backfill historical usage for already-recorded **Codex and Cursor** launches.
-Read Codex response usage from retained active and archived rollouts, including
-compressed files. Use explicit thread and turn lineage to include attributable
-workers. For Cursor, import retained usage evidence where conversation and task
-identity can be established, such as matching rows from an eligible Admin API
-or supported export. Include worker usage only where the stored lineage supports
-the join. Preserve unavailable or ambiguous usage as a coverage gap. Make the
-import repeatable without duplicate usage, including when live collection later
-overlaps it. The [historical recovery research](../../docs/maintainer/dashboard-task-usage-research.md#recovering-earlier-launches)
-records the available evidence.
+Recover as much retained **Codex and Cursor** history as possible from the start
+of Open Dough, including the earliest story refinement, slice planning, and
+execution sessions. Search native history and surviving dashboard records,
+including records older than 100 days where available. The 30-day Recently
+done window applies only to recent reads and counts.
+
+When a dashboard record is missing, reconstruct a historical entry from the
+session and corroborating launch or project history. Recover the project,
+workflow or task, story identity and title at the time, tool, model, effort,
+launch settings, timing, outcome, and usage where supported. Use recorded
+workflow invocations and historical seed, plan, backlog, or completion records
+to resolve story references. Keep source references for reconstructed fields
+and leave unresolved values unknown. Record dashboard, native, or unknown
+origin based on the evidence. A workflow command can establish the activity.
+Use a retained dashboard record, a native launch reference, or comparable
+evidence to count the session as a dashboard launch. Store recovered metadata
+and counters without copying raw prompts or transcripts.
+
+Read Codex response usage from active and archived rollouts, including
+compressed files. Use thread and turn lineage to include attributable workers.
+For Cursor, import retained usage where conversation and task identity can be
+linked, such as matching rows from an eligible Admin API or supported export.
+Include attributable worker usage. Keep partial or unavailable usage visible.
+Save reconstructed records in dashboard storage and make import repeatable,
+including when later live collection overlaps it. The [historical recovery research](../../docs/maintainer/dashboard-task-usage-research.md#recovering-earlier-launches)
+records the sources and their limits.
 
 Terry approved delivering the data structure and backfill without a new usage UI.
-Verify them by reading the stored records and checking the import's coverage and
-repeatability. The visible usage views remain with their host stories.
+Verify by reading the stored records and repeating the import. Report the
+earliest recovered date, counts by host and coverage, and material gaps. The
+visible usage views remain with their host stories.
 
 #### Key examples
 
@@ -70,10 +87,13 @@ repeatability. The visible usage views remain with their host stories.
   appears in Recently done as returned to backlog, once. A new launch for the
   story coexists with that finished record. An interim unfinished report from
   the new launch leaves it open.
-- An older Codex launch gains usage from its own responses and any linked
-  workers. An older Cursor launch gains usage when retained rows can be matched
-  and retains its history with unavailable or partial usage otherwise. Repeating
-  an import leaves the same attributed counts and coverage.
+- An old Codex slice-planning session whose launch record was pruned gains a
+  historical record with its workflow, recoverable story metadata, and usage
+  from its own responses and linked workers. With uncertain origin, it stays
+  out of dashboard-launch counts.
+- An older Cursor execution is reconstructed even if its usage is unavailable.
+  Matching retained usage rows enrich the same entry. Repeating the import
+  leaves the same records and usage counts.
 
 The [current launch lifecycle findings](../../docs/maintainer/dashboard-task-usage-research.md#dashboard-ownership-and-task-boundaries)
 identify read filtering, write-time pruning, explicit removal, and the early
