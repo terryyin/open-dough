@@ -2,35 +2,7 @@
 
 Launch identity: `/root/source_review`
 
-## Original input
-
-```text
-You are the fresh source-only reviewer for SEED-345#resume-when-blocked-work-can-advance. Use only the original source text below; read no other project files, change nothing. Return source clauses with individual commitments, qualifications, trigger/journey examples and exclusions. Number every commitment, splitting each item of compound commitments into its own id. Preserve alternatives and do not turn examples into rejection rules. Derive promises, not slice ownership or acceptance. This input and your return will be retained as review evidence.
-
-Original source:
-Goal: A developer can leave an authorized execution that cannot currently advance, without paying for recurring model checks or having to reconstruct its work. When the recorded condition changes, the correct execution resumes or gives actionable attention, preserving its ownership, work and outstanding proof. This is the first efficiency story because the observed supplier pause cost both idle requests and a developer rescue.
-
-Scope: The existing story commits to:
-- Distinguishing a paused supplier or host usage hold from verification that is actually running. The sibling long-verification story owns reducing the cost of waiting for a running command.
-- Retaining the execution identity, checkout and branch, owner, last accepted proof and applicable revision, unfinished work, exact resume condition, supported continuation handle when available, and next observation or attention owner. A saved condition does not create a new execution claim.
-- Generating no recurring model requests solely to recheck unchanged blocked state. Necessary bounded liveness checks, genuine changes and deadlines remain meaningful observations.
-- Resuming the right work once on a qualifying change, with actionable status for an unavailable signal, missed deadline or lost required CI observation. Resume preserves the original execution authority; it supplies no permission to change scope, choose another model, purchase capacity or waive proof.
-- Keeping the existing CI receipt, overdue-verification and observer-recovery rules. Local proof remains accepted evidence when CI coverage is lost; neither a wake-up nor local proof manufactures a CI completion receipt.
-- Initial comparative proof in Codex, with shared guidance for Codex, Cursor and Claude Code and explicit evidence limits for their different adapters. Usage-limit reset observability is investigated rather than inferred from elapsed time.
-
-Selected boundary (Terry, 2026-11-14): automatic continuation of already-authorized work where the host supports delivery, with retained state and actionable attention when delivery is unavailable or uncertain. It must demonstrate a successful automatic Codex resume. Automatic recovery after host/session exit and quota resets is not a delivery commitment, and manual resume is the fallback rather than the normal supported-host path.
-
-Release/rollout, the general effort-accounting tool, reducing waits for running verification, context compaction, and a general background job scheduler are not delivery commitments of this story. These are scope limits, not rejection rules for cases a simple solution naturally supports.
-
-Key examples:
-1. Known supplier pause. A consumer has preserved partial work and accepted proof; its supplier is paused with no verification running → the consumer reaches that blocker → it retains the exact supplier outcome it needs and yields through a supported facility or reports the missing facility. An unchanged supplier causes no recurring model checks.
-2. Qualifying change. The retained consumer is waiting for a specific supplier outcome → new supplier evidence is delivered → the consumer reassesses that exact condition and, when satisfied, continues its own authorized work once. A publication or supplier completion alone does not establish satisfaction. On the supported path this continuation needs no typed developer “resume”.
-3. Repeated or uncertain delivery. A change has already caused a continuation, or its acceptance is uncertain → the same signal is seen again → no competing writer or blind duplicate submission is started. Uncertainty retains the execution and explains how its owner can reconcile acceptance; an attempted wake is not reported as confirmed continuation.
-4. Deadline or observation loss. Work is blocked with a recorded next observation and CI coverage → the meaningful deadline arrives or required observation becomes unavailable → actionable status names what is known, the remaining proof, exact recovery and owner. It claims neither supplier success nor successful CI. A known ended observer follows SEED-343's managed recovery at the applicable completion boundary.
-5. Host usage hold. Claude Code reports a model usage limit → the execution is retained → an observed reset may qualify a continuation; absent reliable reset evidence, status names that missing signal and the recovery owner. Six hours passing, switching models or buying credits is not proof of a reset and grants no new authority.
-
-Evaluation: Observe the same publication and proof decisions in a comparable run, with fewer idle requests and no extra developer rescue. Preserve the applicable CI receipt and overdue liveness rules. Native feasibility and comparative improvement remain execution observations, not inferred results.
-```
+Original input: [verbatim reviewer launch input](source-review-input.md).
 
 ## Returned source clauses
 
@@ -178,38 +150,38 @@ The statement that this is the first efficiency story, because supplier pause ca
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | C01 | Leave blocked work: A developer can leave an authorized execution that cannot currently advance. | slice 4 |  |
-| C02 | Avoid unchanged-state requests: Generate no recurring model requests solely to recheck unchanged blocked state. | slice 2 |  |
-| C03 | Avoid reconstruction: Preserve enough execution state that the developer does not have to reconstruct its work. | slice 2 |  |
+| C02 | Avoid unchanged-state requests: Generate no recurring model requests solely to recheck unchanged blocked state. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
+| C03 | Avoid reconstruction: Preserve enough execution state that the developer does not have to reconstruct its work. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
 | C04 | Respond to changed conditions: When the recorded condition changes, the correct execution resumes **or** gives actionable attention. | slice 4 |  |
-| C05 | Preserve ownership: Preserve the execution’s ownership. | slice 2 |  |
-| C06 | Preserve work: Preserve its work. | slice 2 |  |
+| C05 | Preserve ownership: Preserve the execution’s ownership. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
+| C06 | Preserve work: Preserve its work. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
 | C07 | Preserve outstanding proof: Preserve its outstanding proof. | slice 3 |  |
-| C08 | Distinguish supplier pause: Distinguish a paused supplier from verification that is actually running. | slice 2 |  |
+| C08 | Distinguish supplier pause: Distinguish a paused supplier from verification that is actually running. | slice 2 | observed: blocked-execution.test.mjs running verification rejection before supplier enrollment; delegation and overdue guidance retain the existing verification owner |
 | C09 | Distinguish host hold: Distinguish a host usage hold from verification that is actually running. | slice 3 |  |
-| C10 | Retain the execution identity. | slice 2 |  |
-| C11 | Retain its checkout. | slice 2 |  |
-| C12 | Retain its branch. | slice 2 |  |
-| C13 | Retain its owner. | slice 2 |  |
-| C14 | Retain its last accepted proof. | slice 2 |  |
-| C15 | Retain that proof’s applicable revision. | slice 2 |  |
-| C16 | Retain unfinished work. | slice 2 |  |
-| C17 | Retain the exact resume condition. | slice 2 |  |
-| C18 | Retain a supported continuation handle **when available**. | slice 2 |  |
-| C19 | Retain the “next observation or attention owner,” preserving the source’s wording and alternative. | slice 2 |  |
-| C20 | Preserve claim identity: Saving a condition does not create a new execution claim. | slice 2 |  |
-| C21 | Resume once: Resume the right work once on a qualifying change. | slice 2 |  |
+| C10 | Retain the execution identity. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
+| C11 | Retain its checkout. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
+| C12 | Retain its branch. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
+| C13 | Retain its owner. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
+| C14 | Retain its last accepted proof. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
+| C15 | Retain that proof’s applicable revision. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
+| C16 | Retain unfinished work. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
+| C17 | Retain the exact resume condition. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
+| C18 | Retain a supported continuation handle **when available**. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
+| C19 | Retain the “next observation or attention owner,” preserving the source’s wording and alternative. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
+| C20 | Preserve claim identity: Saving a condition does not create a new execution claim. | slice 2 | observed: slice2-assessment.md#proof-index; blocked-execution.test.mjs retained.input, accepted/outstanding proof arrays, original partial bytes and repeated enrollment; native accepted/completed records retain revision, owner and authority |
+| C21 | Resume once: Resume the right work once on a qualifying change. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
 | C22 | Unavailable signal: Give actionable status when a required signal is unavailable. | slice 3 |  |
 | C23 | Missed deadline: Give actionable status when a deadline is missed. | slice 3 |  |
 | C24 | Lost CI observation: Give actionable status when required CI observation is lost. | slice 3 |  |
-| C25 | Preserve authority: Resume under the original execution authority. | slice 2 |  |
-| C26 | Supported automatic path: Automatically continue already-authorized work where the host supports delivery. | slice 2 |  |
+| C25 | Preserve authority: Resume under the original execution authority. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
+| C26 | Supported automatic path: Automatically continue already-authorized work where the host supports delivery. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
 | C27 | Unavailable delivery: Retain state when delivery is unavailable. | slice 3 |  |
 | C28 | Uncertain delivery: Retain state when delivery is uncertain. | slice 3 |  |
 | C29 | Unavailable-delivery attention: Give actionable attention when delivery is unavailable. | slice 3 |  |
 | C30 | Uncertain-delivery attention: Give actionable attention when delivery is uncertain. | slice 3 |  |
 | C31 | Demonstrated Codex continuation: Demonstrate a successful automatic Codex resume. | slice 1 | observed: native-probe-assessment.md; native-probe-run/native-acceptance.json, held/resumed native history and matching settings; actual completed same-thread turn, feasibility only |
 | C32 | Manual fallback: Provide manual resume as the fallback. | slice 3 |  |
-| C33 | Supported-path experience: On the supported path, continuation needs no typed developer “resume.” | slice 2 |  |
+| C33 | Supported-path experience: On the supported path, continuation needs no typed developer “resume.” | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
 | C34 | Keep the existing CI receipt rules. | slice 3 |  |
 | C35 | Keep the existing overdue-verification rules. | slice 3 |  |
 | C36 | Keep the existing observer-recovery rules. | slice 3 |  |
@@ -223,14 +195,14 @@ The statement that this is the first efficiency story, because supplier pause ca
 | C44 | Provide shared guidance for Claude Code. | slice 4 |  |
 | C45 | State explicit evidence limits for the different adapters. | slice 4 |  |
 | C46 | Investigate usage-limit reset observability. | slice 3 |  |
-| C47 | Specific supplier need: When the consumer reaches its supplier blocker, retain the exact supplier outcome it needs. | slice 2 |  |
-| C48 | Supported yield or attention: Yield through a supported facility **or** report the missing facility. | slice 2 |  |
-| C49 | Reassess the condition: Delivered new supplier evidence causes reassessment of the exact retained condition. | slice 2 |  |
+| C47 | Specific supplier need: When the consumer reaches its supplier blocker, retain the exact supplier outcome it needs. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
+| C48 | Supported yield or attention: Yield through a supported facility **or** report the missing facility. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
+| C49 | Reassess the condition: Delivered new supplier evidence causes reassessment of the exact retained condition. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
 | C50 | Prevent competing writers: Repeated or uncertain delivery starts no competing writer. |  | G1 |
-| C51 | Prevent blind duplication: Repeated or uncertain delivery starts no blind duplicate submission. | slice 2 |  |
-| C52 | Retain uncertain execution: Uncertain acceptance retains the execution. | slice 2 |  |
-| C53 | Explain reconciliation: Explain how its owner can reconcile uncertain acceptance. | slice 2 |  |
-| C54 | Report wake truthfully: Do not report an attempted wake as confirmed continuation. | slice 2 |  |
+| C51 | Prevent blind duplication: Repeated or uncertain delivery starts no blind duplicate submission. | slice 2 | observed: blocked-execution-races.test.mjs lost acknowledgment and absent acceptance cases; generated recovery argv executed from another cwd, exact matching native history, repeat recovery retains one submission |
+| C52 | Retain uncertain execution: Uncertain acceptance retains the execution. | slice 2 | observed: blocked-execution-races.test.mjs lost acknowledgment and absent acceptance cases; generated recovery argv executed from another cwd, exact matching native history, repeat recovery retains one submission |
+| C53 | Explain reconciliation: Explain how its owner can reconcile uncertain acceptance. | slice 2 | observed: blocked-execution-races.test.mjs lost acknowledgment and absent acceptance cases; generated recovery argv executed from another cwd, exact matching native history, repeat recovery retains one submission |
+| C54 | Report wake truthfully: Do not report an attempted wake as confirmed continuation. | slice 2 | observed: blocked-execution-races.test.mjs lost acknowledgment and absent acceptance cases; generated recovery argv executed from another cwd, exact matching native history, repeat recovery retains one submission |
 | C55 | Deadline/loss status: Actionable status names what is known. | slice 3 |  |
 | C56 | Deadline/loss proof: Actionable status names the remaining proof. | slice 3 |  |
 | C57 | Deadline/loss recovery: Actionable status names the exact recovery. | slice 3 |  |
@@ -245,17 +217,17 @@ The statement that this is the first efficiency story, because supplier pause ca
 | C66 | Observe no extra developer rescue. | slice 4 |  |
 | C67 | Establish native feasibility through execution observation. | slice 1 | observed: native-probe-assessment.md; native-probe-run/native-acceptance.json, held/resumed native history and matching settings; actual completed same-thread turn, feasibility only |
 | C68 | Establish comparative improvement through execution observation. | slice 4 |  |
-| Q01 | A resume supplies no permission to change scope. | slice 2 |  |
-| Q02 | A resume supplies no permission to choose another model. | slice 2 |  |
-| Q03 | A resume supplies no permission to purchase capacity. | slice 2 |  |
-| Q04 | A resume supplies no permission to waive proof. | slice 2 |  |
+| Q01 | A resume supplies no permission to change scope. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
+| Q02 | A resume supplies no permission to choose another model. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
+| Q03 | A resume supplies no permission to purchase capacity. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
+| Q04 | A resume supplies no permission to waive proof. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
 | Q05 | Necessary bounded liveness checks remain meaningful observations. | slice 3 |  |
-| Q06 | Genuine changes remain meaningful observations. | slice 2 |  |
+| Q06 | Genuine changes remain meaningful observations. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
 | Q07 | Deadlines remain meaningful observations. | slice 3 |  |
-| Q08 | Manual resume is the fallback, rather than the normal supported-host path. | slice 2 |  |
+| Q08 | Manual resume is the fallback, rather than the normal supported-host path. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
 | Q09 | Do not infer a usage-limit reset from elapsed time. | slice 3 |  |
-| Q10 | Continue when that condition is satisfied; publication alone does not establish satisfaction. | slice 2 |  |
-| Q11 | Supplier completion alone does not establish satisfaction. | slice 2 |  |
+| Q10 | Continue when that condition is satisfied; publication alone does not establish satisfaction. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
+| Q11 | Supplier completion alone does not establish satisfaction. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
 | Q12 | An observed usage reset **may** qualify a continuation; observation is not an unconditional promise to resume. | slice 3 |  |
 | Q13 | Six hours passing is not proof of a reset. | slice 3 |  |
 | Q14 | Switching models is not proof of a reset. | slice 3 |  |

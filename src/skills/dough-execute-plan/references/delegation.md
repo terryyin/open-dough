@@ -210,6 +210,11 @@ return them verbatim.
 
 ## Await delegated results without empty calls
 
+When a supplier is paused and no verification runs, retain the same execution
+and follow [blocked execution](blocked-execution.md) for condition-driven
+continuation or actionable fallback. Running verification keeps the ownership
+and overdue-check route below.
+
 When a delegated result is still pending, wait through the host's supported
 notification, wait, or resume facility and continue on the meaningful state it
 delivers. Do not issue no-op calls — such as a shell command run solely to

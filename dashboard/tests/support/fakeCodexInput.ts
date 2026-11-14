@@ -14,8 +14,9 @@ export function answerCodexInput(
     refuse({ code: -32000, message: "Native input refused." });
     return;
   }
+  const turnId = fixture.nextTurnId ?? "native-turn-id";
   fixture.history.push({
-    id: "native-turn-id",
+    id: turnId,
     items: [
       {
         type: "userMessage",
@@ -39,14 +40,14 @@ export function answerCodexInput(
   fixture.beforeInput?.();
   const accepted = () => {
     if (client.readyState !== 1) return;
-    reply({ turn: { id: "native-turn-id", status: "inProgress" } });
+    reply({ turn: { id: turnId, status: "inProgress" } });
     if (fixture.afterAcceptance === "complete")
       client.send(
         JSON.stringify({
           method: "turn/completed",
           params: {
             threadId: fixture.threadId,
-            turn: { id: "native-turn-id", status: "completed" },
+            turn: { id: turnId, status: "completed" },
           },
         }),
       );

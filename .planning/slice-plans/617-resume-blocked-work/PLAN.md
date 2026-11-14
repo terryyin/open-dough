@@ -23,71 +23,45 @@ limits require no rejection of cases the chosen simple mechanism naturally handl
 
 ## Existing solution and architecture
 
-PFE found these owners; change or expose a suitable existing seam before adding
-another representation:
+One held execution keeps its owner and exact condition. Its owner judges
+observed evidence and native acceptance; event deduplication alone establishes
+neither semantic satisfaction nor exactly-once execution.
 
-- `src/skills/dough-execute-plan/references/delegation.md` and
-  `overdue-delegated-verification.md` own waiting and liveness. Add one shared
-  blocked-execution rule at this execution boundary, linked by callers. A
-  running command keeps its owner and supported continuation; do not replace
-  that lifecycle with a supplier watcher.
-- `src/skills/dough-product-backlog/references/supplier-dependencies.md` owns
-  canonical agreements and evidenced satisfaction. A supplier event invites
-  reassessment; neither a new SHA nor completion automatically satisfies prose.
-- The existing Codex `dashboard/server/hosts/codex/{rpc,recovery,terminal}.ts`
-  boundaries preserve identity and uncertain acceptance. They are reuse
-  candidates, not an existing supplier-resume service. Probe the host boundary
-  before choosing whether to reuse native yielded delivery or expose a cohesive
-  transport seam. Installed workflow runtime must not depend on a running
-  dashboard or import dashboard TypeScript as a new runtime prerequisite.
-- `ci-notify-codex.md`, `ci-notify-hosts.md`, `ci-background-handoff.md` and
-  `ci-completion-recovery.md` retain their CI meanings. The live-Claude CI handoff
-  does not establish supplier delivery or exited-session recovery. Reuse its
-  applicable transport only when the native probe verifies the same contract;
-  do not add a second CI supervisor or retarget another owner's observer.
+- `delegation.md` and `overdue-delegated-verification.md` own waiting/liveness;
+  their linked `blocked-execution.md` is the shared supplier-hold rule. Running
+  verification keeps its existing lifecycle.
+- `dough-product-backlog/references/supplier-dependencies.md` owns canonical
+  agreements. A supplier publication/completion invites reassessment, not success.
+- Reuse Codex identity/acceptance boundaries. Slice 2 exposes the shared Node-only
+  daemon connection; the dashboard keeps its lifecycle wrapper. Installed runtime
+  imports no dashboard TypeScript and needs no running dashboard/npm dependency.
+- Existing CI notify/handoff/completion-recovery references keep their meanings;
+  do not add a second supervisor or retarget another owner's observer.
 
-The common rule is a held execution with one owner and an exact condition:
-non-model observation produces relevant evidence or attention, and the owning
-execution reconciles current condition and acceptance before continuing. Borrowing
-queue delivery suggests reconciling the observation/wait race and repeated events;
-it cannot provide semantic satisfaction or exactly-once execution by itself.
-Retain uncertainty rather than blindly resubmitting a native input.
-
-Follow current Accepted [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-(cohesion, one representation and suitable reuse),
-[ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
-(author Proposed runtime changes in `src/skills`, never hand-sync installed copies),
-[ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
-(Native validation and A/B testing, including Terry's 2026-11-14 update),
-[ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-(one executing-agent behavioral source),
-[ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
-(repository authority versus local operational evidence), and
-[ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
-(equivalent useful outcomes at worthwhile total cost).
-The existing [North Star's session boundary](../../NORTH-STAR.md#agent-launch-as-a-requested-assignment)
-supports these responsibilities; no additional topic or ADR is needed.
-No Accepted-ADR conflict was found. ADRs 0007 and 0009 remain Proposed.
+Current Accepted decisions: [0002 — cohesion/reuse](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
+[0003 — source/release lifecycle](../../../docs/adrs/0003-tagged-release-versioning-accepted.md),
+[0005 — native validation/A/B](../../../docs/adrs/0005-cross-tool-validation-accepted.md),
+[0006 — executing-agent audience](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md),
+[0008 — repository/local evidence](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md),
+[0010 — useful outcome/total cost](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+The [North Star session boundary](../../NORTH-STAR.md#agent-launch-as-a-requested-assignment) applies;
+0007/0009 remain Proposed. No conflict or new ADR/topic is identified.
 
 ## Outside-in proof and decisive premises
 
-Preparation observations below are from this owned checkout at
-`99fba7f8485ce3cf27ae6ba66aed863b2c4dc763`, 2026-11-14. There were no scratch
-production edits. CLI/source discovery is not a successful native-resume result.
+The [seed's preparation evidence](../../seeds/SEED-345-session-token-efficiency.md#resume-when-blocked-work-can-advance)
+retains the original basis; CLI discovery alone was not native proof.
 
-| Premise and consuming operation | Observation and remaining work |
-| --- | --- |
-| The reported wait was a paused prerequisite, not a running verification | Retained SEED-324 coordinator message at 2026-11-13 16:41:34 UTC confirms pause and no publication. The seed links the local history locator and measured interval. Reconstruct that shape in isolated fixtures; do not use the live SEED-332 execution as a test target. |
-| Codex offers saved-thread continuation controls | Local `codex --version` returned 0.169.0; `codex app-server --help` exposes native transport tooling. The existing recovery adapter reads/resumes the saved ID and reconciles acceptance; the official lifecycle page linked in the seed describes thread resume/turn start. The unpaid prefix succeeded. Actual delivery across the held-turn boundary, acknowledgment, configuration preservation and races remain Slice 1's state-changing native probe; no daemon, session or credentials were accessed by preparation. |
-| The audited Claude usage notice supplies a reset condition | False: all four retained rate-limit notices omit a reset time; local Claude 2.1.325 help/listing exposes no structured reset field. This rules out a guessed six-hour timer. Slice 3 checks a supported read-only signal if available and otherwise proves explicit unavailable-signal fallback; no real quota exhaustion or credit purchase is required. |
-| Existing managed CI recovery can retain deadlines, failures and predecessor records | `node --test src/skills/dough-execute-plan/scripts/execution-completion-recovery.test.mjs` passed all 4 scenarios plus their parent (5 tests, 3.79s): interruption/rerun, ordinary success, unread failure retention and controlled-clock inherited expiry. This is unchanged CI-boundary evidence, not supplier-wake proof. The earlier name-filtered invocation selected no nested scenarios and supplies no proof. |
-| A maintained native publication case already exercises supplier resume | No such case is claimed. `tests/native-publication.md` and `tests/git-publication-native.sh` describe the existing runner and opt-in native route, not this new journey. Slice 1 builds the smallest isolated controller using the existing per-host stream reader; substitutes/replay cannot establish native delivery. |
-
-Only a native session crossing the selected hold boundary can settle the
-remaining delivery premise; preparation stops before that paid, state-changing
-operation. Slice 1 bounds it before dependent implementation. No developer-operated
-instrument is currently needed; a native trust/permission decision retains its
-ordinary owner if encountered.
+- SEED-324 was a paused prerequisite, not running verification; reconstruct its
+  shape in isolated fixtures. Live SEED-332 is evidence, never a test resource.
+- Slice 1 proved saved-thread native delivery; Slice 2 proved command enrollment,
+  acceptance and actual handler replay. See their assessments below.
+- Four audited Claude limits supplied no reset time, and 2.1.325 help/listing
+  exposed none. Slice 3 still checks supported read-only evidence or proves the
+  unavailable-signal fallback; six elapsed hours never prove reset.
+- CI-recovery's 5-test observation (3.79s) and Slice 2 rerun cover that boundary;
+  the earlier empty name-filter proved nothing. Neither establishes a supplier
+  wake or an applicable CI completion receipt.
 
 | Source example / final promise | Owner | Required observation |
 | --- | --- | --- |
@@ -103,34 +77,17 @@ ordinary owner if encountered.
 ### 1. Observe automatic Codex continuation across a blocked turn
 Type: Behavior
 Status: done
-Proof: One isolated native held-execution journey with event/acceptance records.
+Proof: [native held-thread assessment](native-probe-assessment.md) and raw event/acceptance records.
 
-Give the maintainer an observed feasibility result before selecting delivery
-implementation. Use a disposable project/session with synthetic supplier evidence
-and no real project publication. Under execution authority, minimally exercise
-native wait/notification or saved-thread continuation into the same owner after
-it yields. Preserve native workspace, model, policy and permission settings.
-Drive the signal after a confirmed held state, replay it, and observe one
-continuation, no recurring idle model requests and no developer-typed resume.
-Record the exact transport, lifetime, identity, accepted turn and recovery limit.
-
-Execution refinement: the probe established native held-thread feasibility via
-the same daemon's RPC, after an explicitly rejected CLI route. Its post-RPC
-"replay" only reread history and is not event-handler proof. Keep the actual
-accepted native turn as feasibility evidence; the complete event-to-RPC path
-and replay observation are owned by Slice 2 (G1), before runtime delivery.
-
-Use the existing native host stream reader and retention contracts; expected
-results belong in the assessment, not the agent prompt. A fixture invoking an
-inner callback or a replay is not native continuation. Bound this to one probe
-journey and its cheapest diagnostic follow-up; do not build a general scheduler.
-If the available host cannot deliver, preserve the result and stop dependent
-slices to revise the approach within scope. Do not weaken the required automatic
-Codex result or declare delivery ready from API presence alone.
+One disposable probe plus its cheapest diagnostic proved same-owner delivery
+with native configuration preserved and no typed resume. API presence, an inner
+callback or replay alone would not suffice. The assessment retains the failed
+CLI route and the post-RPC reread's replay gap; G1 required the actual Slice 2
+handler observation. No further probe or weakened criterion is authorized here.
 
 ### 2. Hold and resume the same execution on relevant supplier evidence
 Type: Behavior
-Status: planned
+Status: done
 Proof: Workflow-command lifecycle scenarios plus the selected native Codex path.
 
 After Slice 1 succeeds, implement the smallest coherent retained-hold and delivery
@@ -200,123 +157,93 @@ the required native evidence exists under current ADR 0005. Judge run artifacts
 now, remove spent artifacts at wrap-up, and retain reusable examples and lasting
 findings. No full host-by-scenario matrix is required.
 
-## Current decisions, verification and concern review
+## Current decisions and local gates
 
-- Preparation only: this plan authorizes no execution. No source review or
-  execution-complete record is written during planning. Execution obtains its
-  independent source review and retains obligations through its normal workflow.
-- No blocking story dependency is introduced. SEED-343 is already delivered;
-  SEED-332's live work is evidence, not a required test resource or supplier of
-  this implementation. The effort-accounting sibling is not a prerequisite.
-  The preparation's first landing incorporated Terry's updated ADR 0005 at
-  `9900b8d21922c8cd97ffc9e872e76a0ff59af489`; this plan follows that policy.
-- Follow [the project's failing/flaky-test policy](../../../AGENTS.md#failing-and-flaky-tests)
-  as written for every local and published failure. Existing failures remain
-  repair obligations unless another active execution owns that exact repair.
-- Before changing tests, resolve their source paths through installed
-  dough-makeme and, for browser tests, dough-page-objects and this project's
-  `intent.locations`. Prefer runtime/command proof; no UI redesign is required.
-  Use observable events or a controlled clock, never wall-clock sleeps,
-  `test.slow()` or suite/hook timeout overrides.
-- Local gates: affected command/runtime tests and retained CI-recovery tests,
-  native probe/comparison, payload/reference checks when changed, applicable
-  lint/typecheck and required refactoring/reviews before commit. Full-suite work
-  follows [local resource admission](../../../tests/local-test-resources.md).
-  On fully awake macOS use `caffeinate -s -i` for long/full runs on AC power;
-  on battery plug in, or use the maintained lid-open `caffeinate -i` alternative
-  and inspect the sleep log. Hosted CI is still owned through the applicable
-  final revision; configuration alone adds no unrelated local full-suite gate.
-- Expected guidance edit seams are currently below the 250-line refactor check:
-  execute-plan SKILL.md 247, delegation.md 244, overdue-delegated-verification.md
-  59; candidate Codex recovery.ts 154 and rpc.ts 194. Keep the shared blocked
-  lifecycle in its focused home rather than expanding callers past the limit.
-  Reassess any newly implicated oversized file before implementation.
-- No numeric slice target was supplied; each slice has one bounded observation
-  loop. Probe failure stops dependent work; it is not permission to widen scope.
-- Slice-plan refinement was not needed: feasibility, the cohesive hold/resume
-  result, attention/recovery and native evaluation have distinct proof loops.
-  No remaining slice-boundary or cumulative-design concern was identified.
-  The only unsettled delivery premise is bounded by the permitted early native
-  probe in Slice 1; it remains unproved until that slice runs.
+- This plan grants no authority itself; execution uses the established start
+  below. No blocking story dependency: SEED-343 is delivered; SEED-332 and the
+  effort-accounting sibling are not prerequisites. Follow Terry's 2026-11-14
+  ADR 0005 update, incorporated by preparation at `9900b8d21922c8cd97ffc9e872e76a0ff59af489`.
+- Follow [AGENTS.md's failing/flaky-test policy](../../../AGENTS.md#failing-and-flaky-tests)
+  as written for local/published failures, including base failures; only an
+  exact active repair owner provides a coordination boundary.
+- Resolve test-source MakeMe/PageObjects selection before edits. Use observable
+  events or controlled clocks; no sleeps, `test.slow()` or suite/hook timeouts.
+- Gates: affected command/runtime and CI-recovery tests, native probe/comparison,
+  changed payload/reference checks, applicable lint/typecheck and independent
+  refactoring/reviews. [Local resource admission](../../../tests/local-test-resources.md)
+  owns full-suite work. Long/full macOS runs start awake on AC with
+  `caffeinate -s -i`; on battery plug in or use the maintained lid-open
+  `caffeinate -i` alternative and inspect sleep logs. Own applicable final CI.
+- Keep implicated files <=250 lines through cohesive seams; no caller omnibus.
+  No numeric slice target or overrun override was supplied. Preserve existing
+  replanning authority and bounded observation loops; do not widen after probe failure.
 
-## Learnings
+## Accepted evidence and current refactor decisions
 
-- Slice 1: [native assessment](native-probe-assessment.md), with raw acceptance,
-  native history/settings, commands and provenance in `native-probe-run/`.
-  Thread `01a1d7c7-2fad-7311-9688-df2fb587a0de` crossed a completed held turn
-  into accepted/completed turn `01a1d7cc-253c-7672-92c7-c00305bff265` without
-  developer-typed resume; workspace, model, effort and permissions matched.
-  The native consumer independently used the new supplier evidence and
-  produced the expected report. This settles feasibility, not the maintained
-  workflow or comparative improvement.
-- Once ID-only `thread/resume` loads a thread into the shared daemon, closing
-  the RPC client does not unload its writer. Use that daemon's `turn/start`
-  seam with exact-history reconciliation. A separate CLI resume was explicitly
-  refused and accepted no turn. The proxy experiment was not a line-JSON
-  transport. Preserve those failures; do not repeat them as another probe.
-- G1 retains the unproved successful-path replay observation. Slice 2 must
-  drive both qualifying evidence and its replay through the actual selected
-  handler; a reread with a hardcoded count is not that proof. No native
-  unsupported-host or CI success claim follows from the probe.
-- Acceptance: original blocked-task trigger → native completed held turn with
-  accepted local proof/work → same-thread RPC acceptance/completion after new
-  evidence. Inspected initial task/setup, raw controller events, native
-  acceptance, both completed native turns and matching settings. Commands are
-  in `native-probe-run/record.json`; no paid rerun is needed for this boundary.
-  Full lifecycle, uncertainty, races, attention and comparison remain with
-  Slices 2–4. The two scripts/raw artifacts are spent research records;
-  delivery disposition `records-only`, no installed/runtime contract change.
-- Source freshness at acceptance: unchanged against trunk
-  `57b03dea2b866f0aed8ed53f3a77adfd39ee3609`, base
-  `8f88bf2ca6d4e7fb7aabc704070be4c549397675`. Named sibling SEED-346 landed
-  preparation (`a48e9a560`) and its Take (`57b03dea2`), adding comparison-case
-  direction to NORTH-STAR; no product/runtime behavior changed or conflicts
-  with this probe. Keep that direction for Slice 4. SEED-343 was already
-  delivered at the base; SEED-332 remains evidence, not a live test resource.
+- [Slice 1 assessment](native-probe-assessment.md) and `native-probe-run/record.json`
+  retain native identities, matching settings and commands. Client closure does
+  not unload the writer; use same-daemon `turn/start` after exact-history
+  reconciliation rather than repeating the failed proxy/CLI route.
+- [Slice 2 assessment/proof](slice2-assessment.md), [native records](slice2-native-run/record.json),
+  [consumer trace/dispositions](slice2-consumer-trace.md.gz): inspected real CLI
+  fixtures, lifecycle/race/observation assertions and native acceptance/completion.
+  G1 is proved by actual replay with one native turn. Positive native proof remains
+  applicable after separately tested RPC error repairs; no paid rerun is needed.
+  Independent refactoring and G4 correction remain owed before delivery.
+- Source freshness: unchanged at `64f15182b330ffbd192b3ea623cd423bcca469f0`, base
+  `8f88bf2ca6d4e7fb7aabc704070be4c549397675`. SEED-346 preparation/North-Star
+  changed no overlapping product behavior. SEED-334 closure reorganized proof
+  groups/CI but left the edited Codex production/fixture/payload/guidance seams
+  unchanged. Reconcile current proof-group selection during integration.
+- Refactor decisions: extract cohesive observation/delivery/rearm responsibilities
+  before formatting; replace the forwarding HeldExecutionBuilder with canonical
+  domain-named construction. Preserve scenario facts and independent assertions.
 
 ## Execution context
 
-- Established start: identity `SEED-345#resume-when-blocked-work-can-advance`,
-  publisher `dashboard-territory.local-open-dough`, agent `terry-chan`.
-- Mode: story-branch; owned execution checkout
-  `/Users/terryyin/git/open-dough/.worktrees/resume-blocked-work-when-it-can-advance`,
-  branch `codex/resume-blocked-work-when-it-can-advance`; originating/default
-  checkout `/Users/terryyin/git/open-dough` is separate and is not an edit target.
-- Authorized remote `origin` (`terryyin/open-dough`), integration target `main`;
-  ordinary increments publish to the recorded execution branch.
-- Starting revision `3458a36c6393683827f5ba0e9bd038dbfded8605`; accepted Take and
-  previously published base `8f88bf2ca6d4e7fb7aabc704070be4c549397675`, confirmed
-  on remote `main` and execution branch. No second startup claim.
-- Checkout setup: `npm ci` succeeded without lockfile changes;
-  `npm run typecheck:dashboard` passed. `.githooks/pre-commit` is check-only
-  staged lint plus dashboard typecheck for scripts; selective formatter is
-  `npm run format`.
-- Replanning permission: retain existing planning authority; no explicit
-  overrun override. No numeric slice target; preserve the plan's one probe and
-  cheapest diagnostic follow-up limit.
-- Native proof admission (2026-11-14, this macOS host): one isolated Codex
-  journey plus its cheapest diagnostic follow-up, sequential, no full suite.
-  Load averages 5.14/6.23/5.62, on AC with battery charged; no separately owned
-  heavy proof launched by this coordinator. Other executions are present and
-  remain with their owners; their current workloads and memory headroom are
-  not yet observed. Proceed with this bounded workload, with the slice agent
-  owning its terminal result; reconsider before repeating on contention,
-  native refusal or changed workload. Use `caffeinate -s -i` for a long run.
-- CI: GitHub Actions `ci.yml` / `CI`, verified workflow 351271804. Take on
-  `main`: `pendingCi: unobserved`. Execution branch observer: coordinator
-  `seed345-resume`, directory `/tmp/dough-ci-501/watch-sAay9N`, PID `76767`,
-  session `79549`, yielded cell `g153:12`, key
+- Identity `SEED-345#resume-when-blocked-work-can-advance`; publisher
+  `dashboard-territory.local-open-dough`; agent `terry-chan`; mode story-branch.
+- Owned checkout `/Users/terryyin/git/open-dough/.worktrees/resume-blocked-work-when-it-can-advance`;
+  branch `codex/resume-blocked-work-when-it-can-advance`. Originating/default
+  `/Users/terryyin/git/open-dough` is separate, not an edit target.
+- Remote `origin` (`terryyin/open-dough`), integration `main`; increments publish
+  `refs/heads/codex/resume-blocked-work-when-it-can-advance`.
+- Start `3458a36c6393683827f5ba0e9bd038dbfded8605`; Take
+  `8f88bf2ca6d4e7fb7aabc704070be4c549397675` confirmed on trunk/branch; no second claim.
+  Slice 1 accepted `58f1eb1ad8ef04cb59f8eb06a90881335d5ccec6`, suffix base Take;
+  this is the next increment's previously published base, registered on the observer.
+- Setup: locked `npm ci` and dashboard typecheck passed here. Check-only
+  `.githooks/pre-commit` owns staged lint plus script typecheck; selective
+  formatter `npm run format`. Prior native admission/costs are in assessments;
+  reconsider stale headroom/workload before long proof, sequence owned heavy work.
+- CI: GitHub Actions `ci.yml` / `CI`, workflow 351271804; Take on `main` unobserved.
+  Execution observer coordinator `seed345-resume`, directory `/tmp/dough-ci-501/watch-sAay9N`,
+  PID `76767`, session `79549`, yielded cell `g153:12`, key
   `ci-watch-execution:terryyin/open-dough:codex/resume-blocked-work-when-it-can-advance:seed345-resume`.
-  Runtime and working directory belong to this execution checkout.
-- Dashboard launch `ec85a3ea-f7ec-4e3f-94d7-4152850d8d4f`; retain its supplied
-  reporting command and landing context through closure. First trunk publication
-  must capture that launch's landing context; later trunk repairs must not.
-
+  Runtime/working directory bind to the owned checkout.
+- Dashboard launch `ec85a3ea-f7ec-4e3f-94d7-4152850d8d4f`: retain the supplied
+  reporting command and landing-context path through closure. First trunk
+  publication captures that context; later trunk repairs do not.
 
 ## Story obligations
 
 ### G1. Drive replay through the successful workflow handler
 Reported: slice 1 — "The post-RPC replay was an evidence/history reread with a hardcoded count; actual duplicate events reached only the refused CLI route."
 Story clause: "no competing writer or blind duplicate submission is started."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: blocked-execution.test.mjs live-handler replay and slice2-native-run native-accepted/native-completed/history records, one accepted turn after actual replay
 Commitment: C50
+
+### G2. Actionable deadline, unavailable delivery, usage and CI-loss attention
+Reported: slice 2 — "Deadline/CI-loss/usage handling stays with Slice 3."
+Story clause: "with actionable status for an unavailable signal, missed deadline or lost required CI observation."
+Disposition: receiving slice 3
+
+### G3. Full workflow invocation and comparative proof
+Reported: slice 2 — "full skill invocation and comparative judgment stay with Slice 4."
+Story clause: "Initial comparative proof in Codex"
+Disposition: receiving slice 4
+
+### G4. Preserve a terminal event across failed live rearm
+Reported: slice 2 — "Independent refactor found terminal(turn) drops completion while rearming; if rearm fails, the completed turn is never reapplied and the worker can remain accepted indefinitely."
+Story clause: "When the recorded condition changes, the correct execution resumes or gives actionable attention, preserving its ownership, work and outstanding proof."
+Disposition: proved by slice 2: blocked-execution-races.test.mjs failed-live-rearm completion regression; pre-fix53781 failed accepted≠continued and repaired2121 passed, retaining one submission, original generation/proof and ended worker

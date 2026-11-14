@@ -112,7 +112,7 @@ not proposed installed runtime or general comparison tooling.
 
 ## Consumer trace
 
-`consumer-trace.md` retains the installed script's trace at the probe boundary.
+`consumer-trace.md.gz` retains the installed script's trace at the probe boundary.
 This slice changes investigation records only. No installed workflow contract,
 production caller, test helper, payload declaration or host adapter changed.
 Matches to PLAN/source-review basenames and generic local variable names are

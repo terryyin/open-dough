@@ -56,6 +56,7 @@ export type FakeCodex = {
   afterCreation?: () => void;
   afterAcceptance: "continue" | "complete" | "disconnect";
   beforeInput?: () => void;
+  nextTurnId?: string;
   release(): void;
   failConnection(): void;
   close(): Promise<void>;

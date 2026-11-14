@@ -27,6 +27,15 @@ managed_files+=(
   dough-execute-plan/references/ci-notify-codex.md
   dough-execute-plan/references/ci-notify-hosts.md
   dough-execute-plan/references/delegation.md
+  dough-execute-plan/references/blocked-execution.md
+  dough-execute-plan/scripts/blocked-execution.mjs
+  dough-execute-plan/scripts/blocked-execution-store.mjs
+  dough-execute-plan/scripts/blocked-execution-worker.mjs
+  dough-execute-plan/scripts/blocked-execution-rearm.mjs
+  dough-execute-plan/scripts/blocked-execution-delivery.mjs
+  dough-execute-plan/scripts/blocked-execution-codex.mjs
+  dough-execute-plan/scripts/codex-rpc.mjs
+  dough-execute-plan/scripts/codex-unix-websocket.mjs
   dough-execute-plan/references/deferred-process-review.md
   dough-execute-plan/references/deliver-the-change.md
   dough-execute-plan/references/destructive-later-outcome-check.md
