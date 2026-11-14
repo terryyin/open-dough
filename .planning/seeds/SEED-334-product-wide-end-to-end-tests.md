@@ -276,3 +276,36 @@ acceptance work.
   Intent-reading promises on the runners SEED-334 delivered.
 - **Safe stopping point.** The tagged journey alone, or the Intent naming and
   history alone, is complete on its own.
+
+<a id="keep-one-browser-test-group-roster"></a>
+
+### Keep one browser test group roster and current placement guidance
+
+**Identity:** SEED-334#keep-one-browser-test-group-roster
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/617-keep-one-browser-test-group-roster/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"228aa0edf31bc3576ad6521b8d7271e44dce5d9fce9e5fc5ea4513a39df17aec","plan":"a733a54d4a53c979fe32348b737e9a6f0c13753d0e50ed345c74e8ef9cd3afd4"}}
+```
+
+#### Goal
+
+A maintainer who adds, removes or reads the browser test groups delivered by
+[Run and observe product-wide end-to-end tests](#run-and-observe-product-wide-end-to-end-tests)
+changes the group set in one place, finds helpers named for the groups they
+run, has each CI producer's setup bounds guarded on their own, and reads
+placement guidance that matches the independent groups.
+
+#### Scope
+
+Bounded retrospective correction of that execution's residue. Give the set of
+browser test groups one authoritative home that proof-subprocess isolation,
+the repeat helper, the container diagnostic and their tests derive from, with
+a consistency check against `ci.yml` and `package.json`. Name the repeat
+helper, the container option and shared selection helpers for browser test
+groups rather than the dashboard. Check each workflow's Node, npm and browser
+acquisition bounds separately. Correct the umbrella and placement wording in
+`dashboard/tests/README.md`. Preserve every group's selection, settings,
+outputs, shards, CI proof and the interim group; historical records keep their
+recorded names. No new group, removal of the interim group, runner, CI job or
+speed claim.
+
+**Plan:** [Keep one browser test group roster](../slice-plans/617-keep-one-browser-test-group-roster/PLAN.md)

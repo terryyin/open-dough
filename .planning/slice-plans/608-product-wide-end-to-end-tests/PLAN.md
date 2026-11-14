@@ -301,6 +301,21 @@ SEED-334#observe-tagged-install-and-read-e2e-proof, queued first; their text
 and premises remain at `d21a0ebc5ee0426f9898d10725c9e7765f49bc8e` (obligations
 G10 and G16).
 
+## Execution complete
+
+Product advice: Retain the delivered runners: four independently runnable,
+separately published groups that reconcile every base case once. Keep
+SEED-334#observe-tagged-install-and-read-e2e-proof first in the queue; it
+delivers E2E Test naming and history in Intent and the tagged installed
+workflow, closest to the near-future direction of reviewing intent protection
+through maintained high-level tests and CI proof. Queue the correction
+SEED-334#keep-one-browser-test-group-roster ([plan](../617-keep-one-browser-test-group-roster/PLAN.md))
+ahead of SEED-334#focus-detailed-dashboard-ui-checks so that story's group
+removal becomes a single edit, and plan the detailed-UI story by its recorded
+conversion batches: this execution disproved the assumption that existing
+controlled answers suffice (204 detailed and 59 mixed specs need new
+substitutes, 145 large). No new feature recommendation.
+
 ## File-size decisions and cumulative design
 
 Inspected anticipated runner/proof consumers do not exceed 250 lines;
