@@ -47,11 +47,6 @@ assert_not_managed() {
       exit 1
     fi
   done
-  if grep -Fq 'open-dough.json' "${source_dir}/install.sh" \
-    "${source_dir}/Distribution/src/install/open-dough-release-version.sh"; then
-    echo 'FAIL: installer payload declarations mention open-dough.json' >&2
-    exit 1
-  fi
 }
 
 assert_config_absent() {

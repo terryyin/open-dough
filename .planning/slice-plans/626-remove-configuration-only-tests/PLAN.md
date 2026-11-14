@@ -109,7 +109,7 @@ declaration or a lost pull-request head revision still fails. Sites:
 
 ### 2. CI setup script changes need no test edits
 Type: Behavior
-Status: planned
+Status: done
 Proof: scratch change of the Node/npm cache deadline (60→90 s, consistently in
 name, expression and `timeout-minutes`), one `scripts/ci-container.sh` line
 the container test copies, and the lint tool's pinned digest in its declaring
@@ -215,6 +215,9 @@ keep that the tab and touch icons are declared and serve the supplied bytes).
 - Settled shard/deadline/retention before-failures from the plan premises were
   reused; only the prescribed browser-group job-rename remainder needed a fresh
   probe before reshape.
+- Slice 2 digest-corrupt and full `ci-lint-setup` body paths need GNU
+  `timeout`/Linux; local macOS proof used the native-setup negative gates and
+  container agreement instead, leaving those assertions for CI.
 
 ## Accepted proof (slice 1)
 
@@ -228,6 +231,18 @@ keep that the tab and touch icons are declared and serve the supplied bytes).
   `npm run typecheck:dashboard` passes after the TypeScript reshape.
 - Refactor: removed unused `frontendProofUploadStep`; collapsed ci-time
   duration assertion; Playwright 9 passed and typecheck re-verified.
+
+## Accepted proof (slice 2)
+
+- Consistent Node/npm cache deadline 60→90 (name, expression, timeout-minutes),
+  one `ci-container.sh` line the test copied, and lint digest change →
+  `native-setup`, `ci-container-workflow`, `ci-lint-setup`,
+  `install-preserves-open-dough-json` family green.
+- Broken `restore-keys`, `--with-deps`, or `always()` gates still fail;
+  ubuntu version disagreement still fails container agreement.
+- Unmodified product sources: same family exit 0.
+- Digest-corrupt / Linux-only lint paths retained in source; not re-proven on
+  this macOS host (GNU `timeout`/Linux required). Refactor: none — already clean.
 
 ## Verification, sizing and concern review
 

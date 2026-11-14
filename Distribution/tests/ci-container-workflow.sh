@@ -35,12 +35,6 @@ if [[ -z ${ubuntu_version} || -z ${node_version} ]]; then
   exit 1
 fi
 
-# The diagnostic image uses the exact shared selection, not latest-v24.x.
-# shellcheck disable=SC2016 # Literal source contract.
-expect_in_log "${script}" -Fx -- 'node_version=$(cat -- "${source_dir}/.node-version")'
-# shellcheck disable=SC2016 # Literal source contract.
-expect_in_log "${script}" -F -- 'base=https://nodejs.org/dist/v${node_version}'
-
 # Every job's runner and every Node setup in the workflows must agree.
 sed -n 's/^[[:space:]]*runs-on:[[:space:]]*//p' "${workflow}" "${browser_workflow}" > "${temporary_dir}/runners"
 sed -n 's/^[[:space:]]*run: bash scripts\/setup-ci-node\.sh[[:space:]]*//p' "${workflow}" "${browser_workflow}" > "${temporary_dir}/nodes"
@@ -59,12 +53,6 @@ fi
 # command together. CI cohosts lint/type-check once on the frontend runner;
 # each group's shard installs Chromium before its own browser command.
 # The diagnostic lists type-check first, independently of CI's acquisition order.
-# Keep the bootstrap explicit rather than removing --with-deps from the image.
-dashboard_install=$(stated dashboard_install)
-if [[ ${dashboard_install} != 'npx playwright install --with-deps chromium' ]]; then
-  echo 'FAIL: scripts/ci-container.sh must bootstrap Chromium system dependencies.' >&2
-  exit 1
-fi
 stated dashboard_steps | sed '1a\
 node scripts/setup-native.mjs browser
 ' > "${temporary_dir}/stated-dashboard"
