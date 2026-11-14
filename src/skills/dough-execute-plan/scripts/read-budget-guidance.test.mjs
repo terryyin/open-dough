@@ -27,6 +27,7 @@ const BOUNDARIES = [
   /execution workspace/i,
   /Codex.*execution start/i,
   /first implementation delegation/i,
+  /^supplier pause or host usage hold, with no verification running$/i,
   /accepting a return/i,
   /delivery/i,
   /other hosts/i,
@@ -45,6 +46,7 @@ const SETTLEMENT_READS = [
 ];
 const REQUIRED_LINKS = [
   [/first implementation delegation/i, [OBLIGATION_INPUTS]],
+  [/supplier pause or host usage hold/i, ["references/blocked-execution.md"]],
   [/accepting a return/i, SETTLEMENT_READS],
   [
     /delivery/i,
@@ -67,6 +69,7 @@ const REQUIRED_LINKS = [
 // row.
 const BOUNDARY_REFERENCES = [
   "references/delegation.md",
+  "references/blocked-execution.md",
   "references/execution-decisions.md",
   "references/wrap-up.md",
   "references/deliver-the-change.md",
