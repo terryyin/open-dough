@@ -1,3 +1,7 @@
+import {
+  canonicalUsageTasks,
+  sameUsageTask,
+} from "./usageTaskReconciliation.ts";
 // The launch-history store's usage document. Existing monthly launch JSONL stays
 // readable unchanged; routine launch reads/writes do not import this module.
 import { homedir } from "node:os";
@@ -64,15 +68,26 @@ export async function writeUsageHistory(
   const gaps = (batch.gaps ?? []).map((item) => usageGapSchema.parse(item));
   await replaceMachineJson(store(file), (held) => {
     const next = structuredClone(held);
-    for (const task of tasks) {
-      const old = next.tasks[task.id];
-      next.tasks[task.id] = {
-        ...old,
-        ...task,
-        requested: { ...old?.requested, ...task.requested },
-        sources: uniqueFacts([...(old?.sources ?? []), ...task.sources]),
-        gaps: uniqueFacts([...(old?.gaps ?? []), ...task.gaps]),
-      };
+    const aliases = new Map<string, string>();
+    const combined = canonicalUsageTasks([
+      ...Object.values(next.tasks),
+      ...tasks,
+    ]);
+    for (const task of [...Object.values(next.tasks), ...tasks]) {
+      const matches = combined.filter(
+        (item) => item.id === task.id || sameUsageTask(item, task),
+      );
+      if (matches.length === 1 && matches[0])
+        aliases.set(task.id, matches[0].id);
+    }
+    next.tasks = Object.fromEntries(combined.map((task) => [task.id, task]));
+    for (const association of Object.values(next.associations)) {
+      association.taskId = association.taskId
+        ? (aliases.get(association.taskId) ?? association.taskId)
+        : null;
+      association.candidates = uniqueFacts(
+        association.candidates.map((id) => aliases.get(id) ?? id),
+      );
     }
     for (const observation of observations) {
       const id = responseKey(
@@ -89,7 +104,16 @@ export async function writeUsageHistory(
         observation,
       );
     }
-    for (const association of associations) {
+    for (const original of associations) {
+      const association = {
+        ...original,
+        taskId: original.taskId
+          ? (aliases.get(original.taskId) ?? original.taskId)
+          : null,
+        candidates: uniqueFacts(
+          original.candidates.map((id) => aliases.get(id) ?? id),
+        ),
+      };
       if (!next.observations[association.observationId])
         throw new Error("Usage association lacks its observation");
       for (const candidate of association.candidates) {

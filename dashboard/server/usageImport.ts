@@ -1,3 +1,10 @@
+import { nativeTaskActivity } from "./nativeTaskActivity.ts";
+import { recoveredUsageTasks } from "./recoveredUsageTasks.ts";
+import {
+  canonicalUsageTasks,
+  mergeUsageTask,
+} from "./usageTaskReconciliation.ts";
+import type { NativeTaskFact } from "./nativeTaskFacts.ts";
 // Explicit, offline import. Native evidence is streamed; only compact response
 // observations are retained. Operational launch readers never invoke this path.
 import { claudeUsage } from "./claudeUsage.ts";
@@ -19,7 +26,7 @@ import {
   writeUsageHistory,
   usageHistoryFile,
 } from "./usageHistory.ts";
-import { reconcileObservation, uniqueFacts } from "./usageReconciliation.ts";
+import { reconcileObservation } from "./usageReconciliation.ts";
 import {
   type UsageGap,
   type UsageObservation,
@@ -38,16 +45,17 @@ export async function importUsageHistory(options: UsageImportOptions) {
   const since = Date.parse(options.since);
   if (!Number.isFinite(since))
     throw new Error("Usage import requires a valid --since timestamp");
-  const taskMap = new Map<string, UsageTask>();
+  const store = options.store ?? usageHistoryFile(options.home);
+  const held = await readUsageHistory(store);
+  const nativeTasks: NativeTaskFact[] = [];
+  const taskMap = new Map<string, UsageTask>(
+    Object.values(held.tasks).map((task) => [task.id, task]),
+  );
   for (const task of await retainedUsageTasks(options.home)) {
     const previous = taskMap.get(task.id);
-    taskMap.set(task.id, {
-      ...previous,
-      ...task,
-      sources: uniqueFacts([...(previous?.sources ?? []), ...task.sources]),
-    });
+    taskMap.set(task.id, mergeUsageTask(previous, task));
   }
-  const tasks = [...taskMap.values()];
+
   const lineage = codexLineage();
   const gaps: UsageGap[] = [];
   const observations = new Map<string, UsageObservation>();
@@ -70,12 +78,59 @@ export async function importUsageHistory(options: UsageImportOptions) {
     }
   };
   await collectNativeUsage(options.codexRoots, (file) =>
-    codexUsage(file, since, gaps, lineage),
+    codexUsage(file, since, gaps, lineage, (fact) => nativeTasks.push(fact)),
   );
   const claude = claudeLineage();
   await collectNativeUsage(options.claudeRoots ?? [], (file) =>
-    claudeUsage(file, since, gaps, claude),
+    claudeUsage(file, since, gaps, claude, (fact) => nativeTasks.push(fact)),
   );
+  const excluded = new Set<string>();
+  const excludedTasks = new Set<string>();
+  const recovered = await recoveredUsageTasks(
+    options.home,
+    nativeTasks,
+    nativeTaskActivity(
+      nativeTasks,
+      [...observations.values()],
+      lineage,
+      claude,
+    ),
+    since,
+    (fact) => {
+      excluded.add(JSON.stringify([fact.host, fact.sessionId]));
+      excludedTasks.add(
+        JSON.stringify([fact.host, fact.sessionId, fact.turnId]),
+      );
+      gaps.push({
+        code: "unrelated-project-excluded",
+        host: fact.host,
+        sessionId: fact.sessionId,
+        source: fact.source,
+      });
+    },
+  );
+  const unrelated = (observation: UsageObservation) => {
+    let session: string | undefined = observation.sessionId;
+    const seen = new Set<string>();
+    while (session && !seen.has(session)) {
+      if (excluded.has(JSON.stringify([observation.host, session])))
+        return true;
+      seen.add(session);
+      const parents: string[] = lineage.sessions.get(session)?.parents ?? [];
+      session =
+        observation.host === "codex" && parents.length === 1
+          ? parents[0]
+          : undefined;
+    }
+    return false;
+  };
+  const relevant = [...observations.values()].filter(
+    (item) => !unrelated(item),
+  );
+  const excludedObservations = observations.size - relevant.length;
+  observations.clear();
+  for (const item of relevant) observations.set(item.id, item);
+  const tasks = canonicalUsageTasks([...taskMap.values(), ...recovered]);
   for (const observation of observations.values()) {
     if (observation.host === "claude") {
       const resolved = claudeAssociation(observation, tasks, claude);
@@ -94,7 +149,6 @@ export async function importUsageHistory(options: UsageImportOptions) {
         sessionId: task.sessionId,
       });
   }
-  const store = options.store ?? usageHistoryFile(options.home);
   await writeUsageHistory(
     { tasks, observations: [...observations.values()], associations, gaps },
     store,
@@ -106,6 +160,8 @@ export async function importUsageHistory(options: UsageImportOptions) {
     files,
     tasks: Object.keys(persisted.tasks).length,
     observations: Object.keys(persisted.observations).length,
+    excludedUnrelatedTasks: excludedTasks.size,
+    excludedUnrelatedObservations: excludedObservations,
     gaps: persisted.gaps,
   };
 }

@@ -60,15 +60,16 @@ export const usageObservationSchema = z.object({
 });
 export const usageTaskSchema = z.object({
   id: z.string().min(1),
-  kind: z.literal("launch"),
-  project: z.string().min(1),
+  kind: z.enum(["launch", "recovered"]),
+  project: z.string().min(1).nullable(),
   host: z.enum(["codex", "claude"]),
   sessionId: z.string().min(1),
   rootTurnId: z.string().optional(),
-  workflow: z.string(),
+  nativeTurns: z.array(z.string()).optional(),
+  workflow: z.string().nullable(),
   identity: z.string().nullable(),
-  title: z.string(),
-  launchedAt: z.iso.datetime(),
+  title: z.string().nullable(),
+  launchedAt: z.iso.datetime().nullable(),
   origin: z.enum(["dashboard", "native", "unknown"]),
   launchReference: z.string().optional(),
   requested: usageSettingsSchema.extend({
@@ -81,6 +82,32 @@ export const usageTaskSchema = z.object({
       })
       .optional(),
   }),
+  fieldSources: z.record(z.string(), z.array(usageSourceSchema)).optional(),
+  fieldClaims: z
+    .record(
+      z.string(),
+      z.array(
+        z.object({
+          value: z.union([
+            z.string(),
+            z.array(z.string()),
+            z.record(z.string(), z.union([z.string(), z.boolean()]).optional()),
+          ]),
+          sources: z.array(usageSourceSchema),
+        }),
+      ),
+    )
+    .optional(),
+  lastActivityAt: z.iso.datetime().optional(),
+  outcome: z
+    .object({
+      kind: z.enum(["reported-complete", "reported-incomplete"]),
+      attention: z.boolean().optional(),
+      disposition: z.literal("returned-to-backlog").optional(),
+      at: z.iso.datetime().optional(),
+    })
+    .nullable()
+    .optional(),
   sources: z.array(usageSourceSchema),
   gaps: z.array(z.string()),
 });

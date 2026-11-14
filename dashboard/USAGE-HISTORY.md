@@ -30,8 +30,9 @@ workflow mutation occurs. Use an isolated home/store for fixture experiments.
 
 The retained-launch path reads active and archived Codex response usage,
 including compressed rollouts and explicitly linked descendants, plus Claude
-root and worker transcripts. Pruned-task reconstruction has a separate planned
-import path. A retained task without an evidenced native turn boundary
+root and worker transcripts. It also reconstructs pruned tasks from native user
+directives and the configured production project list, including hidden projects.
+A retained task without an evidenced native turn boundary
 keeps unavailable/unattributed usage; it is never assigned a conversation total.
 An unsupported or unavailable source stays a coverage gap. An import report's
 counts describe persisted evidence, not provider-wide accounting.
@@ -43,7 +44,7 @@ without task-turn evidence remains unassigned, even if its parent has only one
 retained launch. Multiple task candidates and contradictory lineage remain
 unassigned. Associations retain the supporting native metadata source locations.
 Native response observations survive without a retained task for later recovery;
-the importer does not invent a task entry for them.
+observations without a supported task boundary remain unassigned.
 
 Damaged rows and compressed streams produce source-specific gaps while other
 readable responses survive. A matching filename and response thread can retain
@@ -54,13 +55,45 @@ Legacy cumulative counters without reliable response usage produce an
 ambiguous have explicit gaps. These local checks cannot prove auxiliary or
 provider coverage beyond the retained files and references.
 
-A task is a launch, identified by project, host, session and evidenced initial
-turn (or retained launch time when that turn is unknown). Requested model,
+A retained task is a launch, identified by project, host, session and evidenced
+initial turn (or retained launch time when that turn is unknown). A recovered
+task uses host, session and native task turn; later metadata does not change its
+identity. Matching retained turn or launch-reference evidence enriches that same
+task, including Claude launches whose retained key uses launch time. Requested model,
 effort, workflow options and policy stay on the task. Observed model, effort,
 approval policy and sandbox stay on response observations, so settings may
 change within one task without rewriting its launch request. Launch source
 references point to operational or retained history files. The importer copies
 no launch instructions, prompts or transcript bodies into usage records.
+
+Recovered tasks have `kind: recovered`, nullable project/workflow/identity/title
+and launch time, per-field `fieldSources`, and explicit gaps. A configured
+repository, native cwd/common Git directory or recorded Git origin establishes
+project membership; folder titles do not. Positively unrelated projects are
+excluded with source gaps and `excludedUnrelatedTasks` /
+`excludedUnrelatedObservations` report counts. Unknown project tasks stay separate.
+
+Only an actual user workflow directive or supported host command wrapper supplies
+workflow/story intent. Skill documents, fenced examples and incidental names do
+not. The first user assignment can establish a task with unknown metadata;
+ordinary later Claude follow-ups remain ambiguous. Native reporting references
+establish dashboard origin, explicit native-origin evidence establishes native,
+and other tasks have unknown origin. Recovery creates no operational launch.
+
+Historical seed, plan, backlog and completion records are read from local Git at
+the recorded session revision or a corroborated native Git read. An activity-time
+reflog may support the native checkout's revision; a current default checkout
+cannot substitute for a deleted worktree. Historical fields cite repository and
+revision, including renamed/deleted stories. Unavailable objects and ambiguous
+references stay unknown. Completion of a story is distinct from a task reporting
+receipt: only a matching structured receipt supplies a recovered reported outcome.
+A matching retained returned-to-backlog receipt adds an outcome `disposition`
+without changing its explicit report kind. `attention` preserves message presence
+without copying its text. Stale receipt markers supply no return disposition.
+Last native activity and native turn completion never mark a task or story done.
+Known field conflicts retain competing `fieldClaims` and an explicit gap instead
+of selecting the latest value. New evidence can fill unknown values, and removing
+native files does not erase previously imported facts.
 
 A native response has one key: host, owning session/thread and response/message
 ID. `observations` holds its native identifiers, timestamp, source file/line,

@@ -124,17 +124,11 @@ Type: Behavior
 Status: done
 Proof: new `claude-usage.spec.ts` through the same import command and writer.
 
-Behavior: a retained Claude launch has root/worker transcripts with repeated
-API message IDs and resumed activity → import → the task holds one observation
-per owning message, known model/effort and disjoint token categories, including
-cache-write lifetimes where known. Updated streaming rows enrich the observation
-without addition. Another task's activity stays separate; unavailable lineage,
-auxiliary work and missing transcripts remain explicit gaps. Reimport and
-cross-source replay through the shared writer leave stable totals.
+Behavior delivered: retained Claude root/worker transcripts import one observation per owning API message ID, enriching compatible streaming rows without addition. Known model/effort and disjoint categories/cache-write lifetimes survive; explicit resumed-task evidence separates tasks, unknown lineage/auxiliary/missing transcripts remain gaps. Reimport/collector replay keep stable totals. Full proof below; original slice text recoverable at `b854bc525f1ae8dd55b448afe2395af5ca7eeb73`.
 
 ### 4. Reconstruct tasks whose dashboard record was pruned
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `recovered-tasks.spec.ts` with local Git history and both native hosts.
 
 Behavior: an in-window native task has no operational/history launch entry →
@@ -207,11 +201,7 @@ Established workspace `/Users/terryyin/git/open-dough/.worktrees/reconstruct-cod
 
 Starting revision `ecb5de7eaf25afd137eaa7458abc31b8640c70de`; established published base/candidate `a2bf0f9625455299ad0f8776e1be915aa6d8e797` confirmed on both remote targets. Trunk claim CI unobserved. Setup: Node 24.21.0, `node scripts/setup-native.mjs npm` passed, existing launch-history backend `--list --reporter=list` selected four cases. Check-only `.githooks/pre-commit` owns staged lint and typecheck; selective formatting uses `npm run --silent format` (npm supplies local tool PATH); importer triggers no generation. Worktree author is `mrsn-chan`, so delivery uses agent commit. Existing replanning authority retained; no explicit override or numeric hard limit.
 
-CI repair (43613508834/1, published slice1 `e8c33461577e6d744dfbe5f5c4aceb0e9a7107fc`): complete inventory had one PRINTED failure, expected CLI stderr leaked via execFileSync. One-line `stdio: "pipe"` in importHarness.ts preserves thrown stderr/status and assertions. Accepted as already traced within refactor1 harness boundary, no new representation/path. Quiet-reporter red: import prefix above plus `usage-persistence.spec.ts --workers=2` without reporter override, exit1 PRINTED; green entire usage-history directory without reporter override, all6 cases exit0 with empty output; typecheck and whitespace pass. Freshness unchanged at `706387653e180d0e3bab5998ba12a5399aa20b2e`, no incoming supplier behavior. Slice2 preserved in coordinator stash record `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-6h4ghW/record.json`; repair published `8dcffe2123dbf577dcea5e522ff271907ad89834` (suffix base `e8c33461577e6d744dfbe5f5c4aceb0e9a7107fc`), observer attached; restore receipt resumed/applied, owned entry dropped, same slice2 agent resumed. This is current published base.
-
-CI: Codex yielded cell `g263:10`, session 90340, coordinator `seed358-mrsn-chan`, directory `/tmp/dough-ci-501/watch-m0RUal`, PID 49693. Bound to this checkout and repository, target execution branch; push workflow `ci.yml` active, display name CI. Retain this stream through increments.
-
-Proof launch decision (Mac, 2026-11-14): AC, 65% free memory, load 4.74/4.02/4.04; one unrelated CPU-bound Claude host-exit test, no competing proof owned by this execution. Implementation owner runs focused backend cases with bounded workers under `caffeinate -s -i` for long checks; reconfirm headroom before expensive verification, reconsider on contention. Failure policy remains [AGENTS.md](../../../AGENTS.md#failing-and-flaky-tests) without exemptions.
+Observer, repair and proof-launch context is retained in [execution history](execution-history.md).
 
 ## Story obligations
 
@@ -233,10 +223,22 @@ Reported: slice 3 — "Slice 3 leaves unclassified human-input boundaries, orpha
 Story clause: "Represent missing or partial measurements explicitly"
 Disposition: proved by slice 3: claude-usage.spec.ts unresolved association/native-lineage and auxiliary gaps; claude-coverage.spec.ts missing/orphan worker and unavailable task subtotals; USAGE-HISTORY.md describes retained-evidence coverage
 Commitment: 44
-## Accepted slice evidence
 
-1. Retained Codex: actual CLI/fresh-process reads in `retained-usage.spec.ts` observe categories, settings, sources, one-count replay/enrichment, contradictions, missing→zero, and native-source independence. Operational scan trap passes; native payload keys verified against Nov14 sample. `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history dashboard/backend-tests/sessions/launch-history-aged-out.spec.ts dashboard/backend-tests/sessions/launch-history-removed.spec.ts dashboard/backend-tests/sessions/agent-launch-delete.spec.ts --workers=2 --reporter=list`: 15 passed (4 new +11 existing). Updated import-only selection: 6 passed; final `--grep 'preserves prior' --workers=1` case passed after correcting injector to actual CLI rename error, exact stderr/status checked. `npm run typecheck:dashboard` passed. Consumer trace `/tmp/seed358-slice1-consumers.md`: new API has no unchanged production callers; additive effort builder leaves omitted-effort consumers unchanged; old history contract regression above retained. Source freshness unchanged at `74bc48c5b968b48443df355effbdfd0f908cb29c`; incoming named sibling only preparation/Take, no changed supplier history behavior. Independent refactor split six cases across retained-usage, usage-reconciliation and usage-persistence specs with retainedUsageTest.ts fixture; actual CLI 6/6 passed in 2.7s, earlier11 history cases unchanged. No production refactor; final hook owns current typecheck. Mechanical lint repair stayed within accepted return paths/trace (guards/assert narrowing and unknown JSON types, no new domain representation); import6/6 and typecheck passed. Published `e8c33461577e6d744dfbe5f5c4aceb0e9a7107fc` to origin execution branch (suffix base `a2bf0f9625455299ad0f8776e1be915aa6d8e797`); observer reused and attached. This is the retained published base for slice 2.
+### G4. Pruned older task with only in-window worker work
+Reported: slice 4 — "Coordinator inspection of recoveredUsageTasks.ts found cutoff eligibility checking only the root session response list; an older pruned task whose only in-window work is an attributable descendant could be discarded."
+Story clause: "an older conversation can contribute attributable work within it without including its earlier usage"
+Disposition: proved by slice 4: recovered-gaps.spec.ts old root task retained through only attributable in-window worker; nativeTaskActivity.ts reuses host associations and old usage is excluded
+Commitment: 76
+### G5. Retained returned-to-backlog outcome from named sibling
+Reported: slice 4 — "Freshness inspection at cec45b4be4378c46429a0f39b98b49d486a71d12 found named sibling product fe871dfe5 adding a returnedToBacklog receipt; the earlier schema would strip that supported closure fact during import."
+Story clause: "timing, outcome, and usage where supported"
+Disposition: proved by slice 4: returned-outcome.spec.ts matching and stale receipts, report attention without raw text, compatible native-to-retained outcome enrichment and conflicting claims; exact additive supplier schema hunk adopted
+Commitment: 58
+### G6. Observe existing assignment input remains unchanged
+Reported: slice 4 — "Coordinator acceptance found native/backlog/configuration and operational bytes guarded, but no existing assignment input in the slice 4 immutability fixture, despite the plan naming that observation."
+Story clause: "or change backlog or assignment facts"
+Disposition: proved by slice 4: recovered-tasks.spec.ts canonical existing assignment bytes, repository HEAD and working-tree state unchanged after actual CLI; no operational or workflow writes
+Commitment: 91
+## Execution evidence
 
-2. Codex workers/archives: `codex-usage.spec.ts` observes copied ancestors, multilevel lineage, successive tasks, unresolved worker, older-root cutoff and replay; `codex-coverage.spec.ts` observes missing metadata survival, corrupt zstd/truncated line, missing source/workers and unavailable legacy counters. Actual CLI/fresh reads through isolated HOME. `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history --workers=2`: 9 cases passed with quiet reporter; `npm run typecheck:dashboard` passed. AC/free65%, load3.37/4.93/4.80, bounded2workers. Consumer trace `/tmp/seed358-slice2-consumers.md` dispositions inspected; old reader/store untouched. Source unchanged at `9c4afa5e4469730ebbb891c4d39087d6ee29de99`; no incoming supplier changes. Independent refactor2: none — already clean; no edits/tests, whitespace/sizes and consumers checked, accepted proof unchanged. Published `a01e54f6c3a4952ea38bd55be3d2f9691504c7d7` (suffix base `8dcffe2123dbf577dcea5e522ff271907ad89834`) on origin execution branch; observer attached. Current published base for slice3.
-
-3. Claude: root/worker native keys verified metadata-only; `claude-usage.spec.ts` and `claude-coverage.spec.ts` observe API-ID deduplication, compatible streaming enrichment/first-last times, disjoint cache/lifetime counters, observed model/effort, explicit resumed launch refs and same-ref continuation, unknown boundaries/unjoined workers, contradictory counters/lineage, replay and native removal. Quiet gate from slice2 (whole usage directory,2workers):12/12 passed; `npm run typecheck:dashboard` and whitespace passed. Trace `/tmp/seed358-slice3-consumers.md`: shared schema/reconciliation reaches Codex readers/writer and all usage tests, all covered; unrelated generic identifiers excluded. AC/free65%, load6.69/5.20/5.19. Source freshness unchanged `9c4afa5e4469730ebbb891c4d39087d6ee29de99`, no new sibling changes. Independent refactor3 unified only the duplicated file-collection loop in usageImport.ts; current CLI12/12 and typecheck passed again,9.8s; trace `/tmp/seed358-slice3-refactor-consumers.md` complete. Lint correction made references a tuple and Claude attribution return the enriched clone plus association; sole importer caller replaces that observation explicitly. CLI12/12 and typecheck passed; independent refactor3-repair found clean, proof reused, no edits/tests. Delivery pending.
+Accepted proof, refactor and publication receipts are retained in [execution history](execution-history.md).

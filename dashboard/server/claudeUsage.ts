@@ -1,3 +1,4 @@
+import { claudeTaskReader, type NativeTaskSink } from "./nativeTaskFacts.ts";
 // Native rows are read transiently. Never retain message content, tool input or
 // provider request bodies; only API identity, counters and structured lineage.
 import path from "node:path";
@@ -26,7 +27,9 @@ export async function* claudeUsage(
   since: number,
   gaps: UsageGap[],
   lineage: ClaudeLineage,
+  taskSink?: NativeTaskSink,
 ): AsyncGenerator<UsageObservation> {
+  const taskReader = claudeTaskReader(taskSink);
   const filename = path.basename(file).replace(/\.jsonl(?:\.zst)?$/, "");
   for await (const { row, line } of nativeUsageLines(file, gaps)) {
     const sessionId = stringOf(row["sessionId"]);
@@ -39,6 +42,7 @@ export async function* claudeUsage(
     )
       continue;
     const source = { kind: "native" as const, file, line };
+    taskReader(row, source);
     recordClaudeNode(lineage, sessionId, agentId, row, source);
     if (row["type"] !== "assistant") continue;
     const message = objectOf(row["message"]);

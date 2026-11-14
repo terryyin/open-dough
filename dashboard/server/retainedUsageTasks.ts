@@ -35,6 +35,7 @@ function retainedTask(
     host: record.session.host,
     sessionId: record.session.sessionId,
     ...(rootTurnId ? { rootTurnId } : {}),
+    nativeTurns: rootTurnId ? [rootTurnId] : [],
     workflow: record.request.workflow,
     identity: subject.identity ?? null,
     title: subject.title,
@@ -42,6 +43,35 @@ function retainedTask(
     origin: "dashboard",
     ...(reporting ? { launchReference: reporting.reference } : {}),
     requested,
+    outcome: record.completion
+      ? {
+          kind:
+            record.completion.outcome === "completed"
+              ? "reported-complete"
+              : "reported-incomplete",
+          at: record.completion.receivedAt,
+          attention: record.completion.message.length > 0,
+          ...(record.returnedToBacklog === record.completion.receipt
+            ? { disposition: "returned-to-backlog" as const }
+            : {}),
+        }
+      : null,
+    fieldSources: Object.fromEntries(
+      [
+        "project",
+        "host",
+        "sessionId",
+        "workflow",
+        "identity",
+        "title",
+        "launchedAt",
+        "origin",
+        ...(rootTurnId ? ["rootTurnId"] : []),
+        ...(reporting ? ["launchReference"] : []),
+        ...Object.keys(requested).map((key) => `requested.${key}`),
+        ...(record.completion ? ["outcome"] : []),
+      ].map((field) => [field, [source]]),
+    ),
     sources: [source],
     gaps: ["retained-native-evidence-only"],
   };

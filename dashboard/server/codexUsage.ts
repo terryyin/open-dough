@@ -1,3 +1,4 @@
+import { codexTaskReader, type NativeTaskSink } from "./nativeTaskFacts.ts";
 // Passive Codex response reads. The containing thread owns its responses; copied
 // session_meta rows and cumulative token_count snapshots cannot change ownership.
 import { codexCounters } from "./codexUsageCounters.ts";
@@ -39,8 +40,10 @@ export async function* codexUsage(
   since: number,
   gaps: UsageGap[],
   lineageEvidence: CodexLineage,
+  taskSink?: NativeTaskSink,
 ): AsyncGenerator<UsageObservation> {
   const owner = containingCodexThread(file);
+  const taskReader = codexTaskReader(owner, taskSink);
   let ownMetadata = false;
   let parentSessionId: string | undefined;
   const spawned = new Set<string>();
@@ -49,6 +52,7 @@ export async function* codexUsage(
     { settings: UsageSettings; source: UsageSource }
   >();
   for await (const { row, line } of nativeUsageLines(file, gaps)) {
+    taskReader(row, { kind: "native", file, line });
     const payload = objectOf(row["payload"]);
     if (row["type"] === "session_meta" && payload["id"] === owner) {
       ownMetadata = true;

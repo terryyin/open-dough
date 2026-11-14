@@ -109,10 +109,14 @@ export function codexAssociation(
     : tasks.filter(
         (task) =>
           task.host === "codex" &&
+          !task.gaps.includes("contradictory-project-evidence") &&
+          !task.gaps.includes("contradictory-task-field:project") &&
           chain.sessions.includes(task.sessionId) &&
           task.rootTurnId !== undefined &&
-          (task.rootTurnId === observation.rootTurnId ||
-            task.rootTurnId === observation.turnId),
+          [task.rootTurnId, ...(task.nativeTurns ?? [])].some(
+            (turn) =>
+              turn === observation.rootTurnId || turn === observation.turnId,
+          ),
       );
   return {
     observationId: observation.id,

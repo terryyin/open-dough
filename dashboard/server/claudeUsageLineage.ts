@@ -62,7 +62,7 @@ export function recordClaudeNode(
     row["type"] === "user" &&
     !agent &&
     row["isMeta"] !== true &&
-    (origin === "human" || (!origin && text.length > 0));
+    (origin === "human" || origin === "native" || (!origin && text.length > 0));
   const reference = human
     ? /(?:^|\n)Dashboard reporting context:\n- project: ([^\n]+)\n- host: claude\n- launch reference: ([0-9a-f-]{36})(?:\n|$)/i.exec(
         text,
@@ -169,8 +169,14 @@ export function claudeAssociation(
       const matches = tasks.filter(
         (task) =>
           task.host === "claude" &&
+          !task.gaps.some(
+            (gap) =>
+              gap === "contradictory-project-evidence" ||
+              gap === "contradictory-task-field:project",
+          ) &&
           task.sessionId === observation.sessionId &&
-          (task.rootTurnId === root.uuid ||
+          (task.nativeTurns?.includes(root.uuid) ||
+            task.rootTurnId === root.uuid ||
             (task.launchReference !== undefined &&
               root.references.includes(
                 JSON.stringify([task.project, task.launchReference]),
