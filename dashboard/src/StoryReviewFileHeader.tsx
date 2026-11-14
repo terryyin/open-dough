@@ -1,9 +1,9 @@
 // The selected file's heading in Review changes and Intent: its kind and
 // path (`ReviewedFileName`), and, for a Done story's Published completion or
-// landed run, Follow up beside that path (`./FollowUp.tsx`).
+// landed run, Follow up beside that path (`./StoryAnchoredFollowUp.tsx`).
 
 import type { ReactNode } from "react";
-import { StoryFileFollowUp } from "./FollowUp.tsx";
+import { StoryFileFollowUp } from "./StoryAnchoredFollowUp.tsx";
 import type { ReviewedFile } from "./storyReviewFiles.ts";
 import type { ReviewedStory } from "./StoryReviewFileDiff.tsx";
 import { includesTrunkWords, kindWords } from "./StoryReviewFileTree.tsx";

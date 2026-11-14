@@ -4,13 +4,11 @@
 // Start session dialog, naming the entry and listing the context the server
 // will send with the request (`./followUpContext.ts`). The source stays as it
 // is: only a new ad hoc session is started. A Done story's file diff also
-// offers Follow up for the whole file (`StoryFileFollowUp`), even when the
-// card still offers Open terminal; that path skips the card's gate and names
-// the file anchor on the same start request.
+// offers Follow up for the whole file or a line
+// (`./StoryAnchoredFollowUp.tsx`).
 
 import type { MachineSessions } from "./agentLaunches.ts";
 import type { LaunchWithState } from "./agentLaunch.ts";
-import { useDoneStoryFollowUp } from "./doneStoryFollowUp.ts";
 import type { DoneStory } from "./doneRecord.ts";
 import {
   sessionContext,
@@ -19,13 +17,10 @@ import {
   type FollowUpFileFacts,
 } from "./followUpContext.ts";
 import type { FollowUpFile, FollowUpSource } from "./followUpRequest.ts";
-import { usePageLaunches } from "./pageLaunches.ts";
 import { usePageSessions } from "./pageSessions.ts";
 import { useReadRetainedHistory } from "./retainedHistory.ts";
 import { offersFollowUp } from "./sessionAccess.ts";
 import { StartSession } from "./StartSession.tsx";
-import type { ReviewedFile } from "./storyReviewFiles.ts";
-import type { ReviewedStory } from "./StoryReviewFileDiff.tsx";
 
 type Launching = {
   // The project's name.
@@ -42,42 +37,8 @@ type StoryLaunch = Launching & {
   readonly sessions: readonly LaunchWithState[];
 };
 
-// Request anchor and dialog facts for one reviewed file on a Published
-// completion or landed run; undefined on a workspace snapshot.
-function fileFollowUpParts(
-  reviewed: ReviewedStory,
-  from: string,
-  tree: string,
-  file: ReviewedFile,
-):
-  | { readonly anchor: FollowUpFile; readonly facts: FollowUpFileFacts }
-  | undefined {
-  const comparison =
-    reviewed.completion !== undefined
-      ? ({ kind: "published", id: reviewed.completion } as const)
-      : reviewed.reference !== undefined
-        ? ({ kind: "landed", id: reviewed.reference } as const)
-        : undefined;
-  if (comparison === undefined) return undefined;
-  const paths = {
-    path: file.path,
-    ...(file.kind === "renamed" ? { oldPath: file.oldPath } : {}),
-  };
-  const range = { baseline: from, tree };
-  return {
-    anchor: {
-      ...paths,
-      ...range,
-      ...(comparison.kind === "published"
-        ? { completion: comparison.id }
-        : { reference: comparison.id }),
-    },
-    facts: { ...paths, ...range, kind: comparison.kind },
-  };
-}
-
 // The Start session dialog for a done story, with an optional file anchor.
-function StoryFollowUpSession({
+export function StoryFollowUpSession({
   story,
   revision,
   sessions,
@@ -85,11 +46,17 @@ function StoryFollowUpSession({
   sourceId,
   launches,
   file,
+  autoOpen = false,
+  showTrigger = true,
+  onClosed,
 }: StoryLaunch & {
   readonly file?: {
     readonly anchor: FollowUpFile;
     readonly facts: FollowUpFileFacts;
   };
+  readonly autoOpen?: boolean;
+  readonly showTrigger?: boolean;
+  readonly onClosed?: () => void;
 }) {
   const readHistory = useReadRetainedHistory();
   const source: FollowUpSource = {
@@ -105,6 +72,9 @@ function StoryFollowUpSession({
       sourceId={sourceId}
       launches={launches}
       onOpen={readHistory}
+      autoOpen={autoOpen}
+      showTrigger={showTrigger}
+      {...(onClosed === undefined ? {} : { onClosed })}
       followUp={{
         source,
         name: storyName(story),
@@ -147,36 +117,4 @@ export function StoryFollowUp(props: StoryLaunch) {
   const { hostOperations } = usePageSessions();
   if (!offersFollowUp(props.sessions, hostOperations)) return null;
   return <StoryFollowUpSession {...props} />;
-}
-
-// Follow up from a Done story's file header in Review changes or Intent:
-// only on a Published completion or landed run comparison, never a workspace
-// snapshot. Looks up the done story on the page and opens the same dialog
-// with the file's context lines; Start sends the file anchor.
-export function StoryFileFollowUp({
-  reviewed,
-  from,
-  tree,
-  file,
-}: {
-  readonly reviewed: ReviewedStory;
-  readonly from: string;
-  readonly tree: string;
-  readonly file: ReviewedFile;
-}) {
-  const launches = usePageLaunches();
-  const target = useDoneStoryFollowUp(reviewed.identity);
-  const parts = fileFollowUpParts(reviewed, from, tree, file);
-  if (target === undefined || parts === undefined) return null;
-  return (
-    <StoryFollowUpSession
-      story={target.story}
-      revision={target.revision}
-      sessions={target.sessions}
-      project={target.project}
-      sourceId={target.sourceId}
-      launches={launches}
-      file={parts}
-    />
-  );
 }

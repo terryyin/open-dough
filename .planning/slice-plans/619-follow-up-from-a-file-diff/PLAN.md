@@ -163,7 +163,7 @@ dialog list reuses `fileContextItems` proved at the Slice 2 boundary.
 
 ### 4. Follow up one line from the line-number menu
 Type: Behavior
-Status: planned
+Status: done
 Proof: New integrated UI spec in `dashboard/tests/review/` for the menu's interaction, and the Intent journey from Slice 3 extended to old line 85 with a blank start.
 
 Before changing line numbers, add a copy regression: selecting diff lines
@@ -175,6 +175,10 @@ returned, no added Tab stop per line, and a touch tap on a phone-sized
 viewport. The blank Intent follow-up opens its terminal and the first input
 names old line 85. Update `dashboard/STORY-REVIEW-FILES.md` or the diff's
 maintained doc for line numbers.
+
+Accepted proof (coordinator): `DiffLineNumber` menu + line-anchored Follow up;
+integrated UI 3 passed with context sibling; Intent e2e old line 85 blank start
+opens terminal with first input (2 passed); typecheck pass.
 
 ## Story obligations
 

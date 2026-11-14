@@ -1,5 +1,5 @@
 // File-header Follow up on a Done story's diff in Review changes or Intent
-// Purpose (`../../src/FollowUp.tsx`): the control beside the file path, and
+// Purpose (`../../src/StoryAnchoredFollowUp.tsx`): the control beside the file path, and
 // the Start session dialog's follow-up context list.
 
 import { expect, type Locator, type Page } from "@playwright/test";

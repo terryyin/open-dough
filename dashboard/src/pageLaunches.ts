@@ -1,6 +1,7 @@
 // The machine's launches the page owns (`./agentLaunches.ts`), available to
 // any control that starts a session without threading Board props: a Done
-// story's file Follow up in Review changes or Intent (`./FollowUp.tsx`).
+// story's file Follow up in Review changes or Intent
+// (`./StoryAnchoredFollowUp.tsx`).
 
 import { createContext, useContext } from "react";
 import type { MachineSessions } from "./agentLaunches.ts";

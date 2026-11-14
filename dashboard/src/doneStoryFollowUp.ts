@@ -1,7 +1,7 @@
 // Page-level lookup of a Done story for file-anchored Follow up: the published
 // done record, the revision it was read at, and the sessions its card holds.
-// Review changes and Intent both reach it here (`./FollowUp.tsx`) instead of
-// threading the card's props through the diff.
+// Review changes and Intent both reach it here (`./StoryAnchoredFollowUp.tsx`)
+// instead of threading the card's props through the diff.
 
 import { useContext } from "react";
 import { storySessionsOf, type LaunchWithState } from "./agentLaunch.ts";

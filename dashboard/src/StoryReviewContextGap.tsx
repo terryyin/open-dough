@@ -12,6 +12,7 @@ import {
   type FileLineSides,
   type GapReveal,
 } from "./diffContextExpansion.ts";
+import { DiffLineNumber, type DiffLineSide } from "./DiffLineNumber.tsx";
 import type { DiffLine } from "./unifiedDiff.ts";
 
 const lineMarkers: Record<DiffLine["kind"], string> = {
@@ -20,17 +21,52 @@ const lineMarkers: Record<DiffLine["kind"], string> = {
   unchanged: " ",
 };
 
+export type DiffLineMenu = {
+  readonly open: { readonly side: DiffLineSide; readonly line: number } | null;
+  readonly onOpen: (side: DiffLineSide, line: number) => void;
+  readonly onClose: () => void;
+  readonly onFollowUp: (side: DiffLineSide, line: number) => void;
+};
+
 // One printed or revealed diff line (and its optional no-newline note).
-export function diffLineItems(line: DiffLine, key: string) {
+export function diffLineItems(
+  line: DiffLine,
+  key: string,
+  menu?: DiffLineMenu,
+) {
+  const number = (side: DiffLineSide, value: number | undefined) => {
+    if (value === undefined) return null;
+    if (menu === undefined) return null;
+    const open = menu.open?.side === side && menu.open.line === value;
+    return (
+      <DiffLineNumber
+        side={side}
+        line={value}
+        open={open}
+        onOpen={() => {
+          menu.onOpen(side, value);
+        }}
+        onClose={menu.onClose}
+        onFollowUp={() => {
+          menu.onFollowUp(side, value);
+        }}
+      />
+    );
+  };
   return [
     <li
       key={key}
       className={`story-review-line story-review-${line.kind}`}
       data-old={line.oldNumber}
       data-new={line.newNumber}
+      data-line-menu={menu === undefined ? undefined : ""}
     >
-      {lineMarkers[line.kind]}
-      {line.text}
+      {number("old", line.oldNumber)}
+      {number("new", line.newNumber)}
+      <span className="story-review-line-code">
+        {lineMarkers[line.kind]}
+        {line.text}
+      </span>
     </li>,
     ...(line.noNewlineAtEnd === true
       ? [
@@ -49,6 +85,7 @@ export function ContextGap({
   beforeFirst,
   trailing,
   onReveal,
+  lineMenu,
 }: {
   readonly gap: DiffGap;
   readonly reveal: GapReveal;
@@ -56,6 +93,7 @@ export function ContextGap({
   readonly beforeFirst: boolean;
   readonly trailing: boolean;
   readonly onReveal: (next: GapReveal, preserve: "up" | "down") => void;
+  readonly lineMenu?: DiffLineMenu;
 }) {
   const { start, end } = revealedGapLines(gap, reveal, sides);
   const remaining = remainingInGap(gap, reveal);
@@ -77,7 +115,7 @@ export function ContextGap({
       }
     >
       {start.flatMap((line) =>
-        diffLineItems(line, `s-${String(line.oldNumber)}`),
+        diffLineItems(line, `s-${String(line.oldNumber)}`, lineMenu),
       )}
       {remaining > 0 && (
         <li className="story-review-expand" data-gap={gap.id}>
@@ -110,7 +148,7 @@ export function ContextGap({
         </li>
       )}
       {end.flatMap((line) =>
-        diffLineItems(line, `e-${String(line.oldNumber)}`),
+        diffLineItems(line, `e-${String(line.oldNumber)}`, lineMenu),
       )}
     </ol>
   );

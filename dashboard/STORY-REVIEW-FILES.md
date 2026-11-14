@@ -29,7 +29,12 @@ path (`Deleted gone.txt`, `Renamed old/a.ts → new/a.ts`), and the selected
 file's diff is headed by the same words. For a Done story's Published
 completion or landed run, that heading also offers
 [Follow up](LAUNCH-FOLLOW-UP.md) beside the path, which starts a follow-up
-about the whole file; a retained workspace snapshot does not. Beside a file's
+about the whole file; a retained workspace snapshot does not. In those same
+diffs, each line number is a control that opens a small menu naming the line
+(for example “Old line 85”) and offering Follow up for that line and side,
+including revealed context lines; the menu holds only Follow up until story
+notes add more. Line numbers stay outside copied code and off the Tab order
+(`src/DiffLineNumber.tsx`, `src/StoryReviewDiffLines.tsx`). Beside a file's
 name its row shows how many lines its diff adds and removes (`+2 −1`), and
 its control is described by them in words (`2 lines added, 1 line removed`).
 The snapshot reads them with `git diff --numstat -M -z` over the same _from_

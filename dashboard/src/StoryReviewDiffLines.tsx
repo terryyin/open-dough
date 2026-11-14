@@ -2,9 +2,16 @@
 // gutter controls that splice omitted unchanged lines from revision file
 // text (`./diffContextExpansion.ts`) in 20-line windows as disposable
 // presentation state. Line numbers sit beside each line so copying code
-// leaves them behind.
+// leaves them behind; when a Done story offers line Follow up, each number
+// opens that line's menu (`./DiffLineNumber.tsx`).
 
-import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import {
   omittedGaps,
   revealedGapLines,
@@ -12,6 +19,7 @@ import {
   type FileLineSides,
   type GapReveal,
 } from "./diffContextExpansion.ts";
+import type { DiffLineSide } from "./DiffLineNumber.tsx";
 import { ContextGap, diffLineItems } from "./StoryReviewContextGap.tsx";
 import { parsedUnifiedDiff, type UnifiedDiff } from "./unifiedDiff.ts";
 import "./story-review-diff.css";
@@ -48,6 +56,7 @@ export function DiffLines({
   textProblem,
   contextReading,
   onRetryText,
+  onLineFollowUp,
 }: {
   readonly printed: string;
   readonly sides: FileLineSides | undefined;
@@ -55,9 +64,16 @@ export function DiffLines({
   // Whether the file text the omitted lines come from is still being read.
   readonly contextReading: boolean;
   readonly onRetryText: () => void;
+  // When set, each line number opens a menu that offers Follow up for that
+  // line and side.
+  readonly onLineFollowUp?: (side: DiffLineSide, line: number) => void;
 }) {
   const { binary, hunks } = parsedUnifiedDiff(printed);
   const [reveals, setReveals] = useState<Record<number, GapReveal>>({});
+  const [openMenu, setOpenMenu] = useState<{
+    readonly side: DiffLineSide;
+    readonly line: number;
+  } | null>(null);
   const codeRef = useRef<HTMLDivElement>(null);
   const pendingScroll = useRef<{
     top: number;
@@ -65,6 +81,21 @@ export function DiffLines({
   } | null>(null);
 
   const gaps = sides === undefined ? [] : omittedGaps(hunks, sides);
+  const closeMenu = useCallback(() => {
+    setOpenMenu(null);
+  }, []);
+
+  const lineMenu =
+    onLineFollowUp === undefined
+      ? undefined
+      : {
+          open: openMenu,
+          onOpen: (side: DiffLineSide, line: number) => {
+            setOpenMenu({ side, line });
+          },
+          onClose: closeMenu,
+          onFollowUp: onLineFollowUp,
+        };
 
   useLayoutEffect(() => {
     const pending = pendingScroll.current;
@@ -125,6 +156,7 @@ export function DiffLines({
         onReveal={(next, preserve) => {
           setGapReveal(gap, next, preserve);
         }}
+        {...(lineMenu === undefined ? {} : { lineMenu })}
       />
     );
   };
@@ -170,7 +202,7 @@ export function DiffLines({
                 {hunk.header}
               </li>
               {hunk.lines.flatMap((line, at) =>
-                diffLineItems(line, String(at)),
+                diffLineItems(line, String(at), lineMenu),
               )}
             </ol>
             {after !== undefined && renderGap(after)}
