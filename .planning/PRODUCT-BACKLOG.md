@@ -32,7 +32,9 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
-- [View token usage for dashboard-launched tasks](seeds/SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks) — SEED-357#view-token-usage-for-dashboard-launched-tasks
+- [Keep dashboard launch history](seeds/SEED-358-dashboard-launch-history.md#keep-dashboard-launch-history) — SEED-358#keep-dashboard-launch-history
+- [View token usage for dashboard-launched Codex tasks](seeds/SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks) — SEED-357#view-token-usage-for-dashboard-launched-tasks
+- [View token usage for dashboard-launched Claude Code tasks](seeds/SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage) — SEED-359#view-claude-code-task-token-usage
 - [Reduce total model work during blocked execution](seeds/SEED-356-reduce-blocked-execution-effort.md#reduce-total-model-work-during-blocked-execution) — SEED-356#reduce-total-model-work-during-blocked-execution
 - [Remove tests that only assert configuration or data](seeds/SEED-354-remove-configuration-only-tests.md#remove-configuration-only-tests) — SEED-354#remove-configuration-only-tests
 - [Reconsider further CI job reduction with a different approach](seeds/SEED-355-reconsider-further-ci-reduction.md#reconsider-further-ci-reduction) — SEED-355#reconsider-further-ci-reduction
@@ -69,3 +71,4 @@ intent introduced or affected by a newly developed story.
 - [Limit first-layer test cases to ten lines](seeds/SEED-301-limit-first-layer-test-cases-to-ten-lines.md#limit-first-layer-test-cases-to-ten-lines) — SEED-301#limit-first-layer-test-cases-to-ten-lines
 - [Hold landed CI follow-up observations under load](seeds/SEED-319-landed-ci-follow-up-observations-under-load.md#hold-landed-ci-follow-up-observations-under-load) — SEED-319#hold-landed-ci-follow-up-observations-under-load
 - [Run Open Dough tasks in the cloud](seeds/SEED-339-dashboard-cloud-agent-launches.md#run-open-dough-tasks-in-the-cloud) — SEED-339#run-open-dough-tasks-in-the-cloud
+- [View token usage for dashboard-launched Cursor tasks](seeds/SEED-360-cursor-task-token-usage.md#view-cursor-task-token-usage) — SEED-360#view-cursor-task-token-usage

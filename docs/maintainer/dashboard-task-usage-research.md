@@ -1,12 +1,9 @@
 # Usage and cost for dashboard tasks
 
-November 14, 2026 · Research for [SEED-357](../../.planning/seeds/SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks)
-
-The dashboard can record the launch settings and identify the native session on
-all three tools. Codex and Claude Code expose native worker usage. Cursor's
-interactive hooks expose parent usage, with a separate billing join available
-on eligible accounts. The tools can share a token accounting format. Compare
-cost per verified outcome when choosing a tool.
+November 14, 2026 · [Launch history](../../.planning/seeds/SEED-358-dashboard-launch-history.md),
+[Codex](../../.planning/seeds/SEED-357-dashboard-task-token-usage.md),
+[Claude Code](../../.planning/seeds/SEED-359-claude-code-task-token-usage.md), and
+[Cursor](../../.planning/seeds/SEED-360-cursor-task-token-usage.md)
 
 ## What each existing launch can measure
 
@@ -27,14 +24,10 @@ including failures or cancellations when usage is available. [Dashboard launch](
 [model request hooks](https://learn.chatgpt.com/docs/hooks#premodelrequest-and-postmodelrequest),
 [release protocol](https://github.com/openai/codex/blob/rust-v0.169.0/codex-rs/protocol/src/protocol.rs#L2544-L2630).
 
-The prior audit used local `token_usage_record` events and counted each owning
-thread and response ID once. This excluded copied ancestor records in forks and
-duplicate compaction accounting. A reaggregation of the retained A/B sample
-found 174 distinct responses, including 33 child requests. The App Server
-release has parent and ancestor thread filters and turn lineage fields. Use
-those relationships where present. An attached thread or a matching worktree
-path is insufficient evidence of child ownership. Rollout records are an
-implementation surface, so their retention and schema need a versioned reader.
+The prior audit counted each owning thread and response ID once, excluding copied
+fork history and duplicate compaction accounting. The retained A/B sample had
+174 distinct responses, including 33 child requests. Use explicit thread and
+turn lineage to assign workers. Rollout formats and retention vary by version.
 [Audit method](session-token-efficiency-research.md#codex-audit),
 [rollout event](https://github.com/openai/codex/pull/41912),
 [retained A/B usage](../../Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T102744-1921-tokens.md),
@@ -186,11 +179,9 @@ share of the monthly subscription assigned to a task depends on the chosen
 allocation rule. A local tool timeout can also leave a server-side charge.
 [Claude API billing](https://support.claude.com/en/articles/8977456-how-do-i-pay-for-my-claude-api-usage).
 
-For comparing workflows, give both tools the same goal, starting revision and
-proof standard. Decide how to handle warm caches, failures, retries, workers and
-human rescue before measuring. Report time, success rate, and total cost across
-attempts. A workflow that only looks cheap after dropping its failed attempts or
-unknown workers has an incomplete cost comparison. This follows
+Compare workflows on the same goal, starting revision, and proof standard.
+Account for warm caches, retries, workers, and human rescue before comparing
+time, success rate, and total cost across attempts. This follows
 [ADR 0010, Definition of improvement](../adrs/0010-definition-of-improvement-accepted.md).
 
 ## Dashboard ownership and task boundaries
@@ -208,7 +199,7 @@ new attempt distinct. Preserve unattributed usage where a join is ambiguous.
 
 The dashboard currently filters marked-done sessions after 30 days and removes
 their launch records on a later write. Explicit removal can also delete a record.
-SEED-357 makes launch and usage history permanent. Apply the 30 days to the
+SEED-358 makes launch and usage history permanent. Apply the 30 days to the
 Recently done view and count. Retire terminal state, temporary host files, and
 landing pins independently of historical data. Keep old history out of routine
 native session lookups. [Current record store](../../dashboard/server/launchRecordDocument.ts),
@@ -224,27 +215,36 @@ confirmed early wrap-up against the launch ID and retain the distinct outcome.
 Keep progress reports and queue moves insufficient on their own. [Reporting contract](../../dashboard/AGENT-LAUNCH-COMPLETION.md),
 [closure gate](../../dashboard/server/completionClosure.ts).
 
-Show usage by task and model alongside coverage and any supported price or
-charge. A blank start with observed absence of calls can show zero. Flag gaps
-from missing sources, workers or interrupted requests. Usage can settle after
-the session is marked done.
+Show task usage by model and coverage. Use zero when there is evidence of no
+model calls. Usage can settle after the session is marked done.
 
 ## Checks on a small native sample
 
-Use the same dashboard launch path users already use. Start a short task with one
-worker and a second task concurrently in the same project. Capture native IDs and
-compare an overlapping usage source where available. Resume or move the first
-task across a dashboard restart, change its model if supported, and cancel a
-turn after model work begins. Verify which activity is recorded and attributed,
-which is visible only as partial, and which cannot be joined. Replay duplicate
-events and simulate a late update to verify their effect on the persisted total.
-Include a blank launch, a failed turn and an unrelated native session. For
-Claude Code, include a warm supervisor and a reset. For Cursor, include default
-and selected models, hook overlap and worker IDs. For Codex, compare live counters
-with completed-response records and exercise a descendant and a fork. These
-checks support the native proof expectations in
+Use two concurrent dashboard launches in the same project, with a worker in one.
+Restart, resume, cancel, and replay a duplicate and a late update. Include a blank
+launch and unrelated native work. Check Codex descendant and fork attribution,
+Claude's warm supervisor and reset, and Cursor's two hooks and child IDs. Follow
 [ADR 0005, Native validation and A/B testing](../adrs/0005-cross-tool-validation-accepted.md).
 
 Verify a 31-day-old session across a write, UI removal, and restart. It ages out
 of the recent view and count and stays in usage history. An early return counts
 as one finished launch, and a restart of the story gets its own usage history.
+
+## Recovering earlier launches
+
+A read-only check on November 14 matched native history for all 385 Codex and
+629 Claude Code launches still in this machine's dashboard records. All 385
+Codex roots contained an owned usage record for the first turn. Of 3,327 linked
+Codex descendants, 3,325 had response usage with a root-turn ID. For Claude,
+628 roots and all 2,803 linked worker transcripts had real response usage.
+The remaining Claude transcript had only a synthetic assistant record. These
+counts measure the presence of evidence. Full-task coverage still needs proof.
+
+Import Codex response records by owning thread and response ID, following known
+turns and descendants across active, archived, and compressed rollouts. Import
+Claude usage by native session or worker and API message ID from its JSONL history.
+Skip copied fork history and deduplicate overlap with live collection. Record
+missing segments as gaps. If the dashboard record was pruned, recover it only
+with independent evidence of the dashboard launch. [Codex rollout records](https://github.com/openai/codex/pull/41912),
+[Claude session files](https://code.claude.com/docs/en/agent-sdk/sessions),
+[local Claude audit](session-token-efficiency-research.md#claude-code-audit).
