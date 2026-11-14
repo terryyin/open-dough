@@ -6,10 +6,13 @@ import {
   writeHold,
   digestFile,
   verifyExecution,
-  attention,
 } from "./blocked-execution-store.mjs";
+import { attention, attentionCause } from "./blocked-execution-attention.mjs";
 import { applyLiveRearm } from "./blocked-execution-rearm.mjs";
-import { deliverHeldExecution } from "./blocked-execution-delivery.mjs";
+import {
+  deliverHeldExecution,
+  recordHeldDelivery,
+} from "./blocked-execution-delivery.mjs";
 
 export async function watchHeldExecution(directory) {
   const lock = join(directory, "worker.lock");
@@ -36,6 +39,11 @@ export async function watchHeldExecution(directory) {
   const completed = new Map();
   const save = () => writeHold(directory, record);
   const observeSignal = (input) => {
+    if (
+      !input.condition.signalFile ||
+      !existsSync(dirname(input.condition.signalFile))
+    )
+      return { close() {} };
     const signalWatcher = watch(
       dirname(input.condition.signalFile),
       (...[, name]) => {
@@ -49,7 +57,7 @@ export async function watchHeldExecution(directory) {
       },
     );
     signalWatcher.on("error", (error) => {
-      stopReason = String(error);
+      record.signalFailure = String(error);
       void evaluate();
     });
     return signalWatcher;
@@ -60,6 +68,7 @@ export async function watchHeldExecution(directory) {
       phase: record.phase,
       worker: record.worker,
       attention: record.attention,
+      attentionRoute: record.attentionRoute,
     });
     if (process.connected) process.disconnect();
   };
@@ -75,7 +84,7 @@ export async function watchHeldExecution(directory) {
     if (record.accepted?.id !== turn.id) return;
     record.accepted = turn;
     if (turn.status === "completed") {
-      record.phase = "continued";
+      recordHeldDelivery(record, turn, true);
       finish();
     } else
       finish(
@@ -119,7 +128,14 @@ export async function watchHeldExecution(directory) {
             rmSync(requestFile, { force: true });
           }
         }
-        const observation = digestFile(record.input.condition.signalFile);
+        const notice = record.phase === "held" && attentionCause(record);
+        if (notice && record.handledAttention?.includes(notice.key)) {
+          finish(notice.reason);
+          break;
+        }
+        const signal = record.input.condition.signalFile;
+        const observation =
+          signal && existsSync(signal) ? digestFile(signal) : record.lastSignal;
         if (observation !== record.lastSignal) {
           record.lastSignal = observation;
           record.lastObservationSource = observationCause;
@@ -127,13 +143,14 @@ export async function watchHeldExecution(directory) {
           save();
         }
         if (record.phase !== "held") continue;
-        if (observation === record.observed) continue;
+        if (!notice && observation === record.observed) continue;
         if (
           await deliverHeldExecution({
             directory,
             record,
             native,
             snapshot,
+            attentionCause: notice,
             completed,
             terminal,
             finish,
@@ -195,6 +212,7 @@ export async function watchHeldExecution(directory) {
     }, 1000);
     snapshot = await native.snapshot();
     record.native = snapshot;
+    record.attentionRoute.availability = "live";
     save();
     if (existsSync(join(directory, "stop.json"))) stop();
     await evaluate("enrollment");
@@ -209,6 +227,8 @@ export async function watchHeldExecution(directory) {
     clearInterval(reconciliation);
     native.close();
     record.worker.ended = true;
+    if (record.attentionRoute.availability === "live")
+      record.attentionRoute.availability = "ended";
     save();
     rmSync(lock, { recursive: true });
     process.off("SIGTERM", stop);

@@ -50,18 +50,12 @@ The [North Star session boundary](../../NORTH-STAR.md#agent-launch-as-a-requeste
 ## Outside-in proof and decisive premises
 
 The [seed's preparation evidence](../../seeds/SEED-345-session-token-efficiency.md#resume-when-blocked-work-can-advance)
-retains the original basis; CLI discovery alone was not native proof.
-
-- SEED-324 was a paused prerequisite, not running verification; reconstruct its
-  shape in isolated fixtures. Live SEED-332 is evidence, never a test resource.
-- Slice 1 proved saved-thread native delivery; Slice 2 proved command enrollment,
-  acceptance and actual handler replay. See their assessments below.
-- Four audited Claude limits supplied no reset time, and 2.1.325 help/listing
-  exposed none. Slice 3 still checks supported read-only evidence or proves the
-  unavailable-signal fallback; six elapsed hours never prove reset.
-- CI-recovery's 5-test observation (3.79s) and Slice 2 rerun cover that boundary;
-  the earlier empty name-filter proved nothing. Neither establishes a supplier
-  wake or an applicable CI completion receipt.
+retains the original basis. Reconstruct paused SEED-324 in isolated fixtures;
+live SEED-332 is evidence, never a test resource. Linked Slice 1/2 assessments
+retain native delivery, command enrollment/replay and CI-recovery observations,
+including their limits. [Slice 3](slice3-assessment.md) retains historical Claude
+notices, current supported reset research and explicit missing-signal fallback.
+Elapsed hours prove no reset; observer termination proves no CI receipt.
 
 | Source example / final promise | Owner | Required observation |
 | --- | --- | --- |
@@ -79,11 +73,9 @@ Type: Behavior
 Status: done
 Proof: [native held-thread assessment](native-probe-assessment.md) and raw event/acceptance records.
 
-One disposable probe plus its cheapest diagnostic proved same-owner delivery
-with native configuration preserved and no typed resume. API presence, an inner
-callback or replay alone would not suffice. The assessment retains the failed
-CLI route and the post-RPC reread's replay gap; G1 required the actual Slice 2
-handler observation. No further probe or weakened criterion is authorized here.
+The assessment retains the disposable probe/diagnostic, same-owner delivery and
+native settings, failed CLI route and replay gap. G1 required the actual Slice 2
+handler observation; no further probe or weakened criterion is authorized here.
 
 ### 2. Hold and resume the same execution on relevant supplier evidence
 Type: Behavior
@@ -108,7 +100,7 @@ the workflow entry rather than supplying the promised state in test setup.
 
 ### 3. Give actionable attention when blocked execution cannot safely resume
 Type: Behavior
-Status: planned
+Status: done
 Proof: Controlled events/clock through the same held-execution entry and output.
 
 Extend that same lifecycle for meaningful deadlines, unavailable/lost signaling,
@@ -181,23 +173,22 @@ findings. No full host-by-scenario matrix is required.
 ## Accepted evidence and current refactor decisions
 
 - [Slice 1 assessment](native-probe-assessment.md) and `native-probe-run/record.json`
-  retain native identities, matching settings and commands. Client closure does
-  not unload the writer; use same-daemon `turn/start` after exact-history
-  reconciliation rather than repeating the failed proxy/CLI route.
-- [Slice 2 assessment/proof](slice2-assessment.md), [native records](slice2-native-run/record.json),
-  [consumer trace/dispositions](slice2-consumer-trace.md.gz): inspected real CLI
-  fixtures, lifecycle/race/observation assertions and native acceptance/completion.
-  G1 is proved by actual replay with one native turn. Positive native proof remains
-  applicable after separately tested RPC error repairs; no paid rerun is needed.
-  Independent refactoring and G4 correction remain owed before delivery.
-- Source freshness: unchanged at `64f15182b330ffbd192b3ea623cd423bcca469f0`, base
-  `8f88bf2ca6d4e7fb7aabc704070be4c549397675`. SEED-346 preparation/North-Star
-  changed no overlapping product behavior. SEED-334 closure reorganized proof
-  groups/CI but left the edited Codex production/fixture/payload/guidance seams
-  unchanged. Reconcile current proof-group selection during integration.
-- Refactor decisions: extract cohesive observation/delivery/rearm responsibilities
-  before formatting; replace the forwarding HeldExecutionBuilder with canonical
-  domain-named construction. Preserve scenario facts and independent assertions.
+  retain native identities/settings/commands and the failed proxy/CLI route.
+  Client closure leaves the writer loaded; use same-daemon `turn/start` after
+  exact-history reconciliation.
+- [Slice 2 proof/refactor](slice2-assessment.md), [native records](slice2-native-run/record.json),
+  and [trace](slice2-consumer-trace.md.gz) retain accepted CLI/race/native proof;
+  G1 replay and G4 terminal retention are proved, with independent refactoring complete.
+- [Slice 3 proof](slice3-assessment.md) retains inspected attention/loss/usage,
+  full CI recovery context, host research and G5's reproduced/corrected duplicate.
+  Command boundaries are accepted; independent refactoring is still owed.
+- Source unchanged at `75355d52075edd383d2fbf9561920248940a9488`, base Take.
+  SEED-346 has no product overlap; SEED-334 changed proof groups/CI, not edited seams.
+  At integration trace the backend/integrated/e2e consumers with their group commands;
+  preview Node shares with `node scripts/test-shares.mjs preview --split-count 4`.
+- Slice 3 refactor: keep attention/delivery/recovery cohesive; the worker's 244
+  current lines must remain <=250 after formatting. Condense superseded records
+  into their existing assessments while preserving all obligations and identities.
 
 ## Execution context
 
@@ -210,12 +201,11 @@ findings. No full host-by-scenario matrix is required.
   `refs/heads/codex/resume-blocked-work-when-it-can-advance`.
 - Start `3458a36c6393683827f5ba0e9bd038dbfded8605`; Take
   `8f88bf2ca6d4e7fb7aabc704070be4c549397675` confirmed on trunk/branch; no second claim.
-  Slice 1 accepted `58f1eb1ad8ef04cb59f8eb06a90881335d5ccec6`, suffix base Take;
-  this is the next increment's previously published base, registered on the observer.
-- Setup: locked `npm ci` and dashboard typecheck passed here. Check-only
-  `.githooks/pre-commit` owns staged lint plus script typecheck; selective
-  formatter `npm run format`. Prior native admission/costs are in assessments;
-  reconsider stale headroom/workload before long proof, sequence owned heavy work.
+  Slice 1 accepted `58f1eb1ad8ef04cb59f8eb06a90881335d5ccec6`; Slice 2 accepted `174c6d2b9a0ebb4989ad84cfb2a83e6d762c656b`,
+  suffix base Slice 1; Slice 2 is the next published base, registered on the observer.
+- Setup: locked `npm ci` and dashboard typecheck passed here; `.githooks/pre-commit`
+  owns staged lint/script typecheck and `npm run format` owns selective formatting.
+  Assessments retain prior admission/costs; reconsider headroom before long proof.
 - CI: GitHub Actions `ci.yml` / `CI`, workflow 351271804; Take on `main` unobserved.
   Execution observer coordinator `seed345-resume`, directory `/tmp/dough-ci-501/watch-sAay9N`,
   PID `76767`, session `79549`, yielded cell `g153:12`, key
@@ -236,7 +226,7 @@ Commitment: C50
 ### G2. Actionable deadline, unavailable delivery, usage and CI-loss attention
 Reported: slice 2 — "Deadline/CI-loss/usage handling stays with Slice 3."
 Story clause: "with actionable status for an unavailable signal, missed deadline or lost required CI observation."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: inspected CLI attention/loss/usage tests, full retained CI recovery context, controlled clocks and explicit host-evidence limits in slice3-assessment.md
 
 ### G3. Full workflow invocation and comparative proof
 Reported: slice 2 — "full skill invocation and comparative judgment stay with Slice 4."
@@ -247,3 +237,13 @@ Disposition: receiving slice 4
 Reported: slice 2 — "Independent refactor found terminal(turn) drops completion while rearming; if rearm fails, the completed turn is never reapplied and the worker can remain accepted indefinitely."
 Story clause: "When the recorded condition changes, the correct execution resumes or gives actionable attention, preserving its ownership, work and outstanding proof."
 Disposition: proved by slice 2: blocked-execution-races.test.mjs failed-live-rearm completion regression; pre-fix53781 failed accepted≠continued and repaired2121 passed, retaining one submission, original generation/proof and ended worker
+
+### G5. Recovery must preserve a settled continuation
+Reported: slice 3 — "Coordinator source review found generic recover reenrolls the original input after continued, so stale observed evidence can submit already-completed work again."
+Story clause: "no competing writer or blind duplicate submission is started."
+Disposition: proved by slice 3: blocked-execution-loss.test.mjs reconcile-to-continued-to-two-recover regression reproduced accepted≠continued, then retained settled generation/proof and one submission after correction
+
+### G6. Observe native attention handling
+Reported: slice 3 — "New attention semantics have deterministic command proof, not a new paid native observation."
+Story clause: "When the recorded condition changes, the correct execution resumes or gives actionable attention, preserving its ownership, work and outstanding proof."
+Disposition: receiving slice 4

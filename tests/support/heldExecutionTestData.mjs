@@ -82,6 +82,31 @@ export class HeldExecutionBuilder {
     return this;
   }
 
+  /** @param {Omit<HeldExecutionInput["condition"], "kind">} condition */
+  waitingForUsage(condition) {
+    this.#input.condition = { kind: "usage", ...structuredClone(condition) };
+    return this;
+  }
+
+  /** @param {number} at @param {string} reason */
+  withObservationDeadline(at, reason) {
+    this.#input.nextObservation.deadline = { at, reason };
+    return this;
+  }
+
+  /** @param {NonNullable<HeldExecutionInput["nextObservation"]["ci"]>} ci */
+  withCiObservation(ci) {
+    this.#input.nextObservation.ci = structuredClone(ci);
+    return this;
+  }
+
+  /** @param {string} host @param {string} threadId @param {string[]} recoveryCommand */
+  continuingManuallyIn(host, threadId, recoveryCommand) {
+    this.#input.continuation = { host, threadId };
+    this.#input.nextObservation.recoveryCommand = [...recoveryCommand];
+    return this;
+  }
+
   /** @param {string} threadId @param {string} endpoint */
   continuingInCodex(threadId, endpoint) {
     this.#input.continuation = { host: "codex", threadId, endpoint };
@@ -90,7 +115,7 @@ export class HeldExecutionBuilder {
 
   /** @param {string} owner @param {string} recovery */
   observedBy(owner, recovery) {
-    this.#input.nextObservation = { owner, recovery };
+    Object.assign(this.#input.nextObservation, { owner, recovery });
     return this;
   }
 

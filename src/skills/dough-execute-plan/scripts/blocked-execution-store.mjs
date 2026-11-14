@@ -35,10 +35,13 @@ export const writeHold = (directory, record) =>
  * @property {{identity: string, owner: string, workspace: string, branch: string,
  * revision: string, authority: {description: string, file?: string, sha256?: string}, acceptedProof: unknown[],
  * unfinishedWork: unknown[], outstandingProof: unknown[]}} execution
- * @property {{kind: string, description: string, signalFile: string,
- * observed: string, check: string[]}} condition
- * @property {{host: string, threadId: string, endpoint: string}} continuation
- * @property {{owner: string, recovery: string}} nextObservation
+ * @property {{kind: string, description: string, signalFile?: string,
+ * observed?: string, check?: string[], notice?: string}} condition
+ * @property {{host: string, threadId?: string, endpoint?: string}} continuation
+ * @property {{owner: string, recovery: string, recoveryCommand?: string[],
+ * deadline?: {at: number, reason: string}, ci?: {directory: string, owner: string,
+ * recoveryCommand: string[], completionBoundary: string, repo: string,
+ * targetRef: string, acceptedSha: string, receiptOutstanding: true}}} nextObservation
  */
 
 const required = (value, label) => {
@@ -61,32 +64,53 @@ export function validateInput(input) {
   if (input.execution.authority.file !== undefined) {
     required(input.execution.authority.sha256, "execution.authority.sha256");
   }
-  if (input.condition?.kind !== "supplier") {
+  if (!["supplier", "usage"].includes(input.condition?.kind)) {
     throw new Error(
-      "Use a supplier hold here; running verification retains its existing owner.",
+      "Use a supplier or usage hold here; running verification retains its existing owner.",
     );
   }
-  for (const key of ["description", "signalFile", "observed"]) {
-    required(input.condition[key], `condition.${key}`);
-  }
+  required(input.condition.description, "condition.description");
+  if (input.condition.kind === "usage")
+    required(input.condition.notice, "condition.notice");
+  if (input.condition.signalFile)
+    required(input.condition.observed, "condition.observed");
   if (
-    !Array.isArray(input.condition.check) ||
-    !input.condition.check.length ||
-    input.condition.check.some((argument) => typeof argument !== "string")
+    input.condition.signalFile &&
+    (!Array.isArray(input.condition.check) ||
+      !input.condition.check.length ||
+      input.condition.check.some((argument) => typeof argument !== "string"))
   ) {
     throw new Error("Missing read-only condition.check command array.");
   }
   for (const key of ["owner", "recovery"])
     required(input.nextObservation?.[key], `nextObservation.${key}`);
-  if (input.continuation?.host !== "codex")
-    throw new Error("This host has no verified automatic delivery binding.");
-  required(input.continuation.threadId, "continuation.threadId");
-  if (!input.continuation.endpoint?.startsWith("unix:///"))
-    throw new Error("Missing native Unix endpoint.");
+  required(input.continuation?.host, "continuation.host");
+  const { deadline, ci } = input.nextObservation;
+  if (deadline && (!Number.isFinite(deadline.at) || !deadline.reason?.trim()))
+    throw new Error("Supply the meaningful deadline and its reason.");
+  if (ci) {
+    required(ci.directory, "nextObservation.ci.directory");
+    required(ci.owner, "nextObservation.ci.owner");
+    required(ci.completionBoundary, "nextObservation.ci.completionBoundary");
+    for (const key of ["repo", "targetRef", "acceptedSha"])
+      required(ci[key], `nextObservation.ci.${key}`);
+    if (
+      ci.receiptOutstanding !== true ||
+      !/^[a-f0-9]{40}$/i.test(ci.acceptedSha)
+    )
+      throw new Error(
+        "CI context requires its accepted SHA and an outstanding completion receipt.",
+      );
+    if (!Array.isArray(ci.recoveryCommand) || !ci.recoveryCommand.length)
+      throw new Error(
+        "Supply the existing managed CI completion recovery command.",
+      );
+  }
   for (const path of [
     input.execution.workspace,
     input.execution.authority.file,
     input.condition.signalFile,
+    input.nextObservation.ci?.directory,
   ].filter(Boolean)) {
     if (!isAbsolute(path)) throw new Error("Hold paths must be absolute.");
   }
@@ -158,16 +182,3 @@ export const pastHold = (record) => ({
   accepted: record.accepted,
   phase: record.phase,
 });
-
-export function attention(record, reason, directory) {
-  return Object.assign(record, {
-    phase: "attention",
-    attention: {
-      reason,
-      owner: record.input.nextObservation.owner,
-      recovery: record.input.nextObservation.recovery,
-      inspectCommand: holdCommand("status", directory),
-      proof: record.input.execution.outstandingProof,
-    },
-  });
-}

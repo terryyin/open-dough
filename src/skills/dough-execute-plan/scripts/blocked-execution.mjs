@@ -21,19 +21,18 @@ import {
   verifyExecution,
   verifySameExecution,
   pastHold,
-  holdCommand,
 } from "./blocked-execution-store.mjs";
-import { HeldCodexConnection } from "./blocked-execution-codex.mjs";
-
-const liveWorker = (record) => {
-  if (record.worker?.ended || !record.worker?.pid) return false;
-  try {
-    process.kill(record.worker.pid, 0);
-    return true;
-  } catch {
-    return false;
-  }
-};
+import {
+  attention,
+  attentionCause,
+  attentionRoute,
+  nativeRouteAvailable,
+} from "./blocked-execution-attention.mjs";
+import {
+  reconcileHeldExecution,
+  liveHeldWorker as liveWorker,
+} from "./blocked-execution-recovery.mjs";
+export { reconcileHeldExecution } from "./blocked-execution-recovery.mjs";
 
 async function rearmLiveWorker(previous, input, directory) {
   verifySameExecution(previous, input);
@@ -81,7 +80,10 @@ export async function startHeldExecution(input, directory, rearm = false) {
     if (!rearm) return { ...previous, directory, alreadyEnrolled: true };
     if (liveWorker(previous))
       return await rearmLiveWorker(previous, input, directory);
-    if (previous.phase !== "continued")
+    if (
+      !["continued", "attention-delivered"].includes(previous.phase) &&
+      !(previous.phase === "attention" && !previous.pending)
+    )
       throw new Error(
         "Reconcile unresolved acceptance before rearming this execution.",
       );
@@ -100,7 +102,25 @@ export async function startHeldExecution(input, directory, rearm = false) {
       phase: "held",
       observed: input.condition.observed,
       history,
+      handledAttention: previous?.handledAttention ?? [],
+      attentionRoute: attentionRoute(input),
     });
+    if (!nativeRouteAvailable(input)) {
+      const record = readHold(directory);
+      attention(
+        record,
+        [
+          "This host has no verified live delivery binding; retain this execution and resume manually.",
+          attentionCause(record)?.reason,
+        ]
+          .filter(Boolean)
+          .join(" "),
+        directory,
+      );
+      record.worker = { ended: true };
+      writeHold(directory, record);
+      return { ...record, directory };
+    }
     rmSync(join(directory, "stop.json"), { force: true });
     const child = fork(
       fileURLToPath(import.meta.url),
@@ -123,42 +143,6 @@ export async function startHeldExecution(input, directory, rearm = false) {
     });
   } finally {
     rmSync(enrollment, { recursive: true });
-  }
-}
-
-export async function reconcileHeldExecution(directory) {
-  const record = readHold(directory);
-  if (liveWorker(record))
-    throw new Error(
-      "The retained worker still owns observation; inspect status instead of creating a competing owner.",
-    );
-  if (!record.pending) return record;
-  await verifyExecution(record.input);
-  const native = new HeldCodexConnection(
-    record.input,
-    new AbortController().signal,
-  );
-  try {
-    await native.initialize();
-    const accepted = await native.accepted(record.pending.text);
-    if (accepted) {
-      record.accepted = accepted;
-      record.phase = accepted.status === "completed" ? "continued" : "accepted";
-      delete record.attention;
-    } else {
-      record.phase = "uncertain";
-      record.attention = {
-        reason:
-          "Native history does not establish this input's acceptance; it was not resent.",
-        owner: record.input.nextObservation.owner,
-        recovery: record.input.nextObservation.recovery,
-        recoveryCommand: holdCommand("reconcile", directory),
-      };
-    }
-    writeHold(directory, record);
-    return record;
-  } finally {
-    native.close();
   }
 }
 
@@ -189,7 +173,13 @@ export async function runBlockedExecutionCli(argv) {
     const input = JSON.parse(readFileSync(values["input-file"], "utf8"));
     result = await startHeldExecution(input, directory, command === "rearm");
   } else if (command === "status") result = readHold(directory);
-  else if (command === "reconcile")
+  else if (command === "recover") {
+    const record = readHold(directory);
+    result =
+      liveWorker(record) || record.phase === "continued"
+        ? { ...record, alreadyEnrolled: true }
+        : await startHeldExecution(record.input, directory, true);
+  } else if (command === "reconcile")
     result = await reconcileHeldExecution(directory);
   else if (command === "stop") {
     const record = readHold(directory);
@@ -201,7 +191,8 @@ export async function runBlockedExecutionCli(argv) {
       stopRequested: liveWorker(record),
       worker: record.worker,
     };
-  } else throw new Error("Use start, rearm, status, reconcile or stop.");
+  } else
+    throw new Error("Use start, rearm, status, recover, reconcile or stop.");
   process.stdout.write(`${JSON.stringify(result)}\n`);
 }
 

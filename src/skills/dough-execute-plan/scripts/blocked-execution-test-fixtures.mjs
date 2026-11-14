@@ -26,7 +26,7 @@ const entry = fileURLToPath(
   new URL("./blocked-execution.mjs", import.meta.url),
 );
 
-export async function heldFixture(t) {
+export async function heldFixture(t, arrange = (builder) => builder) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), "held-execution-")));
   const teardown = fixtureTeardown(root);
   t.after(teardown.cleanup);
@@ -63,7 +63,7 @@ evidence:value.checked===true?'checked supplier outcome':'supplier outcome still
   const revision = (
     await execute("git", ["rev-parse", "HEAD"], { cwd: workspace })
   ).stdout.trim();
-  const input = makeMe.aHeldExecution
+  const builder = makeMe.aHeldExecution
     .identifiedAs("SEED-001#consumer")
     .ownedBy("consumer-agent")
     .inCheckout(workspace, revision)
@@ -90,8 +90,14 @@ evidence:value.checked===true?'checked supplier outcome':'supplier outcome still
     .observedBy(
       "consumer-agent",
       "Inspect retained native history and continue this same execution.",
-    )
-    .please();
+    );
+  const input = arrange(builder, {
+    root,
+    workspace,
+    signalFile,
+    checker,
+    revision,
+  }).please();
   const directory = join(root, "hold");
   const inputFile = join(root, "input.json");
   const commandEnvironment = { ...process.env };

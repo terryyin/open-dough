@@ -1,6 +1,6 @@
 # Check an overdue delegated verification
 
-For a paused supplier with nothing running, use
+For a paused supplier or host usage hold with nothing running, use
 [blocked execution](blocked-execution.md) instead of repeated liveness checks.
 
 When a delegated verification is still pending and either its expected proof

@@ -29,6 +29,8 @@ managed_files+=(
   dough-execute-plan/references/delegation.md
   dough-execute-plan/references/blocked-execution.md
   dough-execute-plan/scripts/blocked-execution.mjs
+  dough-execute-plan/scripts/blocked-execution-attention.mjs
+  dough-execute-plan/scripts/blocked-execution-recovery.mjs
   dough-execute-plan/scripts/blocked-execution-store.mjs
   dough-execute-plan/scripts/blocked-execution-worker.mjs
   dough-execute-plan/scripts/blocked-execution-rearm.mjs

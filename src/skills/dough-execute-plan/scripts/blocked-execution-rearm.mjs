@@ -41,6 +41,8 @@ export async function applyLiveRearm(request, context) {
     record.phase = "held";
     delete record.pending;
     delete record.accepted;
+    delete record.attention;
+    delete record.signalFailure;
     retainedSnapshot = nextSnapshot;
     record.native = retainedSnapshot;
     replaceWatcher(nextWatcher);
