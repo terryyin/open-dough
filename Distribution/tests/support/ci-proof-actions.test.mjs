@@ -34,9 +34,9 @@ const cwd = fileURLToPath(root).replace(/\/$/, "");
 
 // Keeps JOB's PART fragments after its runner wrote RECORD (none when
 // undefined) as its suite step's proof record.
-function keepGroupPart(run, job, part, record) {
+function keepGroupPart(run, job, part, record, parts) {
   const temp = run.runner(job, part);
-  const declared = declaredPart(job, part, temp);
+  const declared = declaredPart(job, part, temp, parts);
   if (record !== undefined)
     writeFileSync(
       declared.report("PROOF_RECORD"),
@@ -108,11 +108,11 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
   assert.equal(
     summary.stdout,
     [
-      `e2e: 1 passed, 0 failed, 0 other test cases; ${missingFrom(2, 6)}`,
-      `dashboard/tests: 1 passed, 0 failed, 0 other test cases; ${missingFrom(2, 5)}`,
+      `e2e: 1 passed, 0 failed, 0 other test cases; ${missingFrom(2, 5)}`,
+      `dashboard/tests: 1 passed, 0 failed, 0 other test cases; ${missingFrom(2, 4)}`,
       `dashboard/frontend-tests: 1 passed, 0 failed, 0 other test cases`,
-      `dashboard/backend-tests: 1 passed, 1 failed, 0 other test cases; ${missingFrom(2, 4)}`,
-      `Distribution: 2 passed, 1 failed, 0 other test files; ${missingFrom(2, 4)}`,
+      `dashboard/backend-tests: 1 passed, 1 failed, 0 other test cases; ${missingFrom(2, 3)}`,
+      `Distribution: 2 passed, 1 failed, 0 other test files; ${missingFrom(2, 3)}`,
       "",
     ].join("\n"),
   );
@@ -148,16 +148,24 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
 test("a browser group's shard that ran no test is a reported zero, while a shard whose runner wrote no record leaves its part missing", (t) => {
   const run = runAttempt(t);
   const kept = [
-    keepGroupPart(run, "dashboard-backend", 1, [
-      [`${cwd}/dashboard/backend-tests/server.spec.ts`, "expected", [50]],
-    ]),
+    keepGroupPart(
+      run,
+      "dashboard-backend",
+      1,
+      [[`${cwd}/dashboard/backend-tests/server.spec.ts`, "expected", [50]]],
+      4,
+    ),
     // Shard 2's deal selected no spec; its run completed and recorded none.
-    keepGroupPart(run, "dashboard-backend", 2, []),
+    keepGroupPart(run, "dashboard-backend", 2, [], 4),
     // Shard 3's runner ended before writing its record.
-    keepGroupPart(run, "dashboard-backend", 3, undefined),
-    keepGroupPart(run, "dashboard-backend", 4, [
-      [`${cwd}/dashboard/backend-tests/other.spec.ts`, "expected", [10]],
-    ]),
+    keepGroupPart(run, "dashboard-backend", 3, undefined, 4),
+    keepGroupPart(
+      run,
+      "dashboard-backend",
+      4,
+      [[`${cwd}/dashboard/backend-tests/other.spec.ts`, "expected", [10]]],
+      4,
+    ),
   ];
   assert.deepEqual(
     kept.map((result) => result.status),

@@ -1,5 +1,66 @@
 # Dashboard Backend Test spec durations, <seconds><TAB><file> relative to dashboard/, in the included parts.
-# Preview/refresh: dashboard/tests/shards.md. Each part names its recorded source;
-# rows were mapped from the former combined dashboard list, seconds unchanged.
+# Preview/refresh: dashboard/tests/shards.md. Source lines identify the CI run
+# and runner normalization used to refresh the root and each included part.
 # Include: backend.longest-first-agents
 # Include: backend.longest-first-project
+# Source: run 43575040009/1 at 55da0eecf6803945b66d5a23b00dd7802374550d, 2026-11-14 (runner factor 0.8)
+170.5	backend-tests/intent/landed-ci-adapter-repeat-comparability.spec.ts
+75.8	backend-tests/runtime/runner-ownership.spec.ts
+72.1	backend-tests/intent/landed-ci-adapter-repeat-rejections.spec.ts
+30.4	backend-tests/sessions/session-alerts.spec.ts
+23.4	backend-tests/intent/landed-ci-adapter-repeat.spec.ts
+22.1	backend-tests/intent/landed-ci-repeat-reconciliation.spec.ts
+20.0	backend-tests/launches/feedback-maintenance-launch.spec.ts
+14.5	backend-tests/launches/agent-launch-follow-up-file-admission.spec.ts
+14.5	backend-tests/sessions/agent-completion-quiet-rename.spec.ts
+13.5	backend-tests/launches/agent-launch-follow-up-file.spec.ts
+12.0	backend-tests/intent/landed-ci-follow-up-reading.spec.ts
+11.3	backend-tests/runtime/production-watcher-preview.spec.ts
+10.7	backend-tests/intent/landed-ci-repeat-admission.spec.ts
+10.4	backend-tests/launches/agent-launch-cursor-model-admission.spec.ts
+9.6	backend-tests/intent/landed-ci-attempt-start.spec.ts
+9.0	backend-tests/runtime/comparison-renderer-vite-cache.spec.ts
+8.9	backend-tests/runtime/fake-gh-in-process-modes.spec.ts
+8.4	backend-tests/launches/agent-launch-ad-hoc-codex-recovery-boundary.spec.ts
+8.4	backend-tests/launches/agent-launch-codex-reconciliation-boundary.spec.ts
+7.6	backend-tests/runtime/fake-gh-in-process-scopes.spec.ts
+7.4	backend-tests/launches/agent-launch-start-session-lost.spec.ts
+7.2	backend-tests/launches/agent-launch-codex-verify-boundary.spec.ts
+6.1	backend-tests/launches/agent-launch-continuation-interrupted.spec.ts
+5.4	backend-tests/sessions/session-alerts-refused.spec.ts
+5.3	backend-tests/intent/landed-ci-repeat-eligible-receipt.spec.ts
+5.3	backend-tests/launches/agent-launch-codex-creation-boundary.spec.ts
+5.0	backend-tests/runtime/published-development-runtime.spec.ts
+4.7	backend-tests/intent/authenticated-read-intent-java.spec.ts
+4.5	backend-tests/launches/agent-launch-start-taken-refused.spec.ts
+4.4	backend-tests/intent/ci-history-slim-response.spec.ts
+4.4	backend-tests/runtime/fake-gh-in-process.spec.ts
+4.0	backend-tests/intent/landed-ci-automatic-repeat.spec.ts
+3.8	backend-tests/intent/landed-ci-collector-lifetime.spec.ts
+3.8	backend-tests/review/story-review-state-admission.spec.ts
+3.6	backend-tests/runtime/fake-gh-in-process-activation.spec.ts
+3.4	backend-tests/intent/ci-history-reader-compatibility.spec.ts
+3.4	backend-tests/runtime/production-application-source.spec.ts
+3.0	backend-tests/intent/ci-history-glance-compatibility.spec.ts
+3.0	backend-tests/intent/landed-ci-attempt-start-adapter.spec.ts
+3.0	backend-tests/intent/landed-ci-repeat-accepted-request.spec.ts
+3.0	backend-tests/intent/landed-ci-repeat-verdict.spec.ts
+2.5	backend-tests/launches/agent-launch-start-session-failed-boundary.spec.ts
+2.5	backend-tests/launches/agent-launch-start-session-isolated-codex.spec.ts
+2.4	backend-tests/intent/landed-ci-reader-restart.spec.ts
+2.1	backend-tests/runtime/production-update-selection.spec.ts
+1.7	backend-tests/launches/agent-launch-start-session-existing-changes-boundary.spec.ts
+1.6	backend-tests/launches/agent-launch-creation-gates-boundary.spec.ts
+1.6	backend-tests/runtime/fake-gh-client-lifecycle.spec.ts
+1.6	backend-tests/runtime/production-watcher-setup-lifetime.spec.ts
+1.5	backend-tests/runtime/fake-gh-in-process-wire.spec.ts
+1.4	backend-tests/intent/landed-ci-server-lifetime.spec.ts
+1.4	backend-tests/intent/published-story-history-semantics.spec.ts
+0.7	backend-tests/intent/published-story-history.spec.ts
+0.7	backend-tests/runtime/committed-origin-actions.spec.ts
+0.7	backend-tests/runtime/production-build-gate.spec.ts
+0.5	backend-tests/runtime/fake-gh-client.spec.ts
+0.1	backend-tests/intent/ci-time-without-adapter-runner-waits.spec.ts
+0.0	backend-tests/intent/ci-comparison-finality-later-judgment.spec.ts
+0.0	backend-tests/runtime/kept-landed-ci-history.spec.ts
+0.0	backend-tests/sessions/session-reading-rule.spec.ts

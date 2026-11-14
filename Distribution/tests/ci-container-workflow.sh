@@ -56,9 +56,9 @@ fi
 # The diagnostic image bootstraps system libraries on bare Ubuntu; native CI
 # uses the runner's libraries and the locked local Playwright package. The
 # diagnostic runs the workflow's type-check and every browser test group's
-# command together. In CI the type-check belongs to lint so it cannot spend a
-# shard's browser deadline, and each group's shard installs Chromium before
-# running its group's command (ci.yml names each group's command).
+# command together. CI cohosts lint/type-check once on the frontend runner;
+# each group's shard installs Chromium before its own browser command.
+# The diagnostic lists type-check first, independently of CI's acquisition order.
 # Keep the bootstrap explicit rather than removing --with-deps from the image.
 dashboard_install=$(stated dashboard_install)
 if [[ ${dashboard_install} != 'npx playwright install --with-deps chromium' ]]; then
@@ -71,29 +71,26 @@ node scripts/setup-native.mjs browser
 # shellcheck disable=SC2016 # Literal workflow shell.
 if ! {
   awk '
-    /^  [^ #]/ { job = $1; installed = 0; next }
-    /^[[:space:]]*(- )?run:/ {
-      sub(/^[[:space:]]*(- )?run:[[:space:]]*/, "")
-      if ($0 == "node scripts/setup-native.mjs npm") installed = 1
-      else if ($0 == "npm run typecheck:dashboard") {
-        if (job != "lint:" || !installed) exit 1
-        print
-      }
-    }
-  ' "${workflow}" && awk '
     /^[[:space:]]*(- )?run:/ {
       sub(/^[[:space:]]*(- )?run:[[:space:]]*/, "")
       if ($0 == "node scripts/setup-native.mjs npm") installed = 1
       else if ($0 == "node scripts/setup-native.mjs browser" && installed) {
         browser = 1
-        print
+      }
+      else if ($0 == "npm run typecheck:dashboard") {
+        if (!installed) exit 1
+        typecheck = 1
       }
     }
-    browser && /^ +exec npm run "\$\{COMMAND\}"$/ { suite = 1 }
-    END { if (!suite) exit 1 }
+    browser && typecheck && /^ +exec npm run "\$\{COMMAND\}"$/ { suite = 1 }
+    END {
+      if (!suite) exit 1
+      print "npm run typecheck:dashboard"
+      print "node scripts/setup-native.mjs browser"
+    }
   ' "${browser_workflow}" && sed -n 's/^      command: /npm run /p' "${workflow}"
 } > "${temporary_dir}/ci-dashboard" \
   || ! diff -- "${temporary_dir}/stated-dashboard" "${temporary_dir}/ci-dashboard" >&2; then
-  echo 'FAIL: the workflow must type-check after npm ci in lint and install Chromium before each browser test group command in each shard.' >&2
+  echo 'FAIL: the workflow must type-check after npm ci and install Chromium before each browser test group command in each shard.' >&2
   exit 1
 fi

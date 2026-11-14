@@ -29,10 +29,11 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Resume blocked work when it can advance](seeds/SEED-345-session-token-efficiency.md#resume-when-blocked-work-can-advance) — SEED-345#resume-when-blocked-work-can-advance ([plan](slice-plans/617-resume-blocked-work/PLAN.md))
-- [Run CI on as few jobs as its wall time allows](seeds/SEED-350-fewer-ci-jobs.md#run-ci-on-fewer-jobs) — SEED-350#run-ci-on-fewer-jobs ([plan](slice-plans/620-fewer-ci-jobs/PLAN.md))
 
 ## Backlog list
 
+- [Remove tests that only assert configuration or data](seeds/SEED-354-remove-configuration-only-tests.md#remove-configuration-only-tests) — SEED-354#remove-configuration-only-tests
+- [Reconsider further CI job reduction with a different approach](seeds/SEED-355-reconsider-further-ci-reduction.md#reconsider-further-ci-reduction) — SEED-355#reconsider-further-ci-reduction
 - [Dissolve Dashboard Integrated UI Test into E2E and unit tests](seeds/SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks) — SEED-334#focus-detailed-dashboard-ui-checks
 - [Declare Git test state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-git-test-state-through-makeme) — SEED-353#declare-git-test-state-through-makeme
 - [Highlight syntax in code diffs](seeds/SEED-351-highlight-syntax-in-code-diffs.md#highlight-syntax-in-code-diffs) — SEED-351#highlight-syntax-in-code-diffs

@@ -224,12 +224,11 @@ test("this repository's own workflow keeps every job it reports readable", () =>
     `2026-11-07T07:${String(end).padStart(2, "0")}:00Z`,
   ];
   const rows = [
-    ["lint", ...minute(0, 3)],
-    ["Distribution Tests (1/4)", ...minute(0, 4)],
-    ["e2e / shard 6/6", ...minute(0, 5)],
-    ["dashboard-integrated / shard 2/5", ...minute(0, 4)],
+    ["Distribution Tests (1/3)", ...minute(0, 4)],
+    ["e2e / shard 5/5", ...minute(0, 5)],
+    ["dashboard-integrated / shard 2/4", ...minute(0, 4)],
     ["dashboard-frontend / shard 1/1", ...minute(0, 2)],
-    ["dashboard-backend / shard 4/4", ...minute(0, 4)],
+    ["dashboard-backend / shard 3/3", ...minute(0, 4)],
     ["ci-proof", ...minute(6, 7)],
   ].map(([name = "", start = "", end = ""]) => timed(name, start, end));
   expect(

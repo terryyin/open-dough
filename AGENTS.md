@@ -100,6 +100,11 @@ Open Dough skills and rules must work in Codex, Cursor, and Claude Code.
 
 ## Test automation
 
+- Test meaningful behavior, not configuration or data merely restated as
+  assertions. Internal worker counts and fixture values are not behavior to
+  freeze. When configuration or data produces worthwhile observable behavior,
+  protect that behavior.
+
 - Before authoring or changing a test, resolve its source path through the
   installed [`dough-makeme`](.agents/skills/dough-makeme/SKILL.md) skill and,
   for browser tests, [`dough-page-objects`](.agents/skills/dough-page-objects/SKILL.md).

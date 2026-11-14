@@ -5,13 +5,16 @@
 # must stay within per-job-seconds and total-job-seconds. scripts/test.sh
 # compares each CI split's times that way, and a breach fails that split
 # naming observed time, factor and time at recorded speed; a local run is not
-# judged. Set at 1.2× the highest value at recorded speed (rounded up) from
-# the twelve retained main ci.yml runs 40834521203 … 41004369454 plus run
-# 41000649845 attempt 1 (artifact 12953780855), using this checkout's
-# Distribution/tests/longest-first: largest share total 577.5 job-seconds at recorded
-# speed (1.2× → 694), largest single job 52.7 s at recorded speed (1.2× →
-# 64). Raising either number is a reviewed edit, not a way to make a slow
-# change pass. Check a change against recent trunk CI times with
-# `bash scripts/ci-test-times.sh` (Distribution/tests/time-budget.md).
+# judged. The per-check ceiling remains 64: the existing native-substitute
+# split in 58ca884b9 fixes that check's cost without raising its limit.
+# The aggregate allowance repacks four shares into three: ceil(694×4/3)=926,
+# preserving the former per-run allowance apart from integer rounding.
+# Prior calibration was twelve retained main runs 40834521203 … 41004369454
+# plus 41000649845/1: largest share 577.5×1.2→694, job 52.7×1.2→64.
+# Evidence and limits: docs/maintainer/ci-budget-calibration.md.
+# Raising either number is reviewed, not a way to make a slow change pass.
+# Whole-run solo/overlap evidence still decides whether this packing stays.
+# Check recent trunk times with `bash scripts/ci-test-times.sh`
+# (Distribution/tests/time-budget.md).
 per-job-seconds=64
-total-job-seconds=694
+total-job-seconds=926
