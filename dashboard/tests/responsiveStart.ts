@@ -18,7 +18,6 @@ import {
   type StartOriginFixtures,
 } from "./support/startOrigin.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import { selectStory } from "./storyCardSelection.ts";
 import { projectTab } from "./projectChoice.ts";
 import {
   canonicalRecord,
@@ -148,15 +147,12 @@ export async function expectSubmitted(page: Page, dialog: Locator) {
   await expect(dialog).toBeVisible();
 }
 
-// Every action button on the card is unavailable, while Select story, no
-// protected action, stays available; its source links stay.
+// Action buttons are disabled and source links stay readable.
 export async function expectProtected(card: Locator) {
   await expect(card.getByRole("button").first()).toBeVisible();
-  await expect(card.getByRole("button", { disabled: false })).toHaveCount(1);
-  await expect(selectStory(card)).toBeEnabled();
-  await expect(
-    card.getByRole("button", { name: "Inspect story" }),
-  ).toBeDisabled();
+  for (const action of await card.getByRole("button").all()) {
+    await expect(action).toBeDisabled();
+  }
   // Source links, secondary detail otherwise, stay readable on the protected
   // card rather than behind its unavailable Inspect story.
   const link = canonicalRecord(

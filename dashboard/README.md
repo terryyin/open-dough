@@ -62,8 +62,8 @@ none are configured, without claiming tests or Proof are absent. Its
 **Optimization Candidates**; a selected story's views show **CI status** of
 its published story branch, or a **CI timing comparison** for a done story
 (baseline, branch and landed wall times against the pre-story build), and
-the story can visit Project Intent and return. The page's one selected story is set
-by a card's **Select story** or by that story's content in the Side panel
+the story can visit Project Intent and return. Click an empty area of the card
+or open the story's content in the Side panel to select it
 ([Story cards](STORY-CARDS.md)). Project changes, history, reload
 and System settings keep the perspective; choosing a
 session opens Development ([Development and Intent](../docs/dashboard-development-intent.md#development-and-intent)).
@@ -123,9 +123,9 @@ launch and inspection actions, and the page's selected story.
 
 A card's buttons, links, inputs, session entries and disclosures, an opened
 **Dependencies** explanation included, keep their own behavior, so clicking
-them neither toggles the selected story nor opens detail. A **Recently done**
-entry is selected by its empty area or its **Select story** toggle, without a
-detail. The selection is page state, not on the URL, and it scopes Intent:
+them neither toggles the selected story nor opens detail. An empty-area click
+also toggles selection on a **Recently done** story card. The selection is page
+state, not on the URL, and it scopes Intent:
 Intent overlays the selected story's changes on its published tree, and
 **CI status** judges a Taken story's published story branch (and adds its
 provisional timing comparison), compares a Taken Trunk Mode or done story's

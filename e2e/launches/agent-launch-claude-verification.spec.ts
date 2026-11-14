@@ -28,7 +28,6 @@ import {
 } from "../../dashboard/tests/claudeVerification.ts";
 import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
 import { keepMoreLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { selectStory } from "../../dashboard/tests/storyCardSelection.ts";
 
 const openSessionDescription = new RegExp(
   openSessionStartReason.replace(/[.]/g, "\\."),
@@ -185,9 +184,6 @@ test("Recheck keeps the story protected, saying why, while the listing cannot be
   );
   await expect(continues).toBeEnabled();
   await expect(card).toContainText("Startup needs reconciliation");
-  // Only Select story, no protected action, stays available.
-  await expect(card.getByRole("button", { disabled: false })).toHaveCount(1);
-  await expect(selectStory(card)).toBeEnabled();
   expect(await attempts(dashboard)).toEqual([before]);
 
   dashboard.claudeListingFails(false);

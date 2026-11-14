@@ -14,7 +14,7 @@
 // Review changes is always offered, independently of nested sessions, launch
 // records and whether done details or native state are readable. Published Git
 // history supplies the fallback when no usable local comparison remains.
-// Empty-area clicks and Select story toggle the page's selected story
+// Empty-area clicks toggle the page's selected story
 // (`./pageStorySelection.tsx`); nested controls keep their own behavior.
 // Its Story actions also hold its review state, from the identity the done
 // catalog names whether or not its record is read
@@ -31,7 +31,7 @@ import type { DoneStory } from "./doneRecord.ts";
 import { HumanName } from "./HumanCredit.tsx";
 import { Moment } from "./Moment.tsx";
 import { doneStoryMarks } from "./pageEntries.ts";
-import { SelectStory, toggleOnEmptyArea } from "./pageStorySelection.tsx";
+import { toggleOnEmptyArea } from "./pageStorySelection.tsx";
 import { StorySessions } from "./SessionLists.tsx";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import "./agent-assignment.css";
@@ -138,12 +138,6 @@ export function DoneStoryCard({
         role="group"
         aria-label="Story actions"
       >
-        <SelectStory
-          selected={selected}
-          onToggle={() => {
-            onSelect(identity);
-          }}
-        />
         <StoryReviewAction
           completed
           sourceId={sourceId}

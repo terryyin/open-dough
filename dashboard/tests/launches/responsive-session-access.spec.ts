@@ -1,7 +1,7 @@
 // Keyboard/reduced-motion startup journeys use the real bare origin and
 // installed starts from ./responsive-session-start.spec.ts. Focus transfers to
 // the protected card or Start session progress, with unavailable actions
-// described, while Select story stays available. Status stays distinct from
+// described. Status stays distinct from
 // Column, highlight, and inspection; pending marks join the highlight, open
 // detail, and Shown in terminal. Progress animates only without reduced
 // motion. Transitions announce once; settling presents the session without
@@ -31,9 +31,9 @@ import {
 } from "../responsiveAccess.ts";
 import { tabTo } from "../accessibleReading.ts";
 import {
+  emptyArea,
   expectInspected,
   expectSelected,
-  selectStory,
 } from "../storyCardSelection.ts";
 import {
   instruction,
@@ -64,12 +64,10 @@ test("a keyboard start under reduced motion hands the keyboard to the story's ca
   const announced = await recordAnnouncements(page);
   const reads = countMachineReads(page);
 
-  // Inspected and selected first, by keyboard: the startup's marks join the
-  // open detail and the highlight.
+  // The startup's marks join the open detail and the highlight.
   const hide = await inspectByKeyboard(page, story);
   await expect(hide).toHaveAttribute("aria-expanded", "true");
-  await selectStory(story).focus();
-  await page.keyboard.press("Space");
+  await emptyArea(story).click();
   await expectSelected(story, true);
 
   const start = story.getByRole("button", { name: "Start execution" });
@@ -103,10 +101,6 @@ test("a keyboard start under reduced motion hands the keyboard to the story's ca
   await expect(
     other.getByRole("button", { name: "Start execution" }),
   ).not.toHaveAccessibleDescription(/Local startup/);
-  // Selecting is no protected action.
-  await expect(selectStory(story)).toBeEnabled();
-  await expect(selectStory(story)).not.toHaveAccessibleDescription(reason);
-
   // The status is the startup's own, apart from the column and selection.
   const status = story.locator(".story-card-startup-status");
   await expect(status).toContainText(unavailable);
