@@ -23,7 +23,9 @@ scope: story
 started in the dashboard, including attributable workers and resumed work.
 
 Extend the [dashboard usage view](SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks)
-to Claude Code story workflows and ad hoc tasks. Preserve the current background
+to Claude Code story workflows and ad hoc tasks using the shared
+[launch and usage records](SEED-358-dashboard-launch-history.md#usage-records-and-historical-backfill).
+Preserve the current background
 launch and terminal experience. Show the launch settings, actual model and effort
 where recorded, and usage by token category. Include attributable background
 work, and distinguish partial or missing coverage from a measured zero.

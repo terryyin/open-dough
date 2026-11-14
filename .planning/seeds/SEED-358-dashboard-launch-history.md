@@ -36,6 +36,31 @@ its own record. An unfinished update from an ongoing task or a queue move by
 itself establishes no end to a launch. Keep later evidence attributable to a
 finished launch available for accounting.
 
+#### Usage records and historical backfill
+
+Define the dashboard-owned launch and usage data structure here. A stable launch
+ID ties together the project, story when applicable, workflow, host, launch
+settings, start and end times, and outcome. Preserve native session and turn
+lineage and each usage observation's identity, source, scope, and coverage.
+Store model and effort when known and keep uncached input, cache reads, cache
+writes, and output distinct. Represent missing or partial measurements explicitly.
+Later host collectors and usage views use the same stored records.
+
+Backfill historical usage for already-recorded **Codex and Cursor** launches.
+Read Codex response usage from retained active and archived rollouts, including
+compressed files. Use explicit thread and turn lineage to include attributable
+workers. For Cursor, import retained usage evidence where conversation and task
+identity can be established, such as matching rows from an eligible Admin API
+or supported export. Include worker usage only where the stored lineage supports
+the join. Preserve unavailable or ambiguous usage as a coverage gap. Make the
+import repeatable without duplicate usage, including when live collection later
+overlaps it. The [historical recovery research](../../docs/maintainer/dashboard-task-usage-research.md#recovering-earlier-launches)
+records the available evidence.
+
+Terry approved delivering the data structure and backfill without a new usage UI.
+Verify them by reading the stored records and checking the import's coverage and
+repeatability. The visible usage views remain with their host stories.
+
 #### Key examples
 
 - A session that finished 31 days ago stays out of the recent list and count.
@@ -45,6 +70,10 @@ finished launch available for accounting.
   appears in Recently done as returned to backlog, once. A new launch for the
   story coexists with that finished record. An interim unfinished report from
   the new launch leaves it open.
+- An older Codex launch gains usage from its own responses and any linked
+  workers. An older Cursor launch gains usage when retained rows can be matched
+  and retains its history with unavailable or partial usage otherwise. Repeating
+  an import leaves the same attributed counts and coverage.
 
 The [current launch lifecycle findings](../../docs/maintainer/dashboard-task-usage-research.md#dashboard-ownership-and-task-boundaries)
 identify read filtering, write-time pruning, explicit removal, and the early

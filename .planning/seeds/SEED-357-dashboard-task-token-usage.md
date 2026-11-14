@@ -25,10 +25,10 @@ Codex task they started there used and which launch settings produced that usage
 Automatically collect usage for dashboard-launched Codex story workflows and
 ad hoc tasks. Show it with the task type, project, story identity when applicable,
 tool, requested and observed model and effort, and other relevant launch
-parameters. Persist the result in [dashboard launch history](SEED-358-dashboard-launch-history.md#keep-dashboard-launch-history).
-Use an accounting format and view that [Claude Code](SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage)
-and [Cursor](SEED-360-cursor-task-token-usage.md#view-cursor-task-token-usage) can
-extend.
+parameters. Use the data structure and historical backfill delivered by
+[dashboard launch history](SEED-358-dashboard-launch-history.md#usage-records-and-historical-backfill).
+Provide a usage view that [Claude Code](SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage)
+and [Cursor](SEED-360-cursor-task-token-usage.md#view-cursor-task-token-usage) can extend.
 
 Measure the entire task as far as the evidence allows. Include all attributable
 turns, resumed work, workers, and background work done for that task. Keep
@@ -43,16 +43,13 @@ can have several launches, each with its own usage and outcome.
   settings and token usage alongside its story identity.
 - An ad hoc task is visible with its launch settings and any available usage.
   The dashboard distinguishes a measured zero from missing or partial usage.
-- For a launch already recorded before usage collection shipped, recover usage
-  from its retained native history when the launch and requests can be linked.
-  Include attributable workers. Repeating the import or resuming collection
-  counts each response once. Keep older or missing evidence visible as a gap.
+- An older Codex launch displays its imported usage and any coverage gaps.
+  When a new collector sees a response already imported, the view counts it once.
 
 #### Open research
 
 The [dashboard usage and cost research](../../docs/maintainer/dashboard-task-usage-research.md#codex-cli-01690)
 identifies response records and explicit thread and turn lineage. Verify fresh,
-resumed, cancelled and delegated work, plus active and archived historical
-sessions. Keep uncached input, cache reads, cache writes, and output as distinct
-counts. A cross-tool cost comparison needs equivalent verified outcomes and a
+resumed, cancelled and delegated work and display of imported history. A
+cross-tool cost comparison needs equivalent verified outcomes and a
 stated pricing basis. Keep attributable provider charges distinct from estimates.

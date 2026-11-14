@@ -232,19 +232,19 @@ as one finished launch, and a restart of the story gets its own usage history.
 
 ## Recovering earlier launches
 
-A read-only check on November 14 matched native history for all 385 Codex and
-629 Claude Code launches still in this machine's dashboard records. All 385
-Codex roots contained an owned usage record for the first turn. Of 3,327 linked
-Codex descendants, 3,325 had response usage with a root-turn ID. For Claude,
-628 roots and all 2,803 linked worker transcripts had real response usage.
-The remaining Claude transcript had only a synthetic assistant record. These
-counts measure the presence of evidence. Full-task coverage still needs proof.
+A November 14 read-only check found first-turn usage for 385 of 385 retained
+Codex roots and linked usage for 3,325 of 3,327 descendants. For Claude Code,
+628 of 629 roots and all 2,803 linked worker transcripts had real response
+usage. These counts measure evidence presence. Full-task coverage needs proof.
 
-Import Codex response records by owning thread and response ID, following known
-turns and descendants across active, archived, and compressed rollouts. Import
-Claude usage by native session or worker and API message ID from its JSONL history.
-Skip copied fork history and deduplicate overlap with live collection. Record
-missing segments as gaps. If the dashboard record was pruned, recover it only
-with independent evidence of the dashboard launch. [Codex rollout records](https://github.com/openai/codex/pull/41912),
+Import Codex responses by owning thread and response ID across active, archived,
+and compressed rollouts. Import Claude usage by native session or worker and
+API message ID. Exclude copied fork history and deduplicate live overlap. A
+pruned dashboard record needs independent launch evidence. [Codex rollout records](https://github.com/openai/codex/pull/41912),
 [Claude session files](https://code.claude.com/docs/en/agent-sdk/sessions),
 [local Claude audit](session-token-efficiency-research.md#claude-code-audit).
+
+For Cursor, match eligible API or export rows with token counts and conversation
+IDs. Worker usage requires lineage. Historical gaps remain without these rows. [Cursor usage events](https://cursor.com/docs/account/teams/admin-api#get-usage-events-data),
+[export guidance](https://forum.cursor.com/t/a-way-to-get-full-observability-on-token-uses/171345/7),
+[telemetry delivery](https://cursor.com/docs/enterprise/opentelemetry-export#delivery).
