@@ -41,7 +41,23 @@ work, and distinguish partial or missing coverage from a measured zero.
   overlap with telemetry keeps each request counted once. If past data is missing,
   the record explains the coverage gap.
 
+#### Strongest option
+
+Measure each launch with the same import the
+[usage history reconstruction](SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history)
+runs: read per-message usage from the launch's session and worker transcripts,
+counting each API message ID once, while the task runs and after it ends. The
+November 14 check found real response usage for 628 of 629 retained roots and
+all 2,803 linked worker transcripts. New and older launches would then share
+one collection path and counting rule, consistent with the
+[Codex story](SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks),
+without an OpenTelemetry exporter in trusted settings or a dependency on the
+warm `--bg` supervisor picking one up. Refinement still decides the approach.
+It would need to check how soon transcripts reflect a running task, whether
+they show auxiliary work such as agent-view summaries, recaps and idle
+compaction, and transcript format changes across Claude Code versions.
+
 The [Claude Code research](../../docs/maintainer/dashboard-task-usage-research.md#claude-code-21325)
-identifies request telemetry and retained local transcripts. Verify export from
-an already-running background supervisor, session resets, interrupted runs, and
-worker lineage before claiming full coverage.
+identifies request telemetry and retained local transcripts. Verify session
+resets, interrupted runs, and worker lineage before claiming full coverage, and
+export from an already-running background supervisor if telemetry is used.

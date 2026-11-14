@@ -45,6 +45,23 @@ can have several launches, each with its own usage and outcome.
 - An older Codex launch displays its imported usage and any coverage gaps.
   When a new collector sees a response already imported, the view counts it once.
 
+#### Strongest option
+
+Measure each launch with the same import the
+[usage history reconstruction](SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history)
+runs: read completed-response usage from the launch's Codex rollouts, following
+thread and turn lineage to its workers, while the task runs and after it ends.
+The November 14 check found that usage for 385 of 385 retained roots and 3,325
+of 3,327 descendants. New and older launches would then share one collection
+path and one rule for counting a response once, the
+[Claude Code story](SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage)
+could measure the same way from its transcripts, and the launch observer need
+not stay attached after the first turn. Refinement still decides the approach.
+It would need to check how soon usage appears during a running task, how a
+settled total is recognized, and rollout format changes across Codex versions.
+App Server token events remain the alternative, for example for provisional
+display while a turn runs.
+
 #### Open research
 
 The [dashboard usage and cost research](../../docs/maintainer/dashboard-task-usage-research.md#codex-cli-01690)
