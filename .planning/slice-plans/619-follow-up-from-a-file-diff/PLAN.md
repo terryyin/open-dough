@@ -143,7 +143,7 @@ story/identity/boundary/matching-rules plus story-review path consumers;
 
 ### 3. Follow up a whole file from a Done story's diff
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `e2e/review/story-review-follow-up.spec.ts` page journey, plus an Intent assertion in a new `e2e/intent/intent-story-follow-up.spec.ts`.
 
 A Done story's **Review changes**, on Published completion or a landed run,
@@ -155,6 +155,11 @@ instruction. The action appears when the card offers Open terminal, and is
 absent on a workspace snapshot. Add the page-level done-story lookup used by
 both views here. Update the review and Intent docs that describe the file
 header.
+
+Accepted proof (coordinator): `StoryReviewFileHeader` + `useDoneStoryFollowUp`
++ anchored `StoryFollowUp`; e2e review/intent follow-up journeys + completed
+review + card follow-up (5 passed); typecheck pass. Rename old-path in the
+dialog list reuses `fileContextItems` proved at the Slice 2 boundary.
 
 ### 4. Follow up one line from the line-number menu
 Type: Behavior
@@ -219,7 +224,7 @@ Commitment: 50a, 50b
   follow-up.
 - Local gate: focused specs per slice, as listed. Run the whole dashboard and
   e2e suites once before landing, under `caffeinate -s -i` on AC power, as
-  [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos)
+  [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
   requires.
 - Failure policy: carry [Failing and flaky tests](../../../AGENTS.md#failing-and-flaky-tests)
   as written. A failing or flaky test is a defect to fix. Reproducing it on main

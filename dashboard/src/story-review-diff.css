@@ -35,6 +35,11 @@
   min-width: 0;
 }
 
+/* Follow up beside the path keeps its size; Previous/Next stay at the end. */
+.story-review-diff-heading > .frame-button {
+  flex: none;
+}
+
 .story-review-file-moves {
   display: flex;
   flex: none;

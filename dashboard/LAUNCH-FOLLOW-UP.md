@@ -7,8 +7,12 @@ unconfirmed, its conversation is confirmed unavailable, or its host has no
 embedded terminal), offers **Follow up**: a standalone Done session beside its
 primary action, where Read final report stays, and a done story's card, once
 its done record is read, in its Story actions group, also when it holds no
-session. An entry that offers Open terminal keeps it and offers no Follow up,
-and the Sessions sidebar and Intent offer none. Follow up opens the
+session. An entry that offers Open terminal keeps it and offers no Follow up
+on the card; the Sessions sidebar still offers none. A Done story's file
+diff in Review changes (Published completion or a landed run) and in
+Intent → Changed tests Purpose also offers Follow up beside the file path
+for the whole file, even when that card still offers Open terminal; a
+retained workspace snapshot does not. Follow up opens the
 [Start session](LAUNCH-START.md#start-session) dialog with the same host,
 model, Attach images, field, Session group, defaults, gating and
 confirmations, plus a read-only line naming the entry as it reads (a

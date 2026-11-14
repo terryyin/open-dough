@@ -185,7 +185,7 @@ export function intentDiffReading(intent: Locator) {
   const purpose = purposeRegion(intent);
   return {
     container: intent.locator(".intent-story-diff"),
-    name: purpose.locator(".intent-story-diff-name"),
+    name: purpose.locator(".story-review-diff-heading h3"),
     code: codePane(purpose),
   };
 }

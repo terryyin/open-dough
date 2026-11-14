@@ -26,7 +26,10 @@ text. The tree model marks each file's kind and whether each folder contains
 changes (`src/reviewFileTree.ts`). The kind's words remain where they are
 read: each file's control is named, and titled for hover, by its kind and full
 path (`Deleted gone.txt`, `Renamed old/a.ts → new/a.ts`), and the selected
-file's diff is headed by the same words. Beside a file's
+file's diff is headed by the same words. For a Done story's Published
+completion or landed run, that heading also offers
+[Follow up](LAUNCH-FOLLOW-UP.md) beside the path, which starts a follow-up
+about the whole file; a retained workspace snapshot does not. Beside a file's
 name its row shows how many lines its diff adds and removes (`+2 −1`), and
 its control is described by them in words (`2 lines added, 1 line removed`).
 The snapshot reads them with `git diff --numstat -M -z` over the same _from_
