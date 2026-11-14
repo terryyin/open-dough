@@ -9,7 +9,7 @@ import {
   publishOrigin,
   rawFileAnswer,
 } from "./publishedOrigin.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const revision = "7c0ffee1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f607";
 

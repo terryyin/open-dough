@@ -25,7 +25,7 @@ import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { installFakeClaude, type FakeClaudeControls } from "./fakeClaude.ts";
-import { requestOwnerEnvironmentAt } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+import { dashboardServerEnvironment } from "./dashboardServerEnvironment.ts";
 import { fakeGhEnv, installFakeGh } from "./fakeGh.ts";
 import { readPid } from "./processGroup.ts";
 import {
@@ -115,7 +115,7 @@ export async function startDashboardServer(
       publishes({ revision: defaultBaseCiRevision }),
     );
   }
-  const gh = installFakeGh(tempRoot);
+  const gh = installFakeGh(tempRoot, { transport: options.ghTransport });
   const ghEnv = fakeGhEnv(gh, github.url);
   const claude = installFakeClaude(
     tempRoot,
@@ -135,23 +135,13 @@ export async function startDashboardServer(
       claude.env["PATH"] ?? "",
       options.codex ?? false,
     ));
-  const env: NodeJS.ProcessEnv = {
-    ...process.env,
-    ...ghEnv,
-    ...claude.env,
-    ...codex.env,
-    PATH: [
-      ...(options.pathPrefix ?? []),
-      codex.binDir,
-      claude.env["PATH"] ?? "",
-    ].join(path.delimiter),
-    // Avatars are fetched from the same fake GitHub, never GitHub itself.
-    DOUGH_AVATAR_ORIGIN: github.url.replace(/\/$/, ""),
-    ...(options.requestOwnerRoot === undefined
-      ? {}
-      : requestOwnerEnvironmentAt(options.requestOwnerRoot)),
-    ...options.extraEnv,
-  };
+  const env = dashboardServerEnvironment(
+    options,
+    ghEnv,
+    claude.env,
+    codex,
+    github.url,
+  );
   for (const [key, value] of [
     ["DOUGH_READ_TIMEOUT_MS", options.readTimeoutMs],
     ["DOUGH_LIMIT_BACKOFF_MS", options.limitBackoffMs],

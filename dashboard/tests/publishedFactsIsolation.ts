@@ -1,10 +1,10 @@
 // Distinct published revisions for observation isolation. Only raw records and
 // held GitHub answers are supplied; the built page owns every displayed fact.
 
-import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
+import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { githubFor } from "./dashboardTest.ts";
 import { sharedStoryIdentity } from "./doughnutProject.ts";
 import { noConnection } from "./originAnswers.ts";

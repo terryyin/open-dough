@@ -6,7 +6,7 @@
 // the installed delivery command given the launch's context still prepares
 // and records its landing, and a request naming a story is refused.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keptAttempts } from "../../tests/acceptedAttempts.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
 import { expect, stored, test } from "../../tests/support/codexStart.ts";

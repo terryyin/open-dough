@@ -4,7 +4,7 @@
 // malformed bodies, unknown fields, hosts and settings, a removal with a body,
 // and the wrong content type; none changes the saved setting or starts a
 // session. The page's journey, including a malformed saved file, is
-// ../../tests/configuration/system-settings-feedback-maintenance.spec.ts.
+// ../../../e2e/configuration/system-settings-feedback-maintenance.spec.ts.
 // The server keeps the development project environment, where the feedback
 // maintenance check (../../server/feedbackMaintenanceCheck.ts) reads nothing,
 // so the authorization this spec saves never arms its GitHub read and every

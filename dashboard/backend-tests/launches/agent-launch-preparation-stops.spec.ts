@@ -7,14 +7,14 @@
 // leaves no session and no progress phase. The table's mapping of the
 // remaining stop statuses is ./preparation-start-result.spec.ts.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { execFile } from "node:child_process";
 import path from "node:path";
 import { promisify } from "node:util";
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { renderAgentProfile } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { launch, runningStarts } from "../../tests/agentLaunchBoundary.ts";
 import {
   startDashboardServer,
@@ -105,7 +105,7 @@ test.describe("refinement preparation start that stops", () => {
 
   test("every agent name held stops and lists the holders", async () => {
     const { agentNames } =
-      await import("../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs");
+      await import("../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs");
     const agents = path.join(origin.project, ".planning", "agents");
     mkdirSync(agents, { recursive: true });
     for (const name of agentNames) {

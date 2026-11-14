@@ -22,7 +22,9 @@ const fixtures = path.join(
   repoRoot,
   "dashboard/tests/fixtures/artifact-demand",
 );
-const setup = path.join(repoRoot, "dashboard/tests/support/globalSetup.ts");
+const setupOf = (file: string) =>
+  path.join(repoRoot, "dashboard/tests/support", file);
+const setup = setupOf("integratedGlobalSetup.ts");
 
 type Trace = { event: string; key: string; directory?: string };
 type Consumer = { pid: number; directory?: string; error?: string };
@@ -52,6 +54,8 @@ function proveArtifact(
     readonly spec: string;
     readonly partial: string;
     readonly error: RegExp;
+    // The run's global setup; Dashboard Integrated UI Test's unless named.
+    readonly setup?: string;
   },
   outcomes: readonly Outcome[],
 ): void {
@@ -103,7 +107,7 @@ function proveArtifact(
           testDir: fixtures,
           fullyParallel: true,
           workers: 2,
-          globalSetup: setup,
+          globalSetup: artifact.setup ?? setup,
         },
         args: outcome === "interrupt" ? ["--grep", "static server"] : [],
         env: {
@@ -203,17 +207,16 @@ function proveArtifact(
   }
 }
 
-proveArtifact(
-  {
-    name: "app build",
-    key: dashboardAppArtifactKey,
-    preload: "buildGate.mjs",
-    spec: "app.proof.ts",
-    partial: "partial",
-    error: /Vite app build failed at the proof gate/,
-  },
-  ["complete", "fail", "interrupt"],
-);
+const appBuild = {
+  name: "app build",
+  key: dashboardAppArtifactKey,
+  preload: "buildGate.mjs",
+  spec: "app.proof.ts",
+  partial: "partial",
+  error: /Vite app build failed at the proof gate/,
+};
+
+proveArtifact(appBuild, ["complete", "fail", "interrupt"]);
 
 proveArtifact(
   {
@@ -226,3 +229,15 @@ proveArtifact(
   },
   ["complete", "fail"],
 );
+
+// Each other group runner's own setup shares the app build the same way and
+// removes it when interrupted.
+for (const [runner, file] of [
+  ["Dashboard Frontend Test", "frontendGlobalSetup.ts"],
+  ["Dashboard Backend Test", "backendGlobalSetup.ts"],
+  ["E2E Test", "e2eGlobalSetup.ts"],
+] as const)
+  proveArtifact(
+    { ...appBuild, name: `${runner} app build`, setup: setupOf(file) },
+    ["interrupt"],
+  );

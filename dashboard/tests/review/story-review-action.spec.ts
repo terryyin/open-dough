@@ -5,7 +5,7 @@
 // the keyboard reaches it from Inspect story. It leads with a decorative
 // review glyph and ends with a decorative arrow toward the side panel.
 // Closing the review in the side panel returns the keyboard in
-// ./story-review.spec.ts; closing the detail, in
+// ../../../e2e/review/story-review.spec.ts; closing the detail, in
 // ../storyReadinessScan.ts and ../navigation/accessible-board-keyboard.spec.ts. Each
 // layout is read once the cards' preparation and the machine's sessions are
 // read, since each reading changes a card's height.

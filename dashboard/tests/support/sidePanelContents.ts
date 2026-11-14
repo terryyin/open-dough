@@ -1,5 +1,5 @@
 // Story B beside Story A (./storyReviewWorktree.ts) for the page's one side
-// panel (../navigation/side-panel-content-switching.spec.ts, ../navigation/side-panel-content-replacement.spec.ts):
+// panel (../../../e2e/navigation/side-panel-content-switching.spec.ts, ../../../e2e/navigation/side-panel-content-replacement.spec.ts):
 // Story B's real worktree with one committed file of its own, and its kept
 // launch record, a kept session without an attention message, or a Codex
 // session whose saved workspace is gone, so that its final report is Codex's
@@ -9,7 +9,7 @@
 import path from "node:path";
 import { writeFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";

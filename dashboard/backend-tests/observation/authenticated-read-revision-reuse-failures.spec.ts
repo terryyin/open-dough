@@ -7,6 +7,7 @@
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { everyRepository } from "../../tests/support/fakeGitHub.ts";
+import { refusedMarker } from "../../tests/support/sharedReads.ts";
 import { noConnection, rateLimitedAnswer } from "../../tests/originAnswers.ts";
 import {
   answerFrom,
@@ -112,7 +113,10 @@ test.describe("authenticated read reuse failures at a newly named revision (deve
       await expect
         .poll(() =>
           server().github.calls.some(
-            ({ request }) => request.kind === "compare",
+            ({ request }) =>
+              request.kind === "compare" &&
+              request.base === a &&
+              request.head === b,
           ),
         )
         .toBe(true);
@@ -129,6 +133,7 @@ test.describe("authenticated read reuse failures at a newly named revision (deve
         reads.profiles(),
         reads.done(),
       ]);
+      await refusedMarker(server());
       release();
       for (const answer of await answers) expect(answer.status).toBe(200);
     });

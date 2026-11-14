@@ -1,9 +1,9 @@
 // Fixtures for Intent unusable-location journeys
-// (./intent/intent-gherkin-unusable.spec.ts): mixed usable and problem locations on
+// (../../e2e/intent/intent-gherkin-unusable.spec.ts): mixed usable and problem locations on
 // Doughnut-like and Pygardon-like projects.
 
 import { catalogPublications } from "./catalogProjectRecords.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const doughnut = {
   ...catalogPublications.doughnut,

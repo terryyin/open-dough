@@ -10,7 +10,7 @@ import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { describedRevision } from "../../tests/describedRevisions.ts";
 import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const root = "backend/src/test/java";
 const testPath = "backend/src/test/java/com/example/CalculatorTest.java";

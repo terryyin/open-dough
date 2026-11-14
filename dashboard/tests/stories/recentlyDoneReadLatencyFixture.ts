@@ -7,7 +7,7 @@
 // selected read. Synthetic Claude supplies sessions, page time is paused, and
 // the real local read boundary and page determine every displayed result.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect, githubFor, pausePageClockAt } from "../dashboardTest.ts";
 import {

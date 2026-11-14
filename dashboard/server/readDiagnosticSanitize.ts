@@ -6,7 +6,7 @@
 import {
   directedWaitSeconds,
   type GhAnswer,
-} from "../../src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
 import type { GhFailureReason } from "./ghFailure.ts";
 
 export const textFieldLimit = 256;

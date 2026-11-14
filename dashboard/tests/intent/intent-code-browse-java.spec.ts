@@ -25,7 +25,7 @@ import { doughnut, publishIntentProject } from "../intentCodeBrowseFixtures.ts";
 import { trunkCi } from "../intentCiStatusPage.ts";
 import { noConnection } from "../originAnswers.ts";
 import type { RepositoryAnswerer } from "../support/fakeGitHub.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("Intent lists configured nested JUnit source, reads exact pinned Java with line numbers and theme styling, and shares Purpose/Proof with other source", async ({
   page,

@@ -3,7 +3,7 @@
 // Project Intent chart-mark specs
 // (../../frontend-tests/intent-*ci-history-chart-marks.spec.ts).
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { ScopeGlanceEntry } from "../../src/ciScopeHistory.ts";
 import {
   centreOf,

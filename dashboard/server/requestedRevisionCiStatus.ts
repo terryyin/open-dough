@@ -5,8 +5,8 @@
 // fed by workflow text and changed paths from the comparison history reader.
 // Production acquires them with `git show` / `git diff --name-status -M`. Proof selection stays elsewhere
 // (`./baseCiRevisionLookup.ts`).
-import { classifyPathChanges } from "../../src/skills/dough-execute-plan/scripts/ci-path-applicability.mjs";
-import { readCiPathIgnorePolicy } from "../../src/skills/dough-execute-plan/scripts/ci-workflow-path-policy.mjs";
+import { classifyPathChanges } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-path-applicability.mjs";
+import { readCiPathIgnorePolicy } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-workflow-path-policy.mjs";
 import { shortSha } from "../src/baseCiWording.ts";
 import type { RequestedRevisionCiStatus } from "../src/storyCiComparison.ts";
 import { newestRunFor, type ListedRun } from "./baseCiNearest.ts";

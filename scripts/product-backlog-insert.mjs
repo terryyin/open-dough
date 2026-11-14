@@ -2,17 +2,17 @@
 // Maintainer entry point kept for this repository's own backlog. It owns no
 // backlog rules: it derives the identities named by the supplied bullets and
 // delegates the change to the shared operation in
-// src/skills/dough-product-backlog/scripts/.
+// Distribution/src/skills/dough-product-backlog/scripts/.
 
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { addQueueEntry } from "../src/skills/dough-product-backlog/scripts/product-backlog-add.mjs";
-import { parseEntryLine } from "../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
-import { BacklogError } from "../src/skills/dough-product-backlog/scripts/product-backlog-refusal.mjs";
+import { addQueueEntry } from "../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-add.mjs";
+import { parseEntryLine } from "../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
+import { BacklogError } from "../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-refusal.mjs";
 import {
   applyToBacklog,
   defaultBacklogPath,
-} from "../src/skills/dough-product-backlog/scripts/product-backlog-store.mjs";
+} from "../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-store.mjs";
 
 const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
 const usage =

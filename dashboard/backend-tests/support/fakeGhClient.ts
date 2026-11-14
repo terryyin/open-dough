@@ -20,7 +20,7 @@ export async function clientFixture() {
   const scratch = path.join(root, "scratch");
   mkdirSync(scratch);
   const github = await startFakeGitHub();
-  const gh = installFakeGh(root);
+  const gh = installFakeGh(root, { transport: "cli" });
   const children: ReturnType<typeof spawnGroupLeader>[] = [];
   const environment = {
     ...process.env,
@@ -78,7 +78,7 @@ export async function clientFixture() {
     },
     runOwner() {
       const entry = new URL(
-        "../../../src/skills/dough-execute-plan/scripts/github-requests.mjs",
+        "../../../Distribution/src/skills/dough-execute-plan/scripts/github-requests.mjs",
         import.meta.url,
       ).href;
       return start(process.execPath, [

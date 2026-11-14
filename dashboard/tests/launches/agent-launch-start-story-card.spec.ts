@@ -23,7 +23,7 @@ import {
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { installHeldStart } from "../support/heldStart.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { notRefinedStory, readyStory, takenStory } from "../launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });

@@ -5,8 +5,8 @@
 // names (./ciFollowUpRepeatRun.ts): what a collecting production dashboard
 // observes of requests it already spent. They are kept as every kept landing
 // is (./ciFollowUpKeptLanding.ts), alone or beside a published story's.
-import { repeatLedgerFacts } from "../../../tests/support/ciFollowUpLedgerFacts.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { repeatLedgerFacts } from "../../../Distribution/tests/support/ciFollowUpLedgerFacts.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { RepeatRequest } from "../../server/ciFollowUpStore.ts";
 import { historyWallTimeMs } from "../../src/landedCiHistory.ts";
 import { keepRepeats, type KeptRepeat } from "./ciFollowUpKeptLanding.ts";

@@ -36,7 +36,7 @@ import {
   titlesOfOpenDough,
 } from "../projectSelectionProjects.ts";
 import { describedBacklog } from "../describedRevisions.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { emptyArea, expectSelected } from "../storyCardSelection.ts";
 import { canonicalRecord, inspectedDetail } from "../storyCardControls.ts";
 

@@ -1,5 +1,5 @@
 // Real comparison rules consume external facts; retained journeys own transport/UI wiring.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
 import {

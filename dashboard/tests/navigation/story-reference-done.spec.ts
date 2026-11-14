@@ -1,6 +1,6 @@
 import { expect, githubFor } from "../dashboardTest.ts";
 import { test, consumer, agreement } from "../storyDependencyFixture.ts";
-import { queuedSeedWithDependencies } from "../../../tests/support/queued-repository.mjs";
+import { queuedSeedWithDependencies } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import {
   openUntilRead,

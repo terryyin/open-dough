@@ -19,8 +19,8 @@ The watch remains pending.
   Pygardon's [no-broker-request clause](https://github.com/terryyin/pygardon/blob/769c482446d3b93df32730a332e34978c40d6fca/.planning/slice-plans/437-holding-protection-observation/PLAN.md#L211)
   remains qualified because the authorized round had independent safety concerns.
 - **Response.** `30d29640c` requires an independent reason for a restriction in
-  [planning](../../src/skills/dough-story-refinement/references/planning.md#examples-and-constraints)
-  and [execution](../../src/skills/dough-execute-plan/references/execution-decisions.md#resolve-a-disputed-plan-restriction).
+  [planning](../../Distribution/src/skills/dough-story-refinement/references/planning.md#examples-and-constraints)
+  and [execution](../../Distribution/src/skills/dough-execute-plan/references/execution-decisions.md#resolve-a-disputed-plan-restriction).
   It first shipped in `v0.3.75` on 2026-10-29. The prior review records the
   [walkthrough, adoption and five-source coverage](https://github.com/terryyin/open-dough/blob/5afe6fee8fe34322752e9e44911d72eb31dd4991/docs/maintainer/near-term-watch-list.md).
 - **Watch start.** Pending first verified relevant use. Open Dough's

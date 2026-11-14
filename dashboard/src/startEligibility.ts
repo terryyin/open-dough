@@ -4,7 +4,7 @@
 // unavailable shapes to gaps and words the Start reason. Nothing is stored.
 
 import { z } from "zod";
-import { deriveStartEligibility } from "../../src/skills/dough-product-backlog/scripts/product-backlog-start-eligibility.mjs";
+import { deriveStartEligibility } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-start-eligibility.mjs";
 import type { WorkEntry } from "./publishedWork.ts";
 import type { WorkDependencies } from "./storyDependencies.ts";
 import type { WorkPreparation } from "./storyPreparation.ts";

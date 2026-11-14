@@ -6,7 +6,7 @@ import { publishedStoryHistory } from "./publishedStoryHistory.ts";
 import {
   doneRecordFileName,
   parseDoneRecordFile,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { runGit, gitProblem, type GitCall } from "./gitRunner.ts";
 import {

@@ -1,0 +1,172 @@
+// Hold an actual existing-directory observation; action-time WS/PTY owns fallback.
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  symlinkSync,
+} from "node:fs";
+import type { APIResponse } from "@playwright/test";
+import {
+  test,
+  expect,
+  stored,
+} from "../../dashboard/tests/support/codexLaunch.ts";
+import {
+  parts,
+  storyCardSessions,
+} from "../../dashboard/tests/dashboardPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+} from "../../dashboard/tests/terminalScreenPage.ts";
+import {
+  publishStoryColumnsJourney,
+  notRefinedStory,
+  type StoryColumnsJourney,
+} from "../../dashboard/tests/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+import {
+  report,
+  save,
+  retained,
+} from "../../dashboard/tests/support/retainedReport.ts";
+import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
+import {
+  codexAttaches,
+  codexEnded,
+  codexTerminalMode,
+} from "../../dashboard/tests/support/codexTerminal.ts";
+import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
+import { expectSelected } from "../../dashboard/tests/storyCardSelection.ts";
+import { finalReportParts } from "../../dashboard/tests/finalReportPages.ts";
+import { markAsDone } from "../../dashboard/tests/support/markDone.ts";
+
+test.use({ projectFolders: ["open-dough"] });
+let journey: StoryColumnsJourney;
+test.beforeAll(async () => {
+  journey = await publishStoryColumnsJourney();
+});
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
+
+for (const loss of ["missing", "unknown", "startup"] as const) {
+  test(`attachment ${loss} after an existing-directory observation opens the same passive report, preserves done intent and returns focus`, async ({
+    page,
+    dashboard,
+    codexProtocol: native,
+  }) => {
+    if (native === undefined) throw new Error("Missing protocol fixture");
+    const { record, workspace } = await retained(dashboard, native);
+    mkdirSync(workspace);
+    const originalDirectory = realpathSync(workspace);
+    const doneAt =
+      loss === "missing"
+        ? undefined
+        : new Date(Date.now() - 60_000).toISOString();
+    save(dashboard.home, [{ ...record, doneAt }]);
+    const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
+    const since = native.calls.length;
+    // Preserve the real initial response while the developer holds the page.
+    // The actual WS attachment and result HTTP requests are never intercepted.
+    let observation: APIResponse | undefined;
+    await page.route("**/__agent-launch", async (route) => {
+      observation ??= await route.fetch({
+        headers: { ...route.request().headers(), origin: dashboard.origin },
+      });
+      expect(observation.status()).toBe(200);
+      await route.fulfill({ response: observation });
+    });
+    const { card } = await openStoryColumnsJourney(page, journey);
+    const entry =
+      doneAt === undefined
+        ? storyCardSessions(card(notRefinedStory))
+        : parts(page)
+            .recentlyDone.getByRole("article")
+            .filter({ hasText: native.threadId });
+    const open = openTerminalControl(entry);
+    await expect(open).toBeVisible();
+    await expect(entry).toContainText(
+      doneAt === undefined ? "Ready for review" : "Done",
+    );
+    if (loss === "startup") codexTerminalMode(native, "workspace-loss");
+    else {
+      rmSync(workspace, { recursive: true });
+      if (loss === "unknown") symlinkSync(workspace, workspace);
+    }
+    const resultRead = page.waitForRequest(
+      (request) => new URL(request.url()).pathname === "/__agent-launch/result",
+    );
+    // The fixture's launch protects the story's card until a published read
+    // after its outcome reconciles it.
+    await expect(open).toBeEnabled();
+    await open.focus();
+    await page.keyboard.press("Enter");
+    const read = new URL((await resultRead).url());
+    expect(read.searchParams.get("session")).toBe(record.session.sessionId);
+    expect(read.searchParams.get("host")).toBe("codex");
+    const { panel, reportText, reportBody, sessionName, shownSessionId } =
+      finalReportParts(page);
+    await expect(reportText).toHaveText(report);
+    await expect(sessionName).toHaveText(/ session$/);
+    await expect(shownSessionId).toHaveCount(0);
+    await expect(panel).toContainText(
+      loss === "unknown"
+        ? "saved workspace availability could not be established"
+        : "saved workspace is missing",
+    );
+    await expect(reportBody).toBeFocused();
+    await expect(terminalPanel(page)).toHaveCount(0);
+    await expect(
+      page.getByText("The session could not be attached", { exact: true }),
+    ).toHaveCount(0);
+    await expect(entry).toContainText("Shown in final report");
+    await expectSelected(card(notRefinedStory), true);
+    if (loss === "unknown")
+      await expect(panel).not.toContainText("workspace is missing");
+    await expect(markAsDone(panel)).toHaveCount(doneAt === undefined ? 1 : 0);
+    await page.keyboard.press("Meta+Shift+Escape");
+    await expect(panel).toHaveCount(0);
+    await expect(open).toBeFocused();
+    // Closing keeps the story selected (ADR 0008).
+    await expectSelected(card(notRefinedStory), true);
+    expect(stored(dashboard.home)[0]?.session).toEqual(record.session);
+    expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
+    expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(
+      baseline,
+    );
+    expect(existsSync(workspace)).toBe(false);
+    expect(
+      native.calls
+        .slice(since)
+        .every((call) =>
+          [
+            "initialize",
+            "initialized",
+            "thread/read",
+            "thread/turns/list",
+          ].includes(call.method),
+        ),
+    ).toBe(true);
+    const attempts = codexAttaches(native);
+    if (loss === "startup") {
+      expect(attempts).toHaveLength(1);
+      expect(attempts[0]?.cwd).toBe(originalDirectory);
+      expect(attempts[0]?.args).toEqual([
+        "resume",
+        "--remote",
+        record.session.continuation?.endpoint,
+        "--cd",
+        workspace,
+        "--no-alt-screen",
+        record.session.sessionId,
+      ]);
+      await expect
+        .poll(() => codexEnded(native, attempts[0]?.pid ?? 0))
+        .toBe("workspace lost");
+      await expect
+        .poll(() => processRunning(attempts[0]?.pid ?? 0))
+        .toBe(false);
+    } else expect(attempts).toEqual([]);
+  });
+}

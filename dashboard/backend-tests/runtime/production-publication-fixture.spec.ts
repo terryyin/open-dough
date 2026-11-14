@@ -6,14 +6,17 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { publishedMainFixture } from "../../tests/support/publishedMainFixture.ts";
 import { repoRoot } from "../../tests/support/repositoryRoot.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { publishedMainSourceArtifact } from "../../tests/support/publishedMainSource.ts";
 import { startRunArtifacts } from "../../tests/support/runArtifacts.ts";
 
 const exec = promisify(execFile);
 
-test("a documentation-only publication pushes only its requested paths to origin main", async () => {
+test("a documentation-only publication pushes only its requested paths to origin main", async ({
+  publishedRepositorySourceReady,
+}) => {
+  await Promise.resolve(publishedRepositorySourceReady);
   const fixture = await publishedMainFixture(true);
   const origin = async (...args: string[]) =>
     (await exec("git", ["--git-dir", fixture.origin, ...args])).stdout;
@@ -169,12 +172,10 @@ test("full-source fixtures preserve live bytes and publish independently after t
   }
 });
 
-test("a full-source fixture without a run owner keeps private publication usable", async () => {
-  const owner = process.env["OPEN_DOUGH_DASHBOARD_ARTIFACT_OWNER"];
-  delete process.env["OPEN_DOUGH_DASHBOARD_ARTIFACT_OWNER"];
-  let fixture: Awaited<ReturnType<typeof publishedMainFixture>> | undefined;
+test("a full-source fixture without a run owner keeps private publication usable", async ({
+  ownerlessPublishedMain: fixture,
+}) => {
   try {
-    fixture = await publishedMainFixture(true);
     expect(
       (await exec("git", ["--git-dir", fixture.origin, "for-each-ref"])).stdout,
     ).toBe("");
@@ -195,9 +196,13 @@ test("a full-source fixture without a run owner keeps private publication usable
       ),
     );
   } finally {
-    await fixture?.cleanup();
-    if (owner === undefined)
-      delete process.env["OPEN_DOUGH_DASHBOARD_ARTIFACT_OWNER"];
-    else process.env["OPEN_DOUGH_DASHBOARD_ARTIFACT_OWNER"] = owner;
+    // Leave the worker's fixture unpublished, as this case found it.
+    await exec("git", [
+      "--git-dir",
+      fixture.origin,
+      "update-ref",
+      "-d",
+      "refs/heads/main",
+    ]).catch(() => undefined);
   }
 });

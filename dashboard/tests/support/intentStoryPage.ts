@@ -15,7 +15,10 @@ import {
 // change-kind style: ./changeKindStyle.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { parts } from "../dashboardPage.ts";

@@ -4,7 +4,7 @@
 // process identity. A later landing's proof wait past the revision walk is
 // judged in process (./ci-comparison-finality-later-judgment.spec.ts).
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   rateLimitedAnswer,
   type OriginAnswer,

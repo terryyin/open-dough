@@ -62,12 +62,13 @@ export default defineConfig(
     },
   },
   {
-    // Dashboard specs run under the shared page-test base, whose `page`
-    // finishes its intercepted reads before teardown.
+    // Dashboard and E2E specs run under the shared page-test base, whose
+    // `page` finishes its intercepted reads before teardown.
     files: [
       "dashboard/tests/**/*.{ts,mts,tsx}",
       "dashboard/frontend-tests/**/*.{ts,mts,tsx}",
       "dashboard/backend-tests/**/*.{ts,mts,tsx}",
+      "e2e/**/*.{ts,mts,tsx}",
     ],
     ignores: [
       "dashboard/tests/support/pageTest.ts",
@@ -99,10 +100,11 @@ export default defineConfig(
       "dashboard/tests/**",
       "dashboard/frontend-tests/**",
       "dashboard/backend-tests/**",
+      "e2e/**",
       "tests/**",
-      "src/skills/*/scripts/**/*.test.mjs",
-      "src/skills/*/scripts/**/*-cases.mjs",
-      "src/skills/*/scripts/**/*fixture*.mjs",
+      "Distribution/src/skills/*/scripts/**/*.test.mjs",
+      "Distribution/src/skills/*/scripts/**/*-cases.mjs",
+      "Distribution/src/skills/*/scripts/**/*fixture*.mjs",
     ],
     rules: {
       "no-restricted-syntax": [
@@ -111,7 +113,7 @@ export default defineConfig(
           selector:
             "CallExpression[callee.object.name='process'][callee.property.name='cwd']",
           message:
-            "Do not take the repository root from the working directory. Use `repoRoot` from dashboard/tests/support/repositoryRoot.ts in dashboard tests, or `checkoutRoot` from src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs elsewhere.",
+            "Do not take the repository root from the working directory. Use `repoRoot` from dashboard/tests/support/repositoryRoot.ts in dashboard tests, or `checkoutRoot` from Distribution/src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs elsewhere.",
         },
       ],
     },

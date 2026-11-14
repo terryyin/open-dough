@@ -1,5 +1,5 @@
 // Finality is observed through repeated real reads, without any clock or TTL.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiTimingJob } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import { start, branch, later } from "../support/comparisonRead.ts";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";

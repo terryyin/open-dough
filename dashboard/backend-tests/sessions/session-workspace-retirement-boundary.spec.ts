@@ -11,7 +11,7 @@ import path from "node:path";
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { savedWorkspaceState } from "../../server/sessionWorkspace.ts";
 import type { HostSession } from "../../src/agentLaunch.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("saved directory observation distinguishes absent path from ELOOP without changing workspace or conversation", () => {
   const root = mkdtempSync(path.join(tmpdir(), "dough-workspace-boundary-"));

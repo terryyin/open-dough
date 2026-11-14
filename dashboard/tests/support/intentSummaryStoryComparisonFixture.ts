@@ -7,8 +7,8 @@
 // Taken publishers in ./intentSummaryStoryComparisonVariantPublishers.ts.
 
 import type { Page } from "@playwright/test";
-import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import {
   advanceCompletedTrunk,
   completedPublishedStory,
@@ -20,6 +20,7 @@ import {
   claimOf,
   precedeClaimWithPlanning,
   revList,
+  type ComparisonProofServe,
   type StoryCiComparisonSetup,
 } from "./storyCiComparisonFixture.ts";
 import { serveSummaryComparisonStory } from "./intentSummaryStoryComparisonServing.ts";
@@ -44,11 +45,19 @@ export {
 export async function publishSummaryComparisonStory(
   page: Page,
   origin: StartOrigin,
-  // Owning merge-resolution edits, with an Intent test file edited by the
-  // story's integration merge.
-  variant?: "own-conflict-extra",
-  // Later published facts never become the Done story's source or diff.
-  later?: RevisionFacts,
+  {
+    variant,
+    later,
+    proofs,
+  }: {
+    // Owning merge-resolution edits, with an Intent test file edited by the
+    // story's integration merge.
+    variant?: "own-conflict-extra" | undefined;
+    // Later published facts never become the Done story's source or diff.
+    later?: RevisionFacts | undefined;
+    // Collectors replacing these proofs pass `{}` to omit unused summaries.
+    proofs?: Record<number, ComparisonProofServe> | undefined;
+  } = {},
 ): Promise<StoryCiComparisonSetup> {
   publishSummaryComparisonTrunk(origin.project);
   const baseline = await precedeClaimWithPlanning(origin);
@@ -83,12 +92,17 @@ export async function publishSummaryComparisonStory(
 
   advanceCompletedTrunk(origin);
 
-  return serveSummaryComparisonStory(page, origin, {
-    completion,
-    baseline,
-    branchSide,
-    laterWithoutBuild,
-    agent,
-    branch,
-  });
+  return serveSummaryComparisonStory(
+    page,
+    origin,
+    {
+      completion,
+      baseline,
+      branchSide,
+      laterWithoutBuild,
+      agent,
+      branch,
+    },
+    proofs,
+  );
 }

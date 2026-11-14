@@ -7,7 +7,7 @@ import {
   sessionPolicyChoices,
   unattachedSessionChoices,
   unattachedSessionPolicy,
-} from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/session-policy.mjs";
 
 // A session's policy as the shared definition spells its three choices:
 // tracking, workspace, and landing. A request or record without one has the

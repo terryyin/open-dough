@@ -7,8 +7,8 @@
 // what may be read.
 
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { parseAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { takenHeading } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
+import { parseAgentProfile } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { takenHeading } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
   canonicalEntriesFromBacklog,
   plannedPlanPath,

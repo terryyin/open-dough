@@ -1,6 +1,6 @@
 // Notes, inside a dashboard server process, each read that process hands to
 // its GitHub request owner's connection
-// (`../../../src/skills/dough-execute-plan/scripts/github-request-owner-link.mjs`),
+// (`../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-link.mjs`),
 // so a spec can wait until a read is queued at the owner instead of waiting
 // for time to pass. Only the argument array of each numbered read is noted,
 // never a greeting or its caller token. The server imports the written module

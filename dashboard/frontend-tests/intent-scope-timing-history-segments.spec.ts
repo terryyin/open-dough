@@ -15,7 +15,7 @@ import {
   summaryScopeFacts,
   serveComparison,
 } from "../tests/support/comparisonScopeFacts.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
 
 test("earlier supported owning-entry segments stay readable beside a selected proof gap and the line does not join incompatible segments", async ({

@@ -15,7 +15,7 @@ editorial character portraits, loose resemblance to the people suggested by
 the agent names, modest clothing, distinct muted backgrounds, and no text.
 Each 600 × 600 atlas is a three-column, two-row grid. Tiles follow the
 `agentNames` rotation in
-`src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs`;
+`Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs`;
 the final atlas has five portraits and an unused sixth tile. Keep that mapping
 if displaying or moving the portraits. The atlases are intentionally sized for
 small dashboard avatars; there is no external image dependency.

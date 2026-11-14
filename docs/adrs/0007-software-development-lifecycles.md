@@ -64,11 +64,11 @@ lands on remote trunk by default; landing grants no execution authority.
    Write seeds, stories, and plans in an owned workspace, even for tiny
    corrections. Reuse a suitable story, plan, session, or host workspace.
    Reading and discussion require none. Follow the
-   [workspace procedure](../../src/skills/dough-story-refinement/references/preparation-workspace.md).
+   [workspace procedure](../../Distribution/src/skills/dough-story-refinement/references/preparation-workspace.md).
    Story refinement continues into slice planning in the same owned workspace
    unless a coordinator question or an explicit refine-only instruction stops
    it, following the
-   [preparation journey](../../src/skills/dough-story-refinement/references/preparation-journey.md).
+   [preparation journey](../../Distribution/src/skills/dough-story-refinement/references/preparation-journey.md).
 2. Leave drafts in that workspace for review without reserving the shared
    integration checkout. Land completed preparation of an announced queued
    story on `main`, whatever its readiness assessment; the story stays queued.
@@ -77,7 +77,7 @@ lands on remote trunk by default; landing grants no execution authority.
    in the workspace. Publish other draft results, such as
    a decomposition or a session ending at refinement, on an explicit keep
    instruction; honor no-publish and discard instructions through the
-   [disposition procedure](../../src/skills/dough-story-refinement/references/preparation-disposition.md).
+   [disposition procedure](../../Distribution/src/skills/dough-story-refinement/references/preparation-disposition.md).
    A pause or continued discussion is no disposition decision.
 3. At execution startup, move the story to **Taken** on `main`, then create its
    feature branch and worktree, or continue the preparation workspace and

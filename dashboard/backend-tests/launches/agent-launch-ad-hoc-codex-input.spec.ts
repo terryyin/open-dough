@@ -1,4 +1,4 @@
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // Actual HTTP/store launch decisions; the fixture only supplies native replies.
 import path from "node:path";
 import { test, expect, stored } from "../../tests/support/codexLaunch.ts";

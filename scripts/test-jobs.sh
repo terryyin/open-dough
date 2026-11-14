@@ -33,7 +33,7 @@ if [[ -n ${split} ]]; then
 fi
 
 # scripts/test.sh resolves the test directory once (OPEN_DOUGH_TEST_DIR,
-# default `tests`) and hands it over. Another directory names substitute
+# default `Distribution/tests`) and hands it over. Another directory names substitute
 # checks, such as in a runner test; it replaces the suite's own checks
 # entirely.
 if [[ -z ${OPEN_DOUGH_TEST_DIR:-} ]]; then
@@ -87,10 +87,13 @@ else
     > "${work_dir}/tests"
   while IFS= read -r -d '' test_file; do
     # An aggregate remains available for explicit focused proof; separately
-    # discovered jobs own the same checks here: the one-shot's two group
-    # wrappers, and the MakeMe harness's two `node --test` files.
+    # discovered jobs own the same checks here: the one-shot's three group
+    # wrappers, the admission's four journey wrappers, and the MakeMe
+    # harness's two `node --test` files.
     case ${test_file} in
-      tests/git-publication-native-one-shot.sh | tests/makeme-native-use.sh) ;;
+      Distribution/tests/git-publication-native-one-shot.sh | \
+        Distribution/tests/git-publication-native-admission.sh | \
+        Distribution/tests/makeme-native-use.sh) ;;
       *) add_job shell "${test_file}" ;;
     esac
   done < "${work_dir}/tests"
@@ -108,14 +111,14 @@ else
 
   # The suite's own run also checks its installation; a substitute directory
   # replaces the suite's own checks entirely.
-  if [[ ${test_dir} == tests ]]; then
+  if [[ ${test_dir} == Distribution/tests ]]; then
     add_job shell 'scripts/check-self-installation.sh'
   fi
 fi
 
 # `longest-first` records each job's seconds from a CI run (see its header).
 # scripts/test-shares.mjs owns the order and the split: it deals the jobs by
-# those seconds (scripts/share-deal.mjs, tests/test-shares.md), so every run
+# those seconds (scripts/share-deal.mjs, Distribution/tests/test-shares.md), so every run
 # of the same checks gets the same order whatever order the file system lists
 # them in, and a split puts every check in exactly one share. A list line that
 # is not `<seconds><TAB><label>` fails the listing naming it, before any job

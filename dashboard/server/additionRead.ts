@@ -2,7 +2,7 @@
 // (`./requestedRead.ts`, `./avatarRead.ts`): which commit added an agent
 // profile's current allocation as of a pinned revision.
 
-import { profileAgentName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { profileAgentName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { parseSafeRepositoryPath } from "./reachablePaths.ts";
 import {
   isPinnedRevision,

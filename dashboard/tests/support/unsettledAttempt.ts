@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { LaunchAttemptRecord } from "../../src/agentLaunch.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { DashboardServer } from "./dashboardServer.ts";
 
 // Keeps an unsettled attempt of the project's first attempt's request,

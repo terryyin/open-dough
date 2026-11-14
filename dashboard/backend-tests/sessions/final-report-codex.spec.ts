@@ -6,7 +6,7 @@ import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { launchHost } from "../../server/launchHosts.ts";
 import type { HostSession } from "../../src/agentLaunch.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   installFakeCodex,
   type FakeCodex,

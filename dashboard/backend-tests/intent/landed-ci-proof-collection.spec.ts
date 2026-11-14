@@ -3,7 +3,7 @@
 // through the existing artifact reader, then inspect the retained observation.
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiProof } from "../../src/ciProof.ts";
 import { actionsForRuns } from "../../tests/support/baseCiActions.ts";
 import {
@@ -121,8 +121,7 @@ for (const proofState of ["summary", "mismatched", "expired"] as const) {
         return summaryTextZipAnswer(summaryText);
       }
       return (
-        actionsForRuns([run])(call.argv, main) ??
-        publishes({ revision: main })(call)
+        actionsForRuns([run])(call.argv) ?? publishes({ revision: main })(call)
       );
     });
     const delivered = land(record, origin, dashboard.home).result;

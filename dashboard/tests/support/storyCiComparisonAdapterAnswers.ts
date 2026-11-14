@@ -1,5 +1,5 @@
 // Custom-adapter facts for comparisons of a published merged or fast-forward story.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { Answers } from "../intentCiAdapterProofProject.ts";
 import { proofSummaryForEntries } from "./ciProofArtifacts.ts";
 import type { publishCodeLandedBeforeCompletion } from "./storyCiComparisonEarlierLanding.ts";

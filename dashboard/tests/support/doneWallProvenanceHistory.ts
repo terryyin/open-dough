@@ -1,5 +1,5 @@
 // Raw retained facts for a published Done landing distinct from completion.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import type { StoryCiComparisonSetup } from "./storyCiComparisonFixture.ts";
 import { commonGitDir } from "./launchLanding.ts";

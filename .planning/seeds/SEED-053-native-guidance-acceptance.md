@@ -85,7 +85,7 @@ no paid sessions, release or rollout.
 
 **Retrospective and execution behavior cases:** Select fresh installed sessions
 by unresolved risk. Use the existing
-[execution-review journeys](../../tests/native-publication.md) for controlled
+[execution-review journeys](../../Distribution/tests/native-publication.md) for controlled
 review/completion/CI ordering where they fit; inspect standalone and attention
 semantics against the following expectations rather than adding another runner.
 

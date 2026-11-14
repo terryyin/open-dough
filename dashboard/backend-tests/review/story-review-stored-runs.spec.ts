@@ -1,8 +1,8 @@
 // Fast rule owners declared before measurement: real persistence, run identity,
 // capture preference/order, deletion and retention. Refresh specs own UI wiring.
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { materializeLocalCheckout } from "../../../tests/support/repository-fixture.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import {
   test,
   expect,

@@ -1,8 +1,8 @@
 // External evidence for the real comparison read. Domain arrangement belongs
 // to MakeMe; this harness only answers history/provider/artifact operations.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { repositoryHistoryReads } from "../../../tests/support/repositoryHistoryReads.mjs";
-import type { RepositoryDescription } from "../../../tests/support/repositoryTestData.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { repositoryHistoryReads } from "../../../Distribution/tests/support/repositoryHistoryReads.mjs";
+import type { RepositoryDescription } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import type { CiProof, CiProofRun } from "../../src/ciProof.ts";
 import type { ListedRun } from "../../server/baseCiNearest.ts";
 import type { ComparisonBuildSource } from "../../server/comparisonBuildSource.ts";

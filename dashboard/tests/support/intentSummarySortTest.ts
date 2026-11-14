@@ -1,7 +1,7 @@
 // Sort reads actual private declared history; installed CLI publication stays
 // in the source journeys. Its configured checkout and GitHub read the same graph.
 import { test as base } from "../dashboardTest.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { projectConfigurationMachine } from "./projectConfigurationMachine.ts";
 import { materializeDeclaredSummaryComparisonRepository } from "./intentSummaryStoryComparisonRepository.ts";
 

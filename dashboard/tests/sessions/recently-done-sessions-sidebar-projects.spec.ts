@@ -1,7 +1,7 @@
 // Which kept records Recently done in the Sessions sidebar lists across
 // configured projects: of each project's kept launches, only those marked
 // Done, each under its own project, while open ones stay among open sessions.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   showRecentlyDone,
   showThreeProjectPage,

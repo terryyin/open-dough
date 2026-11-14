@@ -3,7 +3,7 @@
 // Summaries read history before the child table, and file Proof's Test cases /
 // Test file choice changes the observed trunk endpoint's value, average and
 // chart scale together, in light and dark appearance. Real collection is
-// ../tests/intent/intent-scope-collected-file-timing-history.spec.ts's; these
+// ../../e2e/intent/intent-scope-collected-file-timing-history.spec.ts's; these
 // routes answer each scope's local history read.
 import { shortSha } from "../src/baseCiWording.ts";
 import { parts } from "../tests/dashboardPage.ts";
@@ -20,7 +20,7 @@ import { openSummary } from "../tests/intentSummaryCiProofFixtures.ts";
 import { openUntilRead } from "../tests/pageRequestNotes.ts";
 import { expectStackedInOrder } from "../tests/partArrangement.ts";
 import { expectChangeCue } from "../tests/priorBuildReferencePage.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../tests/support/frontendApp.ts";
 import {
   scopeUnitsHistory,

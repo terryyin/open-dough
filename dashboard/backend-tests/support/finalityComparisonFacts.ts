@@ -1,6 +1,6 @@
 // Canonical external facts for the actual Done finality reader. No Git is
 // materialized; matching, slot selection and memory remain production owners.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiProof } from "../../src/ciProof.ts";
 import {
   baseline,

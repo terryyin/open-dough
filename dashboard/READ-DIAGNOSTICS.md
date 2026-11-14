@@ -82,7 +82,7 @@ body is discarded, while known upstream status/headers and directed-rate-limit
 precedence remain. It supplies no retry or login advice, and diagnostics invent
 no upstream status or rate evidence.
 
-The installed [CI diagnostic](../src/skills/dough-execute-plan/scripts/ci-github-diagnostic.mjs)
+The installed [CI diagnostic](../Distribution/src/skills/dough-execute-plan/scripts/ci-github-diagnostic.mjs)
 retains failed steps and every readable log excerpt when another log is missing.
 It scans every failed job's whole log for failure lines in known formats and
 reports an `inventory` whose `gaps` name unfinished jobs, missing logs, omitted
@@ -93,4 +93,4 @@ log makes the command exit 75. Expired HTTP 404/410 logs, output bounds and othe
 failed requests supply no delay. Other partial diagnostics exit 0; jobs-acquisition
 failure exits 1, or 75 when held. Agents classify from available evidence, retain
 uncertainty when insufficient, and retry only after numeric directed waits end,
-following the shared [CI repair guidance](../src/skills/dough-execute-plan/references/ci-monitor.md#handle-a-notification).
+following the shared [CI repair guidance](../Distribution/src/skills/dough-execute-plan/references/ci-monitor.md#handle-a-notification).

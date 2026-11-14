@@ -1,5 +1,5 @@
 // Adapter attempts for the dashboard's CI status and story comparison reads.
-import { createCommandAcquisition } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
+import { createCommandAcquisition } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { type ListedRun, unread } from "./baseCiNearest.ts";
 import { ciAdapterTimeoutMs } from "./ciAdapterTimeout.ts";

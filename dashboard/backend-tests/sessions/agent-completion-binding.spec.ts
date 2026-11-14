@@ -1,4 +1,4 @@
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import {
   keptLaunchRecords,
   launchStoreFile,
@@ -15,7 +15,7 @@ import { promisify } from "node:util";
 import { existsSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { machineHome } from "../../tests/machineLaunchRecords.ts";
 import {
   accept,
@@ -30,7 +30,10 @@ import {
 } from "../../tests/support/startOrigin.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { recordOperation } from "../../tests/support/completionRecovery.ts";
+import {
+  postCompletion,
+  recordOperation,
+} from "../../tests/support/completionRecovery.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 
 const exec = promisify(execFile);
@@ -87,25 +90,15 @@ for (const quiet of [false, true])
           "Work unfinished: the maintainer must resolve the conflicting decision.",
         );
         const post = (session: string) =>
-          rawRequest({
-            url: `${server.baseURL}/__agent-launch/completion`,
-            method: "POST",
-            headers: {
-              Origin: server.origin,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(
-              makeMe.aCompletionSubmission
-                .reportingFor({
-                  host: "claude",
-                  reference: accepted.attempt.id,
-                })
-                .fromSession(session)
-                .withOutcome("unfinished")
-                .saying("No false session receipt")
-                .please(),
-            ),
-          });
+          postCompletion(
+            server.origin,
+            makeMe.aCompletionSubmission
+              .reportingFor({ host: "claude", reference: accepted.attempt.id })
+              .fromSession(session)
+              .withOutcome("unfinished")
+              .saying("No false session receipt")
+              .please(),
+          );
         expect((await post("not-yet-known")).status).toBe(409);
         const reported = await exec(
           "bash",

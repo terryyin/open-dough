@@ -6,7 +6,7 @@
 // reported as every read's is, never answered as containment; and a request
 // naming anything but one shown and one accepted full commit id is refused
 // before any `gh` call. The page's use of it, against a real origin's history:
-// ../../tests/launches/responsive-session-reconciliation.spec.ts.
+// ../../../e2e/launches/responsive-session-reconciliation.spec.ts.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {

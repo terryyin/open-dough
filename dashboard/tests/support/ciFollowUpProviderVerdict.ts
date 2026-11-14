@@ -1,5 +1,5 @@
 // Exact provider conclusion fields under test, including absent/null/future values.
-import { apiRun } from "../../../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
+import { apiRun } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
 import type { CiRunAnswer } from "./baseCiActions.ts";
 
 export function providerVerdict() {

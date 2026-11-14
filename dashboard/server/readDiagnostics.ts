@@ -9,11 +9,11 @@
 // Attribution context: `./readDiagnosticContext.ts`. Field sanitization:
 // `./readDiagnosticSanitize.ts`.
 
-import type { FailedGhRequest } from "../../src/skills/dough-execute-plan/scripts/github-requests.mjs";
+import type { FailedGhRequest } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-requests.mjs";
 import {
   safeOwnerCause,
   type OwnerUnavailableCause,
-} from "../../src/skills/dough-execute-plan/scripts/github-request-owner-failure.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-failure.mjs";
 import type { GhFailureReason } from "./ghFailure.ts";
 import type {
   FailedReadIncident,

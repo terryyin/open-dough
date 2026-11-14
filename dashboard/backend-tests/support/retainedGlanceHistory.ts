@@ -4,7 +4,7 @@
 // builds of 100 s with 100 ms of `tests` test cases, a failed build among
 // them, the Done landing's build of 120 s with 120 ms, and a later landing's
 // build, each landing's own exact build, and its local read.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keepLandedCiHistory } from "../../tests/support/landedCiHistory.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { expect } from "../../tests/support/preparationPage.ts";

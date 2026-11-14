@@ -1,15 +1,15 @@
 // Sessions already open on the story cards of a paused page, kept in the
 // machine's launch store and listed by the synthetic `claude` before the page
 // first reads them, so a journey starts with them without replaying Start:
-// the attention journeys (./sessions/agent-launch-attention.spec.ts and
-// ./sessions/agent-launch-attention-taken.spec.ts) and the card session-state
-// journey
-// (./sessions/agent-launch-story-card-session-states.spec.ts). The production
+// the attention journeys (../../e2e/sessions/agent-launch-attention.spec.ts
+// and ../../e2e/sessions/agent-launch-attention-taken.spec.ts) and the card
+// session-state journey
+// (../../e2e/sessions/agent-launch-story-card-session-states.spec.ts). The production
 // records reader joins the two, so listing failure and recovery stay real.
 
 import path from "node:path";
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   agentAcceptEndpoint,
   agentContinueEndpoint,
@@ -20,7 +20,7 @@ import type { LaunchRecord } from "../src/launchRecord.ts";
 import {
   identityA,
   identityB,
-} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { parts, sessionNamedBy, storyCardSessionOf } from "./dashboardPage.ts";

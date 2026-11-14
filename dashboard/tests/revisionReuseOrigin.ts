@@ -5,9 +5,9 @@
 // revisions, the comparisons, and the commits between (./originAnswers.ts,
 // ./pathHistoryAnswers.ts); that answerer is ./revisionReuseAnswers.ts.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
-import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
+import type { RevisionFacts } from "../../Distribution/tests/support/repositoryTestData.mjs";
 import type {
   ChangedFile,
   MadeCommit,

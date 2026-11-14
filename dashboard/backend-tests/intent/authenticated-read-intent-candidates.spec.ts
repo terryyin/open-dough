@@ -16,7 +16,7 @@ import {
   notFoundAnswer,
 } from "../../tests/originAnswers.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { describedBacklog } from "../../tests/describedRevisions.ts";
 import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";
 import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";

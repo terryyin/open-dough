@@ -2,7 +2,7 @@ import {
   queuedReadyRepository,
   storyB,
   storySeed,
-} from "../../../tests/support/queued-repository.mjs";
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { shortRevision, parts } from "../dashboardPage.ts";

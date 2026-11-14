@@ -3,9 +3,9 @@
 // the limit withholds, and a planned story whose record is read beside it and
 // whose plan is asked only after the limit.
 
-import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { describedRevision } from "./describedRevisions.ts";
 export const repository = "terryyin/open-dough";
 export const backlogPath = ".planning/PRODUCT-BACKLOG.md";

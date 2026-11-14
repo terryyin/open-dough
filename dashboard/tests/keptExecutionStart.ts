@@ -23,7 +23,7 @@ import {
   queuedTitle,
   type StartOrigin,
 } from "./support/startOrigin.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const request = makeMe.aLaunchRequest
   .executing({ identity: queuedIdentity, title: queuedTitle })

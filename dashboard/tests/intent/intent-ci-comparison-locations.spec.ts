@@ -5,7 +5,7 @@ import { comparisonReading } from "../intentCiComparisonPage.ts";
 // under its one header while that read is still held, and stays, without
 // reading CI again, once it settles; beside a failed locations read, Changed
 // tests explains the failure with its Retry. The comparison's own content
-// lives in ./intent-ci-comparison.spec.ts.
+// lives in ../../../e2e/intent/intent-ci-comparison.spec.ts.
 
 import { expect, test } from "../support/preparationPage.ts";
 import { comparisonWorkflowPath } from "../support/storyCiComparisonFixture.ts";

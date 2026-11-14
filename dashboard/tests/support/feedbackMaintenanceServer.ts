@@ -7,7 +7,7 @@ import { expect } from "@playwright/test";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import { describedBacklog } from "../describedRevisions.ts";
 import type { MovingOrigin } from "../publishedOrigin.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { feedbackWatchListPath as watchList } from "../../src/feedbackReview.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {

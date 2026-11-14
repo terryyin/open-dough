@@ -1,13 +1,13 @@
 // What one published done record says, as the shared done-record module
-// under `src/skills/dough-product-backlog/scripts/` reads it, checked here for
+// under `Distribution/src/skills/dough-product-backlog/scripts/` reads it, checked here for
 // the fields this dashboard shows: Recently done's cards
 // (`./doneStories.ts`) and a done story's follow-up context, which the
 // server reads at the revision the page showed
 // (`../server/followUpStory.ts`).
 
 import { z } from "zod";
-import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { parseDoneRecordFile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { agentHosts } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { parseDoneRecordFile } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
 const doneStory = z.object({
   identity: z.string().min(1),

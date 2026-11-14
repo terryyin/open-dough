@@ -4,7 +4,7 @@ import { closeSidePanel } from "../sidePanelFrame.ts";
 import { fileBrowser } from "../support/reviewContextLine.ts";
 import { reviewRegion } from "../support/storyReviewMark.ts";
 import { reviewChanges } from "../storyCardControls.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { parts } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";

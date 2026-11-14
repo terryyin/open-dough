@@ -1,0 +1,238 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2154,SC2312 # Platform wrappers and sourced helpers consume these globals.
+
+delivery_source_dir=
+delivery_fixture=
+delivery_host_name=
+delivery_host_upper=
+delivery_platform=
+delivery_skill_root=
+delivery_improvement='When authoritative status sources disagree, enumerate each conflicting repository-relative source and the value it reports before asking a human to resolve precedence.'
+# shellcheck source=Distribution/tests/helpers/public-payload-fixture.bash
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/helpers/public-payload-fixture.bash"
+delivery_baseline_version=0.2.1
+delivery_update_version=0.2.2
+
+# shellcheck source=Distribution/tests/helpers/release-fixture.bash
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/helpers/release-fixture.bash"
+# shellcheck source=Distribution/tests/helpers/fixture-cache.bash
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/helpers/fixture-cache.bash"
+# shellcheck source=Distribution/tests/helpers/rewrite-file.bash
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/helpers/rewrite-file.bash"
+# shellcheck source=Distribution/src/install/open-dough-platform.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/src/install/open-dough-platform.sh"
+# shellcheck source=Distribution/tests/support/dough-adr-awareness-release-transition.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/support/dough-adr-awareness-release-transition.sh"
+# shellcheck source=Distribution/tests/support/native-cases.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/support/native-cases.sh"
+# shellcheck source=Distribution/tests/support/native-result-retain.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/support/native-result-retain.sh"
+# shellcheck source=Distribution/tests/support/native-run-supervise.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/support/native-run-supervise.sh"
+# shellcheck source=Distribution/tests/support/dough-adr-awareness-updated-use.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/support/dough-adr-awareness-updated-use.sh"
+
+delivery_parse_native_case_args() {
+  native_case_entry="Distribution/tests/dough-adr-awareness-${delivery_platform}-delivery-to-use.sh"
+  native_case_parse --wrapper delivery --host "${delivery_platform}" "$@"
+  case ${native_case_mode} in
+    list)
+      native_case_print_listing
+      exit 0
+      ;;
+    native-selected)
+      case ${native_case_id} in
+        delivery/updated-use)
+          delivery_run_selected_updated_use
+          exit 0
+          ;;
+        *)
+          native_case_fail "unknown case '${native_case_id}'"
+          ;;
+      esac
+      ;;
+    default | native-full) ;;
+    *)
+      native_case_fail "internal error: unexpected mode ${native_case_mode}"
+      ;;
+  esac
+}
+
+delivery_run_deterministic_transition() {
+  local output
+
+  delivery_prepare_fixture
+  delivery_assert_baseline_install
+  delivery_capture_update_state
+  output="${delivery_temporary_dir}/deterministic-update-output.txt"
+  delivery_apply_ordinary_from_recorded_source "${output}"
+  delivery_assert_update "${output}" 0
+}
+
+delivery_snapshot() {
+  local root=$1
+  (
+    cd -- "${root}" || exit
+    # shellcheck disable=SC2312 # pipefail preserves failures across the digest pipeline.
+    find . -path './.git' -prune -o -type f -print0 \
+      | LC_ALL=C sort -z \
+      | xargs -0 shasum -a 256
+  )
+}
+
+delivery_require_output() {
+  local label=$1
+  local pattern=$2
+  local output_file=$3
+  if ! grep -Eiq "${pattern}" "${output_file}"; then
+    printf 'FAIL: native %s output omitted %s.\n' \
+      "${delivery_host_name}" "${label}" >&2
+    return 1
+  fi
+}
+
+delivery_check_fixture() {
+  [[ -n ${delivery_source_dir} ]]
+  [[ -n ${delivery_fixture} ]]
+  [[ -n ${delivery_host_name} ]]
+  [[ -n ${delivery_host_upper} ]]
+  [[ -n ${delivery_skill_root} ]]
+  grep -Fq 'The catalog and each record' "${delivery_fixture}/AGENTS.md"
+  grep -Fq '| [ARC-12]' \
+    "${delivery_fixture}/architecture/decisions/CATALOG.md"
+  grep -Fq 'Standing: Adopted' \
+    "${delivery_fixture}/architecture/decisions/retain-complete-telemetry-history.md"
+  grep -Fq "| ${delivery_host_name} |" \
+    "${delivery_source_dir}/Distribution/src/skills/dough-update/SKILL.md"
+}
+
+# The two tagged releases and a checkout of the older one, under <root>.
+delivery_build_releases() {
+  local root=$1
+  local release_source="${root}/fixture-source"
+
+  node --input-type=module - "${source_dir}" "${delivery_baseline_version}" \
+    "${delivery_update_version}" "${delivery_improvement}" << 'NODE' | node "${source_dir}/Distribution/tests/support/release-source.mjs" "${release_source}"
+import { readFileSync } from "node:fs";
+const [source, baseline, updated, improvement] = process.argv.slice(2);
+const skillPath = "Distribution/src/skills/dough-adr-awareness/SKILL.md";
+const skill = readFileSync(`${source}/${skillPath}`, "utf8");
+console.log(JSON.stringify({ revisions: [
+  { name: "release baseline current-contract payload", release: {
+    version: baseline, taggedAt: "2026-09-06T00:00:00", marker: "baseline-adr" } },
+  { name: "release improved ADR conflict evidence", release: {
+    version: updated, taggedAt: "2026-09-07T00:00:00", marker: "improved-adr" },
+    files: { [skillPath]: `${skill}\n## Improved conflict evidence\n\n${improvement}\n` } },
+] }));
+NODE
+  checkout_tagged_release "${release_source}" \
+    "${root}/older-release" "${delivery_baseline_version}"
+  if grep -Fq "${delivery_improvement}" \
+    "${root}/older-release/Distribution/src/skills/dough-adr-awareness/SKILL.md"; then
+    echo 'FAIL: baseline fixture already has the later ADR improvement.' >&2
+    return 1
+  fi
+}
+
+# This host's adopter under <root> with the older release installed from
+# <releases>, before the adopter becomes a repository.
+delivery_build_adopter() {
+  local root=$1
+  local releases=$2
+  local target="${root}/atlas adopter"
+  local source_url
+
+  source_url="file://$(cd -- "${releases}/fixture-source" && pwd -P)"
+  cp -R -- "${delivery_fixture}" "${target}"
+  mkdir -p -- \
+    "${target}/${delivery_skill_root}/companion-integration"
+  printf '%s\n' \
+    '---' \
+    'name: companion-integration' \
+    'description: Existing client project integration preserved by updates.' \
+    '---' \
+    '' \
+    '# Companion integration' \
+    '' \
+    'Keep this installed integration unchanged.' > \
+    "${target}/${delivery_skill_root}/companion-integration/SKILL.md"
+  rewrite_file "${target}/architecture/decisions/CATALOG.md" \
+    's/| \[ARC-12\](\.\/retain-complete-telemetry-history\.md) | Adopted |/| [ARC-12](.\/retain-complete-telemetry-history.md) | Replaced |/'
+
+  bash "${releases}/older-release/install.sh" \
+    --target "${target}" --source "${source_url}" \
+    --platform "${delivery_platform}" > /dev/null
+
+  if grep -Fq "${delivery_improvement}" \
+    "${target}/${delivery_skill_root}/dough-adr-awareness/SKILL.md"; then
+    printf 'FAIL: baseline %s installation already has fixture improvement.\n' \
+      "${delivery_host_name}" >&2
+    return 1
+  fi
+}
+
+delivery_prepare_fixture() {
+  local revisions
+
+  delivery_temporary_dir=$(mktemp -d)
+  trap 'rm -rf -- "${delivery_temporary_dir}"' EXIT
+  delivery_fixture_source="${delivery_temporary_dir}/fixture-source"
+  delivery_older_checkout="${delivery_temporary_dir}/older-release"
+  delivery_target="${delivery_temporary_dir}/atlas adopter"
+  fixture_cache_fill delivery-releases "${delivery_temporary_dir}" \
+    delivery_build_releases
+  fixture_cache_fill "delivery-${delivery_platform}" "${delivery_temporary_dir}" \
+    delivery_build_adopter "${fixture_cache_built}"
+  # Each release commit, as made; delivery_assert_baseline_install checks the tags.
+  revisions=$(git -C "${delivery_fixture_source}" rev-parse HEAD~1 HEAD)
+  delivery_baseline_revision=${revisions%%$'\n'*}
+  delivery_source_revision=${revisions#*$'\n'}
+  delivery_source_url="file://$(cd -- "${delivery_fixture_source}" && pwd -P)"
+
+  init_fixture_repo "${delivery_target}"
+  git -C "${delivery_target}" add .
+  git -C "${delivery_target}" commit -qm 'fixture: install previous public guidance'
+}
+
+delivery_assert_use() {
+  local use_output=$1
+  local dollar='$'
+
+  delivery_require_output 'the explicit skill invocation' \
+    "Invocation: \\${dollar}dough-adr-awareness" "${use_output}"
+  delivery_require_output 'the catalog authority' \
+    'architecture/decisions/CATALOG\.md' "${use_output}"
+  delivery_require_output 'the ARC-12 record authority' \
+    'architecture/decisions/retain-complete-telemetry-history\.md' "${use_output}"
+  delivery_require_output 'the Replaced catalog value' 'Replaced' "${use_output}"
+  delivery_require_output 'the Adopted record value' 'Adopted' "${use_output}"
+  delivery_require_output 'conflict recognition' \
+    'conflict|disagree|ambigu' "${use_output}"
+  delivery_require_output 'a stop pending resolution' \
+    'stop|stopped|blocked|did not proceed|cannot proceed|cannot yet be assessed|remains incomplete|until .*resolved|pending .*resolution' \
+    "${use_output}"
+  delivery_require_output 'human-owned precedence resolution' \
+    'human|you.*(choose|resolve)|owns?.*precedence' "${use_output}"
+  delivery_require_output 'the no-change report' \
+    'no .*changed|did not (change|modify)|changed (neither|no)|changed .*:.*no' \
+    "${use_output}"
+  if grep -Fq '## ADR CHECK COMPLETE' "${use_output}"; then
+    printf 'FAIL: %s claimed completion despite unresolved authority.\n' \
+      "${delivery_host_name}" >&2
+    return 1
+  fi
+  if grep -Eiq 'docs/adrs|doughnut' "${use_output}"; then
+    echo 'FAIL: native use fell back to source-project layout or identity.' >&2
+    return 1
+  fi
+}

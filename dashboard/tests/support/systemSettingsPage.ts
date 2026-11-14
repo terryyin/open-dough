@@ -14,3 +14,11 @@ export const projectRow = (page: Page, label: string) =>
   page.getByRole("listitem").filter({
     has: page.getByRole("heading", { name: label, exact: true }),
   });
+// The confirmation a project's Remove opens, naming that project.
+export const removeDialog = (page: Page, label: string) =>
+  page.getByRole("dialog", { name: `Remove ${label}?`, exact: true });
+// Confirms that project's removal in its open confirmation.
+export const confirmRemoval = (page: Page, label: string) =>
+  removeDialog(page, label)
+    .getByRole("button", { name: "Remove", exact: true })
+    .click();

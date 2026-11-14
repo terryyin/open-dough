@@ -7,7 +7,7 @@ import {
 } from "../tests/intentScopeHistoryPage.ts";
 // Supplemental receiving/presentation proof. Actual collection and retained
 // unit projection belong to the integrated collector-to-Summary journey.
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expectComparisonScopeRows } from "../tests/intentScopeProofPage.ts";
 import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
 import {

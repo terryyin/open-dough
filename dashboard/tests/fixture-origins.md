@@ -23,6 +23,6 @@ The story-columns journey (`launchJourney.ts`) shares its queued, preparing
 and taken revisions the same way: the runner prepares that history once as a
 snapshot (`story-columns-prefix`), and the shared materializer copies it into
 each worker's own origin and checkout before committing that worker's
-completion revision (`tests/support/repository-fixture.mjs`). Without an
+completion revision (`Distribution/tests/support/repository-fixture.mjs`). Without an
 owner, or for a description with other leading revisions, the worker builds
 the whole history itself.

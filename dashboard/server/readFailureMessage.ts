@@ -5,7 +5,7 @@
 // from the boundary's HTTP wrapper or rendered prose).
 
 import { notAskedOfGitHub } from "../src/authenticatedReadRules.ts";
-import { ownerFailureText } from "../../src/skills/dough-execute-plan/scripts/github-request-owner-failure.mjs";
+import { ownerFailureText } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-failure.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   GhFailure,

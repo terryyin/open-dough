@@ -1,7 +1,7 @@
 // Plan associations and recorded progress for the readiness fixture.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
 
 export const planBlockedRelative = "../slice-plans/075-blocked/PLAN.md";
 export const planReadyRelative = "../slice-plans/075-ready/PLAN.md";

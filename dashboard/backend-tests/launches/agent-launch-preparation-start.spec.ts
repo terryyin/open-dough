@@ -10,7 +10,7 @@
 // schema (no publisher ID, mode, or plan), and the sessions answer lists the
 // projects whose installed skill ships the start and formatter.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, realpathSync, rmSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -29,7 +29,7 @@ import {
   startOrigin,
   type StartOrigin,
 } from "../../tests/support/startOrigin.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest
   .refining({ identity: queuedIdentity, title: queuedTitle })

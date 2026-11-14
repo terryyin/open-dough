@@ -9,7 +9,22 @@
   "intent": {
     "locations": [
       {
+        "path": "e2e",
+        "label": "E2E Test",
+        "kind": "typescript",
+        "include": [
+          "**/*.spec.ts",
+          "launches/feedbackMaintenanceDueHeldCases.ts",
+          "runtime/productionUpdateJourney.ts",
+          "runtime/productionUpdatePolicies.ts",
+          "sessions/agentSessionCursorUnavailableCases.ts"
+        ],
+        "makeMe": true,
+        "pageObjects": true
+      },
+      {
         "path": "dashboard/tests",
+        "label": "Dashboard Integrated UI Test",
         "kind": "typescript",
         "include": ["**/*.spec.ts"],
         "makeMe": true,
@@ -31,20 +46,19 @@
         "makeMe": true
       },
       {
-        "path": "tests",
+        "path": "Distribution",
+        "label": "Distribution Tests",
         "sources": [
-          { "include": ["*.sh"], "syntax": "shell" },
+          { "include": ["tests/*.sh"], "syntax": "shell" },
           {
-            "include": ["*.test.mjs", "support/*.test.mjs"],
+            "include": [
+              "tests/*.test.mjs",
+              "tests/support/*.test.mjs",
+              "src/skills/**/*.test.mjs"
+            ],
             "syntax": "javascript"
           }
         ],
-        "makeMe": true
-      },
-      {
-        "path": "src/skills",
-        "kind": "javascript",
-        "include": ["**/*.test.mjs"],
         "makeMe": true
       }
     ]

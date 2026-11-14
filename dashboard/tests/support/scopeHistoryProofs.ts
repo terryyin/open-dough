@@ -1,7 +1,7 @@
 // Scoped history's runner facts per file under dashboard/tests: the actual
 // CLI summary bytes the shared native producer makes of them, with
 // independent case and file evidence, and the proof collection keeps of them.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { ProofRun } from "./ciProofArtifacts.ts";
 import { collectedSummary, playwrightRecord } from "./ciProofCollected.ts";
 

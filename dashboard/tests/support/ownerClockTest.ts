@@ -4,7 +4,7 @@
 // (./listingReuseWithOwnerClock.ts). The owner serves only the case that asks
 // for this `test`; every other case keeps the shared owner and its real clock.
 
-import { requestOwnerEnvironmentAt } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+import { requestOwnerEnvironmentAt } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { test as base } from "../dashboardTest.ts";
 import { requestOwnerWithClock } from "./listingReuseWithOwnerClock.ts";
 

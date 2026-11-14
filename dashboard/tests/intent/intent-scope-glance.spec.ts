@@ -6,7 +6,7 @@
 // selected landing's proof, as a machine keeps them, feed the real
 // authenticated history read of the Done story the worker keeps
 // (../support/projectScopeHistoryFixture.ts). Collecting them is
-// ./intent-scope-collected-file-timing-history.spec.ts's.
+// ../../../e2e/intent/intent-scope-collected-file-timing-history.spec.ts's.
 import { shortSha } from "../../src/baseCiWording.ts";
 import { expectReadableContrast } from "../accessibleReading.ts";
 import {

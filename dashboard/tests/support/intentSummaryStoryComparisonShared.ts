@@ -2,8 +2,8 @@
 // comparison publishers (./intentSummaryStoryComparisonFixture.ts,
 // ./intentSummaryStoryComparisonVariantPublishers.ts).
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import { intentSettingsText } from "./intentSettingsFile.ts";
 import { intentSettings } from "./intentStoryWorktree.ts";
 import { commitAll, lines, writeAt } from "./storyReviewWorktree.ts";

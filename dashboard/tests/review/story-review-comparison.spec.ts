@@ -3,7 +3,7 @@
 // worktree (../support/storyReviewMark.ts), reading nothing anew: a named
 // switch says which comparison is shown. Refresh keeps the comparison shown,
 // of a new snapshot; each opening starts on the changes since the review.
-// Each comparison's files are in ./story-review-comparison-files.spec.ts. With no later change the review says nothing
+// Each comparison's files are in ../../../e2e/review/story-review-comparison-files.spec.ts. With no later change the review says nothing
 // changed since the review, without Hide files, and offers the same switch;
 // an unmarked story's review opens on all its changes and offers Commits.
 

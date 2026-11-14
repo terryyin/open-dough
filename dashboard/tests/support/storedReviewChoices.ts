@@ -1,8 +1,8 @@
 // Refresh integration owns store -> real reader -> transport -> displayed choice.
 // Every test has a private origin/store; no native launch arranges these records.
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { test as base } from "../dashboardTest.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import {

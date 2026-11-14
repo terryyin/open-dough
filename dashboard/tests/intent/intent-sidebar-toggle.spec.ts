@@ -12,7 +12,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { box } from "../partArrangement.ts";
-import { storyA } from "../../../tests/support/queued-repository.mjs";
+import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { chooseProject, parts } from "../dashboardPage.ts";
 import { ciPanel } from "../intentCiStatusPage.ts";
 import {

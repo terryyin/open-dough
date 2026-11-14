@@ -19,7 +19,7 @@ import {
   preparationSlug as slug,
   type KeptPreparation,
 } from "../../tests/support/keptPreparation.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.describe("a kept preparation start", () => {
   let preparation: KeptPreparation;

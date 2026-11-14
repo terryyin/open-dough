@@ -1,6 +1,6 @@
 import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 
 for (const settings of [

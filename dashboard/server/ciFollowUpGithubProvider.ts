@@ -1,5 +1,5 @@
 // GitHub owns the exact-attempt reads and its full workflow rerun request.
-import { repeatGitHubWorkflow } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
+import { repeatGitHubWorkflow } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { observeRepeat } from "./ciFollowUpObservation.ts";
 import { prepareCiRepeat } from "./ciFollowUpRequest.ts";

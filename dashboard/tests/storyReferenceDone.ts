@@ -1,17 +1,17 @@
 // Published Done facts and semantic references only: the real range decides
 // what is shown and read. No local sessions or pre-expanded range are supplied.
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   queuedSeedWithDependencies,
   storySeed,
-} from "../../tests/support/queued-repository.mjs";
-import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
+} from "../../Distribution/tests/support/queued-repository.mjs";
+import type { RevisionFacts } from "../../Distribution/tests/support/repositoryTestData.mjs";
 import { placedAt, progressiveEntries } from "./recentlyDoneProgressive.ts";
 import { agreement, consumer } from "./storyDependencyFixture.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
 const doneEntries = progressiveEntries(35, []).map((entry) => {
   if (entry.kind !== "story") throw new Error("Expected only Done stories");

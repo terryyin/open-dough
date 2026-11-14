@@ -4,7 +4,7 @@
 // ./intentLocationSelection.ts. Recursive listing reuses ./ghTrees.ts through
 // ./pinnedTexts.ts.
 
-import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentSettingsPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";

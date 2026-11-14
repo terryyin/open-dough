@@ -6,7 +6,7 @@ import { launchRecordsSchema } from "../../src/agentLaunch.ts";
 import { creationProblem, creationView } from "../../server/launchCreation.ts";
 import { codexHost } from "../../server/codexHost.ts";
 import { shellCommand } from "../../src/sessionCapabilities.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const record = makeMe.aCreationRecord
   .adHoc({

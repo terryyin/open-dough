@@ -8,12 +8,12 @@ import { execFile } from "node:child_process";
 import path from "node:path";
 import { promisify } from "node:util";
 import { installedSkillPath } from "../../server/launchHosts.ts";
-import { agentIdentity } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   takeRevision,
   type storyA,
-} from "../../../tests/support/queued-repository.mjs";
-import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
+} from "../../../Distribution/tests/support/queued-repository.mjs";
+import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { queuedIdentity } from "./queuedStories.ts";
 import { dashboardDeveloper } from "./startOriginPreparation.ts";
 

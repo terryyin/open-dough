@@ -3,7 +3,7 @@
 // (`../../src/followUpContext.ts`), spelled out for black-box assertions.
 
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 
 export const retiredTitle = "Why is the CI slow on main?";

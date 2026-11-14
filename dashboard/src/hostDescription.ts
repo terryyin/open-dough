@@ -1,6 +1,6 @@
 // Shared host facts only. Native commands and operations stay behind the
 // server's LaunchHost boundary; a known identity need not have a runtime.
-import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentHosts } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 export type HostIdentity = (typeof agentHosts)[number];
 export type HostDescription = {

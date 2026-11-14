@@ -4,7 +4,10 @@
 // ./intentSummaryStoryComparisonFixture.ts.
 
 import type { Page } from "@playwright/test";
-import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
   advanceCompletedTrunk,

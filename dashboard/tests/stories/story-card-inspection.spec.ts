@@ -4,12 +4,12 @@
 // with its detail open) changes the selected story. The dependency disclosure
 // and link do not select their card.
 
-import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
+import { direction } from "../../../Distribution/tests/support/product-backlog-fixture.mjs";
 import {
   queuedReadyRepository,
   roughStoryC,
   storyB,
-} from "../../../tests/support/queued-repository.mjs";
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";

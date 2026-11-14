@@ -6,7 +6,7 @@
 // failing with a teardown past its timeout, no process carrying that run's
 // identity remains. A process no worker can reach that way -- one whose
 // parent was already gone, left by a test whose teardown is abandoned -- is
-// ended and named by the run's own teardown (../../tests/support/globalSetup.ts,
+// ended and named by the run's own teardown (../../tests/support/runLifecycle.ts,
 // ../../tests/support/runProcesses.ts), which fails the run. The identity is a
 // variable only the inner run's environment holds, which its workers, their
 // servers, and the runners pass on, so processes of other runs and checkouts
@@ -37,13 +37,7 @@ const substitutes = path.join(
   "fixtures",
   "run-processes",
 );
-const globalSetup = path.join(
-  repoRoot,
-  "dashboard",
-  "tests",
-  "support",
-  "globalSetup.ts",
-);
+const support = path.join(repoRoot, "dashboard", "tests", "support");
 
 function innerConfig(workDir: string, spec: string) {
   // A teardown gets the config's timeout, so a short one keeps the
@@ -61,7 +55,7 @@ function innerConfig(workDir: string, spec: string) {
 
 // Preview substitutes open a page under this run's shared app and server
 // bundle. Prepare both here so the nested 5s budget is not spent waiting for
-// a cold first consumer (../../tests/support/globalSetup.ts).
+// a cold first consumer (../../tests/support/integratedGlobalSetup.ts).
 async function readyPreviewArtifacts(): Promise<void> {
   await Promise.all([sharedDashboardBuild(), sharedServerBundle()]);
 }
@@ -117,40 +111,47 @@ test("a run that times out while a production process runs leaves none of its pr
   expect(run.remaining).toEqual([]);
 });
 
-test("a run's own teardown ends a process its workers could not reach and fails naming it", async () => {
-  // The inner run uses the suite's global setup to take its own run identity
-  // and sweep at its end.
-  const workDir = mkdtempSync(path.join(tmpdir(), "run-processes-"));
-  const record = path.join(workDir, "orphan.json");
-  try {
-    const run = await runInnerPlaywright(
-      workDir,
-      {
-        ...innerConfig(workDir, "orphan-held-teardown.proof.ts"),
-        timeout: 3_000,
-        reporter: [[quietReporter]],
-        globalSetup,
-      },
-      { OPEN_DOUGH_ORPHAN_RECORD: record },
-    );
-    const output = `${run.stdout}${run.stderr}`;
-    const orphan = JSON.parse(readFileSync(record, "utf8")) as {
-      pid: number;
-      runId: string;
-    };
-    expect(run.status, output).not.toBe(0);
-    expect(output).toContain(
-      'Test timeout of 3000ms exceeded while running "afterEach" hook.',
-    );
-    expect(output).toContain("ERROR outside a test:");
-    expect(output).toContain(
-      "The run left 1 of its processes running after its workers exited, now ended.",
-    );
-    expect(output).toContain(`pid ${String(orphan.pid)} (up `);
-    expect(output).toContain("dough-run-processes-orphan");
-    expect(processAlive(orphan.pid)).toBe(false);
-    expect(processesOfRun(orphan.runId)).toEqual([]);
-  } finally {
-    rmSync(workDir, { recursive: true, force: true });
-  }
-});
+// Each group runner's setup shares this sweep.
+for (const [runner, globalSetup] of [
+  ["Dashboard Integrated UI Test: ", "integratedGlobalSetup.ts"],
+  ["Dashboard Frontend Test: ", "frontendGlobalSetup.ts"],
+  ["Dashboard Backend Test: ", "backendGlobalSetup.ts"],
+  ["E2E Test: ", "e2eGlobalSetup.ts"],
+] as const)
+  test(`${runner}a run's own teardown ends a process its workers could not reach and fails naming it`, async () => {
+    // The inner run uses the suite's global setup to take its own run identity
+    // and sweep at its end.
+    const workDir = mkdtempSync(path.join(tmpdir(), "run-processes-"));
+    const record = path.join(workDir, "orphan.json");
+    try {
+      const run = await runInnerPlaywright(
+        workDir,
+        {
+          ...innerConfig(workDir, "orphan-held-teardown.proof.ts"),
+          timeout: 3_000,
+          reporter: [[quietReporter]],
+          globalSetup: path.join(support, globalSetup),
+        },
+        { OPEN_DOUGH_ORPHAN_RECORD: record },
+      );
+      const output = `${run.stdout}${run.stderr}`;
+      const orphan = JSON.parse(readFileSync(record, "utf8")) as {
+        pid: number;
+        runId: string;
+      };
+      expect(run.status, output).not.toBe(0);
+      expect(output).toContain(
+        'Test timeout of 3000ms exceeded while running "afterEach" hook.',
+      );
+      expect(output).toContain("ERROR outside a test:");
+      expect(output).toContain(
+        "The run left 1 of its processes running after its workers exited, now ended.",
+      );
+      expect(output).toContain(`pid ${String(orphan.pid)} (up `);
+      expect(output).toContain("dough-run-processes-orphan");
+      expect(processAlive(orphan.pid)).toBe(false);
+      expect(processesOfRun(orphan.runId)).toEqual([]);
+    } finally {
+      rmSync(workDir, { recursive: true, force: true });
+    }
+  });

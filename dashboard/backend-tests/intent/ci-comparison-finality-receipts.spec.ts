@@ -1,6 +1,6 @@
 // Real matching over raw namespaced launch/history documents and a controlled
 // clock; optional local evidence never replaces published endpoint facts.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   baseline,
   landing,

@@ -2,7 +2,7 @@
 // after a reload at a revision that publishes one. The fake GitHub only
 // publishes the files; the page decides everything shown.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { shortRevision, parts } from "../dashboardPage.ts";
 import {

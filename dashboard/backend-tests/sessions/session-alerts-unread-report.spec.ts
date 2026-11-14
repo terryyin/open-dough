@@ -1,5 +1,5 @@
 // The dashboard server's macOS notification when a session's completion report
-// arrives unread (../../server/sessionAlerts.ts; ../../tests/sessions/session-alerts.spec.ts is the
+// arrives unread (../../server/sessionAlerts.ts; ../../../e2e/sessions/session-alerts.spec.ts is the
 // native reading's): one notification in the report's own words, “Unread
 // report: <completion label>”, whatever the native reading, which goes on
 // alerting as it would without a report; none for a session marked done.
@@ -9,7 +9,7 @@
 // the sessions every 100 ms here; "nothing more" is asserted only after the
 // fake `claude` has logged further listings, never after a sleep.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { expect } from "@playwright/test";
 import { markDone } from "../../tests/agentLaunchBoundary.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";

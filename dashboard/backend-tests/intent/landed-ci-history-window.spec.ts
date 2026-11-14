@@ -12,7 +12,7 @@
 // ../../tests/intent/intent-ci-wall-time-history-window.spec.ts.
 
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { GhCall } from "../../tests/support/fakeGitHub.ts";
 import {
   keepLandedCiHistory,

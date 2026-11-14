@@ -160,8 +160,8 @@ comparable load.
 ### Resolved (2026-10-30 resolve)
 
 The accepted costs now live as comments beside their tests, such as the
-[second-server journey](../../dashboard/tests/launches/agent-launch-second-server.spec.ts)
-and the [production watcher chain](../../dashboard/tests/runtime/production-watcher.spec.ts).
+[second-server journey](../../e2e/launches/agent-launch-second-server.spec.ts)
+and the [production watcher chain](../../e2e/runtime/production-watcher.spec.ts).
 Their earlier record entries are recoverable at
 `144981e5f:.planning/TEST-OPTIMIZATION-CANDIDATES.md` (`#accepted-necessary-costs`).
 This heading remains as a forwarding link for existing story and plan references.

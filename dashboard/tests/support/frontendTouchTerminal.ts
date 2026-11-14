@@ -15,7 +15,7 @@ import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
 import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 type Substitute = Parameters<typeof installAttachedTerminalSubstitute>[1];
 

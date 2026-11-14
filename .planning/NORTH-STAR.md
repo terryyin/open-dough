@@ -216,3 +216,50 @@ Rules that keep later stories additive:
 
 Retire this topic when the sibling stories have delivered their rows and the
 code and tests carry it; keep any lasting rule in `dashboard/AGENT-LAUNCH.md`.
+
+## Versioned native comparison cases
+
+For [native comparisons](seeds/SEED-346-native-ab-comparisons.md#run-native-ab-comparisons-on-real-work),
+retain small examples from real work in maintenance sources, with source
+provenance, setup, neutral task and a separate assessor. Keep case/project
+state and each Open Dough payload independently identified; fresh disposable
+arm projects share the same case basis and recorded runtime conditions. Use
+ordinary Git revisions to refresh cases and recover earlier comparison bases.
+Reuse suitable existing native payload installation, host supervision, stream
+views and retention; do not inherit unrelated fixture-family or dashboard
+launch lifecycles. Keep expectations outside the agent workspace and leave
+retained-session accounting with its existing owner. A compact comparison
+basis records outcome/proof before effort, with incomplete runs and unavailable
+measurements explicit. Spent raw artifacts follow ADR 0005 cleanup.
+
+The SEED-324 pause and Doughnut SEED-122 replay supply real decisions and proof,
+but extraction fidelity and native duration remain hypotheses for early
+qualification. A controlled flag or scripted proof must not remove the judgment
+being evaluated. This direction serves SEED-346 and the subsequent guidance,
+context and handoff trials; it adds no dashboard service or installed runtime
+dependency and changes no Accepted ADR. Review ADR 0005's provisional A/B
+guidance after the first complete runs; humans retain any ADR change decision.
+
+## Follow-ups name what the developer was shown
+
+For a [follow-up from a Done story's diff](seeds/SEED-347-follow-up-from-a-file-diff.md#start-follow-up-from-a-file-diff),
+extend the delivered story follow-up source (`followUp.story` in
+`dashboard/src/followUpRequest.ts`) with an optional file anchor: path, old
+path, the comparison's two revisions and, for a line, its number and side. Do
+not add a parallel launch kind. The anchor belongs to the source's identity
+(`followUpSourceKey`), so the attempt and same-launch rules keep follow-ups of
+different files and lines apart. Admission validates the anchor against the
+Done story's comparison it reads itself. Reuse the historical-file check that
+review and Intent already apply: exact story, comparison revisions and a
+literally listed file, plus a line that exists on its side. One context composer
+(`followUpContext.ts`) adds the anchor's lines after the story's own. The
+line-number control and its menu belong to the shared diff (`DiffLines`), which
+both **Review changes** and Intent's Purpose already render, so both views gain
+it once. The menu holds the actions offered for a line, so
+[story notes](seeds/SEED-348-collect-notes-for-story-follow-ups.md#collect-notes-for-story-follow-ups)
+can add **Add note** without a second menu. The anchor names a comparison the
+server rebuilds from published history (Published completion) or a captured
+landing (a landed run), so a launch stays meaningful after trunk moves. A
+worktree snapshot cannot be rebuilt that way, which is why that case is
+deferred.
+Retire this topic once the code shows it.

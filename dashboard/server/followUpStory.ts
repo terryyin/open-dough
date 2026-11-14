@@ -9,7 +9,7 @@
 // that fails refuses it with 502, so nothing starts without the story's
 // facts.
 
-import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { doneRecordOf, type DoneStory } from "../src/doneRecord.ts";
 import { isOpen, storySessionsOf } from "../src/agentLaunch.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";

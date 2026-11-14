@@ -10,7 +10,7 @@ import { expect, stored } from "./codexLaunch.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { retained, report, save, keepFinalReport } from "./retainedReport.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { sessionStateOf, storyCardSessions } from "../dashboardPage.ts";
 import { notRefinedStory, type StoryColumnsJourney } from "../launchJourney.ts";
 import { pageColumnProjectValue } from "../pageLayout.ts";

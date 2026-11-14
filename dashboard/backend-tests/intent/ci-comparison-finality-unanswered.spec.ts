@@ -1,10 +1,10 @@
 // Raw request failures, held errors and malformed listings retain the actual
 // artifact reader's private brand through the shared finality/memory path.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   GitHubAcquisitionFailed,
   GitHubAcquisitionHeld,
-} from "../../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
+} from "../../../Distribution/src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import {
   baseline,
   landing,

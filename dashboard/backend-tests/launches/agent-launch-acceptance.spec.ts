@@ -13,7 +13,7 @@
 // `./agent-launch-open-session.spec.ts` and
 // `./agent-launch-open-session-continue.spec.ts`.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { chmodSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -42,7 +42,7 @@ import {
   type PushHold,
   type StartOrigin,
 } from "../../tests/support/startOrigin.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest
   .executing({ identity: queuedIdentity, title: queuedTitle })

@@ -18,8 +18,8 @@
 // trusts that the request was allowed to reach this point.
 // Failure kinds and JSON helpers: `./ghFailure.ts`.
 
-import type { GhAnswer } from "../../src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
-import { GitHubRequests } from "../../src/skills/dough-execute-plan/scripts/github-requests.mjs";
+import type { GhAnswer } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
+import { GitHubRequests } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-requests.mjs";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { recordFailedRead } from "./readDiagnostics.ts";
 import { timedGhWait } from "./readTiming.ts";

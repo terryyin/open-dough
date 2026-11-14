@@ -5,7 +5,7 @@
 // host serves or fails to. At a later revision GitHub names a newer version of
 // Yui's human's avatar.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   publishes,
   type AvatarAnswer,

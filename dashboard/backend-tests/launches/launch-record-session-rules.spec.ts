@@ -2,7 +2,7 @@
 // durable launch-record boundaries. Native attach, done and recovery journeys
 // remain in their host specs.
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   hostSessionSchema,
   launchRecordSchema,

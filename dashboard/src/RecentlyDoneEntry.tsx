@@ -4,7 +4,7 @@
 // Follow up, and its review state -- or, until its record is read, what it
 // says instead.
 
-import type { CataloguedDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { CiFollowUpCard } from "./CiFollowUpViews.tsx";
 import type { CiFollowUpAnswer } from "./ciFollowUp.ts";

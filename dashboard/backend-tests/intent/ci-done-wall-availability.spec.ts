@@ -1,5 +1,5 @@
 // Exact unavailable endpoints are explained by the authenticated local reader.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keepLandedCiHistory } from "../../tests/support/landedCiHistory.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";

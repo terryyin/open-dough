@@ -1,15 +1,15 @@
 // The files a `makeMe.aRepository` description publishes at each named
 // revision, served by the fake GitHub (./publishedFiles.ts) as the Git
 // materializer would commit them: one renderer writes both
-// (../../tests/support/repository-revision-files.mjs). The description states
+// (../../Distribution/tests/support/repository-revision-files.mjs). The description states
 // the facts; the revision SHAs stay the harness's own.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type {
   RepositoryDescription,
   RevisionFacts,
-} from "../../tests/support/repositoryTestData.mjs";
-import { renderPublishedRevisions } from "../../tests/support/repository-revision-files.mjs";
+} from "../../Distribution/tests/support/repositoryTestData.mjs";
+import { renderPublishedRevisions } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import { backlogPath } from "./publishedOriginBasics.ts";
 

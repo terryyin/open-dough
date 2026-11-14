@@ -12,7 +12,7 @@ import {
   publishMovingOrigin,
   type MovingOrigin,
 } from "./publishedOrigin.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { test } from "./support/pageTest.ts";
 
 export const revisionA = "a1".repeat(20);

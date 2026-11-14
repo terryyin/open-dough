@@ -6,8 +6,8 @@
 
 import { describedRevision, publishedFile } from "./describedRevisions.ts";
 import { backlogPath } from "./publishedOriginBasics.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 
 export const doughnutRepository = "nerds-odd-e/doughnut";
 

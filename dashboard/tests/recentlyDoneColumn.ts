@@ -1,5 +1,5 @@
 // The Recently done journeys' view of the column
-// (./stories/recently-done-stories.spec.ts, ./sessions/recently-done-story-sessions.spec.ts):
+// (../../e2e/stories/recently-done-stories.spec.ts, ./sessions/recently-done-story-sessions.spec.ts):
 // the names of the sessions outside any done story, those sessions as the
 // synthetic `claude` lists them, the column's own entries in order, and its
 // two range actions. Its count is `columnCountOf` (./dashboardParts.ts).

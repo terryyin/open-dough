@@ -12,7 +12,7 @@ import type { Page, Request } from "@playwright/test";
 import {
   doneRecordFileName,
   renderDoneRecord,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+} from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { rem } from "../boardPage.ts";
 import { expectEntries, revealAction } from "../recentlyDoneColumn.ts";

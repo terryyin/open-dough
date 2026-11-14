@@ -1,4 +1,4 @@
-// A real development configuration owner, Git checkout and gh subprocess.
+// A real development configuration owner and Git checkout with a private request owner.
 // Only GitHub's answer is synthetic; each test owns its HOME and restores env.
 import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync } from "node:fs";

@@ -1,15 +1,11 @@
-// Stands in for GitHub as the local `gh` CLI sees it. The dashboard server
-// under test launches the synthetic `gh` (../fixtures/fake-gh, installed by
-// ./fakeGh.ts); that process hands its argv here and prints what this fake
-// answers, converted the way the real `gh api` prints GitHub's answer. So the
-// dashboard's own local read boundary, its `gh` invocation, the browser
-// reader, the shared backlog interpretation, and the page all run for real;
-// a test only decides what GitHub would answer, per repository, and observes
-// the `gh` calls that reached it. How `gh api` prints each answer, a `304
-// Not Modified` to a still-matching `If-None-Match` included, is
-// ./ghReply.ts. It also stands in for GitHub's avatar host: the dashboard
-// server under test fetches avatars from here (`DOUGH_AVATAR_ORIGIN`), and a
-// test decides each image answer and observes each image read.
+// The one GitHub answerer shared by both fake gh transports. Ordinary API
+// calls post their argv from the already-running private request owner; tests
+// selecting CLI use ../fixtures/fake-gh as a native process instead. Both paths
+// receive the same byte-framed answer converted by ./ghReply.ts. The real local
+// authenticated boundary, request-owner admission/sharing/rate limits, browser
+// reader, backlog interpretation and page run unchanged. Tests decide only
+// GitHub's answers and observe requests arriving here. Avatar reads use the
+// same fake as DOUGH_AVATAR_ORIGIN, with independently supplied image answers.
 
 import http from "node:http";
 import type { AddressInfo } from "node:net";

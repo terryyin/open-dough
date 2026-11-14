@@ -39,7 +39,7 @@ epic when it comes up for refinement.
   [Launch start](../../dashboard/LAUNCH-START.md) ·
   [Terminals](../../dashboard/AGENT-LAUNCH-TERMINALS.md) ·
   [Completion reporting](../../dashboard/AGENT-LAUNCH-COMPLETION.md) ·
-  [Reporting client](../../src/skills/dough-execute-plan/scripts/dashboard-completion.mjs)
+  [Reporting client](../../Distribution/src/skills/dough-execute-plan/scripts/dashboard-completion.mjs)
 - Determine how a hosted launch identifies the intended published repository
   and revision, receives the released Dough skill and project tools, and
   returns a session identity and result. Decide which actions to expose for

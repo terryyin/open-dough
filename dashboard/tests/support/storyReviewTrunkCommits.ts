@@ -5,7 +5,7 @@
 // writing, or is rebased onto it.
 
 import { execFileSync } from "node:child_process";
-import { agentIdentity } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { git } from "./storyReviewWorktree.ts";
 
 export const yui = agentIdentity("Yui");

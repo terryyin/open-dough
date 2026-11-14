@@ -1,5 +1,5 @@
 // A story's worktree whose changes Intent overlays on its published tests
-// (../intent/intent-story-changes.spec.ts): trunk publishes Intent locations for
+// (../../../e2e/intent/intent-story-changes.spec.ts): trunk publishes Intent locations for
 // `dashboard/tests` (TypeScript specs) and `tests` (shell scripts) with test
 // files in nested folders, and the story modifies one spec, adds another as
 // an untracked file, deletes one, renames one between the two locations, one
@@ -10,9 +10,9 @@
 
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
-import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
+import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import { intentSettingsText } from "./intentSettingsFile.ts";
 

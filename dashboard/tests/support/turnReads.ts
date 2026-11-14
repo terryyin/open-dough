@@ -11,7 +11,7 @@ import type { GhRequest } from "./ghRequest.ts";
 import { heldInTurn } from "./heldGitHubAnswer.ts";
 import { askedSince, readAt } from "./sharedReads.ts";
 import { backlogApart, describedRevision } from "../describedRevisions.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 export const revisionOf = (pair: string) => pair.repeat(20);
 // How many reads one dashboard process has under way at GitHub at most.

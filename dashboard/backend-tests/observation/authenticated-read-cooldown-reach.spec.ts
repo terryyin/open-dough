@@ -8,7 +8,7 @@
 // the wait holds back every read of its process:
 // ./authenticated-read-cooldown.spec.ts. Shared-owner wiring belongs to
 // ./shared-request-owner.spec.ts; actual login isolation belongs to
-// ../../../src/skills/dough-execute-plan/scripts/github-request-login.test.mjs.
+// ../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-login.test.mjs.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
@@ -43,7 +43,7 @@ import {
   sharedSeedRead,
   sharedSeedText,
 } from "../../tests/support/sharedReads.ts";
-import { agentSettingsPath } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentSettingsPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const revision = "c3".repeat(20);
 const profilesRead = `&revision=${revision}&agents=profiles`;

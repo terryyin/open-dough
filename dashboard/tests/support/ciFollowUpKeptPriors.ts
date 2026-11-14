@@ -5,7 +5,7 @@
 // of their receipts. They stand at revisions no repository holds, where the
 // history's kept trunk order alone places them, or, for a receipt the product
 // itself orders on trunk, at the landings a case published and recorded there.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiProofEntry } from "../../src/ciProof.ts";
 import { executionTimeDifferenceWords } from "../../src/ciProofTimeWords.ts";
 import type { PriorBuildReference } from "../../src/ciPriorBuildReference.ts";

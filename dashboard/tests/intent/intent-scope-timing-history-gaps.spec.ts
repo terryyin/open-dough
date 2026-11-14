@@ -18,7 +18,7 @@ import {
 } from "../support/selectDoneStoryForSummaryComparison.ts";
 import { expectComparisonScopeRows } from "../intentScopeProofPage.ts";
 import { entryComparisonRows } from "../support/summaryComparisonExpectedRows.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { scopeHistoryGlanceOf } from "../../server/ciHistoryGlance.ts";

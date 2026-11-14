@@ -42,7 +42,7 @@ import {
 } from "../support/intentStoryPage.ts";
 import { expectFilesShown, filesToggle } from "../intentModePage.ts";
 import { colourOf } from "../pageColours.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const cuedFileLabel = summaryComparisonChanges.modified;
 const unchangedPath = "dashboard/tests/root.spec.ts";

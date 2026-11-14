@@ -1,5 +1,5 @@
 // Verify the actual original workflow attempt and freeze its complete decision.
-import { createGitHubActions } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
+import { createGitHubActions } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { completedJobs, repeatDecisionOf } from "./ciFollowUpDecision.ts";
 import { exactRepeatRun, sameRun } from "./ciFollowUpGithub.ts";

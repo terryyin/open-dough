@@ -1,0 +1,17 @@
+# The suite's time budget on CI, judged per split share at the recorded list's
+# runner speed: each job and the share total, divided by the share's runner
+# factor (the median, over jobs recorded in Distribution/tests/longest-first with a
+# measurable recorded time of at least 2 s, of observed/recorded seconds),
+# must stay within per-job-seconds and total-job-seconds. scripts/test.sh
+# compares each CI split's times that way, and a breach fails that split
+# naming observed time, factor and time at recorded speed; a local run is not
+# judged. Set at 1.2× the highest value at recorded speed (rounded up) from
+# the twelve retained main ci.yml runs 40834521203 … 41004369454 plus run
+# 41000649845 attempt 1 (artifact 12953780855), using this checkout's
+# Distribution/tests/longest-first: largest share total 577.5 job-seconds at recorded
+# speed (1.2× → 694), largest single job 52.7 s at recorded speed (1.2× →
+# 64). Raising either number is a reviewed edit, not a way to make a slow
+# change pass. Check a change against recent trunk CI times with
+# `bash scripts/ci-test-times.sh` (Distribution/tests/time-budget.md).
+per-job-seconds=64
+total-job-seconds=694

@@ -5,8 +5,8 @@ import { promisify } from "node:util";
 import { homedir } from "node:os";
 import { z } from "zod";
 import { developerShellEnvironment } from "../../developerShellEnvironment.ts";
-import { CodexConnection } from "../../../../src/skills/dough-execute-plan/scripts/codex-rpc.mjs";
-export { NativeRefusal } from "../../../../src/skills/dough-execute-plan/scripts/codex-rpc.mjs";
+import { CodexConnection } from "../../../../Distribution/src/skills/dough-execute-plan/scripts/codex-rpc.mjs";
+export { NativeRefusal } from "../../../../Distribution/src/skills/dough-execute-plan/scripts/codex-rpc.mjs";
 
 const execute = promisify(execFile);
 const daemonSchema = z.object({ socketPath: z.string().min(1) });

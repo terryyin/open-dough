@@ -82,9 +82,9 @@ maintained macOS guard. No scratch observation edit remains.
 
 ```sh
 # A: real backend boundary; controlled observation pace
-npm run test:dashboard -- dashboard/backend-tests/observation/authenticated-read-revision-stream.spec.ts --grep 'two streams of one source|rate-limited listing'
+npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-read-revision-stream.spec.ts --grep 'two streams of one source|rate-limited listing'
 # B: real browser/server/request owner; controlled page and owner clocks
-caffeinate -s -i npm run test:dashboard -- dashboard/tests/observation/revision-stream-lost.spec.ts --grep 'a rate-limited stream answer'
+caffeinate -s -i npm run test:e2e -- e2e/observation/revision-stream-lost.spec.ts --grep 'a rate-limited stream answer'
 # C: legacy capability and owner replacement policy
 node --test --test-name-pattern='a legacy read-only owner|startup refuses' src/skills/dough-execute-plan/scripts/ci-github-workflow-repeat-transport.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner-startup.test.mjs
 ```
@@ -200,7 +200,7 @@ status eligibility must fail their corresponding journey.
 Local gates: run the focused affected owner tests and observation suites above,
 dashboard typecheck/build for changed TS/wire contracts, and staged lint. Broader
 checks are added only for reached consumers, such as shared owner clients.
-Use [the maintained macOS sleep guard](../../../tests/local-test-resources.md#machine-sleep-on-macos)
+Use [the maintained macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 for long runs: awake on AC, `caffeinate -s -i`; on battery, lid open and
 `caffeinate -i`, inspecting sleep logs afterwards. Inspect host load/memory and
 competing runs before expensive proof; respect full-suite admission. No full

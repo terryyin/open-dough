@@ -24,7 +24,7 @@ import {
 } from "../intentCiStatusPage.ts";
 
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { parts, storyCardSessions } from "../dashboardPage.ts";

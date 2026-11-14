@@ -32,7 +32,7 @@ import {
   launchStoreFile,
 } from "../support/launchStore.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { sidePanelNamesOf } from "../sidePanelFrame.ts";
 import { credit } from "../agentCredit.ts";
 

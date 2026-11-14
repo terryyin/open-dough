@@ -31,7 +31,7 @@ import {
   publishedDone,
   revisionOf,
 } from "../../tests/support/doneCatalogReads.ts";
-import { doneCatalogFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import { doneCatalogFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 
 test.describe.configure({ mode: "serial" });
 
@@ -45,7 +45,10 @@ test.describe("authenticated done catalog refusal (development environment)", ()
   let server: DashboardServer;
 
   test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+    server = await startDashboardServer({
+      ...developmentBoundary,
+      ghTransport: "cli",
+    });
   });
 
   test.afterAll(async () => {

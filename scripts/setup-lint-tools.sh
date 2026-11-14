@@ -3,7 +3,7 @@
 #   SHELLCHECK_VERSION=<v> SHFMT_VERSION=<v> bash scripts/setup-lint-tools.sh
 # Acquisition must finish before OPEN_DOUGH_SETUP_DEADLINE_MS (epoch ms, set
 # by the job's first step). Both tools can recover from an unavailable GitHub
-# release using their upstream images. tests/ci-lint-setup.sh checks setup with
+# release using their upstream images. Distribution/tests/ci-lint-setup.sh checks setup with
 # controlled sources.
 set -euo pipefail
 # shellcheck disable=SC2154 # Set by the job's deadline step.

@@ -6,9 +6,9 @@
 // Recently done story. The failing story has a counted plan, so the page
 // reads its progress on its branch and its revision check watches that head.
 
-import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { describedFiles } from "./describedRevisions.ts";
 
 export const failing = {

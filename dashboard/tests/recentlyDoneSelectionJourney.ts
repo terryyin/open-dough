@@ -13,8 +13,8 @@
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { renderDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { catalogPublications } from "./catalogProjectRecords.ts";
 import { describedRevisions } from "./describedRevisions.ts";
 import {

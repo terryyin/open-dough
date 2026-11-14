@@ -22,7 +22,7 @@ readonly test_bash
 # directory lies inside this checkout. Outside-checkout substitutes (runner
 # fixtures over a temporary checks directory) stay independent.
 if (($# == 0)) && [[ -z ${CI:-} && -z ${OPEN_DOUGH_TEST_SPLIT:-} && ${DOUGH_LOCAL_SUITE_RUNNER_PID:-} != "${PPID}" ]]; then
-  admission_test_dir=${OPEN_DOUGH_TEST_DIR:-tests}
+  admission_test_dir=${OPEN_DOUGH_TEST_DIR:-Distribution/tests}
   [[ ${admission_test_dir} == /* ]] || admission_test_dir=${source_dir}/${admission_test_dir}
   checkout=$(pwd -P)
   if resolved=$(cd -- "${admission_test_dir}" 2> /dev/null && pwd -P); then
@@ -95,7 +95,7 @@ source "${source_dir}/scripts/test-report-jobs.bash"
 # directory, and OPEN_DOUGH_TEST_SPLIT's share. The runner resolves the test
 # directory once — OPEN_DOUGH_TEST_DIR, default `tests` — and hands it over.
 # A bad path fails the run here, before any job starts.
-test_dir=${OPEN_DOUGH_TEST_DIR:-tests}
+test_dir=${OPEN_DOUGH_TEST_DIR:-Distribution/tests}
 OPEN_DOUGH_TEST_DIR=${test_dir} "${test_bash}" scripts/test-jobs.sh --from "${caller_dir}" "$@" > "${output_root}/jobs"
 # Every OPEN_DOUGH_TEST_* setting is the runner's own: it has read each one it
 # uses by now, and none reaches a job, so a runner that a check starts runs all
@@ -155,7 +155,7 @@ trap 'interrupt TERM 143' TERM
 trap 'handle_run_deadline_signal' USR1
 
 # Absolute CI run cutoff (OPEN_DOUGH_TEST_DEADLINE_MS), when set: same epoch
-# model as the dashboard suite. Local named checks omit it by default.
+# model as the browser test groups. Local named checks omit it by default.
 arm_run_deadline
 
 # run_deadline_hit is assigned in scripts/test-run-deadline.bash.
@@ -169,9 +169,10 @@ for index in "${!labels[@]}"; do
     printf '%s\n' "${index}" > "${slot_gate_file}.partial"
     mv -- "${slot_gate_file}.partial" "${slot_gate_file}"
   fi
-  # Timed slot wait so a run-cutoff USR1 is noticed while every slot is busy;
-  # an unbounded read would ignore the flag until a job ended on its own.
-  while ! read -r -t 0.2 -u 3; do
+  # An untimed slot wait: Bash 5.2's timed read that wakes past its timeout
+  # takes a waiting token yet reports the timeout, losing that slot for the
+  # rest of the run. The run cutoff's watchdog writes a token to end this wait.
+  until read -r -u 3; do
     if ((run_deadline_hit)) || run_deadline_reached; then
       stop_running_jobs_for_run_deadline
       break 2

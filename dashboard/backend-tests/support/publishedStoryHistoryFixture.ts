@@ -1,6 +1,6 @@
 // Canonical published completion facts shared by acquisition proofs. Each
 // case materializes its own resources and keeps actions/evidence local.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   endpointPrefix,
   endpointIdentity,

@@ -3,7 +3,7 @@
 // the Git blob sha that names its content. A directory no file lies in is
 // answered with ./originAnswers.ts's not-found answer.
 
-import { gitBlobHash } from "../../src/skills/dough-product-backlog/scripts/product-backlog-complete.mjs";
+import { gitBlobHash } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-complete.mjs";
 import { notFoundAnswer, type RawAnswer } from "./originAnswers.ts";
 
 // One file a directory lists, with the Git blob sha GitHub's listing gives it.

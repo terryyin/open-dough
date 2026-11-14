@@ -7,7 +7,7 @@
 // motion. Transitions announce once; settling presents the session without
 // stealing focus from a newer task. Static protection is in responsiveRecovery.ts;
 // a refinement settling, then starting again, is in
-// ./responsive-session-refinement-restart.spec.ts.
+// ../../../e2e/launches/responsive-session-refinement-restart.spec.ts.
 
 import {
   storyCardSessions,

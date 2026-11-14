@@ -16,7 +16,7 @@ import type { DashboardServer } from "./support/dashboardServer.ts";
 import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import { keepLaunchRecords } from "./support/launchStore.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const instruction = "hold this session";
 

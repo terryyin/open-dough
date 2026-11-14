@@ -1,6 +1,6 @@
 // Start-Continue settlement refuses incomplete launch-workspace reporting
 // support before native launch and preserves the kept start.
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { execFileSync } from "node:child_process";
 import { readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";

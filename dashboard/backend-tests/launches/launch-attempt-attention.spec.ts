@@ -15,7 +15,7 @@ import { attemptsNeedingAttention } from "../../src/launchAttemptSelection.ts";
 import type { Reconciliation } from "../../src/startupReconciliation.ts";
 import { storiesAsked, storyStartup } from "../../src/storyStartup.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // A small deterministic generator, so a failure names a repeatable machine.
 function generator(seed: number) {

@@ -1,6 +1,6 @@
 // The run prepares the story-columns history before completion once
 // (../../tests/launchJourney.ts); each worker's copy owns its completion
-// and its mutable state (../../../tests/support/repository-fixture.mjs).
+// and its mutable state (../../../Distribution/tests/support/repository-fixture.mjs).
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -10,8 +10,8 @@ import { promisify } from "node:util";
 import {
   commitsTraced,
   fixtureFiles,
-} from "../../../tests/support/fixture-observation.mjs";
-import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
+} from "../../../Distribution/tests/support/fixture-observation.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import {
   storyColumnsPrefixArtifactKey,
   storyColumnsRepository,

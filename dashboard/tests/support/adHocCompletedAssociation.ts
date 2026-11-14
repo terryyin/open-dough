@@ -7,9 +7,12 @@ import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import type { APIRequestContext } from "@playwright/test";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
-import type { IntentCoverage } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../../Distribution/tests/support/queued-repository.mjs";
+import type { IntentCoverage } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import {
   completedStoryAssociationEndpoint,
   completedStoryAssociationSchema,

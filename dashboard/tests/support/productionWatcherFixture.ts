@@ -1,10 +1,11 @@
-import { mkdir, symlink, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciWorkflowPath } from "../../server/productionQualification.mjs";
 import { projectConfigurationFile } from "./projectConfiguration.ts";
 import { localPublishedMainFixture } from "./publishedMainFixture.ts";
 import { repoRoot } from "./repositoryRoot.ts";
+import { linkInstalledDevelopmentRuntime } from "./publishedDevelopmentRuntime.ts";
 
 // Real deployment builds run beside another worker. Keep their two native
 // Rolldown pools bounded unless the caller chose their concurrency.
@@ -53,7 +54,7 @@ export async function configureWatcherApplication(
     "GITHUB_ENTERPRISE_TOKEN",
   ])
     Reflect.deleteProperty(env, key);
-  return { configuration, configured, env };
+  return { configuration, configured, env: productionBuildEnvironment(env) };
 }
 
 const watchScript = "node scripts/watch-dashboard.mjs";
@@ -67,13 +68,13 @@ export function unpublishedWatcherFixture() {
 }
 
 export async function productionFailureFixture() {
-  const vite = shellArgument(
+  const vite = `node --experimental-transform-types ${shellArgument(
     path.join(repoRoot, "node_modules/vite/bin/vite.js"),
-  );
+  )}`;
   const config = shellArgument(
     path.join(repoRoot, "dashboard/tests/support/productionWatcherVite.mts"),
   );
-  const viteOptions = `dashboard --configLoader runner --config ${config}`;
+  const viteOptions = `dashboard --configLoader native --config ${config}`;
   const name = "watcher-deployment-fixture";
   const fixture = await watcherFixture({
     [ciWorkflowPath]: "on:\n  push:\n",
@@ -82,9 +83,9 @@ export async function productionFailureFixture() {
       name,
       scripts: {
         "watch:dashboard": watchScript,
-        "dev:dashboard": `node ${vite} ${viteOptions}`,
-        "build:dashboard": `node ${vite} build ${viteOptions}`,
-        "preview:dashboard": `node ${vite} preview ${viteOptions}`,
+        "dev:dashboard": `${vite} ${viteOptions}`,
+        "build:dashboard": `${vite} build ${viteOptions}`,
+        "preview:dashboard": `${vite} preview ${viteOptions}`,
       },
     }),
     "package-lock.json": JSON.stringify({
@@ -99,11 +100,8 @@ export async function productionFailureFixture() {
     await writeFile(configuration, "[]");
     // Use the installed runtime for the watcher-owned runner. Each deployment
     // still builds and serves its own published source in an isolated checkout.
-    await symlink(
-      path.join(repoRoot, "node_modules"),
-      path.join(fixture.development, "node_modules"),
-    );
-    return fixture;
+    await linkInstalledDevelopmentRuntime(fixture.development);
+    return { ...fixture, env: productionBuildEnvironment(fixture.env) };
   } catch (error) {
     await fixture.cleanup();
     throw error;

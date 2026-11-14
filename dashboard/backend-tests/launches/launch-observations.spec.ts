@@ -6,7 +6,7 @@ import { claudeHost } from "../../server/claudeHost.ts";
 import { codexHost } from "../../server/codexHost.ts";
 import { withStates } from "../../server/launchStates.ts";
 import { launchRequest } from "../../tests/agentLaunchBoundary.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const folder = { path: "/unused", shown: "unused" };
 // Two kept launches whose sessions share one native ID on different hosts.

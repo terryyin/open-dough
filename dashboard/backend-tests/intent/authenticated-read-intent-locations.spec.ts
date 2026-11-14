@@ -21,7 +21,7 @@ import {
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.describe.configure({ mode: "serial" });
 

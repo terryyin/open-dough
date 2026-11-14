@@ -1,9 +1,9 @@
 // Real scoped and Default executions as preconditions for runner lifetime
 // journeys. Their card/model UI stays in the launch and scope journeys.
 import { realpathSync } from "node:fs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
-import type { storyA } from "../../../tests/support/queued-repository.mjs";
+import type { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { sessionKey } from "../../src/sessionReference.ts";
 import { readCursorRunnerLastHeld } from "../../server/hosts/cursor/runnerPaths.ts";
 import { launch } from "../agentLaunchBoundary.ts";

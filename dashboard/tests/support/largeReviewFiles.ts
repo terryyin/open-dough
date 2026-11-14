@@ -1,6 +1,6 @@
 // The large comparison's changed-file facts. Git and review actions stay in
 // storyReviewWorktree.ts and its journeys.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { lines } from "./storyReviewWorktree.ts";
 
 // Two long files; the first ends in a line wider than the diff.

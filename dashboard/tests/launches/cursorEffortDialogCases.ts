@@ -1,6 +1,5 @@
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts, sessionEntriesIn } from "../dashboardPage.ts";
-import { launch } from "../agentLaunchBoundary.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import { expect, keptRecord, test } from "../support/cursorStart.ts";
 import {
@@ -152,57 +151,4 @@ test("switching Cursor model retains unsupported effort as invalid and blocks St
   await expect(
     dialog.getByRole("button", { name: "Start", exact: true }),
   ).toBeEnabled();
-});
-
-test("Cursor effort admission refuses unsupported pairs and accepts a composed listed id", async ({
-  dashboard,
-  cursor,
-}) => {
-  cursor.listModels(effortListing);
-  const unsupported = await launch(dashboard, {
-    source: "open-dough",
-    host: "cursor",
-    workflow: "ad-hoc",
-    model: "fixture-orb",
-    effort: "medium",
-    instruction: "Do work",
-  });
-  expect(unsupported.status).toBe(400);
-  expect(JSON.parse(unsupported.body)).toMatchObject({
-    error: expect.stringContaining("reasoning effort"),
-  });
-  expect(cursor.calls()).toEqual([]);
-
-  const missingEffort = await launch(dashboard, {
-    source: "open-dough",
-    host: "cursor",
-    workflow: "ad-hoc",
-    model: "fixture-orb",
-    instruction: "Do work",
-  });
-  expect(missingEffort.status).toBe(400);
-  expect(cursor.calls()).toEqual([]);
-
-  const ok = await launch(dashboard, {
-    source: "open-dough",
-    host: "cursor",
-    workflow: "ad-hoc",
-    model: "fixture-orb",
-    effort: "low",
-    instruction: "Do work",
-  });
-  expect(JSON.parse(ok.body)).toMatchObject({ kind: "launched" });
-  const client = cursor.attaches()[0];
-  expect(client?.args).toEqual([
-    "--workspace",
-    expect.any(String),
-    "--resume",
-    cursor.sessionId,
-    "--model",
-    "fixture-orb-low",
-  ]);
-  expect(keptRecord(dashboard.home).request).toMatchObject({
-    model: "fixture-orb",
-    effort: "low",
-  });
 });

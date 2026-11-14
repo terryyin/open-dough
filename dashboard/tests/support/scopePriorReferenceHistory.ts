@@ -1,6 +1,6 @@
 // Raw retained attempts before a Done endpoint, each a scope duration or a
 // failed build, and the selected landing's build kept with `selectedProof`.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import type { StoryCiComparisonSetup } from "./storyCiComparisonFixture.ts";
 import { git } from "./storyReviewWorktree.ts";

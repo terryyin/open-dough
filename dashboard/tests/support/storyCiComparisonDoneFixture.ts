@@ -1,5 +1,5 @@
 // Done Story Branch publisher for Intent's CI timing comparison
-// (../intent/intent-ci-comparison.spec.ts): claim parent preceded only by planning
+// (../../../e2e/intent/intent-ci-comparison.spec.ts): claim parent preceded only by planning
 // commits, with baseline / branch / landed Actions runs and default mixed
 // entry proofs. Shared helpers come from ./storyCiComparisonFixture.ts.
 

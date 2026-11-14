@@ -1,5 +1,5 @@
 // Hold settlement before its lock acquisition, after real native binding.
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import {
   keptLaunchRecords,
   keptLaunchStore,

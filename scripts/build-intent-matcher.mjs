@@ -8,7 +8,7 @@ import { rolldown } from "rolldown";
 
 const entry = new URL(import.meta.resolve("minimatch"));
 const output = new URL(
-  "../src/skills/dough-makeme/scripts/minimatch.bundle.mjs",
+  "../Distribution/src/skills/dough-makeme/scripts/minimatch.bundle.mjs",
   import.meta.url,
 );
 const build = await rolldown({

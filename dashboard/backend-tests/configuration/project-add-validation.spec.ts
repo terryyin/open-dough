@@ -15,7 +15,7 @@ import {
   projectAdditionFixture,
   validationRepository,
 } from "../../tests/support/projectAdditionFixture.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.describe.configure({ mode: "serial" });
 let fixture: Awaited<ReturnType<typeof projectAdditionFixture>>;

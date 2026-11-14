@@ -6,9 +6,9 @@
 // modifies one profile; and a revision D whose commits remove the planned
 // story's profile and re-add it with identical text, by another human.
 
-import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import {
   pathChange,

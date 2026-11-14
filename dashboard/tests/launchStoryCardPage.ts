@@ -15,7 +15,7 @@ import {
   takenStory,
   type LaunchJourney,
 } from "./launchJourney.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { launchWaitMs } from "./support/launchWait.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
@@ -26,6 +26,7 @@ import { repoRoot } from "./support/repositoryRoot.ts";
 const refinementSkill = "dough-story-refinement";
 const shippedReferences = path.join(
   repoRoot,
+  "Distribution",
   "src",
   "skills",
   refinementSkill,

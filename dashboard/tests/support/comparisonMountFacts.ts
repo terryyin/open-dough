@@ -1,5 +1,5 @@
 // Canonical completed story, explicitly named attempts, and their prepared proof.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { StoryCiComparisonSlot } from "../../src/storyCiComparison.ts";
 
 export const comparisonIdentity = "SEED-A#a";

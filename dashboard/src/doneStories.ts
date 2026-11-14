@@ -8,8 +8,8 @@
 // record the module refuses is reported by its file name and shows no story;
 // a failed read is a gap, never an empty set.
 
-import type { CataloguedDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
-import { isWithinDoneWindow } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import { isWithinDoneWindow } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { readDoneCatalogAt } from "./authenticatedDoneRead.ts";
 import {
   gapCauseFromOutcome,

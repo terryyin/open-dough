@@ -1,6 +1,6 @@
 // Exact launch identity, preparation and remote acceptance constrain capture.
 import { randomUUID } from "node:crypto";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect, stored } from "../../tests/support/codexStart.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
 import { oneShot } from "../../tests/support/oneShotLaunch.ts";

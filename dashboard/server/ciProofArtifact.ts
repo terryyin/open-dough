@@ -1,6 +1,6 @@
 // The CI proof of one GitHub Actions run attempt (`./intentCiProofRead.ts`),
 // read through the shared CI proof read
-// (`../../src/skills/dough-test-optimization/scripts/ci-proof-read.mjs`):
+// (`../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-read.mjs`):
 // the run's `ci-proof-summary-attempt-<n>` artifact, listed by that name,
 // downloaded as its zip and its one `ci-proof-summary.json` extracted, then
 // validated with the collector's own contract, read in its current version
@@ -19,14 +19,14 @@ import {
   readGitHubActionsSummary,
   SUMMARY_FILE_NAME,
   type GitHubActionsSummaryRead,
-} from "../../src/skills/dough-test-optimization/scripts/ci-proof-read.mjs";
-import { summaryArtifactName } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+} from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-read.mjs";
+import { summaryArtifactName } from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import {
   GitHubAcquisitionFailed,
   GitHubAcquisitionHeld,
   readGitHubActions,
   askGitHubArchive,
-} from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import {
   ciProofTooLarge,
   type CiProof,

@@ -3,16 +3,16 @@
 // Match is the owner claim alone (repository, host `cursor`, this session,
 // empty child). Worker liveness is never evidence. Missing or unreadable
 // trees supply no Working claim (ADR 0008).
-import { listMailboxDirectories } from "../../../../src/skills/dough-execute-plan/scripts/ci-mailbox-match.mjs";
-import { mailboxRoot } from "../../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
+import { listMailboxDirectories } from "../../../../Distribution/src/skills/dough-execute-plan/scripts/ci-mailbox-match.mjs";
+import { mailboxRoot } from "../../../../Distribution/src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 import {
   freshPendingRevision,
   readRevisionCoverage,
-} from "../../../../src/skills/dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";
+} from "../../../../Distribution/src/skills/dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";
 import {
   observerOwner,
   readOwnerClaim,
-} from "../../../../src/skills/dough-execute-plan/scripts/ci-observer-owner.mjs";
+} from "../../../../Distribution/src/skills/dough-execute-plan/scripts/ci-observer-owner.mjs";
 
 export { mailboxRoot };
 

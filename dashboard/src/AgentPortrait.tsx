@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import {
   agentNames,
   nerdAgentNames,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import "./agent-portrait.css";
 
 const portraitsPerAtlas = 6;

@@ -5,7 +5,7 @@ import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // part collapses with the keyboard on its heading and expands again from it.
 // A session without a story card, here an ad-hoc session, is read on its
 // Recently done entry. A long message scrolls inside the part, with Mark as
-// read and the entry's Mark as done in view. ./session-unread-report.spec.ts
+// read and the entry's Mark as done in view. ../../../e2e/sessions/session-unread-report.spec.ts
 // is the unread report's journey beside the native reading. Real start,
 // launch, installed reporting command, store and page; only the synthetic
 // `claude` and GitHub are fakes.

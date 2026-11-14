@@ -12,7 +12,7 @@ import {
   type Scenario,
 } from "../../tests/support/ciFollowUpAdapterAssertions.ts";
 import type { CiProofEntry } from "../../src/ciProof.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ serverMode: "boundary" });
 const proofFor = (attempt: Scenario["accepted"], entries: CiProofEntry[]) => ({

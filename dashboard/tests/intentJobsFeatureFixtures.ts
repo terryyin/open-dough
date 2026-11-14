@@ -1,7 +1,7 @@
 // Two published Pygardon-like Gherkin features under one `e2e_test/features`
 // location, for journeys that select and read them in Intent's Purpose.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const featurePath = "e2e_test/features/jobs.feature";
 export const otherPath = "e2e_test/features/disk_space.feature";

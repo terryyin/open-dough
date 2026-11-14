@@ -4,7 +4,7 @@
 // list counts once, in a listed folder's row, and outside only in that
 // folder's own Summary; and the evidence labels, the scope's own figures and
 // the table fit a zoomed or narrow window. The Summary's journey:
-// ./intent-summary-ci-proof.spec.ts.
+// ../../../e2e/intent/intent-summary-ci-proof.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
 import {

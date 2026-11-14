@@ -1,5 +1,5 @@
 // Reports with incomplete evidence or no result reach the same Intent
-// coverage view as a Caught result (./intent-story-completed.spec.ts),
+// coverage view as a Caught result (../../../e2e/intent/intent-story-completed.spec.ts),
 // through real completion. An older completion whose record saved no
 // assessment, and a done record still being read or whose read failed, each
 // say so apart, the failed read with the done record read's Retry

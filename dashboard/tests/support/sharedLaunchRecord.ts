@@ -2,7 +2,7 @@
 // production servers share. Servers must discover it from that file; nothing
 // here answers record HTTP.
 import { expect, type APIRequestContext } from "@playwright/test";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { identity, title } from "../agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { keepLaunchStore, launchStoreFile } from "./launchStore.ts";

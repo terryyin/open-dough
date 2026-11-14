@@ -10,7 +10,7 @@
 // (`revealsOf`).
 
 import type { Locator, Page } from "@playwright/test";
-import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { identityB } from "../../Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { expect } from "./dashboardTest.ts";
 import { doughnutSharedTitle, sharedStoryIdentity } from "./doughnutProject.ts";
 import {

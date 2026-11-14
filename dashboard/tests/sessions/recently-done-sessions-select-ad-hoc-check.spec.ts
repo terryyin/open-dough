@@ -17,7 +17,7 @@ import { choiceStatus } from "../recentlyDoneSelectionJourney.ts";
 import { storyTitle } from "../support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../support/intentStoryWorktree.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import { git } from "../support/storyReviewWorktree.ts";
 import { holdNextReads, routeNextReads } from "../nextActionReads.ts";

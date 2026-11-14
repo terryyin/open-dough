@@ -1,8 +1,8 @@
 // Story A held in Trunk Mode for its review
-// (../review/story-review-trunk-own-changes.spec.ts,
-// ../review/story-review-trunk-own-flagged.spec.ts,
-// ../review/story-review-trunk-own-older-git.spec.ts,
-// ../review/story-review-trunk-own-since.spec.ts), off a real bare origin
+// (../../../e2e/review/story-review-trunk-own-changes.spec.ts,
+// ../../../e2e/review/story-review-trunk-own-flagged.spec.ts,
+// ../../../e2e/review/story-review-trunk-own-older-git.spec.ts,
+// ../../../e2e/review/story-review-trunk-own-since.spec.ts), off a real bare origin
 // (./startOrigin.ts): the roster agent Yui-chan's claim on trunk moves Story
 // A to Taken, and her worktree authors its commits as her through its own
 // Git config (./storyReviewTrunkCommits.ts). She publishes each story commit from the worktree onto
@@ -14,15 +14,15 @@
 // (./storyLaunchRecord.ts). Specs start their origin from
 // `trunkModeRepository`, which holds trunk up to her claim.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { execFileSync } from "node:child_process";
 import type { Page } from "@playwright/test";
-import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
+import { direction } from "../../../Distribution/tests/support/product-backlog-fixture.mjs";
 import {
   queuedReadyRepository,
   storyA,
   storyB,
-} from "../../../tests/support/queued-repository.mjs";
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
 import { originMain } from "./sessionDialog.ts";

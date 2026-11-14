@@ -7,11 +7,11 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import type { renderEntry } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderPublishedBacklog } from "../../tests/support/published-backlog.mjs";
-import { materializeRepository } from "../../tests/support/repository-fixture.mjs";
-import type { StoryState } from "../../tests/support/repositoryTestData.mjs";
+import type { renderEntry } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { renderPublishedBacklog } from "../../Distribution/tests/support/published-backlog.mjs";
+import { materializeRepository } from "../../Distribution/tests/support/repository-fixture.mjs";
+import type { StoryState } from "../../Distribution/tests/support/repositoryTestData.mjs";
 import {
   planBlockedBody,
   planBlockedPath,

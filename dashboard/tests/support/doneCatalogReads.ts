@@ -6,20 +6,20 @@
 // and record reads to the boundary and observes the questions that reached
 // GitHub.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { rawRequest } from "./rawHttp.ts";
 import { askedSince } from "./sharedReads.ts";
 import type {
   DoneRecord,
   RevisionFacts,
-} from "../../../tests/support/repositoryTestData.mjs";
+} from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { describedFiles } from "../describedRevisions.ts";
 import {
   doneCatalogFileName,
   parseDoneCatalog,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
-import { doneRecordPath } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+} from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import { doneRecordPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
 // Each test publishes its own revisions: the boundary remembers what it read
 // for as long as the server runs.

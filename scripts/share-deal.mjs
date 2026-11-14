@@ -1,19 +1,19 @@
 // scripts/share-deal.mjs deals a test suite's jobs into CI shares by their
 // recorded durations: it reads the duration list and the time budget, deals
-// the jobs, selects one share as `<i>/<n>` (`OPEN_DOUGH_TEST_SPLIT`,
-// `OPEN_DOUGH_DASHBOARD_SPLIT`, the `share` command's `--split`), and writes
-// the preview and the times form a refresh merges. scripts/test-shares.mjs is
-// its command surface, run by scripts/test-jobs.sh for the Node runner's share
-// and by a contributor for the preview and the refresh;
-// dashboard/tests/support/testFiles.mjs deals the dashboard's spec files
-// through it.
+// the jobs, selects one share as `<i>/<n>` (`OPEN_DOUGH_TEST_SPLIT`, a
+// browser test group's `<prefix>_SPLIT`, the `share` command's `--split`),
+// and writes the preview and the times form a refresh merges.
+// scripts/test-shares.mjs is its command surface, run by scripts/test-jobs.sh
+// for the Node runner's share and by a contributor for the preview and the
+// refresh; dashboard/tests/support/testFiles.mjs deals each browser test
+// group's spec files through it.
 //
-// A duration list (`tests/longest-first` for the Node suite) holds one
+// A duration list (`Distribution/tests/longest-first` for the Node suite) holds one
 // `<seconds><TAB><label>` line per recorded job, the form the runner's
 // `test-times` artifact prints. duration-list.mjs reads plain lists or indexes
 // with named TSV parts; malformed rows fail before any job runs.
 //
-// The deal itself is stated in tests/test-shares.md ("The deal").
+// The deal itself is stated in Distribution/tests/test-shares.md ("The deal").
 
 import {
   bytewise,

@@ -1,0 +1,154 @@
+#!/usr/bin/env bash
+# Queued startup fixture and its Git/runtime observations. Sourced by fixture.sh.
+# shellcheck disable=SC2034,SC2154,SC2312 # Shared fixture globals.
+
+git_publication_fixture_create_startup() {
+  local source_dir=$1 journey=$2 parent=$3
+  local prepared
+  # Ready queued A and B with the durable setup and command; the case's own
+  # state follows.
+  prepared=$(node "${source_dir}/Distribution/tests/support/git-publication-native-startup-fixture.mjs" \
+    "${parent}")
+  git_publication_fixture_root=$(jq -r .root <<< "${prepared}")
+  git_publication_fixture_origin=$(jq -r .origin <<< "${prepared}")
+  git_publication_fixture_integration=$(jq -r .integration <<< "${prepared}")
+  git_publication_fixture_trunk_sha=$(jq -r .trunk <<< "${prepared}")
+  git_publication_fixture_workspace="${git_publication_fixture_root}/native-execution"
+  git_publication_fixture_candidate_sha=
+  git_publication_fixture_startup_mode=trunk
+  [[ ${journey} == *story-branch* ]] && git_publication_fixture_startup_mode=story-branch
+  git_publication_record_pushes "${git_publication_fixture_origin}" \
+    "${git_publication_fixture_root}"
+  git_publication_fixture_plant_human_edit "${git_publication_fixture_integration}"
+  if [[ ${journey} == startup-selected-source ]]; then
+    sed 's/Execute A\./Changed locally after preparation./' \
+      "${git_publication_fixture_integration}/.planning/seeds/A.md" \
+      > "${git_publication_fixture_integration}/.planning/seeds/A.next"
+    mv -- "${git_publication_fixture_integration}/.planning/seeds/A.next" \
+      "${git_publication_fixture_integration}/.planning/seeds/A.md"
+  fi
+  git_publication_fixture_selected_before=$(shasum -a 256 \
+    "${git_publication_fixture_integration}/.planning/seeds/A.md" | awk '{print $1}')
+  git_publication_fixture_human_before=$(
+    git_publication_fixture_capture_human "${git_publication_fixture_integration}"
+  )
+  if [[ ${journey} == startup-claim-race || ${journey} == startup-resume ]]; then
+    local start_cli="${source_dir}/Distribution/src/skills/dough-execute-plan/scripts/execution-start.mjs"
+    local receipt
+    if [[ ${journey} == startup-claim-race ]]; then
+      mkdir -p "${git_publication_fixture_root}/hooks"
+      cat > "${git_publication_fixture_root}/hooks/pre-push" << 'EOF'
+#!/bin/sh
+echo 'interrupted before push' >&2
+exit 1
+EOF
+      chmod +x "${git_publication_fixture_root}/hooks/pre-push"
+      git -C "${git_publication_fixture_integration}" config core.hooksPath \
+        "${git_publication_fixture_root}/hooks"
+    fi
+    receipt=$(node "${start_cli}" start \
+      --integration "${git_publication_fixture_integration}" \
+      --workspace "${git_publication_fixture_workspace}" \
+      --branch exec/native-startup --identity 'SEED-A#a' \
+      --publisher-id "native-startup-${journey}" --mode trunk \
+      --remote origin --target main --push-authorized --workspace-authorized) || true
+    git_publication_fixture_candidate_sha=$(jq -r '.candidateSha // .recovery.candidateSha' <<< "${receipt}")
+    git_publication_fixture_starting_sha=$(jq -r '.startingRevision // .recovery.startingRevision' <<< "${receipt}")
+    if [[ ${journey} == startup-claim-race ]]; then
+      git -C "${git_publication_fixture_integration}" config --unset core.hooksPath
+      node "${start_cli}" start \
+        --integration "${git_publication_fixture_integration}" \
+        --workspace "${git_publication_fixture_root}/rival" \
+        --branch exec/rival --identity 'SEED-A#a' \
+        --publisher-id rival --mode trunk --remote origin --target main \
+        --push-authorized --workspace-authorized > /dev/null
+    else
+      git clone -q "${git_publication_fixture_origin}" \
+        "${git_publication_fixture_root}/later"
+      git -C "${git_publication_fixture_root}/later" config user.name Later
+      git -C "${git_publication_fixture_root}/later" config user.email later@example.test
+      printf 'later\n' > "${git_publication_fixture_root}/later/later.txt"
+      git -C "${git_publication_fixture_root}/later" add later.txt
+      git -C "${git_publication_fixture_root}/later" commit -qm 'later independent advance'
+      git -C "${git_publication_fixture_root}/later" push -q origin HEAD:main
+    fi
+  fi
+}
+
+# Observes startup journey $1 after a session whose stream $3 from host $4
+# ended with status $2.
+git_publication_fixture_observe_startup() {
+  local journey=$1 stream_status=$2 transcript=$3 host=$4
+  local remote_sha message_history human_after human_preserved
+  local source_after source_preserved feature_exists first_edit_after_claim
+  local setup_exists command_exists setup_after_claim claim_owned taken_on_remote
+  local workspace_source_published
+  remote_sha=$(git ls-remote "${git_publication_fixture_origin}" refs/heads/main | awk '{print $1}')
+  message_history=$(git --git-dir="${git_publication_fixture_origin}" log --format=%B "${remote_sha}")
+  human_after=$(git_publication_fixture_capture_human "${git_publication_fixture_integration}")
+  human_preserved=false
+  [[ ${human_after} == "${git_publication_fixture_human_before}" ]] && human_preserved=true
+  source_after=$(shasum -a 256 \
+    "${git_publication_fixture_integration}/.planning/seeds/A.md" | awk '{print $1}')
+  source_preserved=false
+  [[ ${source_after} == "${git_publication_fixture_selected_before}" ]] && source_preserved=true
+  taken_on_remote=false
+  if git_publication_lists_taken "${git_publication_fixture_origin}" \
+    "${remote_sha}" 'SEED-A#a'; then taken_on_remote=true; fi
+  claim_owned=false
+  # A here-string, not a pipe: grep -q exits at the first match, and under
+  # pipefail git log's SIGPIPE on later commits would read as not owned.
+  if grep -Fq "Claim-Publisher: native-startup-${journey}" <<< "${message_history}"; then
+    claim_owned=true
+  fi
+  workspace_source_published=false
+  if [[ -f ${git_publication_fixture_workspace}/.planning/seeds/A.md ]] \
+    && git --git-dir="${git_publication_fixture_origin}" show \
+      "${remote_sha}:.planning/seeds/A.md" 2> /dev/null \
+    | cmp -s - "${git_publication_fixture_workspace}/.planning/seeds/A.md"; then
+    workspace_source_published=true
+  fi
+  feature_exists=false
+  [[ -f ${git_publication_fixture_workspace}/feature.txt ]] && feature_exists=true
+  setup_exists=false
+  [[ -f ${git_publication_fixture_root}/.setup-ran ]] && setup_exists=true
+  command_exists=false
+  [[ -f ${git_publication_fixture_root}/.command-ran ]] && command_exists=true
+  setup_after_claim=false
+  if git_publication_in_order "${git_publication_fixture_root}/claim-accepted" \
+    "${git_publication_fixture_root}/.setup-ran" \
+    "${git_publication_fixture_root}/.command-ran"; then
+    setup_after_claim=true
+  fi
+  first_edit_after_claim=false
+  if git_publication_in_order "${git_publication_fixture_root}/claim-accepted" \
+    "${git_publication_fixture_workspace}/feature.txt"; then
+    first_edit_after_claim=true
+  fi
+  printf 'journey: %s\n' "${journey}"
+  printf 'stream-status: %s\n' "${stream_status}"
+  git_publication_stream_fields "${journey}" "${host}" "${transcript}"
+  printf 'remote-sha: %s\n' "${remote_sha}"
+  printf 'trunk-sha: %s\n' "${git_publication_fixture_trunk_sha}"
+  printf 'taken-on-remote: %s\n' "${taken_on_remote}"
+  printf 'claim-owned: %s\n' "${claim_owned}"
+  printf 'candidate-sha: %s\n' "${git_publication_fixture_candidate_sha}"
+  local candidate_contained=false
+  if [[ -n ${git_publication_fixture_candidate_sha} ]] \
+    && git --git-dir="${git_publication_fixture_origin}" merge-base --is-ancestor \
+      "${git_publication_fixture_candidate_sha}" "${remote_sha}" 2> /dev/null; then
+    candidate_contained=true
+  fi
+  printf 'candidate-contained: %s\n' "${candidate_contained}"
+  printf 'rival-owned: %s\n' "$(grep -Fq 'Claim-Publisher: rival' <<< "${message_history}" && echo true || echo false)"
+  printf 'human-edit-preserved: %s\n' "${human_preserved}"
+  printf 'selected-source-preserved: %s\n' "${source_preserved}"
+  printf 'workspace-source-published: %s\n' "${workspace_source_published}"
+  printf 'feature-exists: %s\n' "${feature_exists}"
+  printf 'setup-exists: %s\n' "${setup_exists}"
+  printf 'command-exists: %s\n' "${command_exists}"
+  printf 'setup-after-claim: %s\n' "${setup_after_claim}"
+  printf 'first-edit-after-claim: %s\n' "${first_edit_after_claim}"
+  printf 'workspace: %s\n' "${git_publication_fixture_workspace}"
+  printf 'integration: %s\n' "${git_publication_fixture_integration}"
+}

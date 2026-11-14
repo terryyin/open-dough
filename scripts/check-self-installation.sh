@@ -8,13 +8,13 @@ set -euo pipefail
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 repo_root=$(cd -- "${script_dir}/.." && pwd)
 # shellcheck disable=SC1091
-# shellcheck source=src/install/open-dough-platform.sh
-source "${repo_root}/src/install/open-dough-platform.sh"
+# shellcheck source=Distribution/src/install/open-dough-platform.sh
+source "${repo_root}/Distribution/src/install/open-dough-platform.sh"
 # shellcheck disable=SC1091
-# shellcheck source=src/install/open-dough-release-version.sh
-source "${repo_root}/src/install/open-dough-release-version.sh"
+# shellcheck source=Distribution/src/install/open-dough-release-version.sh
+source "${repo_root}/Distribution/src/install/open-dough-release-version.sh"
 
-helper="${repo_root}/src/install/open-dough-release.sh"
+helper="${repo_root}/Distribution/src/install/open-dough-release.sh"
 
 usage() {
   echo "Usage: $0 [target]" >&2

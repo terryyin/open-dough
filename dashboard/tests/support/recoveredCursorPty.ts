@@ -1,7 +1,7 @@
 // Recover's continuation kept on a scripted PTY instead of a native Cursor
 // client. A spec feeds Cursor's reads and inspects what Recover typed.
 import type { IPty } from "@lydell/node-pty";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { TerminalAttachments } from "../../server/terminalAttachments.ts";
 import { showsCursorComposer } from "../../server/hosts/cursor/idleScreen.ts";
 import { cursorSessionId } from "./fakeCursor.ts";

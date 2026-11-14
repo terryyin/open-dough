@@ -7,7 +7,7 @@
 // session without a story; otherwise their radios are disabled with why, and
 // a choice left from another host holds Start back.
 
-import { unattachedSessionChoices } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
+import { unattachedSessionChoices } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import {
   isDefaultUnattachedPolicy,
   unattachedPolicyOf,

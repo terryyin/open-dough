@@ -3,7 +3,7 @@
 // it to labels. Loading is observation, never a lifecycle state.
 
 import { z } from "zod";
-import { readStoryState } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
+import { readStoryState } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { ReadProblem } from "./readProblem.ts";
 import type { UnavailableGap } from "./readWaitBound.ts";
 

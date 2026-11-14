@@ -10,16 +10,16 @@
 // worker's. What only a real completion shows stays with the specs of
 // ./completedPublishedStory.ts. The summary comparison story is the same
 // kind of history, declared in ./intentSummaryStoryComparisonRepository.ts.
-import { agentIdentity } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
+import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { direction } from "../../../Distribution/tests/support/product-backlog-fixture.mjs";
 import {
   queuedReadyRepository,
   storyA,
   storyB,
   takeRevision,
-} from "../../../tests/support/queued-repository.mjs";
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { intentTrunkRevision } from "./intentStoryWorktree.ts";
 import { declaredSummaryComparisonHistory } from "./intentSummaryStoryComparisonRepository.ts";
 import { startOrigin, type StartOrigin } from "./startOrigin.ts";

@@ -108,18 +108,18 @@ Inspection baseline: Open Dough commit
 | Root `package.json` and `package-lock.json`; Node scripts; CI on Node 24 | Retain npm and the existing toolchain rather than introducing another language or package manager. |
 | ESLint and Prettier, currently configured for JavaScript/JSON; shell-based test entry point | Extend coverage to TypeScript/TSX and dashboard checks when implementing; the present lint command does not establish TypeScript correctness. |
 | No existing React/Vue app, TypeScript compiler, browser runner, or server in the package manifest | This is a new UI capability; there is no established UI framework to preserve. |
-| Pure backlog document and identity parsing under `src/skills/dough-product-backlog/scripts/` | Reuse established backlog interpretation rather than writing a competing Markdown parser. |
+| Pure backlog document and identity parsing under `Distribution/src/skills/dough-product-backlog/scripts/` | Reuse established backlog interpretation rather than writing a competing Markdown parser. |
 | Separate filesystem store, mutation, and lock operations | Do not import the writer/store into the remote reader or interpret its local locks as published activity. |
 
 Specifically, reuse the semantics of
-[`parseBacklog`](../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs)
-and [identity handling](../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs).
+[`parseBacklog`](../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-document.mjs)
+and [identity handling](../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs).
 These modules accept text or values rather than requiring a checkout. A typed
 boundary should treat their current JavaScript output as `unknown`, validate
 the fields consumed, and retain existing behavioral fixtures. A handwritten
 declaration alone is not proof that the JavaScript returns the promised shape.
 
-The [canonical-home module](../src/skills/dough-product-backlog/scripts/product-backlog-home.mjs)
+The [canonical-home module](../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-home.mjs)
 also contains relevant identity rules but imports filesystem operations. If its
 reading behavior is needed, expose the pure text-reading responsibility from
 that owner during implementation, with existing callers preserved. Do not copy

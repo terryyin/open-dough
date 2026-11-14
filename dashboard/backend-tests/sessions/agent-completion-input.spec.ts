@@ -1,5 +1,5 @@
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
-import { requestFacts } from "../../../tests/support/launchRequestTestData.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { requestFacts } from "../../../Distribution/tests/support/launchRequestTestData.mjs";
 import { launchResultSchema } from "../../src/launchOutcome.ts";
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { launch, recordsOf } from "../../tests/agentLaunchBoundary.ts";

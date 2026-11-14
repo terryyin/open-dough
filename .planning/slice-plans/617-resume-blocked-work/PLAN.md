@@ -160,12 +160,14 @@ findings. No full host-by-scenario matrix is required.
   exact active repair owner provides a coordination boundary.
 - Resolve test-source MakeMe/PageObjects selection before edits. Use observable
   events or controlled clocks; no sleeps, `test.slow()` or suite/hook timeouts.
-- Gates: affected command/runtime and CI-recovery tests, native probe/comparison,
-  changed payload/reference checks, applicable lint/typecheck and independent
-  refactoring/reviews. [Local resource admission](../../../tests/local-test-resources.md)
-  owns full-suite work. Long/full macOS runs start awake on AC with
-  `caffeinate -s -i`; on battery plug in or use the maintained lid-open
-  `caffeinate -i` alternative and inspect sleep logs. Own applicable final CI.
+- Local gates: affected command/runtime tests and retained CI-recovery tests,
+  native probe/comparison, payload/reference checks when changed, applicable
+  lint/typecheck and required refactoring/reviews before commit. Full-suite work
+  follows [local resource admission](../../../Distribution/tests/local-test-resources.md).
+  On fully awake macOS use `caffeinate -s -i` for long/full runs on AC power;
+  on battery plug in, or use the maintained lid-open `caffeinate -i` alternative
+  and inspect the sleep log. Hosted CI is still owned through the applicable
+  final revision; configuration alone adds no unrelated local full-suite gate.
 - Keep implicated files <=250 lines through cohesive seams; no caller omnibus.
   No numeric slice target or overrun override was supplied. Preserve existing
   replanning authority and bounded observation loops; do not widen after probe failure.
@@ -181,14 +183,13 @@ findings. No full host-by-scenario matrix is required.
   G1 replay and G4 terminal retention are proved, with independent refactoring complete.
 - [Slice 3 proof](slice3-assessment.md) retains inspected attention/loss/usage,
   full CI recovery context, host research and G5's reproduced/corrected duplicate.
-  Command boundaries are accepted; independent refactoring is still owed.
-- Source unchanged at `75355d52075edd383d2fbf9561920248940a9488`, base Take.
-  SEED-346 has no product overlap; SEED-334 changed proof groups/CI, not edited seams.
-  At integration trace the backend/integrated/e2e consumers with their group commands;
-  preview Node shares with `node scripts/test-shares.mjs preview --split-count 4`.
-- Slice 3 refactor: keep attention/delivery/recovery cohesive; the worker's 244
-  current lines must remain <=250 after formatting. Condense superseded records
-  into their existing assessments while preserving all obligations and identities.
+  Command proof and independent refactoring are complete.
+- [Distribution integration](distribution-integration.md) adopts Terry's published
+  layout at `91f32d39061d16793a190c5d9d9f2a6b26534fc7`; freshness is unchanged at `e54f80318`.
+  SEED-334's affected backend/integrated/e2e consumers passed their group commands;
+  four-share preview remains under 694. SEED-346 has no product overlap.
+- Slice 3 refactor completed; worker stays below 250 lines. Retain all obligations
+  and identities in assessments when condensing superseded records.
 
 ## Execution context
 

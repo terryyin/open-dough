@@ -12,7 +12,7 @@ import {
   storyA,
   storyB,
   storySeed,
-} from "../../../tests/support/queued-repository.mjs";
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -27,7 +27,7 @@ import {
   startOrigin,
   type StartOrigin,
 } from "../../tests/support/startOrigin.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest
   .executing({ identity: queuedIdentity, title: queuedTitle })

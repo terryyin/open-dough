@@ -4,7 +4,7 @@
 // Back to dashboard from System settings, shows the destination cue again,
 // while the Highlight, open detail, and the review stay as they were.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { pausePageClock } from "../autoRefreshJourney.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";

@@ -10,7 +10,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { AttemptObservation } from "../../src/agentLaunch.ts";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import { keptAttempts } from "../../tests/acceptedAttempts.ts";

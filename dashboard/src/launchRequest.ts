@@ -1,7 +1,7 @@
 // Launch request and recorded-request contracts shared by the browser and server.
 import { z } from "zod";
-import { agentHosts } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { sessionPolicyFlags } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
+import { agentHosts } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { sessionPolicyFlags } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import { baseCiConfirmationSchema } from "./baseCiConfirmation.ts";
 import { launchWorkflowNames } from "./launchWorkflow.ts";
 import { launchModelSchema, launchSettingSchema } from "./launchHostOptions.ts";

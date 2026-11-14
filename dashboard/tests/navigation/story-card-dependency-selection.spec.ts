@@ -3,7 +3,7 @@
 // story link opening its supplier's detail is in
 // ../stories/story-card-inspection.spec.ts.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";

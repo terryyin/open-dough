@@ -5,7 +5,7 @@ Recorded 2026-11-13 at the SEED-332 broader-full diagnostic boundary.
 The [repository failure policy](../../../AGENTS.md#failing-and-flaky-tests)
 applies as written to this coordination boundary and any resulting repair.
 
-SEED-334's `608-product-wide-end-to-end-tests/PLAN.md:271–275` groups
+SEED-334's `608-product-wide-end-to-end-tests/PLAN.md:271–275` (at `125c45649`) groups
 follow-up-reading ×2, reconciliation ×3, scope ×3 and landing-capture ×3
 under this execution's G2 and pending `landedCiHistoryTest.ts` edits.
 That reference does not match our recorded G2 or establish that each timeout

@@ -12,7 +12,7 @@ import type {
   LaunchAttemptRecord,
   LaunchRecord,
 } from "../../src/agentLaunch.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { FakeCodex } from "./fakeCodexTypes.ts";
 import { keepLaunchStore } from "./launchStore.ts";
 import { replayRecords, replayScale } from "./sessionsReplayRecords.ts";

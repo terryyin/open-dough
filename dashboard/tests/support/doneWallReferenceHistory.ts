@@ -2,7 +2,7 @@
 // landings on the first-parent revisions before it, its selected build, and
 // later landings after it. An actual published story supplies its revisions
 // from Git; a mounted comparison names its own.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { KeptBuild } from "../../server/landedCiHistoryStore.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import type { StoryCiComparisonSetup } from "./storyCiComparisonFixture.ts";

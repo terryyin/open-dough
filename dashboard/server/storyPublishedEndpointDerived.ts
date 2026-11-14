@@ -7,7 +7,7 @@ import {
   agentIdentity,
   agentNameOf,
   parseAgentProfileFile,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { runGit, type GitCall } from "./gitRunner.ts";
 import type { PublishedStoryHistory } from "./publishedStoryHistory.ts";
 import {

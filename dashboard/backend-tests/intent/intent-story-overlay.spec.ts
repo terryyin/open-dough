@@ -9,8 +9,8 @@
 // changed entries, and the story opens the first changed location in
 // configured order with the folders holding changes, whether or not it is
 // restricted. A location declared by source entries places a story's added
-// file by the same rule. The integrated journeys: ../../tests/intent/intent-story-changes-moves.spec.ts
-// and ../../tests/intent/intent-story-completed.spec.ts.
+// file by the same rule. The integrated journeys: ../../../e2e/intent/intent-story-changes-moves.spec.ts
+// and ../../../e2e/intent/intent-story-completed.spec.ts.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import type { IntentLocation } from "../../src/authenticatedIntentRead.ts";
@@ -21,7 +21,7 @@ import {
   type StoryOverlay,
 } from "../../src/intentStoryOverlay.ts";
 import type { ReviewedFile } from "../../src/storyReviewFiles.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const locations: readonly IntentLocation[] = [
   makeMe.anIntentLocation

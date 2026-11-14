@@ -2,7 +2,7 @@
 // keeps it (./ciFollowUpKeptLanding.ts), and what the landing's follow-up
 // ledger entry (../../server/ciFollowUpStore.ts) holds at that stage beside
 // its receipt.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type {
   FollowUpLedger,
   GithubRepeatRequest,

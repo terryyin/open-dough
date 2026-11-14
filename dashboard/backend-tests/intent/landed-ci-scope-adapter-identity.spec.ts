@@ -1,5 +1,5 @@
 // Actual adapter acquisition keeps contextual attempts distinct and true repeats shared.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { adapterProject } from "../../tests/intentCiAdapterProofProject.ts";
 import { proofSummaryForEntry } from "../../tests/support/ciProofArtifacts.ts";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";

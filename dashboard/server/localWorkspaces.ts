@@ -24,7 +24,7 @@ import {
   agentIdentity,
   agentNameOf,
   parseAgentProfileFile,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { configuredProjects } from "./projectConfiguration.ts";

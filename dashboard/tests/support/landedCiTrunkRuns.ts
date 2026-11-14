@@ -5,7 +5,7 @@
 // open or for a page (../intentCiHistoryPage.ts); and a run as the history
 // read answers it.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { OriginAnswer } from "../originAnswers.ts";
 import { notFoundAnswer } from "../originAnswers.ts";
 import { actionsForRuns, type CiRunAnswer } from "./baseCiActions.ts";
@@ -119,7 +119,7 @@ export function usableProofOf(run: CiRunAnswer): ComparisonProofServe {
 export function trunkActions(
   runs: readonly CiRunAnswer[],
   proofs: TrunkProofs = {},
-): (argv: readonly string[], head: string) => OriginAnswer | undefined {
+): (argv: readonly string[]) => OriginAnswer | undefined {
   const runsByRevision: Record<string, CiRunAnswer[]> = {};
   for (const run of runs) (runsByRevision[run.headSha] ??= []).push(run);
   const served: Record<number, ComparisonProofServe> = {};
@@ -132,7 +132,7 @@ export function trunkActions(
       unopenable.set(Number(runId), proof.artifactId);
     else served[Number(runId)] = proof;
   }
-  return (argv, head) => {
+  return (argv) => {
     const route = argv.find((argument) => argument.startsWith("repos/")) ?? "";
     const listed = Number(
       /\/actions\/runs\/(\d+)\/artifacts/.exec(route)?.[1] ?? Number.NaN,
@@ -150,7 +150,7 @@ export function trunkActions(
     );
     if ([...unopenable.values()].includes(zipped)) return unopenableArchive();
     return (
-      actionsForRuns(runs)(argv, head) ??
+      actionsForRuns(runs)(argv) ??
       answerComparisonProofRoute(route, served, runsByRevision)
     );
   };
@@ -178,7 +178,7 @@ export function serveTrunkRuns(
     if (!readable() && isActionsRequest(call.request)) return notFoundAnswer();
     const main = await originMain(origin);
     return (
-      trunkActions(runs(main), proofs())(call.argv, main) ??
+      trunkActions(runs(main), proofs())(call.argv) ??
       publishes({ revision: main })(call)
     );
   });

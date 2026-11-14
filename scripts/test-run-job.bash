@@ -10,8 +10,8 @@ elapsed_seconds() {
   awk -v start="$1" -v end="$2" 'BEGIN { printf "%.1f\n", end - start }'
 }
 
-node_reporter="${source_dir}/tests/support/node-test-failures-reporter.mjs"
-check_stop_report="${source_dir}/tests/support/check-stop-report.bash"
+node_reporter="${source_dir}/Distribution/tests/support/node-test-failures-reporter.mjs"
+check_stop_report="${source_dir}/Distribution/tests/support/check-stop-report.bash"
 # A check that asks GitHub names a request owner root of its own. Each job is
 # given one that admits no owner -- too deep for any socket path, so a consumer
 # pointed there makes it and is refused -- and fails when it was reached.

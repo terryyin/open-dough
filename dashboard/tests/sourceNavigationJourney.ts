@@ -14,7 +14,7 @@ import {
   rawFileAnswer,
 } from "./publishedOrigin.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const revision = "9b1d4e6a2c8f0735be19d4c6a7f8e9d0c1b2a3f4";
 export const snapshotRoot = `/terryyin/open-dough/blob/${revision}`;

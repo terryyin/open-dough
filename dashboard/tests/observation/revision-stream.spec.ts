@@ -1,6 +1,4 @@
-// Streaming Board journeys: free slots, lowered server pace, EventSource
-// instead of recurring `since` checks. Check-delivery keeps ../dashboardTest.ts
-// pre-hold.
+// Board streams use free slots/lowered pace; dashboardTest.ts pre-holds slots for check delivery.
 
 import type { Page, Request } from "@playwright/test";
 import { expect, githubFor, pausePageClockAt, test } from "../dashboardTest.ts";
@@ -101,9 +99,8 @@ test.describe("shared publication listing", () => {
     const pageAtB = untilStreamingAt(page, revisionB);
     const otherAtB = untilStreamingAt(other, revisionB);
     origin.push(revisionB, backlogB, recordsAt("B"));
-    // Transport drop reopens at the pace: advance both page clocks to it.
+    // A transport drop reopens after one browser-context pace.
     await page.clock.runFor(checkIntervalMs);
-    await other.clock.runFor(checkIntervalMs);
     await expectSettledPage(page, titlesOfB);
     await expectSettledPage(other, titlesOfB);
     const { readRevision } = parts(page);
@@ -152,8 +149,11 @@ test("a watched branch move reads only that entry's plan and commit time; the ot
   const commitAt = new Date(opened.getTime() - 2 * 60_000);
   const moved = branchPlanPublication(movedHead, commitAt, sevenDoneOnBranch);
   origin.moveBranch("story/example", moved);
+  // This pace advances the shared context clock for both tabs.
   await page.clock.runFor(checkIntervalMs);
-  await other.clock.runFor(checkIntervalMs);
+  expect(await other.evaluate(() => Date.now())).toBe(
+    opened.getTime() + checkIntervalMs,
+  );
   const sevenOfEight = "7 of 8 slices recorded complete";
   await expect(sliceBar(progress, sevenOfEight)).toBeVisible({
     timeout: 15_000,

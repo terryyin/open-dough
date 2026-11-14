@@ -1,4 +1,4 @@
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 // Shared uncertain Claude story launch precondition for listing and own-record
 // verification journeys, on the worker's published origin (../dashboardTest.ts
 // `launchJourney`).
@@ -9,7 +9,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { readyStory, type LaunchJourney } from "./launchJourney.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { identityB } from "../../Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 
 export { expect, test } from "./dashboardTest.ts";
 export const subject = `${readyStory} (${identityB})`;

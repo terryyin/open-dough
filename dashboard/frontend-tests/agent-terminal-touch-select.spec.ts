@@ -4,7 +4,7 @@
 // screen of an attachment that ended or disconnected, and a fine-pointer
 // desktop, which has no Select. The representative select, copy, return and
 // paste on the real terminal path is
-// ../tests/terminals/agent-terminal-touch-select.spec.ts; fit and an
+// ../../e2e/terminals/agent-terminal-touch-select.spec.ts; fit and an
 // application that scrolls itself are
 // ./agent-terminal-touch-select-fit.spec.ts; scrollback and what a selection
 // copies are ./agent-terminal-touch-select-held.spec.ts; other screens are
@@ -44,7 +44,7 @@ import {
   tapTerminalKey,
   terminalKeyToolbar,
 } from "../tests/touchTerminalPage.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 const session = (title: string) =>
   makeMe.aLaunchRecord

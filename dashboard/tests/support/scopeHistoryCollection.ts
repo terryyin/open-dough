@@ -1,6 +1,6 @@
 // Canonical landing inputs and actual collected-summary producer answers for
 // scoped history journeys. The case supplies dates, identities and measurements.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiProof } from "../../src/ciProof.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { StartOrigin } from "./startOrigin.ts";

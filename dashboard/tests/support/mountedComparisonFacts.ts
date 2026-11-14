@@ -1,5 +1,5 @@
 // Reused canonical entry facts; independently written expectations stay in specs.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiProofEntry } from "../../src/ciProof.ts";
 import type { StoryCiComparisonSlot } from "../../src/storyCiComparison.ts";
 import { preparedComparison } from "./comparisonMountFacts.ts";

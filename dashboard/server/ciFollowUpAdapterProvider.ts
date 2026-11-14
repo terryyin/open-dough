@@ -1,5 +1,5 @@
 // A project's trigger admits work; discover and proof provide its evidence.
-import { requestCommandRebuild } from "../../src/skills/dough-execute-plan/scripts/ci-command-attempt.mjs";
+import { requestCommandRebuild } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-attempt.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import { discoverAdapterAttempts } from "./baseCiAdapterAttempts.ts";

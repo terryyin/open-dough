@@ -13,15 +13,16 @@ rule count alone does not measure the developer's feedback path.
 | Memory and recovery | `ci-comparison-memory*.spec.ts`, `ci-proof-memory*.spec.ts` and `ci-time-without-runner-waits.spec.ts`: real comparison/proof readers, request counts, cache identity, freshness, validation and timing |
 | Pending and final Landed evidence | `ci-comparison-finality-*.spec.ts`: actual comparison memory, shared slot judgment, receipt matcher and artifact reader over raw history, receipts, provider JSON/ZIP/errors and controlled observation time |
 | Client reading lifetime | `ci-comparison-client-*.spec.ts` uses production disposable comparison/endpoint owners and real authenticated readers with external held HTTP Responses. React binding cases retain controls, selection/head updates and cancellation-to-paint connections. |
-| Production presentation | Static rendering cases under `tests/intent/intent-ci-comparison-*` and `intent-summary-story-comparison-*` use actual production TSX/full CSS and fresh pages. Separate mounted bindings own real sort/Show %/navigation callbacks, providers and native keyboard actions. |
+| Production presentation | **Dashboard Frontend Test** static rendering cases under `frontend-tests/intent/intent-ci-comparison-*` and `intent-summary-story-comparison-*` use actual production TSX/full CSS and fresh pages with controlled answers. Separate mounted bindings own real sort/Show %/navigation callbacks, providers and native keyboard actions. |
 | Actual acquisition | `ci-comparison-history-integration.spec.ts`: real Git history through the production acquisition boundary; `intent-ci-comparison.spec.ts` and `intent-ci-comparison-adapter.spec.ts`: default GitHub/adapter acquisition to displayed Done comparison |
 | Exceptional acquisition | `intent-ci-comparison-cancelled-landing.spec.ts`, `intent-ci-comparison-taken.spec.ts` and `intent-ci-comparison-adapter-taken.spec.ts`: cancelled later-build, pushed-head and adapter Taken connections |
 | Navigation and preferences | `intent-ci-comparison-drilldown-relative.spec.ts`, `intent-ci-comparison-relative.spec.ts`, `intent-summary-story-comparison-file.spec.ts`, `-renamed.spec.ts`, `-sort.spec.ts` and `-source.spec.ts`: built-app scope navigation, keyboard/Purpose/Review, source pinning and cross-story preference continuity |
 | Held reads and retry | `intent-ci-comparison-locations.spec.ts` and `intent-ci-comparison-retry.spec.ts`: comparison visibility during held/failing reads, actual API and upstream request accounting, same-process recovery and real shallow-history recovery |
 | Landed recovery connections | Backend `intent-ci-comparison-pending-proof.spec.ts` keeps three real-server connections: an equivalent landing's malformed listing bytes through the default parsers to the public pending gap, the measured point and final reuse; and, for each provenance, a provider-directed wait under the request owner's controlled clock and one owner process. `intent-ci-comparison-receipt.spec.ts` and `landed-ci-history-comparison-run.spec.ts` retain the persisted receipt lifetime and public history. A later landing's proof wait past the revision walk has no real-server case; see the [later pending-proof coverage map](#later-pending-proof-coverage-map). Browser `intent-ci-comparison-missing-run.spec.ts`, `-pending-proof.spec.ts` and `-trunk-finality.spec.ts` retain actual controls, timing/source cues and Trunk NoBuild despite an available later build. |
-| Retained review records | `backend-tests/review/story-review-stored-*.spec.ts`: actual store replacement, stable reporting identity, newest captured preference, deletion and retention; `tests/review/story-review-one-shot-choice-refresh.spec.ts` connects stored records to displayed Refresh choices |
+| Retained review records | `backend-tests/review/story-review-stored-*.spec.ts`: actual store replacement, stable reporting identity, newest captured preference, deletion and retention; `e2e/review/story-review-one-shot-choice-refresh.spec.ts` connects stored records to displayed Refresh choices |
 
-Backend filenames above are under `dashboard/backend-tests/intent/`; browser
+Backend filenames above are under `dashboard/backend-tests/intent/`;
+presentation filenames under `dashboard/frontend-tests/intent/`; other browser
 filenames are under `dashboard/tests/intent/`. The rendering and in-process
 cases replace rule variants formerly repeated through whole-app setup. The
 retained journeys own connections those boundaries cannot establish.
@@ -68,32 +69,40 @@ shared mutable server, persistent warm cache or elapsed wait.
 
 ## Measuring changes
 
-Run through `npm run test:dashboard`, with ordinary worker, trace and timeout
-settings. Save the strict per-case record outside disposable output using
-`OPEN_DOUGH_DASHBOARD_PROOF_RECORD` and shared preparation events using
-`OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE`. Follow [local resource use](../../tests/local-test-resources.md),
-including the maintained macOS sleep guard on AC power.
+Run each group's part through its own command, with ordinary worker, trace
+and timeout settings. Save each run's strict per-case record outside
+disposable output using that group's `<prefix>_PROOF_RECORD` and shared
+preparation events using `OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE`. Follow
+[local resource use](../../Distribution/tests/local-test-resources.md), including the
+maintained macOS sleep guard on AC power.
 
 The replacement-inclusive ordinary selection is:
 
 ```sh
-npm run test:dashboard -- \
+npm run test:dashboard:backend -- \
   backend-tests/intent/ci-comparison \
   backend-tests/intent/ci-proof-memory \
   backend-tests/intent/ci-time-without-runner-waits.spec.ts \
-  tests/intent/intent-ci-comparison \
-  tests/intent/intent-summary-story-comparison \
-  tests/review/story-review-one-shot-choice-refresh.spec.ts \
   backend-tests/review/story-review-stored- \
   backend-tests/intent/intent-ci-comparison-pending-proof.spec.ts \
   backend-tests/intent/intent-ci-comparison-receipt.spec.ts \
   backend-tests/intent/landed-ci-history-comparison-run.spec.ts \
   backend-tests/intent/landed-ci-history-no-proof-recovery.spec.ts
+npm run test:dashboard:integrated -- \
+  tests/intent/intent-ci-comparison \
+  tests/intent/intent-summary-story-comparison
+npm run test:e2e -- \
+  intent/intent-ci-comparison \
+  intent/intent-summary-story-comparison \
+  review/story-review-one-shot-choice-refresh.spec.ts
+npm run test:dashboard:frontend -- \
+  frontend-tests/intent/intent-ci-comparison \
+  frontend-tests/intent/intent-summary-story-comparison
 ```
 
 Measure native launch/capture preservation separately with
-`npm run test:dashboard -- tests/review/recently-done-one-shot-review.spec.ts tests/review/story-review-one-shot.spec.ts`.
-The last four ordinary selectors retain eight backend connections omitted by
+`npm run test:e2e -- review/recently-done-one-shot-review.spec.ts review/story-review-one-shot.spec.ts`.
+The backend command's last four selectors retain eight backend connections omitted by
 the broad `ci-comparison` prefix; include them when comparing whole feedback.
 
 Each rule must take less than 1,000 ms including its arrangement, actions,
@@ -108,7 +117,7 @@ infrastructure `ps` during worker exit. Record their arguments, folder, stack
 and timing separately. They do not permit rule-level Git/gh/Node acquisition,
 and their guessed cost must never be subtracted from a rule profile.
 
-CI retains `dashboard-playwright-report-<shard>` artifacts for each shard.
+CI retains `<group>-playwright-report-<shard>` artifacts for each group's shard.
 The HTML report's embedded `report.json` gives per-case durations and outcomes.
 Match the owning spec filename and test title, because imported case helpers
 can have a different declaration location. File totals and a green workflow
