@@ -6,6 +6,7 @@
 // entries, and which are never compared, is the readers'
 // (`./pinnedTexts.ts`).
 
+import { OutstandingReads } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { commitViaGh, type CommitRecord } from "./ghCommit.ts";
 import {
@@ -13,6 +14,7 @@ import {
   touchedBetweenViaGh,
   unlessFailed,
 } from "./commitsBetween.ts";
+import { readTimeoutMs } from "./ghRead.ts";
 import { HeardRevisions } from "./heardRevisions.ts";
 import { type RevisionMemo, recalledAsJson } from "./revisionMemo.ts";
 
@@ -35,6 +37,7 @@ const sinceEntry = "\0since";
 
 export class PinnedMemo {
   private readonly heard = new HeardRevisions();
+  private readonly outstanding = new OutstandingReads<string>(readTimeoutMs());
 
   constructor(private readonly memo: RevisionMemo) {}
 
@@ -134,8 +137,7 @@ export class PinnedMemo {
   // when GitHub's account of the commits between says none touched the path
   // it is kept under (all of `entry` before any NUL) -- identical text is
   // never that evidence; undefined when nothing is held there or the account
-  // establishes nothing. What the commits between touched is remembered, or that it establishes
-  // nothing; a failure to learn it is not.
+  // establishes nothing.
   private async unchangedSince(
     source: PublishedSource,
     revision: string,
@@ -155,14 +157,7 @@ export class PinnedMemo {
       return undefined;
     }
     const touched = await unlessFailed(signal, () =>
-      this.recalledJson(source, revision, `${sinceEntry}\0${base}`, () =>
-        touchedBetweenViaGh(
-          source.repository,
-          { base, head: revision },
-          this.commitRecorder(source, revision, signal),
-          signal,
-        ),
-      ),
+      this.touchedSince(source, revision, base, signal),
     );
     const [path = entry] = entry.split("\0");
     return touched !== null && !touchedAt(touched, path) ? held : undefined;
@@ -201,16 +196,32 @@ export class PinnedMemo {
     );
   }
 
-  private recalledJson<T>(
+  // What the commits from `base` to `revision` touched, or that GitHub's
+  // account establishes nothing, remembered beside `base` at `revision`; a
+  // failure to learn it is not. The account is many requests long -- the
+  // comparison, then each commit between -- so it is one read for every
+  // request needing it while it is outstanding
+  // (`github-request-outstanding.mjs`), which `waiter` leaves.
+  private async touchedSince(
     source: PublishedSource,
     revision: string,
-    entry: string,
-    read: () => Promise<T>,
-  ): Promise<T> {
-    return recalledAsJson(
-      (text) => this.recalled(source, revision, entry, text),
-      read,
+    base: string,
+    waiter: AbortSignal,
+  ): Promise<readonly string[] | null> {
+    const key = PinnedMemo.key(source, revision, `${sinceEntry}\0${base}`);
+    const text = await this.outstanding.waitFor(key, waiter, (signal) =>
+      this.memo.recalled(key, this.retainedAt(source, revision), async () =>
+        JSON.stringify(
+          await touchedBetweenViaGh(
+            source.repository,
+            { base, head: revision },
+            this.commitRecorder(source, revision, signal),
+            signal,
+          ),
+        ),
+      ),
     );
+    return JSON.parse(text) as readonly string[] | null;
   }
 
   // A commit's own record -- who committed it and every file it changed --

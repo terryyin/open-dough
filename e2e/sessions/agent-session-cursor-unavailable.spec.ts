@@ -1,5 +1,5 @@
+// An unavailable Cursor runner or session reports why its screen cannot be read.
 import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
-// Cases registered by ./agent-session-cursor.spec.ts.
 
 import { cursorRunnerSentence } from "../../dashboard/src/cursorRunnerSessions.ts";
 

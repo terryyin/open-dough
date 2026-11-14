@@ -16,15 +16,19 @@ delivery_evidence_installed_payload() {
     "${delivery_evidence_payload_revision}^{commit}"
 }
 
-# Installs the payload from SOURCE_DIR into WORKSPACE for HOST.
+# Installs the payload from SOURCE_DIR into WORKSPACE for HOST, passing any
+# further installer options, such as --force over a project's own managed
+# installation; fails as the installer does.
 delivery_evidence_install_payload() {
-  local source_dir=$1 workspace=$2 host=$3 payload=$1
+  local source_dir=$1 workspace=$2 host=$3 payload=$1 status=0
+  shift 3
   if [[ -n ${delivery_evidence_payload_revision:-} ]]; then
     payload=$(mktemp -d)
     git -C "${source_dir}" archive "${delivery_evidence_payload_revision}" \
       | tar -x -C "${payload}"
   fi
   bash "${payload}/install.sh" --target "${workspace}" \
-    --source "${payload}" --platform "${host}" > /dev/null
+    --source "${payload}" --platform "${host}" "$@" > /dev/null || status=$?
   [[ ${payload} == "${source_dir}" ]] || rm -rf -- "${payload}"
+  return "${status}"
 }

@@ -1,4 +1,4 @@
-// Cases registered by ./feedback-maintenance-due-row.spec.ts.
+// The row and settings explain why the automatic launch was held.
 import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
 import { rmSync, writeFileSync } from "node:fs";
 import path from "node:path";

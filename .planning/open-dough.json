@@ -12,13 +12,7 @@
         "path": "e2e",
         "label": "E2E Test",
         "kind": "typescript",
-        "include": [
-          "**/*.spec.ts",
-          "launches/feedbackMaintenanceDueHeldCases.ts",
-          "runtime/productionUpdateJourney.ts",
-          "runtime/productionUpdatePolicies.ts",
-          "sessions/agentSessionCursorUnavailableCases.ts"
-        ],
+        "include": ["**/*.spec.ts"],
         "makeMe": true,
         "pageObjects": true
       },

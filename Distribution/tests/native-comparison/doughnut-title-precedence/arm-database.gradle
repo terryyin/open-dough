@@ -1,0 +1,19 @@
+// Gradle init script of the doughnut-title-precedence case (case.md): the
+// case installs it in the arm's own Gradle user home beside arm-database.url,
+// the JDBC URL of the arm's own MySQL server. Every test and Java task then
+// reaches that server through the project's caller-supplied datasource URL,
+// whatever the shell environment holds, and every test task runs rather than
+// coming from the build cache, as the project's own isolated-checkout route
+// does with `--rerun --no-build-cache`.
+def url = new File(gradle.gradleUserHomeDir, 'arm-database.url').text.trim()
+
+allprojects {
+  tasks.withType(Test).configureEach {
+    environment 'SPRING_DATASOURCE_URL', url
+    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
+  }
+  tasks.withType(JavaExec).configureEach {
+    environment 'SPRING_DATASOURCE_URL', url
+  }
+}
