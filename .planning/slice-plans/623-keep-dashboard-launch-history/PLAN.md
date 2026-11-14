@@ -55,19 +55,21 @@ data structure, stop deleting, and leave external behavior unchanged.
 
 | Story promise | Owner and observable proof |
 | --- | --- |
-| A session done 31 days ago leaves Recently done and its count; history holds it once across a later write and restart | Slice 1: new `dashboard/backend-tests/sessions/launch-history.spec.ts` seeds the store, triggers a launch write, restarts, writes again, and reads the history files |
-| A session done 29 days ago stays listed, and history does not hold it | Slice 1: same spec |
-| A failed history append keeps the records in the operational document, and a later write moves them once | Slice 1: same spec, with the history path unwritable, then restored |
-| Removing a session hides it and retires host-local state as before, and history holds it marked `removed` | Slice 2: same spec through the existing delete route; `agent-launch-delete.spec.ts` stays green |
-| A removal that history cannot accept is refused and keeps the record | Slice 2: same spec |
+| A session done 31 days ago leaves Recently done and its count; history holds it once across a later write and restart | Slice 1: `dashboard/backend-tests/sessions/launch-history-aged-out.spec.ts` seeds the store, triggers a launch write, restarts, writes again, and reads the history files |
+| A session done 29 days ago stays listed, and history does not hold it | Slice 1: same aged-out spec |
+| A failed history append keeps the records in the operational document, and a later write moves them once | Slice 1: same aged-out spec, with the history path unwritable, then restored |
+| Removing a session hides it and retires host-local state as before, and history holds it marked `removed` | Slice 2: `launch-history-removed.spec.ts` through the existing delete route; `agent-launch-delete.spec.ts` stays green |
+| A removal that history cannot accept is refused and keeps the record | Slice 2: same removed spec |
 | Wording says done sessions are listed for 30 days | Slice 1: `RecentlyDone.tsx` and `RecentlyDoneSessions.tsx` text, with `tests/sessions/recently-done-sessions-sidebar.spec.ts` updated |
 
-Write the new tests in a new spec rather than extending
+Write the new tests in dedicated history specs rather than extending
 `agent-launch-records.spec.ts`, which has 245 lines, or
-`agent-launch-delete.spec.ts`, which has 233. The selected MakeMe convention
-applies to `dashboard/backend-tests` (`.planning/open-dough.json`). Reuse
-`dashboard/tests/machineLaunchRecords.ts` (`daysAgo`) and the store fixtures
-those two specs use.
+`agent-launch-delete.spec.ts`, which has 233. After both behaviors landed,
+`launch-history.spec.ts` was split into `launch-history-aged-out.spec.ts` and
+`launch-history-removed.spec.ts` to stay within the 250-line file-size check.
+The selected MakeMe convention applies to `dashboard/backend-tests`
+(`.planning/open-dough.json`). Reuse `dashboard/tests/machineLaunchRecords.ts`
+(`daysAgo`) and the store fixtures those two specs use.
 
 ## Decisive premises and observations
 
@@ -83,8 +85,9 @@ those two specs use.
 ### 1. Aged-out launch records move into launch history
 Type: Behavior
 Status: done
-Proof: `launch-history.spec.ts`: the 31-day, 29-day and failed-append examples
-pass. `agent-launch-records.spec.ts`, `agent-launch-retention-scope.spec.ts` and
+Proof: `launch-history-aged-out.spec.ts`: the 31-day, 29-day and failed-append
+examples pass. `agent-launch-records.spec.ts`,
+`agent-launch-retention-scope.spec.ts` and
 `recently-done-sessions-sidebar.spec.ts` stay green with the updated wording.
 
 Behavior: the store holds a session marked done 31 days ago and one marked done
@@ -104,8 +107,8 @@ operational records after 30 days and remain in launch history.
 
 ### 2. Removed sessions remain in launch history
 Type: Behavior
-Status: planned
-Proof: `launch-history.spec.ts`: the removal examples pass;
+Status: done
+Proof: `launch-history-removed.spec.ts`: the removal examples pass;
 `agent-launch-delete.spec.ts` stays green.
 
 Behavior: a recorded session the host no longer lists → the developer removes
@@ -147,12 +150,19 @@ removal answers the existing failure and keeps the record.
 ## Accepted proof (slice 1)
 
 - Backend:
-  `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/sessions/launch-history.spec.ts dashboard/backend-tests/launches/agent-launch-records.spec.ts dashboard/backend-tests/sessions/agent-launch-retention-scope.spec.ts --reporter=list`
-  (implementation pass 7/7; coordinator reconfirmed `launch-history.spec.ts` 2/2).
+  `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/sessions/launch-history-aged-out.spec.ts dashboard/backend-tests/launches/agent-launch-records.spec.ts dashboard/backend-tests/sessions/agent-launch-retention-scope.spec.ts --reporter=list`
+  (implementation pass; later split from `launch-history.spec.ts`).
 - Integrated:
   `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/integrated.playwright.config.ts dashboard/tests/sessions/recently-done-sessions-sidebar.spec.ts --reporter=list`
   (pass 2/2).
 - Refactor: none — already clean.
+
+## Accepted proof (slice 2)
+
+- Backend:
+  `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/sessions/launch-history-aged-out.spec.ts dashboard/backend-tests/sessions/launch-history-removed.spec.ts dashboard/backend-tests/sessions/agent-launch-delete.spec.ts --reporter=list`
+  (11/11 after split).
+- Refactor: split oversized `launch-history.spec.ts` into aged-out and removed specs.
 
 
 ## Story obligations
