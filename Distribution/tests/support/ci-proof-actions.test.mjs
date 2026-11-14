@@ -112,7 +112,7 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
       `dashboard/tests: 1 passed, 0 failed, 0 other test cases; ${missingFrom(2, 5)}`,
       `dashboard/frontend-tests: 1 passed, 0 failed, 0 other test cases`,
       `dashboard/backend-tests: 1 passed, 1 failed, 0 other test cases; ${missingFrom(2, 4)}`,
-      `Distribution: 2 passed, 1 failed, 0 other test files; ${missingFrom(2, 4)}`,
+      `Distribution: 2 passed, 1 failed, 0 other test files; ${missingFrom(2, 3)}`,
       "",
     ].join("\n"),
   );

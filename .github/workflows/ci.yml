@@ -89,7 +89,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        share: [1, 2, 3, 4]
+        share: [1, 2, 3]
     steps:
       - uses: actions/checkout@v7
         with:
@@ -195,5 +195,5 @@ jobs:
       - name: Summarize CI proof
         uses: ./.github/actions/ci-proof-summary
         with:
-          expect: e2e=6:case dashboard/tests=5:case dashboard/frontend-tests=1:case dashboard/backend-tests=4:case Distribution=4:file
+          expect: e2e=6:case dashboard/tests=5:case dashboard/frontend-tests=1:case dashboard/backend-tests=4:case Distribution=3:file
           frontend-entry: dashboard/frontend-tests

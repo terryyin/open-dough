@@ -1,6 +1,7 @@
 # Fewer CI runner jobs without a later verdict
 
 **Source:** [refined story](../../seeds/SEED-350-fewer-ci-jobs.md#run-ci-on-fewer-jobs)
+**Source review:** [independent commitments](source-review.md)
 **Identity:** SEED-350#run-ci-on-fewer-jobs
 
 ## Goal and boundaries
@@ -92,40 +93,12 @@ PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm test -- \
 
 ## Measurement basis for execution
 
-- Before dispatch, pin a successful current-layout baseline and variants to
-  the same test workload, dependencies, runner class and workers. Record the
-  workflow diff and chosen count/budget values. Concurrent product changes
-  require a newly matched baseline rather than attributing their time to layout.
-- Put the prospective protocol and compact run/candidate table in
-  `docs/maintainer/ci-layout-measurements.md`; keep useful commands and evidence
-  there through wrap-up. Record exact SHA, run ID/attempt, conclusion, initial
-  and total job counts, workflow creation/last completion, per-job created /
-  started / completed times, setup, proof completeness and background load.
-  Record unsuccessful runs too, but never count a fast failure as a win.
-- Solo samples have one experiment run active. Alternate matched baseline and
-  candidate observations in nearby blocks. A concurrent A/B pair is an overlap
-  measurement, never evidence of solo behavior. Include matched concurrent
-  comparisons; confirm representative overlap with equivalent two-run loads
-  (baseline/baseline and candidate/candidate), recording start offsets and both
-  verdicts. Do not launch all four arms together and call that a two-run load.
-- Record visible unrelated runs and account-visibility limits. Use observed
-  completion events to sequence owned runs; do not cancel another execution's
-  runs, reserve the account, or infer global idleness from this repo alone.
-- Predeclare sampling/stop criteria before the first live result. Begin with
-  at least three matched blocks per condition, inspect paired distributions
-  including slow samples, and extend complete blocks when spread changes the
-  conclusion. Set a bounded experiment ceiling before dispatch. Do not invent
-  a positive regression allowance: a kept candidate needs convincing no-worse
-  evidence in both conditions, not just a lower fastest sample or median in one.
-  A ceiling reached with uncertainty leaves the candidate inconclusive and
-  unkept; it is not a completed no-change finding.
-- Retain current baseline as well as intermediate winners. Test combined
-  reductions against the original baseline and recheck final packing; a greedy
-  one-count-at-a-time failure is not proof that all smaller totals fail.
-  Rank by real recorded work and bottleneck slack, then measure. Record which
-  smaller packings were measured, predicted infeasible and why, or left unknown.
-  The final claim is the smallest **measured passing** layout, not a global
-  optimum. No physical job-count floor follows from current producer boundaries.
+Follow the [durable prospective protocol](../../../docs/maintainer/ci-layout-measurements.md#prospective-protocol--2026-11-14)
+for the fixed workload, complete-verdict metric, solo/mixed/equivalent two-run
+blocks, sampling ceiling and strict no-regression decision. Its acquisition,
+run and candidate ledgers retain timestamps, proof, load limits, unsuccessful
+attempts and search exclusions through wrap-up. Uncertainty keeps a candidate
+unkept and the dependent search unfinished; it never establishes no-change.
 
 ## Ordered slices
 
@@ -243,7 +216,34 @@ No scope change or ADR exception. The supplied account limit of 20 was not
 independently verified. Report observed load and visibility limits; smaller
 layouts remain hypotheses for the probe and comparisons.
 
+Execution resumed 2026-11-14 in the established owned worktree and branch
+`codex/run-ci-on-as-few-jobs-as-its-wall-time-allows`, story-branch mode.
+Origin/main and the execution branch both confirmed accepted Take
+`d21aaf78c60ee03fb08f382397f2b6a4ea3270b1`; starting revision
+`c4117d407650eb1e037d1b0082f103699825cd5b`. Publisher
+`dashboard-territory.local-open-dough`, agent `aki-chan`. The default checkout
+is `/Users/terryyin/git/open-dough`; no originating integration checkout was
+supplied. No second start or claim. Locked `npm ci` succeeded in this checkout,
+then the real three-share preview succeeded with all 644 checks. The tracked
+pre-commit hook is check-only (staged lint, script-triggered typecheck);
+`npm run format` selects changed/new paths. Replanning retains the plan's
+existing authority; no numeric slice budget or exception was supplied.
+
+Observer: GitHub Actions `terryyin/open-dough`, verified active `ci.yml` / `CI`
+(351271804), execution-branch target. Coordinator `aki-chan-seed350`, checkout
+as above; directory `/tmp/dough-ci-501/watch-fNDC3o`, PID 82547, yielded cell
+`g188:9`, stream session 28375. The Take's trunk CI is unobserved by this
+branch observer. Use the retained directory/coordinator for managed delivery.
+
 Slice-plan refinement was not needed: the four proof loops separate attribution,
 Distribution packing, whole-workflow packing and the maintained rule within one
 allocation/proof model. No remaining planning concern was found; slice 1 bounds
 state-changing measurement premises and stops dependent work if it fails.
+
+
+## Story obligations
+
+### G1. Complete candidate proof and matched comparisons
+Reported: slice 1 — "B1 baseline acquisition passed; candidate exact hosted proof and repeated solo, mixed and equivalent two-run comparisons remain unobserved."
+Story clause: "Use matched concurrent comparisons and repeated samples to distinguish layout effects from runner noise."
+Disposition: return
