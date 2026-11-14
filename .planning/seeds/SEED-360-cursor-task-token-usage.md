@@ -26,7 +26,7 @@ Extend the [dashboard usage view](SEED-357-dashboard-task-token-usage.md#view-to
 to Cursor story workflows and ad hoc tasks on the current interactive launcher.
 Persist the reported usage and available settings. Measure the whole task where
 requests can be attributed. Include related continuations and late worker usage.
-Store usage in the shared [usage records](SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history).
+Store usage in the shared [usage records](../../dashboard/USAGE-HISTORY.md).
 
 #### Key examples
 

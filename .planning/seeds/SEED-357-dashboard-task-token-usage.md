@@ -25,7 +25,7 @@ Codex task they started there used and which launch settings produced that usage
 Automatically collect usage for dashboard-launched Codex story workflows and
 ad hoc tasks. Show it with the task type, project, story identity when applicable,
 tool, requested and observed model and effort, and other relevant launch
-parameters. Use the [usage records and historical reconstruction](SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history).
+parameters. Use the [usage records and historical reconstruction](../../dashboard/USAGE-HISTORY.md).
 Provide a usage view that [Claude Code](SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage)
 and [Cursor](SEED-360-cursor-task-token-usage.md#view-cursor-task-token-usage) can extend.
 
@@ -48,7 +48,7 @@ can have several launches, each with its own usage and outcome.
 #### Strongest option
 
 Measure each launch with the same import the
-[usage history reconstruction](SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history)
+[usage history reconstruction](../../dashboard/USAGE-HISTORY.md)
 runs: read completed-response usage from the launch's Codex rollouts, following
 thread and turn lineage to its workers, while the task runs and after it ends.
 The November 14 check found that usage for 385 of 385 retained roots and 3,325

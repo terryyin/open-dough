@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 521. Removed numbers are never reused.
+- Highest allocated local number: 522. Removed numbers are never reused.
 - Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
@@ -83,6 +83,16 @@ Former local code: DD-257. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-325. The coordinator reduced a guarded delivery call to its output text, dropping the live command's session handle; the terminal receipt was recovered through checkout inspection and an exact-candidate resume. [Evidence and current response](docs/maintainer/findings/ODF-322.md).
 
 [Occurrences retained in the catalog](docs/maintainer/findings/ODF-322.md).
+
+### Occurrences
+- Execution: SEED-358#reconstruct-codex-and-claude-code-usage-history (first implementation e8c33461577e6d744dfbe5f5c4aceb0e9a7107fc)
+  - Timestamp: unknown (2026-11-14, execution-complete publication)
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.99 (checkout-bound installed marker at accepted Take a2bf0f9625455299ad0f8776e1be915aa6d8e797)
+  - Evidence: launch24a613cd-748e-4ff9-a3ea-8930d09ff346 coordinator projected a yielded fresh-delivery result to `.output`, dropping its session handle; accepted candidate29cfcb6758eda2c38c448af17b9a7848829c90ac was then confirmed with exact remote execution tip and retained registration, followed by its successful completion/shutdown receipt.
+  - Observed effect: publication and registration succeeded, but the original terminal delivery receipt was unavailable to the coordinator. Read-only acceptance recovery was required; no Git publication was repeated.
+  - Inference: retain the complete command result until its terminal receipt, even when only output text is eventually displayed. Avoidable recovery time and token cost were not measured.
 
 ## ODF-329 — Implementation returns failed the delivery formatter's lint
 
@@ -619,3 +629,17 @@ Three observer or detector defects in the new comparison harness surfaced only a
   - Evidence: plan 618 Learnings "Observer corrections re-derived, not observed live" and "Doughnut qualification observed" (live verdict failed only on the arm path; re-derived pass); obligation G1 re-derived 1 integration / 1 filing from `final-state.txt`.
   - Observed effect: about two paid journeys (~22 min and ~14 min of Codex at xhigh) not repeated; the retained record's case hashes then predated the committed case, which the plan states.
   - Inference: re-derivation is only as trustworthy as the retained raw evidence; one run's raw per-test records were not retained, limiting that re-derivation.
+
+## DD-522 — Full-corpus persistence capacity was first exercised after fixture-sized acceptance
+
+Fixture-sized CLI proof passed before the first actual recovery exposed two independent whole-corpus limits: repeated lineage provenance exhausted the default heap, then aggregate JSON exceeded V8's string limit. A bounded ancestry probe and read-only record-size census established the failed premises only after those import attempts. The repairs retained the original logical contract and used bounded provenance, paged publication and streaming reads rather than increasing limits.
+
+### Occurrences
+- Execution: SEED-358#reconstruct-codex-and-claude-code-usage-history (first implementation e8c33461577e6d744dfbe5f5c4aceb0e9a7107fc; completed plan624 recoverable at29cfcb6758eda2c38c448af17b9a7848829c90ac)
+  - Timestamp: 2026-11-14T17:52:57.063Z (first import terminated; subsequent string-limit attempt recorded separately)
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.99 (checkout-bound installed marker at accepted Take a2bf0f9625455299ad0f8776e1be915aa6d8e797)
+  - Evidence: [maintained diagnostic receipts](docs/maintainer/usage-history-recovery-diagnostics-2026-11-15.md#scaling-defect-found-during-recovery); local import-reports/2026-11-15 failed-first-runtime.json, lineage-probe.json and census.json. One 249-assistant-row sample produced85256 ancestor references; the later census measured about1.4GB compact values against V8's536870888-character string ceiling.
+  - Observed effect: import attempts failed after16m8.681s and6m59.760s before any usage store was created. Execution refined the remaining plan to own bounded storage and restored proof; final default-heap pair and independent reconciliation succeeded.
+  - Inference: when a promised recovery spans an existing corpus, cheap corpus-size and lineage-amplification observations should inform persistence feasibility before the first full import. These observations would have exposed both constraints earlier; the record does not measure total avoidable time or imply that all later investigation was waste.
