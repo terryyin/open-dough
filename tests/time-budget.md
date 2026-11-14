@@ -42,12 +42,11 @@ values:
   ceiling splits the job in the same slice. A thin share total projects its
   recent highest at recorded speed plus each changed job's increase: the
   ratio minus 1, times that job's recent highest at recorded speed. When the
-  change adds, removes or renames a test file, run the allocation preview,
-  `node scripts/test-shares.mjs preview --split-count 3`
-  ([test-shares.md](test-shares.md)): it prints each share's predicted
-  job-seconds and headroom to the total ceiling from recorded CI seconds
-  (the same unit as the ceiling and this report), and names the unrecorded
-  jobs the deal assumes at the median.
+  change adds, removes or renames a test file, run the
+  [allocation preview](test-shares.md#preview-before-pushing): it prints
+  each share's predicted job-seconds and headroom to the total ceiling from
+  recorded CI seconds (the same unit as the ceiling and this report), and
+  names the unrecorded jobs the deal assumes at the median.
 
 A job with no recent timing, or `No recent trunk timings were found` with its
 reason, leaves the budget to CI. Either way the pushed revision's CI result is

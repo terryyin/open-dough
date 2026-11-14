@@ -5,8 +5,8 @@
 # longest first; a job not listed here is unrecorded and is dealt after them
 # at the median of these seconds, so an unrecorded job is a new or renamed
 # one. Names that no longer match a job are ignored; a line that is not
-# `<seconds><TAB><label>` fails the run naming it. Preview the deal with
-# `node scripts/test-shares.mjs preview --split-count 3` (tests/README.md).
+# `<seconds><TAB><label>` fails the run naming it. Preview the deal as
+# tests/test-shares.md describes.
 # To refresh from a main run, download every share's `test-times-<i>`
 # artifact and merge them, every job, keeping the seconds:
 #   gh run download RUN_ID -p 'test-times-*' -D DIR
