@@ -9,7 +9,7 @@ opportunities and evaluation questions are research inputs.
 keeping the audit's findings, method, evidence and opportunities together
 beyond the 250-line file-size check. The audit moved here at Terry's request.
 This is the single document carrying that exception.
-See the [file-size check](../../src/skills/dough-post-change-refactor/references/refactor-checks.md#file-size).
+See the [file-size check](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#file-size).
 
 ## Window, scope and method
 
@@ -338,9 +338,9 @@ Standard credits fell from 12.49 to 11.33, a 9.3% decrease. The account
 quota meter was too coarse and had overlapping activity. The maintained
 wrap-up guidance already incorporates the bounded completion-wait response.
 See [waiting comparison](intent-coverage-cost-research.md#same-story-waiting-comparison),
-[delegation waits](../../src/skills/dough-execute-plan/references/delegation.md#await-delegated-results-without-empty-calls),
-[overdue proof](../../src/skills/dough-execute-plan/references/overdue-delegated-verification.md)
-and [CI completion](../../src/skills/dough-execute-plan/references/ci-completion-wait.md).
+[delegation waits](../../Distribution/src/skills/dough-execute-plan/references/delegation.md#await-delegated-results-without-empty-calls),
+[overdue proof](../../Distribution/src/skills/dough-execute-plan/references/overdue-delegated-verification.md)
+and [CI completion](../../Distribution/src/skills/dough-execute-plan/references/ci-completion-wait.md).
 
 **Claude Code.** In 91 requests the cache had expired during an idle gap and
 the whole context was written again, costing $163 (10% of list-price cost).
@@ -471,7 +471,7 @@ plus output. These are observed review costs. The wording scan misses some
 clean reports, can match a clean subset of a wider review, and does not
 identify which reviews qualified for a disposition. The two checkpoint
 updates above were inspected independently. See
-[the delivery rule](../../src/skills/dough-execute-plan/references/deliver-the-change.md)
+[the delivery rule](../../Distribution/src/skills/dough-execute-plan/references/deliver-the-change.md)
 and [ODF-141](findings/ODF-141.md),
 [ODF-276](findings/ODF-276.md).
 
@@ -906,7 +906,7 @@ does not establish a second occurrence or change a finding's disposition.
   [ODF-276](findings/ODF-276.md) documents the complementary risk of skipping
   a required independent pass without an applicable disposition. Their
   shared response already permits a recorded records-only or already-traced
-  disposition under [the delivery rule](../../src/skills/dough-execute-plan/references/deliver-the-change.md).
+  disposition under [the delivery rule](../../Distribution/src/skills/dough-execute-plan/references/deliver-the-change.md).
   The useful refactors and successful proof checks in all three host audits
   limit the case for any broader exemption.
 - **Finding 4 and C1, repeated discovery.** [ODF-454](findings/ODF-454.md)

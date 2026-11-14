@@ -1,7 +1,7 @@
 // Real Git and native Trace2 observe recovery facts and query reuse.
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { publishedStoryHistory } from "../../server/publishedStoryHistory.ts";
 import { storyCompletionEndpoints } from "../../server/storyCompletionEndpoints.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";

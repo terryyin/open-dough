@@ -1,8 +1,8 @@
 // A saved preparation run cannot replace a later completed story's history.
 // Both the refinement capture and the execution completion use real installed
 // publication; the Done reader chooses their meaning, not a fabricated answer.
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import {
   storyReviewEndpoint,

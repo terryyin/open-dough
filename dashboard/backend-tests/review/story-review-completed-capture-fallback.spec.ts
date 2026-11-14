@@ -1,7 +1,7 @@
 // Historical defaults validate completed identity, while explicitly chosen
 // captures retain their existing meaning as one launch's fixed publication.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import {
   storyReviewEndpoint,
   storyReviewSchema,

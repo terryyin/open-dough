@@ -29,7 +29,7 @@ import { intentLocationName } from "./intentPerspectivePage.ts";
 import { chooseStoryTab } from "./support/intentStoryPage.ts";
 import { storyIntentFrame } from "./intentModePage.ts";
 import { summaryRegion } from "./intentScopeProofPage.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { OriginAnswer } from "./originAnswers.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import type { CiAnswerer, CiRunAnswer } from "./support/baseCiActions.ts";

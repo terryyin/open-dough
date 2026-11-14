@@ -141,7 +141,7 @@ as written, including repair of failing/flaky and base-attributed failures and
 preservation of a separately evidenced active repair owner's files.
 
 For a long local run, start fully awake. The maintained
-[macOS sleep guard](../../../tests/local-test-resources.md#machine-sleep-on-macos)
+[macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 is `caffeinate -s -i` on AC power; on battery plug in, or keep the lid open
 under `caffeinate -i` and inspect the sleep log afterwards. Full runs share
 the project's suite admission. Inspect actual host headroom before expensive

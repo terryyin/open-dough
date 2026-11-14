@@ -1,7 +1,7 @@
 // The CI proof of one ciAdapter attempt (`./intentCiProofRead.ts`): asked of
 // the project's configured adapter (`proof`), run from the project folder
 // through the shared CI proof read
-// (`../../src/skills/dough-test-optimization/scripts/ci-proof-read.mjs`)
+// (`../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-read.mjs`)
 // with the collector contract's summary read limit as `answerBytes`, then
 // validated with the collector's own contract, read in its current version
 // (a version 1 summary's results as legacy evidence) and used only when it
@@ -12,11 +12,11 @@
 // and attempt for this process's lifetime beside the GitHub Actions summary
 // memory (`./ciProofArtifact.ts`); every other answer is asked of the
 // adapter again.
-import { readCommandProof } from "../../src/skills/dough-execute-plan/scripts/ci-command-attempt.mjs";
+import { readCommandProof } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-attempt.mjs";
 import {
   readCiAdapterSummary,
   type CiAdapterSummaryRead,
-} from "../../src/skills/dough-test-optimization/scripts/ci-proof-read.mjs";
+} from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-read.mjs";
 import {
   ciProofTooLarge,
   type CiAdapterProofAttempt,

@@ -2,8 +2,8 @@
 // Uses the published summary producer; GitHub answers retain the real wire shape.
 
 import { crc32, deflateRawSync } from "node:zlib";
-import { summarize } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { summarize } from "../../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiProofEntry } from "../../src/ciProof.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import { proofInputsForEntries } from "./ciProofEntryInputs.ts";

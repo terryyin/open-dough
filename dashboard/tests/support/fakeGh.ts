@@ -12,7 +12,7 @@ import {
   privateRequestOwner,
   requestOwnerEnvironmentAt,
   withdrawRequestOwners,
-} from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+} from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
 import { endAtExit, endRunningProcesses } from "./processGroup.ts";
 

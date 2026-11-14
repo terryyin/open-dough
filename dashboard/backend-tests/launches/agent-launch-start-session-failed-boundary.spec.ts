@@ -3,7 +3,7 @@
 // with its landing choice and handoff. It drives a real installed start and
 // bare origin, with a synthetic host. The page's recovery and an identical
 // Start: ../../../e2e/launches/agent-launch-start-session-failed.spec.ts.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { realpathSync } from "node:fs";
 import type { LaunchWithState } from "../../src/launchRecord.ts";
 import {

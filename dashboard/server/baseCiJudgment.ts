@@ -13,8 +13,8 @@
 // was on.
 // Only a branch name the safe-branch rule accepts reaches `gh api` or the
 // adapter.
-import { createGitHubActions } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
-import { readCiConfiguration } from "../../src/skills/dough-execute-plan/scripts/ci-project-configuration.mjs";
+import { createGitHubActions } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
+import { readCiConfiguration } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-project-configuration.mjs";
 import {
   isSafeBranchName,
   readWaitLimitMs,

@@ -3,7 +3,7 @@
 // the locations could not be read, each but the first with Retry.
 
 import type { ReactNode } from "react";
-import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentSettingsPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type {
   IntentLocation,
   IntentLocations,

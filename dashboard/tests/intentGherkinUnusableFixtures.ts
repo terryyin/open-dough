@@ -3,7 +3,7 @@
 // Doughnut-like and Pygardon-like projects.
 
 import { catalogPublications } from "./catalogProjectRecords.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const doughnut = {
   ...catalogPublications.doughnut,

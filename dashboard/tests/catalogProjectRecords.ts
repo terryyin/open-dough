@@ -3,13 +3,13 @@
 // one queued story whose seed names its purpose.
 
 import { posix } from "node:path";
-import type { renderEntry } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
+import type { renderEntry } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
   identityLine,
   splitHref,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { describedRevision } from "./describedRevisions.ts";
 import type { PublishedRevision } from "./publishedFiles.ts";

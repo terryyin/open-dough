@@ -3,7 +3,7 @@ import {
   sessionAction,
 } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
 import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { renameSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";

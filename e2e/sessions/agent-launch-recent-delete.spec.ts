@@ -16,7 +16,7 @@ import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   identityA,
   identityB,
-} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { launch, markDone } from "../../dashboard/tests/agentLaunchBoundary.ts";
 import {
   storyCardSessionOf,

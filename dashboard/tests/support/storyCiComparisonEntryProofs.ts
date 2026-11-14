@@ -1,4 +1,4 @@
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // Proof-summary Answers for Intent's story CI comparison journeys
 // (./storyCiComparisonFixture.ts): retained summaries, expired listings and
 // the mixed entry durations from example 2. Summaries of MakeMe-built

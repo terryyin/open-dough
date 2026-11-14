@@ -10,8 +10,8 @@
 // reveal a hidden column whole is ./board-paging.spec.ts and
 // ./board-paging-sessions-sidebar.spec.ts.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { renderStorySection } from "../../../tests/support/published-seed.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
 import { hideDetail, inspectedDetail } from "../storyCardControls.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { expectSettledPage, parts } from "../dashboardPage.ts";

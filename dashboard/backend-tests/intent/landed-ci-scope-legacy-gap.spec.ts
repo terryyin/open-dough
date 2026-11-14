@@ -1,7 +1,7 @@
 // Collected scope evidence shares project history's bounded retained cohort.
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import {
   collectingLandedCi,

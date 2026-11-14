@@ -1,5 +1,5 @@
 // Actual Landed resolution and artifact acquisition through a local scoped read.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   collectedSummary,
   playwrightRecord,

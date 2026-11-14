@@ -15,16 +15,16 @@ import type { OriginAnswer } from "../originAnswers.ts";
 import {
   apiJob,
   apiRun,
-} from "../../../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { observedRunForApi } from "../../../tests/support/ciRunTestData.mjs";
+} from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { observedRunForApi } from "../../../Distribution/tests/support/ciRunTestData.mjs";
 import {
   actionsRunsAnswer,
   actionsWorkflowAnswer,
   type CiRunAnswer,
 } from "./baseCiActions.ts";
-import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
-import { commitDeclaredRevision } from "../../../tests/support/repository-fixture.mjs";
+import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import { dashboardDeveloper } from "./startOriginPreparation.ts";
 import { push } from "./storyReviewTrunkCommits.ts";

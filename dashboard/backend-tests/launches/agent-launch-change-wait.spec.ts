@@ -10,7 +10,7 @@
 // ../../tests/launches/agent-launch-start-story-card.spec.ts and
 // ../../../e2e/launches/agent-launch-second-server.spec.ts.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   agentChangedEndpoint,

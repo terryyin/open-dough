@@ -1,7 +1,7 @@
 // Rule variants use raw canonical Git/history facts, preserving the production
 // claim, owning/foreign merge, side, landing and completion algorithms.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { repositoryHistoryReads } from "../../../tests/support/repositoryHistoryReads.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { repositoryHistoryReads } from "../../../Distribution/tests/support/repositoryHistoryReads.mjs";
 import { publishedStoryEvidence } from "../../server/storyPublishedEvidence.ts";
 import {
   deliveredCompletion,

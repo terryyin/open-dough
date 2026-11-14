@@ -15,7 +15,7 @@ import {
 import { readIntentLocationsAt } from "../../src/authenticatedIntentRead.ts";
 import { forgetCachedFiles } from "../../src/fileContentCache.ts";
 import { readCachedFile } from "../../src/repositoryFileReads.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const source = makeMe.aPublishedSource
   .with({

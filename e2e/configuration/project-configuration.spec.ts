@@ -3,7 +3,7 @@ import { mkdirSync, readFileSync } from "node:fs";
 import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
 import { projectConfigurationMachine } from "../../dashboard/tests/support/projectConfigurationMachine.ts";
 import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   daysAgo,
   machineHome,

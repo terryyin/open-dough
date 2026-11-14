@@ -3,7 +3,7 @@
 // `./intent/intent-gherkin-groups.spec.ts`, `./intent/intent-gherkin-layout.spec.ts`).
 
 import { catalogPublications } from "./catalogProjectRecords.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export { publishIntentProject } from "./publishIntentProject.ts";
 

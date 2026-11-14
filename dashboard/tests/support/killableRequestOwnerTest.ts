@@ -1,11 +1,11 @@
 // The dashboard `test` for a page case that kills the GitHub request owner
 // its dashboard asks through: an owner of the case's own
-// (../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs),
+// (../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs),
 // with every read the dashboard hands that owner's connection noted
 // (./ownerSends.ts), so the case can wait until a read is queued at the owner,
 // then kill the owner standing there and see the one started in its place.
 
-import { privateRequestOwner } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+import { privateRequestOwner } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { expect, test as base } from "../dashboardTest.ts";
 import { ownerSends, type OwnerSends } from "./ownerSends.ts";
 

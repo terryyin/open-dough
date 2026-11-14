@@ -56,7 +56,7 @@ import {
   summaryZipAnswer,
 } from "../../dashboard/tests/support/ciProofArtifacts.ts";
 import { intentSettingsText } from "../../dashboard/tests/support/intentSettingsFile.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 const checksRow: ProofRow = ["tests", "5 passed test files", "No timings"];
 

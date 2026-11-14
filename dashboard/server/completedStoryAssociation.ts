@@ -2,7 +2,7 @@
 // Join the launch reporting reference to Claim-Publisher / Claim-Identity and
 // the launch-bound accepted capture to recovered completion. Rebuildable only;
 // never a competing persisted completion fact or retroactive execution request.
-import { trailers } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs";
+import { trailers } from "../../Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { landingCompletesStory } from "./completedStoryCapture.ts";

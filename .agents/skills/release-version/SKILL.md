@@ -11,7 +11,7 @@ or CI jobs. This skill is internal to the Open Dough repository.
 Follow [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
 for the Proposed → Promoted → Released lifecycle. Release the Promoted client
 payload declared by `install.sh`'s `managed_files`, the one payload declaration
-(`src/install/open-dough-release-version.sh` reads it rather than declaring its
+(`Distribution/src/install/open-dough-release-version.sh` reads it rather than declaring its
 own); check that it includes required runtime dependencies.
 Confirm the applicable behavior and delivery reviews cover the intended changes.
 Do not add Proposed guidance to the payload as an incidental release step.

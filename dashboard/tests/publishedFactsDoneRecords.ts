@@ -1,6 +1,6 @@
 // Done records served together by the published-facts observation fixture.
-import type { DoneRecord } from "../../tests/support/repositoryTestData.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import type { DoneRecord } from "../../Distribution/tests/support/repositoryTestData.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { executed } from "./recentlyDoneRecords.ts";
 
 // Further done stories, completed in the hours before the page opened.

@@ -3,7 +3,7 @@ import path from "node:path";
 import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
 import { projectConfigurationMachine } from "../../dashboard/tests/support/projectConfigurationMachine.ts";
 import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { machineHome } from "../../dashboard/tests/machineLaunchRecords.ts";
 import {
   back,

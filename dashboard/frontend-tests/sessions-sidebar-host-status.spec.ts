@@ -17,7 +17,7 @@ import {
   putFrontendHostStatus,
   putFrontendMachine,
 } from "../tests/support/frontendServiceState.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.describe("the Sessions sidebar's title row status", () => {
   test("an unread host figure says it is unavailable while the other figures still show", async ({

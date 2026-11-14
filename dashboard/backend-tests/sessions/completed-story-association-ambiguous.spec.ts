@@ -4,13 +4,13 @@
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   storyA,
   storyB,
   storyPlanPath,
   takeRevision,
-} from "../../../tests/support/queued-repository.mjs";
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { expect, test } from "../../tests/support/codexStart.ts";
 import {
   associationOf,

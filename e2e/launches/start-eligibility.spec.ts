@@ -1,6 +1,6 @@
 // A card's start eligibility: a Ready assessment waits on its dependency and
 // becomes startable without any readiness write, in Backlog and in Taken.
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import {

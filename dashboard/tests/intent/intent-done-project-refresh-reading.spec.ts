@@ -2,7 +2,7 @@ import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // Project refresh preserves a real Done story's selected historical Purpose
 // file and reading place, including its preceding cycle through all Done tabs.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { pausePageClock } from "../autoRefreshJourney.ts";
 import {
   backToStory,

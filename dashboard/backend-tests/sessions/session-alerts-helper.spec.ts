@@ -13,7 +13,7 @@ import { SessionAlerts } from "../../server/sessionAlerts.ts";
 import type { LaunchWithState } from "../../src/agentLaunch.ts";
 import { launchRequest } from "../../tests/agentLaunchBoundary.ts";
 import { notificationActivation } from "../../tests/support/notificationActivation.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // The kept launch the alert owner reads, in the project `source`.
 const kept = (source: string) =>

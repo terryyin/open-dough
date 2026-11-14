@@ -3,7 +3,7 @@
 // `claude` boundary: a later Start, whatever it asks, goes on with the kept
 // start's own policy and workspace rather than changing or duplicating it.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { execFileSync } from "node:child_process";
 import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";

@@ -17,7 +17,7 @@ import {
   sharedDashboardBuild,
   startDashboardServer,
 } from "../../dashboard/tests/support/dashboardServer.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ preparationHost: "codex" });
 test("accepted input with lost acknowledgment resumes its prepared conversation without another announcement or input", async ({

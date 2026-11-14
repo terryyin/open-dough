@@ -102,5 +102,10 @@ export function expectInstalledReportingScript(workspace: string) {
   const script = "dough-execute-plan/scripts/dashboard-completion.mjs";
   expect(
     readFileSync(path.join(workspace, ".agents/skills", script), "utf8"),
-  ).toBe(readFileSync(path.join(repoRoot, "src/skills", script), "utf8"));
+  ).toBe(
+    readFileSync(
+      path.join(repoRoot, "Distribution/src/skills", script),
+      "utf8",
+    ),
+  );
 }

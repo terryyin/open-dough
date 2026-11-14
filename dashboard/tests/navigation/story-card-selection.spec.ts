@@ -9,7 +9,7 @@
 import { expect, test } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import {
   at,

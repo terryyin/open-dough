@@ -10,7 +10,7 @@ import {
   terminalEndedCode,
 } from "../../src/agentTerminal.ts";
 import type { TerminalSession } from "../../server/agentTerminals.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 const native = createRequire(import.meta.url)(
   "@lydell/node-pty",
 ) as typeof import("@lydell/node-pty");

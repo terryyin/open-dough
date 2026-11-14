@@ -6,7 +6,7 @@
 // (./landedCiReader.ts). Collection of those builds stays with
 // ../../../e2e/intent/intent-project-scope-timing-history.spec.ts.
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { declaredSummaryComparisonEndpointsIn } from "./intentSummaryStoryComparisonRepository.ts";

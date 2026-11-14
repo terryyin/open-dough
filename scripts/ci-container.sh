@@ -13,13 +13,13 @@
 # path outside the checkout.
 set -euo pipefail
 
-# CI's platform, stated once; tests/ci-container.sh checks these against
+# CI's platform, stated once; Distribution/tests/ci-container.sh checks these against
 # .github/workflows/ci.yml.
 readonly ubuntu_version=24.04
 # The bare image needs Chromium's system dependencies; native CI already has
 # them. The image runs this bootstrap as root, pinned to the locked version.
 # The container then runs CI's dashboard checks without the shard split;
-# tests/ci-container.sh checks the bootstrap and shared checks separately.
+# Distribution/tests/ci-container.sh checks the bootstrap and shared checks separately.
 readonly dashboard_install='npx playwright install --with-deps chromium'
 readonly dashboard_steps='npm run typecheck:dashboard
 npm run test:e2e
@@ -95,7 +95,7 @@ playwright_version=$(awk '
 
 # Git from the git-core PPA and Node from nodejs.org, as GitHub's runner image
 # and actions/setup-node install them; the host's native architecture.
-# Hosted Ubuntu font inventory: ubuntu24/20261101.360 (tests/ci-container.md).
+# Hosted Ubuntu font inventory: ubuntu24/20261101.360 (Distribution/tests/ci-container.md).
 # Playwright's dependency fonts alone do not reproduce its system-ui fallback.
 dockerfile=$(
   cat << DOCKERFILE

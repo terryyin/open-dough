@@ -19,7 +19,7 @@ import {
   runUrl,
   trunkCi,
 } from "./intentCiStatusPage.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { OriginAnswer } from "./originAnswers.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import type { CiAnswerer, CiRunAnswer } from "./support/baseCiActions.ts";

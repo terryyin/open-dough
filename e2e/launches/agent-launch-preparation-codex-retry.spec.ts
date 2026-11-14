@@ -18,7 +18,7 @@ import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
 import { nextAcceptedAttemptId } from "../../dashboard/tests/acceptedAttemptPage.ts";
 import { untilPageRequestsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
 import { settledOutcome } from "../../dashboard/tests/acceptedAttempts.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ preparationHost: "codex" });
 

@@ -53,7 +53,7 @@ import type { GhCall } from "../../dashboard/tests/support/fakeGitHub.ts";
 import {
   agentProfileDirectory,
   agentSettingsPath,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 test.describe("project read isolation of automatic checks", () => {
   // Doughnut still shows its own snapshot, evidence, and focus, and nothing

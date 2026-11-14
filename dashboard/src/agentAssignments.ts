@@ -1,7 +1,7 @@
 // Who holds each Taken entry, and who is preparing each queued entry, from
 // the agent profiles published beside the backlog at the snapshot's revision.
 // What a profile says is decided by the shared profile reader under
-// `src/skills/dough-product-backlog/scripts/`; its answer is checked here for
+// `Distribution/src/skills/dough-product-backlog/scripts/`; its answer is checked here for
 // the fields this dashboard shows. A profile refers to its work by identity.
 // An unreadable profile names no identity, so it is reported as unreadable and
 // never matched to an entry by guess; a profile whose text names another agent
@@ -13,7 +13,7 @@
 import {
   agentHosts,
   agentModes,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readAgentProfilesAt } from "./authenticatedProfileRead.ts";
 import type { HumanAttribution } from "./assignmentAttribution.ts";
 import { interpretProfiles } from "./interpretAgentProfiles.ts";

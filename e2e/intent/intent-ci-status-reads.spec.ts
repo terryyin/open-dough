@@ -32,7 +32,7 @@ import path from "node:path";
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { openDough } from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 import {
   failing,

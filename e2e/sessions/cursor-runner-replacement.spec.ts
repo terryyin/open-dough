@@ -6,7 +6,10 @@ import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // Recover click. Same-build helper-proof survival lives in
 // ./cursor-runner-helper-survival.spec.ts. Done / never-held / fail
 // controls live in ./cursor-runner-replacement-controls.spec.ts.
-import { storyA, storyB } from "../../tests/support/queued-repository.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../Distribution/tests/support/queued-repository.mjs";
 import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/runnerPaths.ts";
 import {
   parts,

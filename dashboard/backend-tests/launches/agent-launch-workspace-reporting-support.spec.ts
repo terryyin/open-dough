@@ -9,7 +9,7 @@ import {
   reportingContext,
 } from "../../server/completionReporting.ts";
 import { missingReportingSupport } from "../../server/launchWorkspaceReporting.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { repoRoot } from "../../tests/support/repositoryRoot.ts";
 import {
   plantIncompleteInstall,
@@ -39,7 +39,11 @@ test.describe("reporting preparation from a launch-workspace install", () => {
       "first-landing-expectation.mjs",
     ])
       cpSync(
-        path.join(repoRoot, "src/skills/dough-execute-plan/scripts", name),
+        path.join(
+          repoRoot,
+          "Distribution/src/skills/dough-execute-plan/scripts",
+          name,
+        ),
         path.join(scripts, name),
       );
   });

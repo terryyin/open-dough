@@ -86,7 +86,7 @@ stay waiting. Source disappearance, an increment, or queue removal never
 proves fulfillment. After satisfying a condition, the agent rereads the
 consumer's Not ready reasons and, by judgment, records a fresh assessment
 without any reason that only restated that condition, keeping every other
-reason. The [supplier resolution procedure](../src/skills/dough-product-backlog/references/supplier-dependencies.md)
+reason. The [supplier resolution procedure](../Distribution/src/skills/dough-product-backlog/references/supplier-dependencies.md)
 owns discovery, evidence, guarded writes, and publication.
 
 Only the dependent card exposes its dependencies; the

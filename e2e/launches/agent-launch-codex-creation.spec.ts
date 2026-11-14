@@ -35,7 +35,7 @@ import {
   openUntilRead,
   reloadUntilRead,
 } from "../../dashboard/tests/pageRequestNotes.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 const request = makeMe.aLaunchRequest
   .refining({
     identity: notRefinedIdentity,

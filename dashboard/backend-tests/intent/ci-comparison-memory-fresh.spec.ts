@@ -1,5 +1,5 @@
 // Live Taken and running Done evidence cannot be frozen by answer memory.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { start, branch, later } from "../support/comparisonRead.ts";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
 import {

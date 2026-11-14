@@ -44,7 +44,7 @@ import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { settings } from "../support/systemSettingsPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { describedBacklog } from "../describedRevisions.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const layouts = [
   { width: 1280, height: 800, compact: false },

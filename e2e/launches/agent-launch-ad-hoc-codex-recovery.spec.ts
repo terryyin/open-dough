@@ -1,4 +1,4 @@
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 // Store/HTTP recovery owns intent and decisions; the fixture only answers native RPC.
 // Other read failures and mismatched context:
 // ../../dashboard/backend-tests/launches/agent-launch-ad-hoc-codex-recovery-boundary.spec.ts.

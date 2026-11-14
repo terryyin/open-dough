@@ -6,7 +6,7 @@ import { recordsOf } from "./agentLaunchBoundary.ts";
 import { parts } from "./dashboardPage.ts";
 import { describedBacklog } from "./describedRevisions.ts";
 import { backlogPath, publishFiles } from "./publishedOrigin.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { repository, revision, workspaceEntry } from "./recentlyDoneRecords.ts";
 
 // The queued story of ./recentlyDoneRecords.ts, recorded in Taken instead.

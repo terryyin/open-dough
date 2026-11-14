@@ -20,7 +20,7 @@ import {
   revisionDoughnut,
 } from "../../dashboard/tests/doughnutProject.ts";
 import { describedBacklog } from "../../dashboard/tests/describedRevisions.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   commitAnswer,
   httpErrorAnswer,

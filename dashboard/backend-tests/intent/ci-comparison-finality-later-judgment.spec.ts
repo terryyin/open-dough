@@ -1,7 +1,7 @@
 // The judgment landed history collection shares with Done comparison memory
 // (`landedSlotResolution`), asked directly over supplied history: no server,
 // Git repository or process starts.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { lookupResultBuild } from "../../server/baseCiRevisionLookup.ts";
 import { storyBranchLandedExactLookup } from "../../server/exactSkippedEquivalent.ts";

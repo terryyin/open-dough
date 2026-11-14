@@ -3,7 +3,7 @@
 // destination helpers stay in `./recentlyDoneSessionsSidebarPage.ts`.
 import type { Page } from "@playwright/test";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { RecentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
 import { expect } from "./support/cursorStart.ts";
 

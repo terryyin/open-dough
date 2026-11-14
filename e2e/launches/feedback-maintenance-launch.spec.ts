@@ -12,7 +12,7 @@
 // "nothing more" is asserted only after the server has asked GitHub, or
 // listed the sessions, again, never after a sleep.
 
-import { queuedReadyRepository } from "../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
 import type { Page } from "@playwright/test";
 import { openDoughFolder } from "../../dashboard/tests/agentLaunchBoundary.ts";
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";

@@ -3,7 +3,7 @@
 // ../../e2e/observation/auto-refresh.spec.ts.
 
 import { expect, type Page } from "@playwright/test";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 import { githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import { expectOwnersNotRecorded, expectSettledPage } from "./dashboardPage.ts";
 import { headsEtag } from "./originAnswers.ts";

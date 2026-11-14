@@ -3,7 +3,7 @@
 // original attempt, which measured the landing, and offers none of the
 // repeat's: read from what the machine keeps, by a dashboard that collects
 // nothing (../../dashboard/tests/support/ciFollowUpSettledReading.ts).
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   actionsRequests,
   expect,

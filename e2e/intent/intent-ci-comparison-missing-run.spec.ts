@@ -1,7 +1,7 @@
 import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.ts";
 // Real controls and displayed source for a push run that did not exist on
 // first selection. Both routes use the same production server and memory.
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";

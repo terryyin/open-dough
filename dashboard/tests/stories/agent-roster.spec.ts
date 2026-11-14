@@ -18,7 +18,7 @@ import { inspectedDetail, storyCard } from "../storyCardControls.ts";
 import {
   agentIdentity,
   agentNames,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+} from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   backlogUnreadable,
   doughnut,

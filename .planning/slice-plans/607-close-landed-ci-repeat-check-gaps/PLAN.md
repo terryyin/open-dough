@@ -69,7 +69,7 @@ Do not leave an open-ended watcher or repeatedly run until green.
 ## Verification
 
 Local gates use fully awake AC macOS under
-[caffeinate -s -i](../../../tests/local-test-resources.md#machine-sleep-on-macos).
+[caffeinate -s -i](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
 On battery, follow that maintained alternative and audit sleep.
 Put Homebrew Bash first on PATH; unset NO_COLOR, FORCE_COLOR and
 GIT_ALTERNATE_OBJECT_DIRECTORIES for direct dashboard tests.

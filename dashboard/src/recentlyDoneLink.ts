@@ -1,6 +1,6 @@
 // Whether a Recently done sessions row's story is listed in a published done
 // catalog, and how an ad hoc row recovers its completed-story identity.
-import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { LaunchRecord } from "./agentLaunch.ts";
 import { readPublishedSnapshot } from "./authenticatedRead.ts";
 import { readCompletedStoryAssociation } from "./completedStoryAssociation.ts";

@@ -12,7 +12,10 @@ import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
 const exec = promisify(execFile);
 
 const defaultHelper = fileURLToPath(
-  new URL("../../src/install/open-dough-release.sh", import.meta.url),
+  new URL(
+    "../../Distribution/src/install/open-dough-release.sh",
+    import.meta.url,
+  ),
 );
 
 export type WorktreeApplyResult =

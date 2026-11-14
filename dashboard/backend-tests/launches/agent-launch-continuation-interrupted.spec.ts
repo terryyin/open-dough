@@ -27,7 +27,7 @@ import {
   sharedDashboardBuild,
   startDashboardServer,
 } from "../../tests/support/dashboardServer.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ projectFolders: ["open-dough"] });
 

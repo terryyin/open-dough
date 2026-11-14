@@ -1,5 +1,5 @@
 // Accepted equivalent wall time remains separate from proof-dependent figures.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { historyWallTimeMs } from "../../src/landedCiHistory.ts";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";

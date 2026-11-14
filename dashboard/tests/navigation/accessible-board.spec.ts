@@ -20,7 +20,7 @@ import {
   rawFileAnswer,
 } from "../publishedOrigin.ts";
 import { describedBacklog } from "../describedRevisions.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { zoomedWindow } from "../accessibleReading.ts";
 import {
   box,

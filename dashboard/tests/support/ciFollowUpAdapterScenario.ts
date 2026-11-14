@@ -1,6 +1,6 @@
 // Real landed receipts and collection with a project-owned custom CI command.
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   adapterProject,
   testsSummary,

@@ -8,7 +8,7 @@ import { publishLaterHead } from "../../dashboard/tests/support/publishLaterHead
 import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { actionsForRuns } from "../../dashboard/tests/support/baseCiActions.ts";
 
 const baseCiFailedHeading = "Base CI failed";

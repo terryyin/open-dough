@@ -1,6 +1,6 @@
 // Canonical retained measurements at actual trunk commits. Publication stays a
 // Git harness action; all retained domain facts use the shared MakeMe owners.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { commonGitDir } from "./launchLanding.ts";
 import { landedTrunk } from "./landedCiTrunk.ts";
 import type { StartOrigin } from "./startOrigin.ts";

@@ -24,7 +24,7 @@ import {
   projectEnvironmentOf,
 } from "../../tests/support/projectConfiguration.ts";
 import { rawRequest, type RawResponse } from "../../tests/support/rawHttp.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { describedBacklog } from "../../tests/describedRevisions.ts";
 import {
   liveRunner,

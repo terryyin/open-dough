@@ -46,20 +46,19 @@
         "makeMe": true
       },
       {
-        "path": "tests",
+        "path": "Distribution",
+        "label": "Distribution Tests",
         "sources": [
-          { "include": ["*.sh"], "syntax": "shell" },
+          { "include": ["tests/*.sh"], "syntax": "shell" },
           {
-            "include": ["*.test.mjs", "support/*.test.mjs"],
+            "include": [
+              "tests/*.test.mjs",
+              "tests/support/*.test.mjs",
+              "src/skills/**/*.test.mjs"
+            ],
             "syntax": "javascript"
           }
         ],
-        "makeMe": true
-      },
-      {
-        "path": "src/skills",
-        "kind": "javascript",
-        "include": ["**/*.test.mjs"],
         "makeMe": true
       }
     ]

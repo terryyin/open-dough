@@ -198,7 +198,7 @@ published progress and uses machine-local evidence for checkout activity.
 
 Fresh preparation and execution use fetched remote history in an owned workspace
 under the applicable workflow procedure, including the
-[preparation workspace procedure](../../src/skills/dough-story-refinement/references/preparation-workspace.md).
+[preparation workspace procedure](../../Distribution/src/skills/dough-story-refinement/references/preparation-workspace.md).
 They do not depend on a default checkout. Land and wrap-up share the remote
 publication and recovery contract across worktrees and machines; a dashboard
 must not infer successful integration merely from a local branch advancing.

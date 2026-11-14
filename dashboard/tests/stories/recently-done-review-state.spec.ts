@@ -38,7 +38,7 @@ import {
   unreviewQuestion,
   unreviewStory,
 } from "../recentlyDoneReviewState.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { quietStorySessions } from "../support/followUpStories.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import {

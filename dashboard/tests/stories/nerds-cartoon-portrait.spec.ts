@@ -3,7 +3,7 @@
 // its portrait; without the photo it shows the name alone. The photo request is
 // answered by the test, since the photos are never in the repository.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";

@@ -10,8 +10,8 @@ import type { Page } from "@playwright/test";
 import {
   fragmentsFromOutcomes,
   summarize,
-} from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+} from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { parts } from "./dashboardPage.ts";
 import { chooseCiStatus } from "./intentCiStatusPage.ts";
 import { proofOf } from "./intentCiProofPage.ts";

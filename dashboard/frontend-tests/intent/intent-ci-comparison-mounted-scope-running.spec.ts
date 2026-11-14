@@ -1,7 +1,7 @@
 import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
 // Real child navigation retains one provider for a running Landed fallback.
 // The fast request rule lives in backend-tests/intent/ci-comparison-client-scopes.spec.ts.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
   expect,

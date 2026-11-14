@@ -9,7 +9,7 @@
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { policyOf } from "../../dashboard/src/agentLaunch.ts";
 import type { StartRecord } from "../../dashboard/server/startStore.ts";
 import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";

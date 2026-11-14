@@ -5,7 +5,7 @@
 // average; and the build that stands in for the landing. Retained landings
 // are projected by the server's own read; the integrated journeys collect.
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { ProjectHistory } from "../server/landedCiHistoryStore.ts";
 import {
   doneWallTimeHistory,

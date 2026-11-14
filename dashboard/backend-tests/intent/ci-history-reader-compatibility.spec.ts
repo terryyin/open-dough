@@ -1,6 +1,6 @@
 // The reader already open before deployment and the current reader consume
 // the same collected history through the real local authenticated boundary.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   readIntentCiDoneWallTimeHistory,
   readIntentCiHistory,

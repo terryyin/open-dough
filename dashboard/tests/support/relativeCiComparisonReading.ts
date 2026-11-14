@@ -2,7 +2,7 @@
 // observations. Real CLI publication and endpoint resolution have their own
 // wiring journeys; they are not prerequisites for inspecting relative marks.
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiProof, CiProofEntry } from "../../src/ciProof.ts";
 import type { StoryCiComparisonSlot } from "../../src/storyCiComparison.ts";
 import { describedFiles } from "../describedRevisions.ts";

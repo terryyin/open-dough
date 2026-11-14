@@ -214,7 +214,7 @@ findings. No full host-by-scenario matrix is required.
 - Local gates: affected command/runtime tests and retained CI-recovery tests,
   native probe/comparison, payload/reference checks when changed, applicable
   lint/typecheck and required refactoring/reviews before commit. Full-suite work
-  follows [local resource admission](../../../tests/local-test-resources.md).
+  follows [local resource admission](../../../Distribution/tests/local-test-resources.md).
   On fully awake macOS use `caffeinate -s -i` for long/full runs on AC power;
   on battery plug in, or use the maintained lid-open `caffeinate -i` alternative
   and inspect the sleep log. Hosted CI is still owned through the applicable

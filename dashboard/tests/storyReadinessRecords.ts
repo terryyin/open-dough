@@ -1,8 +1,8 @@
 // Story identities and published record bodies for the readiness journey.
 // Builders in storyReadinessFixture.ts record these through the real CLI.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 
 export const seedRelative = "seeds/SEED-075-readiness.md";
 

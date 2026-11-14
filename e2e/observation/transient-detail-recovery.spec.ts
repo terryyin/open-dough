@@ -4,9 +4,9 @@
 // its own gap without reload. The page, local boundary, and `gh` invocation
 // are production; only GitHub's answers are supplied. Page time is paused.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
-import { renderEntry } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
+import { renderEntry } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
   callsSince,
   contentReads,

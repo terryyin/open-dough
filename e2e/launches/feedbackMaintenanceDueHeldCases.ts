@@ -1,5 +1,5 @@
 // Cases registered by ./feedback-maintenance-due-row.spec.ts.
-import { queuedReadyRepository } from "../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
 import { rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 

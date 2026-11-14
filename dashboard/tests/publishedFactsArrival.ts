@@ -8,9 +8,9 @@ import { z } from "zod";
 import {
   readStoryDependencies,
   updateStoryDependency,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
 import { branchRefAnswer } from "./originAnswers.ts";

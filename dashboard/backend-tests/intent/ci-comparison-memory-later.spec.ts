@@ -1,5 +1,5 @@
 // The cancelled landing's explicitly refreshable gap must not become final.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { start, branch, later } from "../support/comparisonRead.ts";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
 import {

@@ -26,7 +26,7 @@ import {
   stored,
   test,
 } from "../../dashboard/tests/support/codexLaunch.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 test.use({ projectFolders: ["open-dough"] });

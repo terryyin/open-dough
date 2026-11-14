@@ -12,7 +12,7 @@ import {
   projectEnvironmentOf,
 } from "./projectConfiguration.ts";
 import { describedBacklog } from "../describedRevisions.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const published = publishes({
   revision: "ab".repeat(20),

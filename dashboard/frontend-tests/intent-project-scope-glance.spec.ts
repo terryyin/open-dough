@@ -20,7 +20,7 @@ import { openSummary } from "../tests/intentSummaryCiProofFixtures.ts";
 import { openUntilRead } from "../tests/pageRequestNotes.ts";
 import { expectStackedInOrder } from "../tests/partArrangement.ts";
 import { expectChangeCue } from "../tests/priorBuildReferencePage.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../tests/support/frontendApp.ts";
 import {
   scopeUnitsHistory,

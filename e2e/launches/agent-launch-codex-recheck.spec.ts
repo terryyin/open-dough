@@ -10,7 +10,7 @@ import {
 } from "../../dashboard/tests/launchJourney.ts";
 import { attempts, launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
 import { test, expect } from "../../dashboard/tests/support/codexLaunch.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest
   .refining({

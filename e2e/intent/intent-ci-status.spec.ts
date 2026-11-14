@@ -16,7 +16,7 @@ import {
 // it was checked. It is shown whether Intent locations are configured,
 // absent, or unreadable (SEED-219 examples 1, 9); a cancelled run reads
 // Failed here, and every completed conclusion's state is the unit test
-// ../../tests/support/dashboard-story-branch-ci.test.mjs. Reading it again,
+// ../../Distribution/tests/support/dashboard-story-branch-ci.test.mjs. Reading it again,
 // the ciAdapter and the read's refusals are in
 // ./intent-ci-status-reads.spec.ts; a running head with its nearest
 // completed ancestor is in ./intent-ci-status-story.spec.ts.
@@ -37,7 +37,7 @@ import {
   intentModeViews,
 } from "../../dashboard/tests/intentModePage.ts";
 import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { intentSettingsText } from "../../dashboard/tests/support/intentSettingsFile.ts";
 
 test("CI status names main, its nearest Passed result, later commits without a result, the run, and when it was checked; the mode strip keeps its keys", async ({

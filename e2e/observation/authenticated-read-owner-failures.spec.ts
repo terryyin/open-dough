@@ -6,8 +6,8 @@ import path from "node:path";
 import {
   ownerSecret,
   refusingOwner,
-} from "../../src/skills/dough-execute-plan/scripts/github-request-owner-refusal-test-fixtures.mjs";
-import { ownerlessRequestRoot } from "../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-refusal-test-fixtures.mjs";
+import { ownerlessRequestRoot } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
 import { sharedDashboardBuild } from "../../dashboard/tests/support/dashboardServer.ts";
 import {

@@ -19,7 +19,7 @@ import {
   replaceFileKeepingTimes,
   settleFile,
 } from "../../tests/support/machineFileIdentity.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   identity,
   launch,

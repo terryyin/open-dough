@@ -11,7 +11,7 @@
 // How the boundary honors a selection is ../../backend-tests/launches/agent-launch-options-boundary.spec.ts.
 
 import { writeFileSync } from "node:fs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import {
   installRefinementSkill,

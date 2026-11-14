@@ -4,9 +4,9 @@ import { promisify } from "node:util";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
-import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
-import { storyB } from "../../../tests/support/queued-repository.mjs";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import { direction } from "../../../Distribution/tests/support/product-backlog-fixture.mjs";
+import { storyB } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 
 const exec = promisify(execFile);

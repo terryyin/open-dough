@@ -22,11 +22,11 @@ import {
 // ./intent-ci-proof-adapter-reasons.spec.ts. A run with a summary or a gap, and one
 // browser refusal:
 // ../../dashboard/tests/intent/intent-ci-proof.spec.ts; query-shape refusals:
-// ../../tests/support/dashboard-ci-proof-parse.test.mjs; a running
+// ../../Distribution/tests/support/dashboard-ci-proof-parse.test.mjs; a running
 // result's ancestor proof and the per-attempt memory:
 // ./intent-ci-proof-ancestor.spec.ts.
 
-import { SUMMARY_READ_LIMIT_BYTES } from "../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
+import { SUMMARY_READ_LIMIT_BYTES } from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   evidenceLabels,
@@ -35,7 +35,7 @@ import {
 
 import type { OriginAnswer } from "../../dashboard/tests/originAnswers.ts";
 import { tokenColour } from "../../dashboard/tests/pageColours.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   proofSummaryForEntries,
   runArtifactsAnswer,

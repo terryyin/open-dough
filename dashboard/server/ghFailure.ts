@@ -6,7 +6,7 @@
 import {
   GhFailure as GhRequestFailed,
   type GhRequestFailure,
-} from "../../src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
 
 // Why a `gh` call did not answer, as far as this boundary can say without
 // repeating anything `gh` printed: how the request itself failed

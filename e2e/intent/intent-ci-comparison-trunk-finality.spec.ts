@@ -2,7 +2,7 @@ import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.
 // Unique connection: real completed Trunk acquisition and the timing panel
 // reject an available later build. Fast selection/memory and production gap
 // rendering own their rules independently; this one read joins those owners.
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";

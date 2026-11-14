@@ -9,7 +9,7 @@
 
 import path from "node:path";
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   agentAcceptEndpoint,
   agentContinueEndpoint,
@@ -20,7 +20,7 @@ import type { LaunchRecord } from "../src/launchRecord.ts";
 import {
   identityA,
   identityB,
-} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { parts, sessionNamedBy, storyCardSessionOf } from "./dashboardPage.ts";

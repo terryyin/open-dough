@@ -66,7 +66,7 @@ an independent expected result.
 ## Terry's decision
 
 On 2026-11-08 Terry chose **Narrow**. The
-[manual skill](../../src/skills/dough-intent-coverage/SKILL.md) offers one
+[manual skill](../../Distribution/src/skills/dough-intent-coverage/SKILL.md) offers one
 targeted scratch break check when ordinary review raises a plausible
 protection gap for an important promise. The
 [Done report story](https://github.com/terryyin/open-dough/blob/ca4003714aeaac836819a02f1ec51a95ce4516c9/.planning/done/SEED-258_assess-intent-coverage-during-wrap-up.json)

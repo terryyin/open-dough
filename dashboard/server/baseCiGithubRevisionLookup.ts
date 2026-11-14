@@ -5,7 +5,7 @@ import {
   createGitHubActions,
   observedRun,
   readGitHubActions,
-} from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   timeWithoutRunnerWaits,

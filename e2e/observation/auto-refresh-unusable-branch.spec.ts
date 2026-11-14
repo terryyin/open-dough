@@ -5,7 +5,7 @@
 // use: ./auto-refresh-branches.spec.ts.
 
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   expect,
   githubFor,

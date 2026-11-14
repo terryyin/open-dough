@@ -1,7 +1,7 @@
 // Compose one server's private fake GitHub, host and caller environments.
 // Caller probes may add NODE_OPTIONS; they must retain the fake owner preload.
 import path from "node:path";
-import { requestOwnerEnvironmentAt } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+import { requestOwnerEnvironmentAt } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import type { DashboardServerOptions } from "./dashboardServerOptions.ts";
 
 export function dashboardServerEnvironment(

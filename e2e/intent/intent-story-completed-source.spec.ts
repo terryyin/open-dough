@@ -8,7 +8,7 @@ import { sourceRevision } from "../../dashboard/tests/intentCodeBrowsePage.ts";
 // Real CLI completion and publication: ../../dashboard/tests/support/intentCompletedStory.ts.
 // Changed-file overlay and Review equality: ./intent-story-completed.spec.ts.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import {

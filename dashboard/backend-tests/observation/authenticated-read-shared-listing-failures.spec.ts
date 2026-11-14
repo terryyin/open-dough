@@ -25,7 +25,7 @@ import {
   sharedReadsPublished,
 } from "../../tests/support/sharedReads.ts";
 import { RevisionChecks } from "../../server/revisionChecks.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { listingTimeoutBoundary } from "./listingTimeoutBoundary.ts";
 import { gatewayTimeout } from "./revisionCheckBoundary.ts";
 

@@ -12,7 +12,7 @@ import path from "node:path";
 import {
   privateRequestOwner,
   withdrawRequestOwners,
-} from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+} from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   everyRepository,

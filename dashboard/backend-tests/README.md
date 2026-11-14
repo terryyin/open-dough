@@ -4,7 +4,7 @@ Focused dashboard server and test-runtime tests live here, beside `../tests/`
 and `../frontend-tests/`. They prove server behavior, its variants and
 failures at stable public boundaries: HTTP, WebSocket, stored-file, command
 and module boundaries, without a browser workflow. Use the shared
-[MakeMe library](../../tests/README.md#test-data-architecture) for domain data.
+[MakeMe library](../../Distribution/tests/README.md#test-data-architecture) for domain data.
 
 Their collaborators are real: the dashboard server or its bundled boundary
 server, real Git origins and the installed start. Only external boundaries

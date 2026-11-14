@@ -23,7 +23,7 @@ import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { sessionDetailsControl } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
 import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
 import { givePageItsTurns } from "../../dashboard/tests/pageRequestNotes.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { showRecentlyDone } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
 import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
 import { showPage } from "../../dashboard/tests/runningCursorSessionsPage.ts";

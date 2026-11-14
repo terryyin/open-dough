@@ -7,7 +7,7 @@ import {
 } from "../../tests/support/landedCiHistoryTest.ts";
 import { prepareAdapterRepeatScenario } from "../../tests/support/ciFollowUpAdapterScenario.ts";
 import { keepFollowUpEntries } from "../../tests/support/ciFollowUpScenario.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { processRunning, signal } from "../../tests/support/processGroup.ts";
 
 test.use({ serverMode: "boundary" });

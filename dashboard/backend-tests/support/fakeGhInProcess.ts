@@ -9,8 +9,8 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { GitHubRequests } from "../../../src/skills/dough-execute-plan/scripts/github-requests.mjs";
-import { ownerRecords } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+import { GitHubRequests } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-requests.mjs";
+import { ownerRecords } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { expect, test as base } from "../../tests/support/pageTest.ts";
 import {
   endFakeGh,

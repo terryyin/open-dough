@@ -5,7 +5,7 @@
 // independent of its slices: its product advice as recorded, or its gap.
 
 import { z } from "zod";
-import { readPlanSlices } from "../../src/skills/dough-product-backlog/scripts/product-backlog-plan-reader.mjs";
+import { readPlanSlices } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-plan-reader.mjs";
 import { ReadProblem } from "./readProblem.ts";
 import type { UnavailableGap } from "./readWaitBound.ts";
 

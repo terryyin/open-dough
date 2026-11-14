@@ -4,7 +4,7 @@ import { machineRecordNames } from "../../dashboard/tests/support/machineRecordN
 import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
 import { projectAddMachine } from "../../dashboard/tests/support/projectAddMachine.ts";
 import { addProjectOnPage } from "../../dashboard/tests/support/projectAddPage.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { identity } from "../../dashboard/tests/agentLaunchBoundary.ts";
 import {
   expectProjectChoice,

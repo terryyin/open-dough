@@ -7,7 +7,7 @@
 // (SEED-288#reuse-adapter-equivalent-timing example 5).
 
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
 import {
   answeredLanding,

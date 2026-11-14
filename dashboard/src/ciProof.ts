@@ -2,7 +2,7 @@
 // answers it (`../server/intentCiProofRead.ts`): a GitHub Actions run
 // attempt's or a ciAdapter attempt's proof summary, in the collector's
 // current versioned summary schema
-// (`../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs`;
+// (`../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs`;
 // the boundary reads a version 1 summary's results as legacy evidence), or
 // the one reason no proof can be shown for that attempt. Each declared entry
 // keeps its results partitioned by unit (`./ciProofUnits.ts`): test cases,

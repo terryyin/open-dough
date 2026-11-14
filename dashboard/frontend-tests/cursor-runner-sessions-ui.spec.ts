@@ -4,7 +4,7 @@
 // so the ask gap is observed in page time and every reply arrives when the
 // journey says.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { terminalPanel } from "../tests/terminalScreenPage.ts";
 import {
   pausePageClock,

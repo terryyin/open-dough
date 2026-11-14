@@ -78,7 +78,7 @@ export async function clientFixture() {
     },
     runOwner() {
       const entry = new URL(
-        "../../../src/skills/dough-execute-plan/scripts/github-requests.mjs",
+        "../../../Distribution/src/skills/dough-execute-plan/scripts/github-requests.mjs",
         import.meta.url,
       ).href;
       return start(process.execPath, [

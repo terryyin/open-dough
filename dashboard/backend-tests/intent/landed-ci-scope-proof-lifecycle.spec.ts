@@ -1,6 +1,6 @@
 // Retained summaries, including by-file evidence, survive collection's lifecycle.
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { retainedHistory } from "../../tests/support/collectedScopeHistory.ts";
 import { expectCollectedScopePoints } from "../../tests/support/collectedScopeReadProofs.ts";
 import {

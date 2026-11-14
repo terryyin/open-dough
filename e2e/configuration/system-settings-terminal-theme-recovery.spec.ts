@@ -5,7 +5,7 @@
 // the saved theme, is ../../dashboard/backend-tests/configuration/terminal-theme-boundary.spec.ts.
 import { chmodSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
 import { systemSettingsMachine } from "../../dashboard/tests/support/systemSettingsMachine.ts";
 import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";

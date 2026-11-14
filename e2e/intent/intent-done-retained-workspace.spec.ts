@@ -4,7 +4,7 @@ import { filesColumn } from "../../dashboard/tests/intentModePage.ts";
 import { sourceRevision } from "../../dashboard/tests/intentCodeBrowsePage.ts";
 // Done Intent reads the immutable completion even while ordinary Review can
 // still read a retained workspace's later uncommitted edits.
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import {
   storyReviewEndpoint,

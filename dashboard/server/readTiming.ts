@@ -19,7 +19,7 @@
 // `total` only. Whole milliseconds by this server's clock, as `askedAt` is.
 
 import { AsyncLocalStorage } from "node:async_hooks";
-import type { GhAnswer } from "../../src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
+import type { GhAnswer } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
 
 class ReadTiming {
   private readonly arrivedAtMs = Date.now();

@@ -1,10 +1,10 @@
-import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
+import { direction } from "../../../Distribution/tests/support/product-backlog-fixture.mjs";
 import {
   queuedReadyRepository,
   roughStoryC,
   storyA,
   storyB,
-} from "../../../tests/support/queued-repository.mjs";
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {

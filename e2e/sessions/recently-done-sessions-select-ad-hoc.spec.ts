@@ -23,8 +23,8 @@ import {
 } from "../../dashboard/tests/support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../../dashboard/tests/support/intentStoryWorktree.ts";
 import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
 import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
 import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";

@@ -8,21 +8,21 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { agentIdentity } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   queuedRepositoryWithRoughStory,
   roughStoryC as storyC,
   storyA,
   storyB,
   takeRevision,
-} from "../../tests/support/queued-repository.mjs";
+} from "../../Distribution/tests/support/queued-repository.mjs";
 import {
   integrationDeveloper,
   materializeRepository,
   prepareRepositorySnapshot,
   registerPreparedPrefix,
-} from "../../tests/support/repository-fixture.mjs";
+} from "../../Distribution/tests/support/repository-fixture.mjs";
 import { requestRunArtifact } from "./support/runArtifacts.ts";
 
 export const takenStory = storyA.title;

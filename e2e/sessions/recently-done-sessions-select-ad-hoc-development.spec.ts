@@ -13,7 +13,7 @@ import { openSessionsSidebar } from "../../dashboard/tests/sessionsSidebarPage.t
 import { retainAdHocCompletedStory } from "../../dashboard/tests/support/adHocCompletedAssociation.ts";
 import { expectSelected } from "../../dashboard/tests/storyCardSelection.ts";
 import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
-import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import {
   commitAll,
   git,

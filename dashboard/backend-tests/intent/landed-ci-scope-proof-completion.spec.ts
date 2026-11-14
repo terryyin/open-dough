@@ -1,6 +1,6 @@
 // A real completion delivery is idempotent beside the measured attempt's proof.
 import assert from "node:assert/strict";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
 import type { CompletionSubmission } from "../../server/completionAdmission.ts";
 import {

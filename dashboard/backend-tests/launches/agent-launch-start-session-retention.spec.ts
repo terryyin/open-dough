@@ -1,4 +1,4 @@
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // Retention removes only the machine evidence of actually pruned attempts,
 // after a real installed unattached start finishes; Git workspaces remain.
 import { randomUUID } from "node:crypto";

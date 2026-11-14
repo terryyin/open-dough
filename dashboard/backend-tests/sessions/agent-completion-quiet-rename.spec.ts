@@ -7,7 +7,7 @@
 // receipt's pending mark on the page and its rename once idle:
 // ../../../e2e/sessions/agent-completion-quiet-claude.spec.ts.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { markDone, recordsOf } from "../../tests/agentLaunchBoundary.ts";
 import { expect } from "../../tests/dashboardTest.ts";

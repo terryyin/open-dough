@@ -14,7 +14,7 @@ description: >-
 # Collect shared Open Dough feedback
 
 You are the maintainer agent in the Open Dough source repository. This internal
-skill stays here, outside `src/skills/` and the installer payload. Follow
+skill stays here, outside `Distribution/src/skills/` and the installer payload. Follow
 [maintainer guidance](../../../AGENTS.md) when changing or reviewing it.
 
 An explicit invocation authorizes the complete finite maintenance cycle below:
@@ -51,7 +51,7 @@ configuration. A missing configuration prevents claiming complete coverage.
 
 Resolve each project's process-retrospective setting from its `open-dough.json`
 by the stored-setting rule in
-[dough-execution-retrospective](../../../src/skills/dough-execution-retrospective/SKILL.md#select-reviews);
+[dough-execution-retrospective](../../../Distribution/src/skills/dough-execution-retrospective/SKILL.md#select-reviews);
 do not create or edit that file. A project with it off records no process
 findings, so it leaves this cycle's collection and source set; report it as
 skipped because process retrospective is off, not as a missing log. An unresolved
@@ -200,7 +200,7 @@ maintenance does not require unrelated application suites.
 
 Where Dough Land applies, this explicit invocation supplies a validated
 maintenance instruction to the maintained Open Dough source
-[Dough Land](../../../src/skills/dough-land/SKILL.md), with no extra
+[Dough Land](../../../Distribution/src/skills/dough-land/SKILL.md), with no extra
 keep/commit/sync question. This internal workflow uses that source handoff now;
 it does not require updating installed managed guidance. Follow its source
 references, resolving command placeholders for installed helpers to the target

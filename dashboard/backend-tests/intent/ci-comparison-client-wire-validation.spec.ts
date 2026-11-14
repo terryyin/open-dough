@@ -1,6 +1,6 @@
 // Real wire validation and exact attempt identity; no selected subjects are faked.
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { readIntentCiComparison } from "../../src/authenticatedIntentCiComparisonRead.ts";
 import { readIntentCiProof } from "../../src/authenticatedIntentCiProofRead.ts";
 import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";

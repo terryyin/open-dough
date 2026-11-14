@@ -22,7 +22,7 @@ the production dashboard that records a qualifying new Done receipt for a
 GitHub Actions project, or a custom CI project declaring both `ciAdapter` and
 `ciRebuild`, requests one full repeat. No follow-up setting is needed.
 `ciRebuild` is an argument array beside `ciAdapter` in the project's
-`.planning/open-dough.json`; see the [custom rebuild contract](../src/skills/dough-execute-plan/manuals/custom-ci-rebuild.md).
+`.planning/open-dough.json`; see the [custom rebuild contract](../Distribution/src/skills/dough-execute-plan/manuals/custom-ci-rebuild.md).
 Absent or empty `ciRebuild` preserves custom CI readings without a repeat,
 including retained GitHub Actions receipts. Development dashboards request none;
 existing follow-up evidence stays reviewable. The execution observer remains
@@ -100,7 +100,7 @@ location header names a `sources` location's patterns without a kind. CI
 proof for either form stays keyed by the location's path and its files' paths.
 
 Set `"makeMe": true` on a location to apply the shared
-[MakeMe guidance](../src/skills/dough-makeme/SKILL.md) to its selected test sources
+[MakeMe guidance](../Distribution/src/skills/dough-makeme/SKILL.md) to its selected test sources
 during authoring, Dough execution and implicated post-change refactoring.
 For example, `{ "path": "backend/tests", "kind": "typescript", "include": ["**/*.spec.ts"], "makeMe": true }`
 enables the convention for matching specs. Omitted, false or non-boolean values
@@ -109,7 +109,7 @@ another matching location's opt-out does not veto an enabled match. Installation
 and updates preserve each project's choices.
 
 Set `"pageObjects": true` independently to apply the shared
-[page-object guidance](../src/skills/dough-page-objects/SKILL.md) to browser tests
+[page-object guidance](../Distribution/src/skills/dough-page-objects/SKILL.md) to browser tests
 selected by that location. The same membership and opt-in rules apply; neither
 flag implies the other. Both rules share the standalone selection command.
 

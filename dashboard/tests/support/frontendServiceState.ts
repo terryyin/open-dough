@@ -13,8 +13,8 @@ import {
   openDoughCandidatesRecord,
   testOptimizationCandidatesPath,
 } from "../intentCandidatesFixtures.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { renderStorySection } from "../../../tests/support/published-seed.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
 import { intentSettingsText } from "./intentSettingsFile.ts";
 
 export const frontendRevision = openDough.revision;

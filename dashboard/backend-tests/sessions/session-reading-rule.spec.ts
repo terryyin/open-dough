@@ -3,7 +3,7 @@
 // journeys keep one change each: ../../../e2e/sessions/agent-launch-session-state-pace.spec.ts.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { attachOpens } from "../../src/launchRecord.ts";
 import { attentionSummary, sessionShown } from "../../src/sessionShown.ts";
 

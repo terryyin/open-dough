@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciWorkflowPath } from "../../server/productionQualification.mjs";
 import { projectConfigurationFile } from "./projectConfiguration.ts";
 import { localPublishedMainFixture } from "./publishedMainFixture.ts";

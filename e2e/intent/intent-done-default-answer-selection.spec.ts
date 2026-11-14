@@ -3,9 +3,9 @@ import { filesColumn } from "../../dashboard/tests/intentModePage.ts";
 // story's valid captured fallback to another story must use its server default.
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { storyB } from "../../tests/support/queued-repository.mjs";
-import { writeRevisionFiles } from "../../tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { storyB } from "../../Distribution/tests/support/queued-repository.mjs";
+import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import {
   storyReviewEndpoint,
   storyReviewSchema,

@@ -28,7 +28,7 @@ import {
   shellCheck,
 } from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test("Intent lists matched code test files under include patterns, omits helpers and product files, and reads exact text with the observed revision", async ({
   page,

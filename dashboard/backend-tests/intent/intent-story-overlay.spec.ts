@@ -21,7 +21,7 @@ import {
   type StoryOverlay,
 } from "../../src/intentStoryOverlay.ts";
 import type { ReviewedFile } from "../../src/storyReviewFiles.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const locations: readonly IntentLocation[] = [
   makeMe.anIntentLocation

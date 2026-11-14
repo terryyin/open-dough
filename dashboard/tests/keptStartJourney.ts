@@ -19,7 +19,10 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "./support/dashboardServer.ts";
-import { storyA, storyB } from "../../tests/support/queued-repository.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../Distribution/tests/support/queued-repository.mjs";
 import {
   queuedIdentity,
   queuedOriginRepository,

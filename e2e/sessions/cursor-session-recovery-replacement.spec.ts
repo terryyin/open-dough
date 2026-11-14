@@ -17,7 +17,7 @@ import {
 import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
 import { postCompletion } from "../../dashboard/tests/support/completionRecovery.ts";
 import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test("cannot-load resume replaces the chat on the same launch", async ({
   page,

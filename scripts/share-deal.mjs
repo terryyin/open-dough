@@ -8,12 +8,12 @@
 // refresh; dashboard/tests/support/testFiles.mjs deals each browser test
 // group's spec files through it.
 //
-// A duration list (`tests/longest-first` for the Node suite) holds one
+// A duration list (`Distribution/tests/longest-first` for the Node suite) holds one
 // `<seconds><TAB><label>` line per recorded job, the form the runner's
 // `test-times` artifact prints. duration-list.mjs reads plain lists or indexes
 // with named TSV parts; malformed rows fail before any job runs.
 //
-// The deal itself is stated in tests/test-shares.md ("The deal").
+// The deal itself is stated in Distribution/tests/test-shares.md ("The deal").
 
 import {
   bytewise,

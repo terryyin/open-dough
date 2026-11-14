@@ -29,10 +29,10 @@ Keep shared behavior in one source with only the smallest platform adaptation.
 
 | Kind | Source of truth | Platform roots |
 | --- | --- | --- |
-| Open Dough skills | `src/skills/<name>/` | Released client payload installs to `.agents/skills/` (Codex and Cursor share this root) and `.claude/skills/` |
+| Open Dough skills | `Distribution/src/skills/<name>/` | Released client payload installs to `.agents/skills/` (Codex and Cursor share this root) and `.claude/skills/` |
 | Internal skill | `.agents/skills/<name>/SKILL.md` | Claude Code may use a thin discovery pointer under `.claude/skills/<name>/` that defers to the shared source |
 
-When changing Open Dough client-payload guidance, edit `src/skills/<name>/`.
+When changing Open Dough client-payload guidance, edit `Distribution/src/skills/<name>/`.
 Do not hand-synchronize this repository's installed managed copies under
 `.agents/skills/` or `.claude/skills/`; update those only from a released
 payload. Internal maintainer skills remain authored in `.agents/skills/`.
@@ -106,7 +106,7 @@ Open Dough skills and rules must work in Codex, Cursor, and Claude Code.
   The matching `intent.locations` entry in `.planning/open-dough.json` selects
   each shared convention. A builder, Node helper, fixture or page object
   follows the conventions selected for the tests that consume it, whatever its
-  own path. [Test data architecture](tests/README.md#test-data-architecture)
+  own path. [Test data architecture](Distribution/tests/README.md#test-data-architecture)
   and [journey writing](dashboard/tests/writing-journeys.md#page-objects) give
   this project's builders, harness boundaries and pilot context.
 - Never sleep or wait for wall-clock time to pass. Wait for an observable event
@@ -145,4 +145,4 @@ paraphrase it as "fix or report".
   for later work.
 
 A plan's local-gate line names the maintained macOS sleep guard and its power
-condition from [machine sleep on macOS](tests/local-test-resources.md#machine-sleep-on-macos).
+condition from [machine sleep on macOS](Distribution/tests/local-test-resources.md#machine-sleep-on-macos).

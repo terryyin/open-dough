@@ -1,7 +1,7 @@
 // Collection/classification is observed before reading fixtures or restart.
 import { writeFileSync } from "node:fs";
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   followUpCards,
   followUpFile,

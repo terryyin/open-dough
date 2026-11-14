@@ -2,7 +2,7 @@
 // story a retained ad hoc session completed. Real Git claim/completion
 // history; the request has no identity. Do not preload the association.
 // Competing-history and ambiguous-candidate cases live beside this file.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/codexStart.ts";
 import {
   associationOf,

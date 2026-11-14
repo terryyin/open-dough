@@ -10,8 +10,8 @@
 // (../../tests/support/dashboardServer.ts) and ./authenticated-read-boundary.spec.ts's
 // approach.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { renderStorySection } from "../../../tests/support/published-seed.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   developmentBoundary,

@@ -8,7 +8,7 @@
 // deterministically; the other sends the pair at once. A story Taken by
 // another agent stays ./agent-launch-start-refusal.spec.ts's refusal.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { readdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -28,7 +28,7 @@ import {
   startOrigin,
   type StartOrigin,
 } from "../../tests/support/startOrigin.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest
   .executing({ identity: queuedIdentity, title: queuedTitle })

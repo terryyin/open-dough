@@ -8,7 +8,7 @@
 // discriminating UI observations.
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
-import { storyA } from "../../tests/support/queued-repository.mjs";
+import { storyA } from "../../Distribution/tests/support/queued-repository.mjs";
 import {
   parts,
   sessionEntriesIn,

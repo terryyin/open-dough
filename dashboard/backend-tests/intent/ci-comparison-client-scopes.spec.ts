@@ -1,6 +1,6 @@
 // The same actual proof owner serves running, inactive and provisional contexts.
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciTargetOf } from "../../src/intentCiTarget.ts";
 import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
 import { takenTrunkComparison } from "../../tests/support/comparisonMountSelections.ts";

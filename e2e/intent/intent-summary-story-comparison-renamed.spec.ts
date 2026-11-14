@@ -1,7 +1,7 @@
 // A real completed Story Branch comparison keeps a rename's original diff
 // and outside-location route to Review changes after trunk renames it again.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expandIntentGroup } from "../../dashboard/tests/intentPerspectivePage.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import {

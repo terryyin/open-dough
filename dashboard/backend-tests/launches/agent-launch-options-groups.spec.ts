@@ -10,7 +10,7 @@
 import { cpSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { OptionsDefinition } from "../../src/commandOptions.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   launch,
@@ -53,7 +53,7 @@ test.describe(`agent launch boundary, exclusive option groups`, () => {
   test.beforeEach(() => {
     rmSync(skillFolder(), { recursive: true, force: true });
     cpSync(
-      path.join(repoRoot, "src", "skills", skill, "references"),
+      path.join(repoRoot, "Distribution", "src", "skills", skill, "references"),
       path.join(skillFolder(), "references"),
       { recursive: true },
     );

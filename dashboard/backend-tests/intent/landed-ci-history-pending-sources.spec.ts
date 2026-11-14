@@ -11,7 +11,7 @@
 // exact landing's pending states are in ./landed-ci-history-pending.spec.ts.
 
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { adapterProject } from "../../tests/intentCiAdapterProofProject.ts";
 import type { CiRunAnswer } from "../../tests/support/baseCiActions.ts";
 import {

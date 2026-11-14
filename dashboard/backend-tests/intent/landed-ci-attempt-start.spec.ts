@@ -1,7 +1,7 @@
 // The actual collector repairs legacy bounds at their retained attempt while
 // a newer rerun is listed; local history reads never acquire that evidence.
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import {
   keepLandedCiHistory,

@@ -3,7 +3,7 @@ import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.
 // time without a proof summary (SEED-288#reuse-adapter-equivalent-timing).
 // Parameterized discover-build comparison journeys stay in
 // ./intent-ci-comparison-adapter.spec.ts.
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { adapterProject } from "../../dashboard/tests/intentCiAdapterProofProject.ts";
 import { expectNoRunOrAttemptIds } from "../../dashboard/tests/support/expectCiComparisonSourceCue.ts";

@@ -2,14 +2,14 @@
 // from Git. Each worker shares the origin and removes it at exit.
 
 import { rmSync } from "node:fs";
-import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
-import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
+import { git } from "../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { agentIdentity } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 import {
   integrationDeveloper as developer,
   materializeRepository,
-} from "../../tests/support/repository-fixture.mjs";
+} from "../../Distribution/tests/support/repository-fixture.mjs";
 import {
   notRefinedIdentity as identityC,
   queuedDashboardRepository,

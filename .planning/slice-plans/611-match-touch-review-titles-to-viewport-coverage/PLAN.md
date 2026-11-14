@@ -101,7 +101,7 @@ size the page has when they are reached.
   consumer. No full local suite: the change is confined to one spec and its two
   support files, which no other test imports. Hosted CI runs the shard.
 - Run under maintained `caffeinate -s -i` on AC, per
-  [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos);
+  [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos);
   on battery, `caffeinate -i` awake with the lid open and read the sleep log.
 - No spec is added or renamed, so the thirteen-shard deal is unchanged.
 

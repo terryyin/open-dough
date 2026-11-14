@@ -1,5 +1,5 @@
 // A configured adapter's failed proof command can recover on the same attempt.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { adapterProject } from "../../tests/intentCiAdapterProofProject.ts";
 import { proofSummaryForEntry } from "../../tests/support/ciProofArtifacts.ts";
 import {

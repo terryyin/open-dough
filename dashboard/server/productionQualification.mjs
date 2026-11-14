@@ -10,7 +10,7 @@ import { promisify } from "node:util";
 import {
   isPathIgnored,
   readCiPathIgnorePolicy,
-} from "../../src/skills/dough-execute-plan/scripts/ci-workflow-path-policy.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-workflow-path-policy.mjs";
 import {
   fetchIntoOwnedDirectory,
   ownedCommitDirectory,

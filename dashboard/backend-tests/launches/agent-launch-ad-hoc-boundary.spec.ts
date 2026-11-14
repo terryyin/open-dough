@@ -1,4 +1,4 @@
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // The local launch boundary (../../server/launchBoundary.ts) over raw HTTP,
 // at the boundary server, for an ad hoc session: a project's folder and no story.
 // The server derives the label, names the session `<project> · Ad hoc ·

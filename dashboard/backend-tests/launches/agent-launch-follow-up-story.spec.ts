@@ -9,8 +9,8 @@
 // not publish, or whose record cannot be read, refuses the follow-up. The
 // page journey is ../../../e2e/stories/recently-done-follow-up.spec.ts.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { doneRecordPath } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { doneRecordPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { attempts, launch, accept } from "../../tests/agentLaunchBoundary.ts";
 import { stored } from "../../tests/support/codexLaunch.ts";
 import { failsWith } from "../../tests/support/fakeGitHub.ts";

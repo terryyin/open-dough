@@ -9,7 +9,7 @@
 // the sessions every 100 ms here; "nothing more" is asserted only after the
 // fake `claude` has logged further listings, never after a sleep.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { expect } from "@playwright/test";
 import { markDone } from "../../tests/agentLaunchBoundary.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";

@@ -5,7 +5,7 @@
 
 import { chmodSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { keptStarts } from "../../dashboard/tests/agentLaunchBoundary.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import { publishLaterHead } from "../../dashboard/tests/support/publishLaterHead.ts";

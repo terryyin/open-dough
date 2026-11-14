@@ -91,7 +91,7 @@ const offersCodexStartSession = (answer: SessionsAnswer | undefined) =>
 function installCodexSessionStart(home: string) {
   const project = path.join(home, "git", "open-dough");
   cpSync(
-    path.join(repoRoot, "src", "skills", "dough-execute-plan"),
+    path.join(repoRoot, "Distribution", "src", "skills", "dough-execute-plan"),
     installedSkillPath(
       "codex",
       { path: project, shown: project },

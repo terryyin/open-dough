@@ -10,7 +10,7 @@ import { readFinalReport } from "../finalReportPages.ts";
 // session and takes its done mark (./fixtures/fake-claude).
 
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { parts, standaloneSessionName } from "../dashboardPage.ts";
 import { rem } from "../boardPage.ts";

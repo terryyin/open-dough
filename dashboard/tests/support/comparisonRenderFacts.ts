@@ -1,5 +1,5 @@
 // Canonical prepared proof answers, transformed by the real comparison owner.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiProof, CiProofEntry } from "../../src/ciProof.ts";
 import type { StoryCiComparisonAnswer } from "../../src/storyCiComparison.ts";
 import { comparisonProofOf } from "../../src/storyCiComparisonEntries.ts";

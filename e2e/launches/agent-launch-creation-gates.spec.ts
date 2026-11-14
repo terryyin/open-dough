@@ -14,7 +14,7 @@ import {
   launchRecordsSchema,
 } from "../../dashboard/src/agentLaunch.ts";
 import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ projectFolders: ["open-dough"] });
 // Stand-in host inspection-args UI: dashboard/frontend-tests/agent-launch-creation-gates.spec.ts.

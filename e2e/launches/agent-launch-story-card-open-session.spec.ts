@@ -4,7 +4,7 @@ import { askToDeleteRecord } from "../../dashboard/tests/support/sessionEntryDis
 // Taken kept starts and already-open launch dialogs enforce the same refusal.
 // Uses the committed columns origin and synthetic Claude, without a real host.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
@@ -34,7 +34,7 @@ import {
   expectStartNote,
   launchGroup,
 } from "../../dashboard/tests/storyCardControls.ts";
-import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { identityB } from "../../Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,

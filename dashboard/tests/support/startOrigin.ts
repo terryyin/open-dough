@@ -15,14 +15,14 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   queuedReadyRepository,
   reviewedStorySeed,
   storyA,
-} from "../../../tests/support/queued-repository.mjs";
-import { commitDeclaredRevision } from "../../../tests/support/repository-fixture.mjs";
-import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
+} from "../../../Distribution/tests/support/queued-repository.mjs";
+import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { initializeStartOrigin } from "./startOriginInitialization.ts";
 import {
   anotherAgentTakes,

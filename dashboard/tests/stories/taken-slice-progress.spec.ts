@@ -6,9 +6,9 @@
 // everything shown.
 
 import type { PlanSlice } from "../../src/storyPlan.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
-import { renderStorySection } from "../../../tests/support/published-seed.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../../Distribution/tests/support/published-plan.mjs";
+import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { shortRevision, expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";

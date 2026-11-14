@@ -24,7 +24,7 @@ import {
 import { askedAfterSettling } from "../../src/startupReconciliation.ts";
 import { reconcileAttempt } from "../../server/launchAttemptReconciliation.ts";
 import { OwnedAttempts } from "../../server/ownedAttempts.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const acceptedAt = "2026-11-04T01:00:00.000Z";
 const outcomeAt = "2026-11-04T01:05:00.000Z";

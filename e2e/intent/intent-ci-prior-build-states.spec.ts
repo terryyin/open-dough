@@ -7,7 +7,7 @@ import {
 // authenticated reader; no fixture supplies a calculated average.
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   buildEvidenceRows,

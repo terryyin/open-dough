@@ -44,7 +44,7 @@ import {
   toggleOnDevelopment,
 } from "../../dashboard/tests/intentCiStoryRecords.ts";
 import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 const wallTime = "CI wall time 3 min";
 const notRecorded = "CI wall time not recorded";

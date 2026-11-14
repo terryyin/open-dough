@@ -5,8 +5,8 @@
 // asks GitHub through ./originObservation.ts's `readsBesideChecks`.
 
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { storyCard } from "./storyCardControls.ts";

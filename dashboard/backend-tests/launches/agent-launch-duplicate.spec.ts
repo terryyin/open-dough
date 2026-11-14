@@ -11,7 +11,7 @@ import { installRefinementSkill } from "../../tests/launchStoryCardPage.ts";
 import { settledOutcome } from "../../tests/acceptedAttempts.ts";
 import type { AttemptObservation } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "../../tests/support/fakeCodex.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // No page: the local boundaries alone answer these requests. Each wait for a
 // launch to reach its native host is bounded by the test timeout alone.

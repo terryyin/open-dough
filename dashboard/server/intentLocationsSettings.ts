@@ -1,7 +1,7 @@
 // Declared Intent settings share their pure parser with installed guidance;
 // this adapter owns pinned reads, provider failures and recovery.
-import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import type { DeclaredLocation } from "../../src/skills/dough-makeme/scripts/intent-location-settings.mjs";
+import { agentSettingsPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import type { DeclaredLocation } from "../../Distribution/src/skills/dough-makeme/scripts/intent-location-settings.mjs";
 import { isNotFound, rateLimitStop } from "./ghFailure.ts";
 import type { PinnedReader } from "./reachablePaths.ts";
 import {
@@ -9,11 +9,11 @@ import {
   type ReportedFailure,
 } from "./readFailureMessage.ts";
 
-export { declaredLocations } from "../../src/skills/dough-makeme/scripts/intent-location-settings.mjs";
+export { declaredLocations } from "../../Distribution/src/skills/dough-makeme/scripts/intent-location-settings.mjs";
 export type {
   DeclaredLocation,
   DeclaredSettings,
-} from "../../src/skills/dough-makeme/scripts/intent-location-settings.mjs";
+} from "../../Distribution/src/skills/dough-makeme/scripts/intent-location-settings.mjs";
 export type IntentSettingsProblem = "malformed" | "unreadable";
 export type IntentLocationProblem = "unsupported-kind" | "no-matching-files";
 export type IntentLocation = DeclaredLocation & {

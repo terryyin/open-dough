@@ -1,7 +1,7 @@
 // Historical Intent bypasses a retained readable workspace, including when a
 // captured landing is unusable; explicit run selection keeps that run's gap.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import {
   storyReviewEndpoint,
   storyReviewSchema,

@@ -34,7 +34,10 @@ import { capturedChoice } from "../../dashboard/tests/support/oneShotReviewChoic
 import type { FakeCodex } from "../../dashboard/tests/support/fakeCodex.ts";
 import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
 import type { StartOrigin } from "../../dashboard/tests/support/startOrigin.ts";
-import { storyA, storyB } from "../../tests/support/queued-repository.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../Distribution/tests/support/queued-repository.mjs";
 import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
 import { storyALaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 import {

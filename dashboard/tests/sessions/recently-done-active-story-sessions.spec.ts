@@ -1,5 +1,5 @@
 // Active story membership owns its open session even with a matching done card.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { columnPagingControl, rem } from "../boardPage.ts";
 import {

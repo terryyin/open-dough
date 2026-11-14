@@ -9,7 +9,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test as base } from "../dashboardTest.ts";
 import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";

@@ -2,8 +2,8 @@
 // enrichment as independently arriving fact groups. Raw published plans grow
 // above a focused source link through the built preview's real local boundary.
 
-import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../../Distribution/tests/support/published-plan.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   canonicalRecord,
   inspectedDetail,

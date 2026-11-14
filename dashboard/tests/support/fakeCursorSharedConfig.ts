@@ -3,7 +3,7 @@
 // setting, and one saved conversation under its `chats`.
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 export type FakeCursorSharedConfig = {
   // The fake's shared Cursor configuration directory (its effective

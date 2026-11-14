@@ -14,7 +14,7 @@ import {
   startAction,
 } from "../../dashboard/tests/keptStartJourney.ts";
 import { originMain } from "../../dashboard/tests/support/sessionDialog.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { actionsForRuns } from "../../dashboard/tests/support/baseCiActions.ts";
 
 const baseCiFailedHeading = "Base CI failed";

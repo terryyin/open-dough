@@ -155,15 +155,15 @@ The repository uses **Open Dough** and **DearDough.md**. Several concerns in the
 | Findings require manual collection and prioritization | Internal skills and a runbook already connect collection, reconciliation, pruning, response watches, and queueing when invoked | Invocation and decisions are not yet an autonomous, continuously evaluated service |
 | Feedback has no response observation | The runbook has release/adoption-aware watches and recurrence handling | Make eligible exposure and measured effects systematic without equating silence with success |
 
-These findings come from the [execution retrospective](../../src/skills/dough-execution-retrospective/SKILL.md), [review of a wrap-up or landing run](../../src/skills/dough-execution-retrospective/references/process-review-of-a-run.md), [execution completion](../../src/skills/dough-execute-plan/references/finish-or-stop.md), [project configuration](../../.planning/open-dough.json), and [maintainer runbook](retrospective-findings-runbook.md).
+These findings come from the [execution retrospective](../../Distribution/src/skills/dough-execution-retrospective/SKILL.md), [review of a wrap-up or landing run](../../Distribution/src/skills/dough-execution-retrospective/references/process-review-of-a-run.md), [execution completion](../../Distribution/src/skills/dough-execute-plan/references/finish-or-stop.md), [project configuration](../../.planning/open-dough.json), and [maintainer runbook](retrospective-findings-runbook.md).
 
 The current process review has good evidential boundaries. It requires real coordinator and relevant sub-agent history, distinguishes observation from inferred cost and cause, permits recorded token counts or qualified evidence of repeated work, and refuses to invent missing events. It also reviews the retrospective's own waste without recursively launching another retrospective. The limitation is that these are primarily qualitative findings from available histories, rather than a consistent population of observed runs.
 
-Two specific selection effects matter. First, [execution completion](../../src/skills/dough-execute-plan/references/finish-or-stop.md) does not automatically retrospect wholly planless completions, incomplete work, cancellation, or human-judgment stops. Second, the retrospective explicitly makes no log change when there are no findings, and the [recording format](../../src/skills/dough-execution-retrospective/references/process-finding-recording.md) says rows count retained occurrences, not all-time recurrence. Bounded retention can remove entries. The current log therefore cannot supply a failure-rate denominator: no row can reflect success, no review, no relevant exposure, missing history, or later pruning.
+Two specific selection effects matter. First, [execution completion](../../Distribution/src/skills/dough-execute-plan/references/finish-or-stop.md) does not automatically retrospect wholly planless completions, incomplete work, cancellation, or human-judgment stops. Second, the retrospective explicitly makes no log change when there are no findings, and the [recording format](../../Distribution/src/skills/dough-execution-retrospective/references/process-finding-recording.md) says rows count retained occurrences, not all-time recurrence. Bounded retention can remove entries. The current log therefore cannot supply a failure-rate denominator: no row can reflect success, no review, no relevant exposure, missing history, or later pruning.
 
 Data is not entirely absent. Findings contain some actual token-output counts, host-reported usage, timings, and concrete rework. These measures have different scopes and cannot safely be added into a global efficiency estimate. More systematic measurement can begin with what is already directly observable.
 
-The [test-optimization skill](../../src/skills/dough-test-optimization/SKILL.md#establish-the-baseline) already contains a particularly strong empirical protocol: record comparable execution conditions, form a hypothesis, try and measure, retain or undo the change, preserve meaningful coverage, and report uncertain comparisons honestly. Its loop is a good internal pattern to adapt for guidance experiments.
+The [test-optimization skill](../../Distribution/src/skills/dough-test-optimization/SKILL.md#establish-the-baseline) already contains a particularly strong empirical protocol: record comparable execution conditions, form a hypothesis, try and measure, retain or undo the change, preserve meaningful coverage, and report uncertain comparisons honestly. Its loop is a good internal pattern to adapt for guidance experiments.
 
 The maintainer runbook is more complete than a one-way feedback inbox. It deduplicates by project and execution identity, verifies which release contained a response, distinguishes old-release reports from post-fix recurrence, and starts its one-week watch from verified use. A week without relevant use is explicitly unexercised. Its retirement decision is explicitly operational, not proof that recurrence is impossible. These are useful foundations to preserve.
 
@@ -812,7 +812,7 @@ history stays in its existing store, and this report owns the assessment.
 process finding** assessment. Accepted publication alone would have left three
 later outcomes unassessed; the complete tail establishes refresh, retirement,
 and reporting separately. Preserve this distinction using the existing
-[real-record review](../../src/skills/dough-execution-retrospective/SKILL.md#review-process-only-from-a-real-record)
+[real-record review](../../Distribution/src/skills/dough-execution-retrospective/SKILL.md#review-process-only-from-a-real-record)
 and operation receipts; this case supports no additional runtime mechanism.
 
 The selected population is coordinator session
@@ -892,7 +892,7 @@ here the completed preparation stayed distinct from its queued execution.
 startup at first implementation `1219b548…`; that is neither this preparation
 landing nor a new occurrence caused by rereading it. The existing separate
 operation-result rules already own the useful practice. Under
-[process-finding recording](../../src/skills/dough-execution-retrospective/references/process-finding-recording.md),
+[process-finding recording](../../Distribution/src/skills/dough-execution-retrospective/references/process-finding-recording.md),
 no new finding or occurrence is allocated; **`DearDough.md` is unchanged**.
 The stable assessment reference is this session + selected interval + accepted
 preparation revision. The old completed work remains completed.

@@ -1,4 +1,4 @@
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 // A kept Claude Code conversation whose first input is unconfirmed
 // (../../dashboard/server/launchRun.ts): Claude Code writes no first-input evidence and has
 // no native recovery, so only legacy or hand-edited launch evidence reaches

@@ -12,7 +12,7 @@ import {
 // cases — expressed through MakeMe. Units journey across Summary and file:
 // ../../../e2e/intent/intent-ci-proof-units.spec.ts.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 
 import {

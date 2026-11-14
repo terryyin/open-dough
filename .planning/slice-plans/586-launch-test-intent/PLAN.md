@@ -137,4 +137,4 @@ as written into every delegation and repair handoff. Keep default timeouts;
 no wall-clock sleeps or `test.slow()`.
 For long macOS runs start fully awake: on AC use `caffeinate -s -i`; on battery
 plug in or keep the lid open under `caffeinate -i` and inspect sleep logs under
-[machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
+[machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).

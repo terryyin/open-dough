@@ -11,17 +11,20 @@ const dashboardRoot = fileURLToPath(new URL(".", import.meta.url));
 // start reads, and the rules of asking GitHub every consumer shares. The dev
 // server may serve them and nothing else outside the dashboard.
 const sharedBacklogReader = fileURLToPath(
-  new URL("../src/skills/dough-product-backlog/scripts/", import.meta.url),
+  new URL(
+    "../Distribution/src/skills/dough-product-backlog/scripts/",
+    import.meta.url,
+  ),
 );
 const sharedSessionPolicy = fileURLToPath(
   new URL(
-    "../src/skills/dough-execute-plan/scripts/session-policy.mjs",
+    "../Distribution/src/skills/dough-execute-plan/scripts/session-policy.mjs",
     import.meta.url,
   ),
 );
 const sharedGitHubRequestRules = fileURLToPath(
   new URL(
-    "../src/skills/dough-execute-plan/scripts/github-request-rules.mjs",
+    "../Distribution/src/skills/dough-execute-plan/scripts/github-request-rules.mjs",
     import.meta.url,
   ),
 );

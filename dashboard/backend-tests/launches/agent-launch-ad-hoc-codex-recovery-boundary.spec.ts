@@ -4,7 +4,7 @@
 // only the known refusal establishes persistence. Lost acknowledgments across
 // a restart, on the page:
 // ../../../e2e/launches/agent-launch-ad-hoc-codex-recovery.spec.ts.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
 

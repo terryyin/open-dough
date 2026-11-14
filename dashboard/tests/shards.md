@@ -5,7 +5,7 @@ deals each shard its spec files by recorded duration and its preview, the
 times each shard keeps for refreshing the group's duration list, and the
 deadline each shard runs under. The [README](README.md) owns the groups and
 how each runs as a whole; the Node suite's shares are in
-[tests/test-shares.md](../../tests/test-shares.md).
+[Distribution/tests/test-shares.md](../../Distribution/tests/test-shares.md).
 
 ## The producers
 
@@ -15,7 +15,7 @@ npm command, settings prefix, root (its outputs and its CI proof entry) and
 shard matrix.
 The shared workflow holds no group's value, so changing one group's shards or
 settings leaves the others' selection, settings and timing untouched
-(`tests/support/ci-browser-groups.test.mjs`).
+(`Distribution/tests/support/ci-browser-groups.test.mjs`).
 
 | Job | Command | Settings prefix | Duration list | Shards |
 | --- | --- | --- | --- | --- |
@@ -48,7 +48,7 @@ finds every spec file under the group's root recursively, never entering the
 reloading workers discover again, so a new file needs no registration. It
 hands those files, its list and its split to `scripts/share-deal.mjs`, which
 deals them by the rule the Node suite's shares follow
-([tests/test-shares.md](../../tests/test-shares.md#the-deal)), a spec file
+([Distribution/tests/test-shares.md](../../Distribution/tests/test-shares.md#the-deal)), a spec file
 being a job: one the list does not record is dealt after the recorded files
 at their median seconds until the list is next refreshed (below). A list line that is not `<seconds><TAB><file>` fails the
 configuration naming the file, line and content before any test is selected,
@@ -107,10 +107,10 @@ new `# Source:` to each list (naming the runner factor or that it was
 unavailable), and keeps new specs in the index until they are organized.
 Duration lists and CI timing artifacts retain their ordinary TSV form. No part
 changes a spec's recorded seconds or shard assignment.
-`tests/support/browser-group-shards.test.mjs` proves each group's deal: every
+`Distribution/tests/support/browser-group-shards.test.mjs` proves each group's deal: every
 spec file in exactly one of its group's CI shards and the preview listing a
 new spec as unrecorded in the shard the deal gives it;
-`tests/support/dashboard-test-files.test.mjs` proves the deal itself and a
+`Distribution/tests/support/dashboard-test-files.test.mjs` proves the deal itself and a
 malformed list line failing the configuration.
 
 ## Each shard's times
@@ -142,6 +142,6 @@ against it, and local runs without the variable are unbounded. A shard that
 cannot finish by then fails naming the deadline (`Timed out waiting`), still
 within the job's 6 minutes, and its kept report holds the completed
 failures' traces and error context and lists unfinished tests as skipped.
-Like the shell suite's `tests/time-budget`, the 320 seconds and the job's
+Like the shell suite's `Distribution/tests/time-budget`, the 320 seconds and the job's
 `timeout-minutes` are a reviewed ceiling: a shard that reaches the deadline
 is made faster or rebalanced, not given more time.

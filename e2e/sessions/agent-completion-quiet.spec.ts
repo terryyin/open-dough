@@ -18,7 +18,7 @@ import {
 } from "../../dashboard/tests/support/startOrigin.ts";
 import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expectInstalledCompletionGuidance } from "../../dashboard/tests/support/installedCompletionGuidance.ts";
 import { withInstalledCompletionClosure } from "../../dashboard/tests/support/installedCompletionClosure.ts";
 import {

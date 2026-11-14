@@ -22,7 +22,7 @@ import type { GhRequest } from "./ghRequest.ts";
 import { answeringFirst, holdingAnswer } from "./heldGitHubAnswer.ts";
 import { rawRequest, type RawResponse } from "./rawHttp.ts";
 import { headsAnswer, type OriginAnswer } from "../originAnswers.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   describedRevision,
   withBacklogFallback,

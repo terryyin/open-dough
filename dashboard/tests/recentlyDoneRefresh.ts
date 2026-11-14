@@ -7,7 +7,7 @@
 // which entries show or which records are read.
 
 import { expect, type Page } from "@playwright/test";
-import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import { shortRevision, parts } from "./dashboardPage.ts";
 import {

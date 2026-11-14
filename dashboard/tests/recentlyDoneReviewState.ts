@@ -8,8 +8,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { doneRecordPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { doneRecordPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { showColumn } from "./boardPage.ts";
 import {
   expectControlContrast,

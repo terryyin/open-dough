@@ -1,4 +1,4 @@
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // The launch boundary honors an unattached request's landing, with a real
 // bare origin (../../tests/support/startOrigin.ts), the installed start recorded as it
 // runs (../../tests/support/startSessionLanding.ts), and the synthetic `claude`: a

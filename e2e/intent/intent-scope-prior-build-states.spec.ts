@@ -15,7 +15,7 @@ import {
   scopeHistoryChart,
 } from "../../dashboard/tests/intentScopeHistoryPage.ts";
 import { childName } from "../../dashboard/tests/intentScopeProofPage.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { summaryComparisonChanges } from "../../dashboard/tests/support/intentSummaryStoryComparisonFixture.ts";
 import { declaredSummaryComparisonEndpointsIn } from "../../dashboard/tests/support/intentSummaryStoryComparisonRepository.ts";
 import { serveSummaryComparisonStory } from "../../dashboard/tests/support/intentSummaryStoryComparisonServing.ts";

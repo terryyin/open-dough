@@ -1,6 +1,6 @@
 import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
 // Endpoint-only gap words; imported by the mounted wording spec.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { renderComparison } from "../../tests/support/comparisonRendering.ts";
 import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";

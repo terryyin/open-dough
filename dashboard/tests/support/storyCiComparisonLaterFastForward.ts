@@ -5,9 +5,9 @@
 // ./storyCiComparisonFastForward.ts.
 
 import type { Page } from "@playwright/test";
-import { storyB } from "../../../tests/support/queued-repository.mjs";
+import { storyB } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { agentIdentity } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import { otherQueuedIdentity, queuedIdentity } from "./startOrigin.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";

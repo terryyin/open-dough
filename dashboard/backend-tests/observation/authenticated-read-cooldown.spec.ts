@@ -46,7 +46,7 @@ import {
   sharedSeedRead,
   sharedSeedText,
 } from "../../tests/support/sharedReads.ts";
-import { agentSettingsPath } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentSettingsPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const revision = "c3".repeat(20);
 const otherSeedRead = `&revision=${revision}&path=${encodeURIComponent(otherSeedPath)}`;

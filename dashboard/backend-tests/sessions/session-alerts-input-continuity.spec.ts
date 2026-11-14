@@ -18,7 +18,7 @@ import {
   start,
 } from "../../tests/support/sessionAlerts.ts";
 import { notRefinedIdentity } from "../../tests/launchJourney.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 

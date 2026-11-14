@@ -1,7 +1,7 @@
 import { ciStatusReading } from "../../tests/intentCiStatusPage.ts";
 import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
 // Taken stories retain their actual live judgment and provisional endpoint words.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { renderComparison } from "../../tests/support/comparisonRendering.ts";
 import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";

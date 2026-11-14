@@ -15,7 +15,7 @@ import {
 } from "../../tests/launchJourney.ts";
 import { launch, machineSessions } from "../../tests/agentLaunchBoundary.ts";
 import { test, expect } from "../../tests/support/codexLaunch.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 const request = makeMe.aLaunchRequest
   .refining({
     identity: notRefinedIdentity,

@@ -6,7 +6,7 @@
 // this user's incident record naming the killed owner, and the page's
 // existing recovery asks again through the owner started in its place. No
 // call left at GitHub is asked a second time. Owner replacement itself:
-// ../../src/skills/dough-execute-plan/scripts/github-request-owner-replacement.test.mjs;
+// ../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-replacement.test.mjs;
 // the page's recovery from an eligible failure: ./auto-refresh-recovery.spec.ts.
 
 import { expect, githubFor } from "../../dashboard/tests/dashboardTest.ts";

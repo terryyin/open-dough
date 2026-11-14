@@ -5,7 +5,7 @@
 // black-box assertions. Done sessions of no story: ./followUpSources.ts.
 
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { describedFiles } from "../describedRevisions.ts";
 import { followUpPreamble } from "./followUpSources.ts";

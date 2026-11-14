@@ -15,7 +15,7 @@ import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { keepLaunchStore } from "./launchStore.ts";
 import { rawRequest } from "./rawHttp.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { RawRequestOptions, RawResponse } from "./rawHttp.ts";
 
 // The kept refinement of the not-refined story in Codex thread `id`, which

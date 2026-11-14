@@ -1,7 +1,7 @@
 // Matching facts through both actual entry points: collection's persisted
 // observations and comparison's production read/memory, with no page open.
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import {
   keptLandedCiHistory,

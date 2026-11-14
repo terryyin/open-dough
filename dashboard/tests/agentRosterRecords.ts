@@ -6,10 +6,10 @@
 // and a Doughnut revision whose profile directory cannot be
 // listed at all; and a Pygardon revision that publishes no backlog.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import type { RevisionFacts } from "../../Distribution/tests/support/repositoryTestData.mjs";
 import type { Locator, Page } from "@playwright/test";
-import { renderAgentProfile } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { renderAgentProfile } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { expect, githubFor } from "./dashboardTest.ts";
 import {
   expectProblemAndNoSnapshot,

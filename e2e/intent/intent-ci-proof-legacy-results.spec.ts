@@ -6,8 +6,8 @@ import {
 // artifact or a ciAdapter, stays readable in Intent as legacy test results,
 // never as test cases or test files (SEED-281 example 38;
 // ../../dashboard/src/ciProofUnits.ts). Reader rules:
-// ../../src/skills/dough-test-optimization/scripts/ci-proof-legacy-results.test.mjs,
-// ../../tests/support/dashboard-ci-proof-units-read.test.mjs.
+// ../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-legacy-results.test.mjs,
+// ../../Distribution/tests/support/dashboard-ci-proof-units-read.test.mjs.
 
 import { test } from "../../dashboard/tests/dashboardTest.ts";
 import {

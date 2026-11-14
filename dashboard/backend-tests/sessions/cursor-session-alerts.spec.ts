@@ -21,7 +21,7 @@ import {
   cursorQuestion,
   cursorState,
 } from "../../tests/support/cursorSessionReading.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { waitUntil } from "../../tests/support/waitUntil.ts";
 
 // Let the 100 ms alert loop observe re-arming before changing the screen again.

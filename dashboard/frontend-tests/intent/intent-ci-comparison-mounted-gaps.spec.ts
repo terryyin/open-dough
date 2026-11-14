@@ -7,7 +7,7 @@ import {
   type ComparisonReply,
 } from "../../tests/support/comparisonMountPage.ts";
 import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("each failed Baseline Check again holds the button disabled and retains the query and failure reason", async ({
   page,

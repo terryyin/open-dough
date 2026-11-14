@@ -1,4 +1,4 @@
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import {
   keptLaunchRecords,
   launchStoreFile,
@@ -15,7 +15,7 @@ import { promisify } from "node:util";
 import { existsSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { machineHome } from "../../tests/machineLaunchRecords.ts";
 import {
   accept,

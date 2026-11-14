@@ -1,0 +1,235 @@
+#!/usr/bin/env bash
+# Own a native command's process group and wait with deadline plus grace.
+# Defaults leave recorded-success substitutes unchanged. Timeout does not retry.
+# Bound: terminate only the owned group, never the caller's process group.
+# Stream status (native-run-stream.sh) and response come from the stream reader.
+# shellcheck disable=SC2034,SC2154,SC2312 # Supervisor/wrapper globals; ps formats pids.
+
+native_run_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# The files that decide how a native run is supervised, relative to the source
+# root. Evidence identities hash each one through
+# native_result_supervision_input_hash_lines (native-result-retain.sh).
+native_run_supervision_inputs=(
+  Distribution/tests/support/native-run-supervise.sh
+  Distribution/tests/support/native-run-stream.sh
+  Distribution/tests/support/native-host-stream.sh
+  Distribution/tests/support/native-host-stream.mjs
+  Distribution/tests/support/native-host-stream-adapters.mjs
+  Distribution/tests/support/native-run-watchdog.sh
+  Distribution/tests/helpers/wait-for.bash
+  scripts/owned-process-group.bash
+)
+# shellcheck source=Distribution/tests/support/native-run-stream.sh
+# shellcheck disable=SC1091
+source "${native_run_support_dir}/native-run-stream.sh"
+# shellcheck source=scripts/owned-process-group.bash
+# shellcheck disable=SC1091
+source "${native_run_support_dir}/../../../scripts/owned-process-group.bash"
+
+native_run_outcome=exited
+native_run_failure_reason=
+
+native_run_pgid_of() {
+  owned_process_group_pgid_of "$@"
+}
+
+native_run_signal_owned() {
+  owned_process_group_signal "$@"
+}
+
+native_run_terminate_group() {
+  owned_process_group_terminate "$@"
+}
+
+# Succeeds once PID has left PARENT_PGID's group or exited, recording the
+# group to own in native_run_detached_pgid.
+native_run_group_detached() {
+  local pid=$1
+  local parent_pgid=$2
+
+  if ! kill -0 "${pid}" 2> /dev/null; then
+    native_run_detached_pgid=${pid}
+    return 0
+  fi
+  native_run_detached_pgid=$(native_run_pgid_of "${pid}")
+  [[ -n ${native_run_detached_pgid} && ${native_run_detached_pgid} != "${parent_pgid}" ]]
+}
+
+native_run_child_pgid() {
+  local pid=$1
+  local parent_pgid=$2
+
+  if poll_until 2 "native_run_group_detached '${pid}' '${parent_pgid}'"; then
+    printf '%s\n' "${native_run_detached_pgid}"
+    return 0
+  fi
+  printf '%s\n' "${pid}"
+}
+
+# shellcheck source=Distribution/tests/support/native-run-watchdog.sh
+# shellcheck disable=SC1091
+source "${native_run_support_dir}/native-run-watchdog.sh"
+# owned-process-group.bash already defines the watchdog bodies; the thin
+# native-run-watchdog.sh wrappers above keep call sites and input hashes stable.
+
+native_run_spawn_group() {
+  local workdir=$1
+  shift
+  if [[ -n ${workdir} ]]; then
+    cd -- "${workdir}" || exit 127
+  fi
+  if command -v setsid > /dev/null 2>&1; then
+    exec setsid "$@"
+  fi
+  if command -v perl > /dev/null 2>&1; then
+    exec perl -e 'setpgrp(0, 0) or die $!; exec { $ARGV[0] } @ARGV or die $!' -- "$@"
+  fi
+  printf 'error: native run requires setsid or perl to own a process group\n' >&2
+  exit 127
+}
+
+native_run_owned() {
+  local stdout_file=$1
+  local stderr_file=$2
+  local workdir=$3
+  shift 3
+  local deadline grace pid pgid status watchdog sentinel timeout_flag wait_fifo
+  deadline=${native_case_deadline:-3600}
+  grace=${native_case_grace:-15}
+  status=0
+  native_run_outcome=exited
+  sentinel=$(mktemp "${TMPDIR:-/tmp}/native-run.XXXXXX")
+  timeout_flag="${sentinel}.timed-out"
+  # Create the watchdog's fifo here so a stopped watchdog cannot recreate it
+  # after cleanup.
+  wait_fifo="${sentinel}.wait"
+  mkfifo "${wait_fifo}"
+
+  native_run_spawn_group "${workdir}" "$@" > "${stdout_file}" 2>> "${stderr_file}" &
+  pid=$!
+  # Wait until setsid/setpgrp detaches; do not sample the caller's group.
+  pgid=$(native_run_child_pgid "${pid}" "$(native_run_pgid_of $$)")
+
+  native_run_watchdog "${pid}" "${pgid}" "${deadline}" "${grace}" \
+    "${sentinel}" "${timeout_flag}" "${wait_fifo}" > /dev/null 2>&1 &
+  watchdog=$!
+
+  wait "${pid}" || status=$?
+  rm -f "${sentinel}"
+  if [[ -f ${timeout_flag} ]]; then
+    wait "${watchdog}" 2> /dev/null || true
+    rm -f "${timeout_flag}" "${wait_fifo}"
+    native_run_outcome=timeout
+    return 124
+  fi
+  native_run_stop_watchdog "${watchdog}"
+  rm -f "${timeout_flag}" "${wait_fifo}"
+  return "${status}"
+}
+
+native_run_mark_failed() {
+  native_run_outcome=failed
+  native_run_failure_reason=$1
+  tool_version=${tool_version:-unknown}
+}
+
+native_run_capture_version() {
+  local version status=0
+  version=$("$@" 2>> "${native_stderr}") || status=$?
+  if [[ ${status} -ne 0 || -z ${version} ]]; then
+    tool_version=unknown
+    return 0
+  fi
+  tool_version=${version}
+}
+
+native_run_require_host() {
+  if command -v "${platform}" > /dev/null 2>&1; then
+    return 0
+  fi
+  printf 'error: missing executable: %s\n' "${platform}" >> "${native_stderr}"
+  native_run_mark_failed 'missing executable'
+  return 127
+}
+
+native_run_owned_or_fail() {
+  local status=0
+  native_run_owned "$@" || status=$?
+  if ((status == 0)); then
+    return 0
+  fi
+  if [[ ${native_run_outcome} != timeout ]]; then
+    case ${status} in
+      126) native_run_mark_failed 'permission denied' ;;
+      127) native_run_mark_failed 'missing executable' ;;
+      *) native_run_mark_failed "native command exited ${status}" ;;
+    esac
+  fi
+  return "${status}"
+}
+
+native_run_write_output() {
+  local allow_empty=${1:-0}
+  mkdir -p -- "$(dirname -- "${output_file}")"
+  if [[ ${allow_empty} -eq 1 ]]; then
+    native_host_stream "${platform}" "${transcript}" response \
+      > "${output_file}" 2> /dev/null || : > "${output_file}"
+    return 0
+  fi
+  native_host_stream "${platform}" "${transcript}" response > "${output_file}"
+}
+
+native_run_context_command() {
+  local run_target=${native_run_workspace:-${target}}
+  tool_version=unknown
+  case ${platform} in
+    codex | cursor | claude) ;;
+    *) return 2 ;;
+  esac
+  native_run_require_host || return $?
+  case ${platform} in
+    codex)
+      native_codex_prepare "${temporary_dir}" "${candidate}"
+      native_run_capture_version codex --version
+      native_codex_build_command "${run_target}" "${output_file}" "${prompt}" \
+        "${transcript}"
+      native_run_owned_or_fail "${transcript}" "${native_stderr}" '' \
+        "${native_codex_command[@]}" || return $?
+      ;;
+    cursor)
+      native_run_capture_version cursor agent --version
+      native_run_owned_or_fail "${transcript}" "${native_stderr}" \
+        "${run_target}" \
+        cursor agent --print --force --trust --sandbox enabled \
+        --output-format stream-json --workspace "${run_target}" "${prompt}" \
+        || return $?
+      ;;
+    claude)
+      native_run_capture_version claude --version
+      native_run_owned_or_fail "${transcript}" "${native_stderr}" \
+        "${run_target}" \
+        claude --print --permission-mode default \
+        --allowedTools 'Read,Glob,Grep,Skill' --no-session-persistence \
+        --output-format stream-json --verbose "${prompt}" || return $?
+      ;;
+    *) return 2 ;;
+  esac
+  native_run_classify_stream "${platform}" "${transcript}"
+  if [[ ${native_run_stream_status} != complete ]]; then
+    native_run_outcome=incomplete
+    native_run_failure_reason=${native_run_stream_reason}
+    case ${platform} in
+      cursor | claude)
+        native_run_write_output 1
+        ;;
+      *) ;;
+    esac
+    return 1
+  fi
+  case ${platform} in
+    cursor | claude)
+      native_run_write_output 0
+      ;;
+    *) ;;
+  esac
+}

@@ -5,9 +5,9 @@
 // texts; the local read boundary, the shared story-state and plan readers, and
 // the page decide everything shown.
 
-import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
-import { renderStorySection } from "../../../tests/support/published-seed.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../../Distribution/tests/support/published-plan.mjs";
+import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";

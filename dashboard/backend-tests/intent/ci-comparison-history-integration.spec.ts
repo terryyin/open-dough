@@ -2,9 +2,9 @@
 // queries, profile blob batching (including UTF-8 and missing files), merge
 // ordering and ancestry feed the same production evidence/endpoint rules.
 // Rule variants are independently owned by ci-comparison-published-endpoints.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
-import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { renderAgentProfile } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { publishedStoryHistory } from "../../server/publishedStoryHistory.ts";
 import { publishedStoryEvidence } from "../../server/storyPublishedEvidence.ts";
 import {

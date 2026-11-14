@@ -5,7 +5,7 @@
 // proof in recently-done-read-latency and profile-addition-latency.
 
 import type { Page } from "@playwright/test";
-import { agentNames } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentNames } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   callsSince,
   contentReads,

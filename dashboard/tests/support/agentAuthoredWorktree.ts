@@ -3,16 +3,16 @@
 // per-worktree authorship (`workspace-agent-authorship.mjs`), as local Git
 // finds them for a story's review.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
-import { configureAgentAuthorship } from "../../../src/skills/dough-execute-plan/scripts/workspace-agent-authorship.mjs";
+import { configureAgentAuthorship } from "../../../Distribution/src/skills/dough-execute-plan/scripts/workspace-agent-authorship.mjs";
 import {
   agentIdentity,
   agentNameOf,
   renderAgentProfile,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+} from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
 

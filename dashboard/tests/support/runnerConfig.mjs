@@ -95,7 +95,7 @@ async function prepareGroupRun(variables, outputs) {
   // environment, so they read the runner's stamp instead of making their own.
   if (runner) {
     // Include pid so two local runs started in the same millisecond
-    // (tests/dashboard-concurrent-runs.sh) never share or delete one
+    // (Distribution/tests/dashboard-concurrent-runs.sh) never share or delete one
     // another's outputDir.
     process.env[variables.runStamp] =
       `${new Date().toISOString().replace(/:/g, "-")}-${String(process.pid)}`;

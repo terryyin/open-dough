@@ -10,7 +10,7 @@
 import { realpathSync } from "node:fs";
 import type { RecordedLaunchRequest } from "../../src/launchRequest.ts";
 import { accept, attempts, launch } from "../../tests/agentLaunchBoundary.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { dirty } from "../../tests/support/defaultCheckoutChanges.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 

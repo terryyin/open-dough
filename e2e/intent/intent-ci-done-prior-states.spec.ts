@@ -8,7 +8,7 @@ import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.
 // Done comparison readable through the real retained read of the Done story
 // the worker keeps (../../dashboard/tests/support/keptPublishedStory.ts). Each history state's
 // readout is in ../../dashboard/frontend-tests/intent-ci-compact-readout.spec.ts.
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   expect,
   queuedClaudePreviewTest,

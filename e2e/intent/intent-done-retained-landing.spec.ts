@@ -3,8 +3,8 @@ import { sourceRevision } from "../../dashboard/tests/intentCodeBrowsePage.ts";
 // result from a validated capture when configured history becomes shallow.
 // The real installed integration captures the completed execution; ordinary
 // live Review and multiple retained choices stay covered in the review suite.
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import {
   storyReviewEndpoint,

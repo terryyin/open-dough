@@ -7,10 +7,10 @@
 // published beside it, each at its own head. Commit times, of plans and of the commits adding each profile
 // (its Take), are relative to the page's opening time.
 
-import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
+import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import type { RevisionFacts } from "../../Distribution/tests/support/repositoryTestData.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
 import { describedRevisions } from "./describedRevisions.ts";

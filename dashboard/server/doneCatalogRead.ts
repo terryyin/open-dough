@@ -7,7 +7,7 @@
 //
 // The catalog is trusted only once it describes exactly the record files the
 // revision's own listing of their directory names, at their listed blobs
-// (the shared catalog module under `src/skills/dough-product-backlog/scripts/`
+// (the shared catalog module under `Distribution/src/skills/dough-product-backlog/scripts/`
 // decides how it is spelled and when it agrees). A revision that lists no
 // record file has an empty catalog. Records listed without a catalog that
 // agrees with them are a gap in what the catalog says, answered as such:
@@ -26,8 +26,8 @@ import {
   doneCatalogMismatch,
   parseDoneCatalog,
   renderDoneCatalog,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
-import { isDoneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import { isDoneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { listedReadParameters, readListedTexts } from "./listedRecordsRead.ts";
 import type { ListedPath, PinnedTexts } from "./pinnedTexts.ts";
 import {

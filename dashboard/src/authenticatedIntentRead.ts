@@ -13,7 +13,7 @@ import {
   unexpectedAnswer,
 } from "./authenticatedGet.ts";
 import { keptAnswer, memoizedAnswer } from "./answerMemo.ts";
-import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentSettingsPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { readingPathAt } from "./authenticatedReadRules.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 

@@ -24,7 +24,7 @@ import {
   moveOpenDoughTrunk,
   publishMovingOpenDough,
 } from "../intentMovingOpenDough.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 import {
   candidatesRecord,

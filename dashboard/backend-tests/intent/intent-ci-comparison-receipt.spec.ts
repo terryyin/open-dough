@@ -3,7 +3,7 @@
 // rules own eligibility/deadline decisions without materializing published Git.
 import path from "node:path";
 import { writeFileSync } from "node:fs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import { readLandedComparison } from "../../tests/support/pendingLandedComparison.ts";
 import { missingLandedRun } from "../../tests/support/missingLandedRun.ts";

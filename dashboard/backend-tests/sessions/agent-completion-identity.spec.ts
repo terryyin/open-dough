@@ -10,7 +10,7 @@ import {
 import path from "node:path";
 import { launchStoreFile } from "../../tests/support/launchStore.ts";
 import { randomUUID } from "node:crypto";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { test, expect, stored } from "../../tests/support/codexStart.ts";
 import { keptAttempts } from "../../tests/acceptedAttempts.ts";

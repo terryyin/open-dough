@@ -5,9 +5,9 @@ import { chmod, readFile, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
-import { objectPack } from "../../../tests/support/fixture-observation.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { objectPack } from "../../../Distribution/tests/support/fixture-observation.mjs";
 import {
   localPublishedMainFixture,
   publishedMainFixture,

@@ -6,7 +6,7 @@
 // holding one addition commit's answer; the page clock is paused, and the
 // local read boundary and the page decide everything shown.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import {
   expect,

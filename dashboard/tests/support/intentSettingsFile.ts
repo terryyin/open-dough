@@ -3,7 +3,7 @@
 // the file boundary. Settings whose exact bytes a case proves, such as
 // malformed JSON, stay literal at that case.
 
-import type { IntentSettings } from "../../../tests/support/intentLocationTestData.mjs";
+import type { IntentSettings } from "../../../Distribution/tests/support/intentLocationTestData.mjs";
 
 export function intentSettingsText(settings: IntentSettings) {
   return `${JSON.stringify(settings, null, 2)}\n`;

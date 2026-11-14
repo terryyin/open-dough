@@ -4,16 +4,16 @@
 // trunk. Sort materializes it privately; a worker keeps it on a start origin
 // for scope history reading (./keptPublishedStory.ts). The source journeys
 // retain installed CLI completion in ./intentSummaryStoryComparisonFixture.ts.
-import { agentIdentity } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
+import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { direction } from "../../../Distribution/tests/support/product-backlog-fixture.mjs";
 import {
   queuedReadyRepository,
   storyA,
   storyB,
   takeRevision,
-} from "../../../tests/support/queued-repository.mjs";
-import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
+} from "../../../Distribution/tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { planningBeforeClaim, revList } from "./storyCiComparisonFixture.ts";
 import {
   comparisonWorkflow,

@@ -1,4 +1,4 @@
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // The follow-up boundary specs' sources, requests and first-input reading:
 // agent-launch-follow-up-boundary.spec.ts (what the first input holds),
 // agent-launch-follow-up-identity.spec.ts (identity, retries and refusals),

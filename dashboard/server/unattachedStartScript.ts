@@ -4,7 +4,7 @@
 // to its result however long the launch waited for it.
 
 import { realpath } from "node:fs/promises";
-import { unattachedStartPolicy } from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
+import { unattachedStartPolicy } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import {
   unattachedPolicyOf,
   type AgentLaunchRequest,

@@ -4,8 +4,8 @@
 // Intent coverage explains where an assessment saved at wrap-up appears. The rest of the
 // header: ../../../e2e/intent/intent-story-changes.spec.ts.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { storyA } from "../../../tests/support/queued-repository.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { shortRevision } from "../dashboardParts.ts";
 import { expectStackedInOrder } from "../partArrangement.ts";
 import { expect, test } from "../support/preparationPage.ts";

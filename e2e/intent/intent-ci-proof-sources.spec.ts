@@ -33,7 +33,7 @@ import {
   collectedSummary,
   summaryTextZipAnswer,
 } from "../../dashboard/tests/support/ciProofCollected.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { intentSettingsText } from "../../dashboard/tests/support/intentSettingsFile.ts";
 
 test("a published CI summary for a sources location shows its group and file results at their paths", async ({

@@ -11,7 +11,7 @@
 // GitHub and the notification sender are fakes. Checks run every 100 ms,
 // except where a quiet report must be shown before the next check.
 
-import { queuedReadyRepository } from "../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
 import { markDone } from "../../dashboard/tests/agentLaunchBoundary.ts";
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {

@@ -1,4 +1,4 @@
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // What the unattached landing-capture specs assert on a real start origin
 // (./startOrigin.ts) with the synthetic `claude`: a raw launch with its first
 // message, the landing handoff that message and the launch's attempt carry,

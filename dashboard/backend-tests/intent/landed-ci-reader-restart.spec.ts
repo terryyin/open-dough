@@ -2,7 +2,7 @@
 // starts on its own address even when another listener has claimed the old one.
 import http from "node:http";
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import { listenOnReleasedRunnerPort } from "../../tests/support/cursorRunnerRecordedAddress.ts";

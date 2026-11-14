@@ -19,7 +19,7 @@ import {
   stored,
 } from "../../dashboard/tests/support/codexStart.ts";
 import { expectExecutionInput } from "../../dashboard/tests/support/codexStartAssertions.ts";
-import { queuedReadyRepository } from "../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
 import {
   changedReviewRevision,
   queuedIdentity,

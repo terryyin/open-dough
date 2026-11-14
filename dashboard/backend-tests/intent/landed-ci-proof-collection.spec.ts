@@ -3,7 +3,7 @@
 // through the existing artifact reader, then inspect the retained observation.
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiProof } from "../../src/ciProof.ts";
 import { actionsForRuns } from "../../tests/support/baseCiActions.ts";
 import {

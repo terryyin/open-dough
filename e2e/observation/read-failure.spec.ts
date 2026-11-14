@@ -30,8 +30,8 @@ import {
 } from "../../dashboard/tests/refreshJourney.ts";
 import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
 import { describedBacklog } from "../../dashboard/tests/describedRevisions.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import type { BacklogEntry } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import type { BacklogEntry } from "../../Distribution/tests/support/makeMe.mjs";
 
 const revision = "5e".repeat(20);
 const repairPlan = "slice-plans/059-installer-update-report/PLAN.md";

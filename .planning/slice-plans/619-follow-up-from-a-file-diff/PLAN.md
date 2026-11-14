@@ -161,7 +161,7 @@ maintained doc for line numbers.
   follow-up.
 - Local gate: focused specs per slice, as listed. Run the whole dashboard and
   e2e suites once before landing, under `caffeinate -s -i` on AC power, as
-  [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos)
+  [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
   requires.
 - Failure policy: carry [Failing and flaky tests](../../../AGENTS.md#failing-and-flaky-tests)
   as written. A failing or flaky test is a defect to fix. Reproducing it on main

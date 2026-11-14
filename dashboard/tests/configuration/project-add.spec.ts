@@ -3,7 +3,7 @@
 // host records the actual cwd chosen by the product.
 import { mkdirSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { identity } from "../agentLaunchBoundary.ts";
 import { daysAgo, machineHome } from "../machineLaunchRecords.ts";
 import { keepLaunchStore, launchStoreFile } from "../support/launchStore.ts";

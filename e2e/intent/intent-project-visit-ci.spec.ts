@@ -12,7 +12,7 @@ import {
 // an observed hidden trunk or story head refreshes only its own judgment.
 // Reading-place restoration: ../../dashboard/tests/intent/intent-project-visit.spec.ts.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
 import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";

@@ -13,7 +13,7 @@
 // 10; SEED-288#reuse-adapter-equivalent-timing). Its pending attempt is in
 // ../../dashboard/backend-tests/intent/landed-ci-history-pending-sources.spec.ts.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { adapterProject } from "../../dashboard/tests/intentCiAdapterProofProject.ts";
 import {

@@ -1,6 +1,6 @@
 // Canonical MakeMe entries encoded as the collector's own fragments and
 // declaration objects. The collector establishes counts and part statuses.
-import { fragment } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+import { fragment } from "../../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import type { CiProofEntry } from "../../src/ciProof.ts";
 import type { AdapterProofAttempt, ProofRun } from "./ciProofArtifacts.ts";
 

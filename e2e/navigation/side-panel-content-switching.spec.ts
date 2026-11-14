@@ -12,7 +12,7 @@
 // selecting another card leaves the panel as it is. The real `claude` is
 // never reached.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expectSettledPage } from "../../dashboard/tests/dashboardPage.ts";
 import {
   type SidePanelPages,

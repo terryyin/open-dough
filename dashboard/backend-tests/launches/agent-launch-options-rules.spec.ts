@@ -19,7 +19,7 @@ import {
   withoutGroup,
   type OptionsDefinition,
 } from "../../src/commandOptions.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { repoRoot } from "../../tests/support/repositoryRoot.ts";
 
 const [a, b, c, d] = ["--a", "--b", "--c", "--d"];
@@ -219,7 +219,7 @@ test.describe("a launch request's options", () => {
 
 const realDefinition = path.join(
   repoRoot,
-  "src/skills/dough-story-refinement/references/refinement-options.json",
+  "Distribution/src/skills/dough-story-refinement/references/refinement-options.json",
 );
 
 test("the shipped definition is valid and gives every option and focus a summary", () => {

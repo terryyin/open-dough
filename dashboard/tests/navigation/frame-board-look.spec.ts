@@ -27,7 +27,7 @@ import {
 } from "../pageLayout.ts";
 import { publishMovingOrigin, rateLimitedAnswer } from "../publishedOrigin.ts";
 import { describedBacklog } from "../describedRevisions.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { buildOpenDoughReadinessRepo } from "../storyReadinessFixture.ts";
 import {
   sharedDashboardBuild,

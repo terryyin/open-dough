@@ -8,7 +8,7 @@ import {
   followUpCards,
   readFollowUpLedger,
 } from "../../tests/support/ciFollowUpScenario.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { retainedHistory } from "../../tests/support/collectedScopeHistory.ts";
 import { buildKeyOf } from "../../src/landedCiBuildKey.ts";
 import { landedCiHistory } from "../../tests/support/landedCiHistory.ts";

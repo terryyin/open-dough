@@ -13,7 +13,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   summaryProblems,
   unitNoun,
-} from "../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+} from "../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 
 export const FRONTEND_TEST_PROOF_FILE = "frontend-test-proof.md";
 

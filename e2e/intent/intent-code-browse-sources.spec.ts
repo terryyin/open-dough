@@ -29,7 +29,7 @@ import {
   publishIntentProject,
   shellCheck,
 } from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test("Intent lists sources locations' Bash, Node and Java files, opens each with its hint's styling, and reads unhinted or ungrammared files as plain text", async ({
   page,

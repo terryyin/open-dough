@@ -12,7 +12,7 @@ hosts; the per-run [proof record](proof-record.md), the caller-owned
 transcript CI's proof fragments are written from; and
 [CI shards](shards.md) for allocation, recorded times and deadlines.
 
-See [local resource use](../../tests/local-test-resources.md) for admission
+See [local resource use](../../Distribution/tests/local-test-resources.md) for admission
 across worktrees, worker settings, cleanup and machine sleep on macOS.
 
 [Intent CI comparison proof](intent-ci-comparison-proof.md) maps fast rule
@@ -175,7 +175,7 @@ unsupported).
 
 ## Adding a test
 
-Use [MakeMe](../../tests/README.md#test-data-architecture) for domain data across
+Use [MakeMe](../../Distribution/tests/README.md#test-data-architecture) for domain data across
 every browser test root. Keep dashboard harness fixtures in this tree.
 
 A **boundary test** goes in `../backend-tests/<feature>/<behavior>.spec.ts`

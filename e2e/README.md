@@ -44,8 +44,8 @@ variant, failure or test-runtime contract at a stable boundary belongs in
 `../dashboard/tests/` are the interim **Dashboard Integrated UI Test** group
 (`npm run test:dashboard:integrated`): detailed UI checks, or mixed specs,
 awaiting that conversion. Workflows reuse the dashboard's fixtures, page objects and
-[MakeMe builders](../tests/README.md#test-data-architecture) from
-`../dashboard/tests/` and `../tests/support/`; follow
+[MakeMe builders](../Distribution/tests/README.md#test-data-architecture) from
+`../dashboard/tests/` and `../Distribution/tests/support/`; follow
 [journey writing](../dashboard/tests/writing-journeys.md) for waits, clocks
 and fake GitHub answers.
 

@@ -5,7 +5,10 @@ import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // ./cursor-runner-replacement.spec.ts.
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { storyA, storyB } from "../../tests/support/queued-repository.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../Distribution/tests/support/queued-repository.mjs";
 import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/runnerPaths.ts";
 import { cursorRunnerSpawnHelper } from "../../dashboard/server/hosts/cursor/runnerSpawnHelper.ts";
 import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";

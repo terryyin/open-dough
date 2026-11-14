@@ -2,8 +2,8 @@
 // original Git boundary semantics even when immutable reads can be reused.
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
-import { git } from "../../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { publishedStoryHistory } from "../../server/publishedStoryHistory.ts";
 import {
   isAncestor as uncachedIsAncestor,

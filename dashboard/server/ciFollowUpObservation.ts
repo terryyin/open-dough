@@ -1,5 +1,5 @@
 // Fresh exact-attempt reads deliberately bypass remembered/pending job caches.
-import { createGitHubActions } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
+import { createGitHubActions } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import { exactRepeatRun, sameRun } from "./ciFollowUpGithub.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { attemptTimingBasis } from "../src/ciAttemptTiming.ts";

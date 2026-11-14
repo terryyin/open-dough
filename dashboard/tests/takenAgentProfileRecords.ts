@@ -3,7 +3,7 @@
 // agents' profiles beside it, plus a malformed profile and a file that is not
 // a profile.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { describedRevision } from "./describedRevisions.ts";
 
 export const repository = "terryyin/open-dough";

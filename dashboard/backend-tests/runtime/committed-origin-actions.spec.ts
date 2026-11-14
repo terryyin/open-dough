@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { test as base, expect } from "../../tests/support/preparationPage.ts";
 import { publishCommittedOrigin } from "../../tests/committedOrigin.ts";
 import { serveActionsFor } from "../../tests/support/storyCiComparisonFixture.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // This contract opens no application page and starts no dashboard server.
 const test = base.extend({

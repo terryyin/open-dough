@@ -14,7 +14,7 @@ import {
 } from "../preparingJourney.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
 import { keepLaunchRecords } from "./launchStore.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { collectAuthenticatedReads } from "./historicalCreditReads.ts";
 

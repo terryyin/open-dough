@@ -11,7 +11,7 @@ import {
   parts,
 } from "../dashboardPage.ts";
 import { browserLocaleString } from "../browserLocale.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   expectRecentlyDone,

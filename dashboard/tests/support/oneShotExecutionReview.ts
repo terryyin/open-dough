@@ -16,8 +16,8 @@ import { context } from "./oneShotLanding.ts";
 import { captureReviewRun, retireReviewRun } from "./oneShotReview.ts";
 import { quote, reportingChild } from "./completionRecovery.ts";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
-import { doneRecordPath } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import { doneRecordPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 
 export async function completedExecution(
   dashboard: DashboardServer,

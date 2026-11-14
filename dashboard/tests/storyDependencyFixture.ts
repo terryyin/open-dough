@@ -2,8 +2,8 @@
 import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import type { normalizeStoryDependency } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import type { normalizeStoryDependency } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   queuedSeedWithDependencies,
   readyStoryState,
@@ -12,12 +12,12 @@ import {
   roughStoryC,
   storyA,
   storySeed,
-} from "../../tests/support/queued-repository.mjs";
-import { direction } from "../../tests/support/product-backlog-fixture.mjs";
+} from "../../Distribution/tests/support/queued-repository.mjs";
+import { direction } from "../../Distribution/tests/support/product-backlog-fixture.mjs";
 import type {
   RevisionFacts,
   StoryState,
-} from "../../tests/support/repositoryTestData.mjs";
+} from "../../Distribution/tests/support/repositoryTestData.mjs";
 import { test as base } from "./dashboardTest.ts";
 import {
   queuedOriginRepository,
@@ -38,7 +38,7 @@ export const decision =
   "Which endpoint compatibility behavior does the consumer promise?";
 const cli = path.join(
   repoRoot,
-  "src/skills/dough-product-backlog/scripts/product-backlog.mjs",
+  "Distribution/src/skills/dough-product-backlog/scripts/product-backlog.mjs",
 );
 
 export const test = base.extend<StartOriginFixtures>({

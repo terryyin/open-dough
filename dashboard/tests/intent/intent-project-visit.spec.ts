@@ -8,7 +8,7 @@ import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // No-story landing: ./intent-ci-status-homepage.spec.ts.
 
 import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciPanel } from "../intentCiStatusPage.ts";
 import { projectReads } from "../intentProjectVisitPage.ts";
 import {

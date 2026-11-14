@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Command surface of scripts/share-deal.mjs (tests/test-shares.md).
+// Command surface of scripts/share-deal.mjs (Distribution/tests/test-shares.md).
 // scripts/test-jobs.sh runs `share`; contributors run `preview` and `refresh`.
 // `runner-factor` prints `<factor><TAB><label>` for scripts/test-budget.sh.
 //
@@ -112,7 +112,7 @@ function listNodeSuiteJobs(testDir) {
 // A browser test group's spec files under ROOT of specDir, as its
 // configuration discovers them (dashboard/tests/support/testFiles.mjs).
 // Imported only when used: the runner's tests copy this module and
-// share-deal.mjs without the dashboard tree (tests/helpers/copy-runner.bash).
+// share-deal.mjs without the dashboard tree (Distribution/tests/helpers/copy-runner.bash).
 async function listDashboardSpecFiles(specDir, root) {
   const { dashboardSpecFiles } = await import(
     new URL("../dashboard/tests/support/testFiles.mjs", import.meta.url)
@@ -144,7 +144,7 @@ async function previewCommand(argv) {
     throw new TestSharesError("FAIL: preview takes --root with --spec-dir.");
   const shareCount = Number(options["split-count"]);
   const specDir = options["spec-dir"];
-  const testDir = options["test-dir"] ?? "tests";
+  const testDir = options["test-dir"] ?? "Distribution/tests";
   const suiteDir = specDir ?? testDir;
   const listPath = options.list ?? `${suiteDir}/longest-first`;
   const budgetPath =

@@ -4,7 +4,7 @@
 // journey is ../../../e2e/sessions/session-unread-report.spec.ts.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchWithState } from "../../src/agentLaunch.ts";
 import {
   alertReading,

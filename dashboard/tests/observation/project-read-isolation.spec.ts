@@ -14,7 +14,7 @@ import {
   sharedStoryIdentity,
 } from "../doughnutProject.ts";
 import { describedRevisions, publishedFile } from "../describedRevisions.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { focusCanonicalRecord, storyCard } from "../storyCardControls.ts";
 import { projectTab } from "../projectChoice.ts";
 import {

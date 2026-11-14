@@ -1,6 +1,6 @@
 // Real target transitions and Taken judgment/comparison coupling. Fast reading
 // facets live in backend-tests/intent/ci-comparison-client-scopes.spec.ts.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
   expect,

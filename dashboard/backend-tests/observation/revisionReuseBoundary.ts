@@ -5,7 +5,7 @@
 // `gh` call GitHub received described by kind, path, and revision pair.
 
 import { z } from "zod";
-import { parseDoneCatalog } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import { parseDoneCatalog } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   developmentBoundary,

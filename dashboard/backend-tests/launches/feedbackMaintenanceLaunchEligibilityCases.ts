@@ -1,6 +1,6 @@
 // Cases registered by ./feedback-maintenance-launch.spec.ts.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { launch, markDone } from "../../tests/agentLaunchBoundary.ts";
 import { expect, test } from "../../tests/dashboardTest.ts";
 import {

@@ -30,7 +30,7 @@ import {
   publishOpenDoughWithCandidates,
 } from "../intentCandidatesFixtures.ts";
 import { doughnut, openDough } from "../intentCodeBrowseFixtures.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const requiredFieldLabels = findingEntryFields
   .filter((field) => field.required)

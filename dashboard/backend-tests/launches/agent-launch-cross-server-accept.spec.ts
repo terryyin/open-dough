@@ -8,11 +8,11 @@
 // The held-lock case observes the second accept reach the locked write through
 // a loader that marks the server's first refused lock acquisition.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keptAttempts as keptOfMachine } from "../../tests/acceptedAttempts.ts";
 import { accept } from "../../tests/agentLaunchBoundary.ts";
 import { answerOf, openSessionRequest } from "./openStorySessionAcceptance.ts";

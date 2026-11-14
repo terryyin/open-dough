@@ -16,13 +16,13 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
-import { materializeLocalCheckout } from "../../../tests/support/repository-fixture.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import type {
   GitPerson,
   RepositoryDescription,
-} from "../../../tests/support/repositoryTestData.mjs";
+} from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 import { requestRunArtifact } from "./runArtifacts.ts";
@@ -145,7 +145,7 @@ export async function prepareStartOrigin(
   directory: string,
   layout: StartOriginLayout,
   repository: StartRepository,
-  source = path.join(repoRoot, "src", "skills"),
+  source = path.join(repoRoot, "Distribution", "src", "skills"),
 ): Promise<void> {
   try {
     const built = await materializeLocalCheckout(

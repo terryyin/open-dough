@@ -63,7 +63,7 @@ runs:
         if [[ -n "${TIMES}" ]]; then times=(--times "${TIMES}"); fi
         unit=()
         if [[ -n "${UNIT}" ]]; then unit=(--unit "${UNIT}"); fi
-        node src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs fragment \
+        node Distribution/src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs fragment \
           "--${FORMAT}" "${REPORT}" "${unit[@]}" "${times[@]}" --by-file "${entries[@]}" --part "${PART}" --of "${PARTS}" \
           --attempt "${GITHUB_RUN_ATTEMPT}" --revision "${CI_PROOF_REVISION}" \
           --out "${RUNNER_TEMP}/ci-proof"

@@ -10,7 +10,7 @@
 // dashboard's own lifecycle is in ./landed-ci-history-lifecycle.spec.ts.
 
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiRunAnswer } from "../../tests/support/baseCiActions.ts";
 import {
   keptLandedCiHistory,

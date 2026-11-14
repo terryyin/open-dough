@@ -6,7 +6,7 @@ import {
   mountComparison,
 } from "../../tests/support/comparisonMountPage.ts";
 import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("Check again disables while a failed whole comparison is read again and recovers its endpoints", async ({
   page,

@@ -20,7 +20,7 @@ hosted-font diagnostic both landed. [DD-426](https://github.com/terryyin/open-do
 is retired after the named timeout and bounded cleanup proof in
 [SEED-289's completion record](.planning/done/SEED-289_name-a-test-job-past-its-deadline.json).
 [DD-435](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/ProjectFindings.md#dd-435)
-is retired after the [local CI container](tests/ci-container.md#hosted-fonts-and-layout-checks)
+is retired after the [local CI container](Distribution/tests/ci-container.md#hosted-fonts-and-layout-checks)
 reproduced both historical overflows and passed the repaired journey. The
 [prior assessment](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/ProjectFindings.md#priority-assessment)
 records the original selection. [DD-473](#dd-473), [DD-479](#dd-479) and the
@@ -139,7 +139,7 @@ DD-243 remains the same finding; its later occurrences are
   - Observed effect: one extra slice and one extra paid Claude run; the second replay still did not reach the delegated-implementer condition.
   - Inference: qualified. Stating the cost changed what the agent knew, which the historical defect depended on; preparation can compare a replay's inputs with each occurrence's recorded context before the first paid launch.
 
-**Response implemented:** `fba97e9fbb90c4f97909a5e2ab899a0031c58308`. The [maintained pre-launch comparison](tests/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch) names the introduced inputs, actor/delegation differences and historical source limits; credential-free checks preserve the quick fixture's stated cost/layout and the planned fixture's absence of those hints. The native outcome remains unobserved: neither retained run reached implementation delegation and a refactor-time move, and this response runs no new native session. Fixture checks do not resolve the historical finding or change ODF-249's settled disposition.
+**Response implemented:** `fba97e9fbb90c4f97909a5e2ab899a0031c58308`. The [maintained pre-launch comparison](Distribution/tests/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch) names the introduced inputs, actor/delegation differences and historical source limits; credential-free checks preserve the quick fixture's stated cost/layout and the planned fixture's absence of those hints. The native outcome remains unobserved: neither retained run reached implementation delegation and a refactor-time move, and this response runs no new native session. Fixture checks do not resolve the historical finding or change ODF-249's settled disposition.
 
 **Observation (2026-10-22):** [SEED-053#match-historical-replay-inputs](.planning/done/SEED-053_match-historical-replay-inputs.json) completed on 2026-10-21; no story remains queued. Keep the finding open until the next paid proof-scheduling replay prepared with the comparison runs: it supports retirement when its inputs match the recorded occurrence context and the run reaches implementation delegation without an extra corrective slice. No such run has occurred since adoption.
 
@@ -264,7 +264,7 @@ unqueued.
 [DD-412](docs/maintainer/project-test-findings.md#dd-412) records two invalidated
 whole-suite runs in one execution and the passing AC-powered retry.
 **Response:** `b52c1d3bdad7369fc1042a5f2744e9ebedadecbe` (2026-11-04) adds
-[machine sleep on macOS](tests/local-test-resources.md#machine-sleep-on-macos)
+[machine sleep on macOS](Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 and points at it from [AGENTS.md](AGENTS.md#failing-and-flaky-tests).
 **Observation criterion:** the next long local run on a macOS laptop follows
 that guard, and a sleep-shaped failure is attributed from `pmset -g log`
@@ -551,7 +551,7 @@ Focused Playwright configuration selection passed; the commit hook's typecheck t
   - Observed effect: One commit refusal and another preparation pass; the typecheck gate contained the test-data typing defect without publishing it.
 
 **Assessment:** Open Dough's Playwright selection and dashboard typecheck are
-separate checks. The [repository proof guide](tests/README.md#waits-fixtures-and-teardown)
+separate checks. The [repository proof guide](Distribution/tests/README.md#waits-fixtures-and-teardown)
 documents the focused typecheck, and the commit hook caught both errors before
 publication. Retain the two occurrences as project evidence. No new story is
 queued.
@@ -570,7 +570,7 @@ queued.
   - Evidence: plan 599 "Repair of G1 after the SEED-330 merge": 20 background burners lifted the load to 30–32 with the machine 57% idle and the slowest case at 8.8 s; 20 foreground burners at load 31 → 48 gave 28.1 s.
   - Observed effect: earlier counted burner passes overstated the fit, and the gap surfaced only after the trunk merge.
 
-**Response:** [Load while measuring](tests/local-test-resources.md#load-while-measuring) records natural load as the measured condition and how to read a burner's priority.
+**Response:** [Load while measuring](Distribution/tests/local-test-resources.md#load-while-measuring) records natural load as the measured condition and how to read a burner's priority.
 
 <a id="dd-496"></a>
 

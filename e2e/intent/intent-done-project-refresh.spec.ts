@@ -4,7 +4,7 @@ import { showLatestRevision } from "../../dashboard/tests/intentReadRecoveryPage
 // Historical file/tab/reading-place continuity through project refresh:
 // ../../dashboard/tests/intent/intent-done-project-refresh-reading.spec.ts.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { pausePageClock } from "../../dashboard/tests/autoRefreshJourney.ts";
 import {
   openProjectIntent,

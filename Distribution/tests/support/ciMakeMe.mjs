@@ -1,0 +1,242 @@
+// @ts-check
+// CI-domain MakeMe builders: defined as accessors so each `makeMe.aThing`
+// access stays a fresh builder while the public entry stays a thin aggregate.
+import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
+import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
+import {
+  PublishedStoryEndpointBuilder,
+  TakenStoryEndpointBuilder,
+} from "./ciComparisonTestData.mjs";
+import { CiProofSummaryBuilder } from "./ciProofSummaryTestData.mjs";
+import { CiProofFragmentBuilder } from "./ciProofFragmentTestData.mjs";
+import {
+  CiAdapterAttemptBuilder,
+  CiTimingJobBuilder,
+} from "./ciTimingTestData.mjs";
+import { LandedCiHistoryBuilder } from "./landedCiHistoryTestData.mjs";
+import { CiProofBuilder } from "./ciProofTestData.mjs";
+import { LandedCiResolutionBuilder } from "./landedCiProofTestData.mjs";
+import {
+  PublishedWorkBuilder,
+  StoryCiComparisonBuilder,
+} from "./comparisonViewTestData.mjs";
+import { CiProofArtifactBuilder } from "./ciProofArtifactTestData.mjs";
+import { DashboardProofRecordBuilder } from "./dashboardProofRecordTestData.mjs";
+import { GitHubJobBuilder } from "./ciJobTestData.mjs";
+import { CiRunBuilder, RevisionCiRunBuilder } from "./ciRunTestData.mjs";
+import { aCiQueueEntry } from "./ciQueueTestData.mjs";
+import { aRevisionCoverage } from "./ciRevisionCoverageTestData.mjs";
+import { ciReusePolicyMakeMeProperties } from "./ciReusePolicyTestData.mjs";
+import { ciComparisonAnswerMakeMeProperties } from "./ciComparisonAnswerTestData.mjs";
+import { copyFacts } from "./factBuilder.mjs";
+
+/** @typedef {import("../../../dashboard/src/ciScopeHistory.ts").ScopeHistoryGlance} ScopeHistoryGlance */
+/** @typedef {import("../../../dashboard/src/storyCiComparisonEntries.ts").ComparisonEndpointProof} ComparisonEndpointProof */
+/**
+ * @template {object} Facts
+ * @typedef {import("./factBuilder.mjs").FactBuilder<Facts>} FactBuilder
+ */
+
+/**
+ * CI builders exposed on MakeMe (fresh on each access).
+ *
+ * @typedef {object} CiMakeMe
+ * @property {FactBuilder<import("../../../dashboard/server/ciFollowUpStore.ts").FollowUpLedger["landings"][string] & { at?: string }>} aCiFollowUpEntry
+ * @property {FactBuilder<import("../../../dashboard/server/ciFollowUpStore.ts").RepeatRequest>} aCiRepeatRequest
+ * @property {import("./ciProofTestData.mjs").CiProofBuilder} aCiProof
+ * @property {FactBuilder<ComparisonEndpointProof>} aComparisonEndpointProof
+ * @property {import("./landedCiProofTestData.mjs").LandedCiResolutionBuilder} aLandedCiResolution
+ * @property {FactBuilder<ScopeHistoryGlance>} aScopeHistoryGlance
+ * @property {import("./comparisonViewTestData.mjs").PublishedWorkBuilder} aPublishedWork
+ * @property {import("./comparisonViewTestData.mjs").StoryCiComparisonBuilder} aStoryCiComparison
+ * @property {import("./ciComparisonTestData.mjs").PublishedStoryEndpointBuilder} aPublishedStoryEndpoint
+ * @property {import("./ciComparisonTestData.mjs").TakenStoryEndpointBuilder} aTakenStoryEndpoint
+ * @property {import("./ciRunTestData.mjs").RevisionCiRunBuilder} aRevisionCiRun
+ * @property {import("./ciProofArtifactTestData.mjs").CiProofArtifactBuilder} aCiProofArtifact
+ * @property {import("./ciTimingTestData.mjs").CiTimingJobBuilder} aCiTimingJob
+ * @property {import("./ciProofEntryTestData.mjs").CiProofEntryBuilder} aCiProofEntry
+ * @property {import("./ciProofEvidenceTestData.mjs").CiProofEvidenceBuilder} aCiProofEvidence
+ * @property {import("./ciProofFragmentTestData.mjs").CiProofFragmentBuilder} aCiProofFragment
+ * @property {import("./ciProofSummaryTestData.mjs").CiProofSummaryBuilder} aCiProofSummary
+ * @property {import("./dashboardProofRecordTestData.mjs").DashboardProofRecordBuilder} aDashboardProofRecord
+ * @property {import("./ciTimingTestData.mjs").CiAdapterAttemptBuilder} aCiAdapterAttempt
+ * @property {FactBuilder<import("./ciQueueTestData.mjs").CiAdapterQueueEntry>} aCiQueueEntry
+ * @property {FactBuilder<import("./ciRevisionCoverageTestData.mjs").RevisionCoverageRecord>} aRevisionCoverage
+ * @property {import("./landedCiHistoryTestData.mjs").LandedCiHistoryBuilder} aLandedCiHistory
+ * @property {import("./ciRunTestData.mjs").CiRunBuilder} aCiRun
+ * @property {import("./ciJobTestData.mjs").GitHubJobBuilder} aGitHubJob
+ * @property {import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe["aCiReusePolicy"]} aCiReusePolicy
+ * @property {import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe["aCiReuseAttempt"]} aCiReuseAttempt
+ * @property {import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe["anIntegratedStatePolicy"]} anIntegratedStatePolicy
+ * @property {import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe["anAnsweredCiRun"]} anAnsweredCiRun
+ * @property {import("./ciComparisonAnswerTestData.mjs").KeptBuildBuilder} aKeptBuild
+ * @property {import("./ciComparisonAnswerTestData.mjs").StoryCiComparisonSlotBuilder} aStoryCiComparisonSlot
+ * @property {import("./ciComparisonAnswerTestData.mjs").IntentCiProofAnswerBuilder} anIntentCiProofAnswer
+ * @property {import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe["aCiProofRun"]} aCiProofRun
+ * @property {import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe["aCiAdapterProofAttempt"]} aCiAdapterProofAttempt
+ * @property {import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe["aCiProofCollectorRun"]} aCiProofCollectorRun
+ * @property {import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe["anAdapterProofCollectorAttempt"]} anAdapterProofCollectorAttempt
+ * @property {import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe["anUnusableBuild"]} anUnusableBuild
+ * @property {FactBuilder<import("../../../dashboard/src/authenticatedIntentCiStatusRead.ts").IntentCiStatus>} anIntentCiStatus
+ */
+
+/** @returns {PropertyDescriptorMap} */
+export function ciMakeMeProperties() {
+  return {
+    aCiFollowUpEntry: {
+      enumerable: true,
+      get() {
+        return { with: copyFacts };
+      },
+    },
+    aCiRepeatRequest: {
+      enumerable: true,
+      get() {
+        return { with: copyFacts };
+      },
+    },
+    aCiProof: {
+      enumerable: true,
+      get() {
+        return new CiProofBuilder();
+      },
+    },
+    aComparisonEndpointProof: {
+      enumerable: true,
+      /** @returns {FactBuilder<ComparisonEndpointProof>} */
+      get() {
+        return { with: copyFacts };
+      },
+    },
+    aLandedCiResolution: {
+      enumerable: true,
+      get() {
+        return new LandedCiResolutionBuilder();
+      },
+    },
+    aScopeHistoryGlance: {
+      enumerable: true,
+      /** @returns {FactBuilder<ScopeHistoryGlance>} */
+      get() {
+        return { with: copyFacts };
+      },
+    },
+    aPublishedWork: {
+      enumerable: true,
+      get() {
+        return new PublishedWorkBuilder();
+      },
+    },
+    aStoryCiComparison: {
+      enumerable: true,
+      get() {
+        return new StoryCiComparisonBuilder();
+      },
+    },
+    aPublishedStoryEndpoint: {
+      enumerable: true,
+      get() {
+        return new PublishedStoryEndpointBuilder();
+      },
+    },
+    aTakenStoryEndpoint: {
+      enumerable: true,
+      get() {
+        return new TakenStoryEndpointBuilder();
+      },
+    },
+    aRevisionCiRun: {
+      enumerable: true,
+      get() {
+        return new RevisionCiRunBuilder();
+      },
+    },
+    aCiProofArtifact: {
+      enumerable: true,
+      get() {
+        return new CiProofArtifactBuilder();
+      },
+    },
+    aCiTimingJob: {
+      enumerable: true,
+      get() {
+        return new CiTimingJobBuilder();
+      },
+    },
+    aCiProofEntry: {
+      enumerable: true,
+      get() {
+        return new CiProofEntryBuilder();
+      },
+    },
+    aCiProofEvidence: {
+      enumerable: true,
+      get() {
+        return new CiProofEvidenceBuilder();
+      },
+    },
+    aCiProofFragment: {
+      enumerable: true,
+      get() {
+        return new CiProofFragmentBuilder();
+      },
+    },
+    aCiProofSummary: {
+      enumerable: true,
+      get() {
+        return new CiProofSummaryBuilder();
+      },
+    },
+    aDashboardProofRecord: {
+      enumerable: true,
+      get() {
+        return new DashboardProofRecordBuilder();
+      },
+    },
+    aCiAdapterAttempt: {
+      enumerable: true,
+      get() {
+        return new CiAdapterAttemptBuilder();
+      },
+    },
+    aCiQueueEntry: {
+      enumerable: true,
+      get() {
+        return aCiQueueEntry();
+      },
+    },
+    aRevisionCoverage: {
+      enumerable: true,
+      get() {
+        return aRevisionCoverage();
+      },
+    },
+    aLandedCiHistory: {
+      enumerable: true,
+      get() {
+        return new LandedCiHistoryBuilder();
+      },
+    },
+    aCiRun: {
+      enumerable: true,
+      get() {
+        return new CiRunBuilder();
+      },
+    },
+    aGitHubJob: {
+      enumerable: true,
+      get() {
+        return new GitHubJobBuilder();
+      },
+    },
+    ...ciReusePolicyMakeMeProperties(),
+    ...ciComparisonAnswerMakeMeProperties(),
+    anIntentCiStatus: {
+      enumerable: true,
+      /** @returns {FactBuilder<import("../../../dashboard/src/authenticatedIntentCiStatusRead.ts").IntentCiStatus>} */
+      get() {
+        return { with: copyFacts };
+      },
+    },
+  };
+}

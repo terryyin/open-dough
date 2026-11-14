@@ -12,7 +12,7 @@
 // ../../backend-tests/intent/landed-ci-history-pending-proof.spec.ts. Gaps
 // among measured builds are in ./intent-ci-wall-time-history-window.spec.ts.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { expect, test } from "../dashboardTest.ts";
 import {

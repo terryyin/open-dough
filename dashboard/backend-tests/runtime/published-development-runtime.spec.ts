@@ -5,7 +5,7 @@ import { existsSync } from "node:fs";
 import { mkdir, readFile, realpath, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { localPublishedMainFixture } from "../../tests/support/publishedMainFixture.ts";
 import { repoRoot } from "../../tests/support/repositoryRoot.ts";

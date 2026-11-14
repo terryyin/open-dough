@@ -73,7 +73,7 @@ Run each group's part through its own command, with ordinary worker, trace
 and timeout settings. Save each run's strict per-case record outside
 disposable output using that group's `<prefix>_PROOF_RECORD` and shared
 preparation events using `OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE`. Follow
-[local resource use](../../tests/local-test-resources.md), including the
+[local resource use](../../Distribution/tests/local-test-resources.md), including the
 maintained macOS sleep guard on AC power.
 
 The replacement-inclusive ordinary selection is:

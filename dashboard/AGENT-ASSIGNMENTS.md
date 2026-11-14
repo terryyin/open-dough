@@ -14,7 +14,7 @@ the card. A profile the shared reader cannot read, or one naming another agent
 than its file, is listed with the Taken Column as unreadable and matched to no
 entry. A revision without a profile directory simply has no profiles. What a
 profile means is decided by the shared profile module under
-`src/skills/dough-product-backlog/scripts/`.
+`Distribution/src/skills/dough-product-backlog/scripts/`.
 
 A queued card named by a published preparation assignment shows **Preparing**
 and that developer's portrait, name, credited human, tool and model, keeping

@@ -1,7 +1,7 @@
 // Keep an ordinary PTY through the actual runner wire protocol. The shell
 // identifies its own process and answers terminal input throughout the journey.
 import { randomUUID } from "node:crypto";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { keepCursorClientAtPort } from "../../dashboard/server/hosts/cursor/runnerClient.ts";
 import type { CursorTerminal } from "../../dashboard/tests/support/cursorTerminal.ts";
 import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";

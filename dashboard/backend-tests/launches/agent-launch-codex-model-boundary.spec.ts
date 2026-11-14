@@ -4,7 +4,7 @@ import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { launchHostOptionsEndpoint } from "../../src/launchHostOptions.ts";
 import { launchSubject, keptStartSchema } from "../../src/agentLaunch.ts";
 import { startRecordSchema } from "../../server/startStore.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 

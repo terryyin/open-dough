@@ -1,6 +1,6 @@
 // Taken observations and source lifetimes through the actual selected-story owner.
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
 import { takenTrunkComparison } from "../../tests/support/comparisonMountSelections.ts";
 import { ciComparisonClient } from "../support/ciComparisonClient.ts";

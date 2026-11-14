@@ -3,7 +3,7 @@ import { comparisonReading } from "../../dashboard/tests/intentCiComparisonPage.
 // newer attempt is running, without an Actions read or a branch-head API
 // request for the comparison itself.
 import path from "node:path";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import { notLandedYetExplanation } from "../../dashboard/src/storyCiComparison.ts";

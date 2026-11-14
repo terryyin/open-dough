@@ -1,4 +1,4 @@
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // An unattached Start session's identity includes its Workspace and After
 // checks choices, over raw HTTP with a real bare origin
 // (../../tests/support/startOrigin.ts), the installed start recorded

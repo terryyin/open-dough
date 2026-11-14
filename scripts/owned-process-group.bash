@@ -4,9 +4,9 @@
 # shellcheck shell=bash
 
 owned_process_group_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-# shellcheck source=tests/helpers/wait-for.bash
+# shellcheck source=Distribution/tests/helpers/wait-for.bash
 # shellcheck disable=SC1091
-source "${owned_process_group_support_dir}/tests/helpers/wait-for.bash"
+source "${owned_process_group_support_dir}/Distribution/tests/helpers/wait-for.bash"
 
 owned_process_group_pgid_of() {
   # shellcheck disable=SC2312 # pgid sampling tolerates a missing process.

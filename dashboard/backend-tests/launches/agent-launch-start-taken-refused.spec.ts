@@ -7,7 +7,7 @@
 import { keptStarts, launch } from "../../tests/agentLaunchBoundary.ts";
 import { expect } from "../../tests/dashboardTest.ts";
 import { queuedIdentity } from "../../tests/support/startOrigin.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, workspaceShown } from "../../tests/keptStartJourney.ts";
 
 test("a refused session launch after a published claim answers the Agent and workspace, the machine names the kept start until a session starts", async ({

@@ -2,7 +2,7 @@
 // identity, not launch age.
 import { tapWhereShown } from "../pageLayout.ts";
 import { browserLocaleString } from "../browserLocale.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   recentlyDoneParts,
   showThreeProjectPage,

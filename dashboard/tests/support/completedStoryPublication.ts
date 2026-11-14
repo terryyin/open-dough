@@ -5,7 +5,7 @@ import path from "node:path";
 import {
   doneRecordFileName,
   type IntentCoverage,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+} from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";

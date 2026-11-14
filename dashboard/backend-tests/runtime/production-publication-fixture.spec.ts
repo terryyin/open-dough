@@ -6,8 +6,8 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { publishedMainFixture } from "../../tests/support/publishedMainFixture.ts";
 import { repoRoot } from "../../tests/support/repositoryRoot.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { publishedMainSourceArtifact } from "../../tests/support/publishedMainSource.ts";
 import { startRunArtifacts } from "../../tests/support/runArtifacts.ts";
 

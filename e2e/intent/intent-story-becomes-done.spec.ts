@@ -1,7 +1,7 @@
 // A retained automatic run from active Intent must yield to the completed
 // result when published work marks the same selected identity Done.
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import {
   storyReviewEndpoint,
   storyReviewSchema,

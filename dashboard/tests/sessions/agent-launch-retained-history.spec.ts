@@ -18,7 +18,7 @@ import { parts } from "../dashboardPage.ts";
 import { sessionDetailsControl } from "../support/sessionEntryDisclosure.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import { givePageItsTurns } from "../pageRequestNotes.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   recentlyDoneParts,
   showRecentlyDone,

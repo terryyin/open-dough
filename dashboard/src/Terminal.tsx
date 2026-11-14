@@ -31,7 +31,7 @@ import { AgentPortrait } from "./AgentPortrait.tsx";
 import { usePortraitPreview } from "./terminalPortraitPreview.ts";
 import { useRowsHeight } from "./terminalRowsHeight.ts";
 import { assignedAgent } from "./launchRecord.ts";
-import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentNameOf } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { useAttachedTerminal } from "./useAttachedTerminal.ts";
 import { useTerminalRecovery } from "./useTerminalRecovery.ts";
 import {

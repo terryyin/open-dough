@@ -16,7 +16,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { ownerlessRequestRoot } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+import { ownerlessRequestRoot } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import { runFixtureExecutablesOnce } from "./fixtureExecutable.ts";
 import { identifyRun } from "./runProcesses.ts";
 import { ownDashboardRun } from "./runLifecycle.ts";

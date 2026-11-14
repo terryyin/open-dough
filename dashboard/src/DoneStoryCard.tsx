@@ -24,7 +24,7 @@
 import { useId, type ReactNode } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
 import type { LaunchRecord } from "./launchRecord.ts";
-import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentNameOf } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { AgentPortrait } from "./AgentPortrait.tsx";
 import { RecordedHost } from "./AssignmentRecords.tsx";
 import type { DoneStory } from "./doneRecord.ts";

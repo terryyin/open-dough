@@ -14,7 +14,7 @@ import {
   openSummaryComparison,
   selectDoneStoryForSummaryComparison,
 } from "../support/selectDoneStoryForSummaryComparison.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 

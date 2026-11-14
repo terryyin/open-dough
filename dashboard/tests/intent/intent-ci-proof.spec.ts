@@ -11,7 +11,7 @@ import {
   run,
 } from "../intentCiProofPage.ts";
 import { expectCiAnswer, judged, runUrl } from "../intentCiStatusPage.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // The CI proof of the run Intent's CI status tab shows a result of
 // (../../src/IntentCiProof.tsx): after the judgment, which reads as it always
 // has, Proof names that run once as short labels -- its linked run and attempt,
@@ -23,7 +23,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 // reason no proof can be shown, a running result's ancestor proof and the
 // per-attempt memory: ../../../e2e/intent/intent-ci-proof-reasons.spec.ts. Query-shape refusals
 // of `parseIntentCiProofRead`:
-// ../../../tests/support/dashboard-ci-proof-parse.test.mjs.
+// ../../../Distribution/tests/support/dashboard-ci-proof-parse.test.mjs.
 
 import { expect, test } from "../dashboardTest.ts";
 

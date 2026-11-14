@@ -4,7 +4,7 @@
 // first-parent path. Completed story setup lives in ./completedPublishedStory.ts.
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { authoredBy, commitAllAs, push } from "./storyReviewTrunkCommits.ts";

@@ -22,7 +22,7 @@ import {
 } from "./intentCiStoryBoard.ts";
 import { notFoundAnswer, type OriginAnswer } from "./originAnswers.ts";
 import { publishMovingFiles, type MovingFiles } from "./publishedFiles.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   actionsRunsAnswer,
   actionsWorkflowAnswer,

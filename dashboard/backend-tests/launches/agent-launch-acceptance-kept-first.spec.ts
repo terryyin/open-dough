@@ -6,7 +6,7 @@
 // replacement whose new document first carries the held field. The launch's
 // own lifetime is ./agent-launch-acceptance.spec.ts.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -27,7 +27,7 @@ import {
   type StartOrigin,
 } from "../../tests/support/startOrigin.ts";
 import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const request = makeMe.aLaunchRequest
   .executing({ identity: queuedIdentity, title: queuedTitle })

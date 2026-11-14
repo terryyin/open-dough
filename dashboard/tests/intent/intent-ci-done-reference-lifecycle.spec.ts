@@ -7,7 +7,7 @@ import {
 // CI state transitions move the independent local history between the gap
 // and the shown comparison; they cannot own, reread or discard it.
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../support/preparationPage.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
 import { doneWallReferenceHistory } from "../support/doneWallReferenceHistory.ts";

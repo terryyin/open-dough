@@ -1,7 +1,7 @@
 // Story A's launch record naming its worktree (./storyReviewWorktree.ts),
 // kept in the machine launch store (./launchStore.ts).
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { keepLaunchRecords } from "./launchStore.ts";

@@ -14,7 +14,7 @@
 
 ## Context
 
-Client projects need complete, standalone Open Dough guidance that remains
+Client projects need complete, standalone guidance from Open Dough Distribution that remains
 straightforward to update. Their installations should carry only what serves
 that purpose.
 

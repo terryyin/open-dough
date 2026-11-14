@@ -5,8 +5,8 @@
 // (./ciFollowUpScenario.ts) states the run it admits, saved requests
 // (./ciFollowUpSavedRequests.ts) the runs they name, and a kept landing
 // (./ciFollowUpKeptLanding.ts) the run of its landed revision.
-import { apiJob } from "../../../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { apiJob } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { KeptBuild } from "../../server/landedCiObservation.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import type { CiRunAnswer } from "./baseCiActions.ts";

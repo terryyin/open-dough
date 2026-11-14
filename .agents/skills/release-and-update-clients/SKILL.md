@@ -7,7 +7,7 @@ description: Publishes an Open Dough release and updates, commits, and pushes it
 
 This is an internal Open Dough maintainer skill. Keep its source here, with only
 a Claude Code discovery pointer under `.claude/skills/`. Do not add it to
-`src/skills/` or `install.sh`'s released payload. Follow the
+`Distribution/src/skills/` or `install.sh`'s released payload. Follow the
 [maintainer guidance](../../../AGENTS.md) when changing or reviewing it.
 
 Invocation requests the complete workflow: compose release notes, finalize and

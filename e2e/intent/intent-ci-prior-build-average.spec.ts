@@ -6,7 +6,7 @@ import {
 // Settled retained producer observations and a collected selected attempt
 // traverse the normal authenticated history read, never a fixture average.
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   buildEvidenceRows,
   buildHistoryReading,

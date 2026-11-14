@@ -10,7 +10,7 @@ import {
   runningStarts,
 } from "../../tests/agentLaunchBoundary.ts";
 import { queuedIdentity } from "../../tests/support/startOrigin.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });

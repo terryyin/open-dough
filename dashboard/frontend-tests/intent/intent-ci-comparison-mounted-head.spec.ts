@@ -8,7 +8,7 @@ import {
 } from "../../tests/support/comparisonMountPage.ts";
 import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
 import { takenTrunkComparison } from "../../tests/support/comparisonMountSelections.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("a Taken comparison keeps the same observed tip and reads again once that tip changes", async ({
   page,

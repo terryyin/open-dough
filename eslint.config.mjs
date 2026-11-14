@@ -102,9 +102,9 @@ export default defineConfig(
       "dashboard/backend-tests/**",
       "e2e/**",
       "tests/**",
-      "src/skills/*/scripts/**/*.test.mjs",
-      "src/skills/*/scripts/**/*-cases.mjs",
-      "src/skills/*/scripts/**/*fixture*.mjs",
+      "Distribution/src/skills/*/scripts/**/*.test.mjs",
+      "Distribution/src/skills/*/scripts/**/*-cases.mjs",
+      "Distribution/src/skills/*/scripts/**/*fixture*.mjs",
     ],
     rules: {
       "no-restricted-syntax": [
@@ -113,7 +113,7 @@ export default defineConfig(
           selector:
             "CallExpression[callee.object.name='process'][callee.property.name='cwd']",
           message:
-            "Do not take the repository root from the working directory. Use `repoRoot` from dashboard/tests/support/repositoryRoot.ts in dashboard tests, or `checkoutRoot` from src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs elsewhere.",
+            "Do not take the repository root from the working directory. Use `repoRoot` from dashboard/tests/support/repositoryRoot.ts in dashboard tests, or `checkoutRoot` from Distribution/src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs elsewhere.",
         },
       ],
     },

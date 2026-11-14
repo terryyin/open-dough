@@ -7,7 +7,7 @@ import {
 // sessions stay local Taken; completion time orders cards, and local retention
 // preserves a closed standalone session after its published card expires.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import {
   expectMembership,

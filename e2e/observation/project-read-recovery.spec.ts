@@ -34,8 +34,8 @@ import {
   type MovingOrigin,
   type OriginAnswer,
 } from "../../dashboard/tests/publishedOrigin.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import type { Backlog } from "../../tests/support/repositoryTestData.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import type { Backlog } from "../../Distribution/tests/support/repositoryTestData.mjs";
 
 const doughnutRepository = "nerds-odd-e/doughnut";
 const pygardonRepository = "terryyin/pygardon";

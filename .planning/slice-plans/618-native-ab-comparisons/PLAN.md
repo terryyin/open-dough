@@ -227,7 +227,7 @@ own amendment/acceptance. Revisit the cited North Star during normal wrap-up.
   counterexamples, focused case proof, required native qualification/pairs,
   applicable lint/typecheck and normal refactoring/review before commit.
   Exposure of shared helpers includes their existing fixture-family consumers.
-  Full runs follow [resource admission](../../../tests/local-test-resources.md).
+  Full runs follow [resource admission](../../../Distribution/tests/local-test-resources.md).
   On fully awake macOS use `caffeinate -s -i` for long/full runs on AC power;
   on battery plug in, or use the maintained lid-open `caffeinate -i` alternative
   and inspect the sleep log. Own published CI through the applicable final

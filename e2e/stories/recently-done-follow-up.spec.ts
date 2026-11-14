@@ -41,7 +41,7 @@ import {
 } from "../../dashboard/tests/support/followUpStories.ts";
 import { radio } from "../../dashboard/tests/support/sessionDialog.ts";
 import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
 import { readFinalReportControl } from "../../dashboard/tests/finalReportPages.ts";
 

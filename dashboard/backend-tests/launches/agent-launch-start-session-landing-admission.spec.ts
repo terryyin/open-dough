@@ -13,7 +13,7 @@
 
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { keptAttempts } from "../../tests/acceptedAttempts.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";

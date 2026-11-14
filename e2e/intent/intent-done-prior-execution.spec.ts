@@ -2,8 +2,8 @@
 // Done Intent must read that completion, not the earlier retained increment.
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import {
   storyReviewEndpoint,

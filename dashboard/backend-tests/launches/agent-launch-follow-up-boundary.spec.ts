@@ -8,7 +8,7 @@
 // ../../../e2e/launches/agent-launch-follow-up-session.spec.ts.
 
 import { realpathSync } from "node:fs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
 import { stored } from "../../tests/support/codexLaunch.ts";
 import { followUpOf } from "../../tests/support/followUpSources.ts";

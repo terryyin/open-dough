@@ -10,7 +10,7 @@
 // and context, and origin is untouched at start (no profile, Take, branch, or
 // push).
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { realpathSync } from "node:fs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";

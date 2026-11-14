@@ -10,9 +10,9 @@
 
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
-import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
+import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import { intentSettingsText } from "./intentSettingsFile.ts";
 

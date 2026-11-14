@@ -22,7 +22,7 @@ import {
 } from "../tests/intentScopeProofPage.ts";
 import { expectStackedInOrder } from "../tests/partArrangement.ts";
 import { entryComparisonRows } from "../tests/support/summaryComparisonExpectedRows.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
 
 test("a failed local entry history read keeps the selected Done story and comparison and offers its own retry", async ({

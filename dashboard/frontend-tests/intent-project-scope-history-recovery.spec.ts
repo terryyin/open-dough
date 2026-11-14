@@ -6,7 +6,7 @@ import {
 } from "../tests/intentScopeHistoryPage.ts";
 // Cheap Project Intent refusal/absence and configured-trunk variants. The
 // integrated journey owns real collection; these routes exercise only the UI.
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { parts } from "../tests/dashboardPage.ts";
 import { openSummary } from "../tests/intentSummaryCiProofFixtures.ts";
 import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";

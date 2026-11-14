@@ -1,4 +1,4 @@
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // Endpoint proof summaries for Intent Summary CI timing comparison
 // (./intentSummaryStoryComparisonFixture.ts): file-breakdown proofs for
 // baseline / branch / landed, a baseline without breakdowns, and a landed

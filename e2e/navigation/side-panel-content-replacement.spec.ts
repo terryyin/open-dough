@@ -5,7 +5,7 @@
 // divider shares terminal/review resizing behavior.
 
 import { expect } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { keyStep } from "../../dashboard/tests/sidePanelWidthPage.ts";
 import { sidePanelPages } from "../../dashboard/tests/sidePanelPages.ts";
 import { holdReviewOf } from "../../dashboard/tests/support/holdReviewResponse.ts";

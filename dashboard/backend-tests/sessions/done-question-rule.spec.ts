@@ -5,7 +5,7 @@
 // record; the page journeys are ./agent-launch-done-question*.spec.ts.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { stillWorking, waitingForInput } from "../../tests/support/markDone.ts";
 import type { CompletionReport } from "../../src/completionReport.ts";
 import type { SessionState } from "../../src/launchRecord.ts";

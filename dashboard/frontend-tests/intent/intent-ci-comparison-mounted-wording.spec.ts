@@ -1,6 +1,6 @@
 import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
 // Named builds, source cues and overall observed metrics use the production UI.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiTimeWithoutRunnerWaits } from "../../src/storyCiComparison.ts";
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { renderComparison } from "../../tests/support/comparisonRendering.ts";

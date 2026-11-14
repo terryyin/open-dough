@@ -12,9 +12,9 @@ import { expectCiAnswer } from "../../dashboard/tests/intentCiStatusPage.ts";
 // with no counts and the verdict unchanged, and Check again reads both again.
 // An adapter attempt's shown proof: ./intent-ci-proof-adapter.spec.ts; a
 // time limit or non-JSON answer:
-// ../../tests/support/dashboard-ci-adapter-proof.test.mjs.
+// ../../Distribution/tests/support/dashboard-ci-adapter-proof.test.mjs.
 
-import { SUMMARY_READ_LIMIT_BYTES } from "../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
+import { SUMMARY_READ_LIMIT_BYTES } from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import { expectAttemptAt } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
 import {

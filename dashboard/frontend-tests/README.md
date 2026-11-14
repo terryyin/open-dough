@@ -12,12 +12,12 @@ explicit route/WebSocket service substitutes, without starting
   substitutes from `../tests/support/frontendServiceSubstitutes.ts`.
 
 - Mounted production-component specs import `test` from
-  `../../tests/support/comparisonMountPage.ts` or take `comparisonRenderer`
+  `../../Distribution/tests/support/comparisonMountPage.ts` or take `comparisonRenderer`
   from `pageTest.ts`; they render actual components and CSS from prepared
   answers (`intent/`).
 
 Dashboard harness helpers and fixtures stay in `../tests/`. Use the shared
-[MakeMe library](../../tests/README.md#test-data-architecture) for domain data.
+[MakeMe library](../../Distribution/tests/README.md#test-data-architecture) for domain data.
 A spec moved from an integrated feature folder keeps that folder name here
 (`intent/`), beside the specs extracted earlier at this root; a module that
 registers cases for a spec moves with it. Representative workflows live in

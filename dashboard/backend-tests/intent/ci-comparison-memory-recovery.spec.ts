@@ -1,5 +1,5 @@
 // Transient acquisition failures are retried in the same real read process.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { start, branch } from "../support/comparisonRead.ts";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
 import {

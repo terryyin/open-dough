@@ -12,7 +12,7 @@ import {
   workingCount,
   workingWords,
 } from "../../src/sessionShown.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("awaiting first instruction is excluded; only native Working counts among unsettled peers", () => {
   const sessions = [

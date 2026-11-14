@@ -4,14 +4,14 @@
 // when each profile was added (its Take), relative to the page's opening
 // time.
 
-import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type {
   AgentProfile,
   Backlog,
   RevisionFacts,
-} from "../../tests/support/repositoryTestData.mjs";
+} from "../../Distribution/tests/support/repositoryTestData.mjs";
 import { describedFiles } from "./describedRevisions.ts";
 import { addedAt, type PathHistories } from "./pathHistoryAnswers.ts";
 

@@ -9,7 +9,7 @@
 // `claude` (./fixtures/fake-claude) stands in for Claude Code.
 
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   accept,
   attempts,

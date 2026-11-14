@@ -79,11 +79,11 @@ jobs:
         run: npm run typecheck:dashboard
 
   # `npm test` runs one job per matrix share, each running its share of the
-  # discovered checks (OPEN_DOUGH_TEST_SPLIT, tests/runner-settings.md), failing
+  # discovered checks (OPEN_DOUGH_TEST_SPLIT, Distribution/tests/runner-settings.md), failing
   # on its own failing check or time-budget breach. The matrix lists only the
   # shares; everything else takes the count from strategy.job-total.
-  test:
-    name: test (${{ matrix.share }}/${{ strategy.job-total }})
+  distribution-tests:
+    name: Distribution Tests (${{ matrix.share }}/${{ strategy.job-total }})
     runs-on: ubuntu-24.04
     timeout-minutes: 6
     strategy:
@@ -108,7 +108,7 @@ jobs:
       - name: Install npm dependencies
         run: node scripts/setup-native.mjs npm
       # Cancellation signals only this step's pid; `exec` makes npm/the runner that process.
-      - name: Run test
+      - name: Run Distribution Tests
         id: suite
         env:
           OPEN_DOUGH_TEST_SPLIT: ${{ matrix.share }}/${{ strategy.job-total }}
@@ -124,15 +124,15 @@ jobs:
           path: ${{ runner.temp }}/test-times.txt
           if-no-files-found: ignore
           retention-days: 7
-      # This share's tests and src/skills files: one outcome per check file.
+      # This share's Distribution Tests: one outcome per check file.
       - name: Keep the CI proof fragments
         if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
         uses: ./.github/actions/ci-proof-fragments
         with:
-          producer: test
+          producer: distribution-tests
           part: ${{ matrix.share }}
           parts: ${{ strategy.job-total }}
-          entries: tests src/skills
+          entries: Distribution
           report-format: outcomes
           unit: file
           report: ${{ runner.temp }}/test-outcomes.txt
@@ -140,7 +140,7 @@ jobs:
 
   # The browser test groups, which `npm test` never discovers: each is its own
   # producer (./browser-test-group.yml) with its own command, settings,
-  # shards, duration list, outputs and CI proof entry (tests/README.md).
+  # shards, duration list, outputs and CI proof entry (Distribution/tests/README.md).
   e2e:
     uses: ./.github/workflows/browser-test-group.yml
     with:
@@ -178,7 +178,7 @@ jobs:
   # ended, against declared Intent locations, parts and units their reports give.
   ci-proof:
     needs:
-      - test
+      - distribution-tests
       - e2e
       - dashboard-integrated
       - dashboard-frontend
@@ -195,5 +195,5 @@ jobs:
       - name: Summarize CI proof
         uses: ./.github/actions/ci-proof-summary
         with:
-          expect: e2e=6:case dashboard/tests=5:case dashboard/frontend-tests=1:case dashboard/backend-tests=4:case tests=4:file src/skills=4:file
+          expect: e2e=6:case dashboard/tests=5:case dashboard/frontend-tests=1:case dashboard/backend-tests=4:case Distribution=4:file
           frontend-entry: dashboard/frontend-tests

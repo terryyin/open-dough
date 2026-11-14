@@ -7,8 +7,8 @@
 // Taken publishers in ./intentSummaryStoryComparisonVariantPublishers.ts.
 
 import type { Page } from "@playwright/test";
-import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import {
   advanceCompletedTrunk,
   completedPublishedStory,

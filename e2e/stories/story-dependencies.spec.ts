@@ -1,4 +1,4 @@
-import { queuedReadyRepository } from "../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
 import {
   passTimeUntilChecked,
   pausePageClock,

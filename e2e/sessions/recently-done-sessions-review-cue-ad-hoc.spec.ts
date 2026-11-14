@@ -1,6 +1,6 @@
 // Real published completion, confirmed association and local review saves.
 import path from "node:path";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   expect,
   queuedCodexPreviewTest as test,

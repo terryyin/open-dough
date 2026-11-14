@@ -2,8 +2,11 @@
 // not started; one failing revive leaves Recover on that entry while
 // siblings resume. Companion to ./cursor-runner-replacement.spec.ts.
 import path from "node:path";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { storyA, storyB } from "../../tests/support/queued-repository.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../Distribution/tests/support/queued-repository.mjs";
 import { hangupCursorClient } from "../../dashboard/server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/runnerPaths.ts";
 import {

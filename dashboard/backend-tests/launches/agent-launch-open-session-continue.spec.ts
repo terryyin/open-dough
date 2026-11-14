@@ -2,8 +2,8 @@
 // another open session of that story remains, and accepted when the only open
 // record is that attempt's own launched session.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { randomUUID } from "node:crypto";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { sessionOpen } from "../../server/launchAttemptConflicts.ts";

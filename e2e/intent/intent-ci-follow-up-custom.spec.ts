@@ -3,7 +3,7 @@ import {
   expect,
   queuedClaudePreviewTest as test,
 } from "../../dashboard/tests/support/preparationPage.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { keepFollowUpEntries } from "../../dashboard/tests/support/ciFollowUpScenario.ts";
 import { publishIntentTrunk } from "../../dashboard/tests/support/intentStoryWorktree.ts";
 import { completedPublishedStory } from "../../dashboard/tests/support/completedPublishedStory.ts";

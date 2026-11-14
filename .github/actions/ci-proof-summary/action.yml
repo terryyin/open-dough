@@ -38,7 +38,7 @@ runs:
         read -r -a declarations <<< "${EXPECT}"
         for declaration in "${declarations[@]}"; do expect+=(--expect "${declaration}"); done
         mkdir -p -- "${RUNNER_TEMP}/ci-proof-fragments"
-        node src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs summarize \
+        node Distribution/src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs summarize \
           --fragments "${RUNNER_TEMP}/ci-proof-fragments" "${expect[@]}" \
           --repository "${GITHUB_REPOSITORY}" --run-id "${GITHUB_RUN_ID}" --attempt "${GITHUB_RUN_ATTEMPT}" \
           --revision "${CI_PROOF_REVISION}" --out "${RUNNER_TEMP}/ci-proof-summary.json"

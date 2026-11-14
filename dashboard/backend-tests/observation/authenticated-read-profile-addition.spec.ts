@@ -16,7 +16,7 @@ import {
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   backlogApart,
   describedRevision,

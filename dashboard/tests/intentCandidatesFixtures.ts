@@ -10,7 +10,7 @@ import {
   publishIntentProject,
   shellCheck,
 } from "./intentCodeBrowseFixtures.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export { testOptimizationCandidatesPath };
 

@@ -12,7 +12,7 @@ import {
   otherQueuedIdentity,
 } from "../../tests/support/startOrigin.ts";
 import type { StartRecord } from "../../server/startStore.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ serverMode: "boundary", preparationHost: "codex" });
 

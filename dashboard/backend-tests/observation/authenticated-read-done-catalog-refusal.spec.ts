@@ -31,7 +31,7 @@ import {
   publishedDone,
   revisionOf,
 } from "../../tests/support/doneCatalogReads.ts";
-import { doneCatalogFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import { doneCatalogFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 
 test.describe.configure({ mode: "serial" });
 

@@ -1,7 +1,7 @@
 // One selected case's source survives a newer revision and an outstanding or
 // failed file read. Each recovery alternative keeps its own causal protocol.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { parts, shortRevision } from "../dashboardParts.ts";

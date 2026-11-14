@@ -9,7 +9,7 @@
 import path from "node:path";
 import { writeFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";

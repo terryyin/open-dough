@@ -5,7 +5,7 @@
 // open or for a page (../intentCiHistoryPage.ts); and a run as the history
 // read answers it.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { OriginAnswer } from "../originAnswers.ts";
 import { notFoundAnswer } from "../originAnswers.ts";
 import { actionsForRuns, type CiRunAnswer } from "./baseCiActions.ts";

@@ -2,7 +2,7 @@
 // the old preview still owns a native start that must settle before B serves.
 import type { APIRequestContext } from "@playwright/test";
 import { readFile, rm, writeFile } from "node:fs/promises";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   acquireWriteLock,
   releaseWriteLock,
