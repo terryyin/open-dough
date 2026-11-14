@@ -1,158 +1,237 @@
 # Native usage recovery on 2026-11-15
 
-This is the recovery investigation and eventual machine-local receipt for
-[SEED-358](../../.planning/seeds/SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history).
-The [stored record and report definitions](../../dashboard/USAGE-HISTORY.md)
-apply. Counts describe retained local evidence, not provider-wide accounting.
-No prompts or transcript bodies are reproduced here.
-
-The first bounded real usage snapshot has been published and read successfully.
-The active plan's slice 7 still owns the second full native import, record-level
-repeat reconciliation, and the final accounting/coverage report. Earlier failures
-below remain diagnostic evidence; the successful capacity receipt appears last.
+Two full imports on the final interpretation completed successfully, followed by
+fresh bounded reads and raw-evidence reconciliation. This receipt accounts for
+retained local Codex and Claude Code evidence in the six configured projects.
+Counts are not provider-wide or billing totals. No prompts or transcript bodies
+are reproduced here. The [record and report definitions](../../dashboard/USAGE-HISTORY.md)
+apply; [earlier diagnostics](usage-history-recovery-diagnostics-2026-11-15.md)
+preserve the historical capacity and repair observations.
 
 ## Reproduction and runtime
 
-The cutoff is `2026-09-16T00:00:00+08:00`, midnight Asia/Singapore,
-which is `2026-09-15T16:00:00Z`. Native roots are `~/.codex/sessions`,
-`~/.codex/archived_sessions`, and `~/.claude/projects`. The production roster
-contains Open Dough (`terryyin/open-dough`), Doughnut
-(`nerds-odd-e/doughnut`), Pygardon (`terryyin/pygardon`), Terry Talks
-(`terryyin/terry-talks`), Lizard (`terryyin/lizard`), and hidden Clipboard
-(`terryyin/clipboard`). All six are included.
+The cutoff is `2026-09-16T00:00:00+08:00`, midnight Asia/Singapore
+(`2026-09-15T16:00:00Z`). Counts below use recorded in-window activity, not
+conversation creation dates. Native inputs were live during each scan, rather
+than frozen atomically. Home was `/Users/terryyin`; source roots were
+`~/.codex/sessions`, `~/.codex/archived_sessions`, and `~/.claude/projects`.
 
-From the story checkout, with Node 24.21.0:
+| Project | Repository | Local checkout | Hidden |
+| --- | --- | --- | --- |
+| Open Dough | `terryyin/open-dough` | `~/git/open-dough` | no |
+| Doughnut | `nerds-odd-e/doughnut` | `~/git/doughnut` | no |
+| Pygardon | `terryyin/pygardon` | `~/git/pygardon` | no |
+| Terry Talks | `terryyin/terry-talks` | `~/git/terry-talks` | no |
+| Lizard | `terryyin/lizard` | `~/git/lizard` | no |
+| Clipboard | `terryyin/clipboard` | `/Users/terryyin/git/clipboard` | yes |
+
+Both runs used this exact command from the story checkout:
 
 ```sh
-caffeinate -s -i node dashboard/server/importUsageHistory.ts import \
+caffeinate -s -i /usr/bin/time -lp \
+  /opt/homebrew/Cellar/node@24/24.21.0_1/bin/node \
+  dashboard/server/importUsageHistory.ts import \
   --since '2026-09-16T00:00:00+08:00'
-node dashboard/server/importUsageHistory.ts read
 ```
 
-The existing machine store is `~/.open-dough/dashboard/launch-history/usage.json`.
-The importer uses its existing document lock and durable atomic manifest replacement,
-with immutable bounded pages in `usage.json.pages/`,
-while the dashboard remains running. Native evidence is read only. No native
-session, provider request, scheduler, or workflow write is involved.
+Checkout: `/Users/terryyin/git/open-dough/.worktrees/reconstruct-codex-and-claude-code-usage-history`.
+Both used clean published HEAD `be0a53bcd8c2a7208310f7829d834dd0a96bfcb6` and identical executable source
+fingerprint `8fb066b9324775e095dfba2a2f4e887c97b8d28f2f1c18dbd73d07c134a55ab1`.
+The exact sorted path/SHA-256 manifests cover 938 files: `.ts`/`.tsx` under
+`dashboard/server` and `dashboard/src`, plus `package-lock.json` and `.node-version`.
+Documentation changes after the scans do not change this fingerprint.
 
-Before the corpus run, the actual CLI fixtures passed under the default quiet
-reporter, including older-root/in-window-worker accounting, tilde checkout
-resolution, unknown/unassigned/excluded populations, undated tasks, replay, and
-fresh-process persisted reads. Dashboard typecheck, the project configuration
-boundary, and credential-free native evidence identity checks also passed.
+Node was 24.21.0 at the executable above; `NODE_OPTIONS` was unset and the
+default heap stayed 4,496,293,888 bytes. Runs were serial under `caffeinate -s -i`
+on AC power at 100% charge. Preflight memory was 65% free; disk headroom was
+148.66 GiB then 148.13 GiB. The dashboard and unrelated
+Claude workload stayed running; no other owned heavy proof ran concurrently.
 
-The Mac was on AC power at 100% charge, with 65% memory free and 151 GiB disk
-available. One serial streaming importer ran under `caffeinate -s -i`; no other
-owned proof was active at launch. An unrelated CPU-bound Claude test and the
-running dashboard were left untouched. A preliminary scan was interrupted
-before persistence to tighten window labeling; its terminal SIGINT receipt is
-retained separately and is not counted as a successful recovery.
+| Import (UTC interval) | Duration | Maximum RSS | Exit |
+| --- | ---: | ---: | ---: |
+| `terminal-first`: 2026-11-14T21:32:16.737760Z → 2026-11-14T21:39:37.000460Z | 440.195 s | 4,295,213,056 bytes | 0 |
+| `terminal-repeat`: 2026-11-14T21:41:36.740712Z → 2026-11-14T21:48:55.035602Z | 438.244 s | 4,482,842,624 bytes | 0 |
 
-Exact reports, runtime records, source manifests, fresh stored reads and replay
-reconciliation are retained below the machine store at
-`import-reports/2026-11-15/`. These contain normalized metadata and measurements,
-never raw transcript content. The runtime records include the software HEAD,
-exact command, source fingerprint, roster, roots, and start/end boundaries.
-The source fingerprint hashes the sorted path and SHA-256 manifest of all
-`dashboard/server` and `dashboard/src` TypeScript, `package-lock.json`, and
-`.node-version`, so it identifies the uncommitted candidate as well as HEAD.
-The native evidence files are streamed during a live interval, rather than frozen as an
-atomic snapshot; new native evidence may legitimately appear on the repeat.
+The machine store is `~/.open-dough/dashboard/launch-history/usage.json`, with
+immutable bounded pages in `usage.json.pages/`. The final 183,523-byte manifest
+references 2,316 pages totaling 1,625,082,672 bytes; the largest is 1,048,575 bytes.
+Imports use its shared document
+lock and atomic manifest replacement. Native sources remained read only; no native
+session, provider API, scheduler, operational launch or workflow write was made.
 
-## Scaling defect found during recovery
+Before the live pair, all 47 actual-CLI usage-history cases passed with the default
+quiet reporter and dashboard typecheck passed on this executable source. The
+unchanged proof was reused for both runs. Each import was followed by a separate
+process reading persisted partitions/pages and independently rebuilding scoped
+accounting; every compared CLI summary field agreed.
 
-The first completed attempt failed before persistence after 16 minutes
-8.681 seconds, ending in `SIGABRT` with JavaScript heap exhaustion. The default
-Node heap limit was 4,496,293,888 bytes; observed RSS reached about 4.17 GiB,
-while system memory remained available. No `usage.json` was created. Its
-runtime, stderr, zero-byte report and source manifest remain as `failed-first-*`
-and `failed-source-manifest.json`; this attempt is not a recovery result.
+## Recovered work and categorized usage
 
-A bounded numeric read of one already-cited Claude transcript found 1,513 rows,
-704 lineage nodes, and 249 assistant rows. Walking their parent chains visited
-85,256 source references, with 668 on the longest response chain. These are
-row/lineage counts, not unique billable requests. The probe found no branching
-parents or repeated UUID sources in that sample. It retained only file metadata
-and counts in `lineage-probe.json`.
+The final scan read 16,711 native files. Its persisted catalog contains
+2,925 entries, including 453 unsupported assignment entries
+kept for audit and excluded from human-task counts. Eligible in-window work is
+2,403 configured tasks plus 69 unknown-project tasks;
+out-of-roster eligible work is zero. Unsupported entries do not erase response evidence.
 
-The importer now traverses ancestry iteratively, detects cycles, and visits each
-node once per resolution. Intermediate links cite their native files; exact
-response, task-boundary and worker-join rows remain traceable. Associations
-carry task-join evidence rather than every descriptive/activity source already
-held on the task. This also prevents multiple requests with one timestamp from
-multiplying the task's last-activity sources into every response. The original
-same-time, 1,500-response actual-CLI regression failed under a 128 MiB heap and
-passes after both corrections, with exact request/token totals, native root UUID,
-response and boundary sources, and a fresh persisted read. The live retry uses
-the normal Node heap limit; it was not increased to conceal the defect.
+| Catalog host | Catalog entries | Eligible tasks | Unsupported assignments |
+| --- | ---: | ---: | ---: |
+| claude | 657 | 657 | 0 |
+| codex | 2,268 | 1,815 | 453 |
 
-The corrected candidate then failed before persistence after 6 minutes 59.760
-seconds with `Invalid string length`. A read-only census deliberately suppressed
-all persistence. It found 2,475 tasks,513,618 observations (640,765 measurements),
-513,618 associations and12,272 gaps. Compact values alone total about 1.4 GB:
-11,320,655 task characters,978,160,558 observation characters,432,936,435
-association characters and2,636,673 gap characters. The largest observation is
-15,690 bytes; the limit is aggregate serialization rather than one giant fact.
-V8's 536,870,888-character string limit makes compact whole-document JSON
-insufficient. `census.json` and its exact runtime/source manifest retain these
-counts locally. Bounded physical snapshots and streamed export preserve the
-same logical facts; the next slices must prove them before claiming recovery.
+| Population | Codex tasks | Claude tasks | Codex responses | Claude responses |
+| --- | ---: | ---: | ---: | ---: |
+| Configured | 1,754 | 649 | 182,153 | 104,934 |
+| Unknown project | 61 | 8 | 611 | 696 |
+| Out of roster | 0 | 0 | 0 | 0 |
+| Unassigned evidence | — | — | 190,440 | 35,610 |
 
-## First bounded snapshot capacity receipt
+All retained responses: 373,204 Codex and 141,240 Claude
+(514,444 unique IDs, 641,591 raw measurements and one association per ID).
+The scan excluded 142 unrelated native task candidates and
+6,040 unrelated observations; these are scan exclusions, not stored configured work.
 
-The first successful full import ran from `2026-11-14T19:05:49.445Z` to
-`2026-11-14T19:12:34.843Z` (Singapore November 15), taking 405.395 seconds.
-It used the command above under `caffeinate -s -i` and `/usr/bin/time -lp`,
-Node 24.21.0's unchanged 4,496,293,888-byte default heap, AC power at 100%,
-65% system memory free, and 151 GiB disk available. Maximum RSS was
-4,049,453,056 bytes. No diagnostic error was emitted; exit status was zero.
-The source HEAD was `b67a933278fa22eb24377e15e3ee722b78c59ddb`, with dirty
-source fingerprint `99bb5ebea30292b26707e1c792d81b6d6af3080cf891879d18cdc6437def1ca6`.
-This fingerprint covers sorted SHA-256 entries for `.ts` and `.tsx` files under
-`dashboard/server` and `dashboard/src`, `package-lock.json`, and `.node-version`
-(930 files). Earlier diagnostic manifests covered `.ts` files only; retain
-those exact manifests rather than treating their fingerprints as equivalent.
+The four columns below are disjoint known token subtotals. Missing components
+are counted separately in the last column as input/read/write/output responses;
+known subtotals do not impute missing values. Reasoning refines output, and
+cache lifetimes refine cache writes, so neither is added again.
 
-The scan read 16,700 native files. A new-process bounded reconciliation read
-2,475 tasks, 513,761 observations, 513,761 associations, 640,908 measurements,
-and 12,274 gaps. The observations comprise 372,521 Codex and 141,240 Claude
-responses, including unassigned evidence; these are not configured-project or
-provider-wide totals. The command report retains the scoped accounting
-populations and excluded counts for slice 7's review. The earlier census did
-not retain every record identity, so its count difference alone cannot prove
-which observations were added during the live interval.
+| Population / host | Uncached input | Cache read | Cache write | Output | Unmeasured I/R/W/O |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Configured / codex | 528,848,930 | 25,326,211,072 | 0 | 78,912,677 | 0 / 0 / 0 / 0 |
+| Configured / claude | 373,873 | 15,314,751,882 | 348,725,777 | 73,395,139 | 0 / 0 / 0 / 7,711 |
+| Unknown project / codex | 1,742,767 | 23,630,208 | 0 | 176,388 | 0 / 0 / 0 / 0 |
+| Unknown project / claude | 1,403 | 109,702,872 | 1,786,833 | 321,605 | 0 / 0 / 0 / 105 |
+| Unassigned / codex | 632,704,228 | 29,797,399,040 | 0 | 91,901,598 | 0 / 0 / 0 / 0 |
+| Unassigned / claude | 99,153 | 7,131,335,805 | 135,643,785 | 22,701,986 | 0 / 0 / 0 / 3,394 |
 
-The manifest is 165,881 bytes and references 2,071 immutable pages totaling
-1,549,579,350 bytes; the largest page is 1,048,574 bytes. The independent
-bounded reconciliation completed in 9.983 seconds. A fresh actual `read`
-command streamed 1,537,538,110 logical JSON bytes into a hash sink in 11.005
-seconds, with maximum RSS 1,755,463,680 bytes. Its SHA-256 was
-`10b52ec7fdb77525727cfba217a26370bcf65c4ecb415ea70135c056a27e6ec7`.
-No whole-export string or giant export file was retained.
+| Response coverage | Measured | Partial | Unavailable |
+| --- | ---: | ---: | ---: |
+| Configured Codex | 182,153 | 0 | 0 |
+| Configured Claude | 97,223 | 7,711 | 0 |
+| Unknown project | 1,202 | 105 | 0 |
+| Unassigned | 222,656 | 3,394 | 0 |
 
-Review then found that earlier page keys for gaps depended on caller property
-order. A regression using a literal earlier paged snapshot and reordered replay
-first retained two equivalent facts, then passed after schema-normalizing and
-repartitioning both persisted and incoming gap identities. Legacy v1 reading
-also now iterates records directly instead of constructing full legacy entry
-arrays for every partition.
+Configured task coverage is 2,336 measured,
+49 partial and 18 unavailable. A task with no attributable response
+has unavailable usage even when its activity time is known. All retained response
+timestamps are dated; outside-window and unresolved-window eligible task counts are 0 and 0.
 
-After all 32 actual-CLI regression cases and dashboard typecheck passed, a
-bounded `writeUsageHistory({}, store)` normalized the successful real snapshot
-without rescanning native files. It took 22.382 seconds; exact comparison against
-the saved first manifest completed with it in 46.506 seconds, maximum RSS
-2,318,532,608 bytes. Every task, observation and association was unchanged,
-including all native IDs, categorized counters, competing measurements and
-source references. All 12,274 canonical gap facts were unchanged; only their
-physical map keys changed. Each collection had zero missing, changed or added
-logical records. The original manifest and immutable pages remain available.
-The repaired candidate fingerprint is
-`f90196b464f2dc75e067e4e8460cf8ada8a11ad0f15304d47762220257e53094`
-(931 source files under the same fingerprint rule).
+## Earliest recovered evidence
 
-Machine-local `bounded-first-*` and `bounded-normalization-*` receipts retain
-exact commands, source manifests, UTC boundaries, memory/duration, record and
-identity digests, categorized host counters, page sizes, and the comparison
-script. The normalization is repair proof, not a second full native import.
-The original successful import remains the first-run baseline; slice 7's
-repeat import and final gap/accounting assessment remain unfinished.
+| Host, configured work | Genuine task start / first in-window activity | First native response usage |
+| --- | --- | --- |
+| codex | `2026-09-16T02:45:27.104Z` | `2026-09-16T02:45:33.882Z` |
+| claude | `2026-10-08T02:48:58.379Z` | `2026-10-08T02:49:00.098Z` |
+
+The earliest retained native usage globally is `2026-09-16T01:01:20.297Z`;
+it is unassigned evidence, not an earlier supported human task. The initial
+Codex wrapper-only session has no genuine user assignment; its audit entry has
+unknown start and its responses remain unassigned. The next session’s genuine
+row supplies the configured Codex start above. The Claude date is the earliest
+recovered configured evidence, not a claim about when actual Claude use began.
+
+## Raw evidence, phase correction and replay
+
+The first final-code snapshot retained all 514,228 prior IDs and
+all 641,375 raw measurements from the saved successful pre-phase snapshot. Only newly
+added `completion` metadata was ignored when comparing old raw properties;
+numeric values, sources, settings, native rows and lineage were compared exactly.
+It enriched 268,387 existing measurements without increasing their count,
+added 174 actual Codex IDs (172 configured, 2 unassigned),
+and lost no observation, task source or association candidate. No attribution
+was withdrawn or retargeted. One task gained live activity/source evidence;
+its project, workflow, identity, title, start, origin and outcome stayed unchanged.
+
+All 270 formerly configured Claude output conflicts settled from explicit
+native terminal measurements, including the independently inspected partial
+3/8/4 → terminal 690/843/1083 examples. The complete assessment, not an
+extrapolation from those three, is in `terminal-first-evidence-audit.json`.
+Across all populations, 11,598 old normalized output values changed;
+input/cache counters did not. Each change is explained by completion metadata:
+progressive-only values become unknown final output, and terminal evidence
+settles progressive snapshots. No old raw measurement was added or lost.
+
+| Claude evidence population | Terminal present | Progressive only | Unclassified only |
+| --- | ---: | ---: | ---: |
+| Configured | 97,223 | 7,711 | 0 |
+| Unknown project | 591 | 105 | 0 |
+| Unassigned | 32,216 | 3,394 | 0 |
+
+Progressive-only output is `null` with `incomplete-output`, never measured zero.
+Missing or unsupported phase markers retain legacy unclassified semantics;
+no such Claude measurements remain in this retained corpus. Terminal presence
+is evidence about an API response, never task/story completion. Codex response
+accounting and input/cache selection are unchanged. Truly competing terminal or
+unclassified counters remain unknown under the record contract.
+
+The repeat compared all 514,402 first-run response IDs: 0 missing,
+0 lost raw measurements, 0 added raw facts on old IDs,
+0 phase enrichments, and 0 normalized counter changes.
+It added 42 genuine live Codex IDs (42 configured, 0 unassigned);
+live evidence accounts for the count increase. Stable response counters never
+multiplied, and no old association changed task. Every independently recomputed
+normalized counter agreed with storage on both runs, as did every scoped CLI
+summary field. Sources, task claims and association candidates survived both.
+
+The first capacity baseline’s 513,761 IDs/640,908 measurements were already
+preserved exactly by the saved pre-phase comparison. The new full raw-subset
+comparison preserves that chain; a direct 512-ID/730-measurement baseline check
+across all partitions also found no missing raw facts or association candidates.
+Original manifests and immutable pages remain retained; no corpus-wide string
+or cloned history was built. Earlier streamed CLI export exceeded V8’s string
+limit successfully; that historical capacity observation is linked above.
+
+## Material gaps and interpretation limits
+
+Configured work includes 1,021 retained launches and 1,382 recovered tasks.
+Origin is dashboard for 1,148, native for 0, and unknown for
+1,255; native skill presence alone does not establish a dashboard launch.
+Configured missing fields are workflow 1,152, identity 1,286,
+title 1,264, outcome 1,479, and task start 0.
+Retained competing task claims include outcome 80, title 57 and workflow 1.
+Requested settings remain unknown for 1,486 tasks. Observed response settings
+and their provenance remain distinct from requested launch settings.
+
+Bounded source inspection covered 12 metadata representatives and the earliest
+configured Claude context. Wrapper-only context does not supply an assignment.
+An explicit archived execute-plan 50 resolves the pinned historical quick plan’s
+`Source` to SEED-013; later argless workflows keep identity unknown despite prior
+context or incidental file reads. Unknown-project samples include notebook and
+non-repository contexts without a supported project join. Outcome absence is not
+filled from narrative completion or native response stop reasons. These are
+evidence limits, rather than a claim that every available fact is undecodable.
+
+| Current scan gap provenance | Count |
+| --- | ---: |
+| `malformed-native-row` | 3,312 |
+| `unrelated-project-excluded` | 288 |
+| `auxiliary-usage-not-covered` | 647 |
+| `missing-root-transcript-usage` | 5 |
+| `unsupported-response-counters` | 1,073 |
+| `incomplete-worker-evidence` | 1,242 |
+| `no-response-usage-evidence` | 219 |
+| `unresolved-worker-evidence` | 172 |
+| `ambiguous-worker-evidence` | 5,486 |
+| `no-attributable-response-usage` | 478 |
+
+These provenance counts can overlap and are not missing-response or token totals.
+Older Codex aggregate/lifetime counters, malformed or unsupported rows, missing
+roots/workers, ambiguous lineage and auxiliary usage do not supply invented
+response charges. Unassigned usage remains outside configured task totals.
+Local retention, unavailable native sources and progressive-only Claude output
+limit completeness; no provider-wide, pricing or billing completeness is claimed.
+
+Exact machine-local evidence lives under the store’s `import-reports/2026-11-15/`:
+`terminal-first-*` and `terminal-repeat-*` retain commands, source manifests,
+UTC boundaries, runtime/resources, scan reports, immutable snapshot manifests,
+fresh independent summaries, ID/raw comparisons and full normalized metadata.
+`terminal-reconcile.mjs` and `terminal-evidence-audit.mjs` retain the bounded
+comparison procedures. `slice7-metadata-inspection.json` and
+`final-claude-conflict-inspection-summary.json` retain source hashes and selected
+row metadata without bodies. Historical receipts keep their original labels.
+
+Only explicit offline recovery ran. Cursor history, collection scheduling,
+new usage/history UI, pricing/billing reconciliation and unavailable-source
+recovery remain outside this delivery. The historical
+[story contract](https://github.com/terryyin/open-dough/blob/be0a53bcd8c2a7208310f7829d834dd0a96bfcb6/.planning/seeds/SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history)
+defines the scope.

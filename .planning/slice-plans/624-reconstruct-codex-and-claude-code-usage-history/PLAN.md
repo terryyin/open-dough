@@ -132,7 +132,7 @@ PFE: extend usageRecords/claudeUsage and the existing shared reconcileObservatio
 
 ### 11. Recover this machine's history and report its limits
 Type: Behavior
-Status: planned
+Status: done
 Proof: current import-report fixtures, two successful real imports on the final task/terminal-measurement interpretation, and fresh-process reconciliation;6 remains the capacity/measurement baseline.
 
 Behavior: configured projects and retained native evidence are available → documented import since `2026-09-16T00:00:00+08:00` → stored history and report agree on task/usage dates, host/coverage counts and material gaps. Repeat → old IDs/counters never multiply; distinguish genuine new observations and compatible enrichment. Keep task start distinct from in-window activity, including older roots and workers. Inspect bounded representatives of material metadata gaps before calling retained facts unavailable. Do not infer counters/origin/identity. A paused-stack-proved eligibility hot path is already repaired in9; current fixture proof must precede both final-code live runs.
@@ -209,9 +209,8 @@ Commitment: 112
 ### G9. Bounded lineage evidence must allow the real corpus import to finish
 Reported: slice 5 — "Slice 5 actual import SIGABRTed at the 4496293888-byte Node heap limit after 16m08s with no usage store written. A 4.3MB Claude file produced 85256 parent-source references for 249 assistant rows; repeated ancestor provenance, not missing machine RAM, challenged corpus feasibility. Repair bounded lineage traversal/provenance while retaining exact response, task-boundary and worker-join evidence; no blind heap-limit increase. A bounded-heap fixture then exposed a second amplification: all lastActivityAt task sources copied into every association for same-time responses; retain that failing shape and restrict association provenance to actual join evidence. The repaired candidate then failed Invalid string length after 6m59.760s without persistence; a read-only census proved approximately 1.4GB compact record values, so the same plan now owns bounded physical storage in slice 6 and successful repeated machine recovery in slice 7."
 Story clause: "A developer can account for the Codex and Claude Code work and token usage in the dashboard's projects since Open Dough became stable on 2026-09-16, including launches whose dashboard records were pruned."
-Disposition: interim until slices 6, 11
+Disposition: proved by slice 11: default-heap terminal-first and terminal-repeat exited 0 in 440.195s and 438.244s; bounded paged snapshot and streamed CLI reads succeeded; reconciliation retained all prior response IDs/raw facts and repeat preserved all 514402 old observations unchanged, adding only 42 genuine Codex IDs. Final receipt documents exact corpus, memory, counts, dates, phase corrections and explicit unknowns.
 Commitment: 1
-
 ### G10. Reject injected context as task assignment evidence
 Reported: slice 7 — "Bounded actual metadata inspection before the repeat found plugin/AGENTS/environment injection supplying first-task timestamps; one earliest file has no genuine assignment. Skipping future wrappers alone cannot repair persisted starts and monotonic association candidates."
 Story clause: "Recover the project, workflow or task, story identity and title at the time, tool, model, effort, launch settings, timing, outcome, and usage where supported."

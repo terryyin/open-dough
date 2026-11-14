@@ -62,8 +62,8 @@ The scan read 16,700 native files. A new-process bounded reconciliation read
 2,475 tasks, 513,761 observations, 513,761 associations, 640,908 measurements,
 and 12,274 gaps. The observations comprise 372,521 Codex and 141,240 Claude
 responses, including unassigned evidence; these are not configured-project or
-provider-wide totals. The command report retains the scoped accounting
-populations and excluded counts for slice 7's review. The earlier census did
+provider-wide totals. The historical command report retains its scoped accounting
+populations and excluded counts. The earlier census did
 not retain every record identity, so its count difference alone cannot prove
 which observations were added during the live interval.
 
@@ -101,7 +101,8 @@ identity digests, categorized host counters, page sizes, and the comparison
 script. The normalization is repair proof, not a second full native import.
 The original successful import is a capacity and measurement baseline.
 Later task interpretation corrected injected assignment evidence and historical
-plan references, so final recovery requires two new imports on that interpretation.
+plan references. The linked final receipt supersedes these capacity counts with
+two successful imports on the final task and terminal-measurement interpretation.
 
 ## Eligibility cost found before final recovery
 
@@ -127,3 +128,21 @@ eligibility for both hosts, and returns known eligible cases before comparing
 legacy sources. Eligibility rules and native interpretation are unchanged.
 All 43 quiet usage-history regression cases and dashboard typecheck passed
 before the next live action. No heap increase or new counter policy was used.
+
+## Successful pre-phase comparison
+
+The eligibility repair then completed a full import in 454.904 seconds,
+from `2026-11-14T20:40:09.354910Z` to `2026-11-14T20:47:44.326734Z`,
+with maximum RSS 3,981,508,608 bytes and exit zero. Its 514,228 observations
+and 641,375 measurements preserved all 513,761 original observations and
+640,908 raw measurements exactly; 467 genuine new Codex IDs were isolated.
+Injected-context correction withdrew 49 unsupported effective task charges
+without erasing their evidence or retargeting them. The 450 new catalog entries
+were unsupported context, outside eligible human-task counts.
+
+Bounded inspection then identified explicit Claude progressive/terminal facts
+that the earlier decoder had discarded. Three sampled output conflicts had
+partial 3/8/4 followed by terminal 690/843/1083. The final code retains those
+phase facts; the [final recovery receipt](usage-history-recovery-2026-11-15.md)
+assesses all 270 configured conflicts and reports the successful final-code pair.
+These pre-phase counts remain historical, not the final categorized totals.
