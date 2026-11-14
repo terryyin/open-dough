@@ -63,7 +63,7 @@ or a superseding ADR. Agents must not silently override a decision.
 | [0002](./0002-software-development-lifecycle-principles-accepted.md) | Accepted | Software development lifecycle principles |
 | [0003](./0003-tagged-release-versioning-accepted.md) | Accepted | Release lifecycle and versioning |
 | [0004](./0004-client-installation-and-update-accepted.md) | Accepted | Client installation and update |
-| [0005](./0005-cross-tool-validation-accepted.md) | Accepted | Cross-tool validation through native acceptance stories |
+| [0005](./0005-cross-tool-validation-accepted.md) | Accepted | Native validation and A/B testing |
 | [0006](./0006-write-skills-for-executing-agents-accepted.md) | Accepted | Write skills for executing agents |
 | [0007](./0007-software-development-lifecycles.md) | Proposed | Software development lifecycles |
 | [0008](./0008-project-dashboard-domain-and-architecture-accepted.md) | Accepted | Project dashboard domain and architecture |
