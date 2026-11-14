@@ -26,7 +26,11 @@ the story branch, so the misses predate that story:
 
 Line numbers are from `main` at `c13bd4a06`. The landed-CI specs are under
 `dashboard/backend-tests/intent/`, the `intent-*` specs under
-`dashboard/tests/intent/`.
+`dashboard/tests/intent/`. Since SEED-334 (`64f15182b`),
+`intent-ci-done-prior-build` and `intent-ci-done-prior-provenance` are E2E Test
+workflows in `e2e/intent/` (`npm run test:e2e`).
+`intent-ci-done-reference-lifecycle` stays in the interim Dashboard Integrated
+UI Test (`npm run test:dashboard:integrated`).
 
 [Select and copy text in the Dashboard terminal on mobile](https://github.com/terryyin/open-dough/blob/ebaf16f6336d2d9111f95984b907a006b67f3c04/.planning/seeds/SEED-316-mobile-terminal-text-selection.md#select-and-copy-terminal-text-on-mobile)'s report recommended adding them to
 [Make dashboard journeys fit the default timeout under load](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout), whose in-flight repair
