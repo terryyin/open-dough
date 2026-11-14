@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Declare Git test state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-git-test-state-through-makeme) — SEED-353#declare-git-test-state-through-makeme
 - [Highlight syntax in code diffs](seeds/SEED-351-highlight-syntax-in-code-diffs.md#highlight-syntax-in-code-diffs) — SEED-351#highlight-syntax-in-code-diffs
 - [Close native comparison harness gaps](seeds/SEED-346-native-ab-comparisons.md#close-native-comparison-harness-gaps) — SEED-346#close-native-comparison-harness-gaps
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
