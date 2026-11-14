@@ -61,10 +61,10 @@ Reviewer `/root/production_scope_source_review`, fresh context (`fork_turns: non
 | 6c.2 | Record actual CPU contention. | slice 2 |  |
 | 6d.1 | Qualification: burners supply diagnostic evidence. | slice 2 |  |
 | 6d.2 | Qualification: burner evidence does not constitute the natural-load evidence required by the cited local-test-resources guidance. | slice 2 |  |
-| 6e.1 | Hosted CI retains thirteen shards. | slice 2 |  |
-| 6e.2 | Hosted CI retains its CPU-derived worker count. | slice 2 |  |
-| 6e.3 | Hosted CI retains its current deadlines. | slice 2 |  |
-| 6f | Compare recorded shard times. | slice 2 |  |
+| 6e.1 | Hosted CI retains thirteen shards. | slice 2 | observed: hosted-proof-evidence.md; exact265635d9/run43542287307/attempt1, all13dashboard jobs succeeded; actual schema2 proof has13present parts per dashboard entry, all27loaded files/67cases passed |
+| 6e.2 | Hosted CI retains its CPU-derived worker count. | slice 2 | observed: hosted-proof-evidence.md; workflow byte-identical to baseline15377f89 and Playwright retains availableParallelism() in CI; no worker override in the unchanged workflow; all13jobs succeeded |
+| 6e.3 | Hosted CI retains its current deadlines. | slice 2 | observed: hosted-proof-evidence.md; unchanged workflow retains180s acquisition/320s total/six-minute job bound, retries0/default30s cases; all13dashboard jobs succeeded |
+| 6f | Compare recorded shard times. | slice 2 | observed: hosted-proof-evidence.md; baseline43336803436 and current43542287307 actual13browser-step/job durations plus all1044current per-spec times retained with1015baseline paths;31additions/two retirements, case relocations and browser-argument confound explicit; no causal percentage/headroom claim |
 | 6g | Require the changed suite to pass. |  | G3 |
 | 7a | Scope includes targeted fixture preparation needed for the named loaded checks. | slice 2 |  |
 | 7b | Scope includes Git-backed answer optimizations needed for the named loaded checks. | slice 2 |  |

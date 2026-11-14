@@ -34,8 +34,8 @@ aWholePass(github,after) and its updated callers together. Never count the old
 
 ## Current observer and conventions
 
-Kvi4N9/PID84661 was explicitly stopped/ended/unread0 and absent. A new standard
-Codex stream is live: `/tmp/dough-ci-501/watch-2aAGk3`, PID30548, session97211,
+Kvi4N9/PID84661 was explicitly stopped/ended/unread0 and absent. Reconciliation
+armed standard Codex stream `/tmp/dough-ci-501/watch-2aAGk3`, PID30548, session97211,
 yieldedcellg119:30, coordinatorseed332-philip. Same checkout/branch, installed
 runtime, ci.yml workflow351271804 and integratedci.yml/push selection remain.
 No new revision registered. Future managed publication takes these exact handles.
@@ -193,3 +193,12 @@ now preserves the same fixture property; installed Playwright's actual parser
 selects the property before the colon and strips comments. The scoped lint
 annotation and TypeScript unused-parameter alias add no runtime behavior or
 dummy assertion. Commit/receipt remained null; retry the same fresh operation.
+
+Fresh attempt5383 succeeded: accepted265635d945cf11c8786dbe7476016c0a541f06f5,
+suffix92613de41, same execution target/observer, no rewrite. All89owned changes
+committed with normal hooks; index/worktree were clean. Exact receipt is
+`/tmp/seed332-slice2-progress-delivery-attempt5.json`. [Hosted evidence](hosted-proof-evidence.md)
+now records exact attempt43542287307/1success, all13shards and timing comparison.
+The current natural snapshot5.24/AC100%/81.85%idle is not a qualifying load.
+Slice2/G1–G17 dispositions and all125promises remain as described above;
+source-evaluation judgment or natural-window proof still prevents completion.
