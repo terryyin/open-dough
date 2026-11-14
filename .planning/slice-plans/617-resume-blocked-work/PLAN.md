@@ -57,7 +57,7 @@ Follow current Accepted [ADR 0002](../../../docs/adrs/0002-software-development-
 [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
 (author Proposed runtime changes in `src/skills`, never hand-sync installed copies),
 [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
-(deterministic proof versus native evidence),
+(Native validation and A/B testing, including Terry's 2026-11-14 update),
 [ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
 (one executing-agent behavioral source),
 [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
@@ -95,7 +95,7 @@ ordinary owner if encountered.
 | 3: repetition or uncertain acceptance creates no duplicate writer/submission | Slice 2 | Repeat/race the same event, change between initial read and enrollment, and lose acknowledgment after submission. Reconcile native history; retain uncertainty and actionable recovery without blind resend. |
 | 4: meaningful deadline or lost signal/CI observation gives actionable status | Slice 3 | Controlled-clock expiry, unavailable/ended delivery and ended CI observation retain local proof, name recovery/owner and preserve the applicable CI receipt requirement. Keep genuine running-command overdue checks intact. |
 | 5: host usage hold has an evidenced condition or explicit missing-signal fallback | Slice 3 | Observed limit input plus supported reset evidence or its absence yields the corresponding continuation/attention. No model switch, purchase, guessed reset or new execution authority. |
-| Shared behavior and worthwhile improvement | Slice 4 | Representative Codex comparison and native shared-rule/fallback observation on Cursor and Claude; per-host evidence limits; same publication/proof decisions, fewer idle requests, no extra rescue, and total implementation/evaluation cost disclosed. |
+| Shared behavior and worthwhile improvement | Slice 4 | Representative Codex comparison, shared behavior review and risk-selected affected-host checks; explicit evidence limits; same publication/proof decisions, fewer idle requests, no extra rescue, and total implementation/evaluation cost disclosed. |
 
 ## Ordered slices
 
@@ -172,19 +172,26 @@ through hold, qualifying evidence, resumed work and the same publication/proof
 decision as a stated baseline. Reuse the research interval as historical problem
 evidence; it is not a matched runtime baseline. Establish a bounded prospective
 baseline/candidate with the same fixture, host/configuration, proof and relevant
-events. Record coordinator plus worker requests/tokens where native history
+events. Pin the payload source revision and installed content in each isolated
+arm, varying only the blocked-wait behavior. Keep the smallest runnable example
+with its real-work origin, workflow/problem and host/environment traits; do not
+build the general comparison tooling owned by SEED-346. Record coordinator plus
+worker requests/tokens where native history
 provides them, idle-only requests, rescues, and tool/evaluation/maintenance effort.
 Success requires zero recurring model requests solely for unchanged blocked
 state, one accepted continuation and no extra developer rescue. Claim observed
 improvement only for the comparable result actually obtained.
 
-Select a representative shared-rule or unavailable-route native case on Cursor
-and Claude. Reuse unchanged integration evidence only for its actual mechanism;
-new host delivery mechanisms require native proof of their own. Keep unobserved
-paths explicit and withhold release of affected behavior until required native
-proof is complete under ADR 0005. Do not create a full host-by-scenario matrix.
-Review invocation, required context and useful outcome under AGENTS.md, including
-executing-project audience and the weaker fallback's truthful status.
+Review shared guidance's invocation, required context and useful outcome under
+AGENTS.md for Cursor and Claude, including executing-project audience and the
+fallback's truthful status. Reuse evidence only when behavior, integration and
+runtime conditions still match. Select additional native cases for a new or
+materially changed host integration or consequential acceptance risk, recording
+why that host needs the observation; conventional guidance alone adds no routine
+per-host native gate. Keep unobserved paths explicit and withhold release until
+the required native evidence exists under current ADR 0005. Judge run artifacts
+now, remove spent artifacts at wrap-up, and retain reusable examples and lasting
+findings. No full host-by-scenario matrix is required.
 
 ## Current decisions, verification and concern review
 
@@ -194,6 +201,8 @@ executing-project audience and the weaker fallback's truthful status.
 - No blocking story dependency is introduced. SEED-343 is already delivered;
   SEED-332's live work is evidence, not a required test resource or supplier of
   this implementation. The effort-accounting sibling is not a prerequisite.
+  The preparation's first landing incorporated Terry's updated ADR 0005 at
+  `9900b8d21922c8cd97ffc9e872e76a0ff59af489`; this plan follows that policy.
 - Follow [the project's failing/flaky-test policy](../../../AGENTS.md#failing-and-flaky-tests)
   as written for every local and published failure. Existing failures remain
   repair obligations unless another active execution owns that exact repair.

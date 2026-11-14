@@ -40,7 +40,7 @@ commitment.
 
 **Identity:** SEED-345#resume-when-blocked-work-can-advance
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/617-resume-blocked-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"19f399cb73629f5c325be7d21f0ecbe3cc291303080a1e0198c117d7b8ac8dac","plan":"4257bbc5ec44e8ce369665e2a847ca31b0d378b3508a6e2c2cb503f5175588a0"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/617-resume-blocked-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"19f399cb73629f5c325be7d21f0ecbe3cc291303080a1e0198c117d7b8ac8dac","plan":"c8a0e89fc0c68c55bcd154ade621b581089e546d2d934dba290608c1b81f09ed"}}
 ```
 
 - **Scope and beneficiary.** Shared execution behavior with initial proof in
