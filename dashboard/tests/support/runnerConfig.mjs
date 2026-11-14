@@ -42,7 +42,7 @@ export function runnerVariables(prefix) {
  * options every group's configuration shares.
  * @param {ReturnType<typeof runnerVariables>} variables
  * @param {string} outputs absolute directory holding the runner's
- *   `test-results/` run directories and CI `playwright-report/`
+ *   `test-results/` run directories and CI `playwright-report/` directories
  * @returns {Promise<{
  *   split: string | undefined,
  *   options: import("@playwright/test").PlaywrightTestConfig,
@@ -152,7 +152,7 @@ async function prepareGroupRun(variables, outputs) {
               "html",
               {
                 open: "never",
-                outputFolder: path.join(outputs, runOutputs.report),
+                outputFolder: path.join(outputs, runOutputs.report, runStamp),
               },
             ],
           ]

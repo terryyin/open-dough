@@ -76,20 +76,13 @@ read-only CI access, with scratch edits reverted.
 | Older comparison is matched | Same API reads for 43532089843: 295 s, 18 jobs, 3,513 runner-seconds; browser job names `dashboard (i/13)` differ from current separate groups | False premise; use fresh fixed-workload baseline, slice 1 |
 | Count previews reach real discovered selections | `PATH="/opt/homebrew/bin:$PATH" node scripts/test-shares.mjs preview --split-count N`, N=4,3,2,1: all exit 0, 644 checks, approximately 500/667/1,000/2,000 job-seconds per share | Two/one exceed the current 694 aggregate budget; reviewed repacking budget belongs to slice 2 |
 | Browser preview uses the same groups | `node scripts/test-shares.mjs preview --split-count N --spec-dir e2e`; dashboard form adds `--spec-dir dashboard --root ROOT --list LIST`. Observed E2E 6/4, integrated 5/4, frontend 1, backend 4/3: all exit 0; file totals 303/269/57/432, unrecorded 12/15/19/58 | Stale/unrecorded timing cannot certify wall time; slices 1 and 3 refresh/account for it |
-| Count consumers can be located by execution | Scratch `ci.yml` changed Distribution matrix 4→3 and expected parts 4→3; the four-check command below exited 1 at `ci-proof-actions.test.mjs:48`, whose expected missing parts still named four | Update that contract consumer with a kept count change; other count consumers remain subject to the same probe |
-| Existing local proof route works | Exact four-check command below passed after byte-for-byte workflow restoration, exit 0; Bash 5 via `/opt/homebrew/bin`, on AC under `caffeinate -s -i` | Establishes current contract baseline, not future timing or proof preservation |
+| Count consumers can be located by execution | Scratch `ci.yml` changed Distribution matrix 4→3 and expected parts 4→3; the recorded four-check command exited 1 at `ci-proof-actions.test.mjs:48`, whose expected missing parts still named four | Update that contract consumer with a kept count change; other count consumers remain subject to the same probe |
+| Existing local proof route works | Recorded four-check command passed after byte-for-byte workflow restoration, exit 0; Bash 5 via `/opt/homebrew/bin`, on AC under `caffeinate -s -i` | Establishes current contract baseline, not future timing or proof preservation |
 | Live experiments can be attributed without changing tests | Real run/jobs API reads succeeded; workflow has independent `workflow_dispatch` runs, proof revision, per-producer artifacts | Dispatch, complete proof acquisition and representative timing are state-changing/hosted: early probe slice 1; failure stops dependent comparisons |
 
-Four-check command observed red under the scratch count change and green after
-restoration (use the same supported runner during execution):
-
-```sh
-PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm test -- \
-  Distribution/tests/support/ci-browser-groups.test.mjs \
-  Distribution/tests/support/ci-proof-declaration.test.mjs \
-  Distribution/tests/support/ci-proof-actions.test.mjs \
-  Distribution/tests/support/browser-group-shards.test.mjs
-```
+The preparation's four-check red/green command remains in plan history at
+`97b0f808f`; current focused commands and results are in the
+[H1 local correctness record](../../../docs/maintainer/ci-layout-evidence/h1-local-correctness-20261114.jsonl).
 
 ## Measurement basis for execution
 
@@ -246,4 +239,9 @@ the approved screen changes neither the final no-worse promise nor open search.
 ### G1. Complete candidate proof and matched comparisons
 Reported: slice 1 — "B1 baseline acquisition passed; candidate exact hosted proof and repeated solo, mixed and equivalent two-run comparisons remain unobserved."
 Story clause: "Use matched concurrent comparisons and repeated samples to distinguish layout effects from runner noise."
+Disposition: return
+
+### G2. Concurrent proof commands corrupt caller HTML evidence
+Reported: slice 1 — "CI diagnostic for 43585259072/1 names runner-ownership.spec.ts:164 failing when a concurrent child reads a missing frontend HTML report; a later passing peer does not repair it."
+Story clause: "This restriction protects the confidence the developer receives with the verdict."
 Disposition: return
