@@ -142,7 +142,7 @@ Apply effective assignment eligibility to every persisted association, including
 
 ### 8. Resolve explicit historical task references
 Type: Behavior
-Status: planned
+Status: done
 Proof: actual-CLI local Git fixtures for numbered historical plans and same-message established identity, with ambiguous/conflicting counterexamples.
 
 An explicit numeric execute-plan argument resolves only a unique matching historical plan at the evidenced repository/revision; follow its recorded source using the existing canonical historical readers, including the observed older quick-plan source header. An explicitly labelled identity in the same user's Established start/preparation can supply intent, agreeing with any invocation argument; conflicting references remain unknown. Argless later invocations do not inherit a prior story, and incidental/custom-tool reads do not establish intent. Do not build a general orchestration-code parser. Preserve pinned Git/source provenance, deleted-story behavior, source removal and no workflow mutation. HistoricalUsageStory.ts is221lines: separate plan-reference discovery from canonical story resolution if needed, retaining one reader representation.
@@ -237,7 +237,7 @@ Commitment: 57
 ### G11. Resolve supported explicit historical plan references
 Reported: slice 7 — "A retained numeric execute-plan50 invocation has one historical quick plan whose source explicitly identifies SEED-013; the current resolver leaves it unknown. Same-message established identity is positive intent, while prior context and incidental tool reads cannot settle later argless invocations."
 Story clause: "Use recorded workflow invocations and historical seed, plan, backlog, or completion records to resolve story references."
-Disposition: receiving slice 8
+Disposition: proved by slice 8: historical-task references/context actual CLI specs resolve unique numbered old source and same-message identity with pinned Git provenance; ambiguous/conflicting/fenced/injected/incidental refs remain unresolved; final43 quiet cases and typecheck passed after independent refactor
 Commitment: 60
 ## Execution evidence
 

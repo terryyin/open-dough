@@ -6,6 +6,7 @@ import {
   namedIdentity,
   discoveryCandidates,
 } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-home-reader.mjs";
+import { unfencedPlanLines } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-plan-reader.mjs";
 import { parseBacklog } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 
 const discoveredHome = z.object({
@@ -39,4 +40,32 @@ export function usageHome(text: string, href: string) {
 }
 export function usageBacklogEntries(text: string) {
   return canonicalBacklog.parse(parseBacklog(text)).entries;
+}
+// Preserve line boundaries while excluding examples using the canonical Markdown
+// fence rules, shared by invocation context and historical plan-source reads.
+export function usageUnfencedText(text: string) {
+  const lines = text.split(/\r?\n/);
+  const unfenced = z.array(z.boolean()).parse(unfencedPlanLines(lines));
+  return lines.map((line, index) => (unfenced[index] ? line : "")).join("\n");
+}
+// Older quick plans record their source under a heading rather than an inline
+// label. Identity parsing remains with readHome/namedIdentity above.
+export function usagePlanSources(text: string, href: string) {
+  const readable = usageUnfencedText(text);
+  const references: string[] = [];
+  try {
+    const identity = usageHome(readable, href).identity;
+    if (identity) references.push(identity);
+  } catch {
+    /* An older plan can have only a source link. */
+  }
+  const inline = readable.match(/^\*\*Source:\*\*([^\n]*)/m)?.[1];
+  const section = readable.match(
+    /^## Source and outcome\s*\n([\s\S]*?)(?=^## |$(?![\s\S]))/m,
+  )?.[1];
+  for (const match of (inline ?? section ?? "").matchAll(
+    /\[[^\]]+\]\(([^)]+)\)/g,
+  ))
+    if (match[1]) references.push(match[1]);
+  return [...new Set(references)];
 }

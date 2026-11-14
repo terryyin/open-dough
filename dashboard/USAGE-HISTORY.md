@@ -104,7 +104,14 @@ the recorded session revision or a corroborated native Git read. An activity-tim
 reflog may support the native checkout's revision; a current default checkout
 cannot substitute for a deleted worktree. Historical fields cite repository and
 revision, including renamed/deleted stories. Unavailable objects and ambiguous
-references stay unknown. Completion of a story is distinct from a task reporting
+references stay unknown. A numeric `dough-execute-plan` argument selects only a
+unique numbered quick or slice plan in that revision, following its recorded
+source, including older “Source and outcome” sections. A labelled identity in
+the same user message's Established start or Established preparation can supply
+intent; it must agree with any explicit invocation reference. Later argumentless
+invocations do not inherit prior intent, and incidental tool reads supply none.
+Fenced examples and injected context cannot manufacture these references.
+Completion of a story is distinct from a task reporting
 receipt: only a matching structured receipt supplies a recovered reported outcome.
 A matching retained returned-to-backlog receipt adds an outcome `disposition`
 without changing its explicit report kind. `attention` preserves message presence

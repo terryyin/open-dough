@@ -15,7 +15,7 @@ export type NativeTaskFact = {
   revision?: string | undefined;
   workflow: string | null;
   reference?: string | undefined;
-  storyReference?: string | undefined;
+  storyReferences?: string[] | undefined;
   origin: "dashboard" | "native" | "unknown";
   projectHint?: string | undefined;
   at?: string | undefined;

@@ -7,46 +7,14 @@ import {
   usageBacklogEntries,
 } from "./usageStoryReaders.ts";
 import { doneRecordOf } from "../src/doneRecord.ts";
-import { runGit } from "./gitRunner.ts";
+import { usageGit } from "./usageGit.ts";
+import { historicalUsagePlan } from "./historicalUsagePlan.ts";
+export { usageGit } from "./usageGit.ts";
 import type { ConfiguredProject } from "./projectConfiguration.ts";
 import type { UsageSource } from "./usageRecords.ts";
 
-const immutableReads = new Map<string, Promise<string | undefined>>();
-export async function usageGit(
-  cwd: string,
-  args: string[],
-): Promise<string | undefined> {
-  const read = async () => {
-    try {
-      return (
-        await runGit(args, { cwd, maxBuffer: 8 * 1024 * 1024 })
-      ).stdout.trim();
-    } catch {
-      return undefined;
-    }
-  };
-  if (
-    !["show", "ls-tree", "log", "rev-parse"].includes(args[0] ?? "") ||
-    !args.some((arg) => /^[a-f0-9]{40,64}(?::|$|\^)/i.test(arg))
-  )
-    return read();
-  const key = JSON.stringify([cwd, args]);
-  let pending = immutableReads.get(key);
-  if (!pending) {
-    pending = read();
-    immutableReads.set(key, pending);
-  }
-  return pending;
-}
 type Story = { identity: string; title: string | null; sources: UsageSource[] };
 const cache = new Map<string, Promise<Story | undefined>>();
-function identityIn(text: string, href: string) {
-  try {
-    return usageHome(text, href).identity;
-  } catch {
-    return undefined;
-  }
-}
 function seedStory(
   text: string,
   reference: string,
@@ -126,27 +94,6 @@ async function resolveStory(
     repository: project.repository,
     revision: at,
   });
-  const fileReference = reference.split("#")[0]?.replace(/^\.\//, "");
-  let lookup = reference;
-  const sources: UsageSource[] = [];
-  if (fileReference?.endsWith("/PLAN.md")) {
-    const plan = await usageGit(project.localPath, [
-      "show",
-      `${revision}:${fileReference}`,
-    ]);
-    if (!plan) return undefined;
-    sources.push(source(fileReference));
-    const identity = identityIn(plan, fileReference);
-    const href = /\*\*Source:\*\*[^\n]*\]\(([^)]+)\)/.exec(plan)?.[1];
-    if (identity) lookup = identity;
-    else if (href)
-      lookup = path.posix.normalize(
-        path.posix.join(path.posix.dirname(fileReference), href),
-      );
-    else return undefined;
-  }
-  const identity = lookup.match(/SEED-\d+#[a-z0-9-]+/i)?.[0];
-  const seed = identity?.split("#")[0] ?? lookup.match(/SEED-\d+/)?.[0];
   const files =
     (
       await usageGit(project.localPath, [
@@ -158,38 +105,63 @@ async function resolveStory(
         ".planning",
       ])
     )?.split("\n") ?? [];
-  const candidates = files.filter(
-    (file) =>
-      /\.(md|json)$/.test(file) &&
-      (seed
-        ? file.includes(seed) || /PRODUCT-BACKLOG|\/PLAN\.md$/.test(file)
-        : file === fileReference),
-  );
-  const found: Story[] = [];
-  for (const file of candidates) {
-    const text = await usageGit(project.localPath, [
-      "show",
-      `${revision}:${file}`,
-    ]);
-    if (!text) continue;
-    const story = seedStory(text, lookup, file);
-    if (story) found.push({ ...story, sources: [...sources, source(file)] });
-  }
-  const identities = new Set(found.map((story) => story.identity));
-  // A seed and a completion record can agree while a plan has a generic heading.
-  const preferred = found.filter((story) =>
-    story.sources.some((item) => /\/seeds\/|\/done\//.test(item.file)),
-  );
-  const choices = preferred.length ? preferred : found;
-  const titles = new Set(choices.map((story) => story.title).filter(Boolean));
-  if (identities.size === 1 && choices[0])
-    return {
+  const plan = await historicalUsagePlan(project, revision, reference, files);
+  if (plan === undefined) return undefined;
+  const foundReferences: Story[] = [];
+  for (const lookup of plan.references) {
+    const fileReference = lookup.split("#")[0]?.replace(/^\.\//, "");
+    const identity = lookup.match(/SEED-\d+#[a-z0-9-]+/i)?.[0];
+    const seed = identity?.split("#")[0] ?? lookup.match(/SEED-\d+/)?.[0];
+    const candidates = files.filter(
+      (file) =>
+        /\.(md|json)$/.test(file) &&
+        (seed
+          ? file.includes(seed) || /PRODUCT-BACKLOG|\/PLAN\.md$/.test(file)
+          : file === fileReference),
+    );
+    const found: Story[] = [];
+    for (const file of candidates) {
+      const text = await usageGit(project.localPath, [
+        "show",
+        `${revision}:${file}`,
+      ]);
+      if (!text) continue;
+      const story = seedStory(text, lookup, file);
+      if (story)
+        found.push({ ...story, sources: [...plan.sources, source(file)] });
+    }
+    const identities = new Set(found.map((story) => story.identity));
+    // A seed and a completion record can agree while a plan has a generic heading.
+    const preferred = found.filter((story) =>
+      story.sources.some((item) => /\/seeds\/|\/done\//.test(item.file)),
+    );
+    const choices = preferred.length ? preferred : found;
+    const titles = new Set(choices.map((story) => story.title).filter(Boolean));
+    if (identities.size !== 1 || !choices[0]) return undefined;
+    foundReferences.push({
       identity: choices[0].identity,
       title: titles.size === 1 ? choices[0].title : null,
       sources: choices.flatMap((story) => story.sources),
-    };
-  return undefined;
+    });
+  }
+  if (
+    new Set(foundReferences.map((story) => story.identity)).size !== 1 ||
+    !foundReferences[0]
+  )
+    return undefined;
+  const titles = new Set(
+    foundReferences.map((story) => story.title).filter(Boolean),
+  );
+  return {
+    identity: foundReferences[0].identity,
+    title:
+      titles.size === 1
+        ? (foundReferences.find((story) => story.title)?.title ?? null)
+        : null,
+    sources: foundReferences.flatMap((story) => story.sources),
+  };
 }
+
 export function historicalUsageStory(
   project: ConfiguredProject,
   revision: string,

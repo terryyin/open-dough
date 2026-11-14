@@ -3,11 +3,8 @@
 import path from "node:path";
 import { readConfiguredUsageProjects } from "./configuredProjectDocument.ts";
 import type { ConfiguredProject } from "./projectConfiguration.ts";
-import {
-  historicalUsageStory,
-  usageGit,
-  usageRevisionAt,
-} from "./historicalUsageStory.ts";
+import { usageGit, usageRevisionAt } from "./historicalUsageStory.ts";
+import { historicalTaskStory } from "./historicalTaskStory.ts";
 import { nativeTaskKey } from "./nativeTaskActivity.ts";
 import type { NativeTaskFact } from "./nativeTaskFacts.ts";
 import { canonicalUsageTasks } from "./usageTaskReconciliation.ts";
@@ -142,25 +139,10 @@ export async function recoveredUsageTasks(
     const revision =
       fact.revision ??
       (fact.cwd ? await usageRevisionAt(fact.cwd, fact.at) : undefined);
-    const story =
-      project && revision && fact.storyReference
-        ? await historicalUsageStory(project, revision, fact.storyReference)
-        : undefined;
-    if (story) {
-      fieldSources["identity"] = [
-        fact.source,
-        context,
-        ...(fact.revisionSource ? [fact.revisionSource] : []),
-        ...story.sources,
-      ];
-      if (story.title)
-        fieldSources["title"] = [
-          fact.source,
-          context,
-          ...(fact.revisionSource ? [fact.revisionSource] : []),
-          ...story.sources,
-        ];
-    } else if (fact.storyReference)
+    const historical = await historicalTaskStory(project, revision, fact);
+    const { story, fieldClaims } = historical;
+    Object.assign(fieldSources, historical.fieldSources);
+    if (!story && historical.referenced)
       gaps.push(
         revision
           ? "unresolved-historical-story"
@@ -214,6 +196,7 @@ export async function recoveredUsageTasks(
       ...(fact.reference ? { launchReference: fact.reference } : {}),
       requested: fact.requested,
       fieldSources,
+      ...(Object.keys(fieldClaims).length ? { fieldClaims } : {}),
       sources: uniqueFacts(Object.values(fieldSources).flat()),
       gaps,
     });
