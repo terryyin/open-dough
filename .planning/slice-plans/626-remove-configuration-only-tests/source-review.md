@@ -14,7 +14,7 @@ or current-slice scope was supplied. It read no project files and changed none.
 | 2 | Meaningful behavior remains protected when configuration or test data changes. | slice 5 |  |
 | 3 | Review unit tests and relevant end-to-end tests across Distribution, dashboard backend, frontend and integrated UI, and e2e for assertions whose only subject is configuration, constant data, fixture shape, or builder output. | slice 5 |  |
 | 4 | Remove configuration/data-only tests and redundant constraints. | slice 5 |  |
-| 4.1 | Exact worker/shard counts that freeze implementation choices. | slice 3 |  |
+| 4.1 | Exact worker/shard counts that freeze implementation choices. | slice 3 | observed: local-test-suite: local default asserts ≥1 and <all queued; dropped literal workers 2; override/CI exact counts kept; default_job_slots 4→3 and workers 2→3 green; unbounded/ignore-OPEN_DOUGH_TEST_JOBS still fail |
 | 4.2 | Workflow literals that freeze implementation choices. | slice 1 | observed: Removed deadline-epoch, artifact-name, browser roster/YAML regexes, frontend-entry/retention, path-ignore lists, feature-group directory set, attempt-fragment name literal, hand-written job labels; Distribution + ci-time family green after consistent shard/deadline/retention/rename |
 | 5 | Keep or reshape proof when a configuration or data value produces meaningful behavior worth protecting, by observing that behavior rather than copying its inputs. | slice 5 |  |
 | 6 | When a behavior test’s expected output copies a configured value, derive that expectation from the configuration it reads. | slice 1 | observed: ci-proof-actions missingTail from summary expect; jobForRoot from producers; ci-time rows from readWorkflowJobs; PR-head revision via runAttempt |

@@ -127,7 +127,7 @@ container/CI agreement checks keep failing on real breaks.
 
 ### 3. Local runner concurrency defaults change without test edits
 Type: Behavior
-Status: planned
+Status: done
 Proof: scratch change of `default_job_slots=4` in `scripts/test.sh` (to 3) and
 the local `workers: … : 2` in `dashboard/tests/support/runnerConfig.mjs` (to
 3) → both tests green; a local default that starts every queued check at once,
@@ -218,6 +218,9 @@ keep that the tab and touch icons are declared and serve the supplied bytes).
 - Slice 2 digest-corrupt and full `ci-lint-setup` body paths need GNU
   `timeout`/Linux; local macOS proof used the native-setup negative gates and
   container agreement instead, leaving those assertions for CI.
+- Playwright merges `--workers` after config, so a `runnerConfig`-only ignore
+  of CLI workers is not a product-side break; `OPEN_DOUGH_TEST_JOBS` ignore
+  covers the shared override-regression class.
 
 ## Accepted proof (slice 1)
 
@@ -243,6 +246,14 @@ keep that the tab and touch icons are declared and serve the supplied bytes).
 - Unmodified product sources: same family exit 0.
 - Digest-corrupt / Linux-only lint paths retained in source; not re-proven on
   this macOS host (GNU `timeout`/Linux required). Refactor: none — already clean.
+
+## Accepted proof (slice 3)
+
+- `default_job_slots` 4→3 and local Playwright `workers` 2→3 → local-test-suite
+  family green.
+- Unbounded local slots (999) and ignoring `OPEN_DOUGH_TEST_JOBS` still fail.
+- Unmodified family green; refactor folded held-slot helper and kept file ≤250;
+  focused family + lifecycle re-verified.
 
 ## Verification, sizing and concern review
 
