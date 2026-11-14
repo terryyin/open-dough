@@ -45,8 +45,9 @@ let cursorSessionId: string;
 let cursorClientPid: number;
 // Setup publishes pinned main and starts the watcher; the first test observes
 // its activation and the next starts development, so the shared hook holds
-// only the preparation.
-test.beforeAll(async ({ browser }) => {
+// only the preparation. The worker has already prepared the application source.
+test.beforeAll(async ({ browser, publishedApplicationSourceReady }) => {
+  await Promise.resolve(publishedApplicationSourceReady);
   ({ env, pinned } = await machine.start(browser));
 });
 test.afterAll(async () => {

@@ -71,8 +71,11 @@ async function createPublishedMainFixture<Gh extends FakeGhPaths | undefined>(
   // Stops the Cursor runner a production dashboard of this HOME detached
   // (its own process group, so no command's stop reaches it), ends the
   // request owner this fixture's commands asked `gh` through, then removes
-  // everything the fixture made.
+  // everything the fixture made. A commit after cleanup stops rather than
+  // recreating the removed checkout's directories.
+  let removed = false;
   const cleanup = async () => {
+    removed = true;
     await stopCursorRunner(home);
     if (gh !== undefined) await endFakeGh(gh);
     rmSync(root, { recursive: true, force: true });
@@ -106,6 +109,7 @@ async function createPublishedMainFixture<Gh extends FakeGhPaths | undefined>(
     }
     // Commits exactly the requested path changes on local main.
     const commit = async (changes: PathChanges, message: string) => {
+      if (removed) throw new Error("The published-main fixture was cleaned up");
       const paths = Object.keys(changes);
       if (paths.length === 0) throw new Error("No fixture path changes");
       for (const [file, content] of Object.entries(changes)) {

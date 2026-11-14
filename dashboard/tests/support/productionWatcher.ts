@@ -172,6 +172,15 @@ export function outputCount(
   return watcher?.output().match(expression)?.length ?? 0;
 }
 
+// Waits until the watcher keeps serving `commit` after a failed update or
+// check and will retry on a later check.
+export function keptForRetry(watcher: ProductionWatcher, commit: string) {
+  return waitForWatcherOutput(
+    watcher,
+    new RegExp(`Keeping ${commit} at \\S+; retrying on a later check\\.`),
+  );
+}
+
 // How often the watcher has begun preparing the commit.
 export function preparations(
   watcher: ProductionWatcher | undefined,

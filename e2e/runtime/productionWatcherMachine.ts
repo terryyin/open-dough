@@ -4,13 +4,11 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/runnerPaths.ts";
 import { openCursorTerminal } from "../../dashboard/tests/support/cursorTerminal.ts";
-import {
-  dashboardCommand,
-  developmentDashboard,
-} from "../../dashboard/tests/support/dashboardCommand.ts";
+import { developmentDashboard } from "../../dashboard/tests/support/dashboardCommand.ts";
 import { localPublishedMainFixture } from "../../dashboard/tests/support/publishedMainFixture.ts";
 import { configureWatcherApplication } from "../../dashboard/tests/support/productionWatcherFixture.ts";
 import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
+import { serialFileResources } from "../../dashboard/tests/support/serialFileResources.ts";
 import { waitForWatcherTerminal } from "./productionWatcherClient.ts";
 import {
   productionActivation,
@@ -24,16 +22,21 @@ export const sourceMarker = (page: Page) =>
   page.getByTestId("production-source");
 
 export class ProductionWatcherMachine {
+  // Released by `close` even when a later setup operation fails.
+  private readonly resources = serialFileResources();
   private fixture:
     Awaited<ReturnType<typeof localPublishedMainFixture>> | undefined;
-  private development: ReturnType<typeof dashboardCommand> | undefined;
   private productionPage: Page | undefined;
   private developmentPage: Page | undefined;
   private readonly sockets: { close(): void }[] = [];
   watcher: ProductionWatcher | undefined;
 
   async start(browser: Browser) {
-    const fixture = await localPublishedMainFixture(true, "application");
+    const { resources } = this;
+    const fixture = await resources.acquire(
+      () => localPublishedMainFixture(true, "application"),
+      (owned) => owned.cleanup(),
+    );
     this.fixture = fixture;
     const banner = path.join(fixture.development, bannerPath);
     const pinnedBanner = (await readFile(banner, "utf8")).replace(
@@ -57,10 +60,19 @@ export class ProductionWatcherMachine {
       pinnedBanner.replace("PINNED SOURCE", "DEVELOPMENT SOURCE"),
     );
     await fixture.installDevelopment();
+    resources.ensureOpen();
     const { env } = await configureWatcherApplication(fixture);
-    this.watcher = startProductionWatcher(fixture.development, env);
-    this.productionPage = await browser.newPage();
-    this.developmentPage = await browser.newPage();
+    this.watcher = await resources.acquire(
+      () => startProductionWatcher(fixture.development, env),
+      (watcher) => watcher.stop(),
+    );
+    const page = () =>
+      resources.acquire(
+        () => browser.newPage(),
+        (opened) => opened.close(),
+      );
+    this.productionPage = await page();
+    this.developmentPage = await page();
     return { env, pinned };
   }
 
@@ -78,8 +90,10 @@ export class ProductionWatcherMachine {
   // has started the Cursor runner.
   async developmentStarted(env: NodeJS.ProcessEnv) {
     const { fixture } = this.started();
-    const started = await developmentDashboard(fixture.development, env);
-    this.development = started.command;
+    const started = await this.resources.acquire(
+      () => developmentDashboard(fixture.development, env),
+      (development) => development.command.stop(),
+    );
     return started.url;
   }
 
@@ -132,12 +146,13 @@ export class ProductionWatcherMachine {
     return terminal;
   }
 
+  // A restarted watcher is a test's own; the rest is released in reverse.
   async close() {
     for (const socket of this.sockets) socket.close();
-    await this.productionPage?.close();
-    await this.developmentPage?.close();
-    await this.watcher?.stop();
-    await this.development?.stop();
-    await this.fixture?.cleanup();
+    try {
+      await this.watcher?.stop();
+    } finally {
+      await this.resources.release();
+    }
   }
 }

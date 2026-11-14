@@ -117,10 +117,10 @@ in its first test and again in each test that follows a scenario ending it.
 Each test steps the watcher to its next state and asserts the delta it observes
 (`support/productionWatcher.ts`: reported activations, replacements and skips,
 recorded builds, or successful Git reads recorded through fixture-local Trace2
-events). Routine checks remain quiet; the tests never use a fixed wait.
-A wait on a deployment step polls with `timeout: 0`, so the test timeout
-alone bounds it, as it bounds any answer.
-`afterAll` stops the watcher and cleans the fixture up.
+events). Routine checks remain quiet; the tests never use a fixed wait. A wait
+on a deployment step polls with `timeout: 0`, so the test timeout alone bounds
+it, as it bounds any answer. `afterAll` stops the watcher and releases setup's
+resources in reverse (`support/serialFileResources.ts`); overrun setup stops.
 In a serial file a failing test skips the file's later tests, and a test
 that ends the watcher hands the next one a restart at current main. A
 precondition that every test only reads is shared wider: the launch

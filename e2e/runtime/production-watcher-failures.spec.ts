@@ -6,6 +6,7 @@ import type { Page } from "@playwright/test";
 import { developmentDashboard } from "../../dashboard/tests/support/dashboardCommand.ts";
 import { projectConfigurationFile } from "../../dashboard/tests/support/projectConfiguration.ts";
 import { productionFailureFixture } from "../../dashboard/tests/support/productionWatcherFixture.ts";
+import { serialFileResources } from "../../dashboard/tests/support/serialFileResources.ts";
 import { writeSharedLaunchRecord } from "../../dashboard/tests/support/sharedLaunchRecord.ts";
 import {
   waitForEmptyDirectory,
@@ -20,6 +21,7 @@ import {
 import {
   expectProductionEnded,
   expectStillServing,
+  keptForRetry,
   preparations,
   productionActivation,
   productionDeployments,
@@ -32,6 +34,8 @@ import {
 
 test.describe.configure({ mode: "serial" });
 
+// Released by afterAll even when a later setup operation fails.
+const resources = serialFileResources();
 let fixture: Awaited<ReturnType<typeof productionFailureFixture>> | undefined;
 let watcher: ProductionWatcher | undefined;
 let page: Page | undefined;
@@ -47,16 +51,16 @@ function started() {
   return { fixture, page };
 }
 
-function waitForRetry(watcher: ProductionWatcher, commit: string) {
-  return waitForWatcherOutput(
-    watcher,
-    new RegExp(`Keeping ${commit} at \\S+; retrying on a later check\\.`),
+// The worker has already prepared the application source the fixture clones.
+test.beforeAll(async ({ browser, publishedApplicationSourceReady }) => {
+  await Promise.resolve(publishedApplicationSourceReady);
+  fixture = await resources.acquire(productionFailureFixture, (owned) =>
+    owned.cleanup(),
   );
-}
-
-test.beforeAll(async ({ browser }) => {
-  fixture = await productionFailureFixture();
-  page = await browser.newPage();
+  page = await resources.acquire(
+    () => browser.newPage(),
+    (opened) => opened.close(),
+  );
   servedCommit = await fixture.publish(
     {
       ...fixture.markerChanges("WORKING A"),
@@ -67,11 +71,10 @@ test.beforeAll(async ({ browser }) => {
   latestCommit = servedCommit;
 });
 
-test.afterAll(async () => {
-  await page?.close();
-  await watcher?.stop();
-  await fixture?.cleanup();
-});
+// The watcher a test started last is that test's own.
+test.afterAll(() =>
+  Promise.resolve(watcher?.stop()).finally(() => resources.release()),
+);
 
 test("a watcher serves the working commit whose build and start are gated", async () => {
   const { fixture, page } = started();
@@ -87,7 +90,7 @@ test("a failed build keeps working production", async () => {
     fixture.markerChanges("WORKING B"),
     "Working B",
   );
-  await waitForRetry(watcher, servedCommit);
+  await keptForRetry(watcher, servedCommit);
   expect(watcher.output()).toContain("TRANSIENT build FAILURE");
   expect(watcher.output()).toContain(`Production update failed for ${b}`);
   expect(watcher.output()).toContain(
@@ -133,7 +136,7 @@ test("a failed preview start restores the working commit", async () => {
   const { page } = started();
   const c = latestCommit;
   served = await productionReplacement(watcher, served, servedCommit, true);
-  await waitForRetry(watcher, servedCommit);
+  await keptForRetry(watcher, servedCommit);
   expect(watcher.output()).toContain("TRANSIENT preview FAILURE");
   expect(watcher.output()).toContain(
     `Keeping ${servedCommit} at ${served.url}`,
@@ -160,7 +163,7 @@ test("an unavailable origin keeps production and checks resume when it returns",
   if (watcher === undefined) throw new Error("No watcher");
   const { fixture, page } = started();
   await rename(fixture.origin, `${fixture.origin}.unavailable`);
-  await waitForRetry(watcher, servedCommit);
+  await keptForRetry(watcher, servedCommit);
   expect(watcher.output()).toContain(
     `git ls-remote -- ${fixture.origin} refs/heads/main failed`,
   );

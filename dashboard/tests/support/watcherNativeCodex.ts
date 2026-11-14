@@ -18,7 +18,10 @@ const exec = promisify(execFile);
 const codexPackage = "@openai/codex";
 const codexVersion = "0.167.1";
 
-export async function startWatcherNativeCodex(fixtureEnv: NodeJS.ProcessEnv) {
+// The pinned Codex executable. Its package is large and absent from the
+// project's own install, so acquiring it is cold shared preparation a worker
+// does once (./publishedMainWorkerFixtures.ts) before a journey starts its daemon.
+export async function pinnedWatcherCodex(): Promise<string> {
   const { stdout: command } = await exec(
     "npm",
     [
@@ -46,7 +49,13 @@ export async function startWatcherNativeCodex(fixtureEnv: NodeJS.ProcessEnv) {
   if (manifest.name !== codexPackage || manifest.version !== codexVersion) {
     throw new Error(`Expected ${codexPackage}@${codexVersion} at ${codex}`);
   }
+  return codex;
+}
 
+export async function startWatcherNativeCodex(
+  fixtureEnv: NodeJS.ProcessEnv,
+  codex: string,
+) {
   // Unix socket paths have a small limit on macOS. Give the isolated daemon
   // a short private directory independently of the publication fixture.
   const codexHome = await realpath(await mkdtemp("/tmp/dough-codex."));

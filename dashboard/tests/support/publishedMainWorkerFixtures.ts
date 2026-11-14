@@ -30,6 +30,7 @@ export type PublishedMainWorkerFixtures = {
   publishedRepositorySourceReady: undefined;
   pinnedDeployment: PinnedDeployment;
   ownerlessPublishedMain: PublishedMainFixture;
+  pinnedWatcherCodex: string;
 };
 
 export const publishedMainWorkerFixtures: Fixtures<
@@ -92,6 +93,17 @@ export const publishedMainWorkerFixtures: Fixtures<
       } finally {
         await fixture.cleanup();
       }
+    },
+    coldInputPreparation,
+  ],
+  // The pinned native Codex executable a published-main watcher journey
+  // drains through (./watcherNativeCodex.ts). Acquiring the package is the
+  // worker's; each journey starts and stops its own daemon from it.
+  pinnedWatcherCodex: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const { pinnedWatcherCodex } = await import("./watcherNativeCodex.ts");
+      await use(await pinnedWatcherCodex());
     },
     coldInputPreparation,
   ],

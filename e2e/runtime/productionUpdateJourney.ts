@@ -6,10 +6,7 @@ import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
 import { readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { APIRequestContext, Page } from "@playwright/test";
-import {
-  dashboardCommand,
-  developmentDashboard,
-} from "../../dashboard/tests/support/dashboardCommand.ts";
+import { developmentDashboard } from "../../dashboard/tests/support/dashboardCommand.ts";
 import { localPublishedMainFixture } from "../../dashboard/tests/support/publishedMainFixture.ts";
 import { startWatcherNativeCodex } from "../../dashboard/tests/support/watcherNativeCodex.ts";
 import {
@@ -17,6 +14,7 @@ import {
   productionBuildEnvironment,
 } from "../../dashboard/tests/support/productionWatcherFixture.ts";
 import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
+import { serialFileResources } from "../../dashboard/tests/support/serialFileResources.ts";
 import {
   deploymentWork,
   expectProductionEnded,
@@ -45,7 +43,6 @@ import {
 } from "../../dashboard/tests/support/sharedLaunchRecord.ts";
 import { ciWorkflowPath } from "../../dashboard/server/productionQualification.mjs";
 
-type Native = Awaited<ReturnType<typeof startWatcherNativeCodex>>;
 type PublishedMainFixture = Awaited<
   ReturnType<typeof localPublishedMainFixture>
 >;
@@ -73,12 +70,9 @@ export type ProductionUpdateJourney = ReturnType<
 >;
 
 export function productionUpdateJourney() {
-  // Each resource is cleaned even when a later setup operation fails.
-  let fixture: PublishedMainFixture | undefined;
-  let native: Native | undefined;
-  let development: ReturnType<typeof dashboardCommand> | undefined;
+  // Each resource is released even when a later setup operation fails.
+  const resources = serialFileResources();
   let watcher: ProductionWatcher | undefined;
-  let page: Page | undefined;
   let prepared: Omit<Started, "served" | "built"> | undefined;
   let state: Started | undefined;
   function started(): Started {
@@ -94,77 +88,86 @@ export function productionUpdateJourney() {
   }
   // Setup publishes A and starts the watcher; the first test observes A's
   // activation through `activated()`, so the shared hook holds only the
-  // preparation.
-  test.beforeAll(async ({ browser }) => {
-    fixture = await localPublishedMainFixture(true, "application");
-    const workflow = await readFile(
-      path.join(fixture.development, ciWorkflowPath),
-      "utf8",
-    );
-    expect(workflow).toContain(`  push:\n${pushExclusions}`);
-    // A passes the fault gate, then the counting build gate.
-    await fixture.commit(
-      {
-        ...fixture.markerChanges("MAIN A"),
-        ...(await buildGateChanges(fixture.development)),
-      },
-      "Main A",
-    );
-    const a = await fixture.publish(
-      {
-        ...(await faultGateChanges(fixture.development)),
-        [ciWorkflowPath]: publishedPolicy(workflow),
-      },
-      "Fault-gated A",
-    );
-    const {
-      configuration,
-      configured,
-      env: applicationEnv,
-    } = await configureWatcherApplication(fixture);
-    const [host, dependencies] = await Promise.allSettled([
-      startWatcherNativeCodex(applicationEnv),
-      fixture.installDevelopment(),
-    ]);
-    if (host.status === "rejected") throw host.reason;
-    native = host.value;
-    if (dependencies.status === "rejected") throw dependencies.reason;
-    const { env: observed, drainEvents } = await observeLaunchAdmission(
-      fixture.home,
-      native.env,
-    );
-    const env = productionBuildEnvironment(observed);
-    const configurationIdentity = (await stat(configuration)).ino;
-    const dev = await developmentDashboard(fixture.development, env);
-    development = dev.command;
-    watcher = startProductionWatcher(fixture.development, env);
-    page = await browser.newPage();
-    prepared = {
-      fixture,
-      drainEvents,
-      page,
-      watcher,
-      developmentUrl: dev.url,
-      workflow,
-      configuration,
-      configured,
-      configurationIdentity,
-      a,
-    };
-  });
-  test.afterAll(async () => {
-    try {
-      await page?.close();
-      await watcher?.stop();
-      await development?.stop();
-    } finally {
-      try {
-        await native?.close();
-      } finally {
-        await fixture?.cleanup();
-      }
-    }
-  });
+  // preparation. The worker has already prepared the application source and
+  // the pinned Codex executable (./publishedMainWorkerFixtures.ts).
+  test.beforeAll(
+    async ({
+      browser,
+      publishedApplicationSourceReady,
+      pinnedWatcherCodex,
+    }) => {
+      await Promise.resolve(publishedApplicationSourceReady);
+      const fixture = await resources.acquire(
+        () => localPublishedMainFixture(true, "application"),
+        (owned) => owned.cleanup(),
+      );
+      const workflow = await readFile(
+        path.join(fixture.development, ciWorkflowPath),
+        "utf8",
+      );
+      expect(workflow).toContain(`  push:\n${pushExclusions}`);
+      // A passes the fault gate, then the counting build gate.
+      await fixture.commit(
+        {
+          ...fixture.markerChanges("MAIN A"),
+          ...(await buildGateChanges(fixture.development)),
+        },
+        "Main A",
+      );
+      const a = await fixture.publish(
+        {
+          ...(await faultGateChanges(fixture.development)),
+          [ciWorkflowPath]: publishedPolicy(workflow),
+        },
+        "Fault-gated A",
+      );
+      resources.ensureOpen();
+      const {
+        configuration,
+        configured,
+        env: applicationEnv,
+      } = await configureWatcherApplication(fixture);
+      const [host, dependencies] = await Promise.allSettled([
+        resources.acquire(
+          () => startWatcherNativeCodex(applicationEnv, pinnedWatcherCodex),
+          (native) => native.close(),
+        ),
+        fixture.installDevelopment(),
+      ]);
+      if (host.status === "rejected") throw host.reason;
+      if (dependencies.status === "rejected") throw dependencies.reason;
+      const { env: observed, drainEvents } = await observeLaunchAdmission(
+        fixture.home,
+        host.value.env,
+      );
+      const env = productionBuildEnvironment(observed);
+      const configurationIdentity = (await stat(configuration)).ino;
+      const dev = await resources.acquire(
+        () => developmentDashboard(fixture.development, env),
+        (development) => development.command.stop(),
+      );
+      watcher = await resources.acquire(
+        () => startProductionWatcher(fixture.development, env),
+        (running) => running.stop(),
+      );
+      prepared = {
+        fixture,
+        drainEvents,
+        page: await resources.acquire(
+          () => browser.newPage(),
+          (page) => page.close(),
+        ),
+        watcher,
+        developmentUrl: dev.url,
+        workflow,
+        configuration,
+        configured,
+        configurationIdentity,
+        a,
+      };
+    },
+  );
+  test.afterAll(() => resources.release());
   return {
     // Waits for the watcher to serve A and shows A's page.
     activated: async () => {
