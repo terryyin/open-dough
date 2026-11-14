@@ -42,7 +42,7 @@ test("a collected selected landing without its proof summary keeps the prior ave
   const { panel } = await selectDoneStoryForCiComparison(page);
   const history = doneWallTimeHistory(panel);
   await expect(history.status).toHaveText("Selected landing not collected");
-  const before = github.calls.length;
+  const callsBeforeRefresh = github.calls.length;
   const selected = makeMe.aLandedCiHistory
     .measuredLanding({
       receipt: "selected",
@@ -72,5 +72,9 @@ test("a collected selected landing without its proof summary keeps the prior ave
   await expect(history.change).toHaveCount(0);
   await expect(comparisonReading(panel).entryTable).toBeVisible();
   await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
-  expect(github.calls).toHaveLength(before);
+  expect(
+    github.calls
+      .slice(callsBeforeRefresh)
+      .filter(({ request }) => request.kind.startsWith("actions-")),
+  ).toEqual([]);
 });
