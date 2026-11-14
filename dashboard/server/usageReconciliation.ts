@@ -85,7 +85,7 @@ export function reconcileObservation(
     "turnId",
     "rootTurnId",
     "parentSessionId",
-    "at",
+    "agentId",
   ] as const) {
     const values = uniqueFacts(
       [
@@ -97,6 +97,19 @@ export function reconcileObservation(
     const [value] = values;
     if (values.length === 1 && value !== undefined) result[field] = value;
     else if (values.length > 1) result.gaps.push("contradictory-lineage");
+  }
+  const times = uniqueFacts(
+    [
+      ...measurements.map((item) => item.at),
+      previous?.at,
+      previous?.lastAt,
+      incoming.at,
+      incoming.lastAt,
+    ].filter((value) => value !== undefined),
+  ).sort();
+  if (times.length > 0) {
+    result.at = times[0];
+    result.lastAt = times.at(-1);
   }
   result.gaps = uniqueFacts(result.gaps);
   return result;

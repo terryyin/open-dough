@@ -1,5 +1,11 @@
 // Explicit, offline import. Native evidence is streamed; only compact response
 // observations are retained. Operational launch readers never invoke this path.
+import { claudeUsage } from "./claudeUsage.ts";
+import {
+  claudeLineage,
+  claudeAssociation,
+  claudeCoverage,
+} from "./claudeUsageLineage.ts";
 import { codexUsage } from "./codexUsage.ts";
 import {
   codexAssociation,
@@ -24,6 +30,7 @@ import {
 export type UsageImportOptions = {
   home: string;
   codexRoots: string[];
+  claudeRoots?: string[];
   since: string;
   store?: string;
 };
@@ -46,20 +53,37 @@ export async function importUsageHistory(options: UsageImportOptions) {
   const observations = new Map<string, UsageObservation>();
   const associations: UsageAssociation[] = [];
   let files = 0;
-  for (const root of options.codexRoots) {
-    for await (const file of nativeUsageFiles(root, gaps)) {
-      files++;
-      for await (const observation of codexUsage(file, since, gaps, lineage)) {
-        observations.set(
-          observation.id,
-          reconcileObservation(observations.get(observation.id), observation),
-        );
+  const collectNativeUsage = async (
+    roots: string[],
+    read: (file: string) => AsyncIterable<UsageObservation>,
+  ) => {
+    for (const root of roots) {
+      for await (const file of nativeUsageFiles(root, gaps)) {
+        files++;
+        for await (const observation of read(file)) {
+          observations.set(
+            observation.id,
+            reconcileObservation(observations.get(observation.id), observation),
+          );
+        }
       }
     }
-  }
+  };
+  await collectNativeUsage(options.codexRoots, (file) =>
+    codexUsage(file, since, gaps, lineage),
+  );
+  const claude = claudeLineage();
+  await collectNativeUsage(options.claudeRoots ?? [], (file) =>
+    claudeUsage(file, since, gaps, claude),
+  );
   for (const observation of observations.values()) {
-    associations.push(codexAssociation(observation, tasks, lineage));
+    if (observation.host === "claude") {
+      const resolved = claudeAssociation(observation, tasks, claude);
+      observations.set(observation.id, resolved.observation);
+      associations.push(resolved.association);
+    } else associations.push(codexAssociation(observation, tasks, lineage));
   }
+  gaps.push(...claudeCoverage(claude));
   gaps.push(...codexCoverage(lineage));
   for (const task of tasks) {
     if (!associations.some((association) => association.taskId === task.id))

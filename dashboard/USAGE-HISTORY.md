@@ -23,13 +23,15 @@ and may be repeated; its defaults are `<home>/.codex/sessions` and
 rollouts are streamed. `--store <file>`
 selects an explicit alternate usage document for both commands. `--since` uses
 recorded response timestamps, including in-window responses of older sessions;
-the default cutoff above is midnight Singapore time, not UTC midnight. Native
+the default cutoff above is midnight Singapore time, not UTC midnight. `--claude-root <directory>` selects a Claude transcript root and may be repeated;
+its default is `<home>/.claude/projects`. Native
 inputs are read only. No API request, native session launch, billing lookup or
 workflow mutation occurs. Use an isolated home/store for fixture experiments.
 
-The current retained-launch path reads active and archived Codex response usage,
-including compressed rollouts and explicitly linked descendants. Pruned-task and
-Claude reconstruction have separate planned import paths. A retained task without an evidenced native turn boundary
+The retained-launch path reads active and archived Codex response usage,
+including compressed rollouts and explicitly linked descendants, plus Claude
+root and worker transcripts. Pruned-task reconstruction has a separate planned
+import path. A retained task without an evidenced native turn boundary
 keeps unavailable/unattributed usage; it is never assigned a conversation total.
 An unsupported or unavailable source stays a coverage gap. An import report's
 counts describe persisted evidence, not provider-wide accounting.
@@ -66,6 +68,20 @@ observed settings, measurements and normalized counters. `associations` names
 at most one task for that key. Conflicting task candidates stay unresolved.
 Repeated rows, files and later collector replay reconcile that same observation;
 they never add its counters a second time. Source measurements remain inspectable.
+Claude uses native `message.id`, never the shared request ID or streaming row
+UUID, as the response identity. Repeated streaming rows preserve their first
+and last recorded times; advancing timestamps do not contradict task lineage.
+Claude input counters are already disjoint. Cache creation lifetime fields only
+refine cache writes. A worker retains its native `agentId` and joins its root
+through a recorded agent result and parent UUID chain. A native human input's
+recorded dashboard reporting reference (or a retained native input UUID) binds
+it to a launch. A repeated reference can continue that same launch; a different
+launch reference selects another task in the same session. Unclassified human
+follow-ups have an unknown task boundary and remain unassigned with a lineage
+gap; their parent conversation alone does not establish continuing task scope.
+Missing workers, root transcripts, unsupported message identities and auxiliary
+work remain explicit coverage gaps.
+
 Additional measurements may fill missing counters. Conflicting measured values
 produce unknown affected counters and a `contradictory-measurements` gap rather
 than choosing one value.
