@@ -6,9 +6,10 @@
 ## Source and provenance
 
 Bounded retrospective correction of the delivered
-[native A/B comparisons story](../../seeds/SEED-346-native-ab-comparisons.md#run-native-ab-comparisons-on-real-work)
-(SEED-346#run-native-ab-comparisons-on-real-work), executed through
-[plan 618](../618-native-ab-comparisons/PLAN.md) (completed; see its Learnings
+native A/B comparisons story
+(SEED-346#run-native-ab-comparisons-on-real-work, at
+`caeb237278b6dff869fb08e325d9d435e37e58c0:.planning/seeds/SEED-346-native-ab-comparisons.md`), executed through
+plan 618 (`caeb237278b6dff869fb08e325d9d435e37e58c0:.planning/slice-plans/618-native-ab-comparisons/PLAN.md`; see its Learnings
 and `source-review.md` beside it). Reviewed commits: `03634c3e`, `e4c7cbe3`,
 `9c20a808`, the relocation part of `27ad2f0f`, `ff3ce589`, `6a2931f8`; the
 repair `e8e5eac2` is unrelated. Findings were verified at HEAD `6a2931f8`

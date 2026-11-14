@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Resume blocked work when it can advance](seeds/SEED-345-session-token-efficiency.md#resume-when-blocked-work-can-advance) — SEED-345#resume-when-blocked-work-can-advance ([plan](slice-plans/617-resume-blocked-work/PLAN.md))
-- [Run native A/B comparisons on examples from real work](seeds/SEED-346-native-ab-comparisons.md#run-native-ab-comparisons-on-real-work) — SEED-346#run-native-ab-comparisons-on-real-work ([plan](slice-plans/618-native-ab-comparisons/PLAN.md))
 - [Start a follow-up session from a file diff](seeds/SEED-347-follow-up-from-a-file-diff.md#start-follow-up-from-a-file-diff) — SEED-347#start-follow-up-from-a-file-diff ([plan](slice-plans/619-follow-up-from-a-file-diff/PLAN.md))
 
 ## Backlog list

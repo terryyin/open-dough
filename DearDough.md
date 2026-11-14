@@ -581,7 +581,7 @@ At slice acceptance the coordinator closed a receiving obligation for arm isolat
 
 ### Occurrences
 
-- Execution: SEED-346#run-native-ab-comparisons-on-real-work (spent plan 618 recoverable at the before-cleanup commit; first implementation `03634c3e4526dfeb56daaa797e0d537d41540f3b`)
+- Execution: SEED-346#run-native-ab-comparisons-on-real-work (spent plan 618 recoverable at before-cleanup `caeb237278b6dff869fb08e325d9d435e37e58c0`; first implementation `03634c3e4526dfeb56daaa797e0d537d41540f3b`)
   - Timestamp: unknown (2026-11-14; slice 3 accepted before publication at 13:28:03+08:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -596,7 +596,7 @@ The coordinator merged trunk's `tests/` → `Distribution/tests/` move into the 
 
 ### Occurrences
 
-- Execution: SEED-346#run-native-ab-comparisons-on-real-work (spent plan 618 recoverable at the before-cleanup commit; first implementation `03634c3e4526dfeb56daaa797e0d537d41540f3b`)
+- Execution: SEED-346#run-native-ab-comparisons-on-real-work (spent plan 618 recoverable at before-cleanup `caeb237278b6dff869fb08e325d9d435e37e58c0`; first implementation `03634c3e4526dfeb56daaa797e0d537d41540f3b`)
   - Timestamp: 2026-11-14T13:36:29+08:00 (merge commit `27ad2f0f`; proof ran just before it)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -611,7 +611,7 @@ Three observer or detector defects in the new comparison harness surfaced only a
 
 ### Occurrences
 
-- Execution: SEED-346#run-native-ab-comparisons-on-real-work (spent plan 618 recoverable at the before-cleanup commit; first implementation `03634c3e4526dfeb56daaa797e0d537d41540f3b`)
+- Execution: SEED-346#run-native-ab-comparisons-on-real-work (spent plan 618 recoverable at before-cleanup `caeb237278b6dff869fb08e325d9d435e37e58c0`; first implementation `03634c3e4526dfeb56daaa797e0d537d41540f3b`)
   - Timestamp: unknown (2026-11-14; slices 1–2, before publication at 11:03:56+08:00 and the Slice 2 commit)
   - Tool: Claude Code
   - Model: claude-opus-5-5
