@@ -375,6 +375,30 @@ own amendment/acceptance. Revisit the cited North Star during normal wrap-up.
   about who installs the substitute.
 
 
+## Execution complete
+
+Product advice:
+- Queue the bounded correction [SEED-346#close-native-comparison-harness-gaps](../../seeds/SEED-346-native-ab-comparisons.md#close-native-comparison-harness-gaps)
+  ([plan 621](../621-close-native-comparison-harness-gaps/PLAN.md)): arm-owned processes
+  (case services, host session) survive a failed materialization or interrupt; free pair
+  journeys test the committed HEAD instead of the working tree; host selection lists
+  unqualified hosts.
+- Decide the five recommendations in
+  [the ADR 0005 review](../../../docs/maintainer/native-comparison-adr-0005-review.md);
+  the ADR is unchanged.
+- Revisit the North Star's "Versioned native comparison cases" at wrap-up: fidelity and
+  duration are now observed and the code and guide explain the design.
+- Use the paused-supplier case to evaluate SEED-345#resume-when-blocked-work-can-advance;
+  token effort stays unavailable until SEED-345#compare-agent-effort-on-comparable-runs.
+- Before a paid pair, confirm the payloads differ in what the case exercises: the Doughnut
+  pair's verdict changed with an identical skill (run-to-run variance).
+- Structure advice, not corrections: let the runner own per-turn command and harness
+  facts (a missing value is unknown, never 0); move payload installation to a neutral
+  native-payload module; add a shared real-path "is main module" helper for the
+  test-support `.mjs` entries.
+- Integrate with a history-preserving merge and recheck `--recover` on trunk: both kept
+  records' basis `9c20a808` is a branch commit.
+
 ## Story obligations
 
 ### G1. Assessor does not observe a single continuation
