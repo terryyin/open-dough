@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "jacked-chan",
+  "email": "jacked-chan@example.org",
+  "identity": "SEED-357#view-token-usage-for-dashboard-launched-tasks",
+  "mode": "story-branch",
+  "branch": "claude/view-token-usage-for-dashboard-launched-codex-ta",
+  "host": "claude",
+  "model": "opus"
+}
