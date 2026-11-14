@@ -24,7 +24,7 @@ started in the dashboard, including attributable workers and resumed work.
 
 Extend the [dashboard usage view](SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks)
 to Claude Code story workflows and ad hoc tasks using the shared
-[launch and usage records](SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history).
+[launch and usage records](../../dashboard/USAGE-HISTORY.md).
 Preserve the current background
 launch and terminal experience. Show the launch settings, actual model and effort
 where recorded, and usage by token category. Include attributable background
@@ -44,7 +44,7 @@ work, and distinguish partial or missing coverage from a measured zero.
 #### Strongest option
 
 Measure each launch with the same import the
-[usage history reconstruction](SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history)
+[usage history reconstruction](../../dashboard/USAGE-HISTORY.md)
 runs: read per-message usage from the launch's session and worker transcripts,
 counting each API message ID once, while the task runs and after it ends. The
 November 14 check found real response usage for 628 of 629 retained roots and

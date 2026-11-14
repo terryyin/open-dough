@@ -2,7 +2,7 @@
 // Only ENOENT permits seeding; unreadable files stay untouched and admit no project.
 import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { z } from "zod";
+import { projectsSchema } from "./configuredProjectDocument.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ProjectSettings } from "../src/projectConfiguration.ts";
 import { ProjectInputProblem } from "../src/projectInput.ts";
@@ -16,16 +16,6 @@ export type ConfiguredProject = PublishedSource & {
   readonly localPath: string;
 };
 
-const projectSchema = z.object({
-  id: z.string().min(1),
-  label: z.string().min(1),
-  repository: z.string().min(1),
-  ref: z.string().min(1),
-  backlogPath: z.string().min(1),
-  localPath: z.string().min(1),
-  hidden: z.boolean().optional(),
-});
-const projectsSchema = z.array(projectSchema);
 let environment: ProjectEnvironment | undefined;
 let configurationFile: string | undefined;
 let projects: readonly ConfiguredProject[] = [];

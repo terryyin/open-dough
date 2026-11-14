@@ -22,7 +22,7 @@ scope: story
 **For / why.** A developer can occasionally check how the price-weighted usage
 of dashboard-launched Codex tasks is trending and inspect an individual point.
 
-Use the [usage records and historical reconstruction](SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history)
+Use the [usage records and historical reconstruction](../../dashboard/USAGE-HISTORY.md)
 for dashboard-launched Codex story workflows and ad hoc tasks. Reuse the same
 native rollout reader for new usage and backfill. The Usage tab may read cached
 results and refresh relevant session history on demand. Show when the data was

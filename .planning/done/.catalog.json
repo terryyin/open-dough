@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-358_reconstruct-codex-and-claude-code-usage-history.json",
+      "identity": "SEED-358#reconstruct-codex-and-claude-code-usage-history",
+      "completedAt": "2026-11-14T22:10:35.611Z",
+      "blob": "93c75e5bb368a99b739a4489db5243b4b5141155"
+    },
+    {
       "fileName": "SEED-346_reuse-native-comparison-baselines.json",
       "identity": "SEED-346#reuse-native-comparison-baselines",
       "completedAt": "2026-11-14T17:55:18.119Z",

@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Reconstruct Codex and Claude Code usage history](seeds/SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history) — SEED-358#reconstruct-codex-and-claude-code-usage-history ([plan](slice-plans/624-reconstruct-codex-and-claude-code-usage-history/PLAN.md))
-
 ## Backlog list
 
 - [View token usage for dashboard-launched Codex tasks](seeds/SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks) — SEED-357#view-token-usage-for-dashboard-launched-tasks
