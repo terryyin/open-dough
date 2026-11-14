@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Save and reuse native A/B baselines](seeds/SEED-346-native-ab-comparisons.md#reuse-native-comparison-baselines) — SEED-346#reuse-native-comparison-baselines ([plan](slice-plans/622-save-and-reuse-native-ab-baselines/PLAN.md))
-- [Keep dashboard launch history](seeds/SEED-358-dashboard-launch-history.md#keep-dashboard-launch-history) — SEED-358#keep-dashboard-launch-history ([plan](slice-plans/623-keep-dashboard-launch-history/PLAN.md))
 
 ## Backlog list
 
