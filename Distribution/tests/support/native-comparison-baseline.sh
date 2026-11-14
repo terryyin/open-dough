@@ -4,7 +4,7 @@
 # shellcheck disable=SC2034,SC2154,SC2312 # Runner globals, set for the frozen arm.
 native_comparison_baseline_capture() {
   local case_name=$1 source_dir=$2 work=$3 results_dir=$4 case_files tree
-  native_comparison_case_files "${source_dir}" "${case_name}"
+  native_comparison_case_files "${source_dir}" "${case_name}" || return 2
   native_comparison_basis_commit "${source_dir}" "Distribution/tests/native-comparison/${case_name}" \
     "${case_files[@]}" "${native_comparison_inputs[@]}" "${native_run_supervision_inputs[@]}" \
     "${native_comparison_pair_inputs[@]}" > /dev/null || return 2

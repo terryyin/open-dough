@@ -1,0 +1,152 @@
+# Capture, acquisition and correction acceptance
+
+Supporting appendix of [the same execution plan](PLAN.md); authoritative slice
+status, execution identity and obligations remain there.
+
+### Slice 1 accepted proof
+
+- Supported entry capture freezes and installs the requested payload; the new
+  `native-comparison-baselines.sh` journey observes its quiet commands despite
+  the working payload's shortcut, saves within the copied case's `comparisons/`,
+  and subsequently runs a pair without changing case identity. It exports from
+  retained session copies after original home removal, rejects overwrite,
+  missing owned proof, empty independent exit receipts, malformed archives and
+  stopped streams, and retains complete task failures. Its final block removes
+  raw attempts and reassesses both direct and owned-worker proof with unchanged
+  archive bytes. Usage is deduplicated by own thread/response and missing facts
+  remain unknown. The literal native wire in that test protects ownership and
+  accounting; it is substitute evidence, never native qualification.
+- `native-comparison-doughnut-title-precedence.sh` retains an original failed
+  assessment and green-fault summary while current assessment derives pass
+  from normalized decisive test-run facts. Separate reassessment after raw
+  cleanup names the immutable source and leaves its hash unchanged.
+- Terminal passing commands (all from this checkout):
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh Distribution/tests/native-comparison.sh Distribution/tests/native-comparison-pairs.sh Distribution/tests/native-comparison-refresh.sh Distribution/tests/native-comparison-incomplete.sh Distribution/tests/native-comparison-paused-supplier.sh Distribution/tests/native-comparison-doughnut-title-precedence.sh Distribution/tests/support/native-codex-owned-proof.test.mjs Distribution/tests/support/native-codex-session.test.mjs`;
+  after the additive shared-reader change,
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh Distribution/tests/native-comparison-doughnut-title-precedence.sh Distribution/tests/support/native-codex-owned-proof.test.mjs Distribution/tests/support/native-host-stream.test.mjs Distribution/tests/native-stream-replay.sh Distribution/tests/native-evidence-identity.sh`;
+  after the case-local test strengthening,
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh`.
+- Shared consumer trace and dispositions:
+  `/tmp/seed346-slice1-effect-consumers.md` (full base trace
+  `/tmp/seed346-slice1-consumer-trace.md`). The reached entry, retention,
+  observers, saved-session reader, owned proof and old case journeys ran above;
+  documentation was inspected. Other planning/history matches are unrelated.
+- `PATH=/opt/homebrew/bin:$PATH Distribution/tests/native-comparison.sh --recover Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T102744-1921.txt > /tmp/seed346-slice1-recovery.txt`
+  passed: unchanged original record, recovered basis
+  `764c4e0fe0ce9f478750323de6a9f30c76a7e61a`. Old records were not modified.
+- Resource admission: this Mac fully awake on AC, 16 cores, observed load
+  2.44/2.38/2.52, free/inactive memory available, no known competing owned heavy
+  work. Focused checks ran under `caffeinate -s -i`; no full suite or paid
+  session ran. Reconsider on contention/failure or changed workload.
+- Source freshness unchanged against pinned trunk `b0fd5c16ff04083686aeac4ed41bc887117f9c66`;
+  incoming commits concern other seeds/dashboard usage research. Named sibling
+  behavior and this slice's source are unchanged.
+- `PATH=/opt/homebrew/bin:$PATH node scripts/test-shares.mjs preview --split-count 3`
+  passed: 654 jobs, predicted totals 739.5/739.4/739.4 under ceiling 926;
+  the new baseline job is unrecorded, so this is allocation evidence, not a
+  measured CI cost claim.
+- Independent `dough-post-change-refactor` completed (`/root/refactor1`):
+  current assessment and usage aggregation have cohesive owners, the existing
+  proof owner supplies coordinator selection, and the focused baseline guide
+  remains linked from the main guide. Formatted previews are below the 250-line
+  limit. Exporter/current-assessment provenance covers the extracted owners.
+  Consumer dispositions are `/tmp/seed346-refactor1-effects.md` and
+  `/tmp/seed346-refactor1-consumers.md`.
+  Renewed proof passed:
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh Distribution/tests/native-comparison.sh Distribution/tests/native-comparison-pairs.sh Distribution/tests/native-comparison-refresh.sh Distribution/tests/native-comparison-incomplete.sh Distribution/tests/native-comparison-paused-supplier.sh Distribution/tests/native-comparison-doughnut-title-precedence.sh Distribution/tests/support/native-codex-owned-proof.test.mjs`;
+  then logging-isolation preservation passed
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-paused-supplier.sh Distribution/tests/support/native-codex-owned-proof.test.mjs`.
+  Earlier shared-reader/replay/identity proof remains valid because those owners
+  were unchanged by this refactor. `git diff --check` passed. Resource recheck:
+  AC, fully awake, load 1.95/2.48/2.87, ample free/inactive memory, no competing
+  test commands; named checks under sleep guard only. No remaining gap.
+
+### Slice 2 accepted proof
+
+- Slice 1 was accepted on the execution branch at
+  `1f224d6641d73832725b8845f516a9ba2123d516`, suffix base
+  `d87004f11c06a9fc2c1e3d5f7dbdeab79a09b8be`, with the retained observer attached.
+- Supported pair acquisition now uses `--reuse-baseline FILE`, `--fresh-pair`
+  and explicit `--require-usage`. `native-comparison-baseline-reuse.sh` observes
+  actual session counts: one candidate for sufficient matching or complete
+  failed baselines, two for explicit fresh pairs. Its assertions inspect
+  source/date/conditions/historical limits, current assessor derivation and
+  immutable original bytes. A cheaper bad candidate is regressed, never a gain.
+- `native-comparison-baseline-misses.sh` observes two sessions for changed
+  payload/model/effort/task and missing/truncated evidence, then reuses the newly
+  saved changed-payload observation with one session. Required absent usage
+  obtains fresh evidence and remains not-comparable if still unavailable.
+  `native-comparison-baseline-conditions.sh` observes fresh acquisition for
+  missing decisive assessor inputs, candidate-only acquisition followed by
+  not-comparable/no delta for an actual applied-model mismatch, and complete
+  own native-response usage without summing CLI cumulative counters.
+- Applied settings that are unavailable retain the old precise unknown result;
+  only observed differences override it. Criteria sufficiency has its own
+  condition, separate from settings. Assessor/retention provenance can differ while sufficient current replay
+  establishes applicability; the overbroad reader exemption was corrected by G2; the mixed
+  setup/observer file's uncertainty is disposed in G1 in the plan.
+- Terminal passing commands:
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh Distribution/tests/native-comparison.sh Distribution/tests/native-comparison-paused-supplier.sh Distribution/tests/native-comparison-doughnut-title-precedence.sh Distribution/tests/native-stream-replay.sh`;
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-incomplete.sh Distribution/tests/native-comparison-baseline-reuse.sh Distribution/tests/native-comparison-baseline-conditions.sh`;
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baseline-misses.sh Distribution/tests/native-comparison-pairs.sh Distribution/tests/native-comparison-refresh.sh`.
+  Setup and observing assertions were inspected in those three new supported
+  entry journeys. Consumer dispositions: `/tmp/seed346-slice2-effects.md` and
+  `/tmp/seed346-slice2-consumers.md`; all reached comparison/case/reader callers
+  ran, historical planning/reference matches are unrelated and untouched.
+- Resource admission on this Mac: AC, awake, 16 cores, initially load
+  4.01/3.69/3.42 with about 3 GB free and 14 GB inactive; bounded recheck under
+  two named runs load 6.20/6.18/4.82 with 4 GB free and 14 GB inactive supported
+  continued focused concurrency. Guarded commands all ended. One unchanged
+  selection was repeated solely to get a clean whole-command report; this was
+  unnecessary and is retained as a process deviation, not additional proof need.
+- Source freshness unchanged at `c596ec840e95ad6518597369766a83fb63f37d18`;
+  new incoming commits concern dashboard launch-history preparation/Take and
+  other usage seeds. Named siblings and this source are unchanged.
+  `PATH=/opt/homebrew/bin:$PATH node scripts/test-shares.mjs preview --split-count 3`
+  passed: 657 jobs, predicted 740.9/740.8/740.8 under 926. The six unrecorded
+  jobs include these new journeys; this is not measured CI cost.
+
+### Independent acquisition refactoring
+
+Independent slice 2 refactoring (`/root/refactor2`) completed before delivery:
+one applied/requested settings owner serves export, acquisition and the existing
+pair observer, and one machine formatter serves capture/acquisition/pair records.
+New settings interpretation remains hash-bound in pair provenance and exporter
+metadata. `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh Distribution/tests/native-comparison-baseline-reuse.sh Distribution/tests/native-comparison-baseline-conditions.sh Distribution/tests/native-comparison-pairs.sh Distribution/tests/native-comparison-incomplete.sh Distribution/tests/native-comparison-refresh.sh`
+passed. These assertions renewed capture, projection, actual/unknown settings,
+fresh pairing and recovery; unchanged miss-policy and shared-reader proof remains
+accepted. Consumer dispositions: `/tmp/seed346-refactor2-effects.md`. Tracked and
+untracked whitespace passed; formatted code previews stay under 250 lines.
+Resource recheck: AC, load 2.25/3.07/3.83, ample memory, no competing test commands.
+No semantic edit followed verification; no remaining gap. Delivery freshness
+remains unchanged at `c596ec840e95ad6518597369766a83fb63f37d18`.
+
+### Owned acquisition correction before slice 3
+
+- Slice 2 was accepted at `b12ea4cc6e177f10f146a62d2a2386416861f7e3`,
+  suffix base `1f224d6641d73832725b8845f516a9ba2123d516`, observer reused.
+- G2 was found during continuing coordinator inspection before any supplier-case
+  edit. The initial nonexistent-reader probe was invalid attribution. The actual
+  manifest-listed stream adapter then reproduced one session where two fresh
+  arms were required. The minimal applicability repair makes stream/session
+  readers and discovery material when old normalized observations cannot replay
+  their original inputs; supported assessor/retention replay stays available.
+- `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baseline-readers.sh Distribution/tests/native-comparison-baseline-reuse.sh`
+  passed to terminal. The new journey changes real stream/discovery reader files,
+  observes fresh session creation, new usable archives and byte-identical old
+  observations. Existing reuse assertions preserve candidate-only matching and
+  current assessor/retention replay. Consumer dispositions:
+  `/tmp/seed346-g2-effects.md`; unchanged non-reader-varying acquisition and judge
+  observations remain accepted. No reader implementation or raw retention changed.
+- Resource recheck: AC, 16 cores, load 3.44/4.19/4.19, available memory, no competing
+  tests, sleep guard active; all commands ended. `git diff --check` passed.
+- Source freshness unchanged at `f5c1adff32830a9f4e4992913fd7b8a9f72cfc83`. Incoming
+  dashboard launch-history implementation/closure has no shared comparison effect;
+  named siblings remain unchanged. This repair is delivered separately before
+  the planned unblocked case starts.
+
+- Independent refactor `/root/refactor_g2`: none — already clean; no edits or
+  tests, accepted boundaries and consumer dispositions unchanged. Tracked and
+  untracked whitespace passed, no remaining gap.
+- Three-share preview passed at 658 jobs, predicted 740.9/742.2/740.8 under 926;
+  new jobs remain unrecorded, so no measured CI cost is claimed.

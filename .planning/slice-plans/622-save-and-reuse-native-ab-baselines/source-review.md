@@ -64,21 +64,21 @@ material-condition requirements.
 | 45 | Do not interpret those forced-turn observations as establishing suppressed wakes. | slice 4 | |
 | 46 | Do not interpret those forced-turn observations as establishing event-driven savings. | slice 4 | |
 | 47 | Reuse sufficient forced-turn evidence without rerunning solely to populate the new archive format. | slice 4 | |
-| 48 | Add a small, representative unblocked example. | slice 3 | |
-| 49 | Exercise the same execution workflow through final proof in that example. | slice 3 | |
-| 50 | Have the supplier already complete before its first session. | slice 3 | |
-| 51 | Preserve the consumer’s same partial work. | slice 3 | |
-| 52 | Preserve the consumer’s remaining integration responsibility. | slice 3 | |
-| 53 | Preserve the consumer’s remaining proof responsibility. | slice 3 | |
-| 54 | Make the unblocked example work without event wakes. | slice 3 | |
-| 55 | Qualify the unblocked example on Codex, the existing comparison host. | slice 4 | |
-| 56 | Tag cases by behavior. | slice 3 | |
+| 48 | Add a small, representative unblocked example. | slice 3 | observed: Distribution/tests/native-comparison/unblocked-supplier/case.md and case.bash: same extracted smallest Node/Git execution project, one-turn schedule; native qualification explicitly pending |
+| 49 | Exercise the same execution workflow through final proof in that example. | slice 3 | observed: Distribution/tests/native-comparison-unblocked-supplier.sh real materialization/installed workflow context and completed final proof through case boundary; external model substituted, native judgment remains G3 |
+| 50 | Have the supplier already complete before its first session. | slice 3 | observed: Distribution/tests/native-comparison-unblocked-supplier.sh before-model remote done record and completed narration assertions; local reader absent |
+| 51 | Preserve the consumer’s same partial work. | slice 3 | observed: Distribution/tests/native-comparison-unblocked-supplier.sh original partial files match before session and turn-1-partial-work remains preserved afterward; reroute/lost counterexamples fail |
+| 52 | Preserve the consumer’s remaining integration responsibility. | slice 3 | observed: Distribution/tests/native-comparison-unblocked-supplier.sh pre-session absent reader/zero continuations followed by one completed supplier integration |
+| 53 | Preserve the consumer’s remaining proof responsibility. | slice 3 | observed: Distribution/tests/native-comparison-unblocked-supplier.sh starting independent proof fails, then independent and executed proof both pass; missing-proof counterexamples rejected |
+| 54 | Make the unblocked example work without event wakes. | slice 3 | observed: Distribution/tests/native-comparison-unblocked-supplier.sh only turn1 completed, no turn event/second-turn artifact; claim-only and duplicate results rejected |
+| 55 | Qualify the unblocked example on Codex, the existing comparison host. |  | G3 |
+| 56 | Tag cases by behavior. | slice 3 | observed: Distribution/tests/native-comparison/unblocked-supplier/case.md Selection behavior and paused-supplier/case.md forced-turn conditions; scheduling separate from shared fixture |
 | 57 | Tag cases by qualified host. | slice 4 | |
-| 58 | Tag cases by environment. | slice 3 | |
-| 59 | Tag cases by observed duration. | slice 4 | |
-| 60 | Save a fresh native unblocked baseline with its frozen payload and the applicable retained record details above. | slice 4 | |
-| 61 | Capture available coordinator usage through completion for that unblocked baseline. | slice 4 | |
-| 62 | Capture available worker usage through completion for that unblocked baseline. | slice 4 | |
+| 58 | Tag cases by environment. | slice 3 | observed: Distribution/tests/native-comparison/unblocked-supplier/case.md Selection environment/prerequisites: small Node project, isolated local Git remote, no services |
+| 59 | Tag cases by observed duration. |  | G3 |
+| 60 | Save a fresh native unblocked baseline with its frozen payload and the applicable retained record details above. |  | G3 |
+| 61 | Capture available coordinator usage through completion for that unblocked baseline. |  | G3 |
+| 62 | Capture available worker usage through completion for that unblocked baseline. |  | G3 |
 | 63 | Permit these observations to be captured before the blocked-work candidate exists. | slice 4 | |
 | 64 | In the candidate-only-change journey, launch only the candidate when the saved baseline revision, task, events, project context, runtime settings, and required evidence remain sufficient. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh matching frozen payload/current task/runtime captures then actual session count +1 and preserved verdict; applicability checks material manifest and current assessor support |
 | 65 | In that journey, cite the saved baseline outcome in the verdict. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh saved source/date/conditions/outcome/effort and historical non-concurrent limit in verdict; separate current assessment retains sourceIntegrity |
@@ -86,9 +86,9 @@ material-condition requirements.
 | 67 | After a baseline revision or material-condition change, make the newly saved observation reusable by a later matching comparison while preserving traceability to the earlier observation. | slice 2 | observed: Distribution/tests/native-comparison-baseline-misses.sh fresh changed-payload baseline saved then used by next candidate-only comparison; original archive hash unchanged |
 | 68 | Permit reuse of a completed baseline that missed the expected outcome when its retained evidence answers the new comparison; observed failure does not itself invalidate reuse. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh completed failed baseline reused for improved outcome; baseline-misses.sh missing/incomplete evidence uses fresh, baselines.sh refuses an unjudged interrupted export |
 | 69 | Obtain fresh baseline evidence when the previous baseline stopped before its outcome could be judged. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh completed failed baseline reused for improved outcome; baseline-misses.sh missing/incomplete evidence uses fresh, baselines.sh refuses an unjudged interrupted export |
-| 70 | In the unblocked example’s illustrated journey, discover the already-completed supplier. | slice 3 | |
-| 71 | In that journey, integrate once. | slice 3 | |
-| 72 | In that journey, finish the consumer’s partial work. | slice 3 | |
+| 70 | In the unblocked example’s illustrated journey, discover the already-completed supplier. | slice 3 | observed: Distribution/tests/native-comparison-unblocked-supplier.sh completed remote with stale local refs before session; completed supplier reader integrated by observed one-turn controlled journey |
+| 71 | In that journey, integrate once. | slice 3 | observed: Distribution/tests/native-comparison-unblocked-supplier.sh turn1 integration/filing counts exactly1; real duplicate continuation and mutated integration count rejected |
+| 72 | In that journey, finish the consumer’s partial work. | slice 3 | observed: Distribution/tests/native-comparison-unblocked-supplier.sh preserved partial slice reaches filed result with both proofs; unfinished-stage counterexample rejected |
 | 73 | In that journey, record effort through passing proof. | slice 4 | |
 | 74 | Keep forced-turn and unblocked observations separately reusable under their respective conditions. | slice 4 | |
 | 75 | When later using forced-turn evidence, identify its different run condition. | slice 4 | |

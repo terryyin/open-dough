@@ -11,6 +11,8 @@ dependent slice once, with its proof.
 ## Selection
 
 - workflow: blocked execution waiting on a paused supplier (dough-execute-plan, Story Branch Mode)
+- behavior: forced turns while blocked, then one qualifying continuation
+- environment: small Node project and isolated local Git remote; no external services
 - hosts: codex (qualified natively); claude, cursor: not qualified
 - prerequisites: Bash 5, Git, Node 24, jq; a logged-in Codex CLI for `--native codex`
 - decisions and proof: hold through a diagnostic pass, an unchanged wake and an early publication; integrate the completed supplier outcome; finish slice 3 with `node --test tests/*.test.mjs` passing
@@ -20,7 +22,7 @@ dependent slice once, with its proof.
 ## Source and extraction
 
 - Source decision: the SEED-324 coordinator's wait on SEED-332 in the
-  [session-efficiency audit](../../../docs/maintainer/session-token-efficiency-research.md#1-wake-the-coordinator-for-results-changes-and-bounded-deadlines).
+  [session-efficiency audit](../../../../docs/maintainer/session-token-efficiency-research.md#1-wake-the-coordinator-for-results-changes-and-bounded-deadlines).
   Its source session is Codex thread `01a1d22f-e0cd-7032-930d-5a9ff3011a64`
   (rollout lines 10404 and 14112 in the author's local Nov 13 history; a
   provenance locator only, never a runtime input): at 2026-11-13 16:41:34 UTC
@@ -50,14 +52,18 @@ dependent slice once, with its proof.
 
 ## Starting state, task and events
 
-`case.bash` materializes `remote.git` and the execution checkout
+`case.bash` selects the forced-turn schedule; the shared
+`support/native-comparison-supplier.sh` materializes `remote.git` and the execution checkout
 `workspace` from the overlays: `basis` (trunk with both stories Taken),
 `supplier` (the supplier branch: in-process reader plus evidence of a clean
 full diagnostic, unexplained timeouts and unobserved natural-load acceptance,
 nothing published), `delivered` (slices 1–2 published on the execution
 branch) and `partial` (uncommitted slice 3: shared fixture and two of three
 stage files). It writes `.planning/execution-state.txt` and installs the
-selected Open Dough payload, untracked, as other native fixtures do.
+selected Open Dough payload, untracked, as other native fixtures do. The
+case-local `shared-inputs` manifest includes that helper in its identity.
+The [ordinary available-supplier case](../unblocked-supplier/case.md) reuses
+the same overlays and observer with a different initial schedule.
 
 `task.txt` starts one session; each later turn resumes that session with
 `wake.txt`. Before turns 2–4 the controller applies `unchanged` (nothing),

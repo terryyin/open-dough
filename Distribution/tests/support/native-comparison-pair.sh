@@ -92,7 +92,7 @@ native_comparison_pair() {
   native_comparison_pair_attempt=
   # The case basis both arms must run: its files and the runner's inputs,
   # committed, so the record can name the commit that holds them.
-  native_comparison_case_files "${source_dir}" "${case_name}"
+  native_comparison_case_files "${source_dir}" "${case_name}" || return 2
   native_comparison_pair_basis_revision=$(native_comparison_basis_commit "${source_dir}" \
     "Distribution/tests/native-comparison/${case_name}" "${case_files[@]}" "${native_comparison_inputs[@]}" \
     "${native_run_supervision_inputs[@]}" "${native_comparison_pair_inputs[@]}") || return

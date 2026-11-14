@@ -40,6 +40,9 @@ native_comparison_preflight() {
   ); then
     problems+=("missing prerequisite of case ${case_name}: see its message above and the prerequisites in its case.md")
   fi
+  if [[ -f ${case_path}/case.bash ]] && ! native_comparison_case_files "${source_dir}" "${case_name}"; then
+    problems+=("shared inputs of case ${case_name} are unavailable; see the input named above")
+  fi
   if [[ -n ${repository} ]]; then
     for arm in baseline candidate; do
       rev=$6
