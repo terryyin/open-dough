@@ -26,6 +26,12 @@ Start a follow-up session directly from the diff so the agent can find the
 change the developer is looking at. The developer can add detailed instructions
 in an optional text field before starting the session.
 
+**Temporary design reference.** The [file follow-up and story notes mockup](../mockups/story-review-and-notes.html)
+shows the file header, line-number menu and follow-up dialog. During wrap-up,
+keep the shared mockup while either SEED-348 story still needs it. The last
+of these three stories to wrap up removes it after the behavior is delivered
+and verified.
+
 **Scope**
 
 - In both views, show a **Follow up** button beside the file path and name at the
