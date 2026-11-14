@@ -2,7 +2,7 @@
 // creates later, before any first activation is required or supplied.
 import { existsSync } from "node:fs";
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { ProductionWatcherMachine } from "../../tests/runtime/productionWatcherMachine.ts";
+import { ProductionWatcherMachine } from "../../../e2e/runtime/productionWatcherMachine.ts";
 import { processRunning } from "../../tests/support/processGroup.ts";
 
 test("closing a watcher machine during setup retires its late resources", async ({

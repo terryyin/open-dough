@@ -1,6 +1,6 @@
 // @ts-check
-// Domain data for a dashboard proof record
-// (`OPEN_DOUGH_DASHBOARD_PROOF_RECORD`): phase, cwd, and located tests whose
+// Domain data for a browser test group's proof record
+// (`<prefix>_PROOF_RECORD`): phase, cwd, and located tests whose
 // outcomes and attempt durations the CI fragments converter reads. State the
 // facts that drive each case at the call site; keep malformed exact input
 // outside this builder.

@@ -6,14 +6,13 @@ import {
 } from "../priorBuildReferencePage.ts";
 // CI state transitions move the independent local history between the gap
 // and the shown comparison; they cannot own, reread or discard it.
-import { readFileSync, writeFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../support/preparationPage.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
 import { doneWallReferenceHistory } from "../support/doneWallReferenceHistory.ts";
 import { keepLandedCiHistory } from "../support/landedCiHistory.ts";
-import { historyFile } from "../support/collectedScopeHistory.ts";
+import { withBrokenCollectedHistory } from "../support/collectedScopeHistory.ts";
 import { selectDoneStoryInIntent } from "../support/selectDoneStoryInIntent.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import { checkAgainOf } from "../support/storyCiComparisonRetry.ts";
@@ -79,17 +78,14 @@ test("failed and unavailable CI comparisons keep the local history after their g
   const actions = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const before = actions().length;
-  const file = historyFile(dashboard.home);
-  const retained = readFileSync(file, "utf8");
-  try {
-    writeFileSync(file, "{broken local history");
+  await withBrokenCollectedHistory(dashboard.home, async (restore) => {
     await history.refresh.click();
     await expect(history.alert).toContainText(
       "The collected CI history could not be read",
     );
     await expect(history.average).toHaveText(average);
     await expect(gap).toHaveText("Comparison evidence incomplete");
-    writeFileSync(file, retained);
+    restore();
     await history.retry.click();
     await expect(history.alert).toHaveCount(0);
     await expect(history.retry).toHaveCount(0);
@@ -97,9 +93,7 @@ test("failed and unavailable CI comparisons keep the local history after their g
     await expect(gap).toHaveText("Comparison evidence incomplete");
     await expect(intent).toHaveAttribute("data-selected-story", setup.identity);
     expect(actions()).toHaveLength(before);
-  } finally {
-    writeFileSync(file, retained);
-  }
+  });
 });
 
 test("a shown comparison's later CI failure and recovery move the local history without rereading or discarding it", async ({

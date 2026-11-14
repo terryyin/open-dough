@@ -4,7 +4,7 @@
 // create-chat, and the first prompt is the "Established session" block, then
 // the reporting context, with no skill line and nothing of the developer's;
 // an isolated session starts with its new worktree as Cursor's workspace.
-// ../../tests/launches/agent-launch-ad-hoc-cursor.spec.ts stays the proof of the unattached
+// ../../../e2e/launches/agent-launch-ad-hoc-cursor.spec.ts stays the proof of the unattached
 // Cursor session that establishes none, and of the blank start with a chosen
 // model that is refused.
 

@@ -1,0 +1,152 @@
+name: Browser test group
+
+# One Playwright test group's CI producer, called once per group by ci.yml:
+# E2E Test, Dashboard Integrated UI Test, Dashboard Frontend Test and
+# Dashboard Backend Test each run here under their own npm command, settings
+# prefix, shard matrix, duration list, outputs and CI proof entry, so changing
+# one group's shards or settings leaves the others' selection and settings
+# unchanged. Each group runs against controlled GitHub responses (no
+# credentials, no live project contents) as one shard job per matrix shard,
+# each running its deal of the group's spec files (dashboard/tests/shards.md)
+# and failing on its own failing test. Tests that serve the production app
+# share a build within their shard and fail if the build fails.
+on:
+  workflow_call:
+    inputs:
+      group:
+        description: The calling job's id, naming this group's artifacts and fragments.
+        type: string
+        required: true
+      command:
+        description: The group's npm script, such as `test:e2e`.
+        type: string
+        required: true
+      settings:
+        description: The group's settings prefix (`<prefix>_SPLIT`, `_TIMES`, `_PROOF_RECORD`, `_DEADLINE_MS`).
+        type: string
+        required: true
+      root:
+        description: The group's root, its CI proof entry (Intent location path) and the directory holding its `playwright-report/` and `test-results/`.
+        type: string
+        required: true
+      shards:
+        description: The group's shard matrix, a JSON array such as `[1, 2, 3]`.
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+# The revision a run's CI proof names, as ci.yml names it.
+env:
+  CI_PROOF_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  shard:
+    name: shard ${{ matrix.shard }}/${{ strategy.job-total }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(inputs.shards) }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # Both deadlines count from the job's start, so a slow setup shortens
+      # the group's run rather than pushing it past the job bound.
+      - name: Start prerequisite acquisition (180 seconds) and browser run (320 seconds) deadlines
+        env:
+          SETTINGS: ${{ inputs.settings }}
+        run: |
+          started=$(( $(date +%s) * 1000 ))
+          echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( started + 180000 ))" >> "$GITHUB_ENV"
+          echo "${SETTINGS}_DEADLINE_MS=$(( started + 320000 ))" >> "$GITHUB_ENV"
+      # Restoring the existing npm cache and installing Node share one minute.
+      - name: Start Node and npm cache deadline (60 seconds)
+        run: echo "OPEN_DOUGH_NODE_DEADLINE_MS=$(( $(date +%s) * 1000 + 60000 ))" >> "$GITHUB_ENV"
+      - name: Restore npm cache
+        uses: actions/setup-node@v7
+        id: npm-cache
+        timeout-minutes: 1
+        with:
+          cache: npm
+      - name: Install pinned Node
+        id: node
+        timeout-minutes: 1
+        run: bash scripts/setup-ci-node.sh .node-version
+      - name: Diagnose Node acquisition failure
+        if: failure() && (steps.node.outcome == 'failure' || steps.npm-cache.outcome == 'failure')
+        run: |
+          echo '::error::Infrastructure setup: Node or npm cache acquisition failed within its 60-second deadline. Restore GitHub Releases, nodejs.org, or cache connectivity and rerun setup before checks.'
+          exit 1
+      - name: Install npm dependencies
+        run: node scripts/setup-native.mjs npm
+      - name: Cache Playwright Chromium
+        uses: actions/cache@v6
+        id: playwright-cache
+        timeout-minutes: 1
+        continue-on-error: true
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+      - name: Use a clean browser directory after cache failure
+        if: steps.playwright-cache.outcome == 'failure'
+        run: |
+          echo '::warning::Chromium cache restore failed. Installing the locked browser directly.'
+          echo "PLAYWRIGHT_BROWSERS_PATH=${RUNNER_TEMP}/playwright-chromium" >> "$GITHUB_ENV"
+      - name: Install Playwright Chromium
+        run: node scripts/setup-native.mjs browser
+      # The run ends itself, naming the deadline, at `<prefix>_DEADLINE_MS`,
+      # about 30 seconds inside the job's 6 minutes, so a shard out of time
+      # fails instead of being cancelled and the reports below are kept.
+      # `exec` makes npm the step's process, which cancellation signals.
+      - name: Run the group's browser tests
+        id: suite
+        env:
+          SETTINGS: ${{ inputs.settings }}
+          COMMAND: ${{ inputs.command }}
+          SPLIT: ${{ matrix.shard }}/${{ strategy.job-total }}
+          TIMES: ${{ runner.temp }}/browser-times.txt
+          PROOF_RECORD: ${{ runner.temp }}/browser-proof.json
+        run: |
+          export "${SETTINGS}_SPLIT=${SPLIT}" "${SETTINGS}_TIMES=${TIMES}" "${SETTINGS}_PROOF_RECORD=${PROOF_RECORD}"
+          exec npm run "${COMMAND}"
+      # This shard's per-spec-file seconds, written however the run ended, for
+      # refreshing the group's duration list (dashboard/tests/shards.md).
+      - name: Keep per-spec times
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ inputs.group }}-times-${{ matrix.shard }}
+          path: ${{ runner.temp }}/browser-times.txt
+          if-no-files-found: ignore
+          retention-days: 7
+      # This shard's test cases of the group's proof entry, from its own
+      # proof record (dashboard/tests/proof-record.md).
+      - name: Keep the CI proof fragments
+        if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
+        uses: ./.github/actions/ci-proof-fragments
+        with:
+          producer: ${{ inputs.group }}
+          part: ${{ matrix.shard }}
+          parts: ${{ strategy.job-total }}
+          entries: ${{ inputs.root }}
+          report-format: playwright-record
+          report: ${{ runner.temp }}/browser-proof.json
+      # The HTML report records how many browser tests the shard executed; on
+      # failure, including the run's deadline, it and test-results/ keep the
+      # completed tests' diagnostics and name the unfinished ones.
+      - name: Keep the Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ inputs.group }}-playwright-report-${{ matrix.shard }}
+          path: |
+            ${{ inputs.root }}/playwright-report/
+            ${{ inputs.root }}/test-results/
+          if-no-files-found: ignore
+          retention-days: 7

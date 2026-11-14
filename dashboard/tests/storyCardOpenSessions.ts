@@ -1,10 +1,10 @@
 // Sessions already open on the story cards of a paused page, kept in the
 // machine's launch store and listed by the synthetic `claude` before the page
 // first reads them, so a journey starts with them without replaying Start:
-// the attention journeys (./sessions/agent-launch-attention.spec.ts and
-// ./sessions/agent-launch-attention-taken.spec.ts) and the card session-state
-// journey
-// (./sessions/agent-launch-story-card-session-states.spec.ts). The production
+// the attention journeys (../../e2e/sessions/agent-launch-attention.spec.ts
+// and ../../e2e/sessions/agent-launch-attention-taken.spec.ts) and the card
+// session-state journey
+// (../../e2e/sessions/agent-launch-story-card-session-states.spec.ts). The production
 // records reader joins the two, so listing failure and recovery stay real.
 
 import path from "node:path";

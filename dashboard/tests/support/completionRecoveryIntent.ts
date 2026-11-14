@@ -14,8 +14,8 @@ import {
 } from "../../src/completionReport.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { stored } from "./codexStart.ts";
-import { rawRequest } from "./rawHttp.ts";
 import {
+  postCompletion,
   reportingChild,
   retainedSubmission,
   completionProxy,
@@ -58,12 +58,7 @@ export async function observeLaterCompletionIntent(options: {
   delete retained.origin;
   const original = submissionSchema.parse(retained);
   const replayOld = async () => {
-    const answer = await rawRequest({
-      url: `${context.origin}/__agent-launch/completion`,
-      method: "POST",
-      headers: { Origin: context.origin, "Content-Type": "application/json" },
-      body: JSON.stringify(original),
-    });
+    const answer = await postCompletion(context.origin, original);
     expect(answer.status).toBe(200);
     return completionReceiptSchema.parse(JSON.parse(answer.body));
   };
@@ -210,15 +205,10 @@ export async function observeLaterCompletionIntent(options: {
   );
   expect(stored(receiver.home)[0]?.completion?.message).toBe(remaining);
   expect(stored(receiver.home)[0]?.doneAt).toBe(manualDone);
-  const malformedRetry = await rawRequest({
-    url: `${context.origin}/__agent-launch/completion`,
-    method: "POST",
-    headers: { Origin: context.origin, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ...(JSON.parse(readFileSync(pending, "utf8")) as CompletionSubmission),
-      origin: undefined,
-      message: "Changed old completion",
-    }),
+  const malformedRetry = await postCompletion(context.origin, {
+    ...(JSON.parse(readFileSync(pending, "utf8")) as CompletionSubmission),
+    origin: undefined,
+    message: "Changed old completion",
   });
   expect(malformedRetry.status).toBe(409);
 }

@@ -75,7 +75,9 @@ Put Homebrew Bash first on PATH; unset NO_COLOR, FORCE_COLOR and
 GIT_ALTERNATE_OBJECT_DIRECTORIES for direct dashboard tests.
 
 [proof-selection.txt](proof-selection.txt) retains the slice3–5 family:
-18 spec files, previously56 cases. List the current selection before running;
+18 spec files, previously56 cases, named from the repository root: the
+`dashboard/backend-tests/` ones run through `npm run test:dashboard:backend`
+and the `e2e/` ones through `npm run test:e2e`. List the current selection before running;
 Playwright silently ignores absent paths. Use two workers and require three
 consecutive current passes for changed cases/support before slice acceptance.
 The early-return preservation run is one run, not those three passes.
@@ -92,8 +94,10 @@ preparation observations are recoverable from the pre-return checkpoint above.
 Lint/typecheck remain the normal check-only commit-hook gates.
 
 Once, after slice8, run the original nine-spec selection through
-`bash scripts/dashboard-repeat.sh 1 <specs>`, two workers, no reporter override,
-with OPEN_DOUGH_DASHBOARD_PROOF_RECORD. Start only in a natural CPU-bound
+`bash scripts/dashboard-repeat.sh 1 <group command> <specs>` for each group it
+spans (`test:dashboard:backend`, `test:e2e`), two workers, no reporter
+override, with that group's proof record (`OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD`,
+`OPEN_DOUGH_E2E_PROOF_RECORD`). Start only in a natural CPU-bound
 one-minute load30–50 window; before and after must remain in range.
 Every case passes within25s. Burners and quiet passes do not count.
 The nine specs are the first nine entries of proof-selection.txt.

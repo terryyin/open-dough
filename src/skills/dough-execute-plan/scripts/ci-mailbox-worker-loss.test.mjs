@@ -24,6 +24,10 @@ import {
   waitForPidExit,
 } from "./watch-ci-test-fixtures.mjs";
 import { awaitProcessExit } from "./process-lifetime-test-fixtures.mjs";
+import {
+  mailboxWorkerPath,
+  terminateMailboxWorker,
+} from "./ci-mailbox-worker-process.mjs";
 
 test("a reused worker pid is not signaled when it does not belong to the mailbox", async (t) => {
   const { directory, storage, unrelated } = await mailboxWithUnrelatedWorker(t);
@@ -42,6 +46,39 @@ test("a reused worker pid is not signaled when it does not belong to the mailbox
   assert.deepEqual(readMailboxEvents(directory), [
     { sequence: 1, event: retained },
   ]);
+});
+
+// A worker can exit between its verification and its signal, as one ending
+// just after its terminal result does: it is gone, not left unterminated.
+test("terminating a worker that exits right after its verification succeeds", async (t) => {
+  const directory = "/tmp/watch-exiting";
+  // An orphan, so its exit is reaped at once instead of left a zombie.
+  const { stdout } = await exec("/bin/sh", [
+    "-c",
+    '"$0" -e "setInterval(() => {}, 1000)" >/dev/null 2>&1 </dev/null & echo $!',
+    process.execPath,
+  ]);
+  const pid = Number(stdout.trim());
+  const running = () => {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch (error) {
+      if (error.code === "ESRCH") return false;
+      throw error;
+    }
+  };
+  t.after(() => running() && process.kill(pid, "SIGKILL"));
+  const exitingAfterRead = () => {
+    process.kill(pid, "SIGKILL");
+    while (running());
+    return `${process.execPath} ${mailboxWorkerPath} worker ${directory}`;
+  };
+
+  await terminateMailboxWorker({ pid }, directory, {
+    readCommand: exitingAfterRead,
+  });
+  assert.equal(running(), false);
 });
 
 test("a mismatched worker identity yields uncertainty instead of reassurance or termination", async (t) => {

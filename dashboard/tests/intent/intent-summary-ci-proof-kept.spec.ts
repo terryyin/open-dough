@@ -5,7 +5,7 @@ import { ciStatusReading, activateIntentHome } from "../intentCiStatusPage.ts";
 // a failed refresh the Summary's evidence labels say when its judgment was
 // retrieved and that the refresh failed, announcing the failure in the
 // homepage's own words. The Summary's journey:
-// ./intent-summary-ci-proof.spec.ts.
+// ../../../e2e/intent/intent-summary-ci-proof.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
 import { httpErrorAnswer } from "../originAnswers.ts";

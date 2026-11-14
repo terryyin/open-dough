@@ -193,9 +193,9 @@ CURL
   [[ ! -e ${node_fixture}/path ]]
 fi
 
-# Workflow owns the action bounds and exact cache identity. The locked browser
-# installation still gates the suite after a browser cache failure.
-workflow=${source_dir}/.github/workflows/ci.yml
+# Both workflows own action bounds, cache identity and browser failure gating.
+cat -- "${source_dir}"/.github/workflows/{ci,browser-test-group}.yml > "${temporary_dir}/workflows.yml"
+workflow=${temporary_dir}/workflows.yml
 # shellcheck disable=SC2016 # Literal workflow expressions.
 expect_in_log "${workflow}" -F -- 'key: playwright-chromium-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('\''package-lock.json'\'') }}'
 expect_in_log "${workflow}" -F -- 'timeout-minutes: 1'

@@ -2,7 +2,7 @@
 // (../../src/IntentHeader.tsx) shows once, in full, wrapping rather
 // than shortened, and stays above the story's views whichever is chosen; its
 // Intent coverage explains where an assessment saved at wrap-up appears. The rest of the
-// header: ./intent-story-changes.spec.ts.
+// header: ../../../e2e/intent/intent-story-changes.spec.ts.
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { storyA } from "../../../tests/support/queued-repository.mjs";

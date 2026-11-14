@@ -1,6 +1,6 @@
 // One-shot transport across owner loss, login changes and controlled bounds.
 import assert from "node:assert/strict";
-import { chmodSync, watch } from "node:fs";
+import { chmodSync } from "node:fs";
 import { test } from "node:test";
 import { GitHubRequests } from "./github-requests.mjs";
 import {
@@ -35,19 +35,17 @@ function provider(t) {
   return github;
 }
 
-// File writes are the event, so ticking the client clock need not drive polling.
-function posted(t, github) {
-  return new Promise((resolve) => {
-    const check = () => {
-      if (posts(github).length > 0) {
-        observer.close();
-        resolve();
-      }
-    };
-    const observer = watch(github.env.CI_GH_FIXTURE, check);
-    t.after(() => observer.close());
-    check();
-  });
+// The recorded POST is the event. Its wait keeps real time, captured before a
+// case controls setTimeout, so ticking the client clock need not drive it. A
+// file watch can miss a write made before its macOS event stream starts.
+const realSetTimeout = globalThis.setTimeout;
+async function posted(github) {
+  const deadline = Date.now() + 20_000;
+  while (posts(github).length === 0) {
+    if (Date.now() > deadline)
+      throw new Error("Timed out: the POST reached GitHub");
+    await new Promise((resolve) => realSetTimeout(resolve, 20));
+  }
 }
 
 test("a legacy read-only owner is still usable for reads and receives no action frame without its declared capability", async (t) => {
@@ -142,7 +140,7 @@ test("the controlled request bound leaves a submitted action uncertain and never
   github.teardown.defer(github.releaseRequests);
   t.mock.timers.enable({ apis: ["setTimeout"] });
   try {
-    const observed = posted(t, github);
+    const observed = posted(github);
     const submission = client.repeatWorkflow("owner/repo", 71, signal());
     let outcome;
     const settled = submission.then((value) => {

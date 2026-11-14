@@ -1,13 +1,16 @@
 // CI workflow files a CI comparison fixture (./storyCiComparisonFixture.ts)
-// commits: this repository's own workflow at a selected path, and a workflow
-// whose paths-ignore confirms skips.
+// commits: the workflow this repository ran for the observed builds
+// (./storyCiObservedJobs.ts) at a selected path, and a workflow whose
+// paths-ignore confirms skips.
 
 import { readFileSync } from "node:fs";
 import { commitAll, writeAt } from "./storyReviewWorktree.ts";
 
 export const comparisonWorkflowPath = ".github/workflows/comparison.yml";
+// The observed jobs' rows name that workflow's jobs, so it stays as it ran
+// (1815ab836's .github/workflows/ci.yml) however this repository's CI moves.
 export const comparisonWorkflow = readFileSync(
-  new URL("../../../.github/workflows/ci.yml", import.meta.url),
+  new URL("../fixtures/observed-runs-ci.yml", import.meta.url),
   "utf8",
 );
 

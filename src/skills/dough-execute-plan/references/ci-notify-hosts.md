@@ -115,9 +115,9 @@ node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs' stop '/EXACT/RECORDED/MAI
 ```
 
 This signals cancellation, including an outstanding GitHub request or polling
-timer. Its terminal wait is finite and checks authoritative `result.json` when
-the file notification is missed; it ends early once the recorded worker no
-longer runs, since only that worker publishes the result. If no terminal result
+timer. Its terminal wait is finite and polls authoritative `result.json`; it
+ends early once the recorded worker no longer runs, since only that worker
+publishes the result. If no terminal result
 arrives by then or by the lifecycle deadline, the stop command reads the
 mailbox's recorded worker PID, validates that it still runs the exact Node
 worker command for this mailbox, and targets only that process; it revalidates

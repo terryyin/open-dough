@@ -2,7 +2,7 @@
 // (../../tests/support/storyReviewWorktree.ts) naming a path, a malformed object, another
 // source, or an absent tree keeps no mark in the machine store and writes no
 // reviewed ref in the project's repository. Marking itself is in
-// ../../tests/review/story-review-mark.spec.ts.
+// ../../../e2e/review/story-review-mark.spec.ts.
 
 import { storyReviewMarkEndpoint } from "../../src/storyReviewContract.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";

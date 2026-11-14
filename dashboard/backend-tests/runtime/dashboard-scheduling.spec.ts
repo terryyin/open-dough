@@ -11,6 +11,7 @@ import {
   removeProofDirectories,
   startProofCommand,
 } from "../../tests/support/proofRecordRun.ts";
+import { runOutputs } from "../../tests/support/testFiles.mjs";
 
 test.afterAll(removeProofDirectories);
 const chains = ["failures", "updates"] as const;
@@ -89,6 +90,8 @@ import { test, expect } from ${JSON.stringify(framework)};
 import { appendFileSync, existsSync, writeFileSync } from "node:fs";
 const note = (text) => appendFileSync(${JSON.stringify(events)}, text + "\\n");
 `;
+  // The first ordinary job gates both workers, so it must precede the later
+  // job in the discovered paths of a root holding folders, as E2E Test's does.
   writeFileSync(
     path.join(directory, "backend-tests/a-ordinary.spec.ts"),
     `${preamble}
@@ -144,7 +147,7 @@ export default () => appendFileSync(${JSON.stringify(events)}, "global:setup\\n"
   ).href;
   const options = {
     testDir: directory,
-    outputDir: path.join(directory, "results"),
+    outputDir: path.join(directory, runOutputs.results),
     workers: 2,
     fullyParallel: true,
     retries: 0,
@@ -157,7 +160,11 @@ export default () => appendFileSync(${JSON.stringify(events)}, "global:setup\\n"
 import { dashboardTestProjects } from ${JSON.stringify(projectModule)};
 export default {
   ...${JSON.stringify(options)},
-  projects: dashboardTestProjects(new URL(${JSON.stringify(pathToFileURL(`${directory}/`).href)})),
+  projects: dashboardTestProjects(
+    new URL(${JSON.stringify(pathToFileURL(`${directory}/`).href)}),
+    undefined,
+    { roots: ["."], splitVariable: "UNSET_SPLIT", durations: "longest-first" },
+  ),
 };
 `,
   );

@@ -82,9 +82,9 @@ maintained macOS guard. No scratch observation edit remains.
 
 ```sh
 # A: real backend boundary; controlled observation pace
-npm run test:dashboard -- dashboard/backend-tests/observation/authenticated-read-revision-stream.spec.ts --grep 'two streams of one source|rate-limited listing'
+npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-read-revision-stream.spec.ts --grep 'two streams of one source|rate-limited listing'
 # B: real browser/server/request owner; controlled page and owner clocks
-caffeinate -s -i npm run test:dashboard -- dashboard/tests/observation/revision-stream-lost.spec.ts --grep 'a rate-limited stream answer'
+caffeinate -s -i npm run test:e2e -- e2e/observation/revision-stream-lost.spec.ts --grep 'a rate-limited stream answer'
 # C: legacy capability and owner replacement policy
 node --test --test-name-pattern='a legacy read-only owner|startup refuses' src/skills/dough-execute-plan/scripts/ci-github-workflow-repeat-transport.test.mjs src/skills/dough-execute-plan/scripts/github-request-owner-startup.test.mjs
 ```

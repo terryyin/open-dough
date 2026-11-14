@@ -32,7 +32,7 @@ and frees admission when a whole run ends; it is separate from the normalized
 performance budgets in [time-budget.md](time-budget.md).
 In CI, `OPEN_DOUGH_TEST_DEADLINE_MS` is the absolute epoch (milliseconds) for
 the share's 320-second run cutoff established with setup in
-`.github/workflows/ci.yml`, mirroring the dashboard suite's model. Local named
+`.github/workflows/ci.yml`, mirroring the browser test groups' model. Local named
 checks omit it by default and keep only the per-job safety limit.
 `OPEN_DOUGH_TEST_RUN_DEADLINE_READY=<file>` receives the run wait-FIFO and
 remaining whole seconds when that cutoff is armed, so a check can expire it

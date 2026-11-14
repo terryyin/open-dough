@@ -1,0 +1,151 @@
+// Both servers observe a real installed start on one machine; a server-only
+// death leaves the held script alive until its real push completes.
+import {
+  accept,
+  attempts,
+  continueAttempt,
+  launchRequest,
+} from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import {
+  answerOf,
+  type Problem,
+} from "../../dashboard/tests/keptExecutionStart.ts";
+import {
+  storyCardSessions,
+  parts,
+} from "../../dashboard/tests/dashboardPage.ts";
+import {
+  expect,
+  pausePageClockAt,
+} from "../../dashboard/tests/dashboardTest.ts";
+import {
+  expectProtected,
+  test,
+} from "../../dashboard/tests/responsiveStart.ts";
+import {
+  expectRecoveryOffered,
+  expectStaticallyProtected,
+  recoveryOf,
+  worktrees,
+} from "../../dashboard/tests/responsiveRecovery.ts";
+import {
+  openUntilRead,
+  passCheckPace,
+  reloadUntilRead,
+} from "../../dashboard/tests/pageRequestNotes.ts";
+import {
+  keptAttempts,
+  settledOutcome,
+} from "../../dashboard/tests/acceptedAttempts.ts";
+import {
+  sharedDashboardBuild,
+  startDashboardServer,
+} from "../../dashboard/tests/support/dashboardServer.ts";
+import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+
+test.use({
+  projectFolders: ["open-dough"],
+  startTimeoutMs: 10_000,
+  launchTimeoutMs: 60_000,
+});
+
+test("a server killed before the warning leaves a live script running; its exit becomes interrupted and Continue reuses the claim", async ({
+  page,
+  dashboard,
+  origin,
+  github,
+}) => {
+  const push = origin.holdPushes();
+  await pausePageClockAt(page, new Date());
+  await publishCommittedOrigin(page, {
+    repoDir: origin.origin,
+    revision: (await origin.originGit("rev-parse", "main")).trim(),
+    repository: "terryyin/open-dough",
+    follows: true,
+  });
+  // The start journeys own initial card/dialog admission. Opening this page
+  // overlaps the actual installed start whose orphaned worker is observed.
+  const acceptance = await answerOf<{ kind: string }>(
+    accept(dashboard, {
+      ...launchRequest,
+      identity: queuedIdentity,
+      title: "Story A",
+    }),
+  );
+  expect(acceptance.kind).toBe("accepted");
+  await openUntilRead(page);
+  const story = parts(page).backlog.getByRole("article", { name: "Story A" });
+  await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
+  const [accepted] = await attempts(dashboard);
+  if (accepted?.worker === undefined)
+    throw new Error("The script worker was not recorded");
+  expect(keptAttempts(dashboard)[0]?.slowSince).toBeUndefined();
+  const child = accepted.worker.pid;
+  process.kill(dashboard.pid, "SIGKILL");
+  // The script is alive independently of its owning server.
+  expect(() => process.kill(child, 0)).not.toThrow();
+  const restarted = await startDashboardServer({
+    mode: "preview",
+    prebuilt: sharedDashboardBuild,
+    machine: origin.machine,
+    github,
+    projectFolders: ["open-dough"],
+    launchTimeoutMs: 60_000,
+    port: Number(new URL(dashboard.baseURL).port),
+    // The restarted server judges the orphaned start slow from its first
+    // answer, while the killed owner never noted it.
+    extraEnv: { DOUGH_START_TIMEOUT_MS: "1" },
+  });
+  try {
+    await expect
+      .poll(async () => (await attempts(restarted))[0]?.slowSince)
+      .toBeDefined();
+    expect(keptAttempts(restarted)[0]?.slowSince).toBeUndefined();
+    expect((await attempts(restarted))[0]).toMatchObject({
+      owned: false,
+      running: true,
+      worker: { pid: child, step: "start" },
+    });
+    await page.clock.setSystemTime(Date.parse(accepted.acceptedAt) + 120_000);
+    await reloadUntilRead(page);
+    await expectProtected(story);
+    await expect(
+      story.locator(".story-card-startup-progressing"),
+    ).toContainText("Still starting after 2 minutes.");
+    await expect(recoveryOf(page)).toHaveCount(0);
+    expect(
+      await answerOf<Problem>(continueAttempt(restarted, accepted.id)),
+    ).toMatchObject({
+      kind: "uncertain",
+      explanation: expect.stringContaining("already running"),
+    });
+    push.release();
+    await expect
+      .poll(async () => (await attempts(restarted))[0]?.running, {
+        timeout: 30_000,
+      })
+      .toBe(false);
+    expect((await attempts(restarted))[0]?.outcome).toBeUndefined();
+    await reloadUntilRead(page);
+    const taken = parts(page).taken.getByRole("article", { name: "Story A" });
+    await expectStaticallyProtected(taken);
+    await expectRecoveryOffered(page);
+    expect(restarted.claudeLaunchCalls()).toEqual([]);
+    const continued = await answerOf<{ kind: string }>(
+      continueAttempt(restarted, accepted.id),
+    );
+    expect(continued.kind).toBe("accepted");
+    expect((await settledOutcome(restarted, accepted.id)).kind).toBe(
+      "launched",
+    );
+    await passCheckPace(page);
+    await expect(storyCardSessions(taken)).toHaveCount(1);
+    expect(await origin.takenProfiles()).toHaveLength(1);
+    expect(worktrees(origin)).toEqual(["story-a"]);
+    expect(restarted.claudeLaunchCalls()).toHaveLength(1);
+  } finally {
+    push.release();
+    await restarted.close();
+  }
+});

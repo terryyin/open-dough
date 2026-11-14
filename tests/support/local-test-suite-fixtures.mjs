@@ -52,7 +52,10 @@ function launch(t, cwd, args, extra = {}, command = process.execPath) {
     "TEST_WORKER_INDEX",
     "FORCE_COLOR",
     "NO_COLOR",
-    "OPEN_DOUGH_DASHBOARD_SPLIT",
+    "OPEN_DOUGH_DASHBOARD_INTEGRATED_SPLIT",
+    "OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT",
+    "OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT",
+    "OPEN_DOUGH_E2E_SPLIT",
     "OPEN_DOUGH_TEST_DIR",
     "OPEN_DOUGH_TEST_JOBS",
     "OPEN_DOUGH_TEST_SLOT_GATE",
@@ -134,11 +137,20 @@ export function repository(t, project, observation, env = {}, args = []) {
   );
 }
 
-export function dashboard(t, project, observation, args = [], env = {}) {
+// `config` is a group runner's controlled `controlled-<runner>.config.mts`,
+// Dashboard Integrated UI Test's unless named.
+export function dashboard(
+  t,
+  project,
+  observation,
+  args = [],
+  env = {},
+  config = "controlled-integrated.config.mts",
+) {
   return launch(
     t,
     project,
-    [cli, "test", "--config", "dashboard/controlled.config.mts", ...args],
+    [cli, "test", "--config", `dashboard/${config}`, ...args],
     { OBSERVE: observation, ...env },
   );
 }

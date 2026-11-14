@@ -102,6 +102,28 @@ export async function expectMark(
   expect(apart).toBe(true);
 }
 
+// A card's own marks, by label and asset file: its mode's, in its open
+// detail, and its host's, beside the scan line's tool.
+export type OwnerMarks = readonly [
+  mode: string,
+  modeFile: string,
+  host: string,
+  hostFile: string,
+];
+
+export async function expectOwnerMarks(
+  card: Locator,
+  [mode, modeFile, host, hostFile]: OwnerMarks,
+) {
+  await expectMark(
+    card.locator(".story-card-owner"),
+    "host",
+    host,
+    `tool-avatars/${hostFile}`,
+  );
+  await expectMark(card, "mode", mode, `mode-icons/${modeFile}`);
+}
+
 // The enlarged view drawn over a portrait (its ::after): whether it shows,
 // its image layers (top first) and their tile positions, its outer width, its
 // outer left edge relative to the portrait's, and the scale applied to it and

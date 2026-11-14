@@ -6,7 +6,7 @@
 // addition is fetched, from the avatar source GitHub named for it, once per
 // source while the boundary keeps it, so a changed source is fetched afresh;
 // anything else is refused before asking GitHub or its avatar host. What the
-// page shows is covered in ../../tests/stories/agent-roster-avatar.spec.ts.
+// page shows is covered in ../../../e2e/stories/agent-roster-avatar.spec.ts.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {

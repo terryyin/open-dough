@@ -1,7 +1,7 @@
 // Opening the branch slice progress journeys' records
 // (./branchProgressRecords.ts) with heads that move, for the automatic
-// check's branch journeys (./observation/auto-refresh-branches.spec.ts,
-// ./observation/auto-refresh-unusable-branch.spec.ts), which observe what the page then
+// check's branch journeys (../../e2e/observation/auto-refresh-branches.spec.ts,
+// ../../e2e/observation/auto-refresh-unusable-branch.spec.ts), which observe what the page then
 // asks GitHub through ./originObservation.ts's `readsBesideChecks`.
 
 import type { Page } from "@playwright/test";

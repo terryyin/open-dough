@@ -1,31 +1,21 @@
 // Shared action-replay setup for the optional frontend test proof: the
-// dashboard producer's declared fragment inputs and proof-record path for one
-// part, plus the workflow expect string that includes that frontend entry.
-import {
-  evaluated,
-  input,
-  producers,
-  stepInputs,
-} from "./ci-proof-action-fixtures.mjs";
+// frontend group producer's declared fragment inputs and proof-record path
+// for one part, and the workflow's expect declarations of the browser test
+// groups' entries, which include that frontend entry.
+import { declaredPart, producers } from "./ci-proof-action-fixtures.mjs";
 
 export const frontendEntry = "dashboard/frontend-tests";
-export const expect =
-  "dashboard/tests=13:case dashboard/frontend-tests=13:case dashboard/backend-tests=13:case";
+export const expect = producers
+  .filter(({ job }) => job !== "test")
+  .map(({ inputs, parts }) => `${inputs.root}=${parts}:case`)
+  .join(" ");
 
-export function declaredDashboard(part, temp) {
-  const declared = producers.find((producer) => producer.job === "dashboard");
-  const context = { temp, part, parts: declared.parts };
-  const [step] = declared.proof;
-  return {
-    inputs: Object.fromEntries(
-      Object.entries(stepInputs(step)).map(([name, value]) => [
-        name,
-        evaluated(value, context),
-      ]),
-    ),
-    report: evaluated(
-      input(declared.suite, "OPEN_DOUGH_DASHBOARD_PROOF_RECORD"),
-      context,
-    ),
-  };
+// GROUP's PART on the runner TEMP, given PARTS when a case needs more parts
+// than CI runs: its fragments inputs and its proof record's path.
+export function declaredGroup(group, part, temp, parts) {
+  const declared = declaredPart(group, part, temp, parts);
+  return { inputs: declared.inputs, report: declared.report("PROOF_RECORD") };
 }
+
+export const declaredFrontend = (part, temp, parts) =>
+  declaredGroup("dashboard-frontend", part, temp, parts);

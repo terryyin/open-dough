@@ -7,7 +7,7 @@ import { fileSource } from "../intentCodeBrowsePage.ts";
 // the cell's accessible description and hover, an entry-only summary is
 // labelled as having no file breakdown, and a run without a summary keeps the children for
 // drilling down, saying why as the homepage does. Complete evidence:
-// ./intent-summary-ci-proof.spec.ts.
+// ../../../e2e/intent/intent-summary-ci-proof.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
 import {

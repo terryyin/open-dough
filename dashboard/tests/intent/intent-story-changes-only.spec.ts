@@ -12,7 +12,7 @@ import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // test file in a location changed, with the count outside. The choice stays
 // through a new trunk revision and a Project Intent **Show latest** visit
 // (../../src/IntentRevisionNotice.tsx). The highlighted
-// journey: ./intent-story-changes.spec.ts.
+// journey: ../../../e2e/intent/intent-story-changes.spec.ts.
 
 import type { Locator } from "@playwright/test";
 import { parts } from "../dashboardPage.ts";

@@ -53,7 +53,7 @@ All observations in this workspace at `14a670355665972395b1593c9c448e3cbc6f6891`
 on 2026-11-13, Node 24.21.0, Homebrew Bash first on `PATH`, `caffeinate -s -i`,
 `NO_COLOR`, `FORCE_COLOR` and `GIT_ALTERNATE_OBJECT_DIRECTORIES` unset, load
 4–12, after `node scripts/setup-native.mjs npm|browser|check` exited 0. Command
-`npm run --silent test:dashboard -- tests/review/story-review-touch.spec.ts --workers=1 --reporter=list`
+`npm run --silent test:dashboard:integrated -- tests/review/story-review-touch.spec.ts --workers=1 --reporter=list`
 from the checkout root. Every scratch edit was reverted by `git checkout` and
 `git status --porcelain` afterwards showed only the seed.
 

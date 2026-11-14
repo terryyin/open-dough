@@ -1,8 +1,11 @@
 # Writing a browser journey
 
-This guide holds journey rules for waits, clocks and cleanup. The [README](README.md)
-owns strategy, tiers, real/replaced boundaries, execution and measurement; the
-[native-host fixture guide](native-host-fixtures.md) owns synthetic launch, listing and terminal hosts.
+How a browser journey waits, keeps time, and ends what it starts. The
+[README](README.md) owns the strategy: which tier a check belongs to, what is
+real and what is replaced, and how each group runs and is measured; this
+guide holds the rules a journey's own code follows. The
+[native-host fixture guide](native-host-fixtures.md) describes the synthetic
+hosts a launch, listing or terminal journey drives.
 
 ## A check's bound starts after the answer it depends on
 
@@ -48,10 +51,11 @@ milliseconds. A failing run's kept `trace.zip` holds it in the `*.network`
 records of each `/__authenticated-read` answer, which shows where a slow
 read spent its time; the browser's time beyond `total` was spent outside the
 handler. To record traces of a passing run, add `--trace on --reporter=dot`.
-The run's global setup (`support/globalSetup.ts`) runs the synthetic `gh`,
-`claude`, and `terminal-notifier` once before any worker starts, because macOS
-assesses a new executable on its first run and a fresh checkout's first
-reads would otherwise wait on it.
+The run's global setup (`support/serviceRunSetup.ts`, for E2E Test,
+Dashboard Integrated UI Test and Dashboard Backend Test) runs the synthetic `gh`, `claude`, and
+`terminal-notifier` once before any worker starts, because macOS assesses a
+new executable on its first run and a fresh checkout's first reads would
+otherwise wait on it.
 
 ## Time the product waits is stepped, not waited out
 
@@ -81,7 +85,7 @@ Reuse windows, such as `checkReuseMs`, and launch waits run on server time
 `dashboard.advanceObservationClock` to pass a window, or fix an exact deadline
 with `dashboard.setObservationClock(at)` (an ISO instant), then advance from it.
 For a launch wait, set `launchWaitEnd`, observe the kept record, held client or trust prompt,
-then call `dashboard.endLaunchWait` (`sessions/cursor-session-recovery-wait.spec.ts`).
+then call `dashboard.endLaunchWait` (`../../e2e/sessions/cursor-session-recovery-wait.spec.ts`).
 
 ### Authenticated-read backend clocks
 
@@ -117,10 +121,10 @@ ends it. Setup and command promises stay owned through teardown before HOME is r
 Each test steps the watcher to its next state and asserts the delta it observes
 (`support/productionWatcher.ts`: reported activations, replacements and skips,
 recorded builds, or successful Git reads recorded through fixture-local Trace2
-events). Routine checks remain quiet; the tests never use a fixed wait.
-A wait on a deployment step polls with `timeout: 0`, so the test timeout
-alone bounds it, as it bounds any answer.
-`afterAll` stops the watcher and cleans the fixture up.
+events). Routine checks remain quiet; the tests never use a fixed wait. A wait
+on a deployment step polls with `timeout: 0`, so the test timeout alone bounds
+it, as it bounds any answer. `afterAll` stops the watcher and releases setup's
+resources in reverse (`support/serialFileResources.ts`); overrun setup stops.
 In a serial file a failing test skips the file's later tests, and a test
 that ends the watcher hands the next one a restart at current main. A
 precondition that every test only reads is shared wider: the launch
@@ -155,9 +159,9 @@ wants a missing addition or an unpublished history says so. Which commit added
 a profile is walked at the boundary
 (`../backend-tests/observation/authenticated-read-profile-addition.spec.ts`, its refusals in
 `../backend-tests/observation/authenticated-read-profile-addition-refusal.spec.ts`); the credited human and avatar
-on cards and the roster are `stories/agent-roster-avatar.spec.ts`; how a slow or
+on cards and the roster are `../../e2e/stories/agent-roster-avatar.spec.ts`; how a slow or
 stalled addition read delays only its own profile's clock and human is
-`observation/profile-addition-latency.spec.ts`; the roster itself is
+`../../e2e/observation/profile-addition-latency.spec.ts`; the roster itself is
 `stories/agent-roster.spec.ts`, whose locators live in `dashboardPage.ts`.
 
 ## Review and Side panel owners
@@ -195,7 +199,9 @@ that passes its own `machine` calls `stopCursorRunner` itself. The run's own
 teardown is the backstop: global setup gives the run an identity,
 `OPEN_DOUGH_DASHBOARD_RUN_ID`, that every process of the run inherits, and
 once the workers have exited the teardown ends every process still carrying
-it and fails the run naming each (`support/globalSetup.ts`,
+it and fails the run naming each (`support/runLifecycle.ts`, shared by the
+group runners' `support/integratedGlobalSetup.ts`,
+`support/frontendGlobalSetup.ts`, `support/backendGlobalSetup.ts` and `support/e2eGlobalSetup.ts`;
 `support/runProcesses.ts`). A named process is a leak to stop where it
 starts, never a reason to widen the sweep; processes of other runs, other
 checkouts and this machine's own dashboard carry no such identity and are

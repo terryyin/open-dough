@@ -27,6 +27,7 @@ if (process.argv[2] === "completed") {
   arrived = () => appendFileSync(log, process.pid + " " + checkout + "\\n");
 }
 let observer;
+let looking;
 try {
   await new Promise((resolve, reject) => {
     let published = false;
@@ -39,6 +40,8 @@ try {
     } catch (error) {
       if (error.code !== "ENOENT") throw error;
     }
+    // Also observe the release state when macOS delays a file event under load.
+    looking = setInterval(check, 20);
     // Actual-file observation is armed by the next poll. Publish arrival
     // only after it, including when invoked from a poll callback.
     setImmediate(() => setImmediate(() => {
@@ -48,6 +51,7 @@ try {
     }));
   });
 } finally {
+  clearInterval(looking);
   observer?.close();
 }
 `;

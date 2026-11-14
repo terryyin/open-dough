@@ -49,16 +49,19 @@ The macOS and Ubuntu environments need not have identical fonts or packages.
 node scripts/setup-native.mjs check
 npm test -- tests/test-runner-selection.sh tests/test-runner-bash.sh tests/test-runner-failure-report.sh
 npm run typecheck:dashboard
-npm run test:dashboard
+npm run test:e2e
+npm run test:dashboard:integrated
+npm run test:dashboard:frontend
+npm run test:dashboard:backend
 ```
 
 Use `npm test` for the whole shell/Node suite, or name the checks being verified
 as described in [the runner guide](README.md). Repeating unchanged checks does
 not run npm setup, browser downloads or a system package manager. When
 `package-lock.json` changes, repeat both acquisition stages before checking.
-Every dashboard suite run builds production assets from the current checkout
-into its own temporary directory (`dashboard/tests/support/globalSetup.ts`),
-leaving `dashboard/dist` alone; retaining prerequisites does not retain a
+Every browser test group run that serves the app builds production assets from
+the current checkout into its own temporary directory
+(`dashboard/tests/support/dashboardBuild.ts`), leaving `dashboard/dist` alone; retaining prerequisites does not retain a
 stale app build. Real failures retain their normal reports and exit status;
 tests are never retried to turn them green.
 

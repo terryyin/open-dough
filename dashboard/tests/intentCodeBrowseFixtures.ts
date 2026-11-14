@@ -1,5 +1,5 @@
 // Published projects, settings, and source texts for Intent code-kind browse
-// journeys (`./intent/intent-code-browse.spec.ts`); its projects and publisher also
+// journeys (`../../e2e/intent/intent-code-browse.spec.ts`); its projects and publisher also
 // serve other Intent journeys.
 
 import { catalogPublications } from "./catalogProjectRecords.ts";

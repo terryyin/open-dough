@@ -2,7 +2,7 @@
 # scripts/ci-repeat.sh runs ci.yml repeatedly on one revision and reports what
 # failed: every repetition passing, at most two in progress, on the current
 # branch by default; a spec failing in some repetitions, counted once per run
-# even when it fails in two shards; a failed `test` job and a dashboard shard
+# even when it fails in two shards; a failed `test` job and a browser group shard
 # that named no spec; cancelled and unfinished runs not counted as passes;
 # pushes, other branches and revisions, and runs that existed before a
 # dispatch not counted; each failing `gh` call named without a result; and a
@@ -84,8 +84,8 @@ CALLS
 
 # some-fail: the acceptance spec fails in runs 32 and 34 (twice in run 34, in
 # two shards), the cursor spec only in run 32; run 33 fails its `test (2/3)`
-# job, whose shell-check FAIL line names no spec, and a dashboard shard that
-# printed no FAIL line is named as a job.
+# job, whose shell-check FAIL line names no spec, and a browser group shard
+# that printed no FAIL line is named as a job.
 reset_fixture
 on_dispatch 1 31
 on_dispatch 2 32
@@ -94,15 +94,15 @@ on_dispatch 4 34
 acceptance='FAIL: dashboard/tests/agent-launch-acceptance.spec.ts:96 › launch › reports (failed)'
 cursor='FAIL: dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts:43 › cursor › starts (timedOut)'
 run_view 31 completed success
-run_view 32 completed failure 'dashboard (3/9)' failure 'dashboard (5/9)' failure
-log_line 32 'dashboard (3/9)' "${acceptance}"
-log_line 32 'dashboard (5/9)' "${cursor}"
-run_view 33 completed failure 'test (2/3)' failure 'dashboard (9/9)' failure
+run_view 32 completed failure 'e2e / shard 3/3' failure 'dashboard-integrated / shard 2/3' failure
+log_line 32 'e2e / shard 3/3' "${acceptance}"
+log_line 32 'dashboard-integrated / shard 2/3' "${cursor}"
+run_view 33 completed failure 'test (2/3)' failure 'dashboard-backend / shard 2/2' failure
 log_line 33 'test (2/3)' 'FAIL: tests/install.sh'
-log_line 33 'dashboard (9/9)' 'error TS2322: Type string is not assignable'
-run_view 34 completed failure 'dashboard (3/9)' failure 'dashboard (5/9)' failure
-log_line 34 'dashboard (3/9)' "${acceptance}"
-log_line 34 'dashboard (5/9)' "${acceptance}"
+log_line 33 'dashboard-backend / shard 2/2' 'error TS2322: Type string is not assignable'
+run_view 34 completed failure 'e2e / shard 3/3' failure 'dashboard-integrated / shard 2/3' failure
+log_line 34 'e2e / shard 3/3' "${acceptance}"
+log_line 34 'dashboard-integrated / shard 2/3' "${acceptance}"
 run_repeat some-fail 4 feature
 expect_report some-fail 1 << REPORT
 Repeating ci.yml 4 times on feature at ${revision}, at most 2 at once.
@@ -116,7 +116,7 @@ Repetition 3: run 33 failure.
 Repetition 4: run 34 failure.
 dashboard/tests/agent-launch-acceptance.spec.ts:96 › launch › reports: failed in 2 of 4 repetitions.
 dashboard/tests/agent-launch-ad-hoc-cursor.spec.ts:43 › cursor › starts: failed in 1 of 4 repetitions.
-job dashboard (9/9): failed in 1 of 4 repetitions.
+job dashboard-backend / shard 2/2: failed in 1 of 4 repetitions.
 job test (2/3): failed in 1 of 4 repetitions.
 Runs: 31 32 33 34
 Passed 1 of 4 repetitions, 3 failed.
@@ -127,7 +127,7 @@ REPORT
 reset_fixture
 on_dispatch 1 41
 on_dispatch 2 42
-run_view 41 completed cancelled 'dashboard (2/9)' cancelled
+run_view 41 completed cancelled 'dashboard-integrated / shard 3/3' cancelled
 run_view 42 in_progress ''
 CI_REPEAT_WAIT_SECONDS=0 run_repeat cancelled-unfinished 2 feature
 expect_report cancelled-unfinished 1 << REPORT
@@ -172,7 +172,7 @@ expect_gh_failure view 'gh run view 51' run-view
 expect_in_log "${temporary_dir}/gh-view.log" -x -F -- 'Runs already dispatched: 51'
 reset_fixture
 on_dispatch 1 51
-run_view 51 completed failure 'dashboard (1/9)' failure
+run_view 51 completed failure 'e2e / shard 1/3' failure
 expect_gh_failure log 'gh run view 51 --log-failed' log-failed
 expect_in_log "${temporary_dir}/gh-log.log" -x -F -- 'Runs already dispatched: 51'
 

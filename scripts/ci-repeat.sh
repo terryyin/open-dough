@@ -10,10 +10,11 @@
 # workflow_dispatch run of REF at the revision GitHub holds for REF when the
 # script starts, absent from the run listing just before its dispatch, and not
 # already claimed, so pushes and other sessions' dispatches are not counted.
-# The report names each failing dashboard spec location, from the quiet
+# The report names each failing browser spec location, from the quiet
 # reporter's `FAIL: <file>:<line> › <title> (<status>)` lines in
-# `gh run view --log-failed`, and each other failed job (any job outside
-# `dashboard`, or a dashboard shard that named no spec), with the number of
+# `gh run view --log-failed`, and each other failed job (any job outside a
+# browser test group's `<group> / shard <i>/<n>` jobs, or such a shard that
+# named no spec), with the number of
 # repetitions it failed in, counted once per run; then the run IDs and the
 # totals. Exits 0 only when every repetition passed, 1 otherwise. A malformed
 # repetition count is refused (exit 2) before any `gh` call; when `gh` fails it
@@ -125,10 +126,10 @@ dispatch() {
 record_failures() {
   local id=$1
   gh_call "gh run view ${id} --log-failed" run view "${id}" --log-failed
-  # Spec lines come only from dashboard shards; a `test` job's own `FAIL:`
-  # lines name shell checks, not specs.
+  # Spec lines come only from browser test group shards; a `test` job's own
+  # `FAIL:` lines name shell checks, not specs.
   awk -F '\t' -v run="${id}" '
-    $1 ~ /^dashboard( |$)/ && index($0, "FAIL: ") && index($0, " › ") {
+    $1 ~ / \/ shard [0-9]+\/[0-9]+$/ && index($0, "FAIL: ") && index($0, " › ") {
       spec = substr($0, index($0, "FAIL: ") + 6)
       sub(/\r$/, "", spec)
       sub(/ \([a-zA-Z]+\)$/, "", spec)
@@ -140,7 +141,7 @@ record_failures() {
   awk -F '\t' -v run="${id}" '
     FILENAME == ARGV[1] { if ($2 == "named") named[$3] = 1; next }
     $2 != "success" && $2 != "skipped" && $2 != "neutral" && $2 != "cancelled" \
-      && !($1 ~ /^dashboard( |$)/ && $1 in named) { printf "%s\tjob\t%s\n", run, $1 }
+      && !($1 ~ / \/ shard [0-9]+\/[0-9]+$/ && $1 in named) { printf "%s\tjob\t%s\n", run, $1 }
   ' "${work_dir}/run-findings" "${work_dir}/jobs" >> "${work_dir}/findings"
   grep -F "$(printf '\tspec\t')" -- "${work_dir}/run-findings" >> "${work_dir}/findings" || true
 }

@@ -1,12 +1,14 @@
 # Per-job wall-clock safety deadline for scripts/test.sh. Each scheduled Bash
 # check or node --test file gets JOB_DEADLINE_SECONDS from its own start.
-# Expiry ends that job's process group with bounded TERM→KILL cleanup, settles
-# the scheduler slot when the killed job cannot, and leaves a timeout marker
-# for reporting. Proof may release the wait early by writing the job's FIFO.
+# Expiry ends that job's process group with bounded TERM→KILL cleanup, records
+# its elapsed time and settles the scheduler slot when the killed job cannot,
+# and leaves a timeout marker for reporting. Proof may release the wait early
+# by writing the job's FIFO.
 # Absolute CI run cutoff lives in scripts/test-run-deadline.bash; both share
 # one TIMEOUT reporting path via job_timeout_heading / job_timed_out.
 # shellcheck shell=bash
-# source_dir and output_root come from scripts/test.sh.
+# source_dir, output_root and job_started come from scripts/test.sh, and
+# elapsed_seconds from scripts/test-run-job.bash.
 # shellcheck disable=SC2154
 
 # shellcheck source=scripts/owned-process-group.bash
@@ -68,12 +70,17 @@ arm_job_deadline() {
 
   publish_job_deadline_ready "${index}" "${wait_fifo}"
   # Watchdog and slot settlement run outside the job's process group. On expiry
-  # the killed job cannot release its slot; do that here so a blocked launch
-  # loop can admit the next queued check without waiting for the final reap.
+  # the killed job cannot record its time or release its slot; do both here,
+  # so its report keeps the time it ran however long the run continues, and a
+  # blocked launch loop can admit the next queued check before the final reap.
   (
     owned_process_group_watchdog "${job_pid}" "${job_pid}" \
       "${JOB_DEADLINE_SECONDS}" "${JOB_DEADLINE_GRACE_SECONDS}" \
       "${sentinel}" "${timeout_flag}" "${wait_fifo}" > /dev/null 2>&1
+    if [[ -f ${timeout_flag} && ! -e ${output_root}/${index}.seconds ]]; then
+      elapsed_seconds "${job_started[index]}" "${EPOCHREALTIME}" \
+        > "${output_root}/${index}.seconds"
+    fi
     if [[ -f ${timeout_flag} && ! -e ${output_root}/${index}.status ]]; then
       printf '124\n' > "${output_root}/${index}.status"
       printf '\n' >&3

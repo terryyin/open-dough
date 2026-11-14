@@ -11,11 +11,10 @@ import { requestRunArtifact } from "./runArtifacts.ts";
 
 const exec = promisify(execFile);
 export type PublishedMainSourceProfile = "repository" | "application";
-export const publishedApplicationSourceArtifactKey =
-  "published-application-source";
-const keys = {
+// Each profile's run artifact, the snapshot every fixture of that profile clones.
+export const publishedMainSourceArtifactKeys = {
   repository: "published-main-source",
-  application: publishedApplicationSourceArtifactKey,
+  application: "published-application-source",
 } as const;
 // The real app/runtime source, including the policy its watcher reads from Git.
 // Tests, maintenance records and installed guidance are not application inputs.
@@ -93,7 +92,7 @@ export function publishedMainSourceArtifact(
   profile: PublishedMainSourceProfile = "repository",
 ) {
   return [
-    keys[profile],
+    publishedMainSourceArtifactKeys[profile],
     {
       create: () => mkdtempSync(path.join(tmpdir(), "dough-published-source-")),
       prepare: (directory: string, signal: AbortSignal) =>
@@ -113,7 +112,9 @@ export async function materializePublishedMainSource(
   env: NodeJS.ProcessEnv,
   profile: PublishedMainSourceProfile = "repository",
 ) {
-  const snapshot = await requestRunArtifact(keys[profile]);
+  const snapshot = await requestRunArtifact(
+    publishedMainSourceArtifactKeys[profile],
+  );
   if (snapshot === undefined) {
     await prepareSource(development, repoRoot, env, undefined, profile);
     return;

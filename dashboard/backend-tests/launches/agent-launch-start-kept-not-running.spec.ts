@@ -1,6 +1,6 @@
 // An execution start the native host refuses stays kept in the store and is
 // never reported running, over raw HTTP against the real installed start and a
-// real bare origin. The page phase journeys: ../../tests/launches/agent-launch-start-phases.spec.ts.
+// real bare origin. The page phase journeys: ../../../e2e/launches/agent-launch-start-phases.spec.ts.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/preparationPage.ts";

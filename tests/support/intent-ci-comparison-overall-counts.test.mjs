@@ -6,7 +6,7 @@
 // known even when two builds spell it alike, are totalled apart with why
 // there is no difference (SEED-281 examples 38, 39). Count cells:
 // ./intent-scope-comparison-wording.test.mjs. Browser journeys:
-// ../../dashboard/tests/intent/intent-ci-comparison.spec.ts and
+// ../../e2e/intent/intent-ci-comparison.spec.ts and
 // intent-ci-comparison-units.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";

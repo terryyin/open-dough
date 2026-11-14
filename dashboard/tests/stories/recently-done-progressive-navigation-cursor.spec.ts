@@ -7,7 +7,7 @@ import { closeSidePanel } from "../sidePanelFrame.ts";
 // Closing its terminal with the row hidden returns the keyboard to that
 // entry. The terminal's connection is held, so attaching does not reopen the
 // session meanwhile. The runner and cursor-agent are the fixture
-// ../sessions/cursor-runner-sessions.spec.ts uses; the publication and the other
+// ../../../e2e/sessions/cursor-runner-sessions.spec.ts uses; the publication and the other
 // sessions are ../recentlyDoneProgressiveJourney.ts's. The page reads this
 // machine's sessions before the project's done catalog, so the first ten
 // entries are read once, merged.

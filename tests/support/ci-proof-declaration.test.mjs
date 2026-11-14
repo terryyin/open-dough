@@ -1,7 +1,10 @@
 // ci.yml's ci-proof job declares the proof entries, parts and units that its
-// producers write, after the proof jobs settle however they ended. The two
-// local CI proof actions replayed with what ci.yml gives them:
-// ./ci-proof-actions.test.mjs.
+// producers write, after the proof jobs settle however they ended: npm
+// test's shares and each browser test group's own shards, run by
+// browser-test-group.yml with the inputs its job gives. The two local CI
+// proof actions replayed with what the workflows give them:
+// ./ci-proof-actions.test.mjs. Each group's own inputs:
+// ./ci-browser-groups.test.mjs.
 import assert from "node:assert/strict";
 import test from "node:test";
 import { summaryArtifactName } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
@@ -11,6 +14,9 @@ import {
 } from "../../scripts/frontend-test-proof.mjs";
 
 import {
+  browserGroups,
+  browserWorkflow,
+  evaluated,
   workflow,
   fragmentsAction,
   summaryAction,
@@ -33,19 +39,37 @@ const unitOf = (step) =>
     ? "case"
     : input(step, "unit");
 
-test("the workflow names a pull request's head as CI_PROOF_REVISION before github.sha", () => {
+// A producer's evaluated fragments-step input NAME.
+const declaredInput = ({ proof: [step], inputs }, name) => {
+  const value = input(step, name);
+  return value && evaluated(value, { inputs });
+};
+
+test("both workflows name a pull request's head as CI_PROOF_REVISION before github.sha", () => {
   // A pull-request run must name head.sha (what Intent judges), not the
   // merge commit github.sha alone would give; drop the head preference and
   // every PR summary reads as another revision.
-  assert.match(
-    workflow,
-    /^ {2}CI_PROOF_REVISION: \$\{\{ github\.event\.pull_request\.head\.sha \|\| github\.sha \}\}$/m,
-  );
+  for (const text of [workflow, browserWorkflow])
+    assert.match(
+      text,
+      /^ {2}CI_PROOF_REVISION: \$\{\{ github\.event\.pull_request\.head\.sha \|\| github\.sha \}\}$/m,
+    );
 });
 
-test("the ci-proof job runs after both proof jobs however they ended", () => {
+test("the ci-proof job runs after every proof job however they ended", () => {
   const lines = declared.get("ci-proof").join("\n");
-  assert.match(lines, /^ {4}needs: \[test, dashboard\]$/m);
+  assert.deepEqual(
+    /^ {4}needs:\n((?: {6}- .+\n)+)/m
+      .exec(lines)?.[1]
+      .trimEnd()
+      .split("\n")
+      .map((item) => item.slice(8)),
+    producers.map(({ job }) => job),
+  );
+  assert.deepEqual(
+    browserGroups.map(({ job }) => job),
+    ["e2e", "dashboard-integrated", "dashboard-frontend", "dashboard-backend"],
+  );
   assert.match(lines, /^ {4}if: \$\{\{ !cancelled\(\) \}\}$/m);
   assert.ok(summaryStep, "the ci-proof job runs no ci-proof-summary step");
   assert.ok(
@@ -56,7 +80,7 @@ test("the ci-proof job runs after both proof jobs however they ended", () => {
   assert.ok(summaryAction.includes(`name: ${summaryArtifactName(attempt)}\n`));
 });
 
-test("npm test's per-file outcomes are published as test files and the dashboard records' tests as test cases", () => {
+test("npm test's per-file outcomes are published as test files and each browser group's record's tests as test cases", () => {
   // scripts/test.sh runs each shell check and node --test file as one job
   // and writes one outcome line per job (tests/runner-settings.md): that
   // file's aggregate outcome, however many cases it holds. A Playwright
@@ -72,18 +96,20 @@ test("npm test's per-file outcomes are published as test files and the dashboard
     ]),
     [
       ["test", [["outcomes", "file", "file"]]],
-      ["dashboard", [["playwright-record", undefined, "case"]]],
+      ...browserGroups.map(({ job }) => [
+        job,
+        [["playwright-record", undefined, "case"]],
+      ]),
     ],
   );
 });
 
 test("the declared parts and units equal the matrix lengths and report units of the jobs that write each entry, in Intent location order", () => {
   const expected = new Map();
-  for (const { proof, parts } of producers) {
-    for (const step of proof) {
-      for (const entry of input(step, "entries").split(" ")) {
-        expected.set(entry, `${parts}:${unitOf(step)}`);
-      }
+  for (const producer of producers) {
+    for (const entry of declaredInput(producer, "entries").split(" ")) {
+      assert.equal(expected.has(entry), false, `${entry} has one producer`);
+      expected.set(entry, `${producer.parts}:${unitOf(producer.proof[0])}`);
     }
   }
   const declaration = input(summaryStep, "expect")
@@ -101,8 +127,9 @@ test("the declared parts and units equal the matrix lengths and report units of 
   );
 });
 
-test("every producer keeps its part's attempt-named fragments whenever its suite ran", () => {
-  for (const { job, axis, suite, proof } of producers) {
+test("every producer keeps its part's attempt-named fragments under its own name whenever its suite ran", () => {
+  for (const producer of producers) {
+    const { job, axis, suite, proof } = producer;
     assert.equal(proof.length, 1, `${job} keeps its CI proof fragments once`);
     const [step] = proof;
     assert.match(
@@ -112,10 +139,11 @@ test("every producer keeps its part's attempt-named fragments whenever its suite
     assert.ok(suite, `${job} names no suite step`);
     assert.equal(input(step, "part"), `\${{ matrix.${axis} }}`);
     assert.equal(input(step, "parts"), "${{ strategy.job-total }}");
+    assert.equal(declaredInput(producer, "producer"), job);
   }
   assert.ok(
     fragmentsAction.includes(
-      `name: ci-proof-fragments-\${{ github.job }}-\${{ inputs.part }}-attempt-${attempt}\n`,
+      `name: ci-proof-fragments-\${{ inputs.producer }}-\${{ inputs.part }}-attempt-${attempt}\n`,
     ),
   );
 });

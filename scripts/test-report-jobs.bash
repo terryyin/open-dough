@@ -5,8 +5,9 @@
 # times_file, and outcomes_file come from scripts/test.sh.
 # shellcheck disable=SC2154
 
-# Prints one started job's wall seconds: those its job recorded, or, when the
-# job left none, the time from its start until the runner observed it ended.
+# Prints one started job's wall seconds: those its job, or the safety deadline
+# that stopped it, recorded; or, when none were, the time from its start until
+# the runner observed it ended.
 job_seconds() {
   local index=$1 seconds
   if [[ -e ${output_root}/${index}.seconds ]]; then

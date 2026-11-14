@@ -1,11 +1,24 @@
 // The production dashboard build a preview server serves (./dashboardServer.ts).
 
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { ownedProcess } from "../../server/productionProcess.mjs";
 import { repoRoot } from "./repositoryRoot.ts";
 import { requestRunArtifact } from "./runArtifacts.ts";
 
 export const dashboardAppArtifactKey = "app";
+
+// The run's one app build, prepared on first request (./runArtifacts.ts).
+export function dashboardAppArtifact() {
+  return [
+    dashboardAppArtifactKey,
+    {
+      create: () => mkdtempSync(path.join(tmpdir(), "dough-dashboard-build-")),
+      prepare: buildDashboardTo,
+    },
+  ] as const;
+}
 
 // The preview or static server calls this when it is about to serve the app.
 // Custom configurations without a run owner can still serve dashboard/dist.

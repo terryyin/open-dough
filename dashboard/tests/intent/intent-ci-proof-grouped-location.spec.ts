@@ -10,7 +10,7 @@ import {
 // ../../src/ciProofEntryCells.ts). Decisive published-summary facts — shard
 // totals, empty reports that need no duration, a file failure kept beside
 // cases — expressed through MakeMe. Units journey across Summary and file:
-// ./intent-ci-proof-units.spec.ts.
+// ../../../e2e/intent/intent-ci-proof-units.spec.ts.
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
