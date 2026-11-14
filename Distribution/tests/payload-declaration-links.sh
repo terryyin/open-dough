@@ -66,8 +66,8 @@ copy=$(mktemp -d)
 trap 'rm -rf -- "${copy}"' EXIT
 # Compare the assembled declaration with Bash executing only its data forms.
 # The real installer, and its entrypoint, are not executed.
-mkdir -p -- "${copy}/Distribution/src/install"
-cp -- "${source_dir}/Distribution/src/install/open-dough-execution-payload.sh" "${copy}/Distribution/src/install/"
+mkdir -p -- "${copy}/src/install"
+cp -- "${source_dir}/src/install/open-dough-execution-payload.sh" "${copy}/src/install/"
 awk '
   /^managed_files(\+)?=\(/ { in_payload = 1 }
   in_payload { print }
@@ -97,26 +97,26 @@ grouped_paths=$(read_managed_files_declaration "${copy}/grouped-install.sh")
 [[ "${grouped_paths}" == $'dough-update/SKILL.md\ndough-example/SKILL.md' ]]
 # Missing or incomplete composition never becomes a successful partial list.
 cp -- "${source_dir}/install.sh" "${copy}/install.sh"
-mv -- "${copy}/Distribution/src/install/open-dough-execution-payload.sh" "${copy}/fragment"
+mv -- "${copy}/src/install/open-dough-execution-payload.sh" "${copy}/fragment"
 if read_managed_files_declaration "${copy}/install.sh" > /dev/null 2>&1; then
   echo 'FAIL: a missing declaration fragment was accepted.' >&2
   exit 1
 fi
 printf '%s\n' 'managed_files+=(' '  dough-example/SKILL.md' \
-  > "${copy}/Distribution/src/install/open-dough-execution-payload.sh"
+  > "${copy}/src/install/open-dough-execution-payload.sh"
 if read_managed_files_declaration "${copy}/install.sh" > /dev/null 2>&1; then
   echo 'FAIL: an incomplete declaration fragment was accepted.' >&2
   exit 1
 fi
 printf '%s\n' 'managed_files+=(' '  dough-example/SKILL.md' ')' \
-  "touch '${copy}/fragment-ran'" > "${copy}/Distribution/src/install/open-dough-execution-payload.sh"
+  "touch '${copy}/fragment-ran'" > "${copy}/src/install/open-dough-execution-payload.sh"
 if read_managed_files_declaration "${copy}/install.sh" > /dev/null 2>&1; then
   echo 'FAIL: a fragment containing a command was accepted.' >&2
   exit 1
 fi
 [[ ! -e "${copy}/fragment-ran" ]]
-mv -- "${copy}/fragment" "${copy}/Distribution/src/install/open-dough-execution-payload.sh"
-mkdir -p -- "${copy}/src"
+mv -- "${copy}/fragment" "${copy}/src/install/open-dough-execution-payload.sh"
+mkdir -p -- "${copy}/Distribution/src"
 cp -R -- "${source_dir}/Distribution/src/skills" "${copy}/Distribution/src/skills"
 {
   printf '%s\n' '#!/usr/bin/env bash' "echo 'FAIL: installer ran.' >&2; exit 1"
