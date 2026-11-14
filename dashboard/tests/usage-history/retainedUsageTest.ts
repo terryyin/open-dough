@@ -23,14 +23,14 @@ export const test = base.extend<{ home: string; root: string }>({
   },
 });
 
-export const launch = (session: string, turn: string) =>
+export const launch = (session: string, turn: string, launchedAt = at) =>
   makeMe.aLaunchRecord
     .executing({
       identity: "SEED-358#reconstruct-codex-and-claude-code-usage-history",
       title: "Usage recovery",
     })
     .inCodexSession({ sessionId: session })
-    .launchedAt(at)
+    .launchedAt(launchedAt)
     .requestingModel("requested-model")
     .requestingEffort("high")
     .withFirstInput({ state: "confirmed", turnId: turn })

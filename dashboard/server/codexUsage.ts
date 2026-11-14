@@ -15,6 +15,11 @@ import {
   type UsageSource,
 } from "./usageRecords.ts";
 import { reconcileObservation } from "./usageReconciliation.ts";
+import {
+  containingCodexThread,
+  recordCodexSession,
+  type CodexLineage,
+} from "./codexUsageLineage.ts";
 
 function settingsOf(payload: Record<string, unknown>): UsageSettings {
   const result: UsageSettings = {};
@@ -33,18 +38,66 @@ export async function* codexUsage(
   file: string,
   since: number,
   gaps: UsageGap[],
+  lineageEvidence: CodexLineage,
 ): AsyncGenerator<UsageObservation> {
-  let owner: string | undefined;
+  const owner = containingCodexThread(file);
+  let ownMetadata = false;
   let parentSessionId: string | undefined;
+  const spawned = new Set<string>();
   const settings = new Map<
     string,
     { settings: UsageSettings; source: UsageSource }
   >();
   for await (const { row, line } of nativeUsageLines(file, gaps)) {
     const payload = objectOf(row["payload"]);
-    if (row["type"] === "session_meta" && owner === undefined) {
-      owner = stringOf(payload["id"]);
-      parentSessionId = stringOf(payload["parent_thread_id"]);
+    if (row["type"] === "session_meta" && payload["id"] === owner) {
+      ownMetadata = true;
+      const session = recordCodexSession(lineageEvidence, owner, payload, {
+        kind: "native",
+        file,
+        line,
+      });
+      parentSessionId =
+        session.parents.length === 1 ? session.parents[0] : undefined;
+    }
+    if (row["type"] === "event_msg" && payload["type"] === "token_count") {
+      const session =
+        lineageEvidence.sessions.get(owner) ??
+        recordCodexSession(
+          lineageEvidence,
+          owner,
+          {},
+          { kind: "native", file, line },
+        );
+      session.legacyCounters.push({ kind: "native", file, line });
+    }
+    if (
+      row["type"] === "response_item" &&
+      payload["type"] === "function_call" &&
+      payload["name"] === "spawn_agent"
+    ) {
+      const call = stringOf(payload["call_id"]);
+      if (call) spawned.add(call);
+    }
+    if (
+      row["type"] === "response_item" &&
+      payload["type"] === "function_call_output" &&
+      spawned.has(stringOf(payload["call_id"]) ?? "")
+    ) {
+      let result: Record<string, unknown> = {};
+      try {
+        const parsed: unknown = JSON.parse(stringOf(payload["output"]) ?? "");
+        result = objectOf(parsed);
+      } catch {
+        /* Unavailable worker identity remains a coverage gap. */
+      }
+      const sessionId = stringOf(result["agent_id"]);
+      const agentPath = stringOf(result["task_name"]);
+      lineageEvidence.workers.push({
+        ...(sessionId ? { sessionId } : {}),
+        ...(agentPath ? { agentPath } : {}),
+        source: { kind: "native", file, line },
+      });
     }
     if (row["type"] === "turn_context") {
       const turn = stringOf(payload["turn_id"]);
@@ -58,14 +111,31 @@ export async function* codexUsage(
     const sessionId = stringOf(payload["thread_id"]);
     const responseId = stringOf(payload["response_id"]);
     const at = timestampOf(row["timestamp"]);
-    if (!owner || !sessionId || !responseId || !at) {
+    if (sessionId !== undefined && sessionId !== owner) continue;
+    if (!sessionId || !responseId || !at) {
       gaps.push({
         code: "unsupported-response-identity",
         source: { kind: "native", file, line },
       });
       continue;
     }
-    if (sessionId !== owner || Date.parse(at) < since) continue;
+    const session =
+      lineageEvidence.sessions.get(owner) ??
+      recordCodexSession(
+        lineageEvidence,
+        owner,
+        {},
+        { kind: "native", file, line },
+      );
+    session.responses++;
+    if (!ownMetadata)
+      gaps.push({
+        code: "missing-session-metadata",
+        host: "codex",
+        sessionId,
+        source: { kind: "native", file, line },
+      });
+    if (Date.parse(at) < since) continue;
     const turnId = stringOf(payload["turn_id"]);
     const rootTurnId = stringOf(payload["root_turn_id"]);
     const {

@@ -3,6 +3,8 @@
 import { createReadStream } from "node:fs";
 import { readdir } from "node:fs/promises";
 import { createInterface } from "node:readline";
+import { pipeline } from "node:stream/promises";
+import { createZstdDecompress } from "node:zlib";
 import path from "node:path";
 import type { UsageGap } from "./usageRecords.ts";
 export const objectOf = (value: unknown): Record<string, unknown> =>
@@ -36,11 +38,21 @@ export async function* nativeUsageFiles(
   )) {
     const file = path.join(root, entry.name);
     if (entry.isDirectory()) yield* nativeUsageFiles(file, gaps);
-    else if (entry.isFile() && entry.name.endsWith(".jsonl")) yield file;
+    else if (entry.isFile() && /\.jsonl(?:\.zst)?$/.test(entry.name))
+      yield file;
   }
 }
 export async function* nativeUsageLines(file: string, gaps: UsageGap[]) {
-  const input = createReadStream(file);
+  const source = createReadStream(file);
+  const decoder = file.endsWith(".zst") ? createZstdDecompress() : undefined;
+  const input = decoder ?? source;
+  let unreadable = false;
+  const decoding =
+    decoder === undefined
+      ? undefined
+      : pipeline(source, decoder).catch(() => {
+          unreadable = true;
+        });
   const lines = createInterface({ input, crlfDelay: Infinity });
   let line = 0;
   try {
@@ -57,12 +69,16 @@ export async function* nativeUsageLines(file: string, gaps: UsageGap[]) {
       }
     }
   } catch {
-    gaps.push({
-      code: "native-source-unreadable",
-      source: { kind: "native", file },
-    });
+    unreadable = true;
   } finally {
     lines.close();
     input.destroy();
+    source.destroy();
+    await decoding;
+    if (unreadable)
+      gaps.push({
+        code: "native-source-unreadable",
+        source: { kind: "native", file },
+      });
   }
 }

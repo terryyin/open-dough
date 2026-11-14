@@ -32,7 +32,10 @@ try {
           store,
           since: values.since ?? "2026-09-16T00:00:00+08:00",
           codexRoots: (
-            values["codex-root"] ?? [path.join(home, ".codex/sessions")]
+            values["codex-root"] ?? [
+              path.join(home, ".codex/sessions"),
+              path.join(home, ".codex/archived_sessions"),
+            ]
           ).map((root) => path.resolve(root)),
         });
   console.log(JSON.stringify(result));

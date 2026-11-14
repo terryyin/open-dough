@@ -1,6 +1,11 @@
 // Explicit, offline import. Native evidence is streamed; only compact response
 // observations are retained. Operational launch readers never invoke this path.
 import { codexUsage } from "./codexUsage.ts";
+import {
+  codexAssociation,
+  codexCoverage,
+  codexLineage,
+} from "./codexUsageLineage.ts";
 import { nativeUsageFiles } from "./nativeUsageFiles.ts";
 import { retainedUsageTasks } from "./retainedUsageTasks.ts";
 import {
@@ -36,9 +41,7 @@ export async function importUsageHistory(options: UsageImportOptions) {
     });
   }
   const tasks = [...taskMap.values()];
-  const sessions = new Set(
-    tasks.map((task) => `${task.host}:${task.sessionId}`),
-  );
+  const lineage = codexLineage();
   const gaps: UsageGap[] = [];
   const observations = new Map<string, UsageObservation>();
   const associations: UsageAssociation[] = [];
@@ -46,9 +49,7 @@ export async function importUsageHistory(options: UsageImportOptions) {
   for (const root of options.codexRoots) {
     for await (const file of nativeUsageFiles(root, gaps)) {
       files++;
-      for await (const observation of codexUsage(file, since, gaps)) {
-        if (!sessions.has(`${observation.host}:${observation.sessionId}`))
-          continue;
+      for await (const observation of codexUsage(file, since, gaps, lineage)) {
         observations.set(
           observation.id,
           reconcileObservation(observations.get(observation.id), observation),
@@ -57,24 +58,9 @@ export async function importUsageHistory(options: UsageImportOptions) {
     }
   }
   for (const observation of observations.values()) {
-    const candidates = observation.gaps.includes("contradictory-lineage")
-      ? []
-      : tasks.filter(
-          (task) =>
-            task.host === observation.host &&
-            task.sessionId === observation.sessionId &&
-            task.rootTurnId !== undefined &&
-            (task.rootTurnId === observation.rootTurnId ||
-              task.rootTurnId === observation.turnId),
-        );
-    associations.push({
-      observationId: observation.id,
-      taskId: candidates.length === 1 ? (candidates[0]?.id ?? null) : null,
-      candidates: candidates.map((task) => task.id),
-      sources: candidates.flatMap((task) => task.sources),
-      gaps: candidates.length === 1 ? [] : ["unresolved-task-association"],
-    });
+    associations.push(codexAssociation(observation, tasks, lineage));
   }
+  gaps.push(...codexCoverage(lineage));
   for (const task of tasks) {
     if (!associations.some((association) => association.taskId === task.id))
       gaps.push({

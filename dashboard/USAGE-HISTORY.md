@@ -18,19 +18,39 @@ node dashboard/server/importUsageHistory.ts read
 
 `--home <directory>` selects the machine home containing retained and operational
 launch evidence. `--codex-root <directory>` selects an active Codex rollout root
-and may be repeated; its default is `<home>/.codex/sessions`. `--store <file>`
+and may be repeated; its defaults are `<home>/.codex/sessions` and
+`<home>/.codex/archived_sessions`. Both plain `.jsonl` and zstd `.jsonl.zst`
+rollouts are streamed. `--store <file>`
 selects an explicit alternate usage document for both commands. `--since` uses
 recorded response timestamps, including in-window responses of older sessions;
 the default cutoff above is midnight Singapore time, not UTC midnight. Native
 inputs are read only. No API request, native session launch, billing lookup or
 workflow mutation occurs. Use an isolated home/store for fixture experiments.
 
-The current retained-launch path reads plain active Codex JSONL response usage.
-Workers, archived/compressed input and pruned-task reconstruction have separate
-planned import paths. A retained task without an evidenced native turn boundary
+The current retained-launch path reads active and archived Codex response usage,
+including compressed rollouts and explicitly linked descendants. Pruned-task and
+Claude reconstruction have separate planned import paths. A retained task without an evidenced native turn boundary
 keeps unavailable/unattributed usage; it is never assigned a conversation total.
 An unsupported or unavailable source stays a coverage gap. An import report's
 counts describe persisted evidence, not provider-wide accounting.
+
+The containing rollout filename identifies its thread; copied ancestor metadata
+and usage cannot claim ownership of that file. Workers join a retained task only
+through an explicit parent-thread chain and the matching root turn. A worker
+without task-turn evidence remains unassigned, even if its parent has only one
+retained launch. Multiple task candidates and contradictory lineage remain
+unassigned. Associations retain the supporting native metadata source locations.
+Native response observations survive without a retained task for later recovery;
+the importer does not invent a task entry for them.
+
+Damaged rows and compressed streams produce source-specific gaps while other
+readable responses survive. A matching filename and response thread can retain
+usage when session metadata is absent, with a metadata gap and unknown ancestry.
+Legacy cumulative counters without reliable response usage produce an
+`unsupported-response-counters` gap; metadata alone produces
+`no-response-usage-evidence`. Referenced workers that are missing, incomplete or
+ambiguous have explicit gaps. These local checks cannot prove auxiliary or
+provider coverage beyond the retained files and references.
 
 A task is a launch, identified by project, host, session and evidenced initial
 turn (or retained launch time when that turn is unknown). Requested model,

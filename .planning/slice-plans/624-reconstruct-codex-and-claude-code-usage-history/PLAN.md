@@ -110,21 +110,11 @@ Type: Behavior
 Status: done
 Proof: new `retained-usage.spec.ts`, using the command and persisted read.
 
-Behavior: operational or retained launch evidence identifies a Codex root turn
-with response usage → run a local import → the history store holds one request
-observation linked to the launch, its native IDs and source location, known
-settings, normalized categories and explicit coverage. A restart, repeated import
-or overlapping writer of that response preserves one count. An injected write
-failure preserves existing data and a retry succeeds once.
-
-Deliver the shared usage representation and writer only as required by this
-path. Keep old history readable, and prove no routine operational read/write
-starts scanning usage files. Document the runnable command and explicit native
-source/store options so tests and the real import use the same path.
+Behavior delivered: retained operational/history Codex root-turn evidence imports one request observation with native IDs, source, settings, categorized tokens and explicit coverage. Restart/reimport/overlapping writer preserve one count; failed persistence keeps prior data and retries once. The shared representation/writer serves this path; old history remains readable, routine operational reads/writes do not scan usage, and the same documented CLI/source/store options serve fixtures and real import. Full acceptance evidence below; original slice text recoverable at `e8c33461577e6d744dfbe5f5c4aceb0e9a7107fc`.
 
 ### 2. Attribute recoverable Codex usage across workers and archives
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `codex-usage.spec.ts` through the import command; rerun slice 1.
 
 Behavior: active, archived and compressed rollouts contain own responses,
@@ -195,7 +185,7 @@ document or enduring usage-history documentation.
 
 - Local gate: the new spec(s) for each slice plus earlier import specs through
   `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history --reporter=list`.
-  At slice 1 and after history-contract changes also run
+  Use the default quiet reporter (omit `--reporter=list`) for final acceptance so passing-test output is rejected as in CI. At slice 1 and after history-contract changes also run
   `dashboard/backend-tests/sessions/launch-history-aged-out.spec.ts`,
   `launch-history-removed.spec.ts` and `agent-launch-delete.spec.ts` through
   that config. Run `npm run typecheck:dashboard` for changed TS contracts.
@@ -226,7 +216,7 @@ Established workspace `/Users/terryyin/git/open-dough/.worktrees/reconstruct-cod
 
 Starting revision `ecb5de7eaf25afd137eaa7458abc31b8640c70de`; established published base/candidate `a2bf0f9625455299ad0f8776e1be915aa6d8e797` confirmed on both remote targets. Trunk claim CI unobserved. Setup: Node 24.21.0, `node scripts/setup-native.mjs npm` passed, existing launch-history backend `--list --reporter=list` selected four cases. Check-only `.githooks/pre-commit` owns staged lint and typecheck; selective formatting uses `npm run --silent format` (npm supplies local tool PATH); importer triggers no generation. Worktree author is `mrsn-chan`, so delivery uses agent commit. Existing replanning authority retained; no explicit override or numeric hard limit.
 
-CI repair (43613508834/1, published slice1 `e8c33461577e6d744dfbe5f5c4aceb0e9a7107fc`): complete inventory had one PRINTED failure, expected CLI stderr leaked via execFileSync. One-line `stdio: "pipe"` in importHarness.ts preserves thrown stderr/status and assertions. Accepted as already traced within refactor1 harness boundary, no new representation/path. Quiet-reporter red: import prefix above plus `usage-persistence.spec.ts --workers=2` without reporter override, exit1 PRINTED; green entire usage-history directory without reporter override, all6 cases exit0 with empty output; typecheck and whitespace pass. Freshness unchanged at `706387653e180d0e3bab5998ba12a5399aa20b2e`, no incoming supplier behavior. Slice2 preserved in coordinator stash record `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-6h4ghW/record.json`; restore only after publication.
+CI repair (43613508834/1, published slice1 `e8c33461577e6d744dfbe5f5c4aceb0e9a7107fc`): complete inventory had one PRINTED failure, expected CLI stderr leaked via execFileSync. One-line `stdio: "pipe"` in importHarness.ts preserves thrown stderr/status and assertions. Accepted as already traced within refactor1 harness boundary, no new representation/path. Quiet-reporter red: import prefix above plus `usage-persistence.spec.ts --workers=2` without reporter override, exit1 PRINTED; green entire usage-history directory without reporter override, all6 cases exit0 with empty output; typecheck and whitespace pass. Freshness unchanged at `706387653e180d0e3bab5998ba12a5399aa20b2e`, no incoming supplier behavior. Slice2 preserved in coordinator stash record `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-6h4ghW/record.json`; repair published `8dcffe2123dbf577dcea5e522ff271907ad89834` (suffix base `e8c33461577e6d744dfbe5f5c4aceb0e9a7107fc`), observer attached; restore receipt resumed/applied, owned entry dropped, same slice2 agent resumed. This is current published base.
 
 CI: Codex yielded cell `g263:10`, session 90340, coordinator `seed358-mrsn-chan`, directory `/tmp/dough-ci-501/watch-m0RUal`, PID 49693. Bound to this checkout and repository, target execution branch; push workflow `ci.yml` active, display name CI. Retain this stream through increments.
 
@@ -240,6 +230,14 @@ Story clause: "Store model and effort when known"
 Disposition: proved by slice 1: usage-reconciliation.spec.ts conflicting observed settings test and usageReconciliation.ts per-measurement settings reconciliation
 Commitment: 15
 
+
+### G2. Independent valid response without session metadata
+Reported: slice 2 — "Slice 2 pause identified that the ownMetadata guard discards a valid filename-owning response when session metadata is absent or damaged; counter-availability coverage also needs to distinguish unsupported counters from missing evidence."
+Story clause: "Read Codex response usage from active and archived rollouts"
+Disposition: proved by slice 2: codex-coverage.spec.ts independent owning response survives missing metadata and legacy task totals remain null; nativeUsageFiles.ts preserves independent decodable lines
+Commitment: 38
 ## Accepted slice evidence
 
-1. Retained Codex: actual CLI/fresh-process reads in `retained-usage.spec.ts` observe categories, settings, sources, one-count replay/enrichment, contradictions, missing→zero, and native-source independence. Operational scan trap passes; native payload keys verified against Nov14 sample. `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history dashboard/backend-tests/sessions/launch-history-aged-out.spec.ts dashboard/backend-tests/sessions/launch-history-removed.spec.ts dashboard/backend-tests/sessions/agent-launch-delete.spec.ts --workers=2 --reporter=list`: 15 passed (4 new +11 existing). Updated import-only selection: 6 passed; final `--grep 'preserves prior' --workers=1` case passed after correcting injector to actual CLI rename error, exact stderr/status checked. `npm run typecheck:dashboard` passed. Consumer trace `/tmp/seed358-slice1-consumers.md`: new API has no unchanged production callers; additive effort builder leaves omitted-effort consumers unchanged; old history contract regression above retained. Source freshness unchanged at `74bc48c5b968b48443df355effbdfd0f908cb29c`; incoming named sibling only preparation/Take, no changed supplier history behavior. Independent refactor split six cases across retained-usage, usage-reconciliation and usage-persistence specs with retainedUsageTest.ts fixture; actual CLI 6/6 passed in 2.7s, earlier11 history cases unchanged. No production refactor; final hook owns current typecheck. Mechanical lint repair stayed within accepted return paths/trace (guards/assert narrowing and unknown JSON types, no new domain representation); import6/6 and typecheck passed. Delivery pending.
+1. Retained Codex: actual CLI/fresh-process reads in `retained-usage.spec.ts` observe categories, settings, sources, one-count replay/enrichment, contradictions, missing→zero, and native-source independence. Operational scan trap passes; native payload keys verified against Nov14 sample. `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history dashboard/backend-tests/sessions/launch-history-aged-out.spec.ts dashboard/backend-tests/sessions/launch-history-removed.spec.ts dashboard/backend-tests/sessions/agent-launch-delete.spec.ts --workers=2 --reporter=list`: 15 passed (4 new +11 existing). Updated import-only selection: 6 passed; final `--grep 'preserves prior' --workers=1` case passed after correcting injector to actual CLI rename error, exact stderr/status checked. `npm run typecheck:dashboard` passed. Consumer trace `/tmp/seed358-slice1-consumers.md`: new API has no unchanged production callers; additive effort builder leaves omitted-effort consumers unchanged; old history contract regression above retained. Source freshness unchanged at `74bc48c5b968b48443df355effbdfd0f908cb29c`; incoming named sibling only preparation/Take, no changed supplier history behavior. Independent refactor split six cases across retained-usage, usage-reconciliation and usage-persistence specs with retainedUsageTest.ts fixture; actual CLI 6/6 passed in 2.7s, earlier11 history cases unchanged. No production refactor; final hook owns current typecheck. Mechanical lint repair stayed within accepted return paths/trace (guards/assert narrowing and unknown JSON types, no new domain representation); import6/6 and typecheck passed. Published `e8c33461577e6d744dfbe5f5c4aceb0e9a7107fc` to origin execution branch (suffix base `a2bf0f9625455299ad0f8776e1be915aa6d8e797`); observer reused and attached. This is the retained published base for slice 2.
+
+2. Codex workers/archives: `codex-usage.spec.ts` observes copied ancestors, multilevel lineage, successive tasks, unresolved worker, older-root cutoff and replay; `codex-coverage.spec.ts` observes missing metadata survival, corrupt zstd/truncated line, missing source/workers and unavailable legacy counters. Actual CLI/fresh reads through isolated HOME. `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history --workers=2`: 9 cases passed with quiet reporter; `npm run typecheck:dashboard` passed. AC/free65%, load3.37/4.93/4.80, bounded2workers. Consumer trace `/tmp/seed358-slice2-consumers.md` dispositions inspected; old reader/store untouched. Source unchanged at `9c4afa5e4469730ebbb891c4d39087d6ee29de99`; no incoming supplier changes. Independent refactor2: none — already clean; no edits/tests, whitespace/sizes and consumers checked, accepted proof unchanged. Delivery pending.
