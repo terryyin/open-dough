@@ -26,9 +26,16 @@ For a tracked execution, a quiet completion report retains the open session
 and its terminal while the story awaits wrap-up. Automatic Done additionally
 requires a retained landing and readable local evidence of published closure:
 the launch repository's current remote tracking target contains that landing
-and its configured backlog no longer lists the story. The first landing alone
-can be a retained increment; later wrap-up is read from the newer target.
-Missing or unreadable evidence leaves the session open. Explicit **Mark as done**
+and its configured backlog no longer lists the story, or lists it in its queue
+rather than in Taken. A story returned to the queue closes the launch with the
+same automatic Done, and the record keeps that returned outcome with the
+receipt of the report it qualifies, so a newer report replaces it; an explicit
+Done before the report stays and gains the outcome. The outcome is read once,
+at delivery or binding, and the launch never moves or settles the story. The
+first landing alone can be a retained increment; later wrap-up is read from
+the newer target. A story still in Taken, or missing or unreadable evidence,
+leaves the session open, and the final report's product closure evidence
+still means only that the story left the backlog. Explicit **Mark as done**
 remains authoritative. One-shot execution and other workflows retain their ordinary
 quiet-completion behavior. The same rule applies to an early report when its native
 session binds. A quiet retained report has no unread-message badge or alert.

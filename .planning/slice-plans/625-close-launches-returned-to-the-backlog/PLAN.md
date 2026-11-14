@@ -2,6 +2,7 @@
 
 **Identity:** SEED-358#close-launches-returned-to-the-backlog
 **Source:** [selected story](../../seeds/SEED-358-dashboard-launch-history.md#close-launches-returned-to-the-backlog)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -81,7 +82,7 @@ MakeMe plus page objects for `dashboard/tests`.
 
 ### 1. A returned launch closes when its quiet report arrives
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/backend-tests/sessions/agent-completion-returned-closure.spec.ts`
 through the dashboard's completion endpoint and record binding, reading saved
 records and the machine sessions answer.
@@ -98,6 +99,18 @@ from the backlog still closes as completed without it. The final report's
 product closure evidence stays absent for the returned launch. Update
 [AGENT-LAUNCH-COMPLETION](../../../dashboard/AGENT-LAUNCH-COMPLETION.md)'s
 tracked-execution closure paragraph.
+
+Accepted: `completionClosure` returns `completed`, `returned` or `open`;
+delivery and binding save `returnedToBacklog` (the report's receipt) through
+`returnedOutcome`, and `updateRecord` keeps the stored value. Proof: the new
+spec plus the `agent-completion-*`, `final-report-admission` and
+`one-shot-landing-*` backend specs (26 passed), e2e
+`agent-completion-{quiet,attention,cursor,execution,quiet-claude}` and
+`typecheck:dashboard`; both new tests fail on the pre-change server.
+Learning: `recordOperation`'s child process now loads the server's saved
+project list, without which `bindRecord` there never saw a configured
+project's closure. Slice 2's reading must compare `returnedToBacklog` with
+`completion.receipt` so a kept outcome never reads for another report.
 
 ### 2. A returned launch reads "Returned to backlog"
 Type: Behavior

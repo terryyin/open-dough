@@ -13,21 +13,33 @@ import {
 } from "../src/agentLaunch.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { rawRequest } from "./support/rawHttp.ts";
+import { changeMachineDocument } from "./support/machineDocument.ts";
+
+const attemptsFile = (server: Pick<DashboardServer, "home">) =>
+  path.join(server.home, ".open-dough", "dashboard", "launch-attempts.json");
 
 // The attempts kept on this machine, as the file holds them.
 export function keptAttempts(server: DashboardServer): LaunchAttemptRecord[] {
-  const file = path.join(
-    server.home,
-    ".open-dough",
-    "dashboard",
-    "launch-attempts.json",
-  );
+  const file = attemptsFile(server);
   if (!existsSync(file)) return [];
   const kept = JSON.parse(readFileSync(file, "utf8")) as Record<
     string,
     LaunchAttemptRecord[]
   >;
   return Object.values(kept).flat();
+}
+
+// Keeps `attempts` among this machine's attempts of the project, beside a
+// server that may be writing them (./support/machineDocument.ts).
+export function keepMoreAttemptsBesideServer(
+  server: Pick<DashboardServer, "home">,
+  attempts: readonly LaunchAttemptRecord[],
+  source = "open-dough",
+): Promise<void> {
+  return changeMachineDocument(attemptsFile(server), (held) => {
+    const kept = (held ?? {}) as Record<string, LaunchAttemptRecord[]>;
+    return { ...kept, [source]: [...(kept[source] ?? []), ...attempts] };
+  });
 }
 
 // A kept attempt as the server running it observes it while unsettled.

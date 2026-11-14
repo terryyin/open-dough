@@ -146,6 +146,8 @@ export const launchRecordSchema = z.object({
   launchedAt: z.iso.datetime(),
   firstInput: firstInputSchema.optional(),
   completion: completionSchema.optional(),
+  // The receipt of the quiet report that found its story back in the queue.
+  returnedToBacklog: z.uuid().optional(),
   landing: launchLandingSchema.optional(),
   landingReporting: landingReportingSchema.optional(),
   // The receipt of the report the developer marked read (`./readMark.ts`);

@@ -87,9 +87,7 @@ async function changeSessionRecord(
   let changed: LaunchRecord | undefined;
   await replaceRecords((kept) => {
     const records = kept[sourceId];
-    if (records === undefined) {
-      return kept;
-    }
+    if (records === undefined) return kept;
     return {
       ...kept,
       [sourceId]: records.map((record) => {
@@ -229,6 +227,7 @@ export async function updateRecord(
       return {
         ...record,
         completion: entry.completion ?? record.completion,
+        returnedToBacklog: entry.returnedToBacklog,
         landing: entry.landing ?? record.landing,
         landingReporting: entry.landingReporting ?? record.landingReporting,
         dispositionChangedAt: entry.dispositionChangedAt,

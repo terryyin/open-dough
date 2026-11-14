@@ -2,6 +2,7 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, rmSync, symlinkSync } from "node:fs";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
+import type { renderPublishedBacklog } from "../../../Distribution/tests/support/published-backlog.mjs";
 import path from "node:path";
 import { expect, stored } from "./codexLaunch.ts";
 import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
@@ -119,14 +120,18 @@ export async function recordedCursor(
   return { record, workspace };
 }
 
-// A minimal repository whose remote-tracking target contains a backlog without
-// `identity`, so tracked-execution closure readability holds for a planted landing.
-export function plantTrackedClosureRepository(repository: string): {
+// A minimal repository whose remote-tracking target publishes `backlog`, by
+// default one without the launch's story, so tracked-execution closure
+// readability holds for a planted landing.
+export function plantTrackedClosureRepository(
+  repository: string,
+  backlog: Parameters<typeof renderPublishedBacklog>[0] = {},
+): {
   readonly revision: string;
 } {
   mkdirSync(repository, { recursive: true });
   execFileSync("git", ["init", "-b", "main"], { cwd: repository });
-  writeRevisionFiles(repository, { backlog: {} });
+  writeRevisionFiles(repository, { backlog });
   const git = (...args: string[]) =>
     execFileSync("git", args, { cwd: repository }).toString().trim();
   git("add", ".");
