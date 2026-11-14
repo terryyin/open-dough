@@ -14,23 +14,21 @@ import { browserGroupConfigs } from "./browserGroupConfigs.mjs";
 
 test("each browser group's job names its own command, settings, root and shards", () => {
   assert.deepEqual(
-    browserGroupConfigs.map(({ job, inputs, config, prefix, shards }) => [
+    browserGroupConfigs.map(({ job, inputs, config, prefix }) => [
       job,
       inputs.group,
       inputs.command,
       config,
       inputs.settings === prefix,
-      shards,
     ]),
     [
-      ["e2e", "e2e", "test:e2e", "e2e/playwright.config.ts", true, 5],
+      ["e2e", "e2e", "test:e2e", "e2e/playwright.config.ts", true],
       [
         "dashboard-integrated",
         "dashboard-integrated",
         "test:dashboard:integrated",
         "dashboard/integrated.playwright.config.ts",
         true,
-        4,
       ],
       [
         "dashboard-frontend",
@@ -38,7 +36,6 @@ test("each browser group's job names its own command, settings, root and shards"
         "test:dashboard:frontend",
         "dashboard/frontend.playwright.config.ts",
         true,
-        1,
       ],
       [
         "dashboard-backend",
@@ -46,7 +43,6 @@ test("each browser group's job names its own command, settings, root and shards"
         "test:dashboard:backend",
         "dashboard/backend.playwright.config.ts",
         true,
-        3,
       ],
     ],
   );

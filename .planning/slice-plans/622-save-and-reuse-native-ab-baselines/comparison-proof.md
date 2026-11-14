@@ -175,3 +175,43 @@ remains unchanged at `c596ec840e95ad6518597369766a83fb63f37d18`.
 - Source freshness unchanged at `31216aef7454f10ae110d7faf920707d70f9762b`; incoming
   removal of configuration-only tests/timing data and planning has no comparison
   runtime or named-sibling effect.
+
+### Owned CI capacity repair after slice 3
+
+- Registered `43a6fcfc` run `43616933767` attempt 1 exhausted the integrated
+  browser deadline on shard 3/4. The retained report has 158 passed, no failed
+  or flaky cases, and four voice cases interrupted by the global deadline.
+  The complete local 162-case selection passed in 127.093 seconds; this
+  attributes the hosted capacity defect without exempting its repair.
+- Two owned runs with unchanged browser sources retained roughly 1,194 nominal
+  spec-seconds per integrated shard, before setup and browser overhead. The
+  bounded voice-setup hypothesis did not offer the stated ten-second saving
+  and stopped without edits. No existing group could donate a job within its
+  retained limit: four E2E shares project beyond 320 seconds, while two backend
+  or Distribution shares exceed their retained work allowance. Unknown jobs
+  were not counted as free. Evidence: `/tmp/dough-ci-43616933767-capacity/`.
+- The smallest supported repair changes integrated shares from four to five,
+  taking the workflow from 17 to 18 jobs. All cases, projects, worker counts,
+  and time limits stay unchanged. The producer and proof declaration agree;
+  missing-part reporting now observes integrated part 5. A literal shard-count
+  assertion was removed while actual complete, unique selection remains tested.
+- Supported guarded Node proof passed `ci-browser-groups.test.mjs`,
+  `ci-proof-declaration.test.mjs`, `ci-proof-actions.test.mjs`, and
+  `browser-group-shards.test.mjs`; backend `ci-time-without-runner-waits.spec.ts`
+  passed 9/9. The supported repository wrapper ran with ambient `CI` unset,
+  establishing its own strict child environment. A first interrupted wrapper
+  attempt was excluded from proof. Five-share preview selected all 270 recorded
+  specs once, 54 per share, predicting 956.1–956.4 spec-seconds before overhead.
+- Consumer dispositions and terminal commands are retained in
+  `/tmp/dough-ci-43616933767-repair/capacity-patch/consumer-trace.md`. This repairs
+  the owned failure; it neither executes queued test optimization nor claims a
+  measured speedup or final hosted success. Final registered CI remains owed.
+- The native actor returned PAUSED FOR CI; its observation and documentation
+  were preserved by the sanctioned stash, with no duplicate native acquisition.
+  Source freshness unchanged at `cec45b4be4378c46429a0f39b98b49d486a71d12`;
+  incoming dashboard backlog-return changes have no CI allocation or native
+  comparison effect, and named sibling sources remain unchanged.
+- Independent refactor `/root/refactor_ci_capacity`: none — already clean;
+  no edits or repeated tests. All 164 consumer dispositions remain applicable,
+  including actual allocation, producer/declaration/collector and backend reader
+  proof. Whitespace passed; the four changed files stay below 250 lines.
