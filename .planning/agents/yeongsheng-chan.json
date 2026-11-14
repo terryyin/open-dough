@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-352#use-builder-defaults-for-incidental-datetimes",
+  "mode": "story-branch",
+  "branch": "codex/value-for-data-builder-test-data-builder-like-th",
+  "host": "codex"
+}

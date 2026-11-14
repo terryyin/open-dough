@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 - [Resume blocked work when it can advance](seeds/SEED-345-session-token-efficiency.md#resume-when-blocked-work-can-advance) — SEED-345#resume-when-blocked-work-can-advance ([plan](slice-plans/617-resume-blocked-work/PLAN.md))
 - [Run CI on as few jobs as its wall time allows](seeds/SEED-350-fewer-ci-jobs.md#run-ci-on-fewer-jobs) — SEED-350#run-ci-on-fewer-jobs ([plan](slice-plans/620-fewer-ci-jobs/PLAN.md))
+- [Use builder defaults for incidental datetimes](seeds/SEED-352-builder-default-datetimes.md#use-builder-defaults-for-incidental-datetimes) — SEED-352#use-builder-defaults-for-incidental-datetimes
 
 ## Backlog list
 
