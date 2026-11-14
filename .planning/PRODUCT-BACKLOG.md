@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Run CI on as few jobs as its wall time allows](seeds/SEED-350-fewer-ci-jobs.md#run-ci-on-fewer-jobs) — SEED-350#run-ci-on-fewer-jobs
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
 - [Keep one browser test group roster](seeds/SEED-334-product-wide-end-to-end-tests.md#keep-one-browser-test-group-roster) — SEED-334#keep-one-browser-test-group-roster
 - [Focus detailed dashboard UI checks on controlled answers](seeds/SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks) — SEED-334#focus-detailed-dashboard-ui-checks
