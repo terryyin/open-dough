@@ -1,6 +1,6 @@
 // Raw history acquired for published story evidence and endpoint derivation.
 // Claim recognition and owning/foreign selection stay with their consumers.
-import { isAncestor, runGit, type GitCall } from "./gitRunner.ts";
+import { runGit, type GitCall, type GitOutput } from "./gitRunner.ts";
 
 export type RevisionParents = {
   readonly commit: string;
@@ -67,11 +67,65 @@ function printedBlobs(printed: string): ReadonlyMap<string, string> {
 }
 
 export function publishedStoryHistory(call: GitCall): PublishedStoryHistory {
+  // Only immutable object queries belong to this recovery's reuse. Include
+  // stdin: identical cat-file argv can ask for entirely different objects.
+  const reads = new Map<string, Promise<GitOutput>>();
+  const readAt = (
+    revisions: readonly string[],
+    args: readonly string[],
+    input = call.input,
+  ): Promise<GitOutput> => {
+    const options = input === undefined ? call : { ...call, input };
+    if (
+      call.signal?.aborted ||
+      !revisions.every((revision) =>
+        /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/i.test(revision),
+      )
+    )
+      return runGit(args, options);
+    const key = JSON.stringify([args, input]);
+    const existing = reads.get(key);
+    if (existing !== undefined) return existing;
+    const pending = runGit(args, options)
+      .then((output) => {
+        // A missing batch object may arrive in a later fetch. Keep that read
+        // retryable, just like a command that could not read its objects.
+        if (args[0] === "cat-file" && / missing(?:\n|$)/.test(output.stdout))
+          reads.delete(key);
+        return output;
+      })
+      .catch((error: unknown) => {
+        // Even ancestry exit 1 can change after shallow history is deepened.
+        // Preserve false-on-error without retaining an incomplete negative.
+        reads.delete(key);
+        throw error;
+      });
+    reads.set(key, pending);
+    return pending;
+  };
+  // A full object ID can still have incomplete ancestry in a shallow repo.
+  // Observe completeness once; an initially shallow reader keeps walking Git
+  // after deepening, while immutable profile blobs remain reusable.
+  let completeGraph: Promise<boolean> | undefined;
+  const graphAt = async (
+    revisions: readonly string[],
+    args: readonly string[],
+  ) => {
+    completeGraph ??= runGit(
+      ["rev-parse", "--is-shallow-repository"],
+      call,
+    ).then(
+      ({ stdout }) => stdout.trim() === "false",
+      () => false,
+    );
+    return (await completeGraph) ? readAt(revisions, args) : runGit(args, call);
+  };
   return {
     async authoredAt(head, email) {
       return rows(
         (
-          await runGit(
+          await graphAt(
+            [head],
             [
               "rev-list",
               "--topo-order",
@@ -80,17 +134,17 @@ export function publishedStoryHistory(call: GitCall): PublishedStoryHistory {
               `--author=<${email}>`,
               head,
             ],
-            call,
           )
         ).stdout,
       );
     },
     async profileTextsAt(path, revisions) {
       const checked = (
-        await runGit(["cat-file", "--batch-check"], {
-          ...call,
-          input: revisions.map((revision) => `${revision}:${path}\n`).join(""),
-        })
+        await readAt(
+          revisions,
+          ["cat-file", "--batch-check"],
+          revisions.map((revision) => `${revision}:${path}\n`).join(""),
+        )
       ).stdout.split("\n");
       const profileAt = new Map<string, string>();
       for (const [index, revision] of revisions.entries()) {
@@ -103,10 +157,11 @@ export function publishedStoryHistory(call: GitCall): PublishedStoryHistory {
           ? new Map<string, string>()
           : printedBlobs(
               (
-                await runGit(["cat-file", "--batch"], {
-                  ...call,
-                  input: distinct.map((object) => `${object}\n`).join(""),
-                })
+                await readAt(
+                  distinct,
+                  ["cat-file", "--batch"],
+                  distinct.map((object) => `${object}\n`).join(""),
+                )
               ).stdout,
             );
       return new Map(
@@ -119,7 +174,8 @@ export function publishedStoryHistory(call: GitCall): PublishedStoryHistory {
     async matchingProfilePaths(head, directory, identity) {
       const escaped = identity.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       return (
-        await runGit(
+        await graphAt(
+          [head],
           [
             "log",
             "--full-history",
@@ -130,12 +186,11 @@ export function publishedStoryHistory(call: GitCall): PublishedStoryHistory {
             "--",
             directory,
           ],
-          call,
         )
       ).stdout.split("\n");
     },
     async orderedAt(head) {
-      return (await runGit(["rev-list", "--topo-order", head], call)).stdout
+      return (await graphAt([head], ["rev-list", "--topo-order", head])).stdout
         .trim()
         .split("\n")
         .filter(Boolean);
@@ -143,7 +198,8 @@ export function publishedStoryHistory(call: GitCall): PublishedStoryHistory {
     async mergesBetween(head, excluded, topological = false) {
       return rows(
         (
-          await runGit(
+          await graphAt(
+            [head, excluded],
             [
               "rev-list",
               "--merges",
@@ -152,13 +208,21 @@ export function publishedStoryHistory(call: GitCall): PublishedStoryHistory {
               head,
               `^${excluded}`,
             ],
-            call,
           )
         ).stdout,
       );
     },
-    isAncestor: (ancestor, descendant) =>
-      isAncestor(ancestor, descendant, call),
+    async isAncestor(ancestor, descendant) {
+      try {
+        await readAt(
+          [ancestor, descendant],
+          ["merge-base", "--is-ancestor", ancestor, descendant],
+        );
+        return true;
+      } catch {
+        return false;
+      }
+    },
     async worktreeConfig(key) {
       try {
         return (

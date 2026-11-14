@@ -2,9 +2,12 @@
 // edits, returning the story's commits in published history order.
 // Claim evidence (without merge decomposition) is shared with endpoint
 // recovery so CI comparison can name builds independently of Review.
-import { publishedStoryHistory } from "./publishedStoryHistory.ts";
+import {
+  publishedStoryHistory,
+  type PublishedStoryHistory,
+} from "./publishedStoryHistory.ts";
 import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { gitExitedOne, isAncestor, runGit, type GitCall } from "./gitRunner.ts";
+import { gitExitedOne, runGit, type GitCall } from "./gitRunner.ts";
 import { mergeTreeOutput } from "./mergeTreeOutput.ts";
 import { owningMergeEdits } from "./storyCompletedMergeEdits.ts";
 import {
@@ -45,17 +48,18 @@ export async function completedStoryClaimEvidence(
   agent: string,
   call: GitCall,
   doneRecordAdded: string,
+  history: PublishedStoryHistory = publishedStoryHistory(call),
 ): Promise<CompletedStoryClaimEvidence | { explanation: string }> {
   const evidenceOf = async (owner: string) => {
     const found = await publishedStoryEvidence(
       story,
       completion,
-      publishedStoryHistory(call),
+      history,
       owner,
     );
     const claims: string[] = [];
     for (const claim of found.claims)
-      if (await isAncestor(claim, doneRecordAdded, call)) claims.push(claim);
+      if (await history.isAncestor(claim, doneRecordAdded)) claims.push(claim);
     return { ...found, claims };
   };
   const evidence = await evidenceOf(agent);
@@ -71,7 +75,7 @@ export async function completedStoryClaimEvidence(
   for (const otherAgent of await publishedStoryAgents(
     story,
     completion,
-    publishedStoryHistory(call),
+    history,
   )) {
     if (agentNameOf(otherAgent) === expected) continue;
     const other = await evidenceOf(otherAgent);

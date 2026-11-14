@@ -1,5 +1,8 @@
 // Settled ledger facts compose with the real receipt/trigger backend proof.
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { keepFollowUpEntries } from "../support/ciFollowUpScenario.ts";
 import { publishIntentTrunk } from "../support/intentStoryWorktree.ts";

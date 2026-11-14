@@ -1,6 +1,6 @@
-// Raw conclusion fields are the exact provider input under test, not supplied outcomes.
-// They are read from saved accepted requests, which real collection observes
-// with no journey.
+// A fresh collecting dashboard reads the provider’s repeat for saved accepted
+// requests, without a receipt journey. Raw conclusion fields are exact
+// provider input under test, not supplied outcomes.
 import { historyWallTimeMs } from "../../src/landedCiHistory.ts";
 import {
   expect,
@@ -82,5 +82,70 @@ test("saved accepted requests never invent a failure or a success from an absent
       decided,
     ).toBe(106000);
   }
+  expect(rerunRuns(github)).toEqual([]);
+});
+
+test("saved accepted requests read the outcome their provider repeat decides beside the original and average", async ({
+  origin,
+  github,
+  startServer,
+}) => {
+  const accepted = {
+    seconds: 120,
+    averageSeconds: 100,
+    submission: { kind: "accepted" },
+  } as const;
+  const unverified = (naming: string) => ({
+    kind: "unverified",
+    explanation: expect.stringContaining(naming),
+  });
+  const repeats = [
+    {
+      run: 71,
+      repeat: { seconds: 104 },
+      reads: "recovered",
+      outcome: {
+        kind: "recovered",
+        explanation: "CI timing returned to range",
+      },
+    },
+    {
+      run: 72,
+      repeat: { conclusion: "failure" },
+      reads: "failed",
+      outcome: unverified("failed"),
+    },
+    {
+      run: 73,
+      repeat: { conclusion: "cancelled" },
+      reads: "cancelled",
+      outcome: unverified("cancelled"),
+    },
+    {
+      run: 74,
+      repeat: { full: false },
+      reads: "partial proof",
+      outcome: unverified("Full comparable repeat is unverified"),
+    },
+  ] as const;
+  const provider = await saveRepeatRequests(
+    origin,
+    github,
+    repeats.map(({ run }) => ({ run, ...accepted })),
+  );
+  for (const { run, repeat } of repeats) provider(run).setRepeat(repeat);
+  const server = await startServer();
+  // One expectation per outcome, in the order the ledger holds the requests.
+  for (const { run, reads, outcome } of repeats)
+    await expect
+      .poll(() => savedRepeatRequest(server, run)?.outcome, reads)
+      .toMatchObject(outcome);
+  for (const { run } of repeats)
+    expect(savedRepeatComparison(server, run)).toEqual({
+      run,
+      attempt: 1,
+      originalMs: 120000,
+      averageMs: 100000,
+    });
   expect(rerunRuns(github)).toEqual([]);
 });

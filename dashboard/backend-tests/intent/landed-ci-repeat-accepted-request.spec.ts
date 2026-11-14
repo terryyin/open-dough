@@ -11,6 +11,7 @@ import {
   heldRequest,
   rerunRuns,
   savedRepeatRequest,
+  waitingRequest,
 } from "../../tests/support/ciFollowUpSavedRequests.ts";
 import { followUpCards } from "../../tests/support/ciFollowUpScenario.ts";
 import { startingFromKeptStory } from "../../tests/support/keptPublishedStory.ts";
@@ -28,15 +29,6 @@ test("a kept accepted request asks for no rerun, reads its repeat in progress, t
   github,
   startServer,
 }) => {
-  // Another landing's accepted request whose repeat the provider never
-  // starts. No story published that landing and the history keeps no build
-  // of it, so no pass can spend on it: a pass reads its run 72 once.
-  const waiting = heldRequest({
-    run: 72,
-    seconds: 120,
-    averageSeconds: 100,
-    submission: { kind: "accepted" },
-  });
   // Story A, published as completed, whose run 71 first passed in 105 s
   // against five prior builds of 100 s each, its rerun request accepted.
   const kept = await keepRepeatLanding(origin, github, {
@@ -44,11 +36,11 @@ test("a kept accepted request asks for no rerun, reads its repeat in progress, t
     run: 71,
     seconds: 105,
     averageSeconds: 100,
-    beside: [waiting],
+    beside: [heldRequest(waitingRequest)],
   });
   const server = await startServer();
   // The repeat of run 71 has not started.
-  await aWholePass(github, waiting.run);
+  await aWholePass(github);
   expect(rerunRuns(github), "no second request").toEqual([]);
   kept.provider(71).setRepeat({ status: "in_progress" });
   await expect

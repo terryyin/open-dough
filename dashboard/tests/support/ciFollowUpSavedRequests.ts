@@ -27,6 +27,16 @@ export type SavedRepeat = {
   readonly submission: RepeatRequest["submission"];
 };
 
+// Another landing's accepted request whose repeat the provider has not
+// started. No story published that landing and the history keeps no build of
+// it, so no pass can spend on it: a pass reads its run once and no more.
+export const waitingRequest = {
+  run: 72,
+  seconds: 120,
+  averageSeconds: 100,
+  submission: { kind: "accepted" },
+} as const satisfies SavedRepeat;
+
 // A landing of its own on trunk as a machine keeps it once its request is
 // spent as `facts` name, and the provider's facts for the request's run as the
 // request names it, with no repeat yet.
@@ -109,22 +119,19 @@ export const rerunRuns = (github: FakeGitHub) =>
 // Waits until a whole collection pass, its reads and its spending, has ended
 // after the provider's first `after` calls. A collecting dashboard reads the
 // run of every request it still waits on once in each pass, before that pass
-// spends any receipt: the second such read of `run` belongs to a pass that
-// began once a whole pass had ended. `run` is the run of a waiting request
-// for a landing no pass can spend on (`heldRequest`, its repeat not started),
+// spends any receipt: the second such read of `waitingRequest.run` belongs to a
+// pass that began once a whole pass had ended. That request is for a landing
+// no pass can spend on (`heldRequest`, its repeat not started),
 // so a pass reads it that once whatever it spends: a pass preparing a rerun
 // request reads the run it is about to rerun again before it asks.
-export async function aWholePass(
-  github: FakeGitHub,
-  run: number,
-  after = 0,
-): Promise<void> {
+export async function aWholePass(github: FakeGitHub, after = 0): Promise<void> {
   const reads = () =>
     github.calls
       .slice(after)
       .filter(
         ({ request }) =>
-          request.kind === "actions-current-run" && request.runId === run,
+          request.kind === "actions-current-run" &&
+          request.runId === waitingRequest.run,
       ).length;
   await expect.poll(reads, "a whole pass").toBeGreaterThanOrEqual(2);
 }
