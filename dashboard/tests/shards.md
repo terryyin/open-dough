@@ -19,17 +19,18 @@ settings leaves the others' selection, settings and timing untouched
 
 | Job | Command | Settings prefix | Duration list | Shards |
 | --- | --- | --- | --- | --- |
-| `e2e` | `npm run test:e2e` | `OPEN_DOUGH_E2E` | `e2e/longest-first` | 6 |
-| `dashboard-integrated` | `npm run test:dashboard:integrated` | `OPEN_DOUGH_DASHBOARD_INTEGRATED` | `dashboard/integrated.longest-first` | 5 |
+| `e2e` | `npm run test:e2e` | `OPEN_DOUGH_E2E` | `e2e/longest-first` | 5 |
+| `dashboard-integrated` | `npm run test:dashboard:integrated` | `OPEN_DOUGH_DASHBOARD_INTEGRATED` | `dashboard/integrated.longest-first` | 4 |
 | `dashboard-frontend` | `npm run test:dashboard:frontend` | `OPEN_DOUGH_DASHBOARD_FRONTEND` | `dashboard/frontend.longest-first` | 1 |
-| `dashboard-backend` | `npm run test:dashboard:backend` | `OPEN_DOUGH_DASHBOARD_BACKEND` | `dashboard/backend.longest-first` | 4 |
+| `dashboard-backend` | `npm run test:dashboard:backend` | `OPEN_DOUGH_DASHBOARD_BACKEND` | `dashboard/backend.longest-first` | 3 |
 
-Shard counts were sized from each group's actual membership and the per-spec
-seconds of the last thirteen-shard run (43374366861): about 640, 690, 175 and
-640 test-seconds in a group's largest shard, below the former largest shard's
-1,015, which ran in 276 s of its 320 s deadline. They bound each shard's time;
-they claim no speedup. Each job's `ci-proof` declaration (`<entry>=<shards>:case`)
-changes with its matrix in the same change.
+These counts are the adopted practical first reduction: 13 browser jobs and
+three Distribution shares make 16 initial jobs, followed by one proof job. Lint
+and dashboard type-check share the frontend runner. The
+[retained measurements](../../docs/maintainer/ci-layout-measurements.md) record
+the observations, repair and limits; they establish neither a minimum nor a
+no-slower-overlap result. Further sizing uses the separately queued reconsideration.
+Each `ci-proof` declaration (`<entry>=<shards>:case`) follows its matrix.
 
 ## The split
 
@@ -52,8 +53,8 @@ deals them by the rule the Node suite's shares follow
 being a job: one the list does not record is dealt after the recorded files
 at their median seconds until the list is next refreshed (below). A list line that is not `<seconds><TAB><file>` fails the
 configuration naming the file, line and content before any test is selected,
-as a malformed split does. CI runs the dashboard type-check once in the lint
-job. With the variable unset, a group's command runs every spec of its
+as a malformed split does. CI runs lint and the dashboard type-check once on the frontend
+runner. With the variable unset, a group's command runs every spec of its
 group. Independent proof subprocesses choose their own selection; their
 harness (`support/proofRecordRun.ts`) removes every group's inherited split
 before launching them.

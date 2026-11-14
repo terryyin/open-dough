@@ -207,9 +207,9 @@ owned checkout. Root must select a candidate and settle the list seam before
 implementation; the six-run cap and all original final proof/search obligations
 remain active.
 
-## Selected H1 implementation — awaiting hosted screen
+## Selected H1 implementation — practical adoption after early closure
 
-Root selected H1 after reviewing this ranking. The uncommitted candidate has
+Root selected H1 after reviewing this ranking. The original candidate at 97b0 had
 D3/E5/I4/F1/B3, optional lint on the existing frontend caller, and 16 initial /
 17 total jobs. All timing lists now use exact 55da artifacts and normalization;
 Distribution uses the five approved indexed parts. Parsed refreshed maps and
@@ -236,5 +236,11 @@ A shared diagnostic shell anchor has context-specific actual Node/cache-failure
 guards, so checkout failure cannot be mislabeled as Node acquisition failure.
 Whole-checkout consumer traces and all 479 dispositions are inspectable in the
 retained scratch `packing/` directory as bounded typed records. Root subsequently
-accepted the independent refactor (provenance comments only); delivery and the
-approved hosted screen remain. H1 is unkept; final proof/search remain open.
+accepted the independent refactor (provenance comments only); the six-run
+screen and the subsequent report repair are retained as separate evidence. The developer later adopted this reasonable first reduction; minimum/search claims remain open in SEED-355.
+
+Hosted H1 subsequently passed in 280 s with a 2 s maximum queue, matching the
+forecast's upper end. Distribution's longest suite was 181 s (202 s runner time);
+its file-second sum was 1,781.3, versus 2,221.8 in the source and 1,880 in screen B.
+The completed screen is inconclusive after its report collision; smaller counts
+remain unmeasured. Re-rank repaired CI evidence; no old budget establishes a floor.

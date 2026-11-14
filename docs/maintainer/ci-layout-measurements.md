@@ -101,6 +101,58 @@ The [detailed run ledger](ci-layout-run-ledger.md) retains old-workload history,
 exact-attempt acquisition, failed runs and replacement-workload samples. Per-run
 [compact evidence](ci-layout-evidence/) retains job epochs and artifact identity.
 
+## Six-run exploration — inconclusive; adopted by developer decision
+
+C stayed frozen at `97b0f808f9c8acdd487ce76dbfa53d4a919b6223` through all six
+workflows. Five passed; the first C+C peer failed. After repair, the developer
+authorized adopting 17 jobs as a reasonable first reduction and closing early.
+This is a practical decision, not a minimum or no-slower-overlap finding.
+
+| Observation | Initial / total jobs | Complete verdict | Proof / comparison qualification |
+| --- | --- | --- | --- |
+| [B single](ci-layout-evidence/43579575770-attempt-1.jsonl), 55da | 21 / 22 | 680 s, passed | Actual background jobs overlap |
+| [C single](ci-layout-evidence/43581819182-attempt-1.jsonl), 97b0 | 16 / 17 | 280 s, passed | No repository job overlap observed |
+| [B+B first](ci-layout-evidence/43583901356-attempt-1.jsonl) | 21 / 22 | 288 s, passed | Intended peer only |
+| [B+B second](ci-layout-evidence/43583912439-attempt-1.jsonl) | 21 / 22 | 464 s, passed | Intended peer only; 8 s offset, 472 s episode |
+| [C+C first](ci-layout-evidence/43585259072-attempt-1.jsonl) | 16 / 17 | 333 s, failed | Concurrent-run HTML collision; comparison ineligible |
+| [C+C second](ci-layout-evidence/43585269430-attempt-1.jsonl) | 16 / 17 | 526 s, passed | Failed peer and 21 unrelated job overlaps; 8 s offset, 534 s episode |
+
+All six selected the same 652 check files and 2,829 browser case identities.
+The failed peer records 2,820 expected, eight skipped and one unexpected case;
+the five passing runs retain the baseline's 2,821 expected and eight skipped.
+All declared proof parts remain present with their units. Each run executed lint,
+type-check and frontend suite successfully once; C's other hosts' 24 skipped
+lint/type-check declarations are retained separately. The entire C+C performance
+comparison is invalid; its later green peer does not repair the earlier failure.
+
+B single's maximum queue was 418 s, C single's 2 s. Exact background job and
+queued-request intervals are retained in the `screen-background-…` records.
+The raw single-run difference is unmatched, not a causal speed claim. Repository
+listing latency and account-wide visibility remain limits. The source 55da run's
+296 s ranks the hypothesis; it cannot rescue the contaminated B observation.
+
+The six experiments used 117 physical jobs and 21,961 runner-seconds (6.10 hours).
+The first C extractor counted skipped declarations as executions; corrected
+cached acquisition passed without a CI retry. The six-workflow cap is exhausted.
+The developer ended the campaign and accepted this practical reduction. Further
+reduction and a different approach are SEED-355, second after SEED-354
+(configuration/data-only test cleanup). Future comparisons need repaired code.
+
+### Necessary CI repair — recovery, not another experiment
+
+The failed case exposed shared static HTML output folders. Main independently
+landed `c65215a22`; this execution reused its run-stamped directories and original
+case assertions, with settled-child cleanup and an exact runner-example extract.
+The [repair proof](ci-layout-evidence/report-ownership-repair-20261114.jsonl)
+retains deterministic red, 14/14 focused CI-mode green cases and independent
+refactor completion. No case was added. Repair `e4a24ce97` is published on the
+trial branch; exact CI [43590100212/1](ci-layout-evidence/43590100212-attempt-1.jsonl)
+passed in 340 s with all original identities/outcomes and proof retained. It is
+recovery evidence, excluded from the six-run performance comparison.
+The [stamped parser probe](ci-layout-evidence/43587490956-attempt-1.jsonl) uniquely
+selects parent reports from fragment evidence, retaining child dispositions;
+it is excluded from comparisons and all original flat reports remain supported.
+
 ## Prior candidate ledger
 
 | Layout | Initial / total jobs | State | Evidence and limits |
