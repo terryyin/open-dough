@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-350_run-ci-on-fewer-jobs.json",
+      "identity": "SEED-350#run-ci-on-fewer-jobs",
+      "completedAt": "2026-11-14T12:05:27.005Z",
+      "blob": "2f7c79bb8d2b363dfc0632f8b9e95ab786a8de08"
+    },
+    {
       "fileName": "SEED-352_use-builder-defaults-for-incidental-datetimes.json",
       "identity": "SEED-352#use-builder-defaults-for-incidental-datetimes",
       "completedAt": "2026-11-14T09:19:33.917Z",
