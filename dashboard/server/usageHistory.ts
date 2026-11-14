@@ -1,152 +1,44 @@
-import {
-  canonicalUsageTasks,
-  sameUsageTask,
-} from "./usageTaskReconciliation.ts";
-// The launch-history store's usage document. Existing monthly launch JSONL stays
-// readable unchanged; routine launch reads/writes do not import this module.
+// Logical usage records retain their v1 API; physical snapshots are paged.
 import { homedir } from "node:os";
 import path from "node:path";
 import { launchHistoryDirectory } from "./launchHistory.ts";
 import {
-  readMachineJson,
-  replaceMachineJson,
-  leaveMachineJson,
-} from "./machineJsonStore.ts";
-import {
-  reconcileAssociation,
-  reconcileObservation,
-  uniqueFacts,
-} from "./usageReconciliation.ts";
-import {
-  emptyUsageHistory,
   emptyUsageTokens,
-  responseKey,
-  usageHistorySchema,
-  usageTaskSchema,
-  usageObservationSchema,
-  usageAssociationSchema,
-  usageGapSchema,
-  type UsageBatch,
   type UsageHistory,
+  type UsageBatch,
   type UsageTokens,
 } from "./usageRecords.ts";
+import {
+  openUsageSnapshot,
+  readSnapshotHistory,
+  snapshotRows,
+} from "./usageSnapshot.ts";
+import { writeUsageSnapshot } from "./usageSnapshotReconciliation.ts";
 export type { UsageHistory, UsageBatch } from "./usageRecords.ts";
-
 export function usageHistoryFile(home = homedir()): string {
   return path.join(launchHistoryDirectory(home), "usage.json");
-}
-function store(file = usageHistoryFile()) {
-  return {
-    file,
-    schema: usageHistorySchema,
-    empty: emptyUsageHistory(),
-    unreadable: "preserve" as const,
-    durable: true,
-  };
 }
 export async function readUsageHistory(
   file = usageHistoryFile(),
 ): Promise<UsageHistory> {
-  const result = await readMachineJson(store(file));
-  if (result.kind === "unreadable")
-    throw new Error(`Usage history is unreadable: ${file}`);
-  return result.document;
+  return readSnapshotHistory(await openUsageSnapshot(file));
 }
-// Native decoders and later collectors use this one writer with the same
-// host/session/response key and source-defined disjoint measurements.
+export async function readUsageTasks(
+  file = usageHistoryFile(),
+): Promise<UsageHistory["tasks"]> {
+  const tasks: UsageHistory["tasks"] = {};
+  for await (const [id, value] of snapshotRows(
+    await openUsageSnapshot(file),
+    "tasks",
+  ))
+    tasks[id] = value as UsageHistory["tasks"][string];
+  return tasks;
+}
 export async function writeUsageHistory(
   batch: UsageBatch,
   file = usageHistoryFile(),
 ): Promise<void> {
-  const tasks = (batch.tasks ?? []).map((item) => usageTaskSchema.parse(item));
-  const observations = (batch.observations ?? []).map((item) =>
-    usageObservationSchema.parse(item),
-  );
-  const associations = (batch.associations ?? []).map((item) =>
-    usageAssociationSchema.parse(item),
-  );
-  const gaps = (batch.gaps ?? []).map((item) => usageGapSchema.parse(item));
-  await replaceMachineJson(store(file), (held) => {
-    const next = structuredClone(held);
-    const aliases = new Map<string, string>();
-    const combined = canonicalUsageTasks([
-      ...Object.values(next.tasks),
-      ...tasks,
-    ]);
-    for (const task of [...Object.values(next.tasks), ...tasks]) {
-      const matches = combined.filter(
-        (item) => item.id === task.id || sameUsageTask(item, task),
-      );
-      if (matches.length === 1 && matches[0])
-        aliases.set(task.id, matches[0].id);
-    }
-    next.tasks = Object.fromEntries(combined.map((task) => [task.id, task]));
-    for (const association of Object.values(next.associations)) {
-      association.taskId = association.taskId
-        ? (aliases.get(association.taskId) ?? association.taskId)
-        : null;
-      association.candidates = uniqueFacts(
-        association.candidates.map((id) => aliases.get(id) ?? id),
-      );
-    }
-    for (const observation of observations) {
-      const id = responseKey(
-        observation.host,
-        observation.sessionId,
-        observation.responseId,
-      );
-      if (id !== observation.id)
-        throw new Error(
-          "Usage observation identity does not match its native key",
-        );
-      next.observations[id] = reconcileObservation(
-        next.observations[id],
-        observation,
-      );
-    }
-    for (const original of associations) {
-      const association = {
-        ...original,
-        taskId: original.taskId
-          ? (aliases.get(original.taskId) ?? original.taskId)
-          : null,
-        candidates: uniqueFacts(
-          original.candidates.map((id) => aliases.get(id) ?? id),
-        ),
-      };
-      if (!next.observations[association.observationId])
-        throw new Error("Usage association lacks its observation");
-      for (const candidate of association.candidates) {
-        if (!next.tasks[candidate])
-          throw new Error("Usage association names an unknown task");
-      }
-      if (association.taskId && !next.tasks[association.taskId])
-        throw new Error("Usage association names an unknown task");
-      next.associations[association.observationId] = reconcileAssociation(
-        next.associations[association.observationId],
-        association,
-      );
-    }
-    for (const [id, association] of Object.entries(next.associations)) {
-      if (next.observations[id]?.gaps.includes("contradictory-lineage")) {
-        association.taskId = null;
-        association.gaps = uniqueFacts([
-          ...association.gaps,
-          "contradictory-lineage",
-        ]);
-      }
-    }
-    next.gaps = uniqueFacts([...next.gaps, ...gaps]).filter(
-      (gap) =>
-        gap.code !== "no-attributable-response-usage" ||
-        !Object.values(next.associations).some(
-          (association) => association.taskId === gap.taskId,
-        ),
-    );
-    return JSON.stringify(next) === JSON.stringify(held)
-      ? leaveMachineJson
-      : next;
-  });
+  await writeUsageSnapshot(batch, file);
 }
 // These are measured subtotals, with unmeasured counts alongside each category.
 // No measured value means null, including a task with no attributable responses.

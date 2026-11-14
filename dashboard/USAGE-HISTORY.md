@@ -1,8 +1,9 @@
 # Native usage in launch history
 
 Usage is machine-local evidence in the dashboard's existing
-`~/.open-dough/dashboard/launch-history/` store. `usage.json` contains task units,
-native response observations, task associations and coverage gaps. Monthly
+`~/.open-dough/dashboard/launch-history/` store. `usage.json` is a small snapshot manifest referencing immutable files
+in `usage.json.pages/`. Together they contain task units, native response
+observations, task associations and coverage gaps. Monthly
 `YYYY-MM.jsonl` launch records keep their existing format and reader. Ordinary
 operational launch reads and writes do not scan native files or usage history.
 There is no application database or new workflow authority (ADR 0008).
@@ -21,7 +22,8 @@ launch evidence. `--codex-root <directory>` selects an active Codex rollout root
 and may be repeated; its defaults are `<home>/.codex/sessions` and
 `<home>/.codex/archived_sessions`. Both plain `.jsonl` and zstd `.jsonl.zst`
 rollouts are streamed. `--store <file>`
-selects an explicit alternate usage document for both commands. `--since` uses
+selects an explicit alternate usage manifest for both commands; its pages live
+beside it in `<file>.pages/`. `--since` uses
 recorded response timestamps, including in-window responses of older sessions;
 the default cutoff above is midnight Singapore time, not UTC midnight. `--claude-root <directory>` selects a Claude transcript root and may be repeated;
 its default is `<home>/.claude/projects`. Native
@@ -147,8 +149,24 @@ Shared collectors and readers use `dashboard/server/usageHistory.ts`:
 - `readUsageHistory(file?)` reads imported facts without opening native files.
 - `taskUsage(history, taskId)` derives one task's categorized usage on demand.
 
-A failed write retains the prior readable document; retrying imports missing
-facts once. An unreadable usage document is preserved and refuses automatic
+Pages are bounded groups of complete records, with original field provenance and
+competing measurements retained. The writer reconciles one partition at a time
+under the shared `<file>.lock`, makes its immutable pages durable, then atomically
+publishes the manifest. Readers keep the manifest they opened and see one coherent
+snapshot while another process publishes. Unreferenced pages, including leftovers
+from an interrupted write, contribute no facts. Retain the manifest and its page
+directory together when copying or backing up history; old pages remain available
+for readers holding an earlier manifest.
+
+The logical document remains version 1. A legacy monolithic version 1 file remains
+readable and migrates on the next successful write. The `read` command streams
+that same logical JSON with output backpressure, rather than building a single
+whole-history string. `readUsageHistory` still materializes its logical result for
+callers that need all records; imports read only the task catalog initially and
+project a fresh persisted report after releasing native scan graphs.
+
+A failed page or manifest publication retains the prior readable snapshot;
+retrying imports missing facts once. An unreadable usage document is preserved and refuses automatic
 overwrite. Importing and reading remain useful after native files disappear.
 
 The import result includes `summary`, recomputed from a fresh persisted read.

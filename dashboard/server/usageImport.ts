@@ -1,3 +1,4 @@
+import { readUsageReportHistory } from "./usageReportSnapshot.ts";
 import { usageImportSummary } from "./usageImportReport.ts";
 import { nativeTaskActivity } from "./nativeTaskActivity.ts";
 import { recoveredUsageTasks } from "./recoveredUsageTasks.ts";
@@ -23,7 +24,7 @@ import {
 import { nativeUsageFiles } from "./nativeUsageFiles.ts";
 import { retainedUsageTasks } from "./retainedUsageTasks.ts";
 import {
-  readUsageHistory,
+  readUsageTasks,
   writeUsageHistory,
   usageHistoryFile,
 } from "./usageHistory.ts";
@@ -47,10 +48,30 @@ export async function importUsageHistory(options: UsageImportOptions) {
   if (!Number.isFinite(since))
     throw new Error("Usage import requires a valid --since timestamp");
   const store = options.store ?? usageHistoryFile(options.home);
-  const held = await readUsageHistory(store);
+  const scan = await collectUsageHistory(options, since, store);
+  const persisted = await readUsageReportHistory(store);
+  return {
+    scope: "retained-evidence",
+    since: options.since,
+    files: scan.files,
+    tasks: Object.keys(persisted.tasks).length,
+    observations: Object.keys(persisted.observations).length,
+    excludedUnrelatedTasks: scan.excludedTasks,
+    excludedUnrelatedObservations: scan.excludedObservations,
+    gaps: persisted.gaps,
+    summary: usageImportSummary(persisted, options.home, since, scan.gaps),
+  };
+}
+// Returning releases native graphs before the fresh persisted report read.
+async function collectUsageHistory(
+  options: UsageImportOptions,
+  since: number,
+  store: string,
+) {
+  const heldTasks = await readUsageTasks(store);
   const nativeTasks: NativeTaskFact[] = [];
   const taskMap = new Map<string, UsageTask>(
-    Object.values(held.tasks).map((task) => [task.id, task]),
+    Object.values(heldTasks).map((task) => [task.id, task]),
   );
   for (const task of await retainedUsageTasks(options.home)) {
     const previous = taskMap.get(task.id);
@@ -141,8 +162,9 @@ export async function importUsageHistory(options: UsageImportOptions) {
   }
   gaps.push(...claudeCoverage(claude));
   gaps.push(...codexCoverage(lineage));
+  const associatedTaskIds = new Set(associations.map((item) => item.taskId));
   for (const task of tasks) {
-    if (!associations.some((association) => association.taskId === task.id))
+    if (!associatedTaskIds.has(task.id))
       gaps.push({
         code: "no-attributable-response-usage",
         taskId: task.id,
@@ -154,16 +176,10 @@ export async function importUsageHistory(options: UsageImportOptions) {
     { tasks, observations: [...observations.values()], associations, gaps },
     store,
   );
-  const persisted = await readUsageHistory(store);
   return {
-    scope: "retained-evidence",
-    since: options.since,
     files,
-    tasks: Object.keys(persisted.tasks).length,
-    observations: Object.keys(persisted.observations).length,
-    excludedUnrelatedTasks: excludedTasks.size,
-    excludedUnrelatedObservations: excludedObservations,
-    gaps: persisted.gaps,
-    summary: usageImportSummary(persisted, options.home, since, gaps),
+    excludedTasks: excludedTasks.size,
+    excludedObservations,
+    gaps,
   };
 }

@@ -3,7 +3,9 @@ import { parseArgs } from "node:util";
 import { homedir } from "node:os";
 import path from "node:path";
 import { importUsageHistory } from "./usageImport.ts";
-import { readUsageHistory, usageHistoryFile } from "./usageHistory.ts";
+import { usageHistoryFile } from "./usageHistory.ts";
+import { once } from "node:events";
+import { exportUsageSnapshot, openUsageSnapshot } from "./usageSnapshot.ts";
 
 try {
   const { values, positionals } = parseArgs({
@@ -25,24 +27,29 @@ try {
     );
   const home = path.resolve(values.home ?? homedir());
   const store = path.resolve(values.store ?? usageHistoryFile(home));
-  const result =
-    positionals[0] === "read"
-      ? await readUsageHistory(store)
-      : await importUsageHistory({
-          home,
-          store,
-          since: values.since ?? "2026-09-16T00:00:00+08:00",
-          claudeRoots: (
-            values["claude-root"] ?? [path.join(home, ".claude/projects")]
-          ).map((root) => path.resolve(root)),
-          codexRoots: (
-            values["codex-root"] ?? [
-              path.join(home, ".codex/sessions"),
-              path.join(home, ".codex/archived_sessions"),
-            ]
-          ).map((root) => path.resolve(root)),
-        });
-  console.log(JSON.stringify(result));
+  if (positionals[0] === "read") {
+    for await (const chunk of exportUsageSnapshot(
+      await openUsageSnapshot(store),
+    )) {
+      if (!process.stdout.write(chunk)) await once(process.stdout, "drain");
+    }
+  } else {
+    const result = await importUsageHistory({
+      home,
+      store,
+      since: values.since ?? "2026-09-16T00:00:00+08:00",
+      claudeRoots: (
+        values["claude-root"] ?? [path.join(home, ".claude/projects")]
+      ).map((root) => path.resolve(root)),
+      codexRoots: (
+        values["codex-root"] ?? [
+          path.join(home, ".codex/sessions"),
+          path.join(home, ".codex/archived_sessions"),
+        ]
+      ).map((root) => path.resolve(root)),
+    });
+    console.log(JSON.stringify(result));
+  }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;

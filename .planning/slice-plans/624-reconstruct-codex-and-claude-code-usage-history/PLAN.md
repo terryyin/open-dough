@@ -126,7 +126,7 @@ Behavior: fixture-sized native evidence and configured projects import → the r
 
 ### 6. Persist and read bounded usage snapshots
 Type: Structure
-Status: planned
+Status: done
 Proof: new actual-CLI storage/read/export cases alongside all earlier import specs; first real-corpus capacity observation after current regression proof.
 
 Internal change: replace only usage's monolithic physical JSON encoding with bounded immutable partitions and a small atomically replaced manifest in the existing history directory. Reuse `machineJsonLock.ts`, `readMachineJsonLocked` where suitable, and `durableJsonReplacement.ts`; preserve one shared host-neutral observation/task/association model and writer. Preserve v1 logical records, legacy v1 reads, counter/identity/reconciliation semantics, privacy and monthly launch-history behavior. No database, workflow authority or per-host store. Whole-history comparison/export must not construct an over-limit string; bounded reads/writes must avoid cloning the whole persisted corpus alongside the incoming batch.
