@@ -3,21 +3,14 @@
 November 14, 2026 · Research for [SEED-357](../../.planning/seeds/SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks)
 
 The dashboard can record the launch settings and identify the native session on
-all three tools. Codex and Claude Code have documented telemetry for the way the
-dashboard launches them. The installed Cursor CLI has interactive usage hooks
-that merit a runtime check before promising coverage. Each tool reports tokens,
-and those counts can use a shared accounting format. Their purchasing power
-depends on the model, token category, and billing arrangement. For choosing a
-tool, compare the cost of reaching the same verified outcome.
+all three tools. Codex and Claude Code expose native worker usage. Cursor's
+interactive hooks expose parent usage, with a separate billing join available
+on eligible accounts. The tools can share a token accounting format. Compare
+cost per verified outcome when choosing a tool.
 
 ## What each existing launch can measure
 
-The versions checked were Codex CLI `0.169.0`, Claude Code `2.1.325`, and Cursor
-CLI `2026.11.13-eacade1`. Evidence comes from vendor documentation, dashboard
-and CLI code, installed schemas, and retained audit data. Live coverage on new
-dashboard launches remains to be verified.
-
-### Codex
+### Codex CLI 0.169.0
 
 The dashboard starts a thread and its first turn through the shared App Server.
 It already records the thread and first-turn IDs. Its launch observer retires
@@ -26,10 +19,12 @@ and turn IDs, a running total, a last-usage breakdown, and the model context
 window. The installed schema includes input, cached input, cache-write input,
 output, reasoning output, and total tokens. The app uses these counters for
 context display and can fill them to the context limit on an error. They can
-support provisional usage display. Use completed-response accounting for settled
-totals. [Dashboard launch](../../dashboard/server/hosts/codex/launch.ts),
+support provisional usage display. For settled totals, read completed-response
+records. The opt-in `PostModelRequest` hook can cross-check individual attempts,
+including failures or cancellations when usage is available. [Dashboard launch](../../dashboard/server/hosts/codex/launch.ts),
 [observer](../../dashboard/server/hosts/codex/conversation.ts),
 [App Server events](https://learn.chatgpt.com/docs/app-server#turn-events),
+[model request hooks](https://learn.chatgpt.com/docs/hooks#premodelrequest-and-postmodelrequest),
 [release protocol](https://github.com/openai/codex/blob/rust-v0.169.0/codex-rs/protocol/src/protocol.rs#L2544-L2630).
 
 The prior audit used local `token_usage_record` events and counted each owning
@@ -56,22 +51,24 @@ emit zero defaults if it receives no token event. [Thread usage schema](https://
 [eligibility and refresh](https://github.com/openai/codex/blob/rust-v0.169.0/codex-rs/tui/src/chatwidget/thread_usage.rs),
 [exec result](https://github.com/openai/codex/blob/rust-v0.169.0/codex-rs/exec/src/event_processor_with_jsonl_output.rs#L512-L538).
 
-### Claude Code
+### Claude Code 2.1.325
 
 The dashboard starts `claude --bg` and resolves the short job ID to the full
 Claude session UUID. Claude's opt-in OpenTelemetry `api_request` events can
 provide the session and request IDs where available, actual model, effort,
 uncached input, cache reads, cache writes, output, and estimated cost. From
 `2.1.300` the event can report five-minute and one-hour cache writes separately.
-A positive aggregate write count with zero in both splits means the split can
-be unavailable. Test a local collector with an already-running Claude supervisor
-to verify how it receives settings and whether a per-launch attribute survives.
-Session IDs can change with `/clear`, and the per-process event sequence can
-restart on resume. [Dashboard listing](../../dashboard/server/hosts/claude/listing.ts),
+A positive aggregate with zero in both splits can mean the split is unavailable.
+API events carry native worker and parent IDs from `2.1.310` where available.
+Beta trace spans can help link nested, resumed, or deferred work. Count request
+usage once across these sources. Check trusted settings with a warm `--bg`
+supervisor. Exporter variables in project settings are ignored. `/clear` changes
+session IDs and resume can restart the per-process sequence.
+[Dashboard listing](../../dashboard/server/hosts/claude/listing.ts),
 [agent view](https://code.claude.com/docs/en/agent-view#list-sessions-as-json),
 [request event](https://code.claude.com/docs/en/monitoring-usage#api-request-event),
-[event correlation](https://code.claude.com/docs/en/monitoring-usage#event-correlation-attributes),
-[session hooks](https://code.claude.com/docs/en/hooks#sessionstart).
+[trace hierarchy](https://code.claude.com/docs/en/monitoring-usage#span-hierarchy),
+[exporter configuration](https://code.claude.com/docs/en/monitoring-usage#administrator-configuration).
 
 Local transcripts yielded per-message usage and worker files in the prior audit.
 Count a message ID once because a response can appear as several transcript
@@ -92,44 +89,40 @@ would count earlier work again. A crash can leave zero defaults, and assistant
 messages supply only limited recovery evidence. [Headless usage](https://code.claude.com/docs/en/headless#basic-usage),
 [SDK accounting](https://code.claude.com/docs/en/agent-sdk/cost-tracking).
 
-### Cursor
+### Cursor CLI 2026.11.13-eacade1
 
-The dashboard saves the conversation UUID from `create-chat` before sending its
-first prompt to a held interactive `cursor-agent --resume` client. The retained
-transcripts examined in the earlier audit lacked per-request usage. Static
-inspection of the installed CLI found optional model, conversation and generation
-IDs, and usage on the interactive `afterAgentResponse` and `stop` hooks. The
-two hooks can report overlapping counters. Hook input appears inclusive of cache
-reads and writes in this build. The public hook schema does not specify these
-token fields. Verify both default and selected-model launches, the scope of
-their hook delivery, and the child join. Cursor staff describe these hook counts
-as parent-only. The installed CLI can relay an optional child conversation ID.
+The dashboard has the parent conversation UUID before the first prompt. The
+installed CLI's interactive `afterAgentResponse` and `stop` hooks can report
+overlapping parent-turn counters. Their input appears inclusive of cache reads
+and writes. The worker path exposes lifecycle and an optional child UUID, with
+no supported worker token total. Its live worker display is an estimate.
+Headless mode and ACP provide no demonstrated worker coverage.
 [Dashboard launcher](../../dashboard/server/hosts/cursor/launch.ts),
 [Cursor hooks](https://cursor.com/docs/hooks#common-schema),
-[Cursor staff on worker usage](https://forum.cursor.com/t/how-to-obtain-token-usage-per-request/168317/11).
+[Cursor release notes](https://prod.cursor.com/docs/release-notes),
+[Cursor staff on worker usage](https://forum.cursor.com/t/how-to-obtain-token-usage-per-request/168317/11),
+[November status](https://forum.cursor.com/t/expose-ide-task-subagent-token-usage-through-local-hooks/177193).
 
-The inspected CLI also emits headless model-call usage events and a terminal
-result with overlapping totals when the backend supplies usage. Its headless
-input field subtracts cache reads and writes. The terminal format docs omit
-these usage fields. The Cursor SDK documents four disjoint token categories,
-per-turn usage, and a cumulative result. It offers stable run identifiers and
-`Agent.getUsage()` for billed usage. Local billed-usage access is account-gated.
-Cloud runs have documented worker and side-chat behavior. Neither headless nor
-the SDK is the dashboard's current interactive launch path. [CLI output](https://cursor.com/docs/cli/reference/output-format),
-[SDK tokens](https://cursor.com/docs/sdk/typescript#token-usage),
-[SDK billed usage](https://cursor.com/docs/sdk/typescript#agentgetusage).
-
-Enterprise usage events have an optional conversation ID, model, billing type,
-and `chargedCents`. Token-priced rows have a token breakdown. A conversation
-join is stronger than matching by time and user, and still needs a task boundary
-if the conversation contains multiple tasks. Enterprise OpenTelemetry export
-can tie per-request logs to the local CLI UUID and support later corrections.
-Aggregate metrics lack session IDs. Individual usage exports can support spot
-checks. No documented personal billing API for attributing arbitrary CLI tasks
-was found. [API access](https://cursor.com/docs/api),
+Keep the current launcher and collect one parent count per turn. On eligible
+accounts, join Admin API usage rows to each observed child conversation ID.
+Cursor staff report that child calls can appear under that separate ID. The ID
+and token breakdown can be absent from individual rows. Check a real local run
+with two workers, overlapping sessions and a late worker result before claiming
+full coverage. Enterprise OpenTelemetry can help reconcile model-request rows,
+and individual CSV exports can support manual checks. Neither establishes a
+documented automatic local worker join for personal accounts. [API access](https://cursor.com/docs/api),
 [usage events](https://cursor.com/docs/account/teams/admin-api#get-usage-events-data),
-[telemetry joins](https://cursor.com/docs/enterprise/opentelemetry-export#joining-sessions),
-[individual export](https://forum.cursor.com/t/bring-back-optional-on-demand-usage/174831/12).
+[Cursor staff on child IDs](https://forum.cursor.com/t/cursor-cli-omits-beforesubmitprompt-afteragentresponse-and-stop-hooks-loses-token-usage-and-emits-inconsistent-generation-id-values/169059/15),
+[telemetry joins](https://cursor.com/docs/enterprise/opentelemetry-export#joining-sessions).
+
+For new Cloud Agent launches, the usage API explicitly includes Task workers
+and side chats. One cloud agent per dashboard task avoids per-run time-window
+allocation of late worker usage. Self-Hosted Machines can keep tool execution on
+a managed machine while Cursor runs the agent loop remotely. The local SDK
+documents per-turn usage and gated billing lookup, with no documented worker
+rollup for existing interactive CLI sessions. [Cloud Agents usage](https://cursor.com/docs/cloud-agent/api/endpoints#get-agent-usage),
+[Self-Hosted Machines](https://cursor.com/docs/cloud-agent/self-hosted),
+[SDK usage](https://cursor.com/docs/sdk/typescript#agentgetusage).
 
 ## Comparable usage and cost
 
@@ -213,15 +206,23 @@ new attempt distinct. Preserve unattributed usage where a join is ambiguous.
 [Launch request](../../dashboard/src/launchRequest.ts),
 [session recording](../../dashboard/server/launchRecording.ts).
 
-The dashboard already persists session metadata in a machine-local file and
-expires marked-done records after 30 days. Define how long usage remains visible,
-including after a session is deleted, a worktree disappears, or a story closes.
-Keep metering as dashboard-owned local operational evidence under
+The dashboard currently filters marked-done sessions after 30 days and removes
+their launch records on a later write. Explicit removal can also delete a record.
+SEED-357 makes launch and usage history permanent. Apply the 30 days to the
+Recently done view and count. Retire terminal state, temporary host files, and
+landing pins independently of historical data. Keep old history out of routine
+native session lookups. [Current record store](../../dashboard/server/launchRecordDocument.ts),
+[explicit removal](../../dashboard/server/launchRecordDeletion.ts),
 [ADR 0008, Project dashboard domain and architecture](../adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state).
-Persist identifiers, counters, collection timestamps, source and version, and
-coverage. A usage record does not require copying prompts, transcripts, tool
-output, credentials, or account email into dashboard storage.
-[Current record store](../../dashboard/server/launchRecordDocument.ts).
+
+Today, returning a story to the backlog changes its queue entry. The dashboard
+stores unfinished reports but keeps the session open. Automatic Done for a
+tracked execution requires quiet completion, retained landing evidence, and
+the story's absence from the published backlog. As a result, a returned story's
+launch can be missing from Recently done while its record remains. Record a
+confirmed early wrap-up against the launch ID and retain the distinct outcome.
+Keep progress reports and queue moves insufficient on their own. [Reporting contract](../../dashboard/AGENT-LAUNCH-COMPLETION.md),
+[closure gate](../../dashboard/server/completionClosure.ts).
 
 Show usage by task and model alongside coverage and any supported price or
 charge. A blank start with observed absence of calls can show zero. Flag gaps
@@ -244,7 +245,6 @@ with completed-response records and exercise a descendant and a fork. These
 checks support the native proof expectations in
 [ADR 0005, Native validation and A/B testing](../adrs/0005-cross-tool-validation-accepted.md).
 
-Refinement needs to decide which follow-ups count toward the launch, what worker
-coverage merits a complete label, and how long records survive session deletion.
-Capture native usage first. Add estimates when model identity and rate inputs
-are available, and reported charges when a billing record can be joined.
+Verify a 31-day-old session across a write, UI removal, and restart. It ages out
+of the recent view and count and stays in usage history. An early return counts
+as one finished launch, and a restart of the story gets its own usage history.
