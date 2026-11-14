@@ -238,3 +238,26 @@ Commitment: 50a, 50b
 - Slice-plan refinement was not needed: the four slices each own one proof
   loop, and the Structure slice directly enables Slice 2.
 - No remaining slice-specific concern was identified in this review.
+- Local landing gate observed: `npm run test:dashboard:frontend` 161 passed;
+  `test:dashboard:backend` 1439 passed (1 skipped); `test:dashboard:integrated`
+  629 passed; `test:e2e` 566 passed — all under `caffeinate -s -i` on AC power.
+
+## Execution complete
+
+Product advice: Delivered outcome matches the refined story: Done-story Follow
+up from Review changes and Intent file headers and line menus, with shared
+historical-file admission, composed context, separate-launch identity, and
+refusal of out-of-comparison anchors / page context text. Card Follow up /
+Open terminal gating is preserved; anchored entry still works when the card
+offers Open terminal; workspace snapshots stay without the action.
+
+At wrap-up: retire North Star topic “Follow-ups name what the developer was
+shown”; keep the shared mockup while either SEED-348 story still needs it.
+Leave backlog order as-is after completing this story—SEED-348 capture, then
+attach, remain the next work on this thread. Do not queue Taken-diff,
+retained-workspace, or line-range follow-ups from this review; those stay
+deferred with open product questions. No reorder or new product story from
+this retrospective.
+
+Process review is deferred into wrap-up for Dough Intent Coverage
+(`skipProcessRetrospective: false` with intentCoverage).
