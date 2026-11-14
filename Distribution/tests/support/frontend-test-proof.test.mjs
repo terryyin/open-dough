@@ -10,7 +10,6 @@ import { fileURLToPath } from "node:url";
 import { makeMe } from "./makeMe.mjs";
 import {
   FRONTEND_TEST_PROOF_FILE,
-  frontendTestProofArtifactName,
   renderFrontendTestProof,
 } from "../../../scripts/frontend-test-proof.mjs";
 
@@ -28,18 +27,6 @@ function temporary(t) {
 
 const cli = (...args) =>
   spawnSync(process.execPath, [script, ...args], { encoding: "utf8" });
-
-test("artifact and file names match the CI upload declaration", () => {
-  assert.equal(FRONTEND_TEST_PROOF_FILE, "frontend-test-proof.md");
-  assert.equal(
-    frontendTestProofArtifactName("${{ github.run_attempt }}"),
-    "frontend-test-proof-attempt-${{ github.run_attempt }}",
-  );
-  assert.equal(
-    frontendTestProofArtifactName(2),
-    "frontend-test-proof-attempt-2",
-  );
-});
 
 test("a complete frontend summary lists identity, files, 0 ms versus untimed, and distinct outcomes", () => {
   const summary = makeMe.aCiProofSummary

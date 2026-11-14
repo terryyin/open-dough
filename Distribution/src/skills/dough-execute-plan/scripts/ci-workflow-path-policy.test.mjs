@@ -63,15 +63,6 @@ test("readCiPathIgnorePolicy sees this repository's actual .github/workflows/ci.
     true,
     "expected the narrow literal form to parse",
   );
-  assert.deepEqual(policy.events.push.pathsIgnore.sort(), [
-    ".planning/**",
-    "docs/**",
-  ]);
-  assert.deepEqual(policy.events.pull_request.pathsIgnore.sort(), [
-    ".planning/**",
-    "docs/**",
-  ]);
-  assert.equal(policy.workflowDispatch, true);
 });
 
 test("push paths-ignore accepts only the all-branches literal filter, in either key order", () => {

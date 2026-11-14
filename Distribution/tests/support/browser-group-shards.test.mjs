@@ -60,27 +60,9 @@ for (const group of groups)
     assert.doesNotMatch(preview, /headroom/);
   });
 
-test("the integrated specs keep the feature groups under dashboard/tests", () => {
-  const featureGroups = new Set([
-    "configuration",
-    "stories",
-    "launches",
-    "sessions",
-    "terminals",
-    "review",
-    "intent",
-    "navigation",
-    "observation",
-    "runtime",
-  ]);
-  const integrated = groups.find(({ job }) => job === "dashboard-integrated");
-  for (const file of dashboardSpecFiles(integrated.testDir.pathname, ["tests"]))
-    assert.equal(featureGroups.has(file.split("/")[1]), true, file);
-});
-
 test("E2E Test's native projects queue production chains first and partition every shard without omissions or repeats", () => {
   const { testDir, selection, indices, shards } = groups.find(
-    ({ job }) => job === "e2e",
+    ({ inputs }) => inputs.root === "e2e",
   );
   const files = dashboardSpecFiles(testDir.pathname, selection.roots);
   assert.ok(files.some((file) => /production-watcher/.test(file)));

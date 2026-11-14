@@ -2,6 +2,7 @@
 
 **Identity:** SEED-354#remove-configuration-only-tests
 **Source:** [selected story](../../seeds/SEED-354-remove-configuration-only-tests.md#remove-configuration-only-tests)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -67,7 +68,7 @@ Record each probe's literal change, command and result in the slice's accepted p
 
 ### 1. CI workflow layout changes need no test edits
 Type: Behavior
-Status: planned
+Status: done
 Proof: probe as in the observation above (shards, deadline, retention) plus a
 scratch rename of one browser group job; inconsistent `expect` still fails
 `ci-proof-declaration` and `ci-proof-actions`; reverting the pull-request
@@ -206,6 +207,28 @@ keep that the tab and touch icons are declared and serve the supplied bytes).
   further unresolved example found during execution. AGENTS.md is not edited
   in this story.
 
+## Learnings
+
+- Hardcoded producer job ids (for example `"e2e"`) freeze the same workflow
+  layout as literal job-name tables; resolve them from the proof-entry root via
+  the producers list.
+- Settled shard/deadline/retention before-failures from the plan premises were
+  reused; only the prescribed browser-group job-rename remainder needed a fresh
+  probe before reshape.
+
+## Accepted proof (slice 1)
+
+- Consistent layout (shards 5→4 with matching `expect`, deadline 320→330,
+  retention 7→14, one browser-group job rename) → Distribution family and
+  `ci-time-without-runner-waits.spec.ts` (9 passed) green.
+- Inconsistent `expect` → `ci-proof-declaration` and `ci-proof-actions` fail.
+- Both workflows' PR-head preference reverted → reshaped head-revision replay
+  fails (merge sha ≠ head).
+- Unmodified checkout: same focused Distribution and Playwright commands pass;
+  `npm run typecheck:dashboard` passes after the TypeScript reshape.
+- Refactor: removed unused `frontendProofUploadStep`; collapsed ci-time
+  duration assertion; Playwright 9 passed and typecheck re-verified.
+
 ## Verification, sizing and concern review
 
 - Local gate: each slice's families, through `bash scripts/test.sh <paths>` for
@@ -234,3 +257,25 @@ keep that the tab and touch icons are declared and serve the supplied bytes).
 - Remaining slice-specific concerns: none identified. Site lists come from a
   read-only survey; each slice's first probe confirms them, and an extra site
   of the same shape found there is in scope.
+
+
+## Story obligations
+
+### G1. Skill/reference wording restatement tests already on trunk
+Reported: slice 1 — "Source review — guidance-family removal already landed on trunk before execution."
+Story clause: "Tests that only restate shipped skill and reference wording (the former `*-guidance.test.mjs` family) keep the same text in a second place and are removed; this part landed directly on trunk before execution."
+Disposition: excluded "this part landed directly on trunk before execution"
+Commitment: 11
+
+
+### G2. Rendered style values are not removal candidates
+Reported: slice 1 — "Source review — toHaveCSS observed results are not candidates."
+Story clause: "Rendered style values (`toHaveCSS`) and files the product writes after a user action are observed results, not candidates."
+Disposition: excluded "Rendered style values (`toHaveCSS`) and files the product writes after a user action are observed results, not candidates."
+Commitment: 13
+
+### G3. Product-written files after user action are not removal candidates
+Reported: slice 1 — "Source review — product-written files after a user action are not candidates."
+Story clause: "Rendered style values (`toHaveCSS`) and files the product writes after a user action are observed results, not candidates."
+Disposition: excluded "Rendered style values (`toHaveCSS`) and files the product writes after a user action are observed results, not candidates."
+Commitment: 14
