@@ -130,3 +130,38 @@ jq -e --slurpfile archive "${work}/baseline.json" '.status == "pass" and .source
 [[ ${before} == "$(shasum -a 256 "${work}/baseline.json")" ]]
 entry --assess-baseline "${work}/owned.json" > "${work}/owned-assessment.json"
 jq -e '.status == "pass"' "${work}/owned-assessment.json" > /dev/null
+
+# An existing observation can be copied compactly without raw sources or a
+# model launch. Its capture, assessment, provenance and usage stay unchanged.
+node -e 'const f=require("node:fs");f.writeFileSync(process.argv[2],JSON.stringify(JSON.parse(f.readFileSync(process.argv[1],"utf8")),null,2)+"\n")' \
+  "${work}/owned.json" "${work}/legacy.json"
+legacy_before=$(shasum -a 256 "${work}/legacy.json")
+cat > "${work}/bin/codex" << 'HOST'
+#!/usr/bin/env bash
+printf 'unexpected model launch\n' > "${CODEX_HOME}.launch-attempted"
+exit 77
+HOST
+entry --export-baseline "${work}/legacy.json" --save-baseline "${work}/compact.json" > /dev/null
+node --input-type=module - "${work}/legacy.json" "${work}/compact.json" << 'NODE'
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+const original = readFileSync(process.argv[2], "utf8");
+const compact = readFileSync(process.argv[3], "utf8");
+const copy = JSON.parse(compact);
+assert.equal(compact.trimEnd().split("\n").length, 1);
+assert.deepEqual(copy, JSON.parse(original));
+assert.equal(JSON.stringify(copy, null, 2) + "\n", original);
+NODE
+entry --assess-baseline "${work}/compact.json" > "${work}/compact-assessment.json"
+jq -e --slurpfile original "${work}/legacy.json" '.status == "pass" and .sourceIntegrity == $original[0].integrity' "${work}/compact-assessment.json" > /dev/null
+if entry --export-baseline "${work}/legacy.json" --save-baseline "${work}/compact.json" > /dev/null 2> "${work}/compact-overwrite.err"; then
+  echo 'FAIL: copying an observation overwrote an existing archive' >&2
+  exit 1
+fi
+grep -q 'refusing to overwrite' "${work}/compact-overwrite.err"
+if entry --export-baseline "${work}/truncated.json" --save-baseline "${work}/invalid-copy.json" > /dev/null 2>&1; then
+  echo 'FAIL: malformed evidence was copied as a baseline' >&2
+  exit 1
+fi
+[[ ! -e ${work}/invalid-copy.json ]]
+[[ ${legacy_before} == "$(shasum -a 256 "${work}/legacy.json")" && ! -e ${work}/codex-home.launch-attempted ]]

@@ -1,0 +1,10 @@
+{
+  "sourceIntegrity": "f9e4123df34433aedf76e74c5a5b0fb7a284d0db95d9435415ae8ed38069b8ad",
+  "assessorHash": "80665312e64247816243b6d9b11e09f2bd60de2626979bcd0dddaa490f95f92f",
+  "observerHash": "127c0326a4cdedfd7c03e14301bec1232c9a2d19c32ef6aad030b28e1435357d",
+  "assessmentHash": "3685e2b6b88dfda23a6b79e0a03c6403a21327c93127c42a18f5a87a6fdd806e",
+  "observationsHash": "1f8a1c1405ba7287658060dfc5eac59950e4040dcdf2b33c639a03872a67ee0e",
+  "status": "pass",
+  "reason": "integrated the completed supplier once, finished the preserved partial slice and showed passing independent and executed proof in one ordinary turn",
+  "assessedAt": "2026-11-14T16:49:15.345Z"
+}

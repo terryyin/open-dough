@@ -39,6 +39,14 @@ relative location. `--save-baseline FILE` also exports the selected arm at the
 end of an ordinary pair. Unfrozen working-tree journeys cannot be exported as
 a resolved baseline.
 
+`--export-baseline` also accepts an existing baseline JSON file. It validates
+the observation and writes a lossless compact copy to a new filename, without
+raw sessions, a model launch or another assessment. Capture/export dates,
+original judgment, evidence, usage and canonical integrity stay unchanged.
+Fresh exports use the same compact JSON representation. Keep immutable case
+evidence outside automatic formatting; the repository's comparison directories
+are excluded from Prettier for that reason.
+
 The immutable JSON contains original capture provenance and assessment,
 payload and input hashes, project basis, observed time and conditions, safe
 scalar observations, completed-stream identities, independent proof receipts,

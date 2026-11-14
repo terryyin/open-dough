@@ -29,14 +29,14 @@ workflow, hosts, prerequisites, decisions-and-proof and duration. Each
 | Case | What it exercises | Preparation and run, as measured on 2026-11-14 |
 | --- | --- | --- |
 | `paused-supplier` | hold a blocked slice through a diagnostic pass, an unchanged wake and an early publication, then continue once with proof | under 2 s; four turns of about 20 min per arm |
+| `unblocked-supplier` | discover the already-completed supplier and finish the same partial execution once, with no event wakes | 1.7 s; one turn of 15 min |
 | `doughnut-title-precedence` | calibrate a real project's maintained proof against a plausible fault | about 1–1.6 min and 4.5 GB per arm, with Nix, network and an arm-owned MySQL; one turn of 10–15 min |
 
-Those are single observations at host load 4–16, not cost estimates. The new
-`unblocked-supplier` case shares the execution project; native qualification is pending.
+These are single observations at host load about 3–16, not cost estimates.
 
 ## Supported conditions
 
-The two measured cases are qualified natively on Codex only, observed with
+The three measured cases are qualified natively on Codex only, observed with
 `codex-cli 0.169.0`, `gpt-6.1-sol` and effort `xhigh`. Claude Code and
 Cursor remain unqualified until their own native observations are
 obtained: the runner drives only `codex` today and refuses `--native claude`

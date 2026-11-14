@@ -1,6 +1,12 @@
 // Immutable, account-free observations. Capture provenance stays distinct from
 // a current assessor's derived judgment and from comparison applicability.
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join, resolve, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -50,6 +56,12 @@ export function readBaseline(file) {
   return result;
 }
 
+function writeBaseline(destination, archive) {
+  mkdirSync(dirname(destination), { recursive: true });
+  writeFileSync(destination, `${JSON.stringify(archive)}\n`, { flag: "wx" });
+  return archive;
+}
+
 function attemptFor(input, arm) {
   const record = parseFields(readFileSync(join(input, "record"), "utf8"));
   if (!record.has("comparison")) return input;
@@ -75,6 +87,8 @@ export function exportBaseline(
 ) {
   if (existsSync(destination))
     throw new Error("refusing to overwrite an existing baseline observation");
+  if (statSync(input).isFile())
+    return writeBaseline(destination, readBaseline(input));
   const attempt = attemptFor(input, arm),
     raw = readFileSync(join(attempt, "record"), "utf8"),
     record = parseFields(raw);
@@ -180,11 +194,7 @@ export function exportBaseline(
   derived.sourceRecordHash = archive.capture.recordHash;
   archive.exportAssessment = derived;
   archive.integrity = digest(JSON.stringify(archive));
-  mkdirSync(dirname(destination), { recursive: true });
-  writeFileSync(destination, `${JSON.stringify(archive, null, 2)}\n`, {
-    flag: "wx",
-  });
-  return archive;
+  return writeBaseline(destination, archive);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

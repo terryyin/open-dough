@@ -60,3 +60,64 @@ while the actual candidate, case, setup and relevant runtime path remain unchang
 
 Delivery freshness remained unchanged at `74bc48c5b968b48443df355effbdfd0f908cb29c`;
 new incoming preparation/Take records do not affect comparison behavior or named siblings.
+
+### Slice 4 native qualification and retained observation
+
+- Sole authorized native command, terminal exit 0:
+  `PATH=/opt/homebrew/bin:$PATH TMPDIR=/Users/terryyin/tmp/seed346-qualification.TAbubkrG/work caffeinate -s -i bash Distribution/tests/native-comparison.sh --native codex --case unblocked-supplier --baseline b4cfc53892019cd677981a17681a62bf8746c8ce --model gpt-6.1-sol --effort xhigh --deadline 2400 --save-baseline Distribution/tests/native-comparison/unblocked-supplier/comparisons/20261114T1606-b4cfc538-baseline.json --results-dir /Users/terryyin/tmp/seed346-qualification.TAbubkrG/results`.
+  Codex 0.169.0 applied the requested model/effort; one ordinary root turn,
+  no wake, retry or execution-changing intervention. Preparation 1.7 seconds,
+  native 899.9, whole journey 902.0. Actual Mac was awake on AC under verified
+  system/idle assertions; sleep-log query returned no matching entries.
+- Current assessor passes preserved partial work, completed supplier/dependency,
+  one integration/filing, independent 6/6 and final executed coordinator proof.
+  Remote unchanged and harness-inspection false. The accepted controlled
+  claim-only and duplicate-filing counterexamples provide the cheap negative
+  proof; no paid negative or comparison candidate was run.
+- Complete native tree: 82 own responses, 6,687,084 input, 6,502,400 cached,
+  184,684 uncached and 43,403 output tokens. Root: 59 requests/5,909,556 total;
+  three workers: 23/820,931. Thread/response/turn/root-turn attribution is
+  retained, with no inherited history or cumulative-prefix double counting.
+  These counters are processed work, not price or evidence of savings.
+- The original automatic archive remains privately recoverable. Supported
+  export copies that exact validated observation into compact case-local
+  `20261114T162130-7b8c-baseline.json`, without changing capture fields or
+  assessment. Canonical integrity remains
+  `f9e4123df34433aedf76e74c5a5b0fb7a284d0db95d9435415ae8ed38069b8ad`;
+  final compact byte SHA is
+  `383b950d1f08d64c6ca9a1fa0b677b53a8b21a97687415aefe4ce2c9d071be53`.
+  Pretty-rendering reproduces original byte SHA
+  `3433f8eba376865827b36e340791063f042a2a0053f7007cffd486b116c4d213`.
+  A narrow formatter exclusion protects immutable comparison evidence.
+- The separate current assessment passes after reconstructed retained inputs;
+  documentation records traits, actual conditions, duration and own usage.
+  Requested-settings scalar remains honestly unknown; actual applied settings
+  are observed. Parent inspected the account-free proof and attributed usage.
+- Existing forced-turn records remain unchanged. Known raw attempts are absent;
+  original summaries and audit cannot reconstruct decisive current proof.
+  Retained usage still answers historical per-wake questions; unsupported replay
+  needs fresh authorized evidence. Neither scheduling condition proves event
+  delivery, suppressed wakes or savings. G4 records this sufficiency limit.
+- Terminal proof after the compact-copy change:
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh Distribution/tests/native-comparison-baseline-reuse.sh Distribution/tests/native-comparison-baseline-misses.sh Distribution/tests/native-comparison-baseline-conditions.sh Distribution/tests/native-comparison-baseline-readers.sh Distribution/tests/native-comparison-doughnut-title-precedence.sh Distribution/tests/native-comparison-unblocked-supplier.sh Distribution/tests/native-comparison.sh`;
+  after CI repair restoration at `a78270de`,
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-stream-replay.sh`.
+  The extended baseline journey observes raw cleanup, refused model launch,
+  lossless copying, separate reassessment and unchanged originals; malformed
+  input and overwrite attempts fail. Initial old exporter reproduced ENOTDIR
+  for the JSON copy before repair. Parent inspected setup and assertions.
+- Consumer trace in the owned private root `compact-consumer-trace.md` has
+  38 run, 6 reused, 25 excluded and none unresolved. No native or local runner
+  remains; private raw evidence stays available until closure. Source freshness
+  unchanged at `cec45b4be4378c46429a0f39b98b49d486a71d12`, with incoming
+  backlog-return changes unrelated and named sibling sources unchanged.
+- Independent refactor `/root/refactor4` found production concepts already
+  clean and added observable one-line compact-output proof at the supported
+  export boundary. Only the changed baseline journey was renewed:
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh`
+  passed terminal. Parent inspected this assertion; other accepted boundaries
+  are unchanged. `/tmp/seed346-refactor4-consumer-trace.md` dispositions are
+  complete; original 69-consumer trace remains applicable. Whitespace passed,
+  changed checked files stay within 250 lines, and archive SHA is unchanged.
+  Awake AC admission: load 5.20/4.07/3.52, 65% free memory; one guarded journey,
+  no native retry or competing owned work.

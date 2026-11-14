@@ -45,8 +45,8 @@ skipped-wake assessment and its baseline belong to
 [SEED-356](../../seeds/SEED-356-reduce-blocked-execution-effort.md#reduce-total-model-work-during-blocked-execution),
 which selects the actual delivery path. Automatic archive discovery, additional
 native hosts and general effort-accounting tooling are deferred. No new rejection
-rule follows merely from those delivery boundaries. This is preparation only:
-no product implementation or paid session is authorized by this invocation.
+rule follows merely from those delivery boundaries. The established execution invocation above authorizes this plan and its single
+native capture.
 
 ## Design and existing owners
 
@@ -159,7 +159,7 @@ Keep old forced-turn observations and timings labelled for their own conditions.
 
 ### 4. Qualify and retain the unblocked native baseline
 Type: Behavior
-Status: planned
+Status: done
 Proof: One requested real Codex journey under a frozen payload, its current assessment and rejected plausible wrong decision, with a retained account-free baseline after raw cleanup and case traits/duration updated.
 
 This is the early native probe for the unblocked capability and future wire
@@ -226,5 +226,12 @@ Commitment: 22
 ### G3. Unblocked native judgment, duration and usage pending
 Reported: slice 3 — "Slice 3 controlled proof passes, while native judgment, duration and available coordinator/worker usage remain explicitly pending Slice 4."
 Story clause: "Qualify it on Codex, the existing comparison host, and tag the cases by behavior, qualified host, environment and observed duration. Save a fresh native unblocked baseline with its frozen payload, settings, outcome, proof and available coordinator and worker usage through completion."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: supplier-proof.md and unblocked-supplier/case.md retain the sole passing Codex 0.169.0 frozen capture, duration, current replayable assessment and complete attributed coordinator/worker usage. Parent inspected the capture, exported immutable archive and derived assessment; supported post-cleanup replay passes without model launch.
 Commitment: 55, 59, 60, 61, 62
+
+
+### G4. Old forced-turn raw inputs are unavailable for current automatic replay
+Reported: slice 4 — "Slice 4 inspection found the known original raw attempts absent; retained summaries and audit alone cannot reconstruct all decisive inputs for current automatic reassessment."
+Story clause: "Reuse sufficient forced-turn evidence; do not rerun it solely to fill the new archive format."
+Disposition: proved by slice 4: paused-supplier/case.md#reuse-and-limits and supplier-proof.md retain byte-identical original correctness audit and per-wake usage, explicitly identify forced-turn conditions and missing decisive replay inputs, and make no new archive or paid conversion. Parent inspected entry/export/applicability/fresh-acquisition paths: sufficient retained facts remain usable; baseline-misses.sh and baseline-conditions.sh observe fresh authorized acquisition when required evidence is absent, preserving old bytes. The native unblocked archive separately replays current decisive proof after raw cleanup.
+Commitment: 43, 44, 47, 74, 75

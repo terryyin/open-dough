@@ -155,3 +155,28 @@ events are unchanged. The record below ran the earlier case, recovered at
   subjects through old and fixed proof observers. Correct delegated-proof
   recognition; 21,821,237 tokens per variant, 0.00% difference. No fresh native
   invocation; the observer runs after the model and changes no agent input.
+
+## Reuse and limits
+
+The original pair summaries, corrected observer audit, token-method note and
+account-free per-response usage remain byte-identical. The 20261114T102744 pair
+retains 174 own responses: baseline 80 / 8,386,947 processed tokens and candidate
+94 / 13,434,290, across four native threads in each arm. The linked method and
+usage evidence preserve turn/root-turn attribution and deduplicate inherited
+history and cumulative CLI prefixes. They support historical correctness-audit
+and per-wake accounting questions under those forced-turn conditions.
+
+The known original raw attempt directories are no longer present. The summaries
+and audit alone lack the turn-completion and decisive proof inputs needed by
+the current reusable-baseline exporter and assessor. They are historical
+evidence, insufficient for a new comparison requiring that current replay;
+no complete archive or new passing judgment is manufactured from their verdicts.
+Reuse the retained facts when sufficient for the declared question. A later
+authorized comparison requiring missing evidence takes the ordinary fresh path;
+do not rerun solely to populate a newer archive format.
+
+The separately qualified [unblocked observation](../unblocked-supplier/case.md)
+has an already-completed supplier and one ordinary root turn. Neither its lack
+of event wakes nor this case's forced wakes demonstrates suppressed wakes or
+event-driven savings. Those observations belong to SEED-356's actual delivery
+path and quiet-workflow/skipped-wake proof, not these retained measurements.
