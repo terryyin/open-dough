@@ -38,14 +38,13 @@ const uncertainLaunch = useUncertainLaunch();
 const answerKind = async (response: Promise<{ body: string }>) =>
   (JSON.parse((await response).body) as { kind: string; reason?: string }).kind;
 
-// Keeps a launch record of another story, launched now, holding the listed
+// Keeps a launch record of another story holding the listed
 // `sessionId`.
 function recordHolding(dashboard: DashboardServer, sessionId: string) {
   keepMoreLaunchRecords(dashboard, [
     makeMe.aLaunchRecord
       .executing({ identity, title })
       .inClaudeSession({ sessionId })
-      .launchedAt(new Date().toISOString())
       .please(),
   ]);
 }

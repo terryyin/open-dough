@@ -21,6 +21,19 @@ and identities. State meaningful identities, time and other scenario facts at
 the call site. Prefer builder operations to later mutation and domain operations
 to repeating field lists. Another test receives independent mutable values.
 
+Let the builder supply fields needed only to make a valid record, including
+datetimes whose specific value does not affect the scenario. Omit those
+overrides at the call site. Use sensible, preferably deterministic defaults;
+when validity requires freshness, supply an appropriate current default in
+the builder.
+
+Prefer lazy fallback just before completion (`beforePlease` or the project's
+equivalent) for missing data that depends on other builder choices. Overridable
+defaults set during construction are also suitable. Fill only missing data:
+preserve explicit values, including deliberate invalidity, and derive related
+defaults consistently. Do not require a hook framework when the established
+builder can complete valid data directly.
+
 This is pseudocode. Factory access, imports, typing, completion and persistence
 follow the project's language and established construction boundary. Completion
 may return data or use a project-owned persistence harness; no Java persistence

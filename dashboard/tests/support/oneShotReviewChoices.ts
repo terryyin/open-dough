@@ -14,7 +14,8 @@ import {
 import { commit, git } from "./launchLanding.ts";
 import { recordOperation } from "./completionRecovery.ts";
 import { keepLaunchRecords } from "./launchStore.ts";
-import { storyALaunchRecord } from "./storyLaunchRecord.ts";
+import { storyALaunch } from "./storyLaunchRecord.ts";
+import { branch } from "./storyReviewWorktree.ts";
 import { sessionKey } from "../../src/sessionReference.ts";
 
 export async function capturedChoice(
@@ -71,12 +72,16 @@ export async function reviewChoicesNamed<const Name extends string>(
     "add",
     "--quiet",
     "-b",
-    "claude/story-a",
+    branch,
     workspace,
     "origin/main",
   );
   commit(workspace, "live.txt");
-  const live = storyALaunchRecord(workspace);
+  // This workspace must be the latest launch beside the retained runs.
+  const live = storyALaunch()
+    .onStoryBranch({ workspace, branch })
+    .launchedAt(new Date().toISOString())
+    .please();
   keepLaunchRecords(dashboard, [...stored(dashboard.home), live]);
   return {
     ...captured,

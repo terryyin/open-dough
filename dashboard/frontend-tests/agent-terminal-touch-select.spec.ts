@@ -49,7 +49,6 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 const session = (title: string) =>
   makeMe.aLaunchRecord
     .adHoc({ instruction: "select", title })
-    .launchedAt("2026-10-01T00:00:00.000Z")
     .inClaudeSession({ sessionId: "select-1", shortId: "select01" })
     .please();
 

@@ -71,7 +71,7 @@ export async function storedCapturedChoice(
         .comparing({ base, revision })
         .please(),
     )
-    .markedDoneAt(new Date().toISOString())
+    .markedDone()
     .please();
   await keepMoreLaunchRecordsBesideServer(dashboard, [record]);
   return { record, key: reference, name };
@@ -87,7 +87,7 @@ export async function storedReviewChoices<const Selected extends Name>(
     workspace: path.join(origin.machine, "retired-legacy"),
     launchedAt: "2026-01-01T00:00:00.000Z",
   })
-    .markedDoneAt(new Date().toISOString())
+    .markedDone()
     .please();
   keepLaunchStore(dashboard, { "open-dough": [legacyRecord] });
   const captured = {} as Record<

@@ -31,7 +31,6 @@ test("asking again for the selected, inspected and reviewed destination cues it 
     makeMe.aLaunchRecord
       .executing({ identity: queuedIdentity, title: "Story A" })
       .onStoryBranch({ workspace, branch })
-      .launchedAt(new Date().toISOString())
       .please(),
   ]);
   await publishCommittedOrigin(page, {

@@ -49,7 +49,7 @@ test("an unanswered ad hoc association is superseded by another row, and a faile
       reference: randomUUID(),
       command: "report",
     })
-    .markedDoneAt(new Date().toISOString())
+    .markedDone()
     .launchedAt(new Date(Date.now() - 30_000).toISOString())
     .please();
   keepLaunchRecords(dashboard, [linked.record, other]);

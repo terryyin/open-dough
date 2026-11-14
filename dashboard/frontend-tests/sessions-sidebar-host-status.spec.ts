@@ -38,7 +38,6 @@ test.describe("the Sessions sidebar's title row status", () => {
                   sessionId: "status-session-7",
                   shortId: "status7",
                 })
-                .launchedAt("2026-10-01T00:00:00.000Z")
                 .please(),
             )
             .withSessionState(makeMe.aSessionState.loaded("waiting").please())

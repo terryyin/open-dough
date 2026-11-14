@@ -132,7 +132,6 @@ test("selecting another Done story follows its published default instead of reta
   commitAll(origin.project, "later trunk after both stories");
   git(origin.project, "push", "--quiet", "origin", "main");
   const current = git(origin.project, "rev-parse", "HEAD");
-  const now = new Date().toISOString();
   const legacy = makeMe.aLaunchRecord
     .executing({ identity: storyB.identity, title: storyB.title })
     .onStoryBranch({
@@ -140,8 +139,7 @@ test("selecting another Done story follows its published default instead of reta
       branch: "codex/retired-b",
     })
     .inClaudeSession({ sessionId: "legacy-story-b", shortId: "legacy-b" })
-    .launchedAt(now)
-    .markedDoneAt(now)
+    .markedDone()
     .please();
   keepLaunchRecords(dashboard, [...stored(dashboard.home), legacy]);
   git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
