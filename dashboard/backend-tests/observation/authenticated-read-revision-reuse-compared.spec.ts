@@ -4,12 +4,18 @@
 // revision last read and the newly named one is read at the new one even
 // when no commit between names it, and a path renamed away is not served
 // from the earlier revision whether the comparison or a commit's own record
-// names the rename. Counts the `gh` calls GitHub received
-// (./revisionReuseBoundary.ts).
+// names the rename. Reads at the newly named revision that need GitHub's
+// account while one of them is still asking for it wait on that account, so
+// the comparison is asked once however the reads coincide. Counts the `gh`
+// calls GitHub received (./revisionReuseBoundary.ts).
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { aheadByAnswer } from "../../tests/comparisonAnswers.ts";
+import { everyRepository } from "../../tests/support/fakeGitHub.ts";
+import { holdingAnswer } from "../../tests/support/heldGitHubAnswer.ts";
+import { refusedMarker } from "../../tests/support/sharedReads.ts";
 import {
+  answerFrom,
   backlogNaming,
   backlogPath,
   filesFor,
@@ -20,6 +26,7 @@ import {
   newSeedPath,
   newSeedText,
   otherSeedPath,
+  profilePath,
   seedPath,
   seedText,
 } from "../../tests/revisionReuseOrigin.ts";
@@ -28,8 +35,49 @@ import { revisionReuseBoundary, type Answer } from "./revisionReuseBoundary.ts";
 test.describe.configure({ mode: "serial" });
 
 test.describe("authenticated read reuse of what the comparison names (development environment)", () => {
-  const { at, readEverything, asked, publishedAt, movedTo } =
+  const { server, at, readEverything, asked, publishedAt, movedTo } =
     revisionReuseBoundary();
+
+  test("a read at B that arrives while another awaits the commit between waits on the same comparison", async () => {
+    const [a, b] = [named("f0"), named("f1")];
+    const files = filesFor("coinciding");
+    const published = await publishedAt(a, files);
+    await movedTo(published, a, { revision: b, files }, [
+      madeBy("f2", [modified("src/app.ts")]),
+    ]);
+    // The comparison is answered at once; the commit between is held.
+    const held = holdingAnswer(
+      (call) => Promise.resolve(answerFrom(published, call)),
+      (request) => request.kind === "commit",
+    );
+    server().github.serve(everyRepository, held.answer);
+
+    let answers: Answer[] = [];
+    expect(
+      await asked(async () => {
+        const seed = at(b).file(seedPath);
+        await expect
+          .poll(() =>
+            server().github.calls.some(
+              ({ request }) => request.kind === "commit",
+            ),
+          )
+          .toBe(true);
+        const profiles = at(b).profiles();
+        // Once refused, the profiles read sent before it is waiting.
+        await refusedMarker(server());
+        held.release();
+        answers = await Promise.all([seed, profiles]);
+      }),
+    ).toEqual([`content ${backlogPath}@f1`, "compare f0...f1", "commit f2"]);
+    expect(answers.map(({ status }) => status)).toEqual([200, 200]);
+    expect(answers[1]?.body).toMatchObject({
+      revision: b,
+      profiles: expect.arrayContaining([
+        { path: profilePath, text: files[profilePath] },
+      ]),
+    });
+  });
 
   test("a seed that differs between A and B is read at B though the merge between does not name it", async () => {
     const [a, b] = [named("a0"), named("b0")];

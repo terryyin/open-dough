@@ -50,6 +50,7 @@ export async function selectCompletedStoryInIntent(
     history = "complete",
     intentCoverage,
     beforeIntent,
+    beforeStory,
     later,
     implementation,
     interleaved,
@@ -57,12 +58,15 @@ export async function selectCompletedStoryInIntent(
     readonly history?: "complete" | "shallow";
     readonly intentCoverage?: IntentCoverage;
     readonly beforeIntent?: () => Promise<void>;
+    // Further trunk changes after Intent locations, before the story claim.
+    readonly beforeStory?: (project: string) => void;
     readonly later?: RevisionFacts;
     readonly implementation?: RevisionFacts;
     readonly interleaved?: boolean;
   } = {},
 ) {
   publishIntentTrunk(origin.project);
+  beforeStory?.(origin.project);
   const { completion } = await completedPublishedStory(
     origin,
     "trunk",

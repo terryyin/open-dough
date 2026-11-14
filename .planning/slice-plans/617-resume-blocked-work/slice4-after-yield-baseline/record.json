@@ -1,0 +1,178 @@
+{
+  "result": "incomplete-after-yield-baseline-cap-stop",
+  "baseline": "91f32d39061d16793a190c5d9d9f2a6b26534fc7",
+  "candidate": "not launched; approved pin0bc39b172c9a99bf8b627c0a1d527e3c8983ee61",
+  "protocol": "Normal initial native completion before all supplier events; baseline one neutral notification after qualifier",
+  "originalDirectory": "/tmp/seed345-after-yield-20261114-1530/baseline/run",
+  "nativeThread": "01a1d8f7-4a93-74c0-9c07-0015401b2cd6",
+  "terminalSession": 46561,
+  "exitCode": 1,
+  "nativeTerminal": "initial completed; manual continuation interrupted; no running commands or descendants",
+  "quality": "correct report and both native verifiers passed before cap; independent post-change review and final native completion remained unproved",
+  "frozenSourceFiles": 10,
+  "excludedForeignThreadEvents": 1401,
+  "files": {
+    "accepted-local-proof.json.gz": {
+      "originalBytes": 575,
+      "sha256": "d144920c0409ac24da606a90149494d0127b074e3b4192753e534a38dfbcd06f"
+    },
+    "accounting.json.gz": {
+      "originalBytes": 50297,
+      "sha256": "234a7d679690324a5beee3fbc37e77b514eb96bd3b7c52adda8f010903c33262"
+    },
+    "event-insufficient.json.gz": {
+      "originalBytes": 255,
+      "sha256": "c68a6b49052bcf794c3d6482314b036b38ca38d539ee59a1844081518c0da177"
+    },
+    "event-qualifying.json.gz": {
+      "originalBytes": 254,
+      "sha256": "f8ea38a4de363d6e8dbb1c9c7fa56d15ebc705e72d71f1fc758697f2fd23a5bf"
+    },
+    "event-unchanged.json.gz": {
+      "originalBytes": 215,
+      "sha256": "c9e084009fcaac640a99bd051db923ec8d8af8cb2333b31d22f13f6ae6877754"
+    },
+    "frozen-evaluator.json.gz": {
+      "originalBytes": 2404,
+      "sha256": "88983b8eefb52371a54b9ad6d80618ea793265a816616e15828544efdb7f7fb0"
+    },
+    "initial-acceptance.json.gz": {
+      "originalBytes": 293,
+      "sha256": "ac57664357090bd95cd5fad83dfc9e490c53abf449699fd23257c528843294ef"
+    },
+    "initial-input.json.gz": {
+      "originalBytes": 1605,
+      "sha256": "31cc1d924cf5ac38357590ccfe764d8f3ea6bdef05bd660d8704fca9973efbfe"
+    },
+    "initial-judgment-history.json.gz": {
+      "originalBytes": 60937,
+      "sha256": "057dd7195eaf5a465c7090a2ee4d4eb5ab427ff99623583b074dd3694ce76bd4"
+    },
+    "initial-yield-accounting.json.gz": {
+      "originalBytes": 36609,
+      "sha256": "da20280d14f25e128d4f9faf3d6928c797cc4aea0538e80c7e9080825de257d0"
+    },
+    "initial-yield-boundary.json.gz": {
+      "originalBytes": 1698,
+      "sha256": "ba0d841c2a68b6db14c419b5153623262017a6f8894c2561a6fe2388881bc14c"
+    },
+    "initial-yield-history.json.gz": {
+      "originalBytes": 282712,
+      "sha256": "4e864e510e5793925666c33ef0a903e81c75ac34bc08e062d812e7a72aef2832"
+    },
+    "installation.json.gz": {
+      "originalBytes": 505,
+      "sha256": "e2634ee1ed2c44e79d4deef9dc168c6211282ad34bf0dd5b8e549cab558814d1"
+    },
+    "insufficient-accounting.json.gz": {
+      "originalBytes": 36609,
+      "sha256": "da20280d14f25e128d4f9faf3d6928c797cc4aea0538e80c7e9080825de257d0"
+    },
+    "insufficient-history.json.gz": {
+      "originalBytes": 282712,
+      "sha256": "4e864e510e5793925666c33ef0a903e81c75ac34bc08e062d812e7a72aef2832"
+    },
+    "manual-evidence-notification.json.gz": {
+      "originalBytes": 247,
+      "sha256": "26be1e14660872d7a8ced27122dd80783610fce352d6e42e11723befe2ba2aed"
+    },
+    "native-cleanup-status.json.gz": {
+      "originalBytes": 803,
+      "sha256": "31b400fc8ac7764d6009611ea0b9e8a2f5d62f5b3510e20900b4c6018e514fb8"
+    },
+    "native-context.json.gz": {
+      "originalBytes": 433,
+      "sha256": "0a48184f470abece15ef3cae4833d0269df57889a83b1d68fa7ecf71d8ab3ce9"
+    },
+    "native-interruption.json.gz": {
+      "originalBytes": 506,
+      "sha256": "d6c8eb94e5ec43eb8401f3e898b1881ce68f9a3d30a98a3d99436f9ca8394db6"
+    },
+    "native-start.json.gz": {
+      "originalBytes": 2027,
+      "sha256": "01bd130a173ac304cea36beee7a7b888ec17618d6b72b0ef20dce075c05faa2b"
+    },
+    "owned-native-turns.json.gz": {
+      "originalBytes": 446,
+      "sha256": "b8ef05dcc0be0b2fb1583a3d902079e16fdbd59e573e405b199b25e3ce00eddc"
+    },
+    "payload-basis.json.gz": {
+      "originalBytes": 69840,
+      "sha256": "99bbace4b77857f39be5589da977341afecc24e67f08fef20d3654482f02905b"
+    },
+    "post-stop-native-history.json.gz": {
+      "originalBytes": 342303,
+      "sha256": "8380fb2669971007b0c245741e7ea327a10127d3017a1fd2aac49e67f4940569"
+    },
+    "post-stop-quality-audit.json.gz": {
+      "originalBytes": 3644,
+      "sha256": "d6fdf7de31cab518e6e805763f835c411b991ea85bdc6413f9d25bc3859c4960"
+    },
+    "protocol.json.gz": {
+      "originalBytes": 941,
+      "sha256": "672d03878255773d0f9d74f76faf23d519be5a9b6e92d7b05b04cae5388dd877"
+    },
+    "response-purpose-evidence.json.gz": {
+      "originalBytes": 114310,
+      "sha256": "b41c59a8a19ebe3952fa8fb9c1fadd5b915817c955d2c8d42953479eef8ae0f6"
+    },
+    "result.json.gz": {
+      "originalBytes": 53259,
+      "sha256": "e4ec0c8381075144bb4879b19c6412948213db12e715da3ae20e55477ba132d0"
+    },
+    "unchanged-accounting.json.gz": {
+      "originalBytes": 36609,
+      "sha256": "da20280d14f25e128d4f9faf3d6928c797cc4aea0538e80c7e9080825de257d0"
+    },
+    "unchanged-history.json.gz": {
+      "originalBytes": 282712,
+      "sha256": "4e864e510e5793925666c33ef0a903e81c75ac34bc08e062d812e7a72aef2832"
+    },
+    "admission.json.gz": {
+      "originalBytes": 878,
+      "sha256": "9cd706b0d2201e1b4fff436952c8f9c9b42af2053f22052891c70230be8bfd0c"
+    },
+    "postrun-evaluator-verification.json.gz": {
+      "originalBytes": 868,
+      "sha256": "ff1fb2bed7c02df19021aa3f58687282f8411e1af22688eea632b39654d7b84d"
+    },
+    "native-events.jsonl.gz": {
+      "originalBytes": 581827,
+      "sha256": "1f39a0087fff9277d0998773cf1fa6f8d34442de4f3d8965b788327431dee0b1"
+    },
+    "usage-records.jsonl.gz": {
+      "originalBytes": 35316,
+      "sha256": "e15b6a0aeefdc579dc9ab08f37733650e41b01de5d347dfdde5d331dc0766d5d"
+    }
+  },
+  "frozenEvaluatorSources": {
+    "archive": "frozen-evaluator-sources.tar.gz",
+    "sha256": "39539e3a35610d1a8b57cd99f6111fc427cbe5f3bb992d382b723924164e7ddb",
+    "originalSnapshot": "frozen-evaluator.json.gz",
+    "files": {
+      "Distribution/tests/blocked-execution-invoice-accounting.test.mjs": "6e838f1ec2a7f5e7f4cc24f1827dc0322eedcca8fb2290463cdb6779b15b499e",
+      "Distribution/tests/blocked-execution-invoice-admission.test.mjs": "61b3588759e05f7f038d05965ee103ddba19eec33c81d1c8f467bbfc18c0068c",
+      "Distribution/tests/blocked-execution-workflow-native.mjs": "9ca27076c8bd5cbba485b7cf7fd6c326c538014b6223a8a7eb9a982aed9eeb2c",
+      "Distribution/tests/blocked-execution-workflow-native.test.mjs": "287e47d1e314f7390019b7306fc7b97ec737b01d08978c4e1465846e92bd109a",
+      "Distribution/tests/support/blocked-execution-invoice-accounting.mjs": "fcd3dabab1fd9c7054fffd036b7a0d07fa81c5e3795eafcbf24643b97677137a",
+      "Distribution/tests/support/blocked-execution-invoice-history.mjs": "bd4ddcc8866d225b00a9c6a316112e3e3856b272971d1af98185d32b8d4193ec",
+      "Distribution/tests/support/blocked-execution-invoice-journey.mjs": "044e926ffcdf3b4add884bb604c96daa5e4fbd6b4ae663916f8d8c7f543c53bd",
+      "Distribution/tests/support/blocked-execution-workflow-observation.mjs": "eba248ccfd16f519f52fe056975e404a63f644fb213a420c1552dda0593488d4",
+      "Distribution/tests/support/blocked-execution-workflow-ownership.mjs": "ae5c3471c9df9d06c7f545deff6be6fbf620458cffcbe9b27727edc669f5f86d",
+      "Distribution/tests/support/blocked-execution-workflow-project.mjs": "0b40d7193ba6278da9b449e43af0aef99a95da1199cfdddf8fe19353c97f156b"
+    }
+  },
+  "retention": {
+    "kind": "PUBLIC curated index; raw attempt records are private, not filtered copies",
+    "privateDirectory": "/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed345-private-native-evidence-grmjfvsh/slice4-after-yield-baseline",
+    "originalRecordSha256": "3f5b075647ad1f3ab2df491fa38b2f0d9983e5268830fb46914224765c72832e",
+    "privateIndexSha256": "735ac11a5142141122ea1aa560073377508c5e812a472cbd7ebc0038ad89a47f",
+    "privateRule": "All original artifacts except publicFiles; original hashes above are unchanged",
+    "publicFiles": [
+      "record.json",
+      "frozen-evaluator-sources.tar.gz",
+      "frozen-evaluator.json.gz",
+      "usage-records.jsonl.gz"
+    ]
+  }
+}

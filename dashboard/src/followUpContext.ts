@@ -5,12 +5,13 @@
 // disagree. For a done story, first, under its identity and title: when it was
 // completed, by which developer with which agent, and that it is done, so its
 // seed and plan may be gone while its history keeps the identity; or that no
-// session context is retained when its card holds no session. For each
-// retained session: its workflow and story identity when it had one, its
-// original request, its final report when one was submitted, and the
-// revision its work landed at when that was recorded. It states only what
-// the records hold: a Done mark is not evidence that work landed, so it is
-// never mentioned.
+// session context is retained when its card holds no session. A file-anchored
+// follow-up then lists the path, rename's old path, comparison endpoints, and
+// optional line and side after those story items. For each retained session:
+// its workflow and story identity when it had one, its original request, its
+// final report when one was submitted, and the revision its work landed at
+// when that was recorded. It states only what the records hold: a Done mark
+// is not evidence that work landed, so it is never mentioned.
 
 import { completionLabel } from "./completionReport.ts";
 import type { DoneStory } from "./doneRecord.ts";
@@ -65,10 +66,49 @@ const completionTime = new Intl.DateTimeFormat("en-GB", {
   timeZone: "UTC",
 });
 
-// The context a done story supplies, holding `sessions`.
+// What a file-anchored follow-up adds after the story's own items: the path,
+// rename's old path, the comparison that file's diff shows, and an optional
+// line and side. Baseline is that file's own from, including when the file
+// includes trunk's changes.
+export type FollowUpFileFacts = {
+  readonly path: string;
+  readonly oldPath?: string;
+  readonly kind: "published" | "landed";
+  readonly baseline: string;
+  readonly tree: string;
+  readonly line?: number;
+  readonly side?: "old" | "new";
+};
+
+export function fileContextItems(
+  file: FollowUpFileFacts,
+): readonly FollowUpItem[] {
+  const comparison =
+    file.kind === "published" ? "Published completion" : "Landed run";
+  return [
+    { label: "Path", value: file.path },
+    ...(file.oldPath === undefined
+      ? []
+      : [{ label: "Old path", value: file.oldPath }]),
+    {
+      label: "Comparison",
+      value: `${comparison} ${file.baseline} → ${file.tree}`,
+    },
+    ...(file.line === undefined || file.side === undefined
+      ? []
+      : [
+          { label: "Line", value: String(file.line) },
+          { label: "Side", value: file.side },
+        ]),
+  ];
+}
+
+// The context a done story supplies, holding `sessions`, with optional file
+// anchor items after the story's own.
 export function storyContext(
   story: FollowUpStoryFacts,
   sessions: readonly FollowUpSessionFacts[],
+  file?: FollowUpFileFacts,
 ): FollowUpContext {
   const completed = [
     `${completionTime.format(new Date(story.completedAt))} UTC`,
@@ -87,6 +127,7 @@ export function storyContext(
         ...(sessions.length === 0
           ? [{ label: "Sessions", value: noSessionRetained }]
           : []),
+        ...(file === undefined ? [] : fileContextItems(file)),
       ],
     },
     sessions: sessions.map(sessionContext),

@@ -53,11 +53,12 @@ the expected hold/resume outcome.
   revision was `58f1eb1ad8ef04cb59f8eb06a90881335d5ccec6`; `basis.json` pins the
   actual uncommitted candidate runtime content with per-file hashes.
 
-All decisive native records are in [slice2-native-run](slice2-native-run/),
-compressed with original-byte hashes in `record.json`: initial shared-reader
-stream, enrollment, native acceptance/completion, raw native notifications,
-native before/after/history, task/input/proof, report and consumer files.
-`gzip -cd FILE.gz` exposes the original bytes.
+[slice2-native-run/record.json](slice2-native-run/record.json) is now a PUBLIC
+compact command/hash index. Eighteen raw artifacts, including stream/history,
+enrollment, acceptance/completion, settings, proof and report, were moved outside
+Git to its explicit privateDirectory. Original index and compressed/uncompressed
+hashes are preserved; `gzip -cd PRIVATE_DIRECTORY/FILE.gz` exposes exact original
+bytes. Public source fixtures remain; these are not relabeled filtered logs.
 
 After this run, only two shared RPC error paths changed: abort-before-open now
 settles initialization, and malformed refusal fields preserve the old generic
@@ -217,3 +218,8 @@ the existing attention-record mutation, wholly inside the accepted refactor's
 paths/trace with no added behavior or helper (`already traced`). Renewed command
 `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=2 caffeinate -s -i npm test -- src/skills/dough-execute-plan/scripts/blocked-execution.test.mjs src/skills/dough-execute-plan/scripts/blocked-execution-races.test.mjs src/skills/dough-execute-plan/scripts/blocked-execution-observation.test.mjs`
 passed (session5630); native and dashboard observations remain unchanged.
+
+Retention-only update: raw reasoning/session/account content stays private under
+the indexed recovery path. All native IDs, commands, accepted proof facts, settings,
+completion and live replay observations above remain unchanged. No native/model
+call, source change, Git-history rewrite or index mutation accompanied retention.

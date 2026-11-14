@@ -84,5 +84,17 @@
       "sha256": "7b521e05ade48994d0fb88bef8af791c1203ba0f19d95dc5fbba8306cec545e0",
       "originalSha256": "26f1498327aa06cdba2cd942b2a8e9f397f551addc3bd0c650bfbef187bbdee4"
     }
+  },
+  "retention": {
+    "kind": "PUBLIC curated index; raw attempt records are private, not filtered copies",
+    "privateDirectory": "/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed345-private-native-evidence-grmjfvsh/slice2-native-run",
+    "originalRecordSha256": "66a2f2244c8391d1b7664674bc7d53af5da189e2ccde936ca6954af988de02ab",
+    "privateIndexSha256": "b95a58f8197cca4347799a2c37014513c5fa9eebc3d06907b0493187d7f8378d",
+    "privateRule": "All original artifacts except publicFiles; original hashes above are unchanged",
+    "publicFiles": [
+      "record.json",
+      "check-supplier.mjs.gz",
+      "verify-local.mjs.gz"
+    ]
   }
 }

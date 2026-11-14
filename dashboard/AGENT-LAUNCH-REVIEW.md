@@ -135,7 +135,11 @@ request names that _from_ tree as `baseline`. Each line shows its number in
 the old file, the new file, or both, counted from its hunk's header
 (`src/unifiedDiff.ts`); Git's no-newline note takes none. The numbers are
 generated beside the line, outside its text, so copying code leaves them
-behind and assistive technology reads the code alone. Binary and
+behind and assistive technology reads the code alone. On a Done story's
+Published completion or landed run, each number opens a line menu that names
+the line and offers [Follow up](LAUNCH-FOLLOW-UP.md) for that line and side,
+including revealed context lines, without adding a Tab stop per line
+(`src/DiffLineNumber.tsx`). Binary and
 mode-only changes say they have no textual diff. Where the printed hunks omit
 unchanged lines before, between, or after a change, directional controls in the
 line-number gutter load twenty more preceding or following lines at a time from

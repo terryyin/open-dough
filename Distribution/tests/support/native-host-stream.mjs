@@ -13,7 +13,9 @@
 // object per started command: `command`, `output`, `exitCode`), `tools` (one
 // JSON object per other tool call: `name`, `input`, `output`), `reads` (one
 // JSON object per file read: `path`, `content`), or `targets` (the strings
-// given to inspection tools, one per line).
+// given to inspection tools, one per line), or `thread` (the host's session
+// identity, which a later continuation of the same session repeats; Codex
+// only, so far).
 import { existsSync, readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
@@ -48,7 +50,13 @@ function newSession() {
     tools,
     messages,
     response: null,
+    thread: null,
     complete: false,
+    identify(thread) {
+      if (typeof thread === "string") {
+        session.thread = thread;
+      }
+    },
     start(id, command) {
       if (typeof command !== "string") {
         return;
@@ -147,6 +155,7 @@ export function readHostStreamText(host, text) {
   return {
     status,
     response: session.response,
+    thread: session.thread,
     commands,
     segments: commands.flatMap(commandSegments),
     outputs: session.commands
@@ -208,6 +217,7 @@ const views = {
   tools: (read) => jsonLines(read.tools),
   reads: (read) => jsonLines(read.reads),
   targets: (read) => read.targets,
+  thread: (read) => (read.thread === null ? [] : [read.thread]),
 };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

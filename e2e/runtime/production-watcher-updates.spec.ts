@@ -5,26 +5,36 @@
 // policy ranges use the real selection owner without staging. Setup
 // and waits around the activations stay open to improvement.
 import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
-import { readFile, readdir, rm } from "node:fs/promises";
+import { readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
 import {
   checkedAfterActivation,
   deploymentCheckout,
+  expectProductionEnded,
+  expectStillServing,
   productionDeployments,
+  productionInspections,
+  settledSkip,
 } from "../../dashboard/tests/support/productionWatcher.ts";
 import {
   builtCommitPrefixes,
   holdBuildPath,
+  waitForBuild,
 } from "../../dashboard/tests/support/productionBuildGate.ts";
 import { writeSharedLaunchRecord } from "../../dashboard/tests/support/sharedLaunchRecord.ts";
 import {
   productionUpdateJourney,
-  productionUpdateShutdown,
   prefixesOf,
 } from "./productionUpdateJourney.ts";
-import { productionUpdatePolicies } from "./productionUpdatePolicies.ts";
 import { launchRequest } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { waitForWatcherOutput } from "../../dashboard/tests/support/watcherEvents.ts";
+import {
+  observeWatcherOutput,
+  waitForWatcherOutput,
+} from "../../dashboard/tests/support/watcherEvents.ts";
+import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
+import { publishedPolicy } from "../../dashboard/tests/support/productionQualificationFixture.ts";
+import { ciWorkflowPath } from "../../dashboard/server/productionQualification.mjs";
 import { replaceWhileStartDrains } from "./productionHeldUpdate.ts";
 
 test.describe.configure({ mode: "serial" });
@@ -131,6 +141,98 @@ test("superseded checkouts are retired after the replacement serves, not before"
   expect(watcher.output()).not.toContain("Could not remove retired");
 });
 
-productionUpdatePolicies(journey);
+// These real watcher observations protect no-work and repeated rejection.
+// Detailed range/baseline variants use the same production selection owner in
+// backend-tests/runtime/production-update-selection.spec.ts without deployment staging.
+test("npm watcher skips an excluded-only main range without install, build or restart", async () => {
+  const state = journey.started();
+  const { fixture, page, watcher } = state;
+  const baseline = state.built.at(-1) ?? "";
+  const before = await journey.work();
+  const d = await fixture.publish(
+    { "docs/d.md": "# D\n", ".planning/d.md": "# D\n" },
+    "Document D",
+  );
+  await settledSkip(watcher, d);
+  expect(watcher.output()).toContain(
+    `Skipping production update ${d}: every change since ${baseline} is excluded by its CI push policy.`,
+  );
+  expect(await journey.work()).toEqual(before);
+  await expectStillServing(state.served, page, "MAIN C");
+});
 
-productionUpdateShutdown(journey);
+test("npm watcher follows the published CI policy over a different local workflow", async () => {
+  const state = journey.started();
+  const { fixture, page, watcher } = state;
+  const baseline = state.built.at(-1) ?? "";
+  await writeFile(
+    path.join(fixture.development, ciWorkflowPath),
+    state.workflow,
+  );
+  const before = await journey.work();
+  const g = await fixture.publish({ "extra/g.md": "# G\n" }, "Extra G");
+  await settledSkip(watcher, g);
+  expect(watcher.output()).toContain(
+    `Skipping production update ${g}: every change since ${baseline} is excluded by its CI push policy.`,
+  );
+  expect(await journey.work()).toEqual(before);
+  await expectStillServing(state.served, page, "MAIN C");
+});
+
+test("npm watcher keeps its baseline through an unsupported published policy, reported on each check before any install", async () => {
+  const state = journey.started();
+  const { fixture, page, watcher } = state;
+  const baseline = state.built.at(-1) ?? "";
+  const before = await journey.work();
+  const p = await fixture.publish(
+    {
+      [ciWorkflowPath]: publishedPolicy(state.workflow).replace(
+        "  push:\n",
+        "  push:\n    # P\n",
+      ),
+      ...fixture.markerChanges("MAIN P"),
+    },
+    "Unsupported policy P",
+  );
+  const policyError = `Production update failed for ${p}: ${ciWorkflowPath} at ${p} has an unsupported CI push path policy.\nKeeping ${baseline} at ${state.served.url}; retrying on a later check.`;
+  await observeWatcherOutput(watcher, (output) =>
+    output.split(policyError).length > 3 ? true : undefined,
+  );
+  expect(await journey.work()).toEqual(before);
+  await expectStillServing(state.served, page, "MAIN C");
+});
+
+test("SIGTERM while a commit is in its real build ends that build, the served preview and every deployment checkout, and leaves shared records and configuration untouched", async ({
+  request,
+}) => {
+  const state = journey.started();
+  const { fixture, watcher: running } = state;
+  const store = launchStoreFile(fixture.home);
+  const stored = await readFile(store, "utf8");
+  const storeIdentity = (await stat(store)).ino;
+  const ordinal = (await journey.builds()).length + 1;
+  await writeFile(holdBuildPath(fixture.home, ordinal), "");
+  await fixture.publish(
+    {
+      ...fixture.markerChanges("MAIN X"),
+      [ciWorkflowPath]: state.workflow,
+    },
+    "Main X with a valid policy",
+  );
+  const heldBuild = (await waitForBuild(running, fixture.home, ordinal)).pid;
+  expect(await journey.builds()).toHaveLength(ordinal);
+  expect(processRunning(heldBuild)).toBe(true);
+  await running.stop();
+  expect(running.output()).not.toContain("could not run");
+  journey.stopped();
+  expect(processRunning(heldBuild)).toBe(false);
+  await expectProductionEnded(request, state.served, fixture.home);
+  expect(await readdir(productionInspections(fixture.home))).toEqual([]);
+  expect(await readFile(store, "utf8")).toBe(stored);
+  expect((await stat(store)).ino).toBe(storeIdentity);
+  expect(await readFile(state.configuration, "utf8")).toBe(state.configured);
+  expect((await stat(state.configuration)).ino).toBe(
+    state.configurationIdentity,
+  );
+  expect((await request.get(state.developmentUrl)).status()).toBe(200);
+});

@@ -75,6 +75,53 @@ test("ad hoc matching includes attached image content digests", () => {
   expect(sameLaunch(base, { ...base, attachmentDigests: [] })).toBe(true);
 });
 
+test("ad hoc follow-up matching includes a story's file, line and side", () => {
+  const blank = makeMe.aLaunchRequest
+    .adHoc({ instruction: "Continue" })
+    .please() as Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>;
+  const revision = "ab".repeat(20);
+  const completion = "cd".repeat(20);
+  const baseline = "ef".repeat(20);
+  const tree = "01".repeat(20);
+  const story = {
+    identity: "SEED-A#a",
+    revision,
+  };
+  const file = {
+    path: "new/a.ts",
+    oldPath: "old/a.ts",
+    baseline,
+    tree,
+    completion,
+  };
+  const withFile = {
+    ...blank,
+    followUp: { story: { ...story, file } },
+  };
+  const withLine = {
+    ...blank,
+    followUp: {
+      story: { ...story, file: { ...file, line: 12, side: "new" as const } },
+    },
+  };
+  const otherLine = {
+    ...blank,
+    followUp: {
+      story: { ...story, file: { ...file, line: 11, side: "new" as const } },
+    },
+  };
+  expect(sameLaunch(withFile, { ...withFile })).toBe(true);
+  expect(sameLaunch(withLine, { ...withLine })).toBe(true);
+  expect(sameLaunch(withFile, withLine)).toBe(false);
+  expect(sameLaunch(withLine, otherLine)).toBe(false);
+  expect(
+    sameLaunch(withFile, {
+      ...blank,
+      followUp: { story },
+    }),
+  ).toBe(false);
+});
+
 test("ad hoc matching includes the Workspace and After checks choices, the default ones when none are named", () => {
   const blank = makeMe.aLaunchRequest
     .adHoc({ host: "codex" })

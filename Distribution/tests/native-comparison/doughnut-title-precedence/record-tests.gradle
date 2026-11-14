@@ -1,0 +1,60 @@
+// Gradle init script of the doughnut-title-precedence case (case.md): the
+// case installs it in the arm's own Gradle user home, so every test task the
+// agent runs leaves one record under <Gradle user home>/test-runs/<start>/
+// for the case's observer, whatever the agent prints or keeps:
+//   state    `changed <blob> <path>` per tracked file differing from HEAD and
+//            `untracked <path>` per untracked file, as the tests start
+//   results  `<RESULT>\t<class>\t<method>\t<first message line>` per test
+//   output   `<class>\t<line>` per output line of an untracked test class
+// It observes only; it changes no task input, output or outcome.
+def runs = new File(gradle.gradleUserHomeDir, 'test-runs')
+
+allprojects {
+  tasks.withType(Test).configureEach { Test task ->
+    def projectDir = task.project.rootDir
+    def run = null
+    def scratch = [] as Set
+    def git = { List<String> args ->
+      def process = new ProcessBuilder(['git', '-C', projectDir.path] + args).start()
+      def text = process.inputStream.text
+      process.waitFor()
+      text.readLines().findAll { it }
+    }
+    def record = { String name, String line ->
+      synchronized (runs) {
+        new File(run, name) << line + '\n'
+      }
+    }
+    task.beforeSuite { descriptor ->
+      if (descriptor.parent != null) {
+        return
+      }
+      run = new File(runs, "${System.currentTimeMillis()}-${UUID.randomUUID().toString().take(8)}")
+      run.mkdirs()
+      new File(run, 'results').text = ''
+      def top = git(['rev-parse', '--show-toplevel'])[0]
+      def lines = git(['-C', top, 'diff', '--name-only', 'HEAD']).collect { path ->
+        def blob = git(['-C', top, 'hash-object', '--', path])[0] ?: 'deleted'
+        "changed ${blob} ${path}".toString()
+      }
+      git(['-C', top, 'ls-files', '--others', '--exclude-standard']).each { path ->
+        lines << "untracked ${path}".toString()
+        def source = path =~ /src\/test\/java\/(.+)\.java$/
+        if (source) {
+          scratch << source[0][1].replace('/', '.')
+        }
+      }
+      new File(run, 'state').text = lines.collect { it + '\n' }.join()
+    }
+    task.afterTest { descriptor, result ->
+      def message = (result.exception?.message ?: '').readLines().collect { it.trim() }.findAll { it }.join(' ')
+      record('results', "${result.resultType}\t${descriptor.className}\t${descriptor.name}\t${message}")
+    }
+    task.onOutput { descriptor, event ->
+      def owner = (descriptor.className ?: '').split(/\$/)[0]
+      if (owner in scratch) {
+        event.message.readLines().each { record('output', "${owner}\t${it}") }
+      }
+    }
+  }
+}

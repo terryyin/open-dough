@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 518. Removed numbers are never reused.
+- Highest allocated local number: 521. Removed numbers are never reused.
 - Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
@@ -574,3 +574,48 @@ could have clarified the next useful decision before more window observation.
   - Evidence: native coordinator session `01a1d2a6-8e91-7da2-8604-6ed71f8d945b`, JSONL lines 10700 (full 2,793/1 expected skip handoff),10707/11069 (try again),11089–11092 (optional reassessment question; accepted delivery, no subsequent user answer before 13226),11312 (25+95 bounded native samples, zero admitted tests),13206 (13-shard-success unfinished handoff),13226/13229 (developer metric/priority direction and response). `b161cf65a957ff0538ff291d6e52a61328eb62b6` retains full/hosted/unfinished natural-window evidence; controlled conclusion subsequently passed 136/136 with CPU utilization and load average recorded separately.
   - Observed effect: the natural-load gate remained unproved across two user-triggered resumptions and 120 bounded samples; none of those samples admitted a qualifying run. After the developer's direction, the source selected one bounded controlled confirmation alongside retained full/hosted proof. The developer reported a full day elapsed; the record does not attribute that whole interval to waiting.
   - Inference: resolve the measurement's unit, meaningful resume condition and bounded reassessment point when an environmental acceptance gate remains unavailable. New-main composition and receiving proof were necessary, not wasted repeats; preserving the approved gate and treating silence/try-again as no waiver were correct. Isolated avoidable time, token cost and causal savings are unmeasured.
+
+## DD-519 — An isolation obligation was closed as proved from its normal-path cleanup only
+
+At slice acceptance the coordinator closed a receiving obligation for arm isolation (Doughnut arms must not leave their own database server behind) as `proved` from a reference run and two paid arms that each printed their normal-path cleanup. The obligation rule asks to inspect the relevant failure and recovery paths before `proved`. The execution retrospective then found that a failed materialization and a maintainer interrupt both skip `case_cleanup`, leaving an orphan `mysqld` (and, as correction planning observed, the arm's host session), and closure queued a correction for it.
+
+### Occurrences
+
+- Execution: SEED-346#run-native-ab-comparisons-on-real-work (spent plan 618 recoverable at before-cleanup `caeb237278b6dff869fb08e325d9d435e37e58c0`; first implementation `03634c3e4526dfeb56daaa797e0d537d41540f3b`)
+  - Timestamp: unknown (2026-11-14; slice 3 accepted before publication at 13:28:03+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.98 (checkout-bound installed `.claude/skills/dough-update/VERSION` at Take `57b03dea2`; unchanged through closure)
+  - Evidence: plan 618 obligation G2 disposition "proved by slice 3 … both paid Doughnut arms printed cleanup: database-server-stopped"; `Distribution/tests/support/native-comparison-run.sh` at `6a2931f8` handles a failed `case_materialize` as `unstarted` and `exit 0` without `case_cleanup`; correction SEED-346#close-native-comparison-harness-gaps, plan 621, findings 1 and 4.
+  - Observed effect: a bounded correction story and plan for a gap a path check at acceptance could have returned to slice 3.
+  - Inference: the only observed cleanup came from successful runs, so the "proved" reason rested on the normal path; related to DD-491, where acceptance also let a gap stand.
+
+## DD-520 — A trunk merge was proved before it was committed, and HEAD-cloning fixtures tested the old layout
+
+The coordinator merged trunk's `tests/` → `Distribution/tests/` move into the story branch and ran the family's focused proof before committing the merge; it passed. The credential-free pair fixture clones the checkout's committed HEAD for payloads, so that run exercised the pre-merge layout. Branch CI on the committed merge failed on the stale payload path, and the repair rode with the next slice.
+
+### Occurrences
+
+- Execution: SEED-346#run-native-ab-comparisons-on-real-work (spent plan 618 recoverable at before-cleanup `caeb237278b6dff869fb08e325d9d435e37e58c0`; first implementation `03634c3e4526dfeb56daaa797e0d537d41540f3b`)
+  - Timestamp: 2026-11-14T13:36:29+08:00 (merge commit `27ad2f0f`; proof ran just before it)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.98 (checkout-bound installed `.claude/skills/dough-update/VERSION` at Take `57b03dea2`; unchanged through closure)
+  - Evidence: CI run 43562552359 on `27ad2f0f`, "Distribution Tests (2/4)": `native-comparison.sh:184` "the preserved pair did not reach an outcome", log `payloads/src/skills/dough-execute-plan/SKILL.md: No such file or directory`; `native-comparison-pair-fixture.sh` takes `baseline=HEAD`; repair in `ff3ce589`; fixture correction is plan 621 slice 2.
+  - Observed effect: one red branch CI run and a repair folded into slice 4's delivery.
+  - Inference: proof that reads committed state validates the previous commit when run on uncommitted work; running merge proof after committing, or fixing the fixture, avoids it.
+
+## DD-521 — Practice: retained raw native streams let observer defects found after paid runs be re-derived instead of rerun
+
+Three observer or detector defects in the new comparison harness surfaced only after paid Codex journeys: an agent-proof field matched command output text, a "continued once" count was missing, and the harness-inspection detector matched the arm's own path. Each time, the retained per-turn streams, final state and session record let the fields be re-derived and the journey reassessed without another paid run, with a `corrected:` note beside the original observations.
+
+### Occurrences
+
+- Execution: SEED-346#run-native-ab-comparisons-on-real-work (spent plan 618 recoverable at before-cleanup `caeb237278b6dff869fb08e325d9d435e37e58c0`; first implementation `03634c3e4526dfeb56daaa797e0d537d41540f3b`)
+  - Timestamp: unknown (2026-11-14; slices 1–2, before publication at 11:03:56+08:00 and the Slice 2 commit)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.98 (checkout-bound installed `.claude/skills/dough-update/VERSION` at Take `57b03dea2`; unchanged through closure)
+  - Evidence: plan 618 Learnings "Observer corrections re-derived, not observed live" and "Doughnut qualification observed" (live verdict failed only on the arm path; re-derived pass); obligation G1 re-derived 1 integration / 1 filing from `final-state.txt`.
+  - Observed effect: about two paid journeys (~22 min and ~14 min of Codex at xhigh) not repeated; the retained record's case hashes then predated the committed case, which the plan states.
+  - Inference: re-derivation is only as trustworthy as the retained raw evidence; one run's raw per-test records were not retained, limiting that re-derivation.

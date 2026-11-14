@@ -66,6 +66,14 @@ const shapeWriters = new Map([
     "substitute agent writing a scheduling replay's command and result",
   ],
   [
+    "Distribution/tests/support/native-agent-paused-supplier.sh",
+    "substitute Codex writing one thread's turns for the paused-supplier case",
+  ],
+  [
+    "Distribution/tests/native-comparison-doughnut-title-precedence.sh",
+    "writes a Codex session's final report for the calibration observer",
+  ],
+  [
     "Distribution/tests/support/native-agent-recorded.sh",
     "substitute agent writing recorded-context streams",
   ],

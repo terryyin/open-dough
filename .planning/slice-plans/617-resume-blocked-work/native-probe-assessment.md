@@ -26,9 +26,12 @@ single diagnostic reserve resolved the native transport/ownership boundary.
 
 ## Decisive evidence
 
-All paths below are in [native-probe-run](native-probe-run/).
-`record.json` gives commands and artifact hashes. Compressed files retain their
-original bytes; `gzip -cd FILE.gz` makes them inspectable.
+Artifact names below identify original evidence indexed by
+[native-probe-run/record.json](native-probe-run/record.json), a PUBLIC compact
+command/hash index. Twenty raw artifacts now reside outside Git at its explicit
+privateDirectory, with original index and exact compressed/uncompressed hashes.
+Descriptions below remain accepted historical facts, not public filtered logs.
+`gzip -cd PRIVATE_DIRECTORY/FILE.gz` recovers compressed original bytes.
 
 1. `held-events.jsonl.gz`, read by the existing
    `tests/support/native-host-stream.mjs`, has a complete native initial turn.
@@ -121,3 +124,7 @@ slices consume the native feasibility and ownership findings above; their
 required observations remain unchanged except for the now-observed transport
 premise. Existing CI/runtime behavior is unmodified and its prior proof remains
 applicable.
+
+Retention update: no native rerun or outcome change. Raw reasoning/session/account
+content is private; the public trace/verifier source and compact command/hash
+index remain. Git history was not rewritten and the index was not modified.

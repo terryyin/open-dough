@@ -121,7 +121,7 @@ An unavailable native route stays visibly unavailable on that host.
 ### 4. Verify useful behavior and effort on representative native journeys
 Type: Behavior
 Status: planned
-Proof: Retained native comparison, required host-specific observations and review.
+Proof: Retained native comparison, required host-specific observations and review. New assay tests also require hosted CI stability proof before acceptance.
 
 Run the complete supported Codex supplier-pause journey from workflow invocation
 through hold, qualifying evidence, resumed work and the same publication/proof
@@ -185,11 +185,11 @@ findings. No full host-by-scenario matrix is required.
   full CI recovery context, host research and G5's reproduced/corrected duplicate.
   Command proof and independent refactoring are complete.
 - [Distribution integration](distribution-integration.md) adopts Terry's published
-  layout at `91f32d39061d16793a190c5d9d9f2a6b26534fc7`; freshness is unchanged at `e54f80318`.
-  SEED-334's affected backend/integrated/e2e consumers passed their group commands;
-  four-share preview remains under 694. SEED-346 has no product overlap.
-- Slice 3 refactor completed; worker stays below 250 lines. Retain all obligations
-  and identities in assessments when condensing superseded records.
+  layout; SEED-334's affected backend/integrated/e2e group proofs passed.
+  Main `55da0eecf` brings SEED-346's comparison/session tools: [Slice 4's trace](slice4-consumer-trace.md)
+  reconciles their reuse; full-workflow comparison and native attention remain open.
+- Slice 3 refactoring is complete; assessments retain all proof and identities.
+- [Slice 4 assessment](slice4-assessment.md) records incomplete native comparisons; progress publication keeps Slice 4 planned while CI tests the new observer/FS counterexamples.
 
 ## Execution context
 
@@ -202,8 +202,8 @@ findings. No full host-by-scenario matrix is required.
   `refs/heads/codex/resume-blocked-work-when-it-can-advance`.
 - Start `3458a36c6393683827f5ba0e9bd038dbfded8605`; Take
   `8f88bf2ca6d4e7fb7aabc704070be4c549397675` confirmed on trunk/branch; no second claim.
-  Slice 1 accepted `58f1eb1ad8ef04cb59f8eb06a90881335d5ccec6`; Slice 2 accepted `174c6d2b9a0ebb4989ad84cfb2a83e6d762c656b`,
-  suffix base Slice 1; Slice 2 is the next published base, registered on the observer.
+  Accepted: Slice 1 `58f1eb1ad8ef04cb59f8eb06a90881335d5ccec6`; Slice 2 `174c6d2b9a0ebb4989ad84cfb2a83e6d762c656b`; Slice 3 `2a01f9603a64a87f8b1ae646218efad16848d5e6`.
+  Latest accepted base `0bc39b172c9a99bf8b627c0a1d527e3c8983ee61` integrates main91f (suffix `071122f6bd04602427934d3d526e317062b15ef4`), registered on the same observer.
 - Setup: locked `npm ci` and dashboard typecheck passed here; `.githooks/pre-commit`
   owns staged lint/script typecheck and `npm run format` owns selective formatting.
   Assessments retain prior admission/costs; reconsider headroom before long proof.

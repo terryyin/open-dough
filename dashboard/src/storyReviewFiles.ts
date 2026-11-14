@@ -2,6 +2,14 @@
 import { z } from "zod";
 export const objectIdSchema = z.string().regex(/^[0-9a-f]{40,64}$/);
 
+// A literal reviewed path as file reads and file-anchored follow-ups name it:
+// nonempty, bounded, and free of null or newline bytes.
+export const reviewedPathSchema = z
+  .string()
+  .min(1)
+  .max(4_096)
+  .refine((path) => !path.includes("\0") && !path.includes("\n"));
+
 // How many lines a file's diff adds and removes, as Git counts them for the
 // same comparison; a binary file has none.
 const lineCountsSchema = z.object({

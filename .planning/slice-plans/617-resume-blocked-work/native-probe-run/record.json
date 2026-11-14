@@ -33,5 +33,17 @@
     "supplier-evidence.json": "0ffc7516e6dcb32be3fc4a35e9e8b7795b635bb360322e0f2d7b868a53001545",
     "final-report.json": "bc172164e929b402a6a058e7f15c1e4faea0be6d7706ea11905d5fdbc8081548",
     "verify-local.mjs": "9868b2c86fefb6958cdc74cbde41b0419092b099f96bad8f4439efe2831b2034"
+  },
+  "retention": {
+    "kind": "PUBLIC curated index; raw attempt records are private, not filtered copies",
+    "privateDirectory": "/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed345-private-native-evidence-grmjfvsh/native-probe-run",
+    "originalRecordSha256": "f81833263cfec2558c7b408e1d98e4e8562be346fd8955185e7587ddde23ac71",
+    "privateIndexSha256": "46117681ed82977b6fa9733d73a0b234e478957452c52d5f933eb5e04a0f36ec",
+    "privateRule": "All original artifacts except publicFiles; original hashes above are unchanged",
+    "publicFiles": [
+      "record.json",
+      "consumer-trace.md.gz",
+      "verify-local.mjs"
+    ]
   }
 }

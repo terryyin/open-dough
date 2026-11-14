@@ -38,6 +38,9 @@ Write this execution's context to a private input JSON file. Supply:
   signal exists, omit `signalFile`, `observed` and `check`; enrollment exposes
   the missing evidence rather than guessing a reset.
 - `continuation`: `host: "codex"`, exact `threadId`, and `endpoint`.
+  For the retained/manual fallback on Cursor or Claude Code, use the actual
+  `host: "cursor"` or `host: "claude"` and omit unavailable native handles.
+  Keep the full execution context and name the manual recovery and its owner below.
 - `nextObservation`: responsible `owner` and exact `recovery` instructions.
   Supply `recoveryCommand`, an executable argument array, for an established
   manual host continuation. Without one, the receipt names this hold's `recover`
