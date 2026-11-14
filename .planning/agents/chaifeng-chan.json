@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-346#reuse-native-comparison-baselines",
+  "mode": "story-branch",
+  "branch": "codex/save-and-reuse-native-a-b-baselines",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
