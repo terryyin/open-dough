@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "DavidKo-chan",
+  "email": "davidko-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-358#reconstruct-codex-and-claude-code-usage-history",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
