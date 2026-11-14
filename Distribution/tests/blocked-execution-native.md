@@ -46,3 +46,9 @@ proof reference or inline value is checked against the original caller proof
 artifact. Its original path/hash and unchanged bytes are retained. Keep only
 curated source, outcome, cost, and limits in tracked records. Preserve private
 attempt data and source hashes for recovery without publishing raw sessions.
+
+Confirm actual required workflow returns, including independent refactoring.
+The saved reader and accounting cover admitted native thread IDs. Host
+collaboration can expose opaque task names separately in saved public tool
+results; inspect their actual final returns. Unavailable worker counters and
+settings remain unknown even when accounting is complete for admitted native IDs.

@@ -190,10 +190,10 @@ The statement that this is the first efficiency story, because supplier pause ca
 | C39 | Local proof does not manufacture a CI completion receipt. | slice 3 | observed: blocked-execution-attention.test.mjs CI loss retains full outstanding SHA/repo/target/observer/managed-recovery context and unchanged terminal bytes; existing execution-completion-recovery and guidance suites pass; no new CI receipt or observer operation |
 | C40 | At the applicable completion boundary, a known ended observer follows SEED-343’s managed recovery. | slice 3 | observed: blocked-execution-attention.test.mjs CI loss retains full outstanding SHA/repo/target/observer/managed-recovery context and unchanged terminal bytes; existing execution-completion-recovery and guidance suites pass; no new CI receipt or observer operation |
 | C41 | Provide initial comparative proof in Codex. | slice 4 |  |
-| C42 | Provide shared guidance for Codex. | slice 4 |  |
-| C43 | Provide shared guidance for Cursor. | slice 4 |  |
-| C44 | Provide shared guidance for Claude Code. | slice 4 |  |
-| C45 | State explicit evidence limits for the different adapters. | slice 4 |  |
+| C42 | Provide shared guidance for Codex. | slice 4 | observed: Shared blocked-execution guidance and actual installed Codex hold/attention/recovery/qualification: slice4-native-acceptance.md; required independent refactor returned. |
+| C43 | Provide shared guidance for Cursor. | slice 4 | observed: Representative Cursor retained/manual fallback in blocked-execution.md and slice3-assessment.md; no automatic Cursor binding claimed. |
+| C44 | Provide shared guidance for Claude Code. | slice 4 | observed: Representative Claude retained/manual fallback and documented reset-evidence limits in blocked-execution.md/slice3-assessment.md; no real quota/reset induced or automatic binding claimed. |
+| C45 | State explicit evidence limits for the different adapters. | slice 4 | observed: Guide and slice4-native-acceptance.md bound live-daemon lifetime, manual recovery, native-ID counters and opaque host-worker unknowns. |
 | C46 | Investigate usage-limit reset observability. | slice 3 | observed: slice3-assessment.md usage observability investigation: official interactive-mode/statusline documentation, bounded read-only findings and explicit absence of a current observed reset for the audited executions |
 | C47 | Specific supplier need: When the consumer reaches its supplier blocker, retain the exact supplier outcome it needs. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
 | C48 | Supported yield or attention: Yield through a supported facility **or** report the missing facility. | slice 2 | observed: slice2-assessment.md#proof-index; first lifecycle unchanged/unproved/qualified evidence and same-worker rearm assertions; slice2-native-run actual same-thread accepted/completed records, matching native settings, independent report and zero extra replay turn |
@@ -236,14 +236,14 @@ The statement that this is the first efficiency story, because supplier pause ca
 | Q17 | Switching models grants no new authority. | slice 3 | observed: blocked-execution-usage.test.mjs: six controlled hours and model/purchase offers produce no input; missing-reset receipts retain owner/proof and execute project-owned manual fallback; evidenced fixture reset permits one same-authority reassessment, with real-host limits explicit |
 | Q18 | Buying credits grants no new authority. | slice 3 | observed: blocked-execution-usage.test.mjs: six controlled hours and model/purchase offers produce no input; missing-reset receipts retain owner/proof and execute project-owned manual fallback; evidenced fixture reset permits one same-authority reassessment, with real-host limits explicit |
 | Q19 | Do not infer native feasibility. | slice 1 | observed: native-probe-assessment.md; native-probe-run/native-acceptance.json, held/resumed native history and matching settings; actual completed same-thread turn, feasibility only |
-| Q20 | Do not infer comparative improvement. | slice 4 |  |
-| Q21 | Comparative evaluation continues to preserve the applicable CI receipt rules. | slice 4 |  |
-| Q22 | Comparative evaluation continues to preserve overdue liveness rules. | slice 4 |  |
-| Q23 | The listed scope limits do not become rejection rules for cases a simple solution naturally supports. | slice 4 |  |
-| X01 | Reducing the cost of waiting for a running verification command belongs to the sibling long-verification story. | slice 4 |  |
-| X02 | Automatic recovery after host/session exit is not a delivery commitment. | slice 4 |  |
-| X03 | Automatic recovery after quota resets is not a delivery commitment. | slice 4 |  |
-| X04 | Release/rollout is not a delivery commitment. | slice 4 |  |
-| X05 | The general effort-accounting tool is not a delivery commitment. | slice 4 |  |
-| X06 | Context compaction is not a delivery commitment. | slice 4 |  |
-| X07 | A general background job scheduler is not a delivery commitment. | slice 4 |  |
+| Q20 | Do not infer comparative improvement. | slice 4 | observed: slice4-assessment.md and slice4-native-acceptance.md retain incomplete baselines, unknown all-worker cost/idle and no comparative improvement claim. |
+| Q21 | Comparative evaluation continues to preserve the applicable CI receipt rules. | slice 4 | observed: No fixture commit/publication/CI receipt authorized or fabricated; execution branch CI succeeded on2537e0e96, run43581407553 attempt1; receipt/recovery semantics unchanged. |
+| Q22 | Comparative evaluation continues to preserve overdue liveness rules. | slice 4 | observed: Native/controller commands reached actual terminal results; verification stayed with its owner and overdue policy, with no test timeout or sleep waiver. |
+| Q23 | The listed scope limits do not become rejection rules for cases a simple solution naturally supports. | slice 4 | observed: Native owner live rearm was accepted as supported behavior; assessor was corrected instead of rejecting that naturally handled case. |
+| X01 | Reducing the cost of waiting for a running verification command belongs to the sibling long-verification story. | slice 4 | observed: No running-verification efficiency change; existing liveness/ownership policy retained. |
+| X02 | Automatic recovery after host/session exit is not a delivery commitment. | slice 4 | observed: No automatic host/session-exit recovery added; explicit retained owner recovery used on the same live daemon/thread. |
+| X03 | Automatic recovery after quota resets is not a delivery commitment. | slice 4 | observed: No automatic quota-reset recovery or guessed reset; missing-signal/manual fallback retained. |
+| X04 | Release/rollout is not a delivery commitment. | slice 4 | observed: No release/rollout performed or promised. |
+| X05 | The general effort-accounting tool is not a delivery commitment. | slice 4 | observed: General comparison/accounting stays with SEED346; this bounded native example discloses opaque worker counters/settings as unknown. |
+| X06 | Context compaction is not a delivery commitment. | slice 4 | observed: No context compaction change. |
+| X07 | A general background job scheduler is not a delivery commitment. | slice 4 | observed: One execution-owned non-model observer, no general background scheduler. |

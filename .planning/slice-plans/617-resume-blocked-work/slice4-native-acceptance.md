@@ -1,6 +1,6 @@
 # Slice 4 native attention and retained-recovery evidence
 
-Status: **frozen assay incomplete**. Actual initial and attention turns completed
+Status: **frozen assay incomplete**; the separate remaining observation below completed normally. Actual initial and attention turns completed
 normally. A legitimate native owner rearm archived the attention acceptance, so
 the assessor's current-generation gate missed it. Recovery, qualifying evidence,
 replay and final report were not attempted. No comparison or savings claim.
@@ -117,7 +117,7 @@ plus this case passed the maintained focused wrapper; syntax/trace below renewed
 Pure offline observation of the saved real native history recognizes7a2544f2 /
 01a1d959 normally completed. This does not relabel the old frozen assay as passed.
 
-Proposed one-off private retained-project diagnostic, **not authorized to run**:
+Historical pre-release proposal (separate execution authority was subsequently supplied below):
 
 1. Reuse exact project/hold/thread/endpoint/proof/settings; read saved initial and
    attention facts. Reuse InvoiceNativeObservation, completedInvoiceAttention,
@@ -148,3 +148,87 @@ were reused. [Installed-script trace](slice4-attention-assessor-refactor-trace.m
 retains every disposition. Syntax/whitespace passed; no native call. Outcome:
 `## REFACTOR COMPLETE`, about five active minutes. Root accepted G6 attention and
 C01/C04 facts separately; G3 qualification/comparison and final proof remain open.
+
+## Separate authorized remaining observation — normal completion
+
+Root prospectively released the reviewed private one-off after the old assay ended;
+original cutoff09:46:29Z was not relabeled or extended mid-run. New absolute
+remaining deadline09:56:27Z; observed5M total/40k output guard includes the original
+14 responses. Script SHA256 f3052487ea00b4a31c0b98552fa120f8a8785b6ad1ac2be41d6e2aa22678dd49.
+Harness2537e0e962486a00e618933822dcd072d4854243; subject remains exact0bc.
+Fresh admission17:41+08: AC100%, no Sleep/Wake, natural load4.55/4.59/4.50,
+about2.64GB free/11.80GB inactive; no owned competing heavy proof. Literal command:
+
+```sh
+PATH=/opt/homebrew/bin:$PATH caffeinate -s -i node /tmp/seed345-functional-attention-20261114-1716/continue-retained-attention.mjs 2026-11-14T09:56:27Z
+```
+
+Terminal45412 exit0. Exact insufficient9a17cb9b artifact restored; exact retained
+recover argv executed once and returned held without new native input. Qualifying
+and replay events then used the same live handler. New continuation
+`01a1d96f-663a-75b2-a52b-f2c1efb20320` completed normally at1794649505,
+186742ms. Exact root history now has the two earlier completed turns plus this
+one completed continuation, with no duplicate root writer or additional assignment.
+Worker77308 ended; all controller commands reached close/terminal. No API/model
+call was added after diagnostic completion.
+
+| Actual native proof in the new continuation | Status |
+| --- | --- |
+| `node check-supplier.mjs` | completed exit0; satisfied true, synthetic approved tax rule R8 |
+| `node verify-local.mjs` | completed exit0; accepted partial invoice passes |
+| `node verify-report.mjs` | completed exit0; invoice report and supplier provenance pass |
+
+External diagnostic verifiers also passed. Report: subtotal125, taxRate.08,
+taxAmount10, total135, currencySGD, supplierEvidence synthetic approved tax rule R8.
+Native public final says both verifiers passed, accepted work/evidence/verifiers
+unchanged, nothing committed/published, QUICK EXECUTION COMPLETE. All four protected
+hashes, all376 installed managed hashes and HEAD208915ea remain unchanged. Caller
+proof SHA0be2e20e above still matches; actual final held array has the same two
+entries, first exactly matches original command/result/revision/stdout/stderr/
+protected hashes and canonical source. Before/after coordinator settings match.
+Current generation8aef9fd7 has phasecontinued and the exact completed acceptance.
+Replay processedSignalEvent=true while workerEnded=false; processedFingerprint=false
+is retained separately. This is a real handler acknowledgment, not only a written
+file or ended-worker inference. Owner recovery interventions1; no zero-intervention
+or C66 comparative claim. Initial/attention facts are reused, not rerun.
+
+### Actual independent returns and accounting limit
+
+Saved public function_call/agent_message records prove two host workers:
+`/root/invoice_source_review` (fork none) returned FINAL_ANSWER with extracted source
+obligations; `/root/invoice_refactor_review` (fork all) returned FINAL_ANSWER,
+“none — already clean”, no files changed, no uncovered affected consumer,
+proof reused because report/inputs/assertions unchanged, tests skipped because
+no refactor edits, REFACTOR COMPLETE, about2 active minutes. Both returns preceded
+normal coordinator completion. Earlier inspection of appserver command items alone
+missed these returns; that initial no-reviewer/missing-disposition judgment is
+superseded by the actual saved public worker messages.
+
+These host task names are not native appserver thread IDs. Native appserver history
+and the final shared reader show only the coordinator; they do not establish the
+host workers' models/settings/requests/tokens or underlying command histories.
+Those counters/settings remain unknown. The original raw diagnostic result is
+untouched; this PUBLIC derived record corrects its narrower ancestry/accounting scope.
+
+Exact coordinator total26 requests/1884996 tokens:1871496 input/1788928 cached,
+13500 output/5590 reasoning output. New continuation12 requests/1125343 tokens;
+prior initial/attention14/759653 reused. Coordinator observed guard passed;
+combined cost/guard coverage including the two host workers is unknown. No zero
+worker-cost inference. One coordinator response window21 lacks public output:
+0 observed idle-only,1 unclassified, exact overall idle unknown; host purpose/cost
+also unmeasured. Known Slice4 coordinator observations now106 requests/7548006 tokens,
+including prior80/5663010 failed cost. Whole execution/implementation cost unknown.
+
+The [PUBLIC index](slice4-native-acceptance/record.json) adds safe derived facts,
+new12 usage rows, exact private artifact hashes, approved protocol, filtered native
+settings and one-off source archive. Raw sessions/accounts/reasoning remain private.
+Protected proof, actual native attention/recovery/qualification, independent return
+and correct completion now have combined functional evidence accepted by root
+after actual proof/return/settings/hash review; matched comparison/C65/C68 remain unresolved.
+No more native/API/code/tests/tooling work follows this record.
+
+Root guide clarification stays within the accepted projection-refactor paths and
+trace: admitted native-ID counters do not cover opaque host workers. This is an
+already-traced evidence-limit clarification, adding no helper/dependency/path;
+existing native/unit/hosted proof is reused. External evaluation of the published
+functional evidence and original comparison criterion remains the receiving gate.

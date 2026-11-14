@@ -52,8 +52,124 @@
   "publicArtifacts": {
     "native-session-settings.json.gz": "2021c5498a7d16e193133c6912fd85cb04ad425c383f3d8ced45e9368bd9178a",
     "frozen-evaluator.json.gz": "810bd56398f35d0925d6f5255929fee59a3584b696623a0a2b61ca4979e61baf",
-    "usage-records.jsonl.gz": "5cce7a2f07aa1629733e74dc27554e405e993b2dc98095ef2ed1e0c7886180e5"
+    "usage-records.jsonl.gz": "5cce7a2f07aa1629733e74dc27554e405e993b2dc98095ef2ed1e0c7886180e5",
+    "remaining-diagnostic-source.mjs.gz": "1fe95d6165db258ecd8b4167ab194804c18c1ee891f36dda0b9c0cc462a65b48",
+    "remaining-usage-records.jsonl.gz": "d8fbfee9ee9dabaadfbdf8d101a6499df3fe23682ff2755aba86f1781416edb9",
+    "remaining-protocol.json.gz": "2446ee75d07cdc8be224edf6d0b0bb8edf8dd7a607fe7211397bcf336c5f14cb",
+    "remaining-native-session-settings.json.gz": "c0f837671a83fce2ffb4dad233062bc4d3b8dbfec32627aee75efe20916c4c1f"
   },
   "evaluatorControllerStops": 1,
-  "nativeTurnInterruptions": 0
+  "nativeTurnInterruptions": 0,
+  "remainingObservation": {
+    "result": "normal same-thread qualification completion; root semantic/full-workflow QA pending",
+    "harnessRevision": "2537e0e962486a00e618933822dcd072d4854243",
+    "privateDirectory": "/tmp/seed345-functional-attention-20261114-1716/retained-recovery-diagnostic",
+    "scriptSha256": "f3052487ea00b4a31c0b98552fa120f8a8785b6ad1ac2be41d6e2aa22678dd49",
+    "deadline": "2026-11-14T09:56:27Z",
+    "newRequests": 12,
+    "newTokens": 1125343,
+    "ownerRecoveryCommands": 1,
+    "turns": [
+      {
+        "id": "01a1d958-174a-7ac3-9cfa-9c0b8c584c62",
+        "status": "completed",
+        "durationMs": 109451,
+        "completedAt": 1794647900
+      },
+      {
+        "id": "01a1d959-c473-7eb1-a3a5-c9d5c25691b7",
+        "status": "completed",
+        "durationMs": 96132,
+        "completedAt": 1794647997
+      },
+      {
+        "id": "01a1d96f-663a-75b2-a52b-f2c1efb20320",
+        "status": "completed",
+        "durationMs": 186742,
+        "completedAt": 1794649505
+      }
+    ],
+    "nativeProof": {
+      "verify-local.mjs": {
+        "command": "node verify-local.mjs",
+        "status": "completed",
+        "exitCode": 0,
+        "stdout": "accepted partial invoice passes\n"
+      },
+      "verify-report.mjs": {
+        "command": "node verify-report.mjs",
+        "status": "completed",
+        "exitCode": 0,
+        "stdout": "invoice report and supplier provenance pass\n"
+      }
+    },
+    "protectedAnd376ManagedFilesUnchanged": true,
+    "originalProofSha256": "0be2e20e2cd9186395937b9edb8ef32e26df1e8a30080e8e395baf4b9fee0b8b",
+    "retainedFirstEntryMatchesOriginal": true,
+    "settingsUnchanged": true,
+    "workerEnded": true,
+    "replay": {
+      "digest": "bb3b2091cf127137066261386e22a224a425daba896e42263851619c5e4ebe0b",
+      "processedSignalEvent": true,
+      "processedFingerprint": false,
+      "signalEventsBefore": 2,
+      "signalEventsAfter": 3,
+      "workerEnded": false
+    },
+    "refactorLimit": "Announced independent review and read its skill; coordinator ran trace/diff/protected-field review. No spawned reviewer or explicit artifact-only/records-only/already-traced disposition observed.",
+    "privateArtifactHashes": {
+      "result.json": "6b2c8006841d357a62566abab2199d08361d199437e424461d61eae29e0b4e02",
+      "final-history.json": "d9aed296f9399c91922b4d536e2e9f94789133fef6baf3459422fd286598665d",
+      "native-completed.json": "49fa91864a4b3d27f6c23c1bd4258cf5209176c2961df6a8f99fed38d7dc6dc3",
+      "native-accepted.json": "170e9124f9c24039f54d2689adb2cd3afbade64c8f313a045e0d225c87642d72",
+      "owner-recovery-attempt.json": "fe2a5d9161723caebbd444fab5604a2895dfab249e26bc8ba1e76936963e943c",
+      "owner-recovery-result.json": "345e35f2dcb513f93ccfd797c3d1f09695e6dbe90c8779bc4e1b0e5d25a32f48",
+      "replay-observation.json": "32f95e35f90d1be585212454b473c9444d898036d894d845fff52b35f79a567d",
+      "public-final-qualification.txt": "be2cd38d0c1dff1b0fb7be5a6cbbec18d46c4fd988bd0faae9859b7c94afbdc2",
+      "final-quality-audit.json": "03454905dedfdc117e405b3e8f530cbc8c8abad0b27925b6fc61d3cbcfde517b",
+      "owned-controller-commands.json": "b0e206cd47532ba64a91db13621d73d5b279b3a0444e25ea1c7ef72a08cabd59",
+      "public-source-review.txt": "41bff5c3750a2d491c0f703ce657795a46c56336384f33a7f51bccb296d0a2e0",
+      "public-refactor-review.txt": "64ab26604ec2f3af74787f5be47e474cbf09b9bf730b82cc6cc3d166c9b31714"
+    },
+    "coordinatorRequests": 26,
+    "coordinatorUsage": {
+      "input_tokens": 1871496,
+      "cached_input_tokens": 1788928,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 13500,
+      "reasoning_output_tokens": 5590,
+      "total_tokens": 1884996
+    },
+    "aggregateRequestsIncludingHostWorkers": null,
+    "aggregateTokensIncludingHostWorkers": null,
+    "nativeAppserverDescendants": 0,
+    "hostWorkers": [
+      {
+        "taskName": "/root/invoice_source_review",
+        "status": "FINAL_ANSWER",
+        "receivedAt": 1794649403.398419,
+        "nativeThreadId": null,
+        "requests": null,
+        "tokens": null,
+        "settings": null
+      },
+      {
+        "taskName": "/root/invoice_refactor_review",
+        "status": "FINAL_ANSWER",
+        "receivedAt": 1794649487.625368,
+        "nativeThreadId": null,
+        "requests": null,
+        "tokens": null,
+        "settings": null
+      }
+    ],
+    "refactorDisposition": "Independent host refactor worker returned none \u2014 already clean, no files changed, reused applicable proofs, no uncovered consumer, tests skipped because no edits, REFACTOR COMPLETE, approximately2minutes.",
+    "accountingLimit": "Exact coordinator/native-appserver scope26responses; host function_call workers are not native collabAgentToolCall descendants and their per-response usage/settings are unavailable.5M/40k observed guard passed for coordinator; all-worker aggregate guard coverage unknown.",
+    "idlePurpose": {
+      "observedIdleOnlyResponses": 0,
+      "unclassifiedResponses": 1,
+      "exactOverallIdleCount": null,
+      "limit": "Coordinator saved public response windows only; host-worker purpose/counters unobserved"
+    }
+  }
 }

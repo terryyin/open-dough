@@ -1,9 +1,9 @@
 # Slice 4 native workflow evidence
 
-Status: **incomplete**. The new after-yield baseline reached a correct report and
-passing native proof but hit its approved token guard before independent review /
-normal continuation completion. Candidate and G6 were not launched. There is no
-completed matched comparison, C65 savings or C68 improvement claim.
+Status: **comparison incomplete**. The after-yield baseline reached a correct
+report/proof but stopped at its token guard before independent review/completion.
+Later [functional evidence](slice4-native-acceptance.md) proves native attention,
+recovery and qualification; no completed matched comparison, C65 savings or C68 gain.
 
 ## Immutable sources and distinct protocols
 

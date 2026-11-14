@@ -189,7 +189,7 @@ findings. No full host-by-scenario matrix is required.
   Main `55da0eecf` brings SEED-346's comparison/session tools: [Slice 4's trace](slice4-consumer-trace.md)
   reconciles their reuse; full-workflow comparison and native attention remain open.
 - Slice 3 refactoring is complete; assessments retain all proof and identities.
-- [Slice 4 assessment](slice4-assessment.md) records incomplete native comparisons; progress publication keeps Slice 4 planned while CI tests the new observer/FS counterexamples.
+- [Native functional proof](slice4-native-acceptance.md) now covers actual hold, attention, owner recovery, one qualification/replay and independent review; branch CI2537/run43581407553 attempt1 passed. Slice 4 remains planned, awaiting developer judgment on the original comparative criterion (C41/C63-C66/C68); no further baseline retry is authorized by silence.
 
 ## Execution context
 
@@ -203,7 +203,7 @@ findings. No full host-by-scenario matrix is required.
 - Start `3458a36c6393683827f5ba0e9bd038dbfded8605`; Take
   `8f88bf2ca6d4e7fb7aabc704070be4c549397675` confirmed on trunk/branch; no second claim.
   Accepted: Slice 1 `58f1eb1ad8ef04cb59f8eb06a90881335d5ccec6`; Slice 2 `174c6d2b9a0ebb4989ad84cfb2a83e6d762c656b`; Slice 3 `2a01f9603a64a87f8b1ae646218efad16848d5e6`.
-  Latest accepted base `fcb358a645bd3b2e762c19515541a3d81b44763c` integrates main55da (suffix `0bc39b172c9a99bf8b627c0a1d527e3c8983ee61`), registered on the same observer.
+  Latest accepted base `2537e0e962486a00e618933822dcd072d4854243` integrates main55da (suffix `fcb358a645bd3b2e762c19515541a3d81b44763c`), registered on the same observer.
 - Setup: locked `npm ci` and dashboard typecheck passed here; `.githooks/pre-commit`
   owns staged lint/script typecheck and `npm run format` owns selective formatting.
   Assessments retain prior admission/costs; reconsider headroom before long proof.
