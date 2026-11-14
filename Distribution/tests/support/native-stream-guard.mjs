@@ -1,6 +1,6 @@
 // Guard: host stream shapes are parsed only by the shared reader
-// (native-host-stream.mjs and its adapters). Every shell or JavaScript file
-// under tests/ and scripts/ that contains a host-event literal must be the
+// (native-host-stream.mjs and its stream/saved-session adapters). Every shell
+// or JavaScript file under tests/ and scripts/ holding a host-event literal must be the
 // reader or a listed shape writer; any other file fails, named with the
 // literal it holds. A listed file that is absent or holds no literal fails
 // too, so the list stays exact.
@@ -36,11 +36,16 @@ const literals = [
 const reader = new Set([
   "Distribution/tests/support/native-host-stream.mjs",
   "Distribution/tests/support/native-host-stream-adapters.mjs",
+  "Distribution/tests/support/native-host-stream-codex-session.mjs",
 ]);
 
 // Files allowed to hold literals because they write host shapes rather than
 // read them. Each reason says what the file writes.
 const shapeWriters = new Map([
+  [
+    "Distribution/tests/support/native-codex-owned-proof.test.mjs",
+    "writes Codex saved-session ownership and delegated command receipts for the shared reader",
+  ],
   [
     "Distribution/tests/support/delivery-evidence-aggregate-native-checks.sh",
     "builds Claude prose, started command and result shapes for reader checks",

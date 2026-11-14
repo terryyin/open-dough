@@ -1,0 +1,99 @@
+comparison: paused-supplier
+declared-at: 2026-11-14T10:27:44Z
+factor: Blocked-execution payload guidance/runtime and required RPC plumbing only
+intended-gain: Preserve outcome and decisive proof with fewer observed model requests and tokens, especially during unchanged and nonqualifying wakes
+quality-criteria: Both native case assessments pass with matched host/settings/events; unknown worker usage remains unknown; equal imposed wake counts cannot establish avoided-wake savings
+case-basis-revision: 764c4e0fe0ce9f478750323de6a9f30c76a7e61a
+baseline-payload: 91f32d39061d16793a190c5d9d9f2a6b26534fc7 tree=46c117324d094abe15250bfefb3eaaeafe499492 requested=91f32d39061d16793a190c5d9d9f2a6b26534fc7
+candidate-payload: 764c4e0fe0ce9f478750323de6a9f30c76a7e61a tree=59e70b640d7d83421468f63a3715626abb19588e requested=764c4e0fe0ce9f478750323de6a9f30c76a7e61a
+host: codex
+requested-settings: -m gpt-6.1-sol -c model_reasoning_effort="xhigh"
+arms: concurrent
+machine: Darwin arm64, 16 cores, AC Power
+case-input-hash: debd2cd601bdc8ea425faf04b50dd0049c5256a9a4ab14b318e3d902921265d7 Distribution/tests/native-comparison/paused-supplier/assess.bash
+case-input-hash: 2fabddc675e3d15f3a9a4762a2b639968c0c36059201c7cef9657da4e7b18cf1 Distribution/tests/native-comparison/paused-supplier/basis/.planning/PRODUCT-BACKLOG.md
+case-input-hash: 5dcc068af65164f84e7ca29a9e31cae1b5e074e2decd537072c4b8ce79ddab14 Distribution/tests/native-comparison/paused-supplier/basis/.planning/agents/darren-chan.json
+case-input-hash: 93c9d043daab2a71d28dc633a934f278ebfa0613fa347564d1506ef42111653a Distribution/tests/native-comparison/paused-supplier/basis/.planning/agents/philip-chan.json
+case-input-hash: 51f16c1ef656352385cc4cb6deb62ef2ff55f6a5f88c1350203550aa3b12c3b0 Distribution/tests/native-comparison/paused-supplier/basis/.planning/seeds/SEED-324-landed-ci-repeat-checks.md
+case-input-hash: 9c39a6a87abaf8def280c0cec8b4e749efa5d50fc73c52b4d9471d528d6fc68e Distribution/tests/native-comparison/paused-supplier/basis/.planning/seeds/SEED-332-answer-fake-gh-in-process.md
+case-input-hash: 3dc4e00eb8c0c4440066e51bf8e63075b8aebb39a638a29a84f257bb606c5ae3 Distribution/tests/native-comparison/paused-supplier/basis/.planning/slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md
+case-input-hash: 8c1bfcb1d5a5de88165ff1ebc81515263cd3b7d7451203b8ef37ac1e217b3906 Distribution/tests/native-comparison/paused-supplier/basis/.planning/slice-plans/610-answer-fake-gh-reads-in-process/PLAN.md
+case-input-hash: b1300f7067d63283d1e224ed0427a69c92a25a79300c2c905050ad23c9f03012 Distribution/tests/native-comparison/paused-supplier/basis/AGENTS.md
+case-input-hash: bf04836d48c46b9e3b4c0e8e6496e7261deb3aca3ccab1ce3e25f7964c25b1e1 Distribution/tests/native-comparison/paused-supplier/basis/package.json
+case-input-hash: 052eda5969690ccf46a4dd72b34bc5f133a6422f2581d2113e53681cfa6b85b2 Distribution/tests/native-comparison/paused-supplier/basis/src/fake-gh.mjs
+case-input-hash: 623346bf36d2d2f97e0e1376b7dd5d51dca2693658760c513e2b27c378103417 Distribution/tests/native-comparison/paused-supplier/basis/src/repeat-checks.mjs
+case-input-hash: 43d20e1e07822841e612c465e1bf6a24e1ea618e0f2e3c5c9067a59e19dabae4 Distribution/tests/native-comparison/paused-supplier/basis/tests/repeat-checks.test.mjs
+case-input-hash: 4aee26c648f88dab7fdd692d1f1e3f5f4fea60c46b03e621887b6d8a7dafe055 Distribution/tests/native-comparison/paused-supplier/case.bash
+case-input-hash: 871372ed7a73728fc3d034ed9507572fd9882d57fd7bd75dfcc014c90864e677 Distribution/tests/native-comparison/paused-supplier/completed/.planning/PRODUCT-BACKLOG.md
+case-input-hash: d2997061570174f24eb7047ffd18129cae15b3a18f087101ca80a622f9a53c76 Distribution/tests/native-comparison/paused-supplier/completed/.planning/done/SEED-332_answer-fake-gh-reads-in-process.json
+case-input-hash: ff2c9f6c441f5ab7d10fa365bda9bbda01482d93392df46910439e69092b8ad4 Distribution/tests/native-comparison/paused-supplier/completed/.planning/slice-plans/610-answer-fake-gh-reads-in-process/PLAN.md
+case-input-hash: 363bdccf677665bb48f0ee96e5ce357990adbbca0c13cef6730dca15da6cb092 Distribution/tests/native-comparison/paused-supplier/completed/.planning/slice-plans/610-answer-fake-gh-reads-in-process/evidence.md
+case-input-hash: 018a0739e8274d899c9b233dd3f7a2b00860abd0b6d75f4980f14bc7cbe6f284 Distribution/tests/native-comparison/paused-supplier/completed/src/fake-gh.mjs
+case-input-hash: 87837da13d735ed366014a137a65825a51b120d14719329abdfcf1bd47f90486 Distribution/tests/native-comparison/paused-supplier/delivered/.planning/slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md
+case-input-hash: ff8a78d4d5545f8fad91b66ed15548b7511494b929947433f09f56e0016369b5 Distribution/tests/native-comparison/paused-supplier/delivered/src/repeat-checks.mjs
+case-input-hash: 2359bdb7ff676fe88e6e28f495dd20021e3aa4c7cfd1208d38b774644148822c Distribution/tests/native-comparison/paused-supplier/delivered/tests/repeat-checks.test.mjs
+case-input-hash: ea4328d00c31da581e489feec406625ff2a340a84021a9298ec87923255d8ebc Distribution/tests/native-comparison/paused-supplier/partial/tests/repeat-checks.test.mjs
+case-input-hash: 7ca8c766749d188bbc5d152014fe86d923507f6c5b4f3ccb66d3f7416f28d309 Distribution/tests/native-comparison/paused-supplier/partial/tests/repeat-receipt-stage.test.mjs
+case-input-hash: 580b890dc387f0e024559986c50ea1b37ccb2aa26d3c2cef00c8cf030ef0a487 Distribution/tests/native-comparison/paused-supplier/partial/tests/repeat-request-stage.test.mjs
+case-input-hash: 139ec12b4a3aca950335aba1ef03d687fb8609b51f5949135e86c1c1378c8b95 Distribution/tests/native-comparison/paused-supplier/partial/tests/support/repeat-fixture.mjs
+case-input-hash: 1690825de7efdcaf25be94b4ea9238c9f8eaf8f04c2121ef578b60d6bd88dfed Distribution/tests/native-comparison/paused-supplier/published/.planning/slice-plans/610-answer-fake-gh-reads-in-process/evidence.md
+case-input-hash: 37785b2558a1984350df275e8b4dfb50d2521b204e4e5a8637b7406bc8830b9f Distribution/tests/native-comparison/paused-supplier/supplier/.planning/slice-plans/610-answer-fake-gh-reads-in-process/evidence.md
+case-input-hash: e71dc5d9adae0d66d6efde70f710d260f15c8491cfb57064cb80f5adc830304d Distribution/tests/native-comparison/paused-supplier/supplier/src/fake-gh.mjs
+case-input-hash: a7344975afa6c97888320f5d935ee3b8f27433605e6fd72357d489712cb6fd51 Distribution/tests/native-comparison/paused-supplier/task.txt
+case-input-hash: ec74acf0c9bb9b54e9eb47dcc948b6e4240e4011fbe86dc39dbf51f5d937d1d2 Distribution/tests/native-comparison/paused-supplier/wake.txt
+case-input-hash: 890325143046fedb12df73a3ec0003c46b843876fc0a78d26a99b9e0caa4c023 Distribution/tests/support/native-comparison-run.sh
+case-input-hash: 5275e998d4c407c288bb1f25579ec312e68daa9e9119ff0c6aa428c831141b70 Distribution/tests/support/native-comparison-retain.sh
+case-input-hash: 1b347925289eaa85db9765dc83f3a1c01fc93ffba106ad9f07380d3a8afd472a Distribution/tests/support/native-codex.sh
+case-input-hash: 292c1dc8ef490aa72362c12bac3626fbdc2ddea6f95652c97d05652bdde89639 Distribution/tests/support/native-codex-session.mjs
+case-input-hash: 5689956a7e4d50b44da26bf930a30b136e1a226aa9d51b24cbe84f2506cb68c1 Distribution/tests/support/native-observation.sh
+case-input-hash: 84a5ea0eac9e50b86a0991e24e4937d70b1ef2872165b622612eace5c606dd05 Distribution/tests/support/delivery-evidence-native-payload.sh
+case-input-hash: a48ebc2b3b65a90376ad3ac1d21f54ee9340211c97f0e3f21d443aacf1cd07e2 Distribution/tests/support/native-run-supervise.sh
+case-input-hash: 8ae3a23df39958f5016eea65fb6c56de8d37e3eeb6f8ef3972ea7c5f9de9e198 Distribution/tests/support/native-run-stream.sh
+case-input-hash: a06fcccee40171e0dea3c30f69bbbd82db0120d7bf4e30250c613d6fb4868507 Distribution/tests/support/native-host-stream.sh
+case-input-hash: 2e226087ffa237da372eb8d0c4725b8d5cc9f89228675145a8832c39691c0f3e Distribution/tests/support/native-host-stream.mjs
+case-input-hash: 4936d8da3f4cd5a90636223d98e70dd6c130dbe53b14a8be7f1e6d7a15131389 Distribution/tests/support/native-host-stream-adapters.mjs
+case-input-hash: 5aa63090425b955ed3c70f5a7beaafccf16459b23301676eabca7864d33a1858 Distribution/tests/support/native-run-watchdog.sh
+case-input-hash: 38f4ccdedbad94ed2b1b1377e2559cfe8728e756420e5d52944a37ae2e878e2d Distribution/tests/helpers/wait-for.bash
+case-input-hash: ad744bab2b326cc17204ea839fd30b9a49d651a414c6b82696d1c0381b9d38f5 scripts/owned-process-group.bash
+input-hash: a33393d45e499f38e167705609be2863a078c56ba129a5b5faf0e6c3acef0427 Distribution/tests/support/native-comparison-pair.sh
+input-hash: 33c0d72e431afaafe96a386f9f1ce2044489c22657e55c21bfc48509ccfd2409 Distribution/tests/support/native-comparison-pair-observe.sh
+input-hash: 6f56a573ce6c3806b504af51e60e47d06f670eef89a45f11e70b4fad746f6784 Distribution/tests/support/native-comparison-verdict.sh
+input-hash: d92348db8331093e2cb6f86d5b3e34043cf49971275b98692b0e4be84830caf9 Distribution/tests/support/native-comparison-basis.sh
+baseline-attempt: codex/native-comparison/paused-supplier/20261114T104754-7894
+baseline-thread: 01a1d999-5028-7910-a160-5652cb5acb90
+baseline-workers: 01a1d99e-07c8-7692-a79d-fe497f227927 01a1d9a3-07b2-7821-81c5-30345f62f6dc 01a1d9a8-5bb3-7bf0-94c9-f835321a419d
+baseline-payload-digest: 62e449df3d4282a179740fd970b3f4929f175df3726a8c8bd510dc80b4854d56
+baseline-project-basis: main=c89a4e47a209765463c6a8dceabe70d9c2b2372a supplier=39fe9b39a381ffe998b740f84bf2ed64aac3f6ee consumer=d3359a93dc8c8a0e991eedf3b2e509d3bedcf500 partial=1c996e75a5f6610c3f65eabfbb39747e7a17ad7d
+baseline-settings: model=gpt-6.1-sol effort=xhigh sandbox=danger-full-access approval=never
+baseline-host: codex-cli 0.169.0
+baseline-load: 4.21 4.30 4.20 to 3.81 4.69 5.03
+baseline-outcome: fail: turn 4 lacks slice 3's passing proof (independent passed, agent none)
+baseline-stopped: none
+baseline-proof: observations.txt final-state.txt
+candidate-attempt: codex/native-comparison/paused-supplier/20261114T105149-3486
+candidate-thread: 01a1d999-5028-7a53-8d27-53b4a625cfb4
+candidate-workers: 01a1d9a1-7576-79f0-b9b3-f4ccbfff736c 01a1d9a6-7f32-7881-a256-d3ef4f8ddd9e 01a1d9ab-5b54-7d01-afe5-67d80ac63c33
+candidate-payload-digest: 49ff72124653b0e2c3cd0d865d6d6e167b4523f2e220f572b8733d8a2c71c74e
+candidate-project-basis: main=c89a4e47a209765463c6a8dceabe70d9c2b2372a supplier=39fe9b39a381ffe998b740f84bf2ed64aac3f6ee consumer=d3359a93dc8c8a0e991eedf3b2e509d3bedcf500 partial=1c996e75a5f6610c3f65eabfbb39747e7a17ad7d
+candidate-settings: model=gpt-6.1-sol effort=xhigh sandbox=danger-full-access approval=never
+candidate-host: codex-cli 0.169.0
+candidate-load: 4.21 4.30 4.20 to 6.85 5.54 5.30
+candidate-outcome: pass: held through the diagnostic pass, an unchanged wake and an early publication; continued slice 3 once with passing proof after the supplier completed
+candidate-stopped: none
+candidate-proof: observations.txt final-state.txt
+evidence: native: both arms ran the codex runtime in the harness sandbox
+verdict: improved
+verdict-reason: the candidate passed its case assessment where the baseline failed
+condition-basis: same
+condition-project-basis: same
+condition-host: same
+condition-settings: same
+condition-events: same
+effort-baseline: 4 turns, 3 wakes (2 empty: 18 commands, 153.5 s), 131 commands, 1210.2 s with preparation 0.9 s, 3 workers, 0 recoveries, 0 interventions
+effort-candidate: 4 turns, 3 wakes (2 empty: 14 commands, 228.8 s), 79 commands, 1444.8 s with preparation 0.9 s, 3 workers, 0 recoveries, 0 interventions
+effort-difference: candidate -52 commands, +234.6 s against the baseline
+effort-standing: compared after an outcome the candidate kept; one pair supports this observation only, not a general saving
+effort-unavailable: tokens and cost: no reusable session accounting (SEED-345 effort comparison) is available here; raw usage stays in each attempt's events-turn-*.jsonl and codex-*.jsonl records
+measurement-limit: one pair of stochastic sessions supports its observed comparison only
+measurement-limit: wall-clock seconds include host load and service latency; see each arm's load
+measurement-limit: recoveries and interventions count what the runner did: it never retries a turn, and Codex exec runs without approval prompts

@@ -66,14 +66,20 @@ native_comparison_retain() {
   } > "${dest}/record"
 }
 
+# The authorized session root for this host route. A substitute reads records
+# only under explicit CODEX_HOME, never a developer's own.
+native_comparison_sessions_root() {
+  if [[ ${native_codex_isolate:-0} -eq 1 || -n ${CODEX_HOME-} ]]; then
+    printf '%s\n' "${CODEX_HOME:-${HOME}/.codex}/sessions"
+  fi
+}
+
 # Prints the thread's applied settings and worker sessions from the host's
 # session records, keeping copies of those records in DEST (they hold account
-# identities and stay local). A substitute host's records are read only
-# under CODEX_HOME, never a developer's own.
+# identities and stay local).
 native_comparison_retain_sessions() {
   local source_dir=$1 dest=$2 root thread file
-  root=${CODEX_HOME:-${HOME}/.codex}/sessions
-  [[ ${native_codex_isolate:-0} -eq 1 || -n ${CODEX_HOME-} ]] || root=
+  root=$(native_comparison_sessions_root)
   if [[ -z ${native_comparison_thread-} || -z ${root} ]] \
     || ! node "${source_dir}/Distribution/tests/support/native-codex-session.mjs" \
       "${native_comparison_thread}" "${root}" > "${dest}/codex-settings.txt"; then

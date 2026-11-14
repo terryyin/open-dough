@@ -74,8 +74,8 @@ claims: per turn the session's completion and thread, partial-work files
 supplier's `createFakeGhReader`, not rerouted around it), which supplier reader the checkout holds (absent, the supplier's diagnostic
 or completed version, or the consumer's own), slice 3's filing, the recorded
 dependency state, supplier integrations and slice 3 filings since the
-starting basis, an independent run of the project's proof, the agent's own
-last proof command, remote refs and harness inspection. It distinguishes the
+starting basis, an independent run of the project's proof, the execution's own
+last proof command, including a parent-verified current-turn worker receipt, remote refs and harness inspection. It distinguishes the
 diagnostic pass (turn 1), publication (turn 3) and satisfaction of the exact
 requirement (turn 4). Its rejected cases are in
 `Distribution/tests/native-comparison-paused-supplier.sh`.
@@ -132,3 +132,20 @@ events are unchanged. The record below ran the earlier case, recovered at
   preserved. The candidate used 59 commands against 69 and 1,216 s against
   1,150 s; its two empty wakes took 8 commands and 185 s against 7 and
   165 s. Each coordinator spawned three workers. Tokens are not counted.
+
+- [20261114T102744-1921](comparisons/20261114T102744-1921.txt), SEED-345:
+  baseline 91f32d3 vs candidate 764c4e0, blocked guidance/runtime only. Both held
+  through diagnostic/unchanged/early-publication events and continued once.
+  Original verdict improved because the coordinator-only observer missed the
+  baseline worker's passing proof; a separate owned-worker audit preserves the
+  original record and establishes matching passing outcomes.
+  [Token observations and conditional estimate](comparisons/20261114T102744-1921-tokens.md)
+  include coordinator plus three native workers per arm: 8,386,947 vs 13,434,290
+  processed tokens, with no measured saving in this forced-wake CLI case.
+  The case still forces four turns; it does not observe daemon wake elimination.
+
+- [Retained observer nonregression](comparisons/20261114T102744-1921-observer-ab.json):
+  after withdrawing SEED-345's resume implementation, replay the same saved
+  subjects through old and fixed proof observers. Correct delegated-proof
+  recognition; 21,821,237 tokens per variant, 0.00% difference. No fresh native
+  invocation; the observer runs after the model and changes no agent input.

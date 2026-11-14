@@ -1,6 +1,7 @@
 // The one reader of native host output streams (Claude, Codex, and Cursor
 // stream JSON, plain or gzipped). Host event shapes live only in its per-host
-// adapters (native-host-stream-adapters.mjs); callers get the started shell
+// adapters (native-host-stream-adapters.mjs and the saved-session adapter);
+// callers get the started shell
 // commands, their outputs, the agent's messages and final response, its other
 // tool calls, and the stream status. Shell callers use the CLI
 // (Distribution/tests/support/native-host-stream.sh wraps it):
@@ -20,6 +21,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
 import { adapters } from "./native-host-stream-adapters.mjs";
+
+// Saved Codex records carry ownership and delegated calls absent from CLI JSON.
+export { readCodexSession } from "./native-host-stream-codex-session.mjs";
 
 export const hosts = Object.keys(adapters);
 

@@ -1,0 +1,107 @@
+{
+  "basis": {
+    "kind": "controlled recorded-native-session A/B",
+    "factor": "paused-supplier coordinator-only proof observer versus verified owned-worker proof fallback",
+    "baseline": "main175fcbf3e65dbcb2c62fb766277036827fd04f49; observer byte-identical to283f1052",
+    "candidate": "withdrawn-runtime working tree; retained observer fix only",
+    "gain": "Recognize genuine delegated passing proof without changing subject input or usage",
+    "quality": "Saved baseline worker proof becomes passed; coordinator proof stays passed; original pair immutable; unrelated stale/foreign/failing receipts remain rejected by maintained tests",
+    "tokenGate": "Absolute total processed-token difference <= 3%, coordinator plus three explicitly identified native workers per saved arm, cached input disclosed",
+    "controls": "Reuse identical completed native records, commands, task/wake/fixture/event inputs; invoke read-only observer and unchanged assessor only; no native/model invocation; two historical subject executions, each replayed under BOTH observers",
+    "limit": "Causal post-run observer check; does not estimate variance between fresh stochastic native executions"
+  },
+  "originalPairSha256": "f568a2998474c1b97d4e96f6e10de223a83cf86f18347f8aa88cec758f78cd5a",
+  "sources": {
+    "A-case": "4aee26c648f88dab7fdd692d1f1e3f5f4fea60c46b03e621887b6d8a7dafe055",
+    "B-case": "18b4ceee4334f941dbab4377249a350eb337bc8ddbfa8945412d71d08b15d237",
+    "unchanged-assessor": "debd2cd601bdc8ea425faf04b50dd0049c5256a9a4ab14b318e3d902921265d7",
+    "native-host-stream.mjs": "07c4feb66c67a89d327f7ce58be5f16c41e10cf209f001de009cb7a89b3c3930",
+    "native-host-stream-codex-session.mjs": "cc411d58563cb7e91b06741460c8eaf67eac50e9340371143ec9d504426d41b7",
+    "native-stream-guard.mjs": "400d1f49275d818f8ef4bd8c3a85cd915f54ef7a008fe542743c420ad1ee16f9",
+    "native-run-supervise.sh": "c1527d61d9900d3fc8ce0bd50020b90d74d01be7746b0bf732310881243f7445",
+    "owned-proof.mjs": "5b91728210836306a29e35378101acbc8882237508cda1596fd72628a1103f7f"
+  },
+  "agentFacingPathsIdenticalToMain": [
+    "Distribution/src",
+    "src/install",
+    ".agents",
+    ".claude",
+    "dashboard/server",
+    "dashboard/tests/support",
+    "AGENTS.md",
+    "VERSION",
+    "CHANGELOG.md"
+  ],
+  "results": {
+    "baseline": {
+      "A": {
+        "observedProof": "none",
+        "assessment": "fail",
+        "modelRequests": 80,
+        "usage": {
+          "input_tokens": 8340724,
+          "cached_input_tokens": 8154112,
+          "output_tokens": 46223,
+          "total_tokens": 8386947
+        }
+      },
+      "B": {
+        "observedProof": "passed",
+        "assessment": "pass",
+        "modelRequests": 80,
+        "usage": {
+          "input_tokens": 8340724,
+          "cached_input_tokens": 8154112,
+          "output_tokens": 46223,
+          "total_tokens": 8386947
+        }
+      }
+    },
+    "candidate": {
+      "A": {
+        "observedProof": "passed",
+        "assessment": "pass",
+        "modelRequests": 94,
+        "usage": {
+          "input_tokens": 13382180,
+          "cached_input_tokens": 13146624,
+          "output_tokens": 52110,
+          "total_tokens": 13434290
+        }
+      },
+      "B": {
+        "observedProof": "passed",
+        "assessment": "pass",
+        "modelRequests": 94,
+        "usage": {
+          "input_tokens": 13382180,
+          "cached_input_tokens": 13146624,
+          "output_tokens": 52110,
+          "total_tokens": 13434290
+        }
+      }
+    }
+  },
+  "totalA": 21821237,
+  "totalB": 21821237,
+  "differenceTokens": 0,
+  "absoluteDifferencePercent": 0.0,
+  "withinThreePercent": true,
+  "nativeInvocationsDuringReassessment": 0,
+  "sourceRecordsUnchanged": true,
+  "sourceRecordHashes": {
+    "/Users/terryyin/tmp/seed345-ab-results-7iflepeo/codex/native-comparison/paused-supplier/20261114T104754-7894/codex-session.jsonl": "7d4fd1de7bc624e8bfea9701d3de93dc3102947ba27f3b486f90240fef1366b2",
+    "/Users/terryyin/tmp/seed345-ab-results-7iflepeo/codex/native-comparison/paused-supplier/20261114T104754-7894/codex-worker-01a1d99e-07c8-7692-a79d-fe497f227927.jsonl": "783be9751d5a54b6df01e52b9644b1045d2626227b482b01db2549df9ff157e7",
+    "/Users/terryyin/tmp/seed345-ab-results-7iflepeo/codex/native-comparison/paused-supplier/20261114T104754-7894/codex-worker-01a1d9a3-07b2-7821-81c5-30345f62f6dc.jsonl": "f61799c5795203edd9e0fe46748f416877e23c5c60cd884a05b9199b5428a02d",
+    "/Users/terryyin/tmp/seed345-ab-results-7iflepeo/codex/native-comparison/paused-supplier/20261114T104754-7894/codex-worker-01a1d9a8-5bb3-7bf0-94c9-f835321a419d.jsonl": "293f763869a55a82395562fcba953e7448b6bbe3da1ef542cbacaa10832b4433",
+    "/Users/terryyin/tmp/seed345-ab-results-7iflepeo/codex/native-comparison/paused-supplier/20261114T104754-7894/events-turn-4.jsonl": "cf3b51ab5022ab9725b7dbe456b061e9f8ecf4836f9f5728ca2d139028fcb486",
+    "/Users/terryyin/tmp/seed345-ab-results-7iflepeo/codex/native-comparison/paused-supplier/20261114T105149-3486/codex-session.jsonl": "54592540a296117b466bb216d23b60fc28b76862321e23445ec95ea960f4411e",
+    "/Users/terryyin/tmp/seed345-ab-results-7iflepeo/codex/native-comparison/paused-supplier/20261114T105149-3486/codex-worker-01a1d9a1-7576-79f0-b9b3-f4ccbfff736c.jsonl": "c8f33f15b96f0e638d14c8bfb23521022e3e3a98ebe8bede5ecb89c6e6c53190",
+    "/Users/terryyin/tmp/seed345-ab-results-7iflepeo/codex/native-comparison/paused-supplier/20261114T105149-3486/codex-worker-01a1d9a6-7f32-7881-a256-d3ef4f8ddd9e.jsonl": "82b7468b00f4074314a1e89c73988a3188ff2bb925341e64b13be4149fb0a85d",
+    "/Users/terryyin/tmp/seed345-ab-results-7iflepeo/codex/native-comparison/paused-supplier/20261114T105149-3486/codex-worker-01a1d9ab-5b54-7d01-afe5-67d80ac63c33.jsonl": "e97fc7124ed86a88ba3b1126ea1fbe54305706c92157d3059223e55799323d78",
+    "/Users/terryyin/tmp/seed345-ab-results-7iflepeo/codex/native-comparison/paused-supplier/20261114T105149-3486/events-turn-4.jsonl": "b0e3f2eb8c51f877869b7ee399fe1a926d74fd820485c1238336fc09bdb776ed"
+  },
+  "usageEvidence": "20261114T102744-1921-usage.jsonl.gz",
+  "renewedAfterSharedReaderRepair": true,
+  "methodLimit": "These are the original two saved native subjects, each its own control, not fresh executions of the withdrawn payload. The factor is read-only post-run assessment; no host/model was invoked."
+}
