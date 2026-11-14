@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "viktor-chan",
+  "email": "viktor-chan@example.org",
+  "identity": "SEED-347#start-follow-up-from-a-file-diff",
+  "mode": "story-branch",
+  "branch": "cursor/start-a-follow-up-session-from-a-file-diff",
+  "host": "cursor",
+  "model": "auto"
+}
