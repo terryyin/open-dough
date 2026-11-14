@@ -193,8 +193,7 @@ test("Dough Land stops before committing when no worktree is in context or the w
 });
 
 // Preparation's keep validation stops before landing a workspace that holds
-// another session's work (guidance, asserted in dough-land-guidance.test.mjs).
-// A reused workspace whose content is all reviewed lands, and Dough Land
+// another session's work. A reused workspace whose content is all reviewed lands, and Dough Land
 // leaves it with its owner.
 test("Dough Land publishes a reused workspace's reviewed content and leaves the workspace with its owner", async (t) => {
   const { origin, integration, preparation, preparationBranch, cleanup } =

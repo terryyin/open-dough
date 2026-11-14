@@ -14,8 +14,11 @@ Included: the candidate sites below, found across Distribution, dashboard
 backend/frontend/integrated UI and e2e, plus any sibling assertion of the same
 shape a slice finds while working in the same file or family.
 
-Exclusions: shipped skill and reference wording checks (`*-guidance.test.mjs`
-and similar); rendered style values; files the product writes after a user
+Already done on trunk before execution: tests that only restated shipped
+skill and reference wording (the former `*-guidance.test.mjs` family); no
+slice owns them.
+
+Exclusions: rendered style values; files the product writes after a user
 action; production code and CI configuration (changed only as reverted scratch
 probes).
 

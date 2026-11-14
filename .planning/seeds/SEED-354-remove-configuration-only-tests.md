@@ -14,7 +14,7 @@ scope: story
 
 **Identity:** SEED-354#remove-configuration-only-tests
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/626-remove-configuration-only-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8e9958aefe45da3227322a1e468ca5f5df52fdac764f6f0597906cb3b7fcda12","plan":"2bebd6a2af4c29666523e074999855d3d5f3f0c72df8f701e8f9c5a620ca897c"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/626-remove-configuration-only-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"782f051442ef5034601a5a6faf7c2971d44ef779b2263300714e701b40d8c2ae","plan":"097ca4b5e42e00033de1f5f2abc4a9b1e1b9490b722134399d2c46f64a4fe571"}}
 ```
 
 #### Goal
@@ -41,10 +41,12 @@ assertions that merely duplicate those values, while meaningful behavior remains
   Preserve checks such as independent concurrent reports, complete selection/proof,
   and useful validation behavior.
 - Do not replace removed assertions with another snapshot of the same data.
-- Scope limit: assertions on shipped skill and reference wording (the
-  `*-guidance.test.mjs` family and similar wording checks) restate product
-  text, not configuration or test data, and stay outside this story.
-  Rendered style values (`toHaveCSS`) and files the product writes after a user
+- Tests that only restate shipped skill and reference wording (the former
+  `*-guidance.test.mjs` family) keep the same text in a second place and are
+  removed; this part landed directly on trunk before execution. Tests that run
+  a documented example, embedded recipe or formatter block through the code
+  that consumes it stay.
+- Rendered style values (`toHaveCSS`) and files the product writes after a user
   action are observed results, not candidates.
 
 #### Examples

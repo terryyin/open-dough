@@ -1,6 +1,7 @@
 // The "Established session:" block an unattached session is handed: its
 // fields in one fixed order, and nothing a later workflow decides for itself.
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { formatEstablishedSession } from "./established-session.mjs";
 
@@ -82,4 +83,20 @@ test("the block names no tracking, identity, mode, or agent, even when the calle
     /tracking|identity|SEED-A|mode|story-branch|agent|claude-opus|publisher|created/,
   );
   assert.doesNotMatch(text, /^Established start:/);
+});
+
+test("the reference shows the block exactly as the formatter spells it", () => {
+  const reference = readFileSync(
+    new URL("../references/established-session.md", import.meta.url),
+    "utf8",
+  );
+  const block = formatEstablishedSession({
+    workspace: "<checkout path this session works in>",
+    role: "<isolated | default-checkout>",
+    branch: "<the checkout's branch>",
+    remote: "<remote>",
+    target: "<trunk branch>",
+    landing: "<review | auto-land>",
+  });
+  assert.ok(reference.split("\n## ")[0].includes(block));
 });
