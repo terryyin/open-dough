@@ -165,7 +165,12 @@ native_comparison_run_case() {
     [[ ! -f ${case_path}/wake.txt ]] || wake=$(< "${case_path}/wake.txt")
     native_codex_prepare "${root}" "${source_dir}"
     native_run_capture_version codex --version
-    local harness="${native_comparison_controller}|${source_dir}|native-comparison"
+    # Match literal controller/source roots and relative harness paths, not an
+    # ordinary workspace ancestor that happens to be named native-comparison.
+    local harness
+    harness=$(printf '%s\n' "${native_comparison_controller}" "${source_dir}" \
+      | sed 's/[][\\.^$*+?(){}|]/\\&/g' | paste -sd '|' -)
+    harness+='|Distribution/tests/(support/)?native-comparison([/.-]|$)'
     {
       printf 'case: %s\n' "${case_name}"
       printf 'preparation-seconds: %s\n' "$(native_comparison_seconds "${start}" "${prepared}")"
