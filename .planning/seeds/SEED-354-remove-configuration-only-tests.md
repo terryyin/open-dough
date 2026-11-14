@@ -13,6 +13,9 @@ scope: story
 ### Remove tests that only assert configuration or data
 
 **Identity:** SEED-354#remove-configuration-only-tests
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/626-remove-configuration-only-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8e9958aefe45da3227322a1e468ca5f5df52fdac764f6f0597906cb3b7fcda12","plan":"2bebd6a2af4c29666523e074999855d3d5f3f0c72df8f701e8f9c5a620ca897c"}}
+```
 
 #### Goal
 
@@ -21,24 +24,45 @@ assertions that merely duplicate those values, while meaningful behavior remains
 
 #### Scope
 
-- Review unit tests and relevant end-to-end tests across the project for assertions
-  whose only subject is configuration, constant data, fixture shape or builder output.
+- Review unit tests and relevant end-to-end tests across the project
+  (Distribution, dashboard backend, frontend and integrated UI, and e2e) for
+  assertions whose only subject is configuration, constant data, fixture shape
+  or builder output.
 - Remove configuration/data-only tests and redundant constraints, including exact
   worker/shard counts and workflow literals that freeze implementation choices.
 - Keep or reshape proof when a configuration or data value produces meaningful
   behavior worth protecting: observe that behavior rather than copy its inputs.
+  A behavior test whose expected output copies a configured value derives that
+  expectation from the configuration it reads.
+- A check that two settings agree with each other (for example a summary's
+  declared parts and the matrix that writes them) catches an inconsistent change
+  and stays.
 - Do not delete behavior tests merely because their setup uses configuration or data.
   Preserve checks such as independent concurrent reports, complete selection/proof,
   and useful validation behavior.
 - Do not replace removed assertions with another snapshot of the same data.
+- Scope limit: assertions on shipped skill and reference wording (the
+  `*-guidance.test.mjs` family and similar wording checks) restate product
+  text, not configuration or test data, and stay outside this story.
+  Rendered style values (`toHaveCSS`) and files the product writes after a user
+  action are observed results, not candidates.
 
 #### Examples
 
 - A test only compares configured worker counts with literal numbers: remove it.
+- A maintainer reduces the e2e shards from 5 to 4 and updates the CI proof
+  summary's declared parts to match, or moves the test-run deadline from 320 to
+  330 seconds: the tests that read `ci.yml` stay green. Today the deadline-epoch,
+  browser-group roster and CI proof replay tests fail on that consistent change.
+- The same maintainer forgets to update the declared parts: a consistency or
+  replay test still fails.
 - A real run omits a required case or loses another run's report: retain meaningful
   proof that observes and catches that behavior.
 - A schema rejects invalid user input with a useful error: judge its behavior;
   the shipped internal fixture merely matching the schema is not independent value.
+- A fixture repository gains one more commit, or a machine record directory gains
+  one more file: tests that care only that the worker built the whole history,
+  or that an action left other records unchanged, stay green.
 
 #### Test guidance already updated
 
