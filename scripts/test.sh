@@ -169,9 +169,10 @@ for index in "${!labels[@]}"; do
     printf '%s\n' "${index}" > "${slot_gate_file}.partial"
     mv -- "${slot_gate_file}.partial" "${slot_gate_file}"
   fi
-  # Timed slot wait so a run-cutoff USR1 is noticed while every slot is busy;
-  # an unbounded read would ignore the flag until a job ended on its own.
-  while ! read -r -t 0.2 -u 3; do
+  # An untimed slot wait: Bash 5.2's timed read that wakes past its timeout
+  # takes a waiting token yet reports the timeout, losing that slot for the
+  # rest of the run. The run cutoff's watchdog writes a token to end this wait.
+  until read -r -u 3; do
     if ((run_deadline_hit)) || run_deadline_reached; then
       stop_running_jobs_for_run_deadline
       break 2
