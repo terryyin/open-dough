@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "pyo-chan",
-  "email": "pyo-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-362#simplify-usage-history-backend-tests",
-  "host": "claude",
-  "model": "opus"
-}
