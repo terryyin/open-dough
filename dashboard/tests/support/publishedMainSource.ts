@@ -25,7 +25,7 @@ const applicationPaths = [
   "dashboard/index.html",
   "dashboard/vite.config.mts",
   "dashboard/tsconfig*.json",
-  "src",
+  "Distribution/src",
   "scripts",
   "assets",
   "package.json",

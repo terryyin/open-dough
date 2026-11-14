@@ -225,7 +225,7 @@ test("this repository's own workflow keeps every job it reports readable", () =>
   ];
   const rows = [
     ["lint", ...minute(0, 3)],
-    ["test (1/4)", ...minute(0, 4)],
+    ["Distribution Tests (1/4)", ...minute(0, 4)],
     ["e2e / shard 6/6", ...minute(0, 5)],
     ["dashboard-integrated / shard 2/5", ...minute(0, 4)],
     ["dashboard-frontend / shard 1/1", ...minute(0, 2)],
