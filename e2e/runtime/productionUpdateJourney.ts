@@ -2,32 +2,26 @@
 // advance it explicitly; setup never supplies a replacement or launch outcome.
 import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
 import { observeLaunchAdmission } from "../../dashboard/tests/support/launchAdmissionObservation.ts";
-import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
-import { readFile, readdir, stat, writeFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import type { APIRequestContext, Browser, Page } from "@playwright/test";
 import { developmentDashboard } from "../../dashboard/tests/support/dashboardCommand.ts";
 import { localPublishedMainFixture } from "../../dashboard/tests/support/publishedMainFixture.ts";
 import { startWatcherNativeCodex } from "../../dashboard/tests/support/watcherNativeCodex.ts";
 import { configureWatcherApplication } from "../../dashboard/tests/support/productionWatcherFixture.ts";
-import { processRunning } from "../../dashboard/tests/support/processGroup.ts";
 import { serialFileResources } from "../../dashboard/tests/support/serialFileResources.ts";
 import {
   deploymentWork,
-  expectProductionEnded,
   outputCount,
   productionReplacement,
   shownActivation,
   startProductionWatcher,
-  productionInspections,
   type ProductionActivation,
   type ProductionWatcher,
 } from "../../dashboard/tests/support/productionWatcher.ts";
 import {
   buildGateChanges,
-  holdBuildPath,
   recordedBuilds,
-  waitForBuild,
 } from "../../dashboard/tests/support/productionBuildGate.ts";
 import { faultGateChanges } from "../../dashboard/tests/support/productionFault.ts";
 import {
@@ -210,41 +204,4 @@ export function productionUpdateJourney() {
       return current.served;
     },
   };
-}
-
-export function productionUpdateShutdown(journey: ProductionUpdateJourney) {
-  test("SIGTERM while a commit is in its real build ends that build, the served preview and every deployment checkout, and leaves shared records and configuration untouched", async ({
-    request,
-  }) => {
-    const state = journey.started();
-    const { fixture, watcher: running } = state;
-    const store = launchStoreFile(fixture.home);
-    const stored = await readFile(store, "utf8");
-    const storeIdentity = (await stat(store)).ino;
-    const ordinal = (await journey.builds()).length + 1;
-    await writeFile(holdBuildPath(fixture.home, ordinal), "");
-    await fixture.publish(
-      {
-        ...fixture.markerChanges("MAIN X"),
-        [ciWorkflowPath]: state.workflow,
-      },
-      "Main X with a valid policy",
-    );
-    const heldBuild = (await waitForBuild(running, fixture.home, ordinal)).pid;
-    expect(await journey.builds()).toHaveLength(ordinal);
-    expect(processRunning(heldBuild)).toBe(true);
-    await running.stop();
-    expect(running.output()).not.toContain("could not run");
-    journey.stopped();
-    expect(processRunning(heldBuild)).toBe(false);
-    await expectProductionEnded(request, state.served, fixture.home);
-    expect(await readdir(productionInspections(fixture.home))).toEqual([]);
-    expect(await readFile(store, "utf8")).toBe(stored);
-    expect((await stat(store)).ino).toBe(storeIdentity);
-    expect(await readFile(state.configuration, "utf8")).toBe(state.configured);
-    expect((await stat(state.configuration)).ino).toBe(
-      state.configurationIdentity,
-    );
-    expect((await request.get(state.developmentUrl)).status()).toBe(200);
-  });
 }

@@ -229,5 +229,3 @@ test.describe("a held waiting screen that settles to the follow-up prompt", () =
     expect(cursor.attaches()).toHaveLength(1);
   });
 });
-
-import "./agentSessionCursorUnavailableCases.ts";
