@@ -40,3 +40,73 @@ catalog host selection match qualified hosts only; and let the runner record
 each turn's command count and harness inspection, as `unknown` when the
 turn's stream cannot show them, instead of each case. Findings, provenance and
 proof are in the [correction plan](../slice-plans/621-close-native-comparison-harness-gaps/PLAN.md).
+
+<a id="reuse-native-comparison-baselines"></a>
+
+### Save and reuse native A/B baselines
+
+**Identity:** SEED-346#reuse-native-comparison-baselines
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+#### Goal
+
+An Open Dough maintainer can compare successive candidates against the same
+baseline without paying for another baseline session when the saved result
+still answers the comparison question.
+
+#### Current behavior
+
+The [pair runner](../../Distribution/tests/support/native-comparison-pair.sh#L110)
+starts both arms for every comparison. The [saved paused-supplier record](../../Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T102744-1921.txt)
+already contains the baseline revision, case input hashes, starting project
+state, applied model and reasoning effort, host version, outcome and measured
+effort. [`--recover`](../../Distribution/tests/native-comparison.md#keep-a-comparison-and-refresh-a-case)
+recovers a retained record and its Git basis. A later pair has no path to use
+that result as its baseline.
+
+#### Scope
+
+- Keep a compact baseline result with the case in the repository, with enough
+  evidence to explain its outcome and reuse it after raw session artifacts are
+  removed. Record the resolved payload revision, case and project inputs,
+  applied model and reasoning effort, host/runtime conditions, outcome,
+  decisive proof, and available effort measurements. Keep account-bearing raw
+  sessions local under the [existing retention guidance](../../Distribution/tests/native-comparison.md#retain-and-remove-evidence).
+- For an authorized comparison, reuse retained evidence when the baseline
+  revision, relevant case inputs and runtime conditions match and the recorded
+  result supports the current outcome and effort criteria. Identify the source
+  record and its conditions in the new verdict. Judge outcome and proof before
+  effort. Keep the distinction between a historical observation and a fresh
+  matched pair when interpreting runtime or other variable measurements.
+- Run a fresh baseline when the requested baseline or a material condition
+  changes, or when saved evidence is missing, incomplete or insufficient for
+  the comparison. Save the new observation when it provides a usable result
+  and preserve earlier observations for their original conditions. Allow an
+  explicitly requested fresh pair when the comparison needs both arms observed
+  together.
+
+#### Key examples
+
+1. The first comparison saves a usable baseline. A second comparison changes
+   only the candidate and uses the same baseline revision, task, events,
+   project context and runtime settings. It launches only the candidate and
+   cites the saved baseline outcome and effort in its verdict.
+2. The maintainer advances the baseline revision, or changes the model,
+   reasoning effort, or another material condition. The next authorized pair
+   runs and saves a baseline for that configuration. A later match can reuse
+   the new observation, and the earlier one is still traceable.
+3. A complete baseline missed the case's expected outcome. If its evidence
+   answers the new comparison, the next run can reuse that observed failure.
+   If the baseline stopped before the outcome could be judged, the next
+   comparison obtains fresh baseline evidence.
+
+#### Decisions
+
+- [ADR 0005 — Native validation and A/B testing](../../docs/adrs/0005-cross-tool-validation-accepted.md)
+  permits reusing evidence under matching conditions and calls for retaining
+  useful evidence while removing spent artifacts.
+- [ADR 0010 — Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md)
+  requires a stated baseline, relevant context, and disclosure of comparison
+  limits before drawing an improvement conclusion.
