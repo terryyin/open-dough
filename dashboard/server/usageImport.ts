@@ -1,3 +1,4 @@
+import { usageImportSummary } from "./usageImportReport.ts";
 import { nativeTaskActivity } from "./nativeTaskActivity.ts";
 import { recoveredUsageTasks } from "./recoveredUsageTasks.ts";
 import {
@@ -163,5 +164,6 @@ export async function importUsageHistory(options: UsageImportOptions) {
     excludedUnrelatedTasks: excludedTasks.size,
     excludedUnrelatedObservations: excludedObservations,
     gaps: persisted.gaps,
+    summary: usageImportSummary(persisted, options.home, since, gaps),
   };
 }

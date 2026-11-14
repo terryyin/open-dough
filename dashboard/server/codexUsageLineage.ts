@@ -1,3 +1,4 @@
+import { usageTaskJoinSources } from "./usageTaskJoinSources.ts";
 // Native identity evidence is independent of file discovery order. Only explicit
 // containing-thread metadata and parent links establish a worker's ancestry.
 import path from "node:path";
@@ -124,7 +125,7 @@ export function codexAssociation(
     candidates: candidates.map((task) => task.id),
     sources: uniqueFacts([
       ...chain.sources,
-      ...candidates.flatMap((task) => task.sources),
+      ...candidates.flatMap(usageTaskJoinSources),
     ]),
     gaps: candidates.length === 1 ? [] : ["unresolved-task-association"],
   };

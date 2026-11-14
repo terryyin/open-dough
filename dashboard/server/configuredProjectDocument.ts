@@ -3,6 +3,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
+import { localFolder } from "./localFolder.ts";
 import { machineDashboardDirectory } from "./machineHome.ts";
 import type { ConfiguredProject } from "./projectConfiguration.ts";
 
@@ -27,9 +28,11 @@ export function readConfiguredUsageProjects(
   try {
     return projectsSchema
       .parse(JSON.parse(readFileSync(file, "utf8")))
-      .map(({ hidden, ...project }) =>
-        hidden ? { ...project, hidden: true } : project,
-      );
+      .map(({ hidden, ...project }) => ({
+        ...project,
+        localPath: localFolder(project.localPath, home).path,
+        ...(hidden ? { hidden: true } : {}),
+      }));
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
     throw error;

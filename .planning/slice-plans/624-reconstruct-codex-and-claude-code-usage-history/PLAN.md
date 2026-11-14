@@ -74,34 +74,18 @@ Assertions observe recovered evidence and aggregates, not the fixture builder.
 
 | Final promise | Owning slice and observation |
 | --- | --- |
-| Known operational and archived launches gain durable categorized usage, model/effort, lineage, scope and coverage | 1–3: CLI import followed by a fresh-process read of persisted evidence |
-| One count across reruns, duplicate rows/files, retries and later collector overlap; failed persistence is recoverable | 1–3: same native request replayed and enriched through the shared writer; totals stay stable, failed write retains prior readable data |
+| Known operational and archived launches gain durable categorized usage, model/effort, lineage, scope and coverage | 1–3, 6: CLI import followed by a fresh-process read of persisted evidence |
+| One count across reruns, duplicate rows/files, retries and later collector overlap; failed persistence is recoverable | 1–3, 6: same native request replayed and enriched through the shared writer; totals stay stable, failed write retains prior readable data |
 | Codex descendants and archive/compression count only owning responses in attributable task turns | 2: root, child, copied ancestor, unrelated task and compressed archive scenario |
 | Claude session and workers count each API message once, including repeated/updated streaming records | 3: root/worker, resumed task boundary and duplicate message scenario |
 | Pruned tasks recover project, workflow/task, historical identity/title, host, settings, timing and outcome where supported | 4: local Git revisions with renamed/deleted story and recorded invocation; inspect each field's evidence |
 | Dashboard/native/unknown origin reflects evidence; unknown/ambiguous values stay explicit | 2–4: no launch reference, contradictory join and missing Git/source cases |
-| No raw transcript/prompt copying, no fabricated operational sessions or workflow writes; native sources can disappear after import | 4: inspect persisted JSON and unchanged operational/backlog/assignment inputs, remove native fixture, read again |
-| Earliest dates, host/coverage counts and material gaps reported for real recovery; import is repeatable | 5: run report, persisted-record reconciliation and second run on the same machine corpus |
+| No raw transcript/prompt copying, no fabricated operational sessions or workflow writes; native sources can disappear after import | 4, 6: inspect persisted JSON and unchanged operational/backlog/assignment inputs, remove native fixture, read again |
+| Earliest dates, host/coverage counts and material gaps reported for real recovery; import is repeatable | 7: run report, persisted-record reconciliation and second run on the same machine corpus |
 
-## Decisive premises and observations
+## Preparation evidence
 
-Observed 2026-11-14 in this preparation; no product code was edited.
-Native samples are retained external evidence, not fixtures to commit verbatim.
-
-| Consuming operation / premise | Observation and limits |
-| --- | --- |
-| History can preserve launches without native files | Accepted supplier code and retained 11/11 proof cited above cover aged-out/removal transfer, retry deduplication and failure retention. They prove the old history contract only, not the new importer. |
-| Native decoder can read actual Codex compression | Node 24.21.0 `createReadStream(file).pipe(createZstdDecompress())` with readline/JSON parsing consumed Nov 7 worker `01a1b548-84ab-7240-a940-8a72564202cd` on this Mac: six unique owning responses, input 1509104, cached input 1486336, output 1352. It contained copied parent metadata but no foreign usage rows, so fork exclusion still needs slice 2's fault-discriminating fixture. `zstd -dc` also decoded a Sep 20 archive with no per-response counters. Native extensions were .jsonl and .jsonl.zst; do not assume older files have counters. |
-| Owning-response identity and categories are available | Read Nov 14 rollout `01a1da6b-8784-7e63-96e0-db7c2f6d6081`: top-level `token_usage_record` carries thread_id, turn_id, root_turn_id, response_id and usage. One response reported input 317035, cached input 316032, cache-write 0, output 347. The Nov 7 worker's source records parent_thread_id; containing-file ownership must survive copied session_meta rows. |
-| Claude per-message evidence repeats in real transcripts | Read session `6ccc791e-e1f3-4b69-9794-049c6189dfa5`: assistant rows expose message.id/model/usage, requestId, cwd, sessionId, effort and timestamps. The same input/cache/output usage appears on repeated rows. Cache lifetime splits are present. This establishes native shape, not full-task coverage; missing auxiliary/worker evidence stays a gap. |
-| Metadata can use historical project facts | Existing audit uses the configured production roster, cwd/worktree and Git origin, plus parent linkage. The source seed and research require revision-pinned historical story resolution. Slice 4 proves the new resolver against real local Git revisions; current filenames alone cannot settle history. |
-| Proof entry point | At `f5c1adff3`, Node 24.21.0 matches .node-version; `node scripts/setup-native.mjs npm` installed locked dependencies. `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/sessions/launch-history-aged-out.spec.ts dashboard/backend-tests/sessions/launch-history-removed.spec.ts --list --reporter=list` selected all four history cases in this worktree. This observes the unpaid runner prefix only. New importer specs must first fail on absent behavior; existing launch tests do not prove import. |
-
-The native file inventory found 2,755 active plain Codex files, 9,183 active
-compressed files, 1,290 compressed archived files and 3,444 Claude JSONL files.
-These are machine-wide file counts at observation time, not recovered project
-tasks or coverage results. Stream the corpus; do not load all transcripts into
-memory. Partial files and unavailable decoders yield explicit gaps and safe retry.
+The [retained preparation premises and observations](execution-history.md#decisive-premises-and-observations) include native format/decoder, historical-source and runner evidence; reuse settled observations within their stated limits.
 
 ## Ordered slices
 
@@ -131,69 +115,49 @@ Type: Behavior
 Status: done
 Proof: new `recovered-tasks.spec.ts` with local Git history and both native hosts.
 
-Behavior: an in-window native task has no operational/history launch entry →
-import using configured project evidence and recorded workflow invocations →
-history retains a recovered task with supported historical metadata and per-field
-source references, plus usage from slices 1–3. A dashboard launch reference or
-comparable positive evidence establishes dashboard origin; otherwise use native
-or unknown as supported. Preserve unresolved story/title/settings/timing/outcome
-instead of treating current Git facts or last transcript activity as completion.
+Behavior delivered: pruned native tasks import into recovered history with configured project, workflow/task, historical story identity/title, host, supported settings/timing/outcome and per-field evidence. Git references are revision-pinned and survive deleted/renamed stories; origins require positive evidence, unknowns/conflicts remain explicit. No fabricated operational sessions, prompt/transcript copying, workflow writes or erased facts on replay/source removal. Supported new evidence enriches the same native task. Full proof below via linked execution history; original slice text recoverable at `2678bb0cbbc3f7917330d30404ecd5b75e43e00e`.
 
-Use configured repositories and their historical seed/plan/backlog/completion
-facts; do not require deleted worktrees or rewrite project history. Capture no
-raw prompt/transcript bodies. Preserve unknown required launch fields through
-the recovered representation. Repeating with new corroborating evidence enriches
-the same task, and deleting native fixture files does not erase imported facts.
+### 5. Report scoped usage and bound native lineage attribution
+Type: Behavior
+Status: done
+Proof: `import-report.spec.ts`, `import-report-window.spec.ts`, `claude-lineage-size.spec.ts`, and retained import specs through the actual CLI.
 
-### 5. Recover this machine's history and report its limits
+Behavior: fixture-sized native evidence and configured projects import → the report separates configured/unknown/unassigned/excluded populations, in-window/unknown/outside activity, categorized counters and missing values. Tilde paths resolve through the existing local-folder rule. Long native ancestry and equal-time requests retain exact response/boundary/worker-join provenance without multiplying intermediate or descriptive task sources. Replay keeps one fact. The preserved implementation and 25-case proof own this result; real-corpus persistence remains an explicit interim limitation owned by slices 6–7.
+
+### 6. Persist and read bounded usage snapshots
+Type: Structure
+Status: planned
+Proof: new actual-CLI storage/read/export cases alongside all earlier import specs; first real-corpus capacity observation after current regression proof.
+
+Internal change: replace only usage's monolithic physical JSON encoding with bounded immutable partitions and a small atomically replaced manifest in the existing history directory. Reuse `machineJsonLock.ts`, `readMachineJsonLocked` where suitable, and `durableJsonReplacement.ts`; preserve one shared host-neutral observation/task/association model and writer. Preserve v1 logical records, legacy v1 reads, counter/identity/reconciliation semantics, privacy and monthly launch-history behavior. No database, workflow authority or per-host store. Whole-history comparison/export must not construct an over-limit string; bounded reads/writes must avoid cloning the whole persisted corpus alongside the incoming batch.
+
+Prove legacy data, fresh-process record/read/export equivalence, retry/enrichment and cross-process updates. A failed page or manifest publication leaves the previous snapshot readable; orphan/unreferenced pages never add facts. A reader holding an earlier manifest remains coherent while a writer publishes. Use observable barriers, never sleeps. Retain exact endpoint provenance and all competing measurements; physical partitioning cannot discard facts to satisfy limits. These changes enable only the immediately following corpus Behavior.
+
+Early capacity probe: after current fixture/contract proof passes, run the authorized first real import on this machine with the default Node heap and current source fingerprint, then a fresh persisted read/export or equivalent bounded reconciliation. This may supply the first successful run for slice 7. Record memory/duration/serialization sizes. A failure stops slice 7 and triggers reassessment; do not raise limits blindly or claim corpus capability from small fixtures. The state-changing scale observation is explicitly owned here after its cheap regression prerequisite.
+
+### 7. Recover this machine's history and report its limits
 Type: Behavior
 Status: planned
-Proof: new `import-report.spec.ts`, then the real command twice and stored reads.
+Proof: import-report fixtures, two successful real imports (reusing the accepted first run from slice 6 when still applicable), and fresh-process persisted-record reconciliation.
 
-Behavior: configured projects and retained native evidence are available →
-run the documented import from 2026-09-16 → persisted history and the report
-agree on recovered tasks and usage, earliest recovered task/usage dates, counts
-by host and coverage, and material gaps. Repeat → existing facts and counters
-do not multiply; genuinely new observations may add evidence.
+Behavior: configured projects and retained native evidence are available → documented import since `2026-09-16T00:00:00+08:00` → stored history and report agree on task/usage dates, host/coverage counts and material gaps. Repeat → old IDs/counters never multiply; distinguish genuine new observations and compatible enrichment. Keep task start distinct from in-window activity, including older roots and workers. Inspect bounded representatives of material metadata gaps before calling retained facts unavailable. Do not infer counters/origin/identity.
 
-Record the cutoff's timezone, configured roster (including hidden projects),
-native roots, command, runtime revision and scan boundary. Work in the window
-can belong to an older root; do not charge its out-of-window responses.
-Document unavailable older counters, unresolved origin/identity, missing sources,
-ambiguous task boundaries and auxiliary coverage. Run fixture proof before
-writing the real dashboard store. Read native sources only; use the existing
-store's concurrency discipline alongside the running dashboard. Retain the
-small metadata/count report, never raw transcripts, in the established research
-document or enduring usage-history documentation.
+Record timezone, roster including hidden projects, native roots, exact commands, runtime revision plus dirty-source fingerprint, and scan boundaries. Native inputs remain read-only; shared snapshot locking coexists with the dashboard. Preserve privacy and operational/backlog/assignment facts. Retain only metadata/count evidence in enduring usage documentation, with older counter, missing-source, unknown-boundary/origin/identity and auxiliary coverage limits. No UI, collector scheduling, pricing, billing, Cursor or unavailable-source recovery.
 
 ## Verification, sizing and concern review
 
-- Local gate: the new spec(s) for each slice plus earlier import specs through
-  `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history --reporter=list`.
-  Use the default quiet reporter (omit `--reporter=list`) for final acceptance so passing-test output is rejected as in CI. At slice 1 and after history-contract changes also run
-  `dashboard/backend-tests/sessions/launch-history-aged-out.spec.ts`,
-  `launch-history-removed.spec.ts` and `agent-launch-delete.spec.ts` through
-  that config. Run `npm run typecheck:dashboard` for changed TS contracts.
-  Trace consumers before changing shared contracts; retain discriminating
-  assertions at the import boundary. No UI change requires browser-UI proof.
-- Each slice owns implementation, focused proof and cleanup in one loop. A safe
-  stop leaves only the delivered host/evidence paths supported with honest gaps.
-  No numeric target or hard limit is supplied; none is invented. Cumulative
-  design: two native decoders feed one observation/attribution/store rule,
-  followed by reconstruction and a corpus run; no separate per-host store.
-- Before the corpus run or expensive verification, inspect this Mac's workload,
-  memory, competing owned runs and available duration evidence. Choose bounded
-  streaming/concurrency and retain that launch decision; reconsider on contention.
-  Long local runs follow the maintained
-  [macOS sleep guard and power condition](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos):
-  on AC use `caffeinate -s -i`; on battery plug in, or run awake with lid open
-  under `caffeinate -i` and inspect the sleep log afterwards.
-- Failure policy: [Failing and flaky tests](../../../AGENTS.md#failing-and-flaky-tests)
-  applies as written, including local/CI differences and owned CI repair.
-- Refinement: not needed; the five Behavior slices each have one evaluable
-  import/recovery result and proof loop. No preparatory layer-only slice.
-- Remaining slice-specific concerns: none identified. Native completeness is
-  an explicitly measured coverage result, not a premise of complete accounting.
+- Local import gate on AC: `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history --workers=2`, default quiet reporter. Apply the maintained [macOS sleep guard/power condition](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos): battery needs AC or awake/open-lid `caffeinate -i` plus sleep-log inspection.
+- Run `npm run typecheck:dashboard` for contracts. Reuse unchanged 11 history/delete and project-configuration observations; renew reached consumers. New MakeMe runtime imports retain native-evidence-identity proof. Live scale/import actions require current regression proof first.
+- Failure policy: [AGENTS.md#failing-and-flaky-tests](../../../AGENTS.md#failing-and-flaky-tests) applies as written, including local/CI differences and owned repair. No numeric target or hard limit was supplied.
+- Refinement ran after actual corpus evidence disproved monolithic serialization. Retain completed 1–4; split old 5 into a useful report/lineage result, immediately necessary bounded storage Structure, and the original real-accounting Behavior. Seven slices; no story resplit recommended. Scope and beneficiary unchanged.
+- Cumulative design: one native observation/reconciliation model, one file-based snapshot codec and existing atomic/lock primitives. No new North Star topic or ADR; ADR 0002/0008 and the cited launch model still govern. The remaining scale uncertainty is the explicitly guarded first-live probe in 6, whose failure stops 7; no other blocking concern identified.
+
+## Refinement premises and retained work
+
+- Real Node 24.21.0 census at fingerprint `e82e3d51a5d78e901598f66c70f7d440a11bac3c0c909479ff513e1f4427f023`: 2,475 tasks/11,320,655 compact value chars; 513,618 observations/978,160,558 chars and 640,765 measurements; 513,618 associations/432,936,435 chars; 12,272 gaps/2,636,673 chars. Largest observation 15,690 bytes. V8 string cap 536,870,888 chars, so even compact whole-document JSON fails; individual current facts fit bounded partitions. Census deliberately suppressed persistence and exited; no real snapshot exists.
+- PFE: monthly launch JSONL is append-only and cannot publish reconciled snapshots atomically; CI artifacts are immutable remote proof readers, not local usage writers. Reuse existing machine write-lock/durable replacement for the small manifest and bounded files; add only the missing usage codec/read/export seam. Atomic snapshot and actual memory capacity remain slice-6 proof, with the stated early live probe.
+- Old slice 5 source-work elapsed 49m33s (17:30:49Z fixture birth to 18:20:22Z freeze; earlier reads unmeasured), no CI pause or supplied hard limit. Compatible report/tilde/window/lineage fixes have 25 passing CLI cases, typecheck, configuration boundary and native-evidence-identity proof. No real import succeeded. Preserve those boundaries rather than redo implementation.
+- All 17 attempt-owned product/doc files were parked and checksummed, with no shared stash or unrelated changes touched, before this rewrite: `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed358-refinement-park-xxypwfkh/manifest.json`. Restore verified completed work for slice 5; slice 6 starts fresh after its delivery. Same owned workspace/Taken identity/mode/branch retained; no second claim or preparation assignment.
 
 ## Execution context
 
@@ -239,6 +203,22 @@ Reported: slice 4 — "Coordinator acceptance found native/backlog/configuration
 Story clause: "or change backlog or assignment facts"
 Disposition: proved by slice 4: recovered-tasks.spec.ts canonical existing assignment bytes, repository HEAD and working-tree state unchanged after actual CLI; no operational or workflow writes
 Commitment: 91
+
+### G7. Resolve configured tilde paths before real recovery
+Reported: slice 5 — "Slice 5 pre-live roster inspection found five of six configured localPath values use ~/git paths; passing them literally to Git would fabricate unavailable historical sources and can prevent project joins."
+Story clause: "Recover the project"
+Disposition: proved by slice 5: import-report.spec.ts tilde-configured historical project recovery red configuredWork0 versus2, then green using shared localFolder with supplied home; old configuration boundary remains passing
+Commitment: 49
+### G8. Keep unknown activity windows distinct from outside-window evidence
+Reported: slice 5 — "Coordinator report inspection found work eligibility omitted recorded lastActivityAt and labeled every other task outsideWindowTasks, potentially treating unknown timing as a proved exclusion."
+Story clause: "counts by host and coverage"
+Disposition: proved by slice 5: import-report-window.spec.ts actual CLI persisted tasks distinguishes lastActivityAt in-window from genuinely outside and unresolved windows; unknown dates never become proved exclusions
+Commitment: 112
+### G9. Bounded lineage evidence must allow the real corpus import to finish
+Reported: slice 5 — "Slice 5 actual import SIGABRTed at the 4496293888-byte Node heap limit after 16m08s with no usage store written. A 4.3MB Claude file produced 85256 parent-source references for 249 assistant rows; repeated ancestor provenance, not missing machine RAM, challenged corpus feasibility. Repair bounded lineage traversal/provenance while retaining exact response, task-boundary and worker-join evidence; no blind heap-limit increase. A bounded-heap fixture then exposed a second amplification: all lastActivityAt task sources copied into every association for same-time responses; retain that failing shape and restrict association provenance to actual join evidence. The repaired candidate then failed Invalid string length after 6m59.760s without persistence; a read-only census proved approximately 1.4GB compact record values, so the same plan now owns bounded physical storage in slice 6 and successful repeated machine recovery in slice 7."
+Story clause: "A developer can account for the Codex and Claude Code work and token usage in the dashboard's projects since Open Dough became stable on 2026-09-16, including launches whose dashboard records were pruned."
+Disposition: interim until slices 6, 7
+Commitment: 1
 ## Execution evidence
 
 Accepted proof, refactor and publication receipts are retained in [execution history](execution-history.md).

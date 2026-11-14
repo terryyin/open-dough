@@ -150,3 +150,40 @@ Shared collectors and readers use `dashboard/server/usageHistory.ts`:
 A failed write retains the prior readable document; retrying imports missing
 facts once. An unreadable usage document is preserved and refuses automatic
 overwrite. Importing and reading remain useful after native files disappear.
+
+The import result includes `summary`, recomputed from a fresh persisted read.
+`configuredWork` contains tasks with a configured project (including hidden
+projects) and recorded start, last activity, or attributable response in the
+window. `unknownProjectWork` and `outOfRosterWork` use separate task populations;
+`unassignedUsage` contains responses with no uniquely supported task. Response
+populations are disjoint. `files` counts every scanned native file, including
+unrelated and older files; excluded unrelated task/response counts describe the
+current scan and are never added to persisted usage totals.
+
+Each population reports host counts, response/task coverage, four disjoint token
+subtotals, and the count of responses missing each component. Missing task fields
+are counted from their current values; `taskGapProvenance` and
+`retainedGapProvenance` preserve earlier evidence limitations and may survive
+later enrichment. `currentScanGaps` counts warnings encountered by this scan
+across all sources/retained tasks; it is separate from those retained facts and
+from the configured-work denominator. Coverage describes retained evidence.
+
+`earliestTaskStart` preserves an older original start. `firstInWindowActivity`
+is the earliest supported in-window start, recorded activity, or attributable
+response; `earliestUsage` uses response timestamps only. Tasks with only known
+older dates are `outsideWindowTasks` (no evidenced in-window activity); tasks
+with neither supported dates nor in-window associations are
+`unresolvedWindowTasks`. Undated response observations are counted separately
+and excluded from dated token subtotals. A task with no attributable response has
+unavailable usage, even when its activity date is known.
+
+The [2026-11-15 recovery investigation](../docs/maintainer/usage-history-recovery-2026-11-15.md)
+records current diagnostics; successful machine recovery and repeat reconciliation
+remain unfinished.
+
+Claude parent traversal retains exact response, human task-boundary and
+worker-join source rows. Intermediate parent links cite their native files;
+shared ancestors are visited once and cycles remain unresolved. Associations
+cite the task's session/root-turn/reporting-reference join evidence. Descriptive
+and last-activity provenance remains on the task, so long chains and shared
+timestamps do not multiply those sources into every response association.

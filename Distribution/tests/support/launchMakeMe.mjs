@@ -25,6 +25,7 @@ import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { ClaudeListingRowBuilder } from "./claudeListingTestData.mjs";
 import { CursorCliConfigBuilder } from "./cursorCliConfigTestData.mjs";
 import { RunningCursorSessionsBuilder } from "./runningCursorSessionsTestData.mjs";
+import { UsageTaskBuilder } from "./usageHistoryTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 
 /** @typedef {import("../../../dashboard/server/startStore.ts").StartRecord} StartRecord */
@@ -38,6 +39,7 @@ import { copyFacts } from "./factBuilder.mjs";
  * Launch/landing builders exposed on MakeMe (fresh on each access).
  *
  * @typedef {object} LaunchMakeMe
+ * @property {UsageTaskBuilder} aUsageTask
  * @property {FactBuilder<StartRecord>} aStartRecord
  * @property {import("./launchTestData.mjs").LaunchRecordBuilder} aLaunchRecord
  * @property {import("./launchRequestTestData.mjs").LaunchRequestBuilder} aLaunchRequest
@@ -64,6 +66,12 @@ import { copyFacts } from "./factBuilder.mjs";
 /** @returns {PropertyDescriptorMap} */
 export function launchMakeMeProperties() {
   return {
+    aUsageTask: {
+      enumerable: true,
+      get() {
+        return new UsageTaskBuilder();
+      },
+    },
     aStartRecord: {
       enumerable: true,
       /** @returns {FactBuilder<StartRecord>} */

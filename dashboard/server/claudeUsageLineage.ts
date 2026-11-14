@@ -1,5 +1,11 @@
+import { usageTaskJoinSources } from "./usageTaskJoinSources.ts";
 // Keep only identifiers and source locations while walking native parent links.
 // A directory is not a worker join; only native agent-result evidence joins it.
+import { claudeAncestry } from "./claudeUsageAncestry.ts";
+import {
+  claudeNodeKey as nodeKey,
+  claudeWorkerKey as workerKey,
+} from "./claudeUsageKeys.ts";
 import { objectOf, stringOf } from "./nativeUsageFiles.ts";
 import { uniqueFacts } from "./usageReconciliation.ts";
 import type {
@@ -30,11 +36,6 @@ export const claudeLineage = (): ClaudeLineage => ({
   responses: new Set(),
   transcripts: new Set(),
 });
-const workerKey = (session: string, agent: string) =>
-  JSON.stringify([session, agent]);
-const nodeKey = (session: string, agent: string | undefined, uuid: string) =>
-  JSON.stringify([session, agent ?? "", uuid]);
-
 export function recordClaudeNode(
   lineage: ClaudeLineage,
   session: string,
@@ -93,53 +94,6 @@ export function recordClaudeNode(
   }
 }
 
-function resolve(
-  lineage: ClaudeLineage,
-  session: string,
-  agent: string | undefined,
-  uuid: string,
-) {
-  const sources: UsageSource[] = [];
-  const roots: { uuid: string; references: string[] }[] = [];
-  let unresolved = false;
-  const visit = (key: string, seen: Set<string>) => {
-    if (seen.has(key)) {
-      unresolved = true;
-      return;
-    }
-    const nextSeen = new Set(seen).add(key);
-    const node = lineage.nodes.get(key);
-    if (!node) {
-      unresolved = true;
-      return;
-    }
-    sources.push(...node.sources);
-    if (node.boundary) {
-      const parts: unknown = JSON.parse(key);
-      if (Array.isArray(parts) && typeof parts[2] === "string")
-        roots.push({ uuid: parts[2], references: node.references });
-      return;
-    }
-    if (node.parents.length > 0) {
-      for (const parent of node.parents) visit(parent, nextSeen);
-    } else if (agent) {
-      const worker = lineage.workers.get(workerKey(session, agent));
-      if (!worker) {
-        unresolved = true;
-        return;
-      }
-      sources.push(...worker.sources);
-      for (const parent of worker.parents) visit(parent, nextSeen);
-    } else unresolved = true;
-  };
-  visit(nodeKey(session, agent, uuid), new Set());
-  return {
-    roots: uniqueFacts(roots),
-    sources: uniqueFacts(sources),
-    unresolved,
-  };
-}
-
 export function claudeAssociation(
   observation: UsageObservation,
   tasks: UsageTask[],
@@ -155,7 +109,7 @@ export function claudeAssociation(
       unresolved = true;
       continue;
     }
-    const chain = resolve(
+    const chain = claudeAncestry(
       lineage,
       observation.sessionId,
       measurement.agentId,
@@ -184,7 +138,7 @@ export function claudeAssociation(
       );
       if (matches.length === 0) unresolved = true;
       candidates.push(...matches.map((task) => task.id));
-      sources.push(...matches.flatMap((task) => task.sources));
+      sources.push(...matches.flatMap(usageTaskJoinSources));
     }
   }
   const unique = uniqueFacts(candidates);

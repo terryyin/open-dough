@@ -81,6 +81,7 @@ export function readImported(home: string, extra: string[] = []): UsageHistory {
       process.execPath,
       [command, "read", "--home", home, ...extra],
       {
+        maxBuffer: 8 * 1024 * 1024,
         cwd: repository,
         env: { ...process.env, HOME: home },
         encoding: "utf8",
