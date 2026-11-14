@@ -46,7 +46,7 @@ for (const control of ["Check again", "reselection"] as const) {
     let requests = 0;
     committed.serveActions((argv) => {
       requests += 1;
-      return trunkActions(runs, setup.proofs)(argv, published);
+      return trunkActions(runs, setup.proofs)(argv);
     });
     const reads = watchComparisonReads(page);
     let { panel } = await selectDoneStoryForCiComparison(page);

@@ -31,8 +31,16 @@ export class ProductionWatcherMachine {
   private developmentPage: Page | undefined;
   private readonly sockets: { close(): void }[] = [];
   watcher: ProductionWatcher | undefined;
+  private preparation:
+    Promise<{ env: NodeJS.ProcessEnv; pinned: string }> | undefined;
+  private developmentStarting: Promise<string> | undefined;
 
-  async start(browser: Browser) {
+  start(browser: Browser) {
+    this.preparation = this.prepare(browser);
+    return this.preparation;
+  }
+
+  private async prepare(browser: Browser) {
     const fixture = await localPublishedMainFixture(true, "application");
     this.fixture = fixture;
     const banner = path.join(fixture.development, bannerPath);
@@ -76,7 +84,12 @@ export class ProductionWatcherMachine {
 
   // Development beside production, started only after the production command
   // has started the Cursor runner.
-  async developmentStarted(env: NodeJS.ProcessEnv) {
+  developmentStarted(env: NodeJS.ProcessEnv) {
+    this.developmentStarting = this.startDevelopment(env);
+    return this.developmentStarting;
+  }
+
+  private async startDevelopment(env: NodeJS.ProcessEnv) {
     const { fixture } = this.started();
     const started = await developmentDashboard(fixture.development, env);
     this.development = started.command;
@@ -133,11 +146,24 @@ export class ProductionWatcherMachine {
   }
 
   async close() {
-    for (const socket of this.sockets) socket.close();
-    await this.productionPage?.close();
-    await this.developmentPage?.close();
-    await this.watcher?.stop();
-    await this.development?.stop();
-    await this.fixture?.cleanup();
+    // A hook or case may end while its resource is still starting.
+    const settled = await Promise.allSettled([
+      this.preparation,
+      this.developmentStarting,
+    ]);
+    const errors: unknown[] = [];
+    for (const result of settled)
+      if (result.status === "rejected") errors.push(result.reason);
+    try {
+      if (errors.length > 0)
+        throw new AggregateError(errors, "Watcher setup did not complete");
+    } finally {
+      for (const socket of this.sockets) socket.close();
+      await this.productionPage?.close();
+      await this.developmentPage?.close();
+      await this.watcher?.stop();
+      await this.development?.stop();
+      await this.fixture?.cleanup();
+    }
   }
 }

@@ -18,7 +18,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
-import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
+import { materializeLocalCheckout } from "../../../tests/support/repository-fixture.mjs";
 import type {
   GitPerson,
   RepositoryDescription,
@@ -148,9 +148,10 @@ export async function prepareStartOrigin(
   source = path.join(repoRoot, "src", "skills"),
 ): Promise<void> {
   try {
-    const built = await materializeRepository(
+    const built = await materializeLocalCheckout(
+      undefined,
       withInstallation(repository, layout, source),
-      { parent: directory },
+      { at: mkdtempSync(path.join(directory, "source-")), gitTemplates: true },
     );
     try {
       const origin = path.join(directory, layout);
@@ -159,7 +160,7 @@ export async function prepareStartOrigin(
         "clone",
         "--bare",
         "--no-local",
-        built.origin,
+        built.integration,
         origin,
       ]);
       await exec("git", ["-C", origin, "remote", "remove", "origin"]);

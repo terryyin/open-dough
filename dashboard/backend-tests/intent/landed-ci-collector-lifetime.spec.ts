@@ -87,14 +87,10 @@ createServer().listen(0, '127.0.0.1', () => {
   );
   const history = makeMe.aLandedCiHistory.please();
   collectAgain = () => scenario.collectFollowUps(server, history);
-  collection = collectAgain().then(
-    () => {
-      homeAtExit = existsSync(server.home);
-    },
-    () => {
-      homeAtExit = existsSync(server.home);
-    },
-  );
+  const observeHomeAtExit = () => {
+    homeAtExit = existsSync(server.home);
+  };
+  collection = collectAgain().then(observeHomeAtExit, observeHomeAtExit);
   await expect.poll(() => existsSync(recorded)).toBe(true);
   processes = JSON.parse(readFileSync(recorded, "utf8")) as typeof processes;
   expect(processRunning(processes?.collector)).toBe(true);

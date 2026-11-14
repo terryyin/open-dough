@@ -43,8 +43,9 @@ test("a collected file explains breakdown and partial gaps and keeps earlier fil
   origin,
   github,
 }) => {
-  test.setTimeout(60_000); // Same real publication/collection boundary as the full journey.
-  const setup = await publishSummaryComparisonStory(page, origin);
+  const setup = await publishSummaryComparisonStory(page, origin, {
+    proofs: {},
+  });
   const earlier = git(origin.project, "rev-parse", `${setup.completion}^`);
   expect(earlier).not.toBe(setup.baseline);
   expect(earlier).not.toBe(setup.branchSide);

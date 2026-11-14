@@ -56,7 +56,9 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     page,
     origin,
   }) => {
-    const setup = await publishSummaryComparisonStory(page, origin, variant);
+    const setup = await publishSummaryComparisonStory(page, origin, {
+      variant,
+    });
     const ci = await holdAuthenticatedReadsWhere(
       page,
       (params) => params.get("intent") === "ci-comparison",

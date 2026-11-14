@@ -5,17 +5,14 @@ import { observeLaunchAdmission } from "../support/launchAdmissionObservation.ts
 import { launchStoreFile } from "../support/launchStore.ts";
 import { readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
-import type { APIRequestContext, Page } from "@playwright/test";
+import type { APIRequestContext, Browser, Page } from "@playwright/test";
 import {
   dashboardCommand,
   developmentDashboard,
 } from "../support/dashboardCommand.ts";
 import { localPublishedMainFixture } from "../support/publishedMainFixture.ts";
 import { startWatcherNativeCodex } from "../support/watcherNativeCodex.ts";
-import {
-  configureWatcherApplication,
-  productionBuildEnvironment,
-} from "../support/productionWatcherFixture.ts";
+import { configureWatcherApplication } from "../support/productionWatcherFixture.ts";
 import { processRunning } from "../support/processGroup.ts";
 import {
   deploymentWork,
@@ -81,6 +78,7 @@ export function productionUpdateJourney() {
   let page: Page | undefined;
   let prepared: Omit<Started, "served" | "built"> | undefined;
   let state: Started | undefined;
+  let preparation: Promise<void> | undefined;
   function started(): Started {
     if (state === undefined)
       throw new Error("The watcher's first activation was not observed");
@@ -95,7 +93,7 @@ export function productionUpdateJourney() {
   // Setup publishes A and starts the watcher; the first test observes A's
   // activation through `activated()`, so the shared hook holds only the
   // preparation.
-  test.beforeAll(async ({ browser }) => {
+  async function prepare(browser: Browser) {
     fixture = await localPublishedMainFixture(true, "application");
     const workflow = await readFile(
       path.join(fixture.development, ciWorkflowPath),
@@ -106,7 +104,7 @@ export function productionUpdateJourney() {
     await fixture.commit(
       {
         ...fixture.markerChanges("MAIN A"),
-        ...(await buildGateChanges(fixture.development)),
+        ...(await buildGateChanges(fixture.development, fixture.home)),
       },
       "Main A",
     );
@@ -129,11 +127,10 @@ export function productionUpdateJourney() {
     if (host.status === "rejected") throw host.reason;
     native = host.value;
     if (dependencies.status === "rejected") throw dependencies.reason;
-    const { env: observed, drainEvents } = await observeLaunchAdmission(
+    const { env, drainEvents } = await observeLaunchAdmission(
       fixture.home,
       native.env,
     );
-    const env = productionBuildEnvironment(observed);
     const configurationIdentity = (await stat(configuration)).ino;
     const dev = await developmentDashboard(fixture.development, env);
     development = dev.command;
@@ -151,17 +148,26 @@ export function productionUpdateJourney() {
       configurationIdentity,
       a,
     };
+  }
+  test.beforeAll(async ({ browser, publishedApplicationSourceReady }) => {
+    await Promise.resolve(publishedApplicationSourceReady);
+    preparation = prepare(browser);
+    await preparation;
   });
   test.afterAll(async () => {
     try {
-      await page?.close();
-      await watcher?.stop();
-      await development?.stop();
+      await preparation;
     } finally {
       try {
-        await native?.close();
+        await page?.close();
+        await watcher?.stop();
+        await development?.stop();
       } finally {
-        await fixture?.cleanup();
+        try {
+          await native?.close();
+        } finally {
+          await fixture?.cleanup();
+        }
       }
     }
   });

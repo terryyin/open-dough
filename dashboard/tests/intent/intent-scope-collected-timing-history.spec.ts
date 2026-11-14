@@ -52,10 +52,10 @@ test("a Done entry shows collector-acquired test timing through its middle landi
   origin,
   github,
 }) => {
-  // Actual publication and collection previously used 29.8s before navigation.
-  test.setTimeout(60_000);
   // Publish the actual CLI completion, owning merge and historical Intent tree.
-  const setup = await publishSummaryComparisonStory(page, origin);
+  const setup = await publishSummaryComparisonStory(page, origin, {
+    proofs: {},
+  });
   const newest = await resultToLand(dashboard, "later-unrelated-history.txt");
   const recorded = [
     // Receipt dates deliberately disagree with trunk ancestry: a delayed

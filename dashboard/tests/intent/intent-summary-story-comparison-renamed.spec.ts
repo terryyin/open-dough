@@ -32,7 +32,7 @@ test("a Done Story Branch rename keeps its original diff and Review changes afte
       },
     })
     .please().revisions[0];
-  await publishSummaryComparisonStory(page, origin, undefined, later);
+  await publishSummaryComparisonStory(page, origin, { later });
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   await expandIntentGroup(intent, "dashboard/tests");
   const name = summaryComparisonChanges.renamed;

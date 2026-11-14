@@ -113,8 +113,7 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
       return summaryTextZipAnswer(text);
     const main = await originMain(origin);
     return (
-      actionsForRuns([run])(call.argv, main) ??
-      publishes({ revision: main })(call)
+      actionsForRuns([run])(call.argv) ?? publishes({ revision: main })(call)
     );
   });
   const accepted = land(newest.record, origin, dashboard.home).result.landing

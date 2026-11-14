@@ -1,7 +1,7 @@
 // Published with main: record each build's process and checkout, and allow
 // the test to gate the real build before it starts or after Vite succeeds.
 import { readFileSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { PathChanges } from "./publishedMainFixture.ts";
 import type { ProductionWatcher } from "./productionWatcher.ts";
@@ -15,37 +15,54 @@ import { appendFileSync, existsSync, readFileSync, watch, writeFileSync } from "
 import { homedir } from "node:os";
 import path from "node:path";
 const checkout = path.basename(process.cwd());
+const log = path.join(homedir(), "builds.log");
 let hold;
+let arrived;
 if (process.argv[2] === "completed") {
   hold = path.join(homedir(), "${completedBuildHold}");
-  writeFileSync(path.join(homedir(), "${completedBuildFile}"), checkout);
+  arrived = () => writeFileSync(path.join(homedir(), "${completedBuildFile}"), checkout);
 } else {
-  const log = path.join(homedir(), "builds.log");
-  appendFileSync(log, process.pid + " " + checkout + "\\n");
-  const ordinal = readFileSync(log, "utf8").trim().split("\\n").length;
+  const ordinal = readFileSync(log, "utf8").split("\\n").slice(0, -1).length + 1;
   hold = path.join(homedir(), "hold-build-" + ordinal);
+  arrived = () => appendFileSync(log, process.pid + " " + checkout + "\\n");
 }
-if (existsSync(hold)) {
-  let observer;
-  try {
-    await new Promise((resolve, reject) => {
-      function check() {
-        if (!existsSync(hold)) resolve();
-      }
-      observer = watch(homedir(), check);
+let observer;
+try {
+  await new Promise((resolve, reject) => {
+    let published = false;
+    function check() {
+      if (published && !existsSync(hold)) resolve();
+    }
+    try {
+      observer = watch(hold, check);
       observer.once("error", reject);
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+    // Actual-file observation is armed by the next poll. Publish arrival
+    // only after it, including when invoked from a poll callback.
+    setImmediate(() => setImmediate(() => {
+      arrived();
+      published = true;
       check();
-    });
-  } finally {
-    observer?.close();
-  }
+    }));
+  });
+} finally {
+  observer?.close();
 }
 `;
 
 // The development package with its dashboard build behind the gate.
 export async function buildGateChanges(
   development: string,
+  home: string,
 ): Promise<PathChanges> {
+  // Existing inodes let observers watch the actual files on macOS instead
+  // of waiting for a directory's delayed FSEvents stream to start.
+  await Promise.all([
+    writeFile(path.join(home, "builds.log"), ""),
+    writeFile(path.join(home, completedBuildFile), ""),
+  ]);
   const packageJson = JSON.parse(
     await readFile(path.join(development, "package.json"), "utf8"),
   ) as { scripts: Record<string, string> };
@@ -70,7 +87,7 @@ export function waitForCompletedBuild(
   home: string,
 ) {
   const file = path.join(home, completedBuildFile);
-  return waitForWatcherFile(watcher, home, () => {
+  return waitForWatcherFile(watcher, file, () => {
     try {
       return readFileSync(file, "utf8") || undefined;
     } catch (error) {
@@ -103,7 +120,7 @@ export function waitForBuild(
   ordinal: number,
 ) {
   const file = path.join(home, "builds.log");
-  return waitForWatcherFile(watcher, home, () => {
+  return waitForWatcherFile(watcher, file, () => {
     try {
       return buildsFrom(readFileSync(file, "utf8"))[ordinal - 1];
     } catch (error) {

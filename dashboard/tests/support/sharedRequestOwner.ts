@@ -75,6 +75,7 @@ export async function dashboardsOnOneOwner() {
   };
   return {
     github,
+    gh,
     first,
     second,
     serve: (answerer: RepositoryAnswerer) => {
@@ -86,11 +87,11 @@ export async function dashboardsOnOneOwner() {
     },
     // The installed diagnostic entry reading the selected workflow, as a
     // process of its own with the dashboards' HOME and `gh`.
-    ciWorkflowRead: () =>
+    ciWorkflowRead: (entry = diagnosticEntry) =>
       new Promise<CiRead>((resolve) => {
         execFile(
           process.execPath,
-          [diagnosticEntry, "workflow", "example/sample-app"],
+          [entry, "workflow", "example/sample-app"],
           {
             env: {
               ...process.env,

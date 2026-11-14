@@ -134,6 +134,7 @@ async function startOwner(
     );
   }
   return {
+    gh,
     // What points a dashboard server at this owner and its `gh`.
     wiring: { pathPrefix: [gh.binDir], requestOwnerRoot: gh.requestOwnerRoot },
     ownerPid,

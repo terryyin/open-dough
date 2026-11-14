@@ -56,9 +56,9 @@ test("a Done folder and file keep their collected history through Proof and Purp
   origin,
   github,
 }) => {
-  // The real publication/collector journey needs more than the default30s.
-  test.setTimeout(60_000);
-  const setup = await publishSummaryComparisonStory(page, origin);
+  const setup = await publishSummaryComparisonStory(page, origin, {
+    proofs: {},
+  });
   const newest = await resultToLand(dashboard, "later-folder-history.txt");
   recordScopeHistoryLandings(dashboard, origin, setup.identity, [
     {

@@ -70,7 +70,6 @@ for (const bounds of ["available", "unavailable"] as const) {
       return (
         trunkActions([rerun, latest], { 42: usableProofOf(latest) })(
           call.argv,
-          trunk.revision("new"),
         ) ?? publishes({ revision: trunk.revision("new") })(call)
       );
     });

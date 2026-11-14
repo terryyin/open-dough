@@ -73,7 +73,21 @@ case timeout under CPU-bound contention at a one-minute load of 30–50.
   [local test resources](../../tests/local-test-resources.md#load-while-measuring).
   Hosted CI retains its thirteen shards, CPU-derived worker count and current
   deadlines; compare recorded shard times and require the changed suite to pass.
-- Scope limits: no product behavior changes or production `gh` transport
+- Targeted fixture preparation and Git-backed answer optimizations needed
+  for the named loaded checks are included. Preserve every existing journey
+  and assertion, the default 30 s case budget, current working-tree source
+  without a persistent preparation cache, and real claim/completion/publication
+  history. This scope extension was authorized by Terry on 2026-11-13 after
+  the transport was observed to execute no API subprocesses while preparation
+  and Git work still exhausted two named cases' budgets.
+- Production staging performance needed by the unchanged watcher journeys is
+  included. Preserve the stock build and preview scripts, locked dependencies,
+  private deployments, every existing assertion and the default 30 s case
+  budget. Terry authorized this extension on 2026-11-13 after an observed real
+  production install and build consumed the replacement case's budget before
+  preview activation. Production inputs must still come from the selected
+  published revision rather than development checkout edits.
+- Scope limits: no other product behavior changes or production `gh` transport
   changes; no timeout increases, removed journeys, reduced assertions,
   new GitHub answer model, or general test-runner redesign. No numeric
   speedup is promised beyond removing per-call process creation and meeting

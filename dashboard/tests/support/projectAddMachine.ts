@@ -8,6 +8,7 @@ import {
   type DashboardServer,
   type DashboardServerMode,
 } from "./dashboardServer.ts";
+import type { FakeGhTransport } from "./fakeGh.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { everyRepository, publishes } from "./fakeGitHub.ts";
 import { describedBacklog } from "../describedRevisions.ts";
@@ -22,7 +23,9 @@ export const addedRevision = "b7".repeat(20);
 export const addedBranch = "release+stable";
 export const addedLocalPath = "~/work/private-checkout";
 
-export function projectAddMachine() {
+export function projectAddMachine({
+  ghTransport,
+}: { ghTransport?: FakeGhTransport } = {}) {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-project-add-"));
   const checkout = path.join(machine, "home/work/private-checkout");
   mkdirSync(checkout, { recursive: true });
@@ -58,6 +61,7 @@ export function projectAddMachine() {
     ): Promise<DashboardServer> {
       const server = await startDashboardServer({
         mode,
+        ghTransport,
         machine,
         configureDevelopmentProjects: false,
         prebuilt: sharedDashboardBuild,

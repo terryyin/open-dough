@@ -27,7 +27,9 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     page,
     origin,
   }) => {
-    const setup = await publishSummaryComparisonStory(page, origin, variant);
+    const setup = await publishSummaryComparisonStory(page, origin, {
+      variant,
+    });
     const unchangedReads: string[] = [];
     page.on("request", (request) => {
       const url = new URL(request.url());

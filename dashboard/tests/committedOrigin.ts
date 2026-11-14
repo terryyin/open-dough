@@ -44,7 +44,6 @@ import {
 
 export type ActionsAnswerer = (
   argv: readonly string[],
-  headSha: string,
 ) => OriginAnswer | undefined;
 
 export type CommittedOrigin = {
@@ -102,7 +101,7 @@ export function publishCommittedOrigin(
       request.kind === "actions-run-artifacts" ||
       request.kind === "actions-artifact-zip"
     ) {
-      const actionsAnswer = actionsOverride?.(argv, published());
+      const actionsAnswer = actionsOverride?.(argv);
       if (actionsAnswer !== undefined) return actionsAnswer;
       if (request.kind === "actions-attempt-jobs") return notFoundAnswer();
       if (

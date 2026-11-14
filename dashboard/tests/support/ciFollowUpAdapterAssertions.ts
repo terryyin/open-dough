@@ -24,6 +24,26 @@ export async function ingest(
   return server;
 }
 
+// Keep related card assertions on the response that satisfied the poll.
+export async function unverifiedCards(
+  server: DashboardServer,
+  explanation: string,
+) {
+  let observedCards: Awaited<ReturnType<typeof followUpCards>> = [];
+  await expect
+    .poll(async () => {
+      observedCards = await followUpCards(server);
+      return observedCards;
+    })
+    .toMatchObject([
+      {
+        kind: "unverified",
+        explanation: expect.stringContaining(explanation),
+      },
+    ]);
+  return observedCards;
+}
+
 // Real completed collection calls on either side of restart prove the allowance
 // remains spent; merely reading the card would not reach submission.
 export async function retained(
@@ -34,20 +54,9 @@ export async function retained(
   unattributed = false,
 ) {
   const check = async (server: DashboardServer) => {
-    let observedCards: Awaited<ReturnType<typeof followUpCards>> | undefined;
-    await expect
-      .poll(async () => {
-        observedCards = await followUpCards(server);
-        return observedCards;
-      })
-      .toMatchObject([
-        {
-          kind: "unverified",
-          explanation: expect.stringContaining(explanation),
-        },
-      ]);
+    const observedCards = await unverifiedCards(server, explanation);
     if (unattributed) {
-      expect(observedCards?.[0]?.repeatMs).toBeUndefined();
+      expect(observedCards[0]?.repeatMs).toBeUndefined();
       expect(requestOf(server)?.outcome.observed).toBeUndefined();
       expect(requestOf(server)?.outcome.repeat).toBeUndefined();
     }

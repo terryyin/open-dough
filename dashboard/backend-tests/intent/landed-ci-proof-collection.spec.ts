@@ -121,8 +121,7 @@ for (const proofState of ["summary", "mismatched", "expired"] as const) {
         return summaryTextZipAnswer(summaryText);
       }
       return (
-        actionsForRuns([run])(call.argv, main) ??
-        publishes({ revision: main })(call)
+        actionsForRuns([run])(call.argv) ?? publishes({ revision: main })(call)
       );
     });
     const delivered = land(record, origin, dashboard.home).result;

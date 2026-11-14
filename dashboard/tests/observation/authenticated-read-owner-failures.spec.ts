@@ -31,7 +31,7 @@ for (const [fault, ownerCause, message] of [
     page,
   }) => {
     const machine = mkdtempSync(path.join(tmpdir(), "dough-owner-notice-"));
-    const gh = installFakeGh(machine);
+    const gh = installFakeGh(machine, { transport: "cli" });
     const cleanups: (() => Promise<void>)[] = [];
     const root = gh.requestOwnerRoot;
     let requestOwnerRoot = root;
@@ -51,6 +51,7 @@ for (const [fault, ownerCause, message] of [
       );
     const server = await startDashboardServer({
       mode: "preview",
+      ghTransport: "cli",
       prebuilt: sharedDashboardBuild,
       requestOwnerRoot,
       extraEnv: { GH_TOKEN: ownerSecret },

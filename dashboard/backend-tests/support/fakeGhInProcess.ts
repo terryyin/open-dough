@@ -16,6 +16,7 @@ import {
   endFakeGh,
   fakeGhEnv,
   installFakeGh,
+  type FakeGhPaths,
 } from "../../tests/support/fakeGh.ts";
 import { startFakeGitHub } from "../../tests/support/fakeGitHub.ts";
 import { runFakeGh } from "../../tests/support/fakeGhTransport.mjs";
@@ -32,10 +33,9 @@ type RecordedOwner = {
   readonly file: string;
 };
 
-export async function inProcessFixture() {
-  const root = mkdtempSync(path.join(tmpdir(), "dough-gh-in-process-"));
-  const github = await startFakeGitHub();
-  const gh = installFakeGh(root, { transport: "in-process" });
+// Independent evidence: API execution writes a marker and fails, while auth
+// keeps the committed native fixture. Unlink before changing its hardlink.
+export function poisonApi(gh: FakeGhPaths, root: string) {
   const poison = path.join(root, "api-launched");
   const executable = path.join(gh.binDir, "gh");
   unlinkSync(executable);
@@ -47,6 +47,14 @@ exec ${JSON.stringify(path.join(repoRoot, "dashboard/tests/fixtures/fake-gh"))} 
 `,
     { mode: 0o755 },
   );
+  return () => existsSync(poison);
+}
+
+export async function inProcessFixture() {
+  const root = mkdtempSync(path.join(tmpdir(), "dough-gh-in-process-"));
+  const github = await startFakeGitHub();
+  const gh = installFakeGh(root);
+  const apiLaunched = poisonApi(gh, root);
   const env = { ...fakeGhEnv(gh, github.url), GH_TOKEN: "fixture-token" };
   const restore = withRestoredEnv(env);
   const consumers: GitHubRequests[] = [];
@@ -68,7 +76,7 @@ exec ${JSON.stringify(path.join(repoRoot, "dashboard/tests/fixtures/fake-gh"))} 
     consumer,
     owners: (): RecordedOwner[] =>
       ownerRecords(gh.requestOwnerRoot) as RecordedOwner[],
-    apiLaunched: () => existsSync(poison),
+    apiLaunched,
     read: (args: string[], options = {}) =>
       consumer(options).request(args, new AbortController().signal),
     raw: (args: string[], options: Record<string, unknown> = {}) =>

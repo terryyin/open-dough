@@ -161,7 +161,7 @@ test("a 504 listing, a timed-out listing, and a rate-limited listing keep nothin
 });
 
 test("closing the boundary aborts a running listing", async () => {
-  const server = await listingReuseServer();
+  const server = await listingReuseServer({ ghTransport: "cli" });
   server.github.serve(everyRepository, hangs);
   const url = `${server.baseURL}/__authenticated-read?source=open-dough&since=${revisionOf("8f")}`;
   abandonedRequest({ url, headers: { Origin: server.origin } });
