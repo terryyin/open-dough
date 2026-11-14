@@ -189,7 +189,7 @@ findings. No full host-by-scenario matrix is required.
   Main `283f1052b` is synchronized; SEED-346's existing NativeCompare completed the
   [declared matched pair and typical-task estimate](slice4-ab-basis.md), with forced CLI-wake limits explicit.
 - Slice 3 refactoring is complete; assessments retain all proof and identities.
-- [Native functional proof](slice4-native-acceptance.md) covers hold, attention, recovery and one qualification/replay; CI2517383/run43586155001 attempt1 passed. The [A/B report](../../../Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T102744-1921-tokens.md) preserves quality but used60.2% more tokens; C65/C68 remain open pending Terry's decision. Delegated-proof assessor repair/refactoring and focused proof passed; no paid rerun needed.
+- [Native functional proof](slice4-native-acceptance.md) covers hold, attention, recovery and one qualification/replay; CI2517383/run43586155001 attempt1 passed. The [A/B report](../../../Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T102744-1921-tokens.md) preserves quality but used60.2% more tokens. Terry now abandons this implementation: revert all except the independent assessor fix/tests/evidence, require <=3% token difference, drop this work and queue a replacement with unselected approach. Original C65/C68 remain unproved; cleanup does not declare them achieved.
 
 ## Execution context
 

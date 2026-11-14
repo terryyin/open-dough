@@ -13,6 +13,13 @@ reader and an exact list of shape writers
 (`Distribution/tests/support/native-stream-guard.mjs`), such as substitute agents and
 counterexample stream builders.
 
+Saved Codex session records are read through the same boundary's
+`readCodexSession` export. Its `native-host-stream-codex-session.mjs` adapter
+returns turn lifecycle, ownership and command receipts, decoding only literal
+sequential exec calls without executing their JavaScript. Case observers apply
+their own ownership, workspace and proof rules to those facts;
+`native-codex-session.mjs` supplies session discovery and runtime settings.
+
 `Distribution/tests/fixtures/native-streams/<host>/<case…>/<attempt>/` holds real host
 streams from accepted paid runs, gzipped. Each sits beside its retained
 `record`, observations, and response, and a reviewed `expected` file. Replay
