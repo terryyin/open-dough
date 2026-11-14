@@ -33,7 +33,7 @@ import { useKeptReading, useKeptReadingScroll } from "./pageIntentReading.tsx";
 import { diffStartOf } from "./storyComparisonShown.ts";
 import { useStoryCiReturn } from "./intentStoryTabs.tsx";
 import { FileDiff } from "./StoryReviewFileDiff.tsx";
-import { ReviewedFileName } from "./StoryReviewSnapshotView.tsx";
+import { ReviewedFileHeader } from "./StoryReviewFileHeader.tsx";
 import "./intent-file-reading.css";
 
 export type IntentReadingTab = "purpose" | "proof";
@@ -173,9 +173,12 @@ export function IntentFileReading({
           <h3 className="visually-hidden">Purpose</h3>
           {story !== undefined && change !== undefined ? (
             <div className="intent-story-diff">
-              <p className="intent-story-diff-name">
-                <ReviewedFileName file={change} />
-              </p>
+              <ReviewedFileHeader
+                reviewed={story.shown.reviewed}
+                from={changeFrom}
+                tree={story.shown.tree}
+                file={change}
+              />
               <FileDiff
                 // A new comparison or file is a new read.
                 key={`${changeFrom}:${story.shown.tree}:${change.path}`}

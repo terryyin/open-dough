@@ -36,33 +36,14 @@ import {
 import { diffStartOf } from "./storyComparisonShown.ts";
 import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
 import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
+import { ReviewedFileHeader } from "./StoryReviewFileHeader.tsx";
 import { FileMoves, revealRow } from "./StoryReviewFileMoves.tsx";
 import {
   changedFiles,
   changedFileWords,
   FileRow,
   FileTree,
-  includesTrunkWords,
-  kindWords,
 } from "./StoryReviewFileTree.tsx";
-
-export function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {
-  return (
-    <>
-      <span className="story-review-kind">{kindWords[file.kind]}</span>{" "}
-      {file.kind === "renamed" ? (
-        <>
-          <code>{file.oldPath}</code> → <code>{file.path}</code>
-        </>
-      ) : (
-        <code>{file.path}</code>
-      )}
-      {file.includesTrunkFrom !== undefined && (
-        <span className="story-review-trunk">, {includesTrunkWords}</span>
-      )}
-    </>
-  );
-}
 
 // What the review says in place of the browser when the comparison shown
 // lists no files.
@@ -212,16 +193,20 @@ export function SnapshotView({
         />
       </section>
       <section className="story-review-diff" aria-labelledby={diffHeadingId}>
-        <div className="story-review-diff-heading">
-          <h3 id={diffHeadingId}>
-            <ReviewedFileName file={selected} />
-          </h3>
-          <FileMoves
-            order={order}
-            selectedPath={selected.path}
-            onMove={moveTo}
-          />
-        </div>
+        <ReviewedFileHeader
+          reviewed={reviewed}
+          from={from}
+          tree={comparedTree}
+          file={selected}
+          headingId={diffHeadingId}
+          moves={
+            <FileMoves
+              order={order}
+              selectedPath={selected.path}
+              onMove={moveTo}
+            />
+          }
+        />
         <FileDiff
           // A new comparison, snapshot, or file is a new read, never the
           // last one's.

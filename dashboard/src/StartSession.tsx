@@ -32,7 +32,7 @@
 
 import { hostName } from "./sessionCapabilities.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
-import { useCallback, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
   adHocName,
   establishesSession,
@@ -61,12 +61,17 @@ import "./frame-controls.css";
 // are offered. Another host's offers are read again (`rereadOffers`). The last
 // launch from this button that has not started a session is its own
 // (`adHocAttemptOf`), the project's or, for a follow-up, its source's.
+// A line-number Follow up opens the same dialog without a second heading
+// trigger (`autoOpen`, `showTrigger`).
 export function StartSession({
   project,
   sourceId,
   launches,
   followUp,
   onOpen,
+  autoOpen = false,
+  showTrigger = true,
+  onClosed,
 }: {
   // The selected project's name.
   readonly project: string;
@@ -76,6 +81,12 @@ export function StartSession({
   readonly followUp?: FollowUpShown | undefined;
   // Called as the dialog opens.
   readonly onOpen?: () => void;
+  // Open once on mount (line-number Follow up).
+  readonly autoOpen?: boolean;
+  // When false, keep a visually hidden launcher for focus return and
+  // terminal handoff without a second Follow up control in the heading.
+  readonly showTrigger?: boolean;
+  readonly onClosed?: () => void;
 }) {
   const attempt = launches.adHocAttemptOf(sourceId, followUp?.source);
   const [host, setHost] = useState<AgentLaunchRequest["host"]>("claude");
@@ -89,13 +100,20 @@ export function StartSession({
     useCallback(() => progress.current, []),
   );
   const { presentTerminal } = usePageSessions();
+  const opened = useRef(false);
+  useEffect(() => {
+    if (!autoOpen || opened.current) return;
+    opened.current = true;
+    onOpen?.();
+    openDialog();
+  }, [autoOpen, onOpen, openDialog]);
 
   return (
     <>
       <button
         ref={launcher}
         type="button"
-        className="frame-button"
+        className={showTrigger ? "frame-button" : "visually-hidden"}
         aria-haspopup="dialog"
         aria-label={
           followUp === undefined
@@ -104,15 +122,20 @@ export function StartSession({
         }
         aria-describedby={attempt !== undefined ? answerId : undefined}
         disabled={starting}
+        tabIndex={showTrigger ? undefined : -1}
         onClick={() => {
           onOpen?.();
           openDialog();
         }}
       >
-        <Icon
-          icon={followUp === undefined ? SquareTerminal : MessageSquarePlus}
-        />
-        {followUp === undefined ? "Start session" : "Follow up"}
+        {showTrigger && (
+          <>
+            <Icon
+              icon={followUp === undefined ? SquareTerminal : MessageSquarePlus}
+            />
+            {followUp === undefined ? "Start session" : "Follow up"}
+          </>
+        )}
       </button>
       {attempt?.kind === "starting" && (
         <p
@@ -187,6 +210,10 @@ export function StartSession({
           onClose={(accepted) => {
             setPolicy(unattachedPolicyOf({}));
             closeDialog(accepted);
+            // Keep the launcher mounted through an accepted start so the
+            // blank follow-up can present its terminal; Cancel clears a
+            // line-menu host.
+            if (!accepted) onClosed?.();
           }}
         />
       )}

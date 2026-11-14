@@ -219,7 +219,7 @@
   cursor: pointer;
 }
 
-.intent-story-diff-name {
+.intent-story-diff > .story-review-diff-heading {
   margin: 0 0 var(--space-2);
 }
 

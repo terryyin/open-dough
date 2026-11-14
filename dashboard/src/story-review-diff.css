@@ -35,6 +35,11 @@
   min-width: 0;
 }
 
+/* Follow up beside the path keeps its size; Previous/Next stay at the end. */
+.story-review-diff-heading > .frame-button {
+  flex: none;
+}
+
 .story-review-file-moves {
   display: flex;
   flex: none;
@@ -72,7 +77,10 @@
 /* Each line's old and new numbers, from its data, take two columns before
    its text: generated, so they are neither the line's text nor copied with
    it, and assistive technology reads the code without them. A no-newline
-   note leaves both empty, keeping its text under the code. */
+   note leaves both empty, keeping its text under the code. When a Done
+   story offers line Follow up, the numbers are controls (`DiffLineNumber`)
+   with the same generated digits, still outside copied text and off the
+   Tab order. */
 .story-review-line,
 .story-review-note {
   display: grid;
@@ -84,22 +92,27 @@
   column-gap: 1ch;
 }
 
-.story-review-line::before,
+.story-review-line-code {
+  grid-area: code;
+  min-width: 0;
+}
+
+.story-review-line:not([data-line-menu])::before,
 .story-review-note::before {
   grid-area: old;
   content: attr(data-old);
   content: attr(data-old) / "";
 }
 
-.story-review-line::after,
+.story-review-line:not([data-line-menu])::after,
 .story-review-note::after {
   grid-area: new;
   content: attr(data-new);
   content: attr(data-new) / "";
 }
 
-.story-review-line::before,
-.story-review-line::after {
+.story-review-line:not([data-line-menu])::before,
+.story-review-line:not([data-line-menu])::after {
   color: var(--quiet);
   text-align: end;
 }
