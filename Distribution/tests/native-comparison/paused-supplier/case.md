@@ -143,3 +143,9 @@ events are unchanged. The record below ran the earlier case, recovered at
   include coordinator plus three native workers per arm: 8,386,947 vs 13,434,290
   processed tokens, with no measured saving in this forced-wake CLI case.
   The case still forces four turns; it does not observe daemon wake elimination.
+
+- [Retained observer nonregression](comparisons/20261114T102744-1921-observer-ab.json):
+  after withdrawing SEED-345's resume implementation, replay the same saved
+  subjects through old and fixed proof observers. Correct delegated-proof
+  recognition; 21,821,237 tokens per variant, 0.00% difference. No fresh native
+  invocation; the observer runs after the model and changes no agent input.

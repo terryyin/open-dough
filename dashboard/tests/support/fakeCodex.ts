@@ -2,7 +2,6 @@
 // fixture. Actual HTTP/page code creates and persists every launch record.
 import { defaultCodexModels, answerCodexCatalog } from "./fakeCodexCatalog.ts";
 import { answerCodexInput } from "./fakeCodexInput.ts";
-import { answerCodexHistory } from "./fakeCodexHistory.ts";
 import { answerCodexCreation } from "./fakeCodexCreation.ts";
 import { createServer } from "node:http";
 import path from "node:path";
@@ -185,14 +184,43 @@ export async function installFakeCodex(
           break;
         case "thread/read":
         case "thread/resume":
-          answerCodexHistory(
-            fixture,
-            message.method,
-            message.params ?? {},
-            reply,
-            refuse,
-            client,
-          );
+          fixture.beforeRead?.(message.params?.["includeTurns"] === true);
+          if (fixture.readError)
+            refuse({ code: -32000, message: "Native thread not found." });
+          else if (
+            fixture.blankHistoryError &&
+            message.params?.["includeTurns"]
+          )
+            refuse(fixture.blankHistoryError);
+          else if (fixture.failRead) client.close();
+          else {
+            if (message.method === "thread/resume" && fixture.completeOnResume)
+              client.send(
+                JSON.stringify({
+                  method: "turn/completed",
+                  params: {
+                    threadId: fixture.threadId,
+                    turn: { id: "native-turn-id", status: "completed" },
+                  },
+                }),
+              );
+            const turns =
+              message.method === "thread/resume" &&
+              fixture.resumeStatus !== undefined
+                ? fixture.history.map((turn) => ({
+                    ...turn,
+                    status: fixture.resumeStatus,
+                  }))
+                : fixture.history;
+            reply({
+              thread: {
+                id: fixture.threadId,
+                cwd: fixture.cwd,
+                turns,
+                status: { type: "active", activeFlags: [] },
+              },
+            });
+          }
           break;
         case "turn/start":
           answerCodexInput(

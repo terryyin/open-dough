@@ -24,7 +24,6 @@ import { launchMakeMeProperties } from "./launchMakeMe.mjs";
 import { HostHookSettingsBuilder } from "./hostHookSettingsTestData.mjs";
 import { feedbackMakeMeProperties } from "./feedbackTestData.mjs";
 import { jobDurations } from "./jobDurationTestData.mjs";
-import { HeldExecutionBuilder } from "./heldExecutionTestData.mjs";
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("../../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
@@ -70,19 +69,12 @@ import { HeldExecutionBuilder } from "./heldExecutionTestData.mjs";
  * @property {SlicePlanBuilder} aSlicePlan
  * @property {HostHookSettingsBuilder} hostHookSettings
  * @property {{ with: typeof jobDurations }} jobDurations
- * @property {HeldExecutionBuilder} aHeldExecution
  */
 
 /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & FeedbackMakeMe} */
 export const makeMe = Object.defineProperties(
   /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & FeedbackMakeMe} */ ({}),
   {
-    aHeldExecution: {
-      enumerable: true,
-      get() {
-        return new HeldExecutionBuilder();
-      },
-    },
     jobDurations: {
       enumerable: true,
       get() {
