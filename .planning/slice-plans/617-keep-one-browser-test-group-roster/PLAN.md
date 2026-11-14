@@ -18,8 +18,8 @@ rewriting historical records, findings or frozen fixtures.
 ## Provenance and current findings
 
 The completed execution of
-[Run and observe product-wide end-to-end tests](../../seeds/SEED-334-product-wide-end-to-end-tests.md#run-and-observe-product-wide-end-to-end-tests)
-(plan 608, claim `a9ddb54a786d7d64d2bf63500f93cec1c9c5952d`) published
+SEED-334#run-and-observe-product-wide-end-to-end-tests (story section and
+plan 608 recoverable at `125c45649fa587c78ed7445deff35db87604489d`; claim `a9ddb54a786d7d64d2bf63500f93cec1c9c5952d`) published
 `970c8c586`, `27724831f`, `8d6106164`, `cd7da4de9`, `da2581974`, `d21a0ebc5`
 and `bda0a659b` on its uncontaminated story branch. Findings were rechecked at
 `bda0a659b`:
