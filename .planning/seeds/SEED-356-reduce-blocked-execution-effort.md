@@ -97,8 +97,8 @@ actually read or construct from observed costs, rather than inheriting them.
   Terry assigned this responsibility here on 2026-11-14: the current Codex
   CLI comparison harness forces every wake and supplies no supplier-event
   delivery path, so comparison tooling must not manufacture the behavior.
-- Use the reusable evidence and representative unblocked example from
-  [Save and reuse native A/B baselines](SEED-346-native-ab-comparisons.md#reuse-native-comparison-baselines).
+- Use the [reusable baseline evidence](../../Distribution/tests/native-comparison-baselines.md)
+  and [qualified unblocked example](../../Distribution/tests/native-comparison/unblocked-supplier/case.md).
   Verify that saved observations match the candidate comparison's material
   conditions and measurement needs. Obtain a fresh baseline when they differ.
   The original forced-turn result remains evidence for correctness and

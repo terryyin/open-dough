@@ -210,6 +210,15 @@ Former local code: DD-489.
 
 [Retained occurrence and follow-up](docs/maintainer/findings/ODF-485.md#odf-485).
 
+### Occurrences
+- Execution: SEED-346#reuse-native-comparison-baselines (plan 622; first implementation `1f224d6641d73832725b8845f516a9ba2123d516`)
+  - Timestamp: unknown (2026-11-15, closure preflight; exact read-event time unavailable)
+  - Tool: Codex
+  - Open Dough release: 0.3.99 (installed marker and unchanged managed guidance in the established execution checkout)
+  - Evidence: `d34fbb2c3547318a14846a4db29556182b68f1f6:.agents/skills/dough-execute-plan/references/wrap-up-closure-publication.md`, generic opening versus “Observe Story Branch integration”; Story Wrap Up limits before-cleanup trunk publication to Trunk Mode, and the retained Story Branch delivery guard selects the execution branch.
+  - Observed effect: the coordinator reconciled the contradictory order before closure publication and retained branch closure followed by history-preserving integration. No wrong-target publication or failed integration resulted from this discrepancy.
+  - Inference: the same mode-consistency problem remains visible; isolated reading cost is unmeasured. This review changes no guidance.
+
 ## DD-491 — A proof limitation accepted at slice acceptance returned as a queued correction after Intent Coverage
 
 At slice acceptance the coordinator returned the proof for the state the story's example names and explicitly let two further states the plan's decision enumerates stand as a named limitation. The wrap-up Intent Coverage check then confirmed that limitation as a missing test path, and closure had to create a correction story, a plan, a premise observation, a readiness record and a queue entry for it.
@@ -619,3 +628,16 @@ Three observer or detector defects in the new comparison harness surfaced only a
   - Evidence: plan 618 Learnings "Observer corrections re-derived, not observed live" and "Doughnut qualification observed" (live verdict failed only on the arm path; re-derived pass); obligation G1 re-derived 1 integration / 1 filing from `final-state.txt`.
   - Observed effect: about two paid journeys (~22 min and ~14 min of Codex at xhigh) not repeated; the retained record's case hashes then predated the committed case, which the plan states.
   - Inference: re-derivation is only as trustworthy as the retained raw evidence; one run's raw per-test records were not retained, limiting that re-derivation.
+
+## ODF-248 — Refactor reruns unchanged consumer proof
+
+Former local code: DD-292. [Meaning and retained evidence](docs/maintainer/findings/ODF-248.md).
+
+### Occurrences
+- Execution: SEED-346#reuse-native-comparison-baselines (plan 622; first implementation `1f224d6641d73832725b8845f516a9ba2123d516`)
+  - Timestamp: unknown (2026-11-14, slice 2 acceptance; exact repeat time unavailable)
+  - Tool: Codex
+  - Open Dough release: 0.3.99 (installed marker and unchanged managed guidance in the established execution checkout)
+  - Evidence: `d34fbb2c3547318a14846a4db29556182b68f1f6:.planning/slice-plans/622-save-and-reuse-native-ab-baselines/comparison-proof.md`, slice 2 resource paragraph records “One unchanged selection was repeated solely to get a clean whole-command report” and explicitly identifies it as unnecessary.
+  - Observed effect: one extra unchanged focused selection ran after its accepted proof remained applicable. No new observation need or implementation change justified that repeat; elapsed time and token cost were not separately measured.
+  - Inference: this is the coordinator/reporting variant of the catalog's unchanged-consumer-proof repeat, rather than a fresh failure repair. Retain terminal receipts directly and renew only invalidated boundaries. Later guarded checks for actual CI/test changes and the requested scratch mutation/restore are distinct required observations.
