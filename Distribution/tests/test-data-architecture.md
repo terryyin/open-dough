@@ -188,7 +188,7 @@ revision gets an empty backlog unless it states one, as `backlog` or as bytes
 at `.planning/PRODUCT-BACKLOG.md`; `backlog: null` states a trunk without
 one. The builder refuses a backlog stated both ways and other descriptions it
 cannot materialize, before any Git runs; its comments hold each method's
-defaults. [Refusal test](support/repository-description.test.mjs)
+defaults.
 
 A dashboard journey that serves a project through the fake GitHub states the
 same description and serves its named revisions without Git.
