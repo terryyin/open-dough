@@ -46,6 +46,7 @@ export const reviewTargetName = ({
 export {
   objectIdSchema,
   reviewedFileSchema,
+  reviewedPathSchema,
   type LineCounts,
   type ReviewedFile,
 } from "./storyReviewFiles.ts";

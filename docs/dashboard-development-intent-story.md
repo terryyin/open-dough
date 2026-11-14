@@ -75,8 +75,10 @@ comparison: the historical result for Done, or All changes with uncommitted
 work for an active story, even one with a review mark. Closing that review keeps the selected story, as any Side panel close
 does, so Intent keeps the story's tab, file, and reading place, and the
 keyboard returns to the control that opened the review. A changed file's
-Purpose is Review changes' diff of it, and Proof holds that file's comparison
-when available. Location and folder Summary and file Proof share the story's
+Purpose is Review changes' diff of it, headed by the same kind and path, and
+for a Done story also [Follow up](../dashboard/LAUNCH-FOLLOW-UP.md) beside
+that path for the whole file; Proof holds that file's comparison when
+available. Location and folder Summary and file Proof share the story's
 [CI comparison](dashboard-development-intent-ci-comparison.md): active heading,
 observed-build framing, Baseline / Branch / Landed columns, signed changes and
 relative marks. Precise drill-down changes stay visible (`340 ms` to `410 ms`

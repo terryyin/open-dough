@@ -4,10 +4,17 @@
 // available from the same comparison's file text (`./diffContextExpansion.ts`)
 // as disposable presentation state. Both are fixed by the two trees, so the
 // page asks each once (`./useReviewRead.ts`); an unavailable answer is asked
-// again.
+// again. When a Done story offers line Follow up, DiffLines opens that line's
+// menu and this file mounts the same Start session dialog for the line.
 
 import { useState } from "react";
 import { textLines } from "./diffContextExpansion.ts";
+import type { DiffLineSide } from "./DiffLineNumber.tsx";
+import { useDoneStoryFollowUp } from "./doneStoryFollowUp.ts";
+import {
+  fileFollowUpParts,
+  StoryLineFollowUp,
+} from "./StoryAnchoredFollowUp.tsx";
 import { DiffLines } from "./StoryReviewDiffLines.tsx";
 import {
   reviewedFileDiffSchema,
@@ -74,6 +81,14 @@ export function FileDiff({
     { fixed: diffFixed },
   );
   const [textRound, setTextRound] = useState(0);
+  const [lineFollow, setLineFollow] = useState<{
+    readonly line: number;
+    readonly side: DiffLineSide;
+  }>();
+  const done = useDoneStoryFollowUp(reviewed.identity);
+  const canLineFollow =
+    done !== undefined &&
+    fileFollowUpParts(reviewed, from, tree, file) !== undefined;
   const textEnabled = answer?.kind === "diff";
   const textRead = useReviewRead<ReviewedFileText>(
     storyReviewFileTextEndpoint,
@@ -113,6 +128,26 @@ export function FileDiff({
             : {})}
           onRetryText={() => {
             setTextRound((round) => round + 1);
+          }}
+          {...(canLineFollow
+            ? {
+                onLineFollowUp: (side: DiffLineSide, line: number) => {
+                  setLineFollow({ line, side });
+                },
+              }
+            : {})}
+        />
+      )}
+      {lineFollow !== undefined && (
+        <StoryLineFollowUp
+          reviewed={reviewed}
+          from={from}
+          tree={tree}
+          file={file}
+          line={lineFollow.line}
+          side={lineFollow.side}
+          onClosed={() => {
+            setLineFollow(undefined);
           }}
         />
       )}

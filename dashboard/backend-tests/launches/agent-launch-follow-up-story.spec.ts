@@ -6,8 +6,10 @@
 // sending the story's facts and each session's context as the first input's
 // own block before the request. Two stories with the same words are two
 // launches; repeating one resumes its kept start. A story that revision does
-// not publish, or whose record cannot be read, refuses the follow-up. The
-// page journey is ../../../e2e/stories/recently-done-follow-up.spec.ts.
+// not publish, or whose record cannot be read, refuses the follow-up. An
+// optional file anchor on the same source: agent-launch-follow-up-file.spec.ts
+// and agent-launch-follow-up-file-admission.spec.ts.
+// The page journey is ../../../e2e/stories/recently-done-follow-up.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { doneRecordPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";

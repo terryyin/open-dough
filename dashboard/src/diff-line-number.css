@@ -1,0 +1,71 @@
+/* Line-number control and menu for a story-review diff
+   (`./DiffLineNumber.tsx`): digits stay outside copied code; the menu opens
+   into the code column. */
+
+.story-review-line-number-wrap[data-side="old"] {
+  grid-area: old;
+}
+
+.story-review-line-number-wrap[data-side="new"] {
+  grid-area: new;
+}
+
+.story-review-line-number-wrap {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  user-select: none;
+}
+
+.story-review-line-number {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--quiet);
+  font: inherit;
+  line-height: inherit;
+  text-align: end;
+  cursor: pointer;
+  min-width: 100%;
+}
+
+.story-review-line-number::before {
+  content: attr(data-line);
+  content: attr(data-line) / "";
+}
+
+.story-review-line-number:hover,
+.story-review-line-number:focus-visible,
+.story-review-line-number[aria-expanded="true"] {
+  color: var(--text);
+}
+
+.story-review-line-menu {
+  position: absolute;
+  z-index: 2;
+  top: 100%;
+  /* Open into the code, not left into the file browser. */
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0.15rem 0 0;
+  padding: 0.35rem;
+  min-width: 9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  background: var(--surface, var(--page, #fff));
+  box-shadow: 0 0.25rem 0.75rem color-mix(in srgb, var(--text) 12%, transparent);
+}
+
+.story-review-line-menu-label {
+  margin: 0;
+  padding: 0.15rem 0.35rem;
+  color: var(--quiet);
+  font-size: 0.8rem;
+}
+
+.story-review-line-menu .frame-button {
+  justify-content: flex-start;
+}
