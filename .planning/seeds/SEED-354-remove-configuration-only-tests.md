@@ -40,8 +40,17 @@ assertions that merely duplicate those values, while meaningful behavior remains
 - A schema rejects invalid user input with a useful error: judge its behavior;
   the shipped internal fixture merely matching the schema is not independent value.
 
+#### Test guidance already updated
+
+The [test automation instructions](../../AGENTS.md#test-automation) already
+require authors and reviewers to identify the concrete regression an assertion
+would catch and to reject assertions that merely restate configuration or data.
+During the audit, apply the wording to examples found in the suite. Check whether
+it clearly tells authors and reviewers when to remove an assertion and when to
+keep or rewrite it to verify observable behavior. Flag any example the wording
+does not resolve and suggest a focused clarification.
+
 #### Origin and priority
 
-Explicit developer request during SEED-350's early closure; first queued story.
-The current change drops its three newly introduced configuration-string checks.
-The wider audit is this story, not work already completed by that small removal.
+The developer requested this audit during SEED-350's early closure, which removed
+three newly introduced configuration-string checks. The wider audit remains open.
