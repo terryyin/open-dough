@@ -23,6 +23,8 @@
 # a resumed turn after starting a command (a truncated stream); `silent`
 # does the continuing turn's work but writes no stream; `stale` reports
 # another thread on a resumed turn; `unrecorded` keeps no session record.
+# `settings` applies a model different from the requested command line.
+# `usage` also saves complete native per-response accounting for each root turn.
 # It proves the runner, observer, assessor, pairing and retention around
 # known decisions; it never stands in for native behavior.
 # shellcheck disable=SC2016 # jq programs name their own arguments.
@@ -67,6 +69,7 @@ if [[ -z ${fault} ]]; then
   fault=$(sed -n 's/.*paused-supplier-substitute-fault: \([a-z-]*\).*/\1/p' \
     "${workspace}"/.agents/skills/*/SKILL.md 2> /dev/null | head -n 1) || true
 fi
+[[ ${fault} != settings ]] || model=unexpected-applied-model
 resumed=false
 if ((${#positional[@]} == 2)); then
   thread=${positional[0]}
@@ -158,4 +161,12 @@ else
 fi
 event --arg m "${message}" '{type:"item.completed",item:{id:"message",type:"agent_message",text:$m}}'
 event '{type:"turn.completed",usage:{input_tokens:1,cached_input_tokens:0,output_tokens:1}}'
+if [[ ${fault} == usage && -n ${CODEX_HOME-} ]]; then
+  {
+    event --arg id "${turn_id}" '{type:"event_msg",payload:{type:"task_started",turn_id:$id}}'
+    event --arg t "${thread}" --arg id "${turn_id}" \
+      '{type:"token_usage_record",payload:{thread_id:$t,turn_id:$id,root_turn_id:$id,response_id:($t+"-"+$id),usage:{input_tokens:1,cached_input_tokens:0,output_tokens:1,total_tokens:2}}}'
+    event --arg id "${turn_id}" '{type:"event_msg",payload:{type:"task_complete",turn_id:$id}}'
+  } >> "${record}"
+fi
 [[ -z ${output} ]] || printf '%s\n' "${message}" > "${output}"

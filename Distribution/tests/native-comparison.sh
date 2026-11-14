@@ -15,6 +15,7 @@
 #   Distribution/tests/native-comparison.sh --assess-baseline FILE
 #   Distribution/tests/native-comparison.sh --native codex --case NAME --baseline REV
 #     --candidate REV --factor TEXT --gain TEXT --quality TEXT
+#     [--reuse-baseline FILE] [--fresh-pair] [--require-usage]
 #     [--arms concurrent|sequential] [--payload-repo DIR] [--results-dir DIR]
 #     [--model MODEL] [--effort EFFORT] [--deadline SECONDS]
 #   Distribution/tests/native-comparison.sh --recover RECORD [--payload-repo DIR]
@@ -26,7 +27,8 @@
 # --baseline and --candidate, a paid pair: both revisions of --payload-repo
 # (default this checkout) are frozen as commits, the factor under test, its
 # intended gain and the quality criteria are recorded before either arm
-# starts, and both arms run (concurrently by default) in fresh projects of one
+# starts. Saved sufficient evidence can replace a baseline session; otherwise
+# both arms run (concurrently by default) in fresh projects of one
 # case basis with the same model and effort (default gpt-6.1-sol, xhigh, as
 # the cases' source sessions ran; a turn's deadline defaults to 2400
 # seconds). The pair's record is judged outcome first and printed; the
@@ -77,48 +79,11 @@ usage() {
   exit 2
 }
 
-host='' case_name='' results_dir='' model=gpt-6.1-sol effort=xhigh deadline=2400 list=false recover=''
-where=() native_comparison_pair_baseline='' native_comparison_pair_candidate=''
-native_comparison_pair_factor='' native_comparison_pair_gain='' native_comparison_pair_quality=''
-native_comparison_pair_arms=concurrent native_comparison_pair_repository=${source_dir}
-save_baseline='' export_baseline='' assess_baseline='' baseline_arm=baseline
-while (($#)); do
-  case $1 in
-    --list) list=true && shift && continue ;;
-    --native | --case | --results-dir | --model | --effort | --deadline | --where | --baseline | \
-      --candidate | --factor | --gain | --quality | --arms | --payload-repo | --recover | \
-      --save-baseline | --export-baseline | --assess-baseline | --arm)
-      [[ $# -ge 2 && -n $2 ]] || usage
-      ;;
-    *) usage ;;
-  esac
-  case $1 in
-    --native) host=$2 ;;
-    --case) case_name=$2 ;;
-    --results-dir) results_dir=$2 ;;
-    --model) model=$2 ;;
-    --effort) effort=$2 ;;
-    --deadline) deadline=$2 ;;
-    --where) where+=("$2") ;;
-    --baseline) native_comparison_pair_baseline=$2 ;;
-    --candidate) native_comparison_pair_candidate=$2 ;;
-    --factor) native_comparison_pair_factor=$2 ;;
-    --gain) native_comparison_pair_gain=$2 ;;
-    --quality) native_comparison_pair_quality=$2 ;;
-    --arms) native_comparison_pair_arms=$2 ;;
-    --payload-repo) native_comparison_pair_repository=$2 ;;
-    --recover) recover=$2 ;;
-    --save-baseline) save_baseline=$2 ;;
-    --export-baseline) export_baseline=$2 ;;
-    --assess-baseline) assess_baseline=$2 ;;
-    --arm) baseline_arm=$2 ;;
-  esac
-  shift 2
-done
-# Any pair option selects pair mode.
-pair_options=${native_comparison_pair_baseline}${native_comparison_pair_candidate}
-pair_options+=${native_comparison_pair_factor}${native_comparison_pair_gain}${native_comparison_pair_quality}
-[[ ${baseline_arm} =~ ^(baseline|candidate)$ ]] || usage
+source "${source_dir}/Distribution/tests/support/native-comparison-options.sh"
+
+if [[ -n ${reuse_baseline} || ${fresh_pair} == true || ${require_usage} == true ]]; then
+  [[ -n ${host}${native_comparison_pair_candidate} && -n ${native_comparison_pair_candidate} ]] || usage
+fi
 
 if [[ -n ${export_baseline}${assess_baseline} ]]; then
   [[ -z ${host}${case_name}${results_dir}${pair_options}${recover} && ${list} == false && ${#where[@]} -eq 0 ]] || usage
@@ -203,7 +168,14 @@ if [[ -n ${host} ]]; then
   native_comparison_pair "${case_name}" "${source_dir}" "${work}" "${native_case_results_dir}" || exit 2
   cat -- "${native_comparison_pair_attempt}/record"
   printf 'result-path: %s\n' "${native_comparison_pair_attempt}"
-  [[ -z ${save_baseline} ]] || native_comparison_baseline_export "${native_comparison_pair_attempt}" "${save_baseline}"
+  if [[ -n ${save_baseline} ]]; then
+    if [[ ${native_comparison_baseline_reused} == true && ${baseline_arm} == baseline ]]; then
+      node -e 'const f=require("node:fs");f.copyFileSync(process.argv[1],process.argv[2],f.constants.COPYFILE_EXCL)' "${reuse_baseline}" "${save_baseline}"
+      printf 'saved-baseline: %s\n' "${save_baseline}"
+    else
+      native_comparison_baseline_export "${native_comparison_pair_attempt}" "${save_baseline}"
+    fi
+  fi
   case ${native_comparison_verdict_outcome} in
     incomplete | not-comparable) exit 1 ;;
     *) exit 0 ;;

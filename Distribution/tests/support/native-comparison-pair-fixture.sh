@@ -98,3 +98,25 @@ native_comparison_fixture_record() {
   }
   printf '%s/record\n' "$(sed -n 's/^result-path: //p' "$1/$5.out")"
 }
+
+# A single frozen capture through the same public entry, for comparison
+# journeys whose starting state is an already observed baseline.
+native_comparison_fixture_capture() {
+  local work=$1 baseline=$2 name=$3
+  shift 3
+  PATH="${work}/bin:${PATH}" CODEX_HOME="${work}/codex-home" "${native_comparison_fixture_entry[@]}" \
+    --native codex --case paused-supplier --baseline "${baseline}" \
+    --payload-repo "${work}/payloads" --model gpt-test --effort low --deadline 120 \
+    --save-baseline "${work}/${name}.json" --results-dir "${work}/results" "$@" \
+    > "${work}/${name}.out" 2> "${work}/${name}.err"
+}
+
+# Each native session creates its own saved root record. Journeys use this
+# observed host boundary to distinguish candidate-only from fresh acquisition.
+native_comparison_fixture_sessions() {
+  if [[ -d $1/codex-home/sessions ]]; then
+    find "$1/codex-home/sessions" -type f -name '*.jsonl' | wc -l | tr -d ' '
+  else
+    echo 0
+  fi
+}

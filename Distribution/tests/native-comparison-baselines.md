@@ -1,4 +1,4 @@
-# Save and reassess native comparison baselines
+# Save, reuse and reassess native comparison baselines
 
 Use the [native comparison entry](native-comparison.md) for catalog selection,
 runtime requirements, authorization and ordinary journey/pair operation.
@@ -63,3 +63,52 @@ An old record containing only a verdict and proof filenames is historical
 evidence, not a replayable baseline; export it only when its decisive supporting
 inputs remain available. Saving evidence establishes no applicability to a new
 comparison: runtime, input, proof and measurement sufficiency still matter.
+
+
+## Compare another candidate with saved evidence
+
+Declare the factor, intended gain and quality criteria on the ordinary pair
+command, and supply the exact saved observation with `--reuse-baseline FILE`:
+
+```sh
+PATH=/opt/homebrew/bin:$PATH TMPDIR=$HOME/tmp/native-comparison \
+  Distribution/tests/native-comparison.sh --native codex --case paused-supplier \
+  --baseline v0.3.98 --candidate candidate-commit \
+  --reuse-baseline Distribution/tests/native-comparison/paused-supplier/comparisons/baseline-v0.3.98.json \
+  --factor 'payload guidance only' --gain 'fewer commands through the same proof' \
+  --quality 'current case outcome and decisive proof' \
+  --model gpt-6.1-sol --effort xhigh --arms sequential \
+  --results-dir "$HOME/tmp/native-comparison-results"
+```
+
+A matching, sufficient observation launches only the candidate. The record
+cites the original source, date, conditions, integrity, outcome and effort;
+`baseline-assessment.json` retains the current derived assessment separately.
+The historical baseline is one stochastic observation under its recorded load
+and scheduling, never a new simultaneous pair. Full provenance remains intact.
+Current assessor/reader and retention changes can reuse sufficient decisive
+inputs. Task, events, project files, installation and launch/supervision inputs
+must match, along with the host version/route, machine, model and effort.
+`case.bash` currently combines setup and observation: a changed hash cannot
+establish unchanged setup, so it obtains fresh evidence.
+
+A different requested baseline or material condition, or missing, incomplete
+or insufficient evidence, starts a fresh baseline and candidate. A usable new
+observation is written to the pair attempt's `baseline.json` and named by
+`baseline-saved:`. Keep it with the case before raw cleanup. Earlier archives
+stay byte-identical. A completed task failure can be reused; an unjudged
+interruption cannot. No stopped session is retried or resumed automatically.
+`--fresh-pair` explicitly observes both arms even when saved evidence matches.
+`--save-baseline FILE` can retain the selected baseline at an additional new
+path; when reused, its bytes are copied unchanged.
+
+The gain/quality prose states the evaluation intent; the current case assessor
+owns executable outcome/proof criteria. Add `--require-usage` when the current
+comparison requires complete native response counters. Missing saved counters
+then trigger fresh acquisition. Missing counters after that acquisition, or
+unavailable/mismatched actual candidate conditions, produce `not-comparable`
+and no effort delta. Without that flag unavailable counters remain unknown and
+cannot imply a token gain. When both arms have complete attributed usage, the
+record prints their counters and processed-token difference after the outcome;
+billing cost remains unknown. Lower effort never offsets a failed outcome or
+missing proof.

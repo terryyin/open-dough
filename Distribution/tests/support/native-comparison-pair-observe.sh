@@ -31,8 +31,7 @@ native_comparison_pair_observe_arm() {
   grep '^input-hash: ' "${record}" > "${compare}/basis" || true
   grep '^project-basis: ' "${record}" > "${compare}/project-basis" || true
   grep -E '^native-(executable|version): ' "${record}" > "${compare}/host" || true
-  { grep '^codex-turn-settings: ' "${record}" || true; } \
-    | sed -E 's/^codex-turn-settings: [0-9]+x //; s/ cwd=.*//' | LC_ALL=C sort -u > "${compare}/settings"
+  node "${native_comparison_pair_dir}/native-comparison-settings.mjs" "${record}" > "${compare}/settings"
   grep -E '^turn-[0-9]+-event: ' "${observations}" > "${compare}/events" || true
   awk -v arm="${arm}" -v turns="${turns}" -v empty=" ${empty_events} " -v record="${record}" \
     -v payload="$(cut -d ' ' -f 1 "${work}/payload-${arm}.id")" '

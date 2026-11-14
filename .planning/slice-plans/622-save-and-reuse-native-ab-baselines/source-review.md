@@ -34,31 +34,31 @@ material-condition requirements.
 | 15 | Do not treat proof filenames alone as sufficient reusable evidence. | slice 1 | observed: Distribution/tests/native-comparison-baselines.sh removes executed proof item and export refuses despite claimed original pass |
 | 16 | Do not treat a previous verdict alone as sufficient reusable evidence. | slice 1 | observed: Distribution/tests/native-comparison-baselines.sh unsupported old assessment cannot replace executed proof; Doughnut current replay uses test runs |
 | 17 | Keep account-bearing raw sessions local under the existing retention guidance. | slice 1 | observed: Distribution/tests/native-comparison-baselines.sh deliberate account metadata/raw output markers and local paths do not escape export |
-| 18 | During an authorized comparison, reuse sufficient retained baseline evidence when its baseline revision matches. | slice 2 | |
-| 19 | Require the relevant case inputs to match before claiming reuse under matching conditions. | slice 2 | |
-| 20 | Require the relevant runtime conditions to match before claiming reuse under matching conditions. | slice 2 | |
-| 21 | Require the retained result to support the current outcome criteria. | slice 2 | |
-| 22 | Require the retained result to support the current effort criteria. | slice 2 | |
-| 23 | Identify the reused source record in the new verdict. | slice 2 | |
-| 24 | Identify that record’s conditions in the new verdict. | slice 2 | |
-| 25 | Judge outcome before interpreting effort. | slice 2 | |
-| 26 | Judge proof before interpreting effort. | slice 2 | |
-| 27 | Distinguish a historical observation from a fresh matched pair when interpreting runtime or other variable measurements. | slice 2 | |
-| 28 | Verify the candidate’s applied conditions before claiming a match. | slice 2 | |
+| 18 | During an authorized comparison, reuse sufficient retained baseline evidence when its baseline revision matches. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh matching frozen payload/current task/runtime captures then actual session count +1 and preserved verdict; applicability checks material manifest and current assessor support |
+| 19 | Require the relevant case inputs to match before claiming reuse under matching conditions. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh matching frozen payload/current task/runtime captures then actual session count +1 and preserved verdict; applicability checks material manifest and current assessor support |
+| 20 | Require the relevant runtime conditions to match before claiming reuse under matching conditions. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh matching frozen payload/current task/runtime captures then actual session count +1 and preserved verdict; applicability checks material manifest and current assessor support |
+| 21 | Require the retained result to support the current outcome criteria. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh matching frozen payload/current task/runtime captures then actual session count +1 and preserved verdict; applicability checks material manifest and current assessor support |
+| 22 | Require the retained result to support the current effort criteria. | slice 2 | observed: Distribution/tests/native-comparison-baseline-conditions.sh missing current assessor input launches two fresh sessions; complete own usage satisfies explicit --require-usage; baseline-misses.sh absent required usage launches fresh then remains not-comparable/no delta |
+| 23 | Identify the reused source record in the new verdict. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh saved source/date/conditions/outcome/effort and historical non-concurrent limit in verdict; separate current assessment retains sourceIntegrity |
+| 24 | Identify that record’s conditions in the new verdict. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh saved source/date/conditions/outcome/effort and historical non-concurrent limit in verdict; separate current assessment retains sourceIntegrity |
+| 25 | Judge outcome before interpreting effort. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh cheaper shortcut candidate yields regressed and effort-standing not a gain; same outcome-first judge remains owner |
+| 26 | Judge proof before interpreting effort. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh cheaper shortcut candidate yields regressed and effort-standing not a gain; same outcome-first judge remains owner |
+| 27 | Distinguish a historical observation from a fresh matched pair when interpreting runtime or other variable measurements. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh saved source/date/conditions/outcome/effort and historical non-concurrent limit in verdict; separate current assessment retains sourceIntegrity |
+| 28 | Verify the candidate’s applied conditions before claiming a match. | slice 2 | observed: Distribution/tests/native-comparison-baseline-conditions.sh actual unexpected applied model yields not-comparable/no effort difference after one candidate launch; incomplete test retains unavailable settings |
 | 29 | Preserve unknown usage as unknown. | slice 1 | observed: Distribution/tests/native-comparison-baselines.sh unavailable usage remains unknown with null totals; known own responses deduplicated |
-| 30 | Obtain fresh evidence when a current criterion requires evidence absent from the saved observation. | slice 2 | |
+| 30 | Obtain fresh evidence when a current criterion requires evidence absent from the saved observation. | slice 2 | observed: Distribution/tests/native-comparison-baseline-conditions.sh missing current assessor input launches two fresh sessions; complete own usage satisfies explicit --require-usage; baseline-misses.sh absent required usage launches fresh then remains not-comparable/no delta |
 | 31 | When correcting an assessment, preserve the original record. | slice 1 | observed: Distribution/tests/native-comparison-doughnut-title-precedence.sh correction block preserves capture.originalAssessment fail, original green observation and archive hash |
 | 32 | Retain the derived assessment separately. | slice 1 | observed: Distribution/tests/native-comparison-doughnut-title-precedence.sh separate derived-assessment.json after raw removal returns current pass |
 | 33 | Retain the derived assessment’s provenance. | slice 1 | observed: Distribution/tests/native-comparison-doughnut-title-precedence.sh derived sourceIntegrity names exact original archive; assessBaseline hashes current assessor/evidence |
 | 34 | Retain the decisive evidence supporting the correction separately. | slice 1 | observed: Distribution/tests/native-comparison-doughnut-title-precedence.sh retained normalized test-run facts support corrected assessment after raw removal |
-| 35 | Run a fresh baseline when the requested baseline changes. | slice 2 | |
-| 36 | Run a fresh baseline when a material condition changes; the examples explicitly include model and reasoning effort. | slice 2 | |
-| 37 | Run a fresh baseline when saved evidence is missing. | slice 2 | |
-| 38 | Run a fresh baseline when saved evidence is incomplete. | slice 2 | |
-| 39 | Run a fresh baseline when saved evidence is insufficient for the current comparison. | slice 2 | |
-| 40 | Save a new observation when it provides a usable result. | slice 2 | |
-| 41 | Preserve earlier observations for their original conditions. | slice 2 | |
-| 42 | Allow an explicitly requested fresh pair when the comparison needs both arms observed together. | slice 2 | |
+| 35 | Run a fresh baseline when the requested baseline changes. | slice 2 | observed: Distribution/tests/native-comparison-baseline-misses.sh changed payload/model/effort/task and missing/truncated saved input launch two real sessions via fresh acquisition |
+| 36 | Run a fresh baseline when a material condition changes; the examples explicitly include model and reasoning effort. | slice 2 | observed: Distribution/tests/native-comparison-baseline-misses.sh changed payload/model/effort/task and missing/truncated saved input launch two real sessions via fresh acquisition |
+| 37 | Run a fresh baseline when saved evidence is missing. | slice 2 | observed: Distribution/tests/native-comparison-baseline-misses.sh changed payload/model/effort/task and missing/truncated saved input launch two real sessions via fresh acquisition |
+| 38 | Run a fresh baseline when saved evidence is incomplete. | slice 2 | observed: Distribution/tests/native-comparison-baseline-misses.sh changed payload/model/effort/task and missing/truncated saved input launch two real sessions via fresh acquisition |
+| 39 | Run a fresh baseline when saved evidence is insufficient for the current comparison. | slice 2 | observed: Distribution/tests/native-comparison-baseline-conditions.sh missing current assessor input launches two fresh sessions; complete own usage satisfies explicit --require-usage; baseline-misses.sh absent required usage launches fresh then remains not-comparable/no delta |
+| 40 | Save a new observation when it provides a usable result. | slice 2 | observed: Distribution/tests/native-comparison-baseline-misses.sh fresh changed-payload baseline saved then used by next candidate-only comparison; original archive hash unchanged |
+| 41 | Preserve earlier observations for their original conditions. | slice 2 | observed: Distribution/tests/native-comparison-baseline-misses.sh fresh changed-payload baseline saved then used by next candidate-only comparison; original archive hash unchanged |
+| 42 | Allow an explicitly requested fresh pair when the comparison needs both arms observed together. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh explicit --fresh-pair creates two sessions and new baseline without editing old archive |
 | 43 | Retain usable observations from the existing paused-supplier forced-turn example for correctness assessment, subject to the reuse rules. | slice 4 | |
 | 44 | Retain those usable forced-turn observations for per-wake cost assessment, subject to the reuse rules. | slice 4 | |
 | 45 | Do not interpret those forced-turn observations as establishing suppressed wakes. | slice 4 | |
@@ -80,12 +80,12 @@ material-condition requirements.
 | 61 | Capture available coordinator usage through completion for that unblocked baseline. | slice 4 | |
 | 62 | Capture available worker usage through completion for that unblocked baseline. | slice 4 | |
 | 63 | Permit these observations to be captured before the blocked-work candidate exists. | slice 4 | |
-| 64 | In the candidate-only-change journey, launch only the candidate when the saved baseline revision, task, events, project context, runtime settings, and required evidence remain sufficient. | slice 2 | |
-| 65 | In that journey, cite the saved baseline outcome in the verdict. | slice 2 | |
-| 66 | In that journey, cite the saved baseline effort in the verdict, preserving any unknown measurements. | slice 2 | |
-| 67 | After a baseline revision or material-condition change, make the newly saved observation reusable by a later matching comparison while preserving traceability to the earlier observation. | slice 2 | |
-| 68 | Permit reuse of a completed baseline that missed the expected outcome when its retained evidence answers the new comparison; observed failure does not itself invalidate reuse. | slice 2 | |
-| 69 | Obtain fresh baseline evidence when the previous baseline stopped before its outcome could be judged. | slice 2 | |
+| 64 | In the candidate-only-change journey, launch only the candidate when the saved baseline revision, task, events, project context, runtime settings, and required evidence remain sufficient. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh matching frozen payload/current task/runtime captures then actual session count +1 and preserved verdict; applicability checks material manifest and current assessor support |
+| 65 | In that journey, cite the saved baseline outcome in the verdict. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh saved source/date/conditions/outcome/effort and historical non-concurrent limit in verdict; separate current assessment retains sourceIntegrity |
+| 66 | In that journey, cite the saved baseline effort in the verdict, preserving any unknown measurements. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh saved source/date/conditions/outcome/effort and historical non-concurrent limit in verdict; separate current assessment retains sourceIntegrity |
+| 67 | After a baseline revision or material-condition change, make the newly saved observation reusable by a later matching comparison while preserving traceability to the earlier observation. | slice 2 | observed: Distribution/tests/native-comparison-baseline-misses.sh fresh changed-payload baseline saved then used by next candidate-only comparison; original archive hash unchanged |
+| 68 | Permit reuse of a completed baseline that missed the expected outcome when its retained evidence answers the new comparison; observed failure does not itself invalidate reuse. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh completed failed baseline reused for improved outcome; baseline-misses.sh missing/incomplete evidence uses fresh, baselines.sh refuses an unjudged interrupted export |
+| 69 | Obtain fresh baseline evidence when the previous baseline stopped before its outcome could be judged. | slice 2 | observed: Distribution/tests/native-comparison-baseline-reuse.sh completed failed baseline reused for improved outcome; baseline-misses.sh missing/incomplete evidence uses fresh, baselines.sh refuses an unjudged interrupted export |
 | 70 | In the unblocked example’s illustrated journey, discover the already-completed supplier. | slice 3 | |
 | 71 | In that journey, integrate once. | slice 3 | |
 | 72 | In that journey, finish the consumer’s partial work. | slice 3 | |
@@ -99,4 +99,4 @@ material-condition requirements.
 | 80 | Leave skipped-wake assessment to SEED-356. | slice 4 | |
 | 81 | Leave general accounting tooling with its existing stories. | slice 4 | |
 | 82 | Leave qualification of other native hosts with their existing stories. | slice 4 | |
-| 83 | Do not use those deferrals to reject an otherwise naturally supported saved observation from such a case. | slice 2 | |
+| 83 | Do not use those deferrals to reject an otherwise naturally supported saved observation from such a case. | slice 2 | observed: Distribution/tests/support/native-comparison-baseline-applicability.mjs generic case/input/runtime/evidence sufficiency; no forced-turn/event-delivery trait rejection; existing host launcher capability unchanged |

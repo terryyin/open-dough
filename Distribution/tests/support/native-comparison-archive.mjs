@@ -12,6 +12,7 @@ import {
 } from "./native-comparison-archive-evidence.mjs";
 import { retainedUsage } from "./native-comparison-archive-usage.mjs";
 import { assessBaseline } from "./native-comparison-archive-assessment.mjs";
+import { appliedSettings } from "./native-comparison-settings.mjs";
 
 export { assessBaseline } from "./native-comparison-archive-assessment.mjs";
 
@@ -92,10 +93,7 @@ export function exportBaseline(
   });
   if (!inputs.length) throw new Error("baseline lacks input provenance");
   const turns = retainedTurns(attempt, observations, record);
-  const settings = raw.split("\n").flatMap((line) => {
-    const match = /^codex-turn-settings: \d+x (.+?) cwd=/.exec(line);
-    return match ? [safe(match[1])] : [];
-  });
+  const settings = appliedSettings(raw).map(safe);
   const archive = {
     schema: "native-comparison-baseline/v1",
     case: record.get("case")?.replace(/^native-comparison\//, ""),
@@ -117,6 +115,12 @@ export function exportBaseline(
     },
     exporter: {
       archiveHash: sha(fileURLToPath(import.meta.url)),
+      settingsHash: sha(
+        join(
+          source,
+          "Distribution/tests/support/native-comparison-settings.mjs",
+        ),
+      ),
       evidenceHash: sha(
         join(
           source,

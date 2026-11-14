@@ -145,7 +145,7 @@ retention, assessor and filesystem cleanup. Do not assert builder internals.
 
 ### 2. Obtain a sufficient baseline from saved or fresh evidence
 Type: Behavior
-Status: planned
+Status: done
 Proof: The same baseline journey observes actual arm launches for a match, miss, insufficient evidence and explicitly fresh comparison; existing pair/refresh/incomplete journeys remain green.
 
 Behavior: an authorized comparison with an explicitly supplied saved baseline
@@ -239,6 +239,51 @@ its format. A later authorized comparison needing missing evidence uses Slice
 suppressed wakes or event-driven savings.
 
 ## Verification, sizing and concern review
+
+### Slice 2 accepted proof
+
+- Slice 1 was accepted on the execution branch at
+  `1f224d6641d73832725b8845f516a9ba2123d516`, suffix base
+  `d87004f11c06a9fc2c1e3d5f7dbdeab79a09b8be`, with the retained observer attached.
+- Supported pair acquisition now uses `--reuse-baseline FILE`, `--fresh-pair`
+  and explicit `--require-usage`. `native-comparison-baseline-reuse.sh` observes
+  actual session counts: one candidate for sufficient matching or complete
+  failed baselines, two for explicit fresh pairs. Its assertions inspect
+  source/date/conditions/historical limits, current assessor derivation and
+  immutable original bytes. A cheaper bad candidate is regressed, never a gain.
+- `native-comparison-baseline-misses.sh` observes two sessions for changed
+  payload/model/effort/task and missing/truncated evidence, then reuses the newly
+  saved changed-payload observation with one session. Required absent usage
+  obtains fresh evidence and remains not-comparable if still unavailable.
+  `native-comparison-baseline-conditions.sh` observes fresh acquisition for
+  missing decisive assessor inputs, candidate-only acquisition followed by
+  not-comparable/no delta for an actual applied-model mismatch, and complete
+  own native-response usage without summing CLI cumulative counters.
+- Applied settings that are unavailable retain the old precise unknown result;
+  only observed differences override it. Criteria sufficiency has its own
+  condition, separate from settings. Assessor/retention/reader provenance can
+  differ while sufficient current replay establishes applicability; the mixed
+  setup/observer file's uncertainty is disposed in G1 below.
+- Terminal passing commands:
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh Distribution/tests/native-comparison.sh Distribution/tests/native-comparison-paused-supplier.sh Distribution/tests/native-comparison-doughnut-title-precedence.sh Distribution/tests/native-stream-replay.sh`;
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-incomplete.sh Distribution/tests/native-comparison-baseline-reuse.sh Distribution/tests/native-comparison-baseline-conditions.sh`;
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baseline-misses.sh Distribution/tests/native-comparison-pairs.sh Distribution/tests/native-comparison-refresh.sh`.
+  Setup and observing assertions were inspected in those three new supported
+  entry journeys. Consumer dispositions: `/tmp/seed346-slice2-effects.md` and
+  `/tmp/seed346-slice2-consumers.md`; all reached comparison/case/reader callers
+  ran, historical planning/reference matches are unrelated and untouched.
+- Resource admission on this Mac: AC, awake, 16 cores, initially load
+  4.01/3.69/3.42 with about 3 GB free and 14 GB inactive; bounded recheck under
+  two named runs load 6.20/6.18/4.82 with 4 GB free and 14 GB inactive supported
+  continued focused concurrency. Guarded commands all ended. One unchanged
+  selection was repeated solely to get a clean whole-command report; this was
+  unnecessary and is retained as a process deviation, not additional proof need.
+- Source freshness unchanged at `c596ec840e95ad6518597369766a83fb63f37d18`;
+  new incoming commits concern dashboard launch-history preparation/Take and
+  other usage seeds. Named siblings and this source are unchanged.
+  `PATH=/opt/homebrew/bin:$PATH node scripts/test-shares.mjs preview --split-count 3`
+  passed: 657 jobs, predicted 740.9/740.8/740.8 under 926. The six unrecorded
+  jobs include these new journeys; this is not measured CI cost.
 
 ### Slice 1 accepted proof
 
@@ -346,3 +391,24 @@ suppressed wakes or event-driven savings.
   case/native proof. No remaining slice-specific concern was identified.
   Paid-only premises remain bounded by Slice 4 with failure stopping its
   dependent qualification/claims; no unresolved human scope decision remains.
+
+
+Independent slice 2 refactoring (`/root/refactor2`) completed before delivery:
+one applied/requested settings owner serves export, acquisition and the existing
+pair observer, and one machine formatter serves capture/acquisition/pair records.
+New settings interpretation remains hash-bound in pair provenance and exporter
+metadata. `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh Distribution/tests/native-comparison-baseline-reuse.sh Distribution/tests/native-comparison-baseline-conditions.sh Distribution/tests/native-comparison-pairs.sh Distribution/tests/native-comparison-incomplete.sh Distribution/tests/native-comparison-refresh.sh`
+passed. These assertions renewed capture, projection, actual/unknown settings,
+fresh pairing and recovery; unchanged miss-policy and shared-reader proof remains
+accepted. Consumer dispositions: `/tmp/seed346-refactor2-effects.md`. Tracked and
+untracked whitespace passed; formatted code previews stay under 250 lines.
+Resource recheck: AC, load 2.25/3.07/3.83, ample memory, no competing test commands.
+No semantic edit followed verification; no remaining gap. Delivery freshness
+remains unchanged at `c596ec840e95ad6518597369766a83fb63f37d18`.
+
+## Story obligations
+
+### G1. Setup equivalence is unknown after a mixed setup/observer change
+Reported: slice 2 — "Changed case.bash requires fresh acquisition because its hash currently combines setup and observation."
+Story clause: "Run a fresh baseline when the requested baseline or a material condition changes, or when saved evidence is missing, incomplete or insufficient for the comparison."
+Disposition: proved by slice 2: native-comparison-baseline-applicability.mjs preserves full provenance but compares only material inputs. A changed mixed case.bash cannot establish identical setup, so its saved evidence is insufficient and fresh acquisition follows the same rule. The inspected entry/acquisition/finish paths retain the old archive and save the fresh usable observation; baseline-misses.sh observes changed material input, two sessions, new baseline and later one-session reuse. Derived-only retention/assessor changes are separately observed to reuse sufficient evidence in baseline-reuse.sh. This records an applicability uncertainty, not a new case or delivery rejection rule.

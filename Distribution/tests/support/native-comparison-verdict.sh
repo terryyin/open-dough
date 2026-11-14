@@ -83,6 +83,12 @@ native_comparison_judge() {
       return 0
     }
   done
+  local criteria
+  criteria=$(native_observation_value "${observations}" criteria)
+  [[ -z ${criteria} || ${criteria} == sufficient ]] || {
+    native_comparison_verdict not-comparable "the requested comparison criteria lack sufficient evidence (${criteria})"
+    return 0
+  }
   baseline=$(pair_field baseline-assessment)
   candidate=$(pair_field candidate-assessment)
   case ${baseline}/${candidate} in
@@ -167,8 +173,20 @@ native_comparison_verdict_effort() {
     *) ;;
   esac
   printf 'effort-standing: %s\n' "${standing}"
-  printf 'effort-unavailable: %s\n' \
-    'tokens and cost: no reusable session accounting (SEED-345 effort comparison) is available here; raw usage stays in each attempt'"'"'s events-turn-*.jsonl and codex-*.jsonl records'
+  local baseline_usage candidate_usage
+  baseline_usage=$(native_observation_value "${observations}" baseline-native-usage)
+  candidate_usage=$(native_observation_value "${observations}" candidate-native-usage)
+  if [[ ${baseline_usage} == \{* && ${candidate_usage} == \{* ]]; then
+    printf 'effort-native-usage-baseline: %s\neffort-native-usage-candidate: %s\n' "${baseline_usage}" "${candidate_usage}"
+    case ${native_comparison_verdict_outcome} in
+      incomplete | not-comparable) echo 'effort-native-usage-difference: not computed' ;;
+      *) jq -nr --argjson b "${baseline_usage}" --argjson c "${candidate_usage}" '"effort-native-usage-difference: candidate \($c.total_tokens - $b.total_tokens) processed tokens against baseline"' ;;
+    esac
+    echo 'effort-unavailable: billing cost is unknown; retained native counters are observations only'
+  else
+    printf 'effort-unavailable: %s\n' \
+      'tokens and cost: no reusable session accounting (SEED-345 effort comparison) is available here; raw usage stays in each attempt'"'"'s events-turn-*.jsonl and codex-*.jsonl records'
+  fi
 }
 
 native_comparison_verdict_unknowns() {

@@ -23,6 +23,12 @@ native_comparison_case_files() {
     ! -name case.md ! -path '*/comparisons/*' | LC_ALL=C sort)
 }
 
+# The machine conditions recorded for an arm and compared before acquisition.
+native_comparison_machine() {
+  printf '%s, %s cores, %s\n' "$(uname -sm)" "$(getconf _NPROCESSORS_ONLN)" \
+    "$(pmset -g batt 2> /dev/null | sed -n "1s/^Now drawing from '\(.*\)'$/\1/p" | grep . || echo 'power unknown')"
+}
+
 native_comparison_retain() {
   local case_name=$1 source_dir=$2 results_dir=$3 root=$4 prompt=$5 wake=$6
   local dest case_files
@@ -50,8 +56,7 @@ native_comparison_retain() {
     printf 'native-executable: %s\n' "$(command -v codex)"
     printf 'native-version: %s\n' "${tool_version:-unknown}"
     printf 'observed-at: %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    printf 'machine: %s, %s cores, %s\n' "$(uname -sm)" "$(getconf _NPROCESSORS_ONLN)" \
-      "$(pmset -g batt 2> /dev/null | sed -n "1s/^Now drawing from '\(.*\)'$/\1/p" | grep . || echo 'power unknown')"
+    printf 'machine: %s\n' "$(native_comparison_machine)"
     printf 'native-requested-settings: %s\n' "${native_codex_settings[*]:-host defaults}"
     native_comparison_retain_sessions "${source_dir}" "${dest}"
     printf 'thread: %s\n' "${native_comparison_thread:-unknown}"
