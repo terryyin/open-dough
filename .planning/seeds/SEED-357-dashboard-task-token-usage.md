@@ -25,8 +25,7 @@ Codex task they started there used and which launch settings produced that usage
 Automatically collect usage for dashboard-launched Codex story workflows and
 ad hoc tasks. Show it with the task type, project, story identity when applicable,
 tool, requested and observed model and effort, and other relevant launch
-parameters. Use the data structure and historical backfill delivered by
-[dashboard launch history](SEED-358-dashboard-launch-history.md#usage-records-and-historical-backfill).
+parameters. Use the [usage records and historical reconstruction](SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history).
 Provide a usage view that [Claude Code](SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage)
 and [Cursor](SEED-360-cursor-task-token-usage.md#view-cursor-task-token-usage) can extend.
 

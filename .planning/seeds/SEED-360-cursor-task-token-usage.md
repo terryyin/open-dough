@@ -26,7 +26,7 @@ Extend the [dashboard usage view](SEED-357-dashboard-task-token-usage.md#view-to
 to Cursor story workflows and ad hoc tasks on the current interactive launcher.
 Persist the reported usage and available settings. Measure the whole task where
 requests can be attributed. Include related continuations and late worker usage.
-Show imported records and coverage from the [historical backfill](SEED-358-dashboard-launch-history.md#usage-records-and-historical-backfill).
+Store usage in the shared [usage records](SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history).
 
 #### Key examples
 
@@ -35,8 +35,8 @@ Show imported records and coverage from the [historical backfill](SEED-358-dashb
 - When reliable evidence ties a worker's usage to the task, the dashboard
   includes it once. If worker usage is unavailable, the dashboard shows the
   observed parent usage and the coverage gap.
-- An older launch shows its imported usage or its unavailable status without
-  double-counting observations seen by the live collector.
+- An older launch kept in launch history, from before collection, shows its
+  usage as unavailable rather than zero.
 
 The [Cursor research](../../docs/maintainer/dashboard-task-usage-research.md#cursor-cli-20261113-eacade1)
 identifies local parent hooks and an optional Admin API join by each child
