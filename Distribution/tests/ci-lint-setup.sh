@@ -20,7 +20,7 @@ if [[ ${platform} != Linux ]] || ! command -v timeout > /dev/null 2>&1; then
 fi
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
-workflow=${source_dir}/.github/workflows/ci.yml
+workflow=${source_dir}/.github/workflows/browser-test-group.yml
 extract_run() {
   awk -v name="$1" '
     /^      - name:/ { selected = ($0 == "      - name: " name); running = 0 }

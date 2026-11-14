@@ -204,7 +204,7 @@ expect_in_log "${workflow}" -F -- '60000'
 expect_in_log "${workflow}" -F -- '180000'
 expect_in_log "${workflow}" -F -- 'node scripts/setup-native.mjs npm'
 expect_in_log "${workflow}" -F -- 'node scripts/setup-native.mjs browser'
-expect_in_log "${workflow}" -F -- "if: steps.playwright-cache.outcome == 'failure'"
+expect_in_log "${workflow}" -F -- "!cancelled() && steps.playwright-cache.outcome == 'failure'"
 # shellcheck disable=SC2016 # Literal runner variable.
 expect_in_log "${workflow}" -F -- 'PLAYWRIGHT_BROWSERS_PATH=${RUNNER_TEMP}/playwright-chromium'
 if grep -Eq 'restore-keys:|--with-deps|if:.*always\(' "${workflow}" \

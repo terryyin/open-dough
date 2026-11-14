@@ -48,7 +48,7 @@ test("ci.yml establishes the 320s test-run epoch with setup and keeps artifacts 
   assert.match(body, /if-no-files-found: ignore/);
   const budget = readFileSync(budgetFile, "utf8");
   assert.match(budget, /^per-job-seconds=64$/m);
-  assert.match(budget, /^total-job-seconds=694$/m);
+  assert.match(budget, /^total-job-seconds=926$/m);
 });
 
 test("a past CI run cutoff starts no checks and records unfinished outcomes", async (t) => {

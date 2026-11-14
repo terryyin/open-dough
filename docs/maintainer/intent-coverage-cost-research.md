@@ -49,3 +49,37 @@ requests. The existing fallback for overdue or failed workers still protects
 closure. Any context-default change based on quota needs attributable usage at
 enough resolution to distinguish the expected saving. Keep cost estimates and
 included-quota measurements separate. [ADR 0010](../adrs/0010-definition-of-improvement-accepted.md)
+
+## Value of automatic checks, 12–14 November 2026
+
+This retrospective evaluation is exploratory. It covers 37 wrap-up reports
+saved in Done records for Open Dough, Doughnut, Pygardon and Lizard: 14 Claude
+Code runs, 17 Codex runs and 6 Cursor runs. The worker used 0.97% of Claude
+Code spend in the window ($11.41 of $1,174) and 0.75% of Codex tokens. Coordinator
+turns that dispatched or disposed of the check cost at most $19.68 and 1.3% of
+Codex tokens. These upper bounds were larger than the worker itself, because
+each turn rereads the whole wrap-up context. Cursor recorded no local token use.
+The median report took 4.8 minutes of elapsed time.
+
+The verdicts were 33 Caught and 4 Confirmed missing test path. No report found a
+delivered defect. Three reports led to maintained proof that landed:
+
+- a deleted adapter case's no-rerun behavior was added to a queued story and
+  proven the same day;
+- an assertion that a test-simplification story had shortened to a prefix was
+  restored before closure;
+- an optional end-to-end failed-build mark was folded into a queued correction
+  and proven.
+
+Two queued Pygardon corrections only move detection ahead of CI. For one of
+them, the faulted ordinary entry already exits nonzero. One gap restated a fault
+that its follow-up plan had already planned. The other Caught reports only gave
+assurance. That assurance mattered most for stories that cut or rewrote tests.
+
+Wrap-up now requests the check only for test removal or rewriting, or for a
+promise whose proof review or execution questioned. A report whose next proof
+action needs no new proof gets a one-line disposition. A gap whose fault
+already fails the ordinary entry or CI is recorded without queued work. Before
+keeping this change, compare the next comparable window on the same measures:
+reports that lead to landed proof, worker and coordinator share, and any
+skipped story whose later regression a check would have caught.

@@ -22,61 +22,16 @@ import {
   splitExcluding,
 } from "../../tests/support/proofRecordRun.ts";
 
+import {
+  groupRunnerExamples,
+  type GroupRunnerExample,
+} from "../../tests/support/groupRunnerExamples.ts";
+
 test.afterAll(removeProofDirectories);
 
-// Each runner owning one group, with one quick case of its own as its
-// arguments; `config`, `directory` (the config's testDir) and `root` are
-// relative to the repository, `durations` to `directory`.
-const runners = [
-  {
-    name: "Dashboard Integrated UI Test",
-    script: "test:dashboard:integrated",
-    config: "dashboard/integrated.playwright.config.ts",
-    prefix: "OPEN_DOUGH_DASHBOARD_INTEGRATED",
-    directory: "dashboard",
-    root: "dashboard/tests",
-    durations: "integrated.longest-first",
-    spec: "configuration/project-add-refusal.spec.ts",
-    grep: "origin mismatch stays linked to the path",
-  },
-  {
-    name: "Dashboard Frontend Test",
-    script: "test:dashboard:frontend",
-    config: "dashboard/frontend.playwright.config.ts",
-    prefix: "OPEN_DOUGH_DASHBOARD_FRONTEND",
-    directory: "dashboard",
-    root: "dashboard/frontend-tests",
-    durations: "frontend.longest-first",
-    spec: "control-reachability-observation.spec.ts",
-    grep: "a control revealed by earlier scrolling is still checked",
-  },
-  {
-    name: "Dashboard Backend Test",
-    script: "test:dashboard:backend",
-    config: "dashboard/backend.playwright.config.ts",
-    prefix: "OPEN_DOUGH_DASHBOARD_BACKEND",
-    directory: "dashboard",
-    root: "dashboard/backend-tests",
-    durations: "backend.longest-first",
-    spec: "launches/agent-launch-options-rules.spec.ts",
-    grep: "the shipped definition is valid",
-  },
-  {
-    name: "E2E Test",
-    script: "test:e2e",
-    config: "e2e/playwright.config.ts",
-    prefix: "OPEN_DOUGH_E2E",
-    directory: "e2e",
-    root: "e2e",
-    durations: "longest-first",
-    spec: "runtime/browser-identity.spec.ts",
-    grep: "tab, bookmark and touch icons",
-  },
-] as const;
-type Runner = (typeof runners)[number];
-const [integrated, frontend, backend, e2e] = runners;
+const [integrated, frontend, backend, e2e] = groupRunnerExamples;
 
-const selection = (runner: Pick<Runner, "spec" | "grep">) => [
+const selection = (runner: Pick<GroupRunnerExample, "spec" | "grep">) => [
   runner.spec,
   "--grep",
   runner.grep,
@@ -85,7 +40,7 @@ const selection = (runner: Pick<Runner, "spec" | "grep">) => [
 const cli = path.join(repoRoot, "node_modules/playwright/cli.js");
 const configOf = (config: string) => path.join(repoRoot, config);
 
-for (const runner of runners)
+for (const runner of groupRunnerExamples)
   for (const entry of [
     "normal npm",
     "direct config from another working directory",
@@ -104,7 +59,7 @@ for (const runner of runners)
       // that would exclude the target from this runner's own deal, a record,
       // a times file, and a deadline already passed. Reading any of them
       // would deselect the target, write elsewhere or fail the run.
-      const others = runners
+      const others = groupRunnerExamples
         .map(({ prefix }) => prefix)
         .filter((prefix) => prefix !== runner.prefix);
       const otherOutputs = others.flatMap((prefix) => [
@@ -187,12 +142,12 @@ test("group runs started beside each other keep their own run directories and re
       run: startProofCommand(process.execPath, args, repoRoot, env),
     };
   });
+  const results = await Promise.allSettled(runs.map(({ run }) => run.result));
   const outputs: string[] = [];
-  for (const { record, run } of runs) {
-    expect(await run.result).toMatchObject({
-      status: 0,
-      stdout: "",
-      stderr: "",
+  for (const [index, { record }] of runs.entries()) {
+    expect(results[index]).toMatchObject({
+      status: "fulfilled",
+      value: { status: 0, stdout: "", stderr: "" },
     });
     const proof = readProof(record);
     expect(proof).toMatchObject({

@@ -23,14 +23,14 @@ test("each browser group's job names its own command, settings, root and shards"
       shards,
     ]),
     [
-      ["e2e", "e2e", "test:e2e", "e2e/playwright.config.ts", true, 6],
+      ["e2e", "e2e", "test:e2e", "e2e/playwright.config.ts", true, 5],
       [
         "dashboard-integrated",
         "dashboard-integrated",
         "test:dashboard:integrated",
         "dashboard/integrated.playwright.config.ts",
         true,
-        5,
+        4,
       ],
       [
         "dashboard-frontend",
@@ -46,7 +46,7 @@ test("each browser group's job names its own command, settings, root and shards"
         "test:dashboard:backend",
         "dashboard/backend.playwright.config.ts",
         true,
-        4,
+        3,
       ],
     ],
   );
