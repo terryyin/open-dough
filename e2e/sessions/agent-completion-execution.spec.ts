@@ -14,12 +14,16 @@ import {
   queuedTitle,
 } from "../../dashboard/tests/support/startOrigin.ts";
 import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  parts,
+  sessionUnreadReportOf,
+} from "../../dashboard/tests/dashboardPage.ts";
 import { markDone } from "../../dashboard/tests/support/markDone.ts";
 import {
   openUntilRead,
   reloadUntilRead,
 } from "../../dashboard/tests/pageRequestNotes.ts";
+import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
 
 const exec = promisify(execFile);
 
@@ -54,7 +58,7 @@ test("execution completion keeps its Taken terminal available until wrap-up, thr
     name: "Story A",
     exact: true,
   });
-  const terminal = card.getByRole("button", { name: "Open terminal" });
+  const terminal = openTerminalControl(card);
   await expect(terminal).toBeVisible();
   const before = cursor.calls().length;
   const receipt = JSON.parse(
@@ -72,7 +76,7 @@ test("execution completion keeps its Taken terminal available until wrap-up, thr
   )) as LaunchRecord[];
   expect(reported?.completion?.receipt).toBe(receipt.receipt);
   expect(reported?.doneAt).toBeUndefined();
-  await expect(card.locator(".session-unread-report")).toHaveCount(0);
+  await expect(sessionUnreadReportOf(card)).toHaveCount(0);
   expect(cursor.calls()).toHaveLength(before);
   await reloadUntilRead(page);
   await expect(terminal).toBeVisible();

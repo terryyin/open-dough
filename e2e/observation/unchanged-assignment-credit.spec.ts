@@ -23,7 +23,8 @@ import {
   parts,
   rosterParts,
 } from "../../dashboard/tests/dashboardPage.ts";
-import { inspectedDetail } from "../../dashboard/tests/storyCardControls.ts";
+import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
+import { credit, detailHuman } from "../../dashboard/tests/agentCredit.ts";
 import { publishMovingFiles } from "../../dashboard/tests/publishedFiles.ts";
 import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
 import {
@@ -75,20 +76,18 @@ async function expectCreditedAt(
   await expect(readRevision).toContainText(shortRevision(at));
   await expectMembership(page, { taken: agents.map(titleOf), backlog: [] });
   for (const agent of agents) {
-    const card = taken.getByRole("article", { name: titleOf(agent) });
-    await expect(card.locator(".owner-line .owner-human-name")).toHaveText(
+    const card = storyCard(taken, titleOf(agent));
+    await expect(credit(credit(card).line).humanName).toHaveText(
       credits[agent] ?? human,
     );
-    await expect(
-      (await inspectedDetail(card)).locator(".owner-human-credit .owner-human"),
-    ).toHaveText(`Human developer: ${credits[agent] ?? human}`);
+    await expect(await detailHuman(card)).toHaveText(
+      `Human developer: ${credits[agent] ?? human}`,
+    );
   }
-  await expect(
-    taken.getByRole("article", { name: titleOf(planned) }),
-  ).toContainText(clock);
+  await expect(storyCard(taken, titleOf(planned))).toContainText(clock);
   await opener(`${agents[0] ?? ""}-chan`).click();
   for (const agent of agents) {
-    await expect(member(`${agent}-chan`).locator(".owner-human")).toHaveText(
+    await expect(credit(member(`${agent}-chan`)).human).toHaveText(
       `Human developer: ${credits[agent] ?? human}`,
     );
   }

@@ -14,7 +14,11 @@ import {
   expectSettledPage,
   parts,
 } from "../../dashboard/tests/dashboardPage.ts";
-import { inspectedDetail } from "../../dashboard/tests/storyCardControls.ts";
+import {
+  inspectedDetail,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
+import { preparationFacts } from "../../dashboard/tests/storyCardFacts.ts";
 import {
   isContent,
   limiting,
@@ -68,13 +72,13 @@ test("limiting a detail read keeps the snapshot, labels what the limit withheld,
     await expect(status).toContainText(
       `Published work read at revision ${shortRevision(revision)}`,
     );
-    const withheldCard = backlog.getByRole("article", { name: withheldTitle });
+    const withheldCard = storyCard(backlog, withheldTitle);
     // GitHub refused the seed; the page did not ask for the plan. Both are
     // labeled the same way, with the same time.
-    await expect(withheldCard.locator(".story-card-preparation")).toHaveText(
+    await expect(preparationFacts(withheldCard)).toHaveText(
       `GitHub's rate limit withheld ${withheldSeed} at ${revision}. ${until}`,
     );
-    const plannedCard = backlog.getByRole("article", { name: plannedTitle });
+    const plannedCard = storyCard(backlog, plannedTitle);
     await expect(await inspectedDetail(plannedCard)).toContainText(
       `GitHub's rate limit withheld ${plannedPlan} at ${revision}. ${until}`,
     );

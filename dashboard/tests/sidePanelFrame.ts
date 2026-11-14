@@ -10,20 +10,28 @@ export const panelDivider = (
   { exact = true }: { exact?: boolean } = {},
 ) => within.getByRole("separator", { name: "Panel divider", exact });
 
-export const control = (
-  panel: Locator,
-  name: string,
-  { exact = true }: { exact?: boolean } = {},
-) => panel.getByRole("button", { name, exact });
+export const control = (panel: Locator, name: string) =>
+  panel.getByRole("button", { name, exact: true });
+
+// What a Side panel content's header (a Terminal or Final report) names: its
+// story title and its session's name, and where a session id would show,
+// which the header leaves out.
+export function sidePanelNamesOf(content: Locator) {
+  const names = content.locator(".side-panel-names");
+  return {
+    names,
+    sessionName: names.locator("p"),
+    shownSessionId: names.locator("code"),
+  };
+}
 
 type FramePointer = "mouse" | "touch" | "click";
 
 export async function maximizeSidePanel(
   panel: Locator,
   using: FramePointer = "mouse",
-  options: { exact?: boolean } = {},
 ) {
-  const maximize = control(panel, "Maximize", options);
+  const maximize = control(panel, "Maximize");
   if (using === "touch") await tapWhereShown(maximize);
   else if (using === "click") await maximize.click();
   else await pressWhereShown(maximize);
@@ -32,9 +40,8 @@ export async function maximizeSidePanel(
 export async function restoreSidePanel(
   panel: Locator,
   using: FramePointer = "mouse",
-  options: { exact?: boolean } = {},
 ) {
-  const restore = control(panel, "Restore", options);
+  const restore = control(panel, "Restore");
   if (using === "touch") await tapWhereShown(restore);
   else if (using === "click") await restore.click();
   else await pressWhereShown(restore);
@@ -45,12 +52,11 @@ export async function restoreSidePanel(
 // pointer-at-shown-position distinct from a locator click, which may scroll.
 export async function closeSidePanel(
   panel: Locator,
-  input: (
+  input:
     | { using: "keyboard"; key: string }
-    | { using: "mouse" | "pointer" | "touch" }
-  ) & { exact?: boolean } = { using: "mouse" },
+    | { using: "mouse" | "pointer" | "touch" } = { using: "mouse" },
 ) {
-  const close = control(panel, "Close", { exact: input.exact ?? true });
+  const close = control(panel, "Close");
   if (input.using === "keyboard") {
     await close.focus();
     await panel.page().keyboard.press(input.key);

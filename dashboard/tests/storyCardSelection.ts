@@ -10,6 +10,11 @@ import { detailToggle } from "./storyCardControls.ts";
 export const selectStory = (card: Locator) =>
   card.getByRole("button", { name: "Select story", exact: true });
 
+// A click on the card's own heading is a click on its empty area, which
+// selects its story or clears that selection.
+export const emptyArea = (card: Locator) =>
+  card.getByRole("heading", { level: 3 }).first();
+
 export const storyDetail = (card: Locator) =>
   card.getByRole("region", { name: /^Detail for / });
 

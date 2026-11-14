@@ -37,6 +37,10 @@ import {
   withheldTitle,
 } from "../../dashboard/tests/limitedReadingRecords.ts";
 import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
+import {
+  inspectedDetail,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
 
 // A tab's read of which commit Open Dough's ref names.
 const isMembership = (request: Request) => {
@@ -120,10 +124,8 @@ test("two tabs recover together once the wait ends, each question reaching GitHu
       await expect(parts(tab).readRevision).toContainText(
         shortRevision(revision),
       );
-      const card = parts(tab).backlog.getByRole("article", {
-        name: withheldTitle,
-      });
-      await card.getByRole("button", { name: "Inspect story" }).click();
+      const card = storyCard(parts(tab).backlog, withheldTitle);
+      await inspectedDetail(card);
       await expect(card).toContainText(withheldGoal);
     }
   });

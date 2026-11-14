@@ -32,9 +32,12 @@ import {
   useRecentlyDoneSessionsRange,
 } from "./recentlyDoneSessionsRange.ts";
 
+import { useShownDoneLinks } from "./recentlyDoneShownLinks.ts";
+
 const nearEndPx = 8;
 
 export function RecentlyDoneSessions({
+  shown,
   open,
   onToggle,
   records,
@@ -42,6 +45,7 @@ export function RecentlyDoneSessions({
   selection,
   divider,
 }: {
+  readonly shown: boolean;
   readonly open: boolean;
   readonly onToggle: () => void;
   readonly records: readonly LaunchWithState[] | undefined;
@@ -56,6 +60,7 @@ export function RecentlyDoneSessions({
     ordered === undefined
       ? undefined
       : ordered.slice(0, recentlyDoneSessionsShownCount(ordered, range));
+  const links = useShownDoneLinks(shown && open ? sessions : undefined);
   const body = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLOListElement>(null);
   const header = useRef<HTMLButtonElement>(null);
@@ -166,6 +171,8 @@ export function RecentlyDoneSessions({
                     record={record}
                     onOpen={onOpen}
                     selection={selection}
+                    completedStory={links?.get(sessionKey(record.session))}
+                    reviewObserved={shown}
                   />
                 ))}
               </ol>

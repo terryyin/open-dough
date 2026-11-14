@@ -1,5 +1,8 @@
 import { attemptLink } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
-import { priorBuildReferenceReading } from "../../dashboard/tests/priorBuildReferencePage.ts";
+import {
+  compactReadout,
+  priorBuildReferenceReading,
+} from "../../dashboard/tests/priorBuildReferencePage.ts";
 // Settled retained producer observations and a collected selected attempt
 // traverse the normal authenticated history read, never a fixture average.
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
@@ -171,12 +174,11 @@ test("project history explains its five-build average, strict slow exclusion and
     proofOf(panel).getByRole("table", { name: "CI proof by declared entry" }),
   ).toBeVisible();
   const history = historyOf(panel);
-  await expect(
-    history.getByText("Prior-build average", { exact: true }),
-  ).toBeVisible();
-  await expect(history).toContainText("1 min 43 s");
-  await expect(history).toContainText("+17 s (+17%)");
-  await expect(history).toContainText("5 prior builds used · Nov 1–Nov 5");
+  const readout = compactReadout(history);
+  await expect(readout.average).toHaveText(
+    "Prior-build average · 1 min 43 s · 5 prior builds used",
+  );
+  await expect(readout.change).toHaveText("vs. prior average · +17 s (+17%)");
   await expect(history).toContainText("Median 1 min 40 s");
   await expect(history).toContainText("strictly more than 15%");
   const ciCalls = () =>

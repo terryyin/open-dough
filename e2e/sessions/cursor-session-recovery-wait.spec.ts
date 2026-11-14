@@ -2,7 +2,10 @@
 // launch wait, Recover answers failed with Start's instruction-delivery
 // wording, leaves the client running, and does not hang it up.
 import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  parts,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
 import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
 import { instructionDeliveryTimedOutExplanation } from "../../dashboard/server/hosts/cursor/instructionDelivery.ts";
 import {
@@ -48,11 +51,11 @@ test.describe("Recover keep-wait expiry", () => {
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
     await expect.poll(() => cursor.attaches()).toHaveLength(1);
     await dashboard.endLaunchWait();
-    const taken = parts(page).taken.locator(".session-entry");
+    const taken = sessionEntriesIn(parts(page).taken);
     await expect(taken).toHaveCount(1);
     await endHeldClient(page, cursor, dashboard.home);
     await reloadUntilRead(page);
-    const entry = parts(page).taken.locator(".session-entry");
+    const entry = sessionEntriesIn(parts(page).taken);
     await expectReadingWithoutScreenLabel(entry, agentNotRunningLabel);
     await expect(entry.getByRole("button", { name: "Recover" })).toHaveCount(1);
     const [record] = keptRecords(dashboard.home);

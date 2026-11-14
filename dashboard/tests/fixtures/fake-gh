@@ -4,29 +4,38 @@
 # argv and prints its framed stdout/stderr bytes and status.
 
 # Auth is local and precedes ordinary PID/signal setup. Only the optional
-# held-auth observer needs Node; watch before marking arrival to avoid a
-# release between observing the file and installing the watcher. macOS can
-# deliver the directory event late or not at all under load, so the observer
-# also looks for the release itself at a short interval.
+# held-auth observer needs Node. It watches the hold file itself (kqueue or
+# inotify, armed by the first poll) and marks arrival only after that poll:
+# a directory watch on macOS starts its FSEvents stream later, and missed a
+# release made right after arrival.
 if [ "${1-}" = auth ]; then
   if [ -n "${FAKE_GH_AUTH_HOLD-}" ]; then
     exec node - "${FAKE_GH_AUTH_HOLD}" << 'NODE'
 const fs = require("node:fs");
-const path = require("node:path");
 const hold = process.argv[2];
 let finished = false;
+let watcher;
 const finish = () => {
   if (finished || fs.existsSync(hold)) return;
   finished = true;
-  watcher.close();
-  clearInterval(looking);
+  watcher?.close();
   process.stdout.write(process.env.GH_TOKEN || "");
   process.exitCode = process.env.GH_TOKEN ? 0 : 1;
 };
-const watcher = fs.watch(path.dirname(hold), finish);
-const looking = setInterval(finish, 20);
-fs.writeFileSync(`${hold}.reached`, "");
-finish();
+try {
+  watcher = fs.watch(hold, finish);
+} catch (error) {
+  // Already released.
+  if (error.code !== "ENOENT") throw error;
+}
+// An immediate queued from an immediate runs after the next poll, even when
+// this script itself ran from a poll callback (stdin).
+setImmediate(() => {
+  setImmediate(() => {
+    fs.writeFileSync(`${hold}.reached`, "");
+    finish();
+  });
+});
 NODE
   fi
   printf '%s' "${GH_TOKEN-}"
@@ -41,7 +50,10 @@ interrupted=
 # shellcheck disable=SC2329 # Invoked by the EXIT trap below.
 cleanup() {
   if [ -n "${child}" ]; then
-    kill -TERM "${child}" 2> /dev/null || :
+    # A just-forked child still runs this shell's TERM trap until it resets
+    # its traps and drops a TERM caught meanwhile; KILL cannot be caught, so
+    # the wait below cannot outlast a child that missed its signal.
+    kill -KILL "${child}" 2> /dev/null || :
     wait "${child}" 2> /dev/null || :
   fi
   if [ -n "${reply}" ]; then rm -rf "${reply}"; fi

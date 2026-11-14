@@ -2,7 +2,10 @@
 // page names its cause at the launch answer, Startup recovery, and entry,
 // then the developer answers the kept client in the rendered terminal.
 import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  parts,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
 import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
 import { recoveryOf } from "../../dashboard/tests/responsiveRecovery.ts";
 import {
@@ -51,7 +54,7 @@ test("Start and Startup recovery name workspace trust, and answering in the sess
   );
   const recovery = recoveryOf(page);
   await expect(recovery).toContainText(explanation);
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
   await expect(entry).toHaveCount(1);
   await expect(entry).toContainText(explanation);
   await expect(entry).toContainText("First input acceptance uncertain");
@@ -62,7 +65,7 @@ test("Start and Startup recovery name workspace trust, and answering in the sess
   const pid = cursor.attaches()[0]?.pid ?? 0;
   expect(cursor.input(pid)).toBe("");
 
-  await openTerminalControl(entry, { exact: false }).click();
+  await openTerminalControl(entry).click();
   const panel = terminalPanel(page);
   await expect(terminalScreenParts(panel).rows).toContainText(
     "Workspace Trust Required",

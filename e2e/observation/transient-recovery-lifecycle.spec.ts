@@ -55,6 +55,9 @@ import {
   titlesOfA,
 } from "../../dashboard/tests/refreshJourney.ts";
 import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
+import { projectTab } from "../../dashboard/tests/projectChoice.ts";
+import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
+import { preparationFacts } from "../../dashboard/tests/storyCardFacts.ts";
 import {
   expectRecoversAfter,
   mainReads,
@@ -178,23 +181,17 @@ test("switching projects clears project-local recovery while a standing login li
   await expectSettledPage(page, titlesBesideUnreachable);
   answers.lift();
   await expect(parts(page).problem).toContainText(limitSaid);
-  const withheldCard = parts(page).backlog.getByRole("article", {
-    name: withheldTitle,
-  });
-  await expect(withheldCard.locator(".story-card-preparation")).toContainText(
+  const withheldCard = storyCard(parts(page).backlog, withheldTitle);
+  await expect(preparationFacts(withheldCard)).toContainText(
     `GitHub's rate limit withheld ${withheldSeed} at ${revision}.`,
   );
   const doughnut = await publishMovingOrigin(page, doughnutRepository);
   doughnut.push(revisionDoughnut, doughnutBacklog, doughnutRecords);
   const beforeSwitch = githubFor(page).calls.length;
 
-  await parts(page)
-    .project.getByRole("radio", { name: "Doughnut", exact: true })
-    .check();
+  await projectTab(page, "Doughnut").check();
   await expect(parts(page).problem).toContainText(limitSaid);
-  await expect(
-    parts(page).project.getByRole("radio", { name: "Doughnut", exact: true }),
-  ).toBeChecked();
+  await expect(projectTab(page, "Doughnut")).toBeChecked();
   // Login-wide limit: Doughnut is not asked of GitHub while it stands.
   expect(
     githubFor(page)
@@ -224,9 +221,7 @@ test("an ordinary transient failure does not hold back another project's reads",
   await untilPageReadsAnswered(page);
   expect(mainReads(openDough)).toBe(1);
 
-  await parts(page)
-    .project.getByRole("radio", { name: "Doughnut", exact: true })
-    .check();
+  await projectTab(page, "Doughnut").check();
   await expectSettledPage(page, {
     taken: [],
     backlog: [doughnutSharedTitle],

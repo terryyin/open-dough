@@ -57,20 +57,18 @@ const noteOf = (page: Page) => page.getByText(/Alerts unavailable/);
 // Opens the page with the sidebar open, after the server has probed.
 async function openSidebar(server: DashboardServer, page: Page) {
   await page.goto(server.baseURL);
-  const { sidebar, button } = sessionsSidebarParts(page);
+  const { sidebar, button, heading } = sessionsSidebarParts(page);
   await button.click();
   await expect(sidebar).toBeVisible();
-  return { sidebar, button };
+  return { sidebar, button, heading };
 }
 
 test.describe("a working notifier", () => {
   test("leaves the open sidebar without a note", async ({ server, page }) => {
     await expect.poll(() => server.notifierProbes().length).toBe(2);
     expect(await alertsAnswered(server)).toEqual({ available: true });
-    const { sidebar } = await openSidebar(server, page);
-    await expect(
-      sidebar.getByRole("heading", { name: "Sessions" }),
-    ).toBeVisible();
+    const { heading } = await openSidebar(server, page);
+    await expect(heading).toBeVisible();
     await expect(noteOf(page)).toHaveCount(0);
   });
 });

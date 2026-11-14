@@ -10,6 +10,7 @@ import { keptRecord } from "./cursorStart.ts";
 import { keptRecords } from "./cursorSessionRecovery.ts";
 import { occupyRunner } from "./cursorRunnerJourney.ts";
 import { launchWaitMs } from "./launchWait.ts";
+import { sessionEntriesIn } from "../dashboardParts.ts";
 
 // Stops the runner, occupies its address, and reloads until the entry in
 // this section reads with the runner unreachable.
@@ -21,7 +22,7 @@ export async function entryWithRunnerUnreachable(
   await stopCursorRunner(home);
   const release = await occupyRunner(home);
   await reloadUntilRead(page);
-  const entry = section.locator(".session-entry");
+  const entry = sessionEntriesIn(section);
   await expect(entry).toHaveCount(1);
   return { entry, release };
 }

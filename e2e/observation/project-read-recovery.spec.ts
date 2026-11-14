@@ -13,6 +13,7 @@ import {
   pausePageClock,
 } from "../../dashboard/tests/autoRefreshJourney.ts";
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { projectTab } from "../../dashboard/tests/projectChoice.ts";
 import {
   shortRevision,
   controlsBesideSessions,
@@ -134,10 +135,7 @@ test.describe("project read recovery", () => {
     await pausePageClock(page);
     await page.goto("/");
     const { project, direction, problem, readRevision } = parts(page);
-    const pygardon = project.getByRole("radio", {
-      name: "Pygardon",
-      exact: true,
-    });
+    const pygardon = projectTab(page, "Pygardon");
     const selectedProject = project.getByRole("radio", { checked: true });
     await expectMembership(page, { taken: [], backlog: [openDoughTitle] });
 
@@ -218,12 +216,10 @@ test.describe("project read recovery", () => {
       const releaseRef = pygardonOrigin.hold("main");
 
       await page.goto("/");
-      const { project, problem } = parts(page);
+      const { problem } = parts(page);
       await expectMembership(page, { taken: [], backlog: [openDoughTitle] });
 
-      await project
-        .getByRole("radio", { name: "Pygardon", exact: true })
-        .check();
+      await projectTab(page, "Pygardon").check();
       await expect(problem).toContainText("Published work could not be read", {
         timeout: 10_000,
       });

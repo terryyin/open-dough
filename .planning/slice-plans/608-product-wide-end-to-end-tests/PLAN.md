@@ -293,7 +293,7 @@ Final gate (2026-11-14): host-exit diagnostics for G14 in
 `tests/support/native-agent-publication.sh` and the substitute suite; G15
 split the one-shot results job by journey. Whole `npm test` 08:03–08:17
 passed 635 jobs (load 7–16, no sleep). Terry (2026-11-14) made G14 a scoped
-exception owned by SEED-345 and left the remaining landed CI cases with
+exception owned by SEED-346 and left the remaining landed CI cases with
 SEED-324's active execution (G2).
 
 **Former slices 5 and 6.** Terry moved them (2026-11-14) with their promises to

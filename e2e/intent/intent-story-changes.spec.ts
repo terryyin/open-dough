@@ -27,10 +27,12 @@ import {
 // title: ../../dashboard/tests/intent/intent-story-summary-title.spec.ts. Where the keyboard returns after
 // closing Review changes: ../../dashboard/tests/intent/intent-story-review-return.spec.ts.
 
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { parts, shortRevision } from "../../dashboard/tests/dashboardPage.ts";
 import { ciPanel } from "../../dashboard/tests/intentCiStatusPage.ts";
-import { expectSelected } from "../../dashboard/tests/storyCardSelection.ts";
-import { shortRevision } from "../../dashboard/tests/dashboardParts.ts";
+import {
+  emptyArea,
+  expectSelected,
+} from "../../dashboard/tests/storyCardSelection.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import {
   background,
@@ -215,8 +217,7 @@ test("Intent highlights a selected Taken story's test changes over the published
 
   await test.step("an unchanged file shows its published source", async () => {
     await intentFile(intent, "dashboard/tests/boundary/kept.spec.ts").click();
-    const purpose = purposeRegion(intent);
-    await expect(purpose).toContainText("kept 11");
+    await expect(purposeRegion(intent)).toContainText("kept 11");
     await expect(intentDiffReading(intent).code).toHaveCount(0);
   });
 
@@ -229,7 +230,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(storyTitle(intent)).toHaveText("Story A");
     await development.click();
     await expectSelected(card, true);
-    await card.getByRole("heading", { level: 3 }).click();
+    await emptyArea(card).click();
     await expectSelected(card, false);
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");

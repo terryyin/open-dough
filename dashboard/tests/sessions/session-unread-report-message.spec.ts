@@ -1,4 +1,4 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // A session entry's message part, on a card or in Recently done: expanded
 // with Mark as read while its report is unread, beside the entry's own Mark as
 // done; a refused mark says so in the entry's status line; marked read, the
@@ -10,7 +10,11 @@ import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // launch, installed reporting command, store and page; only the synthetic
 // `claude` and GitHub are fakes.
 
-import { parts } from "../dashboardPage.ts";
+import {
+  parts,
+  sessionEntriesIn,
+  sessionUnreadReportOf,
+} from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
 import {
   launchedAdHoc,
@@ -54,9 +58,7 @@ test("a card entry's unread message is marked read in its message part, beside t
   // Unread: expanded under its completion label, with Mark as read in the
   // part and the entry's own Mark as done beside it.
   await expectExpanded(message, label, reportedMessage);
-  const done = (await sessionActions(entry)).getByRole("button", {
-    name: "Mark as done",
-  });
+  const done = await sessionAction(entry, "Mark as done");
   await expect(done).toBeVisible();
   await expect(message.part.locator(done)).toHaveCount(0);
   await expect(entry.getByRole("button", { name: "Mark as read" })).toHaveCount(
@@ -123,7 +125,7 @@ test("an ad-hoc session's message is read and marked read on its Recently done e
   await adHoc.report({ outcome: "unfinished", message: newerMessage });
   await publishOrigin(page, origin);
   await openUntilRead(page);
-  const recent = parts(page).taken.locator(".session-entry");
+  const recent = sessionEntriesIn(parts(page).taken);
   await expect(recent).toHaveCount(1);
   const message = messagePartOf(recent);
   await expectExpanded(message, "Unfinished work", newerMessage);
@@ -132,7 +134,7 @@ test("an ad-hoc session's message is read and marked read on its Recently done e
 
   await expectCollapsed(message, "Unfinished work");
   await expect(message.heading).toBeFocused();
-  await expect(recent.locator(".session-unread-report")).toHaveCount(0);
+  await expect(sessionUnreadReportOf(recent)).toHaveCount(0);
   await expect(recent.getByRole("status")).toHaveText("");
   const record = await recordOf(dashboard, adHoc.sessionId);
   expect(record?.reportRead).toBe(record?.completion?.receipt);
@@ -159,9 +161,7 @@ test("a long unread message scrolls inside its message part, with Mark as read a
   await openUntilRead(page);
   const entry = takenStoryCard(page, titleA).getByRole("article");
   const message = messagePartOf(entry);
-  const done = (await sessionActions(entry)).getByRole("button", {
-    name: "Mark as done",
-  });
+  const done = await sessionAction(entry, "Mark as done");
   await expectExpanded(message, label, longMessage);
 
   // The text's box is shorter than the message and scrolls; with the entry

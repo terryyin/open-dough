@@ -16,7 +16,12 @@ import {
   expectSettledPage,
   parts,
 } from "../../dashboard/tests/dashboardPage.ts";
-import { inspectedDetail } from "../../dashboard/tests/storyCardControls.ts";
+import {
+  inspectedDetail,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
+import { preparationFacts } from "../../dashboard/tests/storyCardFacts.ts";
+import { detailRecovery } from "../../dashboard/tests/transientRecoveryPage.ts";
 import {
   checksAskedWhilePassing,
   setPageVisibility,
@@ -71,12 +76,10 @@ test("withheld detail is read on its own once the wait ends on a visible page, b
   await expectSettledPage(page, titlesBesideUnreachable);
   const limitSeenAt = answers.lift();
   const { backlog, problem, readRevision } = parts(page);
-  const withheldCard = backlog.getByRole("article", { name: withheldTitle });
-  const plannedCard = backlog.getByRole("article", { name: plannedTitle });
-  const unreachableCard = backlog.getByRole("article", {
-    name: unreachableTitle,
-  });
-  await expect(withheldCard.locator(".story-card-preparation")).toContainText(
+  const withheldCard = storyCard(backlog, withheldTitle);
+  const plannedCard = storyCard(backlog, plannedTitle);
+  const unreachableCard = storyCard(backlog, unreachableTitle);
+  await expect(preparationFacts(withheldCard)).toContainText(
     `GitHub's rate limit withheld ${withheldSeed} at ${revision}.`,
   );
   await expect(unreachableCard).toContainText(unreachableGap);
@@ -98,9 +101,7 @@ test("withheld detail is read on its own once the wait ends on a visible page, b
     await page.clock.runFor(1);
     await expectSettledPage(page, titlesBesideUnreachable);
     await expect(readRevision).toContainText(shortRevision(revision));
-    await expect(withheldCard.locator(".story-card-preparation")).toHaveText(
-      "Not recorded",
-    );
+    await expect(preparationFacts(withheldCard)).toHaveText("Not recorded");
     await expect(await inspectedDetail(plannedCard)).toContainText(
       "First slice",
     );
@@ -109,7 +110,7 @@ test("withheld detail is read on its own once the wait ends on a visible page, b
     );
     // The unreachable seed stays an eligible gap and schedules its own
     // project-local recovery beside the healed detail.
-    await expect(problem).toContainText("this page reads it");
+    await expect(problem).toContainText(detailRecovery);
     await expect(unreachableCard).toContainText(unreachableGap);
   });
 

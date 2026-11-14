@@ -96,7 +96,7 @@ test.describe("marking a session done from its terminal", () => {
     await expect(listed).toHaveAccessibleName(
       storyCardSessionName("Execution"),
     );
-    await openTerminalControl(listed, { exact: false }).click();
+    await openTerminalControl(listed).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await expectSelected(card(readyStory), true);
     const [session] = dashboard.claudeListing();
@@ -134,9 +134,7 @@ test.describe("marking a session done from its terminal", () => {
     await expect(sessionStateOf(entry)).toHaveText("Done");
     await expect(entry).toContainText(`Named ${doneName}`);
     // Claude Code keeps the conversation, so the entry still opens it.
-    await expect(
-      entry.getByRole("button", { name: "Open terminal" }),
-    ).toBeVisible();
+    await expect(openTerminalControl(entry)).toBeVisible();
     await expectMembership(page, queued);
 
     await page.reload();
@@ -160,9 +158,7 @@ test.describe("marking a session done from its terminal", () => {
     const status = panel.getByRole("status");
     await settled();
     await launch(readyStory, "Execution");
-    await openTerminalControl(storyCardSessions(card(readyStory)), {
-      exact: false,
-    }).click();
+    await openTerminalControl(storyCardSessions(card(readyStory))).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     // The project folder moves away, so the boundary refuses the mark.
     const folder = path.join(dashboard.home, "git", "open-dough");
@@ -174,9 +170,7 @@ test.describe("marking a session done from its terminal", () => {
     await expect(refused).toBeVisible();
     expect(await colourOf(refused)).toBe(await tokenColour(page, "--problem"));
     await expect(panel).toBeVisible();
-    await expect(
-      panel.getByRole("button", { name: "Mark as done" }),
-    ).toBeEnabled();
+    await expect(markAsDone(panel)).toBeEnabled();
     expect(dashboard.claudeStopCalls()).toEqual([]);
 
     // The attached CLI ending on its own still shows as a problem.
@@ -202,7 +196,6 @@ test.describe("marking a session done from its terminal", () => {
     await launch(notRefinedStory, "Refinement");
     await openTerminalControl(
       storyCardSessionOf(card(readyStory), "Execution"),
-      { exact: false },
     ).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     const release = await holdDoneRequests(page);
@@ -211,7 +204,6 @@ test.describe("marking a session done from its terminal", () => {
 
     await openTerminalControl(
       storyCardSessionOf(card(notRefinedStory), "Refinement"),
-      { exact: false },
     ).click();
     await expect(panel).toContainText("Refinement session");
     const typing = terminalScreenParts(panel).input;

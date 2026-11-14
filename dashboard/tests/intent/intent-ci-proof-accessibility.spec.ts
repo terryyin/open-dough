@@ -136,6 +136,10 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     await expectCiAnswer(panel, failedVerdict);
     await expectProofRows(proof, rows);
     await expect(fileGap).toHaveAccessibleDescription(gapWhy);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollHeight),
+      "the CI proof does not add a document scrollbar",
+    ).toBe(window.height);
     await table.scrollIntoViewIfNeeded();
     await expect(table).toBeVisible();
     expect(await fit()).toEqual({

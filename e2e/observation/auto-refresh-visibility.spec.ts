@@ -36,6 +36,10 @@ import {
 } from "../../dashboard/tests/autoRefreshJourney.ts";
 import { untilPageRequestsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
 import {
+  focusCanonicalRecord,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
+import {
   backlogB,
   backlogC,
   revisionA,
@@ -44,8 +48,6 @@ import {
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/tests/refreshJourney.ts";
-
-const canonical = { name: /^Canonical record/ };
 
 test("auto refresh: a hidden page makes no checks, and a page seen again checks once at once, then at its steady pace", async ({
   page,
@@ -79,10 +81,7 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
     await expect(problem).toHaveCount(0);
   });
 
-  const queueCard = backlog.getByRole("article", { name: queueStory });
-  await queueCard.getByRole("button", { name: "Inspect story" }).click();
-  const queueLink = queueCard.getByRole("link", canonical);
-  await queueLink.focus();
+  const queueLink = await focusCanonicalRecord(storyCard(backlog, queueStory));
 
   await test.step("hiding the page ends its wait on an outstanding check; the listing may settle while hidden, and nothing from that wait is shown", async () => {
     const releaseMain = origin.hold("main");

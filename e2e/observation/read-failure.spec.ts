@@ -3,6 +3,7 @@ import {
   pausePageClockAt,
   test,
 } from "../../dashboard/tests/dashboardTest.ts";
+import { projectTab } from "../../dashboard/tests/projectChoice.ts";
 import {
   expectMembership,
   expectProblemAndNoSnapshot,
@@ -151,11 +152,9 @@ test("read failure names a missing published backlog concisely and keeps project
   const message =
     "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).";
   await expectProblemAndNoSnapshot(page, message);
-  const { problem, project } = parts(page);
+  const { problem } = parts(page);
   await expect(problem.locator("p").first()).toHaveText(message);
-  await expect(
-    project.getByRole("radio", { name: "Doughnut", exact: true }),
-  ).toBeEnabled();
+  await expect(projectTab(page, "Doughnut")).toBeEnabled();
 });
 
 test("read failure and retry is not caused by an unknown section, which adds no column, card, or control", async ({

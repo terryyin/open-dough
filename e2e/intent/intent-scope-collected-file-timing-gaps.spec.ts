@@ -1,5 +1,5 @@
-import { attemptLink } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
 import {
+  chooseTimingUnit,
   scopeHistory,
   scopeHistoryReading,
   scopeHistoryChart,
@@ -118,52 +118,48 @@ test("a collected file explains breakdown and partial gaps and keeps earlier fil
   const before = ciCalls().length;
   const summary = await openSummaryComparison(intent, "dashboard/tests");
   const entryHistory = scopeHistory(summary);
-  await expect(scopeHistoryReading(entryHistory).rows.first()).toContainText(
-    "700 ms · test cases",
-  );
-  await expect(scopeHistoryReading(entryHistory).rows.first()).toContainText(
-    "70 ms · test files",
-  );
+  const noBreakdown = "No timing · No file breakdown in this build's CI proof";
+  const partial = "No timing · Partial: part 2 of 2 missing";
+  await expect(
+    scopeHistoryChart(entryHistory, "test cases").mark("Nov 4 · 700 ms"),
+  ).toHaveCount(1);
+  await chooseTimingUnit(entryHistory, "Test files", "pointer");
+  await expect(
+    scopeHistoryChart(entryHistory, "test files").mark("Nov 4 · 70 ms"),
+  ).toHaveCount(1);
+  // The folder has no breakdown at Nov 4 and partial case timing at Nov 5.
   await childName(summary, "folder/").first().click();
   const folder = scopeHistory(summary);
-  await expect(scopeHistoryReading(folder).rows.nth(0)).toContainText(
-    "No file breakdown in this build's CI proof",
-  );
-  await expect(scopeHistoryReading(folder).rows.nth(1)).toContainText(
-    "Partial: part 2 of 2 missing",
-  );
-  await expect(scopeHistoryReading(folder).rows.nth(1)).toContainText(
-    "20 ms · test files",
-  );
+  const folderCases = scopeHistoryChart(folder, "test cases");
+  await expect(folderCases.mark(`Nov 4 · ${noBreakdown}`)).toHaveCount(1);
+  await expect(folderCases.mark(`Nov 5 · ${partial}`)).toHaveCount(1);
+  await chooseTimingUnit(folder, "Test files", "pointer");
+  const folderFiles = scopeHistoryChart(folder, "test files");
+  await expect(folderFiles.mark(`Nov 4 · ${noBreakdown}`)).toHaveCount(1);
+  await expect(folderFiles.mark("Nov 5 · 20 ms")).toHaveCount(1);
   await childName(summary, "a.spec.ts").first().click();
   await fileReadingTab(intent, "Proof").click();
   const history = scopeHistory(proofRegion(intent));
-  const rows = scopeHistoryReading(history).rows;
-  await expect(rows).toHaveCount(3);
-  await expect(rows.nth(0)).toContainText(
-    "No file breakdown in this build's CI proof",
-  );
-  await expect(rows.nth(0)).not.toContainText("700 ms");
-  await expect(rows.nth(1)).toContainText("Partial: part 2 of 2 missing");
-  await expect(rows.nth(1)).not.toContainText("200 ms");
-  await expect(rows.nth(1)).toContainText(
-    "20 ms · test files · entry dashboard/tests",
-  );
-  await expect(rows.nth(2)).toContainText(
-    "0 ms · test cases · entry dashboard/tests",
-  );
-  await expect(rows.nth(2)).toContainText(
-    "No declared test files evidence in this build's CI proof",
-  );
-  await expect(rows.nth(2)).toContainText("Selected landing");
-  await expect(rows.nth(2)).toContainText(shortSha(setup.completion));
-  await expect(history).toContainText("2 measured builds · Nov 5–Nov 6");
+  const reading = scopeHistoryReading(history);
+  const landing = `Selected landing ${shortSha(setup.completion)}`;
+  await expect(reading.selected).toHaveText(`${landing} · 0 ms`);
+  const cases = scopeHistoryChart(history, "test cases");
+  await expect(cases.marks).toHaveCount(3);
+  await expect(cases.mark(`Nov 4 · ${noBreakdown}`)).toHaveCount(1);
+  await expect(cases.mark(`Nov 5 · ${partial}`)).toHaveCount(1);
+  await expect(cases.readout).toHaveText("Nov 6 · Selected landing · 0 ms");
   await expect(history).not.toContainText(shortSha(newest.revision));
+  // The file outcome has no selected timing: its status, and no change.
+  await chooseTimingUnit(history, "Test file", "keyboard");
+  const absent =
+    "No timing · No declared test files evidence in this build's CI proof";
+  await expect(reading.selected).toHaveText(`${landing} · ${absent}`);
+  await expect(reading.change).toHaveCount(0);
   const files = scopeHistoryChart(history, "test files");
-  await expect(files).toBeVisible();
-  await expect(files.getByText("Selected gap", { exact: true })).toBeVisible();
-  await expect(
-    attemptLink(scopeHistoryReading(history).evidence, "Run 205 · attempt 1"),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/205");
+  await expect(files.mark("Nov 5 · 20 ms")).toHaveCount(1);
+  await expect(files.readout).toHaveText(
+    `Nov 6 · Selected landing · ${absent}`,
+  );
+  await expect(files.unavailable).toHaveCount(2);
   expect(ciCalls()).toHaveLength(before);
 });

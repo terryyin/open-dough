@@ -10,6 +10,7 @@ import { availableParallelism } from "node:os";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { dashboardBrowserArgs } from "./browserArgs.ts";
 import { acquireLocalSuite } from "../../../scripts/local-test-suite.mjs";
 import { fullDashboardSuite } from "./fullSuiteSelection.mjs";
 import { remainingSuiteTime } from "./suiteDeadline.mjs";
@@ -152,7 +153,12 @@ async function prepareGroupRun(variables, outputs) {
             ],
           ]
         : [quietReporter],
-      use: { trace: "retain-on-failure" },
+      // Every group's browsers start with the shared arguments
+      // (./browserArgs.ts).
+      use: {
+        trace: "retain-on-failure",
+        launchOptions: { args: dashboardBrowserArgs },
+      },
     },
   };
 }

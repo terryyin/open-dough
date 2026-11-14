@@ -99,9 +99,9 @@ test("Intent coverage waits for the done record, and a failed read offers Retry 
   await test.step("a failed read says its assessment is unknown, with its problem and Retry", async () => {
     reads.fail();
     await expect(detail.getByText(unknown, { exact: true })).toBeVisible();
-    await expect(detail.locator(".assignment-gap")).toContainText(
-      "Done stories could not be read.",
-    );
+    await expect(
+      detail.getByText("Done stories could not be read."),
+    ).toBeVisible();
     await expect(detail.getByText(noAssessment)).toHaveCount(0);
     await expect(detail.getByText("Unavailable")).toHaveCount(0);
   });

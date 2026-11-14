@@ -9,8 +9,10 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import {
+  columnCountOf,
   storyCardSessions,
   parts,
+  sessionEntryShowing,
   standaloneSessionName,
 } from "../dashboardPage.ts";
 import {
@@ -21,7 +23,10 @@ import {
 import { markDone } from "../agentLaunchBoundary.ts";
 import { launched } from "../agentTerminalBoundary.ts";
 import { holdSessionReads } from "../sessionStatePace.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  expectSessionsSidebar,
+  sessionsSidebarParts,
+} from "../sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { columnPagingControl, showColumn } from "../boardPage.ts";
 
@@ -54,9 +59,7 @@ test.describe("the Sessions sidebar's reading", () => {
     await expect(badge).toHaveCount(0);
     await expect(workingBadge).toHaveCount(0);
     await button.click();
-    await expect(taken.locator(".column-count")).toHaveText(
-      "Entry count incomplete",
-    );
+    await expect(columnCountOf(taken)).toHaveText("Entry count incomplete");
     await expect(taken).toContainText("Reading sessions…");
     await expect(taken).not.toContainText("No Taken entries");
     for (const place of [sidebar, recentlyDone]) {
@@ -86,7 +89,7 @@ test.describe("the Sessions sidebar's reading", () => {
       );
       await expect(place).not.toContainText("Reading sessions…");
     }
-    await expect(taken.locator(".column-count")).toHaveText("0 entries");
+    await expect(columnCountOf(taken)).toHaveText("0 entries");
     await expect(taken).toContainText("No Taken entries are recorded.");
     await expect(entries).toHaveCount(0);
     await expect(badge).toHaveCount(0);
@@ -96,7 +99,7 @@ test.describe("the Sessions sidebar's reading", () => {
     await markDone(dashboard, { source: "doughnut", session: sessionId });
     await page.reload();
     // Open as it was left.
-    await expect(button).toHaveAttribute("aria-expanded", "true");
+    await expectSessionsSidebar(page, "open");
     await expect(sidebar).toContainText(
       "No sessions launched from this dashboard are open.",
     );
@@ -116,7 +119,7 @@ test.describe("the Sessions sidebar's reading", () => {
       columnsJourney,
     );
     const { sidebar, button, entries } = sessionsSidebarParts(page);
-    const { recentlyDone } = parts(page);
+    const { recentlyDone, board } = parts(page);
     await settled();
     await button.click();
 
@@ -143,19 +146,15 @@ test.describe("the Sessions sidebar's reading", () => {
       }),
     ).toHaveCount(0);
     await expect(own).toHaveCount(1);
-    const key = await own.getAttribute("data-shows-session");
-    await expect(
-      page.locator(`.board [data-shows-session="${key}"]`),
-    ).toHaveCount(1);
+    const key = (await own.getAttribute("data-shows-session")) ?? "?";
+    await expect(sessionEntryShowing(board, key)).toHaveCount(1);
     await expect(recentlyDone).toContainText(
       "No sessions are listed in Recently done.",
     );
     await page.reload();
     await settled();
     await expect(entries).toHaveCount(2);
-    await expect(own).toHaveAttribute("data-shows-session", key ?? "?");
-    await expect(
-      page.locator(`.board [data-shows-session="${key}"]`),
-    ).toHaveCount(1);
+    await expect(own).toHaveAttribute("data-shows-session", key);
+    await expect(sessionEntryShowing(board, key)).toHaveCount(1);
   });
 });

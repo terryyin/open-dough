@@ -9791,5 +9791,143 @@
   ],
   "why": "Case 1 keeps one real microphone-to-server-transcription-to-PTY proof (provider call, submitted PTY line) once the other voice specs move; cases 2-3 assert sent frames and layout but need a new transcription substitute.",
   "destination": "stays in tests/ pending conversion"
+ },
+ "tests/sessions/agent-launch-attention-taken.spec.ts": {
+  "class": "e2e",
+  "purpose": "A Taken card counts its sessions needing attention as Backlog cards do; each project counts only its own, and a story in no list keeps its affected session in local Taken.",
+  "real": [
+   "dashboard preview server",
+   "committed story-columns origin",
+   "server backlog interpretation (Taken, story in no list)",
+   "launch store under HOME",
+   "Mark as done"
+  ],
+  "simulated": [
+   "synthetic gh/FakeGitHub",
+   "fake-claude stand-in",
+   "Cursor runner stand-in"
+  ],
+  "why": "Trunk split the Taken and orphaned-session scenarios out of agent-launch-attention.spec.ts, already classified e2e; counts are read against origin-published membership and two projects through the real server.",
+  "destination": "../e2e/sessions/agent-launch-attention-taken.spec.ts",
+  "source": "trunk merge 01b1ecd72"
+ },
+ "tests/sessions/recently-done-sessions-review-cue-ad-hoc.spec.ts": {
+  "class": "e2e",
+  "purpose": "Confirmed Ad hoc and repeated story sessions share review changes while unread, selection, report and failed saves keep their meanings.",
+  "real": [
+   "dashboard preview server",
+   "real claim, completion, publication and retirement (retainAdHocCompletedStory)",
+   "committed origin",
+   "launch store and review-state file under HOME"
+  ],
+  "simulated": [
+   "synthetic gh/FakeGitHub",
+   "fake-codex preparation host"
+  ],
+  "why": "The real completed-session association is the case's own proof, as in recently-done-sessions-select-ad-hoc.spec.ts (e2e); review saves go through the real server.",
+  "destination": "../e2e/sessions/recently-done-sessions-review-cue-ad-hoc.spec.ts",
+  "source": "trunk merge 01b1ecd72"
+ },
+ "tests/stories/recently-done-review-state-persistence.spec.ts": {
+  "class": "e2e",
+  "purpose": "Story review state survives reload and a real dashboard restart; keyboard Unreview after restart keeps card order, selection, snapshot mark and repository bytes.",
+  "real": [
+   "dashboard preview server, restarted on the same HOME",
+   "review-state file under HOME",
+   "real origin (startOrigin)"
+  ],
+  "simulated": [
+   "synthetic gh/FakeGitHub"
+  ],
+  "why": "Persistence across a real server restart and unchanged repository bytes need the whole server and machine records, as recently-done-review-state-failed-save.spec.ts (e2e).",
+  "destination": "../e2e/stories/recently-done-review-state-persistence.spec.ts",
+  "source": "trunk merge 01b1ecd72"
+ },
+ "tests/intent/intent-ci-done-glance.spec.ts": {
+  "class": "frontend",
+  "purpose": "A Done landing's CI wall time reads against recent builds between the endpoints and the entry table: compact readout, chart marks, average line, failed and unavailable marks, light and dark cues.",
+  "real": [
+   "dashboard preview server",
+   "kept summary comparison story",
+   "retained landed CI history under HOME"
+  ],
+  "simulated": [
+   "synthetic gh/FakeGitHub CI runs"
+  ],
+  "why": "Decisive assertions are chart marks, CSS dash, readout text and dark-mode cues: detailed UI that needs controlled history answers, like intent-ci-done-reference-lifecycle.spec.ts.",
+  "destination": "stays in tests/ pending conversion",
+  "source": "trunk merge 01b1ecd72"
+ },
+ "tests/intent/intent-scope-glance.spec.ts": {
+  "class": "frontend",
+  "purpose": "Drilling from a Done story's test entry to a folder and a test file reads each scope's execution time history before its table; the unit choice changes value, average and chart scale by keyboard and touch in light and dark appearance.",
+  "real": [
+   "dashboard preview server (landed CI reader)",
+   "kept summary comparison story",
+   "retained raw priors under HOME"
+  ],
+  "simulated": [
+   "synthetic gh/FakeGitHub CI runs"
+  ],
+  "why": "Decisive assertions are layout order, unit switching by keyboard and touch, and appearance: detailed UI; collection stays with e2e/intent/intent-scope-collected-file-timing-history.spec.ts.",
+  "destination": "stays in tests/ pending conversion",
+  "source": "trunk merge 01b1ecd72"
+ },
+ "tests/sessions/recently-done-sessions-review-cue.spec.ts": {
+  "class": "frontend",
+  "purpose": "Shown Recently done session rows expose their linked story's outstanding local review: cross-project rows, equal identities, batch resolution without per-row catalog reads, long titles.",
+  "real": [
+   "dashboard preview server",
+   "launch store under HOME"
+  ],
+  "simulated": [
+   "synthetic gh/FakeGitHub",
+   "paused page clock"
+  ],
+  "why": "Row cues, read counts and layout are detailed Sessions sidebar UI, like the recently-done-sessions-select checks that stay.",
+  "destination": "stays in tests/ pending conversion",
+  "source": "trunk merge 01b1ecd72"
+ },
+ "tests/sessions/recently-done-sessions-review-cue-evidence.spec.ts": {
+  "class": "frontend",
+  "purpose": "Review warnings require successful independent link and local-state reads; failed or pending reads supply none until a later successful read.",
+  "real": [
+   "dashboard preview server"
+  ],
+  "simulated": [
+   "routed link and review-state read answers",
+   "synthetic gh/FakeGitHub"
+  ],
+  "why": "Decisive behavior is the page's reading of controlled failed and pending answers.",
+  "destination": "stays in tests/ pending conversion",
+  "source": "trunk merge 01b1ecd72"
+ },
+ "tests/sessions/recently-done-sessions-review-cue-races.spec.ts": {
+  "class": "frontend",
+  "purpose": "Older answers cannot replace the current row context or a saved review.",
+  "real": [
+   "dashboard preview server"
+  ],
+  "simulated": [
+   "held and reordered read answers",
+   "synthetic gh/FakeGitHub"
+  ],
+  "why": "Answer ordering races are page-state rules, like recently-done-sessions-select-supersede.spec.ts.",
+  "destination": "stays in tests/ pending conversion",
+  "source": "trunk merge 01b1ecd72"
+ },
+ "tests/stories/recently-done-review-cue.spec.ts": {
+  "class": "frontend",
+  "purpose": "An outstanding review is a readable red action beside quiet Reviewed in light and dark appearance before a card is selected.",
+  "real": [
+   "dashboard preview server",
+   "real origin (startOrigin)"
+  ],
+  "simulated": [
+   "synthetic gh/FakeGitHub"
+  ],
+  "why": "Contrast and appearance of the review cue are presentation checks.",
+  "destination": "stays in tests/ pending conversion",
+  "source": "trunk merge 01b1ecd72"
  }
 }

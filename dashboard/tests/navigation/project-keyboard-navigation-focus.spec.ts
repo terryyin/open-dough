@@ -2,7 +2,12 @@
 // read cannot leak into the destination project's observation.
 
 import { expect, test } from "../dashboardTest.ts";
-import { shortRevision, expectMembership, parts } from "../dashboardPage.ts";
+import {
+  shortRevision,
+  expectMembership,
+  parts,
+  projectTab,
+} from "../dashboardPage.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { catalogPublications } from "../catalogProjectRecords.ts";
 import { describedBacklog } from "../describedRevisions.ts";
@@ -18,6 +23,8 @@ import {
   openDoughProject,
   pygardonProject,
 } from "../projectKeyboardNavigationJourney.ts";
+import { focusCanonicalRecord } from "../storyCardControls.ts";
+import { settings as systemSettings } from "../support/systemSettingsPage.ts";
 
 test("focus stays useful across switches and held previous reads stay isolated", async ({
   page,
@@ -39,11 +46,8 @@ test("focus stays useful across switches and held previous reads stay isolated",
 
   await page.goto("/");
   await expectSelectedProject(page, openDoughProject);
-  const { banner, project, backlog, readRevision } = parts(page);
-  const settings = banner.getByRole("button", {
-    name: "System settings",
-    exact: true,
-  });
+  const { backlog, readRevision } = parts(page);
+  const settings = systemSettings(page);
 
   await test.step("banner control focus survives a keyboard project switch", async () => {
     await settings.focus();
@@ -56,8 +60,7 @@ test("focus stays useful across switches and held previous reads stay isolated",
     const card = backlog.getByRole("article", {
       name: doughnutProject.queued,
     });
-    await card.getByRole("button", { name: "Inspect story" }).click();
-    await card.getByRole("link", { name: /^Canonical record/ }).focus();
+    await focusCanonicalRecord(card);
     await page.keyboard.press("ArrowRight");
     await expectFocusedRadio(page, "Pygardon");
     await expectSelectedProject(page, pygardonProject);
@@ -77,7 +80,7 @@ test("focus stays useful across switches and held previous reads stay isolated",
       pathsRead(doughnut).filter((path) => path === "main").length;
     const heldRead = doughnutRefReads() + 1;
     const releaseDoughnut = doughnut.hold("main");
-    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+    await projectTab(page, "Doughnut").check();
     await expect.poll(doughnutRefReads).toBe(heldRead);
 
     const nextOpenDoughRevision = "e2".repeat(20);

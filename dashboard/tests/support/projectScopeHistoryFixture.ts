@@ -18,7 +18,7 @@ import { commonGitDir } from "./launchLanding.ts";
 import { chooseStoryTab } from "./intentStoryPage.ts";
 import { queuedClaudePreviewTest } from "./preparationPage.ts";
 import { openDoneStoryIntent } from "./scopeHistoryCollectedPage.ts";
-import { serveCollectedScopeProofs } from "./scopeHistoryCollection.ts";
+import { serveKeptScopeProofs } from "./scopeHistoryCollection.ts";
 import {
   keptScopeFileProof,
   type ScopeFileTiming,
@@ -27,31 +27,17 @@ import { originMain } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { git } from "./storyReviewWorktree.ts";
 
-// Each case's origin starts from the worker's kept comparison story, so no
-// case completes Story A through the installed CLI in its own time.
-export const keptComparisonTest = queuedClaudePreviewTest.extend(
-  startingFromKeptSummaryComparisonStory,
-);
-
-// The kept story's endpoints, served with their CI runs as the CLI-published
-// story's are (./intentSummaryStoryComparisonServing.ts).
-export function serveKeptComparisonStory(page: Page, origin: StartOrigin) {
-  return serveSummaryComparisonStory(
-    page,
-    origin,
-    declaredSummaryComparisonEndpointsIn(origin.project),
-  );
-}
-
 // The page's dashboard is the reader itself: no collecting dashboard runs on
 // the machine before it or beside it.
-export const test = keptComparisonTest.extend({
-  dashboard: async ({ github, origin }, use) => {
-    const reader = await startLandedCiReader({ github }, origin, "preview");
-    await use(reader);
-    await reader.close();
-  },
-});
+export const test = queuedClaudePreviewTest
+  .extend(startingFromKeptSummaryComparisonStory)
+  .extend({
+    dashboard: async ({ github, origin }, use) => {
+      const reader = await startLandedCiReader({ github }, origin, "preview");
+      await use(reader);
+      await reader.close();
+    },
+  });
 
 type Point = "baseline" | "branchSide" | "completion" | "latest";
 
@@ -85,24 +71,21 @@ export async function readKeptProjectHistory(
   );
   const latest = await originMain(origin);
   const revisions = { ...setup, latest };
-  // Each run's proof as the machine keeps it. The provider serves its summary,
-  // so no case spawns the summary producer; producing it stays with collection.
+  // Each run's proof as the machine keeps it; producing it stays with
+  // collection.
   const runs = facts.runs.map(([point, runId, startedAt, files]) => {
     const revision = revisions[point];
     const proof = keptScopeFileProof({ revision, runId }, files);
     return { point, runId, startedAt, revision, proof };
   });
-  serveCollectedScopeProofs(
+  serveKeptScopeProofs(
     setup,
-    runs.map(({ point, runId, startedAt, revision, proof }) => {
-      if (proof.kind !== "summary") throw new Error(`No proof of ${point}`);
-      return [
-        revision,
-        runId,
-        startedAt,
-        JSON.stringify(proof.summary),
-      ] as const;
-    }),
+    runs.map(({ runId, startedAt, revision, proof }) => [
+      revision,
+      runId,
+      startedAt,
+      proof,
+    ]),
   );
   const history = makeMe.aLandedCiHistory.inTrunkOrder(
     git(

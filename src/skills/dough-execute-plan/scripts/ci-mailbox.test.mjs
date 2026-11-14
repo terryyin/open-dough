@@ -230,9 +230,18 @@ test("a worker error records monitoring unavailability", async (t) => {
   });
   assert.deepEqual(JSON.parse(readFileSync(join(directory, "result.json"))), {
     status: "finished",
+    cause: "observation_error",
   });
   assert.equal(
     readMailboxEvents(directory)[0].event.type,
     "CI_MONITOR_UNAVAILABLE",
+  );
+  assert.equal(
+    readMailboxEvents(directory)[0].event.cause,
+    "observation_error",
+  );
+  assert.equal(
+    readMailboxEvents(directory)[0].event.reason,
+    "Error: broken observer",
   );
 });

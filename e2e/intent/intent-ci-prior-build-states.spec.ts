@@ -1,5 +1,8 @@
 import { attemptLink } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
-import { priorBuildReferenceReading } from "../../dashboard/tests/priorBuildReferencePage.ts";
+import {
+  compactReadout,
+  priorBuildReferenceReading,
+} from "../../dashboard/tests/priorBuildReferencePage.ts";
 // Boundary states consume raw retained supplier observations through the
 // authenticated reader; no fixture supplies a calculated average.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -50,7 +53,7 @@ async function keepMeasurements(
   await keepLandedCiHistory(home, history.inTrunkOrder(order).please());
 }
 
-test("five complete zeros give a zero reference and precise elapsed difference with explicitly unavailable percentage", async ({
+test("five complete zeros give a zero reference with its median, line and each build's evidence", async ({
   page,
   dashboard,
 }) => {
@@ -59,11 +62,8 @@ test("five complete zeros give a zero reference and precise elapsed difference w
   const panel = await openJudgedCiStatus(page);
   const history = historyOf(panel);
   await expect(history).toContainText("Prior-build average · 0 s");
-  await expect(history).toContainText(
-    "+1.2 s (percentage unavailable: average is zero)",
-  );
   await expect(history).toContainText("Median 0 s");
-  await expect(history).toContainText("5 prior builds used · Nov 1–Nov 5");
+  await expect(history).toContainText("0 s · 5 prior builds used");
   await expect(buildHistoryReading(history).referenceLine).toHaveCount(1);
   const builds = await evidenceByKeyboard(page, panel);
   await expect(buildEvidenceRows(builds)).toHaveCount(6);
@@ -84,8 +84,9 @@ test("selected missing proof keeps a usable prior average and available observed
   const history = historyOf(panel);
   await expect(history).toContainText("Prior-build average · 1 min 40 s");
   await expect(history).toContainText(
-    "Difference unavailable: Validated CI proof summary is not retained",
+    "No timing · Validated CI proof summary is not retained",
   );
+  await expect(compactReadout(history).change).toHaveCount(0);
   await expect(history).toContainText("5 prior builds used");
   const builds = await evidenceByKeyboard(page, panel);
   await expect(buildEvidenceRows(builds).last()).toContainText("2 min");
@@ -105,12 +106,9 @@ test("four post-filter values show their evidence and insufficient history witho
   const panel = await openJudgedCiStatus(page);
   const history = historyOf(panel);
   await expect(history).toContainText(
-    "Insufficient comparable history: at least 5 prior builds are required after filtering",
+    "Prior-build average · Insufficient history · 4 prior builds used",
   );
-  await expect(history).toContainText("4 prior builds used");
-  await expect(history).toContainText(
-    "Difference unavailable: insufficient comparable history",
-  );
+  await expect(compactReadout(history).change).toHaveCount(0);
   await expect(buildHistoryReading(history).reference).toHaveCount(0);
   const builds = await evidenceByKeyboard(page, panel);
   await expect(buildEvidenceRows(builds)).toHaveCount(6);
@@ -172,8 +170,9 @@ test("an invalid measured start keeps its original gap and readable receipt date
   const history = historyOf(panel);
   await expect(history).toContainText("Prior-build average · 1 min 40 s");
   await expect(history).toContainText(
-    "Difference unavailable: CI wall time bounds are not recorded or invalid",
+    "No timing · CI wall time bounds are not recorded or invalid",
   );
+  await expect(compactReadout(history).change).toHaveCount(0);
   const builds = await evidenceByKeyboard(page, panel);
   await expect(buildEvidenceRows(builds).last()).toContainText(
     "CI wall time not recorded",

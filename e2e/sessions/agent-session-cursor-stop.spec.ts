@@ -11,10 +11,14 @@ import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclos
 import {
   closeTerminal,
   terminalPanel,
+  openTerminalControl,
 } from "../../dashboard/tests/terminalScreenPage.ts";
 import { cursorRunnerSentence } from "../../dashboard/src/cursorRunnerSessions.ts";
 import type { Page } from "@playwright/test";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  parts,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
 import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
 import {
   holdRunnerSessionsReads,
@@ -66,12 +70,10 @@ workingCursorTest(
     // The entry now reads the agent not running, and reopen/recovery stay
     // offered for the saved conversation.
     await reloadUntilRead(page);
-    const again = parts(page).taken.locator(".session-entry");
+    const again = sessionEntriesIn(parts(page).taken);
     await expect(again).toHaveCount(1);
     await expect(again).toContainText("The agent is not running.");
-    await expect(
-      again.getByRole("button", { name: "Open terminal" }),
-    ).toHaveCount(1);
+    await expect(openTerminalControl(again)).toHaveCount(1);
     await expect(again.getByRole("button", { name: "Recover" })).toHaveCount(1);
     expect(keptRecord(dashboard.home).doneAt).toBeUndefined();
   },
@@ -104,9 +106,7 @@ workingCursorTest(
       );
       expect(record.doneAt).toBeUndefined();
       // Reopen and recovery are preserved.
-      await expect(
-        again.getByRole("button", { name: "Open terminal" }),
-      ).toHaveCount(1);
+      await expect(openTerminalControl(again)).toHaveCount(1);
       await expect(again.getByRole("button", { name: "Recover" })).toHaveCount(
         1,
       );

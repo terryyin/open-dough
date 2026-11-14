@@ -1,5 +1,6 @@
 import {
   scopeHistory,
+  scopeHistoryChart,
   scopeHistoryReading,
 } from "../../dashboard/tests/intentScopeHistoryPage.ts";
 // Kept landed history separates a middle Done landing from observed trunk,
@@ -17,7 +18,7 @@ import {
 } from "../../dashboard/tests/intentPerspectivePage.ts";
 import { childName } from "../../dashboard/tests/intentScopeProofPage.ts";
 import { openSummary } from "../../dashboard/tests/intentSummaryCiProofFixtures.ts";
-import { passTimeUntilCheckedAfterSettled } from "../../dashboard/tests/autoRefreshJourney.ts";
+import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
 import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
 import {
   readKeptProjectHistory,
@@ -69,13 +70,12 @@ test("visiting Project Intent reads later collected trunk builds and returning r
   await intentFile(intent, `Modified ${path}`).click();
   await fileReadingTab(intent, "Proof").click();
   const history = scopeHistory(proofRegion(intent));
-  const rows = scopeHistoryReading(history).rows;
-  await expect(history).toContainText(
-    `Selected landing ${shortSha(setup.completion)}`,
-  );
-  await expect(rows).toHaveCount(2);
-  await expect(rows.nth(0)).toContainText("8.0 s");
-  await expect(rows.nth(1)).toContainText("11.0 s");
+  const { selected } = scopeHistoryReading(history);
+  const done = `Selected landing ${shortSha(setup.completion)} · 11.0 s`;
+  const doneChart = scopeHistoryChart(history, "test cases");
+  await expect(selected).toHaveText(done);
+  await expect(doneChart.marks).toHaveCount(2);
+  await expect(doneChart.mark("Nov 5 · 8.0 s")).toHaveCount(1);
   await expect(history).not.toContainText(shortSha(latest));
   const offset = await scrollIntentReadingHalfway(intent);
   const acquisitions = () =>
@@ -94,11 +94,12 @@ test("visiting Project Intent reads later collected trunk builds and returning r
   await childName(projectSummary, "folder/").first().click();
   await childName(projectSummary, "a.spec.ts").first().click();
   await fileReadingTab(intent, "Proof").click();
-  await expect(history).toContainText(
-    `Observed trunk endpoint main ${shortSha(latest)}`,
+  await expect(selected).toHaveText(
+    `Observed trunk endpoint ${shortSha(latest)} · 9.0 s`,
   );
-  await expect(rows).toHaveCount(3);
-  await expect(rows.nth(2)).toContainText("9.0 s");
+  await expect(
+    scopeHistoryChart(history, "test cases", "observed trunk endpoint").marks,
+  ).toHaveCount(3);
   await returnToStory(intent);
   await expect(intentFile(intent, `Modified ${path}`)).toHaveAttribute(
     "aria-pressed",
@@ -108,10 +109,8 @@ test("visiting Project Intent reads later collected trunk builds and returning r
     "aria-selected",
     "true",
   );
-  await expect(history).toContainText(
-    `Selected landing ${shortSha(setup.completion)}`,
-  );
-  await expect(rows).toHaveCount(2);
+  await expect(selected).toHaveText(done);
+  await expect(doneChart.marks).toHaveCount(2);
   await expect(history).not.toContainText(shortSha(latest));
   await expect.poll(() => intentReadingScroll(intent)).toBe(offset);
   await untilPageReadsAnswered(page);
@@ -145,22 +144,23 @@ test("Project Intent refresh keeps collected history and Proof when the new trun
   await childName(summary, "a.spec.ts").first().click();
   await fileReadingTab(intent, "Proof").click();
   const history = scopeHistory(proofRegion(intent));
-  const rows = scopeHistoryReading(history).rows;
-  await expect(history).toContainText(
-    `Observed trunk endpoint main ${shortSha(latest)}`,
+  const reading = scopeHistoryReading(history);
+  const trunk = scopeHistoryChart(
+    history,
+    "test cases",
+    "observed trunk endpoint",
   );
-  await expect(rows).toHaveCount(3);
-  await expect(rows.nth(2)).toContainText("9.0 s");
+  const atLatest = `Observed trunk endpoint ${shortSha(latest)} · 9.0 s`;
+  await expect(reading.selected).toHaveText(atLatest);
+  await expect(trunk.marks).toHaveCount(3);
   await returnToStory(intent);
   await openProjectIntent(intent);
   await expect(fileReadingTab(intent, "Proof")).toHaveAttribute(
     "aria-selected",
     "true",
   );
-  await expect(history).toContainText(
-    `Observed trunk endpoint main ${shortSha(latest)}`,
-  );
-  await expect(rows).toHaveCount(3);
+  await expect(reading.selected).toHaveText(atLatest);
+  await expect(trunk.marks).toHaveCount(3);
   const observed =
     await scopeHistoryReading(history).endpointTime.getAttribute("datetime");
   const main = await originMain(origin);
@@ -180,10 +180,10 @@ test("Project Intent refresh keeps collected history and Proof when the new trun
   ).trim();
   await origin.originGit("update-ref", "refs/heads/main", next, main);
   git(origin.project, "fetch", "--quiet", "origin", "main");
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   await untilPageReadsAnswered(page);
-  await expect(history).toContainText(
-    `Observed trunk endpoint main ${shortSha(next)}`,
+  await expect(reading.selected).toContainText(
+    `Observed trunk endpoint ${shortSha(next)} · No timing`,
   );
   await expect(
     proofRegion(intent).getByRole("list", {
@@ -191,8 +191,12 @@ test("Project Intent refresh keeps collected history and Proof when the new trun
       exact: true,
     }),
   ).toContainText(`Revision ${shortSha(latest)}`);
-  await expect(history).toContainText("no matching collected observation");
-  await expect(rows.filter({ hasText: /Run \d/ })).toHaveCount(3);
+  // Earlier collected builds stay charted beside the new endpoint's gap.
+  await expect(reading.status).toHaveText(
+    "Observed trunk endpoint not collected",
+  );
+  await expect(trunk.measured).toHaveCount(3);
+  await expect(trunk.unavailable).toHaveCount(1);
   await expect(scopeHistoryReading(history).endpointTime).not.toHaveAttribute(
     "datetime",
     observed ?? "",
@@ -202,8 +206,8 @@ test("Project Intent refresh keeps collected history and Proof when the new trun
   await openSummary(intent, "dashboard/tests");
   await intentFile(intent, "Modified dashboard/tests/folder/a.spec.ts").click();
   await fileReadingTab(intent, "Proof").click();
-  await expect(history).toContainText(
-    `Selected landing ${shortSha(setup.completion)}`,
+  await expect(reading.selected).toHaveText(
+    `Selected landing ${shortSha(setup.completion)} · 11.0 s`,
   );
-  await expect(rows).toHaveCount(2);
+  await expect(scopeHistoryChart(history, "test cases").marks).toHaveCount(2);
 });

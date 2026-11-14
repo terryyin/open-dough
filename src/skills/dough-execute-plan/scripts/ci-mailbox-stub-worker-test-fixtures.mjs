@@ -38,9 +38,6 @@ import("node:fs").then(({ writeFileSync }) =>
 
 // A stopped result precedes process exit. A changed process title reproduces
 // the uncertain exit window; null delay leaves that window open until teardown.
-// macOS can deliver a directory event late, or miss one made just after the
-// watch starts, so the stub also reads the stop request at a short interval,
-// as the real worker's change watch does (./ci-mailbox-change-watch.mjs).
 export function publishThenExitSource({
   exitingCommand,
   exitDelayMs = 300,
@@ -65,7 +62,8 @@ ${showExitingCommand}  const result = join(directory, "result.json");
   renameSync(result + ".tmp", result);
 ${exit}};
 watch(directory, check);
-check();
+// Poll as well as watch: some hosts deliver no watch event for the stop file.
 setInterval(check, 20);
+check();
 `;
 }

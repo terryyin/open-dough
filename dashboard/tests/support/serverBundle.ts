@@ -58,7 +58,13 @@ async function bundleServerEntries(
       platform: "node",
       plugins: [keepImportMeta],
       external: [/node_modules/, /^[^./]/],
-      output: { file: path.join(directory, file), format: "esm" },
+      // One file per entry: dynamic imports in the server graph would otherwise
+      // split chunks and reject output.file.
+      output: {
+        file: path.join(directory, file),
+        format: "esm",
+        codeSplitting: false,
+      },
       logLevel: "silent",
     });
   }

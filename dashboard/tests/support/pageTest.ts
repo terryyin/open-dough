@@ -27,7 +27,8 @@
 // into worker populations that cannot share a worker, and each switch
 // between them stops a worker and starts a fresh one. A `test.use` of a
 // worker-scoped option (`launchOptions`) has the same effect, with one
-// population per distinct value object.
+// population per distinct value object; that value also replaces the
+// configured browser arguments, so it spreads them in (./browserArgs.ts).
 
 import { test as base } from "@playwright/test";
 import type { ComparisonRenderer } from "./comparisonRendering.ts";

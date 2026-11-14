@@ -100,9 +100,21 @@ function unresolvedRevisions(directory) {
     );
 }
 
+// Latest CI_MONITOR_UNAVAILABLE on this mailbox, when observation ended that way.
+export function lastMonitorUnavailableEvent(directory) {
+  return readMailboxEvents(directory)
+    .map((record) => record.event)
+    .findLast((event) => event?.type === "CI_MONITOR_UNAVAILABLE");
+}
+
 function terminalResult(directory, request, status) {
-  if (!(request.mode === "execution" && status === "stopped"))
-    return { status };
+  if (!(request.mode === "execution" && status === "stopped")) {
+    const cause =
+      status === "finished"
+        ? lastMonitorUnavailableEvent(directory)?.cause
+        : undefined;
+    return cause ? { status, cause } : { status };
+  }
   const unproved = unresolvedRevisions(directory);
   return {
     status,

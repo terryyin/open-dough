@@ -18,6 +18,8 @@ import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
 import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
 import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
 import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+import { credit } from "../../dashboard/tests/agentCredit.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 const instruction = "Focus on the examples.";
@@ -70,9 +72,7 @@ test("a queued story starts Cursor refinement and the published assignment is wh
     timeout: launchWaitMs,
   });
   await expect(entry).toContainText(cursor.sessionId);
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toHaveCount(1);
+  await expect(openTerminalControl(entry)).toHaveCount(1);
 
   expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
   const created = cursor.calls()[0];
@@ -210,7 +210,7 @@ test("a queued story starts Cursor refinement and the published assignment is wh
   await expect(
     parts(page).taken.getByRole("article", { name: "Story A", exact: true }),
   ).toHaveCount(0);
-  await expect(prepared.locator(".preparing-activity")).toHaveText("Preparing");
+  await expect(credit(prepared).activity).toHaveText("Preparing");
   await expectStartNote(prepared, "Start refinement", "Being prepared");
   await expect(
     prepared.getByRole("article", { name: "Refinement session" }),

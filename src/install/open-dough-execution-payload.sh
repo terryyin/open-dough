@@ -21,6 +21,7 @@ managed_files+=(
   dough-execute-plan/references/admit-accepted-work.md
   dough-execute-plan/references/agent-commits.md
   dough-execute-plan/references/ci-background-handoff.md
+  dough-execute-plan/references/ci-completion-recovery.md
   dough-execute-plan/references/ci-completion-wait.md
   dough-execute-plan/references/ci-monitor.md
   dough-execute-plan/references/ci-notify-codex.md
@@ -92,11 +93,13 @@ managed_files+=(
   dough-execute-plan/scripts/ci-host-hook.mjs
   dough-execute-plan/scripts/ci-mailbox-await.mjs
   dough-execute-plan/scripts/ci-mailbox-change-watch.mjs
+  dough-execute-plan/scripts/ci-mailbox-cli.mjs
   dough-execute-plan/scripts/ci-mailbox-complete.mjs
   dough-execute-plan/scripts/ci-mailbox-completion-state.mjs
   dough-execute-plan/scripts/ci-mailbox-json-file.mjs
   dough-execute-plan/scripts/ci-mailbox-location.mjs
   dough-execute-plan/scripts/ci-mailbox-match.mjs
+  dough-execute-plan/scripts/ci-mailbox-operations.mjs
   dough-execute-plan/scripts/ci-observer-owner.mjs
   dough-execute-plan/scripts/ci-mailbox-revision-records.mjs
   dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs
@@ -104,6 +107,8 @@ managed_files+=(
   dough-execute-plan/scripts/ci-mailbox-queue-progress.mjs
   dough-execute-plan/scripts/ci-mailbox-worker-process.mjs
   dough-execute-plan/scripts/ci-mailbox.mjs
+  dough-execute-plan/scripts/ci-monitor-unavailable.mjs
+  dough-execute-plan/scripts/ci-observation-throttle.mjs
   dough-execute-plan/scripts/ci-observer-stream.mjs
   dough-execute-plan/scripts/ci-path-applicability.mjs
   dough-execute-plan/scripts/ci-revision-applicability-classification.mjs
@@ -143,6 +148,8 @@ managed_files+=(
   dough-execute-plan/scripts/execution-increment-publication.mjs
   dough-execute-plan/scripts/execution-increment-reconciliation.mjs
   dough-execute-plan/scripts/execution-increment-resume.mjs
+  dough-execute-plan/scripts/execution-completion-recovery.mjs
+  dough-execute-plan/scripts/ci-mailbox-predecessors.mjs
   dough-execute-plan/scripts/execution-start.mjs
   dough-execute-plan/scripts/established-start.mjs
   dough-execute-plan/scripts/established-session.mjs

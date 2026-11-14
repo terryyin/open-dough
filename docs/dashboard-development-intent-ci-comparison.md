@@ -119,9 +119,10 @@ one per compared unit, stay last, and its sort survives drilling down. **Counts*
 after endpoint's counted results, and **Change** keeps its existing meaning.
 At every depth, an unused Landed endpoint has the same explanation and the
 same active Branch comparison, or Provisional comparison in Taken Trunk Mode.
-For a Done story, entry and folder **Summary**, and file **Proof**, also show
+For a Done story, entry and folder **Summary**, and file **Proof**, first show
 [Test execution time history and prior-build references](dashboard-development-intent-scope-reference.md)
-from the collected evidence through that published landing.
+from the collected evidence through that published landing, above the table
+or comparison.
 
 Summary and file Proof reuse the evidence already held by Intent; drilling
 adds no CI request, and Summary reads no file text. GitHub Actions
@@ -220,14 +221,17 @@ can still settle the gap. Once the exact run appears, Check again or selecting
 the story again advances through queued/running evidence to its completed
 build, preserving the exact source and final-answer reuse.
 
-Done CI status also reads a compact **Prior-build average** from the local
-retained history at its exact published endpoint. It shares the project history's
-complete-proof, single median/15% filter and five-sample minimum; the selected
-attempt and measured revisions at or after that endpoint never supply priors.
-The count/span describe current retention: later publications cannot enter the
-reference, while eviction may change it or leave insufficient history. Independent
-history refresh/retry preserves the comparison; unavailable historical endpoints
-and selected proof are explained without acquiring CI or substituting current trunk.
+Done CI status reads **CI wall time history** from the local retained history
+at its exact published endpoint, placed between the endpoints and the entry
+table, or after the gap when no comparison is shown
+([reference](dashboard-development-intent-ci-reference.md)). Its compact
+readout shares the project history's complete-proof, single median/15% filter
+and five-sample minimum; the selected attempt and measured revisions at or
+after that endpoint never supply priors. The count describes current
+retention: later publications cannot enter the reference or its chart, while
+eviction may change it or leave insufficient history. Independent history
+refresh/retry preserves the comparison; unavailable historical endpoints and
+selected proof get brief statuses without acquiring CI or substituting current trunk.
 
 A Done card’s [automatic CI follow-up](dashboard-ci-follow-up.md) route reads
 both retained attempts against their saved wall-time reference. It mounts a

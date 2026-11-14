@@ -8,7 +8,11 @@
 // native verification under ADR 0005 and is claimed nowhere here.
 import { cursorRunnerSentence } from "../../dashboard/src/cursorRunnerSessions.ts";
 import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/runnerPaths.ts";
-import { parts, sessionStateOf } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  parts,
+  sessionStateOf,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
 import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
 import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
 import {
@@ -55,7 +59,7 @@ test("runner killed with its address left stale: reopening starts nothing and ne
   // launch record, not running with Recover offered, and the stale
   // address, the dead runner, and the agent are all left untouched.
   await reloadUntilRead(page);
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
   await expect(entry).toHaveCount(1);
   await expectReadingWithoutScreenLabel(
     entry,
@@ -101,9 +105,9 @@ test("runner killed with its address left stale: reopening starts nothing and ne
     .toBe(attaches + 1);
 
   await reloadUntilRead(page);
-  const prior = parts(page)
-    .taken.locator(".session-entry")
-    .filter({ hasText: cursor.sessionId });
+  const prior = sessionEntriesIn(parts(page).taken).filter({
+    hasText: cursor.sessionId,
+  });
   await expect(prior.getByRole("button", { name: "Recover" })).toHaveCount(0);
   await expect(sessionStateOf(prior)).not.toHaveText(agentNotRunningLabel);
   await expect(sessionStateOf(prior)).not.toHaveText(

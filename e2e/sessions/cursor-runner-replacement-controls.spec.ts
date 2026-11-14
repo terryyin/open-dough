@@ -6,7 +6,10 @@ import { makeMe } from "../../tests/support/makeMe.mjs";
 import { storyA, storyB } from "../../tests/support/queued-repository.mjs";
 import { hangupCursorClient } from "../../dashboard/server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/runnerPaths.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  parts,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
 import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
 import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
 import { makeRecordedRunnerProofStale } from "../../dashboard/tests/support/cursorRunnerRecordedAddress.ts";
@@ -16,7 +19,6 @@ import {
   failSessionId,
   secondSessionId,
   thirdSessionId,
-  writeKeptRecords,
   writeLastHeld,
 } from "../../dashboard/tests/support/cursorRunnerReplacement.ts";
 import { expectReadingWithoutScreenLabel } from "../../dashboard/tests/support/cursorSessionReading.ts";
@@ -26,6 +28,7 @@ import {
 } from "../../dashboard/tests/support/cursorSessionRecovery.ts";
 import { openHeldCursorExecutions } from "../../dashboard/tests/support/heldCursorExecutions.ts";
 import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+import { keepMoreLaunchRecordsBesideServer } from "../../dashboard/tests/support/launchStore.ts";
 import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
 
 const replacementTest = test.extend({ cursorSubmitPaintMs: 300 });
@@ -75,7 +78,12 @@ replacementTest(
       })
       .launchedAt(new Date(Date.now() - 90_000).toISOString())
       .please();
-    writeKeptRecords(dashboard.home, [scoped, other, doneRecord, failRecord]);
+    // The page may still be noting its held starts reconciled, which
+    // rewrites these records too.
+    await keepMoreLaunchRecordsBesideServer(dashboard.home, [
+      doneRecord,
+      failRecord,
+    ]);
     // last-held names the still-revivable scoped session, a finished one,
     // and a failing workspace — not the hung-up never-held session.
     writeLastHeld(dashboard.home, [
@@ -127,7 +135,7 @@ replacementTest(
       .toBe(scopedAttachesBeforeReplace + 1);
 
     await reloadUntilRead(page);
-    const entries = parts(page).taken.locator(".session-entry");
+    const entries = sessionEntriesIn(parts(page).taken);
     const revived = entries.filter({ hasText: cursor.sessionId });
     const neverHeld = entries.filter({ hasText: secondSessionId });
     const failed = entries.filter({ hasText: failSessionId });
@@ -144,7 +152,7 @@ replacementTest(
       1,
     );
     await expect(
-      parts(page).recentlyDone.locator(".session-entry").filter({
+      sessionEntriesIn(parts(page).recentlyDone).filter({
         hasText: doneSessionId,
       }),
     ).toHaveCount(1);

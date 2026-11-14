@@ -43,6 +43,11 @@ import {
   trunkMoved,
 } from "../../dashboard/tests/branchRefreshJourney.ts";
 import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
+import {
+  inspectedDetail,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
+import { progressSource } from "../../dashboard/tests/storyCardFacts.ts";
 import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
 import type { PublishedRevision } from "../../dashboard/tests/publishedFiles.ts";
 
@@ -69,11 +74,9 @@ test("the automatic check follows each recorded story branch, reading only the p
   // The card qualifies its count briefly; the exact branch head is in the
   // story's detail, which stays open as the branch moves.
   await expect(progress).toContainText("From story branch; not in trunk.");
-  const branchCard = taken.getByRole("article", { name: onBranch });
-  await branchCard.getByRole("button", { name: "Inspect story" }).click();
-  const branchSource = branchCard
-    .getByRole("region", { name: `Detail for ${onBranch}` })
-    .locator(".progress-source");
+  const branchSource = progressSource(
+    await inspectedDetail(storyCard(taken, onBranch)),
+  );
   await expect(branchSource).toContainText(
     `From branch ${example} at ${shortRevision(branchHead)}; not in trunk.`,
   );

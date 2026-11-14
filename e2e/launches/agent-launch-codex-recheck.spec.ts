@@ -2,6 +2,7 @@
 // (a direct verification request:
 // ../../dashboard/backend-tests/launches/agent-launch-codex-verify-boundary.spec.ts).
 import { agentVerifyEndpoint } from "../../dashboard/src/agentLaunch.ts";
+import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
 import {
   notRefinedIdentity,
@@ -37,7 +38,7 @@ test("Recheck rereads evidence and published state without verifying a Codex sta
   });
   const [before] = await attempts(dashboard);
   await page.reload();
-  const recovery = page.getByRole("region", { name: "Startup recovery" });
+  const recovery = parts(page).startupRecovery;
   const recheck = recovery.getByRole("button", { name: `Recheck ${subject}` });
   await expect(recheck).toBeEnabled();
   const verifications: string[] = [];

@@ -41,7 +41,7 @@ keptStoryTest(
       averageSeconds: 100,
     });
     const saved = () => savedRepeatRequest(dashboard, 71)?.outcome;
-    kept.provider(71).setRepeat({ status: "in_progress" });
+    kept.provider(71).setRepeat({ status: "queued" });
     await expect.poll(() => saved()?.kind, "progress saved").toBe("progress");
     await page.clock.install();
     await page.goto(dashboard.baseURL);

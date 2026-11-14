@@ -8,43 +8,16 @@ import {
 } from "../tests/support/frontendApp.ts";
 import { pausePageClockAt } from "../tests/dashboardTest.ts";
 import { watchRecordReads } from "../tests/sessionStatePace.ts";
-import type { Locator } from "@playwright/test";
-import { unreadSessions } from "../tests/support/sessionHostStatus.ts";
 import { sessionsSidebarParts } from "../tests/sessionsSidebarPage.ts";
+import {
+  expectFigure,
+  sessionsSidebarFigures,
+} from "../tests/sessionsSidebarFigures.ts";
 import {
   putFrontendHostStatus,
   putFrontendMachine,
 } from "../tests/support/frontendServiceState.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-
-async function expectFigure(
-  figure: Locator,
-  count: number | string,
-  words: string,
-): Promise<void> {
-  await expect(figure).toHaveAccessibleName(words);
-  await expect(figure).toHaveAttribute("title", words);
-  await expect(figure).toHaveText(String(count));
-  await expect(figure.locator("svg")).toBeVisible();
-  await expect(figure.getByRole("button")).toHaveCount(0);
-  await expect(figure.getByRole("link")).toHaveCount(0);
-}
-
-function statusParts(page: Parameters<typeof sessionsSidebarParts>[0]) {
-  const { sidebar } = sessionsSidebarParts(page);
-  const titleRow = sidebar.locator(".sessions-sidebar-title-row");
-  return {
-    figures: titleRow.getByRole("img"),
-    active: titleRow.getByRole("img", { name: /^\d+ active sessions?$/ }),
-    waiting: titleRow.getByRole("img", {
-      name: /^\d+ sessions? needs? attention$/,
-    }),
-    cpu: titleRow.getByRole("img", { name: /^CPU / }),
-    disk: titleRow.getByRole("img", {
-      name: /( free|^Free disk unavailable)$/,
-    }),
-  };
-}
 
 test.describe("the Sessions sidebar's title row status", () => {
   test("an unread host figure says it is unavailable while the other figures still show", async ({
@@ -80,7 +53,8 @@ test.describe("the Sessions sidebar's title row status", () => {
     const { passOnePace } = await watchRecordReads(page);
     await openFrontendTakenBacklog(page);
     const sidebar = sessionsSidebarParts(page);
-    const { figures, active, waiting, cpu, disk } = statusParts(page);
+    const { figures, active, waiting, cpu, disk } =
+      sessionsSidebarFigures(page);
     await sidebar.button.click();
     await expect(sidebar.entries).toHaveCount(1);
     await test.step("free disk unread: it says so, invents no amount, and CPU and the counts still show", async () => {
@@ -126,7 +100,7 @@ test.describe("the Sessions sidebar's title row status", () => {
     frontendServices,
   }) => {
     await pausePageClockAt(page, new Date());
-    await unreadSessions(page);
+    putFrontendMachine(frontendServices, undefined);
     putFrontendHostStatus(
       frontendServices,
       makeMe.aHostStatus
@@ -135,7 +109,8 @@ test.describe("the Sessions sidebar's title row status", () => {
     );
     await openFrontendTakenBacklog(page);
     const sidebar = sessionsSidebarParts(page);
-    const { figures, active, waiting, cpu, disk } = statusParts(page);
+    const { figures, active, waiting, cpu, disk } =
+      sessionsSidebarFigures(page);
     await sidebar.button.click();
     await expectFigure(cpu, "37%", "CPU 37%");
     await expectFigure(disk, "52 GB", "52 GB free");

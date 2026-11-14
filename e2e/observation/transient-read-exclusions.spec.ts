@@ -25,26 +25,22 @@ import {
   commitAnswer,
   httpErrorAnswer,
   notFoundAnswer,
-  pathsRead,
   publishMovingOrigin,
   publishOrigin,
-  type ObservedRequest,
 } from "../../dashboard/tests/publishedOrigin.ts";
 import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
 import { backlogA, revisionA } from "../../dashboard/tests/refreshJourney.ts";
+import { projectTab } from "../../dashboard/tests/projectChoice.ts";
+import {
+  mainReads,
+  transientRecovery,
+} from "../../dashboard/tests/transientRecoveryPage.ts";
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
-const transientRecovery = "This page reads the published work at";
 const unexplainedFailure = {
   exitCode: 1,
   stderr: "gh: unexplained failure\n",
 };
-
-function mainReads(origin: {
-  readonly requests: readonly ObservedRequest[];
-}): number {
-  return pathsRead(origin).filter((path) => path === "main").length;
-}
 
 for (const { when, origin, problem } of [
   {
@@ -139,9 +135,7 @@ test("switching project cancels the unresolved recovery wait", async ({
   await untilPageReadsAnswered(page);
   expect(mainReads(origin)).toBe(1);
 
-  await parts(page)
-    .project.getByRole("radio", { name: "Doughnut", exact: true })
-    .check();
+  await projectTab(page, "Doughnut").check();
   await expectMembership(page, { taken: [], backlog: [doughnutSharedTitle] });
   await page.clock.runFor(20_000);
   expect(mainReads(origin)).toBe(1);

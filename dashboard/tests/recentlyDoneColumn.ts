@@ -1,7 +1,8 @@
 // The Recently done journeys' view of the column
 // (../../e2e/stories/recently-done-stories.spec.ts, ./sessions/recently-done-story-sessions.spec.ts):
 // the names of the sessions outside any done story, those sessions as the
-// synthetic `claude` lists them, and the column's own entries in order.
+// synthetic `claude` lists them, the column's own entries in order, and its
+// two range actions. Its count is `columnCountOf` (./dashboardParts.ts).
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
@@ -58,3 +59,13 @@ export async function expectEntries(recent: Locator, names: readonly string[]) {
     await expect(entries.nth(index)).toHaveAccessibleName(name);
   }
 }
+
+// The action after the shown entries that shows the next ten older ones, or
+// says they are being read.
+export const revealAction = (recent: Locator) =>
+  recent.getByRole("button", { name: /older entr(y|ies)$|^Reading done/ });
+
+// The action beside the heading, offered while more than ten entries show,
+// that shows only the latest ten again.
+export const showLatestAction = (recent: Locator) =>
+  recent.getByRole("button", { name: "Show latest 10" });

@@ -8,9 +8,12 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../../dashboard/tests/launchStoryCardPage.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import {
-  closeSidePanel,
+  parts,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
+import {
+  closeSidePanelToBoard,
   expectEveryControlReachable,
   expectNoSidewaysScrollIn,
   tapWhereShown,
@@ -123,8 +126,8 @@ test.describe(`${name} touch session editing`, () => {
         ?.split("\n\nDashboard reporting context:")[0],
     ).toBe(draft);
     dashboard.releaseHeldClaude();
-    const entry = parts(page).taken.locator(".session-entry");
-    await closeSidePanel(await startedSessionTerminal(page, entry));
+    const entry = sessionEntriesIn(parts(page).taken);
+    await closeSidePanelToBoard(await startedSessionTerminal(page, entry));
     await expect(parts(page).adHocStarted).toHaveCount(0);
     await expect(entry).toHaveCount(1);
     await expect(launcher).toBeEnabled();

@@ -6,7 +6,11 @@ import path from "node:path";
 import { cursorRunnerSentence } from "../../dashboard/src/cursorRunnerSessions.ts";
 import { stopCursorRunner } from "../../dashboard/server/hosts/cursor/runnerClient.ts";
 import { cursorRunnerAddressFile } from "../../dashboard/server/hosts/cursor/runnerPaths.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  parts,
+  sessionEntriesIn,
+  sessionProblemOf,
+} from "../../dashboard/tests/dashboardPage.ts";
 import { occupyRunner } from "../../dashboard/tests/support/cursorRunnerJourney.ts";
 import {
   expectReadingWithoutScreenLabel,
@@ -52,24 +56,22 @@ test("missing workspace, trust, unreachable runner, and unclassified exit explai
       },
     ],
   });
+  // The recorded session's local Taken entry, through every reload below.
+  const entry = sessionEntriesIn(parts(page).taken);
+  const recover = entry.getByRole("button", { name: "Recover" });
+  const problem = sessionProblemOf(entry);
   await page.reload();
-  let entry = parts(page).taken.locator(".session-entry");
   const attachesBeforeMissing = cursor.attaches().length;
-  await entry.getByRole("button", { name: "Recover" }).click();
-  await expect(entry.locator(".launch-problem")).toContainText(
-    "was not found on this machine",
-  );
+  await recover.click();
+  await expect(problem).toContainText("was not found on this machine");
   expect(cursor.attaches()).toHaveLength(attachesBeforeMissing);
 
   keepLaunchStore(dashboard, { "open-dough": [record] });
   cursor.setAttachMode("trust");
   await page.reload();
-  entry = parts(page).taken.locator(".session-entry");
   const beforeTrust = cursor.attaches().length;
-  await entry.getByRole("button", { name: "Recover" }).click();
-  await expect(entry.locator(".launch-problem")).toContainText(
-    "Workspace trust is required",
-  );
+  await recover.click();
+  await expect(problem).toContainText("Workspace trust is required");
   await expect
     .poll(() => cursor.attaches().length)
     .toBeGreaterThan(beforeTrust);
@@ -85,16 +87,13 @@ test("missing workspace, trust, unreachable runner, and unclassified exit explai
   const release = await occupyRunner(dashboard.home);
   try {
     await reloadUntilRead(page);
-    entry = parts(page).taken.locator(".session-entry");
     await expectReadingWithoutScreenLabel(
       entry,
       cursorRunnerSentence("unreachable"),
     );
     const beforeUnreachable = cursor.attaches().length;
-    await entry.getByRole("button", { name: "Recover" }).click();
-    await expect(entry.locator(".launch-problem")).toContainText(
-      "could not be reached",
-    );
+    await recover.click();
+    await expect(problem).toContainText("could not be reached");
     expect(cursor.attaches()).toHaveLength(beforeUnreachable);
   } finally {
     await release();
@@ -102,17 +101,14 @@ test("missing workspace, trust, unreachable runner, and unclassified exit explai
   }
 
   await reloadUntilRead(page);
-  entry = parts(page).taken.locator(".session-entry");
   await expectReadingWithoutScreenLabel(
     entry,
     cursorRunnerSentence("not-running"),
   );
   cursor.setAttachMode("exit");
   const beforeExit = cursor.attaches().length;
-  await entry.getByRole("button", { name: "Recover" }).click();
-  await expect(entry.locator(".launch-problem")).toContainText(
-    unclassifiedCursorExit,
-  );
+  await recover.click();
+  await expect(problem).toContainText(unclassifiedCursorExit);
   await expect.poll(() => cursor.attaches().length).toBeGreaterThan(beforeExit);
   await expect
     .poll(async () => {

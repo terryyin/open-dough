@@ -6,7 +6,10 @@
 // (`./IntentCiComparisonSummary.tsx`), each endpoint's build identity and
 // measured wall time and time without runner waits
 // (`./IntentCiComparisonEndpoints.tsx`), and each CI entry's timing
-// comparison (`./IntentCiEntryComparison.tsx`). Every relative change, in the
+// comparison (`./IntentCiEntryComparison.tsx`); a Done comparison's CI wall
+// time history sits between the endpoints and the entry table
+// (`./IntentCiDoneWallTimeReference.tsx`), after the gap when no comparison
+// is shown. Every relative change, in the
 // summary and the entry cells, shares one scale (`./storyCiRelativeChange.ts`);
 // **Show %** is off until chosen, kept with the story's reading place, and
 // changes labels only.
@@ -16,7 +19,11 @@
 // (`./IntentCiJudgedBranch.tsx`), disabled while it is read, whatever it
 // shows: the comparison, an unavailable answer, or a failed read.
 
-import { IntentCiDoneWallTimeReference } from "./IntentCiDoneWallTimeReference.tsx";
+import {
+  IntentCiDoneWallTimeReference,
+  useDoneWallTimeReading,
+  type DoneWallTimeReading,
+} from "./IntentCiDoneWallTimeReference.tsx";
 import type { ReactNode } from "react";
 import { useCiProofSorting } from "./CiProofTable.tsx";
 import { CheckAgain } from "./IntentCiJudgedBranch.tsx";
@@ -54,15 +61,18 @@ function ComparisonShown(
 
 function ComparisonGap({
   children,
+  history,
   checkAgainButton,
 }: {
   readonly children: ReactNode;
+  readonly history: ReactNode;
   readonly checkAgainButton: ReactNode;
 }) {
   return (
     <section className="intent-ci-status">
       <h3>{ciTimingHeading}</h3>
       {children}
+      {history}
       {checkAgainButton}
     </section>
   );
@@ -77,14 +87,16 @@ type IntentCiComparisonProps = {
 function CiComparisonContents({
   reading,
   checkAgain,
-}: IntentCiComparisonProps) {
+  done,
+}: IntentCiComparisonProps & { readonly done: DoneWallTimeReading }) {
   const proofs = endpointProofsOf(useIntentCiEvidence());
   const checkAgainButton = checkAgain !== undefined && (
     <CheckAgain reading={reading.reading} checkAgain={checkAgain} />
   );
+  const history = <IntentCiDoneWallTimeReference reading={done} />;
   if (reading.reading && reading.shown === undefined) {
     return (
-      <ComparisonGap checkAgainButton={checkAgainButton}>
+      <ComparisonGap history={history} checkAgainButton={checkAgainButton}>
         <p className="intent-ci-reading" role="status">
           Reading CI comparison…
         </p>
@@ -93,16 +105,16 @@ function CiComparisonContents({
   }
   if (reading.failed !== undefined && reading.shown === undefined) {
     return (
-      <ComparisonGap checkAgainButton={checkAgainButton}>
+      <ComparisonGap history={history} checkAgainButton={checkAgainButton}>
         <p className="intent-ci-gap">{reading.failed}</p>
       </ComparisonGap>
     );
   }
   const answer = reading.shown;
-  if (answer === undefined) return null;
+  if (answer === undefined) return history;
   if (answer.kind === "unavailable") {
     return (
-      <ComparisonGap checkAgainButton={checkAgainButton}>
+      <ComparisonGap history={history} checkAgainButton={checkAgainButton}>
         <p className="intent-ci-gap">{answer.explanation}</p>
       </ComparisonGap>
     );
@@ -111,18 +123,20 @@ function CiComparisonContents({
     <ComparisonShown
       answer={answer}
       proofs={proofs}
+      history={history}
       checkAgainButton={checkAgainButton}
     />
   );
 }
 
 // One stable local history owner across reading, failed, unavailable and shown
-// CI states. Those states keep their own existing refresh lifecycle.
+// CI states; only where its view renders changes between them. Those states
+// keep their own existing refresh lifecycle.
 export function IntentCiComparison(props: IntentCiComparisonProps) {
+  const done = useDoneWallTimeReading();
   return (
     <section aria-label="CI timing comparison">
-      <CiComparisonContents {...props} />
-      <IntentCiDoneWallTimeReference />
+      <CiComparisonContents {...props} done={done} />
     </section>
   );
 }

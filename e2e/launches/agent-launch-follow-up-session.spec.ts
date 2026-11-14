@@ -17,11 +17,13 @@ import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   terminalPanel,
   terminalScreenParts,
+  openTerminalControl,
 } from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   parts,
   sessionStateOf,
   standaloneSessionName,
+  sessionEntriesIn,
 } from "../../dashboard/tests/dashboardPage.ts";
 import {
   openTakenBacklog,
@@ -41,6 +43,7 @@ import { radio } from "../../dashboard/tests/support/sessionDialog.ts";
 import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
 import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
 import { sidePanelContents } from "../../dashboard/tests/support/sidePanelContents.ts";
+import { readFinalReportControl } from "../../dashboard/tests/finalReportPages.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -80,9 +83,7 @@ test("a Done session whose workspace is gone offers Read final report and Follow
   const dialog = startSessionDialog(page, "Open Dough");
 
   await expect(sessionStateOf(entry)).toHaveText("Done");
-  await expect(
-    entry.getByRole("button", { name: "Read final report" }),
-  ).toBeVisible();
+  await expect(readFinalReportControl(entry)).toBeVisible();
   await followUp(entry, retiredTitle).click();
 
   await expect(dialog).toBeVisible();
@@ -139,9 +140,7 @@ test("a Done session whose workspace is gone offers Read final report and Follow
 
   // The source stays Done in Recently done with its actions, its record as kept.
   await expect(sessionStateOf(entry)).toHaveText("Done");
-  await expect(
-    entry.getByRole("button", { name: "Read final report" }),
-  ).toBeVisible();
+  await expect(readFinalReportControl(entry)).toBeVisible();
   await expect(followUp(entry, retiredTitle)).toBeVisible();
   expect(
     stored(dashboard.home).find(
@@ -162,17 +161,13 @@ test("a Done session that still opens its terminal offers no Follow up until its
   await openTakenBacklog(page, launchJourney);
   const entry = entryOf(page, quietTitle);
 
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toBeVisible();
+  await expect(openTerminalControl(entry)).toBeVisible();
   await expect(followUp(entry, quietTitle)).toHaveCount(0);
 
   dashboard.claudeSessionBecomes(sessionId, "forgotten");
   await page.reload();
   await expect(followUp(entry, quietTitle)).toBeVisible();
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toHaveCount(0);
+  await expect(openTerminalControl(entry)).toHaveCount(0);
   await followUp(entry, quietTitle).click();
   const dialog = startSessionDialog(page, "Open Dough");
   await expect(dialog).toContainText(`Follows up ${quietTitle}`);
@@ -186,7 +181,7 @@ test("a Done session that still opens its terminal offers no Follow up until its
   await startSessionField(dialog).fill(" \t\n ");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
-  await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+  await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
   // The context is not typed text: the terminal opens with the keyboard.
   await expect(terminalScreenParts(terminalPanel(page)).input).toBeFocused({
     timeout: launchWaitMs,

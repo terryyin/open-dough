@@ -4,8 +4,13 @@
 
 import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { inspectedDetail } from "../storyCardControls.ts";
-import { expectView, rem, showColumn } from "../boardPage.ts";
+import {
+  canonicalRecord,
+  inspectedDetail,
+  storyCard,
+} from "../storyCardControls.ts";
+import { progressSource } from "../storyCardFacts.ts";
+import { expectView, rem, scrollYOf, showColumn } from "../boardPage.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { shortRevision, parts } from "../dashboardPage.ts";
 import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
@@ -28,18 +33,12 @@ test("moved branch progress keeps a scrolled inspection and its visible focused 
   await page.emulateMedia({ reducedMotion: "reduce" });
   const { origin, progress } = await openedSettled(page);
   await showColumn(page, "Recently done");
-  const card = parts(page).taken.getByRole("article", { name: onBranch });
+  const card = storyCard(parts(page).taken, onBranch);
   const detail = await inspectedDetail(card);
-  const link = detail.getByRole("link", { name: /^Canonical record/ });
-  const before = await page
-    .locator(".board-scroll")
-    .evaluate((region) => region.scrollTop);
+  const link = canonicalRecord(detail);
+  const before = await scrollYOf(page);
   await link.scrollIntoViewIfNeeded();
-  await expect
-    .poll(() =>
-      page.locator(".board-scroll").evaluate((region) => region.scrollTop),
-    )
-    .toBeGreaterThan(before);
+  await expect.poll(() => scrollYOf(page)).toBeGreaterThan(before);
   await link.focus();
   await expectVisibleReadingFocus(page, link);
   await expectView(page, ["Taken", "Recently done"], ["Backlog 0 entries"]);
@@ -76,7 +75,7 @@ test("moved branch progress keeps a scrolled inspection and its visible focused 
   });
   await passTimeUntilChecked(page);
   await expect(progress).toContainText("7 of 12 slices recorded complete");
-  await expect(detail.locator(".progress-source")).toContainText(
+  await expect(progressSource(detail)).toContainText(
     `From branch story/example at ${shortRevision(movedHead)}; not in trunk.`,
   );
   await expect(progress).toContainText("Current slice started 2 min ago");

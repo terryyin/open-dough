@@ -7,7 +7,7 @@
 // local read boundary and the page decide everything shown.
 
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import {
   expect,
   githubFor,
@@ -18,7 +18,8 @@ import {
   expectMembership,
   parts,
 } from "../../dashboard/tests/dashboardPage.ts";
-import { inspectedDetail } from "../../dashboard/tests/storyCardControls.ts";
+import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
+import { credit, detailHuman } from "../../dashboard/tests/agentCredit.ts";
 import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
 import { holdingAnswer } from "../../dashboard/tests/support/heldGitHubAnswer.ts";
 import { pathChange } from "../../dashboard/tests/pathHistoryAnswers.ts";
@@ -98,17 +99,12 @@ async function openedWithHeldAddition(page: Page, heldSha: string) {
     .toBe(true);
   const { taken, backlog, problem } = parts(page);
   return {
-    card: taken.getByRole("article", { name: afterTake }),
-    otherTaken: taken.getByRole("article", { name: justTaken }),
-    preparingCard: backlog.getByRole("article", { name: preparing }),
+    card: storyCard(taken, afterTake),
+    otherTaken: storyCard(taken, justTaken),
+    preparingCard: storyCard(backlog, preparing),
     problem,
     release,
   };
-}
-
-// A card's credited human, read in its detail.
-async function humanOf(card: Locator): Promise<Locator> {
-  return (await inspectedDetail(card)).locator(".owner-human");
 }
 
 test("another profile's slow human credit never holds back a Taken card's slice clock, and fills in when its addition commit answers", async ({
@@ -119,17 +115,17 @@ test("another profile's slow human credit never holds back a Taken card's slice 
 
   await test.step("while the preparer's addition commit is held, the Taken card's clock and human are shown and the preparer is still being read", async () => {
     await expect(card).toContainText("Current slice started 12 min ago");
-    await expect(await humanOf(card)).toHaveText(
+    await expect(await detailHuman(card)).toHaveText(
       `Human developer: ${credited}`,
     );
-    await expect(await humanOf(preparingCard)).toHaveText(
+    await expect(await detailHuman(preparingCard)).toHaveText(
       "Reading human developer…",
     );
   });
 
   await test.step("the addition commit's answer names the preparer, and the clock stays", async () => {
     release();
-    await expect(await humanOf(preparingCard)).toHaveText(
+    await expect(await detailHuman(preparingCard)).toHaveText(
       `Human developer: ${preparer}`,
     );
     await expect(card).toContainText("Current slice started 12 min ago");
@@ -149,14 +145,16 @@ test("a Taken profile's slow addition leaves only its own card's clock and human
     await expect(otherTaken).toContainText("Current slice started 5 min ago");
     await expect(card).toContainText("Reading current slice time…");
     // Reading is detail-only: the scan view shows no warning meanwhile.
-    await expect(card.locator(".owner-human-gap")).toHaveCount(0);
-    await expect(await humanOf(card)).toHaveText("Reading human developer…");
+    await expect(credit(card).humanGap).toHaveCount(0);
+    await expect(await detailHuman(card)).toHaveText(
+      "Reading human developer…",
+    );
   });
 
   await test.step("the addition commit's answer starts the clock and names the human", async () => {
     release();
     await expect(card).toContainText("Current slice started 12 min ago");
-    await expect(await humanOf(card)).toHaveText(
+    await expect(await detailHuman(card)).toHaveText(
       `Human developer: ${credited}`,
     );
     await expect(problem).toHaveCount(0);
@@ -180,18 +178,14 @@ test("a Taken profile's addition walk still unanswered at the wait bound is its 
   await expect(
     card.getByRole("button", { name: "Inspect story" }),
   ).toBeVisible();
-  await expect(card.locator(".story-card-owner .owner-human-gap")).toHaveText(
-    "Human developer unknown",
-  );
+  await expect(credit(card).humanGap).toHaveText("Human developer unknown");
   await expect(card).not.toContainText(
     "while reading the commit that added this agent profile",
   );
-  await expect(await humanOf(card)).toHaveText(
+  await expect(await detailHuman(card)).toHaveText(
     "Human developer unknown. GitHub did not answer within 30 seconds while reading the commit that added this agent profile.",
   );
-  await expect(card.locator(".story-card-owner .owner-human-gap")).toHaveText(
-    "Human developer unknown",
-  );
+  await expect(credit(card).humanGap).toHaveText("Human developer unknown");
   await expect(otherTaken).toContainText("Current slice started 5 min ago");
   // Wait-bound unanswered addition is eligible detail recovery, not a
   // membership/core read failure that empties the snapshot.

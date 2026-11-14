@@ -201,7 +201,7 @@ test("a Codex finish without its retained stream, or naming a sibling's, reports
   journey.assertSiblingUntouched();
 });
 
-test("a Codex finish whose retained stream registered the final closure and ended with no CI verdict for it reports that stream ended and keeps the worktree and branch", async (t) => {
+test("a Codex finish whose retained stream registered the final closure and ended with no CI verdict names arming a fresh stream; finish on that stream completes and retires", async (t) => {
   const journey = await closureBesideSiblingStream(t);
   const { fixture, publisher } = journey;
   const owner = retained(publisher.coordinator, publisher.directory);
@@ -213,20 +213,34 @@ test("a Codex finish whose retained stream registered the final closure and ende
     extra: owner,
   });
   assert.equal(delivered.receipt.sha, final);
-  assert.equal(delivered.observation.directory, publisher.directory);
-  // Stopped before CI released a verdict for the final closure.
   await fixture.stopObserver(publisher.directory);
   assert.deepEqual(coverage(publisher.directory), [final]);
+  releaseCi(fixture, { [beforeCleanup]: "success", [final]: "success" });
 
   const ended = await journey.finish({ beforeCleanup, final }, owner);
-
   await assertUnresolvedCoverage(fixture, ended, {
     final,
     ownership: "ended",
     reason: new RegExp(
-      `stream at ${publisher.directory} ended \\(stopped\\), not this coordinator's live stream of owner/project main.*arm \`ci-mailbox\\.mjs stream.*the next finish registers on it`,
+      `stream at ${publisher.directory} ended \\(stopped\\).*arm a fresh \`ci-mailbox\\.mjs stream.*completion recovery.*never restart a finished stream.*to complete`,
     ),
   });
   assert.equal(ended.result.observation.directory, publisher.directory);
-  journey.assertSiblingUntouched();
+  assert.equal(existsSync(fixture.execution), true);
+
+  const fresh = await armStream(fixture, {
+    coordinator: publisher.coordinator,
+  });
+  const { result, code, stderr } = await journey.finish(
+    { beforeCleanup, final },
+    retained(publisher.coordinator, fresh.directory),
+  );
+  assert.equal(code, 0, stderr);
+  assert.equal(result.observation.directory, fresh.directory);
+  assert.equal(result.completion.verdict, "success");
+  assert.equal(result.completion.shutdown.status, "confirmed");
+  assertObserverEnded(fresh.directory);
+  assert.equal(result.cleanup.worktree, "removed");
+  assert.deepEqual(coverage(publisher.directory), [final]);
+  journey.assertSiblingUntouched(3);
 });

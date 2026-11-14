@@ -5,8 +5,8 @@
 // its launch records name, checking them at a test's pace: a cancelled
 // landing joins its later trunk build's point, which an ad hoc landing at
 // that build also names, with no break in the line, and a failed build is a
-// Failed gap linked to its run with no point drawn
-// (SEED-285#see-landed-ci-wall-time-history examples 6 and 7). A phone
+// Failed gap linked to its run with no point drawn, marked by a × below
+// the time axis (SEED-285#see-landed-ci-wall-time-history examples 6 and 7). A phone
 // reader reaches each item and link by keyboard and tells points from gaps
 // by their words. Exact and reused equivalent points are in
 // ./intent-ci-wall-time-history-provenance.spec.ts.
@@ -21,6 +21,7 @@ import {
   expectLinksByKeyboard,
   publishTrunk,
   runLink,
+  wallTimeChart,
 } from "../../dashboard/tests/intentCiHistoryPage.ts";
 import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
 import {
@@ -122,9 +123,14 @@ test("a cancelled landing joins the later trunk build's point a landing there al
   ]);
   await expectLinksByKeyboard(page, builds, [40, 46, 45].map(runLink));
   // One stroke joins b's and d6's points, F's cancelled build breaking
-  // nothing; the failed build draws no point.
+  // nothing; the failed build draws no point but a × with its readout.
   const chart = await chartOf(history);
   expect(chart.points).toHaveLength(2);
   expect(chart.strokes).toEqual([2]);
+  const marks = wallTimeChart(history);
+  await expect(marks.failed).toHaveCount(1);
+  await expect(marks.unavailable).toHaveCount(0);
+  await expect(marks.marks).toHaveCount(3);
+  await expect(marks.mark(`${dayWords(h.at)} · Failed build`)).toBeVisible();
   await expectNoSidewaysScrollIn(page, history);
 });

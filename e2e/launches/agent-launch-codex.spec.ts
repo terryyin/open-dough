@@ -1,10 +1,11 @@
 import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // The real shared host choice, native input, mixed history and continuation journey.
 
-import { sessionActions } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
 import {
   terminalPanel,
   terminalScreenParts,
+  openTerminalControl,
 } from "../../dashboard/tests/terminalScreenPage.ts";
 import path from "node:path";
 import {
@@ -21,7 +22,10 @@ import {
   notRefinedStory,
   notRefinedIdentity,
 } from "../../dashboard/tests/launchJourney.ts";
-import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  storyCardSessions,
+  sessionStateOf,
+} from "../../dashboard/tests/dashboardPage.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
 import { markDone } from "../../dashboard/tests/agentLaunchBoundary.ts";
@@ -121,13 +125,9 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await expect(codex).toContainText("First input accepted");
   // Fresh shared polling replaces launch-time unknown.
   await reloadUntilRead(page);
-  await expect(codex.locator(".session-state")).toHaveText("Working");
-  await expect(
-    codex.getByRole("button", { name: "Open terminal" }),
-  ).toHaveCount(1);
-  await expect(
-    (await sessionActions(codex)).getByRole("button", { name: "Mark as done" }),
-  ).toHaveCount(1);
+  await expect(sessionStateOf(codex)).toHaveText("Working");
+  await expect(openTerminalControl(codex)).toHaveCount(1);
+  await expect(await sessionAction(codex, "Mark as done")).toHaveCount(1);
   const checkout = path.join(dashboard.home, "git", "open-dough");
   expectOneThreadStarted(native, checkout);
   expect(

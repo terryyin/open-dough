@@ -2,7 +2,13 @@
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { columnPagingControl, rem } from "../boardPage.ts";
-import { expectMembership, parts, sessionStateOf } from "../dashboardPage.ts";
+import {
+  expectMembership,
+  parts,
+  sessionEntriesIn,
+  sessionEntryShowing,
+  sessionStateOf,
+} from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import {
@@ -61,27 +67,23 @@ test("an active story owns its open session even with a matching done card, whos
   await page.setViewportSize({ width: 54 * rem, height: 900 });
   await page.goto("/");
   await expectMembership(page, { taken: [], backlog: [queuedTitle] });
-  const { backlog, recentlyDone: recent } = parts(page);
-  const active = backlog.locator(".session-entry");
+  const { board, backlog, recentlyDone: recent } = parts(page);
+  const active = sessionEntriesIn(backlog);
   const doneCard = recent.getByRole("article", {
     name: queuedTitle,
     exact: true,
   });
-  const closed = doneCard.locator(".session-entry");
+  const closed = sessionEntriesIn(doneCard);
   const openKey = `claude:${open.session.sessionId}`;
   const closedKey = `claude:${closedId}`;
   const expectUnique = async () => {
     await expect(active).toHaveAttribute("data-shows-session", openKey);
     await expect(sessionStateOf(active)).toHaveText("Working");
-    await expect(
-      recent.locator(`[data-shows-session="${openKey}"]`),
-    ).toHaveCount(0);
+    await expect(sessionEntryShowing(recent, openKey)).toHaveCount(0);
     await expect(closed).toHaveAttribute("data-shows-session", closedKey);
     await expect(sessionStateOf(closed)).toHaveText("Done");
     for (const key of [openKey, closedKey]) {
-      await expect(
-        page.locator(`.board [data-shows-session="${key}"]`),
-      ).toHaveCount(1);
+      await expect(sessionEntryShowing(board, key)).toHaveCount(1);
     }
     await expectEntries(recent, [adHocEntry, queuedTitle]);
     await expect(columnPagingControl(page, "Recently done")).toHaveText(

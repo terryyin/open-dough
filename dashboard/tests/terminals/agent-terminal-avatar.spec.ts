@@ -14,7 +14,7 @@ import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
-import { parts, sessionNamedBy } from "../dashboardPage.ts";
+import { parts, sessionNamedBy, sessionEntriesIn } from "../dashboardPage.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import { expectServed } from "../agentPortrait.ts";
 import { avatarPng } from "../avatarAnswers.ts";
@@ -33,6 +33,8 @@ import {
 } from "../support/launchStore.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { sidePanelNamesOf } from "../sidePanelFrame.ts";
+import { credit } from "../agentCredit.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -58,11 +60,10 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
   await openTakenBacklog(page, launchJourney);
   const panel = terminalPanel(page);
   const { rows } = terminalScreenParts(panel);
-  const names = panel.locator(".side-panel-names");
+  const sessionRow = sidePanelNamesOf(panel).sessionName;
   const heading = terminalScreenParts(panel).heading;
-  const sessionRow = names.locator("p");
-  const portrait = panel.locator(".agent-portrait");
-  const entry = parts(page).taken.locator(".session-entry");
+  const portrait = credit(panel).portrait;
+  const entry = sessionEntriesIn(parts(page).taken);
 
   await page
     .getByRole("button", { name: "Start session in Open Dough" })
@@ -94,7 +95,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
       .poll(() => recordsOf(dashboard, "open-dough"))
       .toEqual([expect.objectContaining(record)]);
     await page.reload();
-    await openTerminalControl(entry, { exact: false }).click();
+    await openTerminalControl(entry).click();
     await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
   };
 

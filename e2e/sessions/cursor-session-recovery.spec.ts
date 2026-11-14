@@ -8,7 +8,10 @@ import { cursorRunnerSentence } from "../../dashboard/src/cursorRunnerSessions.t
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import { stopCursorRunner } from "../../dashboard/server/hosts/cursor/runnerClient.ts";
 import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  parts,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
   agentCalls,
@@ -74,7 +77,7 @@ test("Recover on the idle composer with confirmed first input resumes the same c
   const before = cursor.attaches().length;
   await endHeldClient(page, cursor, dashboard.home);
   await reloadUntilRead(page);
-  const stopped = parts(page).taken.locator(".session-entry");
+  const stopped = sessionEntriesIn(parts(page).taken);
   await expectReadingWithoutScreenLabel(stopped, agentNotRunningLabel);
   await stopped.getByRole("button", { name: "Recover" }).click();
   await expectNormalizedReading(stopped, "Ready for review", true);
@@ -147,7 +150,7 @@ test("Recover with unconfirmed first input types nothing", async ({
   });
   await endHeldClient(page, cursor, dashboard.home);
   await page.reload();
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
   await entry.getByRole("button", { name: "Recover" }).click();
   await expectNormalizedReading(entry, "Awaiting first instruction", false);
   const resumed = cursor.attaches().at(-1);
@@ -171,7 +174,7 @@ test("done and completed sessions offer no Recover", async ({
     ],
   });
   await reloadUntilRead(page);
-  let entry = parts(page).recentlyDone.locator(".session-entry");
+  let entry = sessionEntriesIn(parts(page).recentlyDone);
   await expect(entry).toHaveCount(1);
   await expect(entry.getByRole("button", { name: "Recover" })).toHaveCount(0);
 
@@ -187,7 +190,7 @@ test("done and completed sessions offer no Recover", async ({
     ],
   });
   await reloadUntilRead(page);
-  entry = parts(page).taken.locator(".session-entry");
+  entry = sessionEntriesIn(parts(page).taken);
   await expect(entry).toHaveCount(1);
   await expectReadingWithoutScreenLabel(
     entry,
@@ -208,7 +211,7 @@ test("runner not running offers Recover; the click starts the runner and resumes
   const attaches = cursor.attaches().length;
   await stopCursorRunner(dashboard.home);
   await reloadUntilRead(page);
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
   await expectReadingWithoutScreenLabel(
     entry,
     cursorRunnerSentence("not-running"),

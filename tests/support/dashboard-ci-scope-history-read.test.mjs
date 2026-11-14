@@ -83,7 +83,7 @@ test("the browser reads the local scope boundary and refuses another scope or en
     .please();
   const endpoint = { revision: "b".repeat(40), at: "2026-11-02T00:00:00Z" };
   const original = globalThis.fetch;
-  let answer = makeMe.aCiScopeHistory
+  let answer = makeMe.aScopeHistoryGlance
     .with({
       path: "tests",
       selectedRevision: endpoint.revision,
@@ -118,7 +118,11 @@ test("the browser reads the local scope boundary and refuses another scope or en
       new URL(asked, "http://localhost").searchParams.get("revision"),
       endpoint.revision,
     );
-    answer = makeMe.aCiScopeHistory
+    assert.equal(
+      new URL(asked, "http://localhost").searchParams.get("history"),
+      "glance",
+    );
+    answer = makeMe.aScopeHistoryGlance
       .with({
         path: "other",
         selectedRevision: endpoint.revision,
@@ -135,7 +139,7 @@ test("the browser reads the local scope boundary and refuses another scope or en
       ),
       /shape this dashboard does not understand/,
     );
-    answer = makeMe.aCiScopeHistory
+    answer = makeMe.aScopeHistoryGlance
       .with({
         path: "tests",
         selectedRevision: "c".repeat(40),
@@ -166,7 +170,7 @@ test("an upstream rate limit still withholds live acquisition while both collect
     })
     .please();
   const endpoint = { revision: "b".repeat(40), at: "2026-11-02T00:00:00Z" };
-  const scope = makeMe.aCiScopeHistory
+  const scope = makeMe.aScopeHistoryGlance
     .with({
       path: "tests",
       selectedRevision: endpoint.revision,

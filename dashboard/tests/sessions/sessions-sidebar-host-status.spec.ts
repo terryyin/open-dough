@@ -10,7 +10,7 @@ import { givePageItsTurns } from "../pageRequestNotes.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
 import { cpuShown, freeDiskShown } from "../../src/hostStatus.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
-import type { Locator } from "@playwright/test";
+import { expectFigure } from "../sessionsSidebarFigures.ts";
 import {
   readStatusView,
   noteHostReads,
@@ -18,18 +18,6 @@ import {
   statusJourney,
 } from "../support/sessionHostStatus.ts";
 test.use({ projectFolders: ["open-dough", "doughnut"] });
-async function expectFigure(
-  figure: Locator,
-  count: number | string,
-  words: string,
-): Promise<void> {
-  await expect(figure).toHaveAccessibleName(words);
-  await expect(figure).toHaveAttribute("title", words);
-  await expect(figure).toHaveText(String(count));
-  await expect(figure.locator("svg")).toBeVisible();
-  await expect(figure.getByRole("button")).toHaveCount(0);
-  await expect(figure.getByRole("link")).toHaveCount(0);
-}
 
 test.describe("the Sessions sidebar's title row status", () => {
   const columnsJourney = statusJourney(test);
@@ -84,13 +72,8 @@ test.describe("the Sessions sidebar's title row status", () => {
       const { sessionId } = await launched(dashboard, "doughnut", story(index));
       dashboard.claudeSessionBecomes(sessionId, "working");
     }
-    const { button, entries, figures, active, waiting } = await readStatusView(
-      page,
-      columnsJourney(),
-    );
-    const shownAnywhere = page.getByRole("img", {
-      name: /^(\d+ (active sessions?|sessions? needs? attention)|CPU .*|.* free|Free disk unavailable)$/,
-    });
+    const { button, entries, figures, active, waiting, shownAnywhere } =
+      await readStatusView(page, columnsJourney());
     await test.step("closed, the sidebar shows no figures", async () => {
       await expect(button).toHaveAttribute("aria-expanded", "false");
       await expect(shownAnywhere).toHaveCount(0);

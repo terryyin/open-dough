@@ -1,6 +1,6 @@
 # Dashboard UX/UI North Star
 
-**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-11-11, for phone terminal text and scrolling.
+**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-11-13, for live status and source freshness.
 
 Help a developer understand Development, the project's ongoing effort to shape
 the product, and inspect the evidence behind it. The current dashboard combines
@@ -239,6 +239,22 @@ as the launch and session contracts describe. Avoid repetitive warnings on
 every story. A missing or deleted branch, a removed plan, or an old commit does
 not by itself prove completion, abandonment, failure, or stopped execution.
 History can explain a record's removal; show a historical fact as historical.
+
+### Live status and source freshness
+
+Show live status changes as the dashboard observes them. Keep confirmed review
+labels and session status visible during background refresh. Apply actual changes
+in place, preserving selection, focus, and scroll position where the affected
+item remains available.
+
+When GitHub asks the backend to wait, keep the last published snapshot visible
+and say near the published source summary that the dashboard will retry
+automatically. Show the next retry time when known. Indicate when the backend is
+retrying and clear the notice after a successful read. Keep local review and
+session updates usable during the wait. A lost dashboard connection has its own
+connection status so the reader can tell what is still updating. The
+[Architectural North Star](../.planning/NORTH-STAR.md#dashboard-status-delivery)
+defines the preferred transport.
 
 ## Empty, loading, and error states
 

@@ -10,7 +10,7 @@ remain available. A horizontal dashed line marks the displayed endpoint's
 The retained window holds 20 distinct measured builds total. An endpoint
 that occupies one of those builds leaves at most 19 prior builds; older
 endpoints may leave fewer. On Open Dough that window may span only about a
-day. The view reports the actual number used and their actual date span.
+day. The compact readout reports how many prior builds the average used.
 Retention is unchanged, and excluded or missing evidence is never replaced
 by older provider data.
 
@@ -40,24 +40,52 @@ median, then take the arithmetic mean of the remaining values. Use unrounded
 measurements throughout, without iterative filtering. Complete fast values
 and measured zero remain eligible; a zero median excludes positive values
 and retains zeros. At least five post-filter samples are required to show
-an average or difference. Four show their evidence and insufficient comparable
-history. These initial calibration choices limit unusually slow samples'
-influence and avoid presenting one or two runs as a stable reference; they
-are not a validated statistical confidence interval or a slowdown judgment.
+an average or difference. Fewer show **Insufficient history**, with the
+observations still charted. These initial calibration choices limit unusually
+slow samples' influence and avoid presenting one or two runs as a stable
+reference; they are not a validated statistical confidence interval or a
+slowdown judgment.
 
 For prior values 100, 100, 100, 100, 115 and 116 seconds, the median is 100;
 115 stays and 116 is excluded. The five-build average is 103 seconds. A selected
 120-second landing shows +17 seconds and the rounded percentage from 17/103.
 A zero average still permits an elapsed difference, with percentage explicitly
 unavailable. If selected proof or timing is unusable, a usable prior average
-remains visible with the reason a difference cannot be calculated.
+remains visible beside the selected status that says why, without a change.
 
-**Builds and evidence** keeps the observed values and gaps, plus dated
-reference evidence labelled ✓ Included, × Excluded, and ◆ Selected. It states
-the median and 15% rule and keeps provenance and build links available to
-keyboard, screen-reader and phone readers. The line and metrics are derived
-again whenever the endpoint or retained snapshot changes. History retains its
-own failure feedback and independent refresh lifecycle. Reading, refreshing,
+Every timing history shares one compact readout
+(`dashboard/src/IntentCiPriorBuildReference.tsx`): the selected timing, or its
+status in the chart's own words (**Failed build**, **No timing** with its
+reason, such as a pending build); the **Prior-build average** with how many
+prior builds it used, or **Insufficient history**; then the signed elapsed and
+percentage change against that average. The change shows only when both are
+usable. Its sign carries the direction in either appearance, and the figure
+repeats it in the faster or slower CI cue colour. A build that stands in for
+the selected landing is named briefly (**Reused equivalent first-parent
+build**, **Later trunk build, includes later changes**). In a Done story the
+wall-time and scope charts read alike: the selected build's mark reads
+**Selected landing**, the dashed line **Prior-build average** with its value,
+and a gap its status in the same brief words, such as **No timing · Pending ·
+CI queued or running**.
+
+A Done CI comparison shows its wall-time history between the Baseline, Branch
+and Landed endpoints and the by-entry table: a brief status when the history
+at its published landing is missing, out of retention, empty or unordered,
+the compact readout, and the shared chart of the selected landing and the
+verified retained observations through it, never newer landings. A labelled
+refresh icon reads it again; a failed read keeps the last history of the same
+landing beside its alert and a short **Retry history**. It lists no build
+records or membership. A scope's test execution time history reads in the
+same panel (`dashboard/src/IntentCiHistoryPanel.tsx`): heading, brief status
+and any action on one row, its reading, then a failed read's alert and retry.
+
+Project history's **Builds and evidence** keeps the observed values and gaps,
+plus dated reference evidence labelled ✓ Included, × Excluded, and ◆ Selected
+after the median and 15% rule, as the saved follow-up reference does. Both
+keep provenance and build links available to keyboard, screen-reader and phone
+readers. The line and metrics are derived again whenever the endpoint or
+retained snapshot changes. History retains its own failure feedback and
+independent refresh lifecycle. Reading, refreshing,
 revisiting and restarting use only retained local evidence, without CI
 acquisition caused by browsing.
 [Automatic landed CI follow-up](dashboard-ci-follow-up.md) can separately retain
@@ -65,6 +93,19 @@ one original/repeat comparison against the exact saved reference. Its sample
 and exclusions remain fixed while this ordinary reference follows retention.
 Causal attribution, configurable thresholds/windows and more retention/backfill
 remain deferred.
+
+<a id="glance-history-read"></a>
+The Done and scope views read their history with `history=glance`
+(`dashboard/server/ciHistoryGlance.ts`), a projection of the same answer from
+the same retained snapshot and Git-ordered cohort. It sends the dated
+measurements, gaps with their reasons (a scope gap typed `failed` or
+`unavailable`), segments, the selected build and how each build stands for its
+landings, and only the reference's selected timing, average, count and change.
+The Done glance answers only the observations verified through its landing.
+Per-build membership, the median and dates behind the average, and run links
+or landing records used only by the former lists stay out. Without the
+capability the answer is unchanged, so a page opened before it existed keeps
+reading; project history and the follow-up ledger keep their full references.
 
 The rule lives in `dashboard/src/ciPriorBuildReference.ts`; wall-time projection
 is `dashboard/server/ciWallTimeReference.ts`. It reuses the collector/store,

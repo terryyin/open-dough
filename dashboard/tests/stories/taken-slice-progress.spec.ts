@@ -5,7 +5,6 @@
 // boundary, the shared story-state and plan readers, and the page decide
 // everything shown.
 
-import type { Locator } from "@playwright/test";
 import type { PlanSlice } from "../../src/storyPlan.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
@@ -15,6 +14,8 @@ import { shortRevision, expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { describedRevisions } from "../describedRevisions.ts";
+import { inspectedDetail, storyCard } from "../storyCardControls.ts";
+import { expectNoSliceCount, expectSliceBar } from "../storyCardFacts.ts";
 
 const repository = "terryyin/open-dough";
 const seedPath = ".planning/seeds/SEED-090-progress.md";
@@ -103,11 +104,6 @@ const { A, B } = describedRevisions(
   { A: "a1".repeat(20), B: "b2".repeat(20) },
 );
 
-// The bar's segments, in order, by the recorded status each one shows.
-function segments(bar: Locator): Locator {
-  return bar.locator("[data-slice-status]");
-}
-
 test("each Taken card shows its recorded slice progress as a bar and count, or the plan's gap", async ({
   page,
 }) => {
@@ -120,54 +116,39 @@ test("each Taken card shows its recorded slice progress as a bar and count, or t
     taken: [counted, planless, unreadable],
     backlog: [queued],
   });
-  const card = (title: string) => taken.getByRole("article", { name: title });
+  const card = (title: string) => storyCard(taken, title);
   await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
 
   await test.step("a plan of three slices with one done shows three segments, one filled, and the count as the bar's name", async () => {
-    const bar = card(counted).getByRole("img", {
-      name: "1 of 3 slices recorded complete",
-    });
-    await expect(bar).toBeVisible();
-    await expect(segments(bar)).toHaveCount(3);
-    await expect(bar.locator("[data-slice-status='done']")).toHaveCount(1);
-    await expect(segments(bar).first()).toHaveAttribute(
-      "data-slice-status",
+    await expectSliceBar(card(counted), "1 of 3 slices recorded complete", [
       "done",
-    );
+      "planned",
+      "planned",
+    ]);
     await expect(card(counted)).toContainText(
       "1 of 3 slices recorded complete",
     );
   });
 
   await test.step("a Taken entry without an associated plan shows that gap, not zero progress", async () => {
-    await expect(card(planless)).toContainText(
+    await expectNoSliceCount(
+      card(planless),
       "No associated plan is recorded for this story. This is not zero recorded completion.",
     );
-    await expect(card(planless).getByRole("img")).toHaveCount(0);
-    await expect(card(planless)).not.toContainText("slices recorded complete");
   });
 
   await test.step("a plan the shared reader cannot interpret shows its gap on the card, not a count", async () => {
-    await expect(card(unreadable)).toContainText(
-      "Plan slices uninterpretable:",
-    );
-    await expect(card(unreadable).getByRole("img")).toHaveCount(0);
-    await expect(card(unreadable)).not.toContainText(
-      "slices recorded complete",
-    );
+    await expectNoSliceCount(card(unreadable), "Plan slices uninterpretable:");
   });
 
   await test.step("a queued planned entry shows no progress bar", async () => {
-    await expect(queue.getByRole("article", { name: queued })).toBeVisible();
+    await expect(storyCard(queue, queued)).toBeVisible();
     await expect(queue.getByRole("img")).toHaveCount(0);
     await expect(queue).not.toContainText("slices recorded complete");
   });
 
   await test.step("the detail slice list is unchanged beside the card's bar", async () => {
-    await card(counted).getByRole("button", { name: "Inspect story" }).click();
-    const detail = card(counted).getByRole("region", {
-      name: `Detail for ${counted}`,
-    });
+    const detail = await inspectedDetail(card(counted));
     await expect(detail).toContainText("1 of 3 slices recorded complete");
     await expect(detail.locator(".slice-list > li")).toHaveCount(3);
   });
@@ -176,10 +157,10 @@ test("each Taken card shows its recorded slice progress as a bar and count, or t
     await publishFiles(page, { repository, ...B });
     await reloadUntilRead(page);
     await expect(readRevision).toContainText(shortRevision(B.revision));
-    const bar = card(counted).getByRole("img", {
-      name: "2 of 3 slices recorded complete",
-    });
-    await expect(bar.locator("[data-slice-status='done']")).toHaveCount(2);
-    await expect(segments(bar)).toHaveCount(3);
+    await expectSliceBar(card(counted), "2 of 3 slices recorded complete", [
+      "done",
+      "done",
+      "planned",
+    ]);
   });
 });

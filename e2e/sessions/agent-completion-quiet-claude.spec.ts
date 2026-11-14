@@ -1,4 +1,4 @@
-import { sessionActions } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
 // A Claude Code session's quiet completion renames it once its receipt is
 // sent (../../dashboard/server/doneMarks.ts): the receipt answers at once with the local
 // Done mark pending, shown as ordinary text, and the rename waits for Claude
@@ -11,7 +11,10 @@ import { sessionActions } from "../../dashboard/tests/support/sessionEntryDisclo
 // ./agent-completion-quiet.spec.ts.
 
 import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  parts,
+  sessionProblemOf,
+} from "../../dashboard/tests/dashboardPage.ts";
 import { showColumn } from "../../dashboard/tests/boardPage.ts";
 import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
 import {
@@ -68,13 +71,8 @@ test.describe("within a wait the session outlasts", () => {
       .filter({ hasText: sessionId });
     await expect(recent).toContainText(`Intended name ${doneName}`);
     await expect(recent.getByText(pending)).toBeVisible();
-    await expect(recent.locator(".launch-problem")).not.toContainText(pending);
-    await expect(
-      (await sessionActions(recent)).getByRole("button", {
-        name: "Mark as done",
-        exact: true,
-      }),
-    ).toBeVisible();
+    await expect(sessionProblemOf(recent)).not.toContainText(pending);
+    await expect(await sessionAction(recent, "Mark as done")).toBeVisible();
     expect(dashboard.claudeAttaches()).toEqual([]);
 
     // Its banner precedes the composer; even quiet Done waits for that prompt.

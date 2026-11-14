@@ -15,7 +15,7 @@ import {
 import { makeMe } from "../../tests/support/makeMe.mjs";
 
 import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
-import { passTimeUntilCheckedAfterSettled } from "../../dashboard/tests/autoRefreshJourney.ts";
+import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
 import { failing } from "../../dashboard/tests/intentCiStoryBoard.ts";
 import {
   branchJudgmentCalls,
@@ -85,7 +85,7 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     const before = calls.length;
     ci.push("main", nextTrunk, "Advance the trunk");
     const trunkJudged = freshCiStatusReadSettled(page);
-    await passTimeUntilCheckedAfterSettled(page);
+    await passTimeUntilChecked(page);
     await trunkJudged;
     await untilPageReadsAnswered(page);
     expect(branchJudgmentCalls(calls.slice(before))).toEqual([
@@ -124,7 +124,7 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     const held = await holdNextRevisionCheckBody(page);
     const storyJudged = freshCiStatusReadSettled(page, failing.branch);
     let checkSettled = false;
-    const checked = passTimeUntilCheckedAfterSettled(page).then(() => {
+    const checked = passTimeUntilChecked(page).then(() => {
       checkSettled = true;
     });
     try {

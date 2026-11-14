@@ -18,6 +18,7 @@ import {
   serveUnreadProjectCi,
 } from "../tests/support/projectScopeHistoryFacts.ts";
 import { childName } from "../tests/intentScopeProofPage.ts";
+import { shortSha } from "../src/baseCiWording.ts";
 
 test("late entry history cannot replace another file or project's history while live Proof is absent", async ({
   page,
@@ -58,20 +59,21 @@ test("late entry history cannot replace another file or project's history while 
     await fileReadingTab(intent, "Proof").click();
     const file = proofRegion(intent);
     const history = scopeHistory(file);
-    await expect(scopeHistoryReading(history).rows).toContainText("11.0 s");
+    const endpoint = `Observed trunk endpoint ${shortSha(revision)}`;
+    await expect(scopeHistoryReading(history).selected).toHaveText(
+      `${endpoint} · 11.0 s`,
+    );
     await expect(file).toContainText("Live proof unavailable");
     await chooseProject(page, "Doughnut");
     await parts(page).intentChoice.click();
     const summary = await openSummary(parts(page).intent, "dashboard/tests");
     const current = scopeHistory(summary);
-    await expect(scopeHistoryReading(current).rows).toContainText("9.0 s");
+    const shown = scopeHistoryReading(current).selected;
+    await expect(shown).toHaveText(`${endpoint} · 9.0 s`);
     release?.();
     await oldAnswered;
     await untilPageReadsAnswered(page);
-    await expect(scopeHistoryReading(current).evidence).not.toContainText(
-      "8.0 s",
-    );
-    await expect(scopeHistoryReading(current).rows).toContainText("9.0 s");
+    await expect(shown).toHaveText(`${endpoint} · 9.0 s`);
     expect(requests).toEqual([
       "open-dough:dashboard/tests",
       `open-dough:${path}`,
@@ -103,8 +105,8 @@ test("a failed new file read cannot retain the entry's answer at the same projec
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   const entry = await openSummary(intent, "dashboard/tests");
-  await expect(scopeHistoryReading(scopeHistory(entry)).evidence).toContainText(
-    "8.0 s",
+  await expect(scopeHistoryReading(scopeHistory(entry)).selected).toHaveText(
+    `Observed trunk endpoint ${shortSha(revision)} · 8.0 s`,
   );
   await childName(entry, "example.spec.ts").first().click();
   await fileReadingTab(intent, "Proof").click();
@@ -113,7 +115,7 @@ test("a failed new file read cannot retain the entry's answer at the same projec
   await expect(scopeHistoryReading(history).failure).toContainText(
     "File local history unavailable",
   );
-  await expect(scopeHistoryReading(history).evidence).toHaveCount(0);
+  await expect(scopeHistoryReading(history).readout).toHaveCount(0);
   await expect(history).not.toContainText("Previously retrieved history");
   await expect(file).toContainText("Live proof unavailable");
   expect(requests).toEqual([

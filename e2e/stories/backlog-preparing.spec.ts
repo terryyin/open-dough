@@ -11,6 +11,16 @@ import {
   expectNoSidewaysScrollAndWholeText,
 } from "../../dashboard/tests/pageLayout.ts";
 import { expectMark } from "../../dashboard/tests/agentPortrait.ts";
+import { credit } from "../../dashboard/tests/agentCredit.ts";
+import {
+  hideDetail,
+  inspectedDetail,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
+import {
+  badgeLabels,
+  expectBadges,
+} from "../../dashboard/tests/storyCardFacts.ts";
 import {
   contentPathsRead,
   publishCommittedOrigin,
@@ -53,9 +63,8 @@ test("a queued card shows Preparing and its developer from published assignments
   });
   await page.goto("/");
   const { backlog, taken, readRevision } = parts(page);
-  const card = (title: string) => backlog.getByRole("article", { name: title });
-  const badges = (title: string) =>
-    card(title).locator(".badge").allTextContents();
+  const card = (title: string) => storyCard(backlog, title);
+  const badges = (title: string) => badgeLabels(card(title));
   const show = async (revision: string) => {
     origin.advanceTo(revision);
     await reloadUntilRead(page);
@@ -64,25 +73,18 @@ test("a queued card shows Preparing and its developer from published assignments
   };
   const expectNotPreparing = async (title: string) => {
     await expect(card(title)).not.toContainText("Preparing");
-    await expect(card(title).locator(".owner-agent")).toHaveCount(0);
+    await expect(credit(card(title)).agent).toHaveCount(0);
   };
   // The scan view names each preparing developer beside its portrait with
   // its credited human, tool, and model; the human's explanation is in the
-  // story's detail.
-  const inspected = async (title: string) => {
-    const button = card(title).getByRole("button", { name: "Inspect story" });
-    await button.click();
-    return card(title).getByRole("region", { name: `Detail for ${title}` });
-  };
-  const hideDetail = async (title: string) => {
-    await card(title).getByRole("button", { name: "Hide detail" }).click();
+  // story's detail. Hiding it returns the keyboard to the card.
+  const hidden = async (title: string) => {
+    await hideDetail(card(title));
     await expect(card(title)).toBeFocused();
   };
 
   await expectMembership(page, { taken: [], backlog: order });
-  await expect(
-    card(storyB).getByText("Ready for execution", { exact: true }),
-  ).toBeVisible();
+  await expectBadges(card(storyB), { shown: ["Ready for execution"] });
   const before = { b: await badges(storyB), c: await badges(storyC) };
 
   await test.step("before any announcement, no queued card claims Preparing", async () => {
@@ -92,60 +94,57 @@ test("a queued card shows Preparing and its developer from published assignments
   await test.step("announcements show Preparing and each developer on its queued card, keeping priority and badges", async () => {
     await show(journey.announced);
     for (const title of [storyC, storyB]) {
-      await expect(card(title).locator(".preparing-activity")).toHaveText(
-        "Preparing",
-      );
-      await expectReadableContrast(card(title).locator(".preparing-activity"));
+      const { activity } = credit(card(title));
+      await expect(activity).toHaveText("Preparing");
+      await expectReadableContrast(activity);
     }
-    await expect(card(storyC).locator(".owner-agent")).toHaveText(
-      preparers.refining,
-    );
-    await expect(card(storyB).locator(".owner-agent")).toHaveText(
-      preparers.reconsidering,
-    );
+    const preparingC = credit(card(storyC));
+    const preparingB = credit(card(storyB));
+    await expect(preparingC.agent).toHaveText(preparers.refining);
+    await expect(preparingB.agent).toHaveText(preparers.reconsidering);
     // The developer's portrait is decorative beside the name.
-    const portrait = card(storyC).locator(".owner-agent .agent-portrait");
+    const portrait = credit(preparingC.agent).portrait;
     await expect(portrait).toBeVisible();
     await expect(portrait).toHaveAttribute("aria-hidden", "true");
     // The scan view reads the credited human, tool, and model after
     // Preparing, without opening Inspect story; the detail repeats them.
-    await expect(card(storyC).locator(".story-card-preparing")).toHaveText(
+    await expect(preparingC.preparing).toHaveText(
       `Preparing${preparers.refining} · Fixture Committer · Claude Code · claude-opus-5-5`,
     );
-    await expect(card(storyC).locator(".owner-line")).toHaveText(
+    await expect(preparingC.line).toHaveText(
       `${preparers.refining} · Fixture Committer · Claude Code · claude-opus-5-5`,
     );
     await expectMark(
-      card(storyC).locator(".story-card-owner"),
+      preparingC.owner,
       "host",
       "Claude Code",
       "tool-avatars/claude.png",
     );
     await expect(card(storyC)).not.toContainText("Human developer");
-    await expect(card(storyC).locator(".owner-summary")).toHaveCount(0);
+    await expect(preparingC.summary).toHaveCount(0);
     // No tool or model was recorded: each stays a text gap with no mark.
-    await expect(card(storyB).locator(".owner-line")).toHaveText(
+    await expect(preparingB.line).toHaveText(
       `${preparers.reconsidering} · Fixture Committer · host not recorded · model not recorded`,
     );
-    await expect(card(storyB).locator(".owner-host img")).toHaveCount(0);
-    const detailC = await inspected(storyC);
-    await expect(detailC.locator(".owner-summary")).toHaveText(
+    await expect(preparingB.hostMark).toHaveCount(0);
+    const detailC = credit(await inspectedDetail(card(storyC)));
+    await expect(detailC.summary).toHaveText(
       `${preparers.refining} · Claude Code · claude-opus-5-5`,
     );
-    await expect(detailC.locator(".owner-human")).toHaveText(
+    await expect(detailC.human).toHaveText(
       "Human developer: Fixture Committer",
     );
     // The detail keeps the host beside its mark.
-    await expect(detailC.locator(".owner-host")).toHaveText("Claude Code");
-    await expect(detailC.locator(".owner-host img.owner-mark")).toHaveCount(1);
-    await hideDetail(storyC);
+    await expect(detailC.host).toHaveText("Claude Code");
+    await expect(detailC.hostMark).toHaveCount(1);
+    await hidden(storyC);
     // No tool or model was recorded: each stays a text gap with no mark.
-    const detailB = await inspected(storyB);
-    await expect(detailB.locator(".owner-summary")).toHaveText(
+    const detailB = credit(await inspectedDetail(card(storyB)));
+    await expect(detailB.summary).toHaveText(
       `${preparers.reconsidering} · host not recorded · model not recorded`,
     );
-    await expect(detailB.locator(".owner-host img")).toHaveCount(0);
-    await hideDetail(storyB);
+    await expect(detailB.hostMark).toHaveCount(0);
+    await hidden(storyB);
     await expect(card(storyA)).not.toContainText("Preparing");
     // The same priorities and preparation facts as before preparation began.
     for (const [index, title] of order.entries()) {
@@ -172,13 +171,11 @@ test("a queued card shows Preparing and its developer from published assignments
   await test.step("landing refinement alone ends Preparing and shows recorded refinement, not readiness", async () => {
     await show(journey.refinedLanded);
     await expectNotPreparing(storyC);
-    await expect(
-      card(storyC).getByText("Refined", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      card(storyC).getByText("Ready for execution", { exact: true }),
-    ).toHaveCount(0);
-    await expect(card(storyB).locator(".owner-agent")).toHaveText(
+    await expectBadges(card(storyC), {
+      shown: ["Refined"],
+      absent: ["Ready for execution"],
+    });
+    await expect(credit(card(storyB)).agent).toHaveText(
       preparers.reconsidering,
     );
   });
@@ -192,11 +189,9 @@ test("a queued card shows Preparing and its developer from published assignments
   await test.step("landing a planned result shows its recorded plan and readiness, prepared by the next developer in rotation", async () => {
     await show(journey.plannedLanded);
     await expectNotPreparing(storyC);
-    for (const label of ["Slice planned", "Ready for execution"]) {
-      await expect(
-        card(storyC).getByText(label, { exact: true }),
-      ).toBeVisible();
-    }
+    await expectBadges(card(storyC), {
+      shown: ["Slice planned", "Ready for execution"],
+    });
     expect(preparers.planning).not.toBe(preparers.refining);
   });
 
@@ -204,13 +199,13 @@ test("a queued card shows Preparing and its developer from published assignments
     const restore = origin.answerWith(".planning/agents", noConnection);
     await show(journey.conflicting);
     for (const title of order) {
-      const unknown = card(title).locator(".assignment-gap");
+      const { gap: unknown, agent } = credit(card(title));
       await expect(unknown).toHaveText(
         "Preparation assignment unknown. Agent profiles could not be read.",
       );
       await expect(unknown).toBeVisible();
       await expectReadableContrast(unknown);
-      await expect(card(title).locator(".owner-agent")).toHaveCount(0);
+      await expect(agent).toHaveCount(0);
     }
     restore();
   });
@@ -219,19 +214,17 @@ test("a queued card shows Preparing and its developer from published assignments
     await reloadUntilRead(page);
     const [first, second] = preparers.conflicting;
     // The conflict stays in the scan view, naming both developers.
-    await expect(card(storyA).locator(".owner-agent")).toHaveText([
-      first,
-      second,
-    ]);
-    await expect(card(storyA).locator(".owner-line")).toHaveText([
+    const conflicting = credit(card(storyA));
+    await expect(conflicting.agent).toHaveText([first, second]);
+    await expect(conflicting.line).toHaveText([
       `${first} · Fixture Committer · host not recorded · model not recorded`,
       `${second} · Fixture Committer · host not recorded · model not recorded`,
     ]);
-    await expect(card(storyA).locator(".assignment-gap")).toHaveText(
+    await expect(conflicting.gap).toHaveText(
       "Conflicting records: 2 preparation assignments name this entry.",
     );
-    const detailA = await inspected(storyA);
-    await expect(detailA.locator(".owner-summary")).toHaveText([
+    const detailA = credit(await inspectedDetail(card(storyA)));
+    await expect(detailA.summary).toHaveText([
       `${first} · host not recorded · model not recorded`,
       `${second} · host not recorded · model not recorded`,
     ]);

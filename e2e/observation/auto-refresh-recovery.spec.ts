@@ -39,6 +39,15 @@ import {
   type OriginAnswer,
 } from "../../dashboard/tests/publishedOrigin.ts";
 import {
+  focusCanonicalRecord,
+  slicePlanLink,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
+import {
+  detailRecovery,
+  expectEarlierSnapshotKept,
+} from "../../dashboard/tests/transientRecoveryPage.ts";
+import {
   backlogB,
   dashboardStory,
   inspectDashboardStory,
@@ -69,13 +78,7 @@ test("auto refresh recovery: a failed check keeps A at the steady pace; an eligi
     await expect(problem).toContainText(
       "The local authenticated read failed while reading main of terryyin/open-dough.",
     );
-    await expect(problem).toContainText(
-      "What is shown is the earlier snapshot, retrieved at",
-    );
-    await expect(problem.locator("time").nth(1)).toHaveAttribute(
-      "datetime",
-      retrievedA,
-    );
+    await expectEarlierSnapshotKept(page, retrievedA);
     await expect(problem).toContainText(
       "Automatic checks continue every 15 seconds while this page is visible.",
     );
@@ -98,11 +101,8 @@ test("auto refresh recovery: a failed check keeps A at the steady pace; an eligi
     await expect(problem).toContainText(
       `The local GitHub CLI could not reach GitHub while reading .planning/PRODUCT-BACKLOG.md at ${revisionB}.`,
     );
-    await expect(problem).toContainText("this page reads it");
-    await expect(problem.locator("time").nth(1)).toHaveAttribute(
-      "datetime",
-      retrievedA,
-    );
+    await expect(problem).toContainText(detailRecovery);
+    await expectEarlierSnapshotKept(page, retrievedA);
     await expectMembership(page, titlesOfA);
     // Failure alert retains the earlier retrieval time; Board proves A, not B.
     await expect(board.locator(`a[href*="${revisionB}"]`)).toHaveCount(0);
@@ -141,12 +141,9 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
   const origin = await openSettledAtA(page);
   const { board, problem, retrievedAt } = parts(page);
   const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
-  const dashboardCard = board.getByRole("article", { name: dashboardStory });
-  await dashboardCard.getByRole("button", { name: "Inspect story" }).click();
-  const canonicalOfDashboardStory = dashboardCard.getByRole("link", {
-    name: /^Canonical record/,
-  });
-  await canonicalOfDashboardStory.focus();
+  const canonicalOfDashboardStory = await focusCanonicalRecord(
+    storyCard(board, dashboardStory),
+  );
   origin.push(
     revisionC,
     backlogB.replace(/^(- .*)$/m, "$1\n$1"),
@@ -159,13 +156,7 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
     await expect(problem).toContainText(
       "The backlog already lists the same work twice",
     );
-    await expect(problem).toContainText(
-      "What is shown is the earlier snapshot, retrieved at",
-    );
-    await expect(problem.locator("time").nth(1)).toHaveAttribute(
-      "datetime",
-      retrievedA,
-    );
+    await expectEarlierSnapshotKept(page, retrievedA);
     await expect(canonicalOfDashboardStory).toBeFocused();
     await expectSnapshotButtons(page, { backlogCards: 3, cards: 4 });
     await expect(parts(page).reading).toHaveCount(0);
@@ -177,10 +168,7 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
       { revision: revisionA, titles: titlesOfA },
       [revisionB, revisionC],
     );
-    await expect(problem.locator("time").nth(1)).toHaveAttribute(
-      "datetime",
-      retrievedA,
-    );
+    await expectEarlierSnapshotKept(page, retrievedA);
     // The Board has three Columns; the inspected story's detail is a region of its card.
     await expect(
       board.getByRole("region").and(page.locator(":not(.story-detail)")),
@@ -202,9 +190,7 @@ test("auto refresh recovery: a newly published backlog listing the same work twi
       [revisionA, revisionC],
     );
     await expect(
-      board
-        .getByRole("article", { name: dashboardStory })
-        .getByRole("link", { name: /^Slice plan/ }),
+      slicePlanLink(storyCard(board, dashboardStory)),
     ).toHaveAttribute(
       "href",
       `https://github.com/terryyin/open-dough/blob/${revisionB}/.planning/slice-plans/061-published-story-dashboard/PLAN.md`,

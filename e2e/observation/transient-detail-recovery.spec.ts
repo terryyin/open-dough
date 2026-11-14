@@ -52,10 +52,12 @@ import {
   takenCanonicalPath,
 } from "../../dashboard/tests/publishedFactsArrival.ts";
 import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
+import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
+import { preparationFacts } from "../../dashboard/tests/storyCardFacts.ts";
+import { detailRecovery } from "../../dashboard/tests/transientRecoveryPage.ts";
 
 const preparationGap =
   "The canonical record could not be read for preparation facts.";
-const detailRecovery = "this page reads it";
 const terminalSeed = ".planning/seeds/SEED-264-terminal.md";
 const terminalTitle = "A story whose record is missing";
 const terminalStory = makeMe.aBacklogEntry
@@ -113,15 +115,11 @@ ${renderStorySection(terminalStory, {
     ...titlesBesideUnreachable,
     backlog: [...titlesBesideUnreachable.backlog, terminalTitle],
   });
-  const withheldCard = backlog.getByRole("article", { name: withheldTitle });
-  const plannedCard = backlog.getByRole("article", { name: plannedTitle });
-  const unreachableCard = backlog.getByRole("article", {
-    name: unreachableTitle,
-  });
-  const terminalCard = backlog.getByRole("article", { name: terminalTitle });
-  await expect(withheldCard.locator(".story-card-preparation")).toHaveText(
-    unreachableGap,
-  );
+  const withheldCard = storyCard(backlog, withheldTitle);
+  const plannedCard = storyCard(backlog, plannedTitle);
+  const unreachableCard = storyCard(backlog, unreachableTitle);
+  const terminalCard = storyCard(backlog, terminalTitle);
+  await expect(preparationFacts(withheldCard)).toHaveText(unreachableGap);
   await expect(unreachableCard).toContainText(unreachableGap);
   await expect(terminalCard).toContainText(unreachableGap);
   await expect(plannedCard).toBeVisible();
@@ -142,9 +140,7 @@ ${renderStorySection(terminalStory, {
     withheldFails = false;
     await page.clock.runFor(15_250);
     await untilPageReadsAnswered(page);
-    await expect(withheldCard.locator(".story-card-preparation")).toHaveText(
-      "Not recorded",
-    );
+    await expect(preparationFacts(withheldCard)).toHaveText("Not recorded");
     await expect(terminalCard).toContainText(unreachableGap);
     await expect(unreachableCard).toContainText(unreachableGap);
     await expect(plannedCard).toBeVisible();
@@ -191,9 +187,7 @@ test("a detail still unread at the wait bound recovers on its own at the same re
   await expect(problem).toContainText(
     "GitHub did not answer within 30 seconds, so the read was given up.",
   );
-  await expect(branchCard.locator(".story-card-preparation")).toHaveText(
-    preparationGap,
-  );
+  await expect(preparationFacts(branchCard)).toHaveText(preparationGap);
   await expectStoryCardAssignments(branchCard, queuedCard);
   await expectDoneFacts(doneCard);
   await expect(problem).toContainText(detailRecovery);

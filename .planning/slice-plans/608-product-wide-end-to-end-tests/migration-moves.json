@@ -1386,5 +1386,17 @@
  "tests/sessions/agentSessionCursorUnavailableCases.ts": {
   "to": "../e2e/sessions/agentSessionCursorUnavailableCases.ts",
   "slice": 3
+ },
+ "tests/sessions/agent-launch-attention-taken.spec.ts": {
+  "to": "../e2e/sessions/agent-launch-attention-taken.spec.ts",
+  "slice": "trunk merge 01b1ecd72"
+ },
+ "tests/sessions/recently-done-sessions-review-cue-ad-hoc.spec.ts": {
+  "to": "../e2e/sessions/recently-done-sessions-review-cue-ad-hoc.spec.ts",
+  "slice": "trunk merge 01b1ecd72"
+ },
+ "tests/stories/recently-done-review-state-persistence.spec.ts": {
+  "to": "../e2e/stories/recently-done-review-state-persistence.spec.ts",
+  "slice": "trunk merge 01b1ecd72"
  }
 }

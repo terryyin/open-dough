@@ -10,7 +10,10 @@ import {
 } from "../../dashboard/tests/support/storyReviewMark.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  parts,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
 import { showColumn } from "../../dashboard/tests/boardPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
 import {
@@ -41,7 +44,7 @@ test("a CLI-completed story without a local launch opens fixed published changes
     name: "Story A",
     exact: true,
   });
-  await expect(card.locator(".session-entry")).toHaveCount(0);
+  await expect(sessionEntriesIn(card)).toHaveCount(0);
   await expect(reviewChanges(card)).toBeVisible();
   const first = await readReview(page, card);
   expect(first.kind).toBe("published");

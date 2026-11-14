@@ -1,11 +1,11 @@
 # Oversized-file reorganization acceptance cases
 
 These cases extend the canonical
-[SEED-053#guarded-local-delivery-prerequisites](../SEED-053-native-guidance-acceptance.md#guarded-local-delivery-prerequisites)
+[Accept guarded local preparation, commit and publication on each host](../SEED-053-native-guidance-acceptance.md#guarded-local-delivery-prerequisites)
 acceptance home; they create no separate identity or queue assignment.
 
 **Covered work:**
-[SEED-010#plan-cohesive-reorganization-of-oversized-files](https://github.com/terryyin/open-dough/blob/2b80ca672410c80da7ea340d01b3b8a8c898b992/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#plan-cohesive-reorganization-of-oversized-files)
+[Plan the cohesive reorganization of an already-oversized file a slice touches](https://github.com/terryyin/open-dough/blob/2b80ca672410c80da7ea340d01b3b8a8c898b992/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#plan-cohesive-reorganization-of-oversized-files)
 and [plan 562](https://github.com/terryyin/open-dough/blob/2b80ca672410c80da7ea340d01b3b8a8c898b992/.planning/slice-plans/562-plan-cohesive-oversized-file-reorganization/PLAN.md) (before-cleanup `2b80ca672410c80da7ea340d01b3b8a8c898b992`).
 Observe installed planning, delegation and post-change refactor guidance settling
 and carrying a cohesive reorganization decision for expected edits to files

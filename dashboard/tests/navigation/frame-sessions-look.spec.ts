@@ -22,7 +22,10 @@ import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
 } from "../pageLayout.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  sessionsSidebarParts,
+  sessionsSidebarTitleCut,
+} from "../sessionsSidebarPage.ts";
 import {
   expectClosedToggleCounts,
   expectClosedToggleCountsFit,
@@ -39,7 +42,6 @@ const work = {
   identity: "SEED-901#frame-look",
   title: `A long story title that the narrow sidebar cuts ${"and goes on ".repeat(4)}to its end`,
 };
-const cutTitles = ".sessions-sidebar-session-entry-title";
 const panelTitle = ".side-panel-title-toggle";
 const terminalScreen = ".terminal-screen";
 
@@ -64,7 +66,8 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
     dashboard.claudeSessionBecomes(needsInput, "blocked");
     await page.setViewportSize(narrowWindow);
     const { settled } = await openStoryColumnsJourney(page, columnsJourney);
-    const { sidebar, button, entries, entry } = sessionsSidebarParts(page);
+    const { sidebar, button, entries, entry, heading } =
+      sessionsSidebarParts(page);
     const panel = terminalPanel(page);
     const control = (name: string) => frameControl(panel, name);
     await settled();
@@ -75,16 +78,14 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
 
     await test.step("the open sidebar's button, heading, and entry read clearly", async () => {
       await expectFrameIconControl(button, "Sessions", "Sessions (⌘B)");
-      await expectReadableContrast(
-        sidebar.getByRole("heading", { level: 2, name: "Sessions" }),
-      );
+      await expectReadableContrast(heading);
       await expectReadableContrast(entries.first().getByRole("heading"));
       await expectReadableContrast(entries.first().locator("time"));
       for (const size of [narrowWindow, zoomedWindow]) {
         await page.setViewportSize(size);
         await expect(sidebar).toBeVisible();
         await expectNoSidewaysScrollAndWholeText(page, [
-          cutTitles,
+          sessionsSidebarTitleCut,
           ...compactProjectSelectCut,
         ]);
       }
@@ -122,7 +123,7 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
           })
           .toBe(true);
         await expectNoSidewaysScrollAndWholeText(page, [
-          cutTitles,
+          sessionsSidebarTitleCut,
           panelTitle,
           terminalScreen,
           ...compactProjectSelectCut,

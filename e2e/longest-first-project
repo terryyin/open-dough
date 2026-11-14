@@ -43,7 +43,6 @@
 19.3	observation/limited-reading-detail.spec.ts
 19.2	intent/intent-scope-collected-file-timing-gaps.spec.ts
 19.2	review/recently-done-one-shot-review.spec.ts
-18.6	intent/intent-scope-prior-build-average.spec.ts
 18.4	review/story-review-story-branch-landed.spec.ts
 18.1	intent/intent-summary-story-comparison-renamed.spec.ts
 18.0	navigation/side-panel-content-replacement.spec.ts

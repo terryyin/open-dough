@@ -35,6 +35,11 @@ import {
   collectFiles,
 } from "../../dashboard/tests/support/credentialAbsence.ts";
 import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { projectTab } from "../../dashboard/tests/projectChoice.ts";
+import {
+  canonicalRecord,
+  inspectedDetail,
+} from "../../dashboard/tests/storyCardControls.ts";
 
 // Shaped like a real GitHub token and placed only in the spawned server
 // process's own environment, where the production `gh` invocation would see
@@ -71,14 +76,12 @@ test("authenticated project observation: each catalog project opens and reloads 
     observed.set(published.repository, await publishFiles(page, published));
   }
   await page.goto(server.baseURL);
-  const { project: selector, direction, problem, readRevision } = parts(page);
+  const { direction, problem, readRevision } = parts(page);
 
   for (const expected of Object.values(catalogExpectations)) {
     const calls = observed.get(expected.repository) ?? [];
     await test.step(`${expected.label} renders its own backlog and detail read through local gh`, async () => {
-      await selector
-        .getByRole("radio", { name: expected.label, exact: true })
-        .check();
+      await projectTab(page, expected.label).check();
       await expectMembership(page, {
         taken: [expected.taken],
         backlog: [expected.queued],
@@ -109,22 +112,14 @@ test("authenticated project observation: each catalog project opens and reloads 
         takenStoryCard.getByText("Not recorded", { exact: true }),
       ).toBeVisible();
       // Each story's source links are read in its detail.
-      await takenStoryCard
-        .getByRole("button", { name: "Inspect story" })
-        .click();
       await expect(
-        takenStoryCard.getByRole("link", { name: /^Canonical record/ }),
+        canonicalRecord(await inspectedDetail(takenStoryCard)),
       ).toHaveAttribute(
         "href",
         `https://github.com/${expected.repository}/blob/${expected.revision}/${expected.takenPath}`,
       );
-      await queuedCard.getByRole("button", { name: "Inspect story" }).click();
-      const detail = queuedCard.getByRole("region", {
-        name: `Detail for ${expected.queued}`,
-      });
-      await expect(
-        detail.getByRole("link", { name: /^Canonical record/ }),
-      ).toHaveAttribute(
+      const detail = await inspectedDetail(queuedCard);
+      await expect(canonicalRecord(detail)).toHaveAttribute(
         "href",
         `https://github.com/${expected.repository}/blob/${expected.revision}/${expected.queuedPath}#queued`,
       );
@@ -154,9 +149,7 @@ test("authenticated project observation: each catalog project opens and reloads 
 
   await test.step("without a gh login, the selected project reports its own actionable failure and no snapshot", async () => {
     github.serve("nerds-odd-e/doughnut", () => Promise.resolve(notLoggedIn));
-    await selector
-      .getByRole("radio", { name: "Doughnut", exact: true })
-      .check();
+    await projectTab(page, "Doughnut").check();
     await expect(problem).toContainText(
       "The local GitHub CLI is not logged in, so main of nerds-odd-e/doughnut could not be read. Run `gh auth login` (check with `gh auth status`), then reload the page.",
     );

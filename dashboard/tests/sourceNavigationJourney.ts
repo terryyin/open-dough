@@ -4,7 +4,7 @@
 // `gh` were asked for.
 
 import type { Locator, Page } from "@playwright/test";
-import { parts } from "./dashboardPage.ts";
+import { expectProjectChoice, parts } from "./dashboardPage.ts";
 import { inspectedDetail } from "./storyCardControls.ts";
 import { expect, githubFor } from "./dashboardTest.ts";
 import { describedBacklog } from "./describedRevisions.ts";
@@ -156,13 +156,13 @@ export async function destination(link: Locator): Promise<URL> {
 }
 
 // Click an outbound link: destination opens in a new tab; this page keeps its
-// URL and selected project.
+// URL and stays on the `selected` project.
 export async function followLeavingDashboard(
   page: Page,
   link: Locator,
+  selected: string,
 ): Promise<URL> {
   const dashboardUrl = page.url();
-  const { project } = parts(page);
   const [popup, leaving] = await Promise.all([
     page.waitForEvent("popup"),
     page
@@ -173,9 +173,6 @@ export async function followLeavingDashboard(
   const dest = new URL(leaving.url());
   await popup.close();
   expect(page.url()).toBe(dashboardUrl);
-  await expect(project.getByRole("radio", { checked: true })).toHaveAttribute(
-    "value",
-    "open-dough",
-  );
+  await expectProjectChoice(page, selected);
   return dest;
 }

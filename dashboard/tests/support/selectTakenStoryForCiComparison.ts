@@ -6,7 +6,8 @@ import { parts } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { expectStoryTab } from "./intentStoryPage.ts";
 import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
-import { expectSelected } from "../storyCardSelection.ts";
+import { emptyArea, expectSelected } from "../storyCardSelection.ts";
+import { storyCard } from "../storyCardControls.ts";
 
 export async function selectTakenStoryForCiComparison(
   page: import("@playwright/test").Page,
@@ -15,8 +16,8 @@ export async function selectTakenStoryForCiComparison(
   await page.goto("/");
   await showColumn(page, "Taken");
   const { taken, intentChoice, intent } = parts(page);
-  const card = taken.getByRole("article", { name: title, exact: true });
-  await card.getByRole("heading", { level: 3 }).click();
+  const card = storyCard(taken, title);
+  await emptyArea(card).click();
   await expectSelected(card, true);
   await intentChoice.click();
   await expect(intent).toBeVisible();

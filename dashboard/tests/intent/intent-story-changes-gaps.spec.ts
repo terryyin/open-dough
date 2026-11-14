@@ -28,7 +28,7 @@ import {
   returnToStory,
   intentPageFrame,
 } from "../intentModePage.ts";
-import { expectSelected } from "../storyCardSelection.ts";
+import { emptyArea, expectSelected } from "../storyCardSelection.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
   chooseStoryTab,
@@ -71,7 +71,7 @@ test("an active story with no workspace explains that no comparison is available
 }) => {
   publishIntentTrunk(origin.project);
   const card = await openBacklog(page, origin);
-  await card.getByRole("heading", { level: 3 }).click();
+  await emptyArea(card).click();
   await expectSelected(card, true);
   const { intentChoice, intent } = parts(page);
   await intentChoice.click();
@@ -138,7 +138,7 @@ test("without configured Intent locations the header names the selected story, C
   origin,
 }) => {
   const card = await openBacklog(page, origin);
-  await card.getByRole("heading", { level: 3 }).click();
+  await emptyArea(card).click();
   await expectSelected(card, true);
   const { intentChoice, intent } = parts(page);
   await intentChoice.click();
@@ -188,7 +188,7 @@ test("without configured Intent locations the header names the selected story, C
   // Cleared after a visit that ended on Optimization Candidates, the story
   // leaves Project Intent's CI status as the landing.
   await parts(page).development.click();
-  await card.getByRole("heading", { level: 3 }).click();
+  await emptyArea(card).click();
   await expectSelected(card, false);
   await intentChoice.click();
   await expect(storySummary(intent)).toHaveCount(0);

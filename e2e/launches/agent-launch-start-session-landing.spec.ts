@@ -21,7 +21,10 @@ import {
   keptStarts,
   recordsOf,
 } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  parts,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
 import {
   startSession,
   startSessionDialog,
@@ -136,7 +139,7 @@ test("Automatically land with no text names the push beside Start, runs the inst
   for (const absent of ["start", "preparation"])
     expect(record).not.toHaveProperty(absent);
   // The session's entry names the default checkout it was established in.
-  await expect(parts(page).taken.locator(".session-entry")).toContainText(
+  await expect(sessionEntriesIn(parts(page).taken)).toContainText(
     "Workspace ~/git/open-dough (default main)",
   );
   for (const kept of [record, ...(await attempts(dashboard))])

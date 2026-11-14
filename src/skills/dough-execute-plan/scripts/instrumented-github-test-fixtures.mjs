@@ -55,7 +55,7 @@ const finish = (head, body, exitCode = 0, stderr = '') => {
   const page = Number(searchParams.get('page') ?? 1);
   const perPage = Number(searchParams.get('per_page') ?? 30);
   const json = (body) => finish('HTTP/2.0 200 OK', JSON.stringify(body));
-  const asked = pathname.replace(/^\\/repos\\/owner\\/repo\\/actions\\//, '');
+  const asked = pathname.replace(/^\\/repos\\/[^/]+\\/[^/]+\\/actions\\//, '');
   let answer = state.answers?.[method + ' ' + asked] ??
     (method === 'GET' ? state.answers?.[asked] : undefined);
   if (!answer && /^jobs\\/\\d+\\/logs$/.test(asked))
@@ -70,14 +70,27 @@ const finish = (head, body, exitCode = 0, stderr = '') => {
   }
   if (method !== 'GET') return finish('HTTP/2.0 405 Method Not Allowed', '{}', 1, 'gh: Method Not Allowed (HTTP 405)');
   let found;
+  const knownRuns = [
+    ...(state.runs ?? []),
+    ...(state.branchRuns ?? []),
+    ...(state.allBranchRuns ?? []),
+  ];
   if (asked === 'workflows/ci.yml')
     return json({ id: 7001, name: 'CI', path: '.github/workflows/ci.yml', state: 'active' });
-  if (asked === 'workflows/7001/runs')
-    return json({ total_count: state.runs.length, workflow_runs: state.runs.slice(0, perPage) });
+  // Branch listings use branchRuns when held; repository-wide listings use
+  // allBranchRuns. Either falls back to runs so existing fixtures stay valid.
+  if (asked === 'workflows/7001/runs') {
+    const listed = searchParams.get('branch') != null
+      ? (state.branchRuns ?? state.runs ?? [])
+      : (state.allBranchRuns ?? state.runs ?? []);
+    return json({ total_count: listed.length, workflow_runs: listed.slice(0, perPage) });
+  }
   if ((found = /^runs\\/(\\d+)\\/attempts\\/(\\d+)$/.exec(asked)) && state.attempts[found[1] + '/' + found[2]])
     return json(state.attempts[found[1] + '/' + found[2]]);
-  if ((found = /^runs\\/(\\d+)$/.exec(asked)) && (state.runs ?? []).some((run) => String(run.id) === found[1]))
-    return json(state.runs.find((run) => String(run.id) === found[1]));
+  if ((found = /^runs\\/(\\d+)$/.exec(asked))) {
+    const run = knownRuns.find((each) => String(each.id) === found[1]);
+    if (run) return json(run);
+  }
   if ((found = /^runs\\/(\\d+)\\/attempts\\/(\\d+)\\/jobs$/.exec(asked))) {
     const jobs = state.attemptJobs?.[found[1] + '/' + found[2]] ?? state.jobs;
     return json({

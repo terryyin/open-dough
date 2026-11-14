@@ -1,4 +1,4 @@
-import { readFinalReportControl } from "../finalReportPages.ts";
+import { readFinalReport } from "../finalReportPages.ts";
 // Mark as done in the Final report, on a session placed 27th in
 // Recently done once done: a refinement session of a story no list shows,
 // whose prepared workspace is gone, so Taken offers only its final report.
@@ -65,10 +65,9 @@ test("Mark as done in the Final report closes it and lands on entry 27 once entr
   const { github, recent } = view;
   const taken = parts(page).taken.getByRole("article", { name: entryName });
   const arrived = recent.getByRole("article", { name: entryName });
-  const panel = page.getByRole("region", { name: "Final report" });
   await expect(taken).toContainText("The saved workspace is missing.");
 
-  await readFinalReportControl(taken, { exact: false }).click();
+  const { panel } = await readFinalReport(taken);
   await expect(panel).toBeVisible();
   idleBetweenSteps(dashboard, sessionId);
   await markDoneAnyway(panel);

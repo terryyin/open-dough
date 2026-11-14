@@ -27,7 +27,10 @@ import {
 } from "../launchJourney.ts";
 import { watchPageErrors } from "../pageErrors.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  expectSessionsSidebar,
+  sessionsSidebarParts,
+} from "../sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
@@ -54,16 +57,13 @@ test.describe("the Sessions sidebar as left", () => {
       page,
       columnsJourney,
     );
-    const { sidebar, button } = sessionsSidebarParts(page);
+    const { button } = sessionsSidebarParts(page);
     const { taken } = parts(page);
     const panel = terminalPanel(page);
-    const expectOpen = async () => {
-      await expect(sidebar).toBeVisible();
-      await expect(button).toHaveAttribute("aria-expanded", "true");
-    };
+    const expectOpen = () => expectSessionsSidebar(page, "open");
     await expectMembership(page, queued);
     await settled();
-    await expect(sidebar).toBeHidden();
+    await expectSessionsSidebar(page, "closed");
     await button.click();
     await expectOpen();
 
@@ -84,10 +84,10 @@ test.describe("the Sessions sidebar as left", () => {
       await launch(readyStory, "Execution");
       const entry = storyCardSessionOf(card(readyStory), "Execution");
       await sessionNamedBy(entry);
-      await openTerminalControl(entry, { exact: false }).click();
+      await openTerminalControl(entry).click();
       await expect(panel).toBeVisible();
       await expectOpen();
-      await closeSidePanel(panel, { using: "mouse", exact: false });
+      await closeSidePanel(panel, { using: "mouse" });
       await expect(panel).toHaveCount(0);
       await expectOpen();
     });
@@ -115,10 +115,9 @@ test.describe("the Sessions sidebar as left", () => {
       await page.reload();
       await expectOpen();
       await button.click();
-      await expect(sidebar).toBeHidden();
+      await expectSessionsSidebar(page, "closed");
       await page.reload();
-      await expect(button).toHaveAttribute("aria-expanded", "false");
-      await expect(sidebar).toBeHidden();
+      await expectSessionsSidebar(page, "closed");
     });
     expect(errors).toEqual([]);
   });
@@ -127,13 +126,13 @@ test.describe("the Sessions sidebar as left", () => {
     page,
   }) => {
     await openStoryColumnsJourney(page, columnsJourney);
-    const { sidebar, button } = sessionsSidebarParts(page);
+    const { button } = sessionsSidebarParts(page);
     await page.evaluate(() => {
       localStorage.removeItem("open-dough.sessionsSidebar.open");
       localStorage.setItem("open-dough.sessionSidebar.open", "true");
     });
     await reloadUntilRead(page);
-    await expect(sidebar).toBeVisible();
+    await expectSessionsSidebar(page, "open");
     const keptOpen = () =>
       page.evaluate(() =>
         localStorage.getItem("open-dough.sessionsSidebar.open"),
@@ -144,16 +143,15 @@ test.describe("the Sessions sidebar as left", () => {
       localStorage.setItem("open-dough.sessionSidebar.open", "false");
     });
     await reloadUntilRead(page);
-    await expect(sidebar).toBeVisible();
+    await expectSessionsSidebar(page, "open");
     await button.click();
-    await expect(sidebar).toBeHidden();
+    await expectSessionsSidebar(page, "closed");
     expect(await keptOpen()).toBe("false");
     await page.evaluate(() => {
       localStorage.setItem("open-dough.sessionSidebar.open", "true");
     });
     await reloadUntilRead(page);
-    await expect(sidebar).toBeHidden();
-    await expect(button).toHaveAttribute("aria-expanded", "false");
+    await expectSessionsSidebar(page, "closed");
   });
 
   test("starts closed without error, and still toggles, when browser storage cannot be used", async ({
@@ -170,23 +168,22 @@ test.describe("the Sessions sidebar as left", () => {
       });
     });
     const { settled } = await openStoryColumnsJourney(page, columnsJourney);
-    const { sidebar, button } = sessionsSidebarParts(page);
+    const { button } = sessionsSidebarParts(page);
     await expectMembership(page, queued);
     await settled();
     await expect(
       page.evaluate(() => window.localStorage.getItem("any")),
     ).rejects.toThrow("Storage is refused.");
-    await expect(sidebar).toBeHidden();
+    await expectSessionsSidebar(page, "closed");
     await button.click();
-    await expect(sidebar).toBeVisible();
+    await expectSessionsSidebar(page, "open");
     await page.keyboard.press("Meta+b");
-    await expect(sidebar).toBeHidden();
+    await expectSessionsSidebar(page, "closed");
     await page.keyboard.press("Meta+b");
-    await expect(sidebar).toBeVisible();
+    await expectSessionsSidebar(page, "open");
     await page.reload();
     await expectMembership(page, queued);
-    await expect(button).toHaveAttribute("aria-expanded", "false");
-    await expect(sidebar).toBeHidden();
+    await expectSessionsSidebar(page, "closed");
     expect(errors).toEqual([]);
   });
 });

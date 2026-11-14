@@ -1,8 +1,8 @@
-import { attemptLink } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
 import {
+  chooseTimingUnit,
   scopeHistory,
+  scopeHistoryChart,
   scopeHistoryReading,
-  expectScopeHistoryEvidence,
 } from "../../dashboard/tests/intentScopeHistoryPage.ts";
 import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
 // Actual CLI artifacts, collected with Intent closed, remain readable while
@@ -164,71 +164,54 @@ test("a Done folder and file keep their collected history through Proof and Purp
   const ciCalls = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const before = ciCalls().length;
+  // Each scope's test case timing at Nov 5 and at the selected Nov 6 landing;
+  // the later Nov 7 build stays out.
   const expectHistory = async (
     scope: Locator,
-    values: readonly [string, string],
+    [prior, selected]: readonly [string, string],
   ) => {
     const history = scopeHistory(scope);
-    await expectScopeHistoryEvidence(history, {
-      selected: `Selected landing ${shortSha(setup.completion)}`,
-      absent: [shortSha(newest.revision), "Run 104"],
-      chartUnits: ["test cases", "test files"],
-      selectedMarks: ["Selected", "Selected"],
-      extent: "2 measured builds · Nov 5–Nov 6",
-      rows: [
-        `Nov 5 · ${values[0]} · Exact build ${shortSha(setup.baseline)} · Run 101 · attempt 1 · Represents ${shortSha(setup.baseline)} (exact build)`,
-        `Nov 6 · ${values[1]} · Selected landing · Exact build ${shortSha(setup.completion)} · Run 103 · attempt 1 · Represents ${shortSha(setup.completion)} (selected landing) (exact build)`,
-      ],
-    });
-    const evidence = scopeHistoryReading(history).evidence;
-    const build = attemptLink(evidence, "Run 103 · attempt 1");
-    await expect(build).toHaveAttribute("href", "https://ci.invalid/runs/103");
-    await scopeHistoryReading(history).disclosure.focus();
-    await page.keyboard.press("Tab");
-    await expect(attemptLink(evidence, "Run 101 · attempt 1")).toBeFocused();
-    await page.keyboard.press("Tab");
-    await expect(build).toBeFocused();
+    await expect(scopeHistoryReading(history).selected).toHaveText(
+      `Selected landing ${shortSha(setup.completion)} · ${selected}`,
+    );
+    const cases = scopeHistoryChart(history, "test cases");
+    await expect(cases.marks).toHaveCount(2);
+    await expect(cases.mark(`Nov 5 · ${prior}`)).toHaveCount(1);
+    await expect(cases.readout).toHaveText(
+      `Nov 6 · Selected landing · ${selected}`,
+    );
+    await expect(history).not.toContainText(shortSha(newest.revision));
     await expectNoSidewaysScrollIn(page, history);
     expect(ciCalls()).toHaveLength(before);
     return history;
   };
   const summary = await openSummaryComparison(intent, "dashboard/tests");
-  await expectHistory(summary, [
-    "700 ms · test cases · entry dashboard/tests · 70 ms · test files · entry dashboard/tests",
-    "1.5 s · test cases · entry dashboard/tests · 150 ms · test files · entry dashboard/tests",
-  ]);
+  await expectHistory(summary, ["700 ms", "1.5 s"]);
   // Each declared-unit row opens the same child path, as existing unit journeys do.
   await childName(summary, "folder/").first().click();
   await expect(summary.locator(".intent-summary-path")).toHaveText(
     "dashboard/tests/folder",
   );
-  await expectHistory(summary, [
-    "300 ms · test cases · entry dashboard/tests · 30 ms · test files · entry dashboard/tests",
-    "900 ms · test cases · entry dashboard/tests · 90 ms · test files · entry dashboard/tests",
-  ]);
+  await expectHistory(summary, ["300 ms", "900 ms"]);
   await expect(
     intentFile(intent, "dashboard/tests/folder/ghost.spec.ts"),
   ).toHaveCount(0);
   await expect(summary.getByRole("table")).toBeVisible();
   await childName(summary, "nested/").first().click();
-  await expectHistory(summary, [
-    "200 ms · test cases · entry dashboard/tests · 20 ms · test files · entry dashboard/tests",
-    "400 ms · test cases · entry dashboard/tests · 40 ms · test files · entry dashboard/tests",
-  ]);
+  await expectHistory(summary, ["200 ms", "400 ms"]);
   await childName(summary, "c.spec.ts").first().click();
   await expect(purposeRegion(intent)).toBeVisible();
   await fileReadingTab(intent, "Proof").click();
-  await expectHistory(proofRegion(intent), [
-    "200 ms · test cases · entry dashboard/tests · 20 ms · test files · entry dashboard/tests",
-    "400 ms · test cases · entry dashboard/tests · 40 ms · test files · entry dashboard/tests",
-  ]);
+  await expectHistory(proofRegion(intent), ["200 ms", "400 ms"]);
   await intentFile(intent, summaryComparisonChanges.modified).click();
   const file = proofRegion(intent);
-  const zero = [
-    "100 ms · test cases · entry dashboard/tests · 10 ms · test files · entry dashboard/tests",
-    "0 ms · test cases · entry dashboard/tests · 0 ms · test files · entry dashboard/tests",
-  ] as const;
-  await expectHistory(file, zero);
+  const zero = ["100 ms", "0 ms"] as const;
+  const history = await expectHistory(file, zero);
+  // The file's own outcome: its Test file timing, a measured zero selected.
+  await chooseTimingUnit(history, "Test file", "pointer");
+  const files = scopeHistoryChart(history, "test files");
+  await expect(files.mark("Nov 5 · 10 ms")).toHaveCount(1);
+  await expect(files.readout).toHaveText("Nov 6 · Selected landing · 0 ms");
   await expect(
     file.getByRole("table", {
       name: "CI proof of dashboard/tests/folder/a.spec.ts",
@@ -240,7 +223,12 @@ test("a Done folder and file keep their collected history through Proof and Purp
     summaryComparisonChanges.modified,
   );
   await fileReadingTab(intent, "Proof").click();
-  await expectHistory(file, zero);
+  // Proof returns with its Test file choice.
+  await expect(scopeHistoryReading(history).unit("Test file")).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(files.readout).toHaveText("Nov 6 · Selected landing · 0 ms");
   await expect(storyTitle(intent)).toHaveText("Story A");
   await expect(
     intentFile(intent, summaryComparisonChanges.modified),

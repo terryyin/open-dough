@@ -7,10 +7,11 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { recordsOf } from "../agentLaunchBoundary.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, storyCardAttentionOf } from "../dashboardPage.ts";
 import {
   expectTooltipLine,
   sessionsSidebarParts,
+  unreadSessionReport,
 } from "../sessionsSidebarPage.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
@@ -34,14 +35,9 @@ export const newerMessage =
 export const takenStoryCard = (page: Page, title: string) =>
   parts(page).taken.getByRole("article", { name: title, exact: true });
 
-export const sidebarRow = (page: Page, title: string) =>
-  sessionsSidebarParts(page)
-    .sidebar.getByRole("listitem")
-    .filter({ hasText: title });
-
 // The Sessions sidebar's session titles, top to bottom.
 export const sidebarTitles = (page: Page) =>
-  sessionsSidebarParts(page).entries.locator("h3").allTextContents();
+  sessionsSidebarParts(page).titles.allTextContents();
 
 // An unread report adds a named mark to its row, a matching tooltip line and
 // a tint distinct from the `unmarked` row's.
@@ -49,7 +45,7 @@ export async function expectMarked(
   row: Locator,
   unmarked: Locator,
 ): Promise<void> {
-  await expect(row.getByRole("img", { name: unreadWords })).toBeVisible();
+  await expect(unreadSessionReport(row, unreadWords)).toBeVisible();
   await expectTooltipLine(row, unreadWords);
   const background = (entry: Locator) =>
     entry.evaluate((element) => getComputedStyle(element).backgroundColor);
@@ -62,7 +58,7 @@ export async function expectOneNeedingAttention(page: Page, card: Locator) {
   const { badge } = sessionsSidebarParts(page);
   await expect(badge).toHaveText("1");
   await expect(badge).toHaveAccessibleName("1 session needs attention");
-  await expect(card.locator(".story-card-attention")).toHaveText(
+  await expect(storyCardAttentionOf(card)).toHaveText(
     "1 session needs attention",
   );
 }

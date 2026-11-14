@@ -88,14 +88,12 @@ test.describe(`${name} terminal input`, () => {
     const { sent, sizes } = noteTerminalTraffic(page);
     await tapWhereShown(opener);
     const panel = terminalPanel(page);
-    const { rows } = terminalScreenParts(panel);
+    const { rows, sessionName, shownSessionId } = terminalScreenParts(panel);
     const control = (label: string) => frameControl(panel, label);
     const attaches = () => dashboard.claudeAttaches();
     const assertIdentity = async (count = 1) => {
-      await expect(panel.locator(".side-panel-names p")).toHaveText(
-        "Execution session",
-      );
-      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+      await expect(sessionName).toHaveText("Execution session");
+      await expect(shownSessionId).toHaveCount(0);
       expect(attaches()).toHaveLength(count);
       expect(attaches().every(({ id }) => id === native.shortId)).toBe(true);
       // The three earlier sessions and this one; nothing launches again.

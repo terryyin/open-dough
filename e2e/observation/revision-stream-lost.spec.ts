@@ -47,6 +47,7 @@ import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import { revisionStreamSilenceMs } from "../../dashboard/src/revisionStreamSchedule.ts";
 import { rateLimitedAnswer } from "../../dashboard/tests/publishedOrigin.ts";
 import { test as ownerClockTest } from "../../dashboard/tests/support/ownerClockTest.ts";
+import { expectEarlierSnapshotKept } from "../../dashboard/tests/transientRecoveryPage.ts";
 
 // Added to the environment the case's own `test` gives its dashboard server.
 test.use({
@@ -121,10 +122,7 @@ ownerClockTest(
       "GitHub limited the rate of the local GitHub CLI's requests, so this page asks GitHub nothing until",
     );
     await expect(problem).toContainText("Automatic checks resume then.");
-    await expect(problem.locator("time").nth(1)).toHaveAttribute(
-      "datetime",
-      retrievedA,
-    );
+    await expectEarlierSnapshotKept(page, retrievedA);
     await expectMembership(page, titlesOfA);
 
     const quietFrom = githubFor(page).calls.length;
@@ -166,10 +164,7 @@ ownerClockTest(
       await expect(problem).not.toContainText("freshness was lost");
       await passPageMs(page, 5_000 + pageTimeStepMs);
       await expect(problem).toContainText("freshness was lost");
-      await expect(problem.locator("time").nth(1)).toHaveAttribute(
-        "datetime",
-        retrievedA,
-      );
+      await expectEarlierSnapshotKept(page, retrievedA);
     });
 
     await stopFailing();

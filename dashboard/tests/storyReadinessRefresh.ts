@@ -6,11 +6,16 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import {
   expectSteadyPace,
   passTimeUntilAsked,
-  passTimeUntilCheckedAfterSettled,
+  passTimeUntilChecked,
 } from "./autoRefreshJourney.ts";
 import { planHref } from "./queuedPlanNavigation.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
-import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
+import {
+  chooseProject,
+  expectMembership,
+  shortRevision,
+  parts,
+} from "./dashboardPage.ts";
 import { noConnection } from "./originAnswers.ts";
 import {
   externalPlan,
@@ -23,7 +28,12 @@ import {
   unrefined,
 } from "./storyReadinessFixture.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
-import { inspectedDetail } from "./storyCardControls.ts";
+import {
+  inspectedDetail,
+  slicePlanLink,
+  storyCard,
+} from "./storyCardControls.ts";
+import { expectBadges } from "./storyCardFacts.ts";
 
 export async function expectFailedCheckKeepsPriorRevision(
   page: Page,
@@ -37,36 +47,27 @@ export async function expectFailedCheckKeepsPriorRevision(
   const restore = origin.answerWith("main", noConnection);
   origin.requests.splice(0, origin.requests.length);
 
-  await passTimeUntilCheckedAfterSettled(page, 502);
+  await passTimeUntilChecked(page, 502);
   await expect(problem).toContainText("Published work could not be read");
   await expect(problem).toContainText("earlier snapshot");
   // Failed check: status names no revision; Board links prove the retained one.
 
-  await expect(
-    taken
-      .getByRole("article", { name: plannedReady.title })
-      .getByText("Slice planned", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    backlog
-      .getByRole("article", { name: plannedBlocked.title })
-      .getByText("Readiness unavailable", { exact: true }),
-  ).toBeVisible();
+  const readyCard = storyCard(taken, plannedReady.title);
+  const blockedCard = storyCard(backlog, plannedBlocked.title);
+  await expectBadges(readyCard, { shown: ["Slice planned"] });
+  await expectBadges(blockedCard, { shown: ["Readiness unavailable"] });
   // The retained snapshot's links stay pinned to it in each story's detail.
-  const readyCard = taken.getByRole("article", { name: plannedReady.title });
   // Its detail may still be open from earlier; several can be open at once.
   await inspectedDetail(readyCard);
   await expect(
     readyCard.locator(`a[href*="/blob/${retainedRevision}/"]`).first(),
   ).toBeVisible();
 
-  const blockedCard = backlog.getByRole("article", {
-    name: plannedBlocked.title,
-  });
   await inspectedDetail(blockedCard);
-  await expect(
-    blockedCard.getByRole("link", { name: /^Slice plan / }),
-  ).toHaveAttribute("href", planHref("terryyin/open-dough", retainedRevision));
+  await expect(slicePlanLink(blockedCard)).toHaveAttribute(
+    "href",
+    planHref("terryyin/open-dough", retainedRevision),
+  );
 
   restore();
   const afterFail = origin.requests.length;
@@ -80,12 +81,11 @@ export async function expectFailedCheckKeepsPriorRevision(
 
 export async function expectProjectSwitchRejectsLateHeldRead(
   page: Page,
-  project: Locator,
   openDoughOrigin: CommittedOrigin,
   openDough: ReadinessRepo,
   doughnut: ReadinessRepo,
 ) {
-  await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
+  await chooseProject(page, "Open Dough");
   await expectMembership(page, {
     taken: [plannedReady.title],
     backlog: [unrefined.title, plannedBlocked.title],
@@ -98,7 +98,7 @@ export async function expectProjectSwitchRejectsLateHeldRead(
   await page.reload();
   await expect(parts(page).reading).toBeVisible();
 
-  await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+  await chooseProject(page, "Doughnut");
   await expectMembership(page, {
     taken: [],
     backlog: [
@@ -114,9 +114,7 @@ export async function expectProjectSwitchRejectsLateHeldRead(
   releaseMain();
   await expect(readRevision).toContainText(shortRevision(doughnut.revision));
   await expect(page.getByText(plannedReady.title)).toHaveCount(0);
-  await expect(
-    backlog.getByRole("article", { name: planless.title }),
-  ).toBeVisible();
+  await expect(storyCard(backlog, planless.title)).toBeVisible();
 }
 
 // With the page clock paused since the page opened, lets page time pass the
@@ -129,7 +127,7 @@ export async function expectNoRereadAfterSettlement(
   origins: readonly CommittedOrigin[],
 ) {
   const settled = origins.map((origin) => origin.requests.length);
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   const passed = await passTimeUntilAsked(page);
   expect(origins.map((origin) => origin.requests.length)).toEqual(settled);
   expectSteadyPace(passed);

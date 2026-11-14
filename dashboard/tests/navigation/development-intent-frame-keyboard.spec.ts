@@ -4,13 +4,14 @@
 // stays in content a perspective change hid.
 
 import { expect, test } from "../dashboardTest.ts";
-import { expectMembership, parts } from "../dashboardPage.ts";
+import { parts, projectTab } from "../dashboardPage.ts";
 import {
   expectAddress,
   expectNotConfiguredIntent,
 } from "../intentPerspectivePage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
+  expectCatalogStories,
   openDoughProject,
   publishCatalogProjects,
 } from "../projectKeyboardNavigationJourney.ts";
@@ -22,13 +23,8 @@ test("perspective keys choose a perspective without choosing another project, an
   await page.setViewportSize({ width: 1280, height: 800 });
   await publishCatalogProjects(page);
   await openUntilRead(page);
-  const { backlog, development, intent, intentChoice, project } = parts(page);
-  const radio = (label: string) =>
-    project.getByRole("radio", { name: label, exact: true });
-  await expectMembership(page, {
-    taken: [openDoughProject.taken],
-    backlog: [openDoughProject.queued],
-  });
+  const { backlog, development, intent, intentChoice } = parts(page);
+  await expectCatalogStories(page, openDoughProject);
 
   await test.step("Tab reaches Development after Sessions, and its arrows move between perspectives only", async () => {
     await sessionsSidebarParts(page).button.focus();
@@ -39,16 +35,13 @@ test("perspective keys choose a perspective without choosing another project, an
     await expect(intentChoice).toBeFocused();
     await expectNotConfiguredIntent(page, "Open Dough");
     await expect(intentChoice).toHaveCSS("outline-style", "solid");
-    await expect(radio("Open Dough")).toBeChecked();
+    await expect(projectTab(page, "Open Dough")).toBeChecked();
     expectAddress(page, { project: null, perspective: "intent" });
     await page.keyboard.press("ArrowLeft");
     await expect(development).toBeFocused();
     await expect(development).toBeChecked();
-    await expect(radio("Open Dough")).toBeChecked();
-    await expectMembership(page, {
-      taken: [openDoughProject.taken],
-      backlog: [openDoughProject.queued],
-    });
+    await expect(projectTab(page, "Open Dough")).toBeChecked();
+    await expectCatalogStories(page, openDoughProject);
   });
 
   await test.step("Back to Intent takes the keyboard from the hidden Board to Intent's choice", async () => {
@@ -64,8 +57,8 @@ test("perspective keys choose a perspective without choosing another project, an
   await test.step("a page-wide arrow from Intent's content chooses Doughnut and keeps Intent", async () => {
     await intent.getByText("No intent locations are configured").click();
     await page.keyboard.press("ArrowRight");
-    await expect(radio("Doughnut")).toBeChecked();
-    await expect(radio("Doughnut")).toBeFocused();
+    await expect(projectTab(page, "Doughnut")).toBeChecked();
+    await expect(projectTab(page, "Doughnut")).toBeFocused();
     await expectNotConfiguredIntent(page, "Doughnut");
   });
 });

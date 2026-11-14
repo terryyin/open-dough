@@ -20,10 +20,11 @@ import {
   sessionsRevisionHeader,
 } from "../../dashboard/src/machineSessionsRevision.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { sessionDetailsControl } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
 import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
 import { givePageItsTurns } from "../../dashboard/tests/pageRequestNotes.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
-import { recentlyDoneParts } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
+import { showRecentlyDone } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
 import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
 import { showPage } from "../../dashboard/tests/runningCursorSessionsPage.ts";
 import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
@@ -125,15 +126,13 @@ async function shownRetained(page: Page) {
       column.innerText(),
     ),
   );
-  const sidebar = recentlyDoneParts(page);
-  await sidebar.button.click();
-  await sidebar.header.click();
+  const sidebar = await showRecentlyDone(page);
   await expect(sidebar.entries).toHaveCount(5);
   const expanded = await sidebar.body.innerText();
   await sidebar.header.click();
   await sidebar.button.click();
   const entry = recent.filter({ hasText: "Retained session 2" });
-  const details = entry.getByRole("button", { name: "Session details" });
+  const details = sessionDetailsControl(entry);
   await details.click();
   await expect(details).toHaveAttribute("aria-expanded", "true");
   const report = entry.getByRole("button", {

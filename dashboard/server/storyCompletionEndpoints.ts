@@ -80,6 +80,7 @@ export async function storyCompletionEndpoints(
   const git = async (...args: string[]) =>
     (await runGit(args, call)).stdout.trim();
   try {
+    const history = publishedStoryHistory(call);
     const fileName = doneRecordFileName(identity);
     const file = path.posix.join(doneRecordDirectoryOf(source), fileName);
     const listed = await git("ls-tree", "--name-only", at, "--", file);
@@ -119,7 +120,7 @@ export async function storyCompletionEndpoints(
       story,
       doneRecordAdded,
       at,
-      publishedStoryHistory(call),
+      history,
     );
     if (namedCompletion !== undefined && namedCompletion !== completion)
       return {
@@ -140,12 +141,12 @@ export async function storyCompletionEndpoints(
       for (const candidate of await publishedStoryAgents(
         story,
         doneRecordAdded,
-        publishedStoryHistory(call),
+        history,
       )) {
         const before = await publishedStoryEvidence(
           story,
           doneRecordAdded,
-          publishedStoryHistory(call),
+          history,
           candidate,
         );
         if (before.claims.length > 0) claiming.push(candidate);
@@ -167,6 +168,7 @@ export async function storyCompletionEndpoints(
       agent,
       call,
       doneRecordAdded,
+      history,
     );
     if ("explanation" in evidence)
       return { kind: "unavailable", explanation: evidence.explanation };
@@ -191,7 +193,7 @@ export async function storyCompletionEndpoints(
             evidence.storyStart,
             evidence.owningMerges,
             evidence.commits.map((commit) => commit.commit),
-            publishedStoryHistory(call),
+            history,
           )
         : undefined;
     return {

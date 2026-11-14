@@ -2,16 +2,18 @@
 // Registered by ./cursor-sessions-sidebar-size-kept.spec.ts.
 import {
   expectCollapsed,
+  expectCursorHeight,
   expectDividerSays,
-  expectSplit,
   heightKey,
   keepInBrowser,
   keptHeight,
+  keyDivider,
   keyStep,
   roomOf,
 } from "../cursorSessionsSidebarResizePage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
-import { runningCursorParts, showPage } from "../runningCursorSessionsPage.ts";
+import { runningCursorParts } from "../runningCursorList.ts";
+import { showPage } from "../runningCursorSessionsPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
 
 const formerHeightKey = "open-dough.sessionSidebar.runningCursorHeight";
@@ -31,8 +33,7 @@ test("a height saved under the former Sessions sidebar key is recovered once and
   await expect(shown.sidebar).toBeVisible();
   await expectCollapsed(shown);
   await shown.header.click();
-  await expectDividerSays(shown.divider, 280);
-  await expectSplit(shown, await roomOf(shown), 280);
+  await expectCursorHeight(shown, await roomOf(shown), 280);
   expect(await keptHeight(page)).toBe("280");
 
   // A changed former value cannot override the adopted preference.
@@ -41,14 +42,12 @@ test("a height saved under the former Sessions sidebar key is recovered once and
   await expectCollapsed(shown);
   await shown.header.click();
   await expectDividerSays(shown.divider, 280);
-  await shown.divider.focus();
-  await page.keyboard.press("ArrowUp");
+  await keyDivider(shown.divider, "ArrowUp");
   const chosen = 280 + keyStep;
   await expectDividerSays(shown.divider, chosen);
   expect(await keptHeight(page)).toBe(String(chosen));
   await reloadUntilRead(page);
   await expectCollapsed(shown);
   await shown.header.click();
-  await expectDividerSays(shown.divider, chosen);
-  await expectSplit(shown, await roomOf(shown), chosen);
+  await expectCursorHeight(shown, await roomOf(shown), chosen);
 });

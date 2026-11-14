@@ -1,11 +1,11 @@
 # Planned continuation acceptance cases
 
 These cases extend the canonical
-[SEED-053#quiet-dashboard-completion](../SEED-053-native-guidance-acceptance.md#quiet-dashboard-completion)
+[Accept quiet completion and retained dashboard attention messages](../SEED-053-native-guidance-acceptance.md#quiet-dashboard-completion)
 acceptance home; they create no separate identity or queue assignment.
 
 **Covered work:**
-[SEED-145#continue-execution-into-wrap-up](https://github.com/terryyin/open-dough/blob/2c635d595e09f7829b1e08ad259cae9eec5d644e/.planning/seeds/SEED-145-no-news-is-good-news.md#continue-execution-into-wrap-up)
+[Continue successful execution into wrap-up when no human judgment remains](https://github.com/terryyin/open-dough/blob/2c635d595e09f7829b1e08ad259cae9eec5d644e/.planning/seeds/SEED-145-no-news-is-good-news.md#continue-execution-into-wrap-up)
 and [plan 333](https://github.com/terryyin/open-dough/blob/2c635d595e09f7829b1e08ad259cae9eec5d644e/.planning/slice-plans/333-continue-execution-into-wrap-up/PLAN.md).
 Observe installed planned execution invoking Story Wrap Up in the same session
 without a separate instruction when no human choice remains, and preserving

@@ -7,8 +7,9 @@
 // session's access as they were.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
+import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
+import { routeNextReads } from "../nextActionReads.ts";
 import { catalogPublications } from "../catalogProjectRecords.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
@@ -40,6 +41,8 @@ test("an unanswered check is superseded by a later choice, and a failed one leav
   page,
   dashboard,
 }) => {
+  // The shown rows' recurring catalog read waits for page time.
+  await pausePageClockAt(page, new Date());
   const { shown, row } = await openSelectionPage(page, dashboard);
   const { development, intentChoice, intent } = parts(page);
   await intentChoice.click();
@@ -49,25 +52,25 @@ test("an unanswered check is superseded by a later choice, and a failed one leav
     const held = await holdPygardonCatalog(page);
     const abandoned = pygardonCatalogAbandoned(page);
     try {
-      await shown.entry(linked.title).click();
+      await shown.select(linked.title).click();
       await held.asked;
       await expect(choiceStatus(row(linked.title))).toHaveText(
         "Checking for its published done story…",
       );
-      await expect(shown.entry(linked.title)).toHaveAttribute(
+      await expect(shown.select(linked.title)).toHaveAttribute(
         "aria-pressed",
         "true",
       );
-      await shown.entry(adHoc.title).click();
+      await shown.select(adHoc.title).click();
       await abandoned;
     } finally {
       held.release();
     }
-    await expect(shown.entry(adHoc.title)).toHaveAttribute(
+    await expect(shown.select(adHoc.title)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
-    await expect(shown.entry(linked.title)).toHaveAttribute(
+    await expect(shown.select(linked.title)).toHaveAttribute(
       "aria-pressed",
       "false",
     );
@@ -77,14 +80,14 @@ test("an unanswered check is superseded by a later choice, and a failed one leav
   });
 
   await test.step("a failed catalog read says so apart from a miss and leaves project and story alone", async () => {
-    await page.route(isPygardonCatalog, (route) =>
+    await routeNextReads(page, isPygardonCatalog, (route) =>
       route.fulfill({
         status: 502,
         json: { error: "GitHub could not be reached." },
       }),
     );
     const read = pygardonCatalogRead(page);
-    await shown.entry(linked.title).click();
+    await shown.select(linked.title).click();
     await read;
     await expect(choiceStatus(row(linked.title))).toContainText(
       "Its published done story could not be checked.",
@@ -92,7 +95,7 @@ test("an unanswered check is superseded by a later choice, and a failed one leav
     await expect(choiceStatus(row(linked.title))).toContainText(
       "Select again to check again.",
     );
-    await expect(shown.entry(linked.title)).toHaveAccessibleDescription(
+    await expect(shown.select(linked.title)).toHaveAccessibleDescription(
       /could not be checked/,
     );
     await expectReadingKept(page);
@@ -111,6 +114,8 @@ test("a catalog naming the story's done record unreadable, or not describing the
   page,
   dashboard,
 }) => {
+  // The shown rows' recurring catalog read waits for page time.
+  await pausePageClockAt(page, new Date());
   const { shown, row } = await openSelectionPage(page, dashboard, undefined, {
     unreadableLinkedRecord: true,
   });
@@ -118,7 +123,7 @@ test("a catalog naming the story's done record unreadable, or not describing the
   await intentChoice.click();
   await expect(intent).toBeVisible();
   const expectKept = async () => {
-    await expect(shown.entry(linked.title)).toHaveAttribute(
+    await expect(shown.select(linked.title)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -127,7 +132,7 @@ test("a catalog naming the story's done record unreadable, or not describing the
 
   await test.step("Pygardon's catalog names the story's done record unreadable: the row says it could not be checked, naming the record", async () => {
     const read = pygardonCatalogRead(page);
-    await shown.entry(linked.title).click();
+    await shown.select(linked.title).click();
     await read;
     await expect(choiceStatus(row(linked.title))).toHaveText(
       `Its published done story could not be checked. Its done record ${doneRecordFileName(linked.identity)} could not be read. Select again to check again.`,
@@ -137,13 +142,13 @@ test("a catalog naming the story's done record unreadable, or not describing the
 
   await test.step("a catalog that does not describe the done records: the row repeats Board Recently done's gap problem and repair", async () => {
     const gap = "done catalog is not published beside the 1 done records";
-    await page.route(isPygardonCatalog, (route) =>
+    await routeNextReads(page, isPygardonCatalog, (route) =>
       route.fulfill({
         json: { revision: catalogPublications.pygardon.revision, gap },
       }),
     );
     const read = pygardonCatalogRead(page);
-    await shown.entry(linked.title).click();
+    await shown.select(linked.title).click();
     await read;
     await expect(choiceStatus(row(linked.title))).toHaveText(
       `Its published done story could not be checked. Done stories could not be read. The done catalog does not describe the published done records: ${gap}. Run the product backlog's \`catalog-done\` to rebuild it from the done records, then publish the rebuilt catalog. Select again to check again.`,

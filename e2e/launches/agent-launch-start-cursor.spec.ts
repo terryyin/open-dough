@@ -13,6 +13,7 @@ import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
 import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
 import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
 
@@ -61,9 +62,7 @@ test("a queued story starts Cursor execution in the dashboard workspace and the 
     timeout: launchWaitMs,
   });
   await expect(entry).toContainText(cursor.sessionId);
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toHaveCount(1);
+  await expect(openTerminalControl(entry)).toHaveCount(1);
 
   expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
   const created = cursor.calls()[0];

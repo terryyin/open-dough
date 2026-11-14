@@ -74,6 +74,12 @@ was made only after real network turns (`checksAskedWhilePassing`, or
 `expect.poll`), and give each scenario its own revisions: the boundary answers
 a repeated pinned revision from memory without calling `gh`.
 
+`passTimeUntilChecked` settles outstanding page reads before advancing time,
+so a read's deadline cannot arm detail recovery and suspend revision checks.
+Use `passTimeUntilCheckedWhileReadsOutstanding` when page time must pass
+while an already-started read stays held; show why the journey keeps it open.
+A read started by the next check itself still uses the default step.
+
 Reuse windows, such as `checkReuseMs`, and launch waits run on server time
 (`support/serverTimeControls.ts`). With `observationClock`, use
 `dashboard.advanceObservationClock` to pass a window, or fix an exact deadline
@@ -159,7 +165,7 @@ Tree, diff and context readers accept the scenario's independent expected facts.
 `sidePanelFrame.ts` shares Close, Maximize/Restore and covering operations with
 procedural and fluent callers. Preserve each caller's locator click,
 shown-position mouse, touch or keyboard input. Its Close is action-only;
-`pageLayout.closeSidePanel` additionally waits for the panel and preparation
+`pageLayout.closeSidePanelToBoard` additionally waits for the panel and preparation
 reading to disappear before a Board continuation.
 
 `sidePanelWidthPage.ts` owns drag/cancellation, explicit divider focus and
@@ -182,6 +188,34 @@ owners (`touchTerminalPage.ts`, `terminalSelectPage.ts`, `terminalPastePage.ts`,
 module. Prefer `.xterm-screen` via `terminalScreenParts` for the xterm surface;
 `.terminal-screen` is the paused overlay host. Caller facts (exact bytes,
 holds/releases, native attach, modality) stay at the call site.
+
+## Session, sidebar and report owners
+
+A Session entry's parts live in `dashboardParts.ts` (`sessionEntriesIn`,
+`sessionEntryShowing`, `sessionStateOf`, unread and problem readers); its
+disclosures, actions and Delete record question live in
+`support/sessionEntryDisclosure.ts`, and Mark as done in `support/markDone.ts`.
+Asking a question and answering it stay separate calls, so Keep, Escape and a
+held answer remain visible in the scenario. Queued-card listing and blocked
+Starts are in `storyCardSessionListing.ts`; callers supply the note a blocked
+Start must show.
+
+`sessionsSidebarPage.ts` owns the open list (open/closed state, current entry,
+rows and titles); `recentlyDoneSessionsSidebarPage.ts` owns Recently done, where
+`select(title)` and `open(title)` stay separate operations because selecting a
+retained row never opens its Terminal or report. Final report text and parts
+come from `finalReportPages.ts`. Running Cursor list controls are in the
+browser-only `runningCursorList.ts`; divider drags, key steps and heights in
+`cursorSessionsSidebarResizePage.ts`; host figures in `sessionsSidebarFigures.ts`.
+Frontend specs import only these browser modules, never native or server setup.
+
+The shown rows read their projects' catalogs and ad hoc association records when
+they appear and again on a timer. Hold or route the next action's reads through
+`nextActionReads.ts`, which requires page time paused before the page opens
+(`pausePageClockAt`) and settles the page's own reads first. A journey that adds
+launch records while its dashboard server runs uses
+`keepMoreLaunchRecordsBesideServer` (`support/launchStore.ts`), which writes
+under the server's lock so a concurrent reconciliation cannot drop them.
 
 ## Page objects
 

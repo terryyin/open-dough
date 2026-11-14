@@ -51,7 +51,7 @@ export function columnsOf(
 }
 
 function Column({
-  sourceId,
+  work,
   view,
   prioritized,
   showsSliceProgress,
@@ -64,7 +64,7 @@ function Column({
   onOpenRoster,
   unreadableProfiles,
 }: {
-  sourceId: string;
+  work: PublishedWork;
   view: ColumnView;
   prioritized: boolean;
   showsSliceProgress: boolean;
@@ -105,7 +105,7 @@ function Column({
           {entries.map((entry, index) => (
             <li key={entry.identity}>
               <StoryCard
-                sourceId={sourceId}
+                work={work}
                 entry={entry}
                 priority={prioritized ? index + 1 : undefined}
                 showsSliceProgress={showsSliceProgress}
@@ -168,7 +168,7 @@ export function Columns({
     <>
       <div className="columns">
         <Column
-          sourceId={work.source.id}
+          work={work}
           view={backlog}
           prioritized
           showsSliceProgress={false}
@@ -181,7 +181,7 @@ export function Columns({
           onOpenRoster={onOpenRoster}
         />
         <Column
-          sourceId={work.source.id}
+          work={work}
           view={taken}
           prioritized={false}
           showsSliceProgress

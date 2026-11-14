@@ -1,4 +1,7 @@
-import { readFinalReportControl } from "../../dashboard/tests/finalReportPages.ts";
+import {
+  readFinalReportControl,
+  readFinalReport,
+} from "../../dashboard/tests/finalReportPages.ts";
 import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // What a saved Codex session offers when its continuation is unknown or its
 // workspace is gone: a predecessor without continuation gains no command, and
@@ -9,8 +12,8 @@ import path from "node:path";
 import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
 import { notRefinedStory } from "../../dashboard/tests/launchJourney.ts";
 import {
-  storyCardSessions,
   parts,
+  storyCardSessions,
 } from "../../dashboard/tests/dashboardPage.ts";
 import {
   test,
@@ -25,6 +28,7 @@ import {
   passive,
 } from "../../dashboard/tests/support/codexObservation.ts";
 import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
 test.use({ projectFolders: ["open-dough"] });
 
 test("predecessor without continuation gains no command; missing workspace preserves passive final-report access", async ({
@@ -71,12 +75,8 @@ test("predecessor without continuation gains no command; missing workspace prese
         await expect(
           entry.locator("p", { hasText: /^Continue in / }),
         ).toHaveCount(0);
-        await expect(
-          entry.getByRole("button", { name: "Open terminal" }),
-        ).toHaveCount(0);
-        await expect(
-          entry.getByRole("button", { name: "Read final report" }),
-        ).toBeVisible();
+        await expect(openTerminalControl(entry)).toHaveCount(0);
+        await expect(readFinalReportControl(entry)).toBeVisible();
         await expect(
           entry.locator("p", { hasText: /^Workspace / }),
         ).toHaveCount(id === legacy.session.sessionId ? 0 : 1);
@@ -94,14 +94,12 @@ test("predecessor without continuation gains no command; missing workspace prese
   expect(stored(dashboard.home)).toEqual(before);
   passive(native.calls);
   for (const list of entries()) {
-    await readFinalReportControl(
+    const { panel, reportText } = await readFinalReport(
       list.filter({
         has: page.locator(`code:text-is("${missing.session.sessionId}")`),
       }),
-      { exact: false },
-    ).click();
-    const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".final-report-text")).toHaveText(
+    );
+    await expect(reportText).toHaveText(
       "The saved conversation's final report.",
     );
     await closeSidePanel(panel);

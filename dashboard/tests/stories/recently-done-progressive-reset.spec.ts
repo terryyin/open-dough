@@ -13,7 +13,7 @@ import { closeSidePanel } from "../sidePanelFrame.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { shownProjectControl, chooseProject, parts } from "../dashboardPage.ts";
 import { rem, showColumn } from "../boardPage.ts";
-import { expectEntries } from "../recentlyDoneColumn.ts";
+import { expectEntries, revealAction } from "../recentlyDoneColumn.ts";
 import {
   openTerminalControl,
   terminalScreenParts,
@@ -26,9 +26,8 @@ import {
   isRecord,
   opened,
   recordsAsked,
-  revealAction,
-  settle,
   terminalOf,
+  untilPageRests,
 } from "../recentlyDoneProgressivePage.ts";
 import {
   destination,
@@ -96,7 +95,7 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
     await expectEntries(recent, twenty);
     expect(recordsAskedAt(github, revisionB)).toEqual([held.path]);
     release();
-    await settle(page);
+    await untilPageRests(page);
     await expectEntries(recent, twenty);
     expect(recordsAsked(github)).toHaveLength(storiesThrough(20).length + 1);
   });
@@ -108,14 +107,13 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
       parts(page).taken.getByRole("article", {
         name: entryName(entryAt(destination)),
       }),
-      { exact: false },
     ).click();
     await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     await expectEntries(recent, twenty);
     await focusDivider(page);
     await pressDividerKey(page, "ArrowLeft", 2);
     await expectEntries(recent, twenty);
-    await closeSidePanel(terminal, { using: "mouse", exact: false });
+    await closeSidePanel(terminal, { using: "mouse" });
     await expect(terminal).toHaveCount(0);
     await expectEntries(recent, twenty);
     const { button } = sessionsSidebarParts(page);
@@ -127,7 +125,7 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
     await expectEntries(recent, twenty);
     await page.setViewportSize({ width: 80 * rem, height: 900 });
     await expectEntries(recent, twenty);
-    await settle(page);
+    await untilPageRests(page);
     expect(recordsAsked(github)).toHaveLength(asked);
   });
 
@@ -167,7 +165,7 @@ test("choosing another project while a revealed batch is read shows that project
   await chooseProject(page, "Pygardon");
   await expect(backlog).toContainText("A Pygardon story");
   view.release();
-  await settle(page);
+  await untilPageRests(page);
   await expect(shownProjectControl(page)).toBeFocused();
   await expect(recent).not.toContainText("progressive story");
   await chooseProject(page, "Open Dough");

@@ -4,7 +4,11 @@
 // showing reading until answered and restoring rows after a successful read.
 // Bounded slow-answer demand and synthetic feedback UI live in
 // dashboard/frontend-tests/cursor-runner-sessions-ui.spec.ts.
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  parts,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
+import { openRunningList } from "../../dashboard/tests/runningCursorList.ts";
 import {
   terminalPanel,
   terminalScreenParts,
@@ -12,7 +16,6 @@ import {
 import {
   holdSession,
   instruction,
-  openRunningList,
   showPageWithTaken,
   withRunningCursor,
 } from "../../dashboard/tests/runningCursorSessionsPage.ts";
@@ -59,10 +62,10 @@ for (const { screen, label, terminal } of held) {
     await showPageWithTaken(page, origin);
     const shownTerminal = terminalPanel(page);
     await expect(shownTerminal).toHaveCount(0);
-    const { sidebar, region } = await openRunningList(page);
+    const { sidebar, region, heldRows } = await openRunningList(page);
     await expect(shownTerminal).toHaveCount(0);
     await expect(region).toContainText("The Cursor runner is running.");
-    const row = region.getByRole("button", { name: /Open Dough/ });
+    const row = heldRows(/Open Dough/);
     await expect(row).toContainText("Ad hoc");
     await expect(row).toContainText(label);
     await expect(shownTerminal).toHaveCount(0);
@@ -95,8 +98,8 @@ followUp(
     await showPageWithTaken(page, origin);
     const shownTerminal = terminalPanel(page);
     await expect(shownTerminal).toHaveCount(0);
-    const { region } = await openRunningList(page);
-    const row = region.getByRole("button", { name: /Open Dough/ });
+    const { heldRows } = await openRunningList(page);
+    const row = heldRows(/Open Dough/);
     await expect(row).toContainText("Ad hoc");
     await expect(row).toContainText("working");
     await expect(shownTerminal).toHaveCount(0);
@@ -120,14 +123,14 @@ refused(
     const attaches = cursor.attaches().length;
     await stopCursorRunner(dashboard.home);
     const shownTerminal = terminalPanel(page);
-    const { region } = await openRunningList(page);
+    const { region, listed } = await openRunningList(page);
     await expect(region).toContainText("The Cursor runner is not running.");
-    await expect(region.getByRole("listitem")).toHaveCount(0);
+    await expect(listed).toHaveCount(0);
     await expect(region.getByRole("button")).toHaveCount(1);
     await expect(shownTerminal).toHaveCount(0);
     expect(cursor.calls()).toHaveLength(calls);
     expect(cursor.attaches()).toHaveLength(attaches);
-    await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+    await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
   },
 );
 
@@ -142,11 +145,11 @@ refused(
     const release = await occupyRunner(dashboard.home);
     try {
       const shownTerminal = terminalPanel(page);
-      const { region } = await openRunningList(page);
+      const { region, listed } = await openRunningList(page);
       await expect(region).toContainText(
         "The Cursor runner cannot be reached.",
       );
-      await expect(region.getByRole("listitem")).toHaveCount(0);
+      await expect(listed).toHaveCount(0);
       await expect(region.getByRole("button")).toHaveCount(1);
       await expect(shownTerminal).toHaveCount(0);
       expect(cursor.calls()).toHaveLength(calls);

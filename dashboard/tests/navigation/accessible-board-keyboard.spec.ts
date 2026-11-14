@@ -3,9 +3,14 @@ import { expect, test } from "../dashboardTest.ts";
 import {
   expectFocusedAndIndicated,
   politeRegionsOfferedThenMarked,
+  tabTo,
 } from "../accessibleReading.ts";
 import { expectMembership, parts, shortRevision } from "../dashboardPage.ts";
-import { enabledStoryCardLaunchActions } from "../storyCardControls.ts";
+import {
+  canonicalRecord,
+  enabledStoryCardLaunchActions,
+} from "../storyCardControls.ts";
+import { storyDetail } from "../storyCardSelection.ts";
 import {
   pathsRead,
   publishMovingOrigin,
@@ -106,21 +111,12 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
     // Tab walks on in reading order to the first card's Inspect story.
     const first = backlog.getByRole("article").first();
     const inspect = first.getByRole("button", { name: "Inspect story" });
-    for (let stop = 1; stop < stops.length; stop += 1) {
-      await page.keyboard.press("Tab");
-      if (
-        await inspect.evaluate((button) => button === document.activeElement)
-      ) {
-        break;
-      }
-    }
+    await tabTo(page, inspect);
     await expect(inspect).toBeFocused();
     await page.keyboard.press("Enter");
     const hide = first.getByRole("button", { name: "Hide detail" });
     await expect(hide).toBeFocused();
-    const canonical = first
-      .getByRole("region", { name: /^Detail for / })
-      .getByRole("link", { name: /^Canonical record/ });
+    const canonical = canonicalRecord(storyDetail(first));
     await page.keyboard.press("Tab");
     await expectFocusedAndIndicated(page, canonical);
     const [popup, leaving] = await Promise.all([

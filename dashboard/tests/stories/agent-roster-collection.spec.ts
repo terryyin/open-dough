@@ -20,6 +20,7 @@ import {
 } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { describedRevision } from "../describedRevisions.ts";
+import { credit } from "../agentCredit.ts";
 
 const story = "See who owns Taken work";
 const identity = "SEED-021#identify-taken-work-owner";
@@ -99,11 +100,9 @@ test("with nerds set the roster lists the 30 nerds, portraits where a photo exis
   ]);
   await expect(members).toHaveCount(31);
   // Every nerd but terry has a photo, and Yui keeps her atlas tile.
-  await expect(members.locator(".agent-portrait")).toHaveCount(
-    nerdAgentNames.length,
-  );
-  await expect(member("terry-chan").locator(".agent-portrait")).toHaveCount(0);
-  await expect(member("stanly-chan").locator(".agent-portrait")).toBeVisible();
+  await expect(credit(members).portrait).toHaveCount(nerdAgentNames.length);
+  await expect(credit(member("terry-chan")).portrait).toHaveCount(0);
+  await expect(credit(member("stanly-chan")).portrait).toBeVisible();
   await expect(member("stanly-chan")).toContainText("No assignment recorded");
   const yui = member("Yui-chan");
   await expect(yui.locator(".roster-activity")).toHaveText("Taken");

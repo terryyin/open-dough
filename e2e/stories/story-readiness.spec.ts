@@ -10,11 +10,19 @@ import {
   publishCommittedOrigin,
 } from "../../dashboard/tests/committedOrigin.ts";
 import {
+  chooseProject,
   shortRevision,
   expectMembership,
   expectOwnersNotRecorded,
   parts,
 } from "../../dashboard/tests/dashboardPage.ts";
+import { credit } from "../../dashboard/tests/agentCredit.ts";
+import {
+  hideDetail,
+  inspectedDetail,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
+import { expectBadges } from "../../dashboard/tests/storyCardFacts.ts";
 import {
   expectPlanlessDetailAbsentPlan,
   expectReadyDetailTwoCompleteAfterPublish,
@@ -66,8 +74,8 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
   });
 
   await page.goto("/");
-  const { project, backlog, taken, readRevision } = parts(page);
-  const readyCard = taken.getByRole("article", { name: plannedReady.title });
+  const { backlog, taken, readRevision } = parts(page);
+  const readyCard = storyCard(taken, plannedReady.title);
 
   await test.step("membership and order arrive before inventing not-refined", async () => {
     await expectMembership(page, {
@@ -83,31 +91,16 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
   });
 
   await test.step("labeled colors and independent facts from one pinned revision", async () => {
-    const unrefinedCard = backlog.getByRole("article", {
-      name: unrefined.title,
+    await expectBadges(readyCard, {
+      shown: ["Slice planned", "Ready for execution"],
     });
-    const blockedCard = backlog.getByRole("article", {
-      name: plannedBlocked.title,
+    await expectBadges(storyCard(backlog, unrefined.title), {
+      shown: ["Not refined"],
     });
-
-    await expect(
-      readyCard.getByText("Slice planned", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      readyCard.getByText("Ready for execution", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      unrefinedCard.getByText("Not refined", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      blockedCard.getByText("Slice planned", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      blockedCard.getByText("Not ready", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      blockedCard.getByText("Ready for execution", { exact: true }),
-    ).toHaveCount(0);
+    await expectBadges(storyCard(backlog, plannedBlocked.title), {
+      shown: ["Slice planned", "Not ready"],
+      absent: ["Ready for execution"],
+    });
 
     await expect(readRevision).toContainText(shortRevision(openDough.revision));
     await expectOwnersNotRecorded(page);
@@ -159,10 +152,7 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
     await expect(readyCard.getByText("Approach:")).toHaveCount(0);
     await expect(readyCard).not.toContainText(plannedReady.identity);
     const before = openDoughOrigin.requests.length;
-    await readyCard.getByRole("button", { name: "Inspect story" }).click();
-    const detail = readyCard.getByRole("region", {
-      name: `Detail for ${plannedReady.title}`,
-    });
+    const detail = await inspectedDetail(readyCard);
     await expect(detail.getByText("Approach:")).toContainText("Slice planned");
     await expect(detail.getByText("Assessment:")).toHaveText(
       "Assessment: Ready",
@@ -171,7 +161,7 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
       plannedReady.identity,
     );
     expect(openDoughOrigin.requests.length).toBe(before);
-    await readyCard.getByRole("button", { name: "Hide detail" }).click();
+    await hideDetail(readyCard);
     await expect(readyCard).toBeFocused();
   });
 
@@ -190,7 +180,7 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
   });
 
   await test.step("Doughnut shows planless ready and legacy not recorded", async () => {
-    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+    await chooseProject(page, "Doughnut");
     await expectMembership(page, {
       taken: [],
       backlog: [
@@ -202,25 +192,13 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
     });
     await expect(readRevision).toContainText(shortRevision(doughnut.revision));
 
-    const planlessCard = backlog.getByRole("article", {
-      name: planless.title,
+    await expectBadges(storyCard(backlog, planless.title), {
+      shown: ["Refined", "Planless", "Ready for execution"],
     });
-    const legacyCard = backlog.getByRole("article", { name: legacy.title });
-    await expect(
-      planlessCard.getByText("Refined", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      planlessCard.getByText("Planless", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      planlessCard.getByText("Ready for execution", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      legacyCard.getByText("Not recorded", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      legacyCard.getByText("Not refined", { exact: true }),
-    ).toHaveCount(0);
+    await expectBadges(storyCard(backlog, legacy.title), {
+      shown: ["Not recorded"],
+      absent: ["Not refined"],
+    });
 
     await expectPlanlessDetailAbsentPlan(backlog);
 
@@ -233,12 +211,10 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
     // + the agent setting file.
     expect(doughnutPaths).toHaveLength(7);
   });
-  await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
+  await chooseProject(page, "Open Dough");
   // Preparation may arrive before profiles. The no-extra-read check below
   // starts after that unrelated group has answered too.
-  await expect(readyCard.locator(".story-card-owner")).toHaveText(
-    "Owner not recorded",
-  );
+  await expect(credit(readyCard).owner).toHaveText("Owner not recorded");
   await expectQueuedPlanStoryCardAndDetail(
     backlog,
     openDoughRepository,

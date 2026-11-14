@@ -10,13 +10,17 @@ import {
   parts,
 } from "../../dashboard/tests/dashboardPage.ts";
 import { showColumn } from "../../dashboard/tests/boardPage.ts";
+import { credit } from "../../dashboard/tests/agentCredit.ts";
+import {
+  inspectedDetail,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
 import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
 import {
   enlargedView,
   expectOwnerMarks,
   expectPortrait,
 } from "../../dashboard/tests/agentPortrait.ts";
-import { inspectedDetail } from "../../dashboard/tests/storyCardControls.ts";
 import {
   agents,
   branchStory,
@@ -46,7 +50,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
     taken: [trunkStory, branchStory, modelless, older, lastInRotation],
     backlog: [queued],
   });
-  const card = (title: string) => taken.getByRole("article", { name: title });
+  const card = (title: string) => storyCard(taken, title);
   // Detail holds mode, branch, and tool facts beyond the scan line. `detail`
   // reads an already-open region; `inspected` opens it when needed.
   const detail = (title: string) =>
@@ -57,7 +61,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
   };
   await expect(page.getByText("Reading agent profile…")).toHaveCount(0);
 
-  const scanLine = (title: string) => card(title).locator(".owner-line");
+  const scanLine = (title: string) => credit(card(title)).line;
 
   await test.step("a Trunk Mode profile shows its agent, credited human, tool, and model on the card, and its mode and trunk only in detail", async () => {
     await expect(scanLine(trunkStory)).toHaveText(
@@ -103,7 +107,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
   });
 
   await test.step("hovering a portrait shows it larger from where it stands", async () => {
-    const portrait = card(trunkStory).locator(".agent-portrait");
+    const portrait = credit(card(trunkStory)).portrait;
     const resting = await portrait.boundingBox();
     expect(resting).not.toBeNull();
     if (resting === null) return;
@@ -175,7 +179,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
   await test.step("a Taken entry without a profile shows that its owner is not recorded", async () => {
     await expect(card(older)).toContainText("Owner not recorded");
     await expect(card(older)).not.toContainText("-chan");
-    await expect(card(older).locator(".agent-portrait")).toHaveCount(0);
+    await expect(credit(card(older)).portrait).toHaveCount(0);
     await expect(card(older).locator("img")).toHaveCount(0);
   });
 
@@ -189,29 +193,27 @@ test("each Taken card shows its published agent profile, or says plainly that no
       await expect(
         taken.getByRole("article").filter({ hasText: agent }),
       ).toHaveCount(0);
-    await expect(taken.locator(".agent-portrait")).toHaveCount(4);
+    await expect(credit(taken).portrait).toHaveCount(4);
     // Scan-line host marks plus mode/host marks in already-open details;
     // lastInRotation reuses assets proved above; no-profile entry has none.
-    await expect(taken.locator(".story-card-owner .owner-mark")).toHaveCount(4);
+    await expect(credit(credit(taken).owner).marks).toHaveCount(4);
     for (const title of [trunkStory, branchStory, modelless, lastInRotation]) {
-      await expect(card(title).locator(".owner-mark")).toHaveCount(3);
+      await expect(credit(card(title)).marks).toHaveCount(3);
     }
     await inspected(older);
-    await expect(card(older).locator(".owner-mark")).toHaveCount(0);
+    await expect(credit(card(older)).marks).toHaveCount(0);
   });
 
   // Its scan line and marks belong to backlog-preparing.spec.ts.
   await test.step("a queued entry shows its preparation assignment as Preparing, never as an owner", async () => {
     await showColumn(page, "Backlog");
-    const preparing = queue.getByRole("article", { name: queued });
-    await expect(preparing.locator(".preparing-activity")).toHaveText(
-      "Preparing",
-    );
+    const preparing = storyCard(queue, queued);
+    await expect(credit(preparing).activity).toHaveText("Preparing");
     await expectPortrait(preparing, "Kirara-chan", {
       atlas: 2,
       position: "0% 12.5%",
     });
-    await expect(preparing.locator(".owner-mode")).toHaveCount(0);
+    await expect(credit(preparing).mode).toHaveCount(0);
     await expect(preparing).not.toContainText("Owner");
     await expect(preparing).not.toContainText(/Mode|Branch context|Trunk:/);
   });

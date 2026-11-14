@@ -125,7 +125,6 @@
 8.6	tests/stories/recently-done-progressive-navigation-cursor.spec.ts
 8.5	tests/intent/intent-project-visit.spec.ts
 8.4	tests/configuration/system-settings-openai-race.spec.ts
-8.0	tests/navigation/story-reference-scroll-completion.spec.ts
 7.8	tests/intent/intent-selection-reads.spec.ts
 7.6	tests/navigation/story-card-selection.spec.ts
 7.3	tests/navigation/development-intent-frame-keyboard.spec.ts

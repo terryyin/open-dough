@@ -91,6 +91,14 @@
   display: none;
 }
 
+/* Keep positioned screen-reader labels inside the pane that scrolls them. */
+.intent-locations,
+.intent-reading,
+.intent-page-panel,
+.intent-candidates-panel {
+  position: relative;
+}
+
 .intent-locations,
 .intent-reading {
   min-width: 0;

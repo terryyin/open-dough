@@ -75,6 +75,6 @@ test("a session that replaces a coordinator stops the recorded observer and deli
   assert.match(resume, /reruns the same resume/);
   assert.match(
     closure,
-    /`step: "observation"`[^|]+\|[^|]+`observation\.reason`[^|]+stop the recorded observer[^|]+`deliver`[^|]+lost coverage/,
+    /`step: "observation"`[^|]+\|[^|]+`observation\.reason`[^|]+stop the recorded observer[^|]+execution-completion-recovery\.mjs complete[^|]+lost coverage/,
   );
 });

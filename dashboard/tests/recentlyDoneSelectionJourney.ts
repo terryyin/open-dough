@@ -231,7 +231,5 @@ export async function openSelectionPage(
   await expect(shown.entries).toHaveCount(
     4 + (newer.doughnut ?? 0) + (newer.pygardon ?? 0),
   );
-  const row = (title: string) =>
-    shown.entries.filter({ has: page.getByRole("heading", { name: title }) });
-  return { shown, row };
+  return { shown, row: shown.row };
 }

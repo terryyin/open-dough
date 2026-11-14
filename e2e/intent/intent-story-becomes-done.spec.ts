@@ -8,7 +8,7 @@ import {
 } from "../../dashboard/src/storyReviewContract.ts";
 import {
   pausePageClock,
-  passTimeUntilCheckedAfterSettled,
+  passTimeUntilChecked,
 } from "../../dashboard/tests/autoRefreshJourney.ts";
 import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
@@ -94,7 +94,7 @@ test("a selected active story's obsolete automatic run cannot mask its recovered
     );
   });
   published.advanceTo(story.completion);
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   expect(storyReviewSchema.parse(await (await completed).json())).toMatchObject(
     { kind: "published", completion: story.completion },
   );

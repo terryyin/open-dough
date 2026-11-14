@@ -6,7 +6,7 @@ import { openTerminalControl } from "../terminalScreenPage.ts";
 // scope: ../../backend-tests/launches/agent-launch-cursor-model-admission.spec.ts.
 import path from "node:path";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import {
   expectChosenModelScope,
@@ -106,7 +106,7 @@ test("execution on a Cursor-listed model sends it on the prompted run only, scop
   });
   expectChosenModelScope(record, dashboard.home, cursor, client, sharedBefore);
   await stayedUp(cursor, client.pid, 500);
-  await openTerminalControl(entry, { exact: false }).click();
+  await openTerminalControl(entry).click();
   await expect.poll(() => cursor.attaches()).toHaveLength(1);
   expect(cursor.attaches()[0]?.pid).toBe(client.pid);
   expect(cursor.attaches()[0]?.args).toEqual([
@@ -173,7 +173,7 @@ test("an unreadable Cursor list is explained, Retry rereads it, and Default stil
   await startSessionField(dialog).fill("why is the CI slow?");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
-  await expect(parts(page).taken.locator(".session-entry")).toContainText(
+  await expect(sessionEntriesIn(parts(page).taken)).toContainText(
     "First input accepted",
     { timeout: launchWaitMs },
   );

@@ -5,11 +5,13 @@
 // Intent review helpers (../../dashboard/tests/support/intentStoryPage.ts).
 import { listedFile } from "../../dashboard/tests/support/reviewTreeRows.ts";
 import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  queuedCodexPreviewTest as test,
+} from "../../dashboard/tests/support/preparationPage.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { shortRevision } from "../../dashboard/tests/dashboardParts.ts";
-import { recentlyDoneParts } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
-import { openSessionsSidebar } from "../../dashboard/tests/sessionsSidebarPage.ts";
+import { showRecentlyDone } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
 import { retainAdHocCompletedStory } from "../../dashboard/tests/support/adHocCompletedAssociation.ts";
 import {
   chooseStoryTab,
@@ -61,16 +63,14 @@ test("selecting a completed ad hoc session shows historical Review and Intent co
 
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/?perspective=intent");
-  await openSessionsSidebar(page);
-  const shown = recentlyDoneParts(page);
-  await shown.header.click();
-  await shown.entry(sessionTitle).click();
+  const shown = await showRecentlyDone(page);
+  await shown.select(sessionTitle).click();
   const { intent } = parts(page);
   await expect(intent).toHaveAttribute("data-selected-story", linked.identity);
   await expect(storyTitle(intent)).toHaveText(linked.title, {
     timeout: 30_000,
   });
-  await expect(shown.entry(sessionTitle)).toHaveAttribute(
+  await expect(shown.select(sessionTitle)).toHaveAttribute(
     "title",
     /(^|\n)Open Dough · Ad hoc(\n|$)/,
   );

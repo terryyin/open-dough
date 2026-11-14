@@ -1,7 +1,8 @@
 // Shared readable reasons for retained project history gaps.
 import { unverifiedAttemptTiming } from "./ciAttemptTiming.ts";
 import type {
-  LandedCiGap,
+  FinalGap,
+  PendingGap,
   PendingWait,
   FinalGapReason,
 } from "./landedCiHistory.ts";
@@ -32,10 +33,14 @@ const finalWords: Readonly<Record<FinalGapReason, string>> = {
   identity: "Retained adapter attempt identity unavailable",
 };
 
-// Why a gap has no CI wall time: "Pending · CI queued or running" while it
-// may still be measured; "Failed", "No build" and the like once it never
-// will be.
-export function gapReasonWords(gap: LandedCiGap): string {
+// Why a gap has no CI wall time or scope timing: "Pending · CI queued or
+// running" while it may still be measured; "Failed", "No build" and the like
+// once it never will be.
+export function gapReasonWords(
+  gap:
+    | Pick<PendingGap, "reason" | "waitsFor">
+    | Pick<FinalGap, "reason" | "explanation">,
+): string {
   if (gap.reason === "unclassified" || gap.reason === "identity")
     return gap.explanation ?? finalWords[gap.reason];
   return gap.reason === "pending"

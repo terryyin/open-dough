@@ -22,6 +22,16 @@ import {
 } from "../../dashboard/tests/dashboardPage.ts";
 import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
 import {
+  inspectedDetail,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
+import {
+  expectNoSliceCount,
+  progressSource,
+  sliceBar,
+  sliceProgress,
+} from "../../dashboard/tests/storyCardFacts.ts";
+import {
   beforeProfiles,
   branchDeleted,
   branchHead,
@@ -40,6 +50,7 @@ import {
   trunk,
   twoOwners,
 } from "../../dashboard/tests/branchProgressRecords.ts";
+import { credit } from "../../dashboard/tests/agentCredit.ts";
 
 async function openedAtOpening(page: Page) {
   await pausePageClockAt(page, opened);
@@ -56,8 +67,7 @@ async function openedAtOpening(page: Page) {
   await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
   await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
   const { taken } = parts(page);
-  const progress = (title: string) =>
-    taken.getByRole("article", { name: title }).locator(".story-card-progress");
+  const progress = (title: string) => sliceProgress(storyCard(taken, title));
   return { requests, taken, progress };
 }
 
@@ -72,13 +82,9 @@ test("Taken cards show progress from where each story is published, or the gap t
     await expect(progress(onBranch)).toContainText(
       "From story branch; not in trunk.",
     );
+    await expect(storyCard(taken, onBranch)).not.toContainText("story/example");
     await expect(
-      taken.getByRole("article", { name: onBranch }),
-    ).not.toContainText("story/example");
-    await expect(
-      progress(onBranch).getByRole("img", {
-        name: "6 of 8 slices recorded complete",
-      }),
+      sliceBar(progress(onBranch), "6 of 8 slices recorded complete"),
     ).toBeVisible();
     await expect(progress(onBranch)).not.toContainText("0 of 8");
   });
@@ -96,7 +102,7 @@ test("Taken cards show progress from where each story is published, or the gap t
     await expect(progress(onTrunk)).toContainText(
       "Current slice started 12 min ago",
     );
-    await expect(progress(onTrunk).locator(".progress-source")).toHaveCount(0);
+    await expect(progressSource(progress(onTrunk))).toHaveCount(0);
   });
 
   await test.step("a story without a profile shows trunk's copy, labelled, and not the similarly named branch", async () => {
@@ -109,41 +115,37 @@ test("Taken cards show progress from where each story is published, or the gap t
   });
 
   await test.step("two profiles naming a story leave no single progress source", async () => {
-    await expect(progress(twoOwners)).toContainText(
+    await expectNoSliceCount(
+      progress(twoOwners),
       "More than one agent profile names this story, so it has no single progress source.",
     );
-    await expect(progress(twoOwners).getByRole("img")).toHaveCount(0);
-    await expect(progress(twoOwners)).not.toContainText("recorded complete");
     await expect(progress(twoOwners)).not.toContainText(
       "Current slice started",
     );
   });
 
   await test.step("a recorded branch no longer published is a gap, not trunk's count", async () => {
-    await expect(progress(branchDeleted)).toContainText(
+    await expectNoSliceCount(
+      progress(branchDeleted),
       "The recorded branch story/deleted is no longer published",
-    );
-    await expect(progress(branchDeleted).getByRole("img")).toHaveCount(0);
-    await expect(progress(branchDeleted)).not.toContainText(
-      "recorded complete",
     );
   });
 
   await test.step("a plan missing on the branch is that gap", async () => {
-    await expect(progress(planMissing)).toContainText(
+    await expectNoSliceCount(
+      progress(planMissing),
       `The associated plan ${planPath("plan-missing")} is missing on this branch.`,
     );
     await expect(progress(planMissing)).toContainText(
       "From story branch; not in trunk.",
     );
-    await expect(progress(planMissing).getByRole("img")).toHaveCount(0);
   });
 
   await test.step("a plan uninterpretable on the branch is that gap", async () => {
-    await expect(progress(planUninterpretable)).toContainText(
+    await expectNoSliceCount(
+      progress(planUninterpretable),
       "Plan slices uninterpretable:",
     );
-    await expect(progress(planUninterpretable).getByRole("img")).toHaveCount(0);
   });
 
   await test.step("only recorded, unambiguous branches were asked for, and on them only their plan", () => {
@@ -193,24 +195,20 @@ test("Taken cards show progress from where each story is published, or the gap t
   });
 
   await test.step("the detail shows the same branch source and its slices", async () => {
-    const card = taken.getByRole("article", { name: onBranch });
-    await card.getByRole("button", { name: "Inspect story" }).click();
-    const detail = card.getByRole("region", { name: `Detail for ${onBranch}` });
+    const detail = await inspectedDetail(storyCard(taken, onBranch));
     await expect(detail).toContainText("6 of 8 slices recorded complete");
     await expect(detail).toContainText(
       `From branch story/example at ${branchHead.slice(0, 7)}; not in trunk.`,
     );
     // The exact branch of the assignment is detail too, still never trunk.
-    await expect(detail.locator(".owner-branch")).toHaveText(
+    await expect(credit(detail).branch).toHaveText(
       "Branch context: story/example (story branch work; not on trunk)",
     );
   });
 
   await test.step("a plan missing on its branch names that branch and revision in detail", async () => {
-    const card = taken.getByRole("article", { name: planMissing });
-    await card.getByRole("button", { name: "Inspect story" }).click();
     await expect(
-      card.getByRole("region", { name: `Detail for ${planMissing}` }),
+      await inspectedDetail(storyCard(taken, planMissing)),
     ).toContainText(
       `From branch story/plan-missing at ${branches["story/plan-missing"]?.revision.slice(0, 7) ?? ""}; not in trunk.`,
     );

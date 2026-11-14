@@ -1,4 +1,4 @@
-import { readFinalReportControl } from "../../dashboard/tests/finalReportPages.ts";
+import { readFinalReport } from "../../dashboard/tests/finalReportPages.ts";
 import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // The project row's Start session offers where the session runs (Workspace)
 // beside After checks, with the story dialogs' words and no Tracking. With a
@@ -32,9 +32,15 @@ import {
   existingChangesHeading as heading,
   status,
 } from "../../dashboard/tests/support/defaultCheckoutChanges.ts";
-import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  parts,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
 import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../../dashboard/tests/support/preparationPage.ts";
 import { expectReportingBlock } from "../../dashboard/tests/support/reportingInputAssertions.ts";
 import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
 import {
@@ -69,11 +75,6 @@ async function records(dashboard: DashboardServer, count: number) {
     .toHaveLength(count);
   return (await recordsOf(dashboard, "open-dough")) as LaunchWithState[];
 }
-
-const isolated = (landing: "review" | "auto-land") => ({
-  workspace: "isolated",
-  landing,
-});
 
 test("Isolated workspace creates one worktree at fetched trunk on the host's namespace, opens the session there with its block, and publishes nothing", async ({
   page,
@@ -137,7 +138,7 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   expect(record.request).toMatchObject({
     workflow: "ad-hoc",
     instruction: text,
-    policy: isolated("review"),
+    policy: { workspace: "isolated", landing: "review" },
   });
   for (const absent of ["start", "preparation"])
     expect(record).not.toHaveProperty(absent);
@@ -182,12 +183,10 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   await closeSidePanel(terminal);
   rmSync(session.workspace, { recursive: true });
   await page.reload();
-  const kept = parts(page).taken.locator(".session-entry");
+  const kept = sessionEntriesIn(parts(page).taken);
   await expect(kept).toContainText("saved workspace is missing");
-  await readFinalReportControl(kept, { exact: false }).click();
-  await expect(
-    page.getByRole("region", { name: "Final report" }),
-  ).toContainText(`Saved workspace ${session.workspace}`);
+  const { panel } = await readFinalReport(kept);
+  await expect(panel).toContainText(`Saved workspace ${session.workspace}`);
 });
 
 test("with existing changes in default main, Isolated workspace · Automatically land starts at once with no text, in `.worktrees/session`, and leaves the changes untouched", async ({
@@ -232,7 +231,9 @@ test("with existing changes in default main, Isolated workspace · Automatically
     before,
   );
   expect(record.establishedSession).toEqual(session);
-  expect(record.request).toMatchObject({ policy: isolated("auto-land") });
+  expect(record.request).toMatchObject({
+    policy: { workspace: "isolated", landing: "auto-land" },
+  });
   expect(record.request).not.toHaveProperty("instruction");
   const [call] = dashboard.claudeLaunchCalls();
   expect(call?.cwd).toBe(realpathSync(worktree(origin.project, "session")));

@@ -176,7 +176,7 @@ including after a cold open or reload. Receipt and dismissal do not navigate. Th
 starts no agent work and opens no terminal. Ad hoc alerts open their project
 without a story target. A stale target explains its absence; a stopped server
 leaves the browser's connection failure. See [session alert behavior and
-destinations](AGENT-LAUNCH-HISTORY.md) and [navigation](../docs/dashboard-navigation.md).
+destinations](AGENT-LAUNCH-OBSERVATION.md#notification-delivery-and-destinations) and [navigation](../docs/dashboard-navigation.md).
 
 ## Look and controls
 

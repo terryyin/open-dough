@@ -24,8 +24,8 @@ and evidence are recorded here for affected releases under ADR 0005.
 ### Accept quiet completion and retained dashboard attention messages
 
 **Identity:** SEED-053#quiet-dashboard-completion
-**Completed implementation:** [SEED-008's completion story](https://github.com/terryyin/open-dough/blob/db75dac39cc8a1aae33e7e881d5c3363730f93c9/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration), [plan 220](https://github.com/terryyin/open-dough/blob/db75dac39cc8a1aae33e7e881d5c3363730f93c9/.planning/slice-plans/220-quiet-dashboard-session-completion/PLAN.md).
-Quiet wording and its response consumers also follow [SEED-145's completed story](https://github.com/terryyin/open-dough/blob/1ad488d7f3757d7a85f54f2277424f7c301ff1bb/.planning/seeds/SEED-145-no-news-is-good-news.md#quiet-land-and-wrap-up)
+**Completed implementation:** [Complete dashboard sessions quietly and retain messages needing attention](https://github.com/terryyin/open-dough/blob/db75dac39cc8a1aae33e7e881d5c3363730f93c9/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration), [plan 220](https://github.com/terryyin/open-dough/blob/db75dac39cc8a1aae33e7e881d5c3363730f93c9/.planning/slice-plans/220-quiet-dashboard-session-completion/PLAN.md).
+Quiet wording and its response consumers also follow [Finish landing and wrap-up silently when no developer action remains](https://github.com/terryyin/open-dough/blob/1ad488d7f3757d7a85f54f2277424f7c301ff1bb/.planning/seeds/SEED-145-no-news-is-good-news.md#quiet-land-and-wrap-up)
 and [plan 331](https://github.com/terryyin/open-dough/blob/1ad488d7f3757d7a85f54f2277424f7c301ff1bb/.planning/slice-plans/331-quiet-land-and-wrap-up/PLAN.md).
 Native cases must keep settled findings, authorized follow-up dispositions and
 verified retirement quiet, while preserving actionable exceptions and requested
@@ -76,8 +76,8 @@ and actual quiet Land/Wrap Up skill behavior remain unproved on all three hosts;
 that separate acceptance before affected release. Selected plan execution and subsequent
 acceptance selection retain their own authority boundaries.
 
-**Additional covered work:** [SEED-145's quiet retrospective and planned
-execution story](https://github.com/terryyin/open-dough/blob/651df7b18c3d873e4e81a3080db3b65aeb7aa0c8/.planning/seeds/SEED-145-no-news-is-good-news.md#quiet-execution-and-retrospective),
+**Additional covered work:** [Keep retrospective and execution completion
+quiet and make required attention unmistakable](https://github.com/terryyin/open-dough/blob/651df7b18c3d873e4e81a3080db3b65aeb7aa0c8/.planning/seeds/SEED-145-no-news-is-good-news.md#quiet-execution-and-retrospective),
 [plan 332](https://github.com/terryyin/open-dough/blob/651df7b18c3d873e4e81a3080db3b65aeb7aa0c8/.planning/slice-plans/332-quiet-execution-and-retrospective/PLAN.md). Its
 functional guidance and credential-free assessor checks do not prove native
 response selection. This extension changes no backlog assignment and authorizes
@@ -141,13 +141,13 @@ extend this home. All three hosts remain pending; assignment and ADR 0005 still 
 ### Accept guarded local preparation, commit and publication on each host
 
 **Identity:** SEED-053#guarded-local-delivery-prerequisites
-**Implementation:** [SEED-146](https://github.com/terryyin/open-dough/blob/60c164841e0ca9178a80702e595d3c0c6b826038/.planning/seeds/SEED-146-gate-local-delivery-prerequisites.md#gate-local-prerequisites-before-commit-and-delivery)
+**Implementation:** [Block commits and delivery after failed local prerequisites](https://github.com/terryyin/open-dough/blob/60c164841e0ca9178a80702e595d3c0c6b826038/.planning/seeds/SEED-146-gate-local-delivery-prerequisites.md#gate-local-prerequisites-before-commit-and-delivery)
 and [plan 331](https://github.com/terryyin/open-dough/blob/60c164841e0ca9178a80702e595d3c0c6b826038/.planning/slice-plans/331-gate-local-delivery-prerequisites/PLAN.md).
 **For / outcome:** Developers using Codex, Cursor, or Claude Code can rely on
 installed execution and owned-repair guidance selecting the guarded fresh path,
 withholding dependent work after local failure, and retaining legitimate
 already-published recovery. Native acceptance is pending. The ordering extension also covers
-[SEED-010 freshness settlement](https://github.com/terryyin/open-dough/blob/82a87e059e61ea6a8f4f7fb351e3c8bbd766f907/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#hold-delivery-on-freshness-before-expensive-proof).
+[Settle trunk freshness before expensive proof and before delivery](https://github.com/terryyin/open-dough/blob/82a87e059e61ea6a8f4f7fb351e3c8bbd766f907/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#hold-delivery-on-freshness-before-expensive-proof).
 
 **Scope and evaluation:** Use installed guidance in a disposable repository
 with project-resolved requirements, real Git/hooks and an authorized local bare
@@ -237,7 +237,7 @@ implement, commit, push, or publish. Transcripts and written plans are under
 
 ## Shared one-shot cases
 
-[SEED-028's acceptance evidence](https://github.com/terryyin/open-dough/blob/7cda80ffebcb3a190d1c71f80aec3e33b7e59f95/.planning/seeds/SEED-028-track-ad-hoc-work.md#story-decomposition)
+[Make ad hoc work visible in the product backlog](https://github.com/terryyin/open-dough/blob/7cda80ffebcb3a190d1c71f80aec3e33b7e59f95/.planning/seeds/SEED-028-track-ad-hoc-work.md#story-decomposition)
 records the Claude Code and Cursor results for `publication/one-shot-result`,
 `publication/one-shot-queued`, `publication/admission-investigation` and
 `publication/one-shot-escalation`. The

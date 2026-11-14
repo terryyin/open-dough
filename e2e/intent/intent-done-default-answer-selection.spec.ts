@@ -185,7 +185,7 @@ test("selecting another Done story follows its published default instead of reta
     await openSessionsSidebar(page);
     const sessions = recentlyDoneParts(page);
     await sessions.header.click();
-    await sessions.entry(storyB.title).click();
+    await sessions.select(storyB.title).click();
     const answer = storyReviewSchema.parse(await (await held.ready).json());
     expect(answer).toMatchObject({
       kind: "published",

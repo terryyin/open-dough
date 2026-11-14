@@ -4,39 +4,40 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
-import { inspectedDetail } from "./storyCardControls.ts";
+import {
+  canonicalRecord,
+  inspectedDetail,
+  slicePlanLink,
+} from "./storyCardControls.ts";
+import { expectBadges, storyPurpose } from "./storyCardFacts.ts";
+import { credit } from "./agentCredit.ts";
+import { expectNoPlaceholderShown } from "./retainedFacts.ts";
+import { dependencyDisclosure } from "./storyReference.ts";
 import { expect } from "./dashboardTest.ts";
 import { preparer, preparingPath, purpose } from "./publishedFactsArrival.ts";
 import { executed } from "./recentlyDoneRecords.ts";
 import { planPath, repository, revision } from "./sliceClockRecords.ts";
 
 export async function expectCanonicalFacts(queuedCard: Locator) {
-  await expect(
-    queuedCard.getByText("Slice planned", { exact: true }),
-  ).toBeVisible();
   // A Ready assessment behind its blocking dependency is not yet eligible.
-  await expect(
-    queuedCard.getByText("Blocked by 1 dependency", { exact: true }),
-  ).toBeVisible();
-  await expect(queuedCard.locator(".badge-ready")).toHaveCount(0);
+  await expectBadges(queuedCard, {
+    shown: ["Slice planned", "Blocked by 1 dependency"],
+    absent: ["Ready for execution"],
+  });
   const detail = await inspectedDetail(queuedCard);
-  await expect(detail.locator(".story-purpose")).toHaveText(purpose);
+  await expect(storyPurpose(detail)).toHaveText(purpose);
   await expect(detail).toContainText("Assessment: Ready");
   await expect(detail).not.toContainText("Ready for execution");
   await expect(detail).toContainText("1 of 2 slices recorded complete");
-  await expect(
-    detail.getByRole("link", { name: /^Slice plan/ }),
-  ).toHaveAttribute(
+  await expect(slicePlanLink(detail)).toHaveAttribute(
     "href",
     `https://github.com/${repository}/blob/${revision}/${planPath("preparing")}`,
   );
-  await expect(
-    detail.getByRole("link", { name: /^Canonical record/ }),
-  ).toHaveAttribute(
+  await expect(canonicalRecord(detail)).toHaveAttribute(
     "href",
     `https://github.com/${repository}/blob/${revision}/${preparingPath}#preparing`,
   );
-  const dependencies = queuedCard.locator(".story-dependencies");
+  const dependencies = dependencyDisclosure(queuedCard);
   await dependencies
     .getByText("Dependencies · 1 blocking", { exact: true })
     .click();
@@ -55,25 +56,23 @@ export async function expectStoryCardAssignments(
   branchCard: Locator,
   queuedCard: Locator,
 ) {
-  await expect(
-    branchCard.locator(".story-card-owner .owner-line"),
-  ).toContainText("Akiho-chan · Fixture Committer · Claude Code");
-  await expect(queuedCard.locator(".story-card-preparing")).toContainText(
+  await expect(credit(credit(branchCard).owner).line).toContainText(
+    "Akiho-chan · Fixture Committer · Claude Code",
+  );
+  await expect(credit(queuedCard).preparing).toContainText(
     `PreparingKirara-chan · ${preparer} · Codex`,
   );
 }
 
 // Every fact group has settled: none is still shown as being read.
 export async function expectNoOrphanReading(page: Page) {
-  for (const reading of [
+  await expectNoPlaceholderShown(page, [
     "Reading preparation…",
     "Reading agent profile…",
     "Reading plan slices…",
     "Reading current slice time…",
     "Reading human developer…",
-  ]) {
-    await expect(page.getByText(reading, { exact: true })).toHaveCount(0);
-  }
+  ]);
   await expect(parts(page).reading).toHaveCount(0);
 }
 

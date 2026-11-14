@@ -1,4 +1,7 @@
-import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import {
+  closeSidePanel,
+  sidePanelNamesOf,
+} from "../../dashboard/tests/sidePanelFrame.ts";
 // Actual Start session, browser focus/navigation and shared done/reopen owners.
 // Native protocol and ordinary CLI replies are substitutes, never record writers.
 import { realpathSync } from "node:fs";
@@ -17,6 +20,9 @@ import {
 import {
   chooseProject,
   expectProjectChoice,
+  parts,
+  sessionEntriesIn,
+  sessionStateOf,
 } from "../../dashboard/tests/dashboardPage.ts";
 import { showColumn } from "../../dashboard/tests/boardPage.ts";
 import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
@@ -78,7 +84,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     );
     await startSessionField(dialog).fill(text);
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
-    const recent = page.locator(".board .session-entry");
+    const recent = sessionEntriesIn(parts(page).board);
     const panel = await startedSessionTerminal(page, recent);
     await expect(terminalScreenParts(panel).rows).toContainText(
       "GPT-6.1-Sol default",
@@ -94,7 +100,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     );
     await expect(recent.getByRole("heading")).toHaveText(label);
     await expect(panel.getByRole("heading")).toHaveText(label);
-    await expect(panel.locator(".side-panel-names p")).toHaveText(
+    await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
       "Ad hoc session",
     );
     await expect(recent).toContainText(
@@ -161,15 +167,13 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     await closeSidePanel(panel);
     // Close returns the keyboard to what opened the terminal: the start
     // itself with nothing typed, the entry's Open terminal otherwise.
-    await expect(
-      blank ? start : recent.getByRole("button", { name: "Open terminal" }),
-    ).toBeFocused();
+    await expect(blank ? start : openTerminalControl(recent)).toBeFocused();
     await expect
       .poll(() => codexEnded(native, attached?.pid ?? 0))
       .toBe("SIGHUP");
     expect(codexLines(native, attached?.pid ?? 0)).toEqual([]);
     await reloadUntilRead(page);
-    await expect(recent.locator(".session-state")).toHaveText(
+    await expect(sessionStateOf(recent)).toHaveText(
       blank ? "Awaiting first instruction" : "Ready for review",
     );
     expect(stored(dashboard.home)[0]).toEqual(saved);
@@ -186,7 +190,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     try {
       await reloadUntilRead(page);
       await expect(recent).toContainText(native.threadId);
-      await expect(recent.locator(".session-state")).toHaveText(
+      await expect(sessionStateOf(recent)).toHaveText(
         blank ? "Awaiting first instruction" : "Ready for review",
       );
       expect(stored(restarted.home)[0]).toEqual(saved);
@@ -205,15 +209,15 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       await markDoneAnyway(panel);
       await expect(panel).toHaveCount(0);
       await expect(sidebar.entries).toHaveCount(0);
-      await expect(recent.locator(".session-state")).toHaveText("Done");
+      await expect(sessionStateOf(recent)).toHaveText("Done");
       expect(native.names.get(native.threadId)).toBe(
         `done-${saved.session.name}`,
       );
       expect(stored(restarted.home)[0]?.doneAt).toBeDefined();
       await reloadUntilRead(page);
-      await expect(recent.locator(".session-state")).toHaveText("Done");
+      await expect(sessionStateOf(recent)).toHaveText("Done");
       await showColumn(page, "Recently done");
-      await openTerminalControl(recent, { exact: false }).click();
+      await openTerminalControl(recent).click();
       await expect(terminalScreenParts(panel).rows).toContainText(
         "GPT-6.1-Sol default",
       );
@@ -221,7 +225,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
         .poll(() => stored(restarted.home)[0]?.doneAt)
         .toBeUndefined();
       await expect(sidebar.entries).toHaveCount(1);
-      await expect(recent.locator(".session-state")).not.toHaveText("Done");
+      await expect(sessionStateOf(recent)).not.toHaveText("Done");
       expect(
         codexAttaches(native).every(
           (attach) => attach.args.at(-1) === native.threadId,

@@ -22,8 +22,13 @@ export async function selectedProjectId(page: Page): Promise<string> {
   });
 }
 
+// The wide banner's tab-shaped radio for one project.
+export function projectTab(page: Page, label: string): Locator {
+  return parts(page).project.getByRole("radio", { name: label, exact: true });
+}
+
 export async function chooseProject(page: Page, label: string): Promise<void> {
-  const { project, projectCompact, projectCompactList } = parts(page);
+  const { projectCompact, projectCompactList } = parts(page);
   // A sidebar or panel opening or closing can swap the shown control while
   // the choice is made; choose again through whichever one then shows.
   await expect(async () => {
@@ -33,9 +38,7 @@ export async function chooseProject(page: Page, label: string): Promise<void> {
         .getByRole("option", { name: label, exact: true })
         .click({ timeout: 2_000 });
     } else {
-      await project
-        .getByRole("radio", { name: label, exact: true })
-        .check({ timeout: 2_000 });
+      await projectTab(page, label).check({ timeout: 2_000 });
     }
     await expectProjectChoice(page, label, { timeout: 1_000 });
   }).toPass();
@@ -87,4 +90,21 @@ export async function expectCompactProjectSelect(
   await expect(projectCompactList).toHaveCount(0);
   await expect(projectCompact).toBeFocused();
   await expect(projectCompact).toHaveText(label);
+}
+
+// The compact title control's keys, pressed in the given order from the
+// control: the first opens its project list, and after the last the list is
+// gone and the keyboard is back on the control.
+export async function pressProjectListKeys(
+  page: Page,
+  [opening, ...rest]: readonly [string, ...string[]],
+): Promise<void> {
+  const { projectCompact, projectCompactList } = parts(page);
+  await projectCompact.focus();
+  await expect(projectCompact).toBeFocused();
+  await page.keyboard.press(opening);
+  await expect(projectCompactList).toBeVisible();
+  for (const key of rest) await page.keyboard.press(key);
+  await expect(projectCompactList).toHaveCount(0);
+  await expect(projectCompact).toBeFocused();
 }

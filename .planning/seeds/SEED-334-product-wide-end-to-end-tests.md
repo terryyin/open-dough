@@ -55,7 +55,7 @@ This story keeps the runners, inventory, CI publication and their guidance.
 **Failure ownership (Terry, 2026-11-14).** The intermittent empty native
 admission substitute stream seen once in this story's migration is a scoped
 exception owned by
-[SEED-345](SEED-345-native-admission-substitute-empty-stream.md#explain-native-admission-substitute-empty-stream).
+[SEED-346](SEED-346-native-admission-substitute-empty-stream.md#explain-native-admission-substitute-empty-stream).
 The load-sensitive landed CI backend cases that the active
 SEED-324#close-landed-ci-repeat-check-gaps execution is repairing stay with
 that execution.

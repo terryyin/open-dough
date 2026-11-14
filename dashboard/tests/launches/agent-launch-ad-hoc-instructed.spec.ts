@@ -1,4 +1,4 @@
-import { readFinalReportControl } from "../finalReportPages.ts";
+import { readFinalReport } from "../finalReportPages.ts";
 // Start session with typed text presents nothing once its session starts, on
 // the committed origin of ./agent-launch-story-card.spec.ts
 // (../launchJourney.ts): a final report open in the Side panel stays, no
@@ -12,7 +12,11 @@ import { readFinalReportControl } from "../finalReportPages.ts";
 import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { parts, sessionNamedBy, sessionStateOf } from "../dashboardPage.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  terminalPanel,
+  terminalScreenParts,
+  openTerminalFromEntry,
+} from "../terminalScreenPage.ts";
 import {
   expectQuietAdHocActionsRow,
   openTakenBacklog,
@@ -26,7 +30,6 @@ import { keepLaunchRecords } from "../support/launchStore.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { sidePanelContents } from "../support/sidePanelContents.ts";
 import { takenAdHocSession } from "../support/startedAdHocSession.ts";
-import { openEntryTerminal } from "../support/startedSessionTerminal.ts";
 import { watchTerminalSockets } from "../support/terminalSockets.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -56,13 +59,11 @@ test("an instructed Start session leaves the open final report in the Side panel
   ]);
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, launchJourney);
-  await readFinalReportControl(
+  const { panel: finalReport } = await readFinalReport(
     parts(page).recentlyDone.getByRole("article", {
       name: new RegExp(retiredTitle),
     }),
-    { exact: false },
-  ).click();
-  const finalReport = page.getByRole("region", { name: "Final report" });
+  );
   const panel = terminalPanel(page);
   await expect(finalReport).toContainText(report);
   const terminalSockets = watchTerminalSockets(page);
@@ -87,7 +88,7 @@ test("an instructed Start session leaves the open final report in the Side panel
   await sessions.click();
 
   const sessionId = await sessionNamedBy(entry);
-  await openEntryTerminal(entry);
+  await openTerminalFromEntry(entry);
   await expect(terminalScreenParts(panel).rows).toContainText(
     `attached ${sessionId.slice(0, 8)}`,
   );

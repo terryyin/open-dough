@@ -13,8 +13,7 @@ The launch boundary specs (`agent-launch-boundary.spec.ts`,
 `agent-launch-story-card-sessions.spec.ts`, `agent-launch-story-card-session-states.spec.ts`,
 `agent-launch-recent-sessions.spec.ts`,
 `agent-launch-session-state-pace.spec.ts`,
-`agent-launch-session-acknowledgment.spec.ts`,
-`agent-launch-attention.spec.ts`, `sessions-sidebar.spec.ts`,
+`agent-launch-attention.spec.ts`, `agent-launch-attention-taken.spec.ts`, `sessions-sidebar.spec.ts`,
 `sessions-sidebar-reading.spec.ts`, `sessions-sidebar-row.spec.ts`, `sessions-sidebar-stays-as-left.spec.ts`,
 `sessions-sidebar-keyboard.spec.ts`, `sessions-sidebar-navigation.spec.ts`,
 and `sessions-sidebar-navigation-cases.spec.ts`, which name
@@ -101,10 +100,10 @@ A server that must find no `claude` gets a PATH holding only the fake `gh`
 and Node. Nothing here ever calls the real
 `claude`. Each case of the story-card-sessions file
 (`agent-launch-story-card-sessions.spec.ts`) launches the same three sessions
-from the Backlog cards (`launchEachQueuedStory`, `storyCardSessionListing.ts`)
+from the Backlog cards (`launchOnEachQueuedCard`, `storyCardSessionListing.ts`)
 and follows their listing through Preparing, the Take, and a story leaving
-every list. Each case of the attention file (`agent-launch-attention.spec.ts`)
-and the case of the session-state file
+every list. Each attention case (`agent-launch-attention.spec.ts` for Backlog
+and Preparing, `agent-launch-attention-taken.spec.ts` for Taken) and the case of the session-state file
 (`agent-launch-story-card-session-states.spec.ts`) opens on the same board
 with those three sessions, and in the attention Taken case Doughnut's, already
 open (`openWithOpenSessions`, `storyCardOpenSessions.ts`): before the page's
@@ -121,14 +120,13 @@ which sessions a card lists, newest first, in each column;
 `agent-launch-story-card-open-session.spec.ts` that those Starts stay unavailable
 while an open session remains, return after Mark as done or Delete record, and
 a dialog opened beforehand is refused; `agent-launch-story-card-session-states.spec.ts`
-that an entry stays on its card in every state, without Open terminal when
-unavailable and with it when unknown, and survives a restarted server, a
-reload, and a project switch; `agent-launch-session-state-pace.spec.ts` what
-each native state shows on its active card entry within one read pace, with
-no Recently done duplicate; `agent-launch-session-acknowledgment.spec.ts` that
-only a later listing or Mark as done clears a session's attention, never its
-terminal; and `agent-launch-attention.spec.ts` how many of a card's sessions
-need attention.
+that an entry stays on its card whatever its state and survives an unreadable
+listing, a restarted server, a reload, and a project switch;
+`agent-launch-session-state-pace.spec.ts` that a host change shows on its
+active card entry within one read pace; and the two attention files how many
+of a card's sessions need attention. What each native state reads, and
+whether it needs attention or offers Open terminal, is the browser-free
+`../backend-tests/sessions/session-reading-rule.spec.ts`.
 The ad hoc session started from Start session is walked by
 `agent-launch-ad-hoc-boundary.spec.ts` (the boundary: label, arguments,
 refusals, the record), `agent-launch-ad-hoc.spec.ts` (the button, dialog, and

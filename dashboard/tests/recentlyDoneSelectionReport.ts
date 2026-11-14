@@ -2,48 +2,48 @@
 // selection journeys (./recentlyDoneSelectionJourney.ts): opening it through
 // its row's Open, and Development as it was around it.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
+import { finalReportParts, type FinalReportParts } from "./finalReportPages.ts";
 import { report } from "./recentlyDoneSelectionJourney.ts";
 import type { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { terminalPanel } from "./terminalScreenPage.ts";
 
-// Opens the reported session's final report through its row's Open.
+// Opens the reported session's final report through its row's Open, not its
+// Select, and returns that report, showing exactly the session's message.
 export async function showReport(
   page: Page,
   shown: ReturnType<typeof recentlyDoneParts>,
 ) {
   await shown.open(report.title).click();
-  const panel = page.getByRole("region", { name: "Final report" });
-  await expect(panel.locator(".final-report-text")).toHaveText(report.message);
-  await expect(shown.entry(report.title)).toHaveAttribute(
+  const shownReport = finalReportParts(page);
+  await expect(shownReport.reportText).toHaveText(report.message);
+  await expect(shown.select(report.title)).toHaveAttribute(
     "aria-current",
     "true",
   );
-  return panel;
+  return shownReport;
 }
 
 // Development as it was: still chosen, Intent unopened, nothing attached, and
-// the Side panel still showing the report in `panel`, or, without one, empty.
+// the Side panel still showing the report shown before, or, without one, empty.
 export async function expectDevelopmentKept(
   page: Page,
   dashboard: DashboardServer,
-  panel?: Locator,
+  shownReport?: FinalReportParts,
 ) {
   const { development, intent } = parts(page);
   await expect(development).toBeChecked();
   await expect(intent).toHaveCount(0);
   expect(new URL(page.url()).searchParams.get("perspective")).toBeNull();
-  if (panel === undefined) {
+  if (shownReport === undefined) {
     await expect(
       page.getByRole("region", { name: /^(Terminal|Final report)$/ }),
     ).toHaveCount(0);
   } else {
-    await expect(panel.locator(".final-report-text")).toHaveText(
-      report.message,
-    );
+    await expect(shownReport.reportText).toHaveText(report.message);
     await expect(terminalPanel(page)).toHaveCount(0);
   }
   expect(dashboard.claudeAttaches()).toEqual([]);

@@ -4,6 +4,7 @@
 // reference. The original's proof is ./intent-ci-follow-up-proof.spec.ts, and
 // returning to the comparison ./intent-ci-follow-up-return.spec.ts.
 import { attemptLink } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
+import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
 import {
   actionsRequests,
   expect,
@@ -137,6 +138,7 @@ test("a settled request's card opens both attempts, the saved rule and the froze
   await expectWholeOnPhone(original, "original");
   await expectWholeOnPhone(repeat, "repeat");
   await expectWholeOnPhone(evidence, "reference evidence");
+  await expectNoSidewaysScrollIn(page, comparison);
   expect(actionsRequests(github), "no CI request from first render").toEqual(
     before,
   );

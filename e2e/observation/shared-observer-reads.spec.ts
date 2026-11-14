@@ -17,6 +17,7 @@ import {
   pausePageClockAt,
   test,
 } from "../../dashboard/tests/dashboardTest.ts";
+import { projectTab } from "../../dashboard/tests/projectChoice.ts";
 import {
   expectMembership,
   expectSettledPage,
@@ -196,9 +197,7 @@ test("a tab switched to another project before the seed is answered leaves the o
   page,
 }) => {
   const { other, releaseSeed } = await openedTogether(page);
-  await parts(other)
-    .project.getByRole("radio", { name: "Doughnut", exact: true })
-    .check();
+  await projectTab(other, "Doughnut").check();
   await expectMembership(other, { taken: [], backlog: [doughnutSharedTitle] });
   releaseSeed();
   await expectSettledPage(page, titles);

@@ -1,21 +1,11 @@
-// Shared by ./launches/responsive-session-access.spec.ts: moving the keyboard by Tab,
-// beginning another task by keyboard, recording what the startup announcements region says, counting the page's
-// reads of this machine's sessions, and how a card and its startup indicator
-// are drawn.
+// Shared by ./launches/responsive-session-access.spec.ts: beginning another
+// task by keyboard, recording what the startup announcements region says,
+// counting the page's reads of this machine's sessions, and how a card and its
+// startup indicator are drawn.
 
 import type { Locator, Page } from "@playwright/test";
 import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
 import { expect } from "./dashboardTest.ts";
-
-// Moves the keyboard forward by Tab alone until `target` holds it.
-export async function tabTo(page: Page, target: Locator) {
-  for (let step = 0; step < 40; step += 1) {
-    if (await target.evaluate((element) => element === document.activeElement))
-      return;
-    await page.keyboard.press("Tab");
-  }
-  throw new Error("Tab never reached the target");
-}
 
 // Opens the card's detail by keyboard, a task of the developer's own, and
 // answers its Hide detail, which then holds the keyboard.

@@ -2,7 +2,10 @@
 // than the Board's default 30-day window (../../dashboard/src/recentlyDoneView.ts).
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  expect,
+  queuedCodexPreviewTest as test,
+} from "../../dashboard/tests/support/preparationPage.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { expectProjectChoice } from "../../dashboard/tests/projectChoice.ts";
 import { recentlyDoneParts } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
@@ -80,9 +83,9 @@ test("selecting an ad hoc session whose Done story is beyond the Board window re
   await openSessionsSidebar(page);
   const shown = recentlyDoneParts(page);
   await shown.header.click();
-  await shown.entry(sessionTitle).click();
+  await shown.select(sessionTitle).click();
   await expectProjectChoice(page, "Open Dough");
-  await expect(shown.entry(sessionTitle)).toHaveAttribute(
+  await expect(shown.select(sessionTitle)).toHaveAttribute(
     "aria-pressed",
     "true",
   );
@@ -92,7 +95,7 @@ test("selecting an ad hoc session whose Done story is beyond the Board window re
   });
   await expectSelected(card, true);
   await expect(card).toBeInViewport();
-  await expect(shown.entry(sessionTitle)).toHaveAttribute(
+  await expect(shown.select(sessionTitle)).toHaveAttribute(
     "title",
     /(^|\n)Open Dough · Ad hoc(\n|$)/,
   );

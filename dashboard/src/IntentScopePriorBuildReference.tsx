@@ -1,17 +1,24 @@
-// Precise scope metrics and unit-specific membership reuse the common rule's
-// evidence. The original history list keeps every observed reading and gap.
+// One unit's compact prior-build readout (`./IntentCiPriorBuildReference.tsx`)
+// in scope words, with precise execution times, saying when an equivalent or
+// later trunk build supplies the endpoint's measurement.
+import { standInBuildWords } from "./ciHistoryWords.ts";
+import type { ScopeHistoryGlance } from "./ciScopeHistory.ts";
+import { IntentCiPriorBuildReference } from "./IntentCiPriorBuildReference.tsx";
 import {
   scopeHistoryEndpointWords,
-  scopeHistorySelectionWords,
   scopeHistoryReason,
   type ScopeHistoryContext,
 } from "./intentScopeHistoryContext.ts";
-import type { CiScopeHistory } from "./ciScopeHistory.ts";
-import { shortSha } from "./baseCiWording.ts";
-import { IntentCiPriorBuildReference } from "./IntentCiPriorBuildReference.tsx";
-import { HistoryRunAttempt } from "./HistoryRunAttempt.tsx";
-import { scopeHistoryProvenance } from "./IntentScopeTimingHistoryEvidence.tsx";
-import { PriorBuildReferenceEvidenceList } from "./PriorBuildReferenceEvidenceList.tsx";
+
+// How the endpoint's measurement stands for it, when another build supplies it.
+function standInWords(entries: ScopeHistoryGlance["entries"]) {
+  for (const entry of entries) {
+    const provenance = entry.landings.find((each) => each.selected)?.provenance;
+    if (provenance !== undefined && provenance !== "exact")
+      return standInBuildWords[provenance];
+  }
+  return undefined;
+}
 
 export function IntentScopePriorBuildReference({
   comparison,
@@ -19,44 +26,19 @@ export function IntentScopePriorBuildReference({
   context,
 }: {
   readonly comparison:
-    NonNullable<CiScopeHistory["references"]>[number] | undefined;
-  readonly entries: CiScopeHistory["entries"];
+    NonNullable<ScopeHistoryGlance["references"]>[number] | undefined;
+  readonly entries: ScopeHistoryGlance["entries"];
   readonly context: ScopeHistoryContext;
 }) {
-  if (comparison === undefined) {
-    return null;
-  }
+  if (comparison === undefined) return null;
   return (
-    <>
-      <IntentCiPriorBuildReference
-        reference={comparison.reference}
-        precise
-        endpointLabel={scopeHistoryEndpointWords(context)}
-        reasonWords={(reason) => scopeHistoryReason(context, reason)}
-        unavailableReason={comparison.reason}
-      />
-      <PriorBuildReferenceEvidenceList
-        evidence={comparison.reference.evidence}
-        selectedLabel={scopeHistorySelectionWords(context)}
-        reasonWords={(reason) => scopeHistoryReason(context, reason)}
-        precise
-        details={(sample) => {
-          const entry = entries.find((entry) => entry.key === sample.key);
-          const run = entry?.build ?? entry?.run;
-          return (
-            <>
-              {entry === undefined ? "" : ` · ${scopeHistoryProvenance(entry)}`}
-              {entry?.build !== undefined && (
-                <>
-                  {" "}
-                  <code>{shortSha(entry.build.revision)}</code>
-                </>
-              )}
-              {run !== undefined && <HistoryRunAttempt run={run} />}
-            </>
-          );
-        }}
-      />
-    </>
+    <IntentCiPriorBuildReference
+      reference={comparison.reference}
+      precise
+      endpointLabel={scopeHistoryEndpointWords(context)}
+      selectedNote={standInWords(entries)}
+      reasonWords={(reason) => scopeHistoryReason(context, reason)}
+      unavailableReason={comparison.reason}
+    />
   );
 }

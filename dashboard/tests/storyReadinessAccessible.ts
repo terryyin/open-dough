@@ -10,10 +10,7 @@ import {
   politeRegionsOfferedThenMarked,
   zoomedWindow,
 } from "./accessibleReading.ts";
-import {
-  passTimeUntilChecked,
-  passTimeUntilCheckedAfterSettled,
-} from "./autoRefreshJourney.ts";
+import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import {
   expectMembership,
@@ -28,7 +25,14 @@ import {
   expectNoSidewaysScrollAndWholeText,
 } from "./pageLayout.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
-import { inspectedDetail } from "./storyCardControls.ts";
+import {
+  canonicalRecord,
+  hideDetail,
+  inspectedDetail,
+  slicePlanLink,
+  storyCard,
+} from "./storyCardControls.ts";
+import { badge, expectBadges } from "./storyCardFacts.ts";
 import {
   plannedBlocked,
   plannedReady,
@@ -44,7 +48,7 @@ export async function expectKeyboardOpensAndClosesDetail(
   page: Page,
   taken: Locator,
 ) {
-  const readyCard = taken.getByRole("article", { name: plannedReady.title });
+  const readyCard = storyCard(taken, plannedReady.title);
   const inspect = readyCard.getByRole("button", { name: "Inspect story" });
   await inspect.focus();
   await expectFocusedAndIndicated(page, inspect);
@@ -82,13 +86,8 @@ export async function expectNewSnapshotPreservesOrAnnouncesIdentity(
   ]);
 
   // The plan link is in the story's detail, which stays open across snapshots.
-  const blockedCard = backlog.getByRole("article", {
-    name: plannedBlocked.title,
-  });
-  await blockedCard.getByRole("button", { name: "Inspect story" }).click();
-  const queuedPlan = blockedCard
-    .getByRole("region", { name: `Detail for ${plannedBlocked.title}` })
-    .getByRole("link", { name: /^Slice plan / });
+  const blockedCard = storyCard(backlog, plannedBlocked.title);
+  const queuedPlan = slicePlanLink(await inspectedDetail(blockedCard));
   // Finish the opening snapshot's detail asks before the paused clock advances
   // into a check; otherwise a wait-bound interruption arms recovery.
   await untilPageRequestsAnswered(page);
@@ -123,9 +122,7 @@ export async function expectNewSnapshotPreservesOrAnnouncesIdentity(
   });
   await untilPageRequestsAnswered(page);
 
-  const unrefinedCard = backlog.getByRole("article", {
-    name: unrefined.title,
-  });
+  const unrefinedCard = storyCard(backlog, unrefined.title);
   const removedRevision = publishDropUnrefined(openDough);
   origin.advanceTo(removedRevision);
   await unrefinedCard.focus();
@@ -151,34 +148,24 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
 ) {
   await page.setViewportSize(zoomedWindow);
 
-  const readyCard = taken.getByRole("article", { name: plannedReady.title });
+  const readyCard = storyCard(taken, plannedReady.title);
   await showColumn(page, "Taken");
-  await readyCard.getByRole("button", { name: "Inspect story" }).click();
-  const detail = readyCard.getByRole("region", {
-    name: `Detail for ${plannedReady.title}`,
-  });
-  await expect(detail).toBeVisible();
+  const detail = await inspectedDetail(readyCard);
   await expect(detail).toContainText("Assessment: Ready");
   await expect(detail).toContainText("Changed since readiness review");
   await expect(detail).toContainText("0 of 5 slices recorded complete");
-  await expect(
-    detail.getByRole("link", { name: /^Canonical record/ }),
-  ).toBeVisible();
+  await expect(canonicalRecord(detail)).toBeVisible();
 
   // The blocked story's detail opens beside the ready story's, which stays
   // open; its links follow Hide detail in reading order.
-  const blockedCard = backlog.getByRole("article", {
-    name: plannedBlocked.title,
-  });
-  await expect(
-    blockedCard.getByText("Not ready", { exact: true }),
-  ).toBeVisible();
+  const blockedCard = storyCard(backlog, plannedBlocked.title);
+  await expectBadges(blockedCard, { shown: ["Not ready"] });
   await showColumn(page, "Backlog");
   const blockedDetail = await inspectedDetail(blockedCard);
   await expect(detail).toBeVisible();
-  const queuedPlan = blockedDetail.getByRole("link", { name: /^Slice plan / });
+  const queuedPlan = slicePlanLink(blockedDetail);
   await queuedPlan.scrollIntoViewIfNeeded();
-  await blockedDetail.getByRole("link", { name: /^Canonical record / }).focus();
+  await canonicalRecord(blockedDetail).focus();
   await page.keyboard.press("Tab");
   await expect(queuedPlan).toBeInViewport({ ratio: 1 });
   await expectFocusedAndIndicated(page, queuedPlan);
@@ -189,7 +176,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   await legend.getByRole("button", { name: "Close" }).click();
 
   const restore = origin.answerWith("main", noConnection);
-  await passTimeUntilCheckedAfterSettled(page, 502);
+  await passTimeUntilChecked(page, 502);
   const { problem } = parts(page);
   await expect(problem).toContainText("Published work could not be read");
   await problem.scrollIntoViewIfNeeded();
@@ -197,7 +184,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   await expect(shownProjectControl(page)).toBeVisible();
   await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   restore();
-  await passTimeUntilCheckedAfterSettled(page);
+  await passTimeUntilChecked(page);
   await expect(problem).toHaveCount(0);
 }
 
@@ -208,26 +195,18 @@ export async function expectBadgeTextContrastAndReducedMotion(
 ) {
   await page.emulateMedia({ reducedMotion: "reduce" });
 
-  const readyCard = taken.getByRole("article", { name: plannedReady.title });
-  const blockedCard = backlog.getByRole("article", {
-    name: plannedBlocked.title,
-  });
-
-  const slicePlanned = readyCard.getByText("Slice planned", { exact: true });
-  const ready = readyCard.getByText("Ready for execution", { exact: true });
-  const notReady = blockedCard.getByText("Not ready", { exact: true });
-  await expect(slicePlanned).toBeVisible();
-  await expect(ready).toBeVisible();
-  await expect(notReady).toBeVisible();
-
-  await expectReadableContrast(slicePlanned);
-  await expectReadableContrast(ready);
-  await expectReadableContrast(notReady);
-  const changed = readyCard.getByText("Changed since readiness review", {
-    exact: true,
-  });
-  await expect(changed).toBeVisible();
-  await expectReadableContrast(changed);
+  const readyCard = storyCard(taken, plannedReady.title);
+  const blockedCard = storyCard(backlog, plannedBlocked.title);
+  const readyLabels = [
+    "Slice planned",
+    "Ready for execution",
+    "Changed since readiness review",
+  ];
+  await expectBadges(readyCard, { shown: readyLabels });
+  await expectBadges(blockedCard, { shown: ["Not ready"] });
+  for (const label of readyLabels)
+    await expectReadableContrast(badge(readyCard, label));
+  await expectReadableContrast(badge(blockedCard, "Not ready"));
   await parts(page).preparationHelp.click();
   const legend = page.getByRole("dialog", { name: "Preparation badges" });
   await expectReadableContrast(
@@ -237,13 +216,9 @@ export async function expectBadgeTextContrastAndReducedMotion(
   await legend.getByRole("button", { name: "Close" }).click();
 
   await expectImmediateMotion(readyCard);
-  await readyCard.getByRole("button", { name: "Inspect story" }).click();
-  const detail = readyCard.getByRole("region", {
-    name: `Detail for ${plannedReady.title}`,
-  });
-  await expect(detail).toBeVisible();
+  const detail = await inspectedDetail(readyCard);
   await expectImmediateMotion(detail);
-  await readyCard.getByRole("button", { name: "Hide detail" }).click();
+  await hideDetail(readyCard);
   await expect(readyCard).toBeFocused();
   await expect(detail).toHaveCount(0);
 }

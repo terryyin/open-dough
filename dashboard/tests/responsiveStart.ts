@@ -19,6 +19,12 @@ import {
 } from "./support/startOrigin.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import { selectStory } from "./storyCardSelection.ts";
+import { projectTab } from "./projectChoice.ts";
+import {
+  canonicalRecord,
+  hideDetail,
+  inspectedDetail,
+} from "./storyCardControls.ts";
 
 // A test whose dashboard uses the machine of a real bare origin
 // (./support/startOrigin.ts) with the installed starts.
@@ -153,9 +159,9 @@ export async function expectProtected(card: Locator) {
   ).toBeDisabled();
   // Source links, secondary detail otherwise, stay readable on the protected
   // card rather than behind its unavailable Inspect story.
-  const link = card
-    .getByRole("list", { name: "Source links" })
-    .getByRole("link", { name: /^Canonical record / });
+  const link = canonicalRecord(
+    card.getByRole("list", { name: "Source links" }),
+  );
   await expect(link).toBeVisible();
   await expect(link).toHaveAttribute("href", /.+/);
 }
@@ -166,25 +172,21 @@ export async function expectOthersWork(
   other: Locator,
   story: Locator,
 ) {
-  const { project } = parts(page);
   await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
   // An unprotected card keeps its source links in its detail.
   await expect(other.getByRole("list", { name: "Source links" })).toHaveCount(
     0,
   );
-  await other.getByRole("button", { name: "Inspect story" }).click();
-  await expect(
-    other.getByRole("button", { name: "Hide detail" }),
-  ).toBeVisible();
-  await other.getByRole("button", { name: "Hide detail" }).click();
+  await inspectedDetail(other);
+  await hideDetail(other);
   await other.getByRole("button", { name: "Start execution" }).click();
   const otherDialog = page.getByRole("dialog");
   await expect(otherDialog).toContainText(otherQueuedIdentity);
   await otherDialog.getByRole("button", { name: "Cancel" }).click();
   await expect(otherDialog).toBeHidden();
-  await project.getByRole("radio", { name: "Doughnut" }).click();
+  await projectTab(page, "Doughnut").click();
   await expect(story).toBeHidden();
-  await project.getByRole("radio", { name: "Open Dough" }).click();
+  await projectTab(page, "Open Dough").click();
   await expect(story).toBeVisible();
 }
 

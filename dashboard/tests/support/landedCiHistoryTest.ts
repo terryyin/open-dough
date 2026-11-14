@@ -13,6 +13,7 @@ import {
 import type { FakeGitHub } from "./fakeGitHub.ts";
 import { recheckingLandedCi } from "./landedCiHistory.ts";
 import { test as base } from "./preparationPage.ts";
+import { ownFollowUpCollectionCommands } from "./ciFollowUpCollectionCommands.ts";
 
 export { expect } from "./preparationPage.ts";
 
@@ -29,6 +30,14 @@ type ServerFacts = {
 export const test = base.extend<{
   startServer: (facts?: ServerFacts) => Promise<DashboardServer>;
 }>({
+  origin: async ({ origin }, use) => {
+    const collections = ownFollowUpCollectionCommands(origin);
+    try {
+      await use(origin);
+    } finally {
+      await collections.close();
+    }
+  },
   // These specs open no page, and Playwright resolves `baseURL` for every
   // test, so the page fixture's `baseURL` (../dashboardTest.ts) would start
   // its `dashboard` server in each case. With no page address here, a case
@@ -39,14 +48,11 @@ export const test = base.extend<{
     await use(undefined);
   },
   startServer: async ({ origin, github }, use) => {
-    const started: DashboardServer[] = [];
+    // Own startup before it awaits: a case may end with a start still pending.
+    const started: Promise<DashboardServer>[] = [];
     await use(
-      async ({
-        github: answering = github,
-        adapterTimeoutMs,
-        ...facts
-      } = {}) => {
-        const server = await startDashboardServer({
+      ({ github: answering = github, adapterTimeoutMs, ...facts } = {}) => {
+        const starting = startDashboardServer({
           mode: "boundary",
           ...facts,
           github: answering,
@@ -59,11 +65,16 @@ export const test = base.extend<{
               : { DOUGH_CI_ADAPTER_TIMEOUT_MS: String(adapterTimeoutMs) }),
           },
         });
-        started.push(server);
-        return server;
+        started.push(starting);
+        return starting;
       },
     );
-    await Promise.all(started.map((server) => server.close()));
+    const settled = await Promise.allSettled(started);
+    await Promise.all(
+      settled.flatMap((result) =>
+        result.status === "fulfilled" ? [result.value.close()] : [],
+      ),
+    );
   },
 });
 

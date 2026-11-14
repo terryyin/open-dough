@@ -1,4 +1,7 @@
-import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import {
+  askToDeleteRecord,
+  sessionAction,
+} from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
 import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
 // Recently done records on the committed story-columns origin (../../dashboard/tests/launchJourney.ts):
 // State unknown entries offer Delete record…; deletion removes only that record
@@ -21,6 +24,7 @@ import {
   parts,
   standaloneSessionName,
   sessionStateOf,
+  sessionEntriesIn,
 } from "../../dashboard/tests/dashboardPage.ts";
 import { showColumn } from "../../dashboard/tests/boardPage.ts";
 import {
@@ -133,11 +137,8 @@ test.describe("deleting a Recently done entry's record", () => {
     );
     const deleteButton = async (entry: typeof working) =>
       await sessionAction(entry, "Delete record…");
-    const confirm = (entry: typeof working) =>
-      entry.getByRole("button", { name: "Delete record", exact: true });
     const deleteEntry = async (entry: typeof working) => {
-      await (await deleteButton(entry)).click();
-      await confirm(entry).click();
+      await (await askToDeleteRecord(entry)).confirm.click();
       await expect(entry).toHaveCount(0);
     };
 
@@ -195,7 +196,7 @@ test.describe("deleting a Recently done entry's record", () => {
       await expect(sidebar.entries).toHaveCount(2);
       await expect(sidebar.sidebar.getByText(notRefinedStory)).toHaveCount(0);
       await expect(doneCard).toBeFocused();
-      await expect(doneCard.locator(".session-entry")).toHaveCount(0);
+      await expect(sessionEntriesIn(doneCard)).toHaveCount(0);
       expect(stored()).not.toContain(inDoneStory);
       expect(stored()).toContain(done);
       expect(dashboard.claudeStopCalls()).toHaveLength(stopsBeforeDeletes);

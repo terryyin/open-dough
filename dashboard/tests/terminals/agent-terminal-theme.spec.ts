@@ -13,7 +13,7 @@ import { closeSidePanel } from "../sidePanelFrame.ts";
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { back, settings } from "../support/systemSettingsPage.ts";
 import {
   openTerminalControl,
@@ -62,8 +62,8 @@ test("the page's terminal shows the theme chosen in System settings, live withou
   await openTakenBacklog(page, launchJourney);
   const panel = terminalPanel(page);
   const { rows } = terminalScreenParts(panel);
-  const entry = parts(page).taken.locator(".session-entry");
-  const openTerminal = openTerminalControl(entry, { exact: false });
+  const entry = sessionEntriesIn(parts(page).taken);
+  const openTerminal = openTerminalControl(entry);
 
   await page
     .getByRole("button", { name: "Start session in Open Dough" })

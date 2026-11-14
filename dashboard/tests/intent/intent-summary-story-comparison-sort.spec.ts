@@ -8,7 +8,7 @@ import { showColumn } from "../boardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { scopeTable } from "../intentScopeProofPage.ts";
 import { openSummary } from "../intentSummaryCiProofFixtures.ts";
-import { expectSelected } from "../storyCardSelection.ts";
+import { emptyArea, expectSelected } from "../storyCardSelection.ts";
 import { expectStoryTab } from "../support/intentStoryPage.ts";
 import { serveSummaryComparisonStory } from "../support/intentSummaryStoryComparisonServing.ts";
 import {
@@ -62,7 +62,7 @@ async function selectStoryFromDevelopment(
   const card = page
     .getByRole("region", { name: column, exact: true })
     .getByRole("article", { name: title, exact: true });
-  await card.getByRole("heading", { level: 3 }).click();
+  await emptyArea(card).click();
   await expectSelected(card, true);
   if (previous !== undefined) await expectSelected(previous, false);
   await intentChoice.click();

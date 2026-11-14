@@ -55,6 +55,7 @@ import {
 import { inspect } from "../../dashboard/tests/support/readDiagnostics.ts";
 import { readAt } from "../../dashboard/tests/support/sharedReads.ts";
 import { turns } from "../../dashboard/tests/support/turnReads.ts";
+import { expectEarlierSnapshotKept } from "../../dashboard/tests/transientRecoveryPage.ts";
 
 // Revisions nobody published, whose backlog reads GitHub never answers
 // (never released): each holds one of the login's turns at GitHub.
@@ -146,13 +147,7 @@ test("a read queued behind a killed request owner fails as local, keeps A labell
     );
     for (const advice of ["reload", "endpoint configuration", "restart"])
       await expect(problem).not.toContainText(advice);
-    await expect(problem).toContainText(
-      "What is shown is the earlier snapshot, retrieved at",
-    );
-    await expect(problem.locator("time").nth(1)).toHaveAttribute(
-      "datetime",
-      retrievedA,
-    );
+    await expectEarlierSnapshotKept(page, retrievedA);
     await expect(problem).toContainText(
       "Automatic checks continue every 15 seconds while this page is visible.",
     );

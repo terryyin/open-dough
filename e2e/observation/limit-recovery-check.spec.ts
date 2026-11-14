@@ -31,6 +31,7 @@ import {
   unreachableTitle,
 } from "../../dashboard/tests/limitedReadingRecords.ts";
 import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
+import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
 
 test("after a limited check, with nothing withheld, the page makes its next check once the wait ends and reads nothing else", async ({
   page,
@@ -52,9 +53,7 @@ test("after a limited check, with nothing withheld, the page makes its next chec
   await page.goto("/");
   await expectSettledPage(page, titlesBesideUnreachable);
   const { backlog, problem, readRevision } = parts(page);
-  const unreachableCard = backlog.getByRole("article", {
-    name: unreachableTitle,
-  });
+  const unreachableCard = storyCard(backlog, unreachableTitle);
   await expect(unreachableCard).toContainText(unreachableGap);
   answers.limit((request) => request.kind === "matching-refs");
   await passTimeUntilChecked(page, 502);

@@ -48,6 +48,18 @@ export class SessionStateBuilder {
   }
 
   /**
+   * The host's own words for an activity it could not recognize.
+   * @param {string} description
+   */
+  describedAs(description) {
+    const state = this.#state;
+    if (state?.kind !== "available")
+      throw new Error("choose .loaded(...) or .retained(...) first");
+    this.#state = { ...state, description };
+    return this;
+  }
+
+  /**
    * Nothing confirmed the session's state; `label` is the words this
    * observation shows as written, otherwise the host's unknown wording.
    * @param {string} [label]
