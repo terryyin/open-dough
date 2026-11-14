@@ -261,8 +261,8 @@ suppressed wakes or event-driven savings.
   own native-response usage without summing CLI cumulative counters.
 - Applied settings that are unavailable retain the old precise unknown result;
   only observed differences override it. Criteria sufficiency has its own
-  condition, separate from settings. Assessor/retention/reader provenance can
-  differ while sufficient current replay establishes applicability; the mixed
+  condition, separate from settings. Assessor/retention provenance can differ while sufficient current replay
+  establishes applicability; the overbroad reader exemption was corrected by G2; the mixed
   setup/observer file's uncertainty is disposed in G1 below.
 - Terminal passing commands:
   `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh Distribution/tests/native-comparison.sh Distribution/tests/native-comparison-paused-supplier.sh Distribution/tests/native-comparison-doughnut-title-precedence.sh Distribution/tests/native-stream-replay.sh`;
@@ -406,9 +406,46 @@ Resource recheck: AC, load 2.25/3.07/3.83, ample memory, no competing test comma
 No semantic edit followed verification; no remaining gap. Delivery freshness
 remains unchanged at `c596ec840e95ad6518597369766a83fb63f37d18`.
 
+### Owned acquisition correction before slice 3
+
+- Slice 2 was accepted at `b12ea4cc6e177f10f146a62d2a2386416861f7e3`,
+  suffix base `1f224d6641d73832725b8845f516a9ba2123d516`, observer reused.
+- G2 was found during continuing coordinator inspection before any supplier-case
+  edit. The initial nonexistent-reader probe was invalid attribution. The actual
+  manifest-listed stream adapter then reproduced one session where two fresh
+  arms were required. The minimal applicability repair makes stream/session
+  readers and discovery material when old normalized observations cannot replay
+  their original inputs; supported assessor/retention replay stays available.
+- `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baseline-readers.sh Distribution/tests/native-comparison-baseline-reuse.sh`
+  passed to terminal. The new journey changes real stream/discovery reader files,
+  observes fresh session creation, new usable archives and byte-identical old
+  observations. Existing reuse assertions preserve candidate-only matching and
+  current assessor/retention replay. Consumer dispositions:
+  `/tmp/seed346-g2-effects.md`; unchanged non-reader-varying acquisition and judge
+  observations remain accepted. No reader implementation or raw retention changed.
+- Resource recheck: AC, 16 cores, load 3.44/4.19/4.19, available memory, no competing
+  tests, sleep guard active; all commands ended. `git diff --check` passed.
+- Source freshness unchanged at `f5c1adff32830a9f4e4992913fd7b8a9f72cfc83`. Incoming
+  dashboard launch-history implementation/closure has no shared comparison effect;
+  named siblings remain unchanged. This repair is delivered separately before
+  the planned unblocked case starts.
+
+- Independent refactor `/root/refactor_g2`: none — already clean; no edits or
+  tests, accepted boundaries and consumer dispositions unchanged. Tracked and
+  untracked whitespace passed, no remaining gap.
+- Three-share preview passed at 658 jobs, predicted 740.9/742.2/740.8 under 926;
+  new jobs remain unrecorded, so no measured CI cost is claimed.
+
 ## Story obligations
 
 ### G1. Setup equivalence is unknown after a mixed setup/observer change
 Reported: slice 2 — "Changed case.bash requires fresh acquisition because its hash currently combines setup and observation."
 Story clause: "Run a fresh baseline when the requested baseline or a material condition changes, or when saved evidence is missing, incomplete or insufficient for the comparison."
 Disposition: proved by slice 2: native-comparison-baseline-applicability.mjs preserves full provenance but compares only material inputs. A changed mixed case.bash cannot establish identical setup, so its saved evidence is insufficient and fresh acquisition follows the same rule. The inspected entry/acquisition/finish paths retain the old archive and save the fresh usable observation; baseline-misses.sh observes changed material input, two sessions, new baseline and later one-session reuse. Derived-only retention/assessor changes are separately observed to reuse sufficient evidence in baseline-reuse.sh. This records an applicability uncertainty, not a new case or delivery rejection rule.
+
+
+### G2. Changed reader cannot replay all retained metric inputs (discovered before slice 3)
+Reported: slice 2 — "Coordinator review before slice 3 implementation: baselineApplicability excludes stream/session readers, but the archive keeps scalar command counts and a stream hash rather than all executed calls and discovery inputs; changed interpretation cannot be re-established after raw cleanup. Deliver the bounded acquisition repair separately before starting the new case."
+Story clause: "when a current criterion needs evidence the saved observation lacks, obtain fresh evidence."
+Disposition: proved by slice 2: native-comparison-baseline-readers.sh changes the real manifest-listed native-host-stream-adapters.mjs and native-codex-session.mjs, observes two fresh sessions and a usable new archive while previous bytes stay identical. The delivered predicate first failed at the real stream-reader session count (one instead of two); the repaired predicate and existing baseline-reuse.sh both pass, retaining supported assessor/retention replay. The nonexistent-filename probe was invalid attribution and discarded. Entry/applicability/acquisition/finish paths were inspected; absent original reader inputs now select fresh evidence before launch.
+Commitment: 22

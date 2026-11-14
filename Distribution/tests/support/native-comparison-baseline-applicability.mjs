@@ -47,11 +47,12 @@ export function baselineApplicability(file, current) {
       });
     if (!manifest.length || manifest.some(({ path }) => !path))
       throw new Error("current inputs are unavailable");
-    // Assessor changes can replay the preserved decisive inputs. Setup and
-    // observer currently share case.bash: its changes require fresh capture.
+    // Current assessment can replay retained decisive inputs. Stream/session
+    // readers cannot reconstruct every old metric or discovery decision from
+    // scalar observations and hashes, so their changes require fresh capture.
+    // Setup and observer also share case.bash: its changes require fresh capture.
     const derivedReaders = new Set([
       "native-comparison-retain.sh",
-      "native-codex-session.mjs",
       "native-observation.sh",
       "native-result-retain.sh",
       "native-result-retain-journey.sh",
@@ -59,7 +60,6 @@ export function baselineApplicability(file, current) {
     ]);
     const material = ({ path }) =>
       !path.endsWith("/assess.bash") &&
-      !path.includes("/support/native-host-stream") &&
       !derivedReaders.has(path.split("/").at(-1));
     if (
       manifest

@@ -86,8 +86,11 @@ cites the original source, date, conditions, integrity, outcome and effort;
 `baseline-assessment.json` retains the current derived assessment separately.
 The historical baseline is one stochastic observation under its recorded load
 and scheduling, never a new simultaneous pair. Full provenance remains intact.
-Current assessor/reader and retention changes can reuse sufficient decisive
-inputs. Task, events, project files, installation and launch/supervision inputs
+Current assessor and retention changes can reuse sufficient decisive inputs.
+Changed stream or session-discovery readers obtain fresh comparison evidence:
+the compact archive does not retain every raw executed-call or discovery input
+needed to re-establish its metric and ownership interpretation. Task, events,
+project files, installation and launch/supervision inputs
 must match, along with the host version/route, machine, model and effort.
 `case.bash` currently combines setup and observation: a changed hash cannot
 establish unchanged setup, so it obtains fresh evidence.
