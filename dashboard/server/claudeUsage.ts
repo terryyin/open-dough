@@ -17,6 +17,7 @@ import {
 import { reconcileObservation } from "./usageReconciliation.ts";
 import {
   responseKey,
+  claudeStopReasonSchema,
   type UsageGap,
   type UsageObservation,
   type UsageSettings,
@@ -71,6 +72,17 @@ export async function* claudeUsage(
       gaps: counterGaps,
     } = claudeCounters(objectOf(message["usage"]));
     const requestId = stringOf(row["requestId"]);
+    const stop = claudeStopReasonSchema.safeParse(message["stop_reason"]);
+    const completion = Object.hasOwn(message, "stop_reason")
+      ? {
+          stopReason:
+            message["stop_reason"] === null
+              ? null
+              : stop.success
+                ? stop.data
+                : ("unsupported" as const),
+        }
+      : undefined;
     const native = {
       at,
       ...(agentId ? { agentId, parentSessionId: sessionId } : {}),
@@ -93,6 +105,7 @@ export async function* claudeUsage(
           definition: "claude-disjoint-input",
           reported,
           tokens,
+          ...(completion ? { completion } : {}),
         },
       ],
       tokens,

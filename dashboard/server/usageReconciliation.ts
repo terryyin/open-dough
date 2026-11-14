@@ -6,6 +6,11 @@ import {
   type UsageTokens,
   type UsageAssociation,
 } from "./usageRecords.ts";
+import {
+  hasIncompleteOutput,
+  measurementsForCounter,
+  reconcileMeasurements,
+} from "./usageMeasurements.ts";
 
 export function uniqueFacts<T>(facts: readonly T[]): T[] {
   const seen = new Set<string>();
@@ -20,7 +25,7 @@ export function reconcileObservation(
   previous: UsageObservation | undefined,
   incoming: UsageObservation,
 ): UsageObservation {
-  const measurements = uniqueFacts([
+  const measurements = reconcileMeasurements([
     ...(previous?.measurements ?? []),
     ...incoming.measurements,
   ]);
@@ -28,7 +33,7 @@ export function reconcileObservation(
   let contradiction = false;
   for (const name of Object.keys(tokens) as (keyof UsageTokens)[]) {
     const values = new Set(
-      measurements
+      measurementsForCounter(measurements, name)
         .map((item) => item.tokens[name])
         .filter((value) => value !== null),
     );
@@ -44,7 +49,15 @@ export function reconcileObservation(
   const gaps = uniqueFacts([
     ...(previous?.gaps ?? []),
     ...incoming.gaps,
-  ]).filter((gap) => gap !== "missing-token-components");
+  ]).filter(
+    (gap) =>
+      ![
+        "missing-token-components",
+        "contradictory-measurements",
+        "incomplete-output",
+      ].includes(gap),
+  );
+  if (hasIncompleteOutput(measurements)) gaps.push("incomplete-output");
   if (core.some((value) => value === null))
     gaps.push("missing-token-components");
   if (contradiction) gaps.push("contradictory-measurements");

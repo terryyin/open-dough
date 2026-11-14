@@ -145,6 +145,22 @@ Additional measurements may fill missing counters. Conflicting measured values
 produce unknown affected counters and a `contradictory-measurements` gap rather
 than choosing one value.
 
+Claude measurements retain bounded `completion.stopReason` metadata: explicit
+`null` identifies progressive output, recognized stop reasons identify a terminal
+API response, and absent or unsupported markers remain unclassified. Only terminal
+or unclassified measurements contribute final output and reasoning subsets;
+explicit progressive-only output stays unknown with an `incomplete-output` gap.
+Terminal output can settle earlier explicitly progressive snapshots for the same
+message without adding snapshots or choosing the latest or largest value.
+Conflicting terminal or unclassified facts still leave affected counters unknown.
+A rescan enriches an identical source measurement's missing completion metadata
+without duplicating or discarding its original counters. Output gaps are
+recomputed from the retained evidence. Inputs and cache counters keep their
+existing definitions. Neither a native stop reason nor `usage.iterations` supplies
+additional usage or completes the owning task or story. The provider documents
+[cumulative streaming usage](https://platform.claude.com/docs/en/build-with-claude/streaming)
+and [response stop reasons](https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons).
+
 The distinct token categories are uncached input, cache reads, cache writes and
 output. For Codex, reported input includes cached categories: uncached input is
 input minus cache reads minus cache writes only when all components are known

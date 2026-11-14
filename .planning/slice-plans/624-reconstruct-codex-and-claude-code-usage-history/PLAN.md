@@ -123,7 +123,7 @@ Move cheap host/session/turn/conflict checks before pure assignment eligibility 
 
 ### 10. Reconcile explicit terminal Claude measurements
 Type: Behavior
-Status: planned
+Status: done
 Proof: new actual-CLI partial/terminal and legacy-enrichment/replay cases plus all previous usage specs; no real import before this delivery.
 
 Retain bounded native stop/phase metadata on each Claude measurement, using explicit null as progressive and a supported stop reason as terminal; missing/unknown markers remain distinguishable. Enrich the same physical/native measurement's absent phase without duplicating or erasing its raw counters/source. Terminal output (and supported output-subset fields) can settle earlier explicitly progressive values for the same API message; never sum snapshots/iterations or select latest/maximum. Distinct conflicting terminal or unclassified facts remain unknown. Explicit progressive-only output is not a measured final output; retain its raw value and expose the incomplete-output gap. Preserve legacy unclassified behavior, Codex/input/cache rules, first/last times, lineage/settings, identity and every source fact. Recompute measurement-derived gaps as evidence settles; native stop reasons never complete a task/story.
@@ -226,7 +226,7 @@ Commitment: 60
 ### G12. Use explicit terminal Claude usage to settle progressive measurements
 Reported: slice 9 — "Bounded review after successful9 import found three same-message Claude samples with partial null-stop outputs3/8/4 followed by explicit tool_use outputs690/843/1083; stored output remains unknown because the decoder discards native finality. These are supported terminal facts, not a latest/maximum inference."
 Story clause: "A later scan may add evidence or fill a gap"
-Disposition: receiving slice 10
+Disposition: proved by slice 10: claude-completion/replay actual CLI cases settle explicit terminal values, preserve progressive/raw/unclassified evidence and legacy enrichment without duplication; final47 quiet cases and typecheck passed after independent refactor
 Commitment: 94
 ## Execution evidence
 

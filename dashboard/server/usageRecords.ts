@@ -3,6 +3,15 @@
 import { z } from "zod";
 
 const counter = z.number().int().nonnegative().nullable();
+export const claudeStopReasonSchema = z.enum([
+  "end_turn",
+  "max_tokens",
+  "stop_sequence",
+  "tool_use",
+  "pause_turn",
+  "refusal",
+  "model_context_window_exceeded",
+]);
 export const usageTokensSchema = z.object({
   uncachedInput: counter,
   cacheRead: counter,
@@ -39,6 +48,13 @@ const measurementSchema = z.object({
   definition: z.enum(["codex-inclusive-input", "claude-disjoint-input"]),
   reported: z.record(z.string(), z.number().int().nonnegative()),
   tokens: usageTokensSchema,
+  completion: z
+    .object({
+      stopReason: claudeStopReasonSchema
+        .or(z.literal("unsupported"))
+        .nullable(),
+    })
+    .optional(),
 });
 export const usageObservationSchema = z.object({
   id: z.string().min(1),
@@ -147,6 +163,7 @@ export type UsageTokens = z.infer<typeof usageTokensSchema>;
 export type UsageSource = z.infer<typeof usageSourceSchema>;
 export type UsageSettings = z.infer<typeof usageSettingsSchema>;
 export type UsageObservation = z.infer<typeof usageObservationSchema>;
+export type UsageMeasurement = UsageObservation["measurements"][number];
 export type UsageTask = z.infer<typeof usageTaskSchema>;
 export type UsageAssociation = z.infer<typeof usageAssociationSchema>;
 export type UsageGap = z.infer<typeof usageGapSchema>;
