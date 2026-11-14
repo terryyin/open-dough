@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "bas-chan",
-  "email": "bas-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-347#start-follow-up-from-a-file-diff",
-  "host": "claude",
-  "model": "opus"
-}
