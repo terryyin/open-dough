@@ -6,6 +6,46 @@ import { createHash } from "node:crypto";
 import { invoiceSessionReady } from "./blocked-execution-workflow-ownership.mjs";
 import { codexSessionSettings } from "./native-codex-session.mjs";
 
+export function completedInvoiceAttention(observation, record, threadId) {
+  if (
+    !observation.ancestry.has(threadId) ||
+    record?.input?.continuation?.threadId !== threadId ||
+    !record.worker?.ended ||
+    !record.attention?.recoveryCommand?.length
+  )
+    return undefined;
+  const receipt = [record, ...(record.history ?? []).toReversed()].find(
+    (generation) =>
+      generation.pending?.purpose === "attention" && generation.accepted?.id,
+  );
+  if (!receipt) return undefined;
+  const history = observation.histories.get(threadId);
+  const turns = [
+    ...observation.events
+      .filter(
+        (event) =>
+          event.method === "turn/completed" &&
+          event.params?.threadId === threadId,
+      )
+      .map((event) => event.params.turn),
+    ...(history?.id === threadId ? history.turns : []),
+  ].filter((turn) => turn.id === receipt.accepted.id);
+  if (
+    !turns.some((turn) => turn.status === "completed") ||
+    turns.some((turn) => ["failed", "interrupted"].includes(turn.status))
+  )
+    return undefined;
+  return {
+    ...record,
+    observedAttention: {
+      generation: receipt.generation,
+      threadId,
+      turnId: receipt.accepted.id,
+      status: "completed",
+    },
+  };
+}
+
 export async function readInvoiceHistory(observation, threadId, name) {
   assert.ok(
     observation.ancestry.has(threadId),

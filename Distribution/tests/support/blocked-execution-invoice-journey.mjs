@@ -10,6 +10,7 @@ import {
   invoiceEvidence,
   assertPreservedInvoiceWork,
 } from "./blocked-execution-workflow-project.mjs";
+import { completedInvoiceAttention } from "./blocked-execution-invoice-history.mjs";
 
 export async function runInvoiceJourney({
   project,
@@ -114,14 +115,11 @@ export async function runInvoiceJourney({
       join(project.workspace, "supplier-evidence.json"),
       join(project.workspace, "supplier-unavailable.json"),
     );
-    const attention = await observation.until(
-      () =>
-        hold()?.phase === "attention-delivered" &&
-        hold()?.worker?.ended &&
-        hold(),
+    const attention = await observation.until(() =>
+      completedInvoiceAttention(observation, hold(), threadId),
     );
     assert.equal(
-      attention.accepted.status,
+      attention.observedAttention.status,
       "completed",
       "native attention must complete successfully",
     );

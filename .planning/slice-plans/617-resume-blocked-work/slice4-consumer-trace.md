@@ -215,3 +215,25 @@ Freshness settlement from coordinator: trunk
 after merged55da only planning/backlog/profile changed. SEED346 correction621
 plans runner-owned command/harness facts and unknown on incomplete, with no new
 product change or required merge here. PFE choice stands; no subject substitution.
+
+## Actual attention archive correlation
+
+Installed trace: `/tmp/seed345-functional-attention-20261114-1716/attention-consumer-trace.md`;
+changed scopes are invoice history/journey and new invoice-attention test; supplied
+terms completedInvoiceAttention/observedAttention. Direct helper:history.mjs:9;
+journey.mjs:119/122; controlled setup/assertion:invoice-attention.test.mjs:6/37.
+New test selection resolved MakeMe=true/pageObjects=false before authoring; valid
+surrounding input uses shared aHeldExecution builder, retained/native wire shapes
+under proof stay explicit. Full maintained command (exit0,11 cases):
+`PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=1 npm test -- Distribution/tests/blocked-execution-invoice-attention.test.mjs Distribution/tests/blocked-execution-workflow-native.test.mjs Distribution/tests/blocked-execution-invoice-accounting.test.mjs Distribution/tests/blocked-execution-invoice-admission.test.mjs Distribution/tests/blocked-execution-invoice-session.test.mjs Distribution/tests/support/native-codex-session.test.mjs`.
+History/journey/new test syntax pass. Controlled red/green and real saved-history
+recognition remain private; no native/model call during correction.
+Located consumers: native entry reused (same setup/cleanup/final assertions; actual
+attention is separately observed but frozen assay incomplete); session test run
+(final reader/filtered privacy unchanged); observer run through original8 controlled
+cases (live history/ownership unchanged); public source/hash indexes and this trace/
+native assessment excluded as nonexecuting evidence. No production consumer or
+additional journey was found. Old frozen source remains at publishedfcb; new helper
+never substitutes it. Native recovery/qualification/final outcome remains pending.
+Freshness: coordinator checked trunkd1aec18dac2daf4a4aec2ca2d3c67bc3b2600889/base55da;
+incoming Sessions toggle and builder datetime guidance do not overlap this binding.

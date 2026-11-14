@@ -233,3 +233,18 @@ unchanged ten-case proof was reused because no maintained test calls the journey
 every disposition. Outcome: `## REFACTOR COMPLETE`, about eight active minutes.
 The single combined native case remains unreleased, with owner recovery counted
 as one intervention, semantic proof QA pending and all comparative claims open.
+
+## Archived native attention acceptance correction — pending review
+
+The incomplete frozen assay missed legitimate native rearm. Invoice-only
+completedInvoiceAttention correlates current/archive purpose=attention+accepted ID
+with exact own normal native event/history, preserving current state/recovery.
+No host calls occur in journey waits; product/prompt/payload remain unchanged.
+Controlled red: undefined versus archived normal completion; green rejects
+foreign/wrong/failed attention, wrong purpose/live worker and accepts current/
+history witnesses. Original10+new case passed; three syntax checks passed.
+Raw/formatted history159/177, journey180/180, test60/128. No formatter/index/native
+call during correction. [Native evidence](slice4-native-acceptance.md) retains
+public attention, protected hashes, root proof QA, cost and same-project proposal.
+Source bytes frozen for independent review; old assay stays incomplete. No product
+change/recovery CLI/model/budget reset or further paid action is authorized.

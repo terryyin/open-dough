@@ -203,7 +203,7 @@ findings. No full host-by-scenario matrix is required.
 - Start `3458a36c6393683827f5ba0e9bd038dbfded8605`; Take
   `8f88bf2ca6d4e7fb7aabc704070be4c549397675` confirmed on trunk/branch; no second claim.
   Accepted: Slice 1 `58f1eb1ad8ef04cb59f8eb06a90881335d5ccec6`; Slice 2 `174c6d2b9a0ebb4989ad84cfb2a83e6d762c656b`; Slice 3 `2a01f9603a64a87f8b1ae646218efad16848d5e6`.
-  Latest accepted base `0bc39b172c9a99bf8b627c0a1d527e3c8983ee61` integrates main91f (suffix `071122f6bd04602427934d3d526e317062b15ef4`), registered on the same observer.
+  Latest accepted base `fcb358a645bd3b2e762c19515541a3d81b44763c` integrates main55da (suffix `0bc39b172c9a99bf8b627c0a1d527e3c8983ee61`), registered on the same observer.
 - Setup: locked `npm ci` and dashboard typecheck passed here; `.githooks/pre-commit`
   owns staged lint/script typecheck and `npm run format` owns selective formatting.
   Assessments retain prior admission/costs; reconsider headroom before long proof.
@@ -247,4 +247,4 @@ Disposition: proved by slice 3: blocked-execution-loss.test.mjs reconcile-to-con
 ### G6. Observe native attention handling
 Reported: slice 3 — "New attention semantics have deterministic command proof, not a new paid native observation."
 Story clause: "When the recorded condition changes, the correct execution resumes or gives actionable attention, preserving its ownership, work and outstanding proof."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: [native attention evidence](slice4-native-acceptance.md), exact same-thread completed attention01a1d959, protected proof/settings retained and actionable owner recovery after legitimate rearm; subsequent qualification remains G3

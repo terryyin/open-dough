@@ -211,7 +211,7 @@ proof rejected altered accepted-proof bytes and accepted their exact restoration
 the existing eight-case suite and three syntax checks pass. No native call, pin,
 model setting, cap or product runtime changed in this correction.
 
-## Commitments and remaining boundary
+## Commitments and remaining boundary — [native attention](slice4-native-acceptance.md)
 
 | Commitments | Actual observation / gap |
 | --- | --- |
