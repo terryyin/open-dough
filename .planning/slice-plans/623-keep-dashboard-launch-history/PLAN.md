@@ -116,6 +116,12 @@ it → the dashboard no longer answers it, host-local retirement runs as before,
 and history yields one `removed` entry for it. With history unwritable, the
 removal answers the existing failure and keeps the record.
 
+## Execution complete
+
+Product advice: no change. Sibling reconstruct / close-returned / backup work
+already sits in backlog order; this delivery surfaces no new bounded product
+gap. Process review is deferred into wrap-up for Intent Coverage.
+
 ## Verification, sizing and concern review
 
 - Refinement: not needed. The plan has two small Behavior slices over one rule,
