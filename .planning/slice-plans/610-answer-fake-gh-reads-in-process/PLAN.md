@@ -77,7 +77,7 @@ status for ordinary checks. Cleanup/refactoring belongs to this slice.
 
 ### 2. Ordinary dashboard checks use the fast transport and native checks keep their process proof
 Type: Behavior
-Status: planned
+Status: done
 Proof: Consumer trace, loaded selection, one full local dashboard run and final
 hosted CI, with existing observations and budgets preserved.
 
@@ -228,8 +228,7 @@ Disposition: proved by slice 2: controlled-conclusion-evidence.md — actual con
 ### G18. Accepted main composition still requires current sixteen-shard CI
 Reported: slice 2 — "Accepted SEED334 on main0dd89b9ce changes the applicable profile to E2E6/integrated5/frontend1/backend4. Receiving backend59/E2E26 and3Node contracts pass, but no hosted result for the composed current sixteen-shard revision has been observed; historical13CI cannot substitute. Published2d02df0f/run43552606318/attempt1 failed only integrated3/5: revision-stream.spec.ts138, other-page seven-of-eight assertion169 missing; root owns diagnosis/repair and exact final CI."
 Story clause: "require the changed suite to pass"
-Disposition: return
-Commitment: 060
+Disposition: proved by slice 2: main-composition-evidence.md - exact repaired 9e4ace82c42c97e29248dced09e9b201749e86b4 CI 43553974482/attempt1 succeeded under the current16browser/4Node profile; deterministic clock red and15-case family proof retain every assertion.
 
 ## Final evaluation and continuation
-Terry's14Nov direction selected the [controlled confirmation](controlled-conclusion-evidence.md):136cases passed, all27named files/67cases, default30s/two workers and owned CPU/cleanup audit. All17original gaps remain proved; source review now has136clauses, a different unit from136controlled cases. [Accepted main composition](main-composition-evidence.md) preserves current paths/native assertions and observes backend59/E2E26 plus3Node contracts. Slice2 stays planned: G18 owns actual final sixteen-shard CI; [historical13-shard timings](hosted-proof-evidence.md) do not satisfy it. SEED324 remains queued/unfinished; SEED334 is Done on accepted main. Process review stays deferred into Wrap until Intent Coverage/dispositions. Complete progress delivery and applicable CI before review/Wrap.
+Terry's14Nov direction selected the [controlled confirmation](controlled-conclusion-evidence.md):136cases passed, all27named files/67cases, default30s/two workers and owned CPU/cleanup audit. All17original gaps remain proved; source review now has136clauses, a different unit from136controlled cases. [Accepted main composition](main-composition-evidence.md) preserves current paths/native assertions and observes backend59/E2E26 plus3Node contracts. All18gaps are proved: exact repaired sixteen-shard CI 43553974482/1 passed; [historical13-shard timings](hosted-proof-evidence.md) do not satisfy it. SEED324 remains queued/unfinished; SEED334 is Done on accepted main. Intent Coverage Caught is disposed by retaining existing proof; selected process review is complete in DearDough. Product advice: no change. Complete ordinary delivery and Wrap.

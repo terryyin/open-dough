@@ -151,3 +151,7 @@ Current composed-revision CI has not been observed. PLAN610 G18 owns clause060,
 `require the changed suite to pass`, in planned slice2. Publish progress and
 observe its exact final applicable CI through the root-owned stream; no
 completion, clean final CI or restored obsolete layout is claimed here.
+
+## Current accepted product-wide profile
+
+[Final main composition and repair](main-composition-evidence.md#current-hosted-acceptance) records exact 9e4ace82c42c97e29248dced09e9b201749e86b4, CI 43553974482/attempt1 success under16browser shards/4Node shares. Earlier265635d9 thirteen-shard timing data stays attributed to that historical revision. The initial current-profile failure43552606318/1 was diagnosed and repaired with a deterministic shared-clock observation; it was not rerun as a fix.

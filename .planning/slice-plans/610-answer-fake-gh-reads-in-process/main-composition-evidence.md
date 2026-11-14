@@ -97,10 +97,8 @@ inventory now has136clauses (original134plus056.1/056.2), distinct from136old
 controlled cases or142current discovered cases. No journey/assertion/native
 history/isolation promise is removed, and no new causal benchmark is invented.
 
-Current composed sixteen-shard CI was observed at2d02df0f: run43552606318/attempt1 failed only integrated3/5, revision-stream.spec.ts138 other-page progress169. The complete failed-job diagnostic is `/tmp/seed332-final-ci-failure.json`; root owns the repair and renewed exact CI. PLAN610 G18 owns
-clause060, `require the changed suite to pass`, in slice2. All17original gaps
-remain proved; slice2 stays planned. Root may publish ordinary unfinished
-progress, then owns exact applicable CI and repair through terminal. Historical
+First composed sixteen-shard CI was observed at2d02df0f: run43552606318/attempt1 failed only integrated3/5, revision-stream.spec.ts138 other-page progress169. The complete failed-job diagnostic is `/tmp/seed332-final-ci-failure.json`; root owns the repair and renewed exact CI. PLAN610 G18 owns
+clause060, `require the changed suite to pass`, in slice2. All17original gaps remain proved; at that first publication slice2 stayed planned and G18 owned the exact applicable CI repair. Historical
 13-shard measurements keep exact265635d9/run43542287307/attempt1 attribution;
 they do not close G18. No completion, wrap-up or current hosted success is claimed.
 
@@ -121,4 +119,8 @@ three predetermined repeats, retry0/default30s/two workers,41127.096ms total,
 max10313ms. Actual proof and audit: `/tmp/seed332-revision-stream-repair/`.
 AC100%, no Sleep/Wake11:48:02-11:49:34, both owned PIDs absent; targeted ESLint,
 Prettier and whitespace pass. File249lines; no product/helper/timeout change.
-This accepted local repair still needs a newly published exact CI pass forG18.
+Exact repaired CI is now observed below; the failed attempt remains historical evidence.
+
+## Current hosted acceptance
+
+Exact repaired revision 9e4ace82c42c97e29248dced09e9b201749e86b4 passed CI run43553974482/attempt1. The coordinator retained the exact-success receipt at `/tmp/seed332-final-repair-ci-await.json`; current16browser shards/4Node shares and required lint/proof summary pass as configured. G18 is proved. The independent repair review `/tmp/seed332-revision-clock-independent-refactor-return.md` found none - already clean, all8consumers dispositioned, no invalidated proof. Earlier13-shard measurements retain their original revision and are not relabelled. No timeout, observation or functional/native/history/isolation promise was waived.
