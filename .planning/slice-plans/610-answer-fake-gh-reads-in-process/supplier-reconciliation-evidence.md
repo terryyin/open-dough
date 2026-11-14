@@ -202,3 +202,30 @@ now records exact attempt43542287307/1success, all13shards and timing comparison
 The current natural snapshot5.24/AC100%/81.85%idle is not a qualifying load.
 Slice2/G1–G17 dispositions and all125promises remain as described above;
 source-evaluation judgment or natural-window proof still prevents completion.
+
+Later14Novdirection and [controlled conclusion](controlled-conclusion-evidence.md)
+supersede those earlier holds: actual136/136/default30s/twoworkers,53.22%CPUbusy,
+all134freshly reviewed source clauses observed and all17gaps proved. Root's final
+sleep/PID/input audit passed. Current owned observer for final execution delivery:
+`/tmp/dough-ci-501/watch-IU54HD`, PID96752, session45514, cellg159:6,
+coordinatorseed332-philip; old2aAGk3 was stopped/unread0/absent before rearming.
+Source freshnessd651a869 remained unchanged; its only later landing added
+SEED-347queue/source records, with no named324/331/334 product delta.
+
+## Final accepted SEED334 composition
+
+The preceding SEED324/13-shard records retain their original dates/revisions.
+Accepted main0dd89b9ce now includes SEED334 Done and its four-group migration;
+[main-composition evidence](main-composition-evidence.md) records current paths,
+backend59/E2E26/3Node receiving proof, all30consumer dispositions and independent
+refactor complete. The original27named files/67journeys remain exactly matched.
+SEED324 remains queued/unfinished. No receiving pass completes its remaining work.
+
+Fresh source review has136clauses, with056/056.1/056.2 preserving the accepted
+16browser-shard profile and historical13attribution. The original controlled136
+cases are a separate unit. All17original gaps remain proved; G18/060 is open for
+actual current composed-revision16CI. Slice2 stays planned and progress is
+publishable subject to normal root gates; no current hosted success or completion
+is inferred. Root expressly authorized updating these owned evaluation records
+after the receiving pack's six-record hash audit; that audit describes its proof
+window, not a permanent prohibition on later canonical record maintenance.

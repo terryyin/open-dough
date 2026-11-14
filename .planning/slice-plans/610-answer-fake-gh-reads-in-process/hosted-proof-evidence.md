@@ -1,4 +1,4 @@
-# Published progress and hosted proof
+# Historical published progress and hosted proof
 
 The unfinished slice2 increment265635d945cf11c8786dbe7476016c0a541f06f5 was
 accepted on the recorded execution branch, suffix base92613de41c977d5c82cfd7ce7093005b0150eb6f.
@@ -114,7 +114,7 @@ The JSON retains all31additions/two retirements and ten changed file-case counts
 These different workloads, shard assignments, browser configuration and runners
 prevent attributing the observed durations solely to this change.
 
-## Remaining acceptance
+## Earlier handoff acceptance
 
 Hosted proof and timing comparison are observed; three consecutive local family
 passes at natural CPU-bound load30–50 are not. A fresh published-source host
@@ -127,3 +127,27 @@ The developer may amend the source evaluation or retain it for a qualifying
 natural window; silence and retry instructions are not such an amendment.
 Preserve the execution branch/worktree and existing SEED324/334ownership.
 No done mark, retrospective, wrap-up, trunk integration or retirement is inferred.
+
+Terry's later2026-11-14 priority direction and the [controlled conclusion](controlled-conclusion-evidence.md)
+supersede this earlier waiting gate. The actual136/136controlled pass and final
+resource/input/cleanup audit settled the original load/functional gaps. Accepted
+SEED334 subsequently changes the applicable final profile as recorded below.
+
+## Current accepted profile and open receiving CI
+
+Accepted main0dd89b9ce includes SEED334's E2E6/integrated5/frontend1/backend4;
+subsequent accepted main3069e8b47 raises repository Node shares3→4:
+16browser shards plus4Node shares, lint and proof-summary (22concrete jobs).
+The four current commands/settings remain separate; CPU-derived CI workers,
+local default2/local production cap1, default30s/retry0,180s prerequisite and
+320s total job-start deadlines within6minutes remain. See
+[main-composition evidence](main-composition-evidence.md) for actual current
+receiving proof and the fresh source qualifiers056/056.1/056.2.
+
+The13-shard tables above describe only exact265635d9/run43542287307/attempt1
+against baseline15377f89. They remain valid historical measurements; neither
+static16-job selection nor backend59/E2E26receiving passes are a new hosted pass.
+Current composed-revision CI has not been observed. PLAN610 G18 owns clause060,
+`require the changed suite to pass`, in planned slice2. Publish progress and
+observe its exact final applicable CI through the root-owned stream; no
+completion, clean final CI or restored obsolete layout is claimed here.

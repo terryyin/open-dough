@@ -46,7 +46,7 @@ specs (`intent-scope-collected-file-timing-gaps`,
 Maintainers get passing dashboard checks while other work keeps the machine's
 CPUs busy, because a check's GitHub reads cost no new process each: the cases
 named above and SEED-324's landed CI repeat checks pass with the default 30 s
-case timeout under CPU-bound contention at a one-minute load of 30–50.
+case timeout under controlled CPU contention representative of busy development.
 
 #### Scope
 
@@ -68,11 +68,19 @@ case timeout under CPU-bound contention at a one-minute load of 30–50.
   GitHub or fall back to the machine's real `gh`.
 - Evaluate the named loaded failures and SEED-324's landed CI repeat checks
   with two local workers, default case timeouts and unchanged observations.
-  Record natural load and actual CPU contention; burners are diagnostic
-  evidence, not the natural-load acceptance required by
-  [local test resources](../../tests/local-test-resources.md#load-while-measuring).
-  Hosted CI retains its thirteen shards, CPU-derived worker count and current
-  deadlines; compare recorded shard times and require the changed suite to pass.
+  Record CPU utilization and load average separately. For final acceptance,
+  one bounded controlled-contention run covering the named journeys and earlier
+  failure areas, together with the retained full-suite and hosted proof, replaces
+  waiting for three natural-load30–50 repetitions. This is the coordinator's
+  lower-priority load-gate disposition under Terry's2026-11-14 direction below;
+  no assertion, default timeout or actual failure is waived.
+  Hosted CI retains the accepted product-wide group/shard profile, accepted
+  with SEED-334 during final integration: E2E6, integrated5, frontend1 and
+  backend4 browser shards. Do not restore the obsolete pre-migration layout.
+  Historical thirteen-shard measurements remain attributed to their original
+  revision; this qualification adds no proof gate. Preserve CPU-derived workers
+  and current deadlines; compare recorded shard times and require the changed
+  suite to pass.
 - Targeted fixture preparation and Git-backed answer optimizations needed
   for the named loaded checks are included. Preserve every existing journey
   and assertion, the default 30 s case budget, current working-tree source
@@ -93,10 +101,26 @@ case timeout under CPU-bound contention at a one-minute load of 30–50.
   speedup is promised beyond removing per-call process creation and meeting
   the existing default timeout under the stated load.
 
+#### Final evaluation direction, 2026-11-14
+
+Terry said: “If it's still a high priority, please create this new load by
+ yourself, and otherwise, we just speed up to the conclusion.” The coordinator
+judges further waiting for natural load average30–50 lower priority after the
+completed full local suite and thirteen-shard CI. A single bounded controlled
+CPU-contention confirmation replaces that waiting/repetition gate. Original
+failure areas still require actual passing observations; the failure policy and
+all functional/native/history/isolation promises remain.
+
+Accepted SEED-334 on main `0dd89b9ce` subsequently moved the tests into four
+product-wide groups. The controlled136-case observation and earlier full and
+thirteen-shard measurements keep their original source/revision attribution.
+Current receiving proof preserves their unchanged observations through the
+accepted paths and settings; final CI must observe the composed sixteen-shard
+profile before this story completes. See the plan's main-composition evidence.
+
 #### Key examples
 
-- A Done comparison needs 21 GitHub reads while the machine has natural
-  CPU-bound load 30–50. Opening it and refreshing Project Intent complete
+- A Done comparison needs21GitHub reads during controlled CPU contention. Opening it and refreshing Project Intent complete
   within each case's default 30 s budget; no simulated API read launches
   its own subprocess.
 - A fake GitHub holds one shared read while two consumers wait. One leaves,
