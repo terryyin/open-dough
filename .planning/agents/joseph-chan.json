@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "joseph-chan",
-  "email": "joseph-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-358#close-launches-returned-to-the-backlog",
-  "host": "claude",
-  "model": "opus"
-}

@@ -124,28 +124,88 @@ raw prompts and transcripts into recovered records.
 
 **Identity:** SEED-358#close-launches-returned-to-the-backlog
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/625-close-launches-returned-to-the-backlog/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e1142a25419f1921d497716df1146de83deb4170eb97b59aa9bd0fe98b38063b","plan":"d9d61bc01be39cd16b964e65873fb36e6cfee5ff52f6a423bc6b3db13610a1f9"}}
 ```
 
-**For / why.** A developer sees work that stopped early as a finished launch
-instead of an open session.
+#### Goal
 
-A confirmed early wrap-up that returns the story to the backlog ends that
-launch with a returned-to-backlog outcome. Count the finished launch once in
-Recently done while the story remains queued. A later start for the story has
-its own record. An unfinished update from an ongoing task or a queue move by
-itself establishes no end to a launch.
+A developer sees an execution launch that stopped early and returned its story
+to the backlog as a finished launch, marked returned to backlog, instead of an
+open session they must notice and mark done by hand. Open sessions then show
+only work still in progress.
 
-Today only `place --return` moves Taken work back to the queue, and a tracked
-execution's quiet report closes only once the published backlog no longer lists
-the story ([closure gate](../../dashboard/server/completionClosure.ts)). The
-signal that confirms an early return is undecided: a completed report plus the
-published backlog listing the story in the queue, or a new explicit reporting
-outcome.
+#### Scope
+
+A claimed tracked execution launch closes as returned to backlog when its
+quiet `completed` report is delivered, or its early report binds, and readable
+published evidence confirms the return: it has a retained landing that the
+launch repository's current remote tracking target contains, and that target's
+configured backlog lists the story in its queue rather than in Taken. Closure
+uses the same automatic Done as a quiet completion whose story left the
+backlog, under the same conditions on an earlier explicit Done or reopen. The
+launch keeps the returned-to-backlog outcome with its completion, because later
+membership changes cannot reconstruct it, and keeps it when the story is taken
+again or completed. A developer's explicit Done before the report keeps its
+Done and still gains the outcome.
+
+The returned launch is listed once in Recently done: as a standalone Done
+session while its story stays active, and inside the done-story card once the
+story is later completed, under the existing Recently done rules. A later
+launch for the story has its own record and placement.
+
+Unchanged: a story still in Taken, or missing or unreadable evidence, leaves
+the launch open; a story that left the backlog closes it as completed;
+`unfinished` reports and attention reports keep their existing handling; other
+workflows and one-shot execution keep theirs. Product closure evidence on the
+final report keeps meaning published completion only.
+
+The signal is the existing quiet report plus published queue membership,
+observed on both early returns so far: SEED-303's and SEED-324's executions
+each landed the return to the queue and then sent a quiet `completed` report,
+and each stayed open until it was marked done by hand. No new reporting outcome or
+change to installed skills or the reporting command is needed.
+
+Required restriction: a queue move without this launch's quiet `completed`
+report ends no launch, because a launch still working may have its story moved
+by someone else, and closing it would hide active work.
+
+Scope limits: no new reporting outcome; no relabelling of launches reported
+before this change; no re-evaluation after the report or binding, so a story
+taken again before the report arrives leaves the launch open for Mark as done;
+no change to how stories return to the queue or to story membership.
+
+#### UI
+
+Where a Done session entry reads "Done", a launch returned to backlog reads
+"Returned to backlog" in the same done tone, wherever the Done reading shows,
+keeping the existing note
+when the native session is still working. Reopening it restores its native
+reading as for any Done session.
+
+#### Architecture
+
+The tracked-execution closure check reads three published outcomes instead of
+two: story completed (closes as today), story returned to the queue (closes as
+returned), or story still Taken or unreadable (stays open). The returned
+outcome is local launch evidence saved on the launch record at delivery or
+binding and carried into launch history with the original record; it neither
+moves nor settles the story, consistent with
+[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)'s
+launch-as-local-evidence rule.
 
 #### Key examples
 
-- An execution wraps up early and returns its story to the backlog. Its session
-  appears in Recently done as returned to backlog, once. A new launch for the
-  story coexists with that finished record. An interim unfinished report from
-  the new launch leaves it open.
+- SEED-324's execution lands the commit that moves its story from Taken to
+  the Backlog list, then sends a quiet `completed` report. Its session becomes
+  Done at once and appears once in Recently done reading "Returned to backlog";
+  the queued story card holds no session for it.
+- A new launch later takes SEED-324. Its open session appears in the story's
+  Taken card while the returned launch stays in Recently done. The new launch's
+  interim `unfinished` report leaves it open.
+- When that new launch completes the story, Recently done shows the done-story
+  card holding both sessions: the earlier reads "Returned to backlog", the
+  later "Done".
+- A tracked execution lands a retained increment and reports quiet completion
+  while its story stays in Taken awaiting wrap-up: it stays open, as today.
+- Someone returns a story to the queue while its execution launch is still
+  working and has sent no report: the launch stays open.
