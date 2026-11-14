@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-332#answer-fake-gh-reads-in-process",
+  "title": "Answer fake GitHub reads without a process per call",
+  "completedAt": "2026-11-14T09:30:00.000Z",
+  "agent": "philip-chan",
+  "host": "codex",
+  "outcome": "The in-process fake GitHub reader is published with its required stability evidence: earlier timeouts explained and fixed, full suite passed, three natural-load family passes at load 34–41 within 25 s, hosted CI passed.",
+  "evidence": ".planning/slice-plans/610-answer-fake-gh-reads-in-process/evidence.md"
+}

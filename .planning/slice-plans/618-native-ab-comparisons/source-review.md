@@ -1,0 +1,136 @@
+# Source-only review
+
+Fresh general-purpose reviewer launched by the execution coordinator on
+2026-11-14 without conversation inheritance, fork or resume. Its only input was
+the selected story section's Goal, Scope, scope limits, required restrictions
+and key examples (`SEED-346-native-ab-comparisons.md`, from `#### Goal` up to
+`#### Exploration, borrowing and challenge`), copied to a job-scratch file. It
+received no plan, product, proof or suspected omission, read no other project
+files and changed nothing. Its numbered return is retained unchanged below.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1a | Goal: an Open Dough maintainer can choose a representative example | slice 3 |  |
+| 1b | Goal: the maintainer can run a baseline and a candidate on demand | slice 3 |  |
+| 1c | Goal: the comparison shows whether the change preserves the outcome and its proof | slice 3 |  |
+| 1d | Goal: the comparison shows what the change does to agent effort | slice 3 |  |
+| 1e | Goal: maintainers can reuse the same example for a later change | slice 4 |  |
+| 2a | Retain two initial runnable examples in Open Dough maintenance sources | slice 2 |  |
+| 2a.1 | Example 1: the SEED-324 blocked-supplier decision from the session-efficiency audit | slice 1 | observed: tests/native-comparison/paused-supplier/case.md provenance (audit §1, 7fb42349, plan 1e7e6f98) with basis/supplier/delivered/partial/published/completed overlays, task.txt, wake.txt |
+| 2a.2 | Example 2: the Doughnut SEED-122 verification replay, used as the calibration case | slice 2 |  |
+| 2b.1 | Each example keeps its source session or replay | slice 2 |  |
+| 2b.2 | Each example keeps its source project/revision | slice 2 |  |
+| 2b.3 | Each example keeps its extraction recipe | slice 2 |  |
+| 2b.4 | Each example keeps its starting state | slice 2 |  |
+| 2b.5 | Each example keeps its neutral agent task | slice 2 |  |
+| 2b.6 | Each example keeps its setup | slice 2 |  |
+| 2b.7 | Each example keeps its separate acceptance check | slice 2 |  |
+| 2c | Runtime setup recovers from these retained inputs, not from the original author's temporary files | slice 2 |  |
+| 3a | Keep the smallest runnable context that preserves the original decision and its proof | slice 2 |  |
+| 3b | Controlled supplier evidence/events replace an overnight wait | slice 1 | observed: case.bash case_apply_event unchanged/nonqualifying/qualifying between turns; native Codex run 20261114T025123-1b99 observations-corrected.txt turn-2..4-event |
+| 3c.1 | The blocked-supplier case keeps "diagnostic pass" distinct from the other two states | slice 1 | observed: assess.bash diagnostic-pass-hold signal; native Codex run 20261114T025123-1b99 observations-corrected.txt turn-1 reader absent, slice3 partial, dependency waiting |
+| 3c.2 | The blocked-supplier case keeps "publication" distinct from the other two states | slice 1 | observed: assess.bash publication-hold signal; tests/native-comparison.sh premature-resume (publication) substitute journey fails with turn-3-proof passed; native Codex run 20261114T025123-1b99 observations-corrected.txt turn-3 held |
+| 3c.3 | The blocked-supplier case keeps "satisfaction of the exact supplier requirement" distinct from the other two states | slice 1 | observed: assess.bash continuation/proof signals require the completed reader; native Codex run 20261114T025123-1b99 observations-corrected.txt turn-4 supplier-reader completed, dependency satisfied |
+| 3d.1 | The Doughnut case retains the real title/alias resolution seam | slice 2 |  |
+| 3d.2 | The Doughnut case retains the maintained destination-ID assertion | slice 2 |  |
+| 3d.3 | The Doughnut case retains the independent wrong-behavior witness | slice 2 |  |
+| 3d.4 | The Doughnut case retains the restored proof | slice 2 |  |
+| 3e | Qualify any shortened setup/proof against those observations | slice 2 |  |
+| 4a | Qualify each case by showing it still requires the relevant judgment and verification | slice 2 |  |
+| 4b | Qualify each case by showing that a plausible wrong decision fails its separate assessment | slice 2 |  |
+| 4c.1 | Measure preparation duration before describing the case as suitable for repeated runs | slice 2 |  |
+| 4c.2 | Measure native-run duration before describing the case as suitable for repeated runs | slice 2 |  |
+| 4d | Historical times are labeled as such | slice 2 |  |
+| 4e | Qualification: no fixed duration threshold has been agreed | slice 2 |  |
+| 5a | Tag each example with the workflow or problem it represents | slice 3 |  |
+| 5b.1 | Tag each example with its applicable hosts as a selection trait | slice 3 |  |
+| 5b.2 | Tag each example with its environment/prerequisites as a selection trait | slice 3 |  |
+| 5b.3 | Tag each example with its required decisions/proof as a selection trait | slice 3 |  |
+| 5b.4 | Tag each example with its observed or not-yet-qualified duration as a selection trait | slice 3 |  |
+| 5c | Refresh examples through ordinary versioned edits | slice 4 |  |
+| 5d.1 | A comparison preserves the exact case revision/content | slice 3 |  |
+| 5d.2 | A comparison preserves the project starting state | slice 3 |  |
+| 5e | Later edits do not silently replace the earlier comparison basis | slice 4 |  |
+| 6a | Give the maintainer an on-demand way to select a case | slice 3 |  |
+| 6b | Run fresh, isolated native sessions for baseline and candidate | slice 3 |  |
+| 6c.1 | Declare the factor under test before running | slice 3 |  |
+| 6c.2 | Declare the intended gain before running | slice 3 |  |
+| 6c.3 | Declare the quality criteria before running | slice 3 |  |
+| 6d.1 | Match the task across the arms | slice 3 |  |
+| 6d.2 | Match the case/project state across the arms | slice 3 |  |
+| 6d.3 | Match the host across the arms | slice 3 |  |
+| 6d.4 | Match the model/effort across the arms | slice 3 |  |
+| 6d.5 | Match the relevant settings across the arms | slice 3 |  |
+| 6d.6 | Match the event sequence across the arms | slice 3 |  |
+| 6e | Record differences and unavailable conditions rather than claim equivalence | slice 3 |  |
+| 6f | Independently identify and materialize each payload, separate from the project revision | slice 3 |  |
+| 6g | A mutable label such as `candidate` is insufficient as payload identity | slice 3 |  |
+| 7a | Keep expected answers and assessor machinery outside the agent's task and workspace | slice 3 |  |
+| 7b | Ordinary product requirements and maintained tests remain available to the agent | slice 3 |  |
+| 7c | Assessment judges observed state and decisive proof before effort | slice 3 |  |
+| 7d | Fewer requests cannot hide a missed decision, fault or restored pass | slice 3 |  |
+| 7e | Missing/incomplete runs and unknown measurements remain visible | slice 5 |  |
+| 7f | Record preparation, recovery and human intervention as part of total effort | slice 3 |  |
+| 8a | Retain a compact comparison basis and verdict | slice 3 |  |
+| 8a.1 | The basis includes case and project inputs | slice 3 |  |
+| 8a.2 | The basis includes payload identities | slice 3 |  |
+| 8a.3 | The basis includes host/runtime conditions | slice 3 |  |
+| 8a.4 | The basis includes declared criteria | slice 3 |  |
+| 8a.5 | The basis includes arm/session associations | slice 3 |  |
+| 8a.6 | The basis includes outcomes | slice 3 |  |
+| 8a.7 | The basis includes proof references | slice 3 |  |
+| 8a.8 | The basis includes measurement limits | slice 3 |  |
+| 8b | During assessment, keep recoverable raw evidence | slice 3 |  |
+| 8c | At wrap-up, remove spent run artifacts under ADR 0005 | slice 5 |  |
+| 8d | At wrap-up, preserve reusable cases, findings and the basis needed to recover tracked comparison evidence through Git | slice 5 |  |
+| 9a | Reuse applicable native fixture and payload setup | slice 1 | observed: tests/support/native-comparison-run.sh reuses delivery_evidence_install_payload, native-run-supervise, native-codex.sh, native_host_stream thread view, native-observation.sh, native-assessor-counterexample.sh |
+| 9b | Qualification: the SEED-345 effort comparison story owns reusable accounting from retained sessions | slice 3 |  |
+| 9c | Supply host-qualified coordinator/worker session associations and retained inputs to that accounting when available | slice 3 |  |
+| 9d | Report available effort evidence and explicitly unavailable fields | slice 3 |  |
+| 10a | Routine local and CI suites keep deterministic checks | slice 5 |  |
+| 10b | Native experiments remain on demand | slice 5 |  |
+| 10c | Qualification: the scope limits are delivery limits, not rejection rules for naturally supported cases | slice 5 |  |
+| 10d | Both initial cases must run natively on Codex | slice 3 |  |
+| 10e | Qualification: Cursor and Claude Code remain unqualified until their own observations are obtained | slice 5 |  |
+| 11a | Restriction: isolate arm writes from each other (reason: prevent contamination) | slice 3 |  |
+| 11b | Restriction: isolate arm writes from live projects (reason: prevent contamination) | slice 3 |  |
+| 11c | Restriction: hold assessor expectations outside the agent context (reason: avoid teaching the answer) | slice 3 |  |
+| 11d | Restriction: identify frozen inputs (reason: so a refresh cannot relabel old evidence) | slice 4 |  |
+| 11e | Restriction: reject invalid/unrecoverable input before a paid launch | slice 5 |  |
+| 11f | Restriction: expose a failed or incomplete arm rather than fabricate a verdict | slice 5 |  |
+| E1a | Select and compare (trigger): a maintainer selects the blocked-supplier case by workflow/host/environment tags | slice 3 |  |
+| E1b | Select and compare: the maintainer chooses two payloads and starts a pair | slice 3 |  |
+| E1c | Select and compare: both arms receive equivalent consumer work, a paused supplier and accepted proof in fresh projects | slice 3 |  |
+| E1d | Select and compare: the report identifies all inputs and conditions | slice 3 |  |
+| E2a | Preserve the real decision (trigger): supplier diagnostics pass, but stability proof or the required publication is missing | slice 1 | observed: case supplier overlay evidence.md (clean diagnostic, unexplained timeouts, no publication); native Codex run 20261114T025123-1b99 observations-corrected.txt turn-1 proof failed, dependency waiting |
+| E2b | Preserve the real decision: controlled evidence is delivered | slice 1 | observed: native Codex run 20261114T025123-1b99 observations-corrected.txt turn-2-event unchanged, turn-3-event nonqualifying, turn-4-event qualifying |
+| E2c | Preserve the real decision: the assessor separates waiting with preserved partial work from wrongly declaring the requirement satisfied | slice 1 | observed: tests/native-comparison.sh rejected cases resumed/integrated/satisfied-at-publication, satisfied-at-diagnostic-pass, lost-partial-work; native Codex run 20261114T025123-1b99 observations-corrected.txt turns 1-3 partial-work preserved |
+| E2d | Preserve the real decision: on a qualifying change, the assessor observes whether the right work continues once with its proof |  | G1 |
+| E2e | Preserve the real decision: a baseline's failure remains a comparison result, not a harness failure disguised as equivalent success | slice 3 |  |
+| E2f | Preserve the real decision: then compare effort and empty wakes | slice 3 |  |
+| E3a | Calibrate proof (trigger): both arms run the Doughnut case | slice 3 |  |
+| E3b | Calibrate proof: each arm assesses the title/alias fault | slice 2 |  |
+| E3c.1 | Calibrate proof: the verdict records the maintained destination-ID failure separately | slice 2 |  |
+| E3c.2 | Calibrate proof: the verdict records the independent controller witness separately | slice 2 |  |
+| E3c.3 | Calibrate proof: the verdict records the restored proof separately | slice 2 |  |
+| E3d | Calibrate proof: an arm missing any decisive result cannot win solely through lower effort | slice 3 |  |
+| E4a | Refresh without relabeling (trigger): a maintainer changes a case's setup or acceptance check and runs it again | slice 4 |  |
+| E4b | Refresh without relabeling: the new comparison names the new case basis | slice 4 |  |
+| E4c | Refresh without relabeling: the earlier basis remains recoverable rather than inheriting the edit | slice 4 |  |
+| E4d | Refresh without relabeling: environment drift can make a rerun unavailable | slice 4 |  |
+| E4e | Refresh without relabeling: environment drift cannot alter what the original report observed | slice 4 |  |
+| E5a | Incomplete evidence (trigger): an arm stops or its host lacks a measurement, and the pair is assessed | slice 5 |  |
+| E5b | Incomplete evidence: the result names that arm, the observed proof and the unknowns | slice 5 |  |
+| E5c | Incomplete evidence: no invented token count, equivalence or saving | slice 5 |  |
+| E5d | Incomplete evidence: a stubbed-host run can test the runner/assessor | slice 5 |  |
+| E5e | Incomplete evidence: a stubbed-host run cannot supply native behavior evidence | slice 5 |  |
+| X1 | Exclusion: no dashboard UI/service | slice 5 |  |
+| X2 | Exclusion: no benchmark scheduling | slice 5 |  |
+| X3 | Exclusion: no automatic selection of an improvement | slice 5 |  |
+| X4 | Exclusion: no release/rollout | slice 5 |  |
+| X5 | Exclusion: no general effort collector | slice 5 |  |
+| X6 | Exclusion: no quota or invoice attribution | slice 5 |  |
+| X7 | Exclusion: no statistical/general savings claim from one pair | slice 5 |  |
+| X8 | Exclusion: this story does not create another token parser | slice 5 |  |

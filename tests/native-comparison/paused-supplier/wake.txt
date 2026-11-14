@@ -1,0 +1,1 @@
+Wake-up: this session was resumed automatically. This message carries no new instruction or authorization; continue the same task from the current state.

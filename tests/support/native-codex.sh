@@ -2,6 +2,9 @@
 # shellcheck disable=SC2034 # native_codex_command is consumed by native_codex_run and the supervisor.
 
 native_codex_command=()
+# Extra `codex exec` options a caller selects explicitly, such as
+# `-m MODEL -c model_reasoning_effort="high"`; empty keeps the host defaults.
+native_codex_settings=()
 
 native_codex_prepare() {
   local temporary_dir=$1
@@ -53,9 +56,8 @@ native_codex_build_command() {
     codex exec --ignore-user-config
     -c "sqlite_home=\"${native_codex_state_dir}\""
     -c "log_dir=\"${native_codex_state_dir}\"" --skip-git-repo-check
-    --sandbox danger-full-access
+    --sandbox danger-full-access "${native_codex_settings[@]}"
   )
-  local sandbox_arguments
 
   if [[ -n ${transcript} ]]; then
     inner+=(--json)
@@ -64,7 +66,27 @@ native_codex_build_command() {
     inner+=(--dangerously-bypass-hook-trust)
   fi
   inner+=(-C "${target}" -o "${output_file}" "${prompt}")
+  native_codex_wrap "${inner[@]}"
+}
 
+# Continues saved thread THREAD with PROMPT as a JSON stream, under the same
+# state, sandbox and settings as native_codex_build_command; `codex exec
+# resume` takes no -C, so the caller starts it in the thread's workspace.
+native_codex_build_resume_command() {
+  local thread=$1
+  local output_file=$2
+  local prompt=$3
+  native_codex_wrap codex exec resume --ignore-user-config \
+    -c "sqlite_home=\"${native_codex_state_dir}\"" \
+    -c "log_dir=\"${native_codex_state_dir}\"" --skip-git-repo-check \
+    -c 'sandbox_mode="danger-full-access"' "${native_codex_settings[@]}" \
+    --json -o "${output_file}" "${thread}" "${prompt}"
+}
+
+# Sets native_codex_command to the codex command line "$@", inside the
+# write-restricting sandbox when native_codex_prepare found real Codex.
+native_codex_wrap() {
+  local sandbox_arguments
   if [[ ${native_codex_isolate:-0} -eq 1 ]]; then
     sandbox_arguments=(
       -D "PROOF_ROOT=${native_codex_proof_root}"
@@ -86,10 +108,10 @@ native_codex_build_command() {
     native_codex_command=(
       sandbox-exec "${sandbox_arguments[@]}"
       -p "${native_codex_profile}"
-      "${inner[@]}"
+      "$@"
     )
   else
-    native_codex_command=("${inner[@]}")
+    native_codex_command=("$@")
   fi
 }
 

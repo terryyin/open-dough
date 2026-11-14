@@ -1,6 +1,7 @@
 # Run native A/B comparisons on examples from real work
 
 **Source:** [refined story](../../seeds/SEED-346-native-ab-comparisons.md#run-native-ab-comparisons-on-real-work)
+**Source review:** [source-only review](source-review.md)
 **Identity:** SEED-346#run-native-ab-comparisons-on-real-work
 
 ## Goal and scope
@@ -100,7 +101,7 @@ trust/credential decision, if encountered, retains its ordinary human owner.
 
 ### 1. Qualify the paused-supplier decision in a native Codex case
 Type: Behavior
-Status: planned
+Status: done
 Proof: One isolated native qualification journey and discriminating assessor cases.
 
 Extract the original consumer/supplier situation into durable maintenance case
@@ -247,4 +248,40 @@ own amendment/acceptance. Revisit the cited North Star during normal wrap-up.
 
 ## Learnings
 
-No implementation, native qualification, matched comparison or observed saving yet.
+- **Slice 1 accepted (2026-11-14).** Case `tests/native-comparison/paused-supplier/`
+  (provenance, overlays, neutral `task.txt`/`wake.txt`, `case.bash`, `assess.bash`),
+  case-agnostic runner `tests/support/native-comparison-run.sh` and unpaid entry
+  `tests/native-comparison.sh` (`--native codex --case NAME` for a paid run). Focused
+  proof: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh tests/native-comparison.sh
+  tests/native-assessor-counterexample-guard.sh tests/native-stream-replay.sh
+  tests/support/native-host-stream.test.mjs tests/native-evidence-identity.sh` (rc 0
+  after refactor); consumers of the changed `native-codex.sh`/stream reader (34 files) passed.
+- **Native qualification observed.** One paid Codex 0.169.0 journey, `codex exec` then
+  `codex exec resume`, one thread over four turns, `gpt-6.1-sol`/`xhigh`, sandbox
+  `danger-full-access`, approval `never`, user config ignored. The agent held through
+  the diagnostic pass, an unchanged wake and an early publication ("Early publication
+  does not satisfy the recorded dependency"), then integrated the qualifying supplier
+  once, filed slice 3 and passed proof. Preparation 0.8s; turns 139.8/67.4/63.0/1021.8s
+  (total 21.6 min, load ~4, AC power). Same-session continuation premise settled.
+- **Observer corrections re-derived, not observed live.** The run-time agent-proof field
+  matched command output text and the `once` fields (G1) were added after the run; both
+  were re-derived from the retained streams/final state and reassessed (pass). The
+  retained record's case-file hashes therefore predate the committed case; agent-facing
+  inputs are unchanged. A repeated wake after continuation is not exercised.
+- **For Slices 2–5.** `--ignore-user-config` drops the configured model, so pairs must pass
+  model and effort explicitly. Token usage sits in retained streams/rollouts for SEED-345;
+  the retained `codex-session.jsonl` holds account ids and stays local. Payload identity is
+  currently an installed-file digest plus `candidate`/revision (`source-dirty` recorded);
+  Slice 3 owns frozen independent pins. Fixed Git dates make basis SHAs deterministic
+  across materializations. Substitute mode still lets `native-codex-session.mjs` search the
+  real `~/.codex/sessions` (no match possible); isolate it when Slice 3 touches the reader.
+  `tests/native-family-layers.md` does not yet list this family (Slice 5 guidance).
+
+
+## Story obligations
+
+### G1. Assessor does not observe a single continuation
+Reported: slice 1 — "Coordinator acceptance of slice 1 found assess.bash checks turn-4 reader/slice3/proof fields but counts no merges or slice-3 commits, so a duplicate continuation in turn 4 would pass"
+Story clause: "On a qualifying change it observes whether the right work continues once with its proof"
+Disposition: proved by slice 1: assess.bash `once` signal requires turn-4-supplier-integrations and turn-4-slice3-filings of 1; tests/native-comparison.sh duplicate substitute journey fails with filings 2 and rejected cases integrated-twice/filed-twice; retained native run re-derived 1/1 and still passes
+Commitment: E2d
