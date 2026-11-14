@@ -177,6 +177,12 @@ Native checks read a Claude Code, Codex, or Cursor output stream only through
 one reader, and a replay check holds that reader to retained real streams:
 [native host streams](native-host-streams.md).
 
+## Native comparison cases
+
+Versioned examples from real work compare a baseline and a candidate payload
+in fresh native sessions on demand; routine runs use substitute hosts only:
+[native comparison cases](native-comparison.md).
+
 ## Shared installation and update protections
 
 Every declared payload file is protected by the same installer and updater

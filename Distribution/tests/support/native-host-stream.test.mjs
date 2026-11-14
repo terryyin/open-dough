@@ -168,3 +168,22 @@ test("other tool calls, file reads, and inspection targets come per host", () =>
   const codex = readHostStream("codex", corpus(deliveryUpdate.codex));
   assert.deepEqual([codex.tools, codex.reads, codex.targets], [[], [], []]);
 });
+
+test("a Codex stream names the thread a resumed turn continues", () => {
+  const started = readHostStream(
+    "codex",
+    corpus(
+      "codex/publication/startup-trunk/20260923T062909-023d/events.jsonl.gz",
+    ),
+  );
+  assert.equal(started.thread, "01a0ccee-c147-7a43-8e6b-3c74587d99e7");
+  // A stream without its thread event, or another host's, names none.
+  assert.equal(
+    readHostStreamText("codex", '{"type":"turn.started"}\n').thread,
+    null,
+  );
+  assert.equal(
+    readHostStream("claude", corpus(deliveryUpdate.claude)).thread,
+    null,
+  );
+});

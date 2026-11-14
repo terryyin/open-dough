@@ -39,7 +39,12 @@ export const adapters = {
   codex: {
     read(event, session) {
       const item = event.item;
-      if (event.type === "item.started" && item?.type === "command_execution") {
+      if (event.type === "thread.started") {
+        session.identify(event.thread_id);
+      } else if (
+        event.type === "item.started" &&
+        item?.type === "command_execution"
+      ) {
         session.start(item.id, item.command);
       } else if (event.type === "item.completed") {
         if (item?.type === "command_execution") {

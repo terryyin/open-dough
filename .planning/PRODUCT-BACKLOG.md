@@ -29,11 +29,11 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Resume blocked work when it can advance](seeds/SEED-345-session-token-efficiency.md#resume-when-blocked-work-can-advance) — SEED-345#resume-when-blocked-work-can-advance ([plan](slice-plans/617-resume-blocked-work/PLAN.md))
-- [Run native A/B comparisons on examples from real work](seeds/SEED-346-native-ab-comparisons.md#run-native-ab-comparisons-on-real-work) — SEED-346#run-native-ab-comparisons-on-real-work ([plan](slice-plans/618-native-ab-comparisons/PLAN.md))
 - [Run CI on as few jobs as its wall time allows](seeds/SEED-350-fewer-ci-jobs.md#run-ci-on-fewer-jobs) — SEED-350#run-ci-on-fewer-jobs ([plan](slice-plans/620-fewer-ci-jobs/PLAN.md))
 
 ## Backlog list
 
+- [Close native comparison harness gaps](seeds/SEED-346-native-ab-comparisons.md#close-native-comparison-harness-gaps) — SEED-346#close-native-comparison-harness-gaps
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
 - [Keep one browser test group roster](seeds/SEED-334-product-wide-end-to-end-tests.md#keep-one-browser-test-group-roster) — SEED-334#keep-one-browser-test-group-roster
 - [Focus detailed dashboard UI checks on controlled answers](seeds/SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks) — SEED-334#focus-detailed-dashboard-ui-checks
