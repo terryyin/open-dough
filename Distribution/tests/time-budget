@@ -11,9 +11,7 @@
 # preserving the former per-run allowance apart from integer rounding.
 # Prior calibration was twelve retained main runs 40834521203 … 41004369454
 # plus 41000649845/1: largest share 577.5×1.2→694, job 52.7×1.2→64.
-# Evidence and limits: docs/maintainer/ci-budget-calibration.md.
 # Raising either number is reviewed, not a way to make a slow change pass.
-# Whole-run solo/overlap evidence still decides whether this packing stays.
 # Check recent trunk times with `bash scripts/ci-test-times.sh`
 # (Distribution/tests/time-budget.md).
 per-job-seconds=64

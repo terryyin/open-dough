@@ -24,8 +24,16 @@ beyond the practical 17-job baseline, using a simpler, reconsidered approach.
 - Continue the remaining job-reduction goal from SEED-350 after its bounded early close.
 - Reconsider the approach during refinement. Do not resume the large campaign,
   assume an exhaustive search, or treat configuration-only assertions as constraints.
-- Start from the report-isolation fix and the adopted 17-job layout. Use retained
-  CI proof and timings before paying for new measurements or local profiling.
+- Start from the report-isolation fix and the adopted 17-job layout. Decide
+  sharding from what CI already reports for recent `main` runs: the CI proof
+  summary and times artifacts for per-test and per-file durations, and the
+  GitHub jobs API for each job's queue, setup and completion times. Read them
+  when deciding; they are fresher than any copy. Pay for new measurements or
+  local profiling only when that report cannot answer the question.
+- Raw CI data stays in CI. Record only the resulting decision and its short
+  rationale beside the layout it changes (`.github/workflows/ci.yml`,
+  [shards](../../dashboard/tests/shards.md),
+  [time budget](../../Distribution/tests/time-budget)), naming the runs read.
 - Keep meaningful behavioral coverage, complete CI proof and useful verdict time.
   Establish a proportionate decision and stopping rule before new experiments.
 - Consider all groups, placement and packing where useful; no unmeasured count
@@ -34,10 +42,10 @@ beyond the practical 17-job baseline, using a simpler, reconsidered approach.
 
 #### Evidence and limits
 
-[Retained measurements](../../docs/maintainer/ci-layout-measurements.md) preserve
-all six original runs. Background load and a repaired HTML-report collision made
-the screen inconclusive. The developer chose the reasonable first reduction;
-no minimum or no-slower overlap claim was established.
+SEED-350's six-run screen (16/17 jobs against 21/22) was inconclusive:
+background load and a since-repaired HTML-report collision confounded it. The
+developer chose the reasonable first reduction; no minimum or no-slower overlap
+claim was established.
 
 #### Origin and priority
 

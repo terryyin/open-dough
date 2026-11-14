@@ -26,10 +26,11 @@ settings leaves the others' selection, settings and timing untouched
 
 These counts are the adopted practical first reduction: 13 browser jobs and
 three Distribution shares make 16 initial jobs, followed by one proof job. Lint
-and dashboard type-check share the frontend runner. The
-[retained measurements](../../docs/maintainer/ci-layout-measurements.md) record
-the observations, repair and limits; they establish neither a minimum nor a
-no-slower-overlap result. Further sizing uses the separately queued reconsideration.
+and dashboard type-check share the frontend runner. They were chosen as a
+practical reduction after a screen that background load left inconclusive;
+they establish neither a minimum nor a no-slower-overlap result. Further sizing
+uses the separately queued reconsideration and reads its timings from recent
+CI runs.
 Each `ci-proof` declaration (`<entry>=<shards>:case`) follows its matrix.
 
 ## The split
