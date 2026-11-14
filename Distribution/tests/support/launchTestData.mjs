@@ -45,6 +45,8 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
   #reporting;
   /** @type {LaunchRecord["request"]["model"]} */
   #model;
+  /** @type {LaunchRecord["request"]["effort"]} */
+  #effort;
   /** @type {LaunchRecord["landing"]} */
   #landing;
 
@@ -119,6 +121,12 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
    */
   requestingModel(model) {
     this.#model = model;
+    return this;
+  }
+
+  /** @param {NonNullable<LaunchRecord["request"]["effort"]>} effort */
+  requestingEffort(effort) {
+    this.#effort = effort;
     return this;
   }
 
@@ -222,6 +230,7 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
     const requestField = requestFacts(requested, {
       host: session.host,
       model: this.#model,
+      effort: this.#effort,
       reporting: this.#reporting,
       policy: requestedPolicy(adHocWorkspace ?? storyBranch),
     });

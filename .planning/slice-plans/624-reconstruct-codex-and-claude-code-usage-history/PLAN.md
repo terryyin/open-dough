@@ -3,6 +3,8 @@
 **Identity:** SEED-358#reconstruct-codex-and-claude-code-usage-history
 **Source:** [selected story](../../seeds/SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history)
 
+**Source review:** [independent commitments](source-review.md)
+
 ## Goal and scope
 
 Recover this machine's Codex and Claude Code work and reported token usage for
@@ -105,7 +107,7 @@ memory. Partial files and unavailable decoders yield explicit gaps and safe retr
 
 ### 1. Import usage for a retained Codex task
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `retained-usage.spec.ts`, using the command and persisted read.
 
 Behavior: operational or retained launch evidence identifies a Codex root turn
@@ -217,3 +219,25 @@ document or enduring usage-history documentation.
   import/recovery result and proof loop. No preparatory layer-only slice.
 - Remaining slice-specific concerns: none identified. Native completeness is
   an explicitly measured coverage result, not a premise of complete accounting.
+
+## Execution context
+
+Established workspace `/Users/terryyin/git/open-dough/.worktrees/reconstruct-codex-and-claude-code-usage-history`, branch `codex/reconstruct-codex-and-claude-code-usage-history`, mode story-branch. Publisher `dashboard-territory.local-open-dough`, agent `mrsn-chan`; identity above. Origin `terryyin/open-dough`, trunk `refs/heads/main`, increments to `refs/heads/codex/reconstruct-codex-and-claude-code-usage-history`. Existing linked worktree reused; no second claim or integration-checkout mutation.
+
+Starting revision `ecb5de7eaf25afd137eaa7458abc31b8640c70de`; established published base/candidate `a2bf0f9625455299ad0f8776e1be915aa6d8e797` confirmed on both remote targets. Trunk claim CI unobserved. Setup: Node 24.21.0, `node scripts/setup-native.mjs npm` passed, existing launch-history backend `--list --reporter=list` selected four cases. Check-only `.githooks/pre-commit` owns staged lint and typecheck; selective formatting uses `npm run --silent format` (npm supplies local tool PATH); importer triggers no generation. Worktree author is `mrsn-chan`, so delivery uses agent commit. Existing replanning authority retained; no explicit override or numeric hard limit.
+
+CI: Codex yielded cell `g263:10`, session 90340, coordinator `seed358-mrsn-chan`, directory `/tmp/dough-ci-501/watch-m0RUal`, PID 49693. Bound to this checkout and repository, target execution branch; push workflow `ci.yml` active, display name CI. Retain this stream through increments.
+
+Proof launch decision (Mac, 2026-11-14): AC, 65% free memory, load 4.74/4.02/4.04; one unrelated CPU-bound Claude host-exit test, no competing proof owned by this execution. Implementation owner runs focused backend cases with bounded workers under `caffeinate -s -i` for long checks; reconfirm headroom before expensive verification, reconsider on contention. Failure policy remains [AGENTS.md](../../../AGENTS.md#failing-and-flaky-tests) without exemptions.
+
+## Story obligations
+
+### G1. Conflicting observed settings
+Reported: slice 1 — "Coordinator inspection of usageReconciliation.ts found known response settings silently overwritten on replay without retaining their evidence or ambiguity."
+Story clause: "Store model and effort when known"
+Disposition: proved by slice 1: usage-reconciliation.spec.ts conflicting observed settings test and usageReconciliation.ts per-measurement settings reconciliation
+Commitment: 15
+
+## Accepted slice evidence
+
+1. Retained Codex: actual CLI/fresh-process reads in `retained-usage.spec.ts` observe categories, settings, sources, one-count replay/enrichment, contradictions, missing→zero, and native-source independence. Operational scan trap passes; native payload keys verified against Nov14 sample. `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history dashboard/backend-tests/sessions/launch-history-aged-out.spec.ts dashboard/backend-tests/sessions/launch-history-removed.spec.ts dashboard/backend-tests/sessions/agent-launch-delete.spec.ts --workers=2 --reporter=list`: 15 passed (4 new +11 existing). Updated import-only selection: 6 passed; final `--grep 'preserves prior' --workers=1` case passed after correcting injector to actual CLI rename error, exact stderr/status checked. `npm run typecheck:dashboard` passed. Consumer trace `/tmp/seed358-slice1-consumers.md`: new API has no unchanged production callers; additive effort builder leaves omitted-effort consumers unchanged; old history contract regression above retained. Source freshness unchanged at `74bc48c5b968b48443df355effbdfd0f908cb29c`; incoming named sibling only preparation/Take, no changed supplier history behavior. Independent refactor split six cases across retained-usage, usage-reconciliation and usage-persistence specs with retainedUsageTest.ts fixture; actual CLI 6/6 passed in 2.7s, earlier11 history cases unchanged. No production refactor; final hook owns current typecheck. Mechanical lint repair stayed within accepted return paths/trace (guards/assert narrowing and unknown JSON types, no new domain representation); import6/6 and typecheck passed. Delivery pending.

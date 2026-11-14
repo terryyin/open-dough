@@ -234,3 +234,6 @@ sidebar review action, count, sorting, filtering or separate session review flag
 one room owner with the open list (disposable preferred heights, independent scroll, short-window reach, page-lasting expansion/reached range; preferred sizes only across reload). Successful native reopen removes a Done row; failed reopen keeps feedback and membership.
 
 The Side panel also holds [Review changes](AGENT-LAUNCH-REVIEW.md). On phone and tablet, Close and Maximize/Restore stay reachable beside the story identity; file browser, diff and context scroll independently; rotation keeps comparison/file/reading context; Close returns focus to the origin.
+
+[Native usage history](USAGE-HISTORY.md) records the offline import command,
+shared response writer and retained-evidence accounting limits.

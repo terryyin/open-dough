@@ -24,7 +24,7 @@
 /**
  * What the request also states: the session's host, the model and reporting
  * context asked for, and the workspace policy a one-shot or ad hoc start asked for.
- * @typedef {{ host: LaunchRecord["session"]["host"], model?: LaunchRecord["request"]["model"], reporting?: LaunchRecord["request"]["reporting"], policy?: { tracking?: "standard" | "one-shot", workspace: "isolated" | "default-checkout", landing: "auto-land" | "review" } | undefined }} RequestDetails
+ * @typedef {{ host: LaunchRecord["session"]["host"], model?: LaunchRecord["request"]["model"], effort?: LaunchRecord["request"]["effort"], reporting?: LaunchRecord["request"]["reporting"], policy?: { tracking?: "standard" | "one-shot", workspace: "isolated" | "default-checkout", landing: "auto-land" | "review" } | undefined }} RequestDetails
  */
 /**
  * What an incoming story launch's request states: the story, its title as the
@@ -51,9 +51,10 @@ export function requestFacts(requested, details) {
  * @param {RequestDetails} details
  * @returns {LaunchRecord["request"]}
  */
-function keptRequest(requested, { host, model, reporting, policy }) {
+function keptRequest(requested, { host, model, effort, reporting, policy }) {
   const asked = {
     ...(model !== undefined && { model }),
+    ...(effort !== undefined && { effort }),
     ...(reporting && { reporting }),
   };
   if (requested.workflow === "ad-hoc")
