@@ -42,11 +42,15 @@ relative to the configuration's directory: `e2e/` for E2E Test (`intent/…`),
 `# Include: <relative-path>`; the reader combines their rows before the
 unchanged deal. The E2E, integrated and backend lists index two parts by
 feature folder: `-agents` for `launches/`, `sessions/` and `terminals/`, and
-`-project` for the rest. Other `#` lines are comments. `support/testFiles.mjs` hands
-the group's discovered spec files, its list and its split to
-`scripts/share-deal.mjs`, which deals them by the rule the Node suite's shares
-follow ([tests/test-shares.md](../../tests/test-shares.md#the-deal)), a spec
-file being a job. A list line that is not `<seconds><TAB><file>` fails the
+`-project` for the rest. Other `#` lines are comments. `support/testFiles.mjs`
+finds every spec file under the group's root recursively, never entering the
+`test-results/` and `playwright-report/` output a run writes there while
+reloading workers discover again, so a new file needs no registration. It
+hands those files, its list and its split to `scripts/share-deal.mjs`, which
+deals them by the rule the Node suite's shares follow
+([tests/test-shares.md](../../tests/test-shares.md#the-deal)), a spec file
+being a job: one the list does not record is dealt after the recorded files
+at their median seconds until the list is next refreshed (below). A list line that is not `<seconds><TAB><file>` fails the
 configuration naming the file, line and content before any test is selected,
 as a malformed split does. CI runs the dashboard type-check once in the lint
 job. With the variable unset, a group's command runs every spec of its

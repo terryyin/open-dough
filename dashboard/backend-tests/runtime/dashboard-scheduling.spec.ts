@@ -11,6 +11,7 @@ import {
   removeProofDirectories,
   startProofCommand,
 } from "../../tests/support/proofRecordRun.ts";
+import { runOutputs } from "../../tests/support/testFiles.mjs";
 
 test.afterAll(removeProofDirectories);
 
@@ -88,7 +89,7 @@ export default () => appendFileSync(${JSON.stringify(events)}, "global:setup\\n"
   ).href;
   const options = {
     testDir: directory,
-    outputDir: path.join(directory, "results"),
+    outputDir: path.join(directory, runOutputs.results),
     workers: 2,
     fullyParallel: true,
     retries: 0,

@@ -14,7 +14,11 @@ import { dashboardBrowserArgs } from "./browserArgs.ts";
 import { acquireLocalSuite } from "../../../scripts/local-test-suite.mjs";
 import { fullDashboardSuite } from "./fullSuiteSelection.mjs";
 import { remainingSuiteTime } from "./suiteDeadline.mjs";
-import { dashboardTestMatch, dashboardTestProjects } from "./testFiles.mjs";
+import {
+  dashboardTestMatch,
+  dashboardTestProjects,
+  runOutputs,
+} from "./testFiles.mjs";
 
 const repository = fileURLToPath(new URL("../../../", import.meta.url));
 
@@ -97,7 +101,7 @@ async function prepareGroupRun(variables, outputs) {
       `${new Date().toISOString().replace(/:/g, "-")}-${String(process.pid)}`;
   }
   const runStamp = process.env[variables.runStamp] ?? "";
-  const results = path.join(outputs, "test-results");
+  const results = path.join(outputs, runOutputs.results);
   if (runStamp === "") {
     throw new Error(
       `${variables.runStamp} is empty; refusing ${results} as outputDir.`,
@@ -148,7 +152,7 @@ async function prepareGroupRun(variables, outputs) {
               "html",
               {
                 open: "never",
-                outputFolder: path.join(outputs, "playwright-report"),
+                outputFolder: path.join(outputs, runOutputs.report),
               },
             ],
           ]

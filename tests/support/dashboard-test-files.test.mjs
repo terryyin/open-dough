@@ -6,7 +6,13 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { makeMe } from "./makeMe.mjs";
 import { durationListText } from "./job-duration-list.mjs";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import {
+  chmodSync,
+  mkdtempSync,
+  mkdirSync,
+  writeFileSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -81,6 +87,33 @@ test("a runner owning one root deals only its specs and names its own split", ()
     assert.equal(matched(first, join(path, "frontend-tests/b.spec.ts")), 1);
     assert.equal(dashboardTestMatch(directory, "2/2", own).length, 0);
     assert.throws(() => dashboardTestMatch(directory, "x", own), /OWN_SPLIT=x/);
+  });
+});
+
+test("discovery never walks a run's output while Playwright changes it", () => {
+  // A run keeps its output beside its specs (support/runnerConfig.mjs); a
+  // worker reloading the configuration mid-run must not read it.
+  const stamp = "tests/test-results/2026-11-14T02-10-56.693Z-2671";
+  const traces = `${stamp}/.playwright-artifacts-3/traces`;
+  const files = [
+    "tests/a.spec.ts",
+    "tests/nested/b.spec.ts",
+    `${stamp}/copied.spec.ts`,
+    `${traces}/resources/kept.spec.ts`,
+    "tests/playwright-report/data/report.spec.ts",
+  ];
+  withSpecDirectory(files, "", (directory, path) => {
+    // An unreadable directory stands in for one Playwright deletes mid-walk.
+    chmodSync(join(path, traces), 0);
+    try {
+      const own = { ...scratch, roots: ["tests"] };
+      const [, chromium] = dashboardTestProjects(directory, undefined, own);
+      assert.equal(chromium.testMatch.length, 2);
+      assert.equal(matched(chromium.testMatch, join(path, files[0])), 1);
+      assert.equal(matched(chromium.testMatch, join(path, files[1])), 1);
+    } finally {
+      chmodSync(join(path, traces), 0o755);
+    }
   });
 });
 

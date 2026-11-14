@@ -8,6 +8,29 @@ import {
   shareLabels,
 } from "../../../scripts/share-deal.mjs";
 
+// The directories a run writes beside its specs: each runner keeps its
+// `test-results/<stamp>/` run directories and CI `playwright-report/` in its
+// own root (./runnerConfig.mjs). Playwright adds and deletes trace files there
+// while workers, which load the configuration again, discover specs.
+export const runOutputs = {
+  results: "test-results",
+  report: "playwright-report",
+};
+const outputNames = new Set(Object.values(runOutputs));
+
+// Every spec file below `directory`, as posix paths prefixed by `label`,
+// without entering a run's output.
+function specTree(directory, label) {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = posix.join(label, entry.name);
+    if (!entry.isDirectory())
+      return /\.(spec|test)\.[cm]?[jt]sx?$/.test(entry.name) ? [path] : [];
+    return outputNames.has(entry.name)
+      ? []
+      : specTree(resolve(directory, entry.name), path);
+  });
+}
+
 // The specs under `roots` of a runner's `directory` (its configuration's
 // testDir), as paths relative to it: the labels its duration list and its
 // `<group>-times-<shard>` artifacts carry (support/specTimes.ts writes the
@@ -19,12 +42,9 @@ export function dashboardSpecFiles(directory, roots) {
   return roots
     .flatMap((root) =>
       existsSync(resolve(directory, root))
-        ? readdirSync(resolve(directory, root), { recursive: true }).map(
-            (file) => posix.join(root, file),
-          )
+        ? specTree(resolve(directory, root), root)
         : [],
     )
-    .filter((file) => /\.(spec|test)\.[cm]?[jt]sx?$/.test(file))
     .sort();
 }
 

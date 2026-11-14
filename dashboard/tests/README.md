@@ -203,15 +203,9 @@ its `test.extend`), not with a module-level `test.use`: a module is evaluated
 once per worker, so such a call applies only to the first spec file that
 loads it there.
 
-Discovery and sharding follow the file: `support/testFiles.mjs` finds every
-`*.spec.ts` under its group's root recursively and the group's CI split
-([CI shards](shards.md)) deals whole files by the seconds its own duration
-list records for them, so a new file needs no registration; unrecorded there,
-it is dealt after the recorded files at their median duration until that list
-is next refreshed from a hosted run, and the preview in [CI shards](shards.md)
-shows where it lands before a push.
-`tests/support/browser-group-shards.test.mjs` protects discovery of new specs
-and their assignment to exactly one of their group's shards.
+Discovery and sharding follow the file, so a new spec needs no registration:
+[CI shards](shards.md#the-split) describes how its group finds it and deals it
+to one shard, and how to preview where it lands before a push.
 
 ## Running the suite
 
