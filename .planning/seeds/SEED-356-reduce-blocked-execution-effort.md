@@ -86,11 +86,23 @@ actually read or construct from observed costs, rather than inheriting them.
 
 #### Comparison cases and preflight
 
-- Use the event-driven paused-supplier variant and the representative unblocked
-  example from [Save and reuse native A/B baselines](SEED-346-native-ab-comparisons.md#reuse-native-comparison-baselines).
-  Verify that their saved baselines match the candidate comparison's material
+- Derive and qualify the event-driven paused-supplier variant here, after
+  selecting a genuine supported delivery path. Retain its real-work task,
+  starting state, supplier evidence and proof. Deliver unchanged,
+  nonqualifying and qualifying evidence on a matched schedule while the
+  workflow determines which model turns occur. Distinguish intentionally
+  skipped wakes from failed or unavailable observation; require preserved
+  work, exactly one qualifying continuation and terminal proof. Capture its
+  baseline and record whether the existing workflow already stays quiet.
+  Terry assigned this responsibility here on 2026-11-14: the current Codex
+  CLI comparison harness forces every wake and supplies no supplier-event
+  delivery path, so comparison tooling must not manufacture the behavior.
+- Use the reusable evidence and representative unblocked example from
+  [Save and reuse native A/B baselines](SEED-346-native-ab-comparisons.md#reuse-native-comparison-baselines).
+  Verify that saved observations match the candidate comparison's material
   conditions and measurement needs. Obtain a fresh baseline when they differ.
-  The forced-turn result remains evidence for correctness and per-wake overhead.
+  The original forced-turn result remains evidence for correctness and
+  per-wake overhead, rather than suppressed wakes.
 - Before paying for a full pair, demonstrate that the selected native host can
   use the candidate's actual delivery path and that the assessor distinguishes
   an intentional skipped wake from an unavailable or broken session. Check
