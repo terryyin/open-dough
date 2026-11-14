@@ -1,11 +1,3 @@
-// The terminal's named frame icons maximize/restore/close (../../../e2e/terminals/agent-terminal.spec.ts).
-// Maximize takes the page column's room, hiding banner/stories with the same
-// session attached and Sessions sidebar beside it. A different session/content
-// opens split; Restore recovers split. On a narrow window the panel covers
-// without Maximize/Restore. Close leaves the session running and unmarked;
-// reopening starts split. This page's dashboard attaches only synthetic Claude
-// (./fixtures/fake-claude).
-
 import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import {
@@ -20,6 +12,7 @@ import {
   parts,
   sessionNamedBy,
 } from "../dashboardPage.ts";
+import { setPageVisibility } from "../autoRefreshJourney.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import {
   notRefinedStory,
@@ -29,7 +22,14 @@ import {
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  expectSessionsSidebar,
+  sessionsSidebarParts,
+} from "../sessionsSidebarPage.ts";
+import {
+  expectClosedToggleCounts,
+  expectClosedToggleCountsFit,
+} from "../sessionsTogglePage.ts";
 import { box, expectFills } from "../pageLayout.ts";
 import {
   closeSidePanel,
@@ -131,6 +131,16 @@ test.describe("maximizing the terminal", () => {
       });
       await expect(banner).toBeHidden();
       await expect(board).toBeHidden();
+      dashboard.claudeSessionBecomes(second, "blocked");
+      await setPageVisibility(page, "hidden");
+      await setPageVisibility(page, "visible");
+      await expectClosedToggleCounts(page, 1, 1);
+      await expectClosedToggleCountsFit(page);
+      await sidebar.button.click();
+      await expectSessionsSidebar(page, "open");
+      await expect(sidebar.badge).toHaveText("1");
+      await sidebar.button.click();
+      await expectSessionsSidebar(page, "closed");
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       await expect(rows).toContainText("echo keep this line");
       expect(attachCount()).toBe(attachedBefore);
@@ -213,7 +223,6 @@ test.describe("maximizing the terminal", () => {
       await expect(rows).toContainText(`attached ${shortId(second)}`);
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();
-      // The page, showing Backlog, stays left of the panel.
       expect((await box(panel)).x).toBeGreaterThanOrEqual(
         (await box(backlog)).x + (await box(backlog)).width,
       );

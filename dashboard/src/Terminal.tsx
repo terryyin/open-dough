@@ -13,6 +13,7 @@
 // Done asks first when completion is unknown, closes the view after success,
 // and leaves the terminal visible with recovery guidance when marking fails.
 
+import { SidePanelHeader } from "./SidePanelHeader.tsx";
 import { useId, useRef, type CSSProperties } from "react";
 import { CircleCheck } from "lucide-react";
 import { marksRecordDone } from "./sessionCapabilities.ts";
@@ -124,7 +125,7 @@ export function Terminal({
   return (
     <section ref={panel} className="side-panel" aria-label="Terminal">
       <PanelDivider />
-      <header className="side-panel-header">
+      <SidePanelHeader>
         <div ref={identity} className="terminal-identity">
           {agentName !== undefined && (
             <AgentPortrait name={agentName} label={agent} />
@@ -164,7 +165,7 @@ export function Terminal({
             onClose={onClose}
           />
         </div>
-      </header>
+      </SidePanelHeader>
       {asking.shown && (
         <InPlaceQuestion
           asking={asking}

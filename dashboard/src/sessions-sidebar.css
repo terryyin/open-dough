@@ -3,7 +3,7 @@
    scrolls beside it, with the side panel still on the right:
    sidebar | page | panel (./side-panel.css). On a narrow window, where the
    panel stacks above the page, it overlays the page from the left, below the
-   pinned banner so the Sessions button stays in reach.
+   top bar so the Sessions button stays in reach.
    Inside, visible lists fill the room the heading and every expanded section
    header leave, each scrolling on its own; one room owner
    (./sessionsSidebarHeights.ts) sizes preferred sections to the height chosen
@@ -234,5 +234,10 @@
     padding-top: var(--banner-height, 0px);
     border-right: 1px solid var(--edge);
     box-shadow: var(--shadow-2);
+  }
+
+  .page-maximized > .sessions-sidebar {
+    top: var(--banner-height, 0px);
+    padding-top: 0;
   }
 }
