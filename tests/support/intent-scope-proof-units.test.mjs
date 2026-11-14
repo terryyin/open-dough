@@ -5,7 +5,7 @@
 // each with its own time and parts, a gap naming its unit beside another
 // unit's results, and how many paths a scope matches never a count of test
 // files. Browser journey:
-// ../../dashboard/tests/intent/intent-ci-proof-units.spec.ts.
+// ../../e2e/intent/intent-ci-proof-units.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {

@@ -214,13 +214,18 @@ test("independent repositories and copied non-Git runner fixtures remain usable"
 });
 
 test("only an unfiltered dashboard run takes admission, including explicit worker and reporter settings", () => {
+  const split = "OPEN_DOUGH_DASHBOARD_INTEGRATED_SPLIT";
   for (const args of [
     [],
     ["test"],
     ["test", "--workers", "2", "--reporter=list"],
     ["test", "-j3", "--timeout=1000"],
   ])
-    assert.equal(fullDashboardSuite(args, {}), true, JSON.stringify(args));
+    assert.equal(
+      fullDashboardSuite(args, {}, split),
+      true,
+      JSON.stringify(args),
+    );
   for (const args of [
     ["probe"],
     ["--grep=needle"],
@@ -237,12 +242,9 @@ test("only an unfiltered dashboard run takes admission, including explicit worke
     ["--", "probe"],
   ])
     assert.equal(
-      fullDashboardSuite(["test", ...args], {}),
+      fullDashboardSuite(["test", ...args], {}, split),
       false,
       JSON.stringify(args),
     );
-  assert.equal(
-    fullDashboardSuite(["test"], { OPEN_DOUGH_DASHBOARD_SPLIT: "1/2" }),
-    false,
-  );
+  assert.equal(fullDashboardSuite(["test"], { [split]: "1/2" }, split), false);
 });

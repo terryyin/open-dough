@@ -44,7 +44,7 @@ test("a failed Git preparation cannot remove a different completed layout", asyn
       testDir: path.join(repoRoot, "dashboard/tests/fixtures/artifact-demand"),
       globalSetup: path.join(
         repoRoot,
-        "dashboard/tests/support/globalSetup.ts",
+        "dashboard/tests/support/integratedGlobalSetup.ts",
       ),
     },
     env: {

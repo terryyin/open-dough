@@ -6,7 +6,7 @@
 // a head this boundary resolved, itself or in a revision check watching the
 // branch; malformed branch parameters are covered in
 // ./authenticated-read-refusal.spec.ts, and what the page shows from branch
-// reads in ../../tests/stories/branch-slice-progress.spec.ts. Shares this suite's harness
+// reads in ../../../e2e/stories/branch-slice-progress.spec.ts. Shares this suite's harness
 // (../../tests/support/dashboardServer.ts) and ./authenticated-read-boundary.spec.ts's
 // approach.
 

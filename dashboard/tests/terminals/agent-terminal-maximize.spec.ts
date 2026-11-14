@@ -1,4 +1,4 @@
-// The terminal's named frame icons maximize/restore/close (./agent-terminal.spec.ts).
+// The terminal's named frame icons maximize/restore/close (../../../e2e/terminals/agent-terminal.spec.ts).
 // Maximize takes the page column's room, hiding banner/stories with the same
 // session attached and Sessions sidebar beside it. A different session/content
 // opens split; Restore recovers split. On a narrow window the panel covers

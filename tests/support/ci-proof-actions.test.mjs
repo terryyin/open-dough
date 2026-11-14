@@ -1,9 +1,11 @@
-// The two local CI proof actions' scripts, replayed with what ci.yml gives
-// them (./ci-proof-declaration.test.mjs) on representative runner reports:
-// npm test's outcomes, one line per check file it ran as one job, publish
-// test files, the dashboard's Playwright record publishes each test as a
-// test case to its own proof entry, and a part whose runner wrote no report
-// stays missing. One location reporting both units is covered by
+// The two local CI proof actions' scripts, replayed with what ci.yml and the
+// browser test group workflow give them (./ci-proof-declaration.test.mjs) on
+// representative runner reports: npm test's outcomes, one line per check
+// file it ran as one job, publish test files; each browser test group's
+// Playwright record publishes its own tests as test cases to its own proof
+// entry; a part whose runner wrote no report stays missing, while a part
+// whose runner reported no test is a reported zero. One location reporting
+// both units is covered by
 // ../../src/skills/dough-test-optimization/scripts/ci-proof-units-cli.test.mjs.
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
@@ -13,41 +15,37 @@ import { fileURLToPath } from "node:url";
 import { summaryProblems } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import { locatedRecord } from "../../src/skills/dough-test-optimization/scripts/ci-proof-test-fixtures.mjs";
 import {
-  evaluated,
-  input,
-  producers,
+  declaredPart,
   root,
-  runAttempt,
   stepInputs,
   summaryStep,
 } from "./ci-proof-action-fixtures.mjs";
+import { runAttempt } from "./ci-proof-action-replay.mjs";
 
-// JOB's PART on the runner TEMP as ci.yml declares it: its fragments step's
-// inputs, and where its suite step has the runner write a report.
-function declaredPart(job, part, temp) {
-  const declared = producers.find((producer) => producer.job === job);
-  const context = { temp, part, parts: declared.parts };
-  const [step] = declared.proof;
-  return {
-    inputs: Object.fromEntries(
-      Object.entries(stepInputs(step)).map(([name, value]) => [
-        name,
-        evaluated(value, context),
-      ]),
-    ),
-    report: (variable) => evaluated(input(declared.suite, variable), context),
-  };
-}
-
-// The collector log's gaps of an entry's unit whose part 1 of OF alone
-// reported.
-const missingAfterFirst = (of) =>
+// The collector log's gaps of an entry's unit whose parts FROM to OF are
+// missing.
+const missingFrom = (from, of) =>
   Array.from(
-    { length: of - 1 },
-    (...[, index]) => `part ${index + 2} of ${of} missing`,
+    { length: of - from + 1 },
+    (...[, index]) => `part ${index + from} of ${of} missing`,
   ).join("; ");
 
-test("Open Dough's CI publishes npm test's per-file outcomes as test files and each dashboard test as a test case; a part whose runner wrote no report stays missing", (t) => {
+const cwd = fileURLToPath(root).replace(/\/$/, "");
+
+// Keeps JOB's PART fragments after its runner wrote RECORD (none when
+// undefined) as its suite step's proof record.
+function keepGroupPart(run, job, part, record) {
+  const temp = run.runner(job, part);
+  const declared = declaredPart(job, part, temp);
+  if (record !== undefined)
+    writeFileSync(
+      declared.report("PROOF_RECORD"),
+      JSON.stringify(locatedRecord(cwd, record)),
+    );
+  return run.fragments(part, temp, declared.inputs);
+}
+
+test("Open Dough's CI publishes npm test's per-file outcomes as test files and each browser group's tests as its own entry's test cases; a part whose runner wrote no report stays missing", (t) => {
   const run = runAttempt(t);
   // Share 1's runner reports each check file it ran as one job: a Node file
   // of five cases is one line, and a failed file job without case output
@@ -64,28 +62,24 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
   );
   // Share 2's runner ended with a global error before writing any report.
   const failed = run.runner("test", 2);
-  const shard = run.runner("dashboard", 1);
-  const cwd = fileURLToPath(root).replace(/\/$/, "");
-  writeFileSync(
-    declaredPart("dashboard", 1, shard).report(
-      "OPEN_DOUGH_DASHBOARD_PROOF_RECORD",
-    ),
-    JSON.stringify(
-      locatedRecord(cwd, [
-        [`${cwd}/dashboard/tests/browser.spec.ts`, "expected", [35]],
-        [`${cwd}/dashboard/frontend-tests/dom.spec.ts`, "expected", [20]],
-        [`${cwd}/dashboard/backend-tests/server.spec.ts`, "expected", [50]],
-        [`${cwd}/dashboard/backend-tests/problem.spec.ts`, "unexpected", [15]],
-      ]),
-    ),
-  );
   const kept = [
-    ["test", 1, share],
-    ["test", 2, failed],
-    ["dashboard", 1, shard],
-  ].map(([job, part, temp]) =>
-    run.fragments(job, part, temp, declaredPart(job, part, temp).inputs),
-  );
+    run.fragments(1, share, declaredPart("test", 1, share).inputs),
+    run.fragments(2, failed, declaredPart("test", 2, failed).inputs),
+    // Each group's first shard records only its own selection.
+    keepGroupPart(run, "e2e", 1, [
+      [`${cwd}/e2e/workflow.spec.ts`, "expected", [40]],
+    ]),
+    keepGroupPart(run, "dashboard-integrated", 1, [
+      [`${cwd}/dashboard/tests/browser.spec.ts`, "expected", [35]],
+    ]),
+    keepGroupPart(run, "dashboard-frontend", 1, [
+      [`${cwd}/dashboard/frontend-tests/dom.spec.ts`, "expected", [20]],
+    ]),
+    keepGroupPart(run, "dashboard-backend", 1, [
+      [`${cwd}/dashboard/backend-tests/server.spec.ts`, "expected", [50]],
+      [`${cwd}/dashboard/backend-tests/problem.spec.ts`, "unexpected", [15]],
+    ]),
+  ];
   assert.deepEqual(
     kept.map((result) => [result.status, result.stdout, result.stderr]),
     [
@@ -96,6 +90,9 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
         `ci-proof-summary: ENOENT: no such file or directory, open '${join(failed, "test-outcomes.txt")}'\n`,
       ],
       [0, "", ""],
+      [0, "", ""],
+      [0, "", ""],
+      [0, "", ""],
     ],
   );
   const summary = run.summary(stepInputs(summaryStep).expect);
@@ -103,11 +100,12 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
   assert.equal(
     summary.stdout,
     [
-      `dashboard/tests: 1 passed, 0 failed, 0 other test cases; ${missingAfterFirst(13)}`,
-      `dashboard/frontend-tests: 1 passed, 0 failed, 0 other test cases; ${missingAfterFirst(13)}`,
-      `dashboard/backend-tests: 1 passed, 1 failed, 0 other test cases; ${missingAfterFirst(13)}`,
-      `tests: 1 passed, 0 failed, 0 other test files; ${missingAfterFirst(3)}`,
-      `src/skills: 1 passed, 1 failed, 0 other test files; ${missingAfterFirst(3)}`,
+      `e2e: 1 passed, 0 failed, 0 other test cases; ${missingFrom(2, 6)}`,
+      `dashboard/tests: 1 passed, 0 failed, 0 other test cases; ${missingFrom(2, 5)}`,
+      `dashboard/frontend-tests: 1 passed, 0 failed, 0 other test cases`,
+      `dashboard/backend-tests: 1 passed, 1 failed, 0 other test cases; ${missingFrom(2, 4)}`,
+      `tests: 1 passed, 0 failed, 0 other test files; ${missingFrom(2, 3)}`,
+      `src/skills: 1 passed, 1 failed, 0 other test files; ${missingFrom(2, 3)}`,
       "",
     ].join("\n"),
   );
@@ -128,6 +126,7 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
       ),
     ),
     [
+      "e2e 40 ms: e2e/workflow.spec.ts 1 passed 0 failed",
       "dashboard/tests 35 ms: dashboard/tests/browser.spec.ts 1 passed 0 failed",
       "dashboard/frontend-tests 20 ms: dashboard/frontend-tests/dom.spec.ts 1 passed 0 failed",
       "dashboard/backend-tests 65 ms: dashboard/backend-tests/problem.spec.ts 0 passed 1 failed",
@@ -137,4 +136,31 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
       "src/skills 3000 ms: src/skills/x/scripts/five-cases.test.mjs 1 passed 0 failed",
     ],
   );
+});
+
+test("a browser group's shard that ran no test is a reported zero, while a shard whose runner wrote no record leaves its part missing", (t) => {
+  const run = runAttempt(t);
+  const kept = [
+    keepGroupPart(run, "dashboard-backend", 1, [
+      [`${cwd}/dashboard/backend-tests/server.spec.ts`, "expected", [50]],
+    ]),
+    // Shard 2's deal selected no spec; its run completed and recorded none.
+    keepGroupPart(run, "dashboard-backend", 2, []),
+    // Shard 3's runner ended before writing its record.
+    keepGroupPart(run, "dashboard-backend", 3, undefined),
+    keepGroupPart(run, "dashboard-backend", 4, [
+      [`${cwd}/dashboard/backend-tests/other.spec.ts`, "expected", [10]],
+    ]),
+  ];
+  assert.deepEqual(
+    kept.map((result) => result.status),
+    [0, 0, 1, 0],
+  );
+  const summary = run.summary("dashboard/backend-tests=4:case");
+  assert.deepEqual([summary.status, summary.stderr], [0, ""]);
+  assert.equal(
+    summary.stdout,
+    "dashboard/backend-tests: 2 passed, 0 failed, 0 other test cases; part 3 of 4 missing\n",
+  );
+  assert.deepEqual(summaryProblems(summary.written), []);
 });

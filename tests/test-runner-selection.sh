@@ -114,6 +114,7 @@ const jobs = (name) => readFileSync(`${directory}/${name}.jobs`, 'utf8')
 const directJobs = {
   'git-publication-native-one-shot': [
     'shell\ttests/git-publication-native-one-shot-results.sh',
+    'shell\ttests/git-publication-native-one-shot-reviews.sh',
     'shell\ttests/git-publication-native-one-shot-workspaces.sh'],
   'makeme-native-use': [
     'node\ttests/support/makeme-native-harness.test.mjs',

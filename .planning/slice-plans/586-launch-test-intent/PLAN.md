@@ -56,7 +56,9 @@ Status: planned
 Proof: Share workflow/host/options/existing-changes controls and confirmation
 without hiding refusal or disclosure actions. Preserve exact chosen values and
 native/HTTP/record evidence. Illustrative:
-`npm run test:dashboard -- 'tests/launches/agent-launch-base-ci' 'tests/launches/agent-launch-model.spec.ts' 'tests/launches/agent-launch-options' 'tests/launches/agent-launch-start-session-existing-changes.spec.ts'`.
+`npm run test:e2e -- 'e2e/launches/agent-launch-base-ci' 'e2e/launches/agent-launch-start-session-existing-changes.spec.ts'`,
+`npm run test:dashboard:integrated -- 'tests/launches/agent-launch-model.spec.ts' 'tests/launches/agent-launch-options'` and
+`npm run test:dashboard:backend -- 'backend-tests/launches/agent-launch-options'`.
 
 Behavior: A developer reads a launch-choice case → follows named entry and
 dialog operations → the source states the workflow, host and options chosen,
@@ -68,7 +70,9 @@ Status: planned
 Proof: Dialog owners provide attach/paste/preview/draft/cancel operations while
 the case keeps exact payload, provider fault and focus expectations. Preserve
 frontend/integrated setup separation. Illustrative:
-`npm run test:dashboard -- 'tests/launches/agent-launch-ad-hoc-attachments' 'frontend-tests/agent-launch-ad-hoc-attachments-refusal.spec.ts'`.
+`npm run test:e2e -- 'e2e/launches/agent-launch-ad-hoc-attachments'`,
+`npm run test:dashboard:integrated -- 'tests/launches/agent-launch-ad-hoc-attachments'` and
+`npm run test:dashboard:frontend -- 'frontend-tests/agent-launch-ad-hoc-attachments-refusal.spec.ts'`.
 
 Behavior: A developer reads a launch attachment case → follows named dialog
 input operations with explicit payloads → the source explains the retained,
@@ -79,7 +83,8 @@ Type: Behavior
 Status: planned
 Proof: Reuse the existing voice owner and dialog draft controls; keep provider
 events, transcript, cancellation and overflow edits visible. Illustrative:
-`npm run test:dashboard -- 'tests/launches/.*instruction-voice'` plus discovered
+`npm run test:e2e -- 'e2e/launches/.*instruction-voice'` and
+`npm run test:dashboard:integrated -- 'tests/launches/.*instruction-voice'` plus discovered
 instruction recording callers.
 
 Behavior: A developer reads an instruction voice case → follows recording and
@@ -92,7 +97,7 @@ Status: planned
 Proof: Reuse touch/dialog operations for disclosure, scrolling and pressing;
 retain actual gesture, viewport, reachability and focus expectations. Direct
 measurement assertions keep independent bounds. Illustrative:
-`npm run test:dashboard -- 'tests/launches/agent-launch-dialog-touch.spec.ts'` plus
+`npm run test:dashboard:integrated -- 'tests/launches/agent-launch-dialog-touch.spec.ts'` plus
 layout/touch siblings using the changed controls.
 
 Behavior: A developer reads a touch launch case → follows named dialog actions
@@ -105,7 +110,10 @@ Status: planned
 Proof: Shared result readers and retry/recheck/continue controls serve
 preparation, responsive and frontend families. Keep native progress gates,
 exact verification/refusal wording and release order explicit. Illustrative:
-`npm run test:dashboard -- 'tests/launches/agent-launch-start-story-card.spec.ts' 'tests/launches/agent-launch-preparation' 'tests/launches/responsive-session-(access|recovery)' 'frontend-tests/startup-host-words.spec.ts'`.
+`npm run test:e2e -- 'e2e/launches/agent-launch-preparation' 'e2e/launches/responsive-session-recovery'`,
+`npm run test:dashboard:integrated -- 'tests/launches/agent-launch-start-story-card.spec.ts' 'tests/launches/responsive-session-(access|recovery)'`,
+`npm run test:dashboard:backend -- 'backend-tests/launches/agent-launch-preparation'` and
+`npm run test:dashboard:frontend -- 'frontend-tests/startup-host-words.spec.ts'`.
 
 Behavior: A developer reads a pending or refused startup case → follows named
 answer observations and the explicit chosen recovery → the source states what

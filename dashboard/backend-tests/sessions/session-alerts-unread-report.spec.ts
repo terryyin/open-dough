@@ -1,5 +1,5 @@
 // The dashboard server's macOS notification when a session's completion report
-// arrives unread (../../server/sessionAlerts.ts; ../../tests/sessions/session-alerts.spec.ts is the
+// arrives unread (../../server/sessionAlerts.ts; ../../../e2e/sessions/session-alerts.spec.ts is the
 // native reading's): one notification in the report's own words, “Unread
 // report: <completion label>”, whatever the native reading, which goes on
 // alerting as it would without a report; none for a session marked done.

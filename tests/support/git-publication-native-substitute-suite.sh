@@ -7,6 +7,9 @@
 # shellcheck source=tests/support/git-publication-native-substitute-admission.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-substitute-admission.sh"
+# shellcheck source=tests/support/git-publication-native-substitute-one-shot.sh
+# shellcheck disable=SC1091
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-substitute-one-shot.sh"
 
 # Puts substitute hosts first on PATH: every host runs the publication
 # sentinel, beside the admission, one-shot and owned-context sentinels. Sets
@@ -41,16 +44,24 @@ prepare_substitute_hosts() {
 # after them, into a new run directory, substitute_artifact, named after $1 in
 # substitute_work. Leaves the runner's verdict in git_publication_assess_*,
 # the run's exit status in substitute_status, and its observation, with
-# run-specific values named, in substitute_work/$1.txt.
+# run-specific values named, in substitute_work/$1.txt. The run directory's
+# host-exit.log holds the run's status, outcome and seconds after each host
+# session's own record (native-agent-publication.sh).
 substitute_run() {
-  local name=$1 host=$2 journey=$3 assignment
+  local name=$1 host=$2 journey=$3 assignment started
   shift 3
   substitute_artifact=$(mktemp -d "${substitute_work}/${name}.XXXXXX")
   for assignment in "$@"; do export "${assignment?}"; done
   substitute_status=0
+  started=${EPOCHREALTIME}
   NATIVE_AGENT_SENTINEL_LOG="${substitute_run_log}" \
+    NATIVE_AGENT_EXIT_LOG="${substitute_artifact}/host-exit.log" \
     git_publication_run_journey "${source_dir}" "${host}" "${journey}" \
     "${substitute_artifact}" || substitute_status=$?
+  awk -v s="${started}" -v e="${EPOCHREALTIME}" -v status="${substitute_status}" \
+    -v outcome="${native_run_outcome:-}" -v reason="${native_run_failure_reason:-}" \
+    'BEGIN { printf "run exited %s after %.1f s; native outcome %s: %s\n", status, e - s, outcome, reason }' \
+    >> "${substitute_artifact}/host-exit.log"
   for assignment in "$@"; do unset "${assignment%%=*}"; done
   substitute_observation "${substitute_artifact}/observations.txt" \
     "${substitute_artifact}" > "${substitute_work}/${name}.txt"
@@ -65,11 +76,29 @@ substitute_run_passes() {
     return 0
   fi
   echo "FAIL: substitute $2 $3 exited ${substitute_status}, assessment ${git_publication_assess_status}: ${git_publication_assess_reason}" >&2
-  for file in stderr.log observations.txt response.md events.jsonl; do
+  for file in host-exit.log stderr.log observations.txt response.md events.jsonl; do
+    printf -- '--- %s\n' "${file}" >&2
     cat "${substitute_artifact}/${file}" >&2 2> /dev/null || true
   done
+  substitute_hosts_running "${substitute_artifact}/host-exit.log" >&2
   git_publication_fixture_cleanup
   exit 1
+}
+
+# Prints each host session that host exit log $1 shows started and not ended
+# and that is still running now; one gone without an end was killed.
+substitute_hosts_running() {
+  local pid
+  # A session record reads `<host> pid <pid> after <seconds> s: <event>`.
+  awk '$2 != "pid" { next }
+    $7 == "started" { open[$3] = 1 }
+    $7 == "exited" || $7 == "caught" { delete open[$3] }
+    END { for (pid in open) print pid }' "$1" 2> /dev/null \
+    | while read -r pid; do
+      if kill -0 "${pid}" 2> /dev/null; then
+        printf 'host pid %s is still running\n' "${pid}"
+      fi
+    done
 }
 
 # Prints observation $1 with the values that differ between runs named: the
@@ -137,6 +166,7 @@ run_substitute_host_journeys() {
   [[ ${substitute_status} -ne 0 ]]
   cmp -s "${work}/cursor-publish-boundary.txt" "${work}/exit-after-complete.txt"
   [[ ${git_publication_assess_reason} == 'native host exited 1 before completing the journey' ]]
+  grep -Eq '^cursor pid [0-9]+ after [0-9.]+ s: exited 1$' "${substitute_artifact}/host-exit.log"
 
   for journey in local-only claim-race uncertain-recovery preparation \
     story-branch-increment \
@@ -151,75 +181,4 @@ run_substitute_host_journeys() {
   substitute_run_passes journey-land-default-checkout claude land-default-checkout
   run_land_default_assessor_counterexamples \
     "${work}/journey-land-default-checkout.txt"
-}
-
-# The aggregate keeps the literal focused proof command; CI schedules the
-# result/review and workspace/landing journeys as separate bounded jobs.
-run_substitute_one_shot_journeys() {
-  run_substitute_one_shot_result_journeys
-  run_substitute_one_shot_workspace_journeys
-}
-
-run_substitute_one_shot_result_journeys() {
-  local journey
-  prepare_substitute_hosts
-  for journey in one-shot-result one-shot-queued one-shot-escalation \
-    one-shot-review one-shot-refinement; do
-    run_substitute_one_shot_journey "${journey}"
-  done
-  run_substitute_one_shot_review_pushes one-shot-review \
-    git-publication-native-one-shot-review.sh
-  run_substitute_one_shot_review_pushes one-shot-refinement \
-    git-publication-native-one-shot-refinement.sh
-  substitute_run_passes claude-one-shot-result-unobserved claude one-shot-result \
-    GIT_PUBLICATION_KEEP=1 NATIVE_ONE_SHOT_VARIANT=unobserved
-  run_one_shot_unobserved_counterexamples \
-    "${substitute_artifact}/events.jsonl" claude
-  git_publication_fixture_cleanup
-}
-
-run_substitute_one_shot_workspace_journeys() {
-  local journey
-  prepare_substitute_hosts
-  for journey in one-shot-default-main one-shot-auto-land \
-    one-shot-auto-land-blocked one-shot-established \
-    one-shot-refinement-auto-land; do
-    run_substitute_one_shot_journey "${journey}"
-  done
-}
-
-# Whole-run counterexample for review journey $1, whose assessor file in
-# tests/support is $2: a substitute that also pushes its committed result to
-# remote trunk, against that journey's passing run above.
-run_substitute_one_shot_review_pushes() {
-  local journey=$1 work=${substitute_work}
-  git_publication_suite_counterexamples "${source_dir}/tests/support/$2" \
-    "${work}/claude-${journey}.txt"
-  substitute_run "${journey}-pushes" claude "${journey}" \
-    NATIVE_ONE_SHOT_VARIANT=pushes
-  [[ ${substitute_status} -eq 0 ]]
-  native_assessor_rejects "${journey}-pushes" remote \
-    "${work}/${journey}-pushes.txt" fail 'the remote changed'
-}
-
-# One-shot journey $1 through the installed start, delivery and CI completion
-# CLIs (or, escalating, start and admission), then real-state counterexamples
-# on its kept fixture.
-run_substitute_one_shot_journey() {
-  local journey=$1 events counterexamples
-  substitute_run_passes "claude-${journey}" claude "${journey}" \
-    GIT_PUBLICATION_KEEP=1
-  events="${substitute_artifact}/events.jsonl"
-  # A journey with its own state counterexamples runs them; the landing
-  # journeys share the one-shot ones.
-  counterexamples="run_${journey//-/_}_state_counterexamples"
-  if declare -F "${counterexamples}" > /dev/null; then
-    "${counterexamples}" "${events}" claude
-  else
-    run_one_shot_state_counterexamples "${events}" "${journey}" claude
-  fi
-  if [[ ${journey} == one-shot-auto-land ]]; then
-    run_one_shot_auto_land_stream_counterexamples "${events}" claude
-  fi
-  git_publication_fixture_cleanup
 }

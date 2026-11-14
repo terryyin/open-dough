@@ -1,23 +1,28 @@
-# Proof record of a dashboard run
+# Proof record of a browser test group's run
 
-How `npm run test:dashboard` retains the selection and results of one strict
-run as a JSON record, and how to read that record (the suite itself:
-[README](README.md)).
+How each browser test group's command (`npm run test:e2e`,
+`npm run test:dashboard:integrated`, `:frontend` or `:backend`) retains the
+selection and results of one strict run as a JSON record, and how to read
+that record (the groups themselves: [README](README.md)).
 
 This file is the run's **transcript**: a caller-owned absolute path for one
-invocation's selection and attempts. CI requests one per dashboard shard
-(`OPEN_DOUGH_DASHBOARD_PROOF_RECORD` in `.github/workflows/ci.yml`) and
-writes that shard's CI proof fragment from it
-(`.github/actions/ci-proof-fragments`, `report-format: playwright-record`).
+invocation's selection and attempts, named by the group's own
+`<prefix>_PROOF_RECORD` (`OPEN_DOUGH_E2E_PROOF_RECORD`,
+`OPEN_DOUGH_DASHBOARD_INTEGRATED_PROOF_RECORD`, `..._FRONTEND_...` or
+`..._BACKEND_...`). CI requests one per shard of each group
+(`.github/workflows/browser-test-group.yml`) and writes that shard's CI proof
+fragment for the group's entry from it (`.github/actions/ci-proof-fragments`,
+`report-format: playwright-record`).
 
 To retain the selection and results of the same strict run, choose an unused
-absolute file path outside `dashboard/test-results/` before invoking it. Its
-parent directory must already exist. No record is created unless requested:
+absolute file path outside the group's `test-results/` before invoking it.
+Its parent directory must already exist. No record is created unless
+requested:
 
 ```sh
 proof_dir=$(mktemp -d)
-OPEN_DOUGH_DASHBOARD_PROOF_RECORD="$proof_dir/proof.json" \
-  npm run --silent test:dashboard -- quiet-reporter.spec.ts --workers=2
+OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$proof_dir/proof.json" \
+  npm run --silent test:dashboard:backend -- quiet-reporter.spec.ts --workers=2
 proof_exit=$?
 node --input-type=module - "$proof_dir/proof.json" <<'JS'
 import { readFileSync } from 'node:fs';

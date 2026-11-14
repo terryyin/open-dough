@@ -1,6 +1,6 @@
 // How each native session state reads on its entry (../../src/sessionShown.ts)
 // and whether it offers Open terminal (../../src/launchRecord.ts). The page
-// journeys keep one change each: ../../tests/sessions/agent-launch-session-state-pace.spec.ts.
+// journeys keep one change each: ../../../e2e/sessions/agent-launch-session-state-pace.spec.ts.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";

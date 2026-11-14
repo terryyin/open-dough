@@ -5,16 +5,14 @@
 // and follows a changed definition with no code change; selecting entries
 // shows their flags in the command line under Command details and starts the
 // session with those flags, and nothing selected is today's dialog and launch. No other dialog offers options. The
-// definition this repository ships is checked against the shared schema here.
+// definition this repository ships is checked against the shared schema in
+// ../../backend-tests/launches/agent-launch-options-rules.spec.ts.
 // The synthetic `claude` (./fixtures/fake-claude) stands in for the real one.
 // How the boundary honors a selection is ../../backend-tests/launches/agent-launch-options-boundary.spec.ts.
 
-import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
-import { optionsDefinitionSchema } from "../../src/commandOptions.ts";
+import { writeFileSync } from "node:fs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
-import { repoRoot } from "../support/repositoryRoot.ts";
 import {
   installRefinementSkill,
   openTakenBacklog,
@@ -32,25 +30,6 @@ import {
 test.use({ projectFolders: ["open-dough"] });
 
 const skill = "dough-story-refinement";
-const definitionPath = path.join(
-  repoRoot,
-  "src",
-  "skills",
-  skill,
-  "references",
-);
-const realDefinition = path.join(definitionPath, "refinement-options.json");
-
-test("the shipped definition is valid and gives every option and focus a summary", () => {
-  const definition = optionsDefinitionSchema.parse(
-    JSON.parse(readFileSync(realDefinition, "utf8")),
-  );
-  const entries = [...definition.options, ...(definition.focuses ?? [])];
-  expect(entries.length).toBeGreaterThan(0);
-  for (const { flag, summary } of entries) {
-    expect(summary, flag).toMatch(/\S/);
-  }
-});
 
 test("the refinement dialog offers the installed definition's entries with label, summary and flag, and a changed definition shows with no code change", async ({
   page,

@@ -1,5 +1,5 @@
 // Every process a run starts carries the run's identity in its environment.
-// The global setup (./globalSetup.ts) gives the runner process a fresh
+// Each group's global setup (./runLifecycle.ts) gives the runner process a fresh
 // `runIdVariable` value before any worker starts, and every worker, the
 // servers and synthetic hosts a test starts, and the product's own children
 // -- detached Cursor runners, Codex and request-owner clients, the production

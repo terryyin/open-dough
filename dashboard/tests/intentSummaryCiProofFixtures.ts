@@ -1,5 +1,5 @@
 // The published tree, CI shards and opened Intent of the Summary CI proof
-// specs (./intent/intent-summary-ci-proof.spec.ts and its -gaps, -table and -kept
+// specs (../../e2e/intent/intent-summary-ci-proof.spec.ts and its -gaps, -table and -kept
 // siblings): raw runner reports as CI's collector reads them
 // (./support/ciProofCollected.ts), trunk judged running with its completed
 // ancestor's proof, and every source body read Intent makes of its

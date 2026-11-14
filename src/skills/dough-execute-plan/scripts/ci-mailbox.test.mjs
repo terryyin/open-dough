@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {
+import fs, {
   existsSync,
   mkdtempSync,
   readFileSync,
@@ -7,6 +7,7 @@ import {
   symlinkSync,
   writeFileSync,
 } from "node:fs";
+import { syncBuiltinESMExports } from "node:module";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { test } from "node:test";
@@ -148,6 +149,54 @@ test("a stop requested before worker startup does not start observation", async 
     status: "stopped",
     coverage: { state: "ended", pendingCi: "unobserved" },
     evidence: { recordedThrough: 0, deliveredThrough: 0, unread: 0 },
+  });
+});
+
+// Calls `onOpen` as `run` opens each directory watch. On macOS a busy
+// fseventsd can hold or miss a directory notification, and closing a watch
+// blocks the process for seconds, so the mailbox's own waits poll instead.
+async function onWatchOpened(t, onOpen, run) {
+  const { watch } = fs;
+  t.mock.method(fs, "watch", (...args) => {
+    onOpen(args[0]);
+    return watch(...args);
+  });
+  syncBuiltinESMExports();
+  try {
+    await run();
+  } finally {
+    t.mock.restoreAll();
+    syncBuiltinESMExports();
+  }
+}
+
+test("a stopped worker publishes its terminal result without a directory watch", async (t) => {
+  const { directory, options } = createTestMailbox(t, { mode: "execution" });
+  const watched = [];
+  await onWatchOpened(t, watched.push.bind(watched), async () => {
+    requestMailboxStop(directory, options);
+    await runMailboxWorker(directory, {
+      ...options,
+      observe: async () => assert.fail("observation should not start"),
+    });
+  });
+  assert.deepEqual(watched, []);
+  assert.equal(existsSync(join(directory, "result.json")), true);
+});
+
+// An opened watch counts as one notified only after the deadline.
+test("the terminal wait reads its result without a directory notification", async (t) => {
+  const { directory } = createTestMailbox(t);
+  const terminal = { status: "stopped" };
+  const lifecycleDeadline = new AbortController();
+  const deadlineFirst = () => queueMicrotask(() => lifecycleDeadline.abort());
+  await onWatchOpened(t, deadlineFirst, async () => {
+    const waiting = waitForTerminalResult(directory, {
+      deadline: lifecycleDeadline.signal,
+    });
+    await setImmediate();
+    writeFileSync(join(directory, "result.json"), JSON.stringify(terminal));
+    assert.deepEqual(await waiting, terminal);
   });
 });
 

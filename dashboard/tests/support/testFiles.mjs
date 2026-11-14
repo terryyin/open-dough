@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { basename, resolve } from "node:path";
+import { basename, posix, resolve } from "node:path";
 import {
   dealShares,
   parseSplit,
@@ -8,35 +8,59 @@ import {
   shareLabels,
 } from "../../../scripts/share-deal.mjs";
 
-// The browser, frontend, and backend specs under the common dashboard
-// `directory`, as paths relative to it: the labels `longest-first` and the
-// `dashboard-times-<shard>` artifacts carry (support/specTimes.ts writes the
-// same relative path).
-export function dashboardSpecFiles(directory) {
-  return ["tests", "frontend-tests", "backend-tests"]
+// The directories a run writes beside its specs: each runner keeps its
+// `test-results/<stamp>/` run directories and CI `playwright-report/` in its
+// own root (./runnerConfig.mjs). Playwright adds and deletes trace files there
+// while workers, which load the configuration again, discover specs.
+export const runOutputs = {
+  results: "test-results",
+  report: "playwright-report",
+};
+const outputNames = new Set(Object.values(runOutputs));
+
+// Every spec file below `directory`, as posix paths prefixed by `label`,
+// without entering a run's output.
+function specTree(directory, label) {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = posix.join(label, entry.name);
+    if (!entry.isDirectory())
+      return /\.(spec|test)\.[cm]?[jt]sx?$/.test(entry.name) ? [path] : [];
+    return outputNames.has(entry.name)
+      ? []
+      : specTree(resolve(directory, entry.name), path);
+  });
+}
+
+// The specs under `roots` of a runner's `directory` (its configuration's
+// testDir), as paths relative to it: the labels its duration list and its
+// `<group>-times-<shard>` artifacts carry (support/specTimes.ts writes the
+// same relative path). A root of `.` is the directory itself. Each runner
+// names its own roots (../../integrated.playwright.config.ts,
+// ../../frontend.playwright.config.ts, ../../backend.playwright.config.ts,
+// ../../../e2e/playwright.config.ts).
+export function dashboardSpecFiles(directory, roots) {
+  return roots
     .flatMap((root) =>
       existsSync(resolve(directory, root))
-        ? readdirSync(resolve(directory, root), { recursive: true }).map(
-            (file) => `${root}/${file}`,
-          )
+        ? specTree(resolve(directory, root), root)
         : [],
     )
-    .filter((file) => /\.(spec|test)\.[cm]?[jt]sx?$/.test(file))
     .sort();
 }
 
-// Selected spec files for share `split` (`<i>/<n>`, the value of
-// `OPEN_DOUGH_DASHBOARD_SPLIT`) under `testDir`: the files
-// scripts/share-deal.mjs deals to that share by the recorded seconds in
-// `testDir/longest-first` (shards.md). A malformed split or list line throws,
-// naming it, before any test is selected.
+// Selected spec files for share `split` (`<i>/<n>`, the value of the
+// runner's `splitVariable`) under `testDir`'s `roots`: the files
+// scripts/share-deal.mjs deals to that share by the recorded seconds in the
+// runner's own duration list, `durations` relative to `testDir` (shards.md).
+// A malformed split or list line throws, naming it, before any test is
+// selected.
 /** @returns {string[]} */
-function selectedFiles(testDir, split) {
+function selectedFiles(testDir, split, { roots, splitVariable, durations }) {
   const directory = fileURLToPath(testDir);
-  const files = dashboardSpecFiles(directory);
+  const files = dashboardSpecFiles(directory, roots);
   if (split === undefined) return files;
-  const { share, count } = parseSplit(split, "OPEN_DOUGH_DASHBOARD_SPLIT");
-  const { seconds } = readDurationList(resolve(directory, "longest-first"));
+  const { share, count } = parseSplit(split, splitVariable);
+  const { seconds } = readDurationList(resolve(directory, durations));
   const allocation = dealShares(files, seconds, count);
   return shareLabels(allocation, share);
 }
@@ -52,13 +76,14 @@ function filePatterns(testDir, files) {
 }
 
 // Selection and dispatch have different jobs: the duration deal chooses each
-// file's shard; native projects queue the long, serial production chains first
-// in the same phase. No dependency makes ordinary checks wait for those chains.
-// Complementary matches retain exactly one execution of every selected file.
-export function dashboardTestProjects(testDir, split) {
-  const files = selectedFiles(testDir, split);
+// file's shard; native projects queue the long, serial production chains
+// (E2E Test's `production-watcher*.spec.ts`) first in the same phase. No
+// dependency makes ordinary checks wait for those chains. Complementary
+// matches retain exactly one execution of every selected file. `selection`
+// names a runner's own `roots`, `splitVariable` and `durations`.
+export function dashboardTestProjects(testDir, split, selection) {
+  const files = selectedFiles(testDir, split, selection);
   const isProductionChain = (file) =>
-    file.startsWith("tests/") &&
     /^production-watcher(?:-.*)?\.spec\.ts$/.test(basename(file));
   return [
     {
@@ -75,7 +100,8 @@ export function dashboardTestProjects(testDir, split) {
   ];
 }
 
+// `selection` names a runner's own `roots`, `splitVariable` and `durations`.
 /** @returns {RegExp[]} */
-export function dashboardTestMatch(testDir, split) {
-  return filePatterns(testDir, selectedFiles(testDir, split));
+export function dashboardTestMatch(testDir, split, selection) {
+  return filePatterns(testDir, selectedFiles(testDir, split, selection));
 }

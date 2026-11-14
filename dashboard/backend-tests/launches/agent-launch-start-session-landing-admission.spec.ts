@@ -9,7 +9,7 @@
 // is handed no landing context; and a Codex session's installed delivery
 // command, as a one-shot landing runs it, captures its landing. The handoff
 // and the capture themselves are in
-// ../../tests/launches/agent-launch-start-session-landing-context.spec.ts.
+// ../../../e2e/launches/agent-launch-start-session-landing-context.spec.ts.
 
 import { existsSync } from "node:fs";
 import path from "node:path";

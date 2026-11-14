@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# scripts/dashboard-repeat.sh runs the dashboard suite repeatedly and reports
-# each run: its exit, seconds, load before and after, failing and printing
+# scripts/dashboard-repeat.sh runs one browser test group repeatedly and
+# reports each run: its exit, seconds, load before and after, failing and printing
 # locations, and kept directory; a fresh first run in its own worktree after
 # its own install, with that run's kept directory moved into the starting
 # checkout and the worktree removed; one burner per core during a loaded run,
 # stopped after it; a failing run without a kept directory shown by its last
 # output; burners, run, and worktree stopped and removed on interruption; and
-# a malformed repetition count refused. Substitute suite and install commands
+# a malformed repetition count or group command refused. Substitute suite and install commands
 # stand in for Playwright and npm, so the check starts neither.
 set -euo pipefail
 
@@ -128,7 +128,7 @@ expect_stopped() {
 # the repository, and the worktree is removed before the second run, which
 # runs in the repository.
 printf 'fail\npass\n' > "${fake}/scenario"
-run_repeat fresh 2 --fresh a.spec.ts b.spec.ts
+run_repeat fresh 2 test:dashboard:integrated --fresh a.spec.ts b.spec.ts
 expect_report fresh 1 << 'REPORT'
 Run 1 (fresh worktree): exit 1, <s> s, load <l> -> <l>
   FAIL: dashboard/tests/a.spec.ts:7 › a › first (failed)
@@ -149,8 +149,8 @@ case ${fresh_checkout} in
 esac
 expect_calls fresh << CALLS
 install ${fresh_checkout} unset/unset
-run ${fresh_checkout} unset/unset a.spec.ts b.spec.ts
-run ${repository} unset/unset a.spec.ts b.spec.ts
+run ${fresh_checkout} unset/unset test:dashboard:integrated -- a.spec.ts b.spec.ts
+run ${repository} unset/unset test:dashboard:integrated -- a.spec.ts b.spec.ts
 CALLS
 expect_in_log "${repository}/dashboard/test-results/stamp-1/report.txt" -x -F 'the report'
 expect_no_worktree fresh
@@ -158,7 +158,7 @@ expect_no_worktree fresh
 # load: one burner per core runs during the run and none after it.
 printf 'pass\n' > "${fake}/scenario"
 cores=$(getconf _NPROCESSORS_ONLN)
-FAKE_BURNERS=${cores} run_repeat load 1 --load
+FAKE_BURNERS=${cores} run_repeat load 1 test:e2e --load
 expect_report load 0 << 'REPORT'
 Run 1 under burners: exit 0, <s> s, load <l> -> <l>
 Passed 1 of 1 runs.
@@ -172,7 +172,7 @@ expect_stopped load "${fake}/burners-1"
 
 # crash: a failing run that keeps no directory is shown by its last output.
 printf 'crash\n' > "${fake}/scenario"
-run_repeat crash 1
+run_repeat crash 1 test:dashboard:backend
 expect_report crash 1 << 'REPORT'
 Run 1: exit 3, <s> s, load <l> -> <l>
   No kept directory; its last output:
@@ -190,7 +190,7 @@ printf 'hang\n' > "${fake}/scenario"
   exec env FAKE="${fake}" TMPDIR="${temporary_dir}/tmp" \
     DASHBOARD_REPEAT_SUITE="${fake}/suite" \
     DASHBOARD_REPEAT_INSTALL="${fake}/install" \
-    bash "${source_dir}/scripts/dashboard-repeat.sh" 1 --load --fresh
+    bash "${source_dir}/scripts/dashboard-repeat.sh" 1 test:dashboard:frontend --load --fresh
 ) > "${temporary_dir}/interrupted.log" 2>&1 &
 script_pid=$!
 until [[ -s ${fake}/below ]]; do
@@ -210,9 +210,15 @@ expect_stopped interrupted "${temporary_dir}/children"
 expect_stopped interrupted "${fake}/below"
 expect_no_worktree interrupted
 
-# malformed: a repetition count that is not a positive whole number is refused.
-run_repeat malformed 0
+# malformed: a repetition count that is not a positive whole number, and a
+# command that is no browser test group's, are refused.
+run_repeat malformed 0 test:e2e
 expect_report malformed 2 << 'REPORT'
 The number of repetitions must be a positive whole number, not "0".
-Usage: bash scripts/dashboard-repeat.sh <repetitions> [--load] [--fresh] [spec…]
+Usage: bash scripts/dashboard-repeat.sh <repetitions> <group command> [--load] [--fresh] [spec…]
+REPORT
+run_repeat unknown 1 test:dashboard a.spec.ts
+expect_report unknown 2 << 'REPORT'
+The group command must be test:e2e or test:dashboard:integrated, frontend or backend, not "test:dashboard".
+Usage: bash scripts/dashboard-repeat.sh <repetitions> <group command> [--load] [--fresh] [spec…]
 REPORT

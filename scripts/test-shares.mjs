@@ -7,7 +7,7 @@
 //                                            (or one per line); prints the
 //                                            share's labels NUL-separated
 //   preview --split-count N [--list FILE] [--budget FILE] [--labels FILE]
-//           [--test-dir DIR | --spec-dir DIR]
+//           [--test-dir DIR | --spec-dir DIR [--root ROOT]]
 //   refresh --list FILE --source TEXT TIMES...
 //   runner-factor [--list FILE] TIMES
 
@@ -109,15 +109,15 @@ function listNodeSuiteJobs(testDir) {
     .map((record) => record.slice(record.indexOf("\t") + 1));
 }
 
-// The dashboard suite's spec files under specDir, as its configuration
-// discovers them (dashboard/tests/support/testFiles.mjs). Imported only when
-// the option is used: the runner's tests copy this module and share-deal.mjs
-// into fixtures without the dashboard tree (tests/helpers/copy-runner.bash).
-async function listDashboardSpecFiles(specDir) {
+// A browser test group's spec files under ROOT of specDir, as its
+// configuration discovers them (dashboard/tests/support/testFiles.mjs).
+// Imported only when used: the runner's tests copy this module and
+// share-deal.mjs without the dashboard tree (tests/helpers/copy-runner.bash).
+async function listDashboardSpecFiles(specDir, root) {
   const { dashboardSpecFiles } = await import(
     new URL("../dashboard/tests/support/testFiles.mjs", import.meta.url)
   );
-  return dashboardSpecFiles(specDir);
+  return dashboardSpecFiles(specDir, [root]);
 }
 
 async function previewCommand(argv) {
@@ -128,6 +128,7 @@ async function previewCommand(argv) {
     "labels",
     "test-dir",
     "spec-dir",
+    "root",
   ]);
   if (positional.length > 0 || options["split-count"] === undefined) {
     throw new TestSharesError(
@@ -139,6 +140,8 @@ async function previewCommand(argv) {
       "FAIL: preview takes --test-dir or --spec-dir, not both.",
     );
   }
+  if (options.root !== undefined && options["spec-dir"] === undefined)
+    throw new TestSharesError("FAIL: preview takes --root with --spec-dir.");
   const shareCount = Number(options["split-count"]);
   const specDir = options["spec-dir"];
   const testDir = options["test-dir"] ?? "tests";
@@ -153,7 +156,7 @@ async function previewCommand(argv) {
     options.labels !== undefined
       ? parseLabels(readInput(options.labels))
       : specDir !== undefined
-        ? await listDashboardSpecFiles(specDir)
+        ? await listDashboardSpecFiles(specDir, options.root ?? ".")
         : listNodeSuiteJobs(testDir);
   const allocation = dealShares(
     labels,

@@ -1,0 +1,158 @@
+import { readFailure } from "../../dashboard/tests/intentReadRecoveryPage.ts";
+import {
+  expectCiAnswer,
+  chooseCiStatus,
+  expectChecked,
+  judged,
+  judgmentCalls,
+  publishProject,
+  runUrl,
+  trunkCi,
+} from "../../dashboard/tests/intentCiStatusPage.ts";
+// Intent's CI status homepage (../../dashboard/src/IntentCiStatus.tsx): Intent's empty
+// selection judges the project's trunk with the launch's base-CI rule
+// (../../dashboard/server/baseCiJudgment.ts) and names `main`, the state, the judged
+// revision, later commits without their own result, the run link, and when
+// it was checked. It is shown whether Intent locations are configured,
+// absent, or unreadable (SEED-219 examples 1, 9); a cancelled run reads
+// Failed here, and every completed conclusion's state is the unit test
+// ../../tests/support/dashboard-story-branch-ci.test.mjs. Reading it again,
+// the ciAdapter and the read's refusals are in
+// ./intent-ci-status-reads.spec.ts; a running head with its nearest
+// completed ancestor is in ./intent-ci-status-story.spec.ts.
+
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { chooseProject, parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  doughnut,
+  openDough,
+  openDoughSettings,
+  pygardon,
+  browseSpec,
+} from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
+
+import {
+  intentModeTab,
+  filesColumn,
+  intentModeViews,
+} from "../../dashboard/tests/intentModePage.ts";
+import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { intentSettingsText } from "../../dashboard/tests/support/intentSettingsFile.ts";
+
+test("CI status names main, its nearest Passed result, later commits without a result, the run, and when it was checked; the mode strip keeps its keys", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const published = publishProject(page, openDough, {
+    ".planning/open-dough.json": intentSettingsText(openDoughSettings),
+    "dashboard/tests/browse.spec.ts": browseSpec,
+  });
+  published.serveCi(
+    trunkCi(openDough.revision, () => [
+      makeMe.aCiRun
+        .with({ headSha: judged, conclusion: "success", url: runUrl })
+        .please(),
+    ]),
+  );
+  await openUntilRead(page);
+  const { intent, intentChoice } = parts(page);
+  await intentChoice.click();
+  const tabs = intentModeViews(intent);
+  await expect(tabs.getByRole("tab")).toHaveText([
+    "CI status",
+    "Optimization Candidates",
+  ]);
+  await expect(filesColumn(intent)).toBeVisible();
+
+  const panel = await chooseCiStatus(intent);
+  await expect(panel).toBeVisible();
+  await expect(filesColumn(intent)).toBeVisible();
+  await expect(
+    panel.getByRole("heading", { name: "CI status of main" }),
+  ).toBeVisible();
+  await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
+  await expect(panel).toContainText(
+    "2 later commits have no result of their own.",
+  );
+  await expect(panel.getByRole("link", { name: runUrl })).toHaveAttribute(
+    "href",
+    runUrl,
+  );
+  await expectChecked(panel);
+  expect(judgmentCalls(published.requests)).toEqual([
+    "actions-runs",
+    "actions-workflow",
+    "commit-list main",
+  ]);
+
+  await test.step("arrow keys, Home and End move between the two mode tabs", async () => {
+    const intentTab = intentModeTab(intent, "CI status");
+    const candidates = intentModeTab(intent, "Optimization Candidates");
+    await intentTab.focus();
+    await expect(intentTab).toBeFocused();
+    await page.keyboard.press("ArrowRight");
+    await expect(candidates).toBeFocused();
+    await expect(candidates).toHaveAttribute("aria-selected", "true");
+    await expect(filesColumn(intent)).toBeHidden();
+    await page.keyboard.press("ArrowLeft");
+    await expect(intentTab).toBeFocused();
+    await expect(intentTab).toHaveAttribute("aria-selected", "true");
+    await page.keyboard.press("Home");
+    await expect(intentTab).toBeFocused();
+    await page.keyboard.press("End");
+    await expect(candidates).toBeFocused();
+    await intentTab.click();
+    await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
+  });
+});
+
+test("CI status is shown without Intent locations and with unreadable Intent settings; a cancelled run is Failed and no result never reads as passed", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  publishProject(page, doughnut).serveCi(
+    trunkCi(doughnut.revision, () => [
+      makeMe.aCiRun
+        .with({ headSha: judged, conclusion: "cancelled", url: runUrl })
+        .please(),
+    ]),
+  );
+  publishProject(page, pygardon, {
+    ".planning/open-dough.json": "{ not json\n",
+  }).serveCi(trunkCi(pygardon.revision, () => []));
+  await openUntilRead(page, "/?project=doughnut");
+  const { intent, intentChoice } = parts(page);
+  await intentChoice.click();
+
+  await test.step("no Intent locations: CI status beside the explanation", async () => {
+    await expect(intent).toContainText(
+      "No intent locations are configured for Doughnut.",
+    );
+    const panel = await chooseCiStatus(intent);
+    await expect(
+      intent.getByText("No intent locations are configured for Doughnut."),
+    ).toBeVisible();
+    await expect(
+      panel.getByRole("heading", { name: "CI status of main" }),
+    ).toBeVisible();
+    await expectCiAnswer(panel, "Failed at a1b2c3d (Add login)");
+    await expect(panel.getByRole("link", { name: runUrl })).toBeVisible();
+    await expectChecked(panel);
+  });
+
+  await test.step("unreadable Intent settings: CI status still shown; no result is Could not be read", async () => {
+    await chooseProject(page, "Pygardon");
+    await expect(readFailure(intent)).toContainText("is not valid JSON");
+    const panel = await chooseCiStatus(intent);
+    await expect(
+      panel.getByRole("heading", { name: "CI status of main" }),
+    ).toBeVisible();
+    await expectCiAnswer(panel, "Could not be read");
+    await expect(panel).toContainText(
+      "No result of the selected check was found in the readable history",
+    );
+    await expect(panel).not.toContainText(/passed/i);
+    await expectChecked(panel);
+  });
+});

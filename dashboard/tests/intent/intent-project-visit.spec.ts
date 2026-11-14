@@ -4,7 +4,7 @@ import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Project tests read published text and trunk CI; returning restores the
 // candidate's keyboard focus without rereading, then the story's reading.
 // Selection transitions: ./intent-project-visit-selection.spec.ts.
-// CI follow cost during visits: ./intent-project-visit-ci.spec.ts.
+// CI follow cost during visits: ../../../e2e/intent/intent-project-visit-ci.spec.ts.
 // No-story landing: ./intent-ci-status-homepage.spec.ts.
 
 import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";

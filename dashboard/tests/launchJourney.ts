@@ -2,7 +2,7 @@
 // revision of these real Git histories. The launch fixture in pageTest.ts
 // and the story-columns journey each share their read-only origin per worker.
 // The story-columns history up to the Take is the same in every worker; the
-// run prepares it once (support/globalSetup.ts) and each worker's completion
+// run prepares it once (support/runArtifacts.ts) and each worker's completion
 // is committed in that worker's own copy.
 
 import { mkdtempSync, rmSync } from "node:fs";
@@ -123,8 +123,11 @@ export function storyColumnsRepository(completedAt: string) {
 }
 
 // The run artifact holding the story-columns history before completion
-// (support/runArtifacts.ts): the run owner prepares it once, as soon as it
-// starts (support/globalSetup.ts), and removes it when the run ends.
+// (support/runArtifacts.ts): the run owner prepares it once, Dashboard
+// Integrated UI Test and E2E Test as soon as they start
+// (support/integratedGlobalSetup.ts, support/e2eGlobalSetup.ts) and Dashboard
+// Backend Test on its first request (support/backendGlobalSetup.ts), and
+// removes it when the run ends.
 export const storyColumnsPrefixArtifactKey = "story-columns-prefix";
 const storyColumnsPrefix = storyColumnsHistory().please();
 

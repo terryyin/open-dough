@@ -1,4 +1,4 @@
-// Story A's worktree as the trunk tests (../review/story-review-since-trunk.spec.ts)
+// Story A's worktree as the trunk tests (../../../e2e/review/story-review-since-trunk.spec.ts)
 // mark it and then integrate trunk: trunk's `README.md` and `src/{a,b,c}.ts`,
 // a story slice that lands on trunk after the mark, and the line of
 // `src/c.ts` that trunk and the story both change, or trunk's `README.md`

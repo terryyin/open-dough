@@ -1,7 +1,7 @@
 import { closeSidePanel } from "../sidePanelFrame.ts";
-// Story A's review as its marking tests (../review/story-review-mark.spec.ts,
+// Story A's review as its marking tests (../../../e2e/review/story-review-mark.spec.ts,
 // ../../backend-tests/review/story-review-mark-admission.spec.ts,
-// ../review/story-review-since.spec.ts, ../story-review-comparison*.spec.ts) drive
+// ../../../e2e/review/story-review-since.spec.ts, ../story-review-comparison*.spec.ts) drive
 // it: opening and reopening it from the card, choosing Mark reviewed, and the
 // snapshot each read answers; and what the machine store and the project's
 // repository keep of a story's review mark. Story A's twelve-file worktree is

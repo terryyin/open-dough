@@ -1,5 +1,5 @@
 // The Open Dough project the reopened-project journey publishes
-// (./observation/reopened-project-reads.spec.ts): revision A, whose backlog names a story
+// (../../e2e/observation/reopened-project-reads.spec.ts): revision A, whose backlog names a story
 // with progress on its recorded story branch and a queued story whose record
 // is missing, and revision B, made by one commit that changes the backlog and
 // publishes that record.

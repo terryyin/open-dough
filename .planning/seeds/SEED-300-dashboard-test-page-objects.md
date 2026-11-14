@@ -369,4 +369,4 @@ execution prerequisite on another story.
   [Observation measurements](../../dashboard/frontend-tests/observation-measurements.spec.ts#L13),
   [reachability](../../dashboard/frontend-tests/control-reachability-observation.spec.ts#L99),
   [touch reading](../../dashboard/frontend-tests/touch-reading-observation.spec.ts#L37),
-  [runtime browser turn](../../dashboard/tests/runtime/observation-measurements.spec.ts#L43).
+  [runtime browser turn](../../dashboard/backend-tests/runtime/observation-measurements.spec.ts#L43).

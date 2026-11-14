@@ -2,10 +2,21 @@
 
 Prepare [native prerequisites](native-setup.md) once per lockfile version.
 
-The [dashboard suite](../dashboard/tests/README.md) runs browser tests in its
-[feature folders](../dashboard/tests/feature-groups.md), frontend-only tests in
-`dashboard/frontend-tests/`, and backend tests in `dashboard/backend-tests/`
-through `npm run test:dashboard`; `npm test` does not discover those specs.
+Four browser test groups run with Playwright, each under its own command,
+configuration, setup, settings, outputs and CI producer; `npm test` does not
+discover their specs ([dashboard tests](../dashboard/tests/README.md)):
+
+| Group | Command | Sources |
+| --- | --- | --- |
+| **E2E Test** | `npm run test:e2e` | representative product [workflows](../e2e/README.md) in `e2e/` |
+| **Dashboard Integrated UI Test** | `npm run test:dashboard:integrated` | detailed UI checks awaiting controlled answers, in the [feature folders](../dashboard/tests/feature-groups.md) of `dashboard/tests/` |
+| **Dashboard Frontend Test** | `npm run test:dashboard:frontend` | [frontend-only tests](../dashboard/frontend-tests/README.md) in `dashboard/frontend-tests/` |
+| **Dashboard Backend Test** | `npm run test:dashboard:backend` | [backend tests](../dashboard/backend-tests/README.md) in `dashboard/backend-tests/` |
+
+Before delivering a change to a group's specs or shared browser support, run
+the affected group's command (named specs, then the group when shared support
+changed); CI runs each group as its own sharded producer
+([CI shards](../dashboard/tests/shards.md)).
 
 Run every check through the runner. `npm test` (or `bash scripts/test.sh`) runs
 the whole suite; named `.sh`, `.mjs`, or `.js` paths select exactly those checks:
@@ -82,10 +93,11 @@ deadline actively stops a never-ending check; it is not a slow-test or build
 threshold. At expiry the runner ends the job's process group with bounded
 TERM-then-KILL cleanup, fails the run as
 `TIMEOUT: <job> (safety deadline 180s; after <seconds>s)` with useful captured
-output, records the failed outcome and timing, and lets other queued checks
-continue under ordinary failure behavior
-(`tests/support/test-runner-deadline.test.mjs`,
-`tests/support/test-runner-deadline-continuation.test.mjs`). In CI the share
+output, records the failed outcome and the seconds the job ran until stopped,
+however long the run continues, and lets other queued checks continue under
+ordinary failure behavior (`tests/support/test-runner-deadline.test.mjs`,
+`tests/support/test-runner-deadline-continuation.test.mjs`,
+`tests/support/test-runner-deadline-elapsed.test.mjs`). In CI the share
 also ends at the 320-second absolute epoch established with setup
 (`OPEN_DOUGH_TEST_DEADLINE_MS`), before the six-minute outer cancellation:
 running groups stop through the same bounded cleanup and TIMEOUT reporting

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-334_run-and-observe-product-wide-end-to-end-tests.json",
+      "identity": "SEED-334#run-and-observe-product-wide-end-to-end-tests",
+      "completedAt": "2026-11-14T01:27:07.466Z",
+      "blob": "4e10ee85989ad3a2aacc195e3a97a2adc20e84e0"
+    },
+    {
       "fileName": "SEED-343_recover-ci-completion-observation.json",
       "identity": "SEED-343#recover-ci-completion-observation",
       "completedAt": "2026-11-13T16:52:29.490Z",
@@ -2136,12 +2142,6 @@
       "identity": "SEED-008#integrated-state-correction",
       "completedAt": "2026-10-15T15:26:21.948Z",
       "blob": "53c03ec92b24aea221be2c99671f9d1480118f87"
-    },
-    {
-      "fileName": "SEED-008_coalesced-ci-validation.json",
-      "identity": "SEED-008#coalesced-ci-validation",
-      "completedAt": "2026-10-14T22:23:11.243Z",
-      "blob": "a9891af1f74d818fe2c341dfc74c7d3f7e4d0c04"
     }
   ],
   "unreadable": []

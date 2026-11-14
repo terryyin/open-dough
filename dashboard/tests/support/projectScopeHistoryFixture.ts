@@ -4,7 +4,7 @@
 // landings a case names (makeMe.aLandedCiHistory), and the provider's live
 // answers for its runs, read by a dashboard that collects nothing
 // (./landedCiReader.ts). Collection of those builds stays with
-// ../intent/intent-project-scope-timing-history.spec.ts.
+// ../../../e2e/intent/intent-project-scope-timing-history.spec.ts.
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { pausePageClockAt } from "../dashboardTest.ts";

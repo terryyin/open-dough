@@ -9,7 +9,22 @@
   "intent": {
     "locations": [
       {
+        "path": "e2e",
+        "label": "E2E Test",
+        "kind": "typescript",
+        "include": [
+          "**/*.spec.ts",
+          "launches/feedbackMaintenanceDueHeldCases.ts",
+          "runtime/productionUpdateJourney.ts",
+          "runtime/productionUpdatePolicies.ts",
+          "sessions/agentSessionCursorUnavailableCases.ts"
+        ],
+        "makeMe": true,
+        "pageObjects": true
+      },
+      {
         "path": "dashboard/tests",
+        "label": "Dashboard Integrated UI Test",
         "kind": "typescript",
         "include": ["**/*.spec.ts"],
         "makeMe": true,

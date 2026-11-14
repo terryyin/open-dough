@@ -1,7 +1,10 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { timeWithoutRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import { comparisonWorkflow } from "../../tests/support/storyCiComparisonFixture.ts";
+import { repoRoot } from "../../tests/support/repositoryRoot.ts";
 import {
   observedBaselineJobs,
   observedBranchJobs,
@@ -177,4 +180,63 @@ test("an expression-named matrix job still picks the longest shard on the chain"
       false,
     ),
   ).toEqual({ milliseconds: 90_000 });
+});
+
+test("a job calling a reusable workflow owns every called job GitHub reports under its label", () => {
+  const workflow = [
+    "jobs:",
+    "  unit:",
+    "    name: Unit (${{ matrix.share }})",
+    "  e2e:",
+    "    uses: ./.github/workflows/browser-test-group.yml",
+    "  proof:",
+    "    needs:",
+    "      - unit",
+    "      - e2e",
+    "",
+  ].join("\n");
+  const rows = [
+    timed("Unit (1)", "2026-11-07T07:00:00Z", "2026-11-07T07:00:40Z"),
+    timed("e2e / shard 1/2", "2026-11-07T07:00:00Z", "2026-11-07T07:01:00Z"),
+    timed("e2e / shard 2/2", "2026-11-07T07:00:00Z", "2026-11-07T07:00:50Z"),
+    timed("proof", "2026-11-07T07:01:10Z", "2026-11-07T07:01:20Z"),
+  ];
+  expect(timeWithoutRunnerWaits(workflow, rows, false)).toEqual({
+    milliseconds: 70_000,
+  });
+  expect(
+    timeWithoutRunnerWaits(
+      workflow,
+      [
+        ...rows,
+        timed("e2e (3/3)", "2026-11-07T07:00:00Z", "2026-11-07T07:00:01Z"),
+      ],
+      false,
+    ),
+  ).toEqual({
+    reason: "Job “e2e (3/3)” does not match a workflow job definition.",
+  });
+});
+
+test("this repository's own workflow keeps every job it reports readable", () => {
+  const minute = (start: number, end: number) => [
+    `2026-11-07T07:${String(start).padStart(2, "0")}:00Z`,
+    `2026-11-07T07:${String(end).padStart(2, "0")}:00Z`,
+  ];
+  const rows = [
+    ["lint", ...minute(0, 3)],
+    ["test (1/3)", ...minute(0, 4)],
+    ["e2e / shard 6/6", ...minute(0, 5)],
+    ["dashboard-integrated / shard 2/5", ...minute(0, 4)],
+    ["dashboard-frontend / shard 1/1", ...minute(0, 2)],
+    ["dashboard-backend / shard 4/4", ...minute(0, 4)],
+    ["ci-proof", ...minute(6, 7)],
+  ].map(([name = "", start = "", end = ""]) => timed(name, start, end));
+  expect(
+    timeWithoutRunnerWaits(
+      readFileSync(path.join(repoRoot, ".github/workflows/ci.yml"), "utf8"),
+      rows,
+      false,
+    ),
+  ).toEqual({ milliseconds: 360_000 });
 });

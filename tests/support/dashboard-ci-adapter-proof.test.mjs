@@ -5,7 +5,7 @@
 // summary of either readable version is read in the current one, a version
 // 1 summary's results as legacy evidence, each unit's results apart. Every
 // other reason, through the tab:
-// ../../dashboard/tests/intent/intent-ci-proof-adapter-reasons.spec.ts.
+// ../../e2e/intent/intent-ci-proof-adapter-reasons.spec.ts.
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

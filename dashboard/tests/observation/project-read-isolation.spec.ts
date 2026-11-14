@@ -128,7 +128,7 @@ test.describe("project read isolation", () => {
 
     await test.step("Doughnut's held read answers late with success, after Open Dough is already shown", async () => {
       releaseDoughnut();
-      // Immediate assertions, matching ./auto-refresh.spec.ts's own
+      // Immediate assertions, matching ../../../e2e/observation/auto-refresh.spec.ts's own
       // held-response races: nothing about the page depends on this release, so there is
       // no later moment at which it could still take effect.
       await expect(page.locator("body")).not.toContainText(doughnutSharedTitle);

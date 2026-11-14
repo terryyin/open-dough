@@ -3,7 +3,7 @@
 // order shown. A row is its list item's first element, a folder's disclosure
 // or a file's control; a folder's own rows follow in its nested list unless
 // the folder is collapsed and the list hidden. A file's line counts are left
-// out (../review/story-review-line-counts.spec.ts reads them).
+// out (../../../e2e/review/story-review-line-counts.spec.ts reads them).
 
 import { expect, type Locator } from "@playwright/test";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";

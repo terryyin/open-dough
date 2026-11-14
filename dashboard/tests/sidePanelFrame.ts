@@ -137,3 +137,28 @@ export async function expectBoardUnreachableBehindCovering(
     }),
   ).toBe(true);
 }
+
+// The panel's title toggle while collapsed: the title on one line, cut short.
+export async function expectTitleOnOneCutLine(toggle: Locator) {
+  expect(
+    await toggle.evaluate(
+      (element) =>
+        getComputedStyle(element).whiteSpace === "nowrap" &&
+        element.scrollWidth > element.clientWidth,
+    ),
+  ).toBe(true);
+}
+
+// The panel's title toggle once expanded: the whole title, wrapped over
+// several lines.
+export async function expectTitleWrapped(toggle: Locator) {
+  expect(
+    await toggle.evaluate((element) => {
+      const line = Number.parseFloat(getComputedStyle(element).lineHeight);
+      return (
+        getComputedStyle(element).whiteSpace === "normal" &&
+        element.scrollHeight > line * 1.5
+      );
+    }),
+  ).toBe(true);
+}

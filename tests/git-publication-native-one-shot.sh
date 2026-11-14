@@ -3,7 +3,9 @@
 # escalation, review, refinement, default checkout, automatic landing, its
 # ownership stop and an established start, each through substitute hosts and the
 # shared supervisor/stream/retention path, followed by its real-state
-# counterexamples. Their live counterparts run through
+# counterexamples. With a group name it runs that group alone, as its wrapper
+# (tests/git-publication-native-one-shot-<group>.sh) does for the suite. Their
+# live counterparts run through
 #   tests/git-publication-native.sh --native HOST --case publication/one-shot-*
 #   tests/git-publication-native.sh --native HOST --case preparation/one-shot-refinement
 # shellcheck disable=SC2312
@@ -23,6 +25,7 @@ source "${source_dir}/tests/support/git-publication-native-substitute-suite.sh"
 case ${1:-all} in
   all) run_substitute_one_shot_journeys ;;
   results) run_substitute_one_shot_result_journeys ;;
+  reviews) run_substitute_one_shot_review_journeys ;;
   workspaces) run_substitute_one_shot_workspace_journeys ;;
   *)
     printf 'Unknown one-shot journey group: %s\n' "$1" >&2

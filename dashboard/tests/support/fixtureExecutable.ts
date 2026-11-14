@@ -56,7 +56,7 @@ const refusingWithoutItsVariables = [
   "fake-terminal-notifier",
 ] as const;
 
-// Runs each of those once, for the suite's global setup (./globalSetup.ts):
+// Runs each of those once, for the run's global setup (./serviceRunSetup.ts):
 // in a fresh checkout the first run of each file is the assessed one, and
 // this pays it before any worker starts, so no page's first read does. In a
 // checkout that has run them before it is three quick starts.

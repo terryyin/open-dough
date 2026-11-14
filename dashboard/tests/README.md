@@ -1,8 +1,11 @@
 # Dashboard tests
 
-Run `npm run test:dashboard` from the repository root. One Playwright run and
-shard selection covers integrated browser journeys, **Dashboard Frontend Test**
-(`../frontend-tests/`) and **Dashboard Backend Test** (`../backend-tests/`).
+Four browser test groups each run alone under their own configuration, setup,
+settings, outputs and CI producer: `npm run test:e2e` (**E2E Test**,
+[`../../e2e/`](../../e2e/README.md)), `npm run test:dashboard:integrated`
+(**Dashboard Integrated UI Test**, the specs here), `npm run
+test:dashboard:frontend` ([**Dashboard Frontend Test**](../frontend-tests/README.md))
+and `npm run test:dashboard:backend` ([**Dashboard Backend Test**](../backend-tests/README.md)).
 See [journey writing](writing-journeys.md) for waits, clocks, commands and fake
 GitHub answers; [native-host fixtures](native-host-fixtures.md) for synthetic
 hosts; the per-run [proof record](proof-record.md), the caller-owned
@@ -16,19 +19,25 @@ across worktrees, worker settings, cleanup and machine sleep on macOS.
 owners to retained acquisition, navigation and recovery journeys and describes
 their performance measurements.
 
-## Three roots: integrated journeys, frontend-only, and boundary tests
+## Roots: journeys, integrated UI checks, frontend-only and boundary tests
 
 A **browser journey** proves one representative, integrated user journey in
 the real page: an observable precondition, the user's trigger, and the state
-change it causes. Journeys live in the ten [feature folders](feature-groups.md) and run under
+change it causes. Journeys live in [`../../e2e/`](../../e2e/README.md)'s [feature folders](feature-groups.md) and run under
 `dashboardTest.ts` or a fixture module built on it, each against its own
-built-preview server, which the `page` fixture opens.
+built-preview server, which the `page` fixture opens. Specs left in this tree's
+feature folders are the interim **Dashboard Integrated UI Test** group
+(`../integrated.playwright.config.ts`): detailed UI or mixed checks awaiting
+conversion to controlled answers in `../frontend-tests/`.
 
-A **frontend-only test** proves DOM geometry or UI recovery, formatting,
-polling, or refusal feedback against synthetic backend answers. Those specs live
-in `../frontend-tests/` (**Dashboard Frontend Test**), import `pageTest.ts` or
-`support/frontendApp.ts`, and never start `dashboardServer`, fake hosts, or
-`FakeGitHub`. See [frontend-tests README](../frontend-tests/README.md).
+A **frontend-only test** proves DOM geometry, presentation or interaction, or
+UI recovery, formatting, polling, or refusal feedback against controlled
+backend answers. Those specs live in `../frontend-tests/` (**Dashboard
+Frontend Test**), import `pageTest.ts`, `support/frontendApp.ts` or
+`support/comparisonMountPage.ts`, and never start `dashboardServer`, fake
+hosts, or `FakeGitHub`. A case that needs the real server, Git or a synthetic
+host to observe its rule stays an integrated journey here. See
+[frontend-tests README](../frontend-tests/README.md).
 
 A **boundary test** proves the detailed variants, failure cases and contract
 details of one behavior at a stable public boundary of the dashboard server
@@ -49,10 +58,9 @@ Boundary and preview use the run's bundled `runnerMain.mjs`; dev and public
 production keep source. `../backend-tests/runtime/serving-modes.spec.ts` proves both real Vite
 servers mount the same boundaries and use those entries.
 
-`../backend-tests/` holds every spec that opens no page, whatever it drives; a
-frontend-only page spec belongs in `../frontend-tests/`; an integrated page
-journey belongs here. All three roots are one suite, run and sharded together
-(below).
+`../backend-tests/` holds every spec that opens no page, whatever it drives,
+and the test runtime's own contracts; a frontend-only page spec belongs in
+`../frontend-tests/`; an integrated page journey belongs in `../../e2e/`. All four roots are one suite, run and sharded together (below).
 
 ## Where a check goes
 
@@ -150,8 +158,8 @@ cannot start fails its test with its own output
 (`support/dashboardServer.ts`). Test support takes the repository root from
 `support/repositoryRoot.ts`, never the working directory (lint refuses
 `process.cwd()` in test code), so
-`--config <repository>/dashboard/playwright.config.ts` gives the same result
-from anywhere.
+`--config <repository>/dashboard/integrated.playwright.config.ts` (or another
+group's configuration) gives the same result from anywhere.
 
 The configuration sets `NODE_DISABLE_COMPILE_CACHE=1` before global setup and
 workers start so builds, servers and deployment descendants inherit it and add
@@ -164,7 +172,7 @@ unsupported).
 ## Adding a test
 
 Use [MakeMe](../../tests/README.md#test-data-architecture) for domain data across
-all three dashboard test roots. Keep dashboard harness fixtures in this tree.
+every browser test root. Keep dashboard harness fixtures in this tree.
 
 A **boundary test** goes in `../backend-tests/<feature>/<behavior>.spec.ts`
 under one [backend feature group](feature-groups.md#backend-feature-groups). It
@@ -176,62 +184,57 @@ asserts the answer, the file or command. Only
 `../backend-tests/runtime/serving-modes.spec.ts` needs a build. A spec starting
 no server still takes `test` from `pageTest.ts`, as lint requires.
 
-A **browser journey** goes in `<feature>/<journey>.spec.ts`, with exactly one
-[feature owner](feature-groups.md). It imports `test` from `../dashboardTest.ts`
-or its family fixture (`../responsiveStart.ts`, `../support/preparationPage.ts`,
-`../support/voiceTest.ts`, `../support/codexLaunch.ts`), takes `page`, `dashboard`
+A **browser journey** goes in `../../e2e/<feature>/<journey>.spec.ts`, with exactly one
+[feature owner](feature-groups.md). It imports `test` from this tree's `dashboardTest.ts`
+or its family fixture (`responsiveStart.ts`, `support/preparationPage.ts`,
+`support/voiceTest.ts`, `support/codexLaunch.ts`), takes `page`, `dashboard`
 and `github` (and `launchJourney` for the Taken backlog), opens with
 `openUntilRead(page)`, acts as the user, and asserts the state change; a
 sibling of an existing journey joins that file and asserts its delta. A
-worker-scoped fixture is declared once, in `support/pageTest.ts`, whose header
-says why a second home splits the workers. Every browser starts with the
-arguments in `support/browserArgs.ts`, configured in `playwright.config.ts`;
-a spec or fixture family that sets its own `launchOptions` splits the workers
-the same way and spreads `dashboardBrowserArgs` into its `args`.
+worker-scoped fixture, or a `launchOptions` value, is declared once, in
+`support/pageTest.ts` (published-main ones in `publishedMainWorkerFixtures.ts`),
+whose header says why a second home splits the workers. Every browser starts
+with the arguments in `support/browserArgs.ts`, configured for every browser
+test group in `support/runnerConfig.mjs`; a spec or fixture family that sets
+its own `launchOptions` splits the workers the same way and spreads
+`dashboardBrowserArgs` into its `args`.
 A fixture module declares its option defaults on its fixtures (overrides in
 its `test.extend`), not with a module-level `test.use`: a module is evaluated
 once per worker, so such a call applies only to the first spec file that
 loads it there.
 
-Discovery and sharding follow the file: `support/testFiles.mjs` finds every
-`*.spec.ts` under `dashboard/tests/` and `dashboard/backend-tests/` recursively and CI's split ([dashboard
-shards](shards.md)) deals whole files by the seconds `../longest-first` records
-for them, so a new file needs no registration; unrecorded there, it is dealt
-after the recorded files at their median duration until that list is next
-refreshed from a hosted run, and the preview in [dashboard shards](shards.md)
-shows where it lands before a push.
-`tests/support/dashboard-test-files.test.mjs` protects discovery of new specs
-and their assignment to exactly one shard.
+Discovery and sharding follow the file, so a new spec needs no registration:
+[CI shards](shards.md#the-split) describes how its group finds it and deals it
+to one shard, and how to preview where it lands before a push.
 
 ## Running the suite
 
-Run from the repository root; `npm run test:dashboard -- tests/intent/`,
-`npm run test:dashboard -- backend-tests/` or
-`-- --grep 'published Board'` selects files or tests, and `npx playwright
-test` from `tests/` finds no configuration, so it would run without the
-build, the quiet reporter and the run's identity. Local runs default to two
-workers, CI runs every core.
+Run from the repository root; `npm run test:e2e -- intent/`,
+`npm run test:dashboard:integrated -- review/` or
+`-- --grep 'published Board'` selects files or tests within that group alone,
+and `npx playwright test` from `tests/` finds no configuration, so it would
+run without the build, the quiet reporter and the run's identity. Local runs
+default to two workers, CI runs every core.
 
-CI runs the suite as shard jobs, each running the whole spec files
-`OPEN_DOUGH_DASHBOARD_SPLIT=i/n` deals it by recorded duration, keeping its
-spec files' seconds through
-`OPEN_DOUGH_DASHBOARD_TIMES` as artifact `dashboard-times-<shard>`, the source
-`dashboard/longest-first` is refreshed from, and running under
-`OPEN_DOUGH_DASHBOARD_DEADLINE_MS`; [dashboard shards](shards.md) holds the
-split with its preview and refresh, the times file and the deadline. With
-the variables unset, `npm run test:dashboard` runs the whole suite, unbounded,
-and writes no times file.
+CI runs each group as its own shard jobs, each running the whole spec files
+its group's `<prefix>_SPLIT=i/n` deals it by recorded duration, keeping their
+seconds through `<prefix>_TIMES` as artifact `<group>-times-<shard>`, the
+source its group's duration list is refreshed from, and running under
+`<prefix>_DEADLINE_MS`; [CI shards](shards.md) holds each group's split with
+its preview and refresh, the times file and the deadline. With the variables
+unset, a group's command runs its whole group, unbounded, and writes no times
+file.
 
 A passing run prints nothing (`support/quietReporter.ts`) and leaves no
 output directory. A failing spec is shown with its error, output, and
 retained trace; a passing spec that writes output, or output from the run
 itself such as global setup, fails the run and is shown. Keep specs and
 their helpers silent. A failed run keeps what it showed, as `report.txt`,
-beside its traces and other retained files in `dashboard/test-results/<start time>/`,
+beside its traces and other retained files in its group root's `test-results/<start time>/`,
 named by its last line, `Kept: <directory>`. A later run never removes an
 earlier run's directory; remove kept runs yourself once read.
-`bash scripts/dashboard-repeat.sh <repetitions> [--load] [--fresh] [spec…]`
-runs the suite, or the named specs, that many times one after another at the
+`bash scripts/dashboard-repeat.sh <repetitions> <group command> [--load] [--fresh] [spec…]`
+runs that group, or its named specs, that many times one after another at the
 local worker count (`--load` runs one busy burner per online core during each
 run; `--fresh` runs the first repetition in a new worktree of `HEAD` after
 its own `npm ci`), prints each run's exit status, seconds, load average
@@ -240,6 +243,6 @@ when every run passed.
 
 ## Measuring and process cleanup
 
-Retain a strict JSON selection with `OPEN_DOUGH_DASHBOARD_PROOF_RECORD`; see
+Retain a strict JSON selection with the group's `<prefix>_PROOF_RECORD`; see
 [proof record](proof-record.md). Pass no `--reporter`. Worker and run process
 ownership is in [process cleanup](writing-journeys.md#process-cleanup).

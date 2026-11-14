@@ -1,5 +1,5 @@
-// Chromium arguments every dashboard browser starts with
-// (../../playwright.config.ts). A spec or fixture family that sets its own
+// Chromium arguments every browser test group's browser starts with
+// (./runnerConfig.mjs). A spec or fixture family that sets its own
 // `launchOptions` replaces the configured value whole, so it spreads these
 // into its own `args`.
 //

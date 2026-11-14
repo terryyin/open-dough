@@ -3,7 +3,7 @@
 // limit and used only when the check (./ci-proof-check.test.mjs) finds it
 // the asked attempt's. A GitHub Actions run attempt's read:
 // ./ci-proof-read.test.mjs. How Intent words each refusal:
-// ../../../../dashboard/tests/intent/intent-ci-proof-adapter-reasons.spec.ts.
+// ../../../../e2e/intent/intent-ci-proof-adapter-reasons.spec.ts.
 import assert from "node:assert/strict";
 import { tmpdir } from "node:os";
 import { test } from "node:test";

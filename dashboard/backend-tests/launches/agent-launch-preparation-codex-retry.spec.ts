@@ -1,6 +1,6 @@
 // Retained Codex preparation damage variants refuse retry at the launch
 // boundary without replacing preparation. The page path is one journey:
-// ../../tests/launches/agent-launch-preparation-codex-retry.spec.ts.
+// ../../../e2e/launches/agent-launch-preparation-codex-retry.spec.ts.
 import { readFileSync, existsSync, writeFileSync, rmSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import path from "node:path";

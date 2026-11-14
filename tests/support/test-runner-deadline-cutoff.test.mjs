@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { workflow } from "./ci-proof-action-fixtures.mjs";
+import { jobs, workflow } from "./ci-proof-action-fixtures.mjs";
 import { replayCutoffFragments } from "./test-runner-deadline-cutoff-helpers.mjs";
 import {
   awaitReady,
@@ -24,8 +24,7 @@ const fixtureEntry = "tests/runner-deadline-fixture";
 const budgetFile = fileURLToPath(new URL("../time-budget", import.meta.url));
 
 test("ci.yml establishes the 320s test-run epoch with setup and keeps artifacts on a self-failed suite", () => {
-  const testJob = workflow.slice(workflow.indexOf("\n  test:\n"));
-  const body = testJob.slice(0, testJob.indexOf("\n  dashboard:\n"));
+  const body = jobs(workflow).get("test").join("\n");
   assert.match(
     body,
     /Start prerequisite acquisition \(180 seconds\) and test-run \(320 seconds\) deadlines/,

@@ -1,11 +1,14 @@
 // The pure option rules, with no server: which definitions the shared schema
-// accepts (../../src/commandOptions.ts), which selections they refuse and in what
+// accepts (../../src/commandOptions.ts), including the refinement definition
+// this repository ships, which selections they refuse and in what
 // order, the definition's own order of a selection, how a dialog's choice
 // keeps an exclusive group to one flag, and the shape of a request's
 // `options` (../../src/agentLaunch.ts). How the launch boundary applies them over
 // HTTP is ./agent-launch-options-boundary.spec.ts and
 // ./agent-launch-options-groups.spec.ts.
 
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { agentLaunchRequestSchema } from "../../src/agentLaunch.ts";
 import {
@@ -17,6 +20,7 @@ import {
   type OptionsDefinition,
 } from "../../src/commandOptions.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { repoRoot } from "../../tests/support/repositoryRoot.ts";
 
 const [a, b, c, d] = ["--a", "--b", "--c", "--d"];
 
@@ -211,4 +215,20 @@ test.describe("a launch request's options", () => {
       ).toBe(false);
     }
   });
+});
+
+const realDefinition = path.join(
+  repoRoot,
+  "src/skills/dough-story-refinement/references/refinement-options.json",
+);
+
+test("the shipped definition is valid and gives every option and focus a summary", () => {
+  const definition = optionsDefinitionSchema.parse(
+    JSON.parse(readFileSync(realDefinition, "utf8")),
+  );
+  const entries = [...definition.options, ...(definition.focuses ?? [])];
+  expect(entries.length).toBeGreaterThan(0);
+  for (const { flag, summary } of entries) {
+    expect(summary, flag).toMatch(/\S/);
+  }
 });
