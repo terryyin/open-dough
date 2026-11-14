@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-347_start-follow-up-from-a-file-diff.json",
+      "identity": "SEED-347#start-follow-up-from-a-file-diff",
+      "completedAt": "2026-11-14T06:27:17.519Z",
+      "blob": "e978b271f2166121f2e0069fe7af194ec42d02ea"
+    },
+    {
       "fileName": "SEED-334_run-and-observe-product-wide-end-to-end-tests.json",
       "identity": "SEED-334#run-and-observe-product-wide-end-to-end-tests",
       "completedAt": "2026-11-14T01:27:07.466Z",
