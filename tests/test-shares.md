@@ -46,12 +46,13 @@ Before pushing a change that adds, removes or renames a test file, preview the
 deal CI will run, from the repository root:
 
 ```sh
-node scripts/test-shares.mjs preview --split-count 3
+node scripts/test-shares.mjs preview --split-count 4
 ```
 
-It lists the suite's jobs through `scripts/test-jobs.sh` and prints each
-share's predicted job-seconds with its headroom to `total-job-seconds` in
-`tests/time-budget`, then every unrecorded job with its share and the assumed
+The split count is the number of `share` entries in the `test` job's matrix
+in `.github/workflows/ci.yml`. The preview lists the suite's jobs through
+`scripts/test-jobs.sh` and prints each share's predicted job-seconds with its
+headroom to `total-job-seconds` in `tests/time-budget`, then every unrecorded job with its share and the assumed
 seconds. The predictions use recorded CI seconds, never local timing. A high
 unrecorded count means the list is stale; refresh it from a recent `main` run's
 artifacts, every job. Observed seconds are scaled to the existing list's runner
