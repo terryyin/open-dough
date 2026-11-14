@@ -195,6 +195,17 @@ its format. A later authorized comparison needing missing evidence uses Slice
 2's fresh path. Neither forced-turn nor unblocked observations demonstrate
 suppressed wakes or event-driven savings.
 
+## Execution complete
+
+Product advice: no change. Keep event delivery, quiet-baseline/skipped-wake
+proof in SEED-356 and broader effort accounting in its existing stories;
+these observations establish no savings. Preserve current backlog priorities.
+Aggregate review covered the seven published implementation/repair increments
+from `1f224d664` through `9a6ee910`, their source contract, whole comparison
+owners, maintained entry journeys and existing judge/readers. No correction or
+suite-cleanup finding is supported. CI is pending; selected process review is
+deferred into wrap-up after the enabled Intent Coverage report and dispositions.
+
 ## Verification and accepted evidence
 
 - [Gate basis and focused commands](execution-basis.md#verification-sizing-and-concern-review).
