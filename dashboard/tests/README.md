@@ -143,8 +143,12 @@ the test's own fake GitHub (`support/fakeGitHub.ts`, published through
 `publishedOrigin.ts` or `committedOrigin.ts`), which can also fail, hold, or
 rate-limit an answer. The same fake stands in for GitHub's avatar host, from
 which the server fetches credited humans' avatars (`avatarAnswers.ts`). Only
-GitHub's answers are replaced; the local read boundary, the `gh` invocation,
-reading, the shared backlog interpretation, and the page are the real ones,
+GitHub's answers are replaced; the local read boundary, request-owner admission,
+sharing, rate limits, reading, backlog interpretation, and page run for real.
+Ordinary API calls use the existing fake's byte frame inside that private owner,
+with no process per call. `ghTransport: "cli"` (or `installFakeGh`'s `transport`)
+selects native CLI for PID, signal, replacement and orphan observations. Owner
+startup and login remain native in both modes,
 and a browser request to GitHub itself fails the test that made it. Nothing
 here ever calls the real `gh` CLI or contacts GitHub: every process a test
 starts that can run `gh` asks it through a GitHub request owner of that

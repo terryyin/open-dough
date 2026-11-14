@@ -185,7 +185,7 @@ export async function prepareAdapterRepeatScenario(
     collectFollowUps(
       server: DashboardServer,
       history?: ProjectHistory,
-      environment = "production",
+      environment?: string,
       signal?: AbortSignal,
     ) {
       return collectFollowUps(origin, server, history, environment, signal);

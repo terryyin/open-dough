@@ -85,7 +85,7 @@ export async function prepareRepeatScenario(
     };
     const trunk = trunkActions([...prior, provider.latest()], proofs);
     return (
-      trunk(call.argv, story.completion) ??
+      trunk(call.argv) ??
       fallback?.(call) ??
       publishes({ revision: story.completion })(call)
     );

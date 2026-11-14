@@ -86,9 +86,7 @@ export async function publishTrunk(
     repository: "terryyin/open-dough",
     follows: true,
   });
-  committed.serveActions((argv, head) =>
-    trunkActions(runs(), proofs())(argv, head),
-  );
+  committed.serveActions((argv) => trunkActions(runs(), proofs())(argv));
 }
 
 // Project Intent's CI status, with nothing selected.

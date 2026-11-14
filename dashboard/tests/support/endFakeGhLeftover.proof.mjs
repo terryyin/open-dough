@@ -10,7 +10,7 @@ import { endFakeGh, installFakeGh } from "./fakeGh.ts";
 import { processRunning, readPid } from "./processGroup.ts";
 
 const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-end-fake-gh-"));
-const gh = installFakeGh(tempRoot);
+const gh = installFakeGh(tempRoot, { transport: "cli" });
 const endpoint = path.join(gh.requestOwnerRoot, "host");
 mkdirSync(endpoint, { recursive: true });
 

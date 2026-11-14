@@ -24,6 +24,7 @@ import {
   materializePublishedMainSource,
   type PublishedMainSourceProfile,
 } from "./publishedMainSource.ts";
+import { reusePublishedDevelopmentRuntime } from "./publishedDevelopmentRuntime.ts";
 
 const exec = promisify(execFile);
 
@@ -63,7 +64,7 @@ async function createPublishedMainFixture<Gh extends FakeGhPaths | undefined>(
   mkdirSync(development);
   mkdirSync(home);
   const gh = gitHub(root);
-  const env = {
+  const env: NodeJS.ProcessEnv & { HOME: string } = {
     ...process.env,
     HOME: home,
     ...(gh === undefined ? {} : fakeGhEnv(gh)),
@@ -157,6 +158,12 @@ async function createPublishedMainFixture<Gh extends FakeGhPaths | undefined>(
       publish,
       markerChanges,
       async installDevelopment() {
+        if (
+          fullSource &&
+          sourceProfile === "application" &&
+          (await reusePublishedDevelopmentRuntime(development))
+        )
+          return;
         await exec(
           "npm",
           [

@@ -46,7 +46,7 @@ export function serveCollectedTrunkRuns(
     }
     const main = await originMain(origin);
     return (
-      trunkActions(runs(main), ordinary)(call.argv, main) ??
+      trunkActions(runs(main), ordinary)(call.argv) ??
       publishes({ revision: main })(call)
     );
   });

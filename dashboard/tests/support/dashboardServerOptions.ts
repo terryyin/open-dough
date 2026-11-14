@@ -1,6 +1,7 @@
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 import type { FakeClaudeOptions } from "./fakeClaude.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
+import type { FakeGhTransport } from "./fakeGh.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
 import type { DashboardServerMode } from "./serverAddress.ts";
 
@@ -40,6 +41,7 @@ export type DashboardServerOptions = FakeClaudeOptions & {
   readonly launchWaitEnd?: boolean | undefined;
   // The fake GitHub this server's `gh` asks; a fresh one, closed with the server, when omitted.
   readonly github?: FakeGitHub;
+  readonly ghTransport?: FakeGhTransport | undefined;
   // Request-owner endpoint shared with the test's other callers; this server's own when omitted.
   readonly requestOwnerRoot?: string | undefined;
   // Preview only: serve this directory or resolve a shared build instead

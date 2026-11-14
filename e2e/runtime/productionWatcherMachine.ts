@@ -31,7 +31,16 @@ export class ProductionWatcherMachine {
   private readonly sockets: { close(): void }[] = [];
   watcher: ProductionWatcher | undefined;
 
-  async start(browser: Browser) {
+  private preparation:
+    Promise<{ env: NodeJS.ProcessEnv; pinned: string }> | undefined;
+  private developmentStarting: Promise<string> | undefined;
+
+  start(browser: Browser) {
+    this.preparation = this.prepare(browser);
+    return this.preparation;
+  }
+
+  private async prepare(browser: Browser) {
     const { resources } = this;
     const fixture = await resources.acquire(
       () => localPublishedMainFixture(true, "application"),
@@ -88,7 +97,12 @@ export class ProductionWatcherMachine {
 
   // Development beside production, started only after the production command
   // has started the Cursor runner.
-  async developmentStarted(env: NodeJS.ProcessEnv) {
+  developmentStarted(env: NodeJS.ProcessEnv) {
+    this.developmentStarting = this.startDevelopment(env);
+    return this.developmentStarting;
+  }
+
+  private async startDevelopment(env: NodeJS.ProcessEnv) {
     const { fixture } = this.started();
     const started = await this.resources.acquire(
       () => developmentDashboard(fixture.development, env),
@@ -148,11 +162,24 @@ export class ProductionWatcherMachine {
 
   // A restarted watcher is a test's own; the rest is released in reverse.
   async close() {
-    for (const socket of this.sockets) socket.close();
+    // Own setup through settlement before its HOME is removed.
+    const settled = await Promise.allSettled([
+      this.preparation,
+      this.developmentStarting,
+    ]);
+    const errors: unknown[] = [];
+    for (const result of settled)
+      if (result.status === "rejected") errors.push(result.reason);
     try {
-      await this.watcher?.stop();
+      if (errors.length > 0)
+        throw new AggregateError(errors, "Watcher setup did not complete");
     } finally {
-      await this.resources.release();
+      for (const socket of this.sockets) socket.close();
+      try {
+        await this.watcher?.stop();
+      } finally {
+        await this.resources.release();
+      }
     }
   }
 }

@@ -69,7 +69,7 @@ test("a subsequent landing considers original 120 seconds once, excludes that ac
   const prior = github.serve(
     "terryyin/open-dough",
     async (call) =>
-      answer(call.argv, next) ??
+      answer(call.argv) ??
       prior?.(call) ?? {
         status: 404,
         contentType: "text/plain",

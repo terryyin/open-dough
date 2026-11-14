@@ -35,7 +35,7 @@ export const listingReuseWindowMs = 60_000;
 export function listingReuseServer(
   overrides: Pick<
     Parameters<typeof startDashboardServer>[0],
-    "github" | "pathPrefix" | "requestOwnerRoot"
+    "github" | "pathPrefix" | "requestOwnerRoot" | "ghTransport"
   > = {},
 ): Promise<DashboardServer> {
   return startDashboardServer({

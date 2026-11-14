@@ -95,7 +95,7 @@ export function defaultPassingBaseCi(
 export function actionsForRuns(
   runs: readonly CiRunAnswer[],
   branch = "main",
-): (argv: readonly string[], headSha: string) => OriginAnswer | undefined {
+): (argv: readonly string[]) => OriginAnswer | undefined {
   return (argv) => {
     const route = argv.find((argument) => argument.startsWith("repos/")) ?? "";
     if (/\/actions\/workflows\/[^/?]+$/.test(route)) {

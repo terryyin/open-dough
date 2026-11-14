@@ -77,8 +77,9 @@ function filePatterns(testDir, files) {
 
 // Selection and dispatch have different jobs: the duration deal chooses each
 // file's shard; native projects queue the long, serial production chains
-// (E2E Test's `production-watcher*.spec.ts`) first in the same phase. No
-// dependency makes ordinary checks wait for those chains. Complementary
+// (E2E Test's `production-watcher*.spec.ts`) first in the same phase. Local
+// chains share one worker so real installs and builds leave the other global
+// worker for ordinary checks; CI keeps its concurrency. No dependency makes ordinary checks wait for those chains. Complementary
 // matches retain exactly one execution of every selected file. `selection`
 // names a runner's own `roots`, `splitVariable` and `durations`.
 export function dashboardTestProjects(testDir, split, selection) {
@@ -88,6 +89,7 @@ export function dashboardTestProjects(testDir, split, selection) {
   return [
     {
       name: "chromium-deployments",
+      ...(process.env["CI"] ? {} : { workers: 1 }),
       testMatch: filePatterns(testDir, files.filter(isProductionChain)),
     },
     {

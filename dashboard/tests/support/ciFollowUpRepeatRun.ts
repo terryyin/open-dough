@@ -194,7 +194,7 @@ export function serveRepeatRuns(
     );
     const latest = runs.map((run) => run.latest());
     return (
-      trunkActions(latest, proofs)(call.argv, main) ??
+      trunkActions(latest, proofs)(call.argv) ??
       (before ?? publishes({ revision: main }))(call)
     );
   });

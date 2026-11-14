@@ -65,7 +65,10 @@ so the other workers run ordinary checks while a chain builds and replaces its
 deployments. The projects partition the existing selected files; they neither
 add shards nor repeat tests. The project names are `chromium-deployments` and
 `chromium`; a whole-group invocation selects both. The other groups run one
-`chromium` project.
+`chromium` project. Locally, the deployment project uses at most one worker,
+leaving the remaining global capacity for ordinary checks. CI keeps its
+CPU-derived concurrency; this project bound changes no shard, selected file,
+case budget or journey.
 
 ### Preview before pushing
 

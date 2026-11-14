@@ -31,7 +31,7 @@ test("confirmed failure then pass starts without asking again", async ({
       })
       .please(),
   ]);
-  published.serveActions((argv, head) => runs(argv, head));
+  published.serveActions((argv) => runs(argv));
   await openUntilRead(page);
   const card = parts(page).backlog.getByRole("article", { name: "Story A" });
   await card.getByRole("button", { name: "Start execution" }).click();
@@ -77,7 +77,7 @@ test("confirmed failure then a new failure at another revision asks again", asyn
       })
       .please(),
   ]);
-  first.published.serveActions((argv, head) => runs(argv, head));
+  first.published.serveActions((argv) => runs(argv));
   await openUntilRead(page);
   const card = parts(page).backlog.getByRole("article", { name: "Story A" });
   await card.getByRole("button", { name: "Start execution" }).click();

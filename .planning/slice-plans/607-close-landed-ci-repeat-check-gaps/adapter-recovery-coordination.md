@@ -33,7 +33,7 @@ patch had been applied there and no recipient acknowledgment existed; the
 removed task-message service delivered no handoff.
 
 Recipient acknowledgment arrived through its maintained record at 04:50 UTC:
-`/Users/terryyin/git/open-dough/.worktrees/answer-fake-github-reads-without-a-process-per-c/.planning/slice-plans/610-answer-fake-gh-reads-in-process/adapter-recovery-coordination.md`.
+`fe1d1b851247f7d0a5d726e7e575f0b9ab32a036:.planning/slice-plans/610-answer-fake-gh-reads-in-process/adapter-recovery-coordination.md`.
 SEED-332 verified this hash, reviewed all six paths and the native regression,
 and applied the exact patch unstaged in its own checkout. Our checkout/index
 remain untouched. Its G4 remains open; it owns combined three-file adapter

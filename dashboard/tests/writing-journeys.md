@@ -106,14 +106,18 @@ production watcher finishes removing its deployment checkouts; a directly
 spawned server is ended by `endGroup` (`support/processGroup.ts`), which
 kills the group 5 seconds after its signal. Follow the repository's
 [test automation rules](../../AGENTS.md#test-automation) for timeouts. An override
-inside a test takes effect after fixture setup. The full-source fixture adds
-its copy in one pack: copy, `git add` and first push take about 2 seconds alone
-and 3 when four build it at once. The production journeys (`production-watcher*.spec.ts`)
-build that fixture once per serial file in `beforeAll`. The lifecycle and
-update files' hooks also start the real watcher, and their first tests observe
-its first activation where they assert it, so those hooks hold only the
-preparation and its development install. The failure file starts the watcher
-in its first test and again in each test that follows a scenario ending it.
+inside a test takes effect after fixture setup. Full-source fixtures copy in
+one pack. Production journeys (`production-watcher*.spec.ts`) build one per
+serial file in `beforeAll`. Lifecycle and update hooks also start the watcher;
+their first tests assert initial activation, so the hooks hold only preparation
+and its development runtime. `publishedDevelopmentRuntime` reuses
+this checkout's installed packages only for an exact matching application lock
+and dependency graph; each fixture owns its writable caches. Other development
+inputs still run `npm ci`. Every production deployment installs its own locked
+dependencies and builds its selected commit. The minimal failure fixture uses
+the installed runtime with Node's native loading of its real Vite boundary config.
+The failure file starts the watcher in its first test and again after a scenario
+ends it. Setup and command promises stay owned through teardown before HOME is removed.
 Each test steps the watcher to its next state and asserts the delta it observes
 (`support/productionWatcher.ts`: reported activations, replacements and skips,
 recorded builds, or successful Git reads recorded through fixture-local Trace2
@@ -137,6 +141,13 @@ global setup gives every process a request owner root that admits no owner,
 so a process given none of those is answered by no owner — another test's or
 this machine's real one included — and the run then fails at its end with
 `A test asked GitHub without a request owner of its own`.
+Ordinary fake API calls run inside that real private owner, using the same
+answerers and byte frame as the synthetic CLI. Select `ghTransport: "cli"`
+(or `installFakeGh(root, { transport: "cli" })`) when actual call PIDs,
+signals, replacement or orphan cleanup are the observation. Never replace those
+observations with counters. Custom `NODE_OPTIONS` probes compose with the fast
+preload; explicitly started owners retain its explicit `--import` alongside
+their own preloads. Production owner startup still deletes `NODE_OPTIONS`.
 
 ## What the fake GitHub answers by itself
 
@@ -155,67 +166,15 @@ stalled addition read delays only its own profile's clock and human is
 
 ## Review and Side panel owners
 
-`storyCardControls.ts` owns Review changes. `support/reviewControls.ts` owns
-the review region, comparison/run choices, uncommitted check and Refresh
-controls without waiting for their answers. Reading operations in
-`support/reviewRead.ts` and `support/storyReviewMark.ts` keep the waits they
-need; a journey holding an answer can press the same control separately.
-Tree, diff and context readers accept the scenario's independent expected facts.
-
-`sidePanelFrame.ts` shares Close, Maximize/Restore and covering operations with
-procedural and fluent callers. Preserve each caller's locator click,
-shown-position mouse, touch or keyboard input. Its Close is action-only;
-`pageLayout.closeSidePanelToBoard` additionally waits for the panel and preparation
-reading to disappear before a Board continuation.
-
-`sidePanelWidthPage.ts` owns drag/cancellation, explicit divider focus and
-keyboard resizing. Supply the key/count and chosen geometry at the call site;
-pressing divider keys never transfers focus implicitly. Keep a cancelled-drag
-observation before mouse release when that order distinguishes the outcome.
-`sessionEntryAccess.ts` supplies pure Terminal/report access getters through the
-named `terminalScreenPage.ts` and `finalReportPages.ts` facades. They add no
-focus, input or answer wait. Independent name, accessibility and geometry
-contract observations retain their own expected values.
+See [Review and Side panel owners](page-object-owners.md#review-and-side-panel-owners).
 
 ## Terminal screen and modality owners
 
-Ordinary Terminal screen, identity, keyboard insert/typeLine and recovery live
-in `terminalScreenPage.ts`. `typeLine` types then Enter; `insertTerminalText`
-never submits. Fluent `terminalPages.ts` reuses that owner as a thin adapter.
-Touch keys/fit/compose, paused selection, paste and voice keep their own
-owners (`touchTerminalPage.ts`, `terminalSelectPage.ts`, `terminalPastePage.ts`,
-`support/terminalVoicePage.ts`) and must not import voice into the screen
-module. Prefer `.xterm-screen` via `terminalScreenParts` for the xterm surface;
-`.terminal-screen` is the paused overlay host. Caller facts (exact bytes,
-holds/releases, native attach, modality) stay at the call site.
+See [Terminal screen and modality owners](page-object-owners.md#terminal-screen-and-modality-owners).
 
 ## Session, sidebar and report owners
 
-A Session entry's parts live in `dashboardParts.ts` (`sessionEntriesIn`,
-`sessionEntryShowing`, `sessionStateOf`, unread and problem readers); its
-disclosures, actions and Delete record question live in
-`support/sessionEntryDisclosure.ts`, and Mark as done in `support/markDone.ts`.
-Asking a question and answering it stay separate calls, so Keep, Escape and a
-held answer remain visible in the scenario. Queued-card listing and blocked
-Starts are in `storyCardSessionListing.ts`; callers supply the note a blocked
-Start must show.
-
-`sessionsSidebarPage.ts` owns the open list (open/closed state, current entry,
-rows and titles); `recentlyDoneSessionsSidebarPage.ts` owns Recently done, where
-`select(title)` and `open(title)` stay separate operations because selecting a
-retained row never opens its Terminal or report. Final report text and parts
-come from `finalReportPages.ts`. Running Cursor list controls are in the
-browser-only `runningCursorList.ts`; divider drags, key steps and heights in
-`cursorSessionsSidebarResizePage.ts`; host figures in `sessionsSidebarFigures.ts`.
-Frontend specs import only these browser modules, never native or server setup.
-
-The shown rows read their projects' catalogs and ad hoc association records when
-they appear and again on a timer. Hold or route the next action's reads through
-`nextActionReads.ts`, which requires page time paused before the page opens
-(`pausePageClockAt`) and settles the page's own reads first. A journey that adds
-launch records while its dashboard server runs uses
-`keepMoreLaunchRecordsBesideServer` (`support/launchStore.ts`), which writes
-under the server's lock so a concurrent reconciliation cannot drop them.
+See [Session, sidebar and report owners](page-object-owners.md#session-sidebar-and-report-owners).
 
 ## Page objects
 

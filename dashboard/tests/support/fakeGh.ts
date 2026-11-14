@@ -1,10 +1,10 @@
-// Installs the synthetic `gh` (../fixtures/fake-gh) on a temp PATH directory. What that `gh` answers comes from
-// the test's own fake GitHub (./fakeGitHub.ts); nothing here launches a Vite
-// dev/preview server (./dashboardServer.ts does). Every process given this
-// `gh` asks it through a GitHub request owner (github-request-owner.mjs) at
-// an endpoint of this installation's own, so no test shares another's owner,
-// rate-limit wait or turns, nor this machine's real one.
+// Installs this test's private fake GitHub wiring. Ordinary API calls answer
+// inside its real request owner using the existing fake HTTP framing; explicit
+// transport: "cli" keeps ../fixtures/fake-gh for native PID/signal observations.
+// Owner startup and login stay native. Every installation owns a private owner
+// endpoint, so tests never share another's turns, rate-limit wait or real gh.
 
+import "./fakeGhPreload.mjs";
 import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import {
@@ -16,7 +16,10 @@ import {
 import { installFixtureExecutable } from "./fixtureExecutable.ts";
 import { endAtExit, endRunningProcesses } from "./processGroup.ts";
 
+export type FakeGhTransport = "cli" | "in-process";
+
 export type FakeGhPaths = {
+  transport: FakeGhTransport;
   binDir: string;
   pidPath: string;
   // Kept short and apart from `tempRoot`: it holds the owner's socket path.
@@ -25,7 +28,12 @@ export type FakeGhPaths = {
 
 // Exported so a test that wants the plugin's own hooks directly (rather than
 // a spawned Vite process) can install the same synthetic `gh`.
-export function installFakeGh(tempRoot: string): FakeGhPaths {
+export function installFakeGh(
+  tempRoot: string,
+  {
+    transport = "in-process",
+  }: { transport?: FakeGhTransport | undefined } = {},
+): FakeGhPaths {
   const binDir = path.join(tempRoot, "bin");
   installFixtureExecutable("fake-gh", binDir, "gh");
   const { root: requestOwnerRoot } = privateRequestOwner();
@@ -38,7 +46,12 @@ export function installFakeGh(tempRoot: string): FakeGhPaths {
       rmSync(requestOwnerRoot, { recursive: true, force: true });
     }),
   );
-  return { binDir, pidPath: path.join(tempRoot, "gh.pid"), requestOwnerRoot };
+  return {
+    binDir,
+    pidPath: path.join(tempRoot, "gh.pid"),
+    requestOwnerRoot,
+    transport,
+  };
 }
 
 const ownerEndsAtExit = new Map<string, () => void>();
@@ -100,6 +113,12 @@ export function fakeGhEnv(
     PATH: `${gh.binDir}${path.delimiter}${process.env["PATH"] ?? ""}`,
     ...(githubUrl === undefined ? {} : { FAKE_GH_ORIGIN: githubUrl }),
     FAKE_GH_PIDFILE: gh.pidPath,
+    FAKE_GH_TRANSPORT: gh.transport,
+    ...(gh.transport === "in-process"
+      ? {
+          NODE_OPTIONS: `${process.env["NODE_OPTIONS"] ?? ""} --import=${JSON.stringify(new URL("./fakeGhPreload.mjs", import.meta.url).href)}`,
+        }
+      : {}),
     ...requestOwnerEnvironmentAt(gh.requestOwnerRoot),
   };
 }

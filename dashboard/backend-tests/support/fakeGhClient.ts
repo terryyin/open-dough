@@ -20,7 +20,7 @@ export async function clientFixture() {
   const scratch = path.join(root, "scratch");
   mkdirSync(scratch);
   const github = await startFakeGitHub();
-  const gh = installFakeGh(root);
+  const gh = installFakeGh(root, { transport: "cli" });
   const children: ReturnType<typeof spawnGroupLeader>[] = [];
   const environment = {
     ...process.env,

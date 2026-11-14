@@ -45,7 +45,10 @@ test.describe("authenticated done catalog refusal (development environment)", ()
   let server: DashboardServer;
 
   test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+    server = await startDashboardServer({
+      ...developmentBoundary,
+      ghTransport: "cli",
+    });
   });
 
   test.afterAll(async () => {

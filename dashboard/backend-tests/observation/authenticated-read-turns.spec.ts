@@ -50,7 +50,10 @@ test.describe("authenticated read boundary: reads take turns at GitHub (developm
   let server: DashboardServer;
 
   test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+    server = await startDashboardServer({
+      ...developmentBoundary,
+      ghTransport: "cli",
+    });
   });
 
   test.afterAll(async () => {
@@ -170,12 +173,15 @@ test("a request still waiting its turn at its bound is answered as timed out, an
       held.releaseAll();
       await Promise.all(taking);
     },
-    { ...developmentBoundary, readTimeoutMs: 6_000 },
+    { ...developmentBoundary, ghTransport: "cli", readTimeoutMs: 6_000 },
   );
 });
 
 test("closing the server ends the waiting reads with the outstanding ones", async () => {
-  const server = await startDashboardServer(developmentBoundary);
+  const server = await startDashboardServer({
+    ...developmentBoundary,
+    ghTransport: "cli",
+  });
   const revision = revisionOf("8e");
   const held = await servedInTurn(server, revision);
   const url = (path: string) =>

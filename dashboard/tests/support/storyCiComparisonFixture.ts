@@ -122,8 +122,8 @@ export function serveActionsFor(
   let proofsByRunId = initialProofs;
   let jobsByAttempt: AttemptJobs = {};
   let intercept: ActionsAnswerer | undefined;
-  const answerActions: ActionsAnswerer = (argv, headSha) =>
-    intercept?.(argv, headSha) ?? answerServed(argv);
+  const answerActions: ActionsAnswerer = (argv) =>
+    intercept?.(argv) ?? answerServed(argv);
   const answerServed = (argv: readonly string[]): OriginAnswer | undefined => {
     const route = argv.find((argument) => argument.startsWith("repos/")) ?? "";
     if (/\/actions\/workflows\/[^/?]+$/.test(route)) {

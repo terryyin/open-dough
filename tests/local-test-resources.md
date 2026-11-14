@@ -23,6 +23,9 @@ starting values for a shared development machine. Override them explicitly with
 `npm run test:e2e -- --workers=4`. Worker overrides alone still select a
 full suite. CI keeps its existing CPU-derived concurrency and takes no admission.
 These bounds control peak concurrency; no elapsed-time improvement is claimed.
+The dashboard's production-chain project uses at most one local worker so its
+real installs and builds leave global capacity for ordinary checks. Other
+dashboard checks retain the global worker limit, and CI has no project cap.
 
 Focused journeys must also work within their existing case budgets under
 moderate CPU usage in a moderately busy development context. An idle machine

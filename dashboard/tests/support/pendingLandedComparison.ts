@@ -91,7 +91,7 @@ export function serveProofAnswer(
       call.request.runId === 201
         ? answer()
         : undefined) ??
-        actions(call.argv, revision) ??
+        actions(call.argv) ??
         publishes({ revision })(call),
     ),
   );

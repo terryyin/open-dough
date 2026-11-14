@@ -52,7 +52,10 @@ test.describe("authenticated read boundary: last-waiter disconnect ends membersh
   let server: DashboardServer;
 
   test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+    server = await startDashboardServer({
+      ...developmentBoundary,
+      ghTransport: "cli",
+    });
   });
 
   test.afterAll(async () => {
@@ -86,7 +89,10 @@ test.describe("authenticated read boundary: revision-check listing survives requ
   let server: DashboardServer;
 
   test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+    server = await startDashboardServer({
+      ...developmentBoundary,
+      ghTransport: "cli",
+    });
   });
 
   test.afterAll(async () => {
@@ -129,6 +135,7 @@ test.describe("authenticated read boundary: bounded timeout without changing the
   test.beforeAll(async () => {
     server = await startDashboardServer({
       ...developmentBoundary,
+      ghTransport: "cli",
       readTimeoutMs: shortTimeoutMs,
     });
   });
@@ -164,7 +171,10 @@ test.describe("authenticated read boundary: subprocess ownership across server s
   // these prove no owned subprocess survives a real shutdown.
   for (const { kind, label } of authenticatedReadKinds) {
     test(`ends a held ${label} when the server itself closes`, async () => {
-      const server = await startDashboardServer(developmentBoundary);
+      const server = await startDashboardServer({
+        ...developmentBoundary,
+        ghTransport: "cli",
+      });
       server.github.serve(everyRepository, hangs);
       abandonedRequest({
         url: authenticatedReadUrl(server.baseURL, kind),

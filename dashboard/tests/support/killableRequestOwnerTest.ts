@@ -28,7 +28,7 @@ export const test = base.extend<{
     await use(ownerSends(testInfo.outputPath("owner-sends")));
   },
   extraEnv: async ({ requestOwner, sent }, use) => {
-    await use({ ...requestOwner.env, ...sent.env });
+    await use({ ...requestOwner.env, ...sent.env, FAKE_GH_TRANSPORT: "cli" });
   },
 });
 
