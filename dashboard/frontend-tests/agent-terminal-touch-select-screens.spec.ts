@@ -80,7 +80,6 @@ for (const { device, lines, rowsOfWrapped, ...screen } of [
         frontendServices,
         makeMe.aLaunchRecord
           .adHoc({ instruction: "select", title: `Select on ${device}` })
-          .launchedAt("2026-10-01T00:00:00.000Z")
           .inClaudeSession({ sessionId: "select-screens-1", shortId: "held01" })
           .please(),
         { application: program.application },

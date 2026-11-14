@@ -115,7 +115,6 @@ test("an automatic start no process runs, still unsettled, did not complete", ()
     .please();
   const accepted = makeMe.anAcceptedAttempt
     .requesting(incomingAdHocRequest(launch.request))
-    .acceptedAt("2026-10-28T09:00:00Z")
     .please();
   const interrupted = makeMe.anAttemptObservation
     .of(accepted)

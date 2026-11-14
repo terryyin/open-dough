@@ -27,9 +27,10 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 test.use({ viewport: phoneLaunchTouchViewport.portrait, hasTouch: true });
 
 const launch = () =>
-  makeMe.aLaunchRecord
-    .adHoc({ instruction: "swipe", title: "Phone swipe session" })
-    .launchedAt("2026-10-01T00:00:00.000Z");
+  makeMe.aLaunchRecord.adHoc({
+    instruction: "swipe",
+    title: "Phone swipe session",
+  });
 
 test("a swipe scrolls an application that scrolls its own output, at the touched place, and leaves the draft alone", async ({
   page,

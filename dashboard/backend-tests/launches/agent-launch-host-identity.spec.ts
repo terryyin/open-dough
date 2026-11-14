@@ -28,17 +28,14 @@ const sessionId = "same-native-conversation-id";
 test("predecessor Claude evidence and an equal ID from another host retain distinct reads and actions without fallback", async () => {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-host-records-"));
   const home = machineHome(machine);
-  const launchedAt = new Date().toISOString();
   // The story's execution kept by Claude, and by Codex under the same ID.
   const oldClaude = makeMe.aLaunchRecord
     .executing({ identity, title })
     .inClaudeSession({ sessionId, shortId: "native-alias" })
-    .launchedAt(launchedAt)
     .please();
   const other = makeMe.aLaunchRecord
     .executing({ identity, title })
     .inCodexSession({ sessionId })
-    .launchedAt(launchedAt)
     .please();
   keepLaunchStore(home, { "open-dough": [oldClaude, other] });
   const server = await startDashboardServer({

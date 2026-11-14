@@ -45,7 +45,6 @@ function cursorFollowUpRecord(): LaunchRecord {
     })
     .inCursorSession({ sessionId, continuation: { workspace } })
     .withFirstInput({ state: "confirmed" })
-    .launchedAt("2026-10-29T00:00:00.000Z")
     .please();
 }
 

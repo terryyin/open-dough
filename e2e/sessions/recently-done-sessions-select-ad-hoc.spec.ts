@@ -186,7 +186,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
         reference: randomUUID(),
         command: "report",
       })
-      .markedDoneAt(new Date().toISOString())
+      .markedDone()
       .launchedAt(new Date(Date.now() - 30_000).toISOString())
       .please();
     keepLaunchRecords(dashboard, [linked.record, reported, alone]);

@@ -124,7 +124,6 @@ test("two independently matching completed-story candidates stay absent", async 
     })
     .forLaunch(reference)
     .comparing({ base, revision: completion })
-    .receivedAt(new Date().toISOString())
     .please();
   const record = makeMe.aLaunchRecord
     .adHoc({
@@ -142,7 +141,7 @@ test("two independently matching completed-story candidates stay absent", async 
     })
     .withCapturedLanding(landing)
     .completedWith({ message: "Landed dual completions." })
-    .markedDoneAt(new Date().toISOString())
+    .markedDone()
     .please();
   keepLaunchRecords(dashboard, [record]);
   const claimed = git(

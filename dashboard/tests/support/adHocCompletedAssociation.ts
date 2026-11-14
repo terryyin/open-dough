@@ -149,7 +149,6 @@ export async function retainAdHocCompletedStory(
       base: landingOverride?.base ?? claim,
       revision: landingOverride?.revision ?? completion,
     })
-    .receivedAt(new Date().toISOString())
     .please();
   const record = makeMe.aLaunchRecord
     .adHoc({ instruction: title, title })
@@ -164,7 +163,7 @@ export async function retainAdHocCompletedStory(
     })
     .withCapturedLanding(landing)
     .completedWith({ message: "Landed the ad hoc completion." })
-    .markedDoneAt(new Date().toISOString())
+    .markedDone()
     .launchedAt(new Date(Date.now() - 60_000).toISOString())
     .please();
   keepLaunchRecords(dashboard, [record]);

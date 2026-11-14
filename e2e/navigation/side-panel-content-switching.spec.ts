@@ -59,18 +59,15 @@ test("review and terminal take turns in the one side panel beside a usable Board
     cwd: workspaceA,
     startedAt: Date.now(),
   });
-  const now = new Date().toISOString();
   keepLaunchRecords(dashboard, [
     makeMe.aLaunchRecord
       .executing({ identity: queuedIdentity, title: "Story A" })
       .onStoryBranch({ workspace: workspaceA, branch })
       .inClaudeSession(listed(sessionA))
-      .launchedAt(now)
       .please(),
     makeMe.aLaunchRecord
       .executing({ identity: otherQueuedIdentity, title: "Story B" })
       .onStoryBranch({ workspace: workspaceB, branch: storyBBranch })
-      .launchedAt(now)
       .please(),
   ]);
   const reviewReads = storyReviewReads(page);

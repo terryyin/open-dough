@@ -33,7 +33,6 @@ test("phone Paste shows the server's oversized image refusal and keeps the termi
     makeMe.aLaunchRecord
       .adHoc({ instruction: "paste", title: "Phone clipboard session" })
       .inClaudeSession({ sessionId: "paste-session-1", shortId: "paste01" })
-      .launchedAt("2026-10-01T00:00:00.000Z")
       .please(),
     {
       application: echoingApplication("attached paste01\r\nClaude Code\r\n"),

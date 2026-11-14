@@ -43,7 +43,6 @@ test("removing a configured project retains its checkout and records, hides sess
       source: "sample-app",
     })
     .inClaudeSession({ sessionId: "01234567-retained" })
-    .launchedAt(new Date().toISOString())
     .please();
   const records = keepLaunchStore(machineHome(fixture.machine), {
     "sample-app": [record],

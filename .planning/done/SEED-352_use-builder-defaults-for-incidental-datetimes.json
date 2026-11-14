@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-352#use-builder-defaults-for-incidental-datetimes",
+  "title": "Use builder defaults for incidental datetimes",
+  "completedAt": "2026-11-14T09:19:33.917Z",
+  "developer": "Terry Yin",
+  "agent": "YeongSheng-chan",
+  "host": "codex"
+}

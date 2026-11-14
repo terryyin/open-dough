@@ -68,7 +68,7 @@ test("a reported session marked done has no unread report, whether or not it was
     makeMe.aLaunchRecord
       .executing({ identity: "SEED-903#reported-done", title: "Reported done" })
       .completedWith({ message })
-      .markedDoneAt("2026-10-01T11:00:00.000Z");
+      .markedDone();
   for (const kept of [
     reported().please(),
     reported().withReportRead().please(),
@@ -95,7 +95,6 @@ test("only explicitly completed refinements with missing preparation workspaces 
             sessionId: "refinement-session",
             shortId: "refineme",
           })
-          .launchedAt("2026-10-17T00:00:00Z")
           .please(),
       )
       .withWorkspace("missing")

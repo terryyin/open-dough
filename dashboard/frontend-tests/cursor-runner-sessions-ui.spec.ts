@@ -44,7 +44,6 @@ const heldRecord = makeMe.aLaunchRecord
     sessionId: "12345678-1234-4123-8123-123456789abc",
     continuation: { workspace: "/Users/test/git/open-dough" },
   })
-  .launchedAt("2026-10-01T00:00:00.000Z")
   .please();
 
 const heldSessions: RunningCursorSessions = makeMe.aRunningCursorSessions

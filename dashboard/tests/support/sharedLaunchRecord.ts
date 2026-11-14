@@ -7,12 +7,11 @@ import { identity, title } from "../agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { keepLaunchStore, launchStoreFile } from "./launchStore.ts";
 
-// The story's execution in a `claude` session, launched now.
+// The story's execution in a `claude` session.
 export function writeSharedLaunchRecord(home: string) {
   const record = makeMe.aLaunchRecord
     .executing({ identity, title })
     .inClaudeSession({ sessionId: "shared-before-switch", shortId: "shared" })
-    .launchedAt(new Date().toISOString())
     .please();
   const stored = keepLaunchStore(home, { "open-dough": [record] });
   return { record, store: launchStoreFile(home), stored };

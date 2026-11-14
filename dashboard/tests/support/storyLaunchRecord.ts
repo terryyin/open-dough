@@ -9,14 +9,13 @@ import { queuedIdentity } from "./startOrigin.ts";
 import { branch } from "./storyReviewWorktree.ts";
 
 // Story A's execution in the session given, as one the synthetic `claude`
-// lists, launched now; callers state what its start established.
+// lists; callers state what its start established.
 export const storyALaunch = (
   { sessionId, shortId } = { sessionId: "story-a-session", shortId: "story-a" },
 ) =>
   makeMe.aLaunchRecord
     .executing({ identity: queuedIdentity, title: "Story A" })
-    .inClaudeSession({ sessionId, shortId })
-    .launchedAt(new Date().toISOString());
+    .inClaudeSession({ sessionId, shortId });
 
 // Story A's launch record, its start naming the worktree, of the session
 // given.
