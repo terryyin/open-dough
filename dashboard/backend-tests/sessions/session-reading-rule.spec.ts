@@ -5,7 +5,8 @@
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { attachOpens } from "../../src/launchRecord.ts";
-import { attentionSummary, sessionShown } from "../../src/sessionShown.ts";
+import { sessionShown } from "../../src/sessionShown.ts";
+import { attentionSummary } from "../../src/sessionCounts.ts";
 
 const loaded = (activity: Parameters<typeof makeMe.aSessionState.loaded>[0]) =>
   makeMe.aSessionState.loaded(activity).please();
@@ -114,6 +115,27 @@ test("marked done reads Done whatever the host later lists, except while it work
   expect(sessionShown({ sessionState: loaded("working"), doneAt }).label).toBe(
     "Working",
   );
+});
+
+test("a reported Done session reads Returned to backlog only while its kept outcome names that report", () => {
+  const completion = makeMe.aCompletionReport
+    .withReceipt("22222222-2222-4222-8222-222222222222")
+    .please();
+  const returned = {
+    sessionState: loaded("review"),
+    doneAt,
+    completion,
+    returnedToBacklog: completion.receipt,
+  };
+  expect(sessionShown(returned)).toEqual({
+    label: "Returned to backlog",
+    needsAttention: false,
+    tone: "done",
+  });
+  const newer = makeMe.aCompletionReport
+    .withReceipt("33333333-3333-4333-8333-333333333333")
+    .please();
+  expect(sessionShown({ ...returned, completion: newer }).label).toBe("Done");
 });
 
 test("a card counts the sessions that need attention, never an unavailable or unknown one", () => {

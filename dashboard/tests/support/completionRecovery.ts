@@ -28,22 +28,25 @@ export function retainedSubmission(stderr: string): string {
     throw new Error(`No retained reporting submission: ${stderr}`);
   return file;
 }
+// Runs one record store operation on the server's machine, with the project
+// list that server keeps, as the server process would.
 export async function recordOperation(
   server: Pick<DashboardServer, "home">,
   operation: string,
   args: unknown[],
   env = process.env,
 ) {
-  const url = new URL(
-    `file://${path.join(repoRoot, "dashboard/server/launchRecordStore.ts")}`,
-  ).href;
+  const url = (module: string) =>
+    JSON.stringify(
+      new URL(`file://${path.join(repoRoot, "dashboard/server", module)}`).href,
+    );
   return exec(
     process.execPath,
     [
       "--experimental-transform-types",
       "--input-type=module",
       "-e",
-      `import {${operation}} from ${JSON.stringify(url)}; const args = JSON.parse(process.argv[1], (_key, value) => value === null ? undefined : value); console.log(JSON.stringify(await ${operation}(...args)));`,
+      `import {existsSync} from "node:fs"; import {initializeProjectConfiguration, projectConfigurationFile} from ${url("projectConfiguration.ts")}; import {${operation}} from ${url("launchRecordStore.ts")}; const environment = ["production", "development"].find((name) => existsSync(projectConfigurationFile(name))); if (environment !== undefined) initializeProjectConfiguration(environment); const args = JSON.parse(process.argv[1], (_key, value) => value === null ? undefined : value); console.log(JSON.stringify(await ${operation}(...args)));`,
       JSON.stringify(args),
     ],
     {

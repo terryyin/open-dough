@@ -1,5 +1,5 @@
 // Binding takes the attempt lock before the record lock, like completion delivery.
-import { completionClosesSession } from "./completionClosure.ts";
+import { completionClosure, returnedOutcome } from "./completionClosure.ts";
 import { doneSessionRecord, type NativeDoneMarks } from "./doneMarks.ts";
 import { type CompletionReport } from "../src/completionReport.ts";
 import { withKeptAttempts } from "./launchAttemptStore.ts";
@@ -45,12 +45,13 @@ export async function bindRecord(
       );
     }
     const completion = attempt?.completion ?? record.completion;
-    const closesSession =
-      completion !== undefined &&
-      (await completionClosesSession(
-        { ...record, landing: attempt?.landing ?? record.landing },
-        completion,
-      ));
+    const closure =
+      completion === undefined
+        ? "open"
+        : await completionClosure(
+            { ...record, landing: attempt?.landing ?? record.landing },
+            completion,
+          );
     await replaceRecords((kept) => {
       const existing = (kept[sourceId] ?? []).find(
         (entry): entry is LaunchRecord =>
@@ -72,7 +73,7 @@ export async function bindRecord(
       const landing = existing?.landing ?? attempt?.landing ?? record.landing;
       const bound =
         existing === undefined
-          ? reported !== undefined && closesSession
+          ? reported !== undefined && closure !== "open"
             ? doneSessionRecord(record, reported.receivedAt)
             : record
           : {
@@ -91,6 +92,11 @@ export async function bindRecord(
           {
             ...bound,
             completion: reported,
+            // A bound record keeps its outcome; an early report gains its own.
+            returnedToBacklog:
+              existing === undefined
+                ? returnedOutcome(closure, reported?.receipt)
+                : existing.returnedToBacklog,
             landing,
             landingReporting: boundLandingReporting(attempt, existing),
             dispositionChangedAt:

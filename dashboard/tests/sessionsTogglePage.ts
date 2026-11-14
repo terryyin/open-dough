@@ -2,7 +2,7 @@
 // ordered; fit in view without clipping.
 
 import { expect, type Page } from "@playwright/test";
-import { attentionWords, workingWords } from "../src/sessionShown.ts";
+import { attentionWords, workingWords } from "../src/sessionCounts.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 
 export async function expectClosedToggleCounts(

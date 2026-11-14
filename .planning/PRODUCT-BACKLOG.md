@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Save and reuse native A/B baselines](seeds/SEED-346-native-ab-comparisons.md#reuse-native-comparison-baselines) — SEED-346#reuse-native-comparison-baselines ([plan](slice-plans/622-save-and-reuse-native-ab-baselines/PLAN.md))
 - [Reconstruct Codex and Claude Code usage history](seeds/SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history) — SEED-358#reconstruct-codex-and-claude-code-usage-history ([plan](slice-plans/624-reconstruct-codex-and-claude-code-usage-history/PLAN.md))
-- [Close launches returned to the backlog](seeds/SEED-358-dashboard-launch-history.md#close-launches-returned-to-the-backlog) — SEED-358#close-launches-returned-to-the-backlog ([plan](slice-plans/625-close-launches-returned-to-the-backlog/PLAN.md))
 
 ## Backlog list
 

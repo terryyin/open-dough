@@ -2,9 +2,9 @@ import { completionLabel, reportUnread } from "./completionReport.ts";
 // How a recorded launch's session reads on the page (`./agentLaunch.ts`):
 // the one reading of normalized native activity, with any completion report
 // not yet marked read or done apart from it, shared by every session entry
-// (`./SessionEntry.tsx`) wherever it is listed, and by the card that says
-// how many of its sessions need attention and hold unread reports
-// (`./StoryCardLaunches.tsx`).
+// (`./SessionEntry.tsx`) wherever it is listed, and by the counts that say how
+// many sessions need attention, work or hold unread reports
+// (`./sessionCounts.ts`).
 
 import type { LaunchWithState } from "./agentLaunch.ts";
 import { cursorHeldLabel } from "./cursorHeldLabel.ts";
@@ -17,7 +17,8 @@ import { marksLocalDone, type HostOperations } from "./sessionCapabilities.ts";
 // and awaiting a first instruction do not. A completion report neither marked
 // read nor marked done is the unread report, its completion label: it leaves
 // the native reading as it is without a report, as a read report does. A
-// reported session marked done reads Done, with native Working as its note.
+// reported session marked done reads Done, or Returned to backlog when its
+// closure kept that outcome for this report, with native Working as its note.
 // Unreported Done retains native Working precedence. Availability and unknown
 // observations never infer activity. An unknown observation may carry its own
 // words, and those words are the reading.
@@ -31,7 +32,7 @@ export type SessionShown = {
   readonly unreadReport?: string;
 };
 
-type ReadableSession = Pick<LaunchWithState, "sessionState" | "doneAt"> &
+export type ReadableSession = Pick<LaunchWithState, "sessionState" | "doneAt"> &
   Partial<
     Pick<
       LaunchWithState,
@@ -41,6 +42,7 @@ type ReadableSession = Pick<LaunchWithState, "sessionState" | "doneAt"> &
       | "request"
       | "preparation"
       | "workspaceState"
+      | "returnedToBacklog"
     >
   >;
 
@@ -49,7 +51,7 @@ export const sessionDoneMeaning =
 
 // Native Working or Cursor held "working"; unfinishedIntention and workingCount
 // share this. workingCount also requires the session is not marked done.
-function readsWorking(session: ReadableSession): boolean {
+export function readsWorking(session: ReadableSession): boolean {
   const { sessionState } = session;
   return (
     (sessionState.kind === "available" &&
@@ -80,11 +82,14 @@ export type SessionTone =
   "needs-input" | "ready" | "halted" | "working" | "done" | "unsettled";
 
 export function sessionShown(shown: ReadableSession): SessionShown {
-  const { sessionState, doneAt, completion } = shown;
+  const { sessionState, doneAt, completion, returnedToBacklog } = shown;
   if (completion === undefined) return nativeSessionShown(shown);
   if (doneAt !== undefined) {
     return {
-      label: "Done",
+      label:
+        returnedToBacklog === completion.receipt
+          ? "Returned to backlog"
+          : "Done",
       needsAttention: false,
       tone: "done",
       ...(sessionState.kind === "available" &&
@@ -174,75 +179,4 @@ export function alertReading(session: ReadableSession): string | undefined {
         session.sessionState.unknownReason !== "unrecognized"))
     ? undefined
     : label;
-}
-
-// How many of the listed sessions need attention, by the same reading each
-// of their entries shows.
-export function attentionCount(sessions: readonly ReadableSession[]): number {
-  return sessions.filter((session) => sessionShown(session).needsAttention)
-    .length;
-}
-
-// Open sessions that read working and are not marked done.
-export function workingCount(sessions: readonly ReadableSession[]): number {
-  return sessions.filter(
-    (session) => session.doneAt === undefined && readsWorking(session),
-  ).length;
-}
-
-// Story card and banner Sessions badge: how many need attention, or nothing.
-export function attentionSummary(
-  sessions: readonly ReadableSession[],
-): string | undefined {
-  return unlessNone(attentionCount(sessions), attentionWords);
-}
-
-// Closed Sessions toggle badge: how many are working, or nothing.
-export function workingSummary(
-  sessions: readonly ReadableSession[],
-): string | undefined {
-  return unlessNone(workingCount(sessions), workingWords);
-}
-
-export function attentionWords(count: number): string {
-  return countedWords(
-    count,
-    "session needs attention",
-    "sessions need attention",
-  );
-}
-
-export function workingWords(count: number): string {
-  return countedWords(count, "session working", "sessions working");
-}
-
-// How many open sessions do not need attention, in words, zero included.
-export function activeSessionsWords(count: number): string {
-  return countedWords(count, "active session", "active sessions");
-}
-
-// What a story's card says of its listed sessions' unread reports, apart
-// from how many need attention: how many hold one, or nothing when none do.
-export function unreadReportSummary(
-  sessions: readonly ReadableSession[],
-): string | undefined {
-  return unlessNone(
-    sessions.filter(
-      (session) => sessionShown(session).unreadReport !== undefined,
-    ).length,
-    (count) => countedWords(count, "unread report", "unread reports"),
-  );
-}
-
-// A count and what it counts, singular for one.
-function countedWords(count: number, one: string, many: string): string {
-  return `${count} ${count === 1 ? one : many}`;
-}
-
-// A count's words, or nothing when it is zero.
-function unlessNone(
-  count: number,
-  words: (count: number) => string,
-): string | undefined {
-  return count === 0 ? undefined : words(count);
 }

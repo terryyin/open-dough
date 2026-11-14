@@ -7,7 +7,7 @@
 import type { LaunchWithState } from "./agentLaunch.ts";
 import type { AgentAssignment } from "./agentAssignments.ts";
 import { StorySessions } from "./SessionLists.tsx";
-import { attentionSummary, unreadReportSummary } from "./sessionShown.ts";
+import { attentionSummary, unreadReportSummary } from "./sessionCounts.ts";
 
 export function StoryCardSessions({
   sessions,
