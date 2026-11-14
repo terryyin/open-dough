@@ -43,7 +43,8 @@ import {
 } from "../../tests/support/launchStore.ts";
 import { launchWithStateSchema } from "../../src/agentLaunch.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
-import { alertReading, attentionCount } from "../../src/sessionShown.ts";
+import { alertReading } from "../../src/sessionShown.ts";
+import { attentionCount } from "../../src/sessionCounts.ts";
 
 const launchWaitMs = 4_000;
 // The story's execution, kept for the `claude` session `sessionId`.

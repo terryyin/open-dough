@@ -1,4 +1,4 @@
-// The working-count rule of listed open sessions (../../src/sessionShown.ts
+// The working-count rule of listed open sessions (../../src/sessionCounts.ts
 // `workingCount` / `workingWords`): native Working and Cursor's held
 // "working" screen count; awaiting first instruction, held waiting, and a
 // session marked done do not; an unread report on a working session still
@@ -11,7 +11,7 @@ import {
   attentionCount,
   workingCount,
   workingWords,
-} from "../../src/sessionShown.ts";
+} from "../../src/sessionCounts.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("awaiting first instruction is excluded; only native Working counts among unsettled peers", () => {

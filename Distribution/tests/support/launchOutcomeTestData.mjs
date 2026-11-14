@@ -35,6 +35,7 @@ export { CompletionSubmissionBuilder } from "./completionSubmissionTestData.mjs"
  *   landingReporting?: import("../../../dashboard/src/launchLanding.ts").LandingReporting,
  *   doneAt?: string,
  *   doneProblem?: string,
+ *   returnedToBacklog?: boolean,
  * }} LaunchOutcome
  */
 
@@ -119,6 +120,13 @@ export class LaunchOutcomeBuilder {
     return this;
   }
 
+  // The dashboard closed the launch on its final report finding the story
+  // back in the queue, keeping that outcome under the report's receipt.
+  returnedToBacklog() {
+    this.#outcome = { ...this.#outcome, returnedToBacklog: true };
+    return this;
+  }
+
   // A fresh Done mark remains inside the machine store's retention window.
   // Cases about time use markedDoneAt instead, including later overrides.
   markedDone() {
@@ -155,6 +163,7 @@ export class LaunchOutcomeBuilder {
       landingReporting,
       doneAt,
       doneProblem,
+      returnedToBacklog,
     } = this.#outcome;
     const report = completion && finalReport(completion, at);
     const landing =
@@ -170,9 +179,12 @@ export class LaunchOutcomeBuilder {
           ).please());
     if (reportRead && !report)
       throw new Error("only a launch that reported can have its report read");
+    if (returnedToBacklog && !report)
+      throw new Error("only a launch that reported can return to the backlog");
     return {
       ...(report && { completion: report }),
       ...(reportRead && report && { reportRead: report.receipt }),
+      ...(returnedToBacklog && report && { returnedToBacklog: report.receipt }),
       ...(landing === undefined ? {} : { landing }),
       ...(landingReporting && {
         landingReporting: structuredClone(landingReporting),

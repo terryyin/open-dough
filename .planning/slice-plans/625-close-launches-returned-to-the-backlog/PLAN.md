@@ -114,7 +114,7 @@ project's closure. Slice 2's reading must compare `returnedToBacklog` with
 
 ### 2. A returned launch reads "Returned to backlog"
 Type: Behavior
-Status: planned
+Status: done
 Proof: new integrated spec `dashboard/tests/sessions/recently-done-returned-sessions.spec.ts`
 using the existing Recently done records, page objects and `sessionStateOf`.
 
@@ -130,6 +130,17 @@ note; reopening it restores its native reading. Update
 [AGENT-LAUNCH-HISTORY](../../../dashboard/AGENT-LAUNCH-HISTORY.md) or
 [session entries](../../../dashboard/AGENT-LAUNCH-SESSION-ENTRIES.md) where
 the Done reading is described.
+
+Accepted: `sessionShown.ts` reads "Returned to backlog" when
+`returnedToBacklog` equals `completion.receipt`; the count wording moved to
+`sessionCounts.ts` under the settled file-size decision. Proof: the new spec
+(queued, retaken and done steps; native Working note and reopen), the
+`recently-done-*`, Done, sidebar and count integrated specs (60 passed), the
+backend reading/count rules (29), the frontend sidebar status (2), e2e
+attention, sidebar, quiet completion, Done reopen and one-shot review (9) and
+`typecheck:dashboard`; both new integrated tests fail on the pre-change
+reading. Learning: an integrated spec that marks done or reopens kept story
+records needs `projectFolders: ["open-dough"]`.
 
 ## Verification, sizing and concern review
 

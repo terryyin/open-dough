@@ -38,7 +38,11 @@ Recently done combines published done stories by completion time and saved Done
 sessions by launch time. A done-story card holds only its marked-done sessions,
 newest first, with the same state and actions; later launches do not move the
 card. Closed sessions without a shown done card remain standalone, including
-those whose story is active. An expired published card releases its closed
+those whose story is active. A launch closed as
+[returned to the backlog](AGENT-LAUNCH-COMPLETION.md) follows the same rules,
+reading Returned to backlog where Done would read, in the same tone and with
+the same note while its native session works; a later launch of its story has
+its own placement. An expired published card releases its closed
 sessions to standalone entries for their remaining local retention window.
 Unread or failed done details retain closed-session access until regrouping.
 Retained sessions arrive with each sessions read as listing facts; their full

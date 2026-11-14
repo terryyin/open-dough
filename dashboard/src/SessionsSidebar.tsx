@@ -60,7 +60,7 @@ import {
   attentionSummary,
   workingCount,
   workingSummary,
-} from "./sessionShown.ts";
+} from "./sessionCounts.ts";
 import "./agent-launch.css";
 import "./sessions-sidebar.css";
 import "./sessions-toggle.css";

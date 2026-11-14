@@ -8,11 +8,13 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchWithState } from "../../src/agentLaunch.ts";
 import {
   alertReading,
-  attentionCount,
   sessionShown,
   unfinishedIntention,
-  unreadReportSummary,
 } from "../../src/sessionShown.ts";
+import {
+  attentionCount,
+  unreadReportSummary,
+} from "../../src/sessionCounts.ts";
 
 const message = "Published. Reminder: check the migration.";
 const report = () => makeMe.aCompletionReport.saying(message).please();

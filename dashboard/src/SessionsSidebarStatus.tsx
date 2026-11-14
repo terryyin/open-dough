@@ -10,7 +10,7 @@ import {
   activeSessionsWords,
   attentionCount,
   attentionWords,
-} from "./sessionShown.ts";
+} from "./sessionCounts.ts";
 
 function StatusFigure({
   icon,

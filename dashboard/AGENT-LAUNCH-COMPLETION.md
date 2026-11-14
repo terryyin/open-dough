@@ -107,7 +107,8 @@ continues an early report.
 Reporting keeps its sender's attachments and work running so the sender can receive
 its acknowledgment. Terminal attachment lifecycle retains attachment ownership;
 completion reporting schedules no delayed disposal. A session marked done with a
-report reads Done, with native Working as its note. A receipt claims no native shutdown. Direct Land/Wrap Up
+report reads Done, or Returned to backlog when its closure kept that outcome for
+the report, with native Working as its note. A receipt claims no native shutdown. Direct Land/Wrap Up
 without supplied context makes no dashboard contact. Other workflows receive the channel without gaining automatic completion.
 
 Landing capture is a separate launch-bound fact of every established start or
