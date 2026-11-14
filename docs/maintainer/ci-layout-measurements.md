@@ -207,3 +207,30 @@ expectation was adapted to three. The four named contract checks and the reached
 test-runner-deadline-cutoff.test.mjs then passed under supported Bash 5, AC
 and `caffeinate -s -i`. No test, timeout or budget was removed or relaxed.
 Hosted candidate proof and all matched comparisons remain pending.
+
+## Replacement fixed workload — declared before its first result
+
+The first candidate push, [43566037079/1](https://github.com/terryyin/open-dough/actions/runs/43566037079),
+failed three aggregate budgets and one native per-check budget; all selected
+checks and proof were complete. It is ineligible timing evidence. The
+[budget review](ci-budget-calibration.md) records every failure and the repair.
+
+While diagnosing it, trunk published `3cc1495fa128524d86f0189d6d6c59e7779fb386`,
+including SEED-347's existing native-check split. Merge `fb788fb2a` absorbs
+that published history. The replacement baseline is that exact trunk SHA:
+four shares, aggregate 694, per-check 64. Its frozen remote alias is
+`codex/seed-350-ci-baseline`, confirmed by `git ls-remote`; creating the alias
+launched no CI run. Its matched candidate contains the
+same workload and per-check protection, with three shares and reviewed
+aggregate 926. The actual accepted candidate SHA will be recorded on publication.
+There are now 645 discovered checks, including both native entries; previews
+give 160/161/161/163 checks at four shares and 217/214/214 at three.
+
+Before any result on this replacement pair, retain the same comparison,
+sampling and strict acceptance rules above with a ceiling of 40 manual runs
+for this fixed workload. The earlier B1 manual run remains acquisition history,
+so the overall manual ceiling is 41; the failed original push and replacement
+operational push are additional explicitly recorded cost. Old-workload runs
+cannot fill new matched blocks. A further workload-changing repair requires
+reassessment rather than automatically renewing this budget. No failed run is
+erased or converted to a timing win. Freeze/check both refs before dispatch.
