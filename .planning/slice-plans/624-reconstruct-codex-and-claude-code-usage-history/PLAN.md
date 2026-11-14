@@ -81,7 +81,7 @@ Assertions observe recovered evidence and aggregates, not the fixture builder.
 | Pruned tasks recover project, workflow/task, historical identity/title, host, settings, timing and outcome where supported | 4: local Git revisions with renamed/deleted story and recorded invocation; inspect each field's evidence |
 | Dashboard/native/unknown origin reflects evidence; unknown/ambiguous values stay explicit | 2–4: no launch reference, contradictory join and missing Git/source cases |
 | No raw transcript/prompt copying, no fabricated operational sessions or workflow writes; native sources can disappear after import | 4, 6: inspect persisted JSON and unchanged operational/backlog/assignment inputs, remove native fixture, read again |
-| Earliest dates, host/coverage counts and material gaps reported for real recovery; import is repeatable | 7: run report, persisted-record reconciliation and second run on the same machine corpus |
+| Earliest dates, host/coverage counts and material gaps reported for real recovery; import is repeatable | 9: run report, persisted-record reconciliation and second run on the same machine corpus |
 
 ## Preparation evidence
 
@@ -122,20 +122,32 @@ Type: Behavior
 Status: done
 Proof: `import-report.spec.ts`, `import-report-window.spec.ts`, `claude-lineage-size.spec.ts`, and retained import specs through the actual CLI.
 
-Behavior: fixture-sized native evidence and configured projects import → the report separates configured/unknown/unassigned/excluded populations, in-window/unknown/outside activity, categorized counters and missing values. Tilde paths resolve through the existing local-folder rule. Long native ancestry and equal-time requests retain exact response/boundary/worker-join provenance without multiplying intermediate or descriptive task sources. Replay keeps one fact. The preserved implementation and 25-case proof own this result; real-corpus persistence remains an explicit interim limitation owned by slices 6–7.
+Behavior: fixture-sized native evidence and configured projects import → the report separates configured/unknown/unassigned/excluded populations, in-window/unknown/outside activity, categorized counters and missing values. Tilde paths resolve through the existing local-folder rule. Long native ancestry and equal-time requests retain exact response/boundary/worker-join provenance without multiplying intermediate or descriptive task sources. Replay keeps one fact. The preserved implementation and 25-case proof own this result; first real persistence is accepted in6; corrected metadata and repeated accounting remain owned by7–9.
 
 ### 6. Persist and read bounded usage snapshots
 Type: Structure
 Status: done
-Proof: new actual-CLI storage/read/export cases alongside all earlier import specs; first real-corpus capacity observation after current regression proof.
+Proof: 32 quiet actual-CLI import cases, typecheck, first real import, bounded fresh reconciliation/streamed export, and exact saved-manifest comparison after gap normalization.
 
-Internal change: replace only usage's monolithic physical JSON encoding with bounded immutable partitions and a small atomically replaced manifest in the existing history directory. Reuse `machineJsonLock.ts`, `readMachineJsonLocked` where suitable, and `durableJsonReplacement.ts`; preserve one shared host-neutral observation/task/association model and writer. Preserve v1 logical records, legacy v1 reads, counter/identity/reconciliation semantics, privacy and monthly launch-history behavior. No database, workflow authority or per-host store. Whole-history comparison/export must not construct an over-limit string; bounded reads/writes must avoid cloning the whole persisted corpus alongside the incoming batch.
+Delivered: immutable bounded pages and a small atomic manifest reuse the existing lock/durable replacement while preserving logical v1/legacy reads, all measurements/provenance, alias/replay semantics, and monthly launch history. Failure/orphan/concurrent/held-reader contracts pass. Narrow task/report reads release native graphs; CLI export streams beyond V8's string cap. First real import succeeded with default heap,2475tasks/513761observations/640908measurements; subsequent gap-key normalization retained every logical fact. Full proof, fingerprints and refactor dispositions are in execution history and the maintained recovery receipt. This accepted run can be the first of two for9 when still applicable; no blind limit increase or whole-corpus string/copy.
 
-Prove legacy data, fresh-process record/read/export equivalence, retry/enrichment and cross-process updates. A failed page or manifest publication leaves the previous snapshot readable; orphan/unreferenced pages never add facts. A reader holding an earlier manifest remains coherent while a writer publishes. Use observable barriers, never sleeps. Retain exact endpoint provenance and all competing measurements; physical partitioning cannot discard facts to satisfy limits. These changes enable only the immediately following corpus Behavior.
+### 7. Correct injected context mistaken for a task assignment
+Type: Behavior
+Status: planned
+Proof: actual-CLI legacy/paged recovery fixtures with injected-only and mixed genuine assignment rows, persisted correction, replay and source removal.
 
-Early capacity probe: after current fixture/contract proof passes, run the authorized first real import on this machine with the default Node heap and current source fingerprint, then a fresh persisted read/export or equivalent bounded reconciliation. This may supply the first successful run for slice 7. Record memory/duration/serialization sizes. A failure stops slice 7 and triggers reassessment; do not raise limits blindly or claim corpus capability from small fixtures. The state-changing scale observation is explicitly owned here after its cheap regression prerequisite.
+Recognized host-injected context is not a user assignment. Classify content parts before first-assignment detection, retaining genuine mixed-message intent. Persist bounded supported/rejected assignment evidence (native turn, source row, timestamp and reason; no text). Reconcile it through the existing task model/writer: a proved wrapper-derived start can be replaced by genuine assignment evidence while independent metadata/claims and retained launch facts survive. A wrapper-only catalog record remains inspectable as unsupported, with unknown start and an explicit report count, outside claimed human-task populations. Missing files or absent facts alone never reject a boundary.
 
-### 7. Recover this machine's history and report its limits
+Apply effective assignment eligibility to every persisted association, including observations absent from the new scan. Preserve historical candidate/source audit but withdraw unsupported effective charges; retain every observation, counter and measurement. Replay/source disappearance cannot restore invalid assignment or erase valid facts; later positive launch evidence can establish eligibility. Use the shared lock/atomic snapshot, not a reset/deletion facility. Prove both legacy and paged correction, mixed-content safety, retained/independent facts, later enrichment, atomic failure, unchanged workflow inputs and fresh readability. NativeTaskFacts.ts is231lines: put context classification/assignment evidence in cohesive helpers if needed; reuse task reconciliation, schema and bounded writer ownership.
+
+### 8. Resolve explicit historical task references
+Type: Behavior
+Status: planned
+Proof: actual-CLI local Git fixtures for numbered historical plans and same-message established identity, with ambiguous/conflicting counterexamples.
+
+An explicit numeric execute-plan argument resolves only a unique matching historical plan at the evidenced repository/revision; follow its recorded source using the existing canonical historical readers, including the observed older quick-plan source header. An explicitly labelled identity in the same user's Established start/preparation can supply intent, agreeing with any invocation argument; conflicting references remain unknown. Argless later invocations do not inherit a prior story, and incidental/custom-tool reads do not establish intent. Do not build a general orchestration-code parser. Preserve pinned Git/source provenance, deleted-story behavior, source removal and no workflow mutation. HistoricalUsageStory.ts is221lines: separate plan-reference discovery from canonical story resolution if needed, retaining one reader representation.
+
+### 9. Recover this machine's history and report its limits
 Type: Behavior
 Status: planned
 Proof: import-report fixtures, two successful real imports (reusing the accepted first run from slice 6 when still applicable), and fresh-process persisted-record reconciliation.
@@ -149,15 +161,12 @@ Record timezone, roster including hidden projects, native roots, exact commands,
 - Local import gate on AC: `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history --workers=2`, default quiet reporter. Apply the maintained [macOS sleep guard/power condition](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos): battery needs AC or awake/open-lid `caffeinate -i` plus sleep-log inspection.
 - Run `npm run typecheck:dashboard` for contracts. Reuse unchanged 11 history/delete and project-configuration observations; renew reached consumers. New MakeMe runtime imports retain native-evidence-identity proof. Live scale/import actions require current regression proof first.
 - Failure policy: [AGENTS.md#failing-and-flaky-tests](../../../AGENTS.md#failing-and-flaky-tests) applies as written, including local/CI differences and owned repair. No numeric target or hard limit was supplied.
-- Refinement ran after actual corpus evidence disproved monolithic serialization. Retain completed 1–4; split old 5 into a useful report/lineage result, immediately necessary bounded storage Structure, and the original real-accounting Behavior. Seven slices; no story resplit recommended. Scope and beneficiary unchanged.
-- Cumulative design: one native observation/reconciliation model, one file-based snapshot codec and existing atomic/lock primitives. No new North Star topic or ADR; ADR 0002/0008 and the cited launch model still govern. The remaining scale uncertainty is the explicitly guarded first-live probe in 6, whose failure stops 7; no other blocking concern identified.
+- Refinement ran after actual corpus evidence disproved monolithic serialization. Retain completed 1–4; split old 5 into a useful report/lineage result, immediately necessary bounded storage Structure, and the original real-accounting Behavior. Nine slices after metadata reassessment; no story resplit recommended. Scope and beneficiary unchanged.
+- Cumulative design: one native observation/reconciliation model, one file-based snapshot codec and existing atomic/lock primitives. No new North Star topic or ADR; ADR 0002/0008 and the cited launch model still govern. First-live capacity and lossless gap normalization are proved by6. Metadata evidence requires7–8 before the second full import/report9; each live step requires current regression proof.
 
 ## Refinement premises and retained work
 
-- Real Node 24.21.0 census at fingerprint `e82e3d51a5d78e901598f66c70f7d440a11bac3c0c909479ff513e1f4427f023`: 2,475 tasks/11,320,655 compact value chars; 513,618 observations/978,160,558 chars and 640,765 measurements; 513,618 associations/432,936,435 chars; 12,272 gaps/2,636,673 chars. Largest observation 15,690 bytes. V8 string cap 536,870,888 chars, so even compact whole-document JSON fails; individual current facts fit bounded partitions. Census deliberately suppressed persistence and exited; no real snapshot exists.
-- PFE: monthly launch JSONL is append-only and cannot publish reconciled snapshots atomically; CI artifacts are immutable remote proof readers, not local usage writers. Reuse existing machine write-lock/durable replacement for the small manifest and bounded files; add only the missing usage codec/read/export seam. Atomic snapshot and actual memory capacity remain slice-6 proof, with the stated early live probe.
-- Old slice 5 source-work elapsed 49m33s (17:30:49Z fixture birth to 18:20:22Z freeze; earlier reads unmeasured), no CI pause or supplied hard limit. Compatible report/tilde/window/lineage fixes have 25 passing CLI cases, typecheck, configuration boundary and native-evidence-identity proof. No real import succeeded. Preserve those boundaries rather than redo implementation.
-- All 17 attempt-owned product/doc files were parked and checksummed, with no shared stash or unrelated changes touched, before this rewrite: `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed358-refinement-park-xxypwfkh/manifest.json`. Restore verified completed work for slice 5; slice 6 starts fresh after its delivery. Same owned workspace/Taken identity/mode/branch retained; no second claim or preparation assignment.
+Historical scale premises and the metadata reassessment are retained in [execution history](execution-history.md#metadata-reassessment-before-the-repeat). Bounded first import/storage proof is accepted; remaining uncertainty is corrected task metadata and repeat accounting. No new scope, claim or preparation assignment.
 
 ## Execution context
 
@@ -217,8 +226,20 @@ Commitment: 112
 ### G9. Bounded lineage evidence must allow the real corpus import to finish
 Reported: slice 5 — "Slice 5 actual import SIGABRTed at the 4496293888-byte Node heap limit after 16m08s with no usage store written. A 4.3MB Claude file produced 85256 parent-source references for 249 assistant rows; repeated ancestor provenance, not missing machine RAM, challenged corpus feasibility. Repair bounded lineage traversal/provenance while retaining exact response, task-boundary and worker-join evidence; no blind heap-limit increase. A bounded-heap fixture then exposed a second amplification: all lastActivityAt task sources copied into every association for same-time responses; retain that failing shape and restrict association provenance to actual join evidence. The repaired candidate then failed Invalid string length after 6m59.760s without persistence; a read-only census proved approximately 1.4GB compact record values, so the same plan now owns bounded physical storage in slice 6 and successful repeated machine recovery in slice 7."
 Story clause: "A developer can account for the Codex and Claude Code work and token usage in the dashboard's projects since Open Dough became stable on 2026-09-16, including launches whose dashboard records were pruned."
-Disposition: interim until slices 6, 7
+Disposition: interim until slices 6, 9
 Commitment: 1
+
+### G10. Reject injected context as task assignment evidence
+Reported: slice 7 — "Bounded actual metadata inspection before the repeat found plugin/AGENTS/environment injection supplying first-task timestamps; one earliest file has no genuine assignment. Skipping future wrappers alone cannot repair persisted starts and monotonic association candidates."
+Story clause: "Recover the project, workflow or task, story identity and title at the time, tool, model, effort, launch settings, timing, outcome, and usage where supported."
+Disposition: return
+Commitment: 57
+
+### G11. Resolve supported explicit historical plan references
+Reported: slice 7 — "A retained numeric execute-plan50 invocation has one historical quick plan whose source explicitly identifies SEED-013; the current resolver leaves it unknown. Same-message established identity is positive intent, while prior context and incidental tool reads cannot settle later argless invocations."
+Story clause: "Use recorded workflow invocations and historical seed, plan, backlog, or completion records to resolve story references."
+Disposition: receiving slice 8
+Commitment: 60
 ## Execution evidence
 
 Accepted proof, refactor and publication receipts are retained in [execution history](execution-history.md).
