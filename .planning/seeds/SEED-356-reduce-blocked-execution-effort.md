@@ -27,20 +27,22 @@ extra developer rescue compared with the existing workflow.
 #### Goal and evaluation
 
 Demonstrate a worthwhile net reduction in complete-task model requests and
-tokens under a stated representative blocked-work baseline. Count enrollment,
-waiting, condition reassessment, resumed work, coordinator and workers; disclose
-cached input separately. Correct output, decisive proof, ownership, authority,
-model/settings and publication decisions must be preserved. A working resume
-mechanism alone does not meet this goal. Declare the gain worth keeping and
-quality criteria before evaluation, following
+tokens under a stated representative blocked-work baseline. Count coordinator
+and worker effort from setup and enrollment through waiting, reassessment,
+continuation, any recovery, and final proof. Report cached input, uncached input,
+output, and developer interventions separately. Preserve correct output,
+decisive proof, ownership, authority, model/settings and publication decisions.
+Declare the gain worth keeping, quality criteria, and acceptable overhead on
+ordinary unblocked work before evaluation, following
 [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 
 Use the smallest real-work example that exercises the proposed saving. Include
 unchanged evidence, new evidence that still fails the supplier agreement, and
-qualifying evidence. Observe the full transition through subsequent work and
-proof, plus representative ordinary tasks that never block. Do not claim net
-savings from the gross cost of one hypothetically avoided poll. Unknown worker
-usage stays unknown. Treat overhead or lost proof as a negative result.
+qualifying evidence. Require preserved partial work and accepted proof while
+blocked, then exactly one continuation with passing proof when the agreement
+is satisfied. Measure through subsequent work and proof. Unknown worker usage
+stays unknown. Judge net effort across the whole task and keep any proof loss
+visible in the result.
 
 #### Experience from the abandoned attempt
 
@@ -82,13 +84,25 @@ restore the abandoned daemon, transport extraction, retained JSON protocol or
 agent-side setup. Decide where responsibility belongs and what the agent must
 actually read or construct from observed costs, rather than inheriting them.
 
-Before an expensive comparison, demonstrate cheaply that the selected host and
-example can exercise the saving: required handles/signals are present, the
-mechanism is enabled, and the controller allows unnecessary wakes to disappear.
-An identical forced-wake schedule cannot establish avoided-wake savings. Keep
-agent-facing task/setup/events matched while varying the actual proposed factor.
-Separate evaluation defects from subject behavior, retain immutable observations,
-and avoid repeated paid runs merely to obtain a favorable result.
+#### Comparison cases and preflight
+
+- Use the event-driven paused-supplier variant and the representative unblocked
+  example from [Save and reuse native A/B baselines](SEED-346-native-ab-comparisons.md#reuse-native-comparison-baselines).
+  Verify that their saved baselines match the candidate comparison's material
+  conditions and measurement needs. Obtain a fresh baseline when they differ.
+  The forced-turn result remains evidence for correctness and per-wake overhead.
+- Before paying for a full pair, demonstrate that the selected native host can
+  use the candidate's actual delivery path and that the assessor distinguishes
+  an intentional skipped wake from an unavailable or broken session. Check
+  that it still requires preserved work, exactly one qualifying continuation,
+  and terminal proof from the coordinator or its owned worker.
+- Use the unblocked case through final proof to check candidate overhead on
+  work with zero wakes to save.
+- Reassess the opportunity if the current baseline already stays quiet in the
+  representative blocked case. Stop the candidate if its setup, continuation,
+  or recovery costs erase the worthwhile net saving through final proof, or
+  if it exceeds the agreed unblocked overhead or loses quality. Retain the
+  observations and distinguish an evaluation defect from a candidate failure.
 
 #### Boundaries and open decisions
 

@@ -54,7 +54,9 @@ proof are in the [correction plan](../slice-plans/621-close-native-comparison-ha
 
 An Open Dough maintainer can compare successive candidates against the same
 baseline without paying for another baseline session when the saved result
-still answers the comparison question.
+still answers the comparison question. The first saved results cover blocked
+and ordinary unblocked execution so the maintainer can judge both savings and
+overhead in the next blocked-work trial.
 
 #### Current behavior
 
@@ -86,6 +88,23 @@ that result as its baseline.
   and preserve earlier observations for their original conditions. Allow an
   explicitly requested fresh pair when the comparison needs both arms observed
   together.
+- Qualify and tag two cases for the
+  [blocked-work efficiency story](SEED-356-reduce-blocked-execution-effort.md#reduce-total-model-work-during-blocked-execution).
+  Derive an event-driven variant from the
+  [paused-supplier example](../../Distribution/tests/native-comparison/paused-supplier/case.md),
+  retaining its task, starting state, supplier evidence, and proof. Deliver
+  unchanged, nonqualifying, and qualifying evidence on a matched schedule and
+  let the workflow determine which model turns occur. The assessor distinguishes
+  an intentionally skipped wake from failed or unavailable observation and
+  checks preserved work, exactly one qualifying continuation, and terminal
+  proof. Keep the original forced-turn case for correctness and per-wake cost.
+- Add a small, representative unblocked example that exercises the same
+  execution workflow through final proof. Tag both cases by the behavior they
+  represent, qualified host, environment, and observed duration. Save a fresh
+  native baseline for each on the intended host, with its payload, settings,
+  outcome, proof, and available coordinator and worker usage through completion.
+  Record whether the blocked baseline already stays quiet. These baselines
+  can be captured before the blocked-work candidate exists.
 
 #### Key examples
 
@@ -101,6 +120,12 @@ that result as its baseline.
    answers the new comparison, the next run can reuse that observed failure.
    If the baseline stopped before the outcome could be judged, the next
    comparison obtains fresh baseline evidence.
+4. A maintainer runs the new blocked and unblocked cases against the current
+   workflow. Each produces a separately reusable baseline. The blocked result
+   records actual model wakes and whether the workflow already stays quiet.
+   The unblocked result records effort through passing proof. A later trial
+   can reuse each matching result and still identify the original forced-turn
+   result as evidence for a different run condition.
 
 #### Decisions
 
