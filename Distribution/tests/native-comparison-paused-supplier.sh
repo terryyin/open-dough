@@ -65,6 +65,8 @@ grep -Eq '^project-basis: main=[0-9a-f]{40} supplier=[0-9a-f]{40} consumer=[0-9a
 grep -Eq '^payload-digest: [0-9a-f]{64}$' "${attempt}/record"
 grep -Fqx 'payload-revision: working-tree' "${attempt}/record"
 grep -Fqx 'codex-session-file: missing' "${attempt}/record"
+# A substitute's record says so: it is never native evidence.
+grep -Fqx 'host-route: substitute' "${attempt}/record"
 grep -Fqx "thread: ${thread}" "${attempt}/record"
 grep -Eq '^input-hash: [0-9a-f]{64} Distribution/tests/native-comparison/paused-supplier/assess.bash$' \
   "${attempt}/record"

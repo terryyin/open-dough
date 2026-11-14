@@ -7,7 +7,9 @@
 # (Distribution/tests/support/native-comparison-verdict.sh). Each arm keeps its own root,
 # workspace, remote, session state and retained attempt; the pair keeps a
 # compact record of its basis, conditions, criteria, sessions, outcomes,
-# proof references, effort and measurement limits.
+# proof references, whether its evidence is native, effort, unknowns,
+# recovery and measurement limits. The pair observer
+# (native-comparison-pair-observe.sh) reads each arm.
 #
 #   native_comparison_pair CASE SOURCE_DIR WORK RESULTS_DIR
 #
@@ -23,11 +25,13 @@
 
 native_comparison_pair_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "${native_comparison_pair_dir}/native-comparison-run.sh"
+source "${native_comparison_pair_dir}/native-comparison-pair-observe.sh"
 source "${native_comparison_pair_dir}/native-comparison-verdict.sh"
 source "${native_comparison_pair_dir}/native-comparison-basis.sh"
 
 native_comparison_pair_inputs=(
   Distribution/tests/support/native-comparison-pair.sh
+  Distribution/tests/support/native-comparison-pair-observe.sh
   Distribution/tests/support/native-comparison-verdict.sh
   Distribution/tests/support/native-comparison-basis.sh
 )
@@ -42,15 +46,22 @@ native_comparison_pair_arm_verdict() {
   { read -r arm_status && read -r arm_reason && read -r arm_attempt; } 2> /dev/null < "$1/$2/verdict" || true
 }
 
+# Prints the commit that ARM's payload revision REV names in REPOSITORY, or
+# an `error:` line saying it names none.
+native_comparison_pair_commit() {
+  local repository=$1 arm=$2 rev=$3
+  git -C "${repository}" rev-parse -q --verify "${rev}^{commit}" 2> /dev/null || {
+    printf 'error: the %s payload %s names no commit in %s\n' "${arm}" "${rev}" "${repository}" >&2
+    return 1
+  }
+}
+
 # Freezes revision REV of the payload repository as ARM's payload under WORK:
 # its commit, its tree and its files, materialized once.
 native_comparison_pair_freeze() {
   local arm=$1 rev=$2 work=$3 repository=${native_comparison_pair_repository}
   local commit
-  commit=$(git -C "${repository}" rev-parse -q --verify "${rev}^{commit}") || {
-    printf 'error: the %s payload %s names no commit in %s\n' "${arm}" "${rev}" "${repository}" >&2
-    return 1
-  }
+  commit=$(native_comparison_pair_commit "${repository}" "${arm}" "${rev}") || return
   mkdir -p -- "${work}/payload-${arm}"
   git -C "${repository}" archive "${commit}" | tar -x -C "${work}/payload-${arm}" || return
   printf '%s %s %s\n' "${commit}" "$(git -C "${repository}" rev-parse "${commit}^{tree}")" \
@@ -67,68 +78,6 @@ native_comparison_pair_arm() {
   mkdir -p -- "${work}/${arm}"
   native_comparison_run_case "${case_name}" "${source_dir}" "${work}/${arm}" "${results_dir}" \
     > "${work}/${arm}/run.log" 2>&1 || true
-}
-
-# Prints ARM's pair fields from its observations and retained record, and
-# leaves the facts compared across arms in WORK/ARM.compare/.
-native_comparison_pair_observe_arm() {
-  local work=$1 arm=$2 turns=$3 empty_events=$4 observations record compare
-  local arm_status arm_reason arm_attempt
-  observations="${work}/${arm}/observations.txt"
-  native_comparison_pair_arm_verdict "${work}" "${arm}"
-  record="${arm_attempt}/record"
-  compare="${work}/${arm}.compare"
-  mkdir -p -- "${compare}"
-  [[ -f ${observations} ]] || observations=/dev/null
-  [[ -n ${arm_attempt} && -f ${record} ]] || record=/dev/null
-  # A fact an arm lacks leaves its file empty.
-  grep '^input-hash: ' "${record}" > "${compare}/basis" || true
-  grep '^project-basis: ' "${record}" > "${compare}/project-basis" || true
-  grep -E '^native-(executable|version): ' "${record}" > "${compare}/host" || true
-  { grep '^codex-turn-settings: ' "${record}" || true; } \
-    | sed -E 's/^codex-turn-settings: [0-9]+x //; s/ cwd=.*//' | LC_ALL=C sort -u > "${compare}/settings"
-  grep -E '^turn-[0-9]+-event: ' "${observations}" > "${compare}/events" || true
-  awk -v arm="${arm}" -v turns="${turns}" -v empty=" ${empty_events} " -v record="${record}" \
-    -v payload="$(cut -d ' ' -f 1 "${work}/payload-${arm}.id")" '
-    FILENAME == record {
-      if ($1 == "codex-worker:") workers++
-      next
-    }
-    $1 == "materialization:" { failed = 1 }
-    match($1, /^turn-[0-9]+-/) {
-      n = substr($1, 6) + 0; key = substr($1, RLENGTH + 1); sub(/:$/, "", key)
-      if (key == "status") { seen++; if ($2 == "completed") completed++ }
-      if (key == "commands") { commands += $2; cmd[n] = $2 }
-      if (key == "seconds") sec[n] = $2
-      if (key == "event") event[n] = $2
-    }
-    $1 == "assessment-status:" { assessment = $2 }
-    $1 == "preparation-seconds:" { preparation = $2 }
-    $1 == "total-seconds:" { total = $2 }
-    END {
-      for (n in event) if (index(empty, " " event[n] " ")) { empties++; empty_commands += cmd[n]; empty_seconds += sec[n] }
-      complete = (!failed && completed == turns && seen == turns && assessment != "") ? "yes" : "no"
-      verdict = assessment == "" ? "missing" : assessment == "pass" ? "passed" : "failed"
-      printf "%s-payload: %s\n%s-complete: %s\n%s-assessment: %s\n", arm, payload, arm, complete, arm, verdict
-      printf "%s-turns: %d\n%s-wakes: %d\n%s-empty-wakes: %d\n", arm, seen, arm, (seen > 0 ? seen - 1 : 0), arm, empties
-      printf "%s-empty-wake-commands: %d\n%s-empty-wake-seconds: %.1f\n", arm, empty_commands, arm, empty_seconds
-      printf "%s-commands: %d\n%s-seconds: %.1f\n%s-preparation-seconds: %.1f\n", arm, commands, arm, total, arm, preparation
-      printf "%s-workers: %d\n%s-recoveries: 0\n%s-interventions: 0\n", arm, workers, arm, arm
-    }' "${observations}" "${record}"
-}
-
-# Prints `same`, or how the arms' compared FACT differs or is unknown. Only
-# the event sequence may be empty: a case without events has none.
-native_comparison_pair_match() {
-  local work=$1 fact=$2 b="$1/baseline.compare" c="$1/candidate.compare"
-  if [[ ${fact} != events && (! -s ${b}/${fact} || ! -s ${c}/${fact}) ]]; then
-    echo unavailable
-  elif cmp -s "${b}/${fact}" "${c}/${fact}" \
-    && { [[ ${fact} != basis ]] || cmp -s "${b}/basis" "${work}/basis"; }; then
-    echo same
-  else
-    echo differs
-  fi
 }
 
 native_comparison_pair() {
@@ -204,32 +153,46 @@ native_comparison_pair_declare() {
   native_result_input_hash_lines "${native_comparison_pair_inputs[@]}"
 }
 
-# The record's arms, outcomes, proof, verdict, effort and limits.
+# The record's arms, outcomes, proof, evidence kind, verdict, effort,
+# unknowns, recovery and limits.
 native_comparison_pair_report() {
-  local work=$1 source_dir=$2 results_dir=$3 observations=$4 arm record file proof
+  local work=$1 source_dir=$2 results_dir=$3 observations=$4 arm record file proof workers routes
   local arm_status arm_reason arm_attempt
   for arm in baseline candidate; do
     native_comparison_pair_arm_verdict "${work}" "${arm}"
-    record="${arm_attempt}/record"
-    printf '%s-attempt: %s\n' "${arm}" "${arm_attempt#"${results_dir}/"}"
+    record="${arm_attempt:-/dev/null/none}/record"
+    file=${arm_attempt#"${results_dir}/"}
+    printf '%s-attempt: %s\n' "${arm}" "${file:-none retained}"
     printf '%s-thread: %s\n' "${arm}" "$(sed -n 's/^thread: //p' "${record}" 2> /dev/null | grep . || echo unknown)"
-    printf '%s-workers: %s\n' "${arm}" "$(awk '$1 == "codex-worker:" { printf "%s%s", n++ ? " " : "", $2 }' "${record}" 2> /dev/null | grep . || echo none)"
+    workers=$(awk '$1 == "codex-worker:" { printf "%s%s", n++ ? " " : "", $2 }' "${record}" 2> /dev/null) || true
+    [[ $(native_observation_field "${observations}" "${arm}-workers") != unknown ]] || workers=unknown
+    printf '%s-workers: %s\n' "${arm}" "${workers:-none}"
     printf '%s-payload-digest: %s\n' "${arm}" "$(sed -n 's/^payload-digest: //p' "${record}" 2> /dev/null)"
     printf '%s-project-basis: %s\n' "${arm}" "$(sed -n 's/^project-basis: //p' "${record}" 2> /dev/null)"
     printf '%s-settings: %s\n' "${arm}" "$(paste -sd ';' "${work}/${arm}.compare/settings" | grep . || echo unavailable)"
     printf '%s-host: %s\n' "${arm}" "$(sed -n 's/^native-version: //p' "${record}" 2> /dev/null)"
     printf '%s-load: %s to %s\n' "${arm}" "$(sed -n 's/^host-load-start: //p' "${record}" 2> /dev/null)" \
       "$(sed -n 's/^host-load-end: //p' "${record}" 2> /dev/null)"
-    printf '%s-outcome: %s: %s\n' "${arm}" "${arm_status}" "${arm_reason}"
+    printf '%s-outcome: %s: %s\n' "${arm}" "${arm_status:-none}" "${arm_reason:-the arm left no verdict}"
+    printf '%s-stopped: %s\n' "${arm}" "$(native_observation_value "${observations}" "${arm}-stopped")"
     proof=()
     for file in observations.txt final-state.txt case-evidence; do
-      [[ ! -e ${arm_attempt}/${file} ]] || proof+=("${file}")
+      [[ -z ${arm_attempt} || ! -e ${arm_attempt}/${file} ]] || proof+=("${file}")
     done
     printf '%s-proof: %s\n' "${arm}" "${proof[*]:-none}"
   done
+  # Only the Codex runtime in the harness sandbox is native evidence.
+  routes=$(awk '$1 ~ /^(baseline|candidate)-route:$/ { printf "%s%s", n++ ? " " : "", $2 }' "${observations}")
+  if [[ ${routes} == 'native native' ]]; then
+    printf 'evidence: native: both arms ran the codex runtime in the harness sandbox\n'
+  else
+    printf 'evidence: not native (baseline and candidate routes: %s): a substitute host proves the runner, observer and judge only, never native behavior\n' "${routes}"
+  fi
   printf 'verdict: %s\nverdict-reason: %s\n' "${native_comparison_verdict_outcome}" "${native_comparison_verdict_reason}"
   grep -E '^(basis|project-basis|host|settings|events): ' "${observations}" | sed 's/^/condition-/'
   native_comparison_verdict_effort "${observations}"
+  native_comparison_verdict_unknowns "${observations}"
+  native_comparison_verdict_recovery "${observations}"
   printf 'measurement-limit: %s\n' \
     'one pair of stochastic sessions supports its observed comparison only' \
     'wall-clock seconds include host load and service latency; see each arm'"'"'s load' \

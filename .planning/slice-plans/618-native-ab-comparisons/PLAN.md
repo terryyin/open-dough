@@ -193,7 +193,7 @@ registry or lifecycle alongside ordinary Git evidence.
 
 ### 5. Retain truthful results when a comparison cannot finish
 Type: Behavior
-Status: planned
+Status: done
 Proof: Invalid-input and interrupted-evidence journeys through the same maintainer entry.
 
 Exercise invalid/unrecoverable inputs before any native launch, an interrupted
@@ -354,6 +354,19 @@ own amendment/acceptance. Revisit the cited North Star during normal wrap-up.
   per key through the existing `OutstandingReads` helper; a held-commit backend test
   failed 10/10 before the fix. Unrelated to this story's family; repaired under the
   failure policy.
+- **Slice 5 accepted (2026-11-14).** A preflight refuses an unqualified host (claude,
+  cursor), unknown case or payload, missing tools and a failing case preflight before
+  payloads freeze or arms materialize. Stopped, silent, stale-thread and unrecorded arms
+  stay visible: `ARM-stopped`, `unknown:` lines, partial effort, `effort-difference: not
+  computed`, and recovery text that never resubmits. Substitute records say `evidence:
+  not native`. Guide `Distribution/tests/native-comparison.md`; ADR 0005 review
+  `docs/maintainer/native-comparison-adr-0005-review.md` finds the provisional A/B
+  guidance fits and lists five recommendations for a human decision. Spent raw evidence
+  (native attempts, qualification runs, Codex session copies) was removed from the job
+  scratch at acceptance; both cases and their kept records stay tracked.
+- **For integration.** `--recover` searches HEAD's history: the kept records' basis
+  `9c20a808` is a branch commit, so integrate with a history-preserving merge (no squash)
+  and recheck `--recover` on trunk.
 - **Deferred hash-bound cleanups for Slice 4's refresh rerun.** The records also hash the
   runner, `native-codex.sh` and `native-codex-session.mjs`. The Slice 3 refactor left:
   H1 duplicated load sampling in the runner; H2 source revision/dirty logic repeated in

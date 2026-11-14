@@ -13,9 +13,10 @@
 #     WORK/bin/codex (the paused-supplier substitute). Leaves
 #     native_comparison_fixture_entry (the command running the copied entry)
 #     and native_comparison_fixture_baseline (SOURCE_DIR's HEAD).
-#   native_comparison_fixture_rule WORK RULE
+#   native_comparison_fixture_rule WORK RULE [FAULT]
 #     Commits, on the baseline payload, guidance naming the substitute's RULE
-#     (native-agent-paused-supplier.sh) and prints that commit.
+#     and, when given, its host FAULT (native-agent-paused-supplier.sh), and
+#     prints that commit.
 #   native_comparison_fixture_run WORK BASELINE CANDIDATE ARMS NAME [OPTION]...
 #     Runs a substitute pair of the paused-supplier case through the copied
 #     entry (with the substitute first on PATH and WORK/codex-home as
@@ -69,11 +70,12 @@ native_comparison_pair_fixture() {
 }
 
 native_comparison_fixture_rule() {
-  local work=$1 rule=$2
+  local work=$1 rule=$2 fault=${3-}
+  local skill="${work}/payloads/Distribution/src/skills/dough-execute-plan/SKILL.md"
   git -C "${work}/payloads" checkout -q --detach "${native_comparison_fixture_baseline}" || return
-  printf '\n<!-- paused-supplier-substitute-rule: %s -->\n' "${rule}" \
-    >> "${work}/payloads/Distribution/src/skills/dough-execute-plan/SKILL.md" || return
-  native_comparison_fixture_git "${work}/payloads" commit -q -am "Substitute rule ${rule}" || return
+  printf '\n<!-- paused-supplier-substitute-rule: %s -->\n' "${rule}" >> "${skill}" || return
+  [[ -z ${fault} ]] || printf '<!-- paused-supplier-substitute-fault: %s -->\n' "${fault}" >> "${skill}" || return
+  native_comparison_fixture_git "${work}/payloads" commit -q -am "Substitute rule ${rule} ${fault}" || return
   git -C "${work}/payloads" rev-parse HEAD
 }
 

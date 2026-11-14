@@ -17,8 +17,14 @@
 # `completion` and holds without reading anything (fewer commands);
 # `reroute` continues like `completion` but holds by rewriting the shared
 # fixture onto the process-per-read reader, around the supplier. Until then
-# it holds. It proves the runner, observer, assessor, pairing and
-# retention around known decisions; it never stands in for native behavior.
+# it holds. Fault NATIVE_AGENT_PAUSED_SUPPLIER_FAULT, else the fault the
+# installed payload names in a `paused-supplier-substitute-fault: FAULT`
+# line, makes the host fail around those decisions: `interrupted` exits 1 on
+# a resumed turn after starting a command (a truncated stream); `silent`
+# does the continuing turn's work but writes no stream; `stale` reports
+# another thread on a resumed turn; `unrecorded` keeps no session record.
+# It proves the runner, observer, assessor, pairing and retention around
+# known decisions; it never stands in for native behavior.
 # shellcheck disable=SC2016 # jq programs name their own arguments.
 set -euo pipefail
 
@@ -56,9 +62,16 @@ if [[ -z ${rule} ]]; then
     "${workspace}"/.agents/skills/*/SKILL.md 2> /dev/null | head -n 1) || true
 fi
 rule=${rule:-completion}
+fault=${NATIVE_AGENT_PAUSED_SUPPLIER_FAULT-}
+if [[ -z ${fault} ]]; then
+  fault=$(sed -n 's/.*paused-supplier-substitute-fault: \([a-z-]*\).*/\1/p' \
+    "${workspace}"/.agents/skills/*/SKILL.md 2> /dev/null | head -n 1) || true
+fi
+resumed=false
 if ((${#positional[@]} == 2)); then
   thread=${positional[0]}
   prompt=${positional[1]}
+  resumed=true
 else
   thread=00000000-0000-4000-8000-$(printf '%012x' "$$")
   prompt=${positional[0]-}
@@ -66,7 +79,7 @@ fi
 [[ -n ${prompt} ]] || exit 2
 
 event() { jq -n -c "$@"; }
-if [[ -n ${CODEX_HOME-} ]]; then
+if [[ -n ${CODEX_HOME-} && ${fault} != unrecorded ]]; then
   record="${CODEX_HOME}/sessions/2026/11/14/rollout-2026-11-14T00-00-00-${thread}.jsonl"
   mkdir -p -- "$(dirname -- "${record}")"
   [[ -f ${record} ]] || event --arg t "${thread}" \
@@ -88,9 +101,21 @@ call() {
     '{type:"item.completed",item:{id:$id,type:"command_execution",command:$c,aggregated_output:$o,exit_code:$s}}'
 }
 
-event --arg t "${thread}" '{type:"thread.started",thread_id:$t}'
+# The continuing turn's events go nowhere under `silent`.
+if [[ ${fault} == silent ]] && git -C "${workspace}" fetch -q origin \
+  && git -C "${workspace}" cat-file -e \
+    origin/main:.planning/done/SEED-332_answer-fake-gh-reads-in-process.json 2> /dev/null; then
+  exec > /dev/null
+fi
+reported=${thread}
+[[ ${fault} != stale || ${resumed} != true ]] || reported=00000000-0000-4000-8000-00000057a1e0
+event --arg t "${reported}" '{type:"thread.started",thread_id:$t}'
 event '{type:"turn.started"}'
 call fetch 'git fetch -q origin'
+if [[ ${fault} == interrupted && ${resumed} == true ]]; then
+  event '{type:"item.started",item:{id:"proof",type:"command_execution",command:"node --test tests/*.test.mjs"}}'
+  exit 1
+fi
 ready=false
 case ${rule} in
   completion | duplicate | shortcut | quiet | reroute)
