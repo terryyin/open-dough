@@ -119,7 +119,7 @@ git_publication_installer_input_hash_lines() {
       && read_managed_files_declaration "${source_dir}/install.sh"
   ) || return
   mapfile -t payload <<< "${declared}"
-  tracked=$(git -C "${source_dir}" ls-files -- 'Distribution/src/install/*.sh') || return
+  tracked=$(git -C "${source_dir}" ls-files -- 'Distribution/src/install/*.sh' 'src/install/*-payload.sh') || return
   mapfile -t installer_shells <<< "${tracked}"
   native_result_input_hash_lines \
     install.sh VERSION CHANGELOG.md \

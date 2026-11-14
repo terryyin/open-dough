@@ -72,3 +72,13 @@ disposition. Return REFACTOR COMPLETE, about6min. Its independent user-instructi
 extraction adds C69 (owner4): the final response must report typical-task token
 savings from the test and estimation, separating measurement, projection and
 unknowns. New source promise supplements the original98 source-only commitments.
+
+## Observed result and current delivery boundary
+
+The immutable pair and [token report](../../../Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T102744-1921-tokens.md) show preserved quality after correcting a coordinator-only proof-observation defect. [Reassessment](slice4-ab-reassessment.json) and derived observations retain both passing arms without rewriting the old record or rerunning native sessions. The new bounded owned-worker observer has independent [refactoring/consumer trace](owned-proof-refactor-consumer-trace.md.gz), four counterexample scenarios and the six-check comparison-family proof (terminal16312 exit0). The archived extractor/aggregate retain response-level counting provenance; raw sessions remain private.
+
+Observed total: baseline8,386,947 tokens/80requests; candidate13,434,290/94, a60.2% increase. Both had four imposed turns and no rescue; no observed idle-request reduction. Conditional avoided unchanged wake is218,347 gross tokens/3requests (206,208 cached;12,139 uncached input plus output). Typical net savings are unproven; C65/C68 and Slice4 remain open, with the final requested report owed. Terry's decision on functional-only completion versus reducing overhead is pending. No further paid native run is planned.
+
+Freshness unchanged on pinned main283f1052b/base7e7f72c8; named SEED343 recovery repair d993e0035 now preserves predecessors across Codex replacement, with unchanged receipt/argv semantics. The merge retains the conditional held-execution row. Focused read-budget, completion-recovery, Codex notify, payload/update and pre-Distribution compatibility checks passed (terminal61559 exit0); runtime/required CI proof stays owned. Imported managed guidance is the released0.3.99 payload, never hand-synchronized.
+
+Fresh preparation caught one unused test-map parameter; the coordinator replaced it with index iteration inside the accepted trace, preserving fixture bytes. Focused four-case Node proof passed after that mechanical repair; no semantic/native proof was invalidated.

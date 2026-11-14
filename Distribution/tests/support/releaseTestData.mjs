@@ -76,7 +76,7 @@ export function shippedPayload({ removed }) {
  * @param {Pick<Release, "withheld" | "added">} release
  */
 export function releaseDeclarationFiles({ withheld, added }) {
-  const fragment = "Distribution/src/install/open-dough-execution-payload.sh";
+  const fragment = "src/install/open-dough-execution-payload.sh";
   const keep = (/** @type {string} */ source) =>
     source
       .split("\n")

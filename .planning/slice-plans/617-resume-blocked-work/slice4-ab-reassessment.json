@@ -1,0 +1,39 @@
+{
+  "auditDirectory": "/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed345-owned-proof-reassessment-kn8ub_x2",
+  "originalPairRecord": "/Users/terryyin/tmp/seed345-ab-results-7iflepeo/codex/native-comparison-pair/paused-supplier/20261114T102744-1921/record",
+  "originalSha256": "f568a2998474c1b97d4e96f6e10de223a83cf86f18347f8aa88cec758f78cd5a",
+  "arms": {
+    "baseline": {
+      "oldCoordinatorOnlyProof": "none",
+      "ownedProofObserved": "passed",
+      "derivedAssessment": "pass",
+      "reason": "held through the diagnostic pass, an unchanged wake and an early publication; continued slice 3 once with passing proof after the supplier completed",
+      "derivedObservations": "slice4-ab-baseline-derived-observations.txt",
+      "nativeSessionView": "/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed345-owned-proof-reassessment-kn8ub_x2/baseline",
+      "postRefactorProof": {
+        "observedProof": "passed",
+        "scope": "owned current-turn worker"
+      }
+    },
+    "candidate": {
+      "oldCoordinatorOnlyProof": "passed",
+      "ownedProofObserved": "passed",
+      "derivedAssessment": "pass",
+      "reason": "held through the diagnostic pass, an unchanged wake and an early publication; continued slice 3 once with passing proof after the supplier completed",
+      "derivedObservations": "slice4-ab-candidate-derived-observations.txt",
+      "nativeSessionView": "/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/seed345-owned-proof-reassessment-kn8ub_x2/candidate",
+      "postRefactorProof": {
+        "observedProof": "passed",
+        "scope": "coordinator CLI"
+      }
+    }
+  },
+  "originalUnchanged": true,
+  "observerHashes": {
+    "Distribution/tests/native-comparison/paused-supplier/case.bash": "18b4ceee4334f941dbab4377249a350eb337bc8ddbfa8945412d71d08b15d237",
+    "Distribution/tests/native-comparison/paused-supplier/owned-proof.mjs": "c503fc1cf8b7f0d4ecbb36b0f164618445ae5b1cd385be2078bcc436b4d4857c",
+    "Distribution/tests/native-comparison/paused-supplier/assess.bash": "debd2cd601bdc8ea425faf04b50dd0049c5256a9a4ab14b318e3d902921265d7"
+  },
+  "postRefactorChecks": "Focused six-check suite terminal16312 exit0; saved native case_agent_proof composition passed for both arms; assessor unchanged.",
+  "analysisSourceSha256": "4b47acb6d3a40b0f0328bbb4792c9f4e2d00946eb2ba06eec54bf10975ed39d0"
+}

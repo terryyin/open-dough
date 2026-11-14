@@ -1,3 +1,14 @@
+## 0.3.99 - 2026-11-14
+
+- Recover CI completion for an accepted revision after its observer expires or loses access. Recovery keeps the original completion deadline and prior actionable failures. Codex opens a fresh stream under the same coordinator. Cursor and Claude Code recover through the existing session identity. Expiry and transport failures have distinct explanations.
+- Start a follow-up from a file or line in a Done story's diff. The dashboard checks the published revision and passes the selected file context to the new session. Recently done and session rows also surface review status, and Done and Intent use consistent labels for CI timing and failures.
+- Clarify how execution reconciles compatible trunk amendments and when a developer must settle a conflict. The shared test guidance distinguishes product-wide E2E workflows from focused rules and describes when to extend MakeMe builders.
+- Group source and tests under `Distribution/`, keep ordinary updates working from the 0.3.98 dashboard and updater, and publish Distribution, dashboard, and E2E checks in separate CI groups. Concurrent browser runs keep independent HTML reports. Maintainers can run frozen-payload native comparisons on two real-work examples. Those cases have native qualification on Codex.
+
+The managed payload has 365 files. It adds seven paths, revises 37, and retires none.
+
+[Hosted CI passed all 22 jobs at `c65215a22`](https://github.com/terryyin/open-dough/actions/runs/43587490956). Local validation covered the self-installation baseline, ordinary update and repeat from the published 0.3.98 helper, both native skill roots and hook settings, observer recovery, and the browser restart check. In an isolated Codex session using the native yielded-cell interface, the replacement stream completed the accepted revision, inherited the deadline, and preserved the ended observer. The Cursor and Claude Code recovery paths passed controlled session-identity checks. Freshness-ordering and oversized-file native observations remain separately pending. Host discovery and hook registration use the existing integration evidence under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md). No release exception was applied.
+
 ## 0.3.98 - 2026-11-13
 
 - Production dashboards automatically follow up qualifying new Done landings. GitHub Actions and custom CI projects with `ciAdapter` and `ciRebuild` can request one full repeat of the original revision. The review shows both attempts against the saved timing reference. Refused, uncertain, and incomparable outcomes keep their explanation and the dashboard sends no second request.

@@ -21,6 +21,7 @@ const context = {
 };
 const sourcePathspecs = [
   "Distribution/src",
+  "src/install",
   "Distribution/tests/support",
   "Distribution/tests/helpers",
   "dashboard/server",

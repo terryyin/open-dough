@@ -216,6 +216,17 @@ test("group runs started beside each other keep their own run directories and re
     "../e2e/test-results",
   ]);
   expect(new Set(outputs).size).toBe(8);
+  if (process.env["CI"]) {
+    for (const output of outputs) {
+      const report = path.join(
+        output,
+        "../../playwright-report",
+        path.basename(output),
+        "index.html",
+      );
+      expect(existsSync(report), report).toBe(true);
+    }
+  }
   expect(outputs.every((output) => !existsSync(output))).toBe(true);
 });
 

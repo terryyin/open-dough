@@ -68,7 +68,10 @@ async function prepareSource(
       continue;
     const destination = path.join(directory, file);
     mkdirSync(path.dirname(destination), { recursive: true });
-    cpSync(path.join(source, file), destination);
+    cpSync(path.join(source, file), destination, {
+      recursive: true,
+      verbatimSymlinks: true,
+    });
   }
   await git("init", "--quiet", "-b", "main");
   await git("config", "user.name", "Published main fixture");

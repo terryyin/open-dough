@@ -9,7 +9,7 @@ import {
 } from "../../../scripts/share-deal.mjs";
 
 // The directories a run writes beside its specs: each runner keeps its
-// `test-results/<stamp>/` run directories and CI `playwright-report/` in its
+// `test-results/<stamp>/` run directories and CI `playwright-report/<stamp>/` in its
 // own root (./runnerConfig.mjs). Playwright adds and deletes trace files there
 // while workers, which load the configuration again, discover specs.
 export const runOutputs = {

@@ -103,11 +103,12 @@ This validates feasibility, not a completed migration or a measured suite speedu
   failed pushes, ref movement and destructive operations remain visible when
   their transition is the behavior under proof. Declarative setup must preserve
   meaningful authorship, topology, staging, dirty state and exact file bytes.
-- Reconcile the repository-specific [test data architecture](../../Distribution/tests/test-data-architecture.md)
-  guide with the resulting construction boundary. It currently leaves several
-  workspace operations in cases. Continue to honor the selected MakeMe and
-  browser page-object conventions. Preserve the distinction between published
-  facts and machine-local evidence required by
+- The [test data architecture guide](../../Distribution/tests/test-data-architecture.md)
+  already explains how to declare Git starting state with MakeMe and keep Git
+  actions under test visible. Review it against the resulting builders and
+  fixtures after the migration and update it where needed. Continue to honor
+  the selected MakeMe and browser page-object conventions. Preserve the
+  distinction between published facts and machine-local evidence required by
   [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
   and direct domain mapping in
   [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution).

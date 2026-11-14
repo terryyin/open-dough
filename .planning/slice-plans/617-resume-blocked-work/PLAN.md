@@ -186,10 +186,10 @@ findings. No full host-by-scenario matrix is required.
   Command proof and independent refactoring are complete.
 - [Distribution integration](distribution-integration.md) adopts Terry's published
   layout; SEED-334's affected backend/integrated/e2e group proofs passed.
-  Main `7e7f72c8` is synchronized; SEED-346's existing NativeCompare runs the
+  Main `283f1052b` is synchronized; SEED-346's existing NativeCompare completed the
   [declared matched pair and typical-task estimate](slice4-ab-basis.md), with forced CLI-wake limits explicit.
 - Slice 3 refactoring is complete; assessments retain all proof and identities.
-- [Native functional proof](slice4-native-acceptance.md) covers hold, attention, recovery, one qualification/replay and independent review; code CI2537/run43581407553 attempt1 passed. Terry now directs proceeding on the hypothesis, ready A/B testing and a final measured-plus-estimated typical-task token report; the declared pair is running, without inferred positive results.
+- [Native functional proof](slice4-native-acceptance.md) covers hold, attention, recovery and one qualification/replay; CI2517383/run43586155001 attempt1 passed. The [A/B report](../../../Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T102744-1921-tokens.md) preserves quality but used60.2% more tokens; C65/C68 remain open pending Terry's decision. Delegated-proof assessor repair/refactoring and focused proof passed; no paid rerun needed.
 
 ## Execution context
 
@@ -203,7 +203,7 @@ findings. No full host-by-scenario matrix is required.
 - Start `3458a36c6393683827f5ba0e9bd038dbfded8605`; Take
   `8f88bf2ca6d4e7fb7aabc704070be4c549397675` confirmed on trunk/branch; no second claim.
   Accepted: Slice 1 `58f1eb1ad8ef04cb59f8eb06a90881335d5ccec6`; Slice 2 `174c6d2b9a0ebb4989ad84cfb2a83e6d762c656b`; Slice 3 `2a01f9603a64a87f8b1ae646218efad16848d5e6`.
-  Latest accepted base `764c4e0fe0ce9f478750323de6a9f30c76a7e61a` (suffix `2537e0e962486a00e618933822dcd072d4854243`); previous observer finished, with its final evidence publication unobserved.
+  Latest accepted base `2517383f7226dc27145102b8db13733c5aef487a` (suffix `764c4e0fe0ce9f478750323de6a9f30c76a7e61a`), exact CI passed; main283/released0.3.99 merge and owned-proof repair await publication.
 - Setup: locked `npm ci` and dashboard typecheck passed here; `.githooks/pre-commit`
   owns staged lint/script typecheck and `npm run format` owns selective formatting.
   Assessments retain prior admission/costs; reconsider headroom before long proof.

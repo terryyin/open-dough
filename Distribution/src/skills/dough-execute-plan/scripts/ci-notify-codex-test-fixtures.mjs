@@ -62,6 +62,7 @@ export function documentedCodexStopBinding() {
 }
 
 export async function runDocumentedCodexHostBinding({
+  completionRecovery = false,
   load,
   tools,
   text,
@@ -69,18 +70,27 @@ export async function runDocumentedCodexHostBinding({
   notify,
   store,
 }) {
+  const cell = documentedCodexHostBinding();
   try {
-    await evaluateDocumentedCell(documentedCodexHostBinding(), {
-      load,
-      exit: () => {
-        throw documentedCell;
+    await evaluateDocumentedCell(
+      completionRecovery
+        ? cell.replace(
+            "const completionRecovery = false",
+            "const completionRecovery = true",
+          )
+        : cell,
+      {
+        load,
+        exit: () => {
+          throw documentedCell;
+        },
+        tools,
+        text,
+        yield_control,
+        notify,
+        store,
       },
-      tools,
-      text,
-      yield_control,
-      notify,
-      store,
-    });
+    );
     return { completed: true };
   } catch (error) {
     if (error === documentedCell) return { skipped: true };

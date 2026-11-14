@@ -151,14 +151,20 @@ case_independent_proof() {
   rm -rf -- "${copy}"
 }
 
-# The agent's own proof in STREAM: passed or failed as the last command that
-# ran the project's tests exited, or none. Only the command line counts, never
-# the output of another command that mentions one.
+# The coordinator's proof in STREAM, else its exact owned workers' proof in
+# this root turn/workspace: passed, failed, unknown or none. Quoting a proof
+# command in another command's output establishes no execution.
 case_agent_proof() {
-  native_host_stream codex "$1" calls | jq -rs '
+  local stream=$1 workspace=${2-} thread=${3-} sessions=${4-} proof
+  proof=$(native_host_stream codex "${stream}" calls | jq -rs '
     map(select(.command | test("node( [^;&|]*)? --test|npm (run )?test")))
     | if length == 0 then "none"
-      elif last.exitCode == 0 then "passed" else "failed" end'
+      elif last.exitCode == 0 then "passed" else "failed" end')
+  if [[ ${proof} == none && -n ${sessions} ]]; then
+    node "${case_dir}/owned-proof.mjs" "${thread}" "${workspace}" "${sessions}"
+  else
+    printf '%s\n' "${proof}"
+  fi
 }
 
 # How many times the checkout has integrated a supplier reader and filed the
@@ -188,7 +194,8 @@ case_continuations() {
 case_observe() {
   local root=$1 turn=$2 stream=$3 scratch=$4 harness=$5
   local workspace="${root}/workspace" file partial=preserved slice3=partial
-  local remote=unchanged integrations filings
+  local remote=unchanged integrations filings sessions
+  sessions=$(native_comparison_sessions_root)
   for file in ${case_partial_files}; do
     [[ -f ${workspace}/${file} ]] || partial=lost
   done
@@ -212,7 +219,8 @@ case_observe() {
   printf 'turn-%s-slice3-filings: %s\n' "${turn}" "${filings}"
   printf 'turn-%s-dependency: %s\n' "${turn}" "$(case_dependency_state "${workspace}")"
   printf 'turn-%s-proof: %s\n' "${turn}" "$(case_independent_proof "${workspace}" "${scratch}")"
-  printf 'turn-%s-agent-proof: %s\n' "${turn}" "$(case_agent_proof "${stream}")"
+  printf 'turn-%s-agent-proof: %s\n' "${turn}" \
+    "$(case_agent_proof "${stream}" "${workspace}" "${native_comparison_thread:-}" "${sessions}")"
   printf 'turn-%s-remote: %s\n' "${turn}" "${remote}"
   printf 'turn-%s-harness-inspected: %s\n' "${turn}" \
     "$(native_host_stream codex "${stream}" commands | native_harness_inspected "${harness}" -)"

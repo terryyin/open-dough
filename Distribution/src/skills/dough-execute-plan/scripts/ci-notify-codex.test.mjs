@@ -211,35 +211,38 @@ test("documented Codex host binding reports lost observation, not finished, when
   assert.equal(stores[0][1].terminal, undefined);
 });
 
-test("documented Codex host binding does not relaunch a finished observer", async () => {
+test("documented Codex binding bypasses the finished guard only for completion recovery", async () => {
   let launches = 0;
-  const result = await runDocumentedCodexHostBinding({
+  const bindings = {
     load: (key) => {
       assert.equal(key, "ci-watch-execution:OWNER/REPO:BRANCH:COORDINATOR");
-      return { status: "finished" };
+      return { status: "finished", directory: "/old/watch" };
     },
-    store: () => {
-      throw new Error("store must not run for a finished observer");
-    },
-    text: () => {
-      throw new Error("text must not run for a finished observer");
-    },
-    notify: () => {
-      throw new Error("notify must not run for a finished observer");
-    },
-    yield_control: async () => {
-      throw new Error("yield must not run for a finished observer");
-    },
+    store: () => {},
+    text: (state) => assert.equal(state.directory, "/new/watch"),
+    notify: () => {},
+    yield_control: async () => {},
     tools: {
-      exec_command: async () => {
+      exec_command: async ({ cmd }) => {
+        assert.match(
+          cmd,
+          /stream --execution OWNER\/REPO BRANCH --coordinator COORDINATOR$/,
+        );
         launches += 1;
-        throw new Error("exec_command must not run for a finished observer");
-      },
-      write_stdin: async () => {
-        throw new Error("write_stdin must not run for a finished observer");
+        return { output: 'CI_OBSERVER {"directory":"/new/watch","pid":9}\n' };
       },
     },
+  };
+  assert.deepEqual(await runDocumentedCodexHostBinding(bindings), {
+    skipped: true,
   });
-  assert.deepEqual(result, { skipped: true });
   assert.equal(launches, 0);
+  assert.deepEqual(
+    await runDocumentedCodexHostBinding({
+      ...bindings,
+      completionRecovery: true,
+    }),
+    { completed: true },
+  );
+  assert.equal(launches, 1);
 });

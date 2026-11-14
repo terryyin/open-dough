@@ -4,6 +4,7 @@
 // watched branch shown. Slots stay free; the server pace is lowered.
 
 import { mkdtempSync, rmSync } from "node:fs";
+import { connect, createServer, type Socket } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
@@ -23,6 +24,7 @@ import {
 import {
   expectLostFreshnessProblem,
   expectStreamOpenGapsAtLeastPace,
+  isRevisionStream,
   openStreamingAtA,
   streamPaceMs,
   streamServerEnv,
@@ -51,13 +53,72 @@ import {
 import type { FakeGitHub } from "../../dashboard/tests/support/fakeGitHub.ts";
 import { signal } from "../../dashboard/tests/support/processGroup.ts";
 
-const test = base.extend<{ machine: string }>({
+const test = base.extend<{
+  machine: string;
+  browserAddress: {
+    url: string;
+    disconnect(): void;
+    forwardTo(dashboard: DashboardServer): void;
+  };
+}>({
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
   machine: async ({}, use) => {
     const machine = mkdtempSync(path.join(tmpdir(), "dough-stream-stopped-"));
     await use(machine);
     rmSync(machine, { recursive: true, force: true });
+  },
+  // Hold the page's origin across preview process restarts. The previews
+  // each bind a new port and still serve every byte the browser sees.
+  browserAddress: async ({ dashboard }, use) => {
+    let target: URL | undefined = new URL(dashboard.baseURL);
+    const sockets = new Set<Socket>();
+    const listener = createServer((client) => {
+      if (target === undefined) {
+        client.destroy();
+        return;
+      }
+      const upstream = connect(Number(target.port), target.hostname);
+      sockets.add(client);
+      client.on("close", () => {
+        sockets.delete(client);
+        upstream.destroy();
+      });
+      upstream.on("close", () => client.destroy());
+      client.on("error", () => upstream.destroy());
+      upstream.on("error", () => client.destroy());
+      client.pipe(upstream).pipe(client);
+    });
+    await new Promise<void>((resolve, reject) => {
+      listener.once("error", reject);
+      listener.listen(0, "127.0.0.1", resolve);
+    });
+    try {
+      const address = listener.address();
+      if (address === null || typeof address === "string") {
+        throw new Error("The browser listener has no TCP address");
+      }
+      await use({
+        url: `http://127.0.0.1:${String(address.port)}`,
+        disconnect: () => {
+          target = undefined;
+          for (const socket of sockets) socket.destroy();
+        },
+        forwardTo: (server) => {
+          target = new URL(server.baseURL);
+        },
+      });
+    } finally {
+      for (const socket of sockets) socket.destroy();
+      await new Promise<void>((resolve) => {
+        listener.close(() => {
+          resolve();
+        });
+      });
+    }
+  },
+  baseURL: async ({ browserAddress }, use) => {
+    await use(browserAddress.url);
   },
 });
 
@@ -66,20 +127,17 @@ test.use({
   extraEnv: streamServerEnv,
 });
 
-async function replaceOnPort(
+async function replacePreview(
   dashboard: DashboardServer,
   github: FakeGitHub,
   machine: string,
 ): Promise<DashboardServer> {
-  const port = Number(new URL(dashboard.baseURL).port);
-  signal(-dashboard.pid, "SIGKILL");
   await dashboard.close();
   return startDashboardServer({
     mode: "preview",
     prebuilt: sharedDashboardBuild,
     github,
     machine,
-    port,
     extraEnv: streamServerEnv,
   });
 }
@@ -89,6 +147,7 @@ test("a stopped stream shows lost freshness within 45s with R kept; reopens at t
   dashboard,
   github,
   machine,
+  browserAddress,
 }) => {
   const origin = await openStreamingAtA(page);
   const { problem, retrievedAt, readRevision } = parts(page);
@@ -104,9 +163,13 @@ test("a stopped stream shows lost freshness within 45s with R kept; reopens at t
 
   await test.step("reopen attempts come no more often than the pace", async () => {
     signal(-dashboard.pid, "SIGKILL");
+    browserAddress.disconnect();
     // Land the reopen scheduled by the silence loss, and let it fail closed.
+    const failedReopen = page.waitForEvent("requestfailed", (request) =>
+      isRevisionStream(request.url()),
+    );
     await passPageMs(page, checkIntervalMs);
-    await page.waitForTimeout(streamPaceMs * 2);
+    await failedReopen;
     await expectStreamOpenGapsAtLeastPace(page);
   });
 
@@ -115,7 +178,8 @@ test("a stopped stream shows lost freshness within 45s with R kept; reopens at t
     await test.step("replaced server across R': first answer names R', page reads it, problem clears", async () => {
       origin.push(revisionB, backlogB, recordsAt("B"));
       const caughtUp = untilStreamingAt(page, revisionB);
-      replacement = await replaceOnPort(dashboard, github, machine);
+      replacement = await replacePreview(dashboard, github, machine);
+      browserAddress.forwardTo(replacement);
       await passPageMs(page, checkIntervalMs);
       await expectSettledPage(page, titlesOfB);
       await expect(readRevision).toContainText(shortRevision(revisionB));
