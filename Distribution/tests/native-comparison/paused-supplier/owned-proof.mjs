@@ -1,8 +1,20 @@
-// Case-only fallback for proof delegated to an owned native worker.
+// Executed project proof from a comparison coordinator or its owned workers.
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { codexSessionSettings } from "../../support/native-codex-session.mjs";
-import { readCodexSession } from "../../support/native-host-stream.mjs";
+import {
+  readCodexSession,
+  readHostStream,
+} from "../../support/native-host-stream.mjs";
+
+// Keep the coordinator's existing proof-command selection shared with archive
+// capture. Owned-worker proof below additionally requires literal commands and
+// completed turn/workspace ownership.
+export function coordinatorProofCalls(calls) {
+  return calls.filter((call) =>
+    /node( [^;&|]*)? --test|npm (run )?test/.test(call.command ?? ""),
+  );
+}
 
 const proofCommand = (command) =>
   typeof command === "string" &&
@@ -41,28 +53,70 @@ function workerProof(worker, rootTurn, workspace) {
       at: call.at,
       worker: worker.thread,
       callId: call.id,
+      turn: call.turn,
+      rootTurn,
+      exitCode: call.exitCode,
+      command: call.command,
     }));
 }
 
-export function ownedWorkerProof(thread, workspace, sessionsRoot) {
-  if (!thread || !workspace || !sessionsRoot) return "none";
+export function ownedWorkerProofObservation(thread, workspace, sessionsRoot) {
+  if (!thread || !workspace || !sessionsRoot)
+    return { status: "none", calls: [] };
   try {
     const saved = codexSessionSettings(thread, sessionsRoot);
-    if (!saved) return "none";
-    const parent = readCodexSession(saved.file);
-    const rootTurn = parent.startedTurns.at(-1);
-    if (!rootTurn || !parent.completedTurns.includes(rootTurn))
-      return "unknown";
-    const proof = saved.workers.flatMap((worker) =>
-      workerProof(worker, rootTurn, workspace),
-    );
-    proof.sort((a, b) => a.at.localeCompare(b.at));
-    return proof.at(-1)?.status ?? "none";
+    if (!saved) return { status: "none", calls: [] };
+    return ownedProofFromRecords(saved.file, saved.workers, workspace);
   } catch {
-    return "unknown";
+    return { status: "unknown", calls: [] };
   }
 }
 
+// The same ownership/receipt decision over caller-named retained copies.
+export function ownedProofFromRecords(parentFile, workers, workspace, turn) {
+  const parent = readCodexSession(parentFile);
+  const rootTurn = turn ?? parent.startedTurns.at(-1);
+  if (!rootTurn || !parent.completedTurns.includes(rootTurn))
+    return { status: "unknown", calls: [] };
+  const parents = new Set([parent.thread]);
+  const owned = [];
+  let remaining = [...workers];
+  while (remaining.length) {
+    const next = remaining.filter((worker) => {
+      const saved = readCodexSession(worker.file);
+      if (!parents.has(saved.parentThread)) return true;
+      if (saved.thread === worker.thread) {
+        parents.add(worker.thread);
+        owned.push(worker);
+      }
+      return false;
+    });
+    if (next.length === remaining.length) break;
+    remaining = next;
+  }
+  const proof = owned.flatMap((worker) =>
+    workerProof(worker, rootTurn, workspace),
+  );
+  proof.sort((a, b) => a.at.localeCompare(b.at));
+  return { status: proof.at(-1)?.status ?? "none", calls: proof, rootTurn };
+}
+
+export function ownedWorkerProof(thread, workspace, sessionsRoot) {
+  return ownedWorkerProofObservation(thread, workspace, sessionsRoot).status;
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  process.stdout.write(`${ownedWorkerProof(...process.argv.slice(2))}\n`);
+  if (process.argv[2] === "--coordinator") {
+    const calls = coordinatorProofCalls(
+      readHostStream("codex", process.argv[3]).calls,
+    );
+    const status = calls.length
+      ? calls.at(-1).exitCode === 0
+        ? "passed"
+        : "failed"
+      : "none";
+    process.stdout.write(`${status}\n`);
+  } else {
+    process.stdout.write(`${ownedWorkerProof(...process.argv.slice(2))}\n`);
+  }
 }

@@ -103,6 +103,13 @@ The command prints the pair's record and `result-path:`, and exits 0 with an
 outcome (`preserved`, `improved`, `regressed`, `neither-passed`) or 1 when
 the pair is `incomplete` or `not-comparable`.
 
+## Save one frozen baseline
+
+The [baseline guide](native-comparison-baselines.md) covers standalone frozen
+capture, immutable export from retained attempts and current reassessment after
+raw evidence cleanup. It keeps capture provenance separate from derived judgment
+and comparison applicability.
+
 ## Refused requests
 
 Before freezing a payload or materializing a case, the command refuses, with
@@ -199,7 +206,8 @@ projects (up to 4.5 GB each for Doughnut) live in the command's work
 directory under `TMPDIR` and are removed when the command ends.
 
 Once a pair is assessed and anything worth keeping is in the case's
-`comparisons/` record, `case.md` or a finding, the raw attempts are spent:
+`comparisons/` record, reusable baseline archive, separate derived assessment,
+`case.md` or a finding, the raw attempts are spent:
 remove the whole `--results-dir` (or the attempts it holds) at story wrap-up,
 as [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) asks.
 Keep tracked: each case directory, its kept comparison records byte for
@@ -209,10 +217,15 @@ which the command prints as `result-path:`.
 
 ## Measurement limits
 
-- Tokens and cost are unavailable: each record says so and points at the
-  raw usage in the retained streams and session records, which the
+- Legacy pair summaries report tokens and cost unavailable. Baseline archives
+  retain available native response counters with coordinator/worker turn
+  attribution, deduplicated by own thread and response. Missing, incomplete or
+  unattributed usage stays unknown, and no billing amount is inferred. The
   [effort comparison story](../../.planning/seeds/SEED-345-session-token-efficiency.md#compare-agent-effort-on-comparable-runs)
-  owns accounting for.
+  owns general accounting tooling.
+- A reused baseline is one dated historical observation. Load, scheduling and
+  service latency can differ from a new candidate; it is never a concurrent-pair
+  observation merely because its fixed inputs match.
 - One pair of stochastic sessions is one observation. It supports its
   comparison under its recorded conditions, not a general saving, a
   repeatable cost or a cause the factor alone explains.
@@ -230,6 +243,8 @@ rejected cases (`native-comparison-pairs.sh`), refusals and incomplete pairs
 (`native-comparison-incomplete.sh`) and refresh and recovery
 (`native-comparison-refresh.sh`). Substitute hosts prove the runner,
 observer, assessors and judge; they never stand in for native behavior.
+`native-comparison-baselines.sh` also exercises frozen capture, export and
+reassessment after raw cleanup, complete failures and insufficient proof.
 
 The review of ADR 0005's A/B guidance against these cases' observations is
 in [the native comparison review](../../docs/maintainer/native-comparison-adr-0005-review.md).

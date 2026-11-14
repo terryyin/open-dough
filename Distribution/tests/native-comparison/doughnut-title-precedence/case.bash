@@ -213,7 +213,9 @@ case_verdict() {
 # naming the controller's paths. Turn status and thread come from the runner.
 case_observe() {
   local root=$1 turn=$2 stream=$3 scratch=$4 harness=$5 workspace="$1/workspace" checkout=restored
-  case_test_runs "${root}/gradle" | case_proof_fields "${turn}"
+  mkdir -p -- "${scratch}/case-evidence"
+  case_test_runs "${root}/gradle" > "${scratch}/case-evidence/test-run-facts-turn-${turn}.txt"
+  case_proof_fields "${turn}" < "${scratch}/case-evidence/test-run-facts-turn-${turn}.txt"
   if [[ -d ${root}/gradle/test-runs ]]; then
     mkdir -p -- "${scratch}/case-evidence"
     rm -rf -- "${scratch}/case-evidence/test-runs-turn-${turn}"

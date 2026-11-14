@@ -140,14 +140,13 @@ case_dependency_state() {
 
 # Runs the project's proof on a copy of the checkout's product files.
 case_independent_proof() {
-  local workspace=$1 copy
+  local workspace=$1 copy status=0 proof="$2/case-evidence/proof-${3:-latest}"
   copy=$(mktemp -d "$2/proof.XXXXXX")
+  mkdir -p -- "$2/case-evidence"
   cp -R -- "${workspace}/src" "${workspace}/tests" "${workspace}/package.json" "${copy}/"
-  if (cd -- "${copy}" && node --test tests/*.test.mjs > /dev/null 2>&1); then
-    echo passed
-  else
-    echo failed
-  fi
+  (cd -- "${copy}" && node --test --test-reporter=tap tests/*.test.mjs > "${proof}.log" 2>&1) || status=$?
+  printf '%s\n' "${status}" > "${proof}.exit"
+  if [[ ${status} -eq 0 ]]; then echo passed; else echo failed; fi
   rm -rf -- "${copy}"
 }
 
@@ -156,10 +155,7 @@ case_independent_proof() {
 # command in another command's output establishes no execution.
 case_agent_proof() {
   local stream=$1 workspace=${2-} thread=${3-} sessions=${4-} proof
-  proof=$(native_host_stream codex "${stream}" calls | jq -rs '
-    map(select(.command | test("node( [^;&|]*)? --test|npm (run )?test")))
-    | if length == 0 then "none"
-      elif last.exitCode == 0 then "passed" else "failed" end')
+  proof=$(NATIVE_NODE_CALL_LOG=/dev/null node "${case_dir}/owned-proof.mjs" --coordinator "${stream}")
   if [[ ${proof} == none && -n ${sessions} ]]; then
     node "${case_dir}/owned-proof.mjs" "${thread}" "${workspace}" "${sessions}"
   else
@@ -218,7 +214,7 @@ case_observe() {
   printf 'turn-%s-supplier-integrations: %s\n' "${turn}" "${integrations}"
   printf 'turn-%s-slice3-filings: %s\n' "${turn}" "${filings}"
   printf 'turn-%s-dependency: %s\n' "${turn}" "$(case_dependency_state "${workspace}")"
-  printf 'turn-%s-proof: %s\n' "${turn}" "$(case_independent_proof "${workspace}" "${scratch}")"
+  printf 'turn-%s-proof: %s\n' "${turn}" "$(case_independent_proof "${workspace}" "${scratch}" "${turn}")"
   printf 'turn-%s-agent-proof: %s\n' "${turn}" \
     "$(case_agent_proof "${stream}" "${workspace}" "${native_comparison_thread:-}" "${sessions}")"
   printf 'turn-%s-remote: %s\n' "${turn}" "${remote}"

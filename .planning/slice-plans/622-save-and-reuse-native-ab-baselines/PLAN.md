@@ -2,6 +2,35 @@
 
 **Identity:** SEED-346#reuse-native-comparison-baselines
 **Source:** [selected story](../../seeds/SEED-346-native-ab-comparisons.md#reuse-native-comparison-baselines)
+**Source review:** [independent commitments](source-review.md)
+
+## Execution context
+
+- Established execution on 2026-11-14 supersedes this preparation record's
+  historical preparation-only authority. The user invoked Execute Plan for all
+  four slices, including the requested single native Codex capture in slice 4.
+- Identity `SEED-346#reuse-native-comparison-baselines`; publisher
+  `dashboard-territory.local-open-dough`; agent `chaifeng-chan`.
+- Reused owned checkout
+  `/Users/terryyin/git/open-dough/.worktrees/save-and-reuse-native-a-b-baselines`,
+  branch `codex/save-and-reuse-native-a-b-baselines`, Story Branch Mode.
+  Default/integration checkout `/Users/terryyin/git/open-dough` is separate.
+- Authorized remote `origin` (`terryyin/open-dough`), trunk `main`;
+  increment target `refs/heads/codex/save-and-reuse-native-a-b-baselines`.
+  Starting revision `3dc8ce8abf384f96861b3710d0b83f95698b6a31`;
+  accepted claim and current candidate
+  `d87004f11c06a9fc2c1e3d5f7dbdeab79a09b8be`. Claim trunk CI is unobserved.
+- Checkout setup: `npm ci` succeeded against the current lockfile; subsequent
+  `PATH=/opt/homebrew/bin:$PATH bash Distribution/tests/native-comparison.sh`
+  succeeded. Commit hook is understood and check-only (staged lint and
+  dashboard typecheck for script edits). Selective formatting is `npm run format`.
+- No numeric slice target or hard limit is supplied. Preserve existing active-plan
+  refinement authority; no scope changes are authorized by replanning.
+- CI source GitHub Actions, verified active `ci.yml` / `CI` (351271804),
+  push-triggered on the execution branch. Coordinator `seed346-baselines`;
+  yielded cell `g255:11`, session `82275`, PID `29040`, observer
+  `/tmp/dough-ci-501/watch-Ya4z4O`, bound to this exact checkout and branch.
+  Reuse it for every execution increment and repair.
 
 ## Goal and scope
 
@@ -88,7 +117,7 @@ were planning records only. Disposable observations changed no product files.
 
 ### 1. Keep a frozen baseline after raw evidence is removed
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `Distribution/tests/native-comparison-baselines.sh` drives capture/export through supported maintainer commands, deletes its controlled raw attempt, and reassesses the retained evidence.
 
 Behavior: a resolved baseline revision and completed native journey or retained
@@ -210,6 +239,64 @@ its format. A later authorized comparison needing missing evidence uses Slice
 suppressed wakes or event-driven savings.
 
 ## Verification, sizing and concern review
+
+### Slice 1 accepted proof
+
+- Supported entry capture freezes and installs the requested payload; the new
+  `native-comparison-baselines.sh` journey observes its quiet commands despite
+  the working payload's shortcut, saves within the copied case's `comparisons/`,
+  and subsequently runs a pair without changing case identity. It exports from
+  retained session copies after original home removal, rejects overwrite,
+  missing owned proof, empty independent exit receipts, malformed archives and
+  stopped streams, and retains complete task failures. Its final block removes
+  raw attempts and reassesses both direct and owned-worker proof with unchanged
+  archive bytes. Usage is deduplicated by own thread/response and missing facts
+  remain unknown. The literal native wire in that test protects ownership and
+  accounting; it is substitute evidence, never native qualification.
+- `native-comparison-doughnut-title-precedence.sh` retains an original failed
+  assessment and green-fault summary while current assessment derives pass
+  from normalized decisive test-run facts. Separate reassessment after raw
+  cleanup names the immutable source and leaves its hash unchanged.
+- Terminal passing commands (all from this checkout):
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh Distribution/tests/native-comparison.sh Distribution/tests/native-comparison-pairs.sh Distribution/tests/native-comparison-refresh.sh Distribution/tests/native-comparison-incomplete.sh Distribution/tests/native-comparison-paused-supplier.sh Distribution/tests/native-comparison-doughnut-title-precedence.sh Distribution/tests/support/native-codex-owned-proof.test.mjs Distribution/tests/support/native-codex-session.test.mjs`;
+  after the additive shared-reader change,
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh Distribution/tests/native-comparison-doughnut-title-precedence.sh Distribution/tests/support/native-codex-owned-proof.test.mjs Distribution/tests/support/native-host-stream.test.mjs Distribution/tests/native-stream-replay.sh Distribution/tests/native-evidence-identity.sh`;
+  after the case-local test strengthening,
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh`.
+- Shared consumer trace and dispositions:
+  `/tmp/seed346-slice1-effect-consumers.md` (full base trace
+  `/tmp/seed346-slice1-consumer-trace.md`). The reached entry, retention,
+  observers, saved-session reader, owned proof and old case journeys ran above;
+  documentation was inspected. Other planning/history matches are unrelated.
+- `PATH=/opt/homebrew/bin:$PATH Distribution/tests/native-comparison.sh --recover Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T102744-1921.txt > /tmp/seed346-slice1-recovery.txt`
+  passed: unchanged original record, recovered basis
+  `764c4e0fe0ce9f478750323de6a9f30c76a7e61a`. Old records were not modified.
+- Resource admission: this Mac fully awake on AC, 16 cores, observed load
+  2.44/2.38/2.52, free/inactive memory available, no known competing owned heavy
+  work. Focused checks ran under `caffeinate -s -i`; no full suite or paid
+  session ran. Reconsider on contention/failure or changed workload.
+- Source freshness unchanged against pinned trunk `b0fd5c16ff04083686aeac4ed41bc887117f9c66`;
+  incoming commits concern other seeds/dashboard usage research. Named sibling
+  behavior and this slice's source are unchanged.
+- `PATH=/opt/homebrew/bin:$PATH node scripts/test-shares.mjs preview --split-count 3`
+  passed: 654 jobs, predicted totals 739.5/739.4/739.4 under ceiling 926;
+  the new baseline job is unrecorded, so this is allocation evidence, not a
+  measured CI cost claim.
+- Independent `dough-post-change-refactor` completed (`/root/refactor1`):
+  current assessment and usage aggregation have cohesive owners, the existing
+  proof owner supplies coordinator selection, and the focused baseline guide
+  remains linked from the main guide. Formatted previews are below the 250-line
+  limit. Exporter/current-assessment provenance covers the extracted owners.
+  Consumer dispositions are `/tmp/seed346-refactor1-effects.md` and
+  `/tmp/seed346-refactor1-consumers.md`.
+  Renewed proof passed:
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-baselines.sh Distribution/tests/native-comparison.sh Distribution/tests/native-comparison-pairs.sh Distribution/tests/native-comparison-refresh.sh Distribution/tests/native-comparison-incomplete.sh Distribution/tests/native-comparison-paused-supplier.sh Distribution/tests/native-comparison-doughnut-title-precedence.sh Distribution/tests/support/native-codex-owned-proof.test.mjs`;
+  then logging-isolation preservation passed
+  `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh Distribution/tests/native-comparison-paused-supplier.sh Distribution/tests/support/native-codex-owned-proof.test.mjs`.
+  Earlier shared-reader/replay/identity proof remains valid because those owners
+  were unchanged by this refactor. `git diff --check` passed. Resource recheck:
+  AC, fully awake, load 1.95/2.48/2.87, ample free/inactive memory, no competing
+  test commands; named checks under sleep guard only. No remaining gap.
 
 - Follow [AGENTS.md's failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
   as written, including in every delegation brief and repair handoff.

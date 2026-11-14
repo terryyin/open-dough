@@ -61,20 +61,48 @@ export function readCodexSession(file) {
   const startedTurns = [],
     completedTurns = [],
     ownership = [],
-    calls = [];
+    calls = [],
+    contexts = [],
+    usage = [];
   const pending = new Map();
-  let context = {};
+  let context = {},
+    thread,
+    parentThread;
   for (const line of readFileSync(file, "utf8").split("\n")) {
     if (line.trim() === "") continue;
     const row = JSON.parse(line);
     const value = row.payload ?? {};
-    if (row.type === "turn_context") {
+    if (row.type === "session_meta") {
+      thread = value.id;
+      parentThread = value.source?.subagent?.thread_spawn?.parent_thread_id;
+    } else if (row.type === "turn_context") {
       context = { turn: value.turn_id, cwd: value.cwd };
+      contexts.push(context);
     } else if (row.type === "token_usage_record") {
       ownership.push({
         thread: value.thread_id,
         turn: value.turn_id,
         rootTurn: value.root_turn_id,
+      });
+      const counters = value.usage ?? value.token_usage ?? {};
+      usage.push({
+        thread: value.thread_id,
+        turn: value.turn_id,
+        rootTurn: value.root_turn_id,
+        responseId: value.response_id,
+        counts: Object.fromEntries(
+          [
+            "input_tokens",
+            "cached_input_tokens",
+            "output_tokens",
+            "total_tokens",
+          ].map((key) => [
+            key,
+            Number.isSafeInteger(counters[key]) && counters[key] >= 0
+              ? counters[key]
+              : null,
+          ]),
+        ),
       });
     } else if (row.type === "event_msg") {
       if (value.type === "task_started") startedTurns.push(value.turn_id);
@@ -109,5 +137,14 @@ export function readCodexSession(file) {
       }
     }
   }
-  return { startedTurns, completedTurns, ownership, calls };
+  return {
+    thread,
+    parentThread,
+    contexts,
+    usage,
+    startedTurns,
+    completedTurns,
+    ownership,
+    calls,
+  };
 }

@@ -57,6 +57,29 @@ observe() {
 observe > "${root}/passing"
 # The recorded runs stay beside the observations for retention.
 cmp -s "${runs}/2-faulted/output" "${work}/case-evidence/test-runs-turn-1/2-faulted/output"
+# A stale summary is corrected from retained decisive run facts, while its
+# original failed assessment remains immutable and raw account output stays local.
+attempt="${work}/archive-attempt"
+mkdir -p -- "${attempt}"
+cp -R -- "${work}/case-evidence" "${attempt}/"
+sed 's/^turn-1-fault: .*/turn-1-fault: green/' "${root}/passing" > "${attempt}/observations.txt"
+printf 'assessment-status: fail\n' >> "${attempt}/observations.txt"
+cat -- "${root}/stream.jsonl" > "${attempt}/events-turn-1.jsonl"
+jq -nc '{type:"turn.completed"}' >> "${attempt}/events-turn-1.jsonl"
+{
+  printf 'case: native-comparison/doughnut-title-precedence\nthread: t\n'
+  printf 'payload-revision: %s\n' "$(git -C "${source_dir}" rev-parse HEAD)"
+  printf 'host-route: substitute\nsource-revision: %s\n' "$(git -C "${source_dir}" rev-parse HEAD)"
+  native_result_input_hash_lines Distribution/tests/native-comparison/doughnut-title-precedence/assess.bash
+} > "${attempt}/record"
+entry=("${BASH}" "${source_dir}/Distribution/tests/native-comparison.sh")
+"${entry[@]}" --export-baseline "${attempt}" --save-baseline "${work}/calibration-baseline.json" > /dev/null
+jq -e '.capture.originalAssessment == "fail" and .observations["turn-1-fault"] == "green" and .exportAssessment.status == "pass"' "${work}/calibration-baseline.json" > /dev/null
+original=$(shasum -a 256 "${work}/calibration-baseline.json")
+rm -rf -- "${attempt}"
+"${entry[@]}" --assess-baseline "${work}/calibration-baseline.json" > "${work}/derived-assessment.json"
+jq -e --slurpfile archive "${work}/calibration-baseline.json" '.status == "pass" and .sourceIntegrity == $archive[0].integrity' "${work}/derived-assessment.json" > /dev/null
+[[ ${original} == "$(shasum -a 256 "${work}/calibration-baseline.json")" ]]
 native_assessor_counterexamples "${case_path}/assess.bash" "${root}/passing" \
   --verdict case_assess_status case_assess_reason -- case_assess
 # Plausible wrong decisions, observed from changed runs and checkout.

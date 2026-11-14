@@ -113,7 +113,8 @@ grep -Fqx 'candidate-stopped: turn 2 failed: native command exited 1; truncated 
 grep -Fqx "unknown: the baseline arm's turn 4: not observed (turn 4 incomplete: missing terminal stream)" "${both}"
 grep -Fqx "unknown: the candidate arm's turns 2-4: not observed (turn 2 failed: native command exited 1; truncated terminal stream)" "${both}"
 grep -Eq '^baseline-outcome: fail: turn 4 did not complete \(incomplete\)' "${both}"
-grep -Fqx 'baseline-proof: observations.txt final-state.txt' "${both}"
+grep -Fq 'baseline-proof: observations.txt final-state.txt' "${both}"
+[[ -s $(attempt "${both}" baseline)/case-evidence/proof-1.log ]]
 grep -Fqx 'effort-difference: not computed: the pair is incomplete' "${both}"
 grep -Eq '^effort-candidate: partial, turns 2-4 unobserved, counts cover observed turns only: 2 turns, ' "${both}"
 grep -Eq '^effort-baseline: partial, turn 4 unobserved, ' "${both}"

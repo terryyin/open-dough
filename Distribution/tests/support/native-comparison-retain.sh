@@ -49,6 +49,9 @@ native_comparison_retain() {
     printf 'host-route: %s\n' "$( ((${native_codex_isolate:-0})) && echo native || echo substitute)"
     printf 'native-executable: %s\n' "$(command -v codex)"
     printf 'native-version: %s\n' "${tool_version:-unknown}"
+    printf 'observed-at: %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    printf 'machine: %s, %s cores, %s\n' "$(uname -sm)" "$(getconf _NPROCESSORS_ONLN)" \
+      "$(pmset -g batt 2> /dev/null | sed -n "1s/^Now drawing from '\(.*\)'$/\1/p" | grep . || echo 'power unknown')"
     printf 'native-requested-settings: %s\n' "${native_codex_settings[*]:-host defaults}"
     native_comparison_retain_sessions "${source_dir}" "${dest}"
     printf 'thread: %s\n' "${native_comparison_thread:-unknown}"

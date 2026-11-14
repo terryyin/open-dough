@@ -15,8 +15,11 @@ counterexample stream builders.
 
 Saved Codex session records are read through the same boundary's
 `readCodexSession` export. Its `native-host-stream-codex-session.mjs` adapter
-returns turn lifecycle, ownership and command receipts, decoding only literal
-sequential exec calls without executing their JavaScript. Case observers apply
+returns thread/parent identity, turn contexts and lifecycle, ownership, native
+response usage and command receipts, decoding only literal sequential exec
+calls without executing their JavaScript. Usage counters retain their native
+thread, response and root-turn identity; consumers must exclude copied history,
+deduplicate responses and keep missing counters unknown. Case observers apply
 their own ownership, workspace and proof rules to those facts;
 `native-codex-session.mjs` supplies session discovery and runtime settings.
 
