@@ -156,7 +156,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     expect(attaches()).toHaveLength(1);
   });
 
-  await test.step("a review takes the same width, and resizing keeps its snapshot and selected file without another read", async () => {
+  await test.step("resizing and maximizing a review keeps its selected file and the Sessions toggle available", async () => {
     await reviewChanges(card).click();
     await expect(terminal).toHaveCount(0);
     await expectWidth(review, chosen);
@@ -177,6 +177,10 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     await expect(diff).toContainText("+more wide");
     await maximizeSidePanel(review);
     await expect(divider).toHaveCount(0);
+    await sidebar.button.click();
+    await expect(sidebar.sidebar).toBeVisible();
+    await sidebar.button.click();
+    await expect(sidebar.sidebar).toBeHidden();
     await restoreSidePanel(review);
     await expectWidth(review, chosen - 160 + keyStep);
     expect(reviewReads.length).toBe(readsBefore);

@@ -46,7 +46,7 @@ import {
   queuedClaudePreviewTest as test,
 } from "../support/preparationPage.ts";
 import { sidePanelContents } from "../support/sidePanelContents.ts";
-import { expectSelected, selectStory } from "../storyCardSelection.ts";
+import { emptyArea, expectSelected } from "../storyCardSelection.ts";
 
 const titles = doneStories.map(({ title }) => title);
 
@@ -78,7 +78,7 @@ test("Mark as reviewed keeps the card, selection, snapshot mark and repository a
   });
 
   await test.step("Mark as reviewed on A, by keyboard, with C selected: A says Reviewed with focus on Reviewed, once announced; B, the order, the count, the selection and the Side panel stay", async () => {
-    await selectStory(c).click();
+    await emptyArea(c).click();
     await expectSelected(c, true);
     await expect(sidePanelContents(page)).toHaveCount(0);
     const actionsOfA = await storyActions(a)

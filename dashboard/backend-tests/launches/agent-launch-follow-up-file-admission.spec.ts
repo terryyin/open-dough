@@ -72,7 +72,6 @@ test("a landed-run file follow-up admits by reference and names the landed compa
     })
     .forLaunch(reference)
     .comparing({ base, revision: tree })
-    .receivedAt(new Date().toISOString())
     .please();
   keepLaunchRecords(dashboard, [record]);
   const file = {

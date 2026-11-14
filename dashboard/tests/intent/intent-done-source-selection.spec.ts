@@ -90,13 +90,11 @@ test("a newly selected Done story shows only its own historical source after hel
     completionConflict: false,
   });
   advanceCompletedTrunk(origin);
-  const now = new Date().toISOString();
   keepLaunchRecords(dashboard, [
     makeMe.aLaunchRecord
       .executing({ identity: storyB.identity, title: storyB.title })
       .inClaudeSession({ sessionId: "completed-story-b", shortId: "story-b" })
-      .launchedAt(now)
-      .markedDoneAt(now)
+      .markedDone()
       .please(),
   ]);
   await publishCommittedOrigin(page, {

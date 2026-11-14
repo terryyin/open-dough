@@ -65,16 +65,14 @@ export async function openSessionAttributionBoard(
     cwd: workspace,
     startedAt: Date.now(),
   });
-  // Story C's refinements in its preparation workspace, launched now: the
+  // Story C's refinements in its preparation workspace: the
   // original asked for Fable; the others for claude-opus-5-5, one whose
   // preparation recorded no published revision, one whose published revision
   // cannot be read, and one, listed, that completed.
-  const launchedAt = new Date().toISOString();
   const refinement = (model: string) =>
     makeMe.aLaunchRecord
       .refining({ identity: "SEED-C#c", title: storyC })
-      .requestingModel(model)
-      .launchedAt(launchedAt);
+      .requestingModel(model);
   const preparation = {
     workspace,
     branch: "claude/c-refine",

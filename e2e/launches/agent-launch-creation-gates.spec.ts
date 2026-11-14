@@ -36,7 +36,6 @@ test("a saved creation whose host lacks recovery stays visible with unavailable 
       workspace: "/saved workspace",
       endpoint: "unix:///saved endpoint",
     })
-    .launchedAt("2026-10-01T00:00:00.000Z")
     .please();
   keepLaunchStore(machineHome(machine), {
     "open-dough": [record],

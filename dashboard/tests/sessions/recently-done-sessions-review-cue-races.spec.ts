@@ -128,7 +128,7 @@ for (const replacement of ["project", "association"] as const) {
           command: "report",
         })
         .launchedAt(new Date(Date.now() - 60_000).toISOString())
-        .markedDoneAt(new Date().toISOString())
+        .markedDone()
         .please();
     keepLaunchStore(dashboard, {
       doughnut: [record("doughnut", "b0f19431-05f1-4dc1-b9a4-a492109bd064")],

@@ -60,7 +60,6 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
       makeMe.aLaunchRecord
         .executing({ identity, title: sessionTitle, source: "doughnut" })
         .inClaudeSession({ sessionId, shortId })
-        .launchedAt(new Date().toISOString())
         .please(),
     ],
   });

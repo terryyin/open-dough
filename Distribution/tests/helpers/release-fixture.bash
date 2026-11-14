@@ -37,8 +37,9 @@ copy_installer_modules() {
   local mjs_file
   local -a mjs_files=()
 
-  mkdir -p -- "${dest}/Distribution/src/install"
+  mkdir -p -- "${dest}/Distribution/src/install" "${dest}/src/install"
   cp -- "${modules_root}/Distribution/src/install/"*.sh "${dest}/Distribution/src/install/"
+  cp -- "${modules_root}/src/install/open-dough-execution-payload.sh" "${dest}/src/install/"
   # Hook registration helpers travel with the installer (Node merge logic).
   for mjs_file in "${modules_root}/Distribution/src/install/"*.mjs; do
     [[ -f "${mjs_file}" ]] || continue

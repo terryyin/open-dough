@@ -1,14 +1,10 @@
 // Shared assertions for a story card's two separate states: the selected
-// story's highlight (the class, its inset accent ring and pale fill, and the
-// card's pressed Select story), and inspection (its open detail and Inspect
-// story's expanded state).
+// story's highlight (the class, its inset accent ring and pale fill), and
+// inspection (its open detail and Inspect story's expanded state).
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { detailToggle } from "./storyCardControls.ts";
-
-export const selectStory = (card: Locator) =>
-  card.getByRole("button", { name: "Select story", exact: true });
 
 // A click on the card's own heading is a click on its empty area, which
 // selects its story or clears that selection.
@@ -41,7 +37,6 @@ export async function expectSelected(card: Locator, on: boolean) {
   } else {
     await expect(card).not.toHaveClass(/story-card-selected/);
   }
-  await expect(selectStory(card)).toHaveAttribute("aria-pressed", String(on));
 }
 
 export async function expectInspected(card: Locator, open: boolean) {

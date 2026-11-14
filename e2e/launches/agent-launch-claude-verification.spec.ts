@@ -28,7 +28,6 @@ import {
 } from "../../dashboard/tests/claudeVerification.ts";
 import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
 import { keepMoreLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { selectStory } from "../../dashboard/tests/storyCardSelection.ts";
 
 const openSessionDescription = new RegExp(
   openSessionStartReason.replace(/[.]/g, "\\."),
@@ -38,14 +37,13 @@ const uncertainLaunch = useUncertainLaunch();
 const answerKind = async (response: Promise<{ body: string }>) =>
   (JSON.parse((await response).body) as { kind: string; reason?: string }).kind;
 
-// Keeps a launch record of another story, launched now, holding the listed
+// Keeps a launch record of another story holding the listed
 // `sessionId`.
 function recordHolding(dashboard: DashboardServer, sessionId: string) {
   keepMoreLaunchRecords(dashboard, [
     makeMe.aLaunchRecord
       .executing({ identity, title })
       .inClaudeSession({ sessionId })
-      .launchedAt(new Date().toISOString())
       .please(),
   ]);
 }
@@ -186,9 +184,6 @@ test("Recheck keeps the story protected, saying why, while the listing cannot be
   );
   await expect(continues).toBeEnabled();
   await expect(card).toContainText("Startup needs reconciliation");
-  // Only Select story, no protected action, stays available.
-  await expect(card.getByRole("button", { disabled: false })).toHaveCount(1);
-  await expect(selectStory(card)).toBeEnabled();
   expect(await attempts(dashboard)).toEqual([before]);
 
   dashboard.claudeListingFails(false);

@@ -12,7 +12,7 @@ import { notFoundAnswer } from "../originAnswers.ts";
 import { pausePageClock, passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { expectReadingTop } from "../readingPlace.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
-import { expectSelected, selectStory } from "../storyCardSelection.ts";
+import { emptyArea, expectSelected } from "../storyCardSelection.ts";
 import {
   canonicalRecord,
   hideDetail,
@@ -88,7 +88,7 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   await expectCueEnds(page, supplier);
   await expectSelected(supplier, false);
   expect(new URL(page.url()).hostname).toBe("127.0.0.1");
-  await selectStory(supplier).click();
+  await emptyArea(supplier).click();
   await expectSelected(supplier, true);
   await followReference(consumer, "Story B");
   await expectDestinationCue(page, supplier, { motion: true });

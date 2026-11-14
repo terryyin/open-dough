@@ -24,6 +24,7 @@ import {
 } from "./ci-mailbox-match.mjs";
 import { writePredecessors } from "./ci-mailbox-predecessors.mjs";
 import { listRegisteredRevisions } from "./ci-mailbox-revision-records.mjs";
+import { codexStreamOwner } from "./ci-observer-owner.mjs";
 import {
   coverageGap,
   establishObservation,
@@ -38,11 +39,8 @@ function endedPredecessors({ repo, branch, owner, root, storage }) {
   );
 }
 
-// Reuses establishObservation for live or replacement observation; records
-// ended predecessors only when this coordinator's host owner is known and a
-// new mailbox is attached. Codex never starts a stream: without a live one the
-// gap names arming a fresh stream for complete; with --coordinator and
-// --observer-directory it registers and completes on that stream.
+// Records ended predecessors for a replacement, including a fresh stream
+// that the Codex coordinator has already armed.
 async function recoverObservationForCompletion(request) {
   const {
     repo,
@@ -59,23 +57,23 @@ async function recoverObservationForCompletion(request) {
     storage,
   } = request;
 
-  let predecessors = [];
-  if (host !== "codex") {
-    const hostSession = resolveHostSession({ host, session, env });
-    const owner = hostSessionOwner({ host, session: hostSession, root });
-    if (!owner) {
-      return coverageGap(missingIdentityReason(host, "complete"), {
-        ownership: "unidentified",
-      });
-    }
-    predecessors = endedPredecessors({
-      repo,
-      branch,
-      owner,
-      root,
-      storage,
+  const hostSession = resolveHostSession({ host, session, env });
+  const owner =
+    host === "codex"
+      ? codexStreamOwner({ root, coordinator })
+      : hostSessionOwner({ host, session: hostSession, root });
+  if (!owner && host !== "codex") {
+    return coverageGap(missingIdentityReason(host, "complete"), {
+      ownership: "unidentified",
     });
   }
+  const predecessors = endedPredecessors({
+    repo,
+    branch,
+    owner,
+    root,
+    storage,
+  }).filter((directory) => directory !== observerDirectory);
 
   const established = await establishObservation({
     repo,
@@ -95,7 +93,7 @@ async function recoverObservationForCompletion(request) {
   if (
     established.observation.state !== "unobserved" &&
     established.observation.directory &&
-    !established.observation.reused &&
+    (host === "codex" || !established.observation.reused) &&
     predecessors.length > 0
   ) {
     writePredecessors(established.observation.directory, predecessors);

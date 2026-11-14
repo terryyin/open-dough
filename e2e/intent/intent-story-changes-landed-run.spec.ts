@@ -39,7 +39,8 @@ import {
   storyB,
 } from "../../Distribution/tests/support/queued-repository.mjs";
 import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
-import { storyALaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+import { storyALaunch } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+import { branch } from "../../dashboard/tests/support/storyReviewWorktree.ts";
 import {
   expectShown,
   reviewRegion,
@@ -76,7 +77,14 @@ async function landedThenTaken(
   git(origin.project, "pull", "--quiet", "--ff-only", "origin", "main");
   keepLaunchRecords(dashboard, [
     ...stored(dashboard.home),
-    storyALaunchRecord(path.join(origin.machine, "another-agent-workspace")),
+    // This later launch owns the active workspace ahead of the captured runs.
+    storyALaunch()
+      .onStoryBranch({
+        workspace: path.join(origin.machine, "another-agent-workspace"),
+        branch,
+      })
+      .launchedAt(new Date().toISOString())
+      .please(),
   ]);
   return landed;
 }

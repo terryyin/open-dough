@@ -62,7 +62,8 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
   const { rows } = terminalScreenParts(panel);
   const sessionRow = sidePanelNamesOf(panel).sessionName;
   const heading = terminalScreenParts(panel).heading;
-  const portrait = credit(panel).portrait;
+  const identity = panel.locator(".terminal-identity");
+  const portrait = credit(identity).portrait;
   const entry = sessionEntriesIn(parts(page).taken);
 
   await page
@@ -117,7 +118,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     await expect(panel).toHaveCount(1);
     await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
     await expect(portrait).toHaveCount(0);
-    await expect(panel.getByRole("img")).toHaveCount(0);
+    await expect(identity.getByRole("img")).toHaveCount(0);
     await expectRows(title, "Ad hoc session");
   });
 
@@ -132,7 +133,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
         .launchedAt(launchedAt)
         .please(),
     );
-    const yui = panel.getByRole("img", { name: "Yui-chan", exact: true });
+    const yui = identity.getByRole("img", { name: "Yui-chan", exact: true });
     await expect(yui).toBeVisible();
     await expect(yui).toHaveAttribute("title", "Yui-chan");
     await expect(yui).toHaveCSS(
@@ -149,11 +150,10 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     await expectBesideBothRows(yui);
     await expectTerminalPreviewFits(yui, panel);
     await expectRows("See who owns Taken work", "Refinement session");
-    // The agent is the only identity in the panel: no developer avatar or
-    // name beside it.
-    await expect(panel.getByRole("img")).toHaveCount(1);
-    await expect(panel.locator("img")).toHaveCount(0);
-    await expect(panel.locator(".terminal-identity")).toHaveText(
+    // The terminal identity has no developer avatar or name beside the agent.
+    await expect(identity.getByRole("img")).toHaveCount(1);
+    await expect(identity.locator("img")).toHaveCount(0);
+    await expect(identity).toHaveText(
       "See who owns Taken workRefinement session",
     );
   });
@@ -167,7 +167,10 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
         .launchedAt(launchedAt)
         .please(),
     );
-    const stanly = panel.getByRole("img", { name: "stanly-chan", exact: true });
+    const stanly = identity.getByRole("img", {
+      name: "stanly-chan",
+      exact: true,
+    });
     await expect(stanly).toBeVisible();
     await expect(stanly).toHaveAttribute("title", "stanly-chan");
     await expect(stanly).toHaveCSS("background-image", /\/stanly\.webp"\)$/);
@@ -188,6 +191,6 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     expect((await asked).status()).toBe(404);
     await expectRows("See who owns Taken work", "Execution session");
     await expect(portrait).toHaveCount(0);
-    await expect(panel.getByRole("img")).toHaveCount(0);
+    await expect(identity.getByRole("img")).toHaveCount(0);
   });
 });

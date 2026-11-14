@@ -10,6 +10,8 @@ import {
   endCodexStreamByBudget,
 } from "./ci-codex-lifecycle-test-fixtures.mjs";
 import { snapshotMailboxRecords } from "./ci-mailbox-budget-test-fixtures.mjs";
+import { completionState } from "./ci-mailbox-completion-state.mjs";
+import { readPredecessors } from "./ci-mailbox-predecessors.mjs";
 import { recoverExecutionCompletion } from "./execution-completion-recovery.mjs";
 import { createManagedFixture } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { revParse } from "./publication-test-fixtures.mjs";
@@ -35,6 +37,7 @@ test("Codex recovery arms a fresh stream after budget finish, then completes on 
     sha,
     observeRoot,
   });
+  const { handoff } = completionState(finished, sha, { root, storage });
   const before = snapshotMailboxRecords(finished);
 
   const withoutLive = await recoverExecutionCompletion({
@@ -94,5 +97,10 @@ test("Codex recovery arms a fresh stream after budget finish, then completes on 
   assert.equal(recovered.receipt.shutdown.status, "confirmed");
   assert.equal(recovered.receipt.requestedSha, sha);
   assert.notEqual(fresh.directory, finished);
+  assert.deepEqual(readPredecessors(fresh.directory), [finished]);
+  assert.equal(
+    completionState(fresh.directory, sha, { root, storage }).handoff.deadline,
+    handoff.deadline,
+  );
   assert.deepEqual(snapshotMailboxRecords(finished), before);
 });

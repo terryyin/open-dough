@@ -1,6 +1,25 @@
-/* The banner Sessions toggle (./icon-control.css): product-mark visual;
+/* The Sessions toggle (./icon-control.css): product-mark visual;
    open accent; corner badge with working (closed only, ready green) then
    attention (problem). */
+
+/* In the maximized layout the panel header holds the toggle. The hidden
+   banner keeps its layout so the page can still scroll behind the panel. */
+.side-panel-header > .sessions-toggle-group {
+  display: none;
+}
+
+.page-maximized .banner .sessions-toggle-group {
+  visibility: hidden;
+}
+
+.page-maximized .side-panel-header > .sessions-toggle-group {
+  display: inline-flex;
+  margin-block-start: calc((var(--top-bar-row) - var(--control-size)) / 2);
+}
+
+.page-maximized .side-panel-header > .side-panel-actions {
+  margin-inline-start: auto;
+}
 
 .sessions-toggle[aria-expanded="true"] {
   color: var(--accent);

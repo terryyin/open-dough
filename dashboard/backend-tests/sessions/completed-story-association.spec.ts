@@ -69,7 +69,6 @@ test("Done already present at base is not a first completion", async ({
         base: linked.completion,
         revision: linked.completion,
       })
-      .receivedAt(linked.record.landing?.receivedAt ?? new Date().toISOString())
       .please(),
   };
   keepLaunchRecords(dashboard, [record]);
@@ -127,7 +126,6 @@ test("an unreadable completion revision is unavailable, not a confirmed miss", a
       })
       .forLaunch(linked.reference)
       .comparing({ base: linked.base, revision: missing })
-      .receivedAt(linked.record.landing?.receivedAt ?? new Date().toISOString())
       .please(),
   };
   keepLaunchRecords(dashboard, [record]);

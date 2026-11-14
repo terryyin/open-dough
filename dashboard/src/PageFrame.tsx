@@ -146,9 +146,7 @@ export function PageFrame({
     sidePanel.openSession({ record, control: returnTo });
     revealSession(record);
   };
-  // The page keeps one element structure whether or not the sidebar or the
-  // panel is open, so opening one never remounts the page or loses what it
-  // had open.
+  // Keep the page mounted as the sidebar and panel open and close.
   return (
     <RecentlyDonePageEvidence
       projects={projects}
@@ -160,25 +158,25 @@ export function PageFrame({
           <StoryReviewsOnPage value={sidePanel.openStoryReview}>
             <StorySelectionProvider selection={selection}>
               <StoryInspectionProvider>
-                <PanelDividerOnPage
-                  value={shownMaximized ? undefined : divider}
-                >
-                  <div
-                    ref={frame}
-                    {...pageFrameLayout({
-                      sidebarOpen: sidebar.open,
-                      panelOpen,
-                      covering,
-                      maximized: shownMaximized,
-                      divider,
-                    })}
+                <SessionsSidebarOnPage value={sidebar}>
+                  <PanelDividerOnPage
+                    value={shownMaximized ? undefined : divider}
                   >
-                    <SessionsSidebar
-                      {...sidebar}
-                      onOpen={goToSession}
-                      recentlyDone={recentlyDone.row}
-                    />
-                    <SessionsSidebarOnPage value={sidebar}>
+                    <div
+                      ref={frame}
+                      {...pageFrameLayout({
+                        sidebarOpen: sidebar.open,
+                        panelOpen,
+                        covering,
+                        maximized: shownMaximized,
+                        divider,
+                      })}
+                    >
+                      <SessionsSidebar
+                        {...sidebar}
+                        onOpen={goToSession}
+                        recentlyDone={recentlyDone.row}
+                      />
                       <RecentlyDoneRangeOnPage value={range}>
                         <ChosenSessionOnPage value={recentlyDone.chosenSession}>
                           <div
@@ -193,52 +191,54 @@ export function PageFrame({
                           </div>
                         </ChosenSessionOnPage>
                       </RecentlyDoneRangeOnPage>
-                    </SessionsSidebarOnPage>
-                    {finalReport && (
-                      <FinalReport
-                        key={sessionKey(finalReport.record.session)}
-                        session={finalReport}
-                        current={shownRecord(records, finalReport)}
-                        onClose={() => {
-                          sidePanel.close(finalReport);
-                        }}
-                        onMarkDone={markSessionDone}
-                      />
-                    )}
-                    {terminal && (
-                      <Terminal
-                        key={sessionKey(terminal.record.session)}
-                        session={terminal}
-                        current={shownRecord(records, terminal)}
-                        onAttached={attached}
-                        maximized={maximized}
-                        onMaximize={sidePanel.maximize}
-                        offerMaximize={offerMaximize}
-                        onClose={() => {
-                          sidePanel.close(terminal);
-                        }}
-                        onMarkDone={markSessionDone}
-                        onWorkspaceUnavailable={sidePanel.unavailableWorkspace}
-                      />
-                    )}
-                    {storyReview && (
-                      <StoryReview
-                        // Each story review, and each opening of one after Close or
-                        // replacement, reads anew; asking again for the one shown
-                        // focuses it and keeps its snapshot until Refresh. Switching
-                        // between live and historical reading starts a fresh review.
-                        key={`${storyReview.source}\n${storyReview.identity}\n${String(storyReview.historical === true)}`}
-                        request={storyReview}
-                        maximized={maximized}
-                        onMaximize={sidePanel.maximize}
-                        offerMaximize={offerMaximize}
-                        onClose={() => {
-                          sidePanel.close(storyReview);
-                        }}
-                      />
-                    )}
-                  </div>
-                </PanelDividerOnPage>
+                      {finalReport && (
+                        <FinalReport
+                          key={sessionKey(finalReport.record.session)}
+                          session={finalReport}
+                          current={shownRecord(records, finalReport)}
+                          onClose={() => {
+                            sidePanel.close(finalReport);
+                          }}
+                          onMarkDone={markSessionDone}
+                        />
+                      )}
+                      {terminal && (
+                        <Terminal
+                          key={sessionKey(terminal.record.session)}
+                          session={terminal}
+                          current={shownRecord(records, terminal)}
+                          onAttached={attached}
+                          maximized={maximized}
+                          onMaximize={sidePanel.maximize}
+                          offerMaximize={offerMaximize}
+                          onClose={() => {
+                            sidePanel.close(terminal);
+                          }}
+                          onMarkDone={markSessionDone}
+                          onWorkspaceUnavailable={
+                            sidePanel.unavailableWorkspace
+                          }
+                        />
+                      )}
+                      {storyReview && (
+                        <StoryReview
+                          // Each story review, and each opening of one after Close or
+                          // replacement, reads anew; asking again for the one shown
+                          // focuses it and keeps its snapshot until Refresh. Switching
+                          // between live and historical reading starts a fresh review.
+                          key={`${storyReview.source}\n${storyReview.identity}\n${String(storyReview.historical === true)}`}
+                          request={storyReview}
+                          maximized={maximized}
+                          onMaximize={sidePanel.maximize}
+                          offerMaximize={offerMaximize}
+                          onClose={() => {
+                            sidePanel.close(storyReview);
+                          }}
+                        />
+                      )}
+                    </div>
+                  </PanelDividerOnPage>
+                </SessionsSidebarOnPage>
               </StoryInspectionProvider>
             </StorySelectionProvider>
           </StoryReviewsOnPage>

@@ -20,11 +20,13 @@ Resolve `/ABSOLUTE/RESOLVED/SKILL` inside `/ABSOLUTE/VERIFIED/CHECKOUT_ROOT` wit
 
 This isolate cannot import Node modules. Do not reconstruct parsing or extra
 readers. Copy this host binding with verified repository, checkout, and
-coordinator; do not add parser branches.
+coordinator. Set `completionRecovery` to `true` only when the saved observer
+has finished and this coordinator still lacks a receipt for the accepted SHA.
 
 ```js
 const key = 'ci-watch-execution:OWNER/REPO:BRANCH:COORDINATOR'
-if (load(key)?.status === 'finished') exit()
+const completionRecovery = false
+if (load(key)?.status === 'finished' && !completionRecovery) exit()
 const io = { yield_time_ms: 1000, max_output_tokens: 2000 }
 let tail = '', directory, pid, terminal
 let identityExposed = false

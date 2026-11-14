@@ -52,7 +52,6 @@ for (const timingBasis of [undefined, "workflow-creation"]) {
   test(`retained ${timingBasis ?? "unknown"} timing is an explained gap and excluded from the shared reference`, () => {
     const landing = makeMe.aLaunchLanding
       .comparing({ base: "b".repeat(40), revision })
-      .receivedAt("2026-11-05T10:00:00Z")
       .please();
     const history = makeMe.aLandedCiHistory
       .inTrunkOrder([revision])

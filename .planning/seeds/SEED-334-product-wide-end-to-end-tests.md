@@ -10,22 +10,35 @@ scope: story
 
 <a id="focus-detailed-dashboard-ui-checks"></a>
 
-### Focus detailed dashboard UI checks on controlled answers
+### Dissolve Dashboard Integrated UI Test into E2E and unit tests
 
 **Identity:** SEED-334#focus-detailed-dashboard-ui-checks
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-- **For / why.** A developer reading or changing dashboard presentation,
-  interaction or recovery gets that feedback from Dashboard Frontend Test with
-  controlled backend answers, instead of from slower integrated journeys, and
-  E2E Test keeps only representative product workflows.
-- **Evaluation.** Every check in the interim **Dashboard Integrated UI Test**
-  group (`dashboard/tests/`) runs in Dashboard Frontend Test with controlled
-  answers, or in E2E Test or Dashboard Backend Test where its assertion needs
-  that boundary, with each observed rule and meaningful integration proof
-  preserved. The interim group, its command and its CI producer are gone.
+- **For / why.** Developers get detailed feedback from unit tests for one
+  service and confidence in representative product workflows from end-to-end
+  tests. These are the two dashboard test layers.
+- **E2E.** Promote only the few representative workflows whose observable
+  outcome requires the real dashboard frontend and backend to work together.
+  Use an existing E2E workflow where it already proves that outcome.
+- **Unit.** Move the majority of checks into frontend or backend unit tests.
+  Exercise one service at its highest practical entry point, such as the
+  dashboard UI or a backend endpoint. Use a lower-level entry point when the
+  behavior under test is clear and the dependency is stable. Run the service's
+  real code and collaborators within its boundary. Unit tests run independently
+  of other live services. Mock only a service boundary the test needs, such as
+  the backend response needed by a frontend unit test. Split mixed specs when
+  their assertions belong at different boundaries.
+- **Evaluation.** Every distinct behavior in the interim group has a home in
+  E2E or unit proof. Remove the **Dashboard Integrated UI Test** entry from
+  current Intent and CI proof configuration, along with its npm command,
+  Playwright configuration, CI producer, and references in current tooling and
+  placement guidance. Retain shared helpers and fixtures used by the remaining
+  tests. Historical proof remains readable at the revision that produced it.
+  Compare representative cases with their previous versions to verify that the
+  simpler placement preserves the assertions that catch regressions.
 - **Inputs.** The run that split this story classified 204 detailed-UI specs
   and 59 mixed specs, with per-case splits, effort and conversion batches
   (configuration settings, launch dialog and start, sessions and terminals,
@@ -33,12 +46,19 @@ scope: story
   `.planning/slice-plans/608-product-wide-end-to-end-tests/migration-purpose.json`
   and `migration-conversion-batches.json` at commit
   `125c45649fa587c78ed7445deff35db87604489d` (also `migration-trunk-merge.json` there for specs trunk added).
-- **Boundary.** Coordinate with the queued SEED-300 page-object stories that
-  touch the same specs. Speed optimization stays out of scope.
-- **Value / learning.** Completes purpose-owned test groups; the substitute
-  answers it adds are reusable for later focused UI checks.
-- **Safe stopping point.** Each conversion batch, with its interim specs
-  removed, is complete on its own.
+- **Coordination.** Use the migration inventory as a starting point and decide
+  placement by behavior, including for specs added since that inventory. Align
+  the affected SEED-300 page-object work and the browser-group roster work with
+  the tests and runners that remain. Apply [ADR 0002 — Software development
+  lifecycle principles](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+  to keep one source of proof per rule where possible and [ADR 0008 — Project
+  dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+  to preserve the distinction between current tests and historical results.
+  Use the existing tests as the comparison baseline under [ADR 0010 —
+  Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+- **Safe stopping point.** Each migrated batch preserves its distinct checks
+  and removes the interim specs it replaces. The story is complete when the
+  interim entry and its runner are retired.
 
 <a id="observe-tagged-install-and-read-e2e-proof"></a>
 

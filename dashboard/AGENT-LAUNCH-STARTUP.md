@@ -47,11 +47,12 @@ From submission, the dialog says “Starting…” with Cancel, Start and every 
 unavailable, ignores Escape, and says “Startup is underway and can no longer be
 cancelled here.” Acceptance closes it; a refusal stays beside the action, and a
 lost answer is uncertain, never accepted. Until the start reconciles, the
-story's whole card frame is protected wherever origin lists it: no action
-button but Select story runs, including alternate launches, Inspect story and
-card session actions, while facts and source links stay readable and other cards,
-navigation, the Sessions sidebar and the terminal work. Its dashed edge joins
-the selection and “Shown in terminal” marks. Its status says the start phase
+story's whole card frame is protected wherever origin lists it. Its action
+buttons are disabled, including alternate launches, Inspect story and card
+session actions. Empty-area clicks still toggle selection, and facts and source
+links stay readable. Other cards, navigation, the Sessions sidebar and the
+terminal work. Its dashed edge joins the selection and “Shown in terminal”
+marks. Its status says the start phase
 (“Preparing execution…” / “Preparing refinement…”, then “Starting execution
 in <host>…” / “Starting refinement in <host>…”, using the actual running
 start’s host) and “Local startup in progress; this story's actions are

@@ -17,7 +17,7 @@
 import { fileBrowser } from "../../dashboard/tests/support/reviewContextLine.ts";
 import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
 import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
-import type { Locator } from "@playwright/test";
+import { showColumn } from "../../dashboard/tests/boardPage.ts";
 import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { shortRevision } from "../../dashboard/tests/dashboardParts.ts";
 import { expandIntentGroup } from "../../dashboard/tests/intentPerspectivePage.ts";
@@ -46,8 +46,8 @@ import {
 } from "../../dashboard/tests/support/changeKindStyle.ts";
 import { git } from "../../dashboard/tests/support/storyReviewWorktree.ts";
 import {
+  emptyArea,
   expectSelected,
-  selectStory,
 } from "../../dashboard/tests/storyCardSelection.ts";
 
 const gone = "dashboard/tests/gone.spec.ts";
@@ -169,23 +169,18 @@ test("Intent overlays a completed story's published history comparison, naming i
   await test.step("the done card's Review changes selects and highlights it for Intent's summary; toggling its selection clears it and leaves the review open", async () => {
     const review = reviewRegion(page);
     const { development, intentChoice } = parts(page);
-    // Beside the review the Board shows one column; the keyboard reaches the
-    // done card's controls where a pointer would land on the review. Select
-    // story runs the empty-area toggle (./story-card-selection.spec.ts).
-    const press = async (control: Locator) => {
-      await control.focus();
-      await page.keyboard.press("Enter");
-    };
     await development.click();
-    await press(selectStory(card));
+    await showColumn(page, "Recently done");
+    await emptyArea(card).click();
     await expectSelected(card, false);
-    await press(reviewChanges(card));
+    await reviewChanges(card).press("Enter");
     await expectSelected(card, true);
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expect(storyTitle(intent)).toHaveText("Story A");
     await development.click();
-    await press(selectStory(card));
+    await showColumn(page, "Recently done");
+    await emptyArea(card).click();
     await expectSelected(card, false);
     await expect(fileBrowser(review)).toBeVisible();
     await intentChoice.click();

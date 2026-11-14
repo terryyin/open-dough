@@ -4,20 +4,14 @@
 // start eligibility (`./startEligibility.ts`), dependencies, slice progress
 // on Taken work with a brief source
 // qualification, its launches (`./StoryCardLaunches.tsx`), and its inspection
-// group: Select story, which toggles the page's selected story
-// (`./pageStorySelection.tsx`) as an empty-area click does, and highlights the
-// card while it is selected; Inspect story, led by a chevron that turns while
-// the detail is open, which opens and closes this card's secondary detail
-// (`./StoryDetail.tsx`, inspection in `./pageStoryInspection.tsx`) of identity,
-// assignment records, explanations, evidence, and source links, from facts
-// already read, without changing the selection; and Review changes
-// (`./StoryReviewAction.tsx`) when offered.
-// While its story starts on this machine (`./storyStartup.ts`), none of the
-// card's actions but Select story can run, Inspect story included. Its facts
-// stay readable and its source links are shown on the card, so none waits
-// behind that unavailable action, and the
-// card and each unavailable action are described by its startup status
-// (`./protectedFrame.ts`), which the card holds the keyboard on once a
+// group. Inspect story opens and closes secondary detail (`./StoryDetail.tsx`,
+// inspection in `./pageStoryInspection.tsx`), and Review changes
+// (`./StoryReviewAction.tsx`) is shown when offered. Clicking an empty area of
+// the card toggles the page's selected story (`./pageStorySelection.tsx`).
+// While its story starts on this machine (`./storyStartup.ts`), the card's
+// action buttons are disabled. Selection, facts and source links stay
+// available. The startup status describes the card and each unavailable action
+// (`./protectedFrame.ts`). The card holds the keyboard once a
 // launch dialog hands the startup off (`./launchDialogLauncher.ts`).
 
 import { useId, useRef, type ReactNode } from "react";
@@ -44,7 +38,7 @@ import {
 } from "./startEligibility.ts";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
 import { storyCardSessionsOf } from "./agentLaunch.ts";
-import { SelectStory, toggleOnEmptyArea } from "./pageStorySelection.tsx";
+import { toggleOnEmptyArea } from "./pageStorySelection.tsx";
 import { ProtectedFrameReason } from "./protectedFrame.ts";
 
 export function StoryCard({
@@ -141,18 +135,11 @@ export function StoryCard({
           statusId={statusId}
         />
       </StartupFrame>
-      {/* Select story stays outside the startup protection. */}
       <div
         className="story-card-action-group story-card-inspection-group"
         role="group"
         aria-label="Inspection actions"
       >
-        <SelectStory
-          selected={selected}
-          onToggle={() => {
-            onSelect(entry.identity);
-          }}
-        />
         <StartupFrame reason={reason}>
           <button
             type="button"

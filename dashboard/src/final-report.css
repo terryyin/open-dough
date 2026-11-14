@@ -7,6 +7,11 @@
   overflow: auto;
 }
 
+/* Leave room for the report identity when the header also holds Sessions. */
+.page-maximized .final-report .side-panel-actions .frame-button {
+  padding-inline: var(--space-2);
+}
+
 .final-report-body {
   padding: 1rem;
   color: var(--text);

@@ -238,7 +238,6 @@ export function keepUnusableCompletedCapture(
       identity: queuedIdentity,
     })
     .comparing(comparison)
-    .receivedAt(new Date().toISOString())
     .please();
   keepLaunchRecords(dashboard, [record]);
 }

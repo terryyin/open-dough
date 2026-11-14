@@ -24,7 +24,6 @@ const kept = (source: string) =>
       source,
     })
     .inClaudeSession({ sessionId: "native-test", shortId: "native" })
-    .launchedAt("2026-10-19T00:00:00.000Z")
     .please();
 
 const working: LaunchWithState = makeMe.anObservedLaunch

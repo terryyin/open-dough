@@ -11,12 +11,10 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 const folder = { path: "/unused", shown: "unused" };
 // Two kept launches whose sessions share one native ID on different hosts.
 const story = { identity: launchRequest.identity, title: launchRequest.title };
-const launchedAt = "2026-10-01T00:00:00.000Z";
 const targets: readonly LaunchRecord[] = [
   makeMe.aLaunchRecord
     .executing(story)
     .inClaudeSession({ sessionId: "same-native-id" })
-    .launchedAt(launchedAt)
     .please(),
   makeMe.aLaunchRecord
     .executing(story)
@@ -27,7 +25,6 @@ const targets: readonly LaunchRecord[] = [
         endpoint: "/saved-endpoint",
       },
     })
-    .launchedAt(launchedAt)
     .please(),
 ];
 

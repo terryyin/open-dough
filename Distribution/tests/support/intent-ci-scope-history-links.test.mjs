@@ -13,7 +13,6 @@ for (const [linkKind, runUrl] of [
       const landing = makeMe.aLaunchLanding
         .comparing({ base: "0".repeat(40), revision: "a".repeat(40) })
         .deliveredAs({ delivery: "measured", receipt: "measured" })
-        .receivedAt("2026-11-05T10:00:00Z")
         .please();
       const identity =
         identityKind === "native"
@@ -88,7 +87,6 @@ for (const [linkKind, runUrl] of [
       const landing = makeMe.aLaunchLanding
         .comparing({ base: "0".repeat(40), revision: "b".repeat(40) })
         .deliveredAs({ delivery: "pending", receipt: "pending" })
-        .receivedAt("2026-11-05T11:00:00Z")
         .please();
       const identity =
         identityKind === "native"

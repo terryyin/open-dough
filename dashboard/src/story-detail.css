@@ -1,7 +1,6 @@
 /* Inspect story leads with its quiet disclosure chevron
    (./frame-controls.css) at the labelled-button icon size. */
-.inspect-story,
-.select-story {
+.inspect-story {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -19,24 +18,18 @@
   height: var(--label-icon-size);
 }
 
-.inspect-story:disabled,
-.select-story:disabled {
+.inspect-story:disabled {
   color: var(--quiet);
   border-color: var(--line);
   cursor: default;
 }
 
 @media (any-pointer: coarse) {
-  .inspect-story,
-  .select-story {
+  .inspect-story {
     box-sizing: border-box;
     min-width: var(--control-size);
     min-height: var(--control-size);
   }
-}
-
-.select-story[aria-pressed="true"] {
-  background: var(--accent-soft);
 }
 
 .story-detail {

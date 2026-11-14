@@ -139,7 +139,6 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
   };
   attempt.completion = makeMe.aCompletionReport
     .withOutcome("unfinished")
-    .receivedAt(new Date().toISOString())
     .please();
   const staleWorkspace = path.join(
     dashboard.home,

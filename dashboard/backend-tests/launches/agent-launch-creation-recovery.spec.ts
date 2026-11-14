@@ -18,7 +18,6 @@ const record = makeMe.aCreationRecord
     workspace: "/saved space's workspace",
     endpoint: "unix:///saved socket",
   })
-  .launchedAt("2026-10-01T00:00:00.000Z")
   .please();
 
 test("declared stand-in evidence gates and projects its own safely quoted recovery through GET parsing", () => {

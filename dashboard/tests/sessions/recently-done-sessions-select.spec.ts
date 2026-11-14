@@ -16,6 +16,7 @@ import { parts } from "../dashboardPage.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import { expandIntentGroup } from "../intentPerspectivePage.ts";
 import { box } from "../pageLayout.ts";
+import { showColumn } from "../boardPage.ts";
 import { closeTerminal, terminalPanel } from "../terminalScreenPage.ts";
 import {
   adHoc,
@@ -30,7 +31,7 @@ import {
 import { showReport } from "../recentlyDoneSelectionReport.ts";
 import { pygardonCatalogRead } from "../pygardonCatalogReads.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { expectSelected, selectStory } from "../storyCardSelection.ts";
+import { emptyArea, expectSelected } from "../storyCardSelection.ts";
 import {
   chooseStoryTab,
   intentFile,
@@ -156,10 +157,8 @@ test("selecting standalone rows from Intent keeps the project, file, Selected st
   const { taken, intentChoice, intent } = parts(page);
   const opened = await showReport(page, shown);
   const card = taken.getByRole("article", { name: openDoughTaken.title });
-  // Beside the sidebar and the report the keyboard reaches the card's Select
-  // story where a pointer would land on the sidebar.
-  await selectStory(card).focus();
-  await page.keyboard.press("Enter");
+  await showColumn(page, "Taken");
+  await emptyArea(card).click();
   await expectSelected(card, true);
   await intentChoice.click();
   await chooseStoryTab(intent, "Changed tests");

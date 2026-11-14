@@ -1,6 +1,6 @@
 // Selection and inspection are separate on active and Recently done cards:
-// Select story (pointer or keyboard) and empty-area clicks toggle the selected
-// story's highlight without opening or closing detail; Inspect story opens and
+// Empty-area clicks toggle the selected story's highlight without opening or
+// closing detail. Inspect story opens and
 // closes only its card's detail and leaves the selection alone; nested
 // controls do not select; showing an ad hoc session clears the selection;
 // selection survives Intent without a "Selected story only" toggle. Several
@@ -32,12 +32,11 @@ import {
   emptyArea,
   expectInspected,
   expectSelected,
-  selectStory,
   storyDetail,
 } from "../storyCardSelection.ts";
 import { hideDetail, storyCard } from "../storyCardControls.ts";
 
-test("Select story and empty-area clicks toggle the selected story on active and Recently done cards without opening or closing detail, and nested controls do not select", async ({
+test("empty-area clicks toggle the selected story on active and Recently done cards without opening or closing detail, and nested controls do not select", async ({
   page,
   dashboard,
 }) => {
@@ -109,16 +108,6 @@ test("Select story and empty-area clicks toggle the selected story on active and
     await expectSelected(active, false);
   });
 
-  await test.step("Enter and Space on Select story toggle a Backlog card without detail", async () => {
-    await selectStory(active).focus();
-    await page.keyboard.press("Enter");
-    await expectSelected(active, true);
-    await expectInspected(active, false);
-    await page.keyboard.press("Space");
-    await expectSelected(active, false);
-    await expectInspected(active, false);
-  });
-
   await test.step("disabled Start does not change selection", async () => {
     await activeEmptyArea.click();
     await expectSelected(active, true);
@@ -158,23 +147,6 @@ test("Select story and empty-area clicks toggle the selected story on active and
     await session.click();
     await expectSelected(done, true);
     await expect(storyDetail(done)).toHaveCount(0);
-  });
-
-  await test.step("Recently done Select story toggles once by pointer and keyboard", async () => {
-    const select = selectStory(done);
-    await expect(select).toHaveAttribute("aria-pressed", "true");
-    await select.click();
-    await expectSelected(done, false);
-    await expect(select).toHaveAttribute("aria-pressed", "false");
-    await select.focus();
-    await page.keyboard.press("Enter");
-    await expectSelected(done, true);
-    await expect(select).toHaveAttribute("aria-pressed", "true");
-    await page.keyboard.press("Space");
-    await expectSelected(done, false);
-    await expect(select).toHaveAttribute("aria-pressed", "false");
-    await select.click();
-    await expectSelected(done, true);
   });
 
   await test.step("selection survives Intent and clears with no Selected story only toggle", async () => {

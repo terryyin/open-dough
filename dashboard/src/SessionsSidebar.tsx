@@ -2,7 +2,7 @@ import { sessionKey } from "./sessionReference.ts";
 // Sessions sidebar: open local sessions across catalog projects, attention
 // first, then other sessions (openSessionsOf). Entries show title/age, native
 // state, unread-report marks, tooltips and coarse-input details. Unavailable
-// macOS alerts are explained only while open. The banner Sessions button and
+// macOS alerts are explained only while open. The Sessions button and
 // Command+B toggle it with attentionCount (unread reports alone add none);
 // while closed, workingCount joins that badge ahead of attention.
 // Dialogs keep their keyboard; otherwise the shortcut takes the browser key.
@@ -51,7 +51,8 @@ import { useHostStatus } from "./hostStatusReads.ts";
 import { keep, readKept } from "./keptPreference.ts";
 import { useCommandShortcut } from "./pageShortcuts.ts";
 import {
-  sessionsButton,
+  bannerSessionsButton,
+  shownSessionsButton,
   sessionsSidebarId,
 } from "./sessionsSidebarElements.ts";
 import {
@@ -77,8 +78,7 @@ const keepSessionsSidebarOpen = (open: boolean) => {
 const toggleShortcut = { key: "b" } as const;
 
 // Whether the sidebar is open, and the machine's sessions it lists: held by
-// the page frame (`./PageFrame.tsx`), which places the sidebar, and
-// reached by the banner's Sessions button.
+// the page frame (`./PageFrame.tsx`) and reached by the Sessions button.
 export type SessionsSidebarState = {
   readonly open: boolean;
   readonly toggle: () => void;
@@ -119,7 +119,7 @@ export function useSessionsSidebar(
   const toggle = useCallback(() => {
     const sidebar = document.getElementById(sessionsSidebarId);
     if (isOpen.current && sidebar?.contains(document.activeElement)) {
-      sessionsButton()?.focus();
+      shownSessionsButton()?.focus();
     }
     isOpen.current = !isOpen.current;
     setOpen(isOpen.current);
@@ -134,7 +134,7 @@ export function useSessionsSidebar(
       return undefined;
     }
     toggle();
-    return sessionsButton() ?? undefined;
+    return bannerSessionsButton() ?? undefined;
   };
   useCommandShortcut(toggleShortcut, toggle);
   return { open, toggle, closeOverPage, records, alerts };

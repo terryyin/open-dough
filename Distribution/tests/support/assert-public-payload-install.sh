@@ -124,7 +124,9 @@ incomplete_source="${temporary_dir}/incomplete source"
 missing_index=$((${#managed_files[@]} - 1))
 missing_managed_file=${managed_files[missing_index]}
 mkdir -p -- "${incomplete_source}/Distribution/src/skills"
+mkdir -p -- "${incomplete_source}/src/install"
 cp -- "${source_dir}/install.sh" "${incomplete_source}/install.sh"
+cp -- "${source_dir}/src/install/open-dough-execution-payload.sh" "${incomplete_source}/src/install/"
 cp -- "${source_dir}/VERSION" "${incomplete_source}/VERSION"
 cp -- "${source_dir}/CHANGELOG.md" "${incomplete_source}/CHANGELOG.md"
 cp -R -- "${source_dir}/Distribution/src/install" "${incomplete_source}/Distribution/src/install"
