@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-346#reuse-native-comparison-baselines",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
