@@ -152,7 +152,7 @@ export function RecentlyDoneSessions({
         >
           <SessionList
             sessions={sessions}
-            none="No sessions marked done are kept."
+            none="No sessions marked done are listed."
           >
             {(listed) => (
               <ol

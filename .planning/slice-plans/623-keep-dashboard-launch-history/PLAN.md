@@ -2,6 +2,7 @@
 
 **Identity:** SEED-358#keep-dashboard-launch-history
 **Source:** [selected story](../../seeds/SEED-358-dashboard-launch-history.md#keep-dashboard-launch-history)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -81,7 +82,7 @@ those two specs use.
 
 ### 1. Aged-out launch records move into launch history
 Type: Behavior
-Status: planned
+Status: done
 Proof: `launch-history.spec.ts`: the 31-day, 29-day and failed-append examples
 pass. `agent-launch-records.spec.ts`, `agent-launch-retention-scope.spec.ts` and
 `recently-done-sessions-sidebar.spec.ts` stay green with the updated wording.
@@ -129,3 +130,53 @@ removal answers the existing failure and keeps the record.
   [Failing and flaky tests](../../../AGENTS.md#failing-and-flaky-tests) as
   written. A failing or flaky test is a defect to fix, and reproducing a
   failure on main is attribution, not an exemption.
+
+## Execution context
+
+- Retained published base: `9d1d5b28036faf193d79c9ec35d3c2d3526e457b` on `origin/main`.
+- Replanning permission: preserve existing planning authority.
+
+## Learnings
+
+- `recently-done-sessions-sidebar.spec.ts` is owned by
+  `dashboard/integrated.playwright.config.ts`, not the frontend config the
+  plan's local-gate line named.
+- Slice 1 wires `removed` detection in `replaceRecords` for the shared append
+  rule; slice 2 still owns removal proof and unwritable-removal refusal.
+
+## Accepted proof (slice 1)
+
+- Backend:
+  `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/sessions/launch-history.spec.ts dashboard/backend-tests/launches/agent-launch-records.spec.ts dashboard/backend-tests/sessions/agent-launch-retention-scope.spec.ts --reporter=list`
+  (implementation pass 7/7; coordinator reconfirmed `launch-history.spec.ts` 2/2).
+- Integrated:
+  `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/integrated.playwright.config.ts dashboard/tests/sessions/recently-done-sessions-sidebar.spec.ts --reporter=list`
+  (pass 2/2).
+- Refactor: none — already clean.
+
+
+## Story obligations
+
+### G1. No history view
+Reported: slice 1 — "Scope limits: no history view"
+Story clause: "Scope limits: no history view"
+Disposition: excluded "Scope limits: no history view"
+Commitment: 12a.1
+
+
+### G2. No token usage
+Reported: slice 1 — "no token usage"
+Story clause: "no token usage"
+Disposition: excluded "no token usage"
+Commitment: 12a.2
+
+### G3. No recovery of already-pruned records
+Reported: slice 1 — "and no recovery of records already pruned before delivery; the [reconstruction story](#reconstruct-codex-and-claude-code-usage-history) owns the last two."
+Story clause: "and no recovery of records already pruned before delivery; the [reconstruction story](#reconstruct-codex-and-claude-code-usage-history) owns the last two."
+Disposition: excluded "and no recovery of records already pruned before delivery; the [reconstruction story](#reconstruct-codex-and-claude-code-usage-history) owns the last two."
+Commitment: 12a.3
+### G4. Other dashboard files keep their own retention
+Reported: slice 1 — "Temporary launch attempts, landing retries, and other dashboard files keep their own retention."
+Story clause: "Temporary launch attempts, landing retries, and other dashboard files keep their own retention."
+Disposition: excluded "Temporary launch attempts, landing retries, and other dashboard files keep their own retention."
+Commitment: 13
