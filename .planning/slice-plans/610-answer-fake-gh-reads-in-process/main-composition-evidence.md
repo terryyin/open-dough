@@ -97,9 +97,28 @@ inventory now has136clauses (original134plus056.1/056.2), distinct from136old
 controlled cases or142current discovered cases. No journey/assertion/native
 history/isolation promise is removed, and no new causal benchmark is invented.
 
-Current composed sixteen-shard CI has not been observed. PLAN610 G18 owns
+Current composed sixteen-shard CI was observed at2d02df0f: run43552606318/attempt1 failed only integrated3/5, revision-stream.spec.ts138 other-page progress169. The complete failed-job diagnostic is `/tmp/seed332-final-ci-failure.json`; root owns the repair and renewed exact CI. PLAN610 G18 owns
 clause060, `require the changed suite to pass`, in slice2. All17original gaps
 remain proved; slice2 stays planned. Root may publish ordinary unfinished
 progress, then owns exact applicable CI and repair through terminal. Historical
 13-shard measurements keep exact265635d9/run43542287307/attempt1 attribution;
 they do not close G18. No completion, wrap-up or current hosted success is claimed.
+
+## Owned revision-stream CI repair
+
+Exact failed attempt43552606318/1 has one failed job, integrated3/5. Its
+trace records both page clock calls as the same BrowserContext clock: two
+15000ms jumps. The second page's moved-head HTTP read began03:39:34.044 and
+aborted64ms later when the second jump expired the30s read deadline. This is
+artificial double advancement while a real read is pending, not a slow matcher.
+
+Only revision-stream.spec.ts changes: advance once for both tabs in each of
+the two affected scenarios and observe the second tab's one-pace page time.
+All original progress, exact-read and other-page assertions remain. The added
+observation fails the original double advance (expected1790240415000, observed
+1790240430000); corrected whole five-case family passes all15attempts across
+three predetermined repeats, retry0/default30s/two workers,41127.096ms total,
+max10313ms. Actual proof and audit: `/tmp/seed332-revision-stream-repair/`.
+AC100%, no Sleep/Wake11:48:02-11:49:34, both owned PIDs absent; targeted ESLint,
+Prettier and whitespace pass. File249lines; no product/helper/timeout change.
+This accepted local repair still needs a newly published exact CI pass forG18.

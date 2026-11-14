@@ -226,7 +226,7 @@ Disposition: proved by slice 2: controlled-conclusion-evidence.md — actual con
 
 
 ### G18. Accepted main composition still requires current sixteen-shard CI
-Reported: slice 2 — "Accepted SEED334 on main0dd89b9ce changes the applicable profile to E2E6/integrated5/frontend1/backend4. Receiving backend59/E2E26 and3Node contracts pass, but no hosted result for the composed current sixteen-shard revision has been observed; historical13CI cannot substitute."
+Reported: slice 2 — "Accepted SEED334 on main0dd89b9ce changes the applicable profile to E2E6/integrated5/frontend1/backend4. Receiving backend59/E2E26 and3Node contracts pass, but no hosted result for the composed current sixteen-shard revision has been observed; historical13CI cannot substitute. Published2d02df0f/run43552606318/attempt1 failed only integrated3/5: revision-stream.spec.ts138, other-page seven-of-eight assertion169 missing; root owns diagnosis/repair and exact final CI."
 Story clause: "require the changed suite to pass"
 Disposition: return
 Commitment: 060
