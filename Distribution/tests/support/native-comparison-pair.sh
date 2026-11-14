@@ -28,12 +28,18 @@ source "${native_comparison_pair_dir}/native-comparison-run.sh"
 source "${native_comparison_pair_dir}/native-comparison-pair-observe.sh"
 source "${native_comparison_pair_dir}/native-comparison-verdict.sh"
 source "${native_comparison_pair_dir}/native-comparison-basis.sh"
+source "${native_comparison_pair_dir}/native-comparison-baseline-acquisition.sh"
 
 native_comparison_pair_inputs=(
   Distribution/tests/support/native-comparison-pair.sh
   Distribution/tests/support/native-comparison-pair-observe.sh
   Distribution/tests/support/native-comparison-verdict.sh
   Distribution/tests/support/native-comparison-basis.sh
+  Distribution/tests/support/native-comparison-baseline-acquisition.sh
+  Distribution/tests/support/native-comparison-baseline-acquisition.mjs
+  Distribution/tests/support/native-comparison-baseline-applicability.mjs
+  Distribution/tests/support/native-comparison-baseline-projection.mjs
+  Distribution/tests/support/native-comparison-settings.mjs
 )
 
 native_comparison_pair_attempt=
@@ -86,7 +92,7 @@ native_comparison_pair() {
   native_comparison_pair_attempt=
   # The case basis both arms must run: its files and the runner's inputs,
   # committed, so the record can name the commit that holds them.
-  native_comparison_case_files "${source_dir}" "${case_name}"
+  native_comparison_case_files "${source_dir}" "${case_name}" || return 2
   native_comparison_pair_basis_revision=$(native_comparison_basis_commit "${source_dir}" \
     "Distribution/tests/native-comparison/${case_name}" "${case_files[@]}" "${native_comparison_inputs[@]}" \
     "${native_run_supervision_inputs[@]}" "${native_comparison_pair_inputs[@]}") || return
@@ -108,7 +114,10 @@ native_comparison_pair() {
   mkdir -p -- "${dest}/case-basis"
   (cd -- "${source_dir}" && tar -cf - "${case_files[@]}") | tar -xf - -C "${dest}/case-basis"
   native_comparison_pair_declare "${case_name}" "${source_dir}" "${work}" > "${dest}/record"
-  if [[ ${native_comparison_pair_arms} == concurrent ]]; then
+  native_comparison_baseline_acquire "${case_name}" "${source_dir}" "${work}" "${dest}"
+  if [[ ${native_comparison_baseline_reused} == true ]]; then
+    native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" candidate
+  elif [[ ${native_comparison_pair_arms} == concurrent ]]; then
     native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" baseline &
     native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" candidate &
     wait
@@ -128,6 +137,7 @@ native_comparison_pair() {
       printf '%s: %s\n' "${condition}" "$(native_comparison_pair_match "${work}" "${condition}")"
     done
   } > "${observations}"
+  native_comparison_baseline_finish
   native_comparison_judge "${observations}"
   native_comparison_pair_report "${work}" "${source_dir}" "${results_dir}" "${observations}" >> "${dest}/record"
 }
@@ -147,8 +157,7 @@ native_comparison_pair_declare() {
   printf 'host: codex\n'
   printf 'requested-settings: %s\n' "${native_codex_settings[*]:-host defaults}"
   printf 'arms: %s\n' "${native_comparison_pair_arms}"
-  printf 'machine: %s, %s cores, %s\n' "$(uname -sm)" "$(getconf _NPROCESSORS_ONLN)" \
-    "$(pmset -g batt 2> /dev/null | sed -n "1s/^Now drawing from '\(.*\)'$/\1/p" | grep . || echo 'power unknown')"
+  printf 'machine: %s\n' "$(native_comparison_machine)"
   sed 's/^input-hash:/case-input-hash:/' "${work}/basis"
   native_result_input_hash_lines "${native_comparison_pair_inputs[@]}"
 }
@@ -181,6 +190,7 @@ native_comparison_pair_report() {
     done
     printf '%s-proof: %s\n' "${arm}" "${proof[*]:-none}"
   done
+  cat -- "${native_comparison_pair_attempt}/baseline-acquisition.txt"
   # Only the Codex runtime in the harness sandbox is native evidence.
   routes=$(awk '$1 ~ /^(baseline|candidate)-route:$/ { printf "%s%s", n++ ? " " : "", $2 }' "${observations}")
   if [[ ${routes} == 'native native' ]]; then
@@ -189,7 +199,7 @@ native_comparison_pair_report() {
     printf 'evidence: not native (baseline and candidate routes: %s): a substitute host proves the runner, observer and judge only, never native behavior\n' "${routes}"
   fi
   printf 'verdict: %s\nverdict-reason: %s\n' "${native_comparison_verdict_outcome}" "${native_comparison_verdict_reason}"
-  grep -E '^(basis|project-basis|host|settings|events): ' "${observations}" | sed 's/^/condition-/'
+  grep -E '^(basis|project-basis|host|settings|events|criteria): ' "${observations}" | sed 's/^/condition-/'
   native_comparison_verdict_effort "${observations}"
   native_comparison_verdict_unknowns "${observations}"
   native_comparison_verdict_recovery "${observations}"

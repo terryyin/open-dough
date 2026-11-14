@@ -2,5 +2,7 @@ node_modules/
 dist/
 coverage/
 .planning/
+# Kept comparison evidence is immutable, including compact baseline JSON.
+Distribution/tests/native-comparison/*/comparisons/
 **/dough-execute-plan/scripts/test-entry-rules-runtime.mjs
 **/dough-makeme/scripts/minimatch.bundle.mjs

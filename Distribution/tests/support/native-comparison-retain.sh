@@ -9,8 +9,8 @@
 # never native behavior evidence.
 #
 #   native_comparison_case_files SOURCE_DIR CASE
-#     Sets case_files to every file of CASE the agent, controller or assessor
-#     reads, relative to SOURCE_DIR.
+#     Sets case_files to CASE files and declared shared-inputs read by its
+#     agent, controller or assessor, relative to SOURCE_DIR.
 #   native_comparison_retain CASE SOURCE_DIR RESULTS_DIR ROOT PROMPT WAKE
 #     Retains the attempt the runner's controller holds; leaves
 #     native_result_attempt_dir.
@@ -19,8 +19,28 @@
 # case.md only describes the case and comparisons/ holds reports about it, so
 # recording a measurement or a comparison there keeps the case's identity.
 native_comparison_case_files() {
-  mapfile -t case_files < <(cd -- "$1" && find "Distribution/tests/native-comparison/$2" -type f \
-    ! -name case.md ! -path '*/comparisons/*' | LC_ALL=C sort)
+  local source_dir=$1 case_path="Distribution/tests/native-comparison/$2" input
+  local paths=("${case_path}")
+  case_files=()
+  if [[ -f ${source_dir}/${case_path}/shared-inputs ]]; then
+    while IFS= read -r input; do
+      [[ -n ${input} && ${input} != '#'* ]] || continue
+      if [[ ${input} == /* || ${input} == .. || ${input} == ../* || ${input} == */../* ||
+        ! -e ${source_dir}/${input} ]]; then
+        printf 'error: missing or invalid shared case input: %s\n' "${input}" >&2
+        return 1
+      fi
+      paths+=("${input}")
+    done < "${source_dir}/${case_path}/shared-inputs"
+  fi
+  mapfile -t case_files < <(cd -- "${source_dir}" && find "${paths[@]}" -type f \
+    ! -name case.md ! -path '*/comparisons/*' | LC_ALL=C sort -u)
+}
+
+# The machine conditions recorded for an arm and compared before acquisition.
+native_comparison_machine() {
+  printf '%s, %s cores, %s\n' "$(uname -sm)" "$(getconf _NPROCESSORS_ONLN)" \
+    "$(pmset -g batt 2> /dev/null | sed -n "1s/^Now drawing from '\(.*\)'$/\1/p" | grep . || echo 'power unknown')"
 }
 
 native_comparison_retain() {
@@ -43,12 +63,14 @@ native_comparison_retain() {
     git -C "${root}/workspace" log --first-parent --name-status "${native_comparison_basis_head}..HEAD"
     git -C "${root}/workspace" log -p "${native_comparison_basis_head}..HEAD" -- . ':!.agents' ':!.claude'
   } > "${dest}/final-state.txt" 2>&1
-  native_comparison_case_files "${source_dir}" "${case_name}"
+  native_comparison_case_files "${source_dir}" "${case_name}" || return
   {
     printf 'host: codex\ncase: native-comparison/%s\norigin: fresh\n' "${case_name}"
     printf 'host-route: %s\n' "$( ((${native_codex_isolate:-0})) && echo native || echo substitute)"
     printf 'native-executable: %s\n' "$(command -v codex)"
     printf 'native-version: %s\n' "${tool_version:-unknown}"
+    printf 'observed-at: %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    printf 'machine: %s\n' "$(native_comparison_machine)"
     printf 'native-requested-settings: %s\n' "${native_codex_settings[*]:-host defaults}"
     native_comparison_retain_sessions "${source_dir}" "${dest}"
     printf 'thread: %s\n' "${native_comparison_thread:-unknown}"

@@ -118,7 +118,8 @@ jobs:
       command: test:dashboard:integrated
       settings: OPEN_DOUGH_DASHBOARD_INTEGRATED
       root: dashboard/tests
-      shards: "[1, 2, 3, 4]"
+      # Capacity repair and the current 18-job layout: dashboard/tests/shards.md.
+      shards: "[1, 2, 3, 4, 5]"
   dashboard-frontend:
     uses: ./.github/workflows/browser-test-group.yml
     with:
@@ -160,5 +161,5 @@ jobs:
       - name: Summarize CI proof
         uses: ./.github/actions/ci-proof-summary
         with:
-          expect: e2e=5:case dashboard/tests=4:case dashboard/frontend-tests=1:case dashboard/backend-tests=3:case Distribution=3:file
+          expect: e2e=5:case dashboard/tests=5:case dashboard/frontend-tests=1:case dashboard/backend-tests=3:case Distribution=3:file
           frontend-entry: dashboard/frontend-tests

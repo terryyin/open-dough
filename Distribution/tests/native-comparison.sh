@@ -9,7 +9,13 @@
 #   Distribution/tests/native-comparison.sh --native codex --case NAME [--results-dir DIR]
 #     [--model MODEL] [--effort EFFORT] [--deadline SECONDS]
 #   Distribution/tests/native-comparison.sh --native codex --case NAME --baseline REV
+#     --save-baseline FILE [--payload-repo DIR] [--model MODEL] [--effort EFFORT]
+#   Distribution/tests/native-comparison.sh --export-baseline ATTEMPT --save-baseline FILE
+#     [--arm baseline|candidate]
+#   Distribution/tests/native-comparison.sh --assess-baseline FILE
+#   Distribution/tests/native-comparison.sh --native codex --case NAME --baseline REV
 #     --candidate REV --factor TEXT --gain TEXT --quality TEXT
+#     [--reuse-baseline FILE] [--fresh-pair] [--require-usage]
 #     [--arms concurrent|sequential] [--payload-repo DIR] [--results-dir DIR]
 #     [--model MODEL] [--effort EFFORT] [--deadline SECONDS]
 #   Distribution/tests/native-comparison.sh --recover RECORD [--payload-repo DIR]
@@ -21,7 +27,8 @@
 # --baseline and --candidate, a paid pair: both revisions of --payload-repo
 # (default this checkout) are frozen as commits, the factor under test, its
 # intended gain and the quality criteria are recorded before either arm
-# starts, and both arms run (concurrently by default) in fresh projects of one
+# starts. Saved sufficient evidence can replace a baseline session; otherwise
+# both arms run (concurrently by default) in fresh projects of one
 # case basis with the same model and effort (default gpt-6.1-sol, xhigh, as
 # the cases' source sessions ran; a turn's deadline defaults to 2400
 # seconds). The pair's record is judged outcome first and printed; the
@@ -63,6 +70,7 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 source "${source_dir}/Distribution/tests/support/native-comparison-pair.sh"
 source "${source_dir}/Distribution/tests/support/native-comparison-catalog.sh"
 source "${source_dir}/Distribution/tests/support/native-comparison-preflight.sh"
+source "${source_dir}/Distribution/tests/support/native-comparison-baseline.sh"
 
 # Prints the Usage block of this header.
 usage() {
@@ -71,44 +79,34 @@ usage() {
   exit 2
 }
 
-host='' case_name='' results_dir='' model=gpt-6.1-sol effort=xhigh deadline=2400 list=false recover=''
-where=() native_comparison_pair_baseline='' native_comparison_pair_candidate=''
-native_comparison_pair_factor='' native_comparison_pair_gain='' native_comparison_pair_quality=''
-native_comparison_pair_arms=concurrent native_comparison_pair_repository=${source_dir}
-while (($#)); do
-  case $1 in
-    --list) list=true && shift && continue ;;
-    --native | --case | --results-dir | --model | --effort | --deadline | --where | --baseline | \
-      --candidate | --factor | --gain | --quality | --arms | --payload-repo | --recover)
-      [[ $# -ge 2 && -n $2 ]] || usage
-      ;;
-    *) usage ;;
-  esac
-  case $1 in
-    --native) host=$2 ;;
-    --case) case_name=$2 ;;
-    --results-dir) results_dir=$2 ;;
-    --model) model=$2 ;;
-    --effort) effort=$2 ;;
-    --deadline) deadline=$2 ;;
-    --where) where+=("$2") ;;
-    --baseline) native_comparison_pair_baseline=$2 ;;
-    --candidate) native_comparison_pair_candidate=$2 ;;
-    --factor) native_comparison_pair_factor=$2 ;;
-    --gain) native_comparison_pair_gain=$2 ;;
-    --quality) native_comparison_pair_quality=$2 ;;
-    --arms) native_comparison_pair_arms=$2 ;;
-    --payload-repo) native_comparison_pair_repository=$2 ;;
-    --recover) recover=$2 ;;
-  esac
-  shift 2
-done
-# Any pair option selects pair mode.
-pair_options=${native_comparison_pair_baseline}${native_comparison_pair_candidate}
-pair_options+=${native_comparison_pair_factor}${native_comparison_pair_gain}${native_comparison_pair_quality}
+source "${source_dir}/Distribution/tests/support/native-comparison-options.sh"
+
+if [[ -n ${reuse_baseline} || ${fresh_pair} == true || ${require_usage} == true ]]; then
+  [[ -n ${host}${native_comparison_pair_candidate} && -n ${native_comparison_pair_candidate} ]] || usage
+fi
+
+if [[ -n ${export_baseline}${assess_baseline} ]]; then
+  [[ -z ${host}${case_name}${results_dir}${pair_options}${recover} && ${list} == false && ${#where[@]} -eq 0 ]] || usage
+  [[ ${baseline_arm} =~ ^(baseline|candidate)$ ]] || usage
+  work=$(mktemp -d)
+  trap 'rm -rf -- "${work}"' EXIT
+  if [[ -n ${export_baseline} ]]; then
+    [[ -n ${save_baseline} && -z ${assess_baseline} ]] || usage
+    native_comparison_baseline_export "${export_baseline}" "${save_baseline}"
+  else
+    [[ -z ${save_baseline} ]] || usage
+    native_comparison_baseline_assess "${assess_baseline}"
+  fi
+  exit
+fi
+frozen_baseline=false
+if [[ -n ${native_comparison_pair_baseline} && -z ${native_comparison_pair_candidate}${native_comparison_pair_factor}${native_comparison_pair_gain}${native_comparison_pair_quality} ]]; then
+  [[ -n ${save_baseline} ]] || usage
+  frozen_baseline=true
+fi
 
 if [[ -n ${recover} ]]; then
-  [[ -z ${host}${case_name}${results_dir}${pair_options} && ${list} == false && -f ${recover} ]] || usage
+  [[ -z ${host}${case_name}${results_dir}${pair_options}${save_baseline} && ${list} == false && -f ${recover} ]] || usage
   source "${source_dir}/Distribution/tests/support/native-comparison-basis-verdict.sh"
   work=$(mktemp -d)
   trap 'rm -rf -- "${work}"' EXIT
@@ -124,20 +122,28 @@ if [[ -n ${recover} ]]; then
   exit
 fi
 if [[ ${list} == true ]]; then
-  [[ -z ${host}${case_name}${results_dir}${pair_options} ]] || usage
+  [[ -z ${host}${case_name}${results_dir}${pair_options}${save_baseline} ]] || usage
   native_comparison_catalog "${source_dir}" "${where[@]}"
   exit
 fi
 if [[ -n ${host} ]]; then
   [[ -n ${case_name} && ${deadline} =~ ^[1-9][0-9]*$ && ${#where[@]} -eq 0 ]] || usage
+  [[ -z ${save_baseline} || -n ${native_comparison_pair_baseline} ]] || usage
   pair=()
-  if [[ -n ${pair_options} ]]; then
+  if [[ -n ${pair_options} && ${frozen_baseline} == false ]]; then
     [[ -n ${native_comparison_pair_baseline} && -n ${native_comparison_pair_candidate} &&
       -n ${native_comparison_pair_factor} && -n ${native_comparison_pair_gain} &&
       -n ${native_comparison_pair_quality} && ${native_comparison_pair_arms} =~ ^(concurrent|sequential)$ ]] || usage
     pair=("${native_comparison_pair_repository}" "${native_comparison_pair_baseline}"
       "${native_comparison_pair_candidate}")
+  elif [[ ${frozen_baseline} == true ]]; then
+    pair=("${native_comparison_pair_repository}" "${native_comparison_pair_baseline}" "${native_comparison_pair_baseline}")
   fi
+  [[ -z ${save_baseline} || ! -e ${save_baseline} ]] || {
+    echo 'error: refusing to overwrite an existing baseline observation' >&2
+    exit 2
+  }
+  [[ -z ${save_baseline} ]] || mkdir -p -- "$(dirname -- "${save_baseline}")"
   # Under TMPDIR, which a plain `mktemp -d` ignores on macOS: arms live here,
   # under a name that does not point the agent at this harness.
   work=$(mktemp -d "${TMPDIR:-/tmp}/tmp.XXXXXXXXXX")
@@ -148,22 +154,34 @@ if [[ -n ${host} ]]; then
   native_case_deadline=${deadline}
   native_codex_settings=(-m "${model}" -c "model_reasoning_effort=\"${effort}\"")
   status=0
-  if [[ -z ${pair_options} ]]; then
-    native_comparison_run_case "${case_name}" "${source_dir}" "${work}" \
+  if [[ -z ${pair_options} || ${frozen_baseline} == true ]]; then
+    journey=native_comparison_run_case
+    [[ ${frozen_baseline} == false ]] || journey=native_comparison_baseline_capture
+    "${journey}" "${case_name}" "${source_dir}" "${work}" \
       "${native_case_results_dir}" || status=$?
+    [[ -f ${work}/observations.txt ]] || exit "${status}"
     cat -- "${work}/observations.txt"
     printf 'result-path: %s\n' "${native_comparison_attempt:-none retained}"
+    [[ -z ${save_baseline} || -z ${native_comparison_attempt} ]] || native_comparison_baseline_export "${native_comparison_attempt}" "${save_baseline}"
     exit "${status}"
   fi
   native_comparison_pair "${case_name}" "${source_dir}" "${work}" "${native_case_results_dir}" || exit 2
   cat -- "${native_comparison_pair_attempt}/record"
   printf 'result-path: %s\n' "${native_comparison_pair_attempt}"
+  if [[ -n ${save_baseline} ]]; then
+    if [[ ${native_comparison_baseline_reused} == true && ${baseline_arm} == baseline ]]; then
+      node -e 'const f=require("node:fs");f.copyFileSync(process.argv[1],process.argv[2],f.constants.COPYFILE_EXCL)' "${reuse_baseline}" "${save_baseline}"
+      printf 'saved-baseline: %s\n' "${save_baseline}"
+    else
+      native_comparison_baseline_export "${native_comparison_pair_attempt}" "${save_baseline}"
+    fi
+  fi
   case ${native_comparison_verdict_outcome} in
     incomplete | not-comparable) exit 1 ;;
     *) exit 0 ;;
   esac
 fi
-[[ -z ${case_name}${results_dir}${pair_options} && ${#where[@]} -eq 0 ]] || usage
+[[ -z ${case_name}${results_dir}${pair_options}${save_baseline} && ${#where[@]} -eq 0 ]] || usage
 
 work=$(mktemp -d)
 trap 'rm -rf -- "${work}"' EXIT
