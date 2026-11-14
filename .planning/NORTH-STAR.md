@@ -217,29 +217,6 @@ Rules that keep later stories additive:
 Retire this topic when the sibling stories have delivered their rows and the
 code and tests carry it; keep any lasting rule in `dashboard/AGENT-LAUNCH.md`.
 
-## Versioned native comparison cases
-
-For [native comparisons](seeds/SEED-346-native-ab-comparisons.md#run-native-ab-comparisons-on-real-work),
-retain small examples from real work in maintenance sources, with source
-provenance, setup, neutral task and a separate assessor. Keep case/project
-state and each Open Dough payload independently identified; fresh disposable
-arm projects share the same case basis and recorded runtime conditions. Use
-ordinary Git revisions to refresh cases and recover earlier comparison bases.
-Reuse suitable existing native payload installation, host supervision, stream
-views and retention; do not inherit unrelated fixture-family or dashboard
-launch lifecycles. Keep expectations outside the agent workspace and leave
-retained-session accounting with its existing owner. A compact comparison
-basis records outcome/proof before effort, with incomplete runs and unavailable
-measurements explicit. Spent raw artifacts follow ADR 0005 cleanup.
-
-The SEED-324 pause and Doughnut SEED-122 replay supply real decisions and proof,
-but extraction fidelity and native duration remain hypotheses for early
-qualification. A controlled flag or scripted proof must not remove the judgment
-being evaluated. This direction serves SEED-346 and the subsequent guidance,
-context and handoff trials; it adds no dashboard service or installed runtime
-dependency and changes no Accepted ADR. Review ADR 0005's provisional A/B
-guidance after the first complete runs; humans retain any ADR change decision.
-
 ## Follow-ups name what the developer was shown
 
 For a [follow-up from a Done story's diff](seeds/SEED-347-follow-up-from-a-file-diff.md#start-follow-up-from-a-file-diff),

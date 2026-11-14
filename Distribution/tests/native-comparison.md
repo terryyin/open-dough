@@ -172,6 +172,23 @@ the record unchanged. It never reruns, and it does not recheck the project
 basis or its services. An edited record, or one whose inputs no commit holds,
 is not recovered.
 
+## Add a case
+
+Extract a case from a real decision with its proof: keep its source session or
+replay, project revision, extraction recipe, starting state, neutral task,
+setup and separate assessor. Keep the smallest context that still requires the
+original judgment; a controlled event or scripted proof must replace waiting,
+not the decision being measured. Keep expected answers in the assessor and
+`case.bash` controller, never in the agent's workspace, and leave the project's
+ordinary requirements and tests available to the agent.
+
+Before a case informs a comparison, qualify it natively: one journey must show
+the intended decision and its proof, and a plausible wrong decision must fail
+the assessor as a rejected case. Record measured preparation and native
+durations in `case.md`, labelling older timings as historical. Reuse the
+family's runner, payload installation, host supervision and stream helpers;
+recover earlier cases through Git rather than a separate registry.
+
 ## Retain and remove evidence
 
 During assessment keep the raw evidence: each attempt under

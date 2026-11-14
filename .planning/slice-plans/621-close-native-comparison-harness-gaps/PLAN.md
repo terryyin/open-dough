@@ -83,7 +83,7 @@ symlinked "is main module" check.
 ## Existing solution and architectural direction
 
 The correction follows the
-[native-comparison North Star](../../NORTH-STAR.md#versioned-native-comparison-cases)
+[native comparison guide](../../../Distribution/tests/native-comparison.md)
 and plan 618's architecture: one case-agnostic runner, an entry, a catalog, and
 fixtures for the credential-free journeys. No new module or registry.
 Accepted ADRs
