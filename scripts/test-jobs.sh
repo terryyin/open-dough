@@ -87,7 +87,7 @@ else
     > "${work_dir}/tests"
   while IFS= read -r -d '' test_file; do
     # An aggregate remains available for explicit focused proof; separately
-    # discovered jobs own the same checks here: the one-shot's two group
+    # discovered jobs own the same checks here: the one-shot's three group
     # wrappers, the admission's four journey wrappers, and the MakeMe
     # harness's two `node --test` files.
     case ${test_file} in

@@ -44,6 +44,22 @@ story still retires `test:dashboard` and its umbrella grouping.
 [Focus detailed dashboard UI checks on controlled answers](#focus-detailed-dashboard-ui-checks)
 moves those checks to Dashboard Frontend Test and removes the interim group.
 
+**Follow-up (owner change by Terry, 2026-11-14).** The tagged installed
+preparation journey (Scope 3, Key example 1), per-journey real and simulated
+boundary descriptions (Scope 4), Intent display names, readers and historical
+proof (Scope 7 and 8, Key example 5, and Purpose and Proof opening registering
+sources), and their proof-interpretation and CI status guidance move to
+[Observe a tagged installed workflow and read E2E proof in Intent](#observe-tagged-install-and-read-e2e-proof).
+This story keeps the runners, inventory, CI publication and their guidance.
+
+**Failure ownership (Terry, 2026-11-14).** The intermittent empty native
+admission substitute stream seen once in this story's migration is a scoped
+exception owned by
+[SEED-345](SEED-345-native-admission-substitute-empty-stream.md#explain-native-admission-substitute-empty-stream).
+The load-sensitive landed CI backend cases that the active
+SEED-324#close-landed-ci-repeat-check-gaps execution is repairing stay with
+that execution.
+
 1. Replace `test:dashboard` and its umbrella grouping with independent runners
    for these three groups, locally and in CI. E2E setup, workers, shards,
    duration inputs, output and proof ownership can change independently of the
@@ -226,3 +242,37 @@ acceptance work.
   answers it adds are reusable for later focused UI checks.
 - **Safe stopping point.** Each conversion batch, with its interim specs
   removed, is complete on its own.
+
+<a id="observe-tagged-install-and-read-e2e-proof"></a>
+
+### Observe a tagged installed workflow and read E2E proof in Intent
+
+**Identity:** SEED-334#observe-tagged-install-and-read-e2e-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** A developer sees a representative workflow run released
+  Open Dough commands in an installed project, and reads **E2E Test** proof in
+  Intent under its own name without false continuity from the retired
+  `dashboard/tests` evidence.
+- **Evaluation.** An isolated project with Open Dough installed from published
+  `v0.3.97` (tag, resolved revision and installed version recorded) starts
+  story preparation from the dashboard under `npm run test:e2e`, and the
+  installed command publishes the assignment to its bare origin; a missing or
+  unverifiable pinned release fails clearly without branch fallback. Each E2E
+  journey names its real integrations and simulated boundaries. Project
+  Intent, Purpose, Proof, story CI comparison and history name the **E2E
+  Test** entry, open registering-helper sources, keep old `dashboard/tests`
+  evidence readable at its revision, and show absent or changed scopes
+  without fabricated numeric comparisons or dead links.
+- **Inputs.** The selected story's Scope 3, 4, 7 and 8 and Key examples 1 and
+  5 above; plan slices 5 and 6 and their premises in
+  `.planning/slice-plans/608-product-wide-end-to-end-tests/PLAN.md` at commit
+  `d21a0ebc5ee0426f9898d10725c9e7765f49bc8e`, including the accepted tagged
+  prerequisite proof in its preparation assessment.
+- **Boundary.** No new release, native agent acceptance or speed work.
+- **Value / learning.** Completes the product-wide E2E goal's installed and
+  Intent-reading promises on the runners SEED-334 delivered.
+- **Safe stopping point.** The tagged journey alone, or the Intent naming and
+  history alone, is complete on its own.

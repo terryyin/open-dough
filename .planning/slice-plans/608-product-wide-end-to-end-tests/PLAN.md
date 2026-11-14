@@ -223,7 +223,7 @@ first in the backlog, converts them (G1 owner changed). Hosted CI on `8d61061`
 
 ### 4. Run and publish independently owned test groups
 Type: Behavior
-Status: planned
+Status: done
 Proof: All four native JSON lists and actual runs; runner isolation regression;
 CI action/declaration/frontend-artifact replays; an actual hosted migrated run
 showing producer matrices, counts, outcomes, durations and file attribution.
@@ -289,41 +289,17 @@ stress passes). Final `npm test` (22:11–22:53, load 77→14 on the 15-minute
 average) had no TIMEOUT and no G13 failure but failed two native admission
 journeys (G14).
 
-### 5. Observe a complete tagged installed preparation workflow
-Type: Behavior
-Status: planned
-Proof: `npm run test:e2e -- <released-preparation-spec> --workers=1`, plus
-focused source provenance/unavailable-release and working-tree freshness checks.
+Final gate (2026-11-14): host-exit diagnostics for G14 in
+`tests/support/native-agent-publication.sh` and the substitute suite; G15
+split the one-shot results job by journey. Whole `npm test` 08:03–08:17
+passed 635 jobs (load 7–16, no sleep). Terry (2026-11-14) made G14 a scoped
+exception owned by SEED-345 and left the remaining landed CI cases with
+SEED-324's active execution (G2).
 
-Behavior: A fixture installs complete Open Dough from published `v0.3.97`
-(or another explicitly pinned published tag when a diagnosed incompatibility
-requires it) → its dashboard starts story preparation → the installed command
-publishes the expected profile at the bare origin. Verify release tag/resolved
-revision/installation version and actual installed command path; retain those
-inputs with the case's proof. Use real installer/repository builders and the
-existing prepared-origin seam; isolate tagged and working-tree cache identities.
-A missing/unverifiable pinned source fails clearly without branch fallback.
-Reuse the full refusal/restart/retry prerequisite proof below; after migration,
-verify that scenario and tagged provenance at the new path. Preserve the default
-30 s case budget and separately bounded shared-input worker preparation.
-Name browser/server/Git/script
-integration and synthetic GitHub/native protocol boundaries in enduring docs.
-
-### 6. Read the new entry and historical proof without false continuity
-Type: Behavior
-Status: planned
-Proof: Focused Project Intent/Purpose/Proof navigation plus story comparison
-and history regressions with old/new entries, matching focused scopes, missing
-parts, reported zeros, and a registering helper's source; existing readers pass.
-
-Behavior: A developer opens current **E2E Test** or a story spanning migration →
-the correct settings/source revision and proof group appear → configured names
-are used where an entry is named, source navigation resolves, old evidence stays
-readable, and unsupported comparisons show explicit gaps/added/removed scopes.
-Extend existing `IntentCiEntryLink`/location label ownership without changing
-path identity or fabricating historical labels. Preserve generic scope+entry+
-unit comparability; prove frontend/backend matched comparisons and unmatched
-historical plain-text fallback. Update maintained proof/history documentation.
+**Former slices 5 and 6.** Terry moved them (2026-11-14) with their promises to
+SEED-334#observe-tagged-install-and-read-e2e-proof, queued first; their text
+and premises remain at `d21a0ebc5ee0426f9898d10725c9e7765f49bc8e` (obligations
+G10 and G16).
 
 ## File-size decisions and cumulative design
 
@@ -370,7 +346,7 @@ Commitment: 2c.1
 ### G2. Load-sensitive backend cases fail at high host load
 Reported: slice 2 — "Several backend cases are sensitive to load because of fixed 5 s expect.poll bounds and the 30 s case budget (landed-ci repeat/follow-up, production-deployment/publication). They passed in a clean run but failed at load around 30."
 Story clause: "throughout the migration, including failures attributed to the prior layout"
-Disposition: receiving slice 4
+Disposition: owner changed "execution is repairing stay with that execution"
 Commitment: R3b
 
 ### G3. Moved backend session specs still wait on wall-clock time
@@ -381,7 +357,7 @@ Disposition: no user cost "understand their purpose and observed results in Inte
 ### G8. Two Intent prior-build cases time out at high host load
 Reported: slice 3 — "intent-scope-prior-build-average and -prior-build-states failed at load ~38. They passed alone (8.7 s, 7.4 s) and at load ~18 with 2 workers ×3 took 12.9–24.1 s and 10.6–19.2 s against the 30 s budget."
 Story clause: "throughout the migration, including failures attributed to the prior layout"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: e2e/intent/intent-scope-prior-build-average.spec.ts and -prior-build-states.spec.ts serve the worker's kept comparison story; 6/6 at load 19→15 (5.7–11.4 s), 8/8 at 4 workers, passing in the full E2E gate and hosted run 43411925055
 
 ### G9. Moved E2E specs still wait on wall-clock time
 Reported: slice 3 — "Wall-clock waits in moved specs (left unchanged, as G3 was): limited-reading-detail (3 s setTimeout), published-facts-isolation (1 s), revision-stream-stopped/-visibility (page.waitForTimeout); and in a shared helper, support/voiceRecovery.ts waitForTimeout(200)."
@@ -391,24 +367,34 @@ Disposition: no user cost "understand their purpose and observed results in Inte
 ### G10. Moved E2E specs lack enduring boundary descriptions
 Reported: slice 3 — "103 moved specs have none; their boundaries are recorded only in migration-purpose.json. The README states the shared boundary set."
 Story clause: "Identify each representative journey's real integrations and simulated external boundaries"
-Disposition: receiving slice 5
+Disposition: owner changed "This story keeps the runners, inventory, CI publication and their guidance"
 
 ### G11. A reconciliation E2E case nears its budget at moderate load
 Reported: slice 4 — "e2e/launches/responsive-session-reconciliation-kept.spec.ts:58 timed out in the full E2E run at load ~9–16. With --repeat-each=4 --workers=4 it passed 8/8 but took 17–25 s of its 30 s budget."
 Story clause: "throughout the migration, including failures attributed to the prior layout"
-Disposition: return
+Disposition: proved by slice 4: e2e/launches/responsive-session-reconciliation-kept.spec.ts uses queuedClaudePreviewTest (worker-prepared queued origin, app and bundle); A/B repeats 4/4 twice at load 27–30 against a baseline 2/4 timeouts, file 6/6 at load 19–23; hosted run 43456218540 on d21a0eb passed
 
 ### G12. Repository test jobs outlived their safety deadline
 Reported: slice 4 — "Run 2 failed with three safety-deadline TIMEOUTs: workspace-publication.test.mjs after 2,202 s, git-publication-native-admission.sh after 2,122 s, and ci-github-workflow-repeat-transport.test.mjs after 215 s ... a runner job outlived its 180 s safety deadline by about 33 minutes, so the deadline did not end it."
 Story clause: "throughout the migration, including failures attributed to the prior layout"
-Disposition: return
+Disposition: proved by slice 4: tests/support/test-runner-deadline-elapsed.test.mjs (failed first) proves deadline-stopped jobs report their own elapsed time; repeat-transport polls (72/72 concurrent at load 14–57); workspace-publication and native admission jobs split by journey; whole npm test runs 19:54–20:57 and 22:11–22:53 had no TIMEOUT; hosted run 43456218540 passed
 
 ### G13. CI mailbox lifecycle checks fail under whole-suite load
 Reported: slice 4 — "src/skills/dough-execute-plan/scripts/ci-mailbox-removed-worktree.test.mjs:112 ... failed in the whole-suite run at load up to about 49. The observer ended in state lost with 'CI observer terminal result was not published before its lifecycle deadline' instead of ended. It passed 3/3 alone right after ... The earlier slice-4 full run had ci-mailbox-complete.test.mjs fail in a similar way."
 Story clause: "throughout the migration, including failures attributed to the prior layout"
-Disposition: return
+Disposition: proved by slice 4: ci-mailbox-change-watch.mjs and ci-mailbox-store.mjs poll instead of FSEvents watches, ci-mailbox-worker-process.mjs treats ESRCH as gone; failing-first tests in ci-mailbox.test.mjs and ci-mailbox-worker-loss.test.mjs; ci-mailbox-removed-worktree 72/72 twice at load up to 239, ci-codex-stop-lifecycle 48/48; final npm test 22:11–22:53 had no G13 failure
 
 ### G14. Native admission substitute journeys end with an empty stream
 Reported: slice 4 — "FAIL: tests/git-publication-native-admission-correction.sh: substitute claude admission-correction exited 1, assessment fail: incomplete or stale native stream (missing) ... the claude substitute admitted the claim (claim-owned: true, claim-admitted: true) but left events.jsonl, response.md and stderr.log empty."
 Story clause: "throughout the migration, including failures attributed to the prior layout"
-Disposition: return
+Disposition: owner changed "is a scoped exception owned by"
+
+### G15. A one-shot native publication job outran its safety deadline under heavy load
+Reported: slice 4 — "In loop B round 2, at 15-minute load about 39 (1-minute peak 105), tests/git-publication-native-one-shot-results.sh failed: TIMEOUT … (safety deadline 180s; after 180.1s)."
+Story clause: "throughout the migration, including failures attributed to the prior layout"
+Disposition: proved by slice 4: tests/git-publication-native-one-shot-results.sh and new -reviews.sh split the serial job by journey (27.4 s and 18.3 s alone versus 44.1 s; 148–158 s and 105–129 s under 12 looping jobs at load up to 33, where the old job took 244–264 s); final npm test 2026-11-14 08:03–08:17 passed 635 jobs with no TIMEOUT
+
+### G16. Tagged installed journey and Intent reading moved to a follow-up story
+Reported: slice 4 — "Terry chose (2026-11-14) to finish slice 4 and move slices 5–6 into a new story queued first."
+Story clause: "This story keeps the runners, inventory, CI publication and their guidance"
+Disposition: owner changed "This story keeps the runners, inventory, CI publication and their guidance"

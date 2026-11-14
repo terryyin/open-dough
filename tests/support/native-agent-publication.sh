@@ -39,6 +39,32 @@ if [[ ${host} == 'cursor' && ${1:-} == 'agent' ]]; then
   shift
 fi
 
+# NATIVE_AGENT_EXIT_LOG receives this session's start and how it ended: its
+# exit status, the command that stopped it under `set -e`, or a caught
+# signal, each with the seconds since start. A start alone means SIGKILL or a
+# session still running.
+if [[ -n ${NATIVE_AGENT_EXIT_LOG:-} ]]; then
+  native_agent_started=${EPOCHREALTIME:-} native_agent_status=0
+  native_agent_record() {
+    local seconds
+    seconds=$(awk -v s="${native_agent_started}" -v e="${EPOCHREALTIME:-}" \
+      'BEGIN { printf "%.1f", e - s }')
+    printf '%s pid %s after %s s: %s\n' "${host}" "$$" "${seconds}" "$1" \
+      >> "${NATIVE_AGENT_EXIT_LOG}"
+  }
+  native_agent_record started
+  # Only where errexit would stop the session, as tests/support/check-stop-report.bash.
+  set -E
+  trap 'native_agent_status=$?; [[ $- != *e* ]] || native_agent_record \
+    "stopped by status ${native_agent_status} at line ${LINENO}: ${BASH_COMMAND}"' ERR
+  trap 'native_agent_record "exited ${?}"' EXIT
+  for native_agent_signal in TERM INT HUP PIPE USR1 USR2 ALRM; do
+    # shellcheck disable=SC2064 # Each trap names its own signal now.
+    trap "native_agent_record 'caught SIG${native_agent_signal}'; trap - ${native_agent_signal} EXIT; kill -s ${native_agent_signal} \$\$" \
+      "${native_agent_signal}"
+  done
+fi
+
 output_file=
 workspace=
 args=("$@")
