@@ -36,6 +36,7 @@ intent introduced or affected by a newly developed story.
 ## Backlog list
 
 - [Start a follow-up session from a file diff](seeds/SEED-347-follow-up-from-a-file-diff.md#start-follow-up-from-a-file-diff) — SEED-347#start-follow-up-from-a-file-diff
+- [Collect notes for story follow-ups](seeds/SEED-348-collect-notes-for-story-follow-ups.md#collect-notes-for-story-follow-ups) — SEED-348#collect-notes-for-story-follow-ups
 - [Compare agent effort on comparable runs](seeds/SEED-345-session-token-efficiency.md#compare-agent-effort-on-comparable-runs) — SEED-345#compare-agent-effort-on-comparable-runs
 - [Get long verification results without empty wakes](seeds/SEED-345-session-token-efficiency.md#get-long-verification-results-without-empty-wakes) — SEED-345#get-long-verification-results-without-empty-wakes
 - [Reach a proof decision from retained evidence](seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence) — SEED-345#reach-a-proof-decision-from-retained-evidence
