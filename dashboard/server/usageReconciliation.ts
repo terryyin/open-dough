@@ -124,13 +124,20 @@ export function reconcileAssociation(
     ...(previous?.taskId ? [previous.taskId] : []),
     ...(incoming.taskId ? [incoming.taskId] : []),
   ]);
+  const contradictory = [...(previous?.gaps ?? []), ...incoming.gaps].includes(
+    "contradictory-lineage",
+  );
   return {
     observationId: incoming.observationId,
-    taskId: candidates.length === 1 ? (candidates[0] ?? null) : null,
+    taskId:
+      !contradictory && candidates.length === 1
+        ? (candidates[0] ?? null)
+        : null,
     candidates,
     sources: uniqueFacts([...(previous?.sources ?? []), ...incoming.sources]),
-    gaps:
-      candidates.length > 1
+    gaps: contradictory
+      ? ["contradictory-lineage"]
+      : candidates.length > 1
         ? ["ambiguous-task-association"]
         : candidates.length === 0
           ? ["unresolved-task-association"]

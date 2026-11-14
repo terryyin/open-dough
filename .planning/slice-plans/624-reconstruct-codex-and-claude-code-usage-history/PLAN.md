@@ -133,7 +133,7 @@ Delivered: immutable bounded pages and a small atomic manifest reuse the existin
 
 ### 7. Correct injected context mistaken for a task assignment
 Type: Behavior
-Status: planned
+Status: done
 Proof: actual-CLI legacy/paged recovery fixtures with injected-only and mixed genuine assignment rows, persisted correction, replay and source removal.
 
 Recognized host-injected context is not a user assignment. Classify content parts before first-assignment detection, retaining genuine mixed-message intent. Persist bounded supported/rejected assignment evidence (native turn, source row, timestamp and reason; no text). Reconcile it through the existing task model/writer: a proved wrapper-derived start can be replaced by genuine assignment evidence while independent metadata/claims and retained launch facts survive. A wrapper-only catalog record remains inspectable as unsupported, with unknown start and an explicit report count, outside claimed human-task populations. Missing files or absent facts alone never reject a boundary.
@@ -232,9 +232,8 @@ Commitment: 1
 ### G10. Reject injected context as task assignment evidence
 Reported: slice 7 — "Bounded actual metadata inspection before the repeat found plugin/AGENTS/environment injection supplying first-task timestamps; one earliest file has no genuine assignment. Skipping future wrappers alone cannot repair persisted starts and monotonic association candidates."
 Story clause: "Recover the project, workflow or task, story identity and title at the time, tool, model, effort, launch settings, timing, outcome, and usage where supported."
-Disposition: return
+Disposition: proved by slice 7: recovered-assignment evidence/legacy/mixed/replay/retained/publication actual CLI specs prove source-specific correction, all-response preservation and durable effective eligibility; final40 quiet cases and typecheck passed after independent refactor
 Commitment: 57
-
 ### G11. Resolve supported explicit historical plan references
 Reported: slice 7 — "A retained numeric execute-plan50 invocation has one historical quick plan whose source explicitly identifies SEED-013; the current resolver leaves it unknown. Same-message established identity is positive intent, while prior context and incidental tool reads cannot settle later argless invocations."
 Story clause: "Use recorded workflow invocations and historical seed, plan, backlog, or completion records to resolve story references."

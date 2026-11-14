@@ -130,6 +130,7 @@ async function collectUsageHistory(
         source: fact.source,
       });
     },
+    [...taskMap.values()],
   );
   const unrelated = (observation: UsageObservation) => {
     let session: string | undefined = observation.sessionId;

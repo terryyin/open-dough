@@ -1,5 +1,7 @@
-// Recovery eligibility and timing use the same task/worker association rules as
-// final accounting. A root need not have any own response inside the window.
+// Discover activity for native units before proving assignment eligibility.
+// These temporary units intentionally omit assignment evidence: even a rejected
+// wrapper can have an in-window worker worth inspecting. Final task accounting
+// applies eligibility after reconstruction; held corrections bypass the window.
 import { codexAssociation, type CodexLineage } from "./codexUsageLineage.ts";
 import { claudeAssociation, type ClaudeLineage } from "./claudeUsageLineage.ts";
 import { canonicalUsageTasks } from "./usageTaskReconciliation.ts";

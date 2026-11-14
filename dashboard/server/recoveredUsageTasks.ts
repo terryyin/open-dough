@@ -80,12 +80,29 @@ export async function recoveredUsageTasks(
   activities: ReadonlyMap<string, UsageObservation[]>,
   since: number,
   excluded?: (fact: NativeTaskFact) => void,
+  knownTasks: readonly UsageTask[] = [],
 ): Promise<UsageTask[]> {
   const projects = readConfiguredUsageProjects(home);
   const tasks: UsageTask[] = [];
+  const known = new Set(
+    knownTasks.flatMap((task) =>
+      [task.rootTurnId, ...(task.nativeTurns ?? [])]
+        .filter((turnId) => turnId !== undefined)
+        .map((turnId) =>
+          nativeTaskKey({ host: task.host, sessionId: task.sessionId, turnId }),
+        ),
+    ),
+  );
   for (const fact of facts) {
     const activity = activities.get(nativeTaskKey(fact)) ?? [];
-    if (!(fact.at && Date.parse(fact.at) >= since) && activity.length === 0)
+    const correction =
+      known.has(nativeTaskKey(fact)) &&
+      fact.assignmentEvidence?.some((item) => item.status === "rejected");
+    if (
+      !correction &&
+      !(fact.at && Date.parse(fact.at) >= since) &&
+      activity.length === 0
+    )
       continue;
     const mapped = await projectFor(fact, projects);
     if (mapped.unrelated) {
@@ -185,7 +202,12 @@ export async function recoveredUsageTasks(
       workflow: fact.workflow,
       identity: story?.identity ?? null,
       title: story?.title ?? null,
-      launchedAt: fact.at ?? null,
+      launchedAt: fact.assignmentEvidence?.every(
+        (item) => item.status === "rejected",
+      )
+        ? null
+        : (fact.at ?? null),
+      assignmentEvidence: fact.assignmentEvidence,
       ...(last ? { lastActivityAt: last } : {}),
       outcome: fact.outcome ?? null,
       origin: conflictingProject ? "unknown" : fact.origin,

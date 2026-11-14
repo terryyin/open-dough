@@ -1,3 +1,4 @@
+import { hasUsageAssignment } from "./usageTaskAssignment.ts";
 import { usageTaskJoinSources } from "./usageTaskJoinSources.ts";
 // Keep only identifiers and source locations while walking native parent links.
 // A directory is not a worker join; only native agent-result evidence joins it.
@@ -122,6 +123,7 @@ export function claudeAssociation(
       if (chain.roots.length === 1) measurement.rootTurnId = root.uuid;
       const matches = tasks.filter(
         (task) =>
+          hasUsageAssignment(task) &&
           task.host === "claude" &&
           !task.gaps.some(
             (gap) =>

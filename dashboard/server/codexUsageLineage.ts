@@ -1,3 +1,4 @@
+import { hasUsageAssignment } from "./usageTaskAssignment.ts";
 import { usageTaskJoinSources } from "./usageTaskJoinSources.ts";
 // Native identity evidence is independent of file discovery order. Only explicit
 // containing-thread metadata and parent links establish a worker's ancestry.
@@ -109,6 +110,7 @@ export function codexAssociation(
     ? []
     : tasks.filter(
         (task) =>
+          hasUsageAssignment(task) &&
           task.host === "codex" &&
           !task.gaps.includes("contradictory-project-evidence") &&
           !task.gaps.includes("contradictory-task-field:project") &&

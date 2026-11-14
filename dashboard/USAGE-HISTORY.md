@@ -78,7 +78,24 @@ excluded with source gaps and `excludedUnrelatedTasks` /
 Only an actual user workflow directive or supported host command wrapper supplies
 workflow/story intent. Skill documents, fenced examples and incidental names do
 not. The first user assignment can establish a task with unknown metadata;
-ordinary later Claude follow-ups remain ambiguous. Native reporting references
+ordinary later Claude follow-ups remain ambiguous. Host-injected plugin lists,
+AGENTS instructions, environment, skill and system context are classified by
+content part before detecting assignments; genuine text in a mixed message
+survives. A native task-start event alone proves lineage, not human intent.
+`assignmentEvidence` retains supported/rejected native turn, exact source row,
+timestamp when available and a bounded reason, without text. Explicit rejection
+can withdraw a matching wrapper-derived start, while genuine assignment and
+retained launch facts preserve eligibility and authoritative launch timing.
+Legacy assignment-derived sources also survive when their native row disappears;
+missing files alone never reject a task. A wrapper-only catalog entry remains
+inspectable with unknown start and an `unsupported-task-assignment` gap. It is
+excluded from claimed task populations and attribution; the report counts it as
+`unsupportedAssignmentTasks`. All response observations and measurements remain,
+and historical association candidates/sources remain audit after charges are
+withdrawn. Correction persists across replay and source removal; later positive
+assignment or launch evidence can establish eligibility again.
+
+Native reporting references
 establish dashboard origin, explicit native-origin evidence establishes native,
 and other tasks have unknown origin. Recovery creates no operational launch.
 

@@ -82,6 +82,17 @@ export const usageTaskSchema = z.object({
       })
       .optional(),
   }),
+  assignmentEvidence: z
+    .array(
+      z.object({
+        status: z.enum(["supported", "rejected"]),
+        turnId: z.string(),
+        source: usageSourceSchema,
+        at: z.iso.datetime().optional(),
+        reason: z.enum(["human-input", "injected-context"]),
+      }),
+    )
+    .optional(),
   fieldSources: z.record(z.string(), z.array(usageSourceSchema)).optional(),
   fieldClaims: z
     .record(

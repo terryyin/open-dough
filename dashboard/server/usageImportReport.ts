@@ -1,3 +1,4 @@
+import { hasUsageAssignment } from "./usageTaskAssignment.ts";
 // Report persisted facts in explicit, disjoint accounting populations. Retained
 // provenance gaps are not a count of currently missing fields or scan failures.
 import { readConfiguredUsageProjects } from "./configuredProjectDocument.ts";
@@ -71,7 +72,8 @@ export function usageImportSummary(
       return id ? [id] : [];
     }),
   );
-  const tasks = Object.values(history.tasks);
+  const catalog = Object.values(history.tasks);
+  const tasks = catalog.filter(hasUsageAssignment);
   const work = tasks.filter(
     (task) =>
       inWindow(task.launchedAt) ||
@@ -165,6 +167,7 @@ export function usageImportSummary(
     };
   }
   return {
+    unsupportedAssignmentTasks: catalog.length - tasks.length,
     configuredProjects: projects.map(({ id, repository, hidden }) => ({
       id,
       repository,

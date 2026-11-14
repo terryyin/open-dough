@@ -1,4 +1,8 @@
 import {
+  hasUsageAssignment,
+  eligibleUsageAssociation,
+} from "./usageTaskAssignment.ts";
+import {
   usageSnapshotInputs,
   canonicalGapPartitions,
   type RecordCollection,
@@ -62,6 +66,9 @@ export async function writeUsageSnapshot(
       (value) => parseValue("tasks", value) as UsageTask,
     );
     const tasks = canonicalUsageTasks([...previousTasks, ...incomingTasks]);
+    const eligible = new Set(
+      tasks.filter(hasUsageAssignment).map((task) => task.id),
+    );
     const taskIds = new Set(tasks.map((task) => task.id));
     const aliases = new Map<string, string>();
     for (const task of [...previousTasks, ...incomingTasks]) {
@@ -171,7 +178,10 @@ export async function writeUsageSnapshot(
         },
       );
       for (const [id, row] of associations) {
-        const association = aliasAssociation(row[1] as UsageAssociation);
+        const association = eligibleUsageAssociation(
+          aliasAssociation(row[1] as UsageAssociation),
+          eligible,
+        );
         if (
           (
             observations.get(id)?.[1] as UsageObservation | undefined
