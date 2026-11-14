@@ -37,7 +37,6 @@ import {
   expectOnOneLineWhenRoom,
 } from "../pageLayout.ts";
 import { tooltipOf } from "../frameIconControl.ts";
-import { selectStory } from "../storyCardSelection.ts";
 import { credit } from "../agentCredit.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -145,12 +144,11 @@ test.describe("a Backlog card's Starts", () => {
       for (const title of [readyStory, notRefinedStory])
         await expectInReadingOrder(card(title), [
           ...startsOf(title),
-          selectStory(card(title)),
           inspect(title),
         ]);
       await expect(notedLaunches.getByText(notReadyNote)).toBeHidden();
-      // The keyboard walks the launch group, then the inspection group from
-      // its Select story, and a cancelled Start returns it to that Start.
+      // A cancelled Start returns focus to its launch action, and Tab moves
+      // to Inspect story.
       await execution.focus();
       await page.keyboard.press("Tab");
       await expectFocusedAndIndicated(page, refinement);
@@ -162,7 +160,7 @@ test.describe("a Backlog card's Starts", () => {
       await expectEscapeReturnsThenTabMovesOn(page, {
         opener: refinement,
         dialog,
-        next: selectStory(card(notRefinedStory)),
+        next: inspect(notRefinedStory),
       });
     }
     expect(dashboard.claudeLaunchCalls()).toHaveLength(0);

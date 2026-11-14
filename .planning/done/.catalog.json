@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-352_use-builder-defaults-for-incidental-datetimes.json",
+      "identity": "SEED-352#use-builder-defaults-for-incidental-datetimes",
+      "completedAt": "2026-11-14T09:19:33.917Z",
+      "blob": "3fcd9582001a389c58b1d9dcff09ba2af44e29a3"
+    },
+    {
       "fileName": "SEED-346_run-native-ab-comparisons-on-real-work.json",
       "identity": "SEED-346#run-native-ab-comparisons-on-real-work",
       "completedAt": "2026-11-14T07:56:38.830Z",

@@ -37,8 +37,8 @@ import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 
-// A kept execution record of the board's Taken story `anchor`, launched
-// now, its saved workspace gone.
+// A kept execution record of the board's Taken story `anchor`, its
+// saved workspace gone.
 function goneWorkspaceRecord(
   home: string,
   { anchor, title, branch }: typeof failing,
@@ -47,7 +47,6 @@ function goneWorkspaceRecord(
     .executing({ identity: `SEED-219#${anchor}`, title })
     .inClaudeSession({ sessionId: `${anchor}-session`, shortId: anchor })
     .onStoryBranch({ workspace: path.join(home, "gone", anchor), branch })
-    .launchedAt(new Date().toISOString())
     .please();
 }
 

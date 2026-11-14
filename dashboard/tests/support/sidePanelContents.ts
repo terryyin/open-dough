@@ -32,14 +32,12 @@ export function storyBWorktree(project: string) {
   return workspace;
 }
 
-// Story B's kept launch record: a kept session holding no attention message,
-// launched now.
+// Story B's kept launch record: a kept session holding no attention message.
 export const storyBLaunchRecord = (workspace: string): LaunchRecord =>
   makeMe.aLaunchRecord
     .executing({ identity: otherQueuedIdentity, title: "Story B" })
     .onStoryBranch({ workspace, branch: storyBBranch })
     .inClaudeSession({ sessionId: "story-b-session", shortId: "story-b" })
-    .launchedAt(new Date().toISOString())
     .please();
 
 // A Codex session whose saved workspace, retired beside `workspace`, is gone,

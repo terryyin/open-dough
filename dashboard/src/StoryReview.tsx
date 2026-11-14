@@ -1,5 +1,6 @@
 // One story review selects a workspace, captured run or published completion.
 // Refresh preserves selection; the common body and frame keep navigation and focus.
+import { SidePanelHeader } from "./SidePanelHeader.tsx";
 import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
@@ -109,7 +110,7 @@ export function StoryReview({
       aria-describedby={descriptionId}
     >
       <PanelDivider />
-      <header className="side-panel-header">
+      <SidePanelHeader>
         <div className="side-panel-names">
           <SidePanelTitle title={title} id={headingId} />
           <p className="quiet">
@@ -134,7 +135,7 @@ export function StoryReview({
             onClose={onClose}
           />
         </div>
-      </header>
+      </SidePanelHeader>
       <p id={descriptionId} hidden>
         {reviewDescription(review)}
       </p>

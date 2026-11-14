@@ -21,7 +21,6 @@ import {
   launchGroup,
 } from "./storyCardControls.ts";
 import { expectBadges } from "./storyCardFacts.ts";
-import { selectStory } from "./storyCardSelection.ts";
 import { plannedBlocked, plannedReady } from "./storyReadinessFixture.ts";
 import { showColumn } from "./boardPage.ts";
 
@@ -51,8 +50,7 @@ export async function expectScanToDetailAt420AndTwiceZoom(
     await expect(blockedCard.getByText("Priority 2")).toBeVisible();
     await expectBadges(blockedCard, { shown: ["Not ready"] });
     // Not ready does not itself disable Start execution, and the Backlog
-    // card's Starts, Select story, and Inspect story read in order, whole,
-    // within the card.
+    // card's Starts and Inspect story read in order, whole, within the card.
     await expect(
       launchGroup(blockedCard).getByRole("button", {
         name: "Start execution",
@@ -62,7 +60,6 @@ export async function expectScanToDetailAt420AndTwiceZoom(
       ...storyCardLaunchActions.map((name) =>
         launchGroup(blockedCard).getByRole("button", { name }),
       ),
-      selectStory(blockedCard),
       inspectionGroup(blockedCard).getByRole("button", {
         name: detailToggle,
       }),
@@ -72,12 +69,10 @@ export async function expectScanToDetailAt420AndTwiceZoom(
     await expect(readyCard.getByRole("link")).toHaveCount(0);
 
     // From the card, shown by its column's column paging control, the keyboard
-    // reaches its Select story and then its Inspect story.
+    // reaches its Inspect story.
     await showColumn(page, "Taken");
     const inspect = readyCard.getByRole("button", { name: "Inspect story" });
     await readyCard.focus();
-    await page.keyboard.press("Tab");
-    await expectFocusedAndIndicated(page, selectStory(readyCard));
     await page.keyboard.press("Tab");
     await expectFocusedAndIndicated(page, inspect);
     await page.keyboard.press("Enter");

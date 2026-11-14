@@ -1,9 +1,9 @@
 // The page's one selected story: disposable UI state (ADR 0008), not part of
 // the URL. PageFrame (`./PageFrame.tsx`) owns it, so the Side panel's
 // openings set or clear it and its closes keep it (`./pageSidePanel.ts`);
-// Columns, Recently done, and Intent read it through this owner. Each card's
-// Select story control and empty-area click toggle it, and the selected card is
-// highlighted. Inspection is a separate per-card state
+// Columns, Recently done, and Intent read it through this owner. Clicking an
+// empty area of a card toggles selection, and the selected card is highlighted.
+// Inspection is a separate per-card state
 // (`./pageStoryInspection.tsx`) that never changes the selection.
 
 import {
@@ -111,27 +111,6 @@ export function useStorySelection(project: string) {
   return useMemo(
     () => ({ selection, selectedIdentity, toggle }),
     [selection, selectedIdentity, toggle],
-  );
-}
-
-// A card's Select story control, pressed while its story is selected. It
-// toggles the selection as an empty-area click on the card does.
-export function SelectStory({
-  selected,
-  onToggle,
-}: {
-  readonly selected: boolean;
-  readonly onToggle: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      className="select-story frame-disclosure-button"
-      aria-pressed={selected}
-      onClick={onToggle}
-    >
-      Select story
-    </button>
   );
 }
 

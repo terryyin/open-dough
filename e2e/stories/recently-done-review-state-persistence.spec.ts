@@ -30,8 +30,8 @@ import {
 } from "../../dashboard/tests/support/preparationPage.ts";
 import { sidePanelContents } from "../../dashboard/tests/support/sidePanelContents.ts";
 import {
+  emptyArea,
   expectSelected,
-  selectStory,
 } from "../../dashboard/tests/storyCardSelection.ts";
 
 const titles = doneStories.map(({ title }) => title);
@@ -85,7 +85,7 @@ test("review state survives reload and restart, with keyboard Unreview preservin
 
       // Unreview restores Mark as reviewed, with the keyboard on it, C
       // selected again.
-      await selectStory(c).click();
+      await emptyArea(c).click();
       await expectSelected(c, true);
       await unreviewStory(a, "Unreview this story?", "keyboard");
       await expectReviewed(a, false);

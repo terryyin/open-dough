@@ -58,7 +58,6 @@ test.use({
 const session = (title: string) =>
   makeMe.aLaunchRecord
     .adHoc({ instruction: "select", title })
-    .launchedAt("2026-10-01T00:00:00.000Z")
     .inClaudeSession({ sessionId: "select-held-1", shortId: "held01" })
     .please();
 

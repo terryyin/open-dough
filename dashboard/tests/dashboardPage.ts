@@ -16,7 +16,7 @@ export * from "./projectChoice.ts";
 
 // Every button a shown snapshot offers, and nothing else: the banner's
 // Sessions, System settings, Start session, the badge legend, each Backlog
-// card's launch actions, and each card's Select story and detail toggle.
+// card's launch actions, and each card's detail toggle.
 export async function expectSnapshotButtons(
   page: Page,
   shown: {
@@ -35,11 +35,11 @@ export async function expectSnapshotButtons(
   for (const action of storyCardLaunchActions) {
     await expect(button(action)).toHaveCount(shown.backlogCards);
   }
-  for (const name of [/^Select story$/, detailToggle]) {
-    await expect(page.getByRole("button", { name })).toHaveCount(shown.cards);
-  }
+  await expect(page.getByRole("button", { name: detailToggle })).toHaveCount(
+    shown.cards,
+  );
   await expect(page.getByRole("button")).toHaveCount(
-    4 + shown.backlogCards * storyCardLaunchActions.length + 2 * shown.cards,
+    4 + shown.backlogCards * storyCardLaunchActions.length + shown.cards,
   );
 }
 

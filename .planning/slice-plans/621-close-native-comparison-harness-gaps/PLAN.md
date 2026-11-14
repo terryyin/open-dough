@@ -52,20 +52,30 @@ repair `e8e5eac2` is unrelated. Findings were verified at HEAD `6a2931f8`
    Codex session writing into a deleted workspace. This breaks the same
    isolation restriction as finding 1. On 2026-11-14 the coordinator, as the
    correction's author, widened the correction story's Scope to cover it.
+5. **Each case reads per-turn facts the runner already has.** Both
+   `case.bash` files end `case_observe` with the same two fields, read from
+   the turn stream the runner just classified: `turn-N-harness-inspected`
+   (paused-supplier 217-218, Doughnut 227-229, which only adds
+   `init\.d|test-runs` to the runner's harness pattern) and `turn-N-commands`
+   (219-220 and 230-231, `wc -l` of the stream's commands). The runner passes
+   its harness pattern in only for this (`case_observe`'s HARNESS argument).
+   A missing or truncated stream yields `0` commands and `false`, so an
+   unreadable value would read as an observed zero, while the guide promises
+   "Nothing unknown is counted as zero". Today a stopped turn skips
+   `case_observe`, so the defect is latent, but every new case would copy it.
+   Plan 618 recommended moving both facts into the runner; on 2026-11-14 Terry
+   adopted that recommendation into this correction.
 
 ## Goal and scope
 
-A maintainer running native comparison cases gets three fixes. Arm-owned
+A maintainer running native comparison cases gets four fixes. Arm-owned
 processes are stopped when materialization fails or the run is interrupted:
 both the services a case started and the arm's host session. The
 credential-free pair, refresh and incomplete journeys install payloads from
 the working tree they are about to commit. Catalog host selection names only
-qualified hosts.
-
-**Exclusions (route as advice, not this correction):** moving each case's
-`turn-N-commands` and `harness-inspected` facts into the runner; moving
-`delivery_evidence_install_payload` to a neutral module; the repository-wide
-symlinked "is main module" check.
+qualified hosts. The runner records every turn's command count and harness
+inspection itself, as `unknown` when the turn's stream cannot show them, so a
+case observes only its own project.
 
 **Preserved promises and constraints:**
 
@@ -118,6 +128,11 @@ PFE (existing owners to reuse):
   the fixture, over the installer's inputs: `install.sh`, `VERSION`,
   `CHANGELOG.md` and `Distribution/src`. The same input set is used by
   `git_publication_installer_input_hash_lines` and `native-identity-source.mjs`.
+- **Per-turn host facts:** the runner's `native_comparison_turn` already
+  owns the turn stream, its classification, status, thread and seconds, and
+  the harness pattern. It records the command count and harness inspection
+  beside them. A case adds its own controller paths to the pattern through
+  one optional case value instead of re-reading the stream.
 - **Catalog:** stays generic. The `hosts` trait is corrected to name only
   qualified hosts, and unqualified hosts move to their own trait. One meaning
   per trait keeps "contains TEXT" filtering correct without a special-cased
@@ -140,6 +155,8 @@ along with every leftover process. Interpreter: Homebrew Bash 5.3.20.
 | The installer's inputs are `install.sh`, `VERSION`, `CHANGELOG.md` and `Distribution/src` (Slice 2 payload repository) | Those paths only, copied from the scratch working tree (`git ls-files --cached --others --exclude-standard`). Ran `bash install.sh --target <git repo> --source <copy> --platform codex --force`, the form `delivery_evidence_install_payload … --force` uses on the arms' `git archive` copies. Result: rc 0, hooks registered, and the installed `SKILL.md` carried the working-tree marker. **True.** |
 | `--where hosts=cursor` and `hosts=claude` select both cases (Slice 3 discrimination) | Bash 5 `native-comparison.sh --list --where hosts=cursor`, `hosts=claude` and `hosts=codex`. Each listed `doughnut-title-precedence` and `paused-supplier`. **True.** |
 | The kept records recover to `9c20a808` (preserved promise, baseline) | `native-comparison.sh --recover <record>` for both records: `record-history: unchanged since 9c20a808…`, `case-basis-revision: 9c20a808…`, `recovery: pass`, rc 0. Recovery searches history by recorded hashes, so later edits to the runner (a recorded input) do not move it. |
+| The two cases' command and harness fields differ only in Doughnut's extra pattern (Slice 4 moves them unchanged) | Read at `55da0eec`: paused-supplier `case.bash` 217-220 and Doughnut 227-231 print the same two fields from `native_host_stream codex STREAM commands`; HARNESS is used nowhere else in either case. Field names stay, so both assessors' `harness` signal, `native-comparison-pair-observe.sh` (reads `turn-N-commands`) and the kept records' grammar are unaffected. **Settled.** |
+| A missing or truncated stream reads as an observed zero today (Slice 4 discrimination) | Bash 5.3, sourced `native-host-stream.sh` and `native-observation.sh`, on a nonexistent stream and on a stream cut mid-JSON in the job scratch: reader rc 0, `wc -l` gives `0`, `native_harness_inspected` gives `false`. **True; the planned `unknown` check discriminates.** The incomplete journey's stopped arms (`native-comparison-incomplete.sh` 112-119) already hold such streams. |
 | Test conventions | `node .claude/skills/dough-execute-plan/scripts/test-entry-rules.mjs --project . --source <path>`: `native-comparison.sh`, `-pairs.sh` and `-incomplete.sh` resolve `makeMe: true`. The fixture and runner resolve `makeMe: false` but follow their consuming tests' MakeMe convention (AGENTS.md "Test automation"). Resolve any new test path the same way before authoring. |
 
 | Correction outcome / preserved promise | Owning slice and observable proof |
@@ -150,7 +167,8 @@ along with every leftover process. Interpreter: Homebrew Bash 5.3.20.
 | Doughnut arm server stopped after a failed migration | 1: runner contract (above) plus Doughnut's credential-free proof calling `case_cleanup` on a partially materialized stand-in arm |
 | Free pair, refresh and incomplete journeys test the working tree's payload | 2: an uncommitted working-tree payload change reaches the frozen baseline payload; existing pair, refresh and incomplete journeys stay green on the new fixture |
 | Host selection matches qualified hosts only | 3: entry's credential-free catalog checks; `hosts=cursor` and `hosts=claude` select nothing (nonzero), `hosts=codex` still selects |
-| Kept records byte-identical and recoverable | 1 and 3 (the slices touching recorded inputs or case files): `git diff --exit-code` on both records and `--recover` on both, `case-basis-revision: 9c20a808…`, `recovery: pass` |
+| The runner records each turn's commands and harness inspection, `unknown` when its stream cannot show them | 4: incomplete journey asserts the stopped turn's `unknown` fields and unchanged partial effort; both cases' harness counterexamples and the family journeys stay green with no case printing either field |
+| Kept records byte-identical and recoverable | 1, 3 and 4 (the slices touching recorded inputs or case files): `git diff --exit-code` on both records and `--recover` on both, `case-basis-revision: 9c20a808…`, `recovery: pass` |
 
 ## Ordered slices
 
@@ -288,6 +306,41 @@ Proof: in `Distribution/tests/native-comparison.sh` default mode, add
 beside the existing positive checks. The planning observation showed the
 negatives fail today.
 
+### 4. The runner owns per-turn command and harness facts
+Type: Structure
+Status: planned
+Proof: The incomplete journey's `unknown` check, both cases' credential-free proofs (including their harness-inspected counterexamples), and the family's journeys green.
+
+Behavior: every turn the runner runs records `turn-N-commands` and
+`turn-N-harness-inspected` from the runner, after its status, thread and
+seconds. A turn whose stream is not complete records `unknown` for both,
+never `0` or `false`. Field names, completed-turn values and both assessors
+are unchanged, and effort still counts only observed turns: an `unknown`
+count is never summed.
+
+Approach: `native_comparison_turn` prints both fields from the stream it
+classified, using the run's harness pattern plus the case's optional
+addition (for example `case_harness_paths='init\.d|test-runs'` in Doughnut's
+`case.bash`). Remove the two fields and the HARNESS argument from both
+`case_observe` functions and from the runner's case contract header. Update
+`native-comparison-pair-observe.sh` if it would sum a non-numeric count, and
+the case-contract text in `Distribution/tests/native-comparison.md`.
+
+Proof: in `native-comparison-incomplete.sh`, the stopped candidate arm's
+turn 2 (truncated stream) records `turn-2-commands: unknown` and
+`turn-2-harness-inspected: unknown`, and its partial effort line is
+unchanged (lines 112-119). The planning observation showed the reader
+yields `0` and `false` there today. The existing harness counterexamples
+(`native-comparison-paused-supplier.sh` 128,
+`native-comparison-doughnut-title-precedence.sh` 87) now exercise the
+runner's fields and stay green.
+
+This slice changes the runner and both `case.bash` files, recorded inputs
+and case identity. Afterwards, rerun `--recover` on both kept records and
+confirm they are byte-identical. No agent-facing case input changes, so no
+paid run. Keep the runner under the 250-line check together with Slice 1's
+growth; if it would pass, settle a cohesive reorganization first.
+
 ## Current decisions, verification and concern review
 
 - Follow [the project's failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
@@ -306,7 +359,7 @@ negatives fail today.
   `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh Distribution/tests/native-comparison.sh Distribution/tests/native-comparison-pairs.sh Distribution/tests/native-comparison-refresh.sh Distribution/tests/native-comparison-incomplete.sh Distribution/tests/native-comparison-paused-supplier.sh Distribution/tests/native-comparison-doughnut-title-precedence.sh`,
   plus the new cleanup test from Slice 1 on. Also run the consumer trace for
   each slice, the `--recover` and `git diff --exit-code` check of both kept
-  records after Slices 1 and 3, and `npm run --silent lint`, or
+  records after Slices 1, 3 and 4, and `npm run --silent lint`, or
   `npm run --silent format` before it.
 - A new test job changes the CI deal. Preview it with
   `node scripts/test-shares.mjs preview` at CI's current split count
@@ -322,9 +375,9 @@ negatives fail today.
 - No paid native run. No agent-facing case input changes, and the paid
   baseline (`database-server-stopped` in plan 618's Doughnut pairs) still covers
   the normal cleanup path.
-- Slice-plan refinement was not needed. The three findings are independent
+- Slice-plan refinement was not needed. The four findings are independent
   outcomes, each with its own proof loop and one shared owner per concern
-  (runner and entry, pair fixture, case traits). There is no preparatory
+  (runner and entry, pair fixture, case traits, runner turn facts). There is no preparatory
   Structure and no special-case machinery: cleanup is a runner guarantee for
   every case, the copy routine is shared, and the catalog stays generic.
 - Slice 1 includes the arm's host session (finding 4). The coordinator

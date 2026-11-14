@@ -133,7 +133,6 @@ test.describe("touch reading", () => {
       makeMe.aLaunchRecord
         .executing({ identity: "SEED-008#same-machine-merge-queue", title })
         .inClaudeSession({ sessionId: "aaaaaaaa-0000-4000-8000-000000000001" })
-        .launchedAt(new Date().toISOString())
         .please(),
     ]);
     await publishOrigin(page, {

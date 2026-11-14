@@ -83,7 +83,6 @@ test("an earlier matching claim after a later takeover completion does not assoc
     })
     .forLaunch(reference)
     .comparing({ base: earlierClaim, revision: completion })
-    .receivedAt(new Date().toISOString())
     .please();
   const record = makeMe.aLaunchRecord
     .adHoc({
@@ -101,7 +100,7 @@ test("an earlier matching claim after a later takeover completion does not assoc
     })
     .withCapturedLanding(landing)
     .completedWith({ message: "Captured a takeover completion." })
-    .markedDoneAt(new Date().toISOString())
+    .markedDone()
     .please();
   keepLaunchRecords(dashboard, [record]);
   expect(
@@ -162,7 +161,6 @@ test("an intermediate capture before completion does not associate", async ({
     })
     .forLaunch(reference)
     .comparing({ base: claim, revision: intermediate })
-    .receivedAt(new Date().toISOString())
     .please();
   const record = makeMe.aLaunchRecord
     .adHoc({
@@ -180,7 +178,7 @@ test("an intermediate capture before completion does not associate", async ({
     })
     .withCapturedLanding(landing)
     .completedWith({ message: "Captured before completion." })
-    .markedDoneAt(new Date().toISOString())
+    .markedDone()
     .please();
   keepLaunchRecords(dashboard, [record]);
   expect(await associationOf(request, dashboard, record.session)).toEqual({

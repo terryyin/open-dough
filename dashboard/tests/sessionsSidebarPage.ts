@@ -9,27 +9,28 @@ export function sessionsSidebarParts(page: Page) {
     name: "Sessions sidebar",
     exact: true,
   });
-  const banner = page.getByRole("banner");
+  const button = page.getByRole("button", { name: "Sessions", exact: true });
+  const toggle = button.locator("xpath=..");
   // The open session list, which scrolls on its own.
   const list = sidebar.locator(".sessions-sidebar-sessions");
   const entries = list.locator("li.sessions-sidebar-session-entry");
   return {
     sidebar,
-    button: banner.getByRole("button", { name: "Sessions" }),
+    button,
     // The sidebar's own title.
     heading: sidebar.getByRole("heading", { level: 2, name: "Sessions" }),
     list,
     // How many sessions need attention, as the number on the button's badge,
     // when any do.
-    badge: banner.getByRole("img", {
+    badge: toggle.getByRole("img", {
       name: /^\d+ sessions? needs? attention$/,
     }),
     // How many sessions are working, on the closed toggle's badge only.
-    workingBadge: banner.getByRole("img", {
+    workingBadge: toggle.getByRole("img", {
       name: /^\d+ sessions? working$/,
     }),
     // The one badge holding working and/or attention counts on the toggle.
-    countsBadge: banner.locator(".sessions-toggle-counts"),
+    countsBadge: toggle.locator(".sessions-toggle-counts"),
     // The open session list's entries, apart from optional section rows.
     entries,
     // Their story titles, in the order the list shows them.
@@ -61,9 +62,7 @@ export async function openSessionsSidebar(page: Page): Promise<void> {
     await button.click();
 }
 
-// The sidebar is shown or not, and its banner toggle says the same. While a
-// side panel covers the page, its banner and toggle are hidden from reading,
-// so there a caller reads the sidebar alone instead.
+// The sidebar and its toggle agree on whether it is open.
 export async function expectSessionsSidebar(
   page: Page,
   expected: "open" | "closed",

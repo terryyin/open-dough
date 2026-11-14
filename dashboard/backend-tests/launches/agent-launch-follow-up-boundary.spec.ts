@@ -137,7 +137,7 @@ test("a final report longer than the instruction field's limit is sent whole bes
     .adHoc({ instruction: "Write it all down", title: "Write it all down" })
     .inClaudeSession({ sessionId: "long-report", shortId: "long" })
     .completedWith({ message: long })
-    .markedDoneAt(new Date().toISOString())
+    .markedDone()
     .please();
   keepLaunchRecords(dashboard, [source]);
   dashboard.claudeScenario("launched");

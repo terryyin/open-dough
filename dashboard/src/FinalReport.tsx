@@ -1,5 +1,6 @@
 // Passive final report: changing selection cancels the previous identity's read.
 // Mark as done asks first, below the header, as the terminal's does.
+import { SidePanelHeader } from "./SidePanelHeader.tsx";
 import { useEffect, useRef, useState } from "react";
 import {
   launchSubject,
@@ -103,7 +104,7 @@ export function FinalReport({
     <section className="side-panel final-report" aria-label="Final report">
       <PanelDivider />
       <div className="final-report-scroll">
-        <header className="side-panel-header">
+        <SidePanelHeader>
           <div className="side-panel-names">
             <SidePanelTitle title={title} />
             <p>{name} session</p>
@@ -132,7 +133,7 @@ export function FinalReport({
               Close
             </button>
           </div>
-        </header>
+        </SidePanelHeader>
         {asking.shown && (
           <InPlaceQuestion
             asking={asking}

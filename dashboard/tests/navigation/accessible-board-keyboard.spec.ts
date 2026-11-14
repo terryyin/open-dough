@@ -38,7 +38,7 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
   // Reading order is the order of the page's source: Sessions, the
   // perspective, the project selector, System settings, then direction, Start session and the badge
   // legend, then each card's controls by column (Backlog, then Taken): a
-  // Backlog card's enabled launch actions, then Select story and Inspect. A card's recorded
+  // Backlog card's enabled launch actions, then Inspect story. A card's recorded
   // links are in its detail, not its scan view. In a wide window Taken stands
   // beside Backlog's first card, so position on screen would order them
   // differently.
@@ -59,10 +59,7 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
         ).toBeEnabled();
         stops.push(...(await enabledStoryCardLaunchActions(card)));
       }
-      stops.push(
-        card.getByRole("button", { name: "Select story" }),
-        card.getByRole("button", { name: "Inspect story" }),
-      );
+      stops.push(card.getByRole("button", { name: "Inspect story" }));
       await expect(card.getByRole("link")).toHaveCount(0);
     }
     return stops;
@@ -81,8 +78,8 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
   ];
   // Sessions + selected perspective radio + selected project radio + System
   // settings + Direction + Start session + Legend + two Backlog cards' enabled
-  // launch actions + four Select story + four Inspect.
-  expect(stops).toHaveLength(7 + 2 + 4 + 4);
+  // launch actions + four Inspect.
+  expect(stops).toHaveLength(7 + 2 + 4);
 
   await test.step("Tab stops at Sessions, the banner's controls, and each card's controls, and nowhere else", async () => {
     for (const stop of stops) {

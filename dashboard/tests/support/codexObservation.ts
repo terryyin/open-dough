@@ -44,7 +44,6 @@ export function observationRecord(
       sessionId: id,
       continuation: { workspace, endpoint },
     })
-    .launchedAt("2026-09-01T00:00:00.000Z")
     .please();
   const { session } = record;
   if (session.host !== "codex") throw new Error("Expected a Codex session");

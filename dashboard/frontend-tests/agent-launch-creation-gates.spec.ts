@@ -28,7 +28,6 @@ test("the common page displays a stand-in host's supplied inspection arguments",
         workspace: "/saved workspace",
         endpoint: "unix:///saved endpoint",
       })
-      .launchedAt("2026-10-01T00:00:00.000Z")
       .please(),
   );
   const view = creationView(record, {

@@ -186,10 +186,10 @@ findings. No full host-by-scenario matrix is required.
   Command proof and independent refactoring are complete.
 - [Distribution integration](distribution-integration.md) adopts Terry's published
   layout; SEED-334's affected backend/integrated/e2e group proofs passed.
-  Main `55da0eecf` brings SEED-346's comparison/session tools: [Slice 4's trace](slice4-consumer-trace.md)
-  reconciles their reuse; full-workflow comparison and native attention remain open.
+  Main `7e7f72c8` is synchronized; SEED-346's existing NativeCompare runs the
+  [declared matched pair and typical-task estimate](slice4-ab-basis.md), with forced CLI-wake limits explicit.
 - Slice 3 refactoring is complete; assessments retain all proof and identities.
-- [Native functional proof](slice4-native-acceptance.md) now covers actual hold, attention, owner recovery, one qualification/replay and independent review; branch CI2537/run43581407553 attempt1 passed. Slice 4 remains planned, awaiting developer judgment on the original comparative criterion (C41/C63-C66/C68); no further baseline retry is authorized by silence.
+- [Native functional proof](slice4-native-acceptance.md) covers hold, attention, recovery, one qualification/replay and independent review; code CI2537/run43581407553 attempt1 passed. Terry now directs proceeding on the hypothesis, ready A/B testing and a final measured-plus-estimated typical-task token report; the declared pair is running, without inferred positive results.
 
 ## Execution context
 
@@ -203,14 +203,14 @@ findings. No full host-by-scenario matrix is required.
 - Start `3458a36c6393683827f5ba0e9bd038dbfded8605`; Take
   `8f88bf2ca6d4e7fb7aabc704070be4c549397675` confirmed on trunk/branch; no second claim.
   Accepted: Slice 1 `58f1eb1ad8ef04cb59f8eb06a90881335d5ccec6`; Slice 2 `174c6d2b9a0ebb4989ad84cfb2a83e6d762c656b`; Slice 3 `2a01f9603a64a87f8b1ae646218efad16848d5e6`.
-  Latest accepted base `2537e0e962486a00e618933822dcd072d4854243` integrates main55da (suffix `fcb358a645bd3b2e762c19515541a3d81b44763c`), registered on the same observer.
+  Latest accepted base `764c4e0fe0ce9f478750323de6a9f30c76a7e61a` (suffix `2537e0e962486a00e618933822dcd072d4854243`); previous observer finished, with its final evidence publication unobserved.
 - Setup: locked `npm ci` and dashboard typecheck passed here; `.githooks/pre-commit`
   owns staged lint/script typecheck and `npm run format` owns selective formatting.
   Assessments retain prior admission/costs; reconsider headroom before long proof.
 - CI: GitHub Actions `ci.yml` / `CI`, workflow 351271804; Take on `main` unobserved.
-  Execution observer coordinator `seed345-resume`, directory `/tmp/dough-ci-501/watch-sAay9N`,
-  PID `76767`, session `79549`, yielded cell `g153:12`, key
-  `ci-watch-execution:terryyin/open-dough:codex/resume-blocked-work-when-it-can-advance:seed345-resume`.
+  Resumed observer coordinator `seed345-ab`, directory `/tmp/dough-ci-501/watch-xuE4y0`,
+  PID `49620`, session `44518`, yielded cell `g228:7`, key
+  `ci-watch-execution:terryyin/open-dough:codex/resume-blocked-work-when-it-can-advance:seed345-ab`.
   Runtime/working directory bind to the owned checkout.
 - Dashboard launch `ec85a3ea-f7ec-4e3f-94d7-4152850d8d4f`: retain the supplied
   reporting command and landing-context path through closure. First trunk

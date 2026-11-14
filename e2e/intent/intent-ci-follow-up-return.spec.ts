@@ -9,7 +9,7 @@ import {
   backToStory,
   projectIntentLink,
 } from "../../dashboard/tests/intentModePage.ts";
-import { selectStory } from "../../dashboard/tests/storyCardSelection.ts";
+import { emptyArea } from "../../dashboard/tests/storyCardSelection.ts";
 import {
   actionsRequests,
   expect,
@@ -92,7 +92,7 @@ test("a revisit from the card reads a settled request's same comparison without 
   // yields to normal Intent.
   await page.setViewportSize({ width: 1440, height: 900 });
   await development.check();
-  await selectStory(
+  await emptyArea(
     page.getByRole("article", { name: "Story B", exact: true }),
   ).click();
   await expect

@@ -24,6 +24,7 @@ import {
   expectNoSidewaysScrollAndWholeText,
 } from "../pageLayout.ts";
 import {
+  expectSessionsSidebar,
   sessionsSidebarParts,
   sessionsSidebarTitleCut,
 } from "../sessionsSidebarPage.ts";
@@ -58,6 +59,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
     origin,
   );
   const { banner, board } = parts(page);
+  const sidebar = sessionsSidebarParts(page);
 
   await openTerminalControl(storyCardSessions(card)).click();
   await expect(terminalScreenParts(terminal).rows).toContainText("attached");
@@ -86,6 +88,10 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
 
     await resizeUntilArranged(panel, narrowWindow);
     await expectCoveringFillsWindow(panel, { banner, board });
+    await sidebar.button.click();
+    await expectSessionsSidebar(page, "open");
+    await sidebar.button.click();
+    await expectSessionsSidebar(page, "closed");
     await expectNoSidewaysScrollAndWholeText(page, [
       ...scrollsOnItsOwn,
       // The sidebar's entries are cut by design, read whole by their tooltip.

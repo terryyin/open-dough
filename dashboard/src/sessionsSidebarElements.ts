@@ -1,14 +1,21 @@
-// Where the Sessions sidebar and the banner's Sessions button that toggles it
-// (`./SessionsSidebar.tsx`) are found on the page, and nowhere else.
+// The Sessions sidebar and its toggle in the banner or side panel header.
 
 export const sessionsSidebarId = "sessions-sidebar";
 
 const sessionsButtonSelector = `[aria-controls="${sessionsSidebarId}"]`;
 
-export const sessionsButton = () =>
-  document.querySelector<HTMLElement>(sessionsButtonSelector);
+export const shownSessionsButton = () =>
+  [...document.querySelectorAll<HTMLElement>(sessionsButtonSelector)].find(
+    (button) =>
+      button.getClientRects().length > 0 &&
+      getComputedStyle(button).visibility === "visible",
+  );
 
-// Whether an event happened on the sidebar or the banner's Sessions button,
+// After the panel closes, the banner's button is the focus return target.
+export const bannerSessionsButton = () =>
+  document.querySelector<HTMLElement>(`.banner ${sessionsButtonSelector}`);
+
+// Whether an event happened on the sidebar or its Sessions button,
 // which move around the sidebar, not the page beside or under it.
 export const onSessionsSidebar = (event: Event) =>
   event.target instanceof Element &&

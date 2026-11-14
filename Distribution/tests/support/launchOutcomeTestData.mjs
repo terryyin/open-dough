@@ -119,6 +119,12 @@ export class LaunchOutcomeBuilder {
     return this;
   }
 
+  // A fresh Done mark remains inside the machine store's retention window.
+  // Cases about time use markedDoneAt instead, including later overrides.
+  markedDone() {
+    return this.markedDoneAt(new Date().toISOString());
+  }
+
   /**
    * The developer marked the session Done at this time; `problem` is what a
    * native operation of that mark could not finish, kept beside it.

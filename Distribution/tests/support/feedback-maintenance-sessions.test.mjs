@@ -120,8 +120,7 @@ test("a kept record is done when marked done, ended when found unavailable, and 
       maintenance: { due: "2026-10-28" },
     })
     .inCodexSession({ sessionId: "maintenance-1" })
-    .launchedAt("2026-10-28T09:00:00Z")
-    .markedDoneAt("2026-10-28T09:30:00Z")
+    .markedDone()
     .please();
   const manual = makeMe.aLaunchRecord
     .adHoc({
@@ -130,7 +129,6 @@ test("a kept record is done when marked done, ended when found unavailable, and 
       instruction: "$maintain-feedback-cycle",
     })
     .inCodexSession({ sessionId: "maintenance-1" })
-    .launchedAt("2026-10-28T09:00:00Z")
     .please();
   const other = makeMe.aLaunchRecord
     .adHoc({
@@ -140,7 +138,6 @@ test("a kept record is done when marked done, ended when found unavailable, and 
       maintenance: { due: "2026-10-28" },
     })
     .inCodexSession({ sessionId: "maintenance-1" })
-    .launchedAt("2026-10-28T09:00:00Z")
     .please();
   const working = makeMe.aSessionState.loaded("working").please();
   assert.deepEqual(

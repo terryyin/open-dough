@@ -1,7 +1,6 @@
 // Review changes on Story A's card, offered by its kept launch record
-// (../support/storyReviewWorktree.ts): it joins Select story and Inspect story
-// in the card's inspection group, next in reading order and on the next line
-// when the card is too narrow for all three, below the launch group's Starts, and
+// (../support/storyReviewWorktree.ts): it follows Inspect story in the card's
+// inspection group, below the launch group's Starts, and
 // the keyboard reaches it from Inspect story. It leads with a decorative
 // review glyph and ends with a decorative arrow toward the side panel.
 // Closing the review in the side panel returns the keyboard in
@@ -34,7 +33,6 @@ import { expectSettledPage } from "../dashboardPage.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { unchangedWorktree } from "../support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
-import { selectStory } from "../storyCardSelection.ts";
 
 // The page once the cards' preparation and the machine's sessions are read.
 // Other journeys settle while they hold the sessions read, so this wait stays
@@ -61,16 +59,11 @@ test("the inspection group sits below the launch group, wraps in reading order, 
     name: "Inspect story",
   });
   const detail = card.getByRole("region", { name: "Detail for Story A" });
-  const select = selectStory(card);
-
   await page.setViewportSize({ width: 1440, height: 900 });
   await expectSettledLayout(page);
   await expectOnOneLine(starts);
-  // Select story and Inspect story share a line; Review changes follows them
-  // in reading order, on the next line when the card is too narrow for all
-  // three.
-  await expectOnOneLine([select, inspect]);
-  await expectInReadingOrder(card, [select, inspect, action]);
+  await expectOnOneLine([inspect, action]);
+  await expectInReadingOrder(card, [inspect, action]);
   await expectActionGlyph(action, "Review changes", "git-compare");
   await expectActionGlyph(action, "Review changes", "arrow-right", "trailing");
   await expectStackedInOrder([launchGroup(card), inspectionGroup(card)]);
@@ -79,7 +72,7 @@ test("the inspection group sits below the launch group, wraps in reading order, 
     // Each window starts from a newly read page, with no detail or review open.
     await page.reload();
     await expectSettledLayout(page);
-    await expectInReadingOrder(card, [...starts, select, inspect, action]);
+    await expectInReadingOrder(card, [...starts, inspect, action]);
     await inspect.focus();
     await page.keyboard.press("Enter");
     const hide = inspectionGroup(card).getByRole("button", {

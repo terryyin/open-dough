@@ -6,7 +6,6 @@ import { scopeHistoryOf } from "../../../dashboard/server/ciScopeHistory.ts";
 test("failed, partial, untimed, missing, invalid and null-unit observations remain distinct nonnumeric gaps", () => {
   const landing = makeMe.aLaunchLanding
     .comparing({ base: "0".repeat(40), revision: "a".repeat(40) })
-    .receivedAt("2026-11-01T00:00:00Z")
     .please();
   const complete = makeMe.aCiProof
     .forRun({ revision: landing.revision })
@@ -98,7 +97,6 @@ test("failed, partial, untimed, missing, invalid and null-unit observations rema
 test("a missing measured-build date remains a gap at the recorded landing, without inventing a build date", () => {
   const landing = makeMe.aLaunchLanding
     .comparing({ base: "0".repeat(40), revision: "a".repeat(40) })
-    .receivedAt("2026-11-01T00:00:00Z")
     .please();
   const proof = makeMe.aCiProof
     .forRun({ revision: landing.revision })
@@ -133,7 +131,6 @@ test("a missing measured-build date remains a gap at the recorded landing, witho
 test("a pending observation preserves its safe attempt link without a measured build or numeric substitute", () => {
   const landing = makeMe.aLaunchLanding
     .comparing({ base: "0".repeat(40), revision: "a".repeat(40) })
-    .receivedAt("2026-11-01T00:00:00Z")
     .please();
   const history = makeMe.aLandedCiHistory
     .pending(landing, {
@@ -166,7 +163,6 @@ test("a pending observation preserves its safe attempt link without a measured b
 test("a final proof gap preserves the build the Landed rule named without inventing timing", () => {
   const landing = makeMe.aLaunchLanding
     .comparing({ base: "0".repeat(40), revision: "a".repeat(40) })
-    .receivedAt("2026-11-01T00:00:00Z")
     .please();
   for (const [reason, provenance] of [
     ["expired", "equivalent"],
