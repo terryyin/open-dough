@@ -60,21 +60,19 @@ fi
 grep -Fqx 'turn-1-slice3-filings: 2' "${work}/duplicate/observations.txt"
 [[ ${native_comparison_reason} == *'did not continue exactly once'* ]]
 
-# Literal external-host wire under proof: a completed response claims success
-# but performs no integration. The observed workspace, not that prose, wins.
-cat > "${work}/bin/codex" << 'HOST'
-#!/usr/bin/env bash
-if [[ ${1-} == --version ]]; then echo 'codex-cli claim-substitute'; exit 0; fi
-printf '%s\n' '{"type":"thread.started","thread_id":"claim-only"}' \
-  '{"type":"item.completed","item":{"id":"answer","type":"agent_message","text":"Execution completed; all proof passed."}}' \
-  '{"type":"turn.completed"}'
-HOST
-if native_comparison_run_case unblocked-supplier "${source_dir}" "${work}/claim"; then
+# A completed response claims success but performs no integration. The observed
+# workspace, not that prose, wins.
+if NATIVE_AGENT_PAUSED_SUPPLIER_RULE=claim-only native_comparison_run_case \
+  unblocked-supplier "${source_dir}" "${work}/claim" "${work}/results"; then
   echo 'FAIL: terminal-looking prose supplied missing execution' >&2
   exit 1
 fi
+grep -Fqx 'turn-1-status: completed' "${work}/claim/observations.txt"
+[[ -n $(native_observation_field "${work}/claim/observations.txt" turn-1-thread) ]]
+[[ $(native_host_stream codex "${native_comparison_attempt}/events-turn-1.jsonl" response) == 'Execution completed; all proof passed.' ]]
 grep -Fqx 'turn-1-supplier-reader: absent' "${work}/claim/observations.txt"
 grep -Fqx 'turn-1-agent-proof: none' "${work}/claim/observations.txt"
+[[ ${native_comparison_reason} == "the execution did not integrate the supplier's completed reader (absent)" ]]
 
 source "${case_path}/assess.bash"
 native_assessor_counterexamples "${case_path}/assess.bash" "${passing}" \

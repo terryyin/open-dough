@@ -150,3 +150,28 @@ remains unchanged at `c596ec840e95ad6518597369766a83fb63f37d18`.
   untracked whitespace passed, no remaining gap.
 - Three-share preview passed at 658 jobs, predicted 740.9/742.2/740.8 under 926;
   new jobs remain unrecorded, so no measured CI cost is claimed.
+
+### Owned CI guard repair after slice 3
+
+- Registered `b4cfc538` CI run `43613277818` attempt 1 failed native-stream-replay: the
+  new test's inline item.completed wire was outside the shared shape owner.
+  Final diagnostic inventory was complete with one failed job and no gaps.
+- The already-started native capture continued with repository inputs held
+  stable; after terminal pass, its actor returned PAUSED FOR CI and the sole
+  generated archive was preserved by sanctioned stash. No duplicate capture
+  or manual stash manipulation occurred.
+- The repair moves claim-only behavior into the existing substitute's protocol
+  emission, preserving all old action rules. The test observes a completed
+  turn/thread and shared-reader success claim before verifying absent
+  integration/proof and the assessor's rejection. Guard and allowlist unchanged.
+- `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i env OPEN_DOUGH_TEST_JOBS=1 bash scripts/test.sh Distribution/tests/native-stream-replay.sh Distribution/tests/native-comparison-unblocked-supplier.sh Distribution/tests/native-comparison-paused-supplier.sh Distribution/tests/native-comparison-pairs.sh Distribution/tests/native-comparison-refresh.sh Distribution/tests/native-comparison-incomplete.sh Distribution/tests/native-comparison-baselines.sh Distribution/tests/native-comparison-baseline-reuse.sh Distribution/tests/native-comparison-baseline-misses.sh Distribution/tests/native-comparison-baseline-readers.sh Distribution/tests/native-comparison-baseline-conditions.sh`
+  passed to terminal, all eleven named consumers. The unchanged-case native
+  observation remains applicable; only test/substitute files changed.
+- Independent refactor `/root/refactor_ci_guard`: none — already clean, no
+  edits/tests. All accepted setup/assertions and consumer dispositions remain
+  valid; whitespace passed and files 115/177 lines. Resource admission: awake
+  AC, 16 cores, load 4.43/5.02/5.22, 65% free memory, no competing native/runner;
+  sequential guarded proof ended. Final publication CI remains owed.
+- Source freshness unchanged at `31216aef7454f10ae110d7faf920707d70f9762b`; incoming
+  removal of configuration-only tests/timing data and planning has no comparison
+  runtime or named-sibling effect.
