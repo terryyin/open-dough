@@ -15,10 +15,10 @@ retained as numbered commitments with coordinator allocation.
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | 1 | Start a follow-up session directly from a Done story's diff. | slice 4 |  |
-| 2 | On start, the agent receives the story, the file, and the comparison the diff shows. | slice 2 |  |
-| 3 | Optionally, the agent also receives one line and its side. | slice 2 |  |
-| 4 | So the developer does not have to describe where the change is. | slice 2 |  |
-| 5 | The developer can add instructions in an optional field before starting. | slice 2 |  |
+| 2 | On start, the agent receives the story, the file, and the comparison the diff shows. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 3 | Optionally, the agent also receives one line and its side. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 4 | So the developer does not have to describe where the change is. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 5 | The developer can add instructions in an optional field before starting. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
 | 6 | This helps the developer act on what they notice while reviewing how a story changed the product and its tests. | slice 4 |  |
 | 7 | Temporary design reference: the file follow-up and story notes mockup shows the file header, line-number menu and follow-up dialog. |  | G1 |
 | 8 | During wrap-up, keep the shared mockup while either SEED-348 story still needs it. | reporting |  |
@@ -53,31 +53,31 @@ retained as numbered commitments with coordinator allocation.
 | 25a | Context list adds the repository-relative path. | slice 3 |  |
 | 25b | Context list adds the old path for a rename. | slice 3 |  |
 | 25c | Context list adds the comparison as that file's diff shows it. | slice 3 |  |
-| 26 | For a file shown as “includes trunk's changes”, the comparison starts at that file's own base. | slice 2 |  |
+| 26 | For a file shown as “includes trunk's changes”, the comparison starts at that file's own base. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
 | 27a | A line-level follow-up also lists the line number. | slice 4 |  |
 | 27b | A line-level follow-up also lists the side (old or new). | slice 4 |  |
-| 28a | On launch, the session receives the existing story follow-up context. | slice 2 |  |
-| 28b | On launch, the session receives the file context above. | slice 2 |  |
-| 28c | On launch, the session receives any instruction. | slice 2 |  |
-| 29 | A blank follow-up starts as one does today. | slice 2 |  |
+| 28a | On launch, the session receives the existing story follow-up context. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 28b | On launch, the session receives the file context above. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 28c | On launch, the session receives any instruction. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 29 | A blank follow-up starts as one does today. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
 | 30 | Offer this on every Done story's diff. | slice 3 |  |
 | 31 | Even when its card offers Open terminal instead of Follow up. | slice 3 |  |
 | 32 | Continuing the earlier conversation does not give the agent this file or line. |  | G2 |
 | 33 | The card's own Follow up rule stays unchanged. | slice 3 |  |
-| 34 | A follow-up from another file, line or side of the same story is a separate launch. | slice 2 |  |
-| 35 | Repeating the same file, line and side with the same instruction is the same launch, under the existing retained-start rule. | slice 2 |  |
-| 36 | This extends the delivered story follow-up rather than adding a second launch path; follow the file-anchored follow-up direction. | slice 2 |  |
-| 37a | The page sends only the file. | slice 2 |  |
-| 37b | The page sends only the comparison. | slice 2 |  |
-| 37c | The page sends only the line selection. | slice 2 |  |
-| 38a | The dashboard server checks that this file belongs to the Done story's comparison it reads. | slice 2 |  |
-| 38b | The dashboard server checks that this line on that side belongs to that comparison. | slice 2 |  |
-| 38c | After a successful check, the server writes the context. | slice 2 |  |
-| 39a | It refuses anything that does not match. | slice 2 |  |
-| 39b | On refuse, nothing starts. | slice 2 |  |
-| 40 | Page-supplied context text stays refused. | slice 2 |  |
-| 41 | The existing follow-up rule requires the context to state only what the records hold. | slice 2 |  |
-| 42 | The agent must not receive a location the comparison does not contain. | slice 2 |  |
+| 34 | A follow-up from another file, line or side of the same story is a separate launch. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 35 | Repeating the same file, line and side with the same instruction is the same launch, under the existing retained-start rule. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 36 | This extends the delivered story follow-up rather than adding a second launch path; follow the file-anchored follow-up direction. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 37a | The page sends only the file. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 37b | The page sends only the comparison. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 37c | The page sends only the line selection. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 38a | The dashboard server checks that this file belongs to the Done story's comparison it reads. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 38b | The dashboard server checks that this line on that side belongs to that comparison. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 38c | After a successful check, the server writes the context. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 39a | It refuses anything that does not match. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 39b | On refuse, nothing starts. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 40 | Page-supplied context text stays refused. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 41 | The existing follow-up rule requires the context to state only what the records hold. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 42 | The agent must not receive a location the comparison does not contain. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
 | 43 | Follow up from an active (Taken) story's diff is deferred. |  | G3 |
 | 44 | Reason: its diff is a local snapshot of the worktree, including uncommitted work, and a follow-up session would run outside that worktree. |  | G3 |
 | 45 | A later story needs to decide where such a session runs and how its changes relate to the story's own execution. |  | G3 |
@@ -90,6 +90,6 @@ retained as numbered commitments with coordinator allocation.
 | 51 | Until then, the line menu holds only Follow up. | slice 4 |  |
 | 52 | Done story Review changes shows Published completion 24c10ae → 8f2b19c; developer chooses Follow up on dashboard/tests/intent-story.spec.ts, types instruction and starts; session receives story context, the file, 24c10ae → 8f2b19c and the instruction. | slice 3 |  |
 | 53 | In Intent → Changed tests, developer opens line menu on old line 85, chooses Follow up, starts with empty instruction; session receives the story, the test file, the comparison and old line 85, and its terminal opens. | slice 4 |  |
-| 54 | On a rename from old/a.ts to new/a.ts, follow-up on new line 12; dialog and session context name both paths and new line 12. | slice 2 |  |
-| 55 | Follow-up on new line 85, then new line 86, same story, both without instructions: two launches; the second does not repeat the first. | slice 2 |  |
+| 54 | On a rename from old/a.ts to new/a.ts, follow-up on new line 12; dialog and session context name both paths and new line 12. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
+| 55 | Follow-up on new line 85, then new line 86, same story, both without instructions: two launches; the second does not repeat the first. | slice 2 | observed: observed: dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts (29-suite: rename/line-12, trunk-base, two-line identity, blank, landed reference, four refusals); followUpFileAdmission + followUpContext; matching-rules file/line/side |
 | 56 | Beneficiary is a developer reviewing a Done story's changes in Review changes, or a changed test in that story's Intent → Changed tests. |  | G1 |

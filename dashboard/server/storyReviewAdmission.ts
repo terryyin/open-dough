@@ -20,6 +20,7 @@ import { z } from "zod";
 import {
   markReviewedRequestSchema,
   objectIdSchema,
+  reviewedPathSchema,
   reviewIntegrationSchema,
   type ReviewIntegration,
 } from "../src/storyReviewContract.ts";
@@ -52,11 +53,6 @@ export interface AdmittedStoryReviewRange {
   readonly baseline: string;
   readonly integrations: readonly ReviewIntegration[];
 }
-
-const reviewedPathSchema = z
-  .string()
-  .min(1)
-  .refine((path) => !path.includes("\0"));
 
 const reviewedFileQuerySchema = z.object({
   baseline: objectIdSchema,

@@ -119,7 +119,7 @@ not re-list retained runs in the historical module.
 
 ### 2. A follow-up names a file and line, and the session receives them
 Type: Behavior
-Status: planned
+Status: done
 Proof: New `dashboard/backend-tests/launches/agent-launch-follow-up-file.spec.ts` over a real origin and the synthetic `claude`, plus the existing follow-up story, identity and boundary specs.
 
 Precondition: a Done story's published done record and a Published completion
@@ -132,6 +132,14 @@ Different anchors are separate launches. The same anchor and text resume the
 kept start. Refusals for a file, line or side outside the comparison, and for
 page context text, start nothing. Update `dashboard/LAUNCH-FOLLOW-UP.md` for
 the anchor, admission and identity.
+
+Accepted proof (coordinator): optional file anchor on `followUp.story`;
+`admitHistoricalReviewedFile` + line check in `followUpFileAdmission.ts`;
+context in `followUpContext.ts`; identity via `followUpSourceKey`. Focused
+backend suite 32 passed including file + file-admission specs and
+story/identity/boundary/matching-rules plus story-review path consumers;
+`npm run typecheck:dashboard` pass. Source-review ids 2–5, 26, 28a–c, 29,
+34–42, 54–55 observed on that suite.
 
 ### 3. Follow up a whole file from a Done story's diff
 Type: Behavior

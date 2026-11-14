@@ -1,8 +1,10 @@
 // A new follow-up's context comes from a retained session, or a story's
 // published done record at the shown revision and the sessions its card holds
-// (`./followUpStory.ts`). A retry of a pending conversation keeps its original
-// context even after the source expires. Repeating a retained attempt uses its
-// saved request directly (`./agentLaunchAccept.ts`).
+// (`./followUpStory.ts`), with an optional file anchor checked against that
+// story's comparison (`./followUpFileAdmission.ts`). A retry of a pending
+// conversation keeps its original context even after the source expires.
+// Repeating a retained attempt uses its saved request directly
+// (`./agentLaunchAccept.ts`).
 
 import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
 import {
@@ -13,6 +15,7 @@ import {
 } from "../src/followUpContext.ts";
 import type { FollowUpSource } from "../src/followUpRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { admitFollowUpFile } from "./followUpFileAdmission.ts";
 import { doneStorySessions, publishedDoneStory } from "./followUpStory.ts";
 import { keptSession, pendingInputOf } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
@@ -23,10 +26,16 @@ async function contextOf(
 ): Promise<FollowUpContext> {
   if ("story" in followUp) {
     const story = await publishedDoneStory(source, followUp.story);
-    return storyContext(
-      story,
-      await doneStorySessions(source, followUp.story.identity),
-    );
+    const sessions = await doneStorySessions(source, followUp.story.identity);
+    const file =
+      followUp.story.file === undefined
+        ? undefined
+        : await admitFollowUpFile(
+            source,
+            followUp.story.identity,
+            followUp.story.file,
+          );
+    return storyContext(story, sessions, file);
   }
   const record = await keptSession(source.id, followUp.session);
   if (record === undefined)
