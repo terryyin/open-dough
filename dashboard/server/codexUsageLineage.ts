@@ -110,7 +110,6 @@ export function codexAssociation(
     ? []
     : tasks.filter(
         (task) =>
-          hasUsageAssignment(task) &&
           task.host === "codex" &&
           !task.gaps.includes("contradictory-project-evidence") &&
           !task.gaps.includes("contradictory-task-field:project") &&
@@ -119,7 +118,8 @@ export function codexAssociation(
           [task.rootTurnId, ...(task.nativeTurns ?? [])].some(
             (turn) =>
               turn === observation.rootTurnId || turn === observation.turnId,
-          ),
+          ) &&
+          hasUsageAssignment(task),
       );
   return {
     observationId: observation.id,

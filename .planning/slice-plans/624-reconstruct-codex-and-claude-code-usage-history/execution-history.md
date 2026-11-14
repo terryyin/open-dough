@@ -100,3 +100,58 @@ Slice7 formatter stopped beforecommit on an unused async test wrapper and while(
 Slice7 published63cf9a6ddce963ca8392ab5eec542439ba9c5844, suffixe2c931ca2eba7880993456a2e35905927891eb74; observer reused.
 
 8. Explicit references: historical-task-references/context specs exercise actual CLI/native wire/immutable Git and fresh reads for unique numeric old Source-and-outcome plan, same-message Established identity, agreeing/conflicting claims with pinned provenance, duplicate/missing plans, source removal/replay, and negative argless/incidental/injected/fenced context. Three initial cases first failed on null identity; additional quoted-source false positive and longer-closing-fence false negative failed before canonical unfencedPlanLines projection. Agreeing-reference duplicate provenance was corrected with uniqueFacts. Final43 quiet usage cases/typecheck/whitespace passed; incoming trace `/tmp/seed358-slice8-consumer-trace.md`248consumers all disposed36run/212excluded. Reused canonical readers, extracted existing immutable usageGit with old export preserved, separated historical plan discovery and task-reference aggregation; no general exec parser or prior-story inheritance. Independent refactor8 removed dead transient singular storyReference/fallback, no persisted schema change. Same43quiet/typecheck passed again; trace `/tmp/seed358-slice8-refactor-consumer-trace.md`267consumers all disposed including19unrelated old-name UI matches. All13incoming files <=250; AC100%/free65%/150GiBdisk/2workers caffeinate, load2.37/2.74/2.77; no competing heavy proof or live action. G11proved, G9 remains9. Sourcefreshness unchanged4b869b1e0cfebaacb2f90fcb71bf2139466af308. Implementation~14min/refactor~8min, no supplied hard limit.
+
+Slice8 published1aafc7626cb20ac359063607b1722ad120d2c5d6, suffix63cf9a6ddce963ca8392ab5eec542439ba9c5844; formatter/hook accepted and observer reused. Proof correspondence for9:7–8 changed real task interpretation, so6's successful run remains capacity and old-measurement evidence, not a final-code metadata replay. The plan's conditional reuse is settled by two final-code native imports in9, each with fresh reads and record-level comparison; no new code means the accepted43-case regression prerequisite can authorize both. Same source outcome and slice boundary, no readiness renewal.
+
+Slice9 runtime reassessment: frozen final-first at1aafc762/e7887753612b21a721d685a66385231baebc34aff1450542586669bd7fec05c2 exceeded405s capacity baseline, stable~2.5GBRSS/100%CPU/no persistence. Native sample showed37%explicitJSON.stringify; owned inspector pause20:37:03.212Z resumed same millisecond, exact stack usageTaskAssignment.ts16:50→13:35→10:33→hasUsageAssignment9:50→codexUsageLineage.ts113:11→codexAssociation111:13→collectUsageHistory162:30. This proves eager deep eligibility for unrelated tasks before cheap host/session/turn checks. Root selected bounded behavior-preserving reorder/short-circuit within9, not new interpretation/cache or slice: quiesce interrupted attempt, retain receipt/previous snapshot, renew43/typecheck, then two repaired-code imports. Full profile metadata external final-first-process-sample/inspector-stack files; no scopes/bodies captured. No numeric hard limit applies.
+
+## Original existing-solution assessment
+
+- Reuse the delivered history directory and reader in
+  `dashboard/server/launchHistory.ts`, operational evidence from
+  `launchRecordDocument.ts`, project configuration from
+  `projectConfiguration.ts`, and the existing machine-store locking and
+  replacement discipline. The supplier agreement in the story is satisfied by
+  accepted `f5c1adff32830a9f4e4992913fd7b8a9f72cfc83`; its recoverable
+  plan at `3463243925b666be7b7c6065a03cee85f8c09b6e` records both slices
+  done and 11/11 backend proof.
+- PFE: passive Codex session reads and Claude listing normalize availability;
+  they do not collect native request usage. Existing native-comparison usage
+  artifacts and the [audit](../../../docs/maintainer/session-token-efficiency-research.md)
+  supply accounting examples, not a reusable importer. Add host-native usage
+  readers, keeping shared attribution/persistence rules in one place.
+- Existing history entries require a complete operational `LaunchRecord` and
+  deduplicate by project/session. Recovered tasks may lack those required
+  fields, and one conversation may contain multiple tasks. Evolve history with
+  an explicitly recovered-task representation and keyed usage evidence alongside
+  existing entries; do not fabricate short IDs, endpoints or launch requests.
+  Preserve old entries and their reader's contract. Routine session reads and
+  writes still do not scan usage/history.
+- Native response identity is host + owning session/thread + response/message
+  ID. Store the observation separately from its task association so replay,
+  streaming rows and future live overlap reconcile one fact. Reconcile a more
+  complete observation without adding its counters again; contradictory facts
+  retain a gap. A response is charged to at most one task. Ambiguous evidence
+  remains available without being included in several totals.
+- Keep uncached input, cache reads, cache writes and output disjoint. Codex
+  inclusive input includes cached categories; derive uncached only when the
+  supplied fields permit it. Preserve source values/definitions and unknown
+  components. Reasoning is an output subset; cache-write lifetime splits are
+  refinements of cache writes, never extra tokens.
+- Follow [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state):
+  files hold machine-local evidence, with no application database or independent
+  workflow authority. Follow [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution)
+  and the [North Star's launch model](../../NORTH-STAR.md#agent-launch-as-a-requested-assignment).
+  An importer is a local operation over retained evidence, not a new native
+  launch or collector scheduler. No new North Star topic or ADR is needed.
+
+
+## Terminal-measurement reassessment
+
+The repaired9 import ended20:47:44.326734Z/defaultheap/maxRSS3981508608,454.904s; all513761 original observations and640908 measurements remained unchanged.467 new Codex IDs were independently matched463configured/4unassigned;49 old effective assignments withdrew,0retargeted; all task/association audits retained.450 new catalog records are unsupported injected context, not claimed tasks. Bounded3/3Claude samples show explicit null-stop partial output3/8/4 followed by same-message tool_use output690/843/1083; current outputnull is a decoder omission. Source files/hash/rows are in final-claude-conflict-inspection.json and summary; official Anthropic streaming/stop documentation confirms phase meaning. The successful run is retained capacity/metadata proof, not final terminal-aware accounting. All commands/listener terminal.
+
+Before this rewrite, exact3 tracked performance files and128-line diagnostic receipt were checksummed and parked without shared stash at /tmp/seed358-terminal-refinement-park-wugwr0ps/manifest.json. Root coordinator edits preserved. Retain compatible performance result as Structure9, add terminal-aware Claude Behavior10, move final pair/report to11; unchanged story/Taken authority and no hard limit. PFE selects current measurement/schema/reconciliation ownership, no new storage or workflow authority.
+
+9. Bounded matching: restored3source files matched their parked checksums; independent refactor9 found code already clean and changed only the diagnostic receipt's dangling command reference to the main reproduction anchor. Accepted43quiet/typecheck/live454.904s proof remains unchanged; no tests/native action repeated. Traces under machine receipt dir seed358-slice9-refactor-consumer-trace.md586rows and targeted43rows (38reused/5excluded), all disposed. Owned sizes105/195/205/129. Track and untracked whitespace/link validation passed; review~12min. Finality correction10 and terminal-aware pair/report11 remain open.
+
+Refinement readiness recorded at6dea9565747beda31137f73314b4af68e164b7e3a6da85f8f286ae40396ff244/document355b12d73ce22b80d7b497128e848e56ae4019bd245bd43bdee3ffd92b287d4f. All4parked files restored/verified before review; no second claim, shared stash or unowned edits. Native stop semantics are supported by official streaming and stop-reason docs and exact3sample metadata; current normalized unknown output is a missing interpretation, not unavailable evidence.

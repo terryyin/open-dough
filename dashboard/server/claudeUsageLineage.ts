@@ -123,7 +123,6 @@ export function claudeAssociation(
       if (chain.roots.length === 1) measurement.rootTurnId = root.uuid;
       const matches = tasks.filter(
         (task) =>
-          hasUsageAssignment(task) &&
           task.host === "claude" &&
           !task.gaps.some(
             (gap) =>
@@ -136,7 +135,8 @@ export function claudeAssociation(
             (task.launchReference !== undefined &&
               root.references.includes(
                 JSON.stringify([task.project, task.launchReference]),
-              ))),
+              ))) &&
+          hasUsageAssignment(task),
       );
       if (matches.length === 0) unresolved = true;
       candidates.push(...matches.map((task) => task.id));

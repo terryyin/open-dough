@@ -23,43 +23,10 @@ into new history records or use recovery to change workflow state.
 
 ## Existing solutions and direction
 
-- Reuse the delivered history directory and reader in
-  `dashboard/server/launchHistory.ts`, operational evidence from
-  `launchRecordDocument.ts`, project configuration from
-  `projectConfiguration.ts`, and the existing machine-store locking and
-  replacement discipline. The supplier agreement in the story is satisfied by
-  accepted `f5c1adff32830a9f4e4992913fd7b8a9f72cfc83`; its recoverable
-  plan at `3463243925b666be7b7c6065a03cee85f8c09b6e` records both slices
-  done and 11/11 backend proof.
-- PFE: passive Codex session reads and Claude listing normalize availability;
-  they do not collect native request usage. Existing native-comparison usage
-  artifacts and the [audit](../../../docs/maintainer/session-token-efficiency-research.md)
-  supply accounting examples, not a reusable importer. Add host-native usage
-  readers, keeping shared attribution/persistence rules in one place.
-- Existing history entries require a complete operational `LaunchRecord` and
-  deduplicate by project/session. Recovered tasks may lack those required
-  fields, and one conversation may contain multiple tasks. Evolve history with
-  an explicitly recovered-task representation and keyed usage evidence alongside
-  existing entries; do not fabricate short IDs, endpoints or launch requests.
-  Preserve old entries and their reader's contract. Routine session reads and
-  writes still do not scan usage/history.
-- Native response identity is host + owning session/thread + response/message
-  ID. Store the observation separately from its task association so replay,
-  streaming rows and future live overlap reconcile one fact. Reconcile a more
-  complete observation without adding its counters again; contradictory facts
-  retain a gap. A response is charged to at most one task. Ambiguous evidence
-  remains available without being included in several totals.
-- Keep uncached input, cache reads, cache writes and output disjoint. Codex
-  inclusive input includes cached categories; derive uncached only when the
-  supplied fields permit it. Preserve source values/definitions and unknown
-  components. Reasoning is an output subset; cache-write lifetime splits are
-  refinements of cache writes, never extra tokens.
-- Follow [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state):
-  files hold machine-local evidence, with no application database or independent
-  workflow authority. Follow [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution)
-  and the [North Star's launch model](../../NORTH-STAR.md#agent-launch-as-a-requested-assignment).
-  An importer is a local operation over retained evidence, not a new native
-  launch or collector scheduler. No new North Star topic or ADR is needed.
+- Reuse launchHistory.ts, operational launchRecordDocument.ts, project configuration and shared machine lock/durable replacement. Existing supplier/PFE evidence is retained in [execution history](execution-history.md#original-existing-solution-assessment).
+- One usageRecords/task/measurement model and writer owns keyed host/session/response facts, separate attribution, monotonic evidence and explicit corrections. Recovered entries never fabricate operational launches; routine launch reads/writes do not scan usage.
+- Uncached input/cache read/cache write/output are disjoint; reasoning and cache lifetimes refine rather than add totals. Preserve raw values and unknowns; a response is charged at most once. Explicit native phase can settle progressive snapshots, while genuinely competing facts stay unknown.
+- [ADR0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state), [ADR0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution) and the [North Star launch model](../../NORTH-STAR.md#agent-launch-as-a-requested-assignment) govern file evidence and direct domain mapping. No database, workflow authority, collector schedule or new architecture topic.
 
 ## Outside-in proof ownership
 
@@ -81,7 +48,7 @@ Assertions observe recovered evidence and aggregates, not the fixture builder.
 | Pruned tasks recover project, workflow/task, historical identity/title, host, settings, timing and outcome where supported | 4: local Git revisions with renamed/deleted story and recorded invocation; inspect each field's evidence |
 | Dashboard/native/unknown origin reflects evidence; unknown/ambiguous values stay explicit | 2–4: no launch reference, contradictory join and missing Git/source cases |
 | No raw transcript/prompt copying, no fabricated operational sessions or workflow writes; native sources can disappear after import | 4, 6: inspect persisted JSON and unchanged operational/backlog/assignment inputs, remove native fixture, read again |
-| Earliest dates, host/coverage counts and material gaps reported for real recovery; import is repeatable | 9: run report, persisted-record reconciliation and second run on the same machine corpus |
+| Earliest dates, host/coverage counts and material gaps reported for real recovery; import is repeatable | 11: run report, persisted-record reconciliation and second run on the same machine corpus |
 
 ## Preparation evidence
 
@@ -147,12 +114,28 @@ Proof: actual-CLI local Git fixtures for numbered historical plans and same-mess
 
 An explicit numeric execute-plan argument resolves only a unique matching historical plan at the evidenced repository/revision; follow its recorded source using the existing canonical historical readers, including the observed older quick-plan source header. An explicitly labelled identity in the same user's Established start/preparation can supply intent, agreeing with any invocation argument; conflicting references remain unknown. Argless later invocations do not inherit a prior story, and incidental/custom-tool reads do not establish intent. Do not build a general orchestration-code parser. Preserve pinned Git/source provenance, deleted-story behavior, source removal and no workflow mutation. HistoricalUsageStory.ts is221lines: separate plan-reference discovery from canonical story resolution if needed, retaining one reader representation.
 
-### 9. Recover this machine's history and report its limits
+### 9. Bound assignment eligibility matching work
+Type: Structure
+Status: done
+Proof: unchanged43 quiet CLI cases/typecheck, exact paused-stack attribution, and successful454.904-second default-heap import with fresh old-fact comparison.
+
+Move cheap host/session/turn/conflict checks before pure assignment eligibility and short-circuit its known-true cases before deep source comparisons. Preserve all policies, keys, fields and attribution results. A paused owned stack proved repeated hasUsageAssignment JSON comparisons in final Codex association; the prior739.140-second attempt was interrupted before persistence, its manifest unchanged and inspector closed. The restored3-file repair and diagnostic receipt are complete compatible work; independent refactor/delivery remain. Successful import preserved all513761 old observations/640908 measurements and audit, with467 genuinely new IDs; finality remains10's separate correction, not proved final totals.
+
+### 10. Reconcile explicit terminal Claude measurements
 Type: Behavior
 Status: planned
-Proof: import-report fixtures, two successful real imports (reusing the accepted first run from slice 6 when still applicable), and fresh-process persisted-record reconciliation.
+Proof: new actual-CLI partial/terminal and legacy-enrichment/replay cases plus all previous usage specs; no real import before this delivery.
 
-Behavior: configured projects and retained native evidence are available → documented import since `2026-09-16T00:00:00+08:00` → stored history and report agree on task/usage dates, host/coverage counts and material gaps. Repeat → old IDs/counters never multiply; distinguish genuine new observations and compatible enrichment. Keep task start distinct from in-window activity, including older roots and workers. Inspect bounded representatives of material metadata gaps before calling retained facts unavailable. Do not infer counters/origin/identity.
+Retain bounded native stop/phase metadata on each Claude measurement, using explicit null as progressive and a supported stop reason as terminal; missing/unknown markers remain distinguishable. Enrich the same physical/native measurement's absent phase without duplicating or erasing its raw counters/source. Terminal output (and supported output-subset fields) can settle earlier explicitly progressive values for the same API message; never sum snapshots/iterations or select latest/maximum. Distinct conflicting terminal or unclassified facts remain unknown. Explicit progressive-only output is not a measured final output; retain its raw value and expose the incomplete-output gap. Preserve legacy unclassified behavior, Codex/input/cache rules, first/last times, lineage/settings, identity and every source fact. Recompute measurement-derived gaps as evidence settles; native stop reasons never complete a task/story.
+
+PFE: extend usageRecords/claudeUsage and the existing shared reconcileObservation/writer, extracting cohesive measurement enrichment/selection if needed. Three actual sampled rows progress from output3/8/4 with stop_reason:null to same-ID tool_use outputs690/843/1083; no unavailable data or heuristic is needed. [Official streaming](https://platform.claude.com/docs/en/build-with-claude/streaming) documents cumulative streaming usage; [stop reasons](https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons) identify completed response generation. Prove legacy stored conflicts become supported values, earlier raw facts survive, later partial rows cannot overwrite finals, terminal conflicts/unknown source facts stay unresolved, replay/collector overlap/source removal stay one count, and workflow/privacy/failure contracts hold. The second final-code real pair belongs11 after current proof.
+
+### 11. Recover this machine's history and report its limits
+Type: Behavior
+Status: planned
+Proof: current import-report fixtures, two successful real imports on the final task/terminal-measurement interpretation, and fresh-process reconciliation;6 remains the capacity/measurement baseline.
+
+Behavior: configured projects and retained native evidence are available → documented import since `2026-09-16T00:00:00+08:00` → stored history and report agree on task/usage dates, host/coverage counts and material gaps. Repeat → old IDs/counters never multiply; distinguish genuine new observations and compatible enrichment. Keep task start distinct from in-window activity, including older roots and workers. Inspect bounded representatives of material metadata gaps before calling retained facts unavailable. Do not infer counters/origin/identity. A paused-stack-proved eligibility hot path is already repaired in9; current fixture proof must precede both final-code live runs.
 
 Record timezone, roster including hidden projects, native roots, exact commands, runtime revision plus dirty-source fingerprint, and scan boundaries. Native inputs remain read-only; shared snapshot locking coexists with the dashboard. Preserve privacy and operational/backlog/assignment facts. Retain only metadata/count evidence in enduring usage documentation, with older counter, missing-source, unknown-boundary/origin/identity and auxiliary coverage limits. No UI, collector scheduling, pricing, billing, Cursor or unavailable-source recovery.
 
@@ -161,8 +144,8 @@ Record timezone, roster including hidden projects, native roots, exact commands,
 - Local import gate on AC: `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history --workers=2`, default quiet reporter. Apply the maintained [macOS sleep guard/power condition](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos): battery needs AC or awake/open-lid `caffeinate -i` plus sleep-log inspection.
 - Run `npm run typecheck:dashboard` for contracts. Reuse unchanged 11 history/delete and project-configuration observations; renew reached consumers. New MakeMe runtime imports retain native-evidence-identity proof. Live scale/import actions require current regression proof first.
 - Failure policy: [AGENTS.md#failing-and-flaky-tests](../../../AGENTS.md#failing-and-flaky-tests) applies as written, including local/CI differences and owned repair. No numeric target or hard limit was supplied.
-- Refinement ran after actual corpus evidence disproved monolithic serialization. Retain completed 1–4; split old 5 into a useful report/lineage result, immediately necessary bounded storage Structure, and the original real-accounting Behavior. Nine slices after metadata reassessment; no story resplit recommended. Scope and beneficiary unchanged.
-- Cumulative design: one native observation/reconciliation model, one file-based snapshot codec and existing atomic/lock primitives. No new North Star topic or ADR; ADR 0002/0008 and the cited launch model still govern. First-live capacity and lossless gap normalization are proved by6. Metadata evidence requires7–8 before the second full import/report9; each live step requires current regression proof.
+- Refinement ran after actual corpus evidence disproved monolithic serialization. Retain completed 1–4; split old 5 into a useful report/lineage result, immediately necessary bounded storage Structure, and the original real-accounting Behavior. Eleven slices after metadata and terminal-measurement reassessment; no story resplit recommended. Scope and beneficiary unchanged.
+- Cumulative design: one native observation/reconciliation model, one file-based snapshot codec and existing atomic/lock primitives. No new North Star topic or ADR; ADR 0002/0008 and the cited launch model still govern. First-live capacity and lossless gap normalization are proved by6. Task evidence7–8 and explicit measurement finality10 precede final pair/report11; each live step requires current regression proof.
 
 ## Refinement premises and retained work
 
@@ -226,7 +209,7 @@ Commitment: 112
 ### G9. Bounded lineage evidence must allow the real corpus import to finish
 Reported: slice 5 — "Slice 5 actual import SIGABRTed at the 4496293888-byte Node heap limit after 16m08s with no usage store written. A 4.3MB Claude file produced 85256 parent-source references for 249 assistant rows; repeated ancestor provenance, not missing machine RAM, challenged corpus feasibility. Repair bounded lineage traversal/provenance while retaining exact response, task-boundary and worker-join evidence; no blind heap-limit increase. A bounded-heap fixture then exposed a second amplification: all lastActivityAt task sources copied into every association for same-time responses; retain that failing shape and restrict association provenance to actual join evidence. The repaired candidate then failed Invalid string length after 6m59.760s without persistence; a read-only census proved approximately 1.4GB compact record values, so the same plan now owns bounded physical storage in slice 6 and successful repeated machine recovery in slice 7."
 Story clause: "A developer can account for the Codex and Claude Code work and token usage in the dashboard's projects since Open Dough became stable on 2026-09-16, including launches whose dashboard records were pruned."
-Disposition: interim until slices 6, 9
+Disposition: interim until slices 6, 11
 Commitment: 1
 
 ### G10. Reject injected context as task assignment evidence
@@ -239,6 +222,12 @@ Reported: slice 7 — "A retained numeric execute-plan50 invocation has one hist
 Story clause: "Use recorded workflow invocations and historical seed, plan, backlog, or completion records to resolve story references."
 Disposition: proved by slice 8: historical-task references/context actual CLI specs resolve unique numbered old source and same-message identity with pinned Git provenance; ambiguous/conflicting/fenced/injected/incidental refs remain unresolved; final43 quiet cases and typecheck passed after independent refactor
 Commitment: 60
+
+### G12. Use explicit terminal Claude usage to settle progressive measurements
+Reported: slice 9 — "Bounded review after successful9 import found three same-message Claude samples with partial null-stop outputs3/8/4 followed by explicit tool_use outputs690/843/1083; stored output remains unknown because the decoder discards native finality. These are supported terminal facts, not a latest/maximum inference."
+Story clause: "A later scan may add evidence or fill a gap"
+Disposition: receiving slice 10
+Commitment: 94
 ## Execution evidence
 
 Accepted proof, refactor and publication receipts are retained in [execution history](execution-history.md).

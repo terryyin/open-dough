@@ -3,10 +3,17 @@
 import { uniqueFacts } from "./usageReconciliation.ts";
 import type { UsageTask, UsageAssociation } from "./usageRecords.ts";
 export function hasUsageAssignment(task: UsageTask) {
+  if (
+    task.kind === "launch" ||
+    Boolean(task.launchedAt) ||
+    !task.assignmentEvidence?.some((item) => item.status === "rejected") ||
+    task.assignmentEvidence.some((item) => item.status === "supported")
+  )
+    return true;
   // Legacy decoders could retain a genuine row while keeping the first wrong
   // clock. Its assignment-derived provenance remains support without a time;
   // generic session/project provenance cannot establish an assignment.
-  const independent = ["launchedAt", "workflow"].some((field) =>
+  return ["launchedAt", "workflow"].some((field) =>
     task.fieldSources?.[field]?.some(
       (source) =>
         source.kind === "native" &&
@@ -16,13 +23,6 @@ export function hasUsageAssignment(task: UsageTask) {
             JSON.stringify(item.source) === JSON.stringify(source),
         ),
     ),
-  );
-  return (
-    task.kind === "launch" ||
-    Boolean(task.launchedAt) ||
-    independent ||
-    !task.assignmentEvidence?.some((item) => item.status === "rejected") ||
-    task.assignmentEvidence.some((item) => item.status === "supported")
   );
 }
 export function reconcileTaskAssignment(
