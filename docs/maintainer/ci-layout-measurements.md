@@ -8,99 +8,63 @@ and CI proof implementation, under ADRs [0002](../adrs/0002-software-development
 
 ## Prospective protocol — 2026-11-14
 
-Recorded before dispatching or reading results of an experiment run. The
-beneficiary is a developer waiting for the complete verdict. Keep a reduction
-only with convincing no-worse evidence both alone and under equivalent two-run
-load. There is no positive regression allowance. Faster individual jobs,
-runner-seconds or a queue-free dependency chain cannot satisfy this decision.
+The developer approved the smaller staged route after reviewing the first block:
+use retained CI timings to rank layouts, choose one strongest candidate, then
+perform at most six experiment workflows. The earlier
+[40-run method](ci-layout-prior-protocol.md) remains historical; the
+[48-run proposal](ci-layout-protocol-proposal.md) was not adopted.
 
-The original pair below is retained history; the replacement fixed workload
-at the end of this protocol governs new samples. Original baseline B is the
-four-Distribution-share layout at
-`d21aaf78c60ee03fb08f382397f2b6a4ea3270b1`, initially reachable at
-`codex/run-ci-on-as-few-jobs-as-its-wall-time-allows`. It has 21 initial jobs
-and 22 total jobs: lint, four Distribution shares, browser groups of 6/5/1/4,
-then ci-proof. Before the ref changes, retain an immutable reachable baseline
-ref or use the exact SHA if GitHub accepts that dispatch input. Never dispatch
-a moving ref without checking its remote SHA first.
+First model all Distribution counts, browser groups and useful lint/proof
+placement using existing complete CI artifacts and the maintained share dealer.
+Retain job counts, work/critical-path estimates, setup costs, uncertainty and
+selection/proof checks. No local benchmark or unchanged full-suite run is needed.
+Case/file time totals rank candidates; they cannot certify final wall time.
 
-First candidate C changes only Distribution's 4→3 share count and the declared
-proof part count, plus contract assertions reflecting that count. Keep its
-exact SHA, diff and selected-identity comparison before dispatch. Use the same
-test workload, lockfile, ubuntu-24.04 runners, CPU-derived workers, test
-settings and dependencies as B. Changes to test behavior beyond count-dependent contract expectations, or a
-needed defect repair, invalidate the comparison: obtain a newly matched successful baseline with
-that repair rather than attributing changed work to runner placement.
+Pin B to current four-share trunk at
+`55da0eecf6803945b66d5a23b00dd7802374550d`, frozen as
+`codex/seed-350-ci-screen-baseline`, and select C only after the ranking.
+Their product/test workload, lockfile, runner class and worker policy must match.
+Refresh the existing timing lists from complete CI evidence when needed, retaining
+normalization and their source. Record unobserved actual Distribution slots as a
+visibility limit. Review packing-dependent aggregate budgets; retain per-check
+protection, all tests, logical producers, units and missing-part reporting.
 
-The hosted proof owner is the executing slice agent; publication is owned by
-the coordinator. At most two owned experiment runs may be active. Other
-executions' runs are neither cancelled nor reserved against. Inspect visible
-repository runs before each block and retain every overlap with unrelated
-work. Repository visibility cannot establish account-wide idleness or verify
-the supplied 20-job account limit. Local CPU/memory figures cannot establish
-GitHub runner headroom.
+Before launch, record the chosen candidate and exact diff. The six-run screen is:
 
-Before reading the first candidate result, classify its automatic push run as
-operational acquisition only, excluded from paired timing samples. The only
-event-dependent behavior found is the concurrency group: dispatches are
-independent while pushes share a branch cancellation group. Use workflow_dispatch
-for both arms' timing samples. Count the extra push run and its measured cost
-separately from the 40-dispatch comparison ceiling; it cannot replace a sample.
+1. One B solo workflow_dispatch run, then one C solo run. C's first accepted push
+   is its solo observation, saving a redundant dispatch; verify that the only
+   event-dependent behavior is cancellation grouping, and never supersede it.
+2. One B+B episode, then one C+C episode, each through a single two-repetition
+   helper. At most two owned runs are active; never launch all four together.
+3. Keep every workflow creation-to-last-required-completion interval, queue,
+   setup, launch offset, visible background run and exact-attempt proof artifact.
 
-### Blocks and ceiling
+Inspect visible repository activity before episodes and sequence by observed
+completion, preserving account-wide visibility limits. A background mismatch
+makes the affected comparison inconclusive; retain it and count its cost.
+Do not cancel or reserve others' work, replace unfavorable observations or renew
+the six-run cap automatically. Necessary defect repair follows the repository's
+[failure policy](../../AGENTS.md#failing-and-flaky-tests), with actual recovery
+cost recorded separately and dependent comparisons stopped if workload changes.
 
-Start with an acquisition probe: one B run, verified through completion and
-full exact-attempt artifacts. It may be the first solo observation only if its
-conditions match. Stop dependent dispatches if attribution, timestamps, proof
-or successful fixed-workload CI cannot be obtained. Do not spend a repeated
-sample budget before this route works.
-
-Each complete matched block contains eight runs, sequenced by observed run
-completion rather than a fixed delay:
-
-1. Solo B and solo C, alternating B/C order between blocks; only one owned
-   experiment is active. Record visible unrelated activity.
-2. Mixed concurrent B+C, alternating which arm is dispatched first; retain
-   both creation timestamps and the launch offset.
-3. Concurrent B+B and concurrent C+C as separate two-run episodes, alternating
-   episode order between blocks. Never launch all four arms together. Retain
-   both verdicts and their start offset in each episode.
-
-Collect at least three complete matched blocks per candidate before any
-passing comparison. An eligible probe counts toward that budget, not in
-addition to it. Inspect paired differences, individual slow samples and queue
-timings, not only fastest samples or medians. Extend promising or uncertain
-comparisons by complete blocks to five blocks maximum. This first comparison's
-ceiling is 40 dispatched runs, including acquisition probes and unsuccessful
-runs; thus failures can leave fewer complete blocks and an inconclusive result.
-Before later candidates, retain the original baseline and any intermediate
-winner and declare their own bounded comparison budget. The first comparison
-does not cancel the whole-workflow search.
-
-For a conservative pass, require five complete matched blocks with all five
-solo paired candidate-minus-baseline differences strictly negative; all five
-equivalent-load slowest-verdict differences strictly negative; no slower
-candidate verdict at either matched launch position in the B+B/C+C episodes;
-and all five mixed-pair differences nonpositive after inspecting launch-order
-and background-load imbalance. Five strict paired decreases have a one-sided
-sign-test probability of 1/32 under an exchangeable no-effect hypothesis.
-This is supporting evidence, not a guarantee for unobserved future workloads.
-Also require the candidate's worst observed solo and equivalent-load verdict
-not to exceed the corresponding baseline worst, and every preservation check.
-The rule deliberately claims less when queue noise or launch imbalance prevents
-an interpretable comparison; it grants no regression tolerance.
-
-Consistent slower complete verdicts after three complete blocks can reject a
-candidate without consuming the five-block pass budget. Mixed signs, ties,
-unmatched background load or missing evidence at the ceiling are inconclusive:
-retain the incumbent, make no speed claim, and leave the dependent search
-unfinished. An unsuccessful or incomplete run is never a timing win; diagnose
-and repair under the repository's [failure policy](../../AGENTS.md#failing-and-flaky-tests).
-Never rerun until green as a fix. Preserve all failed samples and repair
-ownership. Reconsider load and acquisition assumptions before another costly
-attempt following a failure.
+This is an exploratory screen, never adoption evidence. A promising screen needs
+successful complete proof and no slower observed C solo, either matched C+C
+launch position, or C+C slowest verdict, with comparable background conditions.
+An omitted/changed proof unit rejects the candidate; slower or unmatched/noisy
+observations keep it unkept without overstating causality. After six runs,
+reassess whether bounded additional repetitions are worth their cost. Mixed B+C
+runs are diagnostics, not an unconditional raw-sign acceptance gate. The story's
+final convincing no-worse requirement in both contexts and remaining search
+promises are unchanged.
 
 ## Acquisition and eligibility
+
+Selected for the approved screen: H1 from the
+[artifact ranking](ci-layout-packing.md), counts 3/5/4/1/3, refreshed weights
+and lint cohosted on the existing frontend producer. It has 16 initial / 17 total
+jobs, versus B's 21 / 22. The 272–280-second queue-free estimate is a hypothesis;
+its headroom is smaller than observed variation. Freeze this choice before B's
+first screen dispatch; the exact C publication will supply its immutable SHA.
 
 Use dispatch attribution already established by `scripts/ci-repeat.sh`: list
 existing matching workflow_dispatch runs, dispatch one checked ref, then claim
@@ -137,7 +101,7 @@ The [detailed run ledger](ci-layout-run-ledger.md) retains old-workload history,
 exact-attempt acquisition, failed runs and replacement-workload samples. Per-run
 [compact evidence](ci-layout-evidence/) retains job epochs and artifact identity.
 
-## Candidate ledger
+## Prior candidate ledger
 
 | Layout | Initial / total jobs | State | Evidence and limits |
 | --- | --- | --- | --- |
@@ -156,7 +120,7 @@ packing. Record measured, predicted-infeasible (with reasons) and unknown smalle
 layouts. A greedy one-count-at-a-time failure proves no general lower bound;
 the result is the smallest measured passing layout, never a global optimum.
 
-## Replacement fixed workload — declared before its first result
+## Prior replacement workload — historical
 
 The first candidate push, [43566037079/1](https://github.com/terryyin/open-dough/actions/runs/43566037079),
 failed three aggregate budgets and one native per-check budget; all selected
@@ -221,7 +185,7 @@ All eight workflows succeeded with complete declared proof, the exact shared
 roster/outcomes and four observed browser workers per shard. Their full queues
 remain included. This is one collection block with comparison limits, not
 repeated passing evidence or a causal layout win. The candidate stays unkept.
-Stop before block 2 while the [separate protocol proposal](ci-layout-protocol-proposal.md)
-awaits developer decision; the active strict rule and ceiling are unchanged.
+This campaign stopped before block 2. The developer subsequently approved the
+artifact-first six-run screen above; its results will not rescue this block.
 The [ledger](ci-layout-run-ledger.md) retains every run, raw start offsets,
 background job epochs, observation-command recovery and total resource cost.

@@ -1,5 +1,22 @@
 # Dashboard Integrated UI Test spec durations, <seconds><TAB><file> relative to dashboard/, in the included parts.
-# Preview/refresh: dashboard/tests/shards.md. Each part names its recorded source;
-# rows were mapped from the former combined dashboard list, seconds unchanged.
+# Preview/refresh: dashboard/tests/shards.md. Source lines identify the CI run
+# and runner normalization used to refresh the root and each included part.
 # Include: integrated.longest-first-agents
 # Include: integrated.longest-first-project
+# Source: run 43575040009/1 at 55da0eecf6803945b66d5a23b00dd7802374550d, 2026-11-14 (runner factor 0.669)
+29.8	tests/sessions/recently-done-sessions-review-cue-evidence.spec.ts
+26.0	tests/stories/recently-done-review-state.spec.ts
+24.2	tests/sessions/recently-done-sessions-review-cue.spec.ts
+16.0	tests/sessions/recently-done-sessions-review-cue-races.spec.ts
+14.5	tests/stories/recently-done-review-state-offer.spec.ts
+14.2	tests/intent/intent-source-target-recovery.spec.ts
+13.9	tests/intent/intent-scope-glance.spec.ts
+13.5	tests/intent/intent-story-dark-appearance.spec.ts
+11.5	tests/review/story-review-diff-line-follow-up.spec.ts
+11.2	tests/launches/agent-launch-ad-hoc-instructed.spec.ts
+10.9	tests/stories/recently-done-review-cue.spec.ts
+9.0	tests/intent/intent-code-browse-java.spec.ts
+8.4	tests/intent/intent-ci-proof-grouped-location.spec.ts
+7.3	tests/intent/intent-ci-proof-accessibility.spec.ts
+6.9	tests/intent/intent-ci-done-glance.spec.ts
+5.1	tests/configuration/system-settings-terminal-theme-appearance.spec.ts

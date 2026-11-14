@@ -33,6 +33,10 @@ on:
         description: The group's shard matrix, a JSON array such as `[1, 2, 3]`.
         type: string
         required: true
+      lint:
+        description: Run lint and the dashboard type-check once on this group's runner.
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -54,6 +58,8 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          # String zero is truthy; numeric zero would select the fallback.
+          fetch-depth: ${{ inputs.lint && '0' || '1' }}
       # Both deadlines count from the job's start, so a slow setup shortens
       # the group's run rather than pushing it past the job bound.
       - name: Start prerequisite acquisition (180 seconds) and browser run (320 seconds) deadlines
@@ -82,8 +88,24 @@ jobs:
           echo '::error::Infrastructure setup: Node or npm cache acquisition failed within its 60-second deadline. Restore GitHub Releases, nodejs.org, or cache connectivity and rerun setup before checks.'
           exit 1
       - name: Install npm dependencies
+        id: npm
         run: node scripts/setup-native.mjs npm
+      # Acquire lint tools within the setup deadline, before any suite work.
+      - name: Install shell lint tools
+        if: ${{ !cancelled() && inputs.lint && steps.npm.outcome == 'success' }}
+        id: lint-tools
+        timeout-minutes: 1
+        env:
+          SHELLCHECK_VERSION: "0.11.0"
+          SHFMT_VERSION: "3.14.1"
+        run: bash scripts/setup-lint-tools.sh
+      - name: Diagnose lint tool acquisition failure
+        if: ${{ !cancelled() && steps.lint-tools.outcome == 'failure' }}
+        run: |
+          echo "::error::Infrastructure setup: shell lint tool acquisition failed or exceeded its setup bound. Restore GitHub Releases/Docker Hub connectivity and rerun setup before checks."
+          exit 1
       - name: Cache Playwright Chromium
+        if: ${{ !cancelled() && steps.npm.outcome == 'success' }}
         uses: actions/cache@v6
         id: playwright-cache
         timeout-minutes: 1
@@ -94,17 +116,30 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
       - name: Use a clean browser directory after cache failure
-        if: steps.playwright-cache.outcome == 'failure'
+        if: ${{ !cancelled() && steps.playwright-cache.outcome == 'failure' }}
         run: |
           echo '::warning::Chromium cache restore failed. Installing the locked browser directly.'
           echo "PLAYWRIGHT_BROWSERS_PATH=${RUNNER_TEMP}/playwright-chromium" >> "$GITHUB_ENV"
       - name: Install Playwright Chromium
+        if: ${{ !cancelled() && steps.npm.outcome == 'success' }}
+        id: browser
         run: node scripts/setup-native.mjs browser
+      # Lint/type-check and browser tests keep independent outcomes. Run lint
+      # first so a browser deadline cannot consume its remaining job time.
+      - name: Run lint
+        if: ${{ !cancelled() && inputs.lint && steps.npm.outcome == 'success' && steps.lint-tools.outcome == 'success' }}
+        id: lint
+        run: exec npm run lint
+      - name: Type-check the dashboard
+        if: ${{ !cancelled() && inputs.lint && steps.npm.outcome == 'success' }}
+        id: typecheck
+        run: npm run typecheck:dashboard
       # The run ends itself, naming the deadline, at `<prefix>_DEADLINE_MS`,
       # about 30 seconds inside the job's 6 minutes, so a shard out of time
       # fails instead of being cancelled and the reports below are kept.
       # `exec` makes npm the step's process, which cancellation signals.
       - name: Run the group's browser tests
+        if: ${{ !cancelled() && steps.npm.outcome == 'success' && steps.browser.outcome == 'success' }}
         id: suite
         env:
           SETTINGS: ${{ inputs.settings }}

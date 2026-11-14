@@ -1,8 +1,8 @@
 # Proposed CI comparison correction
 
-Status: awaiting developer decision; the
-[active protocol](ci-layout-measurements.md#prospective-protocol--2026-11-14)
-is unchanged. No existing observation becomes a passing layout comparison.
+Status: not adopted. The developer instead approved an artifact-first six-run
+exploratory screen; see the [active protocol](ci-layout-measurements.md#prospective-protocol--2026-11-14).
+The former 48-run proposal below is retained history, not execution authority.
 
 ## Reason for the decision
 

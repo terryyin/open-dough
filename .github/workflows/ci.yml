@@ -25,59 +25,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Lint and the shard-independent dashboard type-check run once outside the
-  # test matrices and the browser deadlines.
-  lint:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 8
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-      - name: Start prerequisite acquisition deadline (180 seconds)
-        run: echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( $(date +%s) * 1000 + 180000 ))" >> "$GITHUB_ENV"
-      # Restoring the existing npm cache and installing Node share one minute.
-      - &start-node-setup
-        name: Start Node and npm cache deadline (60 seconds)
-        run: echo "OPEN_DOUGH_NODE_DEADLINE_MS=$(( $(date +%s) * 1000 + 60000 ))" >> "$GITHUB_ENV"
-      - &cache-npm
-        name: Restore npm cache
-        uses: actions/setup-node@v7
-        id: npm-cache
-        timeout-minutes: 1
-        with:
-          cache: npm
-      - &setup-node
-        name: Install pinned Node
-        id: node
-        timeout-minutes: 1
-        run: bash scripts/setup-ci-node.sh .node-version
-      - &diagnose-node
-        name: Diagnose Node acquisition failure
-        if: failure() && (steps.node.outcome == 'failure' || steps.npm-cache.outcome == 'failure')
-        run: |
-          echo '::error::Infrastructure setup: Node or npm cache acquisition failed within its 60-second deadline. Restore GitHub Releases, nodejs.org, or cache connectivity and rerun setup before checks.'
-          exit 1
-      - name: Install npm dependencies
-        run: node scripts/setup-native.mjs npm
-      - name: Install shell lint tools
-        id: lint-tools
-        timeout-minutes: 1
-        env:
-          SHELLCHECK_VERSION: "0.11.0"
-          SHFMT_VERSION: "3.14.1"
-        run: bash scripts/setup-lint-tools.sh
-      - name: Diagnose lint tool acquisition failure
-        if: failure() && steps.lint-tools.outcome == 'failure'
-        run: |
-          echo "::error::Infrastructure setup: shell lint tool acquisition failed or exceeded its setup bound. Restore GitHub Releases/Docker Hub connectivity and rerun setup before checks."
-          exit 1
-      - name: Run lint
-        run: exec npm run lint
-      - name: Type-check the dashboard
-        run: npm run typecheck:dashboard
-
   # `npm test` runs one job per matrix share, each running its share of the
   # discovered checks (OPEN_DOUGH_TEST_SPLIT, Distribution/tests/runner-settings.md), failing
   # on its own failing check or time-budget breach. The matrix lists only the
@@ -101,10 +48,25 @@ jobs:
           started=$(( $(date +%s) * 1000 ))
           echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( started + 180000 ))" >> "$GITHUB_ENV"
           echo "OPEN_DOUGH_TEST_DEADLINE_MS=$(( started + 320000 ))" >> "$GITHUB_ENV"
-      - *start-node-setup
-      - *cache-npm
-      - *setup-node
-      - *diagnose-node
+      # Restoring the existing npm cache and installing Node share one minute.
+      - name: Start Node and npm cache deadline (60 seconds)
+        run: echo "OPEN_DOUGH_NODE_DEADLINE_MS=$(( $(date +%s) * 1000 + 60000 ))" >> "$GITHUB_ENV"
+      - name: Restore npm cache
+        uses: actions/setup-node@v7
+        id: npm-cache
+        timeout-minutes: 1
+        with:
+          cache: npm
+      - &setup-node
+        name: Install pinned Node
+        id: node
+        timeout-minutes: 1
+        run: bash scripts/setup-ci-node.sh .node-version
+      - name: Diagnose Node acquisition failure
+        if: failure() && (steps.node.outcome == 'failure' || steps.npm-cache.outcome == 'failure')
+        run: &diagnose-node |
+          echo '::error::Infrastructure setup: Node or npm cache acquisition failed within its 60-second deadline. Restore GitHub Releases, nodejs.org, or cache connectivity and rerun setup before checks.'
+          exit 1
       - name: Install npm dependencies
         run: node scripts/setup-native.mjs npm
       # Cancellation signals only this step's pid; `exec` makes npm/the runner that process.
@@ -148,7 +110,7 @@ jobs:
       command: test:e2e
       settings: OPEN_DOUGH_E2E
       root: e2e
-      shards: "[1, 2, 3, 4, 5, 6]"
+      shards: "[1, 2, 3, 4, 5]"
   dashboard-integrated:
     uses: ./.github/workflows/browser-test-group.yml
     with:
@@ -156,7 +118,7 @@ jobs:
       command: test:dashboard:integrated
       settings: OPEN_DOUGH_DASHBOARD_INTEGRATED
       root: dashboard/tests
-      shards: "[1, 2, 3, 4, 5]"
+      shards: "[1, 2, 3, 4]"
   dashboard-frontend:
     uses: ./.github/workflows/browser-test-group.yml
     with:
@@ -165,6 +127,7 @@ jobs:
       settings: OPEN_DOUGH_DASHBOARD_FRONTEND
       root: dashboard/frontend-tests
       shards: "[1]"
+      lint: true
   dashboard-backend:
     uses: ./.github/workflows/browser-test-group.yml
     with:
@@ -172,7 +135,7 @@ jobs:
       command: test:dashboard:backend
       settings: OPEN_DOUGH_DASHBOARD_BACKEND
       root: dashboard/backend-tests
-      shards: "[1, 2, 3, 4]"
+      shards: "[1, 2, 3]"
 
   # One CI proof summary per run attempt once the proof jobs settle, however they
   # ended, against declared Intent locations, parts and units their reports give.
@@ -191,9 +154,11 @@ jobs:
         with:
           persist-credentials: false
       - *setup-node
-      - *diagnose-node
+      - name: Diagnose Node acquisition failure
+        if: failure() && steps.node.outcome == 'failure'
+        run: *diagnose-node
       - name: Summarize CI proof
         uses: ./.github/actions/ci-proof-summary
         with:
-          expect: e2e=6:case dashboard/tests=5:case dashboard/frontend-tests=1:case dashboard/backend-tests=4:case Distribution=3:file
+          expect: e2e=5:case dashboard/tests=4:case dashboard/frontend-tests=1:case dashboard/backend-tests=3:case Distribution=3:file
           frontend-entry: dashboard/frontend-tests

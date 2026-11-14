@@ -1,5 +1,22 @@
 # E2E Test spec durations, <seconds><TAB><file> relative to e2e/, in the included parts.
-# Preview/refresh: dashboard/tests/shards.md. Each part names its recorded source;
-# rows were mapped from the former combined dashboard list, seconds unchanged.
+# Preview/refresh: dashboard/tests/shards.md. Source lines identify the CI run
+# and runner normalization used to refresh the root and each included part.
 # Include: longest-first-agents
 # Include: longest-first-project
+# Source: run 43575040009/1 at 55da0eecf6803945b66d5a23b00dd7802374550d, 2026-11-14 (runner factor 0.809)
+22.9	intent/intent-project-scope-timing-refresh.spec.ts
+21.6	intent/intent-story-follow-up.spec.ts
+21.1	sessions/agent-session-cursor-unavailable.spec.ts
+18.9	intent/intent-ci-follow-up-return.spec.ts
+16.8	intent/intent-project-scope-timing-history.spec.ts
+15.3	intent/intent-ci-follow-up-custom.spec.ts
+14.3	sessions/agent-launch-attention-taken.spec.ts
+13.6	sessions/recently-done-sessions-review-cue-ad-hoc.spec.ts
+13.5	stories/recently-done-review-state-persistence.spec.ts
+12.2	review/story-review-follow-up.spec.ts
+11.4	launches/feedback-maintenance-launch-held.spec.ts
+8.5	terminals/agent-terminal-touch-select.spec.ts
+8.2	intent/recently-done-ci-automatic-repeat.spec.ts
+5.4	intent/intent-ci-follow-up-proof.spec.ts
+5.3	intent/intent-ci-follow-up.spec.ts
+3.7	stories/recently-done-review-state-failed-save.spec.ts

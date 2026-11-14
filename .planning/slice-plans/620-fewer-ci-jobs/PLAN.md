@@ -107,8 +107,8 @@ Type: Behavior
 Status: planned
 
 Behavior: A developer needs evidence for a proposed reduction → execution
-pins the workload and prospectively records the protocol, then runs baseline
-and a reversible three-Distribution-share candidate → complete exact-attempt
+uses retained CI timings to rank layouts and pins a matched workload, then runs
+the strongest reversible candidate through the approved six-run screen → exact-attempt
 measurements distinguish solo time, overlap time, runner waits and proof.
 
 This early hosted probe reuses dispatch attribution and real workflow/proof
@@ -213,12 +213,11 @@ No rerun-until-green, skipped test, or weakened proof can make a candidate pass.
 ## Current decisions and concern evidence
 
 No scope change or ADR exception. The supplied account limit of 20 remains
-unverified. The first replacement block cannot establish no-worse performance:
-unmatched background runs and launch priority confound its comparisons, and
-the declared 40-run cap cannot supply five eligible blocks after that loss.
-Stop before block 2 pending the developer's decision on the
-[prospective proposal](../../../docs/maintainer/ci-layout-protocol-proposal.md).
-The active protocol is unchanged; no reduction is kept and all slices stay open.
+unverified. The first block stays inconclusive. The developer now approved
+artifact-first ranking and one six-workflow exploratory screen (B, C, BB, CC),
+with no local benchmarks or automatic 48-run campaign. The active method is in
+the measurement record; no adoption is authorized by the screen alone.
+All slices stay open; reassess further proof only after the bounded screen.
 
 Execution resumed 2026-11-14 in the established owned worktree, branch `codex/run-ci-on-as-few-jobs-as-its-wall-time-allows`, story-branch mode.
 Accepted Take: `d21aaf78c60ee03fb08f382397f2b6a4ea3270b1`; starting revision:
@@ -227,20 +226,20 @@ agent `aki-chan`; default checkout `/Users/terryyin/git/open-dough`, no originat
 integration checkout supplied. No second claim. Locked `npm ci` and applicable
 commands passed here. Hook: check-only staged lint and script-triggered typecheck;
 `npm run format` selects changed/new paths. No numeric slice budget was supplied.
-Latest accepted code: `567f05894b0af0246252202a72195acc6ade0ec5`, exact CI success
-43568511716/1, incorporating upstream repair at `3cc1495fa` and aggregate 926.
-Frozen baseline alias `codex/seed-350-ci-baseline` retains that upstream revision
-with four shares/694; both arms retain per-check 64 and the same 645-check workload.
+Published base: `fa31e32a3baf2748553265b4b9566ba1ce848d68`; prior code CI at
+`567f05894b` passed 43568511716/1. Current local merge `2e066be86` absorbs trunk
+`55da0eecf`; all 652 checks now have timings refreshed from its existing CI.
+H1 (3/5/4/1/3 plus frontend lint, 17 total) passed focused proof and refactoring.
+The old 3cc alias remains historical; the new baseline alias is frozen at 55da.
 
 Observer: GitHub Actions `terryyin/open-dough`, verified active `ci.yml` / `CI`
 (351271804), execution-branch target. Coordinator `aki-chan-seed350`, checkout
-as above; directory `/tmp/dough-ci-501/watch-fNDC3o`, PID 82547, yielded cell
-`g188:9`, stream session 28375. The Take's trunk CI is unobserved by this
+as above; directory `/tmp/dough-ci-501/watch-GrK9yt`, PID 38969, yielded cell
+`g207:9`, stream session 29972. Old watch-fNDC3o is stopped. The Take's trunk CI is unobserved by this
 branch observer. Use the retained directory/coordinator for managed delivery.
 
-The four proof loops remain selected. The first block and independent method
-review invalidated the sampling-sufficiency premise; preserve its evidence and
-settle the evaluation decision before refining or extending dependent work.
+The four proof loops remain selected. Keep the first block and method review;
+the approved screen changes neither the final no-worse promise nor open search.
 
 ## Story obligations
 
