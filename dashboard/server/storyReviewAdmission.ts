@@ -1,8 +1,9 @@
 // A review names an exact project and work identity, never a repository path.
-// Workspace review follows reviewWorkspaceOf; a named historical run follows
-// its retained launch. File reads name hexadecimal comparison objects and
-// literal changed paths, including a rename's old path. Historical reads must
-// match that run's captured pair and file list.
+// Workspace review follows reviewWorkspaceOf; a named historical completion or
+// landed run follows retained publication or launch evidence. File reads name
+// hexadecimal comparison objects and literal changed paths, including a
+// rename's old path. Historical reads must match that comparison's pair and
+// file list through admitHistoricalReviewedFile.
 // Marking is a same-origin POST of the workspace snapshot's tree and baseline.
 // Commit ranges name listed fromTree/fromBaseline and tree/baseline points;
 // the range reader confirms their objects exist. Uncommitted changes compare
@@ -14,7 +15,6 @@ import {
   reviewedWorkspace,
   queriedWorkspace,
 } from "./storyReviewWorkspaceAdmission.ts";
-import { reviewedRunFile } from "./storyReviewRunAdmission.ts";
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
 import {
@@ -28,9 +28,8 @@ import { jsonBody } from "./jsonRequestBody.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { requireExactQuery } from "./sessionAdmission.ts";
 import type { AdmittedStoryReviewMark } from "./storyReviewMarks.ts";
-import { queriedRun } from "./storyReviewRunAdmission.ts";
-import { publishedStoryReview } from "./storyReviewPublished.ts";
-import { projectFolder } from "./projectFolders.ts";
+import { admitHistoricalReviewedFile } from "./storyReviewHistoricalFileAdmission.ts";
+import { queriedReviewIdentity } from "./storyReviewRunAdmission.ts";
 
 // One admitted comparison identity for printed diff or revision file text.
 export interface AdmittedReviewedFile {
@@ -140,7 +139,12 @@ async function admitReviewedFile(
       `The ${label} names a malformed object or path.`,
     );
   const { baseline, tree, path, oldPath } = query.data;
-  let repository: string;
+  const file = {
+    baseline,
+    tree,
+    path,
+    ...(oldPath === undefined ? {} : { oldPath }),
+  };
   if (url.searchParams.has("completion")) {
     const named = objectIdSchema.safeParse(url.searchParams.get("completion"));
     if (!named.success || url.searchParams.has("reference"))
@@ -148,55 +152,29 @@ async function admitReviewedFile(
         400,
         "The published comparison identity is malformed.",
       );
-    const { source, identity } = await queriedRun(url);
-    const review = await publishedStoryReview(
+    const { source, identity } = queriedReviewIdentity(url);
+    const admitted = await admitHistoricalReviewedFile({
       source,
       identity,
-      AbortSignal.timeout(30_000),
-      named.data,
-    );
-    if (review?.kind !== "published")
-      throw new RefusedRequest(
-        409,
-        review?.kind === "unavailable"
-          ? review.explanation
-          : "Published comparison unavailable.",
-      );
-    if (
-      named.data !== review.completion ||
-      tree !== review.tree ||
-      !review.files.some(
-        (file) =>
-          file.path === path &&
-          (file.includesTrunkFrom ?? review.baseline) === baseline &&
-          (file.kind === "renamed"
-            ? file.oldPath === oldPath
-            : oldPath === undefined),
-      )
-    )
-      throw new RefusedRequest(
-        409,
-        "The file or comparison does not belong to this published completion.",
-      );
-    repository = projectFolder(source).path;
-  } else if (url.searchParams.has("reference")) {
-    const run = await reviewedRunFile(url, {
-      baseline,
-      tree,
-      path,
-      ...(oldPath === undefined ? {} : { oldPath }),
+      completion: named.data,
+      ...file,
     });
-    repository = run.repository ?? run.established.workspace;
-  } else {
-    repository = (await queriedWorkspace(url)).established.workspace;
+    return { kind, ...admitted };
+  }
+  if (url.searchParams.has("reference")) {
+    const { source, identity } = queriedReviewIdentity(url);
+    const admitted = await admitHistoricalReviewedFile({
+      source,
+      identity,
+      reference: url.searchParams.get("reference") ?? "",
+      ...file,
+    });
+    return { kind, ...admitted };
   }
   return {
     kind,
-    repository,
-    baseline,
-    tree,
-    path,
-    ...(oldPath === undefined ? {} : { oldPath }),
+    repository: (await queriedWorkspace(url)).established.workspace,
+    ...file,
   };
 }
 

@@ -1,6 +1,7 @@
 # Start a follow-up session from a Done story's file diff
 
 **Source:** [refined story](../../seeds/SEED-347-follow-up-from-a-file-diff.md#start-follow-up-from-a-file-diff)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-347#start-follow-up-from-a-file-diff
 
 ## Goal and scope
@@ -97,7 +98,7 @@ journeys.
 
 ### 1. One historical-file rule for review reads and follow-ups
 Type: Structure
-Status: planned
+Status: done
 Proof: Existing story-review file diff and file-text refusals and journeys stay green.
 
 Move `admitReviewedFile`'s Published completion and landed-run file check into
@@ -105,6 +106,16 @@ a field-based module that returns the admitted repository and file. The file
 diff and file-text endpoints call it unchanged. This enables Slice 2's anchor
 admission without copying the completion and landed-run rules. Run the backend
 specs that request those endpoints and `e2e/review/story-review-completed.spec.ts`.
+
+Accepted proof (coordinator): field-based `admitHistoricalReviewedFile` in
+`dashboard/server/storyReviewHistoricalFileAdmission.ts`; URL adapters in
+`storyReviewAdmission.ts`; shared run helpers in `storyReviewRunAdmission.ts`.
+`npm run typecheck:dashboard` pass; backend
+`story-review-completed-file-admission`, `story-review-file-text-admission`
+(3 passed) and `story-review-one-shot-admission` (1 passed); e2e
+`story-review-completed.spec.ts` (1 passed). Source-review commitments for
+slice 1: none. Learning: landed-run listing must share `queriedRun`'s helpers,
+not re-list retained runs in the historical module.
 
 ### 2. A follow-up names a file and line, and the session receives them
 Type: Behavior
@@ -152,10 +163,49 @@ viewport. The blank Intent follow-up opens its terminal and the first input
 names old line 85. Update `dashboard/STORY-REVIEW-FILES.md` or the diff's
 maintained doc for line numbers.
 
+## Story obligations
+
+### G1. Temporary design reference and beneficiary context
+Reported: slice 1 — "The file follow-up and story notes mockup shows the file header, line-number menu and follow-up dialog."
+Story clause: "The [file follow-up and story notes mockup](../mockups/story-review-and-notes.html) shows the file header, line-number menu and follow-up dialog."
+Disposition: no user cost "Start a follow-up session directly from a Done story's diff.": design reference and beneficiary name the audience and mockup; they do not add a separate product outcome beyond the delivered follow-up.
+Commitment: 7, 56
+
+### G2. Continuing the earlier conversation is not this file follow-up
+Reported: slice 1 — "Continuing the earlier conversation does not give the agent this file or line."
+Story clause: "Continuing the earlier conversation does not give the agent this file or line."
+Disposition: excluded "Continuing the earlier conversation does not give the agent this file or line."
+Commitment: 32
+
+### G3. Active (Taken) story diffs are deferred
+Reported: slice 1 — "Follow up from an active (Taken) story's diff."
+Story clause: "Follow up from an active (Taken) story's diff."
+Disposition: excluded "Follow up from an active (Taken) story's diff."
+Commitment: 43, 44, 45, 46
+
+### G4. Retained workspace review is deferred
+Reported: slice 1 — "The same applies to a Done story's review while it shows its retained workspace."
+Story clause: "The same applies to a Done story's review while it shows its retained workspace."
+Disposition: excluded "The same applies to a Done story's review while it shows its retained workspace."
+Commitment: 47
+
+### G5. Line ranges are deferred
+Reported: slice 1 — "Line ranges or several selected lines."
+Story clause: "Line ranges or several selected lines."
+Disposition: excluded "Line ranges or several selected lines."
+Commitment: 49
+
+### G6. Add note and Attach story notes are deferred to SEED-348
+Reported: slice 1 — "Add note and Attach story notes, owned by capture story notes and attach story notes."
+Story clause: "**Add note** and **Attach story notes**, owned by [capture story notes](SEED-348-collect-notes-for-story-follow-ups.md#collect-notes-for-story-follow-ups) and [attach story notes](SEED-348-collect-notes-for-story-follow-ups.md#attach-story-notes-to-follow-ups)."
+Disposition: excluded "**Add note** and **Attach story notes**, owned by [capture story notes](SEED-348-collect-notes-for-story-follow-ups.md#collect-notes-for-story-follow-ups) and [attach story notes](SEED-348-collect-notes-for-story-follow-ups.md#attach-story-notes-to-follow-ups)."
+Commitment: 50a, 50b
+
 ## Current decisions, verification and concern review
 
-- Preparation only: this plan authorizes no execution. No source review or
-  execution-complete record is written during planning.
+- Execution started from established start `21421f790125c1165d36e0ef7fd2055f4bf3334f`
+  (publisher `dashboard-territory.local-open-dough`, agent `viktor-chan`).
+  Source review retained and linked; replanning permission preserved (allowed).
 - The anchor names the comparison's revisions, not page text. Context
   validation reuses the history the review already fetched, with no fetch per
   follow-up.
