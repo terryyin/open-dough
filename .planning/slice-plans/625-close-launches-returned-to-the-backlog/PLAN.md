@@ -142,6 +142,13 @@ attention, sidebar, quiet completion, Done reopen and one-shot review (9) and
 reading. Learning: an integrated spec that marks done or reopens kept story
 records needs `projectFolders: ["open-dough"]`.
 
+## Execution complete
+
+Product advice: no change. The two observed early returns (SEED-303,
+SEED-324) now close on their quiet report and read "Returned to backlog";
+no queued story depends on a different reading, and the review found no
+correction. Process review is deferred into wrap-up with Intent Coverage.
+
 ## Verification, sizing and concern review
 
 - Local gate: each slice's new spec plus the closure and Done families it
