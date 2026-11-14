@@ -1,0 +1,17 @@
+diff --git a/backend/src/main/java/com/odde/donut/services/WikiLinkNoteCandidates.java b/backend/src/main/java/com/odde/donut/services/WikiLinkNoteCandidates.java
+index 45b9057b56..8c8ec871cb 100644
+--- a/backend/src/main/java/com/odde/donut/services/WikiLinkNoteCandidates.java
++++ b/backend/src/main/java/com/odde/donut/services/WikiLinkNoteCandidates.java
+@@ -46,9 +46,9 @@ final class WikiLinkNoteCandidates {
+         noteRepository.findByNotebookNameAndNoteTitleOrderByIdAsc(notebookName, noteTitle).stream()
+             .filter(readable)
+             .toList();
+-    return byTitle.isEmpty()
+-        ? aliasTargets(notebookName, noteTitle).stream().filter(readable).toList()
+-        : byTitle;
++    List<Note> allMatches = new ArrayList<>(byTitle);
++    allMatches.addAll(aliasTargets(notebookName, noteTitle).stream().filter(readable).toList());
++    return distinctByNoteId(allMatches);
+   }
+ 
+   private List<Note> pathShaped(String notebookName, PathShapedTarget path) {

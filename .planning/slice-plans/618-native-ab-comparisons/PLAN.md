@@ -130,7 +130,7 @@ continuation stops the dependent runner design; preserve evidence and replan.
 
 ### 2. Qualify the real Doughnut verification calibration
 Type: Behavior
-Status: planned
+Status: done
 Proof: Native Codex decision with the maintained failure, independent witness and restored pass.
 
 Materialize the pinned Doughnut source/required environment from durable case
@@ -276,6 +276,31 @@ own amendment/acceptance. Revisit the cited North Star during normal wrap-up.
   across materializations. Substitute mode still lets `native-codex-session.mjs` search the
   real `~/.codex/sessions` (no match possible); isolate it when Slice 3 touches the reader.
   `tests/native-family-layers.md` does not yet list this family (Slice 5 guidance).
+- **Slice 2 accepted (2026-11-14).** Case `tests/native-comparison/doughnut-title-precedence/`
+  materializes Doughnut `e257b144` from the public upstream into a detached arm worktree
+  with its own Gradle home, pnpm store, temp dirs and a per-arm database, then runs
+  `./scripts/run.sh pnpm backend:test_only`. Unpaid proof
+  `tests/native-comparison-doughnut-title-precedence.sh`; the runner gained optional
+  `case_cleanup`/`wake.txt`, stop-on-failed-materialize and `case-evidence` retention;
+  `delivery_evidence_install_payload` now returns the installer status.
+- **Doughnut qualification observed.** Unpaid reference run: preparation 57.0s, baseline
+  3,111 pass (139s), union fault six maintained failures incl. `every item is <490>` with
+  six-form witness `destination=null` (121s), restored 3,111 pass (100s), source hash
+  unchanged; total 421.7s. Paid Codex journey 2 (diagnostic follow-up after run 1 could
+  not start Nix from a `/var/folders` arm): the agent found the assertion, wrote its own
+  witness and ran baseline/fault/restore, verdict "Caught"; preparation 66.5s, turn
+  764.9s at load ~14. Its live verdict failed only on a harness detector matching the arm
+  path; re-derived with the neutral path it passes (no harness source read). Raw
+  per-test records of that run were not retained.
+- **For Slices 3–5.** Arms that run Nix must live outside `/var/folders` (`mktemp -d`
+  ignores TMPDIR on macOS); arm paths must not contain `native-comparison`. Java, zsh
+  here-documents and JVM attach write outside TMPDIR (case exports them; Codex sandbox
+  allows the attach files). A Doughnut arm is ~4 GB and ~1 min to prepare. G2: arms use the
+  developer's MySQL on `127.0.0.1:3309`; Slice 3 owns arm isolation from live projects.
+- **Trunk test-shares (heads-up from SEED-334 follow-up).** Trunk now runs `npm test` in
+  four CI shares and refreshed `tests/longest-first`. Before integrating, after taking in
+  trunk, preview new `tests/native-comparison*.sh` jobs with
+  `node scripts/test-shares.mjs preview --split-count 4` (`tests/test-shares.md`).
 
 
 ## Story obligations
@@ -285,3 +310,10 @@ Reported: slice 1 — "Coordinator acceptance of slice 1 found assess.bash check
 Story clause: "On a qualifying change it observes whether the right work continues once with its proof"
 Disposition: proved by slice 1: assess.bash `once` signal requires turn-4-supplier-integrations and turn-4-slice3-filings of 1; tests/native-comparison.sh duplicate substitute journey fails with filings 2 and rejected cases integrated-twice/filed-twice; retained native run re-derived 1/1 and still passes
 Commitment: E2d
+
+
+### G2. Doughnut arms write into the developer running MySQL (first reported in slice 2)
+Reported: slice 2 — "Slice 2 return: Doughnut arms create and drop per-arm doughnut_wt_<id>_test databases on the developer running MySQL at 127.0.0.1:3309, whose datadir is inside a personal Doughnut checkout; the case refuses without that server"
+Story clause: "isolate arm writes from each other and live projects to prevent contamination"
+Disposition: receiving slice 3
+Commitment: 11b

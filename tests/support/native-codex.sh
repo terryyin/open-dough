@@ -30,6 +30,9 @@ native_codex_prepare() {
 (allow file-write* (subpath (param "TEMP_ROOT")))
 (allow file-write* (subpath (param "CODEX_RUNTIME_ROOT")))
 (allow file-write* (literal "/dev/null"))
+; A JVM attach handshake: HotSpot keeps it in the per-user temporary
+; directory whatever TMPDIR says (Mockito self-attaches this way).
+(allow file-write* (regex #"^/private/var/folders/[^/]+/[^/]+/T/\.(attach_pid[0-9]+|java_pid[0-9]+(\.tmp)?)$"))
 (allow file-write* (literal "/dev/ptmx"))
 (allow file-write* (regex #"^/dev/ttys[0-9A-Za-z]+$"))'
     if [[ -n ${native_codex_protected_source} ]]; then

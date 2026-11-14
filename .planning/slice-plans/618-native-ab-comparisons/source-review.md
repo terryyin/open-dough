@@ -17,33 +17,33 @@ files and changed nothing. Its numbered return is retained unchanged below.
 | 1c | Goal: the comparison shows whether the change preserves the outcome and its proof | slice 3 |  |
 | 1d | Goal: the comparison shows what the change does to agent effort | slice 3 |  |
 | 1e | Goal: maintainers can reuse the same example for a later change | slice 4 |  |
-| 2a | Retain two initial runnable examples in Open Dough maintenance sources | slice 2 |  |
+| 2a | Retain two initial runnable examples in Open Dough maintenance sources | slice 2 | observed: tests/native-comparison/paused-supplier and tests/native-comparison/doughnut-title-precedence retained as runnable cases |
 | 2a.1 | Example 1: the SEED-324 blocked-supplier decision from the session-efficiency audit | slice 1 | observed: tests/native-comparison/paused-supplier/case.md provenance (audit §1, 7fb42349, plan 1e7e6f98) with basis/supplier/delivered/partial/published/completed overlays, task.txt, wake.txt |
-| 2a.2 | Example 2: the Doughnut SEED-122 verification replay, used as the calibration case | slice 2 |  |
-| 2b.1 | Each example keeps its source session or replay | slice 2 |  |
-| 2b.2 | Each example keeps its source project/revision | slice 2 |  |
-| 2b.3 | Each example keeps its extraction recipe | slice 2 |  |
-| 2b.4 | Each example keeps its starting state | slice 2 |  |
-| 2b.5 | Each example keeps its neutral agent task | slice 2 |  |
-| 2b.6 | Each example keeps its setup | slice 2 |  |
-| 2b.7 | Each example keeps its separate acceptance check | slice 2 |  |
-| 2c | Runtime setup recovers from these retained inputs, not from the original author's temporary files | slice 2 |  |
-| 3a | Keep the smallest runnable context that preserves the original decision and its proof | slice 2 |  |
+| 2a.2 | Example 2: the Doughnut SEED-122 verification replay, used as the calibration case | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/case.md provenance: SEED-122 same-story replay threads and original 2026-11-11 probe |
+| 2b.1 | Each example keeps its source session or replay | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/case.md Source and extraction (replay coordinator/worker threads); paused-supplier/case.md source thread 01a1d22f |
+| 2b.2 | Each example keeps its source project/revision | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/case.bash case_revision e257b144 + case_source upstream URL; paused-supplier/case.md commit 7fb42349 |
+| 2b.3 | Each example keeps its extraction recipe | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/case.md and paused-supplier/case.md extraction recipe sections |
+| 2b.4 | Each example keeps its starting state | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/case.bash case_materialize detached worktree of pinned revision with payload; paused-supplier overlays |
+| 2b.5 | Each example keeps its neutral agent task | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/task.txt and paused-supplier task.txt/wake.txt; leak checks in tests/native-comparison-doughnut-title-precedence.sh and tests/native-comparison.sh |
+| 2b.6 | Each example keeps its setup | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/case.bash case_materialize isolated arm env + scripts/run.sh bash scripts/worktree_setup.sh; paused-supplier case_materialize |
+| 2b.7 | Each example keeps its separate acceptance check | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/assess.bash and paused-supplier/assess.bash outside the agent workspace |
+| 2c | Runtime setup recovers from these retained inputs, not from the original author's temporary files | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/case.bash fetches pinned SHA from public upstream; no personal checkout or /tmp evidence at runtime (reference run qual3-reference-pass) |
+| 3a | Keep the smallest runnable context that preserves the original decision and its proof | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/case.md: whole pinned project with its own setup and backend:test_only proof entry, no shortened proof |
 | 3b | Controlled supplier evidence/events replace an overnight wait | slice 1 | observed: case.bash case_apply_event unchanged/nonqualifying/qualifying between turns; native Codex run 20261114T025123-1b99 observations-corrected.txt turn-2..4-event |
 | 3c.1 | The blocked-supplier case keeps "diagnostic pass" distinct from the other two states | slice 1 | observed: assess.bash diagnostic-pass-hold signal; native Codex run 20261114T025123-1b99 observations-corrected.txt turn-1 reader absent, slice3 partial, dependency waiting |
 | 3c.2 | The blocked-supplier case keeps "publication" distinct from the other two states | slice 1 | observed: assess.bash publication-hold signal; tests/native-comparison.sh premature-resume (publication) substitute journey fails with turn-3-proof passed; native Codex run 20261114T025123-1b99 observations-corrected.txt turn-3 held |
 | 3c.3 | The blocked-supplier case keeps "satisfaction of the exact supplier requirement" distinct from the other two states | slice 1 | observed: assess.bash continuation/proof signals require the completed reader; native Codex run 20261114T025123-1b99 observations-corrected.txt turn-4 supplier-reader completed, dependency satisfied |
-| 3d.1 | The Doughnut case retains the real title/alias resolution seam | slice 2 |  |
-| 3d.2 | The Doughnut case retains the maintained destination-ID assertion | slice 2 |  |
-| 3d.3 | The Doughnut case retains the independent wrong-behavior witness | slice 2 |  |
-| 3d.4 | The Doughnut case retains the restored proof | slice 2 |  |
-| 3e | Qualify any shortened setup/proof against those observations | slice 2 |  |
-| 4a | Qualify each case by showing it still requires the relevant judgment and verification | slice 2 |  |
-| 4b | Qualify each case by showing that a plausible wrong decision fails its separate assessment | slice 2 |  |
-| 4c.1 | Measure preparation duration before describing the case as suitable for repeated runs | slice 2 |  |
-| 4c.2 | Measure native-run duration before describing the case as suitable for repeated runs | slice 2 |  |
-| 4d | Historical times are labeled as such | slice 2 |  |
-| 4e | Qualification: no fixed duration threshold has been agreed | slice 2 |  |
+| 3d.1 | The Doughnut case retains the real title/alias resolution seam | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/assess.bash destination-id signal requires fault only in the titleOrAlias seam; reference run qual3-reference-pass and native Codex run 20261114T040216-7241 observations-corrected.txt turn-1-fault destination-id-failed |
+| 3d.2 | The Doughnut case retains the maintained destination-ID assertion | slice 2 | observed: reference run qual3-reference-pass: six maintained failures incl. Expected every item is <490>; native Codex run 20261114T040216-7241 observations-corrected.txt turn-1-fault destination-id-failed |
+| 3d.3 | The Doughnut case retains the independent wrong-behavior witness | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/assess.bash witness signal; reference run qual3-reference-pass six forms resolution=AMBIGUOUS destination=null; native Codex run 20261114T040216-7241 observations-corrected.txt turn-1-witness observed |
+| 3d.4 | The Doughnut case retains the restored proof | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/assess.bash restored-proof/restoration signals; reference run qual3-reference-pass restored 3111 pass, source SHA unchanged; native Codex run 20261114T040216-7241 observations-corrected.txt turn-1-restored passed, source restored |
+| 3e | Qualify any shortened setup/proof against those observations | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/case.md: only environment changed (Gradle home, tmpdirs, attach allowance); reference run qual3-reference-pass reproduced original 3111 tests, same six failures and witness lines |
+| 4a | Qualify each case by showing it still requires the relevant judgment and verification | slice 2 | observed: native Codex run 20261114T040216-7241 observations-corrected.txt: agent found the maintained assertion, wrote its own witness, ran baseline/fault/restore from a neutral task.txt |
+| 4b | Qualify each case by showing that a plausible wrong decision fails its separate assessment | slice 2 | observed: tests/native-comparison-doughnut-title-precedence.sh three observed wrong decisions + 14 rejected rows; native run 1 failed assessment correctly; paused-supplier rejected cases |
+| 4c.1 | Measure preparation duration before describing the case as suitable for repeated runs | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/case.md Measured durations: preparation 57.0s reference, 49.9/66.5s native |
+| 4c.2 | Measure native-run duration before describing the case as suitable for repeated runs | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/case.md Measured durations: native turn 764.9s (journey 833.3s), reference 421.7s; paused-supplier/case.md 1294.5s |
+| 4d | Historical times are labeled as such | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/case.md labels 315.8/162.7/218.8s commands and the 6m55s wait as historical observations |
+| 4e | Qualification: no fixed duration threshold has been agreed | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/case.md: No duration threshold has been agreed |
 | 5a | Tag each example with the workflow or problem it represents | slice 3 |  |
 | 5b.1 | Tag each example with its applicable hosts as a selection trait | slice 3 |  |
 | 5b.2 | Tag each example with its environment/prerequisites as a selection trait | slice 3 |  |
@@ -95,7 +95,7 @@ files and changed nothing. Its numbered return is retained unchanged below.
 | 10d | Both initial cases must run natively on Codex | slice 3 |  |
 | 10e | Qualification: Cursor and Claude Code remain unqualified until their own observations are obtained | slice 5 |  |
 | 11a | Restriction: isolate arm writes from each other (reason: prevent contamination) | slice 3 |  |
-| 11b | Restriction: isolate arm writes from live projects (reason: prevent contamination) | slice 3 |  |
+| 11b | Restriction: isolate arm writes from live projects (reason: prevent contamination) |  | G2 |
 | 11c | Restriction: hold assessor expectations outside the agent context (reason: avoid teaching the answer) | slice 3 |  |
 | 11d | Restriction: identify frozen inputs (reason: so a refresh cannot relabel old evidence) | slice 4 |  |
 | 11e | Restriction: reject invalid/unrecoverable input before a paid launch | slice 5 |  |
@@ -111,10 +111,10 @@ files and changed nothing. Its numbered return is retained unchanged below.
 | E2e | Preserve the real decision: a baseline's failure remains a comparison result, not a harness failure disguised as equivalent success | slice 3 |  |
 | E2f | Preserve the real decision: then compare effort and empty wakes | slice 3 |  |
 | E3a | Calibrate proof (trigger): both arms run the Doughnut case | slice 3 |  |
-| E3b | Calibrate proof: each arm assesses the title/alias fault | slice 2 |  |
-| E3c.1 | Calibrate proof: the verdict records the maintained destination-ID failure separately | slice 2 |  |
-| E3c.2 | Calibrate proof: the verdict records the independent controller witness separately | slice 2 |  |
-| E3c.3 | Calibrate proof: the verdict records the restored proof separately | slice 2 |  |
+| E3b | Calibrate proof: each arm assesses the title/alias fault | slice 2 | observed: native Codex run 20261114T040216-7241 observations-corrected.txt turn-1-fault destination-id-failed under the title/alias union fault; assess.bash destination-id signal |
+| E3c.1 | Calibrate proof: the verdict records the maintained destination-ID failure separately | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/assess.bash separate destination-id signal; pass reason states it |
+| E3c.2 | Calibrate proof: the verdict records the independent controller witness separately | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/assess.bash separate witness signal; pass reason states it |
+| E3c.3 | Calibrate proof: the verdict records the restored proof separately | slice 2 | observed: tests/native-comparison/doughnut-title-precedence/assess.bash separate restored-proof and restoration signals; pass reason states them |
 | E3d | Calibrate proof: an arm missing any decisive result cannot win solely through lower effort | slice 3 |  |
 | E4a | Refresh without relabeling (trigger): a maintainer changes a case's setup or acceptance check and runs it again | slice 4 |  |
 | E4b | Refresh without relabeling: the new comparison names the new case basis | slice 4 |  |

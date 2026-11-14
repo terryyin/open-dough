@@ -1,0 +1,2 @@
+# Reference diffs are verbatim evidence; a blank context line is a single space.
+*.diff -whitespace

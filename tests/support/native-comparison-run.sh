@@ -3,19 +3,23 @@
 # (tests/native-comparison/<case>/, see its case.md): materialize the case's
 # project and payload, start one Codex session with the case's neutral task,
 # then for each controlled event change the environment and continue the
-# same session with the case's wake message. After each turn the case
-# observes; at the end its assessor judges the observations, and the attempt
-# is retained with its exact case, project, payload and runtime identities.
+# same session with the case's wake message (wake.txt; a case without events
+# needs none). After each turn the case observes; at the end the case may
+# clean up, its assessor judges the observations, and the attempt is
+# retained with its exact case, project, payload and runtime identities.
 # The assessor and every controller file stay outside the agent's workspace.
 #
 #   native_comparison_run_case CASE SOURCE_DIR WORK [RESULTS_DIR]
 #
 # A case's case.bash defines case_events (its event names in order),
-# case_materialize ROOT SOURCE_DIR HOST (builds ROOT/workspace and leaves
-# case_project_basis, the identities of the project it built),
-# case_apply_event ROOT EVENT SCRATCH and case_observe ROOT TURN STREAM
-# SCRATCH HARNESS; its assess.bash defines case_assess OBSERVATIONS, leaving
-# case_assess_status and case_assess_reason.
+# case_materialize ROOT SOURCE_DIR HOST (builds ROOT/workspace, may export
+# the environment the agent's commands need, and leaves case_project_basis,
+# the identities of the project it built; when it fails, no session starts),
+# case_apply_event ROOT EVENT SCRATCH, case_observe ROOT TURN STREAM SCRATCH
+# HARNESS (which may keep raw evidence in SCRATCH/case-evidence for
+# retention) and optionally case_cleanup ROOT, which prints its own fields; its
+# assess.bash defines case_assess OBSERVATIONS, leaving case_assess_status
+# and case_assess_reason.
 #
 # Leaves native_comparison_status (pass or fail), _reason and _attempt (the
 # retained attempt directory, when RESULTS_DIR is given). Codex only so far;
@@ -98,15 +102,21 @@ native_comparison_run_case() {
     native_stderr="${native_comparison_controller}/stderr.log"
     platform=codex
     : > "${native_stderr}"
-    case_materialize "${root}" "${source_dir}" codex
+    if ! case_materialize "${root}" "${source_dir}" codex; then
+      printf 'case: %s\nmaterialization: failed\n' "${case_name}" > "${work}/observations.txt"
+      printf '%s\n' fail 'the case could not be materialized; no session started' '' \
+        > "${work}/verdict"
+      exit 0
+    fi
     native_comparison_basis_head=$(git -C "${native_comparison_workspace}" rev-parse HEAD)
     prepared=$(native_comparison_now)
     # The installed payload, before the agent can commit or change it.
     native_comparison_payload_digest=$(cd -- "${native_comparison_workspace}" \
-      && git ls-files --others --exclude-standard -- .agents .claude \
+      && git ls-files --others --modified --exclude-standard -- .agents .claude \
       | LC_ALL=C sort | xargs shasum -a 256 | shasum -a 256 | cut -d ' ' -f 1)
     prompt=$(< "${case_path}/task.txt")
-    wake=$(< "${case_path}/wake.txt")
+    wake=
+    [[ ! -f ${case_path}/wake.txt ]] || wake=$(< "${case_path}/wake.txt")
     native_run_require_host || exit 127
     native_codex_prepare "${root}" "${source_dir}"
     native_run_capture_version codex --version
@@ -126,6 +136,9 @@ native_comparison_run_case() {
         case_observe "${root}" "${turn}" "${transcript}" \
           "${native_comparison_controller}" "${harness}" >> "${observations}"
       done
+    fi
+    if declare -F case_cleanup > /dev/null; then
+      case_cleanup "${root}" >> "${observations}"
     fi
     printf 'total-seconds: %s\n' \
       "$(native_comparison_seconds "${start}" "$(native_comparison_now)")" >> "${observations}"
@@ -157,6 +170,9 @@ native_comparison_retain() {
   cp -- "${native_comparison_controller}"/events-turn-*.jsonl \
     "${native_comparison_controller}"/response-turn-*.md \
     "${native_comparison_controller}/observations.txt" "${native_stderr}" "${dest}/" 2> /dev/null || true
+  # Raw evidence a case's observer kept beside its observations.
+  [[ ! -d ${native_comparison_controller}/case-evidence ]] \
+    || cp -R -- "${native_comparison_controller}/case-evidence" "${dest}/"
   printf '%s\n' "${prompt}" > "${dest}/prompt.txt"
   printf '%s\n' "${wake}" > "${dest}/wake.txt"
   {

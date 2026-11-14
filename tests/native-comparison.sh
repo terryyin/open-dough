@@ -11,7 +11,9 @@
 # Default mode is credential-free: substitute-host journeys of the
 # paused-supplier case through the shared runner, observer, assessor and
 # retention, the assessor's rejected cases, and checks that the task and wake
-# texts and the agent's workspace hold no expected answer. --native codex runs
+# texts and the agent's workspace hold no expected answer; the
+# doughnut-title-precedence case has its own in
+# tests/native-comparison-doughnut-title-precedence.sh. --native codex runs
 # one paid Codex journey of the named case (default model gpt-6.1-sol, effort
 # xhigh, as the case's source session ran; a turn's deadline defaults to 2400
 # seconds) and retains it; run it only when a human authorizes it.
@@ -61,7 +63,9 @@ if [[ -n ${host} ]]; then
   native_result_require_writable "${results_dir}"
   native_case_deadline=${deadline}
   native_codex_settings=(-m "${model}" -c "model_reasoning_effort=\"${effort}\"")
-  work=$(mktemp -d)
+  # Under TMPDIR, which a plain `mktemp -d` ignores on macOS: the arm lives
+  # here, under a name that does not point the agent at this harness.
+  work=$(mktemp -d "${TMPDIR:-/tmp}/tmp.XXXXXXXXXX")
   status=0
   native_comparison_run_case "${case_name}" "${source_dir}" "${work}" \
     "${native_case_results_dir}" || status=$?
