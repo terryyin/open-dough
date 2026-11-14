@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "yusuke-chan",
-  "email": "yusuke-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-346#run-native-ab-comparisons-on-real-work",
-  "host": "codex",
-  "model": "gpt-6.1-sol"
-}
