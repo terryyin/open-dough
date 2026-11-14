@@ -33,6 +33,14 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: slice 4 `56dde3c` added `wallTimeReferenceOf` overloads so an explicit endpoint always returns a reference. Its consumer trace listed `server/ciFollowUpDecision.ts` as run through follow-up specs, and delivery formatting linted only changed files. CI run 43387096022 job `lint` failed `no-unnecessary-condition` at `ciFollowUpDecision.ts:29,32`; repair `45e6965` removed the now-dead guards.
   - Observed effect: one owned CI failure and repair publication; behavior proof of the consumer passed, its static check did not run.
   - Inference: a narrowed type reaches untouched callers' lint, which selective formatting skips; running the check-only full lint when a changed signature narrows would have caught it.
+- Execution: SEED-358#close-launches-returned-to-the-backlog (spent plan 625; first implementation `fe871dfe5a9366fdedddd33e3794f67bb16130b3`)
+  - Timestamp: unknown (2026-11-15, slice 2 acceptance before publication of `55d98f179`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.99 (checkout-bound installed `VERSION`)
+  - Evidence: the slice 2 return traced five e2e consumers of the Done reading and moved count wording (`e2e/sessions/agent-launch-attention*`, `sessions-sidebar`, `agent-completion-quiet`, `agent-terminal-done-reopen`, `e2e/review/recently-done-one-shot-review`) and left them unrun with "hosted CI covers them", although the brief required the changed surface's suites within focused time. The coordinator ran them before acceptance: 9 passed in 41.2 s.
+  - Observed effect: no CI failure; the acceptance rule refusing a consumer left for CI held, at one extra coordinator run.
+  - Inference: the implementer still defers traced consumers to CI under the released response; the coordinator's acceptance guard, not delegation, stopped it here.
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
