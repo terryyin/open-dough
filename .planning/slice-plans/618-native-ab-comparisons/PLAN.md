@@ -347,6 +347,13 @@ own amendment/acceptance. Revisit the cited North Star during normal wrap-up.
   `process.argv[1]` with `fileURLToPath(import.meta.url)` and print nothing when run
   through a symlinked path (macOS `/var` → `/private/var`); the pair fixture uses
   physical paths. A shared real-path "is main module" helper is unrelated cleanup.
+- **Branch CI repair (run 43566074090, on Slice 4's `ff3ce589`).** `e2e / shard 2/6`
+  received two `compare` calls in `unchanged-assignment-credit.spec.ts`: a dashboard read
+  arriving between the compare answer and the commit answer of `PinnedMemo`'s
+  touched-files lookup asked compare again. The lookup now shares one outstanding read
+  per key through the existing `OutstandingReads` helper; a held-commit backend test
+  failed 10/10 before the fix. Unrelated to this story's family; repaired under the
+  failure policy.
 - **Deferred hash-bound cleanups for Slice 4's refresh rerun.** The records also hash the
   runner, `native-codex.sh` and `native-codex-session.mjs`. The Slice 3 refactor left:
   H1 duplicated load sampling in the runner; H2 source revision/dirty logic repeated in
