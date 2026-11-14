@@ -29,7 +29,7 @@ import {
 } from "./agentLaunchSessions.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { rawRequest, type RawResponse } from "./support/rawHttp.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { StoryLaunchRequest } from "../src/launchRequest.ts";
 
 export {

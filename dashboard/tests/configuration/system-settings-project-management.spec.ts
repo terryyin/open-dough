@@ -3,7 +3,7 @@ import path from "node:path";
 import { expect, test } from "../support/pageTest.ts";
 import { projectAddMachine } from "../support/projectAddMachine.ts";
 import { settings, back } from "../support/systemSettingsPage.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {

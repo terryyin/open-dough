@@ -1,5 +1,5 @@
 // A completed story whose published history Intent overlays on its tests
-// (../intent/intent-story-completed.spec.ts): trunk publishes Intent locations
+// (../../../e2e/intent/intent-story-completed.spec.ts): trunk publishes Intent locations
 // (./intentStoryWorktree.ts), Story A is claimed and completed through the
 // real CLI (./completedPublishedStory.ts) with its implementation also
 // modifying one spec, adding another, and deleting a third, and trunk then
@@ -10,9 +10,9 @@
 import type { Page } from "@playwright/test";
 import { rmSync } from "node:fs";
 import path from "node:path";
-import type { IntentCoverage } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import type { IntentCoverage } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
   advanceCompletedTrunk,

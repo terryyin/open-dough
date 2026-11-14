@@ -22,6 +22,23 @@ export const diffLines = (
   options: { hasText?: string | RegExp } = {},
 ) => scope.locator("li.story-review-line", options);
 
+// One hunk of a diff, by its header, and its rendered lines.
+export const diffHunk = (diff: Locator, hunk: string) =>
+  diff.getByRole("list", { name: hunk });
+export const hunkLines = (diff: Locator, hunk: string) =>
+  diffLines(diffHunk(diff, hunk));
+
+// The hunk's lines exactly, each leading marker and its spacing included.
+export async function expectHunkLines(
+  diff: Locator,
+  hunk: string,
+  expected: readonly string[],
+) {
+  const shown = hunkLines(diff, hunk);
+  await expect(shown).toHaveCount(expected.length);
+  expect(await shown.allTextContents()).toEqual(expected);
+}
+
 export const diffHeading = (
   diff: Locator,
   options: { level?: number; name?: string | RegExp; exact?: boolean } = {},

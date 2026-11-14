@@ -8,18 +8,18 @@
 
 ## Context
 
-Open Dough needs a clear path from drafted guidance to content
+Open Dough Distribution needs a clear path from drafted guidance to content
 available for client installation, with one identifiable release for the whole
 client payload.
 
 ## Decision
 
-Use three stages for a revision of Open Dough guidance:
+Use three stages for a revision of Distribution guidance:
 
 | Stage | Meaning and location |
 | --- | --- |
-| **Proposed** | Drafted under `src/skills/<name>/`, outside the declared client payload. |
-| **Promoted** | Reviewed and selected by a maintainer for the next release. Files stay in place; promotion adds the skill and required runtime dependencies to `install.sh`'s `managed_files`, the one payload declaration, which `src/install/open-dough-release-version.sh` reads. Keep payload fixtures aligned. |
+| **Proposed** | Drafted under `Distribution/src/skills/<name>/`, outside the declared client payload. |
+| **Promoted** | Reviewed and selected by a maintainer for the next release. Files stay in place; promotion adds the skill and required runtime dependencies to `install.sh`'s `managed_files`, the one payload declaration, which `Distribution/src/install/open-dough-release-version.sh` reads. Keep payload fixtures aligned. |
 | **Released** | Included in the client payload at an immutable version tag available from the source repository. Clients can install that tagged content. Source files outside that tag's payload remain Proposed even if present in the snapshot. |
 
 Promotion requires the representative behavior review in `AGENTS.md` and the
@@ -54,7 +54,7 @@ public only for accessibility.
 - A release's identity, content, and description can be matched. A branch edit
   becomes available to client projects when a new version is tagged and published
   through Git.
-- Authoring under `src/skills/` creates Proposed guidance. Promotion selects the complete runtime
+- Authoring under `Distribution/src/skills/` creates Proposed guidance. Promotion selects the complete runtime
   dependency set without copying it to a separate staging directory. Release
   makes that selection available to client projects.
 - Installation-record paths, helper layout, and native skill adaptation are

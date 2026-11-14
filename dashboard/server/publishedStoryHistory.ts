@@ -1,6 +1,11 @@
 // Raw history acquired for published story evidence and endpoint derivation.
 // Claim recognition and owning/foreign selection stay with their consumers.
-import { runGit, type GitCall, type GitOutput } from "./gitRunner.ts";
+import {
+  isAncestor,
+  runGit,
+  type GitCall,
+  type GitOutput,
+} from "./gitRunner.ts";
 
 export type RevisionParents = {
   readonly commit: string;
@@ -212,17 +217,10 @@ export function publishedStoryHistory(call: GitCall): PublishedStoryHistory {
         ).stdout,
       );
     },
-    async isAncestor(ancestor, descendant) {
-      try {
-        await readAt(
-          [ancestor, descendant],
-          ["merge-base", "--is-ancestor", ancestor, descendant],
-        );
-        return true;
-      } catch {
-        return false;
-      }
-    },
+    isAncestor: (ancestor, descendant) =>
+      isAncestor(ancestor, descendant, call, (args) =>
+        readAt([ancestor, descendant], args),
+      ),
     async worktreeConfig(key) {
       try {
         return (

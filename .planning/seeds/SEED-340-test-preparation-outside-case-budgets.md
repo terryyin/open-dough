@@ -52,6 +52,19 @@ wide margin at a one-minute load of 30–50 with default timeouts.
 - Excluded: raising or overriding timeouts, `test.slow()`, waits on wall-clock
   time, fewer behavior checks, and product behavior changes.
 
+Since SEED-334 (`64f15182b`), the `preparationPage` consumers are spread over
+three browser test groups, each a separate Playwright run with its own
+configuration and global setup in `dashboard/tests/support/`: 90 in E2E Test
+(`e2e/`, `e2eGlobalSetup.ts`), 55 in the interim Dashboard Integrated UI Test
+(`dashboard/tests/`, `integratedGlobalSetup.ts`) and 46 in Dashboard Backend
+Test (`backendGlobalSetup.ts`). The former shared `globalSetup.ts` is gone.
+Each run still builds its registered artifacts when a worker first requests
+them (`runArtifacts.ts`). `side-panel-content-replacement` is now
+`e2e/navigation/side-panel-content-replacement.spec.ts`, and
+`intent-done-source-selection` remains in `dashboard/tests/intent/`. The
+mechanism must cover all three groups, which are run with `npm run test:e2e`,
+`test:dashboard:integrated` and `test:dashboard:backend`.
+
 #### Key examples
 
 1. A fresh run starts with `side-panel-content-replacement` at load about 40 →

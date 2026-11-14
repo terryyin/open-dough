@@ -4,7 +4,7 @@
 // (./launchStoryCardPage.ts).
 
 import type { Page } from "@playwright/test";
-import { materializeRepository } from "../../tests/support/repository-fixture.mjs";
+import { materializeRepository } from "../../Distribution/tests/support/repository-fixture.mjs";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";

@@ -13,7 +13,7 @@
 // a history whose landings are all gaps in
 // ./intent-ci-wall-time-history-gaps.spec.ts.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { expect, test } from "../dashboardTest.ts";
 import {

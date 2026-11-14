@@ -14,7 +14,7 @@ require_bash_floor 'rerun the tests'
 # fixture repository skip writing objects it later cannot serve); this list
 # replaces any inherited GIT_CONFIG_COUNT set. Background maintenance is off so no detached repack outlives a fixture; a push over the local
 # transport drops this list, so a pushed-to bare remote needs its own setting
-# (see tests/README.md). No identity or default branch is set, as in CI, and
+# (see Distribution/tests/README.md). No identity or default branch is set, as in CI, and
 # useConfigOnly makes a missing identity fail here as it does there.
 export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
 unset GIT_CONFIG_PARAMETERS GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL \

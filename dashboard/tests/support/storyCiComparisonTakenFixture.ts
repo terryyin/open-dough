@@ -1,11 +1,14 @@
 // Taken-story shapes for Intent's provisional CI timing comparison
-// (../intent/intent-ci-comparison-taken.spec.ts): Story Branch keeps a live tip
+// (../../../e2e/intent/intent-ci-comparison-taken.spec.ts): Story Branch keeps a live tip
 // labelled provisional with Landed not yet; Trunk Mode puts the tip in the
 // Provisional row beside Branch N/A. Shared helpers come from
 // ./storyCiComparisonFixture.ts.
 
 import type { Page } from "@playwright/test";
-import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import type { CiRunAnswer } from "./baseCiActions.ts";
 import type { StartOrigin } from "./startOrigin.ts";

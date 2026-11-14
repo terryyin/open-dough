@@ -16,7 +16,7 @@
 // before the ledger names its runs, and the ledger is kept as that
 // dashboard's own writers keep it (`keepFollowUpEntries`,
 // ./ciFollowUpScenario.ts).
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiProofEntry } from "../../src/ciProof.ts";
 import type { FollowUpLedger } from "../../server/ciFollowUpStore.ts";
 import { machineHome } from "../machineLaunchRecords.ts";

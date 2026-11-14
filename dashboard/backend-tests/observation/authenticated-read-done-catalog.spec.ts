@@ -9,7 +9,7 @@
 // real HTTP and a synthetic `gh` answering from the fake GitHub, observing the
 // `gh` calls that reach it (../../tests/support/doneCatalogReads.ts).
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   developmentBoundary,
@@ -30,7 +30,7 @@ import {
   publishedDone,
   revisionOf,
 } from "../../tests/support/doneCatalogReads.ts";
-import { parseDoneRecordFile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { parseDoneRecordFile } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
 test.describe.configure({ mode: "serial" });
 

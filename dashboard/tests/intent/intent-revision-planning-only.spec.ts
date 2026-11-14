@@ -2,7 +2,7 @@ import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // The Project Intent browser names accepted locations even with no selected
 // file, and a planning-only refresh leaves identical tests at a newer source.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { shortRevision } from "../dashboardParts.ts";

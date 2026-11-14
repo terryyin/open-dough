@@ -3,10 +3,10 @@
 #   bash scripts/ci-test-times.sh [job…]
 # Reads the `test-times-<share>` artifacts of the last 10 successful ci.yml
 # runs on main through `gh` (read-only; it starts no test run) and the ceilings
-# from `${OPEN_DOUGH_TEST_DIR:-tests}/time-budget` through
+# from `${OPEN_DOUGH_TEST_DIR:-Distribution/tests}/time-budget` through
 # scripts/time-budget.bash. Each share's runner factor comes from
 # `node scripts/test-shares.mjs runner-factor` against
-# `${OPEN_DOUGH_TEST_DIR:-tests}/longest-first`; times are divided by that
+# `${OPEN_DOUGH_TEST_DIR:-Distribution/tests}/longest-first`; times are divided by that
 # factor so the report speaks recorded-speed units with the factor range each
 # share saw. Runs whose artifacts cannot be downloaded (past CI's seven-day
 # retention) are skipped and not counted. For each job, and for each share's
@@ -15,10 +15,10 @@
 # lowest), and a verdict: `wide` when headroom is at least the spread,
 # otherwise `thin` naming the recent highest value to project a paired local
 # ratio from. Named jobs (as the times files name them, such as
-# tests/install.sh) restrict the job lines; share totals always appear. With
+# Distribution/tests/install.sh) restrict the job lines; share totals always appear. With
 # no names, every job appears, highest first. Exits 0 after a report; with no
 # readable runs, or when `gh` fails, it says why and exits 1. See
-# tests/time-budget.md for how a slice uses the verdict.
+# Distribution/tests/time-budget.md for how a slice uses the verdict.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -30,7 +30,7 @@ source "${source_dir}/scripts/time-budget.bash"
 # shellcheck source=scripts/gh-message.bash
 source "${source_dir}/scripts/gh-message.bash"
 
-test_dir="${OPEN_DOUGH_TEST_DIR:-tests}"
+test_dir="${OPEN_DOUGH_TEST_DIR:-Distribution/tests}"
 budget="${test_dir}/time-budget"
 list="${test_dir}/longest-first"
 read_time_budget "${budget}" || exit 1

@@ -7,7 +7,7 @@
 // button reached by Tab and activated by click, Enter or Space, its column
 // header carrying aria-sort and a direction arrow; no totals row
 // (SEED-259#scan-intent-ci-summaries key example 1). The comparator's cases
-// live in ../../../tests/support/intent-ci-proof-sort.test.mjs.
+// live in ../../../Distribution/tests/support/intent-ci-proof-sort.test.mjs.
 
 import { expect, test } from "../dashboardTest.ts";
 import {
@@ -18,7 +18,7 @@ import {
   run,
 } from "../intentCiProofPage.ts";
 import { judged, runUrl } from "../intentCiStatusPage.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   proofSummaryForEntries,
   runArtifactsAnswer,

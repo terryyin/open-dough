@@ -3,8 +3,11 @@
 // before completion, stay absent. Unique-link and simple-miss cases live in
 // ./completed-story-association.spec.ts.
 import { randomUUID } from "node:crypto";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { expect, test } from "../../tests/support/codexStart.ts";
 import {
   associationOf,

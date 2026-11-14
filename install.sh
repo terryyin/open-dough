@@ -181,5 +181,5 @@ managed_files=(
   dough-makeme/scripts/repository-path.mjs
   dough-makeme/scripts/select-makeme.mjs
 )
-source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-execution-payload.sh"
-source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-install-entry.sh"
+source "$(dirname -- "${BASH_SOURCE[0]}")/Distribution/src/install/open-dough-execution-payload.sh"
+source "$(dirname -- "${BASH_SOURCE[0]}")/Distribution/src/install/open-dough-install-entry.sh"

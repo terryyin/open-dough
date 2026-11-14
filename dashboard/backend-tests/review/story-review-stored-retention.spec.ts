@@ -1,6 +1,6 @@
 // Fast retention rule: actual store reads/writes and the production selection rule.
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
   expect,

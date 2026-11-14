@@ -3,7 +3,7 @@
 // tail, and is released after a successful keep so later redraw traffic does
 // not accumulate a lifetime string.
 import type { IPty } from "@lydell/node-pty";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   diagnosticCaptureBudgetBytes,

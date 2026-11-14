@@ -11,16 +11,16 @@
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { storySeed } from "../../tests/support/queued-repository.mjs";
-import { materializeRepository } from "../../tests/support/repository-fixture.mjs";
-import { writeRevisionFiles } from "../../tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { storySeed } from "../../Distribution/tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../Distribution/tests/support/repository-fixture.mjs";
+import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
 const startCli = join(
   repoRoot,
-  "src/skills/dough-execute-plan/scripts/execution-start.mjs",
+  "Distribution/src/skills/dough-execute-plan/scripts/execution-start.mjs",
 );
 
 export const admitted = {

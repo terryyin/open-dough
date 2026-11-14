@@ -74,8 +74,9 @@ publish_run_deadline_ready() {
 
 # Arms the absolute run cutoff outside every job group. No-op when unset or
 # disabled. When the epoch is already past, marks the hit immediately. On later
-# expiry the watchdog writes the flag and signals the runner (USR1) so a
-# blocked wait returns and the shared stop/report path runs.
+# expiry the watchdog writes the flag, a slot token that ends the launch loop's
+# untimed slot wait, and signals the runner (USR1) so a blocked wait returns;
+# the shared stop/report path then runs.
 arm_run_deadline() {
   local remaining sentinel wait_fifo runner_pid=$$
 
@@ -110,6 +111,7 @@ arm_run_deadline() {
       exit 0
     fi
     : > "${run_deadline_flag}"
+    printf '\n' >&3
     kill -USR1 "${runner_pid}" 2> /dev/null || true
   ) &
   run_deadline_watchdog=$!

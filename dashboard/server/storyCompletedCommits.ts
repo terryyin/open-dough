@@ -6,7 +6,7 @@ import {
   publishedStoryHistory,
   type PublishedStoryHistory,
 } from "./publishedStoryHistory.ts";
-import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentNameOf } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { gitExitedOne, runGit, type GitCall } from "./gitRunner.ts";
 import { mergeTreeOutput } from "./mergeTreeOutput.ts";
 import { owningMergeEdits } from "./storyCompletedMergeEdits.ts";

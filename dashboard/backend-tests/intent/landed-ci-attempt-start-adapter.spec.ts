@@ -1,6 +1,6 @@
 // Retained adapter bounds are refreshed only from that discovered attempt.
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { adapterProject } from "../../tests/intentCiAdapterProofProject.ts";
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import {

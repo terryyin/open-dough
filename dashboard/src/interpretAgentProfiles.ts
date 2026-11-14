@@ -8,7 +8,7 @@ import {
   agentModes,
   agentRotationFor,
   parseAgentProfileFile,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { PublishedProfiles } from "./authenticatedProfileRead.ts";
 import { attributionLoading } from "./assignmentAttribution.ts";
 import type {

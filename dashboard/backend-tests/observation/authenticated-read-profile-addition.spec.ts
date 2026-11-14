@@ -5,7 +5,7 @@
 // GitHub recording every invocation. It is asked only for a profile the
 // pinned revision lists, walks that profile's history no further than its
 // addition, and refuses anything else before asking GitHub. What the page
-// shows from it is covered in ../../tests/stories/agent-roster-avatar.spec.ts. Shares this
+// shows from it is covered in ../../../e2e/stories/agent-roster-avatar.spec.ts. Shares this
 // suite's harness (../../tests/support/dashboardServer.ts) and
 // ./authenticated-read-boundary.spec.ts's approach.
 
@@ -16,7 +16,7 @@ import {
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   backlogApart,
   describedRevision,

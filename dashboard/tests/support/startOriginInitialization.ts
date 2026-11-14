@@ -10,7 +10,7 @@ import { promisify } from "node:util";
 import {
   commitDeclaredRevision,
   declaredParents,
-} from "../../../tests/support/repository-fixture.mjs";
+} from "../../../Distribution/tests/support/repository-fixture.mjs";
 import {
   createStartOriginPreparationDirectory,
   dashboardDeveloper,

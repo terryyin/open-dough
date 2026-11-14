@@ -4,9 +4,9 @@
 // share these so the default passing head and journey overrides stay one rule.
 
 import { execFileSync } from "node:child_process";
-import { apiRun } from "../../../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { observedRunForApi } from "../../../tests/support/ciRunTestData.mjs";
+import { apiRun } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { observedRunForApi } from "../../../Distribution/tests/support/ciRunTestData.mjs";
 import type { OriginAnswer } from "../originAnswers.ts";
 import type { GhCall } from "./fakeGitHub.ts";
 import { isActionsRequest } from "./ghActionsRequest.ts";
@@ -95,7 +95,7 @@ export function defaultPassingBaseCi(
 export function actionsForRuns(
   runs: readonly CiRunAnswer[],
   branch = "main",
-): (argv: readonly string[], headSha: string) => OriginAnswer | undefined {
+): (argv: readonly string[]) => OriginAnswer | undefined {
   return (argv) => {
     const route = argv.find((argument) => argument.startsWith("repos/")) ?? "";
     if (/\/actions\/workflows\/[^/?]+$/.test(route)) {

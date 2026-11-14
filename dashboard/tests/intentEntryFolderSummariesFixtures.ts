@@ -4,7 +4,7 @@
 // file.
 
 import { catalogPublications } from "./catalogProjectRecords.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export { publishIntentProject } from "./publishIntentProject.ts";
 

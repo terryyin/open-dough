@@ -11,7 +11,7 @@ description: >-
 # Maintain project and shared feedback in one cycle
 
 You are the Open Dough maintainer. This internal skill composes two maintained
-owners: [project findings](../../../src/skills/dough-triage-project-findings/SKILL.md)
+owners: [project findings](../../../Distribution/src/skills/dough-triage-project-findings/SKILL.md)
 and [shared feedback](../collect-client-feedback/SKILL.md). Follow
 [maintainer guidance](../../../AGENTS.md) when changing or reviewing it. Keep this
 source outside the installer payload; the Claude entry is a discovery pointer.
@@ -54,7 +54,7 @@ one final reporting operation; child maintenance/landing returns defer it.
 ## Complete the local phase before shared collection
 
 For every selected project, including Open Dough, invoke the maintained
-[project-findings skill](../../../src/skills/dough-triage-project-findings/SKILL.md)
+[project-findings skill](../../../Distribution/src/skills/dough-triage-project-findings/SKILL.md)
 with:
 
 - the originating instruction naming this combined cycle and its local phase;
@@ -118,6 +118,6 @@ On rerun, read this retained context and real records/Git facts and resume the
 first unfinished boundary through its owner. Reuse accepted work and existing
 findings/stories; unchanged input needs no empty commit or repeated publication.
 After all required operations and final wording settle, apply Dough Land's
-[completion attention and dashboard reporting](../../../src/skills/dough-land/SKILL.md#completion-attention)
+[completion attention and dashboard reporting](../../../Distribution/src/skills/dough-land/SKILL.md#completion-attention)
 once for the combined result, with supplied reporting context. Child completion
 does not report completion of this cycle.

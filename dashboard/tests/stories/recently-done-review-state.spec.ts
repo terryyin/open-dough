@@ -7,11 +7,11 @@
 // and the Side panel as they were, keeps the keyboard on the card, and is
 // announced once. The state outlives reload, a project refresh and a
 // dashboard restart, and every page of that server shows it at its next read.
-// Reload/restart persistence is observed in ./recently-done-review-state-persistence.spec.ts.
+// Reload/restart persistence is observed in ../../../e2e/stories/recently-done-review-state-persistence.spec.ts.
 // It neither reads nor changes the story review's snapshot marks, and writes
 // nothing to the project's repository. Cards whose record is not read, and
 // touch input: ./recently-done-review-state-offer.spec.ts. Saves that fail:
-// ./recently-done-review-state-failed-save.spec.ts. Request refusals:
+// ../../../e2e/stories/recently-done-review-state-failed-save.spec.ts. Request refusals:
 // ../../backend-tests/review/story-review-state-admission.spec.ts.
 
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
@@ -38,7 +38,7 @@ import {
   unreviewQuestion,
   unreviewStory,
 } from "../recentlyDoneReviewState.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { quietStorySessions } from "../support/followUpStories.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import {

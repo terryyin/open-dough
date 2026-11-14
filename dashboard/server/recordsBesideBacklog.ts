@@ -6,7 +6,7 @@
 // are read only as the record files the done catalog agreeing with their
 // directory's listing names (`./doneCatalogRead.ts`). The one project
 // setting file the shared profile module names is reachable only as part of
-// the profile read, never by a client-supplied path. The done catalog (`../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs`)
+// the profile read, never by a client-supplied path. The done catalog (`../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs`)
 // sits among the done records, at the one path that module names; what it
 // admits is read in `./doneCatalogRead.ts`.
 
@@ -20,9 +20,9 @@ import {
   agentProfileDirectory,
   agentSettingsPath,
   profileAgentName,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { doneRecordDirectory } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { doneCatalogPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { doneRecordDirectory } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneCatalogPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 
 // Where a directory of published records named by the shared backlog
 // modules lives for this source: beside its backlog.

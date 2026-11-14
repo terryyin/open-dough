@@ -14,6 +14,7 @@ export async function listingTimeoutBoundary() {
   // when its module loaded. The HTTP waiter reads its bound on each request.
   const clock = controlRequestTimers(waiterBoundMs, readWaitLimitMs);
   const boundary = await startInProcessAuthenticatedRead({
+    ghTransport: "cli",
     extraEnv: () => ({
       DOUGH_READ_TIMEOUT_MS: String(waiterBoundMs),
       DOUGH_REVISION_CHECK_REUSE_MS: String(listingReuseWindowMs),

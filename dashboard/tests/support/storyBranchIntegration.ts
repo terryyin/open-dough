@@ -3,7 +3,7 @@
 // `history-preserving-publication.mjs integrate`.
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { launch, recordsOf } from "../agentLaunchBoundary.ts";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";

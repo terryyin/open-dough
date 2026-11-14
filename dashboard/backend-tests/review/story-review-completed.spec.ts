@@ -11,7 +11,7 @@ import {
 import { laterBranchMergesTrunkAndFastForwards } from "../../tests/support/laterStoryMergesTrunk.ts";
 import { queuedIdentity } from "../../tests/support/startOrigin.ts";
 import { git, writeAt } from "../../tests/support/storyReviewWorktree.ts";
-import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,

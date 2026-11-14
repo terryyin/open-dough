@@ -3,9 +3,9 @@
 import { chmod, realpath, rm, writeFile } from "node:fs/promises";
 import { createServer, type ServerResponse } from "node:http";
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
-import { OutstandingReads } from "../../../src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { OutstandingReads } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
 import { runGit } from "../../server/gitRunner.ts";
 import { fetchGitTarget } from "../../server/gitTargetFetch.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";

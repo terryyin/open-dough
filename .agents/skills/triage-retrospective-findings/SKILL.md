@@ -170,7 +170,7 @@ Validate all destinations and the selected story before creating or changing any
   If none fits, require a supplied readable canonical directory and resolvable conventions
   from its existing files or invocation: ID and filename patterns, required frontmatter,
   title `# SEED-NNN: ...`, and the stable anchor above. Choose the new seed ID under
-  [allocate a new identity](../../../src/skills/dough-product-backlog/references/identity.md#allocate-a-new-identity).
+  [allocate a new identity](../../../Distribution/src/skills/dough-product-backlog/references/identity.md#allocate-a-new-identity).
   Empty directory without supplied conventions, an allocation evidence gap you cannot
   resolve, or missing metadata conventions stops the write; invent no scheme/path.
 - The supplied backlog's title, Near-future direction when present, retained **Taken**,
@@ -203,7 +203,7 @@ After validation and any seed creation, write all three in one invocation:
 1. **Story:** add one under the seed's story-section heading, matching the directory
    pattern and creating that heading on a new seed. Give it the next local number (1 on
    a new seed), a stable anchor whose full identity is unused under
-   [allocate a new identity](../../../src/skills/dough-product-backlog/references/identity.md#allocate-a-new-identity),
+   [allocate a new identity](../../../Distribution/src/skills/dough-product-backlog/references/identity.md#allocate-a-new-identity),
    a beneficiary, and an evaluable outcome. Cite the finding code
    and supplied finding location without copying occurrences. Include a completion criterion
    to update every addressed finding at its supplied writable location after delivery under

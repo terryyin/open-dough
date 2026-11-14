@@ -1,5 +1,5 @@
 // Exact Done publication boundaries traverse the authenticated local reader.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keepLandedCiHistory } from "../../tests/support/landedCiHistory.ts";
 import { landedTrunk } from "../../tests/support/landedCiTrunk.ts";
 import { commonGitDir } from "../../tests/support/launchLanding.ts";

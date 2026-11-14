@@ -1,7 +1,7 @@
 // The Perspective choice, the Intent perspective's content and the Panel
 // divider, as fluent page objects for the Side panel journeys
-// (./navigation/side-panel-content-replacement.spec.ts,
-// ./navigation/side-panel-content-switching.spec.ts); and the phases those
+// (../../e2e/navigation/side-panel-content-replacement.spec.ts,
+// ../../e2e/navigation/side-panel-content-switching.spec.ts); and the phases those
 // journeys run them in, each with its own page-object set. The set is built
 // here, the one module that knows every class: the Board and its Story cards
 // (./storyCardPages.ts), the Side panel (./sidePanelFramePages.ts), its Story

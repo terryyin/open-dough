@@ -19,7 +19,7 @@ import {
 } from "../tests/support/comparisonScopeFacts.ts";
 import { expectComparisonScopeRows } from "../tests/intentScopeProofPage.ts";
 import { entryComparisonRows } from "../tests/support/summaryComparisonExpectedRows.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 for (const variant of ["empty", "all gaps"] as const) {
   test(`${variant} scope history explains the absence of measurements without drawing an empty chart`, async ({

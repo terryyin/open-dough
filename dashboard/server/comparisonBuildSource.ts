@@ -6,7 +6,7 @@ import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import { firstParentChain } from "./baseCiRevisionGit.ts";
 import { readCiProofArtifact } from "./ciProofArtifact.ts";
 import { GitFailure, runGit, type GitCall } from "./gitRunner.ts";
-import { parseDiffNameStatus } from "../../src/skills/dough-execute-plan/scripts/ci-path-applicability.mjs";
+import { parseDiffNameStatus } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-path-applicability.mjs";
 
 export type ComparisonHistory = {
   readonly firstParents: (

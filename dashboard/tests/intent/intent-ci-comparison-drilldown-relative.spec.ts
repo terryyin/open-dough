@@ -50,7 +50,9 @@ test("story, location, folder and file share signed words, preference and per-di
   origin,
 }) => {
   await page.setViewportSize({ width: 1280, height: 600 });
-  await publishSummaryComparisonStory(page, origin, "own-conflict-extra");
+  await publishSummaryComparisonStory(page, origin, {
+    variant: "own-conflict-extra",
+  });
   const ciReads: string[] = [];
   const textReads: string[] = [];
   page.on("request", (request) => {

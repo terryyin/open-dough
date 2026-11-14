@@ -3,7 +3,7 @@ import {
   scopeHistoryReading,
 } from "../tests/intentScopeHistoryPage.ts";
 // Real evidence provider updates retain observation identity and reject late replies.
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../src/baseCiWording.ts";
 import {
   expect,

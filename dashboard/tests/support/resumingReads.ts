@@ -8,7 +8,7 @@ import type { GhRequest } from "./ghRequest.ts";
 import { answeringFirst } from "./heldGitHubAnswer.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import { backlogApart, describedRevision } from "../describedRevisions.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 export const revision = "5e".repeat(20);
 

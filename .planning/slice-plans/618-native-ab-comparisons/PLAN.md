@@ -319,10 +319,14 @@ own amendment/acceptance. Revisit the cited North Star during normal wrap-up.
 - **G2 settled.** Doughnut arms clone a fresh primary checkout and run an arm-owned
   mysqld via the project's own `mysql_nix_shared.sh`; the sandbox denies TCP 3309/6380.
   A unix-socket connection to the live server is not denied.
-- **Trunk layout moved.** `origin/main` 951f66a76 moved `tests/` and `src/` under
-  `Distribution/`. Before Slice 4, take trunk in as its own increment, relocate this
-  family, keep record hashes valid (content-preserving moves) and rerun focused proof
-  plus the test-share preview.
+- **Trunk taken in after Slice 3.** Trunk `e54f80318` (951f66a76 moved `tests/` and
+  `src/` under `Distribution/`) was merged into the branch. The family now lives under
+  `Distribution/tests/` with repo-root `source_dir`; earlier plan/source-review paths
+  `tests/...` mean `Distribution/tests/...`. Path retargeting edited hash-bound runner,
+  pair, case and helper files, so the Slice 3 records' bases are recoverable at
+  `9c20a808` rather than from the current tree (Slice 4 demonstrates this). Focused
+  family proof and both helper-consumer sets passed on the merged state; the test-share
+  preview keeps ~193s headroom per share with four unrecorded jobs.
 - **Deferred hash-bound cleanups for Slice 4's refresh rerun.** The records also hash the
   runner, `native-codex.sh` and `native-codex-session.mjs`. The Slice 3 refactor left:
   H1 duplicated load sampling in the runner; H2 source revision/dirty logic repeated in

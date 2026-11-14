@@ -5,7 +5,7 @@ handoff for a directly invoked, still-running interactive Claude Code
 coordinator in Story Branch Mode. The original session, checkout, child identity
 and existing repair authority remain bound to one detached mailbox observer.
 The handoff validates the exact latest accepted and registered publication.
-[Runtime instructions](../../src/skills/dough-execute-plan/references/ci-background-handoff.md)
+[Runtime instructions](../../Distribution/src/skills/dough-execute-plan/references/ci-background-handoff.md)
 define the commands and receipts.
 
 The native asyncRewake Stop hook waits on local mailbox changes. Pending and

@@ -8,7 +8,7 @@ import {
   doughnutSharedTitle,
   sharedStoryIdentity,
 } from "./doughnutProject.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export { doughnutRepository, doughnutSharedTitle, sharedStoryIdentity };
 

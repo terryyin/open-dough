@@ -8,7 +8,7 @@ import path from "node:path";
 import type { WebSocket } from "ws";
 import { test as base, expect } from "../../tests/support/pageTest.ts";
 import { terminalWorkspaceUnavailableCode } from "../../src/agentTerminal.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const native = createRequire(import.meta.url)(
   "@lydell/node-pty",

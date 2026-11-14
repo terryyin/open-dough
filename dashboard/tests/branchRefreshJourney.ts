@@ -1,12 +1,12 @@
 // Opening the branch slice progress journeys' records
 // (./branchProgressRecords.ts) with heads that move, for the automatic
-// check's branch journeys (./observation/auto-refresh-branches.spec.ts,
-// ./observation/auto-refresh-unusable-branch.spec.ts), which observe what the page then
+// check's branch journeys (../../e2e/observation/auto-refresh-branches.spec.ts,
+// ../../e2e/observation/auto-refresh-unusable-branch.spec.ts), which observe what the page then
 // asks GitHub through ./originObservation.ts's `readsBesideChecks`.
 
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { storyCard } from "./storyCardControls.ts";

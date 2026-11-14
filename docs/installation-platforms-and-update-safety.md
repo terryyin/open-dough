@@ -117,14 +117,14 @@ tool to use replaced guidance.
 
 To run all script tests from a source checkout, run `npm test` (requires npm) or
 `bash scripts/test.sh`. No npm dependencies need to be installed. The runner
-discovers all `.sh` files under `tests/` and the `node --test` files matched by
-the globs in `tests/node-test-files`, and also runs a self-installation check;
+discovers all `.sh` files under `Distribution/tests/` and the `node --test` files matched by
+the globs in `Distribution/tests/node-test-files`, and also runs a self-installation check;
 it reports failure if any test fails.
 
 GitHub Actions runs a lint job, split `npm test` jobs, and dashboard
 browser-suite shard jobs on every push and
 pull request, and can also be started manually. CI uses Node.js 24 and installs
-the locked npm dependencies and shell lint tools. New shell tests under `tests/`
+the locked npm dependencies and shell lint tools. New shell tests under `Distribution/tests/`
 run automatically without workflow changes. When adding another test framework,
 include it in `npm test` so the same command remains the complete suite locally
 and in CI.

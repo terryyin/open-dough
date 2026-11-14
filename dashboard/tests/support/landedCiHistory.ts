@@ -15,7 +15,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { ProjectHistory } from "../../server/landedCiHistoryStore.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {

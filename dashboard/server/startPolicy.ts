@@ -6,7 +6,7 @@
 import {
   needsPublicationAuthority,
   sessionPolicyFlags,
-} from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import type { AgentLaunchRequest, SessionPolicy } from "../src/agentLaunch.ts";
 import { installedSkillPath } from "./launchHosts.ts";
 import type { ProjectFolder } from "./projectFolders.ts";

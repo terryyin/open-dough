@@ -8,7 +8,7 @@ import {
   parts,
   projectTab,
 } from "../dashboardPage.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { catalogPublications } from "../catalogProjectRecords.ts";
 import { describedBacklog } from "../describedRevisions.ts";
 import {

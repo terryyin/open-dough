@@ -11,8 +11,8 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
-import type { RepositoryRevision } from "../../../tests/support/repositoryTestData.mjs";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import type { RepositoryRevision } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 
 export const branch = "claude/story-a";

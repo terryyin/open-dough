@@ -6,7 +6,7 @@
 import type { Page } from "@playwright/test";
 import { describedBacklog } from "./describedRevisions.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const pygardonRepository = "terryyin/pygardon";
 

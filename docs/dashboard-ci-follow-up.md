@@ -43,7 +43,7 @@ Duplicate receipts and multiple production processes on this machine share
 that allowance. A refusal, ambiguous response or interruption never causes automatic
 resubmission, even if the interruption happened before the command ran.
 GitHub Actions retains its built-in full-workflow trigger. For custom CI,
-[`ciRebuild`](../src/skills/dough-execute-plan/manuals/custom-ci-rebuild.md) is a
+[`ciRebuild`](../Distribution/src/skills/dough-execute-plan/manuals/custom-ci-rebuild.md) is a
 project-owned command beside `ciAdapter` in `.planning/open-dough.json`. It asks
 for a new full check of the original revision and returns accepted with its exact
 new identity, refused with a reason, or uncertain with a reason. The provider

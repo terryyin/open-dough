@@ -60,7 +60,7 @@ Open your client project in an AI agent with web and shell access, then ask:
 
 ## Contributing
 
-Use the [native verification setup](tests/native-setup.md) before running
+Use the [native verification setup](Distribution/tests/native-setup.md) before running
 checks in this repository. It pins contributor Node and separates bounded
 installation from repeated checks.
 
@@ -118,6 +118,11 @@ If you enable `makeMe` or `pageObjects` in your project, follow the
 to copy the test rule into your `AGENTS.md`.
 
 ## Distribution
+
+[Open Dough Distribution](docs/adrs/0001-ubiquitous-language-accepted.md#maintainer-vocabulary)
+develops and delivers the guidance installed in projects. Its source lives in
+`Distribution/src/`, and [Distribution Tests](Distribution/tests/README.md)
+verify the installer, updater, and shared skill behavior.
 
 The initial distribution channel is the [Open Dough GitHub repository](https://github.com/terryyin/open-dough). The intention is to let projects install and update directly from GitHub without requiring publication to a package registry such as npm.
 

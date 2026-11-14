@@ -1,7 +1,7 @@
 // Published settings and source files for Intent locations boundary checks.
 
 import { describedBacklog } from "./describedRevisions.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const knownSourceId = "open-dough";
 // A project that records no stories.

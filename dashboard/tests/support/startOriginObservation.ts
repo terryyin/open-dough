@@ -2,4 +2,4 @@
 export {
   fixtureFiles,
   objectPack,
-} from "../../../tests/support/fixture-observation.mjs";
+} from "../../../Distribution/tests/support/fixture-observation.mjs";

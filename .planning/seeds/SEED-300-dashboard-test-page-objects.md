@@ -116,6 +116,9 @@ affected callers remain hypotheses for execution's before/after evaluation.
 The unchanged baseline selection passed all six cases in two files on
 2026-11-11 at `07320772f`:
 `caffeinate -s -i npm run test:dashboard -- tests/intent/intent-ci-comparison-mounted-units.spec.ts frontend-tests/sessions-sidebar-host-status.spec.ts --workers=1`.
+That umbrella command was removed by SEED-334; both files are now in
+Dashboard Frontend Test, so the same selection is
+`npm run test:dashboard:frontend -- frontend-tests/intent/intent-ci-comparison-mounted-units.spec.ts frontend-tests/sessions-sidebar-host-status.spec.ts --workers=1`.
 This observes static comparison figures and frontend host-status readings,
 not a completed shared API or suite-wide regression coverage. The host had
 16 logical CPUs, 48 GiB RAM, AC power and a competing SEED-287 pressure probe;
@@ -198,6 +201,20 @@ North Star direction needs no addition for this test-side change.
   MakeMe for domain data and the existing causal waits. Run the changed
   specs and the applicable dashboard gates under the project's
   [failing and flaky test policy](../../AGENTS.md#failing-and-flaky-tests).
+- Since SEED-334 the affected specs are spread over four browser test groups,
+  each with its own command, configuration, duration list and CI shards:
+  representative workflows in E2E Test (`e2e/`, `npm run test:e2e`), the
+  interim Dashboard Integrated UI Test (`dashboard/tests/`,
+  `npm run test:dashboard:integrated`), Dashboard Frontend Test and Dashboard
+  Backend Test. `npm run test:dashboard` and `dashboard/playwright.config.ts`
+  no longer exist. Page objects and fixtures stay under `dashboard/tests/`,
+  and `e2e/` workflows import them, so a shared helper change reaches callers
+  in every group; trace and run them per group
+  ([groups](../../dashboard/tests/README.md),
+  [CI shards](../../dashboard/tests/shards.md)). The queued
+  [SEED-334#focus-detailed-dashboard-ui-checks](SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks)
+  converts the interim group's specs and touches the same files; coordinate
+  with it rather than migrating a spec it is moving.
 
 <a id="express-launch-test-intent-through-page-objects"></a>
 
@@ -234,11 +251,11 @@ execution prerequisite on another story.
   Extend the launch and session dialog helpers to express workflow, host,
   options, review of existing changes and confirmation. Keep refusal and
   disclosure steps visible in cases that prove them.
-  [Base CI](../../dashboard/tests/launches/agent-launch-base-ci.spec.ts#L34),
-  [unread base CI](../../dashboard/tests/launches/agent-launch-base-ci-unread.spec.ts#L39),
+  [Base CI](../../e2e/launches/agent-launch-base-ci.spec.ts#L37),
+  [unread base CI](../../e2e/launches/agent-launch-base-ci-unread.spec.ts#L39),
   [model controls](../../dashboard/tests/launches/agent-launch-model.spec.ts#L73),
   [exclusive options](../../dashboard/tests/launches/agent-launch-options-exclusive.spec.ts#L44),
-  [existing changes](../../dashboard/tests/launches/agent-launch-start-session-existing-changes.spec.ts#L68).
+  [existing changes](../../e2e/launches/agent-launch-start-session-existing-changes.spec.ts#L71).
 
 - **Launch input, attachments and touch layout.** Host-specific attachment
   tests repeat preview and draft controls, and input-voice cases repeat
@@ -248,7 +265,7 @@ execution prerequisite on another story.
   edit and touch reachability. Keep payloads, provider faults, expected
   focus and gesture distinctions in the cases.
   [Attachment cancellation](../../dashboard/tests/launches/agent-launch-ad-hoc-attachments-cancel.spec.ts#L28),
-  [Cursor attachments](../../dashboard/tests/launches/agent-launch-ad-hoc-attachments-cursor.spec.ts#L42),
+  [Cursor attachments](../../e2e/launches/agent-launch-ad-hoc-attachments-cursor.spec.ts#L45),
   [frontend refusal](../../dashboard/frontend-tests/agent-launch-ad-hoc-attachments-refusal.spec.ts#L59),
   [voice overflow](../../dashboard/tests/launches/session-instruction-voice-overflow.spec.ts#L98),
   [touch dialog](../../dashboard/tests/launches/agent-launch-dialog-touch.spec.ts#L44).
@@ -259,9 +276,9 @@ execution prerequisite on another story.
   read a launch result and take the next available action. Keep host
   progress gates and exact verification/refusal wording as scenario evidence.
   [Story start answers](../../dashboard/tests/launches/agent-launch-start-story-card.spec.ts#L81),
-  [preparation retry](../../dashboard/tests/launches/agent-launch-preparation-codex-retry.spec.ts#L78),
+  [preparation retry](../../e2e/launches/agent-launch-preparation-codex-retry.spec.ts#L78),
   [responsive access](../../dashboard/tests/launches/responsive-session-access.spec.ts#L100),
-  [recovery verification](../../dashboard/tests/launches/responsive-session-recovery-verification.spec.ts#L93),
+  [recovery verification](../../e2e/launches/responsive-session-recovery-verification.spec.ts#L93),
   [frontend startup words](../../dashboard/frontend-tests/startup-host-words.spec.ts#L52).
   Two siblings of this finding remain. `recoveryOf` is a pure alias of
   `parts(page).startupRecovery` in both `responsiveRecovery.ts` and
@@ -308,8 +325,8 @@ execution prerequisite on another story.
   to Board. Keep the URLs, paths, chosen project, focus destination and
   filesystem evidence explicit.
   [Add refusal](../../dashboard/tests/configuration/project-add-refusal.spec.ts#L29),
-  [project removal](../../dashboard/tests/configuration/project-remove.spec.ts#L20),
-  [hide with sessions](../../dashboard/tests/configuration/project-hide-sessions.spec.ts#L78),
+  [project removal](../../e2e/configuration/project-remove.spec.ts),
+  [hide with sessions](../../e2e/configuration/project-hide-sessions.spec.ts#L81),
   [settings project management](../../dashboard/tests/configuration/system-settings-project-management.spec.ts#L24),
   [touch project management](../../dashboard/tests/configuration/system-settings-project-management-touch.spec.ts#L48).
 
@@ -321,7 +338,7 @@ execution prerequisite on another story.
   scheme and dimensions where the behavior depends on them.
   [Credential recovery](../../dashboard/tests/configuration/system-settings-openai-recovery.spec.ts#L26),
   [terminal theme](../../dashboard/tests/configuration/system-settings-terminal-theme.spec.ts#L25),
-  [feedback maintenance](../../dashboard/tests/configuration/system-settings-feedback-maintenance.spec.ts#L57),
+  [feedback maintenance](../../e2e/configuration/system-settings-feedback-maintenance.spec.ts#L57),
   [frontend system appearance](../../dashboard/frontend-tests/dashboard-system-appearance.spec.ts#L126),
   [Intent dark appearance](../../dashboard/tests/intent/intent-story-dark-appearance.spec.ts#L48).
 
@@ -369,4 +386,4 @@ execution prerequisite on another story.
   [Observation measurements](../../dashboard/frontend-tests/observation-measurements.spec.ts#L13),
   [reachability](../../dashboard/frontend-tests/control-reachability-observation.spec.ts#L99),
   [touch reading](../../dashboard/frontend-tests/touch-reading-observation.spec.ts#L37),
-  [runtime browser turn](../../dashboard/tests/runtime/observation-measurements.spec.ts#L43).
+  [runtime browser turn](../../dashboard/backend-tests/runtime/observation-measurements.spec.ts#L43).

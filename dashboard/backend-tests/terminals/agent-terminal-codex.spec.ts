@@ -35,7 +35,7 @@ import {
 } from "../../tests/support/launchEnvironment.ts";
 
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { changeLaunchStore } from "../../tests/support/launchStore.ts";
 const test = base.extend({
   dashboard: async ({ github, machine, codexProtocol }, use) => {

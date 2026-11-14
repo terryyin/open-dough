@@ -9,7 +9,7 @@
 // answered together as an ambiguity, whose explanation names them, and none
 // at all leaves the story with nothing to review.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { LocalWorkspace } from "../../src/localWorkspace.ts";

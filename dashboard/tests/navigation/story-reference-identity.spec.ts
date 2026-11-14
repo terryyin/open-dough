@@ -1,10 +1,10 @@
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { direction } from "../../../Distribution/tests/support/product-backlog-fixture.mjs";
 import {
   queuedReadyRepository,
   storyA,
   storySeed,
-} from "../../../tests/support/queued-repository.mjs";
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { expect } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { chooseProject, parts } from "../dashboardPage.ts";

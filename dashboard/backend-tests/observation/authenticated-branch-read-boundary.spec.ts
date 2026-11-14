@@ -6,12 +6,12 @@
 // a head this boundary resolved, itself or in a revision check watching the
 // branch; malformed branch parameters are covered in
 // ./authenticated-read-refusal.spec.ts, and what the page shows from branch
-// reads in ../../tests/stories/branch-slice-progress.spec.ts. Shares this suite's harness
+// reads in ../../../e2e/stories/branch-slice-progress.spec.ts. Shares this suite's harness
 // (../../tests/support/dashboardServer.ts) and ./authenticated-read-boundary.spec.ts's
 // approach.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { renderStorySection } from "../../../tests/support/published-seed.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   developmentBoundary,

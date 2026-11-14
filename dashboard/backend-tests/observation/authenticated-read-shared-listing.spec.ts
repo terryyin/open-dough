@@ -107,7 +107,7 @@ test("checks at different since and watched branches from one settled listing ea
 
 test("a requester gone before settlement leaves the listing to settle; the next check within the window costs nothing", async () => {
   const revision = revisionOf("8d");
-  const server = await listingReuseServer();
+  const server = await listingReuseServer({ ghTransport: "cli" });
   try {
     const holding = await servedHolding(
       server,

@@ -1,4 +1,4 @@
-import type { IntentSettings } from "../../tests/support/intentLocationTestData.mjs";
+import type { IntentSettings } from "../../Distribution/tests/support/intentLocationTestData.mjs";
 import type { CatalogPublication } from "./catalogProjectRecords.ts";
 import { publishFiles } from "./publishedFiles.ts";
 import { intentSettingsText } from "./support/intentSettingsFile.ts";

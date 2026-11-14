@@ -1,7 +1,7 @@
 // Common canonical history facts. Each case declares its own graph and reads
 // it afresh; no Git preparation or mutable history is shared by rule cases.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { agentIdentity } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 export const endpointIdentity = "SEED-1#comparison";
 export const endpointAgent = agentIdentity("Yui");

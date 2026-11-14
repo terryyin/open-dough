@@ -52,7 +52,10 @@ test.describe("authenticated read boundary: a shared read belongs to its waiters
   let server: DashboardServer;
 
   test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+    server = await startDashboardServer({
+      ...developmentBoundary,
+      ghTransport: "cli",
+    });
   });
 
   test.afterAll(async () => {
@@ -115,7 +118,10 @@ test.describe("authenticated read boundary: a shared read belongs to its waiters
 });
 
 test("closing the server ends a read two requests wait on", async () => {
-  const server = await startDashboardServer(developmentBoundary);
+  const server = await startDashboardServer({
+    ...developmentBoundary,
+    ghTransport: "cli",
+  });
   server.github.serve(everyRepository, hangs);
   const url = `${server.baseURL}/__authenticated-read?source=open-dough`;
   abandonedRequest({ url, headers: { Origin: server.origin } });

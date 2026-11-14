@@ -8,7 +8,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { replaceMachineJson } from "../../server/machineJsonStore.ts";
 import { historyFile } from "../../tests/support/collectedScopeHistory.ts";
 import {

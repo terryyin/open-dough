@@ -1,8 +1,8 @@
 // Shared completion input, including the explicit ordinary Trunk Mode choice.
 // completedPublishedStory owns the Take, history and publication sequence.
-import type { IntentCoverage } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import type { IntentCoverage } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import { lines } from "./storyReviewWorktree.ts";
 
 export type CompletedStoryOptions = {

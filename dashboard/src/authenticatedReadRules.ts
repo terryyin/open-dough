@@ -31,7 +31,7 @@ export const authenticatedReadDiagnosticsEndpoint =
 // GitHub rate limit's direction: the installed GitHub request source's own
 // rule (`github-request-rules.mjs`), which every Open Dough consumer shares.
 // The browser reader refuses anything longer as malformed.
-export { longestDirectedWaitSeconds } from "../../src/skills/dough-execute-plan/scripts/github-request-rules.mjs";
+export { longestDirectedWaitSeconds } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-rules.mjs";
 
 // A full commit id as GitHub names one; anything else is not a revision.
 export const commitShaPattern = /^[0-9a-f]{40}$/;

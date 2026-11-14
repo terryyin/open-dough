@@ -6,8 +6,8 @@
 import { randomUUID } from "node:crypto";
 import { readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { claudeListingAppearance } from "../../../tests/support/claudeListingTestData.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { claudeListingAppearance } from "../../../Distribution/tests/support/claudeListingTestData.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // What a listed session becomes, as the real `claude agents --json --all`
 // lists it (Claude Code 2.1.284): a background appearance from MakeMe's

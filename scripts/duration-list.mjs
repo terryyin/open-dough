@@ -66,8 +66,8 @@ export function parseDurationList(text, name) {
   return { header, seconds };
 }
 
-// The times form, which the runner's `test-times` and the dashboard's
-// `dashboard-times-<shard>` artifacts print and a list's job lines keep: one
+// The times form, which the runner's `test-times` and each browser test
+// group's `<group>-times-<shard>` artifacts print and a list's job lines keep: one
 // `<seconds><TAB><label>` line per entry, seconds to a tenth, longest first,
 // equal seconds bytewise by label.
 /**

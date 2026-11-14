@@ -13,7 +13,7 @@ import {
 // marks or the order, and stays chosen across the story's views and a visit
 // to Project Intent (SEED-275#story-intent-tabs).
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { openProjectIntent, returnToStory } from "../intentModePage.ts";
 import { chooseStoryTab, expectStoryTab } from "../support/intentStoryPage.ts";
 import { expect, test } from "../dashboardTest.ts";

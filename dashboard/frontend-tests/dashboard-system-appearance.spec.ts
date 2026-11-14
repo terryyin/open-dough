@@ -37,7 +37,7 @@ import {
   expandIntentFolders,
   expandIntentGroup,
 } from "../tests/intentPerspectivePage.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { frontendRevision } from "../tests/support/frontendServiceState.ts";
 
 const highlightedPath = "dashboard/tests/example.spec.ts";

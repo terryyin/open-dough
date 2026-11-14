@@ -1,5 +1,5 @@
 // Shared CI comparison fixture helpers for Intent's timing comparison
-// (../intent/intent-ci-comparison.spec.ts): Actions answers by head_sha, planning
+// (../../../e2e/intent/intent-ci-comparison.spec.ts): Actions answers by head_sha, planning
 // commits before a claim, and the done Story Branch publisher. SEED-236
 // lives in ./storyCiComparisonEarlierLanding.ts; SEED-248 fast-forward tip
 // in ./storyCiComparisonFastForward.ts and later first-parent rewrite in
@@ -15,16 +15,16 @@ import type { OriginAnswer } from "../originAnswers.ts";
 import {
   apiJob,
   apiRun,
-} from "../../../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { observedRunForApi } from "../../../tests/support/ciRunTestData.mjs";
+} from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { observedRunForApi } from "../../../Distribution/tests/support/ciRunTestData.mjs";
 import {
   actionsRunsAnswer,
   actionsWorkflowAnswer,
   type CiRunAnswer,
 } from "./baseCiActions.ts";
-import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
-import { commitDeclaredRevision } from "../../../tests/support/repository-fixture.mjs";
+import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import { dashboardDeveloper } from "./startOriginPreparation.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
@@ -122,8 +122,8 @@ export function serveActionsFor(
   let proofsByRunId = initialProofs;
   let jobsByAttempt: AttemptJobs = {};
   let intercept: ActionsAnswerer | undefined;
-  const answerActions: ActionsAnswerer = (argv, headSha) =>
-    intercept?.(argv, headSha) ?? answerServed(argv);
+  const answerActions: ActionsAnswerer = (argv) =>
+    intercept?.(argv) ?? answerServed(argv);
   const answerServed = (argv: readonly string[]): OriginAnswer | undefined => {
     const route = argv.find((argument) => argument.startsWith("repos/")) ?? "";
     if (/\/actions\/workflows\/[^/?]+$/.test(route)) {

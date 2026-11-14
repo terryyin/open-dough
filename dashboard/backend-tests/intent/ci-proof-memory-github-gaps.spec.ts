@@ -1,5 +1,5 @@
 // Only checked summaries are retained: failed acquisition and validation retry.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {

@@ -60,30 +60,37 @@ for (const mode of ["trunk", "story-branch"] as const)
         kind: "diff",
         printed: expect.stringContaining("+delivered on another machine"),
       });
-      for (const [change, status] of [
-        [{ source: "elsewhere" }, 404],
-        [{ identity: "SEED-B#b" }, 409],
-        [{ completion: review.tree }, 409],
-        [{ completion: "HEAD" }, 400],
-        [{ baseline: review.tree }, 409],
-        [{ tree: review.baseline }, 409],
-        [{ path: "other-story.txt" }, 409],
-        [{ path: "*.txt" }, 409],
-        [{ path: "../[literal]*.txt" }, 409],
-        [{ oldPath: "shared.txt" }, 409],
-        [{ repository: origin.project }, 400],
-        [{ reference: "00000000-0000-4000-8000-000000000000" }, 400],
-      ] as const) {
-        expect(
-          (
-            await get(request, dashboard, storyReviewFileEndpoint, {
+      // Each refusal is an independent read of the same published review, so
+      // they are asked together rather than each waiting on the last.
+      await Promise.all(
+        (
+          [
+            [{ source: "elsewhere" }, 404],
+            [{ identity: "SEED-B#b" }, 409],
+            [{ completion: review.tree }, 409],
+            [{ completion: "HEAD" }, 400],
+            [{ baseline: review.tree }, 409],
+            [{ tree: review.baseline }, 409],
+            [{ path: "other-story.txt" }, 409],
+            [{ path: "*.txt" }, 409],
+            [{ path: "../[literal]*.txt" }, 409],
+            [{ oldPath: "shared.txt" }, 409],
+            [{ repository: origin.project }, 400],
+            [{ reference: "00000000-0000-4000-8000-000000000000" }, 400],
+          ] as const
+        ).map(async ([change, status]) => {
+          const refused = await get(
+            request,
+            dashboard,
+            storyReviewFileEndpoint,
+            {
               ...file,
               ...change,
-            })
-          ).status(),
-          JSON.stringify(change),
-        ).toBe(status);
-      }
+            },
+          );
+          expect(refused.status(), JSON.stringify(change)).toBe(status);
+        }),
+      );
       expect(
         (
           await request.get(

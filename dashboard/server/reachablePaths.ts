@@ -19,10 +19,10 @@ import {
 } from "../src/sourceLink.ts";
 import { peekRecordedApproach } from "../src/storyPreparation.ts";
 import type { ListedFile } from "./ghContents.ts";
-import { parseBacklog } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
+import { parseBacklog } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 
-import { isSafeRepositoryPath } from "../../src/skills/dough-makeme/scripts/repository-path.mjs";
-export { isSafeRepositoryPath } from "../../src/skills/dough-makeme/scripts/repository-path.mjs";
+import { isSafeRepositoryPath } from "../../Distribution/src/skills/dough-makeme/scripts/repository-path.mjs";
+export { isSafeRepositoryPath } from "../../Distribution/src/skills/dough-makeme/scripts/repository-path.mjs";
 
 // Decode a query-string path, then apply the same segment rules the allowlist
 // uses for already-decoded repository paths.

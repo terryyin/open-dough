@@ -1,6 +1,6 @@
 // Collected scope evidence shares project history's bounded retained cohort.
 import assert from "node:assert/strict";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import {
   collectingLandedCi,
@@ -113,8 +113,7 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
       return summaryTextZipAnswer(text);
     const main = await originMain(origin);
     return (
-      actionsForRuns([run])(call.argv, main) ??
-      publishes({ revision: main })(call)
+      actionsForRuns([run])(call.argv) ?? publishes({ revision: main })(call)
     );
   });
   const accepted = land(newest.record, origin, dashboard.home).result.landing

@@ -4,7 +4,7 @@ import {
   completedWithoutAttention,
   type CompletionReport,
 } from "../src/completionReport.ts";
-import { parseBacklog } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
+import { parseBacklog } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import { configuredProject } from "./projectConfiguration.ts";
 import { runGit, defaultGitOutputLimit } from "./gitRunner.ts";
 

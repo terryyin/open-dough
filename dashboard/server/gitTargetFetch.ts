@@ -1,7 +1,7 @@
 // Reads of a named target can arrive together from Review and CI comparison,
 // including through sibling worktrees. Share an outstanding fetch, and keep
 // each repository's next mutation behind the actual previous Git exit.
-import { OutstandingReads } from "../../src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
+import { OutstandingReads } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
 import { storyReviewWaitMs } from "../src/storyReviewContract.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
 import { runGitUntilClosed, type GitCall } from "./gitRunner.ts";

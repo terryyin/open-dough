@@ -4,11 +4,11 @@ import {
   queuedClaudeBoundaryTest as test,
 } from "../../tests/support/landedCiHistoryTest.ts";
 import { prepareAdapterRepeatScenario } from "../../tests/support/ciFollowUpAdapterScenario.ts";
-import { followUpCards } from "../../tests/support/ciFollowUpScenario.ts";
 import {
   ingest,
   retained,
   requestOf,
+  unverifiedCards,
 } from "../../tests/support/ciFollowUpAdapterAssertions.ts";
 import type { Answers } from "../../tests/intentCiAdapterFixture.ts";
 import { retainedHistory } from "../../tests/support/collectedScopeHistory.ts";
@@ -76,19 +76,8 @@ for (const [condition, answer, explanation] of submissions) {
       startServer,
       condition === "timeout" ? 1000 : undefined,
     );
-    let observedCards: Awaited<ReturnType<typeof followUpCards>> | undefined;
-    await expect
-      .poll(async () => {
-        observedCards = await followUpCards(server);
-        return observedCards;
-      })
-      .toMatchObject([
-        {
-          kind: "unverified",
-          explanation: expect.stringContaining(explanation),
-        },
-      ]);
-    expect(observedCards?.[0]?.explanation).toContain("will not be resent");
+    const observedCards = await unverifiedCards(server, explanation);
+    expect(observedCards[0]?.explanation).toContain("will not be resent");
     expect(requestOf(server)?.submission.kind).toBe(
       condition.startsWith("already") || condition === "refused"
         ? "refused"

@@ -7,7 +7,7 @@ import {
   test,
 } from "../tests/support/frontendApp.ts";
 import { putFrontendMachine } from "../tests/support/frontendServiceState.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { creationSchema } from "../src/launchCreation.ts";
 import { creationView } from "../server/launchCreation.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";

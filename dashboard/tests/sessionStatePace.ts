@@ -222,6 +222,10 @@ export async function expectNotReloaded(page: Page): Promise<void> {
   ).toBe("yes");
 }
 
+// What an entry shows while Claude Code's session list cannot be read.
+export const listingUnreadableShown =
+  "State unknown: Claude Code's session list could not be read";
+
 // The entry shows these state words, and its attention edge only when the
 // developer is needed there: a heavier edge than a quiet entry's thin one,
 // so it does not rest on color.

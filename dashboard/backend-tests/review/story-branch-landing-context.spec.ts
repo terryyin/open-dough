@@ -5,7 +5,7 @@
 // names the landing context, the attempt holds the capture authority, and the
 // instruction's reporting block tells the session where to supply it.
 
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -23,7 +23,7 @@ import { claimedStoryBranchLaunch } from "../../tests/support/storyBranchIntegra
 import {
   firstLandingExpectationPath,
   openFirstLandingExpectation,
-} from "../../../src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
+} from "../../../Distribution/src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
 
 test.describe("a claimed Story Branch Mode execution launch", () => {
   let origin: StartOrigin;

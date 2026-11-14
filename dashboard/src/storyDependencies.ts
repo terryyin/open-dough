@@ -1,7 +1,7 @@
 // Typed presentation of the shared dependency interpretation. Repository reads
 // stay at the canonical enrichment boundary; no second dependency grammar.
 import { z } from "zod";
-import { readStoryDependencies } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
+import { readStoryDependencies } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
 import type { WorkEntry } from "./publishedWork.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import {

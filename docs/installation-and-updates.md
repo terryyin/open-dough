@@ -4,7 +4,8 @@ Open Dough installs one project-local client payload into two physical skill
 roots: `.agents/skills/` (shared by Codex and Cursor) and `.claude/skills/`.
 Each release's [`managed_files` declaration in `install.sh`](../install.sh)
 is the complete payload for each root; every declared path resolves under that
-release's `src/skills/`. Inspect the declaration in the pinned snapshot using
+release's `skills/` directory under the source tree named by its installer.
+Inspect the declaration in the pinned snapshot using
 the procedure below, rather than assuming a fixed list of skills or dependencies.
 Installation preserves unrelated project files, home-level guidance, and any
 other tool's separate installation.
@@ -36,7 +37,7 @@ merge, or create defaults. When the file or its `skipProcessRetrospective` key i
 absent, the execution retrospective skips its process review. The JSON
 contract — including defaults, invocation overrides, and invalid-file
 handling — lives once in
-[Select reviews](../src/skills/dough-execution-retrospective/SKILL.md#select-reviews).
+[Select reviews](../Distribution/src/skills/dough-execution-retrospective/SKILL.md#select-reviews).
 Dough Land ignores this key; it reviews its own landing process only when
 invoked with `--process-retrospective`. Story Wrap Up has no such flag: it
 completes only a process review already selected and deferred by execution
@@ -54,7 +55,7 @@ Automatic Intent Coverage during eligible feature-story wrap-up is off when
 { "intentCoverage": true }
 ```
 
-The [wrap-up selection rule](../src/skills/dough-story-wrap-up/SKILL.md#assess-intent-coverage)
+The [wrap-up selection rule](../Distribution/src/skills/dough-story-wrap-up/SKILL.md#assess-intent-coverage)
 owns eligibility, existing-result preservation and invalid-configuration handling.
 Explicit developer requests during review remain available without changing this preference.
 
@@ -134,25 +135,13 @@ inspection and execution into an unattended one-shot command.
      `git -C "${snapshot}" rev-parse HEAD` equals `selected_commit`.
      Never run a helper or installer from an unpinned clone or the default branch.
 
-4. Read and inspect these files from that snapshot before executing any of them:
-   - `install.sh`
-   - `src/install/open-dough-execution-payload.sh`
-   - `src/install/open-dough-payload-declaration.sh`
-   - `src/install/open-dough-install-payload.sh`
-   - `src/install/open-dough-execution-payload.sh`
-   - `src/install/open-dough-payload-declaration.sh`
-   - `src/install/open-dough-payload-bytes.mjs`
-   - `src/install/open-dough-release.sh`
-   - `src/install/open-dough-release-apply.sh`
-   - `src/install/open-dough-release-baseline.sh`
-   - `src/install/open-dough-release-leftovers.sh`
-   - `src/install/open-dough-platform.sh`
-   - `src/install/open-dough-release-version.sh`
-   - `src/install/open-dough-release-resolve.sh`
-   - `src/install/open-dough-register-hooks.sh`
-   - `src/install/open-dough-register-hooks.mjs`
-   - `src/install/open-dough-register-hooks-merge.mjs`
-   - `src/install/open-dough-register-hooks-fragments.mjs`
+4. Read the pinned snapshot's root `install.sh` and locate the source tree it
+   names. Set `release_source` to that directory within the snapshot, such as
+   `"${snapshot}/Distribution/src"` for the Distribution layout or
+   `"${snapshot}/src"` for older releases. Read and inspect
+   `install/open-dough-release.sh`, `install/open-dough-install-payload.sh`,
+   and all helpers and declaration fragments that these files or the installer
+   source or run before executing them.
 
    Then inspect every source named by that snapshot's `managed_files` declaration,
    including supporting references, scripts, manuals, and hook fragments. After
@@ -162,10 +151,10 @@ inspection and execution into an unattended one-shot command.
    ```bash
    (
      set -euo pipefail
-     source "${snapshot}/src/install/open-dough-release-version.sh"
+     source "${release_source}/install/open-dough-release-version.sh"
      declared=$(read_managed_files_declaration "${snapshot}/install.sh")
      while IFS= read -r managed_file; do
-       source_path="${snapshot}/src/skills/${managed_file}"
+       source_path="${release_source}/skills/${managed_file}"
        if [[ ! -f "${source_path}" ]]; then
          printf 'Missing declared payload source: %s\n' "${source_path}" >&2
          exit 1
@@ -195,7 +184,7 @@ inspection and execution into an unattended one-shot command.
    ```bash
    (
      set -euo pipefail
-     resolved=$(bash "${snapshot}/src/install/open-dough-release.sh" resolve-url "${source_url}")
+     resolved=$(bash "${release_source}/install/open-dough-release.sh" resolve-url "${source_url}")
      IFS=$'\t' read -r tag commit version <<< "${resolved}"
      head=$(git -C "${snapshot}" rev-parse HEAD)
      if [[ "${tag}" != "${selected_tag}" || "${commit}" != "${selected_commit}" ||
@@ -203,7 +192,7 @@ inspection and execution into an unattended one-shot command.
        echo 'Release selection changed after inspection; not replacing inspected files or installing.' >&2
        exit 1
      fi
-     source_version=$(bash "${snapshot}/src/install/open-dough-release.sh" \
+     source_version=$(bash "${release_source}/install/open-dough-release.sh" \
        validate-checkout "${snapshot}")
      if [[ "${source_version}" != "${selected_version}" ]]; then
        echo 'Pinned source version does not match the selected release; refusing installation.' >&2

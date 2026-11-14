@@ -1,6 +1,6 @@
 // A real completion delivery is idempotent beside the measured attempt's proof.
 import assert from "node:assert/strict";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
 import type { CompletionSubmission } from "../../server/completionAdmission.ts";
 import {
@@ -16,7 +16,7 @@ import {
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import { passedFrom, trunkRun } from "../../tests/support/landedCiTrunk.ts";
 import { serveCollectedTrunkRuns } from "../../tests/support/landedCiScopeProofs.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { postCompletion } from "../../tests/support/completionRecovery.ts";
 import { collectedScopeFileSummary } from "../../tests/support/scopeHistoryProofs.ts";
 import { land } from "../../tests/support/startSessionLandingContext.ts";
 
@@ -69,12 +69,7 @@ test("an actual Done submission and delivery retry keep the same collected proof
     reference: reporting.reference,
   };
   const post = (submission: CompletionSubmission) =>
-    rawRequest({
-      url: `${dashboard.origin}/__agent-launch/completion`,
-      method: "POST",
-      headers: { Origin: dashboard.origin, "Content-Type": "application/json" },
-      body: JSON.stringify(submission),
-    });
+    postCompletion(dashboard.origin, submission);
   const firstResponse = await post(
     makeMe.aCompletionSubmission.reportingFor(reportingFor).please(),
   );

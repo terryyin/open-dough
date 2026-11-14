@@ -2,7 +2,7 @@ import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // After project refresh restores a real Done file's ready Purpose, choosing
 // Proof survives a roundtrip to refreshed Project Intent and retains its report.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { pausePageClock } from "../autoRefreshJourney.ts";
 import {
   backToStory,

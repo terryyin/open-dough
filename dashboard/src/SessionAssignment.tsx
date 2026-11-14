@@ -17,7 +17,7 @@ import { withinReadWait } from "./readWaitBound.ts";
 import { HumanCreditBrief } from "./HumanCredit.tsx";
 import { RecordedFacts } from "./AssignmentRecords.tsx";
 import { AgentPortrait } from "./AgentPortrait.tsx";
-import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentNameOf } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 export function SessionAssignment({
   record,

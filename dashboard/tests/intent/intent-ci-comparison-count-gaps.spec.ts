@@ -3,7 +3,7 @@ import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Count eligibility reaches overall Counts, entry rows, Summary, Proof and
 // tree accessible evidence. Detailed endpoint/unit variations are Node cases.
 import { expect, test } from "../support/preparationPage.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   expandIntentFolders,
   expandIntentGroup,

@@ -10,7 +10,7 @@
 import {
   oneShotOnlyChoices,
   sessionPolicyFlags,
-} from "../../src/skills/dough-execute-plan/scripts/session-policy.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/session-policy.mjs";
 import {
   establishesSession,
   isDefaultUnattachedPolicy,

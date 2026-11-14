@@ -1,8 +1,8 @@
 // Whether a retained landing is a story's first published Done delivery.
 // Historical Review and ad hoc completed-story association share this check.
 import path from "node:path";
-import { trailers } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs";
-import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { trailers } from "../../Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs";
+import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { LaunchLanding } from "../src/launchLanding.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { isAncestor, runGit, type GitCall } from "./gitRunner.ts";

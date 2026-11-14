@@ -10,7 +10,7 @@ import { expectCiAnswer } from "../intentCiStatusPage.ts";
 // the page; a project with no measured landing says so in words and draws no
 // chart (SEED-285#see-landed-ci-wall-time-history examples 1 and 9). A
 // landing whose CI is still pending is in
-// ./intent-ci-wall-time-history-pending.spec.ts. Collection and the history
+// ../../../e2e/intent/intent-ci-wall-time-history-pending.spec.ts. Collection and the history
 // read's variants are in
 // ../../backend-tests/intent/landed-ci-history-collection.spec.ts,
 // ../../backend-tests/intent/landed-ci-history-lifecycle.spec.ts and

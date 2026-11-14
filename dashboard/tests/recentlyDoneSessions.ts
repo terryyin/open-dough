@@ -3,7 +3,7 @@
 // session records of an ad hoc session and of the queued story, and, for the
 // done cards' sessions, of done stories, each listed by the synthetic `claude`
 // and launched at the times ./recentlyDoneRecords.ts places them.
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import {
   at,

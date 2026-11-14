@@ -1,0 +1,212 @@
+# Distribution Tests
+
+Prepare [native prerequisites](native-setup.md) once per lockfile version.
+
+Four browser test groups run with Playwright, each under its own command,
+configuration, setup, settings, outputs and CI producer; `npm test` does not
+discover their specs ([dashboard tests](../../dashboard/tests/README.md)):
+
+| Group | Command | Sources |
+| --- | --- | --- |
+| **E2E Test** | `npm run test:e2e` | representative product [workflows](../../e2e/README.md) in `e2e/` |
+| **Dashboard Integrated UI Test** | `npm run test:dashboard:integrated` | detailed UI checks awaiting controlled answers, in the [feature folders](../../dashboard/tests/feature-groups.md) of `dashboard/tests/` |
+| **Dashboard Frontend Test** | `npm run test:dashboard:frontend` | [frontend-only tests](../../dashboard/frontend-tests/README.md) in `dashboard/frontend-tests/` |
+| **Dashboard Backend Test** | `npm run test:dashboard:backend` | [backend tests](../../dashboard/backend-tests/README.md) in `dashboard/backend-tests/` |
+
+Before delivering a change to a group's specs or shared browser support, run
+the affected group's command (named specs, then the group when shared support
+changed); CI runs each group as its own sharded producer
+([CI shards](../../dashboard/tests/shards.md)).
+
+Run every check through the runner. `npm test` (or `bash scripts/test.sh`) runs
+the whole suite; named `.sh`, `.mjs`, or `.js` paths select exactly those checks:
+
+```sh
+npm test -- Distribution/tests/payload-declaration-links.sh \
+  Distribution/tests/support/dashboard-dev-port.test.mjs
+bash scripts/test.sh Distribution/tests/payload-declaration-links.sh
+```
+
+Relative paths use the directory `scripts/test.sh` starts in; `npm test` starts
+at the repository root. Missing paths or unsupported file kinds fail the run
+before any check starts, naming the path.
+
+[Local resource use](local-test-resources.md): concurrency, cleanup, macOS sleep.
+
+## Test data architecture
+
+[MakeMe and shared test data](test-data-architecture.md) describes the canonical
+builders, repository descriptions, and the harness responsibilities around them.
+
+## Check environment
+
+See the [runner environment and CI reproduction guidance](test-environment.md).
+
+## Runner
+
+The runner is the suite's one scheduler. Its jobs are each
+`Distribution/tests/*.sh`, except focused aggregate checks, plus each
+`node --test` file matched by a glob in
+`Distribution/tests/node-test-files` (relative to the repository root), such as the suites
+beside a skill's scripts under `Distribution/src/skills/`. A new `*.test.mjs` under a
+listed glob runs without further wiring. Each node file runs alone through
+`Distribution/tests/support/node-test-failures-reporter.mjs`: silent when every test passes
+silently, it shows each failing test's name, location, error, and its file's
+output, and a passing file's output under `output from passing <file>:`. No
+job starts a worker pool of its own.
+`OPEN_DOUGH_TEST_DIR` names another directory of checks, with its own optional
+`node-test-files`, `longest-first`, and `time-budget`, to run instead of the
+suite's own, which is how `Distribution/tests/test-runner-failure-report.sh` runs
+substitute checks. Chosen paths replace that discovery.
+
+[Runner settings](runner-settings.md) cover the job count, the start order,
+CI's shares, and the `OPEN_DOUGH_TEST_*` settings with what each writes.
+
+The suite's time budget, `Distribution/tests/time-budget`, and how a slice checks a change
+against recent trunk CI timings are in [time-budget.md](time-budget.md).
+
+A passing job must write nothing, so a passing suite prints nothing. For each
+failing job the runner prints `FAIL: <job>` and that job's captured output. A
+shell check that stopped on a failing command under `set -e` has, in that
+output, `stopped at <file>:<line>: <command>`, naming the check or the support
+file it sourced; a failure inside `$(...)` is named by the substitution's line
+(`stopped at tests/x.sh:12: attempt=$(awk ...)`), and one inside a `( ... )`
+subshell both at that command and at the subshell's line. The runner loads
+`Distribution/tests/support/check-stop-report.bash` into each shell check through
+`BASH_ENV`, so no check carries a trap of its own. A failure the check handles
+(under `set +e`, in an `if`, after `||`), a check's own `exit 1`, and scripts a
+check launches get no such line. A job that exits 0 but wrote to stdout or
+stderr fails as `FAIL: <job> (passed but printed output)`, and one whose shell
+ends without recording an exit status (for example, killed) as
+`FAIL: <job> (ended without recording an exit status)`, each with its output;
+the run still finishes. Silence output at its source (`grep -q`, a quiet flag)
+rather than filtering it.
+
+Each job runs in a process group of its own, so a terminal's Ctrl-C reaches
+the runner rather than the jobs. On INT or TERM the runner stops each running
+job's process group and prints, for it and for any job the same signal ended,
+`INTERRUPTED: <job> (after <seconds>s)` and the last lines of its output; it
+then exits 130 for INT or 143 for TERM (`Distribution/tests/test-runner-interrupt.sh`).
+Workers a check detaches from its process group are that check's own
+teardown. Each job also gets a fixed 180-second wall-clock safety deadline
+from its own start (not while queued or waiting for suite admission). That
+deadline actively stops a never-ending check; it is not a slow-test or build
+threshold. At expiry the runner ends the job's process group with bounded
+TERM-then-KILL cleanup, fails the run as
+`TIMEOUT: <job> (safety deadline 180s; after <seconds>s)` with useful captured
+output, records the failed outcome and the seconds the job ran until stopped,
+however long the run continues, and lets other queued checks continue under
+ordinary failure behavior (`Distribution/tests/support/test-runner-deadline.test.mjs`,
+`Distribution/tests/support/test-runner-deadline-continuation.test.mjs`,
+`Distribution/tests/support/test-runner-deadline-elapsed.test.mjs`). In CI the share
+also ends at the 320-second absolute epoch established with setup
+(`OPEN_DOUGH_TEST_DEADLINE_MS`), before the six-minute outer cancellation:
+running groups stop through the same bounded cleanup and TIMEOUT reporting
+path, queued checks do not start, started unfinished jobs stay `failed` with
+timing, and selected unstarted checks are recorded as `unfinished` with no
+invented duration so CI proof retains them as other
+(`Distribution/tests/support/test-runner-deadline-cutoff.test.mjs`,
+`Distribution/tests/support/test-runner-deadline-cutoff-proof.test.mjs`). Local named checks
+omit that run cutoff by default. Outcome and times consumers are documented in
+[runner-settings.md](runner-settings.md). `npm test` execs the runner
+(`package.json`) and CI's test step execs `npm`, so a signal sent only to the
+step's top process, as a cancelled Actions run does, still reaches the runner
+(see that step's comment in `.github/workflows/ci.yml`).
+
+## Waits, fixtures, and teardown
+
+Tests wait for an observable event, never for elapsed wall time. Shell checks
+use `wait_for` or `poll_until` from `Distribution/tests/helpers/wait-for.bash`; a missed
+event fails naming what it awaited. A wait for a signal from a started process
+lasts while that process lives and fails, naming its exit, if it ends first
+(`Distribution/src/skills/dough-execute-plan/scripts/process-lifetime-test-fixtures.mjs`).
+File timestamps that must differ are set explicitly, and the dashboard's timed
+journeys step a paused page clock. A dashboard journey waits in
+the page for the answer a check depends on before the check's own bound
+starts: it opens with `openUntilRead` or `reloadUntilRead`, or checks through
+`expectMembership` or `expectSettledPage`, and marks done with `markDone`
+([dashboard tests guide](../../dashboard/tests/README.md)).
+
+A test stops or releases what it started before removing the fixture those
+things run from. `node:test` runs `t.after` hooks in registration order, so a
+fixture builds its cleanup with `fixtureTeardown(...roots)`
+(`Distribution/src/skills/dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs`):
+register its `cleanup` with `t.after` when the fixture is created, and pass
+each stop or release step to its `defer` as soon as the process starts, before
+any further setup or assertion. The steps run in reverse order, every root is
+removed, and then a failing step fails the test; no stop swallows its failure.
+A shared fixture that starts something owns this teardown and hands it to
+its callers. The steps are:
+
+- `deferWorkerStop` requests an in-process mailbox worker's stop, awaiting it;
+- `deferChildExit` signals a test's own child process and awaits its exit;
+- `deferObserverStop` (`watch-ci-test-fixtures.mjs`) runs a CI observer's real
+  `stop`, skipped when its worker is already dead, and asserts that the
+  recorded worker exited;
+- `endProcess` (`process-lifetime-test-fixtures.mjs`) ends a recorded process
+  that is not the test's child, only while its command still matches.
+
+An inline stop a test asserts on stays inline; the deferred step then finds
+it already ended. A leak usually appears only when the worker is blocked (for
+example in `gh`) or its stop fails, so failing-path checks create that
+condition. Observer stream processes retitle themselves `dough-ci:<hash>`, so
+a process sweep for leftovers matches that title as well as `ci-mailbox.mjs`.
+
+A dashboard journey hands its scratch repositories to the `afterGitHubStops`
+fixture (`dashboard/tests/dashboardTest.ts`), which removes them only after
+the page, its dashboard server, and the fake GitHub have stopped, so a read
+still in flight when the journey ends never finds its repository gone.
+
+`dashboard/tests` and `dashboard/server` import shared JavaScript fixtures
+from `Distribution/src/skills/*/scripts/` and `Distribution/tests/support/`, and TypeScript infers their
+signatures, so a fixture's own Node tests can pass while a dashboard consumer
+no longer type-checks. `npm run typecheck:dashboard` is the focused check for
+such a change, and the pre-commit hook runs it on every commit that stages a
+JavaScript or TypeScript file
+([commit gate](../../docs/installation-platforms-and-update-safety.md)).
+
+Fixture snapshots prune `.git` rather than walking it. A payload-update check
+states its older and newer tagged releases at its call site, with the older
+release's `withheld` declarations and `removed` sources, instead of editing a
+copied installer by hand, and checks the older release out with
+`checkout_tagged_release` from `Distribution/tests/helpers/release-fixture.bash`.
+
+## Native host streams
+
+Native checks read a Claude Code, Codex, or Cursor output stream only through
+one reader, and a replay check holds that reader to retained real streams:
+[native host streams](native-host-streams.md).
+
+## Shared installation and update protections
+
+Every declared payload file is protected by the same installer and updater
+walk, so each shared protection has one owning check, and a payload-update
+check proves only what its own payload adds:
+
+| Protection | Owning check |
+| --- | --- |
+| Ordinary update refuses an edited or missing managed file without writes | `Distribution/tests/update-refuses-unverifiable.sh` |
+| Repeat install refuses an edited or removed managed file without writes | `Distribution/tests/install.sh` |
+| `--force` restores an edited or incomplete installation | `Distribution/tests/update-force-restores-latest.sh` |
+| Ordinary update refuses an unrelated file at a newly managed path | `Distribution/tests/story-payload-update.sh` |
+| Linked supporting files are declared | `Distribution/tests/payload-declaration-links.sh` |
+
+`Distribution/tests/payload-declaration-links.sh` reads `install.sh`'s `managed_files`
+without running the installer and fails naming each relative link, in a
+declared Markdown file, to an undeclared file. A new payload file needs a
+declaration, not another copy of these proofs.
+
+## Installation and update coverage gaps
+
+The installer and updater checks prove each promise once at its boundary: the
+codex and cursor hints share the `.agents` entry root, so one represents both,
+and each shared protection above is proved once by its owning check, also in
+the sibling `.claude` root. No check yet observes these promises:
+
+- refusing a requested version (`--version`, `--tag`, or `v1.2.3`) instead of
+  installing the latest numeric release;
+- `apply` with an unsupported platform (only `install.sh` is checked);
+- updating a Claude-only installation from the Claude entry, which must create
+  the shared `.agents` root;
+- installing without Node (the `cp`/`cmp` fallback and the hook-registration
+  refusal).

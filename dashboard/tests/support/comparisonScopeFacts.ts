@@ -1,5 +1,5 @@
 // Canonical file evidence for the existing entry → folder → file comparison.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiProofEntry } from "../../src/ciProof.ts";
 import type { StoryCiComparisonAnswer } from "../../src/storyCiComparison.ts";
 import { preparedComparison } from "./comparisonMountFacts.ts";

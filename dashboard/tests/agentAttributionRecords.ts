@@ -13,7 +13,7 @@
 // allocated again by an account with another avatar, and the Preparing agent
 // by the first revision's credited account.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   openDough,
   openDoughFacts,

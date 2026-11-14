@@ -9,7 +9,7 @@ import { test, expect, stored } from "../../tests/support/codexStart.ts";
 import { launch, machineSessions } from "../../tests/agentLaunchBoundary.ts";
 import { keptAttempts } from "../../tests/acceptedAttempts.ts";
 import { replaceAttempts } from "../../server/launchAttemptStore.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   queuedIdentity,
   queuedTitle,

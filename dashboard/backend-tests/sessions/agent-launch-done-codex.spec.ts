@@ -1,5 +1,5 @@
 // HTTP/store and optional WS/PTY exercise native rename and exact-turn interruption.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
 import { changeLaunchStore } from "../../tests/support/launchStore.ts";
 import {

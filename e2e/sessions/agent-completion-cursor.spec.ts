@@ -1,0 +1,204 @@
+import { sessionActions } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { launchResultSchema } from "../../dashboard/src/launchOutcome.ts";
+import type { submitCompletion } from "../../dashboard/server/completionReporting.ts";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import { readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { test, expect } from "../../dashboard/tests/support/cursorStart.ts";
+import {
+  launch,
+  recordsOf,
+  markDone as markDoneAtBoundary,
+} from "../../dashboard/tests/agentLaunchBoundary.ts";
+import {
+  queuedIdentity,
+  queuedTitle,
+} from "../../dashboard/tests/support/startOrigin.ts";
+import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
+import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import {
+  parts,
+  sessionStateOf,
+  sessionUnreadReportOf,
+  storyCardSessions,
+} from "../../dashboard/tests/dashboardPage.ts";
+import {
+  markAsDone,
+  markDone,
+} from "../../dashboard/tests/support/markDone.ts";
+import { occupyRunner } from "../../dashboard/tests/support/cursorRunnerJourney.ts";
+import { stopCursorRunner } from "../../dashboard/server/hosts/cursor/runnerClient.ts";
+import { cursorRunnerSentence } from "../../dashboard/src/cursorRunnerSessions.ts";
+import { messagePartOf } from "../../dashboard/tests/support/sessionMessagePart.ts";
+import {
+  openUntilRead,
+  reloadUntilRead,
+} from "../../dashboard/tests/pageRequestNotes.ts";
+import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+
+const exec = promisify(execFile);
+
+type CursorFixtures = Parameters<Parameters<typeof test>[2]>[0];
+
+// A launched Cursor execution that reported `completed` with a reminder
+// through its installed reporting command, shown on its story's card.
+async function reportedCursorCard({
+  page,
+  dashboard,
+  origin,
+  cursor,
+}: Pick<CursorFixtures, "page" | "dashboard" | "origin" | "cursor">) {
+  const answer = launchResultSchema.parse(
+    JSON.parse(
+      (
+        await launch(dashboard, {
+          source: "open-dough",
+          host: "cursor",
+          workflow: "execution",
+          identity: queuedIdentity,
+          title: queuedTitle,
+        })
+      ).body,
+    ),
+  );
+  expect(answer.kind).toBe("launched");
+  const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+  if (record?.request.reporting === undefined)
+    throw new Error("Missing Cursor context");
+  const context = record.request.reporting;
+  expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
+  const client = cursor.attaches()[0];
+  expect(cursor.input(client?.pid ?? 0)).toContain(context.command);
+  expect(client?.args.slice(0, 4)).toEqual([
+    "--workspace",
+    record.start?.workspace,
+    "--resume",
+    cursor.sessionId,
+  ]);
+  const message = path.join(origin.machine, "cursor-reminder.txt");
+  writeFileSync(
+    message,
+    "Finished with a reminder: review the remaining native acceptance gap before release.",
+  );
+  const receipt = JSON.parse(
+    (
+      await exec(
+        "bash",
+        [
+          "-c",
+          `${context.command} --outcome completed --message-file '${message}'`,
+        ],
+        { cwd: origin.machine },
+      )
+    ).stdout,
+  ) as Awaited<ReturnType<typeof submitCompletion>>;
+  expect(receipt).toMatchObject({
+    state: "recorded",
+    session: { host: "cursor", sessionId: cursor.sessionId },
+  });
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
+  await publishCommittedOrigin(page, {
+    repoDir: origin.origin,
+    revision,
+    repository: "terryyin/open-dough",
+  });
+  await openUntilRead(page);
+  const card = parts(page).taken.getByRole("article", {
+    name: "Story A",
+    exact: true,
+  });
+  return { card, message, receipt };
+}
+
+test("Cursor installed report offers local Done without a native stop capability and keeps terminal access", async ({
+  page,
+  dashboard,
+  origin,
+  cursor,
+}) => {
+  const { card, message, receipt } = await reportedCursorCard({
+    page,
+    dashboard,
+    origin,
+    cursor,
+  });
+  const part = messagePartOf(card);
+  await expect(part.text).toHaveText(readFileSync(message, "utf8"));
+  // The message is read on the entry; the side panel offers the terminal only.
+  await expect(openTerminalControl(card)).toBeVisible();
+  await expect(card.getByRole("button", { name: /^Read / })).toHaveCount(0);
+  const before = cursor.calls().length;
+  const listed = storyCardSessions(card);
+  // Mark as done is offered beside the message, read or not; neither control
+  // takes the other's place.
+  await sessionActions(card);
+  await expect(markAsDone(card)).toBeVisible();
+  await part.markRead.click();
+  // Reading leaves the session open on its card with its existing Mark as done.
+  await expect(sessionUnreadReportOf(card)).toHaveCount(0);
+  await expect(markAsDone(card)).toBeVisible();
+  await expect(listed).toHaveCount(1);
+  expect(cursor.calls()).toHaveLength(before);
+  const [read] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+  expect(read?.doneAt).toBeUndefined();
+  expect(read?.reportRead).toBe(receipt.receipt);
+  await markDone(card);
+  await expect(listed).toHaveCount(0);
+  expect(cursor.calls()).toHaveLength(before);
+  const [done] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+  expect(done?.doneAt).toBeDefined();
+  expect(done?.doneProblem).toBeUndefined();
+  const recent = parts(page).recentlyDone.getByRole("article");
+  await expect(sessionStateOf(recent)).toContainText("Done");
+  await expect(recent).not.toContainText("Named done-");
+  expect(done?.completion?.receipt).toBe(receipt.receipt);
+  expect(
+    (
+      await markDoneAtBoundary(dashboard, {
+        source: "open-dough",
+        host: "cursor",
+        session: "unknown-session",
+      })
+    ).status,
+  ).toBe(404);
+});
+
+test("a Cursor session with a read completed report whose runner cannot be reached is marked local Done in one click", async ({
+  page,
+  dashboard,
+  origin,
+  cursor,
+}) => {
+  const { card, receipt } = await reportedCursorCard({
+    page,
+    dashboard,
+    origin,
+    cursor,
+  });
+  await messagePartOf(card).markRead.click();
+  await expect(sessionUnreadReportOf(card)).toHaveCount(0);
+  const [read] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+  expect(read?.reportRead).toBe(receipt.receipt);
+  await stopCursorRunner(dashboard.home);
+  const release = await occupyRunner(dashboard.home);
+  try {
+    await reloadUntilRead(page);
+    const listed = storyCardSessions(card);
+    await expect(sessionStateOf(listed)).toHaveText(
+      cursorRunnerSentence("unreachable"),
+    );
+    const before = cursor.calls().length;
+
+    await markDone(card);
+
+    await expect(listed).toHaveCount(0);
+    const [done] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+    expect(done?.doneAt).toBeDefined();
+    expect(cursor.calls()).toHaveLength(before);
+    const recent = parts(page).recentlyDone.getByRole("article");
+    await expect(sessionStateOf(recent)).toContainText("Done");
+  } finally {
+    await release();
+  }
+});

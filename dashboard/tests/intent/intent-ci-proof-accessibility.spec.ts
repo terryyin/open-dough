@@ -16,7 +16,7 @@ import { expectCiAnswer } from "../intentCiStatusPage.ts";
 // sortable headers in their visible order. Multi-unit locations keep labeled
 // lines and full gap descriptions readable in that same boundary. Basic proof
 // behavior: ./intent-ci-proof.spec.ts.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 
 import { twiceZoomedWindow, zoomedWindow } from "../accessibleReading.ts";

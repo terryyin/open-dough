@@ -5,7 +5,7 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { workerAlive } from "../../server/launchAttemptWorker.ts";
 import { settleAttempt } from "../../server/launchAttemptSettlement.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // Accepted now, so no observation finds its start past its warning threshold.
 const attempt = makeMe.anAcceptedAttempt

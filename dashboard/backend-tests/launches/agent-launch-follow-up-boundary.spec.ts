@@ -5,10 +5,10 @@
 // and reporting context, keeping it on the request; the source record is
 // unchanged. Identity, retries and refusals:
 // agent-launch-follow-up-identity.spec.ts. The page journey is
-// ../../tests/launches/agent-launch-follow-up-session.spec.ts.
+// ../../../e2e/launches/agent-launch-follow-up-session.spec.ts.
 
 import { realpathSync } from "node:fs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
 import { stored } from "../../tests/support/codexLaunch.ts";
 import { followUpOf } from "../../tests/support/followUpSources.ts";

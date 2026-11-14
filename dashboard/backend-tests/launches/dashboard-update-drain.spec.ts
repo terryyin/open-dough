@@ -1,4 +1,4 @@
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   accept,
@@ -13,7 +13,7 @@ import {
 } from "../../tests/support/startOrigin.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { settledOutcome } from "../../tests/acceptedAttempts.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("update drain closes admission and waits through published execution start and durable native confirmation", async () => {
   const origin = await startOrigin(queuedReadyRepository().please());

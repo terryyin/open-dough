@@ -1,4 +1,4 @@
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { expect, test } from "../../tests/support/preparationPage.ts";
@@ -21,8 +21,8 @@ import {
 import {
   agentIdentity,
   renderAgentProfile,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+} from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { queuedIdentity } from "../../tests/support/startOrigin.ts";
 import {
   storyReviewEndpoint,

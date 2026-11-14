@@ -6,7 +6,7 @@ import { readFinalReport } from "../finalReportPages.ts";
 // Sessions sidebar whose Open terminal shows it; with the Side panel closed
 // it stays closed and the keyboard returns to Start session. A start with
 // nothing typed: ../terminals/agent-launch-ad-hoc-terminal.spec.ts. Follow
-// up: ./agent-launch-follow-up-session.spec.ts. The synthetic `claude`
+// up: ../../../e2e/launches/agent-launch-follow-up-session.spec.ts. The synthetic `claude`
 // (./fixtures/fake-claude) stands for the real one.
 
 import type { Page } from "@playwright/test";

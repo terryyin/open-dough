@@ -25,7 +25,7 @@ import {
   pygardonSettings,
   pythonTest,
 } from "../intentCodeBrowseFixtures.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("Intent shows each live candidate with its five facts, and a live record without candidates as having none", async ({
   page,

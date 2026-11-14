@@ -3,9 +3,11 @@ import { expect } from "@playwright/test";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import type { DashboardProofRecord } from "./proofRecordTypes.ts";
 import { spawnGroupLeader, endGroup } from "./processGroup.ts";
 import { repoRoot } from "./repositoryRoot.ts";
+import { dashboardTestMatch } from "./testFiles.mjs";
 
 export const proofFixtures = path.join(
   repoRoot,
@@ -33,6 +35,32 @@ export function readProof(file: string | undefined): DashboardProofRecord {
   return JSON.parse(readFileSync(file, "utf8")) as DashboardProofRecord;
 }
 
+// A share of one group's own deal that does not select `target`: its `root`
+// under its configuration's `directory` (relative to the repository), dealt
+// by its own `durations` list there. A nested run handed that share through
+// any variable it must not read proves it ignores that variable.
+export function splitExcluding(
+  target: string,
+  group: {
+    readonly directory: string;
+    readonly root: string;
+    readonly durations: string;
+  },
+): string {
+  const selection = {
+    roots: [group.root],
+    splitVariable: "the excluding split",
+    durations: group.durations,
+  };
+  return dashboardTestMatch(
+    pathToFileURL(`${path.join(repoRoot, group.directory)}/`),
+    "1/2",
+    selection,
+  ).some((pattern: RegExp) => pattern.test(target))
+    ? "2/2"
+    : "1/2";
+}
+
 export function startProofCommand(
   command: string,
   args: readonly string[],
@@ -44,9 +72,10 @@ export function startProofCommand(
       ([name]) =>
         !name.startsWith("TEST_") &&
         !name.startsWith("PW_") &&
-        name !== "OPEN_DOUGH_DASHBOARD_SPLIT" &&
-        name !== "OPEN_DOUGH_DASHBOARD_PROOF_RECORD" &&
-        name !== "OPEN_DOUGH_DASHBOARD_TIMES" &&
+        // Every runner's share, record and times (./runnerConfig.mjs).
+        !/^OPEN_DOUGH_(?:DASHBOARD_(?:INTEGRATED|FRONTEND|BACKEND)|E2E)_(?:SPLIT|PROOF_RECORD|TIMES)$/.test(
+          name,
+        ) &&
         name !== "FORCE_COLOR" &&
         name !== "NO_COLOR",
     ),

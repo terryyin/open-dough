@@ -9,7 +9,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ownerRecords } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+import { ownerRecords } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import {
   developmentBoundary,
   startDashboardServer,
@@ -26,7 +26,7 @@ import { refusedMarker } from "./sharedReads.ts";
 
 const diagnosticEntry = fileURLToPath(
   new URL(
-    "../../../src/skills/dough-execute-plan/scripts/ci-github-diagnostic.mjs",
+    "../../../Distribution/src/skills/dough-execute-plan/scripts/ci-github-diagnostic.mjs",
     import.meta.url,
   ),
 );
@@ -75,6 +75,7 @@ export async function dashboardsOnOneOwner() {
   };
   return {
     github,
+    gh,
     first,
     second,
     serve: (answerer: RepositoryAnswerer) => {
@@ -86,11 +87,11 @@ export async function dashboardsOnOneOwner() {
     },
     // The installed diagnostic entry reading the selected workflow, as a
     // process of its own with the dashboards' HOME and `gh`.
-    ciWorkflowRead: () =>
+    ciWorkflowRead: (entry = diagnosticEntry) =>
       new Promise<CiRead>((resolve) => {
         execFile(
           process.execPath,
-          [diagnosticEntry, "workflow", "example/sample-app"],
+          [entry, "workflow", "example/sample-app"],
           {
             env: {
               ...process.env,

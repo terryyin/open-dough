@@ -19,7 +19,7 @@
 // it. `./RecentlyDone.tsx` presents it.
 
 import { useLayoutEffect } from "react";
-import type { CataloguedDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import { storySessionsOf, type LaunchWithState } from "./agentLaunch.ts";
 import type { ColumnSummary } from "./columnSummary.ts";
 import { useDoneDetails } from "./doneDetails.ts";

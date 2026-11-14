@@ -55,7 +55,9 @@ Status: planned
 Proof: Shared rows, add dialog, remove/hide/show controls and Board return
 operations serve pointer and touch callers. Keep project URL/path, chosen
 project, focus destination and filesystem evidence explicit. Illustrative:
-`npm run test:dashboard -- 'tests/configuration/project-(add|remove|hide)' 'tests/configuration/system-settings-project-management'`.
+`npm run test:e2e -- 'e2e/configuration/project-(remove|hide)'`,
+`npm run test:dashboard:integrated -- 'tests/configuration/project-(add|remove|hide)' 'tests/configuration/system-settings-project-management'` and
+`npm run test:dashboard:backend -- 'backend-tests/configuration/project-(add|remove)'`.
 
 Behavior: A developer reads a project-management case → follows named Settings
 and dialog operations → the source states the expected project and return
@@ -66,7 +68,8 @@ Type: Behavior
 Status: planned
 Proof: Reuse existing Settings credential controls for selection, status and
 recovery; keep exact refusal/provider answers and persisted evidence separate.
-Illustrative: `npm run test:dashboard -- 'tests/configuration/system-settings-openai'`.
+Illustrative: `npm run test:e2e -- 'e2e/configuration/system-settings-openai'` and
+`npm run test:dashboard:integrated -- 'tests/configuration/system-settings-openai'`.
 
 Behavior: A developer reads a credential recovery case → follows named control
 actions around explicit provider results → the source explains the expected
@@ -79,7 +82,9 @@ Proof: Shared Settings/appearance observations cover selected options,
 maintenance status, focus, visibility and contrast. Preserve expected values,
 color scheme and relevant dimensions. Terminal screen controls reuse the
 Terminal owner. Illustrative:
-`npm run test:dashboard -- 'tests/configuration/system-settings-terminal-theme' 'tests/configuration/system-settings-feedback-maintenance.spec.ts' 'frontend-tests/dashboard-system-appearance.spec.ts' 'tests/intent/intent-story-dark-appearance.spec.ts'`.
+`npm run test:e2e -- 'e2e/configuration/system-settings-terminal-theme' 'e2e/configuration/system-settings-feedback-maintenance.spec.ts'`,
+`npm run test:dashboard:integrated -- 'tests/configuration/system-settings-terminal-theme' 'tests/intent/intent-story-dark-appearance.spec.ts'` and
+`npm run test:dashboard:frontend -- 'frontend-tests/dashboard-system-appearance.spec.ts'`.
 
 Behavior: A developer reads a preference or appearance case → follows named
 option and reading observations → the source states the chosen value and
@@ -103,4 +108,4 @@ as written into every delegation and repair handoff. Keep default timeouts;
 no wall-clock sleeps or `test.slow()`.
 For long macOS runs start fully awake: on AC use `caffeinate -s -i`; on battery
 plug in or keep the lid open under `caffeinate -i` and inspect sleep logs under
-[machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
+[machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).

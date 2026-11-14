@@ -10,8 +10,8 @@
 
 ## Context
 
-Open Dough runs in Codex, Cursor, and Claude Code. Choose evidence that
-answers the decision at hand about Open Dough's delivery or behavior.
+Open Dough Distribution runs in Codex, Cursor, and Claude Code. Choose evidence
+that answers the decision at hand about Distribution delivery or behavior.
 
 ## Decision
 

@@ -28,13 +28,19 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Run and observe product-wide end-to-end tests](seeds/SEED-334-product-wide-end-to-end-tests.md#run-and-observe-product-wide-end-to-end-tests) — SEED-334#run-and-observe-product-wide-end-to-end-tests ([plan](slice-plans/608-product-wide-end-to-end-tests/PLAN.md))
-- [Answer fake GitHub reads without a process per call](seeds/SEED-332-answer-fake-gh-in-process.md#answer-fake-gh-reads-in-process) — SEED-332#answer-fake-gh-reads-in-process ([plan](slice-plans/610-answer-fake-gh-reads-in-process/PLAN.md))
 - [Resume blocked work when it can advance](seeds/SEED-345-session-token-efficiency.md#resume-when-blocked-work-can-advance) — SEED-345#resume-when-blocked-work-can-advance ([plan](slice-plans/617-resume-blocked-work/PLAN.md))
 - [Run native A/B comparisons on examples from real work](seeds/SEED-346-native-ab-comparisons.md#run-native-ab-comparisons-on-real-work) — SEED-346#run-native-ab-comparisons-on-real-work ([plan](slice-plans/618-native-ab-comparisons/PLAN.md))
+- [Start a follow-up session from a file diff](seeds/SEED-347-follow-up-from-a-file-diff.md#start-follow-up-from-a-file-diff) — SEED-347#start-follow-up-from-a-file-diff ([plan](slice-plans/619-follow-up-from-a-file-diff/PLAN.md))
 
 ## Backlog list
 
+- [Run CI on as few jobs as its wall time allows](seeds/SEED-350-fewer-ci-jobs.md#run-ci-on-fewer-jobs) — SEED-350#run-ci-on-fewer-jobs
+- [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
+- [Keep one browser test group roster](seeds/SEED-334-product-wide-end-to-end-tests.md#keep-one-browser-test-group-roster) — SEED-334#keep-one-browser-test-group-roster
+- [Focus detailed dashboard UI checks on controlled answers](seeds/SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks) — SEED-334#focus-detailed-dashboard-ui-checks
+- [Explain and repair an empty native admission substitute stream](seeds/SEED-349-native-admission-substitute-empty-stream.md#explain-native-admission-substitute-empty-stream) — SEED-349#explain-native-admission-substitute-empty-stream
+- [Capture and edit story notes in the dashboard](seeds/SEED-348-collect-notes-for-story-follow-ups.md#collect-notes-for-story-follow-ups) — SEED-348#collect-notes-for-story-follow-ups
+- [Attach story notes to follow-ups and show which are waiting](seeds/SEED-348-collect-notes-for-story-follow-ups.md#attach-story-notes-to-follow-ups) — SEED-348#attach-story-notes-to-follow-ups
 - [Compare agent effort on comparable runs](seeds/SEED-345-session-token-efficiency.md#compare-agent-effort-on-comparable-runs) — SEED-345#compare-agent-effort-on-comparable-runs
 - [Get long verification results without empty wakes](seeds/SEED-345-session-token-efficiency.md#get-long-verification-results-without-empty-wakes) — SEED-345#get-long-verification-results-without-empty-wakes
 - [Reach a proof decision from retained evidence](seeds/SEED-345-session-token-efficiency.md#reach-a-proof-decision-from-retained-evidence) — SEED-345#reach-a-proof-decision-from-retained-evidence

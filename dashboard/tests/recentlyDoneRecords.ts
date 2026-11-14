@@ -3,13 +3,13 @@
 // story, and done records beside it at times before the journey starts, with
 // the done catalog completion publishes beside them. What this machine keeps
 // for them is ./recentlyDoneSessions.ts.
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
-import { catalogFile } from "../../tests/support/revision-done-catalog.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import type { RevisionFacts } from "../../Distribution/tests/support/repositoryTestData.mjs";
+import { catalogFile } from "../../Distribution/tests/support/revision-done-catalog.mjs";
 import {
   doneRecordPath,
   renderDoneRecord,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { basename } from "node:path";
 import {
   backlogApart,

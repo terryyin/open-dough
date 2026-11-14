@@ -12,7 +12,7 @@ import {
   expectReviewed,
   markAsReviewed,
 } from "../recentlyDoneReviewState.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keepLaunchStore } from "../support/launchStore.ts";
 import { showColumn } from "../boardPage.ts";
 

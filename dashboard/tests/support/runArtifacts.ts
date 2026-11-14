@@ -69,8 +69,13 @@ export async function startRunArtifacts(
     const url = request.url ?? "";
     const key = url.slice(route.length);
     const artifact = artifacts.get(key);
-    if (request.method !== "POST" || !url.startsWith(route) || !artifact) {
+    if (request.method !== "POST" || !url.startsWith(route)) {
       response.writeHead(404).end();
+      return;
+    }
+    // A runner registers only what its own group's specs request.
+    if (!artifact) {
+      response.writeHead(404).end("this run's setup does not register it.");
       return;
     }
     if (controller.signal.aborted) {

@@ -4,11 +4,11 @@ import { mkdtempSync, renameSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { fixtureTeardown } from "../../../src/skills/dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs";
+import { fixtureTeardown } from "../../../Distribution/src/skills/dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs";
 import {
   EndpointBinding,
   standingRecord,
-} from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-endpoint.mjs";
+} from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-endpoint.mjs";
 import { endFakeGh, fakeGhEnv, installFakeGh } from "./fakeGh.ts";
 import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
 import { endGroup, spawnGroupLeader } from "./processGroup.ts";
@@ -17,7 +17,7 @@ import { waitUntil } from "./waitUntil.ts";
 
 const ownerEntry = fileURLToPath(
   new URL(
-    "../../../src/skills/dough-execute-plan/scripts/github-request-owner.mjs",
+    "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner.mjs",
     import.meta.url,
   ),
 );
@@ -134,6 +134,7 @@ async function startOwner(
     );
   }
   return {
+    gh,
     // What points a dashboard server at this owner and its `gh`.
     wiring: { pathPrefix: [gh.binDir], requestOwnerRoot: gh.requestOwnerRoot },
     ownerPid,

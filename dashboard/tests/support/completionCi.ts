@@ -1,9 +1,9 @@
 // Synthetic remote CI answers; mailbox observation and terminal receipts stay real.
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { apiRun } from "../../../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
-import { privateRequestOwner } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { apiRun } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
+import { privateRequestOwner } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 export function completionCi(machine: string, revisions: readonly string[]) {
   const release = path.join(machine, "release-ci");

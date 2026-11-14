@@ -1,6 +1,6 @@
 // Canonical local-history and judgment answers for frontend lifecycle scenarios.
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // One measured selected build of `ms` test-case time, with its unit's
 // reference, as the glance read answers it: the compact readout names the

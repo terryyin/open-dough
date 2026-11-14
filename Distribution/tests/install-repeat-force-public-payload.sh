@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/helpers/public-payload-fixture.bash"
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/helpers/release-fixture.bash"
+temporary_dir=$(mktemp -d)
+trap 'rm -rf -- "${temporary_dir}"' EXIT
+
+target="${temporary_dir}/target project"
+mkdir -p -- "${target}"
+target=$(cd -- "${target}" && pwd -P)
+selected_root="${target}/.agents/skills"
+claude_root="${target}/.claude/skills"
+
+assert_contents() {
+  local path=$1
+  local expected=$2
+  local actual
+  actual=$(cat "${path}")
+  [[ "${actual}" == "${expected}" ]]
+}
+
+mkdir -p -- \
+  "${selected_root}/dough-adr-awareness" \
+  "${selected_root}/unrelated-guidance" \
+  "${claude_root}/dough-update" \
+  "${claude_root}/dough-adr-awareness"
+
+printf '%s\n' 'Keep my local ADR skill edit.' > \
+  "${selected_root}/dough-adr-awareness/SKILL.md"
+printf '%s\n' 'Keep this ADR-side file.' > \
+  "${selected_root}/dough-adr-awareness/LOCAL.md"
+printf '%s\n' 'Keep unrelated Cursor guidance.' > \
+  "${selected_root}/unrelated-guidance/SKILL.md"
+printf '%s\n' 'Keep the Claude updater.' > \
+  "${claude_root}/dough-update/SKILL.md"
+printf '%s\n' 'Keep the Claude ADR skill.' > \
+  "${claude_root}/dough-adr-awareness/SKILL.md"
+printf '%s\n' 'Keep this project file.' > "${target}/keep.txt"
+
+before_later_collision=$(find "${target}" -type f -exec shasum -a 256 {} \; | LC_ALL=C sort)
+if output=$(bash "${source_dir}/install.sh" \
+  --target "${target}" --source "${source_dir}" --platform cursor 2>&1); then
+  echo 'FAIL: an ADR skill collision must stop before an earlier payload write.' >&2
+  exit 1
+fi
+[[ "${output}" == *'existing managed installation is edited, partial, or unverifiable'* ]]
+[[ "${output}" == *'--force'* ]]
+after_later_collision=$(find "${target}" -type f -exec shasum -a 256 {} \; | LC_ALL=C sort)
+[[ "${after_later_collision}" == "${before_later_collision}" ]]
+[[ ! -e "${selected_root}/dough-update/SKILL.md" ]]
+
+mkdir -p -- "${selected_root}/dough-update"
+printf '%s\n' 'Keep this updater-side file.' > \
+  "${selected_root}/dough-update/LOCAL.md"
+printf '%s\n' 'Keep my local updater edit.' > \
+  "${selected_root}/dough-update/SKILL.md"
+before_repeat=$(find "${target}" -type f -exec shasum -a 256 {} \; | LC_ALL=C sort)
+if output=$(bash "${source_dir}/install.sh" \
+  --target "${target}" --source "${source_dir}" --platform cursor 2>&1); then
+  echo 'FAIL: repeat installation must stop before changing the client payload.' >&2
+  exit 1
+fi
+[[ "${output}" == *'existing managed installation is edited, partial, or unverifiable'* ]]
+[[ "${output}" == *'--force'* ]]
+after_repeat=$(find "${target}" -type f -exec shasum -a 256 {} \; | LC_ALL=C sort)
+[[ "${after_repeat}" == "${before_repeat}" ]]
+
+before_selected_sidecars=$(shasum -a 256 \
+  "${selected_root}/dough-update/LOCAL.md" \
+  "${selected_root}/dough-adr-awareness/LOCAL.md")
+before_selected_unrelated=$(snapshot_path_state \
+  "${selected_root}/unrelated-guidance")
+before_project_file=$(shasum -a 256 "${target}/keep.txt")
+
+output=$(bash "${source_dir}/install.sh" \
+  --target "${target}" --source "${source_dir}" --platform cursor --force)
+[[ "${output}" == *"installed Open Dough guidance in ${selected_root}"* ]]
+
+cmp "${source_dir}/Distribution/src/skills/dough-update/SKILL.md" \
+  "${selected_root}/dough-update/SKILL.md"
+cmp "${source_dir}/Distribution/src/skills/dough-adr-awareness/SKILL.md" \
+  "${selected_root}/dough-adr-awareness/SKILL.md"
+cmp "${source_dir}/Distribution/src/skills/dough-product-backlog/SKILL.md" \
+  "${selected_root}/dough-product-backlog/SKILL.md"
+cmp "${source_dir}/Distribution/src/skills/dough-execution-retrospective/SKILL.md" \
+  "${selected_root}/dough-execution-retrospective/SKILL.md"
+cmp "${source_dir}/Distribution/src/skills/dough-story-wrap-up/SKILL.md" \
+  "${selected_root}/dough-story-wrap-up/SKILL.md"
+expected_version=$(cat "${source_dir}/VERSION")
+assert_contents "${selected_root}/dough-update/VERSION" "${expected_version}"
+expected_source=$(cd -- "${source_dir}" && pwd -P)
+assert_contents "${selected_root}/dough-update/SOURCE" "${expected_source}"
+
+assert_contents "${selected_root}/dough-update/LOCAL.md" 'Keep this updater-side file.'
+assert_contents "${selected_root}/dough-adr-awareness/LOCAL.md" 'Keep this ADR-side file.'
+assert_contents "${selected_root}/unrelated-guidance/SKILL.md" 'Keep unrelated Cursor guidance.'
+assert_contents "${target}/keep.txt" 'Keep this project file.'
+
+cmp "${source_dir}/Distribution/src/skills/dough-update/SKILL.md" \
+  "${claude_root}/dough-update/SKILL.md"
+cmp "${source_dir}/Distribution/src/skills/dough-adr-awareness/SKILL.md" \
+  "${claude_root}/dough-adr-awareness/SKILL.md"
+cmp "${source_dir}/Distribution/src/skills/dough-product-backlog/SKILL.md" \
+  "${claude_root}/dough-product-backlog/SKILL.md"
+cmp "${source_dir}/Distribution/src/skills/dough-execution-retrospective/SKILL.md" \
+  "${claude_root}/dough-execution-retrospective/SKILL.md"
+cmp "${source_dir}/Distribution/src/skills/dough-story-wrap-up/SKILL.md" \
+  "${claude_root}/dough-story-wrap-up/SKILL.md"
+
+after_selected_sidecars=$(shasum -a 256 \
+  "${selected_root}/dough-update/LOCAL.md" \
+  "${selected_root}/dough-adr-awareness/LOCAL.md")
+after_selected_unrelated=$(snapshot_path_state \
+  "${selected_root}/unrelated-guidance")
+after_project_file=$(shasum -a 256 "${target}/keep.txt")
+[[ "${after_selected_sidecars}" == "${before_selected_sidecars}" ]]
+[[ "${after_selected_unrelated}" == "${before_selected_unrelated}" ]]
+[[ "${after_project_file}" == "${before_project_file}" ]]

@@ -23,7 +23,7 @@ import {
 } from "../../tests/originAnswers.ts";
 import { directoryListingAnswer } from "../../tests/listingAnswers.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { describedBacklog } from "../../tests/describedRevisions.ts";
 
 test.describe.configure({ mode: "serial" });

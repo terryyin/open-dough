@@ -3,7 +3,8 @@
 #
 # Diagnosis only: runs chosen checks (scripts/test.sh with the given paths, or
 # the whole suite when none) on CI's platform, or with --dashboard CI's
-# dashboard type-check and browser suite, unsharded and with CI=true.
+# dashboard type-check and every browser test group, unsharded and with
+# CI=true.
 # Neither `npm test` nor CI uses it. It builds a cached image once, mounts this
 # checkout (and a linked worktree's common Git directory) at their host paths,
 # keeps node_modules in a container volume so host modules are neither used
@@ -12,16 +13,19 @@
 # path outside the checkout.
 set -euo pipefail
 
-# CI's platform, stated once; tests/ci-container.sh checks these against
+# CI's platform, stated once; Distribution/tests/ci-container.sh checks these against
 # .github/workflows/ci.yml.
 readonly ubuntu_version=24.04
 # The bare image needs Chromium's system dependencies; native CI already has
 # them. The image runs this bootstrap as root, pinned to the locked version.
 # The container then runs CI's dashboard checks without the shard split;
-# tests/ci-container.sh checks the bootstrap and shared checks separately.
+# Distribution/tests/ci-container.sh checks the bootstrap and shared checks separately.
 readonly dashboard_install='npx playwright install --with-deps chromium'
 readonly dashboard_steps='npm run typecheck:dashboard
-npm run test:dashboard'
+npm run test:e2e
+npm run test:dashboard:integrated
+npm run test:dashboard:frontend
+npm run test:dashboard:backend'
 
 if ! command -v docker > /dev/null 2>&1; then
   printf 'ci-container.sh: no container runtime: docker is not on PATH.\n' >&2
@@ -34,7 +38,7 @@ if [[ ${1:-} == --dashboard ]]; then
   dashboard=true
   shift
   if (($#)); then
-    printf 'ci-container.sh: --dashboard runs the whole dashboard suite and takes no paths.\n' >&2
+    printf 'ci-container.sh: --dashboard runs every browser test group whole and takes no paths.\n' >&2
     exit 2
   fi
 fi
@@ -91,7 +95,7 @@ playwright_version=$(awk '
 
 # Git from the git-core PPA and Node from nodejs.org, as GitHub's runner image
 # and actions/setup-node install them; the host's native architecture.
-# Hosted Ubuntu font inventory: ubuntu24/20261101.360 (tests/ci-container.md).
+# Hosted Ubuntu font inventory: ubuntu24/20261101.360 (Distribution/tests/ci-container.md).
 # Playwright's dependency fonts alone do not reproduce its system-ui fallback.
 dockerfile=$(
   cat << DOCKERFILE

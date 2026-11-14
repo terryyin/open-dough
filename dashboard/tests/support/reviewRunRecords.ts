@@ -1,5 +1,5 @@
 // Canonical retained one-shot launch facts; actions and expectations stay in cases.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedIdentity } from "./startOrigin.ts";
 
 export function reviewLaunch({

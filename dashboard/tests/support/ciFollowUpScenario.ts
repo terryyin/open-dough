@@ -7,7 +7,7 @@ import { followUpKey } from "../../server/ciFollowUpStore.ts";
 import { keepMachineDocument } from "./machineDocument.ts";
 import path from "node:path";
 import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeGitHub, RepositoryAnswerer } from "./fakeGitHub.ts";
 import type { StartOrigin } from "./startOrigin.ts";
@@ -85,7 +85,7 @@ export async function prepareRepeatScenario(
     };
     const trunk = trunkActions([...prior, provider.latest()], proofs);
     return (
-      trunk(call.argv, story.completion) ??
+      trunk(call.argv) ??
       fallback?.(call) ??
       publishes({ revision: story.completion })(call)
     );

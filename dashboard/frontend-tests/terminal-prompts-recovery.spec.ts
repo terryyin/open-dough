@@ -9,7 +9,7 @@ import { putFrontendMachine } from "../tests/support/frontendServiceState.ts";
 import { installAttachedTerminalSubstitute } from "../tests/support/frontendServiceSubstitutes.ts";
 import { sessionsSidebarParts } from "../tests/sessionsSidebarPage.ts";
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   chooseTerminalPrompt,
   expectTerminalInputFocused,

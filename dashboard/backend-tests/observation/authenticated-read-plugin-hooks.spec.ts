@@ -31,7 +31,9 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
   // that calling only `closeServer()` is the sole possible cause of the
   // subprocess ending.
   test("closeServer, called alone with no client disconnect and no Vite httpServer.close(), ends the held gh subprocess", async () => {
-    const boundary = await startInProcessAuthenticatedRead();
+    const boundary = await startInProcessAuthenticatedRead({
+      ghTransport: "cli",
+    });
     const { gh, github } = boundary;
     try {
       github.serve(everyRepository, hangs);

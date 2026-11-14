@@ -6,8 +6,8 @@ import path from "node:path";
 import { localDate } from "../../src/feedbackMaintenanceDue.ts";
 import { feedbackReviewFence } from "../../src/feedbackReview.ts";
 import type { FeedbackMaintenanceChoice } from "../../src/feedbackMaintenanceSetting.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { feedbackReviewPayload } from "../../../tests/support/feedbackTestData.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { feedbackReviewPayload } from "../../../Distribution/tests/support/feedbackTestData.mjs";
 
 // The local date `days` from today.
 export function dayFromToday(days: number): string {

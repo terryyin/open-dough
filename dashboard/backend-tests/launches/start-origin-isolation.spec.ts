@@ -1,4 +1,4 @@
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import {
@@ -149,7 +149,7 @@ test("successive preparations install current working-tree source without a pers
     const installedMarker = ".claude/skills/dough-execute-plan/current-source";
     for (const skill of installedStartSkills) {
       cpSync(
-        path.join(repoRoot, "src", "skills", skill),
+        path.join(repoRoot, "Distribution", "src", "skills", skill),
         path.join(source, skill),
         { recursive: true },
       );

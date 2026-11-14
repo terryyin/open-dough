@@ -1,7 +1,7 @@
 // A retained refinement start fixture. It drives the real HTTP launch and
 // continuation surfaces and observes the installed command's workspace,
 // published profile, launch instruction, and machine-local start record.
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { execFileSync } from "node:child_process";
 import {
   chmodSync,
@@ -20,7 +20,7 @@ import {
   type DashboardServer,
 } from "./dashboardServer.ts";
 import { queuedIdentity, queuedTitle, startOrigin } from "./startOrigin.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 export const preparationSlug = "prepare-the-queued-start";
 const slug = preparationSlug;

@@ -1,16 +1,16 @@
 // The Open Dough project the reopened-project journey publishes
-// (./observation/reopened-project-reads.spec.ts): revision A, whose backlog names a story
+// (../../e2e/observation/reopened-project-reads.spec.ts): revision A, whose backlog names a story
 // with progress on its recorded story branch and a queued story whose record
 // is missing, and revision B, made by one commit that changes the backlog and
 // publishes that record.
 
-import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
-import { renderStorySection } from "../../tests/support/published-seed.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
+import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import { addedAt, type MadeCommit } from "./pathHistoryAnswers.ts";
 import { describedRevisions } from "./describedRevisions.ts";
-import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
+import type { RevisionFacts } from "../../Distribution/tests/support/repositoryTestData.mjs";
 
 export const repository = "terryyin/open-dough";
 export const revisionA = "6a".repeat(20);

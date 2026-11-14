@@ -13,7 +13,7 @@
 import { readingPathAt } from "../src/authenticatedReadRules.ts";
 import { mapPool } from "../src/boundedPool.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentSettingsPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { ListedPath, PinnedTexts } from "./pinnedTexts.ts";
 import type { PinnedLister } from "./reachablePaths.ts";
 import {

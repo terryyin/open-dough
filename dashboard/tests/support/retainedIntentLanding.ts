@@ -2,8 +2,8 @@
 // its completion. Callers keep their implementation/later/local facts visible.
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { publishIntentTrunk } from "./intentStoryWorktree.ts";

@@ -1,6 +1,6 @@
 // Real published Story Branch facts and controlled provider answers for
 // comparison-memory recovery. No comparison answer or resolver is supplied.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { StoryCiComparisonAnswer } from "../../src/storyCiComparison.ts";
 import type { CiRunAnswer } from "./baseCiActions.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
@@ -91,7 +91,7 @@ export function serveProofAnswer(
       call.request.runId === 201
         ? answer()
         : undefined) ??
-        actions(call.argv, revision) ??
+        actions(call.argv) ??
         publishes({ revision })(call),
     ),
   );

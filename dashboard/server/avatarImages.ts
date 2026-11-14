@@ -7,7 +7,7 @@
 // images are disposable display aids, never an assignment or identity
 // authority.
 
-import { OutstandingReads } from "../../src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
+import { OutstandingReads } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
 
 // Where GitHub serves account avatars, as its commit answers name them.
 const avatarHost = "avatars.githubusercontent.com";

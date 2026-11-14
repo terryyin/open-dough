@@ -10,9 +10,12 @@ import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { rmSync } from "node:fs";
 import type { Page } from "@playwright/test";
-import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { agentIdentity } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { advanceCompletedTrunk } from "./completedPublishedStory.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";

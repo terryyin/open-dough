@@ -8,6 +8,7 @@
 
 **Revised:** 2026-10-27, at Terry Yin's direction, to reference the dashboard UI concepts.
 2026-10-29, at Terry Yin's direction, to define scope limits and required restrictions.
+2026-11-14, at Terry Yin's direction, to name Open Dough Distribution.
 
 **Decision makers:** Terry Yin
 
@@ -30,6 +31,7 @@ published skills, rules, templates, or runtime references.
 | --- | --- |
 | Client project | A project using installed Open Dough guidance; Open Dough itself can fill this role. |
 | Guidance | Rules, skills, and supporting instructions that direct development work. |
+| Open Dough Distribution (Distribution) | The part of Open Dough that develops, delivers, and verifies the guidance installed into projects. Its source and tests live in `Distribution/src/` and `Distribution/tests/`. **Distribution Tests** is their shared Intent and CI group. |
 | Release | An immutable, versioned Open Dough source snapshot as defined by ADR 0003. |
 | Client payload | The guidance and supporting runtime files declared for installation by a release. |
 | Client installation | A release's managed content installed in a project in the supported tool layouts, with its installation record. |
@@ -46,7 +48,7 @@ stages imposed on projects using the skills.
 
 ### Relationships and work vocabulary
 
-A release defines one complete declared payload and may also contain maintenance
+Each Distribution release defines one complete declared payload and may also contain maintenance
 material. A project may have installations for Codex, Cursor, and Claude Code;
 each realizes the payload in its supported layout, with an installation record
 identifying the release. Configuration supplies supported settings without

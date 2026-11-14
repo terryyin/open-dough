@@ -2,8 +2,11 @@
 // publication and workspace retirement.
 // No dashboard launch or comparison is supplied by this setup. A journey may
 // add its own changes (`change`) to the story's implementation commit.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  storyA,
+  storyB,
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { rmSync } from "node:fs";
@@ -11,7 +14,7 @@ import {
   agentIdentity,
   agentNameOf,
   renderAgentProfile,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+} from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   requireUninterleavedTrunkInput,
   writeCompletedStoryImplementation,

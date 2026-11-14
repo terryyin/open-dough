@@ -1,7 +1,7 @@
 import {
   adapterResponseBytes,
   truncateUtf8,
-} from "../../src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
 
 // The most of the adapter's own stderr line a reason shows, bounded like
 // its unavailability reason.

@@ -10,7 +10,7 @@
 // retention keeps every done record.
 
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   launchAttemptSchema,
   launchRecordSchema,

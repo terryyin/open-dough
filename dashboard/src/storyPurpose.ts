@@ -1,7 +1,7 @@
 // Typed projection of recorded Goal as purpose. Missing Goal is Not recorded.
 
 import { z } from "zod";
-import { readStoryPurpose } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-purpose.mjs";
+import { readStoryPurpose } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-story-purpose.mjs";
 import { ReadProblem } from "./readProblem.ts";
 import type { UnavailableGap } from "./readWaitBound.ts";
 

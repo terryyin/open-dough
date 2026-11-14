@@ -5,6 +5,7 @@ import { createServer, request } from "node:http";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { DashboardServer } from "./dashboardServer.ts";
+import { rawRequest } from "./rawHttp.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 import { fsPromisesHook } from "./serverFsHook.ts";
 
@@ -50,6 +51,16 @@ export async function recordOperation(
     },
   );
 }
+
+// Submits `body` to the completion receiver at `origin` as a reporting child
+// does: a JSON POST from that same origin.
+export const postCompletion = (origin: string, body: unknown) =>
+  rawRequest({
+    url: `${origin}/__agent-launch/completion`,
+    method: "POST",
+    headers: { Origin: origin, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 
 // Forward with the original Host/Origin. Lose the client acknowledgment only
 // AFTER the real receiver finished its persisted response, not before its write.

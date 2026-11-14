@@ -5,7 +5,7 @@
 
 import { testOptimizationCandidatesPath } from "../src/testOptimizationCandidatesPath.ts";
 import { doughnut, publishIntentProject } from "./intentCodeBrowseFixtures.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { doughnutFeatureSettings } from "./intentCandidatesOtherProjectFixtures.ts";
 
 export const doughnutCaseFeaturePath =

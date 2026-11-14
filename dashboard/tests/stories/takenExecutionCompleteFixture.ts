@@ -1,8 +1,8 @@
 // Published records and a paused page clock for the Taken completion journey.
 
-import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
-import { renderStorySection } from "../../../tests/support/published-seed.mjs";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../../Distribution/tests/support/published-plan.mjs";
+import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";

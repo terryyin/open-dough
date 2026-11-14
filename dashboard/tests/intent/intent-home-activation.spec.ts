@@ -33,7 +33,7 @@ import {
   pygardon,
 } from "../intentCodeBrowseFixtures.ts";
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { failing } from "../intentCiStoryBoard.ts";
 import {
   publishStoryCi,

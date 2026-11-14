@@ -12,7 +12,7 @@ import { z } from "zod";
 import {
   parseDoneCatalog,
   type DoneCatalog as PublishedDoneCatalog,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import {
   authenticatedGet,
   commitSha,

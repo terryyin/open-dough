@@ -34,4 +34,4 @@ export function resolveBesideFile(
   return segments.join("/");
 }
 
-export { isSafeRepositoryPath } from "../../src/skills/dough-makeme/scripts/repository-path.mjs";
+export { isSafeRepositoryPath } from "../../Distribution/src/skills/dough-makeme/scripts/repository-path.mjs";

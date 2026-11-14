@@ -5,7 +5,7 @@
 // the ref points at later. Nothing here fetches or checks a destination.
 
 import { z } from "zod";
-import { splitHref } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
+import { splitHref } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
 import type { PublishedSource } from "./publishedSource.ts";
 import { ReadProblem } from "./readProblem.ts";
 

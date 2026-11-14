@@ -1,6 +1,6 @@
 // Count raw artifact operations while preserving the production reader's
 // private unanswered brand and immutable valid-summary memory.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
 import { comparisonProject } from "./comparisonRead.ts";
 import type { ComparisonBuildSource } from "../../server/comparisonBuildSource.ts";

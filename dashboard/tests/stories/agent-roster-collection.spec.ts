@@ -7,7 +7,7 @@
 // GitHub only publishes files; the shared rotation reader and the page decide
 // everything shown.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { rosterParts } from "../dashboardPage.ts";
@@ -17,7 +17,7 @@ import {
   agentIdentity,
   agentNames,
   nerdAgentNames,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+} from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { describedRevision } from "../describedRevisions.ts";
 import { credit } from "../agentCredit.ts";

@@ -1,13 +1,13 @@
 // Vendor report payload and privately retired workspace for real dashboard journeys.
 import { execFileSync } from "node:child_process";
 import { mkdirSync, rmSync, symlinkSync } from "node:fs";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import path from "node:path";
 import { expect, stored } from "./codexLaunch.ts";
 import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
 import { codexAttaches } from "./codexTerminal.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import type { DashboardServer } from "./dashboardServer.ts";

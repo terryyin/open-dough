@@ -16,13 +16,13 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
-import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import type {
   GitPerson,
   RepositoryDescription,
-} from "../../../tests/support/repositoryTestData.mjs";
+} from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 import { requestRunArtifact } from "./runArtifacts.ts";
@@ -145,12 +145,13 @@ export async function prepareStartOrigin(
   directory: string,
   layout: StartOriginLayout,
   repository: StartRepository,
-  source = path.join(repoRoot, "src", "skills"),
+  source = path.join(repoRoot, "Distribution", "src", "skills"),
 ): Promise<void> {
   try {
-    const built = await materializeRepository(
+    const built = await materializeLocalCheckout(
+      undefined,
       withInstallation(repository, layout, source),
-      { parent: directory },
+      { at: mkdtempSync(path.join(directory, "source-")), gitTemplates: true },
     );
     try {
       const origin = path.join(directory, layout);
@@ -159,7 +160,7 @@ export async function prepareStartOrigin(
         "clone",
         "--bare",
         "--no-local",
-        built.origin,
+        built.integration,
         origin,
       ]);
       await exec("git", ["-C", origin, "remote", "remove", "origin"]);

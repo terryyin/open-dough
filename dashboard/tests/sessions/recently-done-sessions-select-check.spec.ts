@@ -12,7 +12,7 @@ import { parts } from "../dashboardPage.ts";
 import { routeNextReads } from "../nextActionReads.ts";
 import { catalogPublications } from "../catalogProjectRecords.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
-import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   adHoc,

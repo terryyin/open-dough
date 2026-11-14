@@ -3,13 +3,13 @@
 // it (../../src/intentLocationSelection.ts), mapped to a highlighter language
 // (../../src/sourceHighlight.ts). A hint with no grammar, or none, reads as
 // plain text. The integrated journey:
-// ../../tests/intent/intent-code-browse-sources.spec.ts.
+// ../../../e2e/intent/intent-code-browse-sources.spec.ts.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { sourceEntryOfRepositoryPath } from "../../src/intentLocationSelection.ts";
 import { sourceLanguage } from "../../src/sourceHighlight.ts";
 import type { DeclaredLocation } from "../../server/intentLocationsSettings.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // The highlighter language of `path` under `location`, or undefined for plain
 // text; null when the location does not select the path.

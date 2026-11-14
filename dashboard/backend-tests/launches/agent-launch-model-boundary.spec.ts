@@ -22,7 +22,7 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const adHocRequest = makeMe.aLaunchRequest.adHoc().please();
 const timeLabel = /^\d{1,2} [A-Z][a-z]{2}, \d{2}:\d{2}$/;

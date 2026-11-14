@@ -2,27 +2,27 @@
 // revision of these real Git histories. The launch fixture in pageTest.ts
 // and the story-columns journey each share their read-only origin per worker.
 // The story-columns history up to the Take is the same in every worker; the
-// run prepares it once (support/globalSetup.ts) and each worker's completion
+// run prepares it once (support/runArtifacts.ts) and each worker's completion
 // is committed in that worker's own copy.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { agentIdentity } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   queuedRepositoryWithRoughStory,
   roughStoryC as storyC,
   storyA,
   storyB,
   takeRevision,
-} from "../../tests/support/queued-repository.mjs";
+} from "../../Distribution/tests/support/queued-repository.mjs";
 import {
   integrationDeveloper,
   materializeRepository,
   prepareRepositorySnapshot,
   registerPreparedPrefix,
-} from "../../tests/support/repository-fixture.mjs";
+} from "../../Distribution/tests/support/repository-fixture.mjs";
 import { requestRunArtifact } from "./support/runArtifacts.ts";
 
 export const takenStory = storyA.title;
@@ -123,8 +123,11 @@ export function storyColumnsRepository(completedAt: string) {
 }
 
 // The run artifact holding the story-columns history before completion
-// (support/runArtifacts.ts): the run owner prepares it once, as soon as it
-// starts (support/globalSetup.ts), and removes it when the run ends.
+// (support/runArtifacts.ts): the run owner prepares it once, Dashboard
+// Integrated UI Test and E2E Test as soon as they start
+// (support/integratedGlobalSetup.ts, support/e2eGlobalSetup.ts) and Dashboard
+// Backend Test on its first request (support/backendGlobalSetup.ts), and
+// removes it when the run ends.
 export const storyColumnsPrefixArtifactKey = "story-columns-prefix";
 const storyColumnsPrefix = storyColumnsHistory().please();
 

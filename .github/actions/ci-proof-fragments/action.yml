@@ -5,6 +5,11 @@ description: >-
   by test file, and keeps them as that part's attempt-named artifact for the
   ci-proof job. Names the run's revision from CI_PROOF_REVISION.
 inputs:
+  producer:
+    description: >-
+      The producer naming the artifact, unique in the run: the calling job's
+      id, such as `test` or a browser test group's.
+    required: true
   part:
     description: This job's part (its matrix value).
     required: true
@@ -58,7 +63,7 @@ runs:
         if [[ -n "${TIMES}" ]]; then times=(--times "${TIMES}"); fi
         unit=()
         if [[ -n "${UNIT}" ]]; then unit=(--unit "${UNIT}"); fi
-        node src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs fragment \
+        node Distribution/src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs fragment \
           "--${FORMAT}" "${REPORT}" "${unit[@]}" "${times[@]}" --by-file "${entries[@]}" --part "${PART}" --of "${PARTS}" \
           --attempt "${GITHUB_RUN_ATTEMPT}" --revision "${CI_PROOF_REVISION}" \
           --out "${RUNNER_TEMP}/ci-proof"
@@ -66,7 +71,7 @@ runs:
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v7
       with:
-        name: ci-proof-fragments-${{ github.job }}-${{ inputs.part }}-attempt-${{ github.run_attempt }}
+        name: ci-proof-fragments-${{ inputs.producer }}-${{ inputs.part }}-attempt-${{ github.run_attempt }}
         path: ${{ runner.temp }}/ci-proof/
         if-no-files-found: ignore
         retention-days: 7

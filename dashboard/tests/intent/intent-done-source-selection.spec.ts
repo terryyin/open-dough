@@ -5,9 +5,9 @@ import { sourceRevision } from "../intentCodeBrowsePage.ts";
 // Both stories complete through the real CLI; the Sessions sidebar provides
 // the ordinary selection transition without leaving Intent.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { storyB } from "../../../tests/support/queued-repository.mjs";
-import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { storyB } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { showColumn } from "../boardPage.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";

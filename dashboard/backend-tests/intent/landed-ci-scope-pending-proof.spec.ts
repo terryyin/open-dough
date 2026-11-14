@@ -1,7 +1,7 @@
 // A recorded landing whose exact CI attempt is still queued. Collection runs
 // with Intent closed; the public scoped read must retain the known attempt as
 // pending evidence, with its link and no invented execution-time measurement.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";

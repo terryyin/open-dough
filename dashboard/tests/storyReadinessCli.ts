@@ -4,12 +4,12 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { recordPreparationArgs } from "../../tests/support/story-preparation.mjs";
+import { recordPreparationArgs } from "../../Distribution/tests/support/story-preparation.mjs";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
 const cli = join(
   repoRoot,
-  "src/skills/dough-product-backlog/scripts/product-backlog.mjs",
+  "Distribution/src/skills/dough-product-backlog/scripts/product-backlog.mjs",
 );
 
 function runCli(directory: string, args: string[]) {

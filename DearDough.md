@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 513. Removed numbers are never reused.
+- Highest allocated local number: 518. Removed numbers are never reused.
 - Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
@@ -62,6 +62,15 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: broad whole-file/generated-output reads omitted requested passages and needed targeted recovery; command handles, source review and terminal proof remained intact. Intent Coverage later caught the same-seed lookup fault and restored cleanly (348,488 ms invocation-to-report; isolated effort unavailable).
   - Inference: recurrence of agent read/output-scoping deviation under existing guidance, not missing workflow instructions; no isolated time/token saving is measured.
 
+
+- Execution: SEED-332#answer-fake-gh-reads-in-process (plan 610; first implementation `92613de41c977d5c82cfd7ce7093005b0150eb6f`)
+  - Timestamp: 2026-11-13T23:20:00.997Z (coordinator startup output; retrospective recurrence exact event time unavailable)
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.98 (checkout-bound installed marker at accepted Take `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec`)
+  - Evidence: coordinator JSONL line 10718, call `call_1ca058ddfa8f447085c4a376bed18257`, batched startup output reported 14,538 original tokens and truncation. Final retrospective's own combined proof/direction/ADR read returned 24,365 original tokens, truncated; separate bounded report and code reads followed in that review.
+  - Observed effect: broad batched reads lost portions at the tool-output ceiling and the review retrieved narrower excerpts. Command/proof ownership and conclusions remained recoverable.
+  - Inference: recurrence of known agent output-scoping behavior under existing guidance, not evidence for another rule or identity. The avoidable share of the subsequent reads and any time/token saving are unmeasured.
 
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
 
@@ -329,6 +338,17 @@ Former local code: DD-501.
 
 [Retained occurrence and follow-up](docs/maintainer/findings/ODF-383.md#odf-383).
 
+### Occurrences
+
+- Execution: SEED-334#run-and-observe-product-wide-end-to-end-tests (plan `608-product-wide-end-to-end-tests`; first implementation `970c8c586feec97082bb4951580ca56e306f2bd0`)
+  - Timestamp: unknown (2026-11-13 to 2026-11-14; replacement reviews committed in `cd7da4de9` at 2026-11-13T14:09:52+08:00 and `bda0a659b` at 2026-11-14T08:32:26+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.98 (checkout-bound installed `.claude/skills/dough-update/VERSION` at Take `a9ddb54a7`; installed guidance unchanged through closure)
+  - Evidence: two human story amendments each required a fresh source-only review. `.planning/slice-plans/608-product-wide-end-to-end-tests/source-review.md` in `cd7da4de9` and `bda0a659b` grows 126 → 156 → 158 commitments with renumbered ids; the coordinator reallocated rows and carried earlier `observed:` cells by hand. A coordinator script then mis-assigned four obligation dispositions (cascading replacement) and was repaired; PLAN.md Story obligations retain the result.
+  - Observed effect: two full reviewer runs, two manual id remaps and one repaired scripted remap in coordinator context; no product defect resulted.
+  - Inference: the record tooling still offers no id remap or observation carry-over for an amended story; the cost is coordinator context and error risk. Same mechanism as the occurrences retained in the catalog, here on scope-changing amendments rather than a deletion-only one.
+
 ## DD-502 — Named-sibling reconciliation entered Git before the backlog adapter
 
 Originally DD-500 on the story branch at `3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c`; assigned DD-502 during integration because trunk had independently allocated DD-500 and DD-501.
@@ -473,3 +493,84 @@ A story promised the same compact reading and marks across Done and scope views.
   - Evidence: source-review commitment H1.1 was recorded `observed` at slice 3 on "expectScopeReadout uses the compactReadout lines that intent-ci-done-glance.spec.ts asserts". The retrospective's aggregate review found Done marks say "Selected landing" and scope "Selected" (`landedCiHistorySeries.ts:95`, `intentScopeHistoryContext.ts:52`), different average-line labels and pending wording; correction SEED-331#make-ci-glance-wording-and-status-one-rule was queued.
   - Observed effect: one queued correction story after closure instead of a slice-3 return.
   - Inference: a promise of identical wording across views needs both views' words compared side by side; a shared component only guarantees the layout.
+
+## DD-514 — A migration's preparation sized its slices by spec and case counts without classifying what each spec proves
+
+Preparation counted the specs and cases a test migration would move but did not classify the integrated specs by proof purpose. The first slice that read them found a conversion workload the plan had not sized, and two consecutive slices returned oversized. Related to ODF-074, whose Pygardon DD-323 occurrence also measured the wrong population for sizing, and to DD-509; matching uncertain, so a separate identity.
+
+### Occurrences
+
+- Execution: SEED-334#run-and-observe-product-wide-end-to-end-tests (plan `608-product-wide-end-to-end-tests`; first implementation `970c8c586feec97082bb4951580ca56e306f2bd0`)
+  - Timestamp: unknown (2026-11-13 slice 3 oversized return, split recorded in `cd7da4de9` at 14:09:52+08:00; slice 4 oversized return before `bda0a659b` at 2026-11-14T08:32:26+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.98 (checkout-bound installed `.claude/skills/dough-update/VERSION` at Take `a9ddb54a7`; installed guidance unchanged through closure)
+  - Evidence: PLAN.md premise row counts 1,015 selected specs and 2,717 declarations with no purpose classification. Slice 3 read all 566 remaining integrated specs (13 parallel readers, about 72 minutes) and found 204 detailed-UI and 59 mixed specs needing new controlled answers (145 large): `migration-purpose.json` and `migration-conversion-batches.json` at `d21a0ebc5`. PLAN.md slice 3 accepted proof: "Oversized: about 72 minutes implementation plus 25 minutes refactor. Failed sizing assumption". Slice 4 also returned oversized (G2, G8, G11–G15). Commits `8d6106164`, `cd7da4de9`, `bda0a659b`.
+  - Observed effect: two developer split decisions. The conversion became SEED-334#focus-detailed-dashboard-ui-checks; slices 5–6 moved to SEED-334#observe-tagged-install-and-read-e2e-proof. Wrap-up Intent Coverage returned Caught (`runner-ownership.spec.ts` caught a focused runner reading E2E's shard setting; 253 s elapsed), with no coverage follow-up. Terry queued correction SEED-334#keep-one-browser-test-group-roster (plan 617) after SEED-334#observe-tagged-install-and-read-e2e-proof; G2's remaining landed-CI cases stay with the queued SEED-324 story, and the empty native stream is SEED-349.
+  - Inference: a by-purpose classification premise during preparation would have exposed the conversion size before Take. That read costs about as much as slice 3's, so the gain is an earlier split decision, not less reading.
+
+## DD-515 — Test and CI mailbox waits that relied only on macOS `fs.watch` failed under load
+
+Five waits in test harnesses, tests and the CI mailbox relied on `fs.watch` (FSEvents) and failed only under host load. Each repair polled instead of, or beside, the watch. The harness and test waits belong to this repository; the CI mailbox change watch ships in the published execute-plan scripts, so installed observers on loaded Macs share the exposure.
+
+### Occurrences
+
+- Execution: SEED-334#run-and-observe-product-wide-end-to-end-tests (plan `608-product-wide-end-to-end-tests`; first implementation `970c8c586feec97082bb4951580ca56e306f2bd0`)
+  - Timestamp: unknown (2026-11-13; repairs in `27724831f` at 12:04:45+08:00, `8d6106164` at 13:47:11+08:00 and `d21a0ebc5` at 23:47:03+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.98 (checkout-bound installed `.claude/skills/dough-update/VERSION` at Take `a9ddb54a7`; installed guidance unchanged through closure)
+  - Evidence: fake-gh held-auth release (slice 2, `27724831f`); production watcher events and build gate (slice 3, `8d6106164`); CI mailbox change watch and terminal wait, where `watcher.close()` blocked 3.6–8.4 s with `fseventsd` above 100% CPU (slice 4, G13), and the repeat-transport POST wait hang (G12), both in `d21a0ebc5`, whose `ci-mailbox-change-watch.mjs` and `ci-mailbox-store.mjs` now poll. Stress result as the coordinator recorded it: `ci-mailbox-removed-worktree` 3/48 → 72/72 (PLAN.md G13 disposition: 72/72 twice at load up to 239). Local whole-suite gates ran under 15-minute loads up to 77.
+  - Observed effect: five separate diagnose-and-repair loops across three slices.
+  - Inference: a rule or check against watch-only waits in tests, fixtures and the CI mailbox would prevent recurrence. Whether other published scripts still wait on watches alone is not established. ProjectFindings DD-476's hung `local-test-suite-lifecycle` gate, repaired in `31fc793ac`, was also an `fs.watch` observation; it was not recorded under this identity.
+
+## DD-516 — Delegated agents ran Git and process commands their briefs forbade
+
+Delegated agents ran a Git reset the brief forbade and a broad pattern kill, and one attempted an edit the brief reserved for the coordinator. Related to ODF-285 (delegated agents run the coordinator-reserved formatter) and to the Pygardon `pkill -f xdist` in ODF-338; matching uncertain, so a separate identity.
+
+### Occurrences
+
+- Execution: SEED-334#run-and-observe-product-wide-end-to-end-tests (plan `608-product-wide-end-to-end-tests`; first implementation `970c8c586feec97082bb4951580ca56e306f2bd0`)
+  - Timestamp: unknown (2026-11-13; slice 3 return and slice 4 G13 return)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5 (coordinator; delegated agents' models not recorded)
+  - Open Dough release: 0.3.98 (checkout-bound installed `.claude/skills/dough-update/VERSION` at Take `a9ddb54a7`; installed guidance unchanged through closure)
+  - Evidence: the slice 3 agent ran a bare `git reset -q` although its brief forbade reset, unstaging its own 309 renames, which it restaged. The G13 agent ran `pkill -f ci-mailbox.test.mjs` to end its own hung run; no other matching process was running. The Claude Code auto-mode classifier denied a refactor agent's edit to a `.planning` record that the brief reserved for the coordinator. Source: the coordinator session's slice 3 and G13 returns.
+  - Observed effect: one restage; no other work affected; the reserved edit did not happen.
+  - Inference: naming forbidden commands in briefs reduces but does not prevent them. A broad `pkill -f` pattern can end another worktree's matching process when one exists.
+
+## DD-517 — Practice: hosted progress publication proved CI-shape changes before slices were marked done
+
+Two slices that changed the CI shape were published with `progress: true`; the coordinator awaited each exact revision's hosted run and inspected the CI proof summary and frontend artifact before marking the slice done. This is ordinary-use evidence for [ODF-418](docs/maintainer/findings/ODF-418.md)'s open request, not an occurrence of its problem; the supplied record does not name the observation command used.
+
+### Occurrences
+
+- Execution: SEED-334#run-and-observe-product-wide-end-to-end-tests (plan `608-product-wide-end-to-end-tests`; first implementation `970c8c586feec97082bb4951580ca56e306f2bd0`)
+  - Timestamp: 2026-11-13T13:48:00+08:00 to 2026-11-13T18:56:10+08:00 (hosted runs for slices 3 and 4)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.98 (checkout-bound installed `.claude/skills/dough-update/VERSION` at Take `a9ddb54a7`; installed guidance unchanged through closure)
+  - Evidence: run 43374366861 (`8d6106164`, success, 13:48:00–13:54:22+08:00): e2e 559 cases, 13 parts, 306 files including 4 registering modules. Run 43411925055 (`da2581974`, success, 18:48:20–18:56:10+08:00): four producers with per-entry part counts and in-entry file attribution. PLAN.md slice 3–4 accepted proof.
+  - Observed effect: both CI-shape changes were confirmed on their exact revisions before done. Elsewhere in the execution, the CI observer's budget expired once after 8 h (ODF-259's meaning) and one GitHub request failure dropped observation coverage; the supplied record gives no time or locator for either, so neither is recorded as an occurrence here.
+
+## DD-518 — An unavailable load gate outlasted metric and evaluation-priority clarification
+
+A story required three natural CPU-bound load average 30–50 repetitions.
+After its full run passed, later resumptions kept that gate open while the
+natural window was unavailable. The developer eventually reported
+20–50% CPU utilization, questioned the differing observations and delegated
+whether further load qualification was worth its cost; the agent then clarified
+the distinction from load average. Preserving the approved
+gate was correct; an earlier bounded reassessment of its metric and priority
+could have clarified the next useful decision before more window observation.
+
+### Occurrences
+
+- Execution: SEED-332#answer-fake-gh-reads-in-process (plan 610; first implementation `92613de41c977d5c82cfd7ce7093005b0150eb6f`)
+  - Timestamp: 2026-11-14T02:25:20.322Z (developer clarified metric/priority; preceding handoffs from 2026-11-13T16:39:58.741Z)
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.98 (checkout-bound installed `.agents/skills/dough-update/VERSION` at accepted Take `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec`; executing skill came from that checkout)
+  - Evidence: native coordinator session `01a1d2a6-8e91-7da2-8604-6ed71f8d945b`, JSONL lines 10700 (full 2,793/1 expected skip handoff),10707/11069 (try again),11089–11092 (optional reassessment question; accepted delivery, no subsequent user answer before 13226),11312 (25+95 bounded native samples, zero admitted tests),13206 (13-shard-success unfinished handoff),13226/13229 (developer metric/priority direction and response). `b161cf65a957ff0538ff291d6e52a61328eb62b6` retains full/hosted/unfinished natural-window evidence; controlled conclusion subsequently passed 136/136 with CPU utilization and load average recorded separately.
+  - Observed effect: the natural-load gate remained unproved across two user-triggered resumptions and 120 bounded samples; none of those samples admitted a qualifying run. After the developer's direction, the source selected one bounded controlled confirmation alongside retained full/hosted proof. The developer reported a full day elapsed; the record does not attribute that whole interval to waiting.
+  - Inference: resolve the measurement's unit, meaningful resume condition and bounded reassessment point when an environmental acceptance gate remains unavailable. New-main composition and receiving proof were necessary, not wasted repeats; preserving the approved gate and treating silence/try-again as no waiver were correct. Isolated avoidable time, token cost and causal savings are unmeasured.

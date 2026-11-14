@@ -56,7 +56,7 @@ test.describe(`agent launch boundary, selected options`, () => {
   test.beforeEach(() => {
     rmSync(skillFolder(), { recursive: true, force: true });
     cpSync(
-      path.join(repoRoot, "src", "skills", skill, "references"),
+      path.join(repoRoot, "Distribution", "src", "skills", skill, "references"),
       path.join(skillFolder(), "references"),
       { recursive: true },
     );

@@ -14,7 +14,7 @@
 // reading revision has no kept answer yet.
 
 import { useEffect, useState } from "react";
-import { agentSettingsPath } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentSettingsPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   keptIntentLocationsAt,
   readIntentLocationsAt,

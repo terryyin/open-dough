@@ -5,7 +5,7 @@ import { expect } from "./dashboardTest.ts";
 import { describedBacklog } from "./describedRevisions.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 export const notifiedIdentity = "SEED-777#shared-story";
 export const notifiedTitle = "Doughnut's renamed notified story";

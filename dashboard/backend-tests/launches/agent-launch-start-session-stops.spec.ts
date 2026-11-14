@@ -1,4 +1,4 @@
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // An unattached Start session whose choices cannot be honored starts no
 // native session and silently runs nowhere else, with a real bare origin
 // (../../tests/support/startOrigin.ts) and the synthetic `claude`: a choice the

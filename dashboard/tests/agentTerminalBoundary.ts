@@ -2,7 +2,7 @@
 // (../backend-tests/terminals/agent-terminal-boundary.spec.ts, ../backend-tests/terminals/agent-terminal-close.spec.ts,
 // ../backend-tests/sessions/agent-terminal-reopen.spec.ts, and ../backend-tests/sessions/agent-launch-done.spec.ts): a
 // session launched through the real launch boundary, in any project and for
-// any story and workflow (as ./sessions/sessions-sidebar.spec.ts launches outside the
+// any story and workflow (as ../../e2e/sessions/sessions-sidebar.spec.ts launches outside the
 // shown project), and a raw WebSocket to
 // the terminal boundary for it, opened or refused, whose output and ending the
 // synthetic `claude` reports.

@@ -4,7 +4,7 @@
 // up as a provisional result. No completion or landing — Landed stays
 // not-landed until wrap-up.
 import { publishedStoryHistory } from "./publishedStoryHistory.ts";
-import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { agentNameOf } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   commitShaPattern,
   isSafeBranchName,

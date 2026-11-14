@@ -20,8 +20,8 @@ Doughnut's note-details disclosure. The
 and [response watch list](../../docs/maintainer/near-term-watch-list.md) track
 the current workflow and outstanding observations.
 
-The [execution retrospective](../../src/skills/dough-execution-retrospective/SKILL.md)
-and [project findings maintenance](../../src/skills/dough-triage-project-findings/SKILL.md)
+The [execution retrospective](../../Distribution/src/skills/dough-execution-retrospective/SKILL.md)
+and [project findings maintenance](../../Distribution/src/skills/dough-triage-project-findings/SKILL.md)
 guidance own the delivered workflows. The broader feedback-loop proposal and
 its decisions are recoverable from the
 [original seed](https://github.com/terryyin/open-dough/blob/7cda80ffebcb3a190d1c71f80aec3e33b7e59f95/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md).

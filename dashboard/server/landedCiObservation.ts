@@ -20,7 +20,7 @@ import { ciProofSchema } from "../src/ciProof.ts";
 import {
   currentSummaryOf,
   summaryProblems,
-} from "../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
+} from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 import {
   finalGapReasons,
   historyWallTimeMs,

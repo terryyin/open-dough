@@ -24,7 +24,7 @@ Keep test intent easy for Open Dough developers to read by limiting each
 first-layer test case body to 10 lines of code. Use the existing MakeMe test
 data builders and page objects to keep setup and browser mechanics out of the
 case body while keeping the scenario and its expected outcome visible.
-[MakeMe](../../tests/README.md#test-data-architecture) · [Page objects](../../dashboard/tests/fluent-side-panel-pilot.md#fluent-phases-in-the-side-panel-content-journeys)
+[MakeMe](../../Distribution/tests/README.md#test-data-architecture) · [Page objects](../../dashboard/tests/fluent-side-panel-pilot.md#fluent-phases-in-the-side-panel-content-journeys)
 
 #### Refinement reminder for Terry
 

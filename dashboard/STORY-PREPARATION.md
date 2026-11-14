@@ -74,6 +74,6 @@ column and needs no sideways scrolling down to a 320 px wide window, which is
 also 400% browser zoom.
 
 What the backlog means is decided by the shared backlog reader under
-`src/skills/dough-product-backlog/scripts/`; the dashboard holds no Markdown
+`Distribution/src/skills/dough-product-backlog/scripts/`; the dashboard holds no Markdown
 parsing of its own. The dashboard is not part of the installed Open Dough
 guidance.

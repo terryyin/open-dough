@@ -3,7 +3,7 @@
 // on Changed tests with the same file's Proof, its Purpose at the same
 // reading position, and the keyboard returns to the header's count that opened
 // the review (../../src/keyboardReturn.ts). The header's count:
-// ./intent-story-changes.spec.ts.
+// ../../../e2e/intent/intent-story-changes.spec.ts.
 
 import { closeSidePanel } from "../sidePanelFrame.ts";
 import { fileBrowser } from "../support/reviewContextLine.ts";

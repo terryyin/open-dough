@@ -12,7 +12,7 @@ import { processRunning } from "../../tests/support/processGroup.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
-  fixture = projectAddMachine();
+  fixture = projectAddMachine({ ghTransport: "cli" });
 });
 test.afterEach(async () => fixture.close());
 const body = JSON.stringify({

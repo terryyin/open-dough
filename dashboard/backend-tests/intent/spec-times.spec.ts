@@ -1,5 +1,5 @@
-// The per-spec-file times a run writes when OPEN_DOUGH_DASHBOARD_TIMES names
-// a file (support/specTimes.ts): the form, the order, the per-file sum, and
+// The per-spec-file times a run writes when its runner's `<prefix>_TIMES`
+// names a file (support/specTimes.ts): the form, the order, the per-file sum, and
 // that a failed run still writes it while a listing does not.
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { existsSync, readFileSync } from "node:fs";

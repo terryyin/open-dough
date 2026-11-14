@@ -3,7 +3,7 @@
 // "working" screen count; awaiting first instruction, held waiting, and a
 // session marked done do not; an unread report on a working session still
 // counts. A pure reading of records; the page journey is
-// ../../tests/sessions/sessions-sidebar.spec.ts.
+// ../../../e2e/sessions/sessions-sidebar.spec.ts.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { cursorHeldLabel } from "../../src/cursorHeldLabel.ts";
@@ -12,7 +12,7 @@ import {
   workingCount,
   workingWords,
 } from "../../src/sessionShown.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("awaiting first instruction is excluded; only native Working counts among unsettled peers", () => {
   const sessions = [

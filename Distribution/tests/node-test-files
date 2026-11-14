@@ -1,0 +1,5 @@
+# Glob patterns, relative to the repository root, of `node --test` files that
+# scripts/test.sh schedules, one job per file.
+Distribution/src/skills/*/scripts/*.test.mjs
+Distribution/tests/*.test.mjs
+Distribution/tests/support/*.test.mjs

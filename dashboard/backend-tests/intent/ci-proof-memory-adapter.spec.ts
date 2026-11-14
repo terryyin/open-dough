@@ -1,5 +1,5 @@
 // The adapter command is external; configuration, validation and memory are real.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciAdapterProofReader } from "../../server/ciAdapterProof.ts";
 import type { CiAdapterProofAttempt } from "../../src/ciProof.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";

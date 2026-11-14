@@ -2,7 +2,7 @@
 // (../src/IntentLocationGroup.tsx): its background, change mark, width, and
 // label weight.
 
-import type { Locator } from "@playwright/test";
+import { expect, type Locator } from "@playwright/test";
 import { intentGroupToggle } from "./intentPerspectivePage.ts";
 
 // One configured Intent location's header: its toggle and selectable name.
@@ -33,4 +33,25 @@ export function locationHeaderLook(header: Locator) {
       labelWeight: Number(getComputedStyle(label ?? element).fontWeight),
     };
   });
+}
+
+// How the header of the configured location at `locationPath` reads.
+export const locationHeaderLookAt = (intent: Locator, locationPath: string) =>
+  locationHeaderLook(intentLocationHeader(intent, locationPath));
+
+// A location containing changes: its header has a background of its own,
+// unlike a changed folder's row (`folderBackground`), and a change mark, and
+// spans the column with its label bold. Returns that look.
+export async function expectChangedLocationHeader(
+  intent: Locator,
+  locationPath: string,
+  folderBackground: string,
+) {
+  const look = await locationHeaderLookAt(intent, locationPath);
+  expect(look.background).not.toBe("rgba(0, 0, 0, 0)");
+  expect(look.background).not.toBe(folderBackground);
+  expect(look.mark).not.toBe("none");
+  expect(look.fullWidth).toBe(true);
+  expect(look.labelWeight).toBeGreaterThanOrEqual(600);
+  return look;
 }

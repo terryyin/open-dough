@@ -3,12 +3,12 @@
 // preparation, profile, or done-record reads can enrich the observation.
 
 import { z } from "zod";
-import { directionOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-direction.mjs";
+import { directionOf } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-direction.mjs";
 import {
   parseBacklog,
   queueHeading,
   takenHeading,
-} from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import type { PublishedWork, WorkEntry } from "./publishedWork.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { ReadProblem } from "./readProblem.ts";

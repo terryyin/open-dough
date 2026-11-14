@@ -3,7 +3,7 @@
 // Browser observations live in the Summary and file Proof page owners.
 
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { publishSummaryComparisonStory } from "./intentSummaryStoryComparisonFixture.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { entryProofs } from "./storyCiComparisonEntrySummaries.ts";

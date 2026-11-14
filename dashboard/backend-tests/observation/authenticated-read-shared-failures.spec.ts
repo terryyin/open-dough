@@ -49,7 +49,10 @@ test.describe("authenticated read boundary: a refused shared read fails every wa
   let server: DashboardServer;
 
   test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+    server = await startDashboardServer({
+      ...developmentBoundary,
+      ghTransport: "cli",
+    });
   });
 
   test.afterAll(async () => {
@@ -142,6 +145,7 @@ test.describe("authenticated read boundary: a stalled shared read ends at its ow
   test.beforeAll(async () => {
     server = await startDashboardServer({
       ...developmentBoundary,
+      ghTransport: "cli",
       readTimeoutMs: boundMs,
     });
   });

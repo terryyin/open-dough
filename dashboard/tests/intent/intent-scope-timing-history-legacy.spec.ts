@@ -4,7 +4,7 @@ import {
   scopeHistoryUnit,
 } from "../intentScopeHistoryPage.ts";
 // Supplemental legacy-unit presentation; actual normalization is observed at the store boundary.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expectComparisonScopeRows } from "../intentScopeProofPage.ts";
 import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
 import {

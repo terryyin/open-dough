@@ -3,12 +3,12 @@
 // ./stories/recently-done-progressive-navigation.spec.ts) publish and keep: a long list
 // of done stories and saved Done sessions, one entry an hour apart, newest
 // first. The done records are declared facts, published with the catalog
-// completion rebuilds from them (../../tests/support/revision-done-catalog.mjs).
+// completion rebuilds from them (../../Distribution/tests/support/revision-done-catalog.mjs).
 // This machine keeps the ad hoc Done sessions and a story's nested sessions.
 // Nothing here chooses which entries show or which records are read.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
-import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { standaloneSessionName } from "./dashboardPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";

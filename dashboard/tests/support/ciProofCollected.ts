@@ -1,6 +1,6 @@
 // A CI proof summary made as CI makes it, from raw runner reports: each
 // producer's report is written to a file and converted by the collector's own
-// command line (`fragment`, ../../../src/skills/dough-test-optimization/
+// command line (`fragment`, ../../../Distribution/src/skills/dough-test-optimization/
 // scripts/ci-proof-summary.mjs), then `summarize` collects the fragments
 // against the declared parts. The summary's actual serialized text is kept,
 // so a journey serves those bytes, not a re-encoding of them. Playwright
@@ -21,11 +21,11 @@ import { fileURLToPath } from "node:url";
 import type { OriginAnswer } from "../originAnswers.ts";
 import type { ProofRun } from "./ciProofArtifacts.ts";
 import { zipOf } from "./ciProofArtifacts.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const cli = fileURLToPath(
   new URL(
-    "../../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs",
+    "../../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs",
     import.meta.url,
   ),
 );

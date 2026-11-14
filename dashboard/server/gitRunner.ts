@@ -119,9 +119,10 @@ export async function isAncestor(
   ancestor: string,
   descendant: string,
   call: GitCall,
+  read = runGit,
 ): Promise<boolean> {
   try {
-    await runGit(["merge-base", "--is-ancestor", ancestor, descendant], call);
+    await read(["merge-base", "--is-ancestor", ancestor, descendant], call);
     return true;
   } catch {
     return false;

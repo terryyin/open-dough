@@ -1,5 +1,5 @@
 // Canonical captured landing facts, independent of published Git preparation.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 export function capturedComparisonLanding(
   setup: { identity: string; baseline: string; landingMerge: string },

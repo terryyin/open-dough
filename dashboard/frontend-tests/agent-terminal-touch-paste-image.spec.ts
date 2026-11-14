@@ -15,7 +15,7 @@ import {
   launchAttachmentTooLarge,
 } from "../src/launchAttachments.ts";
 import { phoneLaunchTouchViewport } from "../tests/touchLaunchPage.ts";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({
   viewport: phoneLaunchTouchViewport.portrait,

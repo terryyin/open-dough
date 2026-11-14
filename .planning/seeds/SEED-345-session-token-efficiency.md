@@ -189,12 +189,12 @@ Read-only observations in this preparation at
   mechanism. [Official lifecycle documentation](https://learn.chatgpt.com/docs/app-server#lifecycle-overview),
   fetched on 2026-11-14, describes resuming a thread and starting a turn in it;
   it does not establish this story's end-to-end wake-up or deduplication proof.
-- Existing [delegation waits](../../src/skills/dough-execute-plan/references/delegation.md#await-delegated-results-without-empty-calls)
-  and [overdue checks](../../src/skills/dough-execute-plan/references/overdue-delegated-verification.md)
+- Existing [delegation waits](../../Distribution/src/skills/dough-execute-plan/references/delegation.md#await-delegated-results-without-empty-calls)
+  and [overdue checks](../../Distribution/src/skills/dough-execute-plan/references/overdue-delegated-verification.md)
   already forbid empty keep-alive calls and retain liveness ownership.
-  [SEED-343 recovery](../../src/skills/dough-execute-plan/references/ci-completion-recovery.md)
+  [SEED-343 recovery](../../Distribution/src/skills/dough-execute-plan/references/ci-completion-recovery.md)
   owns ended-observer recovery; the
-  [Claude CI handoff](../../src/skills/dough-execute-plan/references/ci-background-handoff.md)
+  [Claude CI handoff](../../Distribution/src/skills/dough-execute-plan/references/ci-background-handoff.md)
   is limited to a still-running interactive CI owner and cannot be assumed to
   resume an exited session or observe supplier changes.
 
@@ -210,7 +210,7 @@ has been observed in this preparation.
 
 The proposed responsibility is execution continuation, not another story-state
 authority. Reuse canonical supplier agreements and their
-[evidenced satisfaction procedure](../../src/skills/dough-product-backlog/references/supplier-dependencies.md);
+[evidenced satisfaction procedure](../../Distribution/src/skills/dough-product-backlog/references/supplier-dependencies.md);
 reuse native session identity/acceptance reconciliation and the existing CI
 lifecycle rather than adding another dependency ledger or CI supervisor.
 Machine-local wait/delivery evidence must remain distinct from authoritative
@@ -408,7 +408,7 @@ comparison. [Model evidence](../../docs/maintainer/session-token-efficiency-rese
 
 Each story has its own observable result and can stand alone. If capacity is
 limited, defer the Cursor handoff first, then the bounded-context trial. Use
-the delivered [records-only and already-traced rule](../../src/skills/dough-execute-plan/references/deliver-the-change.md)
+the delivered [records-only and already-traced rule](../../Distribution/src/skills/dough-execute-plan/references/deliver-the-change.md)
 for eligible reviews; the audit supplies no evidence for a broader review
 exemption. The Pygardon ticket monitor's heartbeat context is a project
 automation outside this seed.

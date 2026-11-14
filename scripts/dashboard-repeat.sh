@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Runs the dashboard suite repeatedly on this machine and reports each run:
-#   bash scripts/dashboard-repeat.sh <repetitions> [--load] [--fresh] [spec…]
-# Runs `npm run test:dashboard -- [spec…]` in the checkout it is started from,
-# that many times, one after another, at Playwright's local default worker
-# count (CI's settings are not passed on). With --load, one `yes > /dev/null`
+# Runs one browser test group repeatedly on this machine and reports each run:
+#   bash scripts/dashboard-repeat.sh <repetitions> <group command> [--load] [--fresh] [spec…]
+# Runs `npm run <group command> -- [spec…]`, where the group command is
+# test:e2e, test:dashboard:integrated, test:dashboard:frontend or
+# test:dashboard:backend, in the checkout it is started from, that many
+# times, one after another, at Playwright's local default worker count (CI's
+# settings are not passed on). With --load, one `yes > /dev/null`
 # burner per online core runs during each run, started just before it and
 # stopped just after, and always stopped when the script ends or is
 # interrupted. With --fresh, the first repetition runs in a new Git worktree
@@ -21,18 +23,24 @@
 # is removed. A failing run that names no kept
 # directory shows its last output lines instead. Exits 0 only when every run
 # passed, 1 otherwise; a malformed repetition count is refused (exit 2).
-# DASHBOARD_REPEAT_SUITE and DASHBOARD_REPEAT_INSTALL replace the suite command
-# (given the specs) and the install command, for the script's own check.
+# DASHBOARD_REPEAT_SUITE and DASHBOARD_REPEAT_INSTALL replace `npm run
+# --silent` (given the group command, `--` and the specs) and the install
+# command, for the script's own check.
 set -euo pipefail
 
 usage() {
-  printf '%s\nUsage: bash scripts/dashboard-repeat.sh <repetitions> [--load] [--fresh] [spec…]\n' "$1" >&2
+  printf '%s\nUsage: bash scripts/dashboard-repeat.sh <repetitions> <group command> [--load] [--fresh] [spec…]\n' "$1" >&2
   exit 2
 }
 
 (($# >= 1)) || usage 'Name the number of repetitions.'
 [[ $1 =~ ^[1-9][0-9]*$ ]] || usage "The number of repetitions must be a positive whole number, not \"$1\"."
 readonly repetitions=$1
+shift
+(($# >= 1)) || usage 'Name the browser test group command.'
+[[ $1 =~ ^test:(e2e|dashboard:(integrated|frontend|backend))$ ]] \
+  || usage "The group command must be test:e2e or test:dashboard:integrated, frontend or backend, not \"$1\"."
+readonly group=$1
 shift
 load=0 fresh=0
 specs=()
@@ -49,7 +57,7 @@ condition=''
 readonly condition
 checkout=$(git rev-parse --show-toplevel)
 readonly checkout
-read -r -a suite <<< "${DASHBOARD_REPEAT_SUITE:-npm run --silent test:dashboard --}"
+read -r -a suite <<< "${DASHBOARD_REPEAT_SUITE:-npm run --silent} ${group} --"
 read -r -a install <<< "${DASHBOARD_REPEAT_INSTALL:-npm ci --no-audit --no-fund}"
 
 work_dir=$(mktemp -d "${TMPDIR:-/tmp}/dough-dashboard-repeat.XXXXXX")
@@ -123,7 +131,10 @@ run_in() {
   (
     cd -- "${directory}"
     exec env -u NODE_ENV -u npm_config_local_prefix -u CI \
-      -u OPEN_DOUGH_DASHBOARD_SPLIT -u OPEN_DOUGH_DASHBOARD_DEADLINE_MS "$@"
+      -u OPEN_DOUGH_E2E_SPLIT -u OPEN_DOUGH_E2E_DEADLINE_MS \
+      -u OPEN_DOUGH_DASHBOARD_INTEGRATED_SPLIT -u OPEN_DOUGH_DASHBOARD_INTEGRATED_DEADLINE_MS \
+      -u OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT -u OPEN_DOUGH_DASHBOARD_FRONTEND_DEADLINE_MS \
+      -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u OPEN_DOUGH_DASHBOARD_BACKEND_DEADLINE_MS "$@"
   ) > "${log}" 2>&1 < /dev/null &
   suite_pid=$!
   status=0

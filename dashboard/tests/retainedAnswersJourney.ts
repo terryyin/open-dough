@@ -10,7 +10,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
-import { parseDoneCatalog } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import { parseDoneCatalog } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import { expect, test as base } from "./dashboardTest.ts";
 import {
   developmentBoundary,

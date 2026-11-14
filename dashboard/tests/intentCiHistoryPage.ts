@@ -8,7 +8,7 @@
 // its links in turn, the day a date falls on as the history says it, and its
 // chart's drawn points and line.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { historyChart } from "./ciHistoryChartPage.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
@@ -86,9 +86,7 @@ export async function publishTrunk(
     repository: "terryyin/open-dough",
     follows: true,
   });
-  committed.serveActions((argv, head) =>
-    trunkActions(runs(), proofs())(argv, head),
-  );
+  committed.serveActions((argv) => trunkActions(runs(), proofs())(argv));
 }
 
 // Project Intent's CI status, with nothing selected.

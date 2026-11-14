@@ -2,7 +2,7 @@
 // three-list room its journeys observe with the open list and Running Cursor
 // sessions. Seeds use the real machine store; destinations reuse PageFrame.
 import type { Locator, Page } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   agentLaunchEndpoint,
   recentlyDoneSessionsInitialLimit,

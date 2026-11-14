@@ -31,7 +31,7 @@ import {
 } from "../storyReadinessFixture.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { describedBacklog } from "../describedRevisions.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.describe("touch preparation help", () => {
   test.use({ hasTouch: true });

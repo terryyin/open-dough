@@ -3,11 +3,11 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import type { PublishedIntegration } from "../../../tests/support/makeMe.mjs";
+import type { PublishedIntegration } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   agentIdentity,
   agentNameOf,
-} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+} from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import { quote } from "./completionRecovery.ts";
 

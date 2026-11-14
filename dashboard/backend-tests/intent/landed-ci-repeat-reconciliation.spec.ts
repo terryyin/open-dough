@@ -79,7 +79,8 @@ test("new current reference and history eviction cannot rewrite the frozen decis
 }) => {
   const { readFileSync } = await import("node:fs");
   const { join } = await import("node:path");
-  const { makeMe } = await import("../../../tests/support/makeMe.mjs");
+  const { makeMe } =
+    await import("../../../Distribution/tests/support/makeMe.mjs");
   const { keepLandedCiHistory } =
     await import("../../tests/support/landedCiHistory.ts");
   const scenario = await prepareRepeatScenario(origin, github, 120);

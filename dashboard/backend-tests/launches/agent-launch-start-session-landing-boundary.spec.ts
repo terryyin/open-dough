@@ -1,4 +1,4 @@
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // The launch boundary honors an unattached request's landing, with a real
 // bare origin (../../tests/support/startOrigin.ts), the installed start recorded as it
 // runs (../../tests/support/startSessionLanding.ts), and the synthetic `claude`: a
@@ -6,7 +6,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 // "Established session" block, the reporting context, then the developer's
 // text; Wait for review, named or not, runs no start, and confirming existing
 // changes never selects an automatic landing. The dialog's journeys are in
-// ../../tests/launches/agent-launch-start-session-landing.spec.ts.
+// ../../../e2e/launches/agent-launch-start-session-landing.spec.ts.
 
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";

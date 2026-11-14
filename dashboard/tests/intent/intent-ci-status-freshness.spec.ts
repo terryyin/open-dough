@@ -31,7 +31,7 @@ import {
   untilPageReadsAnswered,
 } from "../pageRequestNotes.ts";
 import { httpErrorAnswer } from "../originAnswers.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiAnswerer, CiRunAnswer } from "../support/baseCiActions.ts";
 
 test("a warm Intent show returns the kept answer labelled previously retrieved with a spinner until the fresh answer replaces it", async ({

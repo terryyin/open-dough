@@ -1,7 +1,7 @@
 // Recovery presentation can read a known host with no native-check advice.
 // Synthetic launch-record answers only; no dashboard backend or native host.
 
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   expect,
   openFrontendTakenBacklog,

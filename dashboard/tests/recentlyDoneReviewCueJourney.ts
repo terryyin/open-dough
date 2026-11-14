@@ -1,7 +1,7 @@
 // Published Done and machine-local starting facts for sidebar review journeys.
 import path from "node:path";
 import type { Page } from "@playwright/test";
-import { makeMe } from "../../tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { describedRevision } from "./describedRevisions.ts";
 import {
   openDough,

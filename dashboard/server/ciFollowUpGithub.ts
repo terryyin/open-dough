@@ -1,5 +1,5 @@
 // Exact GitHub identities for admission and later-attempt observation.
-import { readGitHubActions } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
+import { readGitHubActions } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import type { GithubRepeatRequest } from "./ciFollowUpStore.ts";
 
 export type RunSnapshot = {

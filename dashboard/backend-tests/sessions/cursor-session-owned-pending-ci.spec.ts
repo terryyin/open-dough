@@ -12,22 +12,22 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { observeHeldCursorSession } from "../../server/hosts/cursor/sessions.ts";
 import type { HeldCursorSession } from "../../server/hosts/cursor/heldSessions.ts";
 import { cursorBelongingSubagentsDirectory } from "../../server/hosts/cursor/unfinishedSubagents.ts";
-import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
+import { createMailbox } from "../../../Distribution/src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 import {
   observerOwner,
   claimMailbox,
-} from "../../../src/skills/dough-execute-plan/scripts/ci-observer-owner.mjs";
+} from "../../../Distribution/src/skills/dough-execute-plan/scripts/ci-observer-owner.mjs";
 import {
   pendingFreshnessMs,
   publishRevisionRecord,
   registerPushedRevision,
-} from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";
-import { recordWorkerIdentity } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
+} from "../../../Distribution/src/skills/dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";
+import { recordWorkerIdentity } from "../../../Distribution/src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
 import { cursorHeldLabel } from "../../src/cursorHeldLabel.ts";
 import type { LaunchRecord, SessionState } from "../../src/launchRecord.ts";
 

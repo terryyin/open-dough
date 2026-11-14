@@ -1,6 +1,6 @@
 // Terminal artifact answers freeze comparison memory, unlike the artifact
 // reader's own policy of retrying every answer except a valid summary.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   trunkSide,
   representedFinalityFacts,
