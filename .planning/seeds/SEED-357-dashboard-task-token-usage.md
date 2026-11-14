@@ -38,10 +38,16 @@ other relevant launch parameters, and the usage the tool makes available.
 
 #### Open research
 
-Find out which usage each supported tool exposes for dashboard-launched tasks,
-what its counts include, and how reliably they can be attributed to a task,
-including resumed sessions and delegated work. Determine whether any shared
-measure supports fair cross-tool comparisons, and under what conditions.
-Keep the tool's own units and coverage visible while that question is open.
-Start from the [existing cross-tool audit](../../docs/maintainer/session-token-efficiency-research.md#window-scope-and-method)
-and the related [retained-history comparison story](SEED-345-session-token-efficiency.md#compare-agent-effort-on-comparable-runs).
+The [dashboard usage and cost research](../../docs/maintainer/dashboard-task-usage-research.md)
+identifies usage sources for Codex, Claude Code, and the installed Cursor CLI.
+The tools can share an accounting format for input, cache reads, cache writes,
+and output. A cross-tool cost comparison needs a stated pricing basis and
+equivalent verified outcomes. Record provider-reported charges separately when
+they can be tied to a task.
+
+Verify the sources on real dashboard launches, including resumed, cancelled,
+and delegated work. Establish which later work belongs to a launch, what
+coverage the dashboard can report, and how long usage history should remain
+visible after a session is removed. The related
+[retained-history comparison story](SEED-345-session-token-efficiency.md#compare-agent-effort-on-comparable-runs)
+uses existing execution history for workflow comparisons.
