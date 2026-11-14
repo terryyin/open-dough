@@ -13,10 +13,11 @@
 #   node scripts/test-shares.mjs refresh --list tests/longest-first \
 #     --source 'run RUN_ID at REVISION, DATE' DIR/test-times-*/test-times.txt
 # Source: run 43546259084 at 6317ba16 on the execution branch, 2026-11-14 (runner factor 1.054)
-60.1	tests/git-publication-native.sh
 34.9	src/skills/dough-story-wrap-up/scripts/trunk-closure-completion-gate.test.mjs
+32.7	tests/git-publication-native.sh
 30.4	tests/git-publication-native-one-shot-workspaces.sh
 28.5	tests/proof-scheduling-native.sh
+27.4	tests/git-publication-native-substitutes.sh
 25.5	tests/git-publication-native-one-shot-results.sh
 24.4	tests/git-publication-native-one-shot-reviews.sh
 24.3	tests/native-delivery-updated-use-adapters.sh

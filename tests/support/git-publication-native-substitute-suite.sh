@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Credential-free substitute-host suites for tests/git-publication-native.sh,
+# Credential-free substitute-host suites for
+# tests/git-publication-native-substitutes.sh,
 # tests/git-publication-native-one-shot.sh and
 # tests/git-publication-native-owned-context.sh.
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals assigned by sourced helpers.

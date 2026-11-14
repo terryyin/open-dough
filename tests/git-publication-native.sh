@@ -8,11 +8,12 @@
 #   tests/git-publication-native.sh --native claude
 #   tests/git-publication-native.sh --native HOST --case CASE
 #
-# Default mode is credential-free: assessor counterexamples plus substitute
-# processes through the shared supervisor/stream/retention path; the one-shot
-# substitutes run in tests/git-publication-native-one-shot.sh, the
-# owned-context ones in tests/git-publication-native-owned-context.sh, and the
-# admission ones in tests/git-publication-native-admission.sh.
+# Default mode is credential-free: assessor counterexamples through the shared
+# supervisor/stream/retention path. Substitute publish-boundary and remaining
+# host journeys run in tests/git-publication-native-substitutes.sh; one-shot
+# substitutes in tests/git-publication-native-one-shot.sh; owned-context in
+# tests/git-publication-native-owned-context.sh; admission in
+# tests/git-publication-native-admission.sh.
 # --native HOST launches a fresh host session against an installed publication
 # candidate.
 # shellcheck disable=SC2312
@@ -31,9 +32,6 @@ source "${source_dir}/tests/support/git-publication-native-suites.sh"
 # shellcheck source=tests/support/git-publication-native-counterexamples.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/git-publication-native-counterexamples.sh"
-# shellcheck source=tests/support/git-publication-native-substitute-suite.sh
-# shellcheck disable=SC1091
-source "${source_dir}/tests/support/git-publication-native-substitute-suite.sh"
 # shellcheck source=tests/support/git-publication-native-host.sh
 # shellcheck disable=SC1091
 source "${source_dir}/tests/support/git-publication-native-host.sh"
@@ -77,8 +75,9 @@ usage: tests/git-publication-native.sh
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/scheduling
    or: tests/git-publication-native.sh --native HOST --case delivery-evidence/amended
    or: … --results-dir DIR  (with --native; retains inspectable observations)
-Credential-free default exercises the publication assessor and substitute
-runner. --native HOST requires that host's CLI and runs the host's assigned
+Credential-free default exercises the publication assessor counterexamples.
+Substitute host journeys run in tests/git-publication-native-substitutes.sh.
+--native HOST requires that host's CLI and runs the host's assigned
 fresh-proof journeys against an installed candidate. --case selects one live
 journey and rejects unknown cases before fixture setup.
 EOF
@@ -159,7 +158,6 @@ if [[ ${native_flag} -eq 0 ]]; then
   run_delivery_evidence_gaps_observer_counterexamples
   run_delivery_evidence_observer_layout_counterexamples
   run_admission_assessor_counterexamples
-  run_substitute_host_journeys
   exit 0
 fi
 
