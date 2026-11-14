@@ -5,6 +5,10 @@ native_codex_command=()
 # Extra `codex exec` options a caller selects explicitly, such as
 # `-m MODEL -c model_reasoning_effort="high"`; empty keeps the host defaults.
 native_codex_settings=()
+# TCP ports no command of the session may connect to, on any address, such as
+# a developer's live database that a case must not reach; the sandbox denies
+# them when native_codex_prepare found real Codex.
+native_codex_denied_ports=()
 
 native_codex_prepare() {
   local temporary_dir=$1
@@ -43,6 +47,10 @@ native_codex_prepare() {
 (deny file-write* (subpath (param "PROTECTED_PACKAGES")))
 (deny file-write* (subpath (param "PROTECTED_PLUGINS")))
 (deny file-write* (literal (param "PROTECTED_CONFIG")))'
+    local port
+    for port in "${native_codex_denied_ports[@]}"; do
+      native_codex_profile+=$'\n'"(deny network-outbound (remote ip \"*:${port}\"))"
+    done
   else
     # Non-symlink substitutes (cheap CI) must not require that layout or sandbox-exec.
     native_codex_isolate=0

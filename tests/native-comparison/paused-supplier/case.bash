@@ -9,6 +9,9 @@
 
 case_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 case_events='unchanged nonqualifying qualifying'
+# Events that leave the supplier requirement unsatisfied: a wake with nothing
+# to continue.
+case_empty_events='unchanged nonqualifying'
 case_consumer_branch=codex/close-landed-ci-repeat-check-gaps
 case_supplier_branch=codex/answer-fake-gh-reads-in-process
 case_story=SEED-324#close-landed-ci-repeat-check-gaps
@@ -37,12 +40,12 @@ case_commit() {
 }
 
 # Builds ROOT/remote.git and the consumer checkout ROOT/workspace from the
-# case's overlays, then installs the payload from SOURCE_DIR for HOST
-# (delivery_evidence_install_payload honors delivery_evidence_payload_revision).
+# case's overlays, then installs the Open Dough payload in PAYLOAD_DIR for
+# HOST.
 # Leaves the supplier and consumer basis in case_basis_*, and every basis
 # identity in case_project_basis for the runner's record.
 case_materialize() {
-  local root=$1 source_dir=$2 host=$3
+  local root=$1 payload=$2 host=$3
   local remote="${root}/remote.git" workspace="${root}/workspace" partial
   case_git "${root}" init -q --bare remote.git
   case_git "${root}" init -q workspace
@@ -76,7 +79,7 @@ case_materialize() {
     'Current slice: 3; partial implementation is uncommitted in this checkout: tests/support/repeat-fixture.mjs, tests/repeat-receipt-stage.test.mjs, tests/repeat-request-stage.test.mjs and the shortened tests/repeat-checks.test.mjs. The stage files read runs through the supplier'"'"'s in-process reader, which this checkout does not have yet.' \
     "Supplier: SEED-332#answer-fake-gh-reads-in-process, Taken by philip-chan on origin ${case_supplier_branch}; its execution evidence is .planning/slice-plans/610-answer-fake-gh-reads-in-process/evidence.md on that branch." \
     > "${workspace}/.planning/execution-state.txt"
-  delivery_evidence_install_payload "${source_dir}" "${workspace}" "${host}"
+  delivery_evidence_install_payload "${payload}" "${workspace}" "${host}"
 }
 
 # Changes the supplier's state on ROOT's remote for EVENT, through a scratch

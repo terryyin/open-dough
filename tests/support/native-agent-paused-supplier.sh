@@ -2,15 +2,21 @@
 # PATH substitute `codex` for credential-free runs of the paused-supplier
 # comparison case (tests/native-comparison/paused-supplier). Answers
 # `--version`, `exec ... -C DIR -o FILE PROMPT` and `exec resume ... -o FILE
-# THREAD PROMPT` with a complete Codex JSON stream for one thread. Each turn
-# fetches the execution checkout's remote and applies rule
-# NATIVE_AGENT_PAUSED_SUPPLIER_RULE: `completion` continues slice 3 once the
-# supplier's completion record is on origin/main; `publication` continues as
-# soon as origin/main has the supplier's reader (a premature resume);
-# `duplicate` continues like `completion` and then commits the verdict stage,
-# removes it and adds it again (slice 3 filed twice). Until then it holds. It
-# proves the runner, observer, assessor and retention around a known
-# decision; it never stands in for native behavior.
+# THREAD PROMPT` with a complete Codex JSON stream for one thread, and, under
+# CODEX_HOME, keeps a session record of each turn's model, effort, sandbox
+# and approval as Codex does. Each turn fetches the execution checkout's
+# remote and applies rule NATIVE_AGENT_PAUSED_SUPPLIER_RULE, else the rule
+# the installed payload names in a `paused-supplier-substitute-rule: RULE`
+# line, else `completion`: `completion` continues slice 3 once the supplier's
+# completion record is on origin/main; `publication` continues as soon as
+# origin/main has the supplier's reader (a premature resume); `duplicate`
+# continues like `completion` and then commits the verdict stage, removes it
+# and adds it again (slice 3 filed twice); `shortcut` continues like
+# `completion` in one command that also pushes its branch, and runs no proof
+# (fewer commands, a changed remote and no proof); `quiet` continues like
+# `completion` and holds without reading anything (fewer commands). Until
+# then it holds. It proves the runner, observer, assessor, pairing and
+# retention around known decisions; it never stands in for native behavior.
 # shellcheck disable=SC2016 # jq programs name their own arguments.
 set -euo pipefail
 
@@ -18,8 +24,7 @@ if [[ ${1-} == --version ]]; then
   printf 'codex-cli paused-supplier-substitute\n'
   exit 0
 fi
-rule=${NATIVE_AGENT_PAUSED_SUPPLIER_RULE:-completion}
-workspace=${PWD} output='' thread='' prompt=''
+workspace=${PWD} output='' thread='' prompt='' model=default effort=default sandbox=default
 [[ ${1-} == exec ]] && shift
 if [[ ${1-} == resume ]]; then
   shift
@@ -29,11 +34,26 @@ while (($#)); do
   case $1 in
     -C) workspace=$2 && shift 2 ;;
     -o) output=$2 && shift 2 ;;
-    -c | -m | --sandbox) shift 2 ;;
+    -m) model=$2 && shift 2 ;;
+    --sandbox) sandbox=$2 && shift 2 ;;
+    -c)
+      case $2 in
+        model_reasoning_effort=*) effort=${2#*=} effort=${effort//\"/} ;;
+        sandbox_mode=*) sandbox=${2#*=} sandbox=${sandbox//\"/} ;;
+        *) ;;
+      esac
+      shift 2
+      ;;
     -*) shift ;;
     *) positional+=("$1") && shift ;;
   esac
 done
+rule=${NATIVE_AGENT_PAUSED_SUPPLIER_RULE-}
+if [[ -z ${rule} ]]; then
+  rule=$(sed -n 's/.*paused-supplier-substitute-rule: \([a-z-]*\).*/\1/p' \
+    "${workspace}"/.agents/skills/*/SKILL.md 2> /dev/null | head -n 1) || true
+fi
+rule=${rule:-completion}
 if ((${#positional[@]} == 2)); then
   thread=${positional[0]}
   prompt=${positional[1]}
@@ -44,6 +64,17 @@ fi
 [[ -n ${prompt} ]] || exit 2
 
 event() { jq -n -c "$@"; }
+if [[ -n ${CODEX_HOME-} ]]; then
+  record="${CODEX_HOME}/sessions/2026/11/14/rollout-2026-11-14T00-00-00-${thread}.jsonl"
+  mkdir -p -- "$(dirname -- "${record}")"
+  [[ -f ${record} ]] || event --arg t "${thread}" \
+    '{type:"session_meta",payload:{id:$t,cli_version:"substitute",originator:"codex_exec",source:"exec"}}' > "${record}"
+  turn_id=$(grep -c '' "${record}")
+  event --arg m "${model}" --arg e "${effort}" --arg s "${sandbox}" --arg c "${workspace}" \
+    --arg id "${turn_id}" \
+    '{type:"turn_context",payload:{turn_id:$id,model:$m,effort:$e,sandbox_policy:{type:$s},approval_policy:"never",cwd:$c}}' \
+    >> "${record}"
+fi
 git_as='git -c user.name=Substitute -c user.email=substitute@example.invalid'
 # Runs command $1 in the workspace as one started and completed call.
 call() {
@@ -60,7 +91,7 @@ event '{type:"turn.started"}'
 call fetch 'git fetch -q origin'
 ready=false
 case ${rule} in
-  completion | duplicate)
+  completion | duplicate | shortcut | quiet)
     git -C "${workspace}" cat-file -e \
       origin/main:.planning/done/SEED-332_answer-fake-gh-reads-in-process.json 2> /dev/null \
       && ready=true
@@ -72,7 +103,11 @@ case ${rule} in
   *) exit 2 ;;
 esac
 if [[ ${ready} == true && -e ${workspace}/tests/repeat-checks.test.mjs ]]; then
-  call integrate "${git_as} merge -q --no-edit origin/main"
+  if [[ ${rule} == shortcut ]]; then
+    call integrate "${git_as} merge -q --no-edit origin/main && git push -q origin HEAD"
+  else
+    call integrate "${git_as} merge -q --no-edit origin/main"
+  fi
   sed -e 's|^import { readFakeGh } from "../src/fake-gh.mjs";$|import { eligible, runs } from "./support/repeat-fixture.mjs";|' \
     -e '/^const runs = /d' -e '/^const eligible = /d' \
     -e '1i\
@@ -80,7 +115,7 @@ if [[ ${ready} == true && -e ${workspace}/tests/repeat-checks.test.mjs ]]; then
     "${workspace}/tests/repeat-checks.test.mjs" \
     > "${workspace}/tests/repeat-verdict-stage.test.mjs"
   rm -- "${workspace}/tests/repeat-checks.test.mjs"
-  call proof 'node --test tests/*.test.mjs'
+  [[ ${rule} == shortcut ]] || call proof 'node --test tests/*.test.mjs'
   if [[ ${rule} == duplicate ]]; then
     call refile "git add -A tests && ${git_as} commit -q -m 'File slice 3' \
 && git rm -q tests/repeat-verdict-stage.test.mjs && ${git_as} commit -q -m 'Unfile' \
@@ -89,7 +124,7 @@ if [[ ${ready} == true && -e ${workspace}/tests/repeat-checks.test.mjs ]]; then
   message='Slice 3 is filed by stage on the completed supplier reader; its proof passes.'
 else
   # Reads the project's proof command without running it.
-  call status 'cat AGENTS.md'
+  [[ ${rule} == quiet ]] || call status 'cat AGENTS.md'
   message='Slice 3 is held: the supplier requirement is not satisfied yet.'
 fi
 event --arg m "${message}" '{type:"item.completed",item:{id:"message",type:"agent_message",text:$m}}'

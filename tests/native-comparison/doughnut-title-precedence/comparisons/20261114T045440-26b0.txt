@@ -1,0 +1,70 @@
+comparison: doughnut-title-precedence
+declared-at: 2026-11-14T04:54:40Z
+factor: Open Dough payload only: release v0.3.98 (ad7aa7d) as baseline versus trunk 91f32d39 as candidate, each a frozen commit installed into a fresh arm; case basis, project starting state, Codex host, model gpt-6.1-sol, effort xhigh, sandbox and arm-owned database held the same
+intended-gain: the trunk guidance keeps the calibration outcome and its decisive proof with no more agent effort (commands, wall time) than the release
+quality-criteria: the case assessor first: a passing baseline, the destination-ID assertion failing under the title/alias fault, an independent witness of the wrong destination, restored proof as broad as the baseline, the source restored and verdict Caught; an arm missing any of them cannot be equivalent; effort is compared only afterwards; tokens are unavailable
+case-source-revision: e4c7cbe3b85ed5d1c99653cbf4d76ce97af17596
+case-source-dirty: true
+baseline-payload: ad7aa7d35b3ed0e238de1ed77b95bfc57af03a14 tree=6591895b6699567d85da77b11277f8a17ec7510f requested=v0.3.98
+candidate-payload: 91f32d39061d16793a190c5d9d9f2a6b26534fc7 tree=46c117324d094abe15250bfefb3eaaeafe499492 requested=91f32d39061d16793a190c5d9d9f2a6b26534fc7
+host: codex
+requested-settings: -m gpt-6.1-sol -c model_reasoning_effort="xhigh"
+arms: concurrent
+machine: Darwin arm64, 16 cores, AC Power
+case-input-hash: db9e1fb500b1e46864c7d9a2ccde071ca64dfb7759ca5a29eba28b5fa024791c tests/native-comparison/doughnut-title-precedence/arm-database.gradle
+case-input-hash: da3d3d71b887c553b88d7e82796acf9561336d25c084f73ec52a9f2c20d715a9 tests/native-comparison/doughnut-title-precedence/assess.bash
+case-input-hash: d19754c834249cda4677bf3f2a2b3daff87fce3157d13e8d7d7177b5766ab8f9 tests/native-comparison/doughnut-title-precedence/case.bash
+case-input-hash: 67f7adc82b1ec3f2779ef009ab062d5633c85a1d65a5ace1701039bfdd2027f4 tests/native-comparison/doughnut-title-precedence/record-tests.gradle
+case-input-hash: 4aa4079bde58e2b061501b35581bbd33357b46c6ff58bbd8f8920134458f5c7f tests/native-comparison/doughnut-title-precedence/reference-fault.diff
+case-input-hash: 476287d633ca31d9c411ec3036d48015d73d722ef26e016560cb8f5c90f6b081 tests/native-comparison/doughnut-title-precedence/reference-witness.java
+case-input-hash: 247ce6a6341f386b0b06167832386dbe7f285414e34e0a35f2867911c845cf46 tests/native-comparison/doughnut-title-precedence/task.txt
+case-input-hash: 27ef429bbc50bd4193fbe43f966d5811b21fa415edd74aca079ca37796dbb780 tests/support/native-comparison-run.sh
+case-input-hash: 1b347925289eaa85db9765dc83f3a1c01fc93ffba106ad9f07380d3a8afd472a tests/support/native-codex.sh
+case-input-hash: 9ae681e98d87293d407400c0962eec9ecb6d631aa2642dffc8f37468459c180a tests/support/native-codex-session.mjs
+case-input-hash: a409397ac125ae2475c26723df491c33b205e0b31c18c3a80c744a0caac3c146 tests/support/native-observation.sh
+case-input-hash: 84a5ea0eac9e50b86a0991e24e4937d70b1ef2872165b622612eace5c606dd05 tests/support/delivery-evidence-native-payload.sh
+case-input-hash: 360907ae39dc3bb67ccb1cb5646017191c61ee4896510bdec372578736e8ad28 tests/support/native-run-supervise.sh
+case-input-hash: df4be8a8b26fab523c3fcaf26c2886babfb8d1cace20cccc0c0d66ac2aaf480d tests/support/native-run-stream.sh
+case-input-hash: a06fcccee40171e0dea3c30f69bbbd82db0120d7bf4e30250c613d6fb4868507 tests/support/native-host-stream.sh
+case-input-hash: 338ec0c28d2a3ee1448500d4465bf58e47faf712d55e83f2a037fd1280694641 tests/support/native-host-stream.mjs
+case-input-hash: 4936d8da3f4cd5a90636223d98e70dd6c130dbe53b14a8be7f1e6d7a15131389 tests/support/native-host-stream-adapters.mjs
+case-input-hash: 1a5c48d68eba77c5d8ddb8195a7bc3efaa478dbe0794511690392c5ae73a9920 tests/support/native-run-watchdog.sh
+case-input-hash: 38f4ccdedbad94ed2b1b1377e2559cfe8728e756420e5d52944a37ae2e878e2d tests/helpers/wait-for.bash
+case-input-hash: 85f62c7ea835c38b7f30ec23d6a4e84d0932bf2c1451c9c01fb90148ea125405 scripts/owned-process-group.bash
+input-hash: 2452d035de3d43612a322f4d719a005d09f2d517a55b91fcbb9d4530a58c3393 tests/support/native-comparison-pair.sh
+input-hash: 23542fee707c00717619e5e50ffb0dfc0d2cb36edc147fdcbf68f995c8f9e72e tests/support/native-comparison-verdict.sh
+baseline-attempt: codex/native-comparison/doughnut-title-precedence/20261114T050928-2832
+baseline-thread: 01a1d86c-25fc-73d1-a225-3e96e95f33c1
+baseline-workers: none
+baseline-payload-digest: 60f169ceb9959d391cfbb2f2c4ebdbb5d1e17cae2afff6adf15e9010f65acc01
+baseline-project-basis: doughnut=e257b144d1e9120528922da0f5dc045acb6c9d6d seam=45b9057b56afd025eb479dd1329d13fa7cf0a17e
+baseline-settings: model=gpt-6.1-sol effort=xhigh sandbox=danger-full-access approval=never
+baseline-host: codex-cli 0.169.0
+baseline-load: 4.96 8.15 9.52 to 3.65 7.67 9.50
+baseline-outcome: fail: the destination-ID assertion did not fail under the title/alias fault (none)
+baseline-proof: observations.txt final-state.txt case-evidence
+candidate-attempt: codex/native-comparison/doughnut-title-precedence/20261114T050505-6a2b
+candidate-thread: 01a1d86c-25fc-7983-aa8a-365cf395e28e
+candidate-workers: none
+candidate-payload-digest: 4481f4f7141a91fb1423493b7b8334ce42e352e538ec3b912e3d0c6304e3af3b
+candidate-project-basis: doughnut=e257b144d1e9120528922da0f5dc045acb6c9d6d seam=45b9057b56afd025eb479dd1329d13fa7cf0a17e
+candidate-settings: model=gpt-6.1-sol effort=xhigh sandbox=danger-full-access approval=never
+candidate-host: codex-cli 0.169.0
+candidate-load: 4.96 8.15 9.52 to 9.88 11.94 11.17
+candidate-outcome: pass: baseline passed (7 tests); the destination-ID assertion failed under the title/alias union; an untracked witness showed the wrong destination; restored proof passed (7 tests) with the source restored; reported Caught
+candidate-proof: observations.txt final-state.txt case-evidence
+verdict: improved
+verdict-reason: the candidate passed its case assessment where the baseline failed
+condition-basis: same
+condition-project-basis: same
+condition-host: same
+condition-settings: same
+condition-events: same
+effort-baseline: 1 turns, 0 wakes (0 empty: 0 commands, 0.0 s), 31 commands, 887.9 s with preparation 163.5 s, 0 workers, 0 recoveries, 0 interventions
+effort-candidate: 1 turns, 0 wakes (0 empty: 0 commands, 0.0 s), 25 commands, 624.9 s with preparation 163.8 s, 0 workers, 0 recoveries, 0 interventions
+effort-difference: candidate -6 commands, -263.0 s against the baseline
+effort-standing: compared after an outcome the candidate kept; one pair supports this observation only, not a general saving
+effort-unavailable: tokens and cost: no reusable session accounting (SEED-345 effort comparison) is available here; raw usage stays in each attempt's events-turn-*.jsonl and codex-*.jsonl records
+measurement-limit: one pair of stochastic sessions supports its observed comparison only
+measurement-limit: wall-clock seconds include host load and service latency; see each arm's load
+measurement-limit: recoveries and interventions count what the runner did: it never retries a turn, and Codex exec runs without approval prompts

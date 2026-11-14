@@ -156,7 +156,7 @@ project/case identity, prerequisites, tags and measured preparation/native times
 
 ### 3. Run a selected matched pair and judge its outcome before effort
 Type: Behavior
-Status: planned
+Status: done
 Proof: Maintainer command-level journey plus actual complete Codex pairs for both cases.
 
 Expose an on-demand case listing/selection and paired-run entry over the qualified
@@ -228,7 +228,7 @@ own amendment/acceptance. Revisit the cited North Star during normal wrap-up.
   counterexamples, focused case proof, required native qualification/pairs,
   applicable lint/typecheck and normal refactoring/review before commit.
   Exposure of shared helpers includes their existing fixture-family consumers.
-  Full runs follow [resource admission](../../../tests/local-test-resources.md).
+  Full runs follow [resource admission](../../../Distribution/tests/local-test-resources.md).
   On fully awake macOS use `caffeinate -s -i` for long/full runs on AC power;
   on battery plug in, or use the maintained lid-open `caffeinate -i` alternative
   and inspect the sleep log. Own published CI through the applicable final
@@ -301,6 +301,34 @@ own amendment/acceptance. Revisit the cited North Star during normal wrap-up.
   four CI shares and refreshed `tests/longest-first`. Before integrating, after taking in
   trunk, preview new `tests/native-comparison*.sh` jobs with
   `node scripts/test-shares.mjs preview --split-count 4` (`tests/test-shares.md`).
+- **Slice 3 accepted (2026-11-14).** `tests/native-comparison.sh` is the maintainer entry
+  (`--list`/`--where` catalog from case.md traits, single journey, pair mode with
+  `--baseline`/`--candidate` frozen commits and predeclared `--factor/--gain/--quality`);
+  pair orchestration, verdict judge and catalog live in `tests/support/native-comparison-{pair,verdict,catalog}.sh`.
+  Compact tracked records `tests/native-comparison/*/comparisons/20261114T045440-*.txt`
+  hash every case input plus the pair and verdict modules: keep those bytes until a
+  refresh deliberately reruns, and recover earlier bases through Git (Slice 4).
+- **Actual pairs (concurrent arms, release v0.3.98 `ad7aa7d` vs trunk `91f32d39`, Codex
+  0.169.0 gpt-6.1-sol/xhigh).** Paused-supplier: preserved (both pass; candidate −10
+  commands, +66.4s; 3 workers per arm). Doughnut: improved — the baseline arm ran full
+  suites and reported Caught but instrumented production code during its fault run, so
+  its witness was not independent and the assessor failed it per the skill's "introduce
+  one fault"; the candidate passed with focused proof (7 tests). `dough-intent-coverage`
+  is identical in both payloads, so that verdict is one stochastic observation, not
+  attributable to the factor. Tokens/cost unavailable until SEED-345 accounting.
+- **G2 settled.** Doughnut arms clone a fresh primary checkout and run an arm-owned
+  mysqld via the project's own `mysql_nix_shared.sh`; the sandbox denies TCP 3309/6380.
+  A unix-socket connection to the live server is not denied.
+- **Trunk layout moved.** `origin/main` 951f66a76 moved `tests/` and `src/` under
+  `Distribution/`. Before Slice 4, take trunk in as its own increment, relocate this
+  family, keep record hashes valid (content-preserving moves) and rerun focused proof
+  plus the test-share preview.
+- **Deferred hash-bound cleanups for Slice 4's refresh rerun.** The records also hash the
+  runner, `native-codex.sh` and `native-codex-session.mjs`. The Slice 3 refactor left:
+  H1 duplicated load sampling in the runner; H2 source revision/dirty logic repeated in
+  runner and pair; H3 the arm verdict file layout read twice in the pair module; H4 a
+  condition loop variable named `arm` (pair line ~161); H5 a stale runner header comment
+  about who installs the substitute.
 
 
 ## Story obligations
@@ -308,12 +336,12 @@ own amendment/acceptance. Revisit the cited North Star during normal wrap-up.
 ### G1. Assessor does not observe a single continuation
 Reported: slice 1 — "Coordinator acceptance of slice 1 found assess.bash checks turn-4 reader/slice3/proof fields but counts no merges or slice-3 commits, so a duplicate continuation in turn 4 would pass"
 Story clause: "On a qualifying change it observes whether the right work continues once with its proof"
-Disposition: proved by slice 1: assess.bash `once` signal requires turn-4-supplier-integrations and turn-4-slice3-filings of 1; tests/native-comparison.sh duplicate substitute journey fails with filings 2 and rejected cases integrated-twice/filed-twice; retained native run re-derived 1/1 and still passes
+Disposition: proved by slice 1: assess.bash `once` signal requires turn-4-supplier-integrations and turn-4-slice3-filings of 1; tests/native-comparison-paused-supplier.sh duplicate substitute journey fails with filings 2 and rejected cases integrated-twice/filed-twice; retained native run re-derived 1/1 and still passes
 Commitment: E2d
 
 
 ### G2. Doughnut arms write into the developer running MySQL (first reported in slice 2)
 Reported: slice 2 — "Slice 2 return: Doughnut arms create and drop per-arm doughnut_wt_<id>_test databases on the developer running MySQL at 127.0.0.1:3309, whose datadir is inside a personal Doughnut checkout; the case refuses without that server"
 Story clause: "isolate arm writes from each other and live projects to prevent contamination"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: doughnut case.bash starts an arm-owned mysqld under the arm root on free ports via the project's mysql_nix_shared.sh, arm-database.gradle injects its URL, the Codex sandbox denies TCP 3309/6380; unpaid reference run g2ref reproduced Slice 2's baseline/six failures/witness/restored pass with LIVE_DENIED 3309/6380, and both paid Doughnut arms printed cleanup: database-server-stopped. Not denied: a deliberate unix-socket connection to the live server
 Commitment: 11b

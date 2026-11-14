@@ -14,12 +14,13 @@ assertion catches the fault on the destination ID; the agent is not told so.
 - workflow: targeted proof calibration (dough-intent-coverage) on a real project's maintained backend proof
 - hosts: codex (qualified natively); claude, cursor: not qualified
 - prerequisites: Bash 5, Git, jq, Node 24, Nix, network access to the
-  source repository and Gradle/pnpm registries, MySQL on `127.0.0.1:3309`
-  with passwordless local root and the `doughnut` test user (Doughnut's
-  `docs/worktree-backend-tests.md`), about 4 GB of disk per arm outside
-  macOS's per-user temporary directory (set `TMPDIR` elsewhere: Nix ignores
-  a `TMPDIR` there and falls back to `/tmp`, which the agent's sandbox
-  cannot write); a logged-in Codex CLI for `--native codex`. An existing `~/.gradle`
+  source repository and Gradle/pnpm registries, about 4.5 GB of disk per arm
+  outside macOS's per-user temporary directory (set `TMPDIR` elsewhere: Nix
+  ignores a `TMPDIR` there and falls back to `/tmp`, which the agent's
+  sandbox cannot write); a logged-in Codex CLI for `--native codex`. Each arm
+  runs its own MySQL server from the project's Nix profile; a developer's
+  MySQL or Redis on the project's ports is neither needed nor reachable from
+  the agent's sandbox. An existing `~/.gradle`
   (`NATIVE_COMPARISON_GRADLE_SEED`) seeds each arm's Gradle caches by
   copy-on-write; without one Gradle downloads them
 - decisions and proof: passing baseline that runs the maintained assertion;
@@ -27,7 +28,9 @@ assertion catches the fault on the destination ID; the agent is not told so.
   destination-ID assertion failing; an untracked witness showing the wrong
   destination under the fault; byte-identical restoration; a restored passing
   run as broad as the baseline; verdict Caught
-- duration: see [Measured durations](#measured-durations)
+- duration: Codex qualified 2026-11-14, one turn of 12.7 min after 66.5 s
+  preparation; arm preparation with its own database server 95.9 s
+  ([Measured durations](#measured-durations))
 
 ## Source and extraction
 
@@ -68,23 +71,38 @@ assertion catches the fault on the destination ID; the agent is not told so.
 
 ## Starting state, task and setup
 
-`case.bash` fetches the revision into `doughnut.git` and adds the arm's
-`workspace` as a detached linked worktree, which Doughnut gives its own
-backend database on first test use. Under the arm's root it creates the
-Gradle home (seeded caches plus `record-tests.gradle` in `init.d`), pnpm
-store, caches and temporary directory and exports them, with Java's
-temporary directory and zsh's here-document prefix, because the agent's
-write sandbox admits only the arm
+`case.bash` fetches the revision into the arm's `workspace`, a fresh
+primary checkout at a detached HEAD. Under the arm's root it creates the
+Gradle home (seeded caches, `record-tests.gradle` and `arm-database.gradle`
+in `init.d`, single-use build processes), pnpm store, caches and temporary
+directory and exports them, with Java's temporary directory and zsh's
+here-document prefix, because the agent's write sandbox admits only the arm
 (and, in `tests/support/native-codex.sh`, the JVM attach handshake files
 that Mockito's self-attach writes to the per-user temporary directory).
 It installs the selected Open Dough payload with `--force` over the
 project's own copy, then runs `./scripts/run.sh bash
-scripts/worktree_setup.sh`, which builds the worktree's Nix profile and
-installs dependencies. `task.txt` names the skill, story, promise and fault;
-there are no events. `case_cleanup` retires the arm's database through
-`./scripts/run.sh pnpm worktree:retire` when the agent left its worktree
-identity (`cleanup: no-worktree-identity` otherwise); the runner's caller
-removes the arm. The observer keeps the recorded test runs with the attempt.
+scripts/worktree_setup.sh`, which builds the checkout's Nix profile and
+installs dependencies.
+
+The arm owns its database server. The project fixes MySQL at
+`127.0.0.1:3309` for linked worktrees, where a developer's live server
+listens, but an unconfigured primary checkout keeps a caller-supplied
+datasource URL (Doughnut's `docs/worktree-backend-tests.md`). So the case
+starts a MySQL server under the arm's root on free ports through the
+project's own `scripts/mysql_nix_shared.sh` in its Nix profile, creates the
+project's users and databases from `scripts/sql/init_doughnut_db.sql`,
+exports `SPRING_DATASOURCE_URL` for that server and migrates its
+`doughnut_test`. `arm-database.gradle` gives every test and Java task the
+same URL even when a command unsets it, and makes each test task run rather
+than come from the build cache, as the project's isolated-checkout route does
+with `--rerun --no-build-cache`. The agent's sandbox may not connect to ports
+3309 or 6380 (`native_codex_denied_ports`), so no command can reach a live
+MySQL or Redis. The proof entry and product are unchanged.
+
+`task.txt` names the skill, story, promise and fault; there are no events.
+`case_cleanup` stops the arm's server (`cleanup: database-server-stopped`);
+the runner's caller removes the arm. The observer keeps the recorded test
+runs with the attempt.
 
 ## Assessment
 
@@ -152,3 +170,37 @@ under macOS's per-user temporary directory, could not start Nix and
 reported Insufficient evidence after 294.8 s; the assessor failed it. The
 zsh here-document prefix and the retained test-run records were added after
 these runs. One journey is not a repeatable-cost estimate.
+
+Arm-owned database qualification, 2026-11-14, same host at load about
+5–9, through the retained reference fault and witness inside the agent's
+write sandbox with ports 3309 and 6380 denied (both refused a connection
+from inside it): baseline exit 0 (3,111 tests), faulted exit 1 (the same six
+maintained failures, `Expected: every item is <490>`, and the witness
+printing all six forms `resolution=AMBIGUOUS destination=null`), restored
+exit 0 (3,111 tests), resolver SHA-256 and Git status unchanged. The
+observer and assessor passed it; a separate materialization showed cleanup
+stopping the arm's server.
+
+| Step | Seconds |
+| --- | ---: |
+| Preparation (fetch, seeded caches, payload, setup, own server, migration) | 95.9 |
+| Baseline, faulted and restored commands | 108, 91, 120 |
+| Whole reference journey, with observation and cleanup | 415.6 |
+
+## Comparisons
+
+Each pair's compact record is kept under `comparisons/`, outside the case's
+identity; the raw arm evidence stays with the maintainer who ran it.
+
+- [`20261114T045440-26b0`](comparisons/20261114T045440-26b0.txt), 2026-11-14:
+  release v0.3.98 (`ad7aa7d`) against trunk `91f32d39`, arms concurrent at
+  load about 4–12, each with its own database server. Improved: the
+  candidate passed (baseline, fault, witness and restored proof on the
+  maintained test class, 7 tests each, verdict Caught; 25 commands, 625 s).
+  The baseline reported Caught from three full-suite runs (3,111 tests, six
+  failures under the fault) but observed the destinations by printing from
+  the production controller during the faulted run, so no run changed only
+  the resolver and no independent witness was recorded; the assessor failed
+  it (31 commands, 888 s). The installed `dough-intent-coverage` skill is the
+  same in both payloads, so this pair does not attribute the difference to
+  that guidance.

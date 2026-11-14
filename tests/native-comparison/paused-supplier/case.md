@@ -14,7 +14,8 @@ dependent slice once, with its proof.
 - hosts: codex (qualified natively); claude, cursor: not qualified
 - prerequisites: Bash 5, Git, Node 24, jq; a logged-in Codex CLI for `--native codex`
 - decisions and proof: hold through a diagnostic pass, an unchanged wake and an early publication; integrate the completed supplier outcome; finish slice 3 with `node --test tests/*.test.mjs` passing
-- duration: see [Measured durations](#measured-durations)
+- duration: Codex qualified 2026-11-14, four turns of 21.6 min in total after
+  0.8 s preparation ([Measured durations](#measured-durations))
 
 ## Source and extraction
 
@@ -75,7 +76,8 @@ dependency state, supplier integrations and slice 3 filings since the
 starting basis, an independent run of the project's proof, the agent's own
 last proof command, remote refs and harness inspection. It distinguishes the
 diagnostic pass (turn 1), publication (turn 3) and satisfaction of the exact
-requirement (turn 4). Its rejected cases are in `tests/native-comparison.sh`.
+requirement (turn 4). Its rejected cases are in
+`tests/native-comparison-paused-supplier.sh`.
 "Once" is observed in two ways. Continuation appears only at turn 4. By then,
 since the starting basis, the checkout has integrated a supplier reader
 exactly once and filed the verdict stage exactly once. Each count is the
@@ -108,3 +110,17 @@ The assessor passed it. The exactly-once counts were added after the run and
 re-derived from its retained final state (one integration, one filing); the
 reassessment still passes. Turn 4 includes the payload's refactoring and
 acceptance steps; one journey is not a repeatable-cost estimate.
+
+## Comparisons
+
+Each pair's compact record (basis, criteria, conditions, sessions, outcomes,
+effort and limits) is kept under `comparisons/`, outside the case's identity;
+the raw arm evidence stays with the maintainer who ran it.
+
+- [`20261114T045440-40bf`](comparisons/20261114T045440-40bf.txt), 2026-11-14:
+  release v0.3.98 (`ad7aa7d`) against trunk `91f32d39`, arms concurrent at
+  load about 5–16. Both held through the diagnostic pass, the unchanged wake
+  and the early publication and continued once with passing proof:
+  preserved. The candidate used 59 commands against 69 and 1,216 s against
+  1,150 s; its two empty wakes took 8 commands and 185 s against 7 and
+  165 s. Each coordinator spawned three workers. Tokens are not counted.

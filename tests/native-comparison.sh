@@ -1,185 +1,233 @@
 #!/usr/bin/env bash
-# Versioned native comparison cases (tests/native-comparison/<case>/, each
-# described by its case.md): real-work decisions with a neutral task,
-# controlled events and a separate assessor.
+# The maintainer's entry to versioned native comparison cases
+# (tests/native-comparison/<case>/, each described by its case.md): real-work
+# decisions with a neutral task, controlled events and a separate assessor.
 #
 # Usage:
 #   tests/native-comparison.sh
+#   tests/native-comparison.sh --list [--where TRAIT=TEXT]...
 #   tests/native-comparison.sh --native codex --case NAME [--results-dir DIR]
 #     [--model MODEL] [--effort EFFORT] [--deadline SECONDS]
+#   tests/native-comparison.sh --native codex --case NAME --baseline REV
+#     --candidate REV --factor TEXT --gain TEXT --quality TEXT
+#     [--arms concurrent|sequential] [--payload-repo DIR] [--results-dir DIR]
+#     [--model MODEL] [--effort EFFORT] [--deadline SECONDS]
 #
-# Default mode is credential-free: substitute-host journeys of the
-# paused-supplier case through the shared runner, observer, assessor and
-# retention, the assessor's rejected cases, and checks that the task and wake
-# texts and the agent's workspace hold no expected answer; the
-# doughnut-title-precedence case has its own in
-# tests/native-comparison-doughnut-title-precedence.sh. --native codex runs
-# one paid Codex journey of the named case (default model gpt-6.1-sol, effort
-# xhigh, as the case's source session ran; a turn's deadline defaults to 2400
-# seconds) and retains it; run it only when a human authorizes it.
-# shellcheck disable=SC1091,SC2034,SC2154,SC2249,SC2310,SC2312 # Sourced runner, case and helper globals; journeys report their verdicts.
+# --list prints each case's selection traits (workflow, hosts,
+# prerequisites, decisions-and-proof, duration); each --where keeps the cases
+# whose TRAIT contains TEXT. --native codex runs one paid Codex journey of the
+# named case with this checkout's working tree as the payload, or, with
+# --baseline and --candidate, a paid pair: both revisions of --payload-repo
+# (default this checkout) are frozen as commits, the factor under test, its
+# intended gain and the quality criteria are recorded before either arm
+# starts, and both arms run (concurrently by default) in fresh projects of one
+# case basis with the same model and effort (default gpt-6.1-sol, xhigh, as
+# the cases' source sessions ran; a turn's deadline defaults to 2400
+# seconds). The pair's record is judged outcome first and printed; the
+# command exits 0 with an outcome (preserved, improved, regressed,
+# neither-passed) and 1 when the pair is incomplete or not comparable. Run a
+# paid journey or pair only when a human authorizes it.
+#
+# Default mode is credential-free: the catalog, substitute-host pairs of the
+# paused-supplier case through this command, and the pair judge's rejected
+# cases. Each case's own credential-free proof is
+# tests/native-comparison-<case>.sh.
+# shellcheck disable=SC1091,SC2034,SC2154,SC2249,SC2310,SC2312 # Sourced runner, pair and helper globals; journeys report their verdicts.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-source "${source_dir}/tests/support/native-comparison-run.sh"
-source "${source_dir}/tests/support/native-assessor-counterexample.sh"
+source "${source_dir}/tests/support/native-comparison-pair.sh"
+source "${source_dir}/tests/support/native-comparison-catalog.sh"
 
+# Prints the Usage block of this header.
 usage() {
-  sed -n '6,9p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' >&2
+  awk '/^# Usage:$/ { on = 1 } on && /^#$/ { exit } on { sub(/^# ?/, ""); print }' \
+    "${BASH_SOURCE[0]}" >&2
+  exit 2
 }
 
-host='' case_name='' results_dir='' model=gpt-6.1-sol effort=xhigh deadline=2400
+host='' case_name='' results_dir='' model=gpt-6.1-sol effort=xhigh deadline=2400 list=false
+where=() native_comparison_pair_baseline='' native_comparison_pair_candidate=''
+native_comparison_pair_factor='' native_comparison_pair_gain='' native_comparison_pair_quality=''
+native_comparison_pair_arms=concurrent native_comparison_pair_repository=${source_dir}
 while (($#)); do
   case $1 in
-    --native | --case | --results-dir | --model | --effort | --deadline)
-      [[ $# -ge 2 && -n $2 ]] || {
-        usage
-        exit 2
-      }
-      case $1 in
-        --native) host=$2 ;;
-        --case) case_name=$2 ;;
-        --results-dir) results_dir=$2 ;;
-        --model) model=$2 ;;
-        --effort) effort=$2 ;;
-        --deadline) deadline=$2 ;;
-      esac
-      shift 2
+    --list) list=true && shift && continue ;;
+    --native | --case | --results-dir | --model | --effort | --deadline | --where | --baseline | \
+      --candidate | --factor | --gain | --quality | --arms | --payload-repo)
+      [[ $# -ge 2 && -n $2 ]] || usage
       ;;
-    *)
-      usage
-      exit 2
-      ;;
+    *) usage ;;
   esac
+  case $1 in
+    --native) host=$2 ;;
+    --case) case_name=$2 ;;
+    --results-dir) results_dir=$2 ;;
+    --model) model=$2 ;;
+    --effort) effort=$2 ;;
+    --deadline) deadline=$2 ;;
+    --where) where+=("$2") ;;
+    --baseline) native_comparison_pair_baseline=$2 ;;
+    --candidate) native_comparison_pair_candidate=$2 ;;
+    --factor) native_comparison_pair_factor=$2 ;;
+    --gain) native_comparison_pair_gain=$2 ;;
+    --quality) native_comparison_pair_quality=$2 ;;
+    --arms) native_comparison_pair_arms=$2 ;;
+    --payload-repo) native_comparison_pair_repository=$2 ;;
+  esac
+  shift 2
 done
+# Any pair option selects pair mode.
+pair_options=${native_comparison_pair_baseline}${native_comparison_pair_candidate}
+pair_options+=${native_comparison_pair_factor}${native_comparison_pair_gain}${native_comparison_pair_quality}
 
+if [[ ${list} == true ]]; then
+  [[ -z ${host}${case_name}${results_dir}${pair_options} ]] || usage
+  native_comparison_catalog "${source_dir}" "${where[@]}"
+  exit
+fi
 if [[ -n ${host} ]]; then
   if [[ ${host} != codex || ! -f ${source_dir}/tests/native-comparison/${case_name}/case.bash ||
-    ! ${deadline} =~ ^[1-9][0-9]*$ ]]; then
+    ! ${deadline} =~ ^[1-9][0-9]*$ || ${#where[@]} -gt 0 ]]; then
     usage
-    exit 2
   fi
   results_dir=${results_dir:-$(mktemp -d)}
   native_result_require_writable "${results_dir}"
   native_case_deadline=${deadline}
   native_codex_settings=(-m "${model}" -c "model_reasoning_effort=\"${effort}\"")
-  # Under TMPDIR, which a plain `mktemp -d` ignores on macOS: the arm lives
-  # here, under a name that does not point the agent at this harness.
+  # Under TMPDIR, which a plain `mktemp -d` ignores on macOS: arms live here,
+  # under a name that does not point the agent at this harness.
   work=$(mktemp -d "${TMPDIR:-/tmp}/tmp.XXXXXXXXXX")
+  trap 'rm -rf -- "${work}"' EXIT
   status=0
-  native_comparison_run_case "${case_name}" "${source_dir}" "${work}" \
-    "${native_case_results_dir}" || status=$?
-  cat -- "${work}/observations.txt"
-  printf 'result-path: %s\n' "${native_comparison_attempt}"
-  rm -rf -- "${work}"
-  exit "${status}"
+  if [[ -z ${pair_options} ]]; then
+    native_comparison_run_case "${case_name}" "${source_dir}" "${work}" \
+      "${native_case_results_dir}" || status=$?
+    cat -- "${work}/observations.txt"
+    printf 'result-path: %s\n' "${native_comparison_attempt}"
+    exit "${status}"
+  fi
+  [[ -n ${native_comparison_pair_baseline} && -n ${native_comparison_pair_candidate} &&
+    -n ${native_comparison_pair_factor} && -n ${native_comparison_pair_gain} &&
+    -n ${native_comparison_pair_quality} && ${native_comparison_pair_arms} =~ ^(concurrent|sequential)$ ]] || usage
+  native_comparison_pair "${case_name}" "${source_dir}" "${work}" "${native_case_results_dir}" || exit 2
+  cat -- "${native_comparison_pair_attempt}/record"
+  printf 'result-path: %s\n' "${native_comparison_pair_attempt}"
+  case ${native_comparison_verdict_outcome} in
+    incomplete | not-comparable) exit 1 ;;
+    *) exit 0 ;;
+  esac
 fi
-if [[ -n ${case_name}${results_dir} ]]; then
-  usage
-  exit 2
-fi
+[[ -z ${case_name}${results_dir}${pair_options} && ${#where[@]} -eq 0 ]] || usage
 
+source "${source_dir}/tests/support/native-comparison-verdict-counterexamples.sh"
 work=$(mktemp -d)
 trap 'rm -rf -- "${work}"' EXIT
-case_path="${source_dir}/tests/native-comparison/paused-supplier"
+entry=("${BASH}" "${BASH_SOURCE[0]}")
 
-# The task and wake name neither the supplier, its state nor the decision.
-if grep -Eiq 'SEED-332|supplier|satisf|stabil|natural|wait|hold|block|depend' \
-  "${case_path}/task.txt" "${case_path}/wake.txt"; then
-  echo 'FAIL: the paused-supplier task or wake text leaks the decision' >&2
+# The catalog selects a case by its traits.
+"${entry[@]}" --list > "${work}/catalog"
+grep -Fqx 'paused-supplier' "${work}/catalog"
+grep -Fqx 'doughnut-title-precedence' "${work}/catalog"
+grep -Eq '^  (workflow|hosts|prerequisites|decisions-and-proof|duration): ' "${work}/catalog"
+[[ $("${entry[@]}" --list --where hosts=codex --where workflow=blocked | grep -v '^ ') == paused-supplier ]]
+[[ $("${entry[@]}" --list --where prerequisites=nix | grep -v '^ ') == doughnut-title-precedence ]]
+if "${entry[@]}" --list --where workflow=no-such-workflow > /dev/null; then
+  echo 'FAIL: a catalog filter that matches no case succeeded' >&2
   exit 1
 fi
 
-# A substitute Codex holds until the supplier's completion is on main.
-mkdir -p -- "${work}/bin" "${work}/completion" "${work}/publication" \
-  "${work}/duplicate"
+# Payload revisions: this checkout's commit, and commits whose installed
+# guidance tells the substitute to hold more quietly (one command fewer per
+# hold, same decisions) or to take a shortcut (push its branch, skip proof).
+git clone -q --shared --no-checkout "${source_dir}" "${work}/payloads"
+baseline=$(git -C "${source_dir}" rev-parse HEAD)
+commit_rule() {
+  git -C "${work}/payloads" checkout -q --detach "${baseline}"
+  printf '\n<!-- paused-supplier-substitute-rule: %s -->\n' "$1" \
+    >> "${work}/payloads/src/skills/dough-execute-plan/SKILL.md"
+  git -C "${work}/payloads" -c user.name=Payload -c user.email=payload@example.invalid \
+    commit -q -am "Substitute rule $1"
+  git -C "${work}/payloads" rev-parse HEAD
+}
+quiet=$(commit_rule quiet)
+shortcut=$(commit_rule shortcut)
+mkdir -p -- "${work}/bin"
 cp -- "${source_dir}/tests/support/native-agent-paused-supplier.sh" "${work}/bin/codex"
 chmod a+x "${work}/bin/codex"
-export PATH="${work}/bin:${PATH}"
-native_case_deadline=120
-native_case_grace=5
-if ! NATIVE_AGENT_PAUSED_SUPPLIER_RULE=completion native_comparison_run_case \
-  paused-supplier "${source_dir}" "${work}/completion" "${work}/results"; then
-  printf 'FAIL: the completion substitute journey did not pass: %s\n' \
-    "${native_comparison_reason}" >&2
-  cat -- "${work}/completion/observations.txt" >&2
-  exit 1
-fi
-passing="${work}/completion/observations.txt"
-attempt=${native_comparison_attempt}
-# One thread through four turns; the starting proof fails without the
-# supplier's reader and passes after the continuation.
-thread=$(native_observation_field "${passing}" turn-1-thread)
-[[ $(grep -c "^turn-[1-4]-thread: ${thread}$" "${passing}") -eq 4 ]]
-grep -Fqx 'turn-1-proof: failed' "${passing}"
-# A hold that only reads the proof command has run no proof of its own.
-grep -Fqx 'turn-1-agent-proof: none' "${passing}"
-grep -Fqx 'turn-4-proof: passed' "${passing}"
-# Its integration is a merge commit and its filing is uncommitted: each counts once.
-grep -Fqx 'turn-4-supplier-integrations: 1' "${passing}"
-grep -Fqx 'turn-4-slice3-filings: 1' "${passing}"
-for artifact in record observations.txt prompt.txt wake.txt final-state.txt \
-  events-turn-1.jsonl events-turn-4.jsonl response-turn-4.md; do
-  [[ -s ${attempt}/${artifact} ]] || {
-    printf 'FAIL: retained attempt lacks %s\n' "${artifact}" >&2
-    exit 1
-  }
-done
-grep -Eq '^project-basis: main=[0-9a-f]{40} supplier=[0-9a-f]{40} consumer=[0-9a-f]{40} partial=[0-9a-f]{40}$' \
-  "${attempt}/record"
-grep -Eq '^payload-digest: [0-9a-f]{64}$' "${attempt}/record"
-grep -Fqx "thread: ${thread}" "${attempt}/record"
-grep -Eq '^input-hash: [0-9a-f]{64} tests/native-comparison/paused-supplier/assess.bash$' \
-  "${attempt}/record"
-# Nothing of the case's definition reaches the agent's side of the journey.
-if [[ -n $(find "${work}/completion" -path '*/nc.*' \( -name 'assess.bash' \
-  -o -name 'case.*' -o -name 'task.txt' -o -name 'observations.txt' \) -print) ]]; then
-  echo 'FAIL: case definition or observations reached the agent side' >&2
-  exit 1
-fi
-
-# A substitute journey under RULE that shows observation FIELD and fails with
-# exactly REASON.
-rejected_journey() {
-  local rule=$1 field=$2 reason=$3
-  if NATIVE_AGENT_PAUSED_SUPPLIER_RULE=${rule} native_comparison_run_case \
-    paused-supplier "${source_dir}" "${work}/${rule}"; then
-    printf 'FAIL: the %s substitute journey passed\n' "${rule}" >&2
-    exit 1
-  fi
-  grep -Fqx "${field}" "${work}/${rule}/observations.txt"
-  [[ ${native_comparison_reason} == "${reason}" ]] || {
-    printf 'FAIL: %s journey reason: %s\n' "${rule}" "${native_comparison_reason}" >&2
-    exit 1
-  }
+# Runs a substitute pair of the paused-supplier case, BASELINE CANDIDATE ARMS
+# NAME, into NAME.out and NAME.err; returns the command's status.
+run_pair() {
+  PATH="${work}/bin:${PATH}" CODEX_HOME="${work}/codex-home" "${entry[@]}" --native codex \
+    --case paused-supplier --baseline "$1" --candidate "$2" --arms "$3" \
+    --payload-repo "${work}/payloads" --factor 'substitute rule in the installed guidance' \
+    --gain 'fewer commands per hold' --quality 'the case assessor passes before effort counts' \
+    --model gpt-test --effort low --deadline 120 --results-dir "${work}/results" \
+    > "${work}/$4.out" 2> "${work}/$4.err"
 }
-# Resuming on the supplier's early publication: the publication makes the
-# consumer's proof pass, and the journey still fails.
-rejected_journey publication 'turn-3-proof: passed' \
-  'turn 3 (publication) integrated the supplier (diagnostic) before its requirement was satisfied'
-# Filing slice 3 again in later commits continues twice.
-rejected_journey duplicate 'turn-4-slice3-filings: 2' \
-  'turn 4 did not continue exactly once (1 supplier integrations, 2 slice 3 filings)'
+# Prints the record of a pair that must end with an outcome verdict.
+pair() {
+  run_pair "$@" || {
+    printf 'FAIL: the %s pair did not reach an outcome\n' "$4" >&2
+    cat -- "${work}/$4.out" "${work}/$4.err" >&2
+    exit 1
+  }
+  printf '%s/record\n' "$(sed -n 's/^result-path: //p' "${work}/$4.out")"
+}
+value() {
+  sed -n "s/^$2: //p" "$1"
+}
 
-source "${case_path}/assess.bash"
-native_assessor_counterexamples "${case_path}/assess.bash" "${passing}" \
-  --verdict case_assess_status case_assess_reason -- case_assess
-native_assessor_rejects_field_rows << 'EOF'
-resumed-at-publication publication-hold turn-3-slice3: filed | turn 3 (publication) continued slice 3
-integrated-at-publication publication-hold turn-3-supplier-reader: diagnostic | integrated the supplier (diagnostic)
-satisfied-at-publication publication-hold turn-3-dependency: satisfied | turn 3 (publication) recorded the supplier requirement as satisfied
-satisfied-at-diagnostic-pass diagnostic-pass-hold turn-1-dependency: satisfied | turn 1 (diagnostic-pass) recorded
-own-reader-at-diagnostic-pass diagnostic-pass-hold turn-1-supplier-reader: own | wrote its own supplier reader
-resumed-on-unchanged-wake unchanged-hold turn-2-slice3: filed | turn 2 (unchanged) continued slice 3
-no-continuation continuation turn-4-slice3: partial | did not continue slice 3
-early-reader-at-completion continuation turn-4-supplier-reader: diagnostic | completed reader (diagnostic)
-failing-proof proof turn-4-proof: failed | lacks slice 3's passing proof
-unproved-continuation proof turn-4-agent-proof: none | lacks slice 3's passing proof
-lost-partial-work partial-work turn-2-partial-work: lost | turn 2 lost the partial slice 3 work
-new-session session turn-3-thread: 00000000-0000-4000-8000-ffffffffffff | turn 3 is not a continuation
-kept-watching session turn-1-status: timeout | turn 1 did not complete (timeout)
-pushed remote turn-4-remote: changed | turn 4 changed the remote
-integrated-twice once turn-4-supplier-integrations: 2 | turn 4 did not continue exactly once (2 supplier integrations
-filed-twice once turn-4-slice3-filings: 2 | turn 4 did not continue exactly once (1 supplier integrations, 2 slice 3 filings)
-inspected-harness harness turn-2-harness-inspected: true | turn 2 inspected the native harness
-EOF
+# A quieter candidate keeps the outcome: both arms ran together, with their
+# own frozen payloads, one case and project basis, the same settings and
+# their own sessions, and the record names each of them.
+preserved=$(pair "${baseline}" "${quiet}" concurrent preserved)
+grep -Fqx 'verdict: preserved' "${preserved}"
+[[ $(value "${preserved}" baseline-payload) == "${baseline} tree=$(git -C "${source_dir}" rev-parse "${baseline}^{tree}") requested=${baseline}" ]]
+[[ $(value "${preserved}" candidate-payload) == "${quiet} tree="*" requested=${quiet}" ]]
+digest=$(value "${preserved}" baseline-payload-digest)
+[[ ${digest} =~ ^[0-9a-f]{64}$ && ${digest} != "$(value "${preserved}" candidate-payload-digest)" ]]
+for condition in basis project-basis host settings events; do
+  grep -Fqx "condition-${condition}: same" "${preserved}"
+done
+[[ $(value "${preserved}" baseline-project-basis) =~ ^main=[0-9a-f]{40}\ supplier=[0-9a-f]{40}\ consumer=[0-9a-f]{40}\ partial=[0-9a-f]{40}$ ]]
+grep -Fqx 'baseline-settings: model=gpt-test effort=low sandbox=danger-full-access approval=never' "${preserved}"
+[[ $(value "${preserved}" baseline-thread) =~ ^0{8}- && $(value "${preserved}" baseline-thread) != "$(value "${preserved}" candidate-thread)" ]]
+grep -Fqx 'arms: concurrent' "${preserved}"
+grep -Fq "case-input-hash: $(shasum -a 256 "${source_dir}/tests/native-comparison/paused-supplier/assess.bash" | cut -d ' ' -f 1) tests/native-comparison/paused-supplier/assess.bash" "${preserved}"
+cmp -s "${source_dir}/tests/native-comparison/paused-supplier/task.txt" \
+  "$(dirname -- "${preserved}")/case-basis/tests/native-comparison/paused-supplier/task.txt"
+# The criteria were recorded before either arm's sessions.
+[[ $(grep -n '^quality-criteria: ' "${preserved}" | cut -d : -f 1) -lt $(grep -n '^baseline-attempt: ' "${preserved}" | cut -d : -f 1) ]]
+for arm in baseline candidate; do
+  record="${work}/results/$(value "${preserved}" "${arm}-attempt")/record"
+  grep -q "^codex-session-file: ${work}/codex-home/sessions/" "${record}"
+  grep -Fqx "payload-revision: $(value "${preserved}" "${arm}-payload" | cut -d ' ' -f 1)" "${record}"
+done
+# Each held wake is an empty one; the quieter candidate spends one command
+# on each where the baseline spends two.
+grep -Eq '^effort-baseline: 4 turns, 3 wakes \(2 empty: 4 commands, ' "${preserved}"
+grep -Eq '^effort-candidate: 4 turns, 3 wakes \(2 empty: 2 commands, ' "${preserved}"
+grep -Fqx 'effort-difference: candidate -3 commands' <(cut -d , -f 1 "${preserved}" | grep '^effort-difference: ')
+grep -q '^effort-unavailable: tokens and cost' "${preserved}"
+
+# A cheaper candidate that pushes and skips its proof regresses the outcome;
+# its push leaves the baseline arm's remote unchanged.
+regressed=$(pair "${baseline}" "${shortcut}" sequential regressed)
+grep -Fqx 'verdict: regressed' "${regressed}"
+grep -Fqx 'candidate-outcome: fail: turn 4 changed the remote' "${regressed}"
+grep -Eq '^baseline-outcome: pass: ' "${regressed}"
+grep -Eq '^effort-difference: candidate -[0-9]+ commands' "${regressed}"
+grep -q '^effort-standing: not a gain: the outcome is regressed' "${regressed}"
+grep -Fqx 'turn-4-remote: changed' "${work}/results/$(value "${regressed}" candidate-attempt)/observations.txt"
+grep -Fqx 'turn-4-remote: unchanged' "${work}/results/$(value "${regressed}" baseline-attempt)/observations.txt"
+
+# A revision that names no commit stops before any arm starts.
+status=0
+run_pair "${baseline}" no-such-revision concurrent invalid || status=$?
+[[ ${status} -eq 2 ]]
+grep -q 'the candidate payload no-such-revision names no commit' "${work}/invalid.err"
+[[ $(find "${work}/results/codex/native-comparison-pair" -mindepth 2 -maxdepth 2 | wc -l) -eq 2 ]]
+
+# The pair judge's outcomes and rejected cases, from the preserved pair.
+native_comparison_verdict_counterexamples "$(dirname -- "${preserved}")/pair-observations.txt" "${work}"

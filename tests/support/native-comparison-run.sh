@@ -11,8 +11,14 @@
 #
 #   native_comparison_run_case CASE SOURCE_DIR WORK [RESULTS_DIR]
 #
-# A case's case.bash defines case_events (its event names in order),
-# case_materialize ROOT SOURCE_DIR HOST (builds ROOT/workspace, may export
+# The Open Dough payload installed is SOURCE_DIR's working tree unless
+# native_comparison_payload_dir names a frozen one, with its commit in
+# native_comparison_payload_revision and the revision the caller asked for in
+# native_comparison_payload_requested.
+#
+# A case's case.bash defines case_events (its event names in order; those in
+# the optional case_empty_events leave nothing to continue, for effort),
+# case_materialize ROOT PAYLOAD_DIR HOST (builds ROOT/workspace, may export
 # the environment the agent's commands need, and leaves case_project_basis,
 # the identities of the project it built; when it fails, no session starts),
 # case_apply_event ROOT EVENT SCRATCH, case_observe ROOT TURN STREAM SCRATCH
@@ -23,7 +29,8 @@
 #
 # Leaves native_comparison_status (pass or fail), _reason and _attempt (the
 # retained attempt directory, when RESULTS_DIR is given). Codex only so far;
-# the `codex` on PATH may be a substitute (tests/native-comparison.sh).
+# the `codex` on PATH may be a substitute (tests/native-comparison.sh), whose
+# session records are read only under CODEX_HOME.
 # shellcheck disable=SC1090,SC1091,SC2030,SC2031,SC2034,SC2154,SC2312 # Sourced case and helper globals; the journey runs and retains in one subshell.
 
 native_comparison_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -102,7 +109,8 @@ native_comparison_run_case() {
     native_stderr="${native_comparison_controller}/stderr.log"
     platform=codex
     : > "${native_stderr}"
-    if ! case_materialize "${root}" "${source_dir}" codex; then
+    native_comparison_load_start=$(sysctl -n vm.loadavg 2> /dev/null | tr -d '{}' | xargs)
+    if ! case_materialize "${root}" "${native_comparison_payload_dir:-${source_dir}}" codex; then
       printf 'case: %s\nmaterialization: failed\n' "${case_name}" > "${work}/observations.txt"
       printf '%s\n' fail 'the case could not be materialized; no session started' '' \
         > "${work}/verdict"
@@ -161,10 +169,19 @@ native_comparison_run_case() {
   [[ ${native_comparison_status} == pass ]]
 }
 
+# Sets case_files to every file of CASE the agent, controller or assessor
+# reads, relative to SOURCE_DIR. case.md only describes the case and
+# comparisons/ holds reports about it, so recording a measurement or a
+# comparison there keeps the case's identity.
+native_comparison_case_files() {
+  mapfile -t case_files < <(cd -- "$1" && find "tests/native-comparison/$2" -type f \
+    ! -name case.md ! -path '*/comparisons/*' | LC_ALL=C sort)
+}
+
 # Retains the attempt under RESULTS_DIR/codex/native-comparison/CASE/.
 native_comparison_retain() {
   local case_name=$1 source_dir=$2 results_dir=$3 root=$4 prompt=$5 wake=$6
-  local dest file case_files
+  local dest case_files
   native_result_allocate_attempt "${results_dir}" codex "native-comparison/${case_name}"
   dest=${native_result_attempt_dir}
   cp -- "${native_comparison_controller}"/events-turn-*.jsonl \
@@ -182,33 +199,46 @@ native_comparison_retain() {
     git -C "${root}/workspace" log --first-parent --name-status "${native_comparison_basis_head}..HEAD"
     git -C "${root}/workspace" log -p "${native_comparison_basis_head}..HEAD" -- . ':!.agents' ':!.claude'
   } > "${dest}/final-state.txt" 2>&1
-  # Every case file the agent, controller or assessor reads; case.md only
-  # describes the case, so recording a measurement there keeps its identity.
-  mapfile -t case_files < <(cd -- "${source_dir}" \
-    && find "tests/native-comparison/${case_name}" -type f ! -name case.md \
-    | LC_ALL=C sort)
+  native_comparison_case_files "${source_dir}" "${case_name}"
   {
     printf 'host: codex\ncase: native-comparison/%s\norigin: fresh\n' "${case_name}"
     printf 'native-executable: %s\n' "$(command -v codex)"
     printf 'native-version: %s\n' "${tool_version:-unknown}"
     printf 'native-requested-settings: %s\n' "${native_codex_settings[*]:-host defaults}"
-    if [[ -n ${native_comparison_thread-} ]] \
-      && node "${source_dir}/tests/support/native-codex-session.mjs" \
-        "${native_comparison_thread}" > "${dest}/codex-settings.txt"; then
-      cat -- "${dest}/codex-settings.txt"
-      file=$(native_observation_field "${dest}/codex-settings.txt" codex-session-file)
-      cp -- "${file}" "${dest}/codex-session.jsonl"
-    else
-      printf 'codex-session-file: missing\n'
-    fi
+    native_comparison_retain_sessions "${source_dir}" "${dest}"
     printf 'thread: %s\n' "${native_comparison_thread:-unknown}"
+    printf 'host-load-start: %s\nhost-load-end: %s\n' "${native_comparison_load_start}" \
+      "$(sysctl -n vm.loadavg 2> /dev/null | tr -d '{}' | xargs)"
     printf 'source-revision: %s\n' "$(git -C "${source_dir}" rev-parse HEAD)"
     printf 'source-dirty: %s\n' "$(git -C "${source_dir}" status --porcelain | grep -q . && echo true || echo false)"
     printf 'project-basis: %s\n' "${case_project_basis}"
-    printf 'payload: %s\n' "$(delivery_evidence_installed_payload "${source_dir}")"
+    printf 'payload-revision: %s\n' "${native_comparison_payload_revision:-working-tree}"
+    printf 'payload-requested: %s\n' "${native_comparison_payload_requested:-working-tree}"
     printf 'payload-digest: %s\n' "${native_comparison_payload_digest}"
     printf 'assessor-identity: tests/native-comparison/%s/assess.bash\n' "${case_name}"
     native_result_input_hash_lines "${case_files[@]}" "${native_comparison_inputs[@]}"
     native_result_supervision_input_hash_lines
   } > "${dest}/record"
+}
+
+# Prints the thread's applied settings and worker sessions from the host's
+# session records, keeping copies of those records in DEST (they hold account
+# identities and stay local). A substitute host's records are read only
+# under CODEX_HOME, never a developer's own.
+native_comparison_retain_sessions() {
+  local source_dir=$1 dest=$2 root thread file
+  root=${CODEX_HOME:-${HOME}/.codex}/sessions
+  [[ ${native_codex_isolate:-0} -eq 1 || -n ${CODEX_HOME-} ]] || root=
+  if [[ -z ${native_comparison_thread-} || -z ${root} ]] \
+    || ! node "${source_dir}/tests/support/native-codex-session.mjs" \
+      "${native_comparison_thread}" "${root}" > "${dest}/codex-settings.txt"; then
+    printf 'codex-session-file: missing\n'
+    return 0
+  fi
+  cat -- "${dest}/codex-settings.txt"
+  cp -- "$(native_observation_field "${dest}/codex-settings.txt" codex-session-file)" \
+    "${dest}/codex-session.jsonl"
+  while read -r _ thread _ file; do
+    cp -- "${file#file=}" "${dest}/codex-worker-${thread}.jsonl"
+  done < <(grep '^codex-worker: ' "${dest}/codex-settings.txt")
 }
