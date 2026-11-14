@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mrsn-chan",
+  "email": "mrsn-chan@example.org",
+  "identity": "SEED-358#reconstruct-codex-and-claude-code-usage-history",
+  "mode": "story-branch",
+  "branch": "codex/reconstruct-codex-and-claude-code-usage-history",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

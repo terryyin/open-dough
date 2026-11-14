@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Save and reuse native A/B baselines](seeds/SEED-346-native-ab-comparisons.md#reuse-native-comparison-baselines) — SEED-346#reuse-native-comparison-baselines ([plan](slice-plans/622-save-and-reuse-native-ab-baselines/PLAN.md))
+- [Reconstruct Codex and Claude Code usage history](seeds/SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history) — SEED-358#reconstruct-codex-and-claude-code-usage-history ([plan](slice-plans/624-reconstruct-codex-and-claude-code-usage-history/PLAN.md))
 
 ## Backlog list
 
-- [Reconstruct Codex and Claude Code usage history](seeds/SEED-358-dashboard-launch-history.md#reconstruct-codex-and-claude-code-usage-history) — SEED-358#reconstruct-codex-and-claude-code-usage-history
 - [Close launches returned to the backlog](seeds/SEED-358-dashboard-launch-history.md#close-launches-returned-to-the-backlog) — SEED-358#close-launches-returned-to-the-backlog
 - [View token usage for dashboard-launched Codex tasks](seeds/SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks) — SEED-357#view-token-usage-for-dashboard-launched-tasks
 - [View token usage for dashboard-launched Claude Code tasks](seeds/SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage) — SEED-359#view-claude-code-task-token-usage
