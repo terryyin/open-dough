@@ -1,6 +1,7 @@
 # Resume blocked execution on a qualifying change
 
 **Source:** [refined story](../../seeds/SEED-345-session-token-efficiency.md#resume-when-blocked-work-can-advance)
+**Source review:** [independent source commitments](source-review.md)
 **Identity:** SEED-345#resume-when-blocked-work-can-advance
 
 ## Goal and scope
@@ -101,7 +102,7 @@ ordinary owner if encountered.
 
 ### 1. Observe automatic Codex continuation across a blocked turn
 Type: Behavior
-Status: planned
+Status: done
 Proof: One isolated native held-execution journey with event/acceptance records.
 
 Give the maintainer an observed feasibility result before selecting delivery
@@ -112,6 +113,12 @@ it yields. Preserve native workspace, model, policy and permission settings.
 Drive the signal after a confirmed held state, replay it, and observe one
 continuation, no recurring idle model requests and no developer-typed resume.
 Record the exact transport, lifetime, identity, accepted turn and recovery limit.
+
+Execution refinement: the probe established native held-thread feasibility via
+the same daemon's RPC, after an explicitly rejected CLI route. Its post-RPC
+"replay" only reread history and is not event-handler proof. Keep the actual
+accepted native turn as feasibility evidence; the complete event-to-RPC path
+and replay observation are owned by Slice 2 (G1), before runtime delivery.
 
 Use the existing native host stream reader and retention contracts; expected
 results belong in the assessment, not the agent prompt. A fixture invoking an
@@ -234,4 +241,82 @@ findings. No full host-by-scenario matrix is required.
 
 ## Learnings
 
-No implementation, native-resume result or measured improvement yet.
+- Slice 1: [native assessment](native-probe-assessment.md), with raw acceptance,
+  native history/settings, commands and provenance in `native-probe-run/`.
+  Thread `01a1d7c7-2fad-7311-9688-df2fb587a0de` crossed a completed held turn
+  into accepted/completed turn `01a1d7cc-253c-7672-92c7-c00305bff265` without
+  developer-typed resume; workspace, model, effort and permissions matched.
+  The native consumer independently used the new supplier evidence and
+  produced the expected report. This settles feasibility, not the maintained
+  workflow or comparative improvement.
+- Once ID-only `thread/resume` loads a thread into the shared daemon, closing
+  the RPC client does not unload its writer. Use that daemon's `turn/start`
+  seam with exact-history reconciliation. A separate CLI resume was explicitly
+  refused and accepted no turn. The proxy experiment was not a line-JSON
+  transport. Preserve those failures; do not repeat them as another probe.
+- G1 retains the unproved successful-path replay observation. Slice 2 must
+  drive both qualifying evidence and its replay through the actual selected
+  handler; a reread with a hardcoded count is not that proof. No native
+  unsupported-host or CI success claim follows from the probe.
+- Acceptance: original blocked-task trigger → native completed held turn with
+  accepted local proof/work → same-thread RPC acceptance/completion after new
+  evidence. Inspected initial task/setup, raw controller events, native
+  acceptance, both completed native turns and matching settings. Commands are
+  in `native-probe-run/record.json`; no paid rerun is needed for this boundary.
+  Full lifecycle, uncertainty, races, attention and comparison remain with
+  Slices 2–4. The two scripts/raw artifacts are spent research records;
+  delivery disposition `records-only`, no installed/runtime contract change.
+- Source freshness at acceptance: unchanged against trunk
+  `57b03dea2b866f0aed8ed53f3a77adfd39ee3609`, base
+  `8f88bf2ca6d4e7fb7aabc704070be4c549397675`. Named sibling SEED-346 landed
+  preparation (`a48e9a560`) and its Take (`57b03dea2`), adding comparison-case
+  direction to NORTH-STAR; no product/runtime behavior changed or conflicts
+  with this probe. Keep that direction for Slice 4. SEED-343 was already
+  delivered at the base; SEED-332 remains evidence, not a live test resource.
+
+## Execution context
+
+- Established start: identity `SEED-345#resume-when-blocked-work-can-advance`,
+  publisher `dashboard-territory.local-open-dough`, agent `terry-chan`.
+- Mode: story-branch; owned execution checkout
+  `/Users/terryyin/git/open-dough/.worktrees/resume-blocked-work-when-it-can-advance`,
+  branch `codex/resume-blocked-work-when-it-can-advance`; originating/default
+  checkout `/Users/terryyin/git/open-dough` is separate and is not an edit target.
+- Authorized remote `origin` (`terryyin/open-dough`), integration target `main`;
+  ordinary increments publish to the recorded execution branch.
+- Starting revision `3458a36c6393683827f5ba0e9bd038dbfded8605`; accepted Take and
+  previously published base `8f88bf2ca6d4e7fb7aabc704070be4c549397675`, confirmed
+  on remote `main` and execution branch. No second startup claim.
+- Checkout setup: `npm ci` succeeded without lockfile changes;
+  `npm run typecheck:dashboard` passed. `.githooks/pre-commit` is check-only
+  staged lint plus dashboard typecheck for scripts; selective formatter is
+  `npm run format`.
+- Replanning permission: retain existing planning authority; no explicit
+  overrun override. No numeric slice target; preserve the plan's one probe and
+  cheapest diagnostic follow-up limit.
+- Native proof admission (2026-11-14, this macOS host): one isolated Codex
+  journey plus its cheapest diagnostic follow-up, sequential, no full suite.
+  Load averages 5.14/6.23/5.62, on AC with battery charged; no separately owned
+  heavy proof launched by this coordinator. Other executions are present and
+  remain with their owners; their current workloads and memory headroom are
+  not yet observed. Proceed with this bounded workload, with the slice agent
+  owning its terminal result; reconsider before repeating on contention,
+  native refusal or changed workload. Use `caffeinate -s -i` for a long run.
+- CI: GitHub Actions `ci.yml` / `CI`, verified workflow 351271804. Take on
+  `main`: `pendingCi: unobserved`. Execution branch observer: coordinator
+  `seed345-resume`, directory `/tmp/dough-ci-501/watch-sAay9N`, PID `76767`,
+  session `79549`, yielded cell `g153:12`, key
+  `ci-watch-execution:terryyin/open-dough:codex/resume-blocked-work-when-it-can-advance:seed345-resume`.
+  Runtime and working directory belong to this execution checkout.
+- Dashboard launch `ec85a3ea-f7ec-4e3f-94d7-4152850d8d4f`; retain its supplied
+  reporting command and landing context through closure. First trunk publication
+  must capture that launch's landing context; later trunk repairs must not.
+
+
+## Story obligations
+
+### G1. Drive replay through the successful workflow handler
+Reported: slice 1 — "The post-RPC replay was an evidence/history reread with a hardcoded count; actual duplicate events reached only the refused CLI route."
+Story clause: "no competing writer or blind duplicate submission is started."
+Disposition: receiving slice 2
+Commitment: C50

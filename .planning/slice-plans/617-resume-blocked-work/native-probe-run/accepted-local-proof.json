@@ -1,0 +1,8 @@
+{
+  "command": "node verify-local.mjs",
+  "result": "pass",
+  "files": {
+    "consumer-work.json": "8af1882b9033dd2ccf70bd341b0c1e322e86b0a44de8ed75faa39ffe2bc0aeed",
+    "verify-local.mjs": "9868b2c86fefb6958cdc74cbde41b0419092b099f96bad8f4439efe2831b2034"
+  }
+}

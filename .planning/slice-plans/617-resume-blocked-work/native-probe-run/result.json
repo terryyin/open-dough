@@ -1,0 +1,37 @@
+{
+  "result": "pass",
+  "root": "/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-blocked-native-wpEOB7",
+  "project": "/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-blocked-native-wpEOB7/project",
+  "threadId": "01a1d7c7-2fad-7311-9688-df2fb587a0de",
+  "heldTurn": "01a1d7c7-30fd-7143-8cd1-2024bf6b9e0b",
+  "acceptedTurn": "01a1d7cc-253c-7672-92c7-c00305bff265",
+  "terminalStatus": "completed",
+  "acceptedContinuationCount": 1,
+  "nativeCliRefusals": 1,
+  "rpcContinuationSubmissions": 1,
+  "idleModelSubmissions": 0,
+  "developerTypedResume": false,
+  "settings": {
+    "cwd": "/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-blocked-native-wpEOB7/project",
+    "model": "gpt-6.1-sol",
+    "modelProvider": "openai",
+    "approvalPolicy": "never",
+    "approvalsReviewer": "user",
+    "sandbox": {
+      "type": "dangerFullAccess"
+    },
+    "activePermissionProfile": null,
+    "reasoningEffort": "xhigh",
+    "runtimeWorkspaceRoots": [
+      "/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-blocked-native-wpEOB7/project"
+    ],
+    "serviceTier": "default"
+  },
+  "report": {
+    "subtotal": 125,
+    "taxAmount": 10,
+    "total": 135,
+    "currency": "SGD",
+    "supplierEvidence": "synthetic approved tax rule R8"
+  }
+}
