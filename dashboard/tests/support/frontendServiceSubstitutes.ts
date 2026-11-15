@@ -10,8 +10,10 @@ import { completedStoryAssociationEndpoint } from "../../src/completedStoryAssoc
 import { hostStatusEndpoint } from "../../src/hostStatus.ts";
 import { launchHostOptionsEndpoint } from "../../src/launchHostOptions.ts";
 import { projectListEndpoint } from "../../src/projectConfiguration.ts";
+import { storyReviewStateEndpoint } from "../../src/storyReviewState.ts";
 import { answerAuthenticatedRead } from "./frontendAuthenticatedReadSubstitute.ts";
 import { installFrontendCompletedStoryAssociation } from "./frontendCompletedStoryAssociation.ts";
+import { installFrontendStoryReviewState } from "./frontendStoryReviewState.ts";
 import {
   defaultFrontendServiceState,
   type FrontendServiceState,
@@ -26,6 +28,10 @@ export {
   installFrontendCompletedStoryAssociation,
   type FrontendCompletedStoryAssociation,
 } from "./frontendCompletedStoryAssociation.ts";
+export {
+  installFrontendStoryReviewState,
+  type FrontendStoryReviewState,
+} from "./frontendStoryReviewState.ts";
 
 // Installs substitutes for every backend endpoint a typical page open touches.
 // Specs override individual routes afterward for the synthetic answers under test.
@@ -62,6 +68,8 @@ export async function installFrontendServiceSubstitutes(
   );
   // Controllable completed-story association; default settle is a miss.
   await installFrontendCompletedStoryAssociation(page);
+  // Controllable story review states; default settle is every story unreviewed.
+  await installFrontendStoryReviewState(page);
   await page.route(
     (url) => url.pathname === hostStatusEndpoint,
     async (route) => {
@@ -85,6 +93,7 @@ export async function installFrontendServiceSubstitutes(
     authenticatedReadEndpoint,
     agentLaunchEndpoint,
     completedStoryAssociationEndpoint,
+    storyReviewStateEndpoint,
     hostStatusEndpoint,
     launchHostOptionsEndpoint,
     agentTerminalEndpoint,

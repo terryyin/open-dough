@@ -15,6 +15,8 @@ import type { HostStatus } from "../../src/hostStatus.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import { openDoughCandidatesRecord } from "../intentCandidatesFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { describedRevisions } from "../describedRevisions.ts";
 import {
   defaultFrontendPublishedFiles,
   frontendPublishedWith,
@@ -103,6 +105,34 @@ export function putFrontendDonePublication(
   Object.assign(services, {
     doneBySource: { ...services.doneBySource, [sourceId]: done },
   });
+}
+
+// Publishes readable done records for one source from their builder values.
+export function putFrontendDoneRecords(
+  services: FrontendServiceState,
+  sourceId: string,
+  records: readonly ReturnType<
+    ReturnType<typeof makeMe.aDoneRecord.with>["please"]
+  >[],
+): void {
+  const { done } = describedRevisions(
+    makeMe.aRepository
+      .withRevision("done", { doneRecords: [...records] })
+      .please(),
+    { done: services.revision },
+  );
+  const catalog = done.files[".planning/done/.catalog.json"];
+  if (catalog === undefined) {
+    throw new Error(`Expected ${sourceId} done catalog.`);
+  }
+  const bodies: Record<string, string> = {};
+  for (const record of records) {
+    const fileName = doneRecordFileName(record.identity);
+    const body = done.files[`.planning/done/${fileName}`];
+    if (body === undefined) throw new Error(`Missing done body ${fileName}`);
+    bodies[fileName] = body;
+  }
+  putFrontendDonePublication(services, sourceId, { catalog, bodies });
 }
 
 // Mutates substitute answers in place; Object.assign keeps no-param-reassign clean.

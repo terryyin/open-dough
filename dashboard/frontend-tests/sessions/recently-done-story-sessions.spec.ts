@@ -1,84 +1,36 @@
+// Only saved Done sessions are nested in done-story cards. Open former-story
+// sessions stay local Taken; completion time orders cards, and local retention
+// preserves a closed standalone session after its published card expires.
 import {
   sessionAction,
   sessionActionsControl,
   sessionDetailsControl,
-} from "../support/sessionEntryDisclosure.ts";
-// Only saved Done sessions are nested in done-story cards. Open former-story
-// sessions stay local Taken; completion time orders cards, and local retention
-// preserves a closed standalone session after its published card expires.
-
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../dashboardTest.ts";
+} from "../../tests/support/sessionEntryDisclosure.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   expectMembership,
   parts,
   standaloneSessionName,
   sessionStateOf,
   storyCardSessions,
-} from "../dashboardPage.ts";
-import { expectSessionEntrySetOff } from "../pageColours.ts";
-import { publishFiles } from "../publishedOrigin.ts";
-import { keepLaunchRecords } from "../support/launchStore.ts";
-import { doneStorySessions } from "../recentlyDoneSessions.ts";
+} from "../../tests/dashboardPage.ts";
+import { expectSessionEntrySetOff } from "../../tests/pageColours.ts";
+import { adHocEntry, expectEntries } from "../../tests/recentlyDoneColumn.ts";
 import {
   executed,
-  at,
   expired,
   lastWeek,
-  placed,
-  publishedFiles,
   queuedTitle,
   removedQueued,
-  repository,
-  revision,
-  withLastWeekRecord,
-} from "../recentlyDoneRecords.ts";
-import {
-  adHocEntry,
-  expectEntries,
-  listed,
-  sessionsOutsideDoneStories,
-} from "../recentlyDoneColumn.ts";
-import { openTerminalControl } from "../terminalScreenPage.ts";
+} from "../../tests/recentlyDoneRecords.ts";
+import { openFrontendStoryCardSessions } from "../../tests/support/frontendRecentlyDoneStoryCards.ts";
+import { openTerminalControl } from "../../tests/terminalScreenPage.ts";
 
 test("a done story's card holds this machine's sessions for it, marked done, newest first, and a session of a record past the window is its own entry", async ({
   page,
-  dashboard,
+  frontendServices,
 }) => {
-  const now = Date.now();
-  const listedAs = (title: string, before: number) =>
-    listed(dashboard, now, title, before);
-  // Kept oldest first, as the machine keeps them.
-  keepLaunchRecords(
-    dashboard,
-    [
-      ...sessionsOutsideDoneStories(dashboard, now, { adHoc: true }),
-      makeMe.aLaunchRecord
-        .executing(executed)
-        .inClaudeSession({ sessionId: "newer-closed-card-session" })
-        .launchedAt(at(now, placed.adHocLaunched / 2))
-        .markedDoneAt(at(now, placed.adHocLaunched / 4))
-        .please(),
-      ...doneStorySessions(now, {
-        // Marked done and no longer listed by Claude Code.
-        executedDone: "0e5c2d7a-done-session-of-card-shows-avatar",
-        executedOpen: listedAs(
-          executed.title,
-          placed.executedOpenSessionLaunched,
-        ),
-        lastWeek: listedAs(lastWeek.title, placed.lastWeekSessionLaunched),
-        expired: listedAs(expired.title, placed.expiredSessionLaunched),
-      }),
-    ].sort(
-      (one, other) => Date.parse(one.launchedAt) - Date.parse(other.launchedAt),
-    ),
-  );
-  await publishFiles(page, {
-    repository,
-    revision,
-    files: publishedFiles(withLastWeekRecord(now)),
-  });
-  await page.goto("/");
+  await openFrontendStoryCardSessions(page, frontendServices);
   await expectMembership(page, { taken: [], backlog: [queuedTitle] });
   const { recentlyDone: recent } = parts(page);
   const card = (title: string) =>
@@ -98,9 +50,11 @@ test("a done story's card holds this machine's sessions for it, marked done, new
       expiredSession,
     ]);
     await expect(card(expired.title)).toHaveCount(0);
+    // Live Claude Working for this standalone entry is
+    // ../../../../e2e/sessions/recently-done-story-sessions-expired.spec.ts.
     await expect(
       recent.getByRole("article", { name: expiredSession }),
-    ).toHaveText(/Working/);
+    ).toHaveCount(1);
   });
 
   await test.step("Card shows avatar holds only its closed session; its open session remains local Taken, each preserving state and actions", async () => {

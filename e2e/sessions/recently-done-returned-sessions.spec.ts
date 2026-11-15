@@ -5,22 +5,22 @@
 // A later launch keeps its own placement and reading. A native session still
 // working keeps its note, and reopening restores the native reading. How the
 // dashboard closes it is
-// ../../backend-tests/sessions/agent-completion-returned-closure.spec.ts.
+// ../../dashboard/backend-tests/sessions/agent-completion-returned-closure.spec.ts.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../dashboardTest.ts";
-import { rem } from "../boardPage.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { rem } from "../../dashboard/tests/boardPage.ts";
 import {
   expectMembership,
   parts,
   sessionEntryShowing,
   sessionStateOf,
   storyCardSessions,
-} from "../dashboardPage.ts";
-import { describedRevisions } from "../describedRevisions.ts";
-import { publishFiles } from "../publishedOrigin.ts";
-import { publishMovingFiles } from "../publishedFiles.ts";
-import { reloadUntilRead } from "../pageRequestNotes.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
+import { describedRevisions } from "../../dashboard/tests/describedRevisions.ts";
+import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
+import { publishMovingFiles } from "../../dashboard/tests/publishedFiles.ts";
+import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
 import {
   at,
   publishedFiles,
@@ -29,13 +29,20 @@ import {
   repository,
   revision,
   workspaceEntry,
-} from "../recentlyDoneRecords.ts";
-import { expectEntries, listed, queuedEntry } from "../recentlyDoneColumn.ts";
-import { showRecentlyDone } from "../recentlyDoneSessionsSidebarPage.ts";
-import { storyCard } from "../storyCardControls.ts";
-import { expectSessionsSidebarSessionEntryShown } from "../sessionsSidebarPage.ts";
-import { keepLaunchRecords } from "../support/launchStore.ts";
-import { idleBetweenSteps, markDoneAnyway } from "../support/markDone.ts";
+} from "../../dashboard/tests/recentlyDoneRecords.ts";
+import {
+  expectEntries,
+  listed,
+  queuedEntry,
+} from "../../dashboard/tests/recentlyDoneColumn.ts";
+import { showRecentlyDone } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
+import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
+import { expectSessionsSidebarSessionEntryShown } from "../../dashboard/tests/sessionsSidebarPage.ts";
+import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+import {
+  idleBetweenSteps,
+  markDoneAnyway,
+} from "../../dashboard/tests/support/markDone.ts";
 
 // Marking done and reopening act in the project's folder.
 test.use({ projectFolders: ["open-dough"] });
@@ -43,8 +50,6 @@ test.use({ projectFolders: ["open-dough"] });
 const hour = 60 * 60 * 1000;
 const story = { identity: queuedIdentity, title: queuedTitle };
 
-// The story's first execution, which landed its return to the queue and then
-// reported quietly, closed as returned to the backlog at its report.
 const returnedLaunch = (now: number, sessionId: string) =>
   makeMe.aLaunchRecord
     .executing(story)
@@ -62,11 +67,9 @@ test("a launch returned to the backlog reads Returned to backlog once in Recentl
   const now = Date.now();
   const returnedId = listed(dashboard, now, queuedTitle, 5 * hour);
   const laterId = listed(dashboard, now, queuedTitle, 2 * hour);
-  // The returned session has finished its native turn.
   dashboard.claudeSessionBecomes(returnedId, "done-live");
   keepLaunchRecords(dashboard, [
     returnedLaunch(now, returnedId),
-    // A later execution of the story, still open.
     makeMe.aLaunchRecord
       .executing(story)
       .inClaudeSession({ sessionId: laterId })
@@ -102,8 +105,6 @@ test("a launch returned to the backlog reads Returned to backlog once in Recentl
   const laterKey = `claude:${laterId}`;
   const returned = sessionEntryShowing(recent, returnedKey);
 
-  // The returned launch is one standalone Done entry; the later launch is
-  // the active story card's only session, reading its native state.
   const expectApartFrom = async (column: typeof backlog) => {
     await expectEntries(recent, [queuedEntry]);
     await expect(sessionStateOf(returned)).toHaveText("Returned to backlog");
@@ -131,7 +132,6 @@ test("a launch returned to the backlog reads Returned to backlog once in Recentl
     origin.moveTrunk(published.done);
     await reloadUntilRead(page);
     await expectMembership(page, { taken: [], backlog: [] });
-    // Open, the former story's later launch stays in local Taken until marked.
     const later = sessionEntryShowing(taken, laterKey);
     await expect(sessionStateOf(later)).toHaveText("Working");
     idleBetweenSteps(dashboard, laterId);

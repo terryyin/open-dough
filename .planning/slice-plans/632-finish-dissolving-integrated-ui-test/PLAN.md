@@ -133,6 +133,12 @@ share local admission across worktrees; focused selections remain independent.
   `frontendRecentlyDoneSelection.ts`; association-check status on
   `recentlyDoneParts.choiceStatus` (page at 249 lines). Hardwired absent
   settle replaced by the controllable family.
+- **Slice 4 proof.** FE story/active/review-cue* + E2E returned and
+  `recently-done-story-sessions-expired` (expired standalone **Working** from
+  live Claude). Support: `frontendStoryReviewState.ts`,
+  `frontendRecentlyDoneStoryCards.ts`, `frontendRecentlyDoneReviewCue.ts`;
+  `putFrontendDoneRecords` shared. Commitment 6b observed; sessions
+  `recently-done-*` interim gone.
 - **Known traps.** A `MachineAnswer` failing `launchRecordsSchema` leaves the
   page on "Reading sessions…" silently; Cursor entries need the Cursor runner
   sessions read substituted; a history read needs its own `audience=history`
@@ -200,7 +206,7 @@ moves to slice 4 so this slice stays within one-family budget.
 
 ### 4. Convert recently-done story card, returned sessions and review-cue
 Type: Behavior
-Status: planned
+Status: done
 Proof: `recently-done-story-sessions`, `recently-done-active-story-sessions`,
 inventory-absent `recently-done-returned-sessions`, and
 `…-review-cue{,-races,-evidence}` (~6 specs) retain card nesting,

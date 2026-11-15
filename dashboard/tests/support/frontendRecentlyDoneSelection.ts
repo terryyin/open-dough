@@ -9,7 +9,6 @@ import {
   renderDoneRecord,
 } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { LaunchRecord, LaunchWithState } from "../../src/launchRecord.ts";
-import { describedRevisions } from "../describedRevisions.ts";
 import { expectProjectChoice } from "../dashboardPage.ts";
 import {
   recentlyDoneParts,
@@ -24,6 +23,7 @@ import {
 } from "./frontendRecentlyDoneSidebar.ts";
 import {
   putFrontendDonePublication,
+  putFrontendDoneRecords,
   type FrontendServiceState,
 } from "./frontendServiceState.ts";
 
@@ -70,7 +70,7 @@ function newerIn(
   });
 }
 
-function selectionLaunchRecords(
+export function selectionLaunchRecords(
   now: number,
   newer: NewerSessions = {},
 ): LaunchRecord[] {
@@ -110,7 +110,9 @@ function selectionLaunchRecords(
   ];
 }
 
-function observeSelection(record: LaunchRecord): LaunchWithState {
+export function observeFrontendSelectionLaunch(
+  record: LaunchRecord,
+): LaunchWithState {
   if (record.request.title === report.title) {
     return makeMe.anObservedLaunch
       .of(record)
@@ -156,19 +158,7 @@ function putFrontendLinkedDone(
     });
     return;
   }
-  const { done } = describedRevisions(
-    makeMe.aRepository.withRevision("done", { doneRecords: [record] }).please(),
-    { done: services.revision },
-  );
-  const catalog = done.files[".planning/done/.catalog.json"];
-  const body = done.files[`.planning/done/${fileName}`];
-  if (catalog === undefined || body === undefined) {
-    throw new Error("Expected Pygardon done catalog and record body.");
-  }
-  putFrontendDonePublication(services, "pygardon", {
-    catalog,
-    bodies: { [fileName]: body },
-  });
+  putFrontendDoneRecords(services, "pygardon", [record]);
 }
 
 // Opens the three-project Frontend page with selection launches and Pygardon's
@@ -193,7 +183,7 @@ export async function openFrontendSelectionPage(
   putFrontendLinkedDone(services, { unreadableLinkedRecord });
   putFrontendObservedLaunches(
     services,
-    ...selectionLaunchRecords(now, newer).map(observeSelection),
+    ...selectionLaunchRecords(now, newer).map(observeFrontendSelectionLaunch),
   );
   await installFrontendFinalReport(page, {
     kind: "available",

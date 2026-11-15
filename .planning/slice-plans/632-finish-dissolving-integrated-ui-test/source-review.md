@@ -23,7 +23,7 @@ was instructed to read no other project files and change nothing.
 | 5d | The `stories` folder of **Dashboard Integrated UI Test** becomes empty. | slice 9 | |
 | 5e | The `observation` folder of **Dashboard Integrated UI Test** becomes empty. | slice 10 | |
 | 6a | Convert final reports and workspace retirement out of the interim group. | slice 1 | observed: interim final-report-touch{,-divider} and session-workspace-retirement{,-claude-done,-lifetime} removed; FE/E2E homes under dashboard/frontend-tests/sessions and e2e/sessions |
-| 6b | Convert recently done sessions out of the interim group. | slice 4 | |
+| 6b | Convert recently done sessions out of the interim group. | slice 4 | observed: all dashboard/tests/sessions/recently-done-* interim specs removed; FE/E2E homes for sidebar/select/story-card/review-cue/returned including inventory-absent returned and expired Working on E2E |
 | 6c | Convert the sessions sidebar out of the interim group. | slice 5 | |
 | 6d | Convert terminals out of the interim group. | slice 6 | |
 | 6e | Convert story review out of the interim group. | slice 7 | |
