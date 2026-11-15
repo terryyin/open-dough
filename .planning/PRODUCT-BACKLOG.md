@@ -33,7 +33,6 @@ intent introduced or affected by a newly developed story.
 - [See dashboard connection status when returning to the window](seeds/SEED-372-dashboard-connection-status-on-return.md#see-dashboard-connection-status-on-return) — SEED-372#see-dashboard-connection-status-on-return ([plan](slice-plans/639-confirm-dashboard-updates-on-return/PLAN.md))
 - [Run and maintain native evaluations as a distinct Distribution tool](seeds/SEED-371-distribution-evaluation-tool.md#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool) — SEED-371#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool ([plan](slice-plans/638-distribution-evaluation-tool/PLAN.md))
 - [View token usage for dashboard-launched Claude Code tasks](seeds/SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage) — SEED-359#view-claude-code-task-token-usage ([plan](slice-plans/636-claude-code-task-token-usage/PLAN.md))
-- [Report a publication made while the supplier is being judged](seeds/SEED-368-third-blocked-execution-attempt.md#report-a-publication-made-during-supplier-judgment) — SEED-368#report-a-publication-made-during-supplier-judgment ([plan](slice-plans/637-report-a-publication-made-during-judgment/PLAN.md))
 
 ## Backlog list
 
