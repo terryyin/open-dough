@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Run and maintain native evaluations as a distinct Distribution tool](seeds/SEED-371-distribution-evaluation-tool.md#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool) — SEED-371#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool ([plan](slice-plans/638-distribution-evaluation-tool/PLAN.md))
 - [Declare landed-file follow-up state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-git-test-state-through-makeme) — SEED-353#declare-git-test-state-through-makeme ([plan](slice-plans/642-declare-landed-file-follow-up-state/PLAN.md))
-- [Keep Claude coverage gaps current after Refresh](seeds/SEED-359-claude-code-task-token-usage.md#keep-claude-coverage-gaps-current-after-refresh) — SEED-359#keep-claude-coverage-gaps-current-after-refresh ([plan](slice-plans/644-keep-claude-coverage-gaps-current/PLAN.md))
 
 ## Backlog list
 

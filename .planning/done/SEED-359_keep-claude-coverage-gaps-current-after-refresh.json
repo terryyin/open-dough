@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-359#keep-claude-coverage-gaps-current-after-refresh",
+  "title": "Keep Claude coverage gaps current after Refresh",
+  "completedAt": "2026-11-15T13:56:46.677Z",
+  "developer": "Terry Yin",
+  "agent": "Airi-chan",
+  "host": "claude",
+  "model": "opus"
+}

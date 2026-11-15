@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-359_keep-claude-coverage-gaps-current-after-refresh.json",
+      "identity": "SEED-359#keep-claude-coverage-gaps-current-after-refresh",
+      "completedAt": "2026-11-15T13:56:46.677Z",
+      "blob": "a64e56727b97cb3ea47a2e4d34567b9e91c20f69"
+    },
+    {
       "fileName": "SEED-355_reconsider-further-ci-reduction.json",
       "identity": "SEED-355#reconsider-further-ci-reduction",
       "completedAt": "2026-11-15T13:07:34.502Z",
