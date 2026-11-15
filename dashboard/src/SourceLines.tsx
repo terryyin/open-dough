@@ -1,25 +1,16 @@
 // Whole-file source text with line numbers for Intent Purpose reading and,
 // later, other readers. Plain text shows immediately; when `language` is
 // set, Shiki token colours arrive without delaying that text, and a failed
-// grammar load leaves the lines plain with no error. Light and dark token
-// colours ride as CSS custom properties so a system appearance change updates
-// already rendered text without a new fetch or tokenization. An optional
+// grammar load leaves the lines plain with no error (`./useSourceHighlight.ts`).
+// Tokens render through the shared `./SourceTokens.tsx`, whose colours follow
+// a system appearance change without a new fetch or tokenization. An optional
 // 1-based `targetLine` identifies and scrolls that case into view.
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
-import {
-  highlightSourceLines,
-  type SourceTokenLine,
-} from "./sourceHighlight.ts";
+import { useEffect, useRef } from "react";
+import type { SourceTokenLine } from "./sourceHighlight.ts";
+import { SourceTokens } from "./SourceTokens.tsx";
+import { useSourceHighlight } from "./useSourceHighlight.ts";
 import "./source-lines.css";
-
-function tokenStyle(token: SourceTokenLine[number]): CSSProperties | undefined {
-  if (token.light === undefined && token.dark === undefined) return undefined;
-  return {
-    ...(token.light === undefined ? {} : { ["--shiki-light"]: token.light }),
-    ...(token.dark === undefined ? {} : { ["--shiki-dark"]: token.dark }),
-  } as CSSProperties;
-}
 
 function LineText({
   line,
@@ -28,16 +19,9 @@ function LineText({
   readonly line: string;
   readonly tokens: SourceTokenLine | undefined;
 }) {
-  if (tokens === undefined) {
-    return <code className="source-line-text">{line}</code>;
-  }
   return (
     <code className="source-line-text">
-      {tokens.map((token, index) => (
-        <span key={index} className="source-token" style={tokenStyle(token)}>
-          {token.content}
-        </span>
-      ))}
+      {tokens === undefined ? line : <SourceTokens tokens={tokens} />}
     </code>
   );
 }
@@ -59,25 +43,8 @@ export function SourceLines({
   // A trailing newline leaves an empty final segment; keep it so the last
   // blank line is visible, matching the published file.
   const digits = String(lines.length).length;
-  const [tokenLines, setTokenLines] = useState<
-    readonly SourceTokenLine[] | undefined
-  >(undefined);
+  const tokenLines = useSourceHighlight(text, language);
   const targetRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (language === undefined) {
-      setTokenLines(undefined);
-      return;
-    }
-    let cancelled = false;
-    setTokenLines(undefined);
-    void highlightSourceLines(text, language).then((tokens) => {
-      if (!cancelled && tokens !== undefined) setTokenLines(tokens);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [text, language]);
 
   useEffect(() => {
     if (targetLine === undefined) return;

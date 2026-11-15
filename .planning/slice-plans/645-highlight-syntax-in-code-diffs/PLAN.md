@@ -2,6 +2,7 @@
 
 **Identity:** SEED-351#highlight-syntax-in-code-diffs
 **Source:** [Highlight syntax in code diffs](../../seeds/SEED-351-highlight-syntax-in-code-diffs.md#highlight-syntax-in-code-diffs)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -110,7 +111,7 @@ Each slice targets 15 active minutes.
 
 ### 1. Intent source tokens reach text contrast
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/frontend-tests/dashboard-system-appearance.spec.ts` gains a
 comment in its highlighted fixture and asserts the keyword and the comment
 token at 4.5:1 in dark and in light;
@@ -128,6 +129,14 @@ reader. Extract token rendering and the whole-text highlighting hook from
 `SourceLines.tsx`, with Intent using both immediately. Keep line wrappers,
 copyable text and target-line navigation unchanged. Write the failing comment
 assertion first; extraction must not add a second span renderer or effect.
+
+Accepted: comment contrast red at 3.729, then green in
+`dashboard-system-appearance`; shared `SourceTokens.tsx`,
+`useSourceHighlight.ts` and `source-tokens.css` now own rendering, lifecycle
+and the light 25% mix. Learning: `intent-code-browse-java` pinned exact old
+palette colours; it now asserts keyword/string difference and a scheme
+change. Later diff proof compares colours between readers rather than
+pinning palette values.
 
 ### 2. A file diff styles its code by the file's language
 Type: Behavior

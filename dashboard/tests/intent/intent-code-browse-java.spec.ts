@@ -84,19 +84,13 @@ class CalculatorTest {
   await expect(sourceRevision(intent, javaPath)).toContainText(
     `at revision ${shortRevision(doughnut.revision)}`,
   );
-  await expectKeywordAndStringColours(source, /^class$/, /^"two"$/);
+  const keyword = sourceToken(source, /^class$/);
   await page.emulateMedia({ colorScheme: "light" });
-  expect(await colourOf(sourceToken(source, /^class$/))).toBe(
-    "rgb(215, 58, 73)",
-  );
-  expect(await colourOf(sourceToken(source, /^"two"$/))).toBe("rgb(3, 47, 98)");
+  await expectKeywordAndStringColours(source, /^class$/, /^"two"$/);
+  const lightKeyword = await colourOf(keyword);
   await page.emulateMedia({ colorScheme: "dark" });
-  expect(await colourOf(sourceToken(source, /^class$/))).toBe(
-    "rgb(249, 117, 131)",
-  );
-  expect(await colourOf(sourceToken(source, /^"two"$/))).toBe(
-    "rgb(158, 203, 255)",
-  );
+  await expectKeywordAndStringColours(source, /^class$/, /^"two"$/);
+  expect(await colourOf(keyword)).not.toBe(lightKeyword);
   await expect(sourceLineText(source)).toHaveText(javaText.split("\n"));
 
   await fileReadingTab(intent, "Proof").click();
