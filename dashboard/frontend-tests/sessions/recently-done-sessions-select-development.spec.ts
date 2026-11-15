@@ -1,45 +1,52 @@
-// Choosing a Recently done sessions row in Development
-// (../../src/recentlyDoneSelection.ts) also shows its project's stories and
-// brings what it selected into view there: a linked row's done story card, or
-// a standalone row's session entry, marked selected, extending the Board's
-// Recently done range when that entry stands beyond it. Development and the
-// Side panel stay as they were, nothing attaches, and Intent is never opened.
-// From the agent roster the Board shows instead. Selection from Intent lives
-// in ./recently-done-sessions-select.spec.ts, an unanswered check and its
-// supersession in ./recently-done-sessions-select-check.spec.ts and
-// ./recently-done-sessions-select-supersede.spec.ts, and the narrow overlay
-// case in ./recently-done-sessions-select-touch.spec.ts.
-
-import { expect, test } from "../dashboardTest.ts";
+// Choosing a Recently done sessions row in Development shows its project's
+// Board and brings the linked done card or standalone entry into view.
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   parts,
   rosterParts,
   sessionEntriesIn,
   standaloneSessionName,
-} from "../dashboardPage.ts";
-import { expectProjectChoice } from "../projectChoice.ts";
+} from "../../tests/dashboardPage.ts";
+import { expectProjectChoice } from "../../tests/projectChoice.ts";
+import { finalReportParts } from "../../tests/finalReportPages.ts";
+import { pygardonCatalogRead } from "../../tests/pygardonCatalogReads.ts";
+import { expectSelected } from "../../tests/storyCardSelection.ts";
+import { terminalPanel } from "../../tests/terminalScreenPage.ts";
 import {
   adHoc,
   linked,
-  openSelectionPage,
-} from "../recentlyDoneSelectionJourney.ts";
-import {
-  expectDevelopmentKept,
-  showReport,
-} from "../recentlyDoneSelectionReport.ts";
-import { pygardonCatalogRead } from "../pygardonCatalogReads.ts";
-import { expectSelected } from "../storyCardSelection.ts";
+  openFrontendSelectionPage,
+  report,
+} from "../../tests/support/frontendRecentlyDoneSelection.ts";
 
-test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
+async function expectDevelopmentKept(
+  page: Parameters<typeof openFrontendSelectionPage>[0],
+  opened?: ReturnType<typeof finalReportParts>,
+) {
+  const { development, intent } = parts(page);
+  await expect(development).toBeChecked();
+  await expect(intent).toHaveCount(0);
+  expect(new URL(page.url()).searchParams.get("perspective")).toBeNull();
+  if (opened === undefined) {
+    await expect(
+      page.getByRole("region", { name: /^(Terminal|Final report)$/ }),
+    ).toHaveCount(0);
+  } else {
+    await expect(opened.reportText).toHaveText(report.message);
+    await expect(terminalPanel(page)).toHaveCount(0);
+  }
+}
 
 test("selecting a linked done story in Development shows its project's Board with its done card, beyond Pygardon's first ten, selected in view, keeping the report in the Side panel", async ({
   page,
-  dashboard,
+  frontendServices,
 }) => {
-  const { shown } = await openSelectionPage(page, dashboard, undefined, {
+  const { shown } = await openFrontendSelectionPage(page, frontendServices, {
     newer: { pygardon: 10 },
   });
-  const opened = await showReport(page, shown);
+  await shown.open(report.title).click();
+  const opened = finalReportParts(page);
+  await expect(opened.reportText).toHaveText(report.message);
   const card = parts(page).recentlyDone.getByRole("article", {
     name: linked.title,
     exact: true,
@@ -56,9 +63,8 @@ test("selecting a linked done story in Development shows its project's Board wit
     );
     await expectSelected(card, true);
     await expect(card).toBeInViewport();
-    // The keyboard stays on the row, ready to choose again.
     await expect(shown.select(linked.title)).toBeFocused();
-    await expectDevelopmentKept(page, dashboard, opened);
+    await expectDevelopmentKept(page, opened);
   });
 
   await test.step("selecting the row again keeps the story selected and in view", async () => {
@@ -70,18 +76,19 @@ test("selecting a linked done story in Development shows its project's Board wit
     await expectProjectChoice(page, "Pygardon");
     await expectSelected(card, true);
     await expect(card).toBeInViewport();
-    await expectDevelopmentKept(page, dashboard, opened);
+    await expectDevelopmentKept(page, opened);
   });
 });
 
 test("selecting an older standalone session in Development reveals and marks its entry beyond Doughnut's first ten", async ({
   page,
-  dashboard,
+  frontendServices,
 }) => {
-  const { shown } = await openSelectionPage(page, dashboard, undefined, {
+  const { shown } = await openFrontendSelectionPage(page, frontendServices, {
     newer: { doughnut: 10 },
   });
-  const opened = await showReport(page, shown);
+  await shown.open(report.title).click();
+  const opened = finalReportParts(page);
   const { recentlyDone } = parts(page);
   const entry = recentlyDone.getByRole("article", {
     name: standaloneSessionName("Ad hoc", adHoc.title),
@@ -98,7 +105,6 @@ test("selecting an older standalone session in Development reveals and marks its
 
   await test.step("its entry, the eleventh of Doughnut's Recently done, is shown selected and in view", async () => {
     await expect(entry).toBeInViewport();
-    // The ten newer Doughnut sessions stand before it.
     await expect(sessionEntriesIn(recentlyDone).nth(10)).toHaveAccessibleName(
       standaloneSessionName("Ad hoc", adHoc.title),
     );
@@ -108,15 +114,15 @@ test("selecting an older standalone session in Development reveals and marks its
       (element) => getComputedStyle(element).boxShadow,
     );
     expect(ring).toMatch(/inset/);
-    await expectDevelopmentKept(page, dashboard, opened);
+    await expectDevelopmentKept(page, opened);
   });
 });
 
 test("selecting a standalone session from Development's agent roster shows its project's Board with the entry selected in view", async ({
   page,
-  dashboard,
+  frontendServices,
 }) => {
-  const { shown } = await openSelectionPage(page, dashboard, undefined, {
+  const { shown } = await openFrontendSelectionPage(page, frontendServices, {
     newer: { doughnut: 10 },
     address: "/?project=open-dough&view=roster",
   });
@@ -131,5 +137,5 @@ test("selecting a standalone session from Development's agent roster shows its p
   });
   await expect(entry).toBeInViewport();
   await expect(entry).toHaveClass(/\bselected-session\b/);
-  await expectDevelopmentKept(page, dashboard);
+  await expectDevelopmentKept(page);
 });

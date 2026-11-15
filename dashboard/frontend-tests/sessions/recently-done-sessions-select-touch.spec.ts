@@ -1,37 +1,36 @@
 // On coarse input a Recently done sessions row's Select and its Open are
-// separate touch controls (../../src/recentlyDoneSelection.ts). At phone
-// width the sidebar overlays the page and stays on Select; once it is closed,
-// Development's Board shows the selected done card in view, even when its
-// own catalog read finishes after. Board reveal and range extension of both
-// kinds of row live in ./recently-done-sessions-select-development.spec.ts.
-
+// separate touch controls. At phone width the sidebar overlays; once closed,
+// Development shows the selected done card while its catalog read finishes.
 import type { Locator } from "@playwright/test";
-import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
-import { closeSidePanelToBoard, tapWhereShown } from "../pageLayout.ts";
-import { expectProjectChoice } from "../projectChoice.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { pausePageClockAt } from "../../tests/dashboardTest.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import {
+  closeSidePanelToBoard,
+  tapWhereShown,
+} from "../../tests/pageLayout.ts";
+import { expectProjectChoice } from "../../tests/projectChoice.ts";
+import { holdPygardonCatalog } from "../../tests/pygardonCatalogReads.ts";
+import { expectSelected } from "../../tests/storyCardSelection.ts";
+import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
+import { finalReportParts } from "../../tests/finalReportPages.ts";
 import {
   adHoc,
   linked,
-  openSelectionPage,
+  openFrontendSelectionPage,
   report,
-} from "../recentlyDoneSelectionJourney.ts";
-import { expectDevelopmentKept } from "../recentlyDoneSelectionReport.ts";
-import { holdPygardonCatalog } from "../pygardonCatalogReads.ts";
-import { expectSelected } from "../storyCardSelection.ts";
-import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
-import { finalReportParts } from "../finalReportPages.ts";
-
-test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
+} from "../../tests/support/frontendRecentlyDoneSelection.ts";
 
 test.describe("on coarse input", () => {
   test.use({ viewport: phoneLaunchTouchViewport.portrait, hasTouch: true });
 
   test("a row's Select and its Open are separate touch controls: Select keeps the sidebar and opens nothing, Open reads the final report", async ({
     page,
-    dashboard,
+    frontendServices,
   }) => {
-    const { shown } = await openSelectionPage(page, dashboard, tapWhereShown);
+    const { shown } = await openFrontendSelectionPage(page, frontendServices, {
+      tap: tapWhereShown,
+    });
     const atLeastTouchSize = async (control: Locator) => {
       const box = await control.boundingBox();
       expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
@@ -40,7 +39,6 @@ test.describe("on coarse input", () => {
     await atLeastTouchSize(shown.select(adHoc.title));
     await atLeastTouchSize(shown.open(report.title));
 
-    // The section's own scrolling brings an older row in reach.
     await shown.select(adHoc.title).scrollIntoViewIfNeeded();
     await tapWhereShown(shown.select(adHoc.title));
     await expect(shown.select(adHoc.title)).toHaveAttribute(
@@ -71,16 +69,13 @@ test.describe("on coarse input", () => {
 
   test("at phone width a linked selection in Development is in view, selected, once the Sessions overlay closes, while the Board still reads its catalog", async ({
     page,
-    dashboard,
+    frontendServices,
   }) => {
-    // The shown rows' recurring catalog read waits for page time.
     await pausePageClockAt(page, new Date());
-    const { shown } = await openSelectionPage(page, dashboard, tapWhereShown, {
-      // Its done card stands behind six newer Pygardon sessions.
+    const { shown } = await openFrontendSelectionPage(page, frontendServices, {
       newer: { pygardon: 6 },
+      tap: tapWhereShown,
     });
-    // The row's check reads the catalog; the Board's own read of it is still
-    // under way when the overlay is closed.
     const boardRead = await holdPygardonCatalog(page, 1);
     await shown.select(linked.title).scrollIntoViewIfNeeded();
     await tapWhereShown(shown.select(linked.title));
@@ -96,6 +91,7 @@ test.describe("on coarse input", () => {
     });
     await expectSelected(card, true);
     await expect(card).toBeInViewport();
-    await expectDevelopmentKept(page, dashboard);
+    await expect(parts(page).development).toBeChecked();
+    await expect(parts(page).intent).toHaveCount(0);
   });
 });

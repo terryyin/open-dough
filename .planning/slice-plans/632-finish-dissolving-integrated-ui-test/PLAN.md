@@ -125,10 +125,14 @@ share local admission across worktrees; focused selections remain independent.
 - **Slice 2 proof.** FE:
   `recently-done-sessions-sidebar{,-touch,-projects,-room,-paging}` (7 passed);
   E2E: `…-reopen`, `…-paging-board`, `…-navigation` (6 passed). Support:
-  `frontendRecentlyDoneSidebar.ts` + `pygardonSource`. FE Select settle needs
-  a hardwired `{ kind: "absent" }` `/__agent-launch/completed-story` answer;
-  controllable association remains slice 3. Do not call
+  `frontendRecentlyDoneSidebar.ts` + `pygardonSource`. Do not call
   `preferShortRecentlyDoneBody` in room setup (resets divider preference).
+- **Slice 3 proof.** FE `recently-done-sessions-select*` (12) + E2E
+  `…-select-open` (1) + Backend association reused. Support:
+  `frontendCompletedStoryAssociation.ts` (hold/link/absent/refuse/fail) and
+  `frontendRecentlyDoneSelection.ts`; association-check status on
+  `recentlyDoneParts.choiceStatus` (page at 249 lines). Hardwired absent
+  settle replaced by the controllable family.
 - **Known traps.** A `MachineAnswer` failing `launchRecordsSchema` leaves the
   page on "Reading sessions…" silently; Cursor entries need the Cursor runner
   sessions read substituted; a history read needs its own `audience=history`
@@ -184,7 +188,7 @@ family yet. Mechanical E2E for reopen, paging-board and navigation.
 
 ### 3. Convert recently-done select and association
 Type: Behavior
-Status: planned
+Status: done
 Proof: `recently-done-sessions-select{,-touch,-development,-check,-supersede,-ad-hoc-check}`
 (~6 specs) retain Intent select/Open, association check holds/fails/supersede
 and related touch/development/ad-hoc outcomes.

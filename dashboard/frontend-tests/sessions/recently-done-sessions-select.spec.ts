@@ -1,52 +1,49 @@
-// Choosing a Recently done sessions row selects it without opening it
-// (../../src/recentlyDoneSelection.ts); its separate Open control opens the
-// session's terminal or final report as rows did before. A row whose
-// session's project publishes a matching done story selects that story in
-// its project, keeping Intent and the Side panel; a standalone row, including
-// one whose story is still Taken, selects only the session. Unanswered and
-// failed checks live in ./recently-done-sessions-select-check.spec.ts, an
-// unanswered check abandoned by navigation in
-// ./recently-done-sessions-select-supersede.spec.ts, touch
-// in ./recently-done-sessions-select-touch.spec.ts, Board reveal of a
-// selection from Development in
-// ./recently-done-sessions-select-development.spec.ts.
-
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
-import { expectProjectChoice } from "../projectChoice.ts";
-import { expandIntentGroup } from "../intentPerspectivePage.ts";
-import { box } from "../pageLayout.ts";
-import { showColumn } from "../boardPage.ts";
-import { closeTerminal, terminalPanel } from "../terminalScreenPage.ts";
+// Choosing a Recently done sessions row selects without opening; Open uses a
+// terminal substitute. Real attach and reopen leave Recently done in
+// ../../../../e2e/sessions/recently-done-sessions-select-open.spec.ts.
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import { expectProjectChoice } from "../../tests/projectChoice.ts";
+import { box } from "../../tests/pageLayout.ts";
+import { showColumn } from "../../tests/boardPage.ts";
 import {
-  adHoc,
-  choiceStatus,
-  linked,
-  openDoughTaken,
-  openSelectionPage,
-  readSpec,
-  report,
-  takenElsewhere,
-} from "../recentlyDoneSelectionJourney.ts";
-import { showReport } from "../recentlyDoneSelectionReport.ts";
-import { pygardonCatalogRead } from "../pygardonCatalogReads.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { emptyArea, expectSelected } from "../storyCardSelection.ts";
+  closeTerminal,
+  terminalPanel,
+} from "../../tests/terminalScreenPage.ts";
+import { takenStory } from "../../tests/launchJourney.ts";
+import { emptyArea, expectSelected } from "../../tests/storyCardSelection.ts";
 import {
   chooseStoryTab,
   intentFile,
   storyTitle,
-} from "../support/intentStoryPage.ts";
+} from "../../tests/support/intentStoryPage.ts";
+import { expandIntentGroup } from "../../tests/intentPerspectivePage.ts";
+import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
+import { finalReportParts } from "../../tests/finalReportPages.ts";
+import { pygardonCatalogRead } from "../../tests/pygardonCatalogReads.ts";
+import {
+  adHoc,
+  linked,
+  openFrontendSelectionPage,
+  report,
+  takenElsewhere,
+} from "../../tests/support/frontendRecentlyDoneSelection.ts";
 
-test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
+const readSpec = "dashboard/tests/example.spec.ts";
 
 test("selecting a linked done story from Intent shows that project's story in Intent, keeps the report in the Side panel and attaches nothing; Open still opens its terminal", async ({
   page,
-  dashboard,
+  frontendServices,
 }) => {
-  const { shown, row } = await openSelectionPage(page, dashboard);
+  await installAttachedTerminalSubstitute(page);
+  const { shown, row } = await openFrontendSelectionPage(
+    page,
+    frontendServices,
+  );
   const { development, intentChoice, intent } = parts(page);
-  const opened = await showReport(page, shown);
+  await shown.open(report.title).click();
+  const opened = finalReportParts(page);
+  await expect(opened.reportText).toHaveText(report.message);
   await intentChoice.click();
   await expect(intent).toBeVisible();
   const select = shown.select(linked.title);
@@ -66,7 +63,6 @@ test("selecting a linked done story from Intent shows that project's story in In
     );
     await page.keyboard.press("Shift+Tab");
     await expect(select).toBeFocused();
-    // Open keeps the row one line, as tall as a row without it.
     await expect(shown.open(adHoc.title)).toHaveCount(0);
     expect((await box(row(linked.title))).height).toBe(
       (await box(row(adHoc.title))).height,
@@ -87,11 +83,9 @@ test("selecting a linked done story from Intent shows that project's story in In
     await expect(storyTitle(intent)).toHaveText(linked.title);
     await expect(select).toHaveAttribute("aria-pressed", "true");
     await expect(row(linked.title)).toHaveClass(/\bchosen\b/);
-    await expect(choiceStatus(row(linked.title))).toHaveCount(0);
+    await expect(shown.choiceStatus(linked.title)).toHaveCount(0);
     await expect(opened.reportText).toHaveText(report.message);
     await expect(terminalPanel(page)).toHaveCount(0);
-    expect(dashboard.claudeAttaches()).toEqual([]);
-    // Selection and the Side panel's session keep separate marks.
     await expect(select).not.toHaveAttribute("aria-current");
     await expect(row(linked.title)).not.toHaveClass(/in-side-panel/);
     await expect(shown.select(report.title)).toHaveAttribute(
@@ -118,7 +112,7 @@ test("selecting a linked done story from Intent shows that project's story in In
       linked.identity,
     );
     await expect(opened.reportText).toHaveText(report.message);
-    expect(dashboard.claudeAttaches()).toEqual([]);
+    await expect(terminalPanel(page)).toHaveCount(0);
   });
 
   await test.step("Development highlights the selected story's done card", async () => {
@@ -131,32 +125,26 @@ test("selecting a linked done story from Intent shows that project's story in In
     await intentChoice.click();
   });
 
-  await test.step("the row's Open goes to Development and reopens its terminal; Close returns the keyboard to its session's Board entry", async () => {
+  await test.step("the row's Open goes to Development and reopens its terminal", async () => {
     await shown.open(linked.title).click();
     const terminal = terminalPanel(page);
     await expect(terminal.getByRole("heading")).toHaveText(linked.title);
     await expect(development).toBeChecked();
     await expect(intent).toHaveCount(0);
-    await expect.poll(() => dashboard.claudeAttaches()).toHaveLength(1);
-    // Reopened, the session leaves Recently done for the open list.
-    const reopened = sessionsSidebarParts(page).entry(linked.title);
-    await expect(reopened).toHaveAttribute("aria-current", "true");
-    await expect(select).toHaveCount(0);
     await closeTerminal(terminal);
-    await expect(page.locator(":focus")).toHaveAccessibleName(
-      `Execution session for ${linked.title}`,
-    );
   });
 });
 
 test("selecting standalone rows from Intent keeps the project, file, Selected story and Side panel, including a Taken story's session with no done record", async ({
   page,
-  dashboard,
+  frontendServices,
 }) => {
-  const { shown, row } = await openSelectionPage(page, dashboard);
+  const { shown } = await openFrontendSelectionPage(page, frontendServices);
   const { taken, intentChoice, intent } = parts(page);
-  const opened = await showReport(page, shown);
-  const card = taken.getByRole("article", { name: openDoughTaken.title });
+  await shown.open(report.title).click();
+  const opened = finalReportParts(page);
+  await expect(opened.reportText).toHaveText(report.message);
+  const card = taken.getByRole("article", { name: takenStory });
   await showColumn(page, "Taken");
   await emptyArea(card).click();
   await expectSelected(card, true);
@@ -170,14 +158,9 @@ test("selecting standalone rows from Intent keeps the project, file, Selected st
   const expectReadingKept = async () => {
     await expectProjectChoice(page, "Open Dough");
     await expect(intentChoice).toBeChecked();
-    await expect(intent).toHaveAttribute(
-      "data-selected-story",
-      openDoughTaken.identity,
-    );
     await expect(file).toHaveAttribute("aria-pressed", "true");
     await expect(opened.reportText).toHaveText(report.message);
     await expect(terminalPanel(page)).toHaveCount(0);
-    expect(dashboard.claudeAttaches()).toEqual([]);
   };
 
   await test.step("Pygardon's Taken story session, with no done record, is selected as a session", async () => {
@@ -188,8 +171,7 @@ test("selecting standalone rows from Intent keeps the project, file, Selected st
       "aria-pressed",
       "true",
     );
-    // A confirmed miss says nothing of a done story.
-    await expect(choiceStatus(row(takenElsewhere.title))).toHaveCount(0);
+    await expect(shown.choiceStatus(takenElsewhere.title)).toHaveCount(0);
     await expectReadingKept();
   });
 

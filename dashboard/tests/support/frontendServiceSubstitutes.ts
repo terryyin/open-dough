@@ -11,6 +11,7 @@ import { hostStatusEndpoint } from "../../src/hostStatus.ts";
 import { launchHostOptionsEndpoint } from "../../src/launchHostOptions.ts";
 import { projectListEndpoint } from "../../src/projectConfiguration.ts";
 import { answerAuthenticatedRead } from "./frontendAuthenticatedReadSubstitute.ts";
+import { installFrontendCompletedStoryAssociation } from "./frontendCompletedStoryAssociation.ts";
 import {
   defaultFrontendServiceState,
   type FrontendServiceState,
@@ -21,6 +22,10 @@ import {
 } from "./frontendSubstituteAnswers.ts";
 
 export { installAttachedTerminalSubstitute } from "./frontendTerminalSubstitute.ts";
+export {
+  installFrontendCompletedStoryAssociation,
+  type FrontendCompletedStoryAssociation,
+} from "./frontendCompletedStoryAssociation.ts";
 
 // Installs substitutes for every backend endpoint a typical page open touches.
 // Specs override individual routes afterward for the synthetic answers under test.
@@ -55,12 +60,8 @@ export async function installFrontendServiceSubstitutes(
       await fulfillJson(route, state.machine);
     },
   );
-  // Default: no published Done-story link. Slice 3 owns a controllable
-  // association family; presentation journeys only need standalone settle.
-  await page.route(
-    (url) => url.pathname === completedStoryAssociationEndpoint,
-    (route) => fulfillJson(route, { kind: "absent" }),
-  );
+  // Controllable completed-story association; default settle is a miss.
+  await installFrontendCompletedStoryAssociation(page);
   await page.route(
     (url) => url.pathname === hostStatusEndpoint,
     async (route) => {

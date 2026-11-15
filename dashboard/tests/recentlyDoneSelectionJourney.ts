@@ -1,17 +1,19 @@
 // What the Recently done sessions selection journeys
-// (./sessions/recently-done-sessions-select*.spec.ts) publish, keep and open
-// the page on: Open Dough with Intent locations and a spec to read, Pygardon
-// with one published done story beside its Taken story, and Doughnut with
-// none; and four retained Done sessions, newest completion first: Pygardon's
-// done story's session, Open Dough's session whose workspace is gone so it
-// opens its final report, a session of Pygardon's Taken story that no done
-// record matches, and a Doughnut ad hoc session. The Pygardon sessions are ones the synthetic
-// `claude` lists, so Open reaches their terminal. A case can keep more ad hoc
-// sessions in Doughnut or Pygardon, done after that project's own entry, so
-// the entry stands beyond the first ten its Board Recently done shows.
+// (../../e2e/sessions/recently-done-sessions-select-open.spec.ts and the
+// remaining review-cue interim specs) publish, keep and open the page on:
+// Open Dough with Intent locations and a spec to read, Pygardon with one
+// published done story beside its Taken story, and Doughnut with none; and
+// four retained Done sessions, newest completion first: Pygardon's done
+// story's session, Open Dough's session whose workspace is gone so it opens
+// its final report, a session of Pygardon's Taken story that no done record
+// matches, and a Doughnut ad hoc session. The Pygardon sessions are ones the
+// synthetic `claude` lists, so Open reaches their terminal. A case can keep
+// more ad hoc sessions in Doughnut or Pygardon, done after that project's own
+// entry, so the entry stands beyond the first ten its Board Recently done
+// shows.
 
 import path from "node:path";
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { renderDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
@@ -194,10 +196,6 @@ export function keepSelectionSessions(
     ],
   });
 }
-
-// What a chosen row says while its done story is unread or unknown.
-export const choiceStatus = (row: Locator) =>
-  row.locator(".sessions-sidebar-session-entry-choice");
 
 // The page opened on Open Dough, at `address` when given, with Recently
 // done sessions expanded, by pointer or, given `tap`, by touch at the

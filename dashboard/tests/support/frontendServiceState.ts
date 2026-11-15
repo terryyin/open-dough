@@ -34,6 +34,17 @@ export {
   type FrontendStories,
 } from "./frontendPublishedFixtures.ts";
 
+// Per-source done catalog and record bodies for Recently done selection.
+export type FrontendDonePublication = {
+  // Catalog JSON text, a gap string, or an HTTP refusal.
+  readonly catalog?:
+    | string
+    | { readonly gap: string }
+    | { readonly status: number; readonly error: string };
+  // Done record file name → published text.
+  readonly bodies?: Readonly<Record<string, string>>;
+};
+
 export type FrontendServiceState = {
   projects: PublishedSource[];
   revision: string;
@@ -44,6 +55,8 @@ export type FrontendServiceState = {
   // Undefined while the machine's sessions are unread, as hostStatus.
   machine: MachineAnswer | undefined;
   hostStatus: HostStatus | undefined;
+  // Done catalogs and bodies keyed by published source id.
+  doneBySource: Record<string, FrontendDonePublication>;
 };
 
 export function defaultFrontendServiceState(
@@ -77,7 +90,19 @@ export function defaultFrontendServiceState(
     hostStatus: makeMe.aHostStatus
       .with({ cpuPercent: 12, freeBytes: 64_000_000_000 })
       .please(),
+    doneBySource: {},
   };
+}
+
+// Arranges the done catalog and bodies one source's authenticated reads answer.
+export function putFrontendDonePublication(
+  services: FrontendServiceState,
+  sourceId: string,
+  done: FrontendDonePublication,
+): void {
+  Object.assign(services, {
+    doneBySource: { ...services.doneBySource, [sourceId]: done },
+  });
 }
 
 // Mutates substitute answers in place; Object.assign keeps no-param-reassign clean.

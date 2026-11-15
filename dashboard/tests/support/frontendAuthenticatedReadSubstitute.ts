@@ -4,11 +4,18 @@
 import { revisionStreamAtParameter } from "../../src/authenticatedReadRules.ts";
 import type { FrontendServiceState } from "./frontendServiceState.ts";
 
+const emptyCatalog = JSON.stringify({
+  schemaVersion: 1,
+  records: [],
+  unreadable: [],
+});
+
 export function answerAuthenticatedRead(
   state: FrontendServiceState,
   params: URLSearchParams,
 ): { status: number; body: unknown; stream?: boolean } {
   const revision = params.get("revision") ?? state.revision;
+  const sourceId = params.get("source") ?? "open-dough";
   // A revision check says whether the project moved from the revision the
   // page shows; its stream says only that it moved, answering as a plain
   // read until then.
@@ -38,20 +45,37 @@ export function answerAuthenticatedRead(
     };
   }
   if (params.get("done") === "catalog") {
+    const arranged = state.doneBySource[sourceId]?.catalog;
+    if (arranged !== undefined && typeof arranged === "object") {
+      if ("gap" in arranged) {
+        return { status: 200, body: { revision, gap: arranged.gap } };
+      }
+      return {
+        status: arranged.status,
+        body: { error: arranged.error },
+      };
+    }
     return {
       status: 200,
       body: {
         revision,
-        catalog: JSON.stringify({
-          schemaVersion: 1,
-          records: [],
-          unreadable: [],
-        }),
+        catalog: typeof arranged === "string" ? arranged : emptyCatalog,
       },
     };
   }
   if (params.get("done") === "bodies") {
-    return { status: 200, body: { revision, records: [] } };
+    const bodies = state.doneBySource[sourceId]?.bodies ?? {};
+    const files = params.getAll("file");
+    return {
+      status: 200,
+      body: {
+        revision,
+        records: files.map((fileName) => ({
+          path: `.planning/done/${fileName}`,
+          text: bodies[fileName] ?? "",
+        })),
+      },
+    };
   }
   const filePath = params.get("path");
   if (filePath !== null) {
