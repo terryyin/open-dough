@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Anri-chan",
+  "email": "anri-chan@example.org",
+  "identity": "SEED-351#highlight-syntax-in-code-diffs",
+  "mode": "story-branch",
+  "branch": "claude/highlight-syntax-in-code-diffs",
+  "host": "claude",
+  "model": "opus"
+}
