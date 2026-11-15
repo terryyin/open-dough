@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Eimi-chan",
+  "email": "eimi-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-351#highlight-syntax-in-code-diffs",
+  "host": "claude",
+  "model": "fable"
+}
