@@ -1,50 +1,54 @@
+import assert from "node:assert/strict";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import {
+  taskUsage,
   usageHistoryFile,
   writeUsageHistory,
 } from "../../server/usageHistory.ts";
-import assert from "node:assert/strict";
-import { taskUsage } from "../../server/usageHistory.ts";
 import {
   test,
   expect,
-  response,
   launch,
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  at,
-  nativeFile,
+  keepOperationalLaunch,
   readImported,
   runImport,
-  keepOperationalLaunch,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
+
 const wrapperAt = "2026-11-14T08:00:00.000Z";
 const launchAt = "2026-11-14T07:00:00.000Z";
+
 test("retained launch is eligible despite wrapper rejection and unavailable sources never reject independent legacy starts", async ({
   home,
   root,
 }) => {
   keepOperationalLaunch(home, launch("retained", "retained-turn", launchAt));
-  nativeFile(root, "retained", [
-    { type: "session_meta", payload: { id: "retained" } },
-    { type: "turn_context", payload: { turn_id: "retained-turn" } },
-    {
-      type: "response_item",
-      timestamp: wrapperAt,
-      payload: {
-        role: "user",
-        content: [
-          { text: "<recommended_plugins>plugin list</recommended_plugins>" },
-        ],
-      },
-    },
-    response("retained", "retained-turn", "answer", { output_tokens: 4 }),
-  ]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("retained")
+      .withTurnContext("retained-turn")
+      .withRow({
+        type: "response_item",
+        timestamp: wrapperAt,
+        payload: {
+          role: "user",
+          content: [
+            { text: "<recommended_plugins>plugin list</recommended_plugins>" },
+          ],
+        },
+      })
+      .withResponse("retained-turn", "answer", { output_tokens: 4 })
+      .please(),
+  );
   const independent = makeMe.aUsageTask
     .with({
       id: "legacy-independent",
       sessionId: "unavailable",
-      launchedAt: at,
+      launchedAt: usageHistoryDefaultAt,
       title: "Independent fact",
       sources: [{ kind: "native", file: "/unavailable.jsonl", line: 6 }],
     })
@@ -52,7 +56,7 @@ test("retained launch is eligible despite wrapper rejection and unavailable sour
   await writeUsageHistory({ tasks: [independent] }, usageHistoryFile(home));
   runImport(home, root);
   const history = readImported(home);
-  expect(history.tasks[independent.id]?.launchedAt).toBe(at);
+  expect(history.tasks[independent.id]?.launchedAt).toBe(usageHistoryDefaultAt);
   expect(history.tasks[independent.id]?.gaps).not.toContain(
     "unsupported-task-assignment",
   );

@@ -24,7 +24,7 @@ export const usageHistoryDefaultAt = "2026-11-14T10:00:00.000Z";
 /**
  * @typedef {object} CodexTurnContextRow
  * @property {"turn_context"} type
- * @property {{ turn_id: string, model: string, effort: string }} payload
+ * @property {{ turn_id: string, model?: string, effort?: string }} payload
  */
 
 /**
@@ -51,17 +51,18 @@ export const usageHistoryDefaultAt = "2026-11-14T10:00:00.000Z";
  */
 
 /**
- * Observed model/effort for a turn, as Codex writes `turn_context`.
+ * A `turn_context` row. Omit model/effort when the case only needs a turn id.
  * @param {string} turnId
- * @param {string} model
- * @param {string} effort
+ * @param {string} [model]
+ * @param {string} [effort]
  * @returns {CodexTurnContextRow}
  */
 export function codexTurnContext(turnId, model, effort) {
-  return {
-    type: "turn_context",
-    payload: { turn_id: turnId, model, effort },
-  };
+  /** @type {{ turn_id: string, model?: string, effort?: string }} */
+  const payload = { turn_id: turnId };
+  if (model !== undefined) payload.model = model;
+  if (effort !== undefined) payload.effort = effort;
+  return { type: "turn_context", payload };
 }
 
 /**
@@ -102,6 +103,8 @@ export class CodexRolloutBuilder {
   /** @type {string | undefined} */
   #sessionId;
   /** @type {string | undefined} */
+  #cwd;
+  /** @type {string | undefined} */
   #parentThreadId;
   /** @type {boolean} */
   #hasSpawnSource = false;
@@ -116,6 +119,15 @@ export class CodexRolloutBuilder {
    */
   forSession(sessionId) {
     this.#sessionId = sessionId;
+    return this;
+  }
+
+  /**
+   * Working directory on `session_meta` (`cwd`) for project join.
+   * @param {string} cwd
+   */
+  withCwd(cwd) {
+    this.#cwd = cwd;
     return this;
   }
 
@@ -143,10 +155,10 @@ export class CodexRolloutBuilder {
   }
 
   /**
-   * Observed model/effort for a turn, as Codex writes `turn_context`.
+   * A `turn_context` row. Omit model/effort when the case only needs a turn id.
    * @param {string} turnId
-   * @param {string} model
-   * @param {string} effort
+   * @param {string} [model]
+   * @param {string} [effort]
    */
   withTurnContext(turnId, model, effort) {
     this.#rows.push(codexTurnContext(turnId, model, effort));
@@ -199,6 +211,9 @@ export class CodexRolloutBuilder {
     }
     /** @type {Record<string, unknown>} */
     const payload = { id: this.#sessionId };
+    if (this.#cwd !== undefined) {
+      payload.cwd = this.#cwd;
+    }
     if (this.#parentThreadId !== undefined) {
       payload.parent_thread_id = this.#parentThreadId;
     }

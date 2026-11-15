@@ -1,19 +1,15 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import {
   taskUsage,
   usageHistoryFile,
   writeUsageHistory,
 } from "../../server/usageHistory.ts";
+import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  test,
-  expect,
-  response,
-} from "../../tests/usage-history/retainedUsageTest.ts";
-import {
-  at,
-  nativeFile,
   readImported,
   runImport,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
 
@@ -30,37 +26,36 @@ test("wrapper followed by genuine mixed content corrects the same old task start
     makeMe.aRepository.withRevision("then", {}).please(),
   );
   const session = "mixed";
-  const meta = {
-    type: "session_meta",
-    payload: { id: session, cwd: repo.integration },
-  };
-  const turn = {
-    type: "event_msg",
-    payload: { type: "task_started", turn_id: "turn" },
-  };
-  const file = nativeFile(root, session, [
-    meta,
-    turn,
-    {
-      type: "response_item",
-      timestamp: injectedAt,
-      payload: { role: "user", content: [{ text: wrapper }] },
-    },
-    {
-      type: "response_item",
-      timestamp: at,
-      payload: {
-        role: "user",
-        content: [
-          { text: "<skill>PRIVATE-SKILL</skill>" },
-          {
-            text: "$dough-slice-planning SEED-404#missing\nRequested effort: high",
-          },
-        ],
-      },
-    },
-    response(session, "turn", "answer", { output_tokens: 5 }),
-  ]);
+  const file = writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession(session)
+      .withCwd(repo.integration)
+      .withRow({
+        type: "event_msg",
+        payload: { type: "task_started", turn_id: "turn" },
+      })
+      .withRow({
+        type: "response_item",
+        timestamp: injectedAt,
+        payload: { role: "user", content: [{ text: wrapper }] },
+      })
+      .withRow({
+        type: "response_item",
+        timestamp: usageHistoryDefaultAt,
+        payload: {
+          role: "user",
+          content: [
+            { text: "<skill>PRIVATE-SKILL</skill>" },
+            {
+              text: "$dough-slice-planning SEED-404#missing\nRequested effort: high",
+            },
+          ],
+        },
+      })
+      .withResponse("turn", "answer", { output_tokens: 5 })
+      .please(),
+  );
   const id = JSON.stringify(["codex", session, "turn"]);
   const old = makeMe.aUsageTask
     .with({
@@ -77,14 +72,14 @@ test("wrapper followed by genuine mixed content corrects the same old task start
   const history = readImported(home);
   expect(Object.keys(history.tasks)).toEqual([id]);
   expect(history.tasks[id]).toMatchObject({
-    launchedAt: at,
+    launchedAt: usageHistoryDefaultAt,
     workflow: "dough-slice-planning",
     requested: { effort: "high" },
     assignmentEvidence: expect.arrayContaining([
       expect.objectContaining({ status: "rejected", at: injectedAt }),
       expect.objectContaining({
         status: "supported",
-        at,
+        at: usageHistoryDefaultAt,
         source: { kind: "native", file, line: 4 },
       }),
     ]),
