@@ -31,6 +31,16 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
 
 [Meaning, evidence and response](docs/maintainer/findings/ODF-264.md).
 
+### Occurrences
+- Execution: SEED-010#review-independently-observable-promises (first implementation `8ac10364f82362f3dac2504304a52645ed661456`)
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: 0.3.101 (checkout-bound installed guidance at Take `7bb9992277410f6b5c3ba8da0b461c3c61939a84`)
+  - Evidence: launch `44215ad1-8e39-454e-8b40-11990aced97d`, 2026-11-15 execution / 2026-11-16 automatic retrospective conversation and tool results. Initial coordinator batches reported 12,315 and 16,450 original tokens with truncation; this retrospective also batched long finding-search/replay reads beyond its output bound before retrieving the needed passages narrowly.
+  - Observed effect: repeated context retrieval while execution and review continued. Narrow reads recovered the relevant guidance, source and process-record passages; no product or proof loss was established.
+  - Inference: the installed boundary/targeted-retrieval instructions were available, but batching and broad single-line metadata results still exceeded the visible output budget. Total time and token cost of the recovery were not measured.
+
+
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
 
 Former local code: DD-257. [Meaning, evidence and response](docs/maintainer/findings/ODF-314.md).
@@ -68,6 +78,16 @@ Former local code: DD-391. [Evidence and current response](docs/maintainer/findi
 ## ODF-396 — Planning basenames overwhelm a test-local consumer trace
 
 Former local code: DD-404. [Evidence and current response](docs/maintainer/findings/ODF-396.md).
+
+### Occurrences
+- Execution: SEED-010#review-independently-observable-promises (first implementation `8ac10364f82362f3dac2504304a52645ed661456`)
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: 0.3.101 (installed tracer at Take `7bb9992277410f6b5c3ba8da0b461c3c61939a84`; the candidate Distribution guidance was modified in this execution)
+  - Evidence: 2026-11-15 implementation/refactor returns; `10cebdb8e804c52626805b1e42164985229680e4:.planning/slice-plans/616-review-independently-observable-promises/replays/{small-consumers.md,acceptance-consumers.md,refactor-contract-consumers.md}` retain 575, 561 and 174 per-file dispositions. Both base traces automatically included the coordinator-owned `PLAN.md` and its generic basename; the second did so even with an explicit guide `--path`. The first inventory was 644 lines before its responsibility split.
+  - Observed effect: 1,310 disposition rows across three trace records, including repeated paths, for changes to two guidance pages. The file-size check required splitting the first inventory into an index and seven responsibility files; the second inventory also used seven disposition files. Refactor handbacks reported about 5 and 10 active minutes for their complete reviews; trace cost was not separately isolated. Actual source-review CLI and payload-link proof passed, with no missed consumer established.
+  - Inference: auto-derived execution-record terms and additive `--path` selection reproduced this finding's broad-path bookkeeping. Keep indirect proof, but distinguish the changed behavioral surface from unrelated record matches and make path-selection semantics explicit.
+
 
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
