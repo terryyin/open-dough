@@ -6,7 +6,6 @@ import {
 } from "./ciFollowUpRetention.ts";
 import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
-import type { CiProof } from "../src/ciProof.ts";
 import {
   commitIdSchema,
   launchLandingSchema,
@@ -24,12 +23,18 @@ export type {
   LandedResolution,
   PendingResolution,
 } from "./landedCiObservation.ts";
+export {
+  keepLandedCiCollectedEvidence,
+  keepLandedCiProof,
+} from "./landedCiKeepEvidence.ts";
 import { keepResolutionDecision } from "./landedCiKeepResolution.ts";
 import { withRefreshedAttemptTiming } from "./landedCiTimingBasis.ts";
 import { windowedHistory } from "./landedCiMeasuredBuilds.ts";
 import { withAdapterIdentity } from "./landedCiHistoryIdentity.ts";
-import type { CollectedProof } from "./landedCiCollectedProof.ts";
-import { historyWithProof } from "./landedCiRetainedProof.ts";
+import {
+  historyWithCollectedEvidence,
+  type CollectedBuildEvidence,
+} from "./landedCiRetainedProof.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import {
   leaveMachineJson,
@@ -130,7 +135,7 @@ export async function keepLandedCiResolution(
   landing: LandingReference,
   resolution: LandedResolution,
   order?: readonly string[],
-  collected?: CollectedProof,
+  collected?: CollectedBuildEvidence,
 ): Promise<ProjectHistory> {
   let history = noHistory;
   await replaceMachineJson(historyStore(), async (stored) => {
@@ -194,12 +199,7 @@ export async function keepLandedCiResolution(
             },
     });
     if (collected !== undefined && build !== undefined)
-      history = historyWithProof(
-        history,
-        build[0],
-        collected.proof,
-        collected.pending,
-      );
+      history = historyWithCollectedEvidence(history, build[0], collected);
     return { ...stored, [sourceId]: history };
   });
   return history;
@@ -230,18 +230,15 @@ export async function keepLandedCiOrder(
   });
 }
 
-// A concurrent collection cannot replace accepted proof or recreate a build
-// outside the bounded shared cohort.
-export async function keepLandedCiProof(
+// One project's history rewritten under the shared window and equality leave.
+export async function updateProjectHistory(
   sourceId: string,
-  buildKey: string,
-  proof: CiProof,
-  pending?: boolean,
+  update: (project: ProjectHistory) => ProjectHistory,
 ): Promise<ProjectHistory> {
   let history = noHistory;
   await replaceMachineJson(historyStore(), (stored) => {
     const original = stored[sourceId] ?? noHistory;
-    history = historyWithProof(original, buildKey, proof, pending);
+    history = update(original);
     return isDeepStrictEqual(history, original)
       ? leaveMachineJson
       : { ...stored, [sourceId]: history };

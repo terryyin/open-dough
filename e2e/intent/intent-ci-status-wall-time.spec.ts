@@ -31,6 +31,11 @@ import {
   testsSummary,
   uuid,
 } from "../../dashboard/tests/intentCiAdapterProofProject.ts";
+import { measureHistoryTitleWords } from "../../dashboard/src/ciHistoryMeasureCapability.ts";
+import {
+  buildHistoryReading,
+  historyOf,
+} from "../../dashboard/tests/intentCiHistoryPage.ts";
 import { proofOf } from "../../dashboard/tests/intentCiProofPage.ts";
 
 import { openDough } from "../../dashboard/tests/intentCodeBrowseFixtures.ts";
@@ -149,6 +154,12 @@ test("a ciAdapter attempt without start and completion shows CI wall time not re
     wall,
     "This attempt's CI read has no start and completion times.",
   );
-  await expect(panel.getByText("CI time without runner waits")).toHaveCount(0);
+  const history = historyOf(panel);
+  await expect(buildHistoryReading(history).heading).toHaveText(
+    measureHistoryTitleWords,
+  );
+  await expect(history).toContainText(
+    "No dashboard-recorded landings have been measured yet.",
+  );
   expect(adapter.jobsRequests()).toEqual([]);
 });

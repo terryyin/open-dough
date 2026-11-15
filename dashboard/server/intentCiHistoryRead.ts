@@ -13,13 +13,17 @@ import { isPinnedRevision } from "./refusedParameters.ts";
 import { historyEndpointOf } from "./ciHistoryEndpoint.ts";
 import { scopeHistoryOf } from "./ciScopeHistory.ts";
 import { historyGlance } from "../src/ciHistoryGlanceCapability.ts";
+import { historyMeasure } from "../src/ciHistoryMeasureCapability.ts";
 import {
   doneWallTimeGlanceOf,
   scopeHistoryGlanceOf,
 } from "./ciHistoryGlance.ts";
 import { readLandingOrder } from "./launchLandingGit.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { wallTimeReferenceOf } from "./ciWallTimeReference.ts";
+import {
+  measureReferenceOf,
+  wallTimeReferenceOf,
+} from "./ciWallTimeReference.ts";
 import { historyEntries } from "./landedCiHistoryEntries.ts";
 import { readableHistoryEntries } from "./ciHistoryGapVocabulary.ts";
 import {
@@ -37,6 +41,7 @@ export type IntentCiHistoryRead =
   | {
       readonly kind: "intent-ci-history";
       readonly gapReasons?: "timing-basis";
+      readonly measure?: typeof historyMeasure.value;
       readonly history?: never;
       readonly scope?: never;
       readonly revision?: never;
@@ -45,6 +50,7 @@ export type IntentCiHistoryRead =
   | {
       readonly kind: "intent-ci-history";
       readonly gapReasons?: "timing-basis";
+      readonly measure?: never;
       readonly history?: typeof historyGlance.value;
       readonly scope?: string;
       readonly revision: string;
@@ -108,16 +114,32 @@ export function parseIntentCiHistoryRead(
       through,
     };
   }
+  const measure = params.get(historyMeasure.name);
+  if (
+    params.has(historyMeasure.name) &&
+    (params.getAll(historyMeasure.name).length !== 1 ||
+      measure !== historyMeasure.value)
+  )
+    return refused(historyRefusal);
   if (
     params.getAll("intent").length !== 1 ||
     [...params.keys()].some(
       (name) =>
-        name !== "source" && name !== "intent" && name !== "gap-reasons",
+        name !== "source" &&
+        name !== "intent" &&
+        name !== "gap-reasons" &&
+        name !== historyMeasure.name,
     )
   ) {
     return refused(historyRefusal);
   }
-  return { kind: "intent-ci-history", ...vocabulary };
+  return {
+    kind: "intent-ci-history",
+    ...vocabulary,
+    ...(measure === historyMeasure.value
+      ? { measure: historyMeasure.value }
+      : {}),
+  };
 }
 
 // What a CI wall time history read names as being read.
@@ -209,7 +231,14 @@ export async function performIntentCiHistoryRead(
     return answered(glance ? doneWallTimeGlanceOf(done) : done);
   }
   return answered({
-    entries: readableHistoryEntries(historyEntries(history), read?.gapReasons),
-    reference: wallTimeReferenceOf(history, undefined, order),
+    entries: readableHistoryEntries(
+      historyEntries(history, read?.measure),
+      read?.gapReasons,
+      read?.measure,
+    ),
+    reference:
+      read?.measure === historyMeasure.value
+        ? measureReferenceOf(history, undefined, order)
+        : wallTimeReferenceOf(history, undefined, order),
   });
 }

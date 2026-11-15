@@ -8,7 +8,10 @@
 // and attempt. A build is a push run's first attempt, linked under ci.invalid
 // by its run, at the landed revision unless the case states otherwise.
 
-import { attemptTimingBasis } from "./ciComparisonAnswerTestData.mjs";
+import {
+  attemptTimingBasis,
+  withDefaultWallIntervalMeasure,
+} from "./ciComparisonAnswerTestData.mjs";
 
 /** @typedef {import("../../../dashboard/server/landedCiHistoryStore.ts").ProjectHistory} ProjectHistory */
 /** @typedef {ProjectHistory["landings"][string]} KeptLanding */
@@ -38,9 +41,15 @@ const firstAttemptOf = (runId) => ({
  */
 
 /**
- * The landing's own build: its run (first attempt) and the attempt's start
- * and completion.
- * @typedef {{ runId: number, startedAt: string, completedAt: string }} BuildFacts
+ * The landing's own build: its run (first attempt), the attempt's start and
+ * completion, and optional kept CI time without runner waits when the case
+ * supplies it.
+ * @typedef {{
+ *   runId: number,
+ *   startedAt: string,
+ *   completedAt: string,
+ *   timeWithoutRunnerWaits?: KeptBuild["timeWithoutRunnerWaits"],
+ * }} BuildFacts
  */
 
 export class LandedCiHistoryBuilder {
@@ -73,16 +82,27 @@ export class LandedCiHistoryBuilder {
    * @param {LandingFacts & BuildFacts} facts
    * @param {"pass" | "failed"} state
    */
-  #built({ runId, startedAt, completedAt, ...landing }, state) {
+  #built(facts, state) {
+    const {
+      runId,
+      startedAt,
+      completedAt,
+      timeWithoutRunnerWaits: statedMeasure,
+      ...landing
+    } = facts;
     const key = `run/${String(runId)}/1`;
-    this.#builds[key] = {
+    this.#builds[key] = withDefaultWallIntervalMeasure(facts, {
       revision: landing.revision,
       state,
       timingBasis: attemptTimingBasis,
       ...firstAttemptOf(runId),
       startedAt,
       completedAt,
-    };
+      ...("timeWithoutRunnerWaits" in facts &&
+        statedMeasure !== undefined && {
+          timeWithoutRunnerWaits: statedMeasure,
+        }),
+    });
     this.#landing(landing, { kind: "build", build: key, selection: "exact" });
     return this;
   }
@@ -155,11 +175,11 @@ export class LandedCiHistoryBuilder {
    */
   recording(landing, key, build, selection = "exact") {
     this.#landing(landing, { kind: "build", build: key, selection });
-    this.#builds[key] = {
+    this.#builds[key] = withDefaultWallIntervalMeasure(build, {
       timingBasis: attemptTimingBasis,
       startedAt: landing.receivedAt,
       ...build,
-    };
+    });
     return this;
   }
 

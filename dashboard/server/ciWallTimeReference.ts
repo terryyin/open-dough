@@ -1,6 +1,8 @@
-// Wall-time eligibility and projection use the same retained snapshot as the
-// existing points/gaps. Published declared proof, not cumulative test timing,
-// establishes completeness. No persistence or acquisition belongs here.
+// Wall-time and measure eligibility project from the same retained snapshot as
+// the existing points/gaps. Published declared proof, not cumulative test
+// timing, establishes completeness. No persistence or acquisition belongs
+// here. A project-history sample is eligible when wall-time reading accepts
+// the build and the build keeps a time; that time is the sample's value.
 import {
   hasAttemptTiming,
   unverifiedAttemptTiming,
@@ -12,18 +14,24 @@ import {
   type PriorBuildSample,
 } from "../src/ciPriorBuildReference.ts";
 import { historyWallTimeMs } from "../src/landedCiHistory.ts";
-import { gapReasonWords } from "../src/ciHistoryGapWords.ts";
+import { gapReasonWords, pendingWaitWords } from "../src/ciHistoryGapWords.ts";
 import { failedBuildWords, isKnownFailed } from "../src/ciFailedBuild.ts";
+import {
+  historyMeasure,
+  keptMeasureReadingOf,
+} from "../src/ciHistoryMeasureCapability.ts";
 import { historyEntries } from "./landedCiHistoryEntries.ts";
 import type { KeptBuild, ProjectHistory } from "./landedCiHistoryStore.ts";
 
 const measuredDateSchema = z.iso.datetime({ offset: true });
 
-export function wallTimeReadingOf(build: KeptBuild | undefined): {
+type BuildReading = {
   readonly ms?: number;
   readonly reason?: string;
   readonly failed?: true;
-} {
+};
+
+export function wallTimeReadingOf(build: KeptBuild | undefined): BuildReading {
   if (build === undefined) return { reason: "Measured build is not retained" };
   if (isKnownFailed(build)) return { reason: failedBuildWords, failed: true };
   if (!hasAttemptTiming(build)) return { reason: unverifiedAttemptTiming };
@@ -59,6 +67,18 @@ export function wallTimeReadingOf(build: KeptBuild | undefined): {
   return { ms };
 }
 
+// Eligible under the wall-time rule, with the kept CI time without runner
+// waits in place of the wall interval; a kept reason or an absent ask is an
+// excluded sample with that reason.
+export function measureReadingOf(build: KeptBuild | undefined): BuildReading {
+  const wall = wallTimeReadingOf(build);
+  if (wall.ms === undefined) return wall;
+  const kept = keptMeasureReadingOf(build?.timeWithoutRunnerWaits);
+  if (kept.kind === "milliseconds") return { ms: kept.milliseconds };
+  if (kept.kind === "reason") return { reason: kept.reason };
+  return { reason: pendingWaitWords[historyMeasure.value] };
+}
+
 // An exact published endpoint can be supplied by Done/scoped consumers. The
 // default is the latest represented landing in the retained trunk order.
 export function wallTimeReferenceOf(
@@ -75,6 +95,33 @@ export function wallTimeReferenceOf(
   history: ProjectHistory,
   endpoint?: string,
   order: readonly string[] | undefined = history.trunkOrder,
+): PriorBuildReference | undefined {
+  return referenceOf(history, endpoint, order, wallTimeReadingOf);
+}
+
+export function measureReferenceOf(
+  history: ProjectHistory,
+  endpoint: string,
+  order?: readonly string[],
+): PriorBuildReference;
+export function measureReferenceOf(
+  history: ProjectHistory,
+  endpoint?: undefined,
+  order?: readonly string[],
+): PriorBuildReference | undefined;
+export function measureReferenceOf(
+  history: ProjectHistory,
+  endpoint?: string,
+  order: readonly string[] | undefined = history.trunkOrder,
+): PriorBuildReference | undefined {
+  return referenceOf(history, endpoint, order, measureReadingOf);
+}
+
+function referenceOf(
+  history: ProjectHistory,
+  endpoint: string | undefined,
+  order: readonly string[] | undefined,
+  readingOf: (build: KeptBuild | undefined) => BuildReading,
 ): PriorBuildReference | undefined {
   const landings = Object.values(history.landings);
   const resolvedEndpoint =
@@ -120,7 +167,7 @@ export function wallTimeReferenceOf(
       ...(build === undefined ? {} : { revision: build.revision }),
       ...(observed.selection === "ancestor"
         ? { reason: "Unsupported ancestor build selection" }
-        : wallTimeReadingOf(build)),
+        : readingOf(build)),
     });
   }
   return priorBuildReferenceOf({

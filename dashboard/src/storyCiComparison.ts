@@ -22,13 +22,13 @@ const attemptTimes = {
   completedAt: z.iso.datetime().optional(),
 };
 
-const timeWithoutRunnerWaitsSchema = z.union([
+export const ciTimeWithoutRunnerWaitsSchema = z.union([
   z.object({ milliseconds: z.number().nonnegative() }),
   z.object({ reason: z.string().min(1) }),
 ]);
 
 export type CiTimeWithoutRunnerWaits = z.infer<
-  typeof timeWithoutRunnerWaitsSchema
+  typeof ciTimeWithoutRunnerWaitsSchema
 >;
 
 // Requested revision's own status when it is not the timed build shown
@@ -74,7 +74,7 @@ const buildSlot = z.object({
   runBranch: z.string().min(1).optional(),
   ...runIdentity,
   ...attemptTimes,
-  timeWithoutRunnerWaits: timeWithoutRunnerWaitsSchema,
+  timeWithoutRunnerWaits: ciTimeWithoutRunnerWaitsSchema,
   ...requestedStatusField,
 });
 

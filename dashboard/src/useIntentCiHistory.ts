@@ -1,5 +1,5 @@
-// Project Intent's CI wall time history as its CI evidence owner reads it
-// (`./IntentCiEvidence.tsx`), through
+// Project Intent's CI time without runner waits history as its CI evidence
+// owner reads it (`./IntentCiEvidence.tsx`), through
 // `./authenticatedIntentCiHistoryRead.ts`: read with each read of the trunk's
 // judgment (`./useIntentCiJudgment.ts` names each one's round) -- when Intent
 // shows Project Intent, when the trunk is observed at a new revision, and on
@@ -9,10 +9,9 @@
 
 import { useEffect, useState } from "react";
 import { readIntentCiHistory } from "./authenticatedIntentCiHistoryRead.ts";
+import { unreadMeasureHistoryReason } from "./ciHistoryMeasureCapability.ts";
 import type { MeasuredHistory } from "./landedCiHistory.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-
-const unreadHistoryReason = "The CI wall time history could not be read";
 
 // The history shown, if any has been read for the source, and why the
 // latest read failed, if it did.
@@ -49,7 +48,7 @@ export function useIntentCiHistory(
         setFailed(
           error instanceof Error && error.message !== ""
             ? error.message
-            : unreadHistoryReason,
+            : unreadMeasureHistoryReason,
         );
       },
     );

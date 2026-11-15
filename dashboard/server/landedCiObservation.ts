@@ -30,6 +30,7 @@ import {
 import { commitIdSchema } from "../src/launchLanding.ts";
 import {
   buildSelectionSchema,
+  ciTimeWithoutRunnerWaitsSchema,
   requestedRevisionCiStatusSchema,
 } from "../src/storyCiComparison.ts";
 import { provenanceOf } from "./landedCiMeasuredBuilds.ts";
@@ -79,6 +80,8 @@ export const keptBuildSchema = z.object({
   proof: retainedProofSchema.optional(),
   // Absent in older records; a classified final answer is not acquired again.
   proofPending: z.boolean().optional(),
+  // Absent means collection has not asked the measure yet.
+  timeWithoutRunnerWaits: ciTimeWithoutRunnerWaitsSchema.optional(),
 });
 
 export type KeptBuild = z.infer<typeof keptBuildSchema>;
@@ -88,7 +91,7 @@ export type KeptBuild = z.infer<typeof keptBuildSchema>;
 // one whose attempt named no CI wall time.
 const unmeasuredReasonSchema = z
   .enum(finalGapReasons)
-  .exclude(["failed", "not-recorded"]);
+  .exclude(["failed", "not-recorded", "time-without-runner-waits"]);
 
 // The build the Landed rule named for a landing it could not measure by
 // it: its revision, how it would have stood for the landing, and its run

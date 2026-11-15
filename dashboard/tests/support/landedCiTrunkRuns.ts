@@ -5,6 +5,7 @@
 // open or for a page (../intentCiHistoryPage.ts); and a run as the history
 // read answers it.
 
+import { apiJob } from "../../../Distribution/tests/skills/dough-execute-plan/github-actions-api-test-fixtures.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { OriginAnswer } from "../originAnswers.ts";
 import { notFoundAnswer } from "../originAnswers.ts";
@@ -21,6 +22,10 @@ import {
   proofRun,
   type ComparisonProofServe,
 } from "./storyCiComparisonEntryProofs.ts";
+
+export type AttemptJobs = Readonly<
+  Record<string, readonly Record<string, unknown>[]>
+>;
 
 // Run `id`'s link under ci.invalid.
 const runUrlOf = (id: number) => `https://ci.invalid/runs/${String(id)}`;
@@ -115,10 +120,12 @@ export function usableProofOf(run: CiRunAnswer): ComparisonProofServe {
 
 // Trunk's Actions as GitHub answers them, whichever revision or branch a
 // listing names: `runs` as the selected workflow's push runs, and each run's
-// CI proof as `proofs` keeps it.
+// CI proof as `proofs` keeps it. `jobs` answers attempt job listings by
+// `runId/attempt` when the case serves them.
 export function trunkActions(
   runs: readonly CiRunAnswer[],
   proofs: TrunkProofs = {},
+  jobs: AttemptJobs = {},
 ): (argv: readonly string[]) => OriginAnswer | undefined {
   const runsByRevision: Record<string, CiRunAnswer[]> = {};
   for (const run of runs) (runsByRevision[run.headSha] ??= []).push(run);
@@ -134,6 +141,49 @@ export function trunkActions(
   }
   return (argv) => {
     const route = argv.find((argument) => argument.startsWith("repos/")) ?? "";
+    const listedJobs = /\/actions\/runs\/(\d+)\/attempts\/(\d+)\/jobs/.exec(
+      route,
+    );
+    if (listedJobs?.[1] !== undefined && listedJobs[2] !== undefined) {
+      const attemptKey = `${listedJobs[1]}/${listedJobs[2]}`;
+      const listed = jobs[attemptKey];
+      // An explicit empty listing stays empty. When the case does not name
+      // jobs for a completed run, serve one "check" job spanning the run so
+      // CI time without runner waits equals wall time for comparisonCiWorkflow.
+      const answered =
+        listed ??
+        (() => {
+          const run = runs.find(
+            ({ id, databaseId, attempt }) =>
+              String(id ?? databaseId) === listedJobs[1] &&
+              String(attempt ?? 1) === listedJobs[2],
+          );
+          if (
+            run?.startedAt === undefined ||
+            run.completedAt === undefined ||
+            run.conclusion !== "success"
+          )
+            return undefined;
+          return [
+            {
+              name: "check",
+              started_at: run.startedAt,
+              completed_at: run.completedAt,
+            },
+          ];
+        })();
+      if (answered !== undefined)
+        return {
+          status: 200,
+          contentType: "application/json; charset=utf-8",
+          body: JSON.stringify({
+            jobs: answered.map((job) =>
+              apiJob(job as Parameters<typeof apiJob>[0]),
+            ),
+            total_count: answered.length,
+          }),
+        };
+    }
     const listed = Number(
       /\/actions\/runs\/(\d+)\/artifacts/.exec(route)?.[1] ?? Number.NaN,
     );
@@ -169,16 +219,18 @@ export function serveTrunkRuns(
   {
     readable = () => true,
     proofs = () => ({}),
+    jobs = () => ({}),
   }: {
     readonly readable?: () => boolean;
     readonly proofs?: () => TrunkProofs;
+    readonly jobs?: () => AttemptJobs;
   } = {},
 ): void {
   github.serve("terryyin/open-dough", async (call) => {
     if (!readable() && isActionsRequest(call.request)) return notFoundAnswer();
     const main = await originMain(origin);
     return (
-      trunkActions(runs(main), proofs())(call.argv) ??
+      trunkActions(runs(main), proofs(), jobs())(call.argv) ??
       publishes({ revision: main })(call)
     );
   });

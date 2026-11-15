@@ -1,13 +1,14 @@
-// Project Intent's CI wall time history as the local authenticated read
-// boundary answers it (`../server/intentCiHistoryRead.ts`) and CI status
-// shows it (`./IntentCiHistory.tsx`): the window of the project's
-// dashboard-recorded trunk landings as one ordered list, oldest first, of
-// points and gaps. A point is one measured build: its revision, the run
-// attempt it was measured from, that attempt's start and completion, from
-// which its CI wall time is read, and the landings it measures, each with
+// Project Intent's CI history as the local authenticated read boundary
+// answers it (`../server/intentCiHistoryRead.ts`) and CI status shows it
+// (`./IntentCiHistory.tsx`): the window of the project's dashboard-recorded
+// trunk landings as one ordered list, oldest first, of points and gaps. A
+// point is one measured build: its revision, the run attempt it was measured
+// from, that attempt's start and completion, and one time under the history's
+// measure (CI time without runner waits when the project read names that
+// measure; CI wall time otherwise), and the landings it measures, each with
 // how -- its own landed revision's build (exact), a confirmed skip's reused
 // equivalent build (equivalent), or the later trunk build a cancelled
-// landing joins (later). A gap is one landing with no CI wall time, and why:
+// landing joins (later). A gap is one landing with no measurement, and why:
 // pending, not measured yet, with what it waits for and the run attempt it
 // waits on; or, finally, the build that measures it failed, its own build was
 // cancelled with no later trunk build to stand for it, CI did not build it,
@@ -84,6 +85,9 @@ export const landedCiPointSchema = z.object({
   ...runShape,
   startedAt: instantSchema,
   completedAt: instantSchema,
+  // When the reader names the measure capability, the history's measure for
+  // this point; absent for wall-time readers and for builds not yet asked.
+  timeMs: z.number().nonnegative().optional(),
   // The landings it measures, oldest first.
   landings: z.array(measuredLandingSchema).min(1),
 });
@@ -95,7 +99,9 @@ export type LandedCiPoint = z.infer<typeof landedCiPointSchema>;
 // trunk build after its own was cancelled (`later-build`), the CI proof of
 // the build that would stand for it, whose read GitHub left unanswered
 // (`proof`), CI that could not be read when collection last asked (`read`),
-// or a position not yet established from local ancestry (`order`).
+// a position not yet established from local ancestry (`order`), or — only for
+// a measure-naming project read — CI time without runner waits not yet kept
+// (`time-without-runner-waits`).
 export const pendingWaits = [
   "run",
   "build",
@@ -103,6 +109,7 @@ export const pendingWaits = [
   "proof",
   "read",
   "order",
+  "time-without-runner-waits",
 ] as const;
 
 export type PendingWait = (typeof pendingWaits)[number];
@@ -111,8 +118,10 @@ export type PendingWait = (typeof pendingWaits)[number];
 // own build was cancelled or timed out with no later trunk build to stand for
 // it; CI did not build it; a confirmed skip has no equivalent build with
 // timing; the build that would stand for it, with its timing, published no
-// CI proof; that build's CI proof expired, or could not be read or used; or
-// its build's attempt named no CI wall time.
+// CI proof; that build's CI proof expired, or could not be read or used; its
+// build's attempt named no CI wall time; or — only for a measure-naming
+// project read — the kept measure is a reason there is none
+// (`time-without-runner-waits`).
 export const finalGapReasons = [
   "failed",
   "cancelled",
@@ -123,6 +132,7 @@ export const finalGapReasons = [
   "unreadable",
   "not-recorded",
   "timing-basis",
+  "time-without-runner-waits",
   "unclassified",
   "identity",
 ] as const;
@@ -193,9 +203,11 @@ export const landedCiEntryKey = (entry: LandedCiEntry): string =>
       ].join("#")
     : ["gap", entry.revision, entry.receivedAt].join("#");
 
-// A point as CI status shows it: with the CI wall time its attempt's start
-// and completion give, which every point the boundary answers has.
-export type MeasuredPoint = LandedCiPoint & { readonly wallTimeMs: number };
+// A point as a history shows it: with one time under that history's measure
+// (CI time without runner waits for a measure-naming project read; CI wall
+// time for Done and other wall-time reads), which every point the boundary
+// answers has.
+export type MeasuredPoint = LandedCiPoint & { readonly timeMs: number };
 
 export type MeasuredEntry = MeasuredPoint | LandedCiGap;
 
@@ -207,8 +219,10 @@ export type MeasuredHistory = {
 export const isPoint = (entry: MeasuredEntry): entry is MeasuredPoint =>
   entry.kind === "point";
 
-// The history with each point's CI wall time; undefined when a point has
-// none, as no answer of the boundary's does, so a time is never invented.
+// The history with each point's time under the history's measure: the named
+// measure's milliseconds when present, otherwise CI wall time from the
+// attempt's start and completion. Undefined when a point has none, as no
+// answer of the boundary's does, so a time is never invented.
 export function measuredHistoryOf(
   history: LandedCiHistory,
 ): MeasuredHistory | undefined {
@@ -218,9 +232,10 @@ export function measuredHistoryOf(
       entries.push(entry);
       continue;
     }
-    const ms = historyWallTimeMs(entry.startedAt, entry.completedAt);
+    const ms =
+      entry.timeMs ?? historyWallTimeMs(entry.startedAt, entry.completedAt);
     if (ms === undefined) return undefined;
-    entries.push({ ...entry, wallTimeMs: ms });
+    entries.push({ ...entry, timeMs: ms });
   }
   return {
     entries,

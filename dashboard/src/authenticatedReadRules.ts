@@ -8,6 +8,7 @@
 // `../server/ghRead.ts`), so nothing under `./` may import that module
 // directly.
 import { isAdapterProofAttempt, type CiProofSubject } from "./ciProof.ts";
+import { measureHistoryTitleWords } from "./ciHistoryMeasureCapability.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 export const authenticatedReadEndpoint = "/__authenticated-read";
@@ -98,9 +99,15 @@ export function readingCiProofOf(
     : `the CI proof of run ${String(subject.runId)} attempt ${String(subject.runAttempt)} of ${repository}`;
 }
 
-// A project's collected CI wall time history (`../server/intentCiHistoryRead.ts`).
+// A project's collected CI wall time history (`../server/intentCiHistoryRead.ts`),
+// as Done and other wall-time readers ask for it.
 export function readingCiHistoryOf(repository: string): string {
   return `the CI wall time history of ${repository}`;
+}
+
+// Project Intent's CI status history by CI time without runner waits.
+export function readingCiMeasureHistoryOf(repository: string): string {
+  return `the ${measureHistoryTitleWords} of ${repository}`;
 }
 
 export function readingCiScopeHistoryOf(

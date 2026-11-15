@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-364_chart-ci-time-without-runner-waits.json",
+      "identity": "SEED-364#chart-ci-time-without-runner-waits",
+      "completedAt": "2026-11-15T11:07:49.240Z",
+      "blob": "f47e9fe7bcf3ca2be11765fabe59d29d02958456"
+    },
+    {
       "fileName": "SEED-369_make-recent-token-usage-easier-to-read.json",
       "identity": "SEED-369#make-recent-token-usage-easier-to-read",
       "completedAt": "2026-11-15T10:10:26.486Z",

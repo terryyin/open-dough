@@ -3,7 +3,8 @@
 // answer previously retrieved with a spinner until the fresh answer replaces
 // it, or shows a failure beside it without presenting the kept answer as
 // newly verified, then the shown judgment and its attempt's proof, and for
-// the trunk its collected CI wall time history (`./IntentCiHistory.tsx`). A
+// the trunk its collected CI time without runner waits history
+// (`./IntentCiHistory.tsx`). A
 // judgment of another branch is never shown. A selected entry's or folder's
 // Summary qualifies its evidence in the same words
 // (`./IntentScopeEvidenceLabels.tsx`).
@@ -87,7 +88,8 @@ export function JudgedBranch({
   readonly story: string | undefined;
   readonly judged: JudgedReading;
   readonly proof: ShownProof | undefined;
-  // The trunk's collected CI wall time history; none for a story branch.
+  // The trunk's collected CI time without runner waits history; none for a
+  // story branch.
   readonly history?: HistoryReading | undefined;
 }) {
   const { shown, reading, refreshFailed } = judged;

@@ -8,14 +8,16 @@ import type {
 } from "./landedCiHistory.ts";
 
 // What a pending gap waits for, said as not measured yet: a pending landing
-// has no CI wall time until collection finds it final.
-const pendingWords: Readonly<Record<PendingWait, string>> = {
+// has no CI wall time until collection finds it final. Reference exclusion for
+// an absent kept measure uses the same wait words without the Pending frame.
+export const pendingWaitWords: Readonly<Record<PendingWait, string>> = {
   run: "no CI run yet",
   build: "CI queued or running",
   "later-build": "waiting for a later trunk build",
   proof: "CI proof not read yet",
   read: "CI not read yet",
   order: "local landing order unavailable",
+  "time-without-runner-waits": "CI time without runner waits not read yet",
 };
 
 // Why a final gap will never have a CI wall time.
@@ -29,6 +31,7 @@ const finalWords: Readonly<Record<FinalGapReason, string>> = {
   unreadable: "CI proof unreadable",
   "not-recorded": "CI wall time not recorded",
   "timing-basis": unverifiedAttemptTiming,
+  "time-without-runner-waits": "CI time without runner waits unavailable",
   unclassified: "Historical CI evidence unavailable",
   identity: "Retained adapter attempt identity unavailable",
 };
@@ -41,9 +44,13 @@ export function gapReasonWords(
     | Pick<PendingGap, "reason" | "waitsFor">
     | Pick<FinalGap, "reason" | "explanation">,
 ): string {
-  if (gap.reason === "unclassified" || gap.reason === "identity")
+  if (
+    gap.reason === "unclassified" ||
+    gap.reason === "identity" ||
+    gap.reason === "time-without-runner-waits"
+  )
     return gap.explanation ?? finalWords[gap.reason];
   return gap.reason === "pending"
-    ? `Pending · ${pendingWords[gap.waitsFor]}`
+    ? `Pending · ${pendingWaitWords[gap.waitsFor]}`
     : finalWords[gap.reason];
 }

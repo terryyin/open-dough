@@ -1,4 +1,4 @@
-// Project Intent's CI wall time history journeys
+// Project Intent's CI time without runner waits history journeys
 // (./intent/intent-ci-wall-time-history*.spec.ts): Open Dough's trunk
 // published from its real bare origin (./support/startOrigin.ts) with the CI
 // runs, and their CI proof, a journey serves, or its published project with
@@ -9,6 +9,10 @@
 // chart's drawn points and line.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import {
+  measureHistoryChartLabelWords,
+  measureHistoryTitleWords,
+} from "../src/ciHistoryMeasureCapability.ts";
 import { historyChart } from "./historyChartPage.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
@@ -26,26 +30,31 @@ import type { CiRunAnswer } from "./support/baseCiActions.ts";
 import {
   answeredRun,
   trunkActions,
+  type AttemptJobs,
   type TrunkProofs,
 } from "./support/landedCiTrunk.ts";
 import { originMain } from "./support/sessionDialog.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import type { Locator, Page } from "@playwright/test";
 
-// The CI wall time history in a CI status panel.
+// The CI time without runner waits history in a CI status panel.
 export const historyOf = (panel: Locator) =>
-  panel.getByRole("region", { name: "CI wall time history", exact: true });
+  panel.getByRole("region", {
+    name: measureHistoryTitleWords,
+    exact: true,
+  });
 
 export const buildEvidenceRows = (builds: Locator) =>
   builds.getByRole("listitem");
 
-// The history's chart of CI wall time by build date (./historyChartPage.ts).
-export const wallTimeChart = (history: Locator) =>
-  historyChart(history, "CI wall time by build date");
+// The history's chart of CI time without runner waits by build date
+// (./historyChartPage.ts).
+export const measureHistoryChart = (history: Locator) =>
+  historyChart(history, measureHistoryChartLabelWords);
 
 // The displayed build history, without choosing its dates, values or evidence.
 export function buildHistoryReading(history: Locator) {
-  const chart = wallTimeChart(history);
+  const chart = measureHistoryChart(history);
   const reference = history.locator(".history-chart-reference");
   const evidence = history.getByRole("list", { name: "Builds and evidence" });
   return {
@@ -79,6 +88,7 @@ export async function publishTrunk(
   origin: StartOrigin,
   runs: () => readonly CiRunAnswer[],
   proofs: () => TrunkProofs = () => ({}),
+  jobs: () => AttemptJobs = () => ({}),
 ) {
   const committed = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
@@ -86,7 +96,9 @@ export async function publishTrunk(
     repository: "terryyin/open-dough",
     follows: true,
   });
-  committed.serveActions((argv) => trunkActions(runs(), proofs())(argv));
+  committed.serveActions((argv) =>
+    trunkActions(runs(), proofs(), jobs())(argv),
+  );
 }
 
 // Project Intent's CI status, with nothing selected.
@@ -179,7 +191,7 @@ export const runLink = (id: number) => ({
 // The chart's drawn points, in drawing order, each at its place, and the
 // line through them as its strokes, each a run of points no gap breaks.
 export async function chartOf(history: Locator) {
-  const chart = wallTimeChart(history);
+  const chart = measureHistoryChart(history);
   const points = await chart.measured.evaluateAll((circles) =>
     circles.map((circle) => ({
       x: Number(circle.getAttribute("cx")),

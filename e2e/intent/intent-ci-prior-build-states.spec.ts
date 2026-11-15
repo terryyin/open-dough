@@ -7,7 +7,6 @@ import {
 // authenticated reader; no fixture supplies a calculated average.
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   buildEvidenceRows,
@@ -17,47 +16,13 @@ import {
   openJudgedCiStatus,
 } from "../../dashboard/tests/intentCiHistoryPage.ts";
 import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
-import { keepLandedCiHistory } from "../../dashboard/tests/support/landedCiHistory.ts";
-
-async function keepMeasurements(
-  home: string,
-  values: readonly number[],
-  selectedProof = true,
-) {
-  const history = makeMe.aLandedCiHistory;
-  const order = Array.from(values.keys(), (index) =>
-    (index + 1).toString(16).padStart(40, "0"),
-  );
-  for (const [index, ms] of values.entries()) {
-    const revision = order[index];
-    if (revision === undefined)
-      throw new Error("Measurement revision is missing");
-    const startedAt = `2026-11-0${index + 1}T10:00:00Z`;
-    history.measuredLanding({
-      receipt: String(index),
-      revision,
-      receivedAt: startedAt,
-      runId: index + 1,
-      startedAt,
-      completedAt: new Date(Date.parse(startedAt) + ms).toISOString(),
-    });
-    if (selectedProof || index < values.length - 1)
-      history.proofFor(
-        `run/${index + 1}/1`,
-        makeMe.aCiProof
-          .forRun({ revision, runId: index + 1 })
-          .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
-          .please(),
-      );
-  }
-  await keepLandedCiHistory(home, history.inTrunkOrder(order).please());
-}
+import { keepLandedCiMeasurements } from "../../dashboard/tests/support/keepLandedCiMeasurements.ts";
 
 test("five complete zeros give a zero reference with its median, line and each build's evidence", async ({
   page,
   dashboard,
 }) => {
-  await keepMeasurements(dashboard.home, [0, 0, 0, 0, 0, 1200]);
+  await keepLandedCiMeasurements(dashboard.home, [0, 0, 0, 0, 0, 1200]);
   await page.setViewportSize({ width: 390, height: 844 });
   const panel = await openJudgedCiStatus(page);
   const history = historyOf(panel);
@@ -75,7 +40,7 @@ test("selected missing proof keeps a usable prior average and available observed
   page,
   dashboard,
 }) => {
-  await keepMeasurements(
+  await keepLandedCiMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 100000, 120000],
     false,
@@ -99,7 +64,7 @@ test("four post-filter values show their evidence and insufficient history witho
   page,
   dashboard,
 }) => {
-  await keepMeasurements(
+  await keepLandedCiMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 116000, 120000],
   );
@@ -122,7 +87,7 @@ test("refresh recomputes the displayed endpoint reference from the changed retai
   page,
   dashboard,
 }) => {
-  await keepMeasurements(
+  await keepLandedCiMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 100000, 115000],
   );
@@ -130,7 +95,7 @@ test("refresh recomputes the displayed endpoint reference from the changed retai
   const history = historyOf(panel);
   await expect(history).toContainText("Prior-build average · 1 min 40 s");
   await expect(history).toContainText("5 prior builds used");
-  await keepMeasurements(
+  await keepLandedCiMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 100000, 115000, 130000],
   );
@@ -147,7 +112,7 @@ test("an invalid measured start keeps its original gap and readable receipt date
   page,
   dashboard,
 }) => {
-  await keepMeasurements(
+  await keepLandedCiMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 100000, 120000],
   );

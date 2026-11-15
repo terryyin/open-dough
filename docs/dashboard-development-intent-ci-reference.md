@@ -1,11 +1,16 @@
 # Intent prior-build reference
 
-Part of [CI status](dashboard-development-intent-ci-status.md). The project
-wall-time history compares its latest represented landing, in recorded trunk
-order, with complete prior measurements in the same retained local snapshot.
-The existing latest measured build, dated points, gaps, judgment and Proof
-remain available. A horizontal dashed line marks the displayed endpoint's
-**Prior-build average**, never a retrospective average curve.
+Part of [CI status](dashboard-development-intent-ci-status.md). Collection and
+retention of the history are in
+[CI history collection](dashboard-development-intent-ci-history-collection.md).
+The project history compares its latest represented landing, in recorded
+trunk order, with complete prior measurements in the same retained local
+snapshot, using **CI time without runner waits** as its measure. A selected
+Done story's **CI wall time history** and the automatic CI follow-up rule
+keep wall time. The existing latest measured build, dated points, gaps,
+judgment and Proof remain available. A horizontal dashed line marks the
+displayed endpoint's **Prior-build average**, never a retrospective average
+curve.
 
 The retained window holds 20 distinct measured builds total. An endpoint
 that occupies one of those builds leaves at most 19 prior builds; older
@@ -23,16 +28,21 @@ supply prior evidence when that measured revision is at or after the endpoint.
 Unavailable measured-revision order is an explained exclusion. Completion
 timestamps and story identity never determine this boundary.
 
-Wall-time eligibility requires a successful attempt with valid ISO start and
-completion bounds, a validated nonempty proof summary, and every published
-declared part present and unambiguous. Equal start/completion bounds are a
-measured zero; reversed bounds are invalid. Entry-only proof without test
-durations or file breakdown suffices for wall time. This proves completeness
-of the declared published proof, not that every possible test or undeclared
-workflow job ran. Failed, pending, missing, empty and ambiguous evidence retain
-their own explanations, without a numeric substitute. Invalid measured start
-dates use the valid landing receipt date in the evidence; external reference
-dates are checked as ISO instants before display.
+Wall-time eligibility (shared with Done and follow-up) requires a successful
+attempt with valid ISO start and completion bounds, a validated nonempty
+proof summary, and every published declared part present and unambiguous.
+Equal start/completion bounds are a measured zero; reversed bounds are
+invalid. Entry-only proof without test durations or file breakdown suffices
+for wall time. For the project history's measure reference, a prior sample
+is eligible when it meets that wall-time rule and the build keeps a CI time
+without runner waits; a wall-eligible prior without the measure is an
+excluded sample with its reason and does not count toward the five. This
+proves completeness of the declared published proof, not that every possible
+test or undeclared workflow job ran. Failed, pending, missing, empty and
+ambiguous evidence retain their own explanations, without a numeric
+substitute. Invalid measured start dates use the valid landing receipt date
+in the evidence; external reference dates are checked as ISO instants before
+display.
 
 Calculate the median once across comparable candidates (mean of the middle
 pair for even counts). Exclude values strictly greater than 115% of that

@@ -1,4 +1,4 @@
-// Project Intent's CI wall time history in CI status
+// Project Intent's CI time without runner waits history in CI status
 // (../../dashboard/src/IntentCiHistory.tsx) for a CI adapter project
 // (../../dashboard/tests/intentCiAdapterProofProject.ts), on a real bare origin
 // (../../dashboard/tests/support/startOrigin.ts) whose dashboard collects its recorded landings
@@ -40,7 +40,7 @@ import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 
 test.use({ extraEnv: recheckingLandedCi });
 
-test("a CI adapter's timed attempt is a point of CI wall time that a planning-only skip reuses without proof, and its cancelled and untimed landings are gaps that say why and name their attempt, by keyboard on a phone", async ({
+test("a CI adapter's timed attempt is a point of CI time without runner waits that a planning-only skip reuses without proof, and its cancelled and untimed landings are gaps that say why and name their attempt, by keyboard on a phone", async ({
   page,
   dashboard,
   origin,
@@ -97,6 +97,17 @@ test("a CI adapter's timed attempt is a point of CI wall time that a planning-on
       ],
     },
     proof: { unavailable: "no summary retained for this attempt" },
+    // One job spanning the attempt so CI time without runner waits matches
+    // the 6 min 5 s wall interval this journey shows.
+    jobsByAttemptId: {
+      "attempt-p": {
+        jobs: [
+          makeMe.aCiTimingJob
+            .withTiming({ id: "check", durationMs: 6 * 60_000 + 5_000 })
+            .please(),
+        ],
+      },
+    },
   });
   await publishTrunk(page, origin, () => []);
   keepLaunchRecords(dashboard.home, [
@@ -132,7 +143,7 @@ test("a CI adapter's timed attempt is a point of CI wall time that a planning-on
   const builds = await evidenceByKeyboard(page, panel);
   const history = historyOf(panel);
   await expect(buildHistoryReading(history).heading).toHaveText(
-    "CI wall time history 1 measured build · Nov 5",
+    "CI time without runner waits history 1 measured build · Nov 5",
   );
   const sha = shortSha;
   await expect(buildEvidenceRows(builds)).toHaveText([

@@ -1,4 +1,4 @@
-/* Project Intent's CI wall time history (./IntentCiHistory.tsx), after
+/* Project Intent's CI time without runner waits history (./IntentCiHistory.tsx), after
    Proof in CI status (./intent-ci-status.css): its heading row with the
    measured count and dates, the cohort note, the latest measured build, the
    chart (./history-chart.css) and Builds and evidence. */

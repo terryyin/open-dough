@@ -197,7 +197,10 @@ For a `ciWorkflow` project, a pass that has landings to resolve looks the workfl
 lists push runs once per revision it asks about (`head_sha=`): the landed revision, plus one read
 of each earlier attempt of a run whose latest attempt was cancelled; a confirmed skip and a
 cancelled landing then cost what Story Branch Landed's equivalent build and forward walk cost in
-the CI timing comparison above, CI proof reads included. A landing whose Landed rule found no
+the CI timing comparison above, CI proof reads included. Each newly retained passed build also
+costs one jobs request per 100 jobs for that attempt (the same listing a story CI timing
+comparison makes), so collection can keep **CI time without runner waits** with the build; a
+build that already keeps the answer is asked nothing more for jobs. A landing whose Landed rule found no
 build, as when its push's run does not exist yet, also lists its nearest built ancestor's runs
 (already listed for the skip check) and, within an hour of its recording, each later trunk
 revision's, nearest first, up to the first with a run, at most 30; after that hour it is final

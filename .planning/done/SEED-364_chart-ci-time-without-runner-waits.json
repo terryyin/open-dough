@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-364#chart-ci-time-without-runner-waits",
+  "title": "Chart CI time without runner waits in Intent",
+  "completedAt": "2026-11-15T11:07:49.240Z",
+  "developer": "Terry Yin",
+  "agent": "YeongSheng-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "Dough Intent Coverage — SEED-364#chart-ci-time-without-runner-waits\nChecked revision: ea5742187291ae59ad0cc4a394ca32e8d086aad9\nVerdict: Caught\nPromise: Project Intent CI status shows 5 min for 2+3 min jobs independent of runner waits.\nCatching assertion: e2e/intent/intent-ci-measure-history.spec.ts Latest measured build \"5 min\"\nNext proof action: none\nWrap-up disposition: no follow-up\n"
+  }
+}

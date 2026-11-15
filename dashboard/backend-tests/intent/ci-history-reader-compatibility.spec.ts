@@ -7,6 +7,7 @@ import {
 } from "../../src/authenticatedIntentCiHistoryRead.ts";
 import { finalGapReasons } from "../../src/landedCiHistory.ts";
 import { gapReasonWords } from "../../src/ciHistoryGapWords.ts";
+import { historyMeasure } from "../../src/ciHistoryMeasureCapability.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 import { keepLandedCiHistory } from "../../tests/support/landedCiHistory.ts";
 import {
@@ -31,10 +32,15 @@ test("the previous reader keeps measured builds and understandable gaps by defau
     startedAt: "2026-11-05T10:01:00Z",
     completedAt: "2026-11-05T10:03:00Z",
   });
-  // Exercise every current final reason against an independently frozen
+  // Exercise every stored final reason against an independently frozen
   // reader, so adding a future reason also exercises this compatibility gate.
+  // Measure-only gaps are answered only when the project read names the
+  // measure, so they are not stored Landed-rule observations here.
+  const storedGapReasons = finalGapReasons.filter(
+    (reason) => reason !== "time-without-runner-waits",
+  );
   const history = makeMe.aLandedCiHistory;
-  for (const [index, reason] of finalGapReasons.entries()) {
+  for (const [index, reason] of storedGapReasons.entries()) {
     const landing = facts(index + 1);
     if (reason === "failed") history.failedLanding(landing);
     else if (reason === "not-recorded" || reason === "timing-basis")
@@ -60,12 +66,12 @@ test("the previous reader keeps measured builds and understandable gaps by defau
       );
     else history.unmeasuredLanding({ ...landing, reason });
   }
-  const measured = facts(finalGapReasons.length + 1);
+  const measured = facts(storedGapReasons.length + 1);
   history
     .measuredLanding(measured)
     .inTrunkOrder(
       Array.from(
-        Array<number>(finalGapReasons.length + 1).keys(),
+        Array<number>(storedGapReasons.length + 1).keys(),
         (i) => facts(i + 1).revision,
       ),
     );
@@ -109,12 +115,12 @@ test("the previous reader keeps measured builds and understandable gaps by defau
       ],
     );
     const oldGaps = previous?.entries.filter((entry) => entry.kind === "gap");
-    expect(oldGaps).toHaveLength(finalGapReasons.length);
+    expect(oldGaps).toHaveLength(storedGapReasons.length);
     expect(
       oldGaps?.every((gap) => previousGapReasonWords(gap).length > 0),
     ).toBe(true);
     const timingRevision = facts(
-      finalGapReasons.indexOf("timing-basis") + 1,
+      storedGapReasons.indexOf("timing-basis") + 1,
     ).revision;
     const compatibleGap = oldGaps?.find(
       ({ revision }) => revision === timingRevision,
@@ -142,11 +148,18 @@ test("the previous reader keeps measured builds and understandable gaps by defau
       expect(
         new URL(request.url, dashboard.origin).searchParams.get("gap-reasons"),
       ).toBe("timing-basis");
-      // The Done glance names each build without its run link.
+      // The Done glance names each build without its run link. Current
+      // measure points use timeMs; the previous reader still answers wallTimeMs.
       expect(current.entries.filter((entry) => entry.kind === "point")).toEqual(
         previous?.entries
           .filter((entry) => entry.kind === "point")
-          .map((point) => (selected ? { ...point, runUrl: undefined } : point)),
+          .map((point) => {
+            const { wallTimeMs, ...rest } = point;
+            const currentPoint = { ...rest, timeMs: wallTimeMs };
+            return selected
+              ? { ...currentPoint, runUrl: undefined }
+              : currentPoint;
+          }),
       );
       const specific = current.entries.find(
         (entry) => entry.kind === "gap" && entry.revision === timingRevision,
@@ -176,6 +189,10 @@ test("history capability negotiation refuses unsupported or repeated values, mix
     `scope=tests&revision=${"b".repeat(40)}&through=2026-11-05T10:00:00Z&gap-reasons=timing-basis`,
     "history=glance",
     `revision=${"b".repeat(40)}&through=2026-11-05T10:00:00Z&history=full`,
+    `${historyMeasure.name}=unknown`,
+    `${historyMeasure.name}=`,
+    `${historyMeasure.name}=${historyMeasure.value}&${historyMeasure.name}=${historyMeasure.value}`,
+    `revision=${"b".repeat(40)}&through=2026-11-05T10:00:00Z&${historyMeasure.name}=${historyMeasure.value}`,
   ]) {
     const response = await rawRequest({
       url: `${dashboard.origin}/__authenticated-read?source=open-dough&intent=ci-history&${query}`,

@@ -6,6 +6,7 @@ import {
   collectingLandedCi,
   keepLandedCiHistory,
   restartAsLandedCiReader,
+  resultToLand,
 } from "../../tests/support/landedCiHistory.ts";
 import {
   retainedHistory as retained,
@@ -19,7 +20,6 @@ import { collectedScopeFileSummary } from "../../tests/support/scopeHistoryProof
 import { retainedTrunkProofs } from "../../tests/support/retainedTrunkProofs.ts";
 import { publishes } from "../../tests/support/publishedRepository.ts";
 import { originMain } from "../../tests/support/sessionDialog.ts";
-import { resultToLand } from "../../tests/support/landedCiHistory.ts";
 import { expectProjectHistoryCohort } from "../../tests/support/scopeHistoryRetention.ts";
 import { land } from "../../tests/support/startSessionLandingContext.ts";
 
@@ -165,6 +165,7 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
     );
     expect(kept.builds[key]).toEqual(build);
   }
+  expect(kept.builds[lastKey]?.timeWithoutRunnerWaits).toBeUndefined();
   expect(
     github.calls.filter(
       ({ request }) => request.kind === "actions-artifact-zip",

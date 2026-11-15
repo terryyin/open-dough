@@ -6,11 +6,17 @@
 // pending with what it waits for and the run attempt it waits on; failed, or
 // naming no CI wall time, with the build that measures it; or the reason its
 // final resolution was kept with and the build the Landed rule named for it.
+// A measure-naming read answers each measured build by its kept CI time
+// without runner waits, or as a pending or final measure gap per landing.
 // A point stands at its build's start, a gap at the time the dashboard
 // recorded its landing. A run link that is not a web address is left out,
 // keeping the run attempt it names.
 
 import { hasAttemptTiming } from "../src/ciAttemptTiming.ts";
+import {
+  historyMeasure,
+  keptMeasureReadingOf,
+} from "../src/ciHistoryMeasureCapability.ts";
 import {
   runUrlSchema,
   type LandedCiEntry,
@@ -27,6 +33,7 @@ import {
 } from "./landedCiMeasuredBuilds.ts";
 import {
   keptRunOf,
+  type KeptBuild,
   type KeptRun,
   type Observation,
 } from "./landedCiObservation.ts";
@@ -95,8 +102,52 @@ function gapOf(
   };
 }
 
-// The history's window as its points and gaps, oldest first.
-export function historyEntries(history: ProjectHistory): LandedCiEntry[] {
+// A measured build under a measure-naming read: kept milliseconds as the
+// point's time, a kept reason as a final measure gap per landing, or a
+// pending measure gap when the ask is absent or was left unanswered.
+function measureAnswerOf(
+  build: KeptBuild,
+  landings: readonly MeasuredLanding[],
+): { timeMs: number } | { gaps: LandedCiGap[] } {
+  const kept = keptMeasureReadingOf(build.timeWithoutRunnerWaits);
+  if (kept.kind === "milliseconds") return { timeMs: kept.milliseconds };
+  const named = ({
+    revision,
+    receivedAt,
+    identity,
+  }: MeasuredLanding): Landing => ({
+    revision,
+    receivedAt,
+    ...(identity === undefined ? {} : { identity }),
+  });
+  if (kept.kind === "reason")
+    return {
+      gaps: landings.map((landing) => ({
+        kind: "gap" as const,
+        reason: historyMeasure.value,
+        explanation: kept.reason,
+        ...named(landing),
+        build: historyBuildOf(build, landing.provenance),
+      })),
+    };
+  return {
+    gaps: landings.map((landing) => ({
+      kind: "gap" as const,
+      reason: "pending" as const,
+      waitsFor: historyMeasure.value,
+      ...named(landing),
+      ...runOf(build),
+    })),
+  };
+}
+
+// The history's window as its points and gaps, oldest first. When `measure`
+// is set, each measured build with kept milliseconds is a point naming that
+// time; a kept reason or an absent ask is a measure gap per landing.
+export function historyEntries(
+  history: ProjectHistory,
+  measure?: typeof historyMeasure.value,
+): LandedCiEntry[] {
   const measuring = new Map<string, MeasuredLanding[]>();
   const gaps: LandedCiGap[] = [];
   // Oldest first, so a point names its landings oldest first.
@@ -134,14 +185,24 @@ export function historyEntries(history: ProjectHistory): LandedCiEntry[] {
     const build = history.builds[key];
     if (build?.startedAt === undefined || build.completedAt === undefined)
       continue;
-    points.push({
-      kind: "point",
+    const point = {
+      kind: "point" as const,
       revision: build.revision,
       ...runOf(build),
       startedAt: build.startedAt,
       completedAt: build.completedAt,
       landings,
-    });
+    };
+    if (measure === historyMeasure.value) {
+      const answer = measureAnswerOf(build, landings);
+      if ("gaps" in answer) {
+        gaps.push(...answer.gaps);
+        continue;
+      }
+      points.push({ ...point, timeMs: answer.timeMs });
+      continue;
+    }
+    points.push(point);
   }
   const positions = new Map(
     history.trunkOrder?.map((revision, index) => [revision, index]),

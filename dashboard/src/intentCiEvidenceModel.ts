@@ -41,7 +41,7 @@ export type CiEvidence =
       readonly story: string | undefined;
       readonly judged: JudgedReading;
       readonly proof: ShownProof | undefined;
-      // The trunk's: its collected CI wall time history.
+      // The trunk's: its collected CI time without runner waits history.
       readonly history?: HistoryReading;
       readonly projectEndpoint?: ScopeHistoryEndpoint;
       // Taken Story Branch: provisional comparison beside the live judgment.

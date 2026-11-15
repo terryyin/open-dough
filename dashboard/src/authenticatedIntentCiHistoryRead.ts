@@ -1,20 +1,23 @@
-// Project Intent's CI wall time history, read through the local
-// authenticated read boundary (`../server/intentCiHistoryRead.ts`) with
-// `intent=ci-history`: the window of the project's measured landed builds and
-// gaps from this machine's collected history, which asks CI nothing
-// (`./landedCiHistory.ts`), each point with its CI wall time. A Done scope
-// names its published endpoint/date and path at that same boundary, reading
-// collected test execution time. The Done and scope views ask for the glance
-// answer (`./ciHistoryGlanceCapability.ts`); CI status keeps the full one.
+// Project Intent's CI history, read through the local authenticated read
+// boundary (`../server/intentCiHistoryRead.ts`) with `intent=ci-history`: the
+// window of the project's measured landed builds and gaps from this machine's
+// collected history, which asks CI nothing (`./landedCiHistory.ts`). Project
+// CI status names the measure capability (`./ciHistoryMeasureCapability.ts`)
+// so each point carries CI time without runner waits. A Done scope names its
+// published endpoint/date and path at that same boundary, reading collected
+// test execution time. The Done and scope views ask for the glance answer
+// (`./ciHistoryGlanceCapability.ts`); CI status keeps the full one.
 
 import {
   doneWallTimeGlanceSchema,
   type DoneWallTimeHistory,
 } from "./ciDoneWallTimeHistory.ts";
 import { historyGlance } from "./ciHistoryGlanceCapability.ts";
+import { historyMeasure } from "./ciHistoryMeasureCapability.ts";
 import { authenticatedGet, unexpectedAnswer } from "./authenticatedGet.ts";
 import {
   readingCiHistoryOf,
+  readingCiMeasureHistoryOf,
   readingCiScopeHistoryOf,
 } from "./authenticatedReadRules.ts";
 import {
@@ -33,13 +36,16 @@ export async function readIntentCiHistory(
   source: PublishedSource,
   signal: AbortSignal,
 ): Promise<MeasuredHistory> {
-  const reading = readingCiHistoryOf(source.repository);
-  const body = await authenticatedGet(
-    `source=${encodeURIComponent(source.id)}&intent=ci-history&gap-reasons=timing-basis`,
-    reading,
-    signal,
-    { local: true },
-  );
+  const reading = readingCiMeasureHistoryOf(source.repository);
+  const query = new URLSearchParams({
+    source: source.id,
+    intent: "ci-history",
+    "gap-reasons": "timing-basis",
+    [historyMeasure.name]: historyMeasure.value,
+  });
+  const body = await authenticatedGet(query.toString(), reading, signal, {
+    local: true,
+  });
   const parsed = landedCiHistorySchema.safeParse(body);
   const history = parsed.success ? measuredHistoryOf(parsed.data) : undefined;
   if (history === undefined) throw unexpectedAnswer(reading);

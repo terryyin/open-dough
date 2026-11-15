@@ -27,6 +27,7 @@ export {
   trunkActions,
   trunkRun,
   usableProofOf,
+  type AttemptJobs,
   type TrunkProofs,
 } from "./landedCiTrunkRuns.ts";
 

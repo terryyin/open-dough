@@ -1,4 +1,4 @@
-// Project Intent's CI wall time history in CI status
+// Project Intent's CI time without runner waits history in CI status
 // (../../src/IntentCiHistory.tsx) when every landing the history keeps is a
 // gap: it says none is measured yet and draws no chart, and lists each gap
 // with its reason, as not yet or as never, and the build the CI timing
@@ -92,7 +92,7 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
   const shown = historyOf(panel);
 
   await expect(buildHistoryReading(shown).heading).toHaveText(
-    "CI wall time history",
+    "CI time without runner waits history",
   );
   await expect(shown).toContainText(
     "No dashboard-recorded landings have been measured yet.",

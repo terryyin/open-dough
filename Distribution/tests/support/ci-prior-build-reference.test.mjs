@@ -1,19 +1,27 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { makeMe } from "./makeMe.mjs";
-import { wallTimeReferenceOf } from "../../../dashboard/server/ciWallTimeReference.ts";
+import {
+  measureReferenceOf,
+  wallTimeReferenceOf,
+} from "../../../dashboard/server/ciWallTimeReference.ts";
 import { windowedHistory } from "../../../dashboard/server/landedCiMeasuredBuilds.ts";
+import { pendingWaitWords } from "../../../dashboard/src/ciHistoryGapWords.ts";
+import { historyMeasure } from "../../../dashboard/src/ciHistoryMeasureCapability.ts";
 
 const revisionOf = (n) => n.toString(16).padStart(40, "0");
 
 // All domain observations use the canonical retained-history/proof builders.
-function retained(values, proofAt = () => "present") {
+// `values` are wall intervals; optional `measureAt` supplies the kept CI time
+// without runner waits (milliseconds, a reason string, or omit for absent).
+function retained(values, proofAt = () => "present", measureAt) {
   const builder = makeMe.aLandedCiHistory;
   const order = Array.from(values.keys(), (n) => revisionOf(n + 1));
   for (const [n, ms] of values.entries()) {
     const revision = order[n];
     const startedAt = `2026-11-${String(n + 1).padStart(2, "0")}T10:00:00Z`;
     const completedAt = new Date(Date.parse(startedAt) + ms).toISOString();
+    const measure = measureAt?.(n);
     builder.measuredLanding({
       receipt: String(n),
       revision,
@@ -21,6 +29,18 @@ function retained(values, proofAt = () => "present") {
       receivedAt: startedAt,
       startedAt,
       completedAt,
+      // When measureAt is supplied, name the measure or omit it explicitly so
+      // the builder's wall-interval default does not fill an absent sample.
+      ...(measureAt === undefined
+        ? {}
+        : {
+            timeWithoutRunnerWaits:
+              measure === undefined
+                ? undefined
+                : typeof measure === "number"
+                  ? { milliseconds: measure }
+                  : { reason: measure },
+          }),
     });
     const part = proofAt(n);
     if (part === "absent") continue;
@@ -50,6 +70,12 @@ const reference = (
   endpoint = history.trunkOrder.at(-1),
   order = history.trunkOrder,
 ) => wallTimeReferenceOf(history, endpoint, order);
+
+const measureReference = (
+  history,
+  endpoint = history.trunkOrder.at(-1),
+  order = history.trunkOrder,
+) => measureReferenceOf(history, endpoint, order);
 
 test("one exact upper filter includes 115, excludes 116 and computes 103 with +17 from six prior builds", () => {
   const result = reference(
@@ -166,4 +192,57 @@ test("retained total window includes its selected endpoint, yielding at most nin
   assert.equal(result.evidence.length, 20);
   const older = reference(history, revisionOf(10));
   assert.equal(older.sampleCount, 7);
+});
+
+test("measure reference averages kept CI time without runner waits: five priors at 5 min, selected 4 min → −1 min (−20%)", () => {
+  const wallMs = 6 * 60_000;
+  const fiveMin = 5 * 60_000;
+  const fourMin = 4 * 60_000;
+  const history = retained(
+    [wallMs, wallMs, wallMs, wallMs, wallMs, wallMs],
+    () => "present",
+    (n) => (n < 5 ? fiveMin : fourMin),
+  );
+  const result = measureReference(history);
+  assert.equal(result.selected.ms, fourMin);
+  assert.equal(result.averageMs, fiveMin);
+  assert.equal(result.sampleCount, 5);
+  assert.equal(result.difference.changeMs, -60_000);
+  assert.equal(result.difference.relative, -0.2);
+  assert.equal(result.difference.text, "−1 min");
+  assert.equal(reference(history).averageMs, wallMs);
+  assert.equal(reference(history).selected.ms, wallMs);
+});
+
+test("a wall-eligible prior without the measure is excluded with its reason and does not count toward five", () => {
+  const wallMs = 6 * 60_000;
+  const fiveMin = 5 * 60_000;
+  const history = retained(
+    [wallMs, wallMs, wallMs, wallMs, wallMs, wallMs],
+    () => "present",
+    (n) => (n === 2 ? undefined : fiveMin),
+  );
+  const result = measureReference(history);
+  assert.equal(result.sampleCount, 4);
+  assert.equal(result.averageMs, undefined);
+  assert.equal(result.difference, undefined);
+  assert.equal(result.evidence[2].status, "excluded");
+  assert.equal(
+    result.evidence[2].reason,
+    pendingWaitWords[historyMeasure.value],
+  );
+  assert.equal(result.evidence[2].ms, undefined);
+  const withReason = measureReference(
+    retained(
+      [wallMs, wallMs, wallMs, wallMs, wallMs, wallMs],
+      () => "present",
+      (n) => (n === 2 ? "The CI adapter reported no jobs." : fiveMin),
+    ),
+  );
+  assert.equal(withReason.sampleCount, 4);
+  assert.equal(withReason.evidence[2].status, "excluded");
+  assert.equal(
+    withReason.evidence[2].reason,
+    "The CI adapter reported no jobs.",
+  );
 });
