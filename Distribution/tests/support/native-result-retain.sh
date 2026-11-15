@@ -5,9 +5,9 @@
 # shellcheck disable=SC2312 # pipefail covers attempt IDs and prompt hashes.
 
 native_result_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-# shellcheck source=Distribution/tests/support/native-adr-behavior.sh
+# shellcheck source=Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh
 # shellcheck disable=SC1091
-source "${native_result_support_dir}/native-adr-behavior.sh"
+source "${native_result_support_dir}/../../evaluation/cases/adr-awareness/native-adr-behavior.sh"
 # shellcheck source=Distribution/tests/support/native-result-identity.sh
 # shellcheck disable=SC1091
 source "${native_result_support_dir}/native-result-identity.sh"
@@ -168,10 +168,10 @@ native_result_finalize_context() {
     printf 'fixture-tag: %s\n' "${tag}"
     printf 'fixture-commit: %s\n' "${source_commit}"
     printf 'prompt-identity: %s\n' "$(printf '%s' "${prompt}" | shasum -a 256 | cut -d ' ' -f 1)"
-    printf 'helper-identity: Distribution/tests/support/dough-adr-awareness-use.sh\n'
+    printf 'helper-identity: Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-use.sh\n'
     native_result_print_adapter_identity
-    printf 'fixture-identity: Distribution/tests/fixtures/adr-awareness/installed-use\n'
-    printf 'assessor-identity: Distribution/tests/support/native-adr-behavior.sh\n'
+    printf 'fixture-identity: Distribution/evaluation/cases/adr-awareness/fixtures/installed-use\n'
+    printf 'assessor-identity: Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh\n'
     printf 'artifact-events: events.jsonl\n'
     printf 'artifact-response: response.md\n'
     printf 'artifact-stderr: stderr.log\n'
@@ -183,11 +183,11 @@ native_result_finalize_context() {
 
 native_result_context_input_hash_lines() {
   native_result_input_hash_lines \
-    Distribution/tests/adr-awareness/dough-adr-awareness-context.sh \
+    Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh \
     Distribution/tests/support/native-result-retain.sh \
     Distribution/tests/support/native-result-identity.sh \
-    Distribution/tests/support/native-adr-behavior.sh \
-    Distribution/tests/support/dough-adr-awareness-use.sh \
+    Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh \
+    Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-use.sh \
     Distribution/tests/support/native-codex.sh \
     Distribution/src/skills/dough-adr-awareness/SKILL.md
   native_result_supervision_input_hash_lines

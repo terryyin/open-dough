@@ -87,7 +87,7 @@ assert_record_identity() {
   grep -Fq 'case: delivery/updated-use' "${attempt}/record"
   grep -Fq 'origin: fresh' "${attempt}/record"
   grep -Fq 'native-version-command: codex --version' "${attempt}/record"
-  grep -Fq 'helper-identity: Distribution/tests/support/dough-adr-awareness-updated-use.sh' \
+  grep -Fq 'helper-identity: Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-updated-use.sh' \
     "${attempt}/record"
   grep -Fq 'adapter-identity: Distribution/tests/support/native-codex.sh' "${attempt}/record"
   native_result_assert_no_discovery_fields "${attempt}/record" 'journey record'

@@ -85,9 +85,9 @@ Reuse compatible reader repairs from attempt 2; preserve captured stream bytes.
 
 ### 2. Invoke ADR acceptance from the evaluation home
 Type: Behavior
-Status: planned
+Status: done
 Proof: existing ADR context/use/delivery and installed-use adapters through
-controlled hosts, replay/identity and payload checks.
+controlled hosts; [commands and observations](slice-2-evidence.md).
 
 Existing ADR case/host options → `evaluation/cases/adr-awareness/` entry → same
 isolated setup, assessment, retention and cleanup. Move only the ADR family
@@ -198,10 +198,6 @@ commands/evidence limits and live navigation. Run final suite and 3-share previe
   Continue six bounded slices with unchanged scope and two immediate
   Structure/Behavior pairs; no delivered product outcome is discarded.
 
-## Learnings
-
-Physical-directory closure crosses independent proof loops; isolate reader, runtime and family movement, reusing compatible parked repairs.
-
 ## Execution context
 
 Story Branch Mode in the launch's owned workspace/branch, agent Kirara-chan, publisher `dashboard-territory.local-open-dough`; origin/main, increments to `codex/run-and-maintain-native-evaluations-as-a-distinc`.
@@ -245,3 +241,8 @@ Disposition: proved by slice 1: slice-1-evidence.md command 1; native-admission-
 Reported: slice 1 — "one-shot aggregate hit the existing 180-second safety deadline during the broad selected gate"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
 Disposition: receiving slice 3
+
+### G8. Mixed default-check bodies in moved ADR entries
+Reported: slice 2 — "Routine test entries remain at old paths and currently dispatch mixed default branches in the moved cases (interim extraction needed in slice 6)."
+Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
+Disposition: interim until slices 2, 6

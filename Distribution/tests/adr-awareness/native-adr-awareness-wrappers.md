@@ -26,13 +26,13 @@ Fixed inventory (three cases per host `codex`, `cursor`, `claude`):
 - `context/conflict`
 - `delivery/updated-use` — after a verified older current-contract install, ordinary no-URL update from recorded `SOURCE` then fresh use on the same verified target; both stages share one attempt
 
-## `Distribution/tests/adr-awareness/dough-adr-awareness-context.sh`
+## `Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh`
 
 ```
-Distribution/tests/adr-awareness/dough-adr-awareness-context.sh
-Distribution/tests/adr-awareness/dough-adr-awareness-context.sh --list [--results-dir DIR]
-Distribution/tests/adr-awareness/dough-adr-awareness-context.sh --native HOST SCENARIO [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]
-Distribution/tests/adr-awareness/dough-adr-awareness-context.sh --native HOST --case context/clear|context/conflict [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]
+Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh
+Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh --list [--results-dir DIR]
+Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh --native HOST SCENARIO [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]
+Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh --native HOST --case context/clear|context/conflict [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]
 ```
 
 `HOST` is `codex`, `cursor`, or `claude`. `SCENARIO` is `clear` or `conflict`.
@@ -70,15 +70,15 @@ Recorded streams prove those contracts, not that native runtimes emit them.
 
 ## Delivery wrappers
 
-`Distribution/tests/adr-awareness/dough-adr-awareness-codex-delivery-to-use.sh`,
-`Distribution/tests/adr-awareness/dough-adr-awareness-cursor-delivery-to-use.sh`, and
-`Distribution/tests/adr-awareness/dough-adr-awareness-claude-delivery-to-use.sh`:
+`Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-codex-delivery-to-use.sh`,
+`Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-cursor-delivery-to-use.sh`, and
+`Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-claude-delivery-to-use.sh`:
 
 ```
-tests/dough-adr-awareness-<host>-delivery-to-use.sh
-tests/dough-adr-awareness-<host>-delivery-to-use.sh --list [--results-dir DIR]
-tests/dough-adr-awareness-<host>-delivery-to-use.sh --native
-tests/dough-adr-awareness-<host>-delivery-to-use.sh --native --case CASE [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]
+Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-<host>-delivery-to-use.sh
+Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-<host>-delivery-to-use.sh --list [--results-dir DIR]
+Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-<host>-delivery-to-use.sh --native
+Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-<host>-delivery-to-use.sh --native --case CASE [--results-dir DIR] [--deadline SECONDS] [--grace SECONDS]
 ```
 
 No arguments: current deterministic cheap check (older current-contract install that writes `SOURCE`, ordinary no-URL helper update from that record, preservation). Native loading and no-URL skill behavior stay pending. `--native` with no extra arguments is the full two-session journey (ordinary update then fresh use). `--list` prints that

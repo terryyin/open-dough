@@ -31,6 +31,7 @@ const sourcePathspecs = [
   "src/install",
   "Distribution/tests/support",
   "Distribution/evaluation/src",
+  "Distribution/evaluation/cases/adr-awareness",
   "Distribution/tests/helpers",
   "Distribution/tests/skills",
   "dashboard/server",

@@ -62,9 +62,9 @@ native_result_finalize_journey() {
       "$(printf '%s' "${update_prompt}" | shasum -a 256 | cut -d ' ' -f 1)"
     printf 'use-prompt-identity: %s\n' \
       "$(printf '%s' "${use_prompt}" | shasum -a 256 | cut -d ' ' -f 1)"
-    printf 'helper-identity: Distribution/tests/support/dough-adr-awareness-updated-use.sh\n'
+    printf 'helper-identity: Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-updated-use.sh\n'
     native_result_print_adapter_identity
-    printf 'fixture-identity: Distribution/tests/fixtures/adr-awareness/alternate-layout\n'
+    printf 'fixture-identity: Distribution/evaluation/cases/adr-awareness/fixtures/alternate-layout\n'
     printf 'assessor-identity: Distribution/tests/support/native-journey-state.sh\n'
     printf 'artifact-update-events: update-events.jsonl\n'
     printf 'artifact-update-response: update-response.md\n'
@@ -79,16 +79,16 @@ native_result_finalize_journey() {
 
 native_result_journey_input_hash_lines() {
   native_result_input_hash_lines \
-    "Distribution/tests/adr-awareness/dough-adr-awareness-${native_case_host}-delivery-to-use.sh" \
-    Distribution/tests/support/dough-adr-awareness-delivery-to-use.sh \
-    Distribution/tests/support/dough-adr-awareness-updated-use.sh \
+    "Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-${native_case_host}-delivery-to-use.sh" \
+    Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-delivery-to-use.sh \
+    Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-updated-use.sh \
     Distribution/tests/support/native-result-retain.sh \
     Distribution/tests/support/native-result-identity.sh \
     Distribution/tests/support/native-result-retain-journey.sh \
     Distribution/tests/support/native-import-closure.sh \
     Distribution/tests/support/native-import-closure.mjs \
     Distribution/tests/support/native-journey-state.sh \
-    Distribution/tests/support/native-adr-behavior.sh
+    Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh
   native_import_closure_input_hash_lines \
     Distribution/tests/support/release-source.mjs
   native_result_supervision_input_hash_lines

@@ -5,7 +5,7 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-context_wrapper="${source_dir}/Distribution/tests/adr-awareness/dough-adr-awareness-context.sh"
+context_wrapper="${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh"
 
 work_dir=$(mktemp -d)
 finish() {

@@ -5,8 +5,8 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-# shellcheck source=Distribution/tests/support/native-adr-behavior.sh
-source "${source_dir}/Distribution/tests/support/native-adr-behavior.sh"
+# shellcheck source=Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh
+source "${source_dir}/Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh"
 # shellcheck source=Distribution/tests/support/native-response-field.sh
 source "${source_dir}/Distribution/tests/support/native-response-field.sh"
 # shellcheck source=Distribution/tests/support/native-assessor-counterexample.sh
@@ -90,7 +90,7 @@ assert_passes conflict conditional-stop 'named conflicting authorities and stopp
 
 # Misleading or ambiguous wording is a rejected case of the response signal;
 # rephrased incidental skill instructions stay inconclusive, never a fail.
-native_assessor_counterexamples "${source_dir}/Distribution/tests/support/native-adr-behavior.sh" \
+native_assessor_counterexamples "${source_dir}/Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh" \
   "${work_dir}/valid-recommend" \
   --verdict native_adr_behavior_status native_adr_behavior_reason \
   -- assess_observed clear
@@ -102,7 +102,7 @@ native_assessor_rejects 'clear uncertain' response "${work_dir}/uncertain" \
 native_assessor_rejects 'clear incidental-skill-only' response \
   "${work_dir}/incidental-skill-only" inconclusive
 
-native_assessor_counterexamples "${source_dir}/Distribution/tests/support/native-adr-behavior.sh" \
+native_assessor_counterexamples "${source_dir}/Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh" \
   "${work_dir}/valid-stop" \
   --verdict native_adr_behavior_status native_adr_behavior_reason \
   -- assess_observed conflict

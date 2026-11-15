@@ -40,7 +40,7 @@ Explicit human amendments: Terry approved naming Distribution/evaluation/ as mai
 | C04 | Commitment: Put scenario assessors in that home’s `cases/`. | slice 5 |  |
 | C05 | Commitment: Put automated checks of the tool in that home’s `tests/`. | slice 6 |  |
 | C06 | Commitment: Provide a maintainer `README.md` in that home. | slice 6 |  |
-| C07 | Commitment: Make native acceptance tooling recognizable to an Open Dough maintainer. | slice 2 |  |
+| C07 | Commitment: Make native acceptance tooling recognizable to an Open Dough maintainer. | slice 2 | observed: Distribution/evaluation/README.md ADR acceptance commands and native-adr-awareness-wrappers.md; slice-2-evidence.md commands 1 and 2 observe actual new-entry listing/options and controlled-host lifecycle |
 | C08 | Commitment: Make A/B evaluation tooling recognizable to an Open Dough maintainer. | slice 5 |  |
 | C09 | Commitment: Make the tooling independently runnable. | slice 6 |  |
 | C10 | Commitment: Give the tooling its own automated checks. | slice 6 |  |

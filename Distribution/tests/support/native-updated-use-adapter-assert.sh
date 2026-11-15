@@ -107,7 +107,7 @@ assert_record_identity() {
   grep -Fq "native-version-command: $(version_command_for "${host}")" \
     "${attempt}/record"
   grep -Fq "native-version: $(native_version_for "${host}")" "${attempt}/record"
-  grep -Fq 'helper-identity: Distribution/tests/support/dough-adr-awareness-updated-use.sh' \
+  grep -Fq 'helper-identity: Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-updated-use.sh' \
     "${attempt}/record"
   grep -Fq "adapter-identity: $(adapter_identity_for "${host}")" \
     "${attempt}/record"

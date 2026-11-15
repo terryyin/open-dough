@@ -5,7 +5,7 @@ prepare_installed_adr_awareness_target() {
   local target=$1
   local candidate=$2
   local platform=$3
-  local fixture_source="${source_dir}/Distribution/tests/fixtures/adr-awareness/installed-use"
+  local fixture_source="${source_dir}/Distribution/evaluation/cases/adr-awareness/fixtures/installed-use"
   local caller skill_root
 
   case ${platform} in

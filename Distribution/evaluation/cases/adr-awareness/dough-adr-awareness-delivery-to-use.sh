@@ -26,9 +26,9 @@ source "${source_dir}/Distribution/tests/helpers/rewrite-file.bash"
 # shellcheck source=Distribution/src/install/open-dough-platform.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/src/install/open-dough-platform.sh"
-# shellcheck source=Distribution/tests/support/dough-adr-awareness-release-transition.sh
+# shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-release-transition.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/dough-adr-awareness-release-transition.sh"
+source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-release-transition.sh"
 # shellcheck source=Distribution/tests/support/native-cases.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/native-cases.sh"
@@ -38,12 +38,12 @@ source "${source_dir}/Distribution/tests/support/native-result-retain.sh"
 # shellcheck source=Distribution/tests/support/native-run-supervise.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/native-run-supervise.sh"
-# shellcheck source=Distribution/tests/support/dough-adr-awareness-updated-use.sh
+# shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-updated-use.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/dough-adr-awareness-updated-use.sh"
+source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-updated-use.sh"
 
 delivery_parse_native_case_args() {
-  native_case_entry="Distribution/tests/adr-awareness/dough-adr-awareness-${delivery_platform}-delivery-to-use.sh"
+  native_case_entry="Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-${delivery_platform}-delivery-to-use.sh"
   native_case_parse --wrapper delivery --host "${delivery_platform}" "$@"
   case ${native_case_mode} in
     list)

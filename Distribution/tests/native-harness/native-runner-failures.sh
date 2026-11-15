@@ -11,7 +11,7 @@ source "${source_dir}/Distribution/tests/support/native-result-retain.sh"
 # shellcheck source=Distribution/tests/support/product-backlog-native-evidence.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/product-backlog-native-evidence.sh"
-context_wrapper="${source_dir}/Distribution/tests/adr-awareness/dough-adr-awareness-context.sh"
+context_wrapper="${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh"
 fail_fixture="${source_dir}/Distribution/tests/support/native-agent-fail.sh"
 
 work_dir=$(mktemp -d)

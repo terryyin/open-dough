@@ -35,7 +35,7 @@
 # shellcheck disable=SC2312 # A file without signals is not an error.
 
 native_assessor_counterexample_guard_files() {
-  find Distribution/tests -type f \
+  find Distribution/tests Distribution/evaluation -type f \
     \( -name '*.sh' -o -name '*.bash' -o -name '*.mjs' -o -name '*.js' \) \
     ! -name 'native-assessor-counterexample.sh' \
     ! -name 'native-assessor-counterexample-diff.sh' \
