@@ -1,7 +1,6 @@
 {
   "intentCoverage": true,
   "skipProcessRetrospective": false,
-  "nerds": true,
   "integratedStateCompletion": {
     "check": "ci.yml",
     "context": "push"
