@@ -114,7 +114,7 @@ Integrated selection: 229 tests / 112 files.
 
 ### 2. Preserve CI-status presentation and reading lifetime
 Type: Behavior
-Status: planned
+Status: done
 Proof: remaining six `intent-ci-status-*` specs (6 / 1,270): execution-time,
 freshness, homepage, kept, side-panel and sort; real acquisition/no-extra-call
 proof stays Backend/E2E.
@@ -122,6 +122,15 @@ Behavior: read, sort, revisit or refresh CI status → controlled answers expose
 the same values, freshness, kept cues and interaction. Own one CI-status answer
 family in separate support. Existing E2E status journeys keep real judgment-to-
 display connections.
+Accepted: six Frontend specs `dashboard/frontend-tests/intent/intent-ci-status-*.spec.ts`
+(14 cases) with one family `dashboard/tests/support/frontendCiStatusAnswers.ts`
+(fresh/kept per branch, read counts, fail/hold). Scratch "Previously retrieved at"
+cue break failed old and new homes; restored passed. Call accounting reuses E2E
+`intent-ci-status.spec.ts`/`-story.spec.ts`. The substitute's revision check
+reports arranged `branchHeads` (opt-in). Full Frontend suite 373 passed.
+Learning for slice 5: the family also has `openFrontendRunProof` (proof table for
+the status's run, from `makeMe.aCiProof`); slice 5 reuses or absorbs it rather
+than adding a second proof family.
 
 ### 3. Preserve CI wall-time history reading
 Type: Behavior
@@ -212,3 +221,15 @@ one model at established service boundaries. Review identified no remaining
 slice-specific concern. If a family or mixed proof exceeds these assumptions,
 apply sizing/escalation before broadening its batch; preserve overrun evidence
 and reassess the story after a second overrun.
+
+## Story obligations
+
+### G1. Execution-time proof table now reads a built proof, not an extracted collector ZIP
+Reported: slice 2 — "the proof now comes from `makeMe.aCiProof`, not from a real collector summary ZIP that the Backend extracted"
+Story clause: "Backend/E2E retains real parsing/acquisition/refusal and request counts."
+Disposition: receiving slice 5
+
+### G2. Trunk homepage lost "another branch moving reads no judgment"
+Reported: slice 2 — "There is no Frontend equivalent for \"another branch moved\", because the substitute's revision check reports no branches."
+Story clause: "Split mixed cases by their assertions, including negative effects."
+Disposition: proved by slice 2: dashboard/frontend-tests/intent/intent-ci-status-kept.spec.ts test 2 step "time alone and another branch moving ask for no judgment" asserts the page re-read the moved branch yet `ci.reads()` and Checked datetime are unchanged

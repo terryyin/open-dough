@@ -6,7 +6,7 @@
 // the given order; a pinned row stays last. Multi-unit homepage entries:
 // ./intent-ci-proof-grouped-sort.test.mjs. Story comparison columns:
 // ./intent-ci-comparison-sort.test.mjs. Browser journey:
-// ../../../dashboard/tests/intent/intent-ci-status-sort.spec.ts.
+// ../../../dashboard/frontend-tests/intent/intent-ci-status-sort.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { nextSort, sortedRows } from "../../../dashboard/src/ciProofSort.ts";

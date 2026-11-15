@@ -1,61 +1,48 @@
-import {
-  expectKeptCiAnswer,
-  expectCiScope,
-  ciStatusReading,
-  expectCiAnswer,
-  chooseCiStatus,
-  expectChecked,
-  judged,
-  publishProject,
-  runUrl,
-  trunkCi,
-} from "../intentCiStatusPage.ts";
+// Intent keeps a prior CI answer visibly qualified until a fresh answer
+// replaces it (../../src/IntentCiStatus.tsx): a warm show answers at once
+// with the kept answer, previously retrieved and checking, and a cold one
+// shows only checking; a failed refresh keeps the answer previously
+// retrieved beside the failure; an earlier target's late answer never
+// answers a later selection. The Backend's keeping and acquisition are
+// ../../backend-tests/intent/ and ../../../e2e/intent/intent-ci-status*.spec.ts.
 
-// Intent keeps prior CI answers visibly qualified until a fresh answer replaces
-// them; an earlier target never answers a later selection.
-
-import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
-
-import { failing, running } from "../intentCiStoryBoard.ts";
+import { pausePageClockAt } from "../../tests/dashboardTest.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import { failing, running } from "../../tests/intentCiStoryBoard.ts";
 import {
   expectKeptStoryCi,
-  freshCiStatusReadSettled,
-  publishStoryCi,
   toggleOnDevelopment,
-} from "../intentCiStoryRecords.ts";
-import { openDough } from "../intentCodeBrowseFixtures.ts";
+} from "../../tests/intentCiStoryRecords.ts";
+import {
+  chooseCiStatus,
+  ciStatusReading,
+  expectChecked,
+  expectCiAnswer,
+  expectCiScope,
+  expectKeptCiAnswer,
+} from "../../tests/intentCiStatusPage.ts";
 import {
   givePageItsTurns,
   openUntilRead,
   untilPageReadsAnswered,
-} from "../pageRequestNotes.ts";
-import { httpErrorAnswer } from "../originAnswers.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { CiAnswerer, CiRunAnswer } from "../support/baseCiActions.ts";
+} from "../../tests/pageRequestNotes.ts";
+import {
+  judgedCiStatus,
+  publishCiStoryBoard,
+  serveFrontendCiStatus,
+  storyBoardCiAnswers,
+} from "../../tests/support/frontendCiStatusAnswers.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+
+const mainAt = (state: "pass" | "failed") =>
+  judgedCiStatus("main", state, "a1b2c3d", "Add login");
 
 test("a warm Intent show returns the kept answer labelled previously retrieved with a spinner until the fresh answer replaces it", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await pausePageClockAt(page, new Date("2026-11-05T12:00:00.000Z"));
-  let runs: readonly CiRunAnswer[] = [
-    makeMe.aCiRun
-      .with({ headSha: judged, conclusion: "success", url: runUrl })
-      .please(),
-  ];
-  let holdFresh: Promise<void> = Promise.resolve();
-  let releaseFresh: () => void = () => undefined;
-  const published = publishProject(page, openDough);
-  const answer: CiAnswerer = async (call) => {
-    if (call.request.kind === "commit-list" && call.request.revision === "main")
-      await holdFresh;
-    return (
-      trunkCi(openDough.revision, () => runs)(call) ??
-      httpErrorAnswer(500, "unexpected CI call")
-    );
-  };
-  published.serveCi(answer);
+  const ci = await serveFrontendCiStatus(page, { main: mainAt("pass") });
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent, development, intentChoice } = parts(page);
   let panel = await chooseCiStatus(intent);
@@ -67,18 +54,8 @@ test("a warm Intent show returns the kept answer labelled previously retrieved w
 
   await test.step("twenty minutes later, reopen Intent: kept answer at once with previously retrieved and spinner, then fresh replaces it", async () => {
     await page.clock.setFixedTime(new Date("2026-11-05T12:20:00.000Z"));
-    runs = [
-      makeMe.aCiRun
-        .with({
-          headSha: judged,
-          conclusion: "failure",
-          url: `${runUrl}-newer`,
-        })
-        .please(),
-    ];
-    holdFresh = new Promise<void>((resolve) => {
-      releaseFresh = resolve;
-    });
+    ci.answer("main", mainAt("failed"));
+    const fresh = ci.holdNext("main");
     await development.click();
     await intentChoice.click();
     panel = await chooseCiStatus(intent);
@@ -88,7 +65,7 @@ test("a warm Intent show returns the kept answer labelled previously retrieved w
       checkedAt: firstChecked ?? "",
       checking: "Checking the CI of main…",
     });
-    releaseFresh();
+    fresh.release();
     await expectCiAnswer(panel, "Failed at a1b2c3d (Add login)");
     await expectChecked(panel);
     await expect(ciStatusReading(panel).checking).toHaveCount(0);
@@ -103,28 +80,8 @@ test("a cold load shows only a spinner until CI answers; a later failed refresh 
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await pausePageClockAt(page, new Date("2026-11-05T12:00:00.000Z"));
-  let failFresh = false;
-  let releaseCold: () => void = () => undefined;
-  const coldHold = new Promise<void>((resolve) => {
-    releaseCold = resolve;
-  });
-  const published = publishProject(page, openDough);
-  published.serveCi(async (call) => {
-    if (
-      call.request.kind === "commit-list" &&
-      call.request.revision === "main"
-    ) {
-      await coldHold;
-      if (failFresh) return httpErrorAnswer(503, "Service Unavailable");
-    }
-    return (
-      trunkCi(openDough.revision, () => [
-        makeMe.aCiRun
-          .with({ headSha: judged, conclusion: "success", url: runUrl })
-          .please(),
-      ])(call) ?? httpErrorAnswer(500, "unexpected CI call")
-    );
-  });
+  const ci = await serveFrontendCiStatus(page, { main: mainAt("pass") });
+  const cold = ci.holdNext("main");
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   const panel = await chooseCiStatus(intent);
@@ -136,14 +93,14 @@ test("a cold load shows only a spinner until CI answers; a later failed refresh 
     await expect(ciStatusReading(panel).checking).toBeVisible();
     await expect(ciStatusReading(panel).state).toHaveCount(0);
     await expect(panel).not.toContainText("Previously retrieved");
-    releaseCold();
+    cold.release();
     await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
     await expectChecked(panel);
   });
 
   await test.step("Check again fails: kept answer stays previously retrieved with the failure", async () => {
     await page.clock.setFixedTime(new Date("2026-11-05T12:05:00.000Z"));
-    failFresh = true;
+    ci.failNext("main", 502, "GitHub answered 503 Service Unavailable");
     await panel.getByRole("button", { name: "Check again" }).click();
     await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
     await expect(ciStatusReading(panel).freshness).toContainText(
@@ -158,14 +115,16 @@ test("a cold load shows only a spinner until CI answers; a later failed refresh 
 
 test("a late trunk answer never appears after switching to a story branch that has a kept answer", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const ci = publishStoryCi(page);
+  publishCiStoryBoard(frontendServices);
+  const ci = await serveFrontendCiStatus(page, storyBoardCiAnswers());
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   let panel = await chooseCiStatus(intent);
   await expectCiScope(panel, "main");
-  // Settle trunk so this process keeps a Passed answer before any story warm.
+  // Settle trunk so a Passed answer is kept before any story warms.
   await expectCiAnswer(panel, "Passed at 4774f60 (Add login)");
   await expectChecked(panel);
   // Warm the failing story's kept answer.
@@ -175,22 +134,20 @@ test("a late trunk answer never appears after switching to a story branch that h
   await expectChecked(panel);
 
   await test.step("hold trunk refresh, switch to the story: only the story's kept and fresh appear", async () => {
-    // Clear selection → main homepage; wait for the remount's fresh keep before
-    // holding the next history listing (a hold mid-remount would hang Check again).
     panel = await toggleOnDevelopment(page, failing.title);
     await expectCiScope(panel, "main");
     await expectCiAnswer(panel, "Passed at 4774f60 (Add login)");
     await expectChecked(panel);
-    const late = ci.hold("main");
-    const lateRead = freshCiStatusReadSettled(page);
+    const late = ci.holdNext("main");
     await panel.getByRole("button", { name: "Check again" }).click();
+    await late.received;
     await expect(ciStatusReading(panel).freshness).toContainText(
       "Previously retrieved",
     );
     await expect(ciStatusReading(panel).checking).toBeVisible();
     await expectCiAnswer(panel, "Passed at 4774f60 (Add login)");
     // Hold the fresh story read until its kept state has been observed.
-    const freshStory = ci.hold(failing.branch);
+    const freshStory = ci.holdNext(failing.branch);
     panel = await toggleOnDevelopment(page, failing.title);
     await expectKeptStoryCi(
       panel,
@@ -198,8 +155,7 @@ test("a late trunk answer never appears after switching to a story branch that h
       "Failed at fa11ed0 (Break the login)",
     );
     late.release();
-    await expect.poll(late.served).toBe(true);
-    await lateRead;
+    await late.delivered;
     await givePageItsTurns(page);
     await expectKeptStoryCi(
       panel,
@@ -215,23 +171,21 @@ test("a late trunk answer never appears after switching to a story branch that h
   });
 
   await test.step("a held prior story answer arriving after switching to another story never shows", async () => {
-    // Clear failing → main, then re-select failing under a hold, then switch.
     panel = await toggleOnDevelopment(page, failing.title);
     await expectCiScope(panel, "main");
-    const late = ci.hold(failing.branch);
-    const lateRead = freshCiStatusReadSettled(page, failing.branch);
+    const late = ci.holdNext(failing.branch);
     panel = await toggleOnDevelopment(page, failing.title);
     await expectCiScope(panel, failing.branch);
     await expectCiAnswer(panel, "Failed at fa11ed0 (Break the login)");
     await expect(ciStatusReading(panel).freshness).toContainText(
       "Previously retrieved",
     );
+    await late.received;
     panel = await toggleOnDevelopment(page, running.title);
     await expectCiScope(panel, running.branch);
     await expectCiAnswer(panel, "Running at 70a0001 (Start the story)");
     late.release();
-    await expect.poll(late.served).toBe(true);
-    await lateRead;
+    await late.delivered;
     await untilPageReadsAnswered(page);
     await expectCiScope(panel, running.branch);
     await expect(panel).not.toContainText("Failed");

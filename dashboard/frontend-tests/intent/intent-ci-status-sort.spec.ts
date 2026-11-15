@@ -9,124 +9,85 @@
 // (SEED-259#scan-intent-ci-summaries key example 1). The comparator's cases
 // live in ../../../Distribution/tests/support/intent-ci-proof-sort.test.mjs.
 
-import { expect, test } from "../dashboardTest.ts";
-import {
-  artifactId,
-  ciProofReading,
-  openFailedRun,
-  proofTable,
-  run,
-} from "../intentCiProofPage.ts";
-import { judged, runUrl } from "../intentCiStatusPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  proofSummaryForEntries,
-  runArtifactsAnswer,
-  summaryZipAnswer,
-} from "../support/ciProofArtifacts.ts";
+import { ciProofReading, proofTable } from "../../tests/intentCiProofPage.ts";
 import {
   expectSortedBy,
-  rowNames,
   expectUnsortedRows,
+  rowNames,
   sortButton,
-} from "../support/expectSortedColumns.ts";
+} from "../../tests/support/expectSortedColumns.ts";
+import { openFrontendRunProof } from "../../tests/support/frontendCiStatusAnswers.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 
 // tests/a 12.5 s with 4 tests; tests/b 340 ms with 3 tests, 1 failed;
 // tests/c Part 2 untimed with 3 tests.
-const exampleSummary = () =>
-  proofSummaryForEntries(run, [
-    makeMe.aCiProofEntry
-      .at("tests/a")
-      .counting(4, "case")
-      .timed(12_500)
-      .please(),
-    makeMe.aCiProofEntry
-      .at("tests/b")
-      .holding(
-        makeMe.aCiProofEvidence
-          .inUnit("case")
-          .counting(2, 1, 0)
-          .timed(340)
-          .inParts(1)
-          .please(),
-      )
-      .please(),
-    makeMe.aCiProofEntry
-      .at("tests/c")
-      .holding(
-        makeMe.aCiProofEvidence
-          .inUnit("case")
-          .counting(2, 0, 0)
-          .timed(1_000)
-          .inParts(2)
-          .withPresentPart(2, { passed: 1, failed: 0, other: 0, untimed: 0 })
-          .please(),
-      )
-      .please(),
-  ]);
+const exampleEntries = () => [
+  makeMe.aCiProofEntry.at("tests/a").counting(4, "case").timed(12_500).please(),
+  makeMe.aCiProofEntry
+    .at("tests/b")
+    .holding(
+      makeMe.aCiProofEvidence
+        .inUnit("case")
+        .counting(2, 1, 0)
+        .timed(340)
+        .inParts(1)
+        .please(),
+    )
+    .please(),
+  makeMe.aCiProofEntry
+    .at("tests/c")
+    .holding(
+      makeMe.aCiProofEvidence
+        .inUnit("case")
+        .counting(2, 0, 0)
+        .timed(1_000)
+        .inParts(2)
+        .withPresentPart(2, { passed: 1, failed: 0, other: 0, untimed: 0 })
+        .please(),
+    )
+    .please(),
+];
 
 // Mixed-unit locations: whole-row sort compares case figures first, then file.
-const groupedSummary = () =>
-  proofSummaryForEntries(run, [
-    makeMe.aCiProofEntry
-      .at("grouped/slow")
-      .holding(
-        makeMe.aCiProofEvidence
-          .inUnit("case")
-          .counting(10)
-          .timed(5_000)
-          .please(),
-        makeMe.aCiProofEvidence.inUnit("file").counting(2).timed(900).please(),
-      )
-      .please(),
-    makeMe.aCiProofEntry
-      .at("grouped/fast")
-      .holding(
-        makeMe.aCiProofEvidence.inUnit("case").counting(10).timed(500).please(),
-        makeMe.aCiProofEvidence
-          .inUnit("file")
-          .counting(4)
-          .timed(2_000)
-          .please(),
-      )
-      .please(),
-    makeMe.aCiProofEntry
-      .at("grouped/gap")
-      .holding(
-        makeMe.aCiProofEvidence.inUnit("case").counting(3).timed(800).please(),
-        makeMe.aCiProofEvidence
-          .inUnit("file")
-          .inParts(2, { missing: [2] })
-          .withPresentPart(1, {
-            passed: 1,
-            failed: 0,
-            other: 0,
-            durationMs: 100,
-          })
-          .please(),
-      )
-      .please(),
-  ]);
+const groupedEntries = () => [
+  makeMe.aCiProofEntry
+    .at("grouped/slow")
+    .holding(
+      makeMe.aCiProofEvidence.inUnit("case").counting(10).timed(5_000).please(),
+      makeMe.aCiProofEvidence.inUnit("file").counting(2).timed(900).please(),
+    )
+    .please(),
+  makeMe.aCiProofEntry
+    .at("grouped/fast")
+    .holding(
+      makeMe.aCiProofEvidence.inUnit("case").counting(10).timed(500).please(),
+      makeMe.aCiProofEvidence.inUnit("file").counting(4).timed(2_000).please(),
+    )
+    .please(),
+  makeMe.aCiProofEntry
+    .at("grouped/gap")
+    .holding(
+      makeMe.aCiProofEvidence.inUnit("case").counting(3).timed(800).please(),
+      makeMe.aCiProofEvidence
+        .inUnit("file")
+        .inParts(2, { missing: [2] })
+        .withPresentPart(1, {
+          passed: 1,
+          failed: 0,
+          other: 0,
+          durationMs: 100,
+        })
+        .please(),
+    )
+    .please(),
+];
 
 test("Proof sorts by Test execution time and Counts by click, Enter and Space, unmeasured last", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const { proof } = await openFailedRun(
-    page,
-    () => runArtifactsAnswer(run, artifactId),
-    () => summaryZipAnswer(exampleSummary()),
-    () => [
-      makeMe.aCiRun
-        .with({
-          headSha: judged,
-          conclusion: "success",
-          url: runUrl,
-          databaseId: run.runId,
-        })
-        .please(),
-    ],
-  );
+  const { proof } = await openFrontendRunProof(page, exampleEntries());
   const table = proofTable(proof);
   // Declaration order, no header sorted, and no totals row.
   await expectUnsortedRows(table, ["tests/a", "tests/b", "tests/c"]);
@@ -179,11 +140,9 @@ test("a multi-unit location sorts as one row by each unit's figures without summ
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const { proof } = await openFailedRun(
-    page,
-    () => runArtifactsAnswer(run, artifactId),
-    () => summaryZipAnswer(groupedSummary()),
-  );
+  const { proof } = await openFrontendRunProof(page, groupedEntries(), {
+    state: "failed",
+  });
   const table = proofTable(proof);
   await expect(rowNames(table)).toHaveText([
     "grouped/slow",

@@ -7,7 +7,7 @@ Input: the story's Goal, Scope, Scope limits and Key examples verbatim from `.pl
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| C1.1 | Maintainer runs CI status checks at their owning boundaries | slice 2 | |
+| C1.1 | Maintainer runs CI status checks at their owning boundaries | slice 2 | observed: dashboard/frontend-tests/intent/intent-ci-status-*.spec.ts (presentation, 14 cases) + e2e/intent/intent-ci-status.spec.ts judgmentCalls + backend-tests/intent/intent-ci-status-read-boundary.spec.ts |
 | C1.2 | Maintainer runs timing checks at their owning boundaries | slice 4 | |
 | C1.3 | Maintainer runs proof checks at their owning boundaries | slice 5 | |
 | C1.4 | Maintainer runs comparison checks at their owning boundaries | slice 6 | |
@@ -16,7 +16,7 @@ Input: the story's Goal, Scope, Scope limits and Key examples verbatim from `.pl
 | C3 | The change shrinks the remaining mixed test tier | slice 8 | |
 | C4 | Intent's CI evidence stays trustworthy | slice 8 | |
 | C5 | No speed improvement is claimed without measurement (claim limit, not a target) | slice 8 | |
-| C6.1 | Convert `intent-ci-status-*` specs | slice 2 | |
+| C6.1 | Convert `intent-ci-status-*` specs | slice 2 | observed: all seven intent-ci-status-* interim specs deleted and their duration rows removed; integrated --list 215 tests/106 files |
 | C6.2 | Convert `intent-ci-wall-time-history*` specs | slice 3 | |
 | C6.3 | Convert `intent-scope-*` specs | slice 4 | |
 | C6.4 | Convert `intent-ci-proof*` specs | slice 5 | |
@@ -27,8 +27,8 @@ Input: the story's Goal, Scope, Scope limits and Key examples verbatim from `.pl
 | C7.2 | Request accounting assertions sit at the Backend boundary | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: judgmentCalls(server.github.calls.slice(before)) toEqual [] after refusals and exactly three calls after fresh/kept reads |
 | C7.3 | Acquisition assertions sit at the Backend boundary | slice 5 | |
 | C7.4 | Storage assertions sit at the Backend boundary | slice 5 | |
-| C7.5 | Controlled service answers sit at Frontend | slice 2 | |
-| C7.6 | Actual rendering or interaction sits at Frontend | slice 2 | |
+| C7.5 | Controlled service answers sit at Frontend | slice 2 | observed: dashboard/tests/support/frontendCiStatusAnswers.ts serves fresh/kept/failed/held intent=ci-status answers to dashboard/frontend-tests/intent/intent-ci-status-*.spec.ts |
+| C7.6 | Actual rendering or interaction sits at Frontend | slice 2 | observed: dashboard/frontend-tests/intent/intent-ci-status-sort.spec.ts Tab/Enter/Space sorting, -homepage click/Enter/Space return home, -side-panel, -freshness kept cue |
 | C7.7 | Representative real-server workflows sit in E2E (representative, not every case) | slice 8 | |
 | C8 | Mixed cases are split by their assertions, including negative effects | slice 8 | |
 | C9 | Each distinct regression is preserved; names or counts alone do not meet this | slice 8 | |

@@ -13,7 +13,6 @@
 26.5	tests/navigation/side-panel-width.spec.ts
 26.2	tests/intent/intent-ci-comparison-count-gaps.spec.ts
 25.6	tests/navigation/development-intent-frame-sessions.spec.ts
-24.5	tests/intent/intent-ci-status-freshness.spec.ts
 24.4	tests/navigation/accessible-board.spec.ts
 22.9	tests/navigation/frame-board-look.spec.ts
 22.4	tests/intent/intent-ci-comparison-drilldown-relative.spec.ts
@@ -24,13 +23,11 @@
 21.7	tests/intent/intent-story-changes-only.spec.ts
 21.7	tests/intent/intent-story-coverage.spec.ts
 21.1	tests/intent/intent-sidebar-toggle.spec.ts
-20.8	tests/intent/intent-ci-status-execution-time.spec.ts
 20.2	tests/navigation/project-keyboard-navigation.spec.ts
 19.6	tests/intent/intent-home-activation.spec.ts
 19.6	tests/navigation/story-reference-navigation.spec.ts
 19.3	tests/intent/intent-reading-place.spec.ts
 19.1	tests/intent/intent-scope-timing-history-gaps.spec.ts
-19.0	tests/intent/intent-ci-status-homepage.spec.ts
 19.0	tests/navigation/development-intent-frame.spec.ts
 18.1	tests/intent/intent-done-project-refresh-reading.spec.ts
 18.1	tests/navigation/accessible-board-keyboard.spec.ts
@@ -45,7 +42,6 @@
 15.4	tests/intent/intent-done-review-modes.spec.ts
 15.4	tests/navigation/side-panel-width-covering.spec.ts
 15.3	tests/navigation/story-reference-done-cancellation.spec.ts
-15.1	tests/intent/intent-ci-status-kept.spec.ts
 15.0	tests/intent/intent-scope-timing-history-gap-build.spec.ts
 14.8	tests/navigation/story-reference-recovery.spec.ts
 14.7	tests/intent/intent-test-optimization-candidates-case.spec.ts
@@ -67,7 +63,6 @@
 10.3	tests/navigation/frame-sessions-look.spec.ts
 10.2	tests/intent/intent-ci-wall-time-history.spec.ts
 10.0	tests/intent/intent-test-optimization-candidates-states.spec.ts
-9.9	tests/intent/intent-ci-status-side-panel.spec.ts
 9.9	tests/intent/intent-done-source-selection.spec.ts
 9.9	tests/intent/intent-entry-folder-summaries-folders.spec.ts
 9.7	tests/intent/intent-revision-update-outcomes.spec.ts
@@ -78,7 +73,6 @@
 8.7	tests/intent/intent-project-visit-selection.spec.ts
 8.4	tests/intent/intent-revision-planning-only.spec.ts
 8.4	tests/intent/intent-selection-reads.spec.ts
-8.2	tests/intent/intent-ci-status-sort.spec.ts
 8.1	tests/intent/intent-project-visit.spec.ts
 8.1	tests/navigation/project-selection.spec.ts
 7.6	tests/intent/intent-story-review-return.spec.ts
