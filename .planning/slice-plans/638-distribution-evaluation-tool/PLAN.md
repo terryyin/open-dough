@@ -54,13 +54,13 @@ No North Star topic is needed: the agreed layout and existing owners suffice.
 
 | Final promise / key example | Owner and observable proof |
 | --- | --- |
-| Existing acceptance cases run from the tool home; example 3 | 2: migrated entry and real setup/observer/assessor/retention exercised with controlled hosts; replay, isolation, timeout and failure checks retain their verdicts. |
-| Same comparison selection, outcomes and limits; example 4 | 3: catalog filters, substitute pairs, refusal and incomplete-run checks through the new comparison entry. |
-| Earlier evidence remains recoverable; example 5 | 3: both original `20261114T045440-*.txt` records recover basis `9c20a8086fe48e2bd60f283f478607440a057216`; recovery prints original bytes. Frozen-baseline checks reassess after raw cleanup without changing archive integrity. |
-| Focused checks and explicit native invocation; examples 1, 3 | 4: focused command runs only evaluation checks; disabled assessor fails it; a real-host launch tripwire is untouched. Controlled host substitutes stay allowed. |
-| Combined Intent/CI proof, once per check; example 2 | 4: combined discovery equals the union of both roots across all shares; actual shell/file and Node-case outcomes from both roots reach the single Distribution proof summary. |
-| Installed guidance and unrelated content unchanged; example 6 | 1–4: declared-payload enumeration and installed-byte checks remain green, including install-omits-internal and payload-declaration-links; final diff contains no installed-guidance or payload-declaration changes. |
-| Callers, discovery and maintained instructions use the new home | Each moving slice: consumer trace and relevant consumers; 4: README commands and final stale-live-path search. Historical evidence keeps its paths. |
+| Existing acceptance cases run from the tool home; example 3 | 4: migrated entry and real setup/observer/assessor/retention exercised with controlled hosts; replay, isolation, timeout and failure checks retain their verdicts. |
+| Same comparison selection, outcomes and limits; example 4 | 5: catalog filters, substitute pairs, refusal and incomplete-run checks through the new comparison entry. |
+| Earlier evidence remains recoverable; example 5 | 5: both original `20261114T045440-*.txt` records recover basis `9c20a8086fe48e2bd60f283f478607440a057216`; recovery prints original bytes. Frozen-baseline checks reassess after raw cleanup without changing archive integrity. |
+| Focused checks and explicit native invocation; examples 1, 3 | 6: focused command runs only evaluation checks; disabled assessor fails it; a real-host launch tripwire is untouched. Controlled host substitutes stay allowed. |
+| Combined Intent/CI proof, once per check; example 2 | 6: combined discovery equals the union of both roots across all shares; actual shell/file and Node-case outcomes from both roots reach the single Distribution proof summary. |
+| Installed guidance and unrelated content unchanged; example 6 | 1–6: declared-payload enumeration and installed-byte checks remain green, including install-omits-internal and payload-declaration-links; final diff contains no installed-guidance or payload-declaration changes. |
+| Callers, discovery and maintained instructions use the new home | Each moving slice: consumer trace and relevant consumers; 6: README commands and final stale-live-path search. Historical evidence keeps its paths. |
 
 ## Preparation evidence
 
@@ -69,85 +69,101 @@ remain applicable except for the sizing assumption corrected below.
 
 ## Ordered slices
 
-### 1. Relocate shared native execution and observation
+### 1. Relocate the shared host-stream reader
 Type: Structure
 Status: planned
-Proof: replay, stream guards, identity, supervision/failure/timeout/isolation,
-retention and affected family consumers through existing entries.
+Proof: real retained-stream replay, Codex/session/ownership tests, input identity
+and snapshot consumers through unchanged existing entries.
 
-Move only shared native execution, host adapters, stream readers, supervision,
-identity and retention into `evaluation/src/`. Keep acceptance family modules
-and mixed entries at their existing locations for this boundary; rewire their
-shared-helper imports. Keep test substitutes and canonical MakeMe/repository
-builders in tests. Update guards, fixture snapshots, import closure and identity
-lists for the moved shared modules. Preserve explicit options and all outcomes.
-This immediately enables slice 2 to invoke acceptance families from their home.
-Reuse the parked attempt's settled path repairs where they match this boundary;
-prove any newly changed import/fixture boundary and resolve every reached consumer.
+Move only `native-host-stream*.mjs`, `native-host-stream.sh` and
+`native-codex-session.mjs` to `evaluation/src/`; keep shared shell host launch,
+supervision, retention, observation and import-closure helpers in support until slice 3.
+Rewire direct/transitive imports and identity input lists, guard ownership and
+fixture snapshots. Exclude test-only substitutes/materializers/inventories.
+Resolve deleted tracked snapshot entries now. This enables slice 2's ADR entry.
+Reuse compatible reader repairs from attempt 2; preserve captured stream bytes.
 
-### 2. Run acceptance cases from the evaluation home
+### 2. Invoke ADR acceptance from the evaluation home
 Type: Behavior
 Status: planned
-Proof: native-family controlled-host journeys, replay and lifecycle checks
-through moved cases; payload checks and dashboard typecheck where imported.
+Proof: existing ADR context/use/delivery and installed-use adapters through
+controlled hosts, replay/identity and payload checks.
 
-Existing case and host options → documented evaluation entry → the same isolated
-setup, observation, assessment, retention and terminal cleanup. Move reusable
-acceptance families/scenarios/assessors into `evaluation/cases/`; separate routine
-automated branches from explicit native entries. Keep ordinary checks at old
-paths until slice 4. Reuse shared runtime from slice 1, including comparison
-callers temporarily remaining at their old home. Preserve retained streams.
-Update transitive shell sources, generated fixture scripts, copied import closure,
-identity lists, shim discovery and guards together. Add README acceptance commands.
-Split oversized `native-publication.md` by its cohesive seam: acceptance-running
-guidance under evaluation, proof-scheduling scenarios/evidence in its linked
-maintained topic; both under 250 lines. The parked attempt contains these edits.
+Existing ADR case/host options → `evaluation/cases/adr-awareness/` entry → same
+isolated setup, assessment, retention and cleanup. Move only the ADR family
+and scenarios/assessors, separate routine test branches, keep all other families
+at current paths. Reuse the reader and remaining support helpers. Add README
+layout and ADR commands; ordinary tests stay at old locations until slice 6.
 
-### 3. Run comparisons and recover their earlier evidence
+### 3. Relocate remaining shared native execution
+Type: Structure
+Status: planned
+Proof: supervision/failure/timeout/isolation, retention, identity, comparison
+snapshots, publication shim discovery and stable one-shot checks.
+
+Move the remaining actual shared runtime modules to `evaluation/src/` using
+attempt 2's classified map and compatible repairs, preserving slice1's reader.
+Keep native identity source/inventory/supervision test inputs in support.
+Update module-relative shell sources, copied-source fixture roots, import closure,
+identity lists and executable-owner shim discovery. Diagnose and repair the
+one-shot safety-deadline defect without relaxing timeout or dropping proof.
+This immediately enables slice 4's remaining families from their final home.
+
+### 4. Invoke remaining acceptance families from their home
 Type: Behavior
 Status: planned
-Proof: every credential-free comparison check; both original recovered records;
-byte comparisons for moved tracked records and immutable archives.
+Proof: all moved-family substitutes, rejection/replay, identity/lifecycle,
+updated-use adapters, typecheck and declared-payload checks.
 
-Existing comparison selection or retained record → new comparison entry → same
-selection and quality-first outcome, or original recovered basis/record with no
-native launch. Move orchestration to `src/`, cases to `cases/comparison/`, checks
-remain until slice 4. Update snapshot inputs, Git-basis enumeration and current
-assessor lookup together. Never rewrite task/basis inputs, archives, streams,
-recorded hashes or historical paths. New runs name new committed bases.
-Recover both `20261114T045440-*` records and reassess immutable baselines after raw
-cleanup without modifying their integrity or claiming applicability. Update live
-guides/findings commands, retaining pinned historical GitHub links. Align plan
-621 locations only; move its provenance/findings/PFE/dated premises into a linked
-non-executable evidence reference so both files stay under 250 lines.
+Existing case and host options → documented evaluation entry → same isolated
+setup/observation/assessment/retention/cleanup. Move remaining reusable families
+to `evaluation/cases/` using attempt 1's compatible edits, preserving ADR and
+shared-runtime repairs. Separate automated branches; checks stay old until slice 6.
+Update shell/generated sources, fixture closures, identities and guards together.
+Keep comparison orchestration temporarily old. Complete acceptance commands.
+Split oversized `native-publication.md`: acceptance-running guide under evaluation
+and linked proof-scheduling scenarios/evidence in tests; both <=250 lines.
 
-### 4. Check the tool independently and retain combined CI proof
+### 5. Run comparisons and recover earlier evidence
 Type: Behavior
 Status: planned
-Proof: focused command and broken-assessor/runner failure, real-host tripwire,
+Proof: all credential-free comparison checks, both original recovered records
+and byte comparisons of moved tracked records/archives.
+
+Existing comparison selection/record → new comparison entry → same selection,
+quality-first outcomes/limits, or original basis/record with no native launch.
+Move orchestration to src and cases to cases/comparison; checks stay until slice 6.
+Update snapshots, Git-basis enumeration and current-assessor lookup together.
+Never rewrite task/basis inputs, archives, streams, hashes or historical paths.
+Recover both `20261114T045440-*` records and reassess archives after raw cleanup
+without modifying integrity or claiming applicability. Update live guides/findings
+commands, retaining historical links. Align plan 621 paths only; move its dated
+provenance/findings/PFE into a linked non-executable evidence reference so both
+files stay <=250 lines. No queued correction behavior is implemented.
+
+### 6. Check the tool independently and retain combined CI proof
+Type: Behavior
+Status: planned
+Proof: focused command and broken-assessor/runner failure, native-host tripwire,
 combined discovery/splits, mixed-root CI proof, Intent selection and final suite.
 
 `npm run test:evaluation` → only tool checks; ordinary CI → guidance and tool
-checks once each under Distribution Tests. Move tool checks/test-only support
-into feature groups in `evaluation/tests/`; retain guidance checks in tests.
-Use existing scheduler's alternate root for focused command and one discovery
-union/deal for ordinary runs. Preserve named selections, substitute roots,
-admission, deadlines, silent-pass rules, reports and duration values. Extend
-Node manifests, aggregate exclusions and Distribution Intent source patterns
-to actual executable checks, never case/runtime scripts. Exercise real shell
-and Node outcomes through CI fragments/summary, including failures. Complete
-README prerequisites/commands/evidence limits, navigation and maintained callers.
-Historical evidence retains its paths. Run final `npm test` and 3-share preview.
+checks once under Distribution Tests. Move tool checks/test-only support to
+feature groups in evaluation/tests; retain guidance checks in tests. Use one
+scheduler: alternate root for focused checks and one union/deal for default CI.
+Preserve named selection, substitute roots, admission, deadlines, silence,
+reports and duration values. Extend Node manifests, exclusions and Distribution
+Intent sources to executable checks only. Exercise shell/Node outcomes through
+real CI fragments/summary including failures. Complete README prerequisites,
+commands/evidence limits and live navigation. Run final suite and 3-share preview.
 
 ## Execution gates and current decisions
 
 - Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
   as written, including local/CI differences and failures predating this work.
-- Before editing tests, apply AGENTS.md's MakeMe and applicable page-object
-  selection. No browser behavior is changed by the plan. Use controlled hosts
-  only at the external host boundary; exercise real setup, Git, readers,
-  assessors, retention, discovery and proof reporting. No `test.slow()` or
-  suite/file/group/hook timeout override.
+- Apply AGENTS.md's test conventions and timeout rules. Use controlled hosts
+  only at the external boundary; exercise real setup, Git, readers, assessors,
+  retention, discovery and proof reporting. No browser behavior changes.
 - Generate the installed consumer trace from each actual movement diff,
   including indirect shell sources, generated fixture scripts, import closure,
   corpus guards, hash inputs and historical recovery. Dispose of every listed
@@ -165,57 +181,45 @@ Historical evidence retains its paths. Run final `npm test` and 3-share preview.
   fully awake on AC, `caffeinate -s -i`; on battery plug in, or keep the lid
   open under `caffeinate -i` and inspect sleep logs afterwards. Respect shared
   full-suite admission; choose concurrency from current host headroom.
-- Recheck fetched trunk and overlapping work before execution. The silent
-  supplier wait landed at `ef93db6c` without evaluation-harness changes;
-  retain its installed behavior and findings. Plan 621's correction remains
-  separate, with location-only alignment here. No blocking supplier agreement
-  is needed merely because paths overlap.
-- Each slice is one usable capability and proof loop, sized for 15 active
-  minutes excluding commands. Use existing responsibility seams and mechanical
-  path rewiring; if actual consumers require broader redesign, stop and resize
-  rather than silently absorb the separate harness corrections.
+- Recheck trunk/overlap. Preserve silent supplier wait `ef93db6c` and findings;
+  no harness change there. Plan 621 remains separate, location-only alignment.
+  Shared filenames alone need no blocking supplier agreement.
+- Each slice has one capability/proof loop and 15 active minutes excluding
+  commands. Use existing seams; broader redesign triggers reassessment,
+  never silently absorb the separate harness corrections.
 - Cumulative design: one execution/observation/assessment implementation serves
   both acceptance and comparison; one scheduler serves focused and combined
   checks. Interim acceptance/comparison checks stay at their old test locations
-  until slice 4, with imports updated in each moving slice; slice 4 removes
+  until slice 6, with imports updated in each moving slice; slice 6 removes
   that temporary layout. Every delivered boundary must pass CI.
 - First attempt overran; [attempt and sizing evidence](attempt-1.md) preserves
   elapsed time, proof, failures and parked changes. Refined to four bounded
-  slices: one shared-runtime Structure immediately before acceptance Behavior,
-  followed by comparison and focused/combined checks. No story-scope change.
+  slices initially; the second overrun triggered [story-boundary reassessment](attempt-2.md).
+  Continue six bounded slices with unchanged scope and two immediate
+  Structure/Behavior pairs; no delivered product outcome is discarded.
 
 ## Learnings
 
-First attempt: physical-directory closure crossed shared runtime and family
-modules. Separate their movement boundaries; reuse compatible parked repairs.
+Physical-directory closure crosses independent proof loops; isolate reader, runtime and family movement, reusing compatible parked repairs.
 
 ## Execution context
 
-Story Branch Mode; established owned workspace and branch from the launch.
-Starting revision `c124365d015aec64b5186160980db9205b11955a`; claim and first
-published base `deba676495b2eb1b8c1f3d3f96b7a44cb1122eb4`, publisher
-`dashboard-territory.local-open-dough`, agent Kirara-chan. Origin trunk is main;
-increments target `codex/run-and-maintain-native-evaluations-as-a-distinc`.
-No explicit overrun-replanning option; preserve the existing planning authority.
-Checkout-bound `npm ci` and `npm run typecheck:dashboard` passed 2026-11-15.
-Observer: coordinator `kirara-638`, cell `g390:9`, session 35882, PID 75649,
-directory `/tmp/dough-ci-501/watch-NjF7jy`; GitHub `terryyin/open-dough`,
-execution branch above, verified workflow `ci.yml` (CI). Claim trunk CI is unobserved.
-Local proof: AC power, 56% free memory, natural load 11.33 on the shared Mac;
-use two runner jobs under `caffeinate -s -i`, reconsider on contention/failure.
-Fetched trunk adds only Mana-chan's profile; no overlapping behavior changed.
+Story Branch Mode in the launch's owned workspace/branch, agent Kirara-chan, publisher `dashboard-territory.local-open-dough`; origin/main, increments to `codex/run-and-maintain-native-evaluations-as-a-distinc`.
+Starting revision `c124365d015aec64b5186160980db9205b11955a`; claim `deba676495b2eb1b8c1f3d3f96b7a44cb1122eb4`; records published at `a0ff105737b7cc71726f92715e907b779e8a230b`. Preserve existing planning authority (no explicit replan option).
+Exact-checkout npm ci/typecheck passed with unchanged lock. Observer `kirara-638`, cell `g390:9`, session 35882, PID 75649, `/tmp/dough-ci-501/watch-NjF7jy`, `terryyin/open-dough`, execution branch, verified `ci.yml` (CI); claim trunk CI unobserved.
+Shared Mac AC, initially 56% free/load 11.33; two jobs under `caffeinate -s -i`; reconsider contention/failure. Source freshness unchanged at trunk `3925a4ef8ca8cf4f0bf6f03b201a78c24d2ec0e8`, only incoming planning/agent records.
 
 ## Story obligations
 
 ### G1. Admission fixture path after relocation
 Reported: slice 1 — "admission reuse fixture copies the old background CI native probe path"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: receiving slice 2
+Disposition: receiving slice 4
 
 ### G2. Counterexample assessor paths after relocation
 Reported: slice 1 — "owned-context and one-shot counterexamples resolve assessors beside old support"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: receiving slice 2
+Disposition: receiving slice 4
 
 ### G3. Browser selection after relocation
 Reported: slice 1 — "browser-group-shards reports zero selected actual specs for every browser group"
@@ -225,4 +229,19 @@ Disposition: return
 ### G4. Standalone comparison sourcing after relocation
 Reported: slice 1 — "native-codex-owned-proof passes but prints missing paths because standalone comparison sourcing has no source_dir"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
+Disposition: receiving slice 3
+
+### G5. Executable shim owners
+Reported: slice 1 — "publication fixture shim discovery scans only old support, missing moved executable owners"
+Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
+Disposition: receiving slice 3
+
+### G6. Deleted tracked snapshot inputs
+Reported: slice 1 — "admission snapshot enumeration attempts deleted old runtime paths"
+Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
 Disposition: return
+
+### G7. One-shot safety deadline
+Reported: slice 1 — "one-shot aggregate hit the existing 180-second safety deadline during the broad selected gate"
+Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
+Disposition: receiving slice 3
