@@ -53,10 +53,14 @@ report_is() {
 
 # The first comparison names the commit holding its case basis; the
 # maintainer keeps its record with the case.
-basis_a=$(git -C "${source_repo}" rev-parse HEAD)
+# This recorded case input mixes multibyte text, NUL and a non-UTF-8 byte.
+# Recovery must hash its exact bytes and keep the next Git batch frame aligned.
+printf 'caf\303\251\000\377\344\270\255\n' > "${source_repo}/${case_dir}/byte-sensitive-input"
+basis_a=$(commit 'Keep a byte-sensitive case input')
 first=$(native_comparison_fixture_record "${work}" v-fixture "${quiet}" concurrent first)
 grep -Fqx 'verdict: preserved' "${first}"
 grep -Fqx "case-basis-revision: ${basis_a}" "${first}"
+grep -Fqx "case-input-hash: b1cac15441b040b08826e68e1c6a910757579c3b1d7614143dae92f9fe047aae ${case_dir}/byte-sensitive-input" "${first}"
 cp -- "${first}" "${source_repo}/${comparisons}/first.txt"
 kept_a=$(commit 'Keep the first comparison')
 

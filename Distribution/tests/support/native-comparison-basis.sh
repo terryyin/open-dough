@@ -22,6 +22,7 @@
 # shellcheck disable=SC2034,SC2312 # Fields print as observed.
 
 declare -gA native_comparison_basis_digests=()
+native_comparison_basis_lacking=0
 
 # Leaves case_identity, the pathspec of the case files under CASE_DIR that
 # native_comparison_case_files (native-comparison-run.sh) hashes: all but
@@ -79,18 +80,50 @@ native_comparison_basis_record_history() {
   fi
 }
 
-# Prints how many recorded inputs COMMIT of REPO lacks: a path missing or
+# Cache uncached Git blobs with one read/hash process pair, preserving their
+# exact bytes (including binary data) rather than starting a pipeline per input.
+native_comparison_basis_digest_blobs() {
+  local repo=$1 digests blob hash
+  shift
+  (($#)) || return 0
+  digests=$(printf '%s\n' "$@" | git -C "${repo}" cat-file --batch | node --input-type=module -e '
+    import { createHash } from "node:crypto";
+    import { readFileSync } from "node:fs";
+    const bytes = readFileSync(0);
+    let at = 0;
+    while (at < bytes.length) {
+      const headerEnd = bytes.indexOf(10, at);
+      if (headerEnd < 0) throw new Error("incomplete Git blob header");
+      const [blob, type, length] = bytes.toString("ascii", at, headerEnd).split(" ");
+      const size = Number(length), end = headerEnd + 1 + size;
+      if (type !== "blob" || !Number.isSafeInteger(size) || size < 0 ||
+          end >= bytes.length || bytes[end] !== 10)
+        throw new Error("incomplete Git blob: " + blob);
+      console.log(blob + " " + createHash("sha256").update(bytes.subarray(headerEnd + 1, end)).digest("hex"));
+      at = end + 1;
+    }
+  ') || return
+  while read -r blob hash; do native_comparison_basis_digests[${blob}]=${hash}; done <<< "${digests}"
+}
+
+# Prints and leaves native_comparison_basis_lacking, the number of recorded
+# inputs COMMIT of REPO lacks: a path missing or
 # holding other bytes, or a case file the record does not list. Reads
 # native_comparison_basis_paths, _hashes, _case_dir and _empty_tree.
 native_comparison_basis_lacks() {
   local repo=$1 commit=$2 old_mode mode old_blob blob change path index lacking=0 case_identity
-  local -A blobs=()
+  local -A blobs=() needed=()
   native_comparison_basis_case_identity "${native_comparison_basis_case_dir}"
   # Every file COMMIT holds at those paths, as added to an empty tree.
   while read -r old_mode mode old_blob blob change path; do
     blobs[${path}]=${blob}
   done < <(git -C "${repo}" diff-tree -r --no-commit-id "${native_comparison_basis_empty_tree}" "${commit}" -- \
     "${native_comparison_basis_paths[@]}" "${case_identity[@]}")
+  for path in "${native_comparison_basis_paths[@]}"; do
+    blob=${blobs[${path}]-}
+    [[ -z ${blob} || -n ${native_comparison_basis_digests[${blob}]-} ]] || needed[${blob}]=1
+  done
+  native_comparison_basis_digest_blobs "${repo}" "${!needed[@]}" || return
   for index in "${!native_comparison_basis_paths[@]}"; do
     path=${native_comparison_basis_paths[index]}
     blob=${blobs[${path}]-}
@@ -98,9 +131,6 @@ native_comparison_basis_lacks() {
       lacking=$((lacking + 1))
       continue
     fi
-    [[ -n ${native_comparison_basis_digests[${blob}]-} ]] \
-      || native_comparison_basis_digests[${blob}]=$(git -C "${repo}" cat-file blob "${blob}" \
-        | shasum -a 256 | cut -d ' ' -f 1)
     [[ ${native_comparison_basis_digests[${blob}]} == "${native_comparison_basis_hashes[index]}" ]] \
       || lacking=$((lacking + 1))
   done
@@ -108,7 +138,8 @@ native_comparison_basis_lacks() {
   # recorded hash against its Git blob before removing the path: consistent
   # repetitions are valid, and a conflicting repetition must still fail.
   for path in "${native_comparison_basis_paths[@]}"; do unset 'blobs[${path}]'; done
-  printf '%s\n' "$((lacking + ${#blobs[@]}))"
+  native_comparison_basis_lacking=$((lacking + ${#blobs[@]}))
+  printf '%s\n' "${native_comparison_basis_lacking}"
 }
 
 native_comparison_basis_observe() {
@@ -142,7 +173,10 @@ native_comparison_basis_observe() {
     elif ! git -C "${repo}" rev-parse -q --verify "${named}^{commit}" > /dev/null; then
       printf 'named-revision: %s is not a commit of this repository\n' "${named}"
     else
-      lacks=$(native_comparison_basis_lacks "${repo}" "${named}")
+      # Keep this call in the current shell: its content-addressed digest
+      # cache must survive when recovery searches other commits of this basis.
+      native_comparison_basis_lacks "${repo}" "${named}" > /dev/null || return
+      lacks=${native_comparison_basis_lacking}
       if [[ ${lacks} -eq 0 ]]; then
         printf 'named-revision: %s holds the recorded inputs\n' "${named}"
         basis=${named}
@@ -153,7 +187,8 @@ native_comparison_basis_observe() {
     if [[ ${basis} == none ]]; then
       while read -r commit; do
         searched=$((searched + 1))
-        [[ $(native_comparison_basis_lacks "${repo}" "${commit}") -eq 0 ]] || continue
+        native_comparison_basis_lacks "${repo}" "${commit}" > /dev/null || return
+        [[ ${native_comparison_basis_lacking} -eq 0 ]] || continue
         basis=${commit}
         break
       done < <(git -C "${repo}" rev-list --full-history HEAD -- \

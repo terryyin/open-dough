@@ -157,10 +157,12 @@ and retain the result; no favorable rerun or design expansion.
   start fully awake; on AC use `caffeinate -s -i` for long native runs; on battery
   plug in or use `caffeinate -i` with lid open and inspect the sleep log. Inspect
   load/memory before expensive runs and sequence these owned journeys.
-- Apply [AGENTS.md's failure policy](../../../AGENTS.md#failing-and-flaky-tests)
+- Apply the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
   as written to every delegation and repair. Independent post-change refactoring,
   focused proof, coordinator commit/publication and asynchronous CI repair use
   `dough-execute-plan`; stop after the bounded experiment rather than grow it.
+  Apply [this project's failure policy](../../../AGENTS.md#failing-and-flaky-tests)
+  as written alongside the shared policy.
 
 Remaining work has three separate proof loops: differential explanation, faithful
 reproduction/current-resolution judgment, then one conditional measured change.

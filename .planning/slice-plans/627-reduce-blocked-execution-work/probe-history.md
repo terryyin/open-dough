@@ -86,3 +86,27 @@ violations in the new test. Repair reuses the shared substitute encoder and
 Terminal proof (session 99864, exit 0, fourteen checks):
 `env PATH="/opt/homebrew/bin:$PATH" OPEN_DOUGH_TEST_JOBS=1 caffeinate -s -i bash scripts/test.sh Distribution/tests/native-harness-inspection.sh Distribution/tests/native-stream-replay.sh Distribution/tests/native-assessor-counterexample-guard.sh Distribution/tests/native-comparison-*.sh`.
 Trace `/tmp/seed356-ci-guard-consumer-trace.md` covers shared fixture defaults and faults.
+
+## Controlled-increment CI repair
+
+Published `1a4a640e87a5ba76739ba3362e40001e5e41e124` failed
+[run 43673938258/1](https://github.com/terryyin/open-dough/actions/runs/43673938258):
+the filtered catalog still expected one blocked case, and refresh exceeded its
+normalized 64-second budget. Repair preserves the full catalog and exact-byte
+recovery, retains digest caching, batches blob reads, and avoids unused or
+same-commit payload extraction. Two local 180-second deadline failures also
+received an assertion-preserving behavior split. Final targeted proof passed;
+exact published CI still owns the 64/926-second budget verdict. No new native
+journey was launched. Literal commands, terminal outcomes and consumer tracing
+are retained in `/tmp/seed356-repair-handoff.json` and its linked evidence.
+
+Evaluation cost remains visible separately from candidate cost. At
+2026-11-15T04:42:37.849Z the active coordinator session snapshot contained 428
+unique owned responses and 85,771,321 processed tokens: 84,043,136 cached input,
+1,427,330 uncached input and 300,855 output. The existing shared Codex reader
+reported no unknown/conflicting usage records. This is a partial whole-session
+snapshot, excluding workers, native journeys and later responses. Together with
+the known native-journey floor of 10,330,545, the visible combined floor is
+96,101,866 tokens, not a complete total, billing claim or measured improvement.
+The snapshot is `/tmp/seed356-root-evaluation-usage-snapshot.json`; its source is
+the current coordinator rollout `01a1dc65-0f52-7a51-b646-7322bc75ad39`.
