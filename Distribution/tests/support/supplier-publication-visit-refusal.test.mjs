@@ -17,13 +17,13 @@ import {
 } from "./supplier-closure-visit-fixture.mjs";
 import { landing, main, racedLanding } from "./supplier-land-visit-fixture.mjs";
 import { publishSelectedSupplier } from "../../src/skills/dough-execute-plan/scripts/supplier-integration.mjs";
-import { lsRemoteSha } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { lsRemoteSha } from "../skills/dough-execute-plan/publication-test-fixtures.mjs";
 import {
   branchSha,
   createTrunkClosureFixture,
   deliverBeforeCleanupThroughCli,
   finishThroughCli,
-} from "../../src/skills/dough-story-wrap-up/scripts/trunk-closure-test-fixtures.mjs";
+} from "../skills/dough-story-wrap-up/trunk-closure-test-fixtures.mjs";
 
 const outsideGit = "no-such-dir/PRODUCT-BACKLOG.md";
 function assertRefusedVisit(visit) {

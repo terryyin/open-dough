@@ -51,7 +51,7 @@ const shapeWriters = new Map([
     "builds Claude prose, started command and result shapes for reader checks",
   ],
   [
-    "Distribution/tests/delivery-evidence-amended.sh",
+    "Distribution/tests/delivery-evidence/delivery-evidence-amended.sh",
     "writes Claude started commands and their results for controlled sequences",
   ],
   [
@@ -75,7 +75,7 @@ const shapeWriters = new Map([
     "substitute Codex writing one thread's turns for the paused-supplier case",
   ],
   [
-    "Distribution/tests/native-comparison-doughnut-title-precedence.sh",
+    "Distribution/tests/native-comparison/native-comparison-doughnut-title-precedence.sh",
     "writes a Codex session's final report for the calibration observer",
   ],
   [
@@ -91,7 +91,7 @@ const shapeWriters = new Map([
     "appends started calls in each host's shape",
   ],
   [
-    "Distribution/tests/native-run-workspace-isolation.sh",
+    "Distribution/tests/native-harness/native-run-workspace-isolation.sh",
     "writes an incomplete Cursor stream",
   ],
   [
@@ -107,7 +107,7 @@ const shapeWriters = new Map([
     "this guard's literal list",
   ],
   [
-    "Distribution/tests/native-stream-replay.sh",
+    "Distribution/tests/native-harness/native-stream-replay.sh",
     "writes the guard's stray-reader counterexample",
   ],
 ]);

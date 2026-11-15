@@ -6,9 +6,7 @@
 // shows their flags in the command line under Command details and starts the
 // session with those flags, and nothing selected is today's dialog and
 // launch. That no other dialog offers options is
-// ../../dashboard/frontend-tests/launches/agent-launch-options.spec.ts. The
-// definition this repository ships is checked against the shared schema in
-// ../../dashboard/backend-tests/launches/agent-launch-options-rules.spec.ts.
+// ../../dashboard/frontend-tests/launches/agent-launch-options.spec.ts.
 // The synthetic `claude` (../../dashboard/tests/fixtures/fake-claude) stands
 // in for the real one. How the boundary honors a selection is
 // ../../dashboard/backend-tests/launches/agent-launch-options-boundary.spec.ts.

@@ -6,7 +6,11 @@ import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import { untilPublishedWorkRead } from "../../dashboard/tests/pageRequestNotes.ts";
-import { machineRecordNames } from "../../dashboard/tests/support/machineRecordNames.ts";
+import {
+  expectPreservedMachineRecordContents,
+  machineRecordNames,
+  snapshotMachineRecords,
+} from "../../dashboard/tests/support/machineRecordNames.ts";
 import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
 import { systemSettingsMachine } from "../../dashboard/tests/support/systemSettingsMachine.ts";
 
@@ -45,14 +49,7 @@ test("feedback maintenance is off by default, saves a private host and model cho
   // retained-answers/ (../server/retainedAnswers.ts); the snapshot waits for
   // it, so what the setting adds is all that differs afterwards.
   await untilPublishedWorkRead(page);
-  const before = new Map(
-    machineRecordNames(dashboard).map((name) => [
-      name,
-      statSync(path.join(dashboard, name)).isFile()
-        ? readFileSync(path.join(dashboard, name), "utf8")
-        : undefined,
-    ]),
-  );
+  const before = snapshotMachineRecords(dashboard);
 
   await expect(host(page).locator("option:checked")).toHaveText("Claude Code");
   await model(page).selectOption({ label: "Opus" });
@@ -67,9 +64,7 @@ test("feedback maintenance is off by default, saves a private host and model cho
   expect(machineRecordNames(dashboard)).toEqual(
     [...before.keys(), "feedback-maintenance.json"].sort(),
   );
-  for (const [name, text] of before)
-    if (text !== undefined)
-      expect(readFileSync(path.join(dashboard, name), "utf8")).toBe(text);
+  expectPreservedMachineRecordContents(dashboard, before);
   expect(server.claudeCalls()).toEqual([]);
 
   await page.reload();

@@ -24,13 +24,14 @@ const sourcePathspecs = [
   "src/install",
   "Distribution/tests/support",
   "Distribution/tests/helpers",
+  "Distribution/tests/skills",
   "dashboard/server",
   "dashboard/src",
   "install.sh",
   "VERSION",
   "CHANGELOG.md",
   "package.json",
-  "Distribution/tests/git-publication-native.sh",
+  "Distribution/tests/git-publication/git-publication-native.sh",
 ];
 const sourcePaths = spawnSync(
   "git",

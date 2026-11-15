@@ -24,7 +24,7 @@ trunk_closure_write_evidence_identity() {
   printf 'fixture-identity: Distribution/tests/support/trunk-closure-native-fixture.sh\n'
   printf 'assessor-identity: Distribution/tests/support/trunk-closure-native-assess.sh\n'
   native_result_input_hash_lines \
-    Distribution/tests/git-publication-native.sh \
+    Distribution/tests/git-publication/git-publication-native.sh \
     Distribution/tests/support/git-publication-native-host.sh \
     Distribution/tests/support/trunk-closure-native-run.sh \
     Distribution/tests/support/trunk-closure-native-assess.sh \

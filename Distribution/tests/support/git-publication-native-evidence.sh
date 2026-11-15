@@ -19,7 +19,7 @@ git_publication_write_evidence_identity() {
       printf 'fixture-identity: Distribution/tests/support/git-publication-native-fixture.sh\n'
       printf 'assessor-identity: Distribution/tests/support/git-publication-native-assess.sh\n'
       native_result_input_hash_lines \
-        Distribution/tests/git-publication-native.sh \
+        Distribution/tests/git-publication/git-publication-native.sh \
         Distribution/tests/support/git-publication-native-assess.sh \
         Distribution/tests/support/git-publication-native-startup-assess.sh \
         Distribution/tests/support/git-publication-native-candidate-assess.sh \
@@ -57,7 +57,7 @@ git_publication_write_evidence_identity() {
       printf 'fixture-identity: Distribution/tests/support/ci-completion-native-fixture.sh\n'
       printf 'assessor-identity: Distribution/tests/support/ci-completion-native-assess.sh\n'
       native_result_input_hash_lines \
-        Distribution/tests/git-publication-native.sh \
+        Distribution/tests/git-publication/git-publication-native.sh \
         Distribution/tests/support/git-publication-native-host.sh \
         Distribution/tests/support/ci-completion-native-run.sh \
         Distribution/tests/support/ci-completion-native-assess.sh \

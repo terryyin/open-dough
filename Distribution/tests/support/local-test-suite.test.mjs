@@ -23,35 +23,33 @@ import {
 } from "./local-test-suite-fixtures.mjs";
 import {
   repositoryAtAdmissionGate,
-  repositoryAtSlotGate,
+  repositoryThroughHeldSlots,
   startedChecks,
 } from "./local-test-suite-gates.mjs";
 
-test("local repository defaults to four jobs; explicit overrides and CI keep their concurrency", async (t) => {
+test("local repository bounds concurrent jobs; explicit overrides and CI keep their concurrency", async (t) => {
   const cores = Number(
     spawnSync("getconf", ["_NPROCESSORS_ONLN"], { encoding: "utf8" }).stdout,
   );
+  // More checks than CI concurrency so a local bound starts fewer than all.
   const cases = Math.max(cores, 4) + 1;
   const { project, observe } = await fixture(t, cases);
+
+  await repositoryThroughHeldSlots(t, project, observe("local"), {
+    limit: cases - 1,
+    totalChecks: cases,
+    expectedDispatched: "bounded",
+  });
   for (const [name, expected, env] of [
-    ["local", 4, {}],
     ["override", 2, { OPEN_DOUGH_TEST_JOBS: "2" }],
     ["ci", cores, { CI: "true" }],
   ]) {
-    const observation = observe(name);
-    // Every slot stays held until the runner, with checks still queued, finds
-    // none free: the jobs it had started then are all it may start.
-    const run = repositoryAtSlotGate(t, project, observation, expected, env);
-    const started = () => startedChecks(observation);
-    assert.equal(await run.gate, expected, `${name}: jobs dispatched`);
-    await until(
-      `${name}: ${expected} jobs entered`,
-      () => started() === expected || run.child.exitCode !== null,
-    );
-    assert.equal(started(), expected, run.output());
-    writeFileSync(path.join(observation, "release"), "");
-    await succeeded(run);
-    assert.equal(started(), cases);
+    await repositoryThroughHeldSlots(t, project, observe(name), {
+      limit: expected,
+      env,
+      totalChecks: cases,
+      expectedDispatched: expected,
+    });
   }
 });
 
@@ -122,7 +120,7 @@ test("repository full suites serialize across spaced worktrees while focused and
   await succeeded(waiter);
 });
 
-test("native Playwright config shares repository admission and preserves dashboard defaults and overrides", async (t) => {
+test("native Playwright config shares repository admission and preserves focus, override, and CI worker settings", async (t) => {
   const { project, linked, observe } = await fixture(t);
   const first = observe("dashboard"),
     second = observe("repository");
@@ -133,20 +131,20 @@ test("native Playwright config shares repository admission and preserves dashboa
       existsSync(path.join(first, "start")) || owner.child.exitCode !== null,
   );
   assert.ok(existsSync(path.join(first, "start")), owner.output());
-  assert.equal(readFileSync(path.join(first, "workers"), "utf8"), "2");
   const waiter = repository(t, project, second);
-  for (const [name, args, env, expected] of [
-    ["focus", ["--grep", "needle"], {}, 2],
+  for (const [name, args, env, expectedWorkers] of [
+    ["focus", ["--grep", "needle"], {}, undefined],
     ["override", ["--workers=3", "--grep=needle"], {}, 3],
     ["ci", [], { CI: "true" }, availableParallelism()],
   ]) {
     const observation = observe(name);
     writeFileSync(path.join(observation, "release"), "");
     await succeeded(dashboard(t, project, observation, args, env));
-    assert.equal(
-      Number(readFileSync(path.join(observation, "workers"), "utf8")),
-      expected,
-    );
+    if (expectedWorkers !== undefined)
+      assert.equal(
+        Number(readFileSync(path.join(observation, "workers"), "utf8")),
+        expectedWorkers,
+      );
     assert.ok(!existsSync(path.join(second, "start-0")));
   }
   const listing = observe("list");

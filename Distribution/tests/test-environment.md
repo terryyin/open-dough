@@ -30,24 +30,22 @@ environment in `scripts/test-environment.bash`, before any check starts:
   and fails with `Asked GitHub without a request owner root of its own.` Such
   a shell check gives those processes its own root and ends the owner there
   with `Distribution/tests/helpers/private-request-owner.bash`, a node test with
-  `github-request-owner-test-fixtures.mjs` beside that script
-  (`Distribution/tests/test-runner-github-requests.sh` proves both).
+  `Distribution/tests/skills/dough-execute-plan/github-request-owner-test-fixtures.mjs`
+  (`Distribution/tests/test-runner/test-runner-github-requests.sh` proves both).
 - **Chosen checks follow the same rules**, silence included, but are not held
-  to the time budget (`Distribution/tests/test-runner-selection.sh` proves a chosen run).
+  to the time budget (`Distribution/tests/test-runner/test-runner-selection.sh` proves a chosen run).
 
-Running a check directly (`bash tests/<name>.sh`, `node --test <file>`) is
-unsupported, except for a check's own options, which the runner never passes:
-invoke the native ADR-awareness wrappers (manually triggered paid runs and
-inventories, described with their proof scripts in
-`Distribution/tests/native-adr-awareness-wrappers.md`) or the
-[native publication checks](native-publication.md) directly, with Bash 5 first on
-`PATH`, outside the runner's Git state. CI's Bash can be older than a local
+Run named checks through `npm test -- Distribution/tests/<group>/<name>.sh`.
+For check-specific options such as paid runs and inventories, invoke the
+[native ADR-awareness wrappers](adr-awareness/native-adr-awareness-wrappers.md)
+or the [native publication checks](git-publication/native-publication.md)
+directly, with Bash 5 first on `PATH`. CI's Bash can be older than a local
 one and behave differently inside traps (before Bash 5.3 a bare `return` in a
 function called from a trap takes the interrupted command's status).
 
 ### Reproducing CI's platform
 
-Use the [container diagnostic helper](ci-container.md) when a check fails only
+Use the [container diagnostic helper](ci/ci-container.md) when a check fails only
 on CI or needs CI's Bash and Git. Ordinary checks stay native.
 
 ### Repeating CI on one revision
@@ -64,7 +62,7 @@ It dispatches `ci.yml` unchanged on the ref's revision through `gh`, at most
 two at a time, and counts only its own runs, naming each failing dashboard spec
 location and other failed job with its failed-repetition count; it exits 0 only
 when every repetition passed. Each also runs `lint` and `test`, so run it on
-demand only. Its header lists its settings; `Distribution/tests/ci-repeat.sh` proves it.
+demand only. Its header lists its settings; `Distribution/tests/ci/ci-repeat.sh` proves it.
 
 A dashboard failure on unchanged code, on CI or locally, is likewise a defect
 to find and fix, not a reason to rerun until green. To repeat the dashboard

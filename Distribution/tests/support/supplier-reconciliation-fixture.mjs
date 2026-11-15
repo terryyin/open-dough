@@ -4,7 +4,7 @@ import { identityLine } from "../../src/skills/dough-product-backlog/scripts/pro
 import assert from "node:assert/strict";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { admitArgs } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
+import { admitArgs } from "../skills/dough-execute-plan/workspace-publication-admission-fixtures.mjs";
 import { readState, recordArgs } from "./story-state-fixture.mjs";
 import {
   fixture,

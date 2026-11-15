@@ -1,0 +1,240 @@
+// Interrupted and uncertain starts recover without duplicating an owned claim.
+import assert from "node:assert/strict";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { test } from "node:test";
+import { queuedReadyRepository } from "../../support/queued-repository.mjs";
+import { materializeRepository } from "../../support/repository-fixture.mjs";
+import {
+  assertCheckoutUnchanged,
+  captureCheckout,
+  git,
+  lsRemoteSha,
+  revParse,
+} from "./publication-test-fixtures.mjs";
+import { identityA } from "./workspace-publication-fixtures.mjs";
+import {
+  busyCheckout,
+  unrelatedInventory,
+} from "./default-checkout-test-fixtures.mjs";
+import { takenIdentities } from "../../../src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs";
+import {
+  computeBasis,
+  recordStoryState,
+} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
+import {
+  advanceRemote,
+  interruptFirstPush,
+  lostPushResponse,
+  profilePath,
+  remoteProfiles,
+  resumeArgs,
+  startProcess,
+} from "./workspace-publication-startup-test-fixtures.mjs";
+
+test("a pre-push interruption in a busy checkout returns compact recovery that resumes without another Take", async (t) => {
+  const trunk = await materializeRepository(
+    queuedReadyRepository()
+      .withRevision("inventory", unrelatedInventory(1500))
+      .please(),
+  );
+  t.after(trunk.cleanup);
+  await busyCheckout(trunk, 2000);
+  await interruptFirstPush(trunk);
+  const before = await captureCheckout(trunk.integration);
+  const interrupted = await startProcess(trunk, "a", identityA).result;
+  assert.equal(interrupted.code, 1);
+  assert.equal(interrupted.receipt.status, "unpublished");
+  assert.deepEqual(interrupted.receipt.maintenance, {
+    result: "deferred",
+    reason: "pending-edit",
+  });
+  assert.doesNotMatch(
+    JSON.stringify(interrupted.receipt),
+    /inventory|staged\.txt|unrelated patch/,
+  );
+  const { recovery } = interrupted.receipt;
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    recovery.startingRevision,
+  );
+  assert.equal(
+    recovery.startingRevision,
+    await revParse(trunk.integration, "HEAD"),
+  );
+  assert.equal(
+    recovery.candidateSha,
+    await revParse(interrupted.workspace, "HEAD"),
+  );
+  const resumed = await startProcess(
+    trunk,
+    "a",
+    identityA,
+    resumeArgs(recovery),
+  ).result;
+  assert.equal(resumed.receipt.ok, true, JSON.stringify(resumed));
+  assert.equal(resumed.receipt.created, false);
+  assert.equal(resumed.receipt.publishedSha, recovery.candidateSha);
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    recovery.candidateSha,
+  );
+  const log = (
+    await git(resumed.workspace, "log", "--format=%B", "origin/main")
+  ).stdout;
+  assert.equal((log.match(/Claim-Publisher: publisher-a/g) ?? []).length, 1);
+  assertCheckoutUnchanged(before, await captureCheckout(trunk.integration));
+});
+
+test("a claim made without a profile resumes without naming an agent", async (t) => {
+  const trunk = await materializeRepository(queuedReadyRepository().please());
+  t.after(trunk.cleanup);
+  await interruptFirstPush(trunk);
+  const interrupted = await startProcess(trunk, "a", identityA).result;
+  assert.equal(interrupted.receipt.status, "unpublished");
+  const { workspace } = interrupted;
+  // Rebuild the retained claim as one made before profiles existed.
+  await git(workspace, "rm", "--quiet", profilePath("Yui"));
+  await git(workspace, "commit", "--quiet", "--amend", "--no-edit");
+  const legacy = await revParse(workspace, "HEAD");
+  const resumed = await startProcess(
+    trunk,
+    "a",
+    identityA,
+    resumeArgs({ ...interrupted.receipt.recovery, candidateSha: legacy }),
+  ).result;
+  assert.equal(resumed.receipt.ok, true, JSON.stringify(resumed));
+  assert.equal(resumed.receipt.publishedSha, legacy);
+  assert.equal("agent" in resumed.receipt, false);
+  await git(workspace, "fetch", "origin");
+  assert.deepEqual(await remoteProfiles(workspace), [""]);
+});
+
+test("resume refuses a newly prepared selected source changed since the retained claim basis", async (t) => {
+  const trunk = await materializeRepository(queuedReadyRepository().please());
+  t.after(trunk.cleanup);
+  await interruptFirstPush(trunk);
+  const interrupted = await startProcess(trunk, "a", identityA).result;
+  assert.equal(interrupted.receipt.status, "unpublished");
+  const seedPath = join(trunk.integration, ".planning/seeds/A.md");
+  const plan = readFileSync(
+    join(trunk.integration, ".planning/slice-plans/A/PLAN.md"),
+    "utf8",
+  );
+  const changed = readFileSync(seedPath, "utf8").replace(
+    "Execute A.",
+    "Changed A after interruption.",
+  );
+  const updated = recordStoryState(
+    changed,
+    {
+      href: "seeds/A.md#a",
+      identity: identityA,
+      refinement: "refined",
+      approach: "planned",
+      plan: "../slice-plans/A/PLAN.md",
+      assessment: "ready",
+      reasons: [],
+      expectedBasis: computeBasis(changed, plan),
+    },
+    { planSource: plan },
+  );
+  writeFileSync(seedPath, updated.source);
+  await git(trunk.integration, "add", ".planning/seeds/A.md");
+  await git(trunk.integration, "commit", "-m", "prepare changed A");
+  await git(trunk.integration, "push", "origin", "HEAD:main");
+  const resumed = await startProcess(
+    trunk,
+    "a",
+    identityA,
+    resumeArgs(interrupted.receipt.recovery),
+  ).result;
+  assert.equal(resumed.receipt.status, "source-refused");
+  assert.equal(
+    await revParse(interrupted.workspace, "HEAD"),
+    interrupted.receipt.recovery.candidateSha,
+  );
+  assert.equal(
+    await lsRemoteSha(trunk.origin, "refs/heads/main"),
+    await revParse(trunk.integration, "HEAD"),
+  );
+});
+
+test("lost push response and later remote descendant resume as owned without another push", async (t) => {
+  const trunk = await materializeRepository(queuedReadyRepository().please());
+  t.after(trunk.cleanup);
+  const first = await startProcess(
+    trunk,
+    "a",
+    identityA,
+    [],
+    lostPushResponse(trunk),
+  ).result;
+  assert.equal(first.receipt.ok, true, JSON.stringify(first));
+  assert.equal(first.receipt.status, "resumed");
+  const accepted = first.receipt.publishedSha;
+  await git(trunk.integration, "fetch", "origin");
+  await git(trunk.integration, "merge", "--ff-only", "origin/main");
+  await advanceRemote(trunk, "later.txt");
+  const descendant = await lsRemoteSha(trunk.origin, "refs/heads/main");
+  const resumed = await startProcess(
+    trunk,
+    "a",
+    identityA,
+    resumeArgs(first.receipt),
+  ).result;
+  assert.equal(resumed.receipt.ok, true, JSON.stringify(resumed));
+  assert.equal(resumed.receipt.status, "resumed");
+  assert.equal(resumed.receipt.publishedSha, accepted);
+  assert.equal(await lsRemoteSha(trunk.origin, "refs/heads/main"), descendant);
+  const log = (
+    await git(trunk.integration, "log", "--format=%B", "origin/main")
+  ).stdout;
+  assert.equal((log.match(/Claim-Publisher: publisher-a/g) ?? []).length, 1);
+});
+
+test("a second remote race stops after one replay and preserves the rewritten candidate", async (t) => {
+  const trunk = await materializeRepository(queuedReadyRepository().please());
+  t.after(trunk.cleanup);
+  const later = join(trunk.fixture, "later");
+  await git(trunk.integration, "clone", trunk.origin, later);
+  await git(later, "config", "user.name", "Later Writer");
+  await git(later, "config", "user.email", "later@example.test");
+  const bin = join(trunk.fixture, "bin");
+  const count = join(trunk.fixture, "push-count");
+  mkdirSync(bin);
+  writeFileSync(
+    join(bin, "git"),
+    `#!/bin/sh\nset -e\nif [ "$1" = push ]; then\n  n=0\n  [ -f '${count}' ] && n=$(cat '${count}')\n  n=$((n + 1))\n  echo "$n" > '${count}'\n  /usr/bin/git -C '${later}' fetch origin >/dev/null 2>&1\n  /usr/bin/git -C '${later}' merge --ff-only origin/main >/dev/null 2>&1\n  echo "$n" > "${later}/advance-$n.txt"\n  /usr/bin/git -C '${later}' add "advance-$n.txt"\n  /usr/bin/git -C '${later}' commit -qm "advance $n"\n  /usr/bin/git -C '${later}' push -q origin HEAD:main\nfi\nexec /usr/bin/git "$@"\n`,
+    { mode: 0o755 },
+  );
+  const result = await startProcess(trunk, "a", identityA, [], {
+    ...process.env,
+    PATH: `${bin}:${process.env.PATH}`,
+  }).result;
+  assert.equal(
+    result.receipt.status,
+    "unpublished",
+    `${JSON.stringify(result)}; pushes=${existsSync(count) ? readFileSync(count, "utf8") : "none"}`,
+  );
+  assert.equal(readFileSync(count, "utf8").trim(), "2", JSON.stringify(result));
+  assert.equal(
+    await revParse(result.workspace, "HEAD"),
+    result.receipt.recovery.candidateSha,
+  );
+  const remote = await lsRemoteSha(trunk.origin, "refs/heads/main");
+  assert.notEqual(remote, result.receipt.recovery.candidateSha);
+  await git(result.workspace, "fetch", "origin");
+  assert.deepEqual(
+    takenIdentities(
+      (
+        await git(
+          result.workspace,
+          "show",
+          "origin/main:.planning/PRODUCT-BACKLOG.md",
+        )
+      ).stdout,
+    ),
+    [],
+  );
+});

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-354#remove-configuration-only-tests",
+  "title": "Remove tests that only assert configuration or data",
+  "completedAt": "2026-11-15T00:37:49.006Z",
+  "developer": "Terry Yin",
+  "agent": "bastiaan-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "## Dough Intent Coverage\n\n**Verdict:** Caught\n\n**Story:** SEED-354#remove-configuration-only-tests  \n**Revision:** `5d8fc47e33604f38fcd5720ac7c21614a5536040`  \n**Scratch:** restored clean\n\n### Promise\nWhen a maintainer changes e2e shards but forgets to update the CI proof summary's declared expect parts, a consistency or replay check still fails.\n\n### Fault\ne2e shards 5→4 with expect still e2e=5.\n\n### Catch\n- ci-proof-declaration.test.mjs — declared parts equal matrix lengths\n- ci-proof-actions.test.mjs — of 4, but e2e declares 5 parts\n\n### Disposition\nCaught — no follow-up. Confirms plan slice-1 accepted proof.\n"
+  }
+}

@@ -117,7 +117,7 @@ prep_native_retain() {
 
 prep_native_input_hash_lines() {
   native_result_input_hash_lines \
-    Distribution/tests/execution-worktree-preparation-native.sh \
+    Distribution/tests/git-publication/execution-worktree-preparation-native.sh \
     Distribution/tests/support/execution-worktree-prep-native.sh \
     Distribution/tests/support/execution-worktree-prep-native-run.sh
   native_import_closure_input_hash_lines \

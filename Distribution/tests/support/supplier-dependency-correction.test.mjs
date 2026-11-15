@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { startCliResult } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { startCliResult } from "../skills/dough-execute-plan/workspace-publication-fixtures.mjs";
 import { readState } from "./story-state-fixture.mjs";
 import {
   fixture,

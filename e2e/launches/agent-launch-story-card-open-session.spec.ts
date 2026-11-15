@@ -34,7 +34,7 @@ import {
   expectStartNote,
   launchGroup,
 } from "../../dashboard/tests/storyCardControls.ts";
-import { identityB } from "../../Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { identityB } from "../../Distribution/tests/skills/dough-execute-plan/workspace-publication-fixtures.mjs";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,

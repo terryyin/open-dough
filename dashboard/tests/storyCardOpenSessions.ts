@@ -20,7 +20,7 @@ import type { LaunchRecord } from "../src/launchRecord.ts";
 import {
   identityA,
   identityB,
-} from "../../Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+} from "../../Distribution/tests/skills/dough-execute-plan/workspace-publication-fixtures.mjs";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { parts, sessionNamedBy, storyCardSessionOf } from "./dashboardPage.ts";

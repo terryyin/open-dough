@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034,SC2154,SC2312 # Sourcing script sets set -euo pipefail; globals cross functions.
 # Shared setup and assertions for the product backlog's native
-# installed-workflow-use proof (Distribution/tests/product-backlog-native.sh --case use).
+# installed-workflow-use proof (Distribution/tests/product-backlog/product-backlog-native.sh --case use).
 #
 # A fresh native session is asked, in ordinary language naming neither a script
 # nor a verb, to integrate one branch's backlog change into another. It must

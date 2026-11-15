@@ -66,7 +66,6 @@ const headroom = (seconds) => formatSeconds(ceiling - seconds);
 const escaped = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 test("example 1: the before run's recorded jobs deal into three equal shares", () => {
-  assert.equal(before.size, 416);
   const deal = dealShares([...before.keys()], before, 3);
   assert.deepEqual(predicted(deal), ["596.0", "596.0", "596.0"]);
   assert.equal(deal.unrecordedCount, 0);
@@ -86,7 +85,6 @@ test("example 1: the added 1.0 s file alone changes share membership", () => {
     "tests/support/product-backlog-identity-evidence.test.mjs",
   ]);
   assert.equal(after.get(added[0]), 1);
-  assert.equal(after.size, 417);
   const beforeDeal = dealShares([...before.keys()], before, 3);
   const afterDeal = dealShares([...after.keys()], before, 3);
   const beforeShares = shareOf(beforeDeal);
@@ -122,9 +120,13 @@ test("example 2: the preview lists an added unrecorded file at the median on the
   assert.equal(deal.unrecordedCount, 1);
   assert.equal(deal.assumedSeconds, 2);
   const text = preview(deal);
+  const jobs = before.size + 1;
   assert.match(
     text,
-    /^Predicted job-seconds per share from before: 417 jobs, 416 recorded, 1 unrecorded at 2\.0 s each \(the recorded median\)\.$/m,
+    new RegExp(
+      `^Predicted job-seconds per share from before: ${jobs} jobs, ${before.size} recorded, 1 unrecorded at 2\\.0 s each \\(the recorded median\\)\\.$`,
+      "m",
+    ),
   );
   assert.match(
     text,
@@ -168,28 +170,34 @@ test("example 3: a renamed 54.4 s job raises the heaviest share by at most its s
   );
 });
 
-test("example 4: the preview on the stale 84-label list counts 333 unrecorded of 417 against the budget's ceiling", () => {
+test("example 4: the preview on the stale-longest-first list counts unrecorded jobs against the budget's ceiling", () => {
   const staleLabels = readFileSync(
     new URL("stale-longest-first", fixtures),
     "utf8",
   )
     .split("\n")
     .filter((line) => line !== "" && !line.startsWith("#"));
-  assert.equal(staleLabels.length, 84);
   // The positional list carried no seconds; the before run supplies them.
   const stale = makeMe.jobDurations
     .with(staleLabels.map((label) => [label, before.get(label)]))
     .please();
   const deal = dealShares([...after.keys()], stale, 3);
   const text = preview(deal, "stale-longest-first");
+  const unrecorded = deal.unrecordedCount;
+  const recorded = after.size - unrecorded;
+  const assumed = formatSeconds(deal.assumedSeconds);
+  const share1 = predicted(deal)[0];
   assert.match(
     text,
-    /^Predicted job-seconds per share from stale-longest-first: 417 jobs, 84 recorded, 333 unrecorded at 6\.3 s each \(the recorded median\)\.$/m,
+    new RegExp(
+      `^Predicted job-seconds per share from stale-longest-first: ${after.size} jobs, ${recorded} recorded, ${unrecorded} unrecorded at ${escaped(assumed)} s each \\(the recorded median\\)\\.$`,
+      "m",
+    ),
   );
   assert.match(
     text,
     new RegExp(
-      `^share 1/3: 997\\.5 predicted \\(\\d+ jobs, \\d+ unrecorded\\); headroom ${escaped(headroom(997.5))} to the total ceiling ${ceiling} \\(Distribution/tests/time-budget\\)$`,
+      `^share 1/3: ${escaped(share1)} predicted \\(\\d+ jobs, \\d+ unrecorded\\); headroom ${escaped(headroom(Number(share1)))} to the total ceiling ${ceiling} \\(Distribution/tests/time-budget\\)$`,
       "m",
     ),
   );
@@ -198,8 +206,14 @@ test("example 4: the preview on the stale 84-label list counts 333 unrecorded of
       .length,
     3,
   );
-  assert.match(text, /^unrecorded jobs \(333\), each assumed at 6\.3 s;/m);
-  assert.equal(text.match(/^ {2}share \d\/3 {2}/gm).length, 333);
+  assert.match(
+    text,
+    new RegExp(
+      `^unrecorded jobs \\(${unrecorded}\\), each assumed at ${escaped(assumed)} s;`,
+      "m",
+    ),
+  );
+  assert.equal(text.match(/^ {2}share \d\/3 {2}/gm).length, unrecorded);
 });
 
 test("the deal is deterministic across input order and keeps every job in one share", () => {

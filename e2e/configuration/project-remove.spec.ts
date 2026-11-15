@@ -5,7 +5,10 @@
 // ./project-remove-selection.spec.ts.
 import { chmodSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { machineRecordNames } from "../../dashboard/tests/support/machineRecordNames.ts";
+import {
+  expectUnchangedMachineRecords,
+  snapshotMachineRecords,
+} from "../../dashboard/tests/support/machineRecordNames.ts";
 import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
 import { projectAddMachine } from "../../dashboard/tests/support/projectAddMachine.ts";
 import { addProjectOnPage } from "../../dashboard/tests/support/projectAddPage.ts";
@@ -27,6 +30,7 @@ import {
   confirmRemoval,
   removeButton,
   removeDialog,
+  removeProject,
   settings,
 } from "../../dashboard/tests/support/systemSettingsPage.ts";
 let fixture: ReturnType<typeof projectAddMachine>;
@@ -70,6 +74,12 @@ test("removing a configured project retains its checkout and records, hides sess
   await expect(sidebar).toContainText("Retained sample session");
   const file = fixture.configurationFile("preview");
   const before = readFileSync(file, "utf8");
+  const recordsFolder = path.dirname(file);
+  // Snapshot before remove rewrites the projects file; other machine records
+  // must stay put (runner/log, notifier, retained answers, launch store).
+  const machineRecordsBefore = snapshotMachineRecords(recordsFolder, {
+    omitContentFor: [path.basename(file)],
+  });
   await settings(page).click();
   for (const dismissal of ["Cancel", "Escape"]) {
     await removeButton(page, "Sample App").focus();
@@ -112,20 +122,18 @@ test("removing a configured project retains its checkout and records, hides sess
     },
   );
   try {
-    await removeButton(page, "Sample App").click();
-    const dialog = removeDialog(page, "Sample App");
-    await confirmRemoval(page, "Sample App");
-    await expect(dialog).toBeHidden();
+    await removeProject(page, "Sample App");
+    await expect(removeDialog(page, "Sample App")).toBeHidden();
     await back(page).click();
     await expect(
       page.getByRole("radio", { name: "Sample App", exact: true }),
     ).toHaveCount(0);
-    await expect(
-      page.getByRole("radio", { name: "Open Dough", exact: true }),
-    ).toBeChecked();
-    await expect(
-      page.getByRole("radio", { name: "Open Dough", exact: true }),
-    ).not.toBeFocused();
+    const openDough = page.getByRole("radio", {
+      name: "Open Dough",
+      exact: true,
+    });
+    await expect(openDough).toBeChecked();
+    await expect(openDough).not.toBeFocused();
     await expect(settings(page)).toBeFocused();
     await untilPublishedWorkRead(page);
     await expect(recent).not.toContainText("Retained sample session", {
@@ -138,32 +146,27 @@ test("removing a configured project retains its checkout and records, hides sess
   } finally {
     releaseSessions();
   }
+  const launchStore = launchStoreFile(machineHome(fixture.machine));
   expect(readFileSync(marker, "utf8")).toBe("local work stays\n");
   expect(readFileSync(path.join(fixture.checkout, ".git/config"), "utf8")).toBe(
     gitConfig,
   );
-  expect(
-    readFileSync(launchStoreFile(machineHome(fixture.machine)), "utf8"),
-  ).toBe(records);
+  expect(readFileSync(launchStore, "utf8")).toBe(records);
+  const remainingIds = (JSON.parse(before) as { id: string }[])
+    .map(({ id }) => id)
+    .filter((id) => id !== "sample-app");
   expect(
     (JSON.parse(readFileSync(file, "utf8")) as { id: string }[]).map(
       ({ id }) => id,
     ),
-  ).toEqual(["open-dough", "doughnut", "pygardon", "terry-talks"]);
-  // Runner/log, notifier, retained GitHub answers and the incident record
-  // are not project records.
-  expect(machineRecordNames(path.dirname(file))).toEqual([
-    "agent-launches.json",
-    "cursor-runner.json",
-    "cursor-runner.log",
-    "notifier",
-    "projects-production.json",
-    "retained-answers",
-  ]);
+  ).toEqual(remainingIds);
+  expectUnchangedMachineRecords(recordsFolder, machineRecordsBefore);
   await fixture.stop(server);
   server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
-  await expect(parts(page).project.getByRole("radio")).toHaveCount(4);
+  await expect(parts(page).project.getByRole("radio")).toHaveCount(
+    remainingIds.length,
+  );
   await expect(page.getByRole("radio", { name: "Sample App" })).toHaveCount(0);
   await addProjectOnPage(page);
   await expect(recent).toContainText("Retained sample session", {
@@ -173,9 +176,7 @@ test("removing a configured project retains its checkout and records, hides sess
   await expect(sidebar).toContainText("Retained sample session", {
     timeout: 5_000,
   });
-  expect(
-    readFileSync(launchStoreFile(machineHome(fixture.machine)), "utf8"),
-  ).toBe(records);
+  expect(readFileSync(launchStore, "utf8")).toBe(records);
 });
 
 test("removing the last project leaves a persistent focused empty state", async ({
@@ -185,8 +186,7 @@ test("removing the last project leaves a persistent focused empty state", async 
   await page.goto(server.baseURL);
   await addProjectOnPage(page);
   await settings(page).click();
-  await removeButton(page, "Sample App").click();
-  await confirmRemoval(page, "Sample App");
+  await removeProject(page, "Sample App");
   await expect(
     page.getByRole("heading", { name: "System settings", exact: true }),
   ).toBeVisible();

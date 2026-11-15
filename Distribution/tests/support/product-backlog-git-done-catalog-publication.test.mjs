@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { publishHistoryPreservingCandidate } from "../../src/skills/dough-execute-plan/scripts/history-preserving-publication.mjs";
-import { git } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { git } from "../skills/dough-execute-plan/publication-test-fixtures.mjs";
 import {
   assertCatalogDescribes,
   catalog,

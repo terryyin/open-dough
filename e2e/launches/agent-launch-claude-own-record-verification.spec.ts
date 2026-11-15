@@ -14,7 +14,7 @@ import {
 } from "../../dashboard/tests/support/launchStore.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { readyStory } from "../../dashboard/tests/launchJourney.ts";
-import { identityB } from "../../Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { identityB } from "../../Distribution/tests/skills/dough-execute-plan/workspace-publication-fixtures.mjs";
 import {
   expect,
   test,

@@ -20,10 +20,10 @@ import {
 } from "./supplier-dependency-fixture.mjs";
 import { queuedReadyRepository } from "./queued-repository.mjs";
 import { materializeRepository } from "./repository-fixture.mjs";
-import { runScript } from "../../src/skills/dough-story-wrap-up/scripts/closure-git-fixtures.mjs";
-import { projectOf } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-dependency-fixtures.mjs";
-import { draftLateStory } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
-import { deploySkill } from "../../src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
+import { runScript } from "../skills/dough-story-wrap-up/closure-git-fixtures.mjs";
+import { projectOf } from "../skills/dough-execute-plan/workspace-publication-dependency-fixtures.mjs";
+import { draftLateStory } from "../skills/dough-execute-plan/workspace-publication-admission-fixtures.mjs";
+import { deploySkill } from "../skills/dough-execute-plan/execution-increment-managed-delivery-test-fixtures.mjs";
 
 export const executionBranch = "exec/supplier";
 

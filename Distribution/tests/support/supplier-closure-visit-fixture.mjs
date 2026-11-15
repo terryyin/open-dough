@@ -28,9 +28,9 @@ import {
   createTrunkClosureFixture,
   deliverBeforeCleanupThroughCli,
   finishThroughCli,
-} from "../../src/skills/dough-story-wrap-up/scripts/trunk-closure-test-fixtures.mjs";
-import { cloneAsAnotherWriter } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
-import { draftLateStory } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
+} from "../skills/dough-story-wrap-up/trunk-closure-test-fixtures.mjs";
+import { cloneAsAnotherWriter } from "../skills/dough-execute-plan/publication-test-fixtures.mjs";
+import { draftLateStory } from "../skills/dough-execute-plan/workspace-publication-admission-fixtures.mjs";
 
 export { third };
 

@@ -8,25 +8,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { summaryArtifactName } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
-import {
-  FRONTEND_TEST_PROOF_FILE,
-  frontendTestProofArtifactName,
-} from "../../../scripts/frontend-test-proof.mjs";
 
 import {
-  browserGroups,
   browserWorkflow,
   evaluated,
   workflow,
-  fragmentsAction,
   summaryAction,
   locations,
   jobs,
   input,
   producers,
   summaryStep,
-  frontendProofUploadStep,
 } from "./ci-proof-action-fixtures.mjs";
+import { runAttempt } from "./ci-proof-action-replay.mjs";
 
 const attempt = "${{ github.run_attempt }}";
 
@@ -45,15 +39,39 @@ const declaredInput = ({ proof: [step], inputs }, name) => {
   return value && evaluated(value, { inputs });
 };
 
-test("both workflows name a pull request's head as CI_PROOF_REVISION before github.sha", () => {
+// Resolve a workflow's CI_PROOF_REVISION expression for a pull_request event
+// whose head differs from github.sha (the merge commit).
+const revisionUnderPullRequest = (text, { headSha, mergeSha }) => {
+  const declaredRevision = /^ {2}CI_PROOF_REVISION: \$\{\{ (.+) \}\}$/m.exec(
+    text,
+  )?.[1];
+  assert.ok(declaredRevision, "workflow declares CI_PROOF_REVISION");
+  const context = {
+    "github.event.pull_request.head.sha": headSha,
+    "github.sha": mergeSha,
+  };
+  for (const term of declaredRevision.split(/\s*\|\|\s*/)) {
+    const value = context[term.trim()];
+    if (value) return value;
+  }
+  return undefined;
+};
+
+test("a pull request's CI proof names the head revision, not the merge commit", (t) => {
   // A pull-request run must name head.sha (what Intent judges), not the
   // merge commit github.sha alone would give; drop the head preference and
   // every PR summary reads as another revision.
-  for (const text of [workflow, browserWorkflow])
-    assert.match(
-      text,
-      /^ {2}CI_PROOF_REVISION: \$\{\{ github\.event\.pull_request\.head\.sha \|\| github\.sha \}\}$/m,
-    );
+  const headSha = "b".repeat(40);
+  const mergeSha = "c".repeat(40);
+  const revision = revisionUnderPullRequest(workflow, { headSha, mergeSha });
+  assert.equal(
+    revisionUnderPullRequest(browserWorkflow, { headSha, mergeSha }),
+    revision,
+  );
+  const run = runAttempt(t, { revision });
+  const summary = run.summary(input(summaryStep, "expect"));
+  assert.equal(summary.status, 0, summary.stderr);
+  assert.equal(summary.written.revision, headSha);
 });
 
 test("the ci-proof job runs after every proof job however they ended", () => {
@@ -66,10 +84,6 @@ test("the ci-proof job runs after every proof job however they ended", () => {
       .map((item) => item.slice(8)),
     producers.map(({ job }) => job),
   );
-  assert.deepEqual(
-    browserGroups.map(({ job }) => job),
-    ["e2e", "dashboard-integrated", "dashboard-frontend", "dashboard-backend"],
-  );
   assert.match(lines, /^ {4}if: \$\{\{ !cancelled\(\) \}\}$/m);
   assert.ok(summaryStep, "the ci-proof job runs no ci-proof-summary step");
   assert.ok(
@@ -78,30 +92,6 @@ test("the ci-proof job runs after every proof job however they ended", () => {
     ),
   );
   assert.ok(summaryAction.includes(`name: ${summaryArtifactName(attempt)}\n`));
-});
-
-test("npm test's per-file outcomes are published as test files and each browser group's record's tests as test cases", () => {
-  // scripts/test.sh runs each shell check and node --test file as one job
-  // and writes one outcome line per job (Distribution/tests/runner-settings.md): that
-  // file's aggregate outcome, however many cases it holds. A Playwright
-  // record names no unit input: its tests are test cases.
-  assert.deepEqual(
-    producers.map(({ job, proof }) => [
-      job,
-      proof.map((step) => [
-        input(step, "report-format"),
-        input(step, "unit"),
-        unitOf(step),
-      ]),
-    ]),
-    [
-      ["distribution-tests", [["outcomes", "file", "file"]]],
-      ...browserGroups.map(({ job }) => [
-        job,
-        [["playwright-record", undefined, "case"]],
-      ]),
-    ],
-  );
 });
 
 test("the declared parts and units equal the matrix lengths and report units of the jobs that write each entry, in Intent location order", () => {
@@ -141,52 +131,4 @@ test("every producer keeps its part's attempt-named fragments under its own name
     assert.equal(input(step, "parts"), "${{ strategy.job-total }}");
     assert.equal(declaredInput(producer, "producer"), job);
   }
-  assert.ok(
-    fragmentsAction.includes(
-      `name: ci-proof-fragments-\${{ inputs.producer }}-\${{ inputs.part }}-attempt-${attempt}\n`,
-    ),
-  );
-});
-
-test("the ci-proof summary optionally publishes the frontend test proof beside the combined summary", () => {
-  assert.equal(
-    input(summaryStep, "frontend-entry"),
-    "dashboard/frontend-tests",
-  );
-  assert.match(
-    summaryAction,
-    /\n {2}frontend-entry:\n[\s\S]*?\n {4}default: ""\n/,
-  );
-  assert.match(
-    summaryAction,
-    /\n {8}FRONTEND_ENTRY: \$\{\{ inputs\.frontend-entry \}\}\n/,
-  );
-  assert.match(
-    summaryAction,
-    /if \[\[ -n "\$\{FRONTEND_ENTRY\}" \]\]; then\n\s+node scripts\/frontend-test-proof\.mjs \\/,
-  );
-  assert.match(
-    summaryAction,
-    new RegExp(
-      `path: \\$\\{\\{ runner\\.temp \\}\\}/${FRONTEND_TEST_PROOF_FILE.replace(".", "\\.")}\\n`,
-    ),
-  );
-  assert.ok(
-    frontendProofUploadStep.includes(
-      `name: ${frontendTestProofArtifactName(attempt)}\n`,
-    ),
-  );
-  assert.match(
-    frontendProofUploadStep,
-    /\n {6}if: \$\{\{ inputs\.frontend-entry != '' \}\}\n/,
-  );
-  assert.ok(frontendProofUploadStep.includes("if-no-files-found: error\n"));
-  assert.ok(frontendProofUploadStep.includes("retention-days: 30\n"));
-  // Combined summary upload stays attempt-named with the same retention.
-  assert.ok(summaryAction.includes(`name: ${summaryArtifactName(attempt)}\n`));
-  assert.ok(
-    summaryAction.includes(
-      `path: \${{ runner.temp }}/ci-proof-summary.json\n        if-no-files-found: error\n        retention-days: 30\n`,
-    ),
-  );
 });

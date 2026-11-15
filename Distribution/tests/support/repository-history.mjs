@@ -2,7 +2,7 @@
 // Builds a described repository history at a fixture layout.
 import { cpSync } from "node:fs";
 import { join } from "node:path";
-import { createBareFixtureRemote } from "../../src/skills/dough-execute-plan/scripts/bare-remote-test-fixtures.mjs";
+import { createBareFixtureRemote } from "../skills/dough-execute-plan/bare-remote-test-fixtures.mjs";
 import {
   exec,
   git,

@@ -19,6 +19,7 @@ import {
   settings,
 } from "../../dashboard/tests/support/systemSettingsPage.ts";
 import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { productionSeedProjects } from "../../dashboard/server/projectConfigurationSeed.ts";
 
 let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {
@@ -107,7 +108,7 @@ test("empty-project settings saves private general access, shares it across dev/
     path.join(fixture.home, ".open-dough/dashboard/projects-production.json"),
     "utf8",
   );
-  expect(JSON.parse(productionProjects)).toHaveLength(4);
+  expect(JSON.parse(productionProjects)).toEqual([...productionSeedProjects]);
   await second
     .getByRole("button", { name: "Remove API key", exact: true })
     .click();

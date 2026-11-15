@@ -1,0 +1,245 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { makeMe } from "../../support/makeMe.mjs";
+import { githubApi } from "./github-actions-api-test-fixtures.mjs";
+import { run } from "./watch-ci-test-fixtures.mjs";
+import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci.mjs";
+
+const observedJob = (facts) => makeMe.aGitHubJob.withFacts(facts).please();
+
+test("reports each failed job while its workflow remains unfinished", async () => {
+  const controller = new AbortController();
+  const events = [];
+  let poll = 0;
+
+  await watchCiExecution({
+    repo: "example/example",
+    branch: "main",
+    signal: controller.signal,
+    emit: (event) => events.push(event),
+    sleep: async () => {
+      if (poll === 5) controller.abort();
+    },
+    gh: githubApi(({ kind, attempt }) => {
+      if (kind === "runs") {
+        poll += 1;
+        if (poll < 4) {
+          return [
+            run({
+              status: "in_progress",
+              conclusion: null,
+              createdAt: "2026-09-05T10:00:00Z",
+            }),
+          ];
+        }
+        if (poll === 4) {
+          return [
+            run({
+              attempt: 2,
+              status: "in_progress",
+              conclusion: null,
+              createdAt: "2026-09-05T10:00:00Z",
+            }),
+          ];
+        }
+        return [run({ attempt: 2, createdAt: "2026-09-05T10:00:00Z" })];
+      }
+      if (kind === "attempt") {
+        return { status: "completed", conclusion: "failure" };
+      }
+      if (attempt === 2) {
+        return {
+          jobs: [
+            observedJob({
+              databaseId: 201,
+              name: "New attempt",
+              conclusion: "failure",
+            }),
+          ],
+        };
+      }
+      return {
+        jobs:
+          poll === 1
+            ? [
+                observedJob({
+                  databaseId: 101,
+                  name: "Backend",
+                  conclusion: null,
+                }),
+              ]
+            : [
+                observedJob({
+                  databaseId: 101,
+                  name: "Backend",
+                  conclusion: "failure",
+                }),
+                observedJob({
+                  databaseId: 102,
+                  name: "Frontend",
+                  conclusion: poll >= 3 ? "timed_out" : null,
+                }),
+              ],
+      };
+    }),
+  });
+
+  assert.deepEqual(
+    events.map(({ runId, attempt, failedJobs }) => ({
+      runId,
+      attempt,
+      failedJobs,
+    })),
+    [
+      {
+        runId: 42,
+        attempt: 1,
+        failedJobs: [{ jobId: 101, name: "Backend", conclusion: "failure" }],
+      },
+      {
+        runId: 42,
+        attempt: 1,
+        failedJobs: [{ jobId: 102, name: "Frontend", conclusion: "timed_out" }],
+      },
+      {
+        runId: 42,
+        attempt: 2,
+        failedJobs: [
+          { jobId: 201, name: "New attempt", conclusion: "failure" },
+        ],
+      },
+    ],
+  );
+});
+
+test("keeps run fallback distinct from later job evidence and cancellation", async () => {
+  const controller = new AbortController();
+  const events = [];
+  let poll = 0;
+
+  await watchCiExecution({
+    repo: "example/example",
+    branch: "main",
+    signal: controller.signal,
+    now: () => Date.parse("2026-09-05T09:00:00Z"),
+    emit: (event) => events.push(event),
+    sleep: async () => {
+      if (poll === 3) controller.abort();
+    },
+    gh: githubApi(({ kind }) => {
+      if (kind === "runs") {
+        poll += 1;
+        if (poll < 3) {
+          return [
+            run({
+              databaseId: 51,
+              conclusion: "failure",
+              createdAt: "2026-09-05T10:00:00Z",
+            }),
+          ];
+        }
+        return [
+          run({
+            databaseId: 52,
+            conclusion: "cancelled",
+            createdAt: "2026-09-05T11:00:00Z",
+          }),
+        ];
+      }
+      if (poll === 1) throw new Error("job details unavailable");
+      return {
+        jobs: [
+          observedJob({
+            databaseId: 501,
+            name: "Backend",
+            conclusion: "failure",
+          }),
+        ],
+      };
+    }),
+  });
+
+  assert.deepEqual(
+    events.map(({ type, runId, attempt, detailsUnavailable, failedJobs }) => ({
+      type,
+      runId,
+      attempt,
+      ...(detailsUnavailable ? { detailsUnavailable } : {}),
+      ...(failedJobs ? { failedJobs } : {}),
+    })),
+    [
+      {
+        type: "CI_FAILURE",
+        runId: 51,
+        attempt: 1,
+        detailsUnavailable: true,
+      },
+      {
+        type: "CI_FAILURE",
+        runId: 51,
+        attempt: 1,
+        failedJobs: [{ jobId: 501, name: "Backend", conclusion: "failure" }],
+      },
+      { type: "CI_INCOMPLETE", runId: 52, attempt: 1 },
+    ],
+  );
+});
+
+test("reports a failed prior attempt after the latest attempt succeeds", async () => {
+  const controller = new AbortController();
+  const events = [];
+
+  await watchCiExecution({
+    repo: "example/example",
+    branch: "main",
+    signal: controller.signal,
+    emit: (event) => events.push(event),
+    sleep: async () => controller.abort(),
+    gh: githubApi(({ kind }) => {
+      if (kind === "runs") {
+        return [
+          run({
+            attempt: 2,
+            conclusion: "success",
+            createdAt: "2026-09-05T10:00:00Z",
+          }),
+        ];
+      }
+      if (kind === "attempt") {
+        return { status: "completed", conclusion: "failure" };
+      }
+      return {
+        jobs: [
+          observedJob({
+            databaseId: 101,
+            name: "Failed first attempt",
+            conclusion: "failure",
+          }),
+        ],
+      };
+    }),
+  });
+
+  assert.deepEqual(
+    events.map(({ runId, attempt, conclusion, failedJobs }) => ({
+      runId,
+      attempt,
+      conclusion,
+      failedJobs,
+    })),
+    [
+      {
+        runId: 42,
+        attempt: 1,
+        conclusion: "failure",
+        failedJobs: [
+          {
+            jobId: 101,
+            name: "Failed first attempt",
+            conclusion: "failure",
+          },
+        ],
+      },
+    ],
+  );
+});

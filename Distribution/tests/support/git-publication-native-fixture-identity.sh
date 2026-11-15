@@ -30,7 +30,7 @@ git_publication_fixture_family_identity() {
         Distribution/tests/support/git-publication-native-admission-fixture.mjs \
         Distribution/tests/support/git-publication-native-admission-observe.mjs || return
       native_import_closure_input_hash_lines \
-        Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs \
+        Distribution/tests/skills/dough-execute-plan/workspace-publication-admission-fixtures.mjs \
         Distribution/src/skills/dough-execute-plan/scripts/execution-start.mjs \
         Distribution/tests/support/git-publication-native-admission-fixture.mjs \
         Distribution/tests/support/git-publication-native-admission-observe.mjs || return

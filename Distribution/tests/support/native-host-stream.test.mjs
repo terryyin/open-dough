@@ -1,4 +1,4 @@
-// The reader's contract beyond what corpus replay (Distribution/tests/native-stream-replay.sh)
+// The reader's contract beyond what corpus replay (Distribution/tests/native-harness/native-stream-replay.sh)
 // covers: missing and unknown streams, separator splitting, each host's
 // command outputs, paired with their commands, and each host's messages, exit
 // codes, other tool calls, file reads, and inspection targets on real

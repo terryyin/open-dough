@@ -49,14 +49,6 @@ function runAction(action, env) {
   });
 }
 
-// The GitHub Actions run attempt a replay names.
-const attempt = {
-  GITHUB_RUN_ATTEMPT: "2",
-  GITHUB_RUN_ID: "7",
-  GITHUB_REPOSITORY: "owner/repo",
-  CI_PROOF_REVISION: "a".repeat(40),
-};
-
 // The frontend proof upload step's path under runner.temp, when the action
 // declares one; its basename is the file the summarize shell block writes.
 function frontendProofUploadPath() {
@@ -68,8 +60,14 @@ function frontendProofUploadPath() {
 
 // One run attempt of test T: each job part on a runner of its own, whose
 // kept fragments the summary action finds where the ci-proof job downloads
-// them, one artifact directory per part.
-export function runAttempt(t) {
+// them, one artifact directory per part. `revision` is CI_PROOF_REVISION.
+export function runAttempt(t, { revision = "a".repeat(40) } = {}) {
+  const attempt = {
+    GITHUB_RUN_ATTEMPT: "2",
+    GITHUB_RUN_ID: "7",
+    GITHUB_REPOSITORY: "owner/repo",
+    CI_PROOF_REVISION: revision,
+  };
   const directory = mkdtempSync(join(tmpdir(), "ci-proof-actions-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const collector = join(directory, "ci-proof");

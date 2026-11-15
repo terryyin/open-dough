@@ -13,21 +13,19 @@ export async function addProjectOnPage(page: Page) {
         response.status() !== 200
       )
         return false;
+      // A read the page navigated away from before its body arrived is not
+      // the answer the page holds; keep waiting for one it read.
+      const answer = (await response.json().catch(() => undefined)) as
+        Partial<MachineAnswer> | undefined;
       // An answer that the page's held sessions are unchanged names none.
-      const answer = (await response.json()) as Partial<MachineAnswer>;
-      return (answer.definitions ?? []).some(
+      return (answer?.definitions ?? []).some(
         (definition) => definition.source === "sample-app",
       );
     },
     { timeout: 5_000 },
   );
   await addProjectThroughDialog(page);
-  const snapshot = (await (await offered).json()) as MachineAnswer;
-  expect(
-    snapshot.definitions.some(
-      (definition) => definition.source === "sample-app",
-    ),
-  ).toBe(true);
+  await offered;
 }
 
 // The dialog's steps alone: the sample project is added and selected, whatever

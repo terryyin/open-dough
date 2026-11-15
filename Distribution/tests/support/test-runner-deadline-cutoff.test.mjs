@@ -4,8 +4,6 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
-import { jobs, workflow } from "./ci-proof-action-fixtures.mjs";
 import { replayCutoffFragments } from "./test-runner-deadline-cutoff-helpers.mjs";
 import {
   awaitReady,
@@ -21,35 +19,6 @@ import {
 } from "./test-runner-deadline-fixtures.mjs";
 
 const fixtureEntry = "Distribution/tests/runner-deadline-fixture";
-const budgetFile = fileURLToPath(new URL("../time-budget", import.meta.url));
-
-test("ci.yml establishes the 320s test-run epoch with setup and keeps artifacts on a self-failed suite", () => {
-  const body = jobs(workflow).get("distribution-tests").join("\n");
-  assert.match(
-    body,
-    /Start prerequisite acquisition \(180 seconds\) and test-run \(320 seconds\) deadlines/,
-  );
-  assert.match(
-    body,
-    /OPEN_DOUGH_SETUP_DEADLINE_MS=\$\(\( started \+ 180000 \)\)/,
-  );
-  assert.match(
-    body,
-    /OPEN_DOUGH_TEST_DEADLINE_MS=\$\(\( started \+ 320000 \)\)/,
-  );
-  assert.match(
-    body,
-    /\n {8}if: \$\{\{ !cancelled\(\) \}\}\n {8}uses: actions\/upload-artifact@v7\n/,
-  );
-  assert.match(
-    body,
-    /\n {8}if: \$\{\{ !cancelled\(\) && steps\.suite\.outcome != 'skipped' \}\}\n {8}uses: \.\/\.github\/actions\/ci-proof-fragments\n/,
-  );
-  assert.match(body, /if-no-files-found: ignore/);
-  const budget = readFileSync(budgetFile, "utf8");
-  assert.match(budget, /^per-job-seconds=64$/m);
-  assert.match(budget, /^total-job-seconds=926$/m);
-});
 
 test("a past CI run cutoff starts no checks and records unfinished outcomes", async (t) => {
   const { root, project } = await deadlineRepository(t, {

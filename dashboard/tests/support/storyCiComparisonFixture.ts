@@ -15,7 +15,7 @@ import type { OriginAnswer } from "../originAnswers.ts";
 import {
   apiJob,
   apiRun,
-} from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
+} from "../../../Distribution/tests/skills/dough-execute-plan/github-actions-api-test-fixtures.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { observedRunForApi } from "../../../Distribution/tests/support/ciRunTestData.mjs";
 import {

@@ -14,7 +14,7 @@ import { expectCiAnswer } from "../../dashboard/tests/intentCiStatusPage.ts";
 // adapter attempt shows no proof: ./intent-ci-proof-adapter-reasons.spec.ts;
 // a GitHub Actions run's proof: ../../dashboard/tests/intent/intent-ci-proof.spec.ts; the runner's own
 // limits:
-// ../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-adapter-proof.test.mjs.
+// ../../Distribution/tests/skills/dough-execute-plan/ci-command-adapter-proof.test.mjs.
 
 import { adapterResponseBytes } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
 import { SUMMARY_READ_LIMIT_BYTES } from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";

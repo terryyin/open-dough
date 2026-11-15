@@ -4,7 +4,7 @@
 // neighbor and reads that project. What removal keeps and writes is
 // ./project-remove.spec.ts.
 import { readFileSync } from "node:fs";
-import type { Page } from "@playwright/test";
+import type { ConfiguredProject } from "../../dashboard/server/projectConfiguration.ts";
 import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
 import { projectAddMachine } from "../../dashboard/tests/support/projectAddMachine.ts";
 import { expectProjectChoice } from "../../dashboard/tests/dashboardPage.ts";
@@ -14,8 +14,7 @@ import {
 } from "../../dashboard/tests/pageRequestNotes.ts";
 import {
   back,
-  confirmRemoval,
-  removeButton,
+  removeProject,
   settings,
 } from "../../dashboard/tests/support/systemSettingsPage.ts";
 
@@ -25,24 +24,19 @@ test.beforeEach(() => {
 });
 test.afterEach(async () => fixture.close());
 
-const remove = async (page: Page, label: string) => {
-  await removeButton(page, label).click();
-  await confirmRemoval(page, label);
-};
-
 test("direct settings reload knows the selected project; unselected removal preserves it and selected removal chooses the next neighbor", async ({
   page,
 }) => {
   const server = await fixture.start("preview");
   await page.goto(`${server.baseURL}/?project=pygardon&view=settings`);
-  await remove(page, "Doughnut");
+  await removeProject(page, "Doughnut");
   await back(page).click();
   await expect(
     page.getByRole("radio", { name: "Pygardon", exact: true }),
   ).toBeChecked();
   await settings(page).click();
   await page.reload();
-  await remove(page, "Pygardon");
+  await removeProject(page, "Pygardon");
   await back(page).click();
   await expect(
     page.getByRole("radio", { name: "Terry Talks", exact: true }),
@@ -61,30 +55,39 @@ test("removing the first project selects its next neighbor and reads that projec
 }) => {
   const server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
+  const file = fixture.configurationFile("preview");
+  const beforeProjects = JSON.parse(
+    readFileSync(file, "utf8"),
+  ) as ConfiguredProject[];
+  expect(beforeProjects.length).toBeGreaterThan(1);
+  const [removed, nextProject] = beforeProjects as [
+    ConfiguredProject,
+    ConfiguredProject,
+    ...ConfiguredProject[],
+  ];
   await expect(
-    page.getByRole("radio", { name: "Open Dough", exact: true }),
+    page.getByRole("radio", { name: removed.label, exact: true }),
   ).toBeChecked();
   await settings(page).click();
-  await remove(page, "Open Dough");
+  await removeProject(page, removed.label);
   await back(page).click();
-  const next = page.getByRole("radio", { name: "Doughnut", exact: true });
-  await expect(next).toBeChecked();
+  await expect(
+    page.getByRole("radio", { name: nextProject.label, exact: true }),
+  ).toBeChecked();
   await expect(settings(page)).toBeFocused();
-  await expectProjectChoice(page, "Doughnut");
+  await expectProjectChoice(page, nextProject.label);
   await expect
     .poll(() => server.ghCalls(), { timeout: 5_000 })
     .toContainEqual([
       "api",
       "--include",
-      "repos/nerds-odd-e/doughnut/commits/main",
+      `repos/${nextProject.repository}/commits/${nextProject.ref}`,
       "--jq",
       ".sha",
     ]);
   expect(
-    (
-      JSON.parse(
-        readFileSync(fixture.configurationFile("preview"), "utf8"),
-      ) as { id: string }[]
-    ).map(({ id }) => id),
-  ).toEqual(["doughnut", "pygardon", "terry-talks"]);
+    (JSON.parse(readFileSync(file, "utf8")) as ConfiguredProject[]).map(
+      ({ id }) => id,
+    ),
+  ).toEqual(beforeProjects.slice(1).map(({ id }) => id));
 });

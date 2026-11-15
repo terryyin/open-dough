@@ -102,9 +102,7 @@ export default defineConfig(
       "dashboard/backend-tests/**",
       "e2e/**",
       "tests/**",
-      "Distribution/src/skills/*/scripts/**/*.test.mjs",
-      "Distribution/src/skills/*/scripts/**/*-cases.mjs",
-      "Distribution/src/skills/*/scripts/**/*fixture*.mjs",
+      "Distribution/tests/skills/**",
     ],
     rules: {
       "no-restricted-syntax": [

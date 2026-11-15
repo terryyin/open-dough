@@ -153,6 +153,21 @@ identically. Sizing: 14 specs including one `large` took about 26 minutes
 with verification; large split cases with a plain JSON boundary cost no more
 than small ones.
 
+Trunk merge after slice 2 (`5e139ef9e`): trunk's de-freezing of the removal
+test and the options comment were carried into their new homes
+(`e2e/configuration/project-remove-selection.spec.ts`,
+`e2e/launches/agent-launch-options.spec.ts`). The merged run exposed a race
+in `dashboard/tests/support/projectAddPage.ts`: its response predicate read a
+body the page had navigated away from and rejected the wait; it now skips
+such reads (8/8 repeated, its 5 consumer files passed). Merged proof: 48 E2E
+cases from slices 1–2, unfiltered Frontend 209, duration-list node tests.
+`runner-ownership` timed out 4 nested group runs at two workers while another
+checkout's suite held load at about 39, and passed 10/10 with one worker at
+31–37; hosted CI on the merge is the verdict. After the merge refactor
+(`removeProject` page action, `ConfiguredProject` type), two `project-add`
+cases timed out in server start at load about 32 and the seven touched files
+passed 16/16 at load 16–18.
+
 ### 3. Convert launch start, story-card start, responsive access and voice
 Type: Behavior
 Status: planned

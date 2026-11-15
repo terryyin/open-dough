@@ -8,7 +8,7 @@
 // the wait holds back every read of its process:
 // ./authenticated-read-cooldown.spec.ts. Shared-owner wiring belongs to
 // ./shared-request-owner.spec.ts; actual login isolation belongs to
-// ../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-login.test.mjs.
+// ../../../Distribution/tests/skills/dough-execute-plan/github-request-login.test.mjs.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
