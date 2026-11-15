@@ -1,10 +1,10 @@
-// Publication failures and concurrent processes must preserve coherent evidence.
+// A failed replacement and concurrent writer processes leave one coherent
+// history document.
 import { spawn } from "node:child_process";
 import { once } from "node:events";
-import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { createInterface } from "node:readline";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import {
   test,
   expect,
@@ -13,137 +13,82 @@ import {
 import {
   keepOperationalLaunch,
   readImported,
-  readStoredRows,
   runImport,
+  sessionTotals,
   writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 
-for (const failure of ["page", "manifest"] as const) {
-  test(`${failure} publication failure keeps the previous snapshot readable and retry retains each response once`, ({
-    home,
-    root,
-  }) => {
-    keepOperationalLaunch(home, launch("atomic", "turn"));
-    const first = makeMe.aCodexRollout
-      .forSession("atomic")
-      .withResponse("turn", "one", { output_tokens: 2 })
-      .please();
-    writeCodexSession(root, first);
-    runImport(home, root);
-    const before = readImported(home);
-    writeCodexSession(
-      root,
-      makeMe.aCodexRollout
-        .forSession("atomic")
-        .withResponse("turn", "one", { output_tokens: 2 })
-        .withResponse("turn", "two", { output_tokens: 3 })
-        .please(),
-    );
-    const preload = `data:text/javascript,${encodeURIComponent(`
-      import fs from 'node:fs/promises';
-      import { syncBuiltinESMExports } from 'node:module';
-      const rename = fs.rename;
-      fs.rename = async (source, target) => {
-        if (${failure === "page" ? "target.includes('usage.json.pages/')" : "target.endsWith('/usage.json')"}) throw new Error('injected ${failure} publication failure');
-        return rename(source, target);
-      };
-      syncBuiltinESMExports();
-    `)}`;
-    let failureResult: { status?: number; stderr?: Buffer } | undefined;
-    try {
-      runImport(home, root, [], ["--import", preload]);
-    } catch (error) {
-      failureResult = error as typeof failureResult;
-    }
-    expect(failureResult?.status).toBe(1);
-    expect(String(failureResult?.stderr)).toContain(
-      `injected ${failure} publication failure`,
-    );
-    expect(readImported(home)).toEqual(before);
-    // Neither corrupt nor plausible orphan pages may contribute facts.
-    writeFileSync(
-      path.join(
-        home,
-        ".open-dough/dashboard/launch-history/usage.json.pages",
-        `${"a".repeat(64)}.json`,
-      ),
-      "{broken orphan",
-    );
-    expect(readImported(home)).toEqual(before);
-    runImport(home, root);
-    const after = readImported(home);
-    expect(
-      Object.values(after.observations).map((item) => item.tokens.output),
-    ).toEqual([2, 3]);
-    expect(Object.values(after.associations)).toHaveLength(2);
-    runImport(home, root);
-    expect(Object.values(readImported(home).observations)).toHaveLength(2);
-  });
-}
-
-test("a reader holding the earlier manifest stays coherent while another process publishes", async ({
+test("a failed replacement keeps the previous history readable and a retry counts each response once", ({
   home,
   root,
 }) => {
-  keepOperationalLaunch(home, launch("coherent", "turn"));
-  writeCodexSession(
-    root,
-    makeMe.aCodexRollout
-      .forSession("coherent")
-      .withResponse("turn", "one", { output_tokens: 2 })
-      .please(),
-  );
+  keepOperationalLaunch(home, launch("atomic", "turn"));
+  const first = makeMe.aCodexRollout
+    .forSession("atomic")
+    .withResponse("turn", "one", { output_tokens: 2 })
+    .please();
+  writeCodexSession(root, first);
   runImport(home, root);
-  const reader = spawn(
-    process.execPath,
-    [
-      "--input-type=module",
-      "-e",
-      `
-    import { openUsageSnapshot, readSnapshotHistory } from './dashboard/server/usageSnapshot.ts';
-    const held = await openUsageSnapshot(${JSON.stringify(path.join(home, ".open-dough/dashboard/launch-history/usage.json"))});
-    console.log('held');
-    process.stdin.once('data', async () => { console.log(JSON.stringify(await readSnapshotHistory(held))); process.stdin.destroy(); });
-  `,
-    ],
-    { env: { ...process.env, HOME: home }, stdio: ["pipe", "pipe", "pipe"] },
-  );
-  const exit = once(reader, "exit");
-  const lines = createInterface({ input: reader.stdout });
-  const held = await once(lines, "line");
-  expect(held[0]).toBe("held");
+  const before = readImported(home);
+  expect(sessionTotals(before)).toEqual([["atomic", 1, 2]]);
   writeCodexSession(
     root,
     makeMe.aCodexRollout
-      .forSession("coherent")
+      .forSession("atomic")
       .withResponse("turn", "one", { output_tokens: 2 })
       .withResponse("turn", "two", { output_tokens: 3 })
       .please(),
   );
+  const preload = `data:text/javascript,${encodeURIComponent(`
+    import fs from 'node:fs/promises';
+    import { syncBuiltinESMExports } from 'node:module';
+    const rename = fs.rename;
+    fs.rename = async (source, target) => {
+      if (target.endsWith('/usage.json')) throw new Error('injected replacement failure');
+      return rename(source, target);
+    };
+    syncBuiltinESMExports();
+  `)}`;
+  let failureResult: { status?: number; stderr?: Buffer } | undefined;
+  try {
+    runImport(home, root, [], ["--import", preload]);
+  } catch (error) {
+    failureResult = error as typeof failureResult;
+  }
+  expect(failureResult?.status).toBe(1);
+  expect(String(failureResult?.stderr)).toContain(
+    "injected replacement failure",
+  );
+  expect(readImported(home)).toEqual(before);
   runImport(home, root);
-  const result = once(lines, "line");
-  reader.stdin.end("continue\n");
-  const old = JSON.parse((await result)[0] as string) as ReturnType<
-    typeof readImported
-  >;
-  expect(
-    Object.values(old.observations).map((item) => item.tokens.output),
-  ).toEqual([2]);
-  expect(
-    Object.values(readImported(home).observations).map(
-      (item) => item.tokens.output,
-    ),
-  ).toEqual([2, 3]);
-  expect((await exit)[0]).toBe(0);
-  lines.close();
+  const after = readImported(home);
+  expect(sessionTotals(after)).toEqual([["atomic", 2, 5]]);
+  runImport(home, root);
+  expect(readImported(home)).toEqual(after);
 });
 
-test("cross-process writers reconcile accepted updates after waiting for the shared publication lock", async ({
+test("cross-process writers both land after waiting for the shared lock, and a reader meanwhile sees the earlier history whole", async ({
   home,
   root,
 }) => {
-  keepOperationalLaunch(home, launch("concurrent", "turn"));
+  keepLaunchStore(home, {
+    "open-dough": [
+      launch("earlier", "turn"),
+      launch("concurrent", "turn"),
+      launch("second", "turn"),
+    ],
+  });
+  const earlier = path.join(home, "earlier-native");
   const other = path.join(home, "other-native");
+  writeCodexSession(
+    earlier,
+    makeMe.aCodexRollout
+      .forSession("earlier")
+      .withResponse("turn", "zero", { output_tokens: 1 })
+      .please(),
+  );
+  runImport(home, earlier);
+  const before = readImported(home);
   writeCodexSession(
     root,
     makeMe.aCodexRollout
@@ -154,7 +99,7 @@ test("cross-process writers reconcile accepted updates after waiting for the sha
   writeCodexSession(
     other,
     makeMe.aCodexRollout
-      .forSession("concurrent")
+      .forSession("second")
       .withResponse("turn", "two", { output_tokens: 3 })
       .please(),
   );
@@ -206,16 +151,15 @@ test("cross-process writers reconcile accepted updates after waiting for the sha
   `,
   );
   expect((await once(second.child, "message"))[0]).toBe("locking");
+  expect(readImported(home)).toEqual(before);
   first.child.send("publish");
   first.child.disconnect();
   expect((await first.exited)[0]).toBe(0);
   expect((await second.exited)[0]).toBe(0);
-  const after = readStoredRows(home);
-  expect(
-    Object.values(after.observations).map((item) => item.tokens.output),
-  ).toEqual([2, 3]);
-  expect(Object.values(after.associations)).toHaveLength(2);
-  expect(
-    new Set(Object.values(after.associations).map((item) => item.taskId)).size,
-  ).toBe(1);
+  // Each writer's session keeps its contribution beside the other's.
+  expect(sessionTotals(readImported(home))).toEqual([
+    ["earlier", 1, 1],
+    ["concurrent", 1, 2],
+    ["second", 1, 3],
+  ]);
 });

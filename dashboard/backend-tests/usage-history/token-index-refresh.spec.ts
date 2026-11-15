@@ -9,11 +9,12 @@ import {
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { usageHistoryFile } from "../../server/usageHistory.ts";
-import { responseKey, type UsageHistory } from "../../server/usageRecords.ts";
-import { usageTaskSummaryFile } from "../../server/usageTaskSummary.ts";
+import {
+  deriveUsageTaskSummary,
+  usageTaskSummaryFile,
+} from "../../server/usageTaskSummary.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import {
-  readStoredRows,
   runImport,
   writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
@@ -44,12 +45,12 @@ const rootRollout = (session: string, output: number) =>
     .forSession(session)
     .withTurnContext(`${session}-turn`, sol, "xhigh")
     .withResponse(`${session}-turn`, `${session}-${output}`, counters(output));
-const assignments = (history: UsageHistory) =>
-  Object.fromEntries(
-    Object.values(history.associations).map(({ observationId, taskId }) => [
-      observationId,
-      taskId,
-    ]),
+// Each task's usage as the history in `home` sums it, by story.
+const storedUsage = async (home: string) =>
+  new Map(
+    (await deriveUsageTaskSummary(usageHistoryFile(home))).tasks.map(
+      ({ identity, usage }) => [identity, usage] as const,
+    ),
   );
 
 test("Refresh reads changed roots and their older workers like a full import; repeats coalesce without rewriting or double-counting", async ({
@@ -102,13 +103,15 @@ test("Refresh reads changed roots and their older workers like a full import; re
     ["SEED-7#first", "measured"],
     ["SEED-7#second", "measured"],
   ]);
-  const refreshed = assignments(readStoredRows(home));
-  expect(Object.keys(refreshed)).not.toContain(
-    responseKey("codex", "first", "first-late"),
-  );
-  expect(refreshed[responseKey("codex", "second-worker", "worker-own")]).toBe(
-    chart.tasks[1]?.id,
-  );
+  // The late response stays unread; the worker's is the second task's.
+  const refreshed = await storedUsage(home);
+  expect(Object.fromEntries(refreshed)).toMatchObject({
+    "SEED-7#first": [{ root: true, responses: 1, tokens: { output: 100 } }],
+    "SEED-7#second": [
+      { root: true, responses: 1, tokens: { output: 200 } },
+      { root: false, responses: 1, tokens: { output: 70 } },
+    ],
+  });
 
   const imported = path.join(machine.machine, "imported-home");
   cpSync(home, imported, {
@@ -116,7 +119,9 @@ test("Refresh reads changed roots and their older workers like a full import; re
     filter: (source) => !path.basename(source).startsWith("usage"),
   });
   runImport(imported, path.join(imported, ".codex/sessions"));
-  expect(assignments(readStoredRows(imported))).toMatchObject(refreshed);
+  expect((await storedUsage(imported)).get("SEED-7#second")).toEqual(
+    refreshed.get("SEED-7#second"),
+  );
 
   const manifest = readFileSync(store),
     summary = readFileSync(usageTaskSummaryFile(store));

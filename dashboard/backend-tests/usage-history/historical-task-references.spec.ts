@@ -3,7 +3,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  readStoredRows,
+  readImported,
   runImport,
 } from "../../tests/usage-history/importHarness.ts";
 import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
@@ -87,7 +87,7 @@ test("resolves only the unique numbered historical plan and retains pinned sourc
   );
   const original = readFileSync(file, "utf8");
   runImport(home, root);
-  const history = readStoredRows(home);
+  const history = readImported(home);
   const resolved = task(history, "unique");
   expect(resolved).toEqual(
     expect.objectContaining({
@@ -126,14 +126,16 @@ test("resolves only the unique numbered historical plan and retains pinned sourc
   expect(JSON.stringify(history)).not.toContain("PRIVATE-NUMERIC-PROMPT");
   const saved = JSON.stringify(history);
   runImport(home, root);
-  expect(JSON.stringify(readStoredRows(home))).toBe(saved);
+  expect(JSON.stringify(readImported(home))).toBe(saved);
   rmSync(root, { recursive: true });
   rmSync(repo.integration, { recursive: true });
   runImport(home, root);
-  const withoutSources = readStoredRows(home);
+  const withoutSources = readImported(home);
   expect(withoutSources.tasks).toEqual(history.tasks);
-  expect(withoutSources.observations).toEqual(history.observations);
-  expect(withoutSources.associations).toEqual(history.associations);
+  expect(withoutSources.sessions).toEqual(history.sessions);
+  expect(taskUsage(withoutSources, resolved.id).tokens.output).toBe(7);
+  // That import read no response.
+  expect(withoutSources.observations).toEqual({});
   expect(withoutSources.gaps).toEqual(
     expect.arrayContaining([
       expect.objectContaining({ code: "native-source-unavailable" }),

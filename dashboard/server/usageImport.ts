@@ -1,14 +1,14 @@
 import path from "node:path";
-import { readUsageReportHistory } from "./usageReportSnapshot.ts";
-import { usageImportSummary } from "./usageImportReport.ts";
+import { reportedResponse, usageImportSummary } from "./usageImportReport.ts";
 import { nativeTaskActivity } from "./nativeTaskActivity.ts";
 import { recoveredUsageTasks } from "./recoveredUsageTasks.ts";
 import { mergeUsageTask } from "./usageTaskReconciliation.ts";
 import { usageResponseResolution } from "./usageResponseResolution.ts";
 import { writeUsageResponses } from "./usageResponsesFile.ts";
 import type { NativeTaskFact } from "./nativeTaskFacts.ts";
-// Explicit, offline import. Native evidence is streamed; only compact response
-// observations are retained. Operational launch readers never invoke this path.
+// Explicit, offline import. Native evidence is streamed; the history keeps
+// what each session read adds to its tasks, and no response. Operational
+// launch readers never invoke this path.
 import { claudeUsage } from "./claudeUsage.ts";
 import {
   claudeLineage,
@@ -24,6 +24,7 @@ import {
 import { nativeUsageFiles } from "./nativeUsageFiles.ts";
 import { retainedUsageTasks } from "./retainedUsageTasks.ts";
 import {
+  readUsageHistory,
   readUsageTasks,
   writeUsageHistory,
   usageHistoryFile,
@@ -59,17 +60,23 @@ export async function importUsageHistory(options: UsageImportOptions) {
     throw new Error("Usage import requires a valid --since timestamp");
   const store = options.store ?? usageHistoryFile(options.home);
   const scan = await collectUsageHistory(options, since, store);
-  const persisted = await readUsageReportHistory(store);
+  const history = await readUsageHistory(store);
   return {
     scope: "retained-evidence",
     since: options.since,
     files: scan.files,
-    tasks: Object.keys(persisted.tasks).length,
-    observations: Object.keys(persisted.observations).length,
+    tasks: Object.keys(history.tasks).length,
+    observations: scan.responses.length,
     excludedUnrelatedTasks: scan.excludedTasks,
     excludedUnrelatedObservations: scan.excludedObservations,
-    gaps: persisted.gaps,
-    summary: usageImportSummary(persisted, options.home, since, scan.gaps),
+    gaps: history.gaps,
+    summary: usageImportSummary(
+      history,
+      scan.responses,
+      options.home,
+      since,
+      scan.gaps,
+    ),
   };
 }
 // The tasks the store keeps, by id, each with its retained launch record's
@@ -85,7 +92,8 @@ export async function launchCatalog(
     tasks.set(task.id, mergeUsageTask(tasks.get(task.id), task));
   return tasks;
 }
-// Returning releases native graphs before the fresh persisted report read.
+// Returning releases native graphs before the history is read for the
+// report: of each response read it keeps only what the report counts.
 async function collectUsageHistory(
   options: UsageImportOptions,
   since: number,
@@ -197,21 +205,28 @@ async function collectUsageHistory(
     { tasks, observations: [...observations.values()], associations, gaps },
     store,
   );
+  const resolved = associations.map((association) =>
+    resolution.resolve(
+      association,
+      observations.get(association.observationId),
+    ),
+  );
   if (options.responses)
     await writeUsageResponses(
       options.responses,
       observations.values(),
-      associations.map((association) =>
-        resolution.resolve(
-          association,
-          observations.get(association.observationId),
-        ),
-      ),
+      resolved,
     );
   return {
     files,
     excludedTasks: excludedTasks.size,
     excludedObservations,
     gaps,
+    responses: resolved.flatMap((association) =>
+      reportedResponse(
+        observations.get(association.observationId),
+        association,
+      ),
+    ),
   };
 }

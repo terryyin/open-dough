@@ -1,14 +1,42 @@
 import { hasUsageAssignment } from "./usageTaskAssignment.ts";
-// Report persisted facts in explicit, disjoint accounting populations. Retained
-// provenance gaps are not a count of currently missing fields or scan failures.
+// Report an import in explicit, disjoint accounting populations: the tasks
+// and gaps the history holds, and the responses this import read, each under
+// the task the history resolves for it. Retained provenance gaps are not a
+// count of currently missing fields or scan failures.
 import { readConfiguredUsageProjects } from "./configuredProjectDocument.ts";
+import type { UsageHistory } from "./usageHistoryDocument.ts";
 import {
   usageTokenCategories,
-  type UsageHistory,
+  type UsageAssociation,
   type UsageObservation,
   type UsageTask,
   type UsageGap,
 } from "./usageRecords.ts";
+
+// What the report counts of one response read, with its resolved task.
+export type ReportedResponse = Pick<
+  UsageObservation,
+  "host" | "at" | "tokens" | "coverage" | "gaps"
+> & { taskId: string | null; associationGaps: string[] };
+
+export function reportedResponse(
+  observation: UsageObservation | undefined,
+  association: UsageAssociation,
+): ReportedResponse[] {
+  if (observation === undefined) return [];
+  const { host, at, tokens, coverage, gaps } = observation;
+  return [
+    {
+      host,
+      ...(at === undefined ? {} : { at }),
+      tokens,
+      coverage,
+      gaps,
+      taskId: association.taskId,
+      associationGaps: association.gaps,
+    },
+  ];
+}
 
 function counts(values: string[]) {
   const result: Record<string, number> = {};
@@ -20,7 +48,7 @@ function earliest(values: (string | null | undefined)[]) {
     values.filter((value): value is string => Boolean(value)).sort()[0] ?? null
   );
 }
-function usage(observations: UsageObservation[]) {
+function usage(observations: ReportedResponse[]) {
   const tokens: Record<string, number | null> = {};
   const unmeasured: Record<string, number> = {};
   for (const category of usageTokenCategories) {
@@ -50,6 +78,7 @@ function usage(observations: UsageObservation[]) {
 }
 export function usageImportSummary(
   history: UsageHistory,
+  read: ReportedResponse[],
   home: string,
   since: number,
   scanGaps: UsageGap[],
@@ -58,14 +87,9 @@ export function usageImportSummary(
   const configured = new Set(projects.map((project) => project.id));
   const inWindow = (at: string | null | undefined) =>
     Boolean(at && Date.parse(at) >= since);
-  const observations = Object.values(history.observations).filter((item) =>
-    inWindow(item.at),
-  );
+  const observations = read.filter((item) => inWindow(item.at));
   const associated = new Set(
-    observations.flatMap((item) => {
-      const id = history.associations[item.id]?.taskId;
-      return id ? [id] : [];
-    }),
+    observations.flatMap((item) => (item.taskId ? [item.taskId] : [])),
   );
   const catalog = Object.values(history.tasks);
   const tasks = catalog.filter(hasUsageAssignment);
@@ -81,13 +105,12 @@ export function usageImportSummary(
   ).length;
   function population(selected: UsageTask[]) {
     const ids = new Set(selected.map((task) => task.id));
-    const responses = observations.filter((item) => {
-      const id = history.associations[item.id]?.taskId;
-      return Boolean(id && ids.has(id));
-    });
-    const responsesByTask = new Map<string, UsageObservation[]>();
+    const responses = observations.filter((item) =>
+      Boolean(item.taskId && ids.has(item.taskId)),
+    );
+    const responsesByTask = new Map<string, ReportedResponse[]>();
     for (const response of responses) {
-      const id = history.associations[response.id]?.taskId;
+      const id = response.taskId;
       if (!id) continue;
       const owned = responsesByTask.get(id);
       if (owned) owned.push(response);
@@ -157,7 +180,7 @@ export function usageImportSummary(
       taskGapProvenance: counts(selected.flatMap((task) => task.gaps)),
       observationGaps: counts(responses.flatMap((item) => item.gaps)),
       associationGaps: counts(
-        responses.flatMap((item) => history.associations[item.id]?.gaps ?? []),
+        responses.flatMap((item) => item.associationGaps),
       ),
     };
   }
@@ -181,14 +204,10 @@ export function usageImportSummary(
         (task) => task.project !== null && !configured.has(task.project),
       ),
     ),
-    unassignedUsage: usage(
-      observations.filter((item) => !history.associations[item.id]?.taskId),
-    ),
+    unassignedUsage: usage(observations.filter((item) => !item.taskId)),
     outsideWindowTasks: tasks.length - work.length - unresolvedWindowTasks,
     unresolvedWindowTasks,
-    undatedObservations: Object.values(history.observations).filter(
-      (item) => !item.at,
-    ).length,
+    undatedObservations: read.filter((item) => !item.at).length,
     currentScanGaps: counts(scanGaps.map((gap) => gap.code)),
     retainedGapProvenance: counts(history.gaps.map((gap) => gap.code)),
   };

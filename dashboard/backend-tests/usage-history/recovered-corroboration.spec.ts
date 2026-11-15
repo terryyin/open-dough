@@ -8,7 +8,6 @@ import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
   readImported,
-  readStoredRows,
   runImport,
   writeClaudeSession,
   writeCodexSession,
@@ -53,7 +52,7 @@ test("joins later Claude retained timestamp identity to one recovered task and p
       .please(),
   );
   runImport(home, root, ["--claude-root", claude]);
-  const initial = readStoredRows(home);
+  const initial = readImported(home);
   const task = Object.values(initial.tasks)[0];
   assert(task);
   expect(task.origin).toBe("dashboard");
@@ -70,7 +69,7 @@ test("joins later Claude retained timestamp identity to one recovered task and p
     .please();
   keepLaunchStore(home, { historic: [retained] });
   runImport(home, root, ["--claude-root", claude]);
-  const enriched = readStoredRows(home);
+  const enriched = readImported(home);
   expect(Object.keys(enriched.tasks)).toEqual([task.id]);
   expect(enriched.tasks[task.id]).toEqual(
     expect.objectContaining({
@@ -83,8 +82,8 @@ test("joins later Claude retained timestamp identity to one recovered task and p
   expect(taskUsage(enriched, task.id).tokens.output).toBe(8);
   rmSync(claude, { recursive: true });
   runImport(home, root, ["--claude-root", claude]);
-  expect(readStoredRows(home).tasks[task.id]?.title).toBe("Retained title");
-  expect(taskUsage(readStoredRows(home), task.id).tokens.output).toBe(8);
+  expect(readImported(home).tasks[task.id]?.title).toBe("Retained title");
+  expect(taskUsage(readImported(home), task.id).tokens.output).toBe(8);
 });
 
 test("retains contradictory historical facts and reporting project joins without selecting a current title", async ({

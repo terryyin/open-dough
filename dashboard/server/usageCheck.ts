@@ -3,7 +3,7 @@
 // writes once its evidence is in the store. A Refresh records the time it
 // began, so a rollout written while it read is read again by the next one.
 // Before any Refresh, the store was last checked when the offline importer
-// last wrote it, its manifest's modification time; with no store, never.
+// last wrote it, its document's modification time; with no store, never.
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { replaceDurableJson } from "./durableJsonReplacement.ts";

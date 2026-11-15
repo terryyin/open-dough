@@ -104,10 +104,14 @@ export function claudeAssociation(
   const candidates: string[] = [];
   const sources: UsageSource[] = [];
   const roots: string[] = [];
+  // The tasks named whatever their assignment, and whether they leave the
+  // response unresolved.
+  const named: string[] = [];
+  let unresolvedNamed = false;
   let unresolved = false;
   for (const measurement of enriched.measurements) {
     if (!measurement.nativeRowId) {
-      unresolved = true;
+      unresolved = unresolvedNamed = true;
       continue;
     }
     const chain = claudeAncestry(
@@ -118,10 +122,11 @@ export function claudeAssociation(
     );
     sources.push(...chain.sources);
     unresolved ||= chain.unresolved;
+    unresolvedNamed ||= chain.unresolved;
     for (const root of chain.roots) {
       roots.push(root.uuid);
       if (chain.roots.length === 1) measurement.rootTurnId = root.uuid;
-      const matches = tasks.filter(
+      const all = tasks.filter(
         (task) =>
           task.host === "claude" &&
           !task.gaps.some(
@@ -135,15 +140,21 @@ export function claudeAssociation(
             (task.launchReference !== undefined &&
               root.references.includes(
                 JSON.stringify([task.project, task.launchReference]),
-              ))) &&
-          hasUsageAssignment(task),
+              ))),
       );
+      const matches = all.filter(hasUsageAssignment);
+      if (all.length === 0) unresolvedNamed = true;
+      named.push(...all.map((task) => task.id));
       if (matches.length === 0) unresolved = true;
       candidates.push(...matches.map((task) => task.id));
       sources.push(...matches.flatMap(usageTaskJoinSources));
     }
   }
   const unique = uniqueFacts(candidates);
+  // Tasks whose assignment does not hold stay named when no other task is,
+  // so the response returns to one that regains it.
+  const withdrawn =
+    candidates.length === 0 && !unresolvedNamed ? uniqueFacts(named) : [];
   const rootIds = uniqueFacts(roots);
   if (rootIds.length === 1) enriched.rootTurnId = rootIds[0];
   // Different input UUIDs can explicitly continue the same retained launch.
@@ -154,7 +165,7 @@ export function claudeAssociation(
     association: {
       observationId: observation.id,
       taskId: !unresolved && unique.length === 1 ? (unique[0] ?? null) : null,
-      candidates: unresolved ? [] : unique,
+      candidates: unresolved ? withdrawn : unique,
       sources: uniqueFacts(sources),
       gaps:
         unresolved || unique.length !== 1

@@ -6,9 +6,10 @@
 // would. It assigns their responses against the store's tasks merged with
 // the current launch records (./usageImport.ts `launchCatalog`), and writes
 // tasks, responses, assignments and coverage gaps through the importer's
-// write path, under the store's document lock and shared reconciliation
-// (./usageHistory.ts), which counts a response read again once. It keeps
-// only the responses and gaps of known tasks' sessions and their workers:
+// write path, under the store's document lock (./usageHistory.ts), which
+// replaces the contribution of each session read, so a response read again
+// counts once. It keeps only the responses and gaps of known tasks' sessions
+// and their workers:
 // recovering tasks from native evidence alone, and deciding unrelated
 // projects, stay with the offline import. So does a spawn that names only
 // its worker's agent path, which only the whole corpus can match. Once the

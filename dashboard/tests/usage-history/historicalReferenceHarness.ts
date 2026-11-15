@@ -2,7 +2,7 @@
 // examples stay visible in their cases.
 import assert from "node:assert/strict";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { UsageHistory } from "../../server/usageRecords.ts";
+import type { UsageHistory } from "../../server/usageHistory.ts";
 import { writeCodexSession } from "./importHarness.ts";
 
 export function recoveredTask(history: UsageHistory, turn: string) {

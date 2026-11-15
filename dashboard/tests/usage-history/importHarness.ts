@@ -6,7 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
-import type { UsageHistory } from "../../server/usageHistory.ts";
+import { taskUsage, type UsageHistory } from "../../server/usageHistory.ts";
 import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 
 const repository = fileURLToPath(new URL("../../../", import.meta.url));
@@ -115,28 +115,23 @@ export function runImport(
   );
 }
 
+/** The stored history with the responses the latest import read. */
+export type ImportedHistory = UsageHistory & UsageResponses;
+
 /**
- * Tasks and gaps from the history, with the responses and task assignments
- * the latest successful `runImport` read: none before the first one.
+ * The history as the importer's `read` prints it (tasks, session
+ * contributions and gaps), with the responses and task assignments the latest
+ * successful `runImport` read: none before the first one.
  */
-export function readImported(home: string, extra: string[] = []): UsageHistory {
+export function readImported(
+  home: string,
+  extra: string[] = [],
+): ImportedHistory {
   const file = responsesFile(home);
   const responses: UsageResponses = existsSync(file)
     ? (JSON.parse(readFileSync(file, "utf8")) as UsageResponses)
     : { observations: {}, associations: {} };
-  return {
-    ...readStoredRows(home, extra),
-    observations: responses.observations,
-    associations: responses.associations,
-  };
-}
-
-/** The history with the response rows it stores, whichever writer stored them. */
-export function readStoredRows(
-  home: string,
-  extra: string[] = [],
-): UsageHistory {
-  return JSON.parse(
+  const history = JSON.parse(
     execFileSync(
       process.execPath,
       [command, "read", "--home", home, ...extra],
@@ -148,7 +143,19 @@ export function readStoredRows(
       },
     ),
   ) as UsageHistory;
+  return {
+    ...history,
+    observations: responses.observations,
+    associations: responses.associations,
+  };
 }
+
+/** Each task's session with its request count and output total, in task order. */
+export const sessionTotals = (history: UsageHistory) =>
+  Object.values(history.tasks).map((task) => {
+    const { requests, tokens } = taskUsage(history, task.id);
+    return [task.sessionId, requests, tokens.output];
+  });
 
 export function nodeProcess(home: string, script: string): string {
   return execFileSync(process.execPath, ["--input-type=module", "-e", script], {

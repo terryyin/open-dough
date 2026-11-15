@@ -1,7 +1,8 @@
 // Which task a response belongs to, as the usage history resolves it: its
 // candidates under the canonical task ids, counted only for a task whose
-// assignment holds, and for no task when its lineage is contradictory. The
-// writer and an import's responses file share this one resolution.
+// assignment holds, and for no task when its lineage is contradictory. A
+// session contribution's entry (./usageContributions.ts) resolves as the
+// responses it sums do, and an import's responses file shares the resolution.
 import {
   canonicalUsageTasks,
   sameUsageTask,
@@ -9,13 +10,10 @@ import {
 import {
   eligibleUsageAssociation,
   hasUsageAssignment,
+  type NamedTasks,
 } from "./usageTaskAssignment.ts";
 import { uniqueFacts } from "./usageReconciliation.ts";
-import type {
-  UsageAssociation,
-  UsageObservation,
-  UsageTask,
-} from "./usageRecords.ts";
+import type { UsageObservation, UsageTask } from "./usageRecords.ts";
 
 // `known` is every task record in play, stored and incoming, before they are
 // reconciled into the canonical `tasks` returned here.
@@ -32,17 +30,17 @@ export function usageResponseResolution(known: UsageTask[]) {
     const [match] = matches;
     if (matches.length === 1 && match) aliases.set(task.id, match.id);
   }
-  const alias = (value: UsageAssociation): UsageAssociation => ({
+  const alias = <Named extends NamedTasks>(value: Named): Named => ({
     ...value,
     taskId: value.taskId ? (aliases.get(value.taskId) ?? value.taskId) : null,
     candidates: uniqueFacts(
       value.candidates.map((id) => aliases.get(id) ?? id),
     ),
   });
-  const resolve = (
-    value: UsageAssociation,
-    observation: UsageObservation | undefined,
-  ): UsageAssociation => {
+  const resolve = <Named extends NamedTasks>(
+    value: Named,
+    observation?: Pick<UsageObservation, "gaps">,
+  ): Named => {
     const association = eligibleUsageAssociation(alias(value), eligible);
     if (observation?.gaps.includes("contradictory-lineage")) {
       association.taskId = null;

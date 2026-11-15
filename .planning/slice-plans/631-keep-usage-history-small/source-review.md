@@ -28,33 +28,33 @@ Exclusions returned:
 | 1.1 | Goal: Terry, who views token usage on a machine with months of agent history, gets the Usage view from a usage history that takes very little disk space. | slice 5 | |
 | 1.2 | Goal: "Usage shows a few numbers per finished task, so what the dashboard keeps for it is sized by the number of tasks and native sessions, in megabytes". | slice 5 | |
 | 1.3 | Goal: what the dashboard keeps "stays that size however often usage is checked". | slice 5 | |
-| 2.1 | Scope: "The native evidence the rows were read from stays in the hosts' own session files and is not the dashboard's to keep a second time." (Context, measured read-only on Terry's machine on 2026-11-15: `usage.json.pages` holds 4.4 GB in 6,053 files; 2.8 GB / 3,737 files referenced by nothing; 1.6 GB in use = 0.99 GB per-response observations + 0.49 GB per-response associations for 514,444 responses (641,591 measurements) from 9,719 native sessions in 12,513 files, against 16.6 MB for 2,925 tasks and 2.8 MB for 12,922 gaps; grouped by task, model, effort, speed tier and root or worker the responses come to 3,207 totals.) | slice 3 | |
+| 2.1 | Scope: "The native evidence the rows were read from stays in the hosts' own session files and is not the dashboard's to keep a second time." (Context, measured read-only on Terry's machine on 2026-11-15: `usage.json.pages` holds 4.4 GB in 6,053 files; 2.8 GB / 3,737 files referenced by nothing; 1.6 GB in use = 0.99 GB per-response observations + 0.49 GB per-response associations for 514,444 responses (641,591 measurements) from 9,719 native sessions in 12,513 files, against 16.6 MB for 2,925 tasks and 2.8 MB for 12,922 gaps; grouped by task, model, effort, speed tier and root or worker the responses come to 3,207 totals.) | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: no response id in usage.json; import-responses.spec.ts sessions hold no response id |
 | 3.1 | Budget: "The whole usage history for that present evidence takes at most 25 MB" (the evidence measured on Terry's machine on 2026-11-15). | slice 4 | |
 | 3.2 | Budget component: the task catalog and coverage gaps "as they are today (19.4 MB)". | slice 4 | |
 | 3.3 | Budget component: "at most 5 MB for session contributions" (qualification: 4.4 MB when built from the present store with each session's file list included). | slice 4 | |
-| 3.4 | Budget: each session's file list is something "the history does not keep". | slice 3 | |
-| 3.5 | Budget: "A new task adds under 10 KB." | slice 3 | |
+| 3.4 | Budget: each session's file list is something "the history does not keep". | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: sessions equal {host, sessionId, entries} and hold no rollout path |
+| 3.5 | Budget: "A new task adds under 10 KB." | slice 3 | observed: dashboard/backend-tests/usage-history/session-contribution-growth.spec.ts: 400-response rollout grows the history by under 10 KB |
 | 3.6 | Budget: "A check that finds no new evidence adds nothing." | slice 5 | |
-| 4.1 | The history keeps tasks with their attribution facts. | slice 3 | |
-| 4.2 | The history keeps coverage gaps. | slice 3 | |
-| 4.3 | The history keeps one contribution per native session whose responses name a task. | slice 3 | |
-| 4.4 | A contribution is what those responses add to each task, by model. | slice 3 | |
-| 4.5 | A contribution is what those responses add to each task, by effort. | slice 3 | |
-| 4.6 | A contribution is what those responses add to each task, by speed tier. | slice 3 | |
-| 4.7 | A contribution records response count. | slice 3 | |
-| 4.8 | A contribution records the four token categories. | slice 3 | |
-| 4.9 | A contribution records the responses missing each category. | slice 3 | |
-| 4.10 | A contribution records latest activity. | slice 3 | |
-| 4.11 | "Whether a contribution is root or worker usage follows from its session and the task's." | slice 3 | |
-| 4.12 | "No per-response row is stored." | slice 3 | |
-| 5.1 | "Reading a session again replaces that session's earlier contribution". | slice 3 | |
+| 4.1 | The history keeps tasks with their attribution facts. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: tasks keep sources; recovered-assignment-evidence.spec.ts fieldClaims and assignmentEvidence; recovered-assignment-legacy.spec.ts fieldSources |
+| 4.2 | The history keeps coverage gaps. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-snapshots.spec.ts: legacy gap kept; paged store gap kept once |
+| 4.3 | The history keeps one contribution per native session whose responses name a task. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: deep-equal of the contribution entries by model, effort, tier with responses, tokens, missing, unmeasured, lastAt |
+| 4.4 | A contribution is what those responses add to each task, by model. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: deep-equal of the contribution entries by model, effort, tier with responses, tokens, missing, unmeasured, lastAt |
+| 4.5 | A contribution is what those responses add to each task, by effort. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: deep-equal of the contribution entries by model, effort, tier with responses, tokens, missing, unmeasured, lastAt |
+| 4.6 | A contribution is what those responses add to each task, by speed tier. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: deep-equal of the contribution entries by model, effort, tier with responses, tokens, missing, unmeasured, lastAt |
+| 4.7 | A contribution records response count. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: deep-equal of the contribution entries by model, effort, tier with responses, tokens, missing, unmeasured, lastAt |
+| 4.8 | A contribution records the four token categories. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: deep-equal of the contribution entries by model, effort, tier with responses, tokens, missing, unmeasured, lastAt |
+| 4.9 | A contribution records the responses missing each category. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: deep-equal of the contribution entries by model, effort, tier with responses, tokens, missing, unmeasured, lastAt |
+| 4.10 | A contribution records latest activity. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: deep-equal of the contribution entries by model, effort, tier with responses, tokens, missing, unmeasured, lastAt |
+| 4.11 | "Whether a contribution is root or worker usage follows from its session and the task's." | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-refresh.spec.ts: worker response is the second task's root:false usage after Refresh and equals a full import; codex-usage.spec.ts taskUsage per task |
+| 4.12 | "No per-response row is stored." | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: no response id in usage.json; import-responses.spec.ts sessions hold no response id |
+| 5.1 | "Reading a session again replaces that session's earlier contribution". | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (b) session read again replaces its contribution; claude-completion-replay.spec.ts |
 | 5.2 | A response is counted once however often it is read by Refresh. | slice 5 | |
-| 5.3 | A response is counted once however often it is read by the offline import. | slice 3 | |
+| 5.3 | A response is counted once however often it is read by the offline import. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (b) session read again replaces its contribution; claude-completion-replay.spec.ts |
 | 5.4 | A response is counted once when read by both Refresh and the offline import in turn. | slice 5 | |
 | 5.5 | A response that appears in several files of one session is counted once (qualification: observed for 301 Claude responses). | slice 5 | |
-| 5.6 | A response in a rollout that moved from live to archived is counted once. | slice 3 | |
-| 6.1 | A session whose native files have since been removed keeps its stored contribution. | slice 3 | |
-| 6.2 | That session's tasks keep their totals. | slice 3 | |
+| 5.6 | A response in a rollout that moved from live to archived is counted once. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (d) rollout moved to the archived root counted once |
+| 6.1 | A session whose native files have since been removed keeps its stored contribution. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (c) deleted rollout keeps totals and summary usage; historical-task-references.spec.ts; recovered-corroboration.spec.ts |
+| 6.2 | That session's tasks keep their totals. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (c) deleted rollout keeps totals and summary usage; historical-task-references.spec.ts; recovered-corroboration.spec.ts |
 | 7.1 | The first Refresh with this story's dashboard converts the existing store. | slice 4 | |
 | 7.2 | The first import with this story's dashboard converts the existing store (alternative as written: "The first Refresh or import"). | slice 4 | |
 | 7.3 | Conversion carries over every task. | slice 4 | |
@@ -70,31 +70,31 @@ Exclusions returned:
 | 8.3 | Such a Refresh "finishes in the time it takes to see that no rollout changed". | slice 5 | |
 | 8.4 | That is under 2 s on Terry's machine (qualification: "in place of the 12–16 s the current writer spends"). | slice 5 | |
 | 8.5 | "An import over unchanged evidence also leaves the history's bytes unchanged." | slice 5 | |
-| 9.1 | For the same native evidence, Usage keeps showing the same tasks as before. | slice 3 | |
-| 9.2 | For the same native evidence, Usage keeps showing the same Token index values as before. | slice 3 | |
-| 9.3 | For the same native evidence, Usage keeps showing the same filters as before. | slice 3 | |
-| 9.4 | For the same native evidence, Usage keeps showing the same "usage missing" coverage as before. | slice 3 | |
-| 9.5 | For the same native evidence, Usage keeps showing the same "Outcome unknown" detail as before. | slice 3 | |
-| 9.6 | Conflicting measurements of one response still leave the affected category unknown. | slice 3 | |
-| 9.7 | Conflicting measurements still leave the affected category with its gap. | slice 3 | |
-| 9.8 | Conflicting measurements never yield a chosen value. | slice 3 | |
-| 9.9 | Conflicting measurements never yield a summed value. | slice 3 | |
-| 10.1 | "The same budget holds for every host whose usage this history records". | slice 3 | |
-| 10.2 | That includes Claude Code usage from SEED-359 (view-claude-code-task-token-usage). | slice 3 | |
-| 11.1 | The importer's result reports tasks from the history. | slice 3 | |
-| 11.2 | The importer's result reports gaps from the history. | slice 3 | |
-| 11.3 | The importer's result reports totals from the history. | slice 3 | |
-| 11.4 | The importer's result reports response-level counts from the evidence that import read. | slice 3 | |
-| 11.5 | The importer's `read` command reports tasks from the history. | slice 3 | |
-| 11.6 | The importer's `read` command reports gaps from the history. | slice 3 | |
-| 11.7 | The importer's `read` command reports totals from the history. | slice 3 | |
-| 11.8 | The importer's `read` command reports response-level counts from the evidence that import read (source sentence covers "The importer's result and its `read` command" jointly). | slice 3 | |
+| 9.1 | For the same native evidence, Usage keeps showing the same tasks as before. | slice 3 | observed: dashboard/backend-tests/usage-history/token-index*.spec.ts, e2e/configuration/system-settings-usage.spec.ts and dashboard/frontend-tests/system-settings-usage.spec.ts pass; read-only real-store summary comparison: 513 tasks, 0 differing |
+| 9.2 | For the same native evidence, Usage keeps showing the same Token index values as before. | slice 3 | observed: dashboard/backend-tests/usage-history/token-index*.spec.ts, e2e/configuration/system-settings-usage.spec.ts and dashboard/frontend-tests/system-settings-usage.spec.ts pass; read-only real-store summary comparison: 513 tasks, 0 differing |
+| 9.3 | For the same native evidence, Usage keeps showing the same filters as before. | slice 3 | observed: dashboard/backend-tests/usage-history/token-index*.spec.ts, e2e/configuration/system-settings-usage.spec.ts and dashboard/frontend-tests/system-settings-usage.spec.ts pass; read-only real-store summary comparison: 513 tasks, 0 differing |
+| 9.4 | For the same native evidence, Usage keeps showing the same "usage missing" coverage as before. | slice 3 | observed: dashboard/backend-tests/usage-history/token-index*.spec.ts, e2e/configuration/system-settings-usage.spec.ts and dashboard/frontend-tests/system-settings-usage.spec.ts pass; read-only real-store summary comparison: 513 tasks, 0 differing |
+| 9.5 | For the same native evidence, Usage keeps showing the same "Outcome unknown" detail as before. | slice 3 | observed: dashboard/backend-tests/usage-history/token-index*.spec.ts, e2e/configuration/system-settings-usage.spec.ts and dashboard/frontend-tests/system-settings-usage.spec.ts pass; read-only real-store summary comparison: 513 tasks, 0 differing |
+| 9.6 | Conflicting measurements of one response still leave the affected category unknown. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-reconciliation.spec.ts: conflicting counters give the category null, unmeasured 1, missing-token-components, requests 1 |
+| 9.7 | Conflicting measurements still leave the affected category with its gap. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-reconciliation.spec.ts: conflicting counters give the category null, unmeasured 1, missing-token-components, requests 1 |
+| 9.8 | Conflicting measurements never yield a chosen value. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-reconciliation.spec.ts: conflicting counters give the category null, unmeasured 1, missing-token-components, requests 1 |
+| 9.9 | Conflicting measurements never yield a summed value. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-reconciliation.spec.ts: conflicting counters give the category null, unmeasured 1, missing-token-components, requests 1 |
+| 10.1 | "The same budget holds for every host whose usage this history records". | slice 3 | observed: dashboard/backend-tests/usage-history/claude-completion-replay.spec.ts, claude-coverage.spec.ts, claude-usage.spec.ts store Claude contributions in the same document; real store with both hosts serializes to 22,871,902 bytes |
+| 10.2 | That includes Claude Code usage from SEED-359 (view-claude-code-task-token-usage). | slice 3 | observed: dashboard/backend-tests/usage-history/claude-completion-replay.spec.ts, claude-coverage.spec.ts, claude-usage.spec.ts store Claude contributions in the same document; real store with both hosts serializes to 22,871,902 bytes |
+| 11.1 | The importer's result reports tasks from the history. | slice 3 | observed: dashboard/backend-tests/usage-history/import-report-window.spec.ts task counts and session-contributions.spec.ts (a),(c) result tasks from the history |
+| 11.2 | The importer's result reports gaps from the history. | slice 3 | observed: dashboard/backend-tests/usage-history/import-report-window.spec.ts task counts and session-contributions.spec.ts (a),(c) result tasks from the history |
+| 11.3 | The importer's result reports totals from the history. |  | G2 |
+| 11.4 | The importer's result reports response-level counts from the evidence that import read. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) result observations 4 includes the unassigned response; import-report.spec.ts |
+| 11.5 | The importer's `read` command reports tasks from the history. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-snapshots.spec.ts: read output equals the stored document |
+| 11.6 | The importer's `read` command reports gaps from the history. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-snapshots.spec.ts: read output equals the stored document |
+| 11.7 | The importer's `read` command reports totals from the history. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-snapshots.spec.ts: read output equals the stored document |
+| 11.8 | The importer's `read` command reports response-level counts from the evidence that import read (source sentence covers "The importer's result and its `read` command" jointly). |  | G2 |
 | 11.9 | "`dashboard/USAGE-HISTORY.md` describes the history as it then is." | slice 5 | |
-| 12.1 | (From scope limit X1) The import result still counts responses that belong to no task, for the evidence it read. | slice 3 | |
-| 12.2 | (From scope limit X1) A later import assigns such responses "only while their native files exist". | slice 3 | |
+| 12.1 | (From scope limit X1) The import result still counts responses that belong to no task, for the evidence it read. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) result observations 4 includes the unassigned response; import-report.spec.ts |
+| 12.2 | (From scope limit X1) A later import assigns such responses "only while their native files exist". | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: a session whose responses name no task leaves no contribution; a later import with the rollout present assigns them (recovered-assignment-rescanned.spec.ts) |
 | 12.3 | (From scope limit X2) "An import can write the responses it read, with their measurements and task assignment, to a file the developer names". | slice 1 | observed: dashboard/backend-tests/usage-history/import-responses.spec.ts: observations and associations keyed by the three response ids, measurements with native source, resolved taskId per response |
 | 12.4 | (From scope limit X2) "the native files stay the evidence". | slice 1 | observed: import-responses.spec.ts: rollout bytes equal before and after import, measurement source is the native file; dashboard/USAGE-HISTORY.md options paragraph |
-| 12.5 | (From scope limit X3) The task catalog's provenance (`fieldSources`, `fieldClaims`, `sources` and `assignmentEvidence`; 14.3 MB of the 16.6 MB) keeps its present form. | slice 3 | |
+| 12.5 | (From scope limit X3) The task catalog's provenance (`fieldSources`, `fieldClaims`, `sources` and `assignmentEvidence`; 14.3 MB of the 16.6 MB) keeps its present form. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: tasks keep sources; recovered-assignment-evidence.spec.ts fieldClaims and assignmentEvidence; recovered-assignment-legacy.spec.ts fieldSources |
 | 12.6 | (From scope limit X3) "the budget covers it" (the uncompacted provenance). | slice 4 | |
 | 12.7 | (From scope limit X4) Delivery of this story removes `import-reports/2026-11-15/` (42 MB) from Terry's machine once. | slice 4 | |
 | 12.8 | (From scope limit X4) Delivery updates the recovery receipt (`docs/maintainer/usage-history-recovery-2026-11-15.md`) that points at it. | slice 4 | |
@@ -107,34 +107,34 @@ Exclusions returned:
 | 15.1 | Example New responses — a finished task's rollout gains three responses, then Refresh: the task's totals rise by exactly those three. | slice 5 | |
 | 15.2 | Example New responses: a second Refresh changes no value. | slice 5 | |
 | 15.3 | Example New responses: an import after that changes no value. | slice 5 | |
-| 16.1 | Example Evidence removed — a task's rollout is deleted after it was read, then Refresh, then import: the task keeps its totals. | slice 3 | |
-| 16.2 | Example Evidence removed: the task keeps its point in the chart. | slice 3 | |
-| 17.1 | Example Moved rollout — a rollout read under the live Codex sessions is archived, then import: its responses are counted once. | slice 3 | |
-| 18.1 | Example Worker and second task — one session carries two tasks and a worker session joins the first; after import and Refresh: each task's totals hold its own responses. | slice 3 | |
-| 18.2 | Example Worker and second task: the worker's responses are under the first task. | slice 3 | |
-| 18.3 | Example Worker and second task: the worker's responses appear as worker usage. | slice 3 | |
-| 19.1 | Example Conflicting measurements — one response measured twice with different output counts: its task shows output as missing coverage. | slice 3 | |
-| 19.2 | Example Conflicting measurements: not a sum. | slice 3 | |
-| 20.1 | Example Growth — one new finished task with a 400-response rollout: the history grows by under 10 KB. | slice 3 | |
-| 21.1 | Architecture: the unit of stored usage changes from the response to the session contribution: "what one native session, read whole from all its files, adds to each task". | slice 3 | |
-| 21.2 | Architecture: "Reading stays as it is." | slice 3 | |
-| 21.3 | Architecture: the host readers still work on responses in memory. | slice 3 | |
-| 21.4 | Architecture: lineage still works on responses in memory. | slice 3 | |
-| 21.5 | Architecture: assignment still works on responses in memory. | slice 3 | |
-| 21.6 | Architecture: they still reconcile repeated rows there (`reconcileObservation`). | slice 3 | |
-| 21.7 | Architecture: they still reconcile competing measurements there (`reconcileMeasurements`). | slice 3 | |
-| 21.8 | Architecture: what changes is the write: the responses of each session read are summed into that session's contribution. | slice 3 | |
-| 21.9 | Architecture: that contribution replaces the stored one. | slice 3 | |
+| 16.1 | Example Evidence removed — a task's rollout is deleted after it was read, then Refresh, then import: the task keeps its totals. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (c) deleted rollout keeps totals and summary usage; historical-task-references.spec.ts; recovered-corroboration.spec.ts |
+| 16.2 | Example Evidence removed: the task keeps its point in the chart. |  | G1 |
+| 17.1 | Example Moved rollout — a rollout read under the live Codex sessions is archived, then import: its responses are counted once. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (d) rollout moved to the archived root counted once |
+| 18.1 | Example Worker and second task — one session carries two tasks and a worker session joins the first; after import and Refresh: each task's totals hold its own responses. | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-refresh.spec.ts: worker response is the second task's root:false usage after Refresh and equals a full import; codex-usage.spec.ts taskUsage per task |
+| 18.2 | Example Worker and second task: the worker's responses are under the first task. | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-refresh.spec.ts: worker response is the second task's root:false usage after Refresh and equals a full import; codex-usage.spec.ts taskUsage per task |
+| 18.3 | Example Worker and second task: the worker's responses appear as worker usage. | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-refresh.spec.ts: worker response is the second task's root:false usage after Refresh and equals a full import; codex-usage.spec.ts taskUsage per task |
+| 19.1 | Example Conflicting measurements — one response measured twice with different output counts: its task shows output as missing coverage. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-reconciliation.spec.ts: conflicting counters give the category null, unmeasured 1, missing-token-components, requests 1 |
+| 19.2 | Example Conflicting measurements: not a sum. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-reconciliation.spec.ts: conflicting counters give the category null, unmeasured 1, missing-token-components, requests 1 |
+| 20.1 | Example Growth — one new finished task with a 400-response rollout: the history grows by under 10 KB. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contribution-growth.spec.ts: 400-response rollout grows the history by under 10 KB |
+| 21.1 | Architecture: the unit of stored usage changes from the response to the session contribution: "what one native session, read whole from all its files, adds to each task". | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: no response id in usage.json; import-responses.spec.ts sessions hold no response id |
+| 21.2 | Architecture: "Reading stays as it is." | slice 3 | observed: readers unchanged except candidate lists in codexUsageLineage.ts and claudeUsageLineage.ts; claude-coverage.spec.ts and usage-reconciliation.spec.ts observe reconciled measurements in the responses file |
+| 21.3 | Architecture: the host readers still work on responses in memory. | slice 3 | observed: readers unchanged except candidate lists in codexUsageLineage.ts and claudeUsageLineage.ts; claude-coverage.spec.ts and usage-reconciliation.spec.ts observe reconciled measurements in the responses file |
+| 21.4 | Architecture: lineage still works on responses in memory. | slice 3 | observed: readers unchanged except candidate lists in codexUsageLineage.ts and claudeUsageLineage.ts; claude-coverage.spec.ts and usage-reconciliation.spec.ts observe reconciled measurements in the responses file |
+| 21.5 | Architecture: assignment still works on responses in memory. | slice 3 | observed: readers unchanged except candidate lists in codexUsageLineage.ts and claudeUsageLineage.ts; claude-coverage.spec.ts and usage-reconciliation.spec.ts observe reconciled measurements in the responses file |
+| 21.6 | Architecture: they still reconcile repeated rows there (`reconcileObservation`). | slice 3 | observed: readers unchanged except candidate lists in codexUsageLineage.ts and claudeUsageLineage.ts; claude-coverage.spec.ts and usage-reconciliation.spec.ts observe reconciled measurements in the responses file |
+| 21.7 | Architecture: they still reconcile competing measurements there (`reconcileMeasurements`). | slice 3 | observed: readers unchanged except candidate lists in codexUsageLineage.ts and claudeUsageLineage.ts; claude-coverage.spec.ts and usage-reconciliation.spec.ts observe reconciled measurements in the responses file |
+| 21.8 | Architecture: what changes is the write: the responses of each session read are summed into that session's contribution. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: deep-equal of the contribution entries by model, effort, tier with responses, tokens, missing, unmeasured, lastAt |
+| 21.9 | Architecture: that contribution replaces the stored one. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (b) session read again replaces its contribution; claude-completion-replay.spec.ts |
 | 21.10 | Architecture: task totals are the sum of contributions (which `usageTaskSummary.ts` derives today from every response on each manifest change). | slice 2 | observed: dashboard/server/usageTaskSummary.ts deriveUsageTaskSummary sums resolveContributions entries; token-index.spec.ts, token-index-cohort.spec.ts, token-index-eligibility.spec.ts unchanged and passing |
 | 21.11 | Architecture: the summary keeps its place. | slice 2 | observed: usageTaskSummaryCache.ts untouched; token-index.spec.ts deleted summary rebuilt from the store; token-index-refresh.spec.ts unreadable store keeps the summary |
 | 21.12 | Architecture: the summary keeps its separate process. | slice 2 | observed: usageTaskSummaryMain.ts and usageProcess.ts untouched; token-index-detail.spec.ts, token-index-refresh.spec.ts and e2e system-settings-usage specs through the server |
-| 21.13 | Architecture: the summary now derives from contributions without reading a response. | slice 3 | |
-| 21.14 | Architecture: "The paged snapshot and its partition reconciliation have one small successor." | slice 3 | |
-| 21.15 | Architecture: a contribution keeps the candidate tasks its responses named. | slice 3 | |
-| 21.16 | Architecture: so a task that loses its assignment later still withdraws its usage without the native files. | slice 3 | |
-| 21.17 | Architecture: a task that regains its assignment later still regains its usage without the native files. | slice 3 | |
-| 21.18 | Architecture: ADR 0008 holds — a machine-local document. | slice 3 | |
-| 21.19 | Architecture: under the existing lock. | slice 3 | |
-| 21.20 | Architecture: atomically replaced. | slice 3 | |
-| 21.21 | Architecture: no database. | slice 3 | |
-| 21.22 | Architecture: specs that assert per-response facts read them from the reader and assignment result, not from the stored history. | slice 3 | |
+| 21.13 | Architecture: the summary now derives from contributions without reading a response. | slice 3 | observed: dashboard/server/usageTaskSummary.ts reads only the document; token-index*.spec.ts pass |
+| 21.14 | Architecture: "The paged snapshot and its partition reconciliation have one small successor." | slice 3 | observed: five paged-writer modules deleted; successors usageHistory.ts, usageHistoryDocument.ts, usageEarlierStore.ts |
+| 21.15 | Architecture: a contribution keeps the candidate tasks its responses named. | slice 3 | observed: dashboard/backend-tests/usage-history/recovered-assignment-rescanned.spec.ts, recovered-assignment-evidence.spec.ts, -legacy, -replay |
+| 21.16 | Architecture: so a task that loses its assignment later still withdraws its usage without the native files. | slice 3 | observed: dashboard/backend-tests/usage-history/recovered-assignment-rescanned.spec.ts, recovered-assignment-evidence.spec.ts, -legacy, -replay |
+| 21.17 | Architecture: a task that regains its assignment later still regains its usage without the native files. | slice 3 | observed: dashboard/backend-tests/usage-history/recovered-assignment-rescanned.spec.ts, recovered-assignment-evidence.spec.ts, -legacy, -replay |
+| 21.18 | Architecture: ADR 0008 holds — a machine-local document. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-snapshot-failures.spec.ts: failed replacement keeps the earlier history; cross-process writers land under the lock |
+| 21.19 | Architecture: under the existing lock. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-snapshot-failures.spec.ts: failed replacement keeps the earlier history; cross-process writers land under the lock |
+| 21.20 | Architecture: atomically replaced. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-snapshot-failures.spec.ts: failed replacement keeps the earlier history; cross-process writers land under the lock |
+| 21.21 | Architecture: no database. | slice 3 | observed: dashboard/backend-tests/usage-history/usage-snapshot-failures.spec.ts: failed replacement keeps the earlier history; cross-process writers land under the lock |
+| 21.22 | Architecture: specs that assert per-response facts read them from the reader and assignment result, not from the stored history. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: no response id in usage.json; import-responses.spec.ts sessions hold no response id |

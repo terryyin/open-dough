@@ -1,6 +1,6 @@
 // Real usage persistence and HTTP mechanics shared by Token index service tests.
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { TaskHistoryFacts } from "../../../Distribution/tests/support/usageStoreTestData.mjs";
@@ -109,16 +109,9 @@ export async function usageServer(machine: Machine) {
   };
 }
 
+// The store's one file, its history document.
 export function storeHashes(store: string) {
-  return Object.fromEntries(
-    [
-      store,
-      ...readdirSync(`${store}.pages`).map((name) =>
-        path.join(`${store}.pages`, name),
-      ),
-    ].map((file) => [
-      file,
-      createHash("sha256").update(readFileSync(file)).digest("hex"),
-    ]),
-  );
+  return {
+    [store]: createHash("sha256").update(readFileSync(store)).digest("hex"),
+  };
 }

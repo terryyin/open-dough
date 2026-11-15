@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
+  taskUsage,
   usageHistoryFile,
   writeUsageHistory,
 } from "../../server/usageHistory.ts";
@@ -12,7 +13,7 @@ import {
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
-  readStoredRows,
+  readImported,
   responsesFile,
   runImport,
   writeCodexSession,
@@ -85,7 +86,7 @@ test("an import writes each response it read once to the named file, with its me
   const responses = JSON.parse(
     readFileSync(responsesFile(home), "utf8"),
   ) as UsageResponses;
-  const stored = readStoredRows(home);
+  const stored = readImported(home);
   const answer = JSON.stringify(["codex", "launched", "answer"]);
   const reply = JSON.stringify(["codex", "injected", "reply"]);
   const stray = JSON.stringify(["codex", "worker", "stray"]);
@@ -119,7 +120,12 @@ test("an import writes each response it read once to the named file, with its me
     taskId: null,
     gaps: expect.arrayContaining(["contradictory-lineage"]),
   });
-  expect(responses.associations).toEqual(stored.associations);
+  // The history keeps what the file's assignments add up to, and no response.
+  expect(
+    taskUsage(stored, responses.associations[answer]?.taskId ?? ""),
+  ).toMatchObject({ requests: 1, tokens: { output: 7 } });
+  expect(taskUsage(stored, withdrawn.id).requests).toBe(0);
+  expect(JSON.stringify(stored.sessions)).not.toMatch(/answer|reply|stray/);
   expect(
     [launched, injected].map((file) => readFileSync(file, "utf8")),
   ).toEqual(native);

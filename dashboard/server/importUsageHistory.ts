@@ -7,9 +7,8 @@ import {
   importUsageHistory,
   usageHistorySince,
 } from "./usageImport.ts";
-import { usageHistoryFile } from "./usageHistory.ts";
-import { once } from "node:events";
-import { exportUsageSnapshot, openUsageSnapshot } from "./usageSnapshot.ts";
+import { readUsageHistory, usageHistoryFile } from "./usageHistory.ts";
+import { serializeUsageHistory } from "./usageHistoryDocument.ts";
 
 try {
   const { values, positionals } = parseArgs({
@@ -33,11 +32,7 @@ try {
   const home = path.resolve(values.home ?? homedir());
   const store = path.resolve(values.store ?? usageHistoryFile(home));
   if (positionals[0] === "read") {
-    for await (const chunk of exportUsageSnapshot(
-      await openUsageSnapshot(store),
-    )) {
-      if (!process.stdout.write(chunk)) await once(process.stdout, "drain");
-    }
+    process.stdout.write(serializeUsageHistory(await readUsageHistory(store)));
   } else {
     const result = await importUsageHistory({
       home,

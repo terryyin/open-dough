@@ -11,11 +11,11 @@ import { sessionKey } from "../src/sessionReference.ts";
 import { uniqueFacts } from "./usageReconciliation.ts";
 import {
   usageTokenCategories,
-  type UsageAssociation,
   type UsageObservation,
   type UsageTask,
 } from "./usageRecords.ts";
 import { usageResponseResolution } from "./usageResponseResolution.ts";
+import type { NamedTasks } from "./usageTaskAssignment.ts";
 
 export type ContributionCounters = Record<
   (typeof usageTokenCategories)[number],
@@ -58,17 +58,81 @@ export const later = (a: string | null, b: string | null | undefined) =>
 
 const lineageGap = "contradictory-lineage";
 
+const entryKey = (entry: ContributionEntry) =>
+  JSON.stringify([
+    entry.candidates,
+    entry.unresolved ?? false,
+    entry.model,
+    entry.effort,
+    entry.tier,
+  ]);
+
+const counters = (
+  a: ContributionCounters,
+  b: ContributionCounters,
+): ContributionCounters => ({
+  uncachedInput: a.uncachedInput + b.uncachedInput,
+  cacheRead: a.cacheRead + b.cacheRead,
+  cacheWrite: a.cacheWrite + b.cacheWrite,
+  output: a.output + b.output,
+});
+
+// The sessions in the one order and shape the history stores: sessions by
+// key, each entry's candidates as `canonical` names them, sorted, entries
+// that then share a key summed, and entries by key. Equal contributions give
+// equal JSON.
+export function canonicalContributions(
+  sessions: SessionContributions,
+  canonical: (candidates: string[]) => string[],
+): SessionContributions {
+  const result: SessionContributions = {};
+  for (const session of Object.keys(sessions).sort()) {
+    const stored = sessions[session];
+    if (stored === undefined) continue;
+    const entries = new Map<string, ContributionEntry>();
+    for (const entry of stored.entries) {
+      const next: ContributionEntry = {
+        candidates: uniqueFacts(canonical(entry.candidates)).sort(),
+        ...(entry.unresolved ? { unresolved: true } : {}),
+        model: entry.model,
+        effort: entry.effort,
+        tier: entry.tier,
+        responses: entry.responses,
+        tokens: entry.tokens,
+        missing: entry.missing,
+        unmeasured: entry.unmeasured,
+        lastAt: entry.lastAt,
+      };
+      const key = entryKey(next);
+      const prior = entries.get(key);
+      if (prior !== undefined) {
+        next.responses += prior.responses;
+        next.tokens = counters(prior.tokens, next.tokens);
+        next.missing = counters(prior.missing, next.missing);
+        next.unmeasured += prior.unmeasured;
+        next.lastAt = later(prior.lastAt, next.lastAt);
+      }
+      entries.set(key, next);
+    }
+    if (entries.size > 0)
+      result[session] = {
+        host: stored.host,
+        sessionId: stored.sessionId,
+        entries: [...entries.keys()]
+          .sort()
+          .flatMap((key) => entries.get(key) ?? []),
+      };
+  }
+  return result;
+}
+
 // Collects the contributions of the responses added, each with its
 // association when it has one. A session's contribution is whole only when
 // every response of the session was added.
 export function collectContributions() {
   const sessions: SessionContributions = {};
   const index = new Map<string, Map<string, ContributionEntry>>();
-  function add(
-    response: UsageObservation,
-    association:
-      Pick<UsageAssociation, "taskId" | "candidates" | "gaps"> | undefined,
-  ): void {
+  function add(response: UsageObservation, association?: NamedTasks): void {
     if (association === undefined) return;
     const candidates = uniqueFacts([
       ...association.candidates,
@@ -78,27 +142,25 @@ export function collectContributions() {
     const unresolved =
       association.gaps.includes(lineageGap) ||
       response.gaps.includes(lineageGap);
-    const model = response.settings.model ?? null;
-    const effort = response.settings.effort ?? null;
-    const tier = response.settings.serviceTier ?? null;
     const session = sessionKey(response);
     const entries = index.get(session) ?? new Map<string, ContributionEntry>();
     index.set(session, entries);
-    const key = JSON.stringify([candidates, unresolved, model, effort, tier]);
+    const fresh: ContributionEntry = {
+      candidates,
+      ...(unresolved ? { unresolved } : {}),
+      model: response.settings.model ?? null,
+      effort: response.settings.effort ?? null,
+      tier: response.settings.serviceTier ?? null,
+      responses: 0,
+      tokens: { uncachedInput: 0, cacheRead: 0, cacheWrite: 0, output: 0 },
+      missing: { uncachedInput: 0, cacheRead: 0, cacheWrite: 0, output: 0 },
+      unmeasured: 0,
+      lastAt: null,
+    };
+    const key = entryKey(fresh);
     let entry = entries.get(key);
     if (entry === undefined) {
-      entry = {
-        candidates,
-        ...(unresolved ? { unresolved } : {}),
-        model,
-        effort,
-        tier,
-        responses: 0,
-        tokens: { uncachedInput: 0, cacheRead: 0, cacheWrite: 0, output: 0 },
-        missing: { uncachedInput: 0, cacheRead: 0, cacheWrite: 0, output: 0 },
-        unmeasured: 0,
-        lastAt: null,
-      };
+      entry = fresh;
       entries.set(key, entry);
       const { host, sessionId } = response;
       (sessions[session] ??= { host, sessionId, entries: [] }).entries.push(
@@ -136,16 +198,11 @@ export function* resolveContributions(
   const { resolve } = usageResponseResolution(tasks);
   for (const { sessionId, entries } of Object.values(sessions))
     for (const entry of entries) {
-      const { taskId, candidates } = resolve(
-        {
-          observationId: "",
-          taskId: null,
-          candidates: entry.candidates,
-          sources: [],
-          gaps: entry.unresolved ? [lineageGap] : [],
-        },
-        undefined,
-      );
+      const { taskId, candidates } = resolve({
+        taskId: null,
+        candidates: entry.candidates,
+        gaps: entry.unresolved ? [lineageGap] : [],
+      });
       yield { sessionId, entry, taskId, candidates };
     }
 }

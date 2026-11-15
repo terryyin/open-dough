@@ -2,22 +2,27 @@ import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { taskUsage } from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  nodeProcess,
-  readStoredRows,
+  readImported,
   runImport,
   writeClaudeSession,
 } from "../../tests/usage-history/importHarness.ts";
 
 const sessionId = "claude-enrichment";
+const reference = "ca7430bd-0d52-499d-a1bd-660263c77c12";
+// The session's transcript from its launch input on.
+const transcript = () =>
+  makeMe.aClaudeTranscript
+    .forSession(sessionId)
+    .withLaunchInput({ reference, command: "report", role: true });
 
 function assistant(uuid: string, output: number, stop?: null | string) {
   return {
     uuid,
-    // Keep these rows unlinked; enrichment cases omit parentUuid.
-    chain: false as const,
+    parentUuid: "launch-input" as const,
     ...(stop === undefined ? {} : { stopReason: stop }),
     messageId: "msg-same",
     model: "claude-model",
@@ -39,20 +44,27 @@ function keepLaunch(home: string) {
           title: "Usage recovery",
         })
         .inClaudeSession({ sessionId })
+        .reportingThrough({
+          origin: "http://localhost:4318",
+          reference,
+          command: "report",
+        })
         .please(),
     ],
   });
 }
 
-function observation(home: string) {
-  const values = Object.values(readStoredRows(home).observations);
-  expect(values).toHaveLength(1);
-  const [value] = values;
-  assert(value);
-  return value;
+// The launch's task with its usage in the history, and the one response the
+// latest import read.
+function imported(home: string) {
+  const history = readImported(home);
+  const [task] = Object.values(history.tasks);
+  const values = Object.values(history.observations);
+  assert(task);
+  return { history, usage: taskUsage(history, task.id), responses: values };
 }
 
-test("enriches existing raw measurements in place and keeps terminal evidence across replay, collector overlap and source removal", ({
+test("terminal output settles progressive snapshots, a reread replaces the session's contribution, and source removal keeps it", ({
   home,
   root,
 }) => {
@@ -60,85 +72,60 @@ test("enriches existing raw measurements in place and keeps terminal evidence ac
   const claudeRoot = path.join(home, "claude");
   writeClaudeSession(
     claudeRoot,
-    makeMe.aClaudeTranscript
-      .forSession(sessionId)
+    transcript()
       .withAssistant(assistant("partial", 3))
       .withAssistant(assistant("terminal", 690))
       .please(),
   );
   runImport(home, root, ["--claude-root", claudeRoot]);
-  const legacy = observation(home);
-  expect(legacy.tokens.output).toBeNull();
-  expect(legacy.gaps).toContain("contradictory-measurements");
-  writeClaudeSession(
-    claudeRoot,
-    makeMe.aClaudeTranscript
-      .forSession(sessionId)
-      .withAssistant(assistant("partial", 3, null))
-      .withAssistant(assistant("terminal", 690, "tool_use"))
-      .please(),
-  );
+  const legacy = imported(home);
+  expect(legacy.responses).toHaveLength(1);
+  expect(legacy.responses[0]?.gaps).toContain("contradictory-measurements");
+  expect(legacy.usage).toMatchObject({
+    requests: 1,
+    tokens: { uncachedInput: 2, output: null },
+    unmeasured: { output: 1 },
+  });
+  const terminal = transcript()
+    .withAssistant(assistant("partial", 3, null))
+    .withAssistant(assistant("terminal", 690, "tool_use"))
+    .please();
+  writeClaudeSession(claudeRoot, terminal);
   runImport(home, root, ["--claude-root", claudeRoot]);
-  const enriched = observation(home);
-  expect(enriched.tokens.output).toBe(690);
-  expect(enriched.measurements).toHaveLength(2);
-  expect(
-    enriched.measurements.map((fact) =>
-      Object.fromEntries(
-        Object.entries(fact).filter(([name]) => name !== "completion"),
-      ),
-    ),
-  ).toEqual(legacy.measurements);
-  expect(enriched.gaps).not.toContain("contradictory-measurements");
-  expect(enriched.gaps).not.toContain("missing-token-components");
-  runImport(home, root, ["--claude-root", claudeRoot]);
-  expect(observation(home)).toEqual(enriched);
-  nodeProcess(
-    home,
-    `const { writeUsageHistory } = await import('./dashboard/server/usageHistory.ts'); await writeUsageHistory({ observations: [${JSON.stringify(legacy)}] });`,
+  const enriched = imported(home);
+  expect(enriched.responses[0]?.measurements).toHaveLength(2);
+  expect(enriched.responses[0]?.gaps).not.toContain(
+    "contradictory-measurements",
   );
-  expect(observation(home)).toEqual(enriched);
+  expect(enriched.usage).toMatchObject({
+    requests: 1,
+    tokens: { uncachedInput: 2, cacheRead: 20, cacheWrite: 10, output: 690 },
+    unmeasured: { output: 0 },
+  });
+  runImport(home, root, ["--claude-root", claudeRoot]);
+  expect(imported(home).history).toEqual(enriched.history);
+  // The same session read from a second file is still one response.
   const copiedRoot = path.join(home, "copied");
-  writeClaudeSession(
-    copiedRoot,
-    makeMe.aClaudeTranscript
-      .forSession(sessionId)
-      .withAssistant(assistant("partial", 3, null))
-      .withAssistant(assistant("terminal", 690, "tool_use"))
-      .please(),
-  );
+  writeClaudeSession(copiedRoot, terminal);
   runImport(home, root, [
     "--claude-root",
     claudeRoot,
     "--claude-root",
     copiedRoot,
   ]);
-  const copied = observation(home);
-  expect(copied.tokens.output).toBe(690);
-  expect(copied.measurements).toHaveLength(4);
-  const collector = {
-    ...enriched,
-    measurements: enriched.measurements.map((item) => ({
-      ...item,
-      source: { kind: "native", file: "collector://claude" },
-    })),
-  };
-  nodeProcess(
-    home,
-    `const { writeUsageHistory } = await import('./dashboard/server/usageHistory.ts'); await writeUsageHistory({ observations: [${JSON.stringify(collector)}] });`,
-  );
-  const collected = readStoredRows(home);
-  expect(observation(home).tokens.output).toBe(690);
-  expect(observation(home).measurements).toHaveLength(6);
+  const copied = imported(home);
+  expect(copied.responses[0]?.measurements).toHaveLength(4);
+  expect(copied.usage).toEqual(enriched.usage);
   rmSync(claudeRoot, { recursive: true });
   rmSync(copiedRoot, { recursive: true });
   runImport(home, root, ["--claude-root", claudeRoot]);
-  expect(Object.values(readStoredRows(home).observations)).toEqual(
-    Object.values(collected.observations),
-  );
+  const removed = imported(home);
+  expect(removed.responses).toEqual([]);
+  expect(removed.usage).toEqual(enriched.usage);
+  expect(removed.history.sessions).toEqual(copied.history.sessions);
 });
 
-test("retains unavailable legacy conflicts and changed numeric evidence on the same native row", ({
+test("a reread whose files now hold other counts replaces the session's contribution with them", ({
   home,
   root,
 }) => {
@@ -146,26 +133,33 @@ test("retains unavailable legacy conflicts and changed numeric evidence on the s
   const claudeRoot = path.join(home, "claude");
   writeClaudeSession(
     claudeRoot,
-    makeMe.aClaudeTranscript
-      .forSession(sessionId)
+    transcript()
       .withAssistant(assistant("unavailable", 3))
       .withAssistant(assistant("terminal", 8))
       .please(),
   );
   runImport(home, root, ["--claude-root", claudeRoot]);
+  expect(imported(home).usage).toMatchObject({
+    requests: 1,
+    tokens: { output: null },
+  });
   writeClaudeSession(
     claudeRoot,
-    makeMe.aClaudeTranscript
-      .forSession(sessionId)
+    transcript()
       .withRow({ type: "system", sessionId })
       .withAssistant(assistant("terminal", 690, "tool_use"))
       .please(),
   );
   runImport(home, root, ["--claude-root", claudeRoot]);
-  const retained = observation(home);
-  expect(retained.tokens.output).toBeNull();
-  expect(retained.gaps).toContain("contradictory-measurements");
+  const reread = imported(home);
   expect(
-    retained.measurements.map((item) => item.reported["output_tokens"]),
-  ).toEqual([3, 8, 690]);
+    reread.responses[0]?.measurements.map(
+      (item) => item.reported["output_tokens"],
+    ),
+  ).toEqual([690]);
+  expect(reread.usage).toMatchObject({
+    requests: 1,
+    tokens: { output: 690 },
+    unmeasured: { output: 0 },
+  });
 });

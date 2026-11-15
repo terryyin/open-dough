@@ -10,28 +10,21 @@
 // cancelled work alike. It also keeps the gaps that show usage missing from
 // the task (./usageTaskGaps.ts).
 // Pricing happens when the chart is read (./tokenIndex.ts), so another tariff
-// version weighs the same counters again. Deriving reads the store's pages
-// raw, without schema validation, and never writes to the store.
+// version weighs the same counters again. Deriving reads the history document
+// (./usageHistoryDocument.ts), no response, and never writes to the store.
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { UsageCoverageGap } from "../src/usageTokenIndex.ts";
 import {
-  collectContributions,
   later,
   resolveContributions,
   type ContributionCounters,
   type ContributionEntry,
-  type SessionContributions,
 } from "./usageContributions.ts";
-import type {
-  UsageAssociation,
-  UsageGap,
-  UsageObservation,
-  UsageTask,
-} from "./usageRecords.ts";
+import { usageHistoryFrom } from "./usageHistoryDocument.ts";
+import type { UsageTask } from "./usageRecords.ts";
 import { TaskGaps } from "./usageTaskGaps.ts";
-import { unvalidatedValues, type Collection } from "./usageSnapshot.ts";
 
 export const summaryFormat = "usage-task-summary-v4";
 
@@ -115,48 +108,22 @@ function addEntry(
   });
 }
 
-// The store's responses as session contributions: each response with a
-// stored association, read without keeping either.
-async function storedContributions(
-  values: (kind: Collection) => AsyncGenerator,
-): Promise<SessionContributions> {
-  type Named = Pick<UsageAssociation, "taskId" | "candidates" | "gaps">;
-  const named = new Map<string, Named>();
-  for await (const value of values("associations")) {
-    const { observationId, taskId, candidates, gaps } =
-      value as UsageAssociation;
-    if (taskId !== null || candidates.length > 0)
-      named.set(observationId, { taskId, candidates, gaps });
-  }
-  const { sessions, add } = collectContributions();
-  for await (const value of values("observations")) {
-    const response = value as UsageObservation;
-    add(response, named.get(response.id));
-  }
-  return sessions;
-}
-
 export async function deriveUsageTaskSummary(
   store: string,
 ): Promise<UsageTaskSummary> {
   const bytes = await storeBytes(store);
-  const document: unknown =
-    bytes === undefined ? {} : JSON.parse(bytes.toString("utf8"));
-  const values = (kind: Collection) => unvalidatedValues(store, document, kind);
-  const known: UsageTask[] = [];
+  const history = await usageHistoryFrom(store, bytes);
+  const known = Object.values(history.tasks);
   const tasks = new Map<string, UsageTask>();
   const gaps = new TaskGaps();
-  for await (const value of values("tasks")) {
-    const task = value as UsageTask;
-    known.push(task);
+  for (const task of known) {
     if (task.host !== "codex" || task.origin !== "dashboard") continue;
     tasks.set(task.id, task);
     gaps.task(task);
   }
   const usage = new Map<string, Map<string, SummaryUsage>>();
   const activity = new Map<string, string | null>();
-  const sessions = await storedContributions(values);
-  for (const contribution of resolveContributions(sessions, known)) {
+  for (const contribution of resolveContributions(history.sessions, known)) {
     const { taskId, sessionId, entry } = contribution;
     gaps.contribution(contribution);
     const task = taskId === null ? undefined : tasks.get(taskId);
@@ -166,7 +133,7 @@ export async function deriveUsageTaskSummary(
     usage.set(taskId, groups);
     activity.set(taskId, later(activity.get(taskId) ?? null, entry.lastAt));
   }
-  for await (const value of values("gaps")) gaps.record(value as UsageGap);
+  for (const gap of history.gaps) gaps.record(gap);
   return {
     format: summaryFormat,
     store: storeDigest(bytes),

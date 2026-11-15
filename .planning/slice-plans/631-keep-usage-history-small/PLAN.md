@@ -168,7 +168,7 @@ slice 3, which stores what this slice computes.
 
 ### 3. The history stores session contributions and no response rows
 Type: Behavior
-Status: planned
+Status: done
 Proof: new sibling spec for session contributions through the importer and
 `read`: (a) after an import, `usage.json` is one `usage-history-v2` document
 with no `usage.json.pages`, and no response id appears in it; (b) import
@@ -211,8 +211,8 @@ every response of each session read") and the removed per-response promises.
 ### 4. The first write shrinks an existing store to the budget
 Type: Behavior
 Status: planned
-Proof: new conversion spec. A paged store written by the fixture pages of
-`usage-snapshots.spec.ts`, with one extra unreferenced page file → a write →
+Proof: new conversion spec. A paged store written by `writePagedStore`
+(`dashboard/tests/usage-history/earlierStores.ts`), with one extra unreferenced page file → a write →
 tasks, gaps and task totals equal the paged store's, and `usage.json.pages`
 is gone. With the page removal failing (the injection style of
 `usage-snapshot-failures.spec.ts`), the new document is readable and complete
@@ -239,15 +239,16 @@ conversion paragraphs of `dashboard/USAGE-HISTORY.md`.
 ### 5. A check that finds nothing new writes nothing
 Type: Behavior
 Status: planned
-Proof: new sibling spec for repeated checks, reusing the Refresh helpers of
-`token-index-refresh.spec.ts` (248 lines; move `configureOpenDough`,
-`finished`, `rootRows` and `usageServer` to a shared usage-history support
-module rather than extending it). (a) Import, Refresh, Refresh: `usage.json`
+Proof: new sibling spec for repeated checks, reusing the Refresh helpers in
+`dashboard/tests/usage-history/tokenIndexHarness.ts` (`usageServer`,
+`configureProjects`, the `machine` fixture). (a) Import, Refresh, Refresh: `usage.json`
 bytes are identical after each Refresh and the chart's `checkedAt` moves.
 (b) Import twice: identical bytes. (c) A finished task's rollout gains three
 responses → Refresh: its totals rise by exactly those; Refresh again and
 import: no value changes. (d) A session read from two files, one changed →
-Refresh: each response counted once. Real-clone observation on the slice 4
+Refresh: each response counted once. (e) A task's rollout is deleted →
+Refresh, then import: the task keeps its totals and its point in the chart
+(obligation G1). Real-clone observation on the slice 4
 clone: a second Refresh with no new rollout activity leaves the document's
 digest unchanged and completes in under 2 s; record the time in Learnings. If
 it exceeds 2 s, record where the time goes and return the figure to the
@@ -320,6 +321,60 @@ Update the Refresh sentence of `dashboard/USAGE-HISTORY.md`.
     the placeholder association in `resolveContributions`.
   - `usageTokenCategories` in `usageRecords.ts` is the one list of the four
     token categories.
+- Trunk reconciliation (2026-11-15): trunk `1bf7aedd0` simplified the token
+  usage tests (`tokenIndexHarness.ts`, one e2e usage spec, a frontend usage
+  spec; `usageFixtureStore.ts` is gone). Merged into the branch as
+  `f74ff9a76` before slice 3 was delivered. The usage e2e gate is now
+  `e2e/configuration/system-settings-usage.spec.ts` (2 tests) and
+  `dashboard/frontend.playwright.config.ts` with
+  `dashboard/frontend-tests/system-settings-usage.spec.ts` (3 tests).
+- CI on `f74ff9a76` (run 43681477553) failed in `e2e / shard 2/5`: the shard
+  reached its 302 s suite deadline with 132 cases passed, none failed and 5
+  unfinished. Every comparable spec ran 1.42 to 1.94 times slower than on
+  trunk's run of the same 67 files; shards 4 and 5 of the same run were
+  faster than trunk's. The e2e group grew from 3,175 to 4,014 test-seconds
+  with trunk's conversions and each of five shards now carries about 1,100
+  list-seconds. No change of this branch reaches those specs. The repair is a
+  CI capacity decision (move a shard from `dashboard-integrated` to `e2e`, or
+  add a sixth e2e shard) and is with the developer.
+- Slice 3 (accepted 2026-11-15 on the merged tree; family 61 passed, usage
+  e2e 2 passed, frontend usage 3 passed, lint and typecheck clean):
+  - Writer and reader: `usageHistory.ts` (`writeUsageHistory`,
+    `readUsageHistory`, `readUsageTasks`, `taskUsage`) and
+    `usageHistoryDocument.ts` (`usageHistoryBytes`, `usageHistoryFrom`,
+    `serializeUsageHistory`, `canonicalUsageHistory`). Under the lock the
+    writer builds the full text and returns before `replaceDurableJson` when
+    it equals the stored bytes. An earlier store never matches, so the first
+    write converts; `writeUsageHistory({})` is enough.
+  - Earlier stores: `usageEarlierStore.ts` (`readEarlierStore`,
+    `pageDirectory`). A missing or corrupt referenced page makes the read
+    fail as "Usage history is unreadable". Nothing creates or removes
+    `usage.json.pages` yet.
+  - Order: tasks in reconciliation order, gaps in first-recorded order,
+    session keys sorted, entry candidates aliased and sorted, entries sorted
+    by key. Task and gap object keys are as produced.
+  - The association builders keep the tasks a response names as candidates
+    when none has a holding assignment, so a task rejected and rescanned
+    regains its usage after its rollout is gone
+    (`recovered-assignment-rescanned.spec.ts`). Without this the first check
+    after a rejection dropped the contribution.
+  - False premise: "batch writers send whole sessions" did not hold for three
+    test-only writers (`claude-coverage`, `usage-reconciliation`, the old
+    `claude-completion-replay`); they now pass whole sessions. No production
+    writer sends a partial session.
+  - Read-only on the real paged store: the v2 document serializes to
+    22,871,902 bytes (tasks 16,888,080; 6,129 sessions 3,186,029; 12,922 gaps
+    2,797,734); the read took about 4.4 s and 1 GB RSS.
+  - For slice 4: `usage-snapshots.spec.ts` and `usage-snapshot-failures.spec.ts`
+    keep paged-era names; rename them when the conversion spec touches that
+    group (`earlier-stores.spec.ts`, `usage-history-write-failures.spec.ts`).
+    `storeHashes` in `tokenIndexHarness.ts` hashes the one document.
+  - For slice 5: an import or Refresh with nothing new still reads and
+    serializes the whole document before deciding not to write; task-record
+    bytes may differ between a first and second import; a Refresh of a
+    session with two files, one changed, replaces from the changed file only;
+    each chart request hashes the whole document for the summary digest
+    check. Time those on the real clone.
 
 ## Verification, sizing and concern review
 
@@ -362,3 +417,34 @@ Update the Refresh sentence of `dashboard/USAGE-HISTORY.md`.
 - Remaining slice-specific concerns: none identified beyond that sizing note.
   The under-2-s figure in slice 5 is that slice's proof on the real clone, not
   a premise other slices depend on.
+
+
+## Story obligations
+
+### G1. Chart point and Refresh after evidence removal are not asserted
+Reported: slice 3 — "The chart endpoint is not asserted after removal, and removed evidence is not observed with Refresh then import."
+Story clause: "the task keeps its totals and its point in the chart"
+Disposition: receiving slice 5
+Commitment: 16.2
+
+
+### G2. Import result carries no stored totals and read carries no response counts
+Reported: slice 3 — "The import result reports task and gap counts from the history and response populations from the scan; stored totals are in read, which reports no response-level counts."
+Story clause: "report tasks, gaps and totals from the history, and response-level counts from the evidence that import"
+Disposition: proved by slice 3: usage-snapshots.spec.ts read output equals the stored document with tasks, gaps and session totals; session-contributions.spec.ts (a),(c) import result task counts from the history and observations from the scan. The two outputs together report what the sentence lists
+Commitment: 11.3, 11.8
+
+### G3. A reread that turns lineage contradictory drops the unresolved-association gap
+Reported: slice 3 — "After a reread in which a response's lineage turns contradictory, the task shows no-attributable-response-usage alone; the paged store also kept unresolved-task-association from the earlier read."
+Story clause: "Usage keeps showing the same tasks, Token index values, filters"
+Disposition: no user cost "Usage shows a few numbers per finished task": the task still shows usage missing with no usage counted, which is what a first read of the same native evidence gave the paged store; the extra code depended on an earlier read, not on the evidence. Inspected: codexAssociation gives a contradictory-lineage response no candidates on every read; usageTaskGaps.ts of() adds no-attributable-response-usage; scratch run on base c2d859ff3 and on the change.
+
+### G4. Per-response reconciliation across writes and stored association sources end with the rows
+Reported: slice 3 — "Measurements are not reconciled across writes, a partial collector replay is not merged, and stored association sources and candidates are no longer an audit trail."
+Story clause: "Per-response inspection of the stored history ends with the per-response rows."
+Disposition: excluded "Per-response inspection of the stored history ends with the per-response"
+
+### G5. An existing page directory stays on disk after the first write
+Reported: slice 3 — "An existing usage.json.pages directory stays on disk after the first write; the document replaces the manifest and the pages become unreferenced."
+Story clause: "including the unreferenced files"
+Disposition: receiving slice 4
