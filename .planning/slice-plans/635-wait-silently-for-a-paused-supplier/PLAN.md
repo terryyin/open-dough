@@ -119,6 +119,15 @@ input on the re-entries), how to count re-entries between the watch start and
 its result in the session trace, and the instruction to remove the added
 guidance otherwise. The evidence the story observed moves here from the seed.
 
+## Execution complete
+
+Product advice: the silent wait and its guidance are delivered and their
+benefit stays predicted until the next real supplier watch is judged by the
+findings' check. One correction is planned and not queued:
+[report a publication made during judgment](../637-report-a-publication-made-during-judgment/PLAN.md),
+because a supplier publishing while an earlier publication is judged leaves
+the continued watch silent to its deadline. No other product change.
+
 ## Current decisions, verification and concern review
 
 - No paid or native run, decided by Terry on 2026-11-15. The benefit stays
@@ -172,4 +181,4 @@ Disposition: proved by slice 2: Distribution/tests/skills/dough-execute-plan/wai
 ### G3. A publication between a result and the rerun's first observation is not reported by the rerun
 Reported: slice 2 — "Each rerun compares against its own first observation, so a publication landing between the result and the rerun is seen only by the judgment in between, not by the rerun."
 Story clause: "the watch continues to the same deadline"
-Disposition: no user cost "the unchanged wait costs almost no model work": the window is the seconds between the coordinator's judgment and the rerun's first fetch; a publication inside it leaves the watch silent to the same deadline, where the execution stops with its recorded resume condition and the next entry judges the supplier, which is what a hold without a watch does today.
+Disposition: no user cost "the unchanged wait costs almost no model work": the window is the seconds between the coordinator's judgment and the rerun's first fetch; a publication inside it leaves the watch silent to the same deadline, where the execution stops with its recorded resume condition and the next entry judges the supplier, which is what a hold without a watch does today. The retrospective found the window is the whole judgment, not seconds; the correction SEED-368#report-a-publication-made-during-supplier-judgment (plan 637) owns it.
