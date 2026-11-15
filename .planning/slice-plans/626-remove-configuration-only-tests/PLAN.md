@@ -338,3 +338,12 @@ Reported: slice 1 — "Source review — product-written files after a user acti
 Story clause: "Rendered style values (`toHaveCSS`) and files the product writes after a user action are observed results, not candidates."
 Disposition: excluded "Rendered style values (`toHaveCSS`) and files the product writes after a user action are observed results, not candidates."
 Commitment: 14
+## Execution complete
+
+Product advice: AGENTS.md#test-automation already rejects pure restatements. Still not
+explicit for authors: (a) a check that two settings agree is not a restatement
+and stays; (b) a behavior expectation that copies a configured value should
+derive it from that configuration. Suggest one focused clarification covering
+both. AGENTS.md was not edited in this story. Process review deferred into
+wrap-up (`intentCoverage: true`). Branch CI conclusions remain conditional
+until the completion wait.
