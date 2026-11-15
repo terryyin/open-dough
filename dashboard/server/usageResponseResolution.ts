@@ -5,7 +5,7 @@
 // responses it sums do, and an import's responses file shares the resolution.
 import {
   canonicalUsageTasks,
-  sameUsageTask,
+  usageTaskIndex,
 } from "./usageTaskReconciliation.ts";
 import {
   eligibleUsageAssociation,
@@ -23,12 +23,11 @@ export function usageResponseResolution(known: UsageTask[]) {
     tasks.filter(hasUsageAssignment).map((task) => task.id),
   );
   const aliases = new Map<string, string>();
+  const canonical = usageTaskIndex(tasks);
   for (const task of known) {
-    const matches = tasks.filter(
-      (item) => item.id === task.id || sameUsageTask(item, task),
-    );
-    const [match] = matches;
-    if (matches.length === 1 && match) aliases.set(task.id, match.id);
+    const position = canonical.only(task);
+    const match = position === undefined ? undefined : tasks[position];
+    if (match) aliases.set(task.id, match.id);
   }
   const alias = <Named extends NamedTasks>(value: Named): Named => ({
     ...value,

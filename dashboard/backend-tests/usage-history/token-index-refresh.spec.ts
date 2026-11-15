@@ -9,49 +9,24 @@ import {
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { usageHistoryFile } from "../../server/usageHistory.ts";
-import {
-  deriveUsageTaskSummary,
-  usageTaskSummaryFile,
-} from "../../server/usageTaskSummary.ts";
+import { usageTaskSummaryFile } from "../../server/usageTaskSummary.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import {
   runImport,
   writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 import {
+  counters,
   expect,
+  finished,
+  rootRollout,
+  storedUsage,
   test,
   usageServer,
+  workerRollout,
 } from "../../tests/usage-history/tokenIndexHarness.ts";
 
-const sol = "gpt-6.1-sol";
 const longAgo = new Date("2026-11-01T00:00:00.000Z");
-const counters = (output: number) => ({
-  input_tokens: 10_000,
-  cached_input_tokens: 8_000,
-  cache_write_input_tokens: 0,
-  output_tokens: output,
-});
-const finished = (sessionId: string) =>
-  makeMe.aLaunchRecord
-    .executing({ identity: `SEED-7#${sessionId}`, title: `Story ${sessionId}` })
-    .inCodexSession({ sessionId })
-    .launchedAt("2026-11-14T09:00:00.000Z")
-    .withFirstInput({ state: "confirmed", turnId: `${sessionId}-turn` })
-    .completedWith({ message: "" })
-    .please();
-const rootRollout = (session: string, output: number) =>
-  makeMe.aCodexRollout
-    .forSession(session)
-    .withTurnContext(`${session}-turn`, sol, "xhigh")
-    .withResponse(`${session}-turn`, `${session}-${output}`, counters(output));
-// Each task's usage as the history in `home` sums it, by story.
-const storedUsage = async (home: string) =>
-  new Map(
-    (await deriveUsageTaskSummary(usageHistoryFile(home))).tasks.map(
-      ({ identity, usage }) => [identity, usage] as const,
-    ),
-  );
 
 test("Refresh reads changed roots and their older workers like a full import; repeats coalesce without rewriting or double-counting", async ({
   machine,
@@ -80,17 +55,7 @@ test("Refresh reads changed roots and their older workers like a full import; re
     rollouts,
     rootRollout("second", 200).withSpawnedAgent("second-worker").please(),
   );
-  const worker = writeCodexSession(
-    rollouts,
-    makeMe.aCodexRollout
-      .forSession("second-worker")
-      .withParent("second")
-      .withTurnContext("worker-turn", sol, "xhigh")
-      .withResponse("worker-turn", "worker-own", counters(70), {
-        rootTurnId: "second-turn",
-      })
-      .please(),
-  );
+  const worker = writeCodexSession(rollouts, workerRollout("second").please());
   utimesSync(worker, longAgo, longAgo);
   const checkedAt = await usage.refresh();
 
@@ -123,7 +88,7 @@ test("Refresh reads changed roots and their older workers like a full import; re
     refreshed.get("SEED-7#second"),
   );
 
-  const manifest = readFileSync(store),
+  const history = readFileSync(store),
     summary = readFileSync(usageTaskSummaryFile(store));
   const [again, alongside] = await Promise.all([
     usage.refresh(),
@@ -132,7 +97,7 @@ test("Refresh reads changed roots and their older workers like a full import; re
   expect(alongside).toBe(again);
   expect(Date.parse(again)).toBeGreaterThan(Date.parse(checkedAt));
   expect(await usage.chart()).toEqual({ ...chart, checkedAt: again });
-  expect(readFileSync(store)).toEqual(manifest);
+  expect(readFileSync(store)).toEqual(history);
   expect(readFileSync(usageTaskSummaryFile(store))).toEqual(summary);
   runImport(home, sessions);
   expect((await usage.chart()).tasks[1]?.index).toBe(chart.tasks[1]?.index);
@@ -153,7 +118,7 @@ test("an unreadable store fails Refresh without replacing its summary or check t
   const usage = await usageServer(machine);
   const checkedAt = await usage.refresh(),
     chart = await usage.chart();
-  const manifest = readFileSync(store),
+  const history = readFileSync(store),
     summary = readFileSync(usageTaskSummaryFile(store));
 
   writeFileSync(store, "{ not a usage store");
@@ -165,6 +130,6 @@ test("an unreadable store fails Refresh without replacing its summary or check t
     },
   });
   expect(readFileSync(usageTaskSummaryFile(store))).toEqual(summary);
-  writeFileSync(store, manifest);
+  writeFileSync(store, history);
   expect(await usage.chart()).toEqual({ ...chart, checkedAt });
 });

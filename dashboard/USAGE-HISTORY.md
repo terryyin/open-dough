@@ -8,8 +8,7 @@ evidence. Monthly `YYYY-MM.jsonl` launch records keep their format and reader.
 Ordinary operational launch reads and writes do not scan native files or usage
 history. There is no application database or new workflow authority (ADR 0008).
 
-Run the offline importer with the Node version in `.node-version`, from this
-repository:
+Run the offline importer from this repository with the `.node-version` Node:
 
 ```sh
 node dashboard/server/importUsageHistory.ts import \
@@ -208,8 +207,9 @@ up `usage.json` alone. System settings → Usage reads the store only through th
 derived `usage-task-summary.json` beside it: a separate process rebuilds it,
 never writing to the store, when missing or when the document changes; whether
 a launch finished comes from current launch records. Its Refresh
-(`server/usageRefresh.ts`) rereads, in another process, the Codex rollouts of
-known tasks changed since `usage-check.json` through this writer.
+(`server/usageRefresh.ts`) rereads, in another process, every rollout of known
+tasks' Codex sessions changed since `usage-check.json` through this writer;
+with nothing new it writes only that check time.
 
 The import result counts tasks and gaps from the history, and responses, also
 in `summary`, from the evidence this import read. `configuredWork` contains

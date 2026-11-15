@@ -238,7 +238,7 @@ conversion paragraphs of `dashboard/USAGE-HISTORY.md`.
 
 ### 5. A check that finds nothing new writes nothing
 Type: Behavior
-Status: planned
+Status: done
 Proof: new sibling spec for repeated checks, reusing the Refresh helpers in
 `dashboard/tests/usage-history/tokenIndexHarness.ts` (`usageServer`,
 `configureProjects`, the `machine` fixture). (a) Import, Refresh, Refresh: `usage.json`
@@ -416,6 +416,29 @@ Update the Refresh sentence of `dashboard/USAGE-HISTORY.md`.
     slice 3's `5756f0a28`. `import-reports/2026-11-15/` (87 files, 42 MB) was
     then removed from Terry's machine; the empty `import-reports/` folder
     stays.
+- Slice 5 (accepted 2026-11-15; family 70 passed, usage e2e 2 and frontend 3
+  passed, lint and typecheck clean):
+  - Refresh reads every rollout of each session one of whose rollouts changed
+    since the last check (`usageRefresh.ts` `rollouts`). Before, a two-file
+    session with one changed file was replaced from that file alone
+    (`repeated-checks-evidence.spec.ts` failed with 2 responses for 3).
+  - False premise: the idle Refresh's time was not in listing rollouts,
+    `launchCatalog` or reading the history (about 0.25 s together) but in
+    quadratic task matching. `usageTaskIndex` (`usageTaskReconciliation.ts`)
+    finds a record by id or host and session; `canonicalUsageTasks` and the
+    alias map use it. Base and new code gave identical tasks, aliases and
+    resolutions over the clone's 2,939 tasks in five arrangements.
+  - Real-clone observation, idle Refresh on the converted 24,277,565-byte
+    document, digest, inode and mtime unchanged in every run: 0.98 to 1.22 s
+    whole process with static rollout roots (2.52 to 2.74 s before the
+    index); after the refactor pass, at load 15 with other sessions writing
+    rollouts, 1.55 and 2.15 s. About 1.09 s of CPU: module load 0.13, two
+    document reads 0.19, task reconciliation 0.21, batch-task validation
+    0.09, serialization 0.06, listing 13,319 rollouts 0.04. The real store
+    was identical before and after.
+  - Not asserted: bytes after an import and a Refresh in turn (the sibling
+    story's workflow rewrite), and the time of the browser and HTTP layer
+    around the Refresh.
 
 ## Verification, sizing and concern review
 
@@ -465,7 +488,7 @@ Update the Refresh sentence of `dashboard/USAGE-HISTORY.md`.
 ### G1. Chart point and Refresh after evidence removal are not asserted
 Reported: slice 3 — "The chart endpoint is not asserted after removal, and removed evidence is not observed with Refresh then import."
 Story clause: "the task keeps its totals and its point in the chart"
-Disposition: receiving slice 5
+Disposition: proved by slice 5: dashboard/backend-tests/usage-history/repeated-checks-evidence.spec.ts, a task whose rollout was deleted keeps its totals and the identical point from the chart endpoint after a Refresh that writes and then an import
 Commitment: 16.2
 
 
@@ -494,3 +517,8 @@ Disposition: proved by slice 4: dashboard/backend-tests/usage-history/earlier-st
 Reported: slice 4 — "A reader that parsed the manifest just before the replacement can fail once with Usage history is unreadable while pages are being removed; readers take no lock. The next read succeeds."
 Story clause: "A failed or interrupted"
 Disposition: no user cost "Usage shows a few numbers per finished task": it can happen once per machine, during the single converting write, to a read that started before it; the stored history is complete and the next read returns it. Inspected: writeUsageHistory removes pages only after replaceDurableJson; usageTaskSummaryCache.ts rebuilds on the next request when the document digest differs; the Refresh that converts returns the chart from the document it wrote.
+
+### G7. A changed launch record makes a Refresh write without rollout activity
+Reported: slice 5 — "A Refresh with no rollout activity still merges current launch records, so a launch record that changed without rollout activity would still write the history."
+Story clause: "A Refresh with no new rollout activity leaves the history's bytes"
+Disposition: no user cost "stays that size however often usage is checked": a changed or new launch record is new evidence about a task, which the history has to take; with launch records and rollouts both unchanged nothing is written. Inspected: usageRefresh.ts merges launchCatalog into the batch tasks, writeUsageHistory compares the serialized document with the stored bytes, repeated-checks.spec.ts observes two idle Refreshes.

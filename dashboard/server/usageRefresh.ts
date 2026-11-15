@@ -1,19 +1,20 @@
 // Refresh: bring the Codex usage written since the last check
 // (./usageCheck.ts) into the usage store without the full-corpus import.
-// It reads, whole and with the importer's own reader (./codexUsage.ts), each
-// rollout modified since that check, and the rollouts of the sessions they
-// name as parent or spawned worker, so their lineage resolves as an import's
-// would. It assigns their responses against the store's tasks merged with
-// the current launch records (./usageImport.ts `launchCatalog`), and writes
-// tasks, responses, assignments and coverage gaps through the importer's
-// write path, under the store's document lock (./usageHistory.ts), which
-// replaces the contribution of each session read, so a response read again
-// counts once. It keeps only the responses and gaps of known tasks' sessions
-// and their workers:
-// recovering tasks from native evidence alone, and deciding unrelated
-// projects, stay with the offline import. So does a spawn that names only
-// its worker's agent path, which only the whole corpus can match. Once the
-// store holds the evidence, the check time is the time the Refresh began.
+// It reads, whole and with the importer's own reader (./codexUsage.ts), every
+// rollout of each session one of whose rollouts was modified since that
+// check, and the rollouts of the sessions they name as parent or spawned
+// worker, so their lineage resolves as an import's would. It assigns their
+// responses against the store's tasks merged with the current launch records
+// (./usageImport.ts `launchCatalog`), and writes tasks, responses,
+// assignments and coverage gaps through the importer's write path, under the
+// store's document lock (./usageHistory.ts), which replaces the contribution
+// of each session read, so a response read again counts once, and leaves the
+// document as it is when nothing in it changes. It keeps only the responses
+// and gaps of known tasks' sessions and their workers: recovering tasks from
+// native evidence alone, and deciding unrelated projects, stay with the
+// offline import. So does a spawn that names only its worker's agent path,
+// which only the whole corpus can match. Once the store holds the evidence,
+// the check time is the time the Refresh began.
 import { stat } from "node:fs/promises";
 import { codexUsage } from "./codexUsage.ts";
 import {
@@ -42,25 +43,28 @@ export type UsageRefreshOptions = {
   readonly codexRoots?: readonly string[];
 };
 
-// Every rollout under the roots by the thread that contains it, and those
-// modified at or after `cutoff`.
+// Every rollout under the roots by the thread that contains it, and every
+// rollout of each thread one of whose rollouts was modified at or after
+// `cutoff`: a session is read from all its files, so the contribution that
+// replaces its stored one is whole.
 async function rollouts(
   roots: readonly string[],
   cutoff: number,
   gaps: UsageGap[],
 ) {
-  const changed: string[] = [];
+  const modified = new Set<string>();
   const threads = new Map<string, string[]>();
   for (const root of roots)
     for await (const file of nativeUsageFiles(root, gaps)) {
       const thread = containingCodexThread(file);
       threads.set(thread, [...(threads.get(thread) ?? []), file]);
       try {
-        if ((await stat(file)).mtimeMs >= cutoff) changed.push(file);
+        if ((await stat(file)).mtimeMs >= cutoff) modified.add(thread);
       } catch {
         /* A rollout removed while listing has nothing left to read. */
       }
     }
+  const changed = [...modified].flatMap((thread) => threads.get(thread) ?? []);
   return { changed, threads };
 }
 
