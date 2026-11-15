@@ -86,6 +86,16 @@ Former local code: DD-257. [Meaning, evidence and response](docs/maintainer/find
 
 [Occurrences retained in the catalog](docs/maintainer/findings/ODF-314.md).
 
+### Occurrences
+
+- Execution: SEED-362#simplify-usage-history-backend-tests (plan 628; first implementation `6016fd2bc712b5994e3211a94c3aee1a0adc30a5`)
+  - Timestamp: unknown (2026-11-15; slice 4 first return then acceptance resume between about 09:34 and 09:53+08:00)
+  - Tool: Cursor
+  - Open Dough release: 0.3.99 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: launch `a824b89e-cfe0-4376-bc53-ddea18562055`; implementer `902b92f4-b5fb-4507-a84c-f77e49e64906` first return claimed commitment **28** consolidation of `recovered-tasks` and `historical-task-context` into `historical-task-references`; coordinator acceptance returned the gap (resume on the same agent); corrected return kept distinct deleted-story replay on `recovered-tasks`, folded only the equivalent `recordHistoricalTask` pair, and cleared a premature wrong `observed:` on **28**. Published slice 4 `482ddedf4`.
+  - Observed effect: one acceptance resume on the same uncommitted slice before delivery; family proof stayed green; no product-behavior change beyond restoring the distinct replay the first return had over-claimed away.
+  - Inference: qualified match to ODF-314. The first return claimed the consolidation commitment complete with an incorrect inventory rather than omitting a listed proof-table row; acceptance comparison against commitment **28** still returned the gap before publication.
+
 ## ODF-322 — A projected delivery result drops the running command's handle <a id="odf-322"></a>
 
 Former local code: DD-325. The coordinator reduced a guarded delivery call to its output text, dropping the live command's session handle; the terminal receipt was recovered through checkout inspection and an exact-candidate resume. [Evidence and current response](docs/maintainer/findings/ODF-322.md).
