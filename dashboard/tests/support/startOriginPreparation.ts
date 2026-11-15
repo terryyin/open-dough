@@ -8,10 +8,9 @@ import { execFile } from "node:child_process";
 import {
   cpSync,
   mkdtempSync,
-  readdirSync,
   readFileSync,
   rmSync,
-  statSync,
+  writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -19,21 +18,42 @@ import { promisify } from "node:util";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
-import type {
-  GitPerson,
-  RepositoryDescription,
-} from "../../../Distribution/tests/support/repositoryTestData.mjs";
-import { installedSkillPath } from "../../server/launchHosts.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 import { requestRunArtifact } from "./runArtifacts.ts";
+import {
+  type StartOriginLayout,
+  type StartRepository,
+  withInstallation,
+} from "./startOriginInstallation.ts";
+
+export {
+  dashboardDeveloper,
+  installedStartSkills,
+} from "./startOriginInstallation.ts";
+export type { StartOriginLayout, StartRepository };
 
 const exec = promisify(execFile);
 export const startOriginPreparationVariable =
   "OPEN_DOUGH_START_ORIGIN_PREPARATION";
-const startOriginLayouts = ["claude", "codex"] as const;
-export type StartOriginLayout = (typeof startOriginLayouts)[number];
+const startOriginLayouts = [
+  "claude",
+  "codex",
+] as const satisfies readonly StartOriginLayout[];
 
-export type StartRepository = RepositoryDescription<string>;
+// The commit each revision name of a prepared origin's description became:
+// harness metadata kept beside the bare origin, never a ref in it.
+export type StartRevisions = Readonly<Record<string, string>>;
+const revisionsFile = "revisions.json";
+
+function keepRevisions(directory: string, revisions: StartRevisions) {
+  writeFileSync(path.join(directory, revisionsFile), JSON.stringify(revisions));
+}
+
+export function preparedRevisions(directory: string): StartRevisions {
+  return JSON.parse(
+    readFileSync(path.join(directory, revisionsFile), "utf8"),
+  ) as StartRevisions;
+}
 
 // The shared descriptions global setup prepares once per layout per run. Any
 // description that starts from one of their first revisions adds its later
@@ -58,14 +78,6 @@ export function startOriginArtifactKey(
     : `start-origin-${layout}-${repository}`;
 }
 
-export const installedStartSkills = [
-  "dough-execute-plan",
-  "dough-product-backlog",
-  "dough-story-refinement",
-  "dough-land",
-  "dough-story-wrap-up",
-] as const;
-
 export function createStartOriginPreparationDirectory(): string {
   return mkdtempSync(path.join(tmpdir(), "dough-start-preparation-"));
 }
@@ -88,57 +100,6 @@ export function startOriginArtifacts() {
         ] as const,
     ),
   );
-}
-
-// The first commit's committer and author, and the project checkout's identity.
-export const dashboardDeveloper: GitPerson = {
-  name: "Dashboard Developer",
-  email: "developer@example.test",
-};
-
-function sourceFiles(directory: string): string[] {
-  return readdirSync(directory, { recursive: true, encoding: "utf8" }).filter(
-    (file) => statSync(path.join(directory, file)).isFile(),
-  );
-}
-
-// The harness layer: `.gitignore` and the installed skills, read from source
-// now, join the description's first commit instead of a commit of their own.
-// The project's developer commits each revision that names no committer, as
-// the project checkout itself would.
-function withInstallation(
-  repository: StartRepository,
-  layout: StartOriginLayout,
-  source: string,
-): StartRepository {
-  const files: Record<string, string> = { ".gitignore": ".worktrees/\n" };
-  const executables: string[] = [];
-  const project = { path: "", shown: "" };
-  for (const skill of installedStartSkills) {
-    const installed = installedSkillPath(layout, project, skill);
-    const skillSource = path.join(source, skill);
-    for (const file of sourceFiles(skillSource)) {
-      const from = path.join(skillSource, file);
-      const to = path.join(installed, file);
-      files[to] = readFileSync(from, "utf8");
-      if (statSync(from).mode & 0o100) executables.push(to);
-    }
-  }
-  const [first, ...later] = repository.revisions;
-  return {
-    revisions: [
-      {
-        committer: dashboardDeveloper,
-        ...first,
-        files: { ...files, ...first.files },
-        executables: [...executables, ...(first.executables ?? [])],
-      },
-      ...later.map((revision) => ({
-        committer: dashboardDeveloper,
-        ...revision,
-      })),
-    ],
-  };
 }
 
 export async function prepareStartOrigin(
@@ -165,6 +126,7 @@ export async function prepareStartOrigin(
       ]);
       await exec("git", ["-C", origin, "remote", "remove", "origin"]);
       await exec("git", ["-C", origin, "config", "maintenance.auto", "false"]);
+      keepRevisions(directory, built.revisions);
     } finally {
       await built.cleanup();
     }
@@ -186,18 +148,19 @@ process.once("exit", () => {
 const privateKey = (layout: StartOriginLayout, description: StartRepository) =>
   `${layout}\n${JSON.stringify(description)}`;
 
-// Keeps a copy of `origin`, the bare origin a start of `description` left, as
-// that description's prepared origin in this process: a later start of it is
-// a copy that already holds every revision. A worker does so before its tests
-// start (./pageTest.ts).
+// Keeps a copy of `started.origin`, the bare origin a start of `description`
+// left, with its named revisions, as that description's prepared origin in
+// this process: a later start of it is a copy that already holds every
+// revision. A worker does so before its tests start (./pageTest.ts).
 export function keepStartedOrigin(
   layout: StartOriginLayout,
   description: StartRepository,
-  origin: string,
+  started: { readonly origin: string; readonly revisions: StartRevisions },
 ) {
   const directory = createStartOriginPreparationDirectory();
   privateDirectories.push(directory);
-  cpSync(origin, path.join(directory, layout), { recursive: true });
+  cpSync(started.origin, path.join(directory, layout), { recursive: true });
+  keepRevisions(directory, started.revisions);
   const key = privateKey(layout, description);
   privatelyPrepared.set(key, Promise.resolve(directory));
 }

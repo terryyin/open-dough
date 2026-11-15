@@ -1,7 +1,8 @@
 // One test's start origin: a copy of its description's prepared origin and a
 // project checkout of it. A copy of a shared prepared origin receives the
 // description's later revisions from the project checkout, each on the
-// parents it names, as a materialized history has them.
+// parents it names, as a materialized history has them. Answers the commit
+// each named revision became.
 
 import { execFile } from "node:child_process";
 import { cpSync, mkdirSync, rmSync } from "node:fs";
@@ -14,9 +15,11 @@ import {
 import {
   createStartOriginPreparationDirectory,
   dashboardDeveloper,
+  preparedRevisions,
   preparedStartOrigin,
   prepareStartOrigin,
   type StartRepository,
+  type StartRevisions,
 } from "./startOriginPreparation.ts";
 
 const exec = promisify(execFile);
@@ -27,7 +30,7 @@ export async function initializeStartOrigin(
   repository: string,
   host: "claude" | "codex" | "cursor",
   description: StartRepository,
-): Promise<void> {
+): Promise<StartRevisions> {
   const layout = host === "claude" ? "claude" : "codex";
   const { directory: prepared, shared } = await preparedStartOrigin(
     layout,
@@ -72,9 +75,9 @@ export async function initializeStartOrigin(
       "--delete",
       "refs/remotes/origin/HEAD",
     ]);
+    const commits = new Map(Object.entries(preparedRevisions(directory)));
     const later = shared ? description.revisions.slice(1) : [];
     if (later.length > 0) {
-      const commits = new Map<string, string>();
       for (const revision of later)
         commits.set(
           revision.name,
@@ -87,6 +90,7 @@ export async function initializeStartOrigin(
         );
       await exec("git", ["-C", project, "push", "--quiet", "origin", "main"]);
     }
+    return Object.fromEntries(commits);
   } finally {
     if (prepared === undefined)
       rmSync(directory, { recursive: true, force: true });

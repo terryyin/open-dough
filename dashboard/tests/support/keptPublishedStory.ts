@@ -95,7 +95,7 @@ export async function prepareKeptStory(
       : completedStoryRepository(trunk);
   const started = await startOrigin(description);
   try {
-    keepStartedOrigin("claude", description, started.origin);
+    keepStartedOrigin("claude", description, started);
   } finally {
     started.cleanup();
   }

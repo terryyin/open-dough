@@ -2,6 +2,7 @@
 
 **Identity:** SEED-353#declare-git-test-state-through-makeme
 **Source:** [Declare landed-file follow-up state through MakeMe](../../seeds/SEED-353-declarative-git-test-state.md#declare-git-test-state-through-makeme)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal, scope and comparison
 
@@ -109,7 +110,7 @@ was reverted before these records were written; only preparation records land.
 
 ### 1. Read the landed comparison from named fixture history
 Type: Behavior
-Status: planned
+Status: done
 Proof: Named-history and fixture-continuity rows above; complete admission file,
 start-origin isolation, kept-story consumer and existing repository materializers.
 
@@ -123,6 +124,17 @@ extra refs or rebuilding prepared inputs. Use the existing cache/fixture owners;
 Keep all mutable copies and cleanup independent. Preserve existing fixture call
 forms. One named-history-to-admission loop, target 15 active minutes, commands
 excluded. Interim: the reference is still manually related until slices 2–3.
+
+Accepted 2026-11-15: `StartOrigin.revision(name)` reads the materializer map,
+kept as `revisions.json` beside the prepared or kept bare origin (run- or
+process-scoped preparation directory; global setup runs in another process).
+The installation layer moved to `startOriginInstallation.ts`. Named endpoints
+are compared with independent `rev-parse` on shared-prefix, private and kept
+paths in `start-origin-private.spec.ts` (the isolation spec is over 250 lines
+and stays untouched). Proof: admission + private specs 8/8; isolation, default,
+demand and both kept-story landed-ci-repeat specs 8/8; Command F 4/4; Command G
+8/8; typecheck and eslint. Faults: one-line file refused admission; wrong
+revision name failed the shared-prefix check. Refactor pass: no edits.
 
 ### 2. Associate the stored landing with its launch
 Type: Behavior
