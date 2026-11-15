@@ -137,3 +137,29 @@ contribution replacement. This follows
 (derived presentation over recorded evidence) and
 [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
 (native checks on real transcripts). No Accepted ADR conflict was found.
+
+<a id="keep-claude-coverage-gaps-current-after-refresh"></a>
+
+### Keep Claude coverage gaps current after Refresh
+
+**Identity:** SEED-359#keep-claude-coverage-gaps-current-after-refresh
+
+**Goal.** Terry, reading System settings → Usage, sees a dashboard launch
+marked partial only while its usage is actually missing: a Refresh taken
+before a launch's first response, or before a worker answers, no longer
+leaves that launch partial and out of the moving average once its responses
+arrive.
+
+**Scope.** Bounded retrospective correction of
+[View token usage for dashboard-launched Claude Code tasks](#view-claude-code-task-token-usage)
+(commits `83276a56`, `65210f8d`, `3f463b92`, `bbc0be6e`). A session read
+again replaces the coverage gaps it recorded, as it already replaces its
+usage contribution, and a Claude worker's gap reaches its launch through the
+Claude session it belongs to. The usage-history contract names the stored
+cache-write split and Claude's speed tier, and the Claude Code Usage
+end-to-end journey keeps only the case that needs real services. No new
+product promise; Codex answers and the offline import's results stay as
+they are for unchanged native files.
+
+Plan:
+[643-keep-claude-coverage-gaps-current](../slice-plans/643-keep-claude-coverage-gaps-current/PLAN.md).

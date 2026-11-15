@@ -307,3 +307,22 @@ this plan relies on. Plan refinement was not needed: five slices, one
 preparatory Structure immediately before the Behavior it enables, each
 Behavior with its own proof loop, and one common rule (tool → host → tariff)
 rather than Claude special cases.
+
+## Execution complete
+
+Product advice:
+
+- Correct the Refresh gap retention before relying on partial marks for
+  running launches: [SEED-359#keep-claude-coverage-gaps-current-after-refresh](../../seeds/SEED-359-claude-code-task-token-usage.md#keep-claude-coverage-gaps-current-after-refresh)
+  ([plan 643](../643-keep-claude-coverage-gaps-current/PLAN.md)). A Refresh
+  before a launch's first response marks it partial for good.
+- The Claude Code chart now gives the SEED-345 token-efficiency stories a
+  priced observation for most dashboard launches; a task's index can be below
+  its session's `cost-state` total when the same session ran other turns, so
+  `SEED-345#compare-agent-effort-on-comparable-runs` should compare task
+  indices, not session totals.
+- Before SEED-360 (Cursor) adds a third tool, make the host list one
+  representation: `usageTools` and the `z.enum(["codex","claude"])` host
+  schemas repeat it in about five places. `dashboard/server/usageContributions.ts`
+  is at 250 lines; its token arithmetic needs its own module before it grows.
+- No change to backlog priorities.
