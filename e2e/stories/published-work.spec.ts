@@ -1,21 +1,21 @@
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   shortRevision,
   expectMembership,
   expectOwnersNotRecorded,
   openDirection,
   parts,
-} from "../dashboardPage.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
 import {
   commitAnswer,
   publishOrigin,
   rawFileAnswer,
-} from "../publishedOrigin.ts";
-import { describedBacklog } from "../describedRevisions.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expectSideBySideInOrder } from "../pageLayout.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+} from "../../dashboard/tests/publishedOrigin.ts";
+import { describedBacklog } from "../../dashboard/tests/describedRevisions.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { expectSideBySideInOrder } from "../../dashboard/tests/pageLayout.ts";
+import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
 
 const revision = "4f2a9c1e7b3d5a6089c0d1e2f3a4b5c6d7e8f901";
 

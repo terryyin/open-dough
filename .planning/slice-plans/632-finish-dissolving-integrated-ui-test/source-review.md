@@ -20,14 +20,14 @@ was instructed to read no other project files and change nothing.
 | 5a | The `sessions` folder of **Dashboard Integrated UI Test** becomes empty. | slice 5 | observed: dashboard/tests/sessions/ contains no *.spec.ts; sidebar cases under FE order/row/state-edge and E2E cursor/sessions-sidebar moves |
 | 5b | The `terminals` folder of **Dashboard Integrated UI Test** becomes empty. | slice 6 | observed: dashboard/tests/terminals/ contains no *.spec.ts; FE prompts/voice/ended-recovery and E2E attach/touch/voice-lifecycle homes |
 | 5c | The `review` folder of **Dashboard Integrated UI Test** becomes empty. | slice 7 | observed: dashboard/tests/review/ contains no *.spec.ts; FE action/uncommitted-check subset and E2E real-Git review homes |
-| 5d | The `stories` folder of **Dashboard Integrated UI Test** becomes empty. | slice 9 | |
+| 5d | The `stories` folder of **Dashboard Integrated UI Test** becomes empty. | slice 9 | observed: dashboard/tests/stories/ contains no *.spec.ts; FE roster-collection/plan-complete/slice-progress and E2E presentation/readiness/Taken homes |
 | 5e | The `observation` folder of **Dashboard Integrated UI Test** becomes empty. | slice 10 | |
 | 6a | Convert final reports and workspace retirement out of the interim group. | slice 1 | observed: interim final-report-touch{,-divider} and session-workspace-retirement{,-claude-done,-lifetime} removed; FE/E2E homes under dashboard/frontend-tests/sessions and e2e/sessions |
 | 6b | Convert recently done sessions out of the interim group. | slice 4 | observed: all dashboard/tests/sessions/recently-done-* interim specs removed; FE/E2E homes for sidebar/select/story-card/review-cue/returned including inventory-absent returned and expired Working on E2E |
 | 6c | Convert the sessions sidebar out of the interim group. | slice 5 | observed: all 16 cursor-sessions-sidebar-* and sessions-sidebar-* interim specs removed with FE/E2E homes and duration rows gone |
 | 6d | Convert terminals out of the interim group. | slice 6 | observed: all 14 interim terminal specs removed with FE/E2E homes; duration rows gone; frontendTerminalVoice helper |
 | 6e | Convert story review out of the interim group. | slice 7 | observed: all 16 interim story-review specs removed with FE story-review family and E2E moves; duration rows gone |
-| 6f | Convert published-story presentation and progressive done reading out of the interim group. | slice 9 | |
+| 6f | Convert published-story presentation and progressive done reading out of the interim group. | slice 9 | observed: progressive done reading converted in slice 8; presentation/readiness/Taken converted here; stories interim emptied |
 | 6g | Convert published-fact observation out of the interim group. | slice 10 | |
 | 7 | Include cases added after the original inventory (e.g. `recently-done-returned-sessions.spec.ts` and `story-review-diff-line-follow-up.spec.ts`). | slice 7 | observed: story-review-diff-line-follow-up.spec.ts converted under e2e/review/; recently-done-returned-sessions already converted in slice 4 |
 | 8 | The inventory classifies starting candidates, not the complete set of promises. | slice 10 | |

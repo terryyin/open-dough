@@ -1,23 +1,30 @@
 // Each Taken card shows its recorded slice progress: one segment per slice,
 // filled for each slice recorded complete, and the count in words, from the
-// plan already read at the snapshot's revision -- or that plan's gap. The fake
-// GitHub only publishes the backlog, seed, and plan texts; the local read
-// boundary, the shared story-state and plan readers, and the page decide
-// everything shown.
+// plan already read at the snapshot's revision -- or that plan's gap. Built
+// frontend against controlled backlog, seed, and plan answers; the shared
+// story-state and plan readers and the page decide everything shown.
 
 import type { PlanSlice } from "../../src/storyPlan.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { renderSlicePlan } from "../../../Distribution/tests/support/published-plan.mjs";
 import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
-import { expect, test } from "../dashboardTest.ts";
-import { shortRevision, expectMembership, parts } from "../dashboardPage.ts";
-import { publishFiles } from "../publishedOrigin.ts";
-import { reloadUntilRead } from "../pageRequestNotes.ts";
-import { describedRevisions } from "../describedRevisions.ts";
-import { inspectedDetail, storyCard } from "../storyCardControls.ts";
-import { expectNoSliceCount, expectSliceBar } from "../storyCardFacts.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { putFrontendPublished } from "../../tests/support/frontendServiceState.ts";
+import {
+  shortRevision,
+  expectMembership,
+  parts,
+} from "../../tests/dashboardPage.ts";
+import {
+  backlogApart,
+  describedRevisions,
+} from "../../tests/describedRevisions.ts";
+import { inspectedDetail, storyCard } from "../../tests/storyCardControls.ts";
+import {
+  expectNoSliceCount,
+  expectSliceBar,
+} from "../../tests/storyCardFacts.ts";
 
-const repository = "terryyin/open-dough";
 const seedPath = ".planning/seeds/SEED-090-progress.md";
 
 const counted = "Count recorded slices on the card";
@@ -41,7 +48,6 @@ const planlessStory = story(planless, "planless");
 const unreadableStory = story(unreadable, "unreadable");
 const queuedStory = story(queued, "queued");
 
-// Each planned story's state, recorded in the seed.
 const planned = (anchor: string) => ({
   identity: `SEED-090#${anchor}`,
   href: `seeds/SEED-090-progress.md#${anchor}`,
@@ -50,8 +56,6 @@ const planned = (anchor: string) => ({
     .please(),
 });
 
-// The seed prose the dashboard reads; the planless story keeps the status
-// line written before structured story state existed.
 const seed = `---
 id: SEED-090
 ---
@@ -65,7 +69,6 @@ ${renderStorySection(planlessStory, {
 ${renderStorySection(unreadableStory)}
 ${renderStorySection(queuedStory)}`;
 
-// The exact plan bytes the reader refuses: a status it does not know.
 const unreadablePlan = `${renderSlicePlan(
   makeMe.aSlicePlan.withStatuses(["done"]).please(),
 )}
@@ -78,7 +81,6 @@ Proof: A journey observes slice 2.
 const countedPlan = (statuses: readonly PlanSlice["status"][]) =>
   renderSlicePlan(makeMe.aSlicePlan.withStatuses(statuses).please());
 
-// Revision A records one of the counted story's three slices done; B, two.
 const { A, B } = describedRevisions(
   makeMe.aRepository
     .withRevision("A", {
@@ -106,8 +108,9 @@ const { A, B } = describedRevisions(
 
 test("each Taken card shows its recorded slice progress as a bar and count, or the plan's gap", async ({
   page,
+  frontendServices,
 }) => {
-  await publishFiles(page, { repository, ...A });
+  putFrontendPublished(frontendServices, backlogApart(A));
 
   await page.goto("/");
 
@@ -154,8 +157,8 @@ test("each Taken card shows its recorded slice progress as a bar and count, or t
   });
 
   await test.step("after a reload, the bar shows the plan recorded at the new revision", async () => {
-    await publishFiles(page, { repository, ...B });
-    await reloadUntilRead(page);
+    putFrontendPublished(frontendServices, backlogApart(B));
+    await page.reload();
     await expect(readRevision).toContainText(shortRevision(B.revision));
     await expectSliceBar(card(counted), "2 of 3 slices recorded complete", [
       "done",

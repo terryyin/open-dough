@@ -2,24 +2,27 @@ import {
   passTimeUntilChecked,
   expectSteadyPace,
   pausePageClock,
-} from "../autoRefreshJourney.ts";
-import { expect, test } from "../dashboardTest.ts";
+} from "../../dashboard/tests/autoRefreshJourney.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   chooseProject,
   shortRevision,
   expectDirectionOpensAcrossRow,
   openDirection,
   parts,
-} from "../dashboardPage.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
 import {
   pathsRead,
   publishMovingOrigin,
   noConnection,
-} from "../publishedOrigin.ts";
-import { describedBacklog } from "../describedRevisions.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expectFocusedAndIndicated } from "../accessibleReading.ts";
-import { givePageItsTurns, openUntilRead } from "../pageRequestNotes.ts";
+} from "../../dashboard/tests/publishedOrigin.ts";
+import { describedBacklog } from "../../dashboard/tests/describedRevisions.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { expectFocusedAndIndicated } from "../../dashboard/tests/accessibleReading.ts";
+import {
+  givePageItsTurns,
+  openUntilRead,
+} from "../../dashboard/tests/pageRequestNotes.ts";
 
 const revisionA = "a".repeat(40);
 const revisionB = "b".repeat(40);

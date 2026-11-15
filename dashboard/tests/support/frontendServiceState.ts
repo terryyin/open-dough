@@ -177,8 +177,24 @@ export function putFrontendStories(
   revision = services.revision,
 ): void {
   const published = frontendPublishedWith(stories);
-  Object.assign(services, {
+  putFrontendPublished(services, {
     revision,
+    backlog: published.backlog,
+    files: published.files,
+  });
+}
+
+// Arranges one published revision's backlog and files as substitute answers.
+export function putFrontendPublished(
+  services: FrontendServiceState,
+  published: {
+    readonly revision: string;
+    readonly backlog: string;
+    readonly files: Record<string, string>;
+  },
+): void {
+  Object.assign(services, {
+    revision: published.revision,
     backlog: published.backlog,
     files: { ...published.files },
   });

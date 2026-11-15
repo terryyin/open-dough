@@ -9,7 +9,7 @@
 // and the commit adding each profile; the page clock is paused. The local
 // read boundary, the shared readers, and the page decide everything shown.
 
-import { expect, test } from "../dashboardTest.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   adviceless,
   allDone,
@@ -20,9 +20,16 @@ import {
   onTrunk,
   openTakenExecutionComplete,
   queued,
-} from "./takenExecutionCompleteFixture.ts";
-import { inspectedDetail, storyCard } from "../storyCardControls.ts";
-import { progressSource, sliceBar, sliceProgress } from "../storyCardFacts.ts";
+} from "../../dashboard/tests/takenExecutionCompleteFixture.ts";
+import {
+  inspectedDetail,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
+import {
+  progressSource,
+  sliceBar,
+  sliceProgress,
+} from "../../dashboard/tests/storyCardFacts.ts";
 
 const complete = "Execution complete, awaiting wrap-up";
 

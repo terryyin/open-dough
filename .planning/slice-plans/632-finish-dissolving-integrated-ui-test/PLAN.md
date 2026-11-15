@@ -159,6 +159,10 @@ share local admission across worktrees; focused selections remain independent.
   `boardReviewDoneRecords`. Progressive `recordsAsked(github)` stays E2E;
   body hold/fail needs `prepare` before `goto`. Interim stories
   `recently-done-*` removed.
+- **Slice 9 proof.** FE roster-collection / plan-complete-detail /
+  taken-slice-progress (6); E2E 14 presentation/readiness/Taken homes (28).
+  `putFrontendPublished` seam; atlas MIME and committer/clock history stay
+  E2E. `dashboard/tests/stories/` empty (5d/6f).
 - **Known traps.** A `MachineAnswer` failing `launchRecordsSchema` leaves the
   page on "Reading sessions…" silently; Cursor entries need the Cursor runner
   sessions read substituted; a history read needs its own `audience=history`
@@ -283,7 +287,7 @@ paging and review-state outcomes remain protected; these 14 specs go.
 
 ### 9. Convert story presentation, readiness and progress
 Type: Behavior
-Status: planned
+Status: done
 Proof: the other 17 `dashboard/tests/stories/` specs (17 / 2,594) retain
 agent roster, branch progress, direction disclosure, portrait, plan-complete
 detail, preparation legend, published work, story card inspection,

@@ -1,19 +1,22 @@
 // The detail of a story whose plan records its execution as complete shows
 // "Execution complete" and the recorded product advice as plain text, or the
 // record's gap when it has no readable advice; a plan without the record shows
-// no completion. The fake GitHub only publishes the backlog, seed, and plan
-// texts; the local read boundary, the shared story-state and plan readers, and
-// the page decide everything shown.
+// no completion. Built frontend against controlled backlog, seed, and plan
+// answers; the shared story-state and plan readers and the page decide
+// everything shown.
 
 import { renderSlicePlan } from "../../../Distribution/tests/support/published-plan.mjs";
 import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../dashboardTest.ts";
-import { expectMembership, parts } from "../dashboardPage.ts";
-import { publishFiles } from "../publishedOrigin.ts";
-import { describedRevision } from "../describedRevisions.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { putFrontendPublished } from "../../tests/support/frontendServiceState.ts";
+import { expectMembership, parts } from "../../tests/dashboardPage.ts";
+import {
+  backlogApart,
+  describedRevision,
+} from "../../tests/describedRevisions.ts";
+import { inspectedDetail, storyCard } from "../../tests/storyCardControls.ts";
 
-const repository = "terryyin/open-dough";
 const revision = "c3".repeat(20);
 
 const completed = "Execution recorded complete";
@@ -67,8 +70,6 @@ const membership = stories.map(({ title, anchor }) =>
     .please(),
 );
 
-// The seed prose the dashboard reads; each story's planned state is a
-// declared fact beside it.
 const seed = `---
 id: SEED-094
 ---
@@ -77,34 +78,37 @@ id: SEED-094
 
 ${membership.map((story) => renderStorySection(story)).join("\n")}`;
 
-const published = describedRevision(
-  makeMe.aRepository
-    .withRevision("completion", {
-      backlog: {
-        taken: membership,
-      },
-      files: {
-        [seedPath]: seed,
-        ...Object.fromEntries(
-          stories.map(({ anchor }) => [planPath(anchor), plans[anchor]]),
-        ),
-      },
-      storyStates: stories.map(({ anchor }) => ({
-        identity: `SEED-094#${anchor}`,
-        href: href(anchor),
-        ...makeMe.aStoryPreparation
-          .plannedIn(`../slice-plans/094-${anchor}/PLAN.md`)
-          .please(),
-      })),
-    })
-    .please(),
-  revision,
+const published = backlogApart(
+  describedRevision(
+    makeMe.aRepository
+      .withRevision("completion", {
+        backlog: {
+          taken: membership,
+        },
+        files: {
+          [seedPath]: seed,
+          ...Object.fromEntries(
+            stories.map(({ anchor }) => [planPath(anchor), plans[anchor]]),
+          ),
+        },
+        storyStates: stories.map(({ anchor }) => ({
+          identity: `SEED-094#${anchor}`,
+          href: href(anchor),
+          ...makeMe.aStoryPreparation
+            .plannedIn(`../slice-plans/094-${anchor}/PLAN.md`)
+            .please(),
+        })),
+      })
+      .please(),
+    revision,
+  ),
 );
 
 test("the story detail shows a plan's recorded execution completion and product advice, its gap, or no completion", async ({
   page,
+  frontendServices,
 }) => {
-  await publishFiles(page, { repository, ...published });
+  putFrontendPublished(frontendServices, published);
   await page.goto("/");
   await expectMembership(page, {
     taken: stories.map(({ title }) => title),
@@ -112,9 +116,7 @@ test("the story detail shows a plan's recorded execution completion and product 
   });
   const { taken } = parts(page);
   const detailOf = async (title: string) => {
-    const card = taken.getByRole("article", { name: title });
-    await card.getByRole("button", { name: "Inspect story" }).click();
-    const detail = card.getByRole("region", { name: `Detail for ${title}` });
+    const detail = await inspectedDetail(storyCard(taken, title));
     await expect(detail).toContainText("1 of 1 slices recorded complete");
     return detail;
   };

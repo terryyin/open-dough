@@ -2,18 +2,27 @@
 // after a reload at a revision that publishes one. The fake GitHub only
 // publishes the files; the page decides everything shown.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../dashboardTest.ts";
-import { shortRevision, parts } from "../dashboardPage.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { shortRevision, parts } from "../../dashboard/tests/dashboardPage.ts";
 import {
   defaultRepository as repository,
   publishFiles,
-} from "../publishedOrigin.ts";
-import { expectMark, expectPortrait } from "../agentPortrait.ts";
-import { credit } from "../agentCredit.ts";
-import { inspectedDetail, storyCard } from "../storyCardControls.ts";
-import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
-import { describedRevisions } from "../describedRevisions.ts";
+} from "../../dashboard/tests/publishedOrigin.ts";
+import {
+  expectMark,
+  expectPortrait,
+} from "../../dashboard/tests/agentPortrait.ts";
+import { credit } from "../../dashboard/tests/agentCredit.ts";
+import {
+  inspectedDetail,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
+import {
+  openUntilRead,
+  reloadUntilRead,
+} from "../../dashboard/tests/pageRequestNotes.ts";
+import { describedRevisions } from "../../dashboard/tests/describedRevisions.ts";
 
 const trunkStory = "See who owns Taken work";
 const identity = "SEED-021#identify-taken-work-owner";

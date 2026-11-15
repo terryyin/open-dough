@@ -3,15 +3,21 @@
 // its portrait; without the photo it shows the name alone. The photo request is
 // answered by the test, since the photos are never in the repository.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
-import { expectMembership, parts } from "../dashboardPage.ts";
-import { publishFiles } from "../publishedOrigin.ts";
-import { enlargedView, expectPortrait } from "../agentPortrait.ts";
-import { avatarPng } from "../avatarAnswers.ts";
-import { describedRevision } from "../describedRevisions.ts";
-import { credit } from "../agentCredit.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  expectMembership,
+  parts,
+} from "../../dashboard/tests/dashboardPage.ts";
+import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
+import {
+  enlargedView,
+  expectPortrait,
+} from "../../dashboard/tests/agentPortrait.ts";
+import { avatarPng } from "../../dashboard/tests/avatarAnswers.ts";
+import { describedRevision } from "../../dashboard/tests/describedRevisions.ts";
+import { credit } from "../../dashboard/tests/agentCredit.ts";
 
 const nerdStory = "See who owns Taken work";
 const atlasStory = "Show every agent's portrait";

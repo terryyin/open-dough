@@ -1,37 +1,37 @@
-import { scrollYOf } from "../boardPage.ts";
-import { expect, test } from "../dashboardTest.ts";
+import { scrollYOf } from "../../dashboard/tests/boardPage.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   expectFocusedAndIndicated,
   expectImmediateMotion,
   expectReadableContrast,
   zoomedWindow,
-} from "../accessibleReading.ts";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { storyCard } from "../storyCardControls.ts";
-import { expectBadges } from "../storyCardFacts.ts";
+} from "../../dashboard/tests/accessibleReading.ts";
+import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
+import { expectBadges } from "../../dashboard/tests/storyCardFacts.ts";
 import {
   expectProjectChoice,
   expectSettledPage,
   parts,
   shownProjectControl,
-} from "../dashboardPage.ts";
-import { expectFrameIconControl } from "../frameIconControl.ts";
-import { publishMovingOrigin } from "../publishedOrigin.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
+import { expectFrameIconControl } from "../../dashboard/tests/frameIconControl.ts";
+import { publishMovingOrigin } from "../../dashboard/tests/publishedOrigin.ts";
 import {
   box,
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   tapWhereShown,
-} from "../pageLayout.ts";
+} from "../../dashboard/tests/pageLayout.ts";
 import {
   buildOpenDoughReadinessRepo,
   plannedReady,
   plannedBlocked,
   unrefined,
-} from "../storyReadinessFixture.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
-import { describedBacklog } from "../describedRevisions.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+} from "../../dashboard/tests/storyReadinessFixture.ts";
+import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { describedBacklog } from "../../dashboard/tests/describedRevisions.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.describe("touch preparation help", () => {
   test.use({ hasTouch: true });

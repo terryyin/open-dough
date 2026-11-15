@@ -1,26 +1,28 @@
 // The agent roster lists the agents of the collection the selected project
 // chose in .planning/open-dough.json (read beside the profiles at the shown
-// revision, authenticated-read-agent-settings.spec.ts): the current collection
-// when the file or key is absent, the Odd-e nerds with their local photos when
-// "nerds" is true, and no guess when the setting cannot be read. An agent of
-// the other collection that still holds an assignment stays listed. The fake
-// GitHub only publishes files; the shared rotation reader and the page decide
-// everything shown.
+// revision): the current collection when the file or key is absent, the Odd-e
+// nerds with their local photos when "nerds" is true, and no guess when the
+// setting cannot be read. An agent of the other collection that still holds an
+// assignment stays listed. Built frontend against controlled published files;
+// the shared rotation reader and the page decide everything shown.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
-import { rosterParts } from "../dashboardPage.ts";
-import { publishFiles } from "../publishedOrigin.ts";
-import { avatarPng } from "../avatarAnswers.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { putFrontendPublished } from "../../tests/support/frontendServiceState.ts";
+import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
+import { rosterParts } from "../../tests/dashboardPage.ts";
+import { avatarPng } from "../../tests/avatarAnswers.ts";
 import {
   agentIdentity,
   agentNames,
   nerdAgentNames,
 } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { openUntilRead } from "../pageRequestNotes.ts";
-import { describedRevision } from "../describedRevisions.ts";
-import { credit } from "../agentCredit.ts";
+import {
+  backlogApart,
+  describedRevision,
+} from "../../tests/describedRevisions.ts";
+import { credit } from "../../tests/agentCredit.ts";
 
 const story = "See who owns Taken work";
 const identity = "SEED-021#identify-taken-work-owner";
@@ -28,52 +30,57 @@ const settingsPath = ".planning/open-dough.json";
 const agentsOf = (names: readonly string[]) =>
   names.map((name) => agentIdentity(name).agent);
 
-// Yui, a current-collection agent, holds the Taken story; stanly is a nerd.
-// The settings bytes are what each case proves.
-async function openRoster(page: Page, settings?: string) {
-  await publishFiles(page, {
-    repository: "terryyin/open-dough",
-    ...describedRevision(
-      makeMe.aRepository
-        .withRevision("roster", {
-          backlog: {
-            taken: [
-              makeMe.aBacklogEntry
-                .with({
-                  title: story,
+async function openRoster(
+  page: Page,
+  services: FrontendServiceState,
+  settings?: string,
+) {
+  putFrontendPublished(
+    services,
+    backlogApart(
+      describedRevision(
+        makeMe.aRepository
+          .withRevision("roster", {
+            backlog: {
+              taken: [
+                makeMe.aBacklogEntry
+                  .with({
+                    title: story,
+                    identity,
+                    href: "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
+                  })
+                  .please(),
+              ],
+            },
+            agentProfiles: [
+              makeMe.anAgentProfile
+                .executing({
+                  name: "Yui",
                   identity,
-                  href: "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
+                  mode: "trunk",
+                  branch: "origin/main",
+                  host: "claude",
                 })
                 .please(),
             ],
-          },
-          agentProfiles: [
-            makeMe.anAgentProfile
-              .executing({
-                name: "Yui",
-                identity,
-                mode: "trunk",
-                branch: "origin/main",
-                host: "claude",
-              })
-              .please(),
-          ],
-          ...(settings === undefined
-            ? {}
-            : { files: { [settingsPath]: settings } }),
-        })
-        .please(),
-      "b3".repeat(20),
+            ...(settings === undefined
+              ? {}
+              : { files: { [settingsPath]: settings } }),
+          })
+          .please(),
+        "b3".repeat(20),
+      ),
     ),
-  });
-  await openUntilRead(page, "/?project=open-dough&view=roster");
+  );
+  await page.goto("/?project=open-dough&view=roster");
   return rosterParts(page);
 }
 
 test("without the setting the roster lists the current collection, with no nerds member", async ({
   page,
+  frontendServices,
 }) => {
-  const { roster, members, member } = await openRoster(page);
+  const { roster, members, member } = await openRoster(page, frontendServices);
   await expect(members.getByRole("heading")).toHaveText(agentsOf(agentNames));
   await expect(members).toHaveCount(29);
   await expect(member("Yui-chan")).toContainText(story);
@@ -83,6 +90,7 @@ test("without the setting the roster lists the current collection, with no nerds
 
 test("with nerds set the roster lists the 30 nerds, portraits where a photo exists and names alone where not, and Yui's existing assignment stays visible", async ({
   page,
+  frontendServices,
 }) => {
   const photo = avatarPng(40);
   await page.route(
@@ -92,14 +100,17 @@ test("with nerds set the roster lists the 30 nerds, portraits where a photo exis
         ? route.fulfill({ status: 404 })
         : route.fulfill(photo),
   );
-  const { members, member } = await openRoster(page, '{"nerds":true}');
+  const { members, member } = await openRoster(
+    page,
+    frontendServices,
+    '{"nerds":true}',
+  );
 
   await expect(members.getByRole("heading")).toHaveText([
     ...agentsOf(nerdAgentNames),
     "Yui-chan",
   ]);
   await expect(members).toHaveCount(31);
-  // Every nerd but terry has a photo, and Yui keeps her atlas tile.
   await expect(credit(members).portrait).toHaveCount(nerdAgentNames.length);
   await expect(credit(member("terry-chan")).portrait).toHaveCount(0);
   await expect(credit(member("stanly-chan")).portrait).toBeVisible();
@@ -123,8 +134,13 @@ for (const [why, settings, problem] of [
 ] as const) {
   test(`when the setting ${why} the roster says the collection is unknown and lists no agent`, async ({
     page,
+    frontendServices,
   }) => {
-    const { roster, members } = await openRoster(page, settings);
+    const { roster, members } = await openRoster(
+      page,
+      frontendServices,
+      settings,
+    );
     await expect(roster).toContainText(`Agent collection unknown. ${problem}.`);
     await expect(members).toHaveCount(0);
     await expect(roster).not.toContainText("No assignment recorded");

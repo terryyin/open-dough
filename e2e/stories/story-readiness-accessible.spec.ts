@@ -2,30 +2,37 @@
 // keyboard, narrow/zoomed reading, and color-independent badges. Extends the
 // shared accessibility helpers against the real CLI-committed fixture.
 
-import { expectQueuedPlanFocusDuringEnrichment } from "../queuedPlanFocus.ts";
-import { passTimeUntilChecked, pausePageClock } from "../autoRefreshJourney.ts";
-import { expect, test } from "../dashboardTest.ts";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { expectMembership, shortRevision, parts } from "../dashboardPage.ts";
+import { expectQueuedPlanFocusDuringEnrichment } from "../../dashboard/tests/queuedPlanFocus.ts";
+import {
+  passTimeUntilChecked,
+  pausePageClock,
+} from "../../dashboard/tests/autoRefreshJourney.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import {
+  expectMembership,
+  shortRevision,
+  parts,
+} from "../../dashboard/tests/dashboardPage.ts";
 import {
   expectBadgeTextContrastAndReducedMotion,
   expectKeyboardOpensAndClosesDetail,
   expectNarrowZoomKeepsLabelsEvidenceAndFailure,
   expectNewSnapshotPreservesOrAnnouncesIdentity,
-} from "../storyReadinessAccessible.ts";
-import { expectScanToDetailAt420AndTwiceZoom } from "../storyReadinessScan.ts";
-import { storyCard } from "../storyCardControls.ts";
-import { expectBadges } from "../storyCardFacts.ts";
+} from "../../dashboard/tests/storyReadinessAccessible.ts";
+import { expectScanToDetailAt420AndTwiceZoom } from "../../dashboard/tests/storyReadinessScan.ts";
+import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
+import { expectBadges } from "../../dashboard/tests/storyCardFacts.ts";
 import {
   buildOpenDoughReadinessRepo,
   plannedBlocked,
   plannedReady,
   unrefined,
-} from "../storyReadinessFixture.ts";
+} from "../../dashboard/tests/storyReadinessFixture.ts";
 import {
   publishAssessedContentChange,
   publishRestoreUnrefined,
-} from "../storyReadinessPublications.ts";
+} from "../../dashboard/tests/storyReadinessPublications.ts";
 
 const openDoughRepository = "terryyin/open-dough";
 

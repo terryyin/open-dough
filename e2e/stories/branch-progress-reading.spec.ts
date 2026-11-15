@@ -2,27 +2,32 @@
 // enrichment as independently arriving fact groups. Raw published plans grow
 // above a focused source link through the built preview's real local boundary.
 
-import { renderSlicePlan } from "../../../Distribution/tests/support/published-plan.mjs";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { renderSlicePlan } from "../../Distribution/tests/support/published-plan.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   canonicalRecord,
   inspectedDetail,
   storyCard,
-} from "../storyCardControls.ts";
-import { progressSource } from "../storyCardFacts.ts";
-import { expectView, rem, scrollYOf, showColumn } from "../boardPage.ts";
-import { expect, test } from "../dashboardTest.ts";
-import { shortRevision, parts } from "../dashboardPage.ts";
-import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
-import { openedSettled } from "../branchRefreshJourney.ts";
+} from "../../dashboard/tests/storyCardControls.ts";
+import { progressSource } from "../../dashboard/tests/storyCardFacts.ts";
+import {
+  expectView,
+  rem,
+  scrollYOf,
+  showColumn,
+} from "../../dashboard/tests/boardPage.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { shortRevision, parts } from "../../dashboard/tests/dashboardPage.ts";
+import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
+import { openedSettled } from "../../dashboard/tests/branchRefreshJourney.ts";
 import {
   onBranch,
   planPath,
   repository,
   revision,
   trunk,
-} from "../branchProgressRecords.ts";
-import { expectVisibleReadingFocus } from "../readingPlace.ts";
+} from "../../dashboard/tests/branchProgressRecords.ts";
+import { expectVisibleReadingFocus } from "../../dashboard/tests/readingPlace.ts";
 
 test("moved branch progress keeps a scrolled inspection and its visible focused link", async ({
   page,

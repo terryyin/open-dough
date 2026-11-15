@@ -1,17 +1,31 @@
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { expect } from "../dashboardTest.ts";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
-import { consumer, test, twoDependencies } from "../storyDependencyFixture.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
+import { expect } from "../../dashboard/tests/dashboardTest.ts";
+import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  consumer,
+  test,
+  twoDependencies,
+} from "../../dashboard/tests/storyDependencyFixture.ts";
+import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
 import {
   expectNoSidewaysScrollAndWholeText,
   tapWhereShown,
-} from "../pageLayout.ts";
-import { reason, condition, decision } from "../storyDependencyFixture.ts";
-import { dependencyList, dependencySummary } from "../storyReference.ts";
-import { canonicalRecord, storyCard } from "../storyCardControls.ts";
-import { expectBadges } from "../storyCardFacts.ts";
+} from "../../dashboard/tests/pageLayout.ts";
+import {
+  reason,
+  condition,
+  decision,
+} from "../../dashboard/tests/storyDependencyFixture.ts";
+import {
+  dependencyList,
+  dependencySummary,
+} from "../../dashboard/tests/storyReference.ts";
+import {
+  canonicalRecord,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
+import { expectBadges } from "../../dashboard/tests/storyCardFacts.ts";
 
 // Story A waits on Story B and needs a decision about Story C, and is not
 // ready for an unrelated reason.

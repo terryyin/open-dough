@@ -9,14 +9,25 @@
 // everything shown.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, githubFor, pausePageClockAt, test } from "../dashboardTest.ts";
-import { expectMembership, parts } from "../dashboardPage.ts";
-import { isHeadsCheck } from "../originObservation.ts";
-import { publishFiles } from "../publishedOrigin.ts";
-import { callsSince } from "../autoRefreshJourney.ts";
-import { publishes } from "../support/fakeGitHub.ts";
-import { noConnection } from "../originAnswers.ts";
-import { addedAt, pathChange } from "../pathHistoryAnswers.ts";
+import {
+  expect,
+  githubFor,
+  pausePageClockAt,
+  test,
+} from "../../dashboard/tests/dashboardTest.ts";
+import {
+  expectMembership,
+  parts,
+} from "../../dashboard/tests/dashboardPage.ts";
+import { isHeadsCheck } from "../../dashboard/tests/originObservation.ts";
+import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
+import { callsSince } from "../../dashboard/tests/autoRefreshJourney.ts";
+import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
+import { noConnection } from "../../dashboard/tests/originAnswers.ts";
+import {
+  addedAt,
+  pathChange,
+} from "../../dashboard/tests/pathHistoryAnswers.ts";
 import {
   afterTake,
   beforeProfiles,
@@ -32,7 +43,7 @@ import {
   stories,
   takes,
   timeUnread,
-} from "../sliceClockRecords.ts";
+} from "../../dashboard/tests/sliceClockRecords.ts";
 
 const noProfileLabel = "no agent profile records the Take";
 
