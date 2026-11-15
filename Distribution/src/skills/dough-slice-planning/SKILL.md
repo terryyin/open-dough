@@ -53,8 +53,6 @@ Before writing, identify from the user's instructions and this project's guidanc
   the understood remaining-work instruction and any retained execution identity;
 - the executable-plan root, filename layout, format additions, status
   vocabulary, and lifecycle;
-- any supplied slice target and hard limit, including their permitted
-  exceptions and overrun escalation;
 - required verification, refactoring, commit, and review gates;
 - relevant code, tests, stack rules, and Accepted ADRs;
 - this project's established North Star location, when one exists; and

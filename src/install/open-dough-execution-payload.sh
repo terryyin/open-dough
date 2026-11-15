@@ -54,6 +54,7 @@ managed_files+=(
   dough-execute-plan/references/source-freshness.md
   dough-execute-plan/references/story-obligations.md
   dough-execute-plan/references/trunk-publication.md
+  dough-execute-plan/references/wait-for-proof.md
   dough-execute-plan/references/wrap-up-closure-publication.md
   dough-execute-plan/references/wrap-up.md
   dough-execute-plan/scripts/ci-background-handoff.mjs

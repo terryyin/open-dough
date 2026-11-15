@@ -57,7 +57,7 @@ At startup, obtain enough authoritative context to select and delegate the first
 Reuse instructions while their sources and applicability assumptions remain unchanged.
 Resolve project context at the first boundary that needs it:
 
-- execution-source kind, slice target, hard limit, and exceptions;
+- execution-source kind;
   [replanning permission](references/execution-decisions.md#choose-replanning-permission);
   integration checkout, when one exists, and branch for a claim, using the project's configured integration branch or `main` when none is supplied;
   execution mode and location: default Story Branch Mode; `--trunk` or a clear

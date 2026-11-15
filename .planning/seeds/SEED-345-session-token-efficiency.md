@@ -146,7 +146,9 @@ commitment.
   about $96 of list-price worker rebuilds after five-to-sixty-minute waits.
 - **Effort and boundary.** Medium, medium confidence. Distinct from a paused
   supplier, which the first story owns. Keep the five-minute Claude Code
-  subagent cache; a longer lifetime cost more than it saved.
+  subagent cache; a longer lifetime cost more than it saved. Starts from the
+  per-host [wait for proof](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md)
+  guidance and measures what it leaves.
   [Waiting](../../docs/maintainer/session-token-efficiency-research.md#1-wake-the-coordinator-for-results-changes-and-bounded-deadlines)
   and [cache](../../docs/maintainer/session-token-efficiency-research.md#cc2-cache-lifetime-avoid-the-rebuild-keep-the-five-minute-default) evidence
 

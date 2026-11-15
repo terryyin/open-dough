@@ -15,8 +15,8 @@ owns any split between stories.
 ## Require a refinable plan
 
 Require an existing executable plan and this project's context required by
-[dough-slice-planning](../dough-slice-planning/SKILL.md), especially any supplied
-target, hard limit, exceptions, overrun policy, and the plan lifecycle.
+[dough-slice-planning](../dough-slice-planning/SKILL.md), especially the plan
+lifecycle.
 
 Identify whether the plan's source is a selected feature story or a bounded
 retrospective correction under
@@ -42,8 +42,9 @@ boundary. Before revising boundaries, apply the shared
   use [dough-story-decomposition](../dough-story-decomposition/SKILL.md).
 - Treat the plan as `ready for direct execution` only when cumulative design is supported,
   every boundary preserves useful progress or learning, and all slices are
-  cohesive, single-proof-loop, meet supplied targets, and have no unexplained
-  path beyond a hard limit. Record that outcome through
+  cohesive, single-proof-loop, and fit the
+  [slice's active time](../dough-story-decomposition/references/problem-decomposition.md#size-and-escalate-slices).
+  Record that outcome through
   [assess readiness at preparation completion](../dough-product-backlog/references/record-preparation.md#assess-readiness-at-preparation-completion)
   when the work item has a recorded identity. Execution still requires separate
   authorization from the invoking workflow.
@@ -77,7 +78,7 @@ completed slices, then classify each remaining boundary:
 
 | Result | Decision |
 | --- | --- |
-| **Retain** | One gate and proof loop yield cohesive progress within supplied limits |
+| **Retain** | One gate and proof loop yield cohesive progress within the slice's active time |
 | **Consolidate** | Adjacent slices are useful only together; combining hides no consequential risk and preserves safe recovery |
 | **Split** | One slice has independent outcomes or proof loops, hidden preparation, credible risk, special-case design, or a sizing concern |
 | **Escalate** | Learning requires review of the source outcome, story, or parent problem |

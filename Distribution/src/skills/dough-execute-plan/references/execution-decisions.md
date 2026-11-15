@@ -7,6 +7,9 @@ and when a wait or retry can no longer advance the work.
 
 On entry, resume, and after plan changes, check the [slice limit](../../dough-story-decomposition/references/problem-decomposition.md#limit-slices-per-plan)
 before dispatch. For an over-limit current or proposed plan, [stop or split](finish-or-stop.md#stop-or-split-before-more-work).
+Apply the [active-time limit](oversized-slice.md#track-active-time) before
+dispatch and [handle an overrun](oversized-slice.md#handle-the-overrun) before
+more work.
 
 When a decisive premise fails, corrections or overruns recur, the owner asks
 for simplification, or the next step depends on a paused supplier, unavailable
@@ -150,9 +153,10 @@ execution conversation, existing handoff, or active plan.
 Successful commands need no extra record.
 
 A passing retry, repeated test name, or successful cleanup does not establish
-cause or repair. Use a targeted retry only to test a stated explanation. On
-recurrence, compare current conditions with the recorded cause; reuse evidence
-when applicable while retaining any remaining defect. Stop diagnosis once the
+cause or repair. Retry once to test a stated explanation. If the same required
+check fails again under comparable conditions, hold that repair loop and
+[reassess](#reassess-before-extending-work) before another attempt. Reuse
+applicable evidence and retain repair ownership. Stop diagnosis once the
 evidence justifies a disposition. If uncertainty remains, report it and stop
 for human judgment. A recorded explanation never waives required proof or the
 CI repair protocol; an infrastructure finding cannot excuse a separate assertion
