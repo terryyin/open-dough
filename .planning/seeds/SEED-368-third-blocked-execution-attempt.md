@@ -15,93 +15,97 @@ scope: story
 
 **Identity:** SEED-368#reduce-model-work-during-prolonged-supplier-waiting
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Refine representative live-watch exposure and whole-task opportunity first; select a proof approach and obtain a fresh explicit complete evaluation budget before execution."],"basis":{"document":"0f8845a22381a3a5c3faa7edb3ce4332e1f2228a9a82e2ef488f18194e92a4ea"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/635-wait-silently-for-a-paused-supplier/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"467dc9e6d05b2aea5145d1ad1b9470642ff9e0a43f4765452a74e4e9c307d599","plan":"4d541de3819d5f0eac0fd115902cfcdf497886a9a61a9f77e86325662b125937"}}
 ```
 
 #### Goal
 
-For a developer whose authorized execution waits on a supplier, significantly
-reduce complete-task model work while preserving partial work, applicable proof,
-correct supplier judgment, ownership and one qualifying continuation.
+For a developer who tells a blocked execution to watch its paused supplier, the
+unchanged wait costs almost no model work: the model re-enters when the supplier
+publishes, when the host ends its longest wait, or at the watch deadline, and
+at no other time. This is the third try; the
+[maintained findings](../../docs/maintainer/blocked-execution-experiment-findings.md)
+retain the first two.
 
-This is the **THIRD TRY**, succeeding the abandoned SEED-345 implementation and
-the early-converged SEED-356 investigation. Read the maintained
-[findings and recovery links](../../docs/maintainer/blocked-execution-experiment-findings.md)
-before refinement; reuse its tested repairs rather than repeat their discovery.
+#### Scope
 
-#### Starting evidence and limits
+- **The watch is one silent wait.** On a watch request for a paused supplier,
+  the coordinator starts one maintained command that prints nothing while the
+  supplier's published revisions are unchanged and ends with one result on a
+  publication or at the deadline. It replaces the watcher each session
+  improvised. The coordinator awaits it under the existing
+  [long proof run wait](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md)
+  and its host rules: the host's notification where one exists, otherwise the
+  longest wait the host accepts.
+- **A publication ends the wait once.** The coordinator then judges the
+  publication against the exact supplier agreement as it does today: a
+  nonqualifying one keeps the hold and the watch continues to the same
+  deadline; a qualifying one continues the execution once.
+- **The watch has a deadline:** 60 minutes from the watch request, or the
+  duration the developer names. At the deadline the execution stops with its
+  recorded resume condition, as a paused-supplier hold without a watch does
+  today. Reason: on a host without notification every wait that ends re-reads
+  the whole context, so an unbounded watch keeps spending for as long as the
+  supplier stays paused.
+- **Everything outside the unchanged wait keeps its current behavior:** partial
+  work, accepted proof, supplier judgment, one continuation, publication and
+  CI rules, and a hold that receives no watch request.
 
-- Try 1 added context/procedure and increased matched blocked tokens 60.2% and
-  responses 80→94. Do not restore that implementation.
-- Try 2 completed three native journeys and infrastructure repairs but selected
-  no optimization. Its forced-wake baseline omitted live waiting. Its live-watch
-  setup consumed the first 180s window, and manual confirmed exposure in the
-  second was only 58.920s; all three wait receipts were nonempty.
-- The prolonged-wait hypothesis remains unproven. Neither current resolution,
-  token improvement nor non-regression was demonstrated.
-- The latest baseline's 11.92% is a hypothetical envelope covering ALL directly
-  charged unchanged-window responses, including useful work. It is not savings.
-  Most cost occurred after qualification; do not silently absorb sibling
-  phase-loading/general verification-efficiency work into this story.
+Scope limits: host adapters, a watcher agent, a dashboard or daemon resume, and
+phase-loading or general verification efficiency belong to other work.
 
-#### Scope and next learning gate
+#### Evaluation
 
-First establish a representative normal supplier-watch observation before
-choosing an optimization or funding another matched comparison. Separate setup
-latency from genuine live-watch exposure; do not equate elapsed time since the
-user turn with time the watch could repeat. Define exposure, repetition and
-opportunity criteria before observing a new paid result. Include unnecessary
-model re-entry caused by nonempty unchanged-status output, justified liveness
-checks and useful supplier changes as distinct observations.
+Decided by Terry on 2026-11-15, replacing the earlier whole-task bar and
+matched native comparison: no paid run.
 
-Prefer retained raw traces and controlled checks. Calibrate authentic owned
-launch/receipt/response observation for the actual host representation; computed
-wrappers are currently outside the literal decoder's contract. Unsupported or
-missing evidence stays unknown. Do not evaluate captured JavaScript or rewrite
-archive provenance to force reuse. The retired 180s/180s case is controlled
-infrastructure, not a ready native benchmark. Host/version differences remain
-confounders to judge, not presumed fixes.
+- Deterministic checks prove the wait command: silent while unchanged, one
+  result on publication, one result at the deadline.
+- The guidance change takes the maintainer behavior review.
+- The benefit is predicted until observed. The findings document records the
+  check for the next real supplier watch, judged from its session trace: keep
+  when the unchanged wait shows at most one model re-entry per five minutes on
+  Codex, none on Claude Code, and at least 90% cached input on the re-entries;
+  otherwise remove the added guidance.
 
-Only after a current baseline reproduces the targeted unnecessary model work
-and exposes a plausible worthwhile whole-task removal, select one targeted
-change. Prefer deletion and existing owners; any helper replaces the observed
-procedure. Preserve exact supplier agreement, partial work, applicable accepted
-proof, nonqualifying hold, one qualifying integration and final owned/independent
-proof. Preserve current publication and CI authority/rules across all hosts.
-Do not add a general daemon, event-delivery runtime, enrollment/context protocol
-or broad guidance rewrite without a separate product decision.
+#### Architecture
 
-#### Evaluation to settle in refinement
+No responsibility is added: the wait rule's existing owner gains one more wait.
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) §1 and §3
+apply (guidance edit with deterministic checks, native observation recorded as
+pending); Terry chose this over the §4 matched comparison under
+[ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md), because
+that comparison costs more model work than the wait it measures.
 
-Carry the previous working bar into refinement: at least 20% fewer complete-task
-blocked processed tokens, no increase in requests or developer interventions;
-at most 5% token overhead on the unblocked case with no request/intervention
-increase. Both arms must pass quality. These are bounded stochastic keep/stop
-observations, not statistical/billing claims; follow ADR 0010. Changing the bar
-requires an explicit product decision, not post-result adjustment.
+#### Evidence
 
-Freeze matched task, evidence schedule, assessor, host/version, model/settings
-and authority. Count coordinator and owned workers through qualification, final
-proof and recovery; report cached/uncached input, output, requests and native
-interventions separately. Unknown usage cannot support a saving verdict.
-Keep evaluation and implementation effort visible.
+Observed locally on 2026-11-15 without a paid run:
 
-Before paid execution, explicitly approve a fresh complete budget, observation
-schedule/exceptions and keep/stop rule. The prior cap and unused three journeys
-are historical, not renewed authority. A fresh blocked baseline/candidate plus
-unblocked baseline/candidate requires at least four journeys; invalid attempts,
-workers and automatic reacquisition count. No paid run is authorized by queueing.
-Stop if exposure/reproduction/opportunity is inadequate, quality fails, usage is
-unknown, the bar is missed or the budget cannot finish the experiment. No
-favorable rerun or design expansion without a new decision.
+- In the second try's watch trace the session wrote its own watcher, which
+  printed `unchanged` every 30 seconds, and polled it with a 30-second wait;
+  each poll re-read the whole context.
+- Codex 0.169.0 accepts an empty poll of up to 300 seconds. Across 2,873 local
+  Codex sessions, responses after a 270–330 second gap were 97.7% cached, 89.0%
+  after 330–600 seconds, and about 74% beyond ten minutes.
+- The saving grows with the length of the wait, so a short benchmark cannot
+  show it (11.92% ceiling with 180-second windows) and a long one pays for the
+  waste in its baseline arm.
+- The native supplier-watch profile is retired.
 
 #### Key examples
 
-- Supplier stays unchanged while a genuine watch is active → unnecessary repeated
-  model responses are observed and attributed, separately from setup/useful work.
-- Nonqualifying supplier publication → preserve partial work and remain held.
-- Qualifying publication → reassess the exact agreement and continue once with
-  preserved proof; count the continuation and recovery cost.
-- Supplier qualifies at entry → finish without an excessive blocked-path tax.
-- Baseline ends cleanly, exposure is insufficient or observation is unsupported
-  → retain uncertainty and stop; do not call the hypothesis disproved or a fix.
+- Paused supplier, developer says “you watch it”, supplier stays unchanged →
+  one silent wait runs; on Codex the model re-enters at most once per 300
+  seconds, on Claude Code not until the wait ends; no clock, status, or log
+  call runs in between.
+- A nonqualifying publication arrives during the watch → the wait ends once,
+  the hold and partial work stay, and the watch continues to the same deadline.
+- A qualifying publication arrives → the wait ends, and the execution
+  reassesses the exact agreement and continues once with preserved proof.
+- 60 minutes pass unchanged and no duration was named → the watch ends and the
+  execution stops with its recorded resume condition. “Watch it for three
+  hours” → the deadline is three hours.
+- Paused supplier and no watch request → the execution stops with its resume
+  condition as today; no wait starts.
+- Supplier qualifies at entry → no wait starts and the path reads no watch
+  guidance.

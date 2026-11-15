@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "aki-chan",
-  "email": "aki-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-368#reduce-model-work-during-prolonged-supplier-waiting",
-  "host": "claude",
-  "model": "fable"
-}
