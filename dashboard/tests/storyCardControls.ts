@@ -6,6 +6,7 @@
 
 import { expect, type Locator } from "@playwright/test";
 import { expectReadableContrast } from "./accessibleReading.ts";
+import { tooltipOf } from "./frameIconControl.ts";
 import { box } from "./partArrangement.ts";
 
 // A Story card in `region` (the Board or one of its columns), by its title.
@@ -84,7 +85,7 @@ export const inspectionGroup = (card: Locator) =>
   card.getByRole("group", { name: "Inspection actions" });
 
 // A Start's note: part of the Start's accessible description; the card shows
-// it only in the Start's tooltip (./launches/agent-launch-story-card-noted-start.spec.ts).
+// it only in the Start's tooltip (`expectNoteTooltip`).
 export async function expectStartNote(
   card: Locator,
   name: string,
@@ -93,6 +94,43 @@ export async function expectStartNote(
   await expect(
     launchGroup(card).getByRole("button", { name }),
   ).toHaveAccessibleDescription(new RegExp(note));
+}
+
+// A noted Start at rest shows no note on its card; hovered, or reached with
+// the keyboard, it shows the note in the frame's styled tooltip, hidden from
+// assistive technology because the note is already its description.
+export async function expectNoteTooltip(
+  start: Locator,
+  name: string,
+  note: string,
+) {
+  const page = start.page();
+  const tip = tooltipOf(start, note);
+  await expect(start).toHaveAccessibleName(name);
+  await expect(start).toHaveAccessibleDescription(note);
+  await page.mouse.move(0, 0);
+  await start.blur();
+  await expect(tip).toBeHidden();
+  // The tooltip hangs below its Start, so a Start that wrapping leaves at the
+  // window's bottom edge is first brought to the middle, leaving the tooltip
+  // room to show whole.
+  await start.evaluate((node) => {
+    node.scrollIntoView({ block: "center" });
+  });
+  await start.hover();
+  await expect(tip).toBeVisible();
+  await expect(tip).toBeInViewport({ ratio: 1 });
+  await expect(tip.locator("xpath=..")).toHaveClass(/\bframe-tooltip\b/);
+  await expect(tip.locator("xpath=..")).toHaveAttribute("aria-hidden", "true");
+  await page.mouse.move(0, 0);
+  await expect(tip).toBeHidden();
+  await start.focus();
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Tab");
+  await expect(start).toBeFocused();
+  await expect(tip).toBeVisible();
+  await start.blur();
+  await expect(tip).toBeHidden();
 }
 
 // A card action's decorative Lucide glyph (`lucide-<glyph>`) at its start or

@@ -152,6 +152,8 @@ export async function startDashboardServer(
   env["DOUGH_REVISION_CHECK_REUSE_MS"] = String(
     options.revisionCheckReuseMs ?? 0,
   );
+  // Timed listing and stream steps in `output()`, for a failed test's record.
+  env["DOUGH_REVISION_OBSERVATION_TRACE"] = "1";
   const time = installServerTimeControls(tempRoot, options);
   Object.assign(env, time.env);
 

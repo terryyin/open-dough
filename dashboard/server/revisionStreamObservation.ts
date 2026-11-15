@@ -17,6 +17,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { requestOwnerScope } from "./ghRead.ts";
 import type { RevisionStreamAsk } from "./requestedRevisionStream.ts";
+import { traceRevisionObservation } from "./revisionObservationTrace.ts";
 import { endRevisionStream } from "./revisionStreamEvents.ts";
 import {
   SourceRevisionStream,
@@ -87,6 +88,7 @@ export class RevisionStreamObservation {
     // Flush before any wait so a preview compression layer cannot hold the
     // first event for a full buffer.
     if (typeof res.flushHeaders === "function") res.flushHeaders();
+    traceRevisionObservation(`stream opened at ${ask.at}`);
     observation.open(ask, req, res, admission);
   }
 

@@ -15,11 +15,12 @@ import {
 import { seedVoiceKey, stoppedTracks, voiceKey } from "./voicePage.ts";
 
 export const originalDraft = "Keep this work local";
-// Every voice journey takes this one object: `launchOptions` is a
-// worker-scoped option, so six literal copies would be six worker
-// populations that never share a worker (./pageTest.ts says why).
-export const voiceBrowserOptions = {
-  projectFolders: ["open-dough"],
+// Every voice journey takes one of these objects: `launchOptions` is a
+// worker-scoped option, so literal copies would be worker populations that
+// never share a worker (./pageTest.ts says why). A frontend journey takes
+// the browser's microphone alone; a journey against dashboardServer also
+// names the project folder it serves.
+export const microphoneBrowserOptions = {
   permissions: ["microphone"],
   launchOptions: {
     args: [
@@ -28,6 +29,10 @@ export const voiceBrowserOptions = {
       "--use-fake-ui-for-media-stream",
     ],
   },
+};
+export const voiceBrowserOptions = {
+  projectFolders: ["open-dough"],
+  ...microphoneBrowserOptions,
 };
 
 export async function openVoiceDraft(
@@ -38,19 +43,25 @@ export async function openVoiceDraft(
 ) {
   if (configure) seedVoiceKey(dashboard.home);
   await openTakenBacklog(page, journey);
+  return startVoiceDraft(page);
+}
+
+// Opens Start session on the open board and types the original draft.
+export async function startVoiceDraft(page: Page) {
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
   await startSessionField(dialog).fill(originalDraft);
   return dialog;
 }
 
-export async function recovered(
+// The dialog after a failed recording: `message` alerts, the original draft
+// stays editable, Start and Record are offered again, and the microphone is
+// released, its transcription request aborted when the clip was `captured`,
+// or never opened otherwise. No private diagnostic reaches the dialog.
+export async function recoveredDialog(
   page: Page,
-  dashboard: DashboardServer,
-  provider: Awaited<ReturnType<typeof voiceProvider>>,
   dialog: Locator,
   message: string,
-  calls: number,
   captured = true,
 ) {
   await expect(dialog.getByRole("alert")).toHaveText(message);
@@ -91,8 +102,26 @@ export async function recovered(
           ).voiceObservation.tracks.length,
       ),
     ).toBe(0);
-  // Observe a quiet recovered operation before the developer explicitly acts.
-  await page.waitForTimeout(200);
+  expect(await dialog.textContent()).not.toContain(voiceKey);
+  expect(await dialog.textContent()).not.toContain(
+    "private-provider-diagnostic",
+  );
+}
+
+// The recovered dialog, with nothing transcribed beyond `calls`, launched or
+// written to GitHub, and no key or diagnostic in the server's output. Each
+// caller's later count of provider calls observes that the recovered
+// operation stays quiet.
+export async function recovered(
+  page: Page,
+  dashboard: DashboardServer,
+  provider: Awaited<ReturnType<typeof voiceProvider>>,
+  dialog: Locator,
+  message: string,
+  calls: number,
+  captured = true,
+) {
+  await recoveredDialog(page, dialog, message, captured);
   expect(provider.calls).toHaveLength(calls);
   expect(dashboard.claudeCalls()).toEqual([]);
   expect(
@@ -100,10 +129,6 @@ export async function recovered(
       .ghCalls()
       .some((call) => call.includes("POST") || call.includes("PATCH")),
   ).toBe(false);
-  expect(await dialog.textContent()).not.toContain(voiceKey);
-  expect(await dialog.textContent()).not.toContain(
-    "private-provider-diagnostic",
-  );
   expect(dashboard.output()).not.toContain(voiceKey);
   expect(dashboard.output()).not.toContain("private-provider-diagnostic");
 }

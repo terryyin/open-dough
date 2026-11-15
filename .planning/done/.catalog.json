@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-334_focus-detailed-dashboard-ui-checks.json",
+      "identity": "SEED-334#focus-detailed-dashboard-ui-checks",
+      "completedAt": "2026-11-15T05:01:43.124Z",
+      "blob": "e9d32967cc06c2588d293dbeaec09f95c7204b7a"
+    },
+    {
       "fileName": "SEED-357_simplify-token-usage-tests.json",
       "identity": "SEED-357#simplify-token-usage-tests",
       "completedAt": "2026-11-15T04:33:39.710Z",

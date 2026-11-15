@@ -1,6 +1,6 @@
 import { closeSidePanel, sidePanelNamesOf } from "../sidePanelFrame.ts";
 // A confirmed ad hoc launch with nothing typed opens its session in the page's
-// terminal at once, on the committed origin of ../launches/agent-launch-story-card.spec.ts (../launchJourney.ts):
+// terminal at once, on the committed origin of ../../../e2e/launches/agent-launch-story-card.spec.ts (../launchJourney.ts):
 // the keyboard is in the terminal, its toolbar names the label, "Ad hoc
 // session" and the session id, what is typed reaches the session, the project
 // actions row stays quiet (no success log), the session's entry and Sessions

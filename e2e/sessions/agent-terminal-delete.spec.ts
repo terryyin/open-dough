@@ -3,12 +3,12 @@ import { askToDeleteRecord } from "../../dashboard/tests/support/sessionEntryDis
 // (../terminals/agent-terminal.spec.ts), on the committed story-columns origin
 // (../../dashboard/tests/launchJourney.ts): while the listing cannot be read the session is State
 // unknown and still offers Open terminal; deleting its record from its card
-// entry closes the panel, as Mark as done does (../../dashboard/tests/sessions/agent-terminal-done.spec.ts),
+// entry closes the panel, as Mark as done does (./agent-terminal-done.spec.ts),
 // leaves no "Shown in terminal" mark, keeps the story selected (ADR 0008),
 // detaches the attach, and stops nothing.
 // The conversation stays in Claude Code, so it is listed again once the
 // listing recovers. The keyboard follows the entry rule of
-// ../../dashboard/tests/sessions/agent-launch-story-card-delete.spec.ts. Origin alone still places the story. The
+// ../../dashboard/frontend-tests/sessions/agent-launch-story-card-delete.spec.ts. Origin alone still places the story. The
 // page's own dashboard server drives the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 

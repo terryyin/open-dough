@@ -4,6 +4,7 @@
 import type { ServerResponse } from "node:http";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import type { Outcome } from "./readOutcome.ts";
+import { traceRevisionObservation } from "./revisionObservationTrace.ts";
 
 export function writeRevisionStreamEvent(
   res: ServerResponse,
@@ -19,11 +20,13 @@ export function writeRevisionStreamEvent(
             outcome.kind === "failed" ? outcome.retryAfterSeconds : undefined,
           recovery: outcome.kind === "failed" ? outcome.recovery : undefined,
         });
+  traceRevisionObservation(`stream event ${body}`);
   res.write(`data: ${body}\n\n`);
 }
 
 export function endRevisionStream(res: ServerResponse): void {
   if (!res.writableEnded && !res.destroyed) {
+    traceRevisionObservation("stream ended");
     res.end();
   }
 }

@@ -1,4 +1,9 @@
-import { readFileSync, writeFileSync } from "node:fs";
+// What removing a configured project keeps and writes: its checkout and
+// session records survive and return on re-add, removing development's last
+// project persists an empty list, and a failed write keeps the saved file.
+// Which project is selected after a removal is
+// ./project-remove-selection.spec.ts.
+import { chmodSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import {
   expectUnchangedMachineRecords,
@@ -9,10 +14,7 @@ import { projectAddMachine } from "../../dashboard/tests/support/projectAddMachi
 import { addProjectOnPage } from "../../dashboard/tests/support/projectAddPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { identity } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import {
-  expectProjectChoice,
-  parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { machineHome } from "../../dashboard/tests/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
@@ -28,6 +30,7 @@ import {
   confirmRemoval,
   removeButton,
   removeDialog,
+  removeProject,
   settings,
 } from "../../dashboard/tests/support/systemSettingsPage.ts";
 let fixture: ReturnType<typeof projectAddMachine>;
@@ -119,10 +122,8 @@ test("removing a configured project retains its checkout and records, hides sess
     },
   );
   try {
-    await removeButton(page, "Sample App").click();
-    const dialog = removeDialog(page, "Sample App");
-    await confirmRemoval(page, "Sample App");
-    await expect(dialog).toBeHidden();
+    await removeProject(page, "Sample App");
+    await expect(removeDialog(page, "Sample App")).toBeHidden();
     await back(page).click();
     await expect(
       page.getByRole("radio", { name: "Sample App", exact: true }),
@@ -185,8 +186,7 @@ test("removing the last project leaves a persistent focused empty state", async 
   await page.goto(server.baseURL);
   await addProjectOnPage(page);
   await settings(page).click();
-  await removeButton(page, "Sample App").click();
-  await confirmRemoval(page, "Sample App");
+  await removeProject(page, "Sample App");
   await expect(
     page.getByRole("heading", { name: "System settings", exact: true }),
   ).toBeVisible();
@@ -210,42 +210,28 @@ test("removing the last project leaves a persistent focused empty state", async 
   await expect(removeButton(page, "Sample App")).toBeEnabled();
 });
 
-test("removing the first project selects its next neighbor and reads that project's actual repository", async ({
+test("failed row removal keeps configuration, confirmation feedback and retry", async ({
   page,
 }) => {
   const server = await fixture.start("preview");
-  await openUntilRead(page, server.baseURL);
+  await page.goto(`${server.baseURL}/?view=settings&project=pygardon`);
   const file = fixture.configurationFile("preview");
-  type Project = { id: string; label: string; repository: string; ref: string };
-  const beforeProjects = JSON.parse(readFileSync(file, "utf8")) as Project[];
-  expect(beforeProjects.length).toBeGreaterThan(1);
-  const [removed, nextProject] = beforeProjects as [
-    Project,
-    Project,
-    ...Project[],
-  ];
-  await expect(
-    page.getByRole("radio", { name: removed.label, exact: true }),
-  ).toBeChecked();
-  await settings(page).click();
-  await removeButton(page, removed.label).click();
-  await confirmRemoval(page, removed.label);
+  const predecessor = readFileSync(file, "utf8");
+  await removeButton(page, "Pygardon").click();
+  const dialog = removeDialog(page, "Pygardon");
+  chmodSync(path.dirname(file), 0o500);
+  try {
+    await confirmRemoval(page, "Pygardon");
+    await expect(dialog.getByRole("alert")).toBeVisible();
+    expect(readFileSync(file, "utf8")).toBe(predecessor);
+  } finally {
+    chmodSync(path.dirname(file), 0o700);
+  }
+  await confirmRemoval(page, "Pygardon");
+  await expect(dialog).toBeHidden();
+  await expect(removeButton(page, "Pygardon")).toHaveCount(0);
   await back(page).click();
   await expect(
-    page.getByRole("radio", { name: nextProject.label, exact: true }),
+    page.getByRole("radio", { name: "Terry Talks", exact: true }),
   ).toBeChecked();
-  await expect(settings(page)).toBeFocused();
-  await expectProjectChoice(page, nextProject.label);
-  await expect
-    .poll(() => server.ghCalls(), { timeout: 5_000 })
-    .toContainEqual([
-      "api",
-      "--include",
-      `repos/${nextProject.repository}/commits/${nextProject.ref}`,
-      "--jq",
-      ".sha",
-    ]);
-  expect(
-    (JSON.parse(readFileSync(file, "utf8")) as Project[]).map(({ id }) => id),
-  ).toEqual(beforeProjects.slice(1).map(({ id }) => id));
 });

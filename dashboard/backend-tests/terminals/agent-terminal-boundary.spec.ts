@@ -9,8 +9,6 @@
 // Other origin variations: agent-launch-refusal.spec.ts and
 // authenticated-read-refusal.spec.ts; this suite proves their shared upgrade guard.
 
-import { mkdirSync, rmSync } from "node:fs";
-import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { openDoughFolder, recordsOf } from "../../tests/agentLaunchBoundary.ts";
 import {
@@ -21,6 +19,7 @@ import {
   refusedStatus,
   shows,
   terminalUrl,
+  withoutProjectFolder,
   type LaunchedSession,
 } from "../../tests/agentTerminalBoundary.ts";
 import {
@@ -201,19 +200,15 @@ test.describe(`agent terminal boundary`, () => {
 
   test("refuses an upgrade whose project folder is gone, before running claude", async () => {
     const elsewhere = await launched(server, "pygardon");
-    const folder = path.join(server.home, "git", "pygardon");
-    rmSync(folder, { recursive: true });
-    try {
-      const callsBefore = server.claudeCalls().length;
-      const status = await refusedStatus(
-        terminalUrl(server, "pygardon", elsewhere.sessionId),
-        { origin: server.origin },
-      );
+    const callsBefore = server.claudeCalls().length;
 
-      expect(status).toBe(404);
-      expect(server.claudeCalls()).toHaveLength(callsBefore);
-    } finally {
-      mkdirSync(folder);
-    }
+    const status = await withoutProjectFolder(server, "pygardon", () =>
+      refusedStatus(terminalUrl(server, "pygardon", elsewhere.sessionId), {
+        origin: server.origin,
+      }),
+    );
+
+    expect(status).toBe(404);
+    expect(server.claudeCalls()).toHaveLength(callsBefore);
   });
 });

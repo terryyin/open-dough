@@ -81,7 +81,9 @@ export function fixtureExtraEnv(
 // Page time stands still at `at` until a journey lets it pass. The clock is
 // installed an hour earlier because it runs until paused, and Playwright
 // refuses to pause it in the past; no page is open yet, so that hour fires
-// nothing.
+// nothing. The clock is the browser context's: pause it once, before its first
+// page opens; a later page joins it paused, and installing it again with a
+// page open would run that page's timers through the hour.
 export async function pausePageClockAt(page: Page, at: Date): Promise<void> {
   await page.clock.install({ time: new Date(at.getTime() - 60 * 60_000) });
   await page.clock.pauseAt(at);
@@ -184,6 +186,7 @@ export const test = base.extend<{
       serverMode,
     },
     use,
+    testInfo,
   ) => {
     const server = await startDashboardServer({
       ...fixtureServerMode(serverMode),
@@ -201,6 +204,21 @@ export const test = base.extend<{
       extraEnv: fixtureExtraEnv(extraEnv, startTimeoutMs),
     });
     await use(server);
+    // What a failed test's server said and asked GitHub, in order, so a
+    // stalled read names its step: listing, owner, or stream event.
+    if (testInfo.status !== testInfo.expectedStatus) {
+      await testInfo.attach("dashboard server output", {
+        body: server.output(),
+        contentType: "text/plain",
+      });
+      await testInfo.attach("fake GitHub calls", {
+        body: server
+          .ghCalls()
+          .map((argv) => argv.join(" "))
+          .join("\n"),
+        contentType: "text/plain",
+      });
+    }
     await server.close();
   },
   baseURL: async ({ dashboard }, use) => {

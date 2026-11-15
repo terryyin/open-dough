@@ -212,8 +212,8 @@ North Star direction needs no addition for this test-side change.
   in every group; trace and run them per group
   ([groups](../../dashboard/tests/README.md),
   [CI shards](../../dashboard/tests/shards.md)). The queued
-  [SEED-334#focus-detailed-dashboard-ui-checks](SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks)
-  converts the interim group's specs and touches the same files; coordinate
+  [SEED-334#finish-dissolving-integrated-ui-test](SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test)
+  converts the interim group's remaining specs and touches the same files; coordinate
   with it rather than migrating a spec it is moving.
 
 <a id="express-launch-test-intent-through-page-objects"></a>
@@ -253,8 +253,8 @@ execution prerequisite on another story.
   disclosure steps visible in cases that prove them.
   [Base CI](../../e2e/launches/agent-launch-base-ci.spec.ts#L37),
   [unread base CI](../../e2e/launches/agent-launch-base-ci-unread.spec.ts#L39),
-  [model controls](../../dashboard/tests/launches/agent-launch-model.spec.ts#L73),
-  [exclusive options](../../dashboard/tests/launches/agent-launch-options-exclusive.spec.ts#L44),
+  [model controls](../../e2e/launches/agent-launch-model.spec.ts#L76),
+  [exclusive options](../../e2e/launches/agent-launch-options-exclusive.spec.ts#L47),
   [existing changes](../../e2e/launches/agent-launch-start-session-existing-changes.spec.ts#L71).
 
 - **Launch input, attachments and touch layout.** Host-specific attachment
@@ -264,20 +264,20 @@ execution prerequisite on another story.
   Give the dialog reusable operations for attach, paste, draft, record,
   edit and touch reachability. Keep payloads, provider faults, expected
   focus and gesture distinctions in the cases.
-  [Attachment cancellation](../../dashboard/tests/launches/agent-launch-ad-hoc-attachments-cancel.spec.ts#L28),
+  [Attachment cancellation](../../dashboard/frontend-tests/launches/agent-launch-ad-hoc-attachments-cancel.spec.ts#L40),
   [Cursor attachments](../../e2e/launches/agent-launch-ad-hoc-attachments-cursor.spec.ts#L45),
   [frontend refusal](../../dashboard/frontend-tests/agent-launch-ad-hoc-attachments-refusal.spec.ts#L59),
-  [voice overflow](../../dashboard/tests/launches/session-instruction-voice-overflow.spec.ts#L98),
-  [touch dialog](../../dashboard/tests/launches/agent-launch-dialog-touch.spec.ts#L44).
+  [voice overflow](../../dashboard/frontend-tests/launches/session-instruction-voice-overflow.spec.ts#L122),
+  [touch dialog](../../dashboard/frontend-tests/launches/agent-launch-dialog-touch.spec.ts#L47).
 
 - **Startup answers and recovery.** Launch response, accepted progress,
   retry/recheck/continue and refusal selectors are repeated across
   preparation, responsive and recovery families. Use shared operations to
   read a launch result and take the next available action. Keep host
   progress gates and exact verification/refusal wording as scenario evidence.
-  [Story start answers](../../dashboard/tests/launches/agent-launch-start-story-card.spec.ts#L81),
+  [Story start answers](../../dashboard/frontend-tests/launches/agent-launch-story-card-answers.spec.ts#L49),
   [preparation retry](../../e2e/launches/agent-launch-preparation-codex-retry.spec.ts#L78),
-  [responsive access](../../dashboard/tests/launches/responsive-session-access.spec.ts#L100),
+  [responsive access](../../dashboard/frontend-tests/launches/responsive-session-access.spec.ts#L102),
   [recovery verification](../../e2e/launches/responsive-session-recovery-verification.spec.ts#L93),
   [frontend startup words](../../dashboard/frontend-tests/startup-host-words.spec.ts#L52).
   Two siblings of this finding remain. `recoveryOf` is a pure alias of
@@ -324,11 +324,11 @@ execution prerequisite on another story.
   Reuse the settings and project-add helpers for rows, dialogs and return
   to Board. Keep the URLs, paths, chosen project, focus destination and
   filesystem evidence explicit.
-  [Add refusal](../../dashboard/tests/configuration/project-add-refusal.spec.ts#L29),
+  [Add refusal](../../dashboard/frontend-tests/configuration/project-add-dialog.spec.ts#L16),
   [project removal](../../e2e/configuration/project-remove.spec.ts),
   [hide with sessions](../../e2e/configuration/project-hide-sessions.spec.ts#L81),
-  [settings project management](../../dashboard/tests/configuration/system-settings-project-management.spec.ts#L24),
-  [touch project management](../../dashboard/tests/configuration/system-settings-project-management-touch.spec.ts#L48).
+  [settings project management](../../e2e/configuration/project-add.spec.ts#L186),
+  [touch project management](../../dashboard/frontend-tests/configuration/system-settings-project-management-touch.spec.ts#L24).
 
 - **Settings controls and appearance.** Credential recovery, terminal
   theme, feedback maintenance and system appearance cases repeat selected
@@ -336,8 +336,8 @@ execution prerequisite on another story.
   controls and appearance helpers for these operations, including the
   integrated Intent dark-appearance case. Keep expected values, color
   scheme and dimensions where the behavior depends on them.
-  [Credential recovery](../../dashboard/tests/configuration/system-settings-openai-recovery.spec.ts#L26),
-  [terminal theme](../../dashboard/tests/configuration/system-settings-terminal-theme.spec.ts#L25),
+  [Credential recovery](../../dashboard/frontend-tests/configuration/system-settings-openai.spec.ts#L104),
+  [terminal theme](../../e2e/configuration/system-settings-terminal-theme.spec.ts#L30),
   [feedback maintenance](../../e2e/configuration/system-settings-feedback-maintenance.spec.ts#L57),
   [frontend system appearance](../../dashboard/frontend-tests/dashboard-system-appearance.spec.ts#L126),
   [Intent dark appearance](../../dashboard/tests/intent/intent-story-dark-appearance.spec.ts#L48).

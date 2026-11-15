@@ -14,6 +14,7 @@ import {
   untilPageReadsAnswered,
 } from "../tests/pageRequestNotes.ts";
 import { expect, test } from "../tests/support/frontendApp.ts";
+import { fulfillEventStream } from "../tests/support/frontendSubstituteAnswers.ts";
 import {
   scopeHistoryPoint,
   serveUnreadProjectCi,
@@ -26,27 +27,16 @@ test("Check again refreshes the same observed head, while time-only checks and f
   await pausePageClockAt(page, new Date("2026-11-11T07:00:00Z"));
   const revision = frontendServices.revision;
   await serveUnreadProjectCi(page, "a".repeat(40));
-  // Frontend app pages hold a real stream slot; answer that boundary as SSE.
+  // Frontend app pages hold a real stream slot; answer it as SSE while the
+  // project stays at the shown revision (the substitutes answer a move).
   await page.route(
-    (url) => url.searchParams.has("since") || url.searchParams.has("at"),
-    async (route) => {
-      const params = new URL(route.request().url()).searchParams;
-      const answer = {
+    (url) => url.searchParams.get("at") === frontendServices.revision,
+    (route) =>
+      fulfillEventStream(route, {
         revision: frontendServices.revision,
-        changed:
-          frontendServices.revision !==
-          (params.get("since") ?? params.get("at")),
+        changed: false,
         branches: [],
-      };
-      await route.fulfill(
-        params.has("at")
-          ? {
-              contentType: "text/event-stream",
-              body: `data: ${JSON.stringify(answer)}\n\n`,
-            }
-          : { json: answer },
-      );
-    },
+      }),
   );
   let duration = 8000;
   let fail = false;

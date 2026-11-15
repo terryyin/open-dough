@@ -1,16 +1,20 @@
 // Which done requests the local launch boundary (../../server/launchBoundary.ts)
 // refuses before it runs any `claude`, over raw HTTP: a session this dashboard
-// did not record, another project's session, another site, an unknown
-// project, and a malformed request. Each refusal leaves the session unmarked
-// and still busy. What an admitted done request does is
-// ./agent-launch-done.spec.ts. The synthetic `claude` (../../tests/fixtures/fake-claude)
+// did not record, another project's session, a session whose project folder
+// is missing, another site, an unknown project, and a malformed request. Each
+// refusal leaves the session unmarked and still busy. What an admitted done
+// request does is ./agent-launch-done.spec.ts. The synthetic `claude` (../../tests/fixtures/fake-claude)
 // records every call, so each refusal proves none was made; the real one is
 // never reached.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { markDone, recordsOf } from "../../tests/agentLaunchBoundary.ts";
 import { closeOpenSessions } from "../../tests/openStorySessionSetup.ts";
-import { launched } from "../../tests/agentTerminalBoundary.ts";
+import {
+  launched,
+  withoutProjectFolder,
+  type LaunchedSession,
+} from "../../tests/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -22,6 +26,16 @@ test.describe("refusing a done request", () => {
 
   const listed = (shortId: string) =>
     server.claudeListing().find((each) => each["id"] === shortId);
+
+  const expectUnmarkedAndBusy = async (session: LaunchedSession) => {
+    const [record] = (await recordsOf(server, "open-dough")).filter(
+      (each) =>
+        (each as { session: { sessionId: string } }).session.sessionId ===
+        session.sessionId,
+    );
+    expect(record).not.toHaveProperty("doneAt");
+    expect(listed(session.shortId)).toMatchObject({ status: "busy" });
+  };
 
   test.beforeAll(async () => {
     server = await startDashboardServer({
@@ -55,13 +69,24 @@ test.describe("refusing a done request", () => {
       expect(response.status).toBe(404);
       expect(server.claudeCalls()).toHaveLength(callsBefore);
     }
-    const [record] = (await recordsOf(server, "open-dough")).filter(
-      (each) =>
-        (each as { session: { sessionId: string } }).session.sessionId ===
-        session.sessionId,
+    await expectUnmarkedAndBusy(session);
+  });
+
+  test("refuses a request for a session whose project folder is missing, without stopping or running claude", async () => {
+    const session = await launched(server);
+    const callsBefore = server.claudeCalls().length;
+
+    const response = await withoutProjectFolder(server, "open-dough", () =>
+      markDone(server, { source: "open-dough", session: session.sessionId }),
     );
-    expect(record).not.toHaveProperty("doneAt");
-    expect(listed(session.shortId)).toMatchObject({ status: "busy" });
+
+    expect(response.status).toBe(404);
+    expect(JSON.parse(response.body)).toEqual({
+      error:
+        "The project folder ~/git/open-dough was not found on this machine.",
+    });
+    expect(server.claudeCalls()).toHaveLength(callsBefore);
+    await expectUnmarkedAndBusy(session);
   });
 
   for (const refused of [

@@ -48,6 +48,8 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
   #model;
   /** @type {LaunchRecord["request"]["effort"]} */
   #effort;
+  /** @type {LaunchRecord["request"]["options"]} */
+  #options;
   /** @type {LaunchRecord["landing"]} */
   #landing;
 
@@ -128,6 +130,16 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
   /** @param {NonNullable<LaunchRecord["request"]["effort"]>} effort */
   requestingEffort(effort) {
     this.#effort = effort;
+    return this;
+  }
+
+  /**
+   * The launch selected these flags of its skill's options, in the
+   * definition's order as the boundary records them.
+   * @param {NonNullable<LaunchRecord["request"]["options"]>} options
+   */
+  requestingOptions(options) {
+    this.#options = [...options];
     return this;
   }
 
@@ -232,6 +244,7 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
       host: session.host,
       model: this.#model,
       effort: this.#effort,
+      options: this.#options,
       reporting: this.#reporting,
       policy: requestedPolicy(adHocWorkspace ?? storyBranch),
     });

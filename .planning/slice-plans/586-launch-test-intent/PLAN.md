@@ -111,9 +111,9 @@ Proof: Shared result readers and retry/recheck/continue controls serve
 preparation, responsive and frontend families. Keep native progress gates,
 exact verification/refusal wording and release order explicit. Illustrative:
 `npm run test:e2e -- 'e2e/launches/agent-launch-preparation' 'e2e/launches/responsive-session-recovery'`,
-`npm run test:dashboard:integrated -- 'tests/launches/agent-launch-start-story-card.spec.ts' 'tests/launches/responsive-session-(access|recovery)'`,
+`npm run test:dashboard:integrated -- 'tests/launches/responsive-session-access'`,
 `npm run test:dashboard:backend -- 'backend-tests/launches/agent-launch-preparation'` and
-`npm run test:dashboard:frontend -- 'frontend-tests/startup-host-words.spec.ts'`.
+`npm run test:dashboard:frontend -- 'frontend-tests/startup-host-words.spec.ts' 'frontend-tests/launches/agent-launch-story-card-(answers|uncertain)' 'frontend-tests/launches/responsive-session-recovery-reads'`.
 
 Behavior: A developer reads a pending or refused startup case → follows named
 answer observations and the explicit chosen recovery → the source states what
