@@ -47,15 +47,7 @@ across worktrees; reduce concurrency without dropping cases when warranted.
 
 Retain the [execution identity, delivery and CI observation](execution-context.md).
 
-Eight cohesive conversion loops replace provisional batches 1–5. Source
-counts/lines below are at `4df4b24298cf313bdbac952a5edd6421345f6f21` and guide
-sizing, not acceptance. Each slice has 15 active minutes excluding running
-commands. Reuse source data and page objects; introduce at most one missing
-service-answer family in a slice, with later variants using the same family.
-The preceding conversion at `bfd4e7815` found that two new families overrun
-and one costs most of that budget. If actual family or assertion work exceeds
-this estimate, apply sizing/escalation before extending the batch; preserve
-elapsed time and evidence. A second overrun requires story reassessment.
+Eight conversion loops retain the [execution sizing and family budget](preparation-evidence.md#execution-sizing).
 
 ### 1. Preserve source browsing and recorded Purpose targets
 Type: Behavior
@@ -162,7 +154,7 @@ All affected consumer paths are disposed, with no required observation deferred 
 
 ### 6. Preserve revision notice and update isolation
 Type: Behavior
-Status: planned
+Status: done
 Proof: five specs / 663 lines: `intent-revision-notice`,
 `intent-revision-planning-only`, `intent-revision-settings-update`,
 `intent-revision-update-boundaries`, `intent-revision-update-outcomes`.
@@ -174,6 +166,10 @@ revision-keyed location/file answer controls, reusing slice 2's failures/holds.
 The mutable default files map is not a historical revision store: explicitly
 key answers when old and latest files differ. Real SSE and acquisition stay
 in the existing observation/E2E homes, supplemented for any unmapped assertion.
+
+Implementation proof: [118 original statements, helper observations and real boundary proof](slice-6-proof.md).
+12.6 active minutes; strict Frontend11, Backend17, E2E6 and typecheck passed.
+All consumers are disposed; [independent refactoring](slice-6-refactor.md) passed strict Frontend9 and original activation1.
 
 ### 7. Preserve activation and project visits with the file column
 Type: Behavior

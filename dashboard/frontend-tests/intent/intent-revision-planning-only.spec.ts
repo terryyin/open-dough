@@ -1,23 +1,26 @@
-import { showLatestRevision } from "../intentReadRecoveryPage.ts";
+import { openWithFeatureSelected } from "../../tests/support/frontendIntentRevisionJourney.ts";
+import { showLatestRevision } from "../../tests/intentReadRecoveryPage.ts";
 // The Project Intent browser names accepted locations even with no selected
 // file, and a planning-only refresh leaves identical tests at a newer source.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
-import { shortRevision } from "../dashboardParts.ts";
-import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
-import { activateIntentHome, ciPanel } from "../intentCiStatusPage.ts";
-import { pygardon } from "../intentCodeBrowseFixtures.ts";
-import { featurePath } from "../intentJobsFeatureFixtures.ts";
-import { browserRevision, revisionNotice } from "../intentPerspectivePage.ts";
+import { makeMe } from "../../tests/../../Distribution/tests/support/makeMe.mjs";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import { shortRevision } from "../../tests/dashboardParts.ts";
+import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
+import { activateIntentHome, ciPanel } from "../../tests/intentCiStatusPage.ts";
+import { pygardon } from "../../tests/intentCodeBrowseFixtures.ts";
+import { featurePath } from "../../tests/intentJobsFeatureFixtures.ts";
+import {
+  browserRevision,
+  revisionNotice,
+} from "../../tests/intentPerspectivePage.ts";
 import {
   intentReads,
   jobsFeatures,
-  openWithFeatureSelected,
   publishedFiles,
-} from "../intentRevisionJourney.ts";
-import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
+} from "../../tests/intentRevisionJourney.ts";
+import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
 
 const releases: (() => void)[] = [];
 test.afterEach(() => {
@@ -26,11 +29,13 @@ test.afterEach(() => {
 
 test("a planning-only update keeps a persistent browser revision with no file selected", async ({
   page,
+  frontendServices,
 }) => {
   const files = publishedFiles(jobsFeatures);
   const reads = intentReads(page);
   const { moveTrunk, intent, feature, source } = await openWithFeatureSelected(
     page,
+    frontendServices,
     files,
   );
   const originalText = (await source.textContent()) ?? "";

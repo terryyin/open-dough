@@ -1,26 +1,37 @@
-import { showLatestRevision, readRetry } from "../intentReadRecoveryPage.ts";
+import { openWithFeatureSelected } from "../../tests/support/frontendIntentRevisionJourney.ts";
+import {
+  showLatestRevision,
+  readRetry,
+} from "../../tests/intentReadRecoveryPage.ts";
 // An unreadable latest settings answer keeps the accepted Project Intent
 // source and Retry; successful retry moves the browser to that revision.
 
-import { expect, test } from "../dashboardTest.ts";
-import { shortRevision } from "../dashboardParts.ts";
-import { authenticatedReadRoute } from "../holdAuthenticatedReads.ts";
-import { pygardon } from "../intentCodeBrowseFixtures.ts";
-import { featurePath, publishedFeature } from "../intentJobsFeatureFixtures.ts";
-import { browserRevision, revisionNotice } from "../intentPerspectivePage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { shortRevision } from "../../tests/dashboardParts.ts";
+import { controlFrontendAuthenticatedRead } from "../../tests/support/frontendAuthenticatedReadControl.ts";
+import { pygardon } from "../../tests/intentCodeBrowseFixtures.ts";
+import {
+  featurePath,
+  publishedFeature,
+} from "../../tests/intentJobsFeatureFixtures.ts";
+import {
+  browserRevision,
+  revisionNotice,
+} from "../../tests/intentPerspectivePage.ts";
 import {
   jobsFeatures,
-  openWithFeatureSelected,
   publishedFiles,
-} from "../intentRevisionJourney.ts";
-import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
+} from "../../tests/intentRevisionJourney.ts";
+import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
 
 test("an unreadable settings answer at the latest revision keeps the shown reading with Retry, which applies the update", async ({
   page,
+  frontendServices,
 }) => {
   const files = publishedFiles(jobsFeatures);
   const { moveTrunk, intent, feature, source } = await openWithFeatureSelected(
     page,
+    frontendServices,
     files,
   );
   const c = "ef".repeat(20);
@@ -28,25 +39,16 @@ test("an unreadable settings answer at the latest revision keeps the shown readi
     ...files,
     [featurePath]: publishedFeature.replace("Archive a job", "Purge a job"),
   });
-  let unreadable = true;
-  await page.route(authenticatedReadRoute, async (route) => {
-    const params = new URL(route.request().url()).searchParams;
-    if (
-      unreadable &&
-      params.get("intent") === "locations" &&
-      params.get("revision") === c
-    ) {
-      await route.fulfill({
-        json: {
-          revision: c,
-          locations: null,
-          settingsProblem: "unreadable",
-          recovery: "transient",
-        },
-      });
-      return;
-    }
-    await route.fallback();
+  const locations = await controlFrontendAuthenticatedRead(
+    page,
+    (params) =>
+      params.get("intent") === "locations" && params.get("revision") === c,
+  );
+  locations.respond({
+    revision: c,
+    locations: null,
+    settingsProblem: "unreadable",
+    recovery: "transient",
   });
   const notice = revisionNotice(intent);
   await showLatestRevision(notice).click();
@@ -64,7 +66,7 @@ test("an unreadable settings answer at the latest revision keeps the shown readi
     shortRevision(pygardon.revision),
   );
 
-  unreadable = false;
+  locations.pass();
   await readRetry(notice).click();
   await expect(source).toContainText("Scenario: Purge a job");
   await expect(revisionNotice(intent)).toHaveCount(0);

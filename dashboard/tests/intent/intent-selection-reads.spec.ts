@@ -7,7 +7,7 @@ import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // published work's detail completing during startup, at the same revision,
 // neither reads the locations again nor clears the expanded group, the
 // selected feature or its Purpose. Newer revisions:
-// ./intent-revision-notice.spec.ts.
+// ../../frontend-tests/intent/intent-revision-notice.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";

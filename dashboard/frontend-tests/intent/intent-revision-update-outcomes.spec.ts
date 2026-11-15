@@ -1,9 +1,10 @@
+import { openWithFeatureSelected } from "../../tests/support/frontendIntentRevisionJourney.ts";
 import {
   showLatestRevision,
   readFailure,
   readRetry,
-} from "../intentReadRecoveryPage.ts";
-import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
+} from "../../tests/intentReadRecoveryPage.ts";
+import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // An applied update that does not simply arrive: a failed update keeps the
 // shown reading with the failure and Retry, including after Development →
 // Intent. Unreadable settings: ./intent-revision-settings-update.spec.ts
@@ -11,29 +12,28 @@ import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // ../../src/IntentRevisionNotice.tsx). Malformed settings and held updates
 // across projects: ./intent-revision-update-boundaries.spec.ts.
 
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
-import { shortRevision } from "../dashboardParts.ts";
-import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import { shortRevision } from "../../tests/dashboardParts.ts";
+import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
 import {
   browserRevision,
   intentGroupToggle,
   purposeRegion,
   revisionNotice,
-} from "../intentPerspectivePage.ts";
-import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
-import { pygardon } from "../intentCodeBrowseFixtures.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
+import { pygardon } from "../../tests/intentCodeBrowseFixtures.ts";
 import {
   featurePath,
   otherPath,
   publishedFeature,
-} from "../intentJobsFeatureFixtures.ts";
+} from "../../tests/intentJobsFeatureFixtures.ts";
 import {
   intentReads,
   jobsFeatures,
-  openWithFeatureSelected,
   publishedFiles,
-} from "../intentRevisionJourney.ts";
+} from "../../tests/intentRevisionJourney.ts";
 
 // Holds still released after a journey, so a failed one does not hang.
 const releases: (() => void)[] = [];
@@ -42,11 +42,13 @@ test.afterEach(() => {
 });
 test("a failed update keeps the shown reading with its failure and Retry, which applies the update", async ({
   page,
+  frontendServices,
 }) => {
   const files = publishedFiles(jobsFeatures);
   const reads = intentReads(page);
   const { moveTrunk, intent, feature, source } = await openWithFeatureSelected(
     page,
+    frontendServices,
     files,
   );
   const c = "eb".repeat(20);
@@ -130,11 +132,13 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
 
 test("Development → Intent during a held then failing update keeps the shown reading with its failure and Retry", async ({
   page,
+  frontendServices,
 }) => {
   const files = publishedFiles(jobsFeatures);
   const reads = intentReads(page);
   const { moveTrunk, intent, feature, source } = await openWithFeatureSelected(
     page,
+    frontendServices,
     files,
   );
   const c = "ee".repeat(20);

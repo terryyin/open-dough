@@ -1,16 +1,17 @@
-import { filesColumn } from "../intentModePage.ts";
-import { sourceFile } from "../intentCodeBrowsePage.ts";
-import { showLatestRevision } from "../intentReadRecoveryPage.ts";
+import { openWithFeatureSelected } from "../../tests/support/frontendIntentRevisionJourney.ts";
+import { filesColumn } from "../../tests/intentModePage.ts";
+import { sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+import { showLatestRevision } from "../../tests/intentReadRecoveryPage.ts";
 // Newer revisions wait behind one polite notice, read nothing until **Show
 // latest**, which keeps the reading while the latest locations are read, then
 // the selection by path; Development follows them meanwhile; a deleted
 // selected feature is explained, with nothing else selected
 // (../../src/IntentRevisionNotice.tsx, ../../src/pageIntentReading.tsx).
 
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
-import { shortRevision } from "../dashboardParts.ts";
-import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import { shortRevision } from "../../tests/dashboardParts.ts";
+import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
 import {
   browserRevision,
   intentGroupToggle,
@@ -19,21 +20,20 @@ import {
   expectReadingOffset,
   intentReadingPane,
   scrollIntentReadingHalfway,
-} from "../intentPerspectivePage.ts";
-import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
-import { pygardon } from "../intentCodeBrowseFixtures.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
+import { pygardon } from "../../tests/intentCodeBrowseFixtures.ts";
 import {
   featurePath,
   otherFeature,
   otherPath,
   publishedFeature,
-} from "../intentJobsFeatureFixtures.ts";
+} from "../../tests/intentJobsFeatureFixtures.ts";
 import {
   intentReads,
   jobsFeatures,
-  openWithFeatureSelected,
   publishedFiles,
-} from "../intentRevisionJourney.ts";
+} from "../../tests/intentRevisionJourney.ts";
 
 // Holds still released after a journey, so a failed one does not hang.
 const releases: (() => void)[] = [];
@@ -50,6 +50,7 @@ const longFeature = (scenario: string) =>
 
 test("newer revisions wait behind one notice, and Show latest keeps the reading while the latest is read", async ({
   page,
+  frontendServices,
 }) => {
   const files = publishedFiles({
     [featurePath]: longFeature("Archive a job"),
@@ -58,6 +59,7 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   const reads = intentReads(page);
   const { moveTrunk, intent, feature, source } = await openWithFeatureSelected(
     page,
+    frontendServices,
     files,
   );
   const scrolled = await scrollIntentReadingHalfway(intent);
@@ -132,11 +134,13 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
 
 test("Development follows a new revision while Intent, opened again, keeps its reading behind the notice", async ({
   page,
+  frontendServices,
 }) => {
   const files = publishedFiles(jobsFeatures);
   const reads = intentReads(page);
   const { moveTrunk, intent, feature, source } = await openWithFeatureSelected(
     page,
+    frontendServices,
     files,
   );
   const { development, intentChoice, status } = parts(page);
@@ -170,10 +174,15 @@ test("Development follows a new revision while Intent, opened again, keeps its r
 
 test("a selected feature the latest revision deleted is explained, with nothing else selected", async ({
   page,
+  frontendServices,
 }) => {
   const files = publishedFiles(jobsFeatures);
   const reads = intentReads(page);
-  const { moveTrunk, intent } = await openWithFeatureSelected(page, files);
+  const { moveTrunk, intent } = await openWithFeatureSelected(
+    page,
+    frontendServices,
+    files,
+  );
 
   const revision = "e9".repeat(20);
   const remaining = Object.fromEntries(

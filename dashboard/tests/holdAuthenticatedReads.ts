@@ -1,8 +1,8 @@
 // Holds authenticated reads, of one path or matching a query, until release
 // or failure, for Intent journeys that observe a read still in flight
-// (`./intent/intent-selection-reads.spec.ts`, `./intent/intent-revision-notice.spec.ts`,
-// `./intent/intent-revision-update-outcomes.spec.ts`,
-// `./intent/intent-revision-update-boundaries.spec.ts`,
+// (`./intent/intent-selection-reads.spec.ts`, `../frontend-tests/intent/intent-revision-notice.spec.ts`,
+// `../frontend-tests/intent/intent-revision-update-outcomes.spec.ts`,
+// `../frontend-tests/intent/intent-revision-update-boundaries.spec.ts`,
 // `../frontend-tests/intent/intent-story-coverage.spec.ts`). Its route pattern also
 // serves journeys that observe Session details' reads
 // (`./support/historicalCreditReads.ts`).

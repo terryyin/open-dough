@@ -1,3 +1,5 @@
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { openWithFeatureSelected } from "../../tests/support/frontendIntentRevisionJourney.ts";
 // An applied update that replaces the reading or must not cross projects:
 // an unusable latest settings file takes the reading's focus into its
 // explanation, and a held update of a project left behind never shows in
@@ -5,34 +7,31 @@
 // ../../src/IntentRevisionNotice.tsx). Failed and unreadable updates that keep
 // the shown reading: ./intent-revision-update-outcomes.spec.ts.
 
-import { expect, test } from "../dashboardTest.ts";
-import { chooseProject } from "../dashboardPage.ts";
-import { shortRevision } from "../dashboardParts.ts";
-import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
-import { ciPanel } from "../intentCiStatusPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { chooseProject } from "../../tests/dashboardPage.ts";
+import { shortRevision } from "../../tests/dashboardParts.ts";
+import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
+import { ciPanel } from "../../tests/intentCiStatusPage.ts";
 import {
   browserRevision,
   intentGroupToggle,
   purposeRegion,
   revisionNotice,
-} from "../intentPerspectivePage.ts";
-import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
-import {
-  doughnut,
-  doughnutSettings,
-  pygardon,
-  publishIntentProject,
-} from "../intentCodeBrowseFixtures.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
+import { doughnut, pygardon } from "../../tests/intentCodeBrowseFixtures.ts";
 import {
   locationFiles,
   showLatestRevision,
-} from "../intentReadRecoveryPage.ts";
-import { featurePath, publishedFeature } from "../intentJobsFeatureFixtures.ts";
+} from "../../tests/intentReadRecoveryPage.ts";
+import {
+  featurePath,
+  publishedFeature,
+} from "../../tests/intentJobsFeatureFixtures.ts";
 import {
   jobsFeatures,
-  openWithFeatureSelected,
   publishedFiles,
-} from "../intentRevisionJourney.ts";
+} from "../../tests/intentRevisionJourney.ts";
 
 // Holds still released after a journey, so a failed one does not hang.
 const releases: (() => void)[] = [];
@@ -42,13 +41,26 @@ test.afterEach(() => {
 
 test("an unusable settings file at the latest revision takes the reading's focus into its explanation", async ({
   page,
+  frontendServices,
 }) => {
   const files = publishedFiles(jobsFeatures);
-  const { moveTrunk, intent } = await openWithFeatureSelected(page, files);
-  await moveTrunk("ec".repeat(20), {
-    ...files,
-    ".planning/open-dough.json": "{\n",
-  });
+  const { moveTrunk, intent } = await openWithFeatureSelected(
+    page,
+    frontendServices,
+    files,
+  );
+  await moveTrunk(
+    "ec".repeat(20),
+    {
+      ...files,
+      ".planning/open-dough.json": "{\n",
+    },
+    {
+      revision: "ec".repeat(20),
+      locations: null,
+      settingsProblem: "malformed",
+    },
+  );
   await showLatestRevision(revisionNotice(intent)).click();
   const explanation = intent.locator(
     '[role="tabpanel"]:has(.intent-settings-problem)',
@@ -62,10 +74,25 @@ test("an unusable settings file at the latest revision takes the reading's focus
 
 test("choosing another project while an update is held shows only that project's reading when it is answered", async ({
   page,
+  frontendServices,
 }) => {
-  await publishIntentProject(page, doughnut, doughnutSettings, locationFiles);
   const files = publishedFiles(jobsFeatures);
-  const { moveTrunk, intent } = await openWithFeatureSelected(page, files);
+  const { moveTrunk, intent } = await openWithFeatureSelected(
+    page,
+    frontendServices,
+    files,
+    {
+      project: doughnut,
+      locations: [
+        makeMe.anIntentLocation
+          .at("scripts")
+          .ofKind("javascript", ["**/*.test.mjs"])
+          .selecting(...Object.keys(locationFiles))
+          .please(),
+      ],
+      files: locationFiles,
+    },
+  );
   const c = "ed".repeat(20);
   await moveTrunk(c, {
     ...files,

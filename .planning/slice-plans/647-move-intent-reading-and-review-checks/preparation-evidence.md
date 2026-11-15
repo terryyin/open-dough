@@ -87,3 +87,15 @@ reused. Remaining20 proof/comparison/candidate specs belong to provisional
 plan651. That plan records a scope-glance overrun from missing built-app Done
 file Purpose/Proof arrangement. Slice5 must settle this unverified consuming
 premise before dependent work; Recently done board review alone is not proof.
+
+## Execution sizing
+
+Eight cohesive conversion loops replace provisional batches 1–5. Source
+counts/lines below are at `4df4b24298cf313bdbac952a5edd6421345f6f21` and guide
+sizing, not acceptance. Each slice has 15 active minutes excluding running
+commands. Reuse source data and page objects; introduce at most one missing
+service-answer family in a slice, with later variants using the same family.
+The preceding conversion at `bfd4e7815` found that two new families overrun
+and one costs most of that budget. If actual family or assertion work exceeds
+this estimate, apply sizing/escalation before extending the batch; preserve
+elapsed time and evidence. A second overrun requires story reassessment.
