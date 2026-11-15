@@ -80,6 +80,16 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: broad batched reads lost portions at the tool-output ceiling and the review retrieved narrower excerpts. Command/proof ownership and conclusions remained recoverable.
   - Inference: recurrence of known agent output-scoping behavior under existing guidance, not evidence for another rule or identity. The avoidable share of the subsequent reads and any time/token saving are unmeasured.
 
+- Execution: SEED-356#reduce-total-model-work-during-blocked-execution (plan 627; first implementation `1fe2c85db9a70f8886e69e504780ea10f4fab3ea`)
+  - Timestamp: 2026-11-15T07:05:47.094Z
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted claim `45f965a1bb59f049f9828097971d7621c13c64d6`; no execution-time release claim inferred from product VERSION)
+  - Evidence: coordinator session `01a1dc65-0f52-7a51-b646-7322bc75ad39`, JSONL lines 5072/5076/5080: a broad native-export projection returned 14,937 original tokens with truncation, followed by a targeted 656-token usage/quality projection. Later convergence batches returned 14,814 and 11,953 tokens; this retrospective also combined whole references/catalog material beyond its output budget and needed bounded passages.
+  - Observed effect: requested observations/guidance were partly omitted and retrieved again. Supported command waits, immutable evidence and proof ownership remained intact.
+  - Inference: recurrence of the existing output-scoping deviation, including in this review, under already-applicable targeted retrieval. The mandatory reviews themselves are not classified as waste; the avoidable read share, elapsed cost and token saving are unmeasured.
+
+
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
 
 Former local code: DD-257. [Meaning, evidence and response](docs/maintainer/findings/ODF-314.md).
@@ -143,6 +153,16 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: 2026-11-13 launch `275cb85a-0cce-40c2-8c58-23ce07cea95e`; `40e6e66c06afe45f7034d89522bb74e5f7a32c83:.planning/slice-plans/608-spot-completed-stories-that-need-review/PLAN.md` slice-2 Refactor paragraph retains the guarded-formatting failure after 56 passing cases and six independent-refactor cases: unbound subscription method, no-param-reassign and unused callback argument. The coordinator's suggested this:void repair then hit no-invalid-void-type; a stable arrow subscription, equivalent element alias and identical index construction settled it.
   - Observed effect: both failed preparation attempts withheld commit/publication; mechanical repairs and retries preceded accepted slice 2. Runtime/observing behavior stayed equivalent and final hook/typecheck passed.
   - Inference: same late authored-file lint feedback and coordinator repair churn as existing ODF-329, including its prior this:void example. Briefs reserved formatter/hook-owned lint to the coordinator; no saving from earlier lint is measured.
+
+- Execution: SEED-356#reduce-total-model-work-during-blocked-execution (plan 627; first implementation `1fe2c85db9a70f8886e69e504780ea10f4fab3ea`)
+  - Timestamp: 2026-11-15T06:37:10.107Z
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted claim `45f965a1bb59f049f9828097971d7621c13c64d6`; no execution-time release claim inferred from product VERSION)
+  - Evidence: coordinator session `01a1dc65-0f52-7a51-b646-7322bc75ad39`, JSONL line 4820, call `call_1f1be51db9b1470c93142298d734d5bb`: guarded fresh formatting refused no-param-reassign in `native-codex-wait-receipts.test.mjs` after passing focused proof and independent refactor. The same refactor owner introduced a local launch binding, renewed the five-case receipt suite and path-only ESLint, then the fresh retry published `754bff87e4bff396fa258d7221b01cba1cde23ac`.
+  - Observed effect: commit/publication were correctly withheld for one mechanical test repair, focused proof/lint and preparation retry. The receipt observations/assertions remained equivalent and no paid journey was repeated.
+  - Inference: same late authored-file lint feedback as existing ODF-329. An earlier read-only check's counterfactual saving and isolated agent/token cost are unmeasured; no skill change is made here.
+
 
 ## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
 
@@ -646,6 +666,16 @@ Three observer or detector defects in the new comparison harness surfaced only a
   - Evidence: plan 618 Learnings "Observer corrections re-derived, not observed live" and "Doughnut qualification observed" (live verdict failed only on the arm path; re-derived pass); obligation G1 re-derived 1 integration / 1 filing from `final-state.txt`.
   - Observed effect: about two paid journeys (~22 min and ~14 min of Codex at xhigh) not repeated; the retained record's case hashes then predated the committed case, which the plan states.
   - Inference: re-derivation is only as trustworthy as the retained raw evidence; one run's raw per-test records were not retained, limiting that re-derivation.
+
+- Execution: SEED-356#reduce-total-model-work-during-blocked-execution (plan 627; first implementation `1fe2c85db9a70f8886e69e504780ea10f4fab3ea`)
+  - Timestamp: 2026-11-15T01:17:44.181Z
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted claim `45f965a1bb59f049f9828097971d7621c13c64d6`; no execution-time release claim inferred from product VERSION)
+  - Evidence: coordinator session `01a1dc65-0f52-7a51-b646-7322bc75ad39`, JSONL lines 1554/1561; `d510a0dcc14f5275dc273c3b8e652eb806b21330:Distribution/tests/native-comparison/paused-supplier/comparisons/seed356-resumed-baseline-863ea5690-accounting-corrected.json` and its original export. A forked-worker reader correction re-exported the same completed raw attempt. Capture record hash, observations hash and input manifest match; original usage remains unknown and unchanged, corrected usage is complete (77 responses, 8,861,703 processed tokens).
+  - Observed effect: retained raw/session evidence settled the accounting defect without reacquiring that paid baseline or rewriting its original provenance. Wrap-up Intent Coverage later caught an independently observed last-session-meta-wins fault and restored 2/2 passing checks plus all 6,579 snapshot hashes.
+  - Inference: supports reusing adequate raw evidence for observer repair, not a token-reduction verdict. No counterfactual paid-run or billing saving is measured. The Intent Coverage check cost 224.552s elapsed (test bodies 373.370ms); this is required review cost, with per-agent tokens unavailable.
+
 
 ## ODF-248 — Refactor reruns unchanged consumer proof
 
