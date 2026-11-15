@@ -35,11 +35,25 @@ batches; their earlier readiness does not carry over.
   teardown) and story arrangements through `frontendServiceState.ts`
   (`putFrontendStories`, `frontendStoryLaunch`). The default substitutes
   answer a moved revision on `since` and the `at` stream.
+  `frontendServiceState.ts` (240 lines) and `frontendServiceSubstitutes.ts`
+  (244) are near the 250-line limit: reorganize them by responsibility before
+  adding the session, terminal and Intent answers later slices need. The new
+  Frontend and E2E spec files have no duration-list rows until CI timing is
+  refreshed.
 - **Known traps.** A `MachineAnswer` failing `launchRecordsSchema` leaves the
   page on "Reading sessions…" silently; Cursor entries need the Cursor runner
   sessions read substituted; a history read needs its own `audience=history`
   route. Reinstalling the context clock for a second page fires the first
   page's silence deadline.
+- **Retirement inputs.** At `c327752a0f385417c74b1a7b3511ebe5d3b450e6` the
+  interim group was named by its Intent location in `.planning/open-dough.json`,
+  `package.json`, `ci.yml` job `dashboard-integrated`,
+  `dashboard/integrated.playwright.config.ts`, the `integrated.longest-first*`
+  lists, runner support (`dashboard/tests/support/groupRunnerExamples.ts`),
+  Distribution CI helpers and tests, and placement READMEs. Leave
+  `integratedStateCompletion` in `.planning/open-dough.json` alone; it is not
+  the interim group's Intent entry. Retirement may land before or after
+  SEED-334#keep-one-browser-test-group-roster; either way three groups remain.
 - **Open CI observation.** `dashboard/tests/observation/revision-stream.spec.ts`
   "two streaming pages…" once saw no revision B for 15 s in CI (run
   43666885667) and was not reproduced locally; failing integrated and E2E

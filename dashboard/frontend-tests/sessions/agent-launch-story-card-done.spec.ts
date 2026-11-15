@@ -4,7 +4,9 @@
 // entry on its card, says so in its status and offers Mark as done again.
 // The real mark of a session Claude Code no longer lists is
 // ../../../e2e/sessions/agent-launch-story-card-done.spec.ts; why the
-// boundary refuses is ../../backend-tests/sessions/agent-launch-done-refusal.spec.ts.
+// boundary refuses, including a missing project folder, without stopping or
+// running `claude`, is
+// ../../backend-tests/sessions/agent-launch-done-refusal.spec.ts.
 
 import {
   expect,

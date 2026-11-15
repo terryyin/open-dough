@@ -16,10 +16,19 @@ explicit route/WebSocket service substitutes, without starting
   from `pageTest.ts`; they render actual components and CSS from prepared
   answers (`intent/`).
 
+Each backend service family a built-app spec talks to has one substitute
+module beside `frontendServiceSubstitutes.ts` in `../tests/support/`
+(settings, launches and attempts, transcription, session actions). It keeps
+the answers as state the page's accepted requests change, records what the
+page asked, and refuses, fails or holds one answer when a case needs to
+observe recovery. Held answers go through `frontendSubstituteAnswers.ts`,
+which releases any still held when the page's case ends. Arrange the project's
+stories and machine reads through `frontendServiceState.ts`.
+
 Dashboard harness helpers and fixtures stay in `../tests/`. Use the shared
 [MakeMe library](../../Distribution/tests/README.md#test-data-architecture) for domain data.
 A spec moved from an integrated feature folder keeps that folder name here
-(`intent/`, `configuration/`, `launches/`), beside the specs extracted earlier at this root; a module that
+(`intent/`, `configuration/`, `launches/`, `sessions/`), beside the specs extracted earlier at this root; a module that
 registers cases for a spec moves with it. Representative workflows live in
 [`../../e2e/`](../../e2e/README.md).
 

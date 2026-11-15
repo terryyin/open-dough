@@ -5,8 +5,12 @@
 // any story and workflow (as ../../e2e/sessions/sessions-sidebar.spec.ts launches outside the
 // shown project), and a raw WebSocket to
 // the terminal boundary for it, opened or refused, whose output and ending the
-// synthetic `claude` reports.
+// synthetic `claude` reports. A request can also be made while the session's
+// project folder is missing, which the terminal boundary and
+// ../backend-tests/sessions/agent-launch-done-refusal.spec.ts both refuse.
 
+import { renameSync } from "node:fs";
+import path from "node:path";
 import WebSocket from "ws";
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import { launch, launchRequest } from "./agentLaunchBoundary.ts";
@@ -49,6 +53,23 @@ export async function launched(
     throw new Error(`Expected a launched session, got ${response.body}`);
   }
   return answer.record.session;
+}
+
+// Answers `request` while the project's folder on the dashboard's machine is
+// missing, and puts the folder back afterwards.
+export async function withoutProjectFolder<T>(
+  server: DashboardServer,
+  source: string,
+  request: () => Promise<T>,
+): Promise<T> {
+  const folder = path.join(server.home, "git", source);
+  const moved = `${folder}.moved`;
+  renameSync(folder, moved);
+  try {
+    return await request();
+  } finally {
+    renameSync(moved, folder);
+  }
 }
 
 export function terminalUrl(
