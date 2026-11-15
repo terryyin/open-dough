@@ -43,3 +43,10 @@ identifies local parent hooks and an optional Admin API join by each child
 conversation ID. Verify the join on an eligible account if available. Preserve
 useful parent coverage without that access. Cloud Agents has a different
 launch and usage contract, tracked in the [cloud launch epic](SEED-339-dashboard-cloud-agent-launches.md#run-open-dough-tasks-in-the-cloud).
+
+The Usage view chooses a tool by host and weighs it under that tool's
+versioned tariff (`dashboard/server/usageTariffs.ts`). The host list is still
+repeated in `usageTools` (`dashboard/src/usageTokenIndex.ts`) and in the host
+schemas of `dashboard/server/usageRecords.ts`; adding Cursor should make it
+one representation first. `dashboard/server/usageContributions.ts` is at the
+file-size limit, so its token arithmetic needs its own module before it grows.

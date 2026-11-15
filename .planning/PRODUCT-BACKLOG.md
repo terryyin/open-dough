@@ -36,6 +36,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Keep Claude coverage gaps current after Refresh](seeds/SEED-359-claude-code-task-token-usage.md#keep-claude-coverage-gaps-current-after-refresh) — SEED-359#keep-claude-coverage-gaps-current-after-refresh
 - [Report a publication made while the supplier is being judged](seeds/SEED-368-third-blocked-execution-attempt.md#report-a-publication-made-during-supplier-judgment) — SEED-368#report-a-publication-made-during-supplier-judgment
 - [Move Intent and navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test) — SEED-334#retire-dashboard-integrated-ui-test
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
