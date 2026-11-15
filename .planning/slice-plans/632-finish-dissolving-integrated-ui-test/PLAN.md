@@ -328,3 +328,12 @@ overrun rule).
 The predecessor's completion record demonstrates Frontend refused-Done fault
 discrimination and the restored Backend no-native-command assertion. Reuse
 that boundary approach.
+
+## Execution complete
+
+Product advice: no change. Sibling SEED-334#retire-dashboard-integrated-ui-test
+owns Intent/navigation conversion and runner retirement; SEED-341 / SEED-365 keep
+later session simplification and suite optimization. Refresh SEED-341 starting
+evidence path map at wrap-up or when that seed is refined. Process review is
+deferred into wrap-up (intentCoverage). CI repair retargeted the Integrated UI
+runner-ownership quick case to a remaining Intent spec after stories emptied.
