@@ -17,6 +17,7 @@ import path from "node:path";
 import { expect } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { ProjectHistory } from "../../server/landedCiHistoryStore.ts";
+import { historyMeasure } from "../../src/ciHistoryMeasureCapability.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   sharedDashboardBuild,
@@ -152,11 +153,14 @@ export const answeredLanding = (landing: {
 export async function landedCiHistory(
   dashboard: DashboardServer,
   gapReasons?: "timing-basis",
+  measure?: typeof historyMeasure.value,
 ): Promise<{ readonly status: number; readonly body: unknown }> {
   const vocabulary =
     gapReasons === undefined ? "" : `&gap-reasons=${gapReasons}`;
+  const namedMeasure =
+    measure === undefined ? "" : `&${historyMeasure.name}=${measure}`;
   const answer = await rawRequest({
-    url: `${dashboard.origin}/__authenticated-read?source=open-dough&intent=ci-history${vocabulary}`,
+    url: `${dashboard.origin}/__authenticated-read?source=open-dough&intent=ci-history${vocabulary}${namedMeasure}`,
     headers: { Origin: dashboard.origin },
   });
   return { status: answer.status, body: JSON.parse(answer.body) as unknown };

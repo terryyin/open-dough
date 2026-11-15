@@ -11,6 +11,7 @@
 // keeping the run attempt it names.
 
 import { hasAttemptTiming } from "../src/ciAttemptTiming.ts";
+import { historyMeasure } from "../src/ciHistoryMeasureCapability.ts";
 import {
   runUrlSchema,
   type LandedCiEntry,
@@ -95,8 +96,13 @@ function gapOf(
   };
 }
 
-// The history's window as its points and gaps, oldest first.
-export function historyEntries(history: ProjectHistory): LandedCiEntry[] {
+// The history's window as its points and gaps, oldest first. When `measure`
+// is set, each point whose build keeps a time without runner waits names
+// that time as `timeMs`.
+export function historyEntries(
+  history: ProjectHistory,
+  measure?: typeof historyMeasure.value,
+): LandedCiEntry[] {
   const measuring = new Map<string, MeasuredLanding[]>();
   const gaps: LandedCiGap[] = [];
   // Oldest first, so a point names its landings oldest first.
@@ -134,12 +140,18 @@ export function historyEntries(history: ProjectHistory): LandedCiEntry[] {
     const build = history.builds[key];
     if (build?.startedAt === undefined || build.completedAt === undefined)
       continue;
+    const keptMeasure = build.timeWithoutRunnerWaits;
     points.push({
       kind: "point",
       revision: build.revision,
       ...runOf(build),
       startedAt: build.startedAt,
       completedAt: build.completedAt,
+      ...(measure === historyMeasure.value &&
+      keptMeasure !== undefined &&
+      "milliseconds" in keptMeasure
+        ? { timeMs: keptMeasure.milliseconds }
+        : {}),
       landings,
     });
   }

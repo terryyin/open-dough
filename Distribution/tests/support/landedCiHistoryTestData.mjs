@@ -38,9 +38,15 @@ const firstAttemptOf = (runId) => ({
  */
 
 /**
- * The landing's own build: its run (first attempt) and the attempt's start
- * and completion.
- * @typedef {{ runId: number, startedAt: string, completedAt: string }} BuildFacts
+ * The landing's own build: its run (first attempt), the attempt's start and
+ * completion, and optional kept CI time without runner waits when the case
+ * supplies it.
+ * @typedef {{
+ *   runId: number,
+ *   startedAt: string,
+ *   completedAt: string,
+ *   timeWithoutRunnerWaits?: KeptBuild["timeWithoutRunnerWaits"],
+ * }} BuildFacts
  */
 
 export class LandedCiHistoryBuilder {
@@ -73,7 +79,10 @@ export class LandedCiHistoryBuilder {
    * @param {LandingFacts & BuildFacts} facts
    * @param {"pass" | "failed"} state
    */
-  #built({ runId, startedAt, completedAt, ...landing }, state) {
+  #built(
+    { runId, startedAt, completedAt, timeWithoutRunnerWaits, ...landing },
+    state,
+  ) {
     const key = `run/${String(runId)}/1`;
     this.#builds[key] = {
       revision: landing.revision,
@@ -82,6 +91,7 @@ export class LandedCiHistoryBuilder {
       ...firstAttemptOf(runId),
       startedAt,
       completedAt,
+      ...(timeWithoutRunnerWaits !== undefined && { timeWithoutRunnerWaits }),
     };
     this.#landing(landing, { kind: "build", build: key, selection: "exact" });
     return this;

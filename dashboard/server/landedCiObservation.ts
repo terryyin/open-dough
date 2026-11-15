@@ -30,6 +30,7 @@ import {
 import { commitIdSchema } from "../src/launchLanding.ts";
 import {
   buildSelectionSchema,
+  ciTimeWithoutRunnerWaitsSchema,
   requestedRevisionCiStatusSchema,
 } from "../src/storyCiComparison.ts";
 import { provenanceOf } from "./landedCiMeasuredBuilds.ts";
@@ -79,6 +80,8 @@ export const keptBuildSchema = z.object({
   proof: retainedProofSchema.optional(),
   // Absent in older records; a classified final answer is not acquired again.
   proofPending: z.boolean().optional(),
+  // Absent means collection has not asked the measure yet.
+  timeWithoutRunnerWaits: ciTimeWithoutRunnerWaitsSchema.optional(),
 });
 
 export type KeptBuild = z.infer<typeof keptBuildSchema>;

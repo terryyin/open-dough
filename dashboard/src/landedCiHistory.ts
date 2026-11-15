@@ -84,6 +84,9 @@ export const landedCiPointSchema = z.object({
   ...runShape,
   startedAt: instantSchema,
   completedAt: instantSchema,
+  // When the reader names the measure capability, the history's measure for
+  // this point; absent for wall-time readers and for builds not yet asked.
+  timeMs: z.number().nonnegative().optional(),
   // The landings it measures, oldest first.
   landings: z.array(measuredLandingSchema).min(1),
 });
@@ -207,8 +210,10 @@ export type MeasuredHistory = {
 export const isPoint = (entry: MeasuredEntry): entry is MeasuredPoint =>
   entry.kind === "point";
 
-// The history with each point's CI wall time; undefined when a point has
-// none, as no answer of the boundary's does, so a time is never invented.
+// The history with each point's time under the history's measure: the named
+// measure's milliseconds when present, otherwise CI wall time from the
+// attempt's start and completion. Undefined when a point has none, as no
+// answer of the boundary's does, so a time is never invented.
 export function measuredHistoryOf(
   history: LandedCiHistory,
 ): MeasuredHistory | undefined {
@@ -218,7 +223,8 @@ export function measuredHistoryOf(
       entries.push(entry);
       continue;
     }
-    const ms = historyWallTimeMs(entry.startedAt, entry.completedAt);
+    const ms =
+      entry.timeMs ?? historyWallTimeMs(entry.startedAt, entry.completedAt);
     if (ms === undefined) return undefined;
     entries.push({ ...entry, wallTimeMs: ms });
   }

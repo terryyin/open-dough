@@ -2,6 +2,7 @@
 
 **Identity:** SEED-364#chart-ci-time-without-runner-waits
 **Source:** [selected story](../../seeds/SEED-364-intent-ci-history-without-runner-waits.md#chart-ci-time-without-runner-waits)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -88,10 +89,8 @@ through `dough-makeme` and, for browser tests, `dough-page-objects`.
 
 ### 1. The collected history answers a build's CI time without runner waits
 Type: Behavior
-Status: planned
-Proof: a new collecting-server backend spec beside
-`landed-ci-history-collection.spec.ts`; `ci-history-reader-compatibility.spec.ts`
-extended for the new capability; request log shows one jobs read per build.
+Status: done
+Proof: `landed-ci-history-time-without-runner-waits.spec.ts` (collect+keep; 5 min for two waits; one jobs read/build; second pass and read ask no jobs; default wall time); `ci-history-measure-compatibility.spec.ts` and `ci-history-reader-compatibility.spec.ts` (named measure + previous reader + refusals); `landed-ci-history-collection.spec.ts` green. Local: `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts` on those four paths — 6 passed; `npm run lint`; `npm run typecheck:dashboard`; `bash scripts/test.sh Distribution/tests/native-harness/native-evidence-identity.sh` after builder edit.
 
 Behavior: a production dashboard collects an accepted landing whose passed
 build ran a 2 min job, then a dependent 3 min job, with 30 s and 1 min runner
@@ -232,3 +231,20 @@ describe the project history by its measure.
 - Slice-plan refinement was not needed: the slices split by outcome
   (collect, explain and supply, average, show), each with one proof loop.
 - Remaining concerns: none identified in this review.
+
+## Story obligations
+
+### G1. Page still reads wall time until Intent names the measure
+Reported: slice 1 — "The page still asks without the capability, so it shows wall time until slice 4."
+Story clause: "Use that measure for the chart points and their readouts, **Latest measured build**, the selected landing’s time, and the times in **Builds and evidence**."
+Disposition: interim until slices 4
+
+### G2. Prior-build average still from wall time until the measure reference
+Reported: slice 1 — "The answer's reference is still the wall-time one until slice 3."
+Story clause: "Calculate the **Prior-build average**, its sample count and evidence, and the elapsed and percentage change against it from the same measure."
+Disposition: interim until slices 3
+
+### G3. Measure-naming read without a kept measure time still presents wall time as a point
+Reported: slice 1 — "When measure is named but the build has no kept milliseconds, timeMs is omitted and measuredHistoryOf still presents wall time rather than a gap."
+Story clause: "When the retained evidence cannot supply a measurement, show a gap with its reason and exclude it from the chart’s prior-build average."
+Disposition: interim until slices 2

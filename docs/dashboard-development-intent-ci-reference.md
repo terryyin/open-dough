@@ -1,8 +1,11 @@
 # Intent prior-build reference
 
-Part of [CI status](dashboard-development-intent-ci-status.md). The project
-wall-time history compares its latest represented landing, in recorded trunk
-order, with complete prior measurements in the same retained local snapshot.
+Part of [CI status](dashboard-development-intent-ci-status.md). Collection and
+retention of the history are in
+[CI history collection](dashboard-development-intent-ci-history-collection.md).
+The project wall-time history compares its latest represented landing, in
+recorded trunk order, with complete prior measurements in the same retained
+local snapshot.
 The existing latest measured build, dated points, gaps, judgment and Proof
 remain available. A horizontal dashed line marks the displayed endpoint's
 **Prior-build average**, never a retrospective average curve.

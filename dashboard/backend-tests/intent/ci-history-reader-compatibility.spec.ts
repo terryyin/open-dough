@@ -7,6 +7,7 @@ import {
 } from "../../src/authenticatedIntentCiHistoryRead.ts";
 import { finalGapReasons } from "../../src/landedCiHistory.ts";
 import { gapReasonWords } from "../../src/ciHistoryGapWords.ts";
+import { historyMeasure } from "../../src/ciHistoryMeasureCapability.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 import { keepLandedCiHistory } from "../../tests/support/landedCiHistory.ts";
 import {
@@ -176,6 +177,10 @@ test("history capability negotiation refuses unsupported or repeated values, mix
     `scope=tests&revision=${"b".repeat(40)}&through=2026-11-05T10:00:00Z&gap-reasons=timing-basis`,
     "history=glance",
     `revision=${"b".repeat(40)}&through=2026-11-05T10:00:00Z&history=full`,
+    `${historyMeasure.name}=unknown`,
+    `${historyMeasure.name}=`,
+    `${historyMeasure.name}=${historyMeasure.value}&${historyMeasure.name}=${historyMeasure.value}`,
+    `revision=${"b".repeat(40)}&through=2026-11-05T10:00:00Z&${historyMeasure.name}=${historyMeasure.value}`,
   ]) {
     const response = await rawRequest({
       url: `${dashboard.origin}/__authenticated-read?source=open-dough&intent=ci-history&${query}`,
