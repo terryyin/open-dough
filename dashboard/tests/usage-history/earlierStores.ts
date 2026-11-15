@@ -9,6 +9,9 @@ import { usageHistoryFile } from "../../server/usageHistory.ts";
 import type { LegacyUsageHistory } from "../../server/usageEarlierStore.ts";
 import type { ImportedHistory } from "./importHarness.ts";
 
+/** The paged store's page directory beside the history file. */
+export const pagesOf = (home: string) => `${usageHistoryFile(home)}.pages`;
+
 const sha = (text: string) => createHash("sha256").update(text).digest("hex");
 
 /** The v1 document holding the history's tasks and gaps with these responses. */
@@ -34,7 +37,7 @@ export function writeLegacyStore(home: string, history: LegacyUsageHistory) {
 /** Writes the history as pages, one per collection and key partition. */
 export function writePagedStore(home: string, history: LegacyUsageHistory) {
   const file = usageHistoryFile(home);
-  const pages = `${file}.pages`;
+  const pages = pagesOf(home);
   mkdirSync(pages, { recursive: true });
   const manifest = {
     format: "usage-pages-v1",

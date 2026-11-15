@@ -11,6 +11,8 @@ import {
   launch,
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
+  failing,
+  importFailure,
   keepOperationalLaunch,
   readImported,
   runImport,
@@ -39,26 +41,12 @@ test("a failed replacement keeps the previous history readable and a retry count
       .withResponse("turn", "two", { output_tokens: 3 })
       .please(),
   );
-  const preload = `data:text/javascript,${encodeURIComponent(`
-    import fs from 'node:fs/promises';
-    import { syncBuiltinESMExports } from 'node:module';
-    const rename = fs.rename;
-    fs.rename = async (source, target) => {
-      if (target.endsWith('/usage.json')) throw new Error('injected replacement failure');
-      return rename(source, target);
-    };
-    syncBuiltinESMExports();
-  `)}`;
-  let failureResult: { status?: number; stderr?: Buffer } | undefined;
-  try {
-    runImport(home, root, [], ["--import", preload]);
-  } catch (error) {
-    failureResult = error as typeof failureResult;
-  }
-  expect(failureResult?.status).toBe(1);
-  expect(String(failureResult?.stderr)).toContain(
-    "injected replacement failure",
-  );
+  expect(
+    importFailure(home, root, failing("rename", "/usage.json")),
+  ).toMatchObject({
+    status: 1,
+    stderr: expect.stringContaining("injected rename failure"),
+  });
   expect(readImported(home)).toEqual(before);
   runImport(home, root);
   const after = readImported(home);

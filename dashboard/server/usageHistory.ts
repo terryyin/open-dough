@@ -4,7 +4,10 @@
 // with the sum of those responses, so a writer passes every response of each
 // session it read and a session read again is counted once. Sessions the
 // batch does not name keep their contributions. The document is replaced
-// atomically under its `<file>.lock`, and only when its bytes differ.
+// atomically under its `<file>.lock`, and only when its bytes differ. Every
+// write then removes the page directory an earlier paged store left beside
+// the file (./usageEarlierStore.ts), so a removal that failed or was
+// interrupted is finished by the next write.
 import { randomUUID } from "node:crypto";
 import { mkdir, rm } from "node:fs/promises";
 import { homedir } from "node:os";
@@ -19,6 +22,7 @@ import {
   collectContributions,
   resolveContributions,
 } from "./usageContributions.ts";
+import { removeEarlierPages } from "./usageEarlierStore.ts";
 import {
   canonicalUsageHistory,
   serializeUsageHistory,
@@ -167,14 +171,18 @@ export async function writeUsageHistory(
       sessions: merged,
       gaps: reconciledGaps(stored.gaps, batch.gaps, answered),
     });
-    if (bytes?.toString("utf8") === text) return;
-    const temporary = `${file}.${randomUUID()}.tmp`;
-    try {
-      await replaceDurableJson(temporary, file, text);
-      recordMachineJsonReplacement();
-    } finally {
-      await rm(temporary, { force: true });
+    if (bytes?.toString("utf8") !== text) {
+      const temporary = `${file}.${randomUUID()}.tmp`;
+      try {
+        await replaceDurableJson(temporary, file, text);
+        recordMachineJsonReplacement();
+      } finally {
+        await rm(temporary, { force: true });
+      }
     }
+    // The document is durable here, written now or found equal, so nothing
+    // reads an earlier store's pages again.
+    await removeEarlierPages(file);
   } finally {
     releaseWriteLock(lock);
   }

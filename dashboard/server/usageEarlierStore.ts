@@ -6,8 +6,9 @@
 // (./usageContributions.ts) and keeps no response. Tasks and gaps come in
 // their stored order. Pages no manifest names are ignored. A paged store's
 // response rows are read unvalidated, one page at a time: they are trusted
-// to their own writer and too many to validate.
-import { readFile } from "node:fs/promises";
+// to their own writer and too many to validate. The first write of the
+// history document removes the page directory.
+import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
 import {
@@ -46,6 +47,12 @@ type Collection = "tasks" | "observations" | "associations" | "gaps";
 type Row = [key: string, value: unknown, order: number];
 
 export const pageDirectory = (file: string) => `${file}.pages`;
+
+// Removes the page directory of the store in `file` whole, with the pages no
+// manifest names: only ever `<file>.pages`, and only for a caller that holds
+// the file's lock and has made its history document durable.
+export const removeEarlierPages = (file: string): Promise<void> =>
+  rm(pageDirectory(file), { recursive: true, force: true });
 
 export type EarlierHistory = {
   tasks: UsageTask[];

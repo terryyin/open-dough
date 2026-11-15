@@ -115,6 +115,43 @@ export function runImport(
   );
 }
 
+/**
+ * Node options that make the named `node:fs/promises` call fail, in the
+ * process they are passed to, on a path ending in `suffix`: the path removed
+ * for `rm`, the target for `rename`. The error reads `injected <call> failure`.
+ */
+export const failing = (call: "rm" | "rename", suffix: string) => [
+  "--import",
+  `data:text/javascript,${encodeURIComponent(`
+    import fs from 'node:fs/promises';
+    import { syncBuiltinESMExports } from 'node:module';
+    const original = fs.${call};
+    fs.${call} = async (...args) => {
+      if (String(args.at(${call === "rm" ? "0" : "-1"})).endsWith(${JSON.stringify(suffix)}))
+        throw new Error('injected ${call} failure');
+      return original(...args);
+    };
+    syncBuiltinESMExports();
+  `)}`,
+];
+
+type ImportFailure = { status: number | null; stderr: string };
+
+/** The exit status and error output of an import that fails. */
+export function importFailure(
+  home: string,
+  nativeRoot: string,
+  nodeOptions: string[],
+): ImportFailure {
+  try {
+    runImport(home, nativeRoot, [], nodeOptions);
+  } catch (error) {
+    const { status, stderr } = error as ImportFailure;
+    return { status, stderr };
+  }
+  throw new Error("The import succeeded");
+}
+
 /** The stored history with the responses the latest import read. */
 export type ImportedHistory = UsageHistory & UsageResponses;
 

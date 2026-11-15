@@ -199,16 +199,17 @@ document without opening native files. The document is serialized in one order
 content gives equal bytes, and a write that would store the same bytes replaces
 nothing. A failed replacement keeps the prior document readable; a retry counts
 each response once. An unreadable document is preserved and refuses automatic
-overwrite. `read` prints the document. A store an earlier dashboard wrote, a
-version 1 history or a manifest naming page files in `usage.json.pages/`
-(unnamed ones add nothing), is read as the starting history, its response rows
-summed into session contributions; the next successful write stores the
-document in its place. System settings → Usage reads the store only through the
-derived `usage-task-summary.json` beside it, which needs no backup: a separate
-process rebuilds it, never writing to the store, when it is missing or the
-document changes; whether a launch finished comes from current launch records.
-Its Refresh (`server/usageRefresh.ts`) rereads, in another process, the Codex
-rollouts of known tasks changed since `usage-check.json` through this writer.
+overwrite. `read` prints the document. An earlier dashboard's store, a version 1
+history or a manifest naming page files in `usage.json.pages/`, is read as the
+starting history, its response rows summed into contributions. The first write,
+an import's or a Refresh's, stores the document in its place, then removes
+`usage.json.pages/` whole; a failed removal is finished by the next write. Back
+up `usage.json` alone. System settings → Usage reads the store only through the
+derived `usage-task-summary.json` beside it: a separate process rebuilds it,
+never writing to the store, when missing or when the document changes; whether
+a launch finished comes from current launch records. Its Refresh
+(`server/usageRefresh.ts`) rereads, in another process, the Codex rollouts of
+known tasks changed since `usage-check.json` through this writer.
 
 The import result counts tasks and gaps from the history, and responses, also
 in `summary`, from the evidence this import read. `configuredWork` contains

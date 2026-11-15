@@ -214,8 +214,8 @@ Status: planned
 Proof: new conversion spec. A paged store written by `writePagedStore`
 (`dashboard/tests/usage-history/earlierStores.ts`), with one extra unreferenced page file → a write →
 tasks, gaps and task totals equal the paged store's, and `usage.json.pages`
-is gone. With the page removal failing (the injection style of
-`usage-snapshot-failures.spec.ts`), the new document is readable and complete
+is gone. With the page removal failing (the injection of `failing` in
+`dashboard/tests/usage-history/importHarness.ts`), the new document is readable and complete
 and the next write removes the directory. With the document replacement
 failing, the paged store still reads as before. Real-clone observation,
 following plan 630's method: APFS-clone
@@ -375,6 +375,43 @@ Update the Refresh sentence of `dashboard/USAGE-HISTORY.md`.
     session with two files, one changed, replaces from the changed file only;
     each chart request hashes the whole document for the summary digest
     check. Time those on the real clone.
+- Slice 4 (accepted 2026-11-15; family 65 passed, usage e2e 2 and frontend 3
+  passed, lint and typecheck clean):
+  - `writeUsageHistory` calls `removeEarlierPages(file)` (`usageEarlierStore.ts`)
+    under the lock after the document is durable or found equal, so an
+    unchanged-bytes write also finishes a removal. Only `<file>.pages` is ever
+    removed. A failed removal fails that write after the document is stored;
+    the next write retries.
+  - Conversion proof: `earlier-store-conversion.spec.ts` (import, Refresh and
+    `writeUsageHistory({})` convert). The paged-era specs are now
+    `earlier-stores.spec.ts` and `usage-history-write-failures.spec.ts`.
+    `failing(call, suffix)` and `importFailure` in `importHarness.ts` inject a
+    failing `rm` or `rename` into an import.
+  - Real-clone observation (APFS clones under the job's scratch directory, real
+    `~/.codex` read in place; the real store's manifest hash and its 6,053
+    page files of 4,417,630,849 bytes were identical before and after):
+    - Pure conversion: 5.2 s, 725 MB peak RSS, 22,871,902 bytes (tasks
+      16,888,080; 6,129 sessions 3,186,029; gaps 2,797,734); 2,925 tasks
+      byte-equal, 12,922 gaps in order, per-task totals identical, the same
+      513 summary task ids and usage groups (102 tasks list their groups in
+      another order).
+    - First Refresh: 15.4 s, 1.04 GB peak RSS, pages gone. In a clone home
+      the document is 26,033,157 bytes because launch-record sources carry
+      the home's absolute path, which differs from the stored one and
+      duplicates sources for 1,021 tasks. With the stored paths rewritten to
+      the clone's it is 24,277,565 bytes, which is 22,988,829 at the real
+      path length (tasks 16,961,106; 6,159 sessions 3,229,930; gaps
+      2,797,734).
+    - Refresh differences, all from evidence newer than the stored import: 14
+      new tasks, one task with 170 more responses, 13 tasks whose tier went
+      from null to `default` on reread (same Token index), 370 launch tasks
+      whose `workflow` the sibling story's rewrite changed, one Claude task
+      with a contradictory outcome from its launch record.
+  - For slice 5: `clone-home` and `clone-faithful-home` under the job's
+    scratch directory are converted; run `HOME=<clone home> node
+    <scratch>/clone-scripts/refresh.mjs` from the worktree. Reading the
+    converted document and deriving the summary takes about 0.5 s.
+    `dashboard/USAGE-HISTORY.md` is at 250 lines.
 
 ## Verification, sizing and concern review
 
@@ -447,4 +484,9 @@ Disposition: excluded "Per-response inspection of the stored history ends with t
 ### G5. An existing page directory stays on disk after the first write
 Reported: slice 3 — "An existing usage.json.pages directory stays on disk after the first write; the document replaces the manifest and the pages become unreferenced."
 Story clause: "including the unreferenced files"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts removes the page directory with its unnamed page on the first write and on the next write after a failed removal; real clone: all 6,053 page files gone
+
+### G6. A reader that began before the conversion can fail once
+Reported: slice 4 — "A reader that parsed the manifest just before the replacement can fail once with Usage history is unreadable while pages are being removed; readers take no lock. The next read succeeds."
+Story clause: "A failed or interrupted"
+Disposition: no user cost "Usage shows a few numbers per finished task": it can happen once per machine, during the single converting write, to a read that started before it; the stored history is complete and the next read returns it. Inspected: writeUsageHistory removes pages only after replaceDurableJson; usageTaskSummaryCache.ts rebuilds on the next request when the document digest differs; the Refresh that converts returns the chart from the document it wrote.

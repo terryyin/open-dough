@@ -29,9 +29,9 @@ Exclusions returned:
 | 1.2 | Goal: "Usage shows a few numbers per finished task, so what the dashboard keeps for it is sized by the number of tasks and native sessions, in megabytes". | slice 5 | |
 | 1.3 | Goal: what the dashboard keeps "stays that size however often usage is checked". | slice 5 | |
 | 2.1 | Scope: "The native evidence the rows were read from stays in the hosts' own session files and is not the dashboard's to keep a second time." (Context, measured read-only on Terry's machine on 2026-11-15: `usage.json.pages` holds 4.4 GB in 6,053 files; 2.8 GB / 3,737 files referenced by nothing; 1.6 GB in use = 0.99 GB per-response observations + 0.49 GB per-response associations for 514,444 responses (641,591 measurements) from 9,719 native sessions in 12,513 files, against 16.6 MB for 2,925 tasks and 2.8 MB for 12,922 gaps; grouped by task, model, effort, speed tier and root or worker the responses come to 3,207 totals.) | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: no response id in usage.json; import-responses.spec.ts sessions hold no response id |
-| 3.1 | Budget: "The whole usage history for that present evidence takes at most 25 MB" (the evidence measured on Terry's machine on 2026-11-15). | slice 4 | |
-| 3.2 | Budget component: the task catalog and coverage gaps "as they are today (19.4 MB)". | slice 4 | |
-| 3.3 | Budget component: "at most 5 MB for session contributions" (qualification: 4.4 MB when built from the present store with each session's file list included). | slice 4 | |
+| 3.1 | Budget: "The whole usage history for that present evidence takes at most 25 MB" (the evidence measured on Terry's machine on 2026-11-15). | slice 4 | observed: real-clone observation 2026-11-15: pure conversion 22,871,902 bytes; Refresh on the clone with stored source paths matching the clone home 24,277,565 bytes (22,988,829 at the real home path length) |
+| 3.2 | Budget component: the task catalog and coverage gaps "as they are today (19.4 MB)". | slice 4 | observed: real-clone observation: tasks plus gaps 19,685,814 bytes with provenance uncompacted, inside the 25 MB document |
+| 3.3 | Budget component: "at most 5 MB for session contributions" (qualification: 4.4 MB when built from the present store with each session's file list included). | slice 4 | observed: real-clone observation: sessions 3,186,029 bytes after conversion, 3,229,930 after Refresh |
 | 3.4 | Budget: each session's file list is something "the history does not keep". | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: sessions equal {host, sessionId, entries} and hold no rollout path |
 | 3.5 | Budget: "A new task adds under 10 KB." | slice 3 | observed: dashboard/backend-tests/usage-history/session-contribution-growth.spec.ts: 400-response rollout grows the history by under 10 KB |
 | 3.6 | Budget: "A check that finds no new evidence adds nothing." | slice 5 | |
@@ -55,16 +55,16 @@ Exclusions returned:
 | 5.6 | A response in a rollout that moved from live to archived is counted once. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (d) rollout moved to the archived root counted once |
 | 6.1 | A session whose native files have since been removed keeps its stored contribution. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (c) deleted rollout keeps totals and summary usage; historical-task-references.spec.ts; recovered-corroboration.spec.ts |
 | 6.2 | That session's tasks keep their totals. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (c) deleted rollout keeps totals and summary usage; historical-task-references.spec.ts; recovered-corroboration.spec.ts |
-| 7.1 | The first Refresh with this story's dashboard converts the existing store. | slice 4 | |
-| 7.2 | The first import with this story's dashboard converts the existing store (alternative as written: "The first Refresh or import"). | slice 4 | |
-| 7.3 | Conversion carries over every task. | slice 4 | |
-| 7.4 | Conversion carries over every gap. | slice 4 | |
-| 7.5 | Conversion carries over every total. | slice 4 | |
-| 7.6 | Conversion then removes `usage.json.pages` whole. | slice 4 | |
-| 7.7 | The removal includes the unreferenced files. | slice 4 | |
-| 7.8 | A failed conversion leaves the earlier history readable. | slice 4 | |
-| 7.9 | An interrupted conversion leaves the earlier history readable. | slice 4 | |
-| 7.10 | After a failed or interrupted conversion, "the next check finishes the removal". | slice 4 | |
+| 7.1 | The first Refresh with this story's dashboard converts the existing store. | slice 4 | observed: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts Refresh converts: chart tasks equal, page directory gone; real-clone Refresh |
+| 7.2 | The first import with this story's dashboard converts the existing store (alternative as written: "The first Refresh or import"). | slice 4 | observed: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts import converts; document replacement fails then the next import converts |
+| 7.3 | Conversion carries over every task. | slice 4 | observed: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts import converts: tasks, gaps and totals equal the paged store's; real clone: 2,925 tasks byte-equal, 12,922 gaps, per-task totals identical |
+| 7.4 | Conversion carries over every gap. | slice 4 | observed: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts import converts: tasks, gaps and totals equal the paged store's; real clone: 2,925 tasks byte-equal, 12,922 gaps, per-task totals identical |
+| 7.5 | Conversion carries over every total. | slice 4 | observed: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts import converts: tasks, gaps and totals equal the paged store's; real clone: 2,925 tasks byte-equal, 12,922 gaps, per-task totals identical |
+| 7.6 | Conversion then removes `usage.json.pages` whole. | slice 4 | observed: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts: usage.json.pages absent after each converting write; all three real clones |
+| 7.7 | The removal includes the unreferenced files. | slice 4 | observed: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts: the unnamed page is present before and gone after; real clone: 6,053 files gone, 3,737 of them unreferenced |
+| 7.8 | A failed conversion leaves the earlier history readable. | slice 4 | observed: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts document replacement fails: manifest bytes and page listing unchanged, store reads as before |
+| 7.9 | An interrupted conversion leaves the earlier history readable. | slice 4 | observed: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts page removal fails after the document is durable: the document is complete and readable |
+| 7.10 | After a failed or interrupted conversion, "the next check finishes the removal". | slice 4 | observed: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts: next write with unchanged bytes removes the directory; next import converts after a failed replacement |
 | 8.1 | A Refresh with no new rollout activity leaves the history's bytes unchanged. | slice 5 | |
 | 8.2 | Such a Refresh "records only its check time". | slice 5 | |
 | 8.3 | Such a Refresh "finishes in the time it takes to see that no rollout changed". | slice 5 | |
@@ -95,13 +95,13 @@ Exclusions returned:
 | 12.3 | (From scope limit X2) "An import can write the responses it read, with their measurements and task assignment, to a file the developer names". | slice 1 | observed: dashboard/backend-tests/usage-history/import-responses.spec.ts: observations and associations keyed by the three response ids, measurements with native source, resolved taskId per response |
 | 12.4 | (From scope limit X2) "the native files stay the evidence". | slice 1 | observed: import-responses.spec.ts: rollout bytes equal before and after import, measurement source is the native file; dashboard/USAGE-HISTORY.md options paragraph |
 | 12.5 | (From scope limit X3) The task catalog's provenance (`fieldSources`, `fieldClaims`, `sources` and `assignmentEvidence`; 14.3 MB of the 16.6 MB) keeps its present form. | slice 3 | observed: dashboard/backend-tests/usage-history/session-contributions.spec.ts (a) one document with a contribution per session: tasks keep sources; recovered-assignment-evidence.spec.ts fieldClaims and assignmentEvidence; recovered-assignment-legacy.spec.ts fieldSources |
-| 12.6 | (From scope limit X3) "the budget covers it" (the uncompacted provenance). | slice 4 | |
+| 12.6 | (From scope limit X3) "the budget covers it" (the uncompacted provenance). | slice 4 | observed: real-clone observation: tasks plus gaps 19,685,814 bytes with provenance uncompacted, inside the 25 MB document |
 | 12.7 | (From scope limit X4) Delivery of this story removes `import-reports/2026-11-15/` (42 MB) from Terry's machine once. | slice 4 | |
-| 12.8 | (From scope limit X4) Delivery updates the recovery receipt (`docs/maintainer/usage-history-recovery-2026-11-15.md`) that points at it. | slice 4 | |
-| 13.1 | Example Conversion — given a store like Terry's (1.6 GB of referenced pages beside 2.8 GB of unreferenced ones), after the first Refresh: Usage shows the same tasks as before. | slice 4 | |
-| 13.2 | Example Conversion: Usage shows the same Token index values as before. | slice 4 | |
-| 13.3 | Example Conversion: `usage.json.pages` is gone. | slice 4 | |
-| 13.4 | Example Conversion: the history takes at most 25 MB. | slice 4 | |
+| 12.8 | (From scope limit X4) Delivery updates the recovery receipt (`docs/maintainer/usage-history-recovery-2026-11-15.md`) that points at it. | slice 4 | observed: docs/maintainer/usage-history-recovery-2026-11-15.md: the import-reports/2026-11-15 evidence is described as removed with this story |
+| 13.1 | Example Conversion — given a store like Terry's (1.6 GB of referenced pages beside 2.8 GB of unreferenced ones), after the first Refresh: Usage shows the same tasks as before. | slice 4 | observed: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts Refresh converts: chart tasks with Token index values equal before and after; real-clone summary: same 513 task ids and usage groups after pure conversion |
+| 13.2 | Example Conversion: Usage shows the same Token index values as before. | slice 4 | observed: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts Refresh converts: chart tasks with Token index values equal before and after; real-clone summary: same 513 task ids and usage groups after pure conversion |
+| 13.3 | Example Conversion: `usage.json.pages` is gone. | slice 4 | observed: dashboard/backend-tests/usage-history/earlier-store-conversion.spec.ts: usage.json.pages absent after each converting write; all three real clones |
+| 13.4 | Example Conversion: the history takes at most 25 MB. | slice 4 | observed: real-clone observation 2026-11-15: pure conversion 22,871,902 bytes; Refresh on the clone with stored source paths matching the clone home 24,277,565 bytes (22,988,829 at the real home path length) |
 | 14.1 | Example Nothing new — given a converted history and no rollout activity since the last check, Refresh twice: the history's bytes are identical after each. | slice 5 | |
 | 14.2 | Example Nothing new: only the "Checked" time moves. | slice 5 | |
 | 15.1 | Example New responses — a finished task's rollout gains three responses, then Refresh: the task's totals rise by exactly those three. | slice 5 | |
