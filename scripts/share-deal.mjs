@@ -1,8 +1,9 @@
 // scripts/share-deal.mjs deals a test suite's jobs into CI shares by their
-// recorded durations: it reads the duration list and the time budget, deals
-// the jobs, selects one share as `<i>/<n>` (`OPEN_DOUGH_TEST_SPLIT`, a
+// recorded durations: it reads the duration list, deals the jobs, selects
+// one share as `<i>/<n>` (`OPEN_DOUGH_TEST_SPLIT`, a
 // browser test group's `<prefix>_SPLIT`, the `share` command's `--split`),
-// and writes the preview and the times form a refresh merges.
+// and writes the times form a refresh merges. Preview input and text live
+// in scripts/share-preview.mjs.
 // scripts/test-shares.mjs is its command surface, run by scripts/test-jobs.sh
 // for the Node runner's share and by a contributor for the preview and the
 // refresh; dashboard/tests/support/testFiles.mjs deals each browser test
@@ -19,9 +20,7 @@ import {
   bytewise,
   collectLongestSeconds,
   formatListText,
-  formatSeconds,
   newDurationListHeader,
-  readInput,
   TestSharesError,
 } from "./duration-list.mjs";
 export {
@@ -34,6 +33,13 @@ export {
   mergeTimes,
   writeDurationList,
 } from "./duration-list.mjs";
+
+// Labels NUL-separated, or one per line when the text holds no NUL; empty
+// entries are dropped.
+export function parseLabels(text) {
+  const separator = text.includes("\0") ? "\0" : /\r?\n/;
+  return text.split(separator).filter((label) => label !== "");
+}
 
 // Below this, two predicted totals are equal; sums of tenths differ from
 // their exact value by far less, and durations are never this close apart.
@@ -180,71 +186,4 @@ export function dealShares(labels, seconds, shareCount) {
 // The labels of share `index` (1-based) in start order.
 export function shareLabels(allocation, index) {
   return allocation.shares[index - 1].jobs.map((job) => job.label);
-}
-
-// The preview text: the list and job counts, each share's predicted total
-// with its headroom to `ceiling` (the budget's total-job-seconds, when
-// given), then each unrecorded job with its share and assumed seconds.
-export function formatPreview(allocation, { listName, ceiling, budgetName }) {
-  const jobCount = allocation.recordedCount + allocation.unrecordedCount;
-  const assumption =
-    allocation.recordedMedian === allocation.assumedSeconds
-      ? "the recorded median"
-      : "no usable recorded median";
-  const lines = [
-    `Predicted job-seconds per share from ${listName}: ${jobCount} jobs, ${allocation.recordedCount} recorded, ${allocation.unrecordedCount} unrecorded at ${formatSeconds(allocation.assumedSeconds)} s each (${assumption}).`,
-  ];
-  for (const share of allocation.shares) {
-    const unrecorded = share.jobs.filter((job) => !job.recorded).length;
-    let line = `share ${share.index}/${allocation.shareCount}: ${formatSeconds(share.predicted)} predicted (${share.jobs.length} jobs, ${unrecorded} unrecorded)`;
-    if (ceiling !== undefined) {
-      line += `; headroom ${formatSeconds(ceiling - share.predicted)} to the total ceiling ${ceiling} (${budgetName})`;
-    }
-    lines.push(line);
-  }
-  if (allocation.unrecordedCount > 0) {
-    lines.push(
-      `unrecorded jobs (${allocation.unrecordedCount}), each assumed at ${formatSeconds(allocation.assumedSeconds)} s; a refresh of ${listName} records them:`,
-    );
-    for (const share of allocation.shares) {
-      for (const job of share.jobs) {
-        if (!job.recorded) {
-          lines.push(
-            `  share ${share.index}/${allocation.shareCount}  ${job.label}`,
-          );
-        }
-      }
-    }
-  }
-  return `${lines.join("\n")}\n`;
-}
-
-// Reads `per-job-seconds=<n>` and `total-job-seconds=<n>` as
-// scripts/time-budget.bash, the runner's reader of the same file, does: any
-// other non-comment line, or a missing number, fails.
-export function readTimeBudget(path) {
-  const settings = readInput(path)
-    .split(/\r?\n/)
-    .filter((line) => line !== "" && !line.startsWith("#"))
-    .map((line) =>
-      /^(per-job-seconds|total-job-seconds)=([0-9]+(\.[0-9]+)?)$/.exec(line),
-    );
-  const values = Object.fromEntries(
-    settings
-      .filter((match) => match !== null)
-      .map((match) => [match[1], Number(match[2])]),
-  );
-  if (
-    settings.includes(null) ||
-    values["per-job-seconds"] === undefined ||
-    values["total-job-seconds"] === undefined
-  ) {
-    throw new TestSharesError(
-      `FAIL: ${path} must set only per-job-seconds=<n> and total-job-seconds=<n>.`,
-    );
-  }
-  return {
-    perJobSeconds: values["per-job-seconds"],
-    totalJobSeconds: values["total-job-seconds"],
-  };
 }

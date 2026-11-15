@@ -1,15 +1,7 @@
-// The command surface of scripts/test-shares.mjs: `share` as
-// scripts/test-jobs.sh runs it, and `preview` as a contributor runs it for
-// the Node suite and for the dashboard's spec files.
+// The share and refresh command surfaces of scripts/test-shares.mjs.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import {
-  chmodSync,
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -64,187 +56,20 @@ test("share refuses a split that is not <i>/<n>", () => {
   assert.match(invalid.stderr, /^FAIL: --split=3\/2 is not <i>\/<n>/);
 });
 
-test("preview reads labels from a file and the ceiling from the budget", () => {
-  const labelsFile = join(scratch, "labels");
-  writeFileSync(labelsFile, `${labels.join("\n")}\n`);
-  const budget = join(scratch, "time-budget");
-  writeFileSync(budget, "per-job-seconds=10\ntotal-job-seconds=30\n");
-  const previewRun = run([
-    "preview",
-    "--split-count",
-    "2",
-    "--list",
-    list,
-    "--labels",
-    labelsFile,
-    "--budget",
-    budget,
-  ]);
-  assert.equal(previewRun.status, 0, previewRun.stderr);
-  assert.ok(
-    previewRun.stdout
-      .split("\n")
-      .includes(
-        `share 2/2: 11.0 predicted (3 jobs, 2 unrecorded); headroom 19.0 to the total ceiling 30 (${budget})`,
-      ),
-    previewRun.stdout,
-  );
-  assert.match(previewRun.stdout, /^ {2}share 2\/2 {2}new-a\.sh$/m);
-});
-
-test("preview names the Bash 5 floor when the bash on PATH is older", () => {
-  const bin = join(scratch, "bin");
-  mkdirSync(bin);
-  const stub = join(bin, "bash");
-  // The stub reports Bash 3.2 and runs scripts under the real bash, so the
-  // listing's own floor check, not Bash 5 syntax, is what refuses it.
-  const realBash = spawnSync("bash", ["-c", 'printf "%s" "${BASH}"'], {
-    encoding: "utf8",
-  }).stdout;
-  writeFileSync(
-    stub,
-    `#!/bin/sh\nif [ "$1" = -c ]; then printf "%s" "3.2.57(1)-release"; exit 0; fi\nexec '${realBash}' "$@"\n`,
-  );
-  chmodSync(stub, 0o755);
-  const previewRun = run(["preview", "--split-count", "3"], {
-    env: { ...process.env, PATH: `${bin}:${process.env.PATH}` },
-  });
-  assert.equal(previewRun.status, 1);
-  assert.equal(
-    previewRun.stderr,
-    `FAIL: shell tests require Bash 5 or newer; resolved ${stub} (version 3.2.57(1)-release).\nInstall Bash 5 or newer and put its bin directory first on PATH, then rerun the preview.\n`,
-  );
-});
-
-test("a file a command cannot read fails naming it, without a stack trace", () => {
+test("a file a share or refresh command cannot read fails naming it, without a stack trace", () => {
   const missing = join(scratch, "missing");
-  const emptyDir = join(scratch, "no-list");
-  mkdirSync(emptyDir);
-  const names = join(scratch, "readable-labels");
-  writeFileSync(names, "long.sh\n");
-  const preview = (...args) => run(["preview", "--split-count", "2", ...args]);
   const refreshed = join(scratch, "refreshed");
-  const refresh = (times) =>
-    run(["refresh", "--list", refreshed, "--source", "run", times]);
-  const cases = [
-    [share(missing, "1/2"), missing],
-    [preview("--list", list, "--labels", missing), missing],
-    [preview("--labels", names, "--list", list, "--budget", missing), missing],
-    [refresh(missing), missing],
-    [preview("--test-dir", emptyDir), `${emptyDir}/longest-first`],
-    [preview("--spec-dir", emptyDir), `${emptyDir}/longest-first`],
-  ];
-  for (const [result, path] of cases) {
+  const refresh = run([
+    "refresh",
+    "--list",
+    refreshed,
+    "--source",
+    "run",
+    missing,
+  ]);
+  for (const result of [share(missing, "1/2"), refresh]) {
     assert.equal(result.status, 1, result.stderr);
-    assert.equal(result.stderr, `FAIL: ${path} cannot be read (ENOENT).\n`);
+    assert.equal(result.stderr, `FAIL: ${missing} cannot be read (ENOENT).\n`);
     assert.equal(result.stdout, "");
   }
-});
-
-test("preview lists a browser group's root of its spec directory as its configuration discovers it, without a ceiling", () => {
-  const specs = join(scratch, "specs");
-  for (const name of [
-    "tests/a.spec.ts",
-    "frontend-tests/dom.spec.ts",
-    "backend-tests/b.spec.ts",
-    "tests/c.spec.ts",
-    "Distribution/tests/support/helper.ts",
-    "src/ignored.spec.ts",
-  ]) {
-    mkdirSync(join(specs, name, ".."), { recursive: true });
-    writeFileSync(join(specs, name), "");
-  }
-  writeFileSync(
-    join(specs, "longest-first"),
-    listText(
-      makeMe.jobDurations
-        .with([
-          ["backend-tests/b.spec.ts", 4],
-          ["frontend-tests/dom.spec.ts", 3],
-          ["tests/a.spec.ts", 2],
-        ])
-        .please(),
-    ),
-  );
-  const previewRun = run([
-    "preview",
-    "--split-count",
-    "2",
-    "--spec-dir",
-    specs,
-    "--root",
-    "tests",
-  ]);
-  assert.equal(previewRun.status, 0, previewRun.stderr);
-  // Only the tests root's spec files: a (2.0) to share 1, c unrecorded at
-  // the selected recorded median 2.0 to share 2; the other roots' specs,
-  // support/helper.ts and src/ignored.spec.ts are not its specs.
-  assert.equal(
-    previewRun.stdout,
-    `Predicted job-seconds per share from ${specs}/longest-first: 2 jobs, 1 recorded, 1 unrecorded at 2.0 s each (the recorded median).\n` +
-      "share 1/2: 2.0 predicted (1 jobs, 0 unrecorded)\n" +
-      "share 2/2: 2.0 predicted (1 jobs, 1 unrecorded)\n" +
-      `unrecorded jobs (1), each assumed at 2.0 s; a refresh of ${specs}/longest-first records them:\n` +
-      "  share 2/2  tests/c.spec.ts\n",
-  );
-  const both = run([
-    "preview",
-    "--split-count",
-    "2",
-    "--spec-dir",
-    specs,
-    "--test-dir",
-    specs,
-  ]);
-  assert.equal(both.status, 1);
-  assert.equal(
-    both.stderr,
-    "FAIL: preview takes --test-dir or --spec-dir, not both.\n",
-  );
-  const rootAlone = run(["preview", "--split-count", "2", "--root", "tests"]);
-  assert.deepEqual(
-    [rootAlone.status, rootAlone.stderr],
-    [1, "FAIL: preview takes --root with --spec-dir.\n"],
-  );
-});
-
-test("preview lists a substitute test directory through scripts/test-jobs.sh", () => {
-  const checks = join(scratch, "checks");
-  mkdirSync(checks);
-  for (const name of ["one", "two", "three"]) {
-    writeFileSync(join(checks, `${name}.sh`), "#!/usr/bin/env bash\n");
-  }
-  writeFileSync(
-    join(checks, "longest-first"),
-    listText(
-      makeMe.jobDurations
-        .with([
-          [`${checks}/one.sh`, 4],
-          [`${checks}/two.sh`, 2],
-        ])
-        .please(),
-    ),
-  );
-  writeFileSync(
-    join(checks, "time-budget"),
-    "per-job-seconds=10\ntotal-job-seconds=20\n",
-  );
-  const previewRun = run([
-    "preview",
-    "--split-count",
-    "2",
-    "--test-dir",
-    checks,
-  ]);
-  assert.equal(previewRun.status, 0, previewRun.stderr);
-  // one (4.0) to share 1, two (2.0) to share 2, three unrecorded at the
-  // median 3.0 to share 2.
-  assert.equal(
-    previewRun.stdout,
-    `Predicted job-seconds per share from ${checks}/longest-first: 3 jobs, 2 recorded, 1 unrecorded at 3.0 s each (the recorded median).\n` +
-      `share 1/2: 4.0 predicted (1 jobs, 0 unrecorded); headroom 16.0 to the total ceiling 20 (${checks}/time-budget)\n` +
-      `share 2/2: 5.0 predicted (2 jobs, 1 unrecorded); headroom 15.0 to the total ceiling 20 (${checks}/time-budget)\n` +
-      `unrecorded jobs (1), each assumed at 3.0 s; a refresh of ${checks}/longest-first records them:\n` +
-      `  share 2/2  ${checks}/three.sh\n`,
-  );
 });

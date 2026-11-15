@@ -17,29 +17,33 @@
 # Include: longest-first-ci
 # Include: longest-first-execution
 # Include: longest-first-skills
-# Source: run 43712947370 at 1e56a8f4f9510eda34a495e59f1c19cdad0536f7, 2026-11-15 (runner factor 0.8)
-52.0	Distribution/tests/native-comparison/native-comparison-baseline-reuse.sh
-40.8	Distribution/tests/native-comparison/native-comparison-baseline-conditions.sh
-33.3	Distribution/tests/native-comparison/native-comparison-baseline-misses.sh
-28.1	Distribution/tests/native-comparison/native-comparison-baselines.sh
-25.6	Distribution/tests/native-comparison/native-comparison-baseline-unavailable.sh
-21.9	Distribution/tests/native-comparison/native-comparison-baseline-readers.sh
-21.9	Distribution/tests/native-comparison/native-comparison-supplier-watch.sh
-21.6	Distribution/tests/native-comparison/native-comparison-unblocked-supplier.sh
+# Source: main run 43725762081 at 86b3f67877e5f6024d42cb8696c39fe1a4a08bec; 3 added tests from story run 43729355694 at fedc827300415a5e452d38e373c130ef8dbbcd62 (Distribution Tests 1/3, 2/3, 3/3 succeeded), 2026-11-15 (runner factor 0.842)
+53.2	Distribution/tests/native-comparison/native-comparison-baseline-conditions.sh
+49.2	Distribution/tests/native-comparison/native-comparison-baseline-reuse.sh
+46.3	Distribution/tests/native-comparison/native-comparison-baseline-misses.sh
+43.2	Distribution/tests/native-comparison/native-comparison-baseline-unavailable.sh
+33.6	Distribution/tests/native-comparison/native-comparison-baselines.sh
 21.6	Distribution/tests/skills/dough-execute-plan/wait-for-publication.test.mjs
-17.6	Distribution/tests/installation/update-from-pre-distribution.sh
-15.7	Distribution/tests/native-harness/native-harness-inspection.sh
-2.1	Distribution/tests/skills/dough-execute-plan/continued-wait-for-publication.test.mjs
+21.1	Distribution/tests/native-comparison/native-comparison-baseline-readers.sh
+21.1	Distribution/tests/native-comparison/native-comparison-unblocked-supplier.sh
+20.9	Distribution/tests/native-comparison/native-comparison-supplier-watch.sh
+20.8	Distribution/tests/native-harness/native-harness-inspection.sh
+17.9	Distribution/tests/installation/update-from-pre-distribution.sh
+2.3	Distribution/tests/skills/dough-execute-plan/continued-wait-for-publication.test.mjs
+1.8	Distribution/tests/native-comparison/native-comparison-supplier-watch-retired.sh
 1.3	Distribution/tests/ci/distribution-ci-proof.test.mjs
-1.3	Distribution/tests/native-comparison/native-comparison-supplier-watch-retired.sh
+1.1	Distribution/tests/skills/dough-execute-plan/story-obligations-documented-examples.test.mjs
+1.1	Distribution/tests/support/share-preview-trunk.test.mjs
 1.0	Distribution/tests/native-comparison/native-comparison-inflight.sh
-0.6	Distribution/tests/skills/dough-execute-plan/story-obligations-documented-examples.test.mjs
-0.6	Distribution/tests/support/native-codex-owned-proof.test.mjs
-0.3	Distribution/tests/skills/dough-execute-plan/ci-monitor-unavailable.test.mjs
-0.3	Distribution/tests/skills/dough-execute-plan/execution-completion-record-example.test.mjs
-0.3	Distribution/tests/skills/dough-execute-plan/read-budget.test.mjs
-0.3	Distribution/tests/skills/dough-story-refinement/established-preparation.test.mjs
-0.3	Distribution/tests/support/native-codex-wait-receipts.test.mjs
-0.3	Distribution/tests/support/native-comparison-archive-usage.test.mjs
+0.8	Distribution/tests/support/native-codex-owned-proof.test.mjs
+0.6	Distribution/tests/ci/ci-job-times.sh
+0.6	Distribution/tests/support/share-preview.test.mjs
+0.2	Distribution/tests/skills/dough-execute-plan/execution-completion-record-example.test.mjs
+0.2	Distribution/tests/support/native-codex-wait-evidence.test.mjs
+0.2	Distribution/tests/support/native-codex-wait-receipts.test.mjs
+0.2	Distribution/tests/support/native-comparison-archive-usage.test.mjs
+0.2	Distribution/tests/support/share-preview-stale.test.mjs
+0.1	Distribution/tests/skills/dough-execute-plan/ci-monitor-unavailable.test.mjs
 0.1	Distribution/tests/skills/dough-execute-plan/established-start.test.mjs
-0.1	Distribution/tests/support/native-codex-wait-evidence.test.mjs
+0.1	Distribution/tests/skills/dough-execute-plan/read-budget.test.mjs
+0.1	Distribution/tests/skills/dough-story-refinement/established-preparation.test.mjs

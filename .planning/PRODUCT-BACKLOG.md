@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Run and maintain native evaluations as a distinct Distribution tool](seeds/SEED-371-distribution-evaluation-tool.md#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool) — SEED-371#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool ([plan](slice-plans/638-distribution-evaluation-tool/PLAN.md))
-- [See stale test duration estimates before relying on CI headroom](seeds/SEED-374-stale-test-duration-estimates.md#see-stale-test-duration-estimates) — SEED-374#see-stale-test-duration-estimates ([plan](slice-plans/649-see-stale-test-duration-estimates/PLAN.md))
 
 ## Backlog list
 
+- [Restore three-share test budget headroom](seeds/SEED-378-restore-three-share-test-budget-headroom.md#restore-three-share-test-budget-headroom) — SEED-378#restore-three-share-test-budget-headroom
 - [Extend syntax styling in code diffs](seeds/SEED-377-extend-syntax-styling-in-code-diffs.md#extend-syntax-styling-in-code-diffs) — SEED-377#extend-syntax-styling-in-code-diffs
 - [Remove the obsolete native revision opener](seeds/SEED-334-product-wide-end-to-end-tests.md#remove-obsolete-native-revision-opener) — SEED-334#remove-obsolete-native-revision-opener
 - [Move Intent CI proof, comparison and candidate checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-intent-ci-proof-comparison-and-candidate-checks) — SEED-334#move-intent-ci-proof-comparison-and-candidate-checks

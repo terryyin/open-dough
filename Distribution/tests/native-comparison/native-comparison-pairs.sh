@@ -17,7 +17,7 @@ source "${source_dir}/Distribution/tests/support/native-comparison-verdict-count
 work=$(mktemp -d)
 trap 'rm -rf -- "${work}"' EXIT
 
-# Payload revisions: this checkout's commit, and commits whose installed
+# Payload revisions: a complete managed release, and commits whose installed
 # guidance tells the substitute to hold more quietly (one command fewer per
 # hold, same decisions) or to take a shortcut (push its branch, skip proof).
 native_comparison_pair_fixture "${source_dir}" "${work}"
@@ -31,7 +31,7 @@ shortcut=$(native_comparison_fixture_rule "${work}" shortcut)
 preserved=$(native_comparison_fixture_record "${work}" "${baseline}" "${quiet}" concurrent preserved)
 grep -Fqx 'verdict: preserved' "${preserved}"
 grep -Fqx "case-basis-revision: $(git -C "${work}/source" rev-parse HEAD)" "${preserved}"
-[[ $(native_observation_value "${preserved}" baseline-payload) == "${baseline} tree=$(git -C "${source_dir}" rev-parse "${baseline}^{tree}") requested=${baseline}" ]]
+[[ $(native_observation_value "${preserved}" baseline-payload) == "${baseline} tree=$(git -C "${work}/payloads" rev-parse "${baseline}^{tree}") requested=${baseline}" ]]
 [[ $(native_observation_value "${preserved}" candidate-payload) == "${quiet} tree="*" requested=${quiet}" ]]
 digest=$(native_observation_value "${preserved}" baseline-payload-digest)
 [[ ${digest} =~ ^[0-9a-f]{64}$ && ${digest} != "$(native_observation_value "${preserved}" candidate-payload-digest)" ]]

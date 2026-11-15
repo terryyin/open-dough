@@ -377,7 +377,7 @@ A plan premise and its slice return read the allocation preview's per-share head
   - Observed effect: one failed CI run, one superseded run and one repair commit; the shares were already thin in `ci-test-times.sh`, which the coordinator judged against the preview's predicted headroom.
   - Inference: the preview's headroom is only as good as the list; checking its unrecorded count before trusting a thin share would likely have prompted the refresh before the push.
 
-**Response:** The same execution refreshed the timing list. The preview already
-lists unrecorded jobs, but no guard prevented using an optimistic estimate
-during the change. [SEED-374](../../.planning/seeds/SEED-374-stale-test-duration-estimates.md#see-stale-test-duration-estimates)
-is queued for that remaining problem.
+**Response:** The original execution refreshed the timing list.
+[SEED-374 completed](../../.planning/done/SEED-374_see-stale-test-duration-estimates.json):
+the preview now diagnoses unrecorded trunk jobs as stale before presenting
+headroom, distinguishes added jobs as estimates, and prints the refresh step.

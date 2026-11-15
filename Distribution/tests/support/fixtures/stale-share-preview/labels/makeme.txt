@@ -1,0 +1,6 @@
+Distribution/tests/makeme/makeme-changed-moves.test.mjs
+Distribution/tests/makeme/makeme-changed-scope.test.mjs
+Distribution/tests/makeme/makeme-payload.test.mjs
+Distribution/tests/makeme/makeme-scheduled-selection.test.mjs
+Distribution/tests/makeme/makeme-selection-configuration.test.mjs
+Distribution/tests/makeme/makeme-selection.test.mjs

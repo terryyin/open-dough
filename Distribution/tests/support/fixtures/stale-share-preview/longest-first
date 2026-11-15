@@ -1,0 +1,20 @@
+# Each job's seconds on CI's runner, `<seconds><TAB><label>`, longest first,
+# from the CI run named in the Source line. scripts/test-jobs.sh hands this
+# list to scripts/test-shares.mjs, which deals the recorded jobs, longest
+# first, to the share with the smallest predicted total and starts each share
+# longest first; a job not listed here is unrecorded and is dealt after them
+# at the median of these seconds, so an unrecorded job is a new or renamed
+# one. Names that no longer match a job are ignored; a line that is not
+# `<seconds><TAB><label>` fails the run naming it. Preview the deal as
+# Distribution/tests/test-shares.md describes.
+# To refresh from a main run, download every share's `test-times-<i>`
+# artifact and merge them, every job, keeping the seconds:
+#   gh run download RUN_ID -p 'test-times-*' -D DIR
+#   node scripts/test-shares.mjs refresh --list Distribution/tests/longest-first \
+#     --source 'run RUN_ID at REVISION, DATE' DIR/test-times-*/test-times.txt
+# Source: run 43575040009/1 at 55da0eecf6803945b66d5a23b00dd7802374550d, 2026-11-14 (runner factor 1.006)
+# Include: longest-first-suite
+# Include: longest-first-support
+# Include: longest-first-ci
+# Include: longest-first-execution
+# Include: longest-first-skills
