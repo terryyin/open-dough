@@ -1,5 +1,6 @@
 // Three-list room for Recently done sessions with the open list and Running
-// Cursor sessions: expand, resize, independent scroll, short window, reload.
+// Cursor sessions against controlled machine and Cursor-runner answers:
+// expand, resize, independent scroll, short window, reload.
 import {
   dragDivider,
   expectDividerSays,
@@ -9,42 +10,31 @@ import {
   keyStep,
   valueOf,
   wide,
-} from "../cursorSessionsSidebarResizePage.ts";
+} from "../../tests/cursorSessionsSidebarResizePage.ts";
 import {
   compactProjectSelectCut,
   expectEveryControlReachable,
   expectInside,
   expectNoSidewaysScrollAndWholeText,
-} from "../pageLayout.ts";
+} from "../../tests/pageLayout.ts";
 import {
   crowd,
   listFloor as floor,
   scrollTopOf,
   wheelToEnd,
-} from "../runningCursorSessionsPage.ts";
-import {
-  expandThreeCrowded,
-  roomOfThree,
-} from "../recentlyDoneSessionsSidebarPage.ts";
-import { sessionsSidebarTitleCut } from "../sessionsSidebarPage.ts";
-import { expect, test } from "../support/cursorStart.ts";
-
-test.use({
-  projectFolders: ["open-dough", "doughnut", "pygardon"],
-  cursorScreen: "working",
-});
+} from "../../tests/runningCursorSessionsPage.ts";
+import { roomOfThree } from "../../tests/recentlyDoneSessionsSidebarPage.ts";
+import { sessionsSidebarTitleCut } from "../../tests/sessionsSidebarPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { expandThreeCrowdedFrontend } from "../../tests/support/frontendRecentlyDoneSidebar.ts";
 
 test("both optional sections share one room: expand, resize, scroll, short window, and reload preference", async ({
   page,
-  dashboard,
-  origin,
-  cursor,
+  frontendServices,
 }) => {
-  const { shown, expectNothingChanged } = await expandThreeCrowded(
+  const { shown, expectNothingChanged } = await expandThreeCrowdedFrontend(
     page,
-    dashboard,
-    origin,
-    cursor,
+    frontendServices,
   );
   const { divider, header, list, body, running, openEntries, entries } = shown;
   const room = await roomOfThree(shown);
@@ -73,8 +63,6 @@ test("both optional sections share one room: expand, resize, scroll, short windo
     const listTop = await scrollTopOf(list);
     const runningTop = await scrollTopOf(running.body);
     await wheelToEnd(page, body);
-    // Reaching the end reveals the remaining older Dones below it; measure
-    // the last one once it is shown and wheeled to.
     await expect(entries).toHaveCount(crowd);
     await wheelToEnd(page, body);
     await expectInside(entries.last(), body);
@@ -99,7 +87,6 @@ test("both optional sections share one room: expand, resize, scroll, short windo
   await test.step("a short window keeps every header and list reachable", async () => {
     await page.setViewportSize({ width: 320, height: 256 });
     await expect(shown.sidebar).toBeVisible();
-    // Entry titles are cut by design (./sessions-sidebar-row.spec.ts).
     await expectNoSidewaysScrollAndWholeText(page, [
       sessionsSidebarTitleCut,
       ...compactProjectSelectCut,

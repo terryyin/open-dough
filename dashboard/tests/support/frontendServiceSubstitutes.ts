@@ -6,6 +6,7 @@ import type { Page } from "@playwright/test";
 import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { completedStoryAssociationEndpoint } from "../../src/completedStoryAssociation.ts";
 import { hostStatusEndpoint } from "../../src/hostStatus.ts";
 import { launchHostOptionsEndpoint } from "../../src/launchHostOptions.ts";
 import { projectListEndpoint } from "../../src/projectConfiguration.ts";
@@ -54,6 +55,12 @@ export async function installFrontendServiceSubstitutes(
       await fulfillJson(route, state.machine);
     },
   );
+  // Default: no published Done-story link. Slice 3 owns a controllable
+  // association family; presentation journeys only need standalone settle.
+  await page.route(
+    (url) => url.pathname === completedStoryAssociationEndpoint,
+    (route) => fulfillJson(route, { kind: "absent" }),
+  );
   await page.route(
     (url) => url.pathname === hostStatusEndpoint,
     async (route) => {
@@ -76,6 +83,7 @@ export async function installFrontendServiceSubstitutes(
     projectListEndpoint,
     authenticatedReadEndpoint,
     agentLaunchEndpoint,
+    completedStoryAssociationEndpoint,
     hostStatusEndpoint,
     launchHostOptionsEndpoint,
     agentTerminalEndpoint,

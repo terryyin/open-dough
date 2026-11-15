@@ -1,7 +1,8 @@
-// Progressive range in Recently done sessions: scroll reveals older Done
-// entries in batches of 20 without losing earlier ones; refresh reconciles by
-// identity and completion order; reload starts at 20 again. Board isolation
-// of detail reads lives in recently-done-sessions-sidebar-paging-board.spec.ts.
+// Progressive range in Recently done sessions against controlled machine
+// answers: scroll reveals older Done entries in batches of 20; refresh
+// reconciles by identity and completion order; reload starts at 20 again.
+// Board isolation of detail reads:
+// ../../../e2e/sessions/recently-done-sessions-sidebar-paging-board.spec.ts.
 import {
   agentLaunchEndpoint,
   recentlyDoneSessionsInitialLimit,
@@ -12,49 +13,56 @@ import {
   chooseProject,
   standaloneSessionName,
   parts,
-} from "../dashboardPage.ts";
-import { pausePageClockAt } from "../dashboardTest.ts";
-import { terminalPanel } from "../terminalScreenPage.ts";
+} from "../../tests/dashboardPage.ts";
+import { pausePageClockAt } from "../../tests/dashboardTest.ts";
+import { terminalPanel } from "../../tests/terminalScreenPage.ts";
 import {
-  byProjectOf,
   fortyFiveDoneSessions,
   preferShortRecentlyDoneBody,
   revealRecentlyDoneThrough,
-} from "../recentlyDoneSessionsSidebarPaging.ts";
+} from "../../tests/recentlyDoneSessionsSidebarPaging.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   expectRecentlyDone,
   recentlyDoneHeightKey,
   showRecentlyDone,
-  showThreeProjectPage,
-} from "../recentlyDoneSessionsSidebarPage.ts";
-import { keepLaunchStore } from "../support/launchStore.ts";
-import { wheelToEnd } from "../runningCursorSessionsPage.ts";
-import { holdSessionReads, watchRecordReads } from "../sessionStatePace.ts";
+} from "../../tests/recentlyDoneSessionsSidebarPage.ts";
+import { wheelToEnd } from "../../tests/runningCursorSessionsPage.ts";
+import { watchRecordReads } from "../../tests/sessionStatePace.ts";
 import {
   expectSessionsSidebar,
   openSessionsSidebar,
-} from "../sessionsSidebarPage.ts";
-import { expect, test } from "../support/cursorStart.ts";
+} from "../../tests/sessionsSidebarPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { fulfillJson } from "../../tests/support/frontendSubstituteAnswers.ts";
+import {
+  observedDone,
+  openFrontendThreeProjects,
+  putFrontendObservedLaunches,
+} from "../../tests/support/frontendRecentlyDoneSidebar.ts";
 
-test.use({
-  projectFolders: ["open-dough", "doughnut", "pygardon"],
-  cursorScreen: "working",
-});
+const observeAll = (
+  services: Parameters<typeof putFrontendObservedLaunches>[0],
+  records: readonly LaunchRecord[],
+) => {
+  putFrontendObservedLaunches(
+    services,
+    ...records.map((record) => observedDone(record, "unavailable")),
+  );
+};
 
 test("scrolling Recently done reaches all 45 retained sessions and refresh keeps the reached older range", async ({
   page,
-  dashboard,
-  origin,
+  frontendServices,
 }) => {
   const opened = new Date("2026-10-28T12:00:00.000Z");
   await pausePageClockAt(page, opened);
   const { passOnePace } = await watchRecordReads(page);
   const now = opened.getTime();
-  const { titles, byProject, records } = fortyFiveDoneSessions(now);
+  const { titles, records } = fortyFiveDoneSessions(now);
   await preferShortRecentlyDoneBody(page, recentlyDoneHeightKey);
-  keepLaunchStore(dashboard, byProject);
-  await showThreeProjectPage(page, origin);
+  observeAll(frontendServices, records);
+  await openFrontendThreeProjects(page, frontendServices);
   const shown = await showRecentlyDone(page);
   const titlesOf = () => shown.titles.allTextContents();
 
@@ -66,8 +74,6 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
   });
 
   await test.step("equal completion times keep deterministic session-identity order", async () => {
-    // Fixture: Done session 05 and 06 share one doneAt; doneSessionsOf breaks
-    // the tie with sessionKey localeCompare (claude:done-05 before done-06).
     const tiedEarlier = records[4];
     const tiedLater = records[5];
     const title05 = titles[4];
@@ -118,13 +124,12 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
     await shown.button.click();
     await expect(shown.entries).toHaveCount(45);
     await chooseProject(page, "Doughnut");
-    await expect(parts(page).backlog).toContainText("A Doughnut story");
+    await expectProjectChoice(page, "Doughnut");
     await expect(shown.entries).toHaveCount(45);
     await chooseProject(page, "Pygardon");
-    await expect(parts(page).backlog).toContainText("A Pygardon story");
+    await expectProjectChoice(page, "Pygardon");
   });
 
-  // Index 40 → doughnut (sources cycle open-dough, doughnut, pygardon).
   const olderCrossProject = titles[40] ?? "";
   expect(olderCrossProject).not.toBe("");
   await test.step("choosing an older cross-project session selects it and brings its Board entry into view in its project", async () => {
@@ -162,7 +167,7 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
     );
     await shown.select(removedTitle).focus();
     await expect(shown.select(removedTitle)).toBeFocused();
-    keepLaunchStore(dashboard, byProjectOf([newer, ...withoutRemoved]));
+    observeAll(frontendServices, [newer, ...withoutRemoved]);
     await passOnePace();
 
     const shownTitles = await titlesOf();
@@ -171,12 +176,10 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
     expect(shownTitles).toContain(keptOlder);
     expect(shownTitles).toContain(oldestReached);
     expect(new Set(shownTitles).size).toBe(shownTitles.length);
-    // New completion + former reached set minus removed.
     expect(shownTitles).toHaveLength(45);
     const focused = page.locator(":focus");
     await expect(focused).toBeVisible();
     await expect(shown.select(removedTitle)).toHaveCount(0);
-    // Focus left the removed control for a nearby entry or the section header.
     await expect(focused).not.toHaveText(removedTitle);
   });
 
@@ -192,21 +195,38 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
 
 test("delayed first session read and a failed refresh keep existing read semantics", async ({
   page,
-  dashboard,
-  origin,
+  frontendServices,
 }) => {
   const opened = new Date("2026-10-28T12:00:00.000Z");
   await pausePageClockAt(page, opened);
   const { passOnePace } = await watchRecordReads(page);
-  const { byProject, titles } = fortyFiveDoneSessions(opened.getTime());
+  const { records, titles } = fortyFiveDoneSessions(opened.getTime());
   await preferShortRecentlyDoneBody(page, recentlyDoneHeightKey);
-  const { answer } = await holdSessionReads(page);
-  keepLaunchStore(dashboard, byProject);
-  await showThreeProjectPage(page, origin);
+  observeAll(frontendServices, records);
+  let releaseFirst = () => {};
+  const firstHeld = new Promise<void>((resolve) => {
+    releaseFirst = resolve;
+  });
+  await page.route(
+    (url) => url.pathname === agentLaunchEndpoint,
+    async (route) => {
+      if (route.request().method() !== "GET") {
+        await fulfillJson(route, { error: "Not used in frontend tests." }, 405);
+        return;
+      }
+      await firstHeld;
+      if (frontendServices.machine === undefined) {
+        await fulfillJson(route, { error: "Ask again." }, 503);
+        return;
+      }
+      await fulfillJson(route, frontendServices.machine);
+    },
+  );
+  await openFrontendThreeProjects(page, frontendServices);
   const shown = await showRecentlyDone(page);
   await expect(shown.body).toContainText("Reading sessions…");
   await expect(shown.entries).toHaveCount(0);
-  answer();
+  releaseFirst();
   await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);
   expect(await shown.titles.allTextContents()).toEqual(
     titles.slice(0, recentlyDoneSessionsInitialLimit),
@@ -221,13 +241,8 @@ test("delayed first session read and a failed refresh keep existing read semanti
         : route.continue());
     },
   );
-  keepLaunchStore(dashboard, {
-    "open-dough": [],
-    doughnut: [],
-    pygardon: [],
-  });
+  putFrontendObservedLaunches(frontendServices);
   await passOnePace();
-  // Failed refresh invents no empty list; the reached range stays.
   await expect(shown.entries).toHaveCount(40);
   await expect(shown.body).not.toContainText("No sessions marked done");
 });

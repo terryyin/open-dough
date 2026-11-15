@@ -1,18 +1,25 @@
-import { closeSidePanel } from "../sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // Cursor reopen from Recently done sessions: held attach keeps membership;
 // successful attach clears the Done row; narrow overlay returns focus.
-import { launch } from "../agentLaunchBoundary.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import { launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import {
+  terminalPanel,
+  terminalScreenParts,
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   pageReadReopened,
   showRecentlyDone,
   showThreeProjectPage,
-} from "../recentlyDoneSessionsSidebarPage.ts";
-import { expectSessionsSidebar } from "../sessionsSidebarPage.ts";
-import { keepLaunchStore } from "../support/launchStore.ts";
-import { rem } from "../boardPage.ts";
-import { expect, keptRecord, test } from "../support/cursorStart.ts";
-import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
+} from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
+import { expectSessionsSidebar } from "../../dashboard/tests/sessionsSidebarPage.ts";
+import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
+import { rem } from "../../dashboard/tests/boardPage.ts";
+import {
+  expect,
+  keptRecord,
+  test,
+} from "../../dashboard/tests/support/cursorStart.ts";
+import { agentTerminalEndpoint } from "../../dashboard/src/agentTerminal.ts";
 
 test.use({
   projectFolders: ["open-dough", "doughnut", "pygardon"],

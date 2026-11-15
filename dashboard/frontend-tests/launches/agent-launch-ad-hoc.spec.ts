@@ -12,7 +12,10 @@ import {
   test,
 } from "../../tests/support/frontendApp.ts";
 import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { openDoughSource } from "../../tests/support/frontendServiceState.ts";
+import {
+  openDoughSource,
+  pygardonSource,
+} from "../../tests/support/frontendServiceState.ts";
 import {
   authenticatedReadRoute,
   holdAuthenticatedReadsWhere,
@@ -23,7 +26,6 @@ import {
   startSessionField,
 } from "../../tests/launchStoryCardPage.ts";
 import { chooseProject, parts } from "../../tests/dashboardPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const releases: (() => void)[] = [];
 test.afterEach(() => {
@@ -34,15 +36,7 @@ test("Start session sits at the end opposite Near-future direction beside the he
   page,
   frontendServices,
 }) => {
-  frontendServices.projects.push(
-    makeMe.aPublishedSource
-      .with({
-        id: "pygardon",
-        label: "Pygardon",
-        repository: "terryyin/pygardon",
-      })
-      .please(),
-  );
+  frontendServices.projects.push(pygardonSource);
   await openFrontendTakenBacklog(page);
   const { directionToggle, preparationHelp } = parts(page);
   const button = startSession(page, "Open Dough");

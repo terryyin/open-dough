@@ -1,24 +1,20 @@
-// Coarse Session details for Done rows in Recently done sessions: completion
-// identity, not launch age.
-import { tapWhereShown } from "../pageLayout.ts";
-import { browserLocaleString } from "../browserLocale.ts";
+// Coarse Session details for Done rows in Recently done sessions against a
+// controlled machine answer: completion identity, not launch age.
+import { tapWhereShown } from "../../tests/pageLayout.ts";
+import { browserLocaleString } from "../../tests/browserLocale.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  recentlyDoneParts,
-  showThreeProjectPage,
-} from "../recentlyDoneSessionsSidebarPage.ts";
-import { keepLaunchStore } from "../support/launchStore.ts";
+import { recentlyDoneParts } from "../../tests/recentlyDoneSessionsSidebarPage.ts";
 import {
   sessionsSidebarDetailsOf,
   sessionsSidebarElapsedOf,
-} from "../sessionsSidebarPage.ts";
-import { expect, test } from "../support/cursorStart.ts";
-import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
-
-test.use({
-  projectFolders: ["open-dough", "doughnut", "pygardon"],
-  cursorScreen: "working",
-});
+} from "../../tests/sessionsSidebarPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
+import {
+  observedDone,
+  openFrontendThreeProjects,
+  putFrontendObservedLaunches,
+} from "../../tests/support/frontendRecentlyDoneSidebar.ts";
 
 test.describe("touch Session details for Done entries", () => {
   const phone = phoneLaunchTouchViewport.portrait;
@@ -26,26 +22,26 @@ test.describe("touch Session details for Done entries", () => {
 
   test("Session details identifies completion, not launch age", async ({
     page,
-    dashboard,
-    origin,
+    frontendServices,
   }) => {
     const doneAt = new Date(Date.now() - 2 * 60_000).toISOString();
     const launchedAt = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
     const title = "Touch done completion age";
-    keepLaunchStore(dashboard, {
-      "open-dough": [
+    putFrontendObservedLaunches(
+      frontendServices,
+      observedDone(
         makeMe.aLaunchRecord
           .executing({ identity: "SEED-902#touch-done", title })
           .inClaudeSession({ sessionId: "touch-done-completion" })
           .launchedAt(launchedAt)
           .markedDoneAt(doneAt)
           .please(),
-      ],
-    });
-    await showThreeProjectPage(page, origin);
+        "unavailable",
+      ),
+    );
+    await openFrontendThreeProjects(page, frontendServices);
     const shown = recentlyDoneParts(page);
     await tapWhereShown(shown.button);
-    // Section headers are not the coarse Session details control under test.
     await shown.header.click();
     const row = shown.row(title);
     await expect(row).toHaveCount(1);

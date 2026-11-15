@@ -1,51 +1,48 @@
-import { closeSidePanel } from "../sidePanelFrame.ts";
-// Recently done sessions in the Sessions sidebar: collapsed by default,
-// completion-ordered across configured projects, completion ages, newest 20,
-// and opening through each row's Open control in PageFrame. Room sharing,
-// reopen, Board/final-report destinations, older paging, and which projects'
-// kept records it lists live beside this file.
+// Recently done sessions in the Sessions sidebar against controlled machine
+// answers: collapsed by default, completion-ordered across configured
+// projects, completion ages, newest listing, empty/reading states, and Open
+// through a terminal substitute. Real Cursor reopen stays in
+// ../../../e2e/sessions/recently-done-sessions-sidebar-reopen.spec.ts.
+import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
 import {
   chooseProject,
   expectProjectChoice,
   standaloneSessionName,
   parts,
-} from "../dashboardPage.ts";
-import { browserLocaleString } from "../browserLocale.ts";
+} from "../../tests/dashboardPage.ts";
+import { browserLocaleString } from "../../tests/browserLocale.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { terminalPanel } from "../terminalScreenPage.ts";
+import { terminalPanel } from "../../tests/terminalScreenPage.ts";
 import {
   expectRecentlyDone,
   recentlyDoneParts,
   showRecentlyDone,
-  showThreeProjectPage,
-} from "../recentlyDoneSessionsSidebarPage.ts";
-import { keepLaunchStore } from "../support/launchStore.ts";
+} from "../../tests/recentlyDoneSessionsSidebarPage.ts";
 import {
   expectRowShows,
   expectSessionsSidebar,
   expectTooltipLine,
   openSessionsSidebar,
-} from "../sessionsSidebarPage.ts";
-import { pausePageClockAt } from "../dashboardTest.ts";
-import { expect, test } from "../support/cursorStart.ts";
-
-test.use({
-  projectFolders: ["open-dough", "doughnut", "pygardon"],
-  cursorScreen: "working",
-});
+} from "../../tests/sessionsSidebarPage.ts";
+import { pausePageClockAt } from "../../tests/dashboardTest.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
+import {
+  observedDone,
+  observedOpen,
+  openFrontendThreeProjects,
+  putFrontendObservedLaunches,
+} from "../../tests/support/frontendRecentlyDoneSidebar.ts";
 
 test("finds and opens the newest completed sessions across projects from a collapsed Recently done section", async ({
   page,
-  dashboard,
-  origin,
+  frontendServices,
 }) => {
   const opened = new Date("2026-10-28T10:00:00.000Z");
   await pausePageClockAt(page, opened);
   const now = opened.getTime();
   const minute = 60_000;
 
-  // Interleaved launch and completion times across three projects. Completion
-  // order (newest first) differs from launch order.
   const newestTitle = "Newest completion";
   const middleTitle = "Middle completion";
   const olderTitle = "Older completion";
@@ -56,17 +53,10 @@ test("finds and opens the newest completed sessions across projects from a colla
   const newestDoneAt = at(1);
   const newestLaunchedAt = at(24 * 60);
   const stillOpenLaunchedAt = at(4);
-  const listed = (name: string, launchedAt: string) => ({
-    sessionId: dashboard.claudeListsSession({
-      name,
-      cwd: dashboard.home,
-      startedAt: Date.parse(launchedAt),
-    }),
-  });
   const adHoc = (title: string, source = "open-dough") =>
     makeMe.aLaunchRecord.adHoc({ instruction: title, title, source });
   const newest = adHoc(newestTitle, "doughnut")
-    .inClaudeSession(listed(newestTitle, newestLaunchedAt))
+    .inClaudeSession({ sessionId: "done-newest" })
     .launchedAt(newestLaunchedAt)
     .markedDoneAt(newestDoneAt)
     .please();
@@ -86,18 +76,20 @@ test("finds and opens the newest completed sessions across projects from a colla
     .launchedAt(at(3))
     .markedDoneAt(at(8))
     .please();
-  // Still open: must stay out of Recently done and keep launch age.
   const stillOpen = adHoc(openTitle)
-    .inClaudeSession(listed(openTitle, stillOpenLaunchedAt))
+    .inClaudeSession({ sessionId: "still-open" })
     .launchedAt(stillOpenLaunchedAt)
     .please();
-  keepLaunchStore(dashboard, {
-    "open-dough": [middle, unattached, stillOpen],
-    doughnut: [newest],
-    pygardon: [oldestShown],
-  });
-
-  await showThreeProjectPage(page, origin);
+  putFrontendObservedLaunches(
+    frontendServices,
+    observedDone(newest),
+    observedDone(middle),
+    observedDone(oldestShown, "unavailable"),
+    observedDone(unattached, "unavailable"),
+    observedOpen(stillOpen),
+  );
+  await installAttachedTerminalSubstitute(page);
+  await openFrontendThreeProjects(page, frontendServices);
   const shown = recentlyDoneParts(page);
   await shown.button.click();
 
@@ -128,22 +120,18 @@ test("finds and opens the newest completed sessions across projects from a colla
       shown.entries.first(),
       `Completed ${await browserLocaleString(page, newestDoneAt)}`,
     );
-    // Desktop keeps completion identity in the tooltip; touch disclosure is
-    // the coarse-input path below.
     await expect(shown.openEntries).toHaveCount(1);
     await expectRowShows(shown.openEntries.first(), openTitle, "4m");
   });
 
   await test.step("the clock advances completion ages without changing open-list launch ages", async () => {
     const completed = Date.parse(newestDoneAt);
-    // A tick samples somewhere in the 30s it runs; keep each reading in unit.
     await page.clock.setSystemTime(completed + 20_000);
     await page.clock.runFor(30_000);
     await expectRowShows(shown.entries.nth(0), newestTitle, "<1m");
     await page.clock.setSystemTime(completed + 2 * minute);
     await page.clock.runFor(30_000);
     await expectRowShows(shown.entries.nth(0), newestTitle, "2m");
-    // Open list still ages from launch (now+1.5m − launchedAt = 5.5m → 5m).
     await expectRowShows(shown.openEntries.first(), openTitle, "5m");
   });
 
@@ -162,7 +150,6 @@ test("finds and opens the newest completed sessions across projects from a colla
 
   await test.step("an unavailable Done entry offers no Open, and choosing it selects it and brings its Board entry into view in its project without inventing a terminal", async () => {
     await showRecentlyDone(page);
-    const attaches = dashboard.claudeAttaches().length;
     await expect(shown.open(newestTitle)).toHaveCount(1);
     await expect(shown.open(olderTitle)).toHaveCount(0);
     await shown.select(olderTitle).click();
@@ -178,7 +165,6 @@ test("finds and opens the newest completed sessions across projects from a colla
     await expect(local).toHaveClass(/\bselected-session\b/);
     await expect(parts(page).development).toBeChecked();
     await expect(terminalPanel(page)).toHaveCount(0);
-    expect(dashboard.claudeAttaches()).toHaveLength(attaches);
   });
 
   await test.step("reload starts the section collapsed again", async () => {
@@ -191,15 +177,10 @@ test("finds and opens the newest completed sessions across projects from a colla
 
 test("empty and reading states stay distinct, and fewer than 20 shows every Done session", async ({
   page,
-  dashboard,
-  origin,
+  frontendServices,
 }) => {
-  keepLaunchStore(dashboard, {
-    "open-dough": [],
-    doughnut: [],
-    pygardon: [],
-  });
-  await showThreeProjectPage(page, origin);
+  putFrontendObservedLaunches(frontendServices);
+  await openFrontendThreeProjects(page, frontendServices);
   const shown = await showRecentlyDone(page);
   await expect(shown.body).toContainText("No sessions marked done are listed.");
   await expect(shown.entries).toHaveCount(0);
@@ -216,12 +197,14 @@ test("empty and reading states stay distinct, and fewer than 20 shows every Done
       .markedDoneAt(new Date(now - (index + 1) * 30_000).toISOString())
       .please(),
   );
-  keepLaunchStore(dashboard, { "open-dough": few });
+  putFrontendObservedLaunches(
+    frontendServices,
+    ...few.map((record) => observedDone(record, "unavailable")),
+  );
   await page.reload();
   await expect(
     page.getByRole("button", { name: /Start session in/ }),
   ).toBeVisible();
-  // Open preference survives reload; do not toggle it closed.
   await expectSessionsSidebar(page, "open");
   await expectRecentlyDone(shown, "collapsed");
   await shown.header.click();

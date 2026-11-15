@@ -120,7 +120,15 @@ share local admission across worktrees; focused selections remain independent.
 - **Discrimination sequencing.** Run the representative scratch break on the
   interim home before deleting it, then again on the new home; slice 1
   demonstrated the new-home break after interim removal with matching
-  Escape→`mark` assertion text.
+  Escape→`mark` assertion text. Slice 2 paired
+  Completed→Launched aria-label scratch on interim and FE touch homes.
+- **Slice 2 proof.** FE:
+  `recently-done-sessions-sidebar{,-touch,-projects,-room,-paging}` (7 passed);
+  E2E: `…-reopen`, `…-paging-board`, `…-navigation` (6 passed). Support:
+  `frontendRecentlyDoneSidebar.ts` + `pygardonSource`. FE Select settle needs
+  a hardwired `{ kind: "absent" }` `/__agent-launch/completed-story` answer;
+  controllable association remains slice 3. Do not call
+  `preferShortRecentlyDoneBody` in room setup (resets divider preference).
 - **Known traps.** A `MachineAnswer` failing `launchRecordsSchema` leaves the
   page on "Reading sessions…" silently; Cursor entries need the Cursor runner
   sessions read substituted; a history read needs its own `audience=history`
@@ -164,7 +172,7 @@ Backend. Own the reorganization of `frontendServiceState.ts` and
 
 ### 2. Convert recently-done sidebar presentation and reopen
 Type: Behavior
-Status: planned
+Status: done
 Proof: `recently-done-sessions-sidebar{,-touch,-projects,-room,-paging}`,
 `…-sidebar-paging-board`, `…-sidebar-navigation`, `…-sidebar-reopen`
 (~8–9 specs) retain listing, ages, empty/reading, project filter, room layout,

@@ -43,6 +43,14 @@ export const doughnutSource: PublishedSource = makeMe.aPublishedSource
   })
   .please();
 
+export const pygardonSource: PublishedSource = makeMe.aPublishedSource
+  .with({
+    id: "pygardon",
+    label: "Pygardon",
+    repository: "terryyin/pygardon",
+  })
+  .please();
+
 const story = (title: string, identity: string, href: string) =>
   makeMe.aBacklogEntry.with({ identity, title, href }).please();
 
