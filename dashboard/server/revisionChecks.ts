@@ -23,6 +23,7 @@ import {
   type HeadsAnswer,
 } from "./ghRevision.ts";
 import { GhFailure, rateLimitStop, scope } from "./ghRead.ts";
+import { traceRevisionObservation } from "./revisionObservationTrace.ts";
 import { SharedObservation } from "./sharedObservation.ts";
 
 // What one check found: the commit the source's ref names, and the head of
@@ -150,27 +151,39 @@ export class RevisionChecks {
   private async list(source: PublishedSource): Promise<CheckedHeads> {
     const controller = new AbortController();
     this.tracked.add(controller);
+    traceRevisionObservation(`listing asked of ${source.repository}`);
+    let settled = "failed";
     try {
-      if (this.listHeads !== undefined) {
-        return await this.listHeads(source, controller.signal);
-      }
-      const answer = await checkHeadsViaGh(
-        source.repository,
-        this.answers.get(source.id),
-        controller.signal,
-      );
-      if (answer.etag === undefined) {
-        this.answers.delete(source.id);
-      } else {
-        this.answers.set(source.id, answer);
-      }
-      const revision = answer.heads.get(source.ref);
-      if (revision === undefined) {
-        throw new GhFailure({ kind: "no-commit" });
-      }
-      return { revision, heads: answer.heads };
+      const checked =
+        this.listHeads === undefined
+          ? await this.listFromGitHub(source, controller.signal)
+          : await this.listHeads(source, controller.signal);
+      settled = `settled at ${checked.revision}`;
+      return checked;
     } finally {
+      traceRevisionObservation(`listing ${settled}`);
       this.tracked.delete(controller);
     }
+  }
+
+  private async listFromGitHub(
+    source: PublishedSource,
+    signal: AbortSignal,
+  ): Promise<CheckedHeads> {
+    const answer = await checkHeadsViaGh(
+      source.repository,
+      this.answers.get(source.id),
+      signal,
+    );
+    if (answer.etag === undefined) {
+      this.answers.delete(source.id);
+    } else {
+      this.answers.set(source.id, answer);
+    }
+    const revision = answer.heads.get(source.ref);
+    if (revision === undefined) {
+      throw new GhFailure({ kind: "no-commit" });
+    }
+    return { revision, heads: answer.heads };
   }
 }

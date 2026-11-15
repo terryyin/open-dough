@@ -195,6 +195,18 @@ passed. Scratch break of the `LaunchProblemAnswer` description id failed the
 interim and converted folder-not-found cases with the same empty accessible
 description; both passed restored.
 
+CI repair on `f021ef850` (run 43666885667, integrated shard 2/5):
+`tests/observation/revision-stream.spec.ts` "two streaming pages…" saw no
+revision B for 15 s after the push. Not reproduced locally (10/10, 40/40 at
+load 23, CI's 48 shard-2 files 99/99 twice) and not explained by server pace
+or the forced CI ordering. Repaired a real defect in the same window:
+reopening the context clock for a second tab fired the first tab's 45 s
+silence deadline (now asserted absent; the old helper fails it 3/3). Added
+`DOUGH_REVISION_OBSERVATION_TRACE` server trace lines and failure attachments
+(server output, fake GitHub calls) so a recurrence names the stalled layer.
+The original stall remains unexplained; a recurrence is a defect to diagnose
+from those attachments.
+
 ### 4. Convert launch instruction voice
 Type: Behavior
 Status: planned

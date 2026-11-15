@@ -5,7 +5,7 @@
 // check-delivery pages in the same context.
 
 import type { Page, Request, Route } from "@playwright/test";
-import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
+import { expect, githubFor } from "./dashboardTest.ts";
 import {
   expectMembership,
   expectOwnersNotRecorded,
@@ -162,9 +162,9 @@ export async function openStreamingAtA(page: Page): Promise<MovingOrigin> {
 }
 
 // A second tab of the same browser on the same Board, already streaming at A.
+// It joins the context's page time as `page` paused it (`pausePageClockAt`).
 export async function openSecondStreamingAtA(page: Page): Promise<Page> {
   const other = await page.context().newPage();
-  await pausePageClockAt(other, new Date("2026-09-23T09:00:00.000Z"));
   const streaming = untilStreamingAt(other, revisionA);
   await other.goto("/");
   await expectSettledPage(other, titlesOfA);

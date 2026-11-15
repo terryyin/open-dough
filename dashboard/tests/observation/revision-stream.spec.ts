@@ -1,7 +1,7 @@
 // Board streams use free slots/lowered pace; dashboardTest.ts pre-holds slots for check delivery.
 
 import type { Page, Request } from "@playwright/test";
-import { expect, githubFor, pausePageClockAt, test } from "../dashboardTest.ts";
+import { expect, githubFor, test } from "../dashboardTest.ts";
 import { shortRevision, expectSettledPage, parts } from "../dashboardPage.ts";
 import {
   checksAskedWhilePassing,
@@ -92,6 +92,8 @@ test.describe("shared publication listing", () => {
   }) => {
     const origin = await openStreamingAtA(page);
     const other = await openSecondStreamingAtA(page);
+    const { problem, readRevision } = parts(page);
+    await expect(problem, "the first tab's stream stayed fresh").toHaveCount(0);
     // Finish one paced listing so `before` is not mid-flight when we publish.
     const drained = githubFor(page).calls.length;
     await untilMatchingRefsSince(page, drained, 1);
@@ -99,11 +101,8 @@ test.describe("shared publication listing", () => {
     const pageAtB = untilStreamingAt(page, revisionB);
     const otherAtB = untilStreamingAt(other, revisionB);
     origin.push(revisionB, backlogB, recordsAt("B"));
-    // A transport drop reopens after one browser-context pace.
-    await page.clock.runFor(checkIntervalMs);
     await expectSettledPage(page, titlesOfB);
     await expectSettledPage(other, titlesOfB);
-    const { readRevision } = parts(page);
     await expect(readRevision).toContainText(shortRevision(revisionB));
     const calls = [...callsSince(page, before)];
     const backlogIndex = calls.findIndex(
@@ -139,7 +138,6 @@ test("a watched branch move reads only that entry's plan and commit time; the ot
   const { origin, progress } = await openedSettled(page);
   await streaming;
   const other = await page.context().newPage();
-  await pausePageClockAt(other, opened);
   const otherStreaming = untilStreamingAt(other, revision);
   await other.goto("/");
   await expect(other.getByText("Reading plan slices…")).toHaveCount(0);
@@ -191,7 +189,6 @@ test("seven pages of one context: two stream and five check; hiding a holder let
   const checkers: Page[] = [];
   for (let i = 0; i < 6; i += 1) {
     const next = await page.context().newPage();
-    await pausePageClockAt(next, new Date("2026-09-23T09:00:00.000Z"));
     const seen = { stream: false };
     const streamOpened = (request: Request) => {
       if (isRevisionStream(request.url())) seen.stream = true;
