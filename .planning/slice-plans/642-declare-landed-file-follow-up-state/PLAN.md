@@ -250,3 +250,12 @@ repair handoffs. Execution retains its required final CI ownership.
 Reported: slice 2 — "the file context reads `record.request.reporting.reference` until slice 3."
 Story clause: "builders derive launch, landing and file references without spec-level UUID creation, extraction or passing"
 Disposition: proved by slice 3: agent-launch-follow-up-file-admission.spec.ts builds the file with makeMe.aFileFollowUp.onLandedRunOf(record) and contains no reference token; admission 5/5 passed and an unrelated launch was refused
+
+## Execution complete
+
+Product advice: no change to backlog order; the next SEED-353 receiving story
+(Intent comparison histories) can reuse `origin.revision(name)`. When the
+launch and session repository-state story migrates its consumers, consider
+folding `withCapturedLanding` into `withLanding(builder)` and retiring the
+installation re-exports from `startOriginPreparation.ts`. Process review is
+deferred into wrap-up behind its Intent Coverage check.
