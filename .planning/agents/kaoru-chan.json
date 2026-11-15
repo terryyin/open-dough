@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kaoru-chan",
+  "email": "kaoru-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-355#reconsider-further-ci-reduction",
+  "host": "claude",
+  "model": "fable"
+}
