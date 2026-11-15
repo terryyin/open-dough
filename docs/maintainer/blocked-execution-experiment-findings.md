@@ -1,4 +1,4 @@
-# Blocked execution: findings retained for the third attempt
+# Blocked execution: findings from three attempts
 
 The second attempt concluded through early convergence on 2026-11-15.
 Investigation and comparison-infrastructure repairs were completed; the intended
@@ -13,11 +13,80 @@ remains unproven. No saving or non-regression verdict follows from these baselin
 | Second: SEED-356 initial probe | Invalidated by a false-positive harness-inspection signal; complete cost unknown, at least 1,468,842 observed tokens. Detector repaired. |
 | Second: forced-wake baseline | Quality passed, 77 responses, 8,861,703 processed tokens. It did not exercise normal live waiting, so it could not test suppression of repeated wait re-entry. |
 | Second: supplier-watch baseline | Quality passed, 76 responses, 8,936,838 processed tokens, three workers, zero developer interventions. Repetition/opportunity was not demonstrated. |
+| Third: SEED-368 silent supplier wait | Delivered without a paid run. Its benefit is predicted until [the next real supplier watch](#third-attempt-one-silent-wait-for-a-watched-supplier) is judged. |
 
 Three of the second attempt's six authorized native journeys were consumed.
 The remaining candidate/unblocked comparisons were dropped, not silently run or
 carried as authorization for another attempt. A successor needs a fresh explicit
 budget for its complete selected experiment, including invalid attempts/workers.
+
+## Third attempt: one silent wait for a watched supplier
+
+Decided by Terry on 2026-11-15, replacing the earlier whole-task bar and
+matched native comparison: no paid run. The benefit is predicted until
+observed.
+
+Delivered: when the developer asks a held execution to watch its paused
+supplier, [reassess before extending work](../../Distribution/src/skills/dough-execute-plan/references/execution-decisions.md#reassess-before-extending-work)
+routes to [watch a paused supplier](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md#watch-a-paused-supplier),
+which starts the [publication wait](../../Distribution/src/skills/dough-execute-plan/scripts/wait-for-publication.mjs)
+once and awaits it under the existing long proof run wait. The command prints
+nothing while the watched refs and paths are unchanged and one result on a
+publication or at its deadline, 60 minutes unless the developer names a
+duration. Deterministic tests prove the command; the guidance took the
+maintainer behavior review. Host adapters, a watcher agent, a dashboard or
+daemon resume, and phase-loading or general verification efficiency belong to
+other work.
+
+Observed locally on 2026-11-15 without a paid run:
+
+- In the second attempt's watch trace the session wrote its own watcher, which
+  printed `unchanged` every 30 seconds, and polled it with a 30-second wait;
+  each poll re-read the whole context.
+- Codex 0.169.0 accepts an empty poll of up to 300 seconds. Across 2,873 local
+  Codex sessions, responses after a 270–330 second gap were 97.7% cached, 89.0%
+  after 330–600 seconds, and about 74% beyond ten minutes.
+- The saving grows with the length of the wait, so a short benchmark cannot
+  show it (11.92% ceiling with 180-second windows) and a long one pays for the
+  waste in its baseline arm.
+
+### Check the next real supplier watch
+
+Judge the next real supplier watch from its coordinator's session trace: the
+Codex rollout or Claude Code transcript, located and read as the
+[Codex audit](session-token-efficiency-research.md#codex-audit) and
+[Claude Code audit](session-token-efficiency-research.md#claude-code-audit)
+describe.
+
+1. Find each unchanged wait. It starts at the tool call whose command names
+   `wait-for-publication.mjs` and ends at the record carrying that command's
+   result line, `{"result":"publication",…}` or `{"result":"deadline",…}`. A
+   rerun after a nonqualifying publication starts another unchanged wait.
+2. Count the model re-entries inside it: the model requests timestamped
+   between the start and the result, once per `response_id` of a Codex
+   `token_usage_record` and once per `message.id` of a Claude Code assistant
+   record. The request that receives the launch call's own return belongs to
+   the start and the request that receives the result line to the result;
+   count neither, nor a request that answers a developer message.
+3. Take the cached share of the input summed over those re-entries: on Codex
+   `cached_input_tokens` of `input_tokens`; on Claude Code
+   `cache_read_input_tokens` of `input_tokens`, `cache_read_input_tokens` and
+   `cache_creation_input_tokens` together.
+
+Keep the change when every unchanged wait shows, for the host it ran on:
+
+- Codex: at most one re-entry per five unchanged minutes, a started five
+  minutes counting as one.
+- Claude Code: no re-entry.
+- At least 90% cached input on the re-entries.
+
+Otherwise remove the added guidance: the "Watch a paused supplier" section of
+`wait-for-proof.md` and the clause "or watch a paused supplier first when the
+developer asks" in `execution-decisions.md`. The command's only consumer is
+that section, so the command, its test
+`Distribution/tests/skills/dough-execute-plan/wait-for-publication.test.mjs`
+and its line in `src/install/open-dough-execution-payload.sh` leave with it.
+Record the observed counts and the verdict here either way.
 
 ## What the original trace establishes
 

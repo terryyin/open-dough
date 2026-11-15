@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 531. Removed numbers are never reused.
+- Highest allocated local number: 533. Removed numbers are never reused.
 - Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
@@ -188,6 +188,15 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: coordinator session `01a1dc65-0f52-7a51-b646-7322bc75ad39`, JSONL line 4820, call `call_1f1be51db9b1470c93142298d734d5bb`: guarded fresh formatting refused no-param-reassign in `native-codex-wait-receipts.test.mjs` after passing focused proof and independent refactor. The same refactor owner introduced a local launch binding, renewed the five-case receipt suite and path-only ESLint, then the fresh retry published `754bff87e4bff396fa258d7221b01cba1cde23ac`.
   - Observed effect: commit/publication were correctly withheld for one mechanical test repair, focused proof/lint and preparation retry. The receipt observations/assertions remained equivalent and no paid journey was repeated.
   - Inference: same late authored-file lint feedback as existing ODF-329. An earlier read-only check's counterfactual saving and isolated agent/token cost are unmeasured; no skill change is made here.
+
+- Execution: SEED-368#reduce-model-work-during-prolonged-supplier-waiting (plan `635-wait-silently-for-a-paused-supplier`; first implementation `c97db6b3d4770e1612dc99724c083831aaae80b5`)
+  - Timestamp: unknown (slice 1 delivery on 2026-11-15)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.101 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: session `13eb04bb-e0e6-4517-928b-63b0d039122a`; the slice 1 implementation and refactor briefs forbade formatter and lint; the first guarded fresh refused formatting on `preserve-caught-error` in `wait-for-publication.mjs` and three `no-return-assign` in `wait-for-publication.test.mjs`, after passing focused proof and `## REFACTOR COMPLETE`.
+  - Observed effect: one refused preparation, two coordinator repair rounds (a `void` wrapper the rule also rejects, then a restructured capture loop held to the 250-line limit), a focused rerun, then publication of `c97db6b3d`. The slice 2 briefs named both rules and its delivery passed first time.
+  - Inference: same late authored-file lint feedback as existing ODF-329; naming the two rules in later briefs is the only mitigation observed, and its saving is one execution's.
 
 ## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
 
@@ -864,3 +873,31 @@ A plan asked for a size budget to be observed by running the real operation agai
   - Evidence: plan 631 slice 4 Learnings: 26,033,157 bytes in the literal clone, 24,277,565 with stored paths rewritten to the clone's, 22,871,902 for the pure conversion.
   - Observed effect: the slice 4 agent traced the excess to the path difference, built a second clone with rewritten paths and a control clone, and reported the three figures; the budget was accepted on the measured 24.3 MB.
   - Inference: practice worth keeping: path-guarded scripts that refuse any home but the scratch clones, and a before/after digest of the real store. A clone observation of a store that records absolute paths needs the paths rewritten or the figure corrected.
+
+## DD-532 — A plan described a command's inputs as "refs, optional paths" without saying which ref each path narrows
+
+The plan's direction called a ref alone and a ref with paths "the same comparison" and its slice gave the command "one or more refs, optional paths", while the next slice's guidance needed the supplier's branch watched whole beside paths on the target. The first slice delivered paths applied to every ref.
+
+### Occurrences
+- Execution: SEED-368#reduce-model-work-during-prolonged-supplier-waiting (plan `635-wait-silently-for-a-paused-supplier`; first implementation `c97db6b3d4770e1612dc99724c083831aaae80b5`)
+  - Timestamp: unknown (slice 2 return on 2026-11-15)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.101 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: plan 635 "Existing solutions and direction" and slice 1 Behavior; Story obligations G2; `c97db6b3d` (`--path` applied to every `--ref`) and `0dca3a999` (`--ref REF[:PATH]`).
+  - Observed effect: the slice 2 implementer reported the mismatch while writing the guidance command; the coordinator returned the slice, and the delivered command, its usage and its test were changed one slice after publication. No hosted or paid run was repeated.
+  - Inference: the premise table observed the Git mechanism for one ref and one path, not the two-ref command the guidance would issue. Writing the consuming command line in the plan would likely have exposed it; that is untested.
+
+## DD-533 — A reported gap was closed as "no user cost" on a window estimated in seconds, and the retrospective found it spans the whole judgment
+
+At slice 2 acceptance the coordinator closed the implementer's rerun-baseline gap with a reason that put the unobserved window at the seconds before the rerun's first fetch. The window runs from the coordinator's own read of the supplier to that fetch, which includes the model's judgment, and suppliers publish in bursts.
+
+### Occurrences
+- Execution: SEED-368#reduce-model-work-during-prolonged-supplier-waiting (plan `635-wait-silently-for-a-paused-supplier`; first implementation `c97db6b3d4770e1612dc99724c083831aaae80b5`)
+  - Timestamp: unknown (slice 2 acceptance and retrospective on 2026-11-15)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.101 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: plan 635 Story obligations G3 as published in `0dca3a999`; `wait-for-publication.mjs` `waitForPublication` (each run compares against its own first observation); `wait-for-proof.md#watch-a-paused-supplier` ("start the command again").
+  - Observed effect: the gap was not returned to the slice; the retrospective planned it as a bounded correction after all three slices were published.
+  - Inference: the relevant-path check was applied to who else fetches in the worktree (G1) but not to how long the judgment between two waits lasts. Similar in kind to DD-491 and DD-519; whether it is the same finding is uncertain.

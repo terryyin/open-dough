@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-368_reduce-model-work-during-prolonged-supplier-waiting.json",
+      "identity": "SEED-368#reduce-model-work-during-prolonged-supplier-waiting",
+      "completedAt": "2026-11-15T09:55:56.509Z",
+      "blob": "bd244e7dec8a2f3c88a71b7f2f675346f0bb0699"
+    },
+    {
       "fileName": "SEED-357_reuse-unchanged-usage-pages-on-repeated-writes.json",
       "identity": "SEED-357#reuse-unchanged-usage-pages-on-repeated-writes",
       "completedAt": "2026-11-15T09:30:43.313Z",

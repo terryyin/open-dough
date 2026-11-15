@@ -31,10 +31,10 @@ intent introduced or affected by a newly developed story.
 - [Move session, terminal, story and observation checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test) — SEED-334#finish-dissolving-integrated-ui-test ([plan](slice-plans/632-finish-dissolving-integrated-ui-test/PLAN.md))
 - [Chart CI time without runner waits in Intent](seeds/SEED-364-intent-ci-history-without-runner-waits.md#chart-ci-time-without-runner-waits) — SEED-364#chart-ci-time-without-runner-waits ([plan](slice-plans/629-chart-ci-time-without-runner-waits-in-intent/PLAN.md))
 - [Make recent token usage easier to read](seeds/SEED-369-recent-token-usage.md#make-recent-token-usage-easier-to-read) — SEED-369#make-recent-token-usage-easier-to-read ([plan](slice-plans/634-recent-token-usage/PLAN.md))
-- [Reduce model work during prolonged supplier waiting (third try)](seeds/SEED-368-third-blocked-execution-attempt.md#reduce-model-work-during-prolonged-supplier-waiting) — SEED-368#reduce-model-work-during-prolonged-supplier-waiting ([plan](slice-plans/635-wait-silently-for-a-paused-supplier/PLAN.md))
 
 ## Backlog list
 
+- [Report a publication made while the supplier is being judged](seeds/SEED-368-third-blocked-execution-attempt.md#report-a-publication-made-during-supplier-judgment) — SEED-368#report-a-publication-made-during-supplier-judgment
 - [See dashboard connection status when returning to the window](seeds/SEED-372-dashboard-connection-status-on-return.md#see-dashboard-connection-status-on-return) — SEED-372#see-dashboard-connection-status-on-return
 - [Run and maintain native evaluations as a distinct Distribution tool](seeds/SEED-371-distribution-evaluation-tool.md#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool) — SEED-371#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool
 - [Move Intent and navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test) — SEED-334#retire-dashboard-integrated-ui-test
