@@ -5,6 +5,17 @@ Historical classification, resolution and source recovery for
 
 ## Review and recovery
 
+Retired on 2026-11-15. Exact evidence and occurrence identities are recoverable
+at [the prior ProjectFindings.md](https://github.com/terryyin/open-dough/blob/f28c8ee2c2f361030db9d0e0b0ca6207c2e4b5a0/ProjectFindings.md),
+[the prior test findings](https://github.com/terryyin/open-dough/blob/f28c8ee2c2f361030db9d0e0b0ca6207c2e4b5a0/docs/maintainer/project-test-findings.md)
+and [the prior process log](https://github.com/terryyin/open-dough/blob/f28c8ee2c2f361030db9d0e0b0ca6207c2e4b5a0/DearDough.md).
+
+- **DD-419:** SEED-231 proved focused and pathless runner fixtures finish while another checkout holds full-suite admission. Full suites still serialize. See accepted `e2541b0aa` and plan 466 at that revision. The separate container owner collision remains open.
+- **DD-421, DD-428, DD-429, DD-430:** the paused-clock reopen passed the 42-case focused run after `40eb66ce52`. The CI answer fixes passed hosted run 42032615133 after `420ac5e1c` and `e4058a7c7`. The corrected fake-Cursor attach identity passed the revive proofs at `5de83a620`, whose static wire seam also restored the server bundle.
+- **DD-390, DD-467:** the successful multi-order fixture probes left no unresolved local fixture issue. The native-identity budget breach fell from 67.8 s to 16.2 CI seconds after `7d62c61b5` batched captures. The separate import-closure defects remain open.
+- <a id="dd-496"></a> **DD-496:** the local narrow-terminal wait was repaired at `b6f325ffb` by accepting the presented terminal as evidence of start. SEED-320 completed after hosted proof. The process finding about diagnosis retains the original intermittent runs.
+- **DD-539:** `219d69bef` retargeted the Integrated UI runner-ownership example to an existing Intent case. The completion at `bfd4e781` confirmed the repair and the example remains adopted. The frontend deadline on the same earlier revision is still recorded at [DD-529](project-test-findings.md#dd-529).
+
 Classification and resolution review, 2026-10-12. Full input evidence is
 recoverable at `11d48b956607e3485f5771c59509b111be3626b8:ProjectFindings.md`
 and `11d48b956607e3485f5771c59509b111be3626b8:DearDough.md`.

@@ -15,6 +15,16 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
+**Maintenance assessment (2026-11-15):** [DD-537](docs/maintainer/project-test-findings.md#dd-537)
+adds a Distribution share failure from an apparently roomy preview that used
+median estimates for 26 unrecorded jobs. The immediate duration refresh landed.
+[SEED-374](.planning/seeds/SEED-374-stale-test-duration-estimates.md#see-stale-test-duration-estimates)
+is queued to make the missing timing evidence clear before relying on that
+preview. [DD-529](docs/maintainer/project-test-findings.md#dd-529) records the
+separate browser capacity facet. [Retirement decisions and recovery](docs/maintainer/project-findings-history.md#review-and-recovery)
+include the verified runner and harness fixes. The load cases below retain the
+limits of the available post-response proof.
+
 **Maintenance assessment (2026-11-11):** The named node-job deadline and
 hosted-font diagnostic both landed. [DD-426](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/ProjectFindings.md#dd-426)
 is retired after the named timeout and bounded cleanup proof in
@@ -182,23 +192,6 @@ historical 134 GB remains unknown.
 
 <a id="dd-303"></a> [DD-303 — Joining `install.sh` lines to stay at 250 broke a test that treats single-entry lines as anchors](docs/maintainer/project-test-findings.md#dd-303).
 
-## A focused local run waits for another worktree's full suite (open, unqueued)
-
-<a id="dd-419"></a>
-
-### DD-419 — Named `scripts/test.sh` runs queued behind another worktree's whole suite
-
-### Occurrences
-
-- Execution: SEED-230#summarize-ci-proof-in-intent (plan 463-summarize-ci-proof-in-intent; first implementation commit `99d0f70e7c503bcafb7cc79d3183277eaec28c96`)
-  - Timestamp: unknown (2026-11-04, slice 1 acceptance and implementation)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
-  - Evidence: the coordinator's five-path `bash scripts/test.sh …` started 14:25 and ran only after `scripts/local-test-suite.mjs repository` held for the `reduce-remote-sessions-traffic` worktree's full run released `refs/dough/local-test-suite` (the 600 s tool bound moved it to the background); the slice 1 implementer reported a share run stalled over 30 min because `tests/test-runner-github-requests.sh`, `test-runner-budget.sh` and `test-runner-split.sh` start nested full runners that wait for the same lock.
-  - Observed effect: about 15 minutes of idle focused proof and one abandoned share run.
-  - Inference: qualified. One-suite admission protects whole-suite timings, but focused and nested fixture runs sharing that slot make focused proof latency depend on unrelated work on the machine.
-
 ## Selective formatting during delivery (implemented and measured, released in v0.3.67)
 
 <a id="dd-309"></a>
@@ -272,20 +265,14 @@ before it is read as a defect. `SEED-241` (plan 477, 2026-11-05) followed
 `caffeinate -s -i` across 2,044 passing tests; the dark-wake and sleep-failure
 observations remain open, unqueued.
 
-## Repaired dashboard stream, keep, harness and bundle observations
+## Revision-stream pace could start before both open answers settled
 
 <a id="dd-420"></a>
-<a id="dd-421"></a>
-<a id="dd-428"></a>
-<a id="dd-429"></a>
-<a id="dd-430"></a>
 
-[DD-420, DD-421, DD-428, DD-429 and DD-430](docs/maintainer/project-test-findings.md#dd-420)
-retain the repaired revision-stream pace race, paused-clock reopen, kept CI
-answer journeys, fake-Cursor attach-PID assertion, and server-bundle static
-seam, moved from `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md`.
-DD-420 recurred in plan 499 (2026-11-07) on unrelated work; its spec now
-holds listings in turn, and the per-open pace start remains in the product.
+[DD-420](docs/maintainer/project-test-findings.md#dd-420) records the original
+failure and the plan 499 recurrence. The corrected spec holds listings in
+turn. The product still starts its pace per open.
+
 
 ## Container and host local-suite admission collision (open, unqueued)
 
@@ -306,6 +293,8 @@ dashboard shards cancelled at the 6-minute job cap during slow artifact uploads.
 
 [Classification, repaired findings and source recovery](docs/maintainer/project-findings-history.md#review-and-recovery)
 remain available in the history record, with the original evidence and dates.
+
+<a id="dd-496"></a> [DD-496 terminal-wait repair](docs/maintainer/project-findings-history.md#dd-496).
 
 <a id="dd-171"></a>
 
@@ -332,14 +321,6 @@ DD-171's delivered commit-hook typecheck and red/green evidence are
 
 DD-378's plan-exclusion response and `SEED-229` retirement evidence are
 [retained in the review history](docs/maintainer/project-findings-history.md#dd-378).
-
-## Fixture option defaults need direct proof across file order
-
-<a id="dd-390"></a>
-
-[DD-390's original observation and local responsibility](docs/maintainer/project-test-findings.md#dd-390)
-retain the successful option-value probes and their provenance. This observation
-selects no new implementation story.
 
 ## Release finalization says "Do not push" while a release slice proves the remote tag (open, unqueued)
 
@@ -375,24 +356,7 @@ selects no new implementation story.
   - Observed effect: one CI failure and a pause/stash/repair/restore cycle around slice 3. The builder now keeps its own entry labels, duplicating the dashboard's list.
   - Inference: a fast local check that makeMe's closure stays within `tests/` and `src/`, or a note at the MakeMe registry, would surface the constraint before publication.
 
-## A slice made a check heavier without judging its CI job ceiling (open, unqueued)
-
-<a id="dd-467"></a>
-
-### DD-467 — Slice 1 grew `tests/native-evidence-identity.sh` past the 64 s per-job ceiling; local proof passed and CI failed
-
-### Occurrences
-
-- Execution: SEED-262#migrate-git-publication-native-fixtures (plan 534-migrate-git-publication-native-fixtures, first implementation commit e33993231c9ce45e6ad573321fba472d4778e25f)
-  - Timestamp: 2026-11-08T14:20:06Z (run 42488867557 attempt 1 completed)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `23d29ac79`)
-  - Evidence: slice 1 made four family identities hash about 380–410 inputs each and added startup and one-shot to the check's writers; its seven one-input supervision captures and per-line `awk` calls scaled with that. Job `test (3/3)` printed `OVER BUDGET: tests/native-evidence-identity.sh took 67.8s … the per-job ceiling is 64s (tests/time-budget)` (recorded 34.5 s in `tests/longest-first`). The slice's focused runs passed at 47–67 s locally under load 11–13 without a budget judgment; the plan's Local gates and the delegation brief did not name the ceiling. Repair `7d62c61b5` (one capture over all changed inputs) gave 16.2 CI seconds at `cd5b0ddb0`.
-  - Observed effect: one CI failure, a stash/repair/restore cycle around paused slice 2 work, and about 93k repair-agent tokens.
-  - Inference: a slice that adds work inside an existing check could compare its focused time against the check's `tests/longest-first` entry scaled by the local base run and stop before publishing when it approaches the ceiling. Later briefs in this execution named the ceiling and no further breach occurred.
-
-## A story-branch landed review journey runs at its timeout under external load (queued)
+## A story-branch landed review journey ran at its timeout under external load (outcome pending)
 
 <a id="dd-473"></a>
 
@@ -409,9 +373,9 @@ selects no new implementation story.
   - Observed effect: Three focused failures that the change did not cause, plus base and diff comparison runs to show that.
   - Inference: The journey's unloaded time is about half its timeout, so external load alone can push it past 30 s. Splitting the setup from the reviewed reading, or reusing a prepared integration, would restore margin. Load attribution rests on start and end load readings only (see DD-275).
 
-**Queued, not resolved:** covered by [SEED-287#fit-dashboard-journeys-in-default-timeout](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout).
+**Response:** [SEED-287 completed](.planning/done/SEED-287_fit-dashboard-journeys-in-default-timeout.json). This record still lacks comparable loaded evidence for the landed review journey.
 
-## Whole local suites under external load fail untouched journeys (dashboard response Taken)
+## Whole local suites under external load fail untouched journeys
 
 <a id="dd-476"></a>
 
@@ -457,10 +421,9 @@ selects no new implementation story.
 
 **Response:** The per-job deadline and bounded process cleanup landed in
 [SEED-289#name-a-test-job-past-its-deadline](.planning/done/SEED-289_name-a-test-job-past-its-deadline.json).
-[SEED-287#fit-dashboard-journeys-in-default-timeout](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)
-is Taken and covers the dashboard load failures.
+[SEED-287 completed](.planning/done/SEED-287_fit-dashboard-journeys-in-default-timeout.json). The observations above still include settings cases outside its scope and loaded runs without a comparable post-response result.
 
-## `start-origin-isolation` successive preparations exceeded the 30 s default under external load (queued)
+## `start-origin-isolation` successive preparations exceeded the 30 s default under external load (outcome pending)
 
 <a id="dd-479"></a>
 
@@ -485,7 +448,7 @@ is Taken and covers the dashboard load failures.
   - Evidence: `start-origin-isolation.spec.ts:140` reached the 30 s bound at load 40 → 46 at two workers beside `:40`, and passed alone in 20.4 s at load 43 → 42; the change did not reach its path.
   - Observed effect: one failure classified and routed to the developer.
 
-**Queued, not resolved:** SEED-287 has closed; covered now by [SEED-332#answer-fake-gh-reads-in-process](.planning/seeds/SEED-332-answer-fake-gh-in-process.md#answer-fake-gh-reads-in-process).
+**Response:** [SEED-332 completed](.planning/done/SEED-332_answer-fake-gh-reads-in-process.json). The retained in-process fake GitHub proof does not establish a comparable loaded result for this successive working-tree install case.
 
 ## A consumer selection built on the native import-closure tool drops crashed files (open, unqueued)
 
@@ -571,11 +534,3 @@ queued.
   - Observed effect: earlier counted burner passes overstated the fit, and the gap surfaced only after the trunk merge.
 
 **Response:** [Load while measuring](Distribution/tests/local-test-resources.md#load-while-measuring) records natural load as the measured condition and how to read a burner's priority.
-
-<a id="dd-496"></a>
-
-## DD-496 — The shared terminal test step could wait on a hidden page
-
-In SEED-320#open-terminal-only-without-a-custom-instruction (plan 597, recoverable at `f595336fb608dcfebfaa01685141db1b61fbcaf6`), the narrow terminal set `aria-hidden` on the page column while `startedSessionTerminal` waited for a role locator inside it. The changed journey failed in two of four implementer runs, both refactor runs, and hosted CI run 43139863774 at the same wait. The initial attribution to host load was corrected after hosted CI.
-
-Repair `b6f325ffb` accepts the presented terminal as evidence of start. The test-helper repair belongs to this repository. The shared diagnosis and full occurrence are preserved in [the original retrospective](https://github.com/terryyin/open-dough/blob/de4da5c4a48418becb30b10deedc68c17e7e2237/DearDough.md#dd-496--an-intermittent-local-failure-in-a-journey-the-slice-changed-was-attributed-to-machine-load-and-hosted-ci-failed-it-on-a-deterministic-cause).

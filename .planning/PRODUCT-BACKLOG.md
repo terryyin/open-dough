@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [See stale test duration estimates before relying on CI headroom](seeds/SEED-374-stale-test-duration-estimates.md#see-stale-test-duration-estimates) — SEED-374#see-stale-test-duration-estimates
 - [Move navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-navigation-checks-and-retire-integrated-ui-test) — SEED-334#move-navigation-checks-and-retire-integrated-ui-test
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
 - [Declare Intent comparison histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-intent-comparison-histories) — SEED-353#declare-intent-comparison-histories

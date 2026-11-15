@@ -225,30 +225,6 @@ Adding a worker-scoped fixture to one fixture module while other specs extend on
 
 **Responsibility and current assessment (2026-10-20):** The concrete fixture population was repository-owned and repaired in the same execution, with the reported local 13-to-8 worker comparison retained above. This is historical evidence, not a new recurrence or implementation commitment. The general lesson to inspect hosted costs remains qualified; no shared platform defect is established. Recovery: `dae40ae3ed427d6827828b43c4fecc794d60cd85:DearDough.md#dd-312`.
 
-<a id="dd-390"></a>
-
-## DD-390 — Journey-only order-dependence can miss fixture option binding
-
-Real second-file journeys that do not need a shared fixture option still pass
-under module-level `test.use` order dependence. Option-value probes at
-`--workers=1` were the reliable signal that defaults failed to reach the
-second-loaded file.
-
-### Occurrences
-- Execution: SEED-208#declare-fixture-defaults-on-fixtures (plan 436; first related implementation commit `9b4f8a8c`)
-  - Timestamp: unknown (2026-11-01 implementation; before-order probes `tmp/order-probe-cursor2/proof.json` `startedAt` 2026-11-01T06:33:44.496Z and `tmp/order-probe-unread/proof.json` `startedAt` 2026-11-01T06:35:00.785Z)
-  - Tool: Cursor · Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.79)
-  - Evidence: plan 436 Current decisions Learning; coordinator history that real second-file journeys still passed without the option; before probes titled “missing defaults” vs after “keeps fixture defaults” in those proof records
-  - Observed effect: order-dependence was proved and fixed via option-value probes rather than failing journeys; consumer suite later passed strict
-  - Inference: Qualified practice. For fixture option defaults, assert the option values across file order instead of relying on journeys that may not exercise those options
-
-**Responsibility and disposition (2026-11-02):** Project-owned fixture-proof
-practice, rather than a defect established in shared Open Dough guidance.
-The execution's option-value probes detected the defect and its strict consumer
-suite subsequently passed. Preserve this as a useful test-design observation;
-no further implementation story is justified by this evidence alone. Original
-source and provenance are recoverable at `a47f4814:DearDough.md`.
-
 <a id="dd-412"></a>
 
 ## DD-412 — The plan's sleep guard let Maintenance Sleep break two whole-suite runs
@@ -311,70 +287,6 @@ With `DOUGH_REVISION_STREAM_MS` lowered, `SourceRevisionStream` scheduled its pa
 
 **Responsibility and disposition (2026-11-07):** Project-owned dashboard implementation and boundary-test timing (`SourceRevisionStream`), repaired in the same execution (`1e79d44b9`). Moved from `DearDough.md` (recovery `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md#dd-420`); no new local story.
 
-<a id="dd-421"></a>
-
-## DD-421 — Revision-stream rate-limit reopen via page-clock timer stranded under paused clocks
-
-Slice 5 first deferred stream open after a rate-limit wait only through `scheduleOpenAfter` on the page clock. Journey clocks stay paused, so the reopen never fired, focused stream journeys failed, and the page kept the effect-level `limitedUntil` guard that opens at T without relying on that timer alone.
-
-### Occurrences
-- Execution: SEED-232#see-published-changes-over-sse (before-cleanup `1b37ad486dba725c8e08dceed5af56c9e6848da1:.planning/slice-plans/469-see-published-changes-over-sse/PLAN.md`; first implementation commit `fe83d250eb95a2e02edc3e8b02eccb8d01f92f27`)
-  - Timestamp: unknown (2026-11-05, focused slice 5 proof before `40eb66ce52`)
-  - Tool: Cursor · Model: auto · Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.83)
-  - Evidence: coordinator return: focused proof 40 passed / 2 stream journeys failed; before-cleanup plan learning and slice 5 proof: keep effect-level rate-limit guard; do not defer open via page-clock `scheduleOpenAfter` alone; `revision-stream-lost.spec.ts` rate-limit journey then passed in the 42-focused run; published at `40eb66ce52`.
-  - Observed effect: lost-freshness / rate-limit stream work blocked until the open path matched how check journeys pause the page clock.
-  - Inference: stream delivery that must reopen while tests pause `page.clock` cannot treat a page-clock timeout as the only gate for a standing limit; wall-clock or effect re-entry is required for those journeys (and matches production when the limit ends without a clock advance).
-
-**Responsibility and disposition (2026-11-07):** Project-owned dashboard stream reopen and Playwright paused-clock interaction, repaired in the same slice (`40eb66ce52`). Moved from `DearDough.md` (recovery `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md#dd-421`); no new local story.
-
-<a id="dd-428"></a>
-
-## DD-428 — Kept CI answer journeys needed settle-before-hold and mismatch-before-remember
-
-Adding the process-local kept CI status answer and per-attempt proof memory left existing Check-again journeys wrong until pre-landing and host CI failed: mismatched adapter summaries were remembered as if valid, and a freshness hold placed before the remount's fresh keep settled showed unread as previously retrieved.
-
-### Occurrences
-- Execution: SEED-239#show-ci-status-on-intent-home (before-cleanup `6581c406d0edf71e4d8a3d210e5b4d7769a624af:.planning/slice-plans/476-show-ci-status-on-intent-home/PLAN.md`; first related implementation commit `bb9b7128e`)
-  - Timestamp: 2026-11-05T19:05:05+07:00 (host CI run 42032615133 tip after repairs `e4058a7c7`)
-  - Tool: Cursor · Open Dough release: 0.3.86 (installed `.claude/skills`; VERSION file)
-  - Evidence: pre-landing `npm run test:dashboard` failed `intent-ci-proof-adapter-reasons` (remembered `someone/else` / valid attempt-2 summary blocked Check again) and `intent-ci-proof-ancestor` (asserted actions-runs before fresh settle); host CI run 42027284312 failed `intent-ci-status-freshness` at the held main Check again with `.intent-ci-state` `Could not be read` while Previously retrieved + spinner showed; repairs `420ac5e1c` (mismatch before remember) and `e4058a7c7` (settle Passed before hold; unread not labelled previously retrieved).
-  - Observed effect: two repair publications after slice 5's keep/memory before the story tip was green; local focused freshness passed while shard 1/12 failed.
-  - Inference: when a slice adds process keep or dual kept+fresh reads, re-read every journey that reconfigures the adapter on Check again or holds a fixture across a remount, and wait for Checked at before holding.
-
-**Responsibility and disposition (2026-11-07):** Project-owned dashboard Intent CI-status keep/memory and journey synchronization, repaired in the same execution (`420ac5e1c`, `e4058a7c7`). Moved from `DearDough.md` (recovery `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md#dd-428`); no new local story.
-
-<a id="dd-429"></a>
-
-## DD-429 — Fake-Cursor attach pid equated to runner pid made correct revive look failed
-
-Slice 2 journey assertions compared fake-Cursor attach `pid` (the agent PTY) to the Cursor runner address `pid`. Product revive was already selecting and resuming last-held candidates while those polls timed out waiting for a held count matched by runner pid.
-
-### Occurrences
-- Execution: SEED-242#revive-cursor-sessions-when-the-runner-restarts (before-cleanup `a07048254e182fef347a6c91739f41da5b743f82`; first related implementation commit `5de83a6202e6c4ed330660bf43f4c049c1ddda02`)
-  - Timestamp: 2026-11-05T21:47+07:00 (coordinator noted three focused revive proofs timed out; diagnosis in slice-2 agent return)
-  - Tool: Cursor · Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
-  - Evidence: coordinator transcript `0e775890-01a7-485a-90e6-db26302038ef` (~21:47–21:53+07:00): replacement, controls, and restart journeys timed out on held-count waits; debug showed revive selected the prior last-held candidate and logged `done`, with resume attaches present; slice-2 agent `894a78d4-5fc2-45f1-81a2-611e132e72fc` stated attach PIDs were being compared to the runner PID and fixed assertions; before-cleanup plan Current decisions at `.planning/slice-plans/479-revive-cursor-sessions-on-runner-restart/PLAN.md` record that fake-Cursor attach `pid` is the agent PTY
-  - Observed effect: several failed proof rounds and debug instrumentation while the revive path already worked; final proofs passed after assertion identity was corrected (no product keep/revive change for that failure class)
-  - Inference: under fake-Cursor, treat runner address pid and agent attach pid as distinct identities; assert held/resume by session id (or attach presence), not by equating those pids
-
-**Responsibility and disposition (2026-11-07):** Project-owned `fake-Cursor` test-harness identity convention, corrected in the same slice (`5de83a620`). Moved from `DearDough.md` (recovery `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md#dd-429`); no new local story.
-
-<a id="dd-430"></a>
-
-## DD-430 — Dynamic import to avoid ensure nesting broke the dashboard server bundle
-
-To keep accepting-port revive from nesting `ensureCurrentCursorRunner`, slice 2 first tried a dynamic import of the revive path. That broke the dashboard server bundle; the durable fix was extracting accepting-port keep/hangup/sessions into `runnerWire.ts` with a static revive import after the start lock released.
-
-### Occurrences
-- Execution: SEED-242#revive-cursor-sessions-when-the-runner-restarts (before-cleanup `a07048254e182fef347a6c91739f41da5b743f82`; first related implementation commit `5de83a6202e6c4ed330660bf43f4c049c1ddda02`)
-  - Timestamp: 2026-11-05T21:46+07:00 (coordinator noted format/lint/typecheck green after the wire split)
-  - Tool: Cursor · Open Dough release: unknown (installed skills in source checkout; VERSION 0.3.86)
-  - Evidence: slice-2 agent `894a78d4-5fc2-45f1-81a2-611e132e72fc` recorded that dynamic import broke the server bundle and extracted keep-at-port; before-cleanup plan Current decisions name accepting-port keep in `runnerWire.ts` to avoid ensure deadlock and import cycles; delivered surfaces `runnerWire.ts` / `runnerRevive.ts` / post-settle revive in `runnerCurrent.ts`
-  - Observed effect: one mid-slice structural correction before focused revive proofs could run cleanly; final shape matches the plan's settled re-entrancy constraint without dynamic import
-  - Inference: for dashboard server modules that share the ensure lock, prefer a static seam (wire/keep-at-port module) over dynamic import when breaking a keep→ensure cycle
-
-**Responsibility and disposition (2026-11-07):** Project-owned dashboard server bundling seam, repaired in the same slice (`runnerWire.ts`). Moved from `DearDough.md` (recovery `8e2ec1089abbb24c603889966ddb1bcace54ad93:DearDough.md#dd-430`); no new local story.
-
 <a id="dd-432"></a>
 
 ## DD-432 — A container run took a live host run's local-suite admission
@@ -430,3 +342,35 @@ two removals timed out on CI and a hardening pass followed.
   - Evidence: slice 1 margin rule used run 42372706379 only; runs 42395811294 (`agent-launch-story-card-sessions`, 25.2s before) and 42399373902 (`production-watcher-failures.spec.ts:84`) hit 30s; comparing 2,122 matched cases, median ratio 1.02 but p90 1.53, and `story-review-one-shot-choice-refresh` 13.8s → 26.5s unchanged
   - Observed effect: two CI repairs (`acfe0ca9e`, `665c28053`) with stash and pause cycles, then a nine-journey hardening pass (`aad804b57`); 13 hosted cases still at 20–25s
   - Inference: hosted shard co-scheduling and CPU contention dominate; a margin judged across several hosted runs, or against a loaded stand-in such as 16–24 traced local workers, would have found these before publication
+
+<a id="dd-529"></a>
+
+## DD-529 — Browser groups reached their hosted deadline after conversions
+
+- SEED-357#keep-usage-history-within-a-small-disk-budget (plan 631, first implementation `a23dcc3014807378a3d518461e7e8a00f72c8d2b`), 2026-11-15T05:37:27Z, Claude Code / claude-fable-5-2, 0.3.99 at Take `5a97baeb3`, 0.3.100 at merge `f74ff9a76`. Run 43681477553 attempt 1 cut off e2e shard 2/5. Conversions added about 25%, with about 1,100 list-seconds per shard and earlier 287–288 s passes against a 320 s cutoff. Runs 43679953950 and 43678012127 and the shard instructions at `80e759cfc` supported the comparison. The affected runner was 1.42–1.94× slower than siblings. The developer moved a shard from Integrated UI to E2E. Run 43688468922 passed the resulting six shards in 173–240 s.
+- SEED-334#finish-dissolving-integrated-ui-test (plan 632, first implementation `9b535b53d`), 2026-11-15T11:51:12Z, Cursor, 0.3.101 from the installed marker. The frontend shard on `26161888d` in run 43710473022 hit a 163.975 s suite timeout and teardown timeout after conversions grew the group. The next tip `219d69bef` passed with only an ownership-example retarget. The available outcome does not establish a frontend capacity repair or the effect of an earlier margin check.
+
+The [pre-push shard preview](../../dashboard/tests/shards.md) is already
+documented. This record retains the local headroom evidence and the E2E
+adjustment. The diagnostic gap has [its own process occurrence](https://github.com/terryyin/open-dough/blob/f28c8ee2c2f361030db9d0e0b0ca6207c2e4b5a0/DearDough.md#dd-529--a-hosted-suite-deadline-cutoff-named-no-failing-test-and-a-group-left-without-margin-by-sibling-conversions-failed-on-an-unrelated-storys-merge).
+
+<a id="dd-537"></a>
+
+## DD-537 — A preview's high unrecorded count went unread before adding a check to a thin share
+
+A plan premise and its slice return read the allocation preview's per-share headroom but not its unrecorded count, which the share documentation names as the sign of a stale duration list. Adding one check moved the bytewise unrecorded deal and pushed one share over its job-second budget in CI.
+
+### Occurrences
+- Execution: SEED-355#reconsider-further-ci-reduction (plan `641-size-ci-jobs-from-recent-runs`; first implementation `87a2177e54bd82660553db65c3a55d30ffef64c3`)
+  - Timestamp: 2026-11-15T12:47:52Z (CI budget breach)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.101 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: PLAN.md premise "A new check file fits its Distribution share" quoted 178.2 s preview headroom; the slice 1 return and coordinator A/B used the same preview, which listed 26 unrecorded jobs at 1.5 s. Run 43715261434 at `96e739ef0` failed `Distribution Tests (3/3)` at 935.9 job-seconds of 926 (shares 554/779/1025 s observed); repair `3445cf469` refreshed `Distribution/tests/longest-first`, after which the preview showed one unrecorded job and 898-899 s a share.
+  - Observed effect: one failed CI run, one superseded run and one repair commit; the shares were already thin in `ci-test-times.sh`, which the coordinator judged against the preview's predicted headroom.
+  - Inference: the preview's headroom is only as good as the list; checking its unrecorded count before trusting a thin share would likely have prompted the refresh before the push.
+
+**Response:** The same execution refreshed the timing list. The preview already
+lists unrecorded jobs, but no guard prevented using an optimistic estimate
+during the change. [SEED-374](../../.planning/seeds/SEED-374-stale-test-duration-estimates.md#see-stale-test-duration-estimates)
+is queued for that remaining problem.
