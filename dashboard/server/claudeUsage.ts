@@ -66,11 +66,11 @@ export async function* claudeUsage(
     const effort = stringOf(row["effort"]);
     if (model) settings.model = model;
     if (effort) settings.effort = effort;
-    const {
-      reported,
-      tokens,
-      gaps: counterGaps,
-    } = claudeCounters(objectOf(message["usage"]));
+    const usage = objectOf(message["usage"]);
+    // Claude's `speed`, such as `standard`, is the response's service tier.
+    const speed = stringOf(usage["speed"]);
+    if (speed) settings.serviceTier = speed;
+    const { reported, tokens, gaps: counterGaps } = claudeCounters(usage);
     const requestId = stringOf(row["requestId"]);
     const stop = claudeStopReasonSchema.safeParse(message["stop_reason"]);
     const completion = Object.hasOwn(message, "stop_reason")

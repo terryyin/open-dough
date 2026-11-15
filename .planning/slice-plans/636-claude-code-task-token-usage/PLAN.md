@@ -2,6 +2,7 @@
 
 **Identity:** SEED-359#view-claude-code-task-token-usage
 **Source:** [View token usage for dashboard-launched Claude Code tasks](../../seeds/SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -103,7 +104,7 @@ Each slice targets 15 active minutes, including proof and cleanup.
 
 ### 1. Keep the cache-write split and speed in stored Claude usage
 Type: Structure
-Status: planned
+Status: done
 Proof: Backend `usage-history/claude-usage`, `session-contributions`,
 `repeated-checks`, `earlier-store-conversion` and `token-index` specs; a new
 case imports a transcript with five-minute and one-hour writes and
@@ -116,6 +117,14 @@ response's service tier, which then groups entries as Codex's tier does. No
 Usage output changes: Codex has no split and keeps its totals. Enables
 slice 2's Claude pricing. An earlier store's entries without the counters read
 as unsplit.
+
+Delivered: entries carry `tokens.cacheWrite5m` and `tokens.cacheWrite1h` beside
+`cacheWrite` only while every summed response reported the split; an unsplit
+entry (Codex, an earlier store, a response without `cache_creation`) omits
+both keys rather than storing `null`, so Codex and earlier entries stay
+byte-identical. Slice 2 reads an absent key as unsplit. Claude `speed` is the
+entry's `tier`. Proof: `claude-usage-split.spec.ts` plus the whole backend
+`usage-history` folder (79 passed) and the dashboard typecheck.
 
 ### 2. Choose Claude Code and read its Token index
 Type: Behavior
