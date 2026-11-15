@@ -22,7 +22,7 @@ scope: story
 **For / why.** A developer can inspect the usage that a dashboard-launched
 Cursor task reports and see how much of the task the measurement covers.
 
-Extend the [dashboard usage view](SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks)
+Extend the [dashboard usage view](../../dashboard/src/SystemSettingsUsage.tsx) (System settings → Usage)
 to Cursor story workflows and ad hoc tasks on the current interactive launcher.
 Persist the reported usage and available settings. Measure the whole task where
 requests can be attributed. Include related continuations and late worker usage.

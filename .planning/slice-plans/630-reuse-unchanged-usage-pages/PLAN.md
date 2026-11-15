@@ -5,10 +5,11 @@
 
 ## Source and provenance
 
-This plan is a bounded retrospective correction of the completed
-[View token usage for dashboard-launched Codex tasks](../../seeds/SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks)
-(SEED-357#view-token-usage-for-dashboard-launched-tasks). That story was
-executed through [plan 627](../627-view-codex-task-token-usage/PLAN.md) in
+This plan is a bounded retrospective correction of the completed story View token usage for dashboard-launched Codex tasks
+(SEED-357#view-token-usage-for-dashboard-launched-tasks), recoverable with
+`git show 103b321ea58cb461e91669658db184b24ba48ee3:.planning/seeds/SEED-357-dashboard-task-token-usage.md`. That
+story was executed through plan 627, recoverable with
+`git show 103b321ea58cb461e91669658db184b24ba48ee3:.planning/slice-plans/627-view-codex-task-token-usage/PLAN.md`, in
 commits `81146589..8c8d35d4`, with slice commits `ccbb06cb`, `5930697d`,
 `65e953de`, `a7087514` and `8c8d35d4`. All five slices passed branch CI. Its
 Learnings for slices 4 and 5 describe the tier reread and the Refresh writer

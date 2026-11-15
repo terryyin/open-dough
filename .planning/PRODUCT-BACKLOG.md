@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Remove tests that only assert configuration or data](seeds/SEED-354-remove-configuration-only-tests.md#remove-configuration-only-tests) — SEED-354#remove-configuration-only-tests ([plan](slice-plans/626-remove-configuration-only-tests/PLAN.md))
-- [View token usage for dashboard-launched Codex tasks](seeds/SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks) — SEED-357#view-token-usage-for-dashboard-launched-tasks ([plan](slice-plans/627-view-codex-task-token-usage/PLAN.md))
 
 ## Backlog list
 
