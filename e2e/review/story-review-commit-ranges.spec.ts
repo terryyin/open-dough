@@ -1,21 +1,24 @@
 // A contiguous range uses its oldest parent and newest tree, while trunk
 // integrations are restated by the same comparison as Since the review.
-import { expect, test } from "../support/preparationPage.ts";
-import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { chooseCommit } from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
+import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 import {
   openStoryReview,
   reviewRegion,
   comparisonChoice,
-} from "../support/storyReviewMark.ts";
-import { olderGit } from "../support/storyReviewOlderGit.ts";
-import { observed, storyWorktree } from "../support/storyReviewWorktree.ts";
+} from "../../dashboard/tests/support/storyReviewMark.ts";
+import { olderGit } from "../../dashboard/tests/support/storyReviewOlderGit.ts";
+import {
+  observed,
+  storyWorktree,
+} from "../../dashboard/tests/support/storyReviewWorktree.ts";
 import {
   expectTreeRows,
   changedFilesList,
   listedFile,
-} from "../support/reviewTreeRows.ts";
+} from "../../dashboard/tests/support/reviewTreeRows.ts";
 
 test("two ends select three commits in either direction, reset to one, and survive switching comparisons", async ({
   page,

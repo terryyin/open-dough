@@ -1,5 +1,5 @@
 // All changes of a story's review can leave its uncommitted changes out, of
-// Story A's worktree (../support/storyReviewWorktree.ts) with a committed
+// Story A's worktree (../../dashboard/tests/support/storyReviewWorktree.ts) with a committed
 // file edited again: the check “Include uncommitted changes” is on at
 // opening over the whole snapshot. Off, the review lists the committed files
 // alone with their committed lines and counts, and says in words, as the
@@ -17,9 +17,9 @@ import {
   storyReviewEndpoint,
   storyReviewMarkEndpoint,
   storyReviewRangeEndpoint,
-} from "../../src/storyReviewContract.ts";
-import { expect, test } from "../support/preparationPage.ts";
-import { reviewBody } from "../support/reviewContextLine.ts";
+} from "../../dashboard/src/storyReviewContract.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { reviewBody } from "../../dashboard/tests/support/reviewContextLine.ts";
 import {
   expectFileSelected,
   expectLineCounts,
@@ -27,10 +27,10 @@ import {
   fileRow,
   changedFilesList,
   fileDiff,
-} from "../support/reviewTreeRows.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import type { StartOrigin } from "../support/startOrigin.ts";
-import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
+} from "../../dashboard/tests/support/reviewTreeRows.ts";
+import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+import type { StartOrigin } from "../../dashboard/tests/support/startOrigin.ts";
+import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 import {
   keptStoryAMark,
   markReviewed,
@@ -38,12 +38,12 @@ import {
   reviewRegion,
   uncommittedCheck as check,
   uncommittedLeftOut as leftOut,
-} from "../support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/storyReviewMark.ts";
 import {
   nestedWorktree,
   storyWorktree,
   unchangedWorktree,
-} from "../support/storyReviewWorktree.ts";
+} from "../../dashboard/tests/support/storyReviewWorktree.ts";
 
 // Story A's worktree with its committed story file edited again, uncommitted.
 function storyWorktreeEditedAgain(origin: StartOrigin) {

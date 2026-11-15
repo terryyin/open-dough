@@ -1,22 +1,25 @@
 // A story review's context line, of Story A's worktree
-// (../support/storyReviewWorktree.ts): branch, short baseline with the trunk
+// (../../dashboard/tests/support/storyReviewWorktree.ts): branch, short baseline with the trunk
 // it meets, shortened worktree, and Hide files side by side on one line.
 // Activating it by keyboard shows every value in full and activating it again
 // returns it to one line, its name reading every value in full throughout;
 // the line stays in place while the file browser scrolls beneath it.
 
-import { expect, test } from "../support/preparationPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import {
   contextLine,
   contextValues,
   contextWords,
   expectFixedWhileScrolled,
   fileBrowser,
-} from "../support/reviewContextLine.ts";
-import { openReview } from "../support/reviewRead.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import { branch, storyWorktree } from "../support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
+} from "../../dashboard/tests/support/reviewContextLine.ts";
+import { openReview } from "../../dashboard/tests/support/reviewRead.ts";
+import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+import {
+  branch,
+  storyWorktree,
+} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 
 test("a story review's context line keeps to one line until activated and stays in place", async ({
   page,

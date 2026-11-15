@@ -1,6 +1,6 @@
 // The check that leaves uncommitted changes out of all changes
 // (./story-review-uncommitted-check.spec.ts) keeps its state, of Story A's
-// worktree (../support/storyReviewWorktree.ts). Off, Refresh after the agent
+// worktree (../../dashboard/tests/support/storyReviewWorktree.ts). Off, Refresh after the agent
 // commits one file and edits another lists the new committed files, still
 // off, and announces their count; once everything is committed Refresh
 // offers no check over the whole snapshot, and uncommitted changes appearing
@@ -12,18 +12,18 @@
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { storyReviewFileEndpoint } from "../../src/storyReviewContract.ts";
-import { expect, test } from "../support/preparationPage.ts";
-import { reviewFeedback } from "../support/reviewContextLine.ts";
+import { storyReviewFileEndpoint } from "../../dashboard/src/storyReviewContract.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { reviewFeedback } from "../../dashboard/tests/support/reviewContextLine.ts";
 import {
   expectFileSelected,
   expectTreeRows,
   fileRow,
   changedFilesList,
   fileDiff,
-} from "../support/reviewTreeRows.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
+} from "../../dashboard/tests/support/reviewTreeRows.ts";
+import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 import {
   comparisonChoice,
   markReviewed,
@@ -33,13 +33,13 @@ import {
   reviewRegion,
   uncommittedCheck as check,
   uncommittedLeftOut as leftOut,
-} from "../support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/storyReviewMark.ts";
 import {
   commitAll,
   git,
   storyWorktree,
   writeAt,
-} from "../support/storyReviewWorktree.ts";
+} from "../../dashboard/tests/support/storyReviewWorktree.ts";
 
 const committedFiles = ["gone.txt", "image.png", "new.txt", "story.txt"];
 

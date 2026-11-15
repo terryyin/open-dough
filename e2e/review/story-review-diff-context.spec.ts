@@ -1,12 +1,16 @@
 // Directional gutter controls in Side panel story review reveal omitted
-// unchanged lines around a change (../support/storyReviewWorktree.ts
+// unchanged lines around a change (../../dashboard/tests/support/storyReviewWorktree.ts
 // expandContextWorktree) in 20-line steps from the comparison's file text,
 // without whole-gap/whole-file shortcuts, keeping markers, numbers, scroll
 // place, and a readable printed diff when the text read fails until Retry.
 
-import { listedFile } from "../support/reviewTreeRows.ts";
-import { diffLines, codePane, scrollTopOf } from "../support/reviewPanes.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import { listedFile } from "../../dashboard/tests/support/reviewTreeRows.ts";
+import {
+  diffLines,
+  codePane,
+  scrollTopOf,
+} from "../../dashboard/tests/support/reviewPanes.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import {
   contextExpansion,
   diffHunk,
@@ -14,12 +18,12 @@ import {
   expandFirstHunkPrinted,
   expandSecondHunk,
   openExpandDiff,
-} from "../support/expandContextDiff.ts";
-import { shownLineNumbers } from "../support/reviewLineNumbers.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import { storyReviewFileTextEndpoint } from "../../src/storyReviewContract.ts";
-import { expandContextWorktree } from "../support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
+} from "../../dashboard/tests/support/expandContextDiff.ts";
+import { shownLineNumbers } from "../../dashboard/tests/support/reviewLineNumbers.ts";
+import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+import { storyReviewFileTextEndpoint } from "../../dashboard/src/storyReviewContract.ts";
+import { expandContextWorktree } from "../../dashboard/tests/support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 
 test.describe("diff context expansion", () => {
   // Touch activation needs a touch-capable page; pointer and keyboard still apply.

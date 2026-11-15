@@ -1,5 +1,5 @@
 // Story A's card opens its worktree review (../../dashboard/tests/support/storyReviewWorktree.ts).
-// Context names branch/baseline/worktree (../../dashboard/tests/review/story-review-context-line.spec.ts).
+// Context names branch/baseline/worktree (./story-review-context-line.spec.ts).
 // Only story files appear, grouped by kind/folder, first file selected; trunk
 // and ignored files are absent, and the worktree index/status stay unchanged.
 // Diffs mark added/removed lines beside old/new numbers, renames against old
@@ -7,7 +7,7 @@
 // Hiding files widens the unchanged diff. Command+Shift+Escape closes the Side
 // panel, returning to Review changes; Tab moves on. Refused requests are in
 // ../../dashboard/backend-tests/review/story-review-refusal.spec.ts. Directional omitted-context expansion is in
-// ../../dashboard/tests/review/story-review-diff-context.spec.ts.
+// ./story-review-diff-context.spec.ts.
 
 import {
   codePane,

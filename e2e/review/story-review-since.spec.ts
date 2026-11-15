@@ -7,7 +7,7 @@
 // the review are shown marks the whole snapshot. A mark whose tree the
 // repository does not hold cannot be compared: the review says so and shows
 // all changes until marking starts again. The review with no later change
-// and an unmarked story's review are in ../../dashboard/tests/review/story-review-comparison.spec.ts.
+// and an unmarked story's review are in ./story-review-comparison.spec.ts.
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";

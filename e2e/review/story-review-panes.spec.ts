@@ -1,7 +1,10 @@
-import { maximizeSidePanel, restoreSidePanel } from "../sidePanelFrame.ts";
+import {
+  maximizeSidePanel,
+  restoreSidePanel,
+} from "../../dashboard/tests/sidePanelFrame.ts";
 // A large story's review, of Story A's worktree changing more files than the
 // file browser holds and files longer than the diff shows
-// (../support/storyReviewWorktree.ts). Beneath the review's fixed top the
+// (../../dashboard/tests/support/storyReviewWorktree.ts). Beneath the review's fixed top the
 // file browser and the selected file's diff fill the panel, and the body
 // never scrolls as a whole. Each pane scrolls on its own, down and sideways,
 // leaving the other, the top, and the diff's heading in place; the code
@@ -11,20 +14,27 @@ import { maximizeSidePanel, restoreSidePanel } from "../sidePanelFrame.ts";
 // the browser sits above the diff with a bounded share of the height, and
 // Hide files gives the diff the whole work area.
 
-import { reviewRefresh } from "../support/reviewControls.ts";
-import { treeFolder } from "../support/reviewTreeRows.ts";
-import { narrowWindow } from "../accessibleReading.ts";
-import { box, expectTopBarsShareHeight } from "../pageLayout.ts";
-import { control, dragDivider, expectWidth } from "../sidePanelWidthPage.ts";
+import { reviewRefresh } from "../../dashboard/tests/support/reviewControls.ts";
+import { treeFolder } from "../../dashboard/tests/support/reviewTreeRows.ts";
+import { narrowWindow } from "../../dashboard/tests/accessibleReading.ts";
+import {
+  box,
+  expectTopBarsShareHeight,
+} from "../../dashboard/tests/pageLayout.ts";
+import {
+  control,
+  dragDivider,
+  expectWidth,
+} from "../../dashboard/tests/sidePanelWidthPage.ts";
 import {
   expect,
   queuedClaudePreviewTest as test,
-} from "../support/preparationPage.ts";
+} from "../../dashboard/tests/support/preparationPage.ts";
 import {
   contextLine,
   reviewBody,
   reviewFeedback,
-} from "../support/reviewContextLine.ts";
+} from "../../dashboard/tests/support/reviewContextLine.ts";
 import {
   boxes,
   openLargeReview,
@@ -33,9 +43,12 @@ import {
   scrollPane,
   scrollTopOf,
   diffHeading,
-} from "../support/reviewPanes.ts";
-import { expectReviewRead } from "../support/reviewRead.ts";
-import { longA, longB } from "../support/largeReviewFiles.ts";
+} from "../../dashboard/tests/support/reviewPanes.ts";
+import { expectReviewRead } from "../../dashboard/tests/support/reviewRead.ts";
+import {
+  longA,
+  longB,
+} from "../../dashboard/tests/support/largeReviewFiles.ts";
 
 test("a large review's browser and diff fill the panel and each scrolls on its own", async ({
   page,

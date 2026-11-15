@@ -1,19 +1,19 @@
-import { closeSidePanel } from "../sidePanelFrame.ts";
-import { reviewRefresh } from "../support/reviewControls.ts";
+import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { reviewRefresh } from "../../dashboard/tests/support/reviewControls.ts";
 // A story's review folders collapse and expand by pointer and keyboard, of
-// Story A's worktree changing nested files (../support/storyReviewWorktree.ts):
+// Story A's worktree changing nested files (../../dashboard/tests/support/storyReviewWorktree.ts):
 // collapsed, a folder hides its rows and tells how many changed files it
 // holds, while the heading's total and the selected file's diff stay. Refresh
 // keeps folders collapsed and shows new ones expanded; reopening the review
 // shows every folder expanded.
 
-import { diffHeading } from "../support/reviewPanes.ts";
-import { reviewRegion } from "../support/storyReviewMark.ts";
-import { reviewChanges } from "../storyCardControls.ts";
+import { diffHeading } from "../../dashboard/tests/support/reviewPanes.ts";
+import { reviewRegion } from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import { storyReviewWaitMs } from "../../dashboard/src/storyReviewContract.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
 import {
   expectTreeRows,
   nestedTreeRows,
@@ -21,10 +21,10 @@ import {
   changedFilesList,
   listedFile,
   fileDiff,
-} from "../support/reviewTreeRows.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import { nestedWorktree } from "../support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
+} from "../../dashboard/tests/support/reviewTreeRows.ts";
+import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+import { nestedWorktree } from "../../dashboard/tests/support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 
 test("a story's review folders collapse and expand", async ({
   page,

@@ -1,26 +1,32 @@
 // Anchored range identities survive new heads and refreshed virtual points;
 // vanished endpoints reset permanently to the latest default.
-import { expect, test } from "../support/preparationPage.ts";
-import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { chooseCommit } from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
+import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 import {
   refreshReview,
   openStoryReview,
   reviewRegion,
   comparisonChoice,
-} from "../support/storyReviewMark.ts";
+} from "../../dashboard/tests/support/storyReviewMark.ts";
 import {
   commitAll,
   git,
   storyWorktree,
   unchangedWorktree,
   writeAt,
-} from "../support/storyReviewWorktree.ts";
-import { expectReviewRead, showCommits } from "../support/reviewRead.ts";
-import { expectTreeRows, changedFilesList } from "../support/reviewTreeRows.ts";
-import { holdNextReviewResponse } from "../support/holdReviewResponse.ts";
-import { storyReviewFileEndpoint } from "../../src/storyReviewContract.ts";
+} from "../../dashboard/tests/support/storyReviewWorktree.ts";
+import {
+  expectReviewRead,
+  showCommits,
+} from "../../dashboard/tests/support/reviewRead.ts";
+import {
+  expectTreeRows,
+  changedFilesList,
+} from "../../dashboard/tests/support/reviewTreeRows.ts";
+import { holdNextReviewResponse } from "../../dashboard/tests/support/holdReviewResponse.ts";
+import { storyReviewFileEndpoint } from "../../dashboard/src/storyReviewContract.ts";
 
 test("the first Commits default uses the current snapshot, then new commits and switching keep its anchored ends", async ({
   page,

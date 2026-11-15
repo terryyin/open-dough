@@ -1,19 +1,19 @@
 // A marked story's review switches between the changes since the review and
 // all changes against trunk within one snapshot of Story A's twelve-file
-// worktree (../support/storyReviewMark.ts), reading nothing anew: a named
+// worktree (../../dashboard/tests/support/storyReviewMark.ts), reading nothing anew: a named
 // switch says which comparison is shown. Refresh keeps the comparison shown,
 // of a new snapshot; each opening starts on the changes since the review.
-// Each comparison's files are in ../../../e2e/review/story-review-comparison-files.spec.ts. With no later change the review says nothing
+// Each comparison's files are in ./story-review-comparison-files.spec.ts. With no later change the review says nothing
 // changed since the review, without Hide files, and offers the same switch;
 // an unmarked story's review opens on all its changes and offers Commits.
 
-import { changedFilesList } from "../support/reviewTreeRows.ts";
+import { changedFilesList } from "../../dashboard/tests/support/reviewTreeRows.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
-import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { expect, test } from "../support/preparationPage.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
+import { storyReviewEndpoint } from "../../dashboard/src/storyReviewContract.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
 import {
   expectShown,
   expectSinceTheReview,
@@ -26,8 +26,8 @@ import {
   reviewRegion,
   twelveFileWorktree,
   comparisonChoice,
-} from "../support/storyReviewMark.ts";
-import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
+} from "../../dashboard/tests/support/storyReviewMark.ts";
+import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 
 // How many snapshot reads the page has asked for so far.
 function snapshotReads(page: Page) {

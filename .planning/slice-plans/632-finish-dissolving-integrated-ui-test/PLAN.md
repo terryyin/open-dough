@@ -147,6 +147,12 @@ share local admission across worktrees; focused selections remain independent.
   voice-lifecycle/recovery. `frontendTerminalVoice.ts`; soft-keyboard fit
   stayed E2E (PTY size strings). `dashboard/tests/terminals/` empty (5b/6d).
   E2E moves need `../../Distribution` makeMe imports.
+- **Slice 7 proof.** FE `story-review-action` and
+  `story-review-uncommitted-check` (3); E2E 15 real-Git review moves including
+  inventory-absent `story-review-diff-line-follow-up`. Support:
+  `frontendStoryReview{,.Fixtures,.Open,.Routes}` (≤250). Interim
+  `dashboard/tests/review/` empty (5c/6e/7/28a–c). Git races and soft
+  repository work stay E2E; controlled mark/snapshot/range/UI on FE.
 - **Known traps.** A `MachineAnswer` failing `launchRecordsSchema` leaves the
   page on "Reading sessions…" silently; Cursor entries need the Cursor runner
   sessions read substituted; a history read needs its own `audience=history`
@@ -249,7 +255,7 @@ Reuse the terminal application and transcription substitutes.
 
 ### 7. Convert story review checks
 Type: Behavior
-Status: planned
+Status: done
 Proof: all 16 `dashboard/tests/review/` specs (16 / 2,426), including
 `story-review-diff-line-follow-up.spec.ts`, preserve range/refresh races,
 diffs/context/moves, pane/tree/touch, uncommitted checks and follow-up behavior.

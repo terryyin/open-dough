@@ -1,18 +1,21 @@
 // A range read owns the chosen points; delivering an earlier real answer
 // after a newer range has settled cannot change its heading, files or diff.
-import { changedFilesList, listedFile } from "../support/reviewTreeRows.ts";
-import { expect, test } from "../support/preparationPage.ts";
-import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
-import { storyReviewRangeEndpoint } from "../../src/storyReviewContract.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
+import {
+  changedFilesList,
+  listedFile,
+} from "../../dashboard/tests/support/reviewTreeRows.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { chooseCommit } from "../../dashboard/tests/support/storyReviewCommitChoice.ts";
+import { storyReviewRangeEndpoint } from "../../dashboard/src/storyReviewContract.ts";
+import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
 import {
   openStoryReview,
   reviewRegion,
   comparisonChoice,
-} from "../support/storyReviewMark.ts";
-import { storyWorktree } from "../support/storyReviewWorktree.ts";
-import { holdNextReviewResponse } from "../support/holdReviewResponse.ts";
+} from "../../dashboard/tests/support/storyReviewMark.ts";
+import { storyWorktree } from "../../dashboard/tests/support/storyReviewWorktree.ts";
+import { holdNextReviewResponse } from "../../dashboard/tests/support/holdReviewResponse.ts";
 
 test("an earlier pending range cannot answer the later chosen range", async ({
   page,

@@ -1,42 +1,41 @@
-// Review changes on Story A's card, offered by its kept launch record
-// (../support/storyReviewWorktree.ts): it follows Inspect story in the card's
-// inspection group, below the launch group's Starts, and
-// the keyboard reaches it from Inspect story. It leads with a decorative
-// review glyph and ends with a decorative arrow toward the side panel.
-// Closing the review in the side panel returns the keyboard in
-// ../../../e2e/review/story-review.spec.ts; closing the detail, in
-// ../storyReadinessScan.ts and ../navigation/accessible-board-keyboard.spec.ts. Each
-// layout is read once the cards' preparation and the machine's sessions are
-// read, since each reading changes a card's height.
+// Review changes on the Taken story's card, offered by its kept launch
+// record: it follows Inspect story in the card's inspection group, below the
+// launch group's Starts, and the keyboard reaches it from Inspect story. It
+// leads with a decorative review glyph and ends with a decorative arrow
+// toward the side panel.
 
-import { reviewRegion } from "../support/storyReviewMark.ts";
 import type { Page } from "@playwright/test";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  openFrontendTakenBacklog,
+  test,
+} from "../../tests/support/frontendApp.ts";
 import {
   storyCardLaunchActions,
   expectActionGlyph,
   inspectionGroup,
   launchGroup,
   reviewChanges,
-} from "../storyCardControls.ts";
+} from "../../tests/storyCardControls.ts";
 import {
   expectFocusedAndIndicated,
   narrowWindow,
   twiceZoomedWindow,
-} from "../accessibleReading.ts";
+} from "../../tests/accessibleReading.ts";
 import {
   expectInReadingOrder,
   expectOnOneLine,
   expectStackedInOrder,
-} from "../pageLayout.ts";
-import { expectSettledPage } from "../dashboardPage.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import { unchangedWorktree } from "../support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
+} from "../../tests/pageLayout.ts";
+import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
+import { notRefinedStory } from "../../tests/launchJourney.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  frontendStoryLaunch,
+  putFrontendMachine,
+} from "../../tests/support/frontendServiceState.ts";
+import { reviewRegion } from "../../tests/support/storyReviewMark.ts";
 
-// The page once the cards' preparation and the machine's sessions are read.
-// Other journeys settle while they hold the sessions read, so this wait stays
-// with the layouts it guards.
 async function expectSettledLayout(page: Page) {
   await expectSettledPage(page);
   await expect(page.getByText("Reading sessions…")).toHaveCount(0);
@@ -44,12 +43,35 @@ async function expectSettledLayout(page: Page) {
 
 test("the inspection group sits below the launch group, wraps in reading order, and the keyboard reaches Review changes from Inspect story", async ({
   page,
-  dashboard,
-  origin,
+  frontendServices,
 }) => {
-  const { workspace } = unchangedWorktree(origin);
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openBacklog(page, origin);
+  putFrontendMachine(
+    frontendServices,
+    makeMe.aMachineAnswer
+      .observing(
+        makeMe.anObservedLaunch
+          .of(
+            frontendStoryLaunch("executing", notRefinedStory)
+              .onStoryBranch({
+                workspace: "/tmp/story-review-action",
+                branch: "claude/queued",
+              })
+              .inClaudeSession({
+                sessionId: "story-review-action",
+                shortId: "revact01",
+              })
+              .please(),
+          )
+          .withSessionState(makeMe.aSessionState.loaded("working").please())
+          .please(),
+      )
+      .please(),
+  );
+  await openFrontendTakenBacklog(page);
+  const card = parts(page).backlog.getByRole("article", {
+    name: notRefinedStory,
+    exact: true,
+  });
   const action = reviewChanges(inspectionGroup(card));
   const review = reviewRegion(page);
   const starts = storyCardLaunchActions.map((name) =>
@@ -58,7 +80,9 @@ test("the inspection group sits below the launch group, wraps in reading order, 
   const inspect = inspectionGroup(card).getByRole("button", {
     name: "Inspect story",
   });
-  const detail = card.getByRole("region", { name: "Detail for Story A" });
+  const detail = card.getByRole("region", {
+    name: `Detail for ${notRefinedStory}`,
+  });
   await page.setViewportSize({ width: 1440, height: 900 });
   await expectSettledLayout(page);
   await expectOnOneLine(starts);
@@ -69,7 +93,6 @@ test("the inspection group sits below the launch group, wraps in reading order, 
   await expectStackedInOrder([launchGroup(card), inspectionGroup(card)]);
   for (const window of [narrowWindow, twiceZoomedWindow]) {
     await page.setViewportSize(window);
-    // Each window starts from a newly read page, with no detail or review open.
     await page.reload();
     await expectSettledLayout(page);
     await expectInReadingOrder(card, [...starts, inspect, action]);

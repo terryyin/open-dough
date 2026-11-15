@@ -10,9 +10,17 @@ import { completedStoryAssociationEndpoint } from "../../src/completedStoryAssoc
 import { hostStatusEndpoint } from "../../src/hostStatus.ts";
 import { launchHostOptionsEndpoint } from "../../src/launchHostOptions.ts";
 import { projectListEndpoint } from "../../src/projectConfiguration.ts";
+import {
+  storyReviewEndpoint,
+  storyReviewFileEndpoint,
+  storyReviewFileTextEndpoint,
+  storyReviewMarkEndpoint,
+  storyReviewRangeEndpoint,
+} from "../../src/storyReviewContract.ts";
 import { storyReviewStateEndpoint } from "../../src/storyReviewState.ts";
 import { answerAuthenticatedRead } from "./frontendAuthenticatedReadSubstitute.ts";
 import { installFrontendCompletedStoryAssociation } from "./frontendCompletedStoryAssociation.ts";
+import { installFrontendStoryReview } from "./frontendStoryReview.ts";
 import { installFrontendStoryReviewState } from "./frontendStoryReviewState.ts";
 import {
   defaultFrontendServiceState,
@@ -28,6 +36,10 @@ export {
   installFrontendCompletedStoryAssociation,
   type FrontendCompletedStoryAssociation,
 } from "./frontendCompletedStoryAssociation.ts";
+export {
+  installFrontendStoryReview,
+  type FrontendStoryReview,
+} from "./frontendStoryReview.ts";
 export {
   installFrontendStoryReviewState,
   type FrontendStoryReviewState,
@@ -70,6 +82,9 @@ export async function installFrontendServiceSubstitutes(
   await installFrontendCompletedStoryAssociation(page);
   // Controllable story review states; default settle is every story unreviewed.
   await installFrontendStoryReviewState(page);
+  // Controllable story-review snapshot/range/diff/text/mark; default settle is
+  // a minimal unmarked snapshot (./frontendStoryReview.ts).
+  await installFrontendStoryReview(page);
   await page.route(
     (url) => url.pathname === hostStatusEndpoint,
     async (route) => {
@@ -94,6 +109,11 @@ export async function installFrontendServiceSubstitutes(
     agentLaunchEndpoint,
     completedStoryAssociationEndpoint,
     storyReviewStateEndpoint,
+    storyReviewEndpoint,
+    storyReviewRangeEndpoint,
+    storyReviewFileEndpoint,
+    storyReviewFileTextEndpoint,
+    storyReviewMarkEndpoint,
     hostStatusEndpoint,
     launchHostOptionsEndpoint,
     agentTerminalEndpoint,

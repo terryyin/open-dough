@@ -1,6 +1,6 @@
 // Previous file and Next file beside a story review's diff heading move the
 // selection in the browser's order, of Story A's worktree changing nested
-// files (../support/storyReviewWorktree.ts). Next walks from the opening file
+// files (../../dashboard/tests/support/storyReviewWorktree.ts). Next walks from the opening file
 // to the last; Previous is unavailable on the first file and Next on the
 // last, each still focusable. A move into a collapsed folder expands it and
 // the folders holding it, and brings the selected row into the browser's
@@ -8,9 +8,12 @@
 // file below the browser's fold scrolls the browser, not the page, to it.
 
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../support/preparationPage.ts";
-import { longA, longB } from "../support/largeReviewFiles.ts";
-import { fileBrowser } from "../support/reviewContextLine.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import {
+  longA,
+  longB,
+} from "../../dashboard/tests/support/largeReviewFiles.ts";
+import { fileBrowser } from "../../dashboard/tests/support/reviewContextLine.ts";
 import {
   openLargeReview,
   scrollPane,
@@ -18,13 +21,17 @@ import {
   shownInPane,
   diffHeading,
   codePane,
-} from "../support/reviewPanes.ts";
-import { treeFolder, listedFile, fileDiff } from "../support/reviewTreeRows.ts";
-import { openReview } from "../support/reviewRead.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import { nestedWorktree } from "../support/storyReviewWorktree.ts";
-import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
-import { scrollYOf } from "../boardPage.ts";
+} from "../../dashboard/tests/support/reviewPanes.ts";
+import {
+  treeFolder,
+  listedFile,
+  fileDiff,
+} from "../../dashboard/tests/support/reviewTreeRows.ts";
+import { openReview } from "../../dashboard/tests/support/reviewRead.ts";
+import { openBacklog } from "../../dashboard/tests/support/sessionDialog.ts";
+import { nestedWorktree } from "../../dashboard/tests/support/storyReviewWorktree.ts";
+import { keepLaunchRecord } from "../../dashboard/tests/support/storyLaunchRecord.ts";
+import { scrollYOf } from "../../dashboard/tests/boardPage.ts";
 
 // The nested worktree's files in the browser's order.
 const nestedOrder = [

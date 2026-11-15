@@ -3,7 +3,7 @@
 // story subject and that file's context. Old line 85's menu starts a blank
 // follow-up whose terminal opens and whose first input names that line.
 // Review changes journey: ../review/story-review-follow-up.spec.ts.
-// Line menu interaction: ../../dashboard/tests/review/story-review-diff-line-follow-up.spec.ts.
+// Line menu interaction: ../review/story-review-diff-line-follow-up.spec.ts.
 
 import { expandIntentGroup } from "../../dashboard/tests/intentPerspectivePage.ts";
 import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
