@@ -165,3 +165,11 @@ order (inspected in `waitKey`); no test names it.
 - Slice-plan refinement was not needed: two slices, one Structure enabling
   the one Behavior, each with its own proof.
 - Remaining slice-specific concerns: none identified in this review.
+
+## Execution complete
+
+Product advice: no change. The benefit stays predicted until the next real
+supplier watch is judged under the experiment findings. A rerun that names a
+supplier branch which appeared since the previous wait remains a fresh wait,
+as this plan preserved; revisit it only if a real watch misses a publication
+that way.
