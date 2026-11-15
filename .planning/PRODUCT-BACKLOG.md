@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Keep usage history within a small disk budget](seeds/SEED-357-dashboard-task-token-usage.md#keep-usage-history-within-a-small-disk-budget) — SEED-357#keep-usage-history-within-a-small-disk-budget
 - [Reuse unchanged usage pages on repeated writes](seeds/SEED-357-dashboard-task-token-usage.md#reuse-unchanged-usage-pages-on-repeated-writes) — SEED-357#reuse-unchanged-usage-pages-on-repeated-writes
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
 - [Chart CI time without runner waits in Intent](seeds/SEED-364-intent-ci-history-without-runner-waits.md#chart-ci-time-without-runner-waits) — SEED-364#chart-ci-time-without-runner-waits

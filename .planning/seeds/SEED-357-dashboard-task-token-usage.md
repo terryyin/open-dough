@@ -9,6 +9,65 @@ scope: story
 
 # SEED-357 — View token usage for dashboard-launched Codex tasks
 
+<a id="keep-usage-history-within-a-small-disk-budget"></a>
+
+### Keep usage history within a small disk budget
+
+**Identity:** SEED-357#keep-usage-history-within-a-small-disk-budget
+
+#### Goal
+
+Terry, who views token usage on a machine with months of agent history, gets
+the Usage view from a usage history that takes very little disk space. Usage
+shows a few numbers per finished task, so what the dashboard keeps for it is
+sized by the number of tasks, in megabytes at most, and stays that size however
+often usage is checked.
+
+#### Scope
+
+Measured on Terry's machine on 2026-11-15, read-only:
+`~/.open-dough/dashboard/launch-history/usage.json.pages` holds 4.4 GB in
+6,053 files. 2.8 GB of that (3,737 files) is referenced by nothing. The
+1.6 GB in use is 1.05 GB of per-response observations and 0.55 GB of
+per-response associations for 1,623,461 responses, against 17 MB for 5,400
+tasks and 6 MB of gaps. Each stored row also carries its own content twice, as
+a key string and as an object. One import report beside the store takes
+another 42 MB. The native evidence these rows were read from stays in the
+hosts' own session files and is not the dashboard's to keep a second time.
+
+- Keep only what the Usage view and its refresh need: per-task usage totals
+  by model and speed tier, the task's attribution and coverage facts, and the
+  smallest per-source checkpoint that lets a reread of changed native files
+  replace their earlier contribution without counting a response twice.
+  Per-response rows are kept only where refinement shows a displayed number
+  or a correctness promise cannot be met without them, and then in a compact
+  form.
+- A task whose native evidence has since been removed keeps its stored totals.
+- After the first check with this story's dashboard, the existing store on a
+  machine like Terry's shrinks to the budget: superseded and unreferenced
+  files are removed, not left beside the new ones. Import reports follow the
+  same budget.
+- A check that finds nothing new writes nothing and finishes in about the time
+  it takes to see that nothing changed, in place of the 12–16 s the current
+  writer spends.
+- The same budget holds for every host whose usage this history records,
+  including Claude Code usage from
+  [SEED-359](SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage).
+- Usage keeps showing the same tasks, Token index values, filters and
+  "Outcome unknown" detail as before for the same native evidence.
+
+Refinement settles the budget as a measured number. The starting expectation
+is under 20 MB in total for Terry's present history (513 dashboard-launched
+Codex tasks, 2,786 rollouts), growth of a few kilobytes per new task, and no
+growth from repeated checks.
+
+This story runs ahead of
+[Reuse unchanged usage pages on repeated writes](#reuse-unchanged-usage-pages-on-repeated-writes).
+Refinement of this story decides which of that story's promises remain once
+the history is small (its "Checked" time, checking indication, service tier
+and launch workflow promises do not depend on storage size) and amends or
+drops its page-reuse scope accordingly.
+
 <a id="reuse-unchanged-usage-pages-on-repeated-writes"></a>
 
 ### Reuse unchanged usage pages on repeated writes
