@@ -103,7 +103,7 @@ test("Refresh reads changed roots and their older workers like a full import; re
     ["SEED-7#second", "measured"],
   ]);
   const refreshed = assignments(readImported(home));
-  expect(refreshed).not.toHaveProperty(
+  expect(Object.keys(refreshed)).not.toContain(
     responseKey("codex", "first", "first-late"),
   );
   expect(refreshed[responseKey("codex", "second-worker", "worker-own")]).toBe(
