@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-371#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/638-distribution-evaluation-tool/PLAN.md","assessment":"not-ready","reasons":["Slice 6 needs bounded consumer-purpose settlement and remaining continuation proof from its exact parked candidate.","Slice 9 still requires the pending named-aggregate reporting-contract choice or a causal cost repair preserving the original one-job contract."],"basis":{"document":"55ea1e279fe7da2bc79be09fd9a77d16fe5b39a1331f0384c035eb51e4d8ce19","plan":"8251f2ef3db2dddded31e046923fab81f06a2c0490c4c24193fc583f09a72b0c"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/638-distribution-evaluation-tool/PLAN.md","assessment":"not-ready","reasons":["Slice8 needs bounded support-assembly/supplier-watch repairs and complete focused/negative/guard proof from the exact parked candidate.","Slice10 still needs a causal cost repair preserving the original named aggregate one-job contract or the pending human reporting-contract choice."],"basis":{"document":"55ea1e279fe7da2bc79be09fd9a77d16fe5b39a1331f0384c035eb51e4d8ce19","plan":"c57fb5190d1f64c064a5a7bd7cde0281c29f6909414a8d6a0b98d503b1173c08"}}
 ```
 
 #### Goal
