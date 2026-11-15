@@ -10,8 +10,8 @@ export const groupRunnerExamples = [
     directory: "dashboard",
     root: "dashboard/tests",
     durations: "integrated.longest-first",
-    spec: "stories/taken-execution-complete.spec.ts",
-    grep: "a Taken card whose plan records its execution as complete",
+    spec: "intent/intent-story-summary-title.spec.ts",
+    grep: "a long story title shows once in full above the story's views",
   },
   {
     name: "Dashboard Frontend Test",
