@@ -79,7 +79,7 @@ native_result_finalize_journey() {
 
 native_result_journey_input_hash_lines() {
   native_result_input_hash_lines \
-    "Distribution/tests/dough-adr-awareness-${native_case_host}-delivery-to-use.sh" \
+    "Distribution/tests/adr-awareness/dough-adr-awareness-${native_case_host}-delivery-to-use.sh" \
     Distribution/tests/support/dough-adr-awareness-delivery-to-use.sh \
     Distribution/tests/support/dough-adr-awareness-updated-use.sh \
     Distribution/tests/support/native-result-retain.sh \

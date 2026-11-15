@@ -17,20 +17,6 @@ test("the fresh neither mode retains the full installed catalog with both conven
     "claude",
     "neither",
   );
-  const settings = JSON.parse(
-    readFileSync(join(project, ".planning/open-dough.json"), "utf8"),
-  );
-  assert.deepEqual(
-    settings.intent.locations.map(({ path, makeMe, pageObjects }) => ({
-      path,
-      makeMe,
-      pageObjects,
-    })),
-    [
-      { path: "browser", makeMe: false, pageObjects: false },
-      { path: "legacy", makeMe: false, pageObjects: false },
-    ],
-  );
   assert.equal(existsSync(join(project, "node_modules")), false);
   for (const layout of [".agents", ".claude"]) {
     const skills = join(project, layout, "skills");

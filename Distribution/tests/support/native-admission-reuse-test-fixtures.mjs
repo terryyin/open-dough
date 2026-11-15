@@ -31,7 +31,7 @@ const sourcePathspecs = [
   "VERSION",
   "CHANGELOG.md",
   "package.json",
-  "Distribution/tests/git-publication-native.sh",
+  "Distribution/tests/git-publication/git-publication-native.sh",
 ];
 const sourcePaths = spawnSync(
   "git",

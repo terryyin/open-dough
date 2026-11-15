@@ -43,13 +43,9 @@
         "path": "Distribution",
         "label": "Distribution Tests",
         "sources": [
-          { "include": ["tests/*.sh"], "syntax": "shell" },
+          { "include": ["tests/!(support)/*.sh"], "syntax": "shell" },
           {
-            "include": [
-              "tests/*.test.mjs",
-              "tests/*/*.test.mjs",
-              "tests/skills/*/*.test.mjs"
-            ],
+            "include": ["tests/*/*.test.mjs", "tests/skills/*/*.test.mjs"],
             "syntax": "javascript"
           }
         ],

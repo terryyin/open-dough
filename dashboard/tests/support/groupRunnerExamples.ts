@@ -33,7 +33,7 @@ export const groupRunnerExamples = [
     root: "dashboard/backend-tests",
     durations: "backend.longest-first",
     spec: "launches/agent-launch-options-rules.spec.ts",
-    grep: "the shipped definition is valid",
+    grep: "accepts a definition with or without groups and focuses",
   },
   {
     name: "E2E Test",

@@ -20,7 +20,7 @@ hosted-font diagnostic both landed. [DD-426](https://github.com/terryyin/open-do
 is retired after the named timeout and bounded cleanup proof in
 [SEED-289's completion record](.planning/done/SEED-289_name-a-test-job-past-its-deadline.json).
 [DD-435](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/ProjectFindings.md#dd-435)
-is retired after the [local CI container](Distribution/tests/ci-container.md#hosted-fonts-and-layout-checks)
+is retired after the [local CI container](Distribution/tests/ci/ci-container.md#hosted-fonts-and-layout-checks)
 reproduced both historical overflows and passed the repaired journey. The
 [prior assessment](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/ProjectFindings.md#priority-assessment)
 records the original selection. [DD-473](#dd-473), [DD-479](#dd-479) and the
@@ -139,7 +139,7 @@ DD-243 remains the same finding; its later occurrences are
   - Observed effect: one extra slice and one extra paid Claude run; the second replay still did not reach the delegated-implementer condition.
   - Inference: qualified. Stating the cost changed what the agent knew, which the historical defect depended on; preparation can compare a replay's inputs with each occurrence's recorded context before the first paid launch.
 
-**Response implemented:** `fba97e9fbb90c4f97909a5e2ab899a0031c58308`. The [maintained pre-launch comparison](Distribution/tests/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch) names the introduced inputs, actor/delegation differences and historical source limits; credential-free checks preserve the quick fixture's stated cost/layout and the planned fixture's absence of those hints. The native outcome remains unobserved: neither retained run reached implementation delegation and a refactor-time move, and this response runs no new native session. Fixture checks do not resolve the historical finding or change ODF-249's settled disposition.
+**Response implemented:** `fba97e9fbb90c4f97909a5e2ab899a0031c58308`. The [maintained pre-launch comparison](Distribution/tests/git-publication/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch) names the introduced inputs, actor/delegation differences and historical source limits; credential-free checks preserve the quick fixture's stated cost/layout and the planned fixture's absence of those hints. The native outcome remains unobserved: neither retained run reached implementation delegation and a refactor-time move, and this response runs no new native session. Fixture checks do not resolve the historical finding or change ODF-249's settled disposition.
 
 **Observation (2026-10-22):** [SEED-053#match-historical-replay-inputs](.planning/done/SEED-053_match-historical-replay-inputs.json) completed on 2026-10-21; no story remains queued. Keep the finding open until the next paid proof-scheduling replay prepared with the comparison runs: it supports retirement when its inputs match the recorded occurrence context and the run reaches implementation delegation without an extra corrective slice. No such run has occurred since adoption.
 

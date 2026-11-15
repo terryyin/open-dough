@@ -1,8 +1,8 @@
 # Per-job reporting for scripts/test.sh: wall seconds, FAIL/TIMEOUT/INTERRUPTED
 # headings, times file, and outcomes including unfinished unstarted checks.
 # shellcheck shell=bash
-# labels, output_root, job_started, interrupt_status, observed_at, status,
-# times_file, and outcomes_file come from scripts/test.sh.
+# labels, kinds, output_root, job_started, interrupt_status, observed_at,
+# status, times_file, outcomes_file, and case_outcomes_file come from scripts/test.sh.
 # shellcheck disable=SC2154
 
 # Prints one started job's wall seconds: those its job, or the safety deadline
@@ -91,4 +91,27 @@ write_job_outcomes() {
       printf '%s\t%s\n' "${outcomes[index]}" "${labels[index]}"
     fi
   done > "${outcomes_file}"
+}
+
+# A case part is complete when every selected Node file recorded a summary.
+# A missing summary leaves the part missing in CI proof. A selection with no
+# Node files reports zero cases.
+write_case_outcomes() {
+  [[ -n ${case_outcomes_file} ]] || return 0
+  local index report outcome complete
+  for index in "${!labels[@]}"; do
+    [[ ${kinds[index]} == node ]] || continue
+    report="${output_root}/${index}.case-outcomes"
+    [[ -s ${report} ]] || return 0
+    complete=''
+    while IFS= read -r outcome; do
+      if [[ ${outcome} == complete ]]; then
+        complete=1
+        break
+      fi
+      printf '%s\t%s\n' "${outcome}" "${labels[index]}"
+    done < "${report}"
+    [[ -n ${complete} ]] || return 0
+  done > "${output_root}/case-outcomes"
+  mv -- "${output_root}/case-outcomes" "${case_outcomes_file}"
 }

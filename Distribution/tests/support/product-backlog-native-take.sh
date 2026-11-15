@@ -20,7 +20,7 @@ source "${source_dir}/Distribution/tests/support/native-import-closure.sh"
 take_write_evidence_inputs() {
   native_result_input_hash_lines \
     install.sh \
-    Distribution/tests/product-backlog-native.sh \
+    Distribution/tests/product-backlog/product-backlog-native.sh \
     Distribution/tests/support/product-backlog-native-take.sh \
     Distribution/tests/support/product-backlog-native-take-fixture.sh \
     Distribution/tests/support/product-backlog-native-evidence.sh \

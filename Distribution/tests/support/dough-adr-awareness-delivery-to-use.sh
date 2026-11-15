@@ -43,7 +43,7 @@ source "${source_dir}/Distribution/tests/support/native-run-supervise.sh"
 source "${source_dir}/Distribution/tests/support/dough-adr-awareness-updated-use.sh"
 
 delivery_parse_native_case_args() {
-  native_case_entry="Distribution/tests/dough-adr-awareness-${delivery_platform}-delivery-to-use.sh"
+  native_case_entry="Distribution/tests/adr-awareness/dough-adr-awareness-${delivery_platform}-delivery-to-use.sh"
   native_case_parse --wrapper delivery --host "${delivery_platform}" "$@"
   case ${native_case_mode} in
     list)

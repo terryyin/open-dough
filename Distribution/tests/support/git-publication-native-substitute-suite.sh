@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Credential-free substitute-host suites for
-# Distribution/tests/git-publication-native-substitutes.sh,
-# Distribution/tests/git-publication-native-one-shot.sh and
-# Distribution/tests/git-publication-native-owned-context.sh.
+# Distribution/tests/git-publication/git-publication-native-substitutes.sh,
+# Distribution/tests/git-publication/git-publication-native-one-shot.sh and
+# Distribution/tests/git-publication/git-publication-native-owned-context.sh.
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals assigned by sourced helpers.
 
 # shellcheck source=Distribution/tests/support/git-publication-native-substitute-admission.sh

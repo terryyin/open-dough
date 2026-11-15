@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Fixture for Distribution/tests/native-assessor-counterexample-guard.sh, never run: a suite
+# Fixture for Distribution/tests/native-harness/native-assessor-counterexample-guard.sh, never run: a suite
 # that states rejected cases outside the helper, which the guard must name by
 # line, beside shapes the guard must leave alone. Keep the flagged lines where
 # that check expects them.

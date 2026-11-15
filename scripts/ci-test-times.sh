@@ -15,7 +15,7 @@
 # lowest), and a verdict: `wide` when headroom is at least the spread,
 # otherwise `thin` naming the recent highest value to project a paired local
 # ratio from. Named jobs (as the times files name them, such as
-# Distribution/tests/install.sh) restrict the job lines; share totals always appear. With
+# Distribution/tests/installation/install.sh) restrict the job lines; share totals always appear. With
 # no names, every job appears, highest first. Exits 0 after a report; with no
 # readable runs, or when `gh` fails, it says why and exits 1. See
 # Distribution/tests/time-budget.md for how a slice uses the verdict.

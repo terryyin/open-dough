@@ -127,7 +127,7 @@ must remain unknown; completeness here does not establish general accounting.
 
 This is one historical stochastic execution under the recorded host load and
 service latency, with no duration threshold or savings comparison. Apply the
-[baseline sufficiency rules](../../native-comparison-baselines.md) before reuse.
+[baseline sufficiency rules](../native-comparison-baselines.md) before reuse.
 The [forced-turn records](../paused-supplier/case.md#reuse-and-limits) retain
 their different scheduling conditions. Neither observation demonstrates
 suppressed wakes or event-driven savings. SEED-356 owns the event-driven

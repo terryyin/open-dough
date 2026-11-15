@@ -50,7 +50,7 @@ delivery_evidence_write_evidence_identity() {
   printf 'observe-identity: %s-observe.sh\n' "${case_prefix}"
   printf 'assessor-identity: %s-assess.sh\n' "${case_prefix}"
   native_result_input_hash_lines \
-    Distribution/tests/git-publication-native.sh \
+    Distribution/tests/git-publication/git-publication-native.sh \
     Distribution/tests/support/git-publication-native-host.sh \
     Distribution/tests/support/delivery-evidence-native-run.sh \
     Distribution/tests/support/delivery-evidence-native-cases.sh \
@@ -74,7 +74,7 @@ delivery_evidence_write_evidence_identity() {
   fi
   if [[ ${case_name} == scheduling ]]; then
     native_result_input_hash_lines \
-      Distribution/tests/proof-scheduling-native.sh \
+      Distribution/tests/delivery-evidence/proof-scheduling-native.sh \
       "${case_prefix}-checks.sh" \
       "${case_prefix}-stylesheet-content.sh" \
       "${case_prefix}-library-content.sh" \

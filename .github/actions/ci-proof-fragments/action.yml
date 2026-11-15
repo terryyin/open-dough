@@ -1,8 +1,7 @@
 name: CI proof fragments
 description: >-
-  Writes one job part's CI proof fragments, one per proof entry its test
-  report covers, each counted in the unit the report gives and broken down
-  by test file, and keeps them as that part's attempt-named artifact for the
+  Writes one job part's CI proof fragments for each entry and reported unit,
+  breaks each down by test file, and keeps them as that part's attempt-named artifact for the
   ci-proof job. Names the run's revision from CI_PROOF_REVISION.
 inputs:
   producer:
@@ -42,6 +41,12 @@ inputs:
       fragment carries its summed test execution duration in milliseconds.
     required: false
     default: ""
+  case-report:
+    description: >-
+      Optional case outcomes to keep alongside a file outcomes report. A
+      missing case report leaves that case part missing in the summary.
+    required: false
+    default: ""
 runs:
   using: composite
   steps:
@@ -53,6 +58,7 @@ runs:
         UNIT: ${{ inputs.unit }}
         REPORT: ${{ inputs.report }}
         TIMES: ${{ inputs.times }}
+        CASE_REPORT: ${{ inputs.case-report }}
         PART: ${{ inputs.part }}
         PARTS: ${{ inputs.parts }}
       run: |
@@ -63,10 +69,14 @@ runs:
         if [[ -n "${TIMES}" ]]; then times=(--times "${TIMES}"); fi
         unit=()
         if [[ -n "${UNIT}" ]]; then unit=(--unit "${UNIT}"); fi
-        node Distribution/src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs fragment \
-          "--${FORMAT}" "${REPORT}" "${unit[@]}" "${times[@]}" --by-file "${entries[@]}" --part "${PART}" --of "${PARTS}" \
-          --attempt "${GITHUB_RUN_ATTEMPT}" --revision "${CI_PROOF_REVISION}" \
-          --out "${RUNNER_TEMP}/ci-proof"
+        proof=(Distribution/src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs fragment
+          --by-file "${entries[@]}" --part "${PART}" --of "${PARTS}"
+          --attempt "${GITHUB_RUN_ATTEMPT}" --revision "${CI_PROOF_REVISION}"
+          --out "${RUNNER_TEMP}/ci-proof")
+        node "${proof[@]}" "--${FORMAT}" "${REPORT}" "${unit[@]}" "${times[@]}"
+        if [[ -n ${CASE_REPORT} && -f ${CASE_REPORT} ]]; then
+          node "${proof[@]}" --outcomes "${CASE_REPORT}" --unit case
+        fi
     - name: Keep the CI proof fragments
       if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v7

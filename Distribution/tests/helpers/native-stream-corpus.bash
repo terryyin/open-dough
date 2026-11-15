@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Helpers for Distribution/tests/native-stream-replay.sh: rebuild a retained attempt from a
+# Helpers for Distribution/tests/native-harness/native-stream-replay.sh: rebuild a retained attempt from a
 # corpus entry, and expect the corpus command's refusal.
 # shellcheck disable=SC2154 # corpus, work_dir, and corpus_add come from the sourcing test.
 # shellcheck disable=SC2312 # Captured refusal output is checked by value.

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Fixture of credential-free comparison pairs through the maintainer entry
-# (Distribution/tests/native-comparison.sh): a committed copy of this
+# (Distribution/tests/native-comparison/native-comparison.sh): a committed copy of this
 # checkout's harness, payload revisions and a substitute Codex. A pair names
 # the commit holding its case basis and refuses an uncommitted one, so the
 # journeys run the entry, its cases and the support files they source as
@@ -30,7 +30,6 @@
 # shellcheck disable=SC2312 # The copy fails as tar does.
 
 native_comparison_fixture_paths=(
-  Distribution/tests/native-comparison.sh
   Distribution/tests/native-comparison
   Distribution/tests/support
   Distribution/tests/helpers
@@ -62,7 +61,7 @@ native_comparison_pair_fixture() {
   # path is the one Node resolves (macOS keeps temporary files under /var,
   # a link to /private/var).
   native_comparison_fixture_entry=("${BASH}"
-    "$(cd -- "${work}/source" && pwd -P)/Distribution/tests/native-comparison.sh")
+    "$(cd -- "${work}/source" && pwd -P)/Distribution/tests/native-comparison/native-comparison.sh")
   git clone -q --shared --no-checkout "${source_dir}" "${work}/payloads" || return
   native_comparison_fixture_baseline=$(git -C "${source_dir}" rev-parse HEAD) || return
   cp -- "${source_dir}/Distribution/tests/support/native-agent-paused-supplier.sh" "${work}/bin/codex"

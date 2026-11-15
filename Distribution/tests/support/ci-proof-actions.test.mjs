@@ -16,6 +16,7 @@ import { summaryProblems } from "../../src/skills/dough-test-optimization/script
 import { locatedRecord } from "../skills/dough-test-optimization/ci-proof-test-fixtures.mjs";
 import {
   declaredPart,
+  producers,
   root,
   stepInputs,
   summaryStep,
@@ -29,6 +30,28 @@ const missingFrom = (from, of) =>
     { length: of - from + 1 },
     (...[, index]) => `part ${index + from} of ${of} missing`,
   ).join("; ");
+
+// Declared part counts from the summary step's `expect` input.
+const declaredParts = Object.fromEntries(
+  stepInputs(summaryStep)
+    .expect.split(" ")
+    .map((item) => {
+      const [entry, rest] = item.split("=");
+      return [entry, Number(rest.split(":")[0])];
+    }),
+);
+
+const missingTail = (entry) => {
+  const of = declaredParts[entry];
+  return of > 1 ? `; ${missingFrom(2, of)}` : "";
+};
+
+// A browser group's job id from its proof-entry root, not a frozen job name.
+const jobForRoot = (entryRoot) => {
+  const job = producers.find(({ inputs }) => inputs.root === entryRoot)?.job;
+  assert.ok(job, `no producer for root ${entryRoot}`);
+  return job;
+};
 
 const cwd = fileURLToPath(root).replace(/\/$/, "");
 
@@ -74,16 +97,16 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
       declaredPart("distribution-tests", 2, failed).inputs,
     ),
     // Each group's first shard records only its own selection.
-    keepGroupPart(run, "e2e", 1, [
+    keepGroupPart(run, jobForRoot("e2e"), 1, [
       [`${cwd}/e2e/workflow.spec.ts`, "expected", [40]],
     ]),
-    keepGroupPart(run, "dashboard-integrated", 1, [
+    keepGroupPart(run, jobForRoot("dashboard/tests"), 1, [
       [`${cwd}/dashboard/tests/browser.spec.ts`, "expected", [35]],
     ]),
-    keepGroupPart(run, "dashboard-frontend", 1, [
+    keepGroupPart(run, jobForRoot("dashboard/frontend-tests"), 1, [
       [`${cwd}/dashboard/frontend-tests/dom.spec.ts`, "expected", [20]],
     ]),
-    keepGroupPart(run, "dashboard-backend", 1, [
+    keepGroupPart(run, jobForRoot("dashboard/backend-tests"), 1, [
       [`${cwd}/dashboard/backend-tests/server.spec.ts`, "expected", [50]],
       [`${cwd}/dashboard/backend-tests/problem.spec.ts`, "unexpected", [15]],
     ]),
@@ -108,11 +131,12 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
   assert.equal(
     summary.stdout,
     [
-      `e2e: 1 passed, 0 failed, 0 other test cases; ${missingFrom(2, 5)}`,
-      `dashboard/tests: 1 passed, 0 failed, 0 other test cases; ${missingFrom(2, 5)}`,
-      `dashboard/frontend-tests: 1 passed, 0 failed, 0 other test cases`,
-      `dashboard/backend-tests: 1 passed, 1 failed, 0 other test cases; ${missingFrom(2, 3)}`,
-      `Distribution: 2 passed, 1 failed, 0 other test files; ${missingFrom(2, 3)}`,
+      `e2e: 1 passed, 0 failed, 0 other test cases${missingTail("e2e")}`,
+      `dashboard/tests: 1 passed, 0 failed, 0 other test cases${missingTail("dashboard/tests")}`,
+      `dashboard/frontend-tests: 1 passed, 0 failed, 0 other test cases${missingTail("dashboard/frontend-tests")}`,
+      `dashboard/backend-tests: 1 passed, 1 failed, 0 other test cases${missingTail("dashboard/backend-tests")}`,
+      `Distribution: 0 passed, 0 failed, 0 other test cases; ${missingFrom(1, declaredParts.Distribution)}`,
+      `Distribution: 2 passed, 1 failed, 0 other test files${missingTail("Distribution")}`,
       "",
     ].join("\n"),
   );
@@ -125,7 +149,7 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
   // its outcome under its own path.
   assert.deepEqual(
     summary.written.entries.flatMap(({ path, evidence }) =>
-      evidence.flatMap(({ durationMs, files }) =>
+      evidence.flatMap(({ durationMs, files = [] }) =>
         files.map(
           (file) =>
             `${path} ${durationMs} ms: ${file.path} ${file.passed} passed ${file.failed} failed`,
@@ -147,21 +171,22 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
 
 test("a browser group's shard that ran no test is a reported zero, while a shard whose runner wrote no record leaves its part missing", (t) => {
   const run = runAttempt(t);
+  const backend = jobForRoot("dashboard/backend-tests");
   const kept = [
     keepGroupPart(
       run,
-      "dashboard-backend",
+      backend,
       1,
       [[`${cwd}/dashboard/backend-tests/server.spec.ts`, "expected", [50]]],
       4,
     ),
     // Shard 2's deal selected no spec; its run completed and recorded none.
-    keepGroupPart(run, "dashboard-backend", 2, [], 4),
+    keepGroupPart(run, backend, 2, [], 4),
     // Shard 3's runner ended before writing its record.
-    keepGroupPart(run, "dashboard-backend", 3, undefined, 4),
+    keepGroupPart(run, backend, 3, undefined, 4),
     keepGroupPart(
       run,
-      "dashboard-backend",
+      backend,
       4,
       [[`${cwd}/dashboard/backend-tests/other.spec.ts`, "expected", [10]]],
       4,

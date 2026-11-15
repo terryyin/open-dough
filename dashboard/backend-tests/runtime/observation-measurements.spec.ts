@@ -30,7 +30,6 @@ test("a held group has reached its raw handlers only after every listed profile 
   const done = Object.keys(facts.files).find((path) =>
     path.startsWith(".planning/done/"),
   );
-  expect(done).toBeDefined();
   if (done === undefined) throw new Error("The fixture has no done record");
   appendRead(canonicalPath);
   appendRead(done);

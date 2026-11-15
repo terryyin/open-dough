@@ -100,16 +100,6 @@ Open Dough skills and rules must work in Codex, Cursor, and Claude Code.
 
 ## Test automation
 
-- Before adding or changing an automated test, identify the behavior it must
-  protect and a concrete regression its assertions would catch. Assert the
-  observable result of exercising the code or workflow. Do not add assertions
-  that merely restate configuration, constants, fixture data, or builder output,
-  such as an exact internal worker count. For example, a workflow test can
-  check that a run reports every required case.
-- When reviewing a test diff, ask what concrete regression each new or changed
-  assertion would catch. Remove assertions that only restate configuration or
-  data. If the value affects behavior worth protecting, assert that effect.
-
 - Before authoring or changing a test, resolve its source path through the
   installed [`dough-makeme`](.agents/skills/dough-makeme/SKILL.md) skill and,
   for browser tests, [`dough-page-objects`](.agents/skills/dough-page-objects/SKILL.md).

@@ -15,12 +15,12 @@ A breach fails the run and prints, after any failure reports, one line per job
 over the per-job ceiling and one for a total over the total ceiling:
 
 ```text
-OVER BUDGET: Distribution/tests/install.sh took 78.4s observed (factor 1.2, 65.3s at recorded speed); the per-job ceiling is <per-job-seconds>s (Distribution/tests/time-budget).
+OVER BUDGET: Distribution/tests/installation/install.sh took 78.4s observed (factor 1.2, 65.3s at recorded speed); the per-job ceiling is <per-job-seconds>s (Distribution/tests/time-budget).
 OVER BUDGET: all jobs took 720.0 job-seconds observed (factor 1.2, 600.0 at recorded speed); the total ceiling is <total-job-seconds> (Distribution/tests/time-budget).
 ```
 
 Fix the slow job rather than the number: raising a ceiling is an explicit,
-reviewed edit of `Distribution/tests/time-budget`. `Distribution/tests/test-runner-budget.sh` proves
+reviewed edit of `Distribution/tests/time-budget`. `Distribution/tests/test-runner/test-runner-budget.sh` proves
 the budget with a substitute directory.
 
 A slice that adds test time reads its baseline from recent trunk CI with
@@ -50,4 +50,4 @@ values:
 
 A job with no recent timing, or `No recent trunk timings were found` with its
 reason, leaves the budget to CI. Either way the pushed revision's CI result is
-the verdict. `Distribution/tests/ci-test-times.sh` proves the report with a `gh` stand-in.
+the verdict. `Distribution/tests/ci/ci-test-times.sh` proves the report with a `gh` stand-in.

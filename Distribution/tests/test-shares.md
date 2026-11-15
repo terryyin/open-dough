@@ -81,7 +81,7 @@ directly, and without a budget the preview prints no headroom.
 CI runs (`Distribution/tests/support/fixtures/node-suite-ci-runs/`),
 `Distribution/tests/support/share-deal.test.mjs` its rules on small inputs,
 `Distribution/tests/support/test-shares.test.mjs` the commands, and
-`Distribution/tests/test-runner-split.sh` that the runner's shares follow it. The
+`Distribution/tests/test-runner/test-runner-split.sh` that the runner's shares follow it. The
 dashboard's spec-file shards use the same allocator through
 `dashboard/tests/support/testFiles.mjs`
 ([dashboard/tests/shards.md](../../dashboard/tests/shards.md)).

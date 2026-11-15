@@ -17,7 +17,7 @@ native_updated_use_adapter_require_host() {
 wrapper_for() {
   native_updated_use_adapter_require_host "$1" || return
   printf '%s\n' \
-    "${source_dir}/Distribution/tests/dough-adr-awareness-$1-delivery-to-use.sh"
+    "${source_dir}/Distribution/tests/adr-awareness/dough-adr-awareness-$1-delivery-to-use.sh"
 }
 
 print_launch() {

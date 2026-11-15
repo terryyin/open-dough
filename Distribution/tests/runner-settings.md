@@ -18,6 +18,13 @@ and `unfinished` when the absolute CI run cutoff left that selected check
 unstarted. Proof maps any status other than `passed`/`failed` to `other`
 (`ci-proof-fragments.mjs`). Timing is written only for jobs that started;
 unstarted cutoff work gets no invented duration.
+`OPEN_DOUGH_TEST_CASE_OUTCOMES=<file>` writes one outcome per Node test case,
+using the scheduled file path for each case. Node's skipped, todo, and
+cancelled cases count as other. CI publishes these counts alongside the
+existing file counts. Shell checks contribute file outcomes. A selected Node
+file without a complete summary leaves the shard's case report missing.
+A shard with only shell checks reports zero cases. File timing stays with file
+outcomes.
 `OPEN_DOUGH_TEST_SLOT_GATE=<file>` receives the number of jobs started each
 time the runner finds every slot occupied with a job still queued, so a check
 can observe the runner holding queued work.

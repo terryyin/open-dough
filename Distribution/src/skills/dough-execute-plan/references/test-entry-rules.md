@@ -2,6 +2,8 @@
 
 Use the project established by the task. When choosing or changing a test's
 scope, apply [the test boundary rule](../../dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary).
+When writing or changing its assertions, apply
+[observable cases](../../dough-post-change-refactor/references/refactor-checks.md#write-observable-cases).
 Before authoring or changing tests, identify their project-relative source
 paths, including intended paths for new tests. Run the shared selector from
 this installation:

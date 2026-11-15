@@ -60,7 +60,7 @@ Open your client project in an AI agent with web and shell access, then ask:
 
 ## Contributing
 
-Use the [native verification setup](Distribution/tests/native-setup.md) before running
+Use the [native verification setup](Distribution/tests/native-harness/native-setup.md) before running
 checks in this repository. It pins contributor Node and separates bounded
 installation from repeated checks.
 

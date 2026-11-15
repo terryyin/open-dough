@@ -13,43 +13,12 @@ import { browserWorkflow, locations } from "./ci-proof-action-fixtures.mjs";
 import { browserGroupConfigs } from "./browserGroupConfigs.mjs";
 
 test("each browser group's job names its own command, settings, root and shards", () => {
-  assert.deepEqual(
-    browserGroupConfigs.map(({ job, inputs, config, prefix }) => [
-      job,
-      inputs.group,
-      inputs.command,
-      config,
-      inputs.settings === prefix,
-    ]),
-    [
-      ["e2e", "e2e", "test:e2e", "e2e/playwright.config.ts", true],
-      [
-        "dashboard-integrated",
-        "dashboard-integrated",
-        "test:dashboard:integrated",
-        "dashboard/integrated.playwright.config.ts",
-        true,
-      ],
-      [
-        "dashboard-frontend",
-        "dashboard-frontend",
-        "test:dashboard:frontend",
-        "dashboard/frontend.playwright.config.ts",
-        true,
-      ],
-      [
-        "dashboard-backend",
-        "dashboard-backend",
-        "test:dashboard:backend",
-        "dashboard/backend.playwright.config.ts",
-        true,
-      ],
-    ],
-  );
   for (const group of browserGroupConfigs) {
-    const { inputs, directory, root, shards } = group;
+    const { inputs, directory, root, shards, prefix } = group;
     // Its times file and its duration list label specs alike.
     assert.equal(group.timesRelativeToDeal, true, group.config);
+    // Job settings agree with the configuration's prefix.
+    assert.equal(inputs.settings, prefix, group.config);
     // Its root, holding its outputs and naming its proof entry, is its
     // configuration's root, an Intent location of its own.
     assert.equal(inputs.root, posix.join(directory, root));
@@ -82,23 +51,4 @@ test("the browser test group workflow takes every group-specific value from its 
       inputs.shards,
     ])
       assert.equal(declarations.includes(value), false, value);
-  assert.match(
-    browserWorkflow,
-    /\n {8}shard: \$\{\{ fromJSON\(inputs\.shards\) \}\}\n/,
-  );
-  assert.match(
-    browserWorkflow,
-    /\n {10}export "\$\{SETTINGS\}_SPLIT=\$\{SPLIT\}" "\$\{SETTINGS\}_TIMES=\$\{TIMES\}" "\$\{SETTINGS\}_PROOF_RECORD=\$\{PROOF_RECORD\}"\n {10}exec npm run "\$\{COMMAND\}"\n/,
-  );
-  assert.match(
-    browserWorkflow,
-    /\n {10}echo "\$\{SETTINGS\}_DEADLINE_MS=\$\(\( started \+ 320000 \)\)" >> "\$GITHUB_ENV"\n/,
-  );
-  for (const artifact of ["times", "playwright-report"])
-    assert.ok(
-      browserWorkflow.includes(
-        `name: \${{ inputs.group }}-${artifact}-\${{ matrix.shard }}\n`,
-      ),
-      artifact,
-    );
 });

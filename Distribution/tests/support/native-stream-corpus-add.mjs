@@ -1,6 +1,6 @@
 // Adds an accepted paid native attempt to the replay corpus
 // (Distribution/tests/fixtures/native-streams), where the free suite
-// (Distribution/tests/native-stream-replay.sh) replays it once its expectation is reviewed.
+// (Distribution/tests/native-harness/native-stream-replay.sh) replays it once its expectation is reviewed.
 //
 //   node Distribution/tests/support/native-stream-corpus-add.mjs [--corpus <dir>] <attempt>
 //

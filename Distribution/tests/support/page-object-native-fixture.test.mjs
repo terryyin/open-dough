@@ -11,21 +11,10 @@ test("the native fixture installs one candidate in each existing host layout wit
   const root = mkdtempSync(join(tmpdir(), "page-object-layout-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   for (const host of ["codex", "cursor", "claude"]) {
-    const { project, installed, settings } = await createPageObjectProject(
+    const { project, installed } = await createPageObjectProject(
       join(root, host),
       host,
     );
-    assert.equal(
-      installed,
-      join(
-        project,
-        host === "claude" ? ".claude" : ".agents",
-        "skills",
-        "dough-page-objects",
-      ),
-    );
-    assert.equal(settings.intent.locations[0].pageObjects, true);
-    assert.equal(settings.intent.locations[1].pageObjects, false);
     assert.equal(
       readFileSync(join(installed, "SKILL.md"), "utf8"),
       readFileSync(
@@ -64,18 +53,39 @@ test("the native fixture installs one candidate in each existing host layout wit
   }
 });
 
-test("the fresh opted-out fixture has no enabled entry", async (t) => {
+test("the fresh opted-out fixture selects page objects off for every listed source", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "page-object-off-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  const { settings } = await createPageObjectProject(
+  const { project, installed } = await createPageObjectProject(
     join(root, "project"),
     "codex",
     { enabled: false },
   );
-  assert.deepEqual(
-    settings.intent.locations.map((entry) => entry.pageObjects),
-    [false, false],
+  const selection = execFileSync(
+    process.execPath,
+    [
+      join(
+        installed,
+        "..",
+        "dough-execute-plan",
+        "scripts/test-entry-rules.mjs",
+      ),
+      "--project",
+      project,
+      "--source",
+      "browser/new.spec.mjs",
+      "--source",
+      "legacy/new.spec.mjs",
+    ],
+    { encoding: "utf8" },
   );
+  assert.deepEqual(JSON.parse(selection), {
+    status: "resolved",
+    sources: [
+      { path: "browser/new.spec.mjs", makeMe: false, pageObjects: false },
+      { path: "legacy/new.spec.mjs", makeMe: false, pageObjects: false },
+    ],
+  });
 });
 
 test("the refactor fixture carries current guidance and mixed staged/untracked scenarios", async (t) => {

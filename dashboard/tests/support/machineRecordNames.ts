@@ -5,8 +5,9 @@
 // whether it exists says nothing about the records a test asserts on; it is
 // operational evidence, not one of them.
 
-import { readdirSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
+import { expect } from "@playwright/test";
 
 const incidentRecordDirectory = "incidents";
 
@@ -31,4 +32,41 @@ export function inIncidentRecord(relative: string): boolean {
     relative === incidentRecordInHome ||
     relative.startsWith(`${incidentRecordInHome}${path.sep}`)
   );
+}
+
+// Names → file text for entries present now. Directories and names in
+// `omitContentFor` map to `undefined` so the caller can rewrite those files
+// without failing the later content check.
+export function snapshotMachineRecords(
+  directory: string,
+  options: { omitContentFor?: Iterable<string> } = {},
+): Map<string, string | undefined> {
+  const omit = new Set(options.omitContentFor ?? []);
+  return new Map(
+    machineRecordNames(directory).map((name) => [
+      name,
+      omit.has(name) || !statSync(path.join(directory, name)).isFile()
+        ? undefined
+        : readFileSync(path.join(directory, name), "utf8"),
+    ]),
+  );
+}
+
+// Every previously snapped file still has the same text (incident record aside).
+export function expectPreservedMachineRecordContents(
+  directory: string,
+  before: Map<string, string | undefined>,
+): void {
+  for (const [name, text] of before)
+    if (text !== undefined)
+      expect(readFileSync(path.join(directory, name), "utf8")).toBe(text);
+}
+
+// Same entry names as the snapshot, and every snapped file's text preserved.
+export function expectUnchangedMachineRecords(
+  directory: string,
+  before: Map<string, string | undefined>,
+): void {
+  expect(machineRecordNames(directory)).toEqual([...before.keys()].sort());
+  expectPreservedMachineRecordContents(directory, before);
 }

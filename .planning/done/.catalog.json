@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-354_remove-configuration-only-tests.json",
+      "identity": "SEED-354#remove-configuration-only-tests",
+      "completedAt": "2026-11-15T00:37:49.006Z",
+      "blob": "b7ac55d8f421bb61dfc7c3bab0da5d6bda586c38"
+    },
+    {
       "fileName": "SEED-358_reconstruct-codex-and-claude-code-usage-history.json",
       "identity": "SEED-358#reconstruct-codex-and-claude-code-usage-history",
       "completedAt": "2026-11-14T22:10:35.611Z",
