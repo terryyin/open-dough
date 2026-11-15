@@ -189,18 +189,3 @@ same-writer writes supply the storage contract this correction consumes.
 Page stability, tier-on-reread reconciliation, conversion, disk reclamation
 and writer latency belong to that supplier. This correction adds no tariff,
 import CLI, chart or storage-format change.
-
-<a id="simplify-token-usage-tests"></a>
-
-### Simplify token usage tests
-
-**Identity:** SEED-357#simplify-token-usage-tests
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planless"}
-```
-
-**Goal:** Maintainers can read and change the token usage tests through concise, expressive scenarios with less redundant setup and coverage.
-
-Under Terry's direct contextual instruction, consolidate related browser scenarios where readable, use existing page objects and shared MakeMe builders, keep representative E2E wiring, and prove detailed variants at the appropriate unit service boundary. Shorten the long token-index backend cases and remove overlapping proof without losing behavioral protection. Product behavior and unrelated usage-store work are outside scope.
-
-Known expectations: navigation, trend rendering, filtering, accessible task selection and refresh remain covered; task eligibility, pricing, primary settings, outcomes and refresh reconciliation retain independent expected answers. Focused backend, frontend and E2E checks, lint and typecheck verify the refactor.

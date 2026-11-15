@@ -57,8 +57,9 @@ are this story's work, not conditions the supplier must implement to unblock it.
    the history. Checked therefore understates the evidence in the chart.
 3. The cohort fetch's `.finally` in `SystemSettingsUsage` clears `checking`,
    even when Refresh is still pending.
-4. `usageFixtureStore.finishedTask` gives every recovered task
-   `dough-execute-plan`, including Refinement fixtures.
+4. The former `usageFixtureStore.finishedTask` gave recovered Refinement tasks
+   `dough-execute-plan`. Shared `aUsageTaskHistory` now records the workflow's
+   skill; the backend cohort case observes recovered Refinement.
 
 ## Preserved promises and genuine constraints
 
@@ -104,7 +105,7 @@ this local correction and no new consequential direction is needed.
 | --- | --- | --- |
 | Execution and Refinement launches also recovered from directives → import, Refresh, import, Refresh → launch workflows and totals persist | 1 | stored tasks, byte-identical small history after the initial write, boundary cohort points |
 | Existing launch stored with a skill workflow → first write normalizes it → subsequent writers leave bytes unchanged | 1 | inspect history tasks and bytes, plus Token index totals |
-| Launch has no workflow → recovered skill fills it; recovered-only Refinement keeps its skill | 1 | imported tasks and Refinement cohort; recovered Refinement in the existing cohort journey |
+| Launch has no workflow → recovered skill fills it; recovered-only Refinement keeps its skill | 1 | imported tasks and Refinement cohort; recovered Refinement in the backend cohort case |
 | Refresh at t1 → import adds a finished task at t2 → Checked reflects t2 → unchanged Refresh at t3 shows t3 | 2 | boundary `checkedAt` and tasks, history/check record times |
 | No store, import before any Refresh, legacy check record and failed Refresh | 2 | null, history write time, own Refresh start time, retained successful time/error respectively |
 | Held Refresh → choose Refinement and settle that cohort → still checking → release and settle its reread | 3 | chosen cohort content, checking note and disabled Refresh, then checked state |
@@ -114,8 +115,8 @@ Backend unit proofs start at the importer command and real usage HTTP boundary
 in `dashboard/backend-tests/usage-history/`. Frontend unit proof mounts the real
 Usage page with backend responses substituted at the service boundary. Reuse
 `systemSettingsUsagePage.ts` for browser operations. Existing E2E Usage journeys
-remain the integrated proof; add the recovered-refinement variation to the
-existing cohort journey rather than another journey.
+in `e2e/configuration/system-settings-usage.spec.ts` remain the integrated
+proof; the backend cohort case owns the recovered-refinement variation.
 
 ## Decisive premises and observations
 
@@ -160,12 +161,12 @@ Update the identified Claude assertion, keeping all its other promises.
 
 Behavior: unchanged native evidence → either writer writes → launch workflow
 wins when present, recovered evidence fills its absence, and recovered-only
-tasks keep their skills. Use `launchWorkflows[workflow].skill` in the fixture;
-make one Refinement task recovered in `system-settings-usage-cohort.spec.ts`
-and prove that journey fails with the old mapping. Run all five Usage E2E
-journeys for this shared fixture. Extract `configureOpenDough`, `finished`,
-`rootRollout` and `usageServer` from the 248-line `token-index-refresh` spec
-into one focused support module if still local when the second spec needs them.
+tasks keep their skills. The shared `aUsageTaskHistory.recovered()` fixture
+now preserves each workflow's skill; `token-index-cohort.spec.ts` observes
+recovered Refinement through persistence and cohort selection. Retain that
+discriminating case and run the consolidated Usage E2E spec. Reuse
+`dashboard/tests/usage-history/tokenIndexHarness.ts` for project setup, stored
+usage and HTTP operations; share remaining rollout setup only when needed.
 Update `USAGE-HISTORY.md` with workflow precedence and alternating stability.
 
 ### 2. Checked reflects an import published after the last Refresh
@@ -193,7 +194,7 @@ POST, changes Launch workflow, and waits for distinct selected-cohort content.
 and keep checking until that answer settles; then `showsChecked`. A failure
 variant retains that cohort's chart/check time and shows its error while
 ending checking. Confirm discrimination against the old cohort `.finally`.
-Run this spec, `system-settings-usage-average.spec.ts`, and the refresh E2E
+Run this spec, frontend `system-settings-usage.spec.ts`, and the refresh E2E
 journey. No sleeps, timeout increases or `test.slow()`.
 
 Behavior: Refresh in progress → cohort changes/read completions → those reads

@@ -1,11 +1,4 @@
-// System settings → Usage (../../src/SystemSettingsUsage.tsx) as Terry
-// meets it: its view beside General, the cohort its filters show and offer,
-// choosing a filter's option, the cohort note's counts, the Token index
-// points on the shared history chart (../historyChartPage.ts), partial ones
-// hollow, the moving average's figure or why there is none, the tariff
-// version, the check time, the detail of a point selected by pointer or
-// keyboard, and Refresh with its checking note and any error. Scenarios
-// supply every expected value.
+// System settings → Usage actions and observations, with expectations supplied by cases.
 import type { Page } from "@playwright/test";
 import { historyChart } from "../historyChartPage.ts";
 import { expect } from "../dashboardTest.ts";
@@ -39,16 +32,17 @@ export async function openUsage(page: Page) {
   return usageView(page);
 }
 
-// What the selected task's detail reads: its heading, the line naming its
-// project, story, tool and launch workflow, and each fact by its term, in
-// order. `Ended` is the end instant (ISO) and the outcome's words.
+export async function visitUsage(page: Page, baseURL = "") {
+  await page.goto(`${baseURL}/?view=settings`);
+  await expectGeneralSettingsShown(page);
+  return openUsage(page);
+}
+
+type FactWords = string | { readonly at: string; readonly outcome: string };
 export type TaskDetail = {
   readonly title: string;
   readonly about: string;
-  readonly facts: readonly (
-    | readonly [term: string, words: string]
-    | readonly ["Ended", { readonly at: string; readonly outcome: string }]
-  )[];
+  readonly facts: readonly (readonly [term: string, words: FactWords])[];
 };
 
 export function usageView(page: Page) {
@@ -67,6 +61,21 @@ export function usageView(page: Page) {
     name: "Selected task",
     exact: true,
   });
+  const fact = (term: string) =>
+    detail
+      .locator("dl > div")
+      .filter({
+        has: page.getByText(term, { exact: true }),
+      })
+      .locator("dd");
+  const showsFact = async (term: string, words: FactWords) => {
+    const value = fact(term);
+    if (typeof words === "string") await expect(value).toHaveText(words);
+    else {
+      await expect(value.locator("time")).toHaveAttribute("datetime", words.at);
+      await expect(value).toHaveText(new RegExp(` · ${words.outcome}$`));
+    }
+  };
   return {
     // The chosen option of each filter, by its label.
     async showsCohort(cohort: Readonly<Record<string, string>>) {
@@ -82,6 +91,9 @@ export function usageView(page: Page) {
     async choose(label: string, choice: string) {
       await filter(label).selectOption({ label: choice });
       await expect(filter(label).locator("option:checked")).toHaveText(choice);
+    },
+    async showsPointCount(count: number) {
+      await expect(chart.marks).toHaveCount(count);
     },
     // One mark per plotted task, each read as "<end date> · <index>".
     async showsPoints(readouts: readonly string[]) {
@@ -142,25 +154,9 @@ export function usageView(page: Page) {
       await expect(detail.locator("dt")).toHaveText(
         facts.map(([term]) => term),
       );
-      for (const [at, [, words]] of facts.entries()) {
-        const fact = detail.locator("dd").nth(at);
-        if (typeof words === "string") await expect(fact).toHaveText(words);
-        else {
-          await expect(fact.locator("time")).toHaveAttribute(
-            "datetime",
-            words.at,
-          );
-          await expect(fact).toHaveText(new RegExp(` · ${words.outcome}$`));
-        }
-      }
+      for (const [term, words] of facts) await showsFact(term, words);
     },
-    // The selected task's fact named `term`, read as `words`.
-    async showsFact(term: string, words: string) {
-      const fact = detail
-        .locator("dl > div")
-        .filter({ has: page.getByText(term, { exact: true }) });
-      await expect(fact.locator("dd")).toHaveText(words);
-    },
+    showsFact,
     // Closes the detail; focus returns to the point read as `readout`.
     async closeDetail(readout: string) {
       await detail.getByRole("button", { name: "Close", exact: true }).click();

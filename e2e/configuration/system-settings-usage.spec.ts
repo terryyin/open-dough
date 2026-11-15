@@ -1,73 +1,66 @@
-// Terry opens System settings → Usage on a machine whose usage store
-// (./usageFixtureStore.ts) holds finished dashboard Codex tasks. Usage is its
-// own view beside General and shows, for Codex, Execution, All models and
-// Any effort, one Token index point per task over its end time, the trailing
-// 10-task moving average, the tariff version and when the usage was checked.
-// Choosing another cohort is ./system-settings-usage-cohort.spec.ts; how the
-// endpoint weighs responses and leaves the store unchanged,
-// ../../dashboard/backend-tests/usage-history/token-index.spec.ts.
-import { statSync } from "node:fs";
-import { codexTariff } from "../../dashboard/server/usageTariffs.ts";
+// Representative real-store journeys; pricing/eligibility variants belong to
+// backend token-index tests, display variants to frontend system-settings-usage.
+import {
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
+import path from "node:path";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { usageCheckFile } from "../../dashboard/server/usageCheck.ts";
+import {
+  usageHistoryFile,
+  writeUsageHistory,
+} from "../../dashboard/server/usageHistory.ts";
+import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
 import { test } from "../../dashboard/tests/support/pageTest.ts";
 import { systemSettingsMachine } from "../../dashboard/tests/support/systemSettingsMachine.ts";
-import {
-  expectGeneralSettingsShown,
-  openUsage,
-} from "../../dashboard/tests/support/systemSettingsUsagePage.ts";
-import {
-  astra,
-  averageOf,
-  finishedTask,
-  readouts,
-  sol,
-  writeUsageStore,
-  type Response,
-} from "./usageFixtureStore.ts";
+import { visitUsage } from "../../dashboard/tests/support/systemSettingsUsagePage.ts";
+import { writeCodexSession } from "../../dashboard/tests/usage-history/importHarness.ts";
 
+const sol = "gpt-6.1-sol";
+const day = (date: number) =>
+  `2026-11-${String(date).padStart(2, "0")}T12:00:00.000Z`;
 let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {
   fixture = systemSettingsMachine();
 });
 test.afterEach(async () => fixture.close());
 
-test("Usage shows each finished Codex execution's Token index with the 10-task moving average and the tariff version", async ({
+test("Usage shows the finished-task trend and opens a task from the chosen cohort", async ({
   page,
 }) => {
-  const tasks = [...Array<number>(12).keys()].map((day) => {
-    const responses: Response[] = [
-      {
-        model: sol,
-        effort: "xhigh",
-        tokens: {
-          uncachedInput: 1_000 * (day + 1),
-          cacheRead: 20_000 - 1_000 * day,
-          output: 150 + 37 * day,
-        },
-      },
-    ];
-    if (day === 7)
-      responses.push({
-        model: astra,
-        effort: "xhigh",
-        worker: true,
-        tokens: { uncachedInput: 4_000, cacheRead: 6_000, output: 500 },
-      });
-    return finishedTask(
-      `Execution ${String(day)}`,
-      "execution",
-      day + 1,
-      responses,
-      {
-        recovered: day === 0,
-      },
-    );
-  });
-  const store = await writeUsageStore(fixture.home, tasks);
+  const executions = [...Array<number>(10).keys()].map((at) =>
+    makeMe.aUsageTaskHistory
+      .identifiedAs(`execution-${String(at + 1)}`)
+      .endedAt(day(at + 1))
+      .please(),
+  );
+  const refinements = [
+    makeMe.aUsageTaskHistory
+      .identifiedAs("sol-refinement")
+      .inWorkflow("refinement")
+      .endedAt(day(11))
+      .withResponse({ effort: "high" })
+      .please(),
+    makeMe.aUsageTaskHistory
+      .identifiedAs("astra-refinement")
+      .inWorkflow("refinement")
+      .endedAt(day(12))
+      .withResponse({ model: "gpt-6-astra", effort: "medium" })
+      .please(),
+  ];
+  const store = usageHistoryFile(fixture.home);
+  await writeUsageHistory(
+    makeMe.aUsageHistory
+      .with({ tasks: [...executions, ...refinements] })
+      .please(),
+    store,
+  );
   const server = await fixture.start("preview");
-
-  await page.goto(`${server.baseURL}/?view=settings`);
-  await expectGeneralSettingsShown(page);
-  const usage = await openUsage(page);
+  const usage = await visitUsage(page, server.baseURL);
 
   await usage.showsCohort({
     Tool: "Codex",
@@ -75,9 +68,92 @@ test("Usage shows each finished Codex execution's Token index with the 10-task m
     Model: "All models",
     Effort: "Any effort",
   });
-  await usage.showsPoints(readouts(tasks));
-  await usage.showsAverage(averageOf(tasks));
-  await usage.showsTariff(codexTariff.label);
-  // Before any Refresh, the import that wrote the store last checked.
+  await usage.showsPoints(
+    [...Array<number>(10).keys()].map((at) => `Nov ${String(at + 1)} · 1,950`),
+  );
+  await usage.showsAverage("1,950");
+  await usage.showsTariff(
+    "Codex rate card read 2026-11-15 · standard speed · GPT-6.1 Sol input-token equivalents",
+  );
   await usage.showsCheckedAt(statSync(store).mtime.toISOString());
+  await usage.offers("Launch workflow", ["Execution", "Refinement", "Ad hoc"]);
+  await usage.offers("Model", ["All models", "GPT-6.1 Sol", "GPT-6 Astra"]);
+  await usage.offers("Effort", ["Any effort", "xhigh", "high", "medium"]);
+  await usage.choose("Launch workflow", "Refinement");
+  await usage.showsPoints(["Nov 11 · 1,950", "Nov 12 · 12,000"]);
+  await usage.choose("Model", "GPT-6 Astra");
+  await usage.showsPoints(["Nov 12 · 12,000"]);
+  await usage.choose("Model", "All models");
+  await usage.choose("Effort", "high");
+  await usage.showsPoints(["Nov 11 · 1,950"]);
+  await usage.selectPoint("Nov 11 · 1,950", "pointer");
+  await usage.showsFact("Observed model", "GPT-6.1 Sol · high effort");
+  await usage.closeDetail("Nov 11 · 1,950");
+});
+
+test("Refresh keeps the chart while checking, adds new launch usage, and preserves the result on failure", async ({
+  page,
+}) => {
+  const store = usageHistoryFile(fixture.home);
+  await writeUsageHistory(
+    makeMe.aUsageHistory
+      .with({ tasks: [makeMe.aUsageTaskHistory.endedAt(day(3)).please()] })
+      .please(),
+    store,
+  );
+  const importedAt = statSync(store).mtime.toISOString();
+  keepLaunchStore(fixture.home, {
+    "open-dough": [
+      makeMe.aLaunchRecord
+        .executing({ identity: "SEED-9#refresh", title: "Refresh usage" })
+        .inCodexSession({ sessionId: "new-launch" })
+        .launchedAt(day(6))
+        .withFirstInput({ state: "confirmed", turnId: "first-turn" })
+        .completedWith({ message: "", receivedAt: day(6) })
+        .please(),
+    ],
+  });
+  writeCodexSession(
+    path.join(fixture.home, ".codex/sessions/2026/11"),
+    makeMe.aCodexRollout
+      .forSession("new-launch")
+      .withTurnContext("first-turn", sol, "xhigh")
+      .withResponse("first-turn", "new-response", {
+        input_tokens: 10_000,
+        cached_input_tokens: 9_000,
+        cache_write_input_tokens: 0,
+        output_tokens: 100,
+      })
+      .please(),
+  );
+  const server = await fixture.start("preview");
+  const usage = await visitUsage(page, server.baseURL);
+  await usage.showsPoints(["Nov 3 · 1,950"]);
+  await usage.showsCheckedAt(importedAt);
+
+  const lock = `${store}.lock`;
+  mkdirSync(lock);
+  try {
+    await usage.refresh();
+    await usage.showsChecking();
+    await usage.showsPoints(["Nov 3 · 1,950"]);
+    await usage.showsCheckedAt(importedAt);
+  } finally {
+    rmSync(lock, { recursive: true });
+  }
+  await usage.showsPoints(["Nov 3 · 1,950", "Nov 6 · 1,950"]);
+  await usage.showsChecked();
+  const { checkedAt } = JSON.parse(
+    readFileSync(usageCheckFile(store), "utf8"),
+  ) as { checkedAt: string };
+  await usage.showsCheckedAt(checkedAt);
+
+  writeFileSync(store, "{ not a usage store");
+  await usage.refresh();
+  await usage.showsProblem(
+    `Usage could not be refreshed: Usage history is unreadable: ${store}`,
+  );
+  await usage.showsChecked();
+  await usage.showsPoints(["Nov 3 · 1,950", "Nov 6 · 1,950"]);
+  await usage.showsCheckedAt(checkedAt);
 });

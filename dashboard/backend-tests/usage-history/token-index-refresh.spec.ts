@@ -1,18 +1,7 @@
-// Refresh at the boundary server over raw HTTP (../../server/usageBoundary.ts),
-// with launch records, an imported usage store and Codex rollouts in the
-// server's HOME. Refresh reads the rollouts modified since the last check,
-// and the rollouts of the workers they spawned, adds a newly finished launch
-// from the current launch records, and assigns its responses as a full import
-// of the same rollouts does. Refreshing again without new rollout activity
-// changes no summary value or stored response, concurrent Refreshes share
-// one run, and an overlapping import counts each response once. A Refresh
-// that cannot read the store fails readably and leaves the summary and the
-// check time as they were. The page's journey is
-// ../../../e2e/configuration/system-settings-usage-refresh.spec.ts.
+// Incremental import, coalescing and failure preservation at the Refresh HTTP boundary.
 import {
   appendFileSync,
   cpSync,
-  mkdirSync,
   readFileSync,
   utimesSync,
   writeFileSync,
@@ -22,23 +11,17 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { usageHistoryFile } from "../../server/usageHistory.ts";
 import { responseKey, type UsageHistory } from "../../server/usageRecords.ts";
 import { usageTaskSummaryFile } from "../../server/usageTaskSummary.ts";
-import type { TokenIndexAnswer } from "../../src/usageTokenIndex.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
-import { expect, test } from "../../tests/support/pageTest.ts";
-import { projectConfigurationFile } from "../../tests/support/projectConfiguration.ts";
-import { rawRequest } from "../../tests/support/rawHttp.ts";
-import { systemSettingsMachine } from "../../tests/support/systemSettingsMachine.ts";
 import {
   readImported,
   runImport,
   writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
-
-let fixture: ReturnType<typeof systemSettingsMachine>;
-test.beforeEach(() => {
-  fixture = systemSettingsMachine();
-});
-test.afterEach(async () => fixture.close());
+import {
+  expect,
+  test,
+  usageServer,
+} from "../../tests/usage-history/tokenIndexHarness.ts";
 
 const sol = "gpt-6.1-sol";
 const longAgo = new Date("2026-11-01T00:00:00.000Z");
@@ -48,110 +31,41 @@ const counters = (output: number) => ({
   cache_write_input_tokens: 0,
   output_tokens: output,
 });
-
-function configureOpenDough(home: string) {
-  const file = projectConfigurationFile(home, "production");
-  mkdirSync(path.dirname(file), { recursive: true });
-  writeFileSync(
-    file,
-    JSON.stringify([
-      makeMe.aConfiguredProject
-        .with({
-          id: "open-dough",
-          label: "Open Dough",
-          repository: "terryyin/open-dough",
-          localPath: "~/git/open-dough",
-        })
-        .please(),
-    ]),
-  );
-}
-
-// A finished execution launch in its own Codex session, whose first turn is
-// `<session>-turn`.
-const finished = (session: string) =>
+const finished = (sessionId: string) =>
   makeMe.aLaunchRecord
-    .executing({ identity: `SEED-7#${session}`, title: `Story ${session}` })
-    .inCodexSession({ sessionId: session })
+    .executing({ identity: `SEED-7#${sessionId}`, title: `Story ${sessionId}` })
+    .inCodexSession({ sessionId })
     .launchedAt("2026-11-14T09:00:00.000Z")
-    .withFirstInput({ state: "confirmed", turnId: `${session}-turn` })
+    .withFirstInput({ state: "confirmed", turnId: `${sessionId}-turn` })
     .completedWith({ message: "" })
     .please();
-
-// The root's rollout of the launch's session, with one response per output.
-function rootRollout(session: string, ...outputs: number[]) {
-  const rollout = makeMe.aCodexRollout
-    .forSession(session)
-    .withTurnContext(`${session}-turn`, sol, "xhigh");
-  for (const output of outputs)
-    rollout.withResponse(
-      `${session}-turn`,
-      `${session}-${String(output)}`,
-      counters(output),
-    );
-  return rollout;
-}
-
-// A worker the parent spawned, whose own response belongs to the parent's
-// first turn.
-const workerRows = (parent: string, worker: string) =>
+const rootRollout = (session: string, output: number) =>
   makeMe.aCodexRollout
-    .forSession(worker)
-    .withParent(parent)
-    .withTurnContext(`${worker}-turn`, sol, "xhigh")
-    .withResponse(`${worker}-turn`, `${worker}-own`, counters(70), {
-      rootTurnId: `${parent}-turn`,
-    })
-    .please();
-
-// Each stored response's task, by response.
+    .forSession(session)
+    .withTurnContext(`${session}-turn`, sol, "xhigh")
+    .withResponse(`${session}-turn`, `${session}-${output}`, counters(output));
 const assignments = (history: UsageHistory) =>
   Object.fromEntries(
-    Object.values(history.associations).map((association) => [
-      association.observationId,
-      association.taskId,
+    Object.values(history.associations).map(({ observationId, taskId }) => [
+      observationId,
+      taskId,
     ]),
   );
 
-function usageServer(baseURL: string, origin: string) {
-  const request = async (method: "GET" | "POST", endpoint: string) => {
-    const answer = await rawRequest({
-      url: `${baseURL}${endpoint}`,
-      method,
-      headers: { Origin: origin },
-    });
-    return { status: answer.status, body: JSON.parse(answer.body) as unknown };
-  };
-  return {
-    request,
-    async refresh() {
-      const { status, body } = await request("POST", "/__usage/refresh");
-      expect(status, JSON.stringify(body)).toBe(200);
-      return (body as { checkedAt: string }).checkedAt;
-    },
-    async chart() {
-      const { status, body } = await request("GET", "/__usage/token-index");
-      expect(status, JSON.stringify(body)).toBe(200);
-      return body as TokenIndexAnswer;
-    },
-  };
-}
-
-test("Refresh reads rollouts changed since its last check and the workers they spawned, adding a newly finished launch as a full import assigns it, and changes nothing when nothing new was written", async () => {
-  const { home } = fixture;
-  configureOpenDough(home);
-  const sessions = path.join(home, ".codex/sessions");
-  const rollouts = path.join(sessions, "2026/11/14");
+test("Refresh reads changed roots and their older workers like a full import; repeats coalesce without rewriting or double-counting", async ({
+  machine,
+}) => {
+  const { home } = machine;
+  const sessions = path.join(home, ".codex/sessions"),
+    rollouts = path.join(sessions, "2026/11/14");
   keepLaunchStore(home, { "open-dough": [finished("first")] });
   const first = writeCodexSession(rollouts, rootRollout("first", 100).please());
   runImport(home, sessions);
   const store = usageHistoryFile(home);
-  const server = await fixture.start("boundary");
-  const usage = usageServer(server.baseURL, server.origin);
+  const usage = await usageServer(machine);
   const lastCheck = await usage.refresh();
 
-  // A rollout last written before that check, though its content changed,
-  // is not read again.
+  // Changed bytes whose mtime predates the check are deliberately not reread.
   const [late] = makeMe.aCodexRollout
     .forSession("first")
     .withResponse("first-turn", "first-late", counters(5))
@@ -165,10 +79,16 @@ test("Refresh reads rollouts changed since its last check and the workers they s
     rollouts,
     rootRollout("second", 200).withSpawnedAgent("second-worker").please(),
   );
-  // Its worker finished before that check.
   const worker = writeCodexSession(
     rollouts,
-    workerRows("second", "second-worker"),
+    makeMe.aCodexRollout
+      .forSession("second-worker")
+      .withParent("second")
+      .withTurnContext("worker-turn", sol, "xhigh")
+      .withResponse("worker-turn", "worker-own", counters(70), {
+        rootTurnId: "second-turn",
+      })
+      .please(),
   );
   utimesSync(worker, longAgo, longAgo);
   const checkedAt = await usage.refresh();
@@ -183,25 +103,23 @@ test("Refresh reads rollouts changed since its last check and the workers they s
     ["SEED-7#second", "measured"],
   ]);
   const refreshed = assignments(readImported(home));
-  expect(Object.keys(refreshed)).not.toContain(
+  expect(refreshed).not.toHaveProperty(
     responseKey("codex", "first", "first-late"),
   );
-  expect(
-    refreshed[responseKey("codex", "second-worker", "second-worker-own")],
-  ).toBe(chart.tasks[1]?.id);
+  expect(refreshed[responseKey("codex", "second-worker", "worker-own")]).toBe(
+    chart.tasks[1]?.id,
+  );
 
-  const imported = path.join(fixture.machine, "imported-home");
+  const imported = path.join(machine.machine, "imported-home");
   cpSync(home, imported, {
     recursive: true,
     filter: (source) => !path.basename(source).startsWith("usage"),
   });
   runImport(imported, path.join(imported, ".codex/sessions"));
-  const full = assignments(readImported(imported));
-  for (const [id, task] of Object.entries(refreshed))
-    expect([id, full[id]]).toEqual([id, task]);
+  expect(assignments(readImported(imported))).toMatchObject(refreshed);
 
-  const manifest = readFileSync(store);
-  const summary = readFileSync(usageTaskSummaryFile(store));
+  const manifest = readFileSync(store),
+    summary = readFileSync(usageTaskSummaryFile(store));
   const [again, alongside] = await Promise.all([
     usage.refresh(),
     usage.refresh(),
@@ -211,15 +129,14 @@ test("Refresh reads rollouts changed since its last check and the workers they s
   expect(await usage.chart()).toEqual({ ...chart, checkedAt: again });
   expect(readFileSync(store)).toEqual(manifest);
   expect(readFileSync(usageTaskSummaryFile(store))).toEqual(summary);
-
   runImport(home, sessions);
-  const overlapped = await usage.chart();
-  expect(overlapped.tasks[1]?.index).toBe(chart.tasks[1]?.index);
+  expect((await usage.chart()).tasks[1]?.index).toBe(chart.tasks[1]?.index);
 });
 
-test("a Refresh that cannot read the usage store fails readably and keeps the summary and the check time", async () => {
-  const { home } = fixture;
-  configureOpenDough(home);
+test("an unreadable store fails Refresh without replacing its summary or check time", async ({
+  machine,
+}) => {
+  const { home } = machine;
   const sessions = path.join(home, ".codex/sessions");
   keepLaunchStore(home, { "open-dough": [finished("first")] });
   writeCodexSession(
@@ -228,19 +145,19 @@ test("a Refresh that cannot read the usage store fails readably and keeps the su
   );
   runImport(home, sessions);
   const store = usageHistoryFile(home);
-  const server = await fixture.start("boundary");
-  const usage = usageServer(server.baseURL, server.origin);
-  const checkedAt = await usage.refresh();
-  const chart = await usage.chart();
-  const manifest = readFileSync(store);
-  const summary = readFileSync(usageTaskSummaryFile(store));
+  const usage = await usageServer(machine);
+  const checkedAt = await usage.refresh(),
+    chart = await usage.chart();
+  const manifest = readFileSync(store),
+    summary = readFileSync(usageTaskSummaryFile(store));
 
   writeFileSync(store, "{ not a usage store");
   const failed = await usage.request("POST", "/__usage/refresh");
-
-  expect(failed.status).toBe(503);
-  expect(failed.body).toEqual({
-    error: `Usage could not be refreshed: Usage history is unreadable: ${store}`,
+  expect(failed).toEqual({
+    status: 503,
+    body: {
+      error: `Usage could not be refreshed: Usage history is unreadable: ${store}`,
+    },
   });
   expect(readFileSync(usageTaskSummaryFile(store))).toEqual(summary);
   writeFileSync(store, manifest);

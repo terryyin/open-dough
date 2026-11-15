@@ -7,6 +7,7 @@ import {
   UsageTaskBuilder,
 } from "./usageHistoryTestData.mjs";
 import { UsageHistoryBuilder } from "./usageStoreTestData.mjs";
+import { UsageTaskHistoryBuilder } from "./usageTaskHistoryTestData.mjs";
 import { TokenIndexAnswerBuilder } from "./usageAnswerTestData.mjs";
 import { CodexRolloutBuilder } from "./codexRolloutTestData.mjs";
 import { ClaudeTranscriptBuilder } from "./claudeTranscriptTestData.mjs";
@@ -19,6 +20,7 @@ import { ClaudeTranscriptBuilder } from "./claudeTranscriptTestData.mjs";
  * @property {UsageObservationBuilder} aUsageObservation
  * @property {UsageAssociationBuilder} aUsageAssociation
  * @property {UsageHistoryBuilder} aUsageHistory
+ * @property {UsageTaskHistoryBuilder} aUsageTaskHistory
  * @property {TokenIndexAnswerBuilder} aTokenIndexAnswer
  * @property {CodexRolloutBuilder} aCodexRollout
  * @property {ClaudeTranscriptBuilder} aClaudeTranscript
@@ -43,6 +45,12 @@ export function usageMakeMeProperties() {
       enumerable: true,
       get() {
         return new UsageAssociationBuilder();
+      },
+    },
+    aUsageTaskHistory: {
+      enumerable: true,
+      get() {
+        return new UsageTaskHistoryBuilder();
       },
     },
     aUsageHistory: {
