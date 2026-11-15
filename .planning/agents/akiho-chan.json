@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Akiho-chan",
+  "email": "akiho-chan@example.org",
+  "identity": "SEED-374#see-stale-test-duration-estimates",
+  "mode": "story-branch",
+  "branch": "codex/see-stale-test-duration-estimates-before-relying",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
