@@ -50,7 +50,8 @@ node scripts/test-shares.mjs preview --split-count 3
 ```
 
 The split count is the number of `share` entries in the `distribution-tests` job's matrix
-in `.github/workflows/ci.yml`. The preview lists the suite's jobs through
+in `.github/workflows/ci.yml`, sized by the
+[job-count rule](../../dashboard/tests/shards.md#the-job-count). The preview lists the suite's jobs through
 `scripts/test-jobs.sh` and prints each share's predicted job-seconds with its
 headroom to `total-job-seconds` in `Distribution/tests/time-budget`, then every unrecorded job with its share and the assumed
 seconds. The predictions use recorded CI seconds, never local timing. A high

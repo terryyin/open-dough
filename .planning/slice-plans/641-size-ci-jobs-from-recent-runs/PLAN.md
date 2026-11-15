@@ -153,7 +153,7 @@ predicts 898-899 job-seconds a share with one unrecorded job.
 
 ### 3. Record the sizing rule and the stay-at-18 decision beside the layout
 Type: Behavior
-Status: planned
+Status: done
 Proof: the real `bash scripts/ci-job-times.sh` output read at execution, the
 changed documents, and `npm run lint`.
 
@@ -171,6 +171,14 @@ from the execution checkout. When it says `could drop one` for a group, record
 that verdict and name it in the execution-complete product advice; the count
 stays unchanged in this story. One documentation proof loop; target 15 active
 minutes, commands excluded.
+
+Accepted proof (2026-11-15): the real report read main runs 43693339004 to
+43712947370 and said `keep` for every group; `dashboard/tests/shards.md`
+"The job count" records the rule, the command and the decision, linked from
+`Distribution/tests/test-shares.md` and the `ci.yml` e2e comment; the
+reconsideration pointer is gone; `npm run lint` passes. The refactor pass cut
+the section's field-by-field line description, which duplicated the script's
+header comment.
 
 ## Verification and consumer trace
 
