@@ -177,6 +177,13 @@ export type UsageBatch = {
   associations?: UsageAssociation[];
   gaps?: UsageGap[];
 };
+// The four disjoint token categories a response's usage is summed in.
+export const usageTokenCategories = [
+  "uncachedInput",
+  "cacheRead",
+  "cacheWrite",
+  "output",
+] as const satisfies readonly (keyof UsageTokens)[];
 export const emptyUsageTokens = (): UsageTokens => ({
   uncachedInput: null,
   cacheRead: null,

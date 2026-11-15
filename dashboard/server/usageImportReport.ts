@@ -2,19 +2,14 @@ import { hasUsageAssignment } from "./usageTaskAssignment.ts";
 // Report persisted facts in explicit, disjoint accounting populations. Retained
 // provenance gaps are not a count of currently missing fields or scan failures.
 import { readConfiguredUsageProjects } from "./configuredProjectDocument.ts";
-import type {
-  UsageHistory,
-  UsageObservation,
-  UsageTask,
-  UsageGap,
+import {
+  usageTokenCategories,
+  type UsageHistory,
+  type UsageObservation,
+  type UsageTask,
+  type UsageGap,
 } from "./usageRecords.ts";
 
-const categories = [
-  "uncachedInput",
-  "cacheRead",
-  "cacheWrite",
-  "output",
-] as const;
 function counts(values: string[]) {
   const result: Record<string, number> = {};
   for (const value of values) result[value] = (result[value] ?? 0) + 1;
@@ -28,7 +23,7 @@ function earliest(values: (string | null | undefined)[]) {
 function usage(observations: UsageObservation[]) {
   const tokens: Record<string, number | null> = {};
   const unmeasured: Record<string, number> = {};
-  for (const category of categories) {
+  for (const category of usageTokenCategories) {
     const measured = observations.flatMap((item) =>
       item.tokens[category] === null ? [] : [item.tokens[category]],
     );

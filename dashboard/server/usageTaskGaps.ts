@@ -1,25 +1,22 @@
 // Which gaps show usage missing from a dashboard task, for its per-task
 // summary (./usageTaskSummary.ts), in the coverage vocabulary of
-// `../src/usageTokenIndex.ts`: a response it may own that no one task could
-// be given, a response of its own missing token counts, no attributable
-// response at all, and the recorded gaps that are the task's. A recorded gap
-// is a task's when it names the task, or else when it names one of the
-// task's sessions (its root's or one its responses ran in) or lies in one of
-// their rollouts, as a worker gap lies at its spawn (./codexUsageLineage.ts
-// `codexCoverage`). A session or rollout shared by several tasks gives its
-// gaps to each of them. Each gap is kept once per task.
+// `../src/usageTokenIndex.ts`: a session contribution (./usageContributions.ts)
+// it may own that no one task could be given, one of its own with a response
+// missing token counts, no attributable response at all, and the recorded
+// gaps that are the task's. A recorded gap is a task's when it names the
+// task, or else when it names one of the task's sessions (its root's or one
+// its responses ran in) or lies in one of their rollouts, as a worker gap
+// lies at its spawn (./codexUsageLineage.ts `codexCoverage`). A session or
+// rollout shared by several tasks gives its gaps to each of them. Each gap is
+// kept once per task. Tasks other than the dashboard's are ignored.
 import {
   isUsageCoverageGap,
   usageCoverageGaps,
   type UsageCoverageGap,
 } from "../src/usageTokenIndex.ts";
 import { containingCodexThread } from "./codexUsageLineage.ts";
-import type {
-  UsageAssociation,
-  UsageGap,
-  UsageObservation,
-  UsageTask,
-} from "./usageRecords.ts";
+import type { ResolvedContribution } from "./usageContributions.ts";
+import type { UsageGap, UsageTask } from "./usageRecords.ts";
 
 export class TaskGaps {
   // Each dashboard task's gaps.
@@ -43,17 +40,20 @@ export class TaskGaps {
     this.#session(sessionId, id);
   }
 
-  association({ taskId, candidates }: UsageAssociation): void {
-    if (taskId === null)
+  contribution({
+    taskId,
+    candidates,
+    sessionId,
+    entry,
+  }: ResolvedContribution): void {
+    if (taskId === null) {
       for (const candidate of candidates)
         this.#add(candidate, "unresolved-task-association");
-  }
-
-  response(taskId: string, response: UsageObservation): void {
+      return;
+    }
     this.#answered.add(taskId);
-    this.#session(response.sessionId, taskId);
-    if (response.coverage !== "measured")
-      this.#add(taskId, "missing-token-components");
+    this.#session(sessionId, taskId);
+    if (entry.unmeasured > 0) this.#add(taskId, "missing-token-components");
   }
 
   record(gap: UsageGap): void {

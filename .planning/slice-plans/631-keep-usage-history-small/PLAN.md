@@ -153,7 +153,7 @@ and the responses file use. Document the option in `dashboard/USAGE-HISTORY.md`.
 
 ### 2. The task summary derives from session contributions
 Type: Structure
-Status: planned
+Status: done
 Proof: `token-index.spec.ts`, `token-index-cohort.spec.ts`,
 `token-index-detail.spec.ts`, `token-index-eligibility.spec.ts` and
 `token-index-refresh.spec.ts` pass unchanged, and so do
@@ -297,6 +297,29 @@ Update the Refresh sentence of `dashboard/USAGE-HISTORY.md`.
   - `dashboard/USAGE-HISTORY.md` is at 250 lines, and its options paragraph is
     wrapped at 100 columns to stay there. Slice 3 removes the paged-store text
     and returns that paragraph to the file's 80-column wrap.
+- Slice 2 (accepted 2026-11-15; family 58 passed, five usage e2e specs passed
+  on the final files, lint and typecheck clean; base and new
+  `deriveUsageTaskSummary` gave a byte-identical summary over the real store,
+  513 tasks, read-only):
+  - Module `dashboard/server/usageContributions.ts`: `collectContributions()`
+    returns `{ sessions, add(observation, association) }`;
+    `resolveContributions(sessions, tasks)` yields `{ sessionId, entry, taskId,
+    candidates }` and needs every task record of the history, not only the
+    dashboard's. `SessionContributions` is keyed by `sessionKey` and is plain
+    JSON, storable as the document's `sessions`.
+  - An entry is `{ candidates, unresolved?, model, effort, tier, responses,
+    tokens, missing, unmeasured, lastAt }`. Contradictory lineage is part of
+    the entry key and sets `unresolved: true`.
+  - For slice 3: a session whose batch responses all lack candidates builds no
+    contribution, so delete the stored key of every batch session before
+    merging. `add` stores candidates as given; alias them before `add` for
+    stable bytes. Sessions and entries are in first-seen order; sort them when
+    serializing. `storedContributions` in `usageTaskSummary.ts` is the last
+    paged-store coupling in the summary. `resolve` can take
+    `Pick<UsageAssociation, "taskId" | "candidates" | "gaps">`, which removes
+    the placeholder association in `resolveContributions`.
+  - `usageTokenCategories` in `usageRecords.ts` is the one list of the four
+    token categories.
 
 ## Verification, sizing and concern review
 

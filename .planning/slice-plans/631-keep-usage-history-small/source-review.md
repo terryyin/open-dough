@@ -125,9 +125,9 @@ Exclusions returned:
 | 21.7 | Architecture: they still reconcile competing measurements there (`reconcileMeasurements`). | slice 3 | |
 | 21.8 | Architecture: what changes is the write: the responses of each session read are summed into that session's contribution. | slice 3 | |
 | 21.9 | Architecture: that contribution replaces the stored one. | slice 3 | |
-| 21.10 | Architecture: task totals are the sum of contributions (which `usageTaskSummary.ts` derives today from every response on each manifest change). | slice 2 | |
-| 21.11 | Architecture: the summary keeps its place. | slice 2 | |
-| 21.12 | Architecture: the summary keeps its separate process. | slice 2 | |
+| 21.10 | Architecture: task totals are the sum of contributions (which `usageTaskSummary.ts` derives today from every response on each manifest change). | slice 2 | observed: dashboard/server/usageTaskSummary.ts deriveUsageTaskSummary sums resolveContributions entries; token-index.spec.ts, token-index-cohort.spec.ts, token-index-eligibility.spec.ts unchanged and passing |
+| 21.11 | Architecture: the summary keeps its place. | slice 2 | observed: usageTaskSummaryCache.ts untouched; token-index.spec.ts deleted summary rebuilt from the store; token-index-refresh.spec.ts unreadable store keeps the summary |
+| 21.12 | Architecture: the summary keeps its separate process. | slice 2 | observed: usageTaskSummaryMain.ts and usageProcess.ts untouched; token-index-detail.spec.ts, token-index-refresh.spec.ts and e2e system-settings-usage specs through the server |
 | 21.13 | Architecture: the summary now derives from contributions without reading a response. | slice 3 | |
 | 21.14 | Architecture: "The paged snapshot and its partition reconciliation have one small successor." | slice 3 | |
 | 21.15 | Architecture: a contribution keeps the candidate tasks its responses named. | slice 3 | |
