@@ -306,8 +306,15 @@ test had passed.
   - Observed effect: an otherwise green whole-suite gate exited 1; admission did not keep the two suites from running concurrently
   - Inference: qualified — the replacing owner's pid and UTC start match a container started by another session; the exact command is unknown. Either container runs take no host admission (or a separate ref), or owners record a pid namespace so a foreign-namespace owner is never judged dead; tolerating a taken ref at teardown alone would hide the concurrent run
 
-**Follow-up:** open, unqueued; the remedy needs a decision on how container
-runs share admission.
+**Assessment (2026-11-15):** The non-browser container path still mounts the
+common Git directory and invokes `scripts/test.sh`. The admission owner is
+identified by PID and process start time in the caller's namespace. The
+exact historical container command remains unknown.
+
+**Follow-up:**
+[SEED-375](../../.planning/seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission)
+is queued to prevent owner replacement across that boundary and preserve host
+full-suite serialization.
 
 <a id="dd-433"></a>
 
@@ -347,7 +354,7 @@ two removals timed out on CI and a hardening pass followed.
 
 ## DD-529 — Browser groups reached their hosted deadline after conversions
 
-- SEED-357#keep-usage-history-within-a-small-disk-budget (plan 631, first implementation `a23dcc3014807378a3d518461e7e8a00f72c8d2b`), 2026-11-15T05:37:27Z, Claude Code / claude-fable-5-2, 0.3.99 at Take `5a97baeb3`, 0.3.100 at merge `f74ff9a76`. Run 43681477553 attempt 1 cut off e2e shard 2/5. Conversions added about 25%, with about 1,100 list-seconds per shard and earlier 287–288 s passes against a 320 s cutoff. Runs 43679953950 and 43678012127 and the shard instructions at `80e759cfc` supported the comparison. The affected runner was 1.42–1.94× slower than siblings. The developer moved a shard from Integrated UI to E2E. Run 43688468922 passed the resulting six shards in 173–240 s.
+- SEED-357#keep-usage-history-within-a-small-disk-budget (plan 631, first implementation `a23dcc3014807378a3d518461e7e8a00f72c8d2b`), 2026-11-15T05:37:27Z, Claude Code / claude-fable-5-2, 0.3.99 at Take `5a97baeb3`, 0.3.100 at merge `f74ff9a76`. Run 43681477553 attempt 1 cut off e2e shard 2/5. Conversions added about 25%, with about 1,100 list-seconds per shard and earlier 287–288 s passes against a 320 s cutoff. Runs 43679953950 and 43678012127 and the shard instructions at `80e759cfc` supported the comparison. Per-spec times were 1.42–1.94× slower than comparable runs, while other shards were faster. The developer moved a shard from Integrated UI to E2E. Run 43688468922 passed the resulting six shards in 173–240 s.
 - SEED-334#finish-dissolving-integrated-ui-test (plan 632, first implementation `9b535b53d`), 2026-11-15T11:51:12Z, Cursor, 0.3.101 from the installed marker. The frontend shard on `26161888d` in run 43710473022 hit a 163.975 s suite timeout and teardown timeout after conversions grew the group. The next tip `219d69bef` passed with only an ownership-example retarget. The available outcome does not establish a frontend capacity repair or the effect of an earlier margin check.
 
 The [pre-push shard preview](../../dashboard/tests/shards.md) is already

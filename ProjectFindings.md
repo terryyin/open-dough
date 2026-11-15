@@ -20,8 +20,12 @@ adds a Distribution share failure from an apparently roomy preview that used
 median estimates for 26 unrecorded jobs. The immediate duration refresh landed.
 [SEED-374](.planning/seeds/SEED-374-stale-test-duration-estimates.md#see-stale-test-duration-estimates)
 is queued to make the missing timing evidence clear before relying on that
-preview. [DD-529](docs/maintainer/project-test-findings.md#dd-529) records the
-separate browser capacity facet. [Retirement decisions and recovery](docs/maintainer/project-findings-history.md#review-and-recovery)
+preview.
+[SEED-375](.planning/seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission)
+is queued to protect a live host test-suite owner during container diagnostics
+([DD-432](#dd-432)). [DD-529](docs/maintainer/project-test-findings.md#dd-529)
+records the browser capacity finding.
+[Retirement decisions and recovery](docs/maintainer/project-findings-history.md#review-and-recovery)
 include the verified runner and harness fixes. The load cases below retain the
 limits of the available post-response proof.
 
@@ -70,13 +74,6 @@ commit hook. No new local response was selected.
    records one Linux SIGPIPE repair cycle. The named observer was fixed;
    early-exit pipelines remain in two repository test helpers. Those are
    residual risks, not additional observed failures.
-
-The descendant cache policy and opt-in selection evidence are implemented and
-measured below. The selection record helps parallel contributors obtain reliable local
-proof. Neither changes published skills, shared workflow rules, or the
-dashboard's runtime contract. The existing native-observation queue item and
-Taken CI-monitoring story stay unchanged. Earlier suite repairs remain completed;
-new or residual causes above are not evidence that every earlier fix failed.
 
 ## Dashboard specs can lose a mouse press to a reflow (open, unqueued)
 
@@ -152,21 +149,6 @@ DD-243 remains the same finding; its later occurrences are
 **Response implemented:** `fba97e9fbb90c4f97909a5e2ab899a0031c58308`. The [maintained pre-launch comparison](Distribution/tests/git-publication/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch) names the introduced inputs, actor/delegation differences and historical source limits; credential-free checks preserve the quick fixture's stated cost/layout and the planned fixture's absence of those hints. The native outcome remains unobserved: neither retained run reached implementation delegation and a refactor-time move, and this response runs no new native session. Fixture checks do not resolve the historical finding or change ODF-249's settled disposition.
 
 **Observation (2026-10-22):** [SEED-053#match-historical-replay-inputs](.planning/done/SEED-053_match-historical-replay-inputs.json) completed on 2026-10-21; no story remains queued. Keep the finding open until the next paid proof-scheduling replay prepared with the comparison runs: it supports retirement when its inputs match the recorded occurrence context and the run reaches implementation delegation without an extra corrective slice. No such run has occurred since adoption.
-
-<a id="nodes-compile-cache-fills-the-disk-under-the-dashboard-suite-queued-not-resolved"></a>
-
-## Node's compile-cache growth under the dashboard suite (descendant policy verified)
-
-**Outcome:** Implemented and measured in the [retained evaluation](docs/maintainer/project-compile-cache-findings.md#suite-policy-evaluation-2026-10-12). The [test configuration](dashboard/playwright.config.ts)
-prevents descendant writes without reclaiming existing shared cache; the
-[tests guide](dashboard/tests/README.md) describes the policy. The source of the
-historical 134 GB remains unknown.
-
-<a id="dd-287"></a>
-
-### DD-287 — A wide dashboard run failed with ENOSPC while `$TMPDIR/node-compile-cache` held 134 GB
-
-[Retained occurrence and suite-policy evaluation](docs/maintainer/project-compile-cache-findings.md#dd-287).
 
 ## A limit-recovery spec counts one extra request under suite load (open, unqueued)
 
@@ -274,13 +256,15 @@ failure and the plan 499 recurrence. The corrected spec holds listings in
 turn. The product still starts its pace per open.
 
 
-## Container and host local-suite admission collision (open, unqueued)
+## Container and host local-suite admission collision (queued)
 
 <a id="dd-432"></a>
 
 [DD-432](docs/maintainer/project-test-findings.md#dd-432) records a
 `scripts/ci-container.sh` run replacing a live host dashboard suite's
 `refs/dough/local-test-suite` admission owner across PID namespaces.
+[SEED-375](.planning/seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission)
+is queued.
 
 ## Artifact upload stall at the 6-minute dashboard job cap (open, unqueued)
 
@@ -338,23 +322,6 @@ DD-378's plan-exclusion response and `SEED-229` retirement evidence are
   - Evidence: `.agents/skills/release-version/SKILL.md` step 6 "Do not push" and step 7 "do not claim it is Released from a remote source until the tag is available there"; plan 470 slice 5 proof named the remote tag; Terry's checkpoint go-ahead covered "cut the next patch release", so the coordinator pushed `bc84cc196` to main and `v0.3.85`.
   - Observed effect: the push rested on the checkpoint's wording rather than on the release skill; trunk had moved twice before the release (`66fefb7c8`, then `80029afc9`), so the release covered other stories' payload too.
   - Inference: the release skill could name the publication step (trunk push and tag push) for a request that includes publishing, and how to describe interleaved trunk payload in the changelog.
-
-## MakeMe's import closure can reach dashboard code without a local signal (open, unqueued)
-
-<a id="dd-466"></a>
-
-### DD-466 — a refactor made a MakeMe builder import dashboard runtime code, and only hosted CI's native identity test caught it
-
-### Occurrences
-
-- Execution: SEED-275#story-intent-tabs (plan 531-review-story-intent-tabs, first implementation commit 4a13bba4f1c4340c5ed1705854dbc0a7e72942c6)
-  - Timestamp: unknown (2026-11-08, run 42484570480 attempt 1 on `9f1baacfb`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.92 (installed `.claude/skills`)
-  - Evidence: the slice 2 refactor pass made `tests/support/testOptimizationCandidatesTestData.mjs` (registered in `tests/support/makeMe.mjs`) import `candidateEntryFields` from `dashboard/src/testOptimizationCandidates.ts`. Job `test (3/3)` failed `tests/native-evidence-identity.sh` with ENOENT, because it hashes makeMe's import closure from a copy of `tests/` and `src/` only. The slice's local gate (Intent browser suite, MakeMe node tests, typecheck) passed. The repair is `5d1c5fe43`.
-  - Observed effect: one CI failure and a pause/stash/repair/restore cycle around slice 3. The builder now keeps its own entry labels, duplicating the dashboard's list.
-  - Inference: a fast local check that makeMe's closure stays within `tests/` and `src/`, or a note at the MakeMe registry, would surface the constraint before publication.
 
 ## A story-branch landed review journey ran at its timeout under external load (outcome pending)
 
@@ -518,19 +485,3 @@ separate checks. The [repository proof guide](Distribution/tests/README.md#waits
 documents the focused typecheck, and the commit hook caught both errors before
 publication. Retain the two occurrences as project evidence. No new story is
 queued.
-
-## DD-508 — CPU burners from a background shell raised the load without contention
-
-`yes` burners started from a backgrounded agent shell ran at nice 5 and took 6–14% of a CPU each, so runs counted "at load 30–50 under burners" did not measure contention.
-
-### Occurrences
-
-- Execution: SEED-324#pass-landed-ci-repeat-checks-under-high-load (plan 599; first implementation `5fa058c0db92cd726fdc18c4b1c4c291451cf41f`)
-  - Timestamp: unknown (2026-11-13 execution)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.97 (checkout-bound installed `.claude/skills/dough-update/VERSION` at Take `095f2bff9`)
-  - Evidence: plan 599 "Repair of G1 after the SEED-330 merge": 20 background burners lifted the load to 30–32 with the machine 57% idle and the slowest case at 8.8 s; 20 foreground burners at load 31 → 48 gave 28.1 s.
-  - Observed effect: earlier counted burner passes overstated the fit, and the gap surfaced only after the trunk merge.
-
-**Response:** [Load while measuring](Distribution/tests/local-test-resources.md#load-while-measuring) records natural load as the measured condition and how to read a burner's priority.
