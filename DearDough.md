@@ -89,6 +89,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: requested observations/guidance were partly omitted and retrieved again. Supported command waits, immutable evidence and proof ownership remained intact.
   - Inference: recurrence of the existing output-scoping deviation, including in this review, under already-applicable targeted retrieval. The mandatory reviews themselves are not classified as waste; the avoidable read share, elapsed cost and token saving are unmeasured.
 
+- Execution: SEED-357#reuse-unchanged-usage-pages-on-repeated-writes (plan 630; first implementation `6343cc5b8ea6416488914b4567d48e785feed53b`)
+  - Timestamp: unknown (2026-11-15 execution and automatic retrospective; exact read-event times not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted claim `95578800875568e449ea9394db88b1bb49d9e409`)
+  - Evidence: launch `9c7812a4-5442-403e-b1d3-06dd3e821da8`; coordinator tool chunk `7ce7b2` reported 101,821 original tokens while reading the full workflow consumer trace, then `513f89` reported 30,056 for a still-broad filtered projection, both truncated; later bounded path/disposition extraction returned 67 affected rows. This retrospective's first two batched reads also exceeded their output ceilings (16,830 and 15,877 original tokens) and required narrower code/source passages.
+  - Observed effect: requested code, guidance and evidence were partly omitted and retrieved again. Command handles, baseline observations and terminal proof remained recoverable.
+  - Inference: recurrence of the existing agent output-scoping deviation under targeted-retrieval guidance, including in this review. Avoidable elapsed cost and total token saving are unmeasured; mandatory review itself is not classified as waste.
+
 
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
 
@@ -204,6 +212,16 @@ Former local code: DD-391. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-404. [Evidence and current response](docs/maintainer/findings/ODF-396.md).
 
 [Occurrences retained in the catalog](docs/maintainer/findings/ODF-396.md).
+
+### Occurrences
+- Execution: SEED-357#reuse-unchanged-usage-pages-on-repeated-writes (plan 630; first implementation `6343cc5b8ea6416488914b4567d48e785feed53b`)
+  - Timestamp: unknown (2026-11-15 slice 1 and refactor; exact trace-event times not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted claim `95578800875568e449ea9394db88b1bb49d9e409`)
+  - Evidence: `/tmp/seed357-slice1-consumer-trace.md` derived `PLAN.md` and `source-review.md` from changed planning records while tracing the supplied `workflow` effect. The independent refactor return retained `/tmp/seed357-refactor1-consumer-trace.md` and reported all 1,337 listed rows dispositioned; the coordinator's bounded projection found 67 non-excluded affected rows. Historical `6343cc5b8ea6416488914b4567d48e785feed53b:.planning/slice-plans/630-reuse-unchanged-usage-pages/source-review.md` retains the inspected usage-family/E2E consumers and their terminal proof.
+  - Observed effect: implementation and refactor tracing carried a large unrelated planning, guidance and historical match set through dispositions; no missed consumer is established.
+  - Inference: exact recurrence of this identity's planning-basename mechanism, distinct from the coordinator choosing to print an oversized result (ODF-264). A narrower generated listing could reduce disposition work while preserving required indirect-consumer proof; no isolated saving is measured.
+
 
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
