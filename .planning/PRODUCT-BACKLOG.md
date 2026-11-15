@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Speed up the slowest dashboard frontend unit tests](seeds/SEED-380-speed-up-the-slowest-dashboard-frontend-unit-tests.md#speed-up-the-slowest-dashboard-frontend-unit-tests) — SEED-380#speed-up-the-slowest-dashboard-frontend-unit-tests
 - [Review changes from completed ad hoc sessions](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions) — SEED-379#review-changes-from-completed-ad-hoc-sessions
 - [Restore three-share test budget headroom](seeds/SEED-378-restore-three-share-test-budget-headroom.md#restore-three-share-test-budget-headroom) — SEED-378#restore-three-share-test-budget-headroom
 - [Extend syntax styling in code diffs](seeds/SEED-377-extend-syntax-styling-in-code-diffs.md#extend-syntax-styling-in-code-diffs) — SEED-377#extend-syntax-styling-in-code-diffs
