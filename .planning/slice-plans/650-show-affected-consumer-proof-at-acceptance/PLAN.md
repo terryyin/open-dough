@@ -1,6 +1,7 @@
 # Show affected consumer proof at acceptance
 
 **Source:** [refined story](../../seeds/SEED-376-affected-consumer-proof-at-acceptance.md#show-affected-consumer-proof-at-acceptance)
+**Source review:** [source-only review](source-review.md)
 **Identity:** SEED-376#show-affected-consumer-proof-at-acceptance
 
 ## Goal and scope
@@ -96,7 +97,7 @@ credentialed, developer-operated or state-changing probe is required.
 
 ### 1. Accept each affected consumer on proof of its reached boundary
 Type: Behavior
-Status: planned
+Status: done
 Proof: Representative behavior review and four retained-case acceptance replays,
 including the mixed reuse/exclusion counterexample, plus focused checks below.
 
@@ -184,6 +185,22 @@ recounting, feedback maintenance, triage or a new watch.
 
 ## Current decisions and concern evidence
 
+- Execution: established Story Branch Mode in the owned linked workspace
+  `/Users/terryyin/git/open-dough/.worktrees/see-affected-consumer-proof-before-accepting-a-s`,
+  branch `codex/see-affected-consumer-proof-before-accepting-a-s`; origin/main
+  is the authorized integration target. Publisher `dashboard-territory.local-open-dough`;
+  agent Yuma-chan. Starting revision `632324cddbbf1465b8f46a50a8422db2cd9c3563`;
+  accepted claim and current candidate `65fcf1bafe89d591f3b387c2cefd361c72f7b510`.
+  Replanning permission preserves existing planning authority; no scope expansion.
+- Checkout setup: locked `npm ci` succeeded without lockfile changes;
+  `npm run --silent lint -- --staged` succeeded. The tracked pre-commit hook is
+  check-only; `npm run format` selects changed files before hook-owned checks.
+- CI observer: GitHub Actions `ci.yml` (verified workflow 351271804, name CI),
+  repository terryyin/open-dough, target the recorded execution branch;
+  coordinator `yuma-376`, directory `/tmp/dough-ci-501/watch-pAgh79`, PID 28287,
+  stream session 93515, yielded cell `g463:11`. Runtime is this checkout's
+  `.agents/skills/dough-execute-plan`; claim trunk CI remains unobserved.
+
 - One Behavior slice owns the common rule, handoffs and bounded replay loop;
   splitting by file, proof mode or evaluation would fragment its useful result.
 - Slice-plan refinement was not needed: no independent second outcome, interim
@@ -192,6 +209,21 @@ recounting, feedback maintenance, triage or a new watch.
   No human decision is needed before Take. Readiness grants no execution authority.
 
 ## Learnings
+
+Slice 1 accepted: [frozen replay inputs](replay-inputs.md),
+[four replay decisions and mixed controls](replay-decisions.md),
+[verification and costs](verification.md), and all 73 inspected source-review
+commitments cover the source examples. Twelve focused Node cases and linked
+payload proof passed; evidence reorganization preserves every original episode,
+source URL and quoted item. Shared guidance has one proof-purpose rule and three
+linked callers; no script, schema, installed copy, release or watch changed.
+Independent refactor `/root/refactor_slice` returned `## REFACTOR COMPLETE`:
+three stale evidence-navigation references corrected; semantic, discovery,
+payload and preservation proof remains applicable. NAV inspection and
+`git diff --check` passed. Approximately ten active implementation minutes;
+refactor approximately four minutes. Unknown historical costs and effectiveness
+remain unknown. Source freshness settled unchanged at trunk
+`7bb9992277410f6b5c3ba8da0b461c3c61939a84`; no named coordination siblings.
 
 The retained cases distinguish a known consumer missing a proof mode from an
 indirect observer not followed at acceptance. Both need the same effect-to-boundary

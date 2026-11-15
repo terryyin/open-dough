@@ -97,7 +97,7 @@ reimplement the archived dashboard changes or rerun their entire historical suit
    or invalidates unrelated accepted proof.
 
 **Evidence:** The four executions and their provenance are retained in
-[ODF-150's 2026-11-15 observations](../../docs/maintainer/findings/ODF-150.md#retained-source-evidence--open-dough-2026-11-15).
+[ODF-150's 2026-11-15 observations](../../docs/maintainer/findings/ODF-150-open-dough-evidence.md#retained-source-evidence--open-dough-2026-11-15).
 The [earlier assessment](../../docs/maintainer/consumer-tracing-evaluation.md)
 and [rejected compact-handoff trial](../../docs/maintainer/consumer-tracing-trial-v2.md)
 bound the alternative and its cost claims. They do not establish a benefit
