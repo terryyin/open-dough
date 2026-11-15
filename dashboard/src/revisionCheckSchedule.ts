@@ -51,6 +51,8 @@ export type RevisionDeliveryAnswers = RevisionAnswerHandlers & {
   readonly visibility: Visibility;
   // Observation's chosen delivery; only `"check"` asks here.
   readonly delivery: RevisionDelivery;
+  readonly onReceived: () => void;
+  readonly onDeliveryLost: () => void;
 };
 
 export function useRevisionCheckSchedule({
@@ -60,6 +62,8 @@ export function useRevisionCheckSchedule({
   readSettled,
   visibility,
   delivery,
+  onReceived,
+  onDeliveryLost,
   onChanged,
   onUnchanged,
   onBranchesMoved,
@@ -102,6 +106,7 @@ export function useRevisionCheckSchedule({
             if (checking.signal.aborted) {
               return;
             }
+            onReceived();
             if (
               reactToRevisionCheck(check, watchedHeads, handlers) === "continue"
             ) {
@@ -112,6 +117,7 @@ export function useRevisionCheckSchedule({
             if (checking.signal.aborted) {
               return;
             }
+            onDeliveryLost();
             if (reactToRevisionCheckFailure(error, handlers) === "continue") {
               setChecksSettled((settled) => settled + 1);
             }

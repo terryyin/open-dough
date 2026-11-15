@@ -49,6 +49,14 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: two owned CI failures and repair publications; final CI succeeded on `ea5742187`. Intent Coverage Caught key example 1 (no follow-up).
   - Inference: collection and history-contract changes reached scope and Intent status assertion suites outside the focused selection; re-export and plan-named proof did not force those consumers before publish.
 
+- Execution: SEED-372#see-dashboard-connection-status-on-return (first implementation `1fc77eab2eee607e85106a7ecd6942a517aa3c4c`)
+  - Timestamp: unknown (2026-11-15 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at established claim `c124365d015aec64b5186160980db9205b11955a`)
+  - Evidence: launch `4932fa52-2d2b-4f2a-b439-2a21bf998478`; `1fc77eab2` added an empty one-pixel connection-status span. The accepted trace covered status/live-region, header and Sessions assertions but excluded an indirect frontend layout consumer. CI run `43705938729/1` failed `agent-launch-story-card-noted-start.spec.ts:68` with `not read whole: ["SPAN: "]`; `pageLayout.ts` only exempts hidden elements with nonempty text. Repair `70fb3664d` supplied the existing label as text. The exact frontend case failed before and passed after, and six streaming cases passed after.
+  - Observed effect: one CI defect, a pause/stash/restore cycle and an additional repair publication after slice 1 had been accepted.
+  - Inference: tracing matched the new accessible status but missed a whole-page layout assertion reached through an unchanged frontend rendering entry. This was an acceptance gap, not infrastructure; repaired before closure.
+
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
 Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/findings/ODF-229.md).
@@ -112,6 +120,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: coordinator tool a005ff combined the required delegation row with 12,043 original tokens and truncation; the closure-preparation batch (a2f9b8/7567e3) later combined references at 13,842 tokens and required bounded recovery.
   - Observed effect: Required passages were omitted; targeted section reads recovered them without losing command/proof ownership.
   - Inference: Recurring output-scoping deviation under existing targeted-retrieval guidance; isolated elapsed and token saving are unmeasured.
+
+- Execution: SEED-372#see-dashboard-connection-status-on-return (first implementation `1fc77eab2eee607e85106a7ecd6942a517aa3c4c`)
+  - Timestamp: unknown (2026-11-15 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at established claim `c124365d015aec64b5186160980db9205b11955a`)
+  - Evidence: the launch's initial batched skill/context reads were truncated; a later full read of `/tmp/seed372-stream-consumers.md` reported 54,406 original tokens and truncation, followed by a still-too-wide dashboard/E2E projection (6,347 original tokens) and narrower relevant-path inspection.
+  - Observed effect: requested guidance and consumer dispositions were partly omitted and retrieved again; source, command handles and terminal proof remained recoverable.
+  - Inference: recurrence of output-scoping deviation under existing targeted-retrieval instructions. Avoidable elapsed cost and token saving are unmeasured.
 
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
 
@@ -261,6 +277,14 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: /tmp/seed369-slice1-consumer-trace.md at the slice-1 return included generic PLAN.md/source-review basenames; tool 2905b6 reported 57,196 original tokens and truncation after the coordinator printed the trace.
   - Observed effect: The generated trace mixed actual Usage consumers with hundreds of historical planning/name collisions; focused consumer excerpts recovered the relevant dispositions.
   - Inference: The generator breadth and the coordinator's full trace read both contributed; no isolated saving was measured.
+
+- Execution: SEED-372#see-dashboard-connection-status-on-return (first implementation `1fc77eab2eee607e85106a7ecd6942a517aa3c4c`)
+  - Timestamp: unknown (2026-11-15 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at established claim `c124365d015aec64b5186160980db9205b11955a`)
+  - Evidence: slice traces derived `PLAN.md` and `source-review.md` from changed planning records while tracing browser connection callbacks and the logo. `/tmp/seed372-check-consumers.md` held 547 dispositioned rows; many were planning/guidance/history lexical matches unrelated to browser receipt. Slice-1 raw printing separately triggered ODF-264.
+  - Observed effect: implementation, acceptance and refactor carried a large unrelated match set alongside real UI and scheduler consumers. A real indirect whole-page layout consumer was still missed and repaired under ODF-150.
+  - Inference: recurrence of planning-basename breadth; fewer lexical rows may lower review burden but would not alone establish sufficient consumer coverage. No isolated saving is measured.
 
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 

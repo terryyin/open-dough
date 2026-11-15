@@ -1,0 +1,195 @@
+// Fallback delivery proves receipt since return through its existing schedule.
+// Real holds and captured requests stay outside the connection page object.
+import {
+  expect,
+  githubFor,
+  test,
+} from "../../dashboard/tests/dashboardTest.ts";
+import {
+  expectMembership,
+  expectSettledPage,
+  parts,
+} from "../../dashboard/tests/dashboardPage.ts";
+import {
+  callsSince,
+  checksAskedWhilePassing,
+  headsChecks,
+  openSettledAtA,
+  passPageMs,
+  passTimeUntilAsked,
+  passTimeUntilChecked,
+  setPageVisibility,
+} from "../../dashboard/tests/autoRefreshJourney.ts";
+import {
+  givePageItsTurns,
+  isCheck,
+  untilPageRequestsAnswered,
+} from "../../dashboard/tests/pageRequestNotes.ts";
+import {
+  isRevisionStream,
+  openSecondStreamingAtA,
+  openStreamingAtA,
+  streamServerEnv,
+  untilMatchingRefsSince,
+} from "../../dashboard/tests/revisionStreamJourney.ts";
+import { noConnection } from "../../dashboard/tests/publishedOrigin.ts";
+import { titlesOfA } from "../../dashboard/tests/refreshJourney.ts";
+import { ConnectionMark } from "./connectionMark.ts";
+
+test("fallback focus waits for an already outstanding response without adding a request", async ({
+  page,
+}) => {
+  const requests: string[] = [];
+  page.on("request", (request) => {
+    if (isCheck(request.url()) || isRevisionStream(request.url()))
+      requests.push(request.url());
+  });
+  const origin = await openSettledAtA(page);
+  const mark = new ConnectionMark(page);
+  await mark.shows("awaiting");
+  await passTimeUntilChecked(page);
+  await mark.shows("connected");
+  const release = origin.hold("main");
+  try {
+    const before = githubFor(page).calls.length;
+    await passTimeUntilAsked(page);
+    await expect
+      .poll(() => headsChecks(callsSince(page, before)).length)
+      .toBe(1);
+    const asked = [...requests];
+    const retrieved = await parts(page).retrievedAt.getAttribute("datetime");
+    await mark.focusSettings();
+    await mark.returnFocus();
+    await mark.shows("awaiting");
+    await passPageMs(page, 1_000);
+    await givePageItsTurns(page);
+    expect(requests).toEqual(asked);
+    release();
+    await mark.shows("connected");
+    await mark.keepsFocus();
+    await expect(parts(page).retrievedAt).toHaveAttribute(
+      "datetime",
+      retrieved ?? "",
+    );
+    expect(requests).toEqual(asked);
+    expect(requests.some(isRevisionStream)).toBe(false);
+  } finally {
+    release();
+  }
+});
+
+test("fallback reveal keeps one prompt check and waits for its successful response", async ({
+  page,
+}) => {
+  await openSettledAtA(page);
+  const mark = new ConnectionMark(page);
+  await passTimeUntilChecked(page);
+  await mark.shows("connected");
+  await setPageVisibility(page, "hidden");
+  expect(await checksAskedWhilePassing(page, 60_000)).toBe(0);
+  let release = () => {};
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let asked = 0;
+  await page.route(
+    (url) => isCheck(url.toString()),
+    async (route) => {
+      asked += 1;
+      await held;
+      await route.continue();
+    },
+  );
+  try {
+    await setPageVisibility(page, "visible");
+    await page.clock.runFor(1);
+    await expect.poll(() => asked).toBe(1);
+    await mark.shows("awaiting");
+    await expectMembership(page, titlesOfA);
+    release();
+    await mark.shows("connected");
+    await untilPageRequestsAnswered(page);
+    expect(asked).toBe(1);
+  } finally {
+    release();
+  }
+});
+
+test("a failed fallback check is red and its ordinary next success restores green", async ({
+  page,
+}) => {
+  const origin = await openSettledAtA(page);
+  const mark = new ConnectionMark(page);
+  await passTimeUntilChecked(page);
+  await mark.shows("connected");
+  const restore = origin.answerWith("main", noConnection);
+  await mark.returnFocus();
+  await mark.shows("awaiting");
+  await passTimeUntilChecked(page, 502);
+  await mark.shows("disconnected");
+  await expect(parts(page).problem).toContainText(
+    "Published work could not be read",
+  );
+  await expectMembership(page, titlesOfA);
+  restore();
+  await passTimeUntilChecked(page);
+  await mark.shows("connected");
+  await expect(parts(page).problem).toHaveCount(0);
+});
+
+test.describe("stream-slot handover", () => {
+  test.use({ preholdRevisionStreamSlots: false, extraEnv: streamServerEnv });
+  test("a cancelled fallback answer cannot confirm a page waiting for its new stream", async ({
+    page,
+  }) => {
+    const origin = await openStreamingAtA(page);
+    const second = await openSecondStreamingAtA(page);
+    const checker = await page.context().newPage();
+    let releaseStream = () => {};
+    const heldStream = new Promise<void>((resolve) => {
+      releaseStream = resolve;
+    });
+    await checker.route(
+      (url) => isRevisionStream(url.toString()),
+      async (route) => {
+        await heldStream;
+        await route.continue();
+      },
+    );
+    try {
+      await checker.goto("/");
+      await expectSettledPage(checker, titlesOfA);
+      const mark = new ConnectionMark(checker);
+      await passTimeUntilChecked(checker);
+      await mark.shows("connected");
+      const releaseCheck = origin.hold("main");
+      try {
+        const before = githubFor(page).calls.length;
+        await passTimeUntilAsked(checker);
+        await untilMatchingRefsSince(page, before, 1);
+        await mark.returnFocus();
+        await mark.shows("awaiting");
+        const newStream = checker.waitForRequest((request) =>
+          isRevisionStream(request.url()),
+        );
+        await setPageVisibility(page, "hidden");
+        await newStream;
+        const beforeRelease = githubFor(page).calls.length;
+        releaseCheck();
+        // The surviving stream's next listing proves the held shared listing
+        // settled before checking that its cancelled waiter cannot confirm.
+        await untilMatchingRefsSince(page, beforeRelease, 1);
+        await givePageItsTurns(checker);
+        await mark.shows("awaiting");
+        releaseStream();
+        await mark.shows("connected");
+      } finally {
+        releaseCheck();
+      }
+    } finally {
+      releaseStream();
+      await checker.close();
+      await second.close();
+    }
+  });
+});

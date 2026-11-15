@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-372#see-dashboard-connection-status-on-return",
+  "title": "See dashboard connection status when returning to the window",
+  "completedAt": "2026-11-15T11:35:37.178Z",
+  "developer": "Terry Yin",
+  "agent": "Ai-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

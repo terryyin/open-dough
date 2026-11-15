@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-372_see-dashboard-connection-status-on-return.json",
+      "identity": "SEED-372#see-dashboard-connection-status-on-return",
+      "completedAt": "2026-11-15T11:35:37.178Z",
+      "blob": "e05a609cd77ce1487cf0351a4ae328009cf57374"
+    },
+    {
       "fileName": "SEED-364_chart-ci-time-without-runner-waits.json",
       "identity": "SEED-364#chart-ci-time-without-runner-waits",
       "completedAt": "2026-11-15T11:07:49.240Z",
