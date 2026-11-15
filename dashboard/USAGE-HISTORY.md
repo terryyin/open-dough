@@ -59,15 +59,15 @@ ambiguous have explicit gaps. These local checks cannot prove auxiliary or
 provider coverage beyond the retained files and references.
 
 A retained task is a launch, identified by project, host, session and evidenced
-initial turn (or retained launch time when that turn is unknown). A recovered
-task uses host, session and native task turn; later metadata does not change its
-identity. Matching retained turn or launch-reference evidence enriches that same
-task, including Claude launches whose retained key uses launch time. Requested model,
-effort, workflow options and policy stay on the task. Observed model, effort
-and Codex `service_tier` group a session contribution's entries, so settings
-may change within one task without rewriting its launch request.
-Launch source references point to operational or retained history files. The importer
-copies no launch instructions, prompts or transcript bodies into usage records.
+initial turn (or retained launch time when unknown). A recovered task uses host,
+session and native task turn; later metadata does not change its identity.
+Matching retained turn or launch-reference evidence enriches that same task,
+including Claude launches keyed by launch time. Launch workflow evidence wins
+in both import and Refresh; recovered evidence fills a missing launch workflow,
+and recovered-only tasks keep their skill. Requested model, effort, options and
+policy stay on the task. Observed model, effort and Codex `service_tier` group
+session contributions, so settings may change without rewriting launch requests.
+Launch sources name operational or retained files; records copy no instructions, prompts or transcript bodies.
 
 Recovered tasks have `kind: recovered`, nullable project/workflow/identity/title
 and launch time, per-field `fieldSources`, and explicit gaps. A configured
@@ -195,21 +195,20 @@ sessions, native files gone or not, keep theirs. Response IDs must match
 `responseKey(host, sessionId, responseId)`. `readUsageHistory(file?)` reads the
 document without opening native files. The document is serialized in one order
 (tasks and gaps as first recorded, sessions and entries sorted), so equal
-content gives equal bytes, and a write that would store the same bytes replaces
-nothing. A failed replacement keeps the prior document readable; a retry counts
-each response once. An unreadable document is preserved and refuses automatic
+content gives equal bytes. After normalization, alternating import and Refresh
+over unchanged evidence preserve history bytes and totals, replacing nothing.
+Failed replacements keep prior history readable; retries count each response once. An unreadable document is preserved and refuses automatic
 overwrite. `read` prints the document. An earlier dashboard's store, a version 1
 history or a manifest naming page files in `usage.json.pages/`, is read as the
 starting history, its response rows summed into contributions. The first write,
 an import's or a Refresh's, stores the document in its place, then removes
 `usage.json.pages/` whole; a failed removal is finished by the next write. Back
-up `usage.json` alone. System settings → Usage reads the store only through the
-derived `usage-task-summary.json` beside it: a separate process rebuilds it,
-never writing to the store, when missing or when the document changes; whether
-a launch finished comes from current launch records. Its Refresh
-(`server/usageRefresh.ts`) rereads, in another process, every rollout of known
-tasks' Codex sessions changed since `usage-check.json` through this writer;
-with nothing new it writes only that check time.
+up `usage.json` alone. System settings → Usage reads its derived `usage-task-summary.json`: a separate process rebuilds it when absent or
+the document changes, without writing history. Current launch records say whether a launch finished. Refresh (`server/usageRefresh.ts`)
+rereads known Codex sessions' rollouts changed since `usage-check.json`, or writes only its check record. Checked shows a later history
+write, otherwise the recorded Refresh start time; the record's mtime distinguishes Refresh's own history write from a later import. The view
+keeps Checking active through filter loads and Refresh's current-cohort reread. A failure retains the selected chart and Checked time beside
+its error, then enables Refresh.
 
 The import result counts tasks and gaps from the history, and responses, also
 in `summary`, from the evidence this import read. `configuredWork` contains

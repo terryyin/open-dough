@@ -31,8 +31,8 @@ export type UsageReading = {
   readonly tariff: UsageTariff;
 };
 
-// A retained launch records its workflow; a recovered task, the skill its
-// directive invoked.
+// A launch records its workflow when known, otherwise the recovered skill;
+// a recovered-only task records the skill its directive invoked.
 export function launchWorkflowOf(
   workflow: string | null,
 ): UsageWorkflow | undefined {

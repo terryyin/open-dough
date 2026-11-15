@@ -10,6 +10,7 @@ export class TokenIndexAnswerBuilder {
   /** @type {Map<number, Partial<TokenIndexTask>>} */
   #details = new Map();
   #unpriced = 0;
+  #checkedAt = "2026-11-15T00:00:00.000Z";
   /** @type {TokenIndexAnswer["cohort"]} */
   #cohort = { tool: "codex", workflow: "execution", model: null, effort: null };
 
@@ -37,6 +38,12 @@ export class TokenIndexAnswerBuilder {
     return this;
   }
 
+  /** @param {string} at */
+  checkedAt(at) {
+    this.#checkedAt = at;
+    return this;
+  }
+
   /** @returns {TokenIndexAnswer} */
   please() {
     /** @type {TokenIndexTask[]} */
@@ -59,7 +66,7 @@ export class TokenIndexAnswerBuilder {
       cohort: this.#cohort,
       options: { models: [sol], efforts: ["xhigh"] },
       tariff: { version: "codex-test", label: "Test rate card" },
-      checkedAt: "2026-11-15T00:00:00.000Z",
+      checkedAt: this.#checkedAt,
       tasks,
       unpriced: this.#unpriced,
       average: measured.flatMap((task, at) =>

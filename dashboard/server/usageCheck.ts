@@ -2,8 +2,9 @@
 // check record beside the usage store that a Refresh (./usageRefresh.ts)
 // writes once its evidence is in the store. A Refresh records the time it
 // began, so a rollout written while it read is read again by the next one.
-// Before any Refresh, the store was last checked when the offline importer
-// last wrote it, its document's modification time; with no store, never.
+// Checked shows a later offline import's document modification time, otherwise
+// Refresh's recorded start. The record's mtime distinguishes Refresh's own
+// history write from a later import. With neither history nor record, never.
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { replaceDurableJson } from "./durableJsonReplacement.ts";
@@ -29,22 +30,29 @@ async function recordedCheck(store: string): Promise<string | undefined> {
   }
 }
 
-async function storeWrittenAt(store: string): Promise<Date | undefined> {
+async function fileWrittenAt(file: string): Promise<Date | undefined> {
   try {
-    return (await stat(store)).mtime;
+    return (await stat(file)).mtime;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return undefined;
     throw error;
   }
 }
 
-// The last check: Refresh's, or else the importer's; null when neither ran.
+// The latest publication: a later import's write, or Refresh's own check.
 export async function lastUsageCheck(store: string): Promise<string | null> {
-  return (
-    (await recordedCheck(store)) ??
-    (await storeWrittenAt(store))?.toISOString() ??
-    null
-  );
+  const recorded = await recordedCheck(store);
+  const written = await fileWrittenAt(store);
+  if (recorded !== undefined) {
+    const recordedAt = await fileWrittenAt(usageCheckFile(store));
+    if (
+      written === undefined ||
+      recordedAt === undefined ||
+      written <= recordedAt
+    )
+      return recorded;
+  }
+  return written?.toISOString() ?? null;
 }
 
 // A coarse file system records a modification up to two seconds early.
@@ -63,7 +71,7 @@ export async function refreshCutoff(
   const recorded = await recordedCheck(store);
   if (recorded !== undefined)
     return Date.parse(recorded) - timestampGranularityMs;
-  const written = await storeWrittenAt(store);
+  const written = await fileWrittenAt(store);
   return written === undefined
     ? undefined
     : written.getTime() - importDurationMs;

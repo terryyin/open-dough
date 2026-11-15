@@ -74,7 +74,7 @@ test("joins later Claude retained timestamp identity to one recovered task and p
   expect(enriched.tasks[task.id]).toEqual(
     expect.objectContaining({
       kind: "launch",
-      workflow: "dough-execute-plan",
+      workflow: "execution",
       title: "Retained title",
       identity: "SEED-42#story",
     }),
