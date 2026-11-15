@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-371#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/638-distribution-evaluation-tool/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"55ea1e279fe7da2bc79be09fd9a77d16fe5b39a1331f0384c035eb51e4d8ce19","plan":"9474a2e8814af021e7cb5a1a76384d36ff3012546a26f899ed862c5591781165"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/638-distribution-evaluation-tool/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"55ea1e279fe7da2bc79be09fd9a77d16fe5b39a1331f0384c035eb51e4d8ce19","plan":"f28e30b3f89a5aab4e25dbcd81f97e48c96816f5b1a5179690fb0a3876e63b74"}}
 ```
 
 #### Goal
