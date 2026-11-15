@@ -9,7 +9,7 @@ Resume with `dough-story-refinement` on this identity to clarify its Goal,
 Scope and Key examples, then realign this plan before slice-plan refinement
 and readiness assessment. The slices below are provisional planning input
 mapped from slices 7–14 of SEED-334#focus-detailed-dashboard-ui-checks
-(plan 627, recoverable at `64e07ab2c1ce5abc67fffe4b779aaba2f0258ed4`), which
+(recoverable at `04457c35ec5ea4a16e741aeb66412cf353a8745e:.planning/slice-plans/627-dissolve-dashboard-integrated-ui-test/PLAN.md`), which
 was split after delivering its configuration, launch and session-lifecycle
 batches; their earlier readiness does not carry over.
 

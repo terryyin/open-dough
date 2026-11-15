@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [View token usage for dashboard-launched Codex tasks](seeds/SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks) — SEED-357#view-token-usage-for-dashboard-launched-tasks ([plan](slice-plans/627-view-codex-task-token-usage/PLAN.md))
 - [Reduce total model work during blocked execution](seeds/SEED-356-reduce-blocked-execution-effort.md#reduce-total-model-work-during-blocked-execution) — SEED-356#reduce-total-model-work-during-blocked-execution ([plan](slice-plans/627-reduce-blocked-execution-work/PLAN.md))
-- [Move configuration, launch and session lifecycle checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks) — SEED-334#focus-detailed-dashboard-ui-checks ([plan](slice-plans/627-dissolve-dashboard-integrated-ui-test/PLAN.md))
 - [Simplify usage-history backend tests with MakeMe builders](seeds/SEED-362-simplify-usage-history-backend-tests.md#simplify-usage-history-backend-tests) — SEED-362#simplify-usage-history-backend-tests ([plan](slice-plans/628-simplify-usage-history-backend-tests/PLAN.md))
 
 ## Backlog list

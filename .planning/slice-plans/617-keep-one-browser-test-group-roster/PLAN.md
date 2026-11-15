@@ -11,7 +11,7 @@ product-wide names and current guidance, and guard each CI producer's setup
 bounds separately. Behavior-preserving: every group's selection, settings,
 outputs, shards, CI proof entries and the interim group stay as delivered.
 Excluded: adding or removing a group (the interim group's removal stays with
-SEED-334#focus-detailed-dashboard-ui-checks), new runners or CI jobs, Intent
+SEED-334#finish-dissolving-integrated-ui-test), new runners or CI jobs, Intent
 naming (SEED-334#observe-tagged-install-and-read-e2e-proof), speed work, and
 rewriting historical records, findings or frozen fixtures.
 

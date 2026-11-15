@@ -212,8 +212,8 @@ North Star direction needs no addition for this test-side change.
   in every group; trace and run them per group
   ([groups](../../dashboard/tests/README.md),
   [CI shards](../../dashboard/tests/shards.md)). The queued
-  [SEED-334#focus-detailed-dashboard-ui-checks](SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks)
-  converts the interim group's specs and touches the same files; coordinate
+  [SEED-334#finish-dissolving-integrated-ui-test](SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test)
+  converts the interim group's remaining specs and touches the same files; coordinate
   with it rather than migrating a spec it is moving.
 
 <a id="express-launch-test-intent-through-page-objects"></a>
