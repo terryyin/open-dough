@@ -7,7 +7,6 @@ import {
   runImport,
 } from "../../tests/usage-history/importHarness.ts";
 import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
-
 import {
   recoveredTask as task,
   recordHistoricalTask as record,
@@ -52,6 +51,7 @@ const description = () =>
       },
     })
     .please();
+
 test("resolves only the unique numbered historical plan and retains pinned source facts through replay and source removal", async ({
   home,
   root,

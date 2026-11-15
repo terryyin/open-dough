@@ -100,7 +100,6 @@ test("enriches a native report with matching retained return evidence without in
       .withUser({
         uuid: "task",
         parentUuid: null,
-        timestamp: usageHistoryDefaultAt,
         content: `$dough-execute-plan SEED-42#story\n${claudeReportingContext({ reference })}\n`,
       })
       .withAssistant({
@@ -110,7 +109,6 @@ test("enriches a native report with matching retained return evidence without in
       })
       .withUser({
         uuid: "receipt",
-        timestamp: usageHistoryDefaultAt,
         content: [
           {
             type: "tool_result",

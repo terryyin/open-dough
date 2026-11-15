@@ -46,6 +46,7 @@ export const usageHistoryDefaultAt = "2026-11-14T10:00:00.000Z";
  * @typedef {{
  *   type: string,
  *   timestamp?: string,
+ *   origin?: { kind: string },
  *   payload?: Record<string, unknown>,
  * }} CodexRolloutRow
  */
@@ -104,6 +105,8 @@ export class CodexRolloutBuilder {
   #sessionId;
   /** @type {string | undefined} */
   #cwd;
+  /** @type {{ commit_hash?: string, repository_url?: string } | undefined} */
+  #git;
   /** @type {string | undefined} */
   #parentThreadId;
   /** @type {boolean} */
@@ -128,6 +131,16 @@ export class CodexRolloutBuilder {
    */
   withCwd(cwd) {
     this.#cwd = cwd;
+    return this;
+  }
+
+  /**
+   * Git facts on `session_meta` (`commit_hash`, `repository_url`) for historical
+   * recovery and project join.
+   * @param {{ commit_hash?: string, repository_url?: string }} git
+   */
+  withGit(git) {
+    this.#git = git;
     return this;
   }
 
@@ -213,6 +226,9 @@ export class CodexRolloutBuilder {
     const payload = { id: this.#sessionId };
     if (this.#cwd !== undefined) {
       payload.cwd = this.#cwd;
+    }
+    if (this.#git !== undefined) {
+      payload.git = this.#git;
     }
     if (this.#parentThreadId !== undefined) {
       payload.parent_thread_id = this.#parentThreadId;

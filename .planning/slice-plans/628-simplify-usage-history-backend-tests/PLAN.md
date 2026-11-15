@@ -123,7 +123,7 @@ genuine input, retained launch or publication failure it proves.
 
 ### 4. Recovered and historical task cases read as their facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: as slice 1 for its group.
 
 Behavior: `recovered-tasks`, `recovered-boundaries`,
@@ -164,13 +164,13 @@ lines than 47 and 4,481, recorded in this plan.
 ### G1. Harness still exports at for unmigrated family
 Reported: slice 1 — "Temporary: harness still exports at (aliased to usageHistoryDefaultAt) for family specs not yet on builder defaults."
 Story clause: "Its default timestamp is no longer exported to cases."
-Disposition: interim until slices 4, 5
+Disposition: interim until slices 5
 Commitment: 11
 
 ### G2. Temporary meta/context/response helpers remain
 Reported: slice 1 — "Temporary row helpers meta/context/response remain for family specs not yet on makeMe.aCodexRollout; Codex-group cases call the builder."
 Story clause: "Codex rollouts and Claude transcripts, with their user, assistant, worker and session-meta rows, come from MakeMe builders whose defaults keep the data valid, including in-window timestamps."
-Disposition: interim until slices 4, 5
+Disposition: interim until slices 5
 
 ## Slice 1 inventory (Codex group)
 
@@ -224,6 +224,10 @@ Inventory and concision for this group live in
 
 Inventory and concision for this group live in
 [slice-3-inventory.md](./slice-3-inventory.md).
+
+## Slice 4 inventory (recovered and historical task group)
+
+Inventory and concision: [slice-4-inventory.md](./slice-4-inventory.md).
 
 ## Verification, sizing and concern review
 

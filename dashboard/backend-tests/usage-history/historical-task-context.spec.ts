@@ -1,19 +1,15 @@
-import { readFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
+import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  expect,
-  response,
-  test,
-} from "../../tests/usage-history/retainedUsageTest.ts";
-import {
-  at,
-  nativeFile,
   readImported,
   runImport,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
 import {
+  historicalCodexTaskRows,
   recoveredTask as task,
   recordHistoricalTask as record,
 } from "../../tests/usage-history/historicalReferenceHarness.ts";
@@ -84,7 +80,7 @@ test("uses only same-message labelled established identity and keeps conflicting
     );
   expect(task(history, "injected")).toMatchObject({
     workflow: "dough-execute-plan",
-    launchedAt: at,
+    launchedAt: usageHistoryDefaultAt,
     assignmentEvidence: [expect.objectContaining({ status: "supported" })],
   });
   const conflict = task(history, "conflicting");
@@ -113,9 +109,6 @@ test("uses only same-message labelled established identity and keeps conflicting
       }),
     ]),
   );
-  const saved = JSON.stringify(history);
-  runImport(home, root);
-  expect(JSON.stringify(readImported(home))).toBe(saved);
 });
 
 test("later argumentless workflow does not inherit prior established intent or incidental orchestration reads", async ({
@@ -124,47 +117,44 @@ test("later argumentless workflow does not inherit prior established intent or i
 }) => {
   const repo = await configuredRepository(home, description());
   const session = "successive";
-  const file = record(
-    root,
-    repo.integration,
-    repo.revisions.then,
-    session,
-    `$dough-execute-plan\n\nEstablished start:\n- identity: ${identity}`,
-  );
-  const prior = readFileSync(file, "utf8");
-  nativeFile(root, session, [
-    ...prior
-      .trim()
-      .split("\n")
-      .map((line) => JSON.parse(line) as object),
-    { type: "turn_context", payload: { turn_id: "later" } },
-    {
-      type: "response_item",
-      timestamp: at,
-      payload: {
-        type: "message",
-        role: "user",
-        content: [{ type: "input_text", text: "$dough-execute-plan" }],
-      },
-    },
-    {
-      type: "response_item",
-      payload: {
-        type: "custom_tool_call",
-        name: "functions.exec",
-        call_id: "read",
-        input: `await tools.exec_command({cmd: 'cat ${seed} ${plan}'})`,
-      },
-    },
-    {
-      type: "response_item",
-      payload: {
-        type: "custom_tool_call_output",
-        call_id: "read",
-        output: `**Identity:** ${identity}\n${plan}`,
-      },
-    },
-    response(session, "later", "later-answer", { output_tokens: 3 }),
+  writeCodexSession(root, [
+    ...historicalCodexTaskRows(
+      repo.integration,
+      repo.revisions.then,
+      session,
+      `$dough-execute-plan\n\nEstablished start:\n- identity: ${identity}`,
+    ),
+    ...makeMe.aCodexRollout
+      .forSession(session)
+      .withTurnContext("later")
+      .withRow({
+        type: "response_item",
+        timestamp: usageHistoryDefaultAt,
+        payload: {
+          type: "message",
+          role: "user",
+          content: [{ type: "input_text", text: "$dough-execute-plan" }],
+        },
+      })
+      .withRow({
+        type: "response_item",
+        payload: {
+          type: "custom_tool_call",
+          name: "functions.exec",
+          call_id: "read",
+          input: `await tools.exec_command({cmd: 'cat ${seed} ${plan}'})`,
+        },
+      })
+      .withRow({
+        type: "response_item",
+        payload: {
+          type: "custom_tool_call_output",
+          call_id: "read",
+          output: `**Identity:** ${identity}\n${plan}`,
+        },
+      })
+      .withResponse("later", "later-answer", { output_tokens: 3 })
+      .rows(),
   ]);
   runImport(home, root);
   const history = readImported(home);

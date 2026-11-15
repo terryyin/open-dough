@@ -1,17 +1,13 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
+import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  expect,
-  test,
-  response,
-} from "../../tests/usage-history/retainedUsageTest.ts";
-import {
-  at,
-  nativeFile,
   readImported,
   runImport,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
 
@@ -38,95 +34,90 @@ test("uses recorded repository evidence for a deleted worktree and leaves unavai
       .please(),
   );
   const early = "2026-09-01T00:00:00.000Z";
-  nativeFile(root, "deleted-worktree", [
-    {
-      type: "session_meta",
-      payload: {
-        id: "deleted-worktree",
-        cwd: path.join(home, "retired/SEED-42-story"),
-        git: {
-          repository_url: "https://github.com/example/historic.git",
-          commit_hash: repo.revisions.then,
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("deleted-worktree")
+      .withCwd(path.join(home, "retired/SEED-42-story"))
+      .withGit({
+        repository_url: "https://github.com/example/historic.git",
+        commit_hash: repo.revisions.then,
+      })
+      .withTurnContext("old-task")
+      .withRow({
+        type: "event_msg",
+        timestamp: early,
+        payload: {
+          type: "user_message",
+          message: "$dough-slice-planning .planning/seeds/SEED-42-title.md",
         },
-      },
-    },
-    { type: "turn_context", payload: { turn_id: "old-task" } },
-    {
-      type: "event_msg",
-      timestamp: early,
-      payload: {
-        type: "user_message",
-        message: "$dough-slice-planning .planning/seeds/SEED-42-title.md",
-      },
-    },
-    {
-      ...response("deleted-worktree", "old-task", "before-cutoff", {
-        output_tokens: 1000,
-      }),
-      timestamp: early,
-    },
-    {
-      type: "event_msg",
-      timestamp: at,
-      payload: { type: "task_complete", turn_id: "old-task" },
-    },
-  ]);
-  const worker = response("owning-worker", "worker-turn", "in-window", {
-    output_tokens: 7,
-  });
-  worker.payload.root_turn_id = "old-task";
-  nativeFile(root, "owning-worker", [
-    {
-      type: "session_meta",
-      payload: { id: "owning-worker", parent_thread_id: "deleted-worktree" },
-    },
-    worker,
-  ]);
-  nativeFile(root, "missing-objects", [
-    {
-      type: "session_meta",
-      payload: {
-        id: "missing-objects",
-        cwd: repo.integration,
-        git: { commit_hash: "f".repeat(40) },
-      },
-    },
-    { type: "turn_context", payload: { turn_id: "unsettled" } },
-    {
-      type: "event_msg",
-      timestamp: at,
-      payload: {
-        type: "user_message",
-        message: "$dough-story-refinement SEED-42#story",
-      },
-    },
-    response("missing-objects", "unsettled", "unknown-title", {
-      output_tokens: 2,
-    }),
-  ]);
-  nativeFile(root, "unknown-project", [
-    {
-      type: "session_meta",
-      payload: {
-        id: "unknown-project",
-        cwd: path.join(home, "missing/historic"),
-      },
-    },
-    { type: "turn_context", payload: { turn_id: "unknown-project-task" } },
-    {
-      type: "event_msg",
-      payload: {
-        type: "user_message",
-        message: "$dough-execute-plan SEED-42#story",
-      },
-    },
-    response(
-      "unknown-project",
-      "unknown-project-task",
-      "unknown-project-answer",
-      { output_tokens: 3 },
-    ),
-  ]);
+      })
+      .withResponse(
+        "old-task",
+        "before-cutoff",
+        { output_tokens: 1000 },
+        {
+          timestamp: early,
+        },
+      )
+      .withRow({
+        type: "event_msg",
+        timestamp: usageHistoryDefaultAt,
+        payload: { type: "task_complete", turn_id: "old-task" },
+      })
+      .please(),
+  );
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("owning-worker")
+      .withParent("deleted-worktree")
+      .withResponse(
+        "worker-turn",
+        "in-window",
+        { output_tokens: 7 },
+        {
+          rootTurnId: "old-task",
+        },
+      )
+      .please(),
+  );
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("missing-objects")
+      .withCwd(repo.integration)
+      .withGit({ commit_hash: "f".repeat(40) })
+      .withTurnContext("unsettled")
+      .withRow({
+        type: "event_msg",
+        timestamp: usageHistoryDefaultAt,
+        payload: {
+          type: "user_message",
+          message: "$dough-story-refinement SEED-42#story",
+        },
+      })
+      .withResponse("unsettled", "unknown-title", { output_tokens: 2 })
+      .please(),
+  );
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("unknown-project")
+      .withCwd(path.join(home, "missing/historic"))
+      .withTurnContext("unknown-project-task")
+      .withRow({
+        type: "event_msg",
+        payload: {
+          type: "user_message",
+          message: "$dough-execute-plan SEED-42#story",
+        },
+      })
+      .withResponse("unknown-project-task", "unknown-project-answer", {
+        output_tokens: 3,
+      })
+      .please(),
+  );
   runImport(home, root);
   const history = readImported(home);
   const tasks = Object.values(history.tasks);
@@ -140,7 +131,7 @@ test("uses recorded repository evidence for a deleted worktree and leaves unavai
       identity: "SEED-42#story",
       title: "Historical title",
       launchedAt: early,
-      lastActivityAt: at,
+      lastActivityAt: usageHistoryDefaultAt,
       outcome: null,
     }),
   );

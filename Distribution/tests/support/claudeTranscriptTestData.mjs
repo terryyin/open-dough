@@ -59,6 +59,8 @@ export class ClaudeTranscriptBuilder {
   /** @type {string | undefined} */
   #sessionId;
   /** @type {string | undefined} */
+  #cwd;
+  /** @type {string | undefined} */
   #agentId;
   /** @type {boolean} */
   #sidechain = false;
@@ -70,6 +72,12 @@ export class ClaudeTranscriptBuilder {
   /** @param {string} sessionId sessionId on every row */
   forSession(sessionId) {
     this.#sessionId = sessionId;
+    return this;
+  }
+
+  /** @param {string} cwd working directory (`cwd`) on every row for project join */
+  withCwd(cwd) {
+    this.#cwd = cwd;
     return this;
   }
 
@@ -129,9 +137,7 @@ export class ClaudeTranscriptBuilder {
       type: "user",
       uuid: options.uuid,
       ...(parentUuid !== undefined ? { parentUuid } : {}),
-      ...(options.timestamp !== undefined
-        ? { timestamp: options.timestamp }
-        : {}),
+      timestamp: options.timestamp ?? usageHistoryDefaultAt,
       ...(options.origin !== undefined ? { origin: options.origin } : {}),
       ...(options.toolUseResult !== undefined
         ? { toolUseResult: options.toolUseResult }
@@ -208,6 +214,7 @@ export class ClaudeTranscriptBuilder {
     }
     /** @type {ClaudeTranscriptRow} */
     const base = { sessionId: this.#sessionId };
+    if (this.#cwd !== undefined) base.cwd = this.#cwd;
     if (this.#sidechain && this.#agentId !== undefined) {
       base.agentId = this.#agentId;
       base.isSidechain = true;
