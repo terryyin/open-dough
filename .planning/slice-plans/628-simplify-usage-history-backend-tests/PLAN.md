@@ -98,7 +98,7 @@ responses and counters it asserts. Truncated or unsupported rows and the
 
 ### 2. Claude import cases read as their facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: as slice 1 for its group; the transcript builder supplies the
 launch-input, attachment and `uuid`/`parentUuid` chain.
 
@@ -164,13 +164,13 @@ lines than 47 and 4,481, recorded in this plan.
 ### G1. Harness still exports at for unmigrated family
 Reported: slice 1 — "Temporary: harness still exports at (aliased to usageHistoryDefaultAt) for family specs not yet on builder defaults."
 Story clause: "Its default timestamp is no longer exported to cases."
-Disposition: interim until slices 2, 3, 4, 5
+Disposition: interim until slices 3, 4, 5
 Commitment: 11
 
 ### G2. Temporary meta/context/response helpers remain
 Reported: slice 1 — "Temporary row helpers meta/context/response remain for family specs not yet on makeMe.aCodexRollout; Codex-group cases call the builder."
 Story clause: "Codex rollouts and Claude transcripts, with their user, assistant, worker and session-meta rows, come from MakeMe builders whose defaults keep the data valid, including in-window timestamps."
-Disposition: interim until slices 2, 3, 4, 5
+Disposition: interim until slices 3, 4, 5
 
 ## Slice 1 inventory (Codex group)
 
@@ -214,6 +214,11 @@ Scratch-break records (when a moved assertion sits on materially different setup
 | `nativeFile(` in group | many | 3, all layout under proof (`.zst` archive path, partial path, empty broken file) |
 
 Family after slice 1 focused run: **46 passed** (was 47).
+
+## Slice 2 inventory (Claude group)
+
+Inventory and concision for this group live in
+[slice-2-inventory.md](./slice-2-inventory.md).
 
 ## Verification, sizing and concern review
 

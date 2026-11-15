@@ -31,8 +31,22 @@ export function writeCodexSession(root: string, rows: object[]): string {
 }
 
 /**
+ * Writes a built Claude transcript under the `sessionId` on its first row.
+ * Cases under layout proof (for example `subagents/` worker paths) keep
+ * `nativeFile`.
+ */
+export function writeClaudeSession(root: string, rows: object[]): string {
+  const session = (rows[0] as { sessionId?: string } | undefined)?.sessionId;
+  if (typeof session !== "string" || session.length === 0) {
+    throw new Error("writeClaudeSession requires sessionId on the first row");
+  }
+  return nativeFile(root, session, rows);
+}
+
+/**
  * Raw JSONL path under proof (compressed archives, partial directories, empty
- * broken files). Prefer `writeCodexSession` for ordinary built rollouts.
+ * broken files, Claude `subagents/` layout). Prefer `writeCodexSession` or
+ * `writeClaudeSession` for ordinary built sessions.
  */
 export function nativeFile(
   root: string,
