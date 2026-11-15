@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-334_retire-dashboard-integrated-ui-test.json",
+      "identity": "SEED-334#retire-dashboard-integrated-ui-test",
+      "completedAt": "2026-11-15T15:38:56.068Z",
+      "blob": "75e2b81a149a9cff461c2e1859ceda558394a016"
+    },
+    {
       "fileName": "SEED-353_declare-git-test-state-through-makeme.json",
       "identity": "SEED-353#declare-git-test-state-through-makeme",
       "completedAt": "2026-11-15T13:26:43.857Z",

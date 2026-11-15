@@ -9,7 +9,7 @@ This provisional plan is **awaiting story refinement — not ready for slice-pla
 
 Maps original plan 633 slices 3–4 at `f03e959480b2a04a7194b072cf71aa9da55ee1a9`;
 all 37 non-CI Intent specs / 5,547 lines retain every distinct assertion.
-CI conversion stays in [plan 633](../633-retire-dashboard-integrated-ui-test/PLAN.md);
+Remaining CI conversion is in [plan 651](../651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md);
 navigation/retirement stays in [plan 648](../648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md).
 Reuse their service-boundary direction and the preceding conversion's
 one-new-answer-family-per-slice sizing lesson. Conversion can start independently;

@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Run and maintain native evaluations as a distinct Distribution tool](seeds/SEED-371-distribution-evaluation-tool.md#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool) — SEED-371#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool ([plan](slice-plans/638-distribution-evaluation-tool/PLAN.md))
 - [Keep Claude coverage gaps current after Refresh](seeds/SEED-359-claude-code-task-token-usage.md#keep-claude-coverage-gaps-current-after-refresh) — SEED-359#keep-claude-coverage-gaps-current-after-refresh ([plan](slice-plans/644-keep-claude-coverage-gaps-current/PLAN.md))
-- [Move Intent CI status and timing checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test) — SEED-334#retire-dashboard-integrated-ui-test ([plan](slice-plans/633-retire-dashboard-integrated-ui-test/PLAN.md))
 
 ## Backlog list
 
