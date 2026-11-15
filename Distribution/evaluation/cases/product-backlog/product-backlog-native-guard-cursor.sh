@@ -32,42 +32,6 @@ guard_install_cursor_guard() {
 }
 
 # Cursor permission schema plus Claude-compatibility skip, via the installed CLI.
-guard_assert_cursor_cli() {
-  local hook=$1
-  local project_dir=$2
-  local payload output
-  payload=$(node -e '
-    const projectDir = process.argv[1];
-    process.stdout.write(JSON.stringify({
-      tool_name: "Write",
-      tool_input: { file_path: projectDir + "/.planning/PRODUCT-BACKLOG.md" },
-      hook_event_name: "preToolUse",
-      cursor_version: "test",
-    }));
-  ' "${project_dir}")
-  output=$(printf '%s' "${payload}" | node "${hook}" "${project_dir}" cursor)
-  if ! printf '%s' "${output}" | grep -Fq '"permission":"deny"'; then
-    echo "FAIL: Cursor native CLI did not deny a Write to the backlog." >&2
-    echo "${output}" >&2
-    return 1
-  fi
-  output=$(printf '%s' "${payload}" | node "${hook}" "${project_dir}")
-  if ! printf '%s' "${output}" | grep -Fq '"permission":"allow"'; then
-    echo "FAIL: Claude-compat Cursor loading did not skip denial." >&2
-    echo "${output}" >&2
-    return 1
-  fi
-}
-
-guard_run_deterministic_cursor() {
-  local source_dir=$1
-  local work_root=$2
-  local cursor_target="${work_root}/cursor-project"
-  mkdir -p -- "${cursor_target}"
-  guard_write_project_backlog "${cursor_target}"
-  guard_write_cursor_existing_hooks "${cursor_target}"
-  guard_install_cursor_guard "${source_dir}" "${cursor_target}"
-}
 
 guard_cursor_native_cleanup() {
   product_backlog_native_cleanup "$?" 'Cursor guard' 'native-guard-cursor-*' \

@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1091 # Shared helpers are linted separately.
+# shellcheck disable=SC1091,SC2154 # Sourced fixture initializes the installed paths and tag.
 # shellcheck disable=SC2312 # pipefail preserves failures in digest pipelines.
 set -Eeuo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
+if [[ $# == 0 ]]; then
+  exec bash "${source_dir}/Distribution/tests/adr-awareness/dough-adr-awareness-codex-use.sh"
+fi
 # shellcheck source=Distribution/tests/helpers/public-payload-fixture.bash
 source "${source_dir}/Distribution/tests/helpers/public-payload-fixture.bash"
 # shellcheck source=Distribution/tests/helpers/release-fixture.bash
@@ -22,61 +25,11 @@ if [[ $# != 0 && ! ($# == 2 && $1 == '--native' && $2 =~ ^(explicit|automatic)$)
   exit 2
 fi
 
-temporary_dir=$(mktemp -d)
-output_file=''
-transcript=''
-finish() {
-  local status=$?
-  if ((status != 0)); then
-    [[ ! -f ${output_file} ]] || cat "${output_file}" >&2
-    [[ ! -f ${transcript} ]] || cat "${transcript}" >&2
-  fi
-  rm -rf -- "${temporary_dir}"
-  exit "${status}"
-}
-trap finish EXIT
-candidate="${temporary_dir}/exact tagged source"
-target="${temporary_dir}/installed ADR-awareness target"
-build_current_tagged_release_fixture "${candidate}"
-prepare_installed_adr_awareness_codex_target "${target}" "${candidate}"
-version=$(cat "${source_dir}/VERSION")
-tag="v${version}"
-installed_version=$(cat "${target}/.agents/skills/dough-update/VERSION")
-assert_tagged_adr_awareness_payload \
-  "${candidate}" "${tag}" "${target}" "${installed_version}" "${version}"
-[[ ! -e "${target}/.agents/skills/adr-awareness" ]]
-[[ ! -L "${target}/.claude/skills/adr-awareness" ]]
-for caller in \
-  .cursor/rules/general.mdc \
-  .cursor/rules/architecture-decisions.mdc \
-  .cursor/agent-map.md \
-  docs/adrs/README.md; do
-  grep -Fq 'dough-adr-awareness' "${target}/${caller}"
-  grep -Fq '.agents/skills/adr-awareness' "${target}/${caller}" && exit 1
-done
-grep -Fq 'Cross-cutting stack' \
-  "${target}/.cursor/rules/architecture-decisions.mdc"
-grep -Fq 'pointing at the ADR and the exception' \
-  "${target}/.cursor/rules/architecture-decisions.mdc"
-for protected_file in \
-  .agents/skills/unrelated-guidance/SKILL.md \
-  .cursor/skills/other-host-guidance/SKILL.md \
-  .claude/skills/other-host-guidance/SKILL.md \
-  AGENTS.md \
-  docs/adrs/0001-session-state.md \
-  docs/adrs/0002-package-sessions.md; do
-  cmp \
-    "${source_dir}/Distribution/evaluation/cases/adr-awareness/fixtures/installed-use/${protected_file}" \
-    "${target}/${protected_file}"
-done
+# shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-codex-use-fixture.sh
+source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-codex-use-fixture.sh"
+
 before=$(snapshot_path_state "${target}")
 source_before=$(snapshot_path_state "${candidate}")
-
-if [[ $# == 0 ]]; then
-  [[ ${before} == "$(snapshot_path_state "${target}")" ]]
-  [[ ${source_before} == "$(snapshot_path_state "${candidate}")" ]]
-  exit 0
-fi
 
 mode=$2
 command -v codex > /dev/null

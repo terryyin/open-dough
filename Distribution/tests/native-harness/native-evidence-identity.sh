@@ -69,6 +69,10 @@ journey_inputs=(
   Distribution/evaluation/cases/product-backlog/product-backlog-native-facts.mjs Distribution/tests/support/makeMe.mjs
   Distribution/tests/support/queued-repository.mjs Distribution/tests/support/published-plan.mjs
   Distribution/tests/support/slicePlanTestData.mjs Distribution/tests/support/hostHookSettingsTestData.mjs'
+  'native_result_context_input_hash_lines|
+  Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh
+  Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context-fixture.sh
+  Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-use.sh'
   'native_result_journey_input_hash_lines|
   Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-codex-delivery-to-use.sh
   Distribution/tests/support/release-source.mjs Distribution/tests/support/makeMe.mjs

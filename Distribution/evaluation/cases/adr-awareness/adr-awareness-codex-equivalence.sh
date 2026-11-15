@@ -2,41 +2,16 @@
 # The generalized ADR-awareness skill keeps the original contract on a
 # controlled fixture: current status, supersession, conflict stopping, and
 # human-owned lifecycle changes. --native compares both skills in Codex.
+# shellcheck disable=SC1091,SC2154 # Shared fixture helper assigns fixture and candidate.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
-fixture="${source_dir}/Distribution/evaluation/cases/adr-awareness/fixtures/source-context"
-candidate="${source_dir}/Distribution/src/skills/dough-adr-awareness/SKILL.md"
-
-required_fixture_files=(
-  AGENTS.md
-  docs/adrs/README.md
-  docs/adrs/0001-redis-session-state-accepted.md
-  docs/adrs/0002-postgresql-session-state-accepted.md
-  app/session-store.txt
-)
-
-for relative_path in "${required_fixture_files[@]}"; do
-  [[ -f "${fixture}/${relative_path}" ]]
-done
-[[ -f "${candidate}" ]]
-
-grep -Fq 'Superseded by [ADR-0002]' \
-  "${fixture}/docs/adrs/0001-redis-session-state-accepted.md"
-grep -Fq '**Status:** Accepted' \
-  "${fixture}/docs/adrs/0002-postgresql-session-state-accepted.md"
-grep -Fq 'Persist server-side session state in PostgreSQL.' \
-  "${fixture}/docs/adrs/0002-postgresql-session-state-accepted.md"
-grep -Fq 'Only humans change lifecycle' \
-  "${fixture}/docs/adrs/README.md"
-
-grep -Fq 'follow the chain to the newest valid current record' "${candidate}"
-grep -Fq 'stop the conflicting implementation' "${candidate}"
-grep -Fq 'Do not change an ADR to Accepted, Rejected, or Superseded' "${candidate}"
-
-if [[ ${1:-} != '--native' ]]; then
-  exit 0
+if [[ $# == 0 ]]; then
+  exec bash "${source_dir}/Distribution/tests/adr-awareness/adr-awareness-codex-equivalence.sh"
 fi
+# shellcheck source=Distribution/evaluation/cases/adr-awareness/adr-awareness-fixtures.sh
+source "${source_dir}/Distribution/evaluation/cases/adr-awareness/adr-awareness-fixtures.sh"
+adr_awareness_source_context_fixture
 
 original=${ADR_AWARENESS_ORIGINAL_SKILL:-}
 if [[ -z ${original} ]]; then
@@ -45,6 +20,10 @@ if [[ -z ${original} ]]; then
 fi
 
 [[ -f "${original}" ]]
+if [[ ${1:-} != '--native' ]]; then
+  exit 0
+fi
+
 command -v codex > /dev/null
 
 temporary_dir=$(mktemp -d)

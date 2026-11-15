@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
-# Automated entry; explicit native acceptance is maintained in Distribution/evaluation/.
+# shellcheck disable=SC1091,SC2034,SC2154,SC2312 # Shared fixture helpers supply and consume globals.
 set -euo pipefail
+
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-exec bash "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-claude-delivery-to-use.sh" "$@"
+source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-delivery-to-use.sh"
+source "${source_dir}/Distribution/tests/support/adr-awareness-delivery-checks.sh"
+
+delivery_source_dir=${source_dir}
+delivery_fixture="${source_dir}/Distribution/evaluation/cases/adr-awareness/fixtures/alternate-layout"
+delivery_host_name='Claude Code'
+delivery_host_upper='CLAUDE CODE'
+delivery_platform='claude'
+delivery_skill_root='.claude/skills'
+
+delivery_check_fixture
+grep -Fq 'claude --print --dangerously-skip-permissions --no-session-persistence' "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-claude-delivery-to-use.sh"
+delivery_run_deterministic_transition

@@ -88,9 +88,8 @@ is bounded to that candidate (target8 active minutes), never a repeated move.
 
 ### 7. Separate guidance defaults at shared native fixture seams
 Type: Structure
-Status: planned
-Proof: nine actual guidance defaults plus case selection, identity, controlled
-native/adaptor lifecycle and their failure/retention observations.
+Status: done
+Proof: [Nine guidance defaults, actual CLI continuations and identity/lifecycle](slice-7-evidence.md).
 
 Extract seven ADR defaults and backlog/installation guidance checks into their
 current routine test homes. Preserve shared native fixture/preflight/assessment

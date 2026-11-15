@@ -3,6 +3,9 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
+if [[ $# == 0 ]]; then
+  exec bash "${source_dir}/Distribution/tests/adr-awareness/dough-adr-awareness-codex-delivery-to-use.sh"
+fi
 # shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-delivery-to-use.sh
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-delivery-to-use.sh"
 # shellcheck source=Distribution/evaluation/src/native-codex.sh
@@ -18,11 +21,6 @@ delivery_check_fixture
 grep -Fq 'danger-full-access' "$0"
 grep -Fq 'PROTECTED_WORKTREES' "$0"
 delivery_parse_native_case_args "$@"
-
-if [[ ${native_case_mode} == 'default' ]]; then
-  delivery_run_deterministic_transition
-  exit 0
-fi
 
 command -v codex > /dev/null
 delivery_prepare_fixture

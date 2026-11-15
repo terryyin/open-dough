@@ -122,8 +122,7 @@ if [[ ${native_flag} -eq 0 ]]; then
     usage
     exit 2
   fi
-  guard_run_deterministic "${source_dir}"
-  exit 0
+  exec bash "${source_dir}/Distribution/tests/product-backlog/product-backlog-native.sh"
 fi
 
 if [[ ${host_arg} != claude && ${host_arg} != codex && ${host_arg} != cursor ]]; then

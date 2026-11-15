@@ -3,6 +3,9 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
+if [[ $# == 0 ]]; then
+  exec bash "${source_dir}/Distribution/tests/adr-awareness/dough-adr-awareness-cursor-delivery-to-use.sh"
+fi
 # shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-delivery-to-use.sh
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-delivery-to-use.sh"
 delivery_source_dir=${source_dir}
@@ -15,11 +18,6 @@ delivery_skill_root='.agents/skills'
 delivery_check_fixture
 grep -Fq 'cursor agent --print --force --trust --sandbox enabled' "$0"
 delivery_parse_native_case_args "$@"
-
-if [[ ${native_case_mode} == 'default' ]]; then
-  delivery_run_deterministic_transition
-  exit 0
-fi
 
 command -v cursor > /dev/null
 delivery_prepare_fixture

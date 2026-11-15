@@ -3,37 +3,16 @@
 # catalog, supersession, and exception trail; the ADR-awareness skill still
 # cites that authority, stops a conflicting implementation, and leaves the
 # decision with the human. --native runs the same session in Codex.
+# shellcheck disable=SC1091,SC2154 # Shared fixture helper assigns fixture and candidate.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
-fixture="${source_dir}/Distribution/evaluation/cases/adr-awareness/fixtures/alternate-layout"
-candidate="${source_dir}/Distribution/src/skills/dough-adr-awareness/SKILL.md"
-
-required_fixture_files=(
-  AGENTS.md
-  architecture/decisions/CATALOG.md
-  architecture/decisions/store-readings-on-each-node.md
-  architecture/decisions/retain-complete-telemetry-history.md
-  governance/architecture-exceptions.md
-  services/telemetry-retention.txt
-)
-
-for relative_path in "${required_fixture_files[@]}"; do
-  [[ -f "${fixture}/${relative_path}" ]]
-done
-[[ -f "${candidate}" ]]
-
-grep -Fq 'Adopted' "${fixture}/AGENTS.md"
-grep -Fq 'is a current accepted decision' "${fixture}/AGENTS.md"
-grep -Fq 'Replaced by [ARC-12]' \
-  "${fixture}/architecture/decisions/CATALOG.md"
-grep -Fq 'Standing: Adopted' \
-  "${fixture}/architecture/decisions/retain-complete-telemetry-history.md"
-grep -Fq 'Do not assume a template, ADR path, status syntax, or exception trail' \
-  "${candidate}"
-grep -Fq 'conflicts with a relevant current Accepted' "${candidate}"
-grep -Fq 'stop the conflicting implementation' "${candidate}"
-grep -Fq 'ask the human to choose' "${candidate}"
+if [[ $# == 0 ]]; then
+  exec bash "${source_dir}/Distribution/tests/adr-awareness/adr-awareness-codex-alternate-layout.sh"
+fi
+# shellcheck source=Distribution/evaluation/cases/adr-awareness/adr-awareness-fixtures.sh
+source "${source_dir}/Distribution/evaluation/cases/adr-awareness/adr-awareness-fixtures.sh"
+adr_awareness_alternate_layout_fixture
 
 if [[ ${1:-} != '--native' ]]; then
   exit 0

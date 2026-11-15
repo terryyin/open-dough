@@ -184,6 +184,7 @@ native_result_finalize_context() {
 native_result_context_input_hash_lines() {
   native_result_input_hash_lines \
     Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh \
+    Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context-fixture.sh \
     Distribution/evaluation/src/native-result-retain.sh \
     Distribution/evaluation/src/native-result-identity.sh \
     Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh \

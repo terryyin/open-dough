@@ -43,6 +43,10 @@ const reader = new Set([
 // read them. Each reason says what the file writes.
 const shapeWriters = new Map([
   [
+    "Distribution/tests/native-harness/guidance-native-entries.sh",
+    "substitute Codex writes skill-use acknowledgment and completion for installed rejection proof",
+  ],
+  [
     "Distribution/tests/support/native-codex-wire-fixture.mjs",
     "writes exact current Codex wait envelopes for receipt and watch-evidence proof",
   ],

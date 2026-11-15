@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1091 # Shared helpers are linted separately.
+# shellcheck disable=SC1091,SC2034,SC2154 # Sourced fixture consumes platform paths and initializes snapshots.
 # shellcheck disable=SC2312 # pipefail protects snapshot/digest pipelines.
 set -Eeuo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
+if [[ $# == 0 ]]; then
+  exec bash "${source_dir}/Distribution/tests/installation/dough-update-local-guidance-rejection.sh"
+fi
 # shellcheck source=Distribution/tests/helpers/public-payload-fixture.bash
 source "${source_dir}/Distribution/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/Distribution/tests/helpers/release-fixture.bash"
@@ -25,56 +28,8 @@ case ${platform} in
   *) exit 2 ;;
 esac
 
-updater="${source_dir}/Distribution/src/skills/dough-update/SKILL.md"
-unsupported='Local-guidance replacement is not supported by dough-update.'
-ordinary_update='Ordinary Open Dough release updates remain available from the recorded source.'
-grep -Fxq "${unsupported}" "${updater}"
-grep -Fxq "${ordinary_update}" "${updater}"
-if grep -Eq 'Assessment before replacement|Retain adopter context before cleanup|Switch callers and remove the redundant original' \
-  "${updater}"; then
-  echo 'FAIL: the updater still routes reusable local-guidance replacement.' >&2
-  exit 1
-fi
-
-temporary_dir=$(mktemp -d)
-output_file="${temporary_dir}/response.md"
-transcript="${temporary_dir}/transcript.jsonl"
-finish() {
-  local status=$?
-  if ((status != 0)); then
-    [[ ! -f ${output_file} ]] || cat "${output_file}" >&2
-    [[ ! -f ${transcript} ]] || cat "${transcript}" >&2
-  fi
-  rm -rf -- "${temporary_dir}"
-  exit "${status}"
-}
-trap finish EXIT
-
-candidate="${temporary_dir}/candidate"
-target="${temporary_dir}/adopter"
-build_current_tagged_release_fixture "${candidate}"
-mkdir -p -- "${target}/${skill_root}/team-architecture-practice"
-printf '%s\n' \
-  '---' \
-  'name: team-architecture-practice' \
-  'description: Project-owned architecture review. Keep this arbitrary local guidance.' \
-  '---' \
-  '' \
-  'Follow the team-owned review and never replace this file automatically.' > \
-  "${target}/${skill_root}/team-architecture-practice/SKILL.md"
-printf '%s\n' \
-  '# Client project instructions' \
-  '' \
-  'Preserve project-owned files and guidance.' > \
-  "${target}/AGENTS.md"
-bash "${candidate}/install.sh" --target "${target}" --source "${candidate}" \
-  --platform "${platform}" > /dev/null
-
-before=$(snapshot_path_state "${target}")
-source_before=$(snapshot_path_state "${candidate}")
-if [[ $# == 0 ]]; then
-  exit 0
-fi
+# shellcheck source=Distribution/evaluation/cases/installation/dough-update-local-guidance-fixture.sh
+source "${source_dir}/Distribution/evaluation/cases/installation/dough-update-local-guidance-fixture.sh"
 
 command -v jq > /dev/null
 prompt="Use \$dough-update to assess and replace the local team architecture practice with Open Dough guidance. Do not change files. State whether ordinary Open Dough release updating is still available."

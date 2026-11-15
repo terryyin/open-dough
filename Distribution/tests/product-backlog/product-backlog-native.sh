@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
-# Interim routine-check entry; native implementation lives with its case family.
+# shellcheck disable=SC1091,SC2034,SC2154,SC2312 # Shared fixture helpers supply and consume globals.
 set -euo pipefail
-wrapper_dir=$(dirname -- "${BASH_SOURCE[0]}")
-wrapper_dir=$(cd -- "${wrapper_dir}" && pwd)
-exec bash "${wrapper_dir}/../../evaluation/cases/product-backlog/product-backlog-native.sh" "$@"
+
+source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
+source "${source_dir}/Distribution/evaluation/cases/product-backlog/product-backlog-native-guard.sh"
+source "${source_dir}/Distribution/evaluation/cases/product-backlog/product-backlog-native-guard-cursor.sh"
+source "${source_dir}/Distribution/tests/support/product-backlog-native-checks.sh"
+
+guard_run_deterministic "${source_dir}"
