@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Akiho-chan",
-  "email": "akiho-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-359#view-claude-code-task-token-usage",
-  "host": "claude",
-  "model": "opus"
-}
