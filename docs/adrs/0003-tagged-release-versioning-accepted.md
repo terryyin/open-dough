@@ -22,7 +22,7 @@ Use three stages for a revision of Distribution guidance:
 | **Promoted** | Reviewed and selected by a maintainer for the next release. Files stay in place; promotion adds the skill and required runtime dependencies to `install.sh`'s `managed_files`, the one payload declaration, which `Distribution/src/install/open-dough-release-version.sh` reads. Keep payload fixtures aligned. |
 | **Released** | Included in the client payload at an immutable version tag available from the source repository. Clients can install that tagged content. Source files outside that tag's payload remain Proposed even if present in the snapshot. |
 
-Promotion requires the representative behavior review in `AGENTS.md` and the
+Promotion requires the representative [behavior review](../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review) and the
 applicable delivery checks under ADR 0005. Payload declarations and release tags
 establish stage; do not maintain a separate status registry. For an already
 declared skill, edits begin as Proposed changes; maintainer selection after

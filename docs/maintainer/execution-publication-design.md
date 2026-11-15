@@ -56,7 +56,7 @@ requires cohesion, continuous integration, and low cost of changing direction;
 payload delivery; [0005](../adrs/0005-cross-tool-validation-accepted.md) governs
 mechanical and native evidence; [0006](../adrs/0006-write-skills-for-executing-agents-accepted.md)
 requires one authoritative rule and concise agent instructions. Follow
-[maintainer guidance](../../AGENTS.md) for eventual source changes.
+[maintainer skill guidance](../../.agents/skills/author-open-dough-skills/SKILL.md) for eventual source changes.
 
 **ADR conclusion:** No ADR specific to this product intent is needed. Existing
 decisions already constrain this design. The clarification to ADR 0000 records

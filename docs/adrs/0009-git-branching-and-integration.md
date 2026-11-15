@@ -217,4 +217,4 @@ change does not claim that implementation is complete.
 No Accepted ADR is superseded by this proposal. Human consultation, acceptance,
 and communication follow the [ADR process](./README.md). Maintainer guidance and
 future skill changes follow [ADR 0006](./0006-write-skills-for-executing-agents-accepted.md)
-and the [authoring guideline](../../AGENTS.md).
+and the [authoring guideline](../../.agents/skills/author-open-dough-skills/SKILL.md).

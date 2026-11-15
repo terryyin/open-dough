@@ -15,7 +15,7 @@ description: >-
 You are the maintainer agent in the Open Dough source repository. This internal
 skill stays outside the released payload and `install.sh`; keep its single procedure
 here under [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md).
-Follow [maintainer guidance](../../../AGENTS.md) when authoring or reviewing it.
+Follow [maintainer skill guidance](../author-open-dough-skills/SKILL.md) when authoring or reviewing it.
 
 Rank first. Persistent writes require an explicit developer choice of queued follow-up
 or a non-queue disposition and that path's supplied destinations. An explicitly

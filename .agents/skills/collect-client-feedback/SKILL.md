@@ -15,7 +15,7 @@ description: >-
 
 You are the maintainer agent in the Open Dough source repository. This internal
 skill stays here, outside `Distribution/src/skills/` and the installer payload. Follow
-[maintainer guidance](../../../AGENTS.md) when changing or reviewing it.
+[maintainer skill guidance](../author-open-dough-skills/SKILL.md) when changing or reviewing it.
 
 An explicit invocation authorizes the complete finite maintenance cycle below:
 collect the selected logs, retain evidence, reconcile and adopt verified names,

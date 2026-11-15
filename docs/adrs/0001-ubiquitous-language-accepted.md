@@ -167,4 +167,4 @@ separation and checks for genuinely missing context remain intact.
 - [ADR 0003 — Release lifecycle and versioning](./0003-tagged-release-versioning-accepted.md)
 - [ADR 0004 — Client installation and update](./0004-client-installation-and-update-accepted.md)
 - [ADR 0006 — Write skills for executing agents](./0006-write-skills-for-executing-agents-accepted.md)
-- [Maintainer authoring guideline](../../AGENTS.md)
+- [Maintainer authoring guideline](../../.agents/skills/author-open-dough-skills/SKILL.md)

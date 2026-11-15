@@ -7,6 +7,7 @@ internal_skill_names=(
   release-version
   reconcile-retrospective-findings
   triage-retrospective-findings
+  author-open-dough-skills
 )
 
 # install.sh's assembled managed_files declaration is the single source of

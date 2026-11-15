@@ -58,7 +58,7 @@ preserving across Open Dough skills.
 ## Consequences
 
 Skill reviews focus on useful agent behavior and necessary context, using the
-representative review in [AGENTS.md](../../AGENTS.md) and the existing validation
+representative review in [author-open-dough-skills](../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review) and the existing validation
 boundaries in [ADR 0005](./0005-cross-tool-validation-accepted.md). Shorter prose
 must not remove safeguards or make required dependencies undiscoverable.
 

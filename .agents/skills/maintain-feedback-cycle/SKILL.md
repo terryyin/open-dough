@@ -13,7 +13,7 @@ description: >-
 You are the Open Dough maintainer. This internal skill composes two maintained
 owners: [project findings](../../../Distribution/src/skills/dough-triage-project-findings/SKILL.md)
 and [shared feedback](../collect-client-feedback/SKILL.md). Follow
-[maintainer guidance](../../../AGENTS.md) when changing or reviewing it. Keep this
+[maintainer skill guidance](../author-open-dough-skills/SKILL.md) when changing or reviewing it. Keep this
 source outside the installer payload; the Claude entry is a discovery pointer.
 
 An explicit invocation authorizes both named maintenance phases and their

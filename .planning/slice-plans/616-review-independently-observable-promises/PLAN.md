@@ -39,7 +39,7 @@ contains a checkable outcome. Do not reinterpret scope limits as rejection rules
 Relevant Accepted decisions:
 
 - [ADR 0003 — Release lifecycle and versioning](../../../docs/adrs/0003-tagged-release-versioning-accepted.md): author Proposed guidance in `src/skills`; do not hand-sync installed copies or fabricate a containing release.
-- [ADR 0006 — Write skills for executing agents](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md): keep one behavioral home, direct runtime wording and project-relative context. Apply the [maintainer behavior review](../../../AGENTS.md#behavior-review).
+- [ADR 0006 — Write skills for executing agents](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md): keep one behavioral home, direct runtime wording and project-relative context. Apply the [maintainer behavior review](../../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review).
 - [ADR 0005 — Cross-tool validation](../../../docs/adrs/0005-cross-tool-validation-accepted.md): representative useful behavior review for this conventional guidance change; no new discovery/integration mechanism or routine per-tool matrix. CLI replay proves record integration, not native agent behavior. Reuse unchanged host integration only for that boundary; do not claim native behavior on an unobserved host.
 - [ADR 0010 — Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md): compare bookkeeping against retained reviews, keep useful gap detection, and distinguish delivered guidance from an observed ordinary-use improvement.
 

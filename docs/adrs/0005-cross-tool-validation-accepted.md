@@ -20,7 +20,7 @@ that answers the decision at hand about Distribution delivery or behavior.
 Identify the intended outcome, affected hosts, and material risks. Reuse
 evidence when the relevant behavior, integration, and runtime conditions
 still match. For routine guidance edits, use the representative behavior
-review in [maintainer guidance](../../AGENTS.md) and applicable deterministic
+review in [maintainer skill guidance](../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review) and applicable deterministic
 checks. Use representative cases for shared mechanisms and check host-specific
 behavior on the affected host.
 

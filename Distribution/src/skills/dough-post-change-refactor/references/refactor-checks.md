@@ -102,6 +102,8 @@ Use this project's test style and assert observable behavior.
   repeated assertion only when it is independent of the changed precondition.
   Prefer a positive distinguishing signal when sufficient; retain absence or
   negative assertions when absence is the actual promise.
+- Synchronize on an observable event or advance a controlled clock. Never
+  sleep or wait for wall-clock time to pass.
 - Assert the result of a loop, retry, or threshold scenario without repeatedly
   checking unrelated intermediate state. Keep intermediate observations when
   ordering, progress, or transient behavior is itself the contract.

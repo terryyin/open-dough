@@ -35,6 +35,7 @@ managed_files+=(
   dough-execute-plan/references/established-session.md
   dough-execute-plan/references/execution-decisions.md
   dough-execute-plan/references/execution-location.md
+  dough-execute-plan/references/failure-policy.md
   dough-execute-plan/references/finish-or-stop.md
   dough-execute-plan/references/fresh-increment.md
   dough-execute-plan/references/interrupted-delegation.md
