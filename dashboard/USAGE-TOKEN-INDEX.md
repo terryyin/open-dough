@@ -9,7 +9,11 @@ five-minute and one-hour cache writes each at its own rate. A Claude response
 at an unpriced speed, or whose cache writes were stored without that split,
 leaves its task unpriced. Switching tool keeps the workflow, and the model and
 effort where the new tool ran them. The index is an observation, not a bill or
-a claim of improvement.
+a claim of improvement. A Claude launch whose root transcript has no usage, or
+whose worker left none, is partial with that gap named in its detail. Claude
+Code's background agent-view summaries, recaps and idle compaction never reach
+transcripts; the Claude Code chart says so in one note under its tariff rather
+than marking every task partial.
 
 **Last N days** starts at 30 and selects today plus the previous N−1 local
 calendar days, including the first midnight and excluding tomorrow's midnight.

@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 534. Removed numbers are never reused.
+- Highest allocated local number: 536. Removed numbers are never reused.
 - Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
@@ -968,3 +968,31 @@ The record CLI can link several source-review rows to one Story obligation, but 
   - Evidence: coordinator recorded C31 with new G2, then C32/C33 with `--obligation G2`; guarded fresh tool 7ab4f2 refused `mismatched-commitment` for C32/C33. At accepted revision 4b1c7984c4ad5c2f9ef634db89400dcd5d9697a1, the plan's G2 reverse link was repaired to C31,C32,C33. Installed story-obligation-source-review-record.mjs defaults entry.commitments to the current id; the CLI exposes no plural entry-commitments option.
   - Observed effect: one records-only preparation failure and targeted CLI/source inspection occurred before commit; product code/proof stayed unchanged. The corrected obligation check and publication passed.
   - Inference: a later tool change could maintain the complete reverse link or avoid emitting a partial optional link. This execution records evidence only; it implements no process change.
+
+## DD-535 — A plan's native-validation slice needed trunk but named no landing checkpoint
+
+A Story Branch plan's last slice validated on the developer's production dashboard and ran the importer "from the landed revision", yet the plan named no Dough Land checkpoint before it. The executor reached the slice, found it could not act without landing, and had to stop mid-execution for a human decision.
+
+### Occurrences
+- Execution: SEED-359#view-claude-code-task-token-usage (first implementation 83276a560725a714a22f8f3dbbd9396ef8f975a9)
+  - Timestamp: 2026-11-15T12:02:30Z (unfinished dashboard report receipt a5130bf2-9655-40d2-8ca8-1577a4acabd5)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at claim 200392236838610cb527eba7f315be498c39774f)
+  - Evidence: plan 636 slice 5 ("run … from the landed revision"; real dashboard serves trunk); execution-decisions "Land before a trunk step under its checkpoint" requires a named landing, so the slice stopped under human judgment; Terry answered "as recommended" (land first), then Dough Land --keep-worktree landed 1e56a8f4.
+  - Observed effect: one human round trip and a paused session between slice 4 and slice 5; the CI observer was stopped at the stop and slice 4's branch CI went unobserved until the coordinator waited for it before landing.
+  - Inference: slice planning could name the landing checkpoint whenever a slice observes the production dashboard or runs from the landed revision, so the go-ahead is given with the plan.
+
+## DD-536 — Implementers left lint to delivery, so the delivery formatter failed on findings they could have seen
+
+Implementation and refactor briefs forbade formatting and lint-hook commands, so new code reached guarded delivery with ESLint errors the selective formatter then refused. Asking implementers to run `npx eslint` on their changed files (not the hook) removed the failure for the later slice.
+
+### Occurrences
+- Execution: SEED-359#view-claude-code-task-token-usage (first implementation 83276a560725a714a22f8f3dbbd9396ef8f975a9)
+  - Timestamp: unknown (2026-11-15, deliveries of slices 1 and 3)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at claim 200392236838610cb527eba7f315be498c39774f)
+  - Evidence: slice 1 delivery refused `operation: formatting` on `eqeqeq` in usageContributions.ts (from the refactor's `== null`); slice 3 delivery refused on `@typescript-eslint/no-unsafe-assignment` (Object.fromEntries in token-index-claude-coverage.spec.ts); the slice 4 brief added "run `npx eslint` on changed files" and its delivery passed first time.
+  - Observed effect: two coordinator repair loops with typecheck and focused reruns; one repair also pushed a file over the 250-line limit and needed a further edit.
+  - Inference: briefs could distinguish the hook-owned staged lint from a read-only `npx eslint` check of changed files, which the implementer can run before returning.

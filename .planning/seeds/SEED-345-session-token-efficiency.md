@@ -60,6 +60,11 @@ commitment.
 - **Effort and boundary.** Medium, high confidence; the audits' methods are
   recorded. Read-only over local history; no quota or invoice claim.
   [Method and accounting](../../docs/maintainer/session-token-efficiency-research.md#window-scope-and-method)
+- **Existing measure.** System settings → Usage already prices each finished
+  dashboard launch per tool, for Codex and Claude Code, from the shared usage
+  records. A launch's Token index counts only that launch's responses, so it
+  can be below the Claude session's `cost-state` total when the session also
+  ran other turns: compare launch indices, not session totals.
 
 <a id="finish-slices-within-a-bounded-working-context"></a>
 
