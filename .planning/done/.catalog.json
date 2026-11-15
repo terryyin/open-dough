@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-351_highlight-syntax-in-code-diffs.json",
+      "identity": "SEED-351#highlight-syntax-in-code-diffs",
+      "completedAt": "2026-11-15T15:46:32.664Z",
+      "blob": "e97f5753234cbac7d25f8f6d9abe5865070ee79d"
+    },
+    {
       "fileName": "SEED-359_keep-claude-coverage-gaps-current-after-refresh.json",
       "identity": "SEED-359#keep-claude-coverage-gaps-current-after-refresh",
       "completedAt": "2026-11-15T13:56:46.677Z",
