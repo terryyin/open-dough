@@ -4,7 +4,9 @@
 # group could drop one; a thin, a past-deadline, a single-job and a
 # fewer-than-five-runs group keep. A group is judged over runs at its newest
 # job count, without runs where its test step did not finish; seconds end with
-# the test step, not later uploads; the deadline is the run's own. The reason
+# the test step, not later uploads; the deadline is the run's own. A last line
+# gives the runs' runner wait and verdict time over every job, `ci-proof`
+# included, and jobs that waited change no group line. The reason
 # is given when gh fails, lists no run or serves no readable job. A `gh`
 # stand-in serves fixture runs, so the check never reaches GitHub.
 set -euo pipefail
@@ -56,7 +58,7 @@ printf '%s\t%s\n' 201 2026-09-30T11:00:00Z 202 2026-09-29T11:00:00Z \
   208 2026-09-28T12:00:00Z 203 2026-09-28T11:00:00Z 204 2026-09-27T11:00:00Z \
   205 2026-09-26T11:00:00Z 206 2026-09-25T11:00:00Z > "${fake}/listing"
 
-# Prints the fixture time SECONDS after a job's start.
+# Prints the fixture time SECONDS after a run's jobs were created.
 at() {
   printf '"2026-09-30T10:%02d:%02dZ"' $(($1 / 60)) $(($1 % 60))
 }
@@ -73,7 +75,7 @@ job() {
   finished=$(at 600)
   [[ ${end} == unfinished ]] || completed=$(at "${end}")
   cat >> "${fake}/jobs/${run}" << JOB
-{"name": "${name}", "started_at": ${start}, "completed_at": ${finished}, "steps": [
+{"name": "${name}", "created_at": ${start}, "started_at": ${start}, "completed_at": ${finished}, "steps": [
   {"name": "Start prerequisite acquisition (180 seconds) and run (300 seconds) deadlines"},
   {"name": "Start Node and npm cache deadline (60 seconds)"},
   {"name": "${test_step}", "started_at": ${test_start}, "completed_at": ${completed}},
@@ -113,9 +115,24 @@ group late 2 160 170 180 165 175 160
 group single 1 200 150 unfinished 170 180 190
 group sparse 2 60 50 55 52 - -
 start=$(at 0)
+proved=$(at 20)
 for run in "${runs[@]}" 207; do
-  printf '{"name": "ci-proof", "started_at": %s, "steps": []}\n' "${start}" >> "${fake}/jobs/${run}"
+  printf '{"name": "ci-proof", "created_at": %s, "started_at": %s, "completed_at": %s, "steps": []}\n' \
+    "${start}" "${start}" "${proved}" >> "${fake}/jobs/${run}"
 done
+
+# Makes run RUN's jobs whose names start NAME wait for a runner for SECONDS: their
+# start and every later time move by SECONDS; their creation stays.
+wait_for_runner() {
+  # shellcheck disable=SC2016 # jq variables, not shell expansions.
+  jq -c --arg name "$2" --argjson by "$3" '
+    def later: if . == null then . else fromdateiso8601 + $by | todateiso8601 end;
+    if .name | startswith($name) then
+      .started_at |= later | .completed_at |= later
+      | .steps |= map(.started_at |= later | .completed_at |= later)
+    else . end' "${fake}/jobs/$1" > "${fake}/waited"
+  mv -- "${fake}/waited" "${fake}/jobs/$1"
+}
 
 # Runs the command with the stand-in, logging to <name>.log and setting
 # command_status for expect_report.
@@ -137,9 +154,20 @@ late: 2 jobs over 6 runs, slowest job 160-180 s, deadline 300 s, headroom 120; 1
 single: 1 job over 5 runs, slowest job 150-200 s, deadline 300 s, headroom 100, keep
 sparse: 2 jobs over 4 runs, slowest job 50-60 s, deadline 300 s, headroom 240; 1 job would take 90-110 s, headroom 190, spread 20, keep
 thin: 6 jobs over 5 runs, slowest job 200-240 s, deadline 300 s, headroom 60; 5 jobs would take 238-286 s, headroom 14, spread 48, keep
+Runner wait (longest job creation to start) 0-0 s, verdict time (first job creation to last job end) 600-600 s over 6 runs
 REPORT
 expect_in_log "${fake}/calls" -x -F -- "run list --workflow ci.yml --branch main --status success --limit 10 --json databaseId,createdAt --jq .[] | \"\(.databaseId)\t\(.createdAt)\""
 expect_in_log "${fake}/calls" -x -F -- 'api repos/{owner}/{repo}/actions/runs/201/jobs?per_page=100 --jq'
+
+wait_for_runner 201 ci-proof 656
+wait_for_runner 201 thin 282
+wait_for_runner 203 late 100
+wait_for_runner 207 ci-proof 999
+run_times waited
+{
+  sed '$d' "${temporary_dir}/all.log"
+  printf '%s\n' 'Runner wait (longest job creation to start) 0-656 s, verdict time (first job creation to last job end) 600-882 s over 6 runs'
+} | expect_report waited 0
 
 printf '%s\t%s\n' 207 2026-09-30T11:00:00Z 208 2026-09-29T11:00:00Z > "${fake}/listing"
 run_times unreadable

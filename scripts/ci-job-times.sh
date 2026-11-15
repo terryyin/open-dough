@@ -17,7 +17,10 @@
 # a verdict: `could drop one` when at least 5 runs were counted and the
 # projection's headroom is at least its spread (the reserve for runner-speed
 # variation that Distribution/tests/time-budget.md calls `wide`); otherwise
-# `keep`. Runs whose jobs cannot be read are skipped and not counted. Exits 0
+# `keep`. A last line gives, over the runs read, each run's runner wait (its
+# longest job creation to start) and verdict time (its first job creation to
+# last job completion), counting every job, lowest to highest; it changes no
+# group line. Runs whose jobs cannot be read are skipped and not counted. Exits 0
 # after a report; with no readable runs, or when `gh` fails to list them, it
 # says why and exits 1. Use it before changing a job count.
 set -euo pipefail
@@ -49,28 +52,42 @@ job_filter='.jobs[]
      ($test.completed_at // "" | if . == "" then "" else fromdateiso8601 end),
      $deadline.name]
   | map(tostring) | join("\t")'
+# One `<runner-wait>\t<verdict-time>` line in seconds for the run, over every
+# job that started or completed.
+# shellcheck disable=SC2016 # jq variables, not shell expansions.
+run_filter='[.jobs[] | select(.started_at != null)
+    | (.started_at | fromdateiso8601) - (.created_at | fromdateiso8601)] as $waits
+  | [.jobs[] | select(.completed_at != null) | .completed_at | fromdateiso8601] as $ends
+  | [($waits | max), ($ends | max) - ([.jobs[].created_at | fromdateiso8601] | min)]
+  | map(tostring) | join("\t")'
 
 # One `<run-order>\t<group>\t<before>\t<test>\t<deadline>` line per group job,
 # or `<run-order>\t<group>\tunfinished` for a job whose test step has no end.
 jobs="${work_dir}/jobs"
+# One run_filter line per run read.
+waits="${work_dir}/waits"
 : > "${jobs}"
+: > "${waits}"
 order=0
 
-# Appends RUN's group jobs, or sets skip_reason.
+# Appends RUN's run_filter line and group jobs, or sets skip_reason.
 # shellcheck disable=SC2034 # read_trunk_runs reads skip_reason.
 read_run_jobs() {
   order=$((order + 1))
   if ! gh api "repos/{owner}/{repo}/actions/runs/$1/jobs?per_page=100" \
-    --jq "${job_filter}" > "${work_dir}/run" 2> "${work_dir}/gh.err"; then
+    --jq "(${run_filter}), (${job_filter})" > "${work_dir}/run" 2> "${work_dir}/gh.err"; then
     skip_reason=$(gh_message "${work_dir}/gh.err")
     return
   fi
-  if [[ ! -s ${work_dir}/run ]]; then
+  local lines
+  lines=$(wc -l < "${work_dir}/run")
+  if ((lines < 2)); then
     skip_reason="run $1 has no group job"
     return
   fi
+  head -n 1 -- "${work_dir}/run" >> "${waits}"
   awk -F '\t' -v order="${order}" '
-    {
+    NR > 1 {
       group = $1
       sub(/ \/ shard [0-9]+\/[0-9]+$/, "", group)
       sub(/ \([0-9]+\/[0-9]+\)$/, "", group)
@@ -151,3 +168,14 @@ awk -F '\t' -v reserve_runs="${reserve_runs}" '
     if (!((g, kind) in high) || value > high[g, kind]) high[g, kind] = value
   }
 ' "${jobs}" | LC_ALL=C sort
+
+awk -F '\t' '
+  NR == 1 || $1 < low_wait { low_wait = $1 }
+  NR == 1 || $1 > high_wait { high_wait = $1 }
+  NR == 1 || $2 < low_verdict { low_verdict = $2 }
+  NR == 1 || $2 > high_verdict { high_verdict = $2 }
+  END {
+    printf "Runner wait (longest job creation to start) %s-%s s, verdict time (first job creation to last job end) %s-%s s over %s run%s\n", \
+      low_wait, high_wait, low_verdict, high_verdict, NR, (NR == 1 ? "" : "s")
+  }
+' "${waits}"

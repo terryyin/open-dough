@@ -44,8 +44,8 @@ Input: only the seed section's Goal, Scope (with exclusions) and Key examples, c
 | 2f | A group is judged over the runs that have its current job count. | slice 1 | observed: Distribution/tests/ci/ci-job-times.sh expect_report all: thin over 5 runs excluding run 206 at 5 jobs |
 | 2g | Each group's line says how many runs it was judged over. | slice 1 | observed: Distribution/tests/ci/ci-job-times.sh expect_report all: 'over R runs' (thin 5, others 6, sparse 4) |
 | 2h | `could drop one` requires the projection to stay inside the deadline with a stated reserve for runner-speed variation (a job's slowest recent run took up to 1.6 times its median). | slice 1 | observed: Distribution/tests/ci/ci-job-times.sh expect_report all: heading states reserve; thin keep (headroom 14 < spread 48); scratch reserve-off made thin say could drop one |
-| 2i | One further line gives the runs' runner wait (job creation to start) and verdict time. | slice 2 | |
-| 2j | The wait line is apart from the group lines; a wait never changes the group lines. | slice 2 | |
+| 2i | One further line gives the runs' runner wait (job creation to start) and verdict time. | slice 2 | observed: Distribution/tests/ci/ci-job-times.sh expect_report all and waited: last line 'Runner wait ... verdict time ... over N runs'; real run 2-415 s, 298-802 s |
+| 2j | The wait line is apart from the group lines; a wait never changes the group lines. | slice 2 | observed: Distribution/tests/ci/ci-job-times.sh expect_report waited: group lines byte-identical to all.log, only the wait line differs |
 | 3 | The sizing rule is recorded once beside the layout in shards (`dashboard/tests/shards.md`). | slice 3 | |
 | 3a.1 | The rule is linked from test shares (`Distribution/tests/test-shares.md`). | slice 3 | |
 | 3a.2 | The rule is linked from the `ci.yml` layout comment. | slice 3 | |
@@ -69,7 +69,7 @@ Input: only the seed section's Goal, Scope (with exclusions) and Key examples, c
 | E1 | Recent successful `main` runs of present layout → report prints five group lines and one wait line; every group says `keep`. | slice 3 | |
 | E2 | E2E six jobs, slowest 215–259 s → five jobs project 253–305 s, inside 320 s but not inside the reserve → `keep`. | slice 1 | observed: Distribution/tests/ci/ci-job-times.sh thin: 5 jobs 238-286 s inside 300 s, headroom 14 < spread 48 -> keep; real e2e 246-297 s headroom 23 < spread 51 -> keep |
 | E3 | Group whose jobs became much shorter (four integrated jobs, slowest 120–150 s) → three jobs project about 190 s, inside deadline with reserve → `could drop one`. | slice 1 | observed: Distribution/tests/ci/ci-job-times.sh Distribution Tests: 2 jobs 145-175 s, headroom 125 >= spread 30 -> could drop one |
-| E4 | Run that waited for runners → wait line shows wait and verdict time; no group's seconds, headroom or verdict changes. | slice 2 | |
+| E4 | Run that waited for runners → wait line shows wait and verdict time; no group's seconds, headroom or verdict changes. | slice 2 | observed: Distribution/tests/ci/ci-job-times.sh waited case: ci-proof waits 656 s, thin 282 s -> 0-656 s, verdict 600-882 s; group lines unchanged |
 | E5 | Runs across a layout change (E2E five jobs older, six newer) → E2E judged over six-job runs only; its line says how many. | slice 1 | observed: Distribution/tests/ci/ci-job-times.sh thin: older 5-job run 206 excluded from thin only (5 runs) while others count 6 |
 | E6 | `gh` fails or lists no successful run → command names the reason and exits 1 with no verdict. | slice 1 | observed: Distribution/tests/ci/ci-job-times.sh expect_report gh-fails and empty: reason, exit 1, no verdict |
 | E7 | Developer considers a seventh E2E job for a faster verdict with no deadline failure on `main` → rule gives no ground to add it. | slice 3 | |

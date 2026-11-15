@@ -124,7 +124,7 @@ check's `gh` stand-in applies the `--jq` filter with system `jq`.
 
 ### 2. Show runner wait and verdict time apart from job time
 Type: Behavior
-Status: planned
+Status: done
 Proof: added cases in `Distribution/tests/ci/ci-job-times.sh`.
 
 Behavior: Given runs whose jobs waited for a runner, the report ends with one
@@ -135,6 +135,13 @@ including one without a test step such as `ci-proof`. Group lines are the same
 with and without the wait.
 
 One wait-line proof loop; target 15 active minutes, commands excluded.
+
+Accepted proof (2026-11-15): the same focused command passes; `expect_report
+waited` compares the `all` report minus its last line plus the waited line,
+so group lines stay byte-identical while the wait line reads 0-656 s and
+verdict 600-882 s. The wait line covers the runs read; `run_filter` rides the
+one jobs call per run. The real command gave runner wait 2-415 s and verdict
+time 298-802 s over 10 runs.
 
 ### 3. Record the sizing rule and the stay-at-18 decision beside the layout
 Type: Behavior
