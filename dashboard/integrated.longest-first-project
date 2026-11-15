@@ -20,7 +20,6 @@
 22.0	tests/navigation/source-navigation.spec.ts
 20.2	tests/navigation/project-keyboard-navigation.spec.ts
 19.6	tests/navigation/story-reference-navigation.spec.ts
-19.3	tests/intent/intent-reading-place.spec.ts
 19.0	tests/navigation/development-intent-frame.spec.ts
 18.1	tests/navigation/accessible-board-keyboard.spec.ts
 17.8	tests/intent/intent-summary-ci-proof-gaps.spec.ts
@@ -47,18 +46,15 @@
 9.6	tests/navigation/board-paging-side-panel.spec.ts
 9.4	tests/navigation/story-reference-identity.spec.ts
 9.1	tests/intent/intent-ci-comparison-relative.spec.ts
-8.4	tests/intent/intent-selection-reads.spec.ts
 8.1	tests/navigation/project-selection.spec.ts
 7.5	tests/navigation/accessible-board-scroll.spec.ts
 7.2	tests/navigation/story-destination-repeat-cue.spec.ts
 6.9	tests/navigation/project-keyboard-navigation-eligibility.spec.ts
-6.6	tests/intent/intent-read-reuse.spec.ts
 5.5	tests/navigation/board-native-reading.spec.ts
 5.2	tests/intent/intent-summary-ci-proof-sort.spec.ts
 5.2	tests/navigation/project-keyboard-navigation-focus.spec.ts
 5.1	tests/intent/intent-summary-ci-proof-kept.spec.ts
 5.1	tests/intent/intent-test-optimization-candidates-revision.spec.ts
-4.9	tests/intent/intent-read-reuse-story.spec.ts
 4.9	tests/navigation/story-card-dependency-selection.spec.ts
 4.2	tests/intent/intent-test-optimization-candidates-live.spec.ts
 4.0	tests/navigation/development-intent-frame-keyboard.spec.ts

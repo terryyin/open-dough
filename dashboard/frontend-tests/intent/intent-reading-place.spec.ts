@@ -1,7 +1,8 @@
-import { filesColumn } from "../intentModePage.ts";
+import { selectTakenStoryInIntent } from "../../tests/support/frontendIntentVisits.ts";
+import { filesColumn } from "../../tests/intentModePage.ts";
 // Intent's reading place is kept by the page for the project
 // (../../src/pageIntentReading.tsx): with a selected Taken story
-// (../support/intentStoryWorktree.ts) that also adds a long spec two folders
+// (../../tests/support/frontendIntentVisits.ts) that also adds a long spec two folders
 // deep, that file selected, "Selected story only" on, a folder collapsed by
 // hand and Purpose scrolled show the same after the story's other views
 // (../../src/intentStoryTabs.tsx), and after Development and back on the same
@@ -16,30 +17,26 @@ import {
   storyReviewFileEndpoint,
   storyReviewFileTextEndpoint,
 } from "../../src/storyReviewContract.ts";
-import { chooseProject, parts } from "../dashboardPage.ts";
-import { ciPanel } from "../intentCiStatusPage.ts";
+import { chooseProject, parts } from "../../tests/dashboardPage.ts";
+import { ciPanel } from "../../tests/intentCiStatusPage.ts";
 import {
   intentGroupToggle,
   intentReadingPane,
   intentReadingScroll,
   purposeRegion,
   scrollIntentReadingHalfway,
-} from "../intentPerspectivePage.ts";
-import { expect, test } from "../support/preparationPage.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   chooseStoryTab,
   expectStoryComparisonRead,
   expectStoryTab,
   folderToggle,
   intentFile,
-  selectTakenStoryInIntent,
   storyOnly,
   intentDiffReading,
-} from "../support/intentStoryPage.ts";
-import {
-  changeWithDeepSpec,
-  deepSpec,
-} from "../support/intentStoryWorktree.ts";
+} from "../../tests/support/intentStoryPage.ts";
+import { deepSpec } from "../../tests/support/intentStoryWorktree.ts";
 
 // The page's reads, from now on, of Intent's locations, of published text in
 // a location, and of a story file's diff and texts.
@@ -81,14 +78,10 @@ async function readDeepSpec(intent: Locator) {
 
 test("a file selected two folders deep, with Selected story only and Purpose scrolled, is shown the same after Development and back without reading again", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const { intent } = await selectTakenStoryInIntent(
-    page,
-    origin,
-    changeWithDeepSpec,
-  );
+  const { intent } = await selectTakenStoryInIntent(page, frontendServices);
   const offset = await readDeepSpec(intent);
 
   const reads = intentReads(page);
@@ -128,14 +121,10 @@ test("a file selected two folders deep, with Selected story only and Purpose scr
 
 test("another project shows none of the reading place, and choosing the project again starts its reading afresh", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const { intent } = await selectTakenStoryInIntent(
-    page,
-    origin,
-    changeWithDeepSpec,
-  );
+  const { intent } = await selectTakenStoryInIntent(page, frontendServices);
   await readDeepSpec(intent);
 
   await chooseProject(page, "Doughnut");

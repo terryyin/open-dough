@@ -1,4 +1,8 @@
-import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
+import {
+  prepareFrontendReuseJobs,
+  prepareFrontendReuseCandidates,
+} from "../../tests/support/frontendIntentReuseAnswers.ts";
+import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // Intent asks the read boundary once for each answer fixed at the revision
 // shown (../../src/answerMemo.ts, ../../src/repositoryFileReads.ts): reopening a
 // feature reads its text no more, and leaving for Development and returning
@@ -8,24 +12,19 @@ import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 
 import type { Page, Request } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectIntentModeChosen,
-} from "../intentModePage.ts";
-import { expandIntentGroup } from "../intentPerspectivePage.ts";
-import { publishOpenDoughWithCandidates } from "../intentCandidatesFixtures.ts";
-import { publishIntentProject, pygardon } from "../intentCodeBrowseFixtures.ts";
+} from "../../tests/intentModePage.ts";
+import { expandIntentGroup } from "../../tests/intentPerspectivePage.ts";
 import {
   featurePath,
-  otherFeature,
   otherPath,
-  publishedFeature,
-  settings,
-} from "../intentJobsFeatureFixtures.ts";
+} from "../../tests/intentJobsFeatureFixtures.ts";
 
 // The page's reads of the authenticated read boundary matching `which`.
 function boundaryReads(
@@ -73,14 +72,12 @@ async function readingMoments(page: Page) {
 
 test("reopening a feature and returning from Development ask nothing more and show without a reading moment", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   const featureReads = pathReads(page, featurePath);
   const locationsReads = intentReads(page, "locations");
-  await publishIntentProject(page, pygardon, settings, {
-    [featurePath]: publishedFeature,
-    [otherPath]: otherFeature,
-  });
+  await prepareFrontendReuseJobs(page, frontendServices);
   await openUntilRead(page, "/?project=pygardon&perspective=intent");
   const { intent, development, intentChoice } = parts(page);
   await expandIntentGroup(intent, "e2e_test/features");
@@ -109,11 +106,12 @@ test("reopening a feature and returning from Development ask nothing more and sh
 
 test("the Test Optimization Candidates record is read once across leaving Intent and returning", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   const recordReads = intentReads(page, "test-optimization-candidates");
   const locationsReads = intentReads(page, "locations");
-  await publishOpenDoughWithCandidates(page);
+  await prepareFrontendReuseCandidates(page, frontendServices);
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent, development, intentChoice } = parts(page);
   const entry = candidatesRecord(intent).getByRole("article", {

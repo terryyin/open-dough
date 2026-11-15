@@ -80,8 +80,8 @@ rate-limited, held or failed → the same explanation, manual/timed Retry,
 hidden-view suppression, revision-check continuation and prior reading survive.
 Own only the missing controlled authenticated-read failure/hold variants,
 using existing held-answer/clock primitives. Keep 15/30/60/60 timing and exact
-request deltas. Backend proves settings classification/shared upstream reads;
-E2E proves a real classified failure reaches the browser recovery path.
+request deltas. Backend proves settings classification; client reuse is supplementary.
+E2E proves classified failure delivery and exact upstream request deltas.
 
 Accepted proof: [assertion map and timing fault](slice-2-proof.md),
 [consumer/refactor and covering proof](slice-2-consumers.md); 14.5 active
@@ -189,7 +189,7 @@ All consumers are disposed; [independent refactoring](slice-7-refactor.md) passe
 
 ### 8. Preserve reading reuse and reconcile the Intent conversion
 Type: Behavior
-Status: planned
+Status: done
 Proof: four specs / 523 lines: `intent-read-reuse`, `intent-read-reuse-story`,
 `intent-reading-place`, `intent-selection-reads`; all 37 dispositions and
 current interim runner selection.
@@ -203,6 +203,10 @@ Run `npm run test:dashboard:integrated -- --list --reporter=line`: this story's
 If that remainder also landed, no Intent product spec remains; otherwise its
 20 sources plus navigation remain. Account for independent navigation conversion. Keep live helpers and
 historical proof/source identities usable; retire no runner or configuration.
+
+Accepted proof: [seven-case preservation](slice-8-proof.md) and [all37 inventory](conversion-inventory.md).
+About 11 active minutes; strict Frontend16, client7/runner5 Backend, E2E3 and typecheck passed.
+[Independent refactoring](slice-8-refactor.md) passed candidate1; all130 commitments have bounded observations.
 
 ## Premises, observations and sizing review
 

@@ -1,4 +1,5 @@
-// With a selected Taken story (../support/intentStoryWorktree.ts), Intent
+import { selectTakenStoryInIntent } from "../../tests/support/frontendIntentVisits.ts";
+// With a selected Taken story (../../tests/support/frontendIntentVisits.ts), Intent
 // reads no file text or story diff until a file is opened: browsing a
 // location and folders shows their Summaries without a request. A changed
 // file's Purpose is the story's diff alone, with no read of its published
@@ -16,13 +17,10 @@ import {
   intentFolderName,
   intentLocationName,
   purposeRegion,
-} from "../intentPerspectivePage.ts";
-import { expect, test } from "../support/preparationPage.ts";
-import {
-  intentDiff,
-  selectTakenStoryInIntent,
-} from "../support/intentStoryPage.ts";
-import { changed } from "../support/intentStoryWorktree.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { intentDiff } from "../../tests/support/intentStoryPage.ts";
+import { changed } from "../../tests/support/intentStoryWorktree.ts";
 
 const locationPaths = ["dashboard/tests/", "tests/"];
 const modifiedPath = "dashboard/tests/a.spec.ts";
@@ -49,9 +47,9 @@ function contentReads(page: Page) {
 
 test("with a selected story, browsing reads nothing and a changed file's diff is read once, without its published text", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  const { intent } = await selectTakenStoryInIntent(page, origin);
+  const { intent } = await selectTakenStoryInIntent(page, frontendServices);
   const reads = contentReads(page);
   const purpose = purposeRegion(intent);
 

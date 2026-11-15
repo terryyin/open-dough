@@ -1,4 +1,5 @@
-import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
+import { prepareFrontendReuseJobs } from "../../tests/support/frontendIntentReuseAnswers.ts";
+import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // Intent's Purpose shows only what was read for the selected file,
 // and the selection outlives reads of the same revision
 // (../../src/IntentBrowser.tsx, ../../src/IntentPerspective.tsx): while another
@@ -7,28 +8,25 @@ import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // published work's detail completing during startup, at the same revision,
 // neither reads the locations again nor clears the expanded group, the
 // selected feature or its Purpose. Newer revisions:
-// ../../frontend-tests/intent/intent-revision-notice.spec.ts.
+// ./intent-revision-notice.spec.ts.
 
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
-import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import {
+  openUntilRead,
+  untilPageReadsAnswered,
+} from "../../tests/pageRequestNotes.ts";
 import {
   countLocationsReads,
   expandIntentGroup,
   intentGroupToggle,
   purposeRegion,
-} from "../intentPerspectivePage.ts";
-import { holdAuthenticatedReadsOf } from "../holdAuthenticatedReads.ts";
-import { publishIntentProject, pygardon } from "../intentCodeBrowseFixtures.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import { holdAuthenticatedReadsOf } from "../../tests/holdAuthenticatedReads.ts";
 import {
   featurePath,
-  otherFeature,
   otherPath,
-  publishedFeature,
-  settings,
-} from "../intentJobsFeatureFixtures.ts";
-
-const features = { [featurePath]: publishedFeature, [otherPath]: otherFeature };
+} from "../../tests/intentJobsFeatureFixtures.ts";
 
 // Holds still released after a journey, so a failed one does not hang.
 const releases: (() => void)[] = [];
@@ -38,9 +36,10 @@ test.afterEach(() => {
 
 test("selecting another feature never shows the previous feature's text in Purpose", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishIntentProject(page, pygardon, settings, features);
+  await prepareFrontendReuseJobs(page, frontendServices);
   await openUntilRead(page, "/?project=pygardon");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
@@ -99,10 +98,11 @@ test("selecting another feature never shows the previous feature's text in Purpo
 
 test("a feature selected while startup detail completes stays selected with its Purpose", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   const locationsReads = countLocationsReads(page);
-  await publishIntentProject(page, pygardon, settings, features);
+  await prepareFrontendReuseJobs(page, frontendServices);
   // The queued story's Goal is part of the published work's detail; holding
   // it keeps startup unfinished while the developer picks a feature.
   const detail = await holdAuthenticatedReadsOf(
