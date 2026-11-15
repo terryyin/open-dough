@@ -1,6 +1,7 @@
 # Move Intent and navigation checks out and retire Dashboard Integrated UI Test
 
-**Identity:** SEED-334#retire-dashboard-integrated-ui-test
+Provisional planning material for `SEED-334#retire-dashboard-integrated-ui-test`;
+the source below is its canonical story, not this unselected draft.
 **Source:** [Move Intent and navigation checks out and retire Dashboard Integrated UI Test](../../seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test)
 
 This provisional plan is **awaiting story refinement — not ready for slice-plan refinement or execution**.
