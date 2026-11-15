@@ -1,30 +1,29 @@
 // Touch editing retains one story draft and its choices through rotation and
-// constrained height. Cancel restores focus without calling the native host.
+// constrained height, for a long-titled story in a project offering the real
+// shipped refinement options; Cancel restores focus and asks for no launch.
+// Built frontend against controlled answers.
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import {
+  machineOffering,
+  putFrontendMachine,
+  putFrontendNotRefinedTitle,
+} from "../../tests/support/frontendServiceState.ts";
+import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
 import {
   expectEveryControlReachable,
   expectNoSidewaysScrollIn,
   tapWhereShown,
-} from "../pageLayout.ts";
+} from "../../tests/pageLayout.ts";
 import {
-  longTitle,
-  openLongTitleOrigin,
-  publishLongTitleOrigin,
-  type LongTitleOrigin,
-} from "../longTitleLaunch.ts";
+  backlogLaunchers,
+  shippedRefinementDefinition,
+} from "../../tests/launchStoryCardPage.ts";
+import { longTitle } from "../../tests/longTitleLaunch.ts";
 import {
   phoneLaunchTouchViewport,
   typeInstructionLine,
-} from "../touchLaunchPage.ts";
-
-let published: LongTitleOrigin;
-test.beforeAll(async () => {
-  published = await publishLongTitleOrigin();
-});
-test.afterAll(() => (published as LongTitleOrigin | undefined)?.cleanup());
-test.use({ projectFolders: ["open-dough"] });
+} from "../../tests/touchLaunchPage.ts";
 
 const optionsSummary = (dialog: Locator) =>
   dialog.locator("summary", { hasText: "Refinement options" });
@@ -36,12 +35,16 @@ test.describe(`${name} touch launch editing`, () => {
 
   test("rotation and short visible height preserve the draft and choices, and Cancel sends no launch", async ({
     page,
-    dashboard,
+    frontendServices,
   }) => {
-    await openLongTitleOrigin(page, dashboard.home, published);
-    const launcher = parts(page)
-      .backlog.getByRole("article", { name: longTitle })
-      .getByRole("button", { name: "Start refinement" });
+    const boundary = await installFrontendLaunchBoundary(page);
+    putFrontendNotRefinedTitle(frontendServices, longTitle);
+    putFrontendMachine(
+      frontendServices,
+      machineOffering(shippedRefinementDefinition()),
+    );
+    await page.goto("/");
+    const launcher = backlogLaunchers(page).refine(longTitle);
     await launcher.scrollIntoViewIfNeeded();
     await tapWhereShown(launcher);
     const dialog = page.getByRole("dialog");
@@ -108,13 +111,13 @@ test.describe(`${name} touch launch editing`, () => {
       }
       await expectNoSidewaysScrollIn(page, dialog);
       await expectEveryControlReachable(dialog);
-      expect(dashboard.claudeLaunchCalls()).toEqual([]);
+      expect(boundary.acceptances).toEqual([]);
     }
     await tapWhereShown(
       dialog.getByRole("button", { name: "Cancel", exact: true }),
     );
     await expect(dialog).toBeHidden();
     await expect(launcher).toBeFocused();
-    expect(dashboard.claudeLaunchCalls()).toEqual([]);
+    expect(boundary.acceptances).toEqual([]);
   });
 });

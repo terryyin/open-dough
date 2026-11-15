@@ -9,7 +9,7 @@
 // then the reporting context, even with no text; the line beside Start names
 // the push Start authorizes. Change confirmation belongs to
 // ./agent-launch-start-session-existing-changes.spec.ts; default no-start
-// belongs to ../../dashboard/tests/launches/agent-launch-ad-hoc.spec.ts. The launch record keeps the
+// belongs to ./agent-launch-ad-hoc.spec.ts. The launch record keeps the
 // policy and what the start established, never the confirmation. Raw requests are
 // in ../../dashboard/backend-tests/launches/agent-launch-start-session-landing-boundary.spec.ts.
 

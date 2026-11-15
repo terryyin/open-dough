@@ -1,13 +1,26 @@
-import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts, sessionEntriesIn } from "../dashboardPage.ts";
-import { startSessionField } from "../launchStoryCardPage.ts";
-import { expect, keptRecord, test } from "../support/cursorStart.ts";
+// A Cursor model listed with several efforts offers them only once a specific
+// model is chosen, clears an effort the next model lacks, and Start sends the
+// composed listed id on the prompted run and keeps model and effort apart in
+// the record. The fixture records native argv. Retaining an unsupported
+// effort as invalid is
+// ../../dashboard/frontend-tests/launches/agent-launch-native-effort.spec.ts.
+import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import {
+  parts,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
+import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
+import {
+  expect,
+  keptRecord,
+  test,
+} from "../../dashboard/tests/support/cursorStart.ts";
 import {
   cursorEffortModels,
   cursorModels,
   cursorOtherEffortModels,
-} from "../support/fakeCursor.ts";
-import { launchWaitMs } from "../support/launchWait.ts";
+} from "../../dashboard/tests/support/fakeCursor.ts";
+import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
 
 const effortListing = [
   ...cursorModels,
@@ -116,39 +129,4 @@ test("a multi-effort Cursor model lists effort choices and Start sends the compo
     model: "fixture-orb",
     effort: "high-fast",
   });
-});
-
-test("switching Cursor model retains unsupported effort as invalid and blocks Start", async ({
-  page,
-  origin,
-  cursor,
-}) => {
-  cursor.listModels(effortListing);
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
-    repository: "terryyin/open-dough",
-  });
-  await page.goto("/");
-  await page
-    .getByRole("button", { name: "Start session in Open Dough" })
-    .click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
-  const models = dialog.getByRole("combobox", { name: "Model" });
-  const effort = dialog.getByLabel("Reasoning effort", { exact: true });
-  await models.selectOption("fixture-orb");
-  await effort.selectOption("high");
-  await models.selectOption("fixture-luna");
-  await expect(effort).toHaveValue("high");
-  await expect(effort).toHaveAttribute("aria-invalid", "true");
-  await expect(
-    dialog.getByRole("button", { name: "Start", exact: true }),
-  ).toBeDisabled();
-  await expect(dialog).toContainText("cannot be verified");
-  await effort.selectOption("medium");
-  await expect(effort).not.toHaveAttribute("aria-invalid", "true");
-  await expect(
-    dialog.getByRole("button", { name: "Start", exact: true }),
-  ).toBeEnabled();
 });

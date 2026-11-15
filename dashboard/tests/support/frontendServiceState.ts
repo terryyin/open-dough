@@ -3,7 +3,14 @@
 
 import type { IntentCandidatesAnswer } from "../../server/intentCandidatesRead.ts";
 import type { IntentLocationsAnswer } from "../../server/intentLocationsRead.ts";
-import type { MachineAnswer } from "../../src/agentLaunch.ts";
+import type {
+  MachineAnswer,
+  OfferedDefinition,
+} from "../../src/agentLaunch.ts";
+import {
+  offeredShape,
+  type OptionsDefinition,
+} from "../../src/commandOptions.ts";
 import type { HostStatus } from "../../src/hostStatus.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import { backlogApart, describedRevision } from "../describedRevisions.ts";
@@ -41,41 +48,46 @@ const story = (title: string, identity: string, href: string) =>
 
 const taken = story(takenStory, "SEED-A#a", "seeds/SEED-A-taken.md#a");
 const ready = story(readyStory, "SEED-B#b", "seeds/SEED-B-ready.md#b");
-const notRefined = story(
-  notRefinedStory,
-  "SEED-C#c",
-  "seeds/SEED-C-queued.md#c",
-);
 
 // The project the page reads on open: one Taken and two queued stories with
 // their seeds, a direction, Intent settings, and test-optimization candidates.
-const frontendPublished = backlogApart(
-  describedRevision(
-    makeMe.aRepository
-      .withRevision("frontend", {
-        backlog: {
-          direction: "Frontend substitute direction.",
-          taken: [taken],
-          queued: [ready, notRefined],
-        },
-        files: {
-          [testOptimizationCandidatesPath]: openDoughCandidatesRecord,
-          ".planning/open-dough.json": intentSettingsText(openDoughSettings),
-          ".planning/seeds/SEED-A-taken.md": `# Taken
+// The not-refined queued story's title may be stated.
+function frontendPublishedWith(notRefinedTitle: string) {
+  const notRefined = story(
+    notRefinedTitle,
+    "SEED-C#c",
+    "seeds/SEED-C-queued.md#c",
+  );
+  return backlogApart(
+    describedRevision(
+      makeMe.aRepository
+        .withRevision("frontend", {
+          backlog: {
+            direction: "Frontend substitute direction.",
+            taken: [taken],
+            queued: [ready, notRefined],
+          },
+          files: {
+            [testOptimizationCandidatesPath]: openDoughCandidatesRecord,
+            ".planning/open-dough.json": intentSettingsText(openDoughSettings),
+            ".planning/seeds/SEED-A-taken.md": `# Taken
 
 ${renderStorySection(taken)}`,
-          ".planning/seeds/SEED-B-ready.md": `# Ready
+            ".planning/seeds/SEED-B-ready.md": `# Ready
 
 ${renderStorySection(ready, { goal: "Ready goal." })}`,
-          ".planning/seeds/SEED-C-queued.md": `# Queued
+            ".planning/seeds/SEED-C-queued.md": `# Queued
 
 ${renderStorySection(notRefined)}`,
-        },
-      })
-      .please(),
-    frontendRevision,
-  ),
-);
+          },
+        })
+        .please(),
+      frontendRevision,
+    ),
+  );
+}
+
+const frontendPublished = frontendPublishedWith(notRefinedStory);
 
 export const takenBacklogMarkdown = frontendPublished.backlog;
 
@@ -89,7 +101,6 @@ export type FrontendServiceState = {
   // Undefined while the machine's sessions are unread, as hostStatus.
   machine: MachineAnswer | undefined;
   hostStatus: HostStatus | undefined;
-  hostOptions: unknown;
 };
 
 export function defaultFrontendServiceState(
@@ -123,7 +134,6 @@ export function defaultFrontendServiceState(
     hostStatus: makeMe.aHostStatus
       .with({ cpuPercent: 12, freeBytes: 64_000_000_000 })
       .please(),
-    hostOptions: { models: [] },
   };
 }
 
@@ -133,6 +143,30 @@ export function putFrontendMachine(
   machine: MachineAnswer | undefined,
 ): void {
   Object.assign(services, { machine });
+}
+
+// The machine's sessions read when Open Dough's installed skill offers its
+// refinement launches in Claude Code the options of `definition`.
+export function machineOffering(definition: OptionsDefinition): MachineAnswer {
+  const offered: OfferedDefinition = {
+    source: "open-dough",
+    workflow: "refinement",
+    host: "claude",
+    ...offeredShape(definition),
+  };
+  return makeMe.aMachineAnswer.offering(offered).please();
+}
+
+// The project as published with its not-refined queued story retitled.
+export function putFrontendNotRefinedTitle(
+  services: FrontendServiceState,
+  title: string,
+): void {
+  const published = frontendPublishedWith(title);
+  Object.assign(services, {
+    backlog: published.backlog,
+    files: { ...published.files },
+  });
 }
 
 export function putFrontendHostStatus(

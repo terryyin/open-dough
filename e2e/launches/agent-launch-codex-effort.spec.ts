@@ -1,10 +1,80 @@
-// Effort launches that start installed work: effort-only launches resolve
-// their configured model in the actual workspace, and workspace confirmation
-// keeps the chosen model and effort.
-import { test, expect } from "../support/codexStart.ts";
-import { launchStoreFile } from "../support/launchStore.ts";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { expectAdHocReportingInput } from "../support/reportingInputAssertions.ts";
+// Codex effort launches with real dialogs, stores and native requests. A
+// stale explicit effort is refused before native creation and a deliberate
+// default retry sends neither override (on the worker's launch journey);
+// effort-only launches that start installed work resolve their configured
+// model in the actual workspace, and workspace confirmation keeps the chosen
+// model and effort. Effort choices in the dialog alone are
+// ../../dashboard/frontend-tests/launches/agent-launch-native-effort.spec.ts.
+import { appendFileSync, existsSync } from "node:fs";
+import path from "node:path";
+import {
+  test,
+  expect,
+  stored,
+} from "../../dashboard/tests/support/codexStart.ts";
+import { test as journeyTest } from "../../dashboard/tests/support/codexLaunch.ts";
+import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
+import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
+import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { expectAdHocReportingInput } from "../../dashboard/tests/support/reportingInputAssertions.ts";
+import {
+  openBacklog,
+  radio,
+} from "../../dashboard/tests/support/sessionDialog.ts";
+
+// codexLaunch.ts gives no project folder; Start session needs the one an
+// installed origin makes.
+test.use({ projectFolders: ["open-dough"] });
+
+journeyTest(
+  "stale explicit effort is explained and a deliberate default retry sends neither override",
+  async ({ page, dashboard, launchJourney, codexProtocol: fixture }) => {
+    if (!fixture) throw new Error("Native fixture missing");
+    const native = fixture;
+    await openTakenBacklog(page, launchJourney);
+    const open = page.getByRole("button", {
+      name: "Start session in Open Dough",
+    });
+    const dialog = page.getByRole("dialog");
+    await open.click();
+    await dialog.getByLabel("Host", { exact: true }).selectOption("codex");
+    await dialog
+      .getByLabel("Model", { exact: true })
+      .selectOption("native-sol");
+    await dialog
+      .getByLabel("Reasoning effort", { exact: true })
+      .selectOption("ultra");
+    native.models = native.models.map((item) => ({
+      ...item,
+      supportedReasoningEfforts: item.supportedReasoningEfforts.filter(
+        (item) => item.reasoningEffort !== "ultra",
+      ),
+    }));
+    await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    await expect(page.locator(".start-session-answer")).toContainText(
+      "no longer supported",
+    );
+    expect(native.calls.filter((c) => c.method === "thread/start")).toEqual([]);
+    native.catalogError = { code: -32000, message: "Unavailable" };
+    await open.click();
+    await expect(
+      dialog.getByRole("button", { name: "Retry model choices" }),
+    ).toBeVisible();
+    await expect(
+      dialog.getByLabel("Reasoning effort", { exact: true }),
+    ).toHaveValue("");
+    await expect(dialog.getByLabel("Model", { exact: true })).toHaveValue("");
+    await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    await expect
+      .poll(
+        () => native.calls.filter((c) => c.method === "thread/start").length,
+      )
+      .toBe(1);
+    expect(
+      native.calls.filter((c) => c.method === "thread/start")[0]?.params,
+    ).toEqual({ cwd: path.join(dashboard.home, "git", "open-dough") });
+  },
+);
 
 test("effort-only story startup validates the actual established workspace rather than the project folder", async ({
   page,
@@ -13,7 +83,6 @@ test("effort-only story startup validates the actual established workspace rathe
 }) => {
   if (!fixture) throw new Error("Native fixture missing");
   const native = fixture;
-  const { openBacklog } = await import("../support/sessionDialog.ts");
   const workspace = `${origin.project}/.worktrees/story-a`;
   native.configuredModels = {
     [origin.project]: "native-sol",
@@ -49,8 +118,6 @@ test("effort-only ad hoc dialog uses the configured model while omitting model o
 }) => {
   if (!fixture) throw new Error("Native fixture missing");
   const native = fixture;
-  const { existsSync } = await import("node:fs");
-  const { stored } = await import("../support/codexStart.ts");
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: (await origin.originGit("rev-parse", "main")).trim(),
@@ -106,9 +173,6 @@ test("workspace confirmation keeps model and effort through Back and Continue", 
 }) => {
   if (!fixture) throw new Error("Native fixture missing");
   const native = fixture;
-  const { appendFileSync, existsSync } = await import("node:fs");
-  const { openBacklog, radio } = await import("../support/sessionDialog.ts");
-  const { stored } = await import("../support/codexStart.ts");
   const card = await openBacklog(page, origin);
   appendFileSync(`${origin.project}/.gitignore`, "tmp/\n");
   await card.getByRole("button", { name: "Start execution" }).click();

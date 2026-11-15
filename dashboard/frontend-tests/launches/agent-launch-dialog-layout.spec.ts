@@ -1,46 +1,52 @@
-// The launch dialog's reading order and fit, on a committed origin whose
-// queued Story C has a long title and a project that installs the real
-// refinement skill's options (../longTitleLaunch.ts): the instruction takes
-// the keyboard first, then Record; host/model share a row
-// screen and stack, host first, on a narrow one; the Session group follows;
-// the refinement options sit in a closed disclosure whose summary names the
-// selection, open or closed; the command line and its flags sit in a closed
-// Command details; the launch's effects and Cancel and Start stay in view
-// under a scrolling body with every option selected, every control scrolls
-// into view, with no horizontal scrolling at 320 CSS pixels or at 200% zoom;
-// Cancel returns the keyboard to Start refinement. 200% zoom is emulated as
-// ../accessibleReading.ts's twiceZoomedWindow.
+// The refinement dialog's reading order and fit, for a queued story with a
+// long title in a project whose installed refinement skill offers the real
+// shipped options (answered by the machine's sessions read): the instruction
+// takes the keyboard first, then Record; host/model share a row and stack,
+// host first, on a narrow screen; the Session group follows; the refinement
+// options sit in a closed disclosure whose summary names the selection, open
+// or closed; the command line and its flags sit in a closed Command details;
+// the launch's effects and Cancel and Start stay in view under a scrolling
+// body with every option selected, every control scrolls into view, with no
+// horizontal scrolling at 320 CSS pixels or at 200% zoom; Cancel returns the
+// keyboard to Start refinement. 200% zoom is emulated as
+// ../../tests/accessibleReading.ts's twiceZoomedWindow. Built frontend against
+// controlled answers; which options a project's installed skill offers is
+// ../../../e2e/launches/agent-launch-options.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
-import { twiceZoomedWindow } from "../accessibleReading.ts";
+import { twiceZoomedWindow } from "../../tests/accessibleReading.ts";
 import {
   box,
   expectEveryControlReachable,
   expectNoSidewaysScrollIn,
-} from "../pageLayout.ts";
-import { expect, test } from "../dashboardTest.ts";
+} from "../../tests/pageLayout.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
+  machineOffering,
+  putFrontendMachine,
+  putFrontendNotRefinedTitle,
+  type FrontendServiceState,
+} from "../../tests/support/frontendServiceState.ts";
+import {
+  backlogLaunchers,
   shippedRefinementDefinition,
   showOptions,
-} from "../launchStoryCardPage.ts";
-import { notRefinedIdentity } from "../launchJourney.ts";
-import {
-  longTitle,
-  openRefinement as openLongTitleRefinement,
-  publishLongTitleOrigin,
-  type LongTitleOrigin,
-} from "../longTitleLaunch.ts";
+} from "../../tests/launchStoryCardPage.ts";
+import { notRefinedIdentity } from "../../tests/launchJourney.ts";
+import { longTitle } from "../../tests/longTitleLaunch.ts";
 
-let published: LongTitleOrigin;
-test.beforeAll(async () => {
-  published = await publishLongTitleOrigin();
-});
-test.afterAll(() => (published as LongTitleOrigin | undefined)?.cleanup());
-
-test.use({ projectFolders: ["open-dough"] });
-
-const openRefinement = (page: Page, home: string) =>
-  openLongTitleRefinement(page, home, published);
+// Opens Start refinement on the long-titled story of a project offering the
+// shipped refinement options.
+async function openRefinement(page: Page, services: FrontendServiceState) {
+  putFrontendNotRefinedTitle(services, longTitle);
+  putFrontendMachine(services, machineOffering(shippedRefinementDefinition()));
+  await page.goto("/");
+  const { refine, refinementDialog: dialog } = backlogLaunchers(page);
+  const launcher = refine(longTitle);
+  await launcher.click();
+  await expect(dialog).toBeVisible();
+  return { launcher, dialog };
+}
 
 const optionsSummary = (dialog: Locator) =>
   dialog.locator("summary", { hasText: "Refinement options" });
@@ -49,9 +55,9 @@ const commandSummary = (dialog: Locator) =>
 
 test("the instruction comes first, the summaries name the selection, and the command details hold the flags", async ({
   page,
-  dashboard,
+  frontendServices,
 }) => {
-  const { launcher, dialog } = await openRefinement(page, dashboard.home);
+  const { launcher, dialog } = await openRefinement(page, frontendServices);
   const instruction = dialog.getByRole("textbox", {
     name: "Instruction (optional)",
   });
@@ -153,9 +159,9 @@ for (const { name, viewport, deviceScaleFactor, stacked } of [
 
     test("with every option selected, nothing scrolls sideways, every control is reachable, and Cancel and Start stay in view", async ({
       page,
-      dashboard,
+      frontendServices,
     }) => {
-      const { dialog } = await openRefinement(page, dashboard.home);
+      const { dialog } = await openRefinement(page, frontendServices);
       const host = dialog.getByRole("combobox", { name: "Host" });
       const model = dialog.getByRole("combobox", { name: "Model" });
       const hostBox = await box(host);

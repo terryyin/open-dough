@@ -3,7 +3,7 @@ import { askToDeleteRecord } from "../support/sessionEntryDisclosure.ts";
 // their project/terminal; Done moves them to Recently done and reopen survives reload.
 // Blocked sessions count as needing attention; deletion under an unread native
 // listing returns focus to the next Taken entry. The real boundary drives fake Claude.
-// Related journeys: ../launches/agent-launch-ad-hoc.spec.ts, ./sessions-sidebar-navigation-cases.spec.ts,
+// Related journeys: ../../../e2e/launches/agent-launch-ad-hoc.spec.ts, ./sessions-sidebar-navigation-cases.spec.ts,
 // ./agent-terminal-done.spec.ts, ../../../e2e/sessions/agent-launch-recent-delete.spec.ts (./fixtures/fake-claude).
 
 import {

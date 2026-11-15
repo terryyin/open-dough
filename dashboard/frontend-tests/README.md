@@ -19,7 +19,7 @@ explicit route/WebSocket service substitutes, without starting
 Dashboard harness helpers and fixtures stay in `../tests/`. Use the shared
 [MakeMe library](../../Distribution/tests/README.md#test-data-architecture) for domain data.
 A spec moved from an integrated feature folder keeps that folder name here
-(`intent/`, `configuration/`), beside the specs extracted earlier at this root; a module that
+(`intent/`, `configuration/`, `launches/`), beside the specs extracted earlier at this root; a module that
 registers cases for a spec moves with it. Representative workflows live in
 [`../../e2e/`](../../e2e/README.md).
 

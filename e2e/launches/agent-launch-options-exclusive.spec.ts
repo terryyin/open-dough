@@ -1,23 +1,29 @@
 // Exclusive groups and unavailable definitions in the refinement dialog, on
-// the committed origin of ./agent-launch-story-card.spec.ts (../launchJourney.ts): a
-// group the definition declares is radios with a "No <group>" choice, options
-// outside it stay checkboxes, and choosing a member replaces the group's
-// other; a project without a usable definition (or one still being read) says
-// so in one quiet line and Start launches default refinement. A refused
-// launch's kept selection is ./agent-launch-options-kept.spec.ts. The
-// synthetic `claude` (./fixtures/fake-claude) stands in for the real one; the
-// boundary's own rules are ../../backend-tests/launches/agent-launch-options-boundary.spec.ts.
+// the launch journey's committed origin (../../dashboard/tests/launchJourney.ts):
+// a group the definition declares is radios with a "No <group>" choice,
+// options outside it stay checkboxes, and choosing a member replaces the
+// group's other, launching in definition order; a project without a usable
+// definition says why in one quiet line and Start launches default
+// refinement. Clearing a group and a definition still being read are
+// ../../dashboard/frontend-tests/launches/agent-launch-options.spec.ts; a
+// refused launch's kept selection is ./agent-launch-options-kept.spec.ts. The
+// synthetic `claude` (../../dashboard/tests/fixtures/fake-claude) stands in for
+// the real one; the boundary's own rules are
+// ../../dashboard/backend-tests/launches/agent-launch-options-boundary.spec.ts.
 
 import { rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../dashboardTest.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   groupedOptions,
   installRefinementSkill,
   openTakenBacklog,
   showOptions,
-} from "../launchStoryCardPage.ts";
-import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
+} from "../../dashboard/tests/launchStoryCardPage.ts";
+import {
+  notRefinedIdentity,
+  notRefinedStory,
+} from "../../dashboard/tests/launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -70,33 +76,6 @@ test("a group is radios with a No choice and other options stay checkboxes, choo
   await expect(refinementDialog).toBeHidden();
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
   expect(dashboard.claudeLaunchCalls()[0]?.argv[3]).toBe(`${sent} --b --c`);
-});
-
-test("choosing No Approach clears the group's choice and leaves the others", async ({
-  page,
-  dashboard,
-  launchJourney,
-}) => {
-  writeFileSync(
-    installRefinementSkill(dashboard.home),
-    JSON.stringify(groupedOptions),
-  );
-  const { refine, refinementDialog } = await openTakenBacklog(
-    page,
-    launchJourney,
-  );
-
-  await refine(notRefinedStory).click();
-  await showOptions(refinementDialog);
-  await refinementDialog
-    .getByRole("checkbox", { name: "C", exact: true })
-    .check();
-  await refinementDialog.getByRole("radio", { name: "A", exact: true }).check();
-  await refinementDialog.getByRole("radio", { name: "No Approach" }).check();
-  await expect(
-    refinementDialog.getByRole("radio", { name: "A", exact: true }),
-  ).not.toBeChecked();
-  await expect(refinementDialog).toContainText(`Sent after ${sent} --c.`);
 });
 
 const unavailable = [
@@ -163,54 +142,3 @@ for (const { name, change, line } of unavailable) {
     expect(dashboard.claudeLaunchCalls()[0]?.argv[3]).toBe(sent);
   });
 }
-
-test("until the sessions read answers, refinement is not offered; while the options are read again, the dialog says so and Start launches default refinement", async ({
-  page,
-  dashboard,
-  launchJourney,
-}) => {
-  dashboard.claudeScenario("launched");
-  installRefinementSkill(dashboard.home);
-  // Reads of the machine's sessions wait while held.
-  let release: () => void = () => undefined;
-  let held: Promise<void> | undefined;
-  const hold = () => {
-    held = new Promise<void>((resolve) => {
-      release = () => {
-        held = undefined;
-        resolve();
-      };
-    });
-  };
-  hold();
-  await page.route("**/__agent-launch", async (route) => {
-    if (route.request().method() === "GET" && held !== undefined) await held;
-    await route.continue();
-  });
-  const { refine, refinementDialog } = await openTakenBacklog(
-    page,
-    launchJourney,
-  );
-
-  // No Start is offered before this machine's launch evidence is read.
-  await expect(refine(notRefinedStory)).toBeDisabled();
-  release();
-  await expect(refine(notRefinedStory)).toBeEnabled();
-
-  hold();
-  await refine(notRefinedStory).click();
-  // The dialog is named after its host, so it is found by role here.
-  const host = page.getByRole("dialog").getByRole("combobox", { name: "Host" });
-  await host.selectOption("codex");
-  await host.selectOption("claude");
-  await expect(refinementDialog.getByText("Reading options…")).toBeVisible();
-  await expect(
-    refinementDialog.getByRole("group", { name: "Options" }),
-  ).toHaveCount(0);
-  await refinementDialog.getByRole("button", { name: "Start" }).click();
-
-  await expect(refinementDialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(dashboard.claudeLaunchCalls()[0]?.argv[3]).toBe(sent);
-  release();
-});

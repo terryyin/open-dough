@@ -1,6 +1,9 @@
 // Start session Attach images: pick two PNGs, remove Image 1, Start → fake
 // Claude's prompt ends with the remaining path under the test HOME's
-// launch-attachments folder, and that file holds the picked bytes.
+// launch-attachments folder, and that file holds the picked bytes. An image
+// pasted into the instruction field is sent the same way as pasted.png
+// (SEED-204 E1 / commitments 5b, 5c); pasting text is
+// ../../dashboard/frontend-tests/launches/agent-launch-ad-hoc-attachments-paste.spec.ts.
 
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -17,6 +20,7 @@ import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import {
   expectCopiedAttachmentPath,
+  pasteImageInField,
   pickImagesInDialog,
   pngA,
   pngB,
@@ -149,4 +153,38 @@ test("Start session with no text and one image sends the list alone, labels by t
     createHash("sha256").update(pngA).digest("hex"),
   ]);
   expect(record?.request).not.toHaveProperty("instruction");
+});
+
+test("pasting an image into the instruction field attaches it as pasted.png and Start sends its path", async ({
+  page,
+  dashboard,
+  launchJourney,
+}) => {
+  dashboard.claudeScenario("launched");
+  await openJourney(page, launchJourney);
+
+  const text = "Why is this card clipped?";
+  const dialog = startSessionDialog(page, "Open Dough");
+  await startSession(page, "Open Dough").click();
+  const field = startSessionField(dialog);
+  await field.fill(text);
+
+  await pasteImageInField(field, pngA);
+
+  const list = dialog.getByRole("list", { name: "Attached images" });
+  await expect(list.getByText("Image 1 · pasted.png")).toBeVisible();
+  await expect(list.locator("img")).toHaveCount(1);
+  await expect(field).toHaveValue(text);
+
+  await dialog.getByRole("button", { name: "Start" }).click();
+  await expect(dialog).toBeHidden();
+
+  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  const [call] = dashboard.claudeLaunchCalls();
+  const prompt = call?.argv.at(-1) ?? "";
+  const expectedPrefix = `${text}\n\nAttached images:\n1. `;
+  expect(prompt.startsWith(expectedPrefix)).toBe(true);
+  const attachedPath = prompt.slice(expectedPrefix.length);
+  expectCopiedAttachmentPath(attachedPath, dashboard.home, "1-pasted.png");
+  expect(readFileSync(attachedPath)).toEqual(pngA);
 });

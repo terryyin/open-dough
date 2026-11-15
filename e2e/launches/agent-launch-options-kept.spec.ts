@@ -1,26 +1,35 @@
-// A refused launch's selection in the refinement dialog, on the committed
-// origin of ./agent-launch-story-card.spec.ts (../launchJourney.ts): the launch says
-// "Launch failed:" naming the option and keeps the selection for the next
-// opening, naming in one quiet line the kept flags the project no longer
-// offers, which are not sent; Cancel drops it. The synthetic `claude`
-// (./fixtures/fake-claude) stands in for the real one; the boundary's own
-// rules are ../../backend-tests/launches/agent-launch-options-boundary.spec.ts.
+// A refused launch's selection in the refinement dialog, on the launch
+// journey's committed origin (../../dashboard/tests/launchJourney.ts): the
+// launch says "Launch failed:" naming the option and keeps the selection for
+// the next opening, naming in one quiet line the kept flags the project no
+// longer offers, which are not sent. That Cancel drops it is
+// ../../dashboard/frontend-tests/launches/agent-launch-options.spec.ts. The
+// synthetic `claude` (../../dashboard/tests/fixtures/fake-claude) stands in for
+// the real one; the boundary's own rules are
+// ../../dashboard/backend-tests/launches/agent-launch-options-boundary.spec.ts.
 
 import { rmSync, writeFileSync } from "node:fs";
 import type { Locator, Page } from "@playwright/test";
-import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
-import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
+import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
+import {
+  expect,
+  pausePageClockAt,
+  test,
+} from "../../dashboard/tests/dashboardTest.ts";
 import {
   untilPageRequestsAnswered,
   whileNotingChecks,
-} from "../pageRequestNotes.ts";
+} from "../../dashboard/tests/pageRequestNotes.ts";
 import {
   groupedOptions,
   installRefinementSkill,
   openTakenBacklog,
   showOptions,
-} from "../launchStoryCardPage.ts";
-import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
+} from "../../dashboard/tests/launchStoryCardPage.ts";
+import {
+  notRefinedIdentity,
+  notRefinedStory,
+} from "../../dashboard/tests/launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -129,32 +138,4 @@ test("a kept selection the project no longer offers at all is named, and Start l
   await expect(refinementDialog).toBeHidden();
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
   expect(dashboard.claudeLaunchCalls()[0]?.argv[3]).toBe(sent);
-});
-
-test("after a refusal, Cancel drops the kept selection", async ({
-  page,
-  dashboard,
-  launchJourney,
-}) => {
-  const file = installRefinementSkill(dashboard.home);
-  writeFileSync(file, JSON.stringify(groupedOptions));
-  const { refine, refinementDialog } = await openTakenBacklog(
-    page,
-    launchJourney,
-  );
-
-  await refine(notRefinedStory).click();
-  await refuseAWithC(page, file, refinementDialog);
-
-  await refine(notRefinedStory).click();
-  await showOptions(refinementDialog);
-  await expect(
-    refinementDialog.getByRole("radio", { name: "A", exact: true }),
-  ).toBeChecked();
-  await refinementDialog.getByRole("button", { name: "Cancel" }).click();
-  await refine(notRefinedStory).click();
-  await showOptions(refinementDialog);
-  await expect(
-    refinementDialog.getByRole("radio", { name: "A", exact: true }),
-  ).not.toBeChecked();
 });

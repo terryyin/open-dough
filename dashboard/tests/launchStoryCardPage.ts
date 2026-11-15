@@ -16,6 +16,7 @@ import {
   type LaunchJourney,
 } from "./launchJourney.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { optionsDefinitionSchema } from "../src/commandOptions.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
@@ -50,17 +51,21 @@ export function installRefinementSkill(home: string) {
   );
 }
 
-// The options definition the real refinement skill ships.
+// The options definition the real refinement skill ships, with the fields
+// only its agent reads, and focuses listed even when it has none.
 export function shippedRefinementDefinition() {
-  return JSON.parse(
+  const shipped: unknown = JSON.parse(
     readFileSync(
       path.join(shippedReferences, "refinement-options.json"),
       "utf8",
     ),
-  ) as Record<
-    "options" | "focuses",
-    { flag: string; label: string; summary: string }[]
-  >;
+  );
+  const definition = optionsDefinitionSchema.parse(shipped);
+  return {
+    ...(shipped as object),
+    ...definition,
+    focuses: definition.focuses ?? [],
+  };
 }
 
 const groupedEntry = (flag: string) =>
@@ -102,8 +107,14 @@ export async function openTakenBacklog(page: Page, journey: LaunchJourney) {
     repository: "terryyin/open-dough",
   });
   await page.goto("/");
-  const { backlog, taken } = parts(page);
   await expectSettledPage(page, takenBacklogStories);
+  return backlogLaunchers(page);
+}
+
+// Where the settled Taken/Backlog board's launch actions and their Claude Code
+// dialogs are found.
+export function backlogLaunchers(page: Page) {
+  const { backlog, taken } = parts(page);
   const card = (title: string) => backlog.getByRole("article", { name: title });
   return {
     card,

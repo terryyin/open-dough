@@ -65,14 +65,14 @@ Backend roots and page objects for the browser roots that keep them.
 | --- | --- |
 | Interim tree still holds the conversion work (all conversion slices) | At `c327752a0f385417c74b1a7b3511ebe5d3b450e6`: 271 `dashboard/tests/**/*.spec.ts` (configuration 11, launches 27, sessions 52, terminals 14, review 16, intent 72, navigation 41, stories 31, observation 7). |
 | Inventory still covers almost all interim specs (placement) | Same revision: 269 of 271 match `migration-purpose.json` at `125c45649fa587c78ed7445deff35db87604489d` (209 frontend, 59 split, 1 backend pending); e2e-class inventory rows are already absent from the interim tree; uninventoried: `tests/sessions/recently-done-returned-sessions.spec.ts`, `tests/review/story-review-diff-line-follow-up.spec.ts`. |
-| Frontend substitute harness is the unit conversion route (slices 1–9) | `npx playwright test --config dashboard/frontend.playwright.config.ts --list --reporter=line` at `c327752a0f385417c74b1a7b3511ebe5d3b450e6` listed 161 Chromium cases under `frontend-tests/` (exit 0). |
+| Frontend substitute harness is the unit conversion route (slices 1–8) | `npx playwright test --config dashboard/frontend.playwright.config.ts --list --reporter=line` at `c327752a0f385417c74b1a7b3511ebe5d3b450e6` listed 161 Chromium cases under `frontend-tests/` (exit 0). |
 | Configuration batch is still the inventory’s first conversion set (slice 1) | `dashboard/tests/configuration/` holds the 11 inventory-named specs; related workflow cases already live under `e2e/configuration/`. |
-| Retirement touchpoints exist and are enumerable (slice 10) | Grep at `c327752a0f385417c74b1a7b3511ebe5d3b450e6` for `test:dashboard:integrated` / `dashboard-integrated` / `Dashboard Integrated UI Test` / `integrated.playwright` hits Intent location in `.planning/open-dough.json`, `package.json`, `ci.yml` job `dashboard-integrated`, `dashboard/integrated.playwright.config.ts`, duration lists, runner support, Distribution CI helpers/tests, and placement READMEs. Do not confuse with `integratedStateCompletion` in open-dough.json. |
-| Later batch effort fits one execution slice (slices 2–9) | Unsettled until slice 1 records elapsed conversion effort for frontend/small and split/small cases. Slice 1 is the early probe: if measured effort shows a later inventory batch cannot finish as one slice, replan that batch (split by folder or substitute family) before continuing it. |
+| Retirement touchpoints exist and are enumerable (slice 9) | Grep at `c327752a0f385417c74b1a7b3511ebe5d3b450e6` for `test:dashboard:integrated` / `dashboard-integrated` / `Dashboard Integrated UI Test` / `integrated.playwright` hits Intent location in `.planning/open-dough.json`, `package.json`, `ci.yml` job `dashboard-integrated`, `dashboard/integrated.playwright.config.ts`, duration lists, runner support, Distribution CI helpers/tests, and placement READMEs. Do not confuse with `integratedStateCompletion` in open-dough.json. |
+| Later batch effort fits one execution slice (slices 2–8) | Unsettled until slice 1 records elapsed conversion effort for frontend/small and split/small cases. Slice 1 is the early probe: if measured effort shows a later inventory batch cannot finish as one slice, replan that batch (split by folder or substitute family) before continuing it. |
 
 ## Outside-in proof ownership
 
-Each conversion slice (1–9):
+Each conversion slice (1–8):
 
 1. Every distinct check from that slice’s interim specs runs under
    `npm run test:e2e`, `test:dashboard:frontend`, and/or
@@ -84,7 +84,7 @@ Each conversion slice (1–9):
 4. Focused run of the touched homes passes; no wall-clock sleep, `test.slow()`,
    or suite/file/group/hook timeout overrides.
 
-Retirement slice (10): Intent locations and CI no longer name **Dashboard
+Retirement slice (9): Intent locations and CI no longer name **Dashboard
 Integrated UI Test**; `test:dashboard:integrated` and its Playwright config,
 producer, shards and settings prefix are gone; placement guidance and the
 browser-group roster (or hard-coded callers) describe three groups; shared
@@ -129,16 +129,42 @@ are mechanical. Batches needing several new families, or many inventory
 17), exceed one agent slice and are split by folder or substitute family
 before delegation.
 
-### 2. Convert launch dialog, start and voice
+### 2. Convert launch dialog, model and options
+Type: Behavior
+Status: done
+Proof: same ownership pattern for the 14 launch-dialog specs in
+`dashboard/tests/launches/`: `agent-launch-ad-hoc*` (4),
+`agent-launch-{codex,cursor}-model`, `agent-launch-model{,-entries}`,
+`agent-launch-dialog-{layout,touch}`, `agent-launch-options{,-entries,-exclusive,-kept}`;
+split mixed cases; focused runs of touched E2E/Frontend homes.
+
+Behavior: interim launch dialog, model and option detailed and mixed checks →
+converted and removed from the interim tree with assertions preserved.
+
+Accepted proof: 12 Frontend specs in `dashboard/frontend-tests/launches/` on
+`frontendLaunchSubstitutes.ts` (with shared `frontendSubstituteAnswers.ts`
+hold/answer mechanics), 10 new E2E specs in `e2e/launches/` plus the joined
+attachments journey; split example `agent-launch-ad-hoc` (E2E argv/cwd and
+record; Frontend placement, held read and dialog focus). Focused E2E 35
+passed, unfiltered Frontend 209 passed, Backend launch boundaries and builder
+consumers passed, `typecheck:dashboard` passed. Scratch break of the
+`LaunchOptions` summary failed interim and converted dialog-layout cases
+identically. Sizing: 14 specs including one `large` took about 26 minutes
+with verification; large split cases with a plain JSON boundary cost no more
+than small ones.
+
+### 3. Convert launch start, story-card start, responsive access and voice
 Type: Behavior
 Status: planned
-Proof: same ownership pattern for `dashboard/tests/launches/` (27 inventory
-specs); split mixed cases; focused runs of touched E2E/Frontend homes.
+Proof: same for the remaining 13 `dashboard/tests/launches/` specs:
+`agent-launch-start-*`, `agent-launch-story-*` (4), `responsive-session-*`
+(3), `session-instruction-voice-*` (3).
 
-Behavior: interim launch/start/voice detailed and mixed checks → converted and
-removed from the interim tree with assertions preserved.
+Behavior: interim start, story-card start, responsive session and voice
+checks → converted and removed; `dashboard/tests/launches/` holds no product
+specs.
 
-### 3. Convert sessions interim detailed checks
+### 4. Convert sessions interim detailed checks
 Type: Behavior
 Status: planned
 Proof: same for `dashboard/tests/sessions/` including
@@ -148,7 +174,7 @@ simplification beyond placement.
 Behavior: interim session detailed/mixed checks → Frontend/Backend/E2E homes
 by boundary; interim session product specs gone.
 
-### 4. Convert terminals interim detailed checks
+### 5. Convert terminals interim detailed checks
 Type: Behavior
 Status: planned
 Proof: same for `dashboard/tests/terminals/`.
@@ -156,7 +182,7 @@ Proof: same for `dashboard/tests/terminals/`.
 Behavior: interim terminal detailed checks → unit or E2E homes; interim
 terminal product specs gone.
 
-### 5. Convert story review interim checks
+### 6. Convert story review interim checks
 Type: Behavior
 Status: planned
 Proof: same for `dashboard/tests/review/` including
@@ -165,7 +191,7 @@ Proof: same for `dashboard/tests/review/` including
 Behavior: interim review detailed/mixed checks → homes by boundary; interim
 review product specs gone.
 
-### 6. Convert Intent CI, proof, history and Purpose checks
+### 7. Convert Intent CI, proof, history and Purpose checks
 Type: Behavior
 Status: planned
 Proof: same for inventory Intent batch specs still under
@@ -178,7 +204,7 @@ Behavior: interim Intent detailed/mixed checks → Frontend/Backend/E2E homes;
 those interim Intent files gone. If slice 1’s sizing probe requires a split,
 replan this slice into substitute-family Behaviors before executing it.
 
-### 7. Convert board, navigation, stories and observation reading
+### 8. Convert board, navigation, stories and observation reading
 Type: Behavior
 Status: planned
 Proof: same for remaining `dashboard/tests/navigation/`, `stories/` and
@@ -188,7 +214,7 @@ Behavior: interim board/navigation/stories/observation detailed/mixed checks →
 homes by boundary; those interim product specs gone. If the sizing probe
 requires it, replan into per-folder Behaviors before executing.
 
-### 8. Retire Dashboard Integrated UI Test
+### 9. Retire Dashboard Integrated UI Test
 Type: Behavior
 Status: planned
 Proof: `dashboard/tests/**/*.spec.ts` has no remaining product cases; remove
@@ -207,8 +233,9 @@ and Backend remain as current browser proof groups.
 ## Current decisions
 
 - Inventory batches are the default conversion units; slice 1’s measured effort
-  may force a replan that splits slices 6–7 (or 2–5) without changing story
-  goal or scope.
+  may force a replan that splits later batches by folder or substitute family
+  without changing story goal or scope. Slice 1 split the launches batch into
+  slices 2 and 3.
 - SEED-341 does not own moving interim session specs; this plan places them.
 - Retirement may land before or after plan 617; either way the final roster
   surface is three groups.

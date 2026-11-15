@@ -1,18 +1,39 @@
-// Effort dialog cases registered by agent-launch-codex-model.spec.ts. None
-// starts installed work, so each reads the worker's launch journey.
-import path from "node:path";
-import { test, expect } from "../support/codexLaunch.ts";
-import { openTakenBacklog } from "../launchStoryCardPage.ts";
-import { twiceZoomedWindow } from "../accessibleReading.ts";
+// Reasoning effort beside a native host's listed models in Start session's
+// dialog, from controlled host choices answers: a Codex model change keeps a
+// compatible effort and retains an incompatible one as invalid with linked
+// feedback that blocks Start, in keyboard order; a configured model the
+// catalog does not list leaves efforts to Codex and keeps Start in view when
+// narrow or zoomed; a Cursor model change retains an unsupported effort as
+// invalid and blocks Start. Cursor's choices are what the boundary makes of
+// the Cursor stand-in's listing (../../server/hosts/cursor/modelIds.ts).
+// Launches on these choices are ../../../e2e/launches/agent-launch-codex-effort.spec.ts
+// and ../../../e2e/launches/agent-launch-cursor-model-effort.spec.ts.
+
+import {
+  expect,
+  openFrontendTakenBacklog,
+  test,
+} from "../../tests/support/frontendApp.ts";
+import {
+  installFrontendLaunchBoundary,
+  nativeCodexChoices,
+} from "../../tests/support/frontendLaunchSubstitutes.ts";
+import { startSession } from "../../tests/launchStoryCardPage.ts";
+import { twiceZoomedWindow } from "../../tests/accessibleReading.ts";
+import {
+  cursorEffortModels,
+  cursorModels,
+  cursorOtherEffortModels,
+} from "../../tests/support/fakeCursorModels.ts";
+import { projectCursorModels } from "../../server/hosts/cursor/modelIds.ts";
 
 test("model changes preserve compatible effort and retain incompatible selection with linked keyboard feedback", async ({
   page,
-  launchJourney,
 }) => {
-  await openTakenBacklog(page, launchJourney);
-  const open = page.getByRole("button", {
-    name: "Start session in Open Dough",
-  });
+  const boundary = await installFrontendLaunchBoundary(page);
+  boundary.answerChoices("codex", nativeCodexChoices);
+  await openFrontendTakenBacklog(page);
+  const open = startSession(page, "Open Dough");
   await open.click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Host", { exact: true }).selectOption("codex");
@@ -43,20 +64,16 @@ test("model changes preserve compatible effort and retain incompatible selection
     dialog.getByRole("button", { name: "Start", exact: true }),
   ).toBeEnabled();
   await dialog.getByRole("textbox").focus();
-  await page.keyboard.press("Tab");
-  await expect(
+  for (const next of [
     dialog.getByRole("button", { name: "Record", exact: true }),
-  ).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(
     dialog.getByRole("button", { name: "Attach images" }),
-  ).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(dialog.getByLabel("Host", { exact: true })).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(model).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(effort).toBeFocused();
+    dialog.getByLabel("Host", { exact: true }),
+    model,
+    effort,
+  ]) {
+    await page.keyboard.press("Tab");
+    await expect(next).toBeFocused();
+  }
   await effort.selectOption("");
   await expect(effort).not.toHaveAttribute("aria-invalid", "true");
   await model.selectOption("native-luna");
@@ -76,17 +93,15 @@ test("model changes preserve compatible effort and retain incompatible selection
 
 test("unknown configured custom model leaves defaults usable and efforts delegated; narrow and 200% reading retains Start", async ({
   page,
-  launchJourney,
-  codexProtocol: fixture,
 }) => {
-  if (!fixture) throw new Error("Native fixture missing");
-  const native = fixture;
-  native.configuredModel = "custom-model";
-  await openTakenBacklog(page, launchJourney);
+  const boundary = await installFrontendLaunchBoundary(page);
+  boundary.answerChoices("codex", {
+    ...nativeCodexChoices,
+    configuredModel: "custom-model",
+  });
+  await openFrontendTakenBacklog(page);
   await page.setViewportSize({ width: 390, height: 600 });
-  await page
-    .getByRole("button", { name: "Start session in Open Dough" })
-    .click();
+  await startSession(page, "Open Dough").click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Host", { exact: true }).selectOption("codex");
   const effort = dialog.getByLabel("Reasoning effort", { exact: true });
@@ -108,50 +123,35 @@ test("unknown configured custom model leaves defaults usable and efforts delegat
   await page.keyboard.press("Escape");
 });
 
-test("stale explicit effort is explained and a deliberate default retry sends neither override", async ({
+test("switching Cursor model retains unsupported effort as invalid and blocks Start", async ({
   page,
-  dashboard,
-  launchJourney,
-  codexProtocol: fixture,
 }) => {
-  if (!fixture) throw new Error("Native fixture missing");
-  const native = fixture;
-  await openTakenBacklog(page, launchJourney);
-  const open = page.getByRole("button", {
-    name: "Start session in Open Dough",
+  const boundary = await installFrontendLaunchBoundary(page);
+  boundary.answerChoices("cursor", {
+    models: projectCursorModels([
+      ...cursorModels,
+      ...cursorEffortModels,
+      ...cursorOtherEffortModels,
+    ]),
   });
+  await openFrontendTakenBacklog(page);
+  await startSession(page, "Open Dough").click();
   const dialog = page.getByRole("dialog");
-  await open.click();
-  await dialog.getByLabel("Host", { exact: true }).selectOption("codex");
-  await dialog.getByLabel("Model", { exact: true }).selectOption("native-sol");
-  await dialog
-    .getByLabel("Reasoning effort", { exact: true })
-    .selectOption("ultra");
-  native.models = native.models.map((item) => ({
-    ...item,
-    supportedReasoningEfforts: item.supportedReasoningEfforts.filter(
-      (item) => item.reasoningEffort !== "ultra",
-    ),
-  }));
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(page.locator(".start-session-answer")).toContainText(
-    "no longer supported",
-  );
-  expect(native.calls.filter((c) => c.method === "thread/start")).toEqual([]);
-  native.catalogError = { code: -32000, message: "Unavailable" };
-  await open.click();
+  await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
+  const models = dialog.getByRole("combobox", { name: "Model" });
+  const effort = dialog.getByLabel("Reasoning effort", { exact: true });
+  await models.selectOption("fixture-orb");
+  await effort.selectOption("high");
+  await models.selectOption("fixture-luna");
+  await expect(effort).toHaveValue("high");
+  await expect(effort).toHaveAttribute("aria-invalid", "true");
   await expect(
-    dialog.getByRole("button", { name: "Retry model choices" }),
-  ).toBeVisible();
+    dialog.getByRole("button", { name: "Start", exact: true }),
+  ).toBeDisabled();
+  await expect(dialog).toContainText("cannot be verified");
+  await effort.selectOption("medium");
+  await expect(effort).not.toHaveAttribute("aria-invalid", "true");
   await expect(
-    dialog.getByLabel("Reasoning effort", { exact: true }),
-  ).toHaveValue("");
-  await expect(dialog.getByLabel("Model", { exact: true })).toHaveValue("");
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect
-    .poll(() => native.calls.filter((c) => c.method === "thread/start").length)
-    .toBe(1);
-  expect(
-    native.calls.filter((c) => c.method === "thread/start")[0]?.params,
-  ).toEqual({ cwd: path.join(dashboard.home, "git", "open-dough") });
+    dialog.getByRole("button", { name: "Start", exact: true }),
+  ).toBeEnabled();
 });

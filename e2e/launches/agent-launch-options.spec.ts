@@ -1,31 +1,31 @@
-// Choosing options in the refinement dialog, on the committed origin of
-// ./agent-launch-story-card.spec.ts (../launchJourney.ts): the dialog offers one
+// Choosing options in the refinement dialog, on the launch journey's committed
+// origin (../../dashboard/tests/launchJourney.ts): the dialog offers one
 // checkbox per entry of the definition the project's installed skill carries,
 // behind its closed Refinement options disclosure, with its label and summary,
 // and follows a changed definition with no code change; selecting entries
 // shows their flags in the command line under Command details and starts the
-// session with those flags, and nothing selected is today's dialog and launch. No other dialog offers options. The
+// session with those flags, and nothing selected is today's dialog and
+// launch. That no other dialog offers options is
+// ../../dashboard/frontend-tests/launches/agent-launch-options.spec.ts. The
 // definition this repository ships is checked against the shared schema in
-// ../../backend-tests/launches/agent-launch-options-rules.spec.ts.
-// The synthetic `claude` (./fixtures/fake-claude) stands in for the real one.
-// How the boundary honors a selection is ../../backend-tests/launches/agent-launch-options-boundary.spec.ts.
+// ../../dashboard/backend-tests/launches/agent-launch-options-rules.spec.ts.
+// The synthetic `claude` (../../dashboard/tests/fixtures/fake-claude) stands
+// in for the real one. How the boundary honors a selection is
+// ../../dashboard/backend-tests/launches/agent-launch-options-boundary.spec.ts.
 
 import { writeFileSync } from "node:fs";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../dashboardTest.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   installRefinementSkill,
   openTakenBacklog,
   shippedRefinementDefinition,
   showOptions,
-  startSession,
-  startSessionDialog,
-} from "../launchStoryCardPage.ts";
+} from "../../dashboard/tests/launchStoryCardPage.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
-  readyStory,
-} from "../launchJourney.ts";
+} from "../../dashboard/tests/launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -142,23 +142,4 @@ test("a dialog with nothing selected starts as before, and opens again with noth
   await expect(refinementDialog).toBeHidden();
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
   expect(dashboard.claudeLaunchCalls()[0]?.argv[3]).toBe(sent);
-});
-
-test("the execution and session dialogs offer no options", async ({
-  page,
-  dashboard,
-  launchJourney,
-}) => {
-  installRefinementSkill(dashboard.home);
-  const { start, dialog } = await openTakenBacklog(page, launchJourney);
-
-  await start(readyStory).click();
-  await expect(dialog).toContainText(readyStory);
-  await expect(dialog.getByRole("group", { name: "Options" })).toHaveCount(0);
-  await dialog.getByRole("button", { name: "Cancel" }).click();
-
-  await startSession(page, "Open Dough").click();
-  const session = startSessionDialog(page, "Open Dough");
-  await expect(session).toBeVisible();
-  await expect(session.getByRole("group", { name: "Options" })).toHaveCount(0);
 });

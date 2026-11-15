@@ -1,27 +1,30 @@
-// Choosing the model in a launch dialog, on the committed origin of
-// ./agent-launch-story-card.spec.ts (../launchJourney.ts): one representative
-// dialog offers Model beside Host after its instruction field on Default, and a
-// chosen model reaches the synthetic `claude` (./fixtures/fake-claude) as
-// `--model`; another proves Default starts without `--model`. Claude Code's
-// Reasoning effort offers its own setting and five levels, a chosen one
-// reaches `claude` as `--effort`, and a host switch clears it. Dismiss/reopen
-// still walks every dialog kind. The real `claude` is never reached. How the
-// launch boundary takes a model across request kinds is
-// ../../backend-tests/launches/agent-launch-model-boundary.spec.ts.
+// Choosing the model in a launch dialog, on the launch journey's committed
+// origin (../../dashboard/tests/launchJourney.ts): one representative dialog
+// offers Model beside Host after its instruction field on Default, and a
+// chosen model reaches the synthetic `claude`
+// (../../dashboard/tests/fixtures/fake-claude) as `--model`; another proves
+// Default starts without `--model`, and a launched choice does not carry into
+// the next opening. Claude Code's Reasoning effort offers its own setting and
+// five levels, and a chosen one reaches `claude` as `--effort`. The real
+// `claude` is never reached. How the launch boundary takes a model across
+// request kinds is
+// ../../dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts;
+// the host switch, dismissal and keyboard order of the dialog are
+// ../../dashboard/frontend-tests/launches/agent-launch-model.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
-import { storyCardSessions } from "../dashboardPage.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
 import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
-} from "../launchStoryCardPage.ts";
+} from "../../dashboard/tests/launchStoryCardPage.ts";
 import {
   notRefinedStory,
   readyStory,
   type LaunchJourney,
-} from "../launchJourney.ts";
+} from "../../dashboard/tests/launchJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -129,28 +132,6 @@ test("the execution dialog offers Claude Code's efforts whatever the model, and 
   ]);
 });
 
-test("low chosen for Claude Code, switching the host to Codex returns the effort to Use Codex setting", async ({
-  page,
-  launchJourney,
-}) => {
-  const { session: action } = await actions(page, launchJourney);
-
-  await action.open();
-  await effortOf(action.dialog).selectOption({ label: "low" });
-  await action.dialog
-    .getByRole("combobox", { name: "Host" })
-    .selectOption({ label: "Codex" });
-
-  // The dialog names its host.
-  const codexDialog = page.getByRole("dialog", {
-    name: "Start a session in Open Dough in Codex",
-  });
-  await expect(effortOf(codexDialog)).toHaveValue("");
-  await expect(effortOf(codexDialog).locator("option:checked")).toHaveText(
-    "Use Codex setting",
-  );
-});
-
 test("the session dialog left on Default starts the session without --model", async ({
   page,
   dashboard,
@@ -167,39 +148,6 @@ test("the session dialog left on Default starts the session without --model", as
   expect(dashboard.claudeLaunchCalls()[0]?.argv).not.toContain("--model");
   expect(dashboard.claudeLaunchCalls()[0]?.argv).not.toContain("--effort");
 });
-
-for (const dismiss of ["Cancel", "Escape"] as const) {
-  test(`Fable chosen then ${dismiss} starts nothing, and every dialog opens again on Default`, async ({
-    page,
-    dashboard,
-    launchJourney,
-  }) => {
-    const { execution, refinement, session } = await actions(
-      page,
-      launchJourney,
-    );
-    const all = [execution, refinement, session];
-
-    for (const action of all) {
-      await action.open();
-      await modelOf(action.dialog).selectOption({ label: "Fable" });
-      if (dismiss === "Cancel") {
-        await action.dialog.getByRole("button", { name: "Cancel" }).click();
-      } else {
-        await page.keyboard.press("Escape");
-      }
-      await expect(action.dialog).toBeHidden();
-    }
-    for (const action of all) {
-      await action.open();
-      await expect(modelOf(action.dialog)).toHaveValue("");
-      await page.keyboard.press("Escape");
-      await expect(action.dialog).toBeHidden();
-    }
-
-    expect(dashboard.claudeCalls()).toEqual([]);
-  });
-}
 
 test("Opus launched from a dialog, the same dialog opens again on Default", async ({
   page,
@@ -222,35 +170,6 @@ test("Opus launched from a dialog, the same dialog opens again on Default", asyn
   const [first, second] = dashboard.claudeLaunchCalls();
   expect(modelArgs(first?.argv ?? [])).toEqual(["--model", "opus"]);
   expect(second?.argv).not.toContain("--model");
-});
-
-test("the dialog opens in the instruction field, and Tab reaches Record, Attach images, Host, Model, Reasoning effort, the session's tracking, Command details, Cancel, then Start", async ({
-  page,
-  dashboard,
-  launchJourney,
-}) => {
-  const { refinement } = await actions(page, launchJourney);
-
-  await refinement.open();
-  const { dialog } = refinement;
-  await expect(
-    dialog.getByRole("textbox", { name: "Instruction (optional)" }),
-  ).toBeFocused();
-  for (const next of [
-    dialog.getByRole("button", { name: "Record", exact: true }),
-    dialog.getByRole("button", { name: "Attach images" }),
-    dialog.getByRole("combobox", { name: "Host" }),
-    modelOf(dialog),
-    effortOf(dialog),
-    dialog.getByRole("radio", { name: "Standard" }),
-    dialog.locator("summary", { hasText: "Command details" }),
-    dialog.getByRole("button", { name: "Cancel" }),
-    dialog.getByRole("button", { name: "Start" }),
-  ]) {
-    await page.keyboard.press("Tab");
-    await expect(next).toBeFocused();
-  }
-  expect(dashboard.claudeCalls()).toEqual([]);
 });
 
 test("a refused launch with Opus says Launch failed beside its action, closes the dialog, and lists no session", async ({

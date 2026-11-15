@@ -1,22 +1,30 @@
-import { openTerminalControl } from "../terminalScreenPage.ts";
 // Cursor lists native model choices after Default, validates the prompted run,
 // and preserves the configured model. The fixture records native argv; sibling
-// launch journeys prove that Default sends no --model. The launch boundary's
-// refusals of an unlisted model, an unsupported effort or an unestablished
-// scope: ../../backend-tests/launches/agent-launch-cursor-model-admission.spec.ts.
+// launch journeys prove that Default sends no --model. A multi-effort model is
+// ./agent-launch-cursor-model-effort.spec.ts. The launch boundary's refusals
+// of an unlisted model, an unsupported effort or an unestablished scope:
+// ../../dashboard/backend-tests/launches/agent-launch-cursor-model-admission.spec.ts.
+import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
 import path from "node:path";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts, sessionEntriesIn } from "../dashboardPage.ts";
-import { startSessionField } from "../launchStoryCardPage.ts";
+import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import {
+  parts,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
+import { startSessionField } from "../../dashboard/tests/launchStoryCardPage.ts";
 import {
   expectChosenModelScope,
   expectDefaultLaunchHasNoScope,
-} from "../support/cursorScopeAssertions.ts";
-import { expect, keptRecord, test } from "../support/cursorStart.ts";
-import { cursorModels } from "../support/fakeCursor.ts";
-import { stayedUp } from "../support/keptCursorTurn.ts";
-import { launchWaitMs } from "../support/launchWait.ts";
-import { expectAdHocReportingInput } from "../support/reportingInputAssertions.ts";
+} from "../../dashboard/tests/support/cursorScopeAssertions.ts";
+import {
+  expect,
+  keptRecord,
+  test,
+} from "../../dashboard/tests/support/cursorStart.ts";
+import { cursorModels } from "../../dashboard/tests/support/fakeCursor.ts";
+import { stayedUp } from "../../dashboard/tests/support/keptCursorTurn.ts";
+import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
+import { expectAdHocReportingInput } from "../../dashboard/tests/support/reportingInputAssertions.ts";
 const sessionNote = "The chosen model applies to this session only.";
 const laterSessionsWarning =
   "Cursor also saves a chosen model as your Cursor setting for later sessions.";
@@ -203,5 +211,3 @@ test("an unreadable Cursor list is explained, Retry rereads it, and Default stil
     client,
   );
 });
-
-import "./cursorEffortDialogCases.ts";

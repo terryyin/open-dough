@@ -1,21 +1,32 @@
 // Real dialogs, stores and native requests: the story shape starts installed
-// work; the ad-hoc shape and catalog-only cases read the worker's launch
+// work; the ad-hoc shape and the vanished-model case read the worker's launch
 // journey. The substitute supplies catalog pages and native identities, never
 // dashboard records. Refinement's selection survives its retained start in
-// agent-launch-preparation-codex.spec.ts.
+// ./agent-launch-preparation-codex.spec.ts; effort launches are
+// ./agent-launch-codex-effort.spec.ts; catalog reading and effort choices in
+// the dialog alone are
+// ../../dashboard/frontend-tests/launches/agent-launch-codex-catalog.spec.ts and
+// ../../dashboard/frontend-tests/launches/agent-launch-native-effort.spec.ts.
 import { existsSync, readFileSync } from "node:fs";
-import { launchStoreFile } from "../support/launchStore.ts";
+import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
 import path from "node:path";
 import type { Page } from "@playwright/test";
-import { test, expect, stored } from "../support/codexStart.ts";
-import { test as journeyTest } from "../support/codexLaunch.ts";
-import type { FakeCodex } from "../support/fakeCodex.ts";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
-import { openTakenBacklog } from "../launchStoryCardPage.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../dashboard/tests/support/codexStart.ts";
+import { test as journeyTest } from "../../dashboard/tests/support/codexLaunch.ts";
+import type { FakeCodex } from "../../dashboard/tests/support/fakeCodex.ts";
+import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
+import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
+import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
 
-// The catalog, effort-dialog and ad-hoc cases use codexLaunch.ts, which gives
-// no project folder; Start session needs the one an installed origin makes.
+// The ad-hoc and vanished-model cases use codexLaunch.ts, which gives no
+// project folder; Start session needs the one an installed origin makes.
 test.use({ projectFolders: ["open-dough"] });
 
 // Chooses Native Luna at low effort from a catalog read one page at a time.
@@ -151,8 +162,61 @@ journeyTest(
   },
 );
 
-import "./codexModelCatalogCases.ts";
-
-import "./codexEffortDialogCases.ts";
-
-import "./codexEffortWorkspaceCases.ts";
+journeyTest(
+  "a vanished explicit model is explained; deliberate default and former dynamic labels remain safe in the real UI",
+  async ({ page, dashboard, launchJourney, codexProtocol: fixture }) => {
+    if (!fixture) throw new Error("Native fixture missing");
+    const codexProtocol = fixture;
+    const dynamicId = "<img src=x onerror=alert(1)>";
+    const dynamic = {
+      model: dynamicId,
+      displayName: "Native dynamic model",
+      description: "Host description",
+      supportedReasoningEfforts: [],
+    };
+    codexProtocol.models = [dynamic];
+    await openTakenBacklog(page, launchJourney);
+    const open = page.getByRole("button", {
+      name: "Start session in Open Dough",
+    });
+    const dialog = page.getByRole("dialog");
+    await open.click();
+    await dialog.getByLabel("Host", { exact: true }).selectOption("codex");
+    await dialog.getByLabel("Model", { exact: true }).selectOption(dynamicId);
+    codexProtocol.models = [];
+    await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    await expect(page.locator(".start-session-answer")).toContainText(
+      "no longer available",
+    );
+    expect(
+      codexProtocol.calls.filter((c) => c.method === "thread/start"),
+    ).toEqual([]);
+    await open.click();
+    await expect(dialog.getByLabel("Model", { exact: true })).toHaveValue("");
+    await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    await expect
+      .poll(() =>
+        existsSync(launchStoreFile(dashboard.home))
+          ? stored(dashboard.home)[0]?.firstInput?.state
+          : undefined,
+      )
+      .toBe("not-requested");
+    await closeSidePanel(terminalPanel(page));
+    expect(stored(dashboard.home)[0]?.request).not.toHaveProperty("model");
+    codexProtocol.models = [dynamic];
+    codexProtocol.threadId = "dynamic-model-thread";
+    codexProtocol.history = [];
+    await open.click();
+    await dialog.getByLabel("Model", { exact: true }).selectOption(dynamicId);
+    await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    await expect
+      .poll(() => stored(dashboard.home)[1]?.firstInput?.state)
+      .toBe("not-requested");
+    codexProtocol.models = [];
+    await reloadUntilRead(page);
+    await expect(parts(page).taken).toContainText(
+      `Model: ${dynamicId} (requested)`,
+    );
+    await expect(page.locator("img[src=x]")).toHaveCount(0);
+  },
+);

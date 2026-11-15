@@ -13,7 +13,6 @@
 13.9	tests/intent/intent-scope-glance.spec.ts
 13.5	tests/intent/intent-story-dark-appearance.spec.ts
 11.5	tests/review/story-review-diff-line-follow-up.spec.ts
-11.2	tests/launches/agent-launch-ad-hoc-instructed.spec.ts
 10.9	tests/stories/recently-done-review-cue.spec.ts
 9.0	tests/intent/intent-code-browse-java.spec.ts
 8.4	tests/intent/intent-ci-proof-grouped-location.spec.ts

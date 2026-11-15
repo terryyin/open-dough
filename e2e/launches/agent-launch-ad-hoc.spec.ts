@@ -1,129 +1,45 @@
-// Start session stays available through published-read gaps. Its optional text
-// goes to the selected project's folder; the session reads in Taken and the
-// sidebar without a story card. The real boundary launches synthetic Claude
-// (./fixtures/fake-claude); naming is in ../../backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts.
+// Start session's optional text goes to the selected project's folder; the
+// session reads in Taken and the sidebar without a story card. The real
+// boundary launches synthetic Claude (../../dashboard/tests/fixtures/fake-claude);
+// naming is ../../dashboard/backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts.
+// Where Start session sits, its availability through read gaps and its dialog
+// are ../../dashboard/frontend-tests/launches/agent-launch-ad-hoc.spec.ts.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   openTakenBacklog,
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../launchStoryCardPage.ts";
+} from "../../dashboard/tests/launchStoryCardPage.ts";
 import {
   chooseProject,
   expectMembership,
   parts,
   sessionNamedBy,
   sessionEntriesIn,
-} from "../dashboardPage.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
 import {
   notRefinedStory,
   readyStory,
   takenStory,
   type LaunchJourney,
-} from "../launchJourney.ts";
-import {
-  noConnection,
-  publishMovingOrigin,
-  publishOrigin,
-} from "../publishedOrigin.ts";
+} from "../../dashboard/tests/launchJourney.ts";
 import {
   expectTooltipLine,
   sessionsSidebarParts,
-} from "../sessionsSidebarPage.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+} from "../../dashboard/tests/sessionsSidebarPage.ts";
 import {
   expectNamedAdHocCall,
   expectNoSessionEstablishment,
-} from "../support/unattachedLaunchAssertions.ts";
-import { openTerminalControl } from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/support/unattachedLaunchAssertions.ts";
+import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
 const openJourney = (page: Page, launchJourney: LaunchJourney) =>
   openTakenBacklog(page, launchJourney);
-
-test("Start session sits at the end opposite Near-future direction beside the help, is named for the selected project, and is hidden with the roster", async ({
-  page,
-  launchJourney,
-}) => {
-  await openJourney(page, launchJourney);
-  const { directionToggle, preparationHelp } = parts(page);
-  const button = startSession(page, "Open Dough");
-
-  await expect(button).toHaveText("Start session");
-  await expect(button).toBeEnabled();
-  const [direction, start, help] = await Promise.all([
-    directionToggle.boundingBox(),
-    button.boundingBox(),
-    preparationHelp.boundingBox(),
-  ]);
-  if (!direction || !start || !help) throw new Error("not laid out");
-  expect(start.x).toBeGreaterThan(direction.x + direction.width);
-  expect(start.x + start.width).toBeLessThanOrEqual(help.x + 1);
-  expect(
-    Math.abs(start.y + start.height / 2 - (help.y + help.height / 2)),
-  ).toBeLessThan(start.height);
-
-  await chooseProject(page, "Pygardon");
-  await expect(startSession(page, "Pygardon")).toBeVisible();
-  await expect(button).toHaveCount(0);
-
-  await page.goto("/?project=pygardon&view=roster");
-  await expect(startSession(page, "Pygardon")).toBeHidden();
-});
-
-test("Start session is offered while the published read is still reading", async ({
-  page,
-}) => {
-  const origin = await publishMovingOrigin(page);
-  origin.hold("main");
-  await page.goto("/");
-
-  await expect(parts(page).reading).toBeVisible();
-  await expect(startSession(page, "Open Dough")).toBeEnabled();
-});
-
-test("Start session is offered after the published read failed", async ({
-  page,
-}) => {
-  await publishOrigin(page, { ref: noConnection });
-  await openUntilRead(page);
-  await expect(parts(page).problem).toBeVisible();
-  await expect(startSession(page, "Open Dough")).toBeEnabled();
-});
-
-test("the dialog names the project and Claude Code, says the session has no story or skill, starts empty with focus in its field, and Escape or Cancel send nothing", async ({
-  page,
-  dashboard,
-  launchJourney,
-}) => {
-  await openJourney(page, launchJourney);
-  const button = startSession(page, "Open Dough");
-  const dialog = startSessionDialog(page, "Open Dough");
-
-  await button.click();
-  await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText(
-    "Claude Code starts a background session on this machine, in this project's folder, with no story or skill.",
-  );
-  await expect(startSessionField(dialog)).toBeFocused();
-  await expect(startSessionField(dialog)).toHaveValue("");
-  await expect(dialog.getByRole("button", { name: "Start" })).toBeEnabled();
-  await startSessionField(dialog).fill("never sent");
-  await page.keyboard.press("Escape");
-  await expect(dialog).toBeHidden();
-  await expect(button).toBeFocused();
-
-  await button.click();
-  await expect(startSessionField(dialog)).toHaveValue("");
-  await dialog.getByRole("button", { name: "Cancel" }).click();
-  await expect(dialog).toBeHidden();
-  await expect(button).toBeFocused();
-  expect(dashboard.claudeCalls()).toEqual([]);
-});
 
 test("starting with text sends it in the Open Dough folder, and the session reads in Taken and the sidebar with no card listing it", async ({
   page,

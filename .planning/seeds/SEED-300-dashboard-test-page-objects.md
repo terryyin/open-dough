@@ -253,8 +253,8 @@ execution prerequisite on another story.
   disclosure steps visible in cases that prove them.
   [Base CI](../../e2e/launches/agent-launch-base-ci.spec.ts#L37),
   [unread base CI](../../e2e/launches/agent-launch-base-ci-unread.spec.ts#L39),
-  [model controls](../../dashboard/tests/launches/agent-launch-model.spec.ts#L73),
-  [exclusive options](../../dashboard/tests/launches/agent-launch-options-exclusive.spec.ts#L44),
+  [model controls](../../e2e/launches/agent-launch-model.spec.ts#L76),
+  [exclusive options](../../e2e/launches/agent-launch-options-exclusive.spec.ts#L47),
   [existing changes](../../e2e/launches/agent-launch-start-session-existing-changes.spec.ts#L71).
 
 - **Launch input, attachments and touch layout.** Host-specific attachment
@@ -264,11 +264,11 @@ execution prerequisite on another story.
   Give the dialog reusable operations for attach, paste, draft, record,
   edit and touch reachability. Keep payloads, provider faults, expected
   focus and gesture distinctions in the cases.
-  [Attachment cancellation](../../dashboard/tests/launches/agent-launch-ad-hoc-attachments-cancel.spec.ts#L28),
+  [Attachment cancellation](../../dashboard/frontend-tests/launches/agent-launch-ad-hoc-attachments-cancel.spec.ts#L40),
   [Cursor attachments](../../e2e/launches/agent-launch-ad-hoc-attachments-cursor.spec.ts#L45),
   [frontend refusal](../../dashboard/frontend-tests/agent-launch-ad-hoc-attachments-refusal.spec.ts#L59),
   [voice overflow](../../dashboard/tests/launches/session-instruction-voice-overflow.spec.ts#L98),
-  [touch dialog](../../dashboard/tests/launches/agent-launch-dialog-touch.spec.ts#L44).
+  [touch dialog](../../dashboard/frontend-tests/launches/agent-launch-dialog-touch.spec.ts#L47).
 
 - **Startup answers and recovery.** Launch response, accepted progress,
   retry/recheck/continue and refusal selectors are repeated across

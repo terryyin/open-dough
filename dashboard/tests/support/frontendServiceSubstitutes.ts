@@ -1,7 +1,7 @@
 // Explicit route/WebSocket substitutes for frontend-only app journeys: the
 // page talks to these instead of dashboardServer, fake-gh, or FakeGitHub.
 
-import type { Page, Route } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
@@ -12,6 +12,7 @@ import {
   defaultFrontendServiceState,
   type FrontendServiceState,
 } from "./frontendServiceState.ts";
+import { fulfillJson } from "./frontendSubstituteAnswers.ts";
 import {
   echoingApplication,
   type TerminalApplication,
@@ -30,14 +31,6 @@ export {
 } from "./frontendServiceState.ts";
 
 type TerminalSize = { readonly cols: number; readonly rows: number };
-
-async function fulfillJson(route: Route, body: unknown, status = 200) {
-  await route.fulfill({
-    status,
-    contentType: "application/json",
-    body: JSON.stringify(body),
-  });
-}
 
 function answerAuthenticatedRead(
   state: FrontendServiceState,
@@ -170,9 +163,11 @@ export async function installFrontendServiceSubstitutes(
       await fulfillJson(route, state.hostStatus);
     },
   );
+  // A host offers no model choices unless a case arranges them
+  // (./frontendLaunchSubstitutes.ts).
   await page.route(
     (url) => url.pathname === launchHostOptionsEndpoint,
-    (route) => fulfillJson(route, state.hostOptions),
+    (route) => fulfillJson(route, { models: [] }),
   );
   // Catch-all for remaining local API paths: fail loudly when a substitute is
   // missing. Leave the terminal WebSocket path alone so routeWebSocket can own it.

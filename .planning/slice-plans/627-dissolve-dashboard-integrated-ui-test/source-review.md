@@ -15,75 +15,75 @@ returned.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Developers get detailed feedback from unit tests for one service. | slice 8 |  |
-| 2 | Developers get confidence in representative product workflows from end-to-end tests. | slice 8 |  |
-| 3 | After the interim **Dashboard Integrated UI Test** group is dissolved, only those two dashboard test layers remain: unit tests and E2E tests. | slice 8 |  |
-| 4 | The interim **Dashboard Integrated UI Test** group is dissolved. | slice 8 |  |
-| 5 | Every distinct behavior that group still proves keeps a home that catches the same regressions. | slice 8 |  |
-| 6 | No third live proof entry remains. | slice 8 |  |
-| 7 | E2E: promote only the few remaining representative workflows whose observable outcome still requires the real dashboard frontend and backend together. | slice 7 |  |
-| 8 | E2E: prefer an existing E2E workflow when it already proves that outcome. | slice 7 |  |
-| 9 | Unit: move most of the remaining interim checks into Dashboard Frontend Test or Dashboard Backend Test. | slice 7 |  |
-| 10 | "Unit" here means those service-level Playwright groups. A unit case: | slice 7 |  |
-| 10a.1 | exercises one service at its highest practical entry point (built UI with controlled answers, or a backend boundary), or at a lower entry point when the behavior is clear and the dependency stable; | slice 7 |  |
-| 10a.2 | runs the service's real code and in-boundary collaborators; | slice 7 |  |
-| 10a.3 | stays independent of other live services; | slice 7 |  |
-| 10a.4 | mocks only a service boundary the case needs (for example a substitute backend answer for a frontend case). | slice 7 |  |
-| 11 | Split mixed specs when their assertions belong at different boundaries. | slice 7 |  |
-| 12 | Placement: use the migration inventory at `125c45649fa587c78ed7445deff35db87604489d` (`migration-purpose.json`, `migration-conversion-batches.json`, `migration-trunk-merge.json` under `.planning/slice-plans/608-product-wide-end-to-end-tests/`) as the starting classification and batch order. | slice 7 |  |
-| 13 | Decide each case by its behavior, including the few specs added since that inventory. | slice 7 |  |
-| 14 | Convert by these inventory batches: | slice 7 |  |
+| 1 | Developers get detailed feedback from unit tests for one service. | slice 9 |  |
+| 2 | Developers get confidence in representative product workflows from end-to-end tests. | slice 9 |  |
+| 3 | After the interim **Dashboard Integrated UI Test** group is dissolved, only those two dashboard test layers remain: unit tests and E2E tests. | slice 9 |  |
+| 4 | The interim **Dashboard Integrated UI Test** group is dissolved. | slice 9 |  |
+| 5 | Every distinct behavior that group still proves keeps a home that catches the same regressions. | slice 9 |  |
+| 6 | No third live proof entry remains. | slice 9 |  |
+| 7 | E2E: promote only the few remaining representative workflows whose observable outcome still requires the real dashboard frontend and backend together. | slice 8 |  |
+| 8 | E2E: prefer an existing E2E workflow when it already proves that outcome. | slice 8 |  |
+| 9 | Unit: move most of the remaining interim checks into Dashboard Frontend Test or Dashboard Backend Test. | slice 8 |  |
+| 10 | "Unit" here means those service-level Playwright groups. A unit case: | slice 8 |  |
+| 10a.1 | exercises one service at its highest practical entry point (built UI with controlled answers, or a backend boundary), or at a lower entry point when the behavior is clear and the dependency stable; | slice 8 |  |
+| 10a.2 | runs the service's real code and in-boundary collaborators; | slice 8 |  |
+| 10a.3 | stays independent of other live services; | slice 8 |  |
+| 10a.4 | mocks only a service boundary the case needs (for example a substitute backend answer for a frontend case). | slice 8 |  |
+| 11 | Split mixed specs when their assertions belong at different boundaries. | slice 8 |  |
+| 12 | Placement: use the migration inventory at `125c45649fa587c78ed7445deff35db87604489d` (`migration-purpose.json`, `migration-conversion-batches.json`, `migration-trunk-merge.json` under `.planning/slice-plans/608-product-wide-end-to-end-tests/`) as the starting classification and batch order. | slice 8 |  |
+| 13 | Decide each case by its behavior, including the few specs added since that inventory. | slice 8 |  |
+| 14 | Convert by these inventory batches: | slice 8 |  |
 | 14a.1 | configuration; | slice 1 | observed: git status: dashboard/tests/configuration/ removed; homes dashboard/frontend-tests/configuration/ and e2e/configuration/ |
-| 14a.2 | launch dialog and start; | slice 2 |  |
-| 14a.3 | sessions and terminals; | slice 4 |  |
-| 14a.4 | story review; | slice 5 |  |
-| 14a.5 | Intent CI/proof/history; | slice 6 |  |
-| 14a.6 | board, navigation, stories and observation; | slice 7 |  |
-| 14a.7 | the pending server-boundary-through-a-page case. | slice 6 |  |
-| 15 | Retirement: when every distinct interim behavior has a home, remove: | slice 8 |  |
-| 15a.1 | the **Dashboard Integrated UI Test** entry from current Intent and CI proof configuration; | slice 8 |  |
-| 15a.2 | its `npm run test:dashboard:integrated` command; | slice 8 |  |
-| 15a.3 | its Playwright configuration; | slice 8 |  |
-| 15a.4 | its CI producer and shards; | slice 8 |  |
-| 15a.5 | current tooling and placement guidance that still name the interim group. | slice 8 |  |
-| 16 | Update the browser-group roster, or its hard-coded callers if SEED-334#keep-one-browser-test-group-roster has not yet landed, so the remaining three groups stay coherent. | slice 8 |  |
-| 17 | Retain shared helpers and fixtures under `dashboard/tests/` that E2E, Frontend, or Backend still use. | slice 8 |  |
-| 18 | Preservation: historical proof stays readable at the revision that produced it. | slice 8 |  |
-| 19 | Intent must not invent continuity for the removed scope. | slice 8 |  |
-| 20 | Compare representative converted cases with their previous versions, so the simpler placement keeps the assertions that catch regressions (ADR 0010). | slice 7 |  |
-| 21 | Coordination: this story owns interim placement into E2E / Frontend / Backend, including the move of the sessions batch. | slice 3 |  |
-| 22 | Align touched files with queued SEED-300 page-object work rather than migrating a spec that work is rewriting in place. | slice 7 |  |
-| 23 | Safe stopping point: each migrated batch preserves its distinct checks. | slice 7 |  |
-| 24 | Each migrated batch removes the interim specs it replaces. | slice 7 |  |
-| 25 | The story is complete when the interim entry and its runner are retired. | slice 8 |  |
-| 26 | Required restriction: do not drop a distinct regression assertion when relocating a case. | slice 7 |  |
-| 27 | Required restriction: do not mock inside a service except at the boundary the unit case needs. | slice 7 |  |
-| 28 | Required restriction: do not fabricate Intent comparisons for the retired group (ADR 0008). | slice 8 |  |
-| 29 | Required restriction: do not leave dead links for the retired group (ADR 0008). | slice 8 |  |
+| 14a.2 | launch dialog and start; | slice 3 |  |
+| 14a.3 | sessions and terminals; | slice 5 |  |
+| 14a.4 | story review; | slice 6 |  |
+| 14a.5 | Intent CI/proof/history; | slice 7 |  |
+| 14a.6 | board, navigation, stories and observation; | slice 8 |  |
+| 14a.7 | the pending server-boundary-through-a-page case. | slice 7 |  |
+| 15 | Retirement: when every distinct interim behavior has a home, remove: | slice 9 |  |
+| 15a.1 | the **Dashboard Integrated UI Test** entry from current Intent and CI proof configuration; | slice 9 |  |
+| 15a.2 | its `npm run test:dashboard:integrated` command; | slice 9 |  |
+| 15a.3 | its Playwright configuration; | slice 9 |  |
+| 15a.4 | its CI producer and shards; | slice 9 |  |
+| 15a.5 | current tooling and placement guidance that still name the interim group. | slice 9 |  |
+| 16 | Update the browser-group roster, or its hard-coded callers if SEED-334#keep-one-browser-test-group-roster has not yet landed, so the remaining three groups stay coherent. | slice 9 |  |
+| 17 | Retain shared helpers and fixtures under `dashboard/tests/` that E2E, Frontend, or Backend still use. | slice 9 |  |
+| 18 | Preservation: historical proof stays readable at the revision that produced it. | slice 9 |  |
+| 19 | Intent must not invent continuity for the removed scope. | slice 9 |  |
+| 20 | Compare representative converted cases with their previous versions, so the simpler placement keeps the assertions that catch regressions (ADR 0010). | slice 8 |  |
+| 21 | Coordination: this story owns interim placement into E2E / Frontend / Backend, including the move of the sessions batch. | slice 4 |  |
+| 22 | Align touched files with queued SEED-300 page-object work rather than migrating a spec that work is rewriting in place. | slice 8 |  |
+| 23 | Safe stopping point: each migrated batch preserves its distinct checks. | slice 8 |  |
+| 24 | Each migrated batch removes the interim specs it replaces. | slice 8 |  |
+| 25 | The story is complete when the interim entry and its runner are retired. | slice 9 |  |
+| 26 | Required restriction: do not drop a distinct regression assertion when relocating a case. | slice 8 |  |
+| 27 | Required restriction: do not mock inside a service except at the boundary the unit case needs. | slice 8 |  |
+| 28 | Required restriction: do not fabricate Intent comparisons for the retired group (ADR 0008). | slice 9 |  |
+| 29 | Required restriction: do not leave dead links for the retired group (ADR 0008). | slice 9 |  |
 | KE1 | Example: `dashboard/tests/configuration/` still holds interim specs classified for Frontend or split conversion, and the configuration batch is converted. | slice 1 | observed: slice 1 converted all 11 dashboard/tests/configuration specs (mapping in slice 1 acceptance) |
 | KE1.1 | Each distinct check runs under `npm run test:dashboard:frontend` and/or `npm run test:e2e`, as its assertions require. | slice 1 | observed: frontend.playwright.config.ts frontend-tests/configuration/ 15 passed; unfiltered Frontend 176 passed; e2e configuration/ 6 files 15 passed |
 | KE1.2 | Those interim files are gone. | slice 1 | observed: dashboard/tests/configuration/*.spec.ts deleted (11 files) |
 | KE1.3 | Their duration-list rows are gone. | slice 1 | observed: dashboard/integrated.longest-first(-project): 11 configuration rows removed; browser-group-shards and dashboard-test-files tests pass |
 | KE1.4 | A representative Frontend case still fails the same way as its prior integrated version when the asserted UI rule is broken. | slice 1 | observed: AddProjectDialog.tsx aria-describedby break: interim project-add-refusal and frontend-tests/configuration/project-add-dialog.spec.ts both fail toHaveAttribute aria-invalid Expected "true" Received "false"; both pass restored |
-| KE2 | Example: a mixed launch or session spec asserts both a real frontend–backend workflow outcome and detailed UI against answers the page alone can own, and the case is split. | slice 2 |  |
-| KE2.1 | The workflow portion lives in E2E, or joins an existing E2E journey. | slice 2 |  |
-| KE2.2 | The UI portion lives in Frontend with controlled substitutes. | slice 2 |  |
-| KE2.3 | Neither side keeps the other's dependencies. | slice 2 |  |
-| KE3 | Example: every interim behavior already has a home and `dashboard/tests/**/*.spec.ts` holds no product cases, and the group is retired. | slice 8 |  |
-| KE3.1 | Intent and CI no longer list **Dashboard Integrated UI Test**. | slice 8 |  |
-| KE3.2 | `test:dashboard:integrated` and its Playwright config and producer are gone. | slice 8 |  |
-| KE3.3 | Placement guidance describes three groups. | slice 8 |  |
-| KE3.4 | Shared helpers under `dashboard/tests/support/` remain importable. | slice 8 |  |
-| KE3.5 | An old integrated proof artifact from a prior revision stays readable without looking like current proof. | slice 8 |  |
-| KE4 | Example: a new interim spec exists that the inventory never named (today: `tests/sessions/recently-done-returned-sessions.spec.ts` and `tests/review/story-review-diff-line-follow-up.spec.ts`), and its batch is converted. | slice 5 |  |
-| KE4.1 | Placement follows the case's observable boundary, not a missing inventory row. | slice 5 |  |
-| KE4.2 | The interim copy is removed. | slice 5 |  |
-| X1 | No new browser test group. | slice 8 |  |
-| X2 | No permanent renaming of the interim tier. | slice 8 |  |
-| X3 | No speed or shard-count goal beyond what retirement naturally changes. | slice 8 |  |
-| X4 | No Intent E2E naming or tagged-install proof; SEED-334#observe-tagged-install-and-read-e2e-proof owns that. | slice 8 |  |
-| X5 | No wholesale re-inventory before conversion. | slice 7 |  |
-| X6 | No product behavior change. | slice 8 |  |
-| X7 | Later simplification inside the E2E / Frontend / Backend homes belongs to SEED-341#simplify-remaining-session-tests, not to this story. | slice 3 |  |
-| X8 | Do not migrate a spec that queued SEED-300 page-object work is rewriting in place. | slice 7 |  |
-| X9 | This story does not own the single browser-group roster (SEED-334#keep-one-browser-test-group-roster). It updates that roster or its hard-coded callers, depending on whether that story has landed. | slice 8 |  |
+| KE2 | Example: a mixed launch or session spec asserts both a real frontend–backend workflow outcome and detailed UI against answers the page alone can own, and the case is split. | slice 2 | observed: interim tests/launches/agent-launch-ad-hoc.spec.ts (split/small) split in slice 2 |
+| KE2.1 | The workflow portion lives in E2E, or joins an existing E2E journey. | slice 2 | observed: e2e/launches/agent-launch-ad-hoc.spec.ts: fake-claude argv/cwd, kept record, Pygardon folder |
+| KE2.2 | The UI portion lives in Frontend with controlled substitutes. | slice 2 | observed: dashboard/frontend-tests/launches/agent-launch-ad-hoc.spec.ts on frontendLaunchSubstitutes (placement, held/failed read, dialog focus) |
+| KE2.3 | Neither side keeps the other's dependencies. | slice 2 | observed: grep: no dashboardServer/fake-gh/fake-claude/FakeGitHub import in frontend-tests/launches; no frontend substitute import in e2e/launches |
+| KE3 | Example: every interim behavior already has a home and `dashboard/tests/**/*.spec.ts` holds no product cases, and the group is retired. | slice 9 |  |
+| KE3.1 | Intent and CI no longer list **Dashboard Integrated UI Test**. | slice 9 |  |
+| KE3.2 | `test:dashboard:integrated` and its Playwright config and producer are gone. | slice 9 |  |
+| KE3.3 | Placement guidance describes three groups. | slice 9 |  |
+| KE3.4 | Shared helpers under `dashboard/tests/support/` remain importable. | slice 9 |  |
+| KE3.5 | An old integrated proof artifact from a prior revision stays readable without looking like current proof. | slice 9 |  |
+| KE4 | Example: a new interim spec exists that the inventory never named (today: `tests/sessions/recently-done-returned-sessions.spec.ts` and `tests/review/story-review-diff-line-follow-up.spec.ts`), and its batch is converted. | slice 6 |  |
+| KE4.1 | Placement follows the case's observable boundary, not a missing inventory row. | slice 6 |  |
+| KE4.2 | The interim copy is removed. | slice 6 |  |
+| X1 | No new browser test group. | slice 9 |  |
+| X2 | No permanent renaming of the interim tier. | slice 9 |  |
+| X3 | No speed or shard-count goal beyond what retirement naturally changes. | slice 9 |  |
+| X4 | No Intent E2E naming or tagged-install proof; SEED-334#observe-tagged-install-and-read-e2e-proof owns that. | slice 9 |  |
+| X5 | No wholesale re-inventory before conversion. | slice 8 |  |
+| X6 | No product behavior change. | slice 9 |  |
+| X7 | Later simplification inside the E2E / Frontend / Backend homes belongs to SEED-341#simplify-remaining-session-tests, not to this story. | slice 4 |  |
+| X8 | Do not migrate a spec that queued SEED-300 page-object work is rewriting in place. | slice 8 |  |
+| X9 | This story does not own the single browser-group roster (SEED-334#keep-one-browser-test-group-roster). It updates that roster or its hard-coded callers, depending on whether that story has landed. | slice 9 |  |

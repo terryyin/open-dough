@@ -32,6 +32,12 @@ import {
 } from "../../src/feedbackMaintenanceSetting.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { FrontendServiceState } from "./frontendServiceState.ts";
+import {
+  fulfillJson,
+  holdAnswer,
+  type AnswerHold,
+  type HeldAnswer,
+} from "./frontendSubstituteAnswers.ts";
 
 export { productionSeedProjects } from "../../server/projectConfigurationSeed.ts";
 
@@ -52,14 +58,6 @@ export type SettingsChange = {
 
 type Answer = { readonly status: number; readonly body: unknown };
 
-// One answer the substitute computed when the page asked and delivers only
-// once released.
-export type HeldAnswer = {
-  readonly received: Promise<void>;
-  readonly delivered: Promise<void>;
-  readonly release: () => void;
-};
-
 export type FrontendSettings = {
   // Every change the page posted to a settings endpoint, refused or not.
   readonly changes: readonly SettingsChange[];
@@ -70,6 +68,8 @@ export type FrontendSettings = {
     error: string,
     field?: string,
   ) => void;
+  // The next request to `endpoint` answers the settings as they stood when it
+  // was asked, delivered only once released.
   readonly holdNext: (endpoint: string) => HeldAnswer;
 };
 
@@ -110,14 +110,7 @@ export async function installFrontendSettingsSubstitutes(
   const feedbackMaintenance: FeedbackMaintenanceSetting = { enabled: false };
   const changes: SettingsChange[] = [];
   const refusals = new Map<string, Answer>();
-  const holds = new Map<
-    string,
-    {
-      readonly received: () => void;
-      readonly released: Promise<void>;
-      readonly delivered: () => void;
-    }
-  >();
+  const holds = new Map<string, AnswerHold>();
   const publish = () => {
     Object.assign(services, {
       projects: configured.map(published),
@@ -197,11 +190,7 @@ export async function installFrontendSettingsSubstitutes(
       hold.received();
       await hold.released;
     }
-    await route.fulfill({
-      status: reply.status,
-      contentType: "application/json",
-      body: JSON.stringify(reply.body),
-    });
+    await fulfillJson(route, reply.body, reply.status);
     hold?.delivered();
   };
   for (const endpoint of settingsEndpoints)
@@ -218,24 +207,8 @@ export async function installFrontendSettingsSubstitutes(
       });
     },
     holdNext: (endpoint) => {
-      let received: () => void = () => undefined;
-      let delivered: () => void = () => undefined;
-      let release: () => void = () => undefined;
-      const held: HeldAnswer = {
-        received: new Promise<void>((resolve) => {
-          received = resolve;
-        }),
-        delivered: new Promise<void>((resolve) => {
-          delivered = resolve;
-        }),
-        release: () => {
-          release();
-        },
-      };
-      const released = new Promise<void>((resolve) => {
-        release = resolve;
-      });
-      holds.set(endpoint, { received, released, delivered });
+      const { held, hold } = holdAnswer();
+      holds.set(endpoint, hold);
       return held;
     },
   };

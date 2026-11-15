@@ -1,36 +1,44 @@
-import { readFinalReport } from "../finalReportPages.ts";
 // Start session with typed text presents nothing once its session starts, on
-// the committed origin of ./agent-launch-story-card.spec.ts
-// (../launchJourney.ts): a final report open in the Side panel stays, no
-// terminal is requested, and the session is an entry in Taken and the
-// Sessions sidebar whose Open terminal shows it; with the Side panel closed
-// it stays closed and the keyboard returns to Start session. A start with
-// nothing typed: ../terminals/agent-launch-ad-hoc-terminal.spec.ts. Follow
-// up: ../../../e2e/launches/agent-launch-follow-up-session.spec.ts. The synthetic `claude`
-// (./fixtures/fake-claude) stands for the real one.
+// the launch journey's committed origin (../../dashboard/tests/launchJourney.ts):
+// a final report open in the Side panel stays, no terminal is requested, and
+// the session is an entry in Taken and the Sessions sidebar whose Open
+// terminal shows it. With the Side panel closed it stays closed and the
+// keyboard returns to Start session:
+// ../../dashboard/frontend-tests/launches/agent-launch-ad-hoc-instructed.spec.ts.
+// A start with nothing typed:
+// ../../dashboard/tests/terminals/agent-launch-ad-hoc-terminal.spec.ts. Follow
+// up: ./agent-launch-follow-up-session.spec.ts. The synthetic `claude`
+// (../../dashboard/tests/fixtures/fake-claude) stands for the real one.
+import { readFinalReport } from "../../dashboard/tests/finalReportPages.ts";
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
-import { parts, sessionNamedBy, sessionStateOf } from "../dashboardPage.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  parts,
+  sessionNamedBy,
+  sessionStateOf,
+} from "../../dashboard/tests/dashboardPage.ts";
 import {
   terminalPanel,
   terminalScreenParts,
   openTerminalFromEntry,
-} from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   expectQuietAdHocActionsRow,
   openTakenBacklog,
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../launchStoryCardPage.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { retiredSession, retiredTitle } from "../support/followUpSources.ts";
-import { keepLaunchRecords } from "../support/launchStore.ts";
-import { launchWaitMs } from "../support/launchWait.ts";
-import { sidePanelContents } from "../support/sidePanelContents.ts";
-import { takenAdHocSession } from "../support/startedAdHocSession.ts";
-import { watchTerminalSockets } from "../support/terminalSockets.ts";
+} from "../../dashboard/tests/launchStoryCardPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
+import {
+  retiredSession,
+  retiredTitle,
+} from "../../dashboard/tests/support/followUpSources.ts";
+import { keepLaunchRecords } from "../../dashboard/tests/support/launchStore.ts";
+import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
+import { takenAdHocSession } from "../../dashboard/tests/support/startedAdHocSession.ts";
+import { watchTerminalSockets } from "../../dashboard/tests/support/terminalSockets.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -93,25 +101,4 @@ test("an instructed Start session leaves the open final report in the Side panel
     `attached ${sessionId.slice(0, 8)}`,
   );
   await expect(finalReport).toHaveCount(0);
-});
-
-test("an instructed Start session with the Side panel closed leaves it closed and returns the keyboard to Start session", async ({
-  page,
-  dashboard,
-  launchJourney,
-}) => {
-  dashboard.claudeScenario("launched");
-  await openTakenBacklog(page, launchJourney);
-  const sidePanel = sidePanelContents(page);
-  await expect(sidePanel).toHaveCount(0);
-
-  await startInstructed(page);
-
-  // The button is unavailable during the startup, so it holds the keyboard
-  // only once the startup has ended.
-  await expect(startSession(page, "Open Dough")).toBeFocused({
-    timeout: launchWaitMs,
-  });
-  await expect(takenAdHocSession(page, text)).toHaveCount(1);
-  await expect(sidePanel).toHaveCount(0);
 });
