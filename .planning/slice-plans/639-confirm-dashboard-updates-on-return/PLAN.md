@@ -46,15 +46,9 @@ PFE at `21c2bad7f48c25ab1c900d7ad4a8fb884524ba15`:
 | Display and accessible meaning | Color the existing `ProductMark.tsx` door outline through `SessionsButton` in the dashboard chrome. Supply accessible awaiting/confirmed/disconnected wording, keep focus and geometry stable, and preserve existing announcements and problems. |
 | Terminal connection feedback | `useTerminalRecovery.ts` owns a different connection and user-operated reconnect. Reuse no terminal status as dashboard health. |
 
-Expected TS/UI files are currently below 250 lines: `revisionStreamSchedule.ts`
-245, `publishedObservation.ts` 249, `ConfiguredDashboard.tsx` 249,
-`PublishedReadStatus.tsx` 95, `revisionCheckSchedule.ts` 141, `styles.css` 186;
-`dashboard/PUBLISHED-OBSERVATION.md` is 238. Slice 1 keeps confirmation and its
-return listeners in a focused owner; if observation/chrome integration grows
-past the limit, separate delivery binding or the existing header presentation
-along that cohesive seam, preserving callers. No arbitrary line cutting or
-preparatory framework. Keep new journeys in focused files rather than growing
-existing large specs. Recheck actual edits under the refactor skill's size rule.
+Delivered structure keeps confirmation in `dashboardConnection.ts`, delivery
+binding in `observedRevisionDelivery.ts`, and the existing logo in the banner.
+Public callers stay stable; canonical formatted files remain within 250 lines.
 
 ## Decisive premises and retained preparation observations
 
@@ -134,7 +128,7 @@ Accepted slice-1 evidence (11 active minutes):
 
 ### 2. Confirm updates through the existing HTTP fallback
 Type: Behavior
-Status: planned
+Status: done
 Proof: HTTP promise in the table through new
 `e2e/observation/revision-check-return.spec.ts`; retain both maintained
 `auto-refresh-visibility.spec.ts` cases and reached slot-handover consumers.
@@ -150,6 +144,12 @@ by the stream; preserve source identity, cancellation and the current pace.
 Enable the logo border for fallback pages, remove slice 1's interim boundary and finish
 the maintained observation contract. One fallback-confirmation proof loop;
 target 15 active minutes, commands excluded.
+
+Accepted slice-2 evidence (12 active minutes; CI pause excluded):
+- `OPEN_DOUGH_E2E_PROOF_RECORD=/tmp/seed372-observation-proof.json caffeinate -s -i npm run test:e2e -- e2e/observation --workers=1 > /tmp/seed372-observation.log 2>&1`: 108 selected, strict pass, 462.7s. Four new HTTP journeys observe held pre-return response, no focus traffic, one reveal check, failure/recovery and cancelled-check rejection during real slot handover.
+- `caffeinate -s -i npm run test:dashboard:integrated -- dashboard/tests/observation/revision-stream.spec.ts --workers=1 > /tmp/seed372-check-slot-consumer.log 2>&1`: five cases pass after hidden-text repair, including seven-page cap/handover. HTTP proof remains applicable across that text-body-only repair; roles, names, CSS, receipts and schedules match.
+- `npm run typecheck:dashboard && npm run build:dashboard`: pass. Receipt-disabled mutation `/tmp/seed372-check-mutation-proof.json` selected one focus case and failed for absent green; exact restoration preceded 108-case pass. Consumer trace `/tmp/seed372-check-consumers.md` dispositioned. Existing page owner imported unchanged; no shared support change. Independent refactor: already clean, no edits or reruns.
+
 
 ## Verification, comparison and consumer trace
 
@@ -201,9 +201,6 @@ focus/geometry in the new journey; make no broader traffic or latency claim.
   state rule, each has a usable boundary and one outside-in proof loop, and
   the explicit interim fallback boundary is removed by slice 2. Two slices are
   within the eight-slice limit; both target 15 active minutes.
-- No remaining slice-specific concern was identified in the inspected boundary.
-  Baseline observations establish existing lifecycle/proof routes; new behavior
-  has explicit proof owners and is not represented as already verified.
 
 ## Learnings
 
@@ -219,7 +216,9 @@ is its user-facing confirmation boundary and projection.
 - Owned checkout: `/Users/terryyin/git/open-dough/.worktrees/see-dashboard-connection-status-when-returning-t`;
   branch `codex/see-dashboard-connection-status-when-returning-t`; remote `origin`; trunk `main`.
 - Starting revision `2470e5ef6c784b273b3587fc640923d14809fe2b`; accepted claim
-  and candidate `c124365d015aec64b5186160980db9205b11955a`. No second start.
+  `c124365d015aec64b5186160980db9205b11955a`. Slice 1 accepted on the story
+  branch at `1fc77eab2eee607e85106a7ecd6942a517aa3c4c`; repair accepted at
+  `70fb3664d14ad41779bcb4b1badc879e79c51d02` on that base.
 - Setup: locked `npm ci --ignore-scripts` and `npm run typecheck:dashboard` passed
   in this checkout at the current lockfile. Hook is check-only staged lint and
   dashboard typecheck; selective formatter is `npm run format` (changed and new files only).
@@ -245,5 +244,5 @@ consumers. Reconsider on changed load, failures, or expanded shared-support scop
 ### G1. HTTP fallback indication awaits slice 2
 Reported: slice 1 — "HTTP fallback retains existing feedback and has no new border status until slice 2."
 Story clause: "Apply the same confirmation rule when the existing slot budget selects HTTP checks."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: e2e/observation/revision-check-return.spec.ts four real journeys and /tmp/seed372-observation-proof.json 108 strict passes; non-aborted response receipt, failure and slot-handover paths inspected
 Commitment: 27

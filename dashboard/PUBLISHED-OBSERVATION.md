@@ -78,16 +78,18 @@ ends its wait on a check under way, leaving a shared listing to settle for any
 other page that still needs it; when it is seen again a streaming page opens its
 stream again (the first answer is the catch-up), and a checking page checks
 once at once, under the same listing reuse as a paced check, then resumes the
-15-second pace. The logo's silhouette has a yellow border while a streaming
-page awaits delivery since its latest visible-window focus return or document
-reveal, green after a message received since that return, and red after known
-transport loss or the existing silence deadline. Stream opening alone and
-older answers do not confirm it. Focus resets confirmation without reopening a
-healthy stream or sending a request. Receipt of an upstream error still proves
-delivery while retaining its own failure notice. The accessible border status
-means receipt, not current GitHub or snapshot content; no extra control, focus
-move, heartbeat or health timer is added. HTTP-check pages retain their existing
-feedback until they join the same confirmation rule.
+15-second pace. The logo's silhouette has a yellow border while awaiting
+delivery since the latest visible-window focus return or document reveal,
+green after a stream message or successful HTTP check received since that
+return, and red after known transport loss, a failed HTTP check or the existing
+silence deadline. Stream opening and older answers cannot confirm it. Focus
+resets confirmation without reopening a healthy stream or sending a request;
+document reveal keeps its one prompt HTTP check. An upstream error message
+still proves stream receipt while retaining its own failure notice. Accessible
+border status means receipt, not current GitHub or snapshot content; no extra
+control, focus move, heartbeat or health timer is added. The stream-slot budget
+selects delivery without changing this rule. An already outstanding check can
+confirm on receipt after return; cancelled checks cannot.
 Hiding or closing a stream
 holder frees its slot so a queued checking page on a capped route can take
 over and stream. A stream that fails, closes, or stays silent longer than one

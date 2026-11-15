@@ -62,6 +62,8 @@ export function useRevisionCheckSchedule({
   readSettled,
   visibility,
   delivery,
+  onReceived,
+  onDeliveryLost,
   onChanged,
   onUnchanged,
   onBranchesMoved,
@@ -104,6 +106,7 @@ export function useRevisionCheckSchedule({
             if (checking.signal.aborted) {
               return;
             }
+            onReceived();
             if (
               reactToRevisionCheck(check, watchedHeads, handlers) === "continue"
             ) {
@@ -114,6 +117,7 @@ export function useRevisionCheckSchedule({
             if (checking.signal.aborted) {
               return;
             }
+            onDeliveryLost();
             if (reactToRevisionCheckFailure(error, handlers) === "continue") {
               setChecksSettled((settled) => settled + 1);
             }

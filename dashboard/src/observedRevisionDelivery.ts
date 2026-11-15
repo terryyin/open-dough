@@ -23,7 +23,5 @@ export function useObservedRevisionDelivery(answers: ObservationAnswers) {
   };
   useRevisionCheckSchedule(revisionAnswers);
   useRevisionStreamSchedule(revisionAnswers);
-  return answers.source !== undefined && delivery === "stream"
-    ? connection
-    : undefined;
+  return answers.source !== undefined ? connection : undefined;
 }
