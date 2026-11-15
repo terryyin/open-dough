@@ -148,11 +148,18 @@ test("the previous reader keeps measured builds and understandable gaps by defau
       expect(
         new URL(request.url, dashboard.origin).searchParams.get("gap-reasons"),
       ).toBe("timing-basis");
-      // The Done glance names each build without its run link.
+      // The Done glance names each build without its run link. Current
+      // measure points use timeMs; the previous reader still answers wallTimeMs.
       expect(current.entries.filter((entry) => entry.kind === "point")).toEqual(
         previous?.entries
           .filter((entry) => entry.kind === "point")
-          .map((point) => (selected ? { ...point, runUrl: undefined } : point)),
+          .map((point) => {
+            const { wallTimeMs, ...rest } = point;
+            const currentPoint = { ...rest, timeMs: wallTimeMs };
+            return selected
+              ? { ...currentPoint, runUrl: undefined }
+              : currentPoint;
+          }),
       );
       const specific = current.entries.find(
         (entry) => entry.kind === "gap" && entry.revision === timingRevision,

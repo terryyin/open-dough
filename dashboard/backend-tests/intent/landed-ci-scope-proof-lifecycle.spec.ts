@@ -88,11 +88,7 @@ for (const legacyUnavailable of [false, true]) {
       github.calls
         .filter(({ request }) => isActionsRequest(request))
         .map(({ request }) => request.kind),
-    ).toEqual([
-      "actions-run-artifacts",
-      "actions-artifact-zip",
-      "actions-workflow",
-    ]);
+    ).toEqual(["actions-run-artifacts", "actions-artifact-zip"]);
 
     const reader = await restartAsLandedCiReader(
       collecting,
