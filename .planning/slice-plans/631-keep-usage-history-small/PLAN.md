@@ -268,9 +268,11 @@ Product advice: no correction is needed. For later work:
   refinement starts from the history document: what remains is the launch
   workflow an import and a Refresh write in turn, the "Checked" time after an
   import, and the checking indication.
-- The e2e group no longer fits five shards on a slow runner (run 43681477553).
-  The capacity decision is the developer's: move one shard from
-  `dashboard-integrated` to `e2e`, or add a sixth e2e shard.
+- The e2e group no longer fit five shards on a slow runner (run 43681477553).
+  The developer chose to move one shard from `dashboard-integrated` to `e2e`
+  (six and four, 18 jobs), made on this branch. The slowest integrated shard
+  seen at five, 266 s, scales to about 330 s at four on an equally slow
+  runner; watch that group.
 - `dashboard/USAGE-HISTORY.md` is at the 250-line limit. Its next change needs
   it split by responsibility: the import command, the stored history, the
   report definitions.
@@ -359,8 +361,9 @@ Product advice: no correction is needed. For later work:
   faster than trunk's. The e2e group grew from 3,175 to 4,014 test-seconds
   with trunk's conversions and each of five shards now carries about 1,100
   list-seconds. No change of this branch reaches those specs. The repair is a
-  CI capacity decision (move a shard from `dashboard-integrated` to `e2e`, or
-  add a sixth e2e shard) and is with the developer.
+  CI capacity decision. The developer chose the move of one shard from
+  `dashboard-integrated` to `e2e`; `.github/workflows/ci.yml` and
+  `dashboard/tests/shards.md` carry it.
 - Slice 3 (accepted 2026-11-15 on the merged tree; family 61 passed, usage
   e2e 2 passed, frontend usage 3 passed, lint and typecheck clean):
   - Writer and reader: `usageHistory.ts` (`writeUsageHistory`,

@@ -19,30 +19,31 @@ settings leaves the others' selection, settings and timing untouched
 
 | Job | Command | Settings prefix | Duration list | Shards |
 | --- | --- | --- | --- | --- |
-| `e2e` | `npm run test:e2e` | `OPEN_DOUGH_E2E` | `e2e/longest-first` | 5 |
-| `dashboard-integrated` | `npm run test:dashboard:integrated` | `OPEN_DOUGH_DASHBOARD_INTEGRATED` | `dashboard/integrated.longest-first` | 5 |
+| `e2e` | `npm run test:e2e` | `OPEN_DOUGH_E2E` | `e2e/longest-first` | 6 |
+| `dashboard-integrated` | `npm run test:dashboard:integrated` | `OPEN_DOUGH_DASHBOARD_INTEGRATED` | `dashboard/integrated.longest-first` | 4 |
 | `dashboard-frontend` | `npm run test:dashboard:frontend` | `OPEN_DOUGH_DASHBOARD_FRONTEND` | `dashboard/frontend.longest-first` | 1 |
 | `dashboard-backend` | `npm run test:dashboard:backend` | `OPEN_DOUGH_DASHBOARD_BACKEND` | `dashboard/backend.longest-first` | 3 |
 
 These counts make 18 jobs: 14 browser jobs, three Distribution shares and one
-proof job. Lint and dashboard type-check share the frontend runner. The earlier
-practical first reduction used four integrated shards and 17 total jobs; its
-screen was inconclusive under background load, establishing neither a minimum
-nor a no-slower-overlap result.
+proof job. Lint and dashboard type-check share the frontend runner.
 
-The fifth integrated shard addresses the 320-second cutoff in
-[run 43616933767](https://github.com/terryyin/open-dough/actions/runs/43616933767).
-That run and [run 43613277818](https://github.com/terryyin/open-dough/actions/runs/43613277818)
-used identical browser sources: integrated had only five seconds of margin on
-another shard, while the earlier run had 15 seconds. The maintained deal gives
-five integrated shards about 956 recorded spec-seconds each instead of 1,194.
-Taking a job from E2E would give its four shards about 1,288 spec-seconds each;
-its observed slow runner already needed 273 seconds for about 1,028 seconds of
-work, leaving 34 seconds after setup. Backend also lacked a safe donor, and two
-Distribution shares exceeded their existing aggregate allowance. This capacity
-repair keeps tests, workers and reviewed deadlines; it claims no minimum count
-or whole-workflow speedup. Further sizing uses the separately queued
-reconsideration and recent retained CI evidence.
+The sixth E2E shard came from integrated after the 320-second cutoff of E2E
+shard 2/5 in
+[run 43681477553](https://github.com/terryyin/open-dough/actions/runs/43681477553).
+Specs moving from integrated into `e2e/` had grown E2E from 3,175 to 4,014
+observed test-seconds a run, and its balanced five-shard deal carried about
+1,100 recorded spec-seconds a shard. That shard's runner took 1.4 to 1.9 times
+trunk's seconds on every spec, 1,111 test-seconds in all, and five cases were
+unfinished at the deadline; trunk's
+[run 43679953950](https://github.com/terryyin/open-dough/actions/runs/43679953950)
+had already finished two E2E shards in 287 and 288 seconds. The maintained
+deal gives six E2E shards 914 to 926 recorded spec-seconds each and four
+integrated shards 892 to 906, below the 956 integrated's former fifth shard
+gave it. Known exposure: the slowest integrated shard seen at five shards,
+266 seconds, scales to roughly 330 at four on an equally slow runner. This
+capacity move keeps tests, workers, the job count and reviewed deadlines; it
+claims no minimum count or whole-workflow speedup. Further sizing uses the
+separately queued reconsideration and recent retained CI evidence.
 Each `ci-proof` declaration (`<entry>=<shards>:case`) follows its matrix.
 
 ## The split
@@ -91,7 +92,7 @@ the deal CI will run for its group, from the repository root:
 
 ```sh
 node scripts/test-shares.mjs preview --split-count 6 --spec-dir e2e
-node scripts/test-shares.mjs preview --split-count 5 --spec-dir dashboard \
+node scripts/test-shares.mjs preview --split-count 4 --spec-dir dashboard \
   --root tests --list dashboard/integrated.longest-first
 ```
 
