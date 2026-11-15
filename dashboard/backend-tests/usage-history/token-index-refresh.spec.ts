@@ -3,11 +3,13 @@ import {
   appendFileSync,
   cpSync,
   readFileSync,
+  statSync,
   utimesSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageCheckFile } from "../../server/usageCheck.ts";
 import { usageHistoryFile } from "../../server/usageHistory.ts";
 import { usageTaskSummaryFile } from "../../server/usageTaskSummary.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
@@ -120,6 +122,8 @@ test("an unreadable store fails Refresh without replacing its summary or check t
     chart = await usage.chart();
   const history = readFileSync(store),
     summary = readFileSync(usageTaskSummaryFile(store));
+  const originalTimes = statSync(store);
+  const checkRecord = readFileSync(usageCheckFile(store));
 
   writeFileSync(store, "{ not a usage store");
   const failed = await usage.request("POST", "/__usage/refresh");
@@ -130,6 +134,9 @@ test("an unreadable store fails Refresh without replacing its summary or check t
     },
   });
   expect(readFileSync(usageTaskSummaryFile(store))).toEqual(summary);
+  expect(readFileSync(usageCheckFile(store))).toEqual(checkRecord);
   writeFileSync(store, history);
+  // Restoring the fixture is not a new import publishing evidence.
+  utimesSync(store, originalTimes.atime, originalTimes.mtime);
   expect(await usage.chart()).toEqual({ ...chart, checkedAt });
 });

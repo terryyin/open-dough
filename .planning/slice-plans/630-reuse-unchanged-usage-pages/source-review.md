@@ -35,9 +35,9 @@ and 7h–7k explicitly preserve existing scope.
 | 2c | Overlapping import and Refresh leave totals unchanged when the evidence is unchanged. | slice 1 | observed: usage-writer-consistency.spec.ts overlapping refresh/import invocation preserves bytes/totals; usage-history-write-failures.spec.ts shared-lock cross-process writers |
 | 2d | Refresh continues counting usage once. | slice 1 | observed: token-index-refresh.spec.ts changed roots/older workers and repeats; repeated-checks-evidence.spec.ts response increments |
 | 2e | Refresh retains its existing rollout cutoff. | slice 1 | observed: usage-writer-consistency.spec.ts aged rollout after first Refresh; token-index-refresh.spec.ts cutoff and older workers |
-| 3a | “Checked” reflects an offline import that wrote after the last Refresh. | slice 2 |  |
-| 3b | A subsequent unchanged Refresh displays that Refresh’s own check time. | slice 2 |  |
-| 3c | The named fallback cases preserve the applicable fallback or previous successful time. | slice 2 |  |
+| 3a | “Checked” reflects an offline import that wrote after the last Refresh. | slice 2 | observed: usage-check-freshness.spec.ts later import: chart.checkedAt equals history mtime and both task identities present |
+| 3b | A subsequent unchanged Refresh displays that Refresh’s own check time. | slice 2 | observed: usage-check-freshness.spec.ts unchanged Refresh: chart.checkedAt equals returned Refresh start, history bytes unchanged |
+| 3c | The named fallback cases preserve the applicable fallback or previous successful time. | slice 2 | observed: usage-check-freshness.spec.ts null/import/legacy boundaries; token-index-refresh.spec.ts failed Refresh preserves check-record and summary bytes |
 | 4a | Changing a filter while Refresh is running keeps the checking indication active while Refresh remains unsettled. | slice 3 |  |
 | 4b | The checking indication also persists until the selected-cohort reread settles. | slice 3 |  |
 | 4c | If Refresh fails, the prior chart remains available. | slice 3 |  |
@@ -55,9 +55,9 @@ and 7h–7k explicitly preserve existing scope.
 | 6c | An existing launch stored with a skill workflow → first write normalizes it → subsequent alternating writers leave bytes unchanged. | slice 1 | observed: usage-writer-consistency.spec.ts exact legacy skill spelling, normalizing import then byte-identical writes |
 | 6d | A launch with a missing workflow → recovered skill fills the missing value. | slice 1 | observed: usage-writer-consistency.spec.ts missing-workflow launch keeps recovered skill |
 | 6e | A recovered-only Refinement task retains its skill. | slice 1 | observed: usage-writer-consistency.spec.ts recovered-only Refinement task and cohort membership |
-| 6f | Refresh at t1 → import adds a finished task at t2 → “Checked” reflects t2. | slice 2 |  |
-| 6g | Continuing that journey with an unchanged Refresh at t3 → “Checked” displays t3. | slice 2 |  |
-| 6h | No store, import before any Refresh, a legacy check record, and failed Refresh exercise fallback/previous-successful-time behavior. | slice 2 |  |
+| 6f | Refresh at t1 → import adds a finished task at t2 → “Checked” reflects t2. | slice 2 | observed: usage-check-freshness.spec.ts first Refresh then second finished launch import, HTTP tasks and later checkedAt |
+| 6g | Continuing that journey with an unchanged Refresh at t3 → “Checked” displays t3. | slice 2 | observed: usage-check-freshness.spec.ts subsequent unchanged Refresh own checkedAt, exact history bytes retained |
+| 6h | No store, import before any Refresh, a legacy check record, and failed Refresh exercise fallback/previous-successful-time behavior. | slice 2 | observed: usage-check-freshness.spec.ts fallback case and token-index-refresh.spec.ts unreadable-store failure; E2E Refresh shows prior successful check time |
 | 6i | Hold Refresh → choose Refinement → settle the cohort load: checking remains active. | slice 3 |  |
 | 6j | Release that Refresh → settle its selected-cohort reread: this supplies the remaining settlement boundary for checking. | slice 3 |  |
 | 6k | Hold Refresh → change filter → Refresh fails: retain the selected chart. | slice 3 |  |
@@ -113,3 +113,34 @@ Preparation stopped before commit on unsafe JSON typing in the new test.
 Coordinator repair uses the already-imported module's UsageHistory type at parse;
 no runtime/observation change. Already traced within refactor 1's accepted paths;
 accepted proof reused. Formatting/hook own renewed static validation.
+
+## Slice 2 acceptance
+
+Slice 1 accepted on remote story branch at `6343cc5b8ea6416488914b4567d48e785feed53b`, suffix base `95578800875568e449ea9394db88b1bb49d9e409`.
+Slice 2 triggers/expected results match the inspected real importer and HTTP
+assertions in `usage-check-freshness.spec.ts`: null, first import mtime, legacy
+record, later finished-task import mtime, then unchanged Refresh's own start.
+Controlled file times distinguish record publication from Refresh start; setup
+never supplies the computed HTTP checkedAt. The old reader failed the new test.
+`token-index-refresh.spec.ts` preserves summary/check-record bytes on failure;
+restoring saved timestamps accompanies test fixture restoration, preserving
+rather than weakening the failed-Refresh promise. Cutoff unchanged by inspection.
+No source gap; pending UI promises remain with slice 3.
+
+Terminal proof commands, same one-worker AC decision (load 8.33/7.00/6.79):
+- `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history/usage-check-freshness.spec.ts dashboard/backend-tests/usage-history/token-index-refresh.spec.ts --workers=1 --reporter=list` — 4 passed, 9.7s.
+- `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history --workers=1 --reporter=list` — 74 passed, 1.7m.
+- `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config e2e/playwright.config.ts e2e/configuration/system-settings-usage.spec.ts --grep 'Refresh keeps' --workers=1 --reporter=list` — selected exactly the Refresh success/failure journey, 1 passed, 8.6s; showsCheckedAt observes import, successful Refresh and retained failed-Refresh time.
+
+Trace `/tmp/seed357-slice2-consumer-trace.md`, terms checkedAt/showsCheckedAt,
+base 6343cc5b8ea6416488914b4567d48e785feed53b: all 108 rows disposed. Usage
+reader/Refresh/HTTP/support/family consumers now run; UI/page-object effects run
+through that E2E. Intent/CI timestamps and substituted filesystem answers are
+outside this freshness selection. No pending affected gate. Freshness unchanged
+at `244fc7bc67e454a3d43dfc7849f9b65edb805ec9`; supplier already included,
+incoming changes only unrelated preparation/agent avatars. Active time about 10m.
+
+Refactor 2: independent `/root/refactor2` returned `## REFACTOR COMPLETE`,
+none — already clean; no tests rerun, accepted proof and consumer dispositions
+unchanged. Final freshness unchanged at baffb006077e01d09f7393ac7bbda0ee20c48923;
+only unrelated preparation/Take records arrived since the earlier sibling check.

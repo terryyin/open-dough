@@ -152,7 +152,7 @@ workflow precedence and alternating stability.
 
 ### 2. Checked reflects an import published after the last Refresh
 Type: Behavior
-Status: planned
+Status: done
 Proof: new backend `usage-check-freshness.spec.ts` uses the shared boundary and
 import harness: import → Refresh → import a second finished launch → chart
 contains it and `checkedAt` equals the later history mtime → unchanged Refresh
