@@ -88,4 +88,19 @@ kill -TERM "$(< "${work}/supervisor")"
 wait "${supervisor}"
 [[ $(< "${work}/restored") == restored ]]
 kill -0 "$(< "${work}/interrupt/model")" 2> /dev/null && exit 1
-! kill -0 "$(< "${work}/interrupt/controller")" 2> /dev/null
+kill -0 "$(< "${work}/interrupt/controller")" 2> /dev/null && exit 1
+
+# A failed host also retires a controller's clock descendant, rather than
+# leaving its Bash parent blocked in wait. No clock time must elapse.
+mkdir "${work}/host-failure"
+mkfifo "${work}/host-failure/hold"
+native_run_controller_command=(bash -c
+  'printf "%s" "$BASHPID" > "$1/controller"; bash -c '\''printf "%s" "$BASHPID" > "$1/clock"; exec 8<> "$1/hold"; read -r -u 8 _'\'' _ "$1" & wait'
+  _ "${work}/host-failure")
+status=0
+native_run_owned_or_fail "${work}/out" "${work}/err" '' bash -c \
+  'source "$2"; wait_for clock 5 "test -s $1/clock"; exit 17' \
+  _ "${work}/host-failure" "${source_dir}/Distribution/tests/helpers/wait-for.bash" || status=$?
+[[ ${status} -eq 17 && ${native_run_failure_reason} == 'native command ended before its active-turn controller' ]]
+kill -0 "$(< "${work}/host-failure/controller")" 2> /dev/null && exit 1
+wait_for clock-stopped 5 "! kill -0 $(< "${work}/host-failure/clock") 2>/dev/null"

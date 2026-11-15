@@ -9,6 +9,16 @@ import {
   ownedProofFromRecords,
 } from "../native-comparison/paused-supplier/owned-proof.mjs";
 
+import {
+  captureWatch,
+  watchFields,
+} from "../native-comparison/supplier-watch/evidence.mjs";
+
+export function retainedWatch(attempt, observations) {
+  if (!observations.has("turn-2-producer-schedule")) return null;
+  return captureWatch(join(attempt, "codex-session.jsonl"), observations);
+}
+
 export const parseFields = (text) =>
   new Map(
     text.split("\n").flatMap((line) => {
@@ -202,6 +212,9 @@ export function archiveObservationText(archive) {
         turn.independent?.status ?? "unknown",
       );
   }
+  if (archive.evidence.supplierWatch)
+    for (const [key, value] of watchFields(archive.evidence.supplierWatch))
+      fields.set(key, value);
   fields.delete("assessment-status");
   return [...fields].map(([key, value]) => `${key}: ${value}\n`).join("");
 }

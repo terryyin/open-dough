@@ -32,7 +32,7 @@ native_comparison_pair_observe_arm() {
   grep '^project-basis: ' "${record}" > "${compare}/project-basis" || true
   grep -E '^native-(executable|version): ' "${record}" > "${compare}/host" || true
   node "${native_comparison_pair_dir}/native-comparison-settings.mjs" "${record}" > "${compare}/settings"
-  grep -E '^turn-[0-9]+-event: ' "${observations}" > "${compare}/events" || true
+  grep -E '^turn-[0-9]+-(event|producer-schedule|publication-[0-9]+-event): ' "${observations}" > "${compare}/events" || true
   awk -v arm="${arm}" -v turns="${turns}" -v empty=" ${empty_events} " -v record="${record}" \
     -v payload="$(cut -d ' ' -f 1 "${work}/payload-${arm}.id")" '
     FILENAME == record {

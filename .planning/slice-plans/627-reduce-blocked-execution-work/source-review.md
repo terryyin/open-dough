@@ -1,163 +1,172 @@
-# Independent source review
+# Source-only commitments after approved native timing and budget
 
-Launch: `/root/reproduction_source_review`, `fork_turns:none`.
-
-Input was limited to the Goal, Scope, Key examples, and Evaluation and stopping rule sections of `SEED-356-reduce-blocked-execution-effort.md`, between `#### Goal` and `#### Evidence from the abandoned attempt`. No product, plan, or proof was supplied before the review return. This file retains the exact 149 previously returned source commitments. Slice allocation is mechanical coordinator-supplied bookkeeping, not an implementation judgment.
-
-The prior review remains recoverable at `64a9b6db0`.
-
-Failure policy: [AGENTS.md#failing-and-flaky-tests](../../../AGENTS.md#failing-and-flaky-tests) applies as written.
+Reviewer: `/root/approved_source_review`, launched fresh with `fork_turns: none`.
+Input: only the selected seed's Goal, Scope, examples, evaluation and exclusions,
+before Evidence, plus the explicit human approval of two native 180-second
+windows and six journeys. No plan, product, proof or implementation was supplied.
+The actual 159-item return is retained verbatim below; allocations and accepted
+observations are the coordinator's subsequent judgments.
 
 ## Commitments
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| S001 | For authorized execution waiting on a supplier, significantly reduce complete-task model work. | slice 4 |  |
-| S002 | Reduce retained context. | slice 4 |  |
-| S003 | Added automation alone does not establish improvement. | slice 4 |  |
-| S004 | Preserve partial work. | slice 4 |  |
-| S005 | Preserve applicable accepted proof. | slice 4 |  |
-| S006 | Preserve correct supplier judgment. | slice 4 |  |
-| S007 | Preserve one qualifying continuation. | slice 4 |  |
-| S008 | Terry’s authorization permits a bounded differential investigation after the forced-wake probe found no worthwhile narrow removal. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; source user watch follow-up, real handle, empty nonterminal receipts and different completed-turn path |
-| S009 | Compare the original prolonged supplier pause with the fresh execution. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; source user watch follow-up, real handle, empty nonterminal receipts and different completed-turn path |
-| S010 | Identify conditions that kept the original coordinator requesting model work while the fresh execution held. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; source user watch follow-up, real handle, empty nonterminal receipts and different completed-turn path |
-| S011 | Reproduce the missing condition before choosing an optimization. |  | G2 |
-| S012 | Distinguish evidence of an already-resolved problem from evidence that extraction omitted its cause. | slice 2 | observed: differential-investigation.md: Judgment and Guidance and host comparison; explicit limits retain uncertainty and reject current-fix/reproduction inference |
-| S013 | Preserve uncertainty when available traces cannot settle that distinction. | slice 2 | observed: differential-investigation.md: Judgment and Guidance and host comparison; explicit limits retain uncertainty and reject current-fix/reproduction inference |
-| S014 | Retain the existing paused-supplier forced-wake and unblocked-supplier cases as agreement regressions. | slice 3 | observed: Distribution/tests/native-comparison-paused-supplier.sh and native-comparison-unblocked-supplier.sh: retained agreement regressions passed in the 22-check run. |
-| S015 | Retain those cases as preservation regressions. | slice 3 | observed: Distribution/tests/native-comparison-paused-supplier.sh and native-comparison-unblocked-supplier.sh: partial-work preservation and rejection cases passed. |
-| S016 | Retain those cases as continuation regressions. | slice 3 | observed: Distribution/tests/native-comparison-paused-supplier.sh and native-comparison-unblocked-supplier.sh: qualifying continuation/proof and duplicate-continuation rejection passed. |
-| S017 | The forced-wake case does not establish whether normal waiting creates or suppresses unnecessary model requests. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; forced wakes do not exercise in-flight watch or establish production frequency |
-| S018 | Any new reproducer exercises normal wait/resume. |  | G2 |
-| S019 | Any new reproducer preserves the original trace’s identified causal condition. |  | G2 |
-| S020 | Demonstrate unwanted baseline behavior before implementation. |  | G2 |
-| S021 | Demonstrate unwanted baseline behavior before further paid comparison. |  | G2 |
-| S022 | Select one evidenced, targeted reduction. | slice 4 | G1 |
-| S023 | Prefer deletion. | slice 4 |  |
-| S024 | Prefer existing commands. | slice 4 |  |
-| S025 | Justify a small script only by replacing observed repetitive mechanical work. | slice 4 |  |
-| S026 | Such a script removes the corresponding agent procedure. | slice 4 |  |
-| S027 | Do not retain both script and agent-procedure paths. | slice 4 |  |
-| S028 | Count cost through qualification. | slice 4 |  |
-| S029 | Count cost through final proof. | slice 4 |  |
-| S030 | The investigation does not authorize a new daemon. | slice 4 |  |
-| S031 | It does not authorize an enrollment protocol. | slice 4 |  |
-| S032 | It does not authorize a second execution record. | slice 4 |  |
-| S033 | It does not authorize a general accounting system. | slice 4 |  |
-| S034 | It does not authorize a broad execution-guidance rewrite. | slice 4 |  |
-| S035 | Automatic supplier-event delivery remains deferred. | slice 4 |  |
-| S036 | No event-delivery runtime is authorized. | slice 4 |  |
-| S037 | Running-verification efficiency remains with its existing sibling story. | slice 4 |  |
-| S038 | General phase loading remains with its existing sibling story. | slice 4 |  |
-| S039 | Preserve the exact supplier agreement. | slice 4 |  |
-| S040 | Preserve execution ownership. | slice 4 |  |
-| S041 | Preserve authority rules. | slice 4 |  |
-| S042 | Preserve publication rules. | slice 4 |  |
-| S043 | Preserve CI rules. | slice 4 |  |
-| S044 | Publication alone does not satisfy an unmet supplier agreement. | slice 4 |  |
-| S045 | A passing diagnostic alone does not satisfy an unmet agreement. | slice 4 |  |
-| S046 | Missing evidence requires honest reassessment. | slice 4 |  |
-| S047 | Changed evidence requires honest reassessment. | slice 4 |  |
-| S048 | Retained context cannot justify stale satisfaction. | slice 4 |  |
-| S049 | Retained context cannot justify a duplicate writer. | slice 4 |  |
-| S050 | General guidance remains shared across Codex, Cursor and Claude Code. | slice 4 |  |
-| S051 | The measured saving is limited to the observed Codex case; make no cross-host saving claim. | slice 4 |  |
-| S052 | Example: blocked partial work, unchanged supplier evidence and a same-session wake preserve the work. | slice 4 |  |
-| S053 | In that example, remain blocked. | slice 4 |  |
-| S054 | In that example, reuse still-valid context rather than rebuild execution history. | slice 4 |  |
-| S055 | Example: early supplier implementation without agreed stability proof triggers reassessment of changed evidence. | slice 4 |  |
-| S056 | In that example, remain blocked. | slice 4 |  |
-| S057 | In that example, do not reroute partial work around its supplier. | slice 4 |  |
-| S058 | Example: qualifying supplier evidence permits the authorized slice to continue once. | slice 4 |  |
-| S059 | In that example, integrate once. | slice 4 |  |
-| S060 | In that example, preserve applicable proof. | slice 4 |  |
-| S061 | In that example, finish with passing independent proof. | slice 4 |  |
-| S062 | In that example, finish with passing execution-owned proof. | slice 4 |  |
-| S063 | Count that continuation’s cost. | slice 4 |  |
-| S064 | Example: if the supplier qualifies at entry, finish the same partial work once. | slice 4 |  |
-| S065 | In that example, incur no blocked-path setup tax beyond the evaluation allowance. | slice 4 |  |
-| S066 | Example: when the original repeatedly waits but the fresh fixture holds and ends its turn, compare actual context. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; source user watch follow-up, real handle, empty nonterminal receipts and different completed-turn path |
-| S067 | In that differential example, compare available handles. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; source user watch follow-up, real handle, empty nonterminal receipts and different completed-turn path |
-| S068 | In that differential example, compare instructions. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; source user watch follow-up, real handle, empty nonterminal receipts and different completed-turn path |
-| S069 | In that differential example, compare guidance revisions. | slice 2 | observed: differential-investigation.md: Guidance and host comparison; normalized captured continuation/finish/empty-wait guidance matches, host route/version remains a confounder |
-| S070 | Identify the missing trigger or retain an evidenced uncertainty. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; source user watch follow-up, real handle, empty nonterminal receipts and different completed-turn path |
-| S071 | Do not assume the differing executions establish a fix. | slice 2 | observed: differential-investigation.md: Judgment and Guidance and host comparison; explicit limits retain uncertainty and reject current-fix/reproduction inference |
-| S072 | Do not assume they establish a representative reproduction. | slice 2 | observed: differential-investigation.md: Judgment and Guidance and host comparison; explicit limits retain uncertainty and reject current-fix/reproduction inference |
-| S073 | Example: a trigger-matching reproducer must show unchanged-baseline repeated model activity through normal wait/resume before considering one targeted optimization. |  | G2 |
-| S074 | Controlled-host checks establish harness behavior. | slice 3 | observed: Distribution/tests/native-comparison-inflight.sh and native-comparison-supplier-watch.sh: active-turn delivery, preserved hold, once-only continuation/proof, cleanup and native refusal passed controlled renewal. |
-| S075 | Controlled-host checks do not substitute for a native model-behavior result. | slice 3 | observed: reproducer-design.md: native observations remain unknown; supplier-watch/case.bash refuses the native route, and native-comparison-supplier-watch.sh observes that refusal. |
-| S076 | Select the working acceptance bar during refinement, before measurement. | slice 4 |  |
-| S077 | Require at least 20% fewer total processed tokens on the blocked case. | slice 4 |  |
-| S078 | Permit no blocked-case increase in model requests. | slice 4 |  |
-| S079 | Permit no blocked-case increase in developer interventions. | slice 4 |  |
-| S080 | Permit at most 5% token overhead on the unblocked case. | slice 4 |  |
-| S081 | Permit no unblocked-case increase in model requests. | slice 4 |  |
-| S082 | Permit no unblocked-case increase in developer interventions. | slice 4 |  |
-| S083 | Both arms satisfy the current case assessors. | slice 4 |  |
-| S084 | Both arms satisfy decisive proof. | slice 4 |  |
-| S085 | Make a bounded keep/stop decision from one stochastic observation per arm. | slice 4 |  |
-| S086 | Make no statistical claim. | slice 4 |  |
-| S087 | Make no billing claim. | slice 4 |  |
-| S088 | Follow the cited ADR 0010 definition of improvement. | slice 4 |  |
-| S089 | Freeze current pre-change source as the baseline. |  | G2 |
-| S090 | Match the current task across comparison arms. | slice 4 |  |
-| S091 | Match events. | slice 4 |  |
-| S092 | Match the assessor. | slice 4 |  |
-| S093 | Match the host. | slice 4 |  |
-| S094 | Match the host version. | slice 4 |  |
-| S095 | Match the model. | slice 4 |  |
-| S096 | Match model settings. | slice 4 |  |
-| S097 | Match publication authority. | slice 4 |  |
-| S098 | Capture fresh baseline evidence. |  | G2 |
-| S099 | Do not compare against the abandoned implementation. | slice 4 |  |
-| S100 | Include coordinator effort in cost accounting. | slice 4 |  |
-| S101 | Include owned-worker effort in cost accounting. | slice 4 |  |
-| S102 | Begin accounting at setup. | slice 4 |  |
-| S103 | Continue accounting through final proof. | slice 4 |  |
-| S104 | Include recovery in accounting. | slice 4 |  |
-| S105 | Report model requests separately. | slice 4 |  |
-| S106 | Report cached input separately. | slice 4 |  |
-| S107 | Report uncached input separately. | slice 4 |  |
-| S108 | Report output separately. | slice 4 |  |
-| S109 | Report interventions separately. | slice 4 |  |
-| S110 | Unknown usage remains unknown. | slice 4 |  |
-| S111 | Unknown usage cannot support a token-saving verdict. | slice 4 |  |
-| S112 | The forced-wake schedule remains evidence for initial hold. | slice 4 |  |
-| S113 | It remains evidence for unchanged-evidence handling. | slice 4 |  |
-| S114 | It remains evidence for nonqualifying-evidence handling. | slice 4 |  |
-| S115 | It remains evidence for qualifying-evidence handling. | slice 4 |  |
-| S116 | It makes no production block-frequency claim. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; forced wakes do not exercise in-flight watch or establish production frequency |
-| S117 | It makes no prolonged-pause reproduction claim. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; forced wakes do not exercise in-flight watch or establish production frequency |
-| S118 | The differential investigation establishes the new reproduction profile before further comparison. | slice 2 | observed: differential-investigation.md: Minimum next reproduction profile; post-handoff watch authority, genuine handle, pre-correction agreement state and in-flight producer events |
-| S119 | Authorize at most five native journeys in total. | slice 4 |  |
-| S120 | That total includes the invalid initial baseline. | slice 4 |  |
-| S121 | The four additionally approved journeys provide one fresh baseline and one candidate per case. | slice 4 |  |
-| S122 | Worker effort still counts toward the budget. | slice 4 |  |
-| S123 | Automatic baseline reacquisition still counts. | slice 4 |  |
-| S124 | Invalid attempts still count. | slice 4 |  |
-| S125 | Run the blocked comparison first. | slice 4 |  |
-| S126 | The extension changes no quality bar. | slice 4 |  |
-| S127 | The extension changes no keep/stop bar. | slice 4 |  |
-| S128 | Two journeys are consumed and three remain. | slice 2 | observed: differential-investigation.md: Inspection and acceptance evidence; retained logs/Git only, no native launch and budget remains2used/3unspent |
-| S129 | The new investigation grants no additional native budget. | slice 2 | observed: differential-investigation.md: Inspection and acceptance evidence; retained logs/Git only, no native launch and budget remains2used/3unspent |
-| S130 | Prefer retained traces before paid native work. | slice 2 | observed: differential-investigation.md: Inspection and acceptance evidence; retained logs/Git only, no native launch and budget remains2used/3unspent |
-| S131 | Prefer controlled checks before paid native work. | slice 3 | observed: reproducer-design.md Controlled acceptance: credential-free focused proof completed without another native journey. |
-| S132 | Before a paid launch, reserve journeys needed for its stated learning. | slice 4 |  |
-| S133 | Before a paid launch, reserve journeys needed for required remaining comparisons. | slice 4 |  |
-| S134 | Do not start a comparison that cannot finish within the authorized allocation. | slice 4 |  |
-| S135 | Stop before optimization implementation if the baseline does not reproduce the targeted unwanted behavior. | slice 4 |  |
-| S136 | Stop before optimization implementation if the baseline exposes no plausible worthwhile removal. | slice 4 |  |
-| S137 | Stop the candidate on failed quality. | slice 4 |  |
-| S138 | Stop the candidate on insufficient usage evidence. | slice 4 |  |
-| S139 | Stop the candidate on a missed bar. | slice 4 |  |
-| S140 | Stop the candidate on exhausted budget. | slice 4 |  |
-| S141 | Retain observations after stopping. | slice 4 |  |
-| S142 | Revert only candidate-owned product changes. | slice 4 |  |
-| S143 | Do not expand the design. | slice 4 |  |
-| S144 | Do not rerun for a favorable result. | slice 4 |  |
-| S145 | A negative result is learning, not achieved improvement. | slice 4 |  |
-| S146 | An inconclusive result is learning, not achieved improvement. | slice 4 |  |
-| S147 | Further work after such a result needs a new decision. | slice 4 |  |
-| S148 | Keep evaluation effort visible as cost. | slice 4 |  |
-| S149 | Keep implementation effort visible as cost. | slice 4 |  |
+| A001 | **Qualification:** The goal concerns a developer whose authorized execution waits on a supplier. Source—Goal: “whose authorized execution waits on a supplier.” | slice 4 |  |
+| A002 | **Commitment:** Significantly reduce complete-task model work. Source—Goal: “significantly reduce complete-task model work.” | slice 4 |  |
+| A003 | **Commitment:** Preserve partial work. Source—Goal: “preserving partial work.” | slice 4 |  |
+| A004 | **Commitment:** Preserve accepted proof. Source—Goal: “accepted proof.” | slice 4 |  |
+| A005 | **Commitment:** Preserve correct supplier judgment. Source—Goal: “correct supplier judgment.” | slice 4 |  |
+| A006 | **Commitment:** Preserve one qualifying continuation. Source—Goal: “one qualifying continuation.” | slice 4 |  |
+| A007 | **Commitment:** Reduce retained context. Source—Goal: “Less work and less retained context are the outcome.” | slice 4 |  |
+| A008 | **Exclusion:** Added automation alone does not constitute improvement. Source—Goal: “added automation alone is not improvement.” | slice 4 |  |
+| A009 | **Qualification:** The recorded authorization permits a bounded differential investigation. Source—Scope: “authorizes a bounded differential investigation.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A010 | **Commitment:** Compare the original prolonged supplier pause with the fresh execution. Source—Scope: “Compare the original prolonged supplier pause with the fresh execution.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A011 | **Commitment:** Identify conditions explaining repeated original-coordinator model work while the fresh execution held. Source—Scope: “identify the conditions that made the original coordinator keep requesting model work while the fresh execution held.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A012 | **Commitment:** Reproduce the missing condition before choosing an optimization. Source—Scope: “reproduce the missing condition before choosing an optimization.” |  | G2 |
+| A013 | **Commitment:** Distinguish an already-resolved problem from an extracted case that omitted its cause. Source—Scope: “Distinguish evidence that the problem is already resolved from evidence that the extracted case omitted its cause.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A014 | **Qualification:** Preserve uncertainty when available traces cannot settle that distinction. Source—Scope: “Preserve uncertainty when the available traces cannot settle it.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A015 | **Commitment:** Retain the existing paused-supplier forced-wake case as an agreement regression. Source—Scope: “Keep the existing paused-supplier forced-wake and unblocked-supplier cases as agreement…regressions.” | slice 3 | observed: Distribution/tests/native-comparison-paused-supplier.sh and native-comparison-unblocked-supplier.sh: agreement, partial-work and exactly-once continuation/proof regressions passed at 1a4a640e8; independent refactor renewal A retained these observations. |
+| A016 | **Commitment:** Retain that forced-wake case as a preservation regression. Source—Scope: “preservation…regressions.” | slice 3 | observed: Distribution/tests/native-comparison-paused-supplier.sh and native-comparison-unblocked-supplier.sh: agreement, partial-work and exactly-once continuation/proof regressions passed at 1a4a640e8; independent refactor renewal A retained these observations. |
+| A017 | **Commitment:** Retain that forced-wake case as a continuation regression. Source—Scope: “continuation regressions.” | slice 3 | observed: Distribution/tests/native-comparison-paused-supplier.sh and native-comparison-unblocked-supplier.sh: agreement, partial-work and exactly-once continuation/proof regressions passed at 1a4a640e8; independent refactor renewal A retained these observations. |
+| A018 | **Commitment:** Retain the existing unblocked-supplier case as an agreement regression. Source—Scope: “unblocked-supplier cases as agreement…regressions.” | slice 3 | observed: Distribution/tests/native-comparison-paused-supplier.sh and native-comparison-unblocked-supplier.sh: agreement, partial-work and exactly-once continuation/proof regressions passed at 1a4a640e8; independent refactor renewal A retained these observations. |
+| A019 | **Commitment:** Retain that unblocked case as a preservation regression. Source—Scope: “preservation…regressions.” | slice 3 | observed: Distribution/tests/native-comparison-paused-supplier.sh and native-comparison-unblocked-supplier.sh: agreement, partial-work and exactly-once continuation/proof regressions passed at 1a4a640e8; independent refactor renewal A retained these observations. |
+| A020 | **Commitment:** Retain that unblocked case as a continuation regression. Source—Scope: “continuation regressions.” | slice 3 | observed: Distribution/tests/native-comparison-paused-supplier.sh and native-comparison-unblocked-supplier.sh: agreement, partial-work and exactly-once continuation/proof regressions passed at 1a4a640e8; independent refactor renewal A retained these observations. |
+| A021 | **Qualification:** Forced-wake evidence does not establish whether normal waiting creates or suppresses unnecessary model requests. Source—Scope: “does not establish whether normal waiting creates or suppresses unnecessary model requests.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A022 | **Commitment:** Any new reproducer must exercise normal wait/resume. Source—Scope: “must exercise the normal wait/resume path.” |  | G2 |
+| A023 | **Commitment:** Any new reproducer must preserve the original trace’s causal condition. Source—Scope: “preserve the causal condition found in the original trace.” |  | G2 |
+| A024 | **Commitment:** Demonstrate unwanted baseline behavior before implementation. Source—Scope: “demonstrate the unwanted baseline behavior before an implementation.” |  | G2 |
+| A025 | **Commitment:** Demonstrate unwanted baseline behavior before any further paid comparison. Source—Scope: “or further paid comparison.” |  | G2 |
+| A026 | **Commitment:** Subsequently select one evidenced, targeted reduction. Source—Scope: “Then select one evidenced, targeted reduction.” |  | G1 |
+| A027 | **Preference:** Prefer deletion. Source—Scope: “Prefer deletion.” | slice 4 |  |
+| A028 | **Preference:** Prefer existing commands. Source—Scope: “and existing commands.” | slice 4 |  |
+| A029 | **Qualification:** A small script is justified only by replacing observed repetitive mechanical work. Source—Scope: “justified only when it replaces observed repetitive mechanical work.” | slice 4 |  |
+| A030 | **Commitment:** Such a script must remove the corresponding agent procedure. Source—Scope: “removes the corresponding agent procedure.” | slice 4 |  |
+| A031 | **Exclusion:** Do not retain both procedural and scripted paths. Source—Scope: “Do not add both paths.” | slice 4 |  |
+| A032 | **Commitment:** Count cost through qualification. Source—Scope: “Count cost through qualification.” | slice 4 |  |
+| A033 | **Commitment:** Count cost through final proof. Source—Scope: “and final proof.” | slice 4 |  |
+| A034 | **Exclusion:** No new daemon is authorized. Source—Scope: “does not authorize a new daemon.” | slice 4 |  |
+| A035 | **Exclusion:** No enrollment protocol is authorized. Source—Scope: “enrollment protocol.” | slice 4 |  |
+| A036 | **Exclusion:** No second execution record is authorized. Source—Scope: “second execution record.” | slice 4 |  |
+| A037 | **Exclusion:** No general accounting system is authorized. Source—Scope: “general accounting system.” | slice 4 |  |
+| A038 | **Exclusion:** No broad execution-guidance rewrite is authorized. Source—Scope: “broad execution-guidance rewrite.” | slice 4 |  |
+| A039 | **Exclusion:** Automatic supplier-event delivery remains deferred. Source—Scope: “Automatic supplier-event delivery remains deferred.” | slice 4 |  |
+| A040 | **Exclusion:** No event-delivery runtime is authorized. Source—Scope: “no event-delivery runtime is authorized by this investigation.” | slice 4 |  |
+| A041 | **Exclusion:** Running-verification efficiency stays with its existing sibling story. Source—Scope: “Running-verification efficiency…remain with their existing sibling stories.” | slice 4 |  |
+| A042 | **Exclusion:** General phase loading stays with its existing sibling story. Source—Scope: “general phase loading remain with their existing sibling stories.” | slice 4 |  |
+| A043 | **Commitment:** Preserve the exact supplier agreement. Source—Scope: “Preserve the exact supplier agreement.” | slice 4 |  |
+| A044 | **Commitment:** Preserve execution ownership. Source—Scope: “execution ownership.” | slice 4 |  |
+| A045 | **Commitment:** Preserve authority rules. Source—Scope: “authority.” | slice 4 |  |
+| A046 | **Commitment:** Preserve publication rules. Source—Scope: “publication.” | slice 4 |  |
+| A047 | **Commitment:** Preserve CI rules. Source—Scope: “CI rules.” | slice 4 |  |
+| A048 | **Qualification:** Publication alone cannot satisfy an unmet agreement. Source—Scope: “Publication…alone does not satisfy an unmet agreement.” | slice 4 |  |
+| A049 | **Qualification:** A passing diagnostic alone cannot satisfy an unmet agreement. Source—Scope: “a passing diagnostic alone does not satisfy an unmet agreement.” | slice 4 |  |
+| A050 | **Commitment:** Reassess honestly when evidence is missing. Source—Scope: “Missing…evidence requires honest reassessment.” | slice 4 |  |
+| A051 | **Commitment:** Reassess honestly when evidence changes. Source—Scope: “changed evidence requires honest reassessment.” | slice 4 |  |
+| A052 | **Exclusion:** Retained context cannot justify stale satisfaction. Source—Scope: “retained context cannot justify stale satisfaction.” | slice 4 |  |
+| A053 | **Exclusion:** Retained context cannot justify a duplicate writer. Source—Scope: “or a duplicate writer.” | slice 4 |  |
+| A054 | **Commitment:** Keep general guidance shared across Codex, Cursor, and Claude Code. Source—Scope: “General guidance remains shared across Codex, Cursor and Claude Code.” | slice 4 |  |
+| A055 | **Qualification:** Limit the measured saving to the observed Codex case. Source—Scope: “the measured saving is limited to the observed Codex case.” | slice 4 |  |
+| A056 | **Exclusion:** Make no cross-host saving claim. Source—Scope: “not a cross-host claim.” | slice 4 |  |
+| A057 | **Journey example:** When blocked partial work wakes in the same session with unchanged supplier evidence, keep the partial work. Source—Key examples: “Partial work is blocked and supplier evidence is unchanged → the same session wakes → keep the work.” | slice 4 |  |
+| A058 | **Journey example:** Under that same trigger, retain the block. Source—Key examples: “keep the work and block.” | slice 4 |  |
+| A059 | **Journey example:** Under that same trigger, reuse still-valid context instead of rebuilding execution history. Source—Key examples: “reusing still-valid context rather than rebuilding the execution history.” | slice 4 |  |
+| A060 | **Journey example:** When an early supplier implementation lacks agreed stability proof, reassess the changed evidence. Source—Key examples: “publishes an early implementation but still lacks the agreed stability proof → reassess the changed evidence.” | slice 4 |  |
+| A061 | **Journey example:** Under that same trigger, remain blocked. Source—Key examples: “remain blocked.” | slice 4 |  |
+| A062 | **Journey example:** Under that same trigger, do not reroute partial work around its supplier. Source—Key examples: “do not reroute the partial work around its supplier.” | slice 4 |  |
+| A063 | **Journey example:** When qualifying supplier evidence arrives, continue the authorized slice once. Source—Key examples: “Qualifying supplier evidence arrives → continue the authorized slice once.” | slice 4 |  |
+| A064 | **Journey example:** Integrate once in that continuation. Source—Key examples: “integrate once.” | slice 4 |  |
+| A065 | **Journey example:** Preserve applicable proof during that continuation. Source—Key examples: “preserve applicable proof.” | slice 4 |  |
+| A066 | **Journey example:** Finish that continuation with passing independent proof. Source—Key examples: “finish with passing independent…proof.” | slice 4 |  |
+| A067 | **Journey example:** Finish that continuation with passing execution-owned proof. Source—Key examples: “execution-owned proof.” | slice 4 |  |
+| A068 | **Journey example:** Count that continuation’s cost. Source—Key examples: “Count this continuation’s cost too.” | slice 4 |  |
+| A069 | **Journey example:** When the supplier already qualifies at entry, finish the same partial work once. Source—Key examples: “The supplier already qualifies at entry → finish the same partial work once.” | slice 4 |  |
+| A070 | **Journey qualification:** That entry-qualified case permits no blocked-path setup tax beyond the evaluation allowance. Source—Key examples: “no blocked-path setup tax beyond the evaluation allowance.” | slice 4 |  |
+| A071 | **Investigation example:** If the original session repeatedly waits while its supplier cannot progress but the fresh fixture holds and ends its turn, compare actual context. Source—Key examples: “compare actual context.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A072 | **Investigation example:** Under that same contrast, compare available handles. Source—Key examples: “available handles.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A073 | **Investigation example:** Under that same contrast, compare instructions. Source—Key examples: “instructions.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A074 | **Investigation example:** Under that same contrast, compare guidance revisions. Source—Key examples: “guidance revisions.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A075 | **Investigation alternative:** Identify the missing trigger **or** retain evidenced uncertainty. Source—Key examples: “identify the missing trigger or retain an evidenced uncertainty.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A076 | **Investigation qualification:** Do not assume that contrast establishes a fix. Source—Key examples: “do not assume either a fix.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A077 | **Investigation qualification:** Do not assume that contrast establishes representative reproduction. Source—Key examples: “or a representative reproduction.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A078 | **Reproduction example:** A trigger-matching reproducer must show unwanted repeated model activity in the unchanged baseline through normal wait/resume before considering one targeted optimization. Source—Key examples: “the unchanged baseline exhibits the unwanted repeated model activity through its normal wait/resume path → only then consider one targeted optimization.” |  | G2 |
+| A079 | **Qualification:** Controlled-host checks establish harness behavior. Source—Key examples: “Controlled-host checks establish harness behavior.” | slice 3 | observed: Distribution/tests/native-comparison-inflight.sh and native-comparison-supplier-watch.sh: controlled in-flight delivery/ownership/continuation proof passed; native route refused and native model observations remain unknown. |
+| A080 | **Qualification:** Controlled-host checks cannot replace a native model-behavior result. Source—Key examples: “they do not substitute for a native model-behavior result.” | slice 3 | observed: Distribution/tests/native-comparison-inflight.sh and native-comparison-supplier-watch.sh: controlled in-flight delivery/ownership/continuation proof passed; native route refused and native model observations remain unknown. |
+| A081 | **Evaluation commitment:** Require at least 20% fewer total processed tokens on the blocked case. Source—Evaluation: “at least 20% fewer total processed tokens on the blocked case.” | slice 4 |  |
+| A082 | **Evaluation commitment:** Permit no blocked-case increase in model requests. Source—Evaluation: “no increase in model requests.” | slice 4 |  |
+| A083 | **Evaluation commitment:** Permit no blocked-case increase in developer interventions. Source—Evaluation: “or developer interventions.” | slice 4 |  |
+| A084 | **Evaluation commitment:** Permit at most 5% token overhead on the unblocked case. Source—Evaluation: “at most 5% token overhead on the unblocked case.” | slice 4 |  |
+| A085 | **Evaluation commitment:** Permit no unblocked-case increase in requests. Source—Evaluation: “with no request…increase there either.” | slice 4 |  |
+| A086 | **Evaluation commitment:** Permit no unblocked-case increase in interventions. Source—Evaluation: “intervention increase there either.” | slice 4 |  |
+| A087 | **Evaluation commitment:** Both arms must satisfy current case assessors. Source—Evaluation: “Both arms must satisfy the current case assessors.” | slice 4 |  |
+| A088 | **Evaluation commitment:** Both arms must satisfy decisive proof. Source—Evaluation: “and decisive proof.” | slice 4 |  |
+| A089 | **Qualification:** Use one stochastic observation per arm for a bounded keep/stop decision. Source—Evaluation: “a bounded keep/stop decision from one stochastic observation per arm.” | slice 4 |  |
+| A090 | **Exclusion:** Make no statistical claim. Source—Evaluation: “not a statistical…claim.” | slice 4 |  |
+| A091 | **Exclusion:** Make no billing claim. Source—Evaluation: “or billing claim.” | slice 4 |  |
+| A092 | **Evaluation commitment:** Freeze current pre-change source as the baseline. Source—Evaluation: “Freeze current pre-change source as the baseline.” |  | G2 |
+| A093 | **Evaluation commitment:** Match the current task across the comparison. Source—Evaluation: “keeping current task…matched.” | slice 4 |  |
+| A094 | **Evaluation commitment:** Match events. Source—Evaluation: “events.” | slice 4 |  |
+| A095 | **Evaluation commitment:** Match the assessor. Source—Evaluation: “assessor.” | slice 4 |  |
+| A096 | **Evaluation commitment:** Match the host. Source—Evaluation: “host/version.” | slice 4 |  |
+| A097 | **Evaluation commitment:** Match the version. Source—Evaluation: “host/version.” | slice 4 |  |
+| A098 | **Evaluation commitment:** Match the model. Source—Evaluation: “model/settings.” | slice 4 |  |
+| A099 | **Evaluation commitment:** Match model settings. Source—Evaluation: “model/settings.” | slice 4 |  |
+| A100 | **Evaluation commitment:** Match publication authority. Source—Evaluation: “publication authority matched.” | slice 4 |  |
+| A101 | **Evaluation commitment:** Capture fresh baseline evidence. Source—Evaluation: “Capture fresh baseline evidence.” |  | G2 |
+| A102 | **Exclusion:** Do not compare against the abandoned implementation. Source—Evaluation: “do not compare against the abandoned implementation.” | slice 4 |  |
+| A103 | **Accounting commitment:** Count coordinator work from setup through final proof and recovery. Source—Evaluation: “Count coordinator…from setup through final proof and recovery.” | slice 4 |  |
+| A104 | **Accounting commitment:** Count owned-worker work over that same interval. Source—Evaluation: “and owned workers.” | slice 4 |  |
+| A105 | **Accounting commitment:** Report requests separately. Source—Evaluation: “report requests…separately.” | slice 4 |  |
+| A106 | **Accounting commitment:** Report cached input separately. Source—Evaluation: “cached input.” | slice 4 |  |
+| A107 | **Accounting commitment:** Report uncached input separately. Source—Evaluation: “uncached input.” | slice 4 |  |
+| A108 | **Accounting commitment:** Report output separately. Source—Evaluation: “output.” | slice 4 |  |
+| A109 | **Accounting commitment:** Report interventions separately. Source—Evaluation: “interventions separately.” | slice 4 |  |
+| A110 | **Qualification:** Leave unknown usage unknown. Source—Evaluation: “Unknown usage remains unknown.” | slice 4 |  |
+| A111 | **Qualification:** Unknown usage cannot support a token-saving verdict. Source—Evaluation: “cannot support a token-saving verdict.” | slice 4 |  |
+| A112 | **Evidence qualification:** The forced-wake schedule supports initial-hold evidence. Source—Evaluation: “remains evidence for initial hold.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A113 | **Evidence qualification:** It supports unchanged-evidence handling. Source—Evaluation: “unchanged…handling.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A114 | **Evidence qualification:** It supports nonqualifying-evidence handling. Source—Evaluation: “nonqualifying…handling.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A115 | **Evidence qualification:** It supports qualifying-evidence handling. Source—Evaluation: “qualifying handling.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A116 | **Exclusion:** It supports no production-block-frequency claim. Source—Evaluation: “makes no claim about production block frequency.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A117 | **Exclusion:** It supports no claim to reproduce the prolonged pause. Source—Evaluation: “or reproduction of the prolonged pause.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A118 | **Commitment:** Establish the differential investigation’s new reproduction profile before further comparison. Source—Evaluation: “owns the new reproduction profile before any further comparison.” | slice 2 | observed: differential-investigation.md: original live watch, post-intervention agreement timing, frozen guidance/host comparison, forced-wake limits and minimum reproduction profile; no fix or representative-reproduction inference. |
+| A119 | **Budget commitment:** Limit native journeys to six. Source—Evaluation: “Budget: at most six native journeys.” | slice 4 |  |
+| A120 | **Budget qualification:** Two journeys are already consumed. Source—Evaluation: “Two journeys are consumed.” | slice 3 | observed: probe-history.md and the retained resumed-baseline exports: one invalid initial journey plus one completed native journey consumed; no further native launch occurred in controlled preparation. |
+| A121 | **Budget reservation:** Reserve a fresh blocked baseline/candidate pair from the four remaining journeys. Source—Evaluation: “four remain, reserved for a fresh blocked baseline/candidate pair.” | slice 4 |  |
+| A122 | **Budget reservation:** Reserve an unblocked baseline/candidate pair from those same four remaining journeys. Source—Evaluation: “and an unblocked baseline/candidate pair.” | slice 4 |  |
+| A123 | **Accounting commitment:** Worker effort counts against the budget. Source—Evaluation: “Worker effort…still count.” | slice 4 |  |
+| A124 | **Accounting commitment:** Automatic baseline reacquisition counts against the budget. Source—Evaluation: “automatic baseline reacquisition.” | slice 4 |  |
+| A125 | **Accounting commitment:** Invalid attempts count against the budget. Source—Evaluation: “invalid attempts still count.” | slice 4 |  |
+| A126 | **Sequencing commitment:** Run the blocked comparison first. Source—Evaluation: “Run the blocked comparison first.” | slice 4 |  |
+| A127 | **Amendment qualification:** The extension changes no quality bar. Source—Evaluation: “This extension changes no quality…bar.” | slice 4 |  |
+| A128 | **Amendment qualification:** The extension changes no keep/stop bar. Source—Evaluation: “or keep/stop bar.” | slice 4 |  |
+| A129 | **Timing qualification:** The timing approval applies only to the supplier-watch native case. Source—Evaluation: “For the supplier-watch native case only.” | slice 3 | observed: supplier-watch/case.bash and clock.mjs select the native fixed schedule only for this case; native-supplier-watch-clock.test.mjs and controlled supplier workflow prove the scoped paths. |
+| A130 | **Timing commitment:** Use two fixed 180-second observation windows. Source—Evaluation: “grants two fixed 180-second observation windows.” | slice 3 |  |
+| A131 | **Timing commitment:** Start the first window with the watch-request turn. Source—Evaluation: “the first starts with the watch-request turn.” | slice 3 |  |
+| A132 | **Timing commitment:** End the first window with nonqualifying publication. Source—Evaluation: “ends with nonqualifying publication.” | slice 3 |  |
+| A133 | **Timing commitment:** End the second window with qualifying publication. Source—Evaluation: “the second ends with qualifying publication.” | slice 3 |  |
+| A134 | **Timing commitment:** Make releases independent of model polling. Source—Evaluation: “Releases are independent of model polling.” | slice 3 |  |
+| A135 | **Exception qualification:** The elapsed-time exception is scoped to these native observations. Source—Evaluation: “a scoped exception to AGENTS.md’s elapsed-time prohibition for these native observations.” | slice 3 | observed: The source records only the approved supplier-watch native interval exception; no general time rule changed. New timing proof uses mocked Date/setTimeout and controlled FIFO events. |
+| A136 | **Commitment:** Cheap checks must still advance a controlled clock. Source—Evaluation: “cheap checks still advance a controlled clock.” | slice 3 | observed: Final receipt/evidence/scheduler and supplier renewals use mocked/controlled clocks or observable events. The mistakenly selected passing legacy elapsed-time test is explicitly excluded from controlled acceptance in the handoff and was not repeated. |
+| A137 | **Evidence commitment:** Retain actual watch exposure. Source—Evaluation: “Retain actual watch exposure.” | slice 3 |  |
+| A138 | **Evidence qualification:** Insufficient or unknown exposure cannot establish a fix. Source—Evaluation: “insufficient or unknown exposure cannot establish a fix.” | slice 3 | observed: native-codex-wait-evidence.test.mjs proves missing/truncated source and invalid publication bounds produce unknown; design explicitly forbids inferring a fix from insufficient exposure. |
+| A139 | **Evidence qualification:** Insufficient or unknown exposure cannot disprove the hypothesis. Source—Evaluation: “or disprove the hypothesis.” | slice 3 | observed: reproducer-design.md retains the bounded-window limitation; missing/invalid evidence remains unknown in native-codex-wait-evidence.test.mjs, with no hypothesis-disproof claim. |
+| A140 | **Preference:** Prefer retained traces before paid launches. Source—Evaluation: “Prefer retained traces…first.” | slice 3 | observed: differential-investigation.md and reproducer-design.md Controlled acceptance: retained traces and credential-free checks preceded any supplier-watch native launch. |
+| A141 | **Preference:** Prefer controlled checks before paid launches. Source—Evaluation: “and controlled checks first.” | slice 3 | observed: differential-investigation.md and reproducer-design.md Controlled acceptance: retained traces and credential-free checks preceded any supplier-watch native launch. |
+| A142 | **Budget commitment:** Before a paid launch, reserve journeys needed for its stated learning. Source—Evaluation: “Before a paid launch, reserve the journeys needed for its stated learning.” | slice 3 | observed: PLAN.md expensive-proof decision reserves one fresh blocked baseline from the four approved remaining journeys; no additional native launch has occurred. |
+| A143 | **Budget commitment:** Before a paid launch, reserve journeys needed for required remaining comparisons. Source—Evaluation: “and required remaining comparisons.” | slice 3 | observed: The four approved remaining journeys are reserved together for blocked baseline/candidate and unblocked baseline/candidate; the pre-change blocked baseline is part of that allocation. |
+| A144 | **Exclusion:** Do not start a comparison that cannot finish within the authorized allocation. Source—Evaluation: “do not start a comparison that cannot finish within the authorized allocation.” | slice 3 | observed: Native launch is held until controlled calibration, publication/freeze and exact CI; cap6 with2used/4reserved fits the whole stated comparison, with no extra retry authorized. |
+| A145 | **Stopping commitment:** Stop before optimization implementation if the baseline does not reproduce the targeted unwanted behavior. Source—Evaluation: “Stop before optimization implementation if the baseline does not reproduce the targeted unwanted behavior.” | slice 3 |  |
+| A146 | **Stopping commitment:** Stop before optimization implementation if the baseline exposes no plausible worthwhile removal. Source—Evaluation: “or exposes no plausible worthwhile removal.” | slice 3 |  |
+| A147 | **Stopping commitment:** Stop the candidate on failed quality. Source—Evaluation: “Stop the candidate on failed quality.” | slice 4 |  |
+| A148 | **Stopping commitment:** Stop the candidate on insufficient usage. Source—Evaluation: “insufficient usage.” | slice 4 |  |
+| A149 | **Stopping commitment:** Stop the candidate on a missed bar. Source—Evaluation: “a missed bar.” | slice 4 |  |
+| A150 | **Stopping commitment:** Stop the candidate on exhausted budget. Source—Evaluation: “or exhausted budget.” | slice 4 |  |
+| A151 | **Stopping commitment:** Retain observations. Source—Evaluation: “retain observations.” | slice 4 |  |
+| A152 | **Stopping commitment:** Revert only candidate-owned product changes. Source—Evaluation: “revert only candidate-owned product changes.” | slice 4 |  |
+| A153 | **Exclusion:** Do not expand the design. Source—Evaluation: “Do not expand the design.” | slice 4 |  |
+| A154 | **Exclusion:** Do not rerun for a favorable result. Source—Evaluation: “or rerun for a favorable result.” | slice 4 |  |
+| A155 | **Outcome qualification:** A negative result is learning, not achieved improvement. Source—Evaluation: “A negative…result is learning, not achieved improvement.” | slice 4 |  |
+| A156 | **Outcome qualification:** An inconclusive result is learning, not achieved improvement. Source—Evaluation: “or inconclusive result is learning, not achieved improvement.” | slice 4 |  |
+| A157 | **Authority qualification:** Further work needs a new decision. Source—Evaluation: “further work needs a new decision.” | slice 4 |  |
+| A158 | **Accounting commitment:** Keep evaluation effort visible as cost. Source—Evaluation: “Evaluation…effort remain visible costs.” | slice 4 |  |
+| A159 | **Accounting commitment:** Keep implementation effort visible as cost. Source—Evaluation: “implementation effort remain visible costs.” | slice 4 |  |

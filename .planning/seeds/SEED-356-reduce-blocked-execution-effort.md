@@ -16,7 +16,7 @@ scope: story
 **Identity:** SEED-356#reduce-total-model-work-during-blocked-execution
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/627-reduce-blocked-execution-work/PLAN.md","assessment":"not-ready","reasons":["The later fresh blocked pair and unblocked pair require four native journeys but three remain; a complete paid comparison allocation is not settled. The authorized trace investigation continues without native spending."],"basis":{"document":"b63a64a44fa892ca0213addefdb6e6ecec7e0aca3d1d334a0c0ac33562544d41","plan":"c3a21e34aeb7b9525bad1f62df76883a95bda2062037aef0f7c466cb75d4a53e"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/627-reduce-blocked-execution-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a19d3ff24e89627e57aa310b228754e2390e853acc68b79b8f1ed2170c9a2d35","plan":"7811ef062ee68c22217bfdfc91b54ab25283bcdb2184fa9d90dd1822586292d7"}}
 ```
 
 #### Goal
@@ -107,12 +107,20 @@ nonqualifying and qualifying handling; it makes no claim about production block
 frequency or reproduction of the prolonged pause. The differential investigation
 owns the new reproduction profile before any further comparison.
 
-Budget: at most five native journeys, including the invalid initial baseline
-and four additional journeys approved by Terry on 2026-11-15 with
-"approved. continue": one fresh baseline and candidate per case. Worker effort,
-automatic baseline reacquisition and invalid attempts still count. Run the
-blocked comparison first. This extension changes no quality or keep/stop bar. Two journeys are consumed
-and three remain; the new investigation grants no additional native budget.
+Budget: at most six native journeys. Terry's latest 2026-11-15
+"approved" raises the earlier five-journey cap by one. Two journeys are consumed
+and four remain, reserved for a fresh blocked baseline/candidate pair and an
+unblocked baseline/candidate pair. Worker effort, automatic baseline
+reacquisition and invalid attempts still count. Run the blocked comparison
+first. This extension changes no quality or keep/stop bar.
+
+For the supplier-watch native case only, that approval grants two fixed
+180-second observation windows: the first starts with the watch-request turn
+and ends with nonqualifying publication; the second ends with qualifying
+publication. Releases are independent of model polling. This is a scoped
+exception to AGENTS.md's elapsed-time prohibition for these native observations;
+cheap checks still advance a controlled clock. Retain actual watch exposure;
+insufficient or unknown exposure cannot establish a fix or disprove the hypothesis.
 Prefer retained traces and controlled checks first. Before a paid launch, reserve
 the journeys needed for its stated learning and required remaining comparisons;
 do not start a comparison that cannot finish within the authorized allocation.

@@ -43,6 +43,10 @@ const reader = new Set([
 // read them. Each reason says what the file writes.
 const shapeWriters = new Map([
   [
+    "Distribution/tests/support/native-codex-wire-fixture.mjs",
+    "writes exact current Codex wait envelopes for receipt and watch-evidence proof",
+  ],
+  [
     "Distribution/tests/support/native-codex-owned-proof.test.mjs",
     "writes Codex saved-session ownership and delegated command receipts for the shared reader",
   ],

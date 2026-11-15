@@ -1,8 +1,8 @@
 # Faithful watch reproducer: controlled preparation decision
 
-Status: controlled scaffolding implemented; native observation timing remains
-open. No native journey started and no model behavior or saving was observed.
-The controlled proof below covers delivery/ownership only. Slice 3 is incomplete.
+Status: native preparation implemented; focused controlled renewal passed. Native
+intervals and six-journey cap are approved. No supplier-watch native journey,
+repeated native model behavior or saving was observed. Slice 3 is incomplete.
 
 ## Responsibility and PFE
 
@@ -68,53 +68,26 @@ Genuine session/process handles must originate from the host, never fixtures.
 A canonical-waiting-agreement variant is an input control, not a replacement
 for this pre-correction profile or a second mandatory paid probe.
 
-## The unresolved experimental choice
+## Approved native observation schedule
 
-The required unchanged observation window has no independent release event
-in this domain: the producer is intentionally paused and nothing can finish
-its missing proof. An efficient watcher may remain in one host-owned wait
-until qualifying publication; it need not emit an intermediate model receipt.
-A window released only after N empty polls therefore biases the experiment
-and can strand the very efficient behavior being compared. Releasing as soon
-as the watch starts removes the time in which empty re-entry could occur.
+Terry's latest 2026-11-15 "approved" accepts the scoped exception and total
+six-journey cap. The supplier-watch case may use two fixed 180-second unchanged
+windows. The first begins at the watch-request turn's start and releases a
+nonqualifying publication; the second releases qualifying publication. Releases
+are independent of model polling. Scripted checks still advance a controlled
+clock; this native-only exception does not change AGENTS.md's general rule.
 
-The current project rule is exact: [AGENTS.md](../../../AGENTS.md#test-automation)
-says **"Never sleep or wait for wall-clock time to pass. Wait for an observable
-event or advance a controlled clock."** A controlled clock can drive a cheap
-scripted host/controller check, but it cannot advance a real native host's
-55-second command wait without a new host adapter or changing the agent's
-watch. No existing PFE candidate provides that native clock control.
+A passive watcher may emit no intermediate receipt, so release after N empty
+polls would bias the experiment and strand efficient behavior. Fixed intervals
+avoid that dependency. Turn start is not actual watch exposure: setup may consume
+the window. Retain authentic handle timing and report insufficient/unknown
+exposure rather than infer a fix. A bounded window cannot disprove a later loop.
 
-Two concrete paths remain:
+Do not launch the native route until authentic observation and compact replay
+checks pass and root freezes the reviewed source. No new host adapter, daemon
+or event-delivery product is authorized.
 
-1. **Use a scoped native observation interval.** Permit a fixed 180-second
-   unchanged interval beginning at the native watch-request turn's start,
-   followed by a nonqualifying publication; permit a second fixed 180-second
-   interval followed by qualifying publication. Producer releases occur
-   independently of model polls and even when the agent waits passively.
-   Keep a separate existing safety deadline and use controlled clock advances
-   for all cheap controller tests. The deliberate native elapsed-time waits
-   need an explicit, narrowly scoped exception to the quoted project rule.
-   These values are proposed before any paid probe, not yet accepted settings.
-   Turn start is not watch exposure: setup may consume the interval. Retain
-   authentic handle timing and report insufficient/unknown exposure rather
-   than infer a fix when the watch was never observed long enough.
-2. **Keep the project rule without an exception.** Prepare only observable
-   in-flight delivery/cleanup checks with a scripted host and external release
-   barriers. Report that they prove controller behavior but provide no
-   trigger-matching native observation window. Stop the native reproducer
-   path until an independent real event with justified timing is identified
-   or a broader host-clock capability is explicitly selected.
-
-The first path is the smallest experimental change; the second is the current
-allowed stopping boundary. A deterministic supplier workload would be a new
-running producer and would not preserve the intentionally paused condition;
-its duration would also depend on load. A human choosing release time after
-seeing a bad loop is not a predeclared matched schedule. Neither is a valid
-silent substitute. No native timer was added. A strictly substitute-only controller seam now
-accepts external release barriers; it cannot start a real-native journey.
-
-## Proposed observations and proof if the first path is selected
+## Frozen observations and proof before native launch
 
 Freeze the case, inputs, intervals, source payload, host/version, settings,
 authority and the following verdict before any native launch:
@@ -129,9 +102,9 @@ authority and the following verdict before any native launch:
   window through the shared reader, keeping copied history and workers
   separately attributable. Complete-task cost still includes every turn,
   worker, recovery and intervention; a window subtotal is diagnostic only.
-- A proposed decisive signal is at least three empty nonterminal wait
-  receipts on the same live watch, each followed by another owned model
-  response before any supplier fact changed. Preserve call/receipt/session,
+- The frozen decisive signal is at least two empty nonterminal wait
+  receipts on the same owned supplier-watch candidate, each followed by a distinct
+  owned model response before any supplier fact changed. Preserve call/receipt/session,
   native turn/response and order identities; one bounded liveness check or
   necessary state-change response does not meet that signal. If the host
   cannot expose those identities reliably, record unknown, not zero.
@@ -189,61 +162,89 @@ callbacks. `native-run-owned.sh` belongs to the existing supervisor: it
 owns both detached groups, the established safety watchdog, failure propagation,
 TERM/KILL and waits. It starts no product daemon and has no timing policy.
 
-The separate `supplier-watch` case requires an explicit external FIFO clock
-and the exact canonical supplier substitute bytes. The real-native route and
-any other executable are refused, even if a clock is supplied. Its first turn
-has no final-response cue; the second is the actual new watch request above.
-The overlay preserves the exact supplier facts as prose and never erases later
-agent-authored planning state. Nonqualifying/qualifying release records and
-mid-watch snapshots stay in retained `case-evidence/`. Case-owned host modules
-and explicit shared modules use the existing native import-closure owner;
-project overlays remain data until materialization.
+The separate `supplier-watch` case selects fixed native release deadlines at
+180 and 360 seconds from the watch-request turn's start. Only exact canonical
+substitute bytes may instead select an external FIFO clock. Native elapsed
+waiting is confined to this case-owned clock. Clock failure closes its publisher
+FIFO; publisher failure retires the clock. Either failure stops the active model. Early
+completion, host failure, interruption and safety expiry retire both groups,
+including clock descendants. Domain publications never run during cleanup.
 
-The controlled host emits no polls and stays in a real owned blocked command
-while both publications arrive. It resumes only after the controller has ended.
-The existing emitter runs the actual integration/stage proof. Assertions cover
-held partial work, one integration/filing, independent and executed passing
-proof, one continued native turn, retained raw events, and absence of owned
-model/controller processes. Rejected quality observations use the shared
-counterexample helper. Changed imported agreement construction refuses frozen
-capture before a session starts.
+The first turn has no final-response cue; the second is the actual new watch
+request above. The overlay preserves the supplier facts and later agent-authored
+planning state. The controller snapshots before the first publication and after
+its nonqualifying publication, with ordered event/commit/time scalar receipts.
+Numeric `turn-2-before-*` and `turn-2-hold-*` facts survive export/reassessment;
+only actual completed native turns enter `evidence.turns`. Pair matching includes
+the fixed producer schedule and publication order, not differing arrival times.
 
-A clean ended hold records `watch-result: ended-before-publication` and a
-not-reproduced reason; continuation remains unobserved and cannot pass full
-matched quality. Supervisor early-exit diagnostics remain retained. There is no
-automatic resume or fabricated active process. Watch exposure remains explicitly
-unknown: turn start and this scripted barrier are not a native watch handle.
-Authentic wait/response decoding and a finalized native interval are still owed.
-The current compact baseline exporter supports numeric turn snapshots; the new
-mid-watch evidence is retained locally but is not yet a supported paid comparison
-archive. No old archive or provenance was rewritten.
-The next cheap boundary can reuse `native-comparison-archive-evidence.mjs`
-`safeObservations`: numeric-prefix phase facts such as `turn-2-hold-*` and
-separate scalar publication receipts can survive without inventing turns.
-Repeated `watch-event` keys currently collapse in `parseFields`; replay must
-retain both ordered publications and every assessor input before native use.
+`native-host-stream-codex-session.mjs` keeps lifecycle/usage/session ownership;
+its focused `native-host-stream-codex-tools.mjs` sibling decodes direct calls and
+literal sequential wrappers. It never evaluates recorded JavaScript or parses
+stdout as a receipt. A live handle must originate in an owned command receipt.
+Copied history, stale/cross-thread handles, terminal/missing/truncated receipts,
+ambiguous wrappers and missing response identities cannot prove empty re-entry.
+Every retained wait carries paired call/receipt, turn/response, raw row and time
+identities. Unsupported evidence stays unknown. Reader hashes include the new
+sibling, invalidate old baseline reuse and never rewrite prior provenance.
+
+Case-specific `evidence.mjs` derives compact hashed handle/wait/response facts
+through that single reader. Archive replay derives decisive observation fields
+from retained facts rather than trusting invented scalar claims. Per-window
+response counts and confirmed candidate-live spans are diagnostic lower bounds;
+a generic handle
+is not automatically the genuine supplier watch. Unobserved exposure stays
+unknown. Root must review the private
+launch/resource locator before accepting the frozen decisive signal. No word
+classifier or fabricated native turn establishes resource identity.
+
+Original O10427/O10435 session 92199 calibrates against one launch; O13960
+session 83718 against its later launch. Exact IDs remain in the private bounded
+calibration. Original vscode 0.167.2 and current exec 0.169.0 supply paired empty
+receipts; retained calibration proves reader behavior, not new native results.
+
+Release-begin receipts precede snapshot/publication work; completion receipts
+remain separate. Unchanged windows are [turn-start, begin-1) and [complete-1,
+begin-2). Missing/invalid bounds keep the signal unknown, even with repeated waits.
+Frozen before new native results: three 55-second waits need 165 seconds, leaving
+only 15 of 180 for setup/reasoning; two detects repetition and one is insufficient.
+One wrapper may launch several handles; live spans require matching session ID
+and launch call, and retain terminal bounds. Mocked-clock proof exercises the
+actual native scheduler: no early emission, releases at turn-start+180/+360,
+and late first release never resets the second deadline.
+
+A clean ended hold records `turn-2-watch-result: ended-before-publication` and a
+not-reproduced reason. Continuation remains unobserved and cannot pass matched
+quality. No automatic resume or fabricated active process is permitted. The
+controlled host stays genuinely active during release, first without activity,
+then with command output; neither activity nor model polls drive publication.
+The existing emitter performs integration/stage proof once. Counterexamples
+retain rejection of early integration, lost work, duplicate filing and absent
+proof. Exact native wire shapes stay in the approved codec fixture and tests.
 
 ## Controlled acceptance
 
-The initial 22-check run passed 20 and exposed two repaired defects. A five-check
-renewal passed supplier-watch, in-flight lifecycle, owned worker proof, stream
-replay and the assessor guard. Final refresh, matched-pair and standalone-baseline
-renewal passed. Recovery now validates repeated path/hash rows against the same
-Git blob, while a conflicting hash remains refused; retained bytes stay intact.
-The source fixture copies MakeMe's computed runtime closure, including source
-contracts, so dirty imported construction refuses before a session starts.
+Renewed CLI self-check, reader/accounting/proof, supplier/controller, archive,
+identity/retention and FIFO-driven supervision checks passed. Final receipt/supplier/replay
+renewal passed after bounding exposure by authentic live receipts.
+
+Earlier controlled acceptance and its repaired recovery/runtime-closure defects
+remain valid: repeated same-path/hash is supported, conflicting hashes refused,
+retained bytes intact; MakeMe's runtime closure rejects dirty imports before start.
 
 ## Remaining native obligations and budget
 
-S011/S020/S021/S073/S089/S098 remain unproved: no faithful current baseline,
-unwanted repeated native activity, frozen new baseline or new capture exists.
-S074/S131 have controlled implementation/proof; native obligations stay open. Existing correctness cases remain untouched (S014–S016).
-S018/S019 still require the eventual real host path; this design is no proxy.
-S075's boundary is explicit: no native or token-saving inference from scripts.
+G2 remains open with receiving promises A012/A022/A023/A024/A025/A078/A092/A101:
+no faithful fresh native baseline, repeated owned native activity or frozen new
+capture exists. A015–A020 retain the existing agreement/preservation/continuation
+cases. A079/A080 separate controlled proof from native behavior; A120 retains
+two used journeys. A129–A139 govern the scoped windows, polling independence,
+controlled cheap checks and truthful exposure. A140–A146 preserve retained/
+controlled proof first, full allocation reservation and the stop before any
+optimization on non-reproduction or no worthwhile removal.
 
-The budget remains 2/5 native journeys used, three unspent. A fresh blocked
-pair plus unblocked pair needs four; neither this design nor a scoped timing
-exception resolves that allocation. Prepare/review the controlled case first,
-then settle the timing choice and full evaluation allocation before any paid
-probe. A baseline that does not reproduce supports an evidenced stop or a
-specific next investigation, never an optimization chosen on speculation.
+Budget: 2/6 journeys used, four reserved for fresh blocked and unblocked pairs.
+Invalid attempts and automatic baseline reacquisition count. Freeze reviewed
+source and full allocation before native launch; no favorable rerun or silent
+extension is authorized. Non-reproduction supports an evidenced stop or a
+specific next investigation, never a speculative optimization.

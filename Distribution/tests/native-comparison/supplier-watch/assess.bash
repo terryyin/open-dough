@@ -2,14 +2,15 @@
 # Quality is distinct from reproduction. Scripted control cannot establish a
 # native busy loop; a clean ended hold leaves continuation unobserved.
 # shellcheck disable=SC2034,SC2312 # Runner verdict and field reads.
-# assessor-signal: session turn-1-status turn-1-thread turn-2-status turn-2-thread watch-turn-stream watch-controller watch-result
+# assessor-signal: session turn-1-status turn-1-thread turn-2-status turn-2-thread turn-2-watch-stream turn-2-watch-controller turn-2-watch-result
 # assessor-signal: hold turn-1-partial-work turn-1-supplier-reader turn-1-slice3 turn-1-dependency turn-1-remote
-# assessor-signal: publication turn-watch-hold-partial-work turn-watch-hold-supplier-reader turn-watch-hold-slice3 turn-watch-hold-dependency turn-watch-hold-remote
+# assessor-signal: before turn-2-before-partial-work turn-2-before-supplier-reader turn-2-before-slice3 turn-2-before-dependency turn-2-before-remote
+# assessor-signal: publication turn-2-hold-partial-work turn-2-hold-supplier-reader turn-2-hold-slice3 turn-2-hold-dependency turn-2-hold-remote
 # assessor-signal: continuation turn-2-partial-work turn-2-supplier-reader turn-2-slice3 turn-2-dependency turn-2-remote
 # assessor-signal: once turn-2-supplier-integrations turn-2-slice3-filings
 # assessor-signal: proof turn-2-proof turn-2-agent-proof
 # assessor-signal: harness turn-1-harness-inspected turn-2-harness-inspected
-# assessor-signal: schedule watch-event
+# assessor-signal: schedule turn-2-producer-schedule turn-2-publication-1-event turn-2-publication-2-event
 
 case_assess() {
   local observations=$1 label turn thread events
@@ -24,8 +25,8 @@ case_assess() {
       return 0
     fi
   done
-  for label in 1 watch-hold; do
-    if [[ ${label} == watch-hold && $(watch_field watch-result) == ended-before-publication ]]; then break; fi
+  for label in 1 2-before 2-hold; do
+    if [[ ${label} != 1 && $(watch_field turn-2-watch-result) == ended-before-publication ]]; then break; fi
     if [[ $(watch_field "turn-${label}-partial-work") != preserved ||
     $(watch_field "turn-${label}-supplier-reader") != absent ||
     $(watch_field "turn-${label}-slice3") != partial ||
@@ -35,8 +36,8 @@ case_assess() {
       return 0
     fi
   done
-  if [[ $(watch_field watch-result) == ended-before-publication &&
-  $(watch_field watch-turn-stream) == complete &&
+  if [[ $(watch_field turn-2-watch-result) == ended-before-publication &&
+  $(watch_field turn-2-watch-stream) == complete &&
   $(watch_field turn-2-thread) == "${thread}" &&
   $(watch_field turn-2-partial-work) == preserved &&
   $(watch_field turn-2-supplier-reader) == absent &&
@@ -47,7 +48,8 @@ case_assess() {
     return 0
   fi
   [[ $(watch_field turn-2-status) == completed && $(watch_field turn-2-thread) == "${thread}" ]] || return 0
-  events=$(sed -n 's/^watch-event: //p' "${observations}" | paste -sd ' ' -)
+  events="$(watch_field turn-2-publication-1-event) $(watch_field turn-2-publication-2-event)"
+  [[ $(watch_field turn-2-producer-schedule) == fixed-180s-180s ]] || return 0
   [[ ${events} == 'nonqualifying qualifying' ]] || {
     case_assess_reason='in-flight publication schedule is incomplete'
     return 0
@@ -68,5 +70,5 @@ case_assess() {
     return 0
   fi
   case_assess_status=pass
-  case_assess_reason='controlled in-flight publications preserved the hold and continued once with proof; native reproduction remains unobserved'
+  case_assess_reason='in-flight publications preserved the hold and continued once with proof; reproduction requires native resource review'
 }

@@ -3,55 +3,11 @@
 // the shared native-host reader; callers apply their own proof policy to facts.
 import { readFileSync } from "node:fs";
 
-// Only literal, sequential exec calls are decoded. Unsupported JavaScript is
-// unknown evidence; it is never executed by an observer.
-function commands(call) {
-  if (["exec_command", "functions.exec_command"].includes(call.name)) {
-    try {
-      return [JSON.parse(call.arguments)];
-    } catch {
-      return [];
-    }
-  }
-  if (call.name !== "exec" || typeof call.input !== "string") return [];
-  const statement =
-    /\s*text\(\s*await\s+tools\.exec_command\(\s*(\{(?:[^"{}]|"(?:\\.|[^"\\])*")*\})\s*\)\s*\)\s*;?/y;
-  const found = [];
-  let position = 0;
-  while (position < call.input.trimEnd().length) {
-    statement.lastIndex = position;
-    const match = statement.exec(call.input);
-    if (!match) return [];
-    // Quoted strings consume their contents before bare object keys match.
-    const json = match[1].replace(
-      /("(?:\\.|[^"\\])*")|([A-Za-z_$][\w$]*)(?=\s*:)/g,
-      (whole, quoted, key) => (quoted ? whole : JSON.stringify(key)),
-    );
-    try {
-      found.push(JSON.parse(json));
-    } catch {
-      return [];
-    }
-    position = statement.lastIndex;
-  }
-  return found;
-}
-
-function results(output) {
-  if (typeof output === "string") {
-    try {
-      return results(JSON.parse(output));
-    } catch {
-      return [];
-    }
-  }
-  if (Array.isArray(output)) return output.flatMap(results);
-  if (!output || typeof output !== "object") return [];
-  if (Object.hasOwn(output, "exit_code") || Object.hasOwn(output, "session_id"))
-    return [output];
-  // Do not inspect stdout for nested objects that could impersonate a receipt.
-  return results(output.content ?? output.text);
-}
+import {
+  toolInvocations,
+  toolReceipts,
+  codexWaitFacts,
+} from "./native-host-stream-codex-tools.mjs";
 
 // Reads one caller-named saved session, never the developer's default home.
 // A command has a null exitCode when its paired receipt is absent, unresolved
@@ -61,15 +17,21 @@ export function readCodexSession(file) {
   const startedTurns = [],
     completedTurns = [],
     ownership = [],
+    lifecycle = [],
     calls = [],
     contexts = [],
-    usage = [];
+    usage = [],
+    tools = [],
+    unresolvedTools = [],
+    responseCalls = [];
   const pending = new Map();
   let context = {},
     thread,
     parentThread,
-    recordThread;
+    recordThread,
+    order = 0;
   for (const line of readFileSync(file, "utf8").split("\n")) {
+    order++;
     if (line.trim() === "") continue;
     const row = JSON.parse(line);
     const value = row.payload ?? {};
@@ -94,6 +56,8 @@ export function readCodexSession(file) {
         turn: value.turn_id,
         rootTurn: value.root_turn_id,
         responseId: value.response_id,
+        at: row.timestamp ?? "",
+        order,
         counts: Object.fromEntries(
           [
             "input_tokens",
@@ -108,6 +72,13 @@ export function readCodexSession(file) {
           ]),
         ),
       });
+      for (const call of responseCalls.splice(0)) {
+        if (
+          call.thread === value.thread_id &&
+          call.context.turn === value.turn_id
+        )
+          call.responseId = value.response_id;
+      }
     } else if (row.type === "event_msg") {
       // A fork copies parent metadata and turns after its own first metadata.
       // Preserve that history's contexts/calls, but its lifecycle belongs to
@@ -115,22 +86,82 @@ export function readCodexSession(file) {
       if (value.type === "thread_settings_applied")
         recordThread = value.thread_id;
       if (recordThread === thread) {
+        if (["task_started", "task_complete"].includes(value.type))
+          lifecycle.push({
+            type: value.type,
+            turn: value.turn_id,
+            at: row.timestamp ?? "",
+            order,
+          });
         if (value.type === "task_started") startedTurns.push(value.turn_id);
         if (value.type === "task_complete") completedTurns.push(value.turn_id);
       }
     } else if (row.type === "response_item") {
       if (["custom_tool_call", "function_call"].includes(value.type)) {
-        pending.set(value.call_id, { value, context });
+        const call = {
+          value,
+          context,
+          thread: recordThread,
+          order,
+          at: row.timestamp ?? "",
+        };
+        if (pending.has(value.call_id)) call.ambiguous = true;
+        pending.set(value.call_id, call);
+        responseCalls.push(call);
       } else if (
         ["custom_tool_call_output", "function_call_output"].includes(value.type)
       ) {
         const call = pending.get(value.call_id);
         if (!call) continue;
-        const invoked = commands(call.value),
-          terminal = results(value.output);
-        for (const [index, args] of invoked.entries()) {
+        if (call.received) {
+          for (const tool of tools.filter((t) => t.callId === value.call_id))
+            tool.receipt = undefined;
+          unresolvedTools.push({
+            callId: value.call_id,
+            turn: call.context.turn,
+            order: call.order,
+          });
+          continue;
+        }
+        call.received = true;
+        const invoked = call.ambiguous ? null : toolInvocations(call.value),
+          terminal = toolReceipts(value.output);
+        if (!invoked) {
+          unresolvedTools.push({
+            callId: value.call_id,
+            turn: call.context.turn,
+            order: call.order,
+          });
+          continue;
+        }
+        if (terminal.length !== invoked.length)
+          unresolvedTools.push({
+            callId: value.call_id,
+            turn: call.context.turn,
+            order: call.order,
+          });
+        for (const [index, invocation] of invoked.entries()) {
+          const { args, kind } = invocation;
           const result =
             terminal.length === invoked.length ? terminal[index] : undefined;
+          tools.push({
+            kind,
+            args,
+            receipt: result,
+            thread: call.thread,
+            receiptThread: recordThread,
+            turn: call.context.turn,
+            receiptTurn: context.turn,
+            responseId: call.responseId,
+            callId: value.call_id,
+            receiptId: value.id,
+            order: call.order,
+            receiptOrder: order,
+            at: call.at,
+            receiptAt: row.timestamp ?? "",
+            index,
+          });
+          if (kind !== "command") continue;
           calls.push({
             command: args.cmd,
             cwd: call.context.cwd,
@@ -148,6 +179,13 @@ export function readCodexSession(file) {
       }
     }
   }
+  for (const call of pending.values())
+    if (!call.received)
+      unresolvedTools.push({
+        callId: call.value.call_id,
+        turn: call.context.turn,
+        order: call.order,
+      });
   return {
     thread,
     parentThread,
@@ -156,6 +194,10 @@ export function readCodexSession(file) {
     startedTurns,
     completedTurns,
     ownership,
+    lifecycle,
     calls,
+    tools,
+    unresolvedTools,
+    ...codexWaitFacts(tools, usage, thread),
   };
 }

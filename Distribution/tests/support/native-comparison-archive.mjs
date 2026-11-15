@@ -13,6 +13,7 @@ import {
   digest,
   parseFields,
   retainedTurns,
+  retainedWatch,
   retainedTestRuns,
   safeObservations,
 } from "./native-comparison-archive-evidence.mjs";
@@ -172,7 +173,11 @@ export function exportBaseline(
       machine: safe(record.get("machine")),
     },
     observations: Object.fromEntries(observations),
-    evidence: { turns, testRuns: retainedTestRuns(attempt, observations) },
+    evidence: {
+      turns,
+      testRuns: retainedTestRuns(attempt, observations),
+      supplierWatch: retainedWatch(attempt, observations),
+    },
     usage: retainedUsage(
       attempt,
       record.get("thread"),

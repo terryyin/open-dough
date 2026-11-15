@@ -13,7 +13,7 @@ native_comparison_turn() {
   start=$(native_comparison_now)
   native_run_controller_command=()
   if declare -F case_prepare_turn > /dev/null; then
-    case_prepare_turn "${root}" "${turn}" "${transcript}" "${native_comparison_controller}" || return
+    case_prepare_turn "${root}" "${turn}" "${transcript}" "${native_comparison_controller}" "${start}" || return
   fi
   if [[ ${turn} -eq 1 ]]; then
     native_codex_build_command "${native_comparison_workspace}" "${output_file}" \

@@ -127,5 +127,5 @@ native_comparison_retain_sessions() {
     "${dest}/codex-session.jsonl"
   while read -r _ thread _ file; do
     cp -- "${file#file=}" "${dest}/codex-worker-${thread}.jsonl"
-  done < <(grep '^codex-worker: ' "${dest}/codex-settings.txt")
+  done < <(grep '^codex-worker: ' "${dest}/codex-settings.txt" || true)
 }

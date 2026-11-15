@@ -17,6 +17,7 @@ native_run_supervision_inputs=(
   Distribution/tests/support/native-host-stream.mjs
   Distribution/tests/support/native-host-stream-adapters.mjs
   Distribution/tests/support/native-host-stream-codex-session.mjs
+  Distribution/tests/support/native-host-stream-codex-tools.mjs
   Distribution/tests/support/native-run-watchdog.sh
   Distribution/tests/helpers/wait-for.bash
   scripts/owned-process-group.bash

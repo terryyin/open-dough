@@ -28,15 +28,22 @@ cat > "${work}/bin/block" << 'SCRIPT'
 #!/usr/bin/env bash
 set -euo pipefail
 workspace=$1 clock=$2
+source "$(dirname "$0")/wait-for.bash"
 printf '%s\n' "${workspace}" > "${clock}/workspace"
 printf '%s\n' "${BASHPID}" > "${clock}/model-pid"
+wait_for nonqualifying 10 "test -s '${clock}/nonqualifying'"
+# Observable command activity in the second phase cannot control release.
+printf 'command remains active after nonqualifying publication\n'
+printf busy > "${clock}/busy"
 exec 8<> "${clock}/model-hold"
 read -r -u 8 _
 SCRIPT
 chmod +x "${work}/bin/codex" "${work}/bin/context" "${work}/bin/block"
 export PATH="${work}/bin:${PATH}"
 export NATIVE_AGENT_PAUSED_SUPPLIER_CONTEXT_COMMAND="${work}/bin/context"
-unset CODEX_HOME
+export CODEX_HOME="${work}/codex-home"
+export NATIVE_AGENT_PAUSED_SUPPLIER_FAULT=usage
+native_comparison_payload_revision=$(git -C "${source_dir}" rev-parse HEAD)
 native_case_deadline=30
 native_case_grace=0
 clock() {
@@ -58,6 +65,7 @@ export NATIVE_COMPARISON_CONTROL_CLOCK="${work}/clock"
   wait_for early-publication 10 "test -s '${work}/clock/nonqualifying'"
   kill -0 "$(< "${work}/clock/model-pid")"
   [[ -e ${workspace}/tests/repeat-checks.test.mjs && ! -e ${workspace}/tests/repeat-verdict-stage.test.mjs ]]
+  wait_for active-command-output 10 "test -s '${work}/clock/busy'"
   printf 'qualifying\n' > "${work}/clock/advance"
   wait_for qualification 10 "test -s '${work}/clock/qualifying'"
   kill -0 "$(< "${work}/clock/model-pid")"
@@ -71,19 +79,52 @@ driver=''
 passing="${work}/pass/observations.txt"
 attempt=${native_comparison_attempt}
 grep -Fqx 'turn-2-status: completed' "${passing}"
-grep -Fqx 'turn-watch-hold-supplier-reader: absent' "${passing}"
-grep -Fqx 'turn-watch-hold-partial-work: preserved' "${passing}"
+grep -Fqx 'turn-2-hold-supplier-reader: absent' "${passing}"
+grep -Fqx 'turn-2-hold-partial-work: preserved' "${passing}"
 grep -Fqx 'turn-2-supplier-integrations: 1' "${passing}"
 grep -Fqx 'turn-2-slice3-filings: 1' "${passing}"
 grep -Fqx 'turn-2-proof: passed' "${passing}"
 grep -Fqx 'turn-2-agent-proof: passed' "${passing}"
-grep -Fqx 'watch-reproduction: unobserved-controlled-host' "${passing}"
-grep -Fqx 'watch-exposure: unknown; turn start is not a real watch handle' "${passing}"
+grep -Fqx 'turn-2-watch-reproduction: unobserved-controlled-host' "${passing}"
+grep -Fqx 'turn-2-watch-exposure: unknown' "${passing}"
 [[ ! -e ${attempt}/events-turn-3.jsonl ]]
 grep -Fqx 'host-route: substitute' "${attempt}/record"
 cmp "${attempt}/case-evidence/watch-observations.txt" "$(dirname "${work}/pass"/controller.*/case-evidence/watch-observations.txt)/watch-observations.txt"
 kill -0 "$(< "${work}/clock/model-pid")" 2> /dev/null && exit 1
 kill -0 "$(< "${work}/clock/controller-pid")" 2> /dev/null && exit 1
+kill -0 "$(< "${work}/clock/clock-pid")" 2> /dev/null && exit 1
+
+# Export the actual retained journey, then reassess every declared input.
+node "${source_dir}/Distribution/tests/support/native-comparison-archive.mjs" export \
+  "${attempt}" "${work}/watch-baseline.json" "${source_dir}" "${work}/replay.txt" > "${work}/export.out"
+node "${source_dir}/Distribution/tests/support/native-comparison-archive.mjs" assess \
+  "${work}/watch-baseline.json" '' "${source_dir}" "${work}/reassess.txt" > "${work}/assessment.json"
+[[ $(jq -r .status "${work}/assessment.json") == pass ]]
+[[ $(jq '.evidence.turns | length' "${work}/watch-baseline.json") == 2 ]]
+jq -e '.evidence.supplierWatch as $e | $e.publications as $p |
+  $e.start < $p[0].beginMs and $p[0].beginMs <= $p[0].ms and
+  $p[0].ms < $p[1].beginMs and $p[1].beginMs <= $p[1].ms' \
+  "${work}/watch-baseline.json" > /dev/null
+
+grep -Fqx 'turn-2-publication-1-event: nonqualifying' "${work}/reassess.txt"
+grep -Fqx 'turn-2-publication-2-event: qualifying' "${work}/reassess.txt"
+grep -Fqx 'turn-2-before-partial-work: preserved' "${work}/reassess.txt"
+grep -Fqx 'turn-2-hold-supplier-reader: absent' "${work}/reassess.txt"
+
+# Matching includes configured producer windows and ordered publications,
+# independent of their real completion times and without additional turns.
+source "${source_dir}/Distribution/tests/support/native-comparison-pair.sh"
+mkdir -p "${work}/pair/baseline" "${work}/pair/candidate"
+for arm in baseline candidate; do
+  cp "${passing}" "${work}/pair/${arm}/observations.txt"
+  cp "${work}/pass/verdict" "${work}/pair/${arm}/verdict"
+  printf '%s\n' "${native_comparison_payload_revision}" > "${work}/pair/payload-${arm}.id"
+  native_comparison_pair_observe_arm "${work}/pair" "${arm}" 2 '' > "${work}/pair/${arm}.fields"
+done
+[[ $(native_comparison_pair_match "${work}/pair" events) == same ]]
+sed 's/publication-2-event: qualifying/publication-2-event: nonqualifying/' "${passing}" > "${work}/pair/candidate/observations.txt"
+native_comparison_pair_observe_arm "${work}/pair" candidate 2 '' > "${work}/pair/candidate.fields"
+[[ $(native_comparison_pair_match "${work}/pair" events) == differs ]]
 
 # Each quality rejection changes one declared observed signal from this
 # passing journey. A scripted reduction of work cannot erase these outcomes.
@@ -92,12 +133,12 @@ source "${case_path}/assess.bash"
 native_assessor_counterexamples "${case_path}/assess.bash" "${passing}" \
   --verdict case_assess_status case_assess_reason -- case_assess
 native_assessor_rejects_field_rows << 'CASES'
-early-integration publication turn-watch-hold-supplier-reader: diagnostic | did not preserve
+early-integration publication turn-2-hold-supplier-reader: diagnostic | did not preserve
 lost-work continuation turn-2-partial-work: lost | preserved supplier continuation
 duplicate once turn-2-slice3-filings: 2 | exactly once
 missing-proof proof turn-2-agent-proof: none | independent and executed proof
 fake-session session turn-2-thread: fabricated | incomplete
-missing-release schedule watch-event: nonqualifying | publication schedule
+missing-release schedule turn-2-publication-2-event: nonqualifying | publication schedule
 CASES
 
 # An ended clean hold is an observed non-reproduction, not a model fault or
@@ -106,10 +147,55 @@ clock "${work}/early-clock"
 export NATIVE_COMPARISON_CONTROL_CLOCK="${work}/early-clock"
 WATCH_TEST_EARLY=true native_comparison_run_case supplier-watch "${source_dir}" \
   "${work}/early" "${work}/results" || true
-grep -Fqx 'watch-result: ended-before-publication' "${work}/early/observations.txt"
-grep -Fqx 'watch-turn-stream: complete' "${work}/early/observations.txt"
+grep -Fqx 'turn-2-watch-result: ended-before-publication' "${work}/early/observations.txt"
+grep -Fqx 'turn-2-watch-stream: complete' "${work}/early/observations.txt"
 [[ ${native_comparison_reason} == 'not reproduced: the clean held watch ended before publication; qualifying continuation is unobserved, not a quality regression' ]]
 [[ ! -e ${work}/early-clock/qualifying && ! -e ${native_comparison_attempt}/events-turn-3.jsonl ]]
+
+# A malformed clock release fails the actual controller and promptly retires
+# its active model and clock descendants, without either publication.
+clock "${work}/failed-clock"
+mkdir "${work}/clock-failure"
+export NATIVE_COMPARISON_CONTROL_CLOCK="${work}/failed-clock"
+(
+  wait_for watch-command 10 "test -s '${work}/failed-clock/model-pid'"
+  printf 'invalid-clock-event\n' > "${work}/failed-clock/advance"
+) &
+driver=$!
+native_comparison_run_case supplier-watch "${source_dir}" "${work}/clock-failure" "${work}/results" || true
+wait "${driver}"
+driver=''
+grep -Fq 'active-turn controller exited ' "${work}/clock-failure/observations.txt" || {
+  cat "${work}/clock-failure/observations.txt" "${native_comparison_attempt}/stderr.log" >&2
+  exit 1
+}
+[[ ! -e ${work}/failed-clock/nonqualifying && ! -e ${work}/failed-clock/qualifying ]]
+for resource in model-pid controller-pid clock-pid; do
+  kill -0 "$(< "${work}/failed-clock/${resource}")" 2> /dev/null && exit 1
+done
+
+# A real isolated Git publication rejection also fails the controller and
+# retires its still-blocked clock/model; it cannot manufacture a release.
+clock "${work}/rejected-clock"
+mkdir "${work}/publication-failure"
+export NATIVE_COMPARISON_CONTROL_CLOCK="${work}/rejected-clock"
+(
+  wait_for watch-command 10 "test -s '${work}/rejected-clock/model-pid'"
+  workspace=$(< "${work}/rejected-clock/workspace")
+  hook="$(dirname "${workspace}")/remote.git/hooks/pre-receive"
+  printf '#!/usr/bin/env bash\nexit 37\n' > "${hook}"
+  chmod +x "${hook}"
+  printf 'nonqualifying\n' > "${work}/rejected-clock/advance"
+) &
+driver=$!
+native_comparison_run_case supplier-watch "${source_dir}" "${work}/publication-failure" "${work}/results" || true
+wait "${driver}"
+driver=''
+grep -Fq 'active-turn controller exited ' "${work}/publication-failure/observations.txt"
+[[ ! -e ${work}/rejected-clock/nonqualifying && ! -e ${work}/rejected-clock/qualifying ]]
+for resource in model-pid controller-pid clock-pid; do
+  kill -0 "$(< "${work}/rejected-clock/${resource}")" 2> /dev/null && exit 1
+done
 
 # A changed domain builder used by the case cannot reuse a committed case
 # identity or start an arm. The shared import-closure owner finds the effect.
@@ -146,9 +232,9 @@ grep -Fqx 'unstarted: supplier-watch permits only the controlled supplier substi
 [[ $(native_comparison_fixture_sessions "${work}/different") -eq 0 ]]
 [[ -z ${native_comparison_attempt} && ! -e ${work}/different/results ]]
 
-# Even an externally supplied clock cannot enable a real-native route. The
-# route seam is overridden before the journey could build or run a command.
-native_codex_prepare() { native_codex_isolate=1; }
-native_comparison_run_case supplier-watch "${source_dir}" "${work}/native" || true
-grep -Fq 'unstarted: supplier-watch native observation timing is not approved' "${work}/native/observations.txt"
-[[ -z ${native_comparison_attempt} ]]
+# Native selection chooses only the approved fixed schedule. This checks the
+# route decision without starting a model, timer or paid journey.
+source "${case_path}/case.bash"
+native_codex_isolate=1
+case_prepare_run
+[[ ${watch_clock_mode} == native ]]

@@ -96,7 +96,9 @@ normalized 64-second budget. Repair preserves the full catalog and exact-byte
 recovery, retains digest caching, batches blob reads, and avoids unused or
 same-commit payload extraction. Two local 180-second deadline failures also
 received an assertion-preserving behavior split. Final targeted proof passed;
-exact published CI still owns the 64/926-second budget verdict. No new native
+Exact repair CI for `8e98d67e2e3712bbaeffbc7e7200f010d622cccc` passed
+[run 43679045962/1](https://github.com/terryyin/open-dough/actions/runs/43679045962),
+including the unchanged 64/926-second budget gates. No new native
 journey was launched. Literal commands, terminal outcomes and consumer tracing
 are retained in `/tmp/seed356-repair-handoff.json` and its linked evidence.
 
