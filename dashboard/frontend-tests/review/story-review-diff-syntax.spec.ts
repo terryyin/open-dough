@@ -33,7 +33,7 @@ test("a TypeScript diff styles each line by its side's whole text and keeps the 
   page,
   frontendServices,
 }) => {
-  const { review, answers } = await openFrontendStoryReview(
+  const { review } = await openFrontendStoryReview(
     page,
     frontendServices,
     frontendReviewSnapshot({
@@ -43,11 +43,13 @@ test("a TypeScript diff styles each line by its side's whole text and keeps the 
         lines: { added: 2, removed: 4 },
       })),
     }),
+    (answers) => {
+      for (const path of [styledPath, plainPath]) {
+        answers.answerFile(greetDiff(path), path);
+        answers.answerFileText(greetText, path);
+      }
+    },
   );
-  for (const path of [styledPath, plainPath]) {
-    answers.answerFile(greetDiff(path), path);
-    answers.answerFileText(greetText, path);
-  }
 
   await fileRow(review, `Modified ${plainPath}`).click();
   const plain = fileDiff(review, `Modified ${plainPath}`);

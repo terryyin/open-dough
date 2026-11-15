@@ -61,18 +61,20 @@ test("each supported extension and a rename's new path style the diff; other fil
       lines,
     })),
   ];
-  const { review, answers } = await openFrontendStoryReview(
+  const { review } = await openFrontendStoryReview(
     page,
     frontendServices,
     frontendReviewSnapshot({ files }),
+    (answers) => {
+      for (const { path, code } of [...styled, ...plain, ...renames]) {
+        answers.answerFile(frontendFileDiff(path, [code]), path);
+        answers.answerFileText(
+          { kind: "text", baseline: null, tree: `${code}\n` },
+          path,
+        );
+      }
+    },
   );
-  for (const { path, code } of [...styled, ...plain, ...renames]) {
-    answers.answerFile(frontendFileDiff(path, [code]), path);
-    answers.answerFileText(
-      { kind: "text", baseline: null, tree: `${code}\n` },
-      path,
-    );
-  }
   const shownFile = async (name: string) => {
     await fileRow(review, name).click();
     const diff = fileDiff(review, name);

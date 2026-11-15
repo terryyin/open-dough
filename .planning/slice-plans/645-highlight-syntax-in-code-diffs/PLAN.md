@@ -180,6 +180,11 @@ with Intent's computed token styles, and path mapping. A diff-only colour
 rule failed the equality check. A line whose tokens do not spell its text
 stays plain.
 
+CI repair (run 43727188629): the review fetches its first file's diff on
+open, so specs that registered answers afterwards raced the routes' default
+answer on CI. `openFrontendStoryReview` now takes a `prepare` callback for
+first-read answers; a 1.5 s delay after open reproduced and then cleared it.
+
 ### 3. Styling arrives without disturbing the diff
 Type: Behavior
 Status: planned

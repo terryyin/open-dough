@@ -71,15 +71,17 @@ test("diff tokens read at 4.5:1 in both appearances and match Intent's source re
     },
   });
   await setColorScheme(page, "dark");
-  const { review, answers } = await openFrontendStoryReview(
+  const { review } = await openFrontendStoryReview(
     page,
     frontendServices,
     frontendReviewSnapshot({
       files: [{ kind: "modified", path, lines: { added: 2, removed: 4 } }],
     }),
+    (answers) => {
+      answers.answerFile(greetDiff(path), path);
+      answers.answerFileText(greetText, path);
+    },
   );
-  answers.answerFile(greetDiff(path), path);
-  answers.answerFileText(greetText, path);
   await fileRow(review, `Modified ${path}`).click();
   const diff = fileDiff(review, `Modified ${path}`);
   const lines = {

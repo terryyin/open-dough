@@ -87,10 +87,12 @@ test("the check leaves uncommitted changes out of all changes and back without r
     page,
     frontendServices,
     snapshot,
-  );
-  answers.answerFile(
-    frontendFileDiff("story.txt", ["+story", "+more"]),
-    "story.txt",
+    (initial) => {
+      initial.answerFile(
+        frontendFileDiff("story.txt", ["+story", "+more"]),
+        "story.txt",
+      );
+    },
   );
   const review = reviewRegion(page);
   const whole = changedFilesList(review, "2 changed files");

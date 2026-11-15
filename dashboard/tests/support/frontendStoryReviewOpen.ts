@@ -1,5 +1,7 @@
 // Opens Review changes on the Taken story with a kept story-branch launch and
-// controllable story-review answers for frontend-only journeys.
+// controllable story-review answers for frontend-only journeys. Answers that
+// must hold from the first read, such as the first file's diff that opening
+// selects, are given through `prepare` before the review opens.
 
 import type { Locator, Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -23,6 +25,7 @@ export async function openFrontendStoryReview(
   page: Page,
   frontendServices: FrontendServiceState,
   reviewAnswer?: StoryReview,
+  prepare: (answers: FrontendStoryReview) => void = () => {},
 ): Promise<{
   readonly card: Locator;
   readonly review: Locator;
@@ -51,6 +54,7 @@ export async function openFrontendStoryReview(
       .please(),
   );
   const answers = await installFrontendStoryReview(page, reviewAnswer);
+  prepare(answers);
   await openFrontendTakenBacklog(page);
   const card = parts(page).taken.getByRole("article", {
     name: takenStory,
