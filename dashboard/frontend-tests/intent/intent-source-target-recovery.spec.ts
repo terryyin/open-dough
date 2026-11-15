@@ -3,54 +3,62 @@
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";
-import { expect, test } from "../dashboardTest.ts";
-import { parts, shortRevision } from "../dashboardParts.ts";
-import { describedRevisions } from "../describedRevisions.ts";
-import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
-import { pygardon, pygardonSettings } from "../intentCodeBrowseFixtures.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts, shortRevision } from "../../tests/dashboardParts.ts";
+import { describedRevisions } from "../../tests/describedRevisions.ts";
+import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
+import {
+  pygardon,
+  pygardonSettings,
+} from "../../tests/intentCodeBrowseFixtures.ts";
 import {
   pygardonCandidatesRecord,
   pygardonClipCase,
   pygardonClipPath,
   pygardonClipSource,
-} from "../intentCandidatesOtherProjectFixtures.ts";
+} from "../../tests/intentCandidatesOtherProjectFixtures.ts";
 import {
   expectSourceTargetLine,
   fileSource,
   sourceFile,
   sourceRevision,
-} from "../intentCodeBrowsePage.ts";
+} from "../../tests/intentCodeBrowsePage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
-} from "../intentModePage.ts";
+} from "../../tests/intentModePage.ts";
 import {
   browserRevision,
   expectReadingOffset,
   intentReadingScroll,
   purposeRegion,
   revisionNotice,
-} from "../intentPerspectivePage.ts";
+} from "../../tests/intentPerspectivePage.ts";
 import {
   readFailure,
   readRetry,
   showLatestRevision,
-} from "../intentReadRecoveryPage.ts";
-import { intentReads } from "../intentRevisionJourney.ts";
-import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
-import { publishMovingFiles } from "../publishedFiles.ts";
+} from "../../tests/intentReadRecoveryPage.ts";
+import { intentReads } from "../../tests/intentRevisionJourney.ts";
+import {
+  openUntilRead,
+  untilPageReadsAnswered,
+} from "../../tests/pageRequestNotes.ts";
+import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
+import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
 import {
   pausePageClock,
   passTimeUntilChecked,
   passTimeUntilCheckedWhileReadsOutstanding,
   expectSteadyPace,
-} from "../autoRefreshJourney.ts";
-import { intentSettingsText } from "../support/intentSettingsFile.ts";
+} from "../../tests/autoRefreshJourney.ts";
+import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
 
 for (const outcome of ["held then released", "failed then retried"] as const) {
   test(`a selected source case keeps line44 and reading while a new revision's file read is ${outcome}`, async ({
     page,
+    frontendServices,
   }) => {
     const beforeRevision = pygardon.revision;
     const afterRevision = (
@@ -77,10 +85,23 @@ for (const outcome of ["held then released", "failed then retried"] as const) {
     );
     await page.setViewportSize({ width: 1280, height: 600 });
     await pausePageClock(page);
-    const origin = publishMovingFiles(page, {
-      repository: pygardon.repository,
-      ref: pygardon.ref,
-      ...revisions.before,
+    await preholdRevisionStreamSlots(page);
+    const location = makeMe.anIntentLocation
+      .at("tests")
+      .ofKind("python")
+      .selecting(pygardonClipPath)
+      .please();
+    putFrontendIntentSources(
+      frontendServices,
+      pygardon,
+      [location],
+      revisions.before.files,
+    );
+    Object.assign(frontendServices, {
+      candidates: {
+        revision: beforeRevision,
+        candidates: pygardonCandidatesRecord,
+      },
     });
     const reads = intentReads(page, { sourceLocation: "tests/" });
     await openUntilRead(page, "/?project=pygardon&perspective=intent");
@@ -110,7 +131,18 @@ for (const outcome of ["held then released", "failed then retried"] as const) {
       `${pygardonClipPath}@${beforeRevision}`,
     ]);
 
-    origin.moveTrunk(revisions.after);
+    putFrontendIntentSources(
+      frontendServices,
+      { ...pygardon, revision: afterRevision },
+      [location],
+      revisions.after.files,
+    );
+    Object.assign(frontendServices, {
+      candidates: {
+        revision: afterRevision,
+        candidates: pygardonCandidatesRecord,
+      },
+    });
     await passTimeUntilChecked(page);
     await untilPageReadsAnswered(page);
     await expect(revisionNotice(intent)).toBeVisible();

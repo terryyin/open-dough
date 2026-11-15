@@ -72,3 +72,26 @@ heavy proof overlapped; the coordinator sequences the Frontend group afterward.
 Coordinator covering PASS: `caffeinate -s -i npm run test:dashboard:frontend -- --workers=1`, terminal exit 0; `/tmp/647-slice1-frontend-group.log` and `.exit`. This includes both refactored Frontend callers and every Frontend shared-support consumer. The run waited about five minutes for shared admission, then completed normally on awake AC under the guard; no proof deferred.
 
 Delivery freshness: source unchanged at pinned trunk `fd397339a33b86e4221544401d1702da5373281f`; no named CI/navigation sibling product change landed since base `f8c4841a47719925236f78ff220efe9b0795e4f5`. Incoming changes are unrelated records/claims and the production-watcher test marker.
+
+## Owned CI failure and inherited published repair
+
+Registered slice-1 revision `cd02f6a5`, CI run 43725518386/attempt 1 had one
+complete-inventory failure: watcher source marker absent at
+`e2e/runtime/production-watcher.spec.ts:76`. The fixture matched literal
+`<SessionsButton />` after production added its connection prop. A fresh
+diagnosis reproduced that exact failure, and independent refactoring accepted
+Terry's existing published repair `0f2cfeb0` (header insertion plus guard).
+No duplicate repair patch was authored. History-preserving integration
+`13a08cafd240592c7b8832fc7b8b0a9186cd0617` was accepted on the execution branch
+and registered on the same observer, suffix base `cd02f6a5`.
+
+Before that push both merged-candidate commands passed under awake AC, one
+worker, load 8.06/10.43/11.87 and 44% free memory:
+`caffeinate -s -i npm run test:e2e -- runtime/production-watcher.spec.ts --workers=1 --reporter=line`
+(six full lifecycle cases), and
+`caffeinate -s -i npm run test:dashboard:backend -- runtime/production-watcher-setup-lifetime.spec.ts --workers=1 --reporter=line`
+(one late-setup resource cleanup case). Marker, hot reload, origin refusals,
+terminal continuity, replacement and stop/restart observations remain intact.
+Raw proof and all 15 consumer dispositions are in `/tmp/647-ci-watcher-*`.
+Installed stash recovery restored slice 2 unchanged and retired its exact entry;
+no Intent boundary or proof was invalidated by the watcher fixture repair.

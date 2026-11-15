@@ -17,7 +17,6 @@
 24.4	tests/navigation/accessible-board.spec.ts
 22.9	tests/navigation/frame-board-look.spec.ts
 22.4	tests/intent/intent-ci-comparison-drilldown-relative.spec.ts
-22.1	tests/intent/intent-read-recovery.spec.ts
 22.1	tests/intent/intent-summary-story-comparison-file.spec.ts
 22.0	tests/navigation/source-navigation.spec.ts
 21.7	tests/intent/intent-revision-notice.spec.ts
@@ -84,7 +83,6 @@
 7.5	tests/navigation/accessible-board-scroll.spec.ts
 7.2	tests/navigation/story-destination-repeat-cue.spec.ts
 6.9	tests/navigation/project-keyboard-navigation-eligibility.spec.ts
-6.6	tests/intent/intent-gherkin-settings-problems.spec.ts
 6.6	tests/intent/intent-read-reuse.spec.ts
 6.6	tests/intent/intent-revision-settings-update.spec.ts
 6.4	tests/intent/intent-story-summary-title.spec.ts

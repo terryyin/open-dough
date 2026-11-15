@@ -29,7 +29,11 @@ done-retained-workspace,done-retained-landing,done-project-refresh,
 read-boundary-recovery}.spec.ts` and their siblings only after inspecting their
 assertions. Direct HTTP/refusal and upstream-count homes include
 `dashboard/backend-tests/intent/authenticated-read-intent-locations.spec.ts`,
-`intent-shared-reads.spec.ts` and the review/observation boundary suites.
+the review/observation boundary suites.
+`intent-shared-reads.spec.ts` uses a fetch substitute around client read/memo
+code: reuse it only as supplemental client-contract proof, never as real
+server or GitHub upstream-count evidence. Slice 2 inspected and retained the
+original upstream-count promise in real E2E recovery cases.
 Frontend request logs prove browser asks; GitHub logs at the real server prove
 upstream calls. Preserve both when the old case observes both.
 

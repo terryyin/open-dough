@@ -78,6 +78,9 @@ integration target `main`. Established publisher
 `dashboard-territory.local-open-dough`, agent Honoka-chan, starting revision
 `38175824df799c47811f2b00cb8cdb20400edaed`; accepted claim and previously
 published branch base `f8c4841a47719925236f78ff220efe9b0795e4f5`.
+Latest accepted branch revision: `13a08cafd240592c7b8832fc7b8b0a9186cd0617`
+(inherited CI repair, suffix base `cd02f6a5171cf066ef111a467e12fd7492339171`,
+the delivered slice 1 revision; observation reused the stream below).
 No new claim was made. Checkout-local `npm ci` installed the locked 183 packages;
 the existing Frontend candidate recovery listing passed. Existing planning
 authority is retained; no overrun-replanning option was supplied.
@@ -123,7 +126,11 @@ minutes; independent refactor complete; covering Frontend group passed.
 
 ### 2. Preserve failed settings and source-read recovery
 Type: Behavior
-Status: planned
+Status: done
+Refactor decision: modularize stream-slot preholding from the 252-line
+`dashboardTest.ts` into shared browser support, keeping server/GitHub lifecycle
+there. Preserve default/opt-out behavior, genuine locks and independent counts;
+reuse the same precondition in Frontend recovery and connection-logo consumers.
 Proof: three specs / 526 lines: `intent-gherkin-settings-problems`,
 `intent-read-recovery`, `intent-source-target-recovery`.
 Behavior: locations or a targeted source read becomes malformed, unreachable,
@@ -133,6 +140,10 @@ Own only the missing controlled authenticated-read failure/hold variants,
 using existing held-answer/clock primitives. Keep 15/30/60/60 timing and exact
 request deltas. Backend proves settings classification/shared upstream reads;
 E2E proves a real classified failure reaches the browser recovery path.
+
+Accepted proof: [assertion map and timing fault](slice-2-proof.md),
+[consumer/refactor and covering proof](slice-2-consumers.md); 14.5 active
+implementation minutes, independent refactor and covering Frontend pass.
 
 ### 3. Preserve selected-story changed-tree reading
 Type: Behavior
@@ -225,3 +236,10 @@ historical proof/source identities usable; retire no runner or configuration.
 
 Retain the [preparation observations and sizing review](preparation-evidence.md#premises-observations-and-sizing-review);
 execution rechecks only consuming conditions whose evidence no longer applies.
+
+## Story obligations
+
+### G1. Client shared-read proof is not upstream evidence
+Reported: slice 2 — "intent-shared-reads.spec.ts uses a global fetch substitute and is not dashboardServer/GitHub upstream-count evidence."
+Story clause: "GitHub request counts"
+Disposition: proved by slice 2: slice-2-proof.md#setup-and-boundary-ownership; inspected real E2E classified settings/listing cases preserve the exact heads-check +1, and the rate-limited listing case preserves the real classification/directed wait. Supplemental client proof is labeled correctly and the remaining plan's ownership assumption is corrected.
