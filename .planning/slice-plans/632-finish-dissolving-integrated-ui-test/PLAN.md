@@ -70,9 +70,9 @@ share local admission across worktrees; focused selections remain independent.
 | Final-state promise / source example | Owner and observable proof |
 | --- | --- |
 | Final report, passive native behavior and stored session state / example 1 | Slice 1: controlled Frontend report interaction plus retained E2E/Backend store and no-native-operation assertions. |
-| Mixed session, terminal, review and story cases retain their distinct assertions / example 2 | Slices 1–8: named old-to-new assertion dispositions, focused passing cases, representative discrimination at changed proof boundaries. |
-| Specs absent from the inventory still convert / example 3 | Slices 2 and 5 explicitly include the two named additions; each batch reconciles current cases against its old inventory rows. |
-| Five folders empty; interim runner still runs the rest / example 4 | Slice 8 closes with no `*.spec.ts` left in the five folders and a focused `npm run test:dashboard:integrated` listing of the remaining Intent and navigation cases. |
+| Mixed session, terminal, review and story cases retain their distinct assertions / example 2 | Slices 1–10: named old-to-new assertion dispositions, focused passing cases, representative discrimination at changed proof boundaries. |
+| Specs absent from the inventory still convert / example 3 | Slices 4 and 7 explicitly include the two named additions; each batch reconciles current cases against its old inventory rows. |
+| Five folders empty; interim runner still runs the rest / example 4 | Slice 10 closes with no `*.spec.ts` left in the five folders and a focused `npm run test:dashboard:integrated` listing of the remaining Intent and navigation cases. |
 
 ## Carried learnings
 
@@ -85,9 +85,10 @@ share local admission across worktrees; focused selections remain independent.
   pass.
 - **Sizing.** One agent slice held about 2.5–3k interim lines, or about 11
   small specs, with agent context the binding limit. A new Frontend substitute
-  family costs most of a slice; once it exists each case takes a few minutes
-  and E2E moves are mechanical. Split batches by folder or substitute family
-  before delegating them.
+  family costs most of a slice — treat that as a hard per-slice budget even
+  when interim lines fit; two new families in one batch overrun. Once a family
+  exists each case takes a few minutes and E2E moves are mechanical. Split
+  batches by folder or substitute family before delegating them.
 - **Substitutes to reuse** under `dashboard/tests/support/`:
   `frontendSettingsSubstitutes.ts`, `frontendLaunchSubstitutes.ts`,
   `frontendLaunchAttempts.ts`, `frontendTranscriptionSubstitutes.ts`,
@@ -130,11 +131,21 @@ share local admission across worktrees; focused selections remain independent.
   43666885667) and was not reproduced locally; failing integrated and E2E
   tests now attach server output with `revision-observation` trace lines and
   fake GitHub calls to name the stalled layer if it recurs.
+- **Slice 2 overrun (2026-11-15).** First attempt on the former single
+  recently-done batch (~12–13 active minutes) delivered no conversion: line
+  count fit (~2.8k), but the batch needs two new Frontend answer families
+  (`completed-story` association and `storyReviewState`) plus many mixed
+  FE/E2E splits. Failed sizing assumption: interim lines alone understate cost
+  when multiple new substitute families are required. Working tree stayed
+  clean. Refined in place under the execution in-progress split allowance
+  (plan may reach ten slices): three recently-done batches below, then the
+  former slices 3–8 renumbered 5–10.
 
 ## Ordered slices
 
 Sizes are current interim specs / lines, against the carried capacity of
-about 2.5–3k lines per slice.
+about 2.5–3k lines per slice. Treat each new Frontend answer family as most
+of one slice's active budget.
 
 ### 1. Convert final report and workspace retirement
 Type: Behavior
@@ -151,18 +162,42 @@ keep actual report storage, native passivity and Done integration in E2E or
 Backend. Own the reorganization of `frontendServiceState.ts` and
 `frontendServiceSubstitutes.ts` by responsibility that later slices need.
 
-### 2. Convert recently done sessions
+### 2. Convert recently-done sidebar presentation and reopen
 Type: Behavior
 Status: planned
-Proof: all 20 `dashboard/tests/sessions/recently-done-*` specs (20 / 2,828),
-including `recently-done-returned-sessions.spec.ts`, map every selection,
-review-cue, paging, reopening, project, touch and active/returned-session
-assertion.
-Behavior: observed recent session → select, reopen, page or receive an updated
-observation → the same association, navigation and session action outcomes
-remain protected outside the interim group; its 20 specs go.
+Proof: `recently-done-sessions-sidebar{,-touch,-projects,-room,-paging}`,
+`…-sidebar-paging-board`, `…-sidebar-navigation`, `…-sidebar-reopen`
+(~8–9 specs) retain listing, ages, empty/reading, project filter, room layout,
+paging UI, Board non-eager read, progressive reveal and Cursor reopen.
+Behavior: observe Done in the sessions sidebar → expand, page, filter or
+reopen → presentation and real-boundary attach/Board outcomes remain protected;
+these interim specs go. Multi-project machine fixtures only; no association
+family yet. Mechanical E2E for reopen, paging-board and navigation.
 
-### 3. Convert the sessions sidebar
+### 3. Convert recently-done select, review-cue and association
+Type: Behavior
+Status: planned
+Proof: `recently-done-sessions-select{,-touch,-development,-check,-supersede,-ad-hoc-check}`
+and `…-review-cue{,-races,-evidence}` (~9 specs) retain Intent select/Open,
+association check holds/fails/supersede, and review-cue races/evidence.
+Behavior: select a Done session or observe a review cue → controlled
+association/review-state answers or real ad-hoc journeys → the same UI and
+workflow outcomes remain protected; these interim specs go. Own new
+`frontendCompletedStoryAssociation` and `frontendStoryReviewState` modules;
+keep ad-hoc/store in existing E2E/Backend.
+
+### 4. Convert recently-done story card, active and returned sessions
+Type: Behavior
+Status: planned
+Proof: `recently-done-story-sessions`, `recently-done-active-story-sessions`
+and inventory-absent `recently-done-returned-sessions` (~3 / ~452) retain
+card nesting, active/closed ownership, column paging and returned-to-backlog
+reopen.
+Behavior: Done or returned sessions on a story card → nest, page or reopen →
+the same nesting and native restore outcomes remain protected; these three
+interim specs go. Completes the recently-done sessions conversion.
+
+### 5. Convert the sessions sidebar
 Type: Behavior
 Status: planned
 Proof: the 16 `cursor-sessions-sidebar-*` and `sessions-sidebar-*` specs
@@ -173,7 +208,7 @@ Behavior: observed sessions across hosts/projects → operate the sidebar → it
 same presentation, focus, persistence and native-action outcomes remain
 protected outside the interim group; no session product spec remains there.
 
-### 4. Convert terminal checks
+### 6. Convert terminal checks
 Type: Behavior
 Status: planned
 Proof: all 14 `dashboard/tests/terminals/` specs (14 / 2,584) retain terminal
@@ -184,7 +219,7 @@ WebSocket/transcription answer → the same transport/backend outcomes and UI
 rules remain protected at their owning boundaries; interim terminal specs go.
 Reuse the terminal application and transcription substitutes.
 
-### 5. Convert story review checks
+### 7. Convert story review checks
 Type: Behavior
 Status: planned
 Proof: all 16 `dashboard/tests/review/` specs (16 / 2,426), including
@@ -196,7 +231,7 @@ group; interim review specs go. Extend one story-review answer family at the
 snapshot/range/diff/text/mark boundaries, retaining actual Git work in Backend
 or representative E2E journeys.
 
-### 6. Convert progressive done reading and review state on the board
+### 8. Convert progressive done reading and review state on the board
 Type: Behavior
 Status: planned
 Proof: the 14 `dashboard/tests/stories/recently-done-*` specs (14 / 2,158)
@@ -206,7 +241,7 @@ Behavior: read the board's Recently done column progressively or review a done
 story → controlled done/read answers or a real refresh → the same reading,
 paging and review-state outcomes remain protected; these 14 specs go.
 
-### 7. Convert story presentation, readiness and progress
+### 9. Convert story presentation, readiness and progress
 Type: Behavior
 Status: planned
 Proof: the other 17 `dashboard/tests/stories/` specs (17 / 2,594) retain
@@ -217,7 +252,7 @@ Behavior: show published stories and Taken work → operate or refresh them →
 the same presentation, readiness, dependency and progress outcomes remain
 protected; no product spec remains under `stories/`.
 
-### 8. Convert published-fact observation
+### 10. Convert published-fact observation
 Type: Behavior
 Status: planned
 Proof: all seven `dashboard/tests/observation/` specs (7 / 1,168) retain
@@ -232,11 +267,14 @@ protected; keep representative real server/SSE sharing journeys in E2E.
 
 Observed at `788c5a64ca128ee64bc10ffe752f617633a28127`: this half covers 102
 specs / 15,907 lines (sessions 41 / 6,145; terminals 14 / 2,584; review
-16 / 2,426; stories 31 / 4,752; observation 7 / 1,168). Every slice is at or
-below the carried 2.5–3k-line capacity. Slices 1 and 5 each also add an answer
-family; slice 1 is small, and slice 5 keeps actual Git work outside Frontend.
-If a slice overruns, split it at a delivered boundary under the
-[oversized-slice procedure](../../../.agents/skills/dough-execute-plan/references/oversized-slice.md).
+16 / 2,426; stories 31 / 4,752; observation 7 / 1,168). After the slice-2
+overrun refinement the plan has ten slices (execution in-progress split
+allowance). Slice 1 delivered the report-result family and support split;
+slice 3 owns the association and review-state families; slice 7 keeps actual
+Git work outside Frontend. If a further slice overruns, apply the
+[oversized-slice procedure](../../../.agents/skills/dough-execute-plan/references/oversized-slice.md)
+and reassess the story boundary before another slice-only refinement (second
+overrun rule).
 
 The predecessor's completion record demonstrates Frontend refused-Done fault
 discrimination and the restored Backend no-native-command assertion. Reuse
