@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 531. Removed numbers are never reused.
+- Highest allocated local number: 534. Removed numbers are never reused.
 - Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
@@ -89,6 +89,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: requested observations/guidance were partly omitted and retrieved again. Supported command waits, immutable evidence and proof ownership remained intact.
   - Inference: recurrence of the existing output-scoping deviation, including in this review, under already-applicable targeted retrieval. The mandatory reviews themselves are not classified as waste; the avoidable read share, elapsed cost and token saving are unmeasured.
 
+
+- Execution: SEED-369#make-recent-token-usage-easier-to-read (first implementation 30697cc105d3ee6c0a35043b5deda789f1671711)
+  - Timestamp: unknown (2026-11-15 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at established claim 07e3ec6c411f79f65f908fc9aa0ac18ce3f5d275; product VERSION is not used as guidance provenance)
+  - Evidence: coordinator tool a005ff combined the required delegation row with 12,043 original tokens and truncation; the closure-preparation batch (a2f9b8/7567e3) later combined references at 13,842 tokens and required bounded recovery.
+  - Observed effect: Required passages were omitted; targeted section reads recovered them without losing command/proof ownership.
+  - Inference: Recurring output-scoping deviation under existing targeted-retrieval guidance; isolated elapsed and token saving are unmeasured.
 
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
 
@@ -181,6 +189,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: commit/publication were correctly withheld for one mechanical test repair, focused proof/lint and preparation retry. The receipt observations/assertions remained equivalent and no paid journey was repeated.
   - Inference: same late authored-file lint feedback as existing ODF-329. An earlier read-only check's counterfactual saving and isolated agent/token cost are unmeasured; no skill change is made here.
 
+- Execution: SEED-369#make-recent-token-usage-easier-to-read (first implementation 30697cc105d3ee6c0a35043b5deda789f1671711)
+  - Timestamp: unknown (2026-11-15 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at established claim 07e3ec6c411f79f65f908fc9aa0ac18ce3f5d275; product VERSION is not used as guidance provenance)
+  - Evidence: guarded fresh tool 097080 refused formatting before commit: unused Array.from parameters and forbidden non-null assertions in usagePeriod and new Backend/E2E specs; final implementation 30697cc105d3ee6c0a35043b5deda789f1671711.
+  - Observed effect: Passing behavioral/type checks and an independent refactor return still required mechanical lint repairs; typecheck and independent proof-reuse review then passed before the formatter retry.
+  - Inference: The coordinator-owned formatter caught the strict-lint findings safely; no failed candidate was committed or pushed.
+
 ## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
 
 Former local code: DD-349. [Meaning, evidence and response](docs/maintainer/findings/ODF-362.md).
@@ -204,6 +220,16 @@ Former local code: DD-391. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-404. [Evidence and current response](docs/maintainer/findings/ODF-396.md).
 
 [Occurrences retained in the catalog](docs/maintainer/findings/ODF-396.md).
+
+### Occurrences
+
+- Execution: SEED-369#make-recent-token-usage-easier-to-read (first implementation 30697cc105d3ee6c0a35043b5deda789f1671711)
+  - Timestamp: unknown (2026-11-15 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at established claim 07e3ec6c411f79f65f908fc9aa0ac18ce3f5d275; product VERSION is not used as guidance provenance)
+  - Evidence: /tmp/seed369-slice1-consumer-trace.md at the slice-1 return included generic PLAN.md/source-review basenames; tool 2905b6 reported 57,196 original tokens and truncation after the coordinator printed the trace.
+  - Observed effect: The generated trace mixed actual Usage consumers with hundreds of historical planning/name collisions; focused consumer excerpts recovered the relevant dispositions.
+  - Inference: The generator breadth and the coordinator's full trace read both contributed; no isolated saving was measured.
 
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
@@ -846,3 +872,16 @@ A plan asked for a size budget to be observed by running the real operation agai
   - Evidence: plan 631 slice 4 Learnings: 26,033,157 bytes in the literal clone, 24,277,565 with stored paths rewritten to the clone's, 22,871,902 for the pure conversion.
   - Observed effect: the slice 4 agent traced the excess to the path difference, built a second clone with rewritten paths and a control clone, and reported the three figures; the budget was accepted on the measured 24.3 MB.
   - Inference: practice worth keeping: path-guarded scripts that refuse any home but the scratch clones, and a before/after digest of the real store. A clone observation of a store that records absolute paths needs the paths rewritten or the figure corrected.
+
+## DD-534 — Recording several commitments to one obligation leaves an incomplete reverse link
+
+The record CLI can link several source-review rows to one Story obligation, but creating the entry with the first row emits an optional `Commitment:` field naming only that row. Later row-only recordings do not update it, so the ordinary check refuses the resulting record.
+
+### Occurrences
+- Execution: SEED-369#make-recent-token-usage-easier-to-read (first implementation 30697cc105d3ee6c0a35043b5deda789f1671711)
+  - Timestamp: unknown (2026-11-15 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at established claim 07e3ec6c411f79f65f908fc9aa0ac18ce3f5d275; product VERSION is not used as guidance provenance)
+  - Evidence: coordinator recorded C31 with new G2, then C32/C33 with `--obligation G2`; guarded fresh tool 7ab4f2 refused `mismatched-commitment` for C32/C33. At accepted revision 4b1c7984c4ad5c2f9ef634db89400dcd5d9697a1, the plan's G2 reverse link was repaired to C31,C32,C33. Installed story-obligation-source-review-record.mjs defaults entry.commitments to the current id; the CLI exposes no plural entry-commitments option.
+  - Observed effect: one records-only preparation failure and targeted CLI/source inspection occurred before commit; product code/proof stayed unchanged. The corrected obligation check and publication passed.
+  - Inference: a later tool change could maintain the complete reverse link or avoid emitting a partial optional link. This execution records evidence only; it implements no process change.

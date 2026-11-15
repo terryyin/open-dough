@@ -194,3 +194,11 @@ priorities unchanged. Product advice: keep delivered behavior, no added response
 Process selected by project setting and deferred into wrap-up because automatic
 intent coverage is enabled and existing Usage assertions were rewritten. Product
 review complete; CI at2e92e64c9756f844710dec50b4143c38ff0f518d remains pending.
+
+### Deferred process review completed
+
+Intent Coverage Caught the average-scale fault at7a6750366f39b34584998e7049ded478359d5402;
+restoration passed, scratch removed,338238ms elapsed, no stronger-proof follow-up.
+Available conversation/tool history supports ODF-264/329/396 recurrences and
+DD-534 record-CLI reverse-link evidence in DearDough.md. Bounded ordinary write,
+no retention or product correction. No unrecorded process limitation remains.
