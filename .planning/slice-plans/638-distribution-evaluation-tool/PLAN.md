@@ -97,9 +97,8 @@ G8/G11 remain open until final tool-test relocation in slice8.
 
 ### 8. Run the relocated tool checks independently
 Type: Behavior
-Status: planned
-Proof: current focused command, broken-assessor/runner failures and untouched
-real-host tripwires; helper/root selection and replay/guard observations.
+Status: done
+Proof: [Actual focused70, real fault controls, ownership and guarded current consumers](slice-8-evidence.md).
 
 Reuse the exact156-owner/246-corpus candidate and completed observations in
 [attempt8](attempt-8.md). Finish the reached support assembly and supplier-watch
@@ -218,7 +217,7 @@ Disposition: receiving slice 10
 ### G8. Mixed default-check bodies in moved ADR entries
 Reported: slice 2 — "Routine test entries remain at old paths and currently dispatch mixed default branches in the moved cases (interim extraction needed in slice 6)."
 Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
-Disposition: interim until slices 2, 7, 8
+Disposition: proved by slice 8: slice-8-evidence.md actual157-owner test-home mapping, nine guidance defaults retained, full focused70 and controlled CLI/identity/replay observations; no check-only loader on native paths.
 
 ### G9. Delivery identity omits the actual native entry
 Reported: slice 3 — "native_result_journey_input_hash_lines hashes the thin routine delivery wrapper instead of the moved native entry; current listed-input mutation tests miss that omission."
@@ -233,17 +232,17 @@ Disposition: proved by slice 4: slice-4-evidence.md renewed operational admissio
 ### G11. Remaining-family check bodies and dependencies in cases
 Reported: slice 4 — "Native entries retain default automated branches behind old thin wrappers; CI, closure and one-shot run modules also still source test-only counterexamples."
 Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
-Disposition: interim until slices 4, 6, 7, 8
+Disposition: proved by slice 8: slice-8-evidence.md all generic check bodies/defaults/counterexamples assembled only in tool tests, native fixture/preflight responsibilities retained; actual focused70 and publication assembly renewal pass.
 
 
 ### G12. Current baseline consumer purposes after supplier placement
 Reported: slice 5 — "Acceptance found that six baseline consumer observations precede the final supplier shared-input path change; fresh-pair setup alone does not observe their current archive reuse, refusal and provenance purposes."
 Story clause: "preserve case selection, host support, outcome and failure semantics, supervision, retention and evidence identity during the move."
-Disposition: proved by slice 5: slice-5-evidence.md final six baseline-purpose renewal after supplier identity-path and runtime-file hashing changes; actual archive raw-cleanup, conditions/usage, reader changes, reuse/fresh, misses and unavailable-evidence observations all pass.
+Disposition: proved by slice 8: slice-8-evidence.md full focused70 renews all six baseline purposes after current test placement and default-dispatch hash changes: archive raw-cleanup/source integrity, conditions/usage, readers, reuse/fresh/failure, misses and unavailable/truncated evidence. Earlier slice-5-evidence.md observations retain their original boundary; frozen records remain unchanged.
 Commitment: C17
 
 ### G13. Stream guard omits evaluation Git enumeration
 Reported: slice 6 — "Closure inspection found that native-stream-guard.mjs scannedRoots includes evaluation, but its listFiles Git pathspecs still enumerate only Distribution/tests and scripts."
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: receiving slice 8
+Disposition: proved by slice 8: slice-8-evidence.md old Git guard red for evaluation stray, current Git pathspec/writer/corpus closure and actual stray/stale-writer replay negatives pass in three-file gate and full70; no filesystem fallback.
 Commitment: C31

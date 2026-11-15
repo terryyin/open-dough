@@ -11,9 +11,9 @@ import { suiteRunnerLayer } from "../support/local-test-suite-checkout.mjs";
 import { makeMe } from "../support/makeMe.mjs";
 import { materializeLocalCheckout } from "../support/repository-fixture.mjs";
 
-const mixed = "Distribution/tests/ci/mixed.test.mjs";
+const mixed = "Distribution/evaluation/tests/native-harness/mixed.test.mjs";
 const unloadable = "Distribution/tests/ci/unloadable.test.mjs";
-const shell = "Distribution/tests/ci/shell.sh";
+const shell = "Distribution/evaluation/tests/native-harness/shell.sh";
 const shellOnly = "Distribution/tests/ci/shell-only.sh";
 
 test("real Distribution job outcomes reach CI proof as Node cases and file results", async (t) => {

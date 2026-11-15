@@ -118,7 +118,7 @@ message shows an ambiguous or missing destination; the last pinned run after
 the fault passing without untracked tests and covering at least as many
 tests as the baseline; the resolver blob and checkout status restored; and
 verdict Caught. Its rejected cases are in
-`Distribution/tests/native-comparison/native-comparison-doughnut-title-precedence.sh`. A witness that is not
+`Distribution/evaluation/tests/native-comparison/native-comparison-doughnut-title-precedence.sh`. A witness that is not
 a recorded test, or prints nothing about the destination, is not observed.
 
 ## Measured durations

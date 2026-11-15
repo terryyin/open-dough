@@ -95,9 +95,9 @@ Rules for a new family:
 ## Rejected cases
 
 Every rejected case of a native assessor goes through
-`Distribution/tests/support/native-assessor-counterexample.sh`: a passing observation of
+`Distribution/evaluation/tests/native-harness/support/native-assessor-counterexample.sh`: a passing observation of
 that assessor with one declared signal changed.
-`Distribution/tests/native-harness/native-assessor-counterexample-guard.sh` fails any other rejected case in
+`Distribution/evaluation/tests/native-harness/native-assessor-counterexample-guard.sh` fails any other rejected case in
 `tests/`, naming its file and line.
 
 A change that widens what an assessor accepts adds, in the same change,

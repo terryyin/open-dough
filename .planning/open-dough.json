@@ -11,7 +11,9 @@
         "path": "e2e",
         "label": "E2E Test",
         "kind": "typescript",
-        "include": ["**/*.spec.ts"],
+        "include": [
+          "**/*.spec.ts"
+        ],
         "makeMe": true,
         "pageObjects": true
       },
@@ -19,7 +21,9 @@
         "path": "dashboard/tests",
         "label": "Dashboard Integrated UI Test",
         "kind": "typescript",
-        "include": ["**/*.spec.ts"],
+        "include": [
+          "**/*.spec.ts"
+        ],
         "makeMe": true,
         "pageObjects": true
       },
@@ -27,7 +31,9 @@
         "path": "dashboard/frontend-tests",
         "label": "Dashboard Frontend Test",
         "kind": "typescript",
-        "include": ["**/*.spec.ts"],
+        "include": [
+          "**/*.spec.ts"
+        ],
         "makeMe": true,
         "pageObjects": true
       },
@@ -35,16 +41,29 @@
         "path": "dashboard/backend-tests",
         "label": "Dashboard Backend Test",
         "kind": "typescript",
-        "include": ["**/*.spec.ts"],
+        "include": [
+          "**/*.spec.ts"
+        ],
         "makeMe": true
       },
       {
         "path": "Distribution",
         "label": "Distribution Tests",
         "sources": [
-          { "include": ["tests/!(support)/*.sh"], "syntax": "shell" },
           {
-            "include": ["tests/*/*.test.mjs", "tests/skills/*/*.test.mjs"],
+            "include": [
+              "tests/!(support)/*.sh",
+              "evaluation/tests/*/*.sh"
+            ],
+            "syntax": "shell"
+          },
+          {
+            "include": [
+              "tests/*/*.test.mjs",
+              "tests/skills/*/*.test.mjs",
+              "evaluation/tests/**/*.test.mjs",
+              "evaluation/tests/page-objects/page-object-*-browser-proof.mjs"
+            ],
             "syntax": "javascript"
           }
         ],

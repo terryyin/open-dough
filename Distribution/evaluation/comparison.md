@@ -154,7 +154,7 @@ To keep a native pair, copy its `record` to the case's `comparisons/`
 under the pair attempt's name (`<attempt id>.txt`, as
 `20261114T045440-40bf.txt`) and summarize it under the case's Comparisons
 section; commit both. Never edit a kept record afterwards, and never keep a
-record from a substitute host (`Distribution/tests/native-comparison/native-comparison-incomplete.sh`
+record from a substitute host (`Distribution/evaluation/tests/native-comparison/native-comparison-incomplete.sh`
 rejects one). `case.md` and `comparisons/` are outside the case's identity,
 so kept records and measurements do not change the basis.
 

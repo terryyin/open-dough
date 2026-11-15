@@ -16,9 +16,9 @@ separate browser control is selected explicitly because the shell/Node CI jobs
 do not install Chromium:
 
 ```sh
-npm test -- Distribution/tests/support/page-object-native-fixture.test.mjs Distribution/tests/support/page-object-makeme-fixture.test.mjs
-npm test -- Distribution/tests/support/page-object-native-browser-proof.mjs
-npm test -- Distribution/tests/support/page-object-makeme-browser-proof.mjs
+npm test -- Distribution/evaluation/tests/page-objects/page-object-native-fixture.test.mjs Distribution/evaluation/tests/page-objects/page-object-makeme-fixture.test.mjs
+npm test -- Distribution/evaluation/tests/page-objects/page-object-native-browser-proof.mjs
+npm test -- Distribution/evaluation/tests/page-objects/page-object-makeme-browser-proof.mjs
 ```
 
 The gate uses the shared `dough-execute-plan/scripts/test-entry-rules.mjs`

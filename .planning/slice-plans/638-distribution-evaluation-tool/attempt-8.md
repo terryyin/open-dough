@@ -69,3 +69,10 @@ Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/
 as written. All failures remain owned; no unavailable proof is marked accepted.
 Host was awakeAC,16 logical CPUs/68%free, two guarded workers, no competing owned
 heavy proof. No refactor/formatter/hook lint/commit/push/done mark was performed.
+
+CI note after revised-plan publication003771b1: the exact owned observer
+kirara-638 at `/tmp/dough-ci-501/watch-NjF7jy` finished with budget_expired.
+Yielded cellg390:9 is terminal; local result/store confirm finished, no guessed
+replacement. This publication is unobserved. Mid-story rearm of a finished
+stream is forbidden; final completion recovery owns a fresh same-target stream
+when its accepted revision lacks a receipt. No earlier success is inferred.

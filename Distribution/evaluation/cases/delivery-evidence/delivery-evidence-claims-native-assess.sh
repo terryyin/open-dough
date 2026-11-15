@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Claims-evidence observation assessor and credential-free counterexamples.
 # Each rejected case changes one signal, declared beside the assessor, of a
-# passing observation (Distribution/tests/support/native-assessor-counterexample.sh).
+# passing observation (Distribution/evaluation/tests/native-harness/support/native-assessor-counterexample.sh).
 # Prefers structured fixture observations; green exit or instruction words alone
 # cannot pass. Does not exercise native skill prose.
 # shellcheck disable=SC2034,SC2154,SC2312

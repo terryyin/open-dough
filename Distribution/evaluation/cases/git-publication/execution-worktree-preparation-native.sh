@@ -29,7 +29,7 @@ if [[ ${prep_native_mode} == list ]]; then
 fi
 
 if [[ ${prep_native_mode} == default ]]; then
-  exec bash "${source_dir}/Distribution/tests/git-publication/execution-worktree-preparation-native.sh"
+  exec bash "${source_dir}/Distribution/evaluation/tests/git-publication/execution-worktree-preparation-native.sh"
 fi
 
 if [[ -n ${prep_native_results_dir} ]]; then

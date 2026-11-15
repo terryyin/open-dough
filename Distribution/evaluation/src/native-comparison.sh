@@ -55,9 +55,9 @@
 #
 # Default mode is credential-free: the catalog. Substitute-host pairs through
 # this command and the pair judge's rejected cases are
-# Distribution/tests/native-comparison/native-comparison-pairs.sh, refusals and incomplete
-# pairs Distribution/tests/native-comparison/native-comparison-incomplete.sh, refresh and
-# recovery Distribution/tests/native-comparison/native-comparison-refresh.sh, and each case's own
+# Distribution/evaluation/tests/native-comparison/native-comparison-pairs.sh, refusals and incomplete
+# pairs Distribution/evaluation/tests/native-comparison/native-comparison-incomplete.sh, refresh and
+# recovery Distribution/evaluation/tests/native-comparison/native-comparison-refresh.sh, and each case's own
 # credential-free proof Distribution/tests/native-comparison/native-comparison-<case>.sh.
 # shellcheck disable=SC1091,SC2034,SC2154,SC2249,SC2310,SC2312 # Sourced runner, pair and helper globals; journeys report their verdicts.
 set -euo pipefail
@@ -183,4 +183,4 @@ if [[ -n ${host} ]]; then
 fi
 [[ -z ${case_name}${results_dir}${pair_options}${save_baseline} && ${#where[@]} -eq 0 ]] || usage
 
-exec "${BASH}" "${source_dir}/Distribution/tests/native-comparison/native-comparison.sh"
+exec "${BASH}" "${source_dir}/Distribution/evaluation/tests/native-comparison/native-comparison.sh"

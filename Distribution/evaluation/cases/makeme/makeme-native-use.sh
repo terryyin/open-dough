@@ -8,7 +8,7 @@ set -euo pipefail
 # does not start this wrapper (scripts/test-jobs.sh).
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
 if (($# == 0)); then
-  exec bash "${source_dir}/Distribution/tests/makeme/makeme-native-use.sh"
+  exec bash "${source_dir}/Distribution/evaluation/tests/makeme/makeme-native-use.sh"
 fi
 platform=$1
 journey=$2

@@ -7,7 +7,7 @@
 # The reproduced defect is a fail naming the redundant pre-move broad run; a
 # run that never reached an extraction is inconclusive, not a reproduction.
 # Each rejected case changes one signal of a passing observation
-# (Distribution/tests/support/native-assessor-counterexample.sh). Fields shared by signals
+# (Distribution/evaluation/tests/native-harness/support/native-assessor-counterexample.sh). Fields shared by signals
 # derive from each: the ordered trace and run counts move with any change to
 # which runs happened on which state.
 # shellcheck disable=SC2034,SC2154,SC2312

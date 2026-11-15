@@ -6,8 +6,8 @@ Code. Put Bash 5 first on PATH. Paid sessions are opt-in; the default wrapper
 and `npm test` use credential-free substitutes and counterexamples.
 
 Accepting a paid run of any family adds it to the replay corpus in
-`Distribution/tests/fixtures/native-streams`:
-`node Distribution/tests/support/native-stream-corpus-add.mjs <result-path>` takes the
+`Distribution/evaluation/tests/fixtures/native-streams`:
+`node Distribution/evaluation/tests/native-harness/support/native-stream-corpus-add.mjs <result-path>` takes the
 retained attempt the run printed and adds it under its host and case
 (`publication/<journey>`, `fresh-node`, `delivery-evidence/<case>/<scenario>`).
 It refuses, naming what is missing, an attempt without a `record`, without
@@ -17,7 +17,7 @@ entry the corpus already holds. It gzips each stream, copies the retained
 provenance, and writes a draft `expected`, printing a `review:` line wherever
 the shared reader or today's verdict disagrees with the retained attempt.
 Review the draft, add `corrected:` with the harness fault where the reader is
-right, and delete its `# draft:` line; `Distribution/tests/native-harness/native-stream-replay.sh` then
+right, and delete its `# draft:` line; `Distribution/evaluation/tests/native-harness/native-stream-replay.sh` then
 replays the attempt.
 
 The one-shot escalation case asks for a settings-key rename in an owned
@@ -89,7 +89,7 @@ Distribution/evaluation/cases/git-publication/git-publication-native.sh --native
 Distribution/evaluation/cases/git-publication/git-publication-native.sh --native codex --case trunk-closure/ignored-only --results-dir DIR
 ```
 
-`Distribution/tests/git-publication/git-publication-native-owned-context.sh` runs the owned-context closure
+`Distribution/evaluation/tests/git-publication/git-publication-native-owned-context.sh` runs the owned-context closure
 on each substitute host; the other two scenarios have no substitute.
 
 Codex runs without `--ephemeral`, because spawning a subagent thread needs the
@@ -99,7 +99,7 @@ home with their other sessions, which also keeps the developer's sign-in in plac
 `--case delivery-evidence/original` replays original-story acceptance with the
 full selected readiness story from `2f56bd2a`, a narrowed plan and return, and
 an inspectable reader. The prompt names the inputs without naming an omitted
-promise. `Distribution/tests/delivery-evidence/delivery-evidence-original.sh` first proves that the narrowed
+promise. `Distribution/evaluation/tests/delivery-evidence/delivery-evidence-original.sh` first proves that the narrowed
 product contradicts the source while its tests pass, and that a corrected
 control satisfies the source. Native observations retain the original and final
 product, proof commands, acceptance outcome and planning state for explicit
@@ -113,7 +113,7 @@ the narrowed plan from `cffbd3264`, and the precomputed summary fields and six
 observed labels from `fe322751e`. This is a deterministic record-producing
 boundary, not a rerun of the engine or research ledger. The focused check
 mirrors the historical dynamic JSON/prose label comparison, with no fixed
-label-count rejection. `Distribution/tests/delivery-evidence/delivery-evidence-terminal.sh` exercises the
+label-count rejection. `Distribution/evaluation/tests/delivery-evidence/delivery-evidence-terminal.sh` exercises the
 narrowed output and a corrected control preserving both arms and all numbers.
 The native request names only source, plan and return; inspect the retained
 command results, actual labels and acceptance/obligation state yourself.
@@ -141,7 +141,7 @@ reconstruction of the decision's excluded list whose narrowed tests pass. Its
 scenarios are `narrowed` and `amended-corrected`; the latter appends a synthetic
 human amendment to the story and keeps the returned product. Set
 `delivery_evidence_only_scenario=narrowed` (or `amended-corrected`) in the
-environment to run one scenario. `Distribution/tests/delivery-evidence/delivery-evidence-drift.sh` first proves
+environment to run one scenario. `Distribution/evaluation/tests/delivery-evidence/delivery-evidence-drift.sh` first proves
 that the narrowed product contradicts the source while its tests pass, that a
 corrected control satisfies it and the amended control carries the amendment,
 and that the drift assessor rejects quote-only, plan-decision-as-exclusion,
@@ -164,7 +164,7 @@ named in the final response ("amendment" names `amended`), each record's
 branch copy against origin's Take and trunk texts, the candidate's check of
 the final workspace, plan statuses and obligations, trunk content on the
 branch, origin trunk before and after, and an `awaiting story review` stop
-naming the plan and trunk revision. `Distribution/tests/delivery-evidence/delivery-evidence-amended.sh`
+naming the plan and trunk revision. `Distribution/evaluation/tests/delivery-evidence/delivery-evidence-amended.sh`
 proves each fixture's premise through the installed check, observes
 controlled sequences and an unnoticed baseline, and rejects a silent
 whole-trunk merge, overwritten statuses, absorption without a disposition, an

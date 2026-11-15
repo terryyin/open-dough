@@ -7,10 +7,10 @@ use `Distribution/evaluation/src/native-host-stream.sh`, which keeps reader call
 native harness's node-call log. The reader returns the started commands
 (continuations joined, and split at command separators for matching),
 outputs, the final response, and the stream status: complete, truncated,
-missing, or unknown. `Distribution/tests/native-harness/native-stream-replay.sh` fails any shell or JS
+missing, or unknown. `Distribution/evaluation/tests/native-harness/native-stream-replay.sh` fails any shell or JS
 file under `tests/` or `scripts/` that holds a host event literal outside the
 reader and an exact list of shape writers
-(`Distribution/tests/support/native-stream-guard.mjs`), such as substitute agents and
+(`Distribution/evaluation/tests/native-harness/support/native-stream-guard.mjs`), such as substitute agents and
 counterexample stream builders.
 
 Saved Codex session records are read through the same boundary's
@@ -27,7 +27,7 @@ deduplicate responses and keep missing counters unknown. Case observers apply
 their own ownership, workspace and proof rules to those facts;
 `native-codex-session.mjs` supplies session discovery and runtime settings.
 
-`Distribution/tests/fixtures/native-streams/<host>/<case…>/<attempt>/` holds real host
+`Distribution/evaluation/tests/fixtures/native-streams/<host>/<case…>/<attempt>/` holds real host
 streams from accepted paid runs, gzipped. Each sits beside its retained
 `record`, observations, and response, and a reviewed `expected` file. Replay
 checks every stream's started commands, status, and response. It also cuts

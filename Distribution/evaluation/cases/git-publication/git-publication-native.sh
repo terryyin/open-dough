@@ -10,10 +10,10 @@
 #
 # Default mode is credential-free: assessor counterexamples through the shared
 # supervisor/stream/retention path. Substitute publish-boundary and remaining
-# host journeys run in Distribution/tests/git-publication/git-publication-native-substitutes.sh;
-# one-shot substitutes in Distribution/tests/git-publication/git-publication-native-one-shot.sh;
-# owned-context in Distribution/tests/git-publication/git-publication-native-owned-context.sh;
-# admission in Distribution/tests/git-publication/git-publication-native-admission.sh.
+# host journeys run in Distribution/evaluation/tests/git-publication/git-publication-native-substitutes.sh;
+# one-shot substitutes in Distribution/evaluation/tests/git-publication/git-publication-native-one-shot.sh;
+# owned-context in Distribution/evaluation/tests/git-publication/git-publication-native-owned-context.sh;
+# admission in Distribution/evaluation/tests/git-publication/git-publication-native-admission.sh.
 # --native HOST launches a fresh host session against an installed publication
 # candidate.
 # shellcheck disable=SC2312
@@ -70,7 +70,7 @@ usage: Distribution/evaluation/cases/git-publication/git-publication-native.sh
    or: Distribution/evaluation/cases/git-publication/git-publication-native.sh --native HOST --case delivery-evidence/amended
    or: … --results-dir DIR  (with --native; retains inspectable observations)
 Credential-free default exercises the publication assessor counterexamples.
-Substitute host journeys run in Distribution/tests/git-publication/git-publication-native-substitutes.sh.
+Substitute host journeys run in Distribution/evaluation/tests/git-publication/git-publication-native-substitutes.sh.
 --native HOST requires that host's CLI and runs the host's assigned
 fresh-proof journeys against an installed candidate. --case selects one live
 journey and rejects unknown cases before fixture setup.
@@ -133,7 +133,7 @@ if [[ ${native_flag} -eq 0 ]]; then
     usage
     exit 2
   fi
-  exec bash "${source_dir}/Distribution/tests/git-publication/git-publication-native.sh"
+  exec bash "${source_dir}/Distribution/evaluation/tests/git-publication/git-publication-native.sh"
 fi
 
 if [[ ${host_arg} != codex && ${host_arg} != cursor && ${host_arg} != claude ]]; then

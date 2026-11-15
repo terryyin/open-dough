@@ -16,7 +16,7 @@ case_prepare_run() {
     return 1
   fi
   case_prepare_reason='supplier-watch permits only the controlled supplier substitute; no session started'
-  cmp -s "$(command -v codex)" "${watch_case_dir}/../../../../tests/support/native-agent-paused-supplier.sh" || return 1
+  cmp -s "$(command -v codex)" "${watch_case_dir}/../../../tests/native-harness/support/native-agent-paused-supplier.sh" || return 1
   case_prepare_reason='supplier-watch requires an explicit controlled release clock; no session started'
   [[ -n ${NATIVE_COMPARISON_CONTROL_CLOCK-} && -p ${NATIVE_COMPARISON_CONTROL_CLOCK}/advance ]] || return 1
 }

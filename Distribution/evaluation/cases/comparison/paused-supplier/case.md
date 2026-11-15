@@ -84,7 +84,7 @@ starting basis, an independent run of the project's proof, the execution's own
 last proof command, including a parent-verified current-turn worker receipt, remote refs and harness inspection. It distinguishes the
 diagnostic pass (turn 1), publication (turn 3) and satisfaction of the exact
 requirement (turn 4). Its rejected cases are in
-`Distribution/tests/native-comparison/native-comparison-paused-supplier.sh`.
+`Distribution/evaluation/tests/native-comparison/native-comparison-paused-supplier.sh`.
 "Once" is observed in two ways. Continuation appears only at turn 4. By then,
 since the starting basis, the checkout has integrated a supplier reader
 exactly once and filed the verdict stage exactly once. Each count is the

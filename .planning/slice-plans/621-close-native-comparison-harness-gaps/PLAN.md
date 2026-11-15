@@ -161,7 +161,7 @@ the entry header and `native-comparison.md`, and the entry's trait-name check
 (line 176) if it names the new trait. `case.md` is outside case identity, so
 records and recovery are unaffected; confirm with `--recover` on both records.
 
-Proof: in `Distribution/tests/native-comparison/native-comparison.sh` default mode, add
+Proof: in `Distribution/evaluation/tests/native-comparison/native-comparison.sh` default mode, add
 `--where hosts=cursor` and `--where hosts=claude` as nonzero, listing nothing,
 beside the existing positive checks. The planning observation showed the
 negatives fail today.

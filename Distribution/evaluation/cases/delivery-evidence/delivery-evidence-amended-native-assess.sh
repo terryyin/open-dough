@@ -2,7 +2,7 @@
 # Source-freshness assessor at slice 3's delivery boundary and its
 # credential-free counterexamples. Each rejected case changes one signal,
 # declared beside the assessor, of a passing observation
-# (Distribution/tests/support/native-assessor-counterexample.sh). The check's own printed
+# (Distribution/evaluation/tests/native-harness/support/native-assessor-counterexample.sh). The check's own printed
 # result, the records' final state and origin decide; words in the response
 # alone pass nothing.
 # shellcheck disable=SC2034,SC2154,SC2312

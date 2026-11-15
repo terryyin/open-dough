@@ -121,7 +121,7 @@ and `input-hash` lines. Cursor Agent identity is `cursor agent --version`, not
 Codex still come from `-o`, which is not itself completeness proof; for Cursor
 and Claude Code, `update-response.md` / `use-response.md` are decoded from the
 stream's result. An accepted run joins the replay corpus through
-`Distribution/tests/support/native-stream-corpus-add.mjs` (see `Distribution/tests/git-publication/native-publication.md`).
+`Distribution/evaluation/tests/native-harness/support/native-stream-corpus-add.mjs` (see `Distribution/tests/git-publication/native-publication.md`).
 Incomplete, truncated, or unknown streams stay
 `execution-status: incomplete` with `assessment-status: not-run`. Execution
 completion is not a behavior verdict; assessment uses observed state and
@@ -132,53 +132,53 @@ response. Native credentialed runs stay pending (SEED-007 Story 3).
 These are credential-free checks of the wrappers above. They do not certify
 native invocation or behavior.
 
-- `Distribution/tests/adr-awareness/native-adr-behavior.sh` — shared clear/conflict behavior examples
+- `Distribution/evaluation/tests/adr-awareness/native-adr-behavior.sh` — shared clear/conflict behavior examples
   once (valid recommendation, valid stop, conditional stop, misleading
   wording, uncertain prose). Does not launch a native session.
-- `Distribution/tests/native-harness/native-journey-state.sh` — shared update-then-use observation cases
+- `Distribution/evaluation/tests/native-harness/native-journey-state.sh` — shared update-then-use observation cases
   once (expected real transition, catalog/ARC-12 conflict stop, wrong
   bytes/version, protected writes, stale-target use, failed update with a
   success claim). Does not launch a native session.
-- `Distribution/tests/adr-awareness/native-case-selection.sh` — listing prints the inventory with zero
+- `Distribution/evaluation/tests/adr-awareness/native-case-selection.sh` — listing prints the inventory with zero
   sentinel agent calls; invalid input exits nonzero before fixtures; default
   no-argument wrapper checks run independently.
-- `Distribution/tests/native-harness/native-result-retention.sh` — selected context runs with recorded PATH
+- `Distribution/evaluation/tests/native-harness/native-result-retention.sh` — selected context runs with recorded PATH
   substitutes keep an inspectable unreviewed attempt after scratch cleanup.
   Every host's complete stream records shared behavior assessment with its
   events and response. Cursor runtime identity comes from
   `cursor agent --version`. An unwritable
   `--results-dir` launches nothing. Explicit `--deadline`/`--grace` on a success
   path are accepted; omitted flags use the defaults.
-- `Distribution/tests/native-harness/native-evidence-identity.sh` — in a scratch copy of the source, every
+- `Distribution/evaluation/tests/native-harness/native-evidence-identity.sh` — in a scratch copy of the source, every
   retained evidence identity's `input-hash` lines change when any native
   supervision input changes, and every identity takes those inputs from the
   one list in `native-run-supervise.sh`. Every `src/` guidance or command input
   an identity lists changes it, and the owned-context, trunk-closure, and
   Story Branch closure identities list the Land, retirement, exploration,
   default-checkout, and closure inputs their journeys exercise.
-- `Distribution/tests/git-publication/git-publication-fixture-identity.sh` — each Git publication fixture
+- `Distribution/evaluation/tests/git-publication/git-publication-fixture-identity.sh` — each Git publication fixture
   family identity (startup, admission, one-shot, owned-context) lists the
   helpers its fixture reaches and the installer inputs, changes when one of
   them changes, never follows imports inside generated project source, and
   fails without a retained record when a required input cannot be read.
-- `Distribution/tests/native-harness/native-run-timeout.sh` — a hang substitute starts a child, emits
+- `Distribution/evaluation/tests/native-harness/native-run-timeout.sh` — a hang substitute starts a child, emits
   partial output, and ignores SIGTERM. Selected context with a short
   `--deadline`/`--grace` returns 124 within that bound plus cleanup slack;
   owned pids are gone; partial evidence remains; `result-path:` is printed; a
   previously completed attempt stays byte-identical; the invocation log has one
   launch and no retry.
-- `Distribution/tests/native-harness/native-runner-failures.sh` — missing executable, nonzero launch, and
+- `Distribution/evaluation/tests/native-harness/native-runner-failures.sh` — missing executable, nonzero launch, and
   denied-operation fixtures return nonpassing selected-context records with
   available stderr/reason; `result-path:` is printed; scratch is gone; a
   previously completed attempt stays byte-identical; the invocation log has no
   retry. When Cursor Agent version cannot be obtained, the record stores
   `native-version: unknown` and does not call `cursor --version`.
-- `Distribution/tests/native-harness/native-stream-completeness.sh` — per-host truncated and
+- `Distribution/evaluation/tests/native-harness/native-stream-completeness.sh` — per-host truncated and
   missing-terminal recorded streams through the selected context entry point.
   Incomplete evidence with process exit 0 is retained as nonpassing with a
   reason and raw artifacts, including unknown event shapes. Incomplete
   execution is not recorded as a wording pass. Substitutes log every invocation.
-- `Distribution/tests/delivery-evidence/native-delivery-updated-use.sh` — Codex `--native --case
+- `Distribution/evaluation/tests/delivery-evidence/native-delivery-updated-use.sh` — Codex `--native --case
   delivery/updated-use` with a PATH substitute performs a real local fixture
   ordinary no-URL update from recorded `SOURCE`, then emits recorded use
   evidence. Both stages stay in one attempt after scratch cleanup. Ordinary
@@ -187,7 +187,7 @@ native invocation or behavior.
   the successful update and the use failure. The invocation log has no
   retry. Supervisor `--deadline`/`--grace` are accepted on the
   selected path.
-- `Distribution/tests/delivery-evidence/native-delivery-updated-use-adapters.sh` — Cursor and Claude Code
+- `Distribution/evaluation/tests/delivery-evidence/native-delivery-updated-use-adapters.sh` — Cursor and Claude Code
   `--native --case delivery/updated-use` through the same shared journey. Each
   adapter records Agent/`claude --version` identity, `--output-format
   stream-json` launches, decoded `type:result` responses, and retained stage

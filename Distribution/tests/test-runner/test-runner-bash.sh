@@ -15,7 +15,7 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 fixture="${temporary_dir}/source"
 assertion_check=Distribution/tests/assertions/assertion.sh
-mkdir -p -- "${fixture}/${assertion_check%/*}" "${fixture}/scripts" "${temporary_dir}/bin"
+mkdir -p -- "${fixture}/${assertion_check%/*}" "${fixture}/scripts" "${fixture}/Distribution/evaluation/tests" "${temporary_dir}/bin"
 copy_runner "${fixture}"
 markers="${temporary_dir}/markers"
 mkdir -p -- "${markers}"

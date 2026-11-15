@@ -118,4 +118,4 @@ if [[ -n ${results_dir_arg} || -n ${scenario_arg} ]]; then
   exit 2
 fi
 
-exec bash "${source_dir}/Distribution/tests/delivery-evidence/proof-scheduling-native.sh"
+exec bash "${source_dir}/Distribution/evaluation/tests/delivery-evidence/proof-scheduling-native.sh"
