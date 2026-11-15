@@ -1,22 +1,25 @@
 // A disposed socket cannot control a later mounted attachment of the same request.
 import { mkdirSync, readFileSync } from "node:fs";
-import { test, expect } from "../support/codexLaunch.ts";
-import { storyCardSessions } from "../dashboardPage.ts";
+import { test, expect } from "../../dashboard/tests/support/codexLaunch.ts";
+import { storyCardSessions } from "../../dashboard/tests/dashboardPage.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
   type StoryColumnsJourney,
-} from "../launchJourney.ts";
-import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import { save, retained } from "../support/retainedReport.ts";
-import { launchStoreFile } from "../support/launchStore.ts";
-import { codexAttaches } from "../support/codexTerminal.ts";
-import { finalReportParts } from "../finalReportPages.ts";
+} from "../../dashboard/tests/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+import {
+  save,
+  retained,
+} from "../../dashboard/tests/support/retainedReport.ts";
+import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
+import { codexAttaches } from "../../dashboard/tests/support/codexTerminal.ts";
+import { finalReportParts } from "../../dashboard/tests/finalReportPages.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;

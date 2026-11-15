@@ -1,21 +1,30 @@
 // Mark as done on a Recently done entry of a recorded Claude session whose
 // workspace is retired: where a press finds it, and the rename it retries.
 
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
-import { terminalPanel } from "../terminalScreenPage.ts";
+import { sessionActions } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
 import { rmSync } from "node:fs";
-import { test, expect } from "../dashboardTest.ts";
-import { stored } from "../support/codexLaunch.ts";
-import { parts, sessionProblemOf } from "../dashboardPage.ts";
+import { test, expect } from "../../dashboard/tests/dashboardTest.ts";
+import { stored } from "../../dashboard/tests/support/codexLaunch.ts";
+import {
+  parts,
+  sessionProblemOf,
+} from "../../dashboard/tests/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
-} from "../launchJourney.ts";
-import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import { recordedClaude as recorded, save } from "../support/retainedReport.ts";
-import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
-import { markAsDone, markDone } from "../support/markDone.ts";
-import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
+} from "../../dashboard/tests/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+import {
+  recordedClaude as recorded,
+  save,
+} from "../../dashboard/tests/support/retainedReport.ts";
+import { untilPageRequestsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
+import {
+  markAsDone,
+  markDone,
+} from "../../dashboard/tests/support/markDone.ts";
+import { holdAuthenticatedReadsWhere } from "../../dashboard/tests/holdAuthenticatedReads.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {

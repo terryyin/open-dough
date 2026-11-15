@@ -2,30 +2,39 @@ import {
   readFinalReportControl,
   finalReportParts,
   readFinalReport,
-} from "../finalReportPages.ts";
-import { closeSidePanel } from "../sidePanelFrame.ts";
+} from "../../dashboard/tests/finalReportPages.ts";
+import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // Outside-in review through the real store, HTTP/native boundary and browser.
 import { existsSync, readFileSync } from "node:fs";
-import { test, expect, stored } from "../support/codexLaunch.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../dashboard/tests/support/codexLaunch.ts";
 import {
   expectProjectChoice,
   chooseProject,
   parts,
   sessionEntriesIn,
   storyCardSessions,
-} from "../dashboardPage.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
   type StoryColumnsJourney,
-} from "../launchJourney.ts";
-import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import { report, save, retained, passive } from "../support/retainedReport.ts";
-import { launchStoreFile } from "../support/launchStore.ts";
-import { reloadUntilRead } from "../pageRequestNotes.ts";
-import { expectSelected } from "../storyCardSelection.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { openTerminalControl } from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+import {
+  report,
+  save,
+  retained,
+  passive,
+} from "../../dashboard/tests/support/retainedReport.ts";
+import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
+import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { expectSelected } from "../../dashboard/tests/storyCardSelection.ts";
+import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
+import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;

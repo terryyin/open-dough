@@ -3,13 +3,10 @@
 61.9	tests/sessions/sessions-sidebar-navigation-cases.spec.ts
 51.6	tests/terminals/session-terminal-voice-lifecycle.spec.ts
 43.2	tests/terminals/session-terminal-voice-recovery.spec.ts
-39.2	tests/sessions/final-report-touch.spec.ts
 38.4	tests/sessions/sessions-sidebar-host-status.spec.ts
 33.1	tests/terminals/agent-terminal-touch-keys.spec.ts
 31.9	tests/sessions/sessions-sidebar-reading.spec.ts
 31.9	tests/sessions/sessions-sidebar-stays-as-left.spec.ts
-29.0	tests/sessions/session-workspace-retirement-claude-done.spec.ts
-28.7	tests/sessions/session-workspace-retirement.spec.ts
 28.7	tests/terminals/agent-terminal-touch-paste.spec.ts
 26.5	tests/terminals/session-terminal-prompts.spec.ts
 26.3	tests/sessions/recently-done-sessions-sidebar-paging.spec.ts
@@ -18,7 +15,6 @@
 23.2	tests/sessions/cursor-sessions-sidebar-resize-lasting.spec.ts
 22.3	tests/sessions/cursor-sessions-sidebar-size-unkept.spec.ts
 22.3	tests/terminals/session-terminal-voice.spec.ts
-21.5	tests/sessions/final-report-touch-divider.spec.ts
 20.6	tests/sessions/cursor-sessions-sidebar-size-kept.spec.ts
 19.9	tests/terminals/agent-launch-ad-hoc-terminal.spec.ts
 18.7	tests/terminals/agent-terminal-touch-keyboard-fit.spec.ts
@@ -44,7 +40,6 @@
 10.8	tests/terminals/agent-terminal-touch-composer.spec.ts
 10.5	tests/sessions/recently-done-sessions-sidebar.spec.ts
 9.6	tests/sessions/sessions-sidebar-row.spec.ts
-8.8	tests/sessions/session-workspace-retirement-lifetime.spec.ts
 6.9	tests/terminals/agent-terminal-ended-input-recovery.spec.ts
 5.5	tests/sessions/recently-done-story-sessions.spec.ts
 4.9	tests/sessions/recently-done-sessions-sidebar-touch.spec.ts

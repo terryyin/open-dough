@@ -1,33 +1,42 @@
+// Persistence, native passivity and Done rename for unfinished retained reports.
+// Touch/focus UI against controlled answers: dashboard/frontend-tests/sessions/final-report-touch.spec.ts.
 import {
   closeSidePanel,
   control,
   expectTitleOnOneCutLine,
-} from "../sidePanelFrame.ts";
+} from "../../dashboard/tests/sidePanelFrame.ts";
 // Retained unfinished reports use the real page/store/native boundary. The
 // vendor fixture supplies history only; coordinates and finger strokes prove access.
 import { existsSync } from "node:fs";
-import { test, expect, stored } from "../support/codexLaunch.ts";
-import { parts } from "../dashboardPage.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../dashboard/tests/support/codexLaunch.ts";
+import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
-} from "../launchJourney.ts";
-import { report, passive } from "../support/retainedReport.ts";
+} from "../../dashboard/tests/launchJourney.ts";
+import {
+  report,
+  passive,
+} from "../../dashboard/tests/support/retainedReport.ts";
 import {
   openUnfinishedReport,
   title,
   sessionId,
-} from "../support/reportTouchJourney.ts";
+} from "../../dashboard/tests/support/reportTouchJourney.ts";
 import {
   readReportByTouch,
   reportGeometry,
-} from "../support/reportTouchPage.ts";
+} from "../../dashboard/tests/support/reportTouchPage.ts";
 import {
   expectTopBarsShareHeight,
   tapWhereShown,
   pressWhereShown,
-} from "../pageLayout.ts";
-import { resizeUntilArranged } from "../sidePanelWidthPage.ts";
+} from "../../dashboard/tests/pageLayout.ts";
+import { resizeUntilArranged } from "../../dashboard/tests/sidePanelWidthPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;

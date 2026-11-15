@@ -2,6 +2,7 @@
 
 **Identity:** SEED-334#finish-dissolving-integrated-ui-test
 **Source:** [Move session, terminal, story and observation checks out of Dashboard Integrated UI Test](../../seeds/SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal, scope and decisions
 
@@ -90,16 +91,35 @@ share local admission across worktrees; focused selections remain independent.
 - **Substitutes to reuse** under `dashboard/tests/support/`:
   `frontendSettingsSubstitutes.ts`, `frontendLaunchSubstitutes.ts`,
   `frontendLaunchAttempts.ts`, `frontendTranscriptionSubstitutes.ts`,
-  `frontendSessionActions.ts`, `frontendCardSessions.ts`, with held answers
-  through `frontendSubstituteAnswers.ts` (`holdAnswer`/`answerHeld`, ended at
-  teardown) and story arrangements through `frontendServiceState.ts`
-  (`putFrontendStories`, `frontendStoryLaunch`). The default substitutes
-  answer a moved revision on `since` and the `at` stream.
-  `frontendServiceState.ts` (240 lines) and `frontendServiceSubstitutes.ts`
-  (244) are near the 250-line limit: reorganize them by responsibility before
-  adding the session, terminal and review answers later slices need. The new
-  Frontend and E2E spec files have no duration-list rows until CI timing is
-  refreshed.
+  `frontendSessionActions.ts`, `frontendCardSessions.ts`,
+  `frontendFinalReportSubstitutes.ts` / `frontendFinalReportSession.ts`
+  (`installFrontendFinalReport` with `holdNext`/`answerNext` per session),
+  with held answers through `frontendSubstituteAnswers.ts`
+  (`holdAnswer`/`answerHeld`, ended at teardown) and story arrangements
+  through `frontendServiceState.ts` (`putFrontendStories`,
+  `frontendStoryLaunch`) plus `frontendPublishedFixtures.ts`. Authenticated
+  read and terminal install live in
+  `frontendAuthenticatedReadSubstitute.ts` and
+  `frontendTerminalSubstitute.ts`. The default substitutes answer a moved
+  revision on `since` and the `at` stream. After slice 1,
+  `frontendServiceState.ts` (~129) and `frontendServiceSubstitutes.ts` (~98)
+  are under the 250-line limit; keep new session/terminal/review answer
+  families in their own modules. The new Frontend and E2E spec files have no
+  duration-list rows until CI timing is refreshed.
+- **Slice 1 proof.** FE:
+  `dashboard/frontend-tests/sessions/final-report-touch{,-divider}.spec.ts`,
+  `session-workspace-retirement-held-report.spec.ts` (focused FE 6–8 passed;
+  Escape/`mark` scratch break failed then restored). E2E:
+  `e2e/sessions/final-report-done-native.spec.ts`,
+  `session-workspace-retirement{,-claude-done,-lifetime}.spec.ts` (9 passed).
+  Existing Backend final-report and retirement homes reused. Interim five
+  specs and their `integrated.longest-first-agents` rows removed. Held
+  `/result` cancellation needs `holdNext(session)` plus
+  `answerNext(..., otherSession)` on the same substitute.
+- **Discrimination sequencing.** Run the representative scratch break on the
+  interim home before deleting it, then again on the new home; slice 1
+  demonstrated the new-home break after interim removal with matching
+  Escape→`mark` assertion text.
 - **Known traps.** A `MachineAnswer` failing `launchRecordsSchema` leaves the
   page on "Reading sessions…" silently; Cursor entries need the Cursor runner
   sessions read substituted; a history read needs its own `audience=history`
@@ -118,7 +138,7 @@ about 2.5–3k lines per slice.
 
 ### 1. Convert final report and workspace retirement
 Type: Behavior
-Status: planned
+Status: done
 Proof: `final-report-touch{,-divider}` and
 `session-workspace-retirement{,-claude-done,-lifetime}` (5 / 744) retain
 report reading, focus, confirmation, stale-answer and passive native/store

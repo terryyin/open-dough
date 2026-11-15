@@ -1,14 +1,11 @@
-// The report scrolls inside its frame; the existing resize strip and its
-// available grab area stay on that frame.
-import { test, expect } from "../support/codexLaunch.ts";
-import {
-  publishStoryColumnsJourney,
-  type StoryColumnsJourney,
-} from "../launchJourney.ts";
-import { openUnfinishedReport } from "../support/reportTouchJourney.ts";
-import { readReportByTouch } from "../support/reportTouchPage.ts";
-import { passive } from "../support/retainedReport.ts";
-import { box } from "../pageLayout.ts";
+// The report scrolls inside its frame; the resize strip and its grab area
+// stay on that frame after touch reading, against a controlled report answer.
+
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { openFrontendUnfinishedReport } from "../../tests/support/frontendFinalReportSession.ts";
+import { finalReportParts } from "../../tests/finalReportPages.ts";
+import { readReportByTouch } from "../../tests/support/reportTouchPage.ts";
+import { box } from "../../tests/pageLayout.ts";
 import {
   dividerHitTarget,
   dragDivider,
@@ -17,14 +14,9 @@ import {
   keyStep,
   panelDivider,
   pressDividerKey,
-} from "../sidePanelWidthPage.ts";
+} from "../../tests/sidePanelWidthPage.ts";
 
-test.use({ projectFolders: ["open-dough"], hasTouch: true });
-let journey: StoryColumnsJourney;
-test.beforeAll(async () => {
-  journey = await publishStoryColumnsJourney();
-});
-test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
+test.use({ hasTouch: true });
 
 for (const { name, viewport, lines } of [
   { name: "landscape", viewport: { width: 844, height: 390 }, lines: 20 },
@@ -34,29 +26,19 @@ for (const { name, viewport, lines } of [
     test.use({ viewport });
     test("keeps the report divider reachable after touch reading and resizes the same report", async ({
       page,
-      dashboard,
-      codexProtocol,
+      frontendServices,
     }) => {
       const text = `${Array.from(
         Array(lines).keys(),
         (line) => `Read native report line ${line}.`,
       ).join("\n")}\nReport ending.`;
-      const {
-        panel,
-        reportText,
-        reportScroll,
-        shownSessionId,
-        native,
-        since,
-        state,
-      } = await openUnfinishedReport(
-        page,
-        dashboard,
-        codexProtocol,
-        journey,
+      await openFrontendUnfinishedReport(page, frontendServices, {
+        kind: "available",
+        turnId: "divider-report-turn",
         text,
-      );
-      const initial = state();
+      });
+      const { panel, reportText, reportScroll, shownSessionId } =
+        finalReportParts(page);
       const divider = panelDivider(panel, { exact: false });
       const before = await box(divider);
       const reachesDivider = (fraction: number) =>
@@ -68,8 +50,6 @@ for (const { name, viewport, lines } of [
       expect(
         await reportScroll.evaluate((element) => element.scrollTop),
       ).toBeGreaterThan(0);
-      // Narrow-page column paging can occupy the exterior half already.
-      // Reading preserves that arrangement and the inner half's hit target.
       expect(await reachesDivider(0.25)).toBe(externalHit);
       expect(await reachesDivider(0.75)).toBe(true);
       const width = (await box(panel)).width;
@@ -80,8 +60,6 @@ for (const { name, viewport, lines } of [
       await expectWidth(panel, width + 20 - keyStep);
       await expect(shownSessionId).toHaveCount(0);
       await expect(reportText).toHaveText(text);
-      expect(state()).toEqual(initial);
-      passive(native, since);
     });
   });
 }
