@@ -27,7 +27,6 @@
 19.6	tests/intent/intent-home-activation.spec.ts
 19.6	tests/navigation/story-reference-navigation.spec.ts
 19.3	tests/intent/intent-reading-place.spec.ts
-19.1	tests/intent/intent-scope-timing-history-gaps.spec.ts
 19.0	tests/navigation/development-intent-frame.spec.ts
 18.1	tests/intent/intent-done-project-refresh-reading.spec.ts
 18.1	tests/navigation/accessible-board-keyboard.spec.ts
@@ -42,7 +41,6 @@
 15.4	tests/intent/intent-done-review-modes.spec.ts
 15.4	tests/navigation/side-panel-width-covering.spec.ts
 15.3	tests/navigation/story-reference-done-cancellation.spec.ts
-15.0	tests/intent/intent-scope-timing-history-gap-build.spec.ts
 14.8	tests/navigation/story-reference-recovery.spec.ts
 14.7	tests/intent/intent-test-optimization-candidates-case.spec.ts
 14.2	tests/intent/intent-ci-done-reference-lifecycle.spec.ts
@@ -56,9 +54,7 @@
 12.1	tests/navigation/board-paging-sessions-sidebar.spec.ts
 12.0	tests/intent/intent-done-project-refresh-proof.spec.ts
 11.2	tests/intent/intent-revision-update-boundaries.spec.ts
-11.1	tests/intent/intent-scope-timing-history-legacy.spec.ts
 11.1	tests/navigation/story-card-selection.spec.ts
-10.6	tests/intent/intent-scope-timing-history-provenance.spec.ts
 10.3	tests/navigation/board-clamp.spec.ts
 10.3	tests/navigation/frame-sessions-look.spec.ts
 10.0	tests/intent/intent-test-optimization-candidates-states.spec.ts

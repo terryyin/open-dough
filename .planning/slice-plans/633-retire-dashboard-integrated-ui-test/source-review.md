@@ -8,70 +8,70 @@ Input: the story's Goal, Scope, Scope limits and Key examples verbatim from `.pl
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | C1.1 | Maintainer runs CI status checks at their owning boundaries | slice 2 | observed: dashboard/frontend-tests/intent/intent-ci-status-*.spec.ts (presentation, 14 cases) + e2e/intent/intent-ci-status.spec.ts judgmentCalls + backend-tests/intent/intent-ci-status-read-boundary.spec.ts |
-| C1.2 | Maintainer runs timing checks at their owning boundaries | slice 5 |  |
-| C1.3 | Maintainer runs proof checks at their owning boundaries | slice 6 |  |
-| C1.4 | Maintainer runs comparison checks at their owning boundaries | slice 7 |  |
-| C1.5 | Maintainer runs optimization-candidate checks at their owning boundaries | slice 9 |  |
-| C2 | Every distinct assertion is kept outside Dashboard Integrated UI Test (assertions, not names or counts) | slice 9 |  |
-| C3 | The change shrinks the remaining mixed test tier | slice 9 |  |
-| C4 | Intent's CI evidence stays trustworthy | slice 9 |  |
-| C5 | No speed improvement is claimed without measurement (claim limit, not a target) | slice 9 |  |
+| C1.2 | Maintainer runs timing checks at their owning boundaries | slice 6 |  |
+| C1.3 | Maintainer runs proof checks at their owning boundaries | slice 7 |  |
+| C1.4 | Maintainer runs comparison checks at their owning boundaries | slice 8 |  |
+| C1.5 | Maintainer runs optimization-candidate checks at their owning boundaries | slice 10 |  |
+| C2 | Every distinct assertion is kept outside Dashboard Integrated UI Test (assertions, not names or counts) | slice 10 |  |
+| C3 | The change shrinks the remaining mixed test tier | slice 10 |  |
+| C4 | Intent's CI evidence stays trustworthy | slice 10 |  |
+| C5 | No speed improvement is claimed without measurement (claim limit, not a target) | slice 10 |  |
 | C6.1 | Convert `intent-ci-status-*` specs | slice 2 | observed: all seven intent-ci-status-* interim specs deleted and their duration rows removed; integrated --list 215 tests/106 files |
 | C6.2 | Convert `intent-ci-wall-time-history*` specs | slice 4 | observed: all four intent-ci-wall-time-history* interim specs deleted; homes dashboard/frontend-tests/intent/intent-ci-wall-time-history{,-order,-gaps,-window}.spec.ts and backend-tests/intent/landed-ci-history-read-window.spec.ts; integrated 102 files |
-| C6.3 | Convert `intent-scope-*` specs | slice 5 |  |
-| C6.4 | Convert `intent-ci-proof*` specs | slice 6 |  |
-| C6.5 | Convert `intent-ci-comparison-*` specs | slice 7 |  |
-| C6.6 | Convert `intent-summary-*` specs | slice 7 |  |
-| C6.7 | Convert `intent-test-optimization-candidates*` specs (35 total across families) | slice 9 |  |
+| C6.3 | Convert `intent-scope-*` specs | slice 6 |  |
+| C6.4 | Convert `intent-ci-proof*` specs | slice 7 |  |
+| C6.5 | Convert `intent-ci-comparison-*` specs | slice 8 |  |
+| C6.6 | Convert `intent-summary-*` specs | slice 8 |  |
+| C6.7 | Convert `intent-test-optimization-candidates*` specs (35 total across families) | slice 10 |  |
 | C7.1 | HTTP refusal assertions sit at the Backend boundary | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: five malformed queries and two kept forms each expect 400 via rawRequest against startDashboardServer(developmentBoundary) |
 | C7.2 | Request accounting assertions sit at the Backend boundary | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: judgmentCalls(server.github.calls.slice(before)) toEqual [] after refusals and exactly three calls after fresh/kept reads |
-| C7.3 | Acquisition assertions sit at the Backend boundary | slice 6 |  |
-| C7.4 | Storage assertions sit at the Backend boundary | slice 6 |  |
+| C7.3 | Acquisition assertions sit at the Backend boundary | slice 7 |  |
+| C7.4 | Storage assertions sit at the Backend boundary | slice 7 |  |
 | C7.5 | Controlled service answers sit at Frontend | slice 2 | observed: dashboard/tests/support/frontendCiStatusAnswers.ts serves fresh/kept/failed/held intent=ci-status answers to dashboard/frontend-tests/intent/intent-ci-status-*.spec.ts |
 | C7.6 | Actual rendering or interaction sits at Frontend | slice 2 | observed: dashboard/frontend-tests/intent/intent-ci-status-sort.spec.ts Tab/Enter/Space sorting, -homepage click/Enter/Space return home, -side-panel, -freshness kept cue |
-| C7.7 | Representative real-server workflows sit in E2E (representative, not every case) | slice 9 |  |
-| C8 | Mixed cases are split by their assertions, including negative effects | slice 9 |  |
-| C9 | Each distinct regression is preserved; names or counts alone do not meet this | slice 9 |  |
+| C7.7 | Representative real-server workflows sit in E2E (representative, not every case) | slice 10 |  |
+| C8 | Mixed cases are split by their assertions, including negative effects | slice 10 |  |
+| C9 | Each distinct regression is preserved; names or counts alone do not meet this | slice 10 |  |
 | C10.1 | read-boundary converts directly to Backend without browser, keeping the malformed-branch refusal | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: judged=main..other, has%20space, main&judged=other and branch=main expect 400, then asked() toEqual [] |
 | C10.2 | … keeping the malformed-revision refusal | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: revision=<pinned> expects 400, then asked() toEqual [] |
 | C10.3 | … keeping the malformed-kept refusal | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: kept=yes and kept=1&kept=1 expect 400, and final asked() still equals the three calls |
 | C10.4 | … keeping the fresh-unread answer | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: intent=ci-status → 200 toMatchObject {branch:main,state:unread,freshness:fresh} |
 | C10.5 | … keeping the kept-none answer | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: kept=1 → 200 toEqual {none:true} with no extra judgment calls |
 | C10.6 | … keeping the exact assertions about additional GitHub calls | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: asked() toEqual [actions-runs, actions-workflow, commit-list main] after fresh read and again after kept reads |
-| C11 | The omitted-attempt refusal in `intent-ci-proof.spec.ts` also moves to that Backend home | slice 6 |  |
-| C12 | Before a migrated case is deleted, its assertions are accounted for in named maintained homes | slice 9 |  |
+| C11 | The omitted-attempt refusal in `intent-ci-proof.spec.ts` also moves to that Backend home | slice 7 |  |
+| C12 | Before a migrated case is deleted, its assertions are accounted for in named maintained homes | slice 10 |  |
 | C13.1 | A representative changed proof boundary catches the scratch break before conversion | slice 1 | observed: PLAN Premises row: old integrated spec failed at pinned revision (expected 400, got 200) with revision refusal removed from parseIntentCiStatusRead |
 | C13.2 | It catches the same break after conversion | slice 1 | observed: slice 1 return: same scratch removal of params.get("revision") refusal failed dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts at revision query, Expected 400 Received 200 |
 | C13.3 | It passes once the break is restored | slice 1 | observed: slice 1 return: restored dashboard/server/intentCiStatusRead.ts, dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts passed (1 passed) |
-| C14.1 | Shared helpers stay usable | slice 9 |  |
-| C14.2 | Current runner support stays usable | slice 9 |  |
-| C14.3 | Historical proof stays usable | slice 9 |  |
-| C15 | Removal is limited to converted specs and their interim duration-list entries | slice 9 |  |
-| C16 | Intent source/review/revision and navigation conversion/retirement are left to the two later stories | slice 9 |  |
+| C14.1 | Shared helpers stay usable | slice 10 |  |
+| C14.2 | Current runner support stays usable | slice 10 |  |
+| C14.3 | Historical proof stays usable | slice 10 |  |
+| C15 | Removal is limited to converted specs and their interim duration-list entries | slice 10 |  |
+| C16 | Intent source/review/revision and navigation conversion/retirement are left to the two later stories | slice 10 |  |
 | C17.1 | Malformed CI-status branch at the real Backend → HTTP 400 and no extra GitHub request | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: judged=main..other, has%20space, main&judged=other and branch=main expect 400, then asked() toEqual [] |
 | C17.2 | Same for a malformed pinned revision | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: revision=<pinned> expects 400, then asked() toEqual [] |
 | C17.3 | Same for a malformed kept form | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: kept=yes and kept=1&kept=1 expect 400, and final asked() still equals the three calls |
 | C17.4 | Fresh unread still returns its previous answer | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: intent=ci-status → 200 toMatchObject {branch:main,state:unread,freshness:fresh} |
 | C17.5 | Kept-none still returns its previous answer | slice 1 | observed: dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts: kept=1 → 200 toEqual {none:true} with no extra judgment calls |
-| C18.1 | Mixed CI proof case: Frontend observes actual presentation using controlled service answers | slice 6 |  |
-| C18.2 | Backend or E2E keeps the real parsing | slice 6 |  |
-| C18.3 | Backend or E2E keeps the real acquisition | slice 6 |  |
-| C18.4 | Backend or E2E keeps the real refusal | slice 6 |  |
-| C18.5 | Backend or E2E keeps the request counts | slice 6 |  |
-| C19.1 | Comparison scope navigation / candidate opens Purpose: maintained homes observe values | slice 7 |  |
-| C19.2 | … observe gaps | slice 7 |  |
-| C19.3 | … observe source pinning | slice 7 |  |
-| C19.4 | … observe keyboard behavior | slice 7 |  |
-| C19.5 | … observe reading position | slice 8 |  |
-| C20 | Converted interim specs and their timing rows are removed | slice 9 |  |
-| C21 | All remaining Intent and navigation cases still run in the interim group | slice 9 |  |
-| X1 | Exclusion: no conversion/retirement of Intent source/review/revision | slice 9 |  |
-| X2 | Exclusion: no conversion/retirement of navigation | slice 9 |  |
-| X3 | Exclusion: no new test tier | slice 9 |  |
-| X4 | Exclusion: no product behavior change | slice 9 |  |
-| X5 | Exclusion: no speed target | slice 9 |  |
-| X6 | Exclusion: no shard-count target | slice 9 |  |
-| X7 | Exclusion: no tagged-install proof | slice 9 |  |
-| X8 | Exclusion: no E2E renaming | slice 9 |  |
-| X9 | Exclusion: remove nothing beyond converted specs and their interim duration-list entries | slice 9 |  |
-| X10 | Exclusion: no speed-improvement claim without measurement | slice 9 |  |
+| C18.1 | Mixed CI proof case: Frontend observes actual presentation using controlled service answers | slice 7 |  |
+| C18.2 | Backend or E2E keeps the real parsing | slice 7 |  |
+| C18.3 | Backend or E2E keeps the real acquisition | slice 7 |  |
+| C18.4 | Backend or E2E keeps the real refusal | slice 7 |  |
+| C18.5 | Backend or E2E keeps the request counts | slice 7 |  |
+| C19.1 | Comparison scope navigation / candidate opens Purpose: maintained homes observe values | slice 8 |  |
+| C19.2 | … observe gaps | slice 8 |  |
+| C19.3 | … observe source pinning | slice 8 |  |
+| C19.4 | … observe keyboard behavior | slice 8 |  |
+| C19.5 | … observe reading position | slice 9 |  |
+| C20 | Converted interim specs and their timing rows are removed | slice 10 |  |
+| C21 | All remaining Intent and navigation cases still run in the interim group | slice 10 |  |
+| X1 | Exclusion: no conversion/retirement of Intent source/review/revision | slice 10 |  |
+| X2 | Exclusion: no conversion/retirement of navigation | slice 10 |  |
+| X3 | Exclusion: no new test tier | slice 10 |  |
+| X4 | Exclusion: no product behavior change | slice 10 |  |
+| X5 | Exclusion: no speed target | slice 10 |  |
+| X6 | Exclusion: no shard-count target | slice 10 |  |
+| X7 | Exclusion: no tagged-install proof | slice 10 |  |
+| X8 | Exclusion: no E2E renaming | slice 10 |  |
+| X9 | Exclusion: remove nothing beyond converted specs and their interim duration-list entries | slice 10 |  |
+| X10 | Exclusion: no speed-improvement claim without measurement | slice 10 |  |
