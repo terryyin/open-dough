@@ -40,7 +40,7 @@ Under [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md), co
 
 The first retains the Preparing identity and queue position for Terry's concrete example. Queue the rest directly after it: Intent aligns with the backlog's Purpose/proof direction; review increases topology risk; delivery, launches and runtime follow. Preserve unrelated order and Taken ownership. Shared code creates no blocking dependency; each outcome remains useful if later work is cancelled.
 
-Only the first is refined/planned. Later stories resume through story refinement; no mapped original slices require provisional plans. Indirect setup and defaults belong to the receiving scenario purpose, including newly discovered candidates. No general S/M/L bands are established (SEED-345's concern host workflows), so none are invented. The first is the smallest inspected proof loop; completed histories and runtime isolation have broader setup risk.
+At the split, only the first was refined/planned. Subsequent stories resume through story refinement; no mapped original slices require provisional plans. Indirect setup and defaults belong to the receiving scenario purpose, including newly discovered candidates. No general S/M/L bands are established (SEED-345's concern host workflows), so none are invented. The first is the smallest inspected proof loop; completed histories and runtime isolation have broader setup risk.
 
 ## Existing solution and evidence
 
@@ -88,18 +88,56 @@ independent of later migration. No speedup claim or open human decision.
 
 **Identity:** SEED-353#declare-intent-comparison-histories
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/643-declare-intent-comparison-histories/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fcde2a4e2f7f6b65ed6532a228ce66c98f29bb6ed6f891893e227cbadd1922bd","plan":"bd6372600d0cd042a789851f159aa2f92f5b389398940d78bf57b21ab37a6181"}}
 ```
 
-**For / why.** A developer can read the compared revisions, proof sources and
-build provenance directly in Intent scenarios across backend, E2E and remaining
-integrated tests. Include indirect `storyCiComparison*`, retained-Intent and
-completed-Intent setup; reuse completed-history owners instead of duplicating them.
-**Evaluation.** Named compared revisions and their actual workflow/configuration
-bytes yield the same displayed or HTTP proof, source-selection and timing rows;
-later publication after an observation remains a visible action.
-**Safe stopping point.** Intent construction is readable with unchanged independent
-CI/source/proof assertions; other review/launch families need not migrate first.
+**Goal.** A developer reads the repository facts explaining Intent's compared
+revisions, selected source and build provenance directly, without reconstructing
+routine Git setup. This makes Purpose and CI proof easier to maintain together.
+
+**Scope.** Migrate direct and indirect Intent/CI comparison, completed/retained
+Intent, Summary comparison and timing-history arrangement across backend, E2E
+and remaining integrated tests. Include `storyCiComparison*`,
+`intentCompletedStory`, retained-Intent, summary and scope-history callers and
+their incidental identity wiring. Use the shared MakeMe repository facts and
+existing completed-history owners for files, configuration/workflow bytes,
+authorship, ordered parents, named endpoints and starting workspace state.
+Extend those owners for demonstrated gaps; preserve deferred preparation,
+prepared-prefix/worker reuse, private mutable copies and independent assertions.
+
+Keep publication after an observation, actual completion/capture under proof,
+ref movement, shallow-history recovery, corruption and cleanup as visible
+actions. Preserve meaningful IDs and real returned reporting contexts. Update
+the test-data architecture guide and compare representative construction before
+and after under ADR 0010. This changes test construction, with no production
+behavior change or speedup promise. General review, completion, launch and
+recovery migrations remain with their receiving siblings; shared consumers keep
+their current proof and gain no completion claim from this story.
+
+**Key examples.**
+
+- Given a named built baseline, planning-only ancestors, claim and provisional
+  branch/trunk tip, opening Taken Intent shows the same baseline, provisional
+  identity and CI rows. Publishing a new branch head after that observation
+  remains a scenario action and triggers the same fresh read.
+- Given an owning landing merge, later completion and later trunk build, Done
+  Intent selects the original landing/branch endpoints. Each build uses its own
+  workflow bytes even when the local tip's workflow differs. Planning-only,
+  code, cancelled and proofless cases retain their distinct exact, ancestor,
+  equivalent, later-build and unavailable results.
+- Given completion-time locations and file bytes plus conflicting later trunk
+  and retained-workspace edits, Done Intent reads the immutable completion;
+  ordinary Review can still read the local edits. Missing history remains
+  unavailable until the explicit recovery action.
+- Given changed, added, removed and renamed files in nested test locations,
+  Summary and collected/retained scope history keep the same independent
+  counts, timing rows, represented landing and selected build provenance. A
+  measured file absent from the current tree still contributes to history;
+  uncollected endpoints and gaps stay visible.
+
+**Safe stopping point.** Intent construction is readable with unchanged
+CI/source/proof assertions and isolated fixtures; other review/launch families
+need not migrate first. No open human decision or blocking dependency.
 
 <a id="declare-local-worktree-review-state"></a>
 
