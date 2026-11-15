@@ -8,8 +8,9 @@ import type {
 } from "./landedCiHistory.ts";
 
 // What a pending gap waits for, said as not measured yet: a pending landing
-// has no CI wall time until collection finds it final.
-const pendingWords: Readonly<Record<PendingWait, string>> = {
+// has no CI wall time until collection finds it final. Reference exclusion for
+// an absent kept measure uses the same wait words without the Pending frame.
+export const pendingWaitWords: Readonly<Record<PendingWait, string>> = {
   run: "no CI run yet",
   build: "CI queued or running",
   "later-build": "waiting for a later trunk build",
@@ -50,6 +51,6 @@ export function gapReasonWords(
   )
     return gap.explanation ?? finalWords[gap.reason];
   return gap.reason === "pending"
-    ? `Pending · ${pendingWords[gap.waitsFor]}`
+    ? `Pending · ${pendingWaitWords[gap.waitsFor]}`
     : finalWords[gap.reason];
 }

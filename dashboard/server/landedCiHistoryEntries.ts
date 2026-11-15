@@ -13,7 +13,10 @@
 // keeping the run attempt it names.
 
 import { hasAttemptTiming } from "../src/ciAttemptTiming.ts";
-import { historyMeasure } from "../src/ciHistoryMeasureCapability.ts";
+import {
+  historyMeasure,
+  keptMeasureReadingOf,
+} from "../src/ciHistoryMeasureCapability.ts";
 import {
   runUrlSchema,
   type LandedCiEntry,
@@ -106,9 +109,8 @@ function measureAnswerOf(
   build: KeptBuild,
   landings: readonly MeasuredLanding[],
 ): { timeMs: number } | { gaps: LandedCiGap[] } {
-  const kept = build.timeWithoutRunnerWaits;
-  if (kept !== undefined && "milliseconds" in kept)
-    return { timeMs: kept.milliseconds };
+  const kept = keptMeasureReadingOf(build.timeWithoutRunnerWaits);
+  if (kept.kind === "milliseconds") return { timeMs: kept.milliseconds };
   const named = ({
     revision,
     receivedAt,
@@ -118,7 +120,7 @@ function measureAnswerOf(
     receivedAt,
     ...(identity === undefined ? {} : { identity }),
   });
-  if (kept !== undefined && "reason" in kept)
+  if (kept.kind === "reason")
     return {
       gaps: landings.map((landing) => ({
         kind: "gap" as const,

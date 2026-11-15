@@ -20,7 +20,10 @@ import {
 } from "./ciHistoryGlance.ts";
 import { readLandingOrder } from "./launchLandingGit.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { wallTimeReferenceOf } from "./ciWallTimeReference.ts";
+import {
+  measureReferenceOf,
+  wallTimeReferenceOf,
+} from "./ciWallTimeReference.ts";
 import { historyEntries } from "./landedCiHistoryEntries.ts";
 import { readableHistoryEntries } from "./ciHistoryGapVocabulary.ts";
 import {
@@ -233,6 +236,9 @@ export async function performIntentCiHistoryRead(
       read?.gapReasons,
       read?.measure,
     ),
-    reference: wallTimeReferenceOf(history, undefined, order),
+    reference:
+      read?.measure === historyMeasure.value
+        ? measureReferenceOf(history, undefined, order)
+        : wallTimeReferenceOf(history, undefined, order),
   });
 }

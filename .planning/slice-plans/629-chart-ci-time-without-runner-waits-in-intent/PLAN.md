@@ -125,11 +125,8 @@ reads as that same pending gap. Failed and other existing gaps are unchanged.
 
 ### 3. The prior-build average comes from the measure
 Type: Behavior
-Status: planned
-Proof: Node tests for the reference rule with the measure's readings;
-backend spec for the project read's reference; `ci-done-wall-reference.spec.ts`,
-`landed-ci-follow-up-reading.spec.ts` and the follow-up policy and ledger
-tests green unchanged.
+Status: done
+Proof: `ci-prior-build-reference.test.mjs` (5×5 min / 4 min → −20%; excluded without measure); `ci-project-measure-reference.spec.ts`; `ci-done-wall-reference.spec.ts`, `landed-ci-follow-up-reading.spec.ts`, follow-up policy/ledger green. Local gates passed.
 
 Behavior: five prior builds eligible under the existing rule each keep 5 min
 without runner waits, and the latest landing's build keeps 4 min → the
@@ -241,7 +238,7 @@ Disposition: interim until slices 4
 ### G2. Prior-build average still from wall time until the measure reference
 Reported: slice 1 — "The answer's reference is still the wall-time one until slice 3."
 Story clause: "Calculate the **Prior-build average**, its sample count and evidence, and the elapsed and percentage change against it from the same measure."
-Disposition: interim until slices 3
+Disposition: proved by slice 3: ci-prior-build-reference.test.mjs and ci-project-measure-reference.spec.ts (4 min vs 5 min average −20%; Done/follow-up wall)
 
 ### G3. Measure-naming read without a kept measure time still presents wall time as a point
 Reported: slice 1 — "When measure is named but the build has no kept milliseconds, timeMs is omitted and measuredHistoryOf still presents wall time rather than a gap."
