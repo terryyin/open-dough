@@ -1,53 +1,50 @@
-import {
-  ciStatusReading,
-  expectCiAnswer,
-  chooseCiStatus,
-  ciPanel,
-  expectChecked,
-  judged,
-  judgmentCalls,
-  publishProject,
-  runUrl,
-  trunkCi,
-} from "../intentCiStatusPage.ts";
 // Intent's CI homepage shows again after a perspective switch; Optimization
 // Candidates stays chosen across Development and back; a project change
 // starts again on Intent (SEED-219 examples 2, 10). A new trunk revision
-// re-reads the homepage judgment at the new head, while time alone and
-// another branch moving read none. Candidates read at a new revision are
-// in ./intent-test-optimization-candidates-revision.spec.ts.
+// asks for the homepage judgment again, while time alone and another branch
+// moving ask for none. The
+// GitHub reads behind each judgment are ../../../e2e/intent/intent-ci-status.spec.ts
+// and ../../../e2e/intent/intent-ci-status-story.spec.ts.
 
-import { expect, test } from "../dashboardTest.ts";
-import { chooseProject, parts } from "../dashboardPage.ts";
-import { doughnut, openDough } from "../intentCodeBrowseFixtures.ts";
+import { pausePageClockAt } from "../../tests/dashboardTest.ts";
+import { chooseProject, parts } from "../../tests/dashboardPage.ts";
+import { failing } from "../../tests/intentCiStoryBoard.ts";
 import {
-  moveOpenDoughTrunk,
-  publishMovingOpenDough,
-} from "../intentMovingOpenDough.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-
+  chooseCiStatus,
+  ciPanel,
+  ciStatusReading,
+  expectChecked,
+  expectCiAnswer,
+} from "../../tests/intentCiStatusPage.ts";
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   expectIntentModeChosen,
   filesColumn,
-} from "../intentModePage.ts";
-import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
-import { pausePageClock, passTimeUntilChecked } from "../autoRefreshJourney.ts";
+} from "../../tests/intentModePage.ts";
+import {
+  openUntilRead,
+  passCheckPace,
+  untilPageReadsAnswered,
+} from "../../tests/pageRequestNotes.ts";
+import {
+  judgedCiStatus,
+  publishCiStoryBoard,
+  publishUnconfiguredDoughnut,
+  serveFrontendCiStatus,
+} from "../../tests/support/frontendCiStatusAnswers.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+
+const login = judgedCiStatus("main", "pass", "a1b2c3d", "Add login");
 
 test("CI homepage shows again across Development and back; Optimization Candidates stays chosen; a project change starts again on Intent", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  publishMovingOpenDough(page).serveCi(
-    trunkCi(openDough.revision, () => [
-      makeMe.aCiRun
-        .with({ headSha: judged, conclusion: "success", url: runUrl })
-        .please(),
-    ]),
-  );
-  publishProject(page, doughnut);
+  await publishUnconfiguredDoughnut(page, frontendServices);
+  await serveFrontendCiStatus(page, { main: login });
   await openUntilRead(page, "/?project=open-dough");
   const { intent, intentChoice, development } = parts(page);
   await intentChoice.click();
@@ -69,7 +66,7 @@ test("CI homepage shows again across Development and back; Optimization Candidat
     await expect(intent).toHaveCount(0);
     await intentChoice.click();
     await expectIntentModeChosen(intent, "Optimization Candidates");
-    await expectCandidatesRevision(intent, openDough.revision);
+    await expectCandidatesRevision(intent, frontendServices.revision);
     await expect(filesColumn(intent)).toBeHidden();
   });
 
@@ -87,19 +84,25 @@ test("CI homepage shows again across Development and back; Optimization Candidat
   });
 });
 
-test("a new trunk revision re-reads the homepage judgment at the new head; time alone and another branch moving read none", async ({
+test("a new trunk revision asks for the homepage judgment again at the new head; time alone and another branch moving ask for none", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  await pausePageClock(page);
-  const published = publishMovingOpenDough(page);
-  published.serveCi(
-    trunkCi(openDough.revision, () => [
-      makeMe.aCiRun
-        .with({ headSha: judged, conclusion: "success", url: runUrl })
-        .please(),
-    ]),
-  );
+  await pausePageClockAt(page, new Date("2026-11-05T12:00:00.000Z"));
+  // The board's failing story has a counted plan, so the page watches its
+  // branch, which is not the judged one.
+  publishCiStoryBoard(frontendServices);
+  Object.assign(frontendServices, {
+    branchHeads: { [failing.branch]: "f1".repeat(20) },
+  });
+  const moved = "f6".repeat(20);
+  let branchReads = 0;
+  page.on("request", (request) => {
+    if (new URL(request.url()).searchParams.get("branch") === failing.branch)
+      branchReads += 1;
+  });
+  const ci = await serveFrontendCiStatus(page, { main: login });
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   const panel = await chooseCiStatus(intent);
@@ -107,23 +110,21 @@ test("a new trunk revision re-reads the homepage judgment at the new head; time 
   await expectChecked(panel);
   const firstCheck =
     await ciStatusReading(panel).checkedTime.getAttribute("datetime");
-  const firstCalls = judgmentCalls(published.requests);
-  expect(firstCalls).toEqual([
-    "actions-runs",
-    "actions-workflow",
-    "commit-list main",
-  ]);
+  const firstReads = ci.reads();
 
-  await test.step("time alone and another branch moving read no judgment", async () => {
+  await test.step("time alone and another branch moving ask for no judgment", async () => {
     await untilPageReadsAnswered(page);
-    await passTimeUntilChecked(page);
-    published.moveBranch("story/unrelated-work", {
-      revision: "f6".repeat(20),
-      files: {},
+    await passCheckPace(page);
+    await passCheckPace(page);
+    const branchReadsBefore = branchReads;
+    Object.assign(frontendServices, {
+      branchHeads: { [failing.branch]: moved },
     });
-    await passTimeUntilChecked(page);
+    await passCheckPace(page);
     await untilPageReadsAnswered(page);
-    expect(judgmentCalls(published.requests)).toEqual(firstCalls);
+    // The page saw that branch move: it read the story's progress there.
+    expect(branchReads).toBeGreaterThan(branchReadsBefore);
+    expect(ci.reads()).toEqual(firstReads);
     await expect(ciStatusReading(panel).checkedTime).toHaveAttribute(
       "datetime",
       firstCheck ?? "",
@@ -132,18 +133,12 @@ test("a new trunk revision re-reads the homepage judgment at the new head; time 
 
   // The trunk moves to a head with its own Failed run.
   const head = "e8".repeat(20);
-  published.serveCi(
-    trunkCi(head, () => [
-      makeMe.aCiRun
-        .with({ headSha: head, conclusion: "failure", url: runUrl })
-        .please(),
-      makeMe.aCiRun
-        .with({ headSha: judged, conclusion: "success", url: runUrl })
-        .please(),
-    ]),
+  ci.answer(
+    "main",
+    judgedCiStatus("main", "failed", head, "Plan the next story"),
   );
-  moveOpenDoughTrunk(published, head);
-  await passTimeUntilChecked(page);
+  Object.assign(frontendServices, { revision: head });
+  await passCheckPace(page);
   await untilPageReadsAnswered(page);
 
   await expectIntentModeChosen(intent, "CI status");
@@ -152,9 +147,5 @@ test("a new trunk revision re-reads the homepage judgment at the new head; time 
   await expect
     .poll(() => ciStatusReading(panel).checkedTime.getAttribute("datetime"))
     .not.toBe(firstCheck);
-  expect(
-    judgmentCalls(published.requests).filter(
-      (call) => call === "commit-list main",
-    ),
-  ).toHaveLength(2);
+  expect(ci.reads().fresh).toBe(firstReads.fresh + 1);
 });

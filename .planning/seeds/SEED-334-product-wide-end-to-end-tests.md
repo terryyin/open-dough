@@ -9,80 +9,47 @@ scope: story
 # SEED-334 — Product-wide end-to-end tests
 
 
-<a id="retire-dashboard-integrated-ui-test"></a>
+<a id="move-intent-ci-proof-comparison-and-candidate-checks"></a>
 
-### Move Intent CI checks out of Dashboard Integrated UI Test
+### Move Intent CI proof, comparison and candidate checks out of Dashboard Integrated UI Test
 
-**Identity:** SEED-334#retire-dashboard-integrated-ui-test
+**Identity:** SEED-334#move-intent-ci-proof-comparison-and-candidate-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/633-retire-dashboard-integrated-ui-test/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d0aaedaaa3aa9651885b21812fc132feb47b1049f31f0c4aac5bd822d4abec37","plan":"ab4670a68f8b18000d020e3e5f3bbe31b1fcd4840007c7b460036df3b328a196"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 651."],"basis":{"document":"b796cb68d52b56fd6c2f59016103fe94830384009d2578187031ad254026e013"}}
 ```
 
-#### Goal
-
-A dashboard maintainer runs CI status, timing, proof, comparison and
-optimization-candidate regression checks at their owning boundaries, with
-every distinct assertion preserved outside Dashboard Integrated UI Test.
-This reduces the remaining mixed test tier while keeping Intent's CI evidence
-trustworthy; no speed improvement is claimed without measurement.
-
-#### Scope
-
-- Convert the 35 remaining Intent CI specs: `intent-ci-status-*`,
-  `intent-ci-wall-time-history*`, `intent-scope-*`, `intent-ci-proof*`,
-  `intent-ci-comparison-*`, `intent-summary-*` and
-  `intent-test-optimization-candidates*`.
-- Put HTTP refusal, request accounting, acquisition and storage assertions at
-  the Backend boundary; controlled service answers and actual rendering or
-  interaction at Frontend; representative real-server workflows in E2E.
-  Split mixed cases by their assertions, including negative effects. Preserve
-  each distinct regression, not merely test names or case counts.
-- Convert `intent-ci-status-read-boundary.spec.ts` directly to Backend,
-  preserving malformed branch/revision/kept refusals, fresh unread and kept-none
-  answers, and the exact additional GitHub-call assertions without a browser.
-  The omitted-attempt refusal in `intent-ci-proof.spec.ts` also belongs there.
-- Before deleting a migrated case, account for its assertions in named
-  maintained homes. A representative changed proof boundary must catch the
-  same scratch break before and after conversion, then pass restored.
-- Keep shared helpers, current runner support and historical proof usable.
-  Remove only converted specs and their interim duration-list entries.
-
-**Scope limits.** Intent source/review/revision and navigation conversion and
-retirement are owned by the two stories below. No new tier, product behavior,
-speed or shard-count target, tagged-install proof or E2E renaming.
-
-#### Key examples
-
-1. A malformed CI-status branch, pinned revision or kept form is requested
-   directly from the real Backend boundary → HTTP 400 and no extra GitHub
-   request. Fresh unread and kept-none still return their previous answers.
-2. A CI proof case mixes table layout with ZIP acquisition and an HTTP refusal
-   → Frontend observes actual presentation from controlled service answers;
-   Backend/E2E retains real parsing/acquisition/refusal and request counts.
-3. A comparison navigates scopes or an optimization candidate opens Purpose
-   → the maintained homes still observe values, gaps, source pinning, keyboard
-   behavior and reading position. Converted interim specs and timing rows go;
-   all remaining Intent and navigation cases still run in the interim group.
-
-**Plan:** [Intent CI conversion](../slice-plans/633-retire-dashboard-integrated-ui-test/PLAN.md)
-
-#### Story boundary and ordering
-
-On 2026-11-15 preparation resplit the former Intent/navigation/retirement
-outcome, retaining this identity and plan 633 on the first useful outcome.
-The original eight-batch plan had 20-spec batches and understated new Frontend
-answer-family preparation; the preceding execution at `bfd4e7815` found that
-one new family costs most of a 15-active-minute slice. The original scope is
-fully mapped to this story and the next two, without dropping assertions.
-The recomputed 35/37/41-file inventory replaces the provisional batch counts.
-CI conversion comes first for Intent proof feedback and answer-family learning;
-reading/review conversion follows for Purpose and review protection; navigation
-and retirement closes the tier. Each conversion outcome remains useful if
-later work is deferred. Simply moving everything into E2E preserves mixed
-checks but does not resolve their misplaced proof; keeping the interim tier
-leaves the selected problem intact. No general project S/M/L bands are defined
-(as also recorded in SEED-353); sizing uses inspected batches and the maintained
-15-active-minute slice budget rather than invented bands.
+- **For / why.** A maintainer retains CI proof, story comparison, scope glance
+  and optimization-candidate regressions in their owning test layers, keeping
+  Intent's CI evidence trustworthy while the interim group shrinks.
+- **Evaluation.** The 20 remaining Intent CI specs (`intent-scope-glance`,
+  `intent-ci-proof*`, `intent-summary-*`, `intent-ci-comparison-*`,
+  `intent-test-optimization-candidates*`) have named maintained
+  Frontend/Backend/E2E assertion homes, including negative effects, focus,
+  keyboard, request counts and stale answers; a changed proof boundary catches
+  the same representative scratch break and passes restored. The
+  omitted-attempt refusal in `intent-ci-proof.spec.ts` moves to the Backend
+  CI-status/proof read boundary. A CI proof case mixing table layout with ZIP
+  acquisition and an HTTP refusal is observed at Frontend from controlled
+  answers while Backend/E2E keep real parsing, acquisition, refusal and request
+  counts. A comparison navigating scopes or a candidate opening Purpose keeps
+  values, gaps, source pinning, keyboard behavior and reading position.
+- **Scope.** Original plan 633 slices 6–10, with the same placement,
+  protection and scratch-break rules as the first story; reuse its delivered
+  CI-status (`frontendCiStatusAnswers.ts`, including `openFrontendRunProof`)
+  and history families. No navigation or reading/review conversion, runner
+  retirement, product behavior change, E2E naming or tagged install.
+- **Value / stopping point.** Each of glance, proof, comparison and candidates
+  is independently useful while the interim group still runs other cases.
+- **Sizing note.** Glance needs a built-app Done-story arrangement, and proof
+  covers seven specs; expect these to need their own slices. Before proof
+  extends `dashboard/tests/support/frontendCiStatusAnswers.ts`, separate its
+  published-project arrangements (story board, unconfigured Doughnut) from the
+  CI-status answer family.
+- **Plan:** [Provisional proof/comparison/candidate conversion](../slice-plans/651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md),
+  awaiting story refinement before plan refinement or execution.
+- **Provenance.** Split from SEED-334#retire-dashboard-integrated-ui-test at
+  its delivered slice 5 (`4ceb02349033764c7dc0fa842e184180626f99e7`); the
+  pre-split source and plan are recoverable there.
 
 <a id="move-intent-reading-and-review-checks"></a>
 

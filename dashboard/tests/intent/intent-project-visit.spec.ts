@@ -5,7 +5,7 @@ import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // candidate's keyboard focus without rereading, then the story's reading.
 // Selection transitions: ./intent-project-visit-selection.spec.ts.
 // CI follow cost during visits: ../../../e2e/intent/intent-project-visit-ci.spec.ts.
-// No-story landing: ./intent-ci-status-homepage.spec.ts.
+// No-story landing: ../../frontend-tests/intent/intent-ci-status-homepage.spec.ts.
 
 import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-334_retire-dashboard-integrated-ui-test.json",
+      "identity": "SEED-334#retire-dashboard-integrated-ui-test",
+      "completedAt": "2026-11-15T15:38:56.068Z",
+      "blob": "75e2b81a149a9cff461c2e1859ceda558394a016"
+    },
+    {
       "fileName": "SEED-376_show-affected-consumer-proof-at-acceptance.json",
       "identity": "SEED-376#show-affected-consumer-proof-at-acceptance",
       "completedAt": "2026-11-15T15:34:26.156Z",

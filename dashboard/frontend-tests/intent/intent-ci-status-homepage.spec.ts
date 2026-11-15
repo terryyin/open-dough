@@ -1,17 +1,3 @@
-import {
-  expectCiScope,
-  ciStatusReading,
-  expectCiAnswer,
-  activateIntentHome,
-  chooseCiStatus,
-  ciPanel,
-  expectChecked,
-  judged,
-  publishProject,
-  runUrl,
-  trunkCi,
-} from "../intentCiStatusPage.ts";
-
 // CI status is Intent's homepage (../../src/IntentCiStatus.tsx): with no
 // selected story Project Intent is Intent's landing, and opening it with
 // nothing selected fills the reading pane with the judged branch's status;
@@ -20,35 +6,68 @@ import {
 // directly activating the already chosen CI status tab by click, Enter or
 // Space clears that selection and shows it again, keeping the tree open;
 // not-configured locations still show CI status beside the explanation
-// (SEED-239#show-ci-status-on-intent-home example 1).
+// (SEED-239#show-ci-status-on-intent-home example 1). Project CI stays
+// readable while locations load, fail and recover, without another CI read.
 
-import { expect, test } from "../dashboardTest.ts";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
-import { parts } from "../dashboardPage.ts";
-import {
-  browseSpec,
-  doughnut,
-  openDough,
-  openDoughSettings,
-} from "../intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-
+import { parts } from "../../tests/dashboardPage.ts";
+import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
 import {
-  intentModeTab,
+  activateIntentHome,
+  chooseCiStatus,
+  ciPanel,
+  ciStatusReading,
+  expectChecked,
+  expectCiAnswer,
+  expectCiScope,
+} from "../../tests/intentCiStatusPage.ts";
+import { browseSpec } from "../../tests/intentCodeBrowseFixtures.ts";
+import {
   filesColumn,
-  intentPageFrame,
+  intentModeTab,
   intentModeViews,
-} from "../intentModePage.ts";
+  intentPageFrame,
+} from "../../tests/intentModePage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
   intentFolderName,
   intentGroupToggle,
   intentLocationName,
-} from "../intentPerspectivePage.ts";
-import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
-import { intentSettingsText } from "../support/intentSettingsFile.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import {
+  openUntilRead,
+  untilPageReadsAnswered,
+} from "../../tests/pageRequestNotes.ts";
+import {
+  judgedCiStatus,
+  publishUnconfiguredDoughnut,
+  serveFrontendCiStatus,
+} from "../../tests/support/frontendCiStatusAnswers.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
+
+const login = judgedCiStatus("main", "pass", "a1b2c3d", "Add login");
+
+const browsed = "dashboard/tests/browse.spec.ts";
+const deep = "dashboard/tests/nested/deep.spec.ts";
+
+// Open Dough's one location publishes a test file and a nested folder's.
+function publishBrowsedTests(services: FrontendServiceState) {
+  Object.assign(services, {
+    files: { ...services.files, [browsed]: browseSpec, [deep]: browseSpec },
+    locations: {
+      ...services.locations,
+      locations: [
+        makeMe.anIntentLocation
+          .at("dashboard/tests")
+          .ofKind("typescript", ["**/*.spec.ts"])
+          .selecting(browsed, deep)
+          .please(),
+      ],
+    },
+  });
+}
 
 const releases: (() => void)[] = [];
 test.afterEach(() => {
@@ -57,26 +76,12 @@ test.afterEach(() => {
 
 test("CI status fills Intent's reading with nothing selected; the strip has no CI status mode; activating Intent again returns home from an entry, folder or file; not-configured shows it beside the explanation", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  publishProject(page, openDough, {
-    ".planning/open-dough.json": intentSettingsText(openDoughSettings),
-    "dashboard/tests/browse.spec.ts": browseSpec,
-    "dashboard/tests/nested/deep.spec.ts": browseSpec,
-  }).serveCi(
-    trunkCi(openDough.revision, () => [
-      makeMe.aCiRun
-        .with({ headSha: judged, conclusion: "success", url: runUrl })
-        .please(),
-    ]),
-  );
-  publishProject(page, doughnut).serveCi(
-    trunkCi(doughnut.revision, () => [
-      makeMe.aCiRun
-        .with({ headSha: judged, conclusion: "success", url: runUrl })
-        .please(),
-    ]),
-  );
+  publishBrowsedTests(frontendServices);
+  await publishUnconfiguredDoughnut(page, frontendServices);
+  await serveFrontendCiStatus(page, { main: login });
   await openUntilRead(page, "/?project=open-dough");
   const { intent, intentChoice, development } = parts(page);
   await intentChoice.click();
@@ -132,10 +137,7 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
       },
       {
         name: "a test file",
-        select: intent.getByRole("button", {
-          name: "dashboard/tests/browse.spec.ts",
-          exact: true,
-        }),
+        select: intent.getByRole("button", { name: browsed, exact: true }),
         reading: intent.getByRole("region", { name: "Purpose" }),
         how: "Space",
       },
@@ -162,10 +164,7 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
         name,
       ).toHaveAttribute("aria-expanded", "true");
       await expect(
-        intent.getByRole("button", {
-          name: "dashboard/tests/nested/deep.spec.ts",
-          exact: true,
-        }),
+        intent.getByRole("button", { name: deep, exact: true }),
         name,
       ).toBeVisible();
     }
@@ -196,31 +195,15 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
 
 test("project CI remains readable while locations load, fail and recover without another CI read", async ({
   page,
+  frontendServices,
 }) => {
-  publishProject(page, openDough, {
-    ".planning/open-dough.json": intentSettingsText(openDoughSettings),
-    "dashboard/tests/browse.spec.ts": browseSpec,
-  }).serveCi(
-    trunkCi(openDough.revision, () => [
-      makeMe.aCiRun
-        .with({ headSha: judged, conclusion: "success", url: runUrl })
-        .please(),
-    ]),
-  );
+  publishBrowsedTests(frontendServices);
+  const ci = await serveFrontendCiStatus(page, { main: login });
   const locations = await holdAuthenticatedReadsWhere(
     page,
     (params) => params.get("intent") === "locations",
     releases,
   );
-  const ciReads = { fresh: 0, kept: 0 };
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("intent") === "ci-status"
-    )
-      ciReads[url.searchParams.get("kept") === "1" ? "kept" : "fresh"] += 1;
-  });
   await openUntilRead(page, "/?project=open-dough");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
@@ -233,7 +216,7 @@ test("project CI remains readable while locations load, fail and recover without
   const status = ciStatusReading(ciPanel(intent)).state;
   await expect(status).toHaveText("Passed at a1b2c3d (Add login)");
   expect(locations.held()).toBeGreaterThan(0);
-  expect(ciReads).toEqual({ fresh: 1, kept: 1 });
+  expect(ci.reads()).toEqual({ fresh: 1, kept: 1 });
 
   locations.fail();
   const failure = intent.getByRole("alert");
@@ -246,5 +229,5 @@ test("project CI remains readable while locations load, fail and recover without
   await expect(failure).toHaveCount(0);
   await expect(status).toHaveText("Passed at a1b2c3d (Add login)");
   await untilPageReadsAnswered(page);
-  expect(ciReads).toEqual({ fresh: 1, kept: 1 });
+  expect(ci.reads()).toEqual({ fresh: 1, kept: 1 });
 });

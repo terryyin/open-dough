@@ -12,7 +12,7 @@
 // execution's among them, are collected in
 // ./landed-ci-history-lifecycle.spec.ts and the specs beside it; how Project
 // Intent shows the history is in
-// ../../tests/intent/intent-ci-wall-time-history.spec.ts.
+// ../../frontend-tests/intent/intent-ci-wall-time-history.spec.ts.
 
 import { existsSync } from "node:fs";
 import path from "node:path";

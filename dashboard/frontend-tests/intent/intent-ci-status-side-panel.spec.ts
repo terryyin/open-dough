@@ -1,8 +1,3 @@
-import {
-  readFinalReportControl,
-  finalReportParts,
-} from "../finalReportPages.ts";
-import { closeSidePanel } from "../sidePanelFrame.ts";
 // The Side panel sets and clears the page's selected story, which Intent's
 // lens and CI status read (../../src/pageSidePanel.ts, ../../src/intentCiTarget.ts):
 // reading a Taken story's final report from its card selects and highlights
@@ -11,58 +6,88 @@ import { closeSidePanel } from "../sidePanelFrame.ts";
 // without changing the panel, and closing the panel keeps the story selected
 // then (ADR 0008), which Intent still judges. Showing a session attached to no
 // story clears it, CI status judges `main` again, and closing that session's
-// terminal leaves Intent at project scope. The
-// stories' saved workspaces are gone, so each card's session offers its final
-// report; the ad hoc session is listed by the synthetic `claude`
-// (./fixtures/fake-claude). The board is ../intentCiStoryBoard.ts.
+// terminal leaves Intent at project scope. The stories' saved workspaces are
+// gone, so each card's session offers its final report. The board is
+// ../../tests/intentCiStoryBoard.ts.
 
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { LaunchWithState } from "../../src/agentLaunch.ts";
+import { parts, storyCardSessions } from "../../tests/dashboardPage.ts";
 import {
-  expectCiScope,
-  expectCiAnswer,
+  readFinalReportControl,
+  finalReportParts,
+} from "../../tests/finalReportPages.ts";
+import { failing, running } from "../../tests/intentCiStoryBoard.ts";
+import { card } from "../../tests/intentCiStoryRecords.ts";
+import {
   chooseCiStatus,
   ciPanel,
-} from "../intentCiStatusPage.ts";
+  expectCiAnswer,
+  expectCiScope,
+} from "../../tests/intentCiStatusPage.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+import { sessionsSidebarParts } from "../../tests/sessionsSidebarPage.ts";
+import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
+import { expectSelected } from "../../tests/storyCardSelection.ts";
+import { terminalPanel } from "../../tests/terminalScreenPage.ts";
+import { installFrontendFinalReport } from "../../tests/support/frontendFinalReportSubstitutes.ts";
+import {
+  publishCiStoryBoard,
+  serveFrontendCiStatus,
+  storyBoardCiAnswers,
+} from "../../tests/support/frontendCiStatusAnswers.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { putFrontendMachine } from "../../tests/support/frontendServiceState.ts";
+import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
 
-import path from "node:path";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { LaunchRecord } from "../../src/agentLaunch.ts";
-import { expect, test } from "../dashboardTest.ts";
-import { parts, storyCardSessions } from "../dashboardPage.ts";
-import { terminalPanel } from "../terminalScreenPage.ts";
-import { failing, running } from "../intentCiStoryBoard.ts";
-import { card, publishStoryCi } from "../intentCiStoryRecords.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
-import { sessionsOutsideDoneStories } from "../recentlyDoneColumn.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { expectSelected } from "../storyCardSelection.ts";
-import { keepLaunchRecords } from "../support/launchStore.ts";
+const adHocTitle = "Open Dough session";
 
-// A kept execution record of the board's Taken story `anchor`, its
-// saved workspace gone.
-function goneWorkspaceRecord(
-  home: string,
-  { anchor, title, branch }: typeof failing,
-): LaunchRecord {
-  return makeMe.aLaunchRecord
-    .executing({ identity: `SEED-219#${anchor}`, title })
-    .inClaudeSession({ sessionId: `${anchor}-session`, shortId: anchor })
-    .onStoryBranch({ workspace: path.join(home, "gone", anchor), branch })
+// A kept execution of the board's Taken story `anchor`, its saved workspace
+// gone, so its card offers its final report.
+function goneWorkspaceSession({
+  anchor,
+  title,
+  branch,
+}: typeof failing): LaunchWithState {
+  return makeMe.anObservedLaunch
+    .of(
+      makeMe.aLaunchRecord
+        .executing({ identity: `SEED-219#${anchor}`, title })
+        .inClaudeSession({ sessionId: `${anchor}-session`, shortId: anchor })
+        .onStoryBranch({ workspace: `/gone/${anchor}`, branch })
+        .please(),
+    )
+    .withSessionState(makeMe.aSessionState.retained("review").please())
+    .withWorkspace("missing")
     .please();
 }
 
 test("the Side panel's content selects its story for Intent's lens and CI status, closing it keeps the selection at that moment, and an ad hoc session clears it to main", async ({
   page,
-  dashboard,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  keepLaunchRecords(dashboard, [
-    goneWorkspaceRecord(dashboard.home, failing),
-    goneWorkspaceRecord(dashboard.home, running),
-    ...sessionsOutsideDoneStories(dashboard, Date.now()).filter(
-      (record) => record.request.workflow === "ad-hoc",
-    ),
-  ]);
-  publishStoryCi(page);
+  publishCiStoryBoard(frontendServices);
+  putFrontendMachine(
+    frontendServices,
+    makeMe.aMachineAnswer
+      .observing(
+        goneWorkspaceSession(failing),
+        goneWorkspaceSession(running),
+        makeMe.anObservedLaunch
+          .of(
+            makeMe.aLaunchRecord
+              .adHoc({ instruction: adHocTitle, title: adHocTitle })
+              .please(),
+          )
+          .withSessionState(makeMe.aSessionState.loaded("working").please())
+          .please(),
+      )
+      .please(),
+  );
+  await installFrontendFinalReport(page);
+  await installAttachedTerminalSubstitute(page);
+  await serveFrontendCiStatus(page, storyBoardCiAnswers());
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { development, intentChoice, intent } = parts(page);
   await expectCiScope(await chooseCiStatus(intent), "main");
@@ -132,7 +157,7 @@ test("the Side panel's content selects its story for Intent's lens and CI status
     await expectSelected(card(page, failing.title), true);
     const sidebar = sessionsSidebarParts(page);
     await sidebar.button.click();
-    await sidebar.entry("Open Dough session").click();
+    await sidebar.entry(adHocTitle).click();
     await expect(terminalPanel(page)).toBeVisible();
     await expectSelected(card(page, failing.title), false);
     const panel = await onIntent();
