@@ -120,11 +120,25 @@ export function HistoryChartPlot({ layout }: { readonly layout: ChartLayout }) {
           <line x1={plotLeft} x2={plotEnd} y1={reference.y} y2={reference.y} />
         </g>
       )}
-      {layout.line !== "" && (
+      {!layout.trendOnTop && layout.line !== "" && (
         <path className="history-chart-line" d={layout.line} />
       )}
       {layout.marks.map((mark) => (
         <Mark key={mark.entry.key} mark={mark} layout={layout} />
+      ))}
+      {layout.trendOnTop && layout.line !== "" && (
+        <path
+          className="history-chart-line history-chart-trend"
+          d={layout.line}
+        />
+      )}
+      {layout.trendOverflows.map((point, index) => (
+        <g className="history-chart-trend-overflow" key={index}>
+          <path d={`M${point.x - 5} ${point.y + 3} l5 -6 l5 6`} />
+          <text x={point.labelX} y={point.y - 10} textAnchor="middle">
+            {point.label}
+          </text>
+        </g>
       ))}
       {layout.dates.map(({ x, words }) => (
         <text

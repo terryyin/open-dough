@@ -1,7 +1,8 @@
 // System settings → Usage's Token index trend for one cohort's answer
 // (`./usageTokenIndex.ts`): one point per task over its end time on the
 // shared history chart (`./HistoryChart.tsx`), partial ones hollow, the
-// trailing moving average as its trend, the cohort note counting the partial
+// true trailing moving average above dots, independent of their scale; ↑ labels
+// and dated values identify average overflow. The cohort note counts partial
 // tasks and the unpriced ones, which have no point, and the tariff version
 // that weighed them. Selecting a point by pointer or keyboard shows that
 // task's detail (`./UsageTaskDetail.tsx`); a new answer for the same cohort,
@@ -18,6 +19,7 @@ import {
 
 const largeTaskThreshold = 50_000_000;
 const largeTaskWords = "Large task above 50 million";
+const movingAverageWords = `${String(movingAverageTasks)}-task moving average`;
 
 function series(
   answer: TokenIndexAnswer,
@@ -28,6 +30,7 @@ function series(
     axis: countAxis,
     selectedLabel: "Selected task",
     emptyScaleMaximum: largeTaskThreshold,
+    independentTrend: { label: movingAverageWords },
     entries: answer.tasks.map((task) => {
       const partial = task.coverage.kind === "partial";
       return {
@@ -95,7 +98,7 @@ export function TokenIndexTrend({
             <span className="settings-note">
               {latest === undefined
                 ? `An average needs ${String(movingAverageTasks)} eligible tasks; none is available in this period`
-                : `${String(movingAverageTasks)}-task moving average`}
+                : movingAverageWords}
             </span>
           </p>
         </div>
@@ -134,6 +137,7 @@ export function TokenIndexTrend({
             </span>
             <span>
               <i className="usage-swatch usage-swatch-average" /> Moving average
+              (↑ above scale)
             </span>
           </p>
           <p className="settings-note">{answer.tariff.label}</p>

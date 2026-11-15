@@ -9,7 +9,8 @@
 // and touch each show its short date and value or status in one readout. A
 // chart whose entries can be chosen, such as Usage's tasks, also chooses the
 // entry of a mark pressed by pointer, Enter or Space; its owner marks that
-// entry selected and can return focus to the pressed mark.
+// entry selected and can return focus to the pressed mark. Independent trends
+// keep dated overflow values available as observations, without task buttons.
 
 import { useLayoutEffect, useRef, useState } from "react";
 import { isMeasured, type HistoryChartSeries } from "./historyChartSeries.ts";
@@ -125,6 +126,16 @@ export function HistoryChart({
           <MarkReadout layout={layout} onChoose={onChoose} />
         )}
       </div>
+      {layout !== undefined && layout.trendOverflows.length > 0 && (
+        <ul
+          className="history-chart-trend-values"
+          aria-label="Above-scale averages"
+        >
+          {layout.trendOverflows.map((point, index) => (
+            <li key={index}>{point.readout}</li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

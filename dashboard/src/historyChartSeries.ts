@@ -42,6 +42,8 @@ export type HistoryChartSeries = {
   readonly selectedLabel?: string;
   // Fallback when no ordinary point exists; absent for timing charts.
   readonly emptyScaleMaximum?: number;
+  // This trend is read against ordinary points without determining their scale.
+  readonly independentTrend?: { readonly label: string };
   // A level drawn as the dashed line, such as CI's prior-build average.
   readonly reference?:
     { readonly value: number; readonly label: string } | undefined;

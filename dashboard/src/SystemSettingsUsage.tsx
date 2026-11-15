@@ -1,6 +1,7 @@
 // System settings → Usage: the Token index of finished dashboard-launched
 // tasks for the cohort its filters choose (`./usageTokenIndex.ts`) as its
-// trend (`./TokenIndexTrend.tsx`), and when the usage was last checked.
+// trend (`./TokenIndexTrend.tsx`) within recent local calendar days, and when
+// the usage was last checked. Days remain separate from cohort identity.
 // Refresh brings in the Codex usage written since then; meanwhile the trend
 // stays with a checking note, and a failed Refresh keeps it and its check
 // time beside the error. The trend is an observation; it claims neither an

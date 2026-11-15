@@ -12,9 +12,9 @@ examples and exclusions. No human amendment has followed that review.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| C01 | A developer can focus Usage on a recent period. | slice 3 | |
-| C02 | The chart preserves visibility of ordinary-task differences when a few tasks use far more tokens. | slice 3 | |
-| C03 | The chart exposes the true recent trend through the specified moving average. | slice 3 | |
+| C01 | A developer can focus Usage on a recent period. | slice 3 | observed: e2e/configuration/system-settings-usage-period.spec.ts accepted 30→7→1 calendar journey and system-settings-usage-average.spec.ts ordinary geometry/trend assertions; numeric baseline separation1.45px versus final >40px unchanged when adding65M/highaverage |
+| C02 | The chart preserves visibility of ordinary-task differences when a few tasks use far more tokens. | slice 3 | observed: e2e/configuration/system-settings-usage-period.spec.ts accepted 30→7→1 calendar journey and system-settings-usage-average.spec.ts ordinary geometry/trend assertions; numeric baseline separation1.45px versus final >40px unchanged when adding65M/highaverage |
+| C03 | The chart exposes the true recent trend through the specified moving average. | slice 3 | observed: e2e/configuration/system-settings-usage-period.spec.ts accepted 30→7→1 calendar journey and system-settings-usage-average.spec.ts ordinary geometry/trend assertions; numeric baseline separation1.45px versus final >40px unchanged when adding65M/highaverage |
 | C04 | A “Last N days” control accepts a positive whole number of days. | slice 1 | observed: dashboard/frontend-tests/system-settings-usage-period.spec.ts local calendar requests: held loading, 30/7 New York DST bounds, invalid input preserves point/no request, same-value recovery; UsageDays/recentUsagePeriod |
 | C05 | The initial period is 30 days. | slice 1 | observed: dashboard/frontend-tests/system-settings-usage-period.spec.ts local calendar requests: held loading, 30/7 New York DST bounds, invalid input preserves point/no request, same-value recovery; UsageDays/recentUsagePeriod |
 | C06 | Period boundaries use the developer’s local calendar. | slice 1 | observed: dashboard/frontend-tests/system-settings-usage-period.spec.ts local calendar requests: held loading, 30/7 New York DST bounds, invalid input preserves point/no request, same-value recovery; UsageDays/recentUsagePeriod |
@@ -34,13 +34,13 @@ examples and exclusions. No human amendment has followed that review.
 | C20 | Tasks with known measurement gaps do not contribute to the eligible average window. | slice 1 | observed: dashboard/backend-tests/usage-history/token-index-eligibility.spec.ts only complete tasks: missing gaps excluded, measured zero, independent averages3555/4200; token-index-period excludes unpriced |
 | C21 | Partial tasks do not fill the eligible average window. | slice 1 | observed: dashboard/backend-tests/usage-history/token-index-eligibility.spec.ts only complete tasks: missing gaps excluded, measured zero, independent averages3555/4200; token-index-period excludes unpriced |
 | C22 | Earlier eligible tasks in the same cohort contribute before the visible period. | slice 1 | observed: dashboard/backend-tests/usage-history/token-index-period.spec.ts calendar bounds: inclusive start, exclusive until, dated ids/partial/unpriced counts, average1950 unchanged, empty projection, options/all-history; tokenIndexCohort projects after average |
-| C23 | Tasks above 50 million remain eligible for the average. | slice 3 | |
+| C23 | Tasks above 50 million remain eligible for the average. | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-large-average.spec.ts retained-store nine1M+65M task indexes unchanged, average7400000 independently expected; Frontend latest/overflow7400000 matches |
 | C24 | Changing the period leaves an average unchanged at a date retained in both views. | slice 1 | observed: dashboard/backend-tests/usage-history/token-index-period.spec.ts calendar bounds: inclusive start, exclusive until, dated ids/partial/unpriced counts, average1950 unchanged, empty projection, options/all-history; tokenIndexCohort projects after average |
 | C25 | Only average observations dated within the selected period are displayed. | slice 1 | observed: dashboard/backend-tests/usage-history/token-index-period.spec.ts calendar bounds: inclusive start, exclusive until, dated ids/partial/unpriced counts, average1950 unchanged, empty projection, options/all-history; tokenIndexCohort projects after average |
 | C26 | Insufficient average history is identified honestly. | slice 1 | observed: dashboard/frontend-tests/system-settings-usage-period.spec.ts empty periods and existing system-settings-usage sparse/empty: period counts/empty words and no-average explanation |
-| C27 | The moving average uses a color distinct from the task dots. | slice 3 | |
-| C28 | The moving average is drawn above the task dots. | slice 3 | |
-| C29 | Visible task values at or below 50 million determine the ordinary y-axis scale. | slice 3 | |
+| C27 | The moving average uses a color distinct from the task dots. | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-average.spec.ts showsDistinctAverageAboveDots computed distinct stroke, SVG following order, chart contrast in light/dark; ordinarySeparation invariant and0/500K/1M axis |
+| C28 | The moving average is drawn above the task dots. | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-average.spec.ts showsDistinctAverageAboveDots computed distinct stroke, SVG following order, chart contrast in light/dark; ordinarySeparation invariant and0/500K/1M axis |
+| C29 | Visible task values at or below 50 million determine the ordinary y-axis scale. | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-average.spec.ts showsDistinctAverageAboveDots computed distinct stroke, SVG following order, chart contrast in light/dark; ordinarySeparation invariant and0/500K/1M axis |
 | C30 | The moving average does not determine the ordinary y-axis scale. |  | G1 |
 | C31 | An above-scale average is explicitly identified at its date. |  | G2 |
 | C32 | An above-scale average’s actual value remains readable. |  | G2 |
@@ -69,15 +69,15 @@ examples and exclusions. No human amendment has followed that review.
 | C55 | The period control appears alongside the current cohort filters. | slice 1 | observed: dashboard/frontend-tests/system-settings-usage-period.spec.ts local calendar requests: held loading, 30/7 New York DST bounds, invalid input preserves point/no request, same-value recovery; UsageDays/recentUsagePeriod |
 | C56 | The interface explains that × means a Token index above 50 million. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
 | C57 | The interface avoids presenting × as a failed-task indicator. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
-| C58 | Average overflow is identified separately from large-task overflow. | slice 3 | |
-| C59 | Essential values are available without hovering. | slice 3 | |
-| C60 | Color alone carries no meaning. | slice 3 | |
-| C61 | The period control remains usable on a narrow screen. | slice 3 | |
-| C62 | Overflow labels remain usable on a narrow screen. | slice 3 | |
-| C63 | Task actions remain usable on a narrow screen. | slice 3 | |
-| C64 | The period control remains usable at 200% zoom. | slice 3 | |
-| C65 | Overflow labels remain usable at 200% zoom. | slice 3 | |
-| C66 | Task actions remain usable at 200% zoom. | slice 3 | |
+| C58 | Average overflow is identified separately from large-task overflow. | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-average.spec.ts showsAverageOverflow: distinct Avg↑ labels and dated text list without buttons versus task×; visible values with contrast and trace breaks |
+| C59 | Essential values are available without hovering. | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-average.spec.ts showsAverageOverflow: distinct Avg↑ labels and dated text list without buttons versus task×; visible values with contrast and trace breaks |
+| C60 | Color alone carries no meaning. | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-average.spec.ts showsAverageOverflow: distinct Avg↑ labels and dated text list without buttons versus task×; visible values with contrast and trace breaks |
+| C61 | The period control remains usable on a narrow screen. | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-average.spec.ts narrow touch and established twiceZoomedWindow: day choice, visible dated values, SVG label bounds both axes, no page overflow, touch detail65M and focus return |
+| C62 | Overflow labels remain usable on a narrow screen. | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-average.spec.ts narrow touch and established twiceZoomedWindow: day choice, visible dated values, SVG label bounds both axes, no page overflow, touch detail65M and focus return |
+| C63 | Task actions remain usable on a narrow screen. | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-average.spec.ts narrow touch and established twiceZoomedWindow: day choice, visible dated values, SVG label bounds both axes, no page overflow, touch detail65M and focus return |
+| C64 | The period control remains usable at 200% zoom. | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-average.spec.ts narrow touch and established twiceZoomedWindow: day choice, visible dated values, SVG label bounds both axes, no page overflow, touch detail65M and focus return |
+| C65 | Overflow labels remain usable at 200% zoom. | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-average.spec.ts narrow touch and established twiceZoomedWindow: day choice, visible dated values, SVG label bounds both axes, no page overflow, touch detail65M and focus return |
+| C66 | Task actions remain usable at 200% zoom. | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-average.spec.ts narrow touch and established twiceZoomedWindow: day choice, visible dated values, SVG label bounds both axes, no page overflow, touch detail65M and focus return |
 | C67 | Invalid day input explains the positive-whole-day requirement. | slice 1 | observed: dashboard/frontend-tests/system-settings-usage-period.spec.ts local calendar requests: held loading, 30/7 New York DST bounds, invalid input preserves point/no request, same-value recovery; UsageDays/recentUsagePeriod |
 | C68 | Invalid day input leaves the last valid view recoverable. | slice 1 | observed: dashboard/frontend-tests/system-settings-usage-period.spec.ts local calendar requests: held loading, 30/7 New York DST bounds, invalid input preserves point/no request, same-value recovery; UsageDays/recentUsagePeriod |
 | C69 | Existing loading feedback is preserved. | slice 1 | observed: dashboard/frontend-tests/system-settings-usage-period.spec.ts local calendar requests: held loading, 30/7 New York DST bounds, invalid input preserves point/no request, same-value recovery; UsageDays/recentUsagePeriod |
@@ -86,14 +86,14 @@ examples and exclusions. No human amendment has followed that review.
 | C72 | Visible-date selection is separate from historical average contribution. | slice 1 | observed: dashboard/backend-tests/usage-history/token-index-period.spec.ts calendar bounds: inclusive start, exclusive until, dated ids/partial/unpriced counts, average1950 unchanged, empty projection, options/all-history; tokenIndexCohort projects after average |
 | C73 | The average is calculated before its displayed observations are restricted to the selected period. | slice 1 | observed: dashboard/backend-tests/usage-history/token-index-period.spec.ts calendar bounds: inclusive start, exclusive until, dated ids/partial/unpriced counts, average1950 unchanged, empty projection, options/all-history; tokenIndexCohort projects after average |
 | C74 | Display overflow never rewrites task values. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
-| C75 | Display overflow never rewrites average values. | slice 3 | |
+| C75 | Display overflow never rewrites average values. | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-large-average.spec.ts retained-store nine1M+65M task indexes unchanged, average7400000 independently expected; Frontend latest/overflow7400000 matches |
 | C76 | Recent-period counts receive dated unpriced tasks before aggregation. | slice 1 | observed: dashboard/backend-tests/usage-history/token-index-period.spec.ts calendar bounds: inclusive start, exclusive until, dated ids/partial/unpriced counts, average1950 unchanged, empty projection, options/all-history; tokenIndexCohort projects after average |
 | C77 | The implementation reuses the existing Usage summary/cohort boundary. | slice 1 | observed: dashboard/backend-tests/usage-history/token-index-period.spec.ts calendar bounds: inclusive start, exclusive until, dated ids/partial/unpriced counts, average1950 unchanged, empty projection, options/all-history; tokenIndexCohort projects after average |
-| C78 | The implementation reuses the shared history chart. | slice 3 | |
-| C79 | Usage’s 50-million display rule remains outside CI policy. | slice 3 | |
-| C80 | Usage’s 50-million display rule remains outside scope-timing policy. | slice 3 | |
-| C81 | The implementation follows ADR 0002’s one-representation/direct-domain-mapping constraint. | slice 3 | |
-| C82 | The implementation follows ADR 0008’s separation of derived presentation from evidence. | slice 3 | |
+| C78 | The implementation reuses the shared history chart. | slice 3 | observed: Inspected TokenIndexTrend optional independentTrend/overflow policy into existing HistoryChart; historyChartLayout/trend/overflow preserve numeric evidence; existing CI/scope regressions and Project recovery pass default scale/gap/reference/segments/readouts; ADR0002/0008 coherent derived presentation |
+| C79 | Usage’s 50-million display rule remains outside CI policy. | slice 3 | observed: Inspected TokenIndexTrend optional independentTrend/overflow policy into existing HistoryChart; historyChartLayout/trend/overflow preserve numeric evidence; existing CI/scope regressions and Project recovery pass default scale/gap/reference/segments/readouts; ADR0002/0008 coherent derived presentation |
+| C80 | Usage’s 50-million display rule remains outside scope-timing policy. | slice 3 | observed: Inspected TokenIndexTrend optional independentTrend/overflow policy into existing HistoryChart; historyChartLayout/trend/overflow preserve numeric evidence; existing CI/scope regressions and Project recovery pass default scale/gap/reference/segments/readouts; ADR0002/0008 coherent derived presentation |
+| C81 | The implementation follows ADR 0002’s one-representation/direct-domain-mapping constraint. | slice 3 | observed: Inspected TokenIndexTrend optional independentTrend/overflow policy into existing HistoryChart; historyChartLayout/trend/overflow preserve numeric evidence; existing CI/scope regressions and Project recovery pass default scale/gap/reference/segments/readouts; ADR0002/0008 coherent derived presentation |
+| C82 | The implementation follows ADR 0008’s separation of derived presentation from evidence. | slice 3 | observed: Inspected TokenIndexTrend optional independentTrend/overflow policy into existing HistoryChart; historyChartLayout/trend/overflow preserve numeric evidence; existing CI/scope regressions and Project recovery pass default scale/gap/reference/segments/readouts; ADR0002/0008 coherent derived presentation |
 
 ### Slice 1 acceptance
 
@@ -145,3 +145,31 @@ no named sibling. G1/G2 explicitly retain average interims until slice3; no othe
 Independent refactor2 shared entryValueWords/Usage threshold and made overflow
 height immutable; both Frontend commands and typecheck above renewed successfully.
 Trace `/tmp/seed369-refactor2-consumer-trace.md` dispositions inspected; no gap.
+
+### Slice 3 acceptance
+
+Nine1M+65M → true7.4M; high average/large task → unchanged ordinary separation;
+in→above→in → separate trace segments; all-large → explicit65M dated average.
+Inspected Backend large-average setup/assertions, Frontend average cases and
+usageChartPage computed paint/order/contrast, geometry, text/nonbutton distinction,
+SVG bounds and touch detail/focus assertions match source expectations. G1/G2 closed.
+Passing commands:
+- `caffeinate -s -i npm run test:dashboard:backend -- usage-history/token-index`
+- `caffeinate -s -i npm run test:dashboard:frontend -- system-settings-usage`
+- `caffeinate -s -i npm run test:dashboard:frontend -- intent-ci-history-chart-marks.spec.ts intent-project-ci-history-chart-marks.spec.ts intent-ci-compact-readout.spec.ts intent-scope-timing-history-units.spec.ts intent-scope-timing-history-reading.spec.ts intent-scope-timing-history-segments.spec.ts intent-project-scope-glance.spec.ts`
+- `caffeinate -s -i npm run test:dashboard:frontend -- intent-project-scope-history-recovery.spec.ts`
+- `caffeinate -s -i npm run test:dashboard:frontend -- system-settings-usage-average.spec.ts` (final both-axis label bounds).
+- `npm run typecheck:dashboard`; `git diff --check`.
+Actual-diff trace `/tmp/seed369-slice3-consumer-trace.md` dispositions inspected,
+including extra Project recovery consumer whose focused case passed. Unchanged
+E2E date/request/store/filter/Refresh observations reused. USAGE-TOKEN-INDEX.md
+retains behavior, README links it at250 lines. Corrected a nonexistent250K test
+tick to unchanged countAxis0/500K/1M; full Usage then passed. Source freshness
+unchanged at trunk46c637448f613e63cd841ae237f1b4f6eed26830, no named sibling.
+~8 active minutes; AC load6.87/6.52/7.00 memory54%; no gap or pending/deferred command.
+
+Independent refactor3 shared moving-average wording and CSS paint, removed an
+unreachable fallback; full Usage Frontend/typecheck/diff check renewed and passed.
+Backend, E2E and shared-default chart boundaries unchanged and reused. Trace
+`/tmp/seed369-refactor3-consumer-trace.md` inspected; no gap. Final freshness
+unchanged at trunk d67cf5ba1cf6ef0a77d94c83898d8db4621da681.

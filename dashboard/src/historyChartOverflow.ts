@@ -1,5 +1,6 @@
 // Above-scale task labels share dated x coordinates; colliding labels/buttons
 // occupy separate rows, adding room above the ordinary plot rather than hiding.
+import { buildDateWords } from "./ciHistoryWords.ts";
 import {
   entryValueWords,
   isMeasured,
@@ -15,17 +16,16 @@ export function placeOverflows(
   x: (date: string) => number,
   left: number,
   right: number,
+  ceiling: number,
 ) {
   const rows: { left: number; right: number }[][] = [];
   const placed = new Map<string, OverflowPlacement>();
-  for (const entry of series.entries) {
-    if (!isMeasured(entry) || entry.overflow === undefined) continue;
-    const label = entryValueWords(entry, series.axis);
+  const place = (label: string, date: string): OverflowPlacement => {
     const half = Math.min((right - left) / 2, Math.max(22, label.length * 3.5));
-    const labelX = Math.max(left + half, Math.min(x(entry.date), right - half));
+    const labelX = Math.max(left + half, Math.min(x(date), right - half));
     const span = {
-      left: Math.min(x(entry.date) - 16, labelX - half),
-      right: Math.max(x(entry.date) + 16, labelX + half),
+      left: Math.min(x(date) - 16, labelX - half),
+      right: Math.max(x(date) + 16, labelX + half),
     };
     let row = rows.findIndex((items) =>
       items.every(
@@ -37,7 +37,29 @@ export function placeOverflows(
       rows.push([]);
     }
     rows[row]?.push(span);
-    placed.set(entry.key, { y: 20 + row * 40, label, labelX });
+    return { y: 20 + row * 40, label, labelX };
+  };
+  for (const entry of series.entries) {
+    if (!isMeasured(entry) || entry.overflow === undefined) continue;
+    placed.set(
+      entry.key,
+      place(entryValueWords(entry, series.axis), entry.date),
+    );
   }
-  return { placed, height: rows.length * 40 };
+  const independent = series.independentTrend;
+  const trend =
+    independent === undefined
+      ? []
+      : (series.trend ?? []).flatMap((point) => {
+          if (point.value <= ceiling) return [];
+          const value = series.axis.words(point.value);
+          return [
+            {
+              ...place(`Avg ↑ ${value}`, point.date),
+              x: x(point.date),
+              readout: `${buildDateWords(point.date)} · ${independent.label} above scale · ${value}`,
+            },
+          ];
+        });
+  return { placed, trend, height: rows.length * 40 };
 }

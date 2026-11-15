@@ -148,12 +148,13 @@ export type TokenIndexAnswer = {
   readonly tariff: { readonly version: string; readonly label: string };
   // When Codex rollouts were last checked for usage; null before any import.
   readonly checkedAt: string | null;
-  // Every priced task, partial ones included.
+  // Priced tasks in the requested period (all history without bounds), including partial ones.
   readonly tasks: readonly TokenIndexTask[];
   // How many finished tasks of the cohort have no point because a response
   // lacks a rate under the tariff, such as an unknown model or speed tier.
   readonly unpriced: number;
   // From the tenth eligible task on, the mean of each one's latest ten
-  // eligible tasks: priced and measured with no known gap.
+  // eligible tasks: priced and measured with no known gap. Earlier history still
+  // contributes; only observations in the requested period are returned.
   readonly average: readonly { readonly at: string; readonly value: number }[];
 };

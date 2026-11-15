@@ -10,6 +10,7 @@ import {
   placeOverflows,
   type OverflowPlacement,
 } from "./historyChartOverflow.ts";
+import { trendThrough } from "./historyChartTrend.ts";
 import { buildDateWords, selectedLandingWords } from "./ciHistoryWords.ts";
 import {
   entryValueWords,
@@ -55,6 +56,8 @@ export type ChartLayout = {
   // Every entry in history order, oldest first.
   readonly marks: readonly ChartMark[];
   readonly line: string;
+  readonly trendOnTop: boolean;
+  readonly trendOverflows: ReturnType<typeof placeOverflows>["trend"];
   readonly dates: readonly { readonly x: number; readonly words: string }[];
 };
 
@@ -77,29 +80,6 @@ function lineThrough(marks: readonly ChartMark[]): string {
   return moves.length < 2 ? "" : moves.join(" ");
 }
 
-// Half the width of a one-value trend's level, as wide as a point's mark
-// and ring on each side.
-const levelReach = 8;
-
-function trendThrough(
-  trend: NonNullable<HistoryChartSeries["trend"]>,
-  x: (date: string) => number,
-  y: (value: number) => number,
-): string {
-  const [only] = trend;
-  if (trend.length === 1 && only !== undefined) {
-    const at = x(only.date);
-    const level = String(y(only.value));
-    return `M${String(at - levelReach)} ${level} L${String(at + levelReach)} ${level}`;
-  }
-  return trend
-    .map(
-      ({ date, value }, index) =>
-        `${index === 0 ? "M" : "L"}${String(x(date))} ${String(y(value))}`,
-    )
-    .join(" ");
-}
-
 export function chartLayout(
   series: HistoryChartSeries,
   width: number,
@@ -116,7 +96,9 @@ export function chartLayout(
       : axis.ticks([
           ...ordinary.map((point) => point.value),
           ...(reference === undefined ? [] : [reference.value]),
-          ...(trend ?? []).map((point) => point.value),
+          ...(series.independentTrend === undefined ? (trend ?? []) : []).map(
+            (point) => point.value,
+          ),
         ]);
   // Whole duration labels can be wider near zero (e.g. 1 min 30 s).
   // Reserve their width so phone readers never lose the leading figures.
@@ -135,7 +117,7 @@ export function chartLayout(
       : plotLeft +
         ((Date.parse(date) - earliest) / (latest - earliest)) *
           (plotEnd - plotLeft);
-  const overflows = placeOverflows(series, x, plotLeft, plotEnd);
+  const overflows = placeOverflows(series, x, plotLeft, plotEnd, highest);
   const overflowHeight = overflows.height;
   const y = (value: number) =>
     overflowHeight +
@@ -184,7 +166,17 @@ export function chartLayout(
       ? {}
       : { reference: { y: y(reference.value), label: reference.label } }),
     marks,
-    line: trend === undefined ? lineThrough(marks) : trendThrough(trend, x, y),
+    line:
+      trend === undefined
+        ? lineThrough(marks)
+        : trendThrough(
+            trend,
+            x,
+            y,
+            series.independentTrend === undefined ? undefined : highest,
+          ),
+    trendOnTop: series.independentTrend !== undefined,
+    trendOverflows: overflows.trend,
     dates: dated,
   };
 }

@@ -137,7 +137,7 @@ Do not claim final ordinary-task readability until that slice passes.
 
 ### 3. Read the true average without letting it control the scale
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 3 and the UI promises; true 7.4-million figure,
 ordinary-only geometry, explicit dated average overflow, contrasting paint
 above dots, narrow/touch/zoom access, and shared CI/scope regression cases.
@@ -210,7 +210,7 @@ Owned/originating checkout `/Users/terryyin/git/open-dough/.worktrees/make-recen
 branch `codex/make-recent-token-usage-easier-to-read`; optional default/integration `/Users/terryyin/git/open-dough`.
 Starting revision `244fc7bc67e454a3d43dfc7849f9b65edb805ec9`; initial published base/candidate
 `07e3ec6c411f79f65f908fc9aa0ac18ce3f5d275`, verified on origin/main and execution branch.
-Latest accepted increment `30697cc105d3ee6c0a35043b5deda789f1671711` on origin/execution branch.
+Latest accepted increment `4b1c7984c4ad5c2f9ef634db89400dcd5d9697a1` on origin/execution branch.
 No second start; claim trunk CI unobserved. No replanning override; existing planning authority retained.
 Checkout `npm ci` with unchanged lockfile and `npm run typecheck:dashboard` passed.
 Selective formatter `npm run format`; check-only `.githooks/pre-commit` owns staged lint and typecheck.
@@ -234,12 +234,10 @@ source expectation; no gap or deferred/running proof. Implementation ~8 active m
 ### G1. Average still contributes to ordinary scale
 Reported: slice 2 — "Moving averages still influence the ordinary axis."
 Story clause: "independently of the average"
-Disposition: interim until slices 3
+Disposition: proved by slice 3: system-settings-usage-average.spec.ts ordinarySeparation unchanged with high average and 65M task; chartLayout independentTrend omits trend from ticks
 Commitment: C30
-
-
 ### G2. Dated average overflow remains for slice 3
 Reported: slice 2 — "An all-large fallback’s above-scale average lacks explicit dated overflow rendering."
 Story clause: "Explicitly identify an average above that scale at its date and make its actual value readable; a clipped trace must not imply that the scale ceiling is the actual average."
-Disposition: interim until slices 3
+Disposition: proved by slice 3: system-settings-usage-average.spec.ts showsAverageOverflow true7.4M and all-large65M dated values; showsSeparatedAverageLevels breaks in→above→in; unchanged task/average values in service
 Commitment: C31, C32, C33

@@ -125,6 +125,7 @@
 }
 
 .usage-swatch-average {
+  background: var(--history-chart-trend);
   width: 15px;
   height: 2px;
   border-radius: 0;
