@@ -124,7 +124,7 @@ because the existing one is at the limit (premise 6).
 
 ### 2. A continued wait reports what was published since the previous result
 Type: Behavior
-Status: planned
+Status: done
 Proof: the three slice 2 examples above as tests in a new continued-wait test file beside the existing one, each failing on the delivered command for the first example's reason (premise 1) or passing unchanged for the two that guard existing behavior; `bash scripts/test.sh` naming both wait test files.
 
 Behavior: a wait ended with a `publication` result and the supplier publishes
@@ -138,6 +138,15 @@ Change `waitForPublication` in `wait-for-publication.mjs` as Direction
 describes and update the file's header comment. Move the existing "a rerun
 given the returned deadline" test into the new file, rerunning with the first
 wait's refs.
+
+Accepted: the burst example failed first on the delivered command (the rerun
+printed only `deadline`) and now ends at once under a 3600-second interval; the
+moved rerun test became the "nothing published since" example; both wait test
+files pass 12 of 12 through the focused command, and
+`bash scripts/test.sh Distribution/tests/installation/payload-declaration-links.sh`
+passes for the installer payload that lists the script. A rerun naming other
+items is a fresh wait because the retained key includes the watched items in
+order (inspected in `waitKey`); no test names it.
 
 ## Current decisions, verification and concern review
 

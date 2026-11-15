@@ -83,9 +83,11 @@ Keep the change when every unchanged wait shows, for the host it ran on:
 Otherwise remove the added guidance: the "Watch a paused supplier" section of
 `wait-for-proof.md` and the clause "or watch a paused supplier first when the
 developer asks" in `execution-decisions.md`. The command's only consumer is
-that section, so the command, its test
-`Distribution/tests/skills/dough-execute-plan/wait-for-publication.test.mjs`,
-that test's support module
+that section, so the command, its tests
+`Distribution/tests/skills/dough-execute-plan/wait-for-publication.test.mjs`
+and
+`Distribution/tests/skills/dough-execute-plan/continued-wait-for-publication.test.mjs`,
+their support module
 `Distribution/tests/support/wait-for-publication-fixture.mjs`
 and its line in `src/install/open-dough-execution-payload.sh` leave with it.
 Record the observed counts and the verdict here either way.

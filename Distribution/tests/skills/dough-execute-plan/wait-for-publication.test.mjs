@@ -5,6 +5,7 @@ import test from "node:test";
 import { git } from "../../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { until } from "../../support/local-test-suite-fixtures.mjs";
 import {
+  beyondLoadedStartUp,
   delivered,
   lastFetched,
   objectAt,
@@ -18,8 +19,6 @@ import {
 } from "../../support/wait-for-publication-fixture.mjs";
 
 const minuteMs = 60_000;
-const briefly = ["--duration-minutes", "0.05"];
-const beyondLoadedStartUp = ["--duration-minutes", "0.25"];
 
 test("a push touching no watched path prints nothing, and a push to a watched path ends the wait with one result naming the change and the deadline", async (t) => {
   const { supplier, watcher } = await watchedRemote(t);
@@ -103,23 +102,6 @@ for (const [name, duration, minutes] of [
     assert.ok(deadline <= startedBefore + minutes * minuteMs);
   });
 }
-
-test("a rerun given the returned deadline prints one deadline result at that time", async (t) => {
-  const { supplier, watcher } = await watchedRemote(t);
-  const first = startWait(t, watcher, ...watchedOutcome, ...briefly);
-  await observed(watcher, await objectAt(supplier, "HEAD"));
-  await publish(supplier, "main", { [outcomePath]: "not yet\n" });
-  const { deadline } = await onlyResult(first);
-
-  const rerun = startWait(t, watcher, "--ref", "main", "--deadline", deadline);
-
-  assert.deepEqual(await onlyResult(rerun), {
-    result: "deadline",
-    remote: "origin",
-    deadline,
-  });
-  assert.ok((await rerun.ended).endedAt >= Date.parse(deadline));
-});
 
 test("arguments that name no ref end at once with the usage", async (t) => {
   const wait = startWait(t, tmpdir());

@@ -23,6 +23,8 @@ const script = fileURLToPath(
 export const outcomePath = "docs/supplier-outcome.md";
 export const watchedOutcome = ["--ref", `main:${outcomePath}`];
 export const delivered = { [outcomePath]: "delivered\n" };
+// A duration that outlasts the command's start-up on a loaded machine.
+export const beyondLoadedStartUp = ["--duration-minutes", "0.25"];
 
 // A remote whose trunk holds `files`, the supplier's checkout that publishes
 // to it, and the watching checkout: a separate clone of that remote.
@@ -52,12 +54,16 @@ export async function publish(supplier, ref, files) {
   return commit;
 }
 
-// Starts the real command in the watching checkout with a sub-second interval,
-// passing `args` (refs, `--deadline`, `--duration-minutes`) through unchanged.
+// Starts the real command in the watching checkout, passing `args` (refs,
+// `--deadline`, `--duration-minutes`) through unchanged, with a sub-second
+// interval unless `args` name one.
 export function startWait(t, watcher, ...args) {
+  const interval = args.includes("--interval-seconds")
+    ? []
+    : ["--interval-seconds", "0.05"];
   const child = spawn(
     process.execPath,
-    [script, "--remote", "origin", "--interval-seconds", "0.05", ...args],
+    [script, "--remote", "origin", ...interval, ...args],
     { cwd: watcher },
   );
   t.after(() => child.kill("SIGKILL"));
