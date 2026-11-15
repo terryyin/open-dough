@@ -18,9 +18,7 @@
 22.4	tests/intent/intent-ci-comparison-drilldown-relative.spec.ts
 22.1	tests/intent/intent-summary-story-comparison-file.spec.ts
 22.0	tests/navigation/source-navigation.spec.ts
-21.1	tests/intent/intent-sidebar-toggle.spec.ts
 20.2	tests/navigation/project-keyboard-navigation.spec.ts
-19.6	tests/intent/intent-home-activation.spec.ts
 19.6	tests/navigation/story-reference-navigation.spec.ts
 19.3	tests/intent/intent-reading-place.spec.ts
 19.0	tests/navigation/development-intent-frame.spec.ts
@@ -49,9 +47,7 @@
 9.6	tests/navigation/board-paging-side-panel.spec.ts
 9.4	tests/navigation/story-reference-identity.spec.ts
 9.1	tests/intent/intent-ci-comparison-relative.spec.ts
-8.7	tests/intent/intent-project-visit-selection.spec.ts
 8.4	tests/intent/intent-selection-reads.spec.ts
-8.1	tests/intent/intent-project-visit.spec.ts
 8.1	tests/navigation/project-selection.spec.ts
 7.5	tests/navigation/accessible-board-scroll.spec.ts
 7.2	tests/navigation/story-destination-repeat-cue.spec.ts

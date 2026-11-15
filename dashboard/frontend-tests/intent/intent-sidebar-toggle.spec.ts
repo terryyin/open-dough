@@ -1,3 +1,4 @@
+import { selectTakenStoryInIntent } from "../../tests/support/frontendIntentVisits.ts";
 // Hide files / Show files (../../src/FileBrowserToggle.tsx) in Project
 // Intent's strip on CI status (../../src/IntentPage.tsx), or ending a
 // selected story's view row on Changed tests
@@ -11,10 +12,10 @@
 // selected story's view row: ../../frontend-tests/intent/intent-story-views-narrow.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
-import { box } from "../partArrangement.ts";
+import { box } from "../../tests/partArrangement.ts";
 import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { chooseProject, parts } from "../dashboardPage.ts";
-import { ciPanel } from "../intentCiStatusPage.ts";
+import { chooseProject, parts } from "../../tests/dashboardPage.ts";
+import { ciPanel } from "../../tests/intentCiStatusPage.ts";
 import {
   chooseOptimizationCandidates,
   expectFilesShown,
@@ -27,32 +28,29 @@ import {
   filesScroll,
   scrollFilesHalfway,
   intentBrowser,
-} from "../intentModePage.ts";
+} from "../../tests/intentModePage.ts";
 import {
   fileReadingTab,
   proofRegion,
   intentReadingPane,
-} from "../intentPerspectivePage.ts";
-import { expect, test } from "../support/preparationPage.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   chooseStoryTab,
   expectStoryTab,
   folderToggle,
   intentFile,
-  selectTakenStoryInIntent,
   storyOnly,
   storySummary,
   storyTitle,
   storyViews,
   intentDiffReading,
-} from "../support/intentStoryPage.ts";
-import {
-  changeWithDeepSpec,
-  deepSpec,
-  publishIntentTrunk,
-} from "../support/intentStoryWorktree.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import type { StartOrigin } from "../support/startOrigin.ts";
+} from "../../tests/support/intentStoryPage.ts";
+import { deepSpec } from "../../tests/support/intentStoryWorktree.ts";
+import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
+import { putFrontendIntentStory } from "../../tests/support/frontendIntentStory.ts";
+import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
 
 // The reading pane spans the browser's whole width, and its whole height.
 async function expectReadingFillsBrowser(intent: Locator) {
@@ -68,11 +66,14 @@ async function expectReadingFillsBrowser(intent: Locator) {
 }
 
 // Intent with its locations published and no story selected.
-async function openIntentWithoutStory(page: Page, origin: StartOrigin) {
-  publishIntentTrunk(origin.project);
-  await openBacklog(page, origin);
-  const { intentChoice, intent } = parts(page);
-  await intentChoice.click();
+async function openIntentWithoutStory(
+  page: Page,
+  services: FrontendServiceState,
+) {
+  putFrontendIntentStory(services);
+  await answerFrontendIntentCi(page, services.revision);
+  await openUntilRead(page, "/?project=open-dough&perspective=intent");
+  const { intent } = parts(page);
   await expect(ciPanel(intent)).toBeVisible();
   await expectFilesShown(intent, true);
   return intent;
@@ -80,14 +81,10 @@ async function openIntentWithoutStory(page: Page, origin: StartOrigin) {
 
 test("Hide files gives the reading pane the width under the story's header; after the other views, Show files returns the column, test and Proof as they were", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 560 });
-  const { intent } = await selectTakenStoryInIntent(
-    page,
-    origin,
-    changeWithDeepSpec,
-  );
+  const { intent } = await selectTakenStoryInIntent(page, frontendServices);
   await storyOnly(intent).check();
   await intentFile(intent, deepSpec).click();
   await expect(intentDiffReading(intent).name).toHaveText(deepSpec);
@@ -142,9 +139,9 @@ test("Hide files gives the reading pane the width under the story's header; afte
 
 test("the hidden column stays hidden through a Project Intent visit, which keeps its own choice, and Development, and a project change shows it", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  const { intent } = await selectTakenStoryInIntent(page, origin);
+  const { intent } = await selectTakenStoryInIntent(page, frontendServices);
   await filesToggle(intent).click();
   await expectFilesShown(intent, false);
 
@@ -178,10 +175,10 @@ test("the hidden column stays hidden through a Project Intent visit, which keeps
 
 test("with no story, the toggle is reached by Tab after the tabs, works with Enter and Space, and CI status takes the width", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const intent = await openIntentWithoutStory(page, origin);
+  const intent = await openIntentWithoutStory(page, frontendServices);
 
   await intentModeTab(intent, "CI status").focus();
   await page.keyboard.press("Tab");
@@ -203,10 +200,10 @@ test("with no story, the toggle is reached by Tab after the tabs, works with Ent
 
 test("narrow, the hidden column gives the reading pane the height under the strip", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 640, height: 720 });
-  const intent = await openIntentWithoutStory(page, origin);
+  const intent = await openIntentWithoutStory(page, frontendServices);
   const browser = await box(intentBrowser(intent));
   const before = await box(intentReadingPane(intent));
   expect(before.height).toBeLessThan(browser.height - 40);

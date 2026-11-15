@@ -173,7 +173,7 @@ All consumers are disposed; [independent refactoring](slice-6-refactor.md) passe
 
 ### 7. Preserve activation and project visits with the file column
 Type: Behavior
-Status: planned
+Status: done
 Proof: four specs / 694 lines: `intent-home-activation`,
 `intent-project-visit`, `intent-project-visit-selection`, `intent-sidebar-toggle`.
 Behavior: activate a home tab, visit Project Intent, select/clear another story,
@@ -182,6 +182,10 @@ column choice and notice; keyboard navigation and narrow layout remain usable.
 Reuse candidate/location/review answers and any CI answers delivered meanwhile.
 No new family; retain actual browser scope transitions and source pinning,
 including story defaults after reselecting while Intent was hidden.
+
+Implementation proof: [143 original statements, source continuations and real judgment](slice-7-proof.md).
+About 14 active minutes; strict Frontend22/guard8/Java2, Backend2, E2E3 and typecheck passed.
+All consumers are disposed; [independent refactoring](slice-7-refactor.md) passed strict activation3.
 
 ### 8. Preserve reading reuse and reconcile the Intent conversion
 Type: Behavior

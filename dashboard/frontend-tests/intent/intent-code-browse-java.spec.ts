@@ -1,3 +1,8 @@
+import { filesToggle, expectFilesShown } from "../../tests/intentModePage.ts";
+import {
+  expectReadingOffset,
+  scrollIntentReadingHalfway,
+} from "../../tests/intentPerspectivePage.ts";
 import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
 import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts";
 // Configured Java/JUnit source uses Intent's existing browser and Purpose/Proof
@@ -102,6 +107,38 @@ class CalculatorTest {
   );
   await expect(sourceLineText(source)).toHaveText(javaText.split("\n"));
 
+  await page.setViewportSize({ width: 1280, height: 280 });
+  const offset = await scrollIntentReadingHalfway(intent);
+  expect(offset).toBeGreaterThan(0);
+  await parts(page).development.click();
+  await parts(page).intentChoice.click();
+  await expect(sourceFile(intent, javaPath)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expectReadingOffset(intent, offset);
+  await filesToggle(intent).press("Enter");
+  await expectFilesShown(intent, false);
+  await expect(sourceLineText(source)).toHaveText(javaText.split("\n"));
+  await expectReadingOffset(intent, offset);
+  await filesToggle(intent).press("Space");
+  await expectFilesShown(intent, true);
+  await expect(sourceLineNumbers(source)).toHaveText([
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+  ]);
+  await expectReadingOffset(intent, offset);
+  expect(await colourOf(sourceToken(source, /^class$/))).toBe(
+    "rgb(255, 148, 146)",
+  );
+  expect(await colourOf(sourceToken(source, /^"two"$/))).toBe(
+    "rgb(173, 220, 255)",
+  );
+  await page.setViewportSize({ width: 1280, height: 900 });
   await fileReadingTab(intent, "Proof").click();
   await expect(proofRegion(intent)).toContainText(
     "No result of the selected check was found in the readable history",
@@ -148,6 +185,17 @@ test("a failed Java grammar load leaves configured source readable as exact plai
     'class Examples { String value = "still readable"; }',
     "",
   ]);
+  await expect(sourceLineNumbers(source)).toHaveText(["1", "2"]);
+  await expect(sourceLineText(source).locator("span")).toHaveCount(0);
+  await parts(page).development.click();
+  await parts(page).intentChoice.click();
+  await expect(sourceFile(intent, "checks/Examples.java")).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await filesToggle(intent).click();
+  await expectFilesShown(intent, false);
+  await expect(sourceLineText(source)).toHaveText([text.trimEnd(), ""]);
   await expect(sourceLineNumbers(source)).toHaveText(["1", "2"]);
   await expect(sourceLineText(source).locator("span")).toHaveCount(0);
 });

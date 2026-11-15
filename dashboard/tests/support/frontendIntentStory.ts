@@ -47,7 +47,13 @@ export const frontendIntentChanges = [
 
 export function putFrontendIntentStory(
   services: FrontendServiceState,
-  { workspace = true, locations = true, taken = true, story = storyA } = {},
+  {
+    workspace = true,
+    locations = true,
+    taken = true,
+    story = storyA,
+    branch = "claude/story-a",
+  } = {},
 ) {
   const publication = describedRevision(
     makeMe.aRepository
@@ -94,7 +100,7 @@ export function putFrontendIntentStory(
         .executing(story)
         .onStoryBranch({
           workspace: "/tmp/intent-story",
-          branch: "claude/story-a",
+          branch,
         })
         .please(),
     )

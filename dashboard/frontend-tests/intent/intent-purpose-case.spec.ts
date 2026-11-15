@@ -1,3 +1,9 @@
+import { filesToggle, expectFilesShown } from "../../tests/intentModePage.ts";
+import {
+  intentReadingScroll,
+  expectReadingOffset,
+} from "../../tests/intentPerspectivePage.ts";
+import { sourceLineText } from "../../tests/intentCodeBrowsePage.ts";
 import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
 // Opening a recorded file from Optimization Candidates shows Purpose
 // positioned on its case, and opening it again after reading away from the
@@ -90,6 +96,24 @@ test("opening a recorded file shows Purpose on its case, reading it once, and op
           !params.has("committed"),
       ).length,
     ).toBe(1);
+
+    const offset = await intentReadingScroll(intent);
+    expect(offset).toBeGreaterThan(0);
+    await parts(page).development.click();
+    await intentChoice.click();
+    await expect(fileName).toHaveAttribute("aria-pressed", "true");
+    await expectReadingOffset(intent, offset);
+    await filesToggle(intent).press("Enter");
+    await expectFilesShown(intent, false);
+    await expect(sourceLineText(source)).toHaveText(
+      doughnutCaseFeatureSource.split("\n"),
+    );
+    await expectSourceTargetLine(source, 35);
+    await expectReadingOffset(intent, offset);
+    await filesToggle(intent).press("Space");
+    await expectFilesShown(intent, true);
+    await expect(fileName).toHaveAttribute("aria-pressed", "true");
+    await expectReadingOffset(intent, offset);
 
     await test.step("highlighting keeps the reader at the start, opening the recorded file again shows Purpose on its case", async () => {
       await intentReadingPane(intent).evaluate((el) => {

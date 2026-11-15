@@ -1,30 +1,33 @@
+import { selectTakenStoryInIntent } from "../../tests/support/frontendIntentVisits.ts";
 // Selection changes after Project Intent visits (../../src/IntentPerspective.tsx):
 // every new selection opens CI comparison, even when cleared and selected again
 // while Intent is hidden. Clearing selection opens Project Intent's CI status,
 // whichever view the previous visit ended on.
 
-import { ciPanel } from "../intentCiStatusPage.ts";
+import { ciPanel } from "../../tests/intentCiStatusPage.ts";
 import {
   backToStory,
   chooseOptimizationCandidates,
   expectIntentModeChosen,
   openProjectIntent,
   intentPageFrame,
-} from "../intentModePage.ts";
-import { parts } from "../dashboardPage.ts";
-import { expectSelected } from "../storyCardSelection.ts";
-import { expect, test } from "../support/preparationPage.ts";
+} from "../../tests/intentModePage.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import { expectSelected } from "../../tests/storyCardSelection.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   expectStoryTab,
-  selectTakenStoryInIntent,
   storySummary,
-} from "../support/intentStoryPage.ts";
+} from "../../tests/support/intentStoryPage.ts";
 
 test("each new selection opens the story at CI comparison, even one cleared and selected again while Intent is hidden, and clearing lands on Project Intent's CI status after a visit that ended on Optimization Candidates", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  const { card, intent } = await selectTakenStoryInIntent(page, origin);
+  const { card, intent } = await selectTakenStoryInIntent(
+    page,
+    frontendServices,
+  );
   await expectStoryTab(intent, "Changed tests");
   await openProjectIntent(intent);
   await chooseOptimizationCandidates(intent);

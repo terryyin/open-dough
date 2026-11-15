@@ -1,14 +1,16 @@
 import {
+  prepareActivationStory,
+  prepareActivationProject,
+} from "../../tests/support/frontendIntentActivation.ts";
+import { openWithFeatureSelected } from "../../tests/support/frontendIntentRevisionJourney.ts";
+import {
   expectCiScope,
   expectCiAnswer,
   activateIntentHome,
   chooseCiStatus,
   ciPanel,
   judged,
-  publishProject,
-  runUrl,
-  trunkCi,
-} from "../intentCiStatusPage.ts";
+} from "../../tests/intentCiStatusPage.ts";
 
 // Directly activating Project Intent's CI status tab
 // (../../src/IntentPage.tsx, ../../src/intentWorkspaceSelection.ts) or the
@@ -22,23 +24,18 @@ import {
 // notice and the shown revision, reading nothing newer.
 // Project Intent's landing journey from an entry, folder and file by click,
 // Enter and Space: ../../frontend-tests/intent/intent-ci-status-homepage.spec.ts. Opening a candidate's
-// file: ./intent-test-optimization-candidates-open.spec.ts.
+// file: ../../tests/intent/intent-test-optimization-candidates-open.spec.ts.
 
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
 import {
   browseSpec,
-  openDough,
   openDoughSettings,
   pygardon,
-} from "../intentCodeBrowseFixtures.ts";
+} from "../../tests/intentCodeBrowseFixtures.ts";
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { failing } from "../intentCiStoryBoard.ts";
-import {
-  publishStoryCi,
-  toggleOnDevelopment,
-} from "../intentCiStoryRecords.ts";
+import { failing } from "../../tests/intentCiStoryBoard.ts";
+import { toggleOnDevelopment } from "../../tests/intentCiStoryRecords.ts";
 import {
   expectIntentModeChosen,
   intentModeTab,
@@ -46,27 +43,29 @@ import {
   returnToStory,
   intentPageFrame,
   filesColumn,
-} from "../intentModePage.ts";
+} from "../../tests/intentModePage.ts";
 import {
   chooseStoryTab,
   expectStoryTab,
   storySummary,
-} from "../support/intentStoryPage.ts";
+} from "../../tests/support/intentStoryPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
   revisionNotice,
-} from "../intentPerspectivePage.ts";
-import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
-import { shortRevision } from "../dashboardParts.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import {
+  openUntilRead,
+  untilPageReadsAnswered,
+} from "../../tests/pageRequestNotes.ts";
+import { shortRevision } from "../../tests/dashboardParts.ts";
 import {
   intentReads,
   jobsFeatures,
-  openWithFeatureSelected,
   publishedFiles,
-} from "../intentRevisionJourney.ts";
+} from "../../tests/intentRevisionJourney.ts";
 import type { Locator } from "@playwright/test";
-import { intentSettingsText } from "../support/intentSettingsFile.ts";
+import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
 
 const intentFiles = {
   ".planning/open-dough.json": intentSettingsText(openDoughSettings),
@@ -95,9 +94,14 @@ async function expectFileRead(intent: Locator) {
 
 test("with a story selected, activating CI comparison judges that story's branch, keeping its header and Changed tests reading, while Project Intent judges main with its own selection", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  publishStoryCi(page, intentFiles);
+  const queries = await prepareActivationStory(
+    page,
+    frontendServices,
+    intentFiles,
+  );
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   await chooseCiStatus(intent);
@@ -143,6 +147,26 @@ test("with a story selected, activating CI comparison judges that story's branch
     await expectCiScope(ciPanel(intent), "main");
   });
 
+  expect(queries.filter((query) => query.intent === "ci-status")).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ source: "open-dough", judged: failing.branch }),
+      expect.objectContaining({ source: "open-dough", judged: null }),
+    ]),
+  );
+  expect(queries).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        endpoint: "/__agent-launch/review",
+        source: "open-dough",
+        identity: "SEED-219#failing",
+      }),
+      expect.objectContaining({
+        path: "dashboard/tests/browse.spec.ts",
+        source: "open-dough",
+        revision: frontendServices.revision,
+      }),
+    ]),
+  );
   await returnToStory(intent);
   await expectStoryTab(intent, "Changed tests");
   await expect(fileName(intent)).toHaveAttribute("aria-pressed", "true");
@@ -151,15 +175,10 @@ test("with a story selected, activating CI comparison judges that story's branch
 
 test("arrow keys, Home and End choose CI status again with the file still read; activating CI status from Optimization Candidates returns home", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  publishProject(page, openDough, intentFiles).serveCi(
-    trunkCi(openDough.revision, () => [
-      makeMe.aCiRun
-        .with({ headSha: judged, conclusion: "success", url: runUrl })
-        .please(),
-    ]),
-  );
+  await prepareActivationProject(page, frontendServices, intentFiles, judged);
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   await chooseCiStatus(intent);
@@ -194,11 +213,13 @@ test("arrow keys, Home and End choose CI status again with the file still read; 
 
 test("with a newer revision waiting behind its notice, activating CI status returns home and keeps the notice and the shown revision", async ({
   page,
+  frontendServices,
 }) => {
   const files = publishedFiles(jobsFeatures);
   const reads = intentReads(page);
   const { moveTrunk, intent, feature } = await openWithFeatureSelected(
     page,
+    frontendServices,
     files,
   );
   await moveTrunk("eb".repeat(20), files);

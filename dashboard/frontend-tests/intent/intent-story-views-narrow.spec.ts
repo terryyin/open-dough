@@ -9,7 +9,7 @@ import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts"
 // (../../src/IntentPage.tsx) at a narrow width: every control stays
 // within the page without widening it, Tab reaches the toggle after the
 // views, Enter and Space work it, and Home and End choose along the views.
-// The toggle's wide layout: ../../tests/intent/intent-sidebar-toggle.spec.ts.
+// The toggle's wide layout: ./intent-sidebar-toggle.spec.ts.
 
 import {
   expectFilesShown,

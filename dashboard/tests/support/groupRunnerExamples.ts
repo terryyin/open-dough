@@ -10,8 +10,8 @@ export const groupRunnerExamples = [
     directory: "dashboard",
     root: "dashboard/tests",
     durations: "integrated.longest-first",
-    spec: "intent/intent-sidebar-toggle.spec.ts",
-    grep: "narrow, the hidden column gives the reading pane the height under the strip",
+    spec: "navigation/board-paging.spec.ts",
+    grep: "with reduced motion asked for, a move shows the next column at once",
   },
   {
     name: "Dashboard Frontend Test",

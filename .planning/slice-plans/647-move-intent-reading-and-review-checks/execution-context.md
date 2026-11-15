@@ -7,8 +7,8 @@ integration target `main`. Established publisher
 `dashboard-territory.local-open-dough`, agent Honoka-chan, starting revision
 `38175824df799c47811f2b00cb8cdb20400edaed`; accepted claim and previously
 published branch base `f8c4841a47719925236f78ff220efe9b0795e4f5`.
-Latest accepted branch revision: `37fb6a94cbb69aff99ae403c8177697d40e034c6`
-(delivered slice5, suffix base `a2692caf9c13edd785f452308381fe708002f5aa`;
+Latest accepted branch revision: `76ff4d6cd6a138205a0d2bb217350166734c410d`
+(delivered slice6, suffix base `37fb6a94cbb69aff99ae403c8177697d40e034c6`;
 observation reused the stream below).
 No new claim was made. Checkout-local `npm ci` installed the locked 183 packages;
 the existing Frontend candidate recovery listing passed. Existing planning

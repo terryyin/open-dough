@@ -1,4 +1,5 @@
-import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
+import { selectTakenStoryInIntent } from "../../tests/support/frontendIntentVisits.ts";
+import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // Project Intent visits (../../src/IntentPerspective.tsx, ../../src/IntentPage.tsx)
 // keep the selected story and each context's file, Proof/Purpose and scroll.
 // Project tests read published text and trunk CI; returning restores the
@@ -7,10 +8,9 @@ import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // CI follow cost during visits: ../../../e2e/intent/intent-project-visit-ci.spec.ts.
 // No-story landing: ../../frontend-tests/intent/intent-ci-status-homepage.spec.ts.
 
-import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { ciPanel } from "../intentCiStatusPage.ts";
-import { projectReads } from "../intentProjectVisitPage.ts";
+import { ciPanel } from "../../tests/intentCiStatusPage.ts";
+import { projectReads } from "../../tests/intentProjectVisitPage.ts";
 import {
   backToStory,
   candidatesRecord,
@@ -21,47 +21,38 @@ import {
   returnToStory,
   filesColumn,
   intentPageFrame,
-} from "../intentModePage.ts";
+} from "../../tests/intentModePage.ts";
 import {
   fileReadingTab,
   intentReadingScroll,
   proofRegion,
   scrollIntentReadingHalfway,
-} from "../intentPerspectivePage.ts";
-import { expect, test } from "../support/preparationPage.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   expectStoryTab,
   intentFile,
-  selectTakenStoryInIntent,
   intentDiffReading,
-} from "../support/intentStoryPage.ts";
-import {
-  changed,
-  changeWithDeepSpec,
-  deepSpec,
-} from "../support/intentStoryWorktree.ts";
-import { writeAt } from "../support/storyReviewWorktree.ts";
+} from "../../tests/support/intentStoryPage.ts";
+import { changed, deepSpec } from "../../tests/support/intentStoryWorktree.ts";
 
 // The spec the story modifies, which the trunk's record names as a candidate.
 const candidatePath = "dashboard/tests/a.spec.ts";
 
 test("a candidate's test the story changes reads as published in Project Intent, and returning restores the candidate and then the story's reading", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  writeAt(
-    origin.project,
-    testOptimizationCandidatesPath,
-    makeMe.aTestOptimizationCandidatesRecord
-      .pending("a-spec-cost", `\`${candidatePath}\``)
-      .please(),
-  );
-  const { intent } = await selectTakenStoryInIntent(
-    page,
-    origin,
-    changeWithDeepSpec,
-  );
+  const { intent } = await selectTakenStoryInIntent(page, frontendServices);
+  Object.assign(frontendServices, {
+    candidates: {
+      revision: frontendServices.revision,
+      candidates: makeMe.aTestOptimizationCandidatesRecord
+        .pending("a-spec-cost", `\`${candidatePath}\``)
+        .please(),
+    },
+  });
   const selected = await intent.getAttribute("data-selected-story");
   expect(selected).not.toBeNull();
 

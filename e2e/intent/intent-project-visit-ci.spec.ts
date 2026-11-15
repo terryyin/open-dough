@@ -10,7 +10,7 @@ import {
 // Project Intent visits keep the selected story and trunk CI followed
 // (../../dashboard/src/IntentPerspective.tsx). Switching scopes reuses each reading;
 // an observed hidden trunk or story head refreshes only its own judgment.
-// Reading-place restoration: ../../dashboard/tests/intent/intent-project-visit.spec.ts.
+// Reading-place restoration: ../../dashboard/frontend-tests/intent/intent-project-visit.spec.ts.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
