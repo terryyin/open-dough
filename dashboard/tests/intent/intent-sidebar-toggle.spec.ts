@@ -8,7 +8,7 @@
 // choice with Intent's reading place (../../src/pageIntentReading.tsx) across
 // views, a visit to the other scope and Development, and a project change
 // shows the column again. A narrow
-// selected story's view row: ./intent-story-views-narrow.spec.ts.
+// selected story's view row: ../../frontend-tests/intent/intent-story-views-narrow.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
 import { box } from "../partArrangement.ts";

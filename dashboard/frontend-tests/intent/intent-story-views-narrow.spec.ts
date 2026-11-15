@@ -1,39 +1,49 @@
+import { openStoryIntent } from "../../tests/intentModePage.ts";
+import {
+  putFrontendIntentStory,
+  answerFrontendIntentChanges,
+} from "../../tests/support/frontendIntentStory.ts";
+import { chooseStoryTab } from "../../tests/support/intentStoryPage.ts";
+import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts";
 // A selected story's views and Hide files / Show files ending their row
 // (../../src/IntentPage.tsx) at a narrow width: every control stays
 // within the page without widening it, Tab reaches the toggle after the
 // views, Enter and Space work it, and Home and End choose along the views.
-// The toggle's wide layout: ./intent-sidebar-toggle.spec.ts.
+// The toggle's wide layout: ../../tests/intent/intent-sidebar-toggle.spec.ts.
 
 import {
   expectFilesShown,
   filesToggle,
   intentModeTab,
   intentPageFrame,
-} from "../intentModePage.ts";
-import { parts } from "../dashboardPage.ts";
-import { ciPanel } from "../intentCiStatusPage.ts";
-import { publishIntentTrunk } from "../support/intentStoryWorktree.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import { box } from "../partArrangement.ts";
+} from "../../tests/intentModePage.ts";
+import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
+import { ciPanel } from "../../tests/intentCiStatusPage.ts";
+import { box } from "../../tests/partArrangement.ts";
 import {
   browserRevision,
   intentReadingPane,
-} from "../intentPerspectivePage.ts";
-import { twiceZoomedWindow, zoomedWindow } from "../accessibleReading.ts";
-import { expect, test } from "../support/preparationPage.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import {
+  twiceZoomedWindow,
+  zoomedWindow,
+} from "../../tests/accessibleReading.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   expectStoryTab,
   outsideCount,
-  selectTakenStoryInIntent,
   storyTab,
   storyViews,
-} from "../support/intentStoryPage.ts";
+} from "../../tests/support/intentStoryPage.ts";
 
 test("narrow, a selected story's views and Hide files stay reachable by keyboard without widening the page", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  const { intent } = await selectTakenStoryInIntent(page, origin);
+  putFrontendIntentStory(frontendServices);
+  await answerFrontendIntentChanges(page);
+  const { intent } = await openStoryIntent(page, "Story A");
+  await chooseStoryTab(intent, "Changed tests");
   await page.setViewportSize({ width: 390, height: 760 });
   const width = await page.evaluate(() => document.documentElement.clientWidth);
   for (const control of [
@@ -72,10 +82,12 @@ test("narrow, a selected story's views and Hide files stay reachable by keyboard
 
 test("without a story the shared header, project views and reader fit narrow and short reading with keyboard controls", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  publishIntentTrunk(origin.project);
-  await openBacklog(page, origin);
+  putFrontendIntentStory(frontendServices);
+  await answerFrontendIntentCi(page, frontendServices.revision);
+  await page.goto("/");
+  await expectSettledPage(page);
   const { intentChoice, intent } = parts(page);
   await intentChoice.click();
   for (const viewport of [

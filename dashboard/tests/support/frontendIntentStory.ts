@@ -47,18 +47,18 @@ export const frontendIntentChanges = [
 
 export function putFrontendIntentStory(
   services: FrontendServiceState,
-  { workspace = true, locations = true, taken = true } = {},
+  { workspace = true, locations = true, taken = true, story = storyA } = {},
 ) {
   const publication = describedRevision(
     makeMe.aRepository
       .withRevision("published", {
         backlog: {
-          taken: taken ? [storyA] : [],
-          queued: taken ? [storyB] : [storyA, storyB],
+          taken: taken ? [story] : [],
+          queued: taken ? [storyB] : [story, storyB],
         },
         files: {
           ...intentTrunkRevision.files,
-          ".planning/seeds/A.md": renderStorySection(storyA),
+          ".planning/seeds/A.md": renderStorySection(story),
           ".planning/seeds/B.md": renderStorySection(storyB),
         },
       })
@@ -91,7 +91,7 @@ export function putFrontendIntentStory(
   const launch = makeMe.anObservedLaunch
     .of(
       makeMe.aLaunchRecord
-        .executing(storyA)
+        .executing(story)
         .onStoryBranch({
           workspace: "/tmp/intent-story",
           branch: "claude/story-a",

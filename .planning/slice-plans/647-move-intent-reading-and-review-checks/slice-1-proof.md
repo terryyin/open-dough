@@ -1,5 +1,7 @@
 # Slice 1 assertion disposition and accepted proof
 
+Current palette compatibility: [integration proof](integration-proof.md); all four colour-role checks remain exact.
+
 Original source: f8c4841a47719925236f78ff220efe9b0795e4f5. This mapping was
 written before deleting the six integrated source cases. Every original observer
 is listed below against its named maintained case; unchanged actions keep the

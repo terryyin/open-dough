@@ -52,9 +52,9 @@ integration target `main`. Established publisher
 `dashboard-territory.local-open-dough`, agent Honoka-chan, starting revision
 `38175824df799c47811f2b00cb8cdb20400edaed`; accepted claim and previously
 published branch base `f8c4841a47719925236f78ff220efe9b0795e4f5`.
-Latest accepted branch revision: `f3afab3d19cc02c594421a5a06753adb8a00884f`
-(slice 2, suffix base `13a08cafd240592c7b8832fc7b8b0a9186cd0617`, the inherited
-watcher repair; observation reused the stream below).
+Latest accepted branch revision: `e234257ded1594371583fbaa405216448e14b80d`
+(validated trunk integration, suffix base `32915ab6557dd852d790e7e3ba15bc708b9c7155`,
+the delivered slice3 revision; observation reused the stream below).
 No new claim was made. Checkout-local `npm ci` installed the locked 183 packages;
 the existing Frontend candidate recovery listing passed. Existing planning
 authority is retained; no overrun-replanning option was supplied.
@@ -136,14 +136,14 @@ Accepted proof: [slice3 assertion, source and consumer evidence](slice-3-proof.m
 13 active implementation minutes including canonical-family reconciliation,
 independent refactor and renewed covering Frontend pass.
 
-Clean-boundary checkpoint before slice4: integrate the published trunk history
-(including CI status/timing and syntax support) into this execution branch,
-preserve converted Java/Purpose homes on modify/delete conflicts, and renew
-affected combined-snapshot proof before implementation resumes.
+Checkpoint before slice4 fulfilled: published trunk history integrated with
+converted Java/Purpose homes preserved; [combined-snapshot proof](integration-proof.md)
+passed before branch publication. The current high-contrast palette retains
+all four exact colour-role assertions with updated authoritative values.
 
 ### 4. Preserve story presentation and Review return
 Type: Behavior
-Status: planned
+Status: done
 Proof: six specs / 878 lines: `intent-story-ci-cues`, `intent-story-coverage`,
 `intent-story-dark-appearance`, `intent-story-review-return`,
 `intent-story-summary-title`, `intent-story-views-narrow`.
@@ -156,6 +156,12 @@ transitions stay whole-app checks; component mounts cannot replace them.
 Use CI fixtures already delivered, or minimal explicit answers only where the
 interaction requires them; do not recreate acquisition in Frontend.
 
+Implementation proof: [135 assertion occurrences, same-fault checks and real
+boundary observations](slice-4-proof.md), [consumer dispositions](slice-4-consumers.md).
+Thirteen active minutes; Done full-app premise proved with explicit historical
+answers. Independent dependency/reference cleanup and affected strict proof passed.
+The covering focused consumer suite has no observation deferred to CI.
+
 ### 5. Preserve Done source, review mode and historical reading
 Type: Behavior
 Status: planned
@@ -166,8 +172,8 @@ Proof: seven specs / 960 lines: `intent-done-landed-review-mode`,
 Behavior: change Done story, enter historical versus live/captured Review,
 refresh Project Intent or fail/retry a local history read → no prior story,
 mode or captured run leaks; historical file/endpoints/Purpose/Proof/scroll and
-local history remain correct. Reuse existing review holds, Done publication,
-association and comparison mounts; extend existing history answers only if
+local history remain correct. Reuse slice4's observed full-app Done fixture,
+immutable historical answers, review holds and comparison adapter; extend existing history answers only if
 needed. Preserve real source/run judgment and exact GitHub no-extra-call
 assertions at Backend/E2E, never by arranging the expected judgment. Split
 mixed assertions into those homes within this one Done-reading proof loop.
@@ -227,3 +233,13 @@ execution rechecks only consuming conditions whose evidence no longer applies.
 Reported: slice 2 — "intent-shared-reads.spec.ts uses a global fetch substitute and is not dashboardServer/GitHub upstream-count evidence."
 Story clause: "GitHub request counts"
 Disposition: proved by slice 2: slice-2-proof.md#setup-and-boundary-ownership; inspected real E2E classified settings/listing cases preserve the exact heads-check +1, and the rate-limited listing case preserves the real classification/directed wait. Supplemental client proof is labeled correctly and the remaining plan's ownership assumption is corrected.
+
+### G2. Accepted syntax palette invalidates old colour literals
+Reported: slice 3 — "The merged snapshot failed Java's obsolete palette literal after SEED-351 intentionally adopted high-contrast palettes and the documented light contrast mix."
+Story clause: "Every distinct assertion remains useful"
+Disposition: proved by slice 3: integration-proof.md; all four exact keyword/string light/dark assertions remain, updated independently from the accepted named palettes/CSS mix; Java2, whole Frontend and real E2E8 pass on the merged candidate before publication.
+
+### G3. Quiet refactor output did not retain per-case evidence
+Reported: slice 4 — "No structured selection/result artifact was retained for the exact refactor invocation."
+Story clause: "Every distinct assertion remains useful"
+Disposition: proved by slice 4: slice-4-proof.md; coordinator renewed the three affected journeys with the maintained proof recorder, receiving completed strict pass and three passed attempts; all unchanged assertions retain the earlier Frontend16 observation.

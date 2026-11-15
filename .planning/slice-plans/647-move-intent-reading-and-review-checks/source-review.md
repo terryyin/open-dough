@@ -50,9 +50,9 @@ reviewer's actual return; the coordinator supplied allocation and observation.
 | C028 | “including negative effects” — retain negative-effect assertions when splitting mixed cases. | slice 8 |  |
 | C029 | “selected-story changes/gaps” — preserve selected-story changes. | slice 3 | observed: slice-3-proof.md Every original browser assertion: six maintained full-app cases preserve changed rows/renames, filtering, expansion, outside counts, no-test state and source refresh; real E2E intent-story-changes and moves pass actual Git baseline/head/diff and Review equality. |
 | C030 | “selected-story changes/gaps” — preserve selected-story gaps. | slice 3 | observed: slice-3-proof.md gaps three cases: exact no-workspace, failed comparison/retry, no-locations explanations and negative tree/count/revision assertions retained; real E2E no-workspace HTTP404 and Backend not-configured classification passed. |
-| C031 | “coverage” — preserve selected-story coverage. | slice 4 |  |
-| C032 | “appearance” — preserve selected-story appearance. | slice 4 |  |
-| C033 | “Review return” — preserve return from Review. | slice 4 |  |
+| C031 | “coverage” — preserve selected-story coverage. | slice 4 | observed: slice-4-proof.md: Frontend intent-story-coverage's four named cases passed in final16: exact Insufficient report/cost, unavailable reason, older missing assessment and held/failed Done-body Retry distinguish every state; real CLI persistence4 and E2E saved assessment passed. |
+| C032 | “appearance” — preserve selected-story appearance. | slice 4 | observed: slice-4-proof.md: Done dark-appearance and ci-cues journeys passed final16: real view/file/Proof/source/history transitions, original contrast/cue/selection/focus checks, narrow views and dark→light→dark preserve source and token colour. |
+| C033 | “Review return” — preserve return from Review. | slice 4 | observed: slice-4-proof.md: whole-app Review-return journey passed final16 after opening/closing the same panel by keyboard; original selected story, file, Changed tests, Purpose scroll, Proof tab and header focus return. |
 | C034 | “Done historical versus live/captured review modes” — preserve historical mode and its distinction from live/captured modes. | slice 5 |  |
 | C035 | “Done historical versus live/captured review modes” — preserve the live-mode facet of that distinction. | slice 5 |  |
 | C036 | “Done historical versus live/captured review modes” — preserve the captured-mode facet of that distinction. | slice 5 |  |
@@ -98,15 +98,15 @@ reviewer's actual return; the coordinator supplied allocation and observation.
 | C076 | “With a Taken story selected, browse a location” — include this journey action under the Taken-story condition. | slice 3 | observed: Frontend intent-story-changes-only first case, openStoryIntent then chooseStoryTab: real card selection for Taken StoryA then actual location/folder tree controls; expected selected-story expansion and paths are observed. Real E2E main/moves journeys retain Git-backed selection. |
 | C077 | “and nested folders” — include nested-folder browsing in that journey. | slice 3 | observed: Frontend intent-story-changes-only first case: manual boundary/other folder arrangement, enabling/disabling filter and preserved arriving/boundary/out expansion; exact original folder/row observers retained and six-case run passes. |
 | C078 | “open a changed test” — include opening a changed test in that journey. | slice 3 | observed: Frontend intent-story-changes-only reading/coverage return step: actual changed.modified row click opens exact diff heading, selected state and reading persist; real E2E main journey proves actual diff equals Review with more hunk. |
-| C079 | “open … Review by keyboard” — include keyboard opening of Review. | slice 4 |  |
-| C080 | “and close Review by keyboard” — include keyboard closing of Review. | slice 4 |  |
+| C079 | “open … Review by keyboard” — include keyboard opening of Review. | slice 4 | observed: slice-4-proof.md: Review-return uses focus plus Enter on outside-count2 to open actual Review, observes review read/file browser, repeats from both Purpose and Proof; final16 passed. |
+| C080 | “and close Review by keyboard” — include keyboard closing of Review. | slice 4 | observed: slice-4-proof.md: Review-return uses actual close control focus plus Enter and observes panel count0 twice; final16 passed. |
 | C081 | “Summary … show[s] the same changes” — Summary retains the same changes through the example journey. | slice 8 |  |
 | C082 | “Purpose show[s] the same changes” — Purpose retains the same changes through the example journey. | slice 8 |  |
 | C083 | “browsing asks for no text” — protect that negative acquisition effect during browsing. | slice 8 |  |
 | C084 | “the diff is read once” — protect the single diff read in this journey. | slice 8 |  |
 | C085 | “without published text” — retain that qualification on the diff read. | slice 8 |  |
-| C086 | “closing restores the reading” — closing Review restores the reading state. | slice 4 |  |
-| C087 | “and header focus” — closing Review restores header focus. | slice 4 |  |
+| C086 | “closing restores the reading” — closing Review restores the reading state. | slice 4 | observed: slice-4-proof.md: Review-return observes same story/file/Changed tests and exact halfway scroll after Purpose return, then preserved Proof tab on second return; final16 passed with explicit120-line diff. |
+| C087 | “and header focus” — closing Review restores header focus. | slice 4 | observed: slice-4-proof.md: exact outsideCount(...).toBeFocused after each close passed; same omitted keyboardReturn focus fault failed old/new at that assertion, restoration and final16 passed. |
 | C088 | “With Done historical Intent open, select another Done story … while its answer is held” — include this held-answer transition. | slice 5 |  |
 | C089 | “or ordinary live Review while its answer is held” — retain ordinary live Review as the alternative transition. | slice 5 |  |
 | C090 | “the old story/mode’s source … do[es] not leak” — exclude the old story’s source during those transitions. | slice 5 |  |

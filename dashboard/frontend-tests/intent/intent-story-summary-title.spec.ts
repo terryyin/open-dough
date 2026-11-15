@@ -1,3 +1,8 @@
+import { openStoryIntent } from "../../tests/intentModePage.ts";
+import {
+  putFrontendIntentStory,
+  answerFrontendIntentChanges,
+} from "../../tests/support/frontendIntentStory.ts";
 // A selected Taken story's long title in the story's persistent header
 // (../../src/IntentHeader.tsx) shows once, in full, wrapping rather
 // than shortened, and stays above the story's views whichever is chosen; its
@@ -6,32 +11,33 @@
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { shortRevision } from "../dashboardParts.ts";
-import { expectStackedInOrder } from "../partArrangement.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import { shortRevision } from "../../tests/dashboardParts.ts";
+import { expectStackedInOrder } from "../../tests/partArrangement.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   chooseStoryTab,
-  selectTakenStoryInIntent,
   storyHeaderDetail,
   storyTab,
   storyTitle,
   storyHeaderReading,
-} from "../support/intentStoryPage.ts";
+} from "../../tests/support/intentStoryPage.ts";
 
 test("a long story title shows once in full above the story's views, whichever is chosen", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 900, height: 720 });
   const long =
     "Story A reads frontend tests in both projects and keeps every location's source beside the published revision";
-  const { intent, baseline } = await selectTakenStoryInIntent(
-    page,
-    origin,
-    undefined,
-    undefined,
-    makeMe.aBacklogEntry.with({ ...storyA, title: long }).please(),
-  );
+  putFrontendIntentStory(frontendServices, {
+    story: makeMe.aBacklogEntry.with({ ...storyA, title: long }).please(),
+  });
+  const review = await answerFrontendIntentChanges(page);
+  const snapshot = review.snapshot();
+  if (snapshot.kind !== "snapshot") throw new Error("Expected Taken snapshot");
+  const baseline = snapshot.baseline;
+  const { intent } = await openStoryIntent(page, long);
+  await chooseStoryTab(intent, "Changed tests");
   const title = storyTitle(intent);
   await expect(title).toHaveText(long);
   await expect(intent.getByText(long, { exact: true })).toHaveCount(1);

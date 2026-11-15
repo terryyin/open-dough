@@ -1,4 +1,5 @@
-import { filesColumn } from "../intentModePage.ts";
+import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
+import { filesColumn } from "../../tests/intentModePage.ts";
 // Tree file rows and location headers consume the shared CI comparison cues
 // (../../src/IntentLocationGroup.tsx, ../../src/intentTreeComparison.ts): cue
 // state and accessible names match Proof words; selection and keyboard focus
@@ -6,34 +7,31 @@ import { filesColumn } from "../intentModePage.ts";
 // changes keeps its change mark beside a count cue; no story means no cues.
 // Folder rows stay uncued (deferred).
 
-import { expect, test } from "../support/preparationPage.ts";
-import { fileProofTable } from "../intentFileProofPage.ts";
-import { parts } from "../dashboardPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { fileProofTable } from "../../tests/intentFileProofPage.ts";
+import { parts } from "../../tests/dashboardPage.ts";
 import {
   expandIntentGroup,
   fileReadingTab,
   intentLocationName,
   proofRegion,
-} from "../intentPerspectivePage.ts";
+} from "../../tests/intentPerspectivePage.ts";
 import {
   intentLocationHeader,
   locationHeaderLook,
-} from "../intentLocationHeaderLook.ts";
-import { expectCueState } from "../support/expectCiComparisonCues.ts";
-import { captureTreeCiCueScreenshots } from "../support/captureTreeCiCueScreenshots.ts";
-import {
-  publishSummaryComparisonStory,
-  summaryComparisonChanges,
-} from "../support/intentSummaryStoryComparisonFixture.ts";
+} from "../../tests/intentLocationHeaderLook.ts";
+import { expectCueState } from "../../tests/support/expectCiComparisonCues.ts";
+import { captureTreeCiCueScreenshots } from "../../tests/support/captureTreeCiCueScreenshots.ts";
+import { summaryComparisonChanges } from "../../tests/support/intentSummaryStoryComparisonShared.ts";
 import {
   folderItem,
   folderRow,
   intentFile,
   locationGroup,
-} from "../support/intentStoryPage.ts";
-import { selectDoneStoryForSummaryComparison } from "../support/selectDoneStoryForSummaryComparison.ts";
-import { expectSelected } from "../storyCardSelection.ts";
-import { modifiedFileRow } from "../support/summaryComparisonFileExpectedRows.ts";
+} from "../../tests/support/intentStoryPage.ts";
+import { selectDoneStoryForSummaryComparison } from "../../tests/support/selectDoneStoryForSummaryComparison.ts";
+import { expectSelected } from "../../tests/storyCardSelection.ts";
+import { modifiedFileRow } from "../../tests/support/summaryComparisonFileExpectedRows.ts";
 
 const cuedFileLabel = summaryComparisonChanges.modified;
 const cuedFilePath = "dashboard/tests/folder/a.spec.ts";
@@ -42,9 +40,9 @@ const proofAfter = modifiedFileRow[4];
 
 test("tree file rows and location headers show shared CI cues with distinct selection and focus", async ({
   page,
-  origin,
+  frontendServices,
 }, testInfo) => {
-  await publishSummaryComparisonStory(page, origin);
+  await prepareFrontendDoneIntent(page, frontendServices);
   const { intent, card } = await selectDoneStoryForSummaryComparison(page);
 
   await expandIntentGroup(intent, "dashboard/tests");

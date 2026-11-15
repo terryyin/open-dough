@@ -1,15 +1,17 @@
+import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
 // Reports with incomplete evidence or no result reach the same Intent
 // coverage view as a Caught result (../../../e2e/intent/intent-story-completed.spec.ts),
-// through real completion. An older completion whose record saved no
+// from controlled published Done records. Real CLI completion is retained in
+// e2e/intent/intent-story-completed.spec.ts. An older record saved with no
 // assessment, and a done record still being read or whose read failed, each
 // say so apart, the failed read with the done record read's Retry
 // (../../src/doneDetails.ts). An active story's view:
 // ./intent-story-summary-title.spec.ts.
-import { selectCompletedStoryInIntent } from "../support/intentCompletedStory.ts";
+import { selectDoneStoryInIntent } from "../../tests/support/selectDoneStoryInIntent.ts";
 import type { Locator } from "@playwright/test";
-import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
-import { chooseStoryTab } from "../support/intentStoryPage.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
+import { chooseStoryTab } from "../../tests/support/intentStoryPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 
 async function openCoverage(intent: Locator) {
   await chooseStoryTab(intent, "Intent coverage");
@@ -18,7 +20,7 @@ async function openCoverage(intent: Locator) {
 
 test("Intent shows an Insufficient evidence report with its reason and unavailable cost", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   const report =
     "Outcome: Insufficient evidence\n" +
@@ -27,9 +29,8 @@ test("Intent shows an Insufficient evidence report with its reason and unavailab
     "Human effort: unavailable (no human intervention observed)\n" +
     "Agent effort: 1 min (estimated from the work log)\n" +
     "Invocation-to-report elapsed: 67 s (measured by the host clock)\n";
-  const { intent } = await selectCompletedStoryInIntent(page, origin, {
-    intentCoverage: { report },
-  });
+  await prepareFrontendDoneIntent(page, frontendServices, { report });
+  const { intent } = await selectDoneStoryInIntent(page);
   const detail = await openCoverage(intent);
   await expect(
     detail.getByRole("heading", { name: "Intent coverage" }),
@@ -41,12 +42,11 @@ test("Intent shows an Insufficient evidence report with its reason and unavailab
 
 test("Intent shows Unavailable and the reason when completion has no assessment report", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   const unavailable = "The check was interrupted before producing a report.";
-  const { intent } = await selectCompletedStoryInIntent(page, origin, {
-    intentCoverage: { unavailable },
-  });
+  await prepareFrontendDoneIntent(page, frontendServices, { unavailable });
+  const { intent } = await selectDoneStoryInIntent(page);
   const detail = await openCoverage(intent);
   await expect(
     detail.getByRole("heading", { name: "Intent coverage" }),
@@ -61,9 +61,10 @@ const unknown =
 
 test("Intent says an older completion read without an assessment saved none", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  const { intent } = await selectCompletedStoryInIntent(page, origin);
+  await prepareFrontendDoneIntent(page, frontendServices);
+  const { intent } = await selectDoneStoryInIntent(page);
   const detail = await openCoverage(intent);
   await expect(detail.locator("p")).toHaveText([noAssessment]);
 });
@@ -75,20 +76,22 @@ test.afterEach(() => {
 
 test("Intent coverage waits for the done record, and a failed read offers Retry without saying no assessment was saved", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   const report = "Outcome: Caught\nEvidence: The retried read shows it.\n";
   let reads: Awaited<ReturnType<typeof holdAuthenticatedReadsWhere>>;
-  const { intent } = await selectCompletedStoryInIntent(page, origin, {
-    intentCoverage: { report },
-    beforeIntent: async () => {
+  await prepareFrontendDoneIntent(page, frontendServices, { report });
+  const { intent } = await selectDoneStoryInIntent(
+    page,
+    "Story A",
+    async () => {
       reads = await holdAuthenticatedReadsWhere(
         page,
         (query) => query.get("done") === "bodies",
         releases,
       );
     },
-  });
+  );
   const detail = await openCoverage(intent);
 
   await test.step("while its record is read, the view says so", async () => {

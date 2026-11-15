@@ -10,8 +10,8 @@ export const groupRunnerExamples = [
     directory: "dashboard",
     root: "dashboard/tests",
     durations: "integrated.longest-first",
-    spec: "intent/intent-story-summary-title.spec.ts",
-    grep: "a long story title shows once in full above the story's views",
+    spec: "intent/intent-sidebar-toggle.spec.ts",
+    grep: "narrow, the hidden column gives the reading pane the height under the strip",
   },
   {
     name: "Dashboard Frontend Test",

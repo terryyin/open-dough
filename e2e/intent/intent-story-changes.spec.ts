@@ -24,8 +24,8 @@ import {
 // ../../dashboard/frontend-tests/intent/intent-story-changes-only.spec.ts. Deletions and renames, and a folder's
 // Summary of the overlaid tree: ./intent-story-changes-moves.spec.ts. No
 // comparison and a failed read: ../../dashboard/frontend-tests/intent/intent-story-changes-gaps.spec.ts. A long
-// title: ../../dashboard/tests/intent/intent-story-summary-title.spec.ts. Where the keyboard returns after
-// closing Review changes: ../../dashboard/tests/intent/intent-story-review-return.spec.ts.
+// title: ../../dashboard/frontend-tests/intent/intent-story-summary-title.spec.ts. Where the keyboard returns after
+// closing Review changes: ../../dashboard/frontend-tests/intent/intent-story-review-return.spec.ts.
 
 import { parts, shortRevision } from "../../dashboard/tests/dashboardPage.ts";
 import { ciPanel } from "../../dashboard/tests/intentCiStatusPage.ts";

@@ -1,22 +1,20 @@
+import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
 import {
   scopeHistory,
   scopeHistoryChart,
   scopeHistoryReading,
-} from "../intentScopeHistoryPage.ts";
+} from "../../tests/intentScopeHistoryPage.ts";
 // Dark system appearance for a selected Done story's Intent reading: CI
 // comparison, Changed tests with files shown/hidden, Intent coverage, cued
 // rows, diffs, and source stay legible; captures support visual review against
 // the approved dark mockup; live preference changes keep reading state.
 
 import path from "node:path";
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../support/preparationPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   expectChartMarkContrast,
   expectReadableContrast,
-} from "../accessibleReading.ts";
+} from "../../tests/accessibleReading.ts";
 import {
   expectDarkSurface,
   expectLightSurface,
@@ -24,24 +22,24 @@ import {
   expectSourceReadable,
   setColorScheme,
   sourceAppearance,
-} from "../systemAppearanceReading.ts";
-import { expandIntentGroup, fileReadingTab } from "../intentPerspectivePage.ts";
-import { expectCueState } from "../support/expectCiComparisonCues.ts";
+} from "../../tests/systemAppearanceReading.ts";
 import {
-  publishSummaryComparisonStory,
-  summaryComparisonChanges,
-} from "../support/intentSummaryStoryComparisonFixture.ts";
+  expandIntentGroup,
+  fileReadingTab,
+} from "../../tests/intentPerspectivePage.ts";
+import { expectCueState } from "../../tests/support/expectCiComparisonCues.ts";
+import { summaryComparisonChanges } from "../../tests/support/intentSummaryStoryComparisonShared.ts";
 import {
   openSummaryComparison,
   selectDoneStoryForSummaryComparison,
-} from "../support/selectDoneStoryForSummaryComparison.ts";
+} from "../../tests/support/selectDoneStoryForSummaryComparison.ts";
 import {
   chooseStoryTab,
   intentFile,
   intentDiffReading,
-} from "../support/intentStoryPage.ts";
-import { expectFilesShown, filesToggle } from "../intentModePage.ts";
-import { colourOf } from "../pageColours.ts";
+} from "../../tests/support/intentStoryPage.ts";
+import { expectFilesShown, filesToggle } from "../../tests/intentModePage.ts";
+import { colourOf } from "../../tests/pageColours.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const cuedFileLabel = summaryComparisonChanges.modified;
@@ -49,11 +47,10 @@ const unchangedPath = "dashboard/tests/root.spec.ts";
 
 test("a Done story's Intent evidence stays readable under the system dark appearance", async ({
   page,
-  origin,
+  frontendServices,
 }, testInfo) => {
-  // Real Done-story publication plus multi-tab contrast and live appearance.
-  test.setTimeout(120_000);
-  const setup = await publishSummaryComparisonStory(page, origin);
+  // Controlled published Done answers plus multi-tab contrast and live appearance.
+  const setup = await prepareFrontendDoneIntent(page, frontendServices);
   await setColorScheme(page, "dark");
   const { intent } = await selectDoneStoryForSummaryComparison(page);
 

@@ -6,7 +6,7 @@ import { preparedComparison } from "./comparisonMountFacts.ts";
 import type { ComparisonServices } from "./comparisonMountPage.ts";
 
 export function serveComparison(
-  services: ComparisonServices,
+  services: Pick<ComparisonServices, "comparison" | "proof">,
   facts: {
     readonly answer: StoryCiComparisonAnswer;
     readonly proof: ReturnType<typeof preparedComparison>["proof"];
