@@ -3,59 +3,45 @@
 **Identity:** SEED-357#reuse-unchanged-usage-pages-on-repeated-writes
 **Source:** [correction story](../../seeds/SEED-357-dashboard-task-token-usage.md#reuse-unchanged-usage-pages-on-repeated-writes)
 
+**Source review:** [source-only review](source-review.md)
+
 ## Source and provenance
 
-Bounded retrospective correction of View token usage for dashboard-launched
-Codex tasks (SEED-357#view-token-usage-for-dashboard-launched-tasks). Recover
-its story and plan 627 at `103b321ea58cb461e91669658db184b24ba48ee3`, paths
-`.planning/seeds/SEED-357-dashboard-task-token-usage.md` and
-`.planning/slice-plans/627-view-codex-task-token-usage/PLAN.md`. Execution was
-`81146589..8c8d35d4`; all five slices passed branch CI. The earlier version of
-this plan, including the original page and tier findings, is recoverable at
-`63964802b3ddb17133af0e05ee5325b5f0284ec5` at this plan's path.
+Bounded retrospective correction of View token usage for dashboard-launched Codex tasks
+(SEED-357#view-token-usage-for-dashboard-launched-tasks). Recover its story and plan 627 at
+`103b321ea58cb461e91669658db184b24ba48ee3`, paths `.planning/seeds/SEED-357-dashboard-task-token-usage.md` and
+`.planning/slice-plans/627-view-codex-task-token-usage/PLAN.md`. Execution was `81146589..8c8d35d4`; all five
+slices passed branch CI. The earlier version of this plan, including the original page and tier findings, is
+recoverable at `63964802b3ddb17133af0e05ee5325b5f0284ec5` at this plan's path.
 
 ## Goal and scope
 
-For Terry, an import and Refresh agree on a launch task's workflow and leave
-unchanged evidence unchanged, while Usage accurately shows when its history was
-checked and whether Refresh is still running.
+For Terry, an import and Refresh agree on a launch task's workflow and leave unchanged evidence unchanged, while
+Usage accurately shows when its history was checked and whether Refresh is still running.
 
-Included: launch workflow precedence, normalization of previously stored skill
-spellings on launch tasks, recovered-only workflow preservation, recovered
-fixture workflows, Checked after a later import, and checking through filter
-changes and the Refresh's selected-cohort reread or failure.
+Included: launch workflow precedence, normalization of previously stored skill spellings on launch tasks,
+recovered-only workflow preservation, recovered fixture workflows, Checked after a later import, and checking
+through filter changes and the Refresh's selected-cohort reread or failure.
 
-Exclusions: storage representation, page reclamation, tier reconciliation,
-writer latency and budget measurement belong to
-Keep usage history within a small disk budget.
-No tariff, import CLI or chart redesign. Its session-contribution history
-replaces this plan's former page-stability slice; no page-file proof remains.
+Exclusions: storage representation, page reclamation, tier reconciliation, writer latency and budget measurement
+belong to Keep usage history within a small disk budget. No tariff, import CLI or chart redesign. Its
+session-contribution history replaces this plan's former page-stability slice; no page-file proof remains.
 
 ### Prerequisite and consuming contract
 
-The small-history supplier is delivered (accepted at
-`03a69f1988ebab8c596a20dec52a333cc10ab48e`; dependency `satisfied`). Its
-canonical `usage-history-v2` document of tasks, sessions and gaps replaces each
-read session's contribution and leaves the document's bytes, inode and mtime
-unchanged when nothing in it changes. This plan consumes that outcome through
-`writeUsageHistory(batch)`, the importer and the Token index boundary;
-response-level `readImported` assertions are not part of this correction's
-proof. Proving alternating-writer stability on that document is this story's
-work.
+The small-history supplier is delivered (accepted at `03a69f1988ebab8c596a20dec52a333cc10ab48e`; dependency
+`satisfied`). Its canonical `usage-history-v2` document of tasks, sessions and gaps replaces each read session's
+contribution and leaves the document's bytes, inode and mtime unchanged when nothing in it changes. This plan
+consumes that outcome through `writeUsageHistory(batch)`, the importer and the Token index boundary;
+response-level `readImported` assertions are not part of this correction's proof. Proving alternating-writer
+stability on that document is this story's work.
 
 ## Current findings
 
-1. Import recovers a skill name after loading the launch catalog, and
-   `mergeUsageTask` lets incoming workflow win. Refresh restores the launch's
-   workflow id. The retrospective saw 370 affected Codex launch tasks; this is
-   a pre-conversion count, not a claim about a later store.
-2. `lastUsageCheck` prefers `usage-check.json` even when a later import changed
-   the history. Checked therefore understates the evidence in the chart.
-3. The cohort fetch's `.finally` in `SystemSettingsUsage` clears `checking`,
-   even when Refresh is still pending.
-4. The former `usageFixtureStore.finishedTask` gave recovered Refinement tasks
-   `dough-execute-plan`. Shared `aUsageTaskHistory` now records the workflow's
-   skill; the backend cohort case observes recovered Refinement.
+1. Import recovers a skill name after loading the launch catalog, and `mergeUsageTask` lets incoming workflow win. Refresh restores the launch's workflow id. The retrospective saw 370 affected Codex launch tasks; this is a pre-conversion count, not a claim about a later store.
+2. `lastUsageCheck` prefers `usage-check.json` even when a later import changed the history. Checked therefore understates the evidence in the chart.
+3. The cohort fetch's `.finally` in `SystemSettingsUsage` clears `checking`, even when Refresh is still pending.
+4. The former `usageFixtureStore.finishedTask` gave recovered Refinement tasks `dough-execute-plan`. Shared `aUsageTaskHistory` now records the workflow's skill; the backend cohort case observes recovered Refinement.
 
 ## Preserved promises and genuine constraints
 
@@ -72,28 +58,24 @@ work.
 
 ## Existing solutions and direction
 
-PFE: change the existing owners, rather than introducing parallel facts.
-`launchCatalog`, `canonicalUsageTasks` and `mergeUsageTask` already reconcile
-launch and recovered tasks. Follow the launch precedence used for `launchedAt`
-for workflow, including the missing-value fallback. `taskClaims` already maps
-workflow spellings for conflict detection; `launchWorkflowOf` maps them for
-cohorts. Keep these responsibilities and correct the comment if needed.
+PFE: change the existing owners, rather than introducing parallel facts. `launchCatalog`, `canonicalUsageTasks`
+and `mergeUsageTask` already reconcile launch and recovered tasks. Follow the launch precedence used for
+`launchedAt` for workflow, including the missing-value fallback. `taskClaims` already maps workflow spellings
+for conflict detection; `launchWorkflowOf` maps them for cohorts. Keep these responsibilities and correct the
+comment if needed.
 
-`launchWorkflows[workflow].skill` owns the fixture mapping. Intent's checked
-instants describe remote proof retrieval, not usage imports, so they are not a
-replacement for `usageCheck.ts`. Compare the history modification time with the
-check record's modification time to detect a later writer; otherwise return the
-recorded Refresh start time. Comparing the history time only with that start
-would misidentify Refresh's own later store write. Keep legacy check records,
-no-store fallback and the rollout cutoff behavior.
+`launchWorkflows[workflow].skill` owns the fixture mapping. Intent's checked instants describe remote proof
+retrieval, not usage imports, so they are not a replacement for `usageCheck.ts`. Compare the history
+modification time with the check record's modification time to detect a later writer; otherwise return the
+recorded Refresh start time. Comparing the history time only with that start would misidentify Refresh's own
+later store write. Keep legacy check records, no-store fallback and the rollout cutoff behavior.
 
-`SystemSettingsUsage` owns both fetch lifecycles. Keep Refresh pending distinct
-from a cohort read settling, and clear checking only once Refresh and its
-current-cohort reread settle, or Refresh fails. Other Intent retrieval states
-have different lifecycles; no shared refresh framework is warranted.
+`SystemSettingsUsage` owns both fetch lifecycles. Keep Refresh pending distinct from a cohort read settling, and
+clear checking only once Refresh and its current-cohort reread settle, or Refresh fails. Other Intent retrieval
+states have different lifecycles; no shared refresh framework is warranted.
 
-The ADR index and `.planning/NORTH-STAR.md` were read. No temporary topic governs
-this local correction and no new consequential direction is needed.
+The ADR index and `.planning/NORTH-STAR.md` were read. No temporary topic governs this local correction and no
+new consequential direction is needed.
 
 ## Key examples and outside-in proof ownership
 
@@ -107,37 +89,31 @@ this local correction and no new consequential direction is needed.
 | Held Refresh → choose Refinement and settle that cohort → still checking → release and settle its reread | 3 | chosen cohort content, checking note and disabled Refresh, then checked state |
 | Held Refresh fails after a filter change | 3 | selected chart/check time retained, readable error and enabled Refresh |
 
-Backend unit proofs start at the importer command and real usage HTTP boundary
-in `dashboard/backend-tests/usage-history/`. Frontend unit proof mounts the real
-Usage page with backend responses substituted at the service boundary. Reuse
-`systemSettingsUsagePage.ts` for browser operations. Existing E2E Usage journeys
-in `e2e/configuration/system-settings-usage.spec.ts` remain the integrated
-proof; the backend cohort case owns the recovered-refinement variation.
+Backend unit proofs start at the importer command and real usage HTTP boundary in
+`dashboard/backend-tests/usage-history/`. Frontend unit proof mounts the real Usage page with backend responses
+substituted at the service boundary. Reuse `systemSettingsUsagePage.ts` for browser operations. Existing E2E
+Usage journeys in `e2e/configuration/system-settings-usage.spec.ts` remain the integrated proof; the backend
+cohort case owns the recovered-refinement variation.
 
 ## Decisive premises and observations
 
-Rechecked on 2026-11-15 at `c9225e89644060f33c86b25523f5c66044935a99`, after
-the supplier landed, by reading the delivered sources: `mergeUsageTask` still
-lets incoming workflow win (`usageTaskReconciliation.ts`, `workflow:
-incoming.workflow ?? old.workflow`) while `canonicalUsageTasks` now indexes
-records but merges through it unchanged; `lastUsageCheck` still prefers the
-record; `usageRefresh.ts` still writes the history before `recordUsageCheck`,
-and an unchanged write leaves the document's mtime as it was, so a record
-newer than the document marks Refresh's own check; `SystemSettingsUsage`'s
-cohort `.finally` still clears `checking`. The Claude corroboration assertion
-expecting `dough-execute-plan` moved to the second `expect` block of its first
-case. The runtime observations below predate the supplier; none depended on
-paged storage.
+Rechecked on 2026-11-15 at `c9225e89644060f33c86b25523f5c66044935a99`, after the supplier landed, by reading the
+delivered sources: `mergeUsageTask` still lets incoming workflow win (`usageTaskReconciliation.ts`, `workflow:
+incoming.workflow ?? old.workflow`) while `canonicalUsageTasks` now indexes records but merges through it
+unchanged; `lastUsageCheck` still prefers the record; `usageRefresh.ts` still writes the history before
+`recordUsageCheck`, and an unchanged write leaves the document's mtime as it was, so a record newer than the
+document marks Refresh's own check; `SystemSettingsUsage`'s cohort `.finally` still clears `checking`. The
+Claude corroboration assertion expecting `dough-execute-plan` moved to the second `expect` block of its first
+case. The runtime observations below predate the supplier; none depended on paged storage.
 
-Originally observed on 2026-11-15 at `63964802b3ddb17133af0e05ee5325b5f0284ec5` in this
-owned checkout, Node 24.21.0. Commands used one worker under `caffeinate -s -i`
-on AC; host load before launch was 28.92/23.59/16.37, about 12,905 free and
-35,204 speculative 16 KB pages. No full suite or real-store scan was launched.
-All scratch edits were reverted before record writes.
+Originally observed on 2026-11-15 at `63964802b3ddb17133af0e05ee5325b5f0284ec5` in this owned checkout, Node
+24.21.0. Commands used one worker under `caffeinate -s -i` on AC; host load before launch was 28.92/23.59/16.37,
+about 12,905 free and 35,204 speculative 16 KB pages. No full suite or real-store scan was launched. All scratch
+edits were reverted before record writes.
 
-Literal runner prefix for these observations:
-`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test`;
-all appended `--workers=1 --reporter=list`.
+Literal runner prefix for these observations: `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u
+GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test`; all appended `--workers=1
+--reporter=list`.
 
 | Consuming operation / premise | Form, result and limits |
 | --- | --- |
@@ -147,16 +123,15 @@ all appended `--workers=1 --reporter=list`.
 | Slice 3: filter read prematurely clears checking | Frontend config, scratch `dashboard/frontend-tests/preparation-usage-checking.spec.ts`: real Usage page, routed Token index answers and held refresh POST. After checking was observed, selected Refinement and observed its changed average (`2,450` vs `1,450`), then `showsChecked` passed while POST was held. 1 passed, 5.7 s (runner 9.6 s). Release completed the request. |
 | Slice 1: fixture mapping and its observing consumer | Read `finishedTask`, `launchWorkflows` and all five `system-settings-usage*.spec.ts` setups/assertions. Execution recovered fixtures occur in trend/detail journeys; the cohort journey's Refinement fixtures are all launch tasks. None currently observes recovered Refinement. Slice 1 adds that missing discriminating case and verifies failure with the old mapping. |
 
-Supplier publication, not this observation, establishes the v2 storage contract.
-That contract is now evidenced. Its format changes storage below the
-inspected task merge and HTTP/UI contracts; the alternating-writer success test
-is slice 1's delivery proof, not a claimed preparation result.
+Supplier publication, not this observation, establishes the v2 storage contract. That contract is now evidenced.
+Its format changes storage below the inspected task merge and HTTP/UI contracts; the alternating-writer success
+test is slice 1's delivery proof, not a claimed preparation result.
 
 ## Ordered slices
 
 ### 1. Launch and recovered tasks keep the right workflow across writers
 Type: Behavior
-Status: planned
+Status: done
 Proof: new sibling `usage-writer-consistency.spec.ts` imports Execution and
 Refinement launches whose rollouts recover their corresponding skills. Run
 import, Refresh, import, Refresh, including one rollout aged before the cutoff;
@@ -167,15 +142,13 @@ no workflow and a recovered-only task. Observe cohort membership through the
 HTTP boundary, not fixture-supplied normalization. Run the usage-history family.
 Update the identified Claude assertion, keeping all its other promises.
 
-Behavior: unchanged native evidence → either writer writes → launch workflow
-wins when present, recovered evidence fills its absence, and recovered-only
-tasks keep their skills. The shared `aUsageTaskHistory.recovered()` fixture
-now preserves each workflow's skill; `token-index-cohort.spec.ts` observes
-recovered Refinement through persistence and cohort selection. Retain that
-discriminating case and run the consolidated Usage E2E spec. Reuse
-`dashboard/tests/usage-history/tokenIndexHarness.ts` for project setup, stored
-usage and HTTP operations; share remaining rollout setup only when needed.
-Update `USAGE-HISTORY.md` with workflow precedence and alternating stability.
+Behavior: unchanged native evidence → either writer writes → launch workflow wins when present, recovered
+evidence fills its absence, and recovered-only tasks keep their skills. The shared
+`aUsageTaskHistory.recovered()` fixture now preserves each workflow's skill; `token-index-cohort.spec.ts`
+observes recovered Refinement through persistence and cohort selection. Retain that discriminating case and run
+the consolidated Usage E2E spec. Reuse `dashboard/tests/usage-history/tokenIndexHarness.ts` for project setup,
+stored usage and HTTP operations; share remaining rollout setup only when needed. Update `USAGE-HISTORY.md` with
+workflow precedence and alternating stability.
 
 ### 2. Checked reflects an import published after the last Refresh
 Type: Behavior
@@ -188,10 +161,9 @@ legacy `{checkedAt}` records, and the existing failed-Refresh preservation case.
 Run the usage-history family and the Usage refresh E2E journey (which already
 observes the shown instant through `showsCheckedAt`).
 
-Behavior: a valid check record and a later history write → read Usage → Checked
-reflects the later write; otherwise it reflects that Refresh's recorded start.
-Keep `refreshCutoff` unchanged, including its timestamp granularity allowance.
-Update `usageCheck.ts`'s header and the freshness text in `USAGE-HISTORY.md`.
+Behavior: a valid check record and a later history write → read Usage → Checked reflects the later write;
+otherwise it reflects that Refresh's recorded start. Keep `refreshCutoff` unchanged, including its timestamp
+granularity allowance. Update `usageCheck.ts`'s header and the freshness text in `USAGE-HISTORY.md`.
 
 ### 3. Checking survives a filter change until Refresh settles
 Type: Behavior
@@ -205,9 +177,9 @@ ending checking. Confirm discrimination against the old cohort `.finally`.
 Run this spec, frontend `system-settings-usage.spec.ts`, and the refresh E2E
 journey. No sleeps, timeout increases or `test.slow()`.
 
-Behavior: Refresh in progress → cohort changes/read completions → those reads
-cannot finish Refresh's checking state. Success settles the current cohort's
-reread before enabling Refresh; failure ends checking beside its readable error.
+Behavior: Refresh in progress → cohort changes/read completions → those reads cannot finish Refresh's checking
+state. Success settles the current cohort's reread before enabling Refresh; failure ends checking beside its
+readable error.
 
 ## Current decisions, verification and concern review
 
@@ -245,3 +217,29 @@ reread before enabling Refresh; failure ends checking beside its readable error.
   is satisfied. No numeric
   slice limit is supplied; implementation, focused proof and cleanup fit one
   cohesive loop per slice under the shared sizing rules.
+
+## Execution context
+
+Established Story Branch execution in this linked worktree:
+`/Users/terryyin/git/open-dough/.worktrees/keep-usage-task-facts-and-freshness-consistent-a`, branch
+`codex/keep-usage-task-facts-and-freshness-consistent-a`, reused at `95578800875568e449ea9394db88b1bb49d9e409`;
+starting revision `689e125384e403c461df8d4eba5482fadec1ed1f`. Publisher `dashboard-territory.local-open-dough`,
+agent `viktor-chan`. Originating and execution checkout are this worktree; optional integration/default checkout
+is `/Users/terryyin/git/open-dough`. Remote `origin`, authorized trunk `refs/heads/main`; increments target the
+named story branch. Claim accepted on trunk and branch at `95578800875568e449ea9394db88b1bb49d9e409`; claim
+trunk CI is unobserved. Replanning authority unchanged; no explicit no-replan restriction. Three slices fit the
+eight-slice cap, each 15 active minutes.
+
+Checkout setup: Node 24.21.0; `node scripts/setup-native.mjs npm`, `browser` and `check` passed here against
+current package-lock. Chromium 158.0.8127.18. Selective formatter is `npm run format`; check-only pre-commit
+owns staged lint and dashboard typecheck. No generated skills/artifacts are implicated.
+
+CI observer: GitHub Actions `ci.yml` (verified workflow 351271804, name CI), repository `terryyin/open-dough`,
+target the story branch above, coordinator `seed357-consistency`, directory `/tmp/dough-ci-501/watch-z2Qww5`,
+PID 57934, stream session 71145, yielded cell `g363:13`, launched from this exact checkout. Host is Codex.
+Integrated-state completion follows the checked-in declaration.
+
+Expensive-proof decision: local host on AC, load 6.27/5.24/6.69 at setup; run only focused planned families
+serially with one worker under `caffeinate -s -i`; do not run a whole local suite. No competing proof is owned
+by this coordinator. Implementation/refactor owners must recheck headroom before heavy launches; reconsider for
+host contention or unexpectedly slow proof.

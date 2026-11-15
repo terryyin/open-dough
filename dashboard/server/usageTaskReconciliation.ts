@@ -42,7 +42,10 @@ export function mergeUsageTask(
       ]),
       rootTurnId: old.rootTurnId ?? incoming.rootTurnId,
       project: incoming.project ?? old.project,
-      workflow: incoming.workflow ?? old.workflow,
+      workflow:
+        old.kind === "launch" && incoming.kind !== "launch"
+          ? (old.workflow ?? incoming.workflow)
+          : (incoming.workflow ?? old.workflow),
       identity: incoming.identity ?? old.identity,
       title: incoming.title ?? old.title,
       launchedAt:
