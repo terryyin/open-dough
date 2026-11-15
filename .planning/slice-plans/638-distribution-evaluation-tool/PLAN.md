@@ -73,12 +73,7 @@ Type: Structure
 Status: done
 Proof: [Nine guidance defaults, actual CLI continuations and identity/lifecycle](slice-7-evidence.md).
 
-Extract seven ADR defaults and backlog/installation guidance checks into their
-current routine test homes. Preserve shared native fixture/preflight/assessment
-seams and canonical builders, without copying check bodies into operational
-wrappers. Keep credential-free defaults and native options; update native
-callers to actual entries and prove newly factored closure/identity together.
-G8/G11 remain open until final tool-test relocation in slice8.
+Extract seven ADR defaults and backlog/installation guidance checks into their current routine test homes. Preserve shared native fixture/preflight/assessment seams and canonical builders, without copying check bodies into operational wrappers. Keep credential-free defaults and native options; update native callers to actual entries and prove newly factored closure/identity together. G8/G11 remain open until final tool-test relocation in slice8.
 
 ### 8. Run the relocated tool checks independently
 Type: Behavior
@@ -104,20 +99,23 @@ preserved named/substitute/admission/deadline/reporting behavior. Run the final
 `npm test` and3-share preview; retain all historical bytes and canonical builders.
 The independent focus and combined-maintenance gates no longer share one budget.
 
-### 10. Settle named one-shot aggregate execution
+### 10. Retain the original behavior after the skipped optimization
 Type: Behavior
-Status: planned
-Proof: the selected aggregate retains every scenario, reports under the chosen
-contract and completes within unchanged job deadlines under supported load.
+Status: done
+Proof: [Rejected measurements, exact reversion and Terry's skip decision](slice-10-evidence.md).
 
-G7 correction preserves one job per named file unless the human selects the
-pending three-group reporting change. A causal cost repair under the existing
-contract remains authorized. [Prior measurements and limits](attempt-3.md)
-retain failed and passing observations; a passing retry is no repair.
+Terry explicitly skipped the optimization after reversion. Restore the19-line
+experimental test addition as well; retain all published tool/runtime/check
+behavior. Keep the original one-job contract, cases and180s limit. The earlier
+timeout is not claimed fixed; no translated63-file load proof is required.
 
 Splitting in-progress8 yields ten slices under the execution-only exception.
 [Attempt8](attempt-8.md) reassesses the story boundary, exact park, retained proof
 and failed sizing assumption; completed1–7 and the selected outcome are unchanged.
+
+## Current decisions
+
+Terry's2026-11-16 instruction skips optimization after reversion. No reporting change or further experiment is selected. All runtime and test code matches33736a7, so accepted641/2226 local proof remains applicable; record G7 as the developer-changed scope, preserving the historical timeout and rejected measurements rather than claiming a fix.
 
 ## Frozen case evidence
 
@@ -196,7 +194,7 @@ Disposition: proved by slice 1: slice-1-evidence.md command 1; native-admission-
 ### G7. One-shot safety deadline
 Reported: slice 1 — "one-shot aggregate hit the existing 180-second safety deadline during the broad selected gate"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: receiving slice 10
+Disposition: owner changed "Skip the named one-shot aggregate optimization after restoring the experiment."
 
 ### G8. Mixed default-check bodies in moved ADR entries
 Reported: slice 2 — "Routine test entries remain at old paths and currently dispatch mixed default branches in the moved cases (interim extraction needed in slice 6)."
@@ -221,14 +219,14 @@ Disposition: proved by slice 8: slice-8-evidence.md all generic check bodies/def
 ### G12. Current baseline consumer purposes after supplier placement
 Reported: slice 5 — "Acceptance found that six baseline consumer observations precede the final supplier shared-input path change; fresh-pair setup alone does not observe their current archive reuse, refusal and provenance purposes."
 Story clause: "preserve case selection, host support, outcome and failure semantics, supervision, retention and evidence identity during the move."
-Disposition: proved by slice 8: slice-8-evidence.md full focused70 renews all six baseline purposes after current test placement and default-dispatch hash changes: archive raw-cleanup/source integrity, conditions/usage, readers, reuse/fresh/failure, misses and unavailable/truncated evidence. Earlier slice-5-evidence.md observations retain their original boundary; frozen records remain unchanged.
-Commitment: C17
+Disposition: proved by slice 9: slice-9-evidence.md current full70 renews the preserved slice5 outcome controls and all six baseline purposes after final identity/retention changes: archive raw-cleanup/source integrity, conditions/usage, readers, reuse/fresh/failure, misses and unavailable/truncated evidence. Slice5/8 observations retain their original boundaries; frozen records remain unchanged.
+Commitment: C16
 
 ### G13. Stream guard omits evaluation Git enumeration
 Reported: slice 6 — "Closure inspection found that native-stream-guard.mjs scannedRoots includes evaluation, but its listFiles Git pathspecs still enumerate only Distribution/tests and scripts."
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: proved by slice 8: slice-8-evidence.md old Git guard red for evaluation stray, current Git pathspec/writer/corpus closure and actual stray/stale-writer replay negatives pass in three-file gate and full70; no filesystem fallback.
-Commitment: C31
+Disposition: proved by slice 8: slice-8-evidence.md single scheduler/focus/Intent and moved-owner discovery controls plus old Git guard red for evaluation stray; current Git pathspec/writer/corpus and stray/stale-writer replay negatives pass, with no filesystem fallback. Slice9 current641 and three-share union retain that discovery proof.
+Commitment: C29
 
 ### G14. Recovered CI and default-suite failures
 Reported: slice 8 — "Retained registered CI attempts fail six drift cases at the retired fixture path and the Linux public entry scratch guard; final default suite also rejects the now-valid second Chromium cache."

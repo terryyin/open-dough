@@ -87,6 +87,14 @@ callers and document the new commands, preserving historical evidence paths.
   installation → installed managed bytes and unrelated project content remain
   as before, and no evaluation material appears in the installed output.
 
+#### Execution amendment
+
+On2026-11-16, Terry instructed: "If you already reverted, then let's skip the test optimization."
+Skip the named one-shot aggregate optimization after restoring the experiment.
+Keep the existing one-job reporting contract, scenarios and180-second deadline.
+The earlier aggregate timeout is not claimed repaired; its optimization and
+translated63-file load proof are not required to finish this relocation.
+
 #### Architecture
 
 Follow [ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md)

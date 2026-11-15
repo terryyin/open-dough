@@ -67,3 +67,39 @@ slice9. Compare before/after with the same two-worker workload and every
 existing verdict/scenario; no cached observations, skipped CLI, deadline or
 named-selection changes. Static reasoning or a faster isolated retry cannot
 close G7. The human contract question remains pending; silence approves nothing.
+
+## Slice10 selected causal experiment
+
+Current accepted parent33736a7 has the documented tool and combined641/2226
+local proof. G7 alone remains. Preserve one job per named file, all scenarios,
+actual start/delivery/completion operations, counterexamples and180s deadline.
+No answer to the pending reporting-contract question is inferred from silence.
+
+Retained discovery lead: successful CI43721365431/1 at21fbaf4e, ordinary
+three-share npmtest; three default group file sums64.4CI seconds. This is an
+ancestor lead with later relocation/identity changes, not a local timing baseline.
+The chosen avoidable cost remains per-field command-substitution forks in nine
+one-shot assessors. Extend their existing reader with optional output assignment;
+no new parser, cache, skipped work or reporting alias.
+
+Smallest gain worth keeping: at least10% and5seconds in the three-group family
+local wall time. That is noticeable in the retained minute-scale family and
+requires comparable repeats beyond incidental variation. Obtain two successful
+before and two after observations at two workers, same cases (including any
+new preservation assertions), private job/cache conditions and host headroom.
+If the gain is unclear, repeat/interleave or report it inconclusive; retain no
+ineffective/regressing optimization merely because it passes.
+
+```sh
+PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=2 caffeinate -s -i npm test -- Distribution/evaluation/tests/git-publication/git-publication-native-one-shot-results.sh Distribution/evaluation/tests/git-publication/git-publication-native-one-shot-reviews.sh Distribution/evaluation/tests/git-publication/git-publication-native-one-shot-workspaces.sh
+```
+
+Then translate the exact63named selection in attempt2 to current file owners
+(`/tmp/seed371-g7-original-workload.json`) and observe the selected aggregate's
+single result row under that two-worker load within the unchanged180s limit.
+This validates today's supported selection, not an identical historical timing:
+some check bodies were separated during relocation. Record literal commands,
+source/cache/load identities, selected/executed outcomes and actual terminal
+wall time; no paid run or native-performance claim follows. Reuse canonical
+counterexamples/builders and preserve first-match/empty/missing/whitespace
+semantics. All full-suite/repair proof is terminal before this experiment.
