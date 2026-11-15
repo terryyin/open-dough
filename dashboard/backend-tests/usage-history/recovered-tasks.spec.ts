@@ -3,7 +3,6 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
@@ -83,7 +82,6 @@ test("recovers pruned native task facts from historical deleted stories without 
       .withTurnContext("task-one")
       .withRow({
         type: "response_item",
-        timestamp: usageHistoryDefaultAt,
         payload: {
           type: "message",
           role: "user",
@@ -139,7 +137,7 @@ test("recovers pruned native task facts from historical deleted stories without 
       title: "Historical title",
       host: "codex",
       origin: "unknown",
-      launchedAt: usageHistoryDefaultAt,
+      launchedAt: "2026-11-14T10:00:00.000Z",
     }),
   );
   expect(taskUsage(history, task.id).tokens.output).toBe(4);

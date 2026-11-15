@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
@@ -23,7 +22,6 @@ function keepLaunch(home: string) {
           title: "Usage recovery",
         })
         .inClaudeSession({ sessionId })
-        .launchedAt(usageHistoryDefaultAt)
         .reportingThrough({
           origin: "http://localhost:4318",
           reference,
@@ -39,12 +37,12 @@ function assistant(
   uuid: string,
   output: number | undefined,
   stop: unknown,
-  timestamp = usageHistoryDefaultAt,
+  timestamp?: string,
 ) {
   return {
     uuid,
     parentUuid: "launch-input" as const,
-    timestamp,
+    ...(timestamp === undefined ? {} : { timestamp }),
     messageId: id,
     model: "claude-model",
     ...(stop === undefined ? {} : { stopReason: stop }),
@@ -112,7 +110,7 @@ test("counts explicit terminal output once, even before a later progressive snap
   ).toEqual([3, 690, 8]);
   expect(observation).toEqual(
     expect.objectContaining({
-      at: usageHistoryDefaultAt,
+      at: "2026-11-14T10:00:00.000Z",
       lastAt: "2026-11-14T10:00:02.000Z",
       coverage: "measured",
     }),

@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
@@ -62,7 +61,6 @@ test("uses recorded repository evidence for a deleted worktree and leaves unavai
       )
       .withRow({
         type: "event_msg",
-        timestamp: usageHistoryDefaultAt,
         payload: { type: "task_complete", turn_id: "old-task" },
       })
       .please(),
@@ -91,7 +89,6 @@ test("uses recorded repository evidence for a deleted worktree and leaves unavai
       .withTurnContext("unsettled")
       .withRow({
         type: "event_msg",
-        timestamp: usageHistoryDefaultAt,
         payload: {
           type: "user_message",
           message: "$dough-story-refinement SEED-42#story",
@@ -108,6 +105,7 @@ test("uses recorded repository evidence for a deleted worktree and leaves unavai
       .withTurnContext("unknown-project-task")
       .withRow({
         type: "event_msg",
+        timestamp: undefined,
         payload: {
           type: "user_message",
           message: "$dough-execute-plan SEED-42#story",
@@ -131,7 +129,7 @@ test("uses recorded repository evidence for a deleted worktree and leaves unavai
       identity: "SEED-42#story",
       title: "Historical title",
       launchedAt: early,
-      lastActivityAt: usageHistoryDefaultAt,
+      lastActivityAt: "2026-11-14T10:00:00.000Z",
       outcome: null,
     }),
   );

@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { claudeReportingContext } from "../../../Distribution/tests/support/claudeReportingContext.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
@@ -29,14 +28,12 @@ test("recovers Claude historical renamed seed, backlog and completion facts from
       .withRevision("completed", {
         remove: [renamed],
         doneRecords: [
-          {
-            identity: "SEED-42#story",
-            title: "Title at completion",
-            completedAt: usageHistoryDefaultAt,
-            developer: "Terry",
-            agent: "mrsn-chan",
-            host: "claude",
-          },
+          makeMe.aDoneRecord
+            .completed({
+              identity: "SEED-42#story",
+              title: "Title at completion",
+            })
+            .please(),
         ],
       })
       .withRevision("backlog", {
@@ -121,7 +118,7 @@ test("recovers Claude historical renamed seed, backlog and completion facts from
               reference,
               outcome: "unfinished",
               message: "PRIVATE-REPORT",
-              receivedAt: usageHistoryDefaultAt,
+              receivedAt: "2026-11-14T10:00:00.000Z",
             }),
           },
         ],
@@ -160,7 +157,7 @@ test("recovers Claude historical renamed seed, backlog and completion facts from
       origin: "dashboard",
       outcome: {
         kind: "reported-incomplete",
-        at: usageHistoryDefaultAt,
+        at: "2026-11-14T10:00:00.000Z",
         attention: true,
       },
     }),

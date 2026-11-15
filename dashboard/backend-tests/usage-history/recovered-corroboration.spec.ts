@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { claudeReportingContext } from "../../../Distribution/tests/support/claudeReportingContext.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
@@ -62,7 +61,6 @@ test("joins later Claude retained timestamp identity to one recovered task and p
   const retained = makeMe.aLaunchRecord
     .executing({ identity: "SEED-42#story", title: "Retained title" })
     .inClaudeSession({ sessionId })
-    .launchedAt(usageHistoryDefaultAt)
     .reportingThrough({
       reference,
       origin: "http://localhost:4318",
@@ -118,7 +116,6 @@ test("retains contradictory historical facts and reporting project joins without
       .withTurnContext("same-turn")
       .withRow({
         type: "response_item",
-        timestamp: usageHistoryDefaultAt,
         payload: { role: "user", content: [{ text: input }] },
       })
       .withResponse("same-turn", "answer", { output_tokens: 5 })
@@ -156,7 +153,6 @@ test("retains contradictory historical facts and reporting project joins without
       .withTurnContext("same-turn")
       .withRow({
         type: "response_item",
-        timestamp: usageHistoryDefaultAt,
         payload: {
           role: "user",
           content: [

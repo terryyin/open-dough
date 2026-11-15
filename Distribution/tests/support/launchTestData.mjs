@@ -4,6 +4,7 @@ import {
   codexSession,
   cursorSession,
 } from "./hostSessionTestData.mjs";
+import { testDataTimestamp } from "./testDataDefaults.mjs";
 import { LaunchOutcomeBuilder } from "./launchOutcomeTestData.mjs";
 import { requestFacts } from "./launchRequestTestData.mjs";
 import {
@@ -36,7 +37,7 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
   #storyBranch;
   /** @type {((name: string) => LaunchRecord["session"]) | undefined} */
   #session;
-  #launchedAt = "2026-01-01T00:00:00.000Z";
+  #launchedAt = testDataTimestamp;
   /** @type {LaunchRecord["firstInput"]} */
   #firstInput;
   /** @type {import("./launchWorkspaceTestData.mjs").AdHocWorkspace | undefined} */

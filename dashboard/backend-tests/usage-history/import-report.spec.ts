@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { writeFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import {
   expect,
   test,
@@ -174,8 +173,8 @@ test("reports configured in-window work separately from retained old launches, u
           claude: { tasks: 1, observations: 1 },
         },
         earliestTaskStart: early,
-        firstInWindowActivity: usageHistoryDefaultAt,
-        earliestUsage: usageHistoryDefaultAt,
+        firstInWindowActivity: "2026-11-14T10:00:00.000Z",
+        earliestUsage: "2026-11-14T10:00:00.000Z",
         tokens: { uncachedInput: 14, cacheRead: 25, cacheWrite: 6, output: 15 },
         unmeasured: {
           uncachedInput: 0,

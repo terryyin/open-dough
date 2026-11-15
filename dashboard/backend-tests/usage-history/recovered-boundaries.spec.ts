@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
@@ -30,7 +29,6 @@ test("keeps successive native tasks distinct and enriches the same task with lat
       .withTurnContext("first")
       .withRow({
         type: "response_item",
-        timestamp: usageHistoryDefaultAt,
         payload: {
           role: "user",
           content: [
@@ -45,7 +43,6 @@ test("keeps successive native tasks distinct and enriches the same task with lat
       .withTurnContext("second")
       .withRow({
         type: "response_item",
-        timestamp: usageHistoryDefaultAt,
         origin: { kind: "native" },
         payload: {
           role: "user",
@@ -87,7 +84,6 @@ test("keeps successive native tasks distinct and enriches the same task with lat
     .executing({ identity: "SEED-404#missing", title: "Corroborated title" })
     .inCodexSession({ sessionId: session })
     .withFirstInput({ state: "confirmed", turnId: "first" })
-    .launchedAt(usageHistoryDefaultAt)
     .please();
   keepLaunchStore(home, { historic: [record] });
   const operational = path.join(
@@ -128,7 +124,6 @@ test("leaves incidental examples and contradictory project joins unknown and exc
       .withTurnContext("example-turn")
       .withRow({
         type: "response_item",
-        timestamp: usageHistoryDefaultAt,
         payload: { role: "user", content: [{ text: examples }] },
       })
       .withResponse("example-turn", "example-answer", { output_tokens: 2 })
@@ -143,7 +138,6 @@ test("leaves incidental examples and contradictory project joins unknown and exc
       .withTurnContext("alien")
       .withRow({
         type: "event_msg",
-        timestamp: usageHistoryDefaultAt,
         payload: {
           type: "user_message",
           message: "$dough-execute-plan SEED-8#example",

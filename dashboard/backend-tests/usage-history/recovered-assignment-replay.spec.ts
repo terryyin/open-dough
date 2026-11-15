@@ -1,7 +1,6 @@
 import { readFileSync, rmSync } from "node:fs";
 import assert from "node:assert/strict";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import {
   test,
@@ -61,7 +60,6 @@ test("rejected assignment survives missing inputs, later genuine assignment rest
       .withRow(wrapper)
       .withRow({
         type: "response_item",
-        timestamp: usageHistoryDefaultAt,
         payload: {
           role: "user",
           content: [
@@ -78,12 +76,12 @@ test("rejected assignment survives missing inputs, later genuine assignment rest
   const supported = readImported(home);
   expect(Object.keys(supported.tasks)).toEqual([task.id]);
   expect(supported.tasks[task.id]).toMatchObject({
-    launchedAt: usageHistoryDefaultAt,
+    launchedAt: "2026-11-14T10:00:00.000Z",
     assignmentEvidence: expect.arrayContaining([
       expect.objectContaining({ status: "rejected", at: wrapperAt }),
       expect.objectContaining({
         status: "supported",
-        at: usageHistoryDefaultAt,
+        at: "2026-11-14T10:00:00.000Z",
       }),
     ]),
   });

@@ -4,6 +4,8 @@
 // `makeMe.aCodexRollout` and `makeMe.aClaudeTranscript` (in-window timestamps
 // by default). Malformed bytes and layout under proof stay in the case. No
 // runtime dashboard import enters MakeMe.
+import { testDataTimestamp } from "./testDataDefaults.mjs";
+
 /** @typedef {import("../../../dashboard/server/usageRecords.ts").UsageTask} UsageTask */
 export class UsageTaskBuilder {
   /** @param {Pick<UsageTask, "id" | "sessionId"> & Partial<UsageTask>} facts */
@@ -18,7 +20,7 @@ export class UsageTaskBuilder {
           workflow: null,
           identity: null,
           title: null,
-          launchedAt: null,
+          launchedAt: testDataTimestamp,
           origin: "unknown",
           requested: {},
           sources: [],

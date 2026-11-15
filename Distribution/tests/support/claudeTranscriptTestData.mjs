@@ -5,7 +5,7 @@
 // chaining and in-window timestamps. Malformed bytes, asserted times and
 // subagents/ layout stay in the case. No dashboard runtime import.
 
-import { usageHistoryDefaultAt } from "./codexRolloutTestData.mjs";
+import { testDataTimestamp } from "./testDataDefaults.mjs";
 import { claudeReportingContext } from "./claudeReportingContext.mjs";
 
 /**
@@ -104,7 +104,7 @@ export class ClaudeTranscriptBuilder {
       type: "user",
       uuid,
       parentUuid: null,
-      timestamp: options.timestamp ?? usageHistoryDefaultAt,
+      timestamp: options.timestamp ?? testDataTimestamp,
       origin: options.origin ?? { kind: "human" },
       message,
     };
@@ -137,7 +137,7 @@ export class ClaudeTranscriptBuilder {
       type: "user",
       uuid: options.uuid,
       ...(parentUuid !== undefined ? { parentUuid } : {}),
-      timestamp: options.timestamp ?? usageHistoryDefaultAt,
+      timestamp: options.timestamp ?? testDataTimestamp,
       ...(options.origin !== undefined ? { origin: options.origin } : {}),
       ...(options.toolUseResult !== undefined
         ? { toolUseResult: options.toolUseResult }
@@ -179,7 +179,7 @@ export class ClaudeTranscriptBuilder {
       type: "assistant",
       uuid: options.uuid,
       ...(parentUuid !== undefined ? { parentUuid } : {}),
-      timestamp: options.timestamp ?? usageHistoryDefaultAt,
+      timestamp: options.timestamp ?? testDataTimestamp,
       ...(options.requestId !== undefined
         ? { requestId: options.requestId }
         : {}),

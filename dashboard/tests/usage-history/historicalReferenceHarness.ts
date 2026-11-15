@@ -2,7 +2,6 @@
 // examples stay visible in their cases.
 import assert from "node:assert/strict";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import type { UsageHistory } from "../../server/usageRecords.ts";
 import { writeCodexSession } from "./importHarness.ts";
 
@@ -31,7 +30,6 @@ export function historicalCodexTaskRows(
     .withTurnContext(turn)
     .withRow({
       type: "response_item",
-      timestamp: usageHistoryDefaultAt,
       payload: {
         type: "message",
         role: "user",

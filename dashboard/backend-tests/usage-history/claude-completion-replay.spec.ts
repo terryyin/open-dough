@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
@@ -40,7 +39,6 @@ function keepLaunch(home: string) {
           title: "Usage recovery",
         })
         .inClaudeSession({ sessionId })
-        .launchedAt(usageHistoryDefaultAt)
         .please(),
     ],
   });

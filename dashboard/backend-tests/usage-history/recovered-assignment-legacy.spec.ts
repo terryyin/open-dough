@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { rmSync, writeFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { taskUsage, usageHistoryFile } from "../../server/usageHistory.ts";
 import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
@@ -91,7 +90,6 @@ test("independent retained assignment sources preserve eligibility when their na
       .withRow(pluginWrapper)
       .withRow({
         type: "response_item",
-        timestamp: usageHistoryDefaultAt,
         payload: { role: "user", content: [{ text: "$dough-slice-planning" }] },
       })
       .withResponse("turn", "retained", { output_tokens: 8 })

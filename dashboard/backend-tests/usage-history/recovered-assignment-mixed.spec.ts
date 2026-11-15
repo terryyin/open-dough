@@ -1,5 +1,4 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import {
   taskUsage,
   usageHistoryFile,
@@ -42,7 +41,6 @@ test("wrapper followed by genuine mixed content corrects the same old task start
       })
       .withRow({
         type: "response_item",
-        timestamp: usageHistoryDefaultAt,
         payload: {
           role: "user",
           content: [
@@ -72,14 +70,14 @@ test("wrapper followed by genuine mixed content corrects the same old task start
   const history = readImported(home);
   expect(Object.keys(history.tasks)).toEqual([id]);
   expect(history.tasks[id]).toMatchObject({
-    launchedAt: usageHistoryDefaultAt,
+    launchedAt: "2026-11-14T10:00:00.000Z",
     workflow: "dough-slice-planning",
     requested: { effort: "high" },
     assignmentEvidence: expect.arrayContaining([
       expect.objectContaining({ status: "rejected", at: injectedAt }),
       expect.objectContaining({
         status: "supported",
-        at: usageHistoryDefaultAt,
+        at: "2026-11-14T10:00:00.000Z",
         source: { kind: "native", file, line: 4 },
       }),
     ]),

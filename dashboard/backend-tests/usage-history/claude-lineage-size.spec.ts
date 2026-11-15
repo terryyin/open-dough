@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
@@ -23,7 +22,6 @@ test("imports a long Claude parent chain within bounded memory and retains one r
       title: "Recover long native history",
     })
     .inClaudeSession({ sessionId })
-    .launchedAt(usageHistoryDefaultAt)
     .reportingThrough({
       origin: "http://localhost:4318",
       reference,

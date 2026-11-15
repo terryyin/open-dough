@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import {
   taskUsage,
   usageHistoryFile,
@@ -48,7 +47,6 @@ test("retained launch is eligible despite wrapper rejection and unavailable sour
     .with({
       id: "legacy-independent",
       sessionId: "unavailable",
-      launchedAt: usageHistoryDefaultAt,
       title: "Independent fact",
       sources: [{ kind: "native", file: "/unavailable.jsonl", line: 6 }],
     })
@@ -56,7 +54,9 @@ test("retained launch is eligible despite wrapper rejection and unavailable sour
   await writeUsageHistory({ tasks: [independent] }, usageHistoryFile(home));
   runImport(home, root);
   const history = readImported(home);
-  expect(history.tasks[independent.id]?.launchedAt).toBe(usageHistoryDefaultAt);
+  expect(history.tasks[independent.id]?.launchedAt).toBe(
+    "2026-11-14T10:00:00.000Z",
+  );
   expect(history.tasks[independent.id]?.gaps).not.toContain(
     "unsupported-task-assignment",
   );

@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
@@ -25,7 +24,6 @@ test("imports retained Claude root and explicitly joined worker messages once ac
       title: "Usage recovery",
     })
     .inClaudeSession({ sessionId })
-    .launchedAt(usageHistoryDefaultAt)
     .requestingModel("requested-model")
     .requestingEffort("high")
     .reportingThrough({
@@ -179,7 +177,7 @@ test("imports retained Claude root and explicitly joined worker messages once ac
   assert(own && worker && next && later);
   expect(own).toEqual(
     expect.objectContaining({
-      at: usageHistoryDefaultAt,
+      at: "2026-11-14T10:00:00.000Z",
       lastAt: "2026-11-14T10:00:01.000Z",
       settings: { model: "observed-model", effort: "medium" },
       rootTurnId: "launch-input",

@@ -1,5 +1,4 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import {
   writeUsageHistory,
   usageHistoryFile,
@@ -27,11 +26,17 @@ test("counts recorded in-window activity without attributed counters and keeps u
             id: "active",
             sessionId: "active",
             project: "historic",
-            lastActivityAt: usageHistoryDefaultAt,
+            launchedAt: null,
+            lastActivityAt: "2026-11-14T10:00:00.000Z",
           })
           .please(),
         makeMe.aUsageTask
-          .with({ id: "undated", sessionId: "undated", project: "historic" })
+          .with({
+            id: "undated",
+            sessionId: "undated",
+            project: "historic",
+            launchedAt: null,
+          })
           .please(),
         makeMe.aUsageTask
           .with({
@@ -52,7 +57,7 @@ test("counts recorded in-window activity without attributed counters and keeps u
       configuredWork: {
         tasks: 1,
         observations: 0,
-        firstInWindowActivity: usageHistoryDefaultAt,
+        firstInWindowActivity: "2026-11-14T10:00:00.000Z",
         earliestTaskStart: null,
         tokens: { output: null },
         taskCoverage: { measured: 0, partial: 0, unavailable: 1 },

@@ -7,7 +7,6 @@ import { fileURLToPath } from "node:url";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
 import type { UsageHistory } from "../../server/usageHistory.ts";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 
 const repository = fileURLToPath(new URL("../../../", import.meta.url));
 const command = path.join(repository, "dashboard/server/importUsageHistory.ts");
@@ -66,7 +65,7 @@ export function keepRetainedLaunch(home: string, record: LaunchRecord): void {
       project: "open-dough",
       record,
       reason: "removed",
-      leftAt: usageHistoryDefaultAt,
+      leftAt: record.launchedAt,
     })}\n`,
   );
 }

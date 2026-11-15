@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { claudeReportingContext } from "../../../Distribution/tests/support/claudeReportingContext.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { responseKey } from "../../server/usageRecords.ts";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
@@ -163,7 +162,6 @@ test("retains independent partial workers and reports missing transcripts and un
   const record = makeMe.aLaunchRecord
     .executing({ identity: "SEED-358#task", title: "Task" })
     .inClaudeSession({ sessionId })
-    .launchedAt(usageHistoryDefaultAt)
     .please();
   keepLaunchStore(home, { "open-dough": [record] });
   const claudeRoot = path.join(home, "claude");

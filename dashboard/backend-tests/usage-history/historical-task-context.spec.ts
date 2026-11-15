@@ -1,5 +1,4 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
@@ -80,7 +79,7 @@ test("uses only same-message labelled established identity and keeps conflicting
     );
   expect(task(history, "injected")).toMatchObject({
     workflow: "dough-execute-plan",
-    launchedAt: usageHistoryDefaultAt,
+    launchedAt: "2026-11-14T10:00:00.000Z",
     assignmentEvidence: [expect.objectContaining({ status: "supported" })],
   });
   const conflict = task(history, "conflicting");
@@ -129,7 +128,6 @@ test("later argumentless workflow does not inherit prior established intent or i
       .withTurnContext("later")
       .withRow({
         type: "response_item",
-        timestamp: usageHistoryDefaultAt,
         payload: {
           type: "message",
           role: "user",

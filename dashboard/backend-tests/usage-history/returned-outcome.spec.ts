@@ -3,7 +3,6 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { claudeReportingContext } from "../../../Distribution/tests/support/claudeReportingContext.mjs";
-import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
@@ -22,19 +21,16 @@ test("keeps a matching returned-to-backlog receipt distinct from ordinary report
   const returned = makeMe.aLaunchRecord
     .executing({ identity: "SEED-42#story", title: "Returned work" })
     .inCodexSession({ sessionId: "returned" })
-    .launchedAt(usageHistoryDefaultAt)
     .completedWith({ receipt: returnedReceipt, message: "" })
     .please();
   const stale = makeMe.aLaunchRecord
     .executing({ identity: "SEED-43#story", title: "Ordinary report" })
     .inCodexSession({ sessionId: "stale-marker" })
-    .launchedAt(usageHistoryDefaultAt)
     .completedWith({ receipt: currentReceipt, message: "" })
     .please();
   const attention = makeMe.aLaunchRecord
     .executing({ identity: "SEED-44#story", title: "Attention report" })
     .inCodexSession({ sessionId: "attention" })
-    .launchedAt(usageHistoryDefaultAt)
     .completedWith({ message: "PRIVATE-ATTENTION-MESSAGE" })
     .please();
   // These exact incoming wire fields protect the additive supplier contract.
@@ -61,18 +57,18 @@ test("keeps a matching returned-to-backlog receipt distinct from ordinary report
   assert(returnedTask && staleTask && attentionTask);
   expect(returnedTask.outcome).toEqual({
     kind: "reported-complete",
-    at: usageHistoryDefaultAt,
+    at: "2026-11-14T10:00:00.000Z",
     attention: false,
     disposition: "returned-to-backlog",
   });
   expect(staleTask.outcome).toEqual({
     kind: "reported-complete",
-    at: usageHistoryDefaultAt,
+    at: "2026-11-14T10:00:00.000Z",
     attention: false,
   });
   expect(attentionTask.outcome).toEqual({
     kind: "reported-complete",
-    at: usageHistoryDefaultAt,
+    at: "2026-11-14T10:00:00.000Z",
     attention: true,
   });
   expect(returnedTask.fieldSources?.outcome).toEqual([
@@ -119,7 +115,7 @@ test("enriches a native report with matching retained return evidence without in
               reference,
               outcome: "completed",
               message: "",
-              receivedAt: usageHistoryDefaultAt,
+              receivedAt: "2026-11-14T10:00:00.000Z",
             }),
           },
         ],
@@ -132,13 +128,12 @@ test("enriches a native report with matching retained return evidence without in
   assert(task);
   expect(task.outcome).toEqual({
     kind: "reported-complete",
-    at: usageHistoryDefaultAt,
+    at: "2026-11-14T10:00:00.000Z",
     attention: false,
   });
   const record = makeMe.aLaunchRecord
     .executing({ identity: "SEED-42#story", title: "Returned work" })
     .inClaudeSession({ sessionId })
-    .launchedAt(usageHistoryDefaultAt)
     .reportingThrough({
       reference,
       origin: "http://localhost:4318",
@@ -152,7 +147,7 @@ test("enriches a native report with matching retained return evidence without in
   expect(Object.keys(enriched.tasks)).toEqual([task.id]);
   expect(enriched.tasks[task.id]?.outcome).toEqual({
     kind: "reported-complete",
-    at: usageHistoryDefaultAt,
+    at: "2026-11-14T10:00:00.000Z",
     attention: false,
     disposition: "returned-to-backlog",
   });
@@ -171,7 +166,6 @@ test("retains conflicting report kind and time as evidence instead of selecting 
   const completed = makeMe.aLaunchRecord
     .executing({ identity: "SEED-42#story", title: "Reported work" })
     .inCodexSession({ sessionId: "conflicting-reports" })
-    .launchedAt(usageHistoryDefaultAt)
     .completedWith({ message: "" })
     .please();
   keepLaunchStore(home, { "open-dough": [completed] });
@@ -181,7 +175,6 @@ test("retains conflicting report kind and time as evidence instead of selecting 
   const unfinished = makeMe.aLaunchRecord
     .executing({ identity: "SEED-42#story", title: "Reported work" })
     .inCodexSession({ sessionId: "conflicting-reports" })
-    .launchedAt(usageHistoryDefaultAt)
     .completedWith({ outcome: "unfinished", receivedAt: later, message: "" })
     .please();
   keepLaunchStore(home, { "open-dough": [unfinished] });
@@ -200,7 +193,7 @@ test("retains conflicting report kind and time as evidence instead of selecting 
     expect.arrayContaining([
       {
         kind: "reported-complete",
-        at: usageHistoryDefaultAt,
+        at: "2026-11-14T10:00:00.000Z",
         attention: false,
       },
       { kind: "reported-incomplete", at: later, attention: false },

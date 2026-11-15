@@ -5,8 +5,7 @@
 // unsupported rows and asserted times stay in the case. No dashboard runtime
 // import.
 
-/** Incidental in-window timestamp for rows and launches that do not assert time. */
-export const usageHistoryDefaultAt = "2026-11-14T10:00:00.000Z";
+import { testDataTimestamp } from "./testDataDefaults.mjs";
 
 /**
  * @typedef {object} CodexResponseOptions
@@ -45,7 +44,7 @@ export const usageHistoryDefaultAt = "2026-11-14T10:00:00.000Z";
  * or a literal under proof).
  * @typedef {{
  *   type: string,
- *   timestamp?: string,
+ *   timestamp?: string | undefined,
  *   origin?: { kind: string },
  *   payload?: Record<string, unknown>,
  * }} CodexRolloutRow
@@ -85,7 +84,7 @@ export function codexTokenUsageRecord(
 ) {
   return {
     type: "token_usage_record",
-    timestamp: options.timestamp ?? usageHistoryDefaultAt,
+    timestamp: options.timestamp ?? testDataTimestamp,
     payload: {
       thread_id: sessionId,
       turn_id: turnId,
@@ -198,12 +197,12 @@ export class CodexRolloutBuilder {
   }
 
   /**
-   * A structured wire row the case still states literally (unsupported or
-   * deliberately odd), placed among builder-made rows.
+   * A wire row placed among builder-made rows, with an incidental timestamp
+   * unless explicitly supplied. Use `timestamp: undefined` for an undated row.
    * @param {CodexRolloutRow} row
    */
   withRow(row) {
-    this.#rows.push(row);
+    this.#rows.push({ timestamp: testDataTimestamp, ...row });
     return this;
   }
 
