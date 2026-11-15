@@ -56,6 +56,8 @@ times_file=${OPEN_DOUGH_TEST_TIMES:-${output_root}/times}
 # the absolute CI run cutoff left unstarted; one tab-separated line per job.
 # shellcheck disable=SC2034 # scripts/test-report-jobs.bash writes this file.
 outcomes_file=${OPEN_DOUGH_TEST_OUTCOMES:-}
+# A second report can retain Node's case outcomes for CI.
+case_outcomes_file=${OPEN_DOUGH_TEST_CASE_OUTCOMES:-}
 # OPEN_DOUGH_TEST_SLOT_GATE names a file the runner writes each time it finds
 # every job slot occupied with a job still queued: the number of jobs started
 # so far. The runner then waits for a slot as it always does.
@@ -71,6 +73,7 @@ finish() {
   rm -rf -- "${output_root}"
 }
 trap finish EXIT
+[[ -z ${case_outcomes_file} ]] || rm -f -- "${case_outcomes_file}"
 mkfifo "${output_root}/slots"
 exec 3<> "${output_root}/slots"
 for ((slot = 0; slot < job_slots; slot++)); do
@@ -220,6 +223,7 @@ done
 
 write_job_times
 write_job_outcomes
+write_case_outcomes
 # The time budget is CI's and the whole suite's (or a split share's): only a CI
 # run (`CI=true`) without chosen checks is judged against it. A run stopped by
 # the absolute cutoff has already failed; still leave reports for artifacts.

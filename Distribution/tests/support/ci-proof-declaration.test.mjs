@@ -97,9 +97,14 @@ test("the ci-proof job runs after every proof job however they ended", () => {
 test("the declared parts and units equal the matrix lengths and report units of the jobs that write each entry, in Intent location order", () => {
   const expected = new Map();
   for (const producer of producers) {
+    const units = [unitOf(producer.proof[0])];
+    if (declaredInput(producer, "case-report")) units.unshift("case");
     for (const entry of declaredInput(producer, "entries").split(" ")) {
       assert.equal(expected.has(entry), false, `${entry} has one producer`);
-      expected.set(entry, `${producer.parts}:${unitOf(producer.proof[0])}`);
+      expected.set(
+        entry,
+        units.map((unit) => [entry, `${producer.parts}:${unit}`]),
+      );
     }
   }
   const declaration = input(summaryStep, "expect")
@@ -109,7 +114,7 @@ test("the declared parts and units equal the matrix lengths and report units of 
     declaration,
     locations
       .filter((entry) => expected.has(entry))
-      .map((entry) => [entry, expected.get(entry)]),
+      .flatMap((entry) => expected.get(entry)),
   );
   assert.deepEqual(
     new Set(declaration.map(([entry]) => entry)),

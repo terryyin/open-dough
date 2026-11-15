@@ -135,6 +135,7 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
       `dashboard/tests: 1 passed, 0 failed, 0 other test cases${missingTail("dashboard/tests")}`,
       `dashboard/frontend-tests: 1 passed, 0 failed, 0 other test cases${missingTail("dashboard/frontend-tests")}`,
       `dashboard/backend-tests: 1 passed, 1 failed, 0 other test cases${missingTail("dashboard/backend-tests")}`,
+      `Distribution: 0 passed, 0 failed, 0 other test cases; ${missingFrom(1, declaredParts.Distribution)}`,
       `Distribution: 2 passed, 1 failed, 0 other test files${missingTail("Distribution")}`,
       "",
     ].join("\n"),
@@ -148,7 +149,7 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
   // its outcome under its own path.
   assert.deepEqual(
     summary.written.entries.flatMap(({ path, evidence }) =>
-      evidence.flatMap(({ durationMs, files }) =>
+      evidence.flatMap(({ durationMs, files = [] }) =>
         files.map(
           (file) =>
             `${path} ${durationMs} ms: ${file.path} ${file.passed} passed ${file.failed} failed`,

@@ -76,6 +76,7 @@ jobs:
           OPEN_DOUGH_TEST_SPLIT: ${{ matrix.share }}/${{ strategy.job-total }}
           OPEN_DOUGH_TEST_TIMES: ${{ runner.temp }}/test-times.txt
           OPEN_DOUGH_TEST_OUTCOMES: ${{ runner.temp }}/test-outcomes.txt
+          OPEN_DOUGH_TEST_CASE_OUTCOMES: ${{ runner.temp }}/test-case-outcomes.txt
         run: exec npm run test
       # Per-job seconds for this share: time-budget calibration and longest-first.
       - name: Keep per-job test times
@@ -86,7 +87,7 @@ jobs:
           path: ${{ runner.temp }}/test-times.txt
           if-no-files-found: ignore
           retention-days: 7
-      # This share's Distribution Tests: one outcome per check file.
+      # Each check file contributes its outcome. Node also reports test cases.
       - name: Keep the CI proof fragments
         if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
         uses: ./.github/actions/ci-proof-fragments
@@ -99,6 +100,7 @@ jobs:
           unit: file
           report: ${{ runner.temp }}/test-outcomes.txt
           times: ${{ runner.temp }}/test-times.txt
+          case-report: ${{ runner.temp }}/test-case-outcomes.txt
 
   # The browser test groups, which `npm test` never discovers: each is its own
   # producer (./browser-test-group.yml) with its own command, settings,
@@ -161,5 +163,5 @@ jobs:
       - name: Summarize CI proof
         uses: ./.github/actions/ci-proof-summary
         with:
-          expect: e2e=5:case dashboard/tests=5:case dashboard/frontend-tests=1:case dashboard/backend-tests=3:case Distribution=3:file
+          expect: e2e=5:case dashboard/tests=5:case dashboard/frontend-tests=1:case dashboard/backend-tests=3:case Distribution=3:case Distribution=3:file
           frontend-entry: dashboard/frontend-tests

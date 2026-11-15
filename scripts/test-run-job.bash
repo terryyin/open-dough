@@ -1,7 +1,7 @@
 # One job of scripts/test.sh: a Node test file under the failures reporter or
 # a Bash check. Sourced after slots, times, and lost_setpgid_race are ready.
 # shellcheck shell=bash
-# source_dir, output_root, test_bash, and lost_setpgid_race come from
+# source_dir, output_root, test_bash, case_outcomes_file, and lost_setpgid_race come from
 # scripts/test.sh (see its shellcheck source= directive).
 # shellcheck disable=SC2154
 
@@ -11,6 +11,7 @@ elapsed_seconds() {
 }
 
 node_reporter="${source_dir}/Distribution/tests/support/node-test-failures-reporter.mjs"
+node_case_reporter="${source_dir}/Distribution/tests/support/node-test-case-outcomes-reporter.mjs"
 check_stop_report="${source_dir}/Distribution/tests/support/check-stop-report.bash"
 # A check that asks GitHub names a request owner root of its own. Each job is
 # given one that admits no owner -- too deep for any socket path, so a consumer
@@ -24,9 +25,13 @@ run_job() {
   local job_status=0 started=${EPOCHREALTIME}
   export DOUGH_GITHUB_REQUEST_OWNER_ROOT="${output_root}/${index}.${ownerless_root}"
   if [[ ${kind} == node ]]; then
-    node --test \
-      --test-reporter="${node_reporter}" \
-      "${label}" > "${log}" 2>&1 \
+    local reporters=(--test-reporter="${node_reporter}")
+    if [[ -n ${case_outcomes_file} ]]; then
+      reporters+=(--test-reporter-destination=stdout
+        --test-reporter="${node_case_reporter}"
+        --test-reporter-destination="${output_root}/${index}.case-outcomes")
+    fi
+    node --test "${reporters[@]}" "${label}" > "${log}" 2>&1 \
       || job_status=$?
   else
     BASH_ENV="${check_stop_report}" "${test_bash}" "${label}" > "${log}" 2>&1 \

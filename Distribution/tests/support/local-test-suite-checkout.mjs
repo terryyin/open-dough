@@ -51,6 +51,7 @@ export function suiteRunnerLayer() {
       "scripts/test-budget.sh",
       "Distribution/tests/helpers/wait-for.bash",
       "Distribution/tests/support/node-test-failures-reporter.mjs",
+      "Distribution/tests/support/node-test-case-outcomes-reporter.mjs",
       "Distribution/tests/support/check-stop-report.bash",
       "dashboard/tests/support/testFiles.mjs",
       "dashboard/tests/support/suiteDeadline.mjs",
