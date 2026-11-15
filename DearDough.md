@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 531. Removed numbers are never reused.
+- Highest allocated local number: 533. Removed numbers are never reused.
 - Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
@@ -790,6 +790,14 @@ After trunk conversions grew the e2e group by about a quarter, each of five shar
   - Observed effect: a delegated analysis compared per-spec times across runs (1.42 to 1.94 times slower, other shards faster) and returned a capacity decision; the developer chose to move one shard from the integrated group to e2e, and run 43688468922 finished the six e2e shards in 173 to 240 s.
   - Inference: the conversions that grew the group recorded passing runs at 287 and 288 s, so the margin was already gone when they landed. A margin check against the cutoff when a group grows, and a diagnostic that reads the cutoff message and the unfinished cases from the proof fragment, would likely have moved this to the story that caused it.
 
+- Execution: SEED-334#finish-dissolving-integrated-ui-test (plan `632-finish-dissolving-integrated-ui-test`; first implementation `9b535b53d`)
+  - Timestamp: 2026-11-15T11:51:12Z (FE suite deadline in run 43710473022)
+  - Tool: Cursor
+  - Open Dough release: 0.3.101 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: CI run 43710473022 on `26161888d`; job `dashboard-frontend / shard 1/1` logged `Timed out waiting 163.975s for the test suite to run` and matching teardown timeout; coordinator treated it as no recognized failure beside the ownership backend failure. Repair tip `219d69bef` (ownership retarget only) then succeeded on FE without a FE-specific change. Related to this story's FE growth from converted homes.
+  - Observed effect: one intermediate FE deadline failure with no named failing case; completion waited on the later green repair tip.
+  - Inference: qualified match to DD-529's diagnostic gap on a different suite (FE). Whether a margin check at conversion publish would have split FE earlier is unmeasured.
+
 ## DD-530 — Trunk rewrote tests an accepted, uncommitted slice had edited, and the coordinator improvised the reconciliation
 
 Freshness settlement reported an amended plan while an accepted slice sat uncommitted. Trunk had rewritten test files that slice and an earlier slice edited. The guidance absorbs record amendments and names sibling checks, but gives no sequence for bringing trunk's product changes under uncommitted accepted work.
@@ -817,3 +825,29 @@ A plan asked for a size budget to be observed by running the real operation agai
   - Evidence: plan 631 slice 4 Learnings: 26,033,157 bytes in the literal clone, 24,277,565 with stored paths rewritten to the clone's, 22,871,902 for the pure conversion.
   - Observed effect: the slice 4 agent traced the excess to the path difference, built a second clone with rewritten paths and a control clone, and reported the three figures; the budget was accepted on the measured 24.3 MB.
   - Inference: practice worth keeping: path-guarded scripts that refuse any home but the scratch clones, and a before/after digest of the real store. A clone observation of a store that records absolute paths needs the paths rewritten or the figure corrected.
+
+## DD-532 — A carried one-family-per-slice sizing note left the next recently-done batch oversized
+
+Plan 632 already carried the predecessor learning that a new Frontend substitute family costs most of one agent slice, yet its first remaining recently-done batch still packed about twenty interim specs that needed multiple new families. The implementer returned oversized with a clean tree; only then did execution split by family. Related to DD-524 (probe that never measured family cost); here the learning was already written into the plan and still not applied to the next batch.
+
+### Occurrences
+- Execution: SEED-334#finish-dissolving-integrated-ui-test (plan `632-finish-dissolving-integrated-ui-test`; first implementation `9b535b53d`)
+  - Timestamp: 2026-11-15T16:54:50+08:00 (overrun refine commit `f1df306df`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.101 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: Take/plan at `e3c2b12bb` Carried learnings "A new Frontend substitute family costs most of a slice" beside Ordered slice 2 "all 20 `dashboard/tests/sessions/recently-done-*` specs (20 / 2,828)". First slice-2 agent `fa472a0b-1659-40b1-9fd2-3e6d689ac04e` returned oversized (~12–13 active minutes) with no conversion. Refine `f1df306df` split into three recently-done batches; before the next dispatch the coordinator still had to narrow refined slice 3 from two new families to one (`39aae99e5`).
+  - Observed effect: one empty overrun, one in-place replan to ten slices, and one preemptive one-family publish before the next delegation.
+  - Inference: applying the carried one-family budget when writing or taking the remaining plan would likely have avoided the empty first attempt; the later preemptive narrow shows the same constraint was already known.
+
+## DD-533 — Emptying an interim home left the group's ownership quick-case pointing at a moved spec
+
+A conversion slice removed the last specs under an interim folder that `groupRunnerExamples` still named for the Integrated UI ownership quick case. Hosted backend ownership then failed with "No tests found" for that selection; the FE suite on the same tip hit a deadline without a named case. The repair only retargeted the example to a remaining Intent spec.
+
+### Occurrences
+- Execution: SEED-334#finish-dissolving-integrated-ui-test (plan `632-finish-dissolving-integrated-ui-test`; first implementation `9b535b53d`)
+  - Timestamp: 2026-11-15T20:06:15+08:00 (repair `219d69bef`)
+  - Tool: Cursor
+  - Open Dough release: 0.3.101 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: slice 9 `26161888d` emptied `dashboard/tests/stories/`; CI run 43710473022 failed `dashboard/backend-tests/runtime/runner-ownership.spec.ts` (Integrated UI selection) with `Error: No tests found` for the former `stories/taken-execution-complete.spec.ts` example. Repair `219d69bef` changed `dashboard/tests/support/groupRunnerExamples.ts` to `intent/intent-story-summary-title.spec.ts`. Transcript launch `add0051e-bd90-48cc-884b-ff1ef861c80d`.
+  - Observed effect: one owned CI failure and one-line ownership retarget before completion success on `bfd4e781` (basis `219d69bef`).
+  - Inference: when a slice empties a folder named by `groupRunnerExamples`, retargeting that example in the same delivery would have avoided the hosted ownership miss; local focused conversion proof does not exercise that quick case.

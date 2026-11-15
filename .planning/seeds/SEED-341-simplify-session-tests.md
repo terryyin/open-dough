@@ -58,14 +58,13 @@ Existing browser-free rule tests beside `session-reading-rule.spec.ts` in
 `dashboard/backend-tests/sessions/` show the receiving tier for pure rules.
 Refinement should split this into stories small enough to finish quickly.
 
-Since SEED-334 (`64f15182b`), the session families no longer sit in one
-folder. Representative workflows are in E2E Test (`e2e/sessions/`, 56 specs,
-`npm run test:e2e`). Those include eight of the ten longest specs above; only
-`recently-done-sessions-sidebar` and its `-paging` sibling stayed behind. The
-remaining 51 specs are in the interim Dashboard Integrated UI Test
-(`dashboard/tests/sessions/`, `npm run test:dashboard:integrated`). The queued
-[SEED-334#finish-dissolving-integrated-ui-test](SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test)
-moves the interim specs still there to Dashboard Frontend or Backend Test through its
-"sessions and terminals" batch, which overlaps this story's move of pure
-rules to cheaper tiers. Refinement should settle the overlap before work
-starts, either by ordering the two stories or by merging that batch here.
+Since SEED-334 (`64f15182b`) and its finish-dissolving half, session families
+no longer sit under interim Integrated UI Test: `dashboard/tests/sessions/`
+holds no product specs. Representative workflows live in E2E Test
+(`e2e/sessions/`, `npm run test:e2e`); detailed UI lives in Dashboard Frontend
+Test (`dashboard/frontend-tests/sessions/`, `npm run test:dashboard:frontend`);
+backend contracts remain under `dashboard/backend-tests/sessions/`. The sibling
+retirement story still owns Intent and navigation under the interim runner.
+Refinement should target the FE/E2E/Backend homes above rather than the emptied
+interim folder, and settle overlap with any remaining cheapening of those
+homes before work starts.
