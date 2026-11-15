@@ -83,6 +83,14 @@ trap 'rm -rf -- "${work_dir}"' EXIT
 if (($#)); then
   add_chosen_jobs "$@"
 else
+  if [[ ${test_dir} == Distribution/tests ]]; then
+    for root_test in "${test_dir}"/*.sh "${test_dir}"/*.test.mjs; do
+      [[ -f ${root_test} ]] || continue
+      printf 'FAIL: %s belongs in a feature group under %s.\n' "${root_test}" "${test_dir}" >&2
+      exit 1
+    done
+  fi
+
   find "${test_dir}" -type f -name '*.sh' ! -path "${test_dir}/support/*" -print0 \
     > "${work_dir}/tests"
   while IFS= read -r -d '' test_file; do
@@ -91,9 +99,9 @@ else
     # wrappers, the admission's four journey wrappers, and the MakeMe
     # harness's two `node --test` files.
     case ${test_file} in
-      Distribution/tests/git-publication-native-one-shot.sh | \
-        Distribution/tests/git-publication-native-admission.sh | \
-        Distribution/tests/makeme-native-use.sh) ;;
+      Distribution/tests/git-publication/git-publication-native-one-shot.sh | \
+        Distribution/tests/git-publication/git-publication-native-admission.sh | \
+        Distribution/tests/makeme/makeme-native-use.sh) ;;
       *) add_job shell "${test_file}" ;;
     esac
   done < "${work_dir}/tests"

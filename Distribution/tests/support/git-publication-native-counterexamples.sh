@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Credential-free assessor counterexamples for Distribution/tests/git-publication-native.sh:
+# Credential-free assessor counterexamples for Distribution/tests/git-publication/git-publication-native.sh:
 # each rejected case changes one signal of a passing observation, declared
 # beside the candidate assessor in git-publication-native-candidate-assess.sh.
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals assigned by the sourced entry/runner.

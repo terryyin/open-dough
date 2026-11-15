@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Checks a native comparison request
-# (Distribution/tests/native-comparison.sh --native) before anything costs
+# (Distribution/tests/native-comparison/native-comparison.sh --native) before anything costs
 # time or money: before a payload is frozen, a case materializes or a session
 # starts. It refuses, naming every problem it finds, a host the runner does not
 # drive, an unknown case, a missing prerequisite of the runner or of the case

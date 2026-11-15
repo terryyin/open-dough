@@ -17,7 +17,7 @@ Type builders against the production type, schema, or encoder input with
 `@ts-check` and JSDoc imports. Builder modules import no dashboard module at
 runtime: native journeys hash makeMe's runtime import closure
 (`Distribution/tests/support/native-import-closure.mjs`) as evidence identity, and
-`Distribution/tests/native-evidence-identity.sh` fails when that closure reaches outside
+`Distribution/tests/native-harness/native-evidence-identity.sh` fails when that closure reaches outside
 `tests/` and `src/`. Include the builder sources in the dashboard
 type-check. Organize builders by domain concept behind the one entry point.
 Return the canonical shape directly to every caller. Preserve actual storage
@@ -40,7 +40,7 @@ const profile = makeMe.anAgentProfile
 const profileText = renderAgentProfile(profile);
 ```
 
-[CI test data](ci-test-data.md) covers proof evidence, observed runs and jobs,
+[CI test data](ci/ci-test-data.md) covers proof evidence, observed runs and jobs,
 adapter attempts, queue entries and stored revision coverage.
 
 Build a project this machine configures with

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034,SC2154,SC2312 # Sourcing script sets set -euo pipefail; globals cross functions.
 # Shared setup and assertions for the product backlog's native edit-guard
-# proof (Distribution/tests/product-backlog-native.sh --case guard).
+# proof (Distribution/tests/product-backlog/product-backlog-native.sh --case guard).
 #
 # The guard denies a covered native editing call that targets the project's
 # whole product backlog file, so an agent uses the installed

@@ -1,6 +1,6 @@
 # Distribution Tests
 
-Prepare [native prerequisites](native-setup.md) once per lockfile version.
+Prepare [native prerequisites](native-harness/native-setup.md) once per lockfile version.
 
 Four browser test groups run with Playwright, each under its own command,
 configuration, setup, settings, outputs and CI producer; `npm test` does not
@@ -22,9 +22,9 @@ Run every check through the runner. `npm test` (or `bash scripts/test.sh`) runs
 the whole suite; named `.sh`, `.mjs`, or `.js` paths select exactly those checks:
 
 ```sh
-npm test -- Distribution/tests/payload-declaration-links.sh \
+npm test -- Distribution/tests/installation/payload-declaration-links.sh \
   Distribution/tests/support/dashboard-dev-port.test.mjs
-bash scripts/test.sh Distribution/tests/payload-declaration-links.sh
+bash scripts/test.sh Distribution/tests/installation/payload-declaration-links.sh
 ```
 
 Relative paths use the directory `scripts/test.sh` starts in; `npm test` starts
@@ -32,6 +32,28 @@ at the repository root. Missing paths or unsupported file kinds fail the run
 before any check starts, naming the path.
 
 [Local resource use](local-test-resources.md): concurrency, cleanup, macOS sleep.
+
+## Feature groups
+
+Put every check in its feature group. The `Distribution/tests/` root is for
+suite-wide documentation and runner configuration. Automatic discovery fails
+if it finds a root-level `.sh` or `.test.mjs` file.
+
+| Group | Coverage |
+| --- | --- |
+| [ADR awareness](adr-awareness/) | ADR discovery, conflict handling, and installed use |
+| [CI](ci/) | CI setup, container reproduction, repeated runs, and timing reports |
+| [Delivery evidence](delivery-evidence/) | Source freshness, updated use, and proof scheduling |
+| [Git publication](git-publication/) | Worktree preparation, admission, publication, and landing |
+| [Installation](installation/) | Install, release verification, payload checks, and updates |
+| [MakeMe](makeme/) | Test-entry selection and installed MakeMe guidance |
+| [Native comparison](native-comparison/) | Comparison cases, baselines, and recovery |
+| [Native harness](native-harness/) | Host setup, streams, timeouts, and retained results |
+| [Product backlog](product-backlog/) | Installed backlog editing and Take |
+| [Test runner](test-runner/) | Discovery, execution, reporting, and browser runner isolation |
+
+Keep tests for individual skill scripts in `skills/<skill>/` and shared
+harness code and its own checks in `support/`.
 
 ## Test data architecture
 
@@ -44,11 +66,10 @@ See the [runner environment and CI reproduction guidance](test-environment.md).
 
 ## Runner
 
-The runner is the suite's one scheduler. Its jobs are each
-`Distribution/tests/*.sh`, except focused aggregate checks, plus each
-`node --test` file matched by a glob in
-`Distribution/tests/node-test-files` (relative to the repository root). Place
-skill tests and their fixtures under `Distribution/tests/skills/<skill>/`.
+The runner is the suite's one scheduler. It discovers shell checks in the
+feature groups, with focused aggregates available by name. It schedules Node
+tests matched by a glob in `Distribution/tests/node-test-files` (relative to the
+repository root).
 A new `*.test.mjs` under a listed glob runs without further wiring.
 Each node file runs alone through
 `Distribution/tests/support/node-test-failures-reporter.mjs`: silent when every test passes
@@ -57,7 +78,7 @@ output, and a passing file's output under `output from passing <file>:`. No
 job starts a worker pool of its own.
 `OPEN_DOUGH_TEST_DIR` names another directory of checks, with its own optional
 `node-test-files`, `longest-first`, and `time-budget`, to run instead of the
-suite's own, which is how `Distribution/tests/test-runner-failure-report.sh` runs
+suite's own, which is how `Distribution/tests/test-runner/test-runner-failure-report.sh` runs
 substitute checks. Chosen paths replace that discovery.
 
 [Runner settings](runner-settings.md) cover the job count, the start order,
@@ -87,7 +108,7 @@ Each job runs in a process group of its own, so a terminal's Ctrl-C reaches
 the runner rather than the jobs. On INT or TERM the runner stops each running
 job's process group and prints, for it and for any job the same signal ended,
 `INTERRUPTED: <job> (after <seconds>s)` and the last lines of its output; it
-then exits 130 for INT or 143 for TERM (`Distribution/tests/test-runner-interrupt.sh`).
+then exits 130 for INT or 143 for TERM (`Distribution/tests/test-runner/test-runner-interrupt.sh`).
 Workers a check detaches from its process group are that check's own
 teardown. Each job also gets a fixed 180-second wall-clock safety deadline
 from its own start (not while queued or waiting for suite admission). That
@@ -176,13 +197,13 @@ copied installer by hand, and checks the older release out with
 
 Native checks read a Claude Code, Codex, or Cursor output stream only through
 one reader, and a replay check holds that reader to retained real streams:
-[native host streams](native-host-streams.md).
+[native host streams](native-harness/native-host-streams.md).
 
 ## Native comparison cases
 
 Versioned examples from real work compare a baseline and a candidate payload
 in fresh native sessions on demand; routine runs use substitute hosts only:
-[native comparison cases](native-comparison.md).
+[native comparison cases](native-comparison/native-comparison.md).
 
 ## Shared installation and update protections
 
@@ -192,13 +213,13 @@ check proves only what its own payload adds:
 
 | Protection | Owning check |
 | --- | --- |
-| Ordinary update refuses an edited or missing managed file without writes | `Distribution/tests/update-refuses-unverifiable.sh` |
-| Repeat install refuses an edited or removed managed file without writes | `Distribution/tests/install.sh` |
-| `--force` restores an edited or incomplete installation | `Distribution/tests/update-force-restores-latest.sh` |
-| Ordinary update refuses an unrelated file at a newly managed path | `Distribution/tests/story-payload-update.sh` |
-| Linked supporting files are declared | `Distribution/tests/payload-declaration-links.sh` |
+| Ordinary update refuses an edited or missing managed file without writes | `Distribution/tests/installation/update-refuses-unverifiable.sh` |
+| Repeat install refuses an edited or removed managed file without writes | `Distribution/tests/installation/install.sh` |
+| `--force` restores an edited or incomplete installation | `Distribution/tests/installation/update-force-restores-latest.sh` |
+| Ordinary update refuses an unrelated file at a newly managed path | `Distribution/tests/installation/story-payload-update.sh` |
+| Linked supporting files are declared | `Distribution/tests/installation/payload-declaration-links.sh` |
 
-`Distribution/tests/payload-declaration-links.sh` reads `install.sh`'s `managed_files`
+`Distribution/tests/installation/payload-declaration-links.sh` reads `install.sh`'s `managed_files`
 without running the installer and fails naming each relative link, in a
 declared Markdown file, to an undeclared file. A new payload file needs a
 declaration, not another copy of these proofs.
