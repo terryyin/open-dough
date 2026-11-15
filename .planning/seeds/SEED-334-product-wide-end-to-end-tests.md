@@ -10,40 +10,40 @@ scope: story
 
 <a id="finish-dissolving-integrated-ui-test"></a>
 
-### Finish dissolving Dashboard Integrated UI Test
+### Move session, terminal, story and observation checks out of Dashboard Integrated UI Test
 
 **Identity:** SEED-334#finish-dissolving-integrated-ui-test
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/632-finish-dissolving-integrated-ui-test/PLAN.md","assessment":"not-ready","reasons":["The full dissolution remains in scope. Draft slices 2–7 contain independent conversion/proof loops that do not credibly fit the 15-active-minute budget; splitting them would exceed the eight-slice cap. Execution sizing must be resolved without dropping scope; no budget exception or story split is authorized."],"basis":{"document":"ccfa5f0205d2d7261a5c3a16eebdd136686234d8153c54165dd1f8b0f613cf1e","plan":"51641910399b42d12843c8e9ed64d15f7b709d69ad5eaff9bf3521aeb55c7597"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/632-finish-dissolving-integrated-ui-test/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4d9748da985315a89b217acda3f0bbae9db4590011a0244489894602415a76d1","plan":"7bf63d8e5fde800ceeafef0559a8a61a826a456c6a1df4326d94038328647ae4"}}
 ```
 
 #### Goal
 
 Developers get detailed feedback from Frontend and Backend unit tests and
-confidence from representative E2E workflows, with only those two dashboard
-test layers left. Complete the conversion begun by the configuration, launch
-and session-lifecycle batches, then retire **Dashboard Integrated UI Test**.
-Every distinct regression assertion the remaining interim cases provide keeps
-a home that catches the same regression.
+confidence from representative E2E workflows for the session, terminal,
+story and observation surfaces, continuing the conversion begun by the
+configuration, launch and session-lifecycle batches. Every distinct
+regression assertion these interim cases provide keeps a home that catches
+the same regression, and the `sessions`, `terminals`, `review`, `stories`
+and `observation` folders of **Dashboard Integrated UI Test** become empty.
 
 #### Scope
 
-- **Convert the remaining behavior.** Final reports and workspace retirement,
+- **Convert this half's behavior.** Final reports and workspace retirement,
   recently done sessions, the sessions sidebar, terminals, story review,
-  Intent CI/proof/history/Purpose, and board/navigation/published-story and
-  observation checks leave the interim group. Include cases added after the
-  original inventory, such as `recently-done-returned-sessions.spec.ts` and
-  `story-review-diff-line-follow-up.spec.ts`. The inventory classifies starting
-  candidates, not the complete set of promises.
+  published-story presentation and progressive done reading, and
+  published-fact observation leave the interim group. Include cases added
+  after the original inventory, such as `recently-done-returned-sessions.spec.ts`
+  and `story-review-diff-line-follow-up.spec.ts`. The inventory classifies
+  starting candidates, not the complete set of promises.
 - **Place each assertion at its observable boundary.** A representative
   workflow requiring the real page and backend belongs in E2E, preferably an
   existing journey. Detailed UI behavior belongs in Frontend, running the
   built page or production component with controlled backend answers.
   Detailed backend contracts belong in Backend through their public boundary
-  without a page; this includes `intent-ci-status-read-boundary.spec.ts`.
-  Split mixed cases by the assertions they actually make. Run real code and
-  collaborators inside the selected service, substituting only external
-  service boundaries needed by the case.
+  without a page. Split mixed cases by the assertions they actually make.
+  Run real code and collaborators inside the selected service, substituting
+  only external service boundaries needed by the case.
 - **Preserve protection.** Compare each converted case with its interim
   assertions, including negative observations such as commands that must not
   run. For representative changed proof boundaries, demonstrate that a
@@ -52,39 +52,28 @@ a home that catches the same regression.
   This guards against a cheaper test losing a distinct promise; the previous
   conversion's [completion record](../done/SEED-334_focus-detailed-dashboard-ui-checks.json)
   documents and repairs one such lost no-native-command assertion.
-- **Retire the empty group.** Once all interim product cases have other homes,
-  remove its current Intent location, `test:dashboard:integrated` npm command,
-  Playwright configuration, CI producer and shards, duration lists, and live
-  tooling/placement references. Update the roster or its current hard-coded
-  callers to describe E2E, Frontend and Backend. Keep shared helpers and
-  fixtures under `dashboard/tests/` that those groups still import; the
-  unrelated `integratedStateCompletion` setting remains unchanged.
-- **Keep historical proof honest.** An integrated artifact from an older
-  revision remains readable at that revision. It must not appear as current
-  proof after retirement, acquire fabricated numerical comparisons across
-  absent or changed scopes, or expose dead source links.
 - **Safe stopping point.** A converted batch preserves its complete distinct
-  checks and removes its interim copies. The overall outcome is complete
-  only after retirement; until then the interim runner remains for unmoved
-  cases.
+  checks and removes its interim copies. The interim runner remains for the
+  Intent and navigation cases owned by
+  [the retirement story](#retire-dashboard-integrated-ui-test).
 
-**Scope limits.** No new browser group, speed or shard-count target, product
-behavior change, Intent E2E naming or tagged-install proof. The latter belong
-to [the installed-workflow and E2E-proof story](#observe-tagged-install-and-read-e2e-proof).
-[SEED-341](SEED-341-simplify-session-tests.md#simplify-remaining-session-tests)
+**Scope limits.** No Intent or navigation conversion and no runner
+retirement; [the retirement story](#retire-dashboard-integrated-ui-test)
+owns them. No new browser group, speed or shard-count target, or product
+behavior change. [SEED-341](SEED-341-simplify-session-tests.md#simplify-remaining-session-tests)
 owns later session-test simplification. No wholesale re-inventory is required
 before conversion. Align affected cases with existing page-object work rather
 than preserving competing rewrites.
 
-**Inputs.** The former story's Goal, Scope, Key examples and Architecture are
-recoverable at `245c4feedb5a59e5d138df5a2b3c41700667786b` in this seed.
+**Inputs.** The former whole-dissolution story's Goal, Scope, Key examples
+and Architecture are recoverable at `788c5a64ca128ee64bc10ffe752f617633a28127`
+in this seed; earlier inputs at `245c4feedb5a59e5d138df5a2b3c41700667786b`.
 Starting classifications and conversion batches are at
 `125c45649fa587c78ed7445deff35db87604489d` in
 `.planning/slice-plans/608-product-wide-end-to-end-tests/migration-purpose.json`,
 `migration-conversion-batches.json` and `migration-trunk-merge.json`.
 The [associated plan](../slice-plans/632-finish-dissolving-integrated-ui-test/PLAN.md)
-retains delivered substitute families, sizing learning and provisional work;
-its earlier readiness does not carry over.
+retains delivered substitute families and sizing learning.
 
 #### Key examples
 
@@ -93,22 +82,17 @@ its earlier readiness does not carry over.
    UI against controlled report/session answers, while a representative E2E
    journey and/or Backend contract retains the persistence and no-native-work
    assertions. No distinct assertion disappears with the interim copy.
-2. A Recently done, sidebar, terminal, review or Intent case has mixed
+2. A Recently done, sidebar, terminal, review or story case has mixed
    workflow and UI assertions. Conversion places each at its real boundary;
    frontend details no longer start a backend or synthetic native host, and
    integration assertions still exercise the real connecting services.
-3. The CI-status read case sends malformed branch, revision and kept-form
-   queries through page fetch only to inspect HTTP answers and GitHub calls.
-   Conversion sends those requests directly to the Backend boundary and keeps
-   every refusal and no-additional-GitHub-call assertion without a browser.
-4. A spec absent from the old inventory still exists when its batch is
+3. A spec absent from the old inventory still exists when its batch is
    converted. Its actual assertions determine placement and preservation;
    omission from the inventory never permits leaving it behind or deleting
    its regression protection.
-5. Every interim product case has a maintained home. Retirement leaves three
-   current browser groups and no integrated producer or npm command. Shared
-   support remains usable, and an old integrated proof can still be read at
-   its original revision without looking current or inventing comparisons.
+4. When this story completes, no product spec remains under
+   `dashboard/tests/{sessions,terminals,review,stories,observation}`, and the
+   interim runner still runs the remaining Intent and navigation cases.
 
 #### Architecture
 
@@ -124,14 +108,84 @@ for regression preservation against the interim baseline. The existing
 [North Star](../NORTH-STAR.md) remains applicable; this conversion needs no new
 architectural direction.
 
-#### Confirmed story boundary
+#### Story boundary
 
-Terry clarified in this preparation that the outcome is to dissolve the whole
-remaining integrated group. Keep every conversion and the final retirement in
-this story. Conversion batches are incremental delivery boundaries; they do
-not move the rest out of scope or establish story completion. No successor
-stories are selected by this refinement. Slice sizing is assessed separately
-in the associated plan.
+Terry asked on 2026-11-15 to split the whole-dissolution story in half so each
+half fits the eight-slice plan limit and 15-active-minute slices. This story
+keeps the original identity and converts the session, terminal, review, story
+and observation folders (102 specs, about 15.9k lines). Its sibling
+[Move Intent and navigation checks out and retire Dashboard Integrated UI Test](#retire-dashboard-integrated-ui-test)
+converts the remaining 113 specs (about 17.5k lines) and retires the group.
+Together they keep the whole original outcome; nothing is dropped.
+
+<a id="retire-dashboard-integrated-ui-test"></a>
+
+### Move Intent and navigation checks out and retire Dashboard Integrated UI Test
+
+**Identity:** SEED-334#retire-dashboard-integrated-ui-test
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+Split from SEED-334#finish-dissolving-integrated-ui-test on 2026-11-15; that
+story's [Story boundary](#finish-dissolving-integrated-ui-test) records why.
+
+#### Goal
+
+Only Frontend, Backend and representative E2E dashboard test layers remain.
+The Intent and board/navigation checks leave **Dashboard Integrated UI Test**
+with every distinct regression assertion preserved, and the empty group is
+retired without making old integrated proof look current.
+
+#### Scope
+
+- **Convert the remaining behavior.** Intent CI status/history/proof/
+  comparison, story and done review, revision, source/Purpose/Gherkin and
+  reading-recovery checks, and board, frame/header/side-panel and
+  story/project selection and reference navigation checks leave the interim
+  group. This includes the direct Backend conversion of
+  `intent-ci-status-read-boundary.spec.ts`. Placement, protection and
+  scratch-break rules are the same as in
+  [the first half](#finish-dissolving-integrated-ui-test).
+- **Retire the empty group.** Once every interim product case, including the
+  first half's, has another home, remove its current Intent location,
+  `test:dashboard:integrated` npm command, Playwright configuration, CI
+  producer and shards, duration lists, and live tooling/placement references.
+  Update the roster or its current hard-coded callers to describe E2E,
+  Frontend and Backend. Keep shared helpers and fixtures under
+  `dashboard/tests/` that those groups still import; the unrelated
+  `integratedStateCompletion` setting remains unchanged.
+- **Keep historical proof honest.** An integrated artifact from an older
+  revision remains readable at that revision. It must not appear as current
+  proof after retirement, acquire fabricated numerical comparisons across
+  absent or changed scopes, or expose dead source links.
+- **Safe stopping point.** A converted batch is complete on its own; the
+  story completes only after retirement.
+
+**Scope limits.** No new browser group, speed or shard-count target, product
+behavior change, Intent E2E naming or tagged-install proof. The latter belong
+to [the installed-workflow and E2E-proof story](#observe-tagged-install-and-read-e2e-proof).
+
+#### Key examples
+
+1. The CI-status read case sends malformed branch, revision and kept-form
+   queries through page fetch only to inspect HTTP answers and GitHub calls.
+   Conversion sends those requests directly to the Backend boundary and keeps
+   every refusal and no-additional-GitHub-call assertion without a browser.
+2. An Intent or navigation case with mixed workflow and UI assertions places
+   each at its real boundary, keeping representative real server/SSE journeys
+   in E2E.
+3. Every interim product case has a maintained home. Retirement leaves three
+   current browser groups and no integrated producer or npm command. Shared
+   support remains usable, and an old integrated proof can still be read at
+   its original revision without looking current or inventing comparisons.
+
+#### Readiness note
+
+Retirement needs the first half's conversions on trunk; Intent and
+navigation conversion can start independently. The provisional
+[plan](../slice-plans/633-retire-dashboard-integrated-ui-test/PLAN.md) maps
+the original plan's remaining slices.
 
 <a id="observe-tagged-install-and-read-e2e-proof"></a>
 

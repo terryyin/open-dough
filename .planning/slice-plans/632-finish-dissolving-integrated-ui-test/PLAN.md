@@ -1,21 +1,21 @@
-# Finish dissolving Dashboard Integrated UI Test
+# Move session, terminal, story and observation checks out of Dashboard Integrated UI Test
 
 **Identity:** SEED-334#finish-dissolving-integrated-ui-test
-**Source:** [Finish dissolving Dashboard Integrated UI Test](../../seeds/SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test)
+**Source:** [Move session, terminal, story and observation checks out of Dashboard Integrated UI Test](../../seeds/SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test)
 
 ## Goal, scope and decisions
 
-Dissolve the entire remaining interim group while preserving every distinct
-regression assertion in E2E, Frontend or Backend, then retire its current
-Intent entry, runner, CI producer and live tooling references. Shared support
-and historical proof remain usable. The source governs this plan.
+Convert every interim case under `dashboard/tests/{sessions,terminals,review,stories,observation}`
+while preserving each distinct regression assertion in E2E, Frontend or
+Backend. Shared support and historical proof remain usable; the interim
+runner stays for the Intent and navigation cases of
+[SEED-334#retire-dashboard-integrated-ui-test](../633-retire-dashboard-integrated-ui-test/PLAN.md).
+The source governs this plan.
 
-Terry's clarification in this preparation keeps the full outcome in one
-story. All eight batches below remain in scope; none is deferred to a
-successor. A converted batch is a safe delivery increment, and completion
-requires every batch plus retirement. The eight boundaries remain a draft
-because their sizing concerns below are unresolved. Refinement grants no
-execution authority or exception to the slice budget.
+Terry split the whole-dissolution story in half on 2026-11-15 to fit the
+eight-slice cap and 15-active-minute slices. This plan keeps the original
+identity and the first half's slices; the remaining conversions and the
+retirement moved to plan 633. A converted batch is a safe delivery increment.
 
 ## Existing solution and architecture
 
@@ -69,10 +69,9 @@ share local admission across worktrees; focused selections remain independent.
 | Final-state promise / source example | Owner and observable proof |
 | --- | --- |
 | Final report, passive native behavior and stored session state / example 1 | Slice 1: controlled Frontend report interaction plus retained E2E/Backend store and no-native-operation assertions. |
-| All remaining mixed cases retain their distinct assertions / example 2 | Slices 1–7: named old-to-new assertion dispositions, focused passing cases, representative discrimination at changed proof boundaries. |
-| CI read refuses malformed input without extra upstream work / example 3 | Slice 6: direct Backend HTTP answers and recorded GitHub calls for every current query. |
-| Specs absent from the inventory still convert / example 4 | Slices 2 and 5 explicitly include the two named additions; each batch reconciles current cases against its old inventory rows. |
-| Empty interim case tree; three current groups; retained helpers/history / example 5 | Slice 8: no product spec left, three-group runner/CI proof, current Intent absence and historical revision/source reading. |
+| Mixed session, terminal, review and story cases retain their distinct assertions / example 2 | Slices 1–8: named old-to-new assertion dispositions, focused passing cases, representative discrimination at changed proof boundaries. |
+| Specs absent from the inventory still convert / example 3 | Slices 2 and 5 explicitly include the two named additions; each batch reconciles current cases against its old inventory rows. |
+| Five folders empty; interim runner still runs the rest / example 4 | Slice 8 closes with no `*.spec.ts` left in the five folders and a focused `npm run test:dashboard:integrated` listing of the remaining Intent and navigation cases. |
 
 ## Carried learnings
 
@@ -98,7 +97,7 @@ share local admission across worktrees; focused selections remain independent.
   answer a moved revision on `since` and the `at` stream.
   `frontendServiceState.ts` (240 lines) and `frontendServiceSubstitutes.ts`
   (244) are near the 250-line limit: reorganize them by responsibility before
-  adding the session, terminal and Intent answers later slices need. The new
+  adding the session, terminal and review answers later slices need. The new
   Frontend and E2E spec files have no duration-list rows until CI timing is
   refreshed.
 - **Known traps.** A `MachineAnswer` failing `launchRecordsSchema` leaves the
@@ -106,15 +105,6 @@ share local admission across worktrees; focused selections remain independent.
   sessions read substituted; a history read needs its own `audience=history`
   route. Reinstalling the context clock for a second page fires the first
   page's silence deadline.
-- **Retirement inputs.** At `c327752a0f385417c74b1a7b3511ebe5d3b450e6` the
-  interim group was named by its Intent location in `.planning/open-dough.json`,
-  `package.json`, `ci.yml` job `dashboard-integrated`,
-  `dashboard/integrated.playwright.config.ts`, the `integrated.longest-first*`
-  lists, runner support (`dashboard/tests/support/groupRunnerExamples.ts`),
-  Distribution CI helpers and tests, and placement READMEs. Leave
-  `integratedStateCompletion` in `.planning/open-dough.json` alone; it is not
-  the interim group's Intent entry. Retirement may land before or after
-  SEED-334#keep-one-browser-test-group-roster; either way three groups remain.
 - **Open CI observation.** `dashboard/tests/observation/revision-stream.spec.ts`
   "two streaming pages…" once saw no revision B for 15 s in CI (run
   43666885667) and was not reproduced locally; failing integrated and E2E
@@ -123,25 +113,31 @@ share local admission across worktrees; focused selections remain independent.
 
 ## Ordered slices
 
+Sizes are current interim specs / lines, against the carried capacity of
+about 2.5–3k lines per slice.
+
 ### 1. Convert final report and workspace retirement
 Type: Behavior
 Status: planned
 Proof: `final-report-touch{,-divider}` and
-`session-workspace-retirement{,-claude-done,-lifetime}` retain report reading,
-focus, confirmation, stale-answer and passive native/store assertions.
+`session-workspace-retirement{,-claude-done,-lifetime}` (5 / 744) retain
+report reading, focus, confirmation, stale-answer and passive native/store
+assertions.
 Behavior: retained/unfinished report on card, Recently done or sidebar → read,
 close, change selection or confirm Done → the same UI, persistence and native
 results remain protected in their proper homes; these five interim specs go.
 Extend a report-result substitute at `/__agent-launch/result` for UI answers;
 keep actual report storage, native passivity and Done integration in E2E or
-Backend. Own any currently necessary shared-answer reorganization here.
+Backend. Own the reorganization of `frontendServiceState.ts` and
+`frontendServiceSubstitutes.ts` by responsibility that later slices need.
 
 ### 2. Convert recently done sessions
 Type: Behavior
 Status: planned
-Proof: all 20 `dashboard/tests/sessions/recently-done-*` specs, including
-`recently-done-returned-sessions.spec.ts`, map every selection, review-cue,
-paging, reopening, project, touch and active/returned-session assertion.
+Proof: all 20 `dashboard/tests/sessions/recently-done-*` specs (20 / 2,828),
+including `recently-done-returned-sessions.spec.ts`, map every selection,
+review-cue, paging, reopening, project, touch and active/returned-session
+assertion.
 Behavior: observed recent session → select, reopen, page or receive an updated
 observation → the same association, navigation and session action outcomes
 remain protected outside the interim group; its 20 specs go.
@@ -149,9 +145,10 @@ remain protected outside the interim group; its 20 specs go.
 ### 3. Convert the sessions sidebar
 Type: Behavior
 Status: planned
-Proof: the 16 remaining `cursor-sessions-sidebar-*` and `sessions-sidebar-*`
-specs, with `cursorSessionsSidebarFormerHeightCases.ts`, preserve layout,
-resizing/kept size, host status, navigation, keyboard, row and state cases.
+Proof: the 16 `cursor-sessions-sidebar-*` and `sessions-sidebar-*` specs
+(16 / 2,573), with `cursorSessionsSidebarFormerHeightCases.ts`, preserve
+layout, resizing/kept size, host status, navigation, keyboard, row and state
+cases.
 Behavior: observed sessions across hosts/projects → operate the sidebar → its
 same presentation, focus, persistence and native-action outcomes remain
 protected outside the interim group; no session product spec remains there.
@@ -159,17 +156,18 @@ protected outside the interim group; no session product spec remains there.
 ### 4. Convert terminal checks
 Type: Behavior
 Status: planned
-Proof: all 14 `dashboard/tests/terminals/` specs retain terminal attachment,
-input/recovery, keyboard/touch, size/theme and voice-lifecycle assertions.
+Proof: all 14 `dashboard/tests/terminals/` specs (14 / 2,584) retain terminal
+attachment, input/recovery, keyboard/touch, size/theme and voice-lifecycle
+assertions.
 Behavior: attach or operate a terminal → real workflow or controlled
 WebSocket/transcription answer → the same transport/backend outcomes and UI
 rules remain protected at their owning boundaries; interim terminal specs go.
-Reuse the terminal application and transcription substitutes where appropriate.
+Reuse the terminal application and transcription substitutes.
 
 ### 5. Convert story review checks
 Type: Behavior
 Status: planned
-Proof: all 16 `dashboard/tests/review/` specs, including
+Proof: all 16 `dashboard/tests/review/` specs (16 / 2,426), including
 `story-review-diff-line-follow-up.spec.ts`, preserve range/refresh races,
 diffs/context/moves, pane/tree/touch, uncommitted checks and follow-up behavior.
 Behavior: open or operate story review → review answer or real repository
@@ -178,73 +176,48 @@ group; interim review specs go. Extend one story-review answer family at the
 snapshot/range/diff/text/mark boundaries, retaining actual Git work in Backend
 or representative E2E journeys.
 
-### 6. Convert Intent CI, proof, history and Purpose checks
+### 6. Convert progressive done reading and review state on the board
 Type: Behavior
 Status: planned
-Proof: all 72 `dashboard/tests/intent/` specs retain CI status/freshness/sort,
-comparison/proof/history/gaps, done/review, source/Purpose/Gherkin, selection,
-revision/recovery and optimization-candidate assertions, including the direct
-Backend conversion of `intent-ci-status-read-boundary.spec.ts`.
-Behavior: read or navigate Intent and receive a changed/refused/held answer →
-the same truthful proof, source selection, recovery and UI outcomes remain
-protected at their boundaries; all interim Intent specs go. Reuse component
-mounts; add only the full-page answer families each converted case needs.
+Proof: the 14 `dashboard/tests/stories/recently-done-*` specs (14 / 2,158)
+retain progressive loading/navigation/refresh/reset/state, added-project,
+failed-read refresh, read latency and review cue/state/offer assertions.
+Behavior: read the board's Recently done column progressively or review a done
+story → controlled done/read answers or a real refresh → the same reading,
+paging and review-state outcomes remain protected; these 14 specs go.
 
-### 7. Convert board, navigation, stories and observation
+### 7. Convert story presentation, readiness and progress
 Type: Behavior
 Status: planned
-Proof: all 41 navigation, 31 stories and seven observation specs retain board,
-frame/header, selection/reference, readiness/dependency/roster/progress,
-progressive done reading, per-project isolation and revision-stream assertions.
-Behavior: navigate, operate, refresh or observe a publication → the same board,
-selection, focus and published/local-fact outcomes remain protected at their
-boundaries; these 79 interim specs go. Keep representative real server/SSE
-sharing journeys in E2E; frontend polling/late-answer variants use controlled
-project/done/read/event answers.
+Proof: the other 17 `dashboard/tests/stories/` specs (17 / 2,594) retain
+agent roster, branch progress, direction disclosure, portrait, plan-complete
+detail, preparation legend, published work, story card inspection,
+dependency, readiness and Taken profile/clock/progress assertions.
+Behavior: show published stories and Taken work → operate or refresh them →
+the same presentation, readiness, dependency and progress outcomes remain
+protected; no product spec remains under `stories/`.
 
-### 8. Retire Dashboard Integrated UI Test
+### 8. Convert published-fact observation
 Type: Behavior
 Status: planned
-Proof: no `dashboard/tests/**/*.spec.ts` product case remains. Remove the
-current Intent location, npm command, Playwright config, `dashboard-integrated`
-CI producer/shards, duration lists and live tooling/placement references.
-Keep `integratedStateCompletion`, shared helpers and historical evidence.
-Behavior: every interim assertion has a maintained home → retire the empty
-group → only E2E, Frontend and Backend are current, all shared imports work,
-and old integrated artifacts/source remain readable at their old revisions
-without current-proof claims, fabricated comparisons or dead links.
-Update roster or hard-coded callers regardless of the roster story's order.
-Focused `ci-browser-groups`, related CI declarations and `runner-ownership`
-prove the remaining groups; retained Intent/history cases prove old evidence.
+Proof: all seven `dashboard/tests/observation/` specs (7 / 1,168) retain
+per-project read isolation, published-fact reading, revision streaming and
+steady-refresh bound/carry/inspection assertions; the five folders contain no
+`*.spec.ts`, and the interim runner lists only Intent and navigation cases.
+Behavior: a publication or local fact changes → real server/SSE or controlled
+project/event answers → the same observed facts and isolation remain
+protected; keep representative real server/SSE sharing journeys in E2E.
 
 ## Premises and remaining concerns
 
-Observed in this owned checkout at
-`aa71a3a2a86fe17020814bf0339fd1ace4e16fd2`: current `*.spec.ts` contents and
-historical migration batches were inspected, yielding 222 specs / 34,600
-lines: sessions 41 / 6,145; terminals 14 / 2,584; review 16 / 2,426;
-Intent 72 / 11,009; navigation 41 / 6,516; stories 31 / 4,752;
-observation seven / 1,168. The old inventory covers 214 current specs; actual cases remain authoritative.
-These observations establish scope/sizing, not replacement proof.
+Observed at `788c5a64ca128ee64bc10ffe752f617633a28127`: this half covers 102
+specs / 15,907 lines (sessions 41 / 6,145; terminals 14 / 2,584; review
+16 / 2,426; stories 31 / 4,752; observation 7 / 1,168). Every slice is at or
+below the carried 2.5–3k-line capacity. Slices 1 and 5 each also add an answer
+family; slice 1 is small, and slice 5 keeps actual Git work outside Frontend.
+If a slice overruns, split it at a delivered boundary under the
+[oversized-slice procedure](../../../.agents/skills/dough-execute-plan/references/oversized-slice.md).
 
 The predecessor's completion record demonstrates Frontend refused-Done fault
-discrimination and the restored Backend no-native-command assertion. Reuse that
-boundary approach; new report/Intent/review substitutes and proof remain owed.
-
-Slice-plan refinement ran against the eight retained boundaries. Slice 1
-stays a bounded candidate. Slices 2–5 require smaller cohesive proof loops
-within their session, transport/voice and review responsibilities; each new
-substitute family consumes substantial work. Slice 6 combines CI acquisition,
-proof comparison/history and source/Purpose reading across 11,009 lines.
-Slice 7 combines independent navigation, story presentation/progressive reads
-and server-observation proof across 12,436 lines. These two alone exceed the
-predecessor's observed 2.5–3k-line agent-slice capacity several times over.
-Keeping eight headings cannot establish 15-active-minute slices.
-
-The selected whole-dissolution boundary is preserved. No split, dropped scope,
-probe-based exemption or budget exception has been authorized. Under the
-[slice limit and sizing rules](../../../.agents/skills/dough-story-decomposition/references/problem-decomposition.md#limit-slices-per-plan),
-this draft is not ready: executable boundaries cannot currently fit both the
-eight-slice cap and the per-slice budget. Resolving that execution-sizing
-constraint must preserve the whole promised outcome. Do not infer execution
-readiness from all work being listed or from the absence of successor stories.
+discrimination and the restored Backend no-native-command assertion. Reuse
+that boundary approach.
