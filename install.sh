@@ -78,7 +78,9 @@ managed_files=(
   dough-product-backlog/scripts/product-backlog-work.mjs
   dough-product-backlog/scripts/product-backlog.mjs
   dough-maintain-findings/SKILL.md
+  dough-maintain-findings/agents/openai.yaml
   dough-triage-project-findings/SKILL.md
+  dough-triage-project-findings/agents/openai.yaml
   dough-triage-project-findings/references/maintenance-delivery.md
   dough-triage-project-findings/references/finding-lifecycle.md
   dough-story-decomposition/SKILL.md

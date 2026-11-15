@@ -1,14 +1,9 @@
 ---
 name: dough-story-wrap-up
 description: >-
-  Closes one completed feature story, bounded retrospective correction or
-  context-only planless execution using available execution context. Assimilates
-  lasting product knowledge, settles existing follow-ups and authorized product
-  decisions, and removes spent plan and history with Git recovery. Reports missing
-  or unfinished inputs truthfully. Use to close completed work, delete spent
-  records, or continue settled planned execution under Execute Plan's continuation
-  rule. When continuation carries a selected deferred process review, completes
-  that review after Intent Coverage report and dispositions.
+  Closes a completed story, bounded correction or planless execution: keeps
+  lasting product knowledge, settles follow-ups and removes spent plan and
+  history. Use to close completed work or continue execution into wrap-up.
 ---
 
 # Story wrap-up
