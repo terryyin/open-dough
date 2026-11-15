@@ -30,11 +30,12 @@ intent introduced or affected by a newly developed story.
 
 - [View token usage for dashboard-launched Codex tasks](seeds/SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks) — SEED-357#view-token-usage-for-dashboard-launched-tasks ([plan](slice-plans/627-view-codex-task-token-usage/PLAN.md))
 - [Reduce total model work during blocked execution](seeds/SEED-356-reduce-blocked-execution-effort.md#reduce-total-model-work-during-blocked-execution) — SEED-356#reduce-total-model-work-during-blocked-execution ([plan](slice-plans/627-reduce-blocked-execution-work/PLAN.md))
-- [Dissolve Dashboard Integrated UI Test into E2E and unit tests](seeds/SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks) — SEED-334#focus-detailed-dashboard-ui-checks ([plan](slice-plans/627-dissolve-dashboard-integrated-ui-test/PLAN.md))
+- [Move configuration, launch and session lifecycle checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks) — SEED-334#focus-detailed-dashboard-ui-checks ([plan](slice-plans/627-dissolve-dashboard-integrated-ui-test/PLAN.md))
 - [Simplify usage-history backend tests with MakeMe builders](seeds/SEED-362-simplify-usage-history-backend-tests.md#simplify-usage-history-backend-tests) — SEED-362#simplify-usage-history-backend-tests ([plan](slice-plans/628-simplify-usage-history-backend-tests/PLAN.md))
 
 ## Backlog list
 
+- [Finish dissolving Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test) — SEED-334#finish-dissolving-integrated-ui-test
 - [Show the CI pipeline, runners, and weights in Intent](seeds/SEED-363-intent-ci-pipeline-diagram.md#show-ci-pipeline-runners-and-weights) — SEED-363#show-ci-pipeline-runners-and-weights
 - [View token usage for dashboard-launched Claude Code tasks](seeds/SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage) — SEED-359#view-claude-code-task-token-usage
 - [Reconsider further CI job reduction with a different approach](seeds/SEED-355-reconsider-further-ci-reduction.md#reconsider-further-ci-reduction) — SEED-355#reconsider-further-ci-reduction

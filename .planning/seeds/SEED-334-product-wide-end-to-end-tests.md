@@ -10,7 +10,7 @@ scope: story
 
 <a id="focus-detailed-dashboard-ui-checks"></a>
 
-### Dissolve Dashboard Integrated UI Test into E2E and unit tests
+### Move configuration, launch and session lifecycle checks out of Dashboard Integrated UI Test
 
 **Identity:** SEED-334#focus-detailed-dashboard-ui-checks
 ```json dough-story-state
@@ -20,17 +20,24 @@ scope: story
 #### Goal
 
 Developers get detailed feedback from unit tests for one service and confidence
-in representative product workflows from end-to-end tests — only those two
-dashboard test layers — after the interim **Dashboard Integrated UI Test** group
-is dissolved. Every distinct behavior that group still proves keeps a home that
-catches the same regressions, without a third live proof entry.
+in representative product workflows from end-to-end tests for the dashboard's
+configuration, launch, and session lifecycle checks: the interim **Dashboard
+Integrated UI Test** group no longer holds those batches. Every distinct
+behavior those batches proved keeps a home that catches the same regressions.
 
 #### Scope
 
+- **Batches.** The configuration batch, the launch dialog and start batch, and
+  the session lifecycle and done-terminal part of the sessions batch
+  (`agent-launch-ad-hoc-sessions`, `agent-launch-retained-history`,
+  `agent-launch-sessions-unanswered`, `agent-launch-story-card-delete` and its
+  problems, `agent-launch-story-card-done`, `agent-terminal-done` with its
+  pending and question cases, `compact-session-entry`,
+  `session-unread-report-message`).
 - **E2E.** Promote only the few remaining representative workflows whose
   observable outcome still requires the real dashboard frontend and backend
   together. Prefer an existing E2E workflow when it already proves that outcome.
-- **Unit.** Move the majority of remaining interim checks into Dashboard
+- **Unit.** Move the majority of these interim checks into Dashboard
   Frontend Test or Dashboard Backend Test. “Unit” here means those service-level
   Playwright groups: exercise one service at its highest practical entry point
   (built UI with controlled answers, or a backend boundary), or a lower entry
@@ -43,47 +50,30 @@ catches the same regressions, without a third live proof entry.
   `125c45649fa587c78ed7445deff35db87604489d`
   (`.planning/slice-plans/608-product-wide-end-to-end-tests/migration-purpose.json`,
   `migration-conversion-batches.json`, and `migration-trunk-merge.json`) as the
-  starting classification and batch order. Decide each case by its behavior,
-  including the few specs added since that inventory. Convert by those batches
-  (configuration; launch dialog and start; sessions and terminals; story review;
-  Intent CI/proof/history; board, navigation, stories and observation; and the
-  pending server-boundary-through-a-page case).
-- **Retirement.** When every distinct interim behavior has a home, remove the
-  **Dashboard Integrated UI Test** entry from current Intent and CI proof
-  configuration, its `npm run test:dashboard:integrated` command, Playwright
-  configuration, CI producer and shards, and current tooling and placement
-  guidance that still name the interim group. Update the browser-group roster
-  (or its hard-coded callers if
-  [SEED-334#keep-one-browser-test-group-roster](#keep-one-browser-test-group-roster)
-  has not yet landed) so the remaining three groups stay coherent. Retain shared
-  helpers and fixtures under `dashboard/tests/` that E2E, Frontend, or Backend
-  still use.
-- **Preservation.** Historical proof stays readable at the revision that
-  produced it; Intent must not invent continuity for the removed scope.
-  Compare representative converted cases with their previous versions so the
-  simpler placement keeps the assertions that catch regressions
+  starting classification. Decide each case by its behavior.
+- **Preservation.** Compare representative converted cases with their previous
+  versions so the simpler placement keeps the assertions that catch regressions
   ([ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md)).
-- **Coordination.** This story owns interim placement into E2E / Frontend /
-  Backend. [SEED-341#simplify-remaining-session-tests](SEED-341-simplify-session-tests.md#simplify-remaining-session-tests)
-  owns later simplification inside those homes, not a competing move of the
-  sessions batch. Align touched files with queued SEED-300 page-object work
-  rather than migrating a spec that work is rewriting in place.
+- **Coordination.** This story owns interim placement of its batches into E2E /
+  Frontend / Backend. [SEED-341#simplify-remaining-session-tests](SEED-341-simplify-session-tests.md#simplify-remaining-session-tests)
+  owns later simplification inside those homes. Align touched files with
+  queued SEED-300 page-object work rather than migrating a spec that work is
+  rewriting in place.
+- **Remaining work.** The other interim batches and the retirement of the
+  interim entry and its runner belong to
+  [SEED-334#finish-dissolving-integrated-ui-test](#finish-dissolving-integrated-ui-test).
 - **Safe stopping point.** Each migrated batch preserves its distinct checks and
-  removes the interim specs it replaces. The story is complete when the interim
-  entry and its runner are retired.
+  removes the interim specs it replaces.
 
 **Scope limits.** No new browser test group or permanent renaming of the
-interim tier; no speed or shard-count goal beyond what retirement naturally
-changes; no Intent E2E naming or tagged-install proof
-([SEED-334#observe-tagged-install-and-read-e2e-proof](#observe-tagged-install-and-read-e2e-proof));
-no wholesale re-inventory before conversion; no product behavior change.
+interim tier; no speed or shard-count goal; no wholesale re-inventory before
+conversion; no product behavior change.
 
 **Required restrictions.** Do not drop a distinct regression assertion when
 relocating a case. Do not mock inside a service except at the boundary the unit
-case needs. Do not fabricate Intent comparisons or dead links for the retired
-group ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)).
+case needs.
 
-**Plan:** [Dissolve Dashboard Integrated UI Test](../slice-plans/627-dissolve-dashboard-integrated-ui-test/PLAN.md)
+**Plan:** [Move configuration, launch and session lifecycle checks](../slice-plans/627-dissolve-dashboard-integrated-ui-test/PLAN.md)
 
 #### Key examples
 
@@ -100,19 +90,6 @@ group ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture
    lives in E2E (or joins an existing E2E journey); the UI portion lives in
    Frontend with controlled substitutes; neither side keeps the other’s
    dependencies.
-3. Pre-condition: every interim behavior already has a home and
-   `dashboard/tests/**/*.spec.ts` is empty of product cases. Trigger:
-   retirement. Result: Intent and CI no longer list **Dashboard Integrated UI
-   Test**; `test:dashboard:integrated` and its Playwright config and producer
-   are gone; placement guidance describes three groups; shared helpers under
-   `dashboard/tests/support/` remain importable; an old integrated proof
-   artifact from a prior revision stays readable without looking like current
-   proof.
-4. Pre-condition: a new interim spec exists that the inventory never named
-   (today: `tests/sessions/recently-done-returned-sessions.spec.ts` and
-   `tests/review/story-review-diff-line-follow-up.spec.ts`). Trigger: its
-   batch is converted. Result: placement follows the case’s observable
-   boundary, not a missing inventory row, and the interim copy is removed.
 
 #### Architecture
 
@@ -123,15 +100,11 @@ conceptual solution) and [ADR 0008 — Project dashboard domain and architecture
 Use existing tests as the improvement baseline under
 [ADR 0010 — Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 
-Consequential design, not a new ADR: after retirement the maintained browser
-proof surface is three Intent locations and CI producers (E2E, Frontend,
-Backend). Shared harness modules stay under `dashboard/tests/` even when that
-tree holds no interim product specs, because E2E and Frontend already import
-them. Removing the interim group updates the roster concept
-SEED-334#keep-one-browser-test-group-roster is consolidating; that correction
-preserves the interim group until this story retires it. No Accepted ADR
-conflict: the path continues the two-layer proof model those decisions already
-support.
+Consequential design, not a new ADR: shared harness modules stay under
+`dashboard/tests/` even when that tree holds no interim product specs, because
+E2E and Frontend import them. Retiring the interim group belongs to
+SEED-334#finish-dissolving-integrated-ui-test. No Accepted ADR conflict: the
+path continues the two-layer proof model those decisions already support.
 
 #### Alternatives, borrow, and evidence
 
@@ -158,19 +131,47 @@ facade when the interim tree has no remaining product cases. The analogy breaks
 at permanent coexistence — here the facade must disappear, not remain as a
 routing shell.
 
-Observed in this workspace at `c327752a0f385417c74b1a7b3511ebe5d3b450e6`:
-271 interim `dashboard/tests/**/*.spec.ts` remain (configuration 11, launches
-27, sessions 52, terminals 14, review 16, intent 72, navigation 41, stories 31,
-observation 7); E2E already has 307 specs and Frontend 57 / Backend 465;
-Intent still lists **Dashboard Integrated UI Test** on `dashboard/tests` with
-`npm run test:dashboard:integrated` and CI job `dashboard-integrated` (five
-shards). The inventory at `125c45649fa587c78ed7445deff35db87604489d` still
-classifies 269 of those 271 (209 frontend, 59 split, 1 backend pending); the
-inventory’s e2e-class rows are already gone from the interim tree; two current
-specs are uninventoried as in Key example 4. Remaining inventory destinations
-are still “pending conversion”. Hypothesis left for conversion, not
-refinement: each inventory class still matches the case’s cheapest correct
-home — settle per case when converting, including the uninventoried pair.
+<a id="finish-dissolving-integrated-ui-test"></a>
+
+### Finish dissolving Dashboard Integrated UI Test
+
+**Identity:** SEED-334#finish-dissolving-integrated-ui-test
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/632-finish-dissolving-integrated-ui-test/PLAN.md"}
+```
+
+- **For / why.** Developers get detailed feedback from Frontend and Backend
+  unit tests and confidence from representative E2E workflows, with only those
+  dashboard test layers left: the interim **Dashboard Integrated UI Test**
+  group's remaining batches move out and the group itself is retired.
+- **Evaluation.** The remaining interim specs — final report and workspace
+  retirement, recently done sessions, the sessions sidebar, terminals, story
+  review (including `story-review-diff-line-follow-up.spec.ts`), Intent
+  CI/proof/history/Purpose (including the pending
+  `intent-ci-status-read-boundary` server-boundary case), and board,
+  navigation, stories and observation (including
+  `recently-done-returned-sessions.spec.ts`) — each keep every distinct
+  regression assertion in an E2E, Frontend or Backend home and leave
+  `dashboard/tests`. Then Intent and CI no longer list **Dashboard Integrated
+  UI Test**; `npm run test:dashboard:integrated`, its Playwright configuration,
+  CI producer and shards, and current placement guidance naming it are gone;
+  the browser-group roster (or its hard-coded callers) describes three groups;
+  shared helpers under `dashboard/tests/support/` stay importable; an old
+  integrated proof artifact stays readable at its revision without looking
+  current or gaining fabricated comparisons or dead links.
+- **Inputs.** Goal, Scope, Key examples 3 and 4 and Architecture of
+  SEED-334#focus-detailed-dashboard-ui-checks before it was narrowed,
+  recoverable at commit `245c4feedb5a59e5d138df5a2b3c41700667786b` from
+  `.planning/seeds/SEED-334-product-wide-end-to-end-tests.md`; that story's
+  delivered Frontend substitute families and sizing learning; the provisional
+  [plan](../slice-plans/632-finish-dissolving-integrated-ui-test/PLAN.md).
+- **Boundary.** No new browser test group, speed or shard-count goal, Intent
+  E2E naming or tagged-install proof, or product behavior change; SEED-341
+  owns later session-test simplification.
+- **Value / learning.** Completes the two-layer dashboard proof model the
+  configuration, launch and session-lifecycle conversion started.
+- **Safe stopping point.** Each converted batch is complete on its own; the
+  story is complete when the interim entry and its runner are retired.
 
 <a id="observe-tagged-install-and-read-e2e-proof"></a>
 

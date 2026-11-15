@@ -1,29 +1,30 @@
-# Dissolve Dashboard Integrated UI Test into E2E and unit tests
+# Move configuration, launch and session lifecycle checks out of Dashboard Integrated UI Test
 
 **Identity:** SEED-334#focus-detailed-dashboard-ui-checks
-**Source:** [Dissolve Dashboard Integrated UI Test into E2E and unit tests](../../seeds/SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks)
+**Source:** [Move configuration, launch and session lifecycle checks out of Dashboard Integrated UI Test](../../seeds/SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks)
 **Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
-Developers keep two dashboard proof layers — end-to-end workflows and
-service-level unit checks (Dashboard Frontend Test and Dashboard Backend Test)
-— after every distinct behavior still proved by the interim **Dashboard
-Integrated UI Test** group has a home there and that interim Intent entry,
-runner, CI producer and current tooling references are retired.
+Developers get Frontend/Backend unit feedback and E2E workflow confidence for
+the dashboard's configuration, launch, and session lifecycle checks: the
+interim **Dashboard Integrated UI Test** group no longer holds those batches,
+and every distinct behavior they proved keeps a home that catches the same
+regressions.
 
-Included: convert the remaining interim specs under `dashboard/tests/` by the
-migration inventory batches at `125c45649fa587c78ed7445deff35db87604489d`
-(starting classification; decide each case by behavior), including the two
-specs that inventory never named; preserve assertions that catch regressions;
-retire the interim group when the product-case tree is empty; retain shared
-helpers under `dashboard/tests/` that remaining groups import.
+Included: convert the configuration batch, the launch dialog and start batch,
+and the session lifecycle and done-terminal specs by the migration inventory
+at `125c45649fa587c78ed7445deff35db87604489d` (starting classification;
+decide each case by behavior); preserve assertions that catch regressions;
+keep shared helpers under `dashboard/tests/`.
 
-Excluded: a permanent third browser group; Intent E2E naming / tagged-install
-proof (SEED-334#observe-tagged-install-and-read-e2e-proof); SEED-341 session
-simplification beyond placement; SEED-300 page-object expressiveness work;
-speed or shard-count goals beyond what retirement naturally changes; product
-behavior changes; wholesale re-inventory before conversion.
+Excluded: the remaining interim batches and retiring the interim group
+(SEED-334#finish-dissolving-integrated-ui-test, plan
+[632](../632-finish-dissolving-integrated-ui-test/PLAN.md), which carries
+this plan's former slices 7–14); a permanent third browser group; SEED-341
+session simplification beyond placement; SEED-300 page-object expressiveness
+work; speed or shard-count goals; product behavior changes; wholesale
+re-inventory before conversion.
 
 ## Existing solutions and direction
 
@@ -40,10 +41,6 @@ Reuse, do not invent a conversion framework:
 - **Placement starting point:** inventory
   `migration-purpose.json` / `migration-conversion-batches.json` /
   `migration-trunk-merge.json` at `125c45649fa587c78ed7445deff35db87604489d`.
-- **Roster / CI consumers:** whatever
-  [SEED-334#keep-one-browser-test-group-roster](../../seeds/SEED-334-product-wide-end-to-end-tests.md#keep-one-browser-test-group-roster)
-  (plan 617) leaves, or today’s hard-coded callers; retirement updates them to
-  three groups.
 
 Follow Accepted [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
 (unit + e2e feedback; one representation per solution),
@@ -65,14 +62,13 @@ Backend roots and page objects for the browser roots that keep them.
 | --- | --- |
 | Interim tree still holds the conversion work (all conversion slices) | At `c327752a0f385417c74b1a7b3511ebe5d3b450e6`: 271 `dashboard/tests/**/*.spec.ts` (configuration 11, launches 27, sessions 52, terminals 14, review 16, intent 72, navigation 41, stories 31, observation 7). |
 | Inventory still covers almost all interim specs (placement) | Same revision: 269 of 271 match `migration-purpose.json` at `125c45649fa587c78ed7445deff35db87604489d` (209 frontend, 59 split, 1 backend pending); e2e-class inventory rows are already absent from the interim tree; uninventoried: `tests/sessions/recently-done-returned-sessions.spec.ts`, `tests/review/story-review-diff-line-follow-up.spec.ts`. |
-| Frontend substitute harness is the unit conversion route (slices 1–13) | `npx playwright test --config dashboard/frontend.playwright.config.ts --list --reporter=line` at `c327752a0f385417c74b1a7b3511ebe5d3b450e6` listed 161 Chromium cases under `frontend-tests/` (exit 0). |
+| Frontend substitute harness is the unit conversion route (slices 1–6) | `npx playwright test --config dashboard/frontend.playwright.config.ts --list --reporter=line` at `c327752a0f385417c74b1a7b3511ebe5d3b450e6` listed 161 Chromium cases under `frontend-tests/` (exit 0). |
 | Configuration batch is still the inventory’s first conversion set (slice 1) | `dashboard/tests/configuration/` holds the 11 inventory-named specs; related workflow cases already live under `e2e/configuration/`. |
-| Retirement touchpoints exist and are enumerable (slice 14) | Grep at `c327752a0f385417c74b1a7b3511ebe5d3b450e6` for `test:dashboard:integrated` / `dashboard-integrated` / `Dashboard Integrated UI Test` / `integrated.playwright` hits Intent location in `.planning/open-dough.json`, `package.json`, `ci.yml` job `dashboard-integrated`, `dashboard/integrated.playwright.config.ts`, duration lists, runner support, Distribution CI helpers/tests, and placement READMEs. Do not confuse with `integratedStateCompletion` in open-dough.json. |
-| Later batch effort fits one execution slice (slices 2–13) | Unsettled until slice 1 records elapsed conversion effort for frontend/small and split/small cases. Slice 1 is the early probe: if measured effort shows a later inventory batch cannot finish as one slice, replan that batch (split by folder or substitute family) before continuing it. |
+| Later batch effort fits one execution slice (slices 2–6) | Unsettled until slice 1 records elapsed conversion effort for frontend/small and split/small cases. Slice 1 is the early probe: if measured effort shows a later inventory batch cannot finish as one slice, replan that batch (split by folder or substitute family) before continuing it. |
 
 ## Outside-in proof ownership
 
-Each conversion slice (1–13):
+Each conversion slice (1–6):
 
 1. Every distinct check from that slice’s interim specs runs under
    `npm run test:e2e`, `test:dashboard:frontend`, and/or
@@ -83,14 +79,6 @@ Each conversion slice (1–13):
    discriminating probe when the case moved to Backend), then passes restored.
 4. Focused run of the touched homes passes; no wall-clock sleep, `test.slow()`,
    or suite/file/group/hook timeout overrides.
-
-Retirement slice (14): Intent locations and CI no longer name **Dashboard
-Integrated UI Test**; `test:dashboard:integrated` and its Playwright config,
-producer, shards and settings prefix are gone; placement guidance and the
-browser-group roster (or hard-coded callers) describe three groups; shared
-helpers under `dashboard/tests/support/` remain importable; an old integrated
-proof artifact from a prior revision stays readable without looking current.
-Focused roster/CI declaration tests and `runner-ownership` (three groups) pass.
 
 ## Ordered slices
 
@@ -265,7 +253,7 @@ Frontend/Backend/E2E homes by boundary; those interim files gone.
 Sizing learning: the first attempt at 16 session specs stopped after these
 11 small ones (about 55 minutes, context the binding limit); the final-report
 and workspace-retirement family needs its own `/__agent-launch/result`
-substitute and moves to slice 7.
+substitute and moved to the sibling story (plan 632, slice 1).
 
 Accepted proof: 12 Frontend specs in `dashboard/frontend-tests/sessions/` on
 the new `frontendSessionActions.ts` (Mark as done, Delete record, Mark as
@@ -275,97 +263,12 @@ and duration-list node tests passed. Scratch break of the delete failure
 reason failed interim and converted cases with the same received text; both
 passed restored.
 
-### 7. Convert final report and workspace retirement
-Type: Behavior
-Status: planned
-Proof: same for `final-report-touch{,-divider}` and
-`session-workspace-retirement{,-claude-done,-lifetime}` on a Frontend final
-report (`/__agent-launch/result`) substitute.
-
-Behavior: interim final-report and workspace-retirement checks → homes by
-boundary; those interim files gone.
-
-### 8. Convert recently done sessions
-Type: Behavior
-Status: planned
-Proof: same for the 20 `dashboard/tests/sessions/recently-done-*` specs,
-including `recently-done-returned-sessions.spec.ts` (not in the inventory).
-
-Behavior: interim recently-done session checks → homes by boundary; those
-interim files gone.
-
-### 9. Convert the sessions sidebar
-Type: Behavior
-Status: planned
-Proof: same for the 16 `cursor-sessions-sidebar-*` (with
-`cursorSessionsSidebarFormerHeightCases.ts`) and `sessions-sidebar-*` specs;
-`dashboard/tests/sessions/` holds no product spec afterwards.
-
-Behavior: interim sessions sidebar checks → homes by boundary; interim
-session product specs gone.
-
-### 10. Convert terminals interim detailed checks
-Type: Behavior
-Status: planned
-Proof: same for `dashboard/tests/terminals/`.
-
-Behavior: interim terminal detailed checks → unit or E2E homes; interim
-terminal product specs gone.
-
-### 11. Convert story review interim checks
-Type: Behavior
-Status: planned
-Proof: same for `dashboard/tests/review/` including
-`story-review-diff-line-follow-up.spec.ts`.
-
-Behavior: interim review detailed/mixed checks → homes by boundary; interim
-review product specs gone.
-
-### 12. Convert Intent CI, proof, history and Purpose checks
-Type: Behavior
-Status: planned
-Proof: same for inventory Intent batch specs still under
-`dashboard/tests/intent/` (including the pending backend
-`intent-ci-status-read-boundary` case); extend Intent page substitutes as the
-inventory names (ci-status, ci-proof, ci-history, ci-comparison, done/review,
-revision polling).
-
-Behavior: interim Intent detailed/mixed checks → Frontend/Backend/E2E homes;
-those interim Intent files gone. If slice 1’s sizing probe requires a split,
-replan this slice into substitute-family Behaviors before executing it.
-
-### 13. Convert board, navigation, stories and observation reading
-Type: Behavior
-Status: planned
-Proof: same for remaining `dashboard/tests/navigation/`, `stories/` and
-`observation/` interim specs.
-
-Behavior: interim board/navigation/stories/observation detailed/mixed checks →
-homes by boundary; those interim product specs gone. If the sizing probe
-requires it, replan into per-folder Behaviors before executing.
-
-### 14. Retire Dashboard Integrated UI Test
-Type: Behavior
-Status: planned
-Proof: `dashboard/tests/**/*.spec.ts` has no remaining product cases; remove
-Intent location for **Dashboard Integrated UI Test**, `npm run
-test:dashboard:integrated`, `dashboard/integrated.playwright.config.ts`, CI
-job `dashboard-integrated` and its shards/settings, duration lists, and
-current tooling/placement references; update the three-group roster or
-hard-coded callers; keep `dashboard/tests/support/` helpers; historical
-integrated proof at an older revision remains readable; focused
-`ci-browser-groups`, related CI declaration tests and `runner-ownership` pass
-for the three remaining groups.
-
-Behavior: empty interim product-case tree → retirement → only E2E, Frontend
-and Backend remain as current browser proof groups.
-
 ## Story obligations
 
 ### G1. Late transcription guard has no discriminating case (reported in slice 4)
 Reported: slice 4 — "The `!current()` guard after `response.json()` has no discriminating test, neither before nor after conversion."
-Story clause: "Every distinct behavior that group still proves keeps a home that catches the same regressions"
-Disposition: no user cost "Every distinct behavior that group still proves keeps a home that catches the same regressions": slice 4's scratch break removed the guard and both the interim and converted late-response cases still passed, so the interim group never proved it and no regression assertion was lost; the converted case keeps the interim observation that a response completed after Cancel never populates the next launch dialog, because the closed dialog's append target is gone.
+Story clause: "Every distinct behavior those batches proved keeps a home that catches the same regressions"
+Disposition: no user cost "Every distinct behavior those batches proved keeps a home that catches the same regressions": slice 4's scratch break removed the guard and both the interim and converted late-response cases still passed, so the interim group never proved it and no regression assertion was lost; the converted case keeps the interim observation that a response completed after Cancel never populates the next launch dialog, because the closed dialog's append target is gone.
 
 ### G2. One published Taken profile no longer counted in the access journey (reported in slice 5)
 Reported: slice 5 — "The interim access test checked `origin.takenProfiles()` had length 1 after the held push was released."
@@ -374,19 +277,15 @@ Disposition: proved by slice 5: `dashboard/backend-tests/launches/agent-launch-a
 
 ## Current decisions
 
-- Inventory batches are the default conversion units; slice 1’s measured effort
-  may force a replan that splits later batches by folder or substitute family
-  without changing story goal or scope. Slice 1 split the launches batch into
-  slices 2 and 3; slice 3's overrun moved its six `large` specs to slices 4–5;
-  the sessions batch is split by family into slices 6–9 (slice 6's overrun
-  moved final report and retirement to slice 7). Intent (72 specs) and
-  board/navigation/stories/observation (79) are split by substitute family
-  before delegation.
+- Inventory batches are the default conversion units, split by folder or
+  substitute family when a batch exceeds one agent slice: launches became
+  slices 2–5 after slice 3's overrun, and slice 6's overrun moved final report
+  and workspace retirement to the sibling story.
+- On 2026-11-15 Terry split the story after slice 6: this story keeps the
+  delivered configuration, launch and session-lifecycle batches; the rest,
+  including retirement, moved with former slices 7–14 to
+  SEED-334#finish-dissolving-integrated-ui-test at the top of the backlog.
 - SEED-341 does not own moving interim session specs; this plan places them.
-- Retirement may land before or after plan 617; either way the final roster
-  surface is three groups.
-- Leave `integratedStateCompletion` in `.planning/open-dough.json` alone unless
-  a focused test proves it is the interim group’s Intent entry (it is not).
 
 ## Verification and delivery gates
 
@@ -395,7 +294,7 @@ as written. Before test edits run the installed `test-entry-rules.mjs` on the
 exact paths. No wall-clock sleeps, `test.slow()`, or suite/file/group/hook
 timeout overrides. Run post-change refactor before each commit. Hosted CI on
 the published candidate is the all-group proof; locally run the slice’s focused
-homes and the retirement declaration/ownership tests named above.
+homes.
 
 Local gate: from a fully awake macOS machine on AC power wrap long or browser
 runs in `caffeinate -s -i`; on battery plug in, or keep the lid open under
@@ -406,9 +305,8 @@ power with an existing `caffeinate` assertion held.
 
 ## Plan concern assessment
 
-Refined during execution: slice 1's probe and slice 3's overrun showed that an
-inventory batch above about 2.5–3k interim lines, or one needing several new
-Frontend substitute families, exceeds one agent slice. Launches became slices
-2–5 and sessions slices 6–9; Intent and board/navigation/stories/observation
-are split by family before their delegation. Each slice keeps one conversion
-outcome and one proof loop.
+Refined during execution: slice 1's probe and the overruns of slices 3 and 6
+showed that an inventory batch above about 2.5–3k interim lines, or one
+needing several new Frontend substitute families, exceeds one agent slice.
+Launches became slices 2–5; the story was then split after slice 6, leaving
+six delivered slices, each one conversion outcome with one proof loop.
