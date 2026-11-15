@@ -1,32 +1,40 @@
 // The Start session dialog's reading order and fit, with no story title to
-// stretch it: the text takes the keyboard first, Host, Model and Reasoning
-// effort follow, then the Session group with Workspace and After checks, the
-// closed Command details, and Cancel and Start with the line of what Start
-// does always in view. With Automatically land chosen in either workspace, whose lines are
-// the longest, and Command details open, nothing scrolls sideways and every
-// control is reachable at 320 CSS pixels and at 200% zoom
-// (../accessibleReading.ts's twiceZoomedWindow), where the choices of each
-// group wrap under their legend rather than widen the dialog. The project is
-// a real start origin (../support/startOrigin.ts), whose installed skills
-// establish a session, so every choice is offered; without its session
-// formatter the other choices are disabled with why, which fits as well.
+// stretch it, against controlled answers: the text takes the keyboard first,
+// Host, Model and Reasoning effort follow, then the Session group with
+// Workspace and After checks, the closed Command details, and Cancel and
+// Start with the line of what Start does always in view. With Automatically
+// land chosen in either workspace, whose lines are the longest, and Command
+// details open, nothing scrolls sideways and every control is reachable at
+// 320 CSS pixels and at 200% zoom (../../tests/accessibleReading.ts's
+// twiceZoomedWindow), where the choices of each group wrap under their legend
+// rather than widen the dialog. When the machine's read says the project's
+// installed skills establish a session, every choice is offered; without it
+// the other choices are disabled with why, which fits as well. A started
+// session is ../../../e2e/launches/agent-launch-ad-hoc.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
-import { twiceZoomedWindow } from "../accessibleReading.ts";
+import { twiceZoomedWindow } from "../../tests/accessibleReading.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../launchStoryCardPage.ts";
+} from "../../tests/launchStoryCardPage.ts";
 import {
   box,
   expectEveryControlReachable,
   expectNoSidewaysScrollIn,
-} from "../pageLayout.ts";
-import { expect, test } from "../support/preparationPage.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import type { StartOrigin } from "../support/startOrigin.ts";
-import { withoutSessionFormatter } from "../support/startSessionLanding.ts";
+} from "../../tests/pageLayout.ts";
+import {
+  expect,
+  openFrontendTakenBacklog,
+  test,
+} from "../../tests/support/frontendApp.ts";
+import {
+  openDoughSource,
+  putFrontendMachine,
+  type FrontendServiceState,
+} from "../../tests/support/frontendServiceState.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const lands =
   "verified results land on origin without another review. Pressing Start authorizes that push.";
@@ -35,17 +43,30 @@ const effects = {
   "Isolated workspace": `Isolated workspace · Automatically land The session runs in a new workspace under .worktrees/; ${lands}`,
 };
 
-async function openStartSession(page: Page, origin: StartOrigin) {
-  await openBacklog(page, origin);
+async function openStartSession(page: Page) {
+  await openFrontendTakenBacklog(page);
   await startSession(page, "Open Dough").click();
   return startSessionDialog(page, "Open Dough");
 }
 
+// The machine's sessions read when Open Dough's installed skills establish a
+// session with no story in Claude Code, so every Session choice is offered.
+function establishingSessions(services: FrontendServiceState) {
+  const answer = makeMe.aMachineAnswer.please();
+  putFrontendMachine(services, {
+    ...answer,
+    sessionPolicies: [
+      { source: openDoughSource.id, workflow: "ad-hoc", host: "claude" },
+    ],
+  });
+}
+
 test("the text comes first, then Attach images, Host, Model and Reasoning effort, the Session group, Command details, Cancel and Start", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  const dialog = await openStartSession(page, origin);
+  establishingSessions(frontendServices);
+  const dialog = await openStartSession(page);
   await expect(startSessionField(dialog)).toBeFocused();
   const details = dialog.locator("summary", { hasText: "Command details" });
   const where = dialog.getByText(
@@ -93,9 +114,10 @@ for (const { name, viewport, deviceScaleFactor, wrapped } of [
 
     test("with Automatically land chosen in either workspace and Command details open, nothing scrolls sideways, every control is reachable, and the line beside Start stays in view", async ({
       page,
-      origin,
+      frontendServices,
     }) => {
-      const dialog = await openStartSession(page, origin);
+      establishingSessions(frontendServices);
+      const dialog = await openStartSession(page);
       const choices = (group: string, names: readonly [string, string]) =>
         names.map((name) =>
           dialog.getByRole("group", { name: group }).getByRole("radio", {
@@ -144,10 +166,9 @@ for (const { name, viewport, deviceScaleFactor, wrapped } of [
 
     test("with the other choices not offered, nothing scrolls sideways, why is readable in view, and Cancel and Start are reachable", async ({
       page,
-      origin,
     }) => {
-      withoutSessionFormatter(origin);
-      const dialog = await openStartSession(page, origin);
+      // The default read: no installed skill establishes a session.
+      const dialog = await openStartSession(page);
       const why = dialog.getByText(
         "Isolated workspace and Automatically land are not offered: the installed skills in this project do not establish a session without a story for this host.",
       );

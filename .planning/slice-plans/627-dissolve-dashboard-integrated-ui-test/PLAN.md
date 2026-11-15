@@ -65,14 +65,14 @@ Backend roots and page objects for the browser roots that keep them.
 | --- | --- |
 | Interim tree still holds the conversion work (all conversion slices) | At `c327752a0f385417c74b1a7b3511ebe5d3b450e6`: 271 `dashboard/tests/**/*.spec.ts` (configuration 11, launches 27, sessions 52, terminals 14, review 16, intent 72, navigation 41, stories 31, observation 7). |
 | Inventory still covers almost all interim specs (placement) | Same revision: 269 of 271 match `migration-purpose.json` at `125c45649fa587c78ed7445deff35db87604489d` (209 frontend, 59 split, 1 backend pending); e2e-class inventory rows are already absent from the interim tree; uninventoried: `tests/sessions/recently-done-returned-sessions.spec.ts`, `tests/review/story-review-diff-line-follow-up.spec.ts`. |
-| Frontend substitute harness is the unit conversion route (slices 1–8) | `npx playwright test --config dashboard/frontend.playwright.config.ts --list --reporter=line` at `c327752a0f385417c74b1a7b3511ebe5d3b450e6` listed 161 Chromium cases under `frontend-tests/` (exit 0). |
+| Frontend substitute harness is the unit conversion route (slices 1–12) | `npx playwright test --config dashboard/frontend.playwright.config.ts --list --reporter=line` at `c327752a0f385417c74b1a7b3511ebe5d3b450e6` listed 161 Chromium cases under `frontend-tests/` (exit 0). |
 | Configuration batch is still the inventory’s first conversion set (slice 1) | `dashboard/tests/configuration/` holds the 11 inventory-named specs; related workflow cases already live under `e2e/configuration/`. |
-| Retirement touchpoints exist and are enumerable (slice 9) | Grep at `c327752a0f385417c74b1a7b3511ebe5d3b450e6` for `test:dashboard:integrated` / `dashboard-integrated` / `Dashboard Integrated UI Test` / `integrated.playwright` hits Intent location in `.planning/open-dough.json`, `package.json`, `ci.yml` job `dashboard-integrated`, `dashboard/integrated.playwright.config.ts`, duration lists, runner support, Distribution CI helpers/tests, and placement READMEs. Do not confuse with `integratedStateCompletion` in open-dough.json. |
-| Later batch effort fits one execution slice (slices 2–8) | Unsettled until slice 1 records elapsed conversion effort for frontend/small and split/small cases. Slice 1 is the early probe: if measured effort shows a later inventory batch cannot finish as one slice, replan that batch (split by folder or substitute family) before continuing it. |
+| Retirement touchpoints exist and are enumerable (slice 13) | Grep at `c327752a0f385417c74b1a7b3511ebe5d3b450e6` for `test:dashboard:integrated` / `dashboard-integrated` / `Dashboard Integrated UI Test` / `integrated.playwright` hits Intent location in `.planning/open-dough.json`, `package.json`, `ci.yml` job `dashboard-integrated`, `dashboard/integrated.playwright.config.ts`, duration lists, runner support, Distribution CI helpers/tests, and placement READMEs. Do not confuse with `integratedStateCompletion` in open-dough.json. |
+| Later batch effort fits one execution slice (slices 2–12) | Unsettled until slice 1 records elapsed conversion effort for frontend/small and split/small cases. Slice 1 is the early probe: if measured effort shows a later inventory batch cannot finish as one slice, replan that batch (split by folder or substitute family) before continuing it. |
 
 ## Outside-in proof ownership
 
-Each conversion slice (1–8):
+Each conversion slice (1–12):
 
 1. Every distinct check from that slice’s interim specs runs under
    `npm run test:e2e`, `test:dashboard:frontend`, and/or
@@ -84,7 +84,7 @@ Each conversion slice (1–8):
 4. Focused run of the touched homes passes; no wall-clock sleep, `test.slow()`,
    or suite/file/group/hook timeout overrides.
 
-Retirement slice (9): Intent locations and CI no longer name **Dashboard
+Retirement slice (13): Intent locations and CI no longer name **Dashboard
 Integrated UI Test**; `test:dashboard:integrated` and its Playwright config,
 producer, shards and settings prefix are gone; placement guidance and the
 browser-group roster (or hard-coded callers) describe three groups; shared
@@ -168,28 +168,89 @@ checkout's suite held load at about 39, and passed 10/10 with one worker at
 cases timed out in server start at load about 32 and the seven touched files
 passed 16/16 at load 16–18.
 
-### 3. Convert launch start, story-card start, responsive access and voice
+### 3. Convert launch story-card start, attachments, responsive start and layout
+Type: Behavior
+Status: done
+Proof: same for 7 `dashboard/tests/launches/` specs: `agent-launch-story-card`
+(with `storyCardTouchStartCases.ts`), `agent-launch-story-attachments`,
+`agent-launch-start-story-card`, `agent-launch-story-card-problems`,
+`responsive-session-start`, `responsive-session-recovery-reads`,
+`agent-launch-start-session-layout`.
+
+Behavior: interim story-card start, attachments, responsive start and
+start-session layout checks → converted and removed with assertions preserved.
+
+Sizing learning: the first attempt at all 13 remaining launch specs stopped
+after these 7 (about 38 minutes, agent context the binding limit); the
+assumption that the remaining launches batch fits one slice failed. The six
+`large` specs left each need their own substitute family, so they move to
+slices 4 and 5.
+
+Accepted proof: 6 Frontend specs in `dashboard/frontend-tests/launches/` on
+the new `frontendLaunchAttempts.ts` (owned running attempt, settle)
+and the `/__agent-launch/changed` substitute, with held answers ended at page
+teardown; 5 E2E specs in `e2e/launches/`. Unfiltered Frontend 229 passed,
+focused E2E 9 passed, `typecheck:dashboard` and the duration-list node tests
+passed. Scratch break of the `LaunchProblemAnswer` description id failed the
+interim and converted folder-not-found cases with the same empty accessible
+description; both passed restored.
+
+### 4. Convert launch instruction voice
 Type: Behavior
 Status: planned
-Proof: same for the remaining 13 `dashboard/tests/launches/` specs:
-`agent-launch-start-*`, `agent-launch-story-*` (4), `responsive-session-*`
-(3), `session-instruction-voice-*` (3).
+Proof: same for `session-instruction-voice-capture-failures`,
+`session-instruction-voice-lifecycle` and `session-instruction-voice-overflow`
+on a Frontend transcription substitute (`/__instruction-transcription` and the
+saved-key setting).
 
-Behavior: interim start, story-card start, responsive session and voice
-checks → converted and removed; `dashboard/tests/launches/` holds no product
-specs.
+Behavior: interim launch voice checks → converted and removed with assertions
+preserved.
 
-### 4. Convert sessions interim detailed checks
+### 5. Convert launch access, noted start and answer touch
 Type: Behavior
 Status: planned
-Proof: same for `dashboard/tests/sessions/` including
-`recently-done-returned-sessions.spec.ts`; do not perform SEED-341
-simplification beyond placement.
+Proof: same for `responsive-session-access`, `agent-launch-story-card-noted-start`
+and `agent-launch-start-session-answer-touch`, reusing slice 3's attempt
+substitutes (`frontendLaunchAttempts.ts`); `dashboard/tests/launches/` holds
+no product spec afterwards.
 
-Behavior: interim session detailed/mixed checks → Frontend/Backend/E2E homes
-by boundary; interim session product specs gone.
+Behavior: interim access, noted-start and answer-touch checks → converted and
+removed; the launches batch is complete.
 
-### 5. Convert terminals interim detailed checks
+### 6. Convert session lifecycle, done terminals and workspace retirement
+Type: Behavior
+Status: planned
+Proof: same for 16 `dashboard/tests/sessions/` specs: `agent-launch-ad-hoc-sessions`,
+`agent-launch-retained-history`, `agent-launch-sessions-unanswered`,
+`agent-launch-story-card-delete{,-problems}`, `agent-launch-story-card-done`,
+`agent-terminal-done{,-pending,-question}`, `compact-session-entry`,
+`final-report-touch{,-divider}`, `session-unread-report-message`,
+`session-workspace-retirement{,-claude-done,-lifetime}`; do not perform
+SEED-341 simplification beyond placement.
+
+Behavior: interim session lifecycle, done-terminal and retirement checks →
+Frontend/Backend/E2E homes by boundary; those interim files gone.
+
+### 7. Convert recently done sessions
+Type: Behavior
+Status: planned
+Proof: same for the 20 `dashboard/tests/sessions/recently-done-*` specs,
+including `recently-done-returned-sessions.spec.ts` (not in the inventory).
+
+Behavior: interim recently-done session checks → homes by boundary; those
+interim files gone.
+
+### 8. Convert the sessions sidebar
+Type: Behavior
+Status: planned
+Proof: same for the 16 `cursor-sessions-sidebar-*` (with
+`cursorSessionsSidebarFormerHeightCases.ts`) and `sessions-sidebar-*` specs;
+`dashboard/tests/sessions/` holds no product spec afterwards.
+
+Behavior: interim sessions sidebar checks → homes by boundary; interim
+session product specs gone.
+
+### 9. Convert terminals interim detailed checks
 Type: Behavior
 Status: planned
 Proof: same for `dashboard/tests/terminals/`.
@@ -197,7 +258,7 @@ Proof: same for `dashboard/tests/terminals/`.
 Behavior: interim terminal detailed checks → unit or E2E homes; interim
 terminal product specs gone.
 
-### 6. Convert story review interim checks
+### 10. Convert story review interim checks
 Type: Behavior
 Status: planned
 Proof: same for `dashboard/tests/review/` including
@@ -206,7 +267,7 @@ Proof: same for `dashboard/tests/review/` including
 Behavior: interim review detailed/mixed checks → homes by boundary; interim
 review product specs gone.
 
-### 7. Convert Intent CI, proof, history and Purpose checks
+### 11. Convert Intent CI, proof, history and Purpose checks
 Type: Behavior
 Status: planned
 Proof: same for inventory Intent batch specs still under
@@ -219,7 +280,7 @@ Behavior: interim Intent detailed/mixed checks → Frontend/Backend/E2E homes;
 those interim Intent files gone. If slice 1’s sizing probe requires a split,
 replan this slice into substitute-family Behaviors before executing it.
 
-### 8. Convert board, navigation, stories and observation reading
+### 12. Convert board, navigation, stories and observation reading
 Type: Behavior
 Status: planned
 Proof: same for remaining `dashboard/tests/navigation/`, `stories/` and
@@ -229,7 +290,7 @@ Behavior: interim board/navigation/stories/observation detailed/mixed checks →
 homes by boundary; those interim product specs gone. If the sizing probe
 requires it, replan into per-folder Behaviors before executing.
 
-### 9. Retire Dashboard Integrated UI Test
+### 13. Retire Dashboard Integrated UI Test
 Type: Behavior
 Status: planned
 Proof: `dashboard/tests/**/*.spec.ts` has no remaining product cases; remove
@@ -250,7 +311,10 @@ and Backend remain as current browser proof groups.
 - Inventory batches are the default conversion units; slice 1’s measured effort
   may force a replan that splits later batches by folder or substitute family
   without changing story goal or scope. Slice 1 split the launches batch into
-  slices 2 and 3.
+  slices 2 and 3; slice 3's overrun moved its six `large` specs to slices 4–5;
+  the sessions batch is split by family into slices 6–8. Intent (72 specs) and
+  board/navigation/stories/observation (79) are split by substitute family
+  before delegation.
 - SEED-341 does not own moving interim session specs; this plan places them.
 - Retirement may land before or after plan 617; either way the final roster
   surface is three groups.
@@ -275,8 +339,9 @@ power with an existing `caffeinate` assertion held.
 
 ## Plan concern assessment
 
-Refinement was not needed: eight slices, each one conversion or retirement
-outcome with one proof loop, inventory batches as the story’s own units, and
-slice 1 bounding the only unsettled sizing premise as an early probe. No
-remaining slice-specific concern blocks readiness. This plan is preparation
-only; it grants no Take or execution.
+Refined during execution: slice 1's probe and slice 3's overrun showed that an
+inventory batch above about 2.5–3k interim lines, or one needing several new
+Frontend substitute families, exceeds one agent slice. Launches became slices
+2–5 and sessions slices 6–8; Intent and board/navigation/stories/observation
+are split by family before their delegation. Each slice keeps one conversion
+outcome and one proof loop.

@@ -1,5 +1,5 @@
 // Keyboard/reduced-motion startup journeys use the real bare origin and
-// installed starts from ./responsive-session-start.spec.ts. Focus transfers to
+// installed starts from ../../../e2e/launches/responsive-session-start.spec.ts. Focus transfers to
 // the protected card or Start session progress, with unavailable actions
 // described. Status stays distinct from
 // Column, highlight, and inspection; pending marks join the highlight, open

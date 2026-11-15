@@ -5,7 +5,7 @@
 // Unnoted Starts have no tooltip. Noted, disabled, and preparing Starts retain
 // distinct light/dark appearances and decorative workflow glyphs; Inspect
 // story's chevron turns with its detail. The committed story-columns origin
-// and synthetic Claude match ./agent-launch-story-card.spec.ts; no real host runs.
+// and synthetic Claude match ../../../e2e/launches/agent-launch-story-card.spec.ts; no real host runs.
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";

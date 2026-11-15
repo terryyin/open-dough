@@ -1,7 +1,7 @@
 // How frontend service substitutes answer the page: a JSON reply, and one
 // answer held once asked until the test releases it.
 
-import type { Route } from "@playwright/test";
+import type { Page, Route } from "@playwright/test";
 
 export async function fulfillJson(route: Route, body: unknown, status = 200) {
   await route.fulfill({
@@ -46,4 +46,18 @@ export function holdAnswer(): { held: HeldAnswer; hold: AnswerHold } {
     release = resolve;
   });
   return { held, hold: { received, released, delivered } };
+}
+
+// Answers a substitute still holds when its page's case ends, each ending
+// its request so the page's routes can be removed (./frontendApp.ts).
+const unfinished = new WeakMap<Page, (() => Promise<void>)[]>();
+
+export function endWithPage(page: Page, end: () => Promise<void>): void {
+  unfinished.set(page, [...(unfinished.get(page) ?? []), end]);
+}
+
+export async function endHeldAnswers(page: Page): Promise<void> {
+  const ends = unfinished.get(page) ?? [];
+  unfinished.delete(page);
+  for (const end of ends) await end();
 }

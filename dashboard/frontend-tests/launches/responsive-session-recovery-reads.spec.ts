@@ -1,33 +1,42 @@
 // What a page offers before and without this machine's launch evidence
-// (../../src/startupRecoveries.ts, ../../src/StoryCardLaunches.tsx), against the same
-// real bare origin and installed starts as ./responsive-session-start.spec.ts.
-// No story's Start is offered until a read of the machine's attempts
-// answered: held, the Start actions stay unavailable while the rest of the
-// card works; unanswered, Startup recovery says the evidence is unread and
-// rechecks it. A launch whose acceptance answer was lost keeps its story
-// protected statically -- nothing moves -- with Recheck under Startup
-// recovery, until a read asked afterwards answers, however long the service
-// stays unavailable; then the accepted attempt's progress shows.
+// (../../src/startupRecoveries.ts, ../../src/StoryCardLaunches.tsx), against
+// controlled answers to the page's reads of the machine's sessions. No
+// story's Start is offered until a read of the machine's attempts answered:
+// held, the Start actions stay unavailable while the rest of the card works;
+// unanswered, Startup recovery says the evidence is unread and rechecks it. A
+// launch whose acceptance answer was lost keeps its story protected
+// statically -- nothing moves -- with Recheck under Startup recovery, until a
+// read asked afterwards answers, however long the service stays unavailable;
+// then the accepted attempt's progress shows. Real held starts are
+// ../../../e2e/launches/responsive-session-start.spec.ts.
 
 import type { Page } from "@playwright/test";
+import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import {
-  agentAcceptEndpoint,
-  agentLaunchEndpoint,
-} from "../../src/agentLaunch.ts";
-import { storyCardSessions } from "../dashboardPage.ts";
-import { expect } from "../dashboardTest.ts";
+  expect,
+  openFrontendTakenBacklog,
+  test,
+} from "../../tests/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
+import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
 import {
   needsReconciliation,
   recoveryOf,
-  subject,
-} from "../responsiveRecovery.ts";
-import { expectProtected, openStories, test } from "../responsiveStart.ts";
-import { reloadUntilRead } from "../pageRequestNotes.ts";
+} from "../../tests/responsiveRecovery.ts";
+import { expectProtected } from "../../tests/responsiveStart.ts";
+import { reloadUntilRead } from "../../tests/pageRequestNotes.ts";
+import {
+  notRefinedStory,
+  readyIdentity,
+  readyStory,
+} from "../../tests/launchJourney.ts";
 
-test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
+const subject = `${readyStory} (${readyIdentity})`;
 
-// Answers the page's reads of the machine's sessions as `answer` says now:
-// at once, held until released, or never (the service unavailable).
+// Answers the page's reads of the machine's sessions as `set` says now: as
+// the substitutes answer, held until released, or never (the service
+// unavailable).
 async function controlMachineReads(page: Page) {
   let mode: "answer" | "hold" | "fail" = "answer";
   let release = () => {};
@@ -35,7 +44,7 @@ async function controlMachineReads(page: Page) {
     (url) => url.pathname === agentLaunchEndpoint,
     async (route) => {
       if (route.request().method() !== "GET" || mode === "answer") {
-        await route.continue();
+        await route.fallback();
         return;
       }
       if (mode === "fail") {
@@ -45,7 +54,7 @@ async function controlMachineReads(page: Page) {
       await new Promise<void>((resolve) => {
         release = resolve;
       });
-      await route.continue();
+      await route.fallback();
     },
   );
   return {
@@ -61,9 +70,9 @@ async function controlMachineReads(page: Page) {
 
 test("no story's Start is offered before this machine's launch evidence answers, and an unanswered read is said and rechecked", async ({
   page,
-  origin,
 }) => {
-  const { story } = await openStories(page, origin);
+  await openFrontendTakenBacklog(page);
+  const story = backlogLaunchers(page).card(readyStory);
   const start = story.getByRole("button", { name: "Start execution" });
   await expect(start).toBeEnabled();
   const reads = await controlMachineReads(page);
@@ -101,24 +110,21 @@ test("no story's Start is offered before this machine's launch evidence answers,
 
 test("a lost acceptance answer keeps the story protected statically with Recheck while the service is unavailable, until a later read shows the accepted start", async ({
   page,
-  dashboard,
-  origin,
+  frontendServices,
 }) => {
-  const push = origin.holdPushes();
-  dashboard.claudeScenario("held");
-  const { story, takenStory, other } = await openStories(page, origin);
+  const attempt = frontendAttempt(frontendServices);
+  const boundary = await installFrontendLaunchBoundary(page, {
+    accept: attempt.accept,
+  });
+  await openFrontendTakenBacklog(page);
+  const { card, start } = backlogLaunchers(page);
+  const story = card(readyStory);
   const reads = await controlMachineReads(page);
   // The service accepts the launch; its answer never reaches the page.
-  await page.route(
-    (url) => url.pathname === agentAcceptEndpoint,
-    async (route) => {
-      await route.fetch();
-      await route.abort("connectionreset");
-    },
-  );
+  boundary.loseNextAcceptance();
 
   reads.set("fail");
-  await story.getByRole("button", { name: "Start execution" }).click();
+  await start(readyStory).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect(dialog).toBeHidden();
@@ -130,7 +136,9 @@ test("a lost acceptance answer keeps the story protected statically with Recheck
   await expect(story).not.toContainText(/continu/i);
   await expect(story.locator(".story-card-startup-progressing")).toHaveCount(0);
   await expectProtected(story);
-  await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
+  await expect(
+    card(notRefinedStory).getByRole("button", { disabled: true }),
+  ).toHaveCount(0);
   await expect(recovery).toContainText(lost);
   // The lost answer says what to check and names no Continue it lacks.
   await expect(recovery).toContainText(
@@ -151,11 +159,5 @@ test("a lost acceptance answer keeps the story protected statically with Recheck
   await expect(story.locator(".story-card-startup-progressing")).toHaveCount(1);
   await expectProtected(story);
   await expect(recoveryOf(page)).toHaveCount(0);
-
-  push.release();
-  dashboard.releaseHeldClaude();
-  await expect(storyCardSessions(takenStory)).toHaveCount(1, {
-    timeout: 30_000,
-  });
-  expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+  expect(boundary.acceptances).toHaveLength(1);
 });

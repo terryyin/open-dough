@@ -12,6 +12,7 @@ import {
   type FrontendServiceState,
 } from "./frontendServiceState.ts";
 import { installFrontendServiceSubstitutes } from "./frontendServiceSubstitutes.ts";
+import { endHeldAnswers } from "./frontendSubstituteAnswers.ts";
 import { expectSettledPage } from "../dashboardPage.ts";
 import { takenBacklogStories } from "../launchStoryCardPage.ts";
 
@@ -40,6 +41,7 @@ export const test = base.extend<{
   page: async ({ page, frontendServices }, use) => {
     await installFrontendServiceSubstitutes(page, frontendServices);
     await use(page);
+    await endHeldAnswers(page);
   },
 });
 

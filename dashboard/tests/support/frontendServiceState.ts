@@ -22,6 +22,10 @@ import {
 } from "../intentCandidatesFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
+import {
+  readyStoryState,
+  storyPlanPath,
+} from "../../../Distribution/tests/support/queued-repository.mjs";
 import { intentSettingsText } from "./intentSettingsFile.ts";
 
 export const frontendRevision = openDough.revision;
@@ -51,7 +55,9 @@ const ready = story(readyStory, "SEED-B#b", "seeds/SEED-B-ready.md#b");
 
 // The project the page reads on open: one Taken and two queued stories with
 // their seeds, a direction, Intent settings, and test-optimization candidates.
-// The not-refined queued story's title may be stated.
+// The Ready story's seed and plan record its assessment as Ready, so its card
+// reads Ready for execution. The not-refined queued story's title may be
+// stated.
 function frontendPublishedWith(notRefinedTitle: string) {
   const notRefined = story(
     notRefinedTitle,
@@ -79,7 +85,9 @@ ${renderStorySection(ready, { goal: "Ready goal." })}`,
             ".planning/seeds/SEED-C-queued.md": `# Queued
 
 ${renderStorySection(notRefined)}`,
+            [`.planning/${storyPlanPath(ready)}`]: `# ${readyStory} plan\n`,
           },
+          storyStates: [readyStoryState(ready)],
         })
         .please(),
       frontendRevision,

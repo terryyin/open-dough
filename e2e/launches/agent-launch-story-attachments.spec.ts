@@ -1,60 +1,26 @@
-// Start refinement Attach images (shared LaunchDialog control): pick two
-// PNGs with no text → Start → fake Claude's prompt is the skill line, the
-// established preparation handoff, reporting context, then the Attached
-// images list under the test HOME's launch-attachments folder. Start
-// execution offers the same Attach images control.
+// Start refinement Attach images: pick two PNGs with no text → Start → fake
+// Claude's prompt is the skill line, the established preparation handoff,
+// reporting context, then the Attached images list under the test HOME's
+// launch-attachments folder. That both story dialogs offer Attach images is
+// ../../dashboard/frontend-tests/launches/agent-launch-story-card-dialogs.spec.ts.
 
 import path from "node:path";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
-import { instructionField } from "../launchStoryCardPage.ts";
-import { expect, test } from "../support/preparationPage.ts";
-import { expectReportingBlock } from "../support/reportingInputAssertions.ts";
-import { launchWaitMs } from "../support/launchWait.ts";
-import { queuedIdentity } from "../support/startOrigin.ts";
-import { recordsOf } from "../agentLaunchBoundary.ts";
-import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { publishCommittedOrigin } from "../../dashboard/tests/committedOrigin.ts";
+import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { instructionField } from "../../dashboard/tests/launchStoryCardPage.ts";
+import { expect, test } from "../../dashboard/tests/support/preparationPage.ts";
+import { expectReportingBlock } from "../../dashboard/tests/support/reportingInputAssertions.ts";
+import { launchWaitMs } from "../../dashboard/tests/support/launchWait.ts";
+import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
+import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import {
   expectCopiedAttachmentPath,
   pickImagesInDialog,
   pngA,
   pngB,
   writePickedImages,
-} from "../support/launchAttachmentFixtures.ts";
-
-test("Start execution and Start refinement dialogs offer the same Attach images control", async ({
-  page,
-  origin,
-}) => {
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
-    repository: "terryyin/open-dough",
-    follows: true,
-  });
-  await page.goto("/");
-  const card = parts(page).backlog.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-
-  await card.getByRole("button", { name: "Start execution" }).click();
-  const execution = page.getByRole("dialog", {
-    name: "Start execution in Claude Code",
-  });
-  await expect(
-    execution.getByRole("button", { name: "Attach images" }),
-  ).toBeVisible();
-  await execution.getByRole("button", { name: "Cancel" }).click();
-
-  await card.getByRole("button", { name: "Start refinement" }).click();
-  const refinement = page.getByRole("dialog", {
-    name: "Start refinement in Claude Code",
-  });
-  await expect(
-    refinement.getByRole("button", { name: "Attach images" }),
-  ).toBeVisible();
-});
+} from "../../dashboard/tests/support/launchAttachmentFixtures.ts";
 
 test("Start refinement with two picked images and no text ends the first input with their copied paths after the handoff", async ({
   page,

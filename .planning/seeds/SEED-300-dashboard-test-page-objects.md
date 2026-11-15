@@ -275,7 +275,7 @@ execution prerequisite on another story.
   preparation, responsive and recovery families. Use shared operations to
   read a launch result and take the next available action. Keep host
   progress gates and exact verification/refusal wording as scenario evidence.
-  [Story start answers](../../dashboard/tests/launches/agent-launch-start-story-card.spec.ts#L81),
+  [Story start answers](../../dashboard/frontend-tests/launches/agent-launch-story-card-answers.spec.ts#L49),
   [preparation retry](../../e2e/launches/agent-launch-preparation-codex-retry.spec.ts#L78),
   [responsive access](../../dashboard/tests/launches/responsive-session-access.spec.ts#L100),
   [recovery verification](../../e2e/launches/responsive-session-recovery-verification.spec.ts#L93),

@@ -1,5 +1,5 @@
 // Start releases the dashboard while protecting its story, in Codex
-// (../../dashboard/tests/launches/responsive-session-start.spec.ts tells the shared promise): the real
+// (./responsive-session-start.spec.ts tells the shared promise): the real
 // installed starts against a real bare origin (../../dashboard/tests/support/startOrigin.ts)
 // whose `pre-receive` hook holds the Take, with the Codex protocol fixture
 // holding the native conversation. A story's start and the continuation of

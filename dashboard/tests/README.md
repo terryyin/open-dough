@@ -101,7 +101,7 @@ Put a check where it is cheapest to prove, and prove it once:
   no test writes once per worker (`launchJourney`'s origin); use one fixture per
   serial file for state tests step through (`production-watcher*.spec.ts`'s watcher).
   [Journey writing](writing-journeys.md) explains both. Assert the common shape
-  once (`launches/agent-launch-story-card.spec.ts`, "every Backlog card offers Start
+  once (`../frontend-tests/launches/agent-launch-story-card.spec.ts`, "every Backlog card offers Start
   execution ..."); siblings assert differences so a regression fails one named
   test. Servers and fake GitHub stay per test: siblings vary `projectFolders`,
   `launchTimeoutMs`, viewport and usually launch or mark done.

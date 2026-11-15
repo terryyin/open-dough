@@ -1,9 +1,10 @@
 // Start releases the dashboard while protecting its story
-// (../../src/LaunchDialog.tsx, ../../src/launchAttempts.ts, ../../src/StoryCard.tsx):
+// (../../dashboard/src/LaunchDialog.tsx, ../../dashboard/src/launchAttempts.ts,
+// ../../dashboard/src/StoryCard.tsx):
 // the real installed starts against a real bare origin
-// (../support/startOrigin.ts) whose `pre-receive` hook holds the published
+// (../../dashboard/tests/support/startOrigin.ts) whose `pre-receive` hook holds the published
 // assignment, with the synthetic `claude` holding the native launch
-// (Codex: ../../../e2e/launches/responsive-session-start-codex.spec.ts). Pressing Start commits
+// (Codex: ./responsive-session-start-codex.spec.ts). Pressing Start commits
 // the request at once: Cancel and Start are unavailable, Escape does nothing,
 // and the submitted choices cannot change. The dialog closes once the local
 // service accepted the launch, while its work is still held; from submission
@@ -11,23 +12,23 @@
 // unavailable while its facts and source links stay readable, and other
 // stories, Refresh, and project navigation work. An unattached session gets
 // the same cutoff and handoff, with progress beside its own action and no
-// card. A lost acknowledgment is uncertain, never accepted success. Before
-// Start, Cancel and Escape send nothing. Once settled, the story's actions
+// card. A lost acknowledgment, and Cancel or Escape before Start, are
+// ../../dashboard/frontend-tests/launches/agent-launch-story-card-uncertain.spec.ts
+// and ../../dashboard/frontend-tests/launches/agent-launch-story-card.spec.ts.
+// Once settled, the story's actions
 // return where the published read places it
-// (../../../e2e/launches/responsive-session-reconciliation.spec.ts tells how). Only the delivery
+// (./responsive-session-reconciliation.spec.ts tells how). Only the delivery
 // of the acceptance answer to the page is held here; the service's admission,
 // publication, and outcome are the real ones.
 
-import { agentAcceptEndpoint } from "../../src/agentLaunch.ts";
-import { attempts } from "../agentLaunchBoundary.ts";
+import { attempts } from "../../dashboard/tests/agentLaunchBoundary.ts";
 import {
   storyCardSessions,
   parts,
   sessionEntriesIn,
-} from "../dashboardPage.ts";
-import { expect } from "../dashboardTest.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
+import { expect } from "../../dashboard/tests/dashboardTest.ts";
 import {
-  countAcceptanceRequests,
   expectOthersWork,
   expectProtected,
   expectSubmitted,
@@ -35,8 +36,8 @@ import {
   instruction,
   openStories,
   test,
-} from "../responsiveStart.ts";
-import { queuedIdentity } from "../support/startOrigin.ts";
+} from "../../dashboard/tests/responsiveStart.ts";
+import { queuedIdentity } from "../../dashboard/tests/support/startOrigin.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
@@ -127,71 +128,6 @@ for (const start of [
     expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
   });
 }
-
-test("before Start, Cancel and Escape send nothing and leave the story's actions available", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { story } = await openStories(page, origin);
-  const sent = countAcceptanceRequests(page);
-  const action = story.getByRole("button", { name: "Start execution" });
-  const dialog = page.getByRole("dialog", {
-    name: "Start execution in Claude Code",
-  });
-
-  await action.click();
-  await dialog
-    .getByRole("textbox", { name: "Instruction (optional)" })
-    .fill("never sent");
-  await page.keyboard.press("Escape");
-  await expect(dialog).toBeHidden();
-  await action.click();
-  await dialog.getByRole("button", { name: "Cancel" }).click();
-  await expect(dialog).toBeHidden();
-
-  await expect(story.getByRole("button", { disabled: true })).toHaveCount(0);
-  expect(sent()).toBe(0);
-  expect(await attempts(dashboard)).toEqual([]);
-  expect(dashboard.claudeCalls()).toEqual([]);
-});
-
-test("a lost acknowledgment says the launch is uncertain, never accepted, and the story is protected once its attempt is read", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const push = origin.holdPushes();
-  dashboard.claudeScenario("held");
-  const { story, takenStory, other } = await openStories(page, origin);
-  // The service accepts the launch; its answer never reaches the page.
-  await page.route(
-    (url) => url.pathname === agentAcceptEndpoint,
-    async (route) => {
-      await route.fetch();
-      await route.abort("connectionreset");
-    },
-  );
-
-  await story.getByRole("button", { name: "Start execution" }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-
-  await expect(dialog).toBeHidden();
-  await expect(story.locator(".launch-problem")).toContainText(
-    "Launch uncertain: The local dashboard server could not be reached, so the launch may or may not have been accepted",
-  );
-  await expect(story).toContainText("Local startup in progress");
-  await expectProtected(story);
-  await expect(other.getByRole("button", { disabled: true })).toHaveCount(0);
-  expect(await attempts(dashboard)).toHaveLength(1);
-
-  push.release();
-  dashboard.releaseHeldClaude();
-  await expect(storyCardSessions(takenStory)).toHaveCount(1, {
-    timeout: 30_000,
-  });
-});
 
 test("Start session in Claude Code closes at acceptance while its launch is held, with its progress beside the action and no card", async ({
   page,

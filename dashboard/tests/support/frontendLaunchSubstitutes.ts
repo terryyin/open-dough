@@ -3,14 +3,17 @@
 // asks for (../../server/launchBoundary.ts), image uploads, and a host's model
 // choices (../../server/launchHostOptionsResponse.ts). Every acceptance and
 // upload the page asked for stays inspectable; an acceptance is refused unless
-// the case answers it, and nothing is ever launched. A host's choices answer
-// what is arranged for the project and host when the read is answered, or no
-// choices as the default substitutes do; a held read waits until released,
-// and an unreadable one answers as the boundary does.
+// the case answers it, and nothing is ever launched. An acceptance's answer
+// may be lost on the way to the page; the page's waits for an accepted
+// attempt's change stay waiting until the case tells them it changed. A host's
+// choices answer what is arranged for the project and host when the read is
+// answered, or no choices as the default substitutes do; a held read waits
+// until released, and an unreadable one answers as the boundary does.
 
-import type { Page } from "@playwright/test";
+import type { Page, Route } from "@playwright/test";
 import {
   agentAcceptEndpoint,
+  agentChangedEndpoint,
   type Acceptance,
   type AgentLaunchRequest,
 } from "../../src/agentLaunch.ts";
@@ -20,6 +23,7 @@ import {
   type LaunchHostOptions,
 } from "../../src/launchHostOptions.ts";
 import {
+  endWithPage,
   fulfillJson,
   holdAnswer,
   type AnswerHold,
@@ -47,6 +51,11 @@ export type FrontendLaunchBoundary = {
   // The next host choices read waits until released, then answers what is
   // arranged by then.
   readonly holdNextChoices: () => HeldAnswer;
+  // The next acceptance is answered, but the answer never reaches the page.
+  readonly loseNextAcceptance: () => void;
+  // Answers every wait the page has begun for an accepted attempt's change:
+  // it changed, so the page reads the machine's sessions again.
+  readonly tellChanged: () => Promise<void>;
 };
 
 export type ChoicesRead = { readonly source: string; readonly host: string };
@@ -90,14 +99,33 @@ export async function installFrontendLaunchBoundary(
   const asked: ChoicesRead[] = [];
   const choices = new Map<string, HostChoices>();
   let nextHold: AnswerHold | undefined;
+  let loseNext = false;
+  const changeWaits: Route[] = [];
+  // A wait still unanswered when the case ends is cut off.
+  endWithPage(page, async () => {
+    for (const wait of changeWaits.splice(0))
+      await wait.abort().catch(() => undefined);
+  });
   await page.route(
     (url) => url.pathname === agentAcceptEndpoint,
     async (route) => {
       const request = route.request().postDataJSON() as AgentLaunchRequest;
       acceptances.push(request);
+      const lost = loseNext;
+      loseNext = false;
       if (accept === undefined)
         await fulfillJson(route, { error: refusal }, 422);
-      else await fulfillJson(route, accept(request));
+      else {
+        const answer = accept(request);
+        if (lost) await route.abort("connectionreset");
+        else await fulfillJson(route, answer);
+      }
+    },
+  );
+  await page.route(
+    (url) => url.pathname === agentChangedEndpoint,
+    (route) => {
+      changeWaits.push(route);
     },
   );
   await page.route(
@@ -144,6 +172,13 @@ export async function installFrontendLaunchBoundary(
       const { held, hold } = holdAnswer();
       nextHold = hold;
       return held;
+    },
+    loseNextAcceptance: () => {
+      loseNext = true;
+    },
+    tellChanged: async () => {
+      for (const wait of changeWaits.splice(0))
+        await fulfillJson(wait, { changed: true });
     },
   };
 }

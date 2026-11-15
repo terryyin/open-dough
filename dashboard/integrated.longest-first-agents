@@ -1,7 +1,6 @@
 # Dashboard Integrated UI Test launches/, sessions/ and terminals/ spec durations, longest first.
 # Source: run 43575040009/1 at 55da0eecf6803945b66d5a23b00dd7802374550d, 2026-11-14 (runner factor 0.669)
 61.9	tests/sessions/sessions-sidebar-navigation-cases.spec.ts
-52.5	tests/launches/responsive-session-start.spec.ts
 51.6	tests/terminals/session-terminal-voice-lifecycle.spec.ts
 48.5	tests/sessions/agent-launch-story-card-delete.spec.ts
 43.2	tests/terminals/session-terminal-voice-recovery.spec.ts
@@ -16,9 +15,6 @@
 29.0	tests/sessions/session-workspace-retirement-claude-done.spec.ts
 28.7	tests/sessions/session-workspace-retirement.spec.ts
 28.7	tests/terminals/agent-terminal-touch-paste.spec.ts
-28.0	tests/launches/agent-launch-start-story-card.spec.ts
-27.8	tests/launches/agent-launch-story-card-problems.spec.ts
-27.5	tests/launches/agent-launch-story-card.spec.ts
 26.5	tests/terminals/session-terminal-prompts.spec.ts
 26.3	tests/sessions/recently-done-sessions-sidebar-paging.spec.ts
 26.0	tests/sessions/agent-launch-story-card-delete-problems.spec.ts
@@ -36,9 +32,7 @@
 20.3	tests/launches/session-instruction-voice-lifecycle.spec.ts
 19.9	tests/launches/responsive-session-access.spec.ts
 19.9	tests/terminals/agent-launch-ad-hoc-terminal.spec.ts
-19.4	tests/launches/responsive-session-recovery-reads.spec.ts
 19.1	tests/launches/agent-launch-start-session-answer-touch.spec.ts
-19.0	tests/launches/agent-launch-start-session-layout.spec.ts
 18.7	tests/terminals/agent-terminal-touch-keyboard-fit.spec.ts
 17.8	tests/sessions/compact-session-entry.spec.ts
 17.5	tests/sessions/recently-done-sessions-select-development.spec.ts
@@ -61,7 +55,6 @@
 12.0	tests/sessions/cursor-sessions-sidebar-layout.spec.ts
 11.8	tests/sessions/sessions-sidebar-order.spec.ts
 11.4	tests/sessions/recently-done-sessions-select-ad-hoc-check.spec.ts
-11.2	tests/launches/agent-launch-story-attachments.spec.ts
 11.1	tests/sessions/sessions-sidebar-touch.spec.ts
 10.8	tests/terminals/agent-terminal-touch-composer.spec.ts
 10.5	tests/sessions/recently-done-sessions-sidebar.spec.ts
