@@ -206,7 +206,7 @@ mid-task stores a `malformed-native-row` gap, which marks nothing partial.
 
 ### 5. Price this machine's Claude history and validate natively
 Type: Behavior
-Status: planned
+Status: done
 Proof: Retained run record in this plan: backup path, import command and its
 report counts, the real dashboard's Claude Code cohort (priced, partial and
 unpriced counts) before and after, and one Refresh adding today's launches.
@@ -221,6 +221,33 @@ session's index with its transcript's last `cost-state` USD total as a sanity
 check of the tariff (a control total, not a product feature); a mismatch is a
 tariff defect to fix before closing. This slice changes the developer's own
 local store only, after the backup, through the documented importer.
+
+Run record (2026-11-15, landed revision `1e56a8f4`, trunk CI green, served
+by production at http://127.0.0.1:4173; Node 24.21.0):
+
+- Backup: `~/.open-dough/dashboard/launch-history/backups/usage.json.before-SEED-359-20261115T201623`
+  (store sha256 `c2663fe6…` before the import).
+- Before import, real answers over 90 days: Claude Code Execution 7 points
+  (6 partial), 269 unpriced; Refinement 13 points (10 partial), 297
+  unpriced. Codex Execution 230 points, Refinement 271.
+- `node dashboard/server/importUsageHistory.ts import --since '2026-09-16T00:00:00+08:00'`:
+  exit 0 in 16 min; 16,839 files, 2,983 tasks, 520,465 observations; 702
+  stored entries now carry the split (store sha256 `a97e9254…`).
+- After import: Claude Code Execution 268 points (40 partial), 9 unpriced;
+  Refinement 305 points (3 partial), 6 unpriced; both under
+  `claude-2026-11-15`. Codex 230 / 273 points under its own tariff.
+- Tariff control: whole sessions priced at the tariff match their last
+  `cost-state` (`SEED-358#close-launches-returned-to-the-backlog` $20.10 vs
+  $20.11; `SEED-334#focus-detailed-dashboard-ui-checks` session $100.15 vs
+  $100.68; `SEED-357#keep-usage-history-within-a-small-disk-budget` $83.83 vs
+  $84.54). A task's index can be below its session's total when later turns
+  of the session belong to other work, as the import's assignment rule says.
+- Refresh (POST, check 12:38:45Z) stored the usage, with split, of the two
+  Claude launches started today at 12:25Z and 12:33Z while they ran (current
+  to 12:38:47Z); today's 14 finished Claude launches were already present.
+- The 6 sessions with `missing-root-transcript-usage` are recovered tasks
+  with unknown origin and no workflow, outside the dashboard population; no
+  dashboard launch lost its point to the no-end-time case from slice 3.
 
 ## Local gates and execution discipline
 

@@ -10,10 +10,10 @@ return numbered commitments, examples and exclusions without slicing.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Terry can check whether the price-weighted usage of finished dashboard-launched Claude Code tasks trends up or down for one launch workflow | slice 5 | |
+| 1 | Terry can check whether the price-weighted usage of finished dashboard-launched Claude Code tasks trends up or down for one launch workflow | slice 5 | observed: PLAN.md slice 5 run record: real Claude Code cohorts per workflow priced (Execution 268 points, average shown) for trend and task detail |
 | 2 | Terry can inspect any single task behind the trend, as Codex tasks allow in System settings → Usage | slice 2 | observed: frontend-tests/system-settings-usage-tool.spec.ts Claude detail about 'Open Dough · Claude Code · Refinement'; e2e/configuration/system-settings-usage-tools.spec.ts showsFact Observed model |
 | 3 | The trend is an observation under ADR 0010; no improvement or billing claim | slice 2 | observed: dashboard/USAGE-TOKEN-INDEX.md first paragraph 'observation, not a bill'; view adds no improvement or billing wording |
-| 4 | Claude Code dashboard launches, absent from Usage today, appear there | slice 5 | |
+| 4 | Claude Code dashboard launches, absent from Usage today, appear there | slice 5 | observed: PLAN.md slice 5 run record: Claude Code dashboard launches appear in the real Usage view after landing and import |
 | 5a | Tool offers Claude Code beside Codex | slice 2 | observed: frontend system-settings-usage-tool.spec.ts offers Tool [Codex, Claude Code]; e2e system-settings-usage-tools.spec.ts choose Tool Claude Code |
 | 5b.1 | Population: finished `origin: dashboard` tasks of configured projects, retained launches and recovered dashboard tasks, each launch its own point | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude-population.spec.ts retained, Done-marked and recovered Claude tasks each a point, running absent; token-index-claude.spec.ts case 1 Codex task excluded |
 | 5b.2 | Launch workflow, Model and Effort filters from observed values | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts options.models from observed Claude models across workflows; e2e offers Model [All models, Claude Opus 5.5] |
@@ -56,13 +56,13 @@ return numbered commitments, examples and exclusions without slicing.
 | 22 | Example 4: a launch with only the auxiliary limit has no known gaps; the cohort's note names the excluded background work | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-claude-coverage.spec.ts measured auxiliary-only launches; dashboard/frontend-tests/system-settings-usage-tool.spec.ts measured Claude task detail 'No known gaps' beside the note |
 | 23 | Example 5: a response on an unpriced model or speed → its task has no point and is counted as unpriced in the cohort note | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 3 fast-worker, unknown-model, unsplit-write have no point and unpriced === 3 |
 | 24 | Example 6: choosing Codex again shows the same points, average and tariff as before this story | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts Codex answer equal before and after Claude tasks join; e2e Codex again shows Nov 6 · 1,950 with Codex tariff |
-| 25 | Exclusion: per-category token breakdown in task detail, for both tools | slice 5 | |
-| 26 | Exclusion: live in-progress usage | slice 5 | |
-| 27 | Exclusion: automatic or scheduled refresh | slice 5 | |
-| 28 | Exclusion: billing reconciliation | slice 5 | |
-| 29 | Exclusion: OpenTelemetry collection | slice 5 | |
-| 30 | Exclusion: Cursor (SEED-360) | slice 5 | |
+| 25 | Exclusion: per-category token breakdown in task detail, for both tools | slice 5 | observed: slices 1–4 diffs (65210f8d..bbc0be6e) add none of this excluded work; Refresh stays manual |
+| 26 | Exclusion: live in-progress usage | slice 5 | observed: slices 1–4 diffs (65210f8d..bbc0be6e) add none of this excluded work; Refresh stays manual |
+| 27 | Exclusion: automatic or scheduled refresh | slice 5 | observed: slices 1–4 diffs (65210f8d..bbc0be6e) add none of this excluded work; Refresh stays manual |
+| 28 | Exclusion: billing reconciliation | slice 5 | observed: slices 1–4 diffs (65210f8d..bbc0be6e) add none of this excluded work; Refresh stays manual |
+| 29 | Exclusion: OpenTelemetry collection | slice 5 | observed: slices 1–4 diffs (65210f8d..bbc0be6e) add none of this excluded work; Refresh stays manual |
+| 30 | Exclusion: Cursor (SEED-360) | slice 5 | observed: slices 1–4 diffs (65210f8d..bbc0be6e) add none of this excluded work; Refresh stays manual |
 | 31 | Exclusion: auxiliary Claude work outside transcripts, beyond the cohort's note | slice 3 | observed: slice 3 diff adds only the cohort note (TokenIndexTrend.tsx excludedWork) for auxiliary work, no other handling |
-| 32 | Assumption: the offline import already holds Claude history; no second recovery path | slice 5 | |
+| 32 | Assumption: the offline import already holds Claude history; no second recovery path | slice 5 | observed: PLAN.md slice 5 run record: the existing offline importer filled the split; no second recovery path added |
 | 33 | Assumption: transcripts are current within seconds, so a Refresh during or after a task sees current usage | slice 4 | observed: dashboard/backend-tests/usage-history/token-index-refresh-claude.spec.ts case 2: a Refresh during the launch stores the usage written so far; a later Refresh replaces it |
 | 34 | The usage store keeps one document; no database added (ADR 0008) | slice 1 | observed: dashboard/backend-tests/usage-history/claude-usage-split.spec.ts first case: split and tier stored in the one usage.json document (usageHistoryFile), byte-identical on repeat |
