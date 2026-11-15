@@ -244,3 +244,7 @@ Disposition: proved by slice 5: slice-5-consumers.md; independent review dispose
 Reported: slice 5 — "Acceptance found that the default Frontend snapshot could answer live even if the ordinary request forwarded the old captured run; existing E2E covers published-to-live."
 Story clause: "Done historical versus live/captured review modes"
 Disposition: proved by slice 5: slice-5-proof.md; endpoint-only request capture observes the actual ordinary request while held and asserts historical is not true and run is absent. Strict captured-to-live case passed, paired with the real Backend ordinary snapshot/no-selectedRun observation. Captured landing and published-to-live E2E coverage is labeled to its actual boundary.
+
+## Execution complete
+
+Product advice: queue the [bounded obsolete-opener cleanup](../652-remove-obsolete-native-revision-opener/PLAN.md) under wrap-up’s default follow-up disposition; CI and navigation retain their scope.
