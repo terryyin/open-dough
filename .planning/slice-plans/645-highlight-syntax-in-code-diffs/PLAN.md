@@ -208,6 +208,13 @@ scrolled, withheld tokens after Retry or added a message. First-read answers
 go through `prepare`. Grammar hold and failure share `syntaxGrammar.ts` with
 two Intent specs.
 
+## Execution complete
+
+Product advice: no change. The delivered diff syntax styling meets every
+source commitment through one shared pipeline; the story's deferred promises
+(more grammars, Intent `syntax` hints for extensionless paths, changed-word
+emphasis, a styling control) stay as recorded for later selection.
+
 ## Local gates and execution discipline
 
 Apply the linked [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
