@@ -1,3 +1,8 @@
+import {
+  controls,
+  createReviewBuckets,
+  keyFor,
+} from "./frontendStoryReviewAnswers.ts";
 // Controllable story-review answers for frontend-only journeys at the
 // snapshot, range, file diff, file text and mark boundaries. Default settle
 // is a minimal unmarked snapshot; a case may hold or stage the next ask per
@@ -13,10 +18,7 @@ import type {
 } from "../../src/storyReviewContract.ts";
 import { frontendReviewSnapshot } from "./frontendStoryReviewFixtures.ts";
 import {
-  controls,
-  createReviewBuckets,
   installReviewRoutes,
-  keyFor,
   markReviewedAnswerSchema,
   reviewedFileDiffSchema,
   reviewedFileTextSchema,
@@ -35,6 +37,10 @@ export type FrontendStoryReview = {
   readonly asked: () => readonly string[];
   readonly snapshot: () => StoryReview;
   readonly answerSnapshot: (review: StoryReview) => void;
+  readonly answerHistoricalSnapshot: (
+    identity: string,
+    review: StoryReview,
+  ) => void;
   readonly answerNextSnapshot: (review: StoryReview) => void;
   readonly holdNextSnapshot: () => ReturnType<
     ReturnType<typeof controls>["holdNext"]
@@ -77,6 +83,9 @@ export async function installFrontendStoryReview(
     snapshot: () => state.snapshot,
     answerSnapshot: (review) => {
       Object.assign(state, { snapshot: storyReviewSchema.parse(review) });
+    },
+    answerHistoricalSnapshot: (identity, review) => {
+      state.historicalSnapshots.set(identity, storyReviewSchema.parse(review));
     },
     answerNextSnapshot: (review) => {
       snapshotCtl.answerNext(storyReviewSchema.parse(review));

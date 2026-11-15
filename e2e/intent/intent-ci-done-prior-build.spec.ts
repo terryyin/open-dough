@@ -7,7 +7,7 @@ import {
 // The published execution endpoint, actual selected collection and retained
 // raw ancestors flow through the normal authenticated history reader. A
 // failed history refresh and its retry are the lifecycle journey's
-// (../../dashboard/tests/intent/intent-ci-done-reference-lifecycle.spec.ts);
+// (../../dashboard/frontend-tests/intent/intent-ci-done-reference-lifecycle.spec.ts);
 // each history state's readout is the mounted one's
 // (../../dashboard/frontend-tests/intent-ci-compact-readout.spec.ts).
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";

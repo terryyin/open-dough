@@ -1,5 +1,7 @@
 // Minimal observed Done Intent arrangement. Explicit landed answers are a
 // presentation precondition, never evidence of historical source judgment.
+import type { ReviewedFile } from "../../src/storyReviewContract.ts";
+import type { IntentLocation } from "../../server/intentLocationsRead.ts";
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { IntentCoverage } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
@@ -28,6 +30,11 @@ export async function prepareFrontendDoneIntent(
   page: Page,
   services: FrontendServiceState,
   intentCoverage?: IntentCoverage,
+  historical: {
+    readonly files?: Readonly<Record<string, string>>;
+    readonly changed?: readonly ReviewedFile[];
+    readonly locations?: readonly IntentLocation[];
+  } = {},
 ) {
   putFrontendIntentStory(services, { taken: false, workspace: false });
   const facts = summaryScopeFacts();
@@ -52,10 +59,11 @@ export async function prepareFrontendDoneIntent(
   const landedFiles = {
     ...summaryComparisonTrunkRevision.files,
     ...summaryComparisonChangeRevision.files,
+    ...historical.files,
   };
   for (const path of summaryComparisonChangeRevision.remove ?? [])
     Reflect.deleteProperty(landedFiles, path);
-  const locations = [
+  const locations = historical.locations ?? [
     ...facts.scope.locations,
     makeMe.anIntentLocation
       .at("tests")
@@ -82,16 +90,19 @@ export async function prepareFrontendDoneIntent(
       }
     },
   );
-  const published = frontendPublishedReview(facts.scope.changed);
+  const published = frontendPublishedReview([
+    ...(historical.changed ?? facts.scope.changed),
+  ]);
   const review = await installFrontendStoryReview(page, {
     ...published,
     completion,
     landingRevision: completion,
     completedAt,
   });
+  review.answerHistoricalSnapshot(facts.identity, review.snapshot());
   const path = "dashboard/tests/folder/a.spec.ts";
   review.answerFile(frontendFileDiff(path, ["+changed"]), path);
   await answerFrontendIntentCi(page, services.revision);
   await answerFrontendIntentComparison(page, facts);
-  return { completion, review };
+  return { completion, completedAt, review };
 }

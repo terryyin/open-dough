@@ -1,58 +1,43 @@
-// A Done story's CI comparison reads its landing against recent builds at a
-// glance: the wall-time history between the endpoints and the entry table,
-// with the compact readout and the shared chart through the published
-// landing, from real retained history through the authenticated read of the
-// Done story the worker keeps (../support/keptPublishedStory.ts).
+import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
+import { doneHistoryBuilder } from "../../tests/support/doneWallReferenceHistory.ts";
+import {
+  mountedDoneTrunk,
+  serveDoneWallTimeHistory,
+} from "../../tests/support/mountedDoneWallTime.ts";
+// Controlled retained history renders through the full app. Real projection
+// and local-only reads remain in Backend ci-done-wall-reference.
 import { shortSha } from "../../src/baseCiWording.ts";
-import { inspectMark } from "../historyChartPage.ts";
-import { comparisonReading } from "../intentCiComparisonPage.ts";
-import { expectStackedInOrder } from "../partArrangement.ts";
+import { inspectMark } from "../../tests/historyChartPage.ts";
+import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { expectStackedInOrder } from "../../tests/partArrangement.ts";
 import {
   doneWallTimeHistory,
   expectChangeCue,
   priorBuildReferenceReading,
-} from "../priorBuildReferencePage.ts";
-import { doneWallReferenceHistory } from "../support/doneWallReferenceHistory.ts";
-import { declaredSummaryComparisonEndpointsIn } from "../support/intentSummaryStoryComparisonRepository.ts";
-import { serveSummaryComparisonStory } from "../support/intentSummaryStoryComparisonServing.ts";
-import { startingFromKeptSummaryComparisonStory } from "../support/keptPublishedStory.ts";
-import { keepLandedCiHistory } from "../support/landedCiHistory.ts";
-import { expect, queuedClaudePreviewTest } from "../support/preparationPage.ts";
-import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
-
-const test = queuedClaudePreviewTest.extend(
-  startingFromKeptSummaryComparisonStory,
-);
+} from "../../tests/priorBuildReferencePage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { selectDoneStoryForCiComparison } from "../../tests/support/selectDoneStoryForCiComparison.ts";
 
 test("a Done landing's CI wall time reads against its recent builds between the endpoints and the entry table", async ({
   page,
-  dashboard,
-  origin,
+  frontendServices,
 }) => {
-  const setup = await serveSummaryComparisonStory(
-    page,
-    origin,
-    declaredSummaryComparisonEndpointsIn(origin.project),
-  );
-  // Six comparable priors average 8 min 24 s around a failed build and a
-  // build that published no proof; later landings follow the selected one.
-  await keepLandedCiHistory(
-    dashboard.home,
-    doneWallReferenceHistory(origin, setup, {
-      priors: [
-        500000,
-        "failed",
-        502000,
-        "missing",
-        504000,
-        506000,
-        508000,
-        504000,
-      ],
-      selectedMs: 484000,
-      later: true,
-    }),
-  );
+  const setup = await prepareFrontendDoneIntent(page, frontendServices);
+  const retained = doneHistoryBuilder(mountedDoneTrunk, {
+    priors: [
+      500000,
+      "failed",
+      502000,
+      "missing",
+      504000,
+      506000,
+      508000,
+      504000,
+    ],
+    selectedMs: 484000,
+    later: true,
+  }).please();
+  await serveDoneWallTimeHistory(page, () => retained);
   const { panel } = await selectDoneStoryForCiComparison(page);
   const comparison = comparisonReading(panel);
   const history = doneWallTimeHistory(panel);

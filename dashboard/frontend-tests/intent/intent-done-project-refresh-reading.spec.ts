@@ -1,16 +1,17 @@
-import { showLatestRevision } from "../intentReadRecoveryPage.ts";
+import { frontendFileDiff } from "../../tests/support/frontendStoryReview.ts";
+import { showLatestRevision } from "../../tests/intentReadRecoveryPage.ts";
 // Project refresh preserves a real Done story's selected historical Purpose
 // file and reading place, including its preceding cycle through all Done tabs.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { pausePageClock } from "../autoRefreshJourney.ts";
+import { pausePageClock } from "../../tests/autoRefreshJourney.ts";
 import {
   backToStory,
   openProjectIntent,
   projectIntentLink,
   returnToStory,
   filesColumn,
-} from "../intentModePage.ts";
+} from "../../tests/intentModePage.ts";
 import {
   browserRevision,
   expandIntentGroup,
@@ -19,35 +20,29 @@ import {
   intentReadingScroll,
   revisionNotice,
   scrollIntentReadingHalfway,
-} from "../intentPerspectivePage.ts";
-import { selectCompletedStoryInIntent } from "../support/intentCompletedStory.ts";
-import {
-  advanceDoneProject,
-  recordIntentLocations,
-} from "../support/intentDoneProjectRefresh.ts";
-import { expect, test } from "../support/preparationPage.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
+import { selectDoneStoryInIntent } from "../../tests/support/selectDoneStoryInIntent.ts";
+import { advanceFrontendDoneProject } from "../../tests/support/frontendDoneProjectRefresh.ts";
+import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
+import { recordIntentLocations } from "../../tests/support/intentDoneProjectRefresh.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   chooseStoryTab,
   intentFile,
   storyHeaderReading,
   intentDiffReading,
   readIntentDiff,
-} from "../support/intentStoryPage.ts";
-import { lines } from "../support/storyReviewWorktree.ts";
+} from "../../tests/support/intentStoryPage.ts";
+import { lines } from "../../tests/support/storyReviewWorktree.ts";
 
 test("project refresh returns the same Done historical Purpose file and reading place after cycling all Done tabs", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await pausePageClock(page);
   const longFile = "dashboard/tests/boundary/deep/long.spec.ts";
-  const implementation = makeMe.aRepository
-    .withRevision("story", {
-      backlog: null,
-      files: { [longFile]: lines("historical", 120) },
-    })
-    .please().revisions[0];
   const report =
     "Outcome: Caught\nEvidence: The saved historical assessment.\n";
   const intentCoverage = makeMe.aDoneRecord
@@ -56,11 +51,31 @@ test("project refresh returns the same Done historical Purpose file and reading 
   if (intentCoverage === undefined)
     throw new Error("The completed story fixture needs its saved assessment.");
   const { locations, firstRequested } = recordIntentLocations(page);
-  const { intent, completion, published } = await selectCompletedStoryInIntent(
+  await preholdRevisionStreamSlots(page);
+  const { completion, review } = await prepareFrontendDoneIntent(
     page,
-    origin,
-    { implementation, intentCoverage, interleaved: false },
+    frontendServices,
+    intentCoverage,
+    {
+      files: { [longFile]: lines("historical", 120) },
+      changed: [
+        makeMe.aReviewedFile.with({ kind: "added", path: longFile }).please(),
+      ],
+      locations: [
+        makeMe.anIntentLocation
+          .at("dashboard/tests")
+          .ofKind("typescript", ["**/*.spec.ts"])
+          .selecting(longFile)
+          .please(),
+      ],
+    },
   );
+  review.answerFile(
+    frontendFileDiff(longFile, lines("historical", 120).trimEnd().split("\n")),
+    longFile,
+  );
+  const published = frontendServices.revision;
+  const { intent } = await selectDoneStoryInIntent(page);
   await firstRequested;
   expect(locations).toEqual([completion]);
   await chooseStoryTab(intent, "Changed tests");
@@ -85,15 +100,10 @@ test("project refresh returns the same Done historical Purpose file and reading 
   const revisions = storyHeaderReading(intent).revisions;
   const endpoints = await revisions.innerText();
   expect(endpoints).toContain(completion.slice(0, 7));
-  const later = makeMe.aRepository
-    .withRevision("planning-only", {
-      backlog: null,
-      files: {
-        ".planning/later-planning.md": "A later project planning update.\n",
-      },
-    })
-    .please().revisions[0];
-  const laterRevision = await advanceDoneProject(page, origin, later);
+  const laterRevision = await advanceFrontendDoneProject(
+    page,
+    frontendServices,
+  );
   for (const tab of [
     "CI comparison",
     "Intent coverage",

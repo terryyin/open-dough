@@ -1,16 +1,17 @@
-import { showLatestRevision } from "../intentReadRecoveryPage.ts";
+import { frontendFileDiff } from "../../tests/support/frontendStoryReview.ts";
+import { showLatestRevision } from "../../tests/intentReadRecoveryPage.ts";
 // After project refresh restores a real Done file's ready Purpose, choosing
 // Proof survives a roundtrip to refreshed Project Intent and retains its report.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { pausePageClock } from "../autoRefreshJourney.ts";
+import { pausePageClock } from "../../tests/autoRefreshJourney.ts";
 import {
   backToStory,
   openProjectIntent,
   projectIntentLink,
   returnToStory,
   filesColumn,
-} from "../intentModePage.ts";
+} from "../../tests/intentModePage.ts";
 import {
   browserRevision,
   expandIntentGroup,
@@ -18,34 +19,28 @@ import {
   fileReadingTab,
   proofRegion,
   revisionNotice,
-} from "../intentPerspectivePage.ts";
-import { selectCompletedStoryInIntent } from "../support/intentCompletedStory.ts";
-import {
-  advanceDoneProject,
-  recordIntentLocations,
-} from "../support/intentDoneProjectRefresh.ts";
-import { expect, test } from "../support/preparationPage.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
+import { selectDoneStoryInIntent } from "../../tests/support/selectDoneStoryInIntent.ts";
+import { advanceFrontendDoneProject } from "../../tests/support/frontendDoneProjectRefresh.ts";
+import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
+import { recordIntentLocations } from "../../tests/support/intentDoneProjectRefresh.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   chooseStoryTab,
   intentFile,
   storyHeaderReading,
   intentDiffReading,
-} from "../support/intentStoryPage.ts";
-import { lines } from "../support/storyReviewWorktree.ts";
+} from "../../tests/support/intentStoryPage.ts";
+import { lines } from "../../tests/support/storyReviewWorktree.ts";
 
 test("project refresh restores Done historical Purpose before Proof survives a later Project Intent visit", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await pausePageClock(page);
   const longFile = "dashboard/tests/boundary/deep/long.spec.ts";
-  const implementation = makeMe.aRepository
-    .withRevision("story", {
-      backlog: null,
-      files: { [longFile]: lines("historical", 120) },
-    })
-    .please().revisions[0];
   const report =
     "Outcome: Caught\nEvidence: The saved historical assessment.\n";
   const intentCoverage = makeMe.aDoneRecord
@@ -54,11 +49,31 @@ test("project refresh restores Done historical Purpose before Proof survives a l
   if (intentCoverage === undefined)
     throw new Error("The completed story fixture needs its saved assessment.");
   const { locations, firstRequested } = recordIntentLocations(page);
-  const { intent, completion, published } = await selectCompletedStoryInIntent(
+  await preholdRevisionStreamSlots(page);
+  const { completion, review } = await prepareFrontendDoneIntent(
     page,
-    origin,
-    { implementation, intentCoverage, interleaved: false },
+    frontendServices,
+    intentCoverage,
+    {
+      files: { [longFile]: lines("historical", 120) },
+      changed: [
+        makeMe.aReviewedFile.with({ kind: "added", path: longFile }).please(),
+      ],
+      locations: [
+        makeMe.anIntentLocation
+          .at("dashboard/tests")
+          .ofKind("typescript", ["**/*.spec.ts"])
+          .selecting(longFile)
+          .please(),
+      ],
+    },
   );
+  review.answerFile(
+    frontendFileDiff(longFile, lines("historical", 120).trimEnd().split("\n")),
+    longFile,
+  );
+  const published = frontendServices.revision;
+  const { intent } = await selectDoneStoryInIntent(page);
   await firstRequested;
   expect(locations).toEqual([completion]);
   await chooseStoryTab(intent, "Changed tests");
@@ -81,15 +96,10 @@ test("project refresh restores Done historical Purpose before Proof survives a l
   const revisions = storyHeaderReading(intent).revisions;
   const endpoints = await revisions.innerText();
   expect(endpoints).toContain(completion.slice(0, 7));
-  const later = makeMe.aRepository
-    .withRevision("planning-only", {
-      backlog: null,
-      files: {
-        ".planning/later-planning.md": "A later project planning update.\n",
-      },
-    })
-    .please().revisions[0];
-  const laterRevision = await advanceDoneProject(page, origin, later);
+  const laterRevision = await advanceFrontendDoneProject(
+    page,
+    frontendServices,
+  );
   await openProjectIntent(intent);
   await expect(revisionNotice(intent)).toBeVisible();
   await expect(browserRevision(intent)).toContainText(published.slice(0, 7));

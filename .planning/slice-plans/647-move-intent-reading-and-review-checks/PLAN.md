@@ -45,31 +45,7 @@ across worktrees; reduce concurrency without dropping cases when warranted.
 
 ## Ordered slices
 
-Execution context (2026-11-15): Story Branch Mode, owned execution checkout
-`/Users/terryyin/git/open-dough/.worktrees/move-intent-reading-and-review-checks-out-of-das`,
-branch `codex/move-intent-reading-and-review-checks-out-of-das`; remote `origin`,
-integration target `main`. Established publisher
-`dashboard-territory.local-open-dough`, agent Honoka-chan, starting revision
-`38175824df799c47811f2b00cb8cdb20400edaed`; accepted claim and previously
-published branch base `f8c4841a47719925236f78ff220efe9b0795e4f5`.
-Latest accepted branch revision: `e234257ded1594371583fbaa405216448e14b80d`
-(validated trunk integration, suffix base `32915ab6557dd852d790e7e3ba15bc708b9c7155`,
-the delivered slice3 revision; observation reused the stream below).
-No new claim was made. Checkout-local `npm ci` installed the locked 183 packages;
-the existing Frontend candidate recovery listing passed. Existing planning
-authority is retained; no overrun-replanning option was supplied.
-
-CI observer: GitHub Actions `terryyin/open-dough`, verified `ci.yml` (CI,
-351271804), push target `codex/move-intent-reading-and-review-checks-out-of-das`.
-Codex coordinator `honoka-647`, stream directory `/tmp/dough-ci-501/watch-FxVRIj`,
-PID 29164, session 64448, yielded cell `g429:12`, bound to this checkout.
-The trunk claim is `pendingCi: unobserved`; this stream covers branch delivery.
-
-Expensive-proof decision: this macOS host is awake on AC, load 7.05/8.13/9.20,
-53% memory free; no competing test/build command was observed. Sequence focused
-browser proof with `caffeinate -s -i` and one worker, preserving all cases.
-The implementation agent owns each command to its terminal result and
-reconsiders the decision if contention, failures or workload change.
+Retain the [execution identity, delivery and CI observation](execution-context.md).
 
 Eight cohesive conversion loops replace provisional batches 1–5. Source
 counts/lines below are at `4df4b24298cf313bdbac952a5edd6421345f6f21` and guide
@@ -164,7 +140,7 @@ The covering focused consumer suite has no observation deferred to CI.
 
 ### 5. Preserve Done source, review mode and historical reading
 Type: Behavior
-Status: planned
+Status: done
 Proof: seven specs / 960 lines: `intent-done-landed-review-mode`,
 `intent-done-project-refresh-proof`, `intent-done-project-refresh-reading`,
 `intent-done-review-modes`, `intent-done-source-selection`,
@@ -177,6 +153,12 @@ immutable historical answers, review holds and comparison adapter; extend existi
 needed. Preserve real source/run judgment and exact GitHub no-extra-call
 assertions at Backend/E2E, never by arranging the expected judgment. Split
 mixed assertions into those homes within this one Done-reading proof loop.
+
+Implementation proof: [134 observing occurrences and real boundary proof](slice-5-proof.md),
+[consumer dispositions](slice-5-consumers.md). All seven sources converted in
+14.8 active minutes; strict Frontend25 plus final guard3, real E2E6 and Backend3 passed.
+Independent dead-parameter cleanup passed strict3; added client-wire proof passed strict1.
+All affected consumer paths are disposed, with no required observation deferred to CI.
 
 ### 6. Preserve revision notice and update isolation
 Type: Behavior
@@ -243,3 +225,18 @@ Disposition: proved by slice 3: integration-proof.md; all four exact keyword/str
 Reported: slice 4 — "No structured selection/result artifact was retained for the exact refactor invocation."
 Story clause: "Every distinct assertion remains useful"
 Disposition: proved by slice 4: slice-4-proof.md; coordinator renewed the three affected journeys with the maintained proof recorder, receiving completed strict pass and three passed attempts; all unchanged assertions retain the earlier Frontend16 observation.
+
+### G4. Review answers must distinguish historical identity from live mode
+Reported: slice 5 — "A mutable default live snapshot answered a historical request on perspective return."
+Story clause: "Done historical versus live/captured review modes"
+Disposition: proved by slice 5: slice-5-proof.md; the existing answer family now keys historical snapshots by identity while ordinary requests retain the live default. Whole-app held transitions and real Backend/E2E source judgment passed, with the same loading fault discriminated at old and maintained boundaries.
+
+### G5. Located consumer paths lacked individual dispositions
+Reported: slice 5 — "Acceptance found empty Disposition cells in the raw consumer trace; the grouped table alone did not dispose every located path."
+Story clause: "Every distinct assertion remains useful"
+Disposition: proved by slice 5: slice-5-consumers.md; independent review disposed all 855 original located paths and traced five refactor callers plus 15 additional helper paths. Actual default Review openers, staged text, mark/range and independent state-endpoint readers were inspected; selected Frontend25 observations or precise unchanged/excluded boundaries cover every meaningful consumer.
+
+### G6. Captured-to-live proof must observe the client request
+Reported: slice 5 — "Acceptance found that the default Frontend snapshot could answer live even if the ordinary request forwarded the old captured run; existing E2E covers published-to-live."
+Story clause: "Done historical versus live/captured review modes"
+Disposition: proved by slice 5: slice-5-proof.md; endpoint-only request capture observes the actual ordinary request while held and asserts historical is not true and run is absent. Strict captured-to-live case passed, paired with the real Backend ordinary snapshot/no-selectedRun observation. Captured landing and published-to-live E2E coverage is labeled to its actual boundary.

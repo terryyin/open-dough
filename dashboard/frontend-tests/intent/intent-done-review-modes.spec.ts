@@ -1,50 +1,38 @@
-import { closeSidePanel } from "../sidePanelFrame.ts";
+import { closeSidePanel } from "../../tests/sidePanelFrame.ts";
 // Actual held review answers cannot lend the other comparison mode's snapshot
 // or selected run to Done Intent or to the ordinary Done-card Review.
-import { fileBrowser } from "../support/reviewContextLine.ts";
-import { reviewRegion } from "../support/storyReviewMark.ts";
-import { reviewChanges } from "../storyCardControls.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { parts } from "../dashboardPage.ts";
-import { showColumn } from "../boardPage.ts";
-import { holdNextReviewResponse } from "../support/holdReviewResponse.ts";
-import { readReview } from "../support/launchLandingReview.ts";
-import { expect, test } from "../support/preparationPage.ts";
-import { retainedIntentCompletion } from "../support/retainedIntentCompletion.ts";
-import { selectDoneStoryInIntent } from "../support/selectDoneStoryInIntent.ts";
+import { fileBrowser } from "../../tests/support/reviewContextLine.ts";
+import { reviewRegion } from "../../tests/support/storyReviewMark.ts";
+import { reviewChanges } from "../../tests/storyCardControls.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import { showColumn } from "../../tests/boardPage.ts";
+import { prepareFrontendDoneReview } from "../../tests/support/frontendDoneReview.ts";
+import { frontendFileDiff } from "../../tests/support/frontendStoryReview.ts";
+import { readReview } from "../../tests/support/launchLandingReview.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+
+import { selectDoneStoryInIntent } from "../../tests/support/selectDoneStoryInIntent.ts";
 import {
   chooseStoryTab,
   intentDiff,
   outsideCount,
   reviewDiff,
-} from "../support/intentStoryPage.ts";
+} from "../../tests/support/intentStoryPage.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 
 test("switching the open review between live workspace and Done Intent waits for each mode's own answer", async ({
   page,
-  dashboard,
-  origin,
+  frontendServices,
 }) => {
-  const revisions = makeMe.aRepository
-    .withRevision("implementation", {
-      backlog: null,
-      files: { "dashboard/tests/a.spec.ts": "completed historical test\n" },
-    })
-    .withRevision("local", {
-      backlog: null,
-      files: { "dashboard/tests/a.spec.ts": "retained live local test\n" },
-    })
-    .please().revisions;
-  const implementation = revisions[0];
-  const local = revisions[1];
-  if (local === undefined) throw new Error("Missing revision facts");
-  const { completion } = await retainedIntentCompletion(
+  const {
+    review: answers,
+    published,
+    live,
+  } = await prepareFrontendDoneReview(
     page,
-    dashboard,
-    origin,
-    { implementation, local },
+    frontendServices,
+    "completed historical test",
   );
   const { card, intent } = await selectDoneStoryInIntent(page);
   await chooseStoryTab(intent, "Changed tests");
@@ -52,34 +40,41 @@ test("switching the open review between live workspace and Done Intent waits for
   expect(historicalDiff).toContain("completed historical test");
   await parts(page).development.click();
   await showColumn(page, "Recently done");
-  expect((await readReview(page, card)).kind).toBe("snapshot");
+  answers.answerSnapshot(live);
+  answers.answerFile(
+    frontendFileDiff("dashboard/tests/a.spec.ts", [
+      "+retained live local test",
+    ]),
+    "dashboard/tests/a.spec.ts",
+  );
+  await readReview(page, card);
   expect(await reviewDiff(page, modified)).toContain(
     "retained live local test",
   );
   await parts(page).intentChoice.click();
   const review = reviewRegion(page);
-  const heldHistorical = await holdNextReviewResponse(
-    page,
-    dashboard.origin,
-    storyReviewEndpoint,
+  answers.answerSnapshot(published);
+  answers.answerFile(
+    frontendFileDiff("dashboard/tests/a.spec.ts", [
+      "+completed historical test",
+    ]),
+    "dashboard/tests/a.spec.ts",
   );
+  const heldHistorical = answers.holdNextSnapshot();
   try {
     await outsideCount(intent).click();
-    expect(await (await heldHistorical.ready).json()).toMatchObject({
-      kind: "published",
-      completion,
-    });
+    await heldHistorical.received;
     await expect(review.getByRole("status")).toHaveText(
       "Reading the story's changes…",
     );
     await expect(fileBrowser(review)).toHaveCount(0);
     await expect(review).not.toContainText("retained live local test");
     heldHistorical.release();
-    await heldHistorical.delivery;
+    await heldHistorical.delivered;
     expect(await reviewDiff(page, modified)).toBe(historicalDiff);
   } finally {
     heldHistorical.release();
-    await heldHistorical.delivery;
+    await heldHistorical.delivered;
   }
   await parts(page).development.click();
   await showColumn(page, "Recently done");
@@ -87,29 +82,30 @@ test("switching the open review between live workspace and Done Intent waits for
   // Focus reveals its column using the remounted Board's current width.
   await ordinary.focus();
   await expect(ordinary).toBeInViewport();
-  const heldLive = await holdNextReviewResponse(
-    page,
-    dashboard.origin,
-    storyReviewEndpoint,
+  answers.answerSnapshot(live);
+  answers.answerFile(
+    frontendFileDiff("dashboard/tests/a.spec.ts", [
+      "+retained live local test",
+    ]),
+    "dashboard/tests/a.spec.ts",
   );
+  const heldLive = answers.holdNextSnapshot();
   try {
     await ordinary.click();
-    expect(await (await heldLive.ready).json()).toMatchObject({
-      kind: "snapshot",
-    });
+    await heldLive.received;
     await expect(review.getByRole("status")).toHaveText(
       "Reading the story's changes…",
     );
     await expect(fileBrowser(review)).toHaveCount(0);
     await expect(review).not.toContainText("completed historical test");
     heldLive.release();
-    await heldLive.delivery;
+    await heldLive.delivered;
     expect(await reviewDiff(page, modified)).toContain(
       "retained live local test",
     );
   } finally {
     heldLive.release();
-    await heldLive.delivery;
+    await heldLive.delivered;
   }
   await closeSidePanel(review);
   await expect(ordinary).toBeFocused();

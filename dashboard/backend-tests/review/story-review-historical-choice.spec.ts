@@ -50,6 +50,7 @@ test("historical review recovers published completion instead of a readable work
     ).json(),
   );
   expect(ordinary.kind).toBe("snapshot");
+  expect(ordinary.selectedRun).toBeUndefined();
   const historical = { ...completedReviewQuery, historical: "true" };
   const review = storyReviewSchema.parse(
     await (
