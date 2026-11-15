@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Reduce total model work during blocked execution](seeds/SEED-356-reduce-blocked-execution-effort.md#reduce-total-model-work-during-blocked-execution) — SEED-356#reduce-total-model-work-during-blocked-execution ([plan](slice-plans/627-reduce-blocked-execution-work/PLAN.md))
+- [Move session, terminal, story and observation checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test) — SEED-334#finish-dissolving-integrated-ui-test ([plan](slice-plans/632-finish-dissolving-integrated-ui-test/PLAN.md))
 
 ## Backlog list
 
-- [Move session, terminal, story and observation checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test) — SEED-334#finish-dissolving-integrated-ui-test
 - [Move Intent and navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test) — SEED-334#retire-dashboard-integrated-ui-test
 - [Keep usage task facts and freshness consistent across writers](seeds/SEED-357-dashboard-task-token-usage.md#reuse-unchanged-usage-pages-on-repeated-writes) — SEED-357#reuse-unchanged-usage-pages-on-repeated-writes
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
