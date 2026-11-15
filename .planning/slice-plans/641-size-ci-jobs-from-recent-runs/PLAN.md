@@ -143,6 +143,14 @@ verdict 600-882 s. The wait line covers the runs read; `run_filter` rides the
 one jobs call per run. The real command gave runner wait 2-415 s and verdict
 time 298-802 s over 10 runs.
 
+CI repair (2026-11-15): run 43715261434 at 96e739e failed `Distribution Tests
+(3/3)` over its 926 job-second budget (935.9 at recorded speed; shares
+554/779/1025 s observed). `Distribution/tests/longest-first` was stale with
+26 unrecorded jobs, several native-comparison checks of 30-40 s assumed at
+1.5 s; the new check shifted the bytewise unrecorded deal so they met in
+share 3. The list was refreshed from main run 43712947370; the preview now
+predicts 898-899 job-seconds a share with one unrecorded job.
+
 ### 3. Record the sizing rule and the stay-at-18 decision beside the layout
 Type: Behavior
 Status: planned
