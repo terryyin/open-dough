@@ -129,7 +129,7 @@ scrolling and preservation results each keep an id.
 
 ### 3. Keep qualified results and restrictions under grouping
 Type: Behavior
-Status: planned
+Status: done
 Proof: Fresh pronunciation-source replay, under example 4.
 
 Behavior: Given the pronunciation story whose related clauses include hiding
@@ -209,7 +209,7 @@ None beyond the preparation observations above.
 - Originating/execution checkout: `/Users/terryyin/git/open-dough/.worktrees/record-source-review-evidence-once-per-independe`; owned branch `codex/record-source-review-evidence-once-per-independe`.
 - Default integration checkout: `/Users/terryyin/git/open-dough`; authorized target `origin/main`.
 - Established claim accepted on trunk and execution branch: `7bb9992277410f6b5c3ba8da0b461c3c61939a84`; starting revision `65fcf1bafe89d591f3b387c2cefd361c72f7b510`; initial candidate equals claim.
-- Latest accepted branch revision: `8ac10364f82362f3dac2504304a52645ed661456`; suffix base `7bb9992277410f6b5c3ba8da0b461c3c61939a84`; observer reused. Slice 1 delivery repaired an EOF blank line before its successful commit; semantic proof unchanged.
+- Latest accepted branch revision: `f69a6a4d5c297c9a123cf561d201d84d5c5741e1`; suffix base `8ac10364f82362f3dac2504304a52645ed661456`; observer reused. Slice 1 delivery repaired an EOF blank line before its successful commit; semantic proof unchanged.
 - Setup: locked `npm ci --no-audit --no-fund` and `npm run --silent lint -- --staged` passed in this checkout. Check-only commit hook owns staged lint and dashboard typecheck for scripts. Selective formatter: `npm run format`; prose triggers no generation. Runner needs Bash 5: `PATH="/opt/homebrew/bin:$PATH" npm test -- …`.
 - Replanning: no new overrun permission; retain existing planning authority; changed scope/consequential decisions stop the affected work.
 - CI: GitHub `terryyin/open-dough`, verified `ci.yml` / `CI`, remote execution branch. Codex coordinator `sola-chan-616`; `/tmp/dough-ci-501/watch-hqI9ru`; PID `71264`; session `83233`; yielded cell `g464:11`. Claim trunk CI is unobserved by this branch observer. Retain for every increment/repair.
@@ -239,3 +239,8 @@ None beyond the preparation observations above.
 
 - [Compound replay](replays/compound.md): fresh isolated 43-promise return versus 112 historical rows; source/input/return and complete mapping retained. Copy, paste, scrolling and preservation stay distinct; non-promissory context/proof explanations stay unnumbered. No source correction needed.
 - `records-only` delivery; slice-1 consumer/CLI/payload proof remains applicable without rerun. Early freshness unchanged at claim trunk; no named sibling. Active implementation about 7 minutes. Structural retention checks passed; no semantic gap found.
+
+### Slice 3
+
+- [Pronunciation replay](replays/pronunciation.md): fresh isolated P01–P39; P11 explicitly retains `て` inside `挙げて`, and P18 independently refuses pronunciation membership alone while preserving accepted title/alias overlap. Complete source/launch/input/return and source-section mapping retained; no brief correction needed.
+- `records-only` delivery; earlier consumer/integration proof unchanged. Early freshness unchanged at claim trunk; no named sibling. Source/input/return checks passed; about 8 active minutes; no product or live-notebook operation performed.
