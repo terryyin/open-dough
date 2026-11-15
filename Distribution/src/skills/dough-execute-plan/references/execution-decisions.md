@@ -6,7 +6,7 @@ and when a wait or retry can no longer advance the work.
 ## Reassess before extending work
 
 On entry, resume, and after plan changes, check the [slice limit](../../dough-story-decomposition/references/problem-decomposition.md#limit-slices-per-plan)
-before dispatch. For an over-limit current or proposed plan, [stop or split](finish-or-stop.md#stop-or-split-before-more-work).
+before dispatch. For an over-limit current or proposed plan, [stop or split](#stop-or-split-before-more-work).
 Apply the [active-time limit](oversized-slice.md#track-active-time) before
 dispatch and [handle an overrun](oversized-slice.md#handle-the-overrun) before
 more work.
@@ -17,7 +17,7 @@ proof, or a human decision, hold affected work. Compare the remaining work
 with the smallest authorized outcome worth delivering. Reuse evidence or run a
 [bounded check](disposable-research.md) that can settle the decision. If the
 blocker remains and no independent authorized work can advance the outcome,
-[stop or split](finish-or-stop.md#stop-or-split-before-more-work)
+[stop or split](#stop-or-split-before-more-work)
 before waiting or retrying. Refresh only knowledge the observation invalidates.
 
 When an observation invalidates an assumption for remaining work, identify the
@@ -57,6 +57,19 @@ unrelated cleanup or a broader outcome. If the resulting decision changes story
 scope or conflicts with an Accepted ADR, keep only the affected path stopped
 under the human-judgment and recorded-direction procedures below; do not erase
 the observation or revise the remaining plan around the unresolved dispute.
+
+## Stop or split before more work
+
+Stop the affected attempt. Preserve evidence and park or revert only its
+unfinished changes under the [ownership rules](oversized-slice.md). Honor
+[replanning permission](#choose-replanning-permission)
+and [human-judgment stops](#stop-for-human-judgment).
+When authorized, [split at a safe delivered boundary](../../dough-resplit-story/SKILL.md#split-at-a-delivered-slice-boundary)
+and close the retained outcome through ordinary proof, delivery, CI, review and
+wrap-up. The remainder awaits its own authorized start.
+
+If the split is blocked, keep the Taken entry and delivered history. Record the
+resume condition, close observation as in [finish or stop](finish-or-stop.md) and [report an unfinished stop](other-completion-paths.md).
 
 ## Stop for human judgment
 

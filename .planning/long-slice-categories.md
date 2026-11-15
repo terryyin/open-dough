@@ -94,7 +94,7 @@ these categories.
 Trial a 10–15 minute checkpoint for active work. Continue with new evidence
 toward one outcome and a bounded next action. Give a live wait its own
 evidence deadline. When neither can advance the outcome, apply
-[early stop or split](../Distribution/src/skills/dough-execute-plan/references/finish-or-stop.md#stop-or-split-before-more-work).
+[early stop or split](../Distribution/src/skills/dough-execute-plan/references/execution-decisions.md#stop-or-split-before-more-work).
 
 ## Source data
 

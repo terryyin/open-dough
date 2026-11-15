@@ -172,9 +172,14 @@ green; never deliver a CI-breaking state.
 
 ## Limit slices per plan
 
-A plan holds at most eight slices. Count completed slices and omit replaced
+Set slice boundaries by the rules above, then count. A plan holds at most
+eight slices; a larger count means the story is too large, so resplit the
+story and keep the slice boundaries. Count completed slices and omit replaced
 ones. Apply the limit [before readiness](../../dough-resplit-story/SKILL.md#resplit-before-readiness)
 and [before dispatch](../../dough-execute-plan/references/execution-decisions.md#reassess-before-extending-work).
+During execution, splitting the slice in progress may take the plan, and a
+story split from it at a delivered boundary, to ten slices; no other change
+may exceed eight.
 
 ## Size and escalate slices
 

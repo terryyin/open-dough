@@ -38,7 +38,7 @@ attempt-owned changes and records elapsed time, completed proof, and the
 failed sizing assumption in the same plan. Invoke
 [dough-slice-plan-refinement](../../dough-slice-plan-refinement/SKILL.md) only
 when learning escalation permits it. If refinement cannot produce a bounded
-next slice within the cap, [stop or split](finish-or-stop.md#stop-or-split-before-more-work).
+next slice within the cap, [stop or split](execution-decisions.md#stop-or-split-before-more-work).
 Otherwise the coordinator delivers the revised plan, reports `reverted and refined`
 with elapsed active time, and restarts from the plan on disk.
 

@@ -66,7 +66,7 @@ Without publication authority, select local-only and retain its receipt.
    effects. Reuse confirmed unchanged inspection; accept invalidated proof's rerun
    or replacement under **Accept proof**. A refactor stop, missing marker or
    disposition, contradiction or unresolved proof gap prevents commit. Report
-   unnecessary test runs as deviations; reuse valid evidence.
+   unnecessary test runs as deviations.
 3. Run triggered generation unless refactoring already regenerated and verified
    compatible output. Fix source, regenerate and validate affected consumers.
 4. Run selective formatting directly once, including a planning-only no-op, before

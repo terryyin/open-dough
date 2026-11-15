@@ -148,7 +148,7 @@ execution authority.
 
 Before assessing readiness, apply the [slice limit](../dough-story-decomposition/references/problem-decomposition.md#limit-slices-per-plan)
 even when refinement was deferred. In active execution, return an over-limit
-draft to [stop or split](../dough-execute-plan/references/finish-or-stop.md#stop-or-split-before-more-work).
+draft to [stop or split](../dough-execute-plan/references/execution-decisions.md#stop-or-split-before-more-work).
 In preparation, use a resplit's assessments. For a plan that stays intact,
 record concern evidence and readiness:
 

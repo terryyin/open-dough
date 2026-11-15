@@ -89,7 +89,7 @@ before a conflicting plan edit; classify it as Escalate, not an automatically
 correctable special case. Route other Escalate findings through the input gate.
 Before applying a proposed change during execution, count the resulting slices.
 Route an over-limit proposal and its evidence to the coordinator's
-[stop or split decision](../dough-execute-plan/references/finish-or-stop.md#stop-or-split-before-more-work)
+[stop or split decision](../dough-execute-plan/references/execution-decisions.md#stop-or-split-before-more-work)
 with the active plan intact. Otherwise apply every Consolidate or Split decision.
 
 After an overrun, confirm attempt-owned work is safely parked or reverted before
