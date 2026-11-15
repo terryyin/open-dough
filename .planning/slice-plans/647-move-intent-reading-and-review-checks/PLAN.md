@@ -9,7 +9,7 @@ Preserve every distinct assertion from the 37 non-CI Intent specs at its real
 Frontend, Backend or representative E2E boundary. The seed owns goal, scope and
 key examples. This is preparation only; no conversion slice has executed.
 Keep navigation and runner retirement in [plan 648](../648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md)
-and CI conversion in [plan 633](../633-retire-dashboard-integrated-ui-test/PLAN.md).
+and the remaining CI conversion in [plan 651](../651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md).
 The two `intent-ci-done-*` specs are part of this reading/review outcome.
 No new tier, changed product behavior, E2E rename, tagged-install proof or
 unmeasured timing/shard target. No start-blocking story dependency.

@@ -21,7 +21,7 @@ import {
 // with a newer revision waiting behind its notice, returning home keeps that
 // notice and the shown revision, reading nothing newer.
 // Project Intent's landing journey from an entry, folder and file by click,
-// Enter and Space: ./intent-ci-status-homepage.spec.ts. Opening a candidate's
+// Enter and Space: ../../frontend-tests/intent/intent-ci-status-homepage.spec.ts. Opening a candidate's
 // file: ./intent-test-optimization-candidates-open.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";

@@ -8,7 +8,7 @@ import { attemptLink } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
 // and never on time alone, and which becomes a point once its CI completes
 // and the trunk reading refreshes (SEED-285#see-landed-ci-wall-time-history
 // example 2). The measured point and the empty history are in
-// ../../dashboard/tests/intent/intent-ci-wall-time-history.spec.ts; a landing the publication reports
+// ../../dashboard/frontend-tests/intent/intent-ci-wall-time-history.spec.ts; a landing the publication reports
 // is collected in
 // ../../dashboard/backend-tests/intent/landed-ci-history-collection.spec.ts.
 

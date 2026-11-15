@@ -17,13 +17,22 @@ export function answerAuthenticatedRead(
   const revision = params.get("revision") ?? state.revision;
   const sourceId = params.get("source") ?? "open-dough";
   // A revision check says whether the project moved from the revision the
-  // page shows; its stream says only that it moved, answering as a plain
-  // read until then.
+  // page shows, and where each watched branch arranged in `branchHeads` is;
+  // without arranged heads its stream says only that it moved, answering as
+  // a plain read until then.
   const since = params.get("since");
   const at = params.get(revisionStreamAtParameter);
-  if (since !== null || (at !== null && at !== state.revision)) {
+  const watching = state.branchHeads !== undefined;
+  if (since !== null || (at !== null && (at !== state.revision || watching))) {
     const changed = (since ?? at) !== state.revision;
-    const body = { revision: state.revision, changed, branches: [] };
+    const heads = state.branchHeads;
+    const branches =
+      heads === undefined
+        ? []
+        : params
+            .getAll("watch")
+            .map((branch) => ({ branch, head: heads[branch] ?? null }));
+    const body = { revision: state.revision, changed, branches };
     return { status: 200, body, stream: since === null };
   }
   if (params.get("intent") === "locations") {
@@ -76,6 +85,12 @@ export function answerAuthenticatedRead(
         })),
       },
     };
+  }
+  // Which commit an arranged watched branch names now.
+  const branch = params.get("branch");
+  if (branch !== null && params.get("path") === null && watching) {
+    const head = state.branchHeads?.[branch] ?? null;
+    return { status: 200, body: { revision, branch, head } };
   }
   const filePath = params.get("path");
   if (filePath !== null) {
