@@ -1,7 +1,7 @@
 // Selecting a retained ad hoc Recently done sessions row derives its unique
 // published Done story (../../dashboard/src/recentlyDoneSelection.ts) without rewriting
 // the Ad hoc label or request identity. Perspective, Side panel, and Open stay
-// as for story-linked rows (../../dashboard/tests/sessions/recently-done-sessions-select.spec.ts). Absent
+// as for story-linked rows (../../dashboard/frontend-tests/sessions/recently-done-sessions-select.spec.ts). Absent
 // evidence stays standalone. Development reveal of an older Done card lives in
 // ./recently-done-sessions-select-ad-hoc-development.spec.ts.
 import path from "node:path";
@@ -16,7 +16,6 @@ import { showRecentlyDone } from "../../dashboard/tests/recentlyDoneSessionsSide
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import { completedStoryAssociationEndpoint } from "../../dashboard/src/completedStoryAssociation.ts";
 import { retainAdHocCompletedStory } from "../../dashboard/tests/support/adHocCompletedAssociation.ts";
-import { choiceStatus } from "../../dashboard/tests/recentlyDoneSelectionJourney.ts";
 import {
   chooseStoryTab,
   storyTitle,
@@ -143,7 +142,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
       "aria-pressed",
       "true",
     );
-    await expect(choiceStatus(row)).toHaveCount(0);
+    await expect(shown.choiceStatus(sessionTitle)).toHaveCount(0);
     await expectProjectChoice(page, "Open Dough");
     await expect(intentChoice).toBeChecked();
     await expect(intent).toHaveAttribute(
@@ -154,7 +153,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
       timeout: 30_000,
     });
     await expect(row).toHaveClass(/\bchosen\b/);
-    await expect(choiceStatus(row)).toHaveCount(0);
+    await expect(shown.choiceStatus(sessionTitle)).toHaveCount(0);
     await expect(shown.select(sessionTitle)).toHaveAttribute(
       "title",
       /(^|\n)Open Dough · Ad hoc(\n|$)/,

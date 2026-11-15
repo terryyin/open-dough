@@ -3,7 +3,7 @@ import { control as frameControl } from "../sidePanelFrame.ts";
 // the open sidebar's Sessions button, its entries' words, and the header's
 // title, session row, and icon controls read clearly and keep their names,
 // and both fit a narrow and a zoomed window without sideways scrolling. An
-// entry's title is cut by design (../sessions/sessions-sidebar-row.spec.ts), the panel
+// entry's title is cut by design (../../frontend-tests/sessions/sessions-sidebar-row.spec.ts), the panel
 // header title truncates by design with disclosure (./SidePanelTitle.tsx), and
 // the terminal's own screen is its contents, not this look's. The page's own
 // dashboard server attaches the synthetic `claude` (./fixtures/fake-claude).

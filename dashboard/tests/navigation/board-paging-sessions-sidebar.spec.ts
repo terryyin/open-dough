@@ -2,7 +2,7 @@
 // Column shows that column, then brings the card into view as it does in a
 // shown one, and the Board reaches the Column's whole length again. That a
 // choice shows a local Taken entry hidden the same way
-// is ../sessions/sessions-sidebar-navigation-cases.spec.ts and
+// is ../../../e2e/sessions/sessions-sidebar-navigation-cases.spec.ts and
 // ../../frontend-tests/sessions/agent-launch-ad-hoc-sessions.spec.ts; how focus shows a hidden column is
 // ./board-paging.spec.ts.
 

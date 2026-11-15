@@ -1,5 +1,5 @@
-// Default substitute answers for frontend-only app journeys: projects,
-// backlog, files, machine, and host status the page reads on open.
+// Mutable substitute answers a frontend-only journey holds: projects,
+// revision, backlog, files, machine and host status, with put helpers.
 
 import type { IntentCandidatesAnswer } from "../../server/intentCandidatesRead.ts";
 import type { IntentLocationsAnswer } from "../../server/intentLocationsRead.ts";
@@ -13,136 +13,39 @@ import {
 } from "../../src/commandOptions.ts";
 import type { HostStatus } from "../../src/hostStatus.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
-import { backlogApart, describedRevision } from "../describedRevisions.ts";
-import {
-  notRefinedIdentity,
-  notRefinedStory,
-  readyIdentity,
-  readyStory,
-  takenIdentity,
-  takenStory,
-} from "../launchJourney.ts";
-import { openDough, openDoughSettings } from "../intentCodeBrowseFixtures.ts";
-import {
-  openDoughCandidatesRecord,
-  testOptimizationCandidatesPath,
-} from "../intentCandidatesFixtures.ts";
+import { openDoughCandidatesRecord } from "../intentCandidatesFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
+import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { describedRevisions } from "../describedRevisions.ts";
 import {
-  readyStoryState,
-  storyPlanPath,
-} from "../../../Distribution/tests/support/queued-repository.mjs";
-import { intentSettingsText } from "./intentSettingsFile.ts";
+  defaultFrontendPublishedFiles,
+  frontendPublishedWith,
+  frontendRevision,
+  openDoughSource,
+  takenBacklogMarkdown,
+  type FrontendStories,
+} from "./frontendPublishedFixtures.ts";
 
-export const frontendRevision = openDough.revision;
+export {
+  doughnutSource,
+  frontendRevision,
+  frontendStoryLaunch,
+  openDoughSource,
+  pygardonSource,
+  takenBacklogMarkdown,
+  type FrontendStories,
+} from "./frontendPublishedFixtures.ts";
 
-export const openDoughSource: PublishedSource = makeMe.aPublishedSource
-  .with({
-    id: "open-dough",
-    label: "Open Dough",
-    repository: openDough.repository,
-    ref: openDough.ref,
-  })
-  .please();
-
-export const doughnutSource: PublishedSource = makeMe.aPublishedSource
-  .with({
-    id: "doughnut",
-    label: "Doughnut",
-    repository: "nerds-odd-e/doughnut",
-  })
-  .please();
-
-const story = (title: string, identity: string, href: string) =>
-  makeMe.aBacklogEntry.with({ identity, title, href }).please();
-
-const taken = story(takenStory, takenIdentity, "seeds/SEED-A-taken.md#a");
-const ready = story(readyStory, readyIdentity, "seeds/SEED-B-ready.md#b");
-
-// Where the project lists its three stories, unless stated: the Taken story
-// Taken and the others queued. `notRefinedTitle` retitles the not-refined
-// queued story; `taken` names the stories Taken, by title, the rest staying
-// queued in order; `preparing` names the queued story an agent announced
-// preparing.
-export type FrontendStories = {
-  readonly notRefinedTitle?: string;
-  readonly taken?: readonly string[];
-  readonly preparing?: string;
+// Per-source done catalog and record bodies for Recently done selection.
+export type FrontendDonePublication = {
+  // Catalog JSON text, a gap string, or an HTTP refusal.
+  readonly catalog?:
+    | string
+    | { readonly gap: string }
+    | { readonly status: number; readonly error: string };
+  // Done record file name → published text.
+  readonly bodies?: Readonly<Record<string, string>>;
 };
-
-// The project the page reads on open: the stories with their seeds, a
-// direction, Intent settings, and test-optimization candidates. The Ready
-// story's seed and plan record its assessment as Ready, so its card reads
-// Ready for execution.
-function frontendPublishedWith({
-  notRefinedTitle = notRefinedStory,
-  taken: takenTitles = [takenStory],
-  preparing,
-}: FrontendStories = {}) {
-  const notRefined = story(
-    notRefinedTitle,
-    notRefinedIdentity,
-    "seeds/SEED-C-queued.md#c",
-  );
-  const stories = [taken, ready, notRefined];
-  const isTaken = (entry: { readonly title: string }) =>
-    takenTitles.includes(entry.title);
-  const prepared = stories.find((entry) => entry.title === preparing);
-  return backlogApart(
-    describedRevision(
-      makeMe.aRepository
-        .withRevision("frontend", {
-          backlog: {
-            direction: "Frontend substitute direction.",
-            taken: stories.filter(isTaken),
-            queued: stories.filter((entry) => !isTaken(entry)),
-          },
-          files: {
-            [testOptimizationCandidatesPath]: openDoughCandidatesRecord,
-            ".planning/open-dough.json": intentSettingsText(openDoughSettings),
-            ".planning/seeds/SEED-A-taken.md": `# Taken
-
-${renderStorySection(taken)}`,
-            ".planning/seeds/SEED-B-ready.md": `# Ready
-
-${renderStorySection(ready, { goal: "Ready goal." })}`,
-            ".planning/seeds/SEED-C-queued.md": `# Queued
-
-${renderStorySection(notRefined)}`,
-            [`.planning/${storyPlanPath(ready)}`]: `# ${readyStory} plan\n`,
-          },
-          storyStates: [readyStoryState(ready)],
-          agentProfiles:
-            prepared === undefined
-              ? []
-              : [
-                  makeMe.anAgentProfile
-                    .preparing({ name: "Yui", identity: prepared.identity })
-                    .please(),
-                ],
-        })
-        .please(),
-      frontendRevision,
-    ),
-  );
-}
-
-const frontendPublished = frontendPublishedWith();
-
-export const takenBacklogMarkdown = frontendPublished.backlog;
-
-// A kept launch of `workflow` for the project's story titled `title`, the
-// not-refined story unless the title is the Taken or Ready story's.
-export function frontendStoryLaunch(
-  workflow: "executing" | "refining",
-  title: string,
-) {
-  const identity =
-    [taken, ready].find((entry) => entry.title === title)?.identity ??
-    notRefinedIdentity;
-  return makeMe.aLaunchRecord[workflow]({ identity, title });
-}
 
 export type FrontendServiceState = {
   projects: PublishedSource[];
@@ -154,6 +57,8 @@ export type FrontendServiceState = {
   // Undefined while the machine's sessions are unread, as hostStatus.
   machine: MachineAnswer | undefined;
   hostStatus: HostStatus | undefined;
+  // Done catalogs and bodies keyed by published source id.
+  doneBySource: Record<string, FrontendDonePublication>;
 };
 
 export function defaultFrontendServiceState(
@@ -167,7 +72,7 @@ export function defaultFrontendServiceState(
     projects: [...(options.projects ?? [openDoughSource])],
     revision: frontendRevision,
     backlog: options.backlog ?? takenBacklogMarkdown,
-    files: { ...frontendPublished.files },
+    files: defaultFrontendPublishedFiles(),
     locations: {
       revision: frontendRevision,
       locations: [
@@ -187,7 +92,47 @@ export function defaultFrontendServiceState(
     hostStatus: makeMe.aHostStatus
       .with({ cpuPercent: 12, freeBytes: 64_000_000_000 })
       .please(),
+    doneBySource: {},
   };
+}
+
+// Arranges the done catalog and bodies one source's authenticated reads answer.
+export function putFrontendDonePublication(
+  services: FrontendServiceState,
+  sourceId: string,
+  done: FrontendDonePublication,
+): void {
+  Object.assign(services, {
+    doneBySource: { ...services.doneBySource, [sourceId]: done },
+  });
+}
+
+// Publishes readable done records for one source from their builder values.
+export function putFrontendDoneRecords(
+  services: FrontendServiceState,
+  sourceId: string,
+  records: readonly ReturnType<
+    ReturnType<typeof makeMe.aDoneRecord.with>["please"]
+  >[],
+): void {
+  const { done } = describedRevisions(
+    makeMe.aRepository
+      .withRevision("done", { doneRecords: [...records] })
+      .please(),
+    { done: services.revision },
+  );
+  const catalog = done.files[".planning/done/.catalog.json"];
+  if (catalog === undefined) {
+    throw new Error(`Expected ${sourceId} done catalog.`);
+  }
+  const bodies: Record<string, string> = {};
+  for (const record of records) {
+    const fileName = doneRecordFileName(record.identity);
+    const body = done.files[`.planning/done/${fileName}`];
+    if (body === undefined) throw new Error(`Missing done body ${fileName}`);
+    bodies[fileName] = body;
+  }
+  putFrontendDonePublication(services, sourceId, { catalog, bodies });
 }
 
 // Mutates substitute answers in place; Object.assign keeps no-param-reassign clean.
@@ -210,21 +155,6 @@ export function machineOffering(definition: OptionsDefinition): MachineAnswer {
   return makeMe.aMachineAnswer.offering(offered).please();
 }
 
-// The project as published with its stories listed as `stories` says, at
-// `revision`.
-export function putFrontendStories(
-  services: FrontendServiceState,
-  stories: FrontendStories,
-  revision = services.revision,
-): void {
-  const published = frontendPublishedWith(stories);
-  Object.assign(services, {
-    revision,
-    backlog: published.backlog,
-    files: { ...published.files },
-  });
-}
-
 export function putFrontendHostStatus(
   services: FrontendServiceState,
   hostStatus: HostStatus | undefined,
@@ -237,4 +167,35 @@ export function putFrontendCandidates(
   candidates: IntentCandidatesAnswer,
 ): void {
   Object.assign(services, { candidates });
+}
+
+// The project as published with its stories listed as `stories` says, at
+// `revision`.
+export function putFrontendStories(
+  services: FrontendServiceState,
+  stories: FrontendStories,
+  revision = services.revision,
+): void {
+  const published = frontendPublishedWith(stories);
+  putFrontendPublished(services, {
+    revision,
+    backlog: published.backlog,
+    files: published.files,
+  });
+}
+
+// Arranges one published revision's backlog and files as substitute answers.
+export function putFrontendPublished(
+  services: FrontendServiceState,
+  published: {
+    readonly revision: string;
+    readonly backlog: string;
+    readonly files: Record<string, string>;
+  },
+): void {
+  Object.assign(services, {
+    revision: published.revision,
+    backlog: published.backlog,
+    files: { ...published.files },
+  });
 }

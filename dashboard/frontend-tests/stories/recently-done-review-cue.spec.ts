@@ -1,0 +1,63 @@
+// A developer scanning Recently done can distinguish the outstanding review
+// action from a reviewed story in either appearance, before selecting a card.
+
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import {
+  openFrontendBoardReview,
+  storyA,
+  storyB,
+} from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
+import {
+  doneCard,
+  expectQuietReviewed,
+  expectReviewed,
+  expectReviewWarning,
+  markAsReviewed,
+  reviewedButton,
+  unreviewStory,
+} from "../../tests/recentlyDoneReviewState.ts";
+import {
+  expectFocusReadable,
+  setColorScheme,
+} from "../../tests/systemAppearanceReading.ts";
+
+for (const appearance of [
+  {
+    scheme: "light",
+    background: "rgb(155, 28, 28)",
+    foreground: "rgb(255, 255, 255)",
+    quiet: "rgb(85, 85, 79)",
+    surface: "rgb(255, 255, 255)",
+  },
+  {
+    scheme: "dark",
+    background: "rgb(240, 168, 168)",
+    foreground: "rgb(42, 16, 16)",
+    quiet: "rgb(176, 189, 210)",
+    surface: "rgb(25, 33, 48)",
+  },
+] as const) {
+  test(`an outstanding review is a readable red action beside quiet Reviewed in ${appearance.scheme} appearance`, async ({
+    page,
+    frontendServices,
+  }) => {
+    await setColorScheme(page, appearance.scheme);
+    await openFrontendBoardReview(page, frontendServices);
+    const a = doneCard(page, storyA.title);
+    const b = doneCard(page, storyB.title);
+    await markAsReviewed(b).click();
+    await expectQuietReviewed(b, appearance.quiet, appearance.surface);
+    await expectReviewWarning(a, appearance);
+
+    await reviewedButton(b).press("Tab");
+    await expectFocusReadable(page, markAsReviewed(a));
+    await markAsReviewed(a).press("Enter");
+    await expectQuietReviewed(a, appearance.quiet, appearance.surface);
+    await expect(reviewedButton(a)).toBeFocused();
+    await unreviewStory(a, "Unreview this story?", "keyboard");
+    await expectReviewed(a, false);
+    await expectReviewWarning(a, appearance);
+    await expect(markAsReviewed(a)).toBeFocused();
+    await expectQuietReviewed(b, appearance.quiet, appearance.surface);
+  });
+}

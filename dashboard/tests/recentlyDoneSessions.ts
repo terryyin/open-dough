@@ -1,8 +1,10 @@
 // What this machine keeps for the Recently done journeys
-// (recently-done-stories.spec.ts and recently-done-story-sessions.spec.ts):
-// session records of an ad hoc session and of the queued story, and, for the
-// done cards' sessions, of done stories, each listed by the synthetic `claude`
-// and launched at the times ./recentlyDoneRecords.ts places them.
+// (e2e/stories/recently-done-stories.spec.ts,
+// frontend-tests/sessions/recently-done-story-sessions.spec.ts, and
+// e2e/sessions/recently-done-story-sessions-expired.spec.ts): session records
+// of an ad hoc session and of the queued story, and, for the done cards'
+// sessions, of done stories, each listed by the synthetic `claude` and launched
+// at the times ./recentlyDoneRecords.ts places them.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import {

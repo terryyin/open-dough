@@ -1,8 +1,10 @@
 // The Recently done journeys' view of the column
-// (../../e2e/stories/recently-done-stories.spec.ts, ./sessions/recently-done-story-sessions.spec.ts):
-// the names of the sessions outside any done story, those sessions as the
-// synthetic `claude` lists them, the column's own entries in order, and its
-// two range actions. Its count is `columnCountOf` (./dashboardParts.ts).
+// (../../e2e/stories/recently-done-stories.spec.ts,
+// ../frontend-tests/sessions/recently-done-story-sessions.spec.ts,
+// ../../e2e/sessions/recently-done-story-sessions-expired.spec.ts): the names of
+// the sessions outside any done story, those sessions as the synthetic `claude`
+// lists them, the column's own entries in order, and its two range actions. Its
+// count is `columnCountOf` (./dashboardParts.ts).
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";

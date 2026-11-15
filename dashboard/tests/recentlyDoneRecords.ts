@@ -1,8 +1,9 @@
-// What the Recently done journeys (recently-done-stories.spec.ts and
-// recently-done-story-sessions.spec.ts) publish: a backlog with one queued
-// story, and done records beside it at times before the journey starts, with
-// the done catalog completion publishes beside them. What this machine keeps
-// for them is ./recentlyDoneSessions.ts.
+// What the Recently done journeys (e2e/stories/recently-done-stories.spec.ts,
+// frontend-tests/sessions/recently-done-story-sessions.spec.ts, and
+// e2e/sessions/recently-done-story-sessions-expired.spec.ts) publish: a backlog
+// with one queued story, and done records beside it at times before the journey
+// starts, with the done catalog completion publishes beside them. What this
+// machine keeps for them is ./recentlyDoneSessions.ts.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { RevisionFacts } from "../../Distribution/tests/support/repositoryTestData.mjs";
 import { catalogFile } from "../../Distribution/tests/support/revision-done-catalog.mjs";
@@ -137,6 +138,12 @@ const lastWeekRecord = (now: number) =>
     })
     .please();
 
+// Done records for story-card nesting journeys: today's cards plus last week's.
+export const recentlyDoneNestingRecords = (now: number) => [
+  ...doneRecords(now),
+  lastWeekRecord(now),
+];
+
 // Not a done record by its name, so never read.
 const notARecord = { [`${doneDirectory}/README.md`]: "Not a done record.\n" };
 
@@ -166,7 +173,7 @@ export const doneRecordFiles = (now: number) =>
 
 // The done records, with the story done last week's beside them.
 export const withLastWeekRecord = (now: number): RevisionFacts => ({
-  doneRecords: [...doneRecords(now), lastWeekRecord(now)],
+  doneRecords: recentlyDoneNestingRecords(now),
   files: notARecord,
 });
 

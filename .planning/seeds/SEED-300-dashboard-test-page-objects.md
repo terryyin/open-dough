@@ -212,9 +212,10 @@ North Star direction needs no addition for this test-side change.
   in every group; trace and run them per group
   ([groups](../../dashboard/tests/README.md),
   [CI shards](../../dashboard/tests/shards.md)). The queued
-  [SEED-334#finish-dissolving-integrated-ui-test](SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test)
-  converts the interim group's remaining specs and touches the same files; coordinate
-  with it rather than migrating a spec it is moving.
+  SEED-334#finish-dissolving-integrated-ui-test (spent) emptied the interim
+  session/terminal/review/story/observation folders; coordinate remaining
+  page-object work with SEED-334#retire-dashboard-integrated-ui-test for
+  Intent/navigation rather than migrating specs that story is moving.
 
 <a id="express-launch-test-intent-through-page-objects"></a>
 

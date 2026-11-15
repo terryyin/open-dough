@@ -15,9 +15,9 @@ The launch boundary specs (`agent-launch-boundary.spec.ts`,
 `agent-launch-recent-sessions.spec.ts`,
 `agent-launch-session-state-pace.spec.ts`,
 `agent-launch-attention.spec.ts`, `agent-launch-attention-taken.spec.ts`, `sessions-sidebar.spec.ts`,
-`sessions-sidebar-reading.spec.ts`, `sessions-sidebar-row.spec.ts`, `sessions-sidebar-stays-as-left.spec.ts`,
+`sessions-sidebar-reading.spec.ts`, `sessions-sidebar-stays-as-left.spec.ts`,
 `sessions-sidebar-keyboard.spec.ts`, `sessions-sidebar-navigation.spec.ts`,
-and `sessions-sidebar-navigation-cases.spec.ts`, which name
+and `sessions-sidebar-navigation-cases.spec.ts` under `e2e/sessions/` (row/order/state-edge are Frontend), which name
 their folders and launch wait through the `projectFolders` and `launchTimeoutMs` options of
 `dashboardTest.ts`) drive a synthetic `claude`
 (`fixtures/fake-claude`, `support/fakeClaude.ts`) that every server puts first

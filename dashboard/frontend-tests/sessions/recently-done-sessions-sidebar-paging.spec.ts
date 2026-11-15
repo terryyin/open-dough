@@ -1,0 +1,248 @@
+// Progressive range in Recently done sessions against controlled machine
+// answers: scroll reveals older Done entries in batches of 20; refresh
+// reconciles by identity and completion order; reload starts at 20 again.
+// Board isolation of detail reads:
+// ../../../e2e/sessions/recently-done-sessions-sidebar-paging-board.spec.ts.
+import {
+  agentLaunchEndpoint,
+  recentlyDoneSessionsInitialLimit,
+  type LaunchRecord,
+} from "../../src/agentLaunch.ts";
+import {
+  expectProjectChoice,
+  chooseProject,
+  standaloneSessionName,
+  parts,
+} from "../../tests/dashboardPage.ts";
+import { pausePageClockAt } from "../../tests/dashboardTest.ts";
+import { terminalPanel } from "../../tests/terminalScreenPage.ts";
+import {
+  fortyFiveDoneSessions,
+  preferShortRecentlyDoneBody,
+  revealRecentlyDoneThrough,
+} from "../../tests/recentlyDoneSessionsSidebarPaging.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  expectRecentlyDone,
+  recentlyDoneHeightKey,
+  showRecentlyDone,
+} from "../../tests/recentlyDoneSessionsSidebarPage.ts";
+import { wheelToEnd } from "../../tests/runningCursorSessionsPage.ts";
+import { watchRecordReads } from "../../tests/sessionStatePace.ts";
+import {
+  expectSessionsSidebar,
+  openSessionsSidebar,
+} from "../../tests/sessionsSidebarPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { fulfillJson } from "../../tests/support/frontendSubstituteAnswers.ts";
+import {
+  observedDone,
+  openFrontendThreeProjects,
+  putFrontendObservedLaunches,
+} from "../../tests/support/frontendRecentlyDoneSidebar.ts";
+
+const observeAll = (
+  services: Parameters<typeof putFrontendObservedLaunches>[0],
+  records: readonly LaunchRecord[],
+) => {
+  putFrontendObservedLaunches(
+    services,
+    ...records.map((record) => observedDone(record, "unavailable")),
+  );
+};
+
+test("scrolling Recently done reaches all 45 retained sessions and refresh keeps the reached older range", async ({
+  page,
+  frontendServices,
+}) => {
+  const opened = new Date("2026-10-28T12:00:00.000Z");
+  await pausePageClockAt(page, opened);
+  const { passOnePace } = await watchRecordReads(page);
+  const now = opened.getTime();
+  const { titles, records } = fortyFiveDoneSessions(now);
+  await preferShortRecentlyDoneBody(page, recentlyDoneHeightKey);
+  observeAll(frontendServices, records);
+  await openFrontendThreeProjects(page, frontendServices);
+  const shown = await showRecentlyDone(page);
+  const titlesOf = () => shown.titles.allTextContents();
+
+  await test.step("first expansion shows the newest 20 only", async () => {
+    await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);
+    expect(await titlesOf()).toEqual(
+      titles.slice(0, recentlyDoneSessionsInitialLimit),
+    );
+  });
+
+  await test.step("equal completion times keep deterministic session-identity order", async () => {
+    const tiedEarlier = records[4];
+    const tiedLater = records[5];
+    const title05 = titles[4];
+    const title06 = titles[5];
+    if (
+      tiedEarlier === undefined ||
+      tiedLater === undefined ||
+      title05 === undefined ||
+      title06 === undefined
+    ) {
+      throw new Error("Expected tied Done session 05 and 06 in the fixture");
+    }
+    expect(tiedEarlier.doneAt).toBe(tiedLater.doneAt);
+    expect(tiedEarlier.session.sessionId).toBe("done-05");
+    expect(tiedLater.session.sessionId).toBe("done-06");
+    const shownTitles = await titlesOf();
+    expect(shownTitles.indexOf(title05)).toBeLessThan(
+      shownTitles.indexOf(title06),
+    );
+    expect(shownTitles.slice(4, 6)).toEqual([title05, title06]);
+  });
+
+  await test.step("scrolling this section reveals 40, then all 45; a further scroll is inert", async () => {
+    await revealRecentlyDoneThrough(shown, 40);
+    await expect(shown.entries).toHaveCount(40);
+    expect(await titlesOf()).toEqual(titles.slice(0, 40));
+    await revealRecentlyDoneThrough(shown, 45);
+    await expect(shown.entries).toHaveCount(45);
+    expect(await titlesOf()).toEqual([...titles]);
+    await wheelToEnd(page, shown.body);
+    await expect(shown.entries).toHaveCount(45);
+    expect(await titlesOf()).toEqual([...titles]);
+  });
+
+  await test.step("scrolling the open list does not change Recently done's range", async () => {
+    const before = await titlesOf();
+    await wheelToEnd(page, shown.list);
+    expect(await titlesOf()).toEqual(before);
+  });
+
+  await test.step("collapse, hide, and project change keep the reached range", async () => {
+    await shown.header.click();
+    await expectRecentlyDone(shown, "collapsed");
+    await shown.header.click();
+    await expect(shown.entries).toHaveCount(45);
+    await shown.button.click();
+    await expectSessionsSidebar(page, "closed");
+    await shown.button.click();
+    await expect(shown.entries).toHaveCount(45);
+    await chooseProject(page, "Doughnut");
+    await expectProjectChoice(page, "Doughnut");
+    await expect(shown.entries).toHaveCount(45);
+    await chooseProject(page, "Pygardon");
+    await expectProjectChoice(page, "Pygardon");
+  });
+
+  const olderCrossProject = titles[40] ?? "";
+  expect(olderCrossProject).not.toBe("");
+  await test.step("choosing an older cross-project session selects it and brings its Board entry into view in its project", async () => {
+    await shown.select(olderCrossProject).click();
+    await expect(shown.select(olderCrossProject)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expectProjectChoice(page, "Doughnut");
+    await expect(
+      parts(page).recentlyDone.getByRole("article", {
+        name: standaloneSessionName("Ad hoc", olderCrossProject),
+      }),
+    ).toBeInViewport();
+    await expect(terminalPanel(page)).toHaveCount(0);
+    await expect(shown.entries).toHaveCount(45);
+  });
+
+  const removedTitle = titles[24] ?? "";
+  const keptOlder = titles[39] ?? "";
+  const oldestReached = titles[44] ?? "";
+  expect(removedTitle).not.toBe("");
+  expect(keptOlder).not.toBe("");
+  expect(oldestReached).not.toBe("");
+  await test.step("refresh admits a new completion and drops a removed identity without losing older reached entries", async () => {
+    const newTitle = "Brand new completion";
+    const newer: LaunchRecord = makeMe.aLaunchRecord
+      .adHoc({ instruction: newTitle, title: newTitle, source: "doughnut" })
+      .inClaudeSession({ sessionId: "done-new" })
+      .launchedAt(new Date(now - 90_000).toISOString())
+      .markedDoneAt(new Date(now - 30_000).toISOString())
+      .please();
+    const withoutRemoved = records.filter(
+      (record) => record.request.title !== removedTitle,
+    );
+    await shown.select(removedTitle).focus();
+    await expect(shown.select(removedTitle)).toBeFocused();
+    observeAll(frontendServices, [newer, ...withoutRemoved]);
+    await passOnePace();
+
+    const shownTitles = await titlesOf();
+    expect(shownTitles[0]).toBe(newTitle);
+    expect(shownTitles).not.toContain(removedTitle);
+    expect(shownTitles).toContain(keptOlder);
+    expect(shownTitles).toContain(oldestReached);
+    expect(new Set(shownTitles).size).toBe(shownTitles.length);
+    expect(shownTitles).toHaveLength(45);
+    const focused = page.locator(":focus");
+    await expect(focused).toBeVisible();
+    await expect(shown.select(removedTitle)).toHaveCount(0);
+    await expect(focused).not.toHaveText(removedTitle);
+  });
+
+  await test.step("reload restores the initial newest-20 range", async () => {
+    await page.reload();
+    await chooseProject(page, "Pygardon");
+    await openSessionsSidebar(page);
+    await expectRecentlyDone(shown, "collapsed");
+    await shown.header.click();
+    await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);
+  });
+});
+
+test("delayed first session read and a failed refresh keep existing read semantics", async ({
+  page,
+  frontendServices,
+}) => {
+  const opened = new Date("2026-10-28T12:00:00.000Z");
+  await pausePageClockAt(page, opened);
+  const { passOnePace } = await watchRecordReads(page);
+  const { records, titles } = fortyFiveDoneSessions(opened.getTime());
+  await preferShortRecentlyDoneBody(page, recentlyDoneHeightKey);
+  observeAll(frontendServices, records);
+  let releaseFirst = () => {};
+  const firstHeld = new Promise<void>((resolve) => {
+    releaseFirst = resolve;
+  });
+  await page.route(
+    (url) => url.pathname === agentLaunchEndpoint,
+    async (route) => {
+      if (route.request().method() !== "GET") {
+        await fulfillJson(route, { error: "Not used in frontend tests." }, 405);
+        return;
+      }
+      await firstHeld;
+      if (frontendServices.machine === undefined) {
+        await fulfillJson(route, { error: "Ask again." }, 503);
+        return;
+      }
+      await fulfillJson(route, frontendServices.machine);
+    },
+  );
+  await openFrontendThreeProjects(page, frontendServices);
+  const shown = await showRecentlyDone(page);
+  await expect(shown.body).toContainText("Reading sessions…");
+  await expect(shown.entries).toHaveCount(0);
+  releaseFirst();
+  await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);
+  expect(await shown.titles.allTextContents()).toEqual(
+    titles.slice(0, recentlyDoneSessionsInitialLimit),
+  );
+
+  await revealRecentlyDoneThrough(shown, 40);
+  await page.route(
+    (url) => url.pathname === agentLaunchEndpoint,
+    async (route) => {
+      await (route.request().method() === "GET"
+        ? route.abort("connectionrefused")
+        : route.continue());
+    },
+  );
+  putFrontendObservedLaunches(frontendServices);
+  await passOnePace();
+  await expect(shown.entries).toHaveCount(40);
+  await expect(shown.body).not.toContainText("No sessions marked done");
+});

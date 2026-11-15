@@ -6,8 +6,8 @@
 // page opens), and the page's requests are answered before the route is
 // taken: none of the rows' own reads is then mistaken for one the next action
 // sent. Used by ./pygardonCatalogReads.ts,
-// ./sessions/recently-done-sessions-select-ad-hoc-check.spec.ts and
-// ./sessions/recently-done-sessions-select-check.spec.ts.
+// frontend-tests/sessions/recently-done-sessions-select-ad-hoc-check.spec.ts and
+// frontend-tests/sessions/recently-done-sessions-select-check.spec.ts.
 
 import type { Page, Route } from "@playwright/test";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";

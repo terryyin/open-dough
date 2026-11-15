@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-334#finish-dissolving-integrated-ui-test",
+  "title": "Move session, terminal, story and observation checks out of Dashboard Integrated UI Test",
+  "completedAt": "2026-11-15T12:44:25.430Z",
+  "developer": "Terry Yin",
+  "agent": "bas-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "# Dough Intent Coverage\n\n**Verdict:** Caught\n\n**Story:** SEED-334#finish-dissolving-integrated-ui-test\n\n**Checked revision:** bfd4e7815dd590d5988ed42aa069abf5ade3e72c\n\n**Promise checked:** Every distinct regression assertion the interim cases provided keeps a home that catches the same regression after conversion.\n\n**Maintained check:** e2e/observation/steady-refresh.spec.ts — reading-banner toHaveText\n\n**Next proof action:** None for this promise on this path.\n\n**Wrap-up disposition:** checked revision bfd4e7815dd590d5988ed42aa069abf5ade3e72c; verdict Caught; no follow-up.\n"
+  }
+}

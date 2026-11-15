@@ -1,0 +1,210 @@
+import { test, expect } from "../../dashboard/tests/support/voiceTest.ts";
+import { voiceBrowserOptions } from "../../dashboard/tests/support/voiceRecovery.ts";
+import {
+  closeTerminal,
+  expectTerminalInputFocused,
+  expectTerminalText,
+  focusTerminalInput,
+  insertTerminalText,
+  pressTerminalKey,
+} from "../../dashboard/tests/terminalScreenPage.ts";
+import {
+  observeMicrophone,
+  seedVoiceKey,
+  stoppedTracks,
+  voiceKey,
+  holdMicrophonePermission,
+  holdCompletedVoiceResponse,
+} from "../../dashboard/tests/support/voicePage.ts";
+import {
+  beginTerminalClip,
+  chooseTerminalDictation,
+  expectTerminalDictationAvailable,
+  expectVoiceStatusEmpty,
+  expectVoiceStatusText,
+  openTerminalVoice,
+  stopTerminalClip,
+  voiceAlert,
+  voiceSettingsControl,
+} from "../../dashboard/tests/support/terminalVoicePage.ts";
+import { noteTerminalTraffic } from "../../dashboard/tests/touchTerminalPage.ts";
+import { briefDoneRenameWait } from "../../dashboard/tests/support/markDone.ts";
+import { instructionProblems } from "../../dashboard/src/instructionTranscription.ts";
+
+test.use(voiceBrowserOptions);
+test.beforeEach(async ({ page }) => {
+  await observeMicrophone(page);
+});
+
+test("terminal failures announce safe guidance, preserve ordinary typing and require an explicit successful retry", async ({
+  page,
+  dashboard,
+  provider,
+  launchJourney,
+}) => {
+  const { sent } = noteTerminalTraffic(page);
+  const { panel, open } = await openTerminalVoice(
+    page,
+    dashboard,
+    launchJourney,
+  );
+  await chooseTerminalDictation(panel);
+  await expect(voiceAlert(panel)).toContainText("Configure an OpenAI API key");
+  await expect(voiceSettingsControl(panel)).toBeVisible();
+  seedVoiceKey(dashboard.home);
+  await page.evaluate(() => {
+    navigator.mediaDevices.getUserMedia = () =>
+      Promise.reject(new DOMException("private", "NotAllowedError"));
+  });
+  await chooseTerminalDictation(panel);
+  await expect(voiceAlert(panel)).toHaveText(instructionProblems.permission);
+  await page.evaluate(() => {
+    Object.defineProperty(window, "MediaRecorder", {
+      value: undefined,
+      configurable: true,
+    });
+  });
+  await chooseTerminalDictation(panel);
+  await expect(voiceAlert(panel)).toHaveText(instructionProblems.unavailable);
+  // Reload restores the actual recording API after the unsupported/refusal variants.
+  await page.reload();
+  await open();
+  await expectTerminalText(panel, "Claude Code");
+  provider.setText("\u0003\n\u001b[2J");
+  await beginTerminalClip(page, panel);
+  await stopTerminalClip(page, panel);
+  await expect(voiceAlert(panel)).toHaveText(instructionProblems.empty);
+  provider.reply(500, JSON.stringify({ error: "private-provider-diagnostic" }));
+  await beginTerminalClip(page, panel);
+  await stopTerminalClip(page, panel);
+  await expect(voiceAlert(panel)).toContainText(
+    "Transcription could not finish",
+  );
+  await expectTerminalDictationAvailable(panel, true);
+  await focusTerminalInput(panel);
+  await insertTerminalText(page, "typed ");
+  expect(sent).not.toContain("\u0003\n\u001b[2J");
+  expect(provider.calls).toHaveLength(2);
+  provider.setText("retry");
+  await beginTerminalClip(page, panel);
+  await stopTerminalClip(page, panel);
+  await expectVoiceStatusEmpty(panel);
+  await expectTerminalInputFocused(panel);
+  // Native resize notices can appear between typed text and the transcript.
+  // The submitted line below observes their exact combination.
+  await expectTerminalText(panel, "typed");
+  await expectTerminalText(panel, "retry");
+  await pressTerminalKey(page, "Enter");
+  await expect
+    .poll(() => dashboard.claudeAttaches().at(-1)?.lines)
+    .toEqual(["typed retry"]);
+  expect(await panel.textContent()).not.toContain(voiceKey);
+  expect(await panel.textContent()).not.toContain(
+    "private-provider-diagnostic",
+  );
+});
+
+test("Close releases capture and a late permission grant cannot record into a reopened session", async ({
+  page,
+  dashboard,
+  provider,
+  launchJourney,
+}) => {
+  seedVoiceKey(dashboard.home);
+  const { panel, open } = await openTerminalVoice(
+    page,
+    dashboard,
+    launchJourney,
+  );
+  await beginTerminalClip(page, panel);
+  await closeTerminal(panel);
+  await expect.poll(() => stoppedTracks(page)).toBe(true);
+  await open();
+  const permission = await holdMicrophonePermission(page);
+  await chooseTerminalDictation(panel);
+  await permission.requested();
+  await expectVoiceStatusText(panel, "Waiting for microphone permission…");
+  await expectTerminalDictationAvailable(panel, false);
+  await closeTerminal(panel);
+  await open();
+  await permission.grant();
+  await expect.poll(() => stoppedTracks(page)).toBe(true);
+  await expectVoiceStatusEmpty(panel);
+  expect(provider.calls).toHaveLength(0);
+  expect(dashboard.claudeAttaches().at(-1)?.lines).toEqual([]);
+});
+
+test("switching sessions aborts held transcription and a completed late response cannot enter B or reopened A", async ({
+  page,
+  dashboard,
+  provider,
+  launchJourney,
+}) => {
+  seedVoiceKey(dashboard.home);
+  const { sent } = noteTerminalTraffic(page);
+  const { panel, open } = await openTerminalVoice(
+    page,
+    dashboard,
+    launchJourney,
+  );
+  provider.hold();
+  await beginTerminalClip(page, panel);
+  await stopTerminalClip(page, panel);
+  await expect.poll(() => provider.calls.length).toBe(1);
+  await expectVoiceStatusText(panel, "Transcribing…");
+  await open("Voice session B");
+  await expect.poll(provider.disconnected).toBe(1);
+  provider.release();
+  await expectVoiceStatusEmpty(panel);
+  await open();
+  const delivery = await holdCompletedVoiceResponse(page);
+  await beginTerminalClip(page, panel);
+  await stopTerminalClip(page, panel);
+  await delivery.ready();
+  await open("Voice session B");
+  await delivery.release();
+  await expectVoiceStatusEmpty(panel);
+  await open();
+  await expectVoiceStatusEmpty(panel);
+  expect(sent).toEqual([]);
+  expect(
+    dashboard.claudeAttaches().every((attach) => attach.lines.length === 0),
+  ).toBe(true);
+  expect(
+    await page.evaluate(() =>
+      (
+        window as unknown as { voiceObservation: { requests: AbortSignal[] } }
+      ).voiceObservation.requests.every((request) => request.aborted),
+    ),
+  ).toBe(true);
+});
+
+test.describe(() => {
+  test.use({
+    extraEnv: async ({ provider }, use) => {
+      await use({ ...provider.extraEnv, ...briefDoneRenameWait });
+    },
+  });
+
+  test("successful Mark as done closes the terminal and cancels its active capture", async ({
+    page,
+    dashboard,
+    provider,
+    launchJourney,
+  }) => {
+    seedVoiceKey(dashboard.home);
+    const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
+    await beginTerminalClip(page, panel);
+    await panel
+      .locator("header")
+      .getByRole("button", { name: "Mark as done", exact: true })
+      .click();
+    await panel
+      .getByRole("group", { name: "Mark it done anyway?" })
+      .getByRole("button", { name: "Mark as done", exact: true })
+      .click();
+    await expect(panel).toHaveCount(0);
+    await expect.poll(() => stoppedTracks(page)).toBe(true);
+    expect(provider.calls).toHaveLength(0);
+  });
+});

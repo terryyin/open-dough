@@ -6,7 +6,7 @@
 // keyboard returns to Start session:
 // ../../dashboard/frontend-tests/launches/agent-launch-ad-hoc-instructed.spec.ts.
 // A start with nothing typed:
-// ../../dashboard/tests/terminals/agent-launch-ad-hoc-terminal.spec.ts. Follow
+// ../terminals/agent-launch-ad-hoc-terminal.spec.ts. Follow
 // up: ./agent-launch-follow-up-session.spec.ts. The synthetic `claude`
 // (../../dashboard/tests/fixtures/fake-claude) stands for the real one.
 import { readFinalReport } from "../../dashboard/tests/finalReportPages.ts";

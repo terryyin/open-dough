@@ -68,9 +68,11 @@ export function recentlyDoneParts(page: Page) {
     entries,
     // Their titles, in the order the section shows them.
     titles: entries.getByRole("heading", { level: 3 }),
-    // The row with exactly this title, and the review cue it shows.
+    // The row with exactly this title; its review cue and association-check status.
     row,
     reviewCue: (title: string) => sessionReviewCue(row(title)),
+    choiceStatus: (title: string) =>
+      row(title).locator(".sessions-sidebar-session-entry-choice"),
     // A row's Select control, named by its title: it selects the session or
     // its done story and opens nothing. Its separate Open control is named by
     // the access it opens (Open terminal or Read final report), described by

@@ -1,0 +1,128 @@
+// A Taken card shows the Odd-e Nerds member's cartoon portrait or, if the
+// portrait is unavailable, their name alone. The test controls the image response.
+
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import type { Page } from "@playwright/test";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  expectMembership,
+  parts,
+} from "../../dashboard/tests/dashboardPage.ts";
+import { publishFiles } from "../../dashboard/tests/publishedOrigin.ts";
+import {
+  enlargedView,
+  expectPortrait,
+} from "../../dashboard/tests/agentPortrait.ts";
+import { avatarPng } from "../../dashboard/tests/avatarAnswers.ts";
+import { describedRevision } from "../../dashboard/tests/describedRevisions.ts";
+import { credit } from "../../dashboard/tests/agentCredit.ts";
+
+const nerdStory = "See who owns Taken work";
+const atlasStory = "Show every agent's portrait";
+const photoUrl = /\/agent-avatars\/odd-e-nerds\/cartoon\/stanly\.webp$/;
+
+const nerdIdentity = "SEED-021#identify-taken-work-owner";
+const atlasIdentity = "SEED-038#recognize-agents-and-tools-by-avatar";
+
+const profile = (name: string, identity: string) =>
+  makeMe.anAgentProfile
+    .executing({
+      name,
+      identity,
+      mode: "trunk",
+      branch: "origin/main",
+      host: "claude",
+      model: "claude-opus-5-5",
+    })
+    .please();
+
+async function openBoard(page: Page) {
+  await publishFiles(page, {
+    repository: "terryyin/open-dough",
+    ...describedRevision(
+      makeMe.aRepository
+        .withRevision("portraits", {
+          backlog: {
+            taken: [
+              makeMe.aBacklogEntry
+                .with({
+                  title: nerdStory,
+                  identity: nerdIdentity,
+                  href: "seeds/SEED-021-observe-published-story-progress.md#identify-taken-work-owner",
+                })
+                .please(),
+              makeMe.aBacklogEntry
+                .with({
+                  title: atlasStory,
+                  identity: atlasIdentity,
+                  href: "seeds/SEED-038-agent-and-tool-avatars.md#recognize-agents-and-tools-by-avatar",
+                })
+                .please(),
+            ],
+          },
+          agentProfiles: [
+            profile("stanly", nerdIdentity),
+            profile("Rina", atlasIdentity),
+          ],
+        })
+        .please(),
+      "a1".repeat(20),
+    ),
+  });
+  await page.goto("/");
+  await expectMembership(page, { taken: [nerdStory, atlasStory], backlog: [] });
+  return parts(page).taken;
+}
+
+test("a nerds member's card shows the photo as its portrait, enlarged on hover, while a current agent keeps its atlas tile", async ({
+  page,
+}) => {
+  const photo = avatarPng(40);
+  await page.route(photoUrl, (route) => route.fulfill(photo));
+  const taken = await openBoard(page);
+  const card = taken.getByRole("article", { name: nerdStory });
+
+  const portrait = credit(card).portrait;
+  await expect(credit(card).agent).toHaveText("stanly-chan");
+  await expect(portrait).toBeVisible();
+  await expect(portrait).toHaveAttribute("aria-hidden", "true");
+  await expect(portrait).toHaveCSS("background-image", /stanly\.webp"\)$/);
+  await portrait.hover();
+  await expect
+    .poll(async () => {
+      const { shown, layers } = await enlargedView(portrait);
+      return shown && layers.every((layer) => photoUrl.test(layer));
+    })
+    .toBe(true);
+
+  await page.mouse.move(0, 0);
+  await expectPortrait(
+    taken.getByRole("article", { name: atlasStory }),
+    "Rina-chan",
+    { atlas: 5, position: "50% 87.5%" },
+  );
+});
+
+test("a nerds member's card without the photo shows the name and no portrait, and no error", async ({
+  page,
+}) => {
+  const problems: string[] = [];
+  page.on("pageerror", (error) => problems.push(error.message));
+  page.on("console", (message) => {
+    // The browser logs every non-OK resource (the absent photo, the unserved
+    // human avatars); those are not errors of the page.
+    if (
+      message.type() === "error" &&
+      !message.text().startsWith("Failed to load resource")
+    )
+      problems.push(message.text());
+  });
+  await page.route(photoUrl, (route) => route.fulfill({ status: 404 }));
+  const taken = await openBoard(page);
+  const card = taken.getByRole("article", { name: nerdStory });
+
+  await expect(credit(card).agent).toHaveText("stanly-chan");
+  await expect(credit(card).portrait).toHaveCount(0);
+  await expect(card).not.toContainText(/error|failed|missing/i);
+  expect(problems).toEqual([]);
+});

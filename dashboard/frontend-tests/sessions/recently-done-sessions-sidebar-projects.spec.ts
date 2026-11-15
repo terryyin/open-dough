@@ -1,0 +1,63 @@
+// Which kept records Recently done in the Sessions sidebar lists across
+// configured projects, against controlled machine answers: of each project's
+// kept launches, only those marked Done, each under its own project, while
+// open ones stay among open sessions.
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { showRecentlyDone } from "../../tests/recentlyDoneSessionsSidebarPage.ts";
+import { daysAgo, retainedDoneAt } from "../../tests/machineLaunchRecords.ts";
+import {
+  expectRowShows,
+  expectTooltipLine,
+} from "../../tests/sessionsSidebarPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import {
+  observedDone,
+  observedOpen,
+  openFrontendThreeProjects,
+  putFrontendObservedLaunches,
+} from "../../tests/support/frontendRecentlyDoneSidebar.ts";
+
+test("of two projects' kept executions, Recently done lists only the one marked Done yesterday, under its project", async ({
+  page,
+  frontendServices,
+}) => {
+  const launchedAt = daysAgo(2);
+  putFrontendObservedLaunches(
+    frontendServices,
+    observedDone(
+      makeMe.aLaunchRecord
+        .executing({
+          identity: "SEED-401#done-yesterday",
+          title: "Doughnut story done yesterday",
+          source: "doughnut",
+        })
+        .inClaudeSession({ sessionId: "doughnut-done-yesterday" })
+        .launchedAt(launchedAt)
+        .markedDoneAt(retainedDoneAt())
+        .please(),
+      "unavailable",
+    ),
+    observedOpen(
+      makeMe.aLaunchRecord
+        .executing({
+          identity: "SEED-301#still-open",
+          title: "Pygardon story still open",
+          source: "pygardon",
+        })
+        .inClaudeSession({ sessionId: "pygardon-still-open" })
+        .launchedAt(launchedAt)
+        .please(),
+    ),
+  );
+
+  await openFrontendThreeProjects(page, frontendServices);
+  const shown = await showRecentlyDone(page);
+
+  await expect(
+    shown.openEntries.filter({ hasText: "Pygardon story still open" }),
+  ).toHaveCount(1);
+  await expect(shown.entries).toHaveCount(1);
+  await expect(shown.region).not.toContainText("Pygardon story still open");
+  await expectRowShows(shown.entries.first(), "Doughnut story done yesterday");
+  await expectTooltipLine(shown.entries.first(), "Doughnut · Execution");
+});

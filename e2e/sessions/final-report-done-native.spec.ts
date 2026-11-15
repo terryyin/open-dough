@@ -1,0 +1,253 @@
+// Persistence, native passivity and Done rename for unfinished retained reports.
+// Touch/focus UI against controlled answers: dashboard/frontend-tests/sessions/final-report-touch.spec.ts.
+import {
+  closeSidePanel,
+  control,
+  expectTitleOnOneCutLine,
+} from "../../dashboard/tests/sidePanelFrame.ts";
+// Retained unfinished reports use the real page/store/native boundary. The
+// vendor fixture supplies history only; coordinates and finger strokes prove access.
+import { existsSync } from "node:fs";
+import {
+  test,
+  expect,
+  stored,
+} from "../../dashboard/tests/support/codexLaunch.ts";
+import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import {
+  publishStoryColumnsJourney,
+  type StoryColumnsJourney,
+} from "../../dashboard/tests/launchJourney.ts";
+import {
+  report,
+  passive,
+} from "../../dashboard/tests/support/retainedReport.ts";
+import {
+  openUnfinishedReport,
+  title,
+  sessionId,
+} from "../../dashboard/tests/support/reportTouchJourney.ts";
+import {
+  readReportByTouch,
+  reportGeometry,
+} from "../../dashboard/tests/support/reportTouchPage.ts";
+import {
+  expectTopBarsShareHeight,
+  tapWhereShown,
+  pressWhereShown,
+} from "../../dashboard/tests/pageLayout.ts";
+import { resizeUntilArranged } from "../../dashboard/tests/sidePanelWidthPage.ts";
+
+test.use({ projectFolders: ["open-dough"] });
+let journey: StoryColumnsJourney;
+test.beforeAll(async () => {
+  journey = await publishStoryColumnsJourney();
+});
+test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
+
+// One short-phone height: wrap and ≤480 survival; resize loop still visits 240.
+{
+  const height = 320;
+  test.describe(`short phone ${height}`, () => {
+    test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
+    test("reads the question and touches each full choice, retaining identity through resize and rotation", async ({
+      page,
+      dashboard,
+      codexProtocol,
+    }) => {
+      const {
+        record,
+        workspace,
+        native,
+        since,
+        open,
+        panel,
+        reportText,
+        names,
+        sessionName,
+        shownSessionId,
+        mark,
+        question,
+        markAnyway,
+        keep,
+        state,
+        underlying,
+        reading,
+      } = await openUnfinishedReport(page, dashboard, codexProtocol, journey);
+      await expect(
+        panel.getByRole("heading", { name: title }),
+      ).toHaveAccessibleName(title);
+      await expect(sessionName).toHaveText(/ session$/);
+      await expect(shownSessionId).toHaveCount(0);
+      await resizeUntilArranged(panel, { width: 390, height });
+      const titleToggle = names.getByRole("button", {
+        name: title,
+        exact: true,
+      });
+      await expectTitleOnOneCutLine(titleToggle);
+      const initial = state();
+      await expect(reading).toHaveText("Ready for review");
+      await expectTopBarsShareHeight(page, 2);
+      const beforePage = await underlying();
+      await readReportByTouch(panel, mark);
+      await tapWhereShown(mark);
+      await expect(question).toBeVisible();
+      await expect(keep).toBeFocused();
+      await readReportByTouch(panel, markAnyway);
+      await readReportByTouch(panel, keep);
+      await readReportByTouch(panel, question.getByRole("paragraph").first());
+      expect(state()).toEqual(initial);
+      passive(native, since);
+
+      // An unanswered question survives reduced height, enlargement and rotation.
+      for (const view of [
+        { width: 390, height: 240 },
+        { width: 390, height: 844 },
+        { width: 844, height: 390 },
+        { width: 390, height },
+      ]) {
+        await resizeUntilArranged(panel, view);
+        await expect(question).toHaveCount(1);
+        await expect(
+          panel.getByRole("heading", { name: title }),
+        ).toHaveAccessibleName(title);
+        await expect(shownSessionId).toHaveCount(0);
+        await readReportByTouch(panel, question.getByRole("paragraph").first());
+        for (const answer of [markAnyway, keep]) {
+          await readReportByTouch(panel, answer);
+          expect(await reportGeometry(answer)).toMatchObject({
+            visible: true,
+            hit: true,
+          });
+        }
+        expect(state()).toEqual(initial);
+        await expect(reading).toHaveText("Ready for review");
+        passive(native, since);
+      }
+      await readReportByTouch(panel, keep);
+      await tapWhereShown(keep);
+      await expect(question).toHaveCount(0);
+      await expect(mark).toBeFocused();
+      expect(state()).toEqual(initial);
+      await expect(reading).toHaveText("Ready for review");
+      passive(native, since);
+      expect(await underlying()).toEqual(beforePage);
+      expect(existsSync(workspace)).toBe(false);
+      await readReportByTouch(
+        panel,
+        reportText,
+        "Landed on main at `a5df85d90a`.",
+      );
+      await readReportByTouch(
+        panel,
+        reportText,
+        "<script>window.reportExecuted=true</script>",
+      );
+      const close = control(panel, "Close");
+      await readReportByTouch(panel, close);
+      await closeSidePanel(panel, { using: "touch" });
+      await expect(panel).toHaveCount(0);
+      await expect(open).toBeFocused();
+      expect(state()).toEqual(initial);
+
+      // Reopening still needs the same explicit answer; only the coordinate tap
+      // below records Done and performs its native operation.
+      await page.keyboard.press("Enter");
+      await expect(reportText).toHaveText(report);
+      await readReportByTouch(panel, mark);
+      await tapWhereShown(mark);
+      await expect(question).toHaveCount(1);
+      await readReportByTouch(panel, question.getByRole("paragraph").first());
+      await readReportByTouch(panel, markAnyway);
+      expect(state()).toEqual(initial);
+      passive(native, since);
+      await tapWhereShown(markAnyway);
+      await expect(panel).toHaveCount(0);
+      await expect.poll(() => stored(dashboard.home)[0]?.doneAt).toBeDefined();
+      expect(stored(dashboard.home)[0]?.reportRead).toBe(initial.reportRead);
+      expect(
+        native.calls
+          .slice(since)
+          .filter((call) => call.method === "thread/name/set"),
+      ).toEqual([
+        {
+          method: "thread/name/set",
+          params: { threadId: sessionId, name: `done-${record.session.name}` },
+        },
+      ]);
+      // This saved history has no working turn: Done must invent no interrupt.
+      expect(
+        native.calls
+          .slice(since)
+          .filter((call) => call.method === "turn/interrupt"),
+      ).toEqual([]);
+      expect(native.names.get(sessionId)).toBe(`done-${record.session.name}`);
+      expect(await underlying()).toEqual(beforePage);
+      expect(existsSync(workspace)).toBe(false);
+      await expect(
+        parts(page)
+          .recentlyDone.getByRole("article")
+          .filter({ hasText: sessionId }),
+      ).toContainText("Done");
+    });
+  });
+}
+
+for (const { name, viewport, hasTouch } of [
+  { name: "tablet", viewport: { width: 768, height: 1024 }, hasTouch: true },
+  { name: "desktop", viewport: { width: 1440, height: 900 }, hasTouch: false },
+]) {
+  test.describe(name, () => {
+    test.use({ viewport, hasTouch });
+    test("keeps report reading, choices, Escape restoration and the panel shortcut", async ({
+      page,
+      dashboard,
+      codexProtocol,
+    }) => {
+      const {
+        workspace,
+        native,
+        since,
+        open,
+        panel,
+        reportText,
+        mark,
+        question,
+        markAnyway,
+        keep,
+      } = await openUnfinishedReport(page, dashboard, codexProtocol, journey);
+      const initial = stored(dashboard.home)[0];
+      await expect(reportText).toHaveText(report);
+      expect(await reportGeometry(reportText)).toMatchObject({
+        visible: true,
+        hit: true,
+      });
+      const press = hasTouch ? tapWhereShown : pressWhereShown;
+      await press(mark);
+      for (const target of [
+        question.getByRole("paragraph").first(),
+        markAnyway,
+        keep,
+      ]) {
+        expect(await reportGeometry(target)).toMatchObject({
+          visible: true,
+          hit: true,
+        });
+      }
+      await press(keep);
+      await expect(question).toHaveCount(0);
+      await expect(mark).toBeFocused();
+      await press(mark);
+      await expect(keep).toBeFocused();
+      await page.keyboard.press("Escape");
+      await expect(question).toHaveCount(0);
+      await expect(mark).toBeFocused();
+      await page.keyboard.press("Meta+Shift+Escape");
+      await expect(panel).toHaveCount(0);
+      await expect(open).toBeFocused();
+      expect(stored(dashboard.home)[0]).toEqual(initial);
+      expect(existsSync(workspace)).toBe(false);
+      passive(native, since);
+    });
+  });
+}

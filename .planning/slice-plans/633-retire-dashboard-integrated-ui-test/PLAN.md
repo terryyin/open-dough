@@ -12,14 +12,14 @@ Convert every interim case under `dashboard/tests/{intent,navigation}` while
 preserving each distinct regression assertion in E2E, Frontend or Backend,
 then retire the empty group's Intent entry, runner, CI producer and live
 tooling references. Split on 2026-11-15 from
-[SEED-334#finish-dissolving-integrated-ui-test](../632-finish-dissolving-integrated-ui-test/PLAN.md),
-whose original slices 6 and 7 (Intent; navigation) and 8 (retirement) are
-mapped below. Slice 8 here needs that story's conversions on trunk; slices
-1–7 do not.
+SEED-334#finish-dissolving-integrated-ui-test (spent plan 632, recoverable
+from before-cleanup), whose original slices 6 and 7 (Intent; navigation) and
+8 (retirement) are mapped below. Slice 8 here needs that story's conversions
+on trunk; slices 1–7 do not.
 
 Architecture, proof rules, local gates and carried learnings are those of
-[plan 632](../632-finish-dissolving-integrated-ui-test/PLAN.md#existing-solution-and-architecture);
-refinement confirms or adjusts them here.
+spent plan 632 (recoverable from before-cleanup); refinement confirms or
+adjusts them here.
 
 ## Retirement inputs
 

@@ -1,16 +1,27 @@
-// Explicit route/WebSocket substitutes for frontend-only app journeys: the
-// page talks to these instead of dashboardServer, fake-gh, or FakeGitHub.
+// Explicit route substitutes for frontend-only app journeys: the page talks
+// to these instead of dashboardServer, fake-gh, or FakeGitHub. Terminal
+// WebSocket install lives in ./frontendTerminalSubstitute.ts.
 
 import type { Page } from "@playwright/test";
 import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
-import {
-  authenticatedReadEndpoint,
-  revisionStreamAtParameter,
-} from "../../src/authenticatedReadRules.ts";
+import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { completedStoryAssociationEndpoint } from "../../src/completedStoryAssociation.ts";
 import { hostStatusEndpoint } from "../../src/hostStatus.ts";
 import { launchHostOptionsEndpoint } from "../../src/launchHostOptions.ts";
 import { projectListEndpoint } from "../../src/projectConfiguration.ts";
+import {
+  storyReviewEndpoint,
+  storyReviewFileEndpoint,
+  storyReviewFileTextEndpoint,
+  storyReviewMarkEndpoint,
+  storyReviewRangeEndpoint,
+} from "../../src/storyReviewContract.ts";
+import { storyReviewStateEndpoint } from "../../src/storyReviewState.ts";
+import { answerAuthenticatedRead } from "./frontendAuthenticatedReadSubstitute.ts";
+import { installFrontendCompletedStoryAssociation } from "./frontendCompletedStoryAssociation.ts";
+import { installFrontendStoryReview } from "./frontendStoryReview.ts";
+import { installFrontendStoryReviewState } from "./frontendStoryReviewState.ts";
 import {
   defaultFrontendServiceState,
   type FrontendServiceState,
@@ -19,107 +30,20 @@ import {
   fulfillEventStream,
   fulfillJson,
 } from "./frontendSubstituteAnswers.ts";
-import {
-  echoingApplication,
-  type TerminalApplication,
-} from "./terminalSubstituteApplication.ts";
 
-type TerminalSize = { readonly cols: number; readonly rows: number };
-
-function answerAuthenticatedRead(
-  state: FrontendServiceState,
-  params: URLSearchParams,
-): { status: number; body: unknown; stream?: boolean } {
-  const revision = params.get("revision") ?? state.revision;
-  // A revision check says whether the project moved from the revision the
-  // page shows; its stream says only that it moved, answering as a plain
-  // read until then.
-  const since = params.get("since");
-  const at = params.get(revisionStreamAtParameter);
-  if (since !== null || (at !== null && at !== state.revision)) {
-    const changed = (since ?? at) !== state.revision;
-    const body = { revision: state.revision, changed, branches: [] };
-    return { status: 200, body, stream: since === null };
-  }
-  if (params.get("intent") === "locations") {
-    return { status: 200, body: state.locations };
-  }
-  if (params.get("intent") === "test-optimization-candidates") {
-    return { status: 200, body: state.candidates };
-  }
-  if (params.get("agents") === "profiles") {
-    return {
-      status: 200,
-      body: {
-        revision,
-        profiles: Object.entries(state.files)
-          .filter(([path]) => path.startsWith(".planning/agents/"))
-          .map(([path, text]) => ({ path, text })),
-        settings: state.files[".planning/open-dough.json"] ?? null,
-      },
-    };
-  }
-  if (params.get("done") === "catalog") {
-    return {
-      status: 200,
-      body: {
-        revision,
-        catalog: JSON.stringify({
-          schemaVersion: 1,
-          records: [],
-          unreadable: [],
-        }),
-      },
-    };
-  }
-  if (params.get("done") === "bodies") {
-    return { status: 200, body: { revision, records: [] } };
-  }
-  const filePath = params.get("path");
-  if (filePath !== null) {
-    const text = state.files[filePath];
-    if (text === undefined) {
-      return {
-        status: 404,
-        body: { error: `Unknown path ${filePath}`, recovery: "transient" },
-      };
-    }
-    if (params.get("committed") === "last") {
-      return {
-        status: 200,
-        body: {
-          revision,
-          path: filePath,
-          committedAt: "2026-11-01T00:00:00.000Z",
-        },
-      };
-    }
-    if (params.get("committed") === "added") {
-      return {
-        status: 200,
-        body: {
-          revision,
-          path: filePath,
-          added: {
-            commit: revision,
-            committerName: "Test",
-            committedAt: "2026-11-01T00:00:00.000Z",
-            login: "tester",
-          },
-        },
-      };
-    }
-    return { status: 200, body: { revision, path: filePath, text } };
-  }
-  return {
-    status: 200,
-    body: {
-      revision: state.revision,
-      backlog: state.backlog,
-      askedAt: "2026-11-05T08:00:00.000Z",
-    },
-  };
-}
+export { installAttachedTerminalSubstitute } from "./frontendTerminalSubstitute.ts";
+export {
+  installFrontendCompletedStoryAssociation,
+  type FrontendCompletedStoryAssociation,
+} from "./frontendCompletedStoryAssociation.ts";
+export {
+  installFrontendStoryReview,
+  type FrontendStoryReview,
+} from "./frontendStoryReview.ts";
+export {
+  installFrontendStoryReviewState,
+  type FrontendStoryReviewState,
+} from "./frontendStoryReviewState.ts";
 
 // Installs substitutes for every backend endpoint a typical page open touches.
 // Specs override individual routes afterward for the synthetic answers under test.
@@ -154,6 +78,13 @@ export async function installFrontendServiceSubstitutes(
       await fulfillJson(route, state.machine);
     },
   );
+  // Controllable completed-story association; default settle is a miss.
+  await installFrontendCompletedStoryAssociation(page);
+  // Controllable story review states; default settle is every story unreviewed.
+  await installFrontendStoryReviewState(page);
+  // Controllable story-review snapshot/range/diff/text/mark; default settle is
+  // a minimal unmarked snapshot (./frontendStoryReview.ts).
+  await installFrontendStoryReview(page);
   await page.route(
     (url) => url.pathname === hostStatusEndpoint,
     async (route) => {
@@ -176,6 +107,13 @@ export async function installFrontendServiceSubstitutes(
     projectListEndpoint,
     authenticatedReadEndpoint,
     agentLaunchEndpoint,
+    completedStoryAssociationEndpoint,
+    storyReviewStateEndpoint,
+    storyReviewEndpoint,
+    storyReviewRangeEndpoint,
+    storyReviewFileEndpoint,
+    storyReviewFileTextEndpoint,
+    storyReviewMarkEndpoint,
     hostStatusEndpoint,
     launchHostOptionsEndpoint,
     agentTerminalEndpoint,
@@ -195,50 +133,4 @@ export async function installFrontendServiceSubstitutes(
       ),
   );
   return state;
-}
-
-// Terminal WebSocket that reports attached and runs a substitute application:
-// `application`, or one that prints an attached line and echoes input as text.
-// `sent` is the input the page sent; `sizes` the terminal sizes it reported.
-// With `opens`, the page's socket stays connecting until that settles.
-export async function installAttachedTerminalSubstitute(
-  page: Page,
-  options: {
-    readonly application?: TerminalApplication;
-    readonly opens?: Promise<void>;
-  } = {},
-): Promise<{ readonly sent: string[]; readonly sizes: TerminalSize[] }> {
-  const sent: string[] = [];
-  const sizes: TerminalSize[] = [];
-  const application =
-    options.application ??
-    echoingApplication("attached abcdef12\r\nClaude Code\r\n");
-  await page.routeWebSocket(`**${agentTerminalEndpoint}**`, async (ws) => {
-    ws.onMessage((message) => {
-      if (typeof message !== "string") return;
-      const parsed = JSON.parse(message) as {
-        input?: unknown;
-        resize?: TerminalSize;
-      };
-      if (parsed.resize !== undefined) sizes.push(parsed.resize);
-      if (typeof parsed.input === "string") {
-        sent.push(parsed.input);
-        const answer = application.answer(parsed.input);
-        if (answer !== "") ws.send(answer);
-      }
-    });
-    // Playwright opens a routed page socket once its handler returns or it
-    // first sends to the page.
-    await options.opens;
-    // Binary readiness frame, then text output the page renders.
-    ws.send(Buffer.from(JSON.stringify({ readiness: "attached" }), "utf8"));
-    ws.send(application.opening);
-    application.attached?.({
-      print: (output) => {
-        ws.send(output);
-      },
-      close: (code) => void ws.close({ code }),
-    });
-  });
-  return { sent, sizes };
 }

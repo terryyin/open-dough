@@ -1,5 +1,5 @@
 // How the progressive Recently done journeys
-// (./stories/recently-done-progressive-loading.spec.ts) open the page over a
+// (../../e2e/stories/recently-done-progressive-loading.spec.ts) open the page over a
 // published list (./recentlyDoneProgressive.ts) and observe it: which done
 // records' reads reached the fake GitHub, where the shown entries stand, when
 // the page has done what a move or an answer led it to, and the open

@@ -1,0 +1,140 @@
+// Older actual review/file responses cannot answer a later retained choice.
+import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
+import { fileBrowser } from "../../dashboard/tests/support/reviewContextLine.ts";
+import { changedFilesList } from "../../dashboard/tests/support/reviewTreeRows.ts";
+import {
+  reviewRegion,
+  comparisonChoice,
+  landedRunChoice,
+} from "../../dashboard/tests/support/storyReviewMark.ts";
+import { reviewChanges } from "../../dashboard/tests/storyCardControls.ts";
+import {
+  test as base,
+  expect,
+} from "../../dashboard/tests/support/codexStart.ts";
+import { reviewChoices } from "../../dashboard/tests/support/oneShotReviewChoices.ts";
+import { openCapturedReview } from "../../dashboard/tests/support/oneShotReview.ts";
+import { holdNextReviewResponse } from "../../dashboard/tests/support/holdReviewResponse.ts";
+import {
+  storyReviewEndpoint,
+  storyReviewFileEndpoint,
+} from "../../dashboard/src/storyReviewContract.ts";
+import {
+  expectCovering,
+  focusDivider,
+  panelDivider,
+  pressDividerKey,
+  resizeUntilArranged,
+} from "../../dashboard/tests/sidePanelWidthPage.ts";
+
+// Prepare immutable installed Codex and preview inputs before the case's
+// private origin and its real native launches begin.
+const test = base.extend({
+  originRepository: async (
+    { queuedCodexPreviewReady, originRepository },
+    use,
+  ) => {
+    await Promise.resolve(queuedCodexPreviewReady);
+    await use(originRepository);
+  },
+});
+
+test("delayed run and file responses leave the later run selected through narrow layout and panel controls", async ({
+  page,
+  dashboard,
+  origin,
+  codexProtocol,
+}) => {
+  if (codexProtocol === undefined) throw new Error("No native fixture");
+  const { first, second } = await reviewChoices(
+    dashboard,
+    origin,
+    codexProtocol,
+  );
+  const { card } = await openCapturedReview(page, origin);
+  const review = reviewRegion(page);
+  const radio = comparisonChoice(review, "Landed runs");
+  const select = landedRunChoice(review);
+  const heldRun = await holdNextReviewResponse(
+    page,
+    dashboard.origin,
+    storyReviewEndpoint,
+  );
+  try {
+    await radio.check();
+    expect(await (await heldRun.ready).json()).toMatchObject({
+      selectedRun: second.key,
+      tree: second.receipt.revision,
+    });
+    await select.selectOption(first.key);
+    await expect(review.locator(".story-review-added")).toHaveText([
+      "+first.txt",
+    ]);
+    heldRun.release();
+    await heldRun.delivery;
+    await expect(select).toHaveValue(first.key);
+    await expect(review.locator(".story-review-added")).toHaveText([
+      "+first.txt",
+    ]);
+  } finally {
+    heldRun.release();
+    await heldRun.delivery;
+  }
+  const heldFile = await holdNextReviewResponse(
+    page,
+    dashboard.origin,
+    storyReviewFileEndpoint,
+  );
+  try {
+    await select.selectOption(second.key);
+    expect(await (await heldFile.ready).json()).toMatchObject({
+      kind: "diff",
+      printed: expect.stringContaining("+second.txt"),
+    });
+    await select.selectOption(first.key);
+    await expect(review.locator(".story-review-added")).toHaveText([
+      "+first.txt",
+    ]);
+    heldFile.release();
+    await heldFile.delivery;
+    await expect(select).toHaveValue(first.key);
+    await expect(review.locator(".story-review-added")).toHaveText([
+      "+first.txt",
+    ]);
+  } finally {
+    heldFile.release();
+    await heldFile.delivery;
+  }
+  const divider = panelDivider(review, { exact: false });
+  await expect(divider).toBeVisible();
+  const width = Number(await divider.getAttribute("aria-valuenow"));
+  await focusDivider(review, { exact: false });
+  await pressDividerKey(page, "ArrowLeft");
+  await expect(divider).toHaveAttribute("aria-valuenow", String(width + 32));
+  await expect(select).toHaveValue(first.key);
+  await expect(review.locator(".story-review-added")).toHaveText([
+    "+first.txt",
+  ]);
+  await resizeUntilArranged(review, { width: 420, height: 900 });
+  await expect(select).toHaveValue(first.key);
+  await expectCovering(review);
+  const files = changedFilesList(review, "1 changed file", { exact: true });
+  await review.getByRole("button", { name: "Hide files" }).click();
+  await expect(files).toBeHidden();
+  await review.getByRole("button", { name: "Show files" }).click();
+  await expect(files).toBeVisible();
+  const browser = await fileBrowser(review).boundingBox();
+  const diff = await review.locator(".story-review-diff").boundingBox();
+  expect(browser).not.toBeNull();
+  expect(diff).not.toBeNull();
+  expect(diff?.y).toBeGreaterThan((browser?.y ?? 0) + (browser?.height ?? 0));
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(420);
+  await expect(select).toHaveValue(first.key);
+  await expect(review.locator(".story-review-added")).toHaveText([
+    "+first.txt",
+  ]);
+  await closeSidePanel(review);
+  await expect(reviewChanges(card)).toBeFocused();
+});

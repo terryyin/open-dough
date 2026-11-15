@@ -12,7 +12,7 @@ env -u NO_COLOR -u FORCE_COLOR OPEN_DOUGH_DASHBOARD_PROOF_RECORD=… \
   dashboard/tests/agent-terminal-touch.spec.ts \
   dashboard/tests/recently-done-sessions-sidebar-touch.spec.ts \
   dashboard/tests/session-management-touch.spec.ts \
-  dashboard/tests/sessions-sidebar-touch.spec.ts \
+  e2e/sessions/sessions-sidebar-touch.spec.ts \
   dashboard/tests/story-review-touch.spec.ts \
   dashboard/tests/system-settings-look.spec.ts \
   dashboard/tests/system-settings-openai-recovery.spec.ts \

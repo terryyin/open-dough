@@ -1,0 +1,182 @@
+// Destinations from Recently done sessions: Board reveal beyond the first ten
+// and a Codex final-report panel.
+import { agentTerminalEndpoint } from "../../dashboard/src/agentTerminal.ts";
+import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
+import {
+  chooseProject,
+  expectProjectChoice,
+  standaloneSessionName,
+  parts,
+} from "../../dashboard/tests/dashboardPage.ts";
+import { launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
+import { showRecentlyDone } from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
+import {
+  destination,
+  names,
+  openedWithHeldStory,
+  storiesThrough,
+} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
+import {
+  expectEntries,
+  shownEntries,
+} from "../../dashboard/tests/recentlyDoneColumn.ts";
+import { recordsAsked } from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
+import { placedAt } from "../../dashboard/tests/recentlyDoneProgressive.ts";
+import {
+  expectRevealsSince,
+  recordReveals,
+  revealsOf,
+} from "../../dashboard/tests/sessionNavigationJourney.ts";
+import { rem } from "../../dashboard/tests/boardPage.ts";
+import {
+  notRefinedStory,
+  publishStoryColumnsJourney,
+  type StoryColumnsJourney,
+} from "../../dashboard/tests/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+import {
+  test as codexTest,
+  expect as codexExpect,
+} from "../../dashboard/tests/support/codexLaunch.ts";
+import {
+  expect,
+  keptRecord,
+  test,
+} from "../../dashboard/tests/support/cursorStart.ts";
+import {
+  retained,
+  report,
+  save,
+} from "../../dashboard/tests/support/retainedReport.ts";
+import { publishOnePygardonStory } from "../../dashboard/tests/pygardonProject.ts";
+import { finalReportParts } from "../../dashboard/tests/finalReportPages.ts";
+
+test.use({
+  projectFolders: ["open-dough", "doughnut", "pygardon"],
+  cursorScreen: "working",
+});
+
+test("choosing a Done session beyond Board's first ten from Pygardon reveals its Board entry", async ({
+  page,
+  dashboard,
+  cursor,
+}) => {
+  await page.setViewportSize({ width: 80 * rem, height: 900 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const instruction = "sidebar done beyond board ten";
+  const entryName = standaloneSessionName("Ad hoc", instruction);
+  const launched = await launch(dashboard, {
+    source: "open-dough",
+    workflow: "ad-hoc",
+    host: "cursor",
+    instruction,
+  });
+  expect(JSON.parse(launched.body)).toMatchObject({ kind: "launched" });
+  await expect.poll(() => cursor.attaches()).toHaveLength(1);
+  const held = keptRecord(dashboard.home);
+  await page.routeWebSocket(new RegExp(agentTerminalEndpoint), () => {});
+  await publishOnePygardonStory(page);
+  await recordReveals(page);
+  let releaseCatalog: () => void = () => undefined;
+  const catalogHeld = new Promise<void>((resolve) => {
+    releaseCatalog = resolve;
+  });
+  await page.route(
+    (url) =>
+      url.pathname === authenticatedReadEndpoint &&
+      url.searchParams.get("done") === "catalog",
+    async (route) => {
+      await catalogHeld;
+      await route.fallback();
+    },
+  );
+  let release: () => void = releaseCatalog;
+  try {
+    const view = await openedWithHeldStory(page, dashboard, {
+      open: [],
+      elsewhere: true,
+      also: (now) => [
+        {
+          ...held,
+          launchedAt: placedAt(now, destination),
+          doneAt: new Date(now - 10 * 60_000).toISOString(),
+        },
+      ],
+    });
+    release = () => {
+      releaseCatalog();
+      view.release();
+    };
+    releaseCatalog();
+    const { github, recent } = view;
+    const { backlog } = parts(page);
+    const boardEntry = recent.getByRole("article", { name: entryName });
+    await expect(boardEntry).toHaveCount(0);
+    await expectEntries(recent, names(10));
+    expect(recordsAsked(github).toSorted()).toEqual(
+      storiesThrough(10).toSorted(),
+    );
+    await chooseProject(page, "Pygardon");
+    await expect(backlog).toContainText("A Pygardon story");
+
+    const shown = await showRecentlyDone(page);
+    await expect(shown.select(instruction)).toHaveCount(1);
+    const before = (await revealsOf(page)).length;
+    await shown.open(instruction).click();
+
+    await test.step("Open Dough's Board Recently done extends through entry 27 while the held story reads", async () => {
+      await expectProjectChoice(page, "Open Dough");
+      await expect(view.heldCard).toContainText("Reading done story…");
+      await expect(boardEntry).toBeVisible();
+      await expect(shownEntries(recent)).toHaveCount(destination);
+      await expect
+        .poll(() => recordsAsked(github).toSorted())
+        .toEqual(storiesThrough(destination).toSorted());
+      expect((await revealsOf(page)).slice(before)).toEqual([]);
+    });
+
+    await test.step("once read, the Board entry is brought into view", async () => {
+      view.release();
+      await expect
+        .poll(async () => (await revealsOf(page)).length)
+        .toBeGreaterThan(before);
+      await expectRevealsSince(page, before, entryName, "auto");
+      await expect(boardEntry).toBeInViewport();
+    });
+  } finally {
+    release();
+  }
+});
+
+codexTest.describe("Recently done final-report destination", () => {
+  codexTest.use({ projectFolders: ["open-dough"] });
+  let journey: StoryColumnsJourney;
+  codexTest.beforeAll(async () => {
+    journey = await publishStoryColumnsJourney();
+  });
+  codexTest.afterAll(() =>
+    (journey as StoryColumnsJourney | undefined)?.cleanup(),
+  );
+
+  codexTest(
+    "opening a Done entry whose destination is a final report reaches Final report",
+    async ({ page, dashboard, codexProtocol: native }) => {
+      if (native === undefined) throw new Error("Missing protocol fixture");
+      const { record } = await retained(dashboard, native);
+      save(dashboard.home, [
+        {
+          ...record,
+          doneAt: new Date(Date.now() - 60_000).toISOString(),
+        },
+      ]);
+      const { settled } = await openStoryColumnsJourney(page, journey);
+      await settled();
+      const shown = await showRecentlyDone(page);
+      await expect(shown.select(notRefinedStory)).toHaveCount(1);
+      await shown.open(notRefinedStory).click();
+      await codexExpect(finalReportParts(page).reportText).toHaveText(report);
+      await codexExpect(terminalPanel(page)).toHaveCount(0);
+    },
+  );
+});

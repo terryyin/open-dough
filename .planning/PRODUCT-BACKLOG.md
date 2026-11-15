@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Move session, terminal, story and observation checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test) — SEED-334#finish-dissolving-integrated-ui-test ([plan](slice-plans/632-finish-dissolving-integrated-ui-test/PLAN.md))
 - [Run and maintain native evaluations as a distinct Distribution tool](seeds/SEED-371-distribution-evaluation-tool.md#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool) — SEED-371#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool ([plan](slice-plans/638-distribution-evaluation-tool/PLAN.md))
 - [Swipe between story board columns on mobile](seeds/SEED-373-swipe-between-story-board-columns.md#swipe-between-story-board-columns) — SEED-373#swipe-between-story-board-columns ([plan](slice-plans/640-swipe-between-story-board-columns/PLAN.md))
 - [Declare landed-file follow-up state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-git-test-state-through-makeme) — SEED-353#declare-git-test-state-through-makeme ([plan](slice-plans/642-declare-landed-file-follow-up-state/PLAN.md))

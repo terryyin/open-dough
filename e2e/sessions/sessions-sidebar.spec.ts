@@ -1,7 +1,7 @@
 // Cross-project Sessions sidebar: attention first, closed toggle working then
 // attention counts, Done removes entries; wide sits left, narrow overlays.
 // Real boundaries, fake Claude, paused time. Order alone:
-// ../../dashboard/tests/sessions/sessions-sidebar-order.spec.ts.
+// ../../dashboard/frontend-tests/sessions/sessions-sidebar-order.spec.ts.
 import {
   expect,
   pausePageClockAt,
