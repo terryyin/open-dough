@@ -8,7 +8,6 @@
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { parts } from "../../tests/dashboardPage.ts";
 import {
   buildHistoryReading,
   chartOf,
@@ -16,14 +15,9 @@ import {
   historyOf,
   showBuildHistoryEvidence,
 } from "../../tests/intentCiHistoryPage.ts";
-import { chooseCiStatus } from "../../tests/intentCiStatusPage.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { serveFrontendCiHistory } from "../../tests/support/frontendCiHistoryAnswers.ts";
-import {
-  judgedCiStatus,
-  serveFrontendCiStatus,
-} from "../../tests/support/frontendCiStatusAnswers.ts";
+import { openFrontendCiStatus } from "../../tests/support/frontendCiStatusAnswers.ts";
 
 test("accepted landing order keeps a middle gap while reversed build dates retain their labels and true measured date span", async ({
   page,
@@ -54,11 +48,7 @@ test("accepted landing order keeps a middle gap while reversed build dates retai
       })
       .please(),
   );
-  await serveFrontendCiStatus(page, {
-    main: judgedCiStatus("main", "pass", "4774f60", "Add login"),
-  });
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  const shown = historyOf(await chooseCiStatus(parts(page).intent));
+  const shown = historyOf(await openFrontendCiStatus(page));
 
   // The evidence and latest measurement follow the answer's order. The
   // measured span independently uses the actual minimum and maximum dates.

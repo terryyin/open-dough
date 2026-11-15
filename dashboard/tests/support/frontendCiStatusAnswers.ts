@@ -119,7 +119,6 @@ export async function openFrontendRunProof(
     runAttempt: run.attempt,
     ...facts,
   });
-  await serveFrontendCiStatus(page, { main: status });
   const proof = makeMe.aCiProof
     .forRun({
       repository: run.repository,
@@ -142,9 +141,19 @@ export async function openFrontendRunProof(
         proof,
       }),
   );
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  const panel = await chooseCiStatus(parts(page).intent);
+  const panel = await openFrontendCiStatus(page, status);
   return { panel, proof: proofOf(panel) };
+}
+
+// Opens Intent's CI status on main, judged as `main` says, Passed at 4774f60
+// unless it says otherwise: its panel.
+export async function openFrontendCiStatus(
+  page: Page,
+  main = judgedCiStatus("main", "pass", "4774f60", "Add login"),
+) {
+  await serveFrontendCiStatus(page, { main });
+  await openUntilRead(page, "/?project=open-dough&perspective=intent");
+  return chooseCiStatus(parts(page).intent);
 }
 
 // Publishes the story board's backlog and files.

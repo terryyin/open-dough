@@ -155,7 +155,7 @@ verified in `landed-ci-history-gaps.spec.ts`/`-pending-proof.spec.ts`. Removing
 
 ### 4. Preserve CI wall-time history window and selected run
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-ci-wall-time-history-window` and `intent-ci-wall-time-history`
 (2 / 351): 20-build window, no controls, sample rows, point/stroke geometry;
 proof labels, one measured build, disclosure, keyboard run link, empty history.
@@ -166,6 +166,11 @@ history with an older gap (`windowLandings` in `server/landedCiMeasuredBuilds.ts
 newest 20 plus gaps among/after them, older gap dropped. Verify the collection
 `timeMs` home (`landed-ci-history-time-without-runner-waits`/`-collection`) before
 citing it.
+Accepted: FE `intent-ci-wall-time-history{,-window}.spec.ts` (3 cases) and Backend
+`landed-ci-history-read-window.spec.ts` (stored 35 builds + older gap read over
+HTTP). Widening `windowLandings` to 21 failed old integrated `-window` and the new
+Backend case; restored, both passed. Collection/`timeMs` homes verified in
+`landed-ci-history-collection` and `-time-without-runner-waits`. Integrated: 102 files.
 
 ### 5. Preserve scope timing history and its gaps
 Type: Behavior

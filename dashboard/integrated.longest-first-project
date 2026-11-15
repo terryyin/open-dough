@@ -61,7 +61,6 @@
 10.6	tests/intent/intent-scope-timing-history-provenance.spec.ts
 10.3	tests/navigation/board-clamp.spec.ts
 10.3	tests/navigation/frame-sessions-look.spec.ts
-10.2	tests/intent/intent-ci-wall-time-history.spec.ts
 10.0	tests/intent/intent-test-optimization-candidates-states.spec.ts
 9.9	tests/intent/intent-done-source-selection.spec.ts
 9.9	tests/intent/intent-entry-folder-summaries-folders.spec.ts
@@ -84,7 +83,6 @@
 6.6	tests/intent/intent-read-reuse.spec.ts
 6.6	tests/intent/intent-revision-settings-update.spec.ts
 6.4	tests/intent/intent-story-summary-title.spec.ts
-6.3	tests/intent/intent-ci-wall-time-history-window.spec.ts
 5.8	tests/intent/intent-gherkin-groups.spec.ts
 5.5	tests/navigation/board-native-reading.spec.ts
 5.2	tests/intent/intent-summary-ci-proof-sort.spec.ts

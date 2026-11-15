@@ -13,7 +13,6 @@
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { parts } from "../../tests/dashboardPage.ts";
 import {
   buildEvidenceRows,
   buildHistoryReading,
@@ -23,15 +22,10 @@ import {
   historyOf,
   runLink,
 } from "../../tests/intentCiHistoryPage.ts";
-import { chooseCiStatus } from "../../tests/intentCiStatusPage.ts";
 import { expectNoSidewaysScrollIn } from "../../tests/pageLayout.ts";
-import { openUntilRead } from "../../tests/pageRequestNotes.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { serveFrontendCiHistory } from "../../tests/support/frontendCiHistoryAnswers.ts";
-import {
-  judgedCiStatus,
-  serveFrontendCiStatus,
-} from "../../tests/support/frontendCiStatusAnswers.ts";
+import { openFrontendCiStatus } from "../../tests/support/frontendCiStatusAnswers.ts";
 
 // The day `n` days after Oct 1, at noon, when its landing was recorded.
 const day = (n: number) =>
@@ -86,12 +80,8 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
       .pendingLanding({ ...landingOf(6), waitsFor: "run" })
       .please(),
   );
-  await serveFrontendCiStatus(page, {
-    main: judgedCiStatus("main", "pass", "4774f60", "Add login"),
-  });
   await page.setViewportSize({ width: 390, height: 844 });
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  const panel = await chooseCiStatus(parts(page).intent);
+  const panel = await openFrontendCiStatus(page);
   const shown = historyOf(panel);
 
   await expect(buildHistoryReading(shown).heading).toHaveText(

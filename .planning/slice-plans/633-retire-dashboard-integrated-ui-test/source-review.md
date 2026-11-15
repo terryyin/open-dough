@@ -17,7 +17,7 @@ Input: the story's Goal, Scope, Scope limits and Key examples verbatim from `.pl
 | C4 | Intent's CI evidence stays trustworthy | slice 9 |  |
 | C5 | No speed improvement is claimed without measurement (claim limit, not a target) | slice 9 |  |
 | C6.1 | Convert `intent-ci-status-*` specs | slice 2 | observed: all seven intent-ci-status-* interim specs deleted and their duration rows removed; integrated --list 215 tests/106 files |
-| C6.2 | Convert `intent-ci-wall-time-history*` specs | slice 4 |  |
+| C6.2 | Convert `intent-ci-wall-time-history*` specs | slice 4 | observed: all four intent-ci-wall-time-history* interim specs deleted; homes dashboard/frontend-tests/intent/intent-ci-wall-time-history{,-order,-gaps,-window}.spec.ts and backend-tests/intent/landed-ci-history-read-window.spec.ts; integrated 102 files |
 | C6.3 | Convert `intent-scope-*` specs | slice 5 |  |
 | C6.4 | Convert `intent-ci-proof*` specs | slice 6 |  |
 | C6.5 | Convert `intent-ci-comparison-*` specs | slice 7 |  |
