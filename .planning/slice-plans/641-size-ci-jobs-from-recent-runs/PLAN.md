@@ -2,6 +2,7 @@
 
 **Identity:** SEED-355#reconsider-further-ci-reduction
 **Source:** [Reconsider further CI job reduction with a different approach](../../seeds/SEED-355-reconsider-further-ci-reduction.md#reconsider-further-ci-reduction)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -85,7 +86,7 @@ developer-operated observation is needed: `gh` reads are free and read-only.
 
 ### 1. Report each group's deadline headroom and one-fewer verdict
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `Distribution/tests/ci/ci-job-times.sh` through
 `bash scripts/test.sh`, with `Distribution/tests/ci/ci-test-times.sh` still
 green when the run listing is shared.
@@ -108,6 +109,18 @@ check and `bash scripts/ci-test-times.sh` for the share baseline, as
 adds test time. One report-to-verdict proof loop; target 15 active minutes,
 commands excluded. Interim: until slice 3 only the header comment describes
 the command.
+
+Accepted proof (2026-11-15): `bash scripts/test.sh Distribution/tests/ci/ci-job-times.sh Distribution/tests/ci/ci-test-times.sh`
+passes; the check's whole-report `expect_report all` covers each verdict case
+and the three refusals. A scratch reserve-off edit made the `thin` and
+`sparse` lines say `could drop one`. The listing, refusal and per-run
+bookkeeping moved to `scripts/trunk-runs.bash`, shared by both reports with
+byte-identical output. Share baseline: all three Distribution share totals
+were `thin` (highest 891.6 of 926); a paired A/B of the changed
+`ci-test-times.sh` check gave ratio about 1.05 (noise, load 9), so share 1
+projects about 893 with the new 1.5 s check. The real command read runs from
+2026-11-15T08:11Z to 12:15Z and said `keep` for every group. Learning: the
+check's `gh` stand-in applies the `--jq` filter with system `jq`.
 
 ### 2. Show runner wait and verdict time apart from job time
 Type: Behavior

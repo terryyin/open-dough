@@ -1,6 +1,7 @@
 # shellcheck shell=bash
 # How the CI readers quote a failed `gh` call: gh's own stderr message, sourced
-# by scripts/ci-test-times.sh and scripts/ci-repeat.sh after "gh … failed: ".
+# by scripts/ci-test-times.sh, scripts/ci-job-times.sh and scripts/ci-repeat.sh
+# after "gh … failed: ".
 
 # Prints FILE (gh's own message) on one line.
 gh_message() {
