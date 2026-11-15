@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#review-independently-observable-promises",
+  "title": "Record source-review evidence once per independently observable promise",
+  "completedAt": "2026-11-15T16:54:47.207Z",
+  "developer": "Terry Yin",
+  "agent": "Sola-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

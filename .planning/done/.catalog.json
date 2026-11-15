@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-010_review-independently-observable-promises.json",
+      "identity": "SEED-010#review-independently-observable-promises",
+      "completedAt": "2026-11-15T16:54:47.207Z",
+      "blob": "d89ef4bd237e415a7a4366efe75d7f73ffbf4c70"
+    },
+    {
       "fileName": "SEED-359_keep-claude-coverage-gaps-current-after-refresh.json",
       "identity": "SEED-359#keep-claude-coverage-gaps-current-after-refresh",
       "completedAt": "2026-11-15T13:56:46.677Z",
