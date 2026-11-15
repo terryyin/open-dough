@@ -48,10 +48,16 @@ export class ProductionWatcherMachine {
     );
     this.fixture = fixture;
     const banner = path.join(fixture.development, bannerPath);
-    const pinnedBanner = (await readFile(banner, "utf8")).replace(
-      "<SessionsButton />",
-      '<p data-testid="production-source">PINNED SOURCE</p><SessionsButton />',
+    const bannerSource = await readFile(banner, "utf8");
+    const pinnedBanner = bannerSource.replace(
+      /<header\b[^>]*>/,
+      '$&<p data-testid="production-source">PINNED SOURCE</p>',
     );
+    if (pinnedBanner === bannerSource) {
+      throw new Error(
+        "Could not put the watcher source marker in the dashboard banner.",
+      );
+    }
     const pinned = await fixture.publish(
       { ...fixture.markerChanges("PINNED MAIN"), [bannerPath]: pinnedBanner },
       "Pinned main",
