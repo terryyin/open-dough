@@ -75,8 +75,8 @@ replaces its "high unrecorded count" sentence with the two readings.
 
 ### 3. Read the remote trunk's jobs in the default preview
 Type: Behavior
-Status: planned
-Proof: `bash scripts/test.sh Distribution/tests/support/share-preview.test.mjs`
+Status: done
+Proof: `bash scripts/test.sh Distribution/tests/support/share-preview.test.mjs Distribution/tests/support/share-preview-stale.test.mjs Distribution/tests/support/share-preview-trunk.test.mjs Distribution/tests/support/share-deal-recorded-runs.test.mjs Distribution/tests/support/browser-group-shards.test.mjs`
 
 Behavior: a checkout whose remote-tracking trunk holds some unrecorded job
 files and whose working tree adds another → `node scripts/test-shares.mjs
@@ -93,7 +93,9 @@ statement; the return quotes each share's headroom and any estimate lines.
 
 Behavior: `Distribution/tests/longest-first` lacking trunk jobs → the refresh
 in `test-shares.md` from the latest successful `main` run that includes every
-trunk job records them, with its `# Source:` line naming that run.
+trunk job records them, with its `# Source:` line naming that run. Include
+completed story-branch CI timings for tests this story adds, so integration
+keeps its own preview current too; identify both sources when combined.
 
 ## Current decisions
 
@@ -157,51 +159,55 @@ is known. Reconsider if a slice requires heavy verification.
 
 ## Accepted execution evidence
 
-Slice 1: extracted preview inputs/text and moved CLI preview tests; shared label
-parsing remains with the deal. The eight literal focused paths in slice 1 ran
-through `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh` and passed.
-Inspected real CLI setup/assertions in `share-preview.test.mjs` (exact suite/spec
-output, headroom, Bash floor and unreadable-input errors), exact split labels in
-`test-shares.test.mjs`, allocation/median assertions in `share-deal.test.mjs`,
-retained-run membership/headroom and browser-group exactly-once assertions.
-Copied-runner and split shell checks passed. Preserved-input status/stdout/stderr
-were byte-identical via `python3 /tmp/dough-slice1-compare-preview.py` for mixed,
-all-recorded, fixed suite inventory and missing-input cases; positive spec
-output is pinned in the CLI test. C14/C15 therefore retain their source result.
-Consumer trace with `formatPreview`, `share-preview`, `readTimeBudget` and
-`parseLabels` is `/tmp/dough-slice1-consumer-trace.md`: actual imports updated,
-including the additional `share-deal.test.mjs` caller; runner-factor, refresh,
-dashboard allocation and timing exports remain unchanged. The copied-runner
-module closure is exercised by its shell check. Unchanged guidance/records
-are not runtime consumers. Active implementation approximately five minutes.
-Early source freshness unchanged at trunk `1e7e5b7b`; no named sibling applies.
-Independent refactor: none — already clean; accepted proof unchanged, whitespace
-checks passed. Final pre-delivery freshness unchanged at trunk `632324cdd`.
+All focused commands use `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh`
+with the complete literal paths on their slice Proof lines.
 
-Slice 1 publication accepted: `02705787579d078863b1f7db65cc2616774cab54`,
-base `b2a86929c6f7c893aff8add58cf23e4b17c07ca2`, on the execution branch;
-existing observer reused. Slice 2 fixture organization retains duration parts
-as one indexed logical list and labels grouped by test feature; this preserves
-all historical rows while meeting the 250-line limit. Classification CLI cases
-live in `share-preview-stale.test.mjs` alongside the existing preview tests.
+- Slice1: eight listed checks passed; exact CLI share labels, tie/median and
+  retained-run allocation/headroom, browser inventory, copied-runner and split
+  execution inspected. `python3 /tmp/dough-slice1-compare-preview.py` matched
+  status/stdout/stderr byte for byte on preserved mixed/current/fixed inventory
+  and error inputs. Consumer trace `/tmp/dough-slice1-consumer-trace.md` covers
+  relocated formatter/budget reader/label parser; all actual callers updated.
+  Independent refactor: already clean; approximately5 active minutes. Published
+  `02705787579d078863b1f7db65cc2616774cab54`, base claim, execution branch.
+- Slice2: four listed checks plus `Distribution/tests/support/share-deal.test.mjs`
+  passed. Actual CLI assertions in `share-preview-stale.test.mjs` observe all
+  four source examples and one-job threshold/only-affected-share behavior.
+  Original indexed timings and feature-group labels preserve all historical
+  rows. Source-review rows retain individual expected/actual locations. Trace
+  `/tmp/dough-slice2-consumer-trace.md` covers every formatter consumer; shared
+  allocation/factor/budget unchanged. Independent refactor: already clean.
+  Formatter caught helper parameter reassignment; local-path repair stayed
+  within that return/trace, and the stale-preview focused check passed again.
+  Approximately12 active minutes. Published
+  `40895f9b444868e537703b2146b76aa456688a5e`, base slice1, execution branch.
+- Slice3: five listed checks passed; inspected real Git/scratch-repo command
+  assertions for2stale shell/Node jobs, added and locally promoted estimates,
+  helper exclusion, assumed headroom, missing-ref exact failure, override and
+  substitute success. Existing classification/spec/error assertions pass.
+  Trace `/tmp/dough-slice3-consumer-trace.md` covers default/Git/glob effects;
+  copied-runner closure exercised, unchanged share/factor/deal proof reused.
+  Documentation matches last-fetched origin/main and no-fetch behavior.
+  Approximately13 active minutes. Independent refactor removed duplicated discovery
+  policy: temporary empty tracked candidates and trunk patterns are listed by
+  the real Bash runner, with cleanup in finally and inherited membership split
+  cleared. Seven focused checks passed (slice3 Proof paths plus
+  `Distribution/tests/test-runner/test-runner-bash.sh` and
+  `Distribution/tests/test-runner/test-runner-split.sh`); the trunk test passed
+  again after the split adjustment. Hidden/promoted/aggregate cases inspected.
+  Trace `/tmp/dough-refactor3-consumer-trace.md`: actual/copy callers covered,
+  unchanged allocation/refresh proof retained. About12 refactor minutes; no
+  open gap. Final freshness unchanged at `7bb999227`.
 
-Slice 2 accepted: supplied-trunk CLI classification meets C03–C12/C20 and
-Q01–Q03/J01–J12 at the five concrete assertions in
-`share-preview-stale.test.mjs`: historical26/639 at1.5 seconds with headroom
-176.7/176.7/178.2 assumed and refresh commands; new-only exact old headroom
-plus estimate5.0; mixed stale26 plus added estimate1.5; one missing trunk job
-marks only its share; all-recorded exact old output. Setup uses shared duration
-builders and independent original fixture bytes/budget. Slice 2’s four listed
-focused paths passed through the Bash5 runner; the affected
-`Distribution/tests/support/share-deal.test.mjs` passed separately.
-Unreadable trunk-label input is observed in `share-preview.test.mjs`.
-Consumer trace `/tmp/dough-slice2-consumer-trace.md` uses formatter, trunk-labels,
-budget reader, unrecorded-jobs and headroom terms: actual formatter callers
-passed; unchanged share/factor/allocation/spec paths retain accepted proof.
-No open gap; about12 active minutes. Freshness unchanged at trunk `7bb999227`.
-Independent refactor: none — already clean, no invalidated proof; whitespace
-and size checks passed. Final freshness unchanged at trunk `7bb999227`.
-Formatting caught a helper parameter reassignment; it now derives a local
-list path. This is inside the accepted refactor paths/trace, with no new
-representation. Its stale-preview focused check passed again; all other proof
-remains unchanged. Fresh preparation is retried after that mechanical repair.
+The same branch observer covers every publication. CI run43727102378/1 was
+cancelled when slice2 run43728001510 was created on the same branch under
+workflow supersession. Bounded inspection: all non-cancelled jobs succeeded;
+only e2e2/6, e2e5/6 and ci-proof cancelled. No failed job to repair.
+
+## Story obligations
+
+### G1. Final refresh covers newly added tests (coordinator discovery)
+Reported: slice 2 — "Coordinator inspection: this story adds tests absent from current main timing artifacts; refreshing main alone can leave them stale once integrated."
+Story clause: "Delivery leaves `Distribution/tests/longest-first` current through the existing refresh, so this repository's own preview reports no stale job."
+Disposition: receiving slice 4
+Commitment: C22

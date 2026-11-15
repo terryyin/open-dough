@@ -1,8 +1,16 @@
 // Preview inputs and text for scripts/test-shares.mjs. Allocation stays in
 // share-deal.mjs; this module reads the suite, duration list and budget.
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+import { tmpdir } from "node:os";
 import { dealShares, parseLabels, readDurationList } from "./share-deal.mjs";
 import { formatSeconds, readInput, TestSharesError } from "./duration-list.mjs";
 
@@ -11,13 +19,20 @@ const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
 // The Node suite's jobs, as scripts/test-jobs.sh lists them over testDir
 // through the Bash on PATH. A refusal it reports as `FAIL:`, such as an older
 // bash than the runner's floor (scripts/bash-floor.bash), is relayed as it is.
-function listNodeSuiteJobs(testDir) {
-  const listing = spawnSync("bash", ["scripts/test-jobs.sh"], {
-    cwd: repositoryRoot,
-    env: { ...process.env, OPEN_DOUGH_TEST_DIR: testDir },
-    encoding: "utf8",
-    maxBuffer: 64 * 1024 * 1024,
-  });
+function listNodeSuiteJobs(
+  testDir,
+  { cwd = repositoryRoot, env = process.env } = {},
+) {
+  const listing = spawnSync(
+    "bash",
+    [join(repositoryRoot, "scripts/test-jobs.sh")],
+    {
+      cwd,
+      env: { ...env, OPEN_DOUGH_TEST_DIR: testDir },
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+    },
+  );
   if (listing.status !== 0) {
     throw new TestSharesError(
       listing.stderr.startsWith("FAIL:")
@@ -40,6 +55,51 @@ async function listDashboardSpecFiles(specDir, root) {
     new URL("../dashboard/tests/support/testFiles.mjs", import.meta.url)
   );
   return dashboardSpecFiles(specDir, [root]);
+}
+
+// The runner owns discovery for both inventories. Empty candidate files let its
+// Bash globbing and exclusions judge trunk membership without running tests.
+function trunkJobLabels(labels) {
+  const ref = "origin/main";
+  const read = (...args) => {
+    const result = spawnSync("git", args, {
+      cwd: repositoryRoot,
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    if (result.status !== 0)
+      throw new TestSharesError(
+        `FAIL: ${ref} cannot be read; fetch it or supply --trunk-labels FILE.`,
+      );
+    return result.stdout;
+  };
+  const files = new Set(
+    parseLabels(read("ls-tree", "-r", "--name-only", "-z", ref)),
+  );
+  const directory = mkdtempSync(join(tmpdir(), "test-share-trunk-"));
+  try {
+    for (const label of labels.filter((label) => files.has(label))) {
+      const path = join(directory, label);
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, "");
+    }
+    const patternsPath = "Distribution/tests/node-test-files";
+    mkdirSync(join(directory, "Distribution/tests"), { recursive: true });
+    if (files.has(patternsPath)) {
+      writeFileSync(
+        join(directory, patternsPath),
+        read("show", `${ref}:${patternsPath}`),
+      );
+    }
+    return new Set(
+      listNodeSuiteJobs("Distribution/tests", {
+        cwd: directory,
+        env: { ...process.env, OPEN_DOUGH_TEST_SPLIT: "" },
+      }).filter((label) => files.has(label)),
+    );
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 }
 
 export async function previewFromOptions(options) {
@@ -72,9 +132,13 @@ export async function previewFromOptions(options) {
         : readTimeBudget(budgetPath).totalJobSeconds,
     budgetName: budgetPath,
     trunkLabels:
-      options["trunk-labels"] === undefined
-        ? undefined
-        : new Set(parseLabels(readInput(options["trunk-labels"]))),
+      options["trunk-labels"] !== undefined
+        ? new Set(parseLabels(readInput(options["trunk-labels"])))
+        : options.labels === undefined &&
+            options["test-dir"] === undefined &&
+            specDir === undefined
+          ? trunkJobLabels(labels)
+          : undefined,
   });
 }
 

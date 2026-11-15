@@ -8,8 +8,8 @@ Historical context returned (not additional promises): H01 DD-537 records a fail
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| C01 | The Distribution pre-push preview distinguishes unrecorded jobs that remote trunk already runs. | slice 3 | |
-| C02 | It separately identifies unrecorded jobs introduced by the current change. | slice 3 | |
+| C01 | The Distribution pre-push preview distinguishes unrecorded jobs that remote trunk already runs. | slice 3 | observed: share-preview-trunk.test.mjs: real default command with remote-tracking trunk; shell and Node stale, added and locally promoted jobs estimates |
+| C02 | It separately identifies unrecorded jobs introduced by the current change. | slice 3 | observed: share-preview-trunk.test.mjs: real default command with remote-tracking trunk; shell and Node stale, added and locally promoted jobs estimates |
 | C03 | Any unrecorded job that trunk already runs makes the duration list stale. | slice 2 | observed: share-preview-stale.test.mjs: retained pre-DD-537 CLI case and single missing trunk job case; first line26, affected shares assumed, documented refresh commands |
 | C04 | A stale preview opens with the stale-list diagnosis. | slice 2 | observed: share-preview-stale.test.mjs: retained pre-DD-537 CLI case and single missing trunk job case; first line26, affected shares assumed, documented refresh commands |
 | C05 | That diagnosis states the number of unrecorded trunk jobs. | slice 2 | observed: share-preview-stale.test.mjs: retained pre-DD-537 CLI case and single missing trunk job case; first line26, affected shares assumed, documented refresh commands |
@@ -20,20 +20,20 @@ Historical context returned (not additional promises): H01 DD-537 records a fail
 | C10 | Those seconds are named as an estimate. | slice 2 | observed: share-preview-stale.test.mjs: current list plus added job; exact old headroom and share2 estimate5.0 |
 | C11 | Newly added jobs alone leave the list classified as current. | slice 2 | observed: share-preview-stale.test.mjs: current list plus added job; exact old headroom and share2 estimate5.0 |
 | C12 | With only newly added jobs unrecorded, share headroom retains today’s presentation. | slice 2 | observed: share-preview-stale.test.mjs: current list plus added job; exact old headroom and share2 estimate5.0 |
-| C13 | Preview exit-status behavior is preserved. | slice 3 | |
+| C13 | Preview exit-status behavior is preserved. | slice 3 | observed: share-preview-trunk.test.mjs: valid command exit0 and required missing-ref exit1; share-preview tests exact budget/headroom; share/deal unchanged with slice1/2 proof |
 | C14 | Deal behavior is preserved. | slice 1 | observed: Distribution/tests/support/test-shares.test.mjs: share prints the whole deal, exact CLI labels; share-deal.test.mjs: ties and median; unchanged share-deal allocation body |
 | C15 | Share allocation behavior is preserved. | slice 1 | observed: Distribution/tests/support/share-deal-recorded-runs.test.mjs: deterministic exactly-once shares and expected memberships; test-runner-split.sh: runner split follows same deal |
-| C16 | Distribution/tests/time-budget behavior is preserved. | slice 3 | |
-| C17 | CI matrix behavior is preserved. | slice 3 | |
-| C18 | Test shares describes the stale reading. | slice 3 | |
-| C19 | Test shares describes the estimate reading. | slice 3 | |
+| C16 | Distribution/tests/time-budget behavior is preserved. | slice 3 | observed: share-preview-trunk.test.mjs: valid command exit0 and required missing-ref exit1; share-preview tests exact budget/headroom; share/deal unchanged with slice1/2 proof |
+| C17 | CI matrix behavior is preserved. | slice 3 | observed: Inspected unchanged .github/workflows/ci.yml and .githooks: matrix and triggers unchanged; no preview hook or CI command added |
+| C18 | Test shares describes the stale reading. | slice 3 | observed: Distribution/tests/test-shares.md: last-fetched origin/main job inventory and supplied override, stale and estimate readings |
+| C19 | Test shares describes the estimate reading. | slice 3 | observed: Distribution/tests/test-shares.md: last-fetched origin/main job inventory and supplied override, stale and estimate readings |
 | C20 | Those descriptions replace its “high unrecorded count” sentence. | slice 2 | observed: Distribution/tests/test-shares.md: Preview before pushing replaces high-count heuristic with stale and estimate readings |
 | C21 | Delivery refreshes Distribution/tests/longest-first through the existing refresh mechanism. | slice 4 | |
-| C22 | This repository’s resulting preview reports no stale job. | slice 4 | |
+| C22 | This repository’s resulting preview reports no stale job. |  | G1 |
 | Q01 | Unrecorded trunk jobs have CI seconds available that the duration list lacks. | slice 2 | observed: share-preview-stale.test.mjs: retained pre-DD-537 CLI case and single missing trunk job case; first line26, affected shares assumed, documented refresh commands |
 | Q02 | Newly introduced jobs have not yet been timed by a CI run. | slice 2 | observed: share-preview-stale.test.mjs: current list plus added job; exact old headroom and share2 estimate5.0 |
 | Q03 | Stale-job counts include trunk jobs only. | slice 2 | observed: share-preview-stale.test.mjs: retained pre-DD-537 CLI case and single missing trunk job case; first line26, affected shares assumed, documented refresh commands |
-| Q04 | Exit status, deal, allocation, time budget and CI matrix remain inputs to the contributor’s judgment. | slice 3 | |
+| Q04 | Exit status, deal, allocation, time budget and CI matrix remain inputs to the contributor’s judgment. | slice 3 | observed: share-preview-trunk.test.mjs: valid command exit0 and required missing-ref exit1; share-preview tests exact budget/headroom; share/deal unchanged with slice1/2 proof |
 | Q05 | Contributors and agents changing the Distribution inventory should be able to identify whether preview headroom rests on recorded CI seconds or a stale list. | slice 4 | |
 | Q06 | The intended journey is to judge a thin share using that evidence. | slice 4 | |
 | Q07 | The intended journey includes refreshing the stale list before pushing, rather than discovering the problem after a failed CI run. | slice 4 | |
@@ -49,7 +49,7 @@ Historical context returned (not additional promises): H01 DD-537 records a fail
 | J10 | Given every job recorded, the preview retains today’s presentation. | slice 2 | observed: share-preview-stale.test.mjs: fully recorded exact existing output |
 | J11 | For J10, no stale lines appear. | slice 2 | observed: share-preview-stale.test.mjs: fully recorded exact existing output |
 | J12 | For J10, no estimate lines appear. | slice 2 | observed: share-preview-stale.test.mjs: fully recorded exact existing output |
-| X01 | The dashboard spec-file preview (--spec-dir) is outside the delivery commitment; it has no budget or headroom. | slice 3 | |
-| X02 | Detecting drift in recorded seconds for jobs already named in the list is excluded. | slice 3 | |
-| X03 | Running the preview from a push hook is excluded. | slice 3 | |
-| X04 | Running the preview from a CI check is excluded. | slice 3 | |
+| X01 | The dashboard spec-file preview (--spec-dir) is outside the delivery commitment; it has no budget or headroom. | slice 3 | observed: share-preview.test.mjs: existing spec command exact unclassified output without ceiling |
+| X02 | Detecting drift in recorded seconds for jobs already named in the list is excluded. | slice 3 | observed: Inspected trunkJobLabels and formatter: classification only unrecorded jobs, no drift comparison added |
+| X03 | Running the preview from a push hook is excluded. | slice 3 | observed: Inspected unchanged .github/workflows/ci.yml and .githooks: matrix and triggers unchanged; no preview hook or CI command added |
+| X04 | Running the preview from a CI check is excluded. | slice 3 | observed: Inspected unchanged .github/workflows/ci.yml and .githooks: matrix and triggers unchanged; no preview hook or CI command added |

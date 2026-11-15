@@ -55,8 +55,11 @@ in `.github/workflows/ci.yml`, sized by the
 `scripts/test-jobs.sh` and prints each share's predicted job-seconds with its
 headroom to `total-job-seconds` in `Distribution/tests/time-budget`, then every unrecorded job with its share and the assumed
 seconds. The predictions use recorded CI seconds, never local timing. With
-`--trunk-labels FILE` (one checkout-relative job path per line), any unrecorded
-job that trunk already runs makes the list stale: the preview says so first,
+the default suite, the preview reads runnable job paths from the last fetched
+remote-tracking `origin/main` with `git ls-tree`, including that revision’s
+`node-test-files` patterns. It does not fetch. `--trunk-labels FILE` (one
+checkout-relative job path per line) supplies a substitute trunk inventory.
+Any unrecorded job that trunk already runs makes the list stale: the preview says so first,
 counts those jobs, and marks each affected share's headroom as resting on
 assumed seconds. A job this change adds stays in its share as an estimate at
 the recorded median; new jobs alone leave the list current and the headroom
@@ -79,7 +82,10 @@ dashboard's browser/backend spec roots under that common directory instead
 (`--spec-dir dashboard`), with no budget
 ([dashboard/tests/shards.md](../../dashboard/tests/shards.md)); `--list`,
 `--budget` and `--labels <file>` (labels one per line) name the inputs
-directly, and without a budget the preview prints no headroom.
+directly, and without a budget the preview prints no headroom. A preview given
+`--labels`, `--test-dir` or `--spec-dir` without `--trunk-labels` keeps the
+unclassified unrecorded listing, since those inputs do not identify a trunk.
+An unreadable `origin/main` fails naming the ref and `--trunk-labels` override.
 
 ## Proof
 
@@ -87,7 +93,7 @@ directly, and without a budget the preview prints no headroom.
 CI runs (`Distribution/tests/support/fixtures/node-suite-ci-runs/`),
 `Distribution/tests/support/share-deal.test.mjs` its rules on small inputs,
 `Distribution/tests/support/test-shares.test.mjs` the share and refresh commands,
-`Distribution/tests/support/share-preview{,-stale}.test.mjs` the preview command, and
+`Distribution/tests/support/share-preview{,-stale,-trunk}.test.mjs` the preview command, and
 `Distribution/tests/test-runner/test-runner-split.sh` that the runner's shares follow it. The
 dashboard's spec-file shards use the same allocator through
 `dashboard/tests/support/testFiles.mjs`
