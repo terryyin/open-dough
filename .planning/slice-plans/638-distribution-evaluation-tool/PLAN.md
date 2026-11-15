@@ -72,41 +72,29 @@ remain applicable except for the sizing assumption corrected below.
 ### 1. Relocate the shared host-stream reader
 Type: Structure
 Status: done
-Proof: real retained-stream replay, Codex/session/ownership tests, input identity
-and snapshots; [commands and observations](slice-1-evidence.md).
-
-Move only `native-host-stream*.mjs`, `native-host-stream.sh` and
-`native-codex-session.mjs` to `evaluation/src/`; keep shared shell host launch,
-supervision, retention, observation and import-closure helpers in support until slice 3.
-Rewire direct/transitive imports and identity input lists, guard ownership and
-fixture snapshots. Exclude test-only substitutes/materializers/inventories.
-Resolve deleted tracked snapshot entries now. This enables slice 2's ADR entry.
-Reuse compatible reader repairs from attempt 2; preserve captured stream bytes.
+Proof: [accepted reader, replay, identity and snapshot observations](slice-1-evidence.md).
+Six reader/session modules now live in src with unchanged runtime bodies.
+Their guard/import/identity/copy consumers pass; this enabled the ADR entry.
 
 ### 2. Invoke ADR acceptance from the evaluation home
 Type: Behavior
 Status: done
-Proof: existing ADR context/use/delivery and installed-use adapters through
-controlled hosts; [commands and observations](slice-2-evidence.md).
-
-Existing ADR case/host options → `evaluation/cases/adr-awareness/` entry → same
-isolated setup, assessment, retention and cleanup. Move only the ADR family
-and scenarios/assessors, separate routine test branches, keep all other families
-at current paths. Reuse the reader and remaining support helpers. Add README
-layout and ADR commands; ordinary tests stay at old locations until slice 6.
+Proof: [accepted ADR, lifecycle, payload and copied-source observations](slice-2-evidence.md).
+Thirteen ADR modules and 21 byte-identical fixture files now live in cases;
+the new README/native commands preserve options and lifecycle. G8 stays owned by slice 6.
 
 ### 3. Relocate remaining shared native execution
 Type: Structure
 Status: planned
 Proof: supervision/failure/timeout/isolation, retention, identity, comparison
-snapshots, publication shim discovery and stable one-shot checks.
+snapshots, publication shim discovery and the existing one-shot group journeys.
 
 Move the remaining actual shared runtime modules to `evaluation/src/` using
-attempt 2's classified map and compatible repairs, preserving slice1's reader.
+attempt 2's classified map and compatible repairs, preserving slice 1's reader.
 Keep native identity source/inventory/supervision test inputs in support.
 Update module-relative shell sources, copied-source fixture roots, import closure,
-identity lists and executable-owner shim discovery. Diagnose and repair the
-one-shot safety-deadline defect without relaxing timeout or dropping proof.
+identity lists and executable-owner shim discovery. G7 is an independent
+named-aggregate correction owned by slice 7; preserve its unchanged behavior here.
 This immediately enables slice 4's remaining families from their final home.
 
 ### 4. Invoke remaining acceptance families from their home
@@ -157,6 +145,19 @@ Intent sources to executable checks only. Exercise shell/Node outcomes through
 real CI fragments/summary including failures. Complete README prerequisites,
 commands/evidence limits and live navigation. Run final suite and 3-share preview.
 
+### 7. Settle named one-shot aggregate execution
+Type: Behavior
+Status: planned
+Proof: the selected aggregate retains every scenario, reports under the chosen
+contract and completes within unchanged job deadlines under supported load.
+
+G7 correction: a maintainer names the one-shot aggregate → its existing groups
+run with preserved assertions and an honest terminal result. Existing named
+selection promises one job per named file; expanding to its three existing
+jobs changes reporting. Await the pending human contract choice before changing
+that path. [Measured cause, scope and required proof](attempt-3.md) retain both
+failed and passing observations; a passing retry is no repair.
+
 ## Execution gates and current decisions
 
 - Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
@@ -195,8 +196,9 @@ commands/evidence limits and live navigation. Run final suite and 3-share previe
 - First attempt overran; [attempt and sizing evidence](attempt-1.md) preserves
   elapsed time, proof, failures and parked changes. Refined to four bounded
   slices initially; the second overrun triggered [story-boundary reassessment](attempt-2.md).
-  Continue six bounded slices with unchanged scope and two immediate
-  Structure/Behavior pairs; no delivered product outcome is discarded.
+  The third attempt mixed runtime movement and independent aggregate diagnosis.
+  [Reassessment](attempt-3.md) retains seven slices with unchanged source goal;
+  only slice 7 waits for the reporting-contract choice. No delivered value is discarded.
 
 ## Execution context
 
@@ -240,7 +242,7 @@ Disposition: proved by slice 1: slice-1-evidence.md command 1; native-admission-
 ### G7. One-shot safety deadline
 Reported: slice 1 — "one-shot aggregate hit the existing 180-second safety deadline during the broad selected gate"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: receiving slice 3
+Disposition: receiving slice 7
 
 ### G8. Mixed default-check bodies in moved ADR entries
 Reported: slice 2 — "Routine test entries remain at old paths and currently dispatch mixed default branches in the moved cases (interim extraction needed in slice 6)."
