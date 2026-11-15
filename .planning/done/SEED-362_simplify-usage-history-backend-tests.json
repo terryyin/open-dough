@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-362#simplify-usage-history-backend-tests",
+  "title": "Simplify usage-history backend tests with MakeMe builders",
+  "completedAt": "2026-11-15T02:31:09.116Z",
+  "developer": "Terry Yin",
+  "agent": "joey-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "Dough Intent Coverage — Caught.\n\nChecked revision: 9a87a57b2d069db45184a17e7cc57b75bb41cf05\nPromise: Codex own-response key example.\nFault: zero charged counters in CodexRolloutBuilder.please.\nCaught by: dashboard/backend-tests/usage-history/codex-usage.spec.ts taskUsage assertion.\nDisposition: retain that assertion; no follow-up.\n"
+  }
+}
