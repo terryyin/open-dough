@@ -7,9 +7,10 @@ import { buildDateWords, standInBuildWords } from "./ciHistoryWords.ts";
 import { declaredUnits, unitName, type DeclaredUnit } from "./ciProofUnits.ts";
 import { executionTimeWords } from "./ciProofTimeWords.ts";
 import type { ScopeHistoryGlance, ScopeGlanceEntry } from "./ciScopeHistory.ts";
-import { isMeasured, type HistoryChartBuild } from "./ciHistoryChart.ts";
+import { isMeasured, type HistoryChartEntry } from "./historyChartSeries.ts";
+import { executionTimeAxis, priorAverageReference } from "./ciDurationAxis.ts";
 import { gapStatus } from "./ciFailedBuild.ts";
-import { IntentCiHistoryChart } from "./IntentCiHistoryChart.tsx";
+import { HistoryChart } from "./HistoryChart.tsx";
 import {
   scopeHistoryEndpointWords,
   scopeHistoryReason,
@@ -55,7 +56,7 @@ function UnitHistory({
   const comparison = history.references?.find(
     (candidate) => candidate.unit === unit,
   );
-  const builds = history.entries.map((entry): HistoryChartBuild => {
+  const builds = history.entries.map((entry): HistoryChartEntry => {
     const reading = entry.readings.find((each) => each.unit === unit);
     const common = {
       key: entry.key,
@@ -66,7 +67,7 @@ function UnitHistory({
       return {
         ...common,
         kind: "point",
-        ms: reading.ms,
+        value: reading.ms,
         segment: reading.segment,
         description: `${buildDateWords(entry.date)} · ${executionTimeWords(reading.ms)} · ${name} · ${provenanceWords(entry)}${entry.selected ? ` · ${endpointWords}` : ""}`,
       };
@@ -97,13 +98,16 @@ function UnitHistory({
           No complete test execution times are available for {name}.
         </p>
       ) : (
-        <IntentCiHistoryChart
+        <HistoryChart
           series={{
             label: `Test execution time for ${name} by build date; ${endpointWords.toLowerCase()} marked`,
-            precise: true,
+            axis: executionTimeAxis,
             selectedLabel: scopeHistorySelectionWords(context),
-            builds,
-            averageMs: comparison?.reference.averageMs,
+            entries: builds,
+            reference: priorAverageReference(
+              executionTimeAxis,
+              comparison?.reference.averageMs,
+            ),
           }}
         />
       )}

@@ -14,7 +14,7 @@ import {
   expectFailedMarkPainted,
   expectMarkOver,
   inspectMark,
-} from "../ciHistoryChartPage.ts";
+} from "../historyChartPage.ts";
 import { fileProofTable } from "../intentFileProofPage.ts";
 import {
   fileReadingTab,

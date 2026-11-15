@@ -4,7 +4,7 @@
 // landing, from real retained history through the authenticated read of the
 // Done story the worker keeps (../support/keptPublishedStory.ts).
 import { shortSha } from "../../src/baseCiWording.ts";
-import { inspectMark } from "../ciHistoryChartPage.ts";
+import { inspectMark } from "../historyChartPage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 import { expectStackedInOrder } from "../partArrangement.ts";
 import {

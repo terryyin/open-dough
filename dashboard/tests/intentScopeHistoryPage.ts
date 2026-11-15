@@ -2,11 +2,11 @@
 // (../src/IntentScopeTimingHistory.tsx) as a reader meets it: its brief
 // status, what it measures, the Test cases / Test file choice, the shared
 // compact readout (./priorBuildReferencePage.ts) and chart
-// (./ciHistoryChartPage.ts) of the chosen unit, and its freshness, failure and
+// (./historyChartPage.ts) of the chosen unit, and its freshness, failure and
 // retry. Expected readings and the requests, store changes and native input
 // that cause them belong to scenarios.
 import type { Locator, Page } from "@playwright/test";
-import { historyChart, type InspectBy } from "./ciHistoryChartPage.ts";
+import { historyChart, type InspectBy } from "./historyChartPage.ts";
 import { expect } from "./dashboardTest.ts";
 import { compactReadout } from "./priorBuildReferencePage.ts";
 

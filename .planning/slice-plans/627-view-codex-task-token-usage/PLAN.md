@@ -2,6 +2,7 @@
 
 **Identity:** SEED-357#view-token-usage-for-dashboard-launched-tasks
 **Source:** [selected story](../../seeds/SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -37,7 +38,8 @@ permanently (SEED-358).
   builds and milliseconds. Prefer generalizing that layout with a value axis
   and value formatter, so Usage and CI history share one chart model. Add a
   second chart layout only when the generalization would distort CI history,
-  and record the reason in Learnings.
+  and record the reason in Learnings. Slice 1 generalized it in place; see
+  Learnings for the current names.
 - **System settings.** `dashboard/src/SystemSettings.tsx` is one page of
   sections today. Usage becomes a separate view within System settings, as in
   the approved mockup. The existing sections stay together as General.
@@ -87,7 +89,7 @@ before commit.
 
 ### 1. Usage shows the Token index trend for finished Codex executions
 Type: Behavior
-Status: planned
+Status: done
 Proof: integrated journey on a fixture store with 12 finished dashboard Codex
 Execution tasks on GPT-6.1 Sol, one carrying a GPT-6 Astra worker. Opening
 System settings → Usage with Codex, Execution, All models and Any effort shows
@@ -176,6 +178,38 @@ updates. Overlap with an offline import counts each response once.
   test-built version. Assertions compare observed index values with arithmetic
   on the fixture's counters, never with copied rate constants.
 - The mockup stays until wrap-up, per the seed's temporary design reference.
+- Test placement follows the current [test roots](../../../dashboard/tests/README.md#roots-journeys-integrated-ui-checks-frontend-only-and-boundary-tests): each slice's "integrated journey" is one representative journey in `e2e/configuration/` (real server, fixture store in its HOME); presentation and interaction details with controlled answers go in `dashboard/frontend-tests/`; derivation and server variants go in `dashboard/backend-tests/usage-history/`. No new spec is added to the interim `dashboard/tests/` group.
+
+## Learnings
+
+- **Slice 1 (accepted).** Usage reads `GET /__usage/token-index`
+  (`dashboard/server/usageBoundary.ts`). A request reads only
+  `usage-task-summary.json` beside the store and the digest of the store
+  manifest. When the summary is missing, of another format, or derived from
+  another manifest, `usageTaskSummaryCache.ts` rebuilds it in a separate
+  `node usageTaskSummaryMain.ts` process. Concurrent requests share one
+  rebuild, and an importer run shows up without Refresh. The summary keeps
+  each dashboard Codex task's facts and its counters grouped per (model,
+  effort, root or worker). Pricing happens at read time (`tokenIndex.ts`,
+  tariff in `usageTariffs.ts`, cohort in `tokenIndexCohort.ts`). `checkedAt`
+  is currently the summary derivation time; slice 5 decides what a Refresh
+  check time means. Slice 4 adds coverage counts to the summary groups and
+  bumps `summaryFormat`.
+- Recovered tasks record the invoked skill (`dough-execute-plan`) as their
+  workflow. `tokenIndexCohort.launchWorkflowOf` maps it through
+  `launchWorkflows[*].skill`.
+- The chart was generalized without distorting CI history, then renamed:
+  `dashboard/src/historyChartSeries.ts` (`HistoryChartEntry`, `entries`),
+  `historyChartLayout.ts`, `HistoryChart.tsx`, `HistoryChartPlot.tsx`, the
+  `ValueAxis` in `chartValueAxis.ts`, CI duration axes in `ciDurationAxis.ts`,
+  classes `history-chart-*`, and the page object
+  `dashboard/tests/historyChartPage.ts`. The Usage page object is
+  `dashboard/tests/support/systemSettingsUsagePage.ts`.
+- e2e specs cannot import `dashboard/src/ciHistoryWords.ts` (it reaches a
+  `.tsx` file), so the e2e Usage journey formats expected words itself.
+- Local proof under external load (about 28): 3 integrated chart-consumer
+  specs timed out at 2 workers before any chart was drawn, and passed 5 of 5
+  at 1 worker. Hosted CI is the verdict; a recurrence there is owed a repair.
 
 ## Verification, sizing and concern review
 

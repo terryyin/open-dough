@@ -110,6 +110,33 @@ async function* partitionRows(
     }
   }
 }
+// Each stored value of one collection, unvalidated and in page rather than
+// insertion order, from the store `document` already read from `file`: for a
+// whole-store derivation (./usageTaskSummary.ts) that cannot afford schema
+// validation and trusts the store's own writer.
+export async function* unvalidatedValues(
+  file: string,
+  document: unknown,
+  kind: Collection,
+): AsyncGenerator {
+  const stored = document as {
+    format?: unknown;
+    pages?: Manifest["pages"];
+  } & Partial<Record<Collection, object>>;
+  if (stored.format !== manifestSchema.shape.format.value) {
+    yield* Object.values(stored[kind] ?? {});
+    return;
+  }
+  for (const [key, names] of Object.entries(stored.pages ?? {})) {
+    if (!key.startsWith(pageKey(kind, ""))) continue;
+    for (const name of names) {
+      const rows = JSON.parse(
+        await readFile(path.join(pageDirectory(file), name), "utf8"),
+      ) as Row[];
+      for (const row of rows) yield row[1];
+    }
+  }
+}
 // Merge ordered partition streams, retaining at most one bounded page per
 // partition. Original object insertion order survives migration and enrichment.
 export async function* snapshotRows(

@@ -8,7 +8,7 @@ import {
   expectMarksByTab,
   historyChart,
   inspectMark,
-} from "../tests/ciHistoryChartPage.ts";
+} from "../tests/historyChartPage.ts";
 import { scopeHistory } from "../tests/intentScopeHistoryPage.ts";
 import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
 import {

@@ -5,7 +5,7 @@
 // measured and over which dates, it says the history is collected from
 // dashboard-recorded landings, gives the latest measured build's CI wall
 // time, draws the measured builds as a line of CI wall time by date that each
-// gap breaks (`./IntentCiHistoryChart.tsx`), and lists each point and gap
+// gap breaks (`./HistoryChart.tsx`), and lists each point and gap
 // under Builds and evidence in the history's order: a point with its date, CI
 // wall time, each landing it stands for and how -- the landed revision's own
 // build, a reused equivalent or a later trunk build, with the build's
@@ -41,7 +41,7 @@ import {
   type HistoryWords,
 } from "./ciHistoryWords.ts";
 import { HistoryRunAttempt } from "./HistoryRunAttempt.tsx";
-import { IntentCiHistoryChart } from "./IntentCiHistoryChart.tsx";
+import { HistoryChart } from "./HistoryChart.tsx";
 import {
   isPoint,
   landedCiEntryKey,
@@ -175,7 +175,7 @@ export function IntentCiHistory({
                 <dt>Latest measured build</dt>
                 <dd>{pointWallTimeWords(latest)}</dd>
               </dl>
-              <IntentCiHistoryChart
+              <HistoryChart
                 series={landedHistorySeries(entries, {
                   averageMs: shown.reference?.averageMs,
                 })}

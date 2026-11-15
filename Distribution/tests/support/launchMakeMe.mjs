@@ -25,7 +25,11 @@ import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { ClaudeListingRowBuilder } from "./claudeListingTestData.mjs";
 import { CursorCliConfigBuilder } from "./cursorCliConfigTestData.mjs";
 import { RunningCursorSessionsBuilder } from "./runningCursorSessionsTestData.mjs";
-import { UsageTaskBuilder } from "./usageHistoryTestData.mjs";
+import {
+  UsageAssociationBuilder,
+  UsageObservationBuilder,
+  UsageTaskBuilder,
+} from "./usageHistoryTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 
 /** @typedef {import("../../../dashboard/server/startStore.ts").StartRecord} StartRecord */
@@ -40,6 +44,8 @@ import { copyFacts } from "./factBuilder.mjs";
  *
  * @typedef {object} LaunchMakeMe
  * @property {UsageTaskBuilder} aUsageTask
+ * @property {UsageObservationBuilder} aUsageObservation
+ * @property {UsageAssociationBuilder} aUsageAssociation
  * @property {FactBuilder<StartRecord>} aStartRecord
  * @property {import("./launchTestData.mjs").LaunchRecordBuilder} aLaunchRecord
  * @property {import("./launchRequestTestData.mjs").LaunchRequestBuilder} aLaunchRequest
@@ -70,6 +76,18 @@ export function launchMakeMeProperties() {
       enumerable: true,
       get() {
         return new UsageTaskBuilder();
+      },
+    },
+    aUsageObservation: {
+      enumerable: true,
+      get() {
+        return new UsageObservationBuilder();
+      },
+    },
+    aUsageAssociation: {
+      enumerable: true,
+      get() {
+        return new UsageAssociationBuilder();
       },
     },
     aStartRecord: {

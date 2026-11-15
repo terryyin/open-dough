@@ -1,22 +1,24 @@
-// One responsive dated timing chart for collected history. Project CI status
-// and a Done CI comparison supply wall time (`./landedCiHistorySeries.ts`);
-// scope Proof supplies precise execution time, compatible segments and its
-// builds without timing. All use the same
-// placement and marks (`./ciHistoryChartLayout.ts`, `./IntentCiHistoryPlot.tsx`):
+// One responsive dated chart for collected history. Project CI status and a
+// Done CI comparison supply wall time (`./landedCiHistorySeries.ts`); scope
+// Proof supplies precise execution time, compatible segments and its builds
+// without timing; System settings → Usage supplies each finished task's
+// Token index with its moving average as the trend. All use the same
+// placement and marks (`./historyChartLayout.ts`, `./HistoryChartPlot.tsx`):
 // a gap never acquires a numeric point or joining stroke. Every mark is also
 // a button laid over the drawing, in history order, so pointer, keyboard focus
-// and touch each show its short date and timing or status in one readout.
+// and touch each show its short date and value or status in one readout.
 
 import { useLayoutEffect, useRef, useState } from "react";
-import { isMeasured, type HistoryChartSeries } from "./ciHistoryChart.ts";
+import { isMeasured, type HistoryChartSeries } from "./historyChartSeries.ts";
 import {
   chartHeight,
   chartLayout,
   minimumChartWidth,
   type ChartLayout,
   type ChartMark,
-} from "./ciHistoryChartLayout.ts";
-import { IntentCiHistoryPlot } from "./IntentCiHistoryPlot.tsx";
+} from "./historyChartLayout.ts";
+import { HistoryChartPlot } from "./HistoryChartPlot.tsx";
+import "./history-chart.css";
 
 function useBoxWidth() {
   const box = useRef<HTMLDivElement>(null);
@@ -37,22 +39,22 @@ function useBoxWidth() {
   return { box, width };
 }
 
-const isSelected = (mark: ChartMark) => mark.build.selected === true;
+const isSelected = (mark: ChartMark) => mark.entry.selected === true;
 
 // The marks as buttons over the drawing and the readout of the one the reader
-// last pointed at, focused or tapped; the selected build's, or else the
-// latest build's, until then.
+// last pointed at, focused or tapped; the selected entry's, or else the
+// latest entry's, until then.
 function MarkReadout({ layout }: { readonly layout: ChartLayout }) {
   const [inspected, setInspected] = useState<string>();
   const shown =
-    layout.marks.find((mark) => mark.build.key === inspected) ??
+    layout.marks.find((mark) => mark.entry.key === inspected) ??
     layout.marks.find(isSelected) ??
     layout.marks.at(-1);
   return (
     <>
-      <div className="intent-ci-history-marks">
+      <div className="history-chart-marks">
         {layout.marks.map((mark) => {
-          const { key } = mark.build;
+          const { key } = mark.entry;
           const inspect = () => {
             setInspected(key);
           };
@@ -60,7 +62,7 @@ function MarkReadout({ layout }: { readonly layout: ChartLayout }) {
             <button
               key={key}
               type="button"
-              className="intent-ci-history-mark"
+              className="history-chart-mark"
               aria-label={mark.readout}
               aria-current={mark === shown ? "true" : undefined}
               style={{ left: mark.x, top: mark.y }}
@@ -71,33 +73,33 @@ function MarkReadout({ layout }: { readonly layout: ChartLayout }) {
           );
         })}
       </div>
-      <p className="intent-ci-history-readout" aria-live="polite">
+      <p className="history-chart-readout" aria-live="polite">
         {shown?.readout}
       </p>
     </>
   );
 }
 
-export function IntentCiHistoryChart({
+export function HistoryChart({
   series,
 }: {
   readonly series: HistoryChartSeries;
 }) {
   const { box, width } = useBoxWidth();
   const layout =
-    width > minimumChartWidth && series.builds.some(isMeasured)
+    width > minimumChartWidth && series.entries.some(isMeasured)
       ? chartLayout(series, width)
       : undefined;
   return (
-    <div className="intent-ci-history-chart">
-      <div ref={box} className="intent-ci-history-plot">
+    <div className="history-chart-chart">
+      <div ref={box} className="history-chart-plot">
         <svg
           role="img"
           aria-label={series.label}
           width="100%"
           height={chartHeight}
         >
-          {layout !== undefined && <IntentCiHistoryPlot layout={layout} />}
+          {layout !== undefined && <HistoryChartPlot layout={layout} />}
         </svg>
         {layout !== undefined && <MarkReadout layout={layout} />}
       </div>

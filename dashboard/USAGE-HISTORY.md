@@ -196,7 +196,10 @@ publishes the manifest. Readers keep the manifest they opened and see one cohere
 snapshot while another process publishes. Unreferenced pages, including leftovers
 from an interrupted write, contribute no facts. Retain the manifest and its page
 directory together when copying or backing up history; old pages remain available
-for readers holding an earlier manifest.
+for readers holding an earlier manifest. System settings → Usage reads only the
+derived `usage-task-summary.json` beside them, which a separate process rebuilds
+from the pages when it is missing or the manifest changes, never writing to the
+store; it needs no backup.
 
 The logical document remains version 1. A legacy monolithic version 1 file remains
 readable and migrates on the next successful write. The `read` command streams

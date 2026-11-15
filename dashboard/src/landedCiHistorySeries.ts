@@ -1,5 +1,5 @@
 // Collected CI wall time as the shared chart's dated series
-// (`./ciHistoryChart.ts`): each measured build a point, each gap a dated mark
+// (`./historyChartSeries.ts`): each measured build a point, each gap a dated mark
 // with its status words, and a gap starting a new line segment. Project CI
 // status draws its whole window. A Done endpoint's glance read
 // (`./ciDoneWallTimeHistory.ts`) answers only the verified observations
@@ -13,9 +13,10 @@ import {
   pointWallTimeWords,
 } from "./ciHistoryWords.ts";
 import type {
-  HistoryChartBuild,
+  HistoryChartEntry,
   HistoryChartSeries,
-} from "./ciHistoryChart.ts";
+} from "./historyChartSeries.ts";
+import { priorAverageReference, wallTimeAxis } from "./ciDurationAxis.ts";
 import { gapStatus, isKnownFailed } from "./ciFailedBuild.ts";
 import type { PriorBuildFigures } from "./ciPriorBuildReference.ts";
 import { evidenceOfEntry } from "./landedCiBuildKey.ts";
@@ -34,7 +35,7 @@ export function landedHistorySeries(
   } = {},
 ): HistoryChartSeries {
   let segment = 0;
-  const builds = entries.map((entry): HistoryChartBuild => {
+  const builds = entries.map((entry): HistoryChartEntry => {
     const key = landedCiEntryKey(entry);
     const selected = options.isSelected?.(entry) === true;
     if (entry.kind === "point")
@@ -42,7 +43,7 @@ export function landedHistorySeries(
         kind: "point",
         key,
         date: entry.startedAt,
-        ms: entry.wallTimeMs,
+        value: entry.wallTimeMs,
         segment: String(segment),
         selected,
         description: `${buildDateWords(entry.startedAt)} · ${pointWallTimeWords(entry)} · ${plainWords(pointLandingsWords(entry))}`,
@@ -58,8 +59,9 @@ export function landedHistorySeries(
   });
   return {
     label: options.label ?? "CI wall time by build date",
-    builds,
-    averageMs: options.averageMs,
+    entries: builds,
+    axis: wallTimeAxis,
+    reference: priorAverageReference(wallTimeAxis, options.averageMs),
   };
 }
 

@@ -9,7 +9,7 @@
 // chart's drawn points and line.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { historyChart } from "./ciHistoryChartPage.ts";
+import { historyChart } from "./historyChartPage.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
@@ -39,14 +39,14 @@ export const historyOf = (panel: Locator) =>
 export const buildEvidenceRows = (builds: Locator) =>
   builds.getByRole("listitem");
 
-// The history's chart of CI wall time by build date (./ciHistoryChartPage.ts).
+// The history's chart of CI wall time by build date (./historyChartPage.ts).
 export const wallTimeChart = (history: Locator) =>
   historyChart(history, "CI wall time by build date");
 
 // The displayed build history, without choosing its dates, values or evidence.
 export function buildHistoryReading(history: Locator) {
   const chart = wallTimeChart(history);
-  const reference = history.locator(".intent-ci-history-reference");
+  const reference = history.locator(".history-chart-reference");
   const evidence = history.getByRole("list", { name: "Builds and evidence" });
   return {
     heading: history.getByRole("heading"),

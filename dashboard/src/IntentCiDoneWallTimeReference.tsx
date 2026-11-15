@@ -10,7 +10,7 @@
 // (`./IntentCiHistoryPanel.tsx`).
 import { RefreshCw } from "lucide-react";
 import { shortSha } from "./baseCiWording.ts";
-import { isMeasured } from "./ciHistoryChart.ts";
+import { isMeasured } from "./historyChartSeries.ts";
 import {
   doneStandInOf,
   doneWallTimeAvailabilityWords,
@@ -18,7 +18,7 @@ import {
 import { standInBuildWords } from "./ciHistoryWords.ts";
 import { IconButton } from "./Icon.tsx";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
-import { IntentCiHistoryChart } from "./IntentCiHistoryChart.tsx";
+import { HistoryChart } from "./HistoryChart.tsx";
 import { IntentCiHistoryPanel } from "./IntentCiHistoryPanel.tsx";
 import { IntentCiPriorBuildReference } from "./IntentCiPriorBuildReference.tsx";
 import { doneWallTimeSeries } from "./landedCiHistorySeries.ts";
@@ -109,8 +109,8 @@ export function IntentCiDoneWallTimeReference({
           selectedNote={standInWords(shown, endpoint?.revision)}
         />
       )}
-      {series?.builds.some(isMeasured) === true && (
-        <IntentCiHistoryChart series={series} />
+      {series?.entries.some(isMeasured) === true && (
+        <HistoryChart series={series} />
       )}
     </IntentCiHistoryPanel>
   );
