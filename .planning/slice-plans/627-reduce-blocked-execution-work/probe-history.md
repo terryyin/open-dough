@@ -112,3 +112,14 @@ the known native-journey floor of 10,330,545, the visible combined floor is
 96,101,866 tokens, not a complete total, billing claim or measured improvement.
 The snapshot is `/tmp/seed356-root-evaluation-usage-snapshot.json`; its source is
 the current coordinator rollout `01a1dc65-0f52-7a51-b646-7322bc75ad39`.
+
+## Approved supplier-watch native probe
+
+The [frozen native record](../../../Distribution/tests/native-comparison/supplier-watch/comparisons/seed356-watch-baseline-20261115-opportunity.md)
+retains exact preparation CI, the single command, publication timing, authentic
+manual watch review and immutable export. Quality passed; reproduction and a
+worthwhile removal did not. Budget 3/6 consumed, no candidate/retry. Known native
+evaluation now totals at least 19,267,383 processed tokens, including the earlier
+partial invalid journey. Adding the already-recorded root snapshot gives a
+visible floor of 105,038,704; workers and later coordinator work remain excluded.
+These are evaluation costs, not complete billing or an improvement measurement.

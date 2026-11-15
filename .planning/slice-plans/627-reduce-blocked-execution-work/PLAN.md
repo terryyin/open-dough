@@ -13,7 +13,7 @@ targeted reduction. Terry authorized this plan update and continuation on
 is a valid narrow opportunity stop, not a falsification of the original
 long-wait hypothesis or a measured non-regression result. Preserve that evidence.
 
-Keep the source's gain/quality bars and approved six-journey cap (2 used, 4 remaining).
+Keep the source's gain/quality bars and approved six-journey cap (3 used, 3 remaining).
 Terry approved two fixed 180-second native windows as the scoped exception
 recorded in the source. Finish controlled observation/export proof before the
 fresh blocked baseline; no optimization or candidate until it reproduces the
@@ -105,25 +105,29 @@ settles the native intervals and six-journey allocation. Complete authentic
 handle/exposure decoding and compact phase-evidence replay before the native
 baseline; no product optimization is selected.
 
-Controlled preparation passed the new in-flight and supplier-watch checks,
-existing supplier regressions and affected retention/ownership checks. It proves
-delivery during an active substitute command, hold preservation, exactly-once
-continuation/proof and cleanup, without native model observations. The broader
-run exposed two repaired defects: duplicate input recovery and an incomplete
-MakeMe runtime in the source fixture; targeted renewal passed. Native launch
-is enabled only for the approved profile after publication/freeze. Authentic
-receipt calibration, controlled fixed-deadline scheduling, conservative exposure
-and compact phase replay passed; genuine native watch behavior remains unproved.
-Slice 3 remains planned; this is a publishable controlled increment, not its
-native acceptance or a saving/non-regression result.
-Independent refactoring consolidated owned-run setup and lifecycle in
-`native-run-owned.sh`; ten affected checks passed, followed by four source-loading,
-fixture and identity renewals after extraction. Native preparation adds thirteen
-receipt/exposure cases, two mocked native-scheduler cases and actual supplier
-export/reassessment plus clock/publisher failure cleanup. Independent refactoring
-keeps shared wire data separate from decoder and case-evidence proof; affected
-renewal passed. Freeze a two-cycle empty-wait signal with distinct owned responses
-on the same genuine watch; one liveness check never qualifies. Unchanged proof remains accepted.
+Controlled in-flight/supplier regressions, authentic receipt calibration,
+controlled deadline scheduling, conservative exposure and compact replay passed.
+Independent refactoring and thirteen receipt/exposure plus two mocked-scheduler
+cases passed; existing affected ownership/retention proof remains accepted.
+Preparation `754bff87e4bff396fa258d7221b01cba1cde23ac` passed exact CI
+`43686419444/1` before its single frozen native baseline.
+
+The [native opportunity record](../../../Distribution/tests/native-comparison/supplier-watch/comparisons/seed356-watch-baseline-20261115-opportunity.md)
+retains the complete passing journey: 76 responses, 8,936,838 processed tokens,
+zero interventions, correct hold and one qualifying continuation with final proof.
+Publications arrived at +180.050s/+360.046s. The first successful watch began
+only after nonqualification; manual live exposure in window 2 is at least
+58.920s. All three wait receipts were nonempty. Automated handle/exposure/signal
+remain unknown; the frozen two-empty/distinct-response/same-watch signal was
+not demonstrated. This neither resolves nor disproves the prolonged-pause hypothesis.
+Even all directly charged unchanged-window work is only 11.92% of whole-task
+cost, including useful work; no plausible targeted 20% removal was demonstrated.
+Stop before optimization under the source rule. Slice 3/G2 remain open; no
+candidate, matched saving or non-regression claim. Budget now 3/6 consumed.
+Further work needs a new decision; a fresh full comparison needs four journeys
+but only three remain. Recommend no more paid runs before an evidence-supported
+exposure design can separate watch setup from prolonged waiting and justify
+whole-task opportunity. Preserve the immutable export and raw evidence.
 
 ### 4. Make one supported change and judge the matched result
 Type: Behavior
@@ -139,8 +143,9 @@ observed agent procedure. Retain full coordinator/worker usage and recovery
 cost. Use the maintained comparison/export path under matched task, events,
 assessor, host/version, settings and authority. Reader changes invalidate reuse
 of the earlier capture; do not rewrite input hashes or waive compatibility.
-The four remaining journeys are reserved for a fresh blocked pair and unblocked
-pair. No extra retry or automatic reacquisition may exceed the six-journey cap. On failed quality, unknown
+The original four-journey reservation now has three unused after the inconclusive
+blocked baseline. A fresh complete pair of pairs needs a new budget decision.
+No extra retry or automatic reacquisition may exceed the six-journey cap. On failed quality, unknown
 usage, missed bar or exhausted allocation, revert only candidate product edits
 and retain the result; no favorable rerun or design expansion.
 
@@ -199,15 +204,13 @@ Prior `/tmp/dough-ci-501/watch-eh23m4` stopped at the human decision with confir
 shutdown and CI for `1a4a640e87a5ba76739ba3362e40001e5e41e124` unobserved. Checkout-bound runtime; do not register the trunk claim
 on this execution-branch observer.
 
-Expensive-proof decision (2026-11-15 06:14 UTC): Territory.local, AC/awake,
-load 4.14/4.52/4.67, 48 GiB RAM/57% free; Codex 0.169.0. After exact CI for the
-published preparation, freeze its accepted SHA and run ONE native supplier-watch
-baseline with gpt-6.1-sol/xhigh under `caffeinate -s -i`. Budget 2/6 used;
-four reserved for the complete blocked/unblocked pairs. Owner: one delegated
-probe through terminal. Reconfirm host/power/load/memory before launch; reconsider
-on contention, failure or missing usage. No competing owned proof; other
-worktrees/services varied load 4–30 and remain with their owners. No optimization
-without the frozen supplier-watch signal and a plausible worthwhile removal.
+Expensive-proof decision executed: one sequential native baseline at frozen
+`754bff87`, after exact preparation CI, under `caffeinate -s -i` on AC/awake
+Territory.local (16 CPUs, 48 GiB/54% free, load 11.01/10.37/8.47; Codex 0.169.0).
+The delegated owner reconsidered contention before launch and observed terminal
+exit 0; no owned probe processes remain. Other work stayed with its owners.
+Journey 3/6 consumed; no retry, optimization or further paid proof authorized
+by this inconclusive result. See the native record for literal command and raw paths.
 
 ## Probe evidence and resumed measurement
 
@@ -240,8 +243,8 @@ Reported: slice 1 — "The native baseline was invalidated by a false-positive h
 Story clause: "Unknown usage remains unknown and cannot support a token-saving verdict."
 Disposition: receiving slice 4
 Commitment: A026
-### G2. Native reproduction and comparison inputs remain unproved
-Reported: slice 3 — "Actual watch exposure, repeated native model activity, the observation interval and a fresh frozen baseline remain open."
+### G2. Repetition or current resolution remain unproved
+Reported: slice 3 — "The fresh frozen baseline passed quality and timing; automated watch exposure remains unknown, manual exposure is limited and repeated empty model activity was not demonstrated. No current resolution or supported reduction is established."
 Story clause: "Any new reproducer must exercise the normal wait/resume path, preserve the causal condition found in the original trace, and demonstrate the unwanted baseline behavior before an implementation or further paid comparison."
 Disposition: return
-Commitment: A012, A022, A023, A024, A025, A078, A092, A101
+Commitment: A012, A023, A024, A025, A078

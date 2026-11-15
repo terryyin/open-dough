@@ -16,7 +16,7 @@ scope: story
 **Identity:** SEED-356#reduce-total-model-work-during-blocked-execution
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/627-reduce-blocked-execution-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a19d3ff24e89627e57aa310b228754e2390e853acc68b79b8f1ed2170c9a2d35","plan":"7811ef062ee68c22217bfdfc91b54ab25283bcdb2184fa9d90dd1822586292d7"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/627-reduce-blocked-execution-work/PLAN.md","assessment":"not-ready","reasons":["The approved native baseline passed quality but did not demonstrate repeated empty waits or a plausible targeted 20% removal. The source stopping rule now applies: no optimization or further paid work without a new decision. Three journeys remain; a fresh complete blocked/unblocked comparison needs four."],"basis":{"document":"a19d3ff24e89627e57aa310b228754e2390e853acc68b79b8f1ed2170c9a2d35","plan":"715756886398c9bfc0fd6b963585cc4ed1a0980220996249edb28fc764fa88f1"}}
 ```
 
 #### Goal
