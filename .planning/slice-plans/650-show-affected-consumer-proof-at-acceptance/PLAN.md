@@ -141,6 +141,26 @@ there are no per-example recognizers or later replacement slices. Guidance,
 handoff and acceptance remain one useful result. Budget: 15 active minutes,
 excluding commands; follow the existing overrun/reassessment procedure if needed.
 
+## Execution complete
+
+Product advice: Reasoned no-change to backlog priorities or new follow-ups.
+The delivered proof-purpose rule and bounded evaluation satisfy the story;
+release, rollout and ordinary-use effectiveness remain separate by its scope.
+Retrospective reviewed attributable implementation `ebbe805b7eecd1253f63d2a2c733528ca02c35ea`;
+claim `65fcf1baf` and preparation `632324cdd` are provenance, while earlier
+SEED-374/source-review work is unrelated. No product correction or refactoring
+residue was found. No new E2E tests drove this guidance-only change; existing
+CLI unit contracts and representative semantic replays own its proof, while
+historical browser journeys remain retained observations, not new tests.
+North Star topics concern the dashboard and introduce no contrary direction.
+Intent Coverage selection: no test/assertion/discovery rewrite or unresolved
+protection-risk question; automatic scratch check is not requested.
+Process review used this conversation and tool results: Bash resolution,
+annotation restoration and staged-EOF recovery are retained costs; the guard
+withheld publication as required. No additional process finding or log change
+is supported. CI on the accepted story branch remains pending; coordinator
+owns completion and any delivered failure. No unresolved review attention.
+
 ## Local gates, size and delivery
 
 Local checks: `git diff --check` and
