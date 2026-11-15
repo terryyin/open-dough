@@ -1,0 +1,230 @@
+// Refresh keeps a launch's coverage gaps current: a session read again
+// replaces the gaps it recorded, so usage missing at one Refresh stops marking
+// the launch partial once a later one finds it. Each Claude response runs
+// Claude Opus 5.5 (Anthropic API list prices read 2026-11-15: input $4, cache
+// read $0.20, output $20 per 1M tokens), so 1,000 uncached, 9,000 read and 100
+// output tokens weigh (1,000×4 + 9,000×0.20 + 100×20) / 4 = 1,950 Opus 5.5
+// input tokens.
+import path from "node:path";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+import {
+  nativeFile,
+  readImported,
+  runImport,
+  writeClaudeSession,
+  writeCodexSession,
+} from "../../tests/usage-history/importHarness.ts";
+import {
+  day,
+  expect,
+  finished as codexLaunch,
+  rootRollout,
+  sol,
+  test,
+  usageServer,
+} from "../../tests/usage-history/tokenIndexHarness.ts";
+
+const reference = (at: number) =>
+  `ca7430bd-0d52-499d-a1bd-${String(at).padStart(12, "0")}`;
+// Launch `at` of a Claude story in session `claude-<at>`.
+const launch = (at: number) =>
+  makeMe.aLaunchRecord
+    .executing({ identity: `SEED-7#claude-${at}`, title: `Story ${at}` })
+    .inClaudeSession({ sessionId: `claude-${at}` })
+    .reportingThrough({
+      origin: "http://localhost:4318",
+      reference: reference(at),
+      command: "report",
+    });
+const finished = (at: number) =>
+  launch(at)
+    .completedWith({ message: "", receivedAt: day(at) })
+    .please();
+const response = (uuid: string) => ({
+  uuid,
+  messageId: `msg-${uuid}`,
+  model: "claude-opus-5-5",
+  usage: {
+    input_tokens: 1_000,
+    cache_read_input_tokens: 9_000,
+    cache_creation_input_tokens: 0,
+    output_tokens: 100,
+    speed: "standard",
+  },
+});
+const rootTranscript = (at: number) =>
+  makeMe.aClaudeTranscript
+    .forSession(`claude-${at}`)
+    .withLaunchInput({ reference: reference(at), command: "report" });
+// The user row returning worker `agentId`'s result to the transcript.
+const workerResult = (agentId: string) => ({
+  uuid: `${agentId}-result`,
+  toolUseResult: { agentId },
+  content: [
+    { type: "tool_result", tool_use_id: `${agentId}-tool`, content: "" },
+  ],
+});
+const answered = (at: number) =>
+  rootTranscript(at)
+    .withAssistant(response(`root-${at}`))
+    .please();
+
+// The home's Claude projects root, imported with launches `1…count`, each
+// answered once; refreshed once so later Refreshes read only what changes.
+async function importedLaunches(
+  machine: Parameters<typeof usageServer>[0],
+  count: number,
+) {
+  const { home } = machine;
+  const projects = path.join(home, ".claude/projects"),
+    transcripts = path.join(projects, "open-dough");
+  const imported = [...Array<number>(count).keys()].map((at) => at + 1);
+  keepLaunchStore(home, { "open-dough": imported.map(finished) });
+  for (const at of imported) writeClaudeSession(transcripts, answered(at));
+  runImport(home, path.join(home, ".codex/sessions"), [
+    "--claude-root",
+    projects,
+  ]);
+  const usage = await usageServer(machine);
+  await usage.refresh();
+  const coverage = async (identity: string) =>
+    (await usage.chart("?tool=claude")).tasks.find(
+      (task) => task.identity === identity,
+    )?.coverage;
+  return { imported, transcripts, usage, coverage };
+}
+
+test("a Claude launch refreshed before its first response is partial until a later Refresh finds its response, then joins the moving average", async ({
+  machine,
+}) => {
+  const { imported, transcripts, usage, coverage } = await importedLaunches(
+    machine,
+    9,
+  );
+  // Launch 10 runs; its transcript holds only its launch input.
+  keepLaunchStore(machine.home, {
+    "open-dough": [...imported.map(finished), launch(10).please()],
+  });
+  writeClaudeSession(transcripts, rootTranscript(10).please());
+  await usage.refresh();
+  const rootGaps = () =>
+    readImported(machine.home)
+      .gaps.filter(({ sessionId }) => sessionId === "claude-10")
+      .map(({ code }) => code);
+  // A running launch is not charted; the store records its missing usage.
+  expect(rootGaps()).toEqual([
+    "auxiliary-usage-not-covered",
+    "missing-root-transcript-usage",
+  ]);
+
+  writeClaudeSession(transcripts, answered(10));
+  keepLaunchStore(machine.home, {
+    "open-dough": [...imported, 10].map(finished),
+  });
+  await usage.refresh();
+  expect(rootGaps()).toEqual(["auxiliary-usage-not-covered"]);
+  expect(await coverage("SEED-7#claude-10")).toEqual({ kind: "measured" });
+  // Ten measured launches of 1,950 each: the one average point, at the tenth's
+  // end.
+  expect((await usage.chart("?tool=claude")).average).toEqual([
+    { at: day(10), value: 1_950 },
+  ]);
+});
+
+test("a Claude worker that answers after a Refresh clears its gap, while a worker it spawned whose transcript stays missing keeps the launch partial", async ({
+  machine,
+}) => {
+  const { imported, transcripts, usage, coverage } = await importedLaunches(
+    machine,
+    1,
+  );
+  keepLaunchStore(machine.home, {
+    "open-dough": [...imported, 2].map(finished),
+  });
+  writeClaudeSession(
+    transcripts,
+    rootTranscript(2)
+      .withAssistant(response("root-2"))
+      .withUser(workerResult("worker"))
+      .please(),
+  );
+  const workerTranscript = makeMe.aClaudeTranscript
+    .forSession("claude-2")
+    .asSidechain({ agentId: "worker" })
+    .withUser({ uuid: "worker-input", parentUuid: null, content: "work" });
+  const subagents = path.join(transcripts, "claude-2", "subagents");
+  nativeFile(subagents, "agent-worker", workerTranscript.please());
+  await usage.refresh();
+  expect(await coverage("SEED-7#claude-2")).toEqual({
+    kind: "partial",
+    gaps: ["incomplete-worker-evidence"],
+  });
+
+  // The worker answers and spawns a worker of its own, whose transcript is
+  // gone: its gap lies in the worker's transcript under `subagents/`.
+  nativeFile(
+    subagents,
+    "agent-worker",
+    workerTranscript
+      .withAssistant(response("worker"))
+      .withUser(workerResult("nested"))
+      .please(),
+  );
+  await usage.refresh();
+  expect(await coverage("SEED-7#claude-2")).toEqual({
+    kind: "partial",
+    gaps: ["missing-worker-evidence"],
+  });
+
+  // The nested worker's transcript arrives with its response.
+  nativeFile(
+    subagents,
+    "agent-nested",
+    makeMe.aClaudeTranscript
+      .forSession("claude-2")
+      .asSidechain({ agentId: "nested" })
+      .withUser({ uuid: "nested-input", parentUuid: null, content: "work" })
+      .withAssistant(response("nested"))
+      .please(),
+  );
+  await usage.refresh();
+  expect(await coverage("SEED-7#claude-2")).toEqual({ kind: "measured" });
+});
+
+test("a Codex session refreshed before its first response loses its no-response gap once a later Refresh reads its response", async ({
+  machine,
+}) => {
+  const { home } = machine;
+  const sessions = path.join(home, ".codex/sessions"),
+    rollouts = path.join(sessions, "2026/11/14");
+  keepLaunchStore(home, { "open-dough": [codexLaunch("first")] });
+  writeCodexSession(rollouts, rootRollout("first", 100).please());
+  runImport(home, sessions);
+  const usage = await usageServer(machine);
+  await usage.refresh();
+
+  keepLaunchStore(home, {
+    "open-dough": [codexLaunch("first"), codexLaunch("second")],
+  });
+  writeCodexSession(
+    rollouts,
+    makeMe.aCodexRollout
+      .forSession("second")
+      .withTurnContext("second-turn", sol, "xhigh")
+      .please(),
+  );
+  await usage.refresh();
+  const second = async () =>
+    (await usage.chart()).tasks.find(
+      ({ identity }) => identity === "SEED-7#second",
+    )?.coverage;
+  expect(await second()).toEqual({
+    kind: "partial",
+    gaps: ["no-response-usage-evidence", "no-attributable-response-usage"],
+  });
+
+  writeCodexSession(rollouts, rootRollout("second", 200).please());
+  await usage.refresh();
+  expect(await second()).toEqual({ kind: "measured" });
+});

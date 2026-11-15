@@ -2,6 +2,7 @@
 
 **Identity:** SEED-359#keep-claude-coverage-gaps-current-after-refresh
 **Source:** [Keep Claude coverage gaps current after Refresh](../../seeds/SEED-359-claude-code-task-token-usage.md#keep-claude-coverage-gaps-current-after-refresh)
+**Source review:** [source-review.md](source-review.md)
 
 ## Provenance and findings
 
@@ -96,7 +97,7 @@ Each slice targets 15 active minutes.
 
 ### 1. Replace a re-read session's coverage gaps
 Type: Behavior
-Status: planned
+Status: done
 Proof: new backend cases in `dashboard/backend-tests/usage-history/`
 (a sibling of `token-index-refresh-claude.spec.ts`, ≤250 lines) as in the
 proof table; `npm run test:dashboard:backend -- --reporter=list usage-history`;
@@ -113,6 +114,18 @@ resolves a native-source gap's session by the gap's host
 contribution and gap sentences to say entries may keep the five-minute and
 one-hour cache writes and that Claude's speed is the entry's tier, and that a
 session read again replaces its gaps.
+
+Accepted proof (2026-11-15): `dashboard/backend-tests/usage-history/token-index-refresh-claude-gaps.spec.ts`
+(three cases, all failing at `1fef1e740`) in
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run test:dashboard:backend -- --reporter=list usage-history`
+→ 91 passed after refactor; frontend `system-settings-usage` → 17 passed;
+`npm run typecheck:dashboard` passed. Gap-to-session attribution is one rule,
+`gapSessions` in `dashboard/server/usageGapReconciliation.ts`, used by
+reconciliation and `TaskGaps.record`; `knownGaps` in `usageRefresh.ts` stays
+(it filters a Refresh's gaps by the reading's own host resolver). Learning:
+hostless gaps (`malformed-native-row`, `native-source-unreadable`) are not
+replaced on re-read, as before; a running launch is not charted, so its
+pre-response gap is observed in the store.
 
 ### 2. Keep one Claude Code Usage journey end to end
 Type: Structure
