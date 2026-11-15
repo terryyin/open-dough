@@ -1,25 +1,28 @@
-import { closeSidePanel, sidePanelNamesOf } from "../sidePanelFrame.ts";
+import {
+  closeSidePanel,
+  sidePanelNamesOf,
+} from "../../dashboard/tests/sidePanelFrame.ts";
 // Phone key toolbar and scroll-versus-navigate on the ordinary
 // page/xterm/WebSocket/PTY path. Desktop fine-pointer chrome stays without
 // the toolbar or composer; swipe still scrolls history only. Composer Insert
 // lives in ./agent-terminal-touch-composer.spec.ts.
-import { expect, test } from "../dashboardTest.ts";
-import { launched } from "../agentTerminalBoundary.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { launched } from "../../dashboard/tests/agentTerminalBoundary.ts";
 import {
   expectTerminalInputFocused,
   expectTerminalText,
   expectNoTerminalText,
   terminalPanel,
   terminalScreenParts,
-} from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
-} from "../launchJourney.ts";
-import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { tapWhereShown } from "../pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
+} from "../../dashboard/tests/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
+import { tapWhereShown } from "../../dashboard/tests/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../dashboard/tests/touchLaunchPage.ts";
 import {
   bringKeyIntoView,
   composeToggle,
@@ -33,7 +36,7 @@ import {
   terminalComposerDraft,
   terminalKey,
   terminalKeyToolbar,
-} from "../touchTerminalPage.ts";
+} from "../../dashboard/tests/touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;

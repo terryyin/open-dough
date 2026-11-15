@@ -3,7 +3,7 @@
 // WebSocket substitute running such an application. What the terminal reports
 // about the application decides, whichever host the session runs in. The
 // terminal's own scrollback under an application that does not scroll itself
-// stays with ../tests/terminals/agent-terminal-touch-keys.spec.ts.
+// stays with ../../e2e/terminals/agent-terminal-touch-keys.spec.ts.
 
 import { expect, test } from "../tests/support/frontendApp.ts";
 import {

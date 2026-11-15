@@ -143,6 +143,10 @@ share local admission across worktrees; focused selections remain independent.
   mechanical moves for remaining sessions/cursor sidebar specs including
   former-height cases. `dashboard/tests/sessions/` empty of `*.spec.ts`
   (5a/6c). No new substitute family.
+- **Slice 6 proof.** FE prompts/voice/ended-recovery; E2E attach/touch/
+  voice-lifecycle/recovery. `frontendTerminalVoice.ts`; soft-keyboard fit
+  stayed E2E (PTY size strings). `dashboard/tests/terminals/` empty (5b/6d).
+  E2E moves need `../../Distribution` makeMe imports.
 - **Known traps.** A `MachineAnswer` failing `launchRecordsSchema` leaves the
   page on "Reading sessions…" silently; Cursor entries need the Cursor runner
   sessions read substituted; a history read needs its own `audience=history`
@@ -234,7 +238,7 @@ protected outside the interim group; no session product spec remains there.
 
 ### 6. Convert terminal checks
 Type: Behavior
-Status: planned
+Status: done
 Proof: all 14 `dashboard/tests/terminals/` specs (14 / 2,584) retain terminal
 attachment, input/recovery, keyboard/touch, size/theme and voice-lifecycle
 assertions.

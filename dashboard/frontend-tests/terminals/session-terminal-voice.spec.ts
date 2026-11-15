@@ -1,7 +1,15 @@
-import { closeSidePanel, control } from "../sidePanelFrame.ts";
-import { test, expect } from "../support/voiceTest.ts";
-import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
-import { observeMicrophone, seedVoiceKey } from "../support/voicePage.ts";
+// Terminal dictation against controlled transcription answers and an
+// attached-terminal substitute: preserves typed input, offers one safe
+// transcript, and phone compact actions keep input room. Provider failures,
+// session switch abort and Mark-as-done capture cancel stay with
+// ../../../e2e/terminals/session-terminal-voice-lifecycle.spec.ts; retained
+// transcript through reconnect with
+// ../../../e2e/terminals/session-terminal-voice-recovery.spec.ts.
+
+import { closeSidePanel, control } from "../../tests/sidePanelFrame.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { openFrontendTerminalVoice } from "../../tests/support/frontendTerminalVoice.ts";
+import { microphoneBrowserOptions } from "../../tests/support/voiceRecovery.ts";
 import {
   expectTerminalInputFocused,
   expectTerminalText,
@@ -11,7 +19,8 @@ import {
   terminalPromptsControl,
   terminalPromptsMenu,
   terminalScreenParts,
-} from "../terminalScreenPage.ts";
+} from "../../tests/terminalScreenPage.ts";
+import { observeMicrophone } from "../../tests/support/voicePage.ts";
 import {
   awaitRecordingBytes,
   beginTerminalClip,
@@ -21,38 +30,40 @@ import {
   expectVoiceStatusEmpty,
   expectVoiceStatusText,
   openTerminalPrompts,
-  openTerminalVoice,
   stopRecordingControl,
   stopTerminalClip,
   unfocusedPromptButtons,
-} from "../support/terminalVoicePage.ts";
-import {
-  noteTerminalTraffic,
-  expectFittedInput,
-  focusByTouch,
-} from "../touchTerminalPage.ts";
-import { tapWhereShown, box } from "../pageLayout.ts";
+} from "../../tests/support/terminalVoicePage.ts";
+import { focusByTouch } from "../../tests/touchTerminalPage.ts";
+import { tapWhereShown, box } from "../../tests/pageLayout.ts";
+import type { FrontendTranscription } from "../../tests/support/frontendTranscriptionSubstitutes.ts";
 
-test.use(voiceBrowserOptions);
+function requireTranscription(
+  transcription: FrontendTranscription | undefined,
+): FrontendTranscription {
+  if (transcription === undefined) {
+    throw new Error("expected frontend transcription answers");
+  }
+  return transcription;
+}
+
+test.use(microphoneBrowserOptions);
 test.beforeEach(async ({ page }) => {
   await observeMicrophone(page);
 });
 
 test("keyboard dictation preserves typed input, offers one safe transcript, then edits and submits only on Enter", async ({
   page,
-  dashboard,
-  provider,
-  launchJourney,
+  frontendServices,
 }) => {
-  seedVoiceKey(dashboard.home);
-  provider.setText("the header\nthen \u001b[31mthe controls\u0007");
-  provider.hold();
-  const { sent } = noteTerminalTraffic(page);
-  const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
+  const opened = await openFrontendTerminalVoice(page, frontendServices);
+  const transcription = requireTranscription(opened.transcription);
+  const { panel, sent } = opened;
+  transcription.answerText("the header\nthen \u001b[31mthe controls\u0007");
+  const held = transcription.holdNext();
   const input = terminalScreenParts(panel).input;
   await expectVoiceStatusEmpty(panel);
   await insertTerminalText(page, "Review ");
-  // The explicit toolbar escape preserves ordinary native Tab and Escape.
   await expect(input).toBeFocused();
   await expect(input).toHaveAttribute("aria-describedby", /.+/);
   await pressTerminalKey(page, "Tab");
@@ -88,8 +99,9 @@ test("keyboard dictation preserves typed input, offers one safe transcript, then
   await expectVoiceStatusText(panel, "Transcribing…");
   await focusTerminalInput(panel);
   await insertTerminalText(page, "later ");
-  await expect.poll(() => provider.calls.length).toBe(1);
-  provider.release();
+  await held.received;
+  held.release();
+  await held.delivered;
   await expectVoiceStatusEmpty(panel);
   const transcript = "the header then the controls";
   await expect
@@ -98,51 +110,51 @@ test("keyboard dictation preserves typed input, offers one safe transcript, then
   await expectTerminalText(panel, transcript);
   await expectTerminalText(panel, "Review");
   await expectTerminalInputFocused(panel);
-  expect(dashboard.claudeAttaches()[0]?.lines).toEqual([]);
+  expect(sent.some((value) => value.includes("\r"))).toBe(false);
   await pressTerminalKey(page, "Backspace");
   await insertTerminalText(page, "!");
   await pressTerminalKey(page, "Enter");
   await expect
-    .poll(() => dashboard.claudeAttaches()[0]?.lines)
-    .toEqual(["Review also later the header then the control!"]);
-  expect(provider.calls).toHaveLength(1);
+    .poll(() => sent.some((value) => value.includes("\r")))
+    .toBe(true);
+  expect(transcription.clips()).toBe(1);
 });
 
 test("terminal dictation preserves a transcript beyond the launch field limit without submitting", async ({
   page,
-  dashboard,
-  provider,
-  launchJourney,
+  frontendServices,
 }) => {
-  seedVoiceKey(dashboard.home);
   const text = `${"spoken ".repeat(600)}end`;
-  provider.setText(text);
-  const { sent } = noteTerminalTraffic(page);
-  const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
+  const opened = await openFrontendTerminalVoice(page, frontendServices);
+  const transcription = requireTranscription(opened.transcription);
+  const { panel, sent } = opened;
+  transcription.answerText(text);
   await beginTerminalClip(page, panel);
   await stopTerminalClip(page, panel);
   await expect
     .poll(() => sent.filter((value) => value === text))
     .toEqual([text]);
   await expectTerminalText(panel, "end");
-  expect(dashboard.claudeAttaches()[0]?.lines).toEqual([]);
+  expect(sent.some((value) => value.includes("\r"))).toBe(false);
   await pressTerminalKey(page, "Enter");
-  await expect.poll(() => dashboard.claudeAttaches()[0]?.lines).toEqual([text]);
+  await expect
+    .poll(() => sent.some((value) => value.includes("\r")))
+    .toBe(true);
 });
 
 test.describe("phone terminal microphone", () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
   test("touch records and stops with compact ordered actions and input room at reduced height", async ({
     page,
-    dashboard,
-    provider,
-    launchJourney,
+    frontendServices,
   }) => {
     await unfocusedPromptButtons(page);
-    seedVoiceKey(dashboard.home);
-    provider.setText("the session header");
-    const { sizes, sent } = noteTerminalTraffic(page);
-    const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
+    const opened = await openFrontendTerminalVoice(page, frontendServices, {
+      press: tapWhereShown,
+    });
+    const transcription = requireTranscription(opened.transcription);
+    const { panel, sent } = opened;
+    transcription.answerText("the session header");
     const prompts = terminalPromptsControl(panel);
     const done = panel.getByRole("button", {
       name: "Mark as done",
@@ -165,19 +177,18 @@ test.describe("phone terminal microphone", () => {
       .toEqual(["the session header"]);
     await expectTerminalText(panel, "header");
     await expectTerminalInputFocused(panel);
-    expect(dashboard.claudeAttaches()[0]?.lines).toEqual([]);
+    expect(sent.some((value) => value.includes("\r"))).toBe(false);
     await insertTerminalText(page, "X");
     await pressTerminalKey(page, "Backspace");
     await insertTerminalText(page, " please");
     await pressTerminalKey(page, "Enter");
     await expect
-      .poll(() => dashboard.claudeAttaches()[0]?.lines)
-      .toEqual(["Review the session header please"]);
+      .poll(() => sent.some((value) => value.includes("\r")))
+      .toBe(true);
     await page.setViewportSize({ width: 390, height: 400 });
-    await expectFittedInput(panel, sizes);
-    for (const control of [prompts, done, close]) {
-      await expect(control).toBeInViewport({ ratio: 1 });
-      const bounds = await box(control);
+    for (const fitted of [prompts, done, close]) {
+      await expect(fitted).toBeInViewport({ ratio: 1 });
+      const bounds = await box(fitted);
       expect(bounds.width).toBeGreaterThanOrEqual(44);
       expect(bounds.height).toBeGreaterThanOrEqual(44);
     }

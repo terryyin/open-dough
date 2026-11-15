@@ -1,6 +1,9 @@
-import { closeSidePanel, sidePanelNamesOf } from "../sidePanelFrame.ts";
+import {
+  closeSidePanel,
+  sidePanelNamesOf,
+} from "../../dashboard/tests/sidePanelFrame.ts";
 // A confirmed ad hoc launch with nothing typed opens its session in the page's
-// terminal at once, on the committed origin of ../../../e2e/launches/agent-launch-story-card.spec.ts (../launchJourney.ts):
+// terminal at once, on the committed origin of ../launches/agent-launch-story-card.spec.ts (../../dashboard/tests/launchJourney.ts):
 // the keyboard is in the terminal, its toolbar names the label, "Ad hoc
 // session" and the session id, what is typed reaches the session, the project
 // actions row stays quiet (no success log), the session's entry and Sessions
@@ -8,28 +11,32 @@ import { closeSidePanel, sidePanelNamesOf } from "../sidePanelFrame.ts";
 // only and returns the keyboard to Start session. The synthetic `claude`
 // (./fixtures/fake-claude) echoes what is typed; the real one is never reached.
 
-import { expect, test } from "../dashboardTest.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   terminalPanel,
   terminalScreenParts,
   openTerminalControl,
-} from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   expectQuietAdHocActionsRow,
   openTakenBacklog,
   startSessionField,
-} from "../launchStoryCardPage.ts";
-import { parts, sessionNamedBy, sessionEntriesIn } from "../dashboardPage.ts";
-import { scrollYOf, wheelTo } from "../boardPage.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { openWhileStarting } from "../support/adHocTerminalStartup.ts";
+} from "../../dashboard/tests/launchStoryCardPage.ts";
+import {
+  parts,
+  sessionNamedBy,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
+import { scrollYOf, wheelTo } from "../../dashboard/tests/boardPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
+import { openWhileStarting } from "../../dashboard/tests/support/adHocTerminalStartup.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
 // Accepted cost: one real ad hoc launch, the only full proof that a session
 // started with nothing typed opens in the terminal at once with the keyboard
 // in it. Its arguments are proved in
-// ../../backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts.
+// ../../dashboard/backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts.
 test("starting with nothing typed opens the session in the terminal with the keyboard in it, and Close returns the keyboard to Start session", async ({
   page,
   dashboard,

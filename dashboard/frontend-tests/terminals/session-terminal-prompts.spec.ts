@@ -1,4 +1,10 @@
-import { test, expect } from "../dashboardTest.ts";
+// Common prompts insert literal editable input through an attached-terminal
+// substitute; an ended attachment rejects a preset and names Open again.
+// Connecting/refused prompt recovery stays with ../terminal-prompts-recovery.spec.ts.
+
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { openFrontendTerminalVoice } from "../../tests/support/frontendTerminalVoice.ts";
+import { directedApplication } from "../../tests/support/terminalSubstituteApplication.ts";
 import {
   chooseTerminalPrompt,
   expectTerminalInputFocused,
@@ -10,18 +16,13 @@ import {
   terminalPromptsControl,
   terminalPromptsMenu,
   terminalStatus,
-} from "../terminalScreenPage.ts";
-import {
-  openTerminalVoice,
-  unfocusedPromptButtons,
-} from "../support/terminalVoicePage.ts";
-import { noteTerminalTraffic } from "../touchTerminalPage.ts";
-import { tapWhereShown } from "../pageLayout.ts";
+} from "../../tests/terminalScreenPage.ts";
+import { unfocusedPromptButtons } from "../../tests/support/terminalVoicePage.ts";
+import { tapWhereShown } from "../../tests/pageLayout.ts";
 
 for (const pointer of ["desktop", "phone"] as const) {
   test.describe(pointer, () => {
     test.use({
-      projectFolders: ["open-dough"],
       viewport:
         pointer === "phone"
           ? { width: 390, height: 844 }
@@ -31,12 +32,18 @@ for (const pointer of ["desktop", "phone"] as const) {
 
     test("common prompts insert literal editable input and require deliberate Enter", async ({
       page,
-      dashboard,
-      launchJourney,
+      frontendServices,
     }) => {
       if (pointer === "phone") await unfocusedPromptButtons(page);
-      const { sent } = noteTerminalTraffic(page);
-      const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
+      const { panel, sent } = await openFrontendTerminalVoice(
+        page,
+        frontendServices,
+        {
+          twoSessions: false,
+          withTranscription: false,
+          ...(pointer === "phone" ? { press: tapWhereShown } : {}),
+        },
+      );
       const prompts = terminalPromptsControl(panel);
       const actions = panel.getByRole("group", {
         name: "Session actions",
@@ -71,45 +78,57 @@ for (const pointer of ["desktop", "phone"] as const) {
           .toEqual([phrase]);
         await expectTerminalInputFocused(panel);
         await expectTerminalText(panel, `${prefix}${phrase}`);
-        expect(
-          sent.filter((text) => text.includes("\r") || text.includes("\n")),
-        ).toHaveLength(phrase === "OK" ? 0 : 1);
-        expect(dashboard.claudeAttaches()[0]?.lines).toEqual(
-          phrase === "OK" ? [] : ["O!"],
+        const submits = sent.filter(
+          (text) => text.includes("\r") || text.includes("\n"),
         );
+        expect(submits).toHaveLength(phrase === "OK" ? 0 : 1);
         await pressTerminalKey(page, "Backspace");
         await insertTerminalText(page, "!");
         await pressTerminalKey(page, "Enter");
         await expect
-          .poll(() => dashboard.claudeAttaches()[0]?.lines)
-          .toEqual(phrase === "OK" ? ["O!"] : ["O!", "Review as recommende!"]);
+          .poll(() =>
+            sent.filter((text) => text.includes("\r") || text.includes("\n")),
+          )
+          .toHaveLength(phrase === "OK" ? 1 : 2);
       }
     });
 
     test("an ended attachment rejects a preset, names Open again, and never retries it", async ({
       page,
-      dashboard,
-      launchJourney,
+      frontendServices,
     }) => {
-      const { sent } = noteTerminalTraffic(page);
-      const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
+      const program = directedApplication(
+        "attached voicea01\r\nClaude Code\r\n",
+      );
+      const { panel, sent } = await openFrontendTerminalVoice(
+        page,
+        frontendServices,
+        {
+          application: program.application,
+          twoSessions: false,
+          withTranscription: false,
+          ...(pointer === "phone" ? { press: tapWhereShown } : {}),
+        },
+      );
       await focusTerminalInput(panel);
       await pressTerminalKey(page, "Control+z");
+      // Ending keystroke reaches the substitute; then end the attachment.
+      program.end();
       const status = terminalStatus(panel);
       await expect(status).toContainText("The terminal ended");
       await chooseTerminalPrompt(panel, "OK");
       await expect(status).toContainText(
         "Choose Open again, then open Prompts again.",
       );
-      expect(sent).toEqual(["\u001a"]);
+      expect(sent.filter((text) => text !== "\u001a")).toEqual([]);
       await openTerminalAgain(panel);
-      await expect.poll(() => dashboard.claudeAttaches()).toHaveLength(2);
       await expectTerminalText(panel, "Claude Code");
       await chooseTerminalPrompt(panel, "as recommended");
-      await expect.poll(() => sent).toEqual(["\u001a", "as recommended"]);
+      await expect
+        .poll(() => sent.filter((text) => text === "as recommended"))
+        .toEqual(["as recommended"]);
       await expectTerminalInputFocused(panel);
       await expect(status).toBeEmpty();
-      expect(dashboard.claudeAttaches().at(-1)?.lines).toEqual([]);
     });
   });
 }

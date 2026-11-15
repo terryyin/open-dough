@@ -1,6 +1,9 @@
 import type { Locator, Page } from "@playwright/test";
-import { test as base, expect } from "../support/voiceTest.ts";
-import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
+import {
+  test as base,
+  expect,
+} from "../../dashboard/tests/support/voiceTest.ts";
+import { voiceBrowserOptions } from "../../dashboard/tests/support/voiceRecovery.ts";
 import {
   closeTerminal,
   expectTerminalInputFocused,
@@ -9,13 +12,13 @@ import {
   insertTerminalText,
   pressTerminalKey,
   reconnectTerminal,
-} from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   observeMicrophone,
   seedVoiceKey,
   stoppedTracks,
   holdCompletedVoiceResponse,
-} from "../support/voicePage.ts";
+} from "../../dashboard/tests/support/voicePage.ts";
 import {
   beginTerminalClip,
   discardRetainedTranscript,
@@ -28,12 +31,12 @@ import {
   insertTranscriptControl,
   openTerminalVoice,
   stopTerminalClip,
-} from "../support/terminalVoicePage.ts";
+} from "../../dashboard/tests/support/terminalVoicePage.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
-} from "../support/dashboardServer.ts";
-import { noteTerminalTraffic } from "../touchTerminalPage.ts";
+} from "../../dashboard/tests/support/dashboardServer.ts";
+import { noteTerminalTraffic } from "../../dashboard/tests/touchTerminalPage.ts";
 
 type TerminalServer = {
   disconnect: () => Promise<void>;

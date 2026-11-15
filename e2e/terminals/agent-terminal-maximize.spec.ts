@@ -1,45 +1,45 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
   typeLine,
-} from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   storyCardSessions,
   expectMembership,
   parts,
   sessionNamedBy,
-} from "../dashboardPage.ts";
-import { setPageVisibility } from "../autoRefreshJourney.ts";
-import { recordsOf } from "../agentLaunchBoundary.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
+import { setPageVisibility } from "../../dashboard/tests/autoRefreshJourney.ts";
+import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../launchJourney.ts";
-import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
+} from "../../dashboard/tests/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
 import {
   expectSessionsSidebar,
   sessionsSidebarParts,
-} from "../sessionsSidebarPage.ts";
+} from "../../dashboard/tests/sessionsSidebarPage.ts";
 import {
   expectClosedToggleCounts,
   expectClosedToggleCountsFit,
-} from "../sessionsTogglePage.ts";
-import { box, expectFills } from "../pageLayout.ts";
+} from "../../dashboard/tests/sessionsTogglePage.ts";
+import { box, expectFills } from "../../dashboard/tests/pageLayout.ts";
 import {
   closeSidePanel,
   control as frameControl,
   maximizeSidePanel,
   restoreSidePanel,
   sidePanelNamesOf,
-} from "../sidePanelFrame.ts";
-import { expectCovering } from "../sidePanelWidthPage.ts";
-import { expectFrameIconControl } from "../frameIconControl.ts";
+} from "../../dashboard/tests/sidePanelFrame.ts";
+import { expectCovering } from "../../dashboard/tests/sidePanelWidthPage.ts";
+import { expectFrameIconControl } from "../../dashboard/tests/frameIconControl.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

@@ -1,26 +1,29 @@
-import { control } from "../sidePanelFrame.ts";
+import { control } from "../../dashboard/tests/sidePanelFrame.ts";
 // Soft-keyboard and orientation fit for the Side panel terminal on the
 // ordinary page/xterm/WebSocket/PTY path. Simulated visualViewport / reduced
 // height / rotate keep toolbar, composer actions, and Close reachable; the
 // attachment and unsent draft survive; hide-keyboard dismisses focus; desktop
 // keeps today's layout without the fit override.
-import { expect, test } from "../dashboardTest.ts";
-import { launched } from "../agentTerminalBoundary.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { launched } from "../../dashboard/tests/agentTerminalBoundary.ts";
 import {
   expectTerminalInputFocused,
   expectTerminalInputNotFocused,
   expectTerminalText,
   terminalPanel,
-} from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
-} from "../launchJourney.ts";
-import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { box, tapWhereShown } from "../pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
-import { expectCovering, resizeUntilArranged } from "../sidePanelWidthPage.ts";
+} from "../../dashboard/tests/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
+import { box, tapWhereShown } from "../../dashboard/tests/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../dashboard/tests/touchLaunchPage.ts";
+import {
+  expectCovering,
+  resizeUntilArranged,
+} from "../../dashboard/tests/sidePanelWidthPage.ts";
 import {
   clearSoftKeyboardViewport,
   expectControlInVisualViewport,
@@ -35,7 +38,7 @@ import {
   terminalComposerDraft,
   terminalKey,
   terminalKeyToolbar,
-} from "../touchTerminalPage.ts";
+} from "../../dashboard/tests/touchTerminalPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;

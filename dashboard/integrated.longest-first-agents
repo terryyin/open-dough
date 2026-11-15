@@ -1,16 +1,2 @@
-# Dashboard Integrated UI Test launches/, sessions/ and terminals/ spec durations, longest first.
+# Dashboard Integrated UI Test launches/, sessions/ and terminals/ durations (sessions/ and terminals/ emptied).
 # Source: run 43575040009/1 at 55da0eecf6803945b66d5a23b00dd7802374550d, 2026-11-14 (runner factor 0.669)
-51.6	tests/terminals/session-terminal-voice-lifecycle.spec.ts
-43.2	tests/terminals/session-terminal-voice-recovery.spec.ts
-33.1	tests/terminals/agent-terminal-touch-keys.spec.ts
-28.7	tests/terminals/agent-terminal-touch-paste.spec.ts
-26.5	tests/terminals/session-terminal-prompts.spec.ts
-22.3	tests/terminals/session-terminal-voice.spec.ts
-19.9	tests/terminals/agent-launch-ad-hoc-terminal.spec.ts
-18.7	tests/terminals/agent-terminal-touch-keyboard-fit.spec.ts
-16.6	tests/terminals/agent-terminal-keyboard.spec.ts
-15.1	tests/terminals/agent-terminal-maximize.spec.ts
-13.2	tests/terminals/agent-terminal-theme.spec.ts
-12.4	tests/terminals/agent-terminal-avatar.spec.ts
-10.8	tests/terminals/agent-terminal-touch-composer.spec.ts
-6.9	tests/terminals/agent-terminal-ended-input-recovery.spec.ts

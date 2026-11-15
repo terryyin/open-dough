@@ -12,29 +12,36 @@
 import { existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
-import { openTakenBacklog } from "../launchStoryCardPage.ts";
-import { parts, sessionNamedBy, sessionEntriesIn } from "../dashboardPage.ts";
-import { recordsOf } from "../agentLaunchBoundary.ts";
-import { expectServed } from "../agentPortrait.ts";
-import { avatarPng } from "../avatarAnswers.ts";
-import { expectTerminalPreviewFits } from "../terminalPortraitPreview.ts";
-import { box } from "../pageLayout.ts";
-import { takenIdentity, takenStory } from "../agentRosterRecords.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { openTakenBacklog } from "../../dashboard/tests/launchStoryCardPage.ts";
+import {
+  parts,
+  sessionNamedBy,
+  sessionEntriesIn,
+} from "../../dashboard/tests/dashboardPage.ts";
+import { recordsOf } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { expectServed } from "../../dashboard/tests/agentPortrait.ts";
+import { avatarPng } from "../../dashboard/tests/avatarAnswers.ts";
+import { expectTerminalPreviewFits } from "../../dashboard/tests/terminalPortraitPreview.ts";
+import { box } from "../../dashboard/tests/pageLayout.ts";
+import {
+  takenIdentity,
+  takenStory,
+} from "../../dashboard/tests/agentRosterRecords.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   keepLaunchRecords,
   keptLaunchStore,
   launchStoreFile,
-} from "../support/launchStore.ts";
-import type { LaunchRecord } from "../../src/agentLaunch.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { sidePanelNamesOf } from "../sidePanelFrame.ts";
-import { credit } from "../agentCredit.ts";
+} from "../../dashboard/tests/support/launchStore.ts";
+import type { LaunchRecord } from "../../dashboard/src/agentLaunch.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { sidePanelNamesOf } from "../../dashboard/tests/sidePanelFrame.ts";
+import { credit } from "../../dashboard/tests/agentCredit.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
