@@ -33,10 +33,10 @@ intent introduced or affected by a newly developed story.
 - [Move Intent reading and review checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-intent-reading-and-review-checks) — SEED-334#move-intent-reading-and-review-checks ([plan](slice-plans/647-move-intent-reading-and-review-checks/PLAN.md))
 - [Highlight syntax in code diffs](seeds/SEED-351-highlight-syntax-in-code-diffs.md#highlight-syntax-in-code-diffs) — SEED-351#highlight-syntax-in-code-diffs ([plan](slice-plans/645-highlight-syntax-in-code-diffs/PLAN.md))
 - [See stale test duration estimates before relying on CI headroom](seeds/SEED-374-stale-test-duration-estimates.md#see-stale-test-duration-estimates) — SEED-374#see-stale-test-duration-estimates ([plan](slice-plans/649-see-stale-test-duration-estimates/PLAN.md))
+- [See affected consumer proof before accepting a slice](seeds/SEED-376-affected-consumer-proof-at-acceptance.md#show-affected-consumer-proof-at-acceptance) — SEED-376#show-affected-consumer-proof-at-acceptance ([plan](slice-plans/650-show-affected-consumer-proof-at-acceptance/PLAN.md))
 
 ## Backlog list
 
-- [See affected consumer proof before accepting a slice](seeds/SEED-376-affected-consumer-proof-at-acceptance.md#show-affected-consumer-proof-at-acceptance) — SEED-376#show-affected-consumer-proof-at-acceptance
 - [Record source-review evidence once per independently observable promise](seeds/SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises) — SEED-010#review-independently-observable-promises
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
 - [Move navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-navigation-checks-and-retire-integrated-ui-test) — SEED-334#move-navigation-checks-and-retire-integrated-ui-test

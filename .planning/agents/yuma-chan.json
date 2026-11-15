@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "identity": "SEED-376#show-affected-consumer-proof-at-acceptance",
+  "mode": "story-branch",
+  "branch": "codex/see-affected-consumer-proof-before-accepting-a-s",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
