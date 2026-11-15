@@ -80,7 +80,7 @@ preparing this plan. No paid, credentialed or developer-operated probe is needed
 | A separately checkable alternative stays separate (example 2) | Slice 1 | Blank versus typed terminal results remain distinct ids; developer-moved focus stays attached where it changes the result. |
 | Compound journeys keep checkable results without proof-method rows (example 3) | Slice 2 | Fresh compound replay compared with the retained 112 rows; proof-limit and context statements add no rows, while copy, paste, scrolling and preservation results each keep an id. |
 | Grouping keeps qualified results and genuine restrictions (example 4) | Slice 3 | Fresh replay of the pronunciation source keeps hiding inside `挙げて` explicit and keeps refusal as a written answer as its own restriction id. |
-| Context stays context; a post-execution promise keeps its lifecycle owner (example 5) | Slice 4 | A source with a settled baseline, effort hypothesis and final target-CI requirement yields one `target CI` row; CLI lists it pending with an empty observation cell. |
+| Context stays context; a post-execution promise keeps its lifecycle owner (example 5) | Slice 4 | A source with a settled baseline, effort hypothesis and final target-CI requirement yields one `target CI` row; CLI `check` reports it pending with an empty observation cell. |
 | Every returned id retained; missing proof blocks acceptance or carries a disposing obligation | Slice 4 | CLI replay in a disposable directory with the slice 1 and 3 returns: withheld typed-input or inside-word observation is refused; sufficient evidence or a linked obligation is accepted. A successful check is never proof of semantic sufficiency. |
 | Isolation, unchanged-source reuse and amendment replacement unchanged | Slices 1–4 | Every replay retains its launch/input/return; the reviewer sees no plan, product or expected answer. Slice 4 reviews the reuse and amendment paths in the changed guidance. |
 | Delivered response remains attributable | Slice 4 | Update ODF-481 with the response revision and the bounded replay results; containing release stays pending until an actual tag contains it. |
@@ -139,7 +139,7 @@ its promise and the refusal keeps its own restriction id.
 
 ### 4. Accept grouped promises through the existing obligations record
 Type: Behavior
-Status: planned
+Status: done
 Proof: Disposable CLI replay of slice 1 and 3 returns plus a lifecycle source,
 focused source-review tests, consumer trace and ODF-481 update, under example 5.
 
@@ -201,7 +201,9 @@ arbitrary line counts or duplicate the behavioral rule.
 
 ## Learnings
 
-None beyond the preparation observations above.
+The slice-4 replay confirmed that `list --slice` returns slice commitments,
+while `check` reports `pendingLifecycle`; the proof wording now names that
+existing boundary. No source promise or CLI contract changed.
 
 ## Execution context
 
@@ -209,38 +211,33 @@ None beyond the preparation observations above.
 - Originating/execution checkout: `/Users/terryyin/git/open-dough/.worktrees/record-source-review-evidence-once-per-independe`; owned branch `codex/record-source-review-evidence-once-per-independe`.
 - Default integration checkout: `/Users/terryyin/git/open-dough`; authorized target `origin/main`.
 - Established claim accepted on trunk and execution branch: `7bb9992277410f6b5c3ba8da0b461c3c61939a84`; starting revision `65fcf1bafe89d591f3b387c2cefd361c72f7b510`; initial candidate equals claim.
-- Latest accepted branch revision: `f69a6a4d5c297c9a123cf561d201d84d5c5741e1`; suffix base `8ac10364f82362f3dac2504304a52645ed661456`; observer reused. Slice 1 delivery repaired an EOF blank line before its successful commit; semantic proof unchanged.
+- Latest accepted branch revision: `04c71683349ce43ddc0afa3b90c91967fa0ddf26`; suffix base `f69a6a4d5c297c9a123cf561d201d84d5c5741e1`; observer reused. Slice 1 delivery repaired an EOF blank line before its successful commit; semantic proof unchanged.
 - Setup: locked `npm ci --no-audit --no-fund` and `npm run --silent lint -- --staged` passed in this checkout. Check-only commit hook owns staged lint and dashboard typecheck for scripts. Selective formatter: `npm run format`; prose triggers no generation. Runner needs Bash 5: `PATH="/opt/homebrew/bin:$PATH" npm test -- …`.
 - Replanning: no new overrun permission; retain existing planning authority; changed scope/consequential decisions stop the affected work.
 - CI: GitHub `terryyin/open-dough`, verified `ci.yml` / `CI`, remote execution branch. Codex coordinator `sola-chan-616`; `/tmp/dough-ci-501/watch-hqI9ru`; PID `71264`; session `83233`; yielded cell `g464:11`. Claim trunk CI is unobserved by this branch observer. Retain for every increment/repair.
 
 ## Accepted slice evidence
 
-### Slice 1
+| Slice | Accepted observations | Delivery disposition | Active time |
+| --- | --- | --- | --- |
+| 1 | [Small replay](replays/small.md): 26 promises vs 44 old rows, complete mapping; blank/typed, developer-moved focus, preserved inputs and Cursor continuation retained; reasons unnumbered. Exact launch/input/return and CLI/payload setup/assertions retained. Passed 24 Node cases plus payload links. | Independent refactor complete: [consumer trace](replays/small-consumers.md) split by responsibility; all 575 dispositions preserved. Product/proof unchanged, no rerun or test edit. | about 5 minutes |
+| 2 | [Compound replay](replays/compound.md): 43 promises vs 112 old rows, complete mapping; qualified copy/paste/scroll/preservation results distinct; context/proof explanations unnumbered. Structural retention checks passed; no brief correction or semantic gap. | `records-only`; slice-1 consumer/CLI/payload proof remains applicable without rerun. | about 7 minutes |
+| 3 | [Pronunciation replay](replays/pronunciation.md): P01–P39; P11 retains `て` inside `挙げて`, P18 independently refuses pronunciation membership alone while preserving title/alias overlap. Complete source/launch/input/return and source-section mapping; checks passed, no brief correction. | `records-only`; earlier consumer/integration proof unchanged; no product/live-notebook operation. | about 8 minutes |
+| 4 | [Real CLI acceptance](replays/acceptance.md): all 26+39+1 ids retained; withheld typed/inside-word proof refused; receiving G11 leaves completion blocked; target-CI owner stays pending and early observation refuses. Standalone-only marker exposes semantic sufficiency limit. Focused source-review, documented-example and payload gates passed. ODF-481 records bounded response and pending release/use evidence. | Independent refactor complete; proof unchanged, no rerun; [561-consumer trace](replays/acceptance-consumers.md) and inspected setup/assertions retained. Early freshness unchanged at trunk `70594e768f7d19238b61f7e1134f9bdd2176806e`; no named sibling. | about 14 minutes |
 
-- Fresh isolated [small replay](replays/small.md): 26 returned promises versus
-  the retained 44 rows; all historical rows mapped. Blank and typed results,
-  developer-moved focus, retained inputs and Cursor continuation survive;
-  reasons and repeated descriptions add no row. Actual launch/input/return
-  retained. No source-specific rule or failed replay was needed.
-- [Consumer trace](replays/small-consumers.md) dispositions every located path.
-  Inspected extraction, source-only boundaries, qualified result provenance,
-  record refusal assertions and payload-link boundary. No test changes.
-- Passed: `PATH="/opt/homebrew/bin:$PATH" npm test -- Distribution/tests/skills/dough-execute-plan/story-obligations-source-review*.test.mjs Distribution/tests/installation/payload-declaration-links.sh`
-  (24 Node cases plus payload links). Bash 5 first on PATH is the documented
-  runner prerequisite; the initial Bash 3.2 refusal launched no tests.
-- Early source freshness: unchanged at `7bb9992277410f6b5c3ba8da0b461c3c61939a84`;
-  no named coordination sibling. Active implementation: about 5 minutes.
-  Independent refactor complete: trace split by consumer responsibility, all 575 rows preserved; product/proof unchanged, no rerun.
-  Bounded extraction evidence only; no effort, matched-model, cross-host or
-  ordinary-use improvement claim.
+For slices 1–3, the early freshness settlements were unchanged at trunk
+`7bb9992277410f6b5c3ba8da0b461c3c61939a84`; no named coordination sibling.
+The literal passing CLI/payload command and inspected setup/assertions are in
+[small replay](replays/small.md#deterministic-checks-and-consumer-reach).
+Bash 3.2 initially refused before tests; the documented Bash 5 wrapper resolved it.
+These are bounded extraction observations; no effort, matched-model,
+cross-host or ordinary-use improvement is claimed.
 
-### Slice 2
 
-- [Compound replay](replays/compound.md): fresh isolated 43-promise return versus 112 historical rows; source/input/return and complete mapping retained. Copy, paste, scrolling and preservation stay distinct; non-promissory context/proof explanations stay unnumbered. No source correction needed.
-- `records-only` delivery; slice-1 consumer/CLI/payload proof remains applicable without rerun. Early freshness unchanged at claim trunk; no named sibling. Active implementation about 7 minutes. Structural retention checks passed; no semantic gap found.
+## Story obligations
 
-### Slice 3
-
-- [Pronunciation replay](replays/pronunciation.md): fresh isolated P01–P39; P11 explicitly retains `て` inside `挙げて`, and P18 independently refuses pronunciation membership alone while preserving accepted title/alias overlap. Complete source/launch/input/return and source-section mapping retained; no brief correction needed.
-- `records-only` delivery; earlier consumer/integration proof unchanged. Early freshness unchanged at claim trunk; no named sibling. Source/input/return checks passed; about 8 active minutes; no product or live-notebook operation performed.
+### G1. First containing release remains with separate release work
+Reported: slice 4 — "The first containing release is not yet known. ODF-481 retains the pending provenance update for separate release maintenance; this execution must not fabricate a release."
+Story clause: "record this response and its first containing release in ODF-481 when each becomes known"
+Disposition: excluded "Release and rollout are separate work"
+Commitment: 28
