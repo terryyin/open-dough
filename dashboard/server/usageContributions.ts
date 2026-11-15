@@ -2,11 +2,12 @@
 // contribution. Its entries group the session's responses by the candidate
 // tasks they named, the observed model, effort and service tier, and whether
 // their lineage is contradictory, and keep per group the response count, the
-// four token subtotals, how many responses miss each category, how many are
-// not fully measured and the latest activity. A response that names no task
-// has no entry. Which task an entry belongs to is resolved when it is read
-// (./usageResponseResolution.ts), so a task that loses or regains its
-// assignment withdraws or regains the usage without the responses.
+// four token subtotals and the cache writes' split, how many responses miss
+// each category, how many are not fully measured and the latest activity. A
+// response that names no task has no entry. Which task an entry belongs to is
+// resolved when it is read (./usageResponseResolution.ts), so a task that
+// loses or regains its assignment withdraws or regains the usage without the
+// responses.
 import { sessionKey } from "../src/sessionReference.ts";
 import { uniqueFacts } from "./usageReconciliation.ts";
 import {
@@ -22,6 +23,12 @@ export type ContributionCounters = Record<
   number
 >;
 
+// The cache writes by lifetime, kept only while every response of an entry
+// reported them: Codex's entries and an earlier store's are unsplit.
+export type CacheWriteSplit = { cacheWrite5m: number; cacheWrite1h: number };
+export type ContributionTokens = ContributionCounters &
+  Partial<CacheWriteSplit>;
+
 export type ContributionEntry = {
   // The tasks the responses named, sorted.
   candidates: string[];
@@ -30,10 +37,10 @@ export type ContributionEntry = {
   unresolved?: true;
   model: string | null;
   effort: string | null;
-  // The recorded service tier, such as Codex's `default`; null when none was.
+  // The recorded service tier (Codex's `default`, Claude's speed) or null.
   tier: string | null;
   responses: number;
-  tokens: ContributionCounters;
+  tokens: ContributionTokens;
   // The responses with no count for each category.
   missing: ContributionCounters;
   // The responses whose coverage is not "measured".
@@ -77,6 +84,36 @@ const counters = (
   output: a.output + b.output,
 });
 
+// `tokens` plus `added` (a missing count adds none) in stored key order; the
+// write split sits beside the total and stays only while both have one.
+export const tokenSum = (
+  tokens: ContributionTokens,
+  added: Record<keyof ContributionCounters, number | null> & {
+    [lifetime in keyof CacheWriteSplit]?: number | null;
+  },
+): ContributionTokens => {
+  const sum = (category: keyof ContributionCounters) =>
+    tokens[category] + (added[category] ?? 0);
+  const { cacheWrite5m, cacheWrite1h } = tokens;
+  const added5m = added.cacheWrite5m ?? undefined;
+  const added1h = added.cacheWrite1h ?? undefined;
+  return {
+    uncachedInput: sum("uncachedInput"),
+    cacheRead: sum("cacheRead"),
+    cacheWrite: sum("cacheWrite"),
+    ...(cacheWrite5m === undefined ||
+    cacheWrite1h === undefined ||
+    added5m === undefined ||
+    added1h === undefined
+      ? {}
+      : {
+          cacheWrite5m: cacheWrite5m + added5m,
+          cacheWrite1h: cacheWrite1h + added1h,
+        }),
+    output: sum("output"),
+  };
+};
+
 // The sessions in the one order and shape the history stores: sessions by
 // key, each entry's candidates as `canonical` names them, sorted, entries
 // that then share a key summed, and entries by key. Equal contributions give
@@ -107,7 +144,7 @@ export function canonicalContributions(
       const prior = entries.get(key);
       if (prior !== undefined) {
         next.responses += prior.responses;
-        next.tokens = counters(prior.tokens, next.tokens);
+        next.tokens = tokenSum(prior.tokens, next.tokens);
         next.missing = counters(prior.missing, next.missing);
         next.unmeasured += prior.unmeasured;
         next.lastAt = later(prior.lastAt, next.lastAt);
@@ -152,7 +189,14 @@ export function collectContributions() {
       effort: response.settings.effort ?? null,
       tier: response.settings.serviceTier ?? null,
       responses: 0,
-      tokens: { uncachedInput: 0, cacheRead: 0, cacheWrite: 0, output: 0 },
+      tokens: {
+        uncachedInput: 0,
+        cacheRead: 0,
+        cacheWrite: 0,
+        cacheWrite5m: 0,
+        cacheWrite1h: 0,
+        output: 0,
+      },
       missing: { uncachedInput: 0, cacheRead: 0, cacheWrite: 0, output: 0 },
       unmeasured: 0,
       lastAt: null,
@@ -168,11 +212,9 @@ export function collectContributions() {
       );
     }
     entry.responses += 1;
-    for (const category of usageTokenCategories) {
-      const count = response.tokens[category];
-      if (count === null) entry.missing[category] += 1;
-      else entry.tokens[category] += count;
-    }
+    for (const category of usageTokenCategories)
+      if (response.tokens[category] === null) entry.missing[category] += 1;
+    entry.tokens = tokenSum(entry.tokens, response.tokens);
     if (response.coverage !== "measured") entry.unmeasured += 1;
     entry.lastAt = later(entry.lastAt, response.lastAt ?? response.at);
   }

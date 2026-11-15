@@ -2,8 +2,7 @@ import { hasUsageAssignment } from "./usageTaskAssignment.ts";
 import { usageTaskJoinSources } from "./usageTaskJoinSources.ts";
 // Native identity evidence is independent of file discovery order. Only explicit
 // containing-thread metadata and parent links establish a worker's ancestry.
-import path from "node:path";
-import { objectOf, stringOf } from "./nativeUsageFiles.ts";
+import { nativeUsageFileName, objectOf, stringOf } from "./nativeUsageFiles.ts";
 import { uniqueFacts } from "./usageReconciliation.ts";
 import type {
   UsageSource,
@@ -35,7 +34,7 @@ export const codexLineage = (): CodexLineage => ({
 });
 
 export function containingCodexThread(file: string): string {
-  const name = path.basename(file).replace(/\.jsonl(?:\.zst)?$/, "");
+  const name = nativeUsageFileName(file);
   return (
     name.match(/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})$/i)?.[1] ?? name
   );

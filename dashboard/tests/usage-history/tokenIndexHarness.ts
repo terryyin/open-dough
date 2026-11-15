@@ -18,7 +18,7 @@ import {
 } from "../../server/usageHistory.ts";
 import type { UsageBatch } from "../../server/usageRecords.ts";
 import { deriveUsageTaskSummary } from "../../server/usageTaskSummary.ts";
-import { codexTariff, type UsageTariff } from "../../server/usageTariffs.ts";
+import { usageTariffs, type UsageTariff } from "../../server/usageTariffs.ts";
 import {
   defaultCohort,
   type TokenIndexAnswer,
@@ -43,6 +43,10 @@ export const test = base.extend<{ machine: Machine }>({
   },
 });
 export { expect };
+
+// Noon UTC on a November 2026 day, when the chart's tasks end.
+export const day = (date: number) =>
+  `2026-11-${String(date).padStart(2, "0")}T12:00:00.000Z`;
 
 export function configureProjects(
   home: string,
@@ -71,24 +75,27 @@ export async function writeTaskUsage(
   return store;
 }
 
+// The cohort a selection chooses, under its tool's tariff unless one is given.
 export async function readCohort(
   home: string,
   history: UsageBatch,
-  tariff: UsageTariff = codexTariff,
+  tariff?: UsageTariff,
 ) {
   const store = usageHistoryFile(home);
   await writeUsageHistory(history, store);
   const summary = await deriveUsageTaskSummary(store);
-  return (selection: Partial<TokenIndexCohort> = {}) =>
-    tokenIndexCohort(
+  return (selection: Partial<TokenIndexCohort> = {}) => {
+    const cohort = { ...defaultCohort, ...selection };
+    return tokenIndexCohort(
       summary,
       {
         projects: new Map([["open-dough", "Open Dough"]]),
         launches: new Map(),
-        tariff,
+        tariff: tariff ?? usageTariffs[cohort.tool],
       },
-      { ...defaultCohort, ...selection },
+      cohort,
     );
+  };
 }
 
 export async function usageServer(machine: Machine) {
@@ -103,8 +110,12 @@ export async function usageServer(machine: Machine) {
   };
   return {
     request,
-    async chart() {
-      const { status, body } = await request("GET", "/__usage/token-index");
+    // The answer for the cohort `query` spells, Codex's Execution without one.
+    async chart(query = "") {
+      const { status, body } = await request(
+        "GET",
+        `/__usage/token-index${query}`,
+      );
       expect(status, JSON.stringify(body)).toBe(200);
       return body as TokenIndexAnswer;
     },

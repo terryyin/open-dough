@@ -58,6 +58,7 @@ const gapWords: Record<UsageCoverageGap, string> = {
   "incomplete-worker-evidence": "Worker usage incomplete",
   "no-response-usage-evidence": "Session usage missing",
   "unsupported-response-counters": "Unsupported usage counters",
+  "missing-root-transcript-usage": "Root transcript usage missing",
   "unresolved-task-association": "Unattributed response",
   "missing-token-components": "Token counts missing",
   "no-attributable-response-usage": "No attributed response",

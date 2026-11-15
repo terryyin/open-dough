@@ -1,8 +1,12 @@
 // System settings → Usage's cohort filters (`./usageTokenIndex.ts`): one
-// tool, one launch workflow (Execution, Refinement or Ad hoc), and Model and
-// Effort, each the broad option or one the observed tasks offer.
+// tool (Codex or Claude Code), one launch workflow (Execution, Refinement or
+// Ad hoc), and Model and Effort, each the broad option or one the observed
+// tasks offer.
+import { hostDescriptions } from "./hostDescription.ts";
 import { launchKindName } from "./launchWorkflow.ts";
 import {
+  usageToolOf,
+  usageTools,
   usageWorkflowOf,
   usageWorkflows,
   type TokenIndexAnswer,
@@ -61,8 +65,13 @@ export function UsageFilters({
       <Filter
         name="Tool"
         value={cohort.tool}
-        choices={[{ value: "codex", label: "Codex" }]}
-        onChoose={() => undefined}
+        choices={usageTools.map((tool) => ({
+          value: tool,
+          label: hostDescriptions[tool].name,
+        }))}
+        onChoose={(tool) => {
+          onChoose({ ...cohort, tool: usageToolOf(tool) ?? cohort.tool });
+        }}
       />
       <Filter
         name="Launch workflow"

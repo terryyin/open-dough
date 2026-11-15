@@ -1,6 +1,6 @@
 // The separate process (./usageProcess.ts) that runs a usage Refresh
 // (./usageRefresh.ts), so the dashboard server's event loop never reads
-// rollouts or the usage store: node usageRefreshMain.ts <home> <store>. It
+// rollouts, transcripts or the usage store: node usageRefreshMain.ts <home> <store>. It
 // prints the new check time.
 import { usageProcessMain } from "./usageProcess.ts";
 import { refreshUsageHistory } from "./usageRefresh.ts";

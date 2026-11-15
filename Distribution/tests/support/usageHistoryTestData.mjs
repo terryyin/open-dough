@@ -41,16 +41,17 @@ export const rolloutOf = (sessionId) =>
   `/home/.codex/sessions/${sessionId}.jsonl`;
 /**
  * @typedef {Pick<UsageObservation, "sessionId" | "responseId"> &
- *   Partial<Pick<UsageObservation, "settings" | "at" | "parentSessionId" | "turnId">> &
+ *   Partial<Pick<UsageObservation, "host" | "settings" | "at" | "parentSessionId" | "turnId">> &
  *   { tokens: Partial<UsageTokens> }} CodexResponseFacts
  */
 
-// One measured Codex response as a collector stores it: its native counters,
-// with input including cache reads and writes, and the normalized tokens and
-// observed settings they reconcile to. Unstated cache counters are zero.
+// One measured response as a collector stores it, Codex's unless another host
+// is stated: its native counters, with input including cache reads and
+// writes, and the normalized tokens and observed settings they reconcile to.
+// Unstated cache counters are zero and cache writes unsplit.
 export class UsageObservationBuilder {
   /** @param {CodexResponseFacts} facts */
-  with({ tokens: stated, settings = {}, ...facts }) {
+  with({ tokens: stated, settings = {}, host = "codex", ...facts }) {
     return {
       /** @returns {UsageObservation} */
       please: () => {
@@ -96,8 +97,8 @@ export class UsageObservationBuilder {
           at,
         };
         return structuredClone({
-          id: JSON.stringify(["codex", facts.sessionId, facts.responseId]),
-          host: "codex",
+          id: JSON.stringify([host, facts.sessionId, facts.responseId]),
+          host,
           sessionId: facts.sessionId,
           responseId: facts.responseId,
           ...lineage,

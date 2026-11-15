@@ -49,8 +49,9 @@ const workerGap = (task, code) => ({
 // A usage store's tasks, each with its uniquely associated responses: each
 // the root conversation's, in its first turn unless stated, or a worker's,
 // at the observation builder's time and with no recorded service tier unless
-// stated; and, by code, the coverage gaps an import records for a worker the
-// task's root spawned. A task's session is its id unless stated.
+// stated, each response of its task's host; and, by code, the coverage gaps an
+// import records for a worker the task's root spawned. A task's session is its
+// id unless stated.
 export class UsageHistoryBuilder {
   /** @param {{ tasks: readonly TaskHistoryFacts[] }} facts */
   with({ tasks: histories }) {
@@ -63,6 +64,7 @@ export class UsageHistoryBuilder {
           const observations = responses.map((response, index) =>
             new UsageObservationBuilder()
               .with({
+                host: task.host,
                 sessionId: response.worker
                   ? `${task.sessionId}-worker`
                   : task.sessionId,

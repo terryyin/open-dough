@@ -187,6 +187,13 @@ export function usageView(page: Page) {
     async showsTariff(label: string) {
       await expect(trend.getByText(label, { exact: true })).toBeVisible();
     },
+    // The notes beneath the chart, in order: the tariff label, then the work
+    // the tool's usage leaves out, when it names any.
+    async showsFootNotes(notes: readonly string[]) {
+      await expect(
+        trend.locator(".usage-chart-foot > p.settings-note"),
+      ).toHaveText(notes);
+    },
     async refresh() {
       await view.getByRole("button", { name: "Refresh", exact: true }).click();
     },
@@ -197,7 +204,7 @@ export function usageView(page: Page) {
       ).toBeDisabled();
       await expect(
         view.getByRole("status").filter({ hasText: "Checking" }),
-      ).toHaveText("Checking Codex rollouts for new usage…");
+      ).toHaveText("Checking for new usage…");
     },
     // The Refresh finished: it can be pressed again and no note says
     // checking.

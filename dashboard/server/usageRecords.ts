@@ -36,7 +36,8 @@ export const usageSettingsSchema = z.object({
   approvalPolicy: z.string().optional(),
   sandbox: z.string().optional(),
   // The service tier the host recorded as applied, such as Codex's
-  // `default` or `fast`; absent when none was recorded.
+  // `default` or `fast` or Claude's speed `standard`; absent when none was
+  // recorded.
   serviceTier: z.string().optional(),
 });
 const measurementSchema = z.object({

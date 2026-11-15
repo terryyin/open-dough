@@ -28,10 +28,18 @@ export const usageWorkflowOf = (
   name: string | null,
 ): UsageWorkflow | undefined => usageWorkflows.find((each) => each === name);
 
+// The tools whose dashboard launches a cohort selects, by host identity.
+export const usageTools = ["codex", "claude"] as const;
+
+export type UsageTool = (typeof usageTools)[number];
+
+export const usageToolOf = (name: string | null): UsageTool | undefined =>
+  usageTools.find((each) => each === name);
+
 // One tool and launch workflow, and the primary observed model and effort a
 // task must have; null is the broad option (All models, Any effort).
 export type TokenIndexCohort = {
-  readonly tool: "codex";
+  readonly tool: UsageTool;
   readonly workflow: UsageWorkflow;
   readonly model: string | null;
   readonly effort: string | null;
@@ -48,7 +56,10 @@ export function tokenIndexUrl(
   cohort: TokenIndexCohort,
   period?: UsagePeriod,
 ): string {
-  const query = new URLSearchParams({ workflow: cohort.workflow });
+  const query = new URLSearchParams({
+    tool: cohort.tool,
+    workflow: cohort.workflow,
+  });
   if (cohort.model !== null) query.set("model", cohort.model);
   if (cohort.effort !== null) query.set("effort", cohort.effort);
   if (period !== undefined) {
@@ -58,21 +69,41 @@ export function tokenIndexUrl(
   return `${usageTokenIndexEndpoint}?${query.toString()}`;
 }
 
-// The cohort a request's query selects; undefined for an unknown workflow.
-// Without a workflow it is Execution's.
+// The cohort a request's query selects; undefined for an unknown tool or
+// workflow. Without them it is Codex's and Execution's.
 export function requestedCohort(
   query: URLSearchParams,
 ): TokenIndexCohort | undefined {
+  const tool = usageToolOf(query.get("tool") ?? defaultCohort.tool);
   const workflow = usageWorkflowOf(
     query.get("workflow") ?? defaultCohort.workflow,
   );
-  if (workflow === undefined) return undefined;
+  if (tool === undefined || workflow === undefined) return undefined;
   return {
-    tool: "codex",
+    tool,
     workflow,
     model: query.get("model"),
     effort: query.get("effort"),
   };
+}
+
+// The cohort with a model or effort its tool's options do not offer, such as
+// one another tool ran, reset to the broad option; the cohort itself when it
+// needs no reset.
+export function offeredCohort(
+  cohort: TokenIndexCohort,
+  { models, efforts }: TokenIndexAnswer["options"],
+): TokenIndexCohort {
+  const model = models.some(({ id }) => id === cohort.model)
+    ? cohort.model
+    : null;
+  const effort =
+    cohort.effort !== null && efforts.includes(cohort.effort)
+      ? cohort.effort
+      : null;
+  return model === cohort.model && effort === cohort.effort
+    ? cohort
+    : { ...cohort, model, effort };
 }
 
 // A model by its id and the name the tariff gives it, or else its id.
@@ -94,9 +125,12 @@ export type UsageTaskOutcome = {
 // The recorded gaps that show usage missing from a task
 // (`../server/usageTaskGaps.ts`): a worker its root spawned with no usage
 // evidence or no responses; a session of the task with no response usage or
-// only unsupported counters; a response it may own that could not be
-// attributed to one task; a response missing token counts; or no attributable
-// response at all. A spawn whose worker cannot be told apart from others
+// only unsupported counters; a Claude session whose root transcript has no
+// response usage; a response it may own that could not be attributed to one
+// task; a response missing token counts; or no attributable response at all.
+// Claude's background work that never reaches transcripts
+// (`auxiliary-usage-not-covered`) is one cohort note (`./TokenIndexTrend.tsx`),
+// not a task's gap. A spawn whose worker cannot be told apart from others
 // (`ambiguous-` or `unresolved-worker-evidence`) shows no usage missing: the
 // worker's responses still join the task through their own lineage.
 export const usageCoverageGaps = [
@@ -104,6 +138,7 @@ export const usageCoverageGaps = [
   "incomplete-worker-evidence",
   "no-response-usage-evidence",
   "unsupported-response-counters",
+  "missing-root-transcript-usage",
   "unresolved-task-association",
   "missing-token-components",
   "no-attributable-response-usage",
@@ -146,7 +181,7 @@ export type TokenIndexAnswer = {
     readonly efforts: readonly string[];
   };
   readonly tariff: { readonly version: string; readonly label: string };
-  // When Codex rollouts were last checked for usage; null before any import.
+  // When usage was last checked; null before any import.
   readonly checkedAt: string | null;
   // Priced tasks in the requested period (all history without bounds), including partial ones.
   readonly tasks: readonly TokenIndexTask[];

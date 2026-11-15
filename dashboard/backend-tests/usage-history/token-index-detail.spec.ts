@@ -4,14 +4,13 @@ import { retainedUsageTasks } from "../../server/retainedUsageTasks.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { keepRetainedLaunch } from "../../tests/usage-history/importHarness.ts";
 import {
+  day,
   expect,
   test,
   usageServer,
   writeTaskUsage,
 } from "../../tests/usage-history/tokenIndexHarness.ts";
 
-const day = (date: number) =>
-  `2026-11-${String(date).padStart(2, "0")}T12:00:00.000Z`;
 const sol = "gpt-6.1-sol",
   astra = "gpt-6-astra";
 const story = { identity: "SEED-7#same-story", title: "The same story" };

@@ -4,7 +4,8 @@
 // true trailing moving average above dots, independent of their scale; ↑ labels
 // and dated values identify average overflow. The cohort note counts partial
 // tasks and the unpriced ones, which have no point, and the tariff version
-// that weighed them. Selecting a point by pointer or keyboard shows that
+// that weighed them; a tool whose usage leaves known work out names that work
+// once for its cohort. Selecting a point by pointer or keyboard shows that
 // task's detail (`./UsageTaskDetail.tsx`); a new answer for the same cohort,
 // as a Refresh brings, keeps it while the task's point remains.
 import { useState } from "react";
@@ -15,11 +16,17 @@ import { partialWords, UsageTaskDetail } from "./UsageTaskDetail.tsx";
 import {
   movingAverageTasks,
   type TokenIndexAnswer,
+  type UsageTool,
 } from "./usageTokenIndex.ts";
 
 const largeTaskThreshold = 50_000_000;
 const largeTaskWords = "Large task above 50 million";
 const movingAverageWords = `${String(movingAverageTasks)}-task moving average`;
+// Claude Code's background work never reaches its transcripts.
+const excludedWork: Partial<Record<UsageTool, string>> = {
+  claude:
+    "Not included: background agent-view row summaries, recaps and idle compaction",
+};
 
 function series(
   answer: TokenIndexAnswer,
@@ -80,6 +87,7 @@ export function TokenIndexTrend({
   }>();
   const selected = answer.tasks.find((task) => task.id === chosen?.key);
   const latest = answer.average.at(-1);
+  const excluded = excludedWork[answer.cohort.tool];
   const periodWords = `${days} ${days === 1 ? "day" : "days"}`;
   return (
     <>
@@ -141,6 +149,9 @@ export function TokenIndexTrend({
             </span>
           </p>
           <p className="settings-note">{answer.tariff.label}</p>
+          {excluded !== undefined && (
+            <p className="settings-note">{excluded}</p>
+          )}
         </div>
       </section>
       {selected !== undefined && (

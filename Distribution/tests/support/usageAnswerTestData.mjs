@@ -13,6 +13,9 @@ export class TokenIndexAnswerBuilder {
   #checkedAt = "2026-11-15T00:00:00.000Z";
   /** @type {TokenIndexAnswer["cohort"]} */
   #cohort = { tool: "codex", workflow: "execution", model: null, effort: null };
+  /** @type {TokenIndexAnswer["options"]} */
+  #options = { models: [sol], efforts: ["xhigh"] };
+  #tariff = { version: "codex-test", label: "Test rate card" };
 
   /** @param {{ indexes: readonly number[] }} facts */
   with({ indexes }) {
@@ -35,6 +38,24 @@ export class TokenIndexAnswerBuilder {
   /** @param {TokenIndexAnswer["cohort"]["workflow"]} workflow */
   inWorkflow(workflow) {
     this.#cohort = { ...this.#cohort, workflow };
+    return this;
+  }
+
+  /** @param {Partial<TokenIndexAnswer["cohort"]>} cohort */
+  forCohort(cohort) {
+    this.#cohort = { ...this.#cohort, ...cohort };
+    return this;
+  }
+
+  /** @param {TokenIndexAnswer["options"]} options */
+  offering(options) {
+    this.#options = structuredClone(options);
+    return this;
+  }
+
+  /** @param {string} label */
+  underTariff(label) {
+    this.#tariff = { version: "test", label };
     return this;
   }
 
@@ -64,8 +85,8 @@ export class TokenIndexAnswerBuilder {
     const measured = tasks.filter((task) => task.coverage.kind === "measured");
     return structuredClone({
       cohort: this.#cohort,
-      options: { models: [sol], efforts: ["xhigh"] },
-      tariff: { version: "codex-test", label: "Test rate card" },
+      options: this.#options,
+      tariff: this.#tariff,
       checkedAt: this.#checkedAt,
       tasks,
       unpriced: this.#unpriced,

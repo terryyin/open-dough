@@ -2,6 +2,7 @@
 
 **Identity:** SEED-359#view-claude-code-task-token-usage
 **Source:** [View token usage for dashboard-launched Claude Code tasks](../../seeds/SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -103,7 +104,7 @@ Each slice targets 15 active minutes, including proof and cleanup.
 
 ### 1. Keep the cache-write split and speed in stored Claude usage
 Type: Structure
-Status: planned
+Status: done
 Proof: Backend `usage-history/claude-usage`, `session-contributions`,
 `repeated-checks`, `earlier-store-conversion` and `token-index` specs; a new
 case imports a transcript with five-minute and one-hour writes and
@@ -117,9 +118,17 @@ Usage output changes: Codex has no split and keeps its totals. Enables
 slice 2's Claude pricing. An earlier store's entries without the counters read
 as unsplit.
 
+Delivered: entries carry `tokens.cacheWrite5m` and `tokens.cacheWrite1h` beside
+`cacheWrite` only while every summed response reported the split; an unsplit
+entry (Codex, an earlier store, a response without `cache_creation`) omits
+both keys rather than storing `null`, so Codex and earlier entries stay
+byte-identical. Slice 2 reads an absent key as unsplit. Claude `speed` is the
+entry's `tier`. Proof: `claude-usage-split.spec.ts` plus the whole backend
+`usage-history` folder (79 passed) and the dashboard typecheck.
+
 ### 2. Choose Claude Code and read its Token index
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source examples 1, 2, 5, 6; Backend cohort/eligibility cases with
 independently computed figures; Frontend `system-settings-usage` and E2E
 `configuration/system-settings-usage.spec.ts` choose Claude Code from an
@@ -133,9 +142,21 @@ the cohort selects the tool's host; the boundary selects the tool's tariff.
 Model options keep the tool's observed models. Switching tool keeps the
 workflow and resets a model/effort the new tool does not offer.
 
+Delivered: tools are host ids (`?tool=codex|claude`, default Codex, unknown
+refused); the summary (format v5) keeps both hosts' dashboard tasks and the
+cache-write split; the cohort keeps `task.host === tool`; the boundary uses
+`usageTariffs[tool]`. Tariff `claude-2026-11-15` holds the list prices read
+that day with split write rates; a group with writes but no complete split is
+unpriced, a zero-write group needs none, `<synthetic>` is zero-rated. Proof:
+backend `token-index-claude*.spec.ts` (85 in `usage-history`), frontend
+`system-settings-usage-tool.spec.ts` (16), E2E
+`configuration/system-settings-usage-tools.spec.ts` (4), typecheck. Learning:
+a controlled select whose value matches no option shows the first one, so a
+reset check needs a route answer that offers only the tool's real models.
+
 ### 3. Show Claude coverage honestly
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 4; Backend coverage case with a missing root
 transcript and one with only `auxiliary-usage-not-covered`; Frontend detail
 wording and the cohort note.
@@ -146,9 +167,20 @@ limit stays measured, and the Claude Code cohort shows one note that
 background agent-view summaries, recaps and idle compaction are not included.
 Codex shows no such note.
 
+Delivered: `missing-root-transcript-usage` joins `usageCoverageGaps` ("Root
+transcript usage missing" in detail); a missing worker was already partial
+through `missing-worker-evidence`. The Claude Code chart foot shows the note
+"Not included: background agent-view row summaries, recaps and idle
+compaction" after the tariff label. Proof: backend
+`token-index-claude-coverage.spec.ts` (86 in `usage-history`), frontend
+`system-settings-usage-tool.spec.ts` (17), E2E Usage journeys (4).
+Learning for slice 5: a launch with no attributable response and no reported
+outcome has no end time, so it has no point at all, not even a partial one;
+check how the real launches with a missing root transcript show.
+
 ### 4. Refresh brings in new Claude usage
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 3; Backend `token-index-refresh` new cases (new Claude
 launch with a worker, repeated unchanged Refresh byte-stable, duplicate
 transcript response once, unrelated Claude session ignored); E2E Refresh case
@@ -162,6 +194,15 @@ description in `dashboard/USAGE-HISTORY.md` (250 lines now): reword the
 Codex-only sentences in place, or move the Usage-view paragraph to the Token
 index document SEED-369 adds if it has landed, keeping both files within the
 size check.
+
+Delivered: `usageRefresh.ts` has one reading step per host (`codexReading`,
+`claudeReading` with the importer's Claude reader, lineage, association and
+coverage), one batch write; `usageRefreshFiles.ts` selects changed sessions
+for both; `claudeUsageRoots(home)` is shared with the importer. Checking text
+is "Checking for new usage…". Proof: backend
+`token-index-refresh-claude.spec.ts` (88 in `usage-history`), frontend (17),
+E2E Usage journeys incl. a Claude Refresh (5). A partly written row read
+mid-task stores a `malformed-native-row` gap, which marks nothing partial.
 
 ### 5. Price this machine's Claude history and validate natively
 Type: Behavior
