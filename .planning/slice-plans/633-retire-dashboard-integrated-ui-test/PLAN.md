@@ -2,6 +2,7 @@
 
 **Identity:** SEED-334#retire-dashboard-integrated-ui-test
 **Source:** [Move Intent CI checks out of Dashboard Integrated UI Test](../../seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test)
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -95,13 +96,21 @@ separately from later variants. Counts guide sizing, not acceptance.
 
 ### 1. Preserve CI-status HTTP refusals without a browser
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-ci-status-read-boundary.spec.ts` (1 / 70), direct Backend requests,
 every malformed query and exact fresh/kept call sequence.
 Behavior: configured published project → malformed or fresh/kept CI-status
 request → the same answers and upstream effects occur without a page. Reuse
 `pageTest.ts`, a boundary-mode server and `rawHttp.ts`. Apply the observed
 pinned-revision scratch fault to both old and new homes.
+Accepted: `dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts`
+(real boundary-mode server, `rawRequest`, `judgmentCalls` over fake GitHub calls)
+now also asserts no judgment call after each refusal group. Scratch removal of the
+revision refusal failed it (400 expected, 200 received); restored, it passed.
+`judged`/`runUrl`/`trunkCi`/`judgmentCalls` moved page-free to
+`dashboard/tests/support/trunkCiAnswers.ts`, re-exported by `intentCiStatusPage.ts`;
+re-export consumers ran (integrated kept/homepage, e2e ci-status) and typechecked.
+Integrated selection: 229 tests / 112 files.
 
 ### 2. Preserve CI-status presentation and reading lifetime
 Type: Behavior

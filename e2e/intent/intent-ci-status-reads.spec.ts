@@ -15,7 +15,7 @@ import {
 // a ciAdapter project is judged from its discover attempts (SEED-219 example
 // 8) with a story branch that also counts main's discover results of shared
 // commits, run on main (SEED-219#ci-status-review-corrections). Boundary
-// refusals and the kept form are in ../../dashboard/tests/intent/intent-ci-status-read-boundary.spec.ts.
+// refusals and the kept form are in ../../dashboard/backend-tests/intent/intent-ci-status-read-boundary.spec.ts.
 // The tab itself is in ./intent-ci-status.spec.ts; a running head with its
 // nearest completed ancestor, and Check again after it finishes showing Passed
 // (SEED-219 example 7), is the "a running head…" step of

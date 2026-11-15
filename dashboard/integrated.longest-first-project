@@ -105,4 +105,3 @@
 4.0	tests/intent/intent-gherkin-layout.spec.ts
 4.0	tests/navigation/development-intent-frame-keyboard.spec.ts
 3.9	tests/intent/intent-ci-wall-time-history-gaps.spec.ts
-3.3	tests/intent/intent-ci-status-read-boundary.spec.ts
