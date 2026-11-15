@@ -77,21 +77,6 @@ pending); Terry chose this over the §4 matched comparison under
 [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md), because
 that comparison costs more model work than the wait it measures.
 
-#### Evidence
-
-Observed locally on 2026-11-15 without a paid run:
-
-- In the second try's watch trace the session wrote its own watcher, which
-  printed `unchanged` every 30 seconds, and polled it with a 30-second wait;
-  each poll re-read the whole context.
-- Codex 0.169.0 accepts an empty poll of up to 300 seconds. Across 2,873 local
-  Codex sessions, responses after a 270–330 second gap were 97.7% cached, 89.0%
-  after 330–600 seconds, and about 74% beyond ten minutes.
-- The saving grows with the length of the wait, so a short benchmark cannot
-  show it (11.92% ceiling with 180-second windows) and a long one pays for the
-  waste in its baseline arm.
-- The native supplier-watch profile is retired.
-
 #### Key examples
 
 - Paused supplier, developer says “you watch it”, supplier stays unchanged →

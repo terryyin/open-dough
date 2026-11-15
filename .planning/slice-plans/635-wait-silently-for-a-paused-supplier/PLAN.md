@@ -107,7 +107,7 @@ stay where they are.
 
 ### 3. The findings record the delivered change and the check for the next real watch
 Type: Behavior
-Status: planned
+Status: done
 Proof: read the changed section against the story's Evaluation and open each changed link.
 
 Behavior: a maintainer opens
@@ -149,6 +149,11 @@ guidance otherwise. The evidence the story observed moves here from the seed.
 - Slice 1 accepted proof: the focused test (10 tests) and the payload
   declaration and installation checks named in its return; refactor pass
   complete.
+- Slice 3 accepted as a records-only change (findings and seed): the seed's
+  Evidence moved to the findings, whose retired-profile statement already
+  covered the fourth bullet. The check's counting rules (which requests count
+  as re-entries, rounding a started five minutes up, cached share summed over
+  the re-entries) are the slice's reading of the story's criterion.
 - Refinement: not needed; three slices, each one outcome and one proof loop.
 - Remaining slice-specific concerns: none identified in this review.
 
