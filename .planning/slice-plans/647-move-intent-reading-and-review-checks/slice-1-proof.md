@@ -241,7 +241,7 @@ no-matching-files classification and stale publication calls in two copied
 specs; repaired before the covering six-spec pass. Java Proof now gets explicit
 valid CI/history answers instead of the default backlog fallback.
 
-C17's aggregate revisit/file-column facets remain with slice 7; slice 1 provides
+The source review's revisit/file-column facets remain with slice 7; slice 1 provides
 source fidelity, group/selection, grammar fallback, target and reading-lifetime
 observations. No original slice-1 assertion remains unmapped.
 

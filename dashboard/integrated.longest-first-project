@@ -20,7 +20,6 @@
 22.1	tests/intent/intent-summary-story-comparison-file.spec.ts
 22.0	tests/navigation/source-navigation.spec.ts
 21.7	tests/intent/intent-revision-notice.spec.ts
-21.7	tests/intent/intent-story-changes-only.spec.ts
 21.7	tests/intent/intent-story-coverage.spec.ts
 21.1	tests/intent/intent-sidebar-toggle.spec.ts
 20.8	tests/intent/intent-ci-status-execution-time.spec.ts
@@ -34,7 +33,6 @@
 18.1	tests/intent/intent-done-project-refresh-reading.spec.ts
 18.1	tests/navigation/accessible-board-keyboard.spec.ts
 17.8	tests/intent/intent-summary-ci-proof-gaps.spec.ts
-17.2	tests/intent/intent-story-changes-gaps.spec.ts
 17.1	tests/navigation/board-height.spec.ts
 16.8	tests/intent/intent-ci-comparison-locations.spec.ts
 16.8	tests/intent/intent-story-ci-cues.spec.ts

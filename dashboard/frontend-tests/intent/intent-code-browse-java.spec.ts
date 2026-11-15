@@ -1,4 +1,5 @@
 import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
+import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts";
 // Configured Java/JUnit source uses Intent's existing browser and Purpose/Proof
 // reader, alongside another test type, without requiring Java CI evidence.
 import { expect, test } from "../../tests/support/frontendApp.ts";
@@ -24,6 +25,7 @@ import {
 import { openUntilRead } from "../../tests/pageRequestNotes.ts";
 import { doughnut } from "../../tests/intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { failGrammar } from "../../tests/support/syntaxGrammar.ts";
 
 test("Intent lists configured nested JUnit source, reads exact pinned Java with line numbers and theme styling, and shares Purpose/Proof with other source", async ({
   page,
@@ -55,39 +57,7 @@ class CalculatorTest {
     "backend/src/test/java/com/example/Fixture.java": "class Fixture {}\n",
     "scripts/check.sh": shellText,
   });
-  const judgment = makeMe.anIntentCiStatus
-    .with({
-      branch: "main",
-      revision: doughnut.revision,
-      state: "unread",
-      subject: "No readable result",
-      laterWithoutResult: 0,
-      reason:
-        "No result of the selected check was found in the readable history",
-      checkedAt: "2026-11-01T00:00:00.000Z",
-      freshness: "fresh",
-    })
-    .please();
-  await page.route(/intent=ci-status/, (route) =>
-    route.fulfill({
-      json: new URL(route.request().url()).searchParams.has("kept")
-        ? { none: true }
-        : judgment,
-    }),
-  );
-  await page.route(/intent=ci-history/, (route) => {
-    const path = new URL(route.request().url()).searchParams.get("scope") ?? "";
-    return route.fulfill({
-      json: makeMe.aScopeHistoryGlance
-        .with({
-          path,
-          selectedRevision: doughnut.revision,
-          availability: "empty",
-          entries: [],
-        })
-        .please(),
-    });
-  });
+  await answerFrontendIntentCi(page, doughnut.revision);
   await openUntilRead(page, "/?project=doughnut&perspective=intent");
   const { intent } = parts(page);
   await expandIntentGroup(intent, "backend/src/test/java");
@@ -152,14 +122,7 @@ test("a failed Java grammar load leaves configured source readable as exact plai
   frontendServices,
 }) => {
   const text = 'class Examples { String value = "still readable"; }\n';
-  let grammarFailed: () => void = () => undefined;
-  const failed = new Promise<void>((resolve) => {
-    grammarFailed = resolve;
-  });
-  await page.route(/\/assets\/java-[^/]+\.js$/, async (route) => {
-    await route.abort("failed");
-    grammarFailed();
-  });
+  const grammar = await failGrammar(page, "java");
   putFrontendIntentSources(
     frontendServices,
     doughnut,
@@ -176,7 +139,7 @@ test("a failed Java grammar load leaves configured source readable as exact plai
   const { intent } = parts(page);
   await expandIntentGroup(intent, "checks");
   await sourceFile(intent, "checks/Examples.java").click();
-  await failed;
+  await grammar.failed;
   const source = fileSource(intent, "checks/Examples.java");
   await expect(sourceLineText(source)).toHaveText([
     'class Examples { String value = "still readable"; }',

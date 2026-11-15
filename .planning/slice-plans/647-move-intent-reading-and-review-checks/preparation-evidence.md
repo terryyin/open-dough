@@ -17,7 +17,7 @@ Existing production comparison mounts/bindings under
 `dashboard/frontend-tests/intent/` and timing-history rendering specs retain
 presentation proof without a server. Whole-app selection, focus and reading
 lifetime must still operate the actual app. Reuse CI answer families delivered
-by plan 633 at execution's current trunk; do not add parallel implementations.
+by the completed status/timing outcome (formerly plan633) at current trunk; do not add parallel implementations.
 When those are absent, use existing component mounts for isolated presentation
 and existing E2E acquisition proof, adding only the service answers required by
 an actual full-app interaction. Do not treat the authenticated-read backlog
@@ -80,3 +80,10 @@ proof ownership. Cumulative design reuses one service-boundary model and
 preserves real judgment at the real boundary. Review identified no remaining
 slice-specific concern; future overruns or missing CI-family assumptions trigger
 reassessment rather than a broader implicit batch.
+
+Execution update: the CI status/timing outcome landed at `aabd7c58` (supplier
+`b37a3616`); its status/project-history families and aCiHistoryAnswer are now
+reused. Remaining20 proof/comparison/candidate specs belong to provisional
+plan651. That plan records a scope-glance overrun from missing built-app Done
+file Purpose/Proof arrangement. Slice5 must settle this unverified consuming
+premise before dependent work; Recently done board review alone is not proof.

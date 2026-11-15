@@ -1,24 +1,18 @@
-import { showLatestRevision } from "../intentReadRecoveryPage.ts";
-// Example 2 and 4: "Selected story only" over a selected story's overlay
-// (../support/intentStoryWorktree.ts). Off at first; on, only the in-scope
-// changed files and their folders remain, expanded; off again, the whole
-// tree, with the changed folders open and the rest collapsed, however they
-// were arranged by hand in between. Visiting another of the story's views
-// and returning keeps the selected file and its reading, the open folders,
-// and the choice. A story selected in Development opens at its CI comparison
-// and starts the tree's kept arrangement afresh
-// (../../src/pageIntentReading.tsx), so it applies its expansion, with the
-// toggle off, the next time Changed tests shows. A story that changed only product code says no
-// test file in a location changed, with the count outside. The choice stays
-// through a new trunk revision and a Project Intent **Show latest** visit
-// (../../src/IntentRevisionNotice.tsx). The highlighted
-// journey: ../../../e2e/intent/intent-story-changes.spec.ts.
+import { pausePageClockAt } from "../../tests/dashboardTest.ts";
+import { showLatestRevision } from "../../tests/intentReadRecoveryPage.ts";
+// The full app keeps changed-tree filtering, expansion and reading across
+// story view switches, hidden selection and a Project Intent refresh.
+// Explicit service answers own presentation; the real Git overlay remains
+// observed in ../../../e2e/intent/intent-story-changes.spec.ts and its siblings.
 
 import type { Locator } from "@playwright/test";
-import { parts } from "../dashboardPage.ts";
-import { intentGroupToggle, revisionNotice } from "../intentPerspectivePage.ts";
-import { emptyArea, expectSelected } from "../storyCardSelection.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import {
+  intentGroupToggle,
+  revisionNotice,
+} from "../../tests/intentPerspectivePage.ts";
+import { emptyArea, expectSelected } from "../../tests/storyCardSelection.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   folderToggle,
   folderRow,
@@ -27,22 +21,27 @@ import {
   expectStoryComparisonRead,
   expectStoryTab,
   intentFile,
-  selectTakenStoryInIntent,
   storyHeaderDetail,
   storyOnly,
   storyHeaderReading,
   intentDiffReading,
-} from "../support/intentStoryPage.ts";
+} from "../../tests/support/intentStoryPage.ts";
+import { changed } from "../../tests/support/intentStoryWorktree.ts";
+import { shortRevision } from "../../tests/dashboardParts.ts";
 import {
-  changed,
-  changeIntentTests,
-  changeProductOnly,
-} from "../support/intentStoryWorktree.ts";
-import { shortRevision } from "../dashboardParts.ts";
-import { commitAll, git, writeAt } from "../support/storyReviewWorktree.ts";
-import { pausePageClock, passTimeUntilChecked } from "../autoRefreshJourney.ts";
-import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
-import { openProjectIntent, returnToStory } from "../intentModePage.ts";
+  putFrontendIntentStory,
+  answerFrontendIntentChanges,
+} from "../../tests/support/frontendIntentStory.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
+import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts";
+import { passTimeUntilChecked } from "../../tests/autoRefreshJourney.ts";
+import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
+import {
+  openProjectIntent,
+  returnToStory,
+  openStoryIntent,
+} from "../../tests/intentModePage.ts";
 
 const changedInFirstLocation = [
   changed.modified,
@@ -69,9 +68,12 @@ async function expectStoryExpansion(intent: Locator) {
 
 test("Selected story only shows just the story's changed files, expanded, and off again the whole tree with its changed folders open", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  const { card, intent } = await selectTakenStoryInIntent(page, origin);
+  putFrontendIntentStory(frontendServices);
+  await answerFrontendIntentChanges(page);
+  const { card, intent } = await openStoryIntent(page, "Story A");
+  await chooseStoryTab(intent, "Changed tests");
   const toggle = storyOnly(intent);
   const kept = "dashboard/tests/boundary/kept.spec.ts";
   const other = "dashboard/tests/other/c.spec.ts";
@@ -159,13 +161,16 @@ test("Selected story only shows just the story's changed files, expanded, and of
 
 test("a story that changed only product code says Selected story only has no test files in Intent locations, with the count outside", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  const { intent } = await selectTakenStoryInIntent(
-    page,
-    origin,
-    changeProductOnly,
-  );
+  putFrontendIntentStory(frontendServices);
+  await answerFrontendIntentChanges(page, [
+    makeMe.aReviewedFile
+      .with({ kind: "modified", path: "dashboard/src/App.tsx" })
+      .please(),
+  ]);
+  const { intent } = await openStoryIntent(page, "Story A");
+  await chooseStoryTab(intent, "Changed tests");
   const none = intent.locator(".intent-story-none");
   await storyHeaderDetail(intent);
   await expect(storyHeaderReading(intent).revisions).toBeVisible();
@@ -197,23 +202,24 @@ test("a story that changed only product code says Selected story only has no tes
 
 test("Selected story only stays on through a new trunk revision and refreshing Project Intent", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  await pausePageClock(page);
-  const { intent } = await selectTakenStoryInIntent(
-    page,
-    origin,
-    changeIntentTests,
-    true,
-  );
+  await pausePageClockAt(page, new Date("2026-11-05T08:00:00.000Z"));
+  await preholdRevisionStreamSlots(page);
+  putFrontendIntentStory(frontendServices);
+  await answerFrontendIntentChanges(page);
+  await answerFrontendIntentCi(page, frontendServices.revision);
+  const { intent } = await openStoryIntent(page, "Story A");
+  await chooseStoryTab(intent, "Changed tests");
   const toggle = storyOnly(intent);
   await toggle.check();
   await expectStoryExpansion(intent);
 
-  writeAt(origin.project, "docs/later.md", "later\n");
-  commitAll(origin.project, "a later trunk change");
-  git(origin.project, "push", "--quiet", "origin", "main");
-  const later = (await origin.originGit("rev-parse", "main")).trim();
+  const later = "e5".repeat(20);
+  Object.assign(frontendServices, {
+    revision: later,
+    locations: { ...frontendServices.locations, revision: later },
+  });
   await passTimeUntilChecked(page);
   await untilPageReadsAnswered(page);
   await expect(parts(page).status).toContainText(

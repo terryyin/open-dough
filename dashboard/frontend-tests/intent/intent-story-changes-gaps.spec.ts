@@ -12,14 +12,15 @@
 // to selected story returns to Changed tests. The highlighted journey:
 // ../../../e2e/intent/intent-story-changes.spec.ts.
 
+import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts";
 import type { Locator } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts } from "../../tests/dashboardPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
   purposeRegion,
-} from "../intentPerspectivePage.ts";
+} from "../../tests/intentPerspectivePage.ts";
 import {
   backToStory,
   chooseOptimizationCandidates,
@@ -27,9 +28,10 @@ import {
   openProjectIntent,
   returnToStory,
   intentPageFrame,
-} from "../intentModePage.ts";
-import { emptyArea, expectSelected } from "../storyCardSelection.ts";
-import { expect, test } from "../support/preparationPage.ts";
+  openStoryIntent,
+} from "../../tests/intentModePage.ts";
+import { emptyArea, expectSelected } from "../../tests/storyCardSelection.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   chooseStoryTab,
   expectOutsideCount,
@@ -37,15 +39,17 @@ import {
   expectStoryTab,
   intentFile,
   outsideCount,
-  selectTakenStoryInIntent,
   storyHeaderDetail,
   storyOnly,
   storySummary,
   storyTitle,
   storyHeaderReading,
-} from "../support/intentStoryPage.ts";
-import { changed, publishIntentTrunk } from "../support/intentStoryWorktree.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
+} from "../../tests/support/intentStoryPage.ts";
+import { changed } from "../../tests/support/intentStoryWorktree.ts";
+import {
+  putFrontendIntentStory,
+  answerFrontendIntentChanges,
+} from "../../tests/support/frontendIntentStory.ts";
 
 // The published tree shows as without a story: no change marks, no outside
 // count, no toggle, no claim that nothing changed, and a file reads its
@@ -67,14 +71,10 @@ async function expectPublishedTreeUsable(intent: Locator) {
 
 test("an active story with no workspace explains that no comparison is available and leaves the tree usable", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  publishIntentTrunk(origin.project);
-  const card = await openBacklog(page, origin);
-  await emptyArea(card).click();
-  await expectSelected(card, true);
-  const { intentChoice, intent } = parts(page);
-  await intentChoice.click();
+  putFrontendIntentStory(frontendServices, { workspace: false, taken: false });
+  const { intent } = await openStoryIntent(page, "Story A");
   const scoped = storySummary(intent);
   await expect(storyTitle(intent)).toHaveText("Story A");
   await expect(scoped.getByRole("status")).toHaveText(
@@ -92,8 +92,10 @@ test("an active story with no workspace explains that no comparison is available
 
 test("a failed comparison read explains itself with a retry that then shows the story's changes", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
+  putFrontendIntentStory(frontendServices);
+  await answerFrontendIntentChanges(page);
   let failing = true;
   await page.route(
     (url) => url.pathname === storyReviewEndpoint,
@@ -109,7 +111,8 @@ test("a failed comparison read explains itself with a retry that then shows the 
       });
     },
   );
-  const { intent } = await selectTakenStoryInIntent(page, origin);
+  const { intent } = await openStoryIntent(page, "Story A");
+  await chooseStoryTab(intent, "Changed tests");
   const scoped = storySummary(intent);
   const problem = scoped.getByRole("alert");
   await expect(problem).toHaveText(
@@ -135,13 +138,16 @@ test("a failed comparison read explains itself with a retry that then shows the 
 
 test("without configured Intent locations the header names the selected story, CI comparison shows its CI status, Changed tests the explanation, and Project Intent main's CI status beside it", async ({
   page,
-  origin,
+  frontendServices,
 }) => {
-  const card = await openBacklog(page, origin);
-  await emptyArea(card).click();
-  await expectSelected(card, true);
-  const { intentChoice, intent } = parts(page);
-  await intentChoice.click();
+  putFrontendIntentStory(frontendServices, {
+    workspace: false,
+    locations: false,
+    taken: false,
+  });
+  await answerFrontendIntentCi(page, frontendServices.revision);
+  const { card, intent } = await openStoryIntent(page, "Story A");
+  const { intentChoice } = parts(page);
   await expect(
     intentPageFrame(intent).locator(":scope > *").first(),
   ).toHaveAttribute("aria-label", "Selected story");

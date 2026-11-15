@@ -10,7 +10,7 @@ Preserve every distinct assertion from the 37 non-CI Intent specs at its real
 Frontend, Backend or representative E2E boundary. The seed owns goal, scope and
 key examples. Execution progress and accepted proof are recorded per slice.
 Keep navigation and runner retirement in [plan 648](../648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md)
-and CI conversion in [plan 633](../633-retire-dashboard-integrated-ui-test/PLAN.md).
+and the remaining CI conversion in [plan 651](../651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md).
 The two `intent-ci-done-*` specs are part of this reading/review outcome.
 No new tier, changed product behavior, E2E rename, tagged-install proof or
 unmeasured timing/shard target. No start-blocking story dependency.
@@ -21,34 +21,8 @@ Reuse the [settled solution and decisions](preparation-evidence.md#existing-solu
 
 ## Outside-in proof and local gates
 
-Before deleting an old case, retain its assertion-by-assertion disposition to
-named maintained cases, including reused cases and inspected setup/observation
-locations. Counts and filenames alone do not establish preservation. A mixed
-case may have several homes. Observe one representative scratch break at a
-changed boundary in its old home before deletion and in its maintained home;
-both must fail for the same promise and pass restored. The Purpose target
-fault in the preparation evidence supplies an observed old-side baseline for slice 1, not a claim
-that the converted proof exists. Repeat at another boundary when that fault
-cannot discriminate its promise. Revert all scratch edits before delivery.
-
-For module moves, changed contracts and retired outputs, apply the
-[consumer-trace procedure](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace).
-Follow page objects, fixtures, exported helpers and registered source paths to
-their observing journeys in all groups. Keep consumers, imports, registration
-and proof documentation aligned; remove no shared helper still used elsewhere.
-
-| Source promise / example | Owning slice and observable proof |
-| --- | --- |
-| Nested summaries, Gherkin/Java exact text, target case, grammar fallback / 4 | 1: real Frontend actions, text/line/target/scroll/style assertions; retained E2E source acquisition. |
-| Unusable settings, timed/hidden recovery, failed source target / 3–4 | 2: controlled answer/clock transitions and exact browser asks; real Backend classification/upstream effects and E2E retry. |
-| Story gaps, changes-only and no-text browsing / 1 | 3 and 8: changed-tree interaction, absent/failed explanations, real source judgment, exact request deltas. |
-| CI cues, coverage, dark/narrow views, title and Review return / 1, 4 | 4: actual styles, keyboard, focus/scroll, distinct coverage states; Backend/E2E retains acquisition/source effects. |
-| Done historical/live/captured modes, selection, refresh and local history / 2 | 5: held mode/source answers cannot leak old content; real server chooses source/run; refresh/retry preserves file, endpoints, tabs, history and reading. |
-| Notice, planning/settings update, failure/held/retry, cross-project late answer / 3 | 6: real Frontend state transitions; representative real SSE/revision acquisition remains Backend/E2E. |
-| Activation, project visits, sidebar and selected-story defaults / 4 | 7: actual controls, keyboard, selected scope, file column, reading place, notice and project isolation. |
-| Reading reuse, selection races, per-project reading reset / 1, 4 | 8: actual selection and Purpose with exact browser asks/no-extra-text/diff counts. |
-| All 37 dispositions; no converted interim cases or stale timing rows | Every slice removes only its sources/rows; 8 reconciles all sources and the current interim selection. |
-| Shared support and remaining runner still usable | Every slice traces consumers and runs affected proof; 8 lists the remaining group without retiring it. |
+Follow the [conversion proof contract and boundary ownership](proof-contract.md)
+for assertion dispositions, scratch discrimination and consumer tracing.
 
 Local gates: focused maintained cases via `npm run test:dashboard:frontend -- <paths>`,
 `npm run test:dashboard:backend -- <paths>` and/or `npm run test:e2e -- <paths>`;
@@ -78,9 +52,9 @@ integration target `main`. Established publisher
 `dashboard-territory.local-open-dough`, agent Honoka-chan, starting revision
 `38175824df799c47811f2b00cb8cdb20400edaed`; accepted claim and previously
 published branch base `f8c4841a47719925236f78ff220efe9b0795e4f5`.
-Latest accepted branch revision: `13a08cafd240592c7b8832fc7b8b0a9186cd0617`
-(inherited CI repair, suffix base `cd02f6a5171cf066ef111a467e12fd7492339171`,
-the delivered slice 1 revision; observation reused the stream below).
+Latest accepted branch revision: `f3afab3d19cc02c594421a5a06753adb8a00884f`
+(slice 2, suffix base `13a08cafd240592c7b8832fc7b8b0a9186cd0617`, the inherited
+watcher repair; observation reused the stream below).
 No new claim was made. Checkout-local `npm ci` installed the locked 183 packages;
 the existing Frontend candidate recovery listing passed. Existing planning
 authority is retained; no overrun-replanning option was supplied.
@@ -147,7 +121,7 @@ implementation minutes, independent refactor and covering Frontend pass.
 
 ### 3. Preserve selected-story changed-tree reading
 Type: Behavior
-Status: planned
+Status: done
 Proof: two specs / 443 lines: `intent-story-changes-gaps`,
 `intent-story-changes-only`.
 Behavior: select a story, toggle Selected story only, fail/retry its comparison
@@ -157,6 +131,15 @@ Reuse schema-checked review snapshots/diffs and location answers; arrange each
 state explicitly. Keep real branch/completion-to-diff selection in Backend/E2E.
 No new general response family; preserve failed/absent distinctions and the
 story/Project Intent source difference.
+
+Accepted proof: [slice3 assertion, source and consumer evidence](slice-3-proof.md);
+13 active implementation minutes including canonical-family reconciliation,
+independent refactor and renewed covering Frontend pass.
+
+Clean-boundary checkpoint before slice4: integrate the published trunk history
+(including CI status/timing and syntax support) into this execution branch,
+preserve converted Java/Purpose homes on modify/delete conflicts, and renew
+affected combined-snapshot proof before implementation resumes.
 
 ### 4. Preserve story presentation and Review return
 Type: Behavior
@@ -227,9 +210,10 @@ held startup answer or switch projects → exact request deltas, no redundant
 published text beside a diff, per-project reading reset and selected Purpose
 remain protected. Reuse prior answer controls. Remove no unconverted case.
 Run `npm run test:dashboard:integrated -- --list --reporter=line`: this story's
-37 sources are absent. If CI conversion landed too, no Intent product spec
-remains; otherwise only that story's 35 Intent CI sources plus navigation
-remain. Account for independent navigation conversion. Keep live helpers and
+37 sources are absent. Reconcile against current trunk's partial CI outcome:
+15 status/timing specs converted; the remaining20 CI specs belong to plan651.
+If that remainder also landed, no Intent product spec remains; otherwise its
+20 sources plus navigation remain. Account for independent navigation conversion. Keep live helpers and
 historical proof/source identities usable; retire no runner or configuration.
 
 ## Premises, observations and sizing review
