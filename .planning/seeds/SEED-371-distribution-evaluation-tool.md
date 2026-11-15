@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-371#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/638-distribution-evaluation-tool/PLAN.md","assessment":"not-ready","reasons":["Only slice 8 awaits the aggregate reporting-contract choice or a causal cost repair; comparison relocation, test-body extraction and final focused/CI checks are bounded independent slices."],"basis":{"document":"55ea1e279fe7da2bc79be09fd9a77d16fe5b39a1331f0384c035eb51e4d8ce19","plan":"cdb1960b9f4da3efa11516724b782776e18ff06604db8df8d21279666e45c6f0"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/638-distribution-evaluation-tool/PLAN.md","assessment":"not-ready","reasons":["Slice 6 needs bounded consumer-purpose settlement and remaining continuation proof from its exact parked candidate.","Slice 9 still requires the pending named-aggregate reporting-contract choice or a causal cost repair preserving the original one-job contract."],"basis":{"document":"55ea1e279fe7da2bc79be09fd9a77d16fe5b39a1331f0384c035eb51e4d8ce19","plan":"8251f2ef3db2dddded31e046923fab81f06a2c0490c4c24193fc583f09a72b0c"}}
 ```
 
 #### Goal

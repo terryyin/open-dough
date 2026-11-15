@@ -73,7 +73,7 @@ The two existing `page-object-*-browser-proof.mjs` files are real Node checks
 that drive generated projects through locked Chromium. Their original plain
 names were absent from the `*.test.mjs` manifest and default Distribution CI.
 Slice4 repaired their imports and observed success plus deliberate wrong-item
-and empty-catalog failures. Slice7 explicitly admits both automated checks in
+and empty-catalog failures. Slice8 explicitly admits both automated checks in
 the new manifest and shared Intent source, rather than leaving them invisible.
 Reuse `scripts/setup-native.mjs browser` and the existing browser workflow's
 locked Chromium cache pattern; Ubuntu24.04 libraries and the contributor's three

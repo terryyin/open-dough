@@ -50,7 +50,7 @@ handoff and will be copied into slice-3-evidence.md for acceptance. Raw data:
 ## Retained execution context
 
 Story Branch Mode in the launch's owned workspace/branch, agent Kirara-chan, publisher `dashboard-territory.local-open-dough`; origin/main, increments to `codex/run-and-maintain-native-evaluations-as-a-distinc`.
-Starting revision `c124365d015aec64b5186160980db9205b11955a`; claim `deba676495b2eb1b8c1f3d3f96b7a44cb1122eb4`; latest published base `ed6f4c8cfeb786fe9095e6eeb1681d86fecfb71b` (acceptance families), suffix base `d6d6b231093fa39e9fcb05c1d43caaaca2a639a9`. Preserve existing planning authority (no explicit replan option).
+Starting revision `c124365d015aec64b5186160980db9205b11955a`; claim `deba676495b2eb1b8c1f3d3f96b7a44cb1122eb4`; latest published base `71825a21995e410483fb6c817c49fcea0e1fa498` (comparison home), suffix base `ed6f4c8cfeb786fe9095e6eeb1681d86fecfb71b`. Preserve existing planning authority (no explicit replan option).
 Exact-checkout npm ci/typecheck passed with unchanged lock. Observer `kirara-638`, cell `g390:9`, session 35882, PID 75649, `/tmp/dough-ci-501/watch-NjF7jy`, `terryyin/open-dough`, execution branch, verified `ci.yml` (CI); claim trunk CI unobserved.
 Shared Mac AC, initially 56% free/load 11.33; two jobs under `caffeinate -s -i`; reconsider contention/failure. Source freshness unchanged at trunk `3925a4ef8ca8cf4f0bf6f03b201a78c24d2ec0e8`, only incoming planning/agent records.
 
@@ -63,7 +63,7 @@ The nine one-shot assessors still invoke the shell-only field reader through
 10–25 command substitutions per assessment; the existing whole-state rejected
 cases multiply these forks. One-pass assignment preserving first-match, empty
 and missing-field semantics is a bounded original-contract candidate for
-slice8. Compare before/after with the same two-worker workload and every
+slice9. Compare before/after with the same two-worker workload and every
 existing verdict/scenario; no cached observations, skipped CLI, deadline or
 named-selection changes. Static reasoning or a faster isolated retry cannot
 close G7. The human contract question remains pending; silence approves nothing.

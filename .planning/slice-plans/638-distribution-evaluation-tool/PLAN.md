@@ -33,10 +33,10 @@ Runtime belongs in src, scenarios/fixtures/assessors in cases, tool checks and t
 | Existing acceptance cases run from the tool home; example 3 | 4: migrated entry and real setup/observer/assessor/retention exercised with controlled hosts; replay, isolation, timeout and failure checks retain their verdicts. |
 | Same comparison selection, outcomes and limits; example 4 | 5: catalog filters, substitute pairs, refusal and incomplete-run checks through the new comparison entry. |
 | Earlier evidence remains recoverable; example 5 | 5: both original `20261114T045440-*.txt` records recover basis `9c20a8086fe48e2bd60f283f478607440a057216`; recovery prints original bytes. Frozen-baseline checks reassess after raw cleanup without changing archive integrity. |
-| Focused checks and explicit native invocation; examples 1, 3 | 7: focused command runs only evaluation checks; disabled assessor fails it; a real-host launch tripwire is untouched. Controlled host substitutes stay allowed. |
-| Combined Intent/CI proof, once per check; example 2 | 7: combined discovery equals the union of both roots across all shares; actual shell/file and Node-case outcomes from both roots reach the single Distribution proof summary. |
-| Installed guidance and unrelated content unchanged; example 6 | 1–7: declared-payload enumeration and installed-byte checks remain green, including install-omits-internal and payload-declaration-links; final diff contains no installed-guidance or payload-declaration changes. |
-| Callers, discovery and maintained instructions use the new home | Each moving slice: consumer trace and relevant consumers; 7: README commands and final stale-live-path search. Historical evidence keeps its paths. |
+| Focused checks and explicit native invocation; examples 1, 3 | 8: focused command runs only evaluation checks; disabled assessor fails it; a real-host launch tripwire is untouched. Controlled host substitutes stay allowed. |
+| Combined Intent/CI proof, once per check; example 2 | 8: combined discovery equals the union of both roots across all shares; actual shell/file and Node-case outcomes from both roots reach the single Distribution proof summary. |
+| Installed guidance and unrelated content unchanged; example 6 | 1–8: declared-payload enumeration and installed-byte checks remain green, including install-omits-internal and payload-declaration-links; final diff contains no installed-guidance or payload-declaration changes. |
+| Callers, discovery and maintained instructions use the new home | Each moving slice: consumer trace and relevant consumers; 8: README commands and final stale-live-path search. Historical evidence keeps its paths. |
 
 ## Preparation evidence
 
@@ -73,32 +73,33 @@ Type: Behavior
 Status: done
 Proof: [Comparison checks, original record recovery and frozen-byte observations](slice-5-evidence.md).
 
-Existing comparison selection/record → new comparison entry → same selection,
-quality-first outcomes/limits, or original basis/record with no native launch.
-Move orchestration to src and cases to cases/comparison; checks stay until slice 7.
-Update snapshots, Git-basis enumeration and current-assessor lookup together.
-Never rewrite task/basis inputs, archives, streams, hashes or historical paths.
-Recover both `20261114T045440-*` records and reassess archives after raw cleanup
-without modifying integrity or claiming applicability. Update live guides/findings
-commands, retaining historical links. Align plan 621 paths only; move its dated
-provenance/findings/PFE into a linked non-executable evidence reference so both
-files stay <=250 lines. No queued correction behavior is implemented.
-
-### 6. Separate automated checks from operational cases
+### 6. Separate tool checks from operational cases
 Type: Structure
 Status: planned
-Proof: existing defaults, changed-family counterexamples, and native entry
-selection/lifecycle retain their observations after responsibility extraction.
+Proof: [Preserved generic extraction and actual observations](slice-6-evidence.md).
 
-Extract the seven ADR guidance defaults and remaining mixed default branches
-into their current test homes. Extract the 26 inventoried counterexample
-functions into test support; operational cases must not import test-only
-counterexamples. Keep reusable setup/observation/assessment in cases, canonical
-builders shared, and all assertion facts/entry options unchanged. Existing
-routine wrappers execute actual extracted bodies. No discovery change here.
-G8/G11 remain open until the final tool-test relocation in slice 7.
+Reuse the parked 27-module/44-function extraction and five tool defaults.
+Keep signals/reusable helpers in cases, check bodies/bootstrap in tests; native
+paths load no check-only helpers. Restore exact compatible work, settle every
+consumer purpose and missing continuation, and repair only reached paths.
+Observe actual native-entry invocation/identity as well as sourced helpers.
+[Attempt6](attempt-6.md) retains15 active minutes; remaining proof/correction
+is bounded to that candidate (target8 active minutes), never a repeated move.
 
-### 7. Check the tool independently and retain combined CI proof
+### 7. Separate guidance defaults at shared native fixture seams
+Type: Structure
+Status: planned
+Proof: nine actual guidance defaults plus case selection, identity, controlled
+native/adaptor lifecycle and their failure/retention observations.
+
+Extract seven ADR defaults and backlog/installation guidance checks into their
+current routine test homes. Preserve shared native fixture/preflight/assessment
+seams and canonical builders, without copying check bodies into operational
+wrappers. Keep credential-free defaults and native options; update native
+callers to actual entries and prove newly factored closure/identity together.
+G8/G11 remain open until final tool-test relocation in slice8.
+
+### 8. Check the tool independently and retain combined CI proof
 Type: Behavior
 Status: planned
 Proof: focused command and broken-assessor/runner failure, native-host tripwire,
@@ -116,7 +117,7 @@ commands/evidence limits and live navigation. Include both existing browser-cont
 Node checks explicitly in the new manifest/Intent sources; reuse locked Chromium
 CI setup under existing deadlines. Run final suite and 3-share preview.
 
-### 8. Settle named one-shot aggregate execution
+### 9. Settle named one-shot aggregate execution
 Type: Behavior
 Status: planned
 Proof: the selected aggregate retains every scenario, reports under the chosen
@@ -129,9 +130,9 @@ jobs changes reporting. Await the pending human contract choice before changing
 that path. [Measured cause, scope and required proof](attempt-3.md) retain both
 failed and passing observations; a passing retry is no repair.
 
-The remaining broad checking slice is split: extraction has its own unchanged
-default/operational proof loop, then focused discovery and combined CI share
-one loop. Existing inventories support both; eight slices preserve all outcomes.
+Splitting in-progress slice6 yields nine slices under the execution-only
+ten-slice exception. The separate shared-fixture seam preserves every outcome;
+[attempt6](attempt-6.md) retains the failed sizing assumption and exact park.
 
 ## Frozen case evidence
 
@@ -170,7 +171,7 @@ one loop. Existing inventories support both; eight slices preserve all outcomes.
 - Cumulative design: one execution/observation/assessment implementation serves
   both acceptance and comparison; one scheduler serves focused and combined
   checks. Interim acceptance/comparison checks stay at their old test locations
-  until slice 7, with imports updated in each moving slice; slice 7 removes
+  until slice 8, with imports updated in each moving slice; slice 8 removes
   that temporary layout. Every delivered boundary must pass CI.
 - First attempt overran; [attempt and sizing evidence](attempt-1.md) preserves
   elapsed time, proof, failures and parked changes. Refined to four bounded
@@ -218,12 +219,12 @@ Disposition: proved by slice 1: slice-1-evidence.md command 1; native-admission-
 ### G7. One-shot safety deadline
 Reported: slice 1 — "one-shot aggregate hit the existing 180-second safety deadline during the broad selected gate"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: receiving slice 8
+Disposition: receiving slice 9
 
 ### G8. Mixed default-check bodies in moved ADR entries
 Reported: slice 2 — "Routine test entries remain at old paths and currently dispatch mixed default branches in the moved cases (interim extraction needed in slice 6)."
 Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
-Disposition: interim until slices 2, 6, 7
+Disposition: interim until slices 2, 7, 8
 
 ### G9. Delivery identity omits the actual native entry
 Reported: slice 3 — "native_result_journey_input_hash_lines hashes the thin routine delivery wrapper instead of the moved native entry; current listed-input mutation tests miss that omission."
@@ -238,7 +239,7 @@ Disposition: proved by slice 4: slice-4-evidence.md renewed operational admissio
 ### G11. Remaining-family check bodies and dependencies in cases
 Reported: slice 4 — "Native entries retain default automated branches behind old thin wrappers; CI, closure and one-shot run modules also still source test-only counterexamples."
 Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
-Disposition: interim until slices 4, 6, 7
+Disposition: interim until slices 4, 6, 7, 8
 
 
 ### G12. Current baseline consumer purposes after supplier placement
