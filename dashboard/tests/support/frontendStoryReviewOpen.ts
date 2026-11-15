@@ -20,6 +20,11 @@ import {
 } from "./frontendStoryReview.ts";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
 import { reviewRegion } from "./storyReviewMark.ts";
+import {
+  openFrontendBoardReview,
+  storyA,
+} from "./frontendRecentlyDoneBoardReview.ts";
+import { doneCard } from "../recentlyDoneReviewState.ts";
 
 export async function openFrontendStoryReview(
   page: Page,
@@ -63,4 +68,19 @@ export async function openFrontendStoryReview(
   await reviewChanges(card).click();
   const review = reviewRegion(page);
   return { card, review, answers };
+}
+
+// Opens Review changes on a Recently done story (whose line numbers offer
+// Follow up) with controllable story-review answers.
+export async function openFrontendDoneStoryReview(
+  page: Page,
+  frontendServices: FrontendServiceState,
+  reviewAnswer: StoryReview,
+  prepare: (answers: FrontendStoryReview) => void = () => {},
+) {
+  const answers = await installFrontendStoryReview(page, reviewAnswer);
+  prepare(answers);
+  await openFrontendBoardReview(page, frontendServices);
+  await reviewChanges(doneCard(page, storyA.title)).click();
+  return { review: reviewRegion(page), answers };
 }

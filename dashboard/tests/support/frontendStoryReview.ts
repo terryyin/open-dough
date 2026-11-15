@@ -26,6 +26,7 @@ import {
 
 export {
   frontendFileDiff,
+  frontendPublishedReview,
   frontendReviewIds,
   frontendReviewSnapshot,
 } from "./frontendStoryReviewFixtures.ts";

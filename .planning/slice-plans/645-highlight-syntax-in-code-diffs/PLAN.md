@@ -187,7 +187,7 @@ first-read answers; a 1.5 s delay after open reproduced and then cleared it.
 
 ### 3. Styling arrives without disturbing the diff
 Type: Behavior
-Status: planned
+Status: done
 Proof: cases in `story-review-diff-syntax-arrival.spec.ts`, using existing
 held/queued answers and browser module interception for grammar failure, as
 in the proof table; same commands as slice 2.
@@ -199,6 +199,14 @@ only the existing context problem and Retry, styled after a successful Retry. Co
 the held-answer, grammar failure and Retry cases show within the shared
 pipeline; when slice 2's implementation already satisfies them, the slice
 delivers the discriminating preservation/recovery proof alone.
+
+Accepted: proof only; slice 2 already satisfied arrival. Four cases in
+`story-review-diff-syntax-arrival.spec.ts` (held grammar with an open menu
+and 20 revealed lines, held text, unavailable text then Retry, failed
+grammar) each failed against a scratch that remounted, closed the menu,
+scrolled, withheld tokens after Retry or added a message. First-read answers
+go through `prepare`. Grammar hold and failure share `syntaxGrammar.ts` with
+two Intent specs.
 
 ## Local gates and execution discipline
 

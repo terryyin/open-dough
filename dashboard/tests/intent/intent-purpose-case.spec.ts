@@ -20,6 +20,7 @@ import {
   sourceTargetLine,
 } from "../intentCodeBrowsePage.ts";
 import { contentReadsOf } from "../intentCodeBrowseFixtures.ts";
+import { holdGrammar } from "../support/syntaxGrammar.ts";
 import {
   doughnutCaseFeaturePath,
   doughnutUniqueScenario,
@@ -32,19 +33,7 @@ test("opening a recorded file shows Purpose on its case, reading it once, and op
 }) => {
   // Short enough that the case sits below the start of Purpose.
   await page.setViewportSize({ width: 1280, height: 640 });
-  let noteGrammarRequest: () => void = () => undefined;
-  const grammarRequested = new Promise<void>((resolve) => {
-    noteGrammarRequest = resolve;
-  });
-  let releaseGrammar: () => void = () => undefined;
-  const grammarReleased = new Promise<void>((resolve) => {
-    releaseGrammar = resolve;
-  });
-  await page.route(/\/assets\/gherkin-[^/]+\.js$/, async (route) => {
-    noteGrammarRequest();
-    await grammarReleased;
-    await route.continue();
-  });
+  const grammar = await holdGrammar(page, "gherkin");
   const requests = await publishDoughnutCasePosition(page);
   try {
     await openUntilRead(page, "/?project=doughnut");
@@ -58,7 +47,7 @@ test("opening a recorded file shows Purpose on its case, reading it once, and op
 
     await chooseOptimizationCandidates(intent);
     await sourceFile(caseEntry, doughnutCaseFeaturePath).click();
-    await grammarRequested;
+    await grammar.requested;
     await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
       "aria-selected",
       "true",
@@ -73,7 +62,7 @@ test("opening a recorded file shows Purpose on its case, reading it once, and op
         el.scrollTo({ top: 0 });
       });
       await expect(sourceTargetLine(source)).not.toBeInViewport();
-      releaseGrammar();
+      grammar.release();
       await expect(intent.locator(".source-token").first()).toBeAttached();
       await expect(sourceTargetLine(source)).not.toBeInViewport();
       await chooseOptimizationCandidates(intent);
@@ -84,6 +73,6 @@ test("opening a recorded file shows Purpose on its case, reading it once, and op
       await expect(fileName).toHaveAttribute("aria-pressed", "true");
     });
   } finally {
-    releaseGrammar();
+    grammar.release();
   }
 });

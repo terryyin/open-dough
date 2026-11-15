@@ -83,3 +83,12 @@ export function fileReads(page: Page) {
   });
   return () => [...asked];
 }
+
+// Where a line sits in the window, as the reader sees it.
+export const placeOf = async (line: Locator) =>
+  (await line.boundingBox())?.y ?? Number.NaN;
+
+// Everything a diff says, with its file's path written as `<path>`, so two
+// files' diffs compare word for word.
+export const diffWords = async (diff: Locator, path: string) =>
+  (await diff.innerText()).replaceAll(path, "<path>");

@@ -3,6 +3,7 @@
 import {
   reviewedFileDiffSchema,
   type ReviewedFileDiff,
+  type StoryReview,
   type TakenStoryReview,
 } from "../../src/storyReviewContract.ts";
 
@@ -63,6 +64,23 @@ export function frontendReviewSnapshot(
     published: overrides.published,
     runs: overrides.runs,
     selectedRun: overrides.selectedRun,
+  };
+}
+
+// A completed story's published comparison of `files`.
+export function frontendPublishedReview(
+  files: TakenStoryReview["files"],
+): Extract<StoryReview, { kind: "published" }> {
+  return {
+    kind: "published",
+    completion: oid(7),
+    completedAt: "2026-01-01T00:00:00.000Z",
+    agent: "claude",
+    remote: "origin",
+    target: "main",
+    baseline: frontendReviewIds.baseline,
+    tree: frontendReviewIds.tree,
+    files,
   };
 }
 
