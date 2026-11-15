@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-376#show-affected-consumer-proof-at-acceptance",
+  "title": "See affected consumer proof before accepting a slice",
+  "completedAt": "2026-11-15T15:34:26.156Z",
+  "developer": "Terry Yin",
+  "agent": "Yuma-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

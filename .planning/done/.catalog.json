@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-376_show-affected-consumer-proof-at-acceptance.json",
+      "identity": "SEED-376#show-affected-consumer-proof-at-acceptance",
+      "completedAt": "2026-11-15T15:34:26.156Z",
+      "blob": "bd32498ed33db9f399beb7156477ef192dbf924a"
+    },
+    {
       "fileName": "SEED-359_keep-claude-coverage-gaps-current-after-refresh.json",
       "identity": "SEED-359#keep-claude-coverage-gaps-current-after-refresh",
       "completedAt": "2026-11-15T13:56:46.677Z",
