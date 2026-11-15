@@ -1,40 +1,45 @@
-// On a phone, the answer beside Start session and the Near-future direction
-// label both read in whole words: neither takes the other's room. The answer
-// stays with Start session, the direction opens beneath the row, and rotating
-// keeps every part of the row readable and reachable.
+// On a phone, against a controlled launch boundary and machine read, the
+// answer beside Start session and the Near-future direction label both read
+// in whole words: neither takes the other's room. The answer stays with Start
+// session, the direction opens beneath the row, and rotating keeps every part
+// of the row readable and reachable. The real refusal's words are
+// ../../../e2e/launches/agent-launch-ad-hoc-problems.spec.ts.
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../support/preparationPage.ts";
-import { openBacklog } from "../support/sessionDialog.ts";
-import { closeTerminal, terminalPanel } from "../terminalScreenPage.ts";
+import {
+  closeTerminal,
+  terminalPanel,
+} from "../../tests/terminalScreenPage.ts";
 import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../launchStoryCardPage.ts";
-import { parts, sessionEntriesIn } from "../dashboardPage.ts";
+} from "../../tests/launchStoryCardPage.ts";
+import { parts, sessionEntriesIn } from "../../tests/dashboardPage.ts";
 import {
   box,
   expectEveryControlReachable,
   expectInside,
   expectNoSidewaysScrollIn,
   tapWhereShown,
-} from "../pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
-import { lettersBrokenApart } from "../wholeWords.ts";
+} from "../../tests/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
+import { lettersBrokenApart } from "../../tests/wholeWords.ts";
+import {
+  expect,
+  openFrontendTakenBacklog,
+  test,
+} from "../../tests/support/frontendApp.ts";
+import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
+import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 type Viewport = { readonly width: number; readonly height: number };
 
 const phone = phoneLaunchTouchViewport;
 
-const answers = [
-  {
-    scenario: "refused",
-    words:
-      "Launch failed: Claude Code refused to start a session in ~/git/open-dough. Run claude in that folder once to see why.",
-    answer: (page: Page) =>
-      parts(page).projectActions.locator(".launch-problem"),
-  },
-] as const;
+const refusedWords =
+  "Launch failed: Claude Code refused to start a session in ~/git/open-dough. Run claude in that folder once to see why.";
 
 // Where the Backlog heading lies in the Board, wherever the Board is scrolled.
 const backlogHeadingTop = (page: Page) =>
@@ -154,16 +159,19 @@ async function startSessionWith(page: Page, text: string) {
   await expect(dialog).toBeHidden();
 }
 
-test.describe("390×844 touch, held", () => {
+test.describe(`${phone.portrait.width}×${phone.portrait.height} touch`, () => {
   test.use({ viewport: phone.portrait, hasTouch: true });
 
   test("the progress answer and the direction label read in whole words while the startup goes on", async ({
     page,
-    origin,
-    dashboard,
+    frontendServices,
   }) => {
-    dashboard.claudeScenario("held");
-    await openBacklog(page, origin);
+    const attempt = frontendAttempt(frontendServices);
+    const boundary = await installFrontendLaunchBoundary(page, {
+      accept: attempt.accept,
+    });
+    await installAttachedTerminalSubstitute(page);
+    await openFrontendTakenBacklog(page);
     const launcher = startSession(page, "Open Dough");
     await expect(launcher).toBeVisible();
     const before = await rowAt(page, phone.portrait);
@@ -180,46 +188,53 @@ test.describe("390×844 touch, held", () => {
       before,
     );
 
-    dashboard.releaseHeldClaude();
+    attempt.launch(
+      makeMe.aLaunchRecord.adHoc({ title: "Open Dough · Ad hoc" }).please(),
+    );
+    await boundary.tellChanged();
     const terminal = terminalPanel(page);
-    await expect(terminal).toBeVisible({ timeout: 30_000 });
+    await expect(terminal).toBeVisible();
     await closeTerminal(terminal);
     await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
     await expect(parts(page).adHocStarted).toHaveCount(0);
     await expect(progress).toHaveCount(0);
   });
-});
 
-for (const { scenario, words, answer } of answers) {
-  test.describe(`${phone.portrait.width}×${phone.portrait.height} touch, ${scenario}`, () => {
-    test.use({ viewport: phone.portrait, hasTouch: true });
-
-    test("the answer and the direction label read in whole words, opened, closed, and rotated", async ({
-      page,
-      origin,
-      dashboard,
-    }) => {
-      dashboard.claudeScenario(scenario);
-      await openBacklog(page, origin);
-      const launcher = startSession(page, "Open Dough");
-      await expect(launcher).toBeVisible();
-      const before = {
-        turned: await rowAt(page, phone.landscape),
-        upright: await rowAt(page, phone.portrait),
-      };
-
-      await startSessionWith(page, "Review the current work.");
-      const shown = answer(page);
-      await expect(shown).toBeVisible({ timeout: 30_000 });
-
-      await expectRowReadsWhole(page, shown, words, before.upright);
-      await expectDirectionOpensBeneath(page, shown, words);
-
-      await page.setViewportSize(phone.landscape);
-      await expectRowReadsWhole(page, shown, words, before.turned);
-      await expectDirectionOpensBeneath(page, shown, words);
-      await page.setViewportSize(phone.portrait);
-      await expectRowReadsWhole(page, shown, words, before.upright);
+  test("a refusal and the direction label read in whole words, opened, closed, and rotated", async ({
+    page,
+    frontendServices,
+  }) => {
+    const attempt = frontendAttempt(frontendServices);
+    const boundary = await installFrontendLaunchBoundary(page, {
+      accept: attempt.accept,
     });
+    await openFrontendTakenBacklog(page);
+    const launcher = startSession(page, "Open Dough");
+    await expect(launcher).toBeVisible();
+    const before = {
+      turned: await rowAt(page, phone.landscape),
+      upright: await rowAt(page, phone.portrait),
+    };
+
+    await startSessionWith(page, "Review the current work.");
+    // Claude Code refused to start the accepted session.
+    attempt.settle({
+      kind: "failed",
+      reason: "refused",
+      explanation:
+        "Claude Code refused to start a session in ~/git/open-dough. Run `claude` in that folder once to see why.",
+    });
+    await boundary.tellChanged();
+    const shown = parts(page).projectActions.locator(".launch-problem");
+    await expect(shown).toBeVisible();
+
+    await expectRowReadsWhole(page, shown, refusedWords, before.upright);
+    await expectDirectionOpensBeneath(page, shown, refusedWords);
+
+    await page.setViewportSize(phone.landscape);
+    await expectRowReadsWhole(page, shown, refusedWords, before.turned);
+    await expectDirectionOpensBeneath(page, shown, refusedWords);
+    await page.setViewportSize(phone.portrait);
+    await expectRowReadsWhole(page, shown, refusedWords, before.upright);
   });
-}
+});

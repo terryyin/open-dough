@@ -24,7 +24,7 @@ import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   machineOffering,
   putFrontendMachine,
-  putFrontendNotRefinedTitle,
+  putFrontendStories,
   type FrontendServiceState,
 } from "../../tests/support/frontendServiceState.ts";
 import {
@@ -38,7 +38,7 @@ import { longTitle } from "../../tests/longTitleLaunch.ts";
 // Opens Start refinement on the long-titled story of a project offering the
 // shipped refinement options.
 async function openRefinement(page: Page, services: FrontendServiceState) {
-  putFrontendNotRefinedTitle(services, longTitle);
+  putFrontendStories(services, { notRefinedTitle: longTitle });
   putFrontendMachine(services, machineOffering(shippedRefinementDefinition()));
   await page.goto("/");
   const { refine, refinementDialog: dialog } = backlogLaunchers(page);

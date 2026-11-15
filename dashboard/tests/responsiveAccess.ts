@@ -1,7 +1,7 @@
-// Shared by ./launches/responsive-session-access.spec.ts: beginning another
-// task by keyboard, recording what the startup announcements region says,
-// counting the page's reads of this machine's sessions, and how a card and its
-// startup indicator are drawn.
+// Shared by ../frontend-tests/launches/responsive-session-access.spec.ts:
+// beginning another task by keyboard, recording what the startup
+// announcements region says, counting the page's reads of this machine's
+// sessions, and how a card and its startup indicator are drawn.
 
 import type { Locator, Page } from "@playwright/test";
 import { agentLaunchEndpoint } from "../src/agentLaunch.ts";

@@ -34,7 +34,7 @@ returned.
 | 13 | Decide each case by its behavior, including the few specs added since that inventory. | slice 12 |  |
 | 14 | Convert by these inventory batches: | slice 12 |  |
 | 14a.1 | configuration; | slice 1 | observed: git status: dashboard/tests/configuration/ removed; homes dashboard/frontend-tests/configuration/ and e2e/configuration/ |
-| 14a.2 | launch dialog and start; | slice 5 |  |
+| 14a.2 | launch dialog and start; | slice 5 | observed: dashboard/tests/launches/ removed by slice 5 (slices 2-5 converted all 27 launch specs) |
 | 14a.3 | sessions and terminals; | slice 9 |  |
 | 14a.4 | story review; | slice 10 |  |
 | 14a.5 | Intent CI/proof/history; | slice 11 |  |

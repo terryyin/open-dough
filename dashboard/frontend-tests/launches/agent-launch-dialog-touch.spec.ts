@@ -7,7 +7,7 @@ import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   machineOffering,
   putFrontendMachine,
-  putFrontendNotRefinedTitle,
+  putFrontendStories,
 } from "../../tests/support/frontendServiceState.ts";
 import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
 import {
@@ -38,7 +38,7 @@ test.describe(`${name} touch launch editing`, () => {
     frontendServices,
   }) => {
     const boundary = await installFrontendLaunchBoundary(page);
-    putFrontendNotRefinedTitle(frontendServices, longTitle);
+    putFrontendStories(frontendServices, { notRefinedTitle: longTitle });
     putFrontendMachine(
       frontendServices,
       machineOffering(shippedRefinementDefinition()),

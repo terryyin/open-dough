@@ -1,45 +1,54 @@
-// Backlog Starts share their launch row or wrap in reading order before Inspect
-// story, at 420px and the 200% zoom proxy. Cancelling returns focus to Start;
-// Tab continues. A note appears in the styled tooltip on hover/focus and in
-// its accessible description once; the dialog says “This story is …”.
-// Unnoted Starts have no tooltip. Noted, disabled, and preparing Starts retain
-// distinct light/dark appearances and decorative workflow glyphs; Inspect
-// story's chevron turns with its detail. The committed story-columns origin
-// and synthetic Claude match ../../../e2e/launches/agent-launch-story-card.spec.ts; no real host runs.
+// Backlog Starts against controlled answers: they share their launch row or
+// wrap in reading order before Inspect story, at 420px and the 200% zoom
+// proxy. Cancelling returns focus to Start; Tab continues. A note appears in
+// the styled tooltip on hover/focus and in its accessible description once;
+// the dialog says "This story is …". Unnoted Starts have no tooltip. Noted,
+// disabled, and preparing Starts retain distinct light/dark appearances and
+// decorative workflow glyphs; Inspect story's chevron turns with its detail.
+// Starting a story launches the synthetic host in
+// ../../../e2e/launches/agent-launch-story-card.spec.ts.
 
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
-import {
-  notRefinedStory,
-  publishStoryColumnsJourney,
-  readyStory,
-  takenStory,
-  type StoryColumnsJourney,
-} from "../launchJourney.ts";
-import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import {
-  storyCardLaunchActions,
-  expectActionGlyph,
-  expectChevronTurns,
-  inspectionGroup,
-  launchGroup,
-} from "../storyCardControls.ts";
 import {
   expectEscapeReturnsThenTabMovesOn,
   expectFocusedAndIndicated,
   narrowWindow,
   twiceZoomedWindow,
-} from "../accessibleReading.ts";
+} from "../../tests/accessibleReading.ts";
+import { credit } from "../../tests/agentCredit.ts";
+import { expectSettledPage } from "../../tests/dashboardPage.ts";
+import {
+  notRefinedStory,
+  readyStory,
+  takenIdentity,
+  takenStory,
+} from "../../tests/launchJourney.ts";
+import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
 import {
   expectInReadingOrder,
   expectNoSidewaysScrollAndWholeText,
   expectOnOneLine,
   expectOnOneLineWhenRoom,
-} from "../pageLayout.ts";
-import { tooltipOf } from "../frameIconControl.ts";
-import { credit } from "../agentCredit.ts";
-
-test.use({ projectFolders: ["open-dough"] });
+} from "../../tests/pageLayout.ts";
+import {
+  storyCardLaunchActions,
+  expectActionGlyph,
+  expectChevronTurns,
+  expectNoteTooltip,
+  inspectionGroup,
+  launchGroup,
+} from "../../tests/storyCardControls.ts";
+import {
+  expect,
+  openFrontendTakenBacklog,
+  test,
+} from "../../tests/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+import {
+  putFrontendMachine,
+  putFrontendStories,
+} from "../../tests/support/frontendServiceState.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const notReadyNote = "Not assessed as ready";
 const beingPreparedNote = "Being prepared";
@@ -49,39 +58,6 @@ const startGlyphs = {
   "Start refinement": "pencil-line",
 } as const;
 
-// A noted Start at rest shows no note on its card; hovered, or reached with
-// the keyboard, it shows the note in the frame's styled tooltip, hidden from
-// assistive technology because the note is already its description.
-async function expectNoteTooltip(start: Locator, name: string, note: string) {
-  const page = start.page();
-  const tip = tooltipOf(start, note);
-  await expect(start).toHaveAccessibleName(name);
-  await expect(start).toHaveAccessibleDescription(note);
-  await page.mouse.move(0, 0);
-  await start.blur();
-  await expect(tip).toBeHidden();
-  // The tooltip hangs below its Start, so a Start that wrapping leaves at the
-  // window's bottom edge is first brought to the middle, leaving the tooltip
-  // room to show whole.
-  await start.evaluate((node) => {
-    node.scrollIntoView({ block: "center" });
-  });
-  await start.hover();
-  await expect(tip).toBeVisible();
-  await expect(tip).toBeInViewport({ ratio: 1 });
-  await expect(tip.locator("xpath=..")).toHaveClass(/\bframe-tooltip\b/);
-  await expect(tip.locator("xpath=..")).toHaveAttribute("aria-hidden", "true");
-  await page.mouse.move(0, 0);
-  await expect(tip).toBeHidden();
-  await start.focus();
-  await page.keyboard.press("Shift+Tab");
-  await page.keyboard.press("Tab");
-  await expect(start).toBeFocused();
-  await expect(tip).toBeVisible();
-  await start.blur();
-  await expect(tip).toBeHidden();
-}
-
 const launchPaint = (button: Locator) =>
   button.evaluate((node) => {
     const style = getComputedStyle(node);
@@ -89,23 +65,12 @@ const launchPaint = (button: Locator) =>
   });
 
 test.describe("a Backlog card's Starts", () => {
-  let columnsJourney: StoryColumnsJourney;
-  test.beforeAll(async () => {
-    columnsJourney = await publishStoryColumnsJourney();
-  });
-  test.afterAll(() =>
-    (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
-  );
-
   test("share the launch group's line at 1440px and wrap in reading order, by keyboard, at 420px and 200% zoom", async ({
     page,
-    dashboard,
   }) => {
-    const { card, action, settled } = await openStoryColumnsJourney(
-      page,
-      columnsJourney,
-    );
-    await settled();
+    const boundary = await installFrontendLaunchBoundary(page);
+    await openFrontendTakenBacklog(page);
+    const { card, start, refine } = backlogLaunchers(page);
     const startsOf = (title: string) =>
       storyCardLaunchActions.map((name) =>
         launchGroup(card(title)).getByRole("button", { name }),
@@ -125,7 +90,7 @@ test.describe("a Backlog card's Starts", () => {
         );
     await expectChevronTurns(card(readyStory));
     // A Ready story's Starts carry no note, so neither has a tooltip.
-    const readyStart = action(readyStory, "Execution");
+    const readyStart = start(readyStory);
     await readyStart.hover();
     await expect(readyStart).toHaveAccessibleDescription("");
     await expect(
@@ -134,8 +99,8 @@ test.describe("a Backlog card's Starts", () => {
     const notedLaunches = launchGroup(card(notRefinedStory));
     await expect(notedLaunches.getByText(notReadyNote)).toBeHidden();
     await expectOnOneLineWhenRoom(notedLaunches, startsOf(notRefinedStory));
-    const execution = action(notRefinedStory, "Execution");
-    const refinement = action(notRefinedStory, "Refinement");
+    const execution = start(notRefinedStory);
+    const refinement = refine(notRefinedStory);
     await expectInReadingOrder(notedLaunches, [execution, refinement]);
 
     for (const window of [narrowWindow, twiceZoomedWindow]) {
@@ -163,26 +128,46 @@ test.describe("a Backlog card's Starts", () => {
         next: inspect(notRefinedStory),
       });
     }
-    expect(dashboard.claudeLaunchCalls()).toHaveLength(0);
+    expect(boundary.acceptances).toEqual([]);
   });
 
   test("a clickable noted Start does not look disabled in light and dark schemes", async ({
     page,
-    dashboard,
+    frontendServices,
   }) => {
-    dashboard.claudeScenario("launched");
-    const { card, action, settled, show, launch } =
-      await openStoryColumnsJourney(page, columnsJourney);
-    await show(columnsJourney.preparing);
-    // The preparing card's credited human arrives after the page settles and
-    // lengthens its Preparing line, moving its Starts; wait for it so a hover
-    // stays on the Start it is aimed at.
+    // Every story queued: the Ready one being prepared, and the one listed
+    // first with its execution session open on this machine.
+    putFrontendStories(frontendServices, { taken: [], preparing: readyStory });
+    putFrontendMachine(
+      frontendServices,
+      makeMe.aMachineAnswer
+        .observing(
+          makeMe.anObservedLaunch
+            .of(
+              makeMe.aLaunchRecord
+                .executing({ identity: takenIdentity, title: takenStory })
+                .please(),
+            )
+            .withSessionState(makeMe.aSessionState.loaded("working").please())
+            .please(),
+        )
+        .please(),
+    );
+    await page.goto("/");
+    await expectSettledPage(page, {
+      taken: [],
+      backlog: [takenStory, readyStory, notRefinedStory],
+    });
+    const { card, start, refine } = backlogLaunchers(page);
+    // The preparing card's credited human lengthens its Preparing line,
+    // moving its Starts; wait for it so a hover stays on the Start it is
+    // aimed at.
     await expect(
       credit(credit(card(readyStory)).preparing).humanName,
     ).toBeVisible();
 
-    const notedRefine = action(readyStory, "Refinement");
-    const notedExec = action(notRefinedStory, "Execution");
+    const notedRefine = refine(readyStory);
+    const notedExec = start(notRefinedStory);
     const notes = [
       [
         notedRefine,
@@ -214,9 +199,13 @@ test.describe("a Backlog card's Starts", () => {
       await expect(dialog).toBeHidden();
     }
 
-    await launch(takenStory, "Execution");
-    await settled();
-    const disabled = action(takenStory, "Execution");
+    // At rest again: the last noted Start clicked keeps the pointer, and
+    // Escape returned the keyboard to it.
+    await page.mouse.move(0, 0);
+    await notedExec.blur();
+
+    // The open session leaves its story's Start unavailable.
+    const disabled = start(takenStory);
     await expect(disabled).toBeDisabled();
     await expectActionGlyph(disabled, "Start execution", "play");
     await expect(notedRefine).toBeEnabled();

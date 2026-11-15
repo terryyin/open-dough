@@ -230,7 +230,7 @@ identically; both passed restored. About 16 minutes for three `large` specs.
 
 ### 5. Convert launch access, noted start and answer touch
 Type: Behavior
-Status: planned
+Status: done
 Proof: same for `responsive-session-access`, `agent-launch-story-card-noted-start`
 and `agent-launch-start-session-answer-touch`, reusing slice 3's attempt
 substitutes (`frontendLaunchAttempts.ts`); `dashboard/tests/launches/` holds
@@ -238,6 +238,16 @@ no product spec afterwards.
 
 Behavior: interim access, noted-start and answer-touch checks → converted and
 removed; the launches batch is complete.
+
+Accepted proof: 4 Frontend specs in `dashboard/frontend-tests/launches/`
+(access split into a story's start and an unattached session's start) on
+`frontendLaunchAttempts.ts` `publish`/`launch`, with the default Frontend
+substitutes now answering a moved revision on `since` and the `at` stream;
+real-server workflow parts were already E2E-proved. Focused launches Frontend
+70, unfiltered Frontend 246, typechecks, eslint and duration-list node tests
+passed. Scratch breaks of the reduced-motion rule and the tooltip's
+`aria-hidden` failed interim and converted cases identically.
+`dashboard/tests/launches/` is gone.
 
 ### 6. Convert session lifecycle, done terminals and workspace retirement
 Type: Behavior
@@ -334,6 +344,11 @@ and Backend remain as current browser proof groups.
 Reported: slice 4 — "The `!current()` guard after `response.json()` has no discriminating test, neither before nor after conversion."
 Story clause: "Every distinct behavior that group still proves keeps a home that catches the same regressions"
 Disposition: no user cost "Every distinct behavior that group still proves keeps a home that catches the same regressions": slice 4's scratch break removed the guard and both the interim and converted late-response cases still passed, so the interim group never proved it and no regression assertion was lost; the converted case keeps the interim observation that a response completed after Cancel never populates the next launch dialog, because the closed dialog's append target is gone.
+
+### G2. One published Taken profile no longer counted in the access journey (reported in slice 5)
+Reported: slice 5 — "The interim access test checked `origin.takenProfiles()` had length 1 after the held push was released."
+Story clause: "Do not drop a distinct regression assertion when relocating a case."
+Disposition: proved by slice 5: `dashboard/backend-tests/launches/agent-launch-acceptance.spec.ts` "an accepted launch › is kept before publication and settles after its caller is gone, one start across workflows" asserts `origin.takenProfiles()` has length 1 after the accepted execution launch publishes its Take, and `e2e/launches/responsive-session-start.spec.ts` keeps the held-push publication observed as `published`.
 
 ## Current decisions
 

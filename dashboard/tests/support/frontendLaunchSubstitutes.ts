@@ -5,7 +5,8 @@
 // upload the page asked for stays inspectable; an acceptance is refused unless
 // the case answers it, and nothing is ever launched. An acceptance's answer
 // may be lost on the way to the page; the page's waits for an accepted
-// attempt's change stay waiting until the case tells them it changed. A host's
+// attempt's change stay waiting until the case tells them it changed, and one
+// begun after the case told it is answered at once. A host's
 // choices answer what is arranged for the project and host when the read is
 // answered, or no choices as the default substitutes do; a held read waits
 // until released, and an unreadable one answers as the boundary does.
@@ -54,8 +55,9 @@ export type FrontendLaunchBoundary = {
   readonly holdNextChoices: () => HeldAnswer;
   // The next acceptance is answered, but the answer never reaches the page.
   readonly loseNextAcceptance: () => void;
-  // Answers every wait the page has begun for an accepted attempt's change:
-  // it changed, so the page reads the machine's sessions again.
+  // Answers every wait the page has begun for an accepted attempt's change,
+  // or else the next it begins: it changed, so the page reads the machine's
+  // sessions again.
   readonly tellChanged: () => Promise<void>;
 };
 
@@ -102,6 +104,7 @@ export async function installFrontendLaunchBoundary(
   let nextHold: AnswerHold | undefined;
   let loseNext = false;
   const changeWaits: Route[] = [];
+  let changedUntold = false;
   // A wait still unanswered when the case ends is cut off.
   endWithPage(page, async () => {
     for (const wait of changeWaits.splice(0))
@@ -125,8 +128,13 @@ export async function installFrontendLaunchBoundary(
   );
   await page.route(
     (url) => url.pathname === agentChangedEndpoint,
-    (route) => {
-      changeWaits.push(route);
+    async (route) => {
+      if (!changedUntold) {
+        changeWaits.push(route);
+        return;
+      }
+      changedUntold = false;
+      await fulfillJson(route, { changed: true });
     },
   );
   await page.route(
@@ -177,8 +185,9 @@ export async function installFrontendLaunchBoundary(
       loseNext = true;
     },
     tellChanged: async () => {
-      for (const wait of changeWaits.splice(0))
-        await fulfillJson(wait, { changed: true });
+      const waits = changeWaits.splice(0);
+      changedUntold = waits.length === 0;
+      for (const wait of waits) await fulfillJson(wait, { changed: true });
     },
   };
 }

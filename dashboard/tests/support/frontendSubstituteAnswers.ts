@@ -1,5 +1,5 @@
-// How frontend service substitutes answer the page: a JSON reply, and one
-// answer held once asked until the test releases it.
+// How frontend service substitutes answer the page: a JSON reply, one event
+// of a stream, and one answer held once asked until the test releases it.
 
 import type { Page, Route } from "@playwright/test";
 
@@ -8,6 +8,14 @@ export async function fulfillJson(route: Route, body: unknown, status = 200) {
     status,
     contentType: "application/json",
     body: JSON.stringify(body),
+  });
+}
+
+// A stream's answer: one `data` event, after which the stream ends.
+export async function fulfillEventStream(route: Route, data: unknown) {
+  await route.fulfill({
+    contentType: "text/event-stream",
+    body: `data: ${JSON.stringify(data)}\n\n`,
   });
 }
 

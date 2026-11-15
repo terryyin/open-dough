@@ -277,7 +277,7 @@ execution prerequisite on another story.
   progress gates and exact verification/refusal wording as scenario evidence.
   [Story start answers](../../dashboard/frontend-tests/launches/agent-launch-story-card-answers.spec.ts#L49),
   [preparation retry](../../e2e/launches/agent-launch-preparation-codex-retry.spec.ts#L78),
-  [responsive access](../../dashboard/tests/launches/responsive-session-access.spec.ts#L100),
+  [responsive access](../../dashboard/frontend-tests/launches/responsive-session-access.spec.ts#L106),
   [recovery verification](../../e2e/launches/responsive-session-recovery-verification.spec.ts#L93),
   [frontend startup words](../../dashboard/frontend-tests/startup-host-words.spec.ts#L52).
   Two siblings of this finding remain. `recoveryOf` is a pure alias of

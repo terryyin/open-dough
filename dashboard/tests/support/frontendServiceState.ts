@@ -53,25 +53,43 @@ const story = (title: string, identity: string, href: string) =>
 const taken = story(takenStory, "SEED-A#a", "seeds/SEED-A-taken.md#a");
 const ready = story(readyStory, "SEED-B#b", "seeds/SEED-B-ready.md#b");
 
-// The project the page reads on open: one Taken and two queued stories with
-// their seeds, a direction, Intent settings, and test-optimization candidates.
-// The Ready story's seed and plan record its assessment as Ready, so its card
-// reads Ready for execution. The not-refined queued story's title may be
-// stated.
-function frontendPublishedWith(notRefinedTitle: string) {
+// Where the project lists its three stories, unless stated: the Taken story
+// Taken and the others queued. `notRefinedTitle` retitles the not-refined
+// queued story; `taken` names the stories Taken, by title, the rest staying
+// queued in order; `preparing` names the queued story an agent announced
+// preparing.
+export type FrontendStories = {
+  readonly notRefinedTitle?: string;
+  readonly taken?: readonly string[];
+  readonly preparing?: string;
+};
+
+// The project the page reads on open: the stories with their seeds, a
+// direction, Intent settings, and test-optimization candidates. The Ready
+// story's seed and plan record its assessment as Ready, so its card reads
+// Ready for execution.
+function frontendPublishedWith({
+  notRefinedTitle = notRefinedStory,
+  taken: takenTitles = [takenStory],
+  preparing,
+}: FrontendStories = {}) {
   const notRefined = story(
     notRefinedTitle,
     "SEED-C#c",
     "seeds/SEED-C-queued.md#c",
   );
+  const stories = [taken, ready, notRefined];
+  const isTaken = (entry: { readonly title: string }) =>
+    takenTitles.includes(entry.title);
+  const prepared = stories.find((entry) => entry.title === preparing);
   return backlogApart(
     describedRevision(
       makeMe.aRepository
         .withRevision("frontend", {
           backlog: {
             direction: "Frontend substitute direction.",
-            taken: [taken],
-            queued: [ready, notRefined],
+            taken: stories.filter(isTaken),
+            queued: stories.filter((entry) => !isTaken(entry)),
           },
           files: {
             [testOptimizationCandidatesPath]: openDoughCandidatesRecord,
@@ -88,6 +106,14 @@ ${renderStorySection(notRefined)}`,
             [`.planning/${storyPlanPath(ready)}`]: `# ${readyStory} plan\n`,
           },
           storyStates: [readyStoryState(ready)],
+          agentProfiles:
+            prepared === undefined
+              ? []
+              : [
+                  makeMe.anAgentProfile
+                    .preparing({ name: "Yui", identity: prepared.identity })
+                    .please(),
+                ],
         })
         .please(),
       frontendRevision,
@@ -95,7 +121,7 @@ ${renderStorySection(notRefined)}`,
   );
 }
 
-const frontendPublished = frontendPublishedWith(notRefinedStory);
+const frontendPublished = frontendPublishedWith();
 
 export const takenBacklogMarkdown = frontendPublished.backlog;
 
@@ -165,13 +191,16 @@ export function machineOffering(definition: OptionsDefinition): MachineAnswer {
   return makeMe.aMachineAnswer.offering(offered).please();
 }
 
-// The project as published with its not-refined queued story retitled.
-export function putFrontendNotRefinedTitle(
+// The project as published with its stories listed as `stories` says, at
+// `revision`.
+export function putFrontendStories(
   services: FrontendServiceState,
-  title: string,
+  stories: FrontendStories,
+  revision = services.revision,
 ): void {
-  const published = frontendPublishedWith(title);
+  const published = frontendPublishedWith(stories);
   Object.assign(services, {
+    revision,
     backlog: published.backlog,
     files: { ...published.files },
   });
