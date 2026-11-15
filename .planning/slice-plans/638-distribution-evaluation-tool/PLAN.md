@@ -72,7 +72,8 @@ This immediately enables slice 4's remaining families from their final home.
 ### 4. Invoke remaining acceptance families from their home
 Type: Behavior
 Status: planned
-Proof: all moved-family substitutes, rejection/replay, identity/lifecycle,
+Proof: [family migration, controlled journeys and interim boundaries](slice-4-evidence.md);
+rejection/replay, identity/lifecycle,
 updated-use adapters, typecheck and declared-payload checks.
 
 Existing case and host options → documented evaluation entry → same isolated
@@ -83,6 +84,13 @@ Update shell/generated sources, fixture closures, identities and guards together
 Keep comparison orchestration temporarily old. Complete acceptance commands.
 Split oversized `native-publication.md`: acceptance-running guide under evaluation
 and linked proof-scheduling scenarios/evidence in tests; both <=250 lines.
+
+The 175-file movement is parked and reusable; [attempt 4](attempt-4.md) retains
+15 active minutes and proof. Remaining execution is bounded to copied comparison
+closure and generated browser-control imports, then their narrow renewal.
+Generated project imports resolve from scenario files, not repository modules.
+Do not repeat the completed movement or alter frozen inputs.
+
 
 ### 5. Run comparisons and recover earlier evidence
 Type: Behavior
@@ -129,6 +137,10 @@ selection promises one job per named file; expanding to its three existing
 jobs changes reporting. Await the pending human contract choice before changing
 that path. [Measured cause, scope and required proof](attempt-3.md) retain both
 failed and passing observations; a passing retry is no repair.
+
+## Frozen case evidence
+
+`cases/delivery-evidence/fixtures/terminal-precomputed.json` is 711 lines on base and after movement. Preserve it unchanged: SHA256 `7bce429d7778db821f051f695c99adced54babd114f03b412e886d7f0a56dbf1` is referenced by retained 20261020 terminal native records. Case-input/historical-evidence preservation authorizes this one frozen-data exception to 250 lines; never split/reformat or extend that exception to maintained code.
 
 ## Execution gates and current decisions
 
@@ -227,3 +239,8 @@ Disposition: proved by slice 3: slice-3-evidence.md red expectation followed by 
 Reported: slice 3 — "Operational admission reuse imports a shared retained-attempt reader and family-owned publication stream/replay helpers from tests/support."
 Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
 Disposition: interim until slices 3, 4
+
+### G11. Remaining-family check bodies and dependencies in cases
+Reported: slice 4 — "Native entries retain default automated branches behind old thin wrappers; CI, closure and one-shot run modules also still source test-only counterexamples."
+Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
+Disposition: interim until slices 4, 6
