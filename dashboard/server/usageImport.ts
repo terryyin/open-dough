@@ -1,3 +1,4 @@
+import path from "node:path";
 import { readUsageReportHistory } from "./usageReportSnapshot.ts";
 import { usageImportSummary } from "./usageImportReport.ts";
 import { nativeTaskActivity } from "./nativeTaskActivity.ts";
@@ -36,6 +37,14 @@ import {
   type UsageTask,
 } from "./usageRecords.ts";
 
+// Where this machine's Codex keeps its rollouts, live and archived, under
+// `home`, and the earliest response the usage history keeps.
+export const codexUsageRoots = (home: string) => [
+  path.join(home, ".codex/sessions"),
+  path.join(home, ".codex/archived_sessions"),
+];
+export const usageHistorySince = "2026-09-16T00:00:00+08:00";
+
 export type UsageImportOptions = {
   home: string;
   codexRoots: string[];
@@ -62,21 +71,27 @@ export async function importUsageHistory(options: UsageImportOptions) {
     summary: usageImportSummary(persisted, options.home, since, scan.gaps),
   };
 }
+// The tasks the store keeps, by id, each with its retained launch record's
+// current facts merged in, and every retained launch not stored yet.
+export async function launchCatalog(
+  home: string,
+  store: string,
+): Promise<Map<string, UsageTask>> {
+  const tasks = new Map<string, UsageTask>(
+    Object.values(await readUsageTasks(store)).map((task) => [task.id, task]),
+  );
+  for (const task of await retainedUsageTasks(home))
+    tasks.set(task.id, mergeUsageTask(tasks.get(task.id), task));
+  return tasks;
+}
 // Returning releases native graphs before the fresh persisted report read.
 async function collectUsageHistory(
   options: UsageImportOptions,
   since: number,
   store: string,
 ) {
-  const heldTasks = await readUsageTasks(store);
   const nativeTasks: NativeTaskFact[] = [];
-  const taskMap = new Map<string, UsageTask>(
-    Object.values(heldTasks).map((task) => [task.id, task]),
-  );
-  for (const task of await retainedUsageTasks(options.home)) {
-    const previous = taskMap.get(task.id);
-    taskMap.set(task.id, mergeUsageTask(previous, task));
-  }
+  const taskMap = await launchCatalog(options.home, store);
 
   const lineage = codexLineage();
   const gaps: UsageGap[] = [];

@@ -6,8 +6,7 @@
 // Choosing another cohort is ./system-settings-usage-cohort.spec.ts; how the
 // endpoint weighs responses and leaves the store unchanged,
 // ../../dashboard/backend-tests/usage-history/token-index.spec.ts.
-import { readFileSync } from "node:fs";
-import { usageTaskSummaryFile } from "../../dashboard/server/usageTaskSummary.ts";
+import { statSync } from "node:fs";
 import { codexTariff } from "../../dashboard/server/usageTariffs.ts";
 import { test } from "../../dashboard/tests/support/pageTest.ts";
 import { systemSettingsMachine } from "../../dashboard/tests/support/systemSettingsMachine.ts";
@@ -79,8 +78,6 @@ test("Usage shows each finished Codex execution's Token index with the 10-task m
   await usage.showsPoints(readouts(tasks));
   await usage.showsAverage(averageOf(tasks));
   await usage.showsTariff(codexTariff.label);
-  const summary = JSON.parse(
-    readFileSync(usageTaskSummaryFile(store), "utf8"),
-  ) as { checkedAt: string };
-  await usage.showsCheckedAt(summary.checkedAt);
+  // Before any Refresh, the import that wrote the store last checked.
+  await usage.showsCheckedAt(statSync(store).mtime.toISOString());
 });

@@ -3,8 +3,9 @@
 // choosing a filter's option, the cohort note's counts, the Token index
 // points on the shared history chart (../historyChartPage.ts), partial ones
 // hollow, the moving average's figure or why there is none, the tariff
-// version, the check time, and the detail of a point selected by pointer or
-// keyboard. Scenarios supply every expected value.
+// version, the check time, the detail of a point selected by pointer or
+// keyboard, and Refresh with its checking note and any error. Scenarios
+// supply every expected value.
 import type { Page } from "@playwright/test";
 import { historyChart } from "../historyChartPage.ts";
 import { expect } from "../dashboardTest.ts";
@@ -168,6 +169,31 @@ export function usageView(page: Page) {
     },
     async showsTariff(label: string) {
       await expect(trend.getByText(label, { exact: true })).toBeVisible();
+    },
+    async refresh() {
+      await view.getByRole("button", { name: "Refresh", exact: true }).click();
+    },
+    // While a Refresh checks, Refresh waits and a note says so.
+    async showsChecking() {
+      await expect(
+        view.getByRole("button", { name: "Refresh", exact: true }),
+      ).toBeDisabled();
+      await expect(
+        view.getByRole("status").filter({ hasText: "Checking" }),
+      ).toHaveText("Checking Codex rollouts for new usage…");
+    },
+    // The Refresh finished: it can be pressed again and no note says
+    // checking.
+    async showsChecked() {
+      await expect(
+        view.getByRole("button", { name: "Refresh", exact: true }),
+      ).toBeEnabled();
+      await expect(
+        view.getByRole("status").filter({ hasText: "Checking" }),
+      ).toHaveCount(0);
+    },
+    async showsProblem(words: string) {
+      await expect(view.getByRole("alert")).toHaveText(words);
     },
     // "Checked" with the recorded instant `at` (ISO).
     async showsCheckedAt(at: string) {

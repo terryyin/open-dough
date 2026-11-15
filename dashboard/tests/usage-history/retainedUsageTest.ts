@@ -36,6 +36,26 @@ export const launch = (session: string, turn: string, launchedAt = at) =>
     .withFirstInput({ state: "confirmed", turnId: turn })
     .please();
 export const meta = (id: string) => ({ type: "session_meta", payload: { id } });
+// A worker thread's metadata naming the thread that spawned it.
+export const workerMeta = (id: string, parent: string) => ({
+  type: "session_meta",
+  payload: { id, parent_thread_id: parent },
+});
+// The parent's spawn_agent call and its output naming the spawned worker.
+export const spawnedAgent = (worker: string) => [
+  {
+    type: "response_item",
+    payload: { type: "function_call", name: "spawn_agent", call_id: worker },
+  },
+  {
+    type: "response_item",
+    payload: {
+      type: "function_call_output",
+      call_id: worker,
+      output: JSON.stringify({ agent_id: worker }),
+    },
+  },
+];
 export const context = (turn: string, model: string, effort: string) => ({
   type: "turn_context",
   payload: { turn_id: turn, model, effort },

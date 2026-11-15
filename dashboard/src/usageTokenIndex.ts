@@ -4,10 +4,14 @@
 // many tasks are unpriced; the trailing moving average, the tariff version
 // that weighed them, when the usage was last checked and the Model and Effort
 // options the observed tasks offer (`../server/usageBoundary.ts`). The cohort
-// travels as the request's query, spelled here for both sides.
+// travels as the request's query, spelled here for both sides. Refresh
+// answers the new check time.
 import { launchWorkflowNames } from "./launchWorkflow.ts";
 
 export const usageTokenIndexEndpoint = "/__usage/token-index";
+export const usageRefreshEndpoint = "/__usage/refresh";
+
+export type UsageRefreshAnswer = { readonly checkedAt: string };
 
 // How many of the latest eligible tasks the moving average spans.
 export const movingAverageTasks = 10;
@@ -134,7 +138,8 @@ export type TokenIndexAnswer = {
     readonly efforts: readonly string[];
   };
   readonly tariff: { readonly version: string; readonly label: string };
-  readonly checkedAt: string;
+  // When Codex rollouts were last checked for usage; null before any import.
+  readonly checkedAt: string | null;
   // Every priced task, partial ones included.
   readonly tasks: readonly TokenIndexTask[];
   // How many finished tasks of the cohort have no point because a response

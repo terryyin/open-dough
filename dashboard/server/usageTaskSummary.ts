@@ -63,7 +63,6 @@ export type UsageTaskSummary = {
   readonly format: typeof summaryFormat;
   // The digest of the store document the summary was derived from.
   readonly store: string;
-  readonly checkedAt: string;
   readonly tasks: readonly SummaryTask[];
 };
 
@@ -160,7 +159,6 @@ export async function deriveUsageTaskSummary(
   return {
     format: summaryFormat,
     store: storeDigest(bytes),
-    checkedAt: new Date().toISOString(),
     tasks: [...tasks.values()].map((task) => ({
       id: task.id,
       kind: task.kind,

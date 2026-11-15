@@ -1,9 +1,9 @@
 /* System settings' views (./SystemSettings.tsx): General and Usage as a row
    of pressed buttons under the bar, and Usage's Token index
-   (./SystemSettingsUsage.tsx): its filters, the chart's head with the moving
-   average's figure, the shared chart (./history-chart.css) and its legend
-   with the tariff version, and the selected task's detail
-   (./UsageTaskDetail.tsx). */
+   (./SystemSettingsUsage.tsx): its heading with Refresh, its filters, the
+   chart's head with the moving average's figure (./TokenIndexTrend.tsx), the
+   shared chart (./history-chart.css) and its legend with the tariff version,
+   and the selected task's detail (./UsageTaskDetail.tsx). */
 .settings-views {
   box-sizing: border-box;
   display: flex;
@@ -62,6 +62,7 @@
   gap: var(--space-2);
 }
 
+.usage-heading,
 .usage-chart-head,
 .usage-chart-foot {
   display: flex;

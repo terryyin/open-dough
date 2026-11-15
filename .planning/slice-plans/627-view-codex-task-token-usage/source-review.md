@@ -12,7 +12,7 @@ allocation.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1.1 | Terry can now and then check whether the price-weighted usage of finished dashboard-launched Codex tasks is trending up or down for one launch workflow | slice 5 | |
+| 1.1 | Terry can now and then check whether the price-weighted usage of finished dashboard-launched Codex tasks is trending up or down for one launch workflow | slice 5 | observed: slices 1-5 journeys e2e/configuration/system-settings-usage*.spec.ts; plan Learnings real-store Refresh adds new finished Execution and Refinement points |
 | 1.2 | Terry can inspect any single task behind the trend | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts selectPoint + showsDetail: any point opens its task detail |
 | 1.3 | The trend is an observation that informs workflow decisions under ADR 0010; it makes no improvement or billing claim | slice 1 | observed: dashboard/src/SystemSettingsUsage.tsx: index, average, tariff and check time only; no improvement or billing wording |
 | 2.1 | A point is one finished task with `origin: dashboard` and host Codex in the usage records | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts finished Codex executions…: native and unknown origin tasks absent from answer; dashboard/server/usageTaskSummary.ts host codex + origin dashboard filter |
@@ -76,18 +76,18 @@ allocation.
 | 5.12 | …and the view says so | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts showsNoAverage(Fewer than 10 eligible tasks) |
 | 6.1 | Opening Usage shows the latest derived result | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts: opening Usage shows the derived summary's points |
 | 6.2 | …with the time it was last checked | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts showsCheckedAt: Checked <time> equals summary checkedAt |
-| 6.3 | **Refresh** reads Codex rollouts changed since that check | slice 5 | |
-| 6.4 | Refresh uses the same native reader as backfill | slice 5 | |
-| 6.5 | Refresh reconciles into the usage store | slice 5 | |
-| 6.6 | Refresh reconciles into the launch catalog | slice 5 | |
-| 6.7 | Refresh then rederives the chart | slice 5 | |
-| 6.8 | A response already imported contributes once | slice 5 | |
-| 6.9 | During a refresh, the cached chart stays visible | slice 5 | |
-| 6.10 | During a refresh, a checking indication shows | slice 5 | |
-| 6.11 | A failed refresh keeps the chart | slice 5 | |
-| 6.12 | A failed refresh keeps its check time | slice 5 | |
-| 6.13 | A failed refresh shows a readable error | slice 5 | |
-| 6.14 | Refresh latency is flexible | slice 5 | |
+| 6.3 | **Refresh** reads Codex rollouts changed since that check | slice 5 | observed: dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 1: only rollouts modified since the check are read (first-late absent, second read whole) |
+| 6.4 | Refresh uses the same native reader as backfill | slice 5 | observed: dashboard/server/usageRefresh.ts reads with codexUsage, the importer's reader; dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 1 |
+| 6.5 | Refresh reconciles into the usage store | slice 5 | observed: dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 1: new responses written through writeUsageHistory into the store |
+| 6.6 | Refresh reconciles into the launch catalog | slice 5 | observed: dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 1: newly finished launch added to the stored task catalog via launchCatalog |
+| 6.7 | Refresh then rederives the chart | slice 5 | observed: dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 1: chart after Refresh shows the new point (summary rederived) |
+| 6.8 | A response already imported contributes once | slice 5 | observed: dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 1: overlapping runImport leaves the second task's index unchanged; second Refresh leaves manifest and summary bytes identical |
+| 6.9 | During a refresh, the cached chart stays visible | slice 5 | observed: e2e/configuration/system-settings-usage-refresh.spec.ts: chart stays visible while Refresh is checking |
+| 6.10 | During a refresh, a checking indication shows | slice 5 | observed: e2e/configuration/system-settings-usage-refresh.spec.ts showsChecking: Checking Codex rollouts for new usage… |
+| 6.11 | A failed refresh keeps the chart | slice 5 | observed: e2e/configuration/system-settings-usage-refresh.spec.ts failed Refresh keeps the chart; dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 2 summary bytes kept |
+| 6.12 | A failed refresh keeps its check time | slice 5 | observed: e2e/configuration/system-settings-usage-refresh.spec.ts failed Refresh keeps the check time; dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 2 check time kept |
+| 6.13 | A failed refresh shows a readable error | slice 5 | observed: e2e/configuration/system-settings-usage-refresh.spec.ts showsProblem readable error; dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 2 503 error text |
+| 6.14 | Refresh latency is flexible | slice 5 | observed: plan Learnings: real-store first Refresh 57.9 s through the server, accepted as flexible |
 | 7.1 | Use a versioned reference tariff kept with the product source | slice 1 | observed: dashboard/server/usageTariffs.ts codexTariff2026_11_15 versioned source data |
 | 7.2 | Codex starts with the standard-speed signed-in credit rates from the Codex rate card as read on 2026-11-15 | slice 1 | observed: dashboard/server/usageTariffs.ts: source rate-card URL, readOn 2026-11-15, speedTier standard |
 | 7.3 | GPT-6.1 Sol per 1M tokens: input 50, cached input 2.5, output 250 | slice 1 | observed: dashboard/server/usageTariffs.ts gpt-6.1-sol 50/2.5/250; dashboard/backend-tests/usage-history/token-index.spec.ts 1,950 example |
@@ -120,10 +120,10 @@ allocation.
 | 12.8 | Deferred: a separate task-detail service | slice 3 | observed: no task-detail service; detail rides on GET /__usage/token-index |
 | 12.9 | Deferred: per-session usage on Board or Sessions sidebar entries | slice 3 | observed: no per-session usage on Board or Sessions sidebar |
 | 12.10 | Deferred: live in-progress usage | slice 3 | observed: no live in-progress usage: unfinished launches not plotted (dashboard/backend-tests/usage-history/token-index-detail.spec.ts test 1) |
-| 12.11 | Deferred: automatic or scheduled refresh | slice 5 | |
-| 12.12 | Deferred: billing reconciliation | slice 5 | |
-| 12.13 | Deferred: account usage APIs | slice 5 | |
-| 12.14 | Deferred: other tariffs | slice 5 | |
+| 12.11 | Deferred: automatic or scheduled refresh | slice 5 | observed: no automatic or scheduled refresh: Refresh only on POST /__usage/refresh from the button |
+| 12.12 | Deferred: billing reconciliation | slice 5 | observed: no billing reconciliation built |
+| 12.13 | Deferred: account usage APIs | slice 5 | observed: no account usage API called |
+| 12.14 | Deferred: other tariffs | slice 5 | observed: only codexTariff2026_11_15 in dashboard/server/usageTariffs.ts |
 | 13.1 | The existing usage store, offline importer and its recovery receipt supply the history | slice 1 | observed: summary derives from the existing usage store (dashboard/server/usageTaskSummary.ts) |
 | 13.2 | This story adds no database (ADR 0008) | slice 1 | observed: summary is a rebuildable JSON file beside the store; no database (dashboard/server/usageTaskSummaryCache.ts) |
 | 13.3 | All retained Codex rollouts observed on 2026-11-15 are at the default speed tier | slice 4 | observed: plan Decisive premises row Tariff and tier; real store responses carry no tier and price as standard |
@@ -138,10 +138,10 @@ allocation.
 | 16.1 | An unattributed worker gap gives a partial mark, "Partial" with the gap in detail, and the task stays out of the line | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts worker gap: partial mark, Partial with gap in detail, out of the line |
 | 16.2 | One fast-tier response gives no point and adds one unpriced task to the cohort note | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts fast-tier task has no point and adds one unpriced to the cohort note |
 | 16.3 | Nine eligible tasks show the points and "Fewer than 10 eligible tasks" | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts showsNoAverage(Fewer than 10 eligible tasks) with points shown; dashboard/frontend-tests/system-settings-usage-average.spec.ts 10 eligible draw a line |
-| 17.1 | After a new Execution launch finishes, Refresh adds its point and updates the check time | slice 5 | |
-| 17.2 | Refreshing again without new rollout activity changes no value | slice 5 | |
-| 17.3 | An importer run overlapping earlier responses leaves each response counted once | slice 5 | |
-| 17.4 | A failed refresh (e.g. unreadable usage store) keeps the previous chart and check time and shows the error | slice 5 | |
+| 17.1 | After a new Execution launch finishes, Refresh adds its point and updates the check time | slice 5 | observed: e2e/configuration/system-settings-usage-refresh.spec.ts Refresh adds the new finished Execution point and a new check time |
+| 17.2 | Refreshing again without new rollout activity changes no value | slice 5 | observed: dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 1: no-op second Refresh changes no summary value or stored observation |
+| 17.3 | An importer run overlapping earlier responses leaves each response counted once | slice 5 | observed: dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 1: overlapping importer run leaves each response counted once |
+| 17.4 | A failed refresh (e.g. unreadable usage store) keeps the previous chart and check time and shows the error | slice 5 | observed: e2e/configuration/system-settings-usage-refresh.spec.ts failed Refresh (held/unreadable store) keeps previous chart and check time and shows the error; dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 2 unreadable store |
 | 18.1 | 1,000 uncached + 9,000 cache read + 100 output on GPT-6.1 Sol = (1,000×50 + 9,000×2.5 + 100×250)/50 = 1,950 | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts single task index 1,950 |
 | 18.2 | Recomputing with a later tariff version uses the same stored counters and leaves them unchanged | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts later tariff reweighs same counters; storeFiles unchanged |
 | 19.1 | The approved mockup is the layout reference, with three data corrections | slice 1 | observed: dashboard/src/SystemSettingsUsage.tsx follows .planning/mockups/dashboard-task-usage.html layout with Launch workflow label |
@@ -157,18 +157,18 @@ allocation.
 | 20.4 | Derive it from the store or from a rebuildable per-task summary | slice 1 | observed: dashboard/server/usageTaskSummary.ts per-task summary file; dashboard/backend-tests/usage-history/token-index.spec.ts rebuilds after deletion |
 | 20.5 | Derive it without blocking the server's event loop | slice 1 | observed: dashboard/server/usageTaskSummaryCache.ts: rebuild runs in separate node process (usageTaskSummaryMain.ts); real-store responsiveness owned by slice 5 observation |
 | 20.6 | ADR 0008 allows a rebuildable derived cache but no application database | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts summary file rebuilt after rmSync; no database |
-| 21.1 | Refresh is the dashboard's first writer of usage evidence | slice 5 | |
-| 21.2 | Refresh shares the store's document lock with the offline importer | slice 5 | |
-| 21.3 | Refresh shares reconciliation with the offline importer | slice 5 | |
-| 21.4 | Refresh reuses the importer's Codex reader per changed file | slice 5 | |
-| 21.5 | Refresh does not run the full-corpus import (440 s, 4.3 GB) | slice 5 | |
-| 21.6 | Rereading a changed file whole is safe because reconciliation is idempotent per response key | slice 5 | |
-| 21.7 | Premise for planning to settle: worker lineage for changed files can be resolved from stored observations and the changed files alone | slice 5 | |
+| 21.1 | Refresh is the dashboard's first writer of usage evidence | slice 5 | observed: dashboard/server/usageRefreshMain.ts writes usage evidence from the dashboard |
+| 21.2 | Refresh shares the store's document lock with the offline importer | slice 5 | observed: e2e/configuration/system-settings-usage-refresh.spec.ts refresh journey holds usage.json.lock and Refresh waits on the shared document lock |
+| 21.3 | Refresh shares reconciliation with the offline importer | slice 5 | observed: dashboard/server/usageRefresh.ts reconciles through writeUsageHistory (shared reconciliation) |
+| 21.4 | Refresh reuses the importer's Codex reader per changed file | slice 5 | observed: dashboard/server/usageRefresh.ts reads each changed rollout with codexUsage |
+| 21.5 | Refresh does not run the full-corpus import (440 s, 4.3 GB) | slice 5 | observed: dashboard/server/usageRefresh.ts runs no full-corpus import; real-store read phase 255 rollouts in 2.4 s |
+| 21.6 | Rereading a changed file whole is safe because reconciliation is idempotent per response key | slice 5 | observed: dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 1: changed rollout reread whole; second Refresh idempotent |
+| 21.7 | Premise for planning to settle: worker lineage for changed files can be resolved from stored observations and the changed files alone | slice 5 | observed: dashboard/backend-tests/usage-history/token-index-refresh.spec.ts test 1: worker rollout older than the check resolved via parent spawn, coverage measured; associations match a fresh full import |
 | 22.1 | Tariffs are versioned source data | slice 1 | observed: dashboard/server/usageTariffs.ts versioned source data |
 | 22.2 | Index computation reads the stored counters | slice 1 | observed: dashboard/server/tokenIndex.ts reads summary counters |
 | 22.3 | Index computation never writes priced values into the usage records | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts storeFiles(store) unchanged; summary holds counters only |
 | 23.1 | Terry approved the System settings → Usage mockup (../mockups/dashboard-task-usage.html) on 2026-11-15 | slice 1 | observed: mockup .planning/mockups/dashboard-task-usage.html present and used as layout reference |
-| 23.2 | Keep the mockup through implementation and verification | slice 5 | |
+| 23.2 | Keep the mockup through implementation and verification | slice 5 | observed: .planning/mockups/dashboard-task-usage.html kept unchanged through slice 5 |
 | 23.3 | During wrap-up, delete the mockup | landing | |
 | 23.4 | During wrap-up, remove any live planning links to the mockup | landing | |
 | 23.5 | Verify both removals in the final closure change | landing | |

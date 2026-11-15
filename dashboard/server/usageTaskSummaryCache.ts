@@ -3,11 +3,10 @@
 // store's small manifest, to tell whether the summary still derives from it.
 // When it is missing, unreadable, of another format or derived from another
 // store document, a separate process (./usageTaskSummaryMain.ts) rebuilds it
-// off this server's event loop; concurrent requests share that rebuild.
-import { execFile } from "node:child_process";
+// off this server's event loop (./usageProcess.ts); concurrent requests share
+// that rebuild.
 import { readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
+import { runUsageProcess, sharedRuns } from "./usageProcess.ts";
 import {
   storeBytes,
   storeDigest,
@@ -16,11 +15,8 @@ import {
   type UsageTaskSummary,
 } from "./usageTaskSummary.ts";
 
-const derivation = fileURLToPath(
-  new URL("./usageTaskSummaryMain.ts", import.meta.url),
-);
-const runFile = promisify(execFile);
-const rebuilds = new Map<string, Promise<UsageTaskSummary>>();
+const derivation = new URL("./usageTaskSummaryMain.ts", import.meta.url);
+const shared = sharedRuns<UsageTaskSummary>();
 
 async function storedSummary(
   file: string,
@@ -37,33 +33,16 @@ async function storedSummary(
   }
 }
 
-async function derive(store: string, file: string): Promise<void> {
-  try {
-    await runFile(process.execPath, [derivation, store, file]);
-  } catch (error) {
-    const { stderr, message } = error as { stderr?: string; message: string };
-    throw new Error(
-      `Usage could not be derived: ${stderr?.trim() || message}`,
-      { cause: error },
-    );
-  }
-}
-
-function rebuild(store: string, file: string): Promise<UsageTaskSummary> {
-  const running = rebuilds.get(file);
-  if (running !== undefined) return running;
-  const next = derive(store, file)
-    .then(() => storedSummary(file))
-    .then((summary) => {
-      if (summary === undefined)
-        throw new Error("Usage could not be derived: no summary was written.");
-      return summary;
-    })
-    .finally(() => {
-      rebuilds.delete(file);
-    });
-  rebuilds.set(file, next);
-  return next;
+async function rebuild(store: string, file: string): Promise<UsageTaskSummary> {
+  await runUsageProcess(
+    derivation,
+    [store, file],
+    "Usage could not be derived",
+  );
+  const summary = await storedSummary(file);
+  if (summary === undefined)
+    throw new Error("Usage could not be derived: no summary was written.");
+  return summary;
 }
 
 export async function currentUsageTaskSummary(
@@ -76,5 +55,5 @@ export async function currentUsageTaskSummary(
   ]);
   return summary !== undefined && summary.store === storeDigest(bytes)
     ? summary
-    : rebuild(store, file);
+    : shared(file, () => rebuild(store, file));
 }

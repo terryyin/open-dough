@@ -2,7 +2,9 @@
 // tasks of Open Dough written into the server's HOME, stated directly or as
 // an import of their launch records stores them, and what each journey
 // expects the page to read for them, its point's readout and the moving
-// average's figure, from the task's counters under the product's tariff.
+// average's figure, from the task's counters under the product's tariff; and
+// the Codex rollout a launch's session writes with those responses.
+import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   usageHistoryFile,
@@ -13,6 +15,12 @@ import type {
   UsageTokens,
 } from "../../dashboard/server/usageRecords.ts";
 import { codexTariff } from "../../dashboard/server/usageTariffs.ts";
+import { nativeFile } from "../../dashboard/tests/usage-history/importHarness.ts";
+import {
+  context,
+  meta,
+  response,
+} from "../../dashboard/tests/usage-history/retainedUsageTest.ts";
 
 export const sol = "gpt-6.1-sol";
 export const astra = "gpt-6-astra";
@@ -147,3 +155,25 @@ export const readouts = (tasks: readonly StoredTask[]) =>
 // The latest ten tasks' mean index, as its figure.
 export const averageOf = (tasks: readonly StoredTask[]) =>
   figureWords(tasks.slice(-10).reduce((sum, { index }) => sum + index, 0) / 10);
+
+// Writes the rollout Codex keeps in `home` for the session's root turn
+// `turnId`, holding the responses in its own model and effort contexts.
+export function codexRollout(
+  home: string,
+  sessionId: string,
+  turnId: string,
+  responses: readonly Response[],
+) {
+  nativeFile(path.join(home, ".codex/sessions/2026/11"), sessionId, [
+    meta(sessionId),
+    ...responses.flatMap(({ model, effort, tokens }, at) => [
+      context(turnId, model, effort),
+      response(sessionId, turnId, `${sessionId}-${String(at)}`, {
+        input_tokens: (tokens.uncachedInput ?? 0) + (tokens.cacheRead ?? 0),
+        cached_input_tokens: tokens.cacheRead ?? 0,
+        cache_write_input_tokens: 0,
+        output_tokens: tokens.output ?? 0,
+      }),
+    ]),
+  ]);
+}

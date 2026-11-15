@@ -153,7 +153,7 @@ tier on observed settings.
 
 ### 5. Refresh brings in new Codex usage
 Type: Behavior
-Status: planned
+Status: done
 Proof: backend spec: with a stored history and one rollout appended after the
 last check, Refresh reconciles only changed files and adds a newly finished
 launch from the current launch records. Associations match a full import of
@@ -266,6 +266,31 @@ updates. Overlap with an offline import counts each response once.
   rereading a rollout imported before tiers were kept adds one measurement
   per response that differs only in `serviceTier`. Counters dedupe, so the
   index is unchanged.
+- **Slice 5 (accepted).** Refresh (`POST /__usage/refresh`) runs
+  `usageRefreshMain.ts` in a separate process; concurrent presses share one
+  run (`usageRefreshRun.ts`). It reads every rollout under the importer's
+  `codexUsageRoots` modified since the cutoff, plus any parent or worker
+  rollout they name. It assigns them with `codexAssociation` against
+  `launchCatalog` and writes through `writeUsageHistory` under the store lock.
+  The check time is persisted in `usage-check.json` beside the store, written
+  only after the store write succeeds. Before any Refresh, "Checked" shows the
+  store manifest's modification time. The cutoff is the last check minus 2 s,
+  or else the manifest time minus 1 day. The summary no longer carries
+  `checkedAt`. The selection survives a Refresh while its point remains.
+- Real-store observation (2026-11-15, scratch APFS clone of the store and
+  launch records, real `~/.codex` read in place; the real store's sha256 was
+  unchanged and the scratch copy was removed):
+  - Summary rebuild: 4.6 s, 392 MB at load about 4.5.
+  - First Refresh: 37.9 s and 670 MB standalone, 57.9 s through the server
+    including the rebuild. A no-op Refresh: 33.0 s.
+  - Another local endpoint stayed responsive during Refresh: 553 requests,
+    median 1 ms, p95 8 ms, max 28 ms.
+  - Refresh added one finished Execution point and one finished Refinement
+    point. 0 of 515 tasks were partial, and a no-op Refresh changed no value.
+  - Latency is dominated by the shared snapshot writer, which republishes
+    every partition: 12–16 s even for an empty batch. Rollout reading took
+    0.1–2.4 s. A writer that skips untouched partitions would be separate,
+    writer-level work.
 - Local proof under external load (about 28): 3 integrated chart-consumer
   specs timed out at 2 workers before any chart was drawn, and passed 5 of 5
   at 1 worker. Hosted CI is the verdict; a recurrence there is owed a repair.

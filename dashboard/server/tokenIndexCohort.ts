@@ -40,7 +40,7 @@ export function tokenIndexCohort(
   summary: UsageTaskSummary,
   reading: UsageReading,
   cohort: TokenIndexCohort,
-): TokenIndexAnswer {
+): Omit<TokenIndexAnswer, "checkedAt"> {
   const { projects, launches, tariff } = reading;
   const population = summary.tasks.flatMap((task) =>
     task.project !== null && projects.has(task.project)
@@ -81,7 +81,6 @@ export function tokenIndexCohort(
       ),
     },
     tariff: { version: tariff.version, label: tariff.label },
-    checkedAt: summary.checkedAt,
     tasks,
     unpriced: weighed.filter((task) => task === "unpriced").length,
     average,
