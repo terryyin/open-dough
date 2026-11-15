@@ -711,6 +711,13 @@ their trigger terms would shrink every session and subagent on every host
 that lists skills; `/skill-doctor` reports which loaded skills a Claude Code
 session never used.
 
+The tool definitions are the larger part of that floor. On 2026-11-15 a
+general-purpose implementer's request carried about 57.8k characters of tool
+definitions, 37.1k of them the Artifact tool, which no implementer used;
+Agent and worktree entry added about 9k more. Implementers used shell, file,
+skill, monitor and background-task tools. The release installs skills and
+hooks only, so it does not yet shape which tools a worker receives.
+
 ### CC6. Native diagnostics complement transcript accounting
 
 `/insights` generates a cross-session report and has never run on this
@@ -719,6 +726,27 @@ and `/doctor` checks the installation. None breaks cost down by role, cache
 lifetime, rebuild or coordinator growth, so transcript accounting remains
 the instrument for this record. Running `/insights` and `/skill-doctor`
 before a trial would add their view.
+
+### 2026-11-15 re-measurement
+
+A later pass priced the 50 most recent Claude Code sessions with at least 15
+requests across Open Dough, Pygardon and Doughnut, ending 2026-11-15, with the
+same deduplication and list prices. It overlaps this record's window, so it
+mostly confirms the findings above rather than testing them independently.
+Executions were 16 sessions and $1,374 of $1,521 (90%); refinements averaged
+$4 and executions $86. Workers carried $1,005 of the execution cost, and the
+20 workers above 150 requests carried $357 of it. Every main and worker
+request ran at effort `high`.
+
+An estimate of what each kind of content cost while it stayed in context
+(characters at about 3.3 per token, explaining 83% of observed growth)
+attributed roughly a third to output and retained thinking, a sixth to each
+context's starting floor, an eighth to file contents read whole by `cat`,
+`sed` and Read, about 9% to cache rebuilds after main-thread waits over an
+hour and worker waits over five minutes, about 2–4% to skill references and
+plan re-reads, and under 1% to test output. Execute-plan reference reads
+carried about $2 per execution. Whole-file reads have no story yet; finding 4
+describes the same exploration.
 
 ## Codex-native diagnostic follow-up
 
