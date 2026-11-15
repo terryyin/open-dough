@@ -1,13 +1,14 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
+import { claudeReportingContext } from "../../../Distribution/tests/support/claudeReportingContext.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  at,
-  nativeFile,
   readImported,
   runImport,
+  writeClaudeSession,
 } from "../../tests/usage-history/importHarness.ts";
 import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
 
@@ -31,7 +32,7 @@ test("recovers Claude historical renamed seed, backlog and completion facts from
           {
             identity: "SEED-42#story",
             title: "Title at completion",
-            completedAt: at,
+            completedAt: usageHistoryDefaultAt,
             developer: "Terry",
             agent: "mrsn-chan",
             host: "claude",
@@ -49,20 +50,7 @@ test("recovers Claude historical renamed seed, backlog and completion facts from
   const sessionId = "recovered-claude";
   const reference = "ca7430bd-0d52-499d-a1bd-660263c77c12";
   const claude = path.join(home, "claude");
-  const user = {
-    type: "user",
-    sessionId,
-    cwd: repo.integration,
-    timestamp: at,
-  };
-  const assistant = {
-    type: "assistant",
-    sessionId,
-    cwd: repo.integration,
-    timestamp: at,
-  };
-  const rows: object[] = [];
-  for (const [turn, directive, revision, parent] of [
+  const turns = [
     [
       "renamed",
       "$dough-slice-planning .planning/seeds/SEED-42-old.md#story",
@@ -71,7 +59,7 @@ test("recovers Claude historical renamed seed, backlog and completion facts from
     ],
     [
       "done",
-      "$dough-story-refinement .planning/done/SEED-42_story.json",
+      `$dough-story-refinement .planning/done/SEED-42_story.json\n${claudeReportingContext({ reference, project: "historic" })}\n`,
       repo.revisions.completed,
       "answer-renamed",
     ],
@@ -81,25 +69,20 @@ test("recovers Claude historical renamed seed, backlog and completion facts from
       repo.revisions.backlog,
       "answer-done",
     ],
-  ] as const) {
-    rows.push({
-      ...user,
-      uuid: turn,
-      parentUuid: parent,
-      message: {
-        content:
-          directive +
-          (turn === "done"
-            ? `\nDashboard reporting context:\n- project: historic\n- host: claude\n- launch reference: ${reference}\n`
-            : ""),
-      },
-    });
-    rows.push({
-      ...assistant,
-      uuid: `git-${turn}`,
-      parentUuid: turn,
-      message: {
-        id: `git-message-${turn}`,
+  ] as const;
+  const transcript = makeMe.aClaudeTranscript
+    .forSession(sessionId)
+    .withCwd(repo.integration);
+  for (const [turn, directive, revision, parent] of turns) {
+    transcript
+      .withUser({
+        uuid: turn,
+        parentUuid: parent,
+        content: directive,
+      })
+      .withAssistant({
+        uuid: `git-${turn}`,
+        messageId: `git-message-${turn}`,
         content: [
           {
             type: "tool_use",
@@ -109,13 +92,9 @@ test("recovers Claude historical renamed seed, backlog and completion facts from
           },
         ],
         usage: { output_tokens: 1 },
-      },
-    });
-    rows.push({
-      ...user,
-      uuid: `result-${turn}`,
-      parentUuid: `git-${turn}`,
-      message: {
+      })
+      .withUser({
+        uuid: `result-${turn}`,
         content: [
           {
             type: "tool_result",
@@ -123,38 +102,32 @@ test("recovers Claude historical renamed seed, backlog and completion facts from
             content: revision,
           },
         ],
-      },
-    });
-    rows.push({
-      ...assistant,
-      uuid: `answer-${turn}`,
-      parentUuid: `result-${turn}`,
-      message: { id: `answer-message-${turn}`, usage: { output_tokens: 2 } },
-    });
+      })
+      .withAssistant({
+        uuid: `answer-${turn}`,
+        messageId: `answer-message-${turn}`,
+        usage: { output_tokens: 2 },
+      });
     if (turn === "done")
-      rows.push({
-        ...user,
+      transcript.withUser({
         uuid: "receipt",
-        parentUuid: "answer-done",
-        message: {
-          content: [
-            {
-              type: "tool_result",
-              tool_use_id: "report",
-              content: JSON.stringify({
-                state: "recorded",
-                receipt: "2b3d62be-7ea8-4fe0-a4ce-bd38a4e0320a",
-                reference,
-                outcome: "unfinished",
-                message: "PRIVATE-REPORT",
-                receivedAt: at,
-              }),
-            },
-          ],
-        },
+        content: [
+          {
+            type: "tool_result",
+            tool_use_id: "report",
+            content: JSON.stringify({
+              state: "recorded",
+              receipt: "2b3d62be-7ea8-4fe0-a4ce-bd38a4e0320a",
+              reference,
+              outcome: "unfinished",
+              message: "PRIVATE-REPORT",
+              receivedAt: usageHistoryDefaultAt,
+            }),
+          },
+        ],
       });
   }
-  nativeFile(claude, sessionId, rows);
+  writeClaudeSession(claude, transcript.please());
   runImport(home, root, ["--claude-root", claude]);
   const history = readImported(home);
   const tasks = Object.values(history.tasks);
@@ -185,7 +158,11 @@ test("recovers Claude historical renamed seed, backlog and completion facts from
       identity: "SEED-42#story",
       title: "Title at completion",
       origin: "dashboard",
-      outcome: { kind: "reported-incomplete", at, attention: true },
+      outcome: {
+        kind: "reported-incomplete",
+        at: usageHistoryDefaultAt,
+        attention: true,
+      },
     }),
   );
   expect(done.fieldSources?.identity).toEqual(

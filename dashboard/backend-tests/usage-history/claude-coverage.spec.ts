@@ -2,16 +2,18 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { claudeReportingContext } from "../../../Distribution/tests/support/claudeReportingContext.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { responseKey } from "../../server/usageRecords.ts";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  at,
   nativeFile,
   nodeProcess,
   readImported,
   runImport,
+  writeClaudeSession,
 } from "../../tests/usage-history/importHarness.ts";
 
 test("keeps explicit resumed launch boundaries separate, permits evidenced follow-up, and retains conflicting messages without double charge", ({
@@ -37,64 +39,47 @@ test("keeps explicit resumed launch boundaries separate, permits evidenced follo
   );
   keepLaunchStore(home, { "open-dough": records });
   const claudeRoot = path.join(home, "claude");
-  const user = { type: "user", sessionId, origin: { kind: "human" } };
-  const assistant = {
-    type: "assistant",
-    sessionId,
-    timestamp: at,
-    requestId: "req-shared",
-  };
   const usage = {
     input_tokens: 0,
     cache_read_input_tokens: 0,
     cache_creation_input_tokens: 0,
     output_tokens: 7,
   };
-  const reporting =
-    "Dashboard reporting context:\n- project: open-dough\n- host: claude\n- launch reference: ";
-  const rows = [
-    {
-      ...user,
-      uuid: "first",
-      parentUuid: null,
-      message: { content: reporting + references[0] },
-    },
-    {
-      ...assistant,
+  const rows = makeMe.aClaudeTranscript
+    .forSession(sessionId)
+    .withLaunchInput({ reference: references[0], uuid: "first" })
+    .withAssistant({
       uuid: "response-first",
-      parentUuid: "first",
-      message: { id: "msg-first", model: "model-a", usage },
-    },
-    {
-      ...user,
+      messageId: "msg-first",
+      model: "model-a",
+      requestId: "req-shared",
+      usage,
+    })
+    .withUser({
       uuid: "follow-up",
-      parentUuid: "response-first",
-      message: { content: reporting + references[0] },
-    },
-    {
-      ...assistant,
+      origin: { kind: "human" },
+      content: claudeReportingContext({ reference: references[0] }),
+    })
+    .withAssistant({
       uuid: "response-follow-up",
-      parentUuid: "follow-up",
-      message: {
-        id: "msg-follow-up",
-        model: "model-b",
-        usage: { ...usage, output_tokens: 3 },
-      },
-    },
-    {
-      ...user,
+      messageId: "msg-follow-up",
+      model: "model-b",
+      requestId: "req-shared",
+      usage: { ...usage, output_tokens: 3 },
+    })
+    .withUser({
       uuid: "second",
-      parentUuid: "response-follow-up",
-      message: { content: reporting + references[1] },
-    },
-    {
-      ...assistant,
+      origin: { kind: "human" },
+      content: claudeReportingContext({ reference: references[1] }),
+    })
+    .withAssistant({
       uuid: "response-second",
-      parentUuid: "second",
-      message: { id: "msg-second", usage: { ...usage, output_tokens: 11 } },
-    },
-  ];
-  nativeFile(claudeRoot, sessionId, rows);
+      messageId: "msg-second",
+      requestId: "req-shared",
+      usage: { ...usage, output_tokens: 11 },
+    })
+    .please();
+  writeClaudeSession(claudeRoot, rows);
   runImport(home, root, ["--claude-root", claudeRoot]);
   const history = readImported(home);
   const first = Object.values(history.tasks).find(
@@ -131,22 +116,27 @@ test("keeps explicit resumed launch boundaries separate, permits evidenced follo
     `const {writeUsageHistory}=await import('./dashboard/server/usageHistory.ts'); await writeUsageHistory({observations:[${JSON.stringify(replay)}]});`,
   );
   expect(taskUsage(readImported(home), first.id).tokens.output).toBe(10);
-  nativeFile(claudeRoot, sessionId, [
+  writeClaudeSession(claudeRoot, [
     ...rows,
-    {
-      ...assistant,
-      uuid: "conflicting-stream",
-      parentUuid: "response-first",
-      timestamp: "2026-11-14T10:00:02.000Z",
-      message: { id: "msg-first", usage: { ...usage, output_tokens: 9 } },
-    },
-    {
-      ...assistant,
-      uuid: "contradictory-task",
-      parentUuid: "response-second",
-      timestamp: "2026-11-14T10:00:03.000Z",
-      message: { id: "msg-follow-up", usage: { ...usage, output_tokens: 3 } },
-    },
+    ...makeMe.aClaudeTranscript
+      .forSession(sessionId)
+      .withAssistant({
+        uuid: "conflicting-stream",
+        parentUuid: "response-first",
+        messageId: "msg-first",
+        requestId: "req-shared",
+        timestamp: "2026-11-14T10:00:02.000Z",
+        usage: { ...usage, output_tokens: 9 },
+      })
+      .withAssistant({
+        uuid: "contradictory-task",
+        parentUuid: "response-second",
+        messageId: "msg-follow-up",
+        requestId: "req-shared",
+        timestamp: "2026-11-14T10:00:03.000Z",
+        usage: { ...usage, output_tokens: 3 },
+      })
+      .please(),
   ]);
   runImport(home, root, ["--claude-root", claudeRoot]);
   const conflicted = readImported(home);
@@ -173,47 +163,43 @@ test("retains independent partial workers and reports missing transcripts and un
   const record = makeMe.aLaunchRecord
     .executing({ identity: "SEED-358#task", title: "Task" })
     .inClaudeSession({ sessionId })
-    .launchedAt(at)
+    .launchedAt(usageHistoryDefaultAt)
     .please();
   keepLaunchStore(home, { "open-dough": [record] });
   const claudeRoot = path.join(home, "claude");
-  nativeFile(claudeRoot, sessionId, [
-    {
-      type: "user",
-      sessionId,
-      uuid: "result",
-      parentUuid: null,
-      toolUseResult: { agentId: "missing-worker" },
-      message: { content: [{ type: "tool_result" }] },
-    },
-    {
-      type: "assistant",
-      sessionId,
-      uuid: "unsupported",
-      parentUuid: "result",
-      timestamp: at,
-      requestId: "request-only",
-      message: { usage: { output_tokens: 700 } },
-    },
-  ]);
+  writeClaudeSession(
+    claudeRoot,
+    makeMe.aClaudeTranscript
+      .forSession(sessionId)
+      .withUser({
+        uuid: "result",
+        parentUuid: null,
+        toolUseResult: { agentId: "missing-worker" },
+        content: [{ type: "tool_result" }],
+      })
+      .withAssistant({
+        uuid: "unsupported",
+        requestId: "request-only",
+        usage: { output_tokens: 700 },
+      })
+      .please(),
+  );
+  // Orphan worker outside `subagents/` is layout under proof.
   nativeFile(path.join(claudeRoot, "workers"), "agent-orphan", [
-    {
-      type: "user",
-      sessionId,
-      agentId: "orphan",
-      uuid: "worker-input",
-      parentUuid: null,
-      message: { content: "private orphan prompt" },
-    },
-    {
-      type: "assistant",
-      sessionId,
-      agentId: "orphan",
-      uuid: "worker-response",
-      parentUuid: "worker-input",
-      timestamp: at,
-      message: { id: "msg-orphan", usage: { output_tokens: 4 } },
-    },
+    ...makeMe.aClaudeTranscript
+      .forSession(sessionId)
+      .asSidechain({ agentId: "orphan" })
+      .withUser({
+        uuid: "worker-input",
+        parentUuid: null,
+        content: "private orphan prompt",
+      })
+      .withAssistant({
+        uuid: "worker-response",
+        messageId: "msg-orphan",
+        usage: { output_tokens: 4 },
+      })
+      .please(),
   ]);
   runImport(home, root, ["--claude-root", claudeRoot]);
   const history = readImported(home);

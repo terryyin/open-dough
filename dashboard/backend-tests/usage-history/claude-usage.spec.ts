@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
@@ -9,7 +10,7 @@ import {
   nativeFile,
   readImported,
   runImport,
-  at,
+  writeClaudeSession,
 } from "../../tests/usage-history/importHarness.ts";
 
 test("imports retained Claude root and explicitly joined worker messages once across streaming updates and resumed tasks", ({
@@ -24,7 +25,7 @@ test("imports retained Claude root and explicitly joined worker messages once ac
       title: "Usage recovery",
     })
     .inClaudeSession({ sessionId })
-    .launchedAt(at)
+    .launchedAt(usageHistoryDefaultAt)
     .requestingModel("requested-model")
     .requestingEffort("high")
     .reportingThrough({
@@ -35,64 +36,46 @@ test("imports retained Claude root and explicitly joined worker messages once ac
     .please();
   keepLaunchStore(home, { "open-dough": [record] });
   const claudeRoot = path.join(home, "claude");
-  const user = { type: "user", sessionId };
-  const assistant = { type: "assistant", sessionId, timestamp: at };
-  const initial = {
-    ...assistant,
-    uuid: "stream-a",
-    parentUuid: "context",
-    timestamp: at,
-    requestId: "req-shared",
-    effort: "medium",
-    message: {
-      id: "msg-root",
-      model: "observed-model",
-      usage: {
-        input_tokens: 2,
-        cache_read_input_tokens: 20,
-        cache_creation_input_tokens: 10,
-        cache_creation: {
-          ephemeral_5m_input_tokens: 3,
-          ephemeral_1h_input_tokens: 7,
-        },
-      },
+  const rootUsage = {
+    input_tokens: 2,
+    cache_read_input_tokens: 20,
+    cache_creation_input_tokens: 10,
+    cache_creation: {
+      ephemeral_5m_input_tokens: 3,
+      ephemeral_1h_input_tokens: 7,
     },
   };
-  nativeFile(claudeRoot, sessionId, [
-    {
-      ...user,
-      uuid: "launch-input",
-      parentUuid: null,
-      timestamp: at,
-      origin: { kind: "human" },
-      message: {
-        role: "user",
-        content: `Dashboard reporting context:\n- project: open-dough\n- host: claude\n- launch reference: ${reference}\n- reporting command: report\nprivate launch instructions`,
-      },
-    },
-    {
-      type: "attachment",
-      sessionId,
-      uuid: "context",
-      parentUuid: "launch-input",
-    },
-    initial,
-    {
-      ...initial,
-      uuid: "stream-b",
-      parentUuid: "stream-a",
-      timestamp: "2026-11-14T10:00:01.000Z",
-      message: {
-        ...initial.message,
-        usage: { ...initial.message.usage, output_tokens: 7 },
-      },
-    },
-    {
-      ...user,
-      uuid: "worker-result",
-      parentUuid: "stream-b",
-      toolUseResult: { agentId: "worker-1" },
-      message: {
+  writeClaudeSession(
+    claudeRoot,
+    makeMe.aClaudeTranscript
+      .forSession(sessionId)
+      .withLaunchInput({
+        reference,
+        command: "report",
+        suffix: "\nprivate launch instructions",
+        role: true,
+      })
+      .withAttachment()
+      .withAssistant({
+        uuid: "stream-a",
+        messageId: "msg-root",
+        model: "observed-model",
+        effort: "medium",
+        requestId: "req-shared",
+        usage: rootUsage,
+      })
+      .withAssistant({
+        uuid: "stream-b",
+        messageId: "msg-root",
+        model: "observed-model",
+        effort: "medium",
+        requestId: "req-shared",
+        timestamp: "2026-11-14T10:00:01.000Z",
+        usage: { ...rootUsage, output_tokens: 7 },
+      })
+      .withUser({
+        uuid: "worker-result",
+        toolUseResult: { agentId: "worker-1" },
         content: [
           {
             type: "tool_result",
@@ -100,86 +83,72 @@ test("imports retained Claude root and explicitly joined worker messages once ac
             content: "private worker output",
           },
         ],
-      },
-    },
-    {
-      ...user,
-      uuid: "notification",
-      parentUuid: "worker-result",
-      origin: { kind: "task-notification" },
-      message: { content: "private notification" },
-    },
-    {
-      ...assistant,
-      uuid: "after-notification",
-      parentUuid: "notification",
-      timestamp: at,
-      requestId: "req-shared",
-      effort: "low",
-      message: {
-        id: "msg-next",
+      })
+      .withUser({
+        uuid: "notification",
+        origin: { kind: "task-notification" },
+        content: "private notification",
+      })
+      .withAssistant({
+        uuid: "after-notification",
+        messageId: "msg-next",
         model: "changed-model",
+        effort: "low",
+        requestId: "req-shared",
         usage: {
           input_tokens: 0,
           cache_read_input_tokens: 0,
           cache_creation_input_tokens: 0,
           output_tokens: 3,
         },
-      },
-    },
-    {
-      ...user,
-      uuid: "later-task",
-      parentUuid: "after-notification",
-      origin: { kind: "human" },
-      message: { content: "another task" },
-    },
-    {
-      ...assistant,
-      uuid: "later-response",
-      parentUuid: "later-task",
-      timestamp: at,
-      message: {
-        id: "msg-later",
+      })
+      .withUser({
+        uuid: "later-task",
+        origin: { kind: "human" },
+        content: "another task",
+      })
+      .withAssistant({
+        uuid: "later-response",
+        messageId: "msg-later",
         model: "another-model",
         usage: { output_tokens: 900 },
-      },
-    },
-  ]);
-  const workerRoot = path.join(claudeRoot, sessionId, "subagents");
-  const workerMessage = {
-    ...assistant,
-    agentId: "worker-1",
-    isSidechain: true,
-    effort: "high",
-    requestId: "req-worker",
-    message: {
-      id: "msg-worker",
-      model: "worker-model",
-      usage: {
-        input_tokens: 4,
-        cache_read_input_tokens: 6,
-        cache_creation_input_tokens: 8,
-        output_tokens: 5,
-      },
-    },
+      })
+      .please(),
+  );
+  const workerUsage = {
+    input_tokens: 4,
+    cache_read_input_tokens: 6,
+    cache_creation_input_tokens: 8,
+    output_tokens: 5,
   };
-  nativeFile(workerRoot, "agent-worker-1", [
-    {
-      ...user,
-      agentId: "worker-1",
-      isSidechain: true,
-      uuid: "worker-input",
-      parentUuid: null,
-      message: { content: "private worker prompt" },
-    },
-    { ...workerMessage, uuid: "worker-a", parentUuid: "worker-input" },
-    {
-      ...workerMessage,
-      uuid: "worker-b",
-      parentUuid: "worker-a",
-      timestamp: "2026-11-14T10:00:02.000Z",
-    },
+  // Worker path under `subagents/` is layout under proof.
+  nativeFile(path.join(claudeRoot, sessionId, "subagents"), "agent-worker-1", [
+    ...makeMe.aClaudeTranscript
+      .forSession(sessionId)
+      .asSidechain({ agentId: "worker-1" })
+      .withUser({
+        uuid: "worker-input",
+        parentUuid: null,
+        content: "private worker prompt",
+      })
+      .withAssistant({
+        uuid: "worker-a",
+        messageId: "msg-worker",
+        model: "worker-model",
+        effort: "high",
+        requestId: "req-worker",
+        usage: workerUsage,
+      })
+      .withAssistant({
+        uuid: "worker-b",
+        messageId: "msg-worker",
+        model: "worker-model",
+        effort: "high",
+        requestId: "req-worker",
+        timestamp: "2026-11-14T10:00:02.000Z",
+        usage: workerUsage,
+      })
+      .please(),
   ]);
   runImport(home, root, ["--claude-root", claudeRoot]);
   const history = readImported(home);
@@ -210,7 +179,7 @@ test("imports retained Claude root and explicitly joined worker messages once ac
   assert(own && worker && next && later);
   expect(own).toEqual(
     expect.objectContaining({
-      at,
+      at: usageHistoryDefaultAt,
       lastAt: "2026-11-14T10:00:01.000Z",
       settings: { model: "observed-model", effort: "medium" },
       rootTurnId: "launch-input",

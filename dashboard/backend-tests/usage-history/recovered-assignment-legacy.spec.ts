@@ -1,33 +1,43 @@
 import assert from "node:assert/strict";
 import { rmSync, writeFileSync } from "node:fs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { taskUsage, usageHistoryFile } from "../../server/usageHistory.ts";
+import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  test,
-  expect,
-  response,
-} from "../../tests/usage-history/retainedUsageTest.ts";
-import {
-  at,
-  nativeFile,
   readImported,
   runImport,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
+
 const wrapperAt = "2026-11-14T08:00:00.000Z";
+const pluginWrapper = {
+  type: "response_item",
+  timestamp: wrapperAt,
+  payload: {
+    role: "user",
+    content: [{ text: "<recommended_plugins>context</recommended_plugins>" }],
+  },
+};
+
 test("legacy effective association without candidates survives beside a rejected task when neither response is rescanned", ({
   home,
   root,
 }) => {
   for (const session of ["valid-legacy", "bad-legacy"]) {
-    nativeFile(root, session, [
-      { type: "session_meta", payload: { id: session } },
-      { type: "turn_context", payload: { turn_id: "turn" } },
-      {
-        type: "response_item",
-        timestamp: wrapperAt,
-        payload: { role: "user", content: [{ text: "Do the task" }] },
-      },
-      response(session, "turn", session, { output_tokens: 6 }),
-    ]);
+    writeCodexSession(
+      root,
+      makeMe.aCodexRollout
+        .forSession(session)
+        .withTurnContext("turn")
+        .withRow({
+          type: "response_item",
+          timestamp: wrapperAt,
+          payload: { role: "user", content: [{ text: "Do the task" }] },
+        })
+        .withResponse("turn", session, { output_tokens: 6 })
+        .please(),
+    );
   }
   runImport(home, root);
   const prior = readImported(home);
@@ -48,20 +58,14 @@ test("legacy effective association without candidates survives beside a rejected
   const store = usageHistoryFile(home);
   writeFileSync(store, JSON.stringify(prior));
   rmSync(`${root}/valid-legacy.jsonl`);
-  nativeFile(root, "bad-legacy", [
-    { type: "session_meta", payload: { id: "bad-legacy" } },
-    { type: "turn_context", payload: { turn_id: "turn" } },
-    {
-      type: "response_item",
-      timestamp: wrapperAt,
-      payload: {
-        role: "user",
-        content: [
-          { text: "<recommended_plugins>context</recommended_plugins>" },
-        ],
-      },
-    },
-  ]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("bad-legacy")
+      .withTurnContext("turn")
+      .withRow(pluginWrapper)
+      .please(),
+  );
   runImport(home, root);
   const after = readImported(home);
   expect(after.observations).toEqual(prior.observations);
@@ -79,27 +83,20 @@ test("independent retained assignment sources preserve eligibility when their na
   root,
 }) => {
   const session = "independent-assignment";
-  const meta = { type: "session_meta", payload: { id: session } };
-  const turn = { type: "turn_context", payload: { turn_id: "turn" } };
-  const wrapper = {
-    type: "response_item",
-    timestamp: wrapperAt,
-    payload: {
-      role: "user",
-      content: [{ text: "<recommended_plugins>context</recommended_plugins>" }],
-    },
-  };
-  const file = nativeFile(root, session, [
-    meta,
-    turn,
-    wrapper,
-    {
-      type: "response_item",
-      timestamp: at,
-      payload: { role: "user", content: [{ text: "$dough-slice-planning" }] },
-    },
-    response(session, "turn", "retained", { output_tokens: 8 }),
-  ]);
+  const file = writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession(session)
+      .withTurnContext("turn")
+      .withRow(pluginWrapper)
+      .withRow({
+        type: "response_item",
+        timestamp: usageHistoryDefaultAt,
+        payload: { role: "user", content: [{ text: "$dough-slice-planning" }] },
+      })
+      .withResponse("turn", "retained", { output_tokens: 8 })
+      .please(),
+  );
   runImport(home, root);
   const prior = readImported(home);
   const task = Object.values(prior.tasks)[0];
@@ -115,7 +112,14 @@ test("independent retained assignment sources preserve eligibility when their na
     ],
   };
   writeFileSync(usageHistoryFile(home), JSON.stringify(prior));
-  nativeFile(root, session, [meta, turn, wrapper]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession(session)
+      .withTurnContext("turn")
+      .withRow(pluginWrapper)
+      .please(),
+  );
   runImport(home, root);
   const after = readImported(home);
   expect(after.tasks[task.id]).toMatchObject({

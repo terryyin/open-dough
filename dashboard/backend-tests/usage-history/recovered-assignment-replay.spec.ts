@@ -1,44 +1,45 @@
 import { readFileSync, rmSync } from "node:fs";
 import assert from "node:assert/strict";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import {
   test,
   expect,
-  response,
   launch,
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  at,
-  nativeFile,
+  keepOperationalLaunch,
   readImported,
   runImport,
-  keepOperationalLaunch,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
+
 const wrapperAt = "2026-11-14T08:00:00.000Z";
 const launchAt = "2026-11-14T07:00:00.000Z";
+const wrapper = {
+  type: "response_item",
+  timestamp: wrapperAt,
+  payload: {
+    role: "user",
+    content: [
+      { text: "<recommended_plugins>PRIVATE-PLUGIN</recommended_plugins>" },
+    ],
+  },
+};
+
 test("rejected assignment survives missing inputs, later genuine assignment restores eligibility and launch timing stays authoritative", ({
   home,
   root,
 }) => {
   const session = "replay";
-  const meta = { type: "session_meta", payload: { id: session } };
-  const turn = { type: "turn_context", payload: { turn_id: "turn" } };
-  const wrapper = {
-    type: "response_item",
-    timestamp: wrapperAt,
-    payload: {
-      role: "user",
-      content: [
-        { text: "<recommended_plugins>PRIVATE-PLUGIN</recommended_plugins>" },
-      ],
-    },
-  };
-  nativeFile(root, session, [
-    meta,
-    turn,
-    wrapper,
-    response(session, "turn", "one", { output_tokens: 9 }),
-  ]);
+  const rejected = makeMe.aCodexRollout
+    .forSession(session)
+    .withTurnContext("turn")
+    .withRow(wrapper)
+    .withResponse("turn", "one", { output_tokens: 9 })
+    .please();
+  writeCodexSession(root, rejected);
   runImport(home, root);
   const corrected = readImported(home);
   const task = Object.values(corrected.tasks)[0];
@@ -52,32 +53,38 @@ test("rejected assignment survives missing inputs, later genuine assignment rest
   expect(missing.tasks).toEqual(corrected.tasks);
   expect(missing.observations).toEqual(corrected.observations);
   expect(missing.associations).toEqual(corrected.associations);
-  nativeFile(root, session, [
-    meta,
-    turn,
-    wrapper,
-    {
-      type: "response_item",
-      timestamp: at,
-      payload: {
-        role: "user",
-        content: [
-          {
-            text: "<environment_context>PRIVATE-CONTEXT</environment_context>\nDo this genuine work",
-          },
-        ],
-      },
-    },
-    response(session, "turn", "one", { output_tokens: 9 }),
-  ]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession(session)
+      .withTurnContext("turn")
+      .withRow(wrapper)
+      .withRow({
+        type: "response_item",
+        timestamp: usageHistoryDefaultAt,
+        payload: {
+          role: "user",
+          content: [
+            {
+              text: "<environment_context>PRIVATE-CONTEXT</environment_context>\nDo this genuine work",
+            },
+          ],
+        },
+      })
+      .withResponse("turn", "one", { output_tokens: 9 })
+      .please(),
+  );
   runImport(home, root);
   const supported = readImported(home);
   expect(Object.keys(supported.tasks)).toEqual([task.id]);
   expect(supported.tasks[task.id]).toMatchObject({
-    launchedAt: at,
+    launchedAt: usageHistoryDefaultAt,
     assignmentEvidence: expect.arrayContaining([
       expect.objectContaining({ status: "rejected", at: wrapperAt }),
-      expect.objectContaining({ status: "supported", at }),
+      expect.objectContaining({
+        status: "supported",
+        at: usageHistoryDefaultAt,
+      }),
     ]),
   });
   expect(taskUsage(supported, task.id).tokens.output).toBe(9);

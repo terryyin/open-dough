@@ -2,18 +2,14 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
+import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  expect,
-  test,
-  response,
-} from "../../tests/usage-history/retainedUsageTest.ts";
-import {
-  at,
-  nativeFile,
   readImported,
   runImport,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
 
@@ -26,42 +22,39 @@ test("keeps successive native tasks distinct and enriches the same task with lat
     makeMe.aRepository.withRevision("then", {}).please(),
   );
   const session = "native-turns";
-  const context = {
-    type: "session_meta",
-    payload: { id: session, cwd: repo.integration },
-  };
-  nativeFile(root, session, [
-    context,
-    { type: "turn_context", payload: { turn_id: "first" } },
-    {
-      type: "response_item",
-      timestamp: at,
-      payload: {
-        role: "user",
-        content: [
-          {
-            text: "$dough-slice-planning SEED-404#missing --trunk --skip-retro\nRequested model: desired\nRequested effort: high\nRequested approval policy: never\nRequested sandbox: workspace-write",
-          },
-        ],
-      },
-    },
-    {
-      type: "turn_context",
-      payload: { turn_id: "first", model: "observed", effort: "low" },
-    },
-    response(session, "first", "one", { output_tokens: 3 }),
-    { type: "turn_context", payload: { turn_id: "second" } },
-    {
-      type: "response_item",
-      timestamp: at,
-      origin: { kind: "native" },
-      payload: {
-        role: "user",
-        content: [{ text: "$dough-story-refinement SEED-405#missing" }],
-      },
-    },
-    response(session, "second", "two", { output_tokens: 7 }),
-  ]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession(session)
+      .withCwd(repo.integration)
+      .withTurnContext("first")
+      .withRow({
+        type: "response_item",
+        timestamp: usageHistoryDefaultAt,
+        payload: {
+          role: "user",
+          content: [
+            {
+              text: "$dough-slice-planning SEED-404#missing --trunk --skip-retro\nRequested model: desired\nRequested effort: high\nRequested approval policy: never\nRequested sandbox: workspace-write",
+            },
+          ],
+        },
+      })
+      .withTurnContext("first", "observed", "low")
+      .withResponse("first", "one", { output_tokens: 3 })
+      .withTurnContext("second")
+      .withRow({
+        type: "response_item",
+        timestamp: usageHistoryDefaultAt,
+        origin: { kind: "native" },
+        payload: {
+          role: "user",
+          content: [{ text: "$dough-story-refinement SEED-405#missing" }],
+        },
+      })
+      .withResponse("second", "two", { output_tokens: 7 })
+      .please(),
+  );
   runImport(home, root);
   const initial = readImported(home);
   const first = Object.values(initial.tasks).find(
@@ -94,7 +87,7 @@ test("keeps successive native tasks distinct and enriches the same task with lat
     .executing({ identity: "SEED-404#missing", title: "Corroborated title" })
     .inCodexSession({ sessionId: session })
     .withFirstInput({ state: "confirmed", turnId: "first" })
-    .launchedAt(at)
+    .launchedAt(usageHistoryDefaultAt)
     .please();
   keepLaunchStore(home, { historic: [record] });
   const operational = path.join(
@@ -127,41 +120,38 @@ test("leaves incidental examples and contradictory project joins unknown and exc
   );
   const reference = "ca7430bd-0d52-499d-a1bd-660263c77c12";
   const examples = `Explain this example without running it:\n\`\`\`text\n$dough-execute-plan SEED-8#example\nDashboard reporting context:\n- project: historic\n- host: codex\n- launch reference: ${reference}\n\`\`\`\n$dough-slice-planning SEED-9#also-example`;
-  nativeFile(root, "examples", [
-    {
-      type: "session_meta",
-      payload: { id: "examples", cwd: repo.integration },
-    },
-    { type: "turn_context", payload: { turn_id: "example-turn" } },
-    {
-      type: "response_item",
-      timestamp: at,
-      payload: { role: "user", content: [{ text: examples }] },
-    },
-    response("examples", "example-turn", "example-answer", {
-      output_tokens: 2,
-    }),
-  ]);
-  nativeFile(root, "unrelated", [
-    {
-      type: "session_meta",
-      payload: {
-        id: "unrelated",
-        cwd: repo.integration,
-        git: { repository_url: "git@github.com:other/unrelated.git" },
-      },
-    },
-    { type: "turn_context", payload: { turn_id: "alien" } },
-    {
-      type: "event_msg",
-      timestamp: at,
-      payload: {
-        type: "user_message",
-        message: "$dough-execute-plan SEED-8#example",
-      },
-    },
-    response("unrelated", "alien", "alien-answer", { output_tokens: 999 }),
-  ]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("examples")
+      .withCwd(repo.integration)
+      .withTurnContext("example-turn")
+      .withRow({
+        type: "response_item",
+        timestamp: usageHistoryDefaultAt,
+        payload: { role: "user", content: [{ text: examples }] },
+      })
+      .withResponse("example-turn", "example-answer", { output_tokens: 2 })
+      .please(),
+  );
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("unrelated")
+      .withCwd(repo.integration)
+      .withGit({ repository_url: "git@github.com:other/unrelated.git" })
+      .withTurnContext("alien")
+      .withRow({
+        type: "event_msg",
+        timestamp: usageHistoryDefaultAt,
+        payload: {
+          type: "user_message",
+          message: "$dough-execute-plan SEED-8#example",
+        },
+      })
+      .withResponse("alien", "alien-answer", { output_tokens: 999 })
+      .please(),
+  );
   const report = runImport(home, root);
   expect(report).toEqual(
     expect.objectContaining({

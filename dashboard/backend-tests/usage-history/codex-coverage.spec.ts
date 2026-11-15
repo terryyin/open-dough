@@ -2,13 +2,12 @@
 import assert from "node:assert/strict";
 import { appendFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import {
   expect,
   test,
   launch,
-  meta,
-  response,
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
@@ -16,6 +15,7 @@ import {
   nativeFile,
   readImported,
   runImport,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 
 test("keeps independent responses through damaged files and reports unsupported, missing and incomplete native evidence", ({
@@ -24,53 +24,64 @@ test("keeps independent responses through damaged files and reports unsupported,
 }) => {
   keepOperationalLaunch(home, launch("root", "task"));
   keepRetainedLaunch(home, launch("old", "old-task"));
-  const file = nativeFile(root, "root", [
-    meta("root"),
-    response("root", "task", "valid", { output_tokens: 3 }),
-    {
-      type: "event_msg",
-      payload: {
-        type: "token_count",
-        info: { total_token_usage: { output_tokens: 9000 } },
-      },
-    },
-    {
-      type: "response_item",
-      payload: {
-        type: "function_call",
-        name: "spawn_agent",
-        call_id: "missing-worker",
-      },
-    },
-    {
-      type: "response_item",
-      payload: {
-        type: "function_call_output",
-        call_id: "missing-worker",
-        output: JSON.stringify({ agent_id: "missing-child" }),
-      },
-    },
-  ]);
+  const file = writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("root")
+      .withResponse("task", "valid", { output_tokens: 3 })
+      .withRow({
+        type: "event_msg",
+        payload: {
+          type: "token_count",
+          info: { total_token_usage: { output_tokens: 9000 } },
+        },
+      })
+      .withRow({
+        type: "response_item",
+        payload: {
+          type: "function_call",
+          name: "spawn_agent",
+          call_id: "missing-worker",
+        },
+      })
+      .withRow({
+        type: "response_item",
+        payload: {
+          type: "function_call_output",
+          call_id: "missing-worker",
+          output: JSON.stringify({ agent_id: "missing-child" }),
+        },
+      })
+      .please(),
+  );
   appendFileSync(file, '{"type":"token_usage_record"');
-  nativeFile(root, "old", [
-    meta("old"),
-    {
-      type: "event_msg",
-      payload: {
-        type: "token_count",
-        info: { last_token_usage: { output_tokens: 2000 } },
-      },
-    },
-  ]);
-  nativeFile(path.join(root, "partial"), "root", [
-    response("root", "task", "independent", { output_tokens: 5 }),
-  ]);
-  nativeFile(root, "incomplete-child", [
-    {
-      type: "session_meta",
-      payload: { id: "incomplete-child", parent_thread_id: "root" },
-    },
-  ]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("old")
+      .withRow({
+        type: "event_msg",
+        payload: {
+          type: "token_count",
+          info: { last_token_usage: { output_tokens: 2000 } },
+        },
+      })
+      .please(),
+  );
+  // Partial path with no session_meta: layout and missing metadata under proof.
+  const [independent] = makeMe.aCodexRollout
+    .forSession("root")
+    .withResponse("task", "independent", { output_tokens: 5 })
+    .rows();
+  assert(independent);
+  nativeFile(path.join(root, "partial"), "root", [independent]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("incomplete-child")
+      .withParent("root")
+      .please(),
+  );
   const broken = nativeFile(root, "broken", []);
   writeFileSync(`${broken}.zst`, "not zstd");
   runImport(home, root, ["--codex-root", path.join(home, "absent")]);
@@ -128,23 +139,21 @@ test("refuses contradictory parent lineage instead of charging a worker to a tas
   root,
 }) => {
   keepOperationalLaunch(home, launch("root", "task"));
-  const worker = response("worker", "child-turn", "child", {
-    output_tokens: 99,
-  });
-  worker.payload.root_turn_id = "task";
-  nativeFile(root, "worker", [
-    {
-      type: "session_meta",
-      payload: {
-        id: "worker",
-        parent_thread_id: "root",
-        source: {
-          subagent: { thread_spawn: { parent_thread_id: "different-root" } },
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("worker")
+      .spawnedFrom("root", { spawnParent: "different-root" })
+      .withResponse(
+        "child-turn",
+        "child",
+        { output_tokens: 99 },
+        {
+          rootTurnId: "task",
         },
-      },
-    },
-    worker,
-  ]);
+      )
+      .please(),
+  );
   runImport(home, root);
   const history = readImported(home);
   const [observation] = Object.values(history.observations);

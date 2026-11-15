@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  at,
-  nativeFile,
   readImported,
   runImport,
+  writeClaudeSession,
 } from "../../tests/usage-history/importHarness.ts";
 
 test("imports a long Claude parent chain within bounded memory and retains one response charge with its provenance", ({
@@ -23,7 +23,7 @@ test("imports a long Claude parent chain within bounded memory and retains one r
       title: "Recover long native history",
     })
     .inClaudeSession({ sessionId })
-    .launchedAt(at)
+    .launchedAt(usageHistoryDefaultAt)
     .reportingThrough({
       origin: "http://localhost:4318",
       reference,
@@ -32,36 +32,26 @@ test("imports a long Claude parent chain within bounded memory and retains one r
     .please();
   keepLaunchStore(home, { "open-dough": [launch] });
   const claude = path.join(home, "claude");
-  const rows: object[] = [
-    {
-      type: "user",
-      sessionId,
+  const transcript = makeMe.aClaudeTranscript
+    .forSession(sessionId)
+    .withLaunchInput({
+      reference,
       uuid: "human",
-      parentUuid: null,
-      timestamp: at,
-      message: {
-        content: `Dashboard reporting context:\n- project: open-dough\n- host: claude\n- launch reference: ${reference}\nprivate assignment`,
-      },
-    },
-  ];
-  for (let index = 0; index < 1500; index++)
-    rows.push({
-      type: "assistant",
-      sessionId,
+      suffix: "\nprivate assignment",
+    });
+  for (let index = 0; index < 1500; index++) {
+    transcript.withAssistant({
       uuid: `row-${index}`,
-      parentUuid: index ? `row-${index - 1}` : "human",
-      timestamp: at,
-      message: {
-        id: `response-${index}`,
-        usage: {
-          input_tokens: 1,
-          cache_read_input_tokens: 0,
-          cache_creation_input_tokens: 0,
-          output_tokens: 1,
-        },
+      messageId: `response-${index}`,
+      usage: {
+        input_tokens: 1,
+        cache_read_input_tokens: 0,
+        cache_creation_input_tokens: 0,
+        output_tokens: 1,
       },
     });
-  const file = nativeFile(claude, sessionId, rows);
+  }
+  const file = writeClaudeSession(claude, transcript.please());
   runImport(
     home,
     root,

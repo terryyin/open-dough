@@ -2,34 +2,35 @@ import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  at,
-  nativeFile,
   nodeProcess,
   readImported,
   runImport,
+  writeClaudeSession,
 } from "../../tests/usage-history/importHarness.ts";
 
 const sessionId = "claude-enrichment";
-const row = (uuid: string, output: number, stop?: null | string) => ({
-  type: "assistant",
-  sessionId,
-  uuid,
-  timestamp: at,
-  message: {
-    id: "msg-same",
+
+function assistant(uuid: string, output: number, stop?: null | string) {
+  return {
+    uuid,
+    // Keep these rows unlinked; enrichment cases omit parentUuid.
+    chain: false as const,
+    ...(stop === undefined ? {} : { stopReason: stop }),
+    messageId: "msg-same",
     model: "claude-model",
-    ...(stop === undefined ? {} : { stop_reason: stop }),
     usage: {
       input_tokens: 2,
       cache_read_input_tokens: 20,
       cache_creation_input_tokens: 10,
       output_tokens: output,
     },
-  },
-});
+  };
+}
+
 function keepLaunch(home: string) {
   keepLaunchStore(home, {
     "open-dough": [
@@ -39,11 +40,12 @@ function keepLaunch(home: string) {
           title: "Usage recovery",
         })
         .inClaudeSession({ sessionId })
-        .launchedAt(at)
+        .launchedAt(usageHistoryDefaultAt)
         .please(),
     ],
   });
 }
+
 function observation(home: string) {
   const values = Object.values(readImported(home).observations);
   expect(values).toHaveLength(1);
@@ -58,15 +60,26 @@ test("enriches existing raw measurements in place and keeps terminal evidence ac
 }) => {
   keepLaunch(home);
   const claudeRoot = path.join(home, "claude");
-  nativeFile(claudeRoot, sessionId, [row("partial", 3), row("terminal", 690)]);
+  writeClaudeSession(
+    claudeRoot,
+    makeMe.aClaudeTranscript
+      .forSession(sessionId)
+      .withAssistant(assistant("partial", 3))
+      .withAssistant(assistant("terminal", 690))
+      .please(),
+  );
   runImport(home, root, ["--claude-root", claudeRoot]);
   const legacy = observation(home);
   expect(legacy.tokens.output).toBeNull();
   expect(legacy.gaps).toContain("contradictory-measurements");
-  nativeFile(claudeRoot, sessionId, [
-    row("partial", 3, null),
-    row("terminal", 690, "tool_use"),
-  ]);
+  writeClaudeSession(
+    claudeRoot,
+    makeMe.aClaudeTranscript
+      .forSession(sessionId)
+      .withAssistant(assistant("partial", 3, null))
+      .withAssistant(assistant("terminal", 690, "tool_use"))
+      .please(),
+  );
   runImport(home, root, ["--claude-root", claudeRoot]);
   const enriched = observation(home);
   expect(enriched.tokens.output).toBe(690);
@@ -88,10 +101,14 @@ test("enriches existing raw measurements in place and keeps terminal evidence ac
   );
   expect(observation(home)).toEqual(enriched);
   const copiedRoot = path.join(home, "copied");
-  nativeFile(copiedRoot, sessionId, [
-    row("partial", 3, null),
-    row("terminal", 690, "tool_use"),
-  ]);
+  writeClaudeSession(
+    copiedRoot,
+    makeMe.aClaudeTranscript
+      .forSession(sessionId)
+      .withAssistant(assistant("partial", 3, null))
+      .withAssistant(assistant("terminal", 690, "tool_use"))
+      .please(),
+  );
   runImport(home, root, [
     "--claude-root",
     claudeRoot,
@@ -129,15 +146,23 @@ test("retains unavailable legacy conflicts and changed numeric evidence on the s
 }) => {
   keepLaunch(home);
   const claudeRoot = path.join(home, "claude");
-  nativeFile(claudeRoot, sessionId, [
-    row("unavailable", 3),
-    row("terminal", 8),
-  ]);
+  writeClaudeSession(
+    claudeRoot,
+    makeMe.aClaudeTranscript
+      .forSession(sessionId)
+      .withAssistant(assistant("unavailable", 3))
+      .withAssistant(assistant("terminal", 8))
+      .please(),
+  );
   runImport(home, root, ["--claude-root", claudeRoot]);
-  nativeFile(claudeRoot, sessionId, [
-    { type: "system", sessionId },
-    row("terminal", 690, "tool_use"),
-  ]);
+  writeClaudeSession(
+    claudeRoot,
+    makeMe.aClaudeTranscript
+      .forSession(sessionId)
+      .withRow({ type: "system", sessionId })
+      .withAssistant(assistant("terminal", 690, "tool_use"))
+      .please(),
+  );
   runImport(home, root, ["--claude-root", claudeRoot]);
   const retained = observation(home);
   expect(retained.tokens.output).toBeNull();

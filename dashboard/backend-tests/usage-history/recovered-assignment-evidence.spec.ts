@@ -7,15 +7,11 @@ import {
   usageHistoryFile,
   writeUsageHistory,
 } from "../../server/usageHistory.ts";
+import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  test,
-  expect,
-  response,
-} from "../../tests/usage-history/retainedUsageTest.ts";
-import {
-  nativeFile,
   readImported,
   runImport,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
 
@@ -36,24 +32,28 @@ for (const format of ["legacy", "paged"]) {
         ? "2026-09-15T09:00:00.000Z"
         : "2026-11-14T09:00:00.000Z";
     const session = "injected";
-    const meta = {
-      type: "session_meta",
-      payload: { id: session, cwd: repo.integration },
-    };
-    const turn = { type: "turn_context", payload: { turn_id: "turn" } };
-    const file = nativeFile(root, session, [
-      meta,
-      turn,
-      {
-        type: "response_item",
-        timestamp: injectedAt,
-        payload: { role: "user", content: [{ text: "Do the original task" }] },
-      },
-      response(session, "turn", "absent-from-next-scan", {
-        input_tokens: 13,
-        output_tokens: 7,
-      }),
-    ]);
+    const rollout = () =>
+      makeMe.aCodexRollout
+        .forSession(session)
+        .withCwd(repo.integration)
+        .withTurnContext("turn");
+    const file = writeCodexSession(
+      root,
+      rollout()
+        .withRow({
+          type: "response_item",
+          timestamp: injectedAt,
+          payload: {
+            role: "user",
+            content: [{ text: "Do the original task" }],
+          },
+        })
+        .withResponse("turn", "absent-from-next-scan", {
+          input_tokens: 13,
+          output_tokens: 7,
+        })
+        .please(),
+    );
     runImport(home, root);
     const old = readImported(home);
     const task = Object.values(old.tasks)[0];
@@ -77,15 +77,16 @@ for (const format of ["legacy", "paged"]) {
       writeFileSync(usageHistoryFile(home), JSON.stringify(old));
       await writeUsageHistory({}, usageHistoryFile(home));
     }
-    nativeFile(root, session, [
-      meta,
-      turn,
-      {
-        type: "response_item",
-        timestamp: injectedAt,
-        payload: { role: "user", content: [{ text: wrapper }] },
-      },
-    ]);
+    writeCodexSession(
+      root,
+      rollout()
+        .withRow({
+          type: "response_item",
+          timestamp: injectedAt,
+          payload: { role: "user", content: [{ text: wrapper }] },
+        })
+        .please(),
+    );
     const bytes = readFileSync(file, "utf8");
     const report = runImport(home, root);
     const corrected = readImported(home);

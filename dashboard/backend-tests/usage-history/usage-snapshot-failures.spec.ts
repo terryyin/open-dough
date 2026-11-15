@@ -4,35 +4,40 @@ import { once } from "node:events";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { createInterface } from "node:readline";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
   expect,
   launch,
-  meta,
-  response,
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
-  nativeFile,
   readImported,
   runImport,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 
-for (const failure of ["page", "manifest"]) {
+for (const failure of ["page", "manifest"] as const) {
   test(`${failure} publication failure keeps the previous snapshot readable and retry retains each response once`, ({
     home,
     root,
   }) => {
     keepOperationalLaunch(home, launch("atomic", "turn"));
-    const first = response("atomic", "turn", "one", { output_tokens: 2 });
-    nativeFile(root, "atomic", [meta("atomic"), first]);
+    const first = makeMe.aCodexRollout
+      .forSession("atomic")
+      .withResponse("turn", "one", { output_tokens: 2 })
+      .please();
+    writeCodexSession(root, first);
     runImport(home, root);
     const before = readImported(home);
-    nativeFile(root, "atomic", [
-      meta("atomic"),
-      first,
-      response("atomic", "turn", "two", { output_tokens: 3 }),
-    ]);
+    writeCodexSession(
+      root,
+      makeMe.aCodexRollout
+        .forSession("atomic")
+        .withResponse("turn", "one", { output_tokens: 2 })
+        .withResponse("turn", "two", { output_tokens: 3 })
+        .please(),
+    );
     const preload = `data:text/javascript,${encodeURIComponent(`
       import fs from 'node:fs/promises';
       import { syncBuiltinESMExports } from 'node:module';
@@ -43,7 +48,14 @@ for (const failure of ["page", "manifest"]) {
       };
       syncBuiltinESMExports();
     `)}`;
-    expect(() => runImport(home, root, [], ["--import", preload])).toThrow(
+    let failureResult: { status?: number; stderr?: Buffer } | undefined;
+    try {
+      runImport(home, root, [], ["--import", preload]);
+    } catch (error) {
+      failureResult = error as typeof failureResult;
+    }
+    expect(failureResult?.status).toBe(1);
+    expect(String(failureResult?.stderr)).toContain(
       `injected ${failure} publication failure`,
     );
     expect(readImported(home)).toEqual(before);
@@ -63,6 +75,8 @@ for (const failure of ["page", "manifest"]) {
       Object.values(after.observations).map((item) => item.tokens.output),
     ).toEqual([2, 3]);
     expect(Object.values(after.associations)).toHaveLength(2);
+    runImport(home, root);
+    expect(Object.values(readImported(home).observations)).toHaveLength(2);
   });
 }
 
@@ -71,10 +85,13 @@ test("a reader holding the earlier manifest stays coherent while another process
   root,
 }) => {
   keepOperationalLaunch(home, launch("coherent", "turn"));
-  nativeFile(root, "coherent", [
-    meta("coherent"),
-    response("coherent", "turn", "one", { output_tokens: 2 }),
-  ]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("coherent")
+      .withResponse("turn", "one", { output_tokens: 2 })
+      .please(),
+  );
   runImport(home, root);
   const reader = spawn(
     process.execPath,
@@ -94,11 +111,14 @@ test("a reader holding the earlier manifest stays coherent while another process
   const lines = createInterface({ input: reader.stdout });
   const held = await once(lines, "line");
   expect(held[0]).toBe("held");
-  nativeFile(root, "coherent", [
-    meta("coherent"),
-    response("coherent", "turn", "one", { output_tokens: 2 }),
-    response("coherent", "turn", "two", { output_tokens: 3 }),
-  ]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("coherent")
+      .withResponse("turn", "one", { output_tokens: 2 })
+      .withResponse("turn", "two", { output_tokens: 3 })
+      .please(),
+  );
   runImport(home, root);
   const result = once(lines, "line");
   reader.stdin.end("continue\n");
@@ -123,14 +143,20 @@ test("cross-process writers reconcile accepted updates after waiting for the sha
 }) => {
   keepOperationalLaunch(home, launch("concurrent", "turn"));
   const other = path.join(home, "other-native");
-  nativeFile(root, "concurrent", [
-    meta("concurrent"),
-    response("concurrent", "turn", "one", { output_tokens: 2 }),
-  ]);
-  nativeFile(other, "concurrent", [
-    meta("concurrent"),
-    response("concurrent", "turn", "two", { output_tokens: 3 }),
-  ]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("concurrent")
+      .withResponse("turn", "one", { output_tokens: 2 })
+      .please(),
+  );
+  writeCodexSession(
+    other,
+    makeMe.aCodexRollout
+      .forSession("concurrent")
+      .withResponse("turn", "two", { output_tokens: 3 })
+      .please(),
+  );
   const preload = (source: string) =>
     `data:text/javascript,${encodeURIComponent(source)}`;
   function start(nativeRoot: string, source: string) {

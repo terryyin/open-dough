@@ -3,19 +3,15 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
+import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  expect,
-  test,
-  response,
-} from "../../tests/usage-history/retainedUsageTest.ts";
-import {
-  at,
-  nativeFile,
   readImported,
   runImport,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 
 test("recovers pruned native task facts from historical deleted stories without copying private input or mutating workflow", async ({
@@ -75,40 +71,38 @@ test("recovers pruned native task facts from historical deleted stories without 
     ]),
   );
   const session = "recovered-codex";
-  const file = nativeFile(root, session, [
-    {
-      type: "session_meta",
-      payload: {
-        id: session,
-        cwd: repository.integration,
-        git: {
-          commit_hash: repository.revisions.then,
-          repository_url: "git@github.com:example/historic.git",
+  const file = writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession(session)
+      .withCwd(repository.integration)
+      .withGit({
+        commit_hash: repository.revisions.then,
+        repository_url: "git@github.com:example/historic.git",
+      })
+      .withTurnContext("task-one")
+      .withRow({
+        type: "response_item",
+        timestamp: usageHistoryDefaultAt,
+        payload: {
+          type: "message",
+          role: "user",
+          content: [
+            {
+              type: "input_text",
+              text: `$dough-slice-planning ${plan}\nPRIVATE-PROMPT-MARKER`,
+            },
+          ],
         },
-      },
-    },
-    { type: "turn_context", payload: { turn_id: "task-one" } },
-    {
-      type: "response_item",
-      timestamp: at,
-      payload: {
-        type: "message",
-        role: "user",
-        content: [
-          {
-            type: "input_text",
-            text: `$dough-slice-planning ${plan}\nPRIVATE-PROMPT-MARKER`,
-          },
-        ],
-      },
-    },
-    response(session, "task-one", "answer", {
-      input_tokens: 25,
-      cached_input_tokens: 5,
-      cache_write_input_tokens: 0,
-      output_tokens: 4,
-    }),
-  ]);
+      })
+      .withResponse("task-one", "answer", {
+        input_tokens: 25,
+        cached_input_tokens: 5,
+        cache_write_input_tokens: 0,
+        output_tokens: 4,
+      })
+      .please(),
+  );
   const before = readFileSync(file, "utf8");
   const assignmentFile = path.join(
     repository.integration,
@@ -145,7 +139,7 @@ test("recovers pruned native task facts from historical deleted stories without 
       title: "Historical title",
       host: "codex",
       origin: "unknown",
-      launchedAt: at,
+      launchedAt: usageHistoryDefaultAt,
     }),
   );
   expect(taskUsage(history, task.id).tokens.output).toBe(4);

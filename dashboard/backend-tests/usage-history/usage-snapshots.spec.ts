@@ -3,20 +3,18 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
   expect,
   launch,
-  meta,
-  response,
 } from "../../tests/usage-history/retainedUsageTest.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   keepOperationalLaunch,
-  nativeFile,
   nodeProcess,
   readImported,
   runImport,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 
 const budget = 128 * 1024;
@@ -45,10 +43,13 @@ test("legacy v1 facts migrate without losing evidence and survive removal of nat
     ".open-dough/dashboard/launch-history/usage.json",
   );
   keepOperationalLaunch(home, launch("legacy-native", "legacy-turn"));
-  nativeFile(root, "legacy-native", [
-    meta("legacy-native"),
-    response("legacy-native", "legacy-turn", "prior", { output_tokens: 4 }),
-  ]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("legacy-native")
+      .withResponse("legacy-turn", "prior", { output_tokens: 4 })
+      .please(),
+  );
   runImport(home, root);
   const prior = readImported(home);
   mkdirSync(path.dirname(file), { recursive: true });
@@ -68,10 +69,13 @@ test("legacy v1 facts migrate without losing evidence and survive removal of nat
   );
   expect(readImported(home).tasks.legacy?.title).toBe("Retained title");
   keepOperationalLaunch(home, launch("new-session", "turn"));
-  nativeFile(root, "new-session", [
-    meta("new-session"),
-    response("new-session", "turn", "one", { output_tokens: 7 }),
-  ]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("new-session")
+      .withResponse("turn", "one", { output_tokens: 7 })
+      .please(),
+  );
   runImport(home, root);
   const after = readImported(home);
   expect(after.tasks.legacy).toMatchObject({
@@ -102,17 +106,16 @@ test("actual import and fresh export retain all records when whole-history strin
   root,
 }) => {
   keepOperationalLaunch(home, launch("bounded", "turn"));
-  nativeFile(root, "bounded", [
-    meta("bounded"),
-    ...[...Array<number>(300).keys()].map((index) =>
-      response("bounded", "turn", `response-${index}`, {
-        input_tokens: 10,
-        cached_input_tokens: 0,
-        cache_write_input_tokens: 0,
-        output_tokens: 3,
-      }),
-    ),
-  ]);
+  const rollout = makeMe.aCodexRollout.forSession("bounded");
+  for (const index of [...Array<number>(300).keys()]) {
+    rollout.withResponse("turn", `response-${index}`, {
+      input_tokens: 10,
+      cached_input_tokens: 0,
+      cache_write_input_tokens: 0,
+      output_tokens: 3,
+    });
+  }
+  writeCodexSession(root, rollout.please());
   runImport(home, root, [], ["--import", boundedCodec]);
   const output = execFileSync(
     process.execPath,

@@ -2,21 +2,19 @@
 import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import path from "node:path";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   expect,
   test,
   launch,
-  meta,
-  context,
-  response,
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
   keepRetainedLaunch,
-  nativeFile,
   nodeProcess,
   readImported,
   runImport,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 
 test.describe("retained launch usage import", () => {
@@ -26,34 +24,40 @@ test.describe("retained launch usage import", () => {
   }) => {
     keepOperationalLaunch(home, launch("root-one", "turn-one"));
     keepRetainedLaunch(home, launch("root-two", "turn-two"));
-    const first = response("root-one", "turn-one", "response-one", {
+    const firstUsage = {
       input_tokens: 100,
       cached_input_tokens: 60,
       cache_write_input_tokens: 10,
       output_tokens: 7,
       reasoning_output_tokens: 3,
       total_tokens: 107,
-    });
-    nativeFile(root, "root-one", [
-      meta("root-one"),
-      context("turn-one", "observed-a", "low"),
-      first,
-      first,
-      context("turn-one", "observed-b", "xhigh"),
-      response("root-one", "turn-one", "response-two", {
-        input_tokens: 20,
-        cached_input_tokens: 10,
-        cache_write_input_tokens: 0,
-        output_tokens: 0,
-      }),
-    ]);
-    nativeFile(root, "root-two", [
-      meta("root-two"),
-      response("root-two", "turn-two", "partial", {
-        input_tokens: 50,
-        output_tokens: 2,
-      }),
-    ]);
+    };
+    writeCodexSession(
+      root,
+      makeMe.aCodexRollout
+        .forSession("root-one")
+        .withTurnContext("turn-one", "observed-a", "low")
+        .withResponse("turn-one", "response-one", firstUsage)
+        .withResponse("turn-one", "response-one", firstUsage)
+        .withTurnContext("turn-one", "observed-b", "xhigh")
+        .withResponse("turn-one", "response-two", {
+          input_tokens: 20,
+          cached_input_tokens: 10,
+          cache_write_input_tokens: 0,
+          output_tokens: 0,
+        })
+        .please(),
+    );
+    writeCodexSession(
+      root,
+      makeMe.aCodexRollout
+        .forSession("root-two")
+        .withResponse("turn-two", "partial", {
+          input_tokens: 50,
+          output_tokens: 2,
+        })
+        .please(),
+    );
     runImport(home, root);
     const stored = readImported(home);
     const tasks = Object.values(stored.tasks);
@@ -148,7 +152,10 @@ test.describe("retained launch usage import", () => {
     root,
   }) => {
     keepOperationalLaunch(home, launch("missing", "turn"));
-    nativeFile(root, "missing", [meta("missing")]);
+    writeCodexSession(
+      root,
+      makeMe.aCodexRollout.forSession("missing").please(),
+    );
     runImport(home, root);
     const before = readImported(home);
     expect(before.gaps).toEqual(
@@ -173,10 +180,13 @@ test.describe("retained launch usage import", () => {
         tokens: expect.objectContaining({ output: null }),
       }),
     );
-    nativeFile(root, "missing", [
-      meta("missing"),
-      response("missing", "turn", "one", { output_tokens: 0 }),
-    ]);
+    writeCodexSession(
+      root,
+      makeMe.aCodexRollout
+        .forSession("missing")
+        .withResponse("turn", "one", { output_tokens: 0 })
+        .please(),
+    );
     runImport(home, root);
     const after = readImported(home);
     expect(
