@@ -182,28 +182,30 @@ reopen → presentation and real-boundary attach/Board outcomes remain protected
 these interim specs go. Multi-project machine fixtures only; no association
 family yet. Mechanical E2E for reopen, paging-board and navigation.
 
-### 3. Convert recently-done select, review-cue and association
+### 3. Convert recently-done select and association
 Type: Behavior
 Status: planned
 Proof: `recently-done-sessions-select{,-touch,-development,-check,-supersede,-ad-hoc-check}`
-and `…-review-cue{,-races,-evidence}` (~9 specs) retain Intent select/Open,
-association check holds/fails/supersede, and review-cue races/evidence.
-Behavior: select a Done session or observe a review cue → controlled
-association/review-state answers or real ad-hoc journeys → the same UI and
-workflow outcomes remain protected; these interim specs go. Own new
-`frontendCompletedStoryAssociation` and `frontendStoryReviewState` modules;
-keep ad-hoc/store in existing E2E/Backend.
+(~6 specs) retain Intent select/Open, association check holds/fails/supersede
+and related touch/development/ad-hoc outcomes.
+Behavior: select a Done session → controlled association answers or real
+ad-hoc journeys → the same UI and workflow outcomes remain protected; these
+interim specs go. Own one new `frontendCompletedStoryAssociation` module (one
+new Frontend family only); keep ad-hoc/store in existing E2E/Backend. Review-cue
+moves to slice 4 so this slice stays within one-family budget.
 
-### 4. Convert recently-done story card, active and returned sessions
+### 4. Convert recently-done story card, returned sessions and review-cue
 Type: Behavior
 Status: planned
-Proof: `recently-done-story-sessions`, `recently-done-active-story-sessions`
-and inventory-absent `recently-done-returned-sessions` (~3 / ~452) retain
-card nesting, active/closed ownership, column paging and returned-to-backlog
-reopen.
-Behavior: Done or returned sessions on a story card → nest, page or reopen →
-the same nesting and native restore outcomes remain protected; these three
-interim specs go. Completes the recently-done sessions conversion.
+Proof: `recently-done-story-sessions`, `recently-done-active-story-sessions`,
+inventory-absent `recently-done-returned-sessions`, and
+`…-review-cue{,-races,-evidence}` (~6 specs) retain card nesting,
+active/closed ownership, column paging, returned-to-backlog reopen, and
+review-cue races/evidence.
+Behavior: Done, returned or review-cued sessions → nest, page, reopen or show
+cue → the same nesting, native restore and cue outcomes remain protected;
+these interim specs go. Own one new `frontendStoryReviewState` module.
+Completes the recently-done sessions conversion.
 
 ### 5. Convert the sessions sidebar
 Type: Behavior
@@ -278,7 +280,8 @@ specs / 15,907 lines (sessions 41 / 6,145; terminals 14 / 2,584; review
 16 / 2,426; stories 31 / 4,752; observation 7 / 1,168). After the slice-2
 overrun refinement the plan has ten slices (execution in-progress split
 allowance). Slice 1 delivered the report-result family and support split;
-slice 3 owns the association and review-state families; slice 7 keeps actual
+slice 3 owns only the association family; slice 4 owns only the review-state
+family (preemptive one-family split before dispatch); slice 7 keeps actual
 Git work outside Frontend. If a further slice overruns, apply the
 [oversized-slice procedure](../../../.agents/skills/dough-execute-plan/references/oversized-slice.md)
 and reassess the story boundary before another slice-only refinement (second
