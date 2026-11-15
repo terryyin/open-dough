@@ -11,7 +11,7 @@
 // and ../../backend-tests/intent/landed-ci-history-gaps.spec.ts, the store's
 // bound in ../../backend-tests/intent/landed-ci-history-window.spec.ts, and
 // a history whose landings are all gaps in
-// ./intent-ci-wall-time-history-gaps.spec.ts.
+// ../../frontend-tests/intent/intent-ci-wall-time-history-gaps.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";

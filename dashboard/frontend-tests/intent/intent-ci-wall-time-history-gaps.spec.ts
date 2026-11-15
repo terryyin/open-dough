@@ -1,20 +1,19 @@
 // Project Intent's CI time without runner waits history in CI status
-// (../../src/IntentCiHistory.tsx) when every landing the history keeps is a
-// gap: it says none is measured yet and draws no chart, and lists each gap
-// with its reason, as not yet or as never, and the build the CI timing
-// comparison's Landed rule named for its landing -- its own cancelled build,
-// or the equivalent or later trunk build whose CI proof expired, could not
-// be read, was never published or has not been read yet -- linked to its
+// (../../src/IntentCiHistory.tsx) when every landing the history answer
+// holds is a gap: it says none is measured yet and draws no chart, and lists
+// each gap with its reason, as not yet or as never, and the build the CI
+// timing comparison's Landed rule named for its landing -- its own cancelled
+// build, or the equivalent or later trunk build whose CI proof expired, could
+// not be read, was never published or has not been read yet -- linked to its
 // run, which a phone reader reaches by keyboard
-// (SEED-285#see-landed-ci-wall-time-history). The history is the one this
-// machine's dashboards keep, as collection leaves it; collection names those
-// builds in ../../backend-tests/intent/landed-ci-history-gaps.spec.ts and
-// ../../backend-tests/intent/landed-ci-history-pending-proof.spec.ts. Gaps
-// among measured builds are in ./intent-ci-wall-time-history-window.spec.ts.
+// (SEED-285#see-landed-ci-wall-time-history). Which build collection names
+// for each landing is
+// ../../backend-tests/intent/landed-ci-history-gaps.spec.ts and
+// ../../backend-tests/intent/landed-ci-history-pending-proof.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { expect, test } from "../dashboardTest.ts";
+import { parts } from "../../tests/dashboardPage.ts";
 import {
   buildEvidenceRows,
   buildHistoryReading,
@@ -22,22 +21,25 @@ import {
   evidenceByKeyboard,
   expectLinksByKeyboard,
   historyOf,
-  openJudgedCiStatus,
   runLink,
-} from "../intentCiHistoryPage.ts";
-import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
-import { keepLandedCiHistory } from "../support/landedCiHistory.ts";
+} from "../../tests/intentCiHistoryPage.ts";
+import { chooseCiStatus } from "../../tests/intentCiStatusPage.ts";
+import { expectNoSidewaysScrollIn } from "../../tests/pageLayout.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { serveFrontendCiHistory } from "../../tests/support/frontendCiHistoryAnswers.ts";
+import {
+  judgedCiStatus,
+  serveFrontendCiStatus,
+} from "../../tests/support/frontendCiStatusAnswers.ts";
 
 // The day `n` days after Oct 1, at noon, when its landing was recorded.
 const day = (n: number) =>
   Date.parse("2026-10-01T12:00:00Z") + n * 24 * 60 * 60_000;
 const at = (ms: number) => new Date(ms).toISOString();
-const receiptOf = (n: number) =>
-  `cccccccc-0000-4000-8000-${String(n).padStart(12, "0")}`;
 
 test("a history whose recorded landings are all gaps says none is measured yet, draws no chart, and lists each gap with its reason and the build it names, each run link reached by keyboard on a phone", async ({
   page,
-  dashboard,
 }) => {
   // One landing a day, oldest first: CI never built it; its own build was
   // cancelled; a skip whose equivalent build's CI proof expired; a cancelled
@@ -45,15 +47,12 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
   // whose equivalent build published no CI proof; a skip whose equivalent
   // build's CI proof has not been read yet; and one with no CI run yet.
   const landingOf = (n: number) => ({
-    receipt: receiptOf(n),
     revision: `e${String(n)}`.repeat(20),
     receivedAt: at(day(n)),
   });
-  await keepLandedCiHistory(
-    dashboard.home,
-    makeMe.aLandedCiHistory
-      // Synthetic retained positions, independent of receipt dates.
-      .inTrunkOrder([0, 1, 2, 3, 4, 5, 6].map((n) => landingOf(n).revision))
+  await serveFrontendCiHistory(
+    page,
+    makeMe.aCiHistoryAnswer
       .unmeasuredLanding({ ...landingOf(0), reason: "no-build" })
       .unmeasuredLanding({
         ...landingOf(1),
@@ -87,8 +86,12 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
       .pendingLanding({ ...landingOf(6), waitsFor: "run" })
       .please(),
   );
+  await serveFrontendCiStatus(page, {
+    main: judgedCiStatus("main", "pass", "4774f60", "Add login"),
+  });
   await page.setViewportSize({ width: 390, height: 844 });
-  const panel = await openJudgedCiStatus(page);
+  await openUntilRead(page, "/?project=open-dough&perspective=intent");
+  const panel = await chooseCiStatus(parts(page).intent);
   const shown = historyOf(panel);
 
   await expect(buildHistoryReading(shown).heading).toHaveText(

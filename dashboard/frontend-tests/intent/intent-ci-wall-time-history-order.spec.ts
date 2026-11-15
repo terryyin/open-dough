@@ -1,22 +1,32 @@
-// Accepted ancestry and actual build dates remain independent in history.
+// Project Intent's CI time without runner waits history in CI status
+// (../../src/IntentCiHistory.tsx) keeps the order the history answer gives
+// its landings while build dates run the other way: the measured span uses
+// the actual earliest and latest build dates, each row keeps its own date,
+// and no stroke joins the two builds across the gap between them. The
+// Backend's accepted landing order, independent of receipt and build dates,
+// is ../../../Distribution/tests/support/landed-ci-history-reading-order.test.mjs.
+
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { expect, test } from "../dashboardTest.ts";
+import { parts } from "../../tests/dashboardPage.ts";
 import {
   buildHistoryReading,
-  showBuildHistoryEvidence,
   chartOf,
   dayWords,
-} from "../intentCiHistoryPage.ts";
-import { keepLandedCiHistory } from "../support/landedCiHistory.ts";
-import { openCiStatus } from "../support/ciHistoryWindowPage.ts";
-
-const receiptOf = (n: number) =>
-  `cccccccc-0000-4000-8000-${String(n).padStart(12, "0")}`;
+  historyOf,
+  showBuildHistoryEvidence,
+} from "../../tests/intentCiHistoryPage.ts";
+import { chooseCiStatus } from "../../tests/intentCiStatusPage.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { serveFrontendCiHistory } from "../../tests/support/frontendCiHistoryAnswers.ts";
+import {
+  judgedCiStatus,
+  serveFrontendCiStatus,
+} from "../../tests/support/frontendCiStatusAnswers.ts";
 
 test("accepted landing order keeps a middle gap while reversed build dates retain their labels and true measured date span", async ({
   page,
-  dashboard,
 }) => {
   const a = "a1".repeat(20);
   const b = "b2".repeat(20);
@@ -24,37 +34,33 @@ test("accepted landing order keeps a middle gap while reversed build dates retai
   const aStart = "2026-11-09T10:00:00Z";
   const cStart = "2026-11-05T10:00:00Z";
   const gapAt = "2026-11-30T10:00:00Z";
-  await keepLandedCiHistory(
-    dashboard.home,
-    makeMe.aLandedCiHistory
-      .inTrunkOrder([a, b, c])
-      .measuredLanding({
-        receipt: receiptOf(201),
+  await serveFrontendCiHistory(
+    page,
+    makeMe.aCiHistoryAnswer
+      .measuredBuild({
         revision: a,
-        receivedAt: "2026-11-03T10:00:00Z",
         runId: 211,
         startedAt: aStart,
         completedAt: "2026-11-09T10:06:05Z",
+        receivedAt: "2026-11-03T10:00:00Z",
       })
-      .unmeasuredLanding({
-        receipt: receiptOf(202),
-        revision: b,
-        receivedAt: gapAt,
-        reason: "no-build",
-      })
-      .measuredLanding({
-        receipt: receiptOf(203),
+      .unmeasuredLanding({ revision: b, receivedAt: gapAt, reason: "no-build" })
+      .measuredBuild({
         revision: c,
-        receivedAt: "2026-11-01T10:00:00Z",
         runId: 213,
         startedAt: cStart,
         completedAt: "2026-11-05T10:03:00Z",
+        receivedAt: "2026-11-01T10:00:00Z",
       })
       .please(),
   );
-  const shown = await openCiStatus(page);
+  await serveFrontendCiStatus(page, {
+    main: judgedCiStatus("main", "pass", "4774f60", "Add login"),
+  });
+  await openUntilRead(page, "/?project=open-dough&perspective=intent");
+  const shown = historyOf(await chooseCiStatus(parts(page).intent));
 
-  // The evidence and latest measurement follow accepted landings. The
+  // The evidence and latest measurement follow the answer's order. The
   // measured span independently uses the actual minimum and maximum dates.
   const heading = buildHistoryReading(shown).heading;
   await expect(heading).toHaveText(

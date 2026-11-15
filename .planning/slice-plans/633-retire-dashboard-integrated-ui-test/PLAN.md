@@ -134,7 +134,7 @@ than adding a second proof family.
 
 ### 3. Preserve CI wall-time history order and gaps
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-ci-wall-time-history-order` and `-gaps` (2 / 211): accepted
 order with a middle gap, reversed build-date labels and true span; gap-only
 history wording, evidence rows, keyboard run links and phone width.
@@ -146,6 +146,12 @@ Order service-side home: `Distribution/tests/support/landed-ci-history-reading-o
 (verified). Before citing `landed-ci-history-gaps`/`-pending-proof` for which
 builds collection names, inspect their assertions. Scratch-break the gap
 rendering in `dashboard/src/IntentCiHistory*` in old and new homes.
+Accepted: FE `intent-ci-wall-time-history-{order,gaps}.spec.ts` with family
+`serveFrontendCiHistory` and builder `makeMe.aCiHistoryAnswer`
+(`Distribution/tests/support/ciHistoryAnswerTestData.mjs`). Gap-naming homes
+verified in `landed-ci-history-gaps.spec.ts`/`-pending-proof.spec.ts`. Removing
+`GapEvidence`'s run link failed old and new gaps homes; restored, both passed.
+`ciHistoryWindowPage.ts` removed with its last consumer. Integrated: 104 files.
 
 ### 4. Preserve CI wall-time history window and selected run
 Type: Behavior
@@ -159,7 +165,7 @@ family and `openFrontendRunProof`. Add one Backend case reading a stored 35-buil
 history with an older gap (`windowLandings` in `server/landedCiMeasuredBuilds.ts`):
 newest 20 plus gaps among/after them, older gap dropped. Verify the collection
 `timeMs` home (`landed-ci-history-time-without-runner-waits`/`-collection`) before
-citing it. Remove `ciHistoryWindowPage.ts` if no consumer remains.
+citing it.
 
 ### 5. Preserve scope timing history and its gaps
 Type: Behavior

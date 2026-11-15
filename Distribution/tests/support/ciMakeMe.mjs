@@ -14,6 +14,7 @@ import {
   CiTimingJobBuilder,
 } from "./ciTimingTestData.mjs";
 import { LandedCiHistoryBuilder } from "./landedCiHistoryTestData.mjs";
+import { CiHistoryAnswerBuilder } from "./ciHistoryAnswerTestData.mjs";
 import { CiProofBuilder } from "./ciProofTestData.mjs";
 import { LandedCiResolutionBuilder } from "./landedCiProofTestData.mjs";
 import {
@@ -63,6 +64,7 @@ import { copyFacts } from "./factBuilder.mjs";
  * @property {FactBuilder<import("./ciQueueTestData.mjs").CiAdapterQueueEntry>} aCiQueueEntry
  * @property {FactBuilder<import("./ciRevisionCoverageTestData.mjs").RevisionCoverageRecord>} aRevisionCoverage
  * @property {import("./landedCiHistoryTestData.mjs").LandedCiHistoryBuilder} aLandedCiHistory
+ * @property {import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerBuilder} aCiHistoryAnswer
  * @property {import("./ciRunTestData.mjs").CiRunBuilder} aCiRun
  * @property {import("./ciJobTestData.mjs").GitHubJobBuilder} aGitHubJob
  * @property {import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe["aCiReusePolicy"]} aCiReusePolicy
@@ -215,6 +217,12 @@ export function ciMakeMeProperties() {
       enumerable: true,
       get() {
         return new LandedCiHistoryBuilder();
+      },
+    },
+    aCiHistoryAnswer: {
+      enumerable: true,
+      get() {
+        return new CiHistoryAnswerBuilder();
       },
     },
     aCiRun: {

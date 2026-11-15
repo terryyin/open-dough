@@ -19,7 +19,7 @@
 // answer is in ./landed-ci-history-pending-proof.spec.ts; a landing CI never
 // built is a No build gap in ./landed-ci-history-pending.spec.ts; how
 // Project Intent shows these gaps is in
-// ../../tests/intent/intent-ci-wall-time-history-gaps.spec.ts and the
+// ../../frontend-tests/intent/intent-ci-wall-time-history-gaps.spec.ts and the
 // journeys beside it.
 
 import path from "node:path";
