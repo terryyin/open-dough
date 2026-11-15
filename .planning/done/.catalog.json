@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-373_swipe-between-story-board-columns.json",
+      "identity": "SEED-373#swipe-between-story-board-columns",
+      "completedAt": "2026-11-15T12:51:17.873Z",
+      "blob": "0d4071b87c29805e66b440ec7ddef3382aa46d60"
+    },
+    {
       "fileName": "SEED-364_chart-ci-time-without-runner-waits.json",
       "identity": "SEED-364#chart-ci-time-without-runner-waits",
       "completedAt": "2026-11-15T11:07:49.240Z",
