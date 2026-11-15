@@ -1,5 +1,6 @@
 // The review state journeys of Recently done's done story cards
-// (./stories/recently-done-review-state*.spec.ts): three done stories
+// (../../frontend-tests/stories/recently-done-review-state*.spec.ts and
+// ../../e2e/stories/recently-done-review-state-*.spec.ts): three done stories
 // completed on another machine and published on the private origin's trunk,
 // none of them ever run here; a card's Story actions with its review state;
 // and what this machine keeps of that state, and of the story review's
@@ -9,7 +10,10 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { doneRecordPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import {
+  doneRecordFileName,
+  doneRecordPath,
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { showColumn } from "./boardPage.ts";
 import {
   expectControlContrast,
@@ -41,8 +45,23 @@ export const doneStories = [storyC, storyA, storyB];
 
 const hour = 60 * 60 * 1000;
 
-// Publishes the three stories' done records on the origin's trunk, completed
-// an hour apart before `now` by a developer on another machine, and serves
+// The three stories' done records completed an hour apart before `now` by a
+// developer on another machine — shared by origin publish and Frontend arrange.
+export function boardReviewDoneRecords(now = Date.now()) {
+  return doneStories.map((story, index) =>
+    makeMe.aDoneRecord
+      .with({
+        ...story,
+        completedAt: new Date(now - (index + 1) * hour).toISOString(),
+        developer: "Terry Yin",
+        agent: "Akiho-chan",
+        host: "codex",
+      })
+      .please(),
+  );
+}
+
+// Publishes the three stories' done records on the origin's trunk and serves
 // that trunk to the page. The page is not opened yet.
 export async function publishDoneStories(
   page: Page,
@@ -51,17 +70,7 @@ export async function publishDoneStories(
 ) {
   const revision = await origin.publishRevision({
     message: "Complete three stories elsewhere",
-    doneRecords: doneStories.map((story, index) =>
-      makeMe.aDoneRecord
-        .with({
-          ...story,
-          completedAt: new Date(now - (index + 1) * hour).toISOString(),
-          developer: "Terry Yin",
-          agent: "Akiho-chan",
-          host: "codex",
-        })
-        .please(),
-    ),
+    doneRecords: boardReviewDoneRecords(now),
   });
   return publishCommittedOrigin(page, {
     repoDir: origin.origin,
@@ -69,6 +78,10 @@ export async function publishDoneStories(
     repository: "terryyin/open-dough",
   });
 }
+
+// Done-record file name as authenticated `done=bodies` asks it.
+export const recordFileOf = (story: Story) =>
+  doneRecordFileName(story.identity);
 
 // Where a story's done record is published.
 export const recordPathOf = (story: Story) =>

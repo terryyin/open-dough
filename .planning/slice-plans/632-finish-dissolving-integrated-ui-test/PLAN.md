@@ -153,6 +153,12 @@ share local admission across worktrees; focused selections remain independent.
   `frontendStoryReview{,.Fixtures,.Open,.Routes}` (≤250). Interim
   `dashboard/tests/review/` empty (5c/6e/7/28a–c). Git races and soft
   repository work stay E2E; controlled mark/snapshot/range/UI on FE.
+- **Slice 8 proof.** FE board review-cue/state/offer (7); E2E progressive-*
+  (10), read-latency, review-state-refresh (25). Support:
+  `frontendDoneBodyReads`, `frontendRecentlyDoneBoardReview`; shared
+  `boardReviewDoneRecords`. Progressive `recordsAsked(github)` stays E2E;
+  body hold/fail needs `prepare` before `goto`. Interim stories
+  `recently-done-*` removed.
 - **Known traps.** A `MachineAnswer` failing `launchRecordsSchema` leaves the
   page on "Reading sessions…" silently; Cursor entries need the Cursor runner
   sessions read substituted; a history read needs its own `audience=history`
@@ -267,7 +273,7 @@ or representative E2E journeys.
 
 ### 8. Convert progressive done reading and review state on the board
 Type: Behavior
-Status: planned
+Status: done
 Proof: the 14 `dashboard/tests/stories/recently-done-*` specs (14 / 2,158)
 retain progressive loading/navigation/refresh/reset/state, added-project,
 failed-read refresh, read latency and review cue/state/offer assertions.

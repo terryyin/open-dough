@@ -1,20 +1,26 @@
 // A held done record leaves Taken facts readable and keeps the done card's
 // place. The wait bound distinguishes a record read from a catalog read.
-import { expect, test } from "../dashboardTest.ts";
-import { credit } from "../agentCredit.ts";
-import { columnCountOf, storyCardSessions } from "../dashboardPage.ts";
-import { sliceBar } from "../storyCardFacts.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { credit } from "../../dashboard/tests/agentCredit.ts";
+import {
+  columnCountOf,
+  storyCardSessions,
+} from "../../dashboard/tests/dashboardPage.ts";
+import { sliceBar } from "../../dashboard/tests/storyCardFacts.ts";
 import {
   adHocEntry,
   expectEntries,
   queuedEntry,
-} from "../recentlyDoneColumn.ts";
-import { executed, removedQueued } from "../recentlyDoneRecords.ts";
+} from "../../dashboard/tests/recentlyDoneColumn.ts";
+import {
+  executed,
+  removedQueued,
+} from "../../dashboard/tests/recentlyDoneRecords.ts";
 import {
   isHeldCatalog,
   openedWithHeldDoneRecord,
-} from "./recentlyDoneReadLatencyFixture.ts";
-import { openTerminalControl } from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/recentlyDoneReadLatencyFixture.ts";
+import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
 
 test("a slow done-record read never holds back a Taken card's owner, preparation, or clock, and done cards fill in when it answers", async ({
   page,

@@ -14,25 +14,41 @@
 // sessions. The local read boundary and the page decide everything shown,
 // and the `gh` calls reaching the fake GitHub show which records were read.
 
-import { expect, githubFor, test } from "../dashboardTest.ts";
+import {
+  expect,
+  githubFor,
+  test,
+} from "../../dashboard/tests/dashboardTest.ts";
 import {
   columnPagingControl,
   rem,
   showColumn,
   wheelToBoardEnd,
-} from "../boardPage.ts";
-import { columnCountOf, storyCardSessions } from "../dashboardPage.ts";
-import { expectEntries, revealAction } from "../recentlyDoneColumn.ts";
-import { noConnection } from "../originAnswers.ts";
-import { answeringFirst, holdingAnswer } from "../support/heldGitHubAnswer.ts";
-import { entryName, progressiveEntries } from "../recentlyDoneProgressive.ts";
+} from "../../dashboard/tests/boardPage.ts";
+import {
+  columnCountOf,
+  storyCardSessions,
+} from "../../dashboard/tests/dashboardPage.ts";
+import {
+  expectEntries,
+  revealAction,
+} from "../../dashboard/tests/recentlyDoneColumn.ts";
+import { noConnection } from "../../dashboard/tests/originAnswers.ts";
+import {
+  answeringFirst,
+  holdingAnswer,
+} from "../../dashboard/tests/support/heldGitHubAnswer.ts";
+import {
+  entryName,
+  progressiveEntries,
+} from "../../dashboard/tests/recentlyDoneProgressive.ts";
 import {
   isRecord,
   opened,
   recordsAsked,
   standing,
   untilPageRests,
-} from "../recentlyDoneProgressivePage.ts";
+} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
 
 // 35 entries: seven ad hoc sessions marked done among 28 done stories; the
 // story fourth in the list holds three sessions marked done.

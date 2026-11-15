@@ -9,9 +9,9 @@
 // checkout.
 
 import type { Page } from "@playwright/test";
-import { agentLaunchEndpoint } from "../../src/launchRequest.ts";
-import { parts } from "../dashboardPage.ts";
-import { expectEntries } from "../recentlyDoneColumn.ts";
+import { agentLaunchEndpoint } from "../../dashboard/src/launchRequest.ts";
+import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { expectEntries } from "../../dashboard/tests/recentlyDoneColumn.ts";
 import {
   entryName,
   keepProgressiveSessions,
@@ -19,28 +19,28 @@ import {
   publishedWithCatalog,
   repository,
   revision,
-} from "../recentlyDoneProgressive.ts";
+} from "../../dashboard/tests/recentlyDoneProgressive.ts";
 import {
   recordsAsked,
   untilPageRests,
-} from "../recentlyDoneProgressivePage.ts";
-import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
+} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
+import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
 import {
   entries,
   firstTen,
   shownWithoutSessions,
   storiesOf,
   thirteenth,
-} from "../recentlyDoneSessionPlaced.ts";
-import { holdSessionReads } from "../sessionStatePace.ts";
-import { expect, test } from "../support/pageTest.ts";
-import { publishes } from "../support/fakeGitHub.ts";
+} from "../../dashboard/tests/recentlyDoneSessionPlaced.ts";
+import { holdSessionReads } from "../../dashboard/tests/sessionStatePace.ts";
+import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
+import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
 import {
   addedRepository,
   addedRevision,
   projectAddMachine,
-} from "../support/projectAddMachine.ts";
-import { addProjectThroughDialog } from "../support/projectAddPage.ts";
+} from "../../dashboard/tests/support/projectAddMachine.ts";
+import { addProjectThroughDialog } from "../../dashboard/tests/support/projectAddPage.ts";
 
 // The first project's list: three stories, no sessions.
 const first = progressiveEntries(3, []);

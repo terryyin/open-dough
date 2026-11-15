@@ -4,12 +4,9 @@
 # Include: integrated.longest-first-agents
 # Include: integrated.longest-first-project
 # Source: run 43575040009/1 at 55da0eecf6803945b66d5a23b00dd7802374550d, 2026-11-14 (runner factor 0.669)
-26.0	tests/stories/recently-done-review-state.spec.ts
-14.5	tests/stories/recently-done-review-state-offer.spec.ts
 14.2	tests/intent/intent-source-target-recovery.spec.ts
 13.9	tests/intent/intent-scope-glance.spec.ts
 13.5	tests/intent/intent-story-dark-appearance.spec.ts
-10.9	tests/stories/recently-done-review-cue.spec.ts
 9.0	tests/intent/intent-code-browse-java.spec.ts
 8.4	tests/intent/intent-ci-proof-grouped-location.spec.ts
 7.3	tests/intent/intent-ci-proof-accessibility.spec.ts

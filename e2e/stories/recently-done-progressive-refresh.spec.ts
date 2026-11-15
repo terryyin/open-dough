@@ -12,22 +12,27 @@
 // reaching the fake GitHub show which records were read, and at which
 // revision.
 
-import { expect, test } from "../dashboardTest.ts";
-import { bottomOf, rem, scrollYOf, wheelToBoardEnd } from "../boardPage.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  bottomOf,
+  rem,
+  scrollYOf,
+  wheelToBoardEnd,
+} from "../../dashboard/tests/boardPage.ts";
 import {
   expectEntries,
   revealAction,
   shownEntries,
-} from "../recentlyDoneColumn.ts";
+} from "../../dashboard/tests/recentlyDoneColumn.ts";
 import {
   entryName,
   type ProgressiveEntry,
-} from "../recentlyDoneProgressive.ts";
+} from "../../dashboard/tests/recentlyDoneProgressive.ts";
 import {
   opened,
   recordsAsked,
   untilPageRests,
-} from "../recentlyDoneProgressivePage.ts";
+} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
 import {
   destination,
   entries,
@@ -35,7 +40,7 @@ import {
   names,
   openedWithHeldStory,
   storiesThrough,
-} from "../recentlyDoneProgressiveJourney.ts";
+} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
 import {
   laterStory,
   movingMain,
@@ -45,7 +50,7 @@ import {
   recordsAskedAt,
   refreshedTo,
   retitled,
-} from "../recentlyDoneRefresh.ts";
+} from "../../dashboard/tests/recentlyDoneRefresh.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

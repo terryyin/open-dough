@@ -8,24 +8,24 @@
 // sessions. The `gh` calls reaching the fake GitHub show which records were
 // read.
 
-import { agentLaunchEndpoint } from "../../src/launchRequest.ts";
-import { expect, test } from "../dashboardTest.ts";
-import { expectEntries } from "../recentlyDoneColumn.ts";
-import { holdSessionReads } from "../sessionStatePace.ts";
-import { entryName } from "../recentlyDoneProgressive.ts";
+import { agentLaunchEndpoint } from "../../dashboard/src/launchRequest.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { expectEntries } from "../../dashboard/tests/recentlyDoneColumn.ts";
+import { holdSessionReads } from "../../dashboard/tests/sessionStatePace.ts";
+import { entryName } from "../../dashboard/tests/recentlyDoneProgressive.ts";
 import {
   opened,
   recordsAsked,
   untilPageRests,
-} from "../recentlyDoneProgressivePage.ts";
-import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
+} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
+import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
 import {
   entries,
   firstTen,
   shownWithoutSessions,
   storiesOf,
   thirteenth,
-} from "../recentlyDoneSessionPlaced.ts";
+} from "../../dashboard/tests/recentlyDoneSessionPlaced.ts";
 
 test("while the saved sessions are still being read after the done catalog answered, no done record is read, and once they answer only the ten shown entries' stories are", async ({
   page,

@@ -1,27 +1,25 @@
 // A developer scanning Recently done can distinguish the outstanding review
 // action from a reviewed story in either appearance, before selecting a card.
 
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import {
+  openFrontendBoardReview,
+  storyA,
+  storyB,
+} from "../../tests/support/frontendRecentlyDoneBoardReview.ts";
 import {
   doneCard,
   expectQuietReviewed,
   expectReviewed,
   expectReviewWarning,
   markAsReviewed,
-  openRecentlyDone,
-  publishDoneStories,
-  storyA,
-  storyB,
   reviewedButton,
   unreviewStory,
-} from "../recentlyDoneReviewState.ts";
+} from "../../tests/recentlyDoneReviewState.ts";
 import {
   expectFocusReadable,
   setColorScheme,
-} from "../systemAppearanceReading.ts";
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../support/preparationPage.ts";
+} from "../../tests/systemAppearanceReading.ts";
 
 for (const appearance of [
   {
@@ -41,11 +39,10 @@ for (const appearance of [
 ] as const) {
   test(`an outstanding review is a readable red action beside quiet Reviewed in ${appearance.scheme} appearance`, async ({
     page,
-    origin,
+    frontendServices,
   }) => {
     await setColorScheme(page, appearance.scheme);
-    await publishDoneStories(page, origin);
-    await openRecentlyDone(page);
+    await openFrontendBoardReview(page, frontendServices);
     const a = doneCard(page, storyA.title);
     const b = doneCard(page, storyB.title);
     await markAsReviewed(b).click();

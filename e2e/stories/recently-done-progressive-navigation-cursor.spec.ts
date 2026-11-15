@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // A Running Cursor sessions row the runner still holds, for a session whose
 // record is marked done and placed 27th in Recently done, chosen from another
 // project: Open Dough's stories show, Recently done extends exactly through
@@ -12,34 +12,41 @@ import { closeSidePanel } from "../sidePanelFrame.ts";
 // machine's sessions before the project's done catalog, so the first ten
 // entries are read once, merged.
 
-import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { launch } from "../agentLaunchBoundary.ts";
-import { terminalPanel } from "../terminalScreenPage.ts";
+import { agentTerminalEndpoint } from "../../dashboard/src/agentTerminal.ts";
+import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
+import { launch } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { terminalPanel } from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   chooseProject,
   expectProjectChoice,
   parts,
   standaloneSessionName,
-} from "../dashboardPage.ts";
-import { rem } from "../boardPage.ts";
-import { placedAt } from "../recentlyDoneProgressive.ts";
-import { expectEntries, shownEntries } from "../recentlyDoneColumn.ts";
-import { recordsAsked } from "../recentlyDoneProgressivePage.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
+import { rem } from "../../dashboard/tests/boardPage.ts";
+import { placedAt } from "../../dashboard/tests/recentlyDoneProgressive.ts";
+import {
+  expectEntries,
+  shownEntries,
+} from "../../dashboard/tests/recentlyDoneColumn.ts";
+import { recordsAsked } from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
 import {
   destination,
   names,
   openedWithHeldStory,
   storiesThrough,
-} from "../recentlyDoneProgressiveJourney.ts";
+} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
 import {
   expectRevealsSince,
   recordReveals,
   revealsOf,
-} from "../sessionNavigationJourney.ts";
-import { openRunningList } from "../runningCursorList.ts";
-import { expect, keptRecord, test } from "../support/cursorStart.ts";
-import { publishOnePygardonStory } from "../pygardonProject.ts";
+} from "../../dashboard/tests/sessionNavigationJourney.ts";
+import { openRunningList } from "../../dashboard/tests/runningCursorList.ts";
+import {
+  expect,
+  keptRecord,
+  test,
+} from "../../dashboard/tests/support/cursorStart.ts";
+import { publishOnePygardonStory } from "../../dashboard/tests/pygardonProject.ts";
 
 const instruction = "hold this done session";
 const entryName = standaloneSessionName("Ad hoc", instruction);

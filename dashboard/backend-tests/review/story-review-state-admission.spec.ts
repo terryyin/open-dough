@@ -3,7 +3,7 @@
 // or non-boolean state, an empty identity, text that is not JSON), or using
 // another method keeps no review state on this machine. An unreadable
 // document reads as nothing reviewed, and the next save moves it aside.
-// Marking itself is in ../../tests/stories/recently-done-review-state.spec.ts.
+// Marking itself is in ../../frontend-tests/stories/recently-done-review-state.spec.ts.
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";

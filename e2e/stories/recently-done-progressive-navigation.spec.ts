@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // A journey that lands on a done entry beyond Recently done's shown entries
 // extends the list exactly through that entry, reading only the records of
 // the stories before it; the entry shows in its place at once, and the
@@ -13,19 +13,26 @@ import { closeSidePanel } from "../sidePanelFrame.ts";
 // The synthetic `claude` takes the done marks (./fixtures/fake-claude); the
 // `gh` calls reaching the fake GitHub show which records were read.
 
-import { expect, test } from "../dashboardTest.ts";
-import { shownProjectControl, chooseProject, parts } from "../dashboardPage.ts";
-import { rem, showColumn } from "../boardPage.ts";
-import { expectEntries, revealAction } from "../recentlyDoneColumn.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  shownProjectControl,
+  chooseProject,
+  parts,
+} from "../../dashboard/tests/dashboardPage.ts";
+import { rem, showColumn } from "../../dashboard/tests/boardPage.ts";
+import {
+  expectEntries,
+  revealAction,
+} from "../../dashboard/tests/recentlyDoneColumn.ts";
 import {
   openTerminalControl,
   terminalScreenParts,
-} from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   recordsAsked,
   terminalOf,
   untilPageRests,
-} from "../recentlyDoneProgressivePage.ts";
+} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
 import {
   destination,
   expectThroughDestination,
@@ -33,9 +40,9 @@ import {
   names,
   openedWithHeldStory,
   storiesThrough,
-} from "../recentlyDoneProgressiveJourney.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { publishOnePygardonStory } from "../pygardonProject.ts";
+} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
+import { sessionsSidebarParts } from "../../dashboard/tests/sessionsSidebarPage.ts";
+import { publishOnePygardonStory } from "../../dashboard/tests/pygardonProject.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 

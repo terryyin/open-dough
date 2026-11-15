@@ -7,20 +7,20 @@
 // selected read. Synthetic Claude supplies sessions, page time is paused, and
 // the real local read boundary and page determine every displayed result.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
-import { expect, githubFor, pausePageClockAt } from "../dashboardTest.ts";
+import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import {
   expectMembership,
   parts,
   shortRevision,
   sessionEntryShowing,
-} from "../dashboardPage.ts";
-import { publishes } from "../support/fakeGitHub.ts";
-import type { GhRequest } from "../support/ghRequest.ts";
-import { holdingAnswer } from "../support/heldGitHubAnswer.ts";
-import { keepLaunchRecords } from "../support/launchStore.ts";
-import type { DashboardServer } from "../support/dashboardServer.ts";
+} from "./dashboardPage.ts";
+import { publishes } from "./support/fakeGitHub.ts";
+import type { GhRequest } from "./support/ghRequest.ts";
+import { holdingAnswer } from "./support/heldGitHubAnswer.ts";
+import { keepLaunchRecords } from "./support/launchStore.ts";
+import type { DashboardServer } from "./support/dashboardServer.ts";
 import {
   afterTake,
   committed,
@@ -30,15 +30,15 @@ import {
   repository,
   revision,
   stories,
-} from "../sliceClockRecords.ts";
+} from "./sliceClockRecords.ts";
 import {
   doneDirectory,
   doneRecordAt,
   executed,
   removedQueued,
-} from "../recentlyDoneRecords.ts";
-import { describedRevisions } from "../describedRevisions.ts";
-import { sessionsOutsideDoneStories } from "../recentlyDoneColumn.ts";
+} from "./recentlyDoneRecords.ts";
+import { describedRevisions } from "./describedRevisions.ts";
+import { sessionsOutsideDoneStories } from "./recentlyDoneColumn.ts";
 
 const hour = 60 * 60_000;
 // The done record whose content read GitHub answers only once released.

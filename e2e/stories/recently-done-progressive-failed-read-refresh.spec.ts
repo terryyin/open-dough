@@ -12,18 +12,25 @@ import type { Page, Request } from "@playwright/test";
 import {
   doneRecordFileName,
   renderDoneRecord,
-} from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { expect, test } from "../dashboardTest.ts";
-import { rem } from "../boardPage.ts";
-import { expectEntries, revealAction } from "../recentlyDoneColumn.ts";
-import { noConnection } from "../originAnswers.ts";
-import { doneDirectory } from "../recentlyDoneProgressive.ts";
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { rem } from "../../dashboard/tests/boardPage.ts";
+import {
+  expectEntries,
+  revealAction,
+} from "../../dashboard/tests/recentlyDoneColumn.ts";
+import { noConnection } from "../../dashboard/tests/originAnswers.ts";
+import { doneDirectory } from "../../dashboard/tests/recentlyDoneProgressive.ts";
 import {
   isRecord,
   opened,
   untilPageRests,
-} from "../recentlyDoneProgressivePage.ts";
-import { entries, entryAt, names } from "../recentlyDoneProgressiveJourney.ts";
+} from "../../dashboard/tests/recentlyDoneProgressivePage.ts";
+import {
+  entries,
+  entryAt,
+  names,
+} from "../../dashboard/tests/recentlyDoneProgressiveJourney.ts";
 import {
   laterStory,
   movingMain,
@@ -31,9 +38,9 @@ import {
   newest,
   recordsAskedAt,
   refreshedTo,
-} from "../recentlyDoneRefresh.ts";
-import { answeringFirst } from "../support/heldGitHubAnswer.ts";
-import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
+} from "../../dashboard/tests/recentlyDoneRefresh.ts";
+import { answeringFirst } from "../../dashboard/tests/support/heldGitHubAnswer.ts";
+import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 

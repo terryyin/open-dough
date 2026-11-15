@@ -2,7 +2,6 @@
 # Source: run 43575040009/1 at 55da0eecf6803945b66d5a23b00dd7802374550d, 2026-11-14 (runner factor 0.669)
 50.0	tests/navigation/side-panel-width-kept.spec.ts
 45.0	tests/navigation/board-session-reading.spec.ts
-44.3	tests/stories/recently-done-progressive-navigation.spec.ts
 41.6	tests/observation/revision-stream.spec.ts
 37.1	tests/navigation/dashboard-header.spec.ts
 36.6	tests/stories/story-readiness-accessible.spec.ts
@@ -12,7 +11,6 @@
 31.0	tests/navigation/story-reference-done-recovery.spec.ts
 28.6	tests/navigation/board-paging.spec.ts
 28.0	tests/navigation/board-scroll.spec.ts
-28.0	tests/stories/recently-done-progressive-loading.spec.ts
 27.7	tests/navigation/board-kept.spec.ts
 26.8	tests/navigation/story-reference-done.spec.ts
 26.5	tests/navigation/side-panel-width.spec.ts
@@ -22,7 +20,6 @@
 24.4	tests/navigation/accessible-board.spec.ts
 23.3	tests/observation/published-facts-reading.spec.ts
 22.9	tests/navigation/frame-board-look.spec.ts
-22.9	tests/stories/recently-done-progressive-state.spec.ts
 22.4	tests/intent/intent-ci-comparison-drilldown-relative.spec.ts
 22.3	tests/stories/preparation-legend.spec.ts
 22.1	tests/intent/intent-read-recovery.spec.ts
@@ -41,7 +38,6 @@
 19.0	tests/intent/intent-ci-status-homepage.spec.ts
 19.0	tests/navigation/development-intent-frame.spec.ts
 18.7	tests/stories/direction-disclosure.spec.ts
-18.5	tests/stories/recently-done-progressive-reset.spec.ts
 18.1	tests/intent/intent-done-project-refresh-reading.spec.ts
 18.1	tests/navigation/accessible-board-keyboard.spec.ts
 17.8	tests/intent/intent-summary-ci-proof-gaps.spec.ts
@@ -60,7 +56,6 @@
 15.0	tests/stories/agent-roster-collection.spec.ts
 14.8	tests/navigation/story-reference-recovery.spec.ts
 14.7	tests/intent/intent-test-optimization-candidates-case.spec.ts
-14.5	tests/stories/recently-done-progressive-refresh.spec.ts
 14.4	tests/stories/agent-roster.spec.ts
 14.2	tests/intent/intent-ci-done-reference-lifecycle.spec.ts
 14.1	tests/intent/intent-ci-proof.spec.ts
@@ -73,13 +68,11 @@
 12.7	tests/intent/intent-summary-story-comparison-sort.spec.ts
 12.6	tests/observation/steady-refresh-inspection.spec.ts
 12.1	tests/navigation/board-paging-sessions-sidebar.spec.ts
-12.1	tests/stories/recently-done-read-latency.spec.ts
 12.0	tests/intent/intent-done-project-refresh-proof.spec.ts
 11.4	tests/stories/taken-slice-clock.spec.ts
 11.2	tests/intent/intent-revision-update-boundaries.spec.ts
 11.1	tests/intent/intent-scope-timing-history-legacy.spec.ts
 11.1	tests/navigation/story-card-selection.spec.ts
-10.8	tests/stories/recently-done-progressive-added-project.spec.ts
 10.6	tests/intent/intent-scope-timing-history-provenance.spec.ts
 10.6	tests/observation/steady-refresh-bound.spec.ts
 10.3	tests/navigation/board-clamp.spec.ts
@@ -95,14 +88,11 @@
 9.6	tests/navigation/board-paging-side-panel.spec.ts
 9.4	tests/navigation/story-reference-identity.spec.ts
 9.1	tests/intent/intent-ci-comparison-relative.spec.ts
-9.1	tests/stories/recently-done-progressive-navigation-cursor.spec.ts
 8.7	tests/intent/intent-project-visit-selection.spec.ts
 8.7	tests/stories/nerds-cartoon-portrait.spec.ts
 8.4	tests/intent/intent-revision-planning-only.spec.ts
 8.4	tests/intent/intent-selection-reads.spec.ts
-8.4	tests/stories/recently-done-progressive-after-sessions.spec.ts
 8.2	tests/intent/intent-ci-status-sort.spec.ts
-8.2	tests/stories/recently-done-progressive-failed-read-refresh.spec.ts
 8.2	tests/stories/story-dependencies-touch.spec.ts
 8.1	tests/intent/intent-project-visit.spec.ts
 8.1	tests/navigation/project-selection.spec.ts
@@ -113,7 +103,6 @@
 7.3	tests/stories/branch-progress-reading.spec.ts
 7.2	tests/navigation/story-destination-repeat-cue.spec.ts
 6.9	tests/navigation/project-keyboard-navigation-eligibility.spec.ts
-6.9	tests/stories/recently-done-progressive-navigation-report.spec.ts
 6.7	tests/intent/intent-entry-folder-summaries.spec.ts
 6.6	tests/intent/intent-gherkin-settings-problems.spec.ts
 6.6	tests/intent/intent-read-reuse.spec.ts
