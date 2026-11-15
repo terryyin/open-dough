@@ -132,14 +132,9 @@ witness.{sh,log}, consumer-dispositions.md.12active minutes; no live command.
 - One classification rule serves all four examples: an unrecorded job is stale
   when trunk names it, otherwise an estimate. No count threshold.
 
-CI-repair checkpoint: the full-payload fixture trial reduced baseline-misses
-62.58→53.22 local seconds (9.36s/15%), below its proposed15s lead target.
-The agent models remaining23.1s/7.3s overages, not CI proof; this alone
-is insufficient to predict both aggregate breaches fixed; repeated full-payload setup was not the whole bottleneck.
-Retain this independently useful, coverage-preserving improvement; finish all
-11 consumers, publish once, then use actual CI family evidence before choosing
-a distinct repeated-session/cached-setup experiment. Budget goal is unchanged;
-no dependent experiment is authorized by a passing local lead alone.
+CI repair retained the full-payload fixture improvement: baseline-misses
+62.58→53.22 local seconds; all11 consumers passed. Actual CI below still fails
+totals; local savings did not establish a sufficient repair.
 
 ## Decisive premises
 
@@ -154,7 +149,7 @@ no dependent experiment is authorized by a passing local lead alone.
 
 ## Refinement and concerns
 
-Four original slices are delivered; one bounded CI-repair experiment remains.
+All four original slices and the bounded negative CI-repair experiment are done.
 Five slices fit the cap; the bounded installation-breadth trial is rejected. Existing builder support and retained proof justify its seam.
 
 ## Execution context
@@ -170,8 +165,8 @@ Replanning retains existing authority. Exact-checkout `npm ci` succeeded;
 Bash5 focused command passed. Selective formatter `npm run format`; check-only
 hook owns staged lint and dashboard typecheck. No generation/project summary.
 CI: GitHub ci.yml (CI,351271804), terryyin/open-dough execution branch.
-Observer coordinator akiho-seed374, directory `/tmp/dough-ci-501/watch-XyK0xC`,
-PID40279, stream session13119, yielded cell g448:12. Claim trunk CI unobserved.
+Observer akiho-seed374: old watch-XyK0xC stopped with PID exit confirmed;
+closure watch-0ptdcY,PID227,session70932,cell g567:15. Claim CI unobserved.
 Focused Node/shell proof on localmac; no full local suite/browser workload.
 Heavy proof is reconsidered with host/load evidence before launch.
 
@@ -217,8 +212,9 @@ Commitment: C22
 Original source outcome/proof reviewed against attributable four increments;
 claim is provenance. ADR0001/0002 hold; command-unit tests drove development,
 existing runner integration observations remain. No product-advice change.
-Native fixture repair preserves assertions; slice5’s affected conclusions and
-CI remain pending. Process review selected/deferred through closure coverage.
+Native fixture repair preserves assertions; slice5 is rejected and restored.
+Product/proof review remains valid. Coverage Caught; no follow-up proof needed.
+Deferred process review completed: one ODF-264 occurrence in DearDough.md.
 
 ## CI repair input and checkpoint
 
@@ -235,16 +231,20 @@ full logs contain only aggregate budget breaches, no assertion/timeout/per-job
 failure. Final diagnostic has no unfinished gap. Observer completion failed
 exact c425 and retained coverage. CI timings: native family109.4/79.0/116.4
 observed across shares; previous successful ancestor379.8 total is not current.
-Remaining normalized gaps27.2/12.4 require another cost removal. Slice5 is
-the one next bounded experiment; setup breadth, not sessions/proof, changes.
+Remaining normalized gaps27.2/12.4 persist after slice5; human exception below.
 Second stash save clean (no entry):
 `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-EPdyqQ/record.json`.
 Current evidence: `/tmp/dough374-ci2-final-diagnostic.json`, ci2-job{2,3}.log and ci2-times; analysis8active minutes. Localmac AC, prior load5.22/6.21/8.36,
 58% free memory; no competing owned heavy proof. Reconsider before launch.
 
-## Awaiting story review
-Scope keeps CI matrix unchanged. Current normalized sum2791.64 exceeds
-3×926=2778; retained trials do not establish a sufficient three-share repair.
-Reviewable alternative: /tmp/dough374-four-shares-review.patch (matrix+example),
-all642 jobs exactly once at4shares; predicted headroom244.6/244.6/244.7/244.7.
-Human decision: permit4shares, or retain3and continue deeper optimization.
+## Execution complete
+
+Product advice: no product change; retain the delivered stale/estimate behavior.
+Human instruction (2026-11-16): close this story over budget, leave budget and
+matrix unchanged, and perform further optimization separately. This one-time
+exception covers the known aggregate budget failures on this landing only;
+assertion/timeout failures remain defects. CI stays truthfully red when over.
+Follow-up: [SEED-378](../../seeds/SEED-378-restore-three-share-test-budget-headroom.md#restore-three-share-test-budget-headroom)
+is queued first with live cost leads and rejected-trial evidence; no optimization
+is executed during wrap-up. Current sum2791.64 exceeds3×926 by13.64 seconds;
+current shares2/3 overages27.2/12.4, with no assertion failures.
