@@ -19,6 +19,7 @@ import {
   startSessionDialog,
 } from "../launchStoryCardPage.ts";
 import { readyStory } from "../launchJourney.ts";
+import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
 import { box } from "../pageLayout.ts";
 import {
   columns,
@@ -103,6 +104,9 @@ test.describe("beside the side panel", () => {
       await expectShown(["Backlog", "Taken"], ["Recently done 0 entries"]);
       await start(readyStory).click();
       await dialog.getByRole("button", { name: "Start" }).click();
+      // Start accepts asynchronous work; membership follows its native launch
+      // and the page's resulting reads, not the acceptance click alone.
+      await untilPageRequestsAnswered(page);
       await expect(storyCardSessions(card(readyStory))).toHaveCount(1);
       await expect(columnPagingControl(page, "Recently done")).toHaveText(
         "Recently done 0 entries",

@@ -209,13 +209,15 @@ The slice-4 replay confirmed that `list --slice` returns slice commitments,
 while `check` reports `pendingLifecycle`; the proof wording now names that
 existing boundary. No source promise or CLI contract changed.
 
+CI run 43733702195's Board launch synchronization repair and faithful failing observation are retained in [repair evidence](replays/ci-board-repair.md).
+
 ## Execution context
 
 - Identity: `SEED-010#review-independently-observable-promises`; publisher `dashboard-territory.local-open-dough`; agent Sola-chan; mode story-branch.
 - Originating/execution checkout: `/Users/terryyin/git/open-dough/.worktrees/record-source-review-evidence-once-per-independe`; owned branch `codex/record-source-review-evidence-once-per-independe`.
 - Default integration checkout: `/Users/terryyin/git/open-dough`; authorized target `origin/main`.
 - Established claim accepted on trunk and execution branch: `7bb9992277410f6b5c3ba8da0b461c3c61939a84`; starting revision `65fcf1bafe89d591f3b387c2cefd361c72f7b510`; initial candidate equals claim.
-- Latest accepted branch revision: `10cebdb8e804c52626805b1e42164985229680e4`; suffix base `04c71683349ce43ddc0afa3b90c91967fa0ddf26`; observer reused. Slice 1 delivery repaired an EOF blank line before its successful commit; semantic proof unchanged.
+- Latest accepted branch revision: `c6eabcac7f6301062c756df32b45831b0072f8fe`; suffix base `10cebdb8e804c52626805b1e42164985229680e4`; observer reused. Slice 1 delivery repaired an EOF blank line before its successful commit; semantic proof unchanged.
 - Setup: locked `npm ci --no-audit --no-fund` and `npm run --silent lint -- --staged` passed in this checkout. Check-only commit hook owns staged lint and dashboard typecheck for scripts. Selective formatter: `npm run format`; prose triggers no generation. Runner needs Bash 5: `PATH="/opt/homebrew/bin:$PATH" npm test -- …`.
 - Replanning: no new overrun permission; retain existing planning authority; changed scope/consequential decisions stop the affected work.
 - CI: GitHub `terryyin/open-dough`, verified `ci.yml` / `CI`, remote execution branch. Codex coordinator `sola-chan-616`; `/tmp/dough-ci-501/watch-hqI9ru`; PID `71264`; session `83233`; yielded cell `g464:11`. Claim trunk CI is unobserved by this branch observer. Retain for every increment/repair.
