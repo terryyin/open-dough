@@ -11,32 +11,23 @@
 //   refresh --list FILE --source TEXT TIMES...
 //   runner-factor [--list FILE] TIMES
 
-import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import {
   dealShares,
-  formatPreview,
   formatRunnerFactorLine,
   parseDurationList,
+  parseLabels,
   parseSplit,
   readDurationList,
   readInput,
-  readTimeBudget,
   refreshListText,
   shareLabels,
   TestSharesError,
   writeDurationList,
 } from "./share-deal.mjs";
 
-const repositoryRoot = fileURLToPath(new URL("..", import.meta.url));
-
-// Labels NUL-separated, or one per line when the text holds no NUL; empty
-// entries are dropped.
-function parseLabels(text) {
-  const separator = text.includes("\0") ? "\0" : /\r?\n/;
-  return text.split(separator).filter((label) => label !== "");
-}
+import { previewFromOptions } from "./share-preview.mjs";
 
 // Options are `--name value` pairs; the rest are positional.
 function parseArguments(argv, known) {
@@ -86,40 +77,6 @@ function shareCommand(argv) {
   );
 }
 
-// The Node suite's jobs, as scripts/test-jobs.sh lists them over testDir
-// through the Bash on PATH. A refusal it reports as `FAIL:`, such as an older
-// bash than the runner's floor (scripts/bash-floor.bash), is relayed as it is.
-function listNodeSuiteJobs(testDir) {
-  const listing = spawnSync("bash", ["scripts/test-jobs.sh"], {
-    cwd: repositoryRoot,
-    env: { ...process.env, OPEN_DOUGH_TEST_DIR: testDir },
-    encoding: "utf8",
-    maxBuffer: 64 * 1024 * 1024,
-  });
-  if (listing.status !== 0) {
-    throw new TestSharesError(
-      listing.stderr.startsWith("FAIL:")
-        ? listing.stderr.replace(/\n$/, "")
-        : `FAIL: scripts/test-jobs.sh over ${testDir} exited ${listing.status ?? listing.signal}:\n${listing.stderr}`,
-    );
-  }
-  return listing.stdout
-    .split("\0")
-    .filter((record) => record !== "")
-    .map((record) => record.slice(record.indexOf("\t") + 1));
-}
-
-// A browser test group's spec files under ROOT of specDir, as its
-// configuration discovers them (dashboard/tests/support/testFiles.mjs).
-// Imported only when used: the runner's tests copy this module and
-// share-deal.mjs without the dashboard tree (Distribution/tests/helpers/copy-runner.bash).
-async function listDashboardSpecFiles(specDir, root) {
-  const { dashboardSpecFiles } = await import(
-    new URL("../dashboard/tests/support/testFiles.mjs", import.meta.url)
-  );
-  return dashboardSpecFiles(specDir, [root]);
-}
-
 async function previewCommand(argv) {
   const { options, positional } = parseArguments(argv, [
     "split-count",
@@ -142,37 +99,7 @@ async function previewCommand(argv) {
   }
   if (options.root !== undefined && options["spec-dir"] === undefined)
     throw new TestSharesError("FAIL: preview takes --root with --spec-dir.");
-  const shareCount = Number(options["split-count"]);
-  const specDir = options["spec-dir"];
-  const testDir = options["test-dir"] ?? "Distribution/tests";
-  const suiteDir = specDir ?? testDir;
-  const listPath = options.list ?? `${suiteDir}/longest-first`;
-  const budgetPath =
-    options.budget ??
-    (specDir === undefined && existsSync(`${testDir}/time-budget`)
-      ? `${testDir}/time-budget`
-      : undefined);
-  const labels =
-    options.labels !== undefined
-      ? parseLabels(readInput(options.labels))
-      : specDir !== undefined
-        ? await listDashboardSpecFiles(specDir, options.root ?? ".")
-        : listNodeSuiteJobs(testDir);
-  const allocation = dealShares(
-    labels,
-    readDurationList(listPath).seconds,
-    shareCount,
-  );
-  process.stdout.write(
-    formatPreview(allocation, {
-      listName: listPath,
-      ceiling:
-        budgetPath === undefined
-          ? undefined
-          : readTimeBudget(budgetPath).totalJobSeconds,
-      budgetName: budgetPath,
-    }),
-  );
+  process.stdout.write(await previewFromOptions(options));
 }
 
 function refreshCommand(argv) {

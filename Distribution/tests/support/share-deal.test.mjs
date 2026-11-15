@@ -3,10 +3,10 @@
 // the refresh merge.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { formatPreview } from "../../../scripts/share-preview.mjs";
 import { makeMe } from "./makeMe.mjs";
 import {
   dealShares,
-  formatPreview,
   formatRunnerFactorLine,
   formatSeconds,
   mergeTimes,

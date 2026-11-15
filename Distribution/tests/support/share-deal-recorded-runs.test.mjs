@@ -8,13 +8,15 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
+import {
+  formatPreview,
+  readTimeBudget,
+} from "../../../scripts/share-preview.mjs";
 import { makeMe } from "./makeMe.mjs";
 import {
   dealShares,
-  formatPreview,
   formatSeconds,
   parseDurationList,
-  readTimeBudget,
   shareLabels,
 } from "../../../scripts/share-deal.mjs";
 

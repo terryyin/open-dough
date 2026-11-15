@@ -3,6 +3,7 @@
 // (dashboard/tests/shards.md): every spec in exactly one shard, a new spec
 // previewed as unrecorded, and E2E Test's production chains queued first.
 // The deal itself: ./dashboard-test-files.test.mjs.
+import { formatPreview } from "../../../scripts/share-preview.mjs";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
@@ -10,11 +11,7 @@ import {
   dashboardTestMatch,
   dashboardTestProjects,
 } from "../../../dashboard/tests/support/testFiles.mjs";
-import {
-  dealShares,
-  formatPreview,
-  readDurationList,
-} from "../../../scripts/share-deal.mjs";
+import { dealShares, readDurationList } from "../../../scripts/share-deal.mjs";
 import { browserGroupConfigs } from "./browserGroupConfigs.mjs";
 
 const matched = (patterns, path) =>

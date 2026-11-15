@@ -3,6 +3,8 @@
 **Identity:** SEED-374#see-stale-test-duration-estimates
 **Source:** [See stale test duration estimates before relying on CI headroom](../../seeds/SEED-374-stale-test-duration-estimates.md#see-stale-test-duration-estimates)
 
+**Source review:** [Source-only review](source-review.md)
+
 ## Goal and scope
 
 `node scripts/test-shares.mjs preview` tells a contributor whether its
@@ -38,7 +40,7 @@ Failures and flakes follow the
 
 ### 1. Give the preview its own module
 Type: Structure
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh Distribution/tests/support/share-preview.test.mjs Distribution/tests/support/test-shares.test.mjs Distribution/tests/support/share-deal.test.mjs Distribution/tests/support/share-deal-recorded-runs.test.mjs Distribution/tests/support/browser-group-shards.test.mjs Distribution/tests/support/duration-list.test.mjs Distribution/tests/test-runner/test-runner-bash.sh Distribution/tests/test-runner/test-runner-split.sh`
 green, with preview output byte-identical to before.
 
@@ -123,3 +125,55 @@ own proof loop. This review identified no remaining slice-specific concern.
 Shares hold 26.6 to 28.1 s of headroom while slice 1 adds a test file; the
 budget is an input to this story, and a breach in CI is repaired under the
 failure policy.
+
+## Execution context
+
+Established start reused; no second claim. Story Branch Mode in
+`/Users/terryyin/git/open-dough/.worktrees/see-stale-test-duration-estimates-before-relying`,
+branch `codex/see-stale-test-duration-estimates-before-relying`, reused owned
+worktree. Starting revision `2c71a1ea5e01fc57dd6d1a21fd615534a94e9689`;
+claim and candidate `b2a86929c6f7c893aff8add58cf23e4b17c07ca2` accepted on
+`origin/main` and the execution branch. Publisher
+`dashboard-territory.local-open-dough`; agent Akiho-chan. Integration checkout
+was not supplied. Increments target the execution branch; closure targets
+`origin/main`. Replanning permission retains existing planning authority.
+
+Checkout setup: `npm ci` at the unchanged lockfile succeeded;
+`PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh Distribution/tests/support/test-shares.test.mjs`
+succeeded. Selective formatting is `npm run format`; the tracked pre-commit
+hook is check-only and owns staged lint plus dashboard typecheck for scripts.
+No generation or project summary applies to these runner-only changes.
+
+CI observer: GitHub Actions, verified `ci.yml` (CI, workflow 351271804),
+repository `terryyin/open-dough`, target
+`codex/see-stale-test-duration-estimates-before-relying`, checkout as above.
+Coordinator `akiho-seed374`; directory `/tmp/dough-ci-501/watch-XyK0xC`,
+PID 40279, stream session 13119, yielded cell `g448:12`. The claim on trunk
+is `pendingCi: unobserved`; this observer owns only branch increments.
+
+Proof selection: focused Node and shell checks on this macOS host; no full
+local suite or browser workload is needed. No competing owned heavy proof
+is known. Reconsider if a slice requires heavy verification.
+
+## Accepted execution evidence
+
+Slice 1: extracted preview inputs/text and moved CLI preview tests; shared label
+parsing remains with the deal. The eight literal focused paths in slice 1 ran
+through `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh` and passed.
+Inspected real CLI setup/assertions in `share-preview.test.mjs` (exact suite/spec
+output, headroom, Bash floor and unreadable-input errors), exact split labels in
+`test-shares.test.mjs`, allocation/median assertions in `share-deal.test.mjs`,
+retained-run membership/headroom and browser-group exactly-once assertions.
+Copied-runner and split shell checks passed. Preserved-input status/stdout/stderr
+were byte-identical via `python3 /tmp/dough-slice1-compare-preview.py` for mixed,
+all-recorded, fixed suite inventory and missing-input cases; positive spec
+output is pinned in the CLI test. C14/C15 therefore retain their source result.
+Consumer trace with `formatPreview`, `share-preview`, `readTimeBudget` and
+`parseLabels` is `/tmp/dough-slice1-consumer-trace.md`: actual imports updated,
+including the additional `share-deal.test.mjs` caller; runner-factor, refresh,
+dashboard allocation and timing exports remain unchanged. The copied-runner
+module closure is exercised by its shell check. Unchanged guidance/records
+are not runtime consumers. Active implementation approximately five minutes.
+Early source freshness unchanged at trunk `1e7e5b7b`; no named sibling applies.
+Independent refactor: none — already clean; accepted proof unchanged, whitespace
+checks passed. Final pre-delivery freshness unchanged at trunk `632324cdd`.
