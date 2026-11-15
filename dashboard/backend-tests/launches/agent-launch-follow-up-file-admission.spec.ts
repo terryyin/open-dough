@@ -1,6 +1,6 @@
 // Landed-run file-anchored follow-up admission and refusals over raw HTTP,
-// with a real bare origin and the synthetic `claude`: a reference admits the
-// landed comparison; a file, line or side outside the comparison, or
+// with a real bare origin and the synthetic `claude`: a launch's landed run
+// admits its comparison; a file, line or side outside the comparison, or
 // page-supplied context text, starts nothing. Published-completion launches
 // and identity: agent-launch-follow-up-file.spec.ts.
 
@@ -37,7 +37,7 @@ test.describe("after a delivered two-line file", () => {
       .please(),
   });
 
-  test("a landed-run file follow-up admits by reference and names the landed comparison", async ({
+  test("a file follow-up on a launch's landed run admits and names its comparison", async ({
     dashboard,
     origin,
   }) => {
@@ -67,17 +67,10 @@ test.describe("after a delivered two-line file", () => {
       )
       .please();
     keepLaunchRecords(dashboard, [record]);
-    const file = {
-      path: "delivered.txt",
-      kind: "landed" as const,
-      baseline: base,
-      tree,
-      ...(record.request.reporting && {
-        reference: record.request.reporting.reference,
-      }),
-      line: 2,
-      side: "new" as const,
-    };
+    const file = makeMe.aFileFollowUp
+      .onLandedRunOf(record)
+      .at({ path: "delivered.txt", line: 2, side: "new" })
+      .please();
     dashboard.claudeScenario("launched");
 
     const launched = await answerOf(
@@ -90,8 +83,8 @@ test.describe("after a delivered two-line file", () => {
 
     expect(launched.kind, JSON.stringify(launched)).toBe("launched");
     const input = dashboard.claudeLaunchCalls()[0]?.argv.at(-1) ?? "";
-    expect(input).toContain(`- Path: ${file.path}`);
-    expect(input).toContain(`Landed run ${file.baseline} → ${file.tree}`);
+    expect(input).toContain("- Path: delivered.txt");
+    expect(input).toContain(`Landed run ${base} → ${tree}`);
     expect(input).toContain("- Line: 2");
     expect(input).toContain("- Side: new");
   });

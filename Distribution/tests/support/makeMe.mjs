@@ -1,6 +1,7 @@
 // @ts-check
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
+import { FileFollowUpBuilder } from "./followUpFileTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
 import { StoryPreparationBuilder } from "./storyPreparationTestData.mjs";
@@ -58,6 +59,7 @@ import { jobDurations } from "./jobDurationTestData.mjs";
  * @property {typeof supplierAgreementBuilder} aSupplierAgreement
  * @property {ReleaseBuilder} aRelease
  * @property {DoneRecordBuilder} aDoneRecord
+ * @property {FileFollowUpBuilder} aFileFollowUp
  * @property {IntentLocationBuilder} anIntentLocation
  * @property {IntentSettingsBuilder} intentSettings
  * @property {TestOptimizationCandidatesRecordBuilder} aTestOptimizationCandidatesRecord
@@ -153,6 +155,12 @@ export const makeMe = Object.defineProperties(
       enumerable: true,
       get() {
         return new DoneRecordBuilder();
+      },
+    },
+    aFileFollowUp: {
+      enumerable: true,
+      get() {
+        return new FileFollowUpBuilder();
       },
     },
     anIntentLocation: {

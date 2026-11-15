@@ -167,7 +167,7 @@ typedef.
 
 ### 3. Associate the file follow-up with its launch
 Type: Behavior
-Status: planned
+Status: done
 Proof: File/launch relationship and readability rows; admission/refusal file,
 consumer trace and documented construction complete the final gate.
 
@@ -180,6 +180,17 @@ the architecture-guide examples and remove newly superseded setup without
 migrating deferred siblings. Compare the final source with the baseline and
 reject comparable builder complexity. One file-to-admission loop, target
 15 active minutes, commands excluded; this replaces all interim manual wiring.
+
+Accepted 2026-11-15: `makeMe.aFileFollowUp.onLandedRunOf(record).at({ path,
+line, side })` (`followUpFileTestData.mjs`) returns the canonical file facts
+with the launch's comparison and reporting reference; the spec names no
+reference and its expected host input is literal or from `origin.revision`.
+The architecture guide documents named start-origin revisions, reporting
+allocation, `withLanding(builder)` and the file follow-up. Against the
+baseline the case drops Git writes, HEAD reads, `randomUUID` and three
+repetitions of the reference for one 52-line builder. Proof: admission 5/5;
+faults (one-line file, unrelated launch) refused; native-import-closure 10/10;
+native-evidence-identity; typecheck, eslint, prettier. Refactor: guide wording.
 
 ## Verification and execution gates
 
@@ -238,4 +249,4 @@ repair handoffs. Execution retains its required final CI ownership.
 ### G1. File context reads the launch's reference (first reported in slice 2)
 Reported: slice 2 — "the file context reads `record.request.reporting.reference` until slice 3."
 Story clause: "builders derive launch, landing and file references without spec-level UUID creation, extraction or passing"
-Disposition: interim until slices 3
+Disposition: proved by slice 3: agent-launch-follow-up-file-admission.spec.ts builds the file with makeMe.aFileFollowUp.onLandedRunOf(record) and contains no reference token; admission 5/5 passed and an unrelated launch was refused

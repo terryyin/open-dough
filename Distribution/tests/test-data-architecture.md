@@ -65,7 +65,9 @@ Keep Git actions under test and their observations visible in the case.
 Pass the description as `originRepository` to a dashboard fixture that accepts
 it. Use `materializeRepository` for a bare origin and checkout, or
 `materializeLocalCheckout(t, description)` for a checkout without a remote.
-Both materializers return commit IDs in `revisions`. For merged starting
+Both materializers return commit IDs in `revisions`; a dashboard case reads
+one as `origin.revision(name)` from its start origin, whether prepared, private
+or kept. For merged starting
 history, list earlier `parents` in Git order. Files inherit from the first
 parent, and the revision states the resolved changes.
 [Builder](support/repositoryTestData.mjs) ·
@@ -177,6 +179,19 @@ State IDs explicitly when they matter to the scenario. Exercise the capture
 path in tests that verify it.
 [Landing builders](support/launchLandingTestData.mjs) ·
 [Stored landing](support/launchLandingEvidenceTestData.mjs)
+
+A kept launch reports through `.reportingThrough({ origin, command })`; the
+launch allocates its reporting reference at `.please()` unless the case states
+one. Given the landing builder, `.withLanding(makeMe.aLaunchLanding…)` stores
+that landing under the launch's reference unless the landing states
+`.forLaunch(reference)`; `.withCapturedLanding` and a completed landing keep it
+as given. Anchor a story follow-up on that launch's landed run with
+`makeMe.aFileFollowUp.onLandedRunOf(record).at({ path, line, side }).please()`,
+which takes the comparison and reference from the record. Send it through the
+case's request helper and keep the expected host input independent.
+[Reporting](support/launchReportingTestData.mjs) ·
+[File follow-up](support/followUpFileTestData.mjs) ·
+[Landed-run admission](../../dashboard/backend-tests/launches/agent-launch-follow-up-file-admission.spec.ts)
 
 When a case needs another agent's claim only as a starting fact, declare it
 with `takeRevision`: the agent authors it and the developer commits it under
