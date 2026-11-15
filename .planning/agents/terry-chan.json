@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "terry-chan",
+  "email": "terry-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-334#finish-dissolving-integrated-ui-test",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
