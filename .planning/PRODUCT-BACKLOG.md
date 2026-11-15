@@ -35,7 +35,6 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
-- [Show the CI pipeline, runners, and weights in Intent](seeds/SEED-363-intent-ci-pipeline-diagram.md#show-ci-pipeline-runners-and-weights) — SEED-363#show-ci-pipeline-runners-and-weights
 - [View token usage for dashboard-launched Claude Code tasks](seeds/SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage) — SEED-359#view-claude-code-task-token-usage
 - [Reconsider further CI job reduction with a different approach](seeds/SEED-355-reconsider-further-ci-reduction.md#reconsider-further-ci-reduction) — SEED-355#reconsider-further-ci-reduction
 - [Declare Git test state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-git-test-state-through-makeme) — SEED-353#declare-git-test-state-through-makeme
