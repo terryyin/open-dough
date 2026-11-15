@@ -21,7 +21,7 @@ or current-slice scope was supplied. It read no project files and changed none.
 | 7 | Keep a check that two settings agree with each other (for example a summary’s declared parts and the matrix that writes them), because it catches an inconsistent change. | slice 1 | observed: Kept needs=producers and declared parts=matrix lengths; inconsistent expect still fails declaration+actions |
 | 8 | Do not delete behavior tests merely because their setup uses configuration or data. | slice 5 |  |
 | 9.1 | Preserve checks such as independent concurrent reports. | slice 1 | observed: Kept cutoff behavior, frontend report incompleteness, multi-producer proof replay, shard partition proofs |
-| 9.2 | Preserve checks such as complete selection/proof. | slice 4 |  |
+| 9.2 | Preserve checks such as complete selection/proof. | slice 4 | observed: Kept MakeMe scheduled selection and page-object selection runs; story-columns commitsTraced vs built history count; share-deal preview from deal; selection regressions (makeMe/pageObjects false, commitsTraced 0) still fail |
 | 9.3 | Preserve checks such as useful validation behavior. | slice 5 |  |
 | 10 | Do not replace removed assertions with another snapshot of the same data. | slice 5 |  |
 | 11 | Remove tests that only restate shipped skill and reference wording (the former `*-guidance.test.mjs` family), because they keep the same text in a second place. |  | G1 |

@@ -145,7 +145,7 @@ the first test so its title states that behavior, not the number.
 
 ### 4. Test data and builder changes need no test edits
 Type: Behavior
-Status: planned
+Status: done
 Proof: scratch changes: one more commit in `storyColumnsRepository`'s history,
 a renamed Distribution location label, the page-object fixture builders'
 default settings, the share-deal fixture's run count → family green; a worker
@@ -221,6 +221,9 @@ keep that the tab and touch icons are declared and serve the supplied bytes).
 - Playwright merges `--workers` after config, so a `runnerConfig`-only ignore
   of CLI workers is not a product-side break; `OPEN_DOUGH_TEST_JOBS` ignore
   covers the shared override-regression class.
+- `main^ === preparedTaken` also froze a single post-prefix commit; reshaped to
+  an ancestor check so the +1-commit probe is valid. Share-deal example 4
+  preview counts must use `deal.unrecordedCount`, not raw stale line count.
 
 ## Accepted proof (slice 1)
 
@@ -254,6 +257,15 @@ keep that the tab and touch icons are declared and serve the supplied bytes).
 - Unbounded local slots (999) and ignoring `OPEN_DOUGH_TEST_JOBS` still fail.
 - Unmodified family green; refactor folded held-slot helper and kept file ≤250;
   focused family + lifecycle re-verified.
+
+## Accepted proof (slice 4)
+
+- +1 storyColumnsRepository commit, Distribution label rename, page-object
+  location order swap, share-deal known-label bump → family green.
+- `commitsTraced` forced to 0, Distribution `makeMe: false`, and forced
+  `pageObjects: false` still fail selection/history proof.
+- Unmodified owned family + `typecheck:dashboard` green. Refactor: none —
+  already clean.
 
 ## Verification, sizing and concern review
 
