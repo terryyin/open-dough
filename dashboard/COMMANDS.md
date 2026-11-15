@@ -29,12 +29,9 @@ startup, however old its code; new Cursor work reuses an accepting
 runner only when it proves it runs the current runner build, and
 replaces a stale one first). Local
 commits and edits in the development checkout, and its hot reload, leave that
-production app and server unchanged. Before each build, the watcher copies local
-WebP cartoons from `dashboard/public/agent-avatars/odd-e-nerds/cartoon/` in the
-development checkout into the isolated checkout. These avatars remain git-ignored;
-raw source photos and other files are excluded. A missing cartoon folder is fine:
-agents without an avatar show their name alone. Changing local cartoons takes
-effect on the next production build, including a watcher restart.
+production app and server unchanged. Each build includes the cartoon avatars
+under `dashboard/public/agent-avatars/odd-e-nerds/cartoon/` from its selected
+published commit. Agents without an avatar show their name alone.
 
 Each start establishes current published
 `main` as the running baseline; an origin without a published `main` stops the

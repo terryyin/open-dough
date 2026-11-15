@@ -10,7 +10,6 @@ import {
   startDeploymentPreview,
   verifyPublishedCommit,
 } from "../../server/productionDeployment.mjs";
-import { nerdsAvatarPath } from "../../tests/support/pinnedDeployment.ts";
 import { publishedMainFixture } from "../../tests/support/publishedMainFixture.ts";
 import { processRunning } from "../../tests/support/processGroup.ts";
 import { deploymentCheckout } from "../../tests/support/productionWatcher.ts";
@@ -62,12 +61,11 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
   request,
   pinnedDeployment,
 }) => {
-  // The worker staged the pinned commit after main advanced, beside untracked
-  // local avatars (../../tests/support/pinnedDeployment.ts).
+  // The worker staged the commit after main changed the title and portrait
+  // (../../tests/support/pinnedDeployment.ts).
   const { fixture, env, commit, published, cartoon, staged } = pinnedDeployment;
   let preview: Awaited<ReturnType<typeof startDeploymentPreview>> | undefined;
   try {
-    expect(await fixture.git("ls-files", "--", nerdsAvatarPath)).toBe("");
     expect(path.basename(staged.directory)).toEqual(deploymentCheckout(commit));
     expect(path.relative(fixture.development, staged.directory)).toMatch(
       /^\.\./,

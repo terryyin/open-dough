@@ -100,9 +100,7 @@ export function AgentPortrait({
   );
 }
 
-// A member of the Odd-e nerds is shown by a local cartoon avatar that is not part of
-// the repository. Until the avatar loads, and when it is absent, there is no
-// portrait: the name beside it stands alone.
+// An Odd-e Nerds member's name stands alone until their cartoon portrait loads.
 function NerdCartoonPortrait({
   name,
   label,

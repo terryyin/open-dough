@@ -1,7 +1,5 @@
-// A Taken card whose profile agent is an Odd-e nerds member shows that member's
-// local cartoon avatar (agent-avatars/odd-e-nerds/cartoon/<lowercase name>.webp, git-ignored) as
-// its portrait; without the photo it shows the name alone. The photo request is
-// answered by the test, since the photos are never in the repository.
+// A Taken card shows the Odd-e Nerds member's cartoon portrait or, if the
+// portrait is unavailable, their name alone. The test controls the image response.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";

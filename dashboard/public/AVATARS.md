@@ -210,15 +210,11 @@ Odd-e nerds agents (`nerdAgentNames` in the same module), for example `stanly.we
 Each was generated with OpenAI image editing (`gpt-image-1.5`) from the face in that
 person's local photo (`agent-avatars/odd-e-nerds/<lowercase name>.jpg`), using one shared
 style prompt: adult editorial cartoon portrait, head and shoulders, distinct muted
-background, no text, and no clothing or background carried over from the photo. They
-remain git-ignored and are never committed. Production startup and update builds
-copy only the local cartoon WebP files into the isolated production checkout before
-building, making them available on the production server without publishing them
-through Git. Raw source photos and other local files are excluded from that copy.
-A card shows its
-agent's cartoon avatar as the portrait, enlarged on hover like the others; when the
-avatar file is absent it shows the name alone, with no portrait and no error. The
-photos themselves are not displayed.
+background, no text, and no clothing or background carried over from the photo.
+Git tracks the cartoon WebPs, and production builds serve them from the selected
+published commit. Raw source photos and other local files remain git-ignored.
+A card shows its agent's cartoon portrait and enlarges it on hover. If a portrait
+is unavailable, the card shows the agent's name alone.
 
 ## Tool marks
 
