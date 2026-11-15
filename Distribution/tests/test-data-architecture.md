@@ -129,6 +129,20 @@ or waiting for the file. Write exact store text under proof through
 [Builder](support/launchTestData.mjs) ·
 [Launch store harness](../../dashboard/tests/support/launchStore.ts)
 
+Build native session rows for usage-history import with
+`makeMe.aCodexRollout` and `makeMe.aClaudeTranscript`. Name the session, turns,
+responses and counters, workers or launch-input facts the case asserts; the
+builders supply session-meta, role rows, parent links and in-window timestamps.
+Write ordinary built sessions through the import harness's `writeCodexSession`
+or `writeClaudeSession`. Keep malformed bytes, asserted times and filesystem
+layout under proof (`.zst` archives, Claude `subagents/`, missing
+`session_meta`) in the case with raw `nativeFile` only there. Persist task
+facts for report and collector boundaries with `makeMe.aUsageTask`.
+[Codex builder](support/codexRolloutTestData.mjs) ·
+[Claude builder](support/claudeTranscriptTestData.mjs) ·
+[Persisted task](support/usageHistoryTestData.mjs) ·
+[Import harness](../../dashboard/tests/usage-history/importHarness.ts)
+
 Build the host session a terminal or runner consumes on its own with
 `makeMe.aHostSession.claude`, `.codex` or `.cursor`; a kept launch's
 `inClaudeSession`, `inCodexSession` and `inCursorSession` use the same

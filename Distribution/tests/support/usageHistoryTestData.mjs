@@ -1,6 +1,9 @@
 // @ts-check
-// Persisted task evidence for report and collector boundaries. Native wire rows
-// remain literal in import cases; no runtime dashboard import enters MakeMe.
+// Persisted usage-task evidence for report and collector boundaries. Valid
+// Codex rollouts and Claude transcripts for import cases come from
+// `makeMe.aCodexRollout` and `makeMe.aClaudeTranscript` (in-window timestamps
+// by default). Malformed bytes and layout under proof stay in the case. No
+// runtime dashboard import enters MakeMe.
 /** @typedef {import("../../../dashboard/server/usageRecords.ts").UsageTask} UsageTask */
 export class UsageTaskBuilder {
   /** @param {Pick<UsageTask, "id" | "sessionId"> & Partial<UsageTask>} facts */

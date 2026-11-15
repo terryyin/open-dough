@@ -1,5 +1,5 @@
-// Process/filesystem boundary for usage-import journeys; provider wire bytes stay
-// in the cases that put them under proof.
+// Process/filesystem/window boundary for usage-import journeys. Built Codex and
+// Claude sessions come from MakeMe; raw nativeFile stays for layout under proof.
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -11,8 +11,6 @@ import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codex
 
 const repository = fileURLToPath(new URL("../../../", import.meta.url));
 const command = path.join(repository, "dashboard/server/importUsageHistory.ts");
-// Still exported for family specs not yet on builder defaults (later slices).
-export const at = usageHistoryDefaultAt;
 
 /**
  * Writes a built Codex rollout under the session id from its `session_meta`.
@@ -68,7 +66,7 @@ export function keepRetainedLaunch(home: string, record: LaunchRecord): void {
       project: "open-dough",
       record,
       reason: "removed",
-      leftAt: at,
+      leftAt: usageHistoryDefaultAt,
     })}\n`,
   );
 }

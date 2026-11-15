@@ -1,18 +1,20 @@
+import assert from "node:assert/strict";
 import path from "node:path";
 import { writeFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 import {
   expect,
   test,
   launch,
-  response,
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  at,
   nativeFile,
   readImported,
   runImport,
   keepOperationalLaunch,
+  writeClaudeSession,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 import { configuredRepository } from "../../tests/usage-history/recoveryHarness.ts";
 
@@ -47,101 +49,104 @@ test("reports configured in-window work separately from retained old launches, u
   );
   const early = "2026-09-01T00:00:00.000Z";
   keepOperationalLaunch(home, launch("old-launch", "old-turn", early));
-  nativeFile(root, "old-root", [
-    {
-      type: "session_meta",
-      payload: {
-        id: "old-root",
-        cwd: repo.integration,
-        git: { commit_hash: repo.revisions.then },
-      },
-    },
-    { type: "turn_context", payload: { turn_id: "task" } },
-    {
-      type: "event_msg",
-      timestamp: early,
-      payload: {
-        type: "user_message",
-        message: "$dough-execute-plan SEED-42#story",
-      },
-    },
-    {
-      ...response("old-root", "task", "old-response", { output_tokens: 1000 }),
-      timestamp: early,
-    },
-  ]);
-  const worker = response("worker", "worker-turn", "current", {
-    input_tokens: 30,
-    cached_input_tokens: 20,
-    cache_write_input_tokens: 0,
-    output_tokens: 7,
-    reasoning_output_tokens: 3,
-  });
-  worker.payload.root_turn_id = "task";
-  nativeFile(root, "worker", [
-    {
-      type: "session_meta",
-      payload: { id: "worker", parent_thread_id: "old-root" },
-    },
-    worker,
-  ]);
-  nativeFile(root, "unknown", [
-    {
-      type: "session_meta",
-      payload: { id: "unknown", cwd: path.join(home, "missing") },
-    },
-    { type: "turn_context", payload: { turn_id: "unknown-task" } },
-    {
-      type: "event_msg",
-      timestamp: at,
-      payload: { type: "user_message", message: "private unknown assignment" },
-    },
-    response("unknown", "unknown-task", "unknown-response", {
-      output_tokens: 2,
-    }),
-  ]);
-  nativeFile(root, "orphan", [
-    response("orphan", "unassigned", "orphan-response", { output_tokens: 3 }),
-  ]);
-  nativeFile(root, "unrelated", [
-    {
-      type: "session_meta",
-      payload: {
-        id: "unrelated",
-        git: { repository_url: "https://github.com/elsewhere/unrelated.git" },
-      },
-    },
-    { type: "turn_context", payload: { turn_id: "unrelated-task" } },
-    {
-      type: "event_msg",
-      timestamp: at,
-      payload: {
-        type: "user_message",
-        message: "private unrelated assignment",
-      },
-    },
-    response("unrelated", "unrelated-task", "excluded", { output_tokens: 400 }),
-  ]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("old-root")
+      .withCwd(repo.integration)
+      .withGit({ commit_hash: repo.revisions.then })
+      .withTurnContext("task")
+      .withRow({
+        type: "event_msg",
+        timestamp: early,
+        payload: {
+          type: "user_message",
+          message: "$dough-execute-plan SEED-42#story",
+        },
+      })
+      .withResponse(
+        "task",
+        "old-response",
+        { output_tokens: 1000 },
+        { timestamp: early },
+      )
+      .please(),
+  );
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("worker")
+      .withParent("old-root")
+      .withResponse(
+        "worker-turn",
+        "current",
+        {
+          input_tokens: 30,
+          cached_input_tokens: 20,
+          cache_write_input_tokens: 0,
+          output_tokens: 7,
+          reasoning_output_tokens: 3,
+        },
+        { rootTurnId: "task" },
+      )
+      .please(),
+  );
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("unknown")
+      .withCwd(path.join(home, "missing"))
+      .withTurnContext("unknown-task")
+      .withRow({
+        type: "event_msg",
+        payload: {
+          type: "user_message",
+          message: "private unknown assignment",
+        },
+      })
+      .withResponse("unknown-task", "unknown-response", { output_tokens: 2 })
+      .please(),
+  );
+  // Unassigned response without session_meta: missing metadata under proof.
+  const [orphan] = makeMe.aCodexRollout
+    .forSession("orphan")
+    .withResponse("unassigned", "orphan-response", { output_tokens: 3 })
+    .rows();
+  assert(orphan);
+  nativeFile(root, "orphan", [orphan]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("unrelated")
+      .withGit({
+        repository_url: "https://github.com/elsewhere/unrelated.git",
+      })
+      .withTurnContext("unrelated-task")
+      .withRow({
+        type: "event_msg",
+        payload: {
+          type: "user_message",
+          message: "private unrelated assignment",
+        },
+      })
+      .withResponse("unrelated-task", "excluded", { output_tokens: 400 })
+      .please(),
+  );
   const claudeRoot = path.join(home, "claude");
-  nativeFile(claudeRoot, "claude-session", [
-    {
-      type: "user",
-      sessionId: "claude-session",
-      uuid: "human",
-      parentUuid: null,
-      cwd: repo.integration,
-      timestamp: at,
-      origin: { kind: "native" },
-      message: { content: "/dough-slice-planning" },
-    },
-    {
-      type: "assistant",
-      sessionId: "claude-session",
-      uuid: "answer",
-      parentUuid: "human",
-      timestamp: at,
-      message: {
-        id: "claude-answer",
+  writeClaudeSession(
+    claudeRoot,
+    makeMe.aClaudeTranscript
+      .forSession("claude-session")
+      .withCwd(repo.integration)
+      .withUser({
+        uuid: "human",
+        parentUuid: null,
+        origin: { kind: "native" },
+        content: "/dough-slice-planning",
+      })
+      .withAssistant({
+        uuid: "answer",
+        messageId: "claude-answer",
         model: "observed",
         usage: {
           input_tokens: 4,
@@ -150,9 +155,9 @@ test("reports configured in-window work separately from retained old launches, u
           output_tokens: 8,
           cache_creation: { ephemeral_5m_input_tokens: 6 },
         },
-      },
-    },
-  ]);
+      })
+      .please(),
+  );
   const report = runImport(home, root, ["--claude-root", claudeRoot]);
   expect(report).toMatchObject({
     tasks: 4,
@@ -169,8 +174,8 @@ test("reports configured in-window work separately from retained old launches, u
           claude: { tasks: 1, observations: 1 },
         },
         earliestTaskStart: early,
-        firstInWindowActivity: at,
-        earliestUsage: at,
+        firstInWindowActivity: usageHistoryDefaultAt,
+        earliestUsage: usageHistoryDefaultAt,
         tokens: { uncachedInput: 14, cacheRead: 25, cacheWrite: 6, output: 15 },
         unmeasured: {
           uncachedInput: 0,

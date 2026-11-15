@@ -1,5 +1,5 @@
-// Native wire and filesystem setup only; directives and historical files stay
-// visible in their cases, including deliberately unsupported wire examples.
+// Historical Codex rows via aCodexRollout; directives and unsupported wire
+// examples stay visible in their cases.
 import assert from "node:assert/strict";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";

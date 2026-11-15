@@ -135,7 +135,7 @@ revision, reference or project join it proves.
 
 ### 5. The family is measurably shorter and documents its builders
 Type: Behavior
-Status: planned
+Status: done
 Proof: final counts against the starting size; `git grep` shows no `at`
 import from the harness and `nativeFile` only in layout cases; family green;
 the guide names the builders.
@@ -164,13 +164,12 @@ lines than 47 and 4,481, recorded in this plan.
 ### G1. Harness still exports at for unmigrated family
 Reported: slice 1 — "Temporary: harness still exports at (aliased to usageHistoryDefaultAt) for family specs not yet on builder defaults."
 Story clause: "Its default timestamp is no longer exported to cases."
-Disposition: interim until slices 5
-Commitment: 11
+Disposition: proved by slice 5: slice-5-inventory.md harness no longer exports at; family imports of at are zero
 
 ### G2. Temporary meta/context/response helpers remain
 Reported: slice 1 — "Temporary row helpers meta/context/response remain for family specs not yet on makeMe.aCodexRollout; Codex-group cases call the builder."
 Story clause: "Codex rollouts and Claude transcripts, with their user, assistant, worker and session-meta rows, come from MakeMe builders whose defaults keep the data valid, including in-window timestamps."
-Disposition: interim until slices 5
+Disposition: proved by slice 5: slice-5-inventory.md helpers removed; family uses MakeMe builders
 
 ## Slice 1 inventory (Codex group)
 
@@ -200,8 +199,7 @@ the former persistence atomic-fail case folded in).
 | `usage-snapshot-failures`: a reader holding the earlier manifest stays coherent while another process publishes | Held-open snapshot still shows prior responses while a concurrent import publishes newer ones | `usage-snapshot-failures`: same title |
 | `usage-snapshot-failures`: cross-process writers reconcile accepted updates after waiting for the shared publication lock | Two imports under lock wait both land; one task id; both responses | `usage-snapshot-failures`: same title |
 
-Scratch-break records (when a moved assertion sits on materially different setup) live under
-`.planning/slice-plans/628-simplify-usage-history-backend-tests/slice-1-scratch-breaks.md`.
+Scratch-breaks: [slice-1-scratch-breaks.md](./slice-1-scratch-breaks.md).
 
 ### Slice 1 concision (Codex group)
 
@@ -215,27 +213,20 @@ Scratch-break records (when a moved assertion sits on materially different setup
 
 Family after slice 1 focused run: **46 passed** (was 47).
 
-## Slice 2 inventory (Claude group)
+## Later slice inventories
 
-Inventory and concision for this group live in
-[slice-2-inventory.md](./slice-2-inventory.md).
-
-## Slice 3 inventory (recovered-assignment group)
-
-Inventory and concision for this group live in
-[slice-3-inventory.md](./slice-3-inventory.md).
-
-## Slice 4 inventory (recovered and historical task group)
-
-Inventory and concision: [slice-4-inventory.md](./slice-4-inventory.md).
+- Slice 2: [slice-2-inventory.md](./slice-2-inventory.md)
+- Slice 3: [slice-3-inventory.md](./slice-3-inventory.md)
+- Slice 4: [slice-4-inventory.md](./slice-4-inventory.md)
+- Slice 5: [slice-5-inventory.md](./slice-5-inventory.md)
 
 ## Verification, sizing and concern review
 
 - Local gate per slice: the family command in the premise table; `npm run lint`;
   `npm run typecheck:dashboard`; and, when a builder module changes,
-  `bash scripts/test.sh Distribution/tests/native-evidence-identity.sh`. A
-  fresh worktree needs `node scripts/setup-native.mjs npm` first. Long local runs
-  follow the maintained
+  `bash scripts/test.sh Distribution/tests/native-harness/native-evidence-identity.sh`.
+  A fresh worktree needs `node scripts/setup-native.mjs npm` first. Long local
+  runs follow the maintained
   [macOS sleep guard and power condition](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos):
   `caffeinate -s -i` on AC power.
 - Failing and flaky tests follow the project's
@@ -245,6 +236,4 @@ Inventory and concision: [slice-4-inventory.md](./slice-4-inventory.md).
   revision this execution published is this execution's to repair.
 - Sizing: each slice is one group of 2–7 specs, one builder concern and one
   proof loop of about 80 s. Slices 1 and 2 also create a builder.
-- Slice-plan refinement was not needed: the slices already split by builder
-  and concern, each with one proof loop, and no plan concern remains.
-- Remaining concerns: none identified in this review.
+- Slice-plan refinement was not needed; remaining concerns: none identified.

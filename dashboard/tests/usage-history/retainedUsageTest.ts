@@ -1,15 +1,12 @@
 // Shared launch setup and isolated home for the actual usage-import command.
-// Each case keeps its native counter values and independent assertions visible.
+// Cases build Codex rollouts and Claude transcripts through MakeMe; this helper
+// supplies the in-window launch default and the isolated home/root fixture.
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test as base } from "../support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  codexTokenUsageRecord,
-  codexTurnContext,
-  usageHistoryDefaultAt,
-} from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
+import { usageHistoryDefaultAt } from "../../../Distribution/tests/support/codexRolloutTestData.mjs";
 
 export { expect } from "../support/pageTest.ts";
 export const test = base.extend<{ home: string; root: string }>({
@@ -44,14 +41,3 @@ export const launch = (
     .requestingEffort("high")
     .withFirstInput({ state: "confirmed", turnId: turn })
     .please();
-
-// Temporary row helpers for family specs not yet on `makeMe.aCodexRollout`.
-// Wire shapes come from the Codex builder module; later slices retire these.
-export const meta = (id: string) => ({ type: "session_meta", payload: { id } });
-export const context = codexTurnContext;
-export const response = (
-  session: string,
-  turn: string,
-  id: string,
-  usage: object,
-) => codexTokenUsageRecord(session, turn, id, usage);
