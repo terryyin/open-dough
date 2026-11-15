@@ -109,9 +109,8 @@ document moves to its own document (see Current decisions) with the new rule.
 
 ### 2. A build without the measure is an explained gap, and retained builds are supplied
 Type: Behavior
-Status: planned
-Proof: backend specs on a collecting server over a prepared history file, in
-the style of `landed-ci-attempt-start.spec.ts`; request log across two passes.
+Status: done
+Proof: `landed-ci-history-measure-gaps.spec.ts` and `landed-ci-history-adapter-measure-gaps.spec.ts` (retained supply; final reason gaps; unanswered pending re-ask; adapter no job graph); slice 1 specs remain green; retained-window expects unanswered measure left unset. Local: caffeinate + backend.playwright on those paths — passed.
 
 Behavior: the history already holds passed builds with wall time and no kept
 measure → a pass asks each one's same recorded attempt and keeps the answer,
@@ -247,4 +246,4 @@ Disposition: interim until slices 3
 ### G3. Measure-naming read without a kept measure time still presents wall time as a point
 Reported: slice 1 — "When measure is named but the build has no kept milliseconds, timeMs is omitted and measuredHistoryOf still presents wall time rather than a gap."
 Story clause: "When the retained evidence cannot supply a measurement, show a gap with its reason and exclude it from the chart’s prior-build average."
-Disposition: interim until slices 2
+Disposition: proved by slice 2: landed-ci-history-measure-gaps.spec.ts pending/final measure gaps; measuredHistoryOf no wall-time fallback

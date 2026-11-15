@@ -32,10 +32,15 @@ test("the previous reader keeps measured builds and understandable gaps by defau
     startedAt: "2026-11-05T10:01:00Z",
     completedAt: "2026-11-05T10:03:00Z",
   });
-  // Exercise every current final reason against an independently frozen
+  // Exercise every stored final reason against an independently frozen
   // reader, so adding a future reason also exercises this compatibility gate.
+  // Measure-only gaps are answered only when the project read names the
+  // measure, so they are not stored Landed-rule observations here.
+  const storedGapReasons = finalGapReasons.filter(
+    (reason) => reason !== "time-without-runner-waits",
+  );
   const history = makeMe.aLandedCiHistory;
-  for (const [index, reason] of finalGapReasons.entries()) {
+  for (const [index, reason] of storedGapReasons.entries()) {
     const landing = facts(index + 1);
     if (reason === "failed") history.failedLanding(landing);
     else if (reason === "not-recorded" || reason === "timing-basis")
@@ -61,12 +66,12 @@ test("the previous reader keeps measured builds and understandable gaps by defau
       );
     else history.unmeasuredLanding({ ...landing, reason });
   }
-  const measured = facts(finalGapReasons.length + 1);
+  const measured = facts(storedGapReasons.length + 1);
   history
     .measuredLanding(measured)
     .inTrunkOrder(
       Array.from(
-        Array<number>(finalGapReasons.length + 1).keys(),
+        Array<number>(storedGapReasons.length + 1).keys(),
         (i) => facts(i + 1).revision,
       ),
     );
@@ -110,12 +115,12 @@ test("the previous reader keeps measured builds and understandable gaps by defau
       ],
     );
     const oldGaps = previous?.entries.filter((entry) => entry.kind === "gap");
-    expect(oldGaps).toHaveLength(finalGapReasons.length);
+    expect(oldGaps).toHaveLength(storedGapReasons.length);
     expect(
       oldGaps?.every((gap) => previousGapReasonWords(gap).length > 0),
     ).toBe(true);
     const timingRevision = facts(
-      finalGapReasons.indexOf("timing-basis") + 1,
+      storedGapReasons.indexOf("timing-basis") + 1,
     ).revision;
     const compatibleGap = oldGaps?.find(
       ({ revision }) => revision === timingRevision,

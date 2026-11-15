@@ -16,6 +16,7 @@ const pendingWords: Readonly<Record<PendingWait, string>> = {
   proof: "CI proof not read yet",
   read: "CI not read yet",
   order: "local landing order unavailable",
+  "time-without-runner-waits": "CI time without runner waits not read yet",
 };
 
 // Why a final gap will never have a CI wall time.
@@ -29,6 +30,7 @@ const finalWords: Readonly<Record<FinalGapReason, string>> = {
   unreadable: "CI proof unreadable",
   "not-recorded": "CI wall time not recorded",
   "timing-basis": unverifiedAttemptTiming,
+  "time-without-runner-waits": "CI time without runner waits unavailable",
   unclassified: "Historical CI evidence unavailable",
   identity: "Retained adapter attempt identity unavailable",
 };
@@ -41,7 +43,11 @@ export function gapReasonWords(
     | Pick<PendingGap, "reason" | "waitsFor">
     | Pick<FinalGap, "reason" | "explanation">,
 ): string {
-  if (gap.reason === "unclassified" || gap.reason === "identity")
+  if (
+    gap.reason === "unclassified" ||
+    gap.reason === "identity" ||
+    gap.reason === "time-without-runner-waits"
+  )
     return gap.explanation ?? finalWords[gap.reason];
   return gap.reason === "pending"
     ? `Pending · ${pendingWords[gap.waitsFor]}`

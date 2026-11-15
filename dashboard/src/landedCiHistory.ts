@@ -98,7 +98,9 @@ export type LandedCiPoint = z.infer<typeof landedCiPointSchema>;
 // trunk build after its own was cancelled (`later-build`), the CI proof of
 // the build that would stand for it, whose read GitHub left unanswered
 // (`proof`), CI that could not be read when collection last asked (`read`),
-// or a position not yet established from local ancestry (`order`).
+// a position not yet established from local ancestry (`order`), or — only for
+// a measure-naming project read — CI time without runner waits not yet kept
+// (`time-without-runner-waits`).
 export const pendingWaits = [
   "run",
   "build",
@@ -106,6 +108,7 @@ export const pendingWaits = [
   "proof",
   "read",
   "order",
+  "time-without-runner-waits",
 ] as const;
 
 export type PendingWait = (typeof pendingWaits)[number];
@@ -114,8 +117,10 @@ export type PendingWait = (typeof pendingWaits)[number];
 // own build was cancelled or timed out with no later trunk build to stand for
 // it; CI did not build it; a confirmed skip has no equivalent build with
 // timing; the build that would stand for it, with its timing, published no
-// CI proof; that build's CI proof expired, or could not be read or used; or
-// its build's attempt named no CI wall time.
+// CI proof; that build's CI proof expired, or could not be read or used; its
+// build's attempt named no CI wall time; or — only for a measure-naming
+// project read — the kept measure is a reason there is none
+// (`time-without-runner-waits`).
 export const finalGapReasons = [
   "failed",
   "cancelled",
@@ -126,6 +131,7 @@ export const finalGapReasons = [
   "unreadable",
   "not-recorded",
   "timing-basis",
+  "time-without-runner-waits",
   "unclassified",
   "identity",
 ] as const;

@@ -165,9 +165,7 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
     );
     expect(kept.builds[key]).toEqual(build);
   }
-  expect(kept.builds[lastKey]?.timeWithoutRunnerWaits).toEqual({
-    reason: "The workflow file could not be read at this build's revision.",
-  });
+  expect(kept.builds[lastKey]?.timeWithoutRunnerWaits).toBeUndefined();
   expect(
     github.calls.filter(
       ({ request }) => request.kind === "actions-artifact-zip",

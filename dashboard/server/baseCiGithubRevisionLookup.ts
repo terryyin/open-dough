@@ -11,6 +11,7 @@ import {
   timeWithoutRunnerWaits,
   type ReportedAttemptJob,
 } from "./ciTimeWithoutRunnerWaits.ts";
+import { unansweredTimeWithoutRunnerWaits } from "./ciTimeWithoutRunnerWaitsAnswer.ts";
 import type { ListedRun } from "./baseCiNearest.ts";
 import { revisionSubject } from "./baseCiRevisionGit.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
@@ -169,16 +170,17 @@ export function githubRevisionLookup(
         workflowText = (await runGit(["show", `${revision}:${path}`], call))
           .stdout;
       } catch {
-        return {
-          reason:
-            "The workflow file could not be read at this build's revision.",
-        };
+        return unansweredTimeWithoutRunnerWaits(
+          "The workflow file could not be read at this build's revision.",
+        );
       }
       let jobs: readonly ReportedAttemptJob[];
       try {
         jobs = await jobsOf(runId, runAttempt);
       } catch {
-        return { reason: "The build's attempt jobs could not be read." };
+        return unansweredTimeWithoutRunnerWaits(
+          "The build's attempt jobs could not be read.",
+        );
       }
       return timeWithoutRunnerWaits(workflowText, jobs, state === "failed");
     },

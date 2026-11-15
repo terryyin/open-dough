@@ -16,6 +16,7 @@ import {
   comparisonDeadlineExpired,
 } from "./ciAdapterTimeout.ts";
 import { timeWithoutAdapterRunnerWaits } from "./ciTimeWithoutRunnerWaits.ts";
+import { unansweredTimeWithoutRunnerWaits } from "./ciTimeWithoutRunnerWaitsAnswer.ts";
 import type { GitCall } from "./gitRunner.ts";
 
 export async function adapterRevisionLookup(
@@ -100,14 +101,13 @@ export async function adapterRevisionLookup(
         );
       } catch (error) {
         if (comparisonDeadlineExpired(signal))
-          return {
-            reason:
-              "The CI adapter did not answer the job graph read before the comparison deadline.",
-          };
+          return unansweredTimeWithoutRunnerWaits(
+            "The CI adapter did not answer the job graph read before the comparison deadline.",
+          );
         signal.throwIfAborted();
-        return {
-          reason: `The CI adapter answered no job graph: ${ciAdapterFailureOf(error, timeoutMs)}.`,
-        };
+        return unansweredTimeWithoutRunnerWaits(
+          `The CI adapter answered no job graph: ${ciAdapterFailureOf(error, timeoutMs)}.`,
+        );
       }
       return answer.jobs === undefined
         ? { reason: `The CI adapter gave no job graph: ${answer.unavailable}` }

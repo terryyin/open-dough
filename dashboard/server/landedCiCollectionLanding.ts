@@ -21,9 +21,10 @@ import { reopenableRetainedNoProofSkip } from "./landedCiNoProofReopen.ts";
 import { landingResolution } from "./landedCiResolution.ts";
 import { collectRetainedAttemptTiming } from "./landedCiAttemptTiming.ts";
 import {
-  collectedMeasureOf,
-  needsCollectedMeasure,
-} from "./landedCiCollectedMeasure.ts";
+  answeredCollectedMeasureOf,
+  collectRetainedMeasure,
+} from "./landedCiRetainedMeasure.ts";
+import { needsCollectedMeasure } from "./landedCiCollectedMeasure.ts";
 
 export type CollectLandingOutcome =
   | { kind: "ended"; history: ProjectHistory }
@@ -69,7 +70,7 @@ export async function collectLandingResolution(args: {
     if (ended()) return { kind: "ended", history };
     const measure =
       resolved.kind === "build"
-        ? await collectedMeasureOf(resolved, read)
+        ? await answeredCollectedMeasureOf(resolved, read)
         : undefined;
     if (ended()) return { kind: "ended", history };
     retainedProofWithResolution = collected !== undefined;
@@ -112,7 +113,7 @@ export async function collectLandingResolution(args: {
         proofSignal,
       );
       const measure = needsCollectedMeasure(retained)
-        ? await collectedMeasureOf(retained, read)
+        ? await answeredCollectedMeasureOf(retained, read)
         : undefined;
       if (ended()) return { kind: "ended", history };
       history = await keepLandedCiCollectedEvidence(source.id, observed.build, {
@@ -120,15 +121,12 @@ export async function collectLandingResolution(args: {
         pending,
         ...(measure === undefined ? {} : { timeWithoutRunnerWaits: measure }),
       });
-    } else if (retained !== undefined && needsCollectedMeasure(retained)) {
-      const measure = await collectedMeasureOf(retained, read);
+    } else {
+      history = await collectRetainedMeasure({
+        ...args,
+        history,
+      });
       if (ended()) return { kind: "ended", history };
-      if (measure !== undefined)
-        history = await keepLandedCiCollectedEvidence(
-          source.id,
-          observed.build,
-          { timeWithoutRunnerWaits: measure },
-        );
     }
   }
   const build =

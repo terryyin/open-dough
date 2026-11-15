@@ -231,6 +231,7 @@ export async function performIntentCiHistoryRead(
     entries: readableHistoryEntries(
       historyEntries(history, read?.measure),
       read?.gapReasons,
+      read?.measure,
     ),
     reference: wallTimeReferenceOf(history, undefined, order),
   });

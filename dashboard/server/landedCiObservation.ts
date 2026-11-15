@@ -91,7 +91,7 @@ export type KeptBuild = z.infer<typeof keptBuildSchema>;
 // one whose attempt named no CI wall time.
 const unmeasuredReasonSchema = z
   .enum(finalGapReasons)
-  .exclude(["failed", "not-recorded"]);
+  .exclude(["failed", "not-recorded", "time-without-runner-waits"]);
 
 // The build the Landed rule named for a landing it could not measure by
 // it: its revision, how it would have stood for the landing, and its run

@@ -27,8 +27,12 @@ is the comparison's, from the one definition both read (`wallTimeMs` in
 `dashboard/src/ciProofTimeWords.ts`). Background collection also asks that
 build's CI lookup for **CI time without runner waits** once
 (`timeWithoutRunnerWaitsOf`), as the [CI timing comparison](dashboard-development-intent-ci-comparison.md)
-calculates it for the attempt, and keeps the answer — a time or the reason
-there is none — with the build. Reading the history asks CI nothing.
+calculates it for the attempt, and keeps an answered time or reason with the
+build. An unanswered read (jobs or workflow unread, or an adapter that failed
+to answer) is left unset and asked again at the next pass. Collection supplies
+the same ask for retained builds that already hold wall time without a kept
+measure, from each build's same recorded attempt. Reading the history asks CI
+nothing.
 
 A landing is pending while that rule's answer may still change: its build is
 queued or running; its cancelled build awaits a later trunk build; the CI
@@ -78,9 +82,12 @@ recorded”); project and Done readers request `gap-reasons=timing-basis` for
 that retained-timing reason. Done and scope readers request `history=glance`,
 the [slim projection](dashboard-development-intent-ci-reference.md#glance-history-read).
 A project read that names `measure=time-without-runner-waits` answers each
-point by the build's kept **CI time without runner waits**; a read that does
-not keeps today's wall-time point. Neither changes collected observations,
-timing calculations or the cohort beyond that named measure.
+build by its kept **CI time without runner waits** as a point; a kept reason
+is a final gap naming the build, how it stands for the landing, and that
+reason; a build not yet asked, or whose last ask CI left unanswered, is a
+pending gap `CI time without runner waits not read yet`. A read that does not
+name the measure keeps today's wall-time point. Neither changes collected
+observations, timing calculations or the cohort beyond that named measure.
 
 Each landing is kept by its receipt, with its own reference (revision, when
 it was recorded, its story), and each build once by its run and attempt, in
