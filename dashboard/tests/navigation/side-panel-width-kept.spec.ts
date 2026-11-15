@@ -9,7 +9,12 @@
 import { reviewRegion } from "../support/storyReviewMark.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import type { Locator, Page } from "@playwright/test";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import {
+  storyCardSessions,
+  parts,
+  expectSettledPage,
+} from "../dashboardPage.ts";
+import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
 import { watchPageErrors } from "../pageErrors.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import {
@@ -40,6 +45,7 @@ const storyA = (page: Page) =>
   parts(page).backlog.getByRole("article", { name: "Story A" });
 
 async function openTerminal(page: Page) {
+  await expectSettledPage(page);
   await openTerminalControl(storyCardSessions(storyA(page))).click();
   const terminal = terminalPanel(page);
   await expect(terminalScreenParts(terminal).rows).toContainText("attached");
@@ -47,6 +53,7 @@ async function openTerminal(page: Page) {
 }
 
 async function openStoryReview(page: Page) {
+  await expectSettledPage(page);
   await reviewChanges(storyA(page)).click();
   const review = reviewRegion(page);
   await expect(review).toBeVisible();
@@ -94,6 +101,7 @@ test("a width chosen on the terminal is recovered for a review after a reload, a
       viewport: wideWindow,
     });
     try {
+      await noteRequestsInEveryPage(fresh);
       const other = await fresh.newPage();
       await other.goto("/");
       await expectHalfTheRoom(other, await openTerminal(other));
