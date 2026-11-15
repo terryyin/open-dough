@@ -3,7 +3,7 @@
 Maintainer record, 2026-11-14. [ADR 0005](../adrs/0005-cross-tool-validation-accepted.md)
 section 4 (compare outcomes when choosing an improvement) was written from an
 earlier comparison, before a reusable capability existed. SEED-346 built that
-capability ([native comparison cases](../../Distribution/tests/native-comparison.md))
+capability ([native comparison cases](../../Distribution/evaluation/comparison.md))
 and was asked to review the guidance after its first end-to-end runs. This
 record states whether the guidance fits and recommends changes for a human
 decision. It does not amend the ADR; Terry owns amendment and acceptance.

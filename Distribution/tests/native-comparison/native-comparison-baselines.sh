@@ -21,7 +21,7 @@ capture() {
 
 # The working payload currently says shortcut, but the pinned quiet payload
 # actually installed makes each hold use only its fetch, then passes proof.
-baseline_archive="${work}/source/Distribution/tests/native-comparison/paused-supplier/comparisons/baseline.json"
+baseline_archive="${work}/source/Distribution/evaluation/cases/comparison/paused-supplier/comparisons/baseline.json"
 capture "${quiet}" "${baseline_archive}" > "${work}/capture.out"
 ln -s -- "${baseline_archive}" "${work}/baseline.json"
 attempt=$(sed -n 's/^result-path: //p' "${work}/capture.out")

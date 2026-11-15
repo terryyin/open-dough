@@ -66,3 +66,17 @@ keeps maintenance outside the declared payload.
 [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) keeps
 deterministic checks distinct from native acceptance and paid comparisons.
 No North Star topic is needed: the agreed layout and existing owners suffice.
+
+## Browser-control discovery premise for final checks
+
+The two existing `page-object-*-browser-proof.mjs` files are real Node checks
+that drive generated projects through locked Chromium. Their original plain
+names were absent from the `*.test.mjs` manifest and default Distribution CI.
+Slice4 repaired their imports and observed success plus deliberate wrong-item
+and empty-catalog failures. Slice7 explicitly admits both automated checks in
+the new manifest and shared Intent source, rather than leaving them invisible.
+Reuse `scripts/setup-native.mjs browser` and the existing browser workflow's
+locked Chromium cache pattern; Ubuntu24.04 libraries and the contributor's three
+setup stages are already documented in `native-setup.md`. Keep180s acquisition,
+45s browser acquisition and320s CI run cutoffs unchanged, with no new paid host
+or qualification. New paths receive the actual shared-convention selector.

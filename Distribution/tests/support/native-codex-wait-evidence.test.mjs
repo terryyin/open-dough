@@ -4,11 +4,11 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { archiveObservationText } from "./native-comparison-archive-evidence.mjs";
+import { archiveObservationText } from "../../evaluation/src/native-comparison-archive-evidence.mjs";
 import {
   captureWatch,
   watchFields,
-} from "../native-comparison/supplier-watch/evidence.mjs";
+} from "../../evaluation/cases/comparison/supplier-watch/evidence.mjs";
 import {
   captureCodexWaitSession as capture,
   codexReceiptRows as outputs,

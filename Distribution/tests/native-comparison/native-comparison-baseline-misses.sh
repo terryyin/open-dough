@@ -36,7 +36,7 @@ done
 [[ ${original} == "$(shasum -a 256 "${work}/baseline.json")" ]]
 
 # A changed task/setup input is material even when an old verdict still passes.
-printf '\nUse the current project requirements.\n' >> "${work}/source/Distribution/tests/native-comparison/paused-supplier/task.txt"
+printf '\nUse the current project requirements.\n' >> "${work}/source/Distribution/evaluation/cases/comparison/paused-supplier/task.txt"
 native_comparison_fixture_git "${work}/source" add -A
 native_comparison_fixture_git "${work}/source" commit -q -m 'Clarify task input'
 before=$(native_comparison_fixture_sessions "${work}")

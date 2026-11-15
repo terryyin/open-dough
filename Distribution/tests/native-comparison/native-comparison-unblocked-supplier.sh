@@ -5,11 +5,11 @@
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 source "${source_dir}/Distribution/tests/support/native-comparison-pair-fixture.sh"
-source "${source_dir}/Distribution/tests/support/native-comparison-run.sh"
+source "${source_dir}/Distribution/evaluation/src/native-comparison-run.sh"
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
 work=$(mktemp -d)
 trap 'rm -rf -- "${work}"' EXIT
-case_path="${source_dir}/Distribution/tests/native-comparison/unblocked-supplier"
+case_path="${source_dir}/Distribution/evaluation/cases/comparison/unblocked-supplier"
 
 # Observe the actual materialization boundary before a model is started: remote
 # completion exists, while local consumer integration and proof are still owed.
@@ -94,14 +94,14 @@ CASES
 # frozen capture for either case before any substitute session can start.
 native_comparison_pair_fixture "${source_dir}" "${work}/identity"
 quiet=$(native_comparison_fixture_rule "${work}/identity" quiet)
-printf '\n# Shared observation change.\n' >> "${work}/identity/source/Distribution/tests/support/native-comparison-supplier.sh"
+printf '\n# Shared observation change.\n' >> "${work}/identity/source/Distribution/evaluation/cases/comparison/native-comparison-supplier.sh"
 for selected in paused-supplier unblocked-supplier; do
   before=$(native_comparison_fixture_sessions "${work}/identity")
   status=0
   native_comparison_fixture_capture "${work}/identity" "${quiet}" "${selected}" --case "${selected}" || status=$?
   [[ ${status} -eq 2 ]]
   grep -q 'the case basis is not committed' "${work}/identity/${selected}.err"
-  grep -q 'Distribution/tests/support/native-comparison-supplier.sh' "${work}/identity/${selected}.err"
+  grep -q 'Distribution/evaluation/cases/comparison/native-comparison-supplier.sh' "${work}/identity/${selected}.err"
   [[ $(native_comparison_fixture_sessions "${work}/identity") -eq ${before} ]]
 done
 

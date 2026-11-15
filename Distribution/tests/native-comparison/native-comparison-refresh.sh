@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Credential-free refresh and recovery of a comparison case through the
-# maintainer entry (Distribution/tests/native-comparison/native-comparison.sh), on a committed
+# maintainer entry (Distribution/evaluation/src/native-comparison.sh), on a committed
 # copy of this checkout's harness
 # (Distribution/tests/support/native-comparison-pair-fixture.sh): a pair
 # names the commit holding its case basis and refuses an uncommitted one; a
@@ -16,8 +16,8 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 source "${source_dir}/Distribution/tests/support/native-comparison-pair-fixture.sh"
 source "${source_dir}/Distribution/evaluation/src/native-observation.sh"
-source "${source_dir}/Distribution/tests/support/native-comparison-basis-verdict.sh"
-source "${source_dir}/Distribution/tests/support/native-comparison-basis.sh"
+source "${source_dir}/Distribution/evaluation/src/native-comparison-basis-verdict.sh"
+source "${source_dir}/Distribution/evaluation/src/native-comparison-basis.sh"
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
 
 work=$(mktemp -d)
@@ -26,7 +26,7 @@ native_comparison_pair_fixture "${source_dir}" "${work}"
 quiet=$(native_comparison_fixture_rule "${work}" quiet)
 git -C "${work}/payloads" tag v-fixture "${native_comparison_fixture_baseline}"
 source_repo=${work}/source
-case_dir=Distribution/tests/native-comparison/paused-supplier
+case_dir=Distribution/evaluation/cases/comparison/paused-supplier
 comparisons=${case_dir}/comparisons
 # Commits every change of the fixture source with MESSAGE; prints the commit.
 commit() {
@@ -40,7 +40,7 @@ host_bin=${work}/bin
 recover() {
   local name=$1 record=$2
   shift 2
-  PATH="${host_bin}:${PATH}" "${BASH}" "${source_dir}/Distribution/tests/native-comparison/native-comparison.sh" \
+  PATH="${host_bin}:${PATH}" "${BASH}" "${source_dir}/Distribution/evaluation/src/native-comparison.sh" \
     --recover "${record}" --payload-repo "${work}/payloads" "$@" > "${work}/${name}.out"
 }
 # Requires recovery NAME to end with RECORD's bytes, unchanged.
@@ -94,7 +94,7 @@ commit 'Keep the refreshed comparison' > /dev/null
 # The harness moves, as trunk once moved tests/ under Distribution/.
 git -C "${source_repo}" mv Distribution Moved
 commit 'Move the harness' > /dev/null
-moved=${source_repo}/Moved/tests/native-comparison/paused-supplier/comparisons
+moved=${source_repo}/Moved/evaluation/cases/comparison/paused-supplier/comparisons
 
 # Each record recovers its own basis from its hashes, at the paths of then,
 # and reports itself unchanged.
@@ -167,7 +167,7 @@ grep -Fqx 'case-basis-revision: none' "${work}/unmatched.out"
 # The recovery judge's rejected cases, from the first record's recovery.
 sed '/^recovery: /,$d' "${work}/first.out" > "${work}/first.observations"
 native_assessor_counterexamples \
-  "${source_dir}/Distribution/tests/support/native-comparison-basis-verdict.sh" "${work}/first.observations" \
+  "${source_dir}/Distribution/evaluation/src/native-comparison-basis-verdict.sh" "${work}/first.observations" \
   --verdict native_comparison_recovery_status native_comparison_recovery_reason -- native_comparison_recovery_judge
 native_assessor_rejects_field_rows << 'EOF'
 no-recorded-inputs inputs recorded-inputs: 0 | names no input hashes

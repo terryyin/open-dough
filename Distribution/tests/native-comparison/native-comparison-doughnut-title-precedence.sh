@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # Credential-free proof of the doughnut-title-precedence comparison case
-# (Distribution/tests/native-comparison/doughnut-title-precedence/case.md): its observer
+# (Distribution/evaluation/cases/comparison/doughnut-title-precedence/case.md): its observer
 # and assessor over test runs recorded the way record-tests.gradle records
 # them, in a stand-in checkout, with no Nix, Doughnut or database. The real
 # project, setup and proof run only in a native journey,
-# `Distribution/tests/native-comparison/native-comparison.sh --native codex --case doughnut-title-precedence`.
+# `Distribution/evaluation/src/native-comparison.sh --native codex --case doughnut-title-precedence`.
 # shellcheck disable=SC1091,SC2034,SC2154,SC2312 # Sourced runner, case and helper globals; observations print what each command gives.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-source "${source_dir}/Distribution/tests/support/native-comparison-run.sh"
+source "${source_dir}/Distribution/evaluation/src/native-comparison-run.sh"
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
-case_path="${source_dir}/Distribution/tests/native-comparison/doughnut-title-precedence"
+case_path="${source_dir}/Distribution/evaluation/cases/comparison/doughnut-title-precedence"
 source "${case_path}/case.bash"
 source "${case_path}/assess.bash"
 
@@ -70,9 +70,9 @@ jq -nc '{type:"turn.completed"}' >> "${attempt}/events-turn-1.jsonl"
   printf 'case: native-comparison/doughnut-title-precedence\nthread: t\n'
   printf 'payload-revision: %s\n' "$(git -C "${source_dir}" rev-parse HEAD)"
   printf 'host-route: substitute\nsource-revision: %s\n' "$(git -C "${source_dir}" rev-parse HEAD)"
-  native_result_input_hash_lines Distribution/tests/native-comparison/doughnut-title-precedence/assess.bash
+  native_result_input_hash_lines Distribution/evaluation/cases/comparison/doughnut-title-precedence/assess.bash
 } > "${attempt}/record"
-entry=("${BASH}" "${source_dir}/Distribution/tests/native-comparison/native-comparison.sh")
+entry=("${BASH}" "${source_dir}/Distribution/evaluation/src/native-comparison.sh")
 "${entry[@]}" --export-baseline "${attempt}" --save-baseline "${work}/calibration-baseline.json" > /dev/null
 jq -e '.capture.originalAssessment == "fail" and .observations["turn-1-fault"] == "green" and .exportAssessment.status == "pass"' "${work}/calibration-baseline.json" > /dev/null
 original=$(shasum -a 256 "${work}/calibration-baseline.json")

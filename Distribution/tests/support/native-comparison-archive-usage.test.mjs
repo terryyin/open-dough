@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { retainedUsage } from "./native-comparison-archive-usage.mjs";
+import { retainedUsage } from "../../evaluation/src/native-comparison-archive-usage.mjs";
 import { readCodexSession } from "../../evaluation/src/native-host-stream.mjs";
 
 const row = (type, payload) => ({ type, payload });

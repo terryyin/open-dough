@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { ownedWorkerProof } from "../native-comparison/paused-supplier/owned-proof.mjs";
+import { ownedWorkerProof } from "../../evaluation/cases/comparison/paused-supplier/owned-proof.mjs";
 import { readCodexSession } from "../../evaluation/src/native-host-stream.mjs";
 
 const source = fileURLToPath(new URL("../../..", import.meta.url));
@@ -117,10 +117,10 @@ function caseProof(f, sessions = f.directory) {
       "-c",
       'source "$1"; source "$2"; case_agent_proof "$3" "$4" coordinator "$5"',
       "proof",
-      join(source, "Distribution/tests/support/native-comparison-run.sh"),
+      join(source, "Distribution/evaluation/src/native-comparison-run.sh"),
       join(
         source,
-        "Distribution/tests/native-comparison/paused-supplier/case.bash",
+        "Distribution/evaluation/cases/comparison/paused-supplier/case.bash",
       ),
       f.stream,
       f.workspace,

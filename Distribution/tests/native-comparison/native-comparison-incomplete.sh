@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Credential-free refusals and incomplete comparisons through the maintainer
-# entry (Distribution/tests/native-comparison/native-comparison.sh). Invalid or unrecoverable
+# entry (Distribution/evaluation/src/native-comparison.sh). Invalid or unrecoverable
 # requests stop before a payload freezes, a case materializes or a host
 # starts: an unqualified host and an unknown case beside a tripwire codex
 # that must never run, no codex on PATH, and a missing case prerequisite in a
@@ -22,7 +22,7 @@ source "${source_dir}/Distribution/evaluation/src/native-observation.sh"
 
 work=$(mktemp -d)
 trap 'rm -rf -- "${work}"' EXIT
-entry=("${BASH}" "${source_dir}/Distribution/tests/native-comparison/native-comparison.sh")
+entry=("${BASH}" "${source_dir}/Distribution/evaluation/src/native-comparison.sh")
 refused_line='refused: no payload was frozen, no case materialized and no session started'
 
 # Runs request NAME (the command that follows) into NAME.out and NAME.err
@@ -158,7 +158,7 @@ grep -Fqx 'candidate-stopped: none' "${unknown}"
 
 # A case prerequisite this host lacks stops the request before anything runs.
 printf '%s\n' 'case_preflight() {' "  echo 'paused-supplier: this host lacks the fixture prerequisite' >&2" \
-  '  return 1' '}' >> "${work}/source/Distribution/tests/native-comparison/paused-supplier/case.bash"
+  '  return 1' '}' >> "${work}/source/Distribution/evaluation/cases/comparison/paused-supplier/case.bash"
 sessions=$(find "${work}/codex-home" -type f | wc -l)
 attempts=$(find "${work}/results/codex" -mindepth 3 -maxdepth 3 | wc -l)
 PATH=${work}/bin:${PATH} CODEX_HOME=${work}/codex-home refuse prerequisite \
@@ -169,7 +169,7 @@ grep -Fqx 'paused-supplier: this host lacks the fixture prerequisite' "${work}/p
 [[ $(find "${work}/results/codex" -mindepth 3 -maxdepth 3 | wc -l) -eq ${attempts} ]]
 
 # Kept comparison records are native evidence.
-for record in "${source_dir}"/Distribution/tests/native-comparison/*/comparisons/*.txt; do
+for record in "${source_dir}"/Distribution/evaluation/cases/comparison/*/comparisons/*.txt; do
   if grep -Eq '^(evidence: not native|(baseline|candidate)-host: .*substitute)' "${record}"; then
     printf 'FAIL: kept comparison %s came from a substitute host\n' "${record}" >&2
     exit 1

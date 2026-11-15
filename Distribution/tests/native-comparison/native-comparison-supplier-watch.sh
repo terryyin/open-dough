@@ -4,7 +4,7 @@
 # shellcheck disable=SC1091,SC2034,SC2154,SC2310,SC2312 # Case/journey globals and observed states.
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-source "${source_dir}/Distribution/tests/support/native-comparison-run.sh"
+source "${source_dir}/Distribution/evaluation/src/native-comparison-run.sh"
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
 work=$(mktemp -d)
 driver=''
@@ -95,9 +95,9 @@ kill -0 "$(< "${work}/clock/controller-pid")" 2> /dev/null && exit 1
 kill -0 "$(< "${work}/clock/clock-pid")" 2> /dev/null && exit 1
 
 # Export the actual retained journey, then reassess every declared input.
-node "${source_dir}/Distribution/tests/support/native-comparison-archive.mjs" export \
+node "${source_dir}/Distribution/evaluation/src/native-comparison-archive.mjs" export \
   "${attempt}" "${work}/watch-baseline.json" "${source_dir}" "${work}/replay.txt" > "${work}/export.out"
-node "${source_dir}/Distribution/tests/support/native-comparison-archive.mjs" assess \
+node "${source_dir}/Distribution/evaluation/src/native-comparison-archive.mjs" assess \
   "${work}/watch-baseline.json" '' "${source_dir}" "${work}/reassess.txt" > "${work}/assessment.json"
 [[ $(jq -r .status "${work}/assessment.json") == pass ]]
 [[ $(jq '.evidence.turns | length' "${work}/watch-baseline.json") == 2 ]]
@@ -113,7 +113,7 @@ grep -Fqx 'turn-2-hold-supplier-reader: absent' "${work}/reassess.txt"
 
 # Matching includes the controlled release driver and ordered publications,
 # independent of their real completion times and without additional turns.
-source "${source_dir}/Distribution/tests/support/native-comparison-pair.sh"
+source "${source_dir}/Distribution/evaluation/src/native-comparison-pair.sh"
 mkdir -p "${work}/pair/baseline" "${work}/pair/candidate"
 for arm in baseline candidate; do
   cp "${passing}" "${work}/pair/${arm}/observations.txt"
@@ -128,7 +128,7 @@ native_comparison_pair_observe_arm "${work}/pair" candidate 2 '' > "${work}/pair
 
 # Each quality rejection changes one declared observed signal from this
 # passing journey. A scripted reduction of work cannot erase these outcomes.
-case_path="${source_dir}/Distribution/tests/native-comparison/supplier-watch"
+case_path="${source_dir}/Distribution/evaluation/cases/comparison/supplier-watch"
 source "${case_path}/assess.bash"
 # Immutable exports keep their retired schedule label and remain assessable.
 sed 's/producer-schedule: controlled-fifo/producer-schedule: fixed-180s-180s/' \

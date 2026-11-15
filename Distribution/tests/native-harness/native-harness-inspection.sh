@@ -6,7 +6,7 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-source "${source_dir}/Distribution/tests/support/native-comparison-run.sh"
+source "${source_dir}/Distribution/evaluation/src/native-comparison-run.sh"
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
 # Regex metacharacters are ordinary controller/workspace path characters.
 work=$(mktemp -d "${TMPDIR:-/tmp}/native-comparison+[kept].XXXXXX")
@@ -46,8 +46,8 @@ run_inspection workspace 'cat -- "@WORKSPACE@/.agents/skills/dough-execute-plan/
 run_inspection ordinary 'cat -- "@WORKSPACE@/.agents/skills/dough-execute-plan/SKILL.md"'
 [[ ${native_comparison_status} == pass ]]
 passing="${NATIVE_INSPECTION_WORK}/observations.txt"
-assessor="${source_dir}/Distribution/tests/native-comparison/unblocked-supplier/assess.bash"
-# shellcheck source=Distribution/tests/native-comparison/unblocked-supplier/assess.bash
+assessor="${source_dir}/Distribution/evaluation/cases/comparison/unblocked-supplier/assess.bash"
+# shellcheck source=Distribution/evaluation/cases/comparison/unblocked-supplier/assess.bash
 source "${assessor}"
 native_assessor_counterexamples "${assessor}" "${passing}" \
   --verdict case_assess_status case_assess_reason -- case_assess
@@ -72,10 +72,10 @@ native_assessor_rejects_observed controller harness "${work}/controller-observed
 native_assessor_rejects_observed source harness "${work}/source-observed" \
   observe_inspection source 'cat -- "@SOURCE@/README.md"' -- fail 'inspected the native harness'
 native_assessor_rejects_observed relative-case harness "${work}/relative-case-observed" \
-  observe_inspection relative-case 'cat ../../Distribution/tests/native-comparison/paused-supplier/assess.bash' -- fail 'inspected the native harness'
+  observe_inspection relative-case 'cat ../../Distribution/evaluation/cases/comparison/paused-supplier/assess.bash' -- fail 'inspected the native harness'
 native_assessor_rejects_observed relative-command harness "${work}/relative-command-observed" \
-  observe_inspection relative-command 'bash Distribution/tests/native-comparison/native-comparison.sh --list' -- fail 'inspected the native harness'
+  observe_inspection relative-command 'bash Distribution/evaluation/src/native-comparison.sh --list' -- fail 'inspected the native harness'
 native_assessor_rejects_observed relative-support harness "${work}/relative-support-observed" \
-  observe_inspection relative-support 'cat Distribution/tests/support/native-comparison-run.sh' -- fail 'inspected the native harness'
+  observe_inspection relative-support 'cat Distribution/evaluation/src/native-comparison-run.sh' -- fail 'inspected the native harness'
 native_assessor_rejects_observed mixed harness "${work}/mixed-observed" \
   observe_inspection mixed 'cat "@WORKSPACE@/README.md"; cat "@CONTROLLER@/observations.txt"' -- fail 'inspected the native harness'

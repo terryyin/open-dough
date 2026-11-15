@@ -30,7 +30,7 @@ fork history and duplicate compaction accounting. The retained A/B sample had
 turn lineage to assign workers. Rollout formats and retention vary by version.
 [Audit method](session-token-efficiency-research.md#codex-audit),
 [rollout event](https://github.com/openai/codex/pull/41912),
-[retained A/B usage](../../Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T102744-1921-tokens.md),
+[retained A/B usage](../../Distribution/evaluation/cases/comparison/paused-supplier/comparisons/20261114T102744-1921-tokens.md),
 [thread filters](https://github.com/openai/codex/blob/rust-v0.169.0/codex-rs/app-server-protocol/src/protocol/v2/thread.rs#L1524-L1543),
 [turn lineage](https://github.com/openai/codex/blob/rust-v0.169.0/codex-rs/app-server-protocol/src/protocol/v2/thread_data.rs#L392-L425).
 
@@ -150,7 +150,7 @@ historic estimates reproducible when prices change. In the retained Codex pair,
 processed tokens increased from 8.39M to 13.43M (+60.2%). Applying the published
 GPT-6.1 Sol Standard credit rates to the observed uncached input, cached input,
 and output gives 41.27 and 57.67 credit equivalents (+39.7%). These are modeled
-values under one tariff. [Retained usage](../../Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T102744-1921-tokens.md),
+values under one tariff. [Retained usage](../../Distribution/evaluation/cases/comparison/paused-supplier/comparisons/20261114T102744-1921-tokens.md),
 [Codex credit rates](https://learn.chatgpt.com/docs/pricing#token-rates),
 [OpenAI API prices](https://developers.openai.com/api/docs/pricing),
 [OpenAI cache pricing](https://developers.openai.com/api/docs/guides/prompt-caching),

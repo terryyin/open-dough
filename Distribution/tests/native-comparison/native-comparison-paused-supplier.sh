@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 # Credential-free proof of the paused-supplier comparison case
-# (Distribution/tests/native-comparison/paused-supplier/case.md): substitute-host journeys
+# (Distribution/evaluation/cases/comparison/paused-supplier/case.md): substitute-host journeys
 # through the shared runner, observer, assessor and retention, the assessor's
 # rejected cases, and checks that the task and wake texts and the agent's
 # workspace hold no expected answer. A native journey or pair runs through
-# Distribution/tests/native-comparison/native-comparison.sh.
+# Distribution/evaluation/src/native-comparison.sh.
 # shellcheck disable=SC1091,SC2034,SC2154,SC2249,SC2310,SC2312 # Sourced runner, case and helper globals; journeys report their verdicts.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-source "${source_dir}/Distribution/tests/support/native-comparison-run.sh"
+source "${source_dir}/Distribution/evaluation/src/native-comparison-run.sh"
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
 
 work=$(mktemp -d)
 trap 'rm -rf -- "${work}"' EXIT
-case_path="${source_dir}/Distribution/tests/native-comparison/paused-supplier"
+case_path="${source_dir}/Distribution/evaluation/cases/comparison/paused-supplier"
 
 # The task and wake name neither the supplier, its state nor the decision.
 if grep -Eiq 'SEED-332|supplier|satisf|stabil|natural|wait|hold|block|depend' \
@@ -68,7 +68,7 @@ grep -Fqx 'codex-session-file: missing' "${attempt}/record"
 # A substitute's record says so: it is never native evidence.
 grep -Fqx 'host-route: substitute' "${attempt}/record"
 grep -Fqx "thread: ${thread}" "${attempt}/record"
-grep -Eq '^input-hash: [0-9a-f]{64} Distribution/tests/native-comparison/paused-supplier/assess.bash$' \
+grep -Eq '^input-hash: [0-9a-f]{64} Distribution/evaluation/cases/comparison/paused-supplier/assess.bash$' \
   "${attempt}/record"
 # Nothing of the case's definition reaches the agent's side of the journey.
 if [[ -n $(find "${work}/completion" -path '*/nc.*' \( -name 'assess.bash' \

@@ -25,7 +25,7 @@ native_comparison_verdict_counterexamples() {
   # conditions, an incomplete arm or a label instead of a frozen payload count
   # as an equivalent outcome.
   native_assessor_counterexamples \
-    "${native_comparison_verdict_counterexamples_dir}/native-comparison-verdict.sh" "${passing}" \
+    "${native_comparison_verdict_counterexamples_dir}/../../evaluation/src/native-comparison-verdict.sh" "${passing}" \
     --verdict native_comparison_verdict_status native_comparison_verdict_reason -- native_comparison_judge
   native_assessor_rejects_field_rows << 'EOF'
 cheaper-candidate-missed-proof candidate-outcome candidate-assessment: failed | lower effort cannot offset

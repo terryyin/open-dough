@@ -65,8 +65,8 @@ Current families, each `<family>-native-<layer>` in `Distribution/tests/support`
   `-cheap.sh` counterexamples.
 - product-backlog: only `product-backlog-native-evidence.sh` is shared; its
   guard, use and take cases stay separate.
-- native-comparison ([native comparison cases](../native-comparison/native-comparison.md)): each
-  case under `Distribution/tests/native-comparison/<case>/` keeps its fixture
+- native-comparison ([native comparison cases](../../evaluation/comparison.md)): each
+  case under `Distribution/evaluation/cases/comparison/<case>/` keeps its fixture
   and observer in `case.bash` and its assessor in `assess.bash`, with rejected
   cases in `Distribution/tests/native-comparison-<case>.sh`. Shared
   `native-comparison-` modules: `-run` and `-retain` (one journey), `-pair`,

@@ -70,9 +70,8 @@ updated-use adapters, typecheck and declared-payload checks.
 
 ### 5. Run comparisons and recover earlier evidence
 Type: Behavior
-Status: planned
-Proof: all credential-free comparison checks, both original recovered records
-and byte comparisons of moved tracked records/archives.
+Status: done
+Proof: [Comparison checks, original record recovery and frozen-byte observations](slice-5-evidence.md).
 
 Existing comparison selection/record → new comparison entry → same selection,
 quality-first outcomes/limits, or original basis/record with no native launch.
@@ -113,7 +112,9 @@ Preserve named selection, substitute roots, admission, deadlines, silence,
 reports and duration values. Extend Node manifests, exclusions and Distribution
 Intent sources to executable checks only. Exercise shell/Node outcomes through
 real CI fragments/summary including failures. Complete README prerequisites,
-commands/evidence limits and live navigation. Run final suite and 3-share preview.
+commands/evidence limits and live navigation. Include both existing browser-control
+Node checks explicitly in the new manifest/Intent sources; reuse locked Chromium
+CI setup under existing deadlines. Run final suite and 3-share preview.
 
 ### 8. Settle named one-shot aggregate execution
 Type: Behavior
@@ -238,3 +239,10 @@ Disposition: proved by slice 4: slice-4-evidence.md renewed operational admissio
 Reported: slice 4 — "Native entries retain default automated branches behind old thin wrappers; CI, closure and one-shot run modules also still source test-only counterexamples."
 Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
 Disposition: interim until slices 4, 6, 7
+
+
+### G12. Current baseline consumer purposes after supplier placement
+Reported: slice 5 — "Acceptance found that six baseline consumer observations precede the final supplier shared-input path change; fresh-pair setup alone does not observe their current archive reuse, refusal and provenance purposes."
+Story clause: "preserve case selection, host support, outcome and failure semantics, supervision, retention and evidence identity during the move."
+Disposition: proved by slice 5: slice-5-evidence.md final six baseline-purpose renewal after supplier identity-path and runtime-file hashing changes; actual archive raw-cleanup, conditions/usage, reader changes, reuse/fresh, misses and unavailable-evidence observations all pass.
+Commitment: C17

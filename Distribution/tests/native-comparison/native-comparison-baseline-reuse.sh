@@ -43,8 +43,8 @@ grep -Fqx 'verdict: improved' "${record}"
 
 # Harmless retention changes and a current assessor change do not relabel
 # capture provenance or launch another baseline. The new assessment is explicit.
-printf '\n# Retention note only.\n' >> "${work}/source/Distribution/tests/support/native-comparison-retain.sh"
-printf '\n# Current assessor review.\n' >> "${work}/source/Distribution/tests/native-comparison/paused-supplier/assess.bash"
+printf '\n# Retention note only.\n' >> "${work}/source/Distribution/evaluation/src/native-comparison-retain.sh"
+printf '\n# Current assessor review.\n' >> "${work}/source/Distribution/evaluation/cases/comparison/paused-supplier/assess.bash"
 native_comparison_fixture_git "${work}/source" add -A
 native_comparison_fixture_git "${work}/source" commit -q -m 'Review retention and current assessment'
 before=$(native_comparison_fixture_sessions "${work}")

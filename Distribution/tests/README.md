@@ -203,7 +203,7 @@ one reader, and a replay check holds that reader to retained real streams:
 
 Versioned examples from real work compare a baseline and a candidate payload
 in fresh native sessions on demand; routine runs use substitute hosts only:
-[native comparison cases](native-comparison/native-comparison.md).
+[native comparison cases](../evaluation/comparison.md).
 
 ## Shared installation and update protections
 

@@ -6,7 +6,7 @@ import { readCodexSession } from "../../evaluation/src/native-host-stream.mjs";
 import {
   captureWatch,
   watchFields,
-} from "../native-comparison/supplier-watch/evidence.mjs";
+} from "../../evaluation/cases/comparison/supplier-watch/evidence.mjs";
 import {
   captureCodexWaitSession as capture,
   codexReceiptRows as outputs,

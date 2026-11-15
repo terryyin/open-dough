@@ -63,3 +63,26 @@ bash Distribution/evaluation/cases/installation/dough-update-local-guidance-reje
 The family entries currently retain their credential-free default checks; the
 routine test paths forward to those defaults until the automated-check layout
 is completed. Native execution requires the explicit host options shown above.
+
+## A/B comparisons and historical evidence
+
+The [comparison guide](comparison.md) covers case prerequisites, explicit paid
+invocations, quality-first outcomes and evidence limits. List/filter without a host:
+
+```sh
+bash Distribution/evaluation/src/native-comparison.sh --list
+bash Distribution/evaluation/src/native-comparison.sh --list --where hosts=codex --where workflow=blocked
+```
+
+The [baseline guide](baselines.md) describes immutable exports and reassessment.
+Recover an earlier record without rerunning or rewriting it:
+
+```sh
+bash Distribution/evaluation/src/native-comparison.sh --recover Distribution/evaluation/cases/comparison/paused-supplier/comparisons/20261114T045440-40bf.txt
+```
+
+Records keep their original paths and hashes within the retained content; Git
+history supplies the original committed basis after files move. Controlled
+checks exercise the actual entry, runner, observer and assessor without buying
+native sessions. Reusable cases live in `cases/comparison/`; shared execution
+and comparison orchestration share the single `src/` implementation.

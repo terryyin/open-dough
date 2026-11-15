@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Credential-free pairs through the maintainer entry
-# (Distribution/tests/native-comparison/native-comparison.sh): substitute-host pairs of the
+# (Distribution/evaluation/src/native-comparison.sh): substitute-host pairs of the
 # paused-supplier case from a committed copy of this checkout's harness
 # (Distribution/tests/support/native-comparison-pair-fixture.sh), whose
 # frozen payloads differ only in the substitute's rule, and the pair judge's
@@ -11,7 +11,7 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 source "${source_dir}/Distribution/tests/support/native-comparison-pair-fixture.sh"
 source "${source_dir}/Distribution/evaluation/src/native-observation.sh"
-source "${source_dir}/Distribution/tests/support/native-comparison-verdict.sh"
+source "${source_dir}/Distribution/evaluation/src/native-comparison-verdict.sh"
 source "${source_dir}/Distribution/tests/support/native-comparison-verdict-counterexamples.sh"
 
 work=$(mktemp -d)
@@ -42,9 +42,9 @@ done
 grep -Fqx 'baseline-settings: model=gpt-test effort=low sandbox=danger-full-access approval=never' "${preserved}"
 [[ $(native_observation_value "${preserved}" baseline-thread) =~ ^0{8}- && $(native_observation_value "${preserved}" baseline-thread) != "$(native_observation_value "${preserved}" candidate-thread)" ]]
 grep -Fqx 'arms: concurrent' "${preserved}"
-grep -Fq "case-input-hash: $(shasum -a 256 "${source_dir}/Distribution/tests/native-comparison/paused-supplier/assess.bash" | cut -d ' ' -f 1) Distribution/tests/native-comparison/paused-supplier/assess.bash" "${preserved}"
-cmp -s "${source_dir}/Distribution/tests/native-comparison/paused-supplier/task.txt" \
-  "$(dirname -- "${preserved}")/case-basis/Distribution/tests/native-comparison/paused-supplier/task.txt"
+grep -Fq "case-input-hash: $(shasum -a 256 "${source_dir}/Distribution/evaluation/cases/comparison/paused-supplier/assess.bash" | cut -d ' ' -f 1) Distribution/evaluation/cases/comparison/paused-supplier/assess.bash" "${preserved}"
+cmp -s "${source_dir}/Distribution/evaluation/cases/comparison/paused-supplier/task.txt" \
+  "$(dirname -- "${preserved}")/case-basis/Distribution/evaluation/cases/comparison/paused-supplier/task.txt"
 # The criteria were recorded before either arm's sessions.
 [[ $(grep -n '^quality-criteria: ' "${preserved}" | cut -d : -f 1) -lt $(grep -n '^baseline-attempt: ' "${preserved}" | cut -d : -f 1) ]]
 for arm in baseline candidate; do
