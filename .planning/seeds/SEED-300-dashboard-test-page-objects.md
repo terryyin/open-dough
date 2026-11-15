@@ -324,11 +324,11 @@ execution prerequisite on another story.
   Reuse the settings and project-add helpers for rows, dialogs and return
   to Board. Keep the URLs, paths, chosen project, focus destination and
   filesystem evidence explicit.
-  [Add refusal](../../dashboard/tests/configuration/project-add-refusal.spec.ts#L29),
+  [Add refusal](../../dashboard/frontend-tests/configuration/project-add-dialog.spec.ts#L16),
   [project removal](../../e2e/configuration/project-remove.spec.ts),
   [hide with sessions](../../e2e/configuration/project-hide-sessions.spec.ts#L81),
-  [settings project management](../../dashboard/tests/configuration/system-settings-project-management.spec.ts#L24),
-  [touch project management](../../dashboard/tests/configuration/system-settings-project-management-touch.spec.ts#L48).
+  [settings project management](../../e2e/configuration/project-add.spec.ts#L186),
+  [touch project management](../../dashboard/frontend-tests/configuration/system-settings-project-management-touch.spec.ts#L24).
 
 - **Settings controls and appearance.** Credential recovery, terminal
   theme, feedback maintenance and system appearance cases repeat selected
@@ -336,8 +336,8 @@ execution prerequisite on another story.
   controls and appearance helpers for these operations, including the
   integrated Intent dark-appearance case. Keep expected values, color
   scheme and dimensions where the behavior depends on them.
-  [Credential recovery](../../dashboard/tests/configuration/system-settings-openai-recovery.spec.ts#L26),
-  [terminal theme](../../dashboard/tests/configuration/system-settings-terminal-theme.spec.ts#L25),
+  [Credential recovery](../../dashboard/frontend-tests/configuration/system-settings-openai.spec.ts#L104),
+  [terminal theme](../../e2e/configuration/system-settings-terminal-theme.spec.ts#L30),
   [feedback maintenance](../../e2e/configuration/system-settings-feedback-maintenance.spec.ts#L57),
   [frontend system appearance](../../dashboard/frontend-tests/dashboard-system-appearance.spec.ts#L126),
   [Intent dark appearance](../../dashboard/tests/intent/intent-story-dark-appearance.spec.ts#L48).

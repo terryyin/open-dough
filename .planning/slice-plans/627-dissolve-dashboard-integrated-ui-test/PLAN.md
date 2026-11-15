@@ -2,6 +2,7 @@
 
 **Identity:** SEED-334#focus-detailed-dashboard-ui-checks
 **Source:** [Dissolve Dashboard Integrated UI Test into E2E and unit tests](../../seeds/SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -95,7 +96,7 @@ Focused roster/CI declaration tests and `runner-ownership` (three groups) pass.
 
 ### 1. Convert configuration settings answers
 Type: Behavior
-Status: planned
+Status: done
 Proof: configuration interim specs gone; checks live in Frontend and/or E2E per
 case; representative Frontend case fails a scratch UI-rule break and passes
 restored; record elapsed effort per converted frontend/small and split/small
@@ -107,6 +108,26 @@ specs remain → trigger → convert them using inventory placement, extending
 shared settings substitutes as needed → result → each distinct check has a
 Frontend or E2E home, interim files and duration rows are removed, and the
 story’s configuration example holds.
+
+Accepted proof: 7 Frontend specs under `dashboard/frontend-tests/configuration/`
+on the new `dashboard/tests/support/frontendSettingsSubstitutes.ts` (stateful
+settings answers with `changes`, `refuseNext`, `holdNext`); E2E homes in
+`e2e/configuration/` (`project-add`, `project-hide`, `project-remove`,
+`project-remove-selection`, `system-settings-openai`,
+`system-settings-terminal-theme`, `system-settings-running-session`). Focused
+Frontend configuration 15 passed, unfiltered Frontend 176 passed, focused E2E
+configuration passed, `runner-ownership`, `browser-group-shards`,
+`dashboard-test-files` and `typecheck:dashboard` passed. Scratch break of
+`AddProjectDialog` `aria-describedby` failed the interim and converted
+refusal cases with the same `aria-invalid` message; both passed restored.
+
+Sizing learning: 11 small specs took about 14 minutes of conversion and 12 of
+verification, about 280k agent tokens. Cost concentrates in a new Frontend
+substitute family; once it exists each case takes 1–2 minutes, and E2E moves
+are mechanical. Batches needing several new families, or many inventory
+`large` cases (launches 11, sessions 21, intent 40, navigation 24, stories
+17), exceed one agent slice and are split by folder or substitute family
+before delegation.
 
 ### 2. Convert launch dialog, start and voice
 Type: Behavior

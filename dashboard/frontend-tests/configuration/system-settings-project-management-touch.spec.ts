@@ -1,30 +1,45 @@
-// Touch project editing retains its draft, predecessor and explicit recovery
-// while the viewport changes and local writes fail.
-import { chmodSync, existsSync, readFileSync } from "node:fs";
-import path from "node:path";
-import { expect, test } from "../support/pageTest.ts";
-import { projectAddMachine } from "../support/projectAddMachine.ts";
-import { tapWhereShown } from "../pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
-import { readSetting } from "../support/settingsTouchPage.ts";
-
-let fixture: ReturnType<typeof projectAddMachine>;
-test.beforeEach(() => {
-  fixture = projectAddMachine();
-});
-test.afterEach(async () => fixture.close());
+// Touch project editing, against controlled settings answers, retains its
+// draft and explicit recovery while the viewport changes and a save is
+// refused. That a failed write keeps the saved file byte for byte, and an Add
+// saves the repository's default branch, are
+// ../../../e2e/configuration/project-add.spec.ts.
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import {
+  installFrontendSettingsSubstitutes,
+  productionSeedProjects,
+} from "../../tests/support/frontendSettingsSubstitutes.ts";
+import {
+  projectAddEndpoint,
+  projectRemoveEndpoint,
+} from "../../src/projectConfiguration.ts";
+import { tapWhereShown } from "../../tests/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
+import { readSetting } from "../../tests/support/settingsTouchPage.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const { name, portrait, landscape } = phoneLaunchTouchViewport;
 
 test.describe(`${name} project settings editing`, () => {
   test.use({ viewport: portrait, hasTouch: true });
-  test("touch edits at reduced height and retries a real failed save with the exact draft", async ({
+  test("touch edits at reduced height and retries a refused save with the exact draft", async ({
     page,
+    frontendServices,
   }) => {
-    const server = await fixture.start("preview");
-    await page.goto(`${server.baseURL}/?view=settings`);
-    const file = fixture.configurationFile("preview");
-    const predecessor = readFileSync(file, "utf8");
+    const answers = await installFrontendSettingsSubstitutes(
+      page,
+      frontendServices,
+      {
+        projects: productionSeedProjects,
+        adding: makeMe.aPublishedSource
+          .with({
+            id: "sample-app",
+            label: "Sample App",
+            repository: "example/sample-app",
+          })
+          .please(),
+      },
+    );
+    await page.goto("/?view=settings");
     const addProject = page.getByRole("button", {
       name: "Add project",
       exact: true,
@@ -55,7 +70,6 @@ test.describe(`${name} project settings editing`, () => {
     await page.setViewportSize(landscape);
     await expect(url).toHaveValue(repository);
     await expect(local).toHaveValue(checkout);
-    expect(readFileSync(file, "utf8")).toBe(predecessor);
     await page.setViewportSize({ width: portrait.width, height: 320 });
     expect(
       await page.evaluate(
@@ -76,40 +90,31 @@ test.describe(`${name} project settings editing`, () => {
         .locator(".launch-dialog-body")
         .evaluate((element) => element.scrollWidth <= element.clientWidth),
     ).toBe(true);
-    // Cancel: project-remove.spec.ts. Remove write-failure: system-settings-project-management.spec.ts
+    // Cancel and a failed removal: ../../../e2e/configuration/project-remove.spec.ts.
     await local.scrollIntoViewIfNeeded();
     await tapWhereShown(local);
     await expect(local).toBeFocused();
-    chmodSync(path.dirname(file), 0o500);
-    try {
-      await tapWhereShown(
-        dialog.getByRole("button", { name: "Add", exact: true }),
-      );
-      await expect(dialog.getByRole("alert")).toBeVisible();
-      await readSetting(dialog.getByRole("alert"));
-      await expect(url).toHaveValue(repository);
-      await expect(local).toHaveValue(checkout);
-      expect(readFileSync(file, "utf8")).toBe(predecessor);
-      await page.setViewportSize(landscape);
-      await expect(url).toHaveValue(repository);
-      await expect(local).toHaveValue(checkout);
-    } finally {
-      chmodSync(path.dirname(file), 0o700);
-    }
+    expect(answers.changes).toEqual([]);
+    answers.refuseNext(
+      projectAddEndpoint,
+      503,
+      "EACCES: permission denied, open '~/.open-dough/dashboard/projects-production.json.tmp'",
+    );
+    await tapWhereShown(
+      dialog.getByRole("button", { name: "Add", exact: true }),
+    );
+    await expect(dialog.getByRole("alert")).toBeVisible();
+    await readSetting(dialog.getByRole("alert"));
+    await expect(url).toHaveValue(repository);
+    await expect(local).toHaveValue(checkout);
+    await page.setViewportSize(landscape);
+    await expect(url).toHaveValue(repository);
+    await expect(local).toHaveValue(checkout);
     await page.setViewportSize({ width: portrait.width, height: 320 });
     await tapWhereShown(
       dialog.getByRole("button", { name: "Add", exact: true }),
     );
     await expect(dialog).toBeHidden();
-    const saved = JSON.parse(readFileSync(file, "utf8")) as readonly unknown[];
-    expect(saved).toHaveLength(
-      (JSON.parse(predecessor) as unknown[]).length + 1,
-    );
-    expect(saved.at(-1)).toMatchObject({
-      repository: "example/sample-app",
-      localPath: checkout,
-      ref: "release+stable",
-    });
     const row = page.getByRole("listitem").filter({
       has: page.getByRole("heading", { name: "Sample App", exact: true }),
     });
@@ -130,24 +135,13 @@ test.describe(`${name} project settings editing`, () => {
       removal.getByRole("button", { name: "Remove", exact: true }),
     );
     await expect(removal).toBeHidden();
-    expect(readFileSync(file, "utf8")).toBe(predecessor);
-    expect(existsSync(fixture.configurationFile("dev"))).toBe(false);
-    expect(
-      existsSync(
-        path.join(
-          fixture.machine,
-          "home/.open-dough/dashboard/credentials/openai.json",
-        ),
-      ),
-    ).toBe(false);
-    expect(
-      existsSync(
-        path.join(
-          fixture.machine,
-          "home/.open-dough/dashboard/terminal-theme.json",
-        ),
-      ),
-    ).toBe(false);
-    expect(server.claudeCalls()).toEqual([]);
+    // The refused and retried Add carried the exact draft; nothing but the
+    // project list changed.
+    const added = { githubUrl: repository, localPath: checkout };
+    expect(answers.changes).toEqual([
+      { endpoint: projectAddEndpoint, body: added },
+      { endpoint: projectAddEndpoint, body: added },
+      { endpoint: projectRemoveEndpoint, body: { id: "sample-app" } },
+    ]);
   });
 });

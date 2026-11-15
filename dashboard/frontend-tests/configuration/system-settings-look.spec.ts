@@ -1,35 +1,34 @@
-// System settings in the frame's look: each setting group is a headed region
-// in one shared column, its text readable and its controls recognisable, and
-// the page and its project dialogs fit a narrow window without sideways
-// scrolling. Open Dough's mark leads the page's name at each width.
+// System settings in the frame's look, against controlled settings answers:
+// each setting group is a headed region in one shared column, its text
+// readable and its controls recognisable, and the page and its project
+// dialogs fit a narrow window, phone touch reading and 200% zoom without
+// sideways scrolling. Open Dough's mark leads the page's name at each width.
 
 import type { Page } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { expect, test } from "../support/pageTest.ts";
-import { projectAddMachine } from "../support/projectAddMachine.ts";
-import { back, settings } from "../support/systemSettingsPage.ts";
-import { themeChoice } from "../support/terminalThemeSettingsPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
+import {
+  installFrontendSettingsSubstitutes,
+  productionSeedProjects,
+} from "../../tests/support/frontendSettingsSubstitutes.ts";
+import { back, settings } from "../../tests/support/systemSettingsPage.ts";
+import { themeChoice } from "../../tests/support/terminalThemeSettingsPage.ts";
 import {
   expectControlContrast,
   expectReadableAndRecognisable,
   expectReadableContrast,
-} from "../accessibleReading.ts";
+} from "../../tests/accessibleReading.ts";
 import {
   box,
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   tapWhereShown,
-} from "../pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
-import { expectProductMark } from "../productMark.ts";
-import { expectProjectChoice } from "../dashboardPage.ts";
-import { readSetting } from "../support/settingsTouchPage.ts";
-
-let fixture: ReturnType<typeof projectAddMachine>;
-test.beforeEach(() => {
-  fixture = projectAddMachine();
-});
-test.afterEach(async () => fixture.close());
+} from "../../tests/pageLayout.ts";
+import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
+import { expectProductMark } from "../../tests/productMark.ts";
+import { expectProjectChoice } from "../../tests/dashboardPage.ts";
+import { readSetting } from "../../tests/support/settingsTouchPage.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const settingGroups = ["Projects", "OpenAI", "Terminal theme"];
 
@@ -40,9 +39,11 @@ const settingsArea = {
   hasControls: true,
 };
 
-async function openSettings(page: Page) {
-  const server = await fixture.start("preview");
-  await page.goto(`${server.baseURL}/?view=settings`);
+async function openSettings(page: Page, services: FrontendServiceState) {
+  await installFrontendSettingsSubstitutes(page, services, {
+    projects: productionSeedProjects,
+  });
+  await page.goto("/?view=settings");
   await expect(
     page.getByRole("heading", { name: "System settings", exact: true }),
   ).toBeFocused();
@@ -52,9 +53,10 @@ async function openSettings(page: Page) {
 
 test("each setting group is a headed region in one column, with readable text and recognisable controls", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await openSettings(page);
+  await openSettings(page, frontendServices);
   await expectProductMark(page.getByRole("main"));
   await expectControlContrast(back(page));
   await expectReadableContrast(back(page));
@@ -78,9 +80,10 @@ test("each setting group is a headed region in one column, with readable text an
 
 test("settings and its project dialogs fit a 420 pixel window without sideways scrolling", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 420, height: 900 });
-  await openSettings(page);
+  await openSettings(page, frontendServices);
   await expectProductMark(page.getByRole("main"));
   await expect(back(page)).toBeInViewport({ ratio: 1 });
   await expectNoSidewaysScrollAndWholeText(page);
@@ -113,15 +116,76 @@ test("settings and its project dialogs fit a 420 pixel window without sideways s
   await expectNoSidewaysScrollAndWholeText(page);
 });
 
+test("long configured facts reflow at narrow width and 200 percent zoom with keyboard return", async ({
+  page,
+  frontendServices,
+}, testInfo) => {
+  const localPath = `/Users/developer/${"long-checkout-directory/".repeat(10)}project`;
+  await installFrontendSettingsSubstitutes(page, frontendServices, {
+    projects: [
+      makeMe.aConfiguredProject
+        .with({
+          id: "long-project",
+          label: "Long Project",
+          repository: `example/${"long-repository-name-".repeat(8)}project`,
+          localPath,
+        })
+        .please(),
+    ],
+  });
+  await page.goto("/");
+  await settings(page).focus();
+  await page.keyboard.press("Enter");
+  await page.setViewportSize({ width: 360, height: 800 });
+  await expect(page.getByRole("listitem")).toContainText(localPath);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: testInfo.outputPath("settings-narrow.png"),
+    fullPage: true,
+  });
+  // CSS zoom doubles every rendered dimension; 720 physical pixels leave the
+  // same 360 CSS-pixel reading width as a 200% browser zoom.
+  await page.setViewportSize({ width: 720, height: 1000 });
+  await page.addStyleTag({ content: "html { zoom: 2; }" });
+  await expect(page.getByRole("listitem")).toContainText(localPath);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: testInfo.outputPath("settings-narrow-200-percent.png"),
+    fullPage: true,
+  });
+  await back(page).focus();
+  await page.keyboard.press("Enter");
+  await expect(settings(page)).toBeFocused();
+});
+
 const { name, portrait, landscape } = phoneLaunchTouchViewport;
 
 test.describe(`${name} settings reading`, () => {
   test.use({ viewport: portrait, hasTouch: true });
   test("touch reads host-local groups and returns from the last group after rotation", async ({
     page,
+    frontendServices,
   }) => {
-    const server = await fixture.start("preview");
-    await page.goto(`${server.baseURL}/?project=doughnut&view=roster`);
+    const [first] = productionSeedProjects;
+    if (first === undefined) throw new Error("No project is configured.");
+    await installFrontendSettingsSubstitutes(page, frontendServices, {
+      projects: productionSeedProjects,
+      clientConfigurations: { [first.id]: { status: "unreadable" } },
+    });
+    const changes: string[] = [];
+    page.on("request", (request) => {
+      if (request.method() !== "GET")
+        changes.push(new URL(request.url()).pathname);
+    });
+    await page.goto("/?project=doughnut&view=roster");
     await tapWhereShown(settings(page));
     await expect(
       page.getByRole("heading", { name: "System settings", exact: true }),
@@ -131,18 +195,15 @@ test.describe(`${name} settings reading`, () => {
       name: "Projects",
       exact: true,
     });
-    const first = projects.getByRole("listitem").first();
-    for (const fact of await first.locator("h3, dt, dd").all())
+    const firstRow = projects.getByRole("listitem").first();
+    for (const fact of await firstRow.locator("h3, dt, dd").all())
       await readSetting(fact);
-    const configured = JSON.parse(
-      readFileSync(fixture.configurationFile("preview"), "utf8"),
-    ) as { label: string; repository: string; localPath: string }[];
-    await expect(first.getByRole("heading", { level: 3 })).toHaveText(
-      configured[0]?.label ?? "",
+    await expect(firstRow.getByRole("heading", { level: 3 })).toHaveText(
+      first.label,
     );
-    await expect(first.locator("dd")).toHaveText([
-      configured[0]?.repository ?? "",
-      configured[0]?.localPath ?? "",
+    await expect(firstRow.locator("dd")).toHaveText([
+      first.repository,
+      first.localPath,
       "The Client configuration could not be read from this project's local checkout.",
     ]);
     await expect(
@@ -177,6 +238,6 @@ test.describe(`${name} settings reading`, () => {
     ).toBeVisible();
     await expectProjectChoice(page, "Doughnut");
     await expect(settings(page)).toBeFocused();
-    expect(server.claudeCalls()).toEqual([]);
+    expect(changes).toEqual([]);
   });
 });

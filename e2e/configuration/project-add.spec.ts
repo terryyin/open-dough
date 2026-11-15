@@ -1,28 +1,42 @@
 // Real browser, local Git checkout, loopback boundary and saved machine settings.
 // Fake GitHub supplies only repository/default-branch/published facts; the fake
-// host records the actual cwd chosen by the product.
-import { mkdirSync, readFileSync, realpathSync } from "node:fs";
+// host records the actual cwd chosen by the product. The Add dialog's refusal
+// linking and dismissal are ../../dashboard/frontend-tests/configuration/project-add-dialog.spec.ts.
+import { chmodSync, mkdirSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { identity } from "../agentLaunchBoundary.ts";
-import { daysAgo, machineHome } from "../machineLaunchRecords.ts";
-import { keepLaunchStore, launchStoreFile } from "../support/launchStore.ts";
-import { rawRequest } from "../support/rawHttp.ts";
-import { addProjectOnPage } from "../support/projectAddPage.ts";
-import { expect, test } from "../support/pageTest.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { identity } from "../../dashboard/tests/agentLaunchBoundary.ts";
+import {
+  daysAgo,
+  machineHome,
+} from "../../dashboard/tests/machineLaunchRecords.ts";
+import {
+  keepLaunchStore,
+  launchStoreFile,
+} from "../../dashboard/tests/support/launchStore.ts";
+import { rawRequest } from "../../dashboard/tests/support/rawHttp.ts";
+import { addProjectOnPage } from "../../dashboard/tests/support/projectAddPage.ts";
+import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
 import {
   startSessionDialog,
   startSessionField,
-} from "../launchStoryCardPage.ts";
-import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
-import { expectProjectChoice, shortRevision, parts } from "../dashboardPage.ts";
+} from "../../dashboard/tests/launchStoryCardPage.ts";
+import {
+  openUntilRead,
+  reloadUntilRead,
+} from "../../dashboard/tests/pageRequestNotes.ts";
+import {
+  expectProjectChoice,
+  shortRevision,
+  parts,
+} from "../../dashboard/tests/dashboardPage.ts";
 import {
   projectAddMachine,
   addedRepository,
   addedRevision,
   addedBranch,
   addedLocalPath,
-} from "../support/projectAddMachine.ts";
+} from "../../dashboard/tests/support/projectAddMachine.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
@@ -139,56 +153,6 @@ test("Add in empty development leaves the production list on the same machine un
   await productionPage.close();
 });
 
-test("Cancel and Escape save nothing, return focus and keep project arrows inside the modal", async ({
-  page,
-}) => {
-  const server = await fixture.start("preview");
-  await page.goto(server.baseURL);
-  await page
-    .getByRole("button", { name: "System settings", exact: true })
-    .click();
-  const button = page.getByRole("button", {
-    name: "Add project",
-    exact: true,
-  });
-  await expect(button).toBeEnabled();
-  const file = fixture.configurationFile("preview");
-  const predecessor = readFileSync(file, "utf8");
-  for (const dismissal of ["Escape", "Cancel"] as const) {
-    await button.click();
-    const dialog = page.getByRole("dialog", {
-      name: "Add project",
-      exact: true,
-    });
-    await dialog
-      .getByRole("textbox", { name: "GitHub URL" })
-      .fill(`https://github.com/${addedRepository}`);
-    await dialog
-      .getByRole("textbox", { name: "Local path" })
-      .fill(addedLocalPath);
-    await dialog.getByRole("button", { name: "Cancel" }).focus();
-    await page.keyboard.press("ArrowRight");
-    await page.keyboard.press("ArrowLeft");
-    await expect(
-      page.getByRole("radio", {
-        name: "Open Dough",
-        exact: true,
-        includeHidden: true,
-      }),
-    ).toBeChecked();
-    if (dismissal === "Escape") await page.keyboard.press("Escape");
-    else await dialog.getByRole("button", { name: "Cancel" }).click();
-    await expect(dialog).toBeHidden();
-    await expect(button).toBeFocused();
-    expect(readFileSync(file, "utf8")).toBe(predecessor);
-    expect(
-      server
-        .ghCalls()
-        .some((call) => call.includes(`repos/${addedRepository}`)),
-    ).toBe(false);
-  }
-});
-
 test("retained workspace explanations use the configured folder and keep actual start and stored evidence intact", async ({
   page,
 }) => {
@@ -230,4 +194,50 @@ test("retained workspace explanations use the configured folder and keep actual 
   expect(
     readFileSync(launchStoreFile(machineHome(fixture.machine)), "utf8"),
   ).toBe(kept);
+});
+
+test("project settings errors retain the form draft and predecessor and allow explicit retry", async ({
+  page,
+}) => {
+  const server = await fixture.start("preview");
+  // Production's seeded project list is the predecessor every failed add
+  // must leave byte for byte.
+  const file = fixture.configurationFile("preview");
+  const predecessor = readFileSync(file, "utf8");
+  await page.goto(`${server.baseURL}/?view=settings`);
+  await page.getByRole("button", { name: "Add project", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Add project", exact: true });
+  const url = dialog.getByRole("textbox", { name: "GitHub URL" });
+  await url.fill("not a repository");
+  await dialog
+    .getByRole("textbox", { name: "Local path" })
+    .fill("~/work/private-checkout");
+  await dialog.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toBeVisible();
+  await expect(url).toHaveValue("not a repository");
+  expect(readFileSync(file, "utf8")).toBe(predecessor);
+  await url.fill("https://github.com/example/sample-app");
+  await dialog
+    .getByRole("textbox", { name: "Local path" })
+    .fill("~/work/private-checkout");
+  chmodSync(path.dirname(file), 0o500);
+  try {
+    await dialog.getByRole("button", { name: "Add", exact: true }).click();
+    await expect(dialog.getByRole("alert")).toBeVisible();
+    await expect(url).toHaveValue("https://github.com/example/sample-app");
+    await expect(
+      dialog.getByRole("textbox", { name: "Local path" }),
+    ).toHaveValue("~/work/private-checkout");
+    expect(readFileSync(file, "utf8")).toBe(predecessor);
+  } finally {
+    chmodSync(path.dirname(file), 0o700);
+  }
+  await dialog.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await expect(
+    page.getByRole("heading", { name: "Sample App", exact: true }),
+  ).toBeVisible();
+  expect(JSON.parse(readFileSync(file, "utf8"))).toHaveLength(
+    (JSON.parse(predecessor) as unknown[]).length + 1,
+  );
 });

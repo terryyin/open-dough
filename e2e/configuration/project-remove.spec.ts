@@ -1,4 +1,9 @@
-import { readFileSync, writeFileSync } from "node:fs";
+// What removing a configured project keeps and writes: its checkout and
+// session records survive and return on re-add, removing development's last
+// project persists an empty list, and a failed write keeps the saved file.
+// Which project is selected after a removal is
+// ./project-remove-selection.spec.ts.
+import { chmodSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { machineRecordNames } from "../../dashboard/tests/support/machineRecordNames.ts";
 import { expect, test } from "../../dashboard/tests/support/pageTest.ts";
@@ -6,10 +11,7 @@ import { projectAddMachine } from "../../dashboard/tests/support/projectAddMachi
 import { addProjectOnPage } from "../../dashboard/tests/support/projectAddPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { identity } from "../../dashboard/tests/agentLaunchBoundary.ts";
-import {
-  expectProjectChoice,
-  parts,
-} from "../../dashboard/tests/dashboardPage.ts";
+import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import { machineHome } from "../../dashboard/tests/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
@@ -208,36 +210,28 @@ test("removing the last project leaves a persistent focused empty state", async 
   await expect(removeButton(page, "Sample App")).toBeEnabled();
 });
 
-test("removing the first project selects its next neighbor and reads that project's actual repository", async ({
+test("failed row removal keeps configuration, confirmation feedback and retry", async ({
   page,
 }) => {
   const server = await fixture.start("preview");
-  await openUntilRead(page, server.baseURL);
-  await expect(
-    page.getByRole("radio", { name: "Open Dough", exact: true }),
-  ).toBeChecked();
-  await settings(page).click();
-  await removeButton(page, "Open Dough").click();
-  await confirmRemoval(page, "Open Dough");
+  await page.goto(`${server.baseURL}/?view=settings&project=pygardon`);
+  const file = fixture.configurationFile("preview");
+  const predecessor = readFileSync(file, "utf8");
+  await removeButton(page, "Pygardon").click();
+  const dialog = removeDialog(page, "Pygardon");
+  chmodSync(path.dirname(file), 0o500);
+  try {
+    await confirmRemoval(page, "Pygardon");
+    await expect(dialog.getByRole("alert")).toBeVisible();
+    expect(readFileSync(file, "utf8")).toBe(predecessor);
+  } finally {
+    chmodSync(path.dirname(file), 0o700);
+  }
+  await confirmRemoval(page, "Pygardon");
+  await expect(dialog).toBeHidden();
+  await expect(removeButton(page, "Pygardon")).toHaveCount(0);
   await back(page).click();
-  const next = page.getByRole("radio", { name: "Doughnut", exact: true });
-  await expect(next).toBeChecked();
-  await expect(settings(page)).toBeFocused();
-  await expectProjectChoice(page, "Doughnut");
-  await expect
-    .poll(() => server.ghCalls(), { timeout: 5_000 })
-    .toContainEqual([
-      "api",
-      "--include",
-      "repos/nerds-odd-e/doughnut/commits/main",
-      "--jq",
-      ".sha",
-    ]);
-  expect(
-    (
-      JSON.parse(
-        readFileSync(fixture.configurationFile("preview"), "utf8"),
-      ) as { id: string }[]
-    ).map(({ id }) => id),
-  ).toEqual(["doughnut", "pygardon", "terry-talks"]);
+  await expect(
+    page.getByRole("radio", { name: "Terry Talks", exact: true }),
+  ).toBeChecked();
 });

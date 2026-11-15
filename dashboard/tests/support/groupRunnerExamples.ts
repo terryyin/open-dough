@@ -10,8 +10,8 @@ export const groupRunnerExamples = [
     directory: "dashboard",
     root: "dashboard/tests",
     durations: "integrated.longest-first",
-    spec: "configuration/project-add-refusal.spec.ts",
-    grep: "origin mismatch stays linked to the path",
+    spec: "stories/taken-execution-complete.spec.ts",
+    grep: "a Taken card whose plan records its execution as complete",
   },
   {
     name: "Dashboard Frontend Test",
