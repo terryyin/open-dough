@@ -32,12 +32,12 @@ intent introduced or affected by a newly developed story.
 - [Run and maintain native evaluations as a distinct Distribution tool](seeds/SEED-371-distribution-evaluation-tool.md#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool) — SEED-371#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool ([plan](slice-plans/638-distribution-evaluation-tool/PLAN.md))
 - [View token usage for dashboard-launched Claude Code tasks](seeds/SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage) — SEED-359#view-claude-code-task-token-usage ([plan](slice-plans/636-claude-code-task-token-usage/PLAN.md))
 - [Swipe between story board columns on mobile](seeds/SEED-373-swipe-between-story-board-columns.md#swipe-between-story-board-columns) — SEED-373#swipe-between-story-board-columns ([plan](slice-plans/640-swipe-between-story-board-columns/PLAN.md))
+- [Reconsider further CI job reduction with a different approach](seeds/SEED-355-reconsider-further-ci-reduction.md#reconsider-further-ci-reduction) — SEED-355#reconsider-further-ci-reduction ([plan](slice-plans/641-size-ci-jobs-from-recent-runs/PLAN.md))
 
 ## Backlog list
 
 - [Move Intent and navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test) — SEED-334#retire-dashboard-integrated-ui-test
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
-- [Reconsider further CI job reduction with a different approach](seeds/SEED-355-reconsider-further-ci-reduction.md#reconsider-further-ci-reduction) — SEED-355#reconsider-further-ci-reduction
 - [Declare Git test state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-git-test-state-through-makeme) — SEED-353#declare-git-test-state-through-makeme
 - [Highlight syntax in code diffs](seeds/SEED-351-highlight-syntax-in-code-diffs.md#highlight-syntax-in-code-diffs) — SEED-351#highlight-syntax-in-code-diffs
 - [Close native comparison harness gaps](seeds/SEED-346-native-ab-comparisons.md#close-native-comparison-harness-gaps) — SEED-346#close-native-comparison-harness-gaps
