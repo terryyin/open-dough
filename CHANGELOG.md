@@ -1,3 +1,17 @@
+## 0.3.100 - 2026-11-15
+
+- Shorten the skill descriptions loaded into agent context. Findings maintenance and triage stay available by explicit invocation and are excluded from automatic discovery.
+- Ship the shared policy for failing and flaky tests. Test guidance now ties assertions to observable regressions, still checks agreement between independent sources, and reads expected configured values from their source. It also clarifies convention selection and synchronization without fixed sleeps.
+- When automatic Intent Coverage is enabled, Story Wrap Up requests it only when the change or review exposes a risk to existing test protection. It records a shorter disposition when no new proof is needed.
+- The dashboard retains aged-out launches, closes launches that return to the backlog, and reconstructs usage from retained Codex and Claude Code records with explicit task lineage. System Settings shows a refreshable Token index for completed Codex tasks, with cohort filters and task details. Incomplete or unpriced tasks stay out of the average.
+- Consolidate CI jobs and publish Distribution Node test case counts. Frozen native comparison baselines can be reused when they still cover the requested comparison.
+
+The Promoted payload has 368 files. It adds three paths, revises 25, and retires none. Dashboard and CI changes are in the source repository.
+
+The self-installation baseline, payload declaration and links, public installation, execution payload update, all-tool installation, and host-hook checks passed. [Hosted CI passed all 18 jobs at `e1443b294`](https://github.com/terryyin/open-dough/actions/runs/43674920878). Subsequent source-candidate commits changed planning records.
+
+Isolated Codex prompt input and Claude Code `/context` both showed the two maintenance skills in 0.3.99 and omitted them in the candidate, while their native registries kept both enabled for explicit use. Cursor's native slash menu offered both skills, and inspection of the installed Cursor build confirmed its request-context filter for workspace skills marked explicit-only. No hosted Cursor prompt was inspected. Freshness-ordering and oversized-file native observations remain separately pending for their unchanged guidance under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md).
+
 ## 0.3.99 - 2026-11-14
 
 - Recover CI completion for an accepted revision after its observer expires or loses access. Recovery keeps the original completion deadline and prior actionable failures. Codex opens a fresh stream under the same coordinator. Cursor and Claude Code recover through the existing session identity. Expiry and transport failures have distinct explanations.
