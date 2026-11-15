@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-368#report-a-publication-made-during-supplier-judgment
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/637-report-a-publication-made-during-judgment/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/637-report-a-publication-made-during-judgment/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"74363010f38956866aef7aac589c4908af896304c33a8c2b3af614fa7dd693fc","plan":"9a249b421ae6788d33f5162e181b4984c4c4079e7e6d9915573071d27ac20ae8"}}
 ```
 
 #### Goal
@@ -30,7 +30,7 @@ supplier wait found by its execution retrospective.
 
 - After a nonqualifying publication, the continued watch reports every
   publication the coordinator's judgment did not read.
-- The watch command's contract, its deadline, the hold, and the stop at the
-  deadline keep their delivered behavior.
+- The watch command's flags, result lines and exit codes, its deadline, the
+  hold, and the stop at the deadline keep their delivered behavior.
 
 Plan: [report a publication made during judgment](../slice-plans/637-report-a-publication-made-during-judgment/PLAN.md)
