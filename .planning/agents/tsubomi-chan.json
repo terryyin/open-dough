@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsubomi-chan",
+  "email": "tsubomi-chan@example.org",
+  "identity": "SEED-359#view-claude-code-task-token-usage",
+  "mode": "story-branch",
+  "branch": "claude/view-token-usage-for-dashboard-launched-claude-c",
+  "host": "claude",
+  "model": "opus"
+}
