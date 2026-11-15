@@ -7,8 +7,8 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 536. Removed numbers are never reused.
-- Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
+- Highest allocated local number: 537. Removed numbers are never reused.
+- Recovery: `7213c9f1ebb0a349c7905bbcb79091c49e86ad3c:DearDough.md` contains the exact log before the latest retention (including the SEED-310, SEED-307 and SEED-316 occurrences of ODF-329, removed then); `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before an earlier retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -171,30 +171,6 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
 
 <a id="dd-349--post-change-refactor-compressed-planmd-story-obligations-under-the-file-size-gate"></a>
 
-- Execution: SEED-310#show-trunk-test-scope-timing-history (plan581; first implementation `2e8d46e0ecfdca9183102690c26c34a075bde715`)
-  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
-  - Tool: Codex
-  - Open Dough release: unknown (checkout-bound installed guidance at accepted Take `4f52bca1`; no release marker retained in startup context)
-  - Evidence: slice1 guarded fresh formatting refused no-param-reassign on frontendServices.projects and require-await on an immediate rerun callback after passing browser/type proof and independent refactor. `2e8d46e0:.planning/slice-plans/581-show-trunk-test-scope-timing-history/slice-1-proof.md` retains the mechanical Object.assign/Promise.resolve repair and unchanged-proof rationale.
-  - Observed effect: commit/publication were correctly withheld until the mechanical repair and preparation retry; authored-file lint feedback arrived at coordinator delivery. Earlier-check savings remain unmeasured.
-
-- Execution: SEED-307#run-makeme-harness-once (plan 594; first implementation `67b8c207b174b90a30b6e2edf217d5b59b31b393`)
-  - Timestamp: 2026-11-11T23:48:51+08:00
-  - Tool: Claude Code
-  - Model: claude-fable-5-2
-  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` at accepted Take `0cc07ac0443d5f9d1c807e4cc533cda165136426`)
-  - Evidence: coordinator tool results: after the runner proof and the independent refactor, the first guarded fresh returned `preparation-failed`, `operation: formatting`, ShellCheck SC2249 (no default `*)` case) on the new aggregate-exclusion `case` in `scripts/test-jobs.sh`. Both briefs forbade formatting and hook-owned lint. The coordinator moved `add_job` into a `*)` branch, reran six runner tests and retried.
-  - Observed effect: commit and publication were withheld for one mechanical repair, proof and preparation loop of about two minutes before accepted `67b8c207b`.
-  - Inference: late authored-file lint feedback recurred under briefs reserving the formatter and hook-owned lint to the coordinator. The saving from an earlier read-only check is unmeasured.
-
-- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
-  - Timestamp: unknown (2026-11-11, minutes before publication of `19442de20`, whose hosted run started 20:58:54+08:00)
-  - Tool: Claude Code
-  - Model: claude-fable-5-2
-  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION` at accepted Take `19e0e454a`)
-  - Evidence: launch `1c7a1eb2-5a2b-46f1-b563-577760ee7210`; slice 1's first guarded fresh returned `preparation-failed`, `operation: formatting`, two `no-control-regex` errors in new `dashboard/tests/support/terminalSubstituteApplication.ts` after accepted proof and the independent refactor. Both briefs forbade hook-owned lint. The coordinator rebuilt the two patterns with `new RegExp`, reran the spec and typecheck, and the retry published. The slice 2 and 3 briefs then asked for a read-only `npx prettier --check` / `npx eslint` on owned files; neither slice's guarded fresh refused.
-  - Observed effect: one mechanical repair, one 21-second proof rerun and one preparation retry before the first publication; none in the two later slices of the same execution.
-  - Inference: within this one execution the read-only check coincided with no late refusal; two slices do not measure the saving.
 - Execution: SEED-333#spot-completed-stories-that-need-review (plan 608; first implementation `1d95951e0e7457dcd3620eecf6568067b097a3fc`)
   - Timestamp: unknown
   - Tool: Codex
@@ -236,6 +212,15 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: guarded fresh tool 097080 refused formatting before commit: unused Array.from parameters and forbidden non-null assertions in usagePeriod and new Backend/E2E specs; final implementation 30697cc105d3ee6c0a35043b5deda789f1671711.
   - Observed effect: Passing behavioral/type checks and an independent refactor return still required mechanical lint repairs; typecheck and independent proof-reuse review then passed before the formatter retry.
   - Inference: The coordinator-owned formatter caught the strict-lint findings safely; no failed candidate was committed or pushed.
+
+- Execution: SEED-355#reconsider-further-ci-reduction (plan `641-size-ci-jobs-from-recent-runs`; first implementation `87a2177e54bd82660553db65c3a55d30ffef64c3`)
+  - Timestamp: unknown (2026-11-15, minutes before publication of `87a2177e5`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.101 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: session `d81ffbc7-18fb-40bb-b4bb-03bf572bd9e3`; the slice 1 refactor pass introduced a `skip_reason` global set in reader functions and reported `shellcheck -x` clean; the first guarded fresh refused formatting with SC2034 in `scripts/ci-test-times.sh` and `scripts/ci-job-times.sh`. The coordinator added function-level directives, reran the focused checks and retried.
+  - Observed effect: one refused preparation and one short repair round before accepted `87a2177e5`; none in the two later slices, whose brief named SC2034.
+  - Inference: the agents' `shellcheck -x` run did not match the project lint's invocation, so a clean local check still missed the delivery finding.
 
 ## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
 
@@ -996,3 +981,17 @@ Implementation and refactor briefs forbade formatting and lint-hook commands, so
   - Evidence: slice 1 delivery refused `operation: formatting` on `eqeqeq` in usageContributions.ts (from the refactor's `== null`); slice 3 delivery refused on `@typescript-eslint/no-unsafe-assignment` (Object.fromEntries in token-index-claude-coverage.spec.ts); the slice 4 brief added "run `npx eslint` on changed files" and its delivery passed first time.
   - Observed effect: two coordinator repair loops with typecheck and focused reruns; one repair also pushed a file over the 250-line limit and needed a further edit.
   - Inference: briefs could distinguish the hook-owned staged lint from a read-only `npx eslint` check of changed files, which the implementer can run before returning.
+
+## DD-537 — A preview's high unrecorded count went unread before adding a check to a thin share
+
+A plan premise and its slice return read the allocation preview's per-share headroom but not its unrecorded count, which the share documentation names as the sign of a stale duration list. Adding one check moved the bytewise unrecorded deal and pushed one share over its job-second budget in CI.
+
+### Occurrences
+- Execution: SEED-355#reconsider-further-ci-reduction (plan `641-size-ci-jobs-from-recent-runs`; first implementation `87a2177e54bd82660553db65c3a55d30ffef64c3`)
+  - Timestamp: 2026-11-15T12:47:52Z (CI budget breach)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.101 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: PLAN.md premise "A new check file fits its Distribution share" quoted 178.2 s preview headroom; the slice 1 return and coordinator A/B used the same preview, which listed 26 unrecorded jobs at 1.5 s. Run 43715261434 at `96e739ef0` failed `Distribution Tests (3/3)` at 935.9 job-seconds of 926 (shares 554/779/1025 s observed); repair `3445cf469` refreshed `Distribution/tests/longest-first`, after which the preview showed one unrecorded job and 898-899 s a share.
+  - Observed effect: one failed CI run, one superseded run and one repair commit; the shares were already thin in `ci-test-times.sh`, which the coordinator judged against the preview's predicted headroom.
+  - Inference: the preview's headroom is only as good as the list; checking its unrecorded count before trusting a thin share would likely have prompted the refresh before the push.

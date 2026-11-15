@@ -2,9 +2,10 @@
 
 How CI runs each browser test group as its own shard jobs: the split that
 deals each shard its spec files by recorded duration and its preview, the
-times each shard keeps for refreshing the group's duration list, and the
-deadline each shard runs under. The [README](README.md) owns the groups and
-how each runs as a whole; the Node suite's shares are in
+times each shard keeps for refreshing the group's duration list, the deadline
+each shard runs under, and how many jobs each group keeps. The
+[README](README.md) owns the groups and how each runs as a whole; the Node
+suite's shares are in
 [Distribution/tests/test-shares.md](../../Distribution/tests/test-shares.md).
 
 ## The producers
@@ -42,9 +43,43 @@ integrated shards 892 to 906, below the 956 integrated's former fifth shard
 gave it. Known exposure: the slowest integrated shard seen at five shards,
 266 seconds, scales to roughly 330 at four on an equally slow runner. This
 capacity move keeps tests, workers, the job count and reviewed deadlines; it
-claims no minimum count or whole-workflow speedup. Further sizing uses the
-separately queued reconsideration and recent retained CI evidence.
+claims no minimum count or whole-workflow speedup; [the job count](#the-job-count)
+sizes the layout.
 Each `ci-proof` declaration (`<entry>=<shards>:case`) follows its matrix.
+
+## The job count
+
+Each group keeps the smallest job count whose slowest job stays inside the
+deadline in recent `main` runs. A sizing decision reads the report, from the
+repository root:
+
+```sh
+bash scripts/ci-job-times.sh
+```
+
+It reads the last 10 successful `ci.yml` runs on `main` and prints one line
+per group (the four browser groups and Distribution Tests) with its job count,
+its slowest job's seconds against the deadline and a verdict: `could drop one`
+when one job fewer would stay inside the deadline with a reserve for
+runner-speed variation, otherwise `keep`. A last line gives the runs' runner
+wait and verdict time. The script's header comment states each calculation.
+The decision needs no matched-run comparison, new measurement run or copied CI
+data.
+
+Remove a job when the report says `could drop one`; the following `main` runs
+are the check, and a deadline failure restores the count. Add a job only after
+a job of that group is ended by the deadline on `main` and neither a refreshed
+duration list nor a faster spec restores its headroom. Verdict time is never a
+reason: it is the slowest job plus runner wait, the account runs 20 jobs at
+once, and more jobs lengthen the wait. Runner demand below this layout comes
+from fewer test-seconds, as checks leave Dashboard Integrated UI Test or the
+suite gets faster; the report then shows when a group's count can follow.
+
+Decision, 2026-11-15: the layout stays at 18 jobs. The report read the 10
+successful `main` runs 43693339004 to 43712947370 of that day and said `keep`
+for every group: one job fewer would overrun the deadline for Distribution
+Tests, backend and integrated, E2E's five-job projection fits the deadline but
+not its reserve, and the frontend job is already one.
 
 ## The split
 

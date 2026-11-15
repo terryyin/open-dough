@@ -29,6 +29,9 @@ source "${source_dir}/scripts/time-budget.bash"
 # shellcheck disable=SC1091
 # shellcheck source=scripts/gh-message.bash
 source "${source_dir}/scripts/gh-message.bash"
+# shellcheck disable=SC1091
+# shellcheck source=scripts/trunk-runs.bash
+source "${source_dir}/scripts/trunk-runs.bash"
 
 test_dir="${OPEN_DOUGH_TEST_DIR:-Distribution/tests}"
 budget="${test_dir}/time-budget"
@@ -40,32 +43,20 @@ readonly per_job_seconds total_job_seconds
 work_dir=$(mktemp -d)
 trap 'rm -rf -- "${work_dir}"' EXIT
 
-no_timings() {
-  printf 'No recent trunk timings were found: %s\n' "$1" >&2
-  exit 1
-}
-
-if ! runs=$(gh run list --workflow ci.yml --branch main --status success --limit 10 \
-  --json databaseId,createdAt \
-  --jq '.[] | "\(.databaseId)\t\(.createdAt)"' 2> "${work_dir}/gh.err"); then
-  message=$(gh_message "${work_dir}/gh.err")
-  no_timings "gh run list failed: ${message}"
-fi
-[[ -n ${runs} ]] || no_timings 'gh listed no successful ci.yml runs on main.'
-
 # One `<run>\t<share>\t<seconds-at-recorded>\t<job>\t<factor>\t<factor-label>`
 # line per job time across the runs used.
 times="${work_dir}/times"
 : > "${times}"
-used=0 skipped=0 newest='' oldest='' last_error=''
-while IFS=$'\t' read -r run created; do
+
+# Appends RUN's times from its test-times artifacts, or sets skip_reason.
+# shellcheck disable=SC2034 # read_trunk_runs reads skip_reason.
+read_run_times() {
+  local run=$1 found=0 file share factor_line factor factor_label
   if ! gh run download "${run}" -D "${work_dir}/${run}" -p 'test-times-*' \
     > /dev/null 2> "${work_dir}/gh.err"; then
-    skipped=$((skipped + 1))
-    last_error=$(gh_message "${work_dir}/gh.err")
-    continue
+    skip_reason=$(gh_message "${work_dir}/gh.err")
+    return
   fi
-  found=0
   for file in "${work_dir}/${run}"/test-times-*/test-times.txt; do
     [[ -f ${file} ]] || continue
     share=${file%/test-times.txt}
@@ -85,21 +76,13 @@ while IFS=$'\t' read -r run created; do
     ' "${file}" >> "${times}"
     found=1
   done
-  if ((found == 0)); then
-    skipped=$((skipped + 1))
-    last_error="run ${run} has no test-times.txt"
-    continue
-  fi
-  used=$((used + 1))
-  [[ -n ${newest} ]] || newest=${created}
-  oldest=${created}
-done <<< "${runs}"
-((used > 0)) || no_timings "none of the ${skipped} listed runs had readable test-times artifacts (last gh message: ${last_error})"
+  ((found == 1)) || skip_reason="run ${run} has no test-times.txt"
+}
 
-printf 'Recent trunk CI timings: %s successful ci.yml runs on main, %s to %s' \
-  "${used}" "${oldest}" "${newest}"
-((skipped == 0)) || printf ' (%s without readable artifacts skipped)' "${skipped}"
-printf '.\nCeilings (%s): %ss per job, %s job-seconds per share, at recorded speed.\n' \
+read_trunk_runs "${work_dir}" 'test-times artifacts' read_run_times
+
+print_trunk_runs_used 'Recent trunk CI timings' artifacts
+printf 'Ceilings (%s): %ss per job, %s job-seconds per share, at recorded speed.\n' \
   "${budget}" "${per_job_seconds}" "${total_job_seconds}"
 
 # Prints `<name>: <low>-<high> <unit> at recorded speed (factors …), ceiling,

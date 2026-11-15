@@ -112,7 +112,8 @@ jobs:
       command: test:e2e
       settings: OPEN_DOUGH_E2E
       root: e2e
-      # Capacity move from integrated and the 18-job layout: dashboard/tests/shards.md.
+      # Capacity move from integrated, the 18-job layout and its sizing rule:
+      # dashboard/tests/shards.md#the-job-count.
       shards: "[1, 2, 3, 4, 5, 6]"
   dashboard-integrated:
     uses: ./.github/workflows/browser-test-group.yml
