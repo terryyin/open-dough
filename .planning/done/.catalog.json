@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-374_see-stale-test-duration-estimates.json",
+      "identity": "SEED-374#see-stale-test-duration-estimates",
+      "completedAt": "2026-11-15T23:14:03.811Z",
+      "blob": "75f5619a6007a0f0b4920d9220f3c7398a324d97"
+    },
+    {
       "fileName": "SEED-359_keep-claude-coverage-gaps-current-after-refresh.json",
       "identity": "SEED-359#keep-claude-coverage-gaps-current-after-refresh",
       "completedAt": "2026-11-15T13:56:46.677Z",

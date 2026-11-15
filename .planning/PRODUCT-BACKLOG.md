@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Move Intent CI checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test) — SEED-334#retire-dashboard-integrated-ui-test ([plan](slice-plans/633-retire-dashboard-integrated-ui-test/PLAN.md))
 - [Move Intent reading and review checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-intent-reading-and-review-checks) — SEED-334#move-intent-reading-and-review-checks ([plan](slice-plans/647-move-intent-reading-and-review-checks/PLAN.md))
 - [Highlight syntax in code diffs](seeds/SEED-351-highlight-syntax-in-code-diffs.md#highlight-syntax-in-code-diffs) — SEED-351#highlight-syntax-in-code-diffs ([plan](slice-plans/645-highlight-syntax-in-code-diffs/PLAN.md))
-- [See stale test duration estimates before relying on CI headroom](seeds/SEED-374-stale-test-duration-estimates.md#see-stale-test-duration-estimates) — SEED-374#see-stale-test-duration-estimates ([plan](slice-plans/649-see-stale-test-duration-estimates/PLAN.md))
 
 ## Backlog list
 
