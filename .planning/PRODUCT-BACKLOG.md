@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Make recent token usage easier to read](seeds/SEED-369-recent-token-usage.md#make-recent-token-usage-easier-to-read) — SEED-369#make-recent-token-usage-easier-to-read
 - [Move Intent and navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test) — SEED-334#retire-dashboard-integrated-ui-test
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
 - [Chart CI time without runner waits in Intent](seeds/SEED-364-intent-ci-history-without-runner-waits.md#chart-ci-time-without-runner-waits) — SEED-364#chart-ci-time-without-runner-waits
