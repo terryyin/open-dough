@@ -1,10 +1,13 @@
 // Explicit route/WebSocket substitutes for frontend-only app journeys: the
 // page talks to these instead of dashboardServer, fake-gh, or FakeGitHub.
 
-import type { Page, Route } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import {
+  authenticatedReadEndpoint,
+  revisionStreamAtParameter,
+} from "../../src/authenticatedReadRules.ts";
 import { hostStatusEndpoint } from "../../src/hostStatus.ts";
 import { launchHostOptionsEndpoint } from "../../src/launchHostOptions.ts";
 import { projectListEndpoint } from "../../src/projectConfiguration.ts";
@@ -13,42 +16,30 @@ import {
   type FrontendServiceState,
 } from "./frontendServiceState.ts";
 import {
+  fulfillEventStream,
+  fulfillJson,
+} from "./frontendSubstituteAnswers.ts";
+import {
   echoingApplication,
   type TerminalApplication,
 } from "./terminalSubstituteApplication.ts";
 
-export {
-  defaultFrontendServiceState,
-  doughnutSource,
-  frontendRevision,
-  openDoughSource,
-  putFrontendCandidates,
-  putFrontendHostStatus,
-  putFrontendMachine,
-  takenBacklogMarkdown,
-  type FrontendServiceState,
-} from "./frontendServiceState.ts";
-
 type TerminalSize = { readonly cols: number; readonly rows: number };
-
-async function fulfillJson(route: Route, body: unknown, status = 200) {
-  await route.fulfill({
-    status,
-    contentType: "application/json",
-    body: JSON.stringify(body),
-  });
-}
 
 function answerAuthenticatedRead(
   state: FrontendServiceState,
   params: URLSearchParams,
-): { status: number; body: unknown } {
+): { status: number; body: unknown; stream?: boolean } {
   const revision = params.get("revision") ?? state.revision;
-  if (params.has("since")) {
-    return {
-      status: 200,
-      body: { revision: state.revision, changed: false, branches: [] },
-    };
+  // A revision check says whether the project moved from the revision the
+  // page shows; its stream says only that it moved, answering as a plain
+  // read until then.
+  const since = params.get("since");
+  const at = params.get(revisionStreamAtParameter);
+  if (since !== null || (at !== null && at !== state.revision)) {
+    const changed = (since ?? at) !== state.revision;
+    const body = { revision: state.revision, changed, branches: [] };
+    return { status: 200, body, stream: since === null };
   }
   if (params.get("intent") === "locations") {
     return { status: 200, body: state.locations };
@@ -61,7 +52,9 @@ function answerAuthenticatedRead(
       status: 200,
       body: {
         revision,
-        profiles: [],
+        profiles: Object.entries(state.files)
+          .filter(([path]) => path.startsWith(".planning/agents/"))
+          .map(([path, text]) => ({ path, text })),
         settings: state.files[".planning/open-dough.json"] ?? null,
       },
     };
@@ -143,7 +136,8 @@ export async function installFrontendServiceSubstitutes(
     async (route) => {
       const params = new URL(route.request().url()).searchParams;
       const answer = answerAuthenticatedRead(state, params);
-      await fulfillJson(route, answer.body, answer.status);
+      if (answer.stream) await fulfillEventStream(route, answer.body);
+      else await fulfillJson(route, answer.body, answer.status);
     },
   );
   await page.route(
@@ -170,9 +164,11 @@ export async function installFrontendServiceSubstitutes(
       await fulfillJson(route, state.hostStatus);
     },
   );
+  // A host offers no model choices unless a case arranges them
+  // (./frontendLaunchSubstitutes.ts).
   await page.route(
     (url) => url.pathname === launchHostOptionsEndpoint,
-    (route) => fulfillJson(route, state.hostOptions),
+    (route) => fulfillJson(route, { models: [] }),
   );
   // Catch-all for remaining local API paths: fail loudly when a substitute is
   // missing. Leave the terminal WebSocket path alone so routeWebSocket can own it.

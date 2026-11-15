@@ -1,6 +1,6 @@
 import { closeSidePanel } from "../sidePanelFrame.ts";
 // The page's terminal shows the terminal theme chosen in System settings
-// (../configuration/system-settings-terminal-theme.spec.ts covers choosing and keeping it).
+// (../../../e2e/configuration/system-settings-terminal-theme.spec.ts covers choosing and keeping it).
 // With no saved choice it shows today's white on black. A choice made in
 // Settings while a session is open reaches that same terminal on return, with
 // its earlier output and without re-attaching; the next attachment, also

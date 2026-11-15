@@ -8,6 +8,7 @@ import {
   startDashboardServer,
 } from "../../dashboard/tests/support/dashboardServer.ts";
 import {
+  instructionField,
   openTakenBacklog,
   startSession,
   startSessionDialog,
@@ -21,6 +22,7 @@ import {
   observeMicrophone,
   recordClip,
   saveVoiceKey,
+  seedVoiceKey,
   voiceKey,
 } from "../../dashboard/tests/support/voicePage.ts";
 import {
@@ -163,4 +165,29 @@ test("missing-key settings trip retains the launch draft and retry feeds the fin
         cwd: realpathSync(path.join(dashboard.home, "git", "open-dough")),
       },
     ]);
+});
+
+test("a transcript bringing the instruction to exactly 4,000 characters, separator included, reaches the story session unchanged", async ({
+  page,
+  dashboard,
+  provider,
+  launchJourney,
+}) => {
+  const { start, dialog } = await openTakenBacklog(page, launchJourney);
+  seedVoiceKey(dashboard.home);
+  dashboard.claudeScenario("launched");
+  await start(notRefinedStory).click();
+  const field = instructionField(dialog);
+  const typed = "Keep this work local";
+  await field.fill(typed);
+  const transcript = "x".repeat(4_000 - typed.length - 2);
+  provider.setText(transcript);
+  await recordClip(page, dialog);
+  const combined = `${typed}\n\n${transcript}`;
+  await expect(field).toHaveValue(combined);
+  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls().map((call) => call.argv.at(-1)))
+    .toEqual([`/dough-execute-plan ${notRefinedIdentity}\n\n${combined}`]);
+  expect(provider.calls).toHaveLength(1);
 });

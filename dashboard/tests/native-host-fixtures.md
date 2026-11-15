@@ -9,7 +9,8 @@ calling the real hosts.
 The launch boundary specs (`agent-launch-boundary.spec.ts`,
 `agent-launch-refusal.spec.ts`, `agent-launch-records.spec.ts`, and
 `agent-launch-session-listing.spec.ts`) and the page journeys
-(`agent-launch-story-card.spec.ts`, `agent-launch-story-card-problems.spec.ts`,
+(`../../e2e/launches/agent-launch-story-card.spec.ts`,
+`../../e2e/launches/agent-launch-story-card-problems.spec.ts`,
 `agent-launch-story-card-sessions.spec.ts`, `agent-launch-story-card-session-states.spec.ts`,
 `agent-launch-recent-sessions.spec.ts`,
 `agent-launch-session-state-pace.spec.ts`,
@@ -114,8 +115,10 @@ kept in one store write (`keepLaunchStore`,
 listing failure and recovery, and a server restarted on the same machine,
 stay real; these cases send no Start request and launch nothing. Each card
 concern has one owner:
-`agent-launch-story-card.spec.ts` the Start actions, their dialogs, what a launch
-sends, and the keyboard on the newest entry; `agent-launch-story-card-sessions.spec.ts`
+`../../e2e/launches/agent-launch-story-card.spec.ts` what a launch sends and the
+keyboard on the newest entry, and
+`../frontend-tests/launches/agent-launch-story-card.spec.ts` the Start actions
+and their dialogs; `agent-launch-story-card-sessions.spec.ts`
 which sessions a card lists, newest first, in each column;
 `agent-launch-story-card-open-session.spec.ts` that those Starts stay unavailable
 while an open session remains, return after Mark as done or Delete record, and

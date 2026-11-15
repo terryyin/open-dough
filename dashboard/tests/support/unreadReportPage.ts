@@ -1,6 +1,6 @@
 // The page and boundary of the unread report journeys
 // (../../../e2e/sessions/session-unread-report.spec.ts,
-// ../sessions/session-unread-report-message.spec.ts): a real start origin,
+// ../../../e2e/sessions/session-unread-report-message.spec.ts): a real start origin,
 // published to the page (./startOriginTest.ts), with sessions that report
 // through ./reportedLaunch.ts, how their Sessions sidebar rows and cards show
 // that, and what the store says of them.

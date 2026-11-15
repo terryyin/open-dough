@@ -1,5 +1,5 @@
 import path from "node:path";
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 export const terminalThemeFile = (home: string) =>
   path.join(home, ".open-dough/dashboard/terminal-theme.json");
@@ -30,3 +30,13 @@ export const computedPalettes = {
   },
 } as const;
 export type ComputedPalette = keyof typeof computedPalettes;
+
+// The choice and its sample both show palette `label`.
+export async function expectThemeShown(page: Page, label: ComputedPalette) {
+  const { background, foreground, red } = computedPalettes[label];
+  await expect(themeChoice(page).locator("option:checked")).toHaveText(label);
+  await expect(sample(page)).toContainText(`Sample: ${label}`);
+  await expect(sampleScreen(page)).toHaveCSS("background-color", background);
+  await expect(sampleScreen(page)).toHaveCSS("color", foreground);
+  await expect(sampleColor(page, "red")).toHaveCSS("color", red);
+}

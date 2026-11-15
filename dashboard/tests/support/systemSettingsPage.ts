@@ -22,3 +22,8 @@ export const confirmRemoval = (page: Page, label: string) =>
   removeDialog(page, label)
     .getByRole("button", { name: "Remove", exact: true })
     .click();
+// Removes that project through its row's Remove and its confirmation.
+export const removeProject = async (page: Page, label: string) => {
+  await removeButton(page, label).click();
+  await confirmRemoval(page, label);
+};

@@ -1,18 +1,14 @@
 # Dashboard Integrated UI Test spec durations of its other feature folders, longest first.
 # Source: run 43575040009/1 at 55da0eecf6803945b66d5a23b00dd7802374550d, 2026-11-14 (runner factor 0.669)
-56.8	tests/configuration/project-hide.spec.ts
 52.1	tests/review/story-review-touch.spec.ts
-50.9	tests/configuration/project-add.spec.ts
 50.0	tests/navigation/side-panel-width-kept.spec.ts
 45.0	tests/navigation/board-session-reading.spec.ts
 44.3	tests/stories/recently-done-progressive-navigation.spec.ts
 41.6	tests/observation/revision-stream.spec.ts
 39.2	tests/review/story-review-comparison.spec.ts
-37.8	tests/configuration/system-settings-look.spec.ts
 37.1	tests/navigation/dashboard-header.spec.ts
 36.6	tests/stories/story-readiness-accessible.spec.ts
 33.8	tests/navigation/frame-launch-look.spec.ts
-32.0	tests/configuration/system-settings-terminal-theme.spec.ts
 31.9	tests/navigation/notification-story-navigation.spec.ts
 31.4	tests/stories/story-readiness-gaps.spec.ts
 31.0	tests/navigation/story-reference-done-recovery.spec.ts
@@ -41,7 +37,6 @@
 21.7	tests/intent/intent-story-coverage.spec.ts
 21.1	tests/intent/intent-sidebar-toggle.spec.ts
 20.8	tests/intent/intent-ci-status-execution-time.spec.ts
-20.5	tests/configuration/system-settings-project-management.spec.ts
 20.2	tests/navigation/project-keyboard-navigation.spec.ts
 19.6	tests/intent/intent-home-activation.spec.ts
 19.6	tests/navigation/story-reference-navigation.spec.ts
@@ -57,13 +52,11 @@
 17.8	tests/intent/intent-summary-ci-proof-gaps.spec.ts
 17.2	tests/intent/intent-story-changes-gaps.spec.ts
 17.1	tests/navigation/board-height.spec.ts
-16.9	tests/configuration/system-settings-openai-recovery.spec.ts
 16.8	tests/intent/intent-ci-comparison-locations.spec.ts
 16.8	tests/intent/intent-story-ci-cues.spec.ts
 16.5	tests/review/story-review-panes.spec.ts
 16.3	tests/navigation/board-paging-launch-dialog.spec.ts
 16.2	tests/navigation/board-reading.spec.ts
-16.0	tests/configuration/system-settings.spec.ts
 15.7	tests/review/story-review-commit-ranges.spec.ts
 15.4	tests/intent/intent-done-landed-review-mode.spec.ts
 15.4	tests/intent/intent-done-review-modes.spec.ts
@@ -87,7 +80,6 @@
 12.9	tests/intent/intent-test-optimization-candidates-open.spec.ts
 12.7	tests/intent/intent-story-views-narrow.spec.ts
 12.7	tests/intent/intent-summary-story-comparison-sort.spec.ts
-12.6	tests/configuration/system-settings-openai-race.spec.ts
 12.6	tests/observation/steady-refresh-inspection.spec.ts
 12.1	tests/navigation/board-paging-sessions-sidebar.spec.ts
 12.1	tests/stories/recently-done-read-latency.spec.ts
@@ -132,10 +124,8 @@
 7.3	tests/stories/branch-progress-reading.spec.ts
 7.2	tests/navigation/story-destination-repeat-cue.spec.ts
 7.2	tests/review/story-review-commit-races.spec.ts
-7.0	tests/configuration/system-settings-project-management-touch.spec.ts
 6.9	tests/navigation/project-keyboard-navigation-eligibility.spec.ts
 6.9	tests/stories/recently-done-progressive-navigation-report.spec.ts
-6.7	tests/configuration/project-add-refusal.spec.ts
 6.7	tests/intent/intent-entry-folder-summaries.spec.ts
 6.7	tests/review/story-review-context-line.spec.ts
 6.6	tests/intent/intent-gherkin-settings-problems.spec.ts

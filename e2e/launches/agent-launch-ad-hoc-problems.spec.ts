@@ -1,5 +1,5 @@
 // An ad hoc launch from the project actions row that did not start, or may
-// not have started, on the committed origin of ../../dashboard/tests/launches/agent-launch-story-card.spec.ts:
+// not have started, on the committed origin of ./agent-launch-story-card.spec.ts:
 // the answer stays beside Start session, which stays enabled to start again,
 // and it lists no session, opens no terminal, and shows on no card. The page's
 // own dashboard server launches the synthetic `claude` (./fixtures/fake-claude);

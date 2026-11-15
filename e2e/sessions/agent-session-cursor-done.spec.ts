@@ -23,7 +23,10 @@ import {
   keptRecord,
   workingCursorTest,
 } from "../../dashboard/tests/support/cursorStart.ts";
-import { markAsDone } from "../../dashboard/tests/support/markDone.ts";
+import {
+  headerMarkAsDone,
+  markAsDone,
+} from "../../dashboard/tests/support/markDone.ts";
 import {
   markLocallyDone,
   markLocallyDoneFromSidePanel,
@@ -76,7 +79,7 @@ workingCursorTest(
     await expectNormalizedReading(entry, "Working", false);
     const client = cursor.attaches()[0];
     expect(client).toBeDefined();
-    await expect(markAsDone(panel.locator("header"))).toHaveCount(1);
+    await expect(headerMarkAsDone(panel)).toHaveCount(1);
     const signalsBefore = cursor.signals(client?.pid ?? 0);
     const callsBefore = cursor.calls().length;
 

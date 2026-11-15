@@ -1,15 +1,9 @@
 ---
 name: dough-execution-retrospective
 description: >-
-  Reviews planned, completed planless quick, or quick-to-planned execution against
-  original intent, aggregate commits, current whole-product architecture, and tests,
-  including after cleanup. Process review is opt-in: it runs only when the project sets
-  `skipProcessRetrospective: false` or the request asks to include it, and needs available
-  agent history. Use for execution retrospective, product review, or backlog
-  recommendations from current/supplied history. Supports `--skip-process` and `--skip-product`.
-  May plan corrections, record process findings in `DearDough.md` (1,000-line
-  ceiling, recoverable lower-priority replacement on overflow), and recommend product work.
-  Finishes quietly when settled, surfaces unresolved attention, and never implements findings.
+  Reviews a delivered execution against its intent, commits, architecture and
+  tests, and may plan corrections or record process findings. Use for an
+  execution retrospective or product review; never implements findings.
 ---
 
 # Review an execution

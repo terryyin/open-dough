@@ -7,7 +7,7 @@
 // change. A non-owner that has nothing new to tell consumes the configured
 // change bound (`DOUGH_CHANGE_WAIT_MS`, production default 30 seconds) instead
 // of waking at once. What the page says from those answers is
-// ../../tests/launches/agent-launch-start-story-card.spec.ts and
+// ../../frontend-tests/launches/agent-launch-story-card-answers.spec.ts and
 // ../../../e2e/launches/agent-launch-second-server.spec.ts.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";

@@ -5,7 +5,7 @@
 // back on its card and no longer Done, through a reload, until it is marked
 // done again from its card. How the boundary reopens it is
 // ../../dashboard/backend-tests/sessions/agent-terminal-reopen.spec.ts, and how the page marks a session done is
-// ../../dashboard/tests/sessions/agent-terminal-done.spec.ts. The page's own dashboard server drives the
+// ./agent-terminal-done.spec.ts. The page's own dashboard server drives the
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
 
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";

@@ -1,7 +1,7 @@
 import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
 // Reports have separate marks/messages; activity owns state/place. Read keeps open;
 // Done confirms unfinished work. Terminal: ./agent-terminal-done-report.spec.ts;
-// messages: ../../dashboard/tests/sessions/session-unread-report-message.spec.ts.
+// messages: ../../dashboard/frontend-tests/sessions/session-unread-report-message.spec.ts.
 // Real page/server, synthetic hosts/GitHub.
 
 import {

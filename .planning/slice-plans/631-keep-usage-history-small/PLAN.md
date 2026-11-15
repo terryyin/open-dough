@@ -43,7 +43,7 @@ referenced pages once. That one-time cost is accepted.
 - **The write API stays.** `writeUsageHistory(batch)` keeps accepting tasks,
   response observations, associations and gaps (`usageRecords.ts`
   `UsageBatch`). The importer, Refresh, 13 backend specs and
-  `e2e/configuration/usageFixtureStore.ts` keep calling it unchanged. What it
+  `e2e/configuration/system-settings-usage.spec.ts` keep calling it unchanged. What it
   stores changes.
 - **Reading stays.** `codexUsage`, `claudeUsage`, the lineage modules,
   `reconcileObservation` and `reconcileMeasurements` still produce one

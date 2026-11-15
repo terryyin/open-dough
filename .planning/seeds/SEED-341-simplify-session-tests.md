@@ -64,8 +64,8 @@ folder. Representative workflows are in E2E Test (`e2e/sessions/`, 56 specs,
 `recently-done-sessions-sidebar` and its `-paging` sibling stayed behind. The
 remaining 51 specs are in the interim Dashboard Integrated UI Test
 (`dashboard/tests/sessions/`, `npm run test:dashboard:integrated`). The queued
-[SEED-334#focus-detailed-dashboard-ui-checks](SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks)
-moves those interim specs to Dashboard Frontend or Backend Test through its
+[SEED-334#finish-dissolving-integrated-ui-test](SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test)
+moves the interim specs still there to Dashboard Frontend or Backend Test through its
 "sessions and terminals" batch, which overlaps this story's move of pure
 rules to cheaper tiers. Refinement should settle the overlap before work
 starts, either by ordering the two stories or by merging that batch here.

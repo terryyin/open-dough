@@ -1,0 +1,146 @@
+// A page reads the machine's sessions history only when a developer opens or
+// acts on a retained session or expands Recently done sessions: once per such
+// opening, and again only once the overview names a newer history revision.
+// Polls while nothing retained is opened never ask it. The browser's own
+// fetch accepts and decodes the gzip-encoded history. A history read that
+// fails is
+// ../../dashboard/frontend-tests/sessions/agent-launch-retained-history.spec.ts.
+
+import type { Page, Request } from "@playwright/test";
+import { agentLaunchEndpoint } from "../../dashboard/src/agentLaunch.ts";
+import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
+import {
+  sessionsAudienceParameter,
+  sessionsHistoryAudience,
+  sessionsRevisionHeader,
+} from "../../dashboard/src/machineSessionsRevision.ts";
+import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { sessionDetailsControl } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
+import { givePageItsTurns } from "../../dashboard/tests/pageRequestNotes.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import {
+  recentlyDoneParts,
+  showRecentlyDone,
+} from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
+import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
+import { showPage } from "../../dashboard/tests/runningCursorSessionsPage.ts";
+import { watchRecordReads } from "../../dashboard/tests/sessionStatePace.ts";
+import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
+
+test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
+
+const minute = 60_000;
+
+const isHistoryUrl = (url: URL) =>
+  url.pathname === agentLaunchEndpoint &&
+  url.searchParams.get(sessionsAudienceParameter) === sessionsHistoryAudience;
+
+const isHistoryRead = (request: Request) =>
+  request.method() === "GET" && isHistoryUrl(new URL(request.url()));
+
+// Every history read the page asks, with the history revision it named, and
+// the content coding of each answer it received.
+function historyReads(page: Page) {
+  const asked: (string | undefined)[] = [];
+  const codings: (string | undefined)[] = [];
+  page.on("request", (request) => {
+    if (isHistoryRead(request))
+      asked.push(request.headers()[sessionsRevisionHeader]);
+  });
+  page.on("response", (response) => {
+    if (isHistoryRead(response.request()))
+      codings.push(response.headers()["content-encoding"]);
+  });
+  return { asked, codings };
+}
+
+function retained(dashboard: DashboardServer, now: number, title: string) {
+  const launchedAt = now - 30 * minute;
+  const sessionId = dashboard.claudeListsSession({
+    name: title,
+    cwd: dashboard.home,
+    startedAt: launchedAt,
+  });
+  return makeMe.aLaunchRecord
+    .adHoc({ instruction: title, title })
+    .inClaudeSession({ sessionId })
+    .launchedAt(new Date(launchedAt).toISOString())
+    .markedDoneAt(new Date(now - 5 * minute).toISOString())
+    .please();
+}
+
+async function showRetained(
+  page: Page,
+  dashboard: DashboardServer,
+  origin: Parameters<typeof showPage>[1],
+  records: readonly LaunchRecord[],
+) {
+  const opened = new Date("2026-10-28T10:00:00.000Z");
+  await pausePageClockAt(page, opened);
+  const { passOnePace } = await watchRecordReads(page);
+  keepLaunchStore(dashboard, { "open-dough": records });
+  const { asked, codings } = historyReads(page);
+  await showPage(page, origin);
+  const onBoard = (title: string) =>
+    parts(page).recentlyDone.getByRole("article").filter({ hasText: title });
+  return { passOnePace, asked, codings, onBoard };
+}
+
+test("one history read per opening, none while nothing retained is opened, and again only once its revision moves", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  const now = Date.parse("2026-10-28T10:00:00.000Z");
+  const first = retained(dashboard, now, "First retained session");
+  const { passOnePace, asked, codings, onBoard } = await showRetained(
+    page,
+    dashboard,
+    origin,
+    [first],
+  );
+  const entry = onBoard("First retained session");
+  const details = sessionDetailsControl(entry);
+  const sidebar = recentlyDoneParts(page);
+
+  await test.step("polls while nothing retained is opened ask no history", async () => {
+    await expect(entry).toBeVisible();
+    await passOnePace();
+    await givePageItsTurns(page);
+    expect(asked).toEqual([]);
+  });
+
+  await test.step("expanding Recently done sessions reads it once, gzip-encoded", async () => {
+    await showRecentlyDone(page);
+    await expect(sidebar.entries).toHaveCount(1);
+    await expect.poll(() => asked).toEqual([undefined]);
+    await expect.poll(() => codings).toEqual(["gzip"]);
+  });
+
+  await test.step("opening again while its revision stands reads nothing", async () => {
+    await sidebar.header.click();
+    await sidebar.header.click();
+    await expect(sidebar.entries).toHaveCount(1);
+    await sidebar.button.click();
+    await details.click();
+    await expect(details).toHaveAttribute("aria-expanded", "true");
+    await givePageItsTurns(page);
+    expect(asked).toHaveLength(1);
+  });
+
+  await test.step("a moved history is read again only at the next opening", async () => {
+    const second = retained(dashboard, now, "Second retained session");
+    keepLaunchStore(dashboard, {
+      "open-dough": [first, second],
+    });
+    await passOnePace();
+    await expect(onBoard("Second retained session")).toBeVisible();
+    await givePageItsTurns(page);
+    expect(asked).toHaveLength(1);
+    await details.click();
+    await expect.poll(() => asked).toHaveLength(2);
+    expect(asked[1]).toEqual(expect.any(String));
+  });
+});

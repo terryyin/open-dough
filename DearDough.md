@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 523. Removed numbers are never reused.
+- Highest allocated local number: 525. Removed numbers are never reused.
 - Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
@@ -705,3 +705,31 @@ The plan's real-store observation for the dashboard's first frequent writer of t
   - Evidence: plan 627 "Outside-in proof ownership" names rebuild time, peak RSS and board responsiveness. The slice 5 return reported 57.9 s, 670 MB and p95 8 ms, plus the real store's sha256 unchanged. The retrospective clone run published 1,491 new pages (1.03 GB) while referenced data grew 1.63→1.64 GB, then 933 more pages (861 MB) on a second press. Rows differed only in JSON key order. Correction: `SEED-357#reuse-unchanged-usage-pages-on-repeated-writes`, plan 630.
   - Observed effect: a delivered, CI-green Refresh that grows the store by up to about 1 GB per press; one correction story, plan and queue entry at closure.
   - Inference: for a change that makes something a new or more frequent writer of a persistent store, the real-data observation should include bytes written or published and the store's size before and after two consecutive writes. That would have exposed this in the same scratch run, at no extra cost. Whether every writer change needs that measure is not settled here.
+
+## DD-524 — A slice-sizing probe sampled only small cases, and later batches overran agent context
+
+A migration plan made its first slice the sizing probe for later batches, but that batch held only inventory-`small` cases. Its timing carried no evidence about `large` cases or new substitute families, and the binding limit turned out to be the implementation agent's context, not wall time. Two later slices returned oversized at a family boundary. Related to DD-514 (sizing by counts without proof-purpose classification); here the classification existed, so a separate identity.
+
+### Occurrences
+- Execution: SEED-334#focus-detailed-dashboard-ui-checks (plan `627-dissolve-dashboard-integrated-ui-test`; first implementation `c1f2f7679900cbca0938b0578ed21fa2bf9fbd78`)
+  - Timestamp: unknown (slice 3 oversized return before `f021ef850` at 2026-11-15T10:14:34+08:00; slice 6 oversized return before `64e07ab2c` at 2026-11-15T12:30:58+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.99 (checkout-bound installed `.claude/skills/dough-update/VERSION` at Take `546675333`)
+  - Evidence: plan 627 premise row "Later batch effort fits one execution slice … Slice 1 is the early probe"; slice 1 converted 11 `frontend/small` and `split/small` specs (about 27 minutes, about 280k agent tokens). Slice 3 converted 7 of 13 specs and slice 6 11 of 16 before agent context ran short; both stopped at a substitute-family boundary. The recorded sizing learning ("about 11 small specs or one new Frontend substitute family per agent slice") is in plan 627 at `c7e680efb` and carried to plan 632.
+  - Observed effect: two in-place replans that grew the plan from 8 to 14 slices, then a developer split after slice 6. The remainder moved to SEED-334#finish-dissolving-integrated-ui-test.
+  - Inference: a probe that included one `large` case and one new substitute family, and that reported agent context use, would likely have shown the per-slice limit before slices 3 and 6. The record does not show whether an earlier split would have saved total agent work.
+
+## DD-525 — Relocation acceptance trusted the implementer's mapping table, and a dropped server-side assertion surfaced only at wrap-up
+
+A test relocation's acceptance compared each implementer's interim-to-new mapping table and the scratch-break evidence, but did not diff the interim assertions against their new homes. One interim case asserted a server effect (no Claude stop on a refused mark). Its new Frontend home asserts only the substitute request, and no Backend case covered that refusal reason. The coordinator found the gap while disposing an Intent Coverage observation during wrap-up.
+
+### Occurrences
+- Execution: SEED-334#focus-detailed-dashboard-ui-checks (plan `627-dissolve-dashboard-integrated-ui-test`; first implementation `c1f2f7679900cbca0938b0578ed21fa2bf9fbd78`)
+  - Timestamp: unknown (wrap-up on 2026-11-15, after the Intent Coverage report on `c7e680efb`, committed 12:37:51+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.99 (checkout-bound installed `.claude/skills/dough-update/VERSION` at Take `546675333`)
+  - Evidence: interim `dashboard/tests/sessions/agent-launch-story-card-done.spec.ts` at `245c4feed` (refused mark asserts `dashboard.claudeStopCalls()` empty); converted `dashboard/frontend-tests/sessions/agent-launch-story-card-done.spec.ts` at `64e07ab2c`; `dashboard/backend-tests/sessions/agent-launch-done-refusal.spec.ts` covered only unrecorded, other-project and malformed refusals. Slice 6's returned mapping row named the Frontend home without listing the dropped server observation. Intent Coverage on `c7e680efb` returned Caught for the UI path and noted that reduction unprobed.
+  - Observed effect: the loss was repaired before closure with a Backend case in `agent-launch-done-refusal.spec.ts` (missing project folder: 404, no claude call, session unmarked and busy); scratch breaks of the folder refusal and of an early `claude stop` each failed it. Probe cost about 201 s; the repair and its refactor pass added two delegated agents.
+  - Inference: a mechanical interim-assertion inventory per relocated case (each `expect` → new location, or an existing proof that asserts it) would likely have exposed the loss at slice acceptance. Story obligations G2 and G1 show acceptance did verify the losses an implementer reported; this loss was not reported.

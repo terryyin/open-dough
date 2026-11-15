@@ -11,9 +11,10 @@
 /** @typedef {import("../../../dashboard/src/launchOutcome.ts").AttemptObservation} AttemptObservation */
 /** @typedef {MachineAnswer["establishingHosts"][number]} EstablishingStart */
 /** @typedef {MachineAnswer["creations"][number]} CreationView */
+/** @typedef {MachineAnswer["definitions"][number]} OfferedDefinition */
 
 // One answer. Unless stated it observes no session, answers no attempt,
-// establishes nothing, and cannot alert. Every host attaches, stops and lists
+// establishes nothing, offers no options, and cannot alert. Every host attaches, stops and lists
 // its launched sessions; Claude Code also stops a session marked Done, and
 // Cursor marks Done locally.
 export class MachineAnswerBuilder {
@@ -25,6 +26,8 @@ export class MachineAnswerBuilder {
   #establishing = [];
   /** @type {CreationView[]} */
   #creations = [];
+  /** @type {OfferedDefinition[]} */
+  #definitions = [];
 
   /**
    * The kept launches as observed, in answer order.
@@ -60,6 +63,18 @@ export class MachineAnswerBuilder {
    */
   withCreations(...creations) {
     this.#creations.push(...creations.map((view) => structuredClone(view)));
+    return this;
+  }
+
+  /**
+   * The options a project's installed skill offers a workflow's launch in a
+   * host, or why it offers none.
+   * @param {...OfferedDefinition} definitions
+   */
+  offering(...definitions) {
+    this.#definitions.push(
+      ...definitions.map((definition) => structuredClone(definition)),
+    );
     return this;
   }
 
@@ -105,7 +120,7 @@ export class MachineAnswerBuilder {
       establishingPreparation: establishedBy("refinement"),
       keptStarts: [],
       starts: [],
-      definitions: [],
+      definitions: structuredClone(this.#definitions),
       establishingHosts: this.#establishing.map((start) => ({ ...start })),
       sessionPolicies: [],
       workspaces: [],

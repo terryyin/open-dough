@@ -35,6 +35,10 @@ export const waitingForInput = "This session is waiting for your input.";
 export const markAsDone = (scope: Locator) =>
   scope.getByRole("button", { name: "Mark as done" });
 
+// A terminal panel header's own Mark as done, apart from its question's.
+export const headerMarkAsDone = (panel: Locator) =>
+  markAsDone(panel.locator("header"));
+
 // The question Mark as done asks in place before it marks a session whose
 // intended work is not known to be complete, by its words.
 export const doneQuestion = (scope: Locator) =>
