@@ -28,6 +28,10 @@ import {
   noConnection,
 } from "../../dashboard/tests/originAnswers.ts";
 import { publishes } from "../../dashboard/tests/support/fakeGitHub.ts";
+import { limiting } from "../../dashboard/tests/limitedReadingJourney.ts";
+import { noticedResumeTime } from "../../dashboard/tests/limitNotice.ts";
+import { untilReported } from "../../dashboard/tests/support/directedWait.ts";
+import { headsChecks } from "../../dashboard/tests/autoRefreshJourney.ts";
 import { intentSettingsText } from "../../dashboard/tests/support/intentSettingsFile.ts";
 
 for (const failure of ["settings", "listing"] as const) {
@@ -71,13 +75,48 @@ for (const failure of ["settings", "listing"] as const) {
         ? `${settingsPath} could not be read`
         : "GitHub answered HTTP 503",
     );
+    const checksBefore = headsChecks(githubFor(page).calls).length;
     unavailable = false;
 
     await advanceRecoveryClock(page, 14_999);
     expect(reads()).toBe(1);
     await advanceRecoveryClock(page, 251);
     expect(reads()).toBe(2);
+    expect(headsChecks(githubFor(page).calls)).toHaveLength(checksBefore + 1);
     await expect(intentLocationName(intent, "scripts")).toBeVisible();
     await expect(readFailure(intent)).toHaveCount(0);
   });
 }
+
+test("rate-limited Intent locations reread when the standing limit ends", async ({
+  page,
+}) => {
+  await pausePageClockAt(page, opened);
+  const published = publishes({
+    revision: doughnut.revision,
+    files: {
+      ...doughnut.files,
+      ".planning/open-dough.json": intentSettingsText(doughnutSettings),
+      ...locationFiles,
+    },
+  });
+  const directedSeconds = 2;
+  const answers = limiting(page, published, directedSeconds);
+  answers.limit(
+    (request) => request.kind === "tree" && request.path === "scripts",
+  );
+  githubFor(page).serve(doughnut.repository, answers.answer);
+  const reads = countLocationsReads(page);
+
+  const intent = await openDoughnut(page);
+  await expect(readFailure(intent)).toContainText("GitHub limited the rate");
+  const resumesAt = await noticedResumeTime(page);
+  const limitSeenAt = answers.lift();
+
+  await advanceRecoveryClock(page, resumesAt - opened.getTime() - 1);
+  expect(reads()).toBe(1);
+  await untilReported(limitSeenAt, directedSeconds);
+  await advanceRecoveryClock(page, 251);
+  expect(reads()).toBe(2);
+  await expect(intentLocationName(intent, "scripts")).toBeVisible();
+});

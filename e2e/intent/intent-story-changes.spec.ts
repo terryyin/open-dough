@@ -21,11 +21,11 @@ import {
 // file shows its published source. Closing Review changes keeps the story
 // selected (ADR 0008); deselecting its card then removes the summary and shows
 // Project Intent, whose reading borrowed none of it. "Selected story only":
-// ../../dashboard/tests/intent/intent-story-changes-only.spec.ts. Deletions and renames, and a folder's
+// ../../dashboard/frontend-tests/intent/intent-story-changes-only.spec.ts. Deletions and renames, and a folder's
 // Summary of the overlaid tree: ./intent-story-changes-moves.spec.ts. No
-// comparison and a failed read: ../../dashboard/tests/intent/intent-story-changes-gaps.spec.ts. A long
-// title: ../../dashboard/tests/intent/intent-story-summary-title.spec.ts. Where the keyboard returns after
-// closing Review changes: ../../dashboard/tests/intent/intent-story-review-return.spec.ts.
+// comparison and a failed read: ../../dashboard/frontend-tests/intent/intent-story-changes-gaps.spec.ts. A long
+// title: ../../dashboard/frontend-tests/intent/intent-story-summary-title.spec.ts. Where the keyboard returns after
+// closing Review changes: ../../dashboard/frontend-tests/intent/intent-story-review-return.spec.ts.
 
 import { parts, shortRevision } from "../../dashboard/tests/dashboardPage.ts";
 import { ciPanel } from "../../dashboard/tests/intentCiStatusPage.ts";

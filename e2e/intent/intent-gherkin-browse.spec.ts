@@ -8,7 +8,7 @@ import {
 // (../../dashboard/src/IntentPerspective.tsx): Doughnut-like and Pygardon-like locations,
 // nested folders after expand, exact text with line numbers and Gherkin
 // styling, and project change. Layout scrolling lives in
-// `../../dashboard/tests/intent/intent-gherkin-layout.spec.ts`.
+// `../../dashboard/frontend-tests/intent/intent-gherkin-layout.spec.ts`.
 
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {

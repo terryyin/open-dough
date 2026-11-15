@@ -51,80 +51,6 @@ scope: story
   its delivered slice 5 (`4ceb02349033764c7dc0fa842e184180626f99e7`); the
   pre-split source and plan are recoverable there.
 
-<a id="move-intent-reading-and-review-checks"></a>
-
-### Move Intent reading and review checks out of Dashboard Integrated UI Test
-
-**Identity:** SEED-334#move-intent-reading-and-review-checks
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/647-move-intent-reading-and-review-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"91030d8a520b94f16feb26edd9b4079872dfba10198f1b3ece6340817a07846d","plan":"bd155420804aaa8bfae03b27323324685549c96199cc30129b926f5f5b73625c"}}
-```
-
-#### Goal
-
-A dashboard maintainer keeps Intent's story/Done review, source/Purpose and
-reading-recovery regressions at their owning Frontend, Backend and E2E
-boundaries. Every distinct assertion remains useful while navigation still
-runs in Dashboard Integrated UI Test. The gain is clearer proof ownership;
-no speed improvement is claimed without measurement.
-
-#### Scope
-
-- Convert the 37 remaining non-CI Intent specs mapped in plan 647, including
-  `intent-ci-done-glance` and `intent-ci-done-reference-lifecycle`. Their Done
-  reading promises belong here even though their filenames contain CI.
-- Put controlled service answers with actual rendering, keyboard, focus,
-  source/case selection and reading position at Frontend. Keep real source
-  judgment, historical/live review selection, HTTP refusals, acquisition,
-  GitHub request counts and SSE connections at Backend or representative E2E
-  boundaries. Split mixed cases by their assertions, including negative effects.
-- Preserve selected-story changes/gaps, coverage, appearance and Review return;
-  Done historical versus live/captured review modes and project refresh;
-  revision notices, held/failed/latest updates and stale-answer exclusion;
-  nested source/Gherkin/Java/Purpose reading; activation, reuse and recovery.
-- Before removing each original case, account for every distinct assertion in
-  named maintained cases, including applicable existing proof. Observe the same
-  representative scratch break failing before and after a changed proof
-  boundary, with restored passes. A move or an equal case count alone is not
-  preservation evidence.
-- Remove only converted specs and their interim duration rows. Keep shared
-  support and remaining runner consumers usable. After this and the CI
-  conversion both land, no product spec remains in `dashboard/tests/intent/`.
-
-**Scope limits.** Navigation conversion and runner retirement belong to the
-next story; Intent CI conversion remains in plan 633. No product behavior
-change, new tier, E2E rename, tagged-install proof, timing or shard target.
-Conversion can start independently; reuse CI answer families when delivered
-rather than creating parallel ones. Shared support alone is no start dependency.
-
-#### Key examples
-
-1. With a Taken story selected, browse a location and nested folders, open a
-   changed test, then open and close Review by keyboard → Summary and Purpose
-   show the same changes; browsing asks for no text, the diff is read once
-   without published text, and closing restores the reading and header focus.
-2. With Done historical Intent open, select another Done story or ordinary
-   live Review while its answer is held → the old story/mode's source and
-   captured run do not leak; the correct historical/live answer is selected
-   for real, then the browser renders it. Project refresh preserves the Done
-   file, endpoints, Purpose/Proof choice and reading place.
-3. With a source case selected, a newer revision arrives → one notice retains
-   the shown revision. Show latest, a held/failed locations or file answer,
-   Retry, and switching projects retain the correct focus, source revision,
-   target line and reading place without showing another project's late answer.
-4. Open nested Gherkin or Java source or a recorded case, then revisit Intent
-   or change its file column → exact text, line numbers, highlighting/fallback,
-   selection, keyboard reachability and reading position stay protected.
-   Hidden/unreachable reads recover only at their existing retry conditions;
-   malformed settings stay distinct from unconfigured settings.
-
-**Plan:** [Intent reading/review conversion](../slice-plans/647-move-intent-reading-and-review-checks/PLAN.md)
-
-**Provenance.** Split from SEED-334#retire-dashboard-integrated-ui-test;
-the pre-split source/plan is recoverable at
-`f03e959480b2a04a7194b072cf71aa9da55ee1a9`. The provisional five batches
-are realigned after refinement, preserving their original scope.
-
 <a id="move-navigation-checks-and-retire-integrated-ui-test"></a>
 
 ### Move navigation checks out and retire Dashboard Integrated UI Test
@@ -225,3 +151,22 @@ recorded names. No new group, removal of the interim group, runner, CI job or
 speed claim.
 
 **Plan:** [Keep one browser test group roster](../slice-plans/617-keep-one-browser-test-group-roster/PLAN.md)
+
+<a id="remove-obsolete-native-revision-opener"></a>
+
+### Remove the obsolete native revision opener
+
+**Identity:** SEED-334#remove-obsolete-native-revision-opener
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/652-remove-obsolete-native-revision-opener/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"63b7a208e2988cbef4959de21849079954de4de45b0d6bdc67170350322ab0da","plan":"074398d732b52386ff5a8af8f119a9a582f0cf1a00644ebb2d6d84302048e7af"}}
+```
+
+**Goal:** A test maintainer has one live revision opener after the reading/review
+conversion, without an unused native publication entry in the shared browser helper.
+
+**Scope:** Bounded retrospective cleanup: delete the uncalled native
+`openWithFeatureSelected` and its unused imports while preserving live shared
+browser/data exports, the Frontend opener, real E2E publishers and product behavior.
+No runner, query, cache, fixture-data or timeout changes.
+
+**Plan:** [Remove the obsolete native revision opener](../slice-plans/652-remove-obsolete-native-revision-opener/PLAN.md)

@@ -1,0 +1,149 @@
+import { frontendFileDiff } from "../../tests/support/frontendStoryReview.ts";
+import { showLatestRevision } from "../../tests/intentReadRecoveryPage.ts";
+// After project refresh restores a real Done file's ready Purpose, choosing
+// Proof survives a roundtrip to refreshed Project Intent and retains its report.
+
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { pausePageClock } from "../../tests/autoRefreshJourney.ts";
+import {
+  backToStory,
+  openProjectIntent,
+  projectIntentLink,
+  returnToStory,
+  filesColumn,
+} from "../../tests/intentModePage.ts";
+import {
+  browserRevision,
+  expandIntentGroup,
+  expandIntentFolders,
+  fileReadingTab,
+  proofRegion,
+  revisionNotice,
+} from "../../tests/intentPerspectivePage.ts";
+import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
+import { selectDoneStoryInIntent } from "../../tests/support/selectDoneStoryInIntent.ts";
+import { advanceFrontendDoneProject } from "../../tests/support/frontendDoneProjectRefresh.ts";
+import { preholdRevisionStreamSlots } from "../../tests/support/revisionStreamSlots.ts";
+import { recordIntentLocations } from "../../tests/support/intentDoneProjectRefresh.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import {
+  chooseStoryTab,
+  intentFile,
+  storyHeaderReading,
+  intentDiffReading,
+} from "../../tests/support/intentStoryPage.ts";
+import { lines } from "../../tests/support/storyReviewWorktree.ts";
+
+test("project refresh restores Done historical Purpose before Proof survives a later Project Intent visit", async ({
+  page,
+  frontendServices,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await pausePageClock(page);
+  const longFile = "dashboard/tests/boundary/deep/long.spec.ts";
+  const report =
+    "Outcome: Caught\nEvidence: The saved historical assessment.\n";
+  const intentCoverage = makeMe.aDoneRecord
+    .withIntentCoverage({ report })
+    .please().intentCoverage;
+  if (intentCoverage === undefined)
+    throw new Error("The completed story fixture needs its saved assessment.");
+  const { locations, firstRequested } = recordIntentLocations(page);
+  await preholdRevisionStreamSlots(page);
+  const { completion, review } = await prepareFrontendDoneIntent(
+    page,
+    frontendServices,
+    intentCoverage,
+    {
+      files: { [longFile]: lines("historical", 120) },
+      changed: [
+        makeMe.aReviewedFile.with({ kind: "added", path: longFile }).please(),
+      ],
+      locations: [
+        makeMe.anIntentLocation
+          .at("dashboard/tests")
+          .ofKind("typescript", ["**/*.spec.ts"])
+          .selecting(longFile)
+          .please(),
+      ],
+    },
+  );
+  review.answerFile(
+    frontendFileDiff(longFile, lines("historical", 120).trimEnd().split("\n")),
+    longFile,
+  );
+  const published = frontendServices.revision;
+  const { intent } = await selectDoneStoryInIntent(page);
+  await firstRequested;
+  expect(locations).toEqual([completion]);
+  await chooseStoryTab(intent, "Changed tests");
+  await expect(filesColumn(intent)).toBeVisible();
+  expect(locations).toEqual([completion]);
+  await openProjectIntent(intent);
+  await expect(filesColumn(intent)).toBeVisible();
+  expect(locations).toEqual([completion, published]);
+  await expect(browserRevision(intent)).toContainText(published.slice(0, 7));
+  await returnToStory(intent);
+  await chooseStoryTab(intent, "Changed tests");
+  await expandIntentGroup(intent, "dashboard/tests");
+  await expandIntentFolders(intent, "dashboard/tests");
+  const selected = `Added ${longFile}`;
+  await intentFile(intent, selected).click();
+  await expect(intentDiffReading(intent).code).toHaveAttribute(
+    "aria-busy",
+    "false",
+  );
+  const revisions = storyHeaderReading(intent).revisions;
+  const endpoints = await revisions.innerText();
+  expect(endpoints).toContain(completion.slice(0, 7));
+  const laterRevision = await advanceFrontendDoneProject(
+    page,
+    frontendServices,
+  );
+  await openProjectIntent(intent);
+  await expect(revisionNotice(intent)).toBeVisible();
+  await expect(browserRevision(intent)).toContainText(published.slice(0, 7));
+  await showLatestRevision(revisionNotice(intent)).click();
+  await expect(revisionNotice(intent)).toHaveCount(0);
+  await expect(browserRevision(intent)).toContainText(
+    laterRevision.slice(0, 7),
+  );
+  expect(locations).toEqual([completion, published, laterRevision]);
+  await backToStory(intent).focus();
+  await page.keyboard.press("Enter");
+  await expect(projectIntentLink(intent)).toBeFocused();
+  await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
+  await expect(intentFile(intent, selected)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(fileReadingTab(intent, "Purpose")).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await expect(intentDiffReading(intent).code).toHaveAttribute(
+    "aria-busy",
+    "false",
+  );
+  await expect(revisions).toHaveText(endpoints);
+  await fileReadingTab(intent, "Proof").click();
+  await expect(proofRegion(intent)).toBeVisible();
+  await openProjectIntent(intent);
+  await expect(browserRevision(intent)).toContainText(
+    laterRevision.slice(0, 7),
+  );
+  await returnToStory(intent);
+  await expect(intentFile(intent, selected)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(fileReadingTab(intent, "Proof")).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await expect(proofRegion(intent)).toBeVisible();
+  await chooseStoryTab(intent, "Intent coverage");
+  await expect(intent.locator(".intent-story-coverage-text")).toHaveText(
+    report,
+  );
+});

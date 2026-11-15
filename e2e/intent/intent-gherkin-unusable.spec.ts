@@ -30,7 +30,7 @@ import {
   mixedSettings,
   usableFeature,
 } from "../../dashboard/tests/intentGherkinUnusableFixtures.ts";
-// Settings problems: ../../dashboard/tests/intent/intent-gherkin-settings-problems.spec.ts
+// Settings problems: ../../dashboard/frontend-tests/intent/intent-gherkin-settings-problems.spec.ts
 
 test("Intent names empty, missing, and unsupported locations while others browse; failed file reads retry", async ({
   page,

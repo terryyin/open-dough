@@ -1,0 +1,129 @@
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { openWithFeatureSelected } from "../../tests/support/frontendIntentRevisionJourney.ts";
+// An applied update that replaces the reading or must not cross projects:
+// an unusable latest settings file takes the reading's focus into its
+// explanation, and a held update of a project left behind never shows in
+// another's reading (../../src/useIntentLocations.ts,
+// ../../src/IntentRevisionNotice.tsx). Failed and unreadable updates that keep
+// the shown reading: ./intent-revision-update-outcomes.spec.ts.
+
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { chooseProject } from "../../tests/dashboardPage.ts";
+import { shortRevision } from "../../tests/dashboardParts.ts";
+import { untilPageReadsAnswered } from "../../tests/pageRequestNotes.ts";
+import { ciPanel } from "../../tests/intentCiStatusPage.ts";
+import {
+  browserRevision,
+  intentGroupToggle,
+  purposeRegion,
+  revisionNotice,
+} from "../../tests/intentPerspectivePage.ts";
+import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
+import { doughnut, pygardon } from "../../tests/intentCodeBrowseFixtures.ts";
+import {
+  locationFiles,
+  showLatestRevision,
+} from "../../tests/intentReadRecoveryPage.ts";
+import {
+  featurePath,
+  publishedFeature,
+} from "../../tests/intentJobsFeatureFixtures.ts";
+import {
+  jobsFeatures,
+  publishedFiles,
+} from "../../tests/intentRevisionJourney.ts";
+
+// Holds still released after a journey, so a failed one does not hang.
+const releases: (() => void)[] = [];
+test.afterEach(() => {
+  for (const release of releases.splice(0)) release();
+});
+
+test("an unusable settings file at the latest revision takes the reading's focus into its explanation", async ({
+  page,
+  frontendServices,
+}) => {
+  const files = publishedFiles(jobsFeatures);
+  const { moveTrunk, intent } = await openWithFeatureSelected(
+    page,
+    frontendServices,
+    files,
+  );
+  await moveTrunk(
+    "ec".repeat(20),
+    {
+      ...files,
+      ".planning/open-dough.json": "{\n",
+    },
+    {
+      revision: "ec".repeat(20),
+      locations: null,
+      settingsProblem: "malformed",
+    },
+  );
+  await showLatestRevision(revisionNotice(intent)).click();
+  const explanation = intent.locator(
+    '[role="tabpanel"]:has(.intent-settings-problem)',
+  );
+  await expect(explanation).toContainText("is not valid JSON");
+  await expect(explanation).toBeFocused();
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision("ec".repeat(20)),
+  );
+});
+
+test("choosing another project while an update is held shows only that project's reading when it is answered", async ({
+  page,
+  frontendServices,
+}) => {
+  const files = publishedFiles(jobsFeatures);
+  const { moveTrunk, intent } = await openWithFeatureSelected(
+    page,
+    frontendServices,
+    files,
+    {
+      project: doughnut,
+      locations: [
+        makeMe.anIntentLocation
+          .at("scripts")
+          .ofKind("javascript", ["**/*.test.mjs"])
+          .selecting(...Object.keys(locationFiles))
+          .please(),
+      ],
+      files: locationFiles,
+    },
+  );
+  const c = "ed".repeat(20);
+  await moveTrunk(c, {
+    ...files,
+    [featurePath]: publishedFeature.replace("Archive a job", "Purge a job"),
+  });
+  const latest = await holdAuthenticatedReadsWhere(
+    page,
+    (params) =>
+      params.get("source") === "pygardon" &&
+      params.get("intent") === "locations" &&
+      params.get("revision") === c,
+    releases,
+  );
+  await showLatestRevision(revisionNotice(intent)).click();
+  await expect.poll(latest.held).toBe(1);
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision(pygardon.revision),
+  );
+
+  await chooseProject(page, "Doughnut");
+  await expect(intentGroupToggle(intent, "scripts")).toBeVisible();
+  latest.release();
+  await untilPageReadsAnswered(page);
+  await expect(intentGroupToggle(intent, "scripts")).toBeVisible();
+  await expect(intentGroupToggle(intent, "e2e_test/features")).toHaveCount(0);
+  await expect(intent.getByText(featurePath)).toHaveCount(0);
+  await expect(intent).not.toContainText("Purge a job");
+  await expect(revisionNotice(intent)).toHaveCount(0);
+  await expect(ciPanel(intent)).toBeVisible();
+  await expect(purposeRegion(intent)).toHaveCount(0);
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision(doughnut.revision),
+  );
+});

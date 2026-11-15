@@ -1,0 +1,56 @@
+// Controlled published-source answers for whole-app Intent reading checks.
+// The caller supplies selected files; selection judgment belongs to Backend.
+import type { CatalogPublication } from "../catalogProjectRecords.ts";
+import type { IntentLocation } from "../../server/intentLocationsRead.ts";
+import type { FrontendServiceState } from "./frontendServiceState.ts";
+import { putFrontendPublished } from "./frontendServiceState.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  pygardonFeatureSources,
+  featuresPath,
+  packagedPath,
+} from "../intentEntryFolderSummariesFixtures.ts";
+
+export function putFrontendIntentSources(
+  services: FrontendServiceState,
+  project: CatalogPublication,
+  locations: readonly IntentLocation[],
+  files: Readonly<Record<string, string>>,
+): void {
+  Object.assign(services, {
+    projects: [project],
+    locations: { revision: project.revision, locations },
+  });
+  putFrontendPublished(services, {
+    revision: project.revision,
+    backlog: project.files[".planning/PRODUCT-BACKLOG.md"] ?? "",
+    files: { ...project.files, ...files },
+  });
+}
+
+export function putFrontendFolderSources(
+  services: FrontendServiceState,
+  project: CatalogPublication,
+): void {
+  putFrontendIntentSources(
+    services,
+    project,
+    [
+      makeMe.anIntentLocation
+        .at(featuresPath)
+        .ofKind("gherkin")
+        .selecting(
+          ...Object.keys(pygardonFeatureSources).filter((path) =>
+            path.startsWith(`${featuresPath}/`),
+          ),
+        )
+        .please(),
+      makeMe.anIntentLocation
+        .at(packagedPath)
+        .ofKind("gherkin")
+        .selecting(`${packagedPath}/packaged.feature`)
+        .please(),
+    ],
+    pygardonFeatureSources,
+  );
+}

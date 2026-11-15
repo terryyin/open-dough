@@ -1,5 +1,5 @@
 // Published Intent locations for the entry and folder summary journeys
-// (`./intent-entry-folder-summaries*.spec.ts`): a Pygardon-like Gherkin location
+// (`../frontend-tests/intent/intent-entry-folder-summaries*.spec.ts`): a Pygardon-like Gherkin location
 // with `jobs/` and `reports/` folders, beside a packaged location of one
 // file.
 

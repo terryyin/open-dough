@@ -215,7 +215,7 @@ North Star direction needs no addition for this test-side change.
   SEED-334#finish-dissolving-integrated-ui-test (spent) emptied the interim
   session/terminal/review/story/observation folders; coordinate remaining
   page-object work with SEED-334's [CI proof/comparison/candidate](SEED-334-product-wide-end-to-end-tests.md#move-intent-ci-proof-comparison-and-candidate-checks),
-  [Intent reading/review](SEED-334-product-wide-end-to-end-tests.md#move-intent-reading-and-review-checks)
+  [Intent reading/review](../done/SEED-334_move-intent-reading-and-review-checks.json)
   and [navigation/retirement](SEED-334-product-wide-end-to-end-tests.md#move-navigation-checks-and-retire-integrated-ui-test)
   stories rather than migrating specs those stories are moving.
 

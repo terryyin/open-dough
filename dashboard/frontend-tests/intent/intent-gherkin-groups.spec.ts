@@ -1,0 +1,244 @@
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
+import { storySummary } from "../../tests/intentModePage.ts";
+import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
+// Intent location groups expand exclusively
+// (../../src/IntentPerspective.tsx): start collapsed, one open body at a time,
+// all-closed reachable, Purpose survives toggle collapse, empty/unsupported
+// bodies participate, and nested folder toggle disclosure stays local to the
+// open group. With no story selected, every location header is a section
+// header spanning the locations column edge to edge with a bold label and its
+// own background apart from folder and file rows; a selected header takes the
+// selected background across that width, while an expanded one shows only
+// its open toggle.
+
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import {
+  collapseIntentGroup,
+  expandIntentFolders,
+  expandIntentGroup,
+  expectIntentGroupsCollapsed,
+  intentGroupToggle,
+  intentLocationName,
+} from "../../tests/intentPerspectivePage.ts";
+import { locationHeaderLookAt } from "../../tests/intentLocationHeaderLook.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+import {
+  doughnut,
+  packagedFeature,
+  recallFeature,
+} from "../../tests/intentGherkinBrowseFixtures.ts";
+
+test("Intent group sections start collapsed, expand exclusively, keep Purpose across collapse, leave nested folders local, and stand apart from their rows", async ({
+  page,
+  frontendServices,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  putFrontendIntentSources(
+    frontendServices,
+    doughnut,
+    [
+      makeMe.anIntentLocation
+        .at("e2e_test/features")
+        .ofKind("gherkin")
+        .selecting("e2e_test/features/recall/recall_note.feature")
+        .please(),
+      makeMe.anIntentLocation
+        .at("e2e_test/packaged/features")
+        .ofKind("gherkin")
+        .selecting("e2e_test/packaged/features/packaged.feature")
+        .please(),
+      {
+        ...makeMe.anIntentLocation
+          .at("empty_features")
+          .ofKind("gherkin")
+          .selecting()
+          .please(),
+        problem: "no-matching-files",
+      },
+      {
+        ...makeMe.anIntentLocation
+          .at("frontend/src")
+          .ofKind("unfamiliar-language")
+          .selecting()
+          .please(),
+        problem: "unsupported-kind",
+      },
+    ],
+    {
+      "e2e_test/features/recall/recall_note.feature": recallFeature,
+      "e2e_test/packaged/features/packaged.feature": packagedFeature,
+      "empty_features/README.md": "# no features here\n",
+      "frontend/src/app.ts": "export {}\n",
+    },
+  );
+
+  await openUntilRead(page, "/?project=doughnut");
+  const { intent, intentChoice } = parts(page);
+  await intentChoice.click();
+
+  await test.step("on Intent open, group headers are visible and every file list is hidden", async () => {
+    await expect(intentGroupToggle(intent, "e2e_test/features")).toBeVisible();
+    await expect(intentLocationName(intent, "e2e_test/features")).toBeVisible();
+    await expect(
+      intentGroupToggle(intent, "e2e_test/packaged/features"),
+    ).toBeVisible();
+    await expect(intentGroupToggle(intent, "empty_features")).toBeVisible();
+    await expect(intentGroupToggle(intent, "frontend/src")).toBeVisible();
+    await expectIntentGroupsCollapsed(intent);
+    await expect(
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
+    ).toHaveCount(0);
+    await expect(
+      sourceFile(intent, "e2e_test/packaged/features/packaged.feature"),
+    ).toHaveCount(0);
+  });
+
+  await test.step("expanding B while A is open closes A; collapsing leaves all closed", async () => {
+    await expandIntentGroup(intent, "e2e_test/features");
+    await expandIntentFolders(intent, "e2e_test/features");
+    await expect(
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
+    ).toBeVisible();
+    await expandIntentGroup(intent, "e2e_test/packaged/features");
+    await expect(
+      intentGroupToggle(intent, "e2e_test/features"),
+    ).toHaveAttribute("aria-expanded", "false");
+    await expect(
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
+    ).toHaveCount(0);
+    await expect(
+      sourceFile(intent, "e2e_test/packaged/features/packaged.feature"),
+    ).toBeVisible();
+    await collapseIntentGroup(intent, "e2e_test/packaged/features");
+    await expectIntentGroupsCollapsed(intent);
+  });
+
+  await test.step("select file, collapse its group: Purpose keeps it; re-expand restores the selected row", async () => {
+    await expandIntentGroup(intent, "e2e_test/features");
+    const feature = sourceFile(
+      intent,
+      "e2e_test/features/recall/recall_note.feature",
+    );
+    await feature.click();
+    const source = fileSource(
+      intent,
+      "e2e_test/features/recall/recall_note.feature",
+    );
+    await expect(source).toContainText("Feature: Recall a note");
+    await expect(feature).toHaveAttribute("aria-pressed", "true");
+    await collapseIntentGroup(intent, "e2e_test/features");
+    await expect(source).toContainText("Feature: Recall a note");
+    await expect(
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
+    ).toHaveCount(0);
+    await expandIntentGroup(intent, "e2e_test/features");
+    await expect(
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
+    ).toHaveAttribute("aria-pressed", "true");
+  });
+
+  await test.step("empty and unsupported group bodies participate in exclusive expansion", async () => {
+    await expandIntentGroup(intent, "empty_features");
+    await expect(
+      intentGroupToggle(intent, "e2e_test/features"),
+    ).toHaveAttribute("aria-expanded", "false");
+    await expect(intent).toContainText(
+      "No gherkin files are published at empty_features for this revision.",
+    );
+    await expandIntentGroup(intent, "frontend/src");
+    await expect(intentGroupToggle(intent, "empty_features")).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    await expect(intent).not.toContainText(
+      "No gherkin files are published at empty_features for this revision.",
+    );
+    await expect(intent).toContainText(
+      "Kind unfamiliar-language is not yet supported.",
+    );
+  });
+
+  await test.step("nested folder toggle opens or closes without collapsing the Intent group", async () => {
+    await expandIntentGroup(intent, "e2e_test/features");
+    const toggle = intent.getByRole("button", { name: "Collapse recall" });
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await toggle.click();
+    await expect(
+      intent.getByRole("button", { name: "Expand recall" }),
+    ).toHaveAttribute("aria-expanded", "false");
+    await expect(
+      intentGroupToggle(intent, "e2e_test/features"),
+    ).toHaveAttribute("aria-expanded", "true");
+    await expect(
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
+    ).toHaveCount(0);
+    await intent.getByRole("button", { name: "Expand recall" }).click();
+    await expect(
+      intent.getByRole("button", { name: "Collapse recall" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    await expect(
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
+    ).toBeVisible();
+  });
+
+  await test.step("with no story selected, full-width bold headers stand apart from rows; selection fills one header, expansion shows only in the toggle", async () => {
+    await expect(storySummary(intent)).toHaveCount(0);
+    const expandedPath = "e2e_test/features";
+    const selectedPath = "e2e_test/packaged/features";
+    const transparent = "rgba(0, 0, 0, 0)";
+    const folderRow = intent.locator(".story-review-folder-row").first();
+    const fileRow = sourceFile(
+      intent,
+      "e2e_test/features/recall/recall_note.feature",
+    );
+    await intentLocationName(intent, selectedPath).click();
+    await expect(intentLocationName(intent, selectedPath)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(fileRow).toHaveAttribute("aria-pressed", "false");
+    const rowBackgrounds = [
+      await folderRow.evaluate((row) => getComputedStyle(row).backgroundColor),
+      await fileRow.evaluate((row) => getComputedStyle(row).backgroundColor),
+    ];
+    expect(rowBackgrounds).toEqual([transparent, transparent]);
+
+    const looks = new Map<
+      string,
+      Awaited<ReturnType<typeof locationHeaderLookAt>>
+    >();
+    for (const location of [
+      expandedPath,
+      selectedPath,
+      "empty_features",
+      "frontend/src",
+    ])
+      looks.set(location, await locationHeaderLookAt(intent, location));
+    const expanded = looks.get(expandedPath);
+    const selected = looks.get(selectedPath);
+    await expect(intentGroupToggle(intent, expandedPath)).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+    await expect(intentGroupToggle(intent, selectedPath)).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+    expect(expanded?.background).not.toBe(transparent);
+    expect(rowBackgrounds).not.toContain(expanded?.background);
+    for (const location of ["empty_features", "frontend/src"])
+      expect(looks.get(location)?.background).toBe(expanded?.background);
+    expect(selected?.background).not.toBe(expanded?.background);
+    expect(rowBackgrounds).not.toContain(selected?.background);
+    for (const look of looks.values()) {
+      expect(look).toMatchObject({
+        mark: "none",
+        controlsShowHeader: true,
+        fullWidth: true,
+      });
+      expect(look.labelWeight).toBeGreaterThanOrEqual(600);
+    }
+  });
+});

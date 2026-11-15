@@ -6,7 +6,7 @@ import {
 } from "../tests/support/frontendApp.ts";
 import { pausePageClockAt } from "../tests/dashboardTest.ts";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
-import { revisionStreamSlotLockNames } from "../src/revisionStreamSlot.ts";
+import { preholdRevisionStreamSlots } from "../tests/support/revisionStreamSlots.ts";
 import { givePageItsTurns, isCheck } from "../tests/pageRequestNotes.ts";
 import { setPageVisibility } from "../tests/autoRefreshJourney.ts";
 import {
@@ -23,12 +23,7 @@ test("the logo kneads once when the waiting dashboard receives updates", async (
   page,
   frontendServices,
 }) => {
-  // Other tabs hold both stream slots, so this page uses revision checks.
-  await page.addInitScript((slots) => {
-    for (const slot of slots) {
-      void navigator.locks.request(slot, () => new Promise(() => {}));
-    }
-  }, revisionStreamSlotLockNames());
+  await preholdRevisionStreamSlots(page);
   await pausePageClockAt(page, new Date());
   const first = holdAnswer(page);
   let checks = 0;

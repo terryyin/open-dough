@@ -57,6 +57,19 @@ export const publishedFiles = (features: Readonly<Record<string, string>>) => ({
   ...features,
 });
 
+// Shared browser entry and selected-reading precondition for both real and
+// controlled published-source revision journeys.
+export async function openJobsFeature(page: Page) {
+  await openUntilRead(page, "/?project=pygardon&perspective=intent");
+  const { intent } = parts(page);
+  await expandIntentGroup(intent, "e2e_test/features");
+  const feature = sourceFile(intent, featurePath);
+  await feature.click();
+  const source = fileSource(intent, featurePath);
+  await expect(source).toContainText("Scenario: Archive a job");
+  return { intent, feature, source };
+}
+
 // Pygardon published at `pygardon.revision` with the jobs feature selected
 // and its Purpose read, on a page whose clock is paused; `moveTrunk` publishes
 // a newer revision and lets the page observe it.
@@ -72,13 +85,7 @@ export async function openWithFeatureSelected(
     revision: pygardon.revision,
     files,
   });
-  await openUntilRead(page, "/?project=pygardon&perspective=intent");
-  const { intent } = parts(page);
-  await expandIntentGroup(intent, "e2e_test/features");
-  const feature = sourceFile(intent, featurePath);
-  await feature.click();
-  const source = fileSource(intent, featurePath);
-  await expect(source).toContainText("Scenario: Archive a job");
+  const { intent, feature, source } = await openJobsFeature(page);
   const moveTrunk = async (
     revision: string,
     moved: Readonly<Record<string, string>>,

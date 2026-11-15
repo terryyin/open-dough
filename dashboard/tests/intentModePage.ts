@@ -2,8 +2,26 @@
 // Test Optimization Candidates record it shows, and the way between Project
 // Intent and the selected story (../src/IntentPage.tsx).
 
-import { expect, type Locator } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 import { shortRevision } from "./dashboardParts.ts";
+import { expectSettledPage, parts } from "./dashboardPage.ts";
+import { emptyArea, expectSelected } from "./storyCardSelection.ts";
+
+// Open the board, select the named card and enter its initial Intent view.
+export async function openStoryIntent(page: Page, title: string) {
+  await page.goto("/");
+  await expectSettledPage(page);
+  const card = parts(page).board.getByRole("article", {
+    name: title,
+    exact: true,
+  });
+  await emptyArea(card).click();
+  await expectSelected(card, true);
+  const { intentChoice, intent } = parts(page);
+  await intentChoice.click();
+  await expectStoryTab(intent, "CI comparison");
+  return { card, intent };
+}
 
 // The candidates record region Intent shows for the selected project.
 export function candidatesRecord(intent: Locator) {
@@ -12,6 +30,10 @@ export function candidatesRecord(intent: Locator) {
     exact: true,
   });
 }
+
+// One recorded candidate offering source files in Project Intent.
+export const candidateEntry = (intent: Locator, name: string) =>
+  candidatesRecord(intent).getByRole("article", { name });
 
 export async function expectCandidatesRevision(
   intent: Locator,

@@ -10,8 +10,8 @@ export const groupRunnerExamples = [
     directory: "dashboard",
     root: "dashboard/tests",
     durations: "integrated.longest-first",
-    spec: "intent/intent-story-summary-title.spec.ts",
-    grep: "a long story title shows once in full above the story's views",
+    spec: "navigation/board-paging.spec.ts",
+    grep: "with reduced motion asked for, a move shows the next column at once",
   },
   {
     name: "Dashboard Frontend Test",
