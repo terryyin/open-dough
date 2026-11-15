@@ -45,7 +45,7 @@ import { defaultCorpus, draftMarker } from "./native-stream-replay.mjs";
 import {
   readRetainedAttempt,
   Refusal,
-} from "./native-stream-retained-attempt.mjs";
+} from "../../evaluation/src/native-stream-retained-attempt.mjs";
 
 // How many string values in the raw stream line `text` equal `command`.
 function holds(text, command) {

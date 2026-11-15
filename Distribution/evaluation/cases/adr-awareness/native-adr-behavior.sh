@@ -37,7 +37,7 @@ native_adr_behavior_md_count() {
 }
 
 # The response text is the whole observation. Free counterexamples record it
-# as the `response` field (Distribution/tests/support/native-response-field.sh).
+# as the `response` field (Distribution/evaluation/src/native-response-field.sh).
 # assessor-signal: response response
 native_adr_behavior_assess() {
   local scenario=$1

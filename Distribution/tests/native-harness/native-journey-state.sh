@@ -5,8 +5,8 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-# shellcheck source=Distribution/tests/support/native-journey-state.sh
-source "${source_dir}/Distribution/tests/support/native-journey-state.sh"
+# shellcheck source=Distribution/evaluation/src/native-journey-state.sh
+source "${source_dir}/Distribution/evaluation/src/native-journey-state.sh"
 # shellcheck source=Distribution/tests/support/native-assessor-counterexample.sh
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
 
@@ -75,7 +75,7 @@ assert_passes expected.txt 'named conflicting authorities and stopped' \
 write_obs "${work_dir}/cursor-target.txt"
 assert_passes cursor-target.txt 'expected real fixture update state'
 
-assessor="${source_dir}/Distribution/tests/support/native-journey-state.sh"
+assessor="${source_dir}/Distribution/evaluation/src/native-journey-state.sh"
 native_assessor_counterexamples "${assessor}" "${work_dir}/expected.txt" \
   --verdict native_journey_state_status native_journey_state_reason \
   -- native_journey_state_assess

@@ -9,15 +9,15 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
 source "${source_dir}/Distribution/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/Distribution/tests/helpers/release-fixture.bash"
 source "${source_dir}/Distribution/tests/helpers/fixture-cache.bash"
-source "${source_dir}/Distribution/tests/support/native-codex.sh"
+source "${source_dir}/Distribution/evaluation/src/native-codex.sh"
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-proof.sh"
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-use.sh"
-# shellcheck source=Distribution/tests/support/native-cases.sh
-source "${source_dir}/Distribution/tests/support/native-cases.sh"
-# shellcheck source=Distribution/tests/support/native-result-retain.sh
-source "${source_dir}/Distribution/tests/support/native-result-retain.sh"
-# shellcheck source=Distribution/tests/support/native-run-supervise.sh
-source "${source_dir}/Distribution/tests/support/native-run-supervise.sh"
+# shellcheck source=Distribution/evaluation/src/native-cases.sh
+source "${source_dir}/Distribution/evaluation/src/native-cases.sh"
+# shellcheck source=Distribution/evaluation/src/native-result-retain.sh
+source "${source_dir}/Distribution/evaluation/src/native-result-retain.sh"
+# shellcheck source=Distribution/evaluation/src/native-run-supervise.sh
+source "${source_dir}/Distribution/evaluation/src/native-run-supervise.sh"
 
 native_case_entry='Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh'
 native_case_parse --wrapper context "$@"

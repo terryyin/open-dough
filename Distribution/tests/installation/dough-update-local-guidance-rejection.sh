@@ -7,7 +7,7 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 # shellcheck source=Distribution/tests/helpers/public-payload-fixture.bash
 source "${source_dir}/Distribution/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/Distribution/tests/helpers/release-fixture.bash"
-source "${source_dir}/Distribution/tests/support/native-codex.sh"
+source "${source_dir}/Distribution/evaluation/src/native-codex.sh"
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-proof.sh"
 # shellcheck source=Distribution/evaluation/src/native-host-stream.sh
 source "${source_dir}/Distribution/evaluation/src/native-host-stream.sh"

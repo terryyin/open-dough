@@ -118,7 +118,7 @@ run_native_host() {
   printf '\nJustified reuse notes:\n'
   printf '%s\n' \
     '- Shared publication source: Distribution/src/skills/dough-execute-plan/references/publish-the-candidate.md and maintain-default-checkout.md' \
-    '- Shared supervisor/stream/retention: Distribution/tests/support/native-run-*.sh and native-result-retain.sh' \
+    '- Shared supervisor/stream/retention: Distribution/evaluation/src/native-run-*.sh and native-result-retain.sh' \
     '- Credential-free substitute proof covers runner/assessor for all listed journeys; live reuse requires equivalent adapter observation on this host.'
 
   if [[ ${outstanding} -ne 0 ]]; then

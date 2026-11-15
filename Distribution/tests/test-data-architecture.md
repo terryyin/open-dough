@@ -16,7 +16,7 @@ entry. A test reaches a builder as `makeMe.aThing` or `makeMe.anThing`, and
 Type builders against the production type, schema, or encoder input with
 `@ts-check` and JSDoc imports. Builder modules import no dashboard module at
 runtime: native journeys hash makeMe's runtime import closure
-(`Distribution/tests/support/native-import-closure.mjs`) as evidence identity, and
+(`Distribution/evaluation/src/native-import-closure.mjs`) as evidence identity, and
 `Distribution/tests/native-harness/native-evidence-identity.sh` fails when that closure reaches outside
 `tests/` and `src/`. Include the builder sources in the dashboard
 type-check. Organize builders by domain concept behind the one entry point.

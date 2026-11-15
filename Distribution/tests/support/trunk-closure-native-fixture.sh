@@ -17,9 +17,9 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native
 # shellcheck source=Distribution/tests/support/trunk-closure-native-arming.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native-arming.sh"
-# shellcheck source=Distribution/tests/support/native-harness-observation.sh
+# shellcheck source=Distribution/evaluation/src/native-harness-observation.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-harness-observation.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-harness-observation.sh"
 
 trunk_closure_git() {
   local cwd=$1

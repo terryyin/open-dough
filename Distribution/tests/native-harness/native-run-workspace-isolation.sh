@@ -115,9 +115,9 @@ output_file="${harness_dir}/gone/response.md"
 transcript="${harness_dir}/events.jsonl"
 printf '%s\n' '{"type":"tool_call"}' > "${transcript}"
 rm -rf -- "$(dirname -- "${output_file}")"
-# shellcheck source=Distribution/tests/support/native-run-supervise.sh
+# shellcheck source=Distribution/evaluation/src/native-run-supervise.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-run-supervise.sh"
+source "${source_dir}/Distribution/evaluation/src/native-run-supervise.sh"
 native_run_write_output 1
 [[ -f ${output_file} ]]
 rm -rf -- "${harness_dir}"

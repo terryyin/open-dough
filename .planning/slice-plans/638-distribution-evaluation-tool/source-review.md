@@ -47,7 +47,7 @@ Explicit human amendments: Terry approved naming Distribution/evaluation/ as mai
 | C11 | Commitment: Reuse existing native execution in acceptance journeys and A/B comparisons. | slice 5 |  |
 | C12 | Commitment: Reuse existing native observation in acceptance journeys and A/B comparisons. | slice 5 |  |
 | C13 | Commitment: Reuse existing native assessment in acceptance journeys and A/B comparisons. | slice 5 |  |
-| C14 | Commitment: Relocate the shared implementation once. | slice 3 |  |
+| C14 | Commitment: Relocate the shared implementation once. | slice 3 | observed: Shared core exists once in evaluation/src (six delivered reader/session modules plus 26 runtime/retained-reader modules); slice-3-evidence.md real lifecycle, identities, standalone and current admission/archive/replay observations; family-specific closure remains explicitly owned by G10/slice4 |
 | C15 | Commitment: Preserve case selection during the move. | slice 5 |  |
 | C16 | Commitment: Preserve host support during the move. | slice 4 |  |
 | C17 | Commitment: Preserve outcome semantics during the move. | slice 5 |  |

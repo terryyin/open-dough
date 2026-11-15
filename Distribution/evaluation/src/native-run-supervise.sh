@@ -5,29 +5,29 @@
 # Stream status (native-run-stream.sh) and response come from the stream reader.
 # shellcheck disable=SC2034,SC2154,SC2312 # Supervisor/wrapper globals; ps formats pids.
 
-native_run_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+native_run_runtime_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # The files that decide how a native run is supervised, relative to the source
 # root. Evidence identities hash each one through
 # native_result_supervision_input_hash_lines (native-result-retain.sh).
 native_run_supervision_inputs=(
-  Distribution/tests/support/native-run-supervise.sh
-  Distribution/tests/support/native-run-owned.sh
-  Distribution/tests/support/native-run-stream.sh
+  Distribution/evaluation/src/native-run-supervise.sh
+  Distribution/evaluation/src/native-run-owned.sh
+  Distribution/evaluation/src/native-run-stream.sh
   Distribution/evaluation/src/native-host-stream.sh
   Distribution/evaluation/src/native-host-stream.mjs
   Distribution/evaluation/src/native-host-stream-adapters.mjs
   Distribution/evaluation/src/native-host-stream-codex-session.mjs
   Distribution/evaluation/src/native-host-stream-codex-tools.mjs
-  Distribution/tests/support/native-run-watchdog.sh
+  Distribution/evaluation/src/native-run-watchdog.sh
   Distribution/tests/helpers/wait-for.bash
   scripts/owned-process-group.bash
 )
-# shellcheck source=Distribution/tests/support/native-run-stream.sh
+# shellcheck source=Distribution/evaluation/src/native-run-stream.sh
 # shellcheck disable=SC1091
-source "${native_run_support_dir}/native-run-stream.sh"
+source "${native_run_runtime_dir}/native-run-stream.sh"
 # shellcheck source=scripts/owned-process-group.bash
 # shellcheck disable=SC1091
-source "${native_run_support_dir}/../../../scripts/owned-process-group.bash"
+source "${native_run_runtime_dir}/../../../scripts/owned-process-group.bash"
 
 native_run_outcome=exited
 native_run_failure_reason=
@@ -69,9 +69,9 @@ native_run_child_pgid() {
   printf '%s\n' "${pid}"
 }
 
-# shellcheck source=Distribution/tests/support/native-run-watchdog.sh
+# shellcheck source=Distribution/evaluation/src/native-run-watchdog.sh
 # shellcheck disable=SC1091
-source "${native_run_support_dir}/native-run-watchdog.sh"
+source "${native_run_runtime_dir}/native-run-watchdog.sh"
 # owned-process-group.bash already defines the watchdog bodies; the thin
 # native-run-watchdog.sh wrappers above keep call sites and input hashes stable.
 
@@ -132,9 +132,9 @@ native_run_owned_or_fail() {
   return "${status}"
 }
 
-# shellcheck source=Distribution/tests/support/native-run-owned.sh
+# shellcheck source=Distribution/evaluation/src/native-run-owned.sh
 # shellcheck disable=SC1091
-source "${native_run_support_dir}/native-run-owned.sh"
+source "${native_run_runtime_dir}/native-run-owned.sh"
 
 native_run_write_output() {
   local allow_empty=${1:-0}

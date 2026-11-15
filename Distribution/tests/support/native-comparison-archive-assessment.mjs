@@ -55,7 +55,7 @@ export function assessBaseline(archive, source, temporary) {
       "-c",
       'source "$1"; source "$2"; case_assess "$3"; printf "%s\\n%s\\n" "$case_assess_status" "$case_assess_reason"',
       "assessment",
-      join(source, "Distribution/tests/support/native-observation.sh"),
+      join(source, "Distribution/evaluation/src/native-observation.sh"),
       assessor,
       temporary,
     ],

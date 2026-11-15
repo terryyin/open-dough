@@ -2,9 +2,10 @@
 # Trunk Mode closure observation: the fields the assessor reads.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-# shellcheck source=Distribution/tests/support/native-completion-observation.sh
+trunk_closure_observe_runtime_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)
+# shellcheck source=Distribution/evaluation/src/native-completion-observation.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-observation.sh"
+source "${trunk_closure_observe_runtime_dir}/native-completion-observation.sh"
 
 # Installed `finish` calls for final closure $4, from the node call log $1 or
 # the commands host $2 started in stream $3.
@@ -14,9 +15,9 @@ trunk_closure_finish_count() {
     trunk-closure.mjs finish "${sha}"
 }
 
-# shellcheck source=Distribution/tests/support/closure-native-response.sh
+# shellcheck source=Distribution/evaluation/src/closure-native-response.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/closure-native-response.sh"
+source "${trunk_closure_observe_runtime_dir}/closure-native-response.sh"
 
 trunk_closure_observe() {
   local scenario=$1

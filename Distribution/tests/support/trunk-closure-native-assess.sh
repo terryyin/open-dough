@@ -2,9 +2,9 @@
 # Trunk Mode closure assessor.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-# shellcheck source=Distribution/tests/support/native-completion-observation.sh
+# shellcheck source=Distribution/evaluation/src/native-completion-observation.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-observation.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-completion-observation.sh"
 trunk_closure_assess_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/trunk-closure-native-assess.sh"
 
 # Signals for rejected cases of trunk_closure_assess, including the owned

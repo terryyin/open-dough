@@ -2,9 +2,9 @@
 # Story Branch closure observation: the fields the assessor reads.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-# shellcheck source=Distribution/tests/support/native-completion-observation.sh
+# shellcheck source=Distribution/evaluation/src/native-completion-observation.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-observation.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-completion-observation.sh"
 
 # True when the node call log or a command host $1 started in stream $2 shows
 # the installed retire command deleting exec/story once trunk holds SHA $3.

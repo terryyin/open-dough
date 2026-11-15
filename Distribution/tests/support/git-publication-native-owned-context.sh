@@ -15,9 +15,9 @@ source "${git_publication_owned_context_support_dir}/git-publication-native-star
 # shellcheck source=Distribution/tests/support/git-publication-native-preparation-land.sh
 # shellcheck disable=SC1091
 source "${git_publication_owned_context_support_dir}/git-publication-native-preparation-land.sh"
-# shellcheck source=Distribution/tests/support/native-harness-observation.sh
+# shellcheck source=Distribution/evaluation/src/native-harness-observation.sh
 # shellcheck disable=SC1091
-source "${git_publication_owned_context_support_dir}/native-harness-observation.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-harness-observation.sh"
 
 git_publication_owned_context_journey() {
   [[ $1 == startup-owned-context || $1 == preparation-land ]]

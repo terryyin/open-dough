@@ -20,35 +20,11 @@ keep their behavior and proof; this story only aligns their location references.
 
 ## Existing solution and direction
 
-PFE: reuse the native families documented in
-[`native-family-layers.md`](../../../Distribution/tests/native-harness/native-family-layers.md),
-the one host-stream reader and replay corpus, supervision, identity and result
-retention helpers, and the existing comparison entry, catalog, pair runner,
-baseline archive and recovery implementation. Move their responsibilities;
-add no parallel runner, host reader, case registry or scheduler.
+Reuse the existing [family layers](../../../Distribution/tests/native-harness/native-family-layers.md), sole reader/replay corpus, supervision, identity/retention and comparison catalog/pair/baseline/recovery owners. Add no parallel runner, reader, registry or scheduler. [Original PFE and layout evidence](preparation-evidence.md#original-selected-solution-and-direction) remains valid.
 
-Keep common execution, host adapters, observation, retention and comparison
-orchestration in `evaluation/src/`. Keep reusable family scenarios, fixtures
-and assessors in `evaluation/cases/`, with comparison cases together under
-`cases/comparison/`. Test-only substitutes, counterexamples and replay inputs
-belong with automated checks in `evaluation/tests/`. Classify by responsibility
-and actual imports, not by a filename containing `native`. Shared repository,
-installation and MakeMe builders remain one canonical implementation; reuse
-their actual import closure rather than copying them into the tool.
+Runtime belongs in src, scenarios/fixtures/assessors in cases, tool checks and test-only substitutes/counterexamples/replay inputs in tests. Classify actual responsibility/imports. Keep MakeMe/repository/install builders canonical and follow their real closure. The existing scripts/test.sh remains the one scheduler, preserving selection, admission, deadlines, reports and split allocation.
 
-[`scripts/test.sh`](../../../scripts/test.sh) remains the one scheduler.
-Its named-path selection, alternate test root, reports, admission and split
-allocator already serve the focused command. Extend default discovery to the
-union of guidance and evaluation checks, with one deduplication/deal and the
-existing Distribution CI producer and proof-fragment format.
-
-[ADR 0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md) names the
-evaluation home and shared group after Terry's 2026-11-15 approval.
-[ADR 0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md)
-keeps maintenance outside the declared payload.
-[ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) keeps
-deterministic checks distinct from native acceptance and paid comparisons.
-No North Star topic is needed: the agreed layout and existing owners suffice.
+[ADR 0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md) authorizes the home/shared group, [0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md) keeps installation payload-declared, and [0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) separates controlled checks from native acceptance/paid comparisons. No new North Star topic is needed.
 
 ## Proof ownership
 
@@ -72,22 +48,18 @@ remain applicable except for the sizing assumption corrected below.
 ### 1. Relocate the shared host-stream reader
 Type: Structure
 Status: done
-Proof: [accepted reader, replay, identity and snapshot observations](slice-1-evidence.md).
-Six reader/session modules now live in src with unchanged runtime bodies.
-Their guard/import/identity/copy consumers pass; this enabled the ADR entry.
+Proof: [Six unchanged reader/session modules in src; imports, identity and replay](slice-1-evidence.md).
 
 ### 2. Invoke ADR acceptance from the evaluation home
 Type: Behavior
 Status: done
-Proof: [accepted ADR, lifecycle, payload and copied-source observations](slice-2-evidence.md).
-Thirteen ADR modules and 21 byte-identical fixture files now live in cases;
-the new README/native commands preserve options and lifecycle. G8 stays owned by slice 6.
+Proof: [ADR native options/lifecycle, payload and 21 unchanged fixtures in cases](slice-2-evidence.md).
 
 ### 3. Relocate remaining shared native execution
 Type: Structure
-Status: planned
-Proof: supervision/failure/timeout/isolation, retention, identity, comparison
-snapshots, publication shim discovery and the existing one-shot group journeys.
+Status: done
+Proof: [retained runtime observations and explicit acceptance returns](slice-3-evidence.md);
+supervision, identity, snapshots, shim discovery and existing one-shot groups.
 
 Move the remaining actual shared runtime modules to `evaluation/src/` using
 attempt 2's classified map and compatible repairs, preserving slice 1's reader.
@@ -202,10 +174,7 @@ failed and passing observations; a passing retry is no repair.
 
 ## Execution context
 
-Story Branch Mode in the launch's owned workspace/branch, agent Kirara-chan, publisher `dashboard-territory.local-open-dough`; origin/main, increments to `codex/run-and-maintain-native-evaluations-as-a-distinc`.
-Starting revision `c124365d015aec64b5186160980db9205b11955a`; claim `deba676495b2eb1b8c1f3d3f96b7a44cb1122eb4`; records published at `cc8ce00967a8a0b9c1668619d47d1917d07ece02`. Preserve existing planning authority (no explicit replan option).
-Exact-checkout npm ci/typecheck passed with unchanged lock. Observer `kirara-638`, cell `g390:9`, session 35882, PID 75649, `/tmp/dough-ci-501/watch-NjF7jy`, `terryyin/open-dough`, execution branch, verified `ci.yml` (CI); claim trunk CI unobserved.
-Shared Mac AC, initially 56% free/load 11.33; two jobs under `caffeinate -s -i`; reconsider contention/failure. Source freshness unchanged at trunk `3925a4ef8ca8cf4f0bf6f03b201a78c24d2ec0e8`, only incoming planning/agent records.
+[Established identity, publication and observer](attempt-3.md#retained-execution-context).
 
 ## Story obligations
 
@@ -227,12 +196,12 @@ Disposition: proved by slice 1: slice-1-evidence.md command 1; browser-group-sha
 ### G4. Standalone comparison sourcing after relocation
 Reported: slice 1 — "native-codex-owned-proof passes but prints missing paths because standalone comparison sourcing has no source_dir"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: slice-3-evidence.md initial nine passing checks; standalone native-codex-owned-proof.test.mjs sources comparison without caller source_dir and observes current/forked/failed/unknown ownership with silent runner output
 
 ### G5. Executable shim owners
 Reported: slice 1 — "publication fixture shim discovery scans only old support, missing moved executable owners"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: slice-3-evidence.md five-check publication renewal; native harness counterexamples observe real login-shell shim resolution and reject each deliberately missing shim
 
 ### G6. Deleted tracked snapshot inputs
 Reported: slice 1 — "admission snapshot enumeration attempts deleted old runtime paths"
@@ -248,3 +217,13 @@ Disposition: receiving slice 7
 Reported: slice 2 — "Routine test entries remain at old paths and currently dispatch mixed default branches in the moved cases (interim extraction needed in slice 6)."
 Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
 Disposition: interim until slices 2, 6
+
+### G9. Delivery identity omits the actual native entry
+Reported: slice 3 — "native_result_journey_input_hash_lines hashes the thin routine delivery wrapper instead of the moved native entry; current listed-input mutation tests miss that omission."
+Story clause: "preserve case selection, host support, outcome and failure semantics, supervision, retention and evidence identity during the move."
+Disposition: proved by slice 3: slice-3-evidence.md red expectation followed by six-check renewal; actual selected native entry is listed and byte mutation changes its evidence digest
+
+### G10. Operational retained-attempt and publication replay closure
+Reported: slice 3 — "Operational admission reuse imports a shared retained-attempt reader and family-owned publication stream/replay helpers from tests/support."
+Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
+Disposition: interim until slices 3, 4

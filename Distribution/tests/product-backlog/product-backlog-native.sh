@@ -33,9 +33,9 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-# shellcheck source=Distribution/tests/support/product-backlog-native-evidence.sh
+# shellcheck source=Distribution/evaluation/src/product-backlog-native-evidence.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/product-backlog-native-evidence.sh"
+source "${source_dir}/Distribution/evaluation/src/product-backlog-native-evidence.sh"
 # shellcheck source=Distribution/tests/support/product-backlog-native-guard.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/product-backlog-native-guard.sh"
@@ -57,9 +57,9 @@ source "${source_dir}/Distribution/tests/support/product-backlog-native-use-host
 # shellcheck source=Distribution/tests/support/product-backlog-native-take.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/product-backlog-native-take.sh"
-# shellcheck source=Distribution/tests/support/native-codex.sh
+# shellcheck source=Distribution/evaluation/src/native-codex.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-codex.sh"
+source "${source_dir}/Distribution/evaluation/src/native-codex.sh"
 
 usage() {
   cat >&2 << 'EOF'

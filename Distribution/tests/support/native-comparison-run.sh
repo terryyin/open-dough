@@ -46,10 +46,11 @@
 # shellcheck disable=SC1090,SC1091,SC2030,SC2031,SC2034,SC2154,SC2312 # Sourced case and helper globals; the journey runs and retains in one subshell.
 
 native_comparison_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-source "${native_comparison_support_dir}/native-run-supervise.sh"
-source "${native_comparison_support_dir}/native-codex.sh"
-source "${native_comparison_support_dir}/native-observation.sh"
-source "${native_comparison_support_dir}/native-result-retain.sh"
+native_comparison_runtime_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)
+source "${native_comparison_runtime_dir}/native-run-supervise.sh"
+source "${native_comparison_runtime_dir}/native-codex.sh"
+source "${native_comparison_runtime_dir}/native-observation.sh"
+source "${native_comparison_runtime_dir}/native-result-retain.sh"
 source "${native_comparison_support_dir}/delivery-evidence-native-payload.sh"
 source "${native_comparison_support_dir}/native-comparison-retain.sh"
 source "${native_comparison_support_dir}/native-comparison-turn.sh"
@@ -59,9 +60,9 @@ native_comparison_inputs=(
   Distribution/tests/support/native-comparison-run.sh
   Distribution/tests/support/native-comparison-turn.sh
   Distribution/tests/support/native-comparison-retain.sh
-  Distribution/tests/support/native-codex.sh
+  Distribution/evaluation/src/native-codex.sh
   Distribution/evaluation/src/native-codex-session.mjs
-  Distribution/tests/support/native-observation.sh
+  Distribution/evaluation/src/native-observation.sh
   Distribution/tests/support/delivery-evidence-native-payload.sh
 )
 

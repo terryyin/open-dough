@@ -3,9 +3,9 @@
 # script assigns source_dir, work paths, wrapper paths, and PATH first.
 # shellcheck disable=SC2016,SC2154,SC2310,SC2311,SC2312 # Proof globals; pipefail covers logs.
 
-# shellcheck source=Distribution/tests/support/native-result-retain.sh
+# shellcheck source=Distribution/evaluation/src/native-result-retain.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-result-retain.sh"
+source "${source_dir}/Distribution/evaluation/src/native-result-retain.sh"
 # shellcheck source=Distribution/tests/support/native-updated-use-prompt-assert.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/native-updated-use-prompt-assert.sh"
@@ -89,6 +89,6 @@ assert_record_identity() {
   grep -Fq 'native-version-command: codex --version' "${attempt}/record"
   grep -Fq 'helper-identity: Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-updated-use.sh' \
     "${attempt}/record"
-  grep -Fq 'adapter-identity: Distribution/tests/support/native-codex.sh' "${attempt}/record"
+  grep -Fq 'adapter-identity: Distribution/evaluation/src/native-codex.sh' "${attempt}/record"
   native_result_assert_no_discovery_fields "${attempt}/record" 'journey record'
 }

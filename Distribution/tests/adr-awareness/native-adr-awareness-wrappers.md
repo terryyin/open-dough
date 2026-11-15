@@ -115,7 +115,7 @@ Record fields used for applicability: `host`, `case`, `native-version-command`,
 `native-version`, `adapter-identity`, `helper-identity`, `fixture-identity`,
 `fixture-tag`, `baseline-tag`, `update-prompt-identity`, `use-prompt-identity`,
 and `input-hash` lines. Cursor Agent identity is `cursor agent --version`, not
-`cursor --version`. Adapter identities are `Distribution/tests/support/native-codex.sh`,
+`cursor --version`. Adapter identities are `Distribution/evaluation/src/native-codex.sh`,
 `cursor-agent-stream-json`, and `claude-stream-json`. The shared reader
 (`Distribution/evaluation/src/native-host-stream.mjs`) reads every host's stream: commands, response, and whether it is complete. Response bytes for
 Codex still come from `-o`, which is not itself completeness proof; for Cursor

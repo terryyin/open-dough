@@ -9,7 +9,7 @@
 # destination, a restored passing run at least as broad as the baseline, the
 # resolver and checkout restored, and the reported verdict. Returns 0 with
 # case_assess_status (pass or fail) and case_assess_reason. Reads fields
-# through native_observation_field (Distribution/tests/support/native-observation.sh,
+# through native_observation_field (Distribution/evaluation/src/native-observation.sh,
 # which the runner sources).
 # shellcheck disable=SC2034,SC2312 # case_assess_* are read by the runner; fields print as observed.
 #

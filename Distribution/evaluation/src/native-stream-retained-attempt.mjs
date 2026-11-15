@@ -1,6 +1,6 @@
 // Reads a retained paid native attempt (`<results-dir>/<host>/<case>/
-// <attempt-id>/`) for adding to the replay corpus
-// (native-stream-corpus-add.mjs), refusing one replay cannot use. Its `record`
+// <attempt-id>/`) for admission reassessment and replay-corpus maintenance,
+// refusing one the shared reader cannot use. Its `record`
 // names the host, the case (one or more `/`-separated segments; a publication
 // case is `publication/<journey>`), and each events stream
 // (`artifact-events:`, or `artifact-<phase>-events:` for a two-stage attempt);
@@ -11,7 +11,7 @@ import {
   hosts,
   readHostStreamText,
   readStreamFile,
-} from "../../evaluation/src/native-host-stream.mjs";
+} from "./native-host-stream.mjs";
 
 // Names what a retained attempt lacks for replay.
 export class Refusal extends Error {}

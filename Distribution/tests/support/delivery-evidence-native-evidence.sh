@@ -2,9 +2,9 @@
 # Evidence identity and retained review artifacts for delivery-evidence journeys.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-# shellcheck source=Distribution/tests/support/native-import-closure.sh
+# shellcheck source=Distribution/evaluation/src/native-import-closure.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-import-closure.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-import-closure.sh"
 
 # These journeys retain observations for explicit review, never prose certification.
 delivery_evidence_requires_review() {
@@ -57,7 +57,7 @@ delivery_evidence_write_evidence_identity() {
     Distribution/tests/support/delivery-evidence-native-prompt.sh \
     Distribution/tests/support/delivery-evidence-native-evidence.sh \
     Distribution/tests/support/delivery-evidence-native-payload.sh \
-    Distribution/tests/support/native-observation.sh \
+    Distribution/evaluation/src/native-observation.sh \
     "${case_prefix}-assess.sh" \
     "${case_prefix}-observe.sh" \
     "${case_prefix}-scenario-content.sh" \

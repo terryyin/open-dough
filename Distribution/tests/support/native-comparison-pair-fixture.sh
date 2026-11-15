@@ -55,7 +55,7 @@ native_comparison_pair_fixture() {
   mkdir -p -- "${work}/source" "${work}/bin"
   # Case setup uses the shared domain factory. Its actual runtime imports may
   # reach source encoders/contracts as well as test support; retain that closure.
-  runtime=$(node "${source_dir}/Distribution/tests/support/native-import-closure.mjs" \
+  runtime=$(node "${source_dir}/Distribution/evaluation/src/native-import-closure.mjs" \
     "${source_dir}" Distribution/tests/support/makeMe.mjs) || return
   mapfile -t runtime_inputs <<< "${runtime}"
   git -C "${source_dir}" ls-files --cached --others --exclude-standard --deduplicate -- \

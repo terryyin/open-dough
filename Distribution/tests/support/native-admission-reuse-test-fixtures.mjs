@@ -14,11 +14,14 @@ import { fileURLToPath } from "node:url";
 import { makeMe } from "./makeMe.mjs";
 import { materializeLocalCheckout } from "./repository-fixture.mjs";
 import { copiedLayer } from "./repository-revision-files.mjs";
-import { candidateIdentity } from "./native-admission-reuse.mjs";
+import { candidateIdentity } from "../../evaluation/src/native-admission-reuse.mjs";
 import { uncoveredSupervisionRoots } from "./native-supervision-inputs.mjs";
 
 const root = fileURLToPath(new URL("../../..", import.meta.url));
-const cli = join(root, "Distribution/tests/support/native-admission-reuse.mjs");
+const cli = join(
+  root,
+  "Distribution/evaluation/src/native-admission-reuse.mjs",
+);
 const context = {
   host: "codex",
   version: "controlled-v1",

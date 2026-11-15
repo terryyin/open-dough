@@ -4,7 +4,7 @@
 # shellcheck disable=SC1091,SC2016,SC2034,SC2154,SC2312 # Child-shell expansion, supervisor globals and sourced helpers.
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-source "${source_dir}/Distribution/tests/support/native-run-supervise.sh"
+source "${source_dir}/Distribution/evaluation/src/native-run-supervise.sh"
 work=$(mktemp -d)
 trap 'rm -rf -- "${work}"' EXIT
 native_case_deadline=30

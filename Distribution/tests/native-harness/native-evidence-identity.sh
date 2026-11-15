@@ -33,12 +33,12 @@ capture_identity_hashes "${identity_out}/baseline"
 identity_failures=0
 
 # A supervision input added to the one list reaches every supervised identity.
-cp -- "${identity_source}/Distribution/tests/support/native-run-supervise.sh" "${identity_out}/original"
+cp -- "${identity_source}/Distribution/evaluation/src/native-run-supervise.sh" "${identity_out}/original"
 : > "${identity_source}/Distribution/tests/support/native-run-probe.sh"
 printf 'native_run_supervision_inputs+=(Distribution/tests/support/native-run-probe.sh)\n' \
-  >> "${identity_source}/Distribution/tests/support/native-run-supervise.sh"
+  >> "${identity_source}/Distribution/evaluation/src/native-run-supervise.sh"
 capture_identity_hashes "${identity_out}/extended"
-cp -- "${identity_out}/original" "${identity_source}/Distribution/tests/support/native-run-supervise.sh"
+cp -- "${identity_out}/original" "${identity_source}/Distribution/evaluation/src/native-run-supervise.sh"
 for index in "${!supervised_identity_writers[@]}"; do
   if ! grep -q ' Distribution/tests/support/native-run-probe\.sh$' "${identity_out}/extended/${index}"; then
     printf 'FAIL: evidence identity %s does not take the supervision list.\n' \
@@ -59,7 +59,7 @@ land_inputs=(
   Distribution/src/skills/dough-manual-testing/references/exploration-workspace.md
   Distribution/src/skills/dough-execute-plan/references/maintain-default-checkout.md
 )
-response_input=Distribution/tests/support/native-response-field.sh
+response_input=Distribution/evaluation/src/native-response-field.sh
 journey_inputs=(
   'prep_native_input_hash_lines|
   Distribution/tests/support/execution-worktree-prep-native-locked-node-repository.mjs
@@ -70,6 +70,7 @@ journey_inputs=(
   Distribution/tests/support/queued-repository.mjs Distribution/tests/support/published-plan.mjs
   Distribution/tests/support/slicePlanTestData.mjs Distribution/tests/support/hostHookSettingsTestData.mjs'
   'native_result_journey_input_hash_lines|
+  Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-codex-delivery-to-use.sh
   Distribution/tests/support/release-source.mjs Distribution/tests/support/makeMe.mjs
   Distribution/tests/support/releaseTestData.mjs Distribution/tests/support/repository-fixture.mjs'
   "git_publication_write_evidence_identity owned-context|${land_inputs[*]}
@@ -152,7 +153,7 @@ for index in "${!identity_writers[@]}"; do
   mapfile -t modules < <(awk '$3 ~ /\.mjs$/ { print $3 }' \
     "${identity_out}/baseline/${index}")
   ((${#modules[@]})) || continue
-  if ! node "${identity_source}/Distribution/tests/support/native-import-closure.mjs" \
+  if ! node "${identity_source}/Distribution/evaluation/src/native-import-closure.mjs" \
     "${identity_source}" "${modules[@]}" > "${identity_out}/closure"; then
     printf 'FAIL: evidence identity %s lists modules whose closure cannot be traced.\n' \
       "${identity_writers[index]}" >&2

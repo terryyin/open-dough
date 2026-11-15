@@ -10,7 +10,7 @@ set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 source "${source_dir}/Distribution/tests/support/native-comparison-pair-fixture.sh"
-source "${source_dir}/Distribution/tests/support/native-observation.sh"
+source "${source_dir}/Distribution/evaluation/src/native-observation.sh"
 source "${source_dir}/Distribution/tests/support/native-comparison-verdict.sh"
 source "${source_dir}/Distribution/tests/support/native-comparison-verdict-counterexamples.sh"
 

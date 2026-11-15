@@ -2,9 +2,9 @@
 # Shared settled-response and refresh-attention observations for Wrap Up.
 # shellcheck disable=SC2312
 
-# shellcheck source=Distribution/tests/support/native-response-field.sh
+# shellcheck source=Distribution/evaluation/src/native-response-field.sh
 # shellcheck disable=SC1091,SC2312
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-response-field.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/." && pwd)/native-response-field.sh"
 
 # A settled Wrap Up response is empty or a minimal native acknowledgment, or
 # gives useful attention about a deferred default-checkout refresh when needed.

@@ -47,7 +47,7 @@ The runner starts `codex exec --ignore-user-config` (later turns `codex exec
 resume` in the same thread) with sandbox `danger-full-access` and no
 approval prompts, inside the harness's macOS `sandbox-exec` profile, which
 lets the session write only its arm, the temporary root and Codex's own
-runtime (`Distribution/tests/support/native-codex.sh`). Known constraints:
+runtime (`Distribution/evaluation/src/native-codex.sh`). Known constraints:
 
 - `--ignore-user-config` drops your configured model, so `--model` and
   `--effort` decide both arms; the defaults are `gpt-6.1-sol` and `xhigh`.

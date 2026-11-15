@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const listFile = (sourceRoot) =>
-  join(sourceRoot, "Distribution/tests/support/native-run-supervise.sh");
+  join(sourceRoot, "Distribution/evaluation/src/native-run-supervise.sh");
 
 /**
  * Repository-relative paths from `native_run_supervision_inputs`.

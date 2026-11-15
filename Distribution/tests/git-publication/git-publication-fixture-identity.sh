@@ -110,7 +110,7 @@ if ! grep -Fq 'from "../src/notes.mjs"' "${identity_source}/${escalation}"; then
   identity_failures=1
 fi
 closure_status=0
-node "${identity_source}/Distribution/tests/support/native-import-closure.mjs" "${identity_source}" \
+node "${identity_source}/Distribution/evaluation/src/native-import-closure.mjs" "${identity_source}" \
   Distribution/tests/support/git-publication-native-one-shot-fixture.mjs \
   > "${identity_out}/one-shot-closure" 2> "${identity_out}/one-shot-closure.err" \
   || closure_status=$?

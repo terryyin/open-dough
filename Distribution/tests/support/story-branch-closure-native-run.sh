@@ -83,14 +83,14 @@ story_closure_write_evidence_identity() {
     Distribution/tests/support/story-branch-closure-native-observe.sh \
     Distribution/tests/support/story-branch-closure-native-counterexamples.sh \
     Distribution/tests/support/story-branch-closure-native-response.sh \
-    Distribution/tests/support/closure-native-response.sh \
-    Distribution/tests/support/native-response-field.sh \
-    Distribution/tests/support/native-completion-observation.sh \
-    Distribution/tests/support/native-observation.sh \
+    Distribution/evaluation/src/closure-native-response.sh \
+    Distribution/evaluation/src/native-response-field.sh \
+    Distribution/evaluation/src/native-completion-observation.sh \
+    Distribution/evaluation/src/native-observation.sh \
     Distribution/tests/support/story-branch-closure-native-fixture.sh \
-    Distribution/tests/support/native-harness-observation.sh \
-    Distribution/tests/support/native-harness-login-shell.sh \
-    Distribution/tests/support/native-node-call-recorder.mjs \
+    Distribution/evaluation/src/native-harness-observation.sh \
+    Distribution/evaluation/src/native-harness-login-shell.sh \
+    Distribution/evaluation/src/native-node-call-recorder.mjs \
     Distribution/tests/support/git-publication-native-run.sh
   native_result_supervision_input_hash_lines
   native_result_input_hash_lines \

@@ -29,15 +29,15 @@ source "${source_dir}/Distribution/src/install/open-dough-platform.sh"
 # shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-release-transition.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-release-transition.sh"
-# shellcheck source=Distribution/tests/support/native-cases.sh
+# shellcheck source=Distribution/evaluation/src/native-cases.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-cases.sh"
-# shellcheck source=Distribution/tests/support/native-result-retain.sh
+source "${source_dir}/Distribution/evaluation/src/native-cases.sh"
+# shellcheck source=Distribution/evaluation/src/native-result-retain.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-result-retain.sh"
-# shellcheck source=Distribution/tests/support/native-run-supervise.sh
+source "${source_dir}/Distribution/evaluation/src/native-result-retain.sh"
+# shellcheck source=Distribution/evaluation/src/native-run-supervise.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-run-supervise.sh"
+source "${source_dir}/Distribution/evaluation/src/native-run-supervise.sh"
 # shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-updated-use.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-updated-use.sh"

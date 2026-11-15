@@ -34,3 +34,35 @@ npm test -- Distribution/tests/ci/distribution-ci-proof.test.mjs \
   Distribution/tests/test-runner/test-runner-split.sh \
   Distribution/tests/native-comparison/native-comparison-baselines.sh
 ```
+
+## Original selected solution and direction
+
+PFE: reuse the native families documented in
+[`native-family-layers.md`](../../../Distribution/tests/native-harness/native-family-layers.md),
+the one host-stream reader and replay corpus, supervision, identity and result
+retention helpers, and the existing comparison entry, catalog, pair runner,
+baseline archive and recovery implementation. Move their responsibilities;
+add no parallel runner, host reader, case registry or scheduler.
+
+Keep common execution, host adapters, observation, retention and comparison
+orchestration in `evaluation/src/`. Keep reusable family scenarios, fixtures
+and assessors in `evaluation/cases/`, with comparison cases together under
+`cases/comparison/`. Test-only substitutes, counterexamples and replay inputs
+belong with automated checks in `evaluation/tests/`. Classify by responsibility
+and actual imports, not by a filename containing `native`. Shared repository,
+installation and MakeMe builders remain one canonical implementation; reuse
+their actual import closure rather than copying them into the tool.
+
+[`scripts/test.sh`](../../../scripts/test.sh) remains the one scheduler.
+Its named-path selection, alternate test root, reports, admission and split
+allocator already serve the focused command. Extend default discovery to the
+union of guidance and evaluation checks, with one deduplication/deal and the
+existing Distribution CI producer and proof-fragment format.
+
+[ADR 0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md) names the
+evaluation home and shared group after Terry's 2026-11-15 approval.
+[ADR 0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md)
+keeps maintenance outside the declared payload.
+[ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) keeps
+deterministic checks distinct from native acceptance and paid comparisons.
+No North Star topic is needed: the agreed layout and existing owners suffice.

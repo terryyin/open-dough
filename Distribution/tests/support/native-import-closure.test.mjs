@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 
 const command = fileURLToPath(
-  new URL("./native-import-closure.mjs", import.meta.url),
+  new URL("../../evaluation/src/native-import-closure.mjs", import.meta.url),
 );
 
 // Module bytes are the input under test, rather than arranged product state.

@@ -3,9 +3,9 @@
 # shellcheck disable=SC2034,SC2154,SC2310,SC2312
 # Globals are shared with the wrapper; timeout/launch failure must be observed.
 
-# shellcheck source=Distribution/tests/support/native-import-closure.sh
+# shellcheck source=Distribution/evaluation/src/native-import-closure.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-import-closure.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-import-closure.sh"
 
 prep_native_prompt_for() {
   local origin=$1
@@ -126,7 +126,7 @@ prep_native_input_hash_lines() {
     Distribution/tests/support/execution-worktree-prep-native-fixture.mjs || return
   native_result_supervision_input_hash_lines
   native_result_input_hash_lines \
-    Distribution/tests/support/native-codex.sh \
+    Distribution/evaluation/src/native-codex.sh \
     Distribution/src/skills/dough-execute-plan/references/execution-location.md \
     Distribution/src/skills/dough-execute-plan/SKILL.md
 }

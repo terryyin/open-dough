@@ -2,13 +2,14 @@
 # Story Branch closure response counterexamples against its assessor.
 # shellcheck disable=SC2154,SC2312
 
-# shellcheck source=Distribution/tests/support/native-response-field.sh
+story_closure_response_runtime_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)
+# shellcheck source=Distribution/evaluation/src/native-response-field.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-response-field.sh"
+source "${story_closure_response_runtime_dir}/native-response-field.sh"
 
-# shellcheck source=Distribution/tests/support/closure-native-response.sh
+# shellcheck source=Distribution/evaluation/src/closure-native-response.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/closure-native-response.sh"
+source "${story_closure_response_runtime_dir}/closure-native-response.sh"
 
 # With unchanged valid Git/CI/shutdown/cleanup observations, quiet closure and
 # useful refresh reminders pass. Recaps, retired banners, false success, and

@@ -10,12 +10,12 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)
 # shellcheck source=Distribution/tests/support/product-backlog-native-take-fixture.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/product-backlog-native-take-fixture.sh"
-# shellcheck source=Distribution/tests/support/native-result-identity.sh
+# shellcheck source=Distribution/evaluation/src/native-result-identity.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-result-identity.sh"
-# shellcheck source=Distribution/tests/support/native-import-closure.sh
+source "${source_dir}/Distribution/evaluation/src/native-result-identity.sh"
+# shellcheck source=Distribution/evaluation/src/native-import-closure.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-import-closure.sh"
+source "${source_dir}/Distribution/evaluation/src/native-import-closure.sh"
 
 take_write_evidence_inputs() {
   native_result_input_hash_lines \
@@ -23,12 +23,12 @@ take_write_evidence_inputs() {
     Distribution/tests/product-backlog/product-backlog-native.sh \
     Distribution/tests/support/product-backlog-native-take.sh \
     Distribution/tests/support/product-backlog-native-take-fixture.sh \
-    Distribution/tests/support/product-backlog-native-evidence.sh \
+    Distribution/evaluation/src/product-backlog-native-evidence.sh \
     Distribution/tests/support/product-backlog-native-guard.sh \
     Distribution/evaluation/src/native-host-stream.sh \
-    Distribution/tests/support/native-result-identity.sh \
-    Distribution/tests/support/native-import-closure.sh \
-    Distribution/tests/support/native-import-closure.mjs
+    Distribution/evaluation/src/native-result-identity.sh \
+    Distribution/evaluation/src/native-import-closure.sh \
+    Distribution/evaluation/src/native-import-closure.mjs
   native_import_closure_input_hash_lines \
     Distribution/tests/support/render-published-backlog.mjs \
     Distribution/tests/support/product-backlog-native-facts.mjs \

@@ -4,13 +4,13 @@
 # shellcheck disable=SC2034,SC2154 # Journey globals are assigned for sourced helpers.
 # shellcheck disable=SC2312 # pipefail covers prompt hashes.
 
-native_result_journey_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-# shellcheck source=Distribution/tests/support/native-journey-state.sh
+native_result_journey_runtime_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck source=Distribution/evaluation/src/native-journey-state.sh
 # shellcheck disable=SC1091
-source "${native_result_journey_support_dir}/native-journey-state.sh"
-# shellcheck source=Distribution/tests/support/native-import-closure.sh
+source "${native_result_journey_runtime_dir}/native-journey-state.sh"
+# shellcheck source=Distribution/evaluation/src/native-import-closure.sh
 # shellcheck disable=SC1091
-source "${native_result_journey_support_dir}/native-import-closure.sh"
+source "${native_result_journey_runtime_dir}/native-import-closure.sh"
 
 native_result_journey_execution_fields() {
   native_result_execution_status_fields
@@ -65,7 +65,7 @@ native_result_finalize_journey() {
     printf 'helper-identity: Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-updated-use.sh\n'
     native_result_print_adapter_identity
     printf 'fixture-identity: Distribution/evaluation/cases/adr-awareness/fixtures/alternate-layout\n'
-    printf 'assessor-identity: Distribution/tests/support/native-journey-state.sh\n'
+    printf 'assessor-identity: Distribution/evaluation/src/native-journey-state.sh\n'
     printf 'artifact-update-events: update-events.jsonl\n'
     printf 'artifact-update-response: update-response.md\n'
     printf 'artifact-update-stderr: update-stderr.log\n'
@@ -82,18 +82,18 @@ native_result_journey_input_hash_lines() {
     "Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-${native_case_host}-delivery-to-use.sh" \
     Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-delivery-to-use.sh \
     Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-updated-use.sh \
-    Distribution/tests/support/native-result-retain.sh \
-    Distribution/tests/support/native-result-identity.sh \
-    Distribution/tests/support/native-result-retain-journey.sh \
-    Distribution/tests/support/native-import-closure.sh \
-    Distribution/tests/support/native-import-closure.mjs \
-    Distribution/tests/support/native-journey-state.sh \
+    Distribution/evaluation/src/native-result-retain.sh \
+    Distribution/evaluation/src/native-result-identity.sh \
+    Distribution/evaluation/src/native-result-retain-journey.sh \
+    Distribution/evaluation/src/native-import-closure.sh \
+    Distribution/evaluation/src/native-import-closure.mjs \
+    Distribution/evaluation/src/native-journey-state.sh \
     Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh
   native_import_closure_input_hash_lines \
     Distribution/tests/support/release-source.mjs
   native_result_supervision_input_hash_lines
   native_result_input_hash_lines \
-    Distribution/tests/support/native-codex.sh \
+    Distribution/evaluation/src/native-codex.sh \
     Distribution/src/skills/dough-update/SKILL.md \
     Distribution/src/skills/dough-adr-awareness/SKILL.md
 }

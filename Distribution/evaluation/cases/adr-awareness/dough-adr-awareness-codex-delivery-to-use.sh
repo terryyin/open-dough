@@ -5,8 +5,8 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
 # shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-delivery-to-use.sh
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-delivery-to-use.sh"
-# shellcheck source=Distribution/tests/support/native-codex.sh
-source "${source_dir}/Distribution/tests/support/native-codex.sh"
+# shellcheck source=Distribution/evaluation/src/native-codex.sh
+source "${source_dir}/Distribution/evaluation/src/native-codex.sh"
 delivery_source_dir=${source_dir}
 delivery_fixture="${source_dir}/Distribution/evaluation/cases/adr-awareness/fixtures/alternate-layout"
 delivery_host_name='Codex'

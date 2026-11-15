@@ -27,9 +27,9 @@ supervised_identity_writers=(
   'Distribution/tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity owned-context'
   'Distribution/tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity land-default-checkout'
   'Distribution/tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity execution-review'
-  'Distribution/tests/support/native-result-retain-journey.sh native_result_journey_input_hash_lines'
+  'Distribution/evaluation/src/native-result-retain-journey.sh native_result_journey_input_hash_lines'
   'Distribution/tests/support/execution-worktree-prep-native-run.sh prep_native_input_hash_lines'
-  'Distribution/tests/support/native-result-retain.sh native_result_context_input_hash_lines'
+  'Distribution/evaluation/src/native-result-retain.sh native_result_context_input_hash_lines'
 )
 
 # Take invokes Claude directly and prints input hashes without a supervised,
@@ -57,7 +57,7 @@ capture_identity_hashes() {
     # shellcheck disable=SC1091
     source "${support}/delivery-evidence-native-run.sh"
     # shellcheck disable=SC1091
-    source "${support}/native-result-retain-journey.sh"
+    source "${source_dir}/Distribution/evaluation/src/native-result-retain-journey.sh"
     # shellcheck disable=SC1091
     source "${support}/execution-worktree-prep-native-run.sh"
     # shellcheck disable=SC1091

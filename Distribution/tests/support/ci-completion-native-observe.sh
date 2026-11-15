@@ -2,13 +2,14 @@
 # Execution/review completion observation: the fields the assessor reads.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-# shellcheck source=Distribution/tests/support/native-completion-observation.sh
+ci_completion_observe_runtime_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)
+# shellcheck source=Distribution/evaluation/src/native-completion-observation.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-completion-observation.sh"
+source "${ci_completion_observe_runtime_dir}/native-completion-observation.sh"
 
-# shellcheck source=Distribution/tests/support/native-response-field.sh
+# shellcheck source=Distribution/evaluation/src/native-response-field.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-response-field.sh"
+source "${ci_completion_observe_runtime_dir}/native-response-field.sh"
 
 ci_completion_observe() {
   local scenario=$1

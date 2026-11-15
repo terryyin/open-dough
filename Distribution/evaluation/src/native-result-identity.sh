@@ -44,7 +44,7 @@ native_result_adapter_identity() {
   case ${native_case_host} in
     cursor) printf 'cursor-agent-stream-json\n' ;;
     claude) printf 'claude-stream-json\n' ;;
-    *) printf 'Distribution/tests/support/native-codex.sh\n' ;;
+    *) printf 'Distribution/evaluation/src/native-codex.sh\n' ;;
   esac
 }
 

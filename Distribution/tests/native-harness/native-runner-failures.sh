@@ -5,12 +5,12 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-# shellcheck source=Distribution/tests/support/native-result-retain.sh
+# shellcheck source=Distribution/evaluation/src/native-result-retain.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-result-retain.sh"
-# shellcheck source=Distribution/tests/support/product-backlog-native-evidence.sh
+source "${source_dir}/Distribution/evaluation/src/native-result-retain.sh"
+# shellcheck source=Distribution/evaluation/src/product-backlog-native-evidence.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/product-backlog-native-evidence.sh"
+source "${source_dir}/Distribution/evaluation/src/product-backlog-native-evidence.sh"
 context_wrapper="${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh"
 fail_fixture="${source_dir}/Distribution/tests/support/native-agent-fail.sh"
 

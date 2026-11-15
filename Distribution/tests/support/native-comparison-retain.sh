@@ -44,10 +44,10 @@ native_comparison_case_files() {
     [[ ! -f ${input} ]] || modules+=("${input#"${source_dir}/"}")
   done
   if ((${#modules[@]})); then
-    closure=$(node "${source_dir}/Distribution/tests/support/native-import-closure.mjs" \
+    closure=$(node "${source_dir}/Distribution/evaluation/src/native-import-closure.mjs" \
       "${source_dir}" "${modules[@]}") || return
     mapfile -t case_files < <(printf '%s\n' "${case_files[@]}" "${closure}" \
-      Distribution/tests/support/native-import-closure.mjs | LC_ALL=C sort -u)
+      Distribution/evaluation/src/native-import-closure.mjs | LC_ALL=C sort -u)
   fi
 }
 

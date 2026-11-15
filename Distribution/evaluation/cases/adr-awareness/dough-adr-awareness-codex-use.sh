@@ -8,8 +8,8 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
 source "${source_dir}/Distribution/tests/helpers/public-payload-fixture.bash"
 # shellcheck source=Distribution/tests/helpers/release-fixture.bash
 source "${source_dir}/Distribution/tests/helpers/release-fixture.bash"
-# shellcheck source=Distribution/tests/support/native-codex.sh
-source "${source_dir}/Distribution/tests/support/native-codex.sh"
+# shellcheck source=Distribution/evaluation/src/native-codex.sh
+source "${source_dir}/Distribution/evaluation/src/native-codex.sh"
 # shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-proof.sh
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-proof.sh"
 # shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-use.sh

@@ -3,9 +3,9 @@
 # adapter proofs. The proof script assigns source_dir, work paths, and PATH first.
 # shellcheck disable=SC2016,SC2154,SC2249,SC2310,SC2311,SC2312 # Proof globals; pipefail covers logs.
 
-# shellcheck source=Distribution/tests/support/native-result-retain.sh
+# shellcheck source=Distribution/evaluation/src/native-result-retain.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-result-retain.sh"
+source "${source_dir}/Distribution/evaluation/src/native-result-retain.sh"
 # shellcheck source=Distribution/tests/support/native-updated-use-prompt-assert.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/native-updated-use-prompt-assert.sh"

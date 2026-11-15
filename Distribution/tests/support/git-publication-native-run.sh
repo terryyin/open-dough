@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# Shared runner for credential-free and live publication native sessions.
-# Builds the fixture, installs skills, launches through the publication host
-# command (reusing native supervise/stream helpers), collects observations,
-# assesses, and optionally retains.
+# Runs controlled or live publication sessions: fixture setup and install,
+# supervised host launch, observation, assessment and optional retention.
 # shellcheck disable=SC2034,SC2154,SC2312 # Shared globals across sourced helpers.
 
 git_publication_run_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -33,15 +31,17 @@ source "${git_publication_run_support_dir}/git-publication-native-prompt.sh"
 # shellcheck source=Distribution/tests/support/git-publication-native-assess.sh
 # shellcheck disable=SC1091
 source "${git_publication_run_support_dir}/git-publication-native-assess.sh"
-# shellcheck source=Distribution/tests/support/native-run-supervise.sh
+
+git_publication_run_runtime_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)
+# shellcheck source=Distribution/evaluation/src/native-run-supervise.sh
 # shellcheck disable=SC1091
-source "${git_publication_run_support_dir}/native-run-supervise.sh"
-# shellcheck source=Distribution/tests/support/native-result-retain.sh
+source "${git_publication_run_runtime_dir}/native-run-supervise.sh"
+# shellcheck source=Distribution/evaluation/src/native-result-retain.sh
 # shellcheck disable=SC1091
-source "${git_publication_run_support_dir}/native-result-retain.sh"
-# shellcheck source=Distribution/tests/support/native-codex.sh
+source "${git_publication_run_runtime_dir}/native-result-retain.sh"
+# shellcheck source=Distribution/evaluation/src/native-codex.sh
 # shellcheck disable=SC1091
-source "${git_publication_run_support_dir}/native-codex.sh"
+source "${git_publication_run_runtime_dir}/native-codex.sh"
 
 # Publication sessions need Git mutation tools. Reuse supervise/stream/version
 # capture from native-run-supervise.sh with host launch lines suited to that

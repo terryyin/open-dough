@@ -14,7 +14,7 @@ for delivery_evidence_part in native-cases promise-status native-evidence native
   source "${delivery_evidence_support_dir}/delivery-evidence-${delivery_evidence_part}.sh"
 done
 # shellcheck disable=SC1091
-source "${delivery_evidence_support_dir}/native-observation.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-observation.sh"
 for delivery_evidence_case in ${delivery_evidence_cases}; do
   for delivery_evidence_part in scenario-content observe assess checks; do
     delivery_evidence_file="${delivery_evidence_support_dir}/delivery-evidence-${delivery_evidence_case}-native-${delivery_evidence_part}.sh"

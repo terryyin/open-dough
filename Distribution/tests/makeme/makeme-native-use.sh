@@ -26,10 +26,10 @@ mkdir -p -- "${temporary_dir}"
 temporary_dir=$(cd -- "${temporary_dir}" && pwd -P)
 # shellcheck source=Distribution/tests/helpers/wait-for.bash
 source "${source_dir}/Distribution/tests/helpers/wait-for.bash"
-# shellcheck source=Distribution/tests/support/native-run-supervise.sh
-source "${source_dir}/Distribution/tests/support/native-run-supervise.sh"
-# shellcheck source=Distribution/tests/support/native-codex.sh
-source "${source_dir}/Distribution/tests/support/native-codex.sh"
+# shellcheck source=Distribution/evaluation/src/native-run-supervise.sh
+source "${source_dir}/Distribution/evaluation/src/native-run-supervise.sh"
+# shellcheck source=Distribution/evaluation/src/native-codex.sh
+source "${source_dir}/Distribution/evaluation/src/native-codex.sh"
 fixture=makeme-native-fixture.mjs
 if [[ ${journey} == refactor ]]; then fixture=makeme-native-refactor-fixture.mjs; fi
 node "${source_dir}/Distribution/tests/support/${fixture}" "${source_dir}" \

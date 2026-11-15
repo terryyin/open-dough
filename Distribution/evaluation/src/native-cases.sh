@@ -53,10 +53,10 @@ native_case_fail() {
   exit 2
 }
 
-native_case_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-# shellcheck source=Distribution/tests/support/native-case-inventory.sh
+native_case_runtime_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck source=Distribution/evaluation/src/native-case-inventory.sh
 # shellcheck disable=SC1091
-source "${native_case_support_dir}/native-case-inventory.sh"
-# shellcheck source=Distribution/tests/support/native-case-parse.sh
+source "${native_case_runtime_dir}/native-case-inventory.sh"
+# shellcheck source=Distribution/evaluation/src/native-case-parse.sh
 # shellcheck disable=SC1091
-source "${native_case_support_dir}/native-case-parse.sh"
+source "${native_case_runtime_dir}/native-case-parse.sh"

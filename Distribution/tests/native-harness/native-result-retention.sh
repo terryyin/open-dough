@@ -4,9 +4,9 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-# shellcheck source=Distribution/tests/support/native-result-retain.sh
+# shellcheck source=Distribution/evaluation/src/native-result-retain.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-result-retain.sh"
+source "${source_dir}/Distribution/evaluation/src/native-result-retain.sh"
 # shellcheck source=Distribution/evaluation/src/native-host-stream.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/evaluation/src/native-host-stream.sh"

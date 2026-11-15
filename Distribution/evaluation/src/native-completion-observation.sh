@@ -4,12 +4,13 @@
 # Journey files keep their own observation field layouts.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-# shellcheck source=Distribution/tests/support/native-observation.sh
+native_completion_observation_runtime_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck source=Distribution/evaluation/src/native-observation.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-observation.sh"
+source "${native_completion_observation_runtime_dir}/native-observation.sh"
 # shellcheck source=Distribution/evaluation/src/native-host-stream.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-host-stream.sh"
+source "${native_completion_observation_runtime_dir}/native-host-stream.sh"
 
 # Calls containing every text $4...: the node call log $1, or the commands host
 # $2 started in stream $3, whichever sees more. Agents may quote paths or bypass

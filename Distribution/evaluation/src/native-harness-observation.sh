@@ -7,12 +7,12 @@
 # have removed the worktree that holds the installed launcher.
 # shellcheck disable=SC2034,SC2154,SC2312
 
-# shellcheck source=Distribution/tests/support/native-harness-login-shell.sh
+# shellcheck source=Distribution/evaluation/src/native-harness-login-shell.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-harness-login-shell.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/." && pwd)/native-harness-login-shell.sh"
 # shellcheck source=Distribution/tests/helpers/private-request-owner.bash
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/../helpers/private-request-owner.bash"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../tests/helpers" && pwd)/private-request-owner.bash"
 
 # Writes to $1 a node wrapper that appends each call to $NATIVE_NODE_CALL_LOG
 # and then runs real node $2 in its own process.
@@ -52,7 +52,7 @@ native_harness_observe_node() {
   enter_private_request_owner
   native_harness_keep_login_path "${harness}"
   [[ ${host} == codex ]] || return 0
-  cp -- "${source_dir}/Distribution/tests/support/native-node-call-recorder.mjs" "${harness}/bin/"
+  cp -- "${source_dir}/Distribution/evaluation/src/native-node-call-recorder.mjs" "${harness}/bin/"
   native_harness_recording=true
   export NODE_OPTIONS="${NODE_OPTIONS:+${NODE_OPTIONS} }--import=file://${harness}/bin/native-node-call-recorder.mjs"
 }
@@ -124,7 +124,9 @@ run_native_harness_counterexamples() {
 # from every harness-bin path the support sources spell, so a new shim is
 # checked without a list to keep; files such as the node recorder are skipped.
 native_harness_shim_names() {
-  grep -ohE '\$\{harness\}/bin/[A-Za-z0-9_.-]+' "${source_dir}"/Distribution/tests/support/*.sh \
+  find "${source_dir}/Distribution/tests/support" "${source_dir}/Distribution/evaluation/src" \
+    "${source_dir}/Distribution/evaluation/cases" -type f -name '*.sh' \
+    -exec grep -ohE '\$\{harness\}/bin/[A-Za-z0-9_.-]+' {} + \
     | sed 's|.*/||' | grep -v '\.' | sort -u
 }
 

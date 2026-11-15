@@ -7,8 +7,8 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 # shellcheck source=Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh
 source "${source_dir}/Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh"
-# shellcheck source=Distribution/tests/support/native-response-field.sh
-source "${source_dir}/Distribution/tests/support/native-response-field.sh"
+# shellcheck source=Distribution/evaluation/src/native-response-field.sh
+source "${source_dir}/Distribution/evaluation/src/native-response-field.sh"
 # shellcheck source=Distribution/tests/support/native-assessor-counterexample.sh
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
 

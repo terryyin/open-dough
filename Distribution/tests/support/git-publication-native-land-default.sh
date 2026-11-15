@@ -7,9 +7,9 @@
 # Sourced by the runner.
 # shellcheck disable=SC2034,SC2154,SC2312 # Shared fixture and assessor globals.
 
-# shellcheck source=Distribution/tests/support/native-response-field.sh
+# shellcheck source=Distribution/evaluation/src/native-response-field.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-response-field.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-response-field.sh"
 
 git_publication_land_default_other_sha=
 

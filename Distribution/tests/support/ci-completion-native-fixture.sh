@@ -7,9 +7,9 @@
 # shellcheck source=Distribution/tests/helpers/wait-for.bash
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../helpers" && pwd)/wait-for.bash"
-# shellcheck source=Distribution/tests/support/native-harness-observation.sh
+# shellcheck source=Distribution/evaluation/src/native-harness-observation.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-harness-observation.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-harness-observation.sh"
 
 # Per-step bound for the controller and the fixture's review release; each
 # step awaits one action of the native agent or the controller.

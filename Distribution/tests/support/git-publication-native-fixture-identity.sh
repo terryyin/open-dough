@@ -45,9 +45,9 @@ git_publication_fixture_family_identity() {
         Distribution/tests/support/git-publication-native-startup-owned-context.sh \
         Distribution/tests/support/git-publication-native-preparation-land.sh \
         Distribution/tests/support/git-publication-native-push-log-observe.mjs \
-        Distribution/tests/support/native-harness-observation.sh \
-        Distribution/tests/support/native-harness-login-shell.sh \
-        Distribution/tests/support/native-node-call-recorder.mjs \
+        Distribution/evaluation/src/native-harness-observation.sh \
+        Distribution/evaluation/src/native-harness-login-shell.sh \
+        Distribution/evaluation/src/native-node-call-recorder.mjs \
         Distribution/src/skills/dough-execute-plan/SKILL.md \
         Distribution/src/skills/dough-story-refinement/references/preparation-assignment.md \
         Distribution/src/skills/dough-story-refinement/references/preparation-workspace.md || return
@@ -57,7 +57,7 @@ git_publication_fixture_family_identity() {
         Distribution/src/skills/dough-story-refinement/scripts/preparation-assignment.mjs \
         Distribution/tests/support/git-publication-native-owned-context-fixture.mjs \
         Distribution/tests/support/git-publication-native-push-log-observe.mjs \
-        Distribution/tests/support/native-node-call-recorder.mjs || return
+        Distribution/evaluation/src/native-node-call-recorder.mjs || return
       ;;
     one-shot)
       # The one-shot fixture entry materializes each journey's named trunk,

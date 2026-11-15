@@ -5,9 +5,9 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-# shellcheck source=Distribution/tests/support/native-run-supervise.sh
+# shellcheck source=Distribution/evaluation/src/native-run-supervise.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-run-supervise.sh"
+source "${source_dir}/Distribution/evaluation/src/native-run-supervise.sh"
 
 work_dir=$(mktemp -d)
 trap 'rm -rf -- "${work_dir}"' EXIT

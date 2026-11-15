@@ -4,13 +4,13 @@
 # shellcheck disable=SC2034,SC2154 # Wrapper globals are assigned for sourced helpers.
 # shellcheck disable=SC2312 # pipefail covers attempt IDs and prompt hashes.
 
-native_result_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+native_result_runtime_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh
 # shellcheck disable=SC1091
-source "${native_result_support_dir}/../../evaluation/cases/adr-awareness/native-adr-behavior.sh"
-# shellcheck source=Distribution/tests/support/native-result-identity.sh
+source "${native_result_runtime_dir}/../cases/adr-awareness/native-adr-behavior.sh"
+# shellcheck source=Distribution/evaluation/src/native-result-identity.sh
 # shellcheck disable=SC1091
-source "${native_result_support_dir}/native-result-identity.sh"
+source "${native_result_runtime_dir}/native-result-identity.sh"
 
 native_result_assert_no_discovery_fields() {
   local record=$1
@@ -184,11 +184,11 @@ native_result_finalize_context() {
 native_result_context_input_hash_lines() {
   native_result_input_hash_lines \
     Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-context.sh \
-    Distribution/tests/support/native-result-retain.sh \
-    Distribution/tests/support/native-result-identity.sh \
+    Distribution/evaluation/src/native-result-retain.sh \
+    Distribution/evaluation/src/native-result-identity.sh \
     Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh \
     Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-use.sh \
-    Distribution/tests/support/native-codex.sh \
+    Distribution/evaluation/src/native-codex.sh \
     Distribution/src/skills/dough-adr-awareness/SKILL.md
   native_result_supervision_input_hash_lines
 }

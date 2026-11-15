@@ -7,7 +7,7 @@
 
 # shellcheck source=Distribution/evaluation/src/native-host-stream.sh
 # shellcheck disable=SC1091,SC2312
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-host-stream.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/." && pwd)/native-host-stream.sh"
 
 native_run_stream_status=
 native_run_stream_reason=

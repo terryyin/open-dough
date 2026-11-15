@@ -3,10 +3,10 @@
 # Conflict use reuses native_adr_behavior_assess. Not a per-tool matrix.
 # shellcheck disable=SC2034,SC2154 # native_journey_state_* / native_adr_behavior_* are the sourced contract.
 
-native_journey_state_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+native_journey_state_runtime_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=Distribution/evaluation/cases/adr-awareness/native-adr-behavior.sh
 # shellcheck disable=SC1091
-source "${native_journey_state_support_dir}/../../evaluation/cases/adr-awareness/native-adr-behavior.sh"
+source "${native_journey_state_runtime_dir}/../cases/adr-awareness/native-adr-behavior.sh"
 
 native_journey_state_status=not-run
 native_journey_state_reason='behavior not assessed'

@@ -4,10 +4,9 @@
 # (Distribution/tests/support/product-backlog-native-use.sh).
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals and shared helpers come from the sourcing test.
 
-use_hosts_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-# shellcheck source=Distribution/tests/support/native-run-supervise.sh
+# shellcheck source=Distribution/evaluation/src/native-run-supervise.sh
 # shellcheck disable=SC1091
-source "${use_hosts_support_dir}/native-run-supervise.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-run-supervise.sh"
 
 # The Codex or Cursor stream started a shell command running the installed
 # merge adapter invocation. Claude's session is not observed through a stream.

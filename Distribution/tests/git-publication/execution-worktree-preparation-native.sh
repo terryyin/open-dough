@@ -14,9 +14,9 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 # shellcheck source=Distribution/tests/helpers/public-payload-fixture.bash
 source "${source_dir}/Distribution/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/Distribution/tests/helpers/release-fixture.bash"
-source "${source_dir}/Distribution/tests/support/native-codex.sh"
-source "${source_dir}/Distribution/tests/support/native-result-retain.sh"
-source "${source_dir}/Distribution/tests/support/native-run-supervise.sh"
+source "${source_dir}/Distribution/evaluation/src/native-codex.sh"
+source "${source_dir}/Distribution/evaluation/src/native-result-retain.sh"
+source "${source_dir}/Distribution/evaluation/src/native-run-supervise.sh"
 source "${source_dir}/Distribution/tests/support/execution-worktree-prep-native.sh"
 source "${source_dir}/Distribution/tests/support/execution-worktree-prep-native-run.sh"
 source "${source_dir}/Distribution/tests/support/execution-worktree-prep-native-cheap.sh"

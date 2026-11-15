@@ -30,10 +30,9 @@ use_stderr=
 update_prompt=
 use_prompt=
 
-delivery_updated_use_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-# shellcheck source=Distribution/tests/support/native-result-retain-journey.sh
+# shellcheck source=Distribution/evaluation/src/native-result-retain-journey.sh
 # shellcheck disable=SC1091
-source "${delivery_updated_use_support_dir}/../../../tests/support/native-result-retain-journey.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../src" && pwd)/native-result-retain-journey.sh"
 
 delivery_stage_status_label() {
   case $1 in

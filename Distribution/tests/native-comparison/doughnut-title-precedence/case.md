@@ -77,7 +77,7 @@ Gradle home (seeded caches, `record-tests.gradle` and `arm-database.gradle`
 in `init.d`, single-use build processes), pnpm store, caches and temporary
 directory and exports them, with Java's temporary directory and zsh's
 here-document prefix, because the agent's write sandbox admits only the arm
-(and, in `Distribution/tests/support/native-codex.sh`, the JVM attach handshake files
+(and, in `Distribution/evaluation/src/native-codex.sh`, the JVM attach handshake files
 that Mockito's self-attach writes to the per-user temporary directory).
 It installs the selected Open Dough payload with `--force` over the
 project's own copy, then runs `./scripts/run.sh bash
