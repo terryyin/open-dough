@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "yusuke-chan",
+  "email": "yusuke-chan@example.org",
+  "identity": "SEED-357#simplify-token-usage-tests",
+  "mode": "story-branch",
+  "branch": "codex/the-new-e2e-tests-introduced-are-too-long-and-it",
+  "host": "codex"
+}

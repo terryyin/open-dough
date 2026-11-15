@@ -31,6 +31,7 @@ intent introduced or affected by a newly developed story.
 - [Reduce total model work during blocked execution](seeds/SEED-356-reduce-blocked-execution-effort.md#reduce-total-model-work-during-blocked-execution) — SEED-356#reduce-total-model-work-during-blocked-execution ([plan](slice-plans/627-reduce-blocked-execution-work/PLAN.md))
 - [Dissolve Dashboard Integrated UI Test into E2E and unit tests](seeds/SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks) — SEED-334#focus-detailed-dashboard-ui-checks ([plan](slice-plans/627-dissolve-dashboard-integrated-ui-test/PLAN.md))
 - [Keep usage history within a small disk budget](seeds/SEED-357-dashboard-task-token-usage.md#keep-usage-history-within-a-small-disk-budget) — SEED-357#keep-usage-history-within-a-small-disk-budget ([plan](slice-plans/631-keep-usage-history-small/PLAN.md))
+- [Simplify token usage tests](seeds/SEED-357-dashboard-task-token-usage.md#simplify-token-usage-tests) — SEED-357#simplify-token-usage-tests
 
 ## Backlog list
 
