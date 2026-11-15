@@ -85,7 +85,7 @@ inspected batches and the maintained 15-active-minute slice budget.
 
 **Identity:** SEED-334#move-intent-ci-proof-comparison-and-candidate-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 651."],"basis":{"document":"aab8e97f78a9b8695e16c08cb39108254acda917c2b26414ac07ae1c61e5bb35"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 651."],"basis":{"document":"b796cb68d52b56fd6c2f59016103fe94830384009d2578187031ad254026e013"}}
 ```
 
 - **For / why.** A maintainer retains CI proof, story comparison, scope glance
@@ -111,7 +111,10 @@ inspected batches and the maintained 15-active-minute slice budget.
 - **Value / stopping point.** Each of glance, proof, comparison and candidates
   is independently useful while the interim group still runs other cases.
 - **Sizing note.** Glance needs a built-app Done-story arrangement, and proof
-  covers seven specs; expect these to need their own slices.
+  covers seven specs; expect these to need their own slices. Before proof
+  extends `dashboard/tests/support/frontendCiStatusAnswers.ts`, separate its
+  published-project arrangements (story board, unconfigured Doughnut) from the
+  CI-status answer family.
 - **Plan:** [Provisional proof/comparison/candidate conversion](../slice-plans/651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md),
   awaiting story refinement before plan refinement or execution.
 - **Provenance.** Split from SEED-334#retire-dashboard-integrated-ui-test at
