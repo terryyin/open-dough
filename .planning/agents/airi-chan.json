@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Airi-chan",
+  "email": "airi-chan@example.org",
+  "identity": "SEED-359#keep-claude-coverage-gaps-current-after-refresh",
+  "mode": "story-branch",
+  "branch": "claude/keep-claude-coverage-gaps-current-after-refresh",
+  "host": "claude",
+  "model": "opus"
+}
