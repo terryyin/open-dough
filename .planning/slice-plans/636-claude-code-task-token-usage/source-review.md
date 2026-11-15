@@ -19,7 +19,7 @@ return numbered commitments, examples and exclusions without slicing.
 | 5b.2 | Launch workflow, Model and Effort filters from observed values | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts options.models from observed Claude models across workflows; e2e offers Model [All models, Claude Opus 5.5] |
 | 5b.3 | Primary observed model and effort taken from the root session | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts fable-root (2 Fable, 1 Opus root responses) observed model Fable 5.2 |
 | 5b.4 | The moving average | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude-population.spec.ts moving average over ten latest eligible Claude tasks = 4200, fast task out |
-| 5b.5 | Partial and unpriced handling | slice 3 | |
+| 5b.5 | Partial and unpriced handling | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-claude-coverage.spec.ts partial Claude tasks out of the average (one point 4200); dashboard/frontend-tests/system-settings-usage-tool.spec.ts cohort note '2 tasks · 1 partial'; unpriced in slice 2 token-index-claude-population.spec.ts |
 | 5b.6 | Task detail | slice 2 | observed: frontend system-settings-usage-tool.spec.ts Claude task detail; e2e system-settings-usage-tools.spec.ts detail facts |
 | 5c | Workers count at their own model's rates | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts fable-root index 131125 includes Haiku worker at Haiku rates (28500) |
 | 6a | A versioned Claude reference tariff kept with the product source | slice 2 | observed: dashboard/server/usageTariffs.ts claudeTariff2026_11_15 version claude-2026-11-15 |
@@ -37,12 +37,12 @@ return numbered commitments, examples and exclusions without slicing.
 | 7c | Each API message ID counted once | slice 4 | |
 | 7d | A session read again replaces its contribution | slice 4 | |
 | 7e | The checking indication no longer names Codex alone | slice 4 | |
-| 8a | Claude's own gaps showing missing usage (missing root transcript or worker) make a task partial, as Codex's do | slice 3 | |
-| 8b | The background-work limit (agent-view summaries, recaps, idle compaction) does not make each task partial | slice 3 | |
-| 8c | The Claude Code cohort shows one note that this work is not included | slice 3 | |
+| 8a | Claude's own gaps showing missing usage (missing root transcript or worker) make a task partial, as Codex's do | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-claude-coverage.spec.ts claude-12 partial with missing-root-transcript-usage; claude-11 partial with missing-worker-evidence (mutation-checked) |
+| 8b | The background-work limit (agent-view summaries, recaps, idle compaction) does not make each task partial | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-claude-coverage.spec.ts claude-1 imported gaps only auxiliary-usage-not-covered and coverage measured |
+| 8c | The Claude Code cohort shows one note that this work is not included | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-tool.spec.ts showsFootNotes [Claude tariff, 'Not included: background agent-view row summaries, recaps and idle compaction']; Codex showsFootNotes [Codex tariff] only |
 | 9 | Tool becomes a real choice between Codex and Claude Code | slice 2 | observed: frontend system-settings-usage-tool.spec.ts offers Tool choices; e2e chooses Claude Code then Codex |
 | 10 | Switching Tool keeps the other filters where their values still exist | slice 2 | observed: frontend system-settings-usage-tool.spec.ts Refinement + GPT model + high → Claude Code keeps Refinement and high, model resets to All models (mutation-checked) |
-| 11 | The Claude Code cohort shows its tariff label and the background-work note in words, not color | slice 3 | |
+| 11 | The Claude Code cohort shows its tariff label and the background-work note in words, not color | slice 3 | observed: dashboard/frontend-tests/system-settings-usage-tool.spec.ts showsFootNotes exact text for the Claude tariff label and the note (plain settings-note paragraphs) |
 | 12 | The Refresh checking text covers both tools | slice 4 | |
 | 13 | A response at a speed the tariff does not price (e.g. fast) stays unpriced rather than priced at standard rates | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 3 fast-worker unpriced; token-index-claude-population.spec.ts fast task unpriced |
 | 14 | Cache writes are not priced at a single rate | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 2 five-minute 13500 vs one-hour 21000; unsplit-write unpriced |
@@ -52,8 +52,8 @@ return numbered commitments, examples and exclusions without slicing.
 | 18 | Example 3: a Claude launch with a worker finishes after the last check → Refresh → its point appears, including the worker's usage | slice 4 | |
 | 19 | Example 3: refreshing again over unchanged transcripts leaves the index and stored history unchanged | slice 4 | |
 | 20 | Example 3: a response written twice in a transcript counts once | slice 4 | |
-| 21 | Example 4: a launch whose root transcript is gone appears partial with that gap and stays out of the moving average | slice 3 | |
-| 22 | Example 4: a launch with only the auxiliary limit has no known gaps; the cohort's note names the excluded background work | slice 3 | |
+| 21 | Example 4: a launch whose root transcript is gone appears partial with that gap and stays out of the moving average | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-claude-coverage.spec.ts claude-12 partial with the root gap, average point excludes it; dashboard/frontend-tests/system-settings-usage-tool.spec.ts detail Coverage 'Partial · Root transcript usage missing, …' |
+| 22 | Example 4: a launch with only the auxiliary limit has no known gaps; the cohort's note names the excluded background work | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-claude-coverage.spec.ts measured auxiliary-only launches; dashboard/frontend-tests/system-settings-usage-tool.spec.ts measured Claude task detail 'No known gaps' beside the note |
 | 23 | Example 5: a response on an unpriced model or speed → its task has no point and is counted as unpriced in the cohort note | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 3 fast-worker, unknown-model, unsplit-write have no point and unpriced === 3 |
 | 24 | Example 6: choosing Codex again shows the same points, average and tariff as before this story | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts Codex answer equal before and after Claude tasks join; e2e Codex again shows Nov 6 · 1,950 with Codex tariff |
 | 25 | Exclusion: per-category token breakdown in task detail, for both tools | slice 5 | |
@@ -62,7 +62,7 @@ return numbered commitments, examples and exclusions without slicing.
 | 28 | Exclusion: billing reconciliation | slice 5 | |
 | 29 | Exclusion: OpenTelemetry collection | slice 5 | |
 | 30 | Exclusion: Cursor (SEED-360) | slice 5 | |
-| 31 | Exclusion: auxiliary Claude work outside transcripts, beyond the cohort's note | slice 3 | |
+| 31 | Exclusion: auxiliary Claude work outside transcripts, beyond the cohort's note | slice 3 | observed: slice 3 diff adds only the cohort note (TokenIndexTrend.tsx excludedWork) for auxiliary work, no other handling |
 | 32 | Assumption: the offline import already holds Claude history; no second recovery path | slice 5 | |
 | 33 | Assumption: transcripts are current within seconds, so a Refresh during or after a task sees current usage | slice 4 | |
 | 34 | The usage store keeps one document; no database added (ADR 0008) | slice 1 | observed: dashboard/backend-tests/usage-history/claude-usage-split.spec.ts first case: split and tier stored in the one usage.json document (usageHistoryFile), byte-identical on repeat |

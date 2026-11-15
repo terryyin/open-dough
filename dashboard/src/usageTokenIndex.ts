@@ -125,9 +125,12 @@ export type UsageTaskOutcome = {
 // The recorded gaps that show usage missing from a task
 // (`../server/usageTaskGaps.ts`): a worker its root spawned with no usage
 // evidence or no responses; a session of the task with no response usage or
-// only unsupported counters; a response it may own that could not be
-// attributed to one task; a response missing token counts; or no attributable
-// response at all. A spawn whose worker cannot be told apart from others
+// only unsupported counters; a Claude session whose root transcript has no
+// response usage; a response it may own that could not be attributed to one
+// task; a response missing token counts; or no attributable response at all.
+// Claude's background work that never reaches transcripts
+// (`auxiliary-usage-not-covered`) is one cohort note (`./TokenIndexTrend.tsx`),
+// not a task's gap. A spawn whose worker cannot be told apart from others
 // (`ambiguous-` or `unresolved-worker-evidence`) shows no usage missing: the
 // worker's responses still join the task through their own lineage.
 export const usageCoverageGaps = [
@@ -135,6 +138,7 @@ export const usageCoverageGaps = [
   "incomplete-worker-evidence",
   "no-response-usage-evidence",
   "unsupported-response-counters",
+  "missing-root-transcript-usage",
   "unresolved-task-association",
   "missing-token-components",
   "no-attributable-response-usage",

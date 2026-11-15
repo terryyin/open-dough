@@ -187,6 +187,13 @@ export function usageView(page: Page) {
     async showsTariff(label: string) {
       await expect(trend.getByText(label, { exact: true })).toBeVisible();
     },
+    // The notes beneath the chart, in order: the tariff label, then the work
+    // the tool's usage leaves out, when it names any.
+    async showsFootNotes(notes: readonly string[]) {
+      await expect(
+        trend.locator(".usage-chart-foot > p.settings-note"),
+      ).toHaveText(notes);
+    },
     async refresh() {
       await view.getByRole("button", { name: "Refresh", exact: true }).click();
     },

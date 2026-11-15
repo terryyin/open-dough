@@ -72,3 +72,52 @@ test("choosing Claude Code reads its cohort under its tariff, keeping the workfl
     ],
   });
 });
+
+test("the Claude Code cohort names, once and in words, the background work it leaves out and each task's own missing usage; Codex names no left-out work", async ({
+  page,
+}) => {
+  const codexTariff = "Codex test rate card";
+  await page.route(
+    (url) => url.pathname === usageTokenIndexEndpoint,
+    (route) => {
+      const cohort = requestedCohort(
+        new URL(route.request().url()).searchParams,
+      );
+      const answer =
+        cohort?.tool === "claude"
+          ? makeMe.aTokenIndexAnswer
+              .with({ indexes: [2_000, 3_000] })
+              .withTask(1, {
+                coverage: {
+                  kind: "partial",
+                  gaps: [
+                    "missing-root-transcript-usage",
+                    "no-attributable-response-usage",
+                  ],
+                },
+              })
+              .underTariff(claudeTariff)
+          : makeMe.aTokenIndexAnswer.underTariff(codexTariff);
+      return route.fulfill({
+        json: answer.forCohort(cohort ?? {}).please(),
+      });
+    },
+  );
+  const usage = await visitUsage(page);
+  await usage.showsFootNotes([codexTariff]);
+
+  await usage.choose("Tool", "Claude Code");
+  await usage.showsFootNotes([
+    claudeTariff,
+    "Not included: background agent-view row summaries, recaps and idle compaction",
+  ]);
+  await usage.showsCohortNote("2 tasks · 1 partial · Last 30 days");
+  await usage.selectPoint("Nov 2 · 3,000 · Partial", "pointer");
+  await usage.showsFact(
+    "Coverage",
+    "Partial · Root transcript usage missing, No attributed response",
+  );
+  await usage.closeDetail("Nov 2 · 3,000 · Partial");
+  await usage.selectPoint("Nov 1 · 2,000", "pointer");
+  await usage.showsFact("Coverage", "No known gaps");
+});

@@ -156,7 +156,7 @@ reset check needs a route answer that offers only the tool's real models.
 
 ### 3. Show Claude coverage honestly
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 4; Backend coverage case with a missing root
 transcript and one with only `auxiliary-usage-not-covered`; Frontend detail
 wording and the cohort note.
@@ -166,6 +166,17 @@ gap named in detail, out of the average; a launch with only the auxiliary
 limit stays measured, and the Claude Code cohort shows one note that
 background agent-view summaries, recaps and idle compaction are not included.
 Codex shows no such note.
+
+Delivered: `missing-root-transcript-usage` joins `usageCoverageGaps` ("Root
+transcript usage missing" in detail); a missing worker was already partial
+through `missing-worker-evidence`. The Claude Code chart foot shows the note
+"Not included: background agent-view row summaries, recaps and idle
+compaction" after the tariff label. Proof: backend
+`token-index-claude-coverage.spec.ts` (86 in `usage-history`), frontend
+`system-settings-usage-tool.spec.ts` (17), E2E Usage journeys (4).
+Learning for slice 5: a launch with no attributable response and no reported
+outcome has no end time, so it has no point at all, not even a partial one;
+check how the real launches with a missing root transcript show.
 
 ### 4. Refresh brings in new Claude usage
 Type: Behavior
