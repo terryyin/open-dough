@@ -4,9 +4,9 @@
 // callers get the started shell
 // commands, their outputs, the agent's messages and final response, its other
 // tool calls, and the stream status. Shell callers use the CLI
-// (Distribution/tests/support/native-host-stream.sh wraps it):
+// (Distribution/evaluation/src/native-host-stream.sh wraps it):
 //
-//   node Distribution/tests/support/native-host-stream.mjs <host> <stream> <view>
+//   node Distribution/evaluation/src/native-host-stream.mjs <host> <stream> <view>
 //
 // where <view> is `status`, `response`, `messages` (one JSON string per agent
 // message), `commands` (one JSON string per started command), `segments`

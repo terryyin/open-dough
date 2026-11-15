@@ -117,7 +117,7 @@ native_comparison_retain_sessions() {
   local source_dir=$1 dest=$2 root thread file
   root=$(native_comparison_sessions_root)
   if [[ -z ${native_comparison_thread-} || -z ${root} ]] \
-    || ! node "${source_dir}/Distribution/tests/support/native-codex-session.mjs" \
+    || ! node "${source_dir}/Distribution/evaluation/src/native-codex-session.mjs" \
       "${native_comparison_thread}" "${root}" > "${dest}/codex-settings.txt"; then
     printf 'codex-session-file: missing\n'
     return 0

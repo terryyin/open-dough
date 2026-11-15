@@ -7,9 +7,9 @@
 # shellcheck source=Distribution/tests/support/native-observation.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-observation.sh"
-# shellcheck source=Distribution/tests/support/native-host-stream.sh
+# shellcheck source=Distribution/evaluation/src/native-host-stream.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-host-stream.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-host-stream.sh"
 
 # Calls containing every text $4...: the node call log $1, or the commands host
 # $2 started in stream $3, whichever sees more. Agents may quote paths or bypass

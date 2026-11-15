@@ -9,7 +9,7 @@
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
-source "${source_dir}/Distribution/tests/support/native-host-stream.sh"
+source "${source_dir}/Distribution/evaluation/src/native-host-stream.sh"
 source "${source_dir}/Distribution/tests/support/delivery-evidence-native-run.sh"
 root=$(mktemp -d)
 trap 'rm -rf -- "${root}"' EXIT

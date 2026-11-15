@@ -11,7 +11,7 @@ import {
   hosts,
   readHostStream,
   readHostStreamText,
-} from "./native-host-stream.mjs";
+} from "../../evaluation/src/native-host-stream.mjs";
 
 const corpus = (entry) =>
   fileURLToPath(

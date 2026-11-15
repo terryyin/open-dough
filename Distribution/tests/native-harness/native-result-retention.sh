@@ -7,9 +7,9 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 # shellcheck source=Distribution/tests/support/native-result-retain.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/native-result-retain.sh"
-# shellcheck source=Distribution/tests/support/native-host-stream.sh
+# shellcheck source=Distribution/evaluation/src/native-host-stream.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-host-stream.sh"
+source "${source_dir}/Distribution/evaluation/src/native-host-stream.sh"
 context_wrapper="${source_dir}/Distribution/tests/adr-awareness/dough-adr-awareness-context.sh"
 
 work_dir=$(mktemp -d)

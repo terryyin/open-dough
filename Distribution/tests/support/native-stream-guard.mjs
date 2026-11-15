@@ -34,9 +34,9 @@ const literals = [
 
 // The shared reader may hold any literal.
 const reader = new Set([
-  "Distribution/tests/support/native-host-stream.mjs",
-  "Distribution/tests/support/native-host-stream-adapters.mjs",
-  "Distribution/tests/support/native-host-stream-codex-session.mjs",
+  "Distribution/evaluation/src/native-host-stream.mjs",
+  "Distribution/evaluation/src/native-host-stream-adapters.mjs",
+  "Distribution/evaluation/src/native-host-stream-codex-session.mjs",
 ]);
 
 // Files allowed to hold literals because they write host shapes rather than
@@ -116,7 +116,7 @@ const shapeWriters = new Map([
   ],
 ]);
 
-const scannedRoots = /^(?:Distribution\/tests|scripts)\//;
+const scannedRoots = /^(?:Distribution\/(?:tests|evaluation)|scripts)\//;
 const skipped = /^Distribution\/tests\/fixtures\/native-streams\//;
 const codeExtension = /\.(?:sh|bash|mjs|js|cjs|ts)$/;
 const shellShebang = /^#![^\r\n]*\b(?:sh|bash|dash|ksh|zsh)\b/;
@@ -182,7 +182,7 @@ export function guardFindings(root) {
       holders.add(file);
       if (!reader.has(file) && !shapeWriters.has(file)) {
         findings.push(
-          `${file}:${found.line}: host-event literal ${found.literal} outside the shared reader; read the stream through Distribution/tests/support/native-host-stream.mjs`,
+          `${file}:${found.line}: host-event literal ${found.literal} outside the shared reader; read the stream through Distribution/evaluation/src/native-host-stream.mjs`,
         );
       }
     }

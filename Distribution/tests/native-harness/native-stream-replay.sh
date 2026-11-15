@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Credential-free proof that the shared native host stream reader
-# (Distribution/tests/support/native-host-stream.mjs) reads real Claude, Codex, and Cursor
+# (Distribution/evaluation/src/native-host-stream.mjs) reads real Claude, Codex, and Cursor
 # output: every recorded stream in Distribution/tests/fixtures/native-streams replays to its
 # reviewed started commands, stream status, and response presence, including
 # when cut mid-command. Each retained publication attempt also replays its
@@ -14,7 +14,7 @@ set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 replay="${source_dir}/Distribution/tests/support/native-stream-replay.mjs"
-reader="${source_dir}/Distribution/tests/support/native-host-stream.mjs"
+reader="${source_dir}/Distribution/evaluation/src/native-host-stream.mjs"
 corpus="${source_dir}/Distribution/tests/fixtures/native-streams"
 work_dir=$(mktemp -d)
 trap 'rm -rf -- "${work_dir}"' EXIT
@@ -224,7 +224,7 @@ cat > "${tree}/${stray}" << 'STRAY'
 #!/usr/bin/env bash
 grep -c '"type":"item.started"' "$1"
 STRAY
-expect_guard_failure "${tree}" "${stray}:2: host-event literal item.started outside the shared reader; read the stream through Distribution/tests/support/native-host-stream.mjs"
+expect_guard_failure "${tree}" "${stray}:2: host-event literal item.started outside the shared reader; read the stream through Distribution/evaluation/src/native-host-stream.mjs"
 rm -- "${tree}/${stray}"
 
 # A listed writer that no longer writes a host shape leaves the list stale.

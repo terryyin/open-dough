@@ -3,7 +3,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { readCodexSession } from "../../support/native-host-stream.mjs";
+import { readCodexSession } from "../../../evaluation/src/native-host-stream.mjs";
 const hash = (v) =>
   typeof v === "string" ? createHash("sha256").update(v).digest("hex") : null;
 const ms = (at) => (Number.isFinite(Date.parse(at)) ? Date.parse(at) : null);

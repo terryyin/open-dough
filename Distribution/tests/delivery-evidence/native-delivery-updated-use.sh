@@ -8,9 +8,9 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 codex_wrapper="${source_dir}/Distribution/tests/adr-awareness/dough-adr-awareness-codex-delivery-to-use.sh"
 journey_fixture="${source_dir}/Distribution/tests/support/native-agent-journey.sh"
 fail_fixture="${source_dir}/Distribution/tests/support/native-agent-fail.sh"
-# shellcheck source=Distribution/tests/support/native-host-stream.sh
+# shellcheck source=Distribution/evaluation/src/native-host-stream.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-host-stream.sh"
+source "${source_dir}/Distribution/evaluation/src/native-host-stream.sh"
 
 work_dir=$(mktemp -d)
 finish() {

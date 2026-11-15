@@ -2,7 +2,7 @@
 // Rejected wire facts must also remain unusable to the watch signal consumer.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { readCodexSession } from "./native-host-stream.mjs";
+import { readCodexSession } from "../../evaluation/src/native-host-stream.mjs";
 import {
   captureWatch,
   watchFields,

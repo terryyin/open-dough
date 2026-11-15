@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { retainedUsage } from "./native-comparison-archive-usage.mjs";
-import { readCodexSession } from "./native-host-stream.mjs";
+import { readCodexSession } from "../../evaluation/src/native-host-stream.mjs";
 
 const row = (type, payload) => ({ type, payload });
 const started = (turn) =>

@@ -71,9 +71,9 @@ remain applicable except for the sizing assumption corrected below.
 
 ### 1. Relocate the shared host-stream reader
 Type: Structure
-Status: planned
+Status: done
 Proof: real retained-stream replay, Codex/session/ownership tests, input identity
-and snapshot consumers through unchanged existing entries.
+and snapshots; [commands and observations](slice-1-evidence.md).
 
 Move only `native-host-stream*.mjs`, `native-host-stream.sh` and
 `native-codex-session.mjs` to `evaluation/src/`; keep shared shell host launch,
@@ -205,7 +205,7 @@ Physical-directory closure crosses independent proof loops; isolate reader, runt
 ## Execution context
 
 Story Branch Mode in the launch's owned workspace/branch, agent Kirara-chan, publisher `dashboard-territory.local-open-dough`; origin/main, increments to `codex/run-and-maintain-native-evaluations-as-a-distinc`.
-Starting revision `c124365d015aec64b5186160980db9205b11955a`; claim `deba676495b2eb1b8c1f3d3f96b7a44cb1122eb4`; records published at `a0ff105737b7cc71726f92715e907b779e8a230b`. Preserve existing planning authority (no explicit replan option).
+Starting revision `c124365d015aec64b5186160980db9205b11955a`; claim `deba676495b2eb1b8c1f3d3f96b7a44cb1122eb4`; records published at `cc8ce00967a8a0b9c1668619d47d1917d07ece02`. Preserve existing planning authority (no explicit replan option).
 Exact-checkout npm ci/typecheck passed with unchanged lock. Observer `kirara-638`, cell `g390:9`, session 35882, PID 75649, `/tmp/dough-ci-501/watch-NjF7jy`, `terryyin/open-dough`, execution branch, verified `ci.yml` (CI); claim trunk CI unobserved.
 Shared Mac AC, initially 56% free/load 11.33; two jobs under `caffeinate -s -i`; reconsider contention/failure. Source freshness unchanged at trunk `3925a4ef8ca8cf4f0bf6f03b201a78c24d2ec0e8`, only incoming planning/agent records.
 
@@ -224,7 +224,7 @@ Disposition: receiving slice 4
 ### G3. Browser selection after relocation
 Reported: slice 1 — "browser-group-shards reports zero selected actual specs for every browser group"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: return
+Disposition: proved by slice 1: slice-1-evidence.md command 1; browser-group-shards.test.mjs enumerates actual specs and observes each exactly once plus new-spec preview
 
 ### G4. Standalone comparison sourcing after relocation
 Reported: slice 1 — "native-codex-owned-proof passes but prints missing paths because standalone comparison sourcing has no source_dir"
@@ -239,7 +239,7 @@ Disposition: receiving slice 3
 ### G6. Deleted tracked snapshot inputs
 Reported: slice 1 — "admission snapshot enumeration attempts deleted old runtime paths"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: return
+Disposition: proved by slice 1: slice-1-evidence.md command 1; native-admission-reuse.test.mjs exercises complete copied Git/input closure through current evaluation sources without deleted tracked paths
 
 ### G7. One-shot safety deadline
 Reported: slice 1 — "one-shot aggregate hit the existing 180-second safety deadline during the broad selected gate"

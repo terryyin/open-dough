@@ -5,7 +5,7 @@
 // record does, once per turn. A worker's record names its parent thread.
 // Prints `key: value` lines:
 //
-//   node Distribution/tests/support/native-codex-session.mjs <thread> <sessions root>
+//   node Distribution/evaluation/src/native-codex-session.mjs <thread> <sessions root>
 //
 // `codex-session-file` names the record, then its CLI version, originator,
 // and per distinct turn setting `codex-turn-settings: <count>x model=…

@@ -5,9 +5,9 @@
 # them.
 # shellcheck disable=SC2034 # native_run_stream_* are consumed by the supervisor.
 
-# shellcheck source=Distribution/tests/support/native-host-stream.sh
+# shellcheck source=Distribution/evaluation/src/native-host-stream.sh
 # shellcheck disable=SC1091,SC2312
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-host-stream.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-host-stream.sh"
 
 native_run_stream_status=
 native_run_stream_reason=

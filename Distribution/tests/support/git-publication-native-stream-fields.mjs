@@ -11,7 +11,10 @@
 // lines to the commands the preparation-land fields match.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { hosts, readHostStream } from "./native-host-stream.mjs";
+import {
+  hosts,
+  readHostStream,
+} from "../../evaluation/src/native-host-stream.mjs";
 import {
   startCommands,
   startPattern,

@@ -12,9 +12,9 @@ source "${source_dir}/Distribution/tests/support/native-updated-use-prompt-asser
 # shellcheck source=Distribution/tests/support/native-updated-use-adapter-host.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/native-updated-use-adapter-host.sh"
-# shellcheck source=Distribution/tests/support/native-host-stream.sh
+# shellcheck source=Distribution/evaluation/src/native-host-stream.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/native-host-stream.sh"
+source "${source_dir}/Distribution/evaluation/src/native-host-stream.sh"
 
 assert_watched_empty() {
   local leftover

@@ -9,8 +9,8 @@ source "${source_dir}/Distribution/tests/helpers/public-payload-fixture.bash"
 source "${source_dir}/Distribution/tests/helpers/release-fixture.bash"
 source "${source_dir}/Distribution/tests/support/native-codex.sh"
 source "${source_dir}/Distribution/tests/support/dough-adr-awareness-proof.sh"
-# shellcheck source=Distribution/tests/support/native-host-stream.sh
-source "${source_dir}/Distribution/tests/support/native-host-stream.sh"
+# shellcheck source=Distribution/evaluation/src/native-host-stream.sh
+source "${source_dir}/Distribution/evaluation/src/native-host-stream.sh"
 
 if [[ $# != 0 && ! ($# == 1 && $1 == '--native') &&
   ! ($# == 2 && $1 == '--native' && $2 =~ ^(codex|cursor|claude)$) ]]; then

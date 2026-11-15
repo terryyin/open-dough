@@ -14,7 +14,7 @@ run_delivery_evidence_aggregate_checks() {
   grep -q 'not ok .*membership makes no live or completion claim' "${root}/changed.txt"
   delivery_evidence_aggregate_write_correction "${root}/workspace"
   (cd "${root}/workspace" && node --test --test-reporter=tap tests/*.test.mjs e2e/*.test.mjs) > "${root}/corrected.txt" 2>&1
-  node --input-type=module - "${source_dir}/Distribution/tests/support/native-host-stream.mjs" << 'JS'
+  node --input-type=module - "${source_dir}/Distribution/evaluation/src/native-host-stream.mjs" << 'JS'
 import assert from 'node:assert/strict';
 const { readHostStreamText } = await import(process.argv[2]);
 const prose = { type: 'assistant', message: { content: [{ type: 'text', text: 'node --test e2e/membership.test.mjs passed' }] } };

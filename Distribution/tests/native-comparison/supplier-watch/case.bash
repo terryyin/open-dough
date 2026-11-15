@@ -48,7 +48,7 @@ case_observe() {
     printf 'turn-2-watch-reproduction: unobserved-controlled-host\n'
     local saved sessions
     sessions=$(native_comparison_sessions_root)
-    saved=$(node "${watch_case_dir}/../../support/native-codex-session.mjs" "${native_comparison_thread}" "${sessions}" 2> /dev/null | sed -n 's/^codex-session-file: //p') || saved=''
+    saved=$(node "${watch_case_dir}/../../../evaluation/src/native-codex-session.mjs" "${native_comparison_thread}" "${sessions}" 2> /dev/null | sed -n 's/^codex-session-file: //p') || saved=''
     node "${watch_case_dir}/evidence.mjs" "${saved}" "${scratch}/case-evidence/watch-observations.txt" \
       "${scratch}/case-evidence/watch-facts.json"
     if [[ ${native_run_failure_reason-} == 'native command ended before its active-turn controller' ]]; then

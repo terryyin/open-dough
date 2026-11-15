@@ -60,7 +60,7 @@ native_comparison_inputs=(
   Distribution/tests/support/native-comparison-turn.sh
   Distribution/tests/support/native-comparison-retain.sh
   Distribution/tests/support/native-codex.sh
-  Distribution/tests/support/native-codex-session.mjs
+  Distribution/evaluation/src/native-codex-session.mjs
   Distribution/tests/support/native-observation.sh
   Distribution/tests/support/delivery-evidence-native-payload.sh
 )

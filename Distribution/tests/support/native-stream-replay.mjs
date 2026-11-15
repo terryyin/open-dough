@@ -40,7 +40,7 @@ import {
   hosts,
   readHostStreamText,
   readStreamFile,
-} from "./native-host-stream.mjs";
+} from "../../evaluation/src/native-host-stream.mjs";
 
 export const defaultCorpus = fileURLToPath(
   new URL("../fixtures/native-streams", import.meta.url),

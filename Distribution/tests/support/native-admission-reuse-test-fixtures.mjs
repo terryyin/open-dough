@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -23,6 +30,7 @@ const sourcePathspecs = [
   "Distribution/src",
   "src/install",
   "Distribution/tests/support",
+  "Distribution/evaluation/src",
   "Distribution/tests/helpers",
   "Distribution/tests/skills",
   "dashboard/server",
@@ -50,7 +58,9 @@ const sourcePaths = spawnSync(
 assert.equal(sourcePaths.status, 0, sourcePaths.stderr);
 const sourceLayer = copiedLayer(
   root,
-  sourcePaths.stdout.split("\0").filter(Boolean),
+  sourcePaths.stdout
+    .split("\0")
+    .filter((file) => file && existsSync(join(root, file))),
 );
 
 export async function setup(t, host = "codex") {

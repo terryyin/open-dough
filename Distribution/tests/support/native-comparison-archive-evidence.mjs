@@ -3,7 +3,10 @@
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { readCodexSession, readHostStream } from "./native-host-stream.mjs";
+import {
+  readCodexSession,
+  readHostStream,
+} from "../../evaluation/src/native-host-stream.mjs";
 import {
   coordinatorProofCalls,
   ownedProofFromRecords,

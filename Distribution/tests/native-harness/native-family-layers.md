@@ -29,7 +29,7 @@ Reuse before writing a copy:
   (see Rejected cases).
 - `native-harness-observation.sh`: the node call wrapper and log the closure
   and completion fixtures observe from outside the project.
-- `native-host-stream.sh`: host-neutral views of a Claude, Codex or Cursor
+- `Distribution/evaluation/src/native-host-stream.sh`: host-neutral views of a Claude, Codex or Cursor
   stream; match no host event shapes yourself.
 - `product-backlog-native-evidence.sh`: `product_backlog_native_cleanup`
   keeps failing evidence and prints `PRESERVED:`.

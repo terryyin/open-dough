@@ -32,7 +32,10 @@ import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import { publicationStreamFields } from "./git-publication-native-stream-fields.mjs";
-import { joinContinuations, strings } from "./native-host-stream.mjs";
+import {
+  joinContinuations,
+  strings,
+} from "../../evaluation/src/native-host-stream.mjs";
 import {
   noFieldsVerdict,
   reassessVerdicts,

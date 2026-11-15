@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { readHostStream } from "./native-host-stream.mjs";
+import { readHostStream } from "../../evaluation/src/native-host-stream.mjs";
 import { selectionResolved } from "./makeme-native-selection-observe.mjs";
 import { runTests } from "./makeme-native-test-run.mjs";
 import { guidanceReadCount } from "./makeme-native-guidance-observe.mjs";

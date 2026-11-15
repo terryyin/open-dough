@@ -3,9 +3,9 @@
 # installed product-backlog writer rather than constructing a Taken entry.
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals cross the sourced harness.
 
-# shellcheck source=Distribution/tests/support/native-host-stream.sh
+# shellcheck source=Distribution/evaluation/src/native-host-stream.sh
 # shellcheck disable=SC1091
-source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-host-stream.sh"
+source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)/native-host-stream.sh"
 
 # shellcheck source=Distribution/tests/support/product-backlog-native-take-fixture.sh
 # shellcheck disable=SC1091
@@ -25,14 +25,14 @@ take_write_evidence_inputs() {
     Distribution/tests/support/product-backlog-native-take-fixture.sh \
     Distribution/tests/support/product-backlog-native-evidence.sh \
     Distribution/tests/support/product-backlog-native-guard.sh \
-    Distribution/tests/support/native-host-stream.sh \
+    Distribution/evaluation/src/native-host-stream.sh \
     Distribution/tests/support/native-result-identity.sh \
     Distribution/tests/support/native-import-closure.sh \
     Distribution/tests/support/native-import-closure.mjs
   native_import_closure_input_hash_lines \
     Distribution/tests/support/render-published-backlog.mjs \
     Distribution/tests/support/product-backlog-native-facts.mjs \
-    Distribution/tests/support/native-host-stream.mjs \
+    Distribution/evaluation/src/native-host-stream.mjs \
     Distribution/src/skills/dough-product-backlog/scripts/product-backlog.mjs
 }
 

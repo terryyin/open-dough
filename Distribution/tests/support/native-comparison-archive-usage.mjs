@@ -2,7 +2,7 @@
 // owned workers. Missing or incomplete measurements remain unknown.
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { readCodexSession } from "./native-host-stream.mjs";
+import { readCodexSession } from "../../evaluation/src/native-host-stream.mjs";
 import { identity } from "./native-comparison-archive-evidence.mjs";
 
 // Deduplicate own native responses, never sum replayed fork history or CLI

@@ -1,11 +1,11 @@
 // Executed project proof from a comparison coordinator or its owned workers.
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { codexSessionSettings } from "../../support/native-codex-session.mjs";
+import { codexSessionSettings } from "../../../evaluation/src/native-codex-session.mjs";
 import {
   readCodexSession,
   readHostStream,
-} from "../../support/native-host-stream.mjs";
+} from "../../../evaluation/src/native-host-stream.mjs";
 
 // Keep the coordinator's existing proof-command selection shared with archive
 // capture. Owned-worker proof below additionally requires literal commands and

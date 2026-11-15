@@ -9,7 +9,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
-import { readStreamFile } from "./native-host-stream.mjs";
+import { readStreamFile } from "../../evaluation/src/native-host-stream.mjs";
 import { readRetainedAttempt } from "./native-stream-retained-attempt.mjs";
 import { runEvidenceCommand } from "./native-admission-reuse-identity.mjs";
 

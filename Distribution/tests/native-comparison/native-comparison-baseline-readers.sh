@@ -18,8 +18,8 @@ original=$(shasum -a 256 "${saved}")
 for reader in native-host-stream-adapters.mjs native-codex-session.mjs; do
   before=$(native_comparison_fixture_sessions "${work}")
   prior=$(shasum -a 256 "${saved}")
-  [[ -f ${work}/source/Distribution/tests/support/${reader} ]]
-  printf '\n// A changed evidence interpretation.\n' >> "${work}/source/Distribution/tests/support/${reader}"
+  [[ -f ${work}/source/Distribution/evaluation/src/${reader} ]]
+  printf '\n// A changed evidence interpretation.\n' >> "${work}/source/Distribution/evaluation/src/${reader}"
   native_comparison_fixture_git "${work}/source" add -A
   native_comparison_fixture_git "${work}/source" commit -q -m "Change ${reader} interpretation"
   record=$(native_comparison_fixture_record "${work}" "${quiet}" "${quiet}" concurrent "${reader}" --reuse-baseline "${saved}")

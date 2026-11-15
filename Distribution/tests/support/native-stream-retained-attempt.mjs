@@ -11,7 +11,7 @@ import {
   hosts,
   readHostStreamText,
   readStreamFile,
-} from "./native-host-stream.mjs";
+} from "../../evaluation/src/native-host-stream.mjs";
 
 // Names what a retained attempt lacks for replay.
 export class Refusal extends Error {}

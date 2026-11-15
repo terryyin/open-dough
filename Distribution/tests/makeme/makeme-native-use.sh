@@ -69,7 +69,7 @@ esac
 printf 'host: %s\nversion: %s\njourney: %s\nexit: %s\noutcome: %s\n' \
   "${platform}" "${tool_version}" "${journey}" "${status}" "${native_run_outcome}" > "${temporary_dir}/run.txt"
 if [[ ${platform} != codex ]]; then native_run_write_output 1; fi
-node "${source_dir}/Distribution/tests/support/native-host-stream.mjs" "${platform}" "${transcript}" status
+node "${source_dir}/Distribution/evaluation/src/native-host-stream.mjs" "${platform}" "${transcript}" status
 if ((status != 0)); then exit "${status}"; fi
 if [[ ${journey} == refactor ]]; then
   node "${source_dir}/Distribution/tests/support/makeme-native-refactor-assess.mjs" "${platform}" "${temporary_dir}"

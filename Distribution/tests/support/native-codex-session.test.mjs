@@ -6,7 +6,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { codexSessionSettings } from "./native-codex-session.mjs";
+import { codexSessionSettings } from "../../evaluation/src/native-codex-session.mjs";
 
 // Writes a record for `id` started at `time` on 2026-11-14, spawned by
 // `parent` when given, with one turn_context line per setting.

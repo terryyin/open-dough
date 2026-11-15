@@ -1,9 +1,9 @@
 # Native host streams
 
 Native checks read a Claude Code, Codex, or Cursor output stream only through
-`Distribution/tests/support/native-host-stream.mjs`. Its per-host adapters, in
+`Distribution/evaluation/src/native-host-stream.mjs`. Its per-host adapters, in
 `native-host-stream-adapters.mjs`, hold every host event shape. Shell callers
-use `Distribution/tests/support/native-host-stream.sh`, which keeps reader calls out of a
+use `Distribution/evaluation/src/native-host-stream.sh`, which keeps reader calls out of a
 native harness's node-call log. The reader returns the started commands
 (continuations joined, and split at command separators for matching),
 outputs, the final response, and the stream status: complete, truncated,

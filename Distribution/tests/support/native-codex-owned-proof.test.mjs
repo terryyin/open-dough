@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { ownedWorkerProof } from "../native-comparison/paused-supplier/owned-proof.mjs";
-import { readCodexSession } from "./native-host-stream.mjs";
+import { readCodexSession } from "../../evaluation/src/native-host-stream.mjs";
 
 const source = fileURLToPath(new URL("../../..", import.meta.url));
 const record = (type, payload) => ({

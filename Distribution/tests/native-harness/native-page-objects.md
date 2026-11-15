@@ -86,7 +86,7 @@ Inspect the opted-out result and actual selector/reference reads too; selection
 output alone is insufficient. Run both resulting scenarios and retain their
 terminal result alongside `before-tests.txt`.
 
-Inspect `events.jsonl` through `native-host-stream.mjs`, plus `calls.jsonl`,
+Inspect `events.jsonl` through `Distribution/evaluation/src/native-host-stream.mjs`, plus `calls.jsonl`,
 `reads.jsonl`, `tools.jsonl` and the authored test. An enabled result must show
 actual reads of the gate, configuration and convention, reuse the existing
 library owner, expose Atlas then Boreal expectations and causal order, keep the

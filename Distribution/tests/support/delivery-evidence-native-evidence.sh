@@ -114,7 +114,7 @@ delivery_evidence_write_evidence_identity() {
       Distribution/tests/fixtures/delivery-evidence/amended-seed.md \
       Distribution/tests/fixtures/delivery-evidence/amended-plan.md \
       "${case_prefix}-product-content.sh" \
-      Distribution/tests/support/native-host-stream.sh \
+      Distribution/evaluation/src/native-host-stream.sh \
       Distribution/src/skills/dough-execute-plan/references/source-freshness.md \
       Distribution/src/skills/dough-execute-plan/references/story-obligations.md \
       Distribution/src/skills/dough-execute-plan/references/finish-or-stop.md
