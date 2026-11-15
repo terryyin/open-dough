@@ -1,0 +1,16 @@
+Distribution/tests/skills/dough-story-wrap-up/closure-story-branch-cleanup.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/closure-story-integration-agent-credit.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/closure-story-integration.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/trunk-closure-below-toplevel.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/trunk-closure-codex-owner.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/trunk-closure-completion-gate.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/trunk-closure-observer-ended-selection.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/trunk-closure-observer-selection.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/trunk-closure-owner-ambient-rerun.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/trunk-closure-owner-ended-record.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/trunk-closure-owner-gaps.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/trunk-closure-owner.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/trunk-closure-pending-completion.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/trunk-closure-rebased-rerun.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/trunk-closure-resume.test.mjs
+Distribution/tests/skills/dough-story-wrap-up/trunk-closure.test.mjs

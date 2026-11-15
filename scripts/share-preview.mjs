@@ -71,38 +71,70 @@ export async function previewFromOptions(options) {
         ? undefined
         : readTimeBudget(budgetPath).totalJobSeconds,
     budgetName: budgetPath,
+    trunkLabels:
+      options["trunk-labels"] === undefined
+        ? undefined
+        : new Set(parseLabels(readInput(options["trunk-labels"]))),
   });
 }
 
 // The preview text: the list and job counts, each share's predicted total
 // with its headroom to `ceiling` (the budget's total-job-seconds, when
 // given), then each unrecorded job with its share and assumed seconds.
-export function formatPreview(allocation, { listName, ceiling, budgetName }) {
+export function formatPreview(
+  allocation,
+  { listName, ceiling, budgetName, trunkLabels },
+) {
   const jobCount = allocation.recordedCount + allocation.unrecordedCount;
   const assumption =
     allocation.recordedMedian === allocation.assumedSeconds
       ? "the recorded median"
       : "no usable recorded median";
+  const stale = (job) => !job.recorded && trunkLabels?.has(job.label);
+  const staleCount = allocation.shares
+    .flatMap((share) => share.jobs)
+    .filter(stale).length;
   const lines = [
     `Predicted job-seconds per share from ${listName}: ${jobCount} jobs, ${allocation.recordedCount} recorded, ${allocation.unrecordedCount} unrecorded at ${formatSeconds(allocation.assumedSeconds)} s each (${assumption}).`,
   ];
+  if (staleCount > 0) {
+    lines.unshift(
+      `Stale duration list ${listName}: ${staleCount} ${staleCount === 1 ? "job already on trunk lacks" : "jobs already on trunk lack"} recorded seconds.`,
+    );
+  }
   for (const share of allocation.shares) {
     const unrecorded = share.jobs.filter((job) => !job.recorded).length;
     let line = `share ${share.index}/${allocation.shareCount}: ${formatSeconds(share.predicted)} predicted (${share.jobs.length} jobs, ${unrecorded} unrecorded)`;
     if (ceiling !== undefined) {
       line += `; headroom ${formatSeconds(ceiling - share.predicted)} to the total ceiling ${ceiling} (${budgetName})`;
+      if (share.jobs.some(stale)) line += " (rests on assumed seconds)";
     }
     lines.push(line);
   }
+  if (staleCount > 0) {
+    lines.push(
+      "Refresh from a recent successful main run, every job (Distribution/tests/test-shares.md#preview-before-pushing):",
+      "  gh run download RUN_ID -p 'test-times-*' -D DIR",
+      `  node scripts/test-shares.mjs refresh --list ${listName} --source 'run RUN_ID at REVISION, DATE' DIR/test-times-*/test-times.txt`,
+    );
+  }
   if (allocation.unrecordedCount > 0) {
     lines.push(
-      `unrecorded jobs (${allocation.unrecordedCount}), each assumed at ${formatSeconds(allocation.assumedSeconds)} s; a refresh of ${listName} records them:`,
+      trunkLabels === undefined
+        ? `unrecorded jobs (${allocation.unrecordedCount}), each assumed at ${formatSeconds(allocation.assumedSeconds)} s; a refresh of ${listName} records them:`
+        : `unrecorded jobs (${allocation.unrecordedCount}), each assumed at ${formatSeconds(allocation.assumedSeconds)} s:`,
     );
     for (const share of allocation.shares) {
       for (const job of share.jobs) {
         if (!job.recorded) {
+          const note =
+            trunkLabels === undefined
+              ? ""
+              : stale(job)
+                ? ` (stale; assumed ${formatSeconds(job.seconds)} s)`
+                : ` (estimate at ${formatSeconds(job.seconds)} s)`;
           lines.push(
-            `  share ${share.index}/${allocation.shareCount}  ${job.label}`,
+            `  share ${share.index}/${allocation.shareCount}  ${job.label}${note}`,
           );
         }
       }

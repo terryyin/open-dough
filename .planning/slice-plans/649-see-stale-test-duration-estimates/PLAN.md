@@ -59,8 +59,8 @@ Enables slice 2.
 
 ### 2. Name a stale list and estimates from supplied trunk job names
 Type: Behavior
-Status: planned
-Proof: `bash scripts/test.sh Distribution/tests/support/share-preview.test.mjs Distribution/tests/support/share-deal-recorded-runs.test.mjs Distribution/tests/support/browser-group-shards.test.mjs`
+Status: done
+Proof: `bash scripts/test.sh Distribution/tests/support/share-preview.test.mjs Distribution/tests/support/share-preview-stale.test.mjs Distribution/tests/support/share-deal-recorded-runs.test.mjs Distribution/tests/support/browser-group-shards.test.mjs`
 
 Behavior: a list, job labels and `--trunk-labels FILE` naming the jobs trunk
 runs → `preview` opens with the stale statement and count when any unrecorded
@@ -69,7 +69,7 @@ on assumed seconds, prints the refresh step, and lists every other unrecorded
 job in its share as an estimate at the assumed seconds. With every job
 recorded the text is unchanged. Retain the DD-537 inputs as a fixture under
 `Distribution/tests/support/fixtures/`: the duration list at `3445cf469^`
-(index and parts combined into one list) and the 639 job labels of
+(index and parts read as one logical list) and the 639 job labels of
 `Distribution/tests` at `fd397339a`. `Distribution/tests/test-shares.md`
 replaces its "high unrecorded count" sentence with the two readings.
 
@@ -177,3 +177,31 @@ are not runtime consumers. Active implementation approximately five minutes.
 Early source freshness unchanged at trunk `1e7e5b7b`; no named sibling applies.
 Independent refactor: none — already clean; accepted proof unchanged, whitespace
 checks passed. Final pre-delivery freshness unchanged at trunk `632324cdd`.
+
+Slice 1 publication accepted: `02705787579d078863b1f7db65cc2616774cab54`,
+base `b2a86929c6f7c893aff8add58cf23e4b17c07ca2`, on the execution branch;
+existing observer reused. Slice 2 fixture organization retains duration parts
+as one indexed logical list and labels grouped by test feature; this preserves
+all historical rows while meeting the 250-line limit. Classification CLI cases
+live in `share-preview-stale.test.mjs` alongside the existing preview tests.
+
+Slice 2 accepted: supplied-trunk CLI classification meets C03–C12/C20 and
+Q01–Q03/J01–J12 at the five concrete assertions in
+`share-preview-stale.test.mjs`: historical26/639 at1.5 seconds with headroom
+176.7/176.7/178.2 assumed and refresh commands; new-only exact old headroom
+plus estimate5.0; mixed stale26 plus added estimate1.5; one missing trunk job
+marks only its share; all-recorded exact old output. Setup uses shared duration
+builders and independent original fixture bytes/budget. Slice 2’s four listed
+focused paths passed through the Bash5 runner; the affected
+`Distribution/tests/support/share-deal.test.mjs` passed separately.
+Unreadable trunk-label input is observed in `share-preview.test.mjs`.
+Consumer trace `/tmp/dough-slice2-consumer-trace.md` uses formatter, trunk-labels,
+budget reader, unrecorded-jobs and headroom terms: actual formatter callers
+passed; unchanged share/factor/allocation/spec paths retain accepted proof.
+No open gap; about12 active minutes. Freshness unchanged at trunk `7bb999227`.
+Independent refactor: none — already clean, no invalidated proof; whitespace
+and size checks passed. Final freshness unchanged at trunk `7bb999227`.
+Formatting caught a helper parameter reassignment; it now derives a local
+list path. This is inside the accepted refactor paths/trace, with no new
+representation. Its stale-preview focused check passed again; all other proof
+remains unchanged. Fresh preparation is retried after that mechanical repair.

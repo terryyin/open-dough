@@ -1,0 +1,9 @@
+Distribution/tests/adr-awareness/adr-awareness-codex-alternate-layout.sh
+Distribution/tests/adr-awareness/adr-awareness-codex-equivalence.sh
+Distribution/tests/adr-awareness/dough-adr-awareness-claude-delivery-to-use.sh
+Distribution/tests/adr-awareness/dough-adr-awareness-codex-delivery-to-use.sh
+Distribution/tests/adr-awareness/dough-adr-awareness-codex-use.sh
+Distribution/tests/adr-awareness/dough-adr-awareness-context.sh
+Distribution/tests/adr-awareness/dough-adr-awareness-cursor-delivery-to-use.sh
+Distribution/tests/adr-awareness/native-adr-behavior.sh
+Distribution/tests/adr-awareness/native-case-selection.sh

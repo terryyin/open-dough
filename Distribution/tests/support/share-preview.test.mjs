@@ -103,6 +103,10 @@ test("a file the preview cannot read fails naming it, without a stack trace", ()
   const preview = (...args) => run(["preview", "--split-count", "2", ...args]);
   const cases = [
     [preview("--list", list, "--labels", missing), missing],
+    [
+      preview("--list", list, "--labels", names, "--trunk-labels", missing),
+      missing,
+    ],
     [preview("--labels", names, "--list", list, "--budget", missing), missing],
     [preview("--test-dir", emptyDir), `${emptyDir}/longest-first`],
     [preview("--spec-dir", emptyDir), `${emptyDir}/longest-first`],

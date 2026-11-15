@@ -83,6 +83,7 @@ async function previewCommand(argv) {
     "list",
     "budget",
     "labels",
+    "trunk-labels",
     "test-dir",
     "spec-dir",
     "root",
