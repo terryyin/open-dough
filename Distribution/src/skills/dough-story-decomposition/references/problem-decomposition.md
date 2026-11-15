@@ -170,6 +170,12 @@ integration risk, or a supplied hard-limit concern. Consolidate, split, or
 retain accordingly. Keep a multi-beat outside-in scenario unfinished until
 green; never deliver a CI-breaking state.
 
+## Limit slices per plan
+
+A plan holds at most eight slices. Count completed slices and omit replaced
+ones. Apply the limit [before readiness](../../dough-resplit-story/SKILL.md#resplit-before-readiness)
+and [before dispatch](../../dough-execute-plan/references/execution-decisions.md#reassess-before-extending-work).
+
 ## Size and escalate slices
 
 Use this project's slice target, hard limit, exceptions, and

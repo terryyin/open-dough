@@ -30,9 +30,10 @@ When replanning is allowed, continue as follows. For planned execution, safely p
 only attempt-owned changes, then record elapsed time, completed proof, and the
 failed sizing assumption in the same plan. Invoke
 [dough-slice-plan-refinement](../../dough-slice-plan-refinement/SKILL.md) only
-when learning escalation permits slice refinement. The coordinator commits and
-pushes the updated plan. Report `reverted and refined`, elapsed time, and
-whether the hard limit applied, then restart from the plan on disk.
+when learning escalation permits it. For an over-limit proposal, follow
+[stop or split](finish-or-stop.md#stop-or-split-before-more-work). Otherwise
+the coordinator commits and pushes the plan, reports `reverted and refined`,
+elapsed time and whether the hard limit applied, and restarts from the plan on disk.
 
 For quick execution, first make a safe stop in the conversation. Identify the
 source, elapsed time, the failed sizing assumption, completed compatible

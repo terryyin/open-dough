@@ -143,13 +143,16 @@ Keep unresolved source questions and human-owned decisions outside this
 handoff. Handle a missing input, disputed constraint, or concern that refinement
 cannot resolve within scope under the next section; do not repeat refinement
 without new evidence or widen the outcome.
-Refinement keeps the same plan, preparation workspace, and assignment. It
-grants no execution authority.
+Refinement keeps the preparation workspace and assignment. It grants no
+execution authority.
 
 ## Record concern evidence and assess readiness
 
-After constructing the plan, record its concern evidence in the plan, then
-record readiness through the shared procedure:
+Before assessing readiness, apply the [slice limit](../dough-story-decomposition/references/problem-decomposition.md#limit-slices-per-plan)
+even when refinement was deferred. In active execution, return an over-limit
+draft to [stop or split](../dough-execute-plan/references/finish-or-stop.md#stop-or-split-before-more-work).
+In preparation, use a resplit's assessments. For a plan that stays intact,
+record concern evidence and readiness:
 
 - In one line, whether refinement ran, was not needed (with the reason), or
   was left to a later step as instructed.

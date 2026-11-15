@@ -1,20 +1,21 @@
 # Execution decisions
 
-Apply these decisions before delegation and after implementation and refactoring,
-even when tests pass.
+Apply these decisions before delegation, on implementation or refactor return,
+and when a wait or retry can no longer advance the work.
 
 ## Reassess before extending work
 
-When corrections accumulate, evidence challenges the premise, or the owner asks
-for simplification, reassess whether the remaining work is necessary before
-adding implementation or slices. State the smallest authorized, evaluable
-outcome and compare the strongest relevant simpler choice. Reuse available
-evidence. For a decisive uncertainty, retrieve only the missing authoritative
-passage or run a decision-bounded investigation under [targeted retrieval and
-disposable research](disposable-research.md). State the question it answers and
-what it leaves unproved; necessary investigation is not forbidden merely
-because its evidence is unusually large. Refresh only knowledge whose source or
-applicable assumption the new observation calls into question.
+On entry, resume, and after plan changes, check the [slice limit](../../dough-story-decomposition/references/problem-decomposition.md#limit-slices-per-plan)
+before dispatch. For an over-limit current or proposed plan, [stop or split](finish-or-stop.md#stop-or-split-before-more-work).
+
+When a decisive premise fails, corrections or overruns recur, the owner asks
+for simplification, or the next step depends on a paused supplier, unavailable
+proof, or a human decision, hold affected work. Compare the remaining work
+with the smallest authorized outcome worth delivering. Reuse evidence or run a
+[bounded check](disposable-research.md) that can settle the decision. If the
+blocker remains and no independent authorized work can advance the outcome,
+[stop or split](finish-or-stop.md#stop-or-split-before-more-work)
+before waiting or retrying. Refresh only knowledge the observation invalidates.
 
 When an observation invalidates an assumption for remaining work, identify the
 observation and its source location, the affected assumption, the consequences

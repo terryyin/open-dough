@@ -8,9 +8,9 @@ description: >-
 
 # Slice-plan refinement
 
-Refine an existing executable plan in place. Do not create another plan,
-implement product code, or change its selected story or bounded correction
-outcome.
+Refine one executable plan in place. Keep its selected outcome and leave
+implementation to execution. [Resplit story](../dough-resplit-story/SKILL.md)
+owns any split between stories.
 
 ## Require a refinable plan
 
@@ -86,32 +86,29 @@ A suspected accidental contractual restriction uses the shared
 [plan-conflict handoff](../dough-execute-plan/references/execution-decisions.md#resolve-a-disputed-plan-restriction)
 before a conflicting plan edit; classify it as Escalate, not an automatically
 correctable special case. Route other Escalate findings through the input gate.
-Apply every Consolidate or Split decision.
+Before applying a proposed change during execution, count the resulting slices.
+Route an over-limit proposal and its evidence to the coordinator's
+[stop or split decision](../dough-execute-plan/references/finish-or-stop.md#stop-or-split-before-more-work)
+with the active plan intact. Otherwise apply every Consolidate or Split decision.
 
 After an overrun, confirm attempt-owned work is safely parked or reverted before
 editing the plan. Stop for human judgment when ownership is unclear. Do not
 commit, push, implement, or verify product behavior unless the invoking workflow
 separately authorizes it.
 
-Count the resulting plan's slices, including completed slices but excluding
-obsolete replaced slices. If the count is greater than 15, report
-`story resplit recommended: <count> slices; use dough-resplit-story` and link to
-[dough-resplit-story](../dough-resplit-story/SKILL.md). This is a recommendation,
-not an automatic invocation or a new execution-readiness gate. Do not resplit
-the story or change its backlog placement during slice-plan refinement.
+In preparation, apply the [slice limit](../dough-story-decomposition/references/problem-decomposition.md#limit-slices-per-plan)
+before assessment. A settled resplit supplies the replacement assessments.
 
-When the work item has a recorded identity, record the readiness reassessment
-through
+For a plan that stays intact, record its readiness reassessment through
 [assess readiness at preparation completion](../dough-product-backlog/references/record-preparation.md#assess-readiness-at-preparation-completion):
-remaining Refine or Escalate findings, or any other blocking concern, become
-`not-ready` reasons; when the cumulative design is supported and remaining
-slices are ready under the table above, record `ready`. Do not Take, move the
-queue, or start execution from this reassessment.
+for a recorded identity, blockers become `not-ready` reasons. Record `ready`
+when the design and slices satisfy the checks above. Readiness grants no Take
+or execution authority.
 
 Return the plan path, replaced slices, resulting slice count, sizing
-exceptions, any resplit recommendation, whether execution can resume, and the
+exceptions, any resplit performed, whether execution can resume, and the
 reassessment to an invoking workflow, such as slice planning or execution, that
-continues from them. A resplit recommendation, an Escalate finding, or another
+continues from them. An Escalate finding or another
 decision a person must make needs a response: report it with the expected
 response, who can give it when known, and what waits for it.
 

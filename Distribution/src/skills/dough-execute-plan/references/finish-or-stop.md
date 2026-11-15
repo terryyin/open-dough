@@ -1,8 +1,8 @@
 # Finish or stop
 
-On a human-judgment stop or cancellation, handle delivered failures, then close
-the observer through the current host adapter without waiting for CI and report
-pending CI as unobserved. On normal completion, use
+When ending unfinished for risk, human judgment or cancellation, handle
+delivered failures, close the observer through the current host adapter without
+waiting, and report pending CI as unobserved. On normal completion, use
 [the one bounded completion operation](ci-completion-wait.md#await-the-applicable-revision-at-completion)
 and handle its combined CI and shutdown receipt before considering continuation.
 
@@ -136,6 +136,19 @@ or decision, responsible owner when known, and needed evidence or recovery links
 Apply [report attention at the execution-complete handoff](#report-attention-at-the-execution-complete-handoff)
 before giving the response. Add no slice, proof,
 advice, CI or shutdown recap or execution-completion banner.
+
+## Stop or split before more work
+
+Stop the affected attempt. Preserve evidence and park or revert only its
+unfinished changes under the [ownership rules](oversized-slice.md). Honor
+[replanning permission](execution-decisions.md#choose-replanning-permission)
+and [human-judgment stops](execution-decisions.md#stop-for-human-judgment).
+When authorized, [split at a safe delivered boundary](../../dough-resplit-story/SKILL.md#split-at-a-delivered-slice-boundary)
+and close the retained outcome through ordinary proof, delivery, CI, review and
+wrap-up. The remainder awaits its own authorized start.
+
+If the split is blocked, keep the Taken entry and delivered history. Record the
+resume condition, close observation as above and [report an unfinished stop](other-completion-paths.md).
 
 ## Other completion and stop paths
 
