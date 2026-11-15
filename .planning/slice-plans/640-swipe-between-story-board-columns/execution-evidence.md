@@ -192,3 +192,34 @@ belongs to SEED-334#retire-dashboard-integrated-ui-test; no duplicate cleanup.
 Product advice no change; process remains selected and deferred until wrap-up's
 coverage report/dispositions. Review does not establish final CI.
 Records-only completion delivery reuses accepted semantic proof and refactoring.
+
+## Owned CI repair
+
+Run43712538044/attempt1 on4a799008 failed only
+`github-request-owner-start.test.mjs` without recording an exit status; final
+diagnostic `/tmp/seed373-ci-diagnostic-final.json` has complete inventory and no
+other failure. Completion9cd4fe954 returned failure via its not-required basis,
+shutdown retained. No live writers; managed stash-save returned clean,oidnull,
+record `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-xuCI3m/record.json`.
+
+The test child exposed an empty PID file before writing bytes. Parent saw its
+existence; teardown read empty→PID0 and signaled the whole test job's group.
+Controlled repro produced the exact runner symptom in
+`/tmp/seed373-empty-owner-job-red.log`; safe PID0 diagnosis is in
+`/tmp/seed373-empty-owner-pid-red.log`. Repair publishes PID through partial
+file plus atomic rename and validates safe integer>1 before signaling.
+Only the test fixture changes; production/installed runtime and Board proof
+remain unchanged. Detached reproduction owner confirmed ended.
+
+```sh
+PATH=/opt/homebrew/bin:$PATH caffeinate -s -i npm test -- Distribution/tests/skills/dough-execute-plan/github-request-owner-start.test.mjs Distribution/tests/skills/dough-execute-plan/github-request-owner-failure.test.mjs
+```
+
+Focused proof and whitespace passed. Documented Bash5 PATH resolved the initial
+local prerequisite failure. Consumer trace3rows all dispositioned:
+`/tmp/seed373-request-owner-repair-consumers.md`; scheduling uses same tested
+runner boundary and historical timing fixtures have unchanged contracts.
+Independent `ci_repair_refactor` returned `## REFACTOR COMPLETE`, none already
+clean, no edits/tests; accepted proof unchanged. Coordinator inspected fixture,
+teardown/synchronization/settled-failure assertions and deterministic red logs.
+Source unchanged atfe7a92673 (only new Take metadata since86f5788ed).

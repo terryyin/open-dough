@@ -38,13 +38,18 @@ test("a silent owner startup remains unknown, settles failed and never invents a
   writeFileSync(
     join(installation, "github-request-owner.mjs"),
     `
-    import { writeFileSync } from "node:fs";
-    writeFileSync(${JSON.stringify(pidFile)}, String(process.pid));
+    import { renameSync, writeFileSync } from "node:fs";
+    const pidFile = ${JSON.stringify(pidFile)};
+    writeFileSync(pidFile + ".partial", String(process.pid));
+    renameSync(pidFile + ".partial", pidFile);
     setInterval(() => {}, 1_000);
   `,
   );
   github.teardown.defer(async () => {
     const pid = Number(readFileSync(pidFile, "utf8"));
+    // PID zero signals the whole test job's process group. Only a complete
+    // positive process identity may be used for fixture cleanup.
+    assert.ok(Number.isSafeInteger(pid) && pid > 1, "a valid silent owner PID");
     process.kill(pid, "SIGTERM");
     await until(
       () => processGone(pid),
