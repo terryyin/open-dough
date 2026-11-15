@@ -144,6 +144,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: both failed preparation attempts withheld commit/publication; mechanical repairs and retries preceded accepted slice 2. Runtime/observing behavior stayed equivalent and final hook/typecheck passed.
   - Inference: same late authored-file lint feedback and coordinator repair churn as existing ODF-329, including its prior this:void example. Briefs reserved formatter/hook-owned lint to the coordinator; no saving from earlier lint is measured.
 
+- Execution: SEED-354#remove-configuration-only-tests (plan 626; first implementation `8e76ab31ade089788e1acc4603336d5656c9cca6`)
+  - Timestamp: unknown (2026-11-15; minutes before accepted slice 5 `5d8fc47e` at 08:25:19+08:00; retry delivery started 00:25:11Z)
+  - Tool: Cursor
+  - Open Dough release: 0.3.99 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: launch `27475783-521b-4581-a106-3949c9aa018d` / conversation `5e3c20f5-e0ec-44e8-8b8d-ec919d6557f1`; slice 5 implementation and refactor briefs forbade selective formatting and independent hook-owned lint; the implementer introduced `firstSeed!` in `e2e/configuration/project-configuration.spec.ts` after a typecheck fix; the coordinator's first guarded fresh blocked on that forbidden non-null assertion ("Fixing the lint error that blocked delivery, then retrying"), replaced it with an explicit undefined throw, and the retry published `5d8fc47e`.
+  - Observed effect: one refused formatting preparation and a mechanical coordinator repair before accepted slice 5; no second lint refusal on the retry.
+  - Inference: same late authored-file lint feedback under lint-forbidden briefs as existing ODF-329; any saving from an earlier read-only eslint on owned files is unmeasured.
+
 ## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
 
 Former local code: DD-349. [Meaning, evidence and response](docs/maintainer/findings/ODF-362.md).
