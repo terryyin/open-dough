@@ -6,9 +6,20 @@
 
 /// <reference lib="dom" />
 
-import { expect, type Locator } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 import { expectSuppliedIcon } from "./support/brandIcons.ts";
 import { expectInside } from "./pageLayout.ts";
+import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
+
+export function sessionsProductMark(page: Page) {
+  return sessionsSidebarParts(page).button.locator("img.product-mark");
+}
+
+export function dashboardConnectionIndicator(page: Page) {
+  return page
+    .getByRole("banner")
+    .getByRole("img", { name: /^Dashboard connection:/, includeHidden: true });
+}
 
 // Shared icon export and square draw checks for both placements.
 async function expectProductMarkImage(mark: Locator) {

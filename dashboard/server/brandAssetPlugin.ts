@@ -1,7 +1,5 @@
-// The Vite plugin that delivers Open Dough's supplied icon exports
-// (`../../assets/brand/favicon/`) to the browser at stable root URLs --
-// `/favicon.ico` and `/icon-<size>.png`, the names the export pack's own
-// README gives them -- from that one canonical source, outside this Vite root.
+// Deliver Open Dough's supplied icons and kneading animation from the brand
+// directory at stable root URLs, outside this Vite root.
 // The dev server answers them from the source files on each request; a build
 // writes the same bytes, unrenamed, beside `index.html` in its output, which
 // the preview and every production deployment then serve as static files.
@@ -25,14 +23,21 @@ const contentTypes: Readonly<Record<string, string>> = {
 type BrandAsset = { readonly source: string; readonly contentType: string };
 
 // Every supplied image export, by the root URL path it is served at.
-const brandAssets: ReadonlyMap<string, BrandAsset> = new Map(
-  readdirSync(brandExports).flatMap((name) => {
+const brandAssets: ReadonlyMap<string, BrandAsset> = new Map([
+  ...readdirSync(brandExports).flatMap((name): [string, BrandAsset][] => {
     const contentType = contentTypes[path.extname(name)];
     return contentType === undefined
       ? []
       : [[`/${name}`, { source: path.join(brandExports, name), contentType }]];
   }),
-);
+  [
+    "/opendough-knead.svg",
+    {
+      source: path.join(brandExports, "..", "opendough-knead.svg"),
+      contentType: "image/svg+xml",
+    },
+  ],
+]);
 
 export function brandAssetPlugin(): Plugin {
   return {

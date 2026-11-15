@@ -36,6 +36,7 @@ import {
 } from "./agentLaunch.ts";
 import { IconButton } from "./Icon.tsx";
 import { ProductMark } from "./ProductMark.tsx";
+import type { DashboardConnection } from "./dashboardConnection.ts";
 import { SessionList } from "./SessionLists.tsx";
 import {
   SessionsSidebarSessionEntry,
@@ -140,7 +141,11 @@ export function useSessionsSidebar(
   return { open, toggle, closeOverPage, records, alerts };
 }
 
-export function SessionsButton() {
+export function SessionsButton({
+  connection,
+}: {
+  readonly connection?: DashboardConnection | undefined;
+}) {
   const { open, toggle, records } = useSessionsSidebarContext();
   const sessions = openSessionsOf(records) ?? [];
   // Working count only while closed; attention keeps showing either way.
@@ -152,7 +157,7 @@ export function SessionsButton() {
     <IconButton
       label="Sessions"
       shortcut="⌘B"
-      visual={<ProductMark decorative />}
+      visual={<ProductMark decorative connection={connection} />}
       align="start"
       className="sessions-toggle"
       groupClassName="sessions-toggle-group"

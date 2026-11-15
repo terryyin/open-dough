@@ -41,7 +41,7 @@ export function DashboardBanner({
 
   return (
     <header className="banner" ref={banner} data-connection={connection}>
-      <SessionsButton />
+      <SessionsButton connection={connection} />
       {connection !== undefined && (
         <span
           role="img"
