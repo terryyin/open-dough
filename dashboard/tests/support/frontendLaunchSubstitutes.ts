@@ -23,6 +23,7 @@ import {
   type LaunchHostOptions,
 } from "../../src/launchHostOptions.ts";
 import {
+  answerHeld,
   endWithPage,
   fulfillJson,
   holdAnswer,
@@ -146,19 +147,18 @@ export async function installFrontendLaunchBoundary(
       asked.push(read);
       const hold = nextHold;
       nextHold = undefined;
-      hold?.received();
-      await hold?.released;
-      const answer =
-        choices.get(`${read.source} ${read.host}`) ?? choices.get(read.host);
-      if (answer === undefined) await route.fallback();
-      else if (answer === "unreadable")
-        await fulfillJson(
-          route,
-          { error: "Model choices could not be read." },
-          503,
-        );
-      else await fulfillJson(route, answer);
-      hold?.delivered();
+      await answerHeld(hold, async () => {
+        const answer =
+          choices.get(`${read.source} ${read.host}`) ?? choices.get(read.host);
+        if (answer === undefined) await route.fallback();
+        else if (answer === "unreadable")
+          await fulfillJson(
+            route,
+            { error: "Model choices could not be read." },
+            503,
+          );
+        else await fulfillJson(route, answer);
+      });
     },
   );
   return {
@@ -169,7 +169,7 @@ export async function installFrontendLaunchBoundary(
     },
     choicesAsked: () => [...asked],
     holdNextChoices: () => {
-      const { held, hold } = holdAnswer();
+      const { held, hold } = holdAnswer(page);
       nextHold = hold;
       return held;
     },

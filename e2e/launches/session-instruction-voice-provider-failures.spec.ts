@@ -53,6 +53,21 @@ test("explicit retry after refusal appends once without failed text, then editab
   expect(provider.calls).toHaveLength(2);
 });
 
+test("Cancel while transcribing ends the held provider request and launches nothing", async ({
+  page,
+  dashboard,
+  provider,
+  launchJourney,
+}) => {
+  const dialog = await openVoiceDraft(page, dashboard, launchJourney);
+  provider.hold();
+  await recordClip(page, dialog);
+  await expect.poll(() => provider.calls.length).toBe(1);
+  await dialog.getByRole("button", { name: "Cancel" }).click();
+  await expect.poll(provider.disconnected).toBe(1);
+  expect(dashboard.claudeCalls()).toEqual([]);
+});
+
 test.describe("deadline", () => {
   test.use({ transcriptionDeadlineMs: 500 });
   test("the actual 60-second deadline aborts held upstream work and restores typed Start", async ({

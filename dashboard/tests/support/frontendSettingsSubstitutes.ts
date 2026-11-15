@@ -33,6 +33,7 @@ import {
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { FrontendServiceState } from "./frontendServiceState.ts";
 import {
+  answerHeld,
   fulfillJson,
   holdAnswer,
   type AnswerHold,
@@ -49,6 +50,8 @@ export type FrontendSettingsMachine = {
   >;
   // The project an accepted Add answers with, at the local path it was given.
   readonly adding?: PublishedSource;
+  // Whether an OpenAI API key is saved; none unless stated.
+  readonly openAIConfigured?: boolean;
 };
 
 export type SettingsChange = {
@@ -105,7 +108,7 @@ export async function installFrontendSettingsSubstitutes(
   machine: FrontendSettingsMachine,
 ): Promise<FrontendSettings> {
   let configured = [...machine.projects];
-  let openAIConfigured = false;
+  let openAIConfigured = machine.openAIConfigured ?? false;
   let terminalTheme: TerminalThemeId = "default";
   const feedbackMaintenance: FeedbackMaintenanceSetting = { enabled: false };
   const changes: SettingsChange[] = [];
@@ -186,12 +189,7 @@ export async function installFrontendSettingsSubstitutes(
     const reply = refusal ?? accept(endpoint, body);
     const hold = holds.get(endpoint);
     holds.delete(endpoint);
-    if (hold !== undefined) {
-      hold.received();
-      await hold.released;
-    }
-    await fulfillJson(route, reply.body, reply.status);
-    hold?.delivered();
+    await answerHeld(hold, () => fulfillJson(route, reply.body, reply.status));
   };
   for (const endpoint of settingsEndpoints)
     await page.route(
@@ -207,7 +205,7 @@ export async function installFrontendSettingsSubstitutes(
       });
     },
     holdNext: (endpoint) => {
-      const { held, hold } = holdAnswer();
+      const { held, hold } = holdAnswer(page);
       holds.set(endpoint, hold);
       return held;
     },

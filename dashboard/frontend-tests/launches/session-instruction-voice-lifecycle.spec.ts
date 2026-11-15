@@ -1,39 +1,59 @@
-import { test, expect } from "../support/voiceTest.ts";
-import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
+// Dictating into Start session never outlives the dialog it began in:
+// Cancel while transcribing abandons the request, Escape stops capture, and a
+// late permission grant or answer cannot record into the reopened dialog; a
+// track that ends before Stop keeps the typed draft and posts nothing. The
+// microphone is released each time. Built frontend against controlled
+// transcription answers and the browser's synthetic microphone; that the
+// server ends the provider's work when Cancel abandons the request is
+// ../../../e2e/launches/session-instruction-voice-provider-failures.spec.ts.
+
 import {
-  openTakenBacklog,
+  expect,
+  openFrontendTakenBacklog,
+  test,
+} from "../../tests/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+import { installFrontendTranscription } from "../../tests/support/frontendTranscriptionSubstitutes.ts";
+import {
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../launchStoryCardPage.ts";
+} from "../../tests/launchStoryCardPage.ts";
 import {
+  holdCompletedVoiceResponse,
+  holdMicrophonePermission,
   observeMicrophone,
   recordClip,
-  seedVoiceKey,
   stoppedTracks,
-  holdMicrophonePermission,
-  holdCompletedVoiceResponse,
-} from "../support/voicePage.ts";
-test.use(voiceBrowserOptions);
+} from "../../tests/support/voicePage.ts";
+import {
+  microphoneBrowserOptions,
+  originalDraft,
+  startVoiceDraft,
+} from "../../tests/support/voiceRecovery.ts";
+
+test.use(microphoneBrowserOptions);
 test.beforeEach(async ({ page }) => {
   await observeMicrophone(page);
 });
 
-test("held provider result is aborted on Cancel; reopening stays empty and microphone tracks are released", async ({
+test("a held transcription is abandoned on Cancel; reopening stays empty and microphone tracks are released", async ({
   page,
-  dashboard,
-  provider,
-  launchJourney,
+  frontendServices,
 }) => {
-  await openTakenBacklog(page, launchJourney);
-  seedVoiceKey(dashboard.home);
-  provider.hold();
+  const transcription = await installFrontendTranscription(
+    page,
+    frontendServices,
+  );
+  const boundary = await installFrontendLaunchBoundary(page);
+  await openFrontendTakenBacklog(page);
+  const held = transcription.holdNext();
   const action = startSession(page, "Open Dough");
   await action.click();
   const dialog = startSessionDialog(page, "Open Dough");
   await startSessionField(dialog).fill("Discard this draft");
   await recordClip(page, dialog);
-  await expect.poll(() => provider.calls.length).toBe(1);
+  await held.received;
   await expect(dialog.getByRole("status")).toHaveText("Transcribing…");
   await expect(
     dialog.getByRole("button", { name: "Start", exact: true }),
@@ -41,25 +61,29 @@ test("held provider result is aborted on Cancel; reopening stays empty and micro
   await expect(startSessionField(dialog)).toHaveAttribute("readonly", "");
   await expect(dialog.getByRole("button", { name: "Cancel" })).toBeEnabled();
   await dialog.getByRole("button", { name: "Cancel" }).click();
-  await expect.poll(provider.disconnected).toBe(1);
+  await expect.poll(transcription.abandoned).toBe(1);
   await action.click();
-  provider.release();
+  held.release();
+  await held.delivered;
   await expect(startSessionField(dialog)).toHaveValue("");
   await expect(dialog.getByRole("status")).toHaveText(
     "Dictate, then review or edit the text before Start.",
   );
-  expect(dashboard.claudeCalls()).toEqual([]);
+  expect(transcription.clips()).toBe(1);
+  expect(boundary.acceptances).toEqual([]);
   expect(await stoppedTracks(page)).toBe(true);
 });
 
 test("Escape stops active capture; a late permission grant after dismissal cannot record into a reopened dialog", async ({
   page,
-  dashboard,
-  provider,
-  launchJourney,
+  frontendServices,
 }) => {
-  await openTakenBacklog(page, launchJourney);
-  seedVoiceKey(dashboard.home);
+  const transcription = await installFrontendTranscription(
+    page,
+    frontendServices,
+  );
+  const boundary = await installFrontendLaunchBoundary(page);
+  await openFrontendTakenBacklog(page);
   const action = startSession(page, "Open Dough");
   const dialog = startSessionDialog(page, "Open Dough");
   await action.click();
@@ -84,21 +108,21 @@ test("Escape stops active capture; a late permission grant after dismissal canno
   await permission.grant();
   await expect.poll(() => stoppedTracks(page)).toBe(true);
   await expect(startSessionField(dialog)).toHaveValue("");
-  expect(provider.calls).toHaveLength(0);
-  expect(dashboard.claudeCalls()).toEqual([]);
+  expect(transcription.clips()).toBe(0);
+  expect(boundary.acceptances).toEqual([]);
 });
 
 test("unexpected real microphone track end preserves typed text and makes no transcription request", async ({
   page,
-  dashboard,
-  provider,
-  launchJourney,
+  frontendServices,
 }) => {
-  await openTakenBacklog(page, launchJourney);
-  seedVoiceKey(dashboard.home);
-  await startSession(page, "Open Dough").click();
-  const dialog = startSessionDialog(page, "Open Dough");
-  await startSessionField(dialog).fill("Keep this work local");
+  const transcription = await installFrontendTranscription(
+    page,
+    frontendServices,
+  );
+  const boundary = await installFrontendLaunchBoundary(page);
+  await openFrontendTakenBacklog(page);
+  const dialog = await startVoiceDraft(page);
   await dialog.getByRole("button", { name: "Record", exact: true }).click();
   await expect(dialog.getByRole("status")).toContainText("Recording…");
   await page.evaluate(() => {
@@ -109,24 +133,26 @@ test("unexpected real microphone track end preserves typed text and makes no tra
     });
   });
   await expect(dialog.getByRole("alert")).toContainText("ended before Stop");
-  await expect(startSessionField(dialog)).toHaveValue("Keep this work local");
+  await expect(startSessionField(dialog)).toHaveValue(originalDraft);
   await expect(startSessionField(dialog)).toBeEditable();
   await expect(
     dialog.getByRole("button", { name: "Start", exact: true }),
   ).toBeEnabled();
   expect(await stoppedTracks(page)).toBe(true);
-  expect(provider.calls).toHaveLength(0);
-  expect(dashboard.claudeCalls()).toEqual([]);
+  expect(transcription.clips()).toBe(0);
+  expect(boundary.acceptances).toEqual([]);
 });
 
-test("a completed real response delivered after Cancel cannot populate the next launch dialog", async ({
+test("a completed response delivered after Cancel cannot populate the next launch dialog", async ({
   page,
-  dashboard,
-  provider,
-  launchJourney,
+  frontendServices,
 }) => {
-  await openTakenBacklog(page, launchJourney);
-  seedVoiceKey(dashboard.home);
+  const transcription = await installFrontendTranscription(
+    page,
+    frontendServices,
+  );
+  const boundary = await installFrontendLaunchBoundary(page);
+  await openFrontendTakenBacklog(page);
   const delivery = await holdCompletedVoiceResponse(page);
   const action = startSession(page, "Open Dough");
   const dialog = startSessionDialog(page, "Open Dough");
@@ -134,7 +160,7 @@ test("a completed real response delivered after Cancel cannot populate the next 
   await startSessionField(dialog).fill("Discard the first draft");
   await recordClip(page, dialog);
   await delivery.ready();
-  expect(provider.calls).toHaveLength(1);
+  expect(transcription.clips()).toBe(1);
   await dialog.getByRole("button", { name: "Cancel" }).click();
   await action.click();
   await delivery.release();
@@ -142,6 +168,6 @@ test("a completed real response delivered after Cancel cannot populate the next 
   await expect(
     dialog.getByRole("button", { name: "Start", exact: true }),
   ).toBeEnabled();
-  expect(dashboard.claudeCalls()).toEqual([]);
+  expect(boundary.acceptances).toEqual([]);
   expect(await stoppedTracks(page)).toBe(true);
 });

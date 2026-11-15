@@ -1,38 +1,58 @@
-import { test, expect } from "../support/voiceTest.ts";
-import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
+// A transcript appends to the launch instruction while the combined text,
+// separator included, stays within 4,000 characters; beyond that it opens for
+// shortening or discarding, keeping the typed draft, and only what is added
+// or edited is what Start sends. Dismissing the dialog clears the review.
+// Built frontend against controlled transcription and launch answers; the
+// full 4,000 characters reaching a story session are
+// ../../../e2e/launches/session-instruction-voice.spec.ts.
+
 import {
-  openTakenBacklog,
+  expect,
+  openFrontendTakenBacklog,
+  test,
+} from "../../tests/support/frontendApp.ts";
+import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
+import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
+import { installFrontendTranscription } from "../../tests/support/frontendTranscriptionSubstitutes.ts";
+import {
+  backlogLaunchers,
+  instructionField,
   startSession,
   startSessionDialog,
   startSessionField,
-} from "../launchStoryCardPage.ts";
-import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
+} from "../../tests/launchStoryCardPage.ts";
+import { notRefinedStory } from "../../tests/launchJourney.ts";
 import {
   observeMicrophone,
   recordClip,
-  seedVoiceKey,
-} from "../support/voicePage.ts";
-test.use(voiceBrowserOptions);
+} from "../../tests/support/voicePage.ts";
+import { microphoneBrowserOptions } from "../../tests/support/voiceRecovery.ts";
+
+test.use(microphoneBrowserOptions);
 test.beforeEach(async ({ page }) => {
   await observeMicrophone(page);
 });
 
 const original = "Keep this work local";
 
-test("exactly 4,000 combined characters, including the separator, append ordinarily and reach the story launch unchanged", async ({
+test("exactly 4,000 combined characters, including the separator, append ordinarily and Start sends them unchanged", async ({
   page,
-  dashboard,
-  provider,
-  launchJourney,
+  frontendServices,
 }) => {
-  const { start, dialog } = await openTakenBacklog(page, launchJourney);
-  seedVoiceKey(dashboard.home);
-  dashboard.claudeScenario("launched");
+  const transcription = await installFrontendTranscription(
+    page,
+    frontendServices,
+  );
+  const boundary = await installFrontendLaunchBoundary(page, {
+    accept: frontendAttempt(frontendServices).accept,
+  });
+  await openFrontendTakenBacklog(page);
+  const { start, dialog } = backlogLaunchers(page);
   await start(notRefinedStory).click();
-  const field = dialog.getByRole("textbox", { name: "Instruction (optional)" });
+  const field = instructionField(dialog);
   await field.fill(original);
   const transcript = "x".repeat(4_000 - original.length - 2);
-  provider.setText(transcript);
+  transcription.answerText(transcript);
   await recordClip(page, dialog);
   const combined = `${original}\n\n${transcript}`;
   await expect(field).toHaveValue(combined);
@@ -40,29 +60,33 @@ test("exactly 4,000 combined characters, including the separator, append ordinar
   await expect(
     dialog.getByRole("textbox", { name: "Transcript to shorten" }),
   ).toHaveCount(0);
-  expect(provider.calls).toHaveLength(1);
-  expect(dashboard.claudeCalls()).toEqual([]);
+  expect(transcription.clips()).toBe(1);
+  expect(boundary.acceptances).toEqual([]);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect
-    .poll(() => dashboard.claudeLaunchCalls().map((call) => call.argv.at(-1)))
-    .toEqual([`/dough-execute-plan ${notRefinedIdentity}\n\n${combined}`]);
+  await expect(dialog).toBeHidden();
+  expect(boundary.acceptances.map((request) => request.instruction)).toEqual([
+    combined,
+  ]);
 });
 
-test("one character over retains both drafts; keyboard shortening adds once and edited final text reaches the native session", async ({
+test("one character over retains both drafts; keyboard shortening adds once and edited final text is what Start sends", async ({
   page,
-  dashboard,
-  provider,
-  launchJourney,
+  frontendServices,
 }) => {
-  await openTakenBacklog(page, launchJourney);
-  seedVoiceKey(dashboard.home);
-  dashboard.claudeScenario("launched");
+  const transcription = await installFrontendTranscription(
+    page,
+    frontendServices,
+  );
+  const boundary = await installFrontendLaunchBoundary(page, {
+    accept: frontendAttempt(frontendServices).accept,
+  });
+  await openFrontendTakenBacklog(page);
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
   const field = startSessionField(dialog);
   await field.fill(original);
   const transcript = "x".repeat(4_001 - original.length - 2);
-  provider.setText(transcript);
+  transcription.answerText(transcript);
   await recordClip(page, dialog);
   const candidate = dialog.getByRole("textbox", {
     name: "Transcript to shorten",
@@ -82,8 +106,8 @@ test("one character over retains both drafts; keyboard shortening adds once and 
     exact: true,
   });
   await expect(add).toBeDisabled();
-  expect(provider.calls).toHaveLength(1);
-  expect(dashboard.claudeCalls()).toEqual([]);
+  expect(transcription.clips()).toBe(1);
+  expect(boundary.acceptances).toEqual([]);
   await candidate.fill(" \n ");
   await expect(add).toBeDisabled();
   await expect(
@@ -106,23 +130,26 @@ test("one character over retains both drafts; keyboard shortening adds once and 
   await expect(field).toBeEditable();
   await expect(candidate).toHaveCount(0);
   await expect(add).toHaveCount(0);
-  expect(provider.calls).toHaveLength(1);
+  expect(transcription.clips()).toBe(1);
   const edited = `${original}\n\nReview the launch dialog before implementing`;
   await field.fill(edited);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect
-    .poll(() => dashboard.claudeLaunchCalls().map((call) => call.argv.at(-1)))
-    .toEqual([edited]);
+  await expect(dialog).toBeHidden();
+  expect(boundary.acceptances.map((request) => request.instruction)).toEqual([
+    edited,
+  ]);
 });
 
 test("the complete transcript beyond 4,000 remains editable; keyboard discard and launch dismissal clear only transient review", async ({
   page,
-  dashboard,
-  provider,
-  launchJourney,
+  frontendServices,
 }) => {
-  await openTakenBacklog(page, launchJourney);
-  seedVoiceKey(dashboard.home);
+  const transcription = await installFrontendTranscription(
+    page,
+    frontendServices,
+  );
+  const boundary = await installFrontendLaunchBoundary(page);
+  await openFrontendTakenBacklog(page);
   const action = startSession(page, "Open Dough");
   const dialog = startSessionDialog(page, "Open Dough");
   const field = startSessionField(dialog);
@@ -130,7 +157,7 @@ test("the complete transcript beyond 4,000 remains editable; keyboard discard an
     name: "Transcript to shorten",
   });
   const transcript = `Transcript beginning\n${"x".repeat(4_100)}\nTranscript end`;
-  provider.setText(transcript);
+  transcription.answerText(transcript);
   await action.click();
   await field.fill(original);
   await recordClip(page, dialog);
@@ -152,13 +179,13 @@ test("the complete transcript beyond 4,000 remains editable; keyboard discard an
   await expect(
     dialog.getByRole("button", { name: "Start", exact: true }),
   ).toBeEnabled();
-  provider.setText("Do not implement yet");
+  transcription.answerText("Do not implement yet");
   await recordClip(page, dialog);
   await expect(field).toHaveValue(`${original}\n\nDo not implement yet`);
-  expect(provider.calls).toHaveLength(2);
+  expect(transcription.clips()).toBe(2);
   for (const dismiss of ["Cancel", "Escape"]) {
     await field.fill(original);
-    provider.setText(transcript);
+    transcription.answerText(transcript);
     await recordClip(page, dialog);
     await expect(candidate).toHaveValue(transcript);
     await expect(field).toHaveValue(original);
@@ -176,6 +203,6 @@ test("the complete transcript beyond 4,000 remains editable; keyboard discard an
       dialog.getByRole("button", { name: "Record", exact: true }),
     ).toBeEnabled();
   }
-  expect(provider.calls).toHaveLength(4);
-  expect(dashboard.claudeCalls()).toEqual([]);
+  expect(transcription.clips()).toBe(4);
+  expect(boundary.acceptances).toEqual([]);
 });

@@ -267,7 +267,7 @@ execution prerequisite on another story.
   [Attachment cancellation](../../dashboard/frontend-tests/launches/agent-launch-ad-hoc-attachments-cancel.spec.ts#L40),
   [Cursor attachments](../../e2e/launches/agent-launch-ad-hoc-attachments-cursor.spec.ts#L45),
   [frontend refusal](../../dashboard/frontend-tests/agent-launch-ad-hoc-attachments-refusal.spec.ts#L59),
-  [voice overflow](../../dashboard/tests/launches/session-instruction-voice-overflow.spec.ts#L98),
+  [voice overflow](../../dashboard/frontend-tests/launches/session-instruction-voice-overflow.spec.ts#L122),
   [touch dialog](../../dashboard/frontend-tests/launches/agent-launch-dialog-touch.spec.ts#L47).
 
 - **Startup answers and recovery.** Launch response, accepted progress,

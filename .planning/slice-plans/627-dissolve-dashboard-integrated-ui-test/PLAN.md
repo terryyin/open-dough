@@ -209,7 +209,7 @@ from those attachments.
 
 ### 4. Convert launch instruction voice
 Type: Behavior
-Status: planned
+Status: done
 Proof: same for `session-instruction-voice-capture-failures`,
 `session-instruction-voice-lifecycle` and `session-instruction-voice-overflow`
 on a Frontend transcription substitute (`/__instruction-transcription` and the
@@ -217,6 +217,16 @@ saved-key setting).
 
 Behavior: interim launch voice checks → converted and removed with assertions
 preserved.
+
+Accepted proof: 3 Frontend specs in `dashboard/frontend-tests/launches/` on
+`frontendTranscriptionSubstitutes.ts` (abandoned requests observed through
+`requestfailed`); E2E joins in `session-instruction-voice.spec.ts` (exactly
+4,000 characters reach argv) and `session-instruction-voice-provider-failures.spec.ts`
+(Cancel ends the held provider request). `voiceRecovery.ts` lost a 200 ms
+wall-clock sleep. Focused Frontend 10, voice E2E 9, unfiltered Frontend 239,
+`typecheck:dashboard` and duration-list node tests passed. Scratch breaks of
+the 4,000 limit and of Cancel's abort failed interim and converted cases
+identically; both passed restored. About 16 minutes for three `large` specs.
 
 ### 5. Convert launch access, noted start and answer touch
 Type: Behavior
@@ -317,6 +327,13 @@ for the three remaining groups.
 
 Behavior: empty interim product-case tree → retirement → only E2E, Frontend
 and Backend remain as current browser proof groups.
+
+## Story obligations
+
+### G1. Late transcription guard has no discriminating case (reported in slice 4)
+Reported: slice 4 — "The `!current()` guard after `response.json()` has no discriminating test, neither before nor after conversion."
+Story clause: "Every distinct behavior that group still proves keeps a home that catches the same regressions"
+Disposition: no user cost "Every distinct behavior that group still proves keeps a home that catches the same regressions": slice 4's scratch break removed the guard and both the interim and converted late-response cases still passed, so the interim group never proved it and no regression assertion was lost; the converted case keeps the interim observation that a response completed after Cancel never populates the next launch dialog, because the closed dialog's append target is gone.
 
 ## Current decisions
 

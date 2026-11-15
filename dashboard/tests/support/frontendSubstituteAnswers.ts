@@ -19,15 +19,33 @@ export type HeldAnswer = {
   readonly release: () => void;
 };
 
-// The substitute's side of a held answer: it reports the request received,
-// waits for `released`, answers, then reports the answer delivered.
+// Answers a substitute still holds when its page's case ends, each ending
+// its request so the page's routes can be removed (./frontendApp.ts).
+const unfinished = new WeakMap<Page, (() => Promise<void>)[]>();
+
+export function endWithPage(page: Page, end: () => Promise<void>): void {
+  unfinished.set(page, [...(unfinished.get(page) ?? []), end]);
+}
+
+export async function endHeldAnswers(page: Page): Promise<void> {
+  const ends = unfinished.get(page) ?? [];
+  unfinished.delete(page);
+  for (const end of ends) await end();
+}
+
+// The substitute's side of a held answer, consumed by `answerHeld`.
 export type AnswerHold = {
   readonly received: () => void;
   readonly released: Promise<void>;
   readonly delivered: () => void;
 };
 
-export function holdAnswer(): { held: HeldAnswer; hold: AnswerHold } {
+// A held answer for a request to `page`; one still held when the page's case
+// ends is released then.
+export function holdAnswer(page: Page): {
+  held: HeldAnswer;
+  hold: AnswerHold;
+} {
   let received: () => void = () => undefined;
   let delivered: () => void = () => undefined;
   let release: () => void = () => undefined;
@@ -45,19 +63,21 @@ export function holdAnswer(): { held: HeldAnswer; hold: AnswerHold } {
   const released = new Promise<void>((resolve) => {
     release = resolve;
   });
+  endWithPage(page, () => {
+    release();
+    return Promise.resolve();
+  });
   return { held, hold: { received, released, delivered } };
 }
 
-// Answers a substitute still holds when its page's case ends, each ending
-// its request so the page's routes can be removed (./frontendApp.ts).
-const unfinished = new WeakMap<Page, (() => Promise<void>)[]>();
-
-export function endWithPage(page: Page, end: () => Promise<void>): void {
-  unfinished.set(page, [...(unfinished.get(page) ?? []), end]);
-}
-
-export async function endHeldAnswers(page: Page): Promise<void> {
-  const ends = unfinished.get(page) ?? [];
-  unfinished.delete(page);
-  for (const end of ends) await end();
+// Answers through `answer`; a `hold` reports the request received, waits for
+// its release, and reports the answer delivered once `answer` completes.
+export async function answerHeld(
+  hold: AnswerHold | undefined,
+  answer: () => Promise<void>,
+): Promise<void> {
+  hold?.received();
+  await hold?.released;
+  await answer();
+  hold?.delivered();
 }
