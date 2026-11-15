@@ -14,7 +14,14 @@ import {
 import type { HostStatus } from "../../src/hostStatus.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import { backlogApart, describedRevision } from "../describedRevisions.ts";
-import { notRefinedStory, readyStory, takenStory } from "../launchJourney.ts";
+import {
+  notRefinedIdentity,
+  notRefinedStory,
+  readyIdentity,
+  readyStory,
+  takenIdentity,
+  takenStory,
+} from "../launchJourney.ts";
 import { openDough, openDoughSettings } from "../intentCodeBrowseFixtures.ts";
 import {
   openDoughCandidatesRecord,
@@ -50,8 +57,8 @@ export const doughnutSource: PublishedSource = makeMe.aPublishedSource
 const story = (title: string, identity: string, href: string) =>
   makeMe.aBacklogEntry.with({ identity, title, href }).please();
 
-const taken = story(takenStory, "SEED-A#a", "seeds/SEED-A-taken.md#a");
-const ready = story(readyStory, "SEED-B#b", "seeds/SEED-B-ready.md#b");
+const taken = story(takenStory, takenIdentity, "seeds/SEED-A-taken.md#a");
+const ready = story(readyStory, readyIdentity, "seeds/SEED-B-ready.md#b");
 
 // Where the project lists its three stories, unless stated: the Taken story
 // Taken and the others queued. `notRefinedTitle` retitles the not-refined
@@ -75,7 +82,7 @@ function frontendPublishedWith({
 }: FrontendStories = {}) {
   const notRefined = story(
     notRefinedTitle,
-    "SEED-C#c",
+    notRefinedIdentity,
     "seeds/SEED-C-queued.md#c",
   );
   const stories = [taken, ready, notRefined];
@@ -124,6 +131,18 @@ ${renderStorySection(notRefined)}`,
 const frontendPublished = frontendPublishedWith();
 
 export const takenBacklogMarkdown = frontendPublished.backlog;
+
+// A kept launch of `workflow` for the project's story titled `title`, the
+// not-refined story unless the title is the Taken or Ready story's.
+export function frontendStoryLaunch(
+  workflow: "executing" | "refining",
+  title: string,
+) {
+  const identity =
+    [taken, ready].find((entry) => entry.title === title)?.identity ??
+    notRefinedIdentity;
+  return makeMe.aLaunchRecord[workflow]({ identity, title });
+}
 
 export type FrontendServiceState = {
   projects: PublishedSource[];

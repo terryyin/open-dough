@@ -16,11 +16,7 @@ import { parts, storyCardSessions } from "../../tests/dashboardPage.ts";
 import { pausePageClockAt } from "../../tests/dashboardTest.ts";
 import { tabTo } from "../../tests/accessibleReading.ts";
 import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
-import {
-  notRefinedStory,
-  readyIdentity,
-  readyStory,
-} from "../../tests/launchJourney.ts";
+import { notRefinedStory, readyStory } from "../../tests/launchJourney.ts";
 import { passCheckPace } from "../../tests/pageRequestNotes.ts";
 import {
   countMachineReads,
@@ -42,7 +38,7 @@ import {
 } from "../../tests/support/frontendApp.ts";
 import { frontendAttempt } from "../../tests/support/frontendLaunchAttempts.ts";
 import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
 
 const reason = new RegExp(unavailable.replace(/[.]/g, "\\."));
 const inProgress = `${readyStory}: execution start, local startup in progress.`;
@@ -150,11 +146,7 @@ test("a keyboard start under reduced motion hands the keyboard to the story's ca
   await expect(otherHide).toBeFocused();
 
   // Settled: the session is presented on the card; the keyboard stays.
-  attempt.launch(
-    makeMe.aLaunchRecord
-      .executing({ identity: readyIdentity, title: readyStory })
-      .please(),
-  );
+  attempt.launch(frontendStoryLaunch("executing", readyStory).please());
   await boundary.tellChanged();
   await expect(storyCardSessions(takenStory)).toHaveCount(1);
   // Its detail stayed open while another card's opened.

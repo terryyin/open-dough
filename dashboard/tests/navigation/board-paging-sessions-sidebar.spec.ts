@@ -3,7 +3,7 @@
 // shown one, and the Board reaches the Column's whole length again. That a
 // choice shows a local Taken entry hidden the same way
 // is ../sessions/sessions-sidebar-navigation-cases.spec.ts and
-// ../sessions/agent-launch-ad-hoc-sessions.spec.ts; how focus shows a hidden column is
+// ../../frontend-tests/sessions/agent-launch-ad-hoc-sessions.spec.ts; how focus shows a hidden column is
 // ./board-paging.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";

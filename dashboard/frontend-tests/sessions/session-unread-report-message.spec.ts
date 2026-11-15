@@ -1,27 +1,23 @@
-import { sessionAction } from "../support/sessionEntryDisclosure.ts";
-// A session entry's message part, on a card or in Recently done: expanded
-// with Mark as read while its report is unread, beside the entry's own Mark as
+// A card session entry's message part, against a controlled machine read and
+// read boundary (../../tests/support/frontendSessionActions.ts): expanded with
+// Mark as read while its report is unread, beside the entry's own Mark as
 // done; a refused mark says so in the entry's status line; marked read, the
 // part collapses with the keyboard on its heading and expands again from it.
-// A session without a story card, here an ad-hoc session, is read on its
-// Recently done entry. A long message scrolls inside the part, with Mark as
-// read and the entry's Mark as done in view. ../../../e2e/sessions/session-unread-report.spec.ts
-// is the unread report's journey beside the native reading. Real start,
-// launch, installed reporting command, store and page; only the synthetic
-// `claude` and GitHub are fakes.
+// A long message scrolls inside the part, with Mark as read and the entry's
+// Mark as done in view. An ad-hoc session's report read on its Recently done
+// entry and kept read is
+// ../../../e2e/sessions/session-unread-report-message.spec.ts.
 
+import type { Page } from "@playwright/test";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
 import {
-  parts,
-  sessionEntriesIn,
-  sessionUnreadReportOf,
-} from "../dashboardPage.ts";
-import { expect } from "../dashboardTest.ts";
-import {
-  launchedAdHoc,
-  launchedStory,
-  reportedMessage,
-} from "../support/reportedLaunch.ts";
-import { agentReadEndpoint } from "../../src/readMark.ts";
+  frontendStoryLaunch,
+  putFrontendMachine,
+  type FrontendServiceState,
+} from "../../tests/support/frontendServiceState.ts";
+import { reportedMessage } from "../../tests/support/reportedLaunch.ts";
+import { sessionAction } from "../../tests/support/sessionEntryDisclosure.ts";
 import {
   buttonsAddedSince,
   expectCollapsed,
@@ -29,30 +25,54 @@ import {
   messagePartOf,
   rememberButtons,
   scrollOf,
-} from "../support/sessionMessagePart.ts";
-import { queuedIdentity } from "../support/startOrigin.ts";
+} from "../../tests/support/sessionMessagePart.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import { takenStory } from "../../tests/launchJourney.ts";
 import {
-  newerMessage,
-  publishOrigin,
-  recordOf,
-  takenStoryCard,
-  test,
-  titleA,
-} from "../support/unreadReportPage.ts";
-import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
+  openUntilRead,
+  reloadUntilRead,
+} from "../../tests/pageRequestNotes.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const label = "Completed with attention";
 
+// The machine observes the Taken story's execution session, ready for
+// review, having reported `message` under `receipt`.
+function reported(
+  services: FrontendServiceState,
+  message: string,
+  receipt = "11111111-1111-4111-8111-111111111111",
+) {
+  putFrontendMachine(
+    services,
+    makeMe.aMachineAnswer
+      .observing(
+        makeMe.anObservedLaunch
+          .of(
+            frontendStoryLaunch("executing", takenStory)
+              .completedWith({ message, receipt })
+              .please(),
+          )
+          .withSessionState(makeMe.aSessionState.loaded("review").please())
+          .please(),
+      )
+      .please(),
+  );
+}
+
+const takenEntry = (page: Page) =>
+  parts(page)
+    .taken.getByRole("article", { name: takenStory, exact: true })
+    .getByRole("article");
+
 test("a card entry's unread message is marked read in its message part, beside the entry's own Mark as done", async ({
   page,
-  dashboard,
-  origin,
+  frontendServices,
 }) => {
-  const story = await launchedStory(dashboard, origin, queuedIdentity, titleA);
-  await story.report();
-  await publishOrigin(page, origin);
+  reported(frontendServices, reportedMessage);
+  const actions = await installFrontendSessionActions(page, frontendServices);
   await openUntilRead(page);
-  const entry = takenStoryCard(page, titleA).getByRole("article");
+  const entry = takenEntry(page);
   const message = messagePartOf(entry);
 
   // Unread: expanded under its completion label, with Mark as read in the
@@ -67,16 +87,13 @@ test("a card entry's unread message is marked read in its message part, beside t
 
   // A refused read mark leaves the part expanded and says so in the entry's
   // status line.
-  await page.route(`**${agentReadEndpoint}`, (route) =>
-    route.fulfill({ status: 500 }),
-  );
+  actions.refuseNext("read", "The record could not be written.", 500);
   await message.markRead.click();
   await expect(entry.getByRole("status")).toHaveText(
     "The report could not be marked read.",
   );
   await expectExpanded(message, label, reportedMessage);
   await expect(message.markRead).toBeEnabled();
-  await page.unroute(`**${agentReadEndpoint}`);
 
   // Marked read: the part collapses to its heading, which has the keyboard;
   // the status line clears; Mark as done stays the same control, and no
@@ -96,6 +113,7 @@ test("a card entry's unread message is marked read in its message part, beside t
   expect(await buttonsAddedSince(entry)).not.toContainEqual(
     expect.stringMatching(/Mark as done|Delete record/),
   );
+  expect(actions.asked("read")).toHaveLength(2);
 
   // The read message's heading expands it, with the same text and no Mark
   // as read, and collapses it again, by pointer and by keyboard.
@@ -112,39 +130,9 @@ test("a card entry's unread message is marked read in its message part, beside t
   await expectCollapsed(message, label);
 });
 
-test("an ad-hoc session's message is read and marked read on its Recently done entry", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const adHoc = await launchedAdHoc(
-    dashboard,
-    origin,
-    "Look into the flaky check.",
-  );
-  await adHoc.report({ outcome: "unfinished", message: newerMessage });
-  await publishOrigin(page, origin);
-  await openUntilRead(page);
-  const recent = sessionEntriesIn(parts(page).taken);
-  await expect(recent).toHaveCount(1);
-  const message = messagePartOf(recent);
-  await expectExpanded(message, "Unfinished work", newerMessage);
-
-  await message.markRead.click();
-
-  await expectCollapsed(message, "Unfinished work");
-  await expect(message.heading).toBeFocused();
-  await expect(sessionUnreadReportOf(recent)).toHaveCount(0);
-  await expect(recent.getByRole("status")).toHaveText("");
-  const record = await recordOf(dashboard, adHoc.sessionId);
-  expect(record?.reportRead).toBe(record?.completion?.receipt);
-  expect(record?.doneAt).toBeUndefined();
-});
-
 test("a long unread message scrolls inside its message part, with Mark as read and the entry's Mark as done in view", async ({
   page,
-  dashboard,
-  origin,
+  frontendServices,
 }) => {
   const lastLine = "Last: confirm the rollback before continuing.";
   const longMessage = [
@@ -154,12 +142,9 @@ test("a long unread message scrolls inside its message part, with Mark as read a
     ),
     lastLine,
   ].join("\n");
-  expect(longMessage.length).toBeGreaterThan(3_000);
-  const story = await launchedStory(dashboard, origin, queuedIdentity, titleA);
-  await story.report({ message: longMessage });
-  await publishOrigin(page, origin);
+  reported(frontendServices, longMessage);
   await openUntilRead(page);
-  const entry = takenStoryCard(page, titleA).getByRole("article");
+  const entry = takenEntry(page);
   const message = messagePartOf(entry);
   const done = await sessionAction(entry, "Mark as done");
   await expectExpanded(message, label, longMessage);
@@ -202,7 +187,11 @@ test("a long unread message scrolls inside its message part, with Mark as read a
   await expect(done).toBeInViewport({ ratio: 1 });
 
   // A short message, the session's newer report, does not scroll.
-  await story.report();
+  reported(
+    frontendServices,
+    reportedMessage,
+    "22222222-2222-4222-8222-222222222222",
+  );
   await reloadUntilRead(page);
   await expectExpanded(message, label, reportedMessage);
   const short = await scrollOf(message);

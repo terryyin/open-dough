@@ -11,13 +11,13 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../../tests/support/frontendApp.ts";
-import { putFrontendMachine } from "../../tests/support/frontendServiceState.ts";
+import {
+  frontendStoryLaunch,
+  putFrontendMachine,
+} from "../../tests/support/frontendServiceState.ts";
 import { parts, storyCardSessions } from "../../tests/dashboardPage.ts";
 import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
-import {
-  notRefinedIdentity,
-  notRefinedStory,
-} from "../../tests/launchJourney.ts";
+import { notRefinedStory } from "../../tests/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const optionsWords = "Options: --explore --borrow (requested)";
@@ -33,10 +33,7 @@ for (const [what, options, model] of [
     page,
     frontendServices,
   }) => {
-    let record = makeMe.aLaunchRecord.refining({
-      identity: notRefinedIdentity,
-      title: notRefinedStory,
-    });
+    let record = frontendStoryLaunch("refining", notRefinedStory);
     if (options.length > 0) record = record.requestingOptions([...options]);
     if (model !== undefined) record = record.requestingModel(model);
     putFrontendMachine(

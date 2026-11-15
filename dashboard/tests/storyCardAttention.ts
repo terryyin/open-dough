@@ -22,7 +22,7 @@ export const attentionCountsOn =
   };
 
 // Published story facts exclude local session UI and the conditional Ready scan;
-// compact-session-entry.spec.ts observes its canonical assessment and visibility.
+// ../frontend-tests/sessions/compact-session-entry.spec.ts observes its canonical assessment and visibility.
 export const publishedFactsOf = async (card: Locator) => {
   let facts: string | null = null;
   await expect

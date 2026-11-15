@@ -1,4 +1,4 @@
-// Mark as done in the page's one terminal (../../dashboard/tests/sessions/agent-terminal-done.spec.ts) on a
+// Mark as done in the page's one terminal (./agent-terminal-done.spec.ts) on a
 // session that reported through the installed reporting command: an unread
 // report does not hold it back, so a working session is asked about as any
 // session and closes once confirmed, renamed `done-` and stopped; a session

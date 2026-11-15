@@ -3,31 +3,31 @@
 // opening, and again only once the overview names a newer history revision.
 // Polls while nothing retained is opened never ask it. The browser's own
 // fetch accepts and decodes the gzip-encoded history. A history read that
-// fails leaves every retained session showing as before, and the next opening
-// asks again.
+// fails is
+// ../../dashboard/frontend-tests/sessions/agent-launch-retained-history.spec.ts.
 
 import type { Page, Request } from "@playwright/test";
-import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
-import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { agentLaunchEndpoint } from "../../dashboard/src/agentLaunch.ts";
+import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import {
   sessionsAudienceParameter,
   sessionsHistoryAudience,
   sessionsRevisionHeader,
-} from "../../src/machineSessionsRevision.ts";
-import { parts } from "../dashboardPage.ts";
-import { sessionDetailsControl } from "../support/sessionEntryDisclosure.ts";
-import { pausePageClockAt } from "../dashboardTest.ts";
-import { givePageItsTurns } from "../pageRequestNotes.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+} from "../../dashboard/src/machineSessionsRevision.ts";
+import { parts } from "../../dashboard/tests/dashboardPage.ts";
+import { sessionDetailsControl } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
+import { pausePageClockAt } from "../../dashboard/tests/dashboardTest.ts";
+import { givePageItsTurns } from "../../dashboard/tests/pageRequestNotes.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   recentlyDoneParts,
   showRecentlyDone,
-} from "../recentlyDoneSessionsSidebarPage.ts";
-import { keepLaunchStore } from "../support/launchStore.ts";
-import { showPage } from "../runningCursorSessionsPage.ts";
-import { watchRecordReads } from "../sessionStatePace.ts";
-import { expect, test } from "../support/cursorStart.ts";
-import type { DashboardServer } from "../support/dashboardServer.ts";
+} from "../../dashboard/tests/recentlyDoneSessionsSidebarPage.ts";
+import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
+import { showPage } from "../../dashboard/tests/runningCursorSessionsPage.ts";
+import { watchRecordReads } from "../../dashboard/tests/sessionStatePace.ts";
+import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+import type { DashboardServer } from "../../dashboard/tests/support/dashboardServer.ts";
 
 test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
 
@@ -143,39 +143,4 @@ test("one history read per opening, none while nothing retained is opened, and a
     await expect.poll(() => asked).toHaveLength(2);
     expect(asked[1]).toEqual(expect.any(String));
   });
-});
-
-test("a failed history read leaves retained sessions as shown and the next opening asks again", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const now = Date.parse("2026-10-28T10:00:00.000Z");
-  const record = retained(dashboard, now, "Retained through a failure");
-  let failures = 1;
-  await page.route(isHistoryUrl, async (route) => {
-    if (failures > 0) {
-      failures -= 1;
-      await route.fulfill({ status: 503, body: "" });
-      return;
-    }
-    await route.continue();
-  });
-  const { asked, onBoard } = await showRetained(page, dashboard, origin, [
-    record,
-  ]);
-  const entry = onBoard("Retained through a failure");
-  const details = sessionDetailsControl(entry);
-  const summary = entry.locator(".session-entry-summary");
-  await expect(summary).toBeVisible();
-  const shown = await summary.textContent();
-
-  await details.click();
-  await expect.poll(() => asked).toHaveLength(1);
-  await expect(details).toHaveAttribute("aria-expanded", "true");
-  await expect(summary).toHaveText(shown ?? "");
-
-  await details.click();
-  await expect.poll(() => asked).toEqual([undefined, undefined]);
-  await expect(summary).toHaveText(shown ?? "");
 });

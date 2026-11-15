@@ -12,14 +12,17 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../../tests/support/frontendApp.ts";
-import { putFrontendMachine } from "../../tests/support/frontendServiceState.ts";
+import {
+  frontendStoryLaunch,
+  putFrontendMachine,
+} from "../../tests/support/frontendServiceState.ts";
 import {
   parts,
   sessionEntriesIn,
   storyCardSessions,
 } from "../../tests/dashboardPage.ts";
 import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
-import { readyIdentity, readyStory } from "../../tests/launchJourney.ts";
+import { readyStory } from "../../tests/launchJourney.ts";
 import {
   expectTooltipLine,
   openSessionsSidebar,
@@ -60,10 +63,7 @@ for (const [model, name, words] of [
     page,
     frontendServices,
   }) => {
-    const record = makeMe.aLaunchRecord.executing({
-      identity: readyIdentity,
-      title: readyStory,
-    });
+    const record = frontendStoryLaunch("executing", readyStory);
     putFrontendMachine(
       frontendServices,
       working(

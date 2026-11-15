@@ -8,7 +8,7 @@ import { launchStoreFile } from "../../dashboard/tests/support/launchStore.ts";
 // from Recently done and the sidebar, stops nothing, and moves focus within its
 // list, then to its done card or the section. The sidebar offers no deletion, nor
 // do Working/Done entries. Origin owns placement; the dashboard drives fake-claude.
-// The question, Keep, Escape and their focus: ../../dashboard/tests/sessions/agent-launch-story-card-delete.spec.ts.
+// The question, Keep, Escape and their focus: ../../dashboard/frontend-tests/sessions/agent-launch-story-card-delete.spec.ts.
 // Session unavailable: ./agent-launch-recent-delete-unavailable.spec.ts.
 
 import { readFileSync } from "node:fs";

@@ -20,7 +20,6 @@ import { expectSettledPage } from "../../tests/dashboardPage.ts";
 import {
   notRefinedStory,
   readyStory,
-  takenIdentity,
   takenStory,
 } from "../../tests/launchJourney.ts";
 import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
@@ -45,6 +44,7 @@ import {
 } from "../../tests/support/frontendApp.ts";
 import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
 import {
+  frontendStoryLaunch,
   putFrontendMachine,
   putFrontendStories,
 } from "../../tests/support/frontendServiceState.ts";
@@ -143,11 +143,7 @@ test.describe("a Backlog card's Starts", () => {
       makeMe.aMachineAnswer
         .observing(
           makeMe.anObservedLaunch
-            .of(
-              makeMe.aLaunchRecord
-                .executing({ identity: takenIdentity, title: takenStory })
-                .please(),
-            )
+            .of(frontendStoryLaunch("executing", takenStory).please())
             .withSessionState(makeMe.aSessionState.loaded("working").please())
             .please(),
         )

@@ -1,35 +1,34 @@
-import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // Mark as done on a session its story's card lists, on the committed
-// story-columns origin (../launchJourney.ts), through the same page operation as
-// the terminal's (./agent-terminal-done.spec.ts): on a session Claude
-// Code no longer lists, it leaves the card without being stopped and Recently
-// done shows it Done. A refused mark keeps the entry on its card and says so
-// there. Origin alone still places the story. The page's own dashboard
-// server drives the synthetic `claude` (./fixtures/fake-claude); the real one
+// story-columns origin (../../dashboard/tests/launchJourney.ts), through the
+// same page operation as the terminal's (./agent-terminal-done.spec.ts): on a
+// session Claude Code no longer lists, it leaves the card without being
+// stopped or attached, the rename fails as no longer running, and Recently
+// done shows it Done, through a reload. Origin alone still places the story.
+// A refused mark on its card is
+// ../../dashboard/frontend-tests/sessions/agent-launch-story-card-done.spec.ts.
+// The page's own dashboard server drives the synthetic `claude`; the real one
 // is never reached.
 
-import { renameSync } from "node:fs";
-import path from "node:path";
-import { expect, test } from "../dashboardTest.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   storyCardSessionOf,
   expectMembership,
   parts,
-  sessionEntriesIn,
   standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
-} from "../dashboardPage.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../launchJourney.ts";
-import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import { markDoneAnyway } from "../support/markDone.ts";
-import { openTerminalControl } from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/launchJourney.ts";
+import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+import { markDoneAnyway } from "../../dashboard/tests/support/markDone.ts";
+import { openTerminalControl } from "../../dashboard/tests/terminalScreenPage.ts";
+import { sessionAction } from "../../dashboard/tests/support/sessionEntryDisclosure.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -98,35 +97,5 @@ test.describe("marking a card's session done", () => {
     await expectMembership(page, queued);
     await expect(onStoryCard("Execution")).toHaveCount(0);
     await expect(inRecent("Execution")).toContainText(`Session ${unavailable}`);
-  });
-
-  test("a refused mark keeps the session on its card and says so on its entry", async ({
-    page,
-    dashboard,
-  }) => {
-    dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryColumnsJourney(
-      page,
-      columnsJourney,
-    );
-    await settled();
-    await launch(readyStory, "Execution");
-    const entry = storyCardSessionOf(card(readyStory), "Execution");
-    await expect(entry).toHaveCount(1);
-    const recent = sessionEntriesIn(parts(page).recentlyDone);
-    await expect(recent).toHaveCount(0);
-    // The project folder moves away, so the boundary refuses the mark.
-    const folder = path.join(dashboard.home, "git", "open-dough");
-    renameSync(folder, `${folder}.moved`);
-
-    await markDoneAnyway(entry);
-
-    await expect(entry.getByRole("status")).toHaveText(
-      "The session could not be marked done.",
-    );
-    await expect(entry).toHaveCount(1);
-    await expect(recent).toHaveCount(0);
-    await expect(await sessionAction(entry, "Mark as done")).toBeEnabled();
-    expect(dashboard.claudeStopCalls()).toEqual([]);
   });
 });
