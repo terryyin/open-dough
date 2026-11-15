@@ -1,6 +1,7 @@
 # Record evidence once per independently observable source promise
 
 **Source:** [refined story](../../seeds/SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises)
+**Source review:** [independent source review](source-review.md)
 **Identity:** SEED-010#review-independently-observable-promises
 
 ## Goal and scope
@@ -98,7 +99,7 @@ comparison; make no time or token saving claim.
 
 ### 1. Review the small conditional story as independently observable promises
 Type: Behavior
-Status: planned
+Status: done
 Proof: Fresh small-story replay against the retained 44 rows, under examples 1 and 2.
 
 Behavior: Given the conditional-terminal story that repeats a qualified result
@@ -201,3 +202,34 @@ arbitrary line counts or duplicate the behavioral rule.
 ## Learnings
 
 None beyond the preparation observations above.
+
+## Execution context
+
+- Identity: `SEED-010#review-independently-observable-promises`; publisher `dashboard-territory.local-open-dough`; agent Sola-chan; mode story-branch.
+- Originating/execution checkout: `/Users/terryyin/git/open-dough/.worktrees/record-source-review-evidence-once-per-independe`; owned branch `codex/record-source-review-evidence-once-per-independe`.
+- Default integration checkout: `/Users/terryyin/git/open-dough`; authorized target `origin/main`.
+- Established claim accepted on trunk and execution branch: `7bb9992277410f6b5c3ba8da0b461c3c61939a84`; starting revision `65fcf1bafe89d591f3b387c2cefd361c72f7b510`; initial candidate equals claim.
+- Setup: locked `npm ci --no-audit --no-fund` and `npm run --silent lint -- --staged` passed in this checkout. Check-only commit hook owns staged lint and dashboard typecheck for scripts. Selective formatter: `npm run format`; prose triggers no generation. Runner needs Bash 5: `PATH="/opt/homebrew/bin:$PATH" npm test -- …`.
+- Replanning: no new overrun permission; retain existing planning authority; changed scope/consequential decisions stop the affected work.
+- CI: GitHub `terryyin/open-dough`, verified `ci.yml` / `CI`, remote execution branch. Codex coordinator `sola-chan-616`; `/tmp/dough-ci-501/watch-hqI9ru`; PID `71264`; session `83233`; yielded cell `g464:11`. Claim trunk CI is unobserved by this branch observer. Retain for every increment/repair.
+
+## Accepted slice evidence
+
+### Slice 1
+
+- Fresh isolated [small replay](replays/small.md): 26 returned promises versus
+  the retained 44 rows; all historical rows mapped. Blank and typed results,
+  developer-moved focus, retained inputs and Cursor continuation survive;
+  reasons and repeated descriptions add no row. Actual launch/input/return
+  retained. No source-specific rule or failed replay was needed.
+- [Consumer trace](replays/small-consumers.md) dispositions every located path.
+  Inspected extraction, source-only boundaries, qualified result provenance,
+  record refusal assertions and payload-link boundary. No test changes.
+- Passed: `PATH="/opt/homebrew/bin:$PATH" npm test -- Distribution/tests/skills/dough-execute-plan/story-obligations-source-review*.test.mjs Distribution/tests/installation/payload-declaration-links.sh`
+  (24 Node cases plus payload links). Bash 5 first on PATH is the documented
+  runner prerequisite; the initial Bash 3.2 refusal launched no tests.
+- Early source freshness: unchanged at `7bb9992277410f6b5c3ba8da0b461c3c61939a84`;
+  no named coordination sibling. Active implementation: about 5 minutes.
+  Independent refactor complete: trace split by consumer responsibility, all 575 rows preserved; product/proof unchanged, no rerun.
+  Bounded extraction evidence only; no effort, matched-model, cross-host or
+  ordinary-use improvement claim.
