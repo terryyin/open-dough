@@ -16,24 +16,27 @@ import {
   roomOf,
   valueOf,
   wide,
-} from "../cursorSessionsSidebarResizePage.ts";
-import { chooseProject, parts } from "../dashboardPage.ts";
+} from "../../dashboard/tests/cursorSessionsSidebarResizePage.ts";
+import { chooseProject, parts } from "../../dashboard/tests/dashboardPage.ts";
 import {
   compactProjectSelectCut,
   expectEveryControlReachable,
   expectNoSidewaysScrollAndWholeText,
-} from "../pageLayout.ts";
-import { openRunningList } from "../runningCursorList.ts";
+} from "../../dashboard/tests/pageLayout.ts";
+import { openRunningList } from "../../dashboard/tests/runningCursorList.ts";
 import {
   changesAsked,
   expectLastInReach,
   listFloor as floor,
   showPage,
-} from "../runningCursorSessionsPage.ts";
-import { sessionsSidebarTitleCut } from "../sessionsSidebarPage.ts";
-import { expect, test } from "../support/cursorStart.ts";
-import { back, settings } from "../support/systemSettingsPage.ts";
-import { publishOnePygardonStory } from "../pygardonProject.ts";
+} from "../../dashboard/tests/runningCursorSessionsPage.ts";
+import { sessionsSidebarTitleCut } from "../../dashboard/tests/sessionsSidebarPage.ts";
+import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+import {
+  back,
+  settings,
+} from "../../dashboard/tests/support/systemSettingsPage.ts";
+import { publishOnePygardonStory } from "../../dashboard/tests/pygardonProject.ts";
 
 test.use({ cursorScreen: "working" });
 
@@ -106,7 +109,7 @@ test("where the window is too short for both floors, the divider offers no range
       await page.setViewportSize({ width: 320, height: 256 });
       await expect(sidebar).toBeVisible();
       await expect(divider).toBeDisabled();
-      // An entry's title is cut by design (./sessions-sidebar-row.spec.ts).
+      // An entry's title is cut by design (../../dashboard/frontend-tests/sessions/sessions-sidebar-row.spec.ts).
       await expectNoSidewaysScrollAndWholeText(page, [
         sessionsSidebarTitleCut,
         ...compactProjectSelectCut,

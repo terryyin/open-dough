@@ -10,11 +10,11 @@ import {
   keyDivider,
   keyStep,
   roomOf,
-} from "../cursorSessionsSidebarResizePage.ts";
-import { reloadUntilRead } from "../pageRequestNotes.ts";
-import { runningCursorParts } from "../runningCursorList.ts";
-import { showPage } from "../runningCursorSessionsPage.ts";
-import { expect, test } from "../support/cursorStart.ts";
+} from "../../dashboard/tests/cursorSessionsSidebarResizePage.ts";
+import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { runningCursorParts } from "../../dashboard/tests/runningCursorList.ts";
+import { showPage } from "../../dashboard/tests/runningCursorSessionsPage.ts";
+import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
 
 const formerHeightKey = "open-dough.sessionSidebar.runningCursorHeight";
 

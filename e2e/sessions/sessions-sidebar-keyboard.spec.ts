@@ -6,36 +6,36 @@
 // (./fixtures/fake-claude), which records each line entered in its terminal;
 // the real one is never reached.
 
-import { expect, test } from "../dashboardTest.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
 import {
   openTerminalControl,
   terminalPanel,
   terminalScreenParts,
-} from "../terminalScreenPage.ts";
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   storyCardSessionOf,
   expectMembership,
   parts,
   sessionNamedBy,
-} from "../dashboardPage.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../launchJourney.ts";
+} from "../../dashboard/tests/launchJourney.ts";
 import {
   expectSessionsSidebar,
   sessionsSidebarParts,
-} from "../sessionsSidebarPage.ts";
-import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
+} from "../../dashboard/tests/sessionsSidebarPage.ts";
+import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
 import {
   expectKeyboardAtMark,
   keyboardWithin,
   markKeyboardPlace,
   watchCommandShortcut,
-} from "../pageShortcutsPage.ts";
+} from "../../dashboard/tests/pageShortcutsPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 

@@ -1,33 +1,40 @@
 // Touch discovery reads the same session facts before choosing a session.
 // Launches and attachments use the real local boundary and synthetic Claude.
-import type { LaunchRecord } from "../../src/agentLaunch.ts";
-import { launch, launchRequest, recordsOf } from "../agentLaunchBoundary.ts";
-import { launched } from "../agentTerminalBoundary.ts";
-import { expect, test } from "../dashboardTest.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import type { LaunchRecord } from "../../dashboard/src/agentLaunch.ts";
+import {
+  launch,
+  launchRequest,
+  recordsOf,
+} from "../../dashboard/tests/agentLaunchBoundary.ts";
+import { launched } from "../../dashboard/tests/agentTerminalBoundary.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  terminalPanel,
+  terminalScreenParts,
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
-} from "../launchJourney.ts";
+} from "../../dashboard/tests/launchJourney.ts";
 import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
   pageColumnProjectValue,
   tapWhereShown,
-} from "../pageLayout.ts";
+} from "../../dashboard/tests/pageLayout.ts";
 import {
   sessionsSidebarDetailsOf,
   sessionsSidebarElapsedOf,
   sessionsSidebarParts,
   sessionsSidebarTitleCut,
-} from "../sessionsSidebarPage.ts";
+} from "../../dashboard/tests/sessionsSidebarPage.ts";
 import {
   expectClosedToggleCounts,
   expectClosedToggleCountsFit,
-} from "../sessionsTogglePage.ts";
-import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
-import { sidePanelNamesOf } from "../sidePanelFrame.ts";
+} from "../../dashboard/tests/sessionsTogglePage.ts";
+import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
+import { phoneLaunchTouchViewport } from "../../dashboard/tests/touchLaunchPage.ts";
+import { sidePanelNamesOf } from "../../dashboard/tests/sidePanelFrame.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 let journey: StoryColumnsJourney;

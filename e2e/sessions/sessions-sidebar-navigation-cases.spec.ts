@@ -1,19 +1,22 @@
-import { closeSidePanel } from "../sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // Sessions sidebar selection reveals the actual card or Taken entry; unavailable
 // sessions open no terminal. Narrow selection closes the overlay, reduced motion
 // reveals at once, and stale picks never scroll. Only synthetic Claude runs.
 
-import { expect, test } from "../dashboardTest.ts";
-import { closeTerminal, terminalPanel } from "../terminalScreenPage.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  closeTerminal,
+  terminalPanel,
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   chooseProject,
   expectMembership,
   parts,
   sessionEntriesIn,
   standaloneSessionName,
-} from "../dashboardPage.ts";
-import { doughnutSharedTitle } from "../doughnutProject.ts";
-import { launched } from "../agentTerminalBoundary.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
+import { doughnutSharedTitle } from "../../dashboard/tests/doughnutProject.ts";
+import { launched } from "../../dashboard/tests/agentTerminalBoundary.ts";
 import {
   notRefinedIdentity,
   notRefinedStory,
@@ -21,13 +24,13 @@ import {
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../launchJourney.ts";
+} from "../../dashboard/tests/launchJourney.ts";
 import {
   expectCurrentEntry,
   expectSessionsSidebar,
   expectSessionsSidebarSessionEntryShown,
   sessionsSidebarParts,
-} from "../sessionsSidebarPage.ts";
+} from "../../dashboard/tests/sessionsSidebarPage.ts";
 import {
   attachesOf,
   expectRevealsSince,
@@ -37,10 +40,10 @@ import {
   removedStory,
   revealsAtClick,
   revealsOf,
-} from "../sessionNavigationJourney.ts";
-import { pygardonStory } from "../pygardonProject.ts";
-import { expectCovering } from "../sidePanelWidthPage.ts";
-import { scrollYOf } from "../boardPage.ts";
+} from "../../dashboard/tests/sessionNavigationJourney.ts";
+import { pygardonStory } from "../../dashboard/tests/pygardonProject.ts";
+import { expectCovering } from "../../dashboard/tests/sidePanelWidthPage.ts";
+import { scrollYOf } from "../../dashboard/tests/boardPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 

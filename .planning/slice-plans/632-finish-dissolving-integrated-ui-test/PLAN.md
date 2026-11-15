@@ -139,6 +139,10 @@ share local admission across worktrees; focused selections remain independent.
   `frontendRecentlyDoneStoryCards.ts`, `frontendRecentlyDoneReviewCue.ts`;
   `putFrontendDoneRecords` shared. Commitment 6b observed; sessions
   `recently-done-*` interim gone.
+- **Slice 5 proof.** FE `sessions-sidebar-{order,row,state-edge}`; E2E
+  mechanical moves for remaining sessions/cursor sidebar specs including
+  former-height cases. `dashboard/tests/sessions/` empty of `*.spec.ts`
+  (5a/6c). No new substitute family.
 - **Known traps.** A `MachineAnswer` failing `launchRecordsSchema` leaves the
   page on "Reading sessions…" silently; Cursor entries need the Cursor runner
   sessions read substituted; a history read needs its own `audience=history`
@@ -219,7 +223,7 @@ Completes the recently-done sessions conversion.
 
 ### 5. Convert the sessions sidebar
 Type: Behavior
-Status: planned
+Status: done
 Proof: the 16 `cursor-sessions-sidebar-*` and `sessions-sidebar-*` specs
 (16 / 2,573), with `cursorSessionsSidebarFormerHeightCases.ts`, preserve
 layout, resizing/kept size, host status, navigation, keyboard, row and state

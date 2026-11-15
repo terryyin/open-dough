@@ -12,20 +12,20 @@ import {
   expectCollapsed,
   expectScrollsOnItsOwn,
   showCrowded,
-} from "../cursorSessionsSidebarResizePage.ts";
+} from "../../dashboard/tests/cursorSessionsSidebarResizePage.ts";
 import {
   box,
   compactProjectSelectCut,
   expectEveryControlReachable,
   expectNoSidewaysScrollAndWholeText,
-} from "../pageLayout.ts";
+} from "../../dashboard/tests/pageLayout.ts";
 import {
   crowd,
   expectLastInReach,
   listFloor,
-} from "../runningCursorSessionsPage.ts";
-import { sessionsSidebarTitleCut } from "../sessionsSidebarPage.ts";
-import { expect, test } from "../support/cursorStart.ts";
+} from "../../dashboard/tests/runningCursorSessionsPage.ts";
+import { sessionsSidebarTitleCut } from "../../dashboard/tests/sessionsSidebarPage.ts";
+import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
 
 test.use({ cursorScreen: "working" });
 
@@ -130,7 +130,7 @@ test("collapsed below the session list, expanded into two lists sharing the room
     await expect(heldRows).toHaveCount(crowd);
     await page.setViewportSize({ width: 320, height: 256 });
     await expect(sidebar).toBeVisible();
-    // An entry's title is cut by design (./sessions-sidebar-row.spec.ts).
+    // An entry's title is cut by design (../../dashboard/frontend-tests/sessions/sessions-sidebar-row.spec.ts).
     await expectNoSidewaysScrollAndWholeText(page, [
       sessionsSidebarTitleCut,
       ...compactProjectSelectCut,

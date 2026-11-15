@@ -5,19 +5,25 @@
 // Expansion lasts for the page, across project and view changes and closing
 // the sidebar, but a reload starts collapsed. The section's layout is
 // ./cursor-sessions-sidebar-layout.spec.ts's.
-import { chooseProject, parts } from "../dashboardPage.ts";
-import { openRunningList } from "../runningCursorList.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import { chooseProject, parts } from "../../dashboard/tests/dashboardPage.ts";
+import { openRunningList } from "../../dashboard/tests/runningCursorList.ts";
+import {
+  terminalPanel,
+  terminalScreenParts,
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   changesAsked,
   holdSession,
   instruction,
   showPage,
-} from "../runningCursorSessionsPage.ts";
-import { expect, test } from "../support/cursorStart.ts";
-import { back, settings } from "../support/systemSettingsPage.ts";
-import { publishOnePygardonStory } from "../pygardonProject.ts";
-import { keyboardWithin } from "../pageShortcutsPage.ts";
+} from "../../dashboard/tests/runningCursorSessionsPage.ts";
+import { expect, test } from "../../dashboard/tests/support/cursorStart.ts";
+import {
+  back,
+  settings,
+} from "../../dashboard/tests/support/systemSettingsPage.ts";
+import { publishOnePygardonStory } from "../../dashboard/tests/pygardonProject.ts";
+import { keyboardWithin } from "../../dashboard/tests/pageShortcutsPage.ts";
 
 const wide = { width: 1440, height: 900 };
 

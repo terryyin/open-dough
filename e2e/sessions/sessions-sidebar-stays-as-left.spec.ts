@@ -1,4 +1,4 @@
-import { closeSidePanel } from "../sidePanelFrame.ts";
+import { closeSidePanel } from "../../dashboard/tests/sidePanelFrame.ts";
 // The Sessions sidebar stays as the developer left it. It starts closed;
 // open, it stays open across project switches, the agent roster and back, the
 // terminal opening and closing, and reloads, since this browser keeps the
@@ -7,8 +7,11 @@ import { closeSidePanel } from "../sidePanelFrame.ts";
 // attaches the synthetic `claude` (./fixtures/fake-claude); the real one is
 // never reached.
 
-import { expect, test } from "../dashboardTest.ts";
-import { openTerminalControl, terminalPanel } from "../terminalScreenPage.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+} from "../../dashboard/tests/terminalScreenPage.ts";
 import {
   chooseProject,
   storyCardSessionOf,
@@ -16,22 +19,22 @@ import {
   parts,
   rosterParts,
   sessionNamedBy,
-} from "../dashboardPage.ts";
-import { doughnutSharedTitle } from "../doughnutProject.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
+import { doughnutSharedTitle } from "../../dashboard/tests/doughnutProject.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
-} from "../launchJourney.ts";
-import { watchPageErrors } from "../pageErrors.ts";
-import { reloadUntilRead } from "../pageRequestNotes.ts";
+} from "../../dashboard/tests/launchJourney.ts";
+import { watchPageErrors } from "../../dashboard/tests/pageErrors.ts";
+import { reloadUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
 import {
   expectSessionsSidebar,
   sessionsSidebarParts,
-} from "../sessionsSidebarPage.ts";
-import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
+} from "../../dashboard/tests/sessionsSidebarPage.ts";
+import { openStoryColumnsJourney } from "../../dashboard/tests/storyColumnsPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
