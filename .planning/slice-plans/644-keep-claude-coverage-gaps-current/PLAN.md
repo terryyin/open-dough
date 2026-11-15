@@ -157,3 +157,8 @@ timeouts, never use `test.slow()`, and apply MakeMe and page-object selection
 before test edits. The local-gate sleep guard is
 [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos):
 start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
+
+## Execution complete
+
+Product advice: no change. The correction delivers its bounded outcome; review found no
+new product learning that alters priorities.
