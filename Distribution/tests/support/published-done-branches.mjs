@@ -2,7 +2,7 @@
 // catalogued records from their common base. An independent trunk writer
 // publishes one more record without refreshing the catalog.
 import { join } from "node:path";
-import { advanceOriginFromAnotherWriter } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { advanceOriginFromAnotherWriter } from "../skills/dough-execute-plan/publication-test-fixtures.mjs";
 import {
   doneRecordFileName,
   renderDoneRecord,

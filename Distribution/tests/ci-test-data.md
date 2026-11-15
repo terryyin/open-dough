@@ -28,7 +28,7 @@ text, malformed or partial responses and exact encoder-input examples
 literal where their form is under proof.
 [Run builder](support/ciRunTestData.mjs) ·
 [Job builder](support/ciJobTestData.mjs) ·
-[API encoding](../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs)
+[API encoding](skills/dough-execute-plan/github-actions-api-test-fixtures.mjs)
 
 Build a custom CI adapter discovery attempt with
 `makeMe.aCiAdapterAttempt` (timed `.passed` / `.failed`, untimed

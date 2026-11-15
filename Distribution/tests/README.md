@@ -47,9 +47,10 @@ See the [runner environment and CI reproduction guidance](test-environment.md).
 The runner is the suite's one scheduler. Its jobs are each
 `Distribution/tests/*.sh`, except focused aggregate checks, plus each
 `node --test` file matched by a glob in
-`Distribution/tests/node-test-files` (relative to the repository root), such as the suites
-beside a skill's scripts under `Distribution/src/skills/`. A new `*.test.mjs` under a
-listed glob runs without further wiring. Each node file runs alone through
+`Distribution/tests/node-test-files` (relative to the repository root). Place
+skill tests and their fixtures under `Distribution/tests/skills/<skill>/`.
+A new `*.test.mjs` under a listed glob runs without further wiring.
+Each node file runs alone through
 `Distribution/tests/support/node-test-failures-reporter.mjs`: silent when every test passes
 silently, it shows each failing test's name, location, error, and its file's
 output, and a passing file's output under `output from passing <file>:`. No
@@ -119,7 +120,7 @@ Tests wait for an observable event, never for elapsed wall time. Shell checks
 use `wait_for` or `poll_until` from `Distribution/tests/helpers/wait-for.bash`; a missed
 event fails naming what it awaited. A wait for a signal from a started process
 lasts while that process lives and fails, naming its exit, if it ends first
-(`Distribution/src/skills/dough-execute-plan/scripts/process-lifetime-test-fixtures.mjs`).
+(`Distribution/tests/skills/dough-execute-plan/process-lifetime-test-fixtures.mjs`).
 File timestamps that must differ are set explicitly, and the dashboard's timed
 journeys step a paused page clock. A dashboard journey waits in
 the page for the answer a check depends on before the check's own bound
@@ -130,7 +131,7 @@ starts: it opens with `openUntilRead` or `reloadUntilRead`, or checks through
 A test stops or releases what it started before removing the fixture those
 things run from. `node:test` runs `t.after` hooks in registration order, so a
 fixture builds its cleanup with `fixtureTeardown(...roots)`
-(`Distribution/src/skills/dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs`):
+(`Distribution/tests/skills/dough-execute-plan/fixture-teardown-test-fixtures.mjs`):
 register its `cleanup` with `t.after` when the fixture is created, and pass
 each stop or release step to its `defer` as soon as the process starts, before
 any further setup or assertion. The steps run in reverse order, every root is
@@ -158,8 +159,8 @@ the page, its dashboard server, and the fake GitHub have stopped, so a read
 still in flight when the journey ends never finds its repository gone.
 
 `dashboard/tests` and `dashboard/server` import shared JavaScript fixtures
-from `Distribution/src/skills/*/scripts/` and `Distribution/tests/support/`, and TypeScript infers their
-signatures, so a fixture's own Node tests can pass while a dashboard consumer
+from `Distribution/tests/skills/` and `Distribution/tests/support/`.
+TypeScript infers their signatures, so a fixture's own Node tests can pass while a dashboard consumer
 no longer type-checks. `npm run typecheck:dashboard` is the focused check for
 such a change, and the pre-commit hook runs it on every commit that stages a
 JavaScript or TypeScript file

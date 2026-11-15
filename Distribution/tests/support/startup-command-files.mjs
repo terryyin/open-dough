@@ -2,7 +2,7 @@
 import {
   readyContributing,
   setupMarkers,
-} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+} from "../skills/dough-execute-plan/workspace-publication-fixtures.mjs";
 import { queuedReadyRepository } from "./queued-repository.mjs";
 
 /**

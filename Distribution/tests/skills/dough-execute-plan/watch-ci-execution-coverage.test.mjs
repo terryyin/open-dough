@@ -1,0 +1,235 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { makeMe } from "../../support/makeMe.mjs";
+import { githubApi } from "./github-actions-api-test-fixtures.mjs";
+import { run } from "./watch-ci-test-fixtures.mjs";
+import {
+  executionBudgetMs,
+  watchCiExecution,
+} from "../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs";
+
+const observeUntilCoverageLoss = async (gh) => {
+  const events = [];
+  let requestSignal;
+
+  await watchCiExecution({
+    repo: "example/example",
+    branch: "main",
+    emit: (event) => events.push(event),
+    sleep: async () => undefined,
+    gh: githubApi((request, signal) => {
+      requestSignal = signal;
+      return gh(request);
+    }),
+  });
+
+  return { events, requestSignal };
+};
+
+for (const [source, gh] of [
+  ["discovery", async () => Promise.reject(new Error("run listing failed"))],
+  [
+    "attempt history",
+    async ({ kind }) => {
+      if (kind === "runs") return [run({ attempt: 2 })];
+      throw new Error("attempt history failed");
+    },
+  ],
+  [
+    "unfinished job inspection",
+    async ({ kind }) => {
+      if (kind === "runs")
+        return [run({ status: "in_progress", conclusion: null })];
+      throw new Error("job inspection failed");
+    },
+  ],
+]) {
+  test(`persistent ${source} errors lose coverage exactly once and release requests`, async () => {
+    const { events, requestSignal } = await observeUntilCoverageLoss(gh);
+
+    assert.deepEqual(
+      events.map(({ type }) => type),
+      ["CI_MONITOR_UNAVAILABLE"],
+    );
+    assert.match(events[0].reason, /failed/);
+    assert.equal(requestSignal.aborted, true);
+  });
+}
+
+test("worker failure retains prior evidence before reporting lost coverage", async () => {
+  const events = [];
+  let poll = 0;
+  let requestSignal;
+
+  await watchCiExecution({
+    repo: "example/example",
+    branch: "main",
+    emit: (event) => events.push(event),
+    sleep: async () => {
+      if (poll === 1) return;
+      throw new Error("polling worker failed");
+    },
+    gh: githubApi(({ kind }, signal) => {
+      requestSignal = signal;
+      if (kind === "runs") {
+        poll += 1;
+        return poll === 1
+          ? [run({ conclusion: "failure" })]
+          : [run({ status: "queued", conclusion: null })];
+      }
+      return {
+        jobs: [
+          makeMe.aGitHubJob
+            .withFacts({
+              databaseId: 101,
+              name: "Backend",
+              conclusion: "failure",
+            })
+            .please(),
+        ],
+      };
+    }),
+  });
+
+  assert.deepEqual(
+    events.map(({ type }) => type),
+    ["CI_FAILURE", "CI_MONITOR_UNAVAILABLE"],
+  );
+  assert.match(events[1].reason, /polling worker failed/);
+  assert.equal(requestSignal.aborted, true);
+});
+
+test("the declared execution budget expires once and is not renewed by pushes", async () => {
+  const events = [];
+  let elapsed = 0;
+  let pushes = 0;
+
+  await watchCiExecution({
+    repo: "example/example",
+    branch: "main",
+    maxDurationMs: 60_000,
+    now: () => elapsed,
+    emit: (event) => events.push(event),
+    sleep: async (milliseconds) => {
+      elapsed += milliseconds;
+    },
+    gh: githubApi(({ kind }) => {
+      if (kind === "runs") {
+        pushes += 1;
+        return [
+          run({
+            databaseId: pushes,
+            headSha: String(pushes).padStart(40, "0"),
+            status: "queued",
+            conclusion: null,
+          }),
+        ];
+      }
+      return { jobs: [] };
+    }),
+  });
+
+  assert.equal(executionBudgetMs, 8 * 60 * 60 * 1000);
+  assert.equal(pushes, 2);
+  assert.deepEqual(
+    events.map(({ type }) => type),
+    ["CI_MONITOR_UNAVAILABLE"],
+  );
+  assert.match(events[0].reason, /budget.*60000 ms/i);
+});
+
+test("execution observation rejects a non-finite setup budget", async () => {
+  await assert.rejects(
+    watchCiExecution({
+      repo: "example/example",
+      branch: "main",
+      maxDurationMs: Number.POSITIVE_INFINITY,
+    }),
+    /finite positive budget/,
+  );
+});
+
+test("registered revisions suppress unrelated target-branch failures", async () => {
+  const events = [];
+  const finalSha = "a".repeat(40);
+  const oldSha = "b".repeat(40);
+  const unrelatedSha = "c".repeat(40);
+  const controller = new AbortController();
+
+  await watchCiExecution({
+    repo: "example/example",
+    branch: "main",
+    signal: controller.signal,
+    registeredRevisions: async () => [finalSha],
+    emit: (event) => {
+      events.push(event);
+      if (event.type === "CI_FAILURE") controller.abort();
+    },
+    sleep: async () => undefined,
+    gh: githubApi(({ kind, runId }) => {
+      if (kind === "runs")
+        return [
+          run({ databaseId: 1, headSha: oldSha, conclusion: "failure" }),
+          run({ databaseId: 2, headSha: unrelatedSha, conclusion: "failure" }),
+          run({ databaseId: 3, headSha: finalSha, conclusion: "failure" }),
+        ];
+      if (runId === 3)
+        return {
+          jobs: [
+            makeMe.aGitHubJob
+              .withFacts({
+                databaseId: 301,
+                name: "Owned",
+                conclusion: "failure",
+              })
+              .please(),
+          ],
+        };
+      throw new Error(`unexpected job inspection ${kind} ${runId}`);
+    }),
+  });
+
+  assert.deepEqual(
+    events.map(({ type, sha, runId }) => ({ type, sha, runId })),
+    [
+      {
+        type: "CI_FAILURE",
+        sha: finalSha,
+        runId: 3,
+      },
+    ],
+  );
+});
+
+test("normal shutdown cancels polling immediately without a coverage-loss event", async () => {
+  const controller = new AbortController();
+  const events = [];
+  let pollingStarted;
+  const started = new Promise((resolve) => {
+    pollingStarted = resolve;
+  });
+
+  const observation = watchCiExecution({
+    repo: "example/example",
+    branch: "main",
+    signal: controller.signal,
+    emit: (event) => events.push(event),
+    // eslint-disable-next-line no-unused-vars -- Match timers/promises.setTimeout arguments.
+    sleep: async (_milliseconds, _value, { signal }) => {
+      pollingStarted();
+      // eslint-disable-next-line no-unused-vars -- Preserve rejected cancellation semantics.
+      await new Promise((resolve, reject) => {
+        signal.addEventListener("abort", () => reject(signal.reason), {
+          once: true,
+        });
+      });
+    },
+    gh: githubApi(() => []),
+  });
+
+  await started;
+  controller.abort();
+  await observation;
+
+  assert.deepEqual(events, []);
+});

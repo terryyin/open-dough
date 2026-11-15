@@ -31,7 +31,7 @@ harness; its fixtures delegate domain construction to these builders.
 For example, dashboard and skill tests can build the same preparation profile
 facts and hand them directly to `renderAgentProfile` when writing a published
 profile. [Dashboard setup](../../dashboard/tests/publishedFactsIsolation.ts) ·
-[Skill setup](../src/skills/dough-story-refinement/scripts/preparation-assignment-test-fixtures.mjs)
+[Skill setup](skills/dough-story-refinement/preparation-assignment-test-fixtures.mjs)
 
 ```js
 const profile = makeMe.anAgentProfile

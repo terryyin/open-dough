@@ -96,7 +96,7 @@ journey_inputs=(
   Distribution/tests/support/published-plan.mjs Distribution/tests/support/slicePlanTestData.mjs
   Distribution/tests/support/makeMe.mjs
   Distribution/tests/support/story-preparation.mjs
-  Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs'
+  Distribution/tests/skills/dough-execute-plan/workspace-publication-admission-fixtures.mjs'
 )
 for entry in "${journey_inputs[@]}"; do
   for index in "${!identity_writers[@]}"; do

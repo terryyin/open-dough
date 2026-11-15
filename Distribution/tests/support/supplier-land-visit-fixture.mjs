@@ -22,9 +22,9 @@ import { commitSupplierCleanup } from "./supplier-closure-visit-fixture.mjs";
 import { queuedReadyRepository } from "./queued-repository.mjs";
 import { materializeRepository } from "./repository-fixture.mjs";
 import { writeRevisionFiles } from "./repository-revision-files.mjs";
-import { cloneAsAnotherWriter } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
-import { projectOf } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-dependency-fixtures.mjs";
-import { draftLateStory } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
+import { cloneAsAnotherWriter } from "../skills/dough-execute-plan/publication-test-fixtures.mjs";
+import { projectOf } from "../skills/dough-execute-plan/workspace-publication-dependency-fixtures.mjs";
+import { draftLateStory } from "../skills/dough-execute-plan/workspace-publication-admission-fixtures.mjs";
 import { checkQueuedClosures } from "../../src/skills/dough-land/scripts/queued-closure-check.mjs";
 
 export const main = "refs/heads/main";

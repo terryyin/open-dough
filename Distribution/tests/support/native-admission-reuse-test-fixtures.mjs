@@ -24,6 +24,7 @@ const sourcePathspecs = [
   "src/install",
   "Distribution/tests/support",
   "Distribution/tests/helpers",
+  "Distribution/tests/skills",
   "dashboard/server",
   "dashboard/src",
   "install.sh",

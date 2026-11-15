@@ -24,7 +24,7 @@ import {
   supplierBlocks,
   visitConsumers,
 } from "./supplier-integration-visit-fixture.mjs";
-import { cloneAsAnotherWriter } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { cloneAsAnotherWriter } from "../skills/dough-execute-plan/publication-test-fixtures.mjs";
 
 test("a publication advance is revisited: changed agreements are rejudged and unresolved consumers stay explicit", async (t) => {
   const setup = await branchedSupplier(t);

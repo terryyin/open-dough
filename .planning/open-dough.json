@@ -47,8 +47,8 @@
           {
             "include": [
               "tests/*.test.mjs",
-              "tests/support/*.test.mjs",
-              "src/skills/**/*.test.mjs"
+              "tests/*/*.test.mjs",
+              "tests/skills/*/*.test.mjs"
             ],
             "syntax": "javascript"
           }

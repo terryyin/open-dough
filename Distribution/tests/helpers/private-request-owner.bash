@@ -3,7 +3,7 @@
 # (Distribution/src/skills/dough-execute-plan/scripts/github-requests.mjs): no other check's
 # owner, nor this machine's real one, answers them.
 # shellcheck shell=bash
-private_request_owner_fixtures="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)/Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs"
+private_request_owner_fixtures="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)/Distribution/tests/skills/dough-execute-plan/github-request-owner-test-fixtures.mjs"
 
 # Points this shell's processes at a new root, short enough for the owner's
 # socket path, keeping the root they were given before.

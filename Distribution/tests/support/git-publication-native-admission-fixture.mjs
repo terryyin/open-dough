@@ -29,7 +29,7 @@ import {
   storySection,
   withFacts,
   writeDraft,
-} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
+} from "../skills/dough-execute-plan/workspace-publication-admission-fixtures.mjs";
 import { startExecution } from "../../src/skills/dough-execute-plan/scripts/execution-start.mjs";
 import { storyA, storyB } from "./queued-repository.mjs";
 import { makeMe } from "./makeMe.mjs";

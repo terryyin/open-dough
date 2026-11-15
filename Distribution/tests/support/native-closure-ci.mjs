@@ -3,7 +3,7 @@
 // MakeMe/transport encoding as the observer's deterministic tests. Routes,
 // release markers and request logging remain harness operations.
 import { appendFileSync, existsSync, readFileSync, statSync } from "node:fs";
-import { apiRun } from "../../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
+import { apiRun } from "../skills/dough-execute-plan/github-actions-api-test-fixtures.mjs";
 import { makeMe } from "./makeMe.mjs";
 
 /** @param {number} id @param {string} sha @param {string} branch @param {string} url @param {string} created */

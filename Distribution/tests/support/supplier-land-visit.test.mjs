@@ -39,11 +39,11 @@ import {
   captureCheckout,
   lsRemoteSha,
   plantHumanEdit,
-} from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
+} from "../skills/dough-execute-plan/publication-test-fixtures.mjs";
 import {
   landingContextFile,
   landingReceiver,
-} from "../../src/skills/dough-execute-plan/scripts/dashboard-landing-test-fixtures.mjs";
+} from "../skills/dough-execute-plan/dashboard-landing-test-fixtures.mjs";
 import { retireWorktree } from "../../src/skills/dough-land/scripts/worktree-retirement.mjs";
 
 const question =

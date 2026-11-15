@@ -23,8 +23,8 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { ownedWorktreeOnly } from "../../src/skills/dough-execute-plan/scripts/default-checkout-test-fixtures.mjs";
-import { advanceOriginFromAnotherWriter } from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
+import { ownedWorktreeOnly } from "../skills/dough-execute-plan/default-checkout-test-fixtures.mjs";
+import { advanceOriginFromAnotherWriter } from "../skills/dough-execute-plan/publication-test-fixtures.mjs";
 import { createdForRef } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import {
   computeBasis,

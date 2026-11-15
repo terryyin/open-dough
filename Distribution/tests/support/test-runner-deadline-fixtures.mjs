@@ -13,7 +13,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { fixtureTeardown } from "../../src/skills/dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs";
+import { fixtureTeardown } from "../skills/dough-execute-plan/fixture-teardown-test-fixtures.mjs";
 import { suiteRunnerLayer } from "./local-test-suite-checkout.mjs";
 import { repository, until } from "./local-test-suite-fixtures.mjs";
 import { makeMe } from "./makeMe.mjs";

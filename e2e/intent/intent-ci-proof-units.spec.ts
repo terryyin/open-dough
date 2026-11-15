@@ -12,7 +12,7 @@ import { expectFileProofRows } from "../../dashboard/tests/intentFileProofPage.t
 // 40). Decisive grouped-location facts: ../../dashboard/tests/intent/intent-ci-proof-grouped-location.spec.ts.
 // Version 1 summaries: ./intent-ci-proof-legacy-results.spec.ts. Collector and
 // reader rules:
-// ../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-units.test.mjs,
+// ../../Distribution/tests/skills/dough-test-optimization/ci-proof-units.test.mjs,
 // ../../Distribution/tests/support/dashboard-ci-proof-units-read.test.mjs.
 
 import { expect, test } from "../../dashboard/tests/dashboardTest.ts";

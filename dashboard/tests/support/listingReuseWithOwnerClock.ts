@@ -4,7 +4,7 @@ import { mkdtempSync, renameSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { fixtureTeardown } from "../../../Distribution/src/skills/dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs";
+import { fixtureTeardown } from "../../../Distribution/tests/skills/dough-execute-plan/fixture-teardown-test-fixtures.mjs";
 import {
   EndpointBinding,
   standingRecord,

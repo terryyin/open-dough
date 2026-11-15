@@ -9,7 +9,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ownerRecords } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+import { ownerRecords } from "../../../Distribution/tests/skills/dough-execute-plan/github-request-owner-test-fixtures.mjs";
 import {
   developmentBoundary,
   startDashboardServer,

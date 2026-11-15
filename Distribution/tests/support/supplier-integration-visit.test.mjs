@@ -29,7 +29,7 @@ import {
   captureCheckout,
   cloneAsAnotherWriter,
   plantHumanEdit,
-} from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
+} from "../skills/dough-execute-plan/publication-test-fixtures.mjs";
 import { retireWorktree } from "../../src/skills/dough-land/scripts/worktree-retirement.mjs";
 
 test("Story Branch supplier integration visits a consumer added on trunk after branching before retirement", async (t) => {

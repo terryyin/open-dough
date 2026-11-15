@@ -6,14 +6,14 @@
 // entry; a part whose runner wrote no report stays missing, while a part
 // whose runner reported no test is a reported zero. One location reporting
 // both units is covered by
-// ../../src/skills/dough-test-optimization/scripts/ci-proof-units-cli.test.mjs.
+// ../skills/dough-test-optimization/ci-proof-units-cli.test.mjs.
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { summaryProblems } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
-import { locatedRecord } from "../../src/skills/dough-test-optimization/scripts/ci-proof-test-fixtures.mjs";
+import { locatedRecord } from "../skills/dough-test-optimization/ci-proof-test-fixtures.mjs";
 import {
   declaredPart,
   root,

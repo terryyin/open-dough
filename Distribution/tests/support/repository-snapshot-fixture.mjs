@@ -3,7 +3,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { enterEnvironment } from "../../src/skills/dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs";
+import { enterEnvironment } from "../skills/dough-execute-plan/fixture-teardown-test-fixtures.mjs";
 import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "./makeMe.mjs";
 import {

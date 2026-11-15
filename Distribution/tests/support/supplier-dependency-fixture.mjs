@@ -11,9 +11,9 @@ import {
 import {
   git,
   revParse,
-} from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
-import { projectOf } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-dependency-fixtures.mjs";
-import { draftLateStory } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
+} from "../skills/dough-execute-plan/publication-test-fixtures.mjs";
+import { projectOf } from "../skills/dough-execute-plan/workspace-publication-dependency-fixtures.mjs";
+import { draftLateStory } from "../skills/dough-execute-plan/workspace-publication-admission-fixtures.mjs";
 import {
   queuedReadyRepository,
   storyA as consumer,

@@ -27,15 +27,15 @@ import {
   lsRemoteSha,
   plantHumanEdit,
   trunkWithHumanEditTarget,
-} from "../../src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs";
-import { deliverThroughCli } from "../../src/skills/dough-execute-plan/scripts/execution-increment-managed-delivery-cli-test-fixtures.mjs";
+} from "../skills/dough-execute-plan/publication-test-fixtures.mjs";
+import { deliverThroughCli } from "../skills/dough-execute-plan/execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import {
   branchSha,
   createTrunkClosureFixture,
   deliverBeforeCleanupThroughCli,
   finishThroughCli,
   releaseCi,
-} from "../../src/skills/dough-story-wrap-up/scripts/trunk-closure-test-fixtures.mjs";
+} from "../skills/dough-story-wrap-up/trunk-closure-test-fixtures.mjs";
 
 const main = "refs/heads/main";
 const question =

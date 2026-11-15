@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
-import { fixtureTeardown } from "../../src/skills/dough-execute-plan/scripts/fixture-teardown-test-fixtures.mjs";
+import { fixtureTeardown } from "../skills/dough-execute-plan/fixture-teardown-test-fixtures.mjs";
 import {
   controlledSuites,
   suiteRunnerLayer,

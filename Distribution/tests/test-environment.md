@@ -30,7 +30,7 @@ environment in `scripts/test-environment.bash`, before any check starts:
   and fails with `Asked GitHub without a request owner root of its own.` Such
   a shell check gives those processes its own root and ends the owner there
   with `Distribution/tests/helpers/private-request-owner.bash`, a node test with
-  `github-request-owner-test-fixtures.mjs` beside that script
+  `Distribution/tests/skills/dough-execute-plan/github-request-owner-test-fixtures.mjs`
   (`Distribution/tests/test-runner-github-requests.sh` proves both).
 - **Chosen checks follow the same rules**, silence included, but are not held
   to the time budget (`Distribution/tests/test-runner-selection.sh` proves a chosen run).

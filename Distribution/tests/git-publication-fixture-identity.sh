@@ -26,8 +26,8 @@ fixture_helper=Distribution/tests/support/repositoryTestData.mjs
 escalation=Distribution/tests/support/git-publication-native-one-shot-escalation-fixture.mjs
 # The real writers owned-context journeys run: one advances the origin, the
 # other leaves only the retained worktree.
-other_writer=Distribution/src/skills/dough-execute-plan/scripts/publication-test-fixtures.mjs
-owned_worktree=Distribution/src/skills/dough-execute-plan/scripts/default-checkout-test-fixtures.mjs
+other_writer=Distribution/tests/skills/dough-execute-plan/publication-test-fixtures.mjs
+owned_worktree=Distribution/tests/skills/dough-execute-plan/default-checkout-test-fixtures.mjs
 identity_failures=0
 
 # Whether input-hash lines FILE list INPUT.
@@ -76,7 +76,7 @@ family_inputs=(
   Distribution/tests/support/repository-fixture.mjs
   Distribution/tests/support/queued-repository.mjs
   Distribution/tests/support/startup-command-files.mjs
-  Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs
+  Distribution/tests/skills/dough-execute-plan/workspace-publication-admission-fixtures.mjs
   Distribution/src/skills/dough-execute-plan/scripts/execution-start.mjs"
   "one-shot|${installer_inputs} ${fixture_helper}
   Distribution/tests/support/git-publication-native-one-shot-fixture.mjs

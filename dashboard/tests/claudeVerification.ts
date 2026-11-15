@@ -9,7 +9,7 @@ import { expect, test } from "./dashboardTest.ts";
 import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { readyStory, type LaunchJourney } from "./launchJourney.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
-import { identityB } from "../../Distribution/src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
+import { identityB } from "../../Distribution/tests/skills/dough-execute-plan/workspace-publication-fixtures.mjs";
 
 export { expect, test } from "./dashboardTest.ts";
 export const subject = `${readyStory} (${identityB})`;

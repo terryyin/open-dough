@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import test from "node:test";
 import { summaryProblems } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
-import { locatedRecord } from "../../src/skills/dough-test-optimization/scripts/ci-proof-test-fixtures.mjs";
+import { locatedRecord } from "../skills/dough-test-optimization/ci-proof-test-fixtures.mjs";
 import { summaryAction } from "./ci-proof-action-fixtures.mjs";
 import { runAttempt } from "./ci-proof-action-replay.mjs";
 import {

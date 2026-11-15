@@ -4,7 +4,7 @@
 // share these so the default passing head and journey overrides stay one rule.
 
 import { execFileSync } from "node:child_process";
-import { apiRun } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
+import { apiRun } from "../../../Distribution/tests/skills/dough-execute-plan/github-actions-api-test-fixtures.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { observedRunForApi } from "../../../Distribution/tests/support/ciRunTestData.mjs";
 import type { OriginAnswer } from "../originAnswers.ts";

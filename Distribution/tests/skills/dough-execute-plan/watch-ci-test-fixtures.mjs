@@ -1,0 +1,224 @@
+import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
+import { existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { setTimeout as pause } from "node:timers/promises";
+import { promisify } from "node:util";
+import {
+  readMailboxEvents,
+  readWorkerIdentity,
+} from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
+import { checkMailboxWorkerLiveness } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-worker-process.mjs";
+import { makeMe } from "../../support/makeMe.mjs";
+import {
+  apiAnswer,
+  apiWorkflow,
+  githubRequest,
+} from "./github-actions-api-test-fixtures.mjs";
+import {
+  fixtureTeardown,
+  sharedCommandDirectory,
+} from "./fixture-teardown-test-fixtures.mjs";
+import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
+import {
+  awaitSignalWhileRunning,
+  processEnded,
+} from "./process-lifetime-test-fixtures.mjs";
+
+const runCommand = promisify(execFile);
+
+export const sha = "a".repeat(40);
+
+// Observed GitHub run facts through MakeMe; call sites keep deciding overrides.
+// `createdAt: undefined` drops the builder's incidental creation time unless a
+// caller states one — startup selection treats missing creation as pre-baseline.
+export const run = (overrides = {}) =>
+  makeMe.aCiRun
+    .with({
+      databaseId: 42,
+      attempt: 1,
+      headSha: sha,
+      headBranch: "main",
+      workflowName: "CI",
+      event: "push",
+      status: "completed",
+      conclusion: "success",
+      url: "https://github.com/example/example/actions/runs/42",
+      createdAt: undefined,
+      ...overrides,
+    })
+    .please();
+
+export async function waitForFile(path, timeoutMs = 5000) {
+  const deadline = Date.now() + timeoutMs;
+  while (!existsSync(path)) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) throw new Error(`Missing ${path}`);
+    await pause(Math.min(20, remaining));
+  }
+}
+
+// Whether process `pid` ends within `timeoutMs`: for a test whose promise is
+// that something makes the process end promptly, which waiting out the
+// process's own budget would not prove. A test that only needs a process gone
+// awaits `awaitProcessExit` instead.
+export async function waitForPidExit(pid, timeoutMs = 5000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (await processEnded(pid)) return true;
+    await pause(20);
+  }
+  return false;
+}
+
+// Waits until `arrived()` holds for as long as the mailbox's recorded worker
+// lives, since that worker produces what the test awaits; the fixtures start
+// it with a 60 s execution budget, after which it records a result and exits.
+export async function awaitWorkerState(directory, arrived, description) {
+  const { pid } = readWorkerIdentity(directory);
+  const result = join(directory, "result.json");
+  await awaitSignalWhileRunning(
+    arrived,
+    () => processEnded(pid),
+    () =>
+      `CI observer worker ${pid} exited before ${description}; result: ${
+        existsSync(result) ? readFileSync(result, "utf8") : "none recorded"
+      }; last event: ${JSON.stringify(readMailboxEvents(directory).at(-1)?.event ?? null)}`,
+  );
+}
+
+// Waits, while the CI observer worker at `directory` lives, for `path` to
+// appear: its first sign of life or a record it publishes.
+export async function awaitWorkerSignal(directory, path) {
+  await awaitWorkerState(directory, () => existsSync(path), `${path} appeared`);
+}
+
+// Registers, on a `fixtureTeardown`, stopping the CI observer started at
+// `directory` through the real `stop` command and proving its recorded worker
+// exited, so the fixture it runs from is removed only after it is gone. A
+// worker the test already ended is only confirmed dead: `stop` would wait on a
+// lost worker, or fail on a mailbox the test removed.
+export function deferObserverStop(teardown, observer) {
+  const { directory } = observer;
+  const worker = readWorkerIdentity(directory);
+  teardown.defer(async () => {
+    if (checkMailboxWorkerLiveness(worker, directory) !== "dead")
+      await stopObserver(observer);
+    assert.equal(checkMailboxWorkerLiveness(worker, directory), "dead");
+  });
+}
+
+// Stops the CI observer at `directory` through the real `stop` command of
+// `launcher`; a failing stop rejects.
+export async function stopObserver({ launcher, directory, cwd, env }) {
+  await runCommand(process.execPath, [launcher, "stop", directory], {
+    cwd,
+    env,
+  });
+}
+
+// A fixture root whose `gh` blocks every request. Callers defer stopping what
+// they start from it through the returned `teardown`, which `t.after` runs
+// before the root is removed.
+export function blockingGithubEnvironment(t) {
+  const root = mkdtempSync(join(tmpdir(), "ci-codex-lifecycle-test-"));
+  const teardown = fixtureTeardown(root);
+  t.after(teardown.cleanup);
+  return {
+    teardown,
+    env: {
+      ...process.env,
+      ...requestOwnerEnvironment(teardown),
+      DOUGH_CI_MAILBOX_ROOT: root,
+      TMPDIR: root,
+      CI_TEST_ROOT: root,
+      PATH: `${blockingGithubCommandDirectory()}:${process.env.PATH}`,
+    },
+  };
+}
+
+// A `gh` that marks `github-request-started` under CI_TEST_ROOT and blocks
+// until SIGTERM, which it records as `github-request-stopped`.
+const blockingGithubCommand = `#!${process.execPath}
+(async () => {
+if (process.argv[2] === 'auth') process.exit(1);
+const fs = require('node:fs');
+const path = require('node:path');
+const root = process.env.CI_TEST_ROOT;
+const { guardFixtureProcess } = await import(${JSON.stringify(new URL("./ci-process-lifetime-test-fixtures.mjs", import.meta.url).href)});
+guardFixtureProcess(root);
+process.on('SIGTERM', () => {
+  fs.writeFileSync(path.join(root, 'github-request-stopped'), '');
+  process.exit(0);
+});
+fs.writeFileSync(path.join(root, 'github-request-started'), '');
+setInterval(() => {}, 1000);
+})();
+`;
+
+// The directory holding the blocking `gh`, for a fixture's PATH.
+export function blockingGithubCommandDirectory() {
+  return sharedCommandDirectory("gh", blockingGithubCommand);
+}
+
+// A modeled GitHub Actions repository behind the `gh` seam. Unlike scripted
+// responses, it answers each request the way GitHub's API would: a workflow
+// selector resolves only when the repository has that file (an unknown one
+// fails like GitHub's 404), and a listing holds only runs of the resolved
+// workflow, branch, commit and event. Runs carry the display name their
+// workflow declares. Tests mutate `runs` between polls to stage CI progress.
+export function modeledGithubActions({ workflows, runs = [], jobs = {} }) {
+  const listed = [];
+  const files = Object.keys(workflows);
+  const gh = async (args) => {
+    const request = githubRequest(args);
+    if (request.kind === "workflow") {
+      const file = Object.hasOwn(workflows, request.workflow)
+        ? request.workflow
+        : files[Number(request.workflow) - 1];
+      if (!file)
+        throw new Error(
+          `GitHub request ${args[1]} failed: HTTP 404 (no workflow ${request.workflow})`,
+        );
+      return apiWorkflow(file, workflows[file], files.indexOf(file) + 1);
+    }
+    if (request.kind === "runs") {
+      listed.push(request);
+      const workflow = files[Number(request.workflowId) - 1];
+      const { branch, commit, event } = request;
+      return apiAnswer(
+        request,
+        runs
+          .filter((candidate) => candidate.workflow === workflow)
+          // eslint-disable-next-line no-unused-vars -- The workflow file is the model's own key, not a run field.
+          .map(({ workflow: file, ...candidate }) => run(candidate))
+          .filter(
+            (candidate) =>
+              (!branch || candidate.headBranch === branch) &&
+              (!commit || candidate.headSha === commit) &&
+              (!event || candidate.event === event),
+          )
+          .slice(0, request.limit),
+      );
+    }
+    if (request.kind === "jobs")
+      return apiAnswer(request, { jobs: jobs[request.runId] ?? [] });
+    if (request.kind === "run") {
+      const found = runs.find(({ databaseId }) => databaseId === request.runId);
+      if (!found) throw new Error(`run ${request.runId} not found`);
+      return {
+        ...apiAnswer(request, run(found)),
+        workflow_id: files.indexOf(found.workflow) + 1,
+      };
+    }
+    throw new Error(`unexpected gh call ${JSON.stringify(args)}`);
+  };
+  return {
+    gh,
+    runs,
+    jobs,
+    listCallCount: (branch) =>
+      listed.filter((request) => request.branch === branch).length,
+  };
+}

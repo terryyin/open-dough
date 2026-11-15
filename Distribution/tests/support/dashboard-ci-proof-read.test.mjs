@@ -7,7 +7,7 @@
 // does not label as an archive, left unanswered, so a later read may still
 // answer it. The shared read's artifact choice, and the archive extraction
 // and checks it names:
-// ../../src/skills/dough-test-optimization/scripts/ci-proof-read.test.mjs.
+// ../skills/dough-test-optimization/ci-proof-read.test.mjs.
 // Summaries broken down by file: ./dashboard-ci-proof-breakdown-read.test.mjs.
 // Query-shape refusals: ./dashboard-ci-proof-parse.test.mjs.
 import assert from "node:assert/strict";
