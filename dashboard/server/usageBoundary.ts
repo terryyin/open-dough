@@ -1,11 +1,11 @@
 // System settings → Usage's local JSON endpoints. A GET answers the Token
-// index chart of the Codex cohort its query selects (./tokenIndexCohort.ts)
+// index chart of the cohort its query selects (./tokenIndexCohort.ts)
 // from the latest per-task usage summary (./usageTaskSummaryCache.ts) and how
 // each retained launch's record says it ended now (./retainedUsageTasks.ts),
-// for every project configured now, hidden ones included, under the Codex
-// tariff (./usageTariffs.ts), with the last check time (./usageCheck.ts). A
-// POST to Refresh brings in the Codex usage written since then
-// (./usageRefreshRun.ts) and answers the new check time.
+// for every project configured now, hidden ones included, under the chosen
+// tool's tariff (./usageTariffs.ts), with the last check time
+// (./usageCheck.ts). A POST to Refresh brings in the Codex usage written since
+// then (./usageRefreshRun.ts) and answers the new check time.
 import type { IncomingMessage } from "node:http";
 import { homedir } from "node:os";
 import {
@@ -25,7 +25,7 @@ import { lastUsageCheck } from "./usageCheck.ts";
 import { usageHistoryFile } from "./usageHistory.ts";
 import { refreshUsage } from "./usageRefreshRun.ts";
 import { currentUsageTaskSummary } from "./usageTaskSummaryCache.ts";
-import { codexTariff } from "./usageTariffs.ts";
+import { usageTariffs } from "./usageTariffs.ts";
 
 async function tokenIndex(req: IncomingMessage): Promise<TokenIndexAnswer> {
   if (req.method !== "GET")
@@ -33,7 +33,7 @@ async function tokenIndex(req: IncomingMessage): Promise<TokenIndexAnswer> {
   const query = new URL(req.url ?? "", "http://local").searchParams;
   const cohort = requestedCohort(query);
   if (cohort === undefined)
-    throw new RefusedRequest(400, "Choose a known launch workflow.");
+    throw new RefusedRequest(400, "Choose a known tool and launch workflow.");
   const period = requestedUsagePeriod(query);
   if (period === null)
     throw new RefusedRequest(
@@ -54,7 +54,7 @@ async function tokenIndex(req: IncomingMessage): Promise<TokenIndexAnswer> {
           configuredProjects().map(({ id, label }) => [id, label]),
         ),
         launches,
-        tariff: codexTariff,
+        tariff: usageTariffs[cohort.tool],
       },
       cohort,
       period,

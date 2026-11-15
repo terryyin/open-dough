@@ -1,13 +1,13 @@
 // One cohort's Token index chart from the per-task usage summary
-// (./usageTaskSummary.ts): each finished task (./tokenIndexTask.ts) of a
-// project configured now, hidden ones included, in the chosen launch workflow
-// and, when chosen, with that primary observed model and effort, weighed
-// under one tariff version and placed at its reported outcome time, or else
-// its last recorded activity, with the trailing moving average of the
-// eligible ones: priced, with no recorded gap. An unpriced task has no point
-// and is only counted. The Model and Effort options are the primary settings
-// the finished tasks show in any launch workflow, so switching workflow keeps
-// every choice on offer.
+// (./usageTaskSummary.ts): each finished task (./tokenIndexTask.ts) the
+// chosen tool ran, of a project configured now, hidden ones included, in the
+// chosen launch workflow and, when chosen, with that primary observed model
+// and effort, weighed under one tariff version and placed at its reported
+// outcome time, or else its last recorded activity, with the trailing moving
+// average of the eligible ones: priced, with no recorded gap. An unpriced
+// task has no point and is only counted. The Model and Effort options are the
+// primary settings the tool's finished tasks show in any launch workflow, so
+// switching workflow keeps every choice on offer.
 import {
   movingAverageTasks,
   type TokenIndexAnswer,
@@ -46,7 +46,9 @@ export function tokenIndexCohort(
 ): Omit<TokenIndexAnswer, "checkedAt"> {
   const { projects, launches, tariff } = reading;
   const population = summary.tasks.flatMap((task) =>
-    task.project !== null && projects.has(task.project)
+    task.host === cohort.tool &&
+    task.project !== null &&
+    projects.has(task.project)
       ? (finishedTask(task, launches) ?? [])
       : [],
   );

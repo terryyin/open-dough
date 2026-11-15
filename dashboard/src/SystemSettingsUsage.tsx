@@ -16,6 +16,7 @@ import { UsageDays } from "./UsageDays.tsx";
 import { recentUsagePeriod } from "./usagePeriod.ts";
 import {
   defaultCohort,
+  offeredCohort,
   tokenIndexUrl,
   usageRefreshEndpoint,
   type TokenIndexAnswer,
@@ -50,6 +51,12 @@ export function SystemSettingsUsage() {
       })
       .then(
         (body) => {
+          // Switching tool keeps a model or effort only where it still runs.
+          const offered = offeredCohort(cohort, body.options);
+          if (offered !== cohort) {
+            setCohort(offered);
+            return;
+          }
           setAnswer(body);
           setOptions(body.options);
         },

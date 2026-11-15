@@ -86,7 +86,7 @@ const counters = (
 
 // `tokens` plus `added` (a missing count adds none) in stored key order; the
 // write split sits beside the total and stays only while both have one.
-const tokenSum = (
+export const tokenSum = (
   tokens: ContributionTokens,
   added: Record<keyof ContributionCounters, number | null> & {
     [lifetime in keyof CacheWriteSplit]?: number | null;

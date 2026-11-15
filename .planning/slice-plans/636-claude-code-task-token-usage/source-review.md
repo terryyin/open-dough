@@ -11,27 +11,27 @@ return numbered commitments, examples and exclusions without slicing.
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | 1 | Terry can check whether the price-weighted usage of finished dashboard-launched Claude Code tasks trends up or down for one launch workflow | slice 5 | |
-| 2 | Terry can inspect any single task behind the trend, as Codex tasks allow in System settings → Usage | slice 2 | |
-| 3 | The trend is an observation under ADR 0010; no improvement or billing claim | slice 2 | |
+| 2 | Terry can inspect any single task behind the trend, as Codex tasks allow in System settings → Usage | slice 2 | observed: frontend-tests/system-settings-usage-tool.spec.ts Claude detail about 'Open Dough · Claude Code · Refinement'; e2e/configuration/system-settings-usage-tools.spec.ts showsFact Observed model |
+| 3 | The trend is an observation under ADR 0010; no improvement or billing claim | slice 2 | observed: dashboard/USAGE-TOKEN-INDEX.md first paragraph 'observation, not a bill'; view adds no improvement or billing wording |
 | 4 | Claude Code dashboard launches, absent from Usage today, appear there | slice 5 | |
-| 5a | Tool offers Claude Code beside Codex | slice 2 | |
-| 5b.1 | Population: finished `origin: dashboard` tasks of configured projects, retained launches and recovered dashboard tasks, each launch its own point | slice 2 | |
-| 5b.2 | Launch workflow, Model and Effort filters from observed values | slice 2 | |
-| 5b.3 | Primary observed model and effort taken from the root session | slice 2 | |
-| 5b.4 | The moving average | slice 2 | |
+| 5a | Tool offers Claude Code beside Codex | slice 2 | observed: frontend system-settings-usage-tool.spec.ts offers Tool [Codex, Claude Code]; e2e system-settings-usage-tools.spec.ts choose Tool Claude Code |
+| 5b.1 | Population: finished `origin: dashboard` tasks of configured projects, retained launches and recovered dashboard tasks, each launch its own point | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude-population.spec.ts retained, Done-marked and recovered Claude tasks each a point, running absent; token-index-claude.spec.ts case 1 Codex task excluded |
+| 5b.2 | Launch workflow, Model and Effort filters from observed values | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts options.models from observed Claude models across workflows; e2e offers Model [All models, Claude Opus 5.5] |
+| 5b.3 | Primary observed model and effort taken from the root session | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts fable-root (2 Fable, 1 Opus root responses) observed model Fable 5.2 |
+| 5b.4 | The moving average | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude-population.spec.ts moving average over ten latest eligible Claude tasks = 4200, fast task out |
 | 5b.5 | Partial and unpriced handling | slice 3 | |
-| 5b.6 | Task detail | slice 2 | |
-| 5c | Workers count at their own model's rates | slice 2 | |
-| 6a | A versioned Claude reference tariff kept with the product source | slice 2 | |
-| 6b | Tariff read from Anthropic's API list prices on the day it is written | slice 2 | |
-| 6c | The tariff is named in the view | slice 2 | |
-| 6d | Uncached input weighted at the input rate | slice 2 | |
-| 6e | Cache reads at the cache-read rate | slice 2 | |
-| 6f | Five-minute cache writes at their own write rate | slice 2 | |
-| 6g | One-hour cache writes at their own write rate | slice 2 | |
-| 6h | Output at the output rate | slice 2 | |
-| 6i | Index in Claude Opus 5.5 input-token equivalents | slice 2 | |
-| 6j | Indices of different tools are not compared on one chart | slice 2 | |
+| 5b.6 | Task detail | slice 2 | observed: frontend system-settings-usage-tool.spec.ts Claude task detail; e2e system-settings-usage-tools.spec.ts detail facts |
+| 5c | Workers count at their own model's rates | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts fable-root index 131125 includes Haiku worker at Haiku rates (28500) |
+| 6a | A versioned Claude reference tariff kept with the product source | slice 2 | observed: dashboard/server/usageTariffs.ts claudeTariff2026_11_15 version claude-2026-11-15 |
+| 6b | Tariff read from Anthropic's API list prices on the day it is written | slice 2 | observed: dashboard/server/usageTariffs.ts claudeTariff2026_11_15 source pricing URL, readOn 2026-11-15, rates equal the page read that day |
+| 6c | The tariff is named in the view | slice 2 | observed: e2e/configuration/system-settings-usage-tools.spec.ts showsTariff with the Claude label after choosing Claude Code; Codex label after switching back |
+| 6d | Uncached input weighted at the input rate | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 1 expected index worked per category from the rate card (Fable root, Haiku worker) |
+| 6e | Cache reads at the cache-read rate | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 1 expected index worked per category from the rate card (Fable root, Haiku worker) |
+| 6f | Five-minute cache writes at their own write rate | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 1 expected index worked per category from the rate card (Fable root, Haiku worker) |
+| 6g | One-hour cache writes at their own write rate | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 1 expected index worked per category from the rate card (Fable root, Haiku worker) |
+| 6h | Output at the output rate | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 1 expected index worked per category from the rate card (Fable root, Haiku worker) |
+| 6i | Index in Claude Opus 5.5 input-token equivalents | slice 2 | observed: dashboard/server/usageTariffs.ts reference claude-opus-5-5 and label 'Claude Opus 5.5 input-token equivalents'; token-index-claude-population.spec.ts 1950 = credits / 4 |
+| 6j | Indices of different tools are not compared on one chart | slice 2 | observed: e2e system-settings-usage-tools.spec.ts: one tariff per answer, label switches with Tool; usageBoundary selects usageTariffs[cohort.tool] |
 | 7a | Refresh brings in Claude usage of known tasks' sessions and workers written since the last check | slice 4 | |
 | 7b | Refresh uses the same transcript reader and counting rule as the offline import | slice 4 | |
 | 7c | Each API message ID counted once | slice 4 | |
@@ -40,22 +40,22 @@ return numbered commitments, examples and exclusions without slicing.
 | 8a | Claude's own gaps showing missing usage (missing root transcript or worker) make a task partial, as Codex's do | slice 3 | |
 | 8b | The background-work limit (agent-view summaries, recaps, idle compaction) does not make each task partial | slice 3 | |
 | 8c | The Claude Code cohort shows one note that this work is not included | slice 3 | |
-| 9 | Tool becomes a real choice between Codex and Claude Code | slice 2 | |
-| 10 | Switching Tool keeps the other filters where their values still exist | slice 2 | |
+| 9 | Tool becomes a real choice between Codex and Claude Code | slice 2 | observed: frontend system-settings-usage-tool.spec.ts offers Tool choices; e2e chooses Claude Code then Codex |
+| 10 | Switching Tool keeps the other filters where their values still exist | slice 2 | observed: frontend system-settings-usage-tool.spec.ts Refinement + GPT model + high → Claude Code keeps Refinement and high, model resets to All models (mutation-checked) |
 | 11 | The Claude Code cohort shows its tariff label and the background-work note in words, not color | slice 3 | |
 | 12 | The Refresh checking text covers both tools | slice 4 | |
-| 13 | A response at a speed the tariff does not price (e.g. fast) stays unpriced rather than priced at standard rates | slice 2 | |
-| 14 | Cache writes are not priced at a single rate | slice 2 | |
-| 15 | Example 1: Claude Code + Execution, All models, Any effort → each finished Claude Execution launch is one point with its Token index | slice 2 | |
-| 16 | Example 1: Fable 5.2 keeps tasks whose root mostly ran on Fable 5.2; a Haiku worker is weighted at Haiku's rates | slice 2 | |
-| 17 | Example 2: equal-token Opus 5.5 tasks, one-hour vs five-minute writes → the one-hour task has the higher index | slice 2 | |
+| 13 | A response at a speed the tariff does not price (e.g. fast) stays unpriced rather than priced at standard rates | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 3 fast-worker unpriced; token-index-claude-population.spec.ts fast task unpriced |
+| 14 | Cache writes are not priced at a single rate | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 2 five-minute 13500 vs one-hour 21000; unsplit-write unpriced |
+| 15 | Example 1: Claude Code + Execution, All models, Any effort → each finished Claude Execution launch is one point with its Token index | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 1 ?tool=claude&workflow=execution points fable-root and opus-root; e2e imported Claude launch one point |
+| 16 | Example 1: Fable 5.2 keeps tasks whose root mostly ran on Fable 5.2; a Haiku worker is weighted at Haiku's rates | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts ?model=claude-fable-5-2 returns fable-root; Haiku worker at Haiku rates |
+| 17 | Example 2: equal-token Opus 5.5 tasks, one-hour vs five-minute writes → the one-hour task has the higher index | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 2 one-hour task 21000 > five-minute task 13500 |
 | 18 | Example 3: a Claude launch with a worker finishes after the last check → Refresh → its point appears, including the worker's usage | slice 4 | |
 | 19 | Example 3: refreshing again over unchanged transcripts leaves the index and stored history unchanged | slice 4 | |
 | 20 | Example 3: a response written twice in a transcript counts once | slice 4 | |
 | 21 | Example 4: a launch whose root transcript is gone appears partial with that gap and stays out of the moving average | slice 3 | |
 | 22 | Example 4: a launch with only the auxiliary limit has no known gaps; the cohort's note names the excluded background work | slice 3 | |
-| 23 | Example 5: a response on an unpriced model or speed → its task has no point and is counted as unpriced in the cohort note | slice 2 | |
-| 24 | Example 6: choosing Codex again shows the same points, average and tariff as before this story | slice 2 | |
+| 23 | Example 5: a response on an unpriced model or speed → its task has no point and is counted as unpriced in the cohort note | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts case 3 fast-worker, unknown-model, unsplit-write have no point and unpriced === 3 |
+| 24 | Example 6: choosing Codex again shows the same points, average and tariff as before this story | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-claude.spec.ts Codex answer equal before and after Claude tasks join; e2e Codex again shows Nov 6 · 1,950 with Codex tariff |
 | 25 | Exclusion: per-category token breakdown in task detail, for both tools | slice 5 | |
 | 26 | Exclusion: live in-progress usage | slice 5 | |
 | 27 | Exclusion: automatic or scheduled refresh | slice 5 | |

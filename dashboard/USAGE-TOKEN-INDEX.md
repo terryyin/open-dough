@@ -1,8 +1,15 @@
 # Token index in System settings → Usage
 
-Usage charts finished dashboard-launched Codex tasks for the chosen launch
-workflow, model and effort. Token index uses the existing tariff's input-token
-equivalents; it is an observation, not a bill or a claim of improvement.
+Usage charts finished dashboard-launched tasks of the chosen tool (Codex or
+Claude Code), launch workflow, model and effort. Each tool has its own
+versioned tariff in `server/usageTariffs.ts`, named under the chart, so indices
+of different tools are never on one chart: Codex in GPT-6.1 Sol input-token
+equivalents, Claude Code in Claude Opus 5.5 input-token equivalents, pricing
+five-minute and one-hour cache writes each at its own rate. A Claude response
+at an unpriced speed, or whose cache writes were stored without that split,
+leaves its task unpriced. Switching tool keeps the workflow, and the model and
+effort where the new tool ran them. The index is an observation, not a bill or
+a claim of improvement.
 
 **Last N days** starts at 30 and selects today plus the previous N−1 local
 calendar days, including the first midnight and excluding tomorrow's midnight.

@@ -14,6 +14,8 @@ export class UsageTaskHistoryBuilder {
   workerGaps = [];
   at = "2026-11-01T12:00:00.000Z";
   empty = false;
+  /** @type {Pick<TaskResponseFacts, "model" | "effort" | "serviceTier">} */
+  responseDefaults = { model: "gpt-6.1-sol", effort: "xhigh" };
 
   /** @param {string} id */
   identifiedAs(id) {
@@ -56,6 +58,17 @@ export class UsageTaskHistoryBuilder {
     return this;
   }
 
+  // A Claude Code task, whose responses ran Claude Opus 5.5 at standard
+  // speed unless stated.
+  inClaudeCode() {
+    this.responseDefaults = {
+      model: "claude-opus-5-5",
+      effort: "xhigh",
+      serviceTier: "standard",
+    };
+    return this.withTask({ host: "claude" });
+  }
+
   recovered() {
     return this.withTask({ kind: "recovered", outcome: null });
   }
@@ -96,8 +109,7 @@ export class UsageTaskHistoryBuilder {
         ...task,
       },
       responses: responses.map((response) => ({
-        model: "gpt-6.1-sol",
-        effort: "xhigh",
+        ...this.responseDefaults,
         at: this.at,
         tokens: { uncachedInput: 1_000, cacheRead: 9_000, output: 100 },
         ...response,

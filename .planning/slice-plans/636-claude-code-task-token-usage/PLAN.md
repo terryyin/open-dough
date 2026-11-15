@@ -128,7 +128,7 @@ entry's `tier`. Proof: `claude-usage-split.spec.ts` plus the whole backend
 
 ### 2. Choose Claude Code and read its Token index
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source examples 1, 2, 5, 6; Backend cohort/eligibility cases with
 independently computed figures; Frontend `system-settings-usage` and E2E
 `configuration/system-settings-usage.spec.ts` choose Claude Code from an
@@ -141,6 +141,18 @@ the Codex answer unchanged. The summary keeps dashboard tasks of both hosts;
 the cohort selects the tool's host; the boundary selects the tool's tariff.
 Model options keep the tool's observed models. Switching tool keeps the
 workflow and resets a model/effort the new tool does not offer.
+
+Delivered: tools are host ids (`?tool=codex|claude`, default Codex, unknown
+refused); the summary (format v5) keeps both hosts' dashboard tasks and the
+cache-write split; the cohort keeps `task.host === tool`; the boundary uses
+`usageTariffs[tool]`. Tariff `claude-2026-11-15` holds the list prices read
+that day with split write rates; a group with writes but no complete split is
+unpriced, a zero-write group needs none, `<synthetic>` is zero-rated. Proof:
+backend `token-index-claude*.spec.ts` (85 in `usage-history`), frontend
+`system-settings-usage-tool.spec.ts` (16), E2E
+`configuration/system-settings-usage-tools.spec.ts` (4), typecheck. Learning:
+a controlled select whose value matches no option shows the first one, so a
+reset check needs a route answer that offers only the tool's real models.
 
 ### 3. Show Claude coverage honestly
 Type: Behavior

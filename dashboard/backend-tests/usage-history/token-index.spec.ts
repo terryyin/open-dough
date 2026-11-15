@@ -104,11 +104,16 @@ test("a new tariff reweighs the same stored counters", async ({ machine }) => {
   expect(cohort().tasks.map(({ index }) => index)).toEqual([2_300]);
 });
 
-test("an unknown launch workflow is refused", async ({ machine }) => {
-  const usage = await usageServer(machine);
-  const response = await usage.request(
-    "GET",
-    "/__usage/token-index?workflow=planning",
-  );
-  expect(response.status, JSON.stringify(response.body)).toBe(400);
-});
+for (const [choice, query] of [
+  ["launch workflow", "workflow=planning"],
+  ["tool", "tool=cursor"],
+]) {
+  test(`an unknown ${choice} is refused`, async ({ machine }) => {
+    const usage = await usageServer(machine);
+    const response = await usage.request(
+      "GET",
+      `/__usage/token-index?${query}`,
+    );
+    expect(response.status, JSON.stringify(response.body)).toBe(400);
+  });
+}

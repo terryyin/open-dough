@@ -1,11 +1,12 @@
 // The derived per-task summary the Usage view reads instead of the usage
 // store (ADR 0008: a rebuildable cache beside the store, no database). It
-// keeps each dashboard-origin Codex task's facts, finished or not, with the
-// model and effort its launch requested, and the session contributions
-// (./usageContributions.ts) that belong to it: their counters and response
-// counts, summed per observed model, effort, service tier and whether the
-// session is the task's root conversation or a worker's; the counts decide a
-// task's primary observed setting. Every associated response counts, whatever
+// keeps each dashboard-origin task's facts, of either host, finished or not,
+// with the model and effort its launch requested, and the session
+// contributions (./usageContributions.ts) that belong to it: their counters,
+// the cache writes' split while every response has it, and response counts,
+// summed per observed model, effort, service tier and whether the session is
+// the task's root conversation or a worker's; the counts decide a task's
+// primary observed setting. Every associated response counts, whatever
 // its turn or its work's fate: resumed turns, workers, background, failed and
 // cancelled work alike. It also keeps the gaps that show usage missing from
 // the task (./usageTaskGaps.ts).
@@ -19,16 +20,17 @@ import type { UsageCoverageGap } from "../src/usageTokenIndex.ts";
 import {
   later,
   resolveContributions,
-  type ContributionCounters,
+  tokenSum,
   type ContributionEntry,
+  type ContributionTokens,
 } from "./usageContributions.ts";
 import { usageHistoryFrom } from "./usageHistoryDocument.ts";
 import type { UsageTask } from "./usageRecords.ts";
 import { TaskGaps } from "./usageTaskGaps.ts";
 
-export const summaryFormat = "usage-task-summary-v4";
+export const summaryFormat = "usage-task-summary-v5";
 
-export type SummaryCounters = Readonly<ContributionCounters>;
+export type SummaryCounters = Readonly<ContributionTokens>;
 
 export type SummaryUsage = {
   readonly model: string | null;
@@ -42,7 +44,7 @@ export type SummaryUsage = {
 
 export type SummaryTask = Pick<
   UsageTask,
-  "id" | "kind" | "project" | "workflow" | "identity" | "title"
+  "id" | "kind" | "host" | "project" | "workflow" | "identity" | "title"
 > & {
   readonly requested: {
     readonly model: string | null;
@@ -91,20 +93,13 @@ function addEntry(
 ): void {
   const key = JSON.stringify([model, effort, tier, root]);
   const prior = usage.get(key);
-  const counter = (name: keyof SummaryCounters) =>
-    (prior?.tokens[name] ?? 0) + tokens[name];
   usage.set(key, {
     model,
     effort,
     tier,
     root,
     responses: (prior?.responses ?? 0) + responses,
-    tokens: {
-      uncachedInput: counter("uncachedInput"),
-      cacheRead: counter("cacheRead"),
-      cacheWrite: counter("cacheWrite"),
-      output: counter("output"),
-    },
+    tokens: prior === undefined ? tokens : tokenSum(prior.tokens, tokens),
   });
 }
 
@@ -117,7 +112,7 @@ export async function deriveUsageTaskSummary(
   const tasks = new Map<string, UsageTask>();
   const gaps = new TaskGaps();
   for (const task of known) {
-    if (task.host !== "codex" || task.origin !== "dashboard") continue;
+    if (task.origin !== "dashboard") continue;
     tasks.set(task.id, task);
     gaps.task(task);
   }
@@ -140,6 +135,7 @@ export async function deriveUsageTaskSummary(
     tasks: [...tasks.values()].map((task) => ({
       id: task.id,
       kind: task.kind,
+      host: task.host,
       project: task.project,
       workflow: task.workflow,
       identity: task.identity,

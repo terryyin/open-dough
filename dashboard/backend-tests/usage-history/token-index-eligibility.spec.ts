@@ -1,10 +1,10 @@
 // Unpriced tasks are counted; missing usage stays partial and out of the average.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
-import { readCohort } from "../../tests/usage-history/tokenIndexHarness.ts";
-
-const day = (date: number) =>
-  `2026-11-${String(date).padStart(2, "0")}T12:00:00.000Z`;
+import {
+  day,
+  readCohort,
+} from "../../tests/usage-history/tokenIndexHarness.ts";
 
 test("standard and unrecorded tiers are priced; an unrated model or fast worker leaves the entire task unpriced", async ({
   home,

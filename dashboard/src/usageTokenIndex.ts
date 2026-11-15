@@ -28,10 +28,18 @@ export const usageWorkflowOf = (
   name: string | null,
 ): UsageWorkflow | undefined => usageWorkflows.find((each) => each === name);
 
+// The tools whose dashboard launches a cohort selects, by host identity.
+export const usageTools = ["codex", "claude"] as const;
+
+export type UsageTool = (typeof usageTools)[number];
+
+export const usageToolOf = (name: string | null): UsageTool | undefined =>
+  usageTools.find((each) => each === name);
+
 // One tool and launch workflow, and the primary observed model and effort a
 // task must have; null is the broad option (All models, Any effort).
 export type TokenIndexCohort = {
-  readonly tool: "codex";
+  readonly tool: UsageTool;
   readonly workflow: UsageWorkflow;
   readonly model: string | null;
   readonly effort: string | null;
@@ -48,7 +56,10 @@ export function tokenIndexUrl(
   cohort: TokenIndexCohort,
   period?: UsagePeriod,
 ): string {
-  const query = new URLSearchParams({ workflow: cohort.workflow });
+  const query = new URLSearchParams({
+    tool: cohort.tool,
+    workflow: cohort.workflow,
+  });
   if (cohort.model !== null) query.set("model", cohort.model);
   if (cohort.effort !== null) query.set("effort", cohort.effort);
   if (period !== undefined) {
@@ -58,21 +69,41 @@ export function tokenIndexUrl(
   return `${usageTokenIndexEndpoint}?${query.toString()}`;
 }
 
-// The cohort a request's query selects; undefined for an unknown workflow.
-// Without a workflow it is Execution's.
+// The cohort a request's query selects; undefined for an unknown tool or
+// workflow. Without them it is Codex's and Execution's.
 export function requestedCohort(
   query: URLSearchParams,
 ): TokenIndexCohort | undefined {
+  const tool = usageToolOf(query.get("tool") ?? defaultCohort.tool);
   const workflow = usageWorkflowOf(
     query.get("workflow") ?? defaultCohort.workflow,
   );
-  if (workflow === undefined) return undefined;
+  if (tool === undefined || workflow === undefined) return undefined;
   return {
-    tool: "codex",
+    tool,
     workflow,
     model: query.get("model"),
     effort: query.get("effort"),
   };
+}
+
+// The cohort with a model or effort its tool's options do not offer, such as
+// one another tool ran, reset to the broad option; the cohort itself when it
+// needs no reset.
+export function offeredCohort(
+  cohort: TokenIndexCohort,
+  { models, efforts }: TokenIndexAnswer["options"],
+): TokenIndexCohort {
+  const model = models.some(({ id }) => id === cohort.model)
+    ? cohort.model
+    : null;
+  const effort =
+    cohort.effort !== null && efforts.includes(cohort.effort)
+      ? cohort.effort
+      : null;
+  return model === cohort.model && effort === cohort.effort
+    ? cohort
+    : { ...cohort, model, effort };
 }
 
 // A model by its id and the name the tariff gives it, or else its id.
