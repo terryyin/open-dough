@@ -129,7 +129,7 @@ pre-response gap is observed in the store.
 
 ### 2. Keep one Claude Code Usage journey end to end
 Type: Structure
-Status: planned
+Status: done
 Proof: `npm run test:e2e -- --reporter=list configuration/system-settings-usage`
 with the surviving journeys passing; frontend `system-settings-usage` and
 backend `usage-history` unchanged and green.
@@ -138,6 +138,14 @@ Remove `system-settings-usage-tools.spec.ts` test 1 and test 2's store-lock
 checking step; keep test 2's import → choose Claude Code → Refresh → new point.
 If a real-UI switch back to Codex is wanted, add one `choose("Tool","Codex")`
 step to test 2 rather than a second journey.
+
+Accepted proof (2026-11-15): after `node scripts/setup-native.mjs` stages
+`npm`, `browser`, `check`,
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run test:e2e -- --reporter=list configuration/system-settings-usage`
+→ 4 passed (the surviving tools journey, both `system-settings-usage.spec.ts`
+journeys, and the period journey the filter also selects); frontend
+`system-settings-usage` → 17 passed; typecheck passed. No `choose("Tool","Codex")`
+step was needed.
 
 ## Local gates and execution discipline
 
