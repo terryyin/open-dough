@@ -12,12 +12,30 @@ export const completionSchema = z.object({
 });
 export type CompletionReport = z.infer<typeof completionSchema>;
 
-export function completionLabel(report: CompletionReport): string {
-  return completedWithoutAttention(report)
-    ? "Completed"
-    : report.outcome === "completed"
+// The words a reported outcome reads with wherever the dashboard shows it:
+// completed, with attention when its report carries a message, or unfinished.
+export function reportedOutcomeLabel({
+  completed,
+  attention,
+}: {
+  readonly completed: boolean;
+  readonly attention: boolean;
+}): string {
+  return completed
+    ? attention
       ? "Completed with attention"
-      : "Unfinished work";
+      : "Completed"
+    : "Unfinished work";
+}
+
+// A reported launch whose closure kept its outcome as returned to the backlog.
+export const returnedToBacklogLabel = "Returned to backlog";
+
+export function completionLabel(report: CompletionReport): string {
+  return reportedOutcomeLabel({
+    completed: report.outcome === "completed",
+    attention: report.message !== "",
+  });
 }
 
 // Whether a record's report is unread: it has a message, the session is not marked

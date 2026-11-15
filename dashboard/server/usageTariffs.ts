@@ -1,0 +1,62 @@
+// Versioned reference tariffs for the Token index (./tokenIndex.ts). Each
+// version is source data: the rate card it was read from and when, the speed
+// tier it prices, and per model its rate-card name and the credits per 1M
+// tokens of each category.
+// A later version is added beside this one, so the same stored counters can
+// be weighted again; no priced value is ever written into usage records.
+
+export type TokenRates = {
+  readonly input: number;
+  readonly cachedInput: number;
+  readonly output: number;
+};
+
+export type TariffModel = TokenRates & { readonly name: string };
+
+export type UsageTariff = {
+  readonly version: string;
+  // How the view names the version it plots.
+  readonly label: string;
+  readonly source: string;
+  readonly readOn: string;
+  // The speed tier it prices and the service tiers a host records for it. A
+  // response recorded at another tier has no rate here; one with no recorded
+  // tier is at this one.
+  readonly speedTier: {
+    readonly name: "standard";
+    readonly recorded: readonly string[];
+  };
+  // Index units are this model's input-token equivalents.
+  readonly reference: { readonly model: string };
+  readonly models: Readonly<Record<string, TariffModel>>;
+};
+
+// Codex signed-in credits at standard speed, as the rate card read on
+// 2026-11-15 gives them. There is no separate cache-write charge.
+export const codexTariff2026_11_15: UsageTariff = {
+  version: "codex-2026-11-15",
+  label:
+    "Codex rate card read 2026-11-15 · standard speed · GPT-6.1 Sol input-token equivalents",
+  source: "https://learn.chatgpt.com/docs/pricing#token-rates",
+  readOn: "2026-11-15",
+  // Codex records standard speed as its `default` service tier.
+  speedTier: { name: "standard", recorded: ["default"] },
+  reference: { model: "gpt-6.1-sol" },
+  models: {
+    "gpt-6.1-sol": {
+      name: "GPT-6.1 Sol",
+      input: 50,
+      cachedInput: 2.5,
+      output: 250,
+    },
+    "gpt-6-astra": {
+      name: "GPT-6 Astra",
+      input: 250,
+      cachedInput: 25,
+      output: 1_250,
+    },
+  },
+};
+
+// The version the Codex chart plots.
+export const codexTariff = codexTariff2026_11_15;

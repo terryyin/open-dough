@@ -22,7 +22,7 @@ scope: story
 **For / why.** A developer can inspect token usage for a Claude Code task they
 started in the dashboard, including attributable workers and resumed work.
 
-Extend the [dashboard usage view](SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks)
+Extend the [dashboard usage view](../../dashboard/src/SystemSettingsUsage.tsx) (System settings → Usage)
 to Claude Code story workflows and ad hoc tasks using the shared
 [launch and usage records](../../dashboard/USAGE-HISTORY.md).
 Preserve the current background
@@ -50,7 +50,7 @@ counting each API message ID once, while the task runs and after it ends. The
 November 14 check found real response usage for 628 of 629 retained roots and
 all 2,803 linked worker transcripts. New and older launches would then share
 one collection path and counting rule, consistent with the
-[Codex story](SEED-357-dashboard-task-token-usage.md#view-token-usage-for-dashboard-launched-tasks),
+[Codex Refresh](../../dashboard/server/usageRefresh.ts),
 without an OpenTelemetry exporter in trusted settings or a dependency on the
 warm `--bg` supervisor picking one up. Refinement still decides the approach.
 It would need to check how soon transcripts reflect a running task, whether

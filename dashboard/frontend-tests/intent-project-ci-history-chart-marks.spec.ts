@@ -14,7 +14,7 @@ import {
   expectMarksPainted,
   historyChart,
   inspectMark,
-} from "../tests/ciHistoryChartPage.ts";
+} from "../tests/historyChartPage.ts";
 import { parts } from "../tests/dashboardPage.ts";
 import { scopeHistory } from "../tests/intentScopeHistoryPage.ts";
 import { openSummary } from "../tests/intentSummaryCiProofFixtures.ts";

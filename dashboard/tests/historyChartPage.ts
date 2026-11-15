@@ -1,5 +1,5 @@
-// The shared dated CI history chart (../src/IntentCiHistoryChart.tsx) as a
-// reader meets it: its drawing's marks by shape, each mark's button over the
+// The shared dated history chart (../src/HistoryChart.tsx) as a reader
+// meets it: its drawing's marks by shape, each mark's button over the
 // drawing and the readout an inspected mark shows. Scenarios choose the
 // chart, the marks they expect and each readout's words.
 import type { Locator, Page } from "@playwright/test";
@@ -16,7 +16,7 @@ export type InspectBy = "pointer" | "touch";
 export function historyChart(scope: Locator, name: string) {
   const named = { name, exact: true };
   const box = scope
-    .locator(".intent-ci-history-chart")
+    .locator(".history-chart-chart")
     .filter({ has: scope.page().getByRole("img", named) });
   const drawing = box.getByRole("img", named);
   return {
@@ -25,16 +25,17 @@ export function historyChart(scope: Locator, name: string) {
     marks: box.getByRole("button"),
     mark: (readout: string) =>
       box.getByRole("button", { name: readout, exact: true }),
-    readout: box.locator(".intent-ci-history-readout"),
-    measured: drawing.locator("circle.intent-ci-history-point"),
-    selected: drawing.locator("path.intent-ci-history-point"),
-    failed: drawing.locator(".intent-ci-history-failed"),
-    unavailable: drawing.locator(".intent-ci-history-unavailable"),
-    line: drawing.locator(".intent-ci-history-line"),
-    average: drawing.locator(".intent-ci-history-reference line"),
-    averageLabel: drawing.locator(".intent-ci-history-reference title"),
-    grid: drawing.locator(".intent-ci-history-grid"),
-    axisLabels: drawing.locator("g:has(> .intent-ci-history-grid) > text"),
+    readout: box.locator(".history-chart-readout"),
+    measured: drawing.locator("circle.history-chart-point"),
+    selected: drawing.locator("path.history-chart-point"),
+    partial: drawing.locator(".history-chart-partial"),
+    failed: drawing.locator(".history-chart-failed"),
+    unavailable: drawing.locator(".history-chart-unavailable"),
+    line: drawing.locator(".history-chart-line"),
+    average: drawing.locator(".history-chart-reference line"),
+    averageLabel: drawing.locator(".history-chart-reference title"),
+    grid: drawing.locator(".history-chart-grid"),
+    axisLabels: drawing.locator("g:has(> .history-chart-grid) > text"),
   };
 }
 

@@ -150,7 +150,7 @@ test("project endpoint words mark a measured zero and explain partial-unit gaps 
   await expect(chart.drawing).toBeVisible();
   await expect(chart.readout).toHaveText("Nov 7 · Endpoint · 0 ms");
   await expect(
-    chart.drawing.locator("path.intent-ci-history-point title"),
+    chart.drawing.locator("path.history-chart-point title"),
   ).toHaveText(
     "Nov 7 · 0 ms · test cases · Exact build · Observed trunk endpoint",
   );

@@ -63,10 +63,10 @@ task uses host, session and native task turn; later metadata does not change its
 identity. Matching retained turn or launch-reference evidence enriches that same
 task, including Claude launches whose retained key uses launch time. Requested model,
 effort, workflow options and policy stay on the task. Observed model, effort,
-approval policy and sandbox stay on response observations, so settings may
-change within one task without rewriting its launch request. Launch source
-references point to operational or retained history files. The importer copies
-no launch instructions, prompts or transcript bodies into usage records.
+approval policy, sandbox and Codex `service_tier` stay on response observations,
+so settings may change within one task without rewriting its launch request.
+Launch source references point to operational or retained history files. The importer
+copies no launch instructions, prompts or transcript bodies into usage records.
 
 Recovered tasks have `kind: recovered`, nullable project/workflow/identity/title
 and launch time, per-field `fieldSources`, and explicit gaps. A configured
@@ -189,14 +189,17 @@ Shared collectors and readers use `dashboard/server/usageHistory.ts`:
 - `readUsageHistory(file?)` reads imported facts without opening native files.
 - `taskUsage(history, taskId)` derives one task's categorized usage on demand.
 
-Pages are bounded groups of complete records, with original field provenance and
-competing measurements retained. The writer reconciles one partition at a time
-under the shared `<file>.lock`, makes its immutable pages durable, then atomically
-publishes the manifest. Readers keep the manifest they opened and see one coherent
-snapshot while another process publishes. Unreferenced pages, including leftovers
-from an interrupted write, contribute no facts. Retain the manifest and its page
-directory together when copying or backing up history; old pages remain available
-for readers holding an earlier manifest.
+Pages are bounded groups of complete records, with original field provenance and competing
+measurements retained. The writer reconciles one partition at a time under the shared `<file>.lock`,
+makes its immutable pages durable, then atomically publishes the manifest. Readers keep the manifest
+they opened and see one coherent snapshot while another process publishes. Unreferenced pages,
+including leftovers from an interrupted write, contribute no facts. Retain the manifest and its page
+directory together when copying or backing up history; old pages remain available for readers
+holding an earlier manifest. System settings → Usage reads the store only through the derived
+`usage-task-summary.json` beside them, which needs no backup: a separate process rebuilds it, never
+writing to the store, when it is missing or the manifest changes; whether a launch finished comes
+from current launch records. Its Refresh (`server/usageRefresh.ts`) rereads, in another process, the
+Codex rollouts of known tasks changed since `usage-check.json` through this writer.
 
 The logical document remains version 1. A legacy monolithic version 1 file remains
 readable and migrates on the next successful write. The `read` command streams

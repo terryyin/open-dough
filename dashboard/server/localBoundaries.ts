@@ -1,6 +1,6 @@
 // This dashboard's local boundaries, in the order a server mounts them: the
 // project configuration, OpenAI configuration, terminal theme, feedback
-// maintenance and host status JSON endpoints, instruction transcription,
+// maintenance, host status and usage JSON endpoints, instruction transcription,
 // launch-image claims, the authenticated read boundary, the launch boundary
 // with its terminal upgrades, and this process's incident record lifecycle,
 // last so a clean close ends the record after the others closed. Vite
@@ -20,6 +20,7 @@ import type { LocalBoundary } from "./localBoundary.ts";
 import { installOpenAIConfigurationMiddleware } from "./openAIConfigurationBoundary.ts";
 import { installProjectConfigurationMiddleware } from "./projectConfigurationBoundary.ts";
 import { installTerminalThemeMiddleware } from "./terminalThemeBoundary.ts";
+import { installUsageMiddleware } from "./usageBoundary.ts";
 
 export const localBoundaries: readonly LocalBoundary[] = [
   {
@@ -36,6 +37,7 @@ export const localBoundaries: readonly LocalBoundary[] = [
     install: installFeedbackMaintenanceMiddleware,
   },
   { name: "dough-host-status", install: installHostStatusMiddleware },
+  { name: "dough-usage", install: installUsageMiddleware },
   {
     name: "dough-instruction-transcription",
     install: installInstructionTranscriptionMiddleware,

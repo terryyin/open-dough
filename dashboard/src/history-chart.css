@@ -1,0 +1,122 @@
+/* The shared dated history chart (./HistoryChart.tsx), in its own
+   box: CI wall time, scope execution time and Usage's Token index. The
+   chart's marks take their own tokens: one series in the frame's accent, a
+   ring of the box's surface around each point, a recessive grid and quiet
+   axis words. They are drawn from the frame's own tokens in either colour
+   scheme, so they keep their contrast with whatever surface the frame gives
+   the box, which has no surface of its own for a dark scheme. A partial
+   point is hollow in the caution colour. Each mark's button lies over its
+   drawing; its readout follows the plot. CI builds without timing sit on
+   their own row below the value axis. */
+:root {
+  --history-chart-mark: var(--accent);
+  --history-chart-ring: var(--raised-surface);
+  --history-chart-grid: var(--line);
+  --history-chart-words: var(--quiet);
+  --history-chart-failed: var(--problem);
+  --history-chart-partial: var(--caution);
+}
+
+.history-chart-chart {
+  min-width: 0;
+  padding: var(--space-2) var(--space-1) 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--raised-surface);
+}
+
+.history-chart-chart svg {
+  display: block;
+  overflow: visible;
+}
+
+.history-chart-chart text {
+  fill: var(--history-chart-words);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-chart-grid {
+  stroke: var(--history-chart-grid);
+  stroke-width: 1;
+}
+
+.history-chart-line {
+  fill: none;
+  stroke: var(--history-chart-mark);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.history-chart-point {
+  fill: var(--history-chart-mark);
+  stroke: var(--history-chart-ring);
+  stroke-width: 2;
+}
+
+/* A point whose value is known to be incomplete: hollow, in caution. */
+.history-chart-partial {
+  fill: var(--history-chart-ring);
+  stroke: var(--history-chart-partial);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.history-chart-failed {
+  fill: none;
+  stroke: var(--history-chart-failed);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.history-chart-unavailable {
+  fill: var(--history-chart-ring);
+  stroke: var(--history-chart-words);
+  stroke-width: 2;
+}
+
+.history-chart-plot {
+  position: relative;
+}
+
+.history-chart-mark {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+.history-chart-mark[aria-current="true"] {
+  box-shadow: 0 0 0 1px var(--history-chart-words);
+}
+
+.history-chart-mark:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+}
+
+.history-chart-readout {
+  min-height: 1.5em;
+  margin: 0 var(--space-1) var(--space-1);
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.history-chart-gap-marker {
+  stroke: var(--history-chart-words);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.history-chart-reference line {
+  stroke: var(--history-chart-words);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}

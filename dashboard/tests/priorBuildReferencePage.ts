@@ -6,7 +6,7 @@
 // follow-up readings. Expected dates, values, reasons and provenance stay
 // with callers.
 import type { Locator, Page } from "@playwright/test";
-import { historyChart } from "./ciHistoryChartPage.ts";
+import { historyChart } from "./historyChartPage.ts";
 import { expect } from "./dashboardTest.ts";
 import { colourOf, tokenColour } from "./pageColours.ts";
 

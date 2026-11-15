@@ -21,6 +21,7 @@ import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 import { PublishedIntegrationBuilder } from "./publicationTestData.mjs";
 import { ciMakeMeProperties } from "./ciMakeMe.mjs";
 import { launchMakeMeProperties } from "./launchMakeMe.mjs";
+import { usageMakeMeProperties } from "./usageMakeMe.mjs";
 import { HostHookSettingsBuilder } from "./hostHookSettingsTestData.mjs";
 import { feedbackMakeMeProperties } from "./feedbackTestData.mjs";
 import { jobDurations } from "./jobDurationTestData.mjs";
@@ -33,6 +34,7 @@ import { jobDurations } from "./jobDurationTestData.mjs";
 /** @typedef {NonNullable<import("../../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice["comparison"]>} PublishedComparison */
 /** @typedef {import("./ciMakeMe.mjs").CiMakeMe} CiMakeMe */
 /** @typedef {import("./launchMakeMe.mjs").LaunchMakeMe} LaunchMakeMe */
+/** @typedef {import("./usageMakeMe.mjs").UsageMakeMe} UsageMakeMe */
 /** @typedef {import("./feedbackTestData.mjs").FeedbackMakeMe} FeedbackMakeMe */
 /** @typedef {import("./optionsDefinitionTestData.mjs").OptionsDefinitionMakeMe} OptionsDefinitionMakeMe */
 /** @typedef {import("./projectCiSettingsTestData.mjs").ProjectCiSettingsMakeMe} ProjectCiSettingsMakeMe */
@@ -71,9 +73,9 @@ import { jobDurations } from "./jobDurationTestData.mjs";
  * @property {{ with: typeof jobDurations }} jobDurations
  */
 
-/** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & FeedbackMakeMe} */
+/** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe} */
 export const makeMe = Object.defineProperties(
-  /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & FeedbackMakeMe} */ ({}),
+  /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe} */ ({}),
   {
     jobDurations: {
       enumerable: true,
@@ -224,6 +226,7 @@ export const makeMe = Object.defineProperties(
     ...terminalThemeSettingMakeMeProperties(),
     ...ciMakeMeProperties(),
     ...launchMakeMeProperties(),
+    ...usageMakeMeProperties(),
     ...feedbackMakeMeProperties(),
   },
 );

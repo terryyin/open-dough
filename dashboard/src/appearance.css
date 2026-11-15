@@ -16,6 +16,8 @@
   --quiet: #55554f;
   --accent: #1b5fa8;
   --problem: #9b1c1c;
+  /* Known to be incomplete, short of a problem (Usage's partial tasks). */
+  --caution: #8a5214;
   --ready: #1b6e3c;
   /* Quiet fills behind a hovered, selected, or failed control. Each keeps the
      colour drawn over it at its contrast. */
@@ -55,6 +57,7 @@
     --quiet: #b0bdd2;
     --accent: #c4d2ff;
     --problem: #f0a8a8;
+    --caution: #f4bf78;
     --ready: #a4dfc1;
     --hover: #232e41;
     --accent-soft: #29395d;

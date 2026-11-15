@@ -4,20 +4,20 @@ import { FeedbackMaintenanceSettings } from "./FeedbackMaintenanceSettings.tsx";
 import { Icon } from "./Icon.tsx";
 import { OpenAISettings } from "./OpenAISettings.tsx";
 import { ProductMark } from "./ProductMark.tsx";
+import { ProjectsSettings } from "./ProjectsSettings.tsx";
+import { SystemSettingsUsage } from "./SystemSettingsUsage.tsx";
 import { TerminalThemeSettings } from "./TerminalThemeSettings.tsx";
-import { refusalMessage } from "./refusalMessage.ts";
-import { AddProject } from "./AddProject.tsx";
-import { ProjectClientConfiguration } from "./ProjectClientConfiguration.tsx";
-import { ProjectVisibility } from "./ProjectVisibility.tsx";
-import { RemoveProject } from "./RemoveProject.tsx";
-import { useProjects } from "./projectList.tsx";
-import {
-  projectSettingsEndpoint,
-  type ProjectSettings,
-} from "./projectConfiguration.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import "./frame-controls.css";
 import "./project-configuration.css";
+
+// System settings' separate views: the existing settings together as General,
+// and Usage.
+const views = [
+  ["general", "General"],
+  ["usage", "Usage"],
+] as const;
+type SettingsView = (typeof views)[number][0];
 
 export function SystemSettings({
   selectedId,
@@ -28,35 +28,11 @@ export function SystemSettings({
   readonly onSelect: (source: PublishedSource | undefined) => void;
   readonly onBack: () => void;
 }) {
-  const projects = useProjects();
   const heading = useRef<HTMLHeadingElement>(null);
-  const [facts, setFacts] = useState<readonly ProjectSettings[]>();
-  const [problem, setProblem] = useState<string>();
-  const [visibilityProblem, setVisibilityProblem] = useState<string>();
-  const [retry, setRetry] = useState(0);
+  const [view, setView] = useState<SettingsView>("general");
   useEffect(() => {
     heading.current?.focus();
   }, []);
-  useEffect(() => {
-    const controller = new AbortController();
-    setProblem(undefined);
-    void fetch(projectSettingsEndpoint, { signal: controller.signal })
-      .then(async (response) => {
-        const answer: unknown = await response.json();
-        if (!response.ok)
-          throw new Error(
-            refusalMessage(answer, "Project settings could not be read."),
-          );
-        return answer as readonly ProjectSettings[];
-      })
-      .then(setFacts, (error: unknown) => {
-        if (!controller.signal.aborted)
-          setProblem(error instanceof Error ? error.message : String(error));
-      });
-    return () => {
-      controller.abort();
-    };
-  }, [projects, retry]);
   return (
     <main className="system-settings">
       <div className="settings-bar">
@@ -71,90 +47,30 @@ export function SystemSettings({
           Back to dashboard
         </button>
       </div>
-      <section
-        className="settings-section"
-        aria-labelledby="settings-projects-heading"
-      >
-        <div className="settings-section-heading">
-          <h2 id="settings-projects-heading">Projects</h2>
-          <AddProject onSelect={onSelect} />
-        </div>
-        <p className="settings-note">
-          Configure projects for this dashboard on this machine.
-        </p>
-        {problem && (
-          <div role="alert" className="settings-problem">
-            {problem}{" "}
-            <button
-              type="button"
-              className="frame-button"
-              onClick={() => {
-                setRetry(retry + 1);
-              }}
-            >
-              Retry
-            </button>
-          </div>
-        )}
-        {visibilityProblem && (
-          <div role="alert" className="settings-problem">
-            {visibilityProblem}
-          </div>
-        )}
-        {projects.length === 0 ? (
-          <p className="settings-empty">
-            No projects configured. Add a project to get started.
-          </p>
-        ) : (
-          <ul className="settings-project-list">
-            {projects.map((source) => {
-              const projectFacts = facts?.find((item) => item.id === source.id);
-              return (
-                <li
-                  key={source.id}
-                  data-project-visibility={source.hidden ? "hidden" : "visible"}
-                >
-                  <div>
-                    <div className="settings-project-title">
-                      <h3>{source.label}</h3>
-                      {source.hidden && (
-                        <p className="settings-project-status">
-                          Hidden from dashboard
-                        </p>
-                      )}
-                    </div>
-                    <dl>
-                      <dt>GitHub repository</dt>
-                      <dd>{source.repository}</dd>
-                      <dt>Local path</dt>
-                      <dd>{projectFacts?.localPath ?? "Loading…"}</dd>
-                      <ProjectClientConfiguration
-                        inspection={projectFacts?.clientConfiguration}
-                      />
-                    </dl>
-                  </div>
-                  <div className="settings-project-actions">
-                    <ProjectVisibility
-                      source={source}
-                      selectedId={selectedId}
-                      onSelect={onSelect}
-                      onProblem={setVisibilityProblem}
-                    />
-                    <RemoveProject
-                      source={source}
-                      selectedId={selectedId}
-                      onSelect={onSelect}
-                    />
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
-      <OpenAISettings />
-      <TerminalThemeSettings />
-      <FeedbackMaintenanceSettings />
+      <nav className="settings-views" aria-label="System settings views">
+        {views.map(([id, name]) => (
+          <button
+            key={id}
+            type="button"
+            aria-pressed={view === id}
+            onClick={() => {
+              setView(id);
+            }}
+          >
+            {name}
+          </button>
+        ))}
+      </nav>
+      {view === "general" ? (
+        <>
+          <ProjectsSettings selectedId={selectedId} onSelect={onSelect} />
+          <OpenAISettings />
+          <TerminalThemeSettings />
+          <FeedbackMaintenanceSettings />
+        </>
+      ) : (
+        <SystemSettingsUsage />
+      )}
     </main>
   );
 }

@@ -1,4 +1,8 @@
-import { completionLabel, reportUnread } from "./completionReport.ts";
+import {
+  completionLabel,
+  reportUnread,
+  returnedToBacklogLabel,
+} from "./completionReport.ts";
 // How a recorded launch's session reads on the page (`./agentLaunch.ts`):
 // the one reading of normalized native activity, with any completion report
 // not yet marked read or done apart from it, shared by every session entry
@@ -88,7 +92,7 @@ export function sessionShown(shown: ReadableSession): SessionShown {
     return {
       label:
         returnedToBacklog === completion.receipt
-          ? "Returned to backlog"
+          ? returnedToBacklogLabel
           : "Done",
       needsAttention: false,
       tone: "done",

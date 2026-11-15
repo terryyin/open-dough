@@ -2,7 +2,11 @@
 import { parseArgs } from "node:util";
 import { homedir } from "node:os";
 import path from "node:path";
-import { importUsageHistory } from "./usageImport.ts";
+import {
+  codexUsageRoots,
+  importUsageHistory,
+  usageHistorySince,
+} from "./usageImport.ts";
 import { usageHistoryFile } from "./usageHistory.ts";
 import { once } from "node:events";
 import { exportUsageSnapshot, openUsageSnapshot } from "./usageSnapshot.ts";
@@ -37,16 +41,13 @@ try {
     const result = await importUsageHistory({
       home,
       store,
-      since: values.since ?? "2026-09-16T00:00:00+08:00",
+      since: values.since ?? usageHistorySince,
       claudeRoots: (
         values["claude-root"] ?? [path.join(home, ".claude/projects")]
       ).map((root) => path.resolve(root)),
-      codexRoots: (
-        values["codex-root"] ?? [
-          path.join(home, ".codex/sessions"),
-          path.join(home, ".codex/archived_sessions"),
-        ]
-      ).map((root) => path.resolve(root)),
+      codexRoots: (values["codex-root"] ?? codexUsageRoots(home)).map((root) =>
+        path.resolve(root),
+      ),
     });
     console.log(JSON.stringify(result));
   }

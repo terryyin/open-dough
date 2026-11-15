@@ -9,7 +9,7 @@ import {
   centreOf,
   expectMarkOver,
   type HistoryChart,
-} from "../ciHistoryChartPage.ts";
+} from "../historyChartPage.ts";
 import { expect } from "../dashboardTest.ts";
 
 // Retained test-case execution times through `selectedRevision`: two joined

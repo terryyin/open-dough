@@ -74,7 +74,10 @@ export function recordCodexSession(
   return result;
 }
 
-function ancestry(
+// The session and its ancestors, nearest first, as far as the lineage knows
+// them, with their sources; contradictory when a session names several
+// parents or the chain loops.
+export function codexAncestry(
   sessionId: string,
   lineage: CodexLineage,
 ): { sessions: string[]; sources: UsageSource[]; contradictory: boolean } {
@@ -100,7 +103,7 @@ export function codexAssociation(
   tasks: UsageTask[],
   lineage: CodexLineage,
 ): UsageAssociation {
-  const chain = ancestry(observation.sessionId, lineage);
+  const chain = codexAncestry(observation.sessionId, lineage);
   if (
     chain.contradictory &&
     !observation.gaps.includes("contradictory-lineage")

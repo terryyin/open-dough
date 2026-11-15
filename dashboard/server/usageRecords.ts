@@ -33,6 +33,9 @@ export const usageSettingsSchema = z.object({
   effort: z.string().optional(),
   approvalPolicy: z.string().optional(),
   sandbox: z.string().optional(),
+  // The service tier the host recorded as applied, such as Codex's
+  // `default` or `fast`; absent when none was recorded.
+  serviceTier: z.string().optional(),
 });
 const measurementSchema = z.object({
   nativeRowId: z.string().optional(),

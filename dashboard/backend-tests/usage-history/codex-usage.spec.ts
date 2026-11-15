@@ -1,4 +1,5 @@
-// Offline Codex traversal proves ownership, task boundaries and honest gaps.
+// Offline Codex traversal proves ownership, task boundaries, honest gaps and
+// the service tier each response ran at.
 import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -187,4 +188,45 @@ test("attributes own responses and explicit descendants across compressed archiv
   const before = JSON.stringify(history);
   runImport(home, root, ["--codex-root", archive]);
   expect(JSON.stringify(readImported(home))).toBe(before);
+});
+
+test("responses keep the service tier their thread's settings last applied, and none where no tier was recorded", ({
+  home,
+  root,
+}) => {
+  const fast = "01a1b51f-108e-7c93-abb2-3a7fe255002c";
+  const unrecorded = "01a1b51f-108e-7c93-abb2-3a7fe255002d";
+  const parent = "01a1b51f-108e-7c93-abb2-3a7fe255002e";
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession(fast)
+      // Copied from the thread it was forked from, which is not this one.
+      .withAppliedSettings({ threadId: parent, serviceTier: "flex" })
+      .withResponse("turn", "before", { output_tokens: 1 })
+      .withAppliedSettings({ serviceTier: "fast" })
+      .withResponse("turn", "after", { output_tokens: 2 })
+      .please(),
+  );
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession(unrecorded)
+      .withAppliedSettings()
+      .withResponse("turn", "untiered", { output_tokens: 3 })
+      .please(),
+  );
+  runImport(home, root);
+
+  const tiers = Object.fromEntries(
+    Object.values(readImported(home).observations).map((item) => [
+      item.responseId,
+      item.settings.serviceTier,
+    ]),
+  );
+  expect(tiers).toEqual({
+    before: undefined,
+    after: "fast",
+    untiered: undefined,
+  });
 });
