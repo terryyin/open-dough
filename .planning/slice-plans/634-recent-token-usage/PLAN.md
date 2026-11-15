@@ -2,6 +2,7 @@
 
 **Identity:** SEED-369#make-recent-token-usage-easier-to-read
 **Source:** [Make recent token usage easier to read](../../seeds/SEED-369-recent-token-usage.md#make-recent-token-usage-easier-to-read)
+**Source review:** [Independent source commitments](source-review.md)
 
 ## Goal and scope
 
@@ -103,7 +104,7 @@ than adding a separate chart or recomputing Token index in the browser.
 
 ### 1. Choose recent calendar days without restarting the average
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source examples 1, 2 and empty-period part of 5; focused Backend,
 Frontend and real-store E2E Usage cases, with exact calendar-boundary inputs
 and independently expected averages/counts.
@@ -207,34 +208,31 @@ All observations below used this owned checkout on 2026-11-15 at
 | Both large tasks and the average currently influence ordinary geometry | Actual `chartLayout` loaded through this checkout's Vite config, width 600, task indexes 1M/2M/65M and average 8M: top tick 80M, ordinary separation 1.45px. Omitting only the large entry leaves top tick 8M and separation 14.5px. The layout used by the renderer still admits the average to scaling. | Slice 3 removes that influence; no assumption that moving the large task alone suffices. |
 | Neighboring shared-chart UI routes are usable | `npm run test:dashboard:frontend -- intent-ci-history-chart-marks.spec.ts intent-project-ci-history-chart-marks.spec.ts intent-scope-timing-history-units.spec.ts` passed: Done/Project marks, keyboard/touch, light/dark, narrow labels and scope units. | Recheck the changed default branches/consumers after implementation. |
 
-Geometry observation command, using the renderer's pure layout through this
-checkout's Vite module graph; it proves neither CSS paint nor new interaction:
+The geometry baseline used the renderer's `chartLayout` through this checkout's
+Vite module graph (width 600, 1M/2M/65M tasks, 8M average). Its numeric result is
+retained in the premise table; it proves neither CSS paint nor new interaction.
+The prepared three slices remain within the plan cap.
 
-```sh
-node --input-type=module <<'JS'
-import {createServer} from 'vite';
-import {mkdtemp,rm} from 'node:fs/promises';
-import {tmpdir} from 'node:os';
-import path from 'node:path';
-const cacheDir=await mkdtemp(path.join(tmpdir(),'usage-plan-vite-'));
-let compiler;
-try {
-  compiler=await createServer({configFile:path.resolve('dashboard/vite.config.mts'),cacheDir,server:{middlewareMode:true,hmr:false,ws:false},appType:'custom',logLevel:'error'});
-  const {chartLayout}=await compiler.ssrLoadModule(path.resolve('dashboard/src/historyChartLayout.ts'));
-  const {countAxis}=await compiler.ssrLoadModule(path.resolve('dashboard/src/chartValueAxis.ts'));
-  const entries=[1_000_000,2_000_000,65_000_000].map((value,i)=>({kind:'point',key:String(i),date:`2026-11-${String(i+1).padStart(2,'0')}T12:00:00Z`,value,description:String(value)}));
-  const series={label:'Token index per finished task by end date',axis:countAxis,entries,trend:[{date:entries[2].date,value:8_000_000}]};
-  for(const [name,source] of [['current',series],['omit-large-task',{...series,entries:entries.slice(0,2)}]]){
-    const layout=chartLayout(source,600);
-    console.log(JSON.stringify({name,topTick:layout.ticks.at(-1)?.value,ordinarySeparation:Math.abs(layout.marks[0].y-layout.marks[1].y)}));
-  }
-} finally {await compiler?.close();await rm(cacheDir,{recursive:true,force:true});}
-JS
-```
+## Execution context
 
-Plan refinement was not needed: three cohesive behavior outcomes, each with
-its own proof loop, no speculative Structure, and one explicit interim
-trade-off replaced by slice 3. The cumulative design keeps period selection,
-true numeric observations and optional chart presentation separate without
-duplicating them. No remaining slice-specific concern was identified in this
-review; no paid/native probe or pre-Take human decision is required.
+Established Story Branch Mode, publisher `dashboard-territory.local-open-dough`, agent Yui-chan.
+Owned/originating checkout `/Users/terryyin/git/open-dough/.worktrees/make-recent-token-usage-easier-to-read`,
+branch `codex/make-recent-token-usage-easier-to-read`; optional default/integration `/Users/terryyin/git/open-dough`.
+Starting revision `244fc7bc67e454a3d43dfc7849f9b65edb805ec9`; initial published base/candidate
+`07e3ec6c411f79f65f908fc9aa0ac18ce3f5d275`, verified on origin/main and execution branch.
+No second start; claim trunk CI unobserved. No replanning override; existing planning authority retained.
+Checkout `npm ci` with unchanged lockfile and `npm run typecheck:dashboard` passed.
+Selective formatter `npm run format`; check-only `.githooks/pre-commit` owns staged lint and typecheck.
+No generation or separate project-summary mutation applies to these dashboard changes.
+CI GitHub Actions `terryyin/open-dough`, verified `ci.yml` (CI), execution branch target.
+Observer coordinator `yui-seed369`, cell `g369:14`, session73304, `/tmp/dough-ci-501/watch-KhIAqs`, PID85851,
+from owned checkout above; reuse for every increment.
+Expensive-proof basis: local awake AC macOS, load11.76/8.72/7.49, 49% memory free; no competing owned proof.
+Run focused Backend/Frontend/E2E sequentially under `caffeinate -s -i`, 10-minute command deadline,
+default test timeouts; implementer owns terminal result. Reconsider on changed conditions/failure;
+leave unrelated processes to owners and reuse settled preparation observations.
+
+### Slice 1 acceptance
+
+[Inspected proof and consumer dispositions](source-review.md#slice-1-acceptance) match every allocated
+source expectation; no gap or deferred/running proof. Implementation ~8 active minutes.

@@ -7,6 +7,7 @@
 // travels as the request's query, spelled here for both sides. Refresh
 // answers the new check time.
 import { launchWorkflowNames } from "./launchWorkflow.ts";
+import type { UsagePeriod } from "./usagePeriod.ts";
 
 export const usageTokenIndexEndpoint = "/__usage/token-index";
 export const usageRefreshEndpoint = "/__usage/refresh";
@@ -43,10 +44,17 @@ export const defaultCohort: TokenIndexCohort = {
   effort: null,
 };
 
-export function tokenIndexUrl(cohort: TokenIndexCohort): string {
+export function tokenIndexUrl(
+  cohort: TokenIndexCohort,
+  period?: UsagePeriod,
+): string {
   const query = new URLSearchParams({ workflow: cohort.workflow });
   if (cohort.model !== null) query.set("model", cohort.model);
   if (cohort.effort !== null) query.set("effort", cohort.effort);
+  if (period !== undefined) {
+    query.set("from", period.from);
+    query.set("until", period.until);
+  }
   return `${usageTokenIndexEndpoint}?${query.toString()}`;
 }
 

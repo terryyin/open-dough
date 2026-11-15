@@ -16,6 +16,7 @@ import {
   type UsageRefreshAnswer,
 } from "../src/usageTokenIndex.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { requestedUsagePeriod } from "../src/usagePeriod.ts";
 import { localJsonEndpoints } from "./localJsonEndpoints.ts";
 import { configuredProjects } from "./projectConfiguration.ts";
 import { retainedLaunchEnds } from "./retainedUsageTasks.ts";
@@ -29,11 +30,16 @@ import { codexTariff } from "./usageTariffs.ts";
 async function tokenIndex(req: IncomingMessage): Promise<TokenIndexAnswer> {
   if (req.method !== "GET")
     throw new RefusedRequest(405, "Only GET is accepted.");
-  const cohort = requestedCohort(
-    new URL(req.url ?? "", "http://local").searchParams,
-  );
+  const query = new URL(req.url ?? "", "http://local").searchParams;
+  const cohort = requestedCohort(query);
   if (cohort === undefined)
     throw new RefusedRequest(400, "Choose a known launch workflow.");
+  const period = requestedUsagePeriod(query);
+  if (period === null)
+    throw new RefusedRequest(
+      400,
+      "Choose a valid Usage period with both from and until instants.",
+    );
   const store = usageHistoryFile();
   const [summary, launches, checkedAt] = await Promise.all([
     currentUsageTaskSummary(store),
@@ -51,6 +57,7 @@ async function tokenIndex(req: IncomingMessage): Promise<TokenIndexAnswer> {
         tariff: codexTariff,
       },
       cohort,
+      period,
     ),
     checkedAt,
   };

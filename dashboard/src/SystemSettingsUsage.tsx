@@ -11,6 +11,8 @@ import { Moment } from "./Moment.tsx";
 import { refusalMessage } from "./refusalMessage.ts";
 import { TokenIndexTrend } from "./TokenIndexTrend.tsx";
 import { UsageFilters } from "./UsageFilters.tsx";
+import { UsageDays } from "./UsageDays.tsx";
+import { recentUsagePeriod } from "./usagePeriod.ts";
 import {
   defaultCohort,
   tokenIndexUrl,
@@ -22,6 +24,7 @@ import "./system-settings-usage.css";
 
 export function SystemSettingsUsage() {
   const [cohort, setCohort] = useState(defaultCohort);
+  const [days, setDays] = useState(30);
   const [answer, setAnswer] = useState<TokenIndexAnswer>();
   // The latest answer's Model and Effort options stay on offer while the
   // next cohort loads.
@@ -32,7 +35,9 @@ export function SystemSettingsUsage() {
   const [checking, setChecking] = useState(false);
   useEffect(() => {
     const controller = new AbortController();
-    void fetch(tokenIndexUrl(cohort), { signal: controller.signal })
+    void fetch(tokenIndexUrl(cohort, recentUsagePeriod(days)), {
+      signal: controller.signal,
+    })
       .then(async (response) => {
         const body: unknown = await response.json();
         if (!response.ok)
@@ -55,7 +60,7 @@ export function SystemSettingsUsage() {
     return () => {
       controller.abort();
     };
-  }, [cohort, refreshed]);
+  }, [cohort, days, refreshed]);
   const refresh = () => {
     setChecking(true);
     setProblem(undefined);
@@ -97,7 +102,18 @@ export function SystemSettingsUsage() {
           Refresh
         </button>
       </div>
-      <UsageFilters cohort={cohort} options={options} onChoose={choose} />
+      <div className="usage-filters">
+        <UsageDays
+          days={days}
+          onChoose={(next) => {
+            if (next === days) return;
+            setDays(next);
+            setAnswer(undefined);
+            setProblem(undefined);
+          }}
+        />
+        <UsageFilters cohort={cohort} options={options} onChoose={choose} />
+      </div>
       {problem !== undefined && (
         <div role="alert" className="settings-problem">
           {problem}
@@ -111,7 +127,7 @@ export function SystemSettingsUsage() {
         )
       ) : (
         <>
-          <TokenIndexTrend answer={answer} />
+          <TokenIndexTrend answer={answer} days={days} />
           <p className="settings-note">
             {answer.checkedAt === null ? (
               "Not checked yet"

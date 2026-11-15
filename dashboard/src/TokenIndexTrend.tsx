@@ -58,8 +58,10 @@ function cohortNote({ tasks, unpriced }: TokenIndexAnswer): string {
 
 export function TokenIndexTrend({
   answer,
+  days,
 }: {
   readonly answer: TokenIndexAnswer;
+  readonly days: number;
 }) {
   // The selected task and its point's button, which Close focuses again.
   const [chosen, setChosen] = useState<{
@@ -68,13 +70,16 @@ export function TokenIndexTrend({
   }>();
   const selected = answer.tasks.find((task) => task.id === chosen?.key);
   const latest = answer.average.at(-1);
+  const periodWords = `${days} ${days === 1 ? "day" : "days"}`;
   return (
     <>
       <section className="usage-chart" aria-label="Token index trend">
         <div className="usage-chart-head">
           <div>
             <h3>Token index per task</h3>
-            <p className="settings-note">{cohortNote(answer)}</p>
+            <p className="settings-note">
+              {cohortNote(answer)} · Last {periodWords}
+            </p>
           </div>
           <p className="usage-average">
             <strong>
@@ -82,7 +87,7 @@ export function TokenIndexTrend({
             </strong>
             <span className="settings-note">
               {latest === undefined
-                ? `Fewer than ${String(movingAverageTasks)} eligible tasks`
+                ? `An average needs ${String(movingAverageTasks)} eligible tasks; none is available in this period`
                 : `${String(movingAverageTasks)}-task moving average`}
             </span>
           </p>
@@ -90,8 +95,8 @@ export function TokenIndexTrend({
         {answer.tasks.length === 0 ? (
           <p className="settings-empty">
             {answer.unpriced === 0
-              ? "No finished task matches."
-              : "No priced finished task matches."}
+              ? `No finished task matches in the last ${periodWords}.`
+              : `No priced finished task matches in the last ${periodWords}.`}
           </p>
         ) : (
           <HistoryChart

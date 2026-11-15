@@ -89,6 +89,10 @@ function setting(
   return { model: model === null ? null : usageModel(model, tariff), effort };
 }
 
+// The reported outcome time, or the last activity when no outcome was reported.
+export const taskEndedAt = (task: SummaryTask): string | null =>
+  task.outcome?.at ?? task.lastActivityAt;
+
 // The finished task's point and detail, partial when its recorded gaps show
 // usage missing; "unpriced" when a response has no rate under the tariff;
 // undefined when it cannot be placed.
@@ -98,7 +102,7 @@ export function tokenIndexTask(
 ): TokenIndexTask | "unpriced" | undefined {
   const index = tokenIndex(task.usage, tariff);
   if (index === undefined) return "unpriced";
-  const endedAt = task.outcome?.at ?? task.lastActivityAt;
+  const endedAt = taskEndedAt(task);
   const label = task.project === null ? undefined : projects.get(task.project);
   const workflow = launchWorkflowOf(task.workflow);
   if (

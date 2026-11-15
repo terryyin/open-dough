@@ -4,6 +4,10 @@ import { usageTokenIndexEndpoint } from "../src/usageTokenIndex.ts";
 import { test } from "../tests/support/frontendApp.ts";
 import { visitUsage } from "../tests/support/systemSettingsUsagePage.ts";
 
+test.beforeEach(async ({ page }) => {
+  await page.clock.install({ time: new Date("2026-11-15T12:00:00.000Z") });
+});
+
 const day = (date: number) =>
   `2026-11-${String(date).padStart(2, "0")}T12:00:00.000Z`;
 
@@ -44,10 +48,14 @@ test("partial and unpriced tasks explain a sparse trend, and an empty cohort exp
     (route) => route.fulfill({ json: answer }),
   );
   const usage = await visitUsage(page);
-  await usage.showsCohortNote("11 tasks · 1 partial · 1 unpriced");
+  await usage.showsCohortNote(
+    "11 tasks · 1 partial · 1 unpriced · Last 30 days",
+  );
   await usage.showsPointCount(10);
   await usage.showsPartialPoints(1);
-  await usage.showsNoAverage("Fewer than 10 eligible tasks");
+  await usage.showsNoAverage(
+    "An average needs 10 eligible tasks; none is available in this period",
+  );
   await usage.selectPoint("Nov 5 · 1,400 · Partial", "pointer");
   await usage.showsFact("Coverage", "Partial · Worker usage missing");
 
@@ -56,8 +64,8 @@ test("partial and unpriced tasks explain a sparse trend, and an empty cohort exp
     .inWorkflow("refinement")
     .please();
   await usage.choose("Launch workflow", "Refinement");
-  await usage.showsCohortNote("0 tasks");
-  await usage.showsNoPoints("No finished task matches.");
+  await usage.showsCohortNote("0 tasks · Last 30 days");
+  await usage.showsNoPoints("No finished task matches in the last 30 days.");
 });
 
 test("task detail distinguishes repeated launches and unknown outcomes, with keyboard selection and focus restoration", async ({

@@ -77,6 +77,26 @@ export function usageView(page: Page) {
     }
   };
   return {
+    async chooseDays(days: string) {
+      await view.getByRole("textbox", { name: "Last N days" }).fill(days);
+    },
+    async showsDays(days: string) {
+      await expect(
+        view.getByRole("textbox", { name: "Last N days" }),
+      ).toHaveValue(days);
+    },
+    async showsDaysProblem(words: string) {
+      await expect(
+        view.getByRole("textbox", { name: "Last N days" }),
+      ).toHaveAttribute("aria-invalid", "true");
+      await expect(view.getByRole("alert")).toHaveText(words);
+    },
+    async showsNoDetail() {
+      await expect(detail).toHaveCount(0);
+    },
+    async showsLoading() {
+      await expect(view.getByRole("status")).toHaveText("Loading usage…");
+    },
     // The chosen option of each filter, by its label.
     async showsCohort(cohort: Readonly<Record<string, string>>) {
       for (const [label, choice] of Object.entries(cohort))
