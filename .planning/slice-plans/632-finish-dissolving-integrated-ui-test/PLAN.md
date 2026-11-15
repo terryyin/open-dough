@@ -3,15 +3,76 @@
 **Identity:** SEED-334#finish-dissolving-integrated-ui-test
 **Source:** [Finish dissolving Dashboard Integrated UI Test](../../seeds/SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test)
 
-**Status:** awaiting story refinement — not ready for slice-plan refinement or execution.
+## Goal, scope and decisions
 
-Resume with `dough-story-refinement` on this identity to clarify its Goal,
-Scope and Key examples, then realign this plan before slice-plan refinement
-and readiness assessment. The slices below are provisional planning input
-mapped from slices 7–14 of SEED-334#focus-detailed-dashboard-ui-checks
-(recoverable at `04457c35ec5ea4a16e741aeb66412cf353a8745e:.planning/slice-plans/627-dissolve-dashboard-integrated-ui-test/PLAN.md`), which
-was split after delivering its configuration, launch and session-lifecycle
-batches; their earlier readiness does not carry over.
+Dissolve the entire remaining interim group while preserving every distinct
+regression assertion in E2E, Frontend or Backend, then retire its current
+Intent entry, runner, CI producer and live tooling references. Shared support
+and historical proof remain usable. The source governs this plan.
+
+Terry's clarification in this preparation keeps the full outcome in one
+story. All eight batches below remain in scope; none is deferred to a
+successor. A converted batch is a safe delivery increment, and completion
+requires every batch plus retirement. The eight boundaries remain a draft
+because their sizing concerns below are unresolved. Refinement grants no
+execution authority or exception to the slice budget.
+
+## Existing solution and architecture
+
+PFE: reuse `dashboard/tests/support/frontendApp.ts` and service-family
+substitutes for built-page UI, component mounts for isolated presentation,
+`dashboardTest.ts`'s public Backend boundary, and existing representative E2E
+journeys. A mixed test's assertions determine the split; a filename or old
+inventory row never decides it. Keep real in-service collaborators and
+substitute only the service boundaries each unit case needs. Add a missing
+answer family beside the existing ones rather than another harness or tier.
+
+Follow [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
+[ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+and [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+The existing [North Star](../../NORTH-STAR.md) governs published facts, local
+sessions and observations; no new direction is needed for moving proof.
+
+## Proof and local gates
+
+Every conversion slice owns an assertion-by-assertion disposition of its
+interim cases: retained unchanged at the same boundary, moved to a named case,
+or split across named E2E/Frontend/Backend cases. Include negative effects
+(native commands, upstream requests or store writes that must not happen).
+Inspect reused proof's setup and assertions; preserve every distinct promise.
+
+Before changing a proof boundary, retain its interim assertions and observe a
+representative scratch break of the asserted rule. The new home must catch
+the same break and pass after restoration. Revert scratch edits before any
+commit. Remove migrated specs and their `integrated.longest-first*` entries
+only with the replacement proof, and run the touched homes and affected
+support consumers. Use the installed
+[consumer-trace procedure](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
+for moved modules, changed contracts and retired outputs.
+
+Local gate: focused converted cases via `npm run test:e2e -- <paths>`,
+`npm run test:dashboard:frontend -- <paths>` and/or
+`npm run test:dashboard:backend -- <paths>`, with lint/typecheck for changed
+TypeScript. Select MakeMe and, for browser sources, page-object conventions
+before authoring under [AGENTS.md](../../../AGENTS.md#test-automation).
+No `test.slow()` or suite/file/hook timeout overrides; retain default case budgets.
+
+Apply the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
+as written, including hosted CI after publication. Choose broader local proof
+for actual fixture/runtime consumers. Before expensive runs inspect host load,
+memory and competing work. On macOS use
+the maintained [sleep guard and power condition](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos):
+fully awake and on AC, `caffeinate -s -i`; on battery, plug in or keep the lid
+open under `caffeinate -i` and inspect the sleep log afterwards. Full groups
+share local admission across worktrees; focused selections remain independent.
+
+| Final-state promise / source example | Owner and observable proof |
+| --- | --- |
+| Final report, passive native behavior and stored session state / example 1 | Slice 1: controlled Frontend report interaction plus retained E2E/Backend store and no-native-operation assertions. |
+| All remaining mixed cases retain their distinct assertions / example 2 | Slices 1–7: named old-to-new assertion dispositions, focused passing cases, representative discrimination at changed proof boundaries. |
+| CI read refuses malformed input without extra upstream work / example 3 | Slice 6: direct Backend HTTP answers and recorded GitHub calls for every current query. |
+| Specs absent from the inventory still convert / example 4 | Slices 2 and 5 explicitly include the two named additions; each batch reconciles current cases against its old inventory rows. |
+| Empty interim case tree; three current groups; retained helpers/history / example 5 | Slice 8: no product spec left, three-group runner/CI proof, current Intent absence and historical revision/source reading. |
 
 ## Carried learnings
 
@@ -65,82 +126,125 @@ batches; their earlier readiness does not carry over.
 ### 1. Convert final report and workspace retirement
 Type: Behavior
 Status: planned
-Proof: same for `final-report-touch{,-divider}` and
-`session-workspace-retirement{,-claude-done,-lifetime}` on a Frontend final
-report (`/__agent-launch/result`) substitute.
-
-Behavior: interim final-report and workspace-retirement checks → homes by
-boundary; those interim files gone.
+Proof: `final-report-touch{,-divider}` and
+`session-workspace-retirement{,-claude-done,-lifetime}` retain report reading,
+focus, confirmation, stale-answer and passive native/store assertions.
+Behavior: retained/unfinished report on card, Recently done or sidebar → read,
+close, change selection or confirm Done → the same UI, persistence and native
+results remain protected in their proper homes; these five interim specs go.
+Extend a report-result substitute at `/__agent-launch/result` for UI answers;
+keep actual report storage, native passivity and Done integration in E2E or
+Backend. Own any currently necessary shared-answer reorganization here.
 
 ### 2. Convert recently done sessions
 Type: Behavior
 Status: planned
-Proof: same for the 20 `dashboard/tests/sessions/recently-done-*` specs,
-including `recently-done-returned-sessions.spec.ts` (not in the inventory).
-
-Behavior: interim recently-done session checks → homes by boundary; those
-interim files gone.
+Proof: all 20 `dashboard/tests/sessions/recently-done-*` specs, including
+`recently-done-returned-sessions.spec.ts`, map every selection, review-cue,
+paging, reopening, project, touch and active/returned-session assertion.
+Behavior: observed recent session → select, reopen, page or receive an updated
+observation → the same association, navigation and session action outcomes
+remain protected outside the interim group; its 20 specs go.
 
 ### 3. Convert the sessions sidebar
 Type: Behavior
 Status: planned
-Proof: same for the 16 `cursor-sessions-sidebar-*` (with
-`cursorSessionsSidebarFormerHeightCases.ts`) and `sessions-sidebar-*` specs;
-`dashboard/tests/sessions/` holds no product spec afterwards.
+Proof: the 16 remaining `cursor-sessions-sidebar-*` and `sessions-sidebar-*`
+specs, with `cursorSessionsSidebarFormerHeightCases.ts`, preserve layout,
+resizing/kept size, host status, navigation, keyboard, row and state cases.
+Behavior: observed sessions across hosts/projects → operate the sidebar → its
+same presentation, focus, persistence and native-action outcomes remain
+protected outside the interim group; no session product spec remains there.
 
-Behavior: interim sessions sidebar checks → homes by boundary; interim
-session product specs gone.
-
-### 4. Convert terminals interim detailed checks
+### 4. Convert terminal checks
 Type: Behavior
 Status: planned
-Proof: same for `dashboard/tests/terminals/`.
+Proof: all 14 `dashboard/tests/terminals/` specs retain terminal attachment,
+input/recovery, keyboard/touch, size/theme and voice-lifecycle assertions.
+Behavior: attach or operate a terminal → real workflow or controlled
+WebSocket/transcription answer → the same transport/backend outcomes and UI
+rules remain protected at their owning boundaries; interim terminal specs go.
+Reuse the terminal application and transcription substitutes where appropriate.
 
-Behavior: interim terminal detailed checks → unit or E2E homes; interim
-terminal product specs gone.
-
-### 5. Convert story review interim checks
+### 5. Convert story review checks
 Type: Behavior
 Status: planned
-Proof: same for `dashboard/tests/review/` including
-`story-review-diff-line-follow-up.spec.ts`.
-
-Behavior: interim review detailed/mixed checks → homes by boundary; interim
-review product specs gone.
+Proof: all 16 `dashboard/tests/review/` specs, including
+`story-review-diff-line-follow-up.spec.ts`, preserve range/refresh races,
+diffs/context/moves, pane/tree/touch, uncommitted checks and follow-up behavior.
+Behavior: open or operate story review → review answer or real repository
+change → the same reviewed state and UI remain protected outside the interim
+group; interim review specs go. Extend one story-review answer family at the
+snapshot/range/diff/text/mark boundaries, retaining actual Git work in Backend
+or representative E2E journeys.
 
 ### 6. Convert Intent CI, proof, history and Purpose checks
 Type: Behavior
 Status: planned
-Proof: same for inventory Intent batch specs still under
-`dashboard/tests/intent/` (including the pending backend
-`intent-ci-status-read-boundary` case); extend Intent page substitutes as the
-inventory names (ci-status, ci-proof, ci-history, ci-comparison, done/review,
-revision polling).
+Proof: all 72 `dashboard/tests/intent/` specs retain CI status/freshness/sort,
+comparison/proof/history/gaps, done/review, source/Purpose/Gherkin, selection,
+revision/recovery and optimization-candidate assertions, including the direct
+Backend conversion of `intent-ci-status-read-boundary.spec.ts`.
+Behavior: read or navigate Intent and receive a changed/refused/held answer →
+the same truthful proof, source selection, recovery and UI outcomes remain
+protected at their boundaries; all interim Intent specs go. Reuse component
+mounts; add only the full-page answer families each converted case needs.
 
-Behavior: interim Intent detailed/mixed checks → Frontend/Backend/E2E homes;
-those interim Intent files gone. Split by substitute family before executing it.
-
-### 7. Convert board, navigation, stories and observation reading
+### 7. Convert board, navigation, stories and observation
 Type: Behavior
 Status: planned
-Proof: same for remaining `dashboard/tests/navigation/`, `stories/` and
-`observation/` interim specs.
-
-Behavior: interim board/navigation/stories/observation detailed/mixed checks →
-homes by boundary; those interim product specs gone. Split by folder or substitute family before executing.
+Proof: all 41 navigation, 31 stories and seven observation specs retain board,
+frame/header, selection/reference, readiness/dependency/roster/progress,
+progressive done reading, per-project isolation and revision-stream assertions.
+Behavior: navigate, operate, refresh or observe a publication → the same board,
+selection, focus and published/local-fact outcomes remain protected at their
+boundaries; these 79 interim specs go. Keep representative real server/SSE
+sharing journeys in E2E; frontend polling/late-answer variants use controlled
+project/done/read/event answers.
 
 ### 8. Retire Dashboard Integrated UI Test
 Type: Behavior
 Status: planned
-Proof: `dashboard/tests/**/*.spec.ts` has no remaining product cases; remove
-Intent location for **Dashboard Integrated UI Test**, `npm run
-test:dashboard:integrated`, `dashboard/integrated.playwright.config.ts`, CI
-job `dashboard-integrated` and its shards/settings, duration lists, and
-current tooling/placement references; update the three-group roster or
-hard-coded callers; keep `dashboard/tests/support/` helpers; historical
-integrated proof at an older revision remains readable; focused
-`ci-browser-groups`, related CI declaration tests and `runner-ownership` pass
-for the three remaining groups.
+Proof: no `dashboard/tests/**/*.spec.ts` product case remains. Remove the
+current Intent location, npm command, Playwright config, `dashboard-integrated`
+CI producer/shards, duration lists and live tooling/placement references.
+Keep `integratedStateCompletion`, shared helpers and historical evidence.
+Behavior: every interim assertion has a maintained home → retire the empty
+group → only E2E, Frontend and Backend are current, all shared imports work,
+and old integrated artifacts/source remain readable at their old revisions
+without current-proof claims, fabricated comparisons or dead links.
+Update roster or hard-coded callers regardless of the roster story's order.
+Focused `ci-browser-groups`, related CI declarations and `runner-ownership`
+prove the remaining groups; retained Intent/history cases prove old evidence.
 
-Behavior: empty interim product-case tree → retirement → only E2E, Frontend
-and Backend remain as current browser proof groups.
+## Premises and remaining concerns
+
+Observed in this owned checkout at
+`aa71a3a2a86fe17020814bf0339fd1ace4e16fd2`: current `*.spec.ts` contents and
+historical migration batches were inspected, yielding 222 specs / 34,600
+lines: sessions 41 / 6,145; terminals 14 / 2,584; review 16 / 2,426;
+Intent 72 / 11,009; navigation 41 / 6,516; stories 31 / 4,752;
+observation seven / 1,168. The old inventory covers 214 current specs; actual cases remain authoritative.
+These observations establish scope/sizing, not replacement proof.
+
+The predecessor's completion record demonstrates Frontend refused-Done fault
+discrimination and the restored Backend no-native-command assertion. Reuse that
+boundary approach; new report/Intent/review substitutes and proof remain owed.
+
+Slice-plan refinement ran against the eight retained boundaries. Slice 1
+stays a bounded candidate. Slices 2–5 require smaller cohesive proof loops
+within their session, transport/voice and review responsibilities; each new
+substitute family consumes substantial work. Slice 6 combines CI acquisition,
+proof comparison/history and source/Purpose reading across 11,009 lines.
+Slice 7 combines independent navigation, story presentation/progressive reads
+and server-observation proof across 12,436 lines. These two alone exceed the
+predecessor's observed 2.5–3k-line agent-slice capacity several times over.
+Keeping eight headings cannot establish 15-active-minute slices.
+
+The selected whole-dissolution boundary is preserved. No split, dropped scope,
+probe-based exemption or budget exception has been authorized. Under the
+[slice limit and sizing rules](../../../.agents/skills/dough-story-decomposition/references/problem-decomposition.md#limit-slices-per-plan),
+this draft is not ready: executable boundaries cannot currently fit both the
+eight-slice cap and the per-slice budget. Resolving that execution-sizing
+constraint must preserve the whole promised outcome. Do not infer execution
+readiness from all work being listed or from the absence of successor stories.
