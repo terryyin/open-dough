@@ -27,6 +27,7 @@ import { CursorCliConfigBuilder } from "./cursorCliConfigTestData.mjs";
 import { RunningCursorSessionsBuilder } from "./runningCursorSessionsTestData.mjs";
 import {
   UsageAssociationBuilder,
+  UsageHistoryBuilder,
   UsageObservationBuilder,
   UsageTaskBuilder,
 } from "./usageHistoryTestData.mjs";
@@ -46,6 +47,7 @@ import { copyFacts } from "./factBuilder.mjs";
  * @property {UsageTaskBuilder} aUsageTask
  * @property {UsageObservationBuilder} aUsageObservation
  * @property {UsageAssociationBuilder} aUsageAssociation
+ * @property {UsageHistoryBuilder} aUsageHistory
  * @property {FactBuilder<StartRecord>} aStartRecord
  * @property {import("./launchTestData.mjs").LaunchRecordBuilder} aLaunchRecord
  * @property {import("./launchRequestTestData.mjs").LaunchRequestBuilder} aLaunchRequest
@@ -88,6 +90,12 @@ export function launchMakeMeProperties() {
       enumerable: true,
       get() {
         return new UsageAssociationBuilder();
+      },
+    },
+    aUsageHistory: {
+      enumerable: true,
+      get() {
+        return new UsageHistoryBuilder();
       },
     },
     aStartRecord: {

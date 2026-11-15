@@ -1,28 +1,24 @@
 // System settings → Usage: the Token index of finished dashboard-launched
-// tasks for one cohort (`./usageTokenIndex.ts`), one point per task over its
-// end time on the shared history chart (`./HistoryChart.tsx`) with
-// the trailing moving average as its trend, the tariff version that weighed
-// them and when the usage was last checked. The trend is an observation; it
-// claims neither an improvement nor a bill.
+// tasks for the cohort its filters choose (`./usageTokenIndex.ts`), one point
+// per task over its end time on the shared history chart
+// (`./HistoryChart.tsx`) with the trailing moving average as its trend, the
+// tariff version that weighed them and when the usage was last checked. The
+// trend is an observation; it claims neither an improvement nor a bill.
 import { useEffect, useState } from "react";
 import { countAxis, countWords } from "./chartValueAxis.ts";
 import type { HistoryChartSeries } from "./historyChartSeries.ts";
 import { HistoryChart } from "./HistoryChart.tsx";
 import { Moment } from "./Moment.tsx";
 import { refusalMessage } from "./refusalMessage.ts";
+import { UsageFilters } from "./UsageFilters.tsx";
 import {
+  defaultCohort,
   movingAverageTasks,
-  usageTokenIndexEndpoint,
+  tokenIndexUrl,
   type TokenIndexAnswer,
+  type TokenIndexCohort,
 } from "./usageTokenIndex.ts";
 import "./system-settings-usage.css";
-
-const filters = [
-  ["Tool", "Codex"],
-  ["Launch workflow", "Execution"],
-  ["Model", "All models"],
-  ["Effort", "Any effort"],
-] as const;
 
 function series(answer: TokenIndexAnswer): HistoryChartSeries {
   return {
@@ -83,25 +79,40 @@ function TokenIndexTrend({ answer }: { readonly answer: TokenIndexAnswer }) {
 }
 
 export function SystemSettingsUsage() {
+  const [cohort, setCohort] = useState(defaultCohort);
   const [answer, setAnswer] = useState<TokenIndexAnswer>();
+  // The latest answer's Model and Effort options stay on offer while the
+  // next cohort loads.
+  const [options, setOptions] = useState<TokenIndexAnswer["options"]>();
   const [problem, setProblem] = useState<string>();
   useEffect(() => {
     const controller = new AbortController();
-    void fetch(usageTokenIndexEndpoint, { signal: controller.signal })
+    void fetch(tokenIndexUrl(cohort), { signal: controller.signal })
       .then(async (response) => {
         const body: unknown = await response.json();
         if (!response.ok)
           throw new Error(refusalMessage(body, "Usage could not be read."));
         return body as TokenIndexAnswer;
       })
-      .then(setAnswer, (error: unknown) => {
-        if (!controller.signal.aborted)
-          setProblem(error instanceof Error ? error.message : String(error));
-      });
+      .then(
+        (body) => {
+          setAnswer(body);
+          setOptions(body.options);
+        },
+        (error: unknown) => {
+          if (!controller.signal.aborted)
+            setProblem(error instanceof Error ? error.message : String(error));
+        },
+      );
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [cohort]);
+  const choose = (next: TokenIndexCohort) => {
+    setCohort(next);
+    setAnswer(undefined);
+    setProblem(undefined);
+  };
   return (
     <section
       className="settings-section usage-view"
@@ -111,16 +122,7 @@ export function SystemSettingsUsage() {
         <h2 id="usage-heading">Token index</h2>
         <p className="settings-note">All projects on this dashboard</p>
       </div>
-      <div className="usage-filters">
-        {filters.map(([name, choice]) => (
-          <label key={name}>
-            {name}
-            <select className="frame-input">
-              <option>{choice}</option>
-            </select>
-          </label>
-        ))}
-      </div>
+      <UsageFilters cohort={cohort} options={options} onChoose={choose} />
       {problem !== undefined && (
         <div role="alert" className="settings-problem">
           {problem}

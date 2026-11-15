@@ -28,15 +28,15 @@ allocation.
 | 3.2 | It shows one chart: Token index per finished task | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts showsPoints: 12 Token index marks on the chart |
 | 3.3 | It shows a trailing moving average of the latest 10 eligible tasks in the selected cohort | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts showsAverage: latest moving-average figure = mean of latest 10 fixture indexes, line drawn |
 | 3.4.1 | Filter: one tool | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts showsCohort: Tool = Codex |
-| 3.4.2 | Filter: one launch workflow (Execution, Refinement, Ad hoc) | slice 2 | |
-| 3.4.3 | Filter: Model (**All models** or each observed model) | slice 2 | |
-| 3.4.4 | Filter: Effort (**Any effort** or each observed level) | slice 2 | |
-| 3.5 | Filter options come from the observed tasks | slice 2 | |
-| 3.6 | With the broad Model and Effort options, the cohort includes every matching task | slice 2 | |
-| 3.7 | A specific model or effort matches the task's primary observed setting | slice 2 | |
-| 3.8 | The primary setting is the value on most of the task's root conversation responses | slice 2 | |
-| 3.9 | Workers do not decide the primary setting | slice 2 | |
-| 3.10 | A tie leaves the primary setting unknown, so the task appears only under the broad option | slice 2 | |
+| 3.4.2 | Filter: one launch workflow (Execution, Refinement, Ad hoc) | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts offers Launch workflow Execution, Refinement, Ad hoc |
+| 3.4.3 | Filter: Model (**All models** or each observed model) | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts offers Model All models, GPT-6.1 Sol, GPT-6 Astra |
+| 3.4.4 | Filter: Effort (**Any effort** or each observed level) | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts offers Effort Any effort plus observed levels |
+| 3.5 | Filter options come from the observed tasks | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-cohort.spec.ts options.models and options.efforts from observed tasks (ultra from Execution) |
+| 3.6 | With the broad Model and Effort options, the cohort includes every matching task | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts all 11 Refinement points under All models/Any effort incl. tie; dashboard/backend-tests/usage-history/token-index-cohort.spec.ts ids({}) lists all Refinement tasks |
+| 3.7 | A specific model or effort matches the task's primary observed setting | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-cohort.spec.ts ids({model: astra}), ids({model: sol}), ids({effort: xhigh}) match primary setting |
+| 3.8 | The primary setting is the value on most of the task's root conversation responses | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-cohort.spec.ts counted-by-response task: majority of root responses decides, not tokens |
+| 3.9 | Workers do not decide the primary setting | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-cohort.spec.ts sol-with-astra-workers stays Sol; e2e/configuration/system-settings-usage-cohort.spec.ts Sol Refinement with Astra workers only under GPT-6.1 Sol |
+| 3.10 | A tie leaves the primary setting unknown, so the task appears only under the broad option | slice 2 | observed: dashboard/backend-tests/usage-history/token-index-cohort.spec.ts model-tie only under ids({}); effort-tie absent from every effort; e2e/configuration/system-settings-usage-cohort.spec.ts Tied refinement only under All models |
 | 3.11 | Workers still contribute their usage at their own model's rates | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts: Astra worker weighted at Astra rates in with-worker index; e2e/configuration/system-settings-usage.spec.ts Nov 8 readout |
 | 3.12 | This story offers only Codex in Tool | slice 1 | observed: dashboard/src/SystemSettingsUsage.tsx Tool select offers only Codex; e2e/configuration/system-settings-usage.spec.ts showsCohort |
 | 3.13 | Claude Code and Cursor add their own cohorts later | slice 1 | observed: no Claude Code or Cursor cohort built (dashboard/server/usageTaskSummary.ts codex-only) |
@@ -130,8 +130,8 @@ allocation.
 | 13.4 | Dashboard-origin Codex tasks use GPT-6.1 Sol and GPT-6 Astra | slice 1 | observed: dashboard/server/usageTariffs.ts prices GPT-6.1 Sol and GPT-6 Astra |
 | 14.1 | Codex + Execution + All models + Any effort: each finished Execution task is one point | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts: 12 finished Execution tasks, 12 points with Codex/Execution/All models/Any effort |
 | 14.2 | A GPT-6 Astra worker inside a GPT-6.1 Sol task is weighted at Astra's rates | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts with-worker Astra worker at Astra rates; e2e/configuration/system-settings-usage.spec.ts Nov 8 readout |
-| 14.3 | Switching to Refinement changes the points and the average | slice 2 | |
-| 14.4 | Choosing GPT-6 Astra keeps only tasks whose root mostly ran on Astra | slice 2 | |
+| 14.3 | Switching to Refinement changes the points and the average | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts choose Launch workflow Refinement: showsPoints(refinements), showsAverage(averageOf(refinements)) |
+| 14.4 | Choosing GPT-6 Astra keeps only tasks whose root mostly ran on Astra | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts choose Model GPT-6 Astra: showsPoints(astraRefinements) |
 | 15.1 | A story launched twice (once returned to the backlog, once completed) shows two points with their own outcomes | slice 3 | |
 | 15.2 | A recovered October task without a reported outcome is a point with "Outcome unknown" | slice 3 | |
 | 15.3 | A launch not marked done and with no reported outcome is not plotted yet | slice 3 | |
@@ -145,9 +145,9 @@ allocation.
 | 18.1 | 1,000 uncached + 9,000 cache read + 100 output on GPT-6.1 Sol = (1,000×50 + 9,000×2.5 + 100×250)/50 = 1,950 | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts single task index 1,950 |
 | 18.2 | Recomputing with a later tariff version uses the same stored counters and leaves them unchanged | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts later tariff reweighs same counters; storeFiles unchanged |
 | 19.1 | The approved mockup is the layout reference, with three data corrections | slice 1 | observed: dashboard/src/SystemSettingsUsage.tsx follows .planning/mockups/dashboard-task-usage.html layout with Launch workflow label |
-| 19.2 | The filter is labeled **Launch workflow** (ADR 0008 concept name), not "Task type" | slice 2 | |
-| 19.3 | Workflow options are Execution, Refinement and Ad hoc (the dashboard launches no separate slice planning) | slice 2 | |
-| 19.4 | Effort lists the observed levels (e.g. xhigh, ultra, high, max, medium), not the mockup's example pair | slice 2 | |
+| 19.2 | The filter is labeled **Launch workflow** (ADR 0008 concept name), not "Task type" | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts offers(Launch workflow, …): select labelled Launch workflow (dashboard/src/UsageFilters.tsx) |
+| 19.3 | Workflow options are Execution, Refinement and Ad hoc (the dashboard launches no separate slice planning) | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts Launch workflow options Execution, Refinement, Ad hoc |
+| 19.4 | Effort lists the observed levels (e.g. xhigh, ultra, high, max, medium), not the mockup's example pair | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts Effort options are the observed levels xhigh, high, medium; dashboard/backend-tests/usage-history/token-index-cohort.spec.ts efforts high, medium, ultra, xhigh |
 | 19.5 | Coverage wording follows the mockup: a cohort note with partial and unpriced counts | slice 4 | |
 | 19.6 | Freshness wording follows the mockup: "Checked" with the time | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts showsCheckedAt: Checked with time |
 | 19.7 | An empty cohort says that no finished task matches | slice 4 | |

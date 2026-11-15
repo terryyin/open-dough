@@ -1,8 +1,9 @@
 // The derived per-task summary the Usage view reads instead of the usage
 // store (ADR 0008: a rebuildable cache beside the store, no database). It
 // keeps each dashboard-origin Codex task's facts and its uniquely associated
-// responses' stored counters, summed per observed model, effort and whether
-// the response is the root conversation's or a worker's. Every associated
+// responses' stored counters and their count, summed per observed model,
+// effort and whether the response is the root conversation's or a worker's;
+// the counts decide a task's primary observed setting. Every associated
 // response counts, whatever its turn or its work's fate: resumed turns,
 // workers, background, failed and cancelled work alike. Pricing happens when
 // the chart is read (./tokenIndex.ts), so another tariff version weighs the
@@ -18,7 +19,7 @@ import type {
 } from "./usageRecords.ts";
 import { unvalidatedValues, type Collection } from "./usageSnapshot.ts";
 
-export const summaryFormat = "usage-task-summary-v1";
+export const summaryFormat = "usage-task-summary-v2";
 
 export type SummaryCounters = {
   readonly uncachedInput: number;
@@ -31,6 +32,7 @@ export type SummaryUsage = {
   readonly model: string | null;
   readonly effort: string | null;
   readonly root: boolean;
+  readonly responses: number;
   readonly tokens: SummaryCounters;
 };
 
@@ -91,6 +93,7 @@ function addResponse(
     model,
     effort,
     root,
+    responses: (prior?.responses ?? 0) + 1,
     tokens: {
       uncachedInput: counter("uncachedInput"),
       cacheRead: counter("cacheRead"),

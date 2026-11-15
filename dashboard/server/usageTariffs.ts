@@ -1,6 +1,7 @@
 // Versioned reference tariffs for the Token index (./tokenIndex.ts). Each
 // version is source data: the rate card it was read from and when, the speed
-// tier it prices, and per model the credits per 1M tokens of each category.
+// tier it prices, and per model its rate-card name and the credits per 1M
+// tokens of each category.
 // A later version is added beside this one, so the same stored counters can
 // be weighted again; no priced value is ever written into usage records.
 
@@ -10,6 +11,8 @@ export type TokenRates = {
   readonly output: number;
 };
 
+export type TariffModel = TokenRates & { readonly name: string };
+
 export type UsageTariff = {
   readonly version: string;
   // How the view names the version it plots.
@@ -18,8 +21,8 @@ export type UsageTariff = {
   readonly readOn: string;
   readonly speedTier: "standard";
   // Index units are this model's input-token equivalents.
-  readonly reference: { readonly model: string; readonly name: string };
-  readonly models: Readonly<Record<string, TokenRates>>;
+  readonly reference: { readonly model: string };
+  readonly models: Readonly<Record<string, TariffModel>>;
 };
 
 // Codex signed-in credits at standard speed, as the rate card read on
@@ -31,10 +34,20 @@ export const codexTariff2026_11_15: UsageTariff = {
   source: "https://learn.chatgpt.com/docs/pricing#token-rates",
   readOn: "2026-11-15",
   speedTier: "standard",
-  reference: { model: "gpt-6.1-sol", name: "GPT-6.1 Sol" },
+  reference: { model: "gpt-6.1-sol" },
   models: {
-    "gpt-6.1-sol": { input: 50, cachedInput: 2.5, output: 250 },
-    "gpt-6-astra": { input: 250, cachedInput: 25, output: 1_250 },
+    "gpt-6.1-sol": {
+      name: "GPT-6.1 Sol",
+      input: 50,
+      cachedInput: 2.5,
+      output: 250,
+    },
+    "gpt-6-astra": {
+      name: "GPT-6 Astra",
+      input: 250,
+      cachedInput: 25,
+      output: 1_250,
+    },
   },
 };
 

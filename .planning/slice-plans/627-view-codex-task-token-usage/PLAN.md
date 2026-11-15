@@ -109,7 +109,7 @@ direction above.
 
 ### 2. Launch workflow, model and effort select the cohort
 Type: Behavior
-Status: planned
+Status: done
 Proof: integrated journey on a fixture store with Execution and Refinement
 tasks. Switching to Refinement changes the points and the average. Model
 offers All models plus the observed models, and Effort offers Any effort plus
@@ -207,6 +207,23 @@ updates. Overlap with an offline import counts each response once.
   `dashboard/tests/support/systemSettingsUsagePage.ts`.
 - e2e specs cannot import `dashboard/src/ciHistoryWords.ts` (it reaches a
   `.tsx` file), so the e2e Usage journey formats expected words itself.
+- **Slice 2 (accepted).** The cohort is chosen on the server:
+  `GET /__usage/token-index?workflow&model&effort`, built and parsed by
+  `tokenIndexUrl` and `requestedCohort` in `dashboard/src/usageTokenIndex.ts`
+  (an unknown workflow is refused with 400). The primary setting is the strict
+  majority of root responses by count (`tokenIndexCohort.primarySetting`); a
+  tie gives none. Model and Effort options span every finished task of the
+  configured projects across workflows, so switching workflow never drops the
+  chosen option. The summary groups carry `responses` again
+  (`usage-task-summary-v2`).
+- Journey layout: each slice adds a sibling
+  `e2e/configuration/system-settings-usage-<topic>.spec.ts` (detail,
+  coverage, refresh) on the shared `e2e/configuration/usageFixtureStore.ts`.
+  Backend variants go in sibling specs under
+  `dashboard/backend-tests/usage-history/`, since `token-index.spec.ts` is
+  near 250 lines. Store contents are built with `makeMe.aUsageHistory`.
+- With exactly 10 eligible tasks, the moving average has one value and the
+  chart draws no line. Slice 4 owns that boundary with "Fewer than 10".
 - Local proof under external load (about 28): 3 integrated chart-consumer
   specs timed out at 2 workers before any chart was drawn, and passed 5 of 5
   at 1 worker. Hosted CI is the verdict; a recurrence there is owed a repair.

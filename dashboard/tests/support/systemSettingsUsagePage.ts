@@ -1,6 +1,7 @@
 // System settings → Usage (../../src/SystemSettingsUsage.tsx) as Terry
-// meets it: its view beside General, the cohort its filters show, the Token
-// index points on the shared history chart (../historyChartPage.ts), the
+// meets it: its view beside General, the cohort its filters show and offer,
+// choosing a filter's option, the Token index points on the shared history
+// chart (../historyChartPage.ts), the
 // moving average's figure, the tariff version and the check time. Scenarios
 // supply every expected value.
 import type { Page } from "@playwright/test";
@@ -46,13 +47,23 @@ export function usageView(page: Page) {
     trend,
     "Token index per finished task by end date",
   );
+  const filter = (label: string) =>
+    view.getByRole("combobox", { name: label, exact: true });
   return {
-    // The chosen value of each filter, by its label.
+    // The chosen option of each filter, by its label.
     async showsCohort(cohort: Readonly<Record<string, string>>) {
       for (const [label, choice] of Object.entries(cohort))
-        await expect(
-          view.getByRole("combobox", { name: label, exact: true }),
-        ).toHaveValue(choice);
+        await expect(filter(label).locator("option:checked")).toHaveText(
+          choice,
+        );
+    },
+    // Every option the filter labelled `label` offers, in order.
+    async offers(label: string, choices: readonly string[]) {
+      await expect(filter(label).getByRole("option")).toHaveText([...choices]);
+    },
+    async choose(label: string, choice: string) {
+      await filter(label).selectOption({ label: choice });
+      await expect(filter(label).locator("option:checked")).toHaveText(choice);
     },
     // One mark per plotted task, each read as "<end date> · <index>".
     async showsPoints(readouts: readonly string[]) {

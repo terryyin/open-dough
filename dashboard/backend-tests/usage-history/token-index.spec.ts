@@ -4,7 +4,8 @@
 // example, a GPT-6 Astra worker inside a GPT-6.1 Sol task, configured
 // projects (hidden ones included), and a derivation that leaves the store
 // byte-identical and its summary rebuildable; and a later tariff version
-// weighing the same derived summary again. The page's journey is
+// weighing the same derived summary again; a request for an unknown launch
+// workflow is refused. The page's journey is
 // ../../../e2e/configuration/system-settings-usage.spec.ts.
 import { createHash } from "node:crypto";
 import {
@@ -31,7 +32,10 @@ import {
   usageTaskSummaryFile,
 } from "../../server/usageTaskSummary.ts";
 import { codexTariff, type UsageTariff } from "../../server/usageTariffs.ts";
-import type { TokenIndexAnswer } from "../../src/usageTokenIndex.ts";
+import {
+  defaultCohort,
+  type TokenIndexAnswer,
+} from "../../src/usageTokenIndex.ts";
 
 let fixture: ReturnType<typeof systemSettingsMachine>;
 test.beforeEach(() => {
@@ -62,36 +66,17 @@ function execution(
     readonly tokens: Partial<UsageTokens>;
   }[],
 ) {
-  const task = makeMe.aUsageTask
-    .with({
+  return {
+    task: {
       id: name,
-      sessionId: name,
-      kind: "launch",
+      kind: "launch" as const,
       origin,
       project,
       workflow: "execution",
       title: name,
-      outcome: { kind: "reported-complete", at: endedAt },
-    })
-    .please();
-  const observations = responses.map((response, index) =>
-    makeMe.aUsageObservation
-      .with({
-        sessionId: response.worker ? `${name}-worker` : name,
-        ...(response.worker ? { parentSessionId: name } : {}),
-        responseId: `response-${String(index)}`,
-        ...(response.turnId ? { turnId: response.turnId } : {}),
-        settings: { model: response.model },
-        tokens: response.tokens,
-      })
-      .please(),
-  );
-  return {
-    tasks: [task],
-    observations,
-    associations: observations.map((observation) =>
-      makeMe.aUsageAssociation.with({ observation, task }).please(),
-    ),
+      outcome: { kind: "reported-complete" as const, at: endedAt },
+    },
+    responses,
   };
 }
 
@@ -170,7 +155,7 @@ test("finished Codex executions of configured projects weigh each response at it
   const worker = { uncachedInput: 300, cacheRead: 700, output: 20 };
   const store = usageHistoryFile(fixture.home);
   const at = (day: number) => `2026-11-0${String(day)}T00:00:00.000Z`;
-  const parts = [
+  const tasks = [
     execution("single", { project: "open-dough", endedAt: at(2) }, [
       { model: sol, tokens: seedExample },
     ]),
@@ -188,14 +173,7 @@ test("finished Codex executions of configured projects weigh each response at it
       ]),
     ),
   ];
-  await writeUsageHistory(
-    {
-      tasks: parts.flatMap((part) => part.tasks),
-      observations: parts.flatMap((part) => part.observations),
-      associations: parts.flatMap((part) => part.associations),
-    },
-    store,
-  );
+  await writeUsageHistory(makeMe.aUsageHistory.with({ tasks }).please(), store);
   const before = storeFiles(store);
   const server = await fixture.start("boundary");
 
@@ -229,27 +207,40 @@ test("finished Codex executions of configured projects weigh each response at it
 test("a later tariff version weighs the same derived counters again", async () => {
   const counters = { uncachedInput: 1_000, cacheRead: 9_000, output: 100 };
   const store = usageHistoryFile(fixture.home);
+  const single = execution(
+    "single",
+    { project: "open-dough", endedAt: "2026-11-02T00:00:00.000Z" },
+    [{ model: sol, tokens: counters }],
+  );
   await writeUsageHistory(
-    execution(
-      "single",
-      { project: "open-dough", endedAt: "2026-11-02T00:00:00.000Z" },
-      [{ model: sol, tokens: counters }],
-    ),
+    makeMe.aUsageHistory.with({ tasks: [single] }).please(),
     store,
   );
   const later: UsageTariff = {
     ...codexTariff,
     version: "later",
-    models: { [sol]: { input: 100, cachedInput: 10, output: 400 } },
+    models: {
+      [sol]: { name: "GPT-6.1 Sol", input: 100, cachedInput: 10, output: 400 },
+    },
   };
 
   const reweighed = tokenIndexCohort(
     await deriveUsageTaskSummary(store),
     ["open-dough"],
     later,
+    defaultCohort,
   );
 
   expect(reweighed.tasks.map((task) => task.index)).toEqual([
     credits(sol, counters, later) / (later.models[sol]?.input ?? NaN),
   ]);
+});
+
+test("a request for an unknown launch workflow is refused", async () => {
+  const server = await fixture.start("boundary");
+  const response = await rawRequest({
+    url: `${server.baseURL}/__usage/token-index?workflow=planning`,
+    headers: { Origin: server.origin },
+  });
+  expect(response.status, response.body).toBe(400);
 });

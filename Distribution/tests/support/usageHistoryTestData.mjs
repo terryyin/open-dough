@@ -139,3 +139,66 @@ export class UsageAssociationBuilder {
     };
   }
 }
+
+/**
+ * @typedef {{
+ *   model: string,
+ *   effort?: string,
+ *   worker?: true,
+ *   turnId?: string,
+ *   tokens: Partial<UsageTokens>,
+ * }} TaskResponseFacts
+ */
+/**
+ * @typedef {{
+ *   task: Pick<UsageTask, "id"> & Partial<UsageTask>,
+ *   responses: readonly TaskResponseFacts[],
+ * }} TaskHistoryFacts
+ */
+
+// A usage store's tasks, each with its uniquely associated responses: each
+// the root conversation's, in its first turn unless stated, or a worker's.
+// A task's session is its id unless stated.
+export class UsageHistoryBuilder {
+  /** @param {{ tasks: readonly TaskHistoryFacts[] }} facts */
+  with({ tasks: histories }) {
+    return {
+      please: () => {
+        const parts = histories.map(({ task: taskFacts, responses }) => {
+          const task = new UsageTaskBuilder()
+            .with({ sessionId: taskFacts.id, ...taskFacts })
+            .please();
+          const observations = responses.map((response, index) =>
+            new UsageObservationBuilder()
+              .with({
+                sessionId: response.worker
+                  ? `${task.sessionId}-worker`
+                  : task.sessionId,
+                ...(response.worker ? { parentSessionId: task.sessionId } : {}),
+                responseId: `response-${String(index)}`,
+                ...(response.turnId ? { turnId: response.turnId } : {}),
+                settings: {
+                  model: response.model,
+                  ...(response.effort ? { effort: response.effort } : {}),
+                },
+                tokens: response.tokens,
+              })
+              .please(),
+          );
+          return { task, observations };
+        });
+        return {
+          tasks: parts.map(({ task }) => task),
+          observations: parts.flatMap(({ observations }) => observations),
+          associations: parts.flatMap(({ task, observations }) =>
+            observations.map((observation) =>
+              new UsageAssociationBuilder()
+                .with({ observation, task })
+                .please(),
+            ),
+          ),
+        };
+      },
+    };
+  }
+}
