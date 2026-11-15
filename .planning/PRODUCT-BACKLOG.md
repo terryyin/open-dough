@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Keep usage task facts and freshness consistent across writers](seeds/SEED-357-dashboard-task-token-usage.md#reuse-unchanged-usage-pages-on-repeated-writes) — SEED-357#reuse-unchanged-usage-pages-on-repeated-writes ([plan](slice-plans/630-reuse-unchanged-usage-pages/PLAN.md))
 - [Chart CI time without runner waits in Intent](seeds/SEED-364-intent-ci-history-without-runner-waits.md#chart-ci-time-without-runner-waits) — SEED-364#chart-ci-time-without-runner-waits ([plan](slice-plans/629-chart-ci-time-without-runner-waits-in-intent/PLAN.md))
 - [Make recent token usage easier to read](seeds/SEED-369-recent-token-usage.md#make-recent-token-usage-easier-to-read) — SEED-369#make-recent-token-usage-easier-to-read ([plan](slice-plans/634-recent-token-usage/PLAN.md))
-- [Reduce model work during prolonged supplier waiting (third try)](seeds/SEED-368-third-blocked-execution-attempt.md#reduce-model-work-during-prolonged-supplier-waiting) — SEED-368#reduce-model-work-during-prolonged-supplier-waiting ([plan](slice-plans/635-wait-silently-for-a-paused-supplier/PLAN.md))
 
 ## Backlog list
 

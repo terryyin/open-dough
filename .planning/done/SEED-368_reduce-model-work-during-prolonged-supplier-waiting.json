@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-368#reduce-model-work-during-prolonged-supplier-waiting",
+  "title": "Reduce model work during prolonged supplier waiting (third try)",
+  "completedAt": "2026-11-15T09:55:56.509Z",
+  "developer": "Terry Yin",
+  "agent": "Yuma-chan",
+  "host": "claude",
+  "model": "fable"
+}

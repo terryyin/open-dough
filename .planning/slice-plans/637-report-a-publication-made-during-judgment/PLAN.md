@@ -6,8 +6,12 @@
 ## Source and provenance
 
 Retrospective correction of
-SEED-368#reduce-model-work-during-prolonged-supplier-waiting (plan
-`635-wait-silently-for-a-paused-supplier`), delivered on the story branch as
+SEED-368#reduce-model-work-during-prolonged-supplier-waiting, whose story and
+plan are recoverable at
+`4381215e106efd9513652b478bdf302f2424433c:.planning/seeds/SEED-368-third-blocked-execution-attempt.md`
+and
+`4381215e106efd9513652b478bdf302f2424433c:.planning/slice-plans/635-wait-silently-for-a-paused-supplier/PLAN.md`,
+delivered on the story branch as
 `c97db6b3d` (wait command), `0dca3a999` (watch guidance and `REF[:PATH]`) and
 `4734da29f` (findings). That story's promises stand: one silent wait, a
 publication ends it once, a nonqualifying publication keeps the hold and "the
