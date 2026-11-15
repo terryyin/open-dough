@@ -19,6 +19,16 @@ const controls = "button, input, select, textarea, summary";
 // a control that moves or is covered in between fails rather than being
 // silently missed.
 export async function tapWhereShown(control: Locator) {
+  await tapShownControl(control, 44);
+}
+
+// The Board's explicitly narrow column indicators retain the same clipping,
+// hit-point and native-landing checks; other controls keep the 44px default.
+export async function tapNarrowControlWhereShown(control: Locator) {
+  await tapShownControl(control, 1);
+}
+
+async function tapShownControl(control: Locator, minimumWidth: number) {
   expect(
     await control.evaluate(clipped, { within: "touch" } as const),
     "touch target is not clipped",
@@ -50,7 +60,9 @@ export async function tapWhereShown(control: Locator) {
     }
     return { ...point, width, height, atPoint };
   }, touch);
-  expect(shown.width, "touch target width").toBeGreaterThanOrEqual(44);
+  expect(shown.width, "touch target width").toBeGreaterThanOrEqual(
+    minimumWidth,
+  );
   expect(shown.height, "touch target height").toBeGreaterThanOrEqual(44);
   expect(shown.atPoint, "touch reaches the intended control").toBe(
     touch.intended,

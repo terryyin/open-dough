@@ -148,7 +148,8 @@ export function useColumnPaging(columns: number): ColumnPaging {
   }, []);
   const move = useCallback(
     (step: 1 | -1) => {
-      moveTo(leftmostOf(leftmost + step, columns, shown), leftmost);
+      const to = leftmostOf(leftmost + step, columns, shown);
+      if (to !== leftmost) moveTo(to, leftmost);
     },
     [moveTo, leftmost, columns, shown],
   );

@@ -11,6 +11,7 @@ import {
   columns,
   columnRegion,
   columnPagingControls,
+  expectRowRestsShowing,
   type ColumnName,
 } from "./boardColumnNavigation.ts";
 
@@ -20,6 +21,11 @@ export {
   columnPagingControl,
   columnPagingControls,
   showColumn,
+  swipeBoard,
+  tapColumnIndicator,
+  focusColumnIndicator,
+  activateColumnIndicator,
+  expectColumnIndicatorFocused,
   expectRowRestsShowing,
   type ColumnName,
 } from "./boardColumnNavigation.ts";
@@ -76,6 +82,20 @@ export async function expectView(
     expect(Math.abs(at.width - first.width)).toBeLessThanOrEqual(1);
   }
   await expectNoSidewaysScrollAndWholeText(page, cutByDesign);
+}
+
+// The chosen column has arrived, with its whole heading ready for reading.
+export async function expectColumnReading(
+  page: Page,
+  shown: ColumnName,
+  controls: readonly (string | RegExp)[],
+  cutByDesign: readonly string[] = [],
+) {
+  await expectView(page, [shown], controls, cutByDesign);
+  await expectRowRestsShowing(page, shown);
+  await expect(
+    columnRegion(page, shown).getByRole("heading", { level: 2 }),
+  ).toBeInViewport({ ratio: 1 });
 }
 
 // A Backlog card is no narrower than its share of the Board would make it in
@@ -188,4 +208,23 @@ export async function expectLongerThanTheBoard(part: Locator) {
   expect(await endOf(part)).toBeGreaterThan(
     (await extentOf(part.page())) + framing,
   );
+}
+
+// Independent rendered geometry for comparing the room left to stories.
+export async function columnReadingRoom(page: Page, column: ColumnName) {
+  const controlWidths = await Promise.all(
+    (await columnPagingControls(page).all()).map(
+      async (control) => (await box(control)).width,
+    ),
+  );
+  const view = await box(page.locator(".board-view"));
+  const card = await box(
+    columnRegion(page, column).getByRole("article").first(),
+  );
+  return {
+    controlWidths,
+    board: (await box(page.locator(".board"))).width,
+    view: view.width,
+    card: card.width,
+  };
 }

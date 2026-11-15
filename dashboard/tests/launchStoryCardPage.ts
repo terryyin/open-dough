@@ -132,6 +132,10 @@ export function backlogLaunchers(page: Page) {
   };
 }
 
+export async function expectNoLaunchDialog(page: Page) {
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+}
+
 // Opens a launch dialog's options disclosure, which starts closed; an open
 // one stays open.
 export async function showOptions(dialog: Locator) {

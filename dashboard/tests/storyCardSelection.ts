@@ -4,7 +4,7 @@
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import { detailToggle } from "./storyCardControls.ts";
+import { inspectionToggle } from "./storyCardControls.ts";
 
 // A click on the card's own heading is a click on its empty area, which
 // selects its story or clears that selection.
@@ -40,8 +40,15 @@ export async function expectSelected(card: Locator, on: boolean) {
 }
 
 export async function expectInspected(card: Locator, open: boolean) {
-  await expect(
-    card.getByRole("button", { name: detailToggle }),
-  ).toHaveAttribute("aria-expanded", String(open));
+  await expect(inspectionToggle(card)).toHaveAttribute(
+    "aria-expanded",
+    String(open),
+  );
   await expect(storyDetail(card)).toHaveCount(open ? 1 : 0);
+}
+
+// Tap the card's empty area, whose heading identifies it. It is card content,
+// rather than a separately sized control.
+export async function tapCardEmptyArea(card: Locator) {
+  await emptyArea(card).tap();
 }

@@ -121,3 +121,49 @@ export async function scrollByTouch(
     await browser.detach();
   }
 }
+
+// One in-view native finger stroke; cancellation is a browser input event,
+// rather than a DOM event standing in for the gesture.
+export async function strokeByTouch(
+  page: Page,
+  start: { x: number; y: number },
+  movement: { x: number; y: number },
+  cancel = false,
+) {
+  const browser = await page.context().newCDPSession(page);
+  const timestamp = Date.now() / 1000 - 0.6;
+  try {
+    await browser.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [start],
+      timestamp,
+    });
+    for (let step = 1; step <= 4; step += 1) {
+      await browser.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [
+          {
+            x: start.x + (movement.x * step) / 4,
+            y: start.y + (movement.y * step) / 4,
+          },
+        ],
+        timestamp: timestamp + step * 0.1,
+      });
+    }
+    await browser.send("Input.dispatchTouchEvent", {
+      type: cancel ? "touchCancel" : "touchEnd",
+      touchPoints: [],
+      timestamp: timestamp + 0.5,
+    });
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) =>
+          requestAnimationFrame(() => {
+            resolve();
+          }),
+        ),
+    );
+  } finally {
+    await browser.detach();
+  }
+}

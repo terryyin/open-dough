@@ -11,6 +11,7 @@ import { useRecentlyDone } from "./recentlyDoneView.ts";
 import { columnSessionsOf } from "./columnSessions.ts";
 import { columnsOf, Columns } from "./Columns.tsx";
 import { boardMarks } from "./storyCardFocus.ts";
+import { useBoardSwipe } from "./boardSwipe.ts";
 import "./board.css";
 
 // The Board: Backlog, Taken, and Recently done, left to right on
@@ -61,6 +62,7 @@ export function Board({
     useColumnPaging(summaries.length);
   const left = summaries[leftmost - 1];
   const right = summaries[leftmost + shown];
+  const swipeView = useBoardSwipe(move);
   // The keyboard stays on the column paging controls: a control that holds it and is
   // gone after its move hands it to the other side's, which points back the
   // way the developer came, kept in sight where it stands, so the Board does
@@ -100,7 +102,7 @@ export function Board({
           onMove={press("left")}
         />
       )}
-      <div className="board-view">
+      <div ref={swipeView} className="board-view">
         <div
           ref={row}
           className="board-row"
