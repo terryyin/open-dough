@@ -143,9 +143,9 @@ and typechecks script changes without mutation.
 
 CI observer: GitHub `terryyin/open-dough`, `ci.yml` (CI, id 351271804), target
 `codex/reduce-total-model-work-during-blocked-execution`, coordinator `seed356-darren`,
-cell `g314:13`, session `84886`, directory `/tmp/dough-ci-501/watch-WV26rc`, PID 16201;
-checkout-bound installed runtime. Claim CI is unobserved on trunk; do not register
-it on this branch observer.
+resumed cell `g318:3`, session `86745`, directory `/tmp/dough-ci-501/watch-uhj6iR`, PID 67905;
+the prior observer stopped cleanly. Checkout-bound runtime; claim CI is unobserved
+on trunk and must not be registered on this branch observer.
 
 Expensive-proof decision: Territory.local, AC, fully awake, natural load 4.98/4.67/3.80,
 48 GiB RAM with memory_pressure reporting 65% free. Codex 0.169.0; run one
@@ -231,6 +231,13 @@ with the same six paths. Territory.local was on AC at natural load 16.71/9.65/6.
 62% memory free; reduced concurrency preserved coverage. Trace:
 `/tmp/seed356-refactor-consumer-trace.md`. Refactor elapsed approximately six
 minutes; no further native journey. `git diff --check` passed.
+
+CI run `43655558326/1` found inline stream encoding and rejection-helper guard
+violations in the new test. Repair reuses the shared substitute encoder and
+`native_assessor_rejects_observed`, without guard/detector/assessor changes.
+Terminal proof (session 99864, exit 0, fourteen checks):
+`env PATH="/opt/homebrew/bin:$PATH" OPEN_DOUGH_TEST_JOBS=1 caffeinate -s -i bash scripts/test.sh Distribution/tests/native-harness-inspection.sh Distribution/tests/native-stream-replay.sh Distribution/tests/native-assessor-counterexample-guard.sh Distribution/tests/native-comparison-*.sh`.
+Trace `/tmp/seed356-ci-guard-consumer-trace.md` covers shared fixture defaults and faults.
 
 ## Story obligations
 
