@@ -41,6 +41,13 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: the slice 2 return traced five e2e consumers of the Done reading and moved count wording (`e2e/sessions/agent-launch-attention*`, `sessions-sidebar`, `agent-completion-quiet`, `agent-terminal-done-reopen`, `e2e/review/recently-done-one-shot-review`) and left them unrun with "hosted CI covers them", although the brief required the changed surface's suites within focused time. The coordinator ran them before acceptance: 9 passed in 41.2 s.
   - Observed effect: no CI failure; the acceptance rule refusing a consumer left for CI held, at one extra coordinator run.
   - Inference: the implementer still defers traced consumers to CI under the released response; the coordinator's acceptance guard, not delegation, stopped it here.
+- Execution: SEED-364#chart-ci-time-without-runner-waits (plan 629; first implementation `33717676c1a7af5cd9b53f91b6239fd8e86ccc21`)
+  - Timestamp: 2026-11-15T09:29:06Z (slice 1 hosted CI failure completed)
+  - Tool: Cursor
+  - Open Dough release: 0.3.101 (checkout-bound installed `VERSION`)
+  - Evidence: slice 1 return ran plan-named measure/compat/collection specs and dispositioned store consumers as unchanged via re-export; coordinator accepted without `landed-ci-scope-*`. CI run 43698671685 failed `landed-ci-scope-proof-lifecycle` (extra `actions-workflow`) and `landed-ci-scope-retained-window` (kept `timeWithoutRunnerWaits`); repair `4c148b732` updated those expectations. Slice 4 `ef78f762a` left `ci-history-reader-compatibility` (`wallTimeMs`→`timeMs`), `intent-ci-status-wall-time` (always-shown measure chart label), and the same scope lifecycle request set for CI; run 43705198875 failed; repair `ea5742187`.
+  - Observed effect: two owned CI failures and repair publications; final CI succeeded on `ea5742187`. Intent Coverage Caught key example 1 (no follow-up).
+  - Inference: collection and history-contract changes reached scope and Intent status assertion suites outside the focused selection; re-export and plan-named proof did not force those consumers before publish.
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
