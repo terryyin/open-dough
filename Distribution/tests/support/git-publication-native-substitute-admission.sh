@@ -12,6 +12,10 @@
 # seed or by force-pushing a stale closure. Each journey is its own job
 # (tests/git-publication-native-admission-*.sh), so each stays well within
 # the runner's safety deadline.
+
+# shellcheck source=Distribution/tests/support/native-family-checks.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/support/native-family-checks.sh"
 run_substitute_admission_journeys() {
   local journey
   for journey in admission-investigation admission-continuation \

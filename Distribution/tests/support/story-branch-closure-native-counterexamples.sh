@@ -4,6 +4,10 @@
 # shellcheck disable=SC2034,SC2154,SC2312
 
 # Valid observations at $1 whose response is file $2's text.
+
+# shellcheck source=Distribution/tests/support/native-family-checks.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/support/native-family-checks.sh"
 story_closure_write_assessor_observation() {
   {
     printf '%s\n' 'remote-sha: integrated' 'branch-sha: branch' \

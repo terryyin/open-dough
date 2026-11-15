@@ -12,9 +12,6 @@ source "${trunk_closure_run_case_dir}/trunk-closure-native-assess.sh"
 # shellcheck source=Distribution/evaluation/cases/closure/trunk-closure-native-observe.sh
 # shellcheck disable=SC1091
 source "${trunk_closure_run_case_dir}/trunk-closure-native-observe.sh"
-# shellcheck source=Distribution/tests/support/trunk-closure-native-counterexamples.sh
-# shellcheck disable=SC1091
-source "${trunk_closure_run_case_dir}/../../../tests/support/trunk-closure-native-counterexamples.sh"
 # shellcheck source=Distribution/tests/helpers/wait-for.bash
 # shellcheck disable=SC1091
 source "${trunk_closure_run_case_dir}/../../../tests/helpers/wait-for.bash"
@@ -32,7 +29,6 @@ trunk_closure_write_evidence_identity() {
     Distribution/evaluation/src/closure-native-response.sh \
     Distribution/evaluation/src/native-response-field.sh \
     Distribution/evaluation/cases/closure/trunk-closure-native-observe.sh \
-    Distribution/tests/support/trunk-closure-native-counterexamples.sh \
     Distribution/evaluation/src/native-completion-observation.sh \
     Distribution/evaluation/src/native-observation.sh \
     Distribution/evaluation/cases/closure/trunk-closure-native-fixture.sh \

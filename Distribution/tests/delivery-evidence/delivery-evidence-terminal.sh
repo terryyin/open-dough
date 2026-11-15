@@ -2,8 +2,12 @@
 # Cheap original-source discriminator before a paid terminal acceptance probe.
 # This verifies a controlled producer, not the historical research computation.
 # shellcheck disable=SC1091,SC2034,SC2154
+
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
+# shellcheck source=Distribution/tests/support/native-family-checks.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/support/native-family-checks.sh"
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
 source "${source_dir}/Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-run.sh"
 source "${source_dir}/Distribution/evaluation/cases/delivery-evidence/delivery-evidence-source-quote.sh"

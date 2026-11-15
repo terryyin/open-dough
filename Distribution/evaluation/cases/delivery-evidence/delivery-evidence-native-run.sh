@@ -16,12 +16,8 @@ done
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../src" && pwd)/native-observation.sh"
 for delivery_evidence_case in ${delivery_evidence_cases}; do
-  for delivery_evidence_part in scenario-content observe assess checks; do
+  for delivery_evidence_part in scenario-content observe assess; do
     delivery_evidence_file="${delivery_evidence_support_dir}/delivery-evidence-${delivery_evidence_case}-native-${delivery_evidence_part}.sh"
-    if [[ ${delivery_evidence_part} == checks ]]; then
-      delivery_evidence_file="${delivery_evidence_support_dir}/../../../tests/support/delivery-evidence-${delivery_evidence_case}-native-checks.sh"
-      [[ -f ${delivery_evidence_file} ]] || continue
-    fi
     # shellcheck disable=SC1090
     source "${delivery_evidence_file}"
   done

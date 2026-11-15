@@ -14,9 +14,6 @@ source "${ci_completion_run_case_dir}/ci-completion-native-observe.sh"
 # shellcheck source=Distribution/evaluation/cases/ci-completion/ci-completion-native-assess.sh
 # shellcheck disable=SC1091
 source "${ci_completion_run_case_dir}/ci-completion-native-assess.sh"
-# shellcheck source=Distribution/tests/support/ci-completion-native-counterexamples.sh
-# shellcheck disable=SC1091
-source "${ci_completion_run_case_dir}/../../../tests/support/ci-completion-native-counterexamples.sh"
 
 ci_completion_run_journey() {
   local source_dir=$1

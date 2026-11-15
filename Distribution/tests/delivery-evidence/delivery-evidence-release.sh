@@ -2,8 +2,12 @@
 # The narrowed status projection passes its subset tests while failing each
 # original status commitment; corrected projection exposes independent facts.
 # shellcheck disable=SC1091,SC2034,SC2154
+
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
+# shellcheck source=Distribution/tests/support/native-family-checks.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/support/native-family-checks.sh"
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
 source "${source_dir}/Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-run.sh"
 root=$(mktemp -d)

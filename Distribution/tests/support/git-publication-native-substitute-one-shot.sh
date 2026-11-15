@@ -7,6 +7,10 @@
 # The aggregate keeps the literal focused proof command; the suite schedules
 # each journey group as its own job (tests/git-publication-native-one-shot-<group>.sh),
 # so each stays well within the runner's safety deadline.
+
+# shellcheck source=Distribution/tests/support/native-family-checks.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/support/native-family-checks.sh"
 run_substitute_one_shot_journeys() {
   run_substitute_one_shot_result_journeys
   run_substitute_one_shot_review_journeys

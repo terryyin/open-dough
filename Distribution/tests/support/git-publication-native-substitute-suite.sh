@@ -5,6 +5,9 @@
 # Distribution/tests/git-publication/git-publication-native-owned-context.sh.
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals assigned by sourced helpers.
 
+# shellcheck source=Distribution/tests/support/native-family-checks.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/support/native-family-checks.sh"
 # shellcheck source=Distribution/tests/support/git-publication-native-substitute-admission.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/git-publication-native-substitute-admission.sh"

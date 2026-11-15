@@ -75,7 +75,6 @@ delivery_evidence_write_evidence_identity() {
   if [[ ${case_name} == scheduling ]]; then
     native_result_input_hash_lines \
       Distribution/evaluation/cases/delivery-evidence/proof-scheduling-native.sh \
-      Distribution/tests/support/delivery-evidence-scheduling-native-checks.sh \
       "${case_prefix}-stylesheet-content.sh" \
       "${case_prefix}-library-content.sh" \
       "${case_prefix}-proof-logger.sh" \

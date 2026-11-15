@@ -6,9 +6,12 @@ story_closure_assess_case_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd
 # shellcheck source=Distribution/evaluation/src/native-completion-observation.sh
 # shellcheck disable=SC1091
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../src" && pwd)/native-completion-observation.sh"
-# shellcheck source=Distribution/evaluation/cases/closure/story-branch-closure-native-response.sh
+# shellcheck source=Distribution/evaluation/src/native-response-field.sh
 # shellcheck disable=SC1091
-source "${story_closure_assess_case_dir}/story-branch-closure-native-response.sh"
+source "${story_closure_assess_case_dir}/../../src/native-response-field.sh"
+# shellcheck source=Distribution/evaluation/src/closure-native-response.sh
+# shellcheck disable=SC1091
+source "${story_closure_assess_case_dir}/../../src/closure-native-response.sh"
 story_closure_assess_file="${story_closure_assess_case_dir}/story-branch-closure-native-assess.sh"
 
 # Signals for rejected cases of story_closure_assess.

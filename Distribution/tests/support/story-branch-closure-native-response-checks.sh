@@ -2,7 +2,7 @@
 # Story Branch closure response counterexamples against its assessor.
 # shellcheck disable=SC2154,SC2312
 
-story_closure_response_runtime_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../src" && pwd)
+story_closure_response_runtime_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../evaluation/src" && pwd)
 # shellcheck source=Distribution/evaluation/src/native-response-field.sh
 # shellcheck disable=SC1091
 source "${story_closure_response_runtime_dir}/native-response-field.sh"

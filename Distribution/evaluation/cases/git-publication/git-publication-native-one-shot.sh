@@ -24,9 +24,6 @@ source "${git_publication_one_shot_case_dir}/git-publication-native-one-shot-que
 # shellcheck source=Distribution/evaluation/cases/git-publication/git-publication-native-one-shot-unobserved.sh
 # shellcheck disable=SC1091
 source "${git_publication_one_shot_case_dir}/git-publication-native-one-shot-unobserved.sh"
-# shellcheck source=Distribution/tests/support/git-publication-native-one-shot-counterexamples.sh
-# shellcheck disable=SC1091
-source "${git_publication_one_shot_case_dir}/../../../tests/support/git-publication-native-one-shot-counterexamples.sh"
 # shellcheck source=Distribution/evaluation/cases/git-publication/git-publication-native-one-shot-retained.sh
 # shellcheck disable=SC1091
 source "${git_publication_one_shot_case_dir}/git-publication-native-one-shot-retained.sh"

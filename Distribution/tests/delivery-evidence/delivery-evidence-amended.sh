@@ -6,8 +6,12 @@
 # observed as such, and a named revision's payload installs. No native host
 # runs; this proves the fixture, observer and assessor, not agent behavior.
 # shellcheck disable=SC1091,SC2016,SC2034,SC2154,SC2312 # Literal backticks in fixture text.
+
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
+# shellcheck source=Distribution/tests/support/native-family-checks.sh
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/support/native-family-checks.sh"
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
 source "${source_dir}/Distribution/evaluation/src/native-host-stream.sh"
 source "${source_dir}/Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-run.sh"

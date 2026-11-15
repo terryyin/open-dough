@@ -183,20 +183,4 @@ if [[ -n ${host} ]]; then
 fi
 [[ -z ${case_name}${results_dir}${pair_options}${save_baseline} && ${#where[@]} -eq 0 ]] || usage
 
-work=$(mktemp -d)
-trap 'rm -rf -- "${work}"' EXIT
-entry=("${BASH}" "${BASH_SOURCE[0]}")
-
-# The catalog selects a case by its traits.
-"${entry[@]}" --list > "${work}/catalog"
-grep -Fqx 'paused-supplier' "${work}/catalog"
-grep -Fqx 'doughnut-title-precedence' "${work}/catalog"
-grep -Fqx 'supplier-watch' "${work}/catalog"
-grep -Fqx 'unblocked-supplier' "${work}/catalog"
-grep -Eq '^  (workflow|hosts|prerequisites|decisions-and-proof|duration): ' "${work}/catalog"
-[[ $("${entry[@]}" --list --where hosts=codex --where workflow=blocked | grep -v '^ ') == $'paused-supplier\nsupplier-watch' ]]
-[[ $("${entry[@]}" --list --where prerequisites=nix | grep -v '^ ') == doughnut-title-precedence ]]
-if "${entry[@]}" --list --where workflow=no-such-workflow > /dev/null; then
-  echo 'FAIL: a catalog filter that matches no case succeeded' >&2
-  exit 1
-fi
+exec "${BASH}" "${source_dir}/Distribution/tests/native-comparison/native-comparison.sh"

@@ -19,7 +19,6 @@ source "${source_dir}/Distribution/evaluation/src/native-result-retain.sh"
 source "${source_dir}/Distribution/evaluation/src/native-run-supervise.sh"
 source "${source_dir}/Distribution/evaluation/cases/git-publication/execution-worktree-prep-native.sh"
 source "${source_dir}/Distribution/evaluation/cases/git-publication/execution-worktree-prep-native-run.sh"
-source "${source_dir}/Distribution/tests/support/execution-worktree-prep-native-cheap.sh"
 
 prep_native_entry='Distribution/evaluation/cases/git-publication/execution-worktree-preparation-native.sh'
 prep_native_parse "$@"
@@ -30,16 +29,7 @@ if [[ ${prep_native_mode} == list ]]; then
 fi
 
 if [[ ${prep_native_mode} == default ]]; then
-  cheap_work=$(mktemp -d)
-  finish_cheap() {
-    rm -rf -- "${cheap_work}"
-  }
-  trap finish_cheap EXIT
-  wrapper="${source_dir}/Distribution/evaluation/cases/git-publication/execution-worktree-preparation-native.sh"
-  run_cheap_assessor_contracts "${cheap_work}"
-  run_cheap_flag_contracts "${cheap_work}" "${wrapper}"
-  run_cheap_isolation "${cheap_work}" "${wrapper}"
-  exit 0
+  exec bash "${source_dir}/Distribution/tests/git-publication/execution-worktree-preparation-native.sh"
 fi
 
 if [[ -n ${prep_native_results_dir} ]]; then

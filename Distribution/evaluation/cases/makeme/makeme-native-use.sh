@@ -8,14 +8,7 @@ set -euo pipefail
 # does not start this wrapper (scripts/test-jobs.sh).
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
 if (($# == 0)); then
-  log=$(mktemp)
-  trap 'rm -f "${log}"' EXIT
-  if node --test "${source_dir}/Distribution/tests/support/makeme-native-harness.test.mjs" \
-    "${source_dir}/Distribution/tests/support/makeme-native-refactor-harness.test.mjs" > "${log}" 2>&1; then
-    exit 0
-  fi
-  cat -- "${log}" >&2
-  exit 1
+  exec bash "${source_dir}/Distribution/tests/makeme/makeme-native-use.sh"
 fi
 platform=$1
 journey=$2

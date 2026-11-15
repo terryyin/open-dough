@@ -75,7 +75,7 @@ Proof: [Comparison checks, original record recovery and frozen-byte observations
 
 ### 6. Separate tool checks from operational cases
 Type: Structure
-Status: planned
+Status: done
 Proof: [Preserved generic extraction and actual observations](slice-6-evidence.md).
 
 Reuse the parked 27-module/44-function extraction and five tool defaults.
@@ -150,18 +150,13 @@ ten-slice exception. The separate shared-fixture seam preserves every outcome;
   corpus guards, hash inputs and historical recovery. Dispose of every listed
   consumer through proof or an evidenced exclusion. Follow transitive callers
   regardless of whether their filenames contain `native`.
-- Local gate: focused affected checks per slice; final `npm test` is warranted
-  by the cross-family runtime, fixture and discovery migration. Run the CI
-  share preview at the current split count (currently 3), preserving existing
-  duration values under renamed labels. Run required lint/hooks; if moved
-  JavaScript fixtures reach dashboard TypeScript consumers, run
-  `npm run typecheck:dashboard` and affected consumers. Keep normal post-change
-  refactoring and delivery gates.
-- Every long local gate follows the maintained
-  [macOS sleep guard and power condition](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos):
-  fully awake on AC, `caffeinate -s -i`; on battery plug in, or keep the lid
-  open under `caffeinate -i` and inspect sleep logs afterwards. Respect shared
-  full-suite admission; choose concurrency from current host headroom.
+- Local gate: focused affected checks; final `npm test` and3-share preview for
+  the cross-family/runtime/discovery migration. Preserve duration values and
+  required hooks/typecheck when JavaScript reaches dashboard consumers.
+  Follow the maintained [macOS sleep guard and power condition](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos):
+  fully awake on AC under `caffeinate -s -i`; on battery plug in, or lid open
+  under `caffeinate -i` then inspect sleep logs. Respect shared full-suite
+  admission and current headroom; no idle prerequisite.
 - Recheck trunk/overlap. Preserve silent supplier wait `ef93db6c` and findings;
   no harness change there. Plan 621 remains separate, location-only alignment.
   Shared filenames alone need no blocking supplier agreement.
@@ -247,3 +242,9 @@ Reported: slice 5 — "Acceptance found that six baseline consumer observations 
 Story clause: "preserve case selection, host support, outcome and failure semantics, supervision, retention and evidence identity during the move."
 Disposition: proved by slice 5: slice-5-evidence.md final six baseline-purpose renewal after supplier identity-path and runtime-file hashing changes; actual archive raw-cleanup, conditions/usage, reader changes, reuse/fresh, misses and unavailable-evidence observations all pass.
 Commitment: C17
+
+### G13. Stream guard omits evaluation Git enumeration
+Reported: slice 6 — "Closure inspection found that native-stream-guard.mjs scannedRoots includes evaluation, but its listFiles Git pathspecs still enumerate only Distribution/tests and scripts."
+Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
+Disposition: receiving slice 8
+Commitment: C31

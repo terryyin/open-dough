@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
-# Interim routine-check entry; native implementation lives with its case family.
-set -euo pipefail
-wrapper_dir=$(dirname -- "${BASH_SOURCE[0]}")
-wrapper_dir=$(cd -- "${wrapper_dir}" && pwd)
-exec bash "${wrapper_dir}/../../evaluation/cases/makeme/makeme-native-use.sh" "$@"
+# Credential-free automated checks; explicit native options use the case entry.
+# shellcheck disable=SC1091,SC2034,SC2154,SC2310,SC2311,SC2312,SC2329
+set -Eeuo pipefail
+source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
+if (($#)); then
+  exec bash "${source_dir}/Distribution/evaluation/cases/makeme/makeme-native-use.sh" "$@"
+fi
+log=$(mktemp)
+trap 'rm -f "${log}"' EXIT
+if node --test "${source_dir}/Distribution/tests/support/makeme-native-harness.test.mjs" \
+  "${source_dir}/Distribution/tests/support/makeme-native-refactor-harness.test.mjs" > "${log}" 2>&1; then
+  exit 0
+fi
+cat -- "${log}" >&2
+exit 1

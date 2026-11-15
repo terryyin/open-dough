@@ -62,7 +62,6 @@ git_publication_write_evidence_identity() {
         Distribution/evaluation/cases/ci-completion/ci-completion-native-run.sh \
         Distribution/evaluation/cases/ci-completion/ci-completion-native-assess.sh \
         Distribution/evaluation/cases/ci-completion/ci-completion-native-observe.sh \
-        Distribution/tests/support/ci-completion-native-counterexamples.sh \
         Distribution/evaluation/src/native-response-field.sh \
         Distribution/evaluation/src/native-completion-observation.sh \
         Distribution/evaluation/src/native-observation.sh \

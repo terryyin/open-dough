@@ -50,7 +50,7 @@ handoff and will be copied into slice-3-evidence.md for acceptance. Raw data:
 ## Retained execution context
 
 Story Branch Mode in the launch's owned workspace/branch, agent Kirara-chan, publisher `dashboard-territory.local-open-dough`; origin/main, increments to `codex/run-and-maintain-native-evaluations-as-a-distinc`.
-Starting revision `c124365d015aec64b5186160980db9205b11955a`; claim `deba676495b2eb1b8c1f3d3f96b7a44cb1122eb4`; latest published base `71825a21995e410483fb6c817c49fcea0e1fa498` (comparison home), suffix base `ed6f4c8cfeb786fe9095e6eeb1681d86fecfb71b`. Preserve existing planning authority (no explicit replan option).
+Starting revision `c124365d015aec64b5186160980db9205b11955a`; claim `deba676495b2eb1b8c1f3d3f96b7a44cb1122eb4`; latest published base `b048d3a9db85a32af000100bbe44b5be6bd5382c` (split generic/guidance extraction), suffix base `71825a21995e410483fb6c817c49fcea0e1fa498`. Preserve existing planning authority (no explicit replan option).
 Exact-checkout npm ci/typecheck passed with unchanged lock. Observer `kirara-638`, cell `g390:9`, session 35882, PID 75649, `/tmp/dough-ci-501/watch-NjF7jy`, `terryyin/open-dough`, execution branch, verified `ci.yml` (CI); claim trunk CI unobserved.
 Shared Mac AC, initially 56% free/load 11.33; two jobs under `caffeinate -s -i`; reconsider contention/failure. Source freshness unchanged at trunk `3925a4ef8ca8cf4f0bf6f03b201a78c24d2ec0e8`, only incoming planning/agent records.
 
