@@ -2,7 +2,7 @@
 
 November 14, 2026 · [Launch history](../../.planning/seeds/SEED-358-dashboard-launch-history.md),
 [Codex](../../dashboard/src/SystemSettingsUsage.tsx),
-[Claude Code](../../.planning/seeds/SEED-359-claude-code-task-token-usage.md), and
+[Claude Code](../../dashboard/USAGE-HISTORY.md), and
 [Cursor](../../.planning/seeds/SEED-360-cursor-task-token-usage.md)
 
 ## What each existing launch can measure

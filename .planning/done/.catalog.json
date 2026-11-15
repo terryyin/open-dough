@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-359_keep-claude-coverage-gaps-current-after-refresh.json",
+      "identity": "SEED-359#keep-claude-coverage-gaps-current-after-refresh",
+      "completedAt": "2026-11-15T13:56:46.677Z",
+      "blob": "a64e56727b97cb3ea47a2e4d34567b9e91c20f69"
+    },
+    {
       "fileName": "SEED-353_declare-git-test-state-through-makeme.json",
       "identity": "SEED-353#declare-git-test-state-through-makeme",
       "completedAt": "2026-11-15T13:26:43.857Z",

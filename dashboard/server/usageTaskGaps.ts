@@ -5,17 +5,19 @@
 // missing token counts, no attributable response at all, and the recorded
 // gaps that are the task's. A recorded gap is a task's when it names the
 // task, or else when it names one of the task's sessions (its root's or one
-// its responses ran in) or lies in one of their rollouts, as a worker gap
-// lies at its spawn (./codexUsageLineage.ts `codexCoverage`). A session or
-// rollout shared by several tasks gives its gaps to each of them. Each gap is
-// kept once per task. Tasks other than the dashboard's are ignored.
+// its responses ran in) or lies in one of their native files, found by the
+// gap's host (./usageGapReconciliation.ts `gapSessions`), as a worker gap
+// lies at its spawn (./codexUsageLineage.ts `codexCoverage`) or in a Claude
+// worker's transcript under its session. A session or rollout shared by
+// several tasks gives its gaps to each of them. Each gap is kept once per
+// task. Tasks other than the dashboard's are ignored.
 import {
   isUsageCoverageGap,
   usageCoverageGaps,
   type UsageCoverageGap,
 } from "../src/usageTokenIndex.ts";
-import { containingCodexThread } from "./codexUsageLineage.ts";
 import type { ResolvedContribution } from "./usageContributions.ts";
+import { gapSessions } from "./usageGapReconciliation.ts";
 import type { UsageGap, UsageTask } from "./usageRecords.ts";
 
 export class TaskGaps {
@@ -63,14 +65,8 @@ export class TaskGaps {
       this.#add(gap.taskId, code);
       return;
     }
-    const sessions = [
-      gap.sessionId,
-      gap.source?.kind === "native"
-        ? containingCodexThread(gap.source.file)
-        : undefined,
-    ];
-    for (const sessionId of sessions)
-      for (const taskId of this.#sessions.get(sessionId ?? "") ?? [])
+    for (const sessionId of gapSessions(gap))
+      for (const taskId of this.#sessions.get(sessionId) ?? [])
         this.#add(taskId, code);
   }
 

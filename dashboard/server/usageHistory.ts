@@ -1,12 +1,13 @@
 // Reading and writing the usage history (./usageHistoryDocument.ts). A write
-// reconciles the batch's tasks with the stored ones, keeps each gap once, and
-// replaces the contribution of every session the batch holds a response of
-// with the sum of those responses, so a writer passes every response of each
-// session it read and a session read again is counted once. Sessions the
-// batch does not name keep their contributions. The document is replaced
-// atomically under its `<file>.lock`, and only when its bytes differ. Every
-// write then removes the page directory an earlier paged store left beside
-// the file (./usageEarlierStore.ts), so a removal that failed or was
+// reconciles the batch's tasks with the stored ones, and replaces the
+// contribution of every session the batch holds a response of with the sum of
+// those responses, and its coverage gaps with the batch's
+// (./usageGapReconciliation.ts), so a writer passes every response and gap of
+// each session it read and a session read again is counted once. Sessions the
+// batch does not name keep their contributions and gaps. The document is
+// replaced atomically under its `<file>.lock`, and only when its bytes differ.
+// Every write then removes the page directory an earlier paged store left
+// beside the file (./usageEarlierStore.ts), so a removal that failed or was
 // interrupted is finished by the next write.
 import { randomUUID } from "node:crypto";
 import { mkdir, rm } from "node:fs/promises";
@@ -23,6 +24,7 @@ import {
   resolveContributions,
 } from "./usageContributions.ts";
 import { removeEarlierPages } from "./usageEarlierStore.ts";
+import { reconciledGaps } from "./usageGapReconciliation.ts";
 import {
   canonicalUsageHistory,
   serializeUsageHistory,
@@ -38,13 +40,11 @@ import {
 import {
   responseKey,
   usageAssociationSchema,
-  usageGapSchema,
   usageObservationSchema,
   usageTaskSchema,
   usageTokenCategories,
   type UsageAssociation,
   type UsageBatch,
-  type UsageGap,
   type UsageObservation,
   type UsageTask,
 } from "./usageRecords.ts";
@@ -109,26 +109,6 @@ function batchResponses(
   return { observations, associations };
 }
 
-function reconciledGaps(
-  stored: UsageGap[],
-  incoming: UsageBatch["gaps"],
-  answered: ReadonlySet<string>,
-): UsageGap[] {
-  const gaps = new Map<string, UsageGap>();
-  for (const gap of stored) gaps.set(JSON.stringify(gap), gap);
-  for (const value of incoming ?? []) {
-    const gap = usageGapSchema.parse(value);
-    const id = JSON.stringify(gap);
-    if (!gaps.has(id)) gaps.set(id, gap);
-  }
-  return [...gaps.values()].filter(
-    (gap) =>
-      gap.code !== "no-attributable-response-usage" ||
-      !gap.taskId ||
-      !answered.has(gap.taskId),
-  );
-}
-
 export async function writeUsageHistory(
   batch: UsageBatch,
   file = usageHistoryFile(),
@@ -169,7 +149,7 @@ export async function writeUsageHistory(
       format: usageHistoryFormat,
       tasks: Object.fromEntries(tasks.map((task) => [task.id, task])),
       sessions: merged,
-      gaps: reconciledGaps(stored.gaps, batch.gaps, answered),
+      gaps: reconciledGaps(stored.gaps, batch.gaps, replaced, answered),
     });
     if (bytes?.toString("utf8") !== text) {
       const temporary = `${file}.${randomUUID()}.tmp`;

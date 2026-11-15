@@ -65,9 +65,10 @@ Matching retained turn or launch-reference evidence enriches that same task,
 including Claude launches keyed by launch time. Launch workflow evidence wins
 in both import and Refresh; recovered evidence fills a missing launch workflow,
 and recovered-only tasks keep their skill. Requested model, effort, options and
-policy stay on the task. Observed model, effort and Codex `service_tier` group
-session contributions, so settings may change without rewriting launch requests.
-Launch sources name operational or retained files; records copy no instructions, prompts or transcript bodies.
+policy stay on the task. Observed model, effort and service tier (Codex
+`service_tier`, Claude `speed`) group session contributions, so settings may
+change without rewriting launch requests. Launch sources name operational or
+retained files; records copy no instructions, prompts or transcript bodies.
 
 Recovered tasks have `kind: recovered`, nullable project/workflow/identity/title
 and launch time, per-field `fieldSources`, and explicit gaps. A configured
@@ -177,26 +178,26 @@ complete provider or task coverage. A session contribution is what one native
 session, read whole from all its files, adds to each task. Its entries group
 its responses by sorted candidate tasks, observed model, effort, service tier
 and contradictory lineage (`unresolved`), each keeping the response count, four
-token subtotals, the responses `missing` each category, those `unmeasured` and
-the latest activity; no file list. An entry belongs to a task when exactly one
+token subtotals, the five-minute and one-hour cache writes while every response
+split them, the responses `missing` each category, those `unmeasured` and the
+latest activity; no file list. An entry belongs to a task when exactly one
 candidate's assignment holds, as root usage when its session is the task's,
 else worker usage. `taskUsage(history, taskId)` sums a task's entries: each
 category has an `unmeasured` count, and no measured component yields `null`,
-including a task with no attributable responses. Inspect gaps before
-interpreting those subtotals.
+even with no attributable responses. Inspect gaps before reading subtotals.
 
 `writeUsageHistory(batch, file?)` in `dashboard/server/usageHistory.ts`
-validates `UsageBatch` from `usageRecords.ts` and reconciles its tasks and gaps
-with the stored ones, under the existing `<file>.lock` with an atomic durable
-replacement. Pass every response of each session read, with its association:
-each session in the batch has its contribution replaced by their sum, so a
-session read again, by the import, Refresh or both, is counted once. Other
-sessions, native files gone or not, keep theirs. Response IDs must match
-`responseKey(host, sessionId, responseId)`. `readUsageHistory(file?)` reads the
-document without opening native files. The document is serialized in one order
-(tasks and gaps as first recorded, sessions and entries sorted), so equal
-content gives equal bytes. After normalization, alternating import and Refresh
-over unchanged evidence preserve history bytes and totals, replacing nothing.
+validates `UsageBatch` from `usageRecords.ts` and reconciles it with the stored
+document under `<file>.lock`, replacing it atomically and durably. Pass every
+response and gap of each session read, with its association: the write replaces
+each such session's contribution with their sum and its gaps with the batch's,
+so a session read again by import or Refresh counts once, with only the gaps it
+still reports; other sessions keep theirs, native files gone or not. Response
+IDs must match `responseKey(host, sessionId, responseId)`.
+`readUsageHistory(file?)` reads without opening native files. The document is
+serialized in one order (tasks and gaps as first recorded, sessions and entries
+sorted), so equal content gives equal bytes. After normalization, alternating
+import and Refresh over unchanged evidence keep history bytes and totals.
 Failed replacements keep prior history readable; retries count each response once. An unreadable document is preserved and refuses automatic
 overwrite. `read` prints the document. An earlier dashboard's store, a version 1
 history or a manifest naming page files in `usage.json.pages/`, is read as the
