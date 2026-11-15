@@ -80,11 +80,11 @@ before expensive proof; reduce workers without losing cases when warranted.
 | --- | --- |
 | HTTP refusals, fresh unread, kept-none and exact extra GitHub calls / example 1 | 1: direct real Backend HTTP answers and observed fake GitHub calls, no browser. |
 | CI status values, freshness, reuse, sorting and interaction | 2: real Frontend controls/rendering; Backend/E2E retains acquisition. |
-| History windows/order/gaps and scope units/provenance | 3–4: former assertions in controlled UI and retained real acquisition. |
-| Proof table/accessibility/grouping/sort and omitted-attempt refusal / example 2 | 5: actual rendering plus direct Backend refusal/no-call and real ZIP acquisition. |
-| Comparison values/gaps, preferences, navigation and source pinning / example 3 | 6: mounted/built-app interactions plus real source/acquisition connections. |
-| Candidates, failed/held reads, revision, file/Purpose/case targets / example 3 | 7–8: real navigation/reading position and counted service reads. |
-| Every originating assertion has a home; only converted cases/timing rows go | Each slice's dispositions and passes; 8 reconciles all 35 sources and lists the interim remainder. |
+| History windows/order/gaps and scope units/provenance | 3–5: former assertions in controlled UI and retained real acquisition. |
+| Proof table/accessibility/grouping/sort and omitted-attempt refusal / example 2 | 6: actual rendering plus direct Backend refusal/no-call and real ZIP acquisition. |
+| Comparison values/gaps, preferences, navigation and source pinning / example 3 | 7: mounted/built-app interactions plus real source/acquisition connections. |
+| Candidates, failed/held reads, revision, file/Purpose/case targets / example 3 | 8–9: real navigation/reading position and counted service reads. |
+| Every originating assertion has a home; only converted cases/timing rows go | Each slice's dispositions and passes; 9 reconciles all 35 sources and lists the interim remainder. |
 | Shared helpers and old proof remain usable | All slices: affected consumer proof; retain shared support and artifact/source identities. Retirement and changed-scope history belong to plan 648. |
 
 ## Ordered slices
@@ -128,20 +128,40 @@ Accepted: six Frontend specs `dashboard/frontend-tests/intent/intent-ci-status-*
 cue break failed old and new homes; restored passed. Call accounting reuses E2E
 `intent-ci-status.spec.ts`/`-story.spec.ts`. The substitute's revision check
 reports arranged `branchHeads` (opt-in). Full Frontend suite 373 passed.
-Learning for slice 5: the family also has `openFrontendRunProof` (proof table for
-the status's run, from `makeMe.aCiProof`); slice 5 reuses or absorbs it rather
+Learning for slice 6: the family also has `openFrontendRunProof` (proof table for
+the status's run, from `makeMe.aCiProof`); slice 6 reuses or absorbs it rather
 than adding a second proof family.
 
-### 3. Preserve CI wall-time history reading
+### 3. Preserve CI wall-time history order and gaps
 Type: Behavior
 Status: planned
-Proof: four `intent-ci-wall-time-history*` specs (4 / 562), window/order/gaps
-and selected points; reuse applicable E2E adapter/provenance cases.
-Behavior: read/change a history window or select a point → the same ordering,
-gaps, values and linked run remain protected. Own at most one history-answer
-family; keep real collection/request accounting Backend/E2E.
+Proof: `intent-ci-wall-time-history-order` and `-gaps` (2 / 211): accepted
+order with a middle gap, reversed build-date labels and true span; gap-only
+history wording, evidence rows, keyboard run links and phone width.
+Behavior: read a history with gaps or out-of-date-order builds → the same
+ordering, gap rows, values and linked runs remain protected. Owns the one
+history-answer family `dashboard/tests/support/frontendCiHistoryAnswers.ts`
+(project `intent=ci-history`, read counts, point/gap/pending-gap entries).
+Order service-side home: `Distribution/tests/support/landed-ci-history-reading-order.test.mjs`
+(verified). Before citing `landed-ci-history-gaps`/`-pending-proof` for which
+builds collection names, inspect their assertions. Scratch-break the gap
+rendering in `dashboard/src/IntentCiHistory*` in old and new homes.
 
-### 4. Preserve scope timing history and its gaps
+### 4. Preserve CI wall-time history window and selected run
+Type: Behavior
+Status: planned
+Proof: `intent-ci-wall-time-history-window` and `intent-ci-wall-time-history`
+(2 / 351): 20-build window, no controls, sample rows, point/stroke geometry;
+proof labels, one measured build, disclosure, keyboard run link, empty history.
+Behavior: read a full window or a single measured build → the same values,
+geometry, run link and empty-state wording remain protected. Reuse slice 3's
+family and `openFrontendRunProof`. Add one Backend case reading a stored 35-build
+history with an older gap (`windowLandings` in `server/landedCiMeasuredBuilds.ts`):
+newest 20 plus gaps among/after them, older gap dropped. Verify the collection
+`timeMs` home (`landed-ci-history-time-without-runner-waits`/`-collection`) before
+citing it. Remove `ciHistoryWindowPage.ts` if no consumer remains.
+
+### 5. Preserve scope timing history and its gaps
 Type: Behavior
 Status: planned
 Proof: `intent-scope-glance` and four `intent-scope-timing-history-*` specs
@@ -150,7 +170,7 @@ Behavior: select entry/folder/file scope → observe the same values, gaps, buil
 eligibility and provenance. Reuse history answers; any scope-specific contract
 extension belongs here, with actual scope navigation.
 
-### 5. Preserve CI proof reading and query refusal
+### 6. Preserve CI proof reading and query refusal
 Type: Behavior
 Status: planned
 Proof: three `intent-ci-proof*` and four `intent-summary-ci-proof-*` specs
@@ -162,7 +182,7 @@ Own one proof-answer family; real ZIP/artifact acquisition and attempt memory
 keep Backend/E2E homes. Historical-only entries still have no dead source link;
 do not rewrite old entry identities.
 
-### 6. Preserve comparison navigation and preferences
+### 7. Preserve comparison navigation and preferences
 Type: Behavior
 Status: planned
 Proof: four `intent-ci-comparison-*` and two `intent-summary-story-comparison-*`
@@ -173,7 +193,7 @@ observed across views. Reuse production mounts/bindings; add only missing
 full-app answers. Retain real API/upstream counting from comparison-locations
 at Backend/E2E, not substitute logs.
 
-### 7. Preserve candidate selection and Purpose targets
+### 8. Preserve candidate selection and Purpose targets
 Type: Behavior
 Status: planned
 Proof: `intent-test-optimization-candidates.spec.ts`, `…-case`, `…-open`
@@ -183,14 +203,14 @@ case at the same revision/reading position. Reuse candidate/file/location
 substitutes; any held/failed candidate answer family is owned here. Real
 candidate acquisition stays outside Frontend.
 
-### 8. Preserve candidate refresh and close the CI conversion
+### 9. Preserve candidate refresh and close the CI conversion
 Type: Behavior
 Status: planned
 Proof: `intent-test-optimization-candidates-{live,revision,states}` (3 / 339),
 all 35 assertion dispositions and remaining interim selection.
 Behavior: change project/revision or receive live/failed candidate answers →
 the same freshness, state and stale-answer exclusion remain protected; no
-selected CI spec remains in the interim group. Reuse slice 7's family. Run
+selected CI spec remains in the interim group. Reuse slice 8's family. Run
 `npm run test:dashboard:integrated -- --list --reporter=line`: only 37 other
 Intent and 41 navigation specs remain (adjust for independent conversions).
 Keep `groupRunnerExamples.ts` runnable: when its title example moves, select a
@@ -222,12 +242,28 @@ slice-specific concern. If a family or mixed proof exceeds these assumptions,
 apply sizing/escalation before broadening its batch; preserve overrun evidence
 and reassess the story after a second overrun.
 
+### Slice 3 overrun and story reassessment (2026-11-15)
+
+Slice 3 (four wall-time specs) stopped at 15 active minutes with the history
+family and the `-order` Frontend spec passing; its scratch break, the other
+three specs, a missing Backend read-window case and deletions remained. The
+false assumption: one new family plus four specs and their home inspection fit
+one slice; slice 2 fit only because its family carried no Backend gap. This is
+the story's second overrun (first at `bfd4e7815`). Story boundary retained:
+slices 1–2 delivered the CI-status outcome (7 specs, C1.1) independently, the
+remaining families are independent loops of the same outcome, and the split
+stays within the in-progress allowance (9 slices). Slice 3 split into 3 (order,
+gaps, family) and 4 (window, selected run, Backend window case); kept work is
+compatible. Slice 6 (proof) carries the same risk with seven specs; its family
+already exists in part (`openFrontendRunProof`), so it stays, but convert in
+complete units and stop at the limit rather than broaden.
+
 ## Story obligations
 
 ### G1. Execution-time proof table now reads a built proof, not an extracted collector ZIP
 Reported: slice 2 — "the proof now comes from `makeMe.aCiProof`, not from a real collector summary ZIP that the Backend extracted"
 Story clause: "Backend/E2E retains real parsing/acquisition/refusal and request counts."
-Disposition: receiving slice 5
+Disposition: receiving slice 6
 
 ### G2. Trunk homepage lost "another branch moving reads no judgment"
 Reported: slice 2 — "There is no Frontend equivalent for \"another branch moved\", because the substitute's revision check reports no branches."
