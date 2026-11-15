@@ -1,120 +1,205 @@
-# Move Intent and navigation checks out and retire Dashboard Integrated UI Test
+# Move Intent CI checks out of Dashboard Integrated UI Test
 
-Provisional planning material for `SEED-334#retire-dashboard-integrated-ui-test`;
-the source below is its canonical story, not this unselected draft.
-**Source:** [Move Intent and navigation checks out and retire Dashboard Integrated UI Test](../../seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test)
+**Identity:** SEED-334#retire-dashboard-integrated-ui-test
+**Source:** [Move Intent CI checks out of Dashboard Integrated UI Test](../../seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test)
 
-This provisional plan is **awaiting story refinement — not ready for slice-plan refinement or execution**.
+## Goal and scope
 
-## Goal and provisional scope
+Preserve every distinct assertion from the 35 interim Intent CI specs in
+Frontend, Backend or representative E2E homes. The seed owns scope and examples.
+This is preparation only; no slice has executed. The interim runner stays for
+37 other Intent and 41 navigation specs, owned by
+[reading/review](../647-move-intent-reading-and-review-checks/PLAN.md) and
+[navigation/retirement](../648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md).
+No new tier, product behavior, timing target, tagged-install proof or E2E rename.
 
-Convert every interim case under `dashboard/tests/{intent,navigation}` while
-preserving each distinct regression assertion in E2E, Frontend or Backend,
-then retire the empty group's Intent entry, runner, CI producer and live
-tooling references. Split on 2026-11-15 from
-SEED-334#finish-dissolving-integrated-ui-test (spent plan 632, recoverable
-from before-cleanup), whose original slices 6 and 7 (Intent; navigation) and
-8 (retirement) are mapped below. Slice 8 here needs that story's conversions
-on trunk; slices 1–7 do not.
+## Existing solution and current decisions
 
-Architecture, proof rules, local gates and carried learnings are those of
-spent plan 632 (recoverable from before-cleanup); refinement confirms or
-adjusts them here.
+PFE: reuse `dashboard/tests/support/frontendApp.ts` and its static built app,
+`frontendServiceSubstitutes.ts`, `frontendAuthenticatedReadSubstitute.ts` and
+held-answer owner `frontendSubstituteAnswers.ts` for Frontend interaction.
+Reuse production component mounts/bindings in `dashboard/frontend-tests/intent/`
+and the real authenticated Backend boundary with `rawHttp.ts` for HTTP behavior.
+Existing `e2e/intent/` journeys retain acquisition, ZIP parsing, source pinning,
+SSE and workflow connections; inspect assertions before claiming reuse.
+[Comparison proof ownership](../../../dashboard/tests/intent-ci-comparison-proof.md)
+maps acquisition/rules/presentation, not permission to drop mixed assertions.
 
-## Retirement inputs
+The authenticated-read substitute already answers locations, candidates, files
+and revision changes; it does not implement CI status/proof/history. Add only
+the current service-answer family beside existing substitutes. Do not use the
+default backlog answer as a CI success fallback. Keep actual in-service
+collaborators: an arranged response does not prove Backend chose or acquired it.
+No new harness, generic framework or delivery-shaped production rule is needed.
 
-At `c327752a0f385417c74b1a7b3511ebe5d3b450e6` the interim group was named by
-its Intent location in `.planning/open-dough.json`, `package.json`, `ci.yml`
-job `dashboard-integrated`, `dashboard/integrated.playwright.config.ts`, the
-`integrated.longest-first*` lists, runner support
-(`dashboard/tests/support/groupRunnerExamples.ts`), Distribution CI helpers
-and tests, and placement READMEs. Leave `integratedStateCompletion` in
-`.planning/open-dough.json` alone; it is not the interim group's Intent entry.
-Retirement may land before or after SEED-334#keep-one-browser-test-group-
-roster; either way three groups remain.
+Follow [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+for coherent domain rules and bounded whole-product work,
+[ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+for published versus local evidence, and
+[ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
+for preserved useful protection without an unmeasured speed claim.
+The existing [North Star](../../NORTH-STAR.md) suffices; no new direction or ADR.
 
-## Provisional slices
+Each batch has one proof loop: preserve its originating assertions at their
+real boundaries, remove interim homes/duration rows, verify maintained homes.
+Shared response families follow service contracts, not batch membership.
+Keep negative effects, focus, keyboard, request-count and stale-answer assertions.
 
-Sizes are interim specs / lines at `788c5a64ca128ee64bc10ffe752f617633a28127`,
-against the carried capacity of about 2.5–3k lines per slice. Original slice 6
-(Intent, 72 / 11,009) maps to slices 1–4; original slice 7's navigation part
-(41 / 6,516) maps to slices 5–7; original slice 8 maps to slice 8. Original
-slice 7's stories and observation parts stay in plan 632 (its slices 6–8).
+## Proof and local gates
 
-### 1. Convert Intent CI status and timing history
+Before changing a boundary, retain an assertion-by-assertion disposition to
+named maintained cases, including reused cases and negative effects. Observe a
+representative scratch break in the interim home before removing it, then in
+the new home; both must fail for the same promise and pass restored. Frontend
+arranges service answers, then observes actual product actions and rendering.
+Use the installed [consumer-trace procedure](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
+for moved modules, changed contracts and retired outputs; follow helpers and
+fixture exports to observing journeys in all groups. Align imports, registering
+modules, fixtures and proof documentation with each move.
+
+Local gate: focused converted cases via `npm run test:dashboard:backend -- <paths>`,
+`npm run test:dashboard:frontend -- <paths>` and/or `npm run test:e2e -- <paths>`;
+`npm run lint` and `npm run typecheck:dashboard` for changed TypeScript.
+Choose broader local proof for affected shared consumers; CI alone does not
+make all groups a local gate. Select MakeMe and browser page objects before
+writing tests under [AGENTS.md](../../../AGENTS.md#test-automation).
+Retain default budgets; no `test.slow()` or suite/file/group/hook overrides.
+Apply the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
+as written, including hosted failures after publication. Each slice owns
+post-change refactoring and the execution workflow's delivery/CI gates.
+
+The local gate uses the maintained macOS
+[sleep guard and power condition](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos):
+fully awake on AC with `caffeinate -s -i`; on battery, plug in or keep the lid
+open under `caffeinate -i` and inspect the sleep log afterwards. Full runs share
+admission across worktrees. Inspect that host's load, memory and competing work
+before expensive proof; reduce workers without losing cases when warranted.
+
+| Promise / source example | Owning slice and observation |
+| --- | --- |
+| HTTP refusals, fresh unread, kept-none and exact extra GitHub calls / example 1 | 1: direct real Backend HTTP answers and observed fake GitHub calls, no browser. |
+| CI status values, freshness, reuse, sorting and interaction | 2: real Frontend controls/rendering; Backend/E2E retains acquisition. |
+| History windows/order/gaps and scope units/provenance | 3–4: former assertions in controlled UI and retained real acquisition. |
+| Proof table/accessibility/grouping/sort and omitted-attempt refusal / example 2 | 5: actual rendering plus direct Backend refusal/no-call and real ZIP acquisition. |
+| Comparison values/gaps, preferences, navigation and source pinning / example 3 | 6: mounted/built-app interactions plus real source/acquisition connections. |
+| Candidates, failed/held reads, revision, file/Purpose/case targets / example 3 | 7–8: real navigation/reading position and counted service reads. |
+| Every originating assertion has a home; only converted cases/timing rows go | Each slice's dispositions and passes; 8 reconciles all 35 sources and lists the interim remainder. |
+| Shared helpers and old proof remain usable | All slices: affected consumer proof; retain shared support and artifact/source identities. Retirement and changed-scope history belong to plan 648. |
+
+## Ordered slices
+
+Counts are source specs/lines at `f03e959480b2a04a7194b072cf71aa9da55ee1a9`.
+Each slice has 15 active minutes, excluding running commands. One new Frontend
+answer family costs most of that budget; none owns two. Introduce families
+separately from later variants. Counts guide sizing, not acceptance.
+
+### 1. Preserve CI-status HTTP refusals without a browser
 Type: Behavior
-Status: provisional
-Proof: `intent-ci-status-*`, `intent-ci-wall-time-history*` and
-`intent-scope-*` (16 / 2,470) retain CI status freshness/sort/kept/side-panel/
-homepage/execution-time, wall-time history window/order/gaps and scope timing
-history assertions, including the direct Backend conversion of
-`intent-ci-status-read-boundary.spec.ts` with every refusal and
-no-additional-GitHub-call assertion.
+Status: planned
+Proof: `intent-ci-status-read-boundary.spec.ts` (1 / 70), direct Backend requests,
+every malformed query and exact fresh/kept call sequence.
+Behavior: configured published project → malformed or fresh/kept CI-status
+request → the same answers and upstream effects occur without a page. Reuse
+`pageTest.ts`, a boundary-mode server and `rawHttp.ts`. Apply the observed
+pinned-revision scratch fault to both old and new homes.
 
-### 2. Convert Intent CI proof, comparison and optimization candidates
+### 2. Preserve CI-status presentation and reading lifetime
 Type: Behavior
-Status: provisional
-Proof: `intent-ci-comparison-*`, `intent-ci-proof*`, `intent-summary-*` and
-`intent-test-optimization-candidates*` (20 / 2,992) retain comparison,
-proof table/grouping/accessibility/gaps/sort and optimization-candidate
-assertions.
+Status: planned
+Proof: remaining six `intent-ci-status-*` specs (6 / 1,270): execution-time,
+freshness, homepage, kept, side-panel and sort; real acquisition/no-extra-call
+proof stays Backend/E2E.
+Behavior: read, sort, revisit or refresh CI status → controlled answers expose
+the same values, freshness, kept cues and interaction. Own one CI-status answer
+family in separate support. Existing E2E status journeys keep real judgment-to-
+display connections.
 
-### 3. Convert Intent story, done review and revision
+### 3. Preserve CI wall-time history reading
 Type: Behavior
-Status: provisional
-Proof: `intent-story-*`, `intent-done-*`, `intent-ci-done-*` and
-`intent-revision-*` (20 / 2,944) retain story changes/cues/coverage/views,
-done review modes/source selection/refresh and revision notice/update
-assertions.
+Status: planned
+Proof: four `intent-ci-wall-time-history*` specs (4 / 562), window/order/gaps
+and selected points; reuse applicable E2E adapter/provenance cases.
+Behavior: read/change a history window or select a point → the same ordering,
+gaps, values and linked run remain protected. Own at most one history-answer
+family; keep real collection/request accounting Backend/E2E.
 
-### 4. Convert Intent source, Purpose and reading recovery
+### 4. Preserve scope timing history and its gaps
 Type: Behavior
-Status: provisional
-Proof: the remaining 16 Intent specs (2,603): code browse, entry folder
-summaries, Gherkin, home activation, project visit, Purpose case, read
-recovery/reuse, reading place, selection reads, sidebar toggle and source
-target recovery; no product spec remains under `intent/`.
+Status: planned
+Proof: `intent-scope-glance` and four `intent-scope-timing-history-*` specs
+(5 / 578): gap-build, gaps, legacy and provenance.
+Behavior: select entry/folder/file scope → observe the same values, gaps, build
+eligibility and provenance. Reuse history answers; any scope-specific contract
+extension belongs here, with actual scope navigation.
 
-### 5. Convert board reading, paging and accessibility
+### 5. Preserve CI proof reading and query refusal
 Type: Behavior
-Status: provisional
-Proof: `accessible-board*` and `board-*` navigation specs (15 / 2,080) retain
-keyboard/touch/scroll, clamp/height/kept, paging and board reading assertions.
+Status: planned
+Proof: three `intent-ci-proof*` and four `intent-summary-ci-proof-*` specs
+(7 / 1,060): table/grouping/accessibility/kept/gaps/sort; direct Backend
+omitted-attempt refusal without an extra GitHub ask.
+Behavior: open proof or select a configured entry → the same run, attempt,
+counts, timings, gaps, accessible cells and destinations remain protected.
+Own one proof-answer family; real ZIP/artifact acquisition and attempt memory
+keep Backend/E2E homes. Historical-only entries still have no dead source link;
+do not rewrite old entry identities.
 
-### 6. Convert frame, header and side panel
+### 6. Preserve comparison navigation and preferences
 Type: Behavior
-Status: provisional
-Proof: `dashboard-header*`, `development-intent-frame*`, `frame-*`,
-`side-panel-width*` and `notification-story-navigation` (12 / 2,160) retain
-frame look, header, side-panel width and notification navigation assertions.
+Status: planned
+Proof: four `intent-ci-comparison-*` and two `intent-summary-story-comparison-*`
+specs (6 / 998): count-gaps, drilldown-relative, locations, relative, file, sort.
+Behavior: compare a story, change scope/sort/Show %, or open its file → the same
+gaps, signed marks, percentages, order, focus and pinned destinations remain
+observed across views. Reuse production mounts/bindings; add only missing
+full-app answers. Retain real API/upstream counting from comparison-locations
+at Backend/E2E, not substitute logs.
 
-### 7. Convert story and project selection and references
+### 7. Preserve candidate selection and Purpose targets
 Type: Behavior
-Status: provisional
-Proof: `project-*`, `source-navigation`, `story-card-*`,
-`story-destination-repeat-cue` and `story-reference-*` (14 / 2,276) retain
-project keyboard/selection, source navigation and story reference
-identity/done/recovery assertions; no product spec remains under
-`navigation/`.
+Status: planned
+Proof: `intent-test-optimization-candidates.spec.ts`, `…-case`, `…-open`
+(3 / 595): list identity and source/case/Purpose navigation, including refusals.
+Behavior: choose a recorded candidate → actual controls open its source and
+case at the same revision/reading position. Reuse candidate/file/location
+substitutes; any held/failed candidate answer family is owned here. Real
+candidate acquisition stays outside Frontend.
 
-### 8. Retire Dashboard Integrated UI Test
+### 8. Preserve candidate refresh and close the CI conversion
 Type: Behavior
-Status: provisional
-Proof: no `dashboard/tests/**/*.spec.ts` product case remains. Remove the
-current Intent location, npm command, Playwright config, `dashboard-integrated`
-CI producer/shards, duration lists and live tooling/placement references.
-Keep `integratedStateCompletion`, shared helpers and historical evidence.
-Behavior: every interim assertion has a maintained home → retire the empty
-group → only E2E, Frontend and Backend are current, all shared imports work,
-and old integrated artifacts/source remain readable at their old revisions
-without current-proof claims, fabricated comparisons or dead links.
-Update roster or hard-coded callers regardless of the roster story's order.
-Focused `ci-browser-groups`, related CI declarations and `runner-ownership`
-prove the remaining groups; retained Intent/history cases prove old evidence.
+Status: planned
+Proof: `intent-test-optimization-candidates-{live,revision,states}` (3 / 339),
+all 35 assertion dispositions and remaining interim selection.
+Behavior: change project/revision or receive live/failed candidate answers →
+the same freshness, state and stale-answer exclusion remain protected; no
+selected CI spec remains in the interim group. Reuse slice 7's family. Run
+`npm run test:dashboard:integrated -- --list --reporter=line`: only 37 other
+Intent and 41 navigation specs remain (adjust for independent conversions).
+Keep `groupRunnerExamples.ts` runnable: when its title example moves, select a
+still-interim case and actual title, with focused runner-ownership proof.
 
-## Resumption
+## Premises, observations and sizing review
 
-Resume through `dough-story-refinement` for this story, then realign this
-plan with `dough-slice-plan-refinement`. Intent slices 2 and 3 hold about 20
-small specs each, above the carried "about 11 small specs" observation;
-refinement must confirm their fit or rebalance within eight slices.
+Observed 2026-11-15 in this owned checkout at `f03e959480b2a04a7194b072cf71aa9da55ee1a9`:
+
+| Decisive premise / consuming operation | Result and remainder |
+| --- | --- |
+| Current selection: `npm run test:dashboard:integrated -- --list --reporter=line` | Exit 0; 230 tests / 113 files, only Intent 72 and navigation 41. CI partition 35 / 5,472 lines; other Intent 37 / 5,547. Selection evidence only. |
+| Refusal observes the real parser: `caffeinate -s -i npm run test:dashboard:integrated -- intent/intent-ci-status-read-boundary.spec.ts --workers=1` | Baseline passed; scratch removal of `parseIntentCiStatusRead`'s revision refusal failed at pinned revision (expected 400, got 200); restored run passed. Scratch reverted. Slice 1 must reproduce that discrimination in its new Backend home. |
+| Static Frontend runner reaches real browser controls: `caffeinate -s -i npm run test:dashboard:frontend -- control-reachability-observation.spec.ts --workers=1` | Exit 0. New CI response families and their proof are future slice work, not claimed implemented. |
+| Server preparation needs worktree-local dependencies | First refusal run stopped before the test at missing `node_modules/.dough-server-bundle-*`; `npm ci` installed 183 locked packages, then baseline/fault/restored completed. Execution includes checkout-bound dependency setup. |
+| Family cost governs sizing | Retained `bfd4e7815:.planning/slice-plans/632-finish-dissolving-integrated-ui-test/PLAN.md` records a two-family overrun and one-family budget. Repartitioned into 1–7 files per slice with explicit family ownership; no 20-spec batch remains. |
+
+The observation host was awake on AC, load 6.74/5.75/6.05; memory and competing
+test work were inspected. Chose focused single-worker checks, no broad run.
+Execution reassesses its own host before expensive proof. Existing expected
+edited support is at most 226 lines; keep new families separate and apply the
+250-line check to actual proposed edits. No already-oversized expected code
+edit requires separate reorganization.
+
+Slice-plan refinement ran: split original CI batches 1–2 into these eight
+loops; original 3–4 map to plan 647 and 5–8 to plan 648. Cumulative design uses
+one model at established service boundaries. Review identified no remaining
+slice-specific concern. If a family or mixed proof exceeds these assumptions,
+apply sizing/escalation before broadening its batch; preserve overrun evidence
+and reassess the story after a second overrun.

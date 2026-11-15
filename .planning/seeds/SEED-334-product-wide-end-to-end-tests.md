@@ -11,72 +11,139 @@ scope: story
 
 <a id="retire-dashboard-integrated-ui-test"></a>
 
-### Move Intent and navigation checks out and retire Dashboard Integrated UI Test
+### Move Intent CI checks out of Dashboard Integrated UI Test
 
 **Identity:** SEED-334#retire-dashboard-integrated-ui-test
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/633-retire-dashboard-integrated-ui-test/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d0aaedaaa3aa9651885b21812fc132feb47b1049f31f0c4aac5bd822d4abec37","plan":"ab4670a68f8b18000d020e3e5f3bbe31b1fcd4840007c7b460036df3b328a196"}}
 ```
-
-Split from SEED-334#finish-dissolving-integrated-ui-test on 2026-11-15; that
-story's spent Story boundary (recoverable from before-cleanup) records why.
 
 #### Goal
 
-Only Frontend, Backend and representative E2E dashboard test layers remain.
-The Intent and board/navigation checks leave **Dashboard Integrated UI Test**
-with every distinct regression assertion preserved, and the empty group is
-retired without making old integrated proof look current.
+A dashboard maintainer runs CI status, timing, proof, comparison and
+optimization-candidate regression checks at their owning boundaries, with
+every distinct assertion preserved outside Dashboard Integrated UI Test.
+This reduces the remaining mixed test tier while keeping Intent's CI evidence
+trustworthy; no speed improvement is claimed without measurement.
 
 #### Scope
 
-- **Convert the remaining behavior.** Intent CI status/history/proof/
-  comparison, story and done review, revision, source/Purpose/Gherkin and
-  reading-recovery checks, and board, frame/header/side-panel and
-  story/project selection and reference navigation checks leave the interim
-  group. This includes the direct Backend conversion of
-  `intent-ci-status-read-boundary.spec.ts`. Placement, protection and
-  scratch-break rules are the same as in
-  the first half (SEED-334#finish-dissolving-integrated-ui-test, spent).
-- **Retire the empty group.** Once every interim product case, including the
-  first half's, has another home, remove its current Intent location,
-  `test:dashboard:integrated` npm command, Playwright configuration, CI
-  producer and shards, duration lists, and live tooling/placement references.
-  Update the roster or its current hard-coded callers to describe E2E,
-  Frontend and Backend. Keep shared helpers and fixtures under
-  `dashboard/tests/` that those groups still import; the unrelated
-  `integratedStateCompletion` setting remains unchanged.
-- **Keep historical proof honest.** An integrated artifact from an older
-  revision remains readable at that revision. It must not appear as current
-  proof after retirement, acquire fabricated numerical comparisons across
-  absent or changed scopes, or expose dead source links.
-- **Safe stopping point.** A converted batch is complete on its own; the
-  story completes only after retirement.
+- Convert the 35 remaining Intent CI specs: `intent-ci-status-*`,
+  `intent-ci-wall-time-history*`, `intent-scope-*`, `intent-ci-proof*`,
+  `intent-ci-comparison-*`, `intent-summary-*` and
+  `intent-test-optimization-candidates*`.
+- Put HTTP refusal, request accounting, acquisition and storage assertions at
+  the Backend boundary; controlled service answers and actual rendering or
+  interaction at Frontend; representative real-server workflows in E2E.
+  Split mixed cases by their assertions, including negative effects. Preserve
+  each distinct regression, not merely test names or case counts.
+- Convert `intent-ci-status-read-boundary.spec.ts` directly to Backend,
+  preserving malformed branch/revision/kept refusals, fresh unread and kept-none
+  answers, and the exact additional GitHub-call assertions without a browser.
+  The omitted-attempt refusal in `intent-ci-proof.spec.ts` also belongs there.
+- Before deleting a migrated case, account for its assertions in named
+  maintained homes. A representative changed proof boundary must catch the
+  same scratch break before and after conversion, then pass restored.
+- Keep shared helpers, current runner support and historical proof usable.
+  Remove only converted specs and their interim duration-list entries.
 
-**Scope limits.** No new browser group, speed or shard-count target, product
-behavior change, Intent E2E naming or tagged-install proof. The latter belong
-to [the installed-workflow and E2E-proof story](#observe-tagged-install-and-read-e2e-proof).
+**Scope limits.** Intent source/review/revision and navigation conversion and
+retirement are owned by the two stories below. No new tier, product behavior,
+speed or shard-count target, tagged-install proof or E2E renaming.
 
 #### Key examples
 
-1. The CI-status read case sends malformed branch, revision and kept-form
-   queries through page fetch only to inspect HTTP answers and GitHub calls.
-   Conversion sends those requests directly to the Backend boundary and keeps
-   every refusal and no-additional-GitHub-call assertion without a browser.
-2. An Intent or navigation case with mixed workflow and UI assertions places
-   each at its real boundary, keeping representative real server/SSE journeys
-   in E2E.
-3. Every interim product case has a maintained home. Retirement leaves three
-   current browser groups and no integrated producer or npm command. Shared
-   support remains usable, and an old integrated proof can still be read at
-   its original revision without looking current or inventing comparisons.
+1. A malformed CI-status branch, pinned revision or kept form is requested
+   directly from the real Backend boundary → HTTP 400 and no extra GitHub
+   request. Fresh unread and kept-none still return their previous answers.
+2. A CI proof case mixes table layout with ZIP acquisition and an HTTP refusal
+   → Frontend observes actual presentation from controlled service answers;
+   Backend/E2E retains real parsing/acquisition/refusal and request counts.
+3. A comparison navigates scopes or an optimization candidate opens Purpose
+   → the maintained homes still observe values, gaps, source pinning, keyboard
+   behavior and reading position. Converted interim specs and timing rows go;
+   all remaining Intent and navigation cases still run in the interim group.
 
-#### Readiness note
+**Plan:** [Intent CI conversion](../slice-plans/633-retire-dashboard-integrated-ui-test/PLAN.md)
 
-Retirement needs the first half's conversions on trunk; Intent and
-navigation conversion can start independently. The provisional
-[plan](../slice-plans/633-retire-dashboard-integrated-ui-test/PLAN.md) maps
-the original plan's remaining slices.
+#### Story boundary and ordering
+
+On 2026-11-15 preparation resplit the former Intent/navigation/retirement
+outcome, retaining this identity and plan 633 on the first useful outcome.
+The original eight-batch plan had 20-spec batches and understated new Frontend
+answer-family preparation; the preceding execution at `bfd4e7815` found that
+one new family costs most of a 15-active-minute slice. The original scope is
+fully mapped to this story and the next two, without dropping assertions.
+The recomputed 35/37/41-file inventory replaces the provisional batch counts.
+CI conversion comes first for Intent proof feedback and answer-family learning;
+reading/review conversion follows for Purpose and review protection; navigation
+and retirement closes the tier. Each conversion outcome remains useful if
+later work is deferred. Simply moving everything into E2E preserves mixed
+checks but does not resolve their misplaced proof; keeping the interim tier
+leaves the selected problem intact. No general project S/M/L bands are defined
+(as also recorded in SEED-353); sizing uses inspected batches and the maintained
+15-active-minute slice budget rather than invented bands.
+
+<a id="move-intent-reading-and-review-checks"></a>
+
+### Move Intent reading and review checks out of Dashboard Integrated UI Test
+
+**Identity:** SEED-334#move-intent-reading-and-review-checks
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 647."],"basis":{"document":"6dbe2727302de527e8b272dd3333cce383f17bacfa085c6faf66cf5520869f76"}}
+```
+
+- **For / why.** A maintainer retains story/done review, revision and source/
+  Purpose/Gherkin/reading-recovery regressions in their owning test layers,
+  independently of runner retirement.
+- **Evaluation.** All 37 remaining non-CI Intent specs have named maintained
+  Frontend/Backend/E2E assertion homes, including focus, selected source,
+  revision, held/failed reads, request counts and negative effects; a changed
+  proof boundary catches the same representative scratch break and passes
+  restored. No product spec remains under `dashboard/tests/intent/` once the
+  CI conversion also lands.
+- **Scope.** Original provisional slices 3–4, with the same placement,
+  protection and scratch-break rules as the first story. No navigation or
+  runner retirement, product behavior change, E2E naming or tagged install.
+- **Value / stopping point.** Correctly owned Purpose/review/reading protection
+  remains useful while the interim group still runs navigation cases.
+- **Prerequisites.** Conversion can start independently; reuse any CI answer
+  families already delivered rather than adding parallel ones.
+- **Plan:** [Provisional reading/review conversion](../slice-plans/647-move-intent-reading-and-review-checks/PLAN.md),
+  awaiting story refinement before plan refinement or execution.
+- **Provenance.** Split from SEED-334#retire-dashboard-integrated-ui-test;
+  the pre-split source/plan is recoverable at `f03e959480b2a04a7194b072cf71aa9da55ee1a9`.
+
+<a id="move-navigation-checks-and-retire-integrated-ui-test"></a>
+
+### Move navigation checks out and retire Dashboard Integrated UI Test
+
+**Identity:** SEED-334#move-navigation-checks-and-retire-integrated-ui-test
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 648."],"basis":{"document":"9280aac9f17802babf39236f42c83ee8ff1a1b1e59eee244fdfb510c3427f8b8"}}
+```
+
+- **For / why.** A maintainer keeps board/frame/selection/reference protection
+  in maintained homes and runs only E2E, Frontend and Backend browser groups.
+- **Evaluation.** All 41 navigation specs retain every distinct assertion at
+  its real boundary. Once all interim product specs have other homes, retire
+  the current Intent location, npm command, config, CI producer/shards,
+  duration lists and live tooling/placement references. Shared support still
+  works; old integrated proof is readable at its original revision without
+  current-proof claims, fabricated comparisons or dead source links.
+- **Scope.** Original provisional slices 5–8. Keep
+  `integratedStateCompletion` unchanged. Update the roster or its hard-coded
+  callers whichever order the roster story lands. No new tier, product change,
+  speed/shard target, E2E naming or tagged-install proof.
+- **Value / stopping point.** Converted navigation batches keep their value;
+  this story completes only when the empty group is retired.
+- **Prerequisites.** Navigation conversion can start independently. Retirement
+  waits for both Intent conversion outcomes on trunk and no remaining interim
+  product cases; shared code alone creates no start-blocking dependency.
+- **Plan:** [Provisional navigation and retirement](../slice-plans/648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md),
+  awaiting story refinement before plan refinement or execution.
+- **Provenance.** Split from SEED-334#retire-dashboard-integrated-ui-test;
+  original scope and historical-evidence promises are preserved here.
 
 <a id="observe-tagged-install-and-read-e2e-proof"></a>
 
