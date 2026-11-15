@@ -359,7 +359,7 @@ two removals timed out on CI and a hardening pass followed.
 
 The [pre-push shard preview](../../dashboard/tests/shards.md) is already
 documented. This record retains the local headroom evidence and the E2E
-adjustment. The diagnostic gap has [its own process occurrence](https://github.com/terryyin/open-dough/blob/f28c8ee2c2f361030db9d0e0b0ca6207c2e4b5a0/DearDough.md#dd-529--a-hosted-suite-deadline-cutoff-named-no-failing-test-and-a-group-left-without-margin-by-sibling-conversions-failed-on-an-unrelated-storys-merge).
+adjustment. The diagnostic gap is [ODF-506](findings/ODF-506.md).
 
 <a id="dd-537"></a>
 

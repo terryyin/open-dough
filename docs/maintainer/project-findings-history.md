@@ -19,6 +19,18 @@ and [the prior process log](https://github.com/terryyin/open-dough/blob/f28c8ee2
 - **DD-466:** `5d1c5fe43` removed the MakeMe builder's runtime dashboard import. The named native identity check failed before the repair and passed after it, and the repository [test data architecture](../../Distribution/tests/test-data-architecture.md#test-data-architecture) retains the import boundary documented in `d41a6ef35`. DD-463's use of the import-closure parser as a reverse selector remains a separate finding.
 - **DD-508:** SEED-324 corrected its basis for the loaded run verdict. Three counted natural-load runs passed 14/14 each, with an 18.1 s slowest case. [Plan 599 at the correction](https://github.com/terryyin/open-dough/blob/854a1ae307abf6f3238daddf79bdf95d9b6e0e90/.planning/slice-plans/599-pass-landed-ci-repeat-checks-under-high-load/PLAN.md#repair-of-g1-after-the-seed-330-merge) and the maintained [measurement guide](../../Distribution/tests/local-test-resources.md#load-while-measuring) preserve the distinction between natural load and burner runs.
 
+<a id="dd-515-local"></a>
+
+**DD-515, local facets:** In SEED-334 plan 608, the fake GitHub held-auth
+release (`27724831f`), production watcher and build-gate fixtures
+(`8d6106164`), and repeat-transport POST wait (`d21a0ebc5`) stopped
+relying on a single macOS watch event after load-related failures. The
+coordinator exercised the repaired fixtures during the same execution. The
+[original occurrence](https://github.com/terryyin/open-dough/blob/face6fd05b3f5c4f20159db9b41480afbe90d592/DearDough.md#dd-515--test-and-ci-mailbox-waits-that-relied-only-on-macos-fswatch-failed-under-load)
+records the revisions and load conditions. The released mailbox and terminal
+observation facet is [ODF-501](findings/ODF-501.md). DD-476's separate
+local-suite lifecycle repair retains its own occurrence.
+
 Classification and resolution review, 2026-10-12. Full input evidence is
 recoverable at `11d48b956607e3485f5771c59509b111be3626b8:ProjectFindings.md`
 and `11d48b956607e3485f5771c59509b111be3626b8:DearDough.md`.

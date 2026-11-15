@@ -1,39 +1,35 @@
 # Finding names and current follow-up
 
-## Combined maintenance — 2026-11-13 (Asia/Singapore)
+## Combined maintenance — 2026-11-15 (Asia/Singapore)
 
-The six production projects received a local assessment. Five supplied shared
-process sources. Terry Talks has process review off. Doughnut queued a bounded
-CI package-setup story. Pygardon linked its existing release-revision guard and
-kept the shared observer response with Open Dough. Lizard and Open Dough
-settled locally owned findings. Clipboard needed no local edit.
+Six projects received a local assessment. Open Dough, Doughnut, Pygardon,
+Lizard and Clipboard supplied shared logs. Terry Talks has process
+retrospective off and has no active local findings record. Prior decisions,
+watch history and earlier recovery links remain in the
+[preceding catalog revision](https://github.com/terryyin/open-dough/blob/face6fd05b3f5c4f20159db9b41480afbe90d592/docs/maintainer/finding-names.md).
 
-The first shared priority is [ODF-259](findings/ODF-259.md). Pygardon's
-DD-501 adds a blocked closure after the same eight-hour expiry observed in
-GitHub Actions executions. Doughnut's related observer loss came from GitHub
-transport errors and is retained at [ODF-121](findings/ODF-121.md). The second
-priority is [ODF-481](findings/ODF-481.md). Repeated row allocation and evidence
-recording were observed in three projects, including hundreds of calls on one
-execution. The independent review also found genuine proof gaps. Its response
-keeps that review and gives one observation to each independently checkable
-promise. [ODF-470](findings/ODF-470.md) also repeats across executions, with
-additional timing runs and scratch setup; the latest source-review evidence
-shows broader ongoing use across projects. [ODF-329](findings/ODF-329.md) adds further mechanical delivery retries, with
-publication guards working. [ODF-488](findings/ODF-488.md) contributed two
-Windows repair cycles. Lizard's local writer is already fixed.
-The Taken list and the relative order of other queued work were preserved.
+[ODF-150](findings/ODF-150.md) now leads. Recent Open Dough executions
+published slices whose omitted static, history and layout proof then
+failed in CI. Another coordinator ran affected proof before accepting and
+contained the omission. [ODF-481](findings/ODF-481.md) remains second. A
+Pygardon execution independently records 55 source-review rows, including 30
+qualifying wording rows. Its response remains queued. ODF-074's untested
+premises also caused follow-up work, and ODF-329's formatter refusals caused
+retries. The prior ODF-074 response still needs a bounded effectiveness
+decision, while the formatter evidence shows delivery guards containing its
+errors. Existing Taken work and the relative order of other queue entries
+were preserved.
 
-New identities ODF-481 through ODF-495 retain distinct findings, with interim
-ODF-483 folded into the existing ODF-368 slice-section reader finding. Related causes
-and uncertain responses stay linked to their existing owners. Clipboard supplied
-two qualifying [ODF-418](findings/ODF-418.md) uses, which also meet the
-[ODF-275](findings/ODF-275.md) criterion. Lizard supplied another ODF-275 use;
-its exact observation command remains unrecovered. The [ODF-391](findings/ODF-391.md)
-writer was observed in Pygardon and Doughnut. Its release provenance is now
-verified. The scope watch remains unstarted.
+[ODF-259](findings/ODF-259.md)'s recovery first shipped in v0.3.99. Relevant
+later recovery after verified budget expiry is still unobserved.
+[ODF-097](findings/ODF-097.md) and [ODF-323](findings/ODF-323.md) gained
+ordinary-use guard and retry evidence. [ODF-059](findings/ODF-059.md) gained
+bounded interruption-recovery outcomes. The observations at
+[ODF-418](findings/ODF-418.md) and [ODF-378](findings/ODF-378.md) carry
+missing command or launch provenance explicitly. No execution qualified
+for the scope-restriction watch.
 
-Earlier decisions and recovery paths are in the [preceding catalog revision](https://github.com/terryyin/open-dough/blob/07407e12b40115862205041f03e27851b361cfb2/docs/maintainer/finding-names.md).
-Codes are permanent. Highest allocated is ODF-495.
+Codes are permanent. Highest allocated is ODF-514.
 
 ## Retained evidence
 
@@ -373,3 +369,22 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-494 — [Formatted-size proof measures the candidate before formatting](findings/ODF-494.md) <a id="odf-494"></a>
 
 ## ODF-495 — [The whole-suite gate names a command that excludes its target suite](findings/ODF-495.md) <a id="odf-495"></a>
+## ODF-496 — [An accepted proof limitation needs a correction after Intent Coverage](findings/ODF-496.md) <a id="odf-496"></a>
+## ODF-497 — [A changed journey’s own failure was grouped with unrelated load timeouts](findings/ODF-497.md) <a id="odf-497"></a>
+## ODF-498 — [A load investigation discovers the existing Taken owner only after profiling](findings/ODF-498.md) <a id="odf-498"></a>
+## ODF-499 — [Acceptance treats a shared component as proof of identical view wording](findings/ODF-499.md) <a id="odf-499"></a>
+## ODF-500 — [Migration sizing counts test declarations without classifying proof purpose](findings/ODF-500.md) <a id="odf-500"></a>
+## ODF-501 — [A macOS CI mailbox watch blocks while the host is under load](findings/ODF-501.md) <a id="odf-501"></a>
+## ODF-502 — [An unavailable load gate survives repeated resumes without its metric being clarified](findings/ODF-502.md) <a id="odf-502"></a>
+## ODF-503 — [Normal-path cleanup proof is accepted for an isolation obligation covering failure paths](findings/ODF-503.md) <a id="odf-503"></a>
+## ODF-504 — [HEAD-cloning fixtures exercise the old layout during uncommitted merge proof](findings/ODF-504.md) <a id="odf-504"></a>
+## ODF-505 — [Relocation acceptance trusts a mapping that omits a server assertion](findings/ODF-505.md) <a id="odf-505"></a>
+## ODF-506 — [Hosted failure inventory leaves a suite cutoff without an actionable classification](findings/ODF-506.md) <a id="odf-506"></a>
+## ODF-507 — [Trunk changes overlap accepted uncommitted work without a practiced reconciliation path](findings/ODF-507.md) <a id="odf-507"></a>
+## ODF-508 — [A plan omits the per-ref scope of a multi-ref command](findings/ODF-508.md) <a id="odf-508"></a>
+## ODF-509 — [A reported gap is accepted using an unmeasured estimate of its exposure window](findings/ODF-509.md) <a id="odf-509"></a>
+## ODF-510 — [The source-review recorder leaves an incomplete reverse link for a shared obligation](findings/ODF-510.md) <a id="odf-510"></a>
+## ODF-511 — [An existing one-family sizing limit is omitted from the first slice after handoff](findings/ODF-511.md) <a id="odf-511"></a>
+## ODF-512 — [A migration sizing probe samples only light cases and misses context overruns](findings/ODF-512.md) <a id="odf-512"></a>
+## ODF-513 — [Live acceptance depends on an uncontrolled qualifying event](findings/ODF-513.md) <a id="odf-513"></a>
+## ODF-514 — [Updating a shared obligation discards existing reverse links](findings/ODF-514.md) <a id="odf-514"></a>

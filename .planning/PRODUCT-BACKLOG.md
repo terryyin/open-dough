@@ -35,6 +35,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [See affected consumer proof before accepting a slice](seeds/SEED-376-affected-consumer-proof-at-acceptance.md#show-affected-consumer-proof-at-acceptance) — SEED-376#show-affected-consumer-proof-at-acceptance
+- [Record source-review evidence once per independently observable promise](seeds/SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises) — SEED-010#review-independently-observable-promises
 - [See stale test duration estimates before relying on CI headroom](seeds/SEED-374-stale-test-duration-estimates.md#see-stale-test-duration-estimates) — SEED-374#see-stale-test-duration-estimates
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
 - [Move navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-navigation-checks-and-retire-integrated-ui-test) — SEED-334#move-navigation-checks-and-retire-integrated-ui-test
@@ -64,7 +66,6 @@ intent introduced or affected by a newly developed story.
 - [Close the landed CI repeat checks’ coverage gaps](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps) — SEED-324#close-landed-ci-repeat-check-gaps ([plan](slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md))
 - [Load execution guidance for the current phase](seeds/SEED-345-session-token-efficiency.md#load-execution-guidance-for-the-current-phase) — SEED-345#load-execution-guidance-for-the-current-phase
 - [Start Cursor slices from complete Task briefs](seeds/SEED-345-session-token-efficiency.md#start-cursor-slices-from-complete-task-briefs) — SEED-345#start-cursor-slices-from-complete-task-briefs
-- [Record source-review evidence once per independently observable promise](seeds/SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises) — SEED-010#review-independently-observable-promises
 - [Simplify the remaining session tests](seeds/SEED-341-simplify-session-tests.md#simplify-remaining-session-tests) — SEED-341#simplify-remaining-session-tests
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets
 - [Show GitHub retry on the dashboard](seeds/SEED-336-live-dashboard-status.md#show-github-retry-on-the-dashboard) — SEED-336#show-github-retry-on-the-dashboard
