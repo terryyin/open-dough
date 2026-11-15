@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-374#see-stale-test-duration-estimates
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/649-see-stale-test-duration-estimates/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"89d5b3bb43b521479f931fe283d4fc0b4ec563749b863c91871a37dade9190ff","plan":"06c98e9f791173e2773ec43c32b0dbab84feb12045ce3a630602f7c5f1cde580"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/649-see-stale-test-duration-estimates/PLAN.md","assessment":"not-ready","reasons":["awaiting story review: Scope keeps the CI matrix unchanged; current run exceeds three-share capacity and retained trials do not establish a sufficient repair. Decide whether to permit four shares or continue broader optimization."],"basis":{"document":"89d5b3bb43b521479f931fe283d4fc0b4ec563749b863c91871a37dade9190ff","plan":"f12e58f9f826d0c62af7f3a01cd173bc8ef36e22217561cf54efb5e3fdc6e7df"}}
 ```
 
 **Goal:** Contributors and agents changing the Distribution test inventory

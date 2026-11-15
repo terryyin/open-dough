@@ -97,6 +97,29 @@ trunk job records them, with its `# Source:` line naming that run. Include
 completed story-branch CI timings for tests this story adds, so integration
 keeps its own preview current too; identify both sources when combined.
 
+### 5. Evaluate installation breadth as a CI repair
+Type: Behavior
+Status: done
+Proof: unchanged reuse/misses pair before/after under Bash5,1job,AC sleep
+guard; both real-installer/declaration/source witnesses; recomputed model.
+
+The bounded trial cannot repair the current gaps, so it is rejected with no
+runtime change. Product files restored bytewise to c425; exact trial retained
+in `installation-breadth-trial.patch.gz`. All370 source paths/bytes stayed
+shipped/Git-frozen; subject/complete declarations2/370 matched real installs.
+One declaration first failed: installer write_certified_records() needs
+dough-update/SKILL.md’s directory for certified SOURCE/VERSION records
+(open-dough-platform.sh:36; /tmp/dough374-slice5-capture.log).
+
+Literal measured command: `PATH="/opt/homebrew/bin:$PATH" OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_TIMES=/tmp/dough374-slice5-pair-times.txt caffeinate -s -i /usr/bin/time -p bash scripts/test.sh Distribution/tests/native-comparison/native-comparison-baseline-reuse.sh Distribution/tests/native-comparison/native-comparison-baseline-misses.sh`.
+Both corrected checks passed: wall89.73→72.07s; reuse47.2→38.7,misses42.4→33.3.
+AC; load6.16→4.34; caches uncontrolled. Model945.53/922.15 normalized leaves
+share2 still19.53s over, share3 only3.85s headroom; insufficient saving.
+Other9 consumers not run after checkpoint; no full-family coverage claim.
+Witness: `PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i bash /tmp/dough374-slice5-payload-witness.sh` passed.
+Evidence /tmp/dough374-slice5-{before,after}.log, model.{mjs,json}, payload
+witness.{sh,log}, consumer-dispositions.md.12active minutes; no live command.
+
 ## Current decisions
 
 - The default suite preview reads job files from the remote-tracking trunk ref
@@ -131,11 +154,8 @@ no dependent experiment is authorized by a passing local lead alone.
 
 ## Refinement and concerns
 
-Slice-plan refinement was not needed: four slices, each one outcome with its
-own proof loop. This review identified no remaining slice-specific concern.
-Shares hold 26.6 to 28.1 s of headroom while slice 1 adds a test file; the
-budget is an input to this story, and a breach in CI is repaired under the
-failure policy.
+Four original slices are delivered; one bounded CI-repair experiment remains.
+Five slices fit the cap; the bounded installation-breadth trial is rejected. Existing builder support and retained proof justify its seam.
 
 ## Execution context
 
@@ -157,50 +177,32 @@ Heavy proof is reconsidered with host/load evidence before launch.
 
 ## Accepted execution evidence
 
-Commands use `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh` plus the
-complete literal paths in slice Proof lines; source-review rows retain each
-source-expected result and its actual observing assertion.
-
-- Slice1: eight listed checks passed; exact CLI share labels, tie/median,
-  retained-run headroom, browser inventory, copied-runner and split inspected.
-  `python3 /tmp/dough-slice1-compare-preview.py` matched status/stdout/stderr
-  bytewise on preserved mixed/current/fixed inventory and errors. Trace
-  `/tmp/dough-slice1-consumer-trace.md` covers relocated formatter, budget and
-  label parser; all actual callers updated. Independent refactor clean;5active
-  minutes. Published02705787579d078863b1f7db65cc2616774cab54, base claim.
-- Slice2: four listed checks plus share-deal.test.mjs passed. Five real CLI
-  cases cover all four source examples and one-job/affected-share behavior.
-  Original indexed timings and grouped labels retain all historical rows.
-  Trace `/tmp/dough-slice2-consumer-trace.md` covers actual formatter callers;
-  unchanged allocation/factor/budget proof retained. Refactor clean; formatter
-  parameter-reassignment repair stayed in accepted paths/trace and its focused
-  test passed again.12active minutes. Published40895f9b444868e537703b2146b76aa456688a5e, base slice1.
-- Slice3: five listed checks plus runner-bash/runner-split passed. Inspected
-  real Git cases:2stale shell/Node, added/promoted/hidden/aggregate estimates,
-  helper exclusion, assumed headroom, exact ref failure, override/substitutes.
-  Independent refactor replaced duplicated discovery with the real runner over
-  empty tracked candidates and trunk patterns; finally cleanup and inherited
-  membership split clearing inspected. Trunk check passed again after split
-  adjustment. Traces `/tmp/dough-slice3-consumer-trace.md` and
-  `/tmp/dough-refactor3-consumer-trace.md`: actual/copy callers covered,
-  unchanged allocation/refresh proof retained.13implementation/12refactor active
-  minutes. Publishedfedc827300415a5e452d38e373c130ef8dbbcd62, base slice2.
-- Slice4: existing refresh over exact HEAD baseline in
-  `/tmp/dough374-times-sNXoAW/primary-main` used mainrun43725762081 at
-  86b3f67877e5f6024d42cb8696c39fe1a4a08bec (639 jobs matching trunk) plus only
-  three added rows from run43729355694/slice3 (all3Distribution jobs succeeded).
-  Source headers identify both and factor0.842. Actual default preview passed:
-  642recorded,0unrecorded, headroom17.5/17.5/17.6, no stale/estimates. Inspected
-  retained verification input `verify-current-list.mjs` and final-coverage.json
-  beside temp baseline: actual runner all642 exactly once, shares212/213/217.
-  Factor command passed; `/tmp/dough-slice4-consumer-trace.md` accounts for
-  preview/partition/factor; algorithms reuse accepted proof. Refactor clean,
-  six files below250;8active minutes. Publisheddd641ae5f213befa009dfdc21d27bc924adb0daf, base slice3.
-
-All increments target execution branch with the same observer. Slice1 and
-slice3 attempts were superseded: bounded job inspection found no failed job.
-Execution-complete records050ed2038783b07ac96249ba94d3d90f999d8e0a published
-on branch, base slice4. Final source freshness was unchanged at70594e768.
+All focused commands use the Bash5 PATH wrapper and literal Proof paths.
+Source-review rows retain individual source-expected/actual assertions.
+- Slice1: all8 checks passed; CLI bytes matched preserved mixed/current/fixed
+  inventory and error cases via `/tmp/dough-slice1-compare-preview.py`.
+  Allocation/headroom, browser inventory and runner splits inspected. Trace `/tmp/dough-slice1-consumer-trace.md`; refactor
+  clean.5active minutes; published02705787579d078863b1f7db65cc2616774cab54.
+- Slice2: all4 checks plus share-deal.test passed. Five real CLI cases cover
+  four examples and one-job/affected-share rule; historical rows exact. Trace `/tmp/dough-slice2-consumer-trace.md`;
+  refactor clean; parameter-reassignment mechanical repair re-proved.12active
+  minutes; published40895f9b444868e537703b2146b76aa456688a5e.
+- Slice3: all5 checks plus runner-bash/split passed. Real Git observes stale
+  shell/Node, added/promoted/hidden/aggregate estimates, exact ref failures and
+  overrides/substitutes. Refactor reuses authoritative runner over empty
+  tracked candidates; finally cleanup/inherited membership split inspected.
+  Traces `/tmp/dough-slice3-consumer-trace.md`,
+  `/tmp/dough-refactor3-consumer-trace.md`;13implementation/12refactor minutes.
+  Publishedfedc827300415a5e452d38e373c130ef8dbbcd62.
+- Slice4: existing refresh used exact HEAD baseline under
+  `/tmp/dough374-times-sNXoAW/primary-main`, mainrun43725762081 at86b3f67877
+  (639 jobs matching trunk), plus3 new rows from successful Distribution jobs
+  run43729355694/slice3; factor0.842. Actual preview642recorded/0unrecorded,
+  headroom17.5/17.5/17.6, no stale/estimates. Verification input and
+  final-coverage.json there prove real runner642 exactly once,212/213/217.
+  Trace `/tmp/dough-slice4-consumer-trace.md`; factor proof/refactor passed;8active minutes; publisheddd641ae5f213befa009dfdc21d27bc924adb0daf.
+Published bases in order: claim→slice1→slice2→slice3→slice4. Records050ed203
+follow slice4. Source feature proof remains valid through test-only repairs.
 
 ## Story obligations
 
@@ -212,37 +214,37 @@ Commitment: C22
 
 ## Execution review
 
-Attributable increments: slice1 `027057875`, slice2 `40895f9b4`, slice3
-`fedc82730`, slice4 `dd641ae5f`; claim `b2a86929c` is provenance only.
-Product/proof review complete: all original examples and qualifications match
-inspected CLI assertions and actual-list proof. ADR0001/0002 hold; runner
-discovery has one owner. Command-unit tests drove this work; existing runner
-checks retain their integration observations. No correction or product change
-is supported. North Star dashboard topics are unaffected. Process review is
-selected and deferred through the configured closure intent-coverage check.
-CI run43729355694 had all17 test jobs successful; final ci-proof cancelled
-on slice4 publication. Proven supersession, no failed job to repair.
+Original source outcome/proof reviewed against attributable four increments;
+claim is provenance. ADR0001/0002 hold; command-unit tests drove development,
+existing runner integration observations remain. No product-advice change.
+Native fixture repair preserves assertions; slice5’s affected conclusions and
+CI remain pending. Process review selected/deferred through closure coverage.
 
-## Execution complete
+## CI repair input and checkpoint
 
-Product advice: no change.
+Run43730867890/dd641ae5: share2 total953.8>926; share3 total947.8>926 and
+baseline-misses67.8>64 normalized. Full logs accounted all3 budget lines.
+Completion050ed203 failed on that basis; observer retained. First repair
+c4259d055cfe87bdac9361c2e35df8eaf0387900 reduced payload fixture6849→391
+files using existing materializer, retaining370 paths/bytes and real installer.
+All11 consumers and payload witness passed; baseline-misses62.58→53.22local
+seconds (15%, uncontrolled caches), below proposed15s saving. Retained as
+useful partial improvement; independent refactor clean;10active minutes.
+Current run43733461911/c425 still fails shares2/3 at953.2/938.4 normalized;
+full logs contain only aggregate budget breaches, no assertion/timeout/per-job
+failure. Final diagnostic has no unfinished gap. Observer completion failed
+exact c425 and retained coverage. CI timings: native family109.4/79.0/116.4
+observed across shares; previous successful ancestor379.8 total is not current.
+Remaining normalized gaps27.2/12.4 require another cost removal. Slice5 is
+the one next bounded experiment; setup breadth, not sessions/proof, changes.
+Second stash save clean (no entry):
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-EPdyqQ/record.json`.
+Current evidence: `/tmp/dough374-ci2-final-diagnostic.json`, ci2-job{2,3}.log and ci2-times; analysis8active minutes. Localmac AC, prior load5.22/6.21/8.36,
+58% free memory; no competing owned heavy proof. Reconsider before launch.
 
-## CI repair in progress
-
-Completion for050ed203 returned failure on basisdd641ae5, observer retained.
-Run43730867890/1: share2 total953.8>926; share3 total947.8>926 and
-baseline-misses67.8>64 at recorded speed. Final diagnostic has exactly2failed
-jobs; full budget logs account for unrecognized-format inventory gaps.
-Fresh repair agent investigates repeated baseline setup; no other owner known.
-Stash save was clean (no entry); record
-`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-zaqh2Y/record.json`.
-Proof decision: localmac AC, load5.22/6.21/8.36,58% memory free; no known
-competing owned proof. Reconsider before each expensive attempt.
-Retained candidate: pair fixture uses existing release materializer; independent
-`PATH="/opt/homebrew/bin:$PATH" bash /tmp/dough374-verify-comparison-payload.sh`
-passed370 managed paths/bytes,391fixture vs6849source files. All11 real fixture
-consumers passed under Bash5,2jobs,caffeinate-s-i on AC; literal command and
-observations retained in repair return and `/tmp/dough374-ci-repair-family-proof.log`.
-Inspected session-count, frozen archive, verdict, provenance and payload-tree
-assertions; source feature proof and product advice remain valid.10active minutes.
-Independent refactor clean; unchanged proof retained; final freshness aabd7c58.
+## Awaiting story review
+Scope keeps CI matrix unchanged. Current normalized sum2791.64 exceeds
+3×926=2778; retained trials do not establish a sufficient three-share repair.
+Reviewable alternative: /tmp/dough374-four-shares-review.patch (matrix+example),
+all642 jobs exactly once at4shares; predicted headroom244.6/244.6/244.7/244.7.
+Human decision: permit4shares, or retain3and continue deeper optimization.
