@@ -130,6 +130,6 @@ service latency, with no duration threshold or savings comparison. Apply the
 [baseline sufficiency rules](../native-comparison-baselines.md) before reuse.
 The [forced-turn records](../paused-supplier/case.md#reuse-and-limits) retain
 their different scheduling conditions. Neither observation demonstrates
-suppressed wakes or event-driven savings. SEED-356 owns the event-driven
-variant, actual event delivery, quiet-workflow baseline and skipped-wake proof;
-general accounting and other-host qualification remain with their own stories.
+suppressed wakes or event-driven savings. A blocked-path savings comparison
+requires representative normal waiting and a separately matched candidate. See
+the maintained [blocked-execution findings](../../../../docs/maintainer/blocked-execution-experiment-findings.md).

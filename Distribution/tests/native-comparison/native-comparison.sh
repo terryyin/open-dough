@@ -191,8 +191,10 @@ entry=("${BASH}" "${BASH_SOURCE[0]}")
 "${entry[@]}" --list > "${work}/catalog"
 grep -Fqx 'paused-supplier' "${work}/catalog"
 grep -Fqx 'doughnut-title-precedence' "${work}/catalog"
+grep -Fqx 'supplier-watch' "${work}/catalog"
+grep -Fqx 'unblocked-supplier' "${work}/catalog"
 grep -Eq '^  (workflow|hosts|prerequisites|decisions-and-proof|duration): ' "${work}/catalog"
-[[ $("${entry[@]}" --list --where hosts=codex --where workflow=blocked | grep -v '^ ') == paused-supplier ]]
+[[ $("${entry[@]}" --list --where hosts=codex --where workflow=blocked | grep -v '^ ') == $'paused-supplier\nsupplier-watch' ]]
 [[ $("${entry[@]}" --list --where prerequisites=nix | grep -v '^ ') == doughnut-title-precedence ]]
 if "${entry[@]}" --list --where workflow=no-such-workflow > /dev/null; then
   echo 'FAIL: a catalog filter that matches no case succeeded' >&2

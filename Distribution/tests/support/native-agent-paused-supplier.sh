@@ -115,6 +115,12 @@ reported=${thread}
 [[ ${fault} != stale || ${resumed} != true ]] || reported=00000000-0000-4000-8000-00000057a1e0
 event --arg t "${reported}" '{type:"thread.started",thread_id:$t}'
 event '{type:"turn.started"}'
+# A consuming check may supply a workspace-aware command generator. Keep its
+# command's native stream encoding at this substitute's existing boundary.
+if [[ -n ${NATIVE_AGENT_PAUSED_SUPPLIER_CONTEXT_COMMAND-} ]]; then
+  context_command=$("${NATIVE_AGENT_PAUSED_SUPPLIER_CONTEXT_COMMAND}" "${workspace}" "${resumed}")
+  call context "${context_command}"
+fi
 if [[ ${rule} == claim-only ]]; then
   message='Execution completed; all proof passed.'
 else

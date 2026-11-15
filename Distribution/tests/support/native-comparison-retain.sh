@@ -20,7 +20,7 @@
 # recording a measurement or a comparison there keeps the case's identity.
 native_comparison_case_files() {
   local source_dir=$1 case_path="Distribution/tests/native-comparison/$2" input
-  local paths=("${case_path}")
+  local paths=("${case_path}") modules=() closure
   case_files=()
   if [[ -f ${source_dir}/${case_path}/shared-inputs ]]; then
     while IFS= read -r input; do
@@ -31,10 +31,24 @@ native_comparison_case_files() {
         return 1
       fi
       paths+=("${input}")
+      [[ ${input} != *.mjs || ! -f ${source_dir}/${input} ]] || modules+=("${input}")
     done < "${source_dir}/${case_path}/shared-inputs"
   fi
   mapfile -t case_files < <(cd -- "${source_dir}" && find "${paths[@]}" -type f \
     ! -name case.md ! -path '*/comparisons/*' | LC_ALL=C sort -u)
+  # Case-owned setup modules use the same import-closure owner as other
+  # native journeys, including shared MakeMe builders they execute.
+  # Project overlays are data, not host modules; their relative imports only
+  # become valid after materialization. Follow case-root and explicit modules.
+  for input in "${source_dir}/${case_path}"/*.mjs; do
+    [[ ! -f ${input} ]] || modules+=("${input#"${source_dir}/"}")
+  done
+  if ((${#modules[@]})); then
+    closure=$(node "${source_dir}/Distribution/tests/support/native-import-closure.mjs" \
+      "${source_dir}" "${modules[@]}") || return
+    mapfile -t case_files < <(printf '%s\n' "${case_files[@]}" "${closure}" \
+      Distribution/tests/support/native-import-closure.mjs | LC_ALL=C sort -u)
+  fi
 }
 
 # The machine conditions recorded for an arm and compared before acquisition.
@@ -113,5 +127,5 @@ native_comparison_retain_sessions() {
     "${dest}/codex-session.jsonl"
   while read -r _ thread _ file; do
     cp -- "${file#file=}" "${dest}/codex-worker-${thread}.jsonl"
-  done < <(grep '^codex-worker: ' "${dest}/codex-settings.txt")
+  done < <(grep '^codex-worker: ' "${dest}/codex-settings.txt" || true)
 }

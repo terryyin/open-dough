@@ -178,5 +178,6 @@ do not rerun solely to populate a newer archive format.
 The separately qualified [unblocked observation](../unblocked-supplier/case.md)
 has an already-completed supplier and one ordinary root turn. Neither its lack
 of event wakes nor this case's forced wakes demonstrates suppressed wakes or
-event-driven savings. Those observations belong to SEED-356's actual delivery
-path and quiet-workflow/skipped-wake proof, not these retained measurements.
+event-driven savings. Establish actual watch exposure and unnecessary model
+re-entry in a representative normal-wait observation before a savings comparison.
+See the maintained [blocked-execution findings](../../../../docs/maintainer/blocked-execution-experiment-findings.md).

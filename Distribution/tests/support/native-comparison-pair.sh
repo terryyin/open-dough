@@ -62,16 +62,32 @@ native_comparison_pair_commit() {
   }
 }
 
-# Freezes revision REV of the payload repository as ARM's payload under WORK:
-# its commit, its tree and its files, materialized once.
-native_comparison_pair_freeze() {
+# Pins REV's commit/tree/requested identity before acquisition or either arm.
+native_comparison_pair_identify() {
   local arm=$1 rev=$2 work=$3 repository=${native_comparison_pair_repository}
   local commit
   commit=$(native_comparison_pair_commit "${repository}" "${arm}" "${rev}") || return
-  mkdir -p -- "${work}/payload-${arm}"
-  git -C "${repository}" archive "${commit}" | tar -x -C "${work}/payload-${arm}" || return
   printf '%s %s %s\n' "${commit}" "$(git -C "${repository}" rev-parse "${commit}^{tree}")" \
     "${rev}" > "${work}/payload-${arm}.id"
+}
+
+# Materializes the pinned full tree only when an arm needs it. Equal commits
+# share this read-only source within the pair; projects/sessions remain fresh.
+native_comparison_pair_freeze() {
+  local arm=$1 work=$3 repository=${native_comparison_pair_repository}
+  local commit other=candidate other_commit
+  [[ -f ${work}/payload-${arm}.id ]] || native_comparison_pair_identify "$@" || return
+  read -r commit _ < "${work}/payload-${arm}.id"
+  [[ ${arm} != candidate ]] || other=baseline
+  if [[ -d ${work}/payload-${other} && -f ${work}/payload-${other}.id ]]; then
+    read -r other_commit _ < "${work}/payload-${other}.id"
+    if [[ ${commit} == "${other_commit}" ]]; then
+      ln -s "payload-${other}" "${work}/payload-${arm}"
+      return
+    fi
+  fi
+  mkdir -p -- "${work}/payload-${arm}"
+  git -C "${repository}" archive "${commit}" | tar -x -C "${work}/payload-${arm}"
 }
 
 # Runs ARM's journey under WORK/ARM with its frozen payload.
@@ -96,7 +112,7 @@ native_comparison_pair() {
   native_comparison_pair_basis_revision=$(native_comparison_basis_commit "${source_dir}" \
     "Distribution/tests/native-comparison/${case_name}" "${case_files[@]}" "${native_comparison_inputs[@]}" \
     "${native_run_supervision_inputs[@]}" "${native_comparison_pair_inputs[@]}") || return
-  native_comparison_pair_freeze baseline "${native_comparison_pair_baseline}" "${work}" \
+  native_comparison_pair_identify baseline "${native_comparison_pair_baseline}" "${work}" \
     && native_comparison_pair_freeze candidate "${native_comparison_pair_candidate}" "${work}" \
     || return
   # The case's events and those that leave nothing to continue.
@@ -117,14 +133,17 @@ native_comparison_pair() {
   native_comparison_baseline_acquire "${case_name}" "${source_dir}" "${work}" "${dest}"
   if [[ ${native_comparison_baseline_reused} == true ]]; then
     native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" candidate
-  elif [[ ${native_comparison_pair_arms} == concurrent ]]; then
-    native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" baseline &
-    native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" candidate &
-    wait
   else
-    for arm in baseline candidate; do
-      native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" "${arm}"
-    done
+    native_comparison_pair_freeze baseline "${native_comparison_pair_baseline}" "${work}" || return
+    if [[ ${native_comparison_pair_arms} == concurrent ]]; then
+      native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" baseline &
+      native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" candidate &
+      wait
+    else
+      for arm in baseline candidate; do
+        native_comparison_pair_arm "${case_name}" "${source_dir}" "${work}" "${results_dir}" "${arm}"
+      done
+    fi
   fi
   observations="${dest}/pair-observations.txt"
   {

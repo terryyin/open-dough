@@ -11,11 +11,13 @@ native_run_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # native_result_supervision_input_hash_lines (native-result-retain.sh).
 native_run_supervision_inputs=(
   Distribution/tests/support/native-run-supervise.sh
+  Distribution/tests/support/native-run-owned.sh
   Distribution/tests/support/native-run-stream.sh
   Distribution/tests/support/native-host-stream.sh
   Distribution/tests/support/native-host-stream.mjs
   Distribution/tests/support/native-host-stream-adapters.mjs
   Distribution/tests/support/native-host-stream-codex-session.mjs
+  Distribution/tests/support/native-host-stream-codex-tools.mjs
   Distribution/tests/support/native-run-watchdog.sh
   Distribution/tests/helpers/wait-for.bash
   scripts/owned-process-group.bash
@@ -89,45 +91,6 @@ native_run_spawn_group() {
   exit 127
 }
 
-native_run_owned() {
-  local stdout_file=$1
-  local stderr_file=$2
-  local workdir=$3
-  shift 3
-  local deadline grace pid pgid status watchdog sentinel timeout_flag wait_fifo
-  deadline=${native_case_deadline:-3600}
-  grace=${native_case_grace:-15}
-  status=0
-  native_run_outcome=exited
-  sentinel=$(mktemp "${TMPDIR:-/tmp}/native-run.XXXXXX")
-  timeout_flag="${sentinel}.timed-out"
-  # Create the watchdog's fifo here so a stopped watchdog cannot recreate it
-  # after cleanup.
-  wait_fifo="${sentinel}.wait"
-  mkfifo "${wait_fifo}"
-
-  native_run_spawn_group "${workdir}" "$@" > "${stdout_file}" 2>> "${stderr_file}" &
-  pid=$!
-  # Wait until setsid/setpgrp detaches; do not sample the caller's group.
-  pgid=$(native_run_child_pgid "${pid}" "$(native_run_pgid_of $$)")
-
-  native_run_watchdog "${pid}" "${pgid}" "${deadline}" "${grace}" \
-    "${sentinel}" "${timeout_flag}" "${wait_fifo}" > /dev/null 2>&1 &
-  watchdog=$!
-
-  wait "${pid}" || status=$?
-  rm -f "${sentinel}"
-  if [[ -f ${timeout_flag} ]]; then
-    wait "${watchdog}" 2> /dev/null || true
-    rm -f "${timeout_flag}" "${wait_fifo}"
-    native_run_outcome=timeout
-    return 124
-  fi
-  native_run_stop_watchdog "${watchdog}"
-  rm -f "${timeout_flag}" "${wait_fifo}"
-  return "${status}"
-}
-
 native_run_mark_failed() {
   native_run_outcome=failed
   native_run_failure_reason=$1
@@ -159,7 +122,7 @@ native_run_owned_or_fail() {
   if ((status == 0)); then
     return 0
   fi
-  if [[ ${native_run_outcome} != timeout ]]; then
+  if [[ ${native_run_outcome} != timeout && ${native_run_outcome} != failed ]]; then
     case ${status} in
       126) native_run_mark_failed 'permission denied' ;;
       127) native_run_mark_failed 'missing executable' ;;
@@ -168,6 +131,10 @@ native_run_owned_or_fail() {
   fi
   return "${status}"
 }
+
+# shellcheck source=Distribution/tests/support/native-run-owned.sh
+# shellcheck disable=SC1091
+source "${native_run_support_dir}/native-run-owned.sh"
 
 native_run_write_output() {
   local allow_empty=${1:-0}

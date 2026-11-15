@@ -16,8 +16,12 @@ counterexample stream builders.
 Saved Codex session records are read through the same boundary's
 `readCodexSession` export. Its `native-host-stream-codex-session.mjs` adapter
 returns thread/parent identity, turn contexts and lifecycle, ownership, native
-response usage and command receipts, decoding only literal sequential exec
-calls without executing their JavaScript. Usage counters retain their native
+response usage and command/wait receipts. Its focused
+`native-host-stream-codex-tools.mjs` sibling decodes direct calls and literal
+sequential wrappers without executing their JavaScript. Owned launches establish
+handles; wait facts retain paired call/receipt IDs, raw rows, native response
+re-entry and timing. Printed stdout never supplies a receipt, and unsupported
+wrappers or missing identities remain unknown. Usage counters retain their native
 thread, response and root-turn identity; consumers must exclude copied history,
 deduplicate responses and keep missing counters unknown. Case observers apply
 their own ownership, workspace and proof rules to those facts;
