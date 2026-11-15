@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Reduce total model work during blocked execution](seeds/SEED-356-reduce-blocked-execution-effort.md#reduce-total-model-work-during-blocked-execution) — SEED-356#reduce-total-model-work-during-blocked-execution ([plan](slice-plans/627-reduce-blocked-execution-work/PLAN.md))
-- [Move session, terminal, story and observation checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#finish-dissolving-integrated-ui-test) — SEED-334#finish-dissolving-integrated-ui-test ([plan](slice-plans/632-finish-dissolving-integrated-ui-test/PLAN.md))
 
 ## Backlog list
 
