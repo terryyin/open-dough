@@ -66,12 +66,12 @@ Claude Code and Codex executions in the 30 days to 2026-11-15.
   when the last one confirmed or refuted a hypothesis; after three rounds it
   stops for a human. A confirmed cause makes the fix an ordinary slice, and each
   CI run tests a stated hypothesis.
-- **Priority.** Directly after the clock, which it uses. Successful Claude Code
-  diagnoses took 20–45 model minutes, so a plain 15-minute stop would cut most
-  of them off. Beyond that more time rarely helped: flaky-test slices were
-  fixed in 4 of 7 at 10–15 model minutes and 7 of 16 at 15–25. One CI-timeout
-  repair ran 82 model minutes over 269 turns for $39, and 11 CI repairs above
-  25 model minutes cost $249 of $625.
+- **Priority.** After the clock, which it uses, and split-story continuation.
+  Successful Claude Code diagnoses took 20–45 model minutes, so a plain
+  15-minute stop would cut most of them off. Beyond that more time rarely
+  helped: flaky-test slices were fixed in 4 of 7 at 10–15 model minutes and 7 of
+  16 at 15–25. One CI-timeout repair ran 82 model minutes over 269 turns for
+  $39, and 11 CI repairs above 25 model minutes cost $249 of $625.
 - **Effort and boundary.** Medium, low confidence. Refinement first reads about
   ten full diagnosis transcripts to check the round size, the three-round cap
   and the record fields. Failures under machine load stay with the
