@@ -74,7 +74,7 @@ function MarkReadout({
             <button
               key={key}
               type="button"
-              className="history-chart-mark"
+              className={`history-chart-mark${mark.overflow === undefined ? "" : " history-chart-overflow-button"}`}
               aria-label={mark.readout}
               aria-current={mark === shown ? "true" : undefined}
               aria-pressed={
@@ -117,7 +117,7 @@ export function HistoryChart({
           role="img"
           aria-label={series.label}
           width="100%"
-          height={chartHeight}
+          height={layout?.height ?? chartHeight}
         >
           {layout !== undefined && <HistoryChartPlot layout={layout} />}
         </svg>

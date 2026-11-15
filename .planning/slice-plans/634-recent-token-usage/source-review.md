@@ -41,34 +41,34 @@ examples and exclusions. No human amendment has followed that review.
 | C27 | The moving average uses a color distinct from the task dots. | slice 3 | |
 | C28 | The moving average is drawn above the task dots. | slice 3 | |
 | C29 | Visible task values at or below 50 million determine the ordinary y-axis scale. | slice 3 | |
-| C30 | The moving average does not determine the ordinary y-axis scale. | slice 3 | |
-| C31 | An above-scale average is explicitly identified at its date. | slice 3 | |
-| C32 | An above-scale average’s actual value remains readable. | slice 3 | |
-| C33 | A clipped average trace must not suggest that the scale ceiling is its actual value. | slice 3 | |
-| C34 | A task whose Token index exceeds 50 million appears as a red × at the chart’s top. | slice 2 | |
-| C35 | Each large-task mark remains aligned to its task’s date. | slice 2 | |
-| C36 | Each large-task mark is labeled with its actual value. | slice 2 | |
-| C37 | Each large-task mark retains selection into task details. | slice 2 | |
-| C38 | Task values above 50 million do not determine the ordinary y-axis scale. | slice 2 | |
-| C39 | A task at exactly 50 million remains an ordinary point. | slice 2 | |
-| C40 | Partial coverage remains visible in task marks, including large-task marks. | slice 2 | |
-| C41 | Partial coverage remains visible in task readouts, including large-task readouts. | slice 2 | |
-| C42 | Partial coverage remains visible in task details, including large-task details. | slice 2 | |
-| C43 | Tasks sharing a finish time remain individually inspectable and selectable by pointer. | slice 2 | |
-| C44 | Tasks sharing a finish time remain individually inspectable and selectable by touch. | slice 2 | |
-| C45 | Tasks sharing a finish time remain individually inspectable and selectable by keyboard. | slice 2 | |
-| C46 | Each coincident task’s actual value remains individually reachable. | slice 2 | |
-| C47 | Each coincident task’s details remain individually reachable. | slice 2 | |
-| C48 | Closing details returns focus to the selected task’s mark. | slice 2 | |
+| C30 | The moving average does not determine the ordinary y-axis scale. |  | G1 |
+| C31 | An above-scale average is explicitly identified at its date. |  | G2 |
+| C32 | An above-scale average’s actual value remains readable. |  | G2 |
+| C33 | A clipped average trace must not suggest that the scale ceiling is its actual value. |  | G2 |
+| C34 | A task whose Token index exceeds 50 million appears as a red × at the chart’s top. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C35 | Each large-task mark remains aligned to its task’s date. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C36 | Each large-task mark is labeled with its actual value. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C37 | Each large-task mark retains selection into task details. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C38 | Task values above 50 million do not determine the ordinary y-axis scale. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C39 | A task at exactly 50 million remains an ordinary point. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C40 | Partial coverage remains visible in task marks, including large-task marks. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C41 | Partial coverage remains visible in task readouts, including large-task readouts. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C42 | Partial coverage remains visible in task details, including large-task details. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C43 | Tasks sharing a finish time remain individually inspectable and selectable by pointer. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C44 | Tasks sharing a finish time remain individually inspectable and selectable by touch. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C45 | Tasks sharing a finish time remain individually inspectable and selectable by keyboard. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C46 | Each coincident task’s actual value remains individually reachable. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C47 | Each coincident task’s details remain individually reachable. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C48 | Closing details returns focus to the selected task’s mark. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
 | C49 | Narrowing the period clears a selection whose task is no longer displayed. | slice 1 | observed: e2e/configuration/system-settings-usage-period.spec.ts 30→7→1: exact local midnight retained, earlier-nine warm-up1950, period counts/identities, selectedNov8 detail removed |
 | C50 | A period containing no tasks has an informative empty state. | slice 1 | observed: dashboard/frontend-tests/system-settings-usage-period.spec.ts empty periods and existing system-settings-usage sparse/empty: period counts/empty words and no-average explanation |
-| C51 | When every priced task exceeds 50 million, every large-task mark remains labeled. | slice 2 | |
-| C52 | When every priced task exceeds 50 million, every large-task mark remains selectable. | slice 2 | |
-| C53 | The all-large-task situation is distinguishable from no tasks. | slice 2 | |
-| C54 | The all-large-task situation is distinguishable from zero usage. | slice 2 | |
+| C51 | When every priced task exceeds 50 million, every large-task mark remains labeled. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C52 | When every priced task exceeds 50 million, every large-task mark remains selectable. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C53 | The all-large-task situation is distinguishable from no tasks. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C54 | The all-large-task situation is distinguishable from zero usage. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
 | C55 | The period control appears alongside the current cohort filters. | slice 1 | observed: dashboard/frontend-tests/system-settings-usage-period.spec.ts local calendar requests: held loading, 30/7 New York DST bounds, invalid input preserves point/no request, same-value recovery; UsageDays/recentUsagePeriod |
-| C56 | The interface explains that × means a Token index above 50 million. | slice 2 | |
-| C57 | The interface avoids presenting × as a failed-task indicator. | slice 2 | |
+| C56 | The interface explains that × means a Token index above 50 million. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
+| C57 | The interface avoids presenting × as a failed-task indicator. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
 | C58 | Average overflow is identified separately from large-task overflow. | slice 3 | |
 | C59 | Essential values are available without hovering. | slice 3 | |
 | C60 | Color alone carries no meaning. | slice 3 | |
@@ -85,7 +85,7 @@ examples and exclusions. No human amendment has followed that review.
 | C71 | The last successful result remains preserved wherever current behavior already preserves it. | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts Refresh keeps chart/check time during checking and failure; chosen20 retained after success/failure |
 | C72 | Visible-date selection is separate from historical average contribution. | slice 1 | observed: dashboard/backend-tests/usage-history/token-index-period.spec.ts calendar bounds: inclusive start, exclusive until, dated ids/partial/unpriced counts, average1950 unchanged, empty projection, options/all-history; tokenIndexCohort projects after average |
 | C73 | The average is calculated before its displayed observations are restricted to the selected period. | slice 1 | observed: dashboard/backend-tests/usage-history/token-index-period.spec.ts calendar bounds: inclusive start, exclusive until, dated ids/partial/unpriced counts, average1950 unchanged, empty projection, options/all-history; tokenIndexCohort projects after average |
-| C74 | Display overflow never rewrites task values. | slice 2 | |
+| C74 | Display overflow never rewrites task values. | slice 2 | observed: dashboard/frontend-tests/system-settings-usage-overflow.spec.ts + usageChartPage: actual red ×/label, retained dated x/button, ordinary separation, exact50M, coincident measured/partial selection by pointer/touch/keyboard and focus, all-large0/25M/50M versus zero; HistoryChart preserves original values |
 | C75 | Display overflow never rewrites average values. | slice 3 | |
 | C76 | Recent-period counts receive dated unpriced tasks before aggregation. | slice 1 | observed: dashboard/backend-tests/usage-history/token-index-period.spec.ts calendar bounds: inclusive start, exclusive until, dated ids/partial/unpriced counts, average1950 unchanged, empty projection, options/all-history; tokenIndexCohort projects after average |
 | C77 | The implementation reuses the existing Usage summary/cohort boundary. | slice 1 | observed: dashboard/backend-tests/usage-history/token-index-period.spec.ts calendar bounds: inclusive start, exclusive until, dated ids/partial/unpriced counts, average1950 unchanged, empty projection, options/all-history; tokenIndexCohort projects after average |
@@ -124,3 +124,24 @@ Fresh preparation initially refused lint findings before any commit. Mechanical
 narrowing/tuple and index-iterator repairs preserve all fixture facts and runtime
 bounds. Independent refactor confirmed already-traced scope and proof reuse;
 coordinator typecheck passed. Formatter will be renewed by guarded delivery.
+
+### Slice 2 acceptance
+
+>50M and coincident measured/partial tasks → red dated labeled ×, unchanged
+ordinary separation, each actual detail/focus action; exact50M stays ordinary,
+all-large bounded0/25M/50M differs from zero0/0.5/1. Inspected actual assertions
+in system-settings-usage-overflow.spec.ts and usageChartPage match these outcomes.
+Passing commands:
+- `caffeinate -s -i npm run test:dashboard:frontend -- system-settings-usage`
+- `caffeinate -s -i npm run test:dashboard:frontend -- intent-ci-history-chart-marks.spec.ts intent-project-ci-history-chart-marks.spec.ts intent-ci-compact-readout.spec.ts intent-scope-timing-history-units.spec.ts intent-scope-timing-history-reading.spec.ts intent-scope-timing-history-segments.spec.ts intent-project-scope-glance.spec.ts`
+- `npm run typecheck:dashboard`; `git diff --check`.
+Trace `/tmp/seed369-slice2-consumer-trace.md` follows actual shared drawing through
+CI history/Done reference, scope history, page objects and Usage; named regression
+cases cover those defaults; unchanged E2E request/store/filter/Refresh proof reused.
+Source freshness unchanged at trunk46c637448f613e63cd841ae237f1b4f6eed26830;
+no named sibling. G1/G2 explicitly retain average interims until slice3; no other gap.
+~5 active minutes; local AC load8.01/8.04/8.29, memory52%; no deferred/running command.
+
+Independent refactor2 shared entryValueWords/Usage threshold and made overflow
+height immutable; both Frontend commands and typecheck above renewed successfully.
+Trace `/tmp/seed369-refactor2-consumer-trace.md` dispositions inspected; no gap.

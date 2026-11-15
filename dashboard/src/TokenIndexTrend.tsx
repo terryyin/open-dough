@@ -16,6 +16,9 @@ import {
   type TokenIndexAnswer,
 } from "./usageTokenIndex.ts";
 
+const largeTaskThreshold = 50_000_000;
+const largeTaskWords = "Large task above 50 million";
+
 function series(
   answer: TokenIndexAnswer,
   selected: string | undefined,
@@ -24,6 +27,7 @@ function series(
     label: "Token index per finished task by end date",
     axis: countAxis,
     selectedLabel: "Selected task",
+    emptyScaleMaximum: largeTaskThreshold,
     entries: answer.tasks.map((task) => {
       const partial = task.coverage.kind === "partial";
       return {
@@ -31,6 +35,9 @@ function series(
         key: task.id,
         date: task.endedAt,
         value: task.index,
+        ...(task.index > largeTaskThreshold
+          ? { overflow: largeTaskWords }
+          : {}),
         description: `${task.title ?? task.identity ?? "Untitled task"} · ${countWords(task.index)}${partial ? ` · ${partialWords}` : ""}`,
         selected: task.id === selected,
         ...(partial ? { partial: partialWords } : {}),
@@ -106,6 +113,17 @@ export function TokenIndexTrend({
             }}
           />
         )}
+        {answer.tasks.length > 0 &&
+          answer.tasks.every((task) => task.index > largeTaskThreshold) && (
+            <p className="settings-note">
+              No ordinary task points in this period; every priced task is above
+              50 million.
+            </p>
+          )}
+        <p className="settings-note">
+          × {largeTaskWords}; labels show actual values. Partial coverage
+          remains marked.
+        </p>
         <div className="usage-chart-foot">
           <p className="usage-legend">
             <span>

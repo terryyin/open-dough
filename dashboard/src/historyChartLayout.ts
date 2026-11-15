@@ -6,8 +6,13 @@
 // every such build breaks the line, as does a change of compatible segment.
 // A series with a trend draws the trend as its line instead, a trend of one
 // value as a short level at its point.
+import {
+  placeOverflows,
+  type OverflowPlacement,
+} from "./historyChartOverflow.ts";
 import { buildDateWords, selectedLandingWords } from "./ciHistoryWords.ts";
 import {
+  entryValueWords,
   isMeasured,
   type HistoryChartEntry,
   type HistoryChartSeries,
@@ -30,11 +35,14 @@ export type ChartMark = {
   readonly y: number;
   // Short date and timing or status, as the reader inspects the mark.
   readonly readout: string;
+  readonly overflow: OverflowPlacement | undefined;
 };
 
 export type ChartLayout = {
   // How the series names its selected entry ("Selected landing" by default).
   readonly selectedLabel: string;
+  readonly overflowHeight: number;
+  readonly height: number;
   readonly plotLeft: number;
   readonly plotEnd: number;
   readonly ticks: readonly {
@@ -69,16 +77,6 @@ function lineThrough(marks: readonly ChartMark[]): string {
   return moves.length < 2 ? "" : moves.join(" ");
 }
 
-// An entry's value on the axis, then any partial words, or a build's status.
-function valueWords(
-  entry: HistoryChartEntry,
-  axis: HistoryChartSeries["axis"],
-): string {
-  if (!isMeasured(entry)) return entry.words;
-  const value = axis.words(entry.value);
-  return entry.partial === undefined ? value : `${value} · ${entry.partial}`;
-}
-
 // Half the width of a one-value trend's level, as wide as a point's mark
 // and ring on each side.
 const levelReach = 8;
@@ -109,11 +107,17 @@ export function chartLayout(
   const { entries, axis, reference, trend } = series;
   const plotEnd = width - plotEndRoom;
   const tickWords = axis.tickWords ?? axis.words;
-  const tickValues = axis.ticks([
-    ...entries.filter(isMeasured).map((point) => point.value),
-    ...(reference === undefined ? [] : [reference.value]),
-    ...(trend ?? []).map((point) => point.value),
-  ]);
+  const ordinary = entries
+    .filter(isMeasured)
+    .filter((point) => point.overflow === undefined);
+  const tickValues =
+    ordinary.length === 0 && series.emptyScaleMaximum !== undefined
+      ? [0, series.emptyScaleMaximum / 2, series.emptyScaleMaximum]
+      : axis.ticks([
+          ...ordinary.map((point) => point.value),
+          ...(reference === undefined ? [] : [reference.value]),
+          ...(trend ?? []).map((point) => point.value),
+        ]);
   // Whole duration labels can be wider near zero (e.g. 1 min 30 s).
   // Reserve their width so phone readers never lose the leading figures.
   const plotLeft = Math.max(
@@ -122,9 +126,6 @@ export function chartLayout(
   );
   const lowest = tickValues[0] ?? 0;
   const highest = tickValues.at(-1) ?? lowest + 1;
-  const y = (value: number) =>
-    plotBottom -
-    ((value - lowest) / (highest - lowest)) * (plotBottom - plotTop);
   const dates = entries.map((entry) => Date.parse(entry.date));
   const earliest = Math.min(...dates);
   const latest = Math.max(...dates);
@@ -134,14 +135,23 @@ export function chartLayout(
       : plotLeft +
         ((Date.parse(date) - earliest) / (latest - earliest)) *
           (plotEnd - plotLeft);
+  const overflows = placeOverflows(series, x, plotLeft, plotEnd);
+  const overflowHeight = overflows.height;
+  const y = (value: number) =>
+    overflowHeight +
+    plotBottom -
+    ((value - lowest) / (highest - lowest)) * (plotBottom - plotTop);
   const selectedLabel = series.selectedLabel ?? selectedLandingWords;
   const selected = (is: boolean | undefined) =>
     is === true ? `${selectedLabel} · ` : "";
   const marks = entries.map((entry): ChartMark => ({
     entry,
     x: x(entry.date),
-    y: isMeasured(entry) ? y(entry.value) : gapRow,
-    readout: `${buildDateWords(entry.date)} · ${selected(entry.selected)}${valueWords(entry, axis)}`,
+    y:
+      overflows.placed.get(entry.key)?.y ??
+      (isMeasured(entry) ? y(entry.value) : gapRow + overflowHeight),
+    overflow: overflows.placed.get(entry.key),
+    readout: `${buildDateWords(entry.date)} · ${selected(entry.selected)}${entryValueWords(entry, axis)}${isMeasured(entry) && entry.overflow !== undefined ? ` · ${entry.overflow}` : ""}`,
   }));
   const dated: { x: number; words: string }[] = [];
   const middle =
@@ -161,6 +171,8 @@ export function chartLayout(
   }
   return {
     selectedLabel,
+    overflowHeight,
+    height: chartHeight + overflowHeight,
     plotLeft,
     plotEnd,
     ticks: tickValues.map((value) => ({

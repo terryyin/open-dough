@@ -121,7 +121,7 @@ backend-only delivery. Retain the existing detail and Refresh regression checks.
 
 ### 2. Keep large tasks visible without flattening ordinary tasks
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source examples 3–5, excluding the high-average rendering owned by 3;
 Frontend geometry, actual labels, threshold boundary, coincident-task
 selection/focus, partial coverage, and all-large/zero-period cases.
@@ -185,15 +185,10 @@ On battery plug in or keep the lid open under `caffeinate -i` and inspect the
 sleep log afterwards. Full groups share admission across worktrees; named
 focused runs remain independent. Inspect load/memory before expensive proof.
 
-Expected edited production files are currently below 250 lines: Usage view
-133, filters 111, trend 131, wire types 151, boundary 78, cohort 88, shared
-chart 130/layout 178/plot 124/series 51. Supporting Usage page object is 201,
-history-chart page object 131. Keep cohesive modules within the maintained
-size check; split implicated growing responsibilities when necessary.
-`USAGE-HISTORY.md` is already 250 lines and need not change; the new narrow
-Token index document avoids expanding unrelated persistence documentation.
-The README is also 250 lines: add its link within existing prose, or extract
-a cohesive documentation topic if an addition requires more space.
+Keep implicated modules below 250 lines, splitting cohesive responsibilities when needed.
+The Usage page object is 221 lines after slice1; new drawing observations need a focused owner.
+`USAGE-HISTORY.md` and README are already 250: create `USAGE-TOKEN-INDEX.md`,
+link within existing README prose; preserve persistence documentation.
 
 ## Premises, observations and concerns
 
@@ -208,11 +203,6 @@ All observations below used this owned checkout on 2026-11-15 at
 | Both large tasks and the average currently influence ordinary geometry | Actual `chartLayout` loaded through this checkout's Vite config, width 600, task indexes 1M/2M/65M and average 8M: top tick 80M, ordinary separation 1.45px. Omitting only the large entry leaves top tick 8M and separation 14.5px. The layout used by the renderer still admits the average to scaling. | Slice 3 removes that influence; no assumption that moving the large task alone suffices. |
 | Neighboring shared-chart UI routes are usable | `npm run test:dashboard:frontend -- intent-ci-history-chart-marks.spec.ts intent-project-ci-history-chart-marks.spec.ts intent-scope-timing-history-units.spec.ts` passed: Done/Project marks, keyboard/touch, light/dark, narrow labels and scope units. | Recheck the changed default branches/consumers after implementation. |
 
-The geometry baseline used the renderer's `chartLayout` through this checkout's
-Vite module graph (width 600, 1M/2M/65M tasks, 8M average). Its numeric result is
-retained in the premise table; it proves neither CSS paint nor new interaction.
-The prepared three slices remain within the plan cap.
-
 ## Execution context
 
 Established Story Branch Mode, publisher `dashboard-territory.local-open-dough`, agent Yui-chan.
@@ -220,6 +210,7 @@ Owned/originating checkout `/Users/terryyin/git/open-dough/.worktrees/make-recen
 branch `codex/make-recent-token-usage-easier-to-read`; optional default/integration `/Users/terryyin/git/open-dough`.
 Starting revision `244fc7bc67e454a3d43dfc7849f9b65edb805ec9`; initial published base/candidate
 `07e3ec6c411f79f65f908fc9aa0ac18ce3f5d275`, verified on origin/main and execution branch.
+Latest accepted increment `30697cc105d3ee6c0a35043b5deda789f1671711` on origin/execution branch.
 No second start; claim trunk CI unobserved. No replanning override; existing planning authority retained.
 Checkout `npm ci` with unchanged lockfile and `npm run typecheck:dashboard` passed.
 Selective formatter `npm run format`; check-only `.githooks/pre-commit` owns staged lint and typecheck.
@@ -236,3 +227,19 @@ leave unrelated processes to owners and reuse settled preparation observations.
 
 [Inspected proof and consumer dispositions](source-review.md#slice-1-acceptance) match every allocated
 source expectation; no gap or deferred/running proof. Implementation ~8 active minutes.
+
+
+## Story obligations
+
+### G1. Average still contributes to ordinary scale
+Reported: slice 2 — "Moving averages still influence the ordinary axis."
+Story clause: "independently of the average"
+Disposition: interim until slices 3
+Commitment: C30
+
+
+### G2. Dated average overflow remains for slice 3
+Reported: slice 2 — "An all-large fallback’s above-scale average lacks explicit dated overflow rendering."
+Story clause: "Explicitly identify an average above that scale at its date and make its actual value readable; a clipped trace must not imply that the scale ceiling is the actual average."
+Disposition: interim until slices 3
+Commitment: C31, C32, C33

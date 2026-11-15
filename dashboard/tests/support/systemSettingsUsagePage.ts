@@ -156,9 +156,10 @@ export function usageView(page: Page) {
     },
     // Selects the point read as `readout`, pressing it by pointer or, once
     // focused, with Enter; it shows as the one selected point.
-    async selectPoint(readout: string, by: "pointer" | "keyboard") {
+    async selectPoint(readout: string, by: "pointer" | "keyboard" | "touch") {
       const mark = chart.mark(readout);
       if (by === "pointer") await mark.click();
+      else if (by === "touch") await mark.tap();
       else {
         await mark.focus();
         await page.keyboard.press("Enter");

@@ -11,6 +11,8 @@ export type HistoryChartPoint = {
   readonly date: string;
   readonly value: number;
   readonly description: string;
+  // A known value displayed above the ordinary scale, with its meaning.
+  readonly overflow?: string;
   readonly segment?: string;
   readonly selected?: boolean;
   // Words for a point whose value is known to be incomplete, such as a Usage
@@ -38,6 +40,8 @@ export type HistoryChartSeries = {
   readonly entries: readonly HistoryChartEntry[];
   readonly axis: ValueAxis;
   readonly selectedLabel?: string;
+  // Fallback when no ordinary point exists; absent for timing charts.
+  readonly emptyScaleMaximum?: number;
   // A level drawn as the dashed line, such as CI's prior-build average.
   readonly reference?:
     { readonly value: number; readonly label: string } | undefined;
@@ -49,3 +53,13 @@ export type HistoryChartSeries = {
 export const isMeasured = (
   entry: HistoryChartEntry,
 ): entry is HistoryChartPoint => entry.kind === "point";
+
+// The same value/coverage words label a mark and its inspected readout.
+export function entryValueWords(
+  entry: HistoryChartEntry,
+  axis: ValueAxis,
+): string {
+  if (!isMeasured(entry)) return entry.words;
+  const value = axis.words(entry.value);
+  return entry.partial === undefined ? value : `${value} · ${entry.partial}`;
+}

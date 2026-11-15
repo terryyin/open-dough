@@ -120,3 +120,13 @@
   stroke-width: 2;
   stroke-dasharray: 6 4;
 }
+
+/* A numeric overflow remains a task, distinct from a build without timing. */
+.history-chart-large {
+  fill: none;
+  stroke: var(--problem);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.history-chart-overflow-button { width: 32px; height: 32px; }
+.history-chart-overflow text { fill: var(--text); }
