@@ -7,7 +7,9 @@
 // checkout's Git directory. A later run naming the same remote, refs and
 // --deadline continues that wait: it observes at once and reports every change
 // since that observation, including one made while the result was judged. Any
-// other run takes its own first observation.
+// other run takes its own first observation. A wait reads FETCH_HEAD after each
+// fetch, so nothing else fetches in its checkout while it runs: the rerun
+// starts after the judgment rather than during it.
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
