@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yui-chan",
+  "email": "yui-chan@example.org",
+  "identity": "SEED-369#make-recent-token-usage-easier-to-read",
+  "mode": "story-branch",
+  "branch": "codex/make-recent-token-usage-easier-to-read",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
