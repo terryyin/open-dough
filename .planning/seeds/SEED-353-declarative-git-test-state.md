@@ -4,14 +4,14 @@ status: active
 planted: 2026-11-14
 planted_during: Terry reviewed Git setup in the file-diff follow-up admission test
 trigger_when: selected from the product backlog
-scope: nine stories
+scope: eight stories
 ---
 
 # SEED-353 — Declarative Git test state
 
 ## Parent goal and retained scope
 
-Developers should read the repository facts and relationships explaining dashboard tests without reconstructing routine Git, files, configuration or incidental identifiers. Terry approved smaller stories preserving the full migration on 2026-11-15. The original identity now names the first outcome; all original scope is allocated below. No executable plan or completed slices existed to partition, and nothing is marked delivered by the split.
+Developers should read the repository facts and relationships explaining dashboard tests without reconstructing routine Git, files, configuration or incidental identifiers. Terry approved smaller stories preserving the full migration on 2026-11-15. All original scope is allocated below; the landed-file admission example and its named start-origin revisions, launch reporting and file follow-up builders are delivered and documented in the [test-data architecture guide](../../Distribution/tests/test-data-architecture.md).
 
 Shared scope and correctness requirements:
 
@@ -28,59 +28,24 @@ Under [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md), co
 
 | Order | Receiving story | Original promises and scenario ownership |
 | --- | --- | --- |
-| 1 | [Declare landed-file follow-up state through MakeMe](#declare-git-test-state-through-makeme) | Original admission example; named fixture revisions; launch → landing → file relationships. |
-| 2 | [Declare Intent comparison histories through MakeMe](#declare-intent-comparison-histories) | Intent/CI comparison, source selection, build provenance and timing-history arrangement. |
-| 3 | [Declare local worktree review state through MakeMe](#declare-local-worktree-review-state) | Worktree content, staged/unstaged/untracked/ignored state, modes, renames, binary and context fixtures. |
-| 4 | [Declare merged review histories through MakeMe](#declare-merged-review-histories) | Story-branch commit/range comparisons, parent order, trunk integrations and conflict resolutions. |
-| 5 | [Declare trunk review authorship through MakeMe](#declare-trunk-review-authorship) | Trunk-mode own/foreign history, rewritten histories, attribution and review marks. |
-| 6 | [Declare completed-story review histories through MakeMe](#declare-completed-story-review-histories) | Completion publication/attribution, merge edits and incomplete-history/capture fallback starting state. |
-| 7 | [Declare retained landing and recovery state through MakeMe](#declare-retained-landing-recovery-state) | Story-branch/one-shot authority, captures, binding/refusal and recovery arrangement. |
-| 8 | [Declare launch and session repository state through MakeMe](#declare-launch-session-repository-state) | Other launch/start/continuation/follow-up and session-association histories and incidental identities. |
-| 9 | [Declare runtime and observation repository state through MakeMe](#declare-runtime-observation-repository-state) | Runtime/publication/source fixtures, Git-file/process observations, private-copy isolation and cleanup. |
+| 1 | [Declare Intent comparison histories through MakeMe](#declare-intent-comparison-histories) | Intent/CI comparison, source selection, build provenance and timing-history arrangement. |
+| 2 | [Declare local worktree review state through MakeMe](#declare-local-worktree-review-state) | Worktree content, staged/unstaged/untracked/ignored state, modes, renames, binary and context fixtures. |
+| 3 | [Declare merged review histories through MakeMe](#declare-merged-review-histories) | Story-branch commit/range comparisons, parent order, trunk integrations and conflict resolutions. |
+| 4 | [Declare trunk review authorship through MakeMe](#declare-trunk-review-authorship) | Trunk-mode own/foreign history, rewritten histories, attribution and review marks. |
+| 5 | [Declare completed-story review histories through MakeMe](#declare-completed-story-review-histories) | Completion publication/attribution, merge edits and incomplete-history/capture fallback starting state. |
+| 6 | [Declare retained landing and recovery state through MakeMe](#declare-retained-landing-recovery-state) | Story-branch/one-shot authority, captures, binding/refusal and recovery arrangement. |
+| 7 | [Declare launch and session repository state through MakeMe](#declare-launch-session-repository-state) | Other launch/start/continuation/follow-up and session-association histories and incidental identities. |
+| 8 | [Declare runtime and observation repository state through MakeMe](#declare-runtime-observation-repository-state) | Runtime/publication/source fixtures, Git-file/process observations, private-copy isolation and cleanup. |
 
-The first retains the Preparing identity and queue position for Terry's concrete example. Queue the rest directly after it: Intent aligns with the backlog's Purpose/proof direction; review increases topology risk; delivery, launches and runtime follow. Preserve unrelated order and Taken ownership. Shared code creates no blocking dependency; each outcome remains useful if later work is cancelled.
+Queue order: Intent aligns with the backlog's Purpose/proof direction; review increases topology risk; delivery, launches and runtime follow. Preserve unrelated order and Taken ownership. Shared code creates no blocking dependency; each outcome remains useful if later work is cancelled.
 
-Only the first is refined/planned. Later stories resume through story refinement; no mapped original slices require provisional plans. Indirect setup and defaults belong to the receiving scenario purpose, including newly discovered candidates. No general S/M/L bands are established (SEED-345's concern host workflows), so none are invented. The first is the smallest inspected proof loop; completed histories and runtime isolation have broader setup risk.
+Each story resumes through story refinement; no mapped original slices require provisional plans. Indirect setup and defaults belong to the receiving scenario purpose, including newly discovered candidates. No general S/M/L bands are established (SEED-345's concern host workflows), so none are invented. Completed histories and runtime isolation have broader setup risk.
 
 ## Existing solution and evidence
 
 Reuse the [repository builder](../../Distribution/tests/support/repositoryTestData.mjs), [materializer](../../Distribution/tests/support/repository-fixture.mjs) and [installed-origin layer](../../dashboard/tests/support/startOriginPreparation.ts): they already own named history, ordered parents, authors/files/workspaces, deferred construction, reuse and private copies. Another framework, renamed imperative helpers or doing nothing retains the duplication.
 
-The 2026-11-15 scan at `d25751dd51970273d7e5622b21cb66209a14e083` found 104 candidate specs (50 backend, 44 E2E, 10 integrated), matching `git`, `commitAll`, `commitAllAs`, `writeAt` calls or `randomUUID`. Actions/observations are included; differently named indirect setup is omitted. Eight repository checks passed; the first plan retains consuming-route probes. Neither establishes a full migration or speedup.
-
-<a id="declare-git-test-state-through-makeme"></a>
-
-### Declare landed-file follow-up state through MakeMe
-
-**Identity:** SEED-353#declare-git-test-state-through-makeme
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/642-declare-landed-file-follow-up-state/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b3ca08778593da6c776c293b9cb7db03ab6e493bf1881d21cffb57d2d1c9d99c","plan":"419c6d5da2a98c223b18c6ccc687b4764d1385c5b0ab2e46ee3c1426918dc4a8"}}
-```
-
-**Goal.** A developer understands the landed-file admission setup from its
-comparison, two-line file and related launch, with routine Git and UUID wiring
-removed from the scenario.
-
-**Scope.** Migrate the landed-run success case in
-`dashboard/backend-tests/launches/agent-launch-follow-up-file-admission.spec.ts`.
-Expose named base/tip results through prepared/private origins; builders derive
-launch, landing and file references without spec-level UUID creation, extraction
-or passing. Preserve meaningful/real reporting contexts, deferred harness-owned
-construction, sharing and isolation. Update the architecture guide. Other cases,
-including refusal cases' completed-history arrangement, migrate under their
-receiving stories; retain and run their independent assertions here.
-
-**Key examples.** A named `base` → `delivered` comparison adds exactly
-`line one\nline two\n` in `delivered.txt`. Building its launch, landing and
-line-2 new-side follow-up derives one reporting reference; the HTTP action
-admits and names that comparison in the launched instruction. Removing line 2
-or referring to an unrelated launch refuses admission. Existing absent-path,
-absent-side, out-of-range-line and supplied-context refusals still start no host.
-Two callers of the same description may edit, publish or clean one private copy
-without changing the other's starting state or a later caller's baseline.
-
-**Safe stopping point.** One readable admission example and reusable construction,
-independent of later migration. No speedup claim or open human decision.
+The 2026-11-15 scan at `d25751dd51970273d7e5622b21cb66209a14e083` found 104 candidate specs (50 backend, 44 E2E, 10 integrated), matching `git`, `commitAll`, `commitAllAs`, `writeAt` calls or `randomUUID`. Actions/observations are included; differently named indirect setup is omitted. Eight repository checks passed. Neither establishes a full migration or speedup.
 
 <a id="declare-intent-comparison-histories"></a>
 
