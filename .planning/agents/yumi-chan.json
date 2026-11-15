@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yumi-chan",
+  "email": "yumi-chan@example.org",
+  "identity": "SEED-368#report-a-publication-made-during-supplier-judgment",
+  "mode": "story-branch",
+  "branch": "claude/report-a-publication-made-while-the-supplier-is",
+  "host": "claude",
+  "model": "opus"
+}
