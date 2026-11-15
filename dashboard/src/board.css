@@ -111,12 +111,25 @@
   }
 }
 
-/* Keep explicit column navigation comfortable to tap, including when a
-   tablet has room for two columns. The existing column paging owns the view. */
+/* Touch browsing uses swipes as the primary route. Thin edge indicators
+   retain native tap/keyboard alternatives without reserving story width. */
 @media (any-pointer: coarse) {
   @container board (width < 72rem) {
     .board {
-      --column-paging-control: var(--control-size);
+      --column-paging-control: 0.75rem;
+    }
+
+    .column-paging-control .icon { width: 10px; }
+
+    .column-paging-control-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
   }
 }

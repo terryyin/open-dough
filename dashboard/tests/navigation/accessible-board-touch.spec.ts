@@ -15,7 +15,7 @@ import {
   expectSettledPage,
   parts,
 } from "../dashboardPage.ts";
-import { columnPagingControl, expectView, wheelTo } from "../boardPage.ts";
+import { tapColumnIndicator, expectView, wheelTo } from "../boardPage.ts";
 import { expectReadWholeInCard } from "../boardReading.ts";
 import {
   commitAnswer,
@@ -66,7 +66,7 @@ test.describe("touch reading", () => {
     );
     await chooseProject(page, "Open Dough");
     await expect(parts(page).backlog.getByRole("article")).toHaveCount(3);
-    await tapWhereShown(columnPagingControl(page, "Taken"));
+    await tapColumnIndicator(page, "Taken");
     await expectView(
       page,
       ["Taken"],
@@ -108,12 +108,12 @@ test.describe("touch reading", () => {
     await tapWhereShown(hide);
     await expect(detail).toHaveCount(0);
     await expect(card).toBeFocused();
-    await tapWhereShown(columnPagingControl(page, "Recently done"));
+    await tapColumnIndicator(page, "Recently done");
     await expect(
       recentlyDone.getByRole("article", { name: executed.title, exact: true }),
     ).toBeVisible();
     await expectNoSidewaysScrollAndWholeText(page, phoneWholeTextCut);
-    await tapWhereShown(columnPagingControl(page, "Taken"));
+    await tapColumnIndicator(page, "Taken");
     await expectView(
       page,
       ["Taken"],
@@ -159,7 +159,7 @@ test.describe("touch reading", () => {
     expect(dashboard.claudeLaunchCalls()).toEqual([]);
   });
 
-  test("comfortable Column paging controls show work where the developer is reading on phone and tablet", async ({
+  test("thin Column indicators show work where the developer is reading on phone and tablet", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
@@ -171,7 +171,7 @@ test.describe("touch reading", () => {
       backlog: queuedTitles,
     });
     await wheelTo(page, 1000);
-    await tapWhereShown(columnPagingControl(page, "Taken"));
+    await tapColumnIndicator(page, "Taken");
     await expectView(
       page,
       ["Taken"],
@@ -184,7 +184,7 @@ test.describe("touch reading", () => {
       ["Taken", "Recently done"],
       [`Backlog ${queuedCount} entries`],
     );
-    await tapWhereShown(columnPagingControl(page, "Backlog"));
+    await tapColumnIndicator(page, "Backlog");
     await expectView(page, ["Backlog", "Taken"], ["Recently done 0 entries"]);
     await page.setViewportSize({ width: 390, height: 844 });
     await expectView(

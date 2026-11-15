@@ -19,7 +19,7 @@ import {
 } from "../tests/storyCardSelection.ts";
 import {
   boardScroll,
-  columnPagingControl,
+  tapColumnIndicator,
   expectView,
   expectColumnReading,
   recordSlides,
@@ -28,7 +28,7 @@ import {
   swipeBoard,
 } from "../tests/boardPage.ts";
 import { tapInspectStory } from "../tests/storyCardControls.ts";
-import { compactProjectSelectCut, tapWhereShown } from "../tests/pageLayout.ts";
+import { compactProjectSelectCut } from "../tests/pageLayout.ts";
 import { scrollByTouch } from "../tests/touchGestures.ts";
 
 test.use({ hasTouch: true, viewport: { width: 390, height: 844 } });
@@ -81,7 +81,7 @@ test("swiping from a card or action does not select, inspect or launch it; taps 
   await at(page, "Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
   await expectSelected(story, false);
   await expectInspected(story, false);
-  await tapWhereShown(columnPagingControl(page, "Backlog"));
+  await tapColumnIndicator(page, "Backlog");
   await at(page, "Backlog", ["Taken 1 entry"]);
   await swipeBoard(page, "left", { from: start(readyStory) });
   await at(page, "Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
@@ -89,7 +89,7 @@ test("swiping from a card or action does not select, inspect or launch it; taps 
   await expectInspected(story, false);
   await expectNoLaunchDialog(page);
   expect(boundary.acceptances).toEqual([]);
-  await tapWhereShown(columnPagingControl(page, "Backlog"));
+  await tapColumnIndicator(page, "Backlog");
   await at(page, "Backlog", ["Taken 1 entry"]);
   await tapInspectStory(story);
   await expectInspected(story, true);
@@ -133,7 +133,7 @@ test("swipes share the controls' chosen column and preserve open detail through 
   await swipeBoard(page, "left");
   await at(page, "Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
   expect(await slidesOf(page)).toBe(0);
-  await tapWhereShown(columnPagingControl(page, "Backlog"));
+  await tapColumnIndicator(page, "Backlog");
   await at(page, "Backlog", ["Taken 1 entry"]);
   await expectInspected(story, true);
   await swipeBoard(page, "left");
@@ -146,7 +146,7 @@ test("swipes share the controls' chosen column and preserve open detail through 
   );
   await page.setViewportSize({ width: 390, height: 844 });
   await at(page, "Taken", ["Backlog 2 entries", "Recently done 0 entries"]);
-  await tapWhereShown(columnPagingControl(page, "Backlog"));
+  await tapColumnIndicator(page, "Backlog");
   await at(page, "Backlog", ["Taken 1 entry"]);
   await expectInspected(story, true);
   await expectSelected(story, true);

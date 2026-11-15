@@ -6,6 +6,8 @@ import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { box } from "./pageLayout.ts";
+import { expectFocusedAndIndicated } from "./accessibleReading.ts";
+import { tapNarrowControlWhereShown } from "./controlReachability.ts";
 import { strokeByTouch } from "./touchGestures.ts";
 
 // The columns, each a region, and the column paging controls, each naming a hidden
@@ -136,4 +138,27 @@ export async function swipeBoard(
     { x: distance * (direction === "left" ? -1 : 1), y: 0 },
     options.cancel,
   );
+}
+
+// The developer explicitly trades indicator width for story reading room.
+// This Board-only operation retains native hit testing for the thin target.
+export async function tapColumnIndicator(page: Page, column: ColumnName) {
+  await tapNarrowControlWhereShown(columnPagingControl(page, column));
+}
+
+export async function focusColumnIndicator(page: Page, column: ColumnName) {
+  // Tabbing through hidden cards reveals their columns before the edge control.
+  await page.keyboard.press("Tab");
+  await columnPagingControl(page, column).focus();
+}
+
+export async function activateColumnIndicator(page: Page, column: ColumnName) {
+  await columnPagingControl(page, column).press("Enter");
+}
+
+export async function expectColumnIndicatorFocused(
+  page: Page,
+  column: ColumnName,
+) {
+  await expectFocusedAndIndicated(page, columnPagingControl(page, column));
 }

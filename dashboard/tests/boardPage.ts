@@ -22,6 +22,10 @@ export {
   columnPagingControls,
   showColumn,
   swipeBoard,
+  tapColumnIndicator,
+  focusColumnIndicator,
+  activateColumnIndicator,
+  expectColumnIndicatorFocused,
   expectRowRestsShowing,
   type ColumnName,
 } from "./boardColumnNavigation.ts";
@@ -204,4 +208,23 @@ export async function expectLongerThanTheBoard(part: Locator) {
   expect(await endOf(part)).toBeGreaterThan(
     (await extentOf(part.page())) + framing,
   );
+}
+
+// Independent rendered geometry for comparing the room left to stories.
+export async function columnReadingRoom(page: Page, column: ColumnName) {
+  const controlWidths = await Promise.all(
+    (await columnPagingControls(page).all()).map(
+      async (control) => (await box(control)).width,
+    ),
+  );
+  const view = await box(page.locator(".board-view"));
+  const card = await box(
+    columnRegion(page, column).getByRole("article").first(),
+  );
+  return {
+    controlWidths,
+    board: (await box(page.locator(".board"))).width,
+    view: view.width,
+    card: card.width,
+  };
 }

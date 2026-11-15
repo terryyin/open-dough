@@ -129,7 +129,7 @@ remain functional until slice 2 reduces their footprint.
 
 ### 2. Give stories room with thin working column indicators
 Type: Behavior
-Status: planned
+Status: done
 Proof: Indicator promises above in new
 `dashboard/frontend-tests/board-indicators.spec.ts`, plus affected maintained
 phone reading, paging, keyboard, overflow and control-reachability consumers.
@@ -237,3 +237,8 @@ CI: GitHub Actions, terryyin/open-dough, verified `ci.yml` (CI), target
 matches. Observer coordinator `tsukasa-seed373`, directory
 `/tmp/dough-ci-501/watch-AHutaa`, PID 85835, stream session 51394,
 yielded cell `g400:12`. Claim trunk CI remains unobserved by this branch observer.
+
+Slice 1 accepted/published on the execution branch as
+`645bd13fc880d3289a5191708e7e7ed0abd93b68`, suffix base
+`972eedb87836d50639ff6c865ccb624dc94de00e`; observer reused.
+This is slice 2's retained previously published base and current candidate.
