@@ -87,7 +87,7 @@ selection before authoring the test.
 
 ### 2. A watch request on a paused supplier waits under the proof-wait rule
 Type: Behavior
-Status: planned
+Status: done
 Proof: [behavior review](../../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review) walking the story's six key examples against the changed text; `bash scripts/test.sh Distribution/tests/installation/payload-declaration-links.sh`.
 
 Behavior: an execution holds on a paused supplier → the developer asks it to
@@ -135,13 +135,17 @@ guidance otherwise. The evidence the story observed moves here from the seed.
 - [Failing and flaky test policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
   applies as written, in every delegation brief and repair handoff.
 - Slice 1 delivered contract, for slice 2: run in the watching checkout
-  `node <installed-execute-plan>/scripts/wait-for-publication.mjs --remote REMOTE --ref REF [--ref REF]... [--path PATH]... [--duration-minutes MINUTES | --deadline ISO_TIME]`.
+  `node <installed-execute-plan>/scripts/wait-for-publication.mjs --remote REMOTE --ref REF[:PATH] [--ref REF[:PATH]]... [--duration-minutes MINUTES | --deadline ISO_TIME]`.
   It prints one JSON line and exits 0: `{"result":"publication","remote",…,"changes":[{"ref","path"?,"before","after"}],"deadline"}`
   or `{"result":"deadline","remote","deadline"}`; pass the returned `deadline`
   to `--deadline` on a rerun. A first unreadable observation exits 1; a usage
   error exits 2. The observation interval defaults to 60 seconds
   (`--interval-seconds`), chosen in slice 1. Each run compares against its own
   first observation.
+- Slice 2 changed that contract from one `--path` list applied to every ref
+  to `--ref REF` (the ref's object) or `--ref REF:PATH` (that path on that
+  ref), so the supplier's branch is watched whole beside paths on the target
+  (G2).
 - Slice 1 accepted proof: the focused test (10 tests) and the payload
   declaration and installation checks named in its return; refactor pass
   complete.
@@ -154,3 +158,13 @@ guidance otherwise. The evidence the story observed moves here from the seed.
 Reported: slice 1 — "Another process fetching in the same checkout between its fetch and its `rev-parse` could cause a spurious publication result. The cost is one extra judgment and a rerun."
 Story clause: "at no other time"
 Disposition: no user cost "the unchanged wait costs almost no model work": `FETCH_HEAD` belongs to one worktree, and the holding coordinator runs no command in it while it awaits the wait (the other fetching scripts run only inside coordinator operations), so nothing reaches the window in a watch; if something did, the wait ends once, the unchanged agreement keeps the hold, and the rerun continues to the same deadline.
+
+### G2. Paths narrow the supplier's branch as well as the target
+Reported: slice 2 — "`--path` applies to every `--ref`. The one command the guidance prescribes therefore watches the two homes on both the supplier's branch and the target; a push to the supplier's branch that touches neither home does not end the wait."
+Story clause: "ends with one result on a publication or at the deadline"
+Disposition: proved by slice 2: Distribution/tests/skills/dough-execute-plan/wait-for-publication.test.mjs "a supplier branch watched whole beside a path on the target stays silent across an unrelated push to the target, and a push to the branch touching no watched path ends the wait naming that ref"; the guidance command in wait-for-proof.md#watch-a-paused-supplier names the supplier branch whole and the target at its two homes.
+
+### G3. A publication between a result and the rerun's first observation is not reported by the rerun
+Reported: slice 2 — "Each rerun compares against its own first observation, so a publication landing between the result and the rerun is seen only by the judgment in between, not by the rerun."
+Story clause: "the watch continues to the same deadline"
+Disposition: no user cost "the unchanged wait costs almost no model work": the window is the seconds between the coordinator's judgment and the rerun's first fetch; a publication inside it leaves the watch silent to the same deadline, where the execution stops with its recorded resume condition and the next entry judges the supplier, which is what a hold without a watch does today.

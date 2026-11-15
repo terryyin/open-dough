@@ -25,7 +25,8 @@ const outcomePath = "docs/supplier-outcome.md";
 const minuteMs = 60_000;
 const briefly = ["--duration-minutes", "0.05"];
 const beyondLoadedStartUp = ["--duration-minutes", "0.25"];
-const watchedOutcome = ["--ref", "main", "--path", outcomePath];
+const watchedOutcome = ["--ref", `main:${outcomePath}`];
+const delivered = { [outcomePath]: "delivered\n" };
 
 // A remote whose trunk holds `files`, the supplier's checkout that publishes
 // to it, and the watching checkout: a separate clone of that remote.
@@ -110,9 +111,7 @@ test("a push touching no watched path prints nothing, and a push to a watched pa
   await observed(watcher, unrelated);
   assert.equal(wait.stdout + wait.stderr, "");
 
-  const published = await publish(supplier, "main", {
-    [outcomePath]: "delivered\n",
-  });
+  const published = await publish(supplier, "main", delivered);
 
   assert.deepEqual(await onlyResult(wait), {
     result: "publication",
@@ -130,13 +129,16 @@ test("a push touching no watched path prints nothing, and a push to a watched pa
   assert.equal((await git(watcher, "status", "--porcelain")).stdout, "");
 });
 
-test("a push to one of several refs watched without paths ends the wait naming that ref", async (t) => {
+test("a supplier branch watched whole beside a path on the target stays silent across an unrelated push to the target, and a push to the branch touching no watched path ends the wait naming that ref", async (t) => {
   const { supplier, watcher } = await watchedRemote(t);
   const start = await objectAt(supplier, "HEAD");
   await git(supplier, "push", "--quiet", "origin", "HEAD:refs/heads/supplier");
-  const wait = startWait(t, watcher, "--ref", "main", "--ref", "supplier");
+  const wait = startWait(t, watcher, "--ref", "supplier", ...watchedOutcome);
   await observed(watcher, start);
 
+  const unrelated = await publish(supplier, "main", { "src/other.md": "x\n" });
+  await observed(watcher, unrelated);
+  assert.equal(wait.stdout + wait.stderr, "");
   const published = await publish(supplier, "supplier", { "any.md": "x\n" });
 
   assert.deepEqual((await onlyResult(wait)).changes, [
@@ -150,9 +152,7 @@ test("a watched path that first appears on the ref ends the wait", async (t) => 
   const wait = startWait(t, watcher, ...watchedOutcome);
   await observed(watcher, start);
 
-  const published = await publish(supplier, "main", {
-    [outcomePath]: "delivered\n",
-  });
+  const published = await publish(supplier, "main", delivered);
 
   assert.deepEqual((await onlyResult(wait)).changes, [
     {
@@ -175,7 +175,7 @@ for (const [name, duration, minutes] of [
     await observed(watcher, await objectAt(supplier, "HEAD"));
     const startedBefore = Date.now();
 
-    await publish(supplier, "main", { [outcomePath]: "delivered\n" });
+    await publish(supplier, "main", delivered);
 
     const deadline = Date.parse((await onlyResult(wait)).deadline);
     assert.ok(deadline >= startedAfter + minutes * minuteMs);
@@ -201,7 +201,7 @@ test("a rerun given the returned deadline prints one deadline result at that tim
 });
 
 test("arguments that name no ref end at once with the usage", async (t) => {
-  const wait = startWait(t, tmpdir(), "--path", outcomePath);
+  const wait = startWait(t, tmpdir());
 
   assert.equal((await wait.ended).code, 2);
   assert.equal(wait.stdout, "");

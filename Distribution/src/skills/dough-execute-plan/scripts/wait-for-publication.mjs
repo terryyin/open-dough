@@ -1,17 +1,17 @@
-// Waits in this checkout until a remote publishes a change to a watched ref
-// or path, or until the deadline. It prints nothing while the watched objects
-// are unchanged and exactly one JSON result line when the wait ends.
+// Waits in this checkout until a remote publishes a change to a watched ref,
+// or to a path on one named REF:PATH, or until the deadline. It prints
+// nothing while the watched objects are unchanged and exactly one JSON result
+// line when the wait ends.
 import { setTimeout as delay } from "node:timers/promises";
 import { parseArgs } from "node:util";
 import { isDirectCliEntry } from "./ci-direct-entry.mjs";
 import { git } from "./publication-git.mjs";
 
 const usage =
-  "Usage: node wait-for-publication.mjs --remote REMOTE --ref REF [--ref REF]... [--path PATH]... [--duration-minutes MINUTES | --deadline ISO_TIME] [--interval-seconds SECONDS]";
+  "Usage: node wait-for-publication.mjs --remote REMOTE --ref REF[:PATH] [--ref REF[:PATH]]... [--duration-minutes MINUTES | --deadline ISO_TIME] [--interval-seconds SECONDS]";
 const flags = [
   "remote",
   "ref",
-  "path",
   "duration-minutes",
   "deadline",
   "interval-seconds",
@@ -24,6 +24,14 @@ function positive(text, flag) {
   if (!(Number.isFinite(value) && value > 0))
     throw new Error(`${flag} needs a positive number, not ${text}`);
   return value;
+}
+
+// REF watches the ref's own object; REF:PATH watches that path on the ref.
+function watchedItem(named) {
+  const colon = named.indexOf(":");
+  return colon < 0
+    ? { ref: named }
+    : { ref: named.slice(0, colon), path: named.slice(colon + 1) };
 }
 
 // The wait the arguments describe, with its deadline as a time.
@@ -55,8 +63,7 @@ function waitRequest(argv) {
     throw new Error(`--deadline needs an ISO time, not ${deadline}`);
   return {
     remote,
-    refs: values.ref,
-    paths: values.path ?? [],
+    watched: values.ref.map(watchedItem),
     deadlineMs,
     intervalMs:
       positive(
@@ -79,25 +86,29 @@ async function fetchedObject(checkout, path) {
   }
 }
 
-// Every watched object as the remote holds it now: one per ref, or one per
-// named path on each ref.
-async function observe(checkout, { remote, refs, paths }) {
-  const watched = [];
-  for (const ref of refs) {
-    try {
-      await git(checkout, "fetch", "--quiet", remote, ref);
-    } catch (error) {
-      const reason = (error.stderr || error.message).trim();
-      throw new Error(`cannot read ${ref} from ${remote}: ${reason}`, {
-        cause: error,
-      });
+// Every watched object as the remote holds it now, fetching each ref once per
+// run of items that name it.
+async function observe(checkout, { remote, watched }) {
+  const observed = [];
+  let fetched;
+  for (const item of watched) {
+    if (item.ref !== fetched) {
+      try {
+        await git(checkout, "fetch", "--quiet", remote, item.ref);
+      } catch (error) {
+        const reason = (error.stderr || error.message).trim();
+        throw new Error(`cannot read ${item.ref} from ${remote}: ${reason}`, {
+          cause: error,
+        });
+      }
+      fetched = item.ref;
     }
-    for (const path of paths.length > 0 ? paths : [undefined]) {
-      const object = await fetchedObject(checkout, path);
-      watched.push({ ref, ...(path !== undefined && { path }), object });
-    }
+    observed.push({
+      ...item,
+      object: await fetchedObject(checkout, item.path),
+    });
   }
-  return watched;
+  return observed;
 }
 
 function changesBetween(before, after) {
