@@ -59,6 +59,9 @@ export type FrontendServiceState = {
   hostStatus: HostStatus | undefined;
   // Done catalogs and bodies keyed by published source id.
   doneBySource: Record<string, FrontendDonePublication>;
+  // Heads of the story branches a revision check watches, when a case
+  // arranges them; unarranged, a check names no branch heads.
+  branchHeads?: Record<string, string>;
 };
 
 export function defaultFrontendServiceState(

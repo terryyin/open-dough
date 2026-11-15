@@ -5,6 +5,32 @@ Historical classification, resolution and source recovery for
 
 ## Review and recovery
 
+Retired on 2026-11-15. Exact evidence and occurrence identities are recoverable
+at [the prior ProjectFindings.md](https://github.com/terryyin/open-dough/blob/f28c8ee2c2f361030db9d0e0b0ca6207c2e4b5a0/ProjectFindings.md),
+[the prior test findings](https://github.com/terryyin/open-dough/blob/f28c8ee2c2f361030db9d0e0b0ca6207c2e4b5a0/docs/maintainer/project-test-findings.md)
+and [the prior process log](https://github.com/terryyin/open-dough/blob/f28c8ee2c2f361030db9d0e0b0ca6207c2e4b5a0/DearDough.md).
+
+- **DD-419:** SEED-231 proved focused and pathless runner fixtures finish while another checkout holds full-suite admission. Full suites still serialize. See accepted `e2541b0aa` and plan 466 at that revision. The separate container owner collision remains open.
+- **DD-421, DD-428, DD-429, DD-430:** the paused-clock reopen passed the 42-case focused run after `40eb66ce52`. The CI answer fixes passed hosted run 42032615133 after `420ac5e1c` and `e4058a7c7`. The corrected fake-Cursor attach identity passed the revive proofs at `5de83a620`, whose static wire seam also restored the server bundle.
+- **DD-390, DD-467:** the successful multi-order fixture probes left no unresolved local fixture issue. The native-identity budget breach fell from 67.8 s to 16.2 CI seconds after `7d62c61b5` batched captures. The separate import-closure defects remain open.
+- <a id="dd-496"></a> **DD-496:** the local narrow-terminal wait was repaired at `b6f325ffb` by accepting the presented terminal as evidence of start. SEED-320 completed after hosted proof. The process finding about diagnosis retains the original intermittent runs.
+- **DD-539:** `219d69bef` retargeted the Integrated UI runner-ownership example to an existing Intent case. The completion at `bfd4e781` confirmed the repair and the example remains adopted. The frontend deadline on the same earlier revision is still recorded at [DD-529](project-test-findings.md#dd-529).
+- **DD-287:** `acf617d72` disabled writes from dashboard test descendants. The strict 1,551-test suite, overlapping runs and explicit cache probes preserved the seeded files and hashes. The shared browser runner retains the policy. The source of the original 134 GB remains unknown. [Occurrence and measurements](https://github.com/terryyin/open-dough/blob/f28c8ee2c2f361030db9d0e0b0ca6207c2e4b5a0/docs/maintainer/project-compile-cache-findings.md#dd-287).
+- **DD-466:** `5d1c5fe43` removed the MakeMe builder's runtime dashboard import. The named native identity check failed before the repair and passed after it, and the repository [test data architecture](../../Distribution/tests/test-data-architecture.md#test-data-architecture) retains the import boundary documented in `d41a6ef35`. DD-463's use of the import-closure parser as a reverse selector remains a separate finding.
+- **DD-508:** SEED-324 corrected its basis for the loaded run verdict. Three counted natural-load runs passed 14/14 each, with an 18.1 s slowest case. [Plan 599 at the correction](https://github.com/terryyin/open-dough/blob/854a1ae307abf6f3238daddf79bdf95d9b6e0e90/.planning/slice-plans/599-pass-landed-ci-repeat-checks-under-high-load/PLAN.md#repair-of-g1-after-the-seed-330-merge) and the maintained [measurement guide](../../Distribution/tests/local-test-resources.md#load-while-measuring) preserve the distinction between natural load and burner runs.
+
+<a id="dd-515-local"></a>
+
+**DD-515, local facets:** In SEED-334 plan 608, the fake GitHub held-auth
+release (`27724831f`), production watcher and build-gate fixtures
+(`8d6106164`), and repeat-transport POST wait (`d21a0ebc5`) stopped
+relying on a single macOS watch event after load-related failures. The
+coordinator exercised the repaired fixtures during the same execution. The
+[original occurrence](https://github.com/terryyin/open-dough/blob/face6fd05b3f5c4f20159db9b41480afbe90d592/DearDough.md#dd-515--test-and-ci-mailbox-waits-that-relied-only-on-macos-fswatch-failed-under-load)
+records the revisions and load conditions. The released mailbox and terminal
+observation facet is [ODF-501](findings/ODF-501.md). DD-476's separate
+local-suite lifecycle repair retains its own occurrence.
+
 Classification and resolution review, 2026-10-12. Full input evidence is
 recoverable at `11d48b956607e3485f5771c59509b111be3626b8:ProjectFindings.md`
 and `11d48b956607e3485f5771c59509b111be3626b8:DearDough.md`.

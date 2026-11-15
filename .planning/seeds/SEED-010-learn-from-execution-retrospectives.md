@@ -34,7 +34,7 @@ its decisions are recoverable from the
 
 **Identity:** SEED-010#review-independently-observable-promises
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/616-review-independently-observable-promises/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"06b5d57b9db2882c86d0d46d78a1bf8b2be5d0c4c04c6229277d655475d0ad4e","plan":"d3af488e0dabc02f5caf95b8de95c643c27b9cabbfccac96964142d23f2229c5"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/616-review-independently-observable-promises/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"078918df8bde2a5d7359aa253b7ca13f7b18912c4e94f4cbd421620fe104de99","plan":"9785d6af57e85bd579b45333fad913c02fc95c7f5b440338c5712b0eea05d187"}}
 ```
 
 **Goal:** Let planned-execution coordinators use an independent review to catch

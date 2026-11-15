@@ -1,13 +1,13 @@
 # Near-term watch list
 
 ```json dough-feedback-review
-{ "schemaVersion": 1, "reviewed": "2026-11-13", "reviewAfter": "2026-11-20" }
+{ "schemaVersion": 1, "reviewed": "2026-11-15", "reviewAfter": "2026-11-22" }
 ```
 
-Reviewed 2026-11-13 (Asia/Singapore): Open Dough, Doughnut, Pygardon, Lizard
+Reviewed 2026-11-15 (Asia/Singapore). Open Dough, Doughnut, Pygardon, Lizard
 and Clipboard supplied shared logs. Terry Talks has process retrospective off.
-The examined executions supplied no verified qualifying scope-restriction use.
-The watch remains pending.
+The reviewed executions supplied no verified scope-restriction use that meets
+the observation condition below. The watch remains unstarted.
 
 <a id="scope-limits-and-required-restrictions"></a>
 

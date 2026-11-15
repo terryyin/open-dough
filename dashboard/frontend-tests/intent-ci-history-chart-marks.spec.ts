@@ -9,27 +9,22 @@ import {
   historyChart,
   inspectMark,
 } from "../tests/historyChartPage.ts";
-import { scopeHistory } from "../tests/intentScopeHistoryPage.ts";
 import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
 import {
   expect,
   test,
-  mountComparison,
   type ComparisonServices,
 } from "../tests/support/comparisonMountPage.ts";
-import {
-  summaryScopeFacts,
-  serveComparison,
-} from "../tests/support/comparisonScopeFacts.ts";
 import type { FrontendAppServer } from "../tests/support/frontendAppServer.ts";
 import {
   expectMarkedScopeHistoryDrawn,
   failedReadout,
   readoutsBefore,
-  serveMarkedScopeHistory,
+  markedScopeHistory,
   unavailableReadout,
   zeroReadout,
 } from "../tests/support/scopeHistoryMarksScenario.ts";
+import { openSummaryScopeHistory } from "../tests/support/summaryScopeHistory.ts";
 import type { Page } from "@playwright/test";
 
 const selected = "Nov 8 · Selected landing · 1.5 s";
@@ -39,16 +34,14 @@ async function openDoneChart(
   comparisonServer: FrontendAppServer,
   comparisonServices: ComparisonServices,
 ) {
-  const facts = summaryScopeFacts();
-  serveComparison(comparisonServices, facts, facts.entries);
-  await serveMarkedScopeHistory(page, facts.work.revision);
-  await mountComparison(page, comparisonServer, {
-    ...facts,
-    doneEndpoint: { revision: facts.work.revision, at: "2026-11-09T00:00:00Z" },
-  });
-  const summary = page.getByRole("region", { name: "Summary", exact: true });
+  const { summary, history } = await openSummaryScopeHistory(
+    page,
+    comparisonServer,
+    comparisonServices,
+    markedScopeHistory,
+  );
   return {
-    history: scopeHistory(summary),
+    history,
     chart: historyChart(
       summary,
       "Test execution time for test cases by build date; selected landing marked",

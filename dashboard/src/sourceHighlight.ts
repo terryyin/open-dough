@@ -1,10 +1,12 @@
-// On-demand source highlighting for the shared source-lines view
-// (`./SourceLines.tsx`): Shiki's core and JavaScript engine, with each
-// Intent syntax hint's grammar and github-light/github-dark loaded only when
-// first needed. `sourceLanguage` maps an Intent syntax hint (+ path for
-// typescript/.tsx) to the Shiki language id. Failure leaves the caller with
-// plain text and no error surface. Both theme colours ship on each token so
-// CSS can follow the system appearance without re-tokenization.
+// On-demand syntax styling for every source reader -- Intent's source reading
+// (`./SourceLines.tsx`) and story-review file diffs (`./diffLineTokens.ts`) --
+// through `./useSourceHighlight.ts`: Shiki's core and JavaScript engine, with
+// each supported grammar and the github-light-high-contrast and
+// github-dark-high-contrast palettes loaded only when first needed.
+// `sourceLanguage` maps an Intent syntax hint (+ path for typescript/.tsx) and
+// `pathLanguage` a diffed file's path to the Shiki language id. Failure leaves
+// the caller with plain text and no error surface. Both theme colours ship on
+// each token so CSS can follow the system appearance without re-tokenization.
 
 import { createHighlighterCore, type HighlighterCore } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
@@ -35,8 +37,8 @@ const languageLoads = new Map<GrammarModule, Promise<void>>();
 function loadHighlighter(): Promise<HighlighterCore> {
   highlighter ??= createHighlighterCore({
     themes: [
-      () => import("@shikijs/themes/github-light"),
-      () => import("@shikijs/themes/github-dark"),
+      () => import("@shikijs/themes/github-light-high-contrast"),
+      () => import("@shikijs/themes/github-dark-high-contrast"),
     ],
     langs: [],
     engine: createJavaScriptRegexEngine(),
@@ -45,6 +47,29 @@ function loadHighlighter(): Promise<HighlighterCore> {
     throw error;
   });
   return highlighter;
+}
+
+// A file path's extension → Shiki language id, over the same grammars;
+// any other file reads as plain text.
+const extensionLanguages: Readonly<Record<string, string>> = {
+  ts: "typescript",
+  mts: "typescript",
+  cts: "typescript",
+  tsx: "tsx",
+  js: "javascript",
+  mjs: "javascript",
+  cjs: "javascript",
+  jsx: "javascript",
+  java: "java",
+  py: "python",
+  sh: "shell",
+  bash: "shell",
+  feature: "gherkin",
+};
+
+export function pathLanguage(path: string): string | undefined {
+  const extension = /\.([^./]+)$/.exec(path)?.[1];
+  return extension === undefined ? undefined : extensionLanguages[extension];
 }
 
 // Intent syntax hint (+ path for typescript/.tsx) → Shiki language id.
@@ -58,7 +83,7 @@ export function sourceLanguage(hint: string, path: string): string | undefined {
     case "shell":
       return hint;
     case "typescript":
-      return path.endsWith(".tsx") ? "tsx" : "typescript";
+      return pathLanguage(path) === "tsx" ? "tsx" : "typescript";
     default:
       return undefined;
   }
@@ -92,8 +117,9 @@ async function ensureLanguage(
   await pending;
 }
 
-// Token lines for `text` in a Shiki language id from `sourceLanguage`, or
-// `undefined` when the language is unsupported or loading/tokenization fails.
+// Token lines for `text` in a Shiki language id from `sourceLanguage` or
+// `pathLanguage`, or `undefined` when the language is unsupported or
+// loading/tokenization fails.
 export async function highlightSourceLines(
   text: string,
   language: string,
@@ -104,7 +130,10 @@ export async function highlightSourceLines(
     await ensureLanguage(core, language);
     const lines = core.codeToTokensWithThemes(text, {
       lang: language,
-      themes: { light: "github-light", dark: "github-dark" },
+      themes: {
+        light: "github-light-high-contrast",
+        dark: "github-dark-high-contrast",
+      },
     });
     return lines.map((line) =>
       line.map((token) => {

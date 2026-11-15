@@ -3,7 +3,7 @@
 // each unit's figures compare in case/file/legacy order without summing types;
 // an unavailable unit follows an available one in either direction. Single-unit
 // figure sorting: ./intent-ci-proof-sort.test.mjs. Browser journey:
-// ../../../dashboard/tests/intent/intent-ci-status-sort.spec.ts.
+// ../../../dashboard/frontend-tests/intent/intent-ci-status-sort.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { sortedRows } from "../../../dashboard/src/ciProofSort.ts";

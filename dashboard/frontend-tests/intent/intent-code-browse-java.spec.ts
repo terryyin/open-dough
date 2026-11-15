@@ -85,17 +85,20 @@ class CalculatorTest {
     `at revision ${shortRevision(doughnut.revision)}`,
   );
   await expectKeywordAndStringColours(source, /^class$/, /^"two"$/);
+  // GitHub high-contrast palettes; light mixes 75% token with 25% --text.
   await page.emulateMedia({ colorScheme: "light" });
   expect(await colourOf(sourceToken(source, /^class$/))).toBe(
-    "rgb(215, 58, 73)",
-  );
-  expect(await colourOf(sourceToken(source, /^"two"$/))).toBe("rgb(3, 47, 98)");
-  await page.emulateMedia({ colorScheme: "dark" });
-  expect(await colourOf(sourceToken(source, /^class$/))).toBe(
-    "rgb(249, 117, 131)",
+    "color(srgb 0.49902 0.0784314 0.117647)",
   );
   expect(await colourOf(sourceToken(source, /^"two"$/))).toBe(
-    "rgb(158, 203, 255)",
+    "color(srgb 0.0372549 0.137255 0.317647)",
+  );
+  await page.emulateMedia({ colorScheme: "dark" });
+  expect(await colourOf(sourceToken(source, /^class$/))).toBe(
+    "rgb(255, 148, 146)",
+  );
+  expect(await colourOf(sourceToken(source, /^"two"$/))).toBe(
+    "rgb(173, 220, 255)",
   );
   await expect(sourceLineText(source)).toHaveText(javaText.split("\n"));
 
