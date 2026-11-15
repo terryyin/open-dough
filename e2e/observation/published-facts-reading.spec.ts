@@ -4,26 +4,32 @@
 // an ordinary read gap, with natural reflow rather than fixed pixel offsets.
 
 import type { Locator, Page } from "@playwright/test";
-import { canonicalRecord, inspectedDetail } from "../storyCardControls.ts";
+import {
+  canonicalRecord,
+  inspectedDetail,
+} from "../../dashboard/tests/storyCardControls.ts";
 import {
   expectView,
   rem,
   scrollYOf,
   showColumn,
   wheelTo,
-} from "../boardPage.ts";
-import { credit } from "../agentCredit.ts";
-import { badge, sliceProgress } from "../storyCardFacts.ts";
-import { watchPageErrors } from "../pageErrors.ts";
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
+} from "../../dashboard/tests/boardPage.ts";
+import { credit } from "../../dashboard/tests/agentCredit.ts";
+import { badge, sliceProgress } from "../../dashboard/tests/storyCardFacts.ts";
+import { watchPageErrors } from "../../dashboard/tests/pageErrors.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import { parts } from "../../dashboard/tests/dashboardPage.ts";
 import {
   heldFactGroups,
   takenCanonicalPath,
-} from "../publishedFactsArrival.ts";
-import { expectDoneFacts } from "../publishedFactsAssertions.ts";
-import { expectVisibleReadingFocus } from "../readingPlace.ts";
-import { repository, revision } from "../sliceClockRecords.ts";
+} from "../../dashboard/tests/publishedFactsArrival.ts";
+import { expectDoneFacts } from "../../dashboard/tests/publishedFactsAssertions.ts";
+import { expectVisibleReadingFocus } from "../../dashboard/tests/readingPlace.ts";
+import {
+  repository,
+  revision,
+} from "../../dashboard/tests/sliceClockRecords.ts";
 
 async function expectReadingPlace(
   page: Page,

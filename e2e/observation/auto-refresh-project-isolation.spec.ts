@@ -1,6 +1,6 @@
 // Selecting a project also abandons the previous project's automatic work:
 // its outstanding revision check and its snapshot's detail reads. This is
-// the automatic-check counterpart of ../../dashboard/tests/observation/project-read-isolation.spec.ts, which
+// the automatic-check counterpart of ./project-read-isolation.spec.ts, which
 // proves the same one-selected-source rule for membership reads. The page's
 // clock is paused and advanced by the test (../../dashboard/tests/autoRefreshJourney.ts), so no
 // deselected project's work can time out on its own, and every later check

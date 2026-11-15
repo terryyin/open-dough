@@ -1,13 +1,21 @@
 // Board streams use free slots/lowered pace; dashboardTest.ts pre-holds slots for check delivery.
 
 import type { Page, Request } from "@playwright/test";
-import { expect, githubFor, test } from "../dashboardTest.ts";
-import { shortRevision, expectSettledPage, parts } from "../dashboardPage.ts";
+import {
+  expect,
+  githubFor,
+  test,
+} from "../../dashboard/tests/dashboardTest.ts";
+import {
+  shortRevision,
+  expectSettledPage,
+  parts,
+} from "../../dashboard/tests/dashboardPage.ts";
 import {
   checksAskedWhilePassing,
   passTimeUntilAsked,
-} from "../autoRefreshJourney.ts";
-import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
+} from "../../dashboard/tests/autoRefreshJourney.ts";
+import { untilPageReadsAnswered } from "../../dashboard/tests/pageRequestNotes.ts";
 import {
   callsSince,
   isRevisionStream,
@@ -19,29 +27,32 @@ import {
   untilMatchingRefsSince,
   untilStreamingAt,
   setPageVisibility,
-} from "../revisionStreamJourney.ts";
-import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
-import { revisionStreamSlotLockNames } from "../../src/revisionStreamSlot.ts";
+} from "../../dashboard/tests/revisionStreamJourney.ts";
+import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
+import { revisionStreamSlotLockNames } from "../../dashboard/src/revisionStreamSlot.ts";
 import {
   backlogB,
   revisionB,
   titlesOfA,
   titlesOfB,
-} from "../refreshJourney.ts";
-import { readsBesideChecks } from "../originObservation.ts";
-import { storyCard } from "../storyCardControls.ts";
-import { sliceBar, sliceProgress } from "../storyCardFacts.ts";
+} from "../../dashboard/tests/refreshJourney.ts";
+import { readsBesideChecks } from "../../dashboard/tests/originObservation.ts";
+import { storyCard } from "../../dashboard/tests/storyCardControls.ts";
+import {
+  sliceBar,
+  sliceProgress,
+} from "../../dashboard/tests/storyCardFacts.ts";
 import {
   onBranch,
   opened,
   planPath,
   revision,
-} from "../branchProgressRecords.ts";
+} from "../../dashboard/tests/branchProgressRecords.ts";
 import {
   branchPlanPublication,
   openedSettled,
   sevenDoneOnBranch,
-} from "../branchRefreshJourney.ts";
+} from "../../dashboard/tests/branchRefreshJourney.ts";
 
 test.use({
   preholdRevisionStreamSlots: false,

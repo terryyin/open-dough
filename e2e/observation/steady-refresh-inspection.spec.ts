@@ -4,31 +4,42 @@
 // until that revision answers for them. A record's reads, or GitHub's account
 // of what changed, are held so the read stays under way to be seen. The fake
 // GitHub only publishes the commits, records, and histories
-// (../publishedOrigin.ts, ../publishedFiles.ts, ../assignmentCreditRecords.ts);
-// the page decides what is shown.
+// (../../dashboard/tests/publishedOrigin.ts,
+// ../../dashboard/tests/publishedFiles.ts,
+// ../../dashboard/tests/assignmentCreditRecords.ts); the page decides what is
+// shown.
 
 import type { Page } from "@playwright/test";
-import { expect, githubFor, pausePageClockAt, test } from "../dashboardTest.ts";
+import {
+  expect,
+  githubFor,
+  pausePageClockAt,
+  test,
+} from "../../dashboard/tests/dashboardTest.ts";
 import {
   expectMembership,
   expectSettledPage,
   shortRevision,
   parts,
   rosterParts,
-} from "../dashboardPage.ts";
-import { publishMovingFiles } from "../publishedFiles.ts";
-import { avatarHost } from "../agentAttributionRecords.ts";
-import { inspectedDetail } from "../storyCardControls.ts";
-import { credit } from "../agentCredit.ts";
-import { expectNoPlaceholderShown } from "../retainedFacts.ts";
+} from "../../dashboard/tests/dashboardPage.ts";
+import { publishMovingFiles } from "../../dashboard/tests/publishedFiles.ts";
+import { avatarHost } from "../../dashboard/tests/agentAttributionRecords.ts";
+import { inspectedDetail } from "../../dashboard/tests/storyCardControls.ts";
+import { credit } from "../../dashboard/tests/agentCredit.ts";
+import { expectNoPlaceholderShown } from "../../dashboard/tests/retainedFacts.ts";
 import {
   contentReads,
   openSettledAtA,
   passTimeUntilChecked,
   queueStory,
   recordsAt,
-} from "../autoRefreshJourney.ts";
-import { backlogB, revisionB, titlesOfB } from "../refreshJourney.ts";
+} from "../../dashboard/tests/autoRefreshJourney.ts";
+import {
+  backlogB,
+  revisionB,
+  titlesOfB,
+} from "../../dashboard/tests/refreshJourney.ts";
 import {
   agents,
   atA,
@@ -37,7 +48,7 @@ import {
   repository,
   titleOf,
   toB,
-} from "../assignmentCreditRecords.ts";
+} from "../../dashboard/tests/assignmentCreditRecords.ts";
 
 const syncRecord = ".planning/seeds/SEED-008-sync.md";
 

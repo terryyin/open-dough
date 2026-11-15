@@ -3,14 +3,18 @@
 // wait bound gives up a record still unanswered, the story shows the gap a
 // first read shows and the notice says what was read; when a hidden page lets
 // go of a recovery read, the story shows what that read itself had read. The
-// journey's commits and records are those of ../refreshJourney.ts and
-// ../autoRefreshJourney.ts; the queue story's record is held at B. The page's
+// journey's commits and records are those of ../../dashboard/tests/refreshJourney.ts and
+// ../../dashboard/tests/autoRefreshJourney.ts; the queue story's record is held at B. The page's
 // clock is paused and advanced by the test. The carry itself:
 // ./steady-refresh-carry.spec.ts.
 
-import { expect, test } from "../dashboardTest.ts";
-import { expectSettledPage, shortRevision, parts } from "../dashboardPage.ts";
-import { inspectedDetail } from "../storyCardControls.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  expectSettledPage,
+  shortRevision,
+  parts,
+} from "../../dashboard/tests/dashboardPage.ts";
+import { inspectedDetail } from "../../dashboard/tests/storyCardControls.ts";
 import type { Page } from "@playwright/test";
 import {
   contentReads,
@@ -19,10 +23,13 @@ import {
   queueStory,
   recordsAt,
   setPageVisibility,
-} from "../autoRefreshJourney.ts";
-import { backlogA, revisionB } from "../refreshJourney.ts";
-import { givePageItsTurns } from "../pageRequestNotes.ts";
-import { noConnection, type MovingOrigin } from "../publishedOrigin.ts";
+} from "../../dashboard/tests/autoRefreshJourney.ts";
+import { backlogA, revisionB } from "../../dashboard/tests/refreshJourney.ts";
+import { givePageItsTurns } from "../../dashboard/tests/pageRequestNotes.ts";
+import {
+  noConnection,
+  type MovingOrigin,
+} from "../../dashboard/tests/publishedOrigin.ts";
 
 const syncRecord = ".planning/seeds/SEED-008-sync.md";
 const gap = "The canonical record could not be read for preparation facts.";

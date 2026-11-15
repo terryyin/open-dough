@@ -4,33 +4,44 @@
 // the page. Assertions after release therefore need no arbitrary wait.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
-import { shortRevision, expectMembership, parts } from "../dashboardPage.ts";
+import { expect, test } from "../../dashboard/tests/dashboardTest.ts";
+import {
+  shortRevision,
+  expectMembership,
+  parts,
+} from "../../dashboard/tests/dashboardPage.ts";
 import {
   doughnutBacklog,
   doughnutRepository,
   doughnutSharedTitle,
   revisionDoughnut,
   sharedStoryIdentity,
-} from "../doughnutProject.ts";
-import { describedRevisions, publishedFile } from "../describedRevisions.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { focusCanonicalRecord, storyCard } from "../storyCardControls.ts";
-import { projectTab } from "../projectChoice.ts";
+} from "../../dashboard/tests/doughnutProject.ts";
+import {
+  describedRevisions,
+  publishedFile,
+} from "../../dashboard/tests/describedRevisions.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import {
+  focusCanonicalRecord,
+  storyCard,
+} from "../../dashboard/tests/storyCardControls.ts";
+import { projectTab } from "../../dashboard/tests/projectChoice.ts";
 import {
   backlogPath,
   pathsRead,
   publishMovingOrigin,
   rateLimitedAnswer,
   type MovingOrigin,
-} from "../publishedOrigin.ts";
+} from "../../dashboard/tests/publishedOrigin.ts";
 
 const revisionOpenDoughFirst = "a1".repeat(20);
 const revisionOpenDoughSecond = "a2".repeat(20);
 const revisionOpenDoughThird = "a3".repeat(20);
 
-// Doughnut's telling of the shared identity is in ../doughnutProject.ts; Open
-// Dough's tellings differ, and neither may appear under the other's label.
+// Doughnut's telling of the shared identity is in
+// ../../dashboard/tests/doughnutProject.ts; Open Dough's tellings differ, and
+// neither may appear under the other's label.
 const openDoughSharedTitleFirst =
   "Open Dough's first telling of the shared story";
 const openDoughSharedTitleSecond =
@@ -128,7 +139,7 @@ test.describe("project read isolation", () => {
 
     await test.step("Doughnut's held read answers late with success, after Open Dough is already shown", async () => {
       releaseDoughnut();
-      // Immediate assertions, matching ../../../e2e/observation/auto-refresh.spec.ts's own
+      // Immediate assertions, matching ./auto-refresh.spec.ts's own
       // held-response races: nothing about the page depends on this release, so there is
       // no later moment at which it could still take effect.
       await expect(page.locator("body")).not.toContainText(doughnutSharedTitle);
@@ -189,9 +200,10 @@ test.describe("project read isolation", () => {
 
     // Returning to Open Dough while Doughnut's read is still outstanding.
     // Its own backlog changed underneath it since the first read (the same
-    // "returning to a project starts a fresh read" rule ./project-selection.spec.ts
-    // proves for the sequential case), so a cached replay of the first
-    // snapshot would show the wrong title.
+    // "returning to a project starts a fresh read" rule
+    // ../../dashboard/tests/navigation/project-selection.spec.ts proves for
+    // the sequential case), so a cached replay of the first snapshot would
+    // show the wrong title.
     pushOpenDough(openDough, "third");
     await projectTab(page, "Open Dough").check();
 

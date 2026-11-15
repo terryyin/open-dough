@@ -163,6 +163,10 @@ share local admission across worktrees; focused selections remain independent.
   taken-slice-progress (6); E2E 14 presentation/readiness/Taken homes (28).
   `putFrontendPublished` seam; atlas MIME and committer/clock history stay
   E2E. `dashboard/tests/stories/` empty (5d/6f).
+- **Slice 10 proof.** All seven observation specs → `e2e/observation/` (20
+  passed); no new FE family. Five folders empty; integrated list Intent +
+  navigation only (230). Paired scratch on steady-refresh banner. Closing
+  commitments 1–4, 5e, 6g, 8–36 observed.
 - **Known traps.** A `MachineAnswer` failing `launchRecordsSchema` leaves the
   page on "Reading sessions…" silently; Cursor entries need the Cursor runner
   sessions read substituted; a history read needs its own `audience=history`
@@ -298,7 +302,7 @@ protected; no product spec remains under `stories/`.
 
 ### 10. Convert published-fact observation
 Type: Behavior
-Status: planned
+Status: done
 Proof: all seven `dashboard/tests/observation/` specs (7 / 1,168) retain
 per-project read isolation, published-fact reading, revision streaming and
 steady-refresh bound/carry/inspection assertions; the five folders contain no

@@ -2,7 +2,6 @@
 # Source: run 43575040009/1 at 55da0eecf6803945b66d5a23b00dd7802374550d, 2026-11-14 (runner factor 0.669)
 50.0	tests/navigation/side-panel-width-kept.spec.ts
 45.0	tests/navigation/board-session-reading.spec.ts
-41.6	tests/observation/revision-stream.spec.ts
 37.1	tests/navigation/dashboard-header.spec.ts
 33.8	tests/navigation/frame-launch-look.spec.ts
 31.9	tests/navigation/notification-story-navigation.spec.ts
@@ -16,7 +15,6 @@
 25.6	tests/navigation/development-intent-frame-sessions.spec.ts
 24.5	tests/intent/intent-ci-status-freshness.spec.ts
 24.4	tests/navigation/accessible-board.spec.ts
-23.3	tests/observation/published-facts-reading.spec.ts
 22.9	tests/navigation/frame-board-look.spec.ts
 22.4	tests/intent/intent-ci-comparison-drilldown-relative.spec.ts
 22.1	tests/intent/intent-read-recovery.spec.ts
@@ -53,26 +51,22 @@
 14.7	tests/intent/intent-test-optimization-candidates-case.spec.ts
 14.2	tests/intent/intent-ci-done-reference-lifecycle.spec.ts
 14.1	tests/intent/intent-ci-proof.spec.ts
-13.9	tests/observation/steady-refresh-carry.spec.ts
 13.8	tests/navigation/accessible-board-touch.spec.ts
 13.6	tests/intent/intent-summary-ci-proof-table.spec.ts
 13.6	tests/navigation/dashboard-header-compact.spec.ts
 12.9	tests/intent/intent-test-optimization-candidates-open.spec.ts
 12.7	tests/intent/intent-story-views-narrow.spec.ts
 12.7	tests/intent/intent-summary-story-comparison-sort.spec.ts
-12.6	tests/observation/steady-refresh-inspection.spec.ts
 12.1	tests/navigation/board-paging-sessions-sidebar.spec.ts
 12.0	tests/intent/intent-done-project-refresh-proof.spec.ts
 11.2	tests/intent/intent-revision-update-boundaries.spec.ts
 11.1	tests/intent/intent-scope-timing-history-legacy.spec.ts
 11.1	tests/navigation/story-card-selection.spec.ts
 10.6	tests/intent/intent-scope-timing-history-provenance.spec.ts
-10.6	tests/observation/steady-refresh-bound.spec.ts
 10.3	tests/navigation/board-clamp.spec.ts
 10.3	tests/navigation/frame-sessions-look.spec.ts
 10.2	tests/intent/intent-ci-wall-time-history.spec.ts
 10.0	tests/intent/intent-test-optimization-candidates-states.spec.ts
-10.0	tests/observation/project-read-isolation.spec.ts
 9.9	tests/intent/intent-ci-status-side-panel.spec.ts
 9.9	tests/intent/intent-done-source-selection.spec.ts
 9.9	tests/intent/intent-entry-folder-summaries-folders.spec.ts
@@ -88,7 +82,6 @@
 8.1	tests/intent/intent-project-visit.spec.ts
 8.1	tests/navigation/project-selection.spec.ts
 7.6	tests/intent/intent-story-review-return.spec.ts
-7.6	tests/observation/steady-refresh.spec.ts
 7.5	tests/navigation/accessible-board-scroll.spec.ts
 7.2	tests/navigation/story-destination-repeat-cue.spec.ts
 6.9	tests/navigation/project-keyboard-navigation-eligibility.spec.ts
