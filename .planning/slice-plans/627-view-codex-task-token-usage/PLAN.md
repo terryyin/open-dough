@@ -324,3 +324,24 @@ updates. Overlap with an offline import counts each response once.
   because it carries the walking skeleton: summary, tariff, chart model and
   view. If it overruns, split the chart-model generalization out as a
   Structure slice immediately before it.
+
+## Execution complete
+
+Product advice:
+
+- Execute the retrospective correction
+  [SEED-357#reuse-unchanged-usage-pages-on-repeated-writes](../../seeds/SEED-357-dashboard-task-token-usage.md#reuse-unchanged-usage-pages-on-repeated-writes)
+  ([plan 630](../630-reuse-unchanged-usage-pages/PLAN.md)) first. Each Refresh
+  over unchanged evidence currently republishes up to about 1 GB of pages,
+  because row bytes are unstable, rereads add tier-only measurements, and the
+  stored workflow flips. Until the correction lands, Refresh on the real store
+  adds disk use on every press.
+- Queue a writer-level story before SEED-359 (Claude Code): reclaim usage
+  pages that no published manifest references (the real store holds about
+  2.8 GB unreferenced against 1.6 GB referenced), and skip untouched
+  partitions, since the snapshot writer takes 12–16 s even for an empty
+  batch. A Claude Code Refresh would put the same writer under heavier use.
+- Optional test cost: the cohort and coverage e2e journeys repeat rules that
+  backend specs already prove. Their presentation outcomes could move to
+  `dashboard/frontend-tests` with `TokenIndexAnswerBuilder`, keeping one
+  workflow switch and one model choice end to end.
