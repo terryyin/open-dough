@@ -28,162 +28,116 @@ import {
 } from "../../tests/support/groupRunnerExamples.ts";
 
 test.afterAll(removeProofDirectories);
+// One worker runs these in order, so only one group's two runs share the
+// machine at a time: every group's runs at once took 18 of a case's 30
+// seconds on an ordinary four-CPU CI runner and all of them on a slower one.
+test.describe.configure({ mode: "default" });
 
-const [integrated, frontend, backend, e2e] = groupRunnerExamples;
-
-const selection = (runner: Pick<GroupRunnerExample, "spec" | "grep">) => [
-  runner.spec,
-  "--grep",
-  runner.grep,
-  "--workers=1",
-];
 const cli = path.join(repoRoot, "node_modules/playwright/cli.js");
-const configOf = (config: string) => path.join(repoRoot, config);
+const entries = [
+  "normal npm",
+  "direct config from another working directory",
+] as const;
+
+// One runner's own quick case started through `entry`, handed every other
+// runner's settings as its CI shard sets them: a share that would exclude the
+// target from this runner's own deal, a record, a times file, and a deadline
+// already passed. Reading any of them would deselect the target, write
+// elsewhere or fail the run.
+function startOwnSelection(
+  runner: GroupRunnerExample,
+  entry: (typeof entries)[number],
+) {
+  const directory = proofDirectory();
+  const recordPath = path.join(directory, "own-proof.json");
+  const configFile = path.join(repoRoot, runner.config);
+  const target = path.join(repoRoot, runner.root, runner.spec);
+  const direct = entry !== "normal npm";
+  const selection = [runner.spec, "--grep", runner.grep, "--workers=1"];
+  const args = direct
+    ? [cli, "test", "--config", configFile, ...selection]
+    : ["run", "--silent", runner.script, "--", ...selection];
+  const cwd = direct ? directory : repoRoot;
+  const others = groupRunnerExamples
+    .map(({ prefix }) => prefix)
+    .filter((prefix) => prefix !== runner.prefix);
+  const excluding = splitExcluding(target, {
+    ...runner,
+    root: path.relative(runner.directory, runner.root) || ".",
+  });
+  const run = startProofCommand(direct ? process.execPath : "npm", args, cwd, {
+    ...Object.fromEntries(
+      others.flatMap((prefix) => [
+        [`${prefix}_SPLIT`, excluding],
+        [`${prefix}_PROOF_RECORD`, path.join(directory, `${prefix}.json`)],
+        [`${prefix}_TIMES`, path.join(directory, `${prefix}-times.txt`)],
+        [`${prefix}_DEADLINE_MS`, "1"],
+      ]),
+    ),
+    [`${runner.prefix}_PROOF_RECORD`]: recordPath,
+  });
+  const otherOutputs = others.flatMap((prefix) => [
+    path.join(directory, `${prefix}.json`),
+    path.join(directory, `${prefix}-times.txt`),
+  ]);
+  return { entry, run, recordPath, configFile, target, cwd, otherOutputs };
+}
 
 for (const runner of groupRunnerExamples)
-  for (const entry of [
-    "normal npm",
-    "direct config from another working directory",
-  ])
-    test(`${runner.name} ${entry} records only its own selection under its own settings`, async () => {
-      const directory = proofDirectory();
-      const recordPath = path.join(directory, "own-proof.json");
-      const configFile = configOf(runner.config);
-      const target = path.join(repoRoot, runner.root, runner.spec);
-      const direct = entry !== "normal npm";
-      const args = direct
-        ? [cli, "test", "--config", configFile, ...selection(runner)]
-        : ["run", "--silent", runner.script, "--", ...selection(runner)];
-      const cwd = direct ? directory : repoRoot;
-      // Every other runner's settings as its CI shard sets them: a share
-      // that would exclude the target from this runner's own deal, a record,
-      // a times file, and a deadline already passed. Reading any of them
-      // would deselect the target, write elsewhere or fail the run.
-      const others = groupRunnerExamples
-        .map(({ prefix }) => prefix)
-        .filter((prefix) => prefix !== runner.prefix);
-      const otherOutputs = others.flatMap((prefix) => [
-        path.join(directory, `${prefix}.json`),
-        path.join(directory, `${prefix}-times.txt`),
-      ]);
-      const excluding = splitExcluding(target, {
-        ...runner,
-        root: path.relative(runner.directory, runner.root) || ".",
+  test(`${runner.name} runs started beside each other, by npm and by direct config from another working directory, each record only their own selection under their own settings in their own run directory`, async () => {
+    const started = entries.map((entry) => startOwnSelection(runner, entry));
+    const results = await Promise.allSettled(
+      started.map(({ run }) => run.result),
+    );
+    const runRoot = path.join(repoRoot, runner.root, "test-results");
+    const outputs: string[] = [];
+    for (const [index, own] of started.entries()) {
+      expect(results[index], own.entry).toMatchObject({
+        status: "fulfilled",
+        value: { status: 0, stdout: "", stderr: "" },
       });
-      const run = startProofCommand(
-        direct ? process.execPath : "npm",
-        args,
-        cwd,
-        {
-          ...Object.fromEntries(
-            others.flatMap((prefix) => [
-              [`${prefix}_SPLIT`, excluding],
-              [
-                `${prefix}_PROOF_RECORD`,
-                path.join(directory, `${prefix}.json`),
-              ],
-              [`${prefix}_TIMES`, path.join(directory, `${prefix}-times.txt`)],
-              [`${prefix}_DEADLINE_MS`, "1"],
-            ]),
-          ),
-          [`${runner.prefix}_PROOF_RECORD`]: recordPath,
-        },
-      );
-      expect(await run.result).toMatchObject({
-        status: 0,
-        stdout: "",
-        stderr: "",
-      });
-      expect(otherOutputs.filter((output) => existsSync(output))).toEqual([]);
-      const record = readProof(recordPath);
-      expect(record).toMatchObject({
+      expect(
+        own.otherOutputs.filter((output) => existsSync(output)),
+        own.entry,
+      ).toEqual([]);
+      const record = readProof(own.recordPath);
+      expect(record, own.entry).toMatchObject({
         phase: "completed",
         selectedCount: 1,
-        run: { cwd: realpathSync(cwd), configFile, listing: false },
+        run: {
+          cwd: realpathSync(own.cwd),
+          configFile: own.configFile,
+          listing: false,
+        },
         terminal: { runnerStatus: "passed", strictStatus: "passed" },
       });
-      expect(record.tests[0]).toMatchObject({
+      expect(record.tests[0], own.entry).toMatchObject({
         project: "chromium",
-        location: { file: target },
+        location: { file: own.target },
         attempts: [{ status: "passed" }],
       });
       // E2E Test's two projects share its run's one directory.
-      expect([...new Set(record.run.outputDirs)]).toEqual([
-        expect.stringContaining(
-          path.join(repoRoot, runner.root, "test-results/"),
-        ),
-      ]);
-      expect(record.run.outputDirs.every((dir) => !existsSync(dir))).toBe(true);
-    });
-
-test("group runs started beside each other keep their own run directories and records", async () => {
-  const directory = proofDirectory();
-  const runs = [
-    integrated,
-    integrated,
-    frontend,
-    frontend,
-    backend,
-    backend,
-    e2e,
-    e2e,
-  ].map(({ config, prefix, ...runner }, index) => {
-    const record = path.join(directory, `${String(index)}.json`);
-    const args = [
-      cli,
-      "test",
-      "--config",
-      configOf(config),
-      ...selection(runner),
-    ];
-    const env = { [`${prefix}_PROOF_RECORD`]: record };
-    return {
-      record,
-      run: startProofCommand(process.execPath, args, repoRoot, env),
-    };
-  });
-  const results = await Promise.allSettled(runs.map(({ run }) => run.result));
-  const outputs: string[] = [];
-  for (const [index, { record }] of runs.entries()) {
-    expect(results[index]).toMatchObject({
-      status: "fulfilled",
-      value: { status: 0, stdout: "", stderr: "" },
-    });
-    const proof = readProof(record);
-    expect(proof).toMatchObject({
-      selectedCount: 1,
-      terminal: { strictStatus: "passed" },
-    });
-    // E2E Test's two projects share their run's one directory.
-    outputs.push(...new Set(proof.run.outputDirs));
-  }
-  const root = path.join(repoRoot, "dashboard");
-  expect(
-    outputs.map((output) => path.relative(root, path.dirname(output))),
-  ).toEqual([
-    "tests/test-results",
-    "tests/test-results",
-    "frontend-tests/test-results",
-    "frontend-tests/test-results",
-    "backend-tests/test-results",
-    "backend-tests/test-results",
-    "../e2e/test-results",
-    "../e2e/test-results",
-  ]);
-  expect(new Set(outputs).size).toBe(8);
-  if (process.env["CI"]) {
-    for (const output of outputs) {
-      const report = path.join(
-        output,
-        "../../playwright-report",
-        path.basename(output),
-        "index.html",
-      );
-      expect(existsSync(report), report).toBe(true);
+      const runDirectories = [...new Set(record.run.outputDirs)];
+      expect(
+        runDirectories.map((output) => path.dirname(output)),
+        own.entry,
+      ).toEqual([runRoot]);
+      outputs.push(...runDirectories);
     }
-  }
-  expect(outputs.every((output) => !existsSync(output))).toBe(true);
-});
+    expect(new Set(outputs).size).toBe(entries.length);
+    if (process.env["CI"]) {
+      for (const output of outputs) {
+        const report = path.join(
+          output,
+          "../../playwright-report",
+          path.basename(output),
+          "index.html",
+        );
+        expect(existsSync(report), report).toBe(true);
+      }
+    }
+    expect(outputs.every((output) => !existsSync(output))).toBe(true);
+  });
 
 test("Dashboard Backend Test's setup registers no comparison mount, so a spec asking for one fails naming it", async () => {
   const run = startProofRun({
