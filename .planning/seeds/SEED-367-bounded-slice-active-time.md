@@ -33,7 +33,11 @@ Claude Code and Codex executions in the 30 days to 2026-11-15.
   resume carries the same value, and an overrun is detected at the limit
   without the agent running `date`. A command run through it also writes the
   exit file that [waiting for proof](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md)
-  uses.
+  uses. Across plans made under the
+  [slice cap](../../Distribution/src/skills/dough-story-decomposition/references/problem-decomposition.md#limit-slices-per-plan),
+  its records show how many slices each plan has, and each slice's active
+  minutes and overrun rate. Plans bunched at eight or ten slices, or longer
+  slices than before the cap, show the cap is reshaping slices.
 - **Priority.** First in the efficiency group: the slice limit depends on it.
   Under Pygardon's 10-minute stop rule, 35 of 382 Claude Code implementers
   spent more than 10 model minutes; 11 reported the budget and 13 checked the
