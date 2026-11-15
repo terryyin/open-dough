@@ -14,12 +14,105 @@ scope: story
 
 **Identity:** SEED-351#highlight-syntax-in-code-diffs
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/645-highlight-syntax-in-code-diffs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1e41802aafe6a6f403bcd51aac130049deb150fe5cbb1073ca315efc99e7827b","plan":"9195d64877d133df0aa3d9b4ae17262e7a9f1f611b307791ecf2cdb68ad3ad6b"}}
 ```
 
-- **For / why.** A developer reviewing a story in the dashboard can scan a
-  file diff and distinguish code syntax while following what changed.
-- **Evaluation.** Open a diff for a supported language with added, removed,
-  and unchanged lines. Keywords and strings are visually distinct on each
-  kind of line, and additions and removals remain identifiable. A diff for a
-  file whose language is unsupported remains readable as plain text.
+#### Goal
+
+A developer reviewing a story in the dashboard reads each file diff with its
+code's syntax styled, so the structure of the code is quick to scan while the
+change stays as easy to follow as it is today.
+
+#### Scope
+
+A [story review](../../dashboard/STORY-REVIEW-FILES.md) file diff styles the
+code of its lines with the token colours Intent's source reading uses
+(`dashboard/src/sourceHighlight.ts`), for every comparison a review shows.
+
+- **Language.** The file's path selects the grammar among those the dashboard
+  already loads: TypeScript (`.ts`, `.mts`, `.cts`), TSX (`.tsx`), JavaScript
+  (`.js`, `.mjs`, `.cjs`, `.jsx`), Java (`.java`), Python (`.py`), shell
+  (`.sh`, `.bash`) and Gherkin (`.feature`). A renamed file is styled by its
+  new path. Any other file reads as plain text, as it does today.
+- **Lines.** Added and unchanged lines, including revealed context lines, are
+  styled as they read in the new file, and removed lines as they read in the
+  old file, each from that side's whole text. A line inside a comment or
+  string that opens outside the printed hunk is therefore styled as part of
+  it.
+- **Change kind.** Each line keeps its `+`, `-` or space marker, its line
+  numbers and its added or removed background. Token colour never replaces
+  them.
+- **Readable colours.** Every token meets the
+  [North Star](../../docs/dashboard-ux-ui-north-star.md)'s 4.5:1 text contrast
+  against the composed background of its line, on added, removed and unchanged
+  lines, in the light and the dark appearance. A system appearance change
+  restyles the tokens already shown. Intent's source reading and diffs keep
+  one token palette, so Intent's tokens take the same colours.
+- **Arrival.** The diff shows as plain text first, as today. Styling arrives
+  when the file's text and grammar are read, without moving the reading
+  position, closing an open line menu, or collapsing revealed context. When
+  either side's text or the grammar cannot be read, the affected lines stay
+  plain, and styling adds no message of its own.
+- **Unchanged.** Copied code, line-number controls and Follow up, context
+  expansion and its Retry, the binary and no-textual-diff notes, and what
+  assistive technology reads of each line.
+
+Deferred promises:
+
+- Grammars beyond the seven above, such as Markdown, JSON, CSS and YAML.
+- Styling by a project's Intent `syntax` hint for a path whose extension names
+  no grammar, such as this repository's `scripts/**/*.test` shell files.
+- Emphasis of the changed words within a changed line.
+- A control to turn styling off or choose a palette.
+
+#### Key examples
+
+- A modified `.ts` file's diff has added, removed and unchanged lines holding
+  `const` and a quoted string. → On each kind of line the keyword and the
+  string take different colours from each other and from plain identifiers;
+  the added line keeps `+` and its ready background, the removed line `-` and
+  its problem background.
+- A hunk begins in the middle of a `/* … */` comment whose opening line is
+  above the hunk. → Its first lines are styled as comment, not as code.
+- A removed line read as a string in the old file, and the same position is
+  code in the new file. → The removed line is styled as a string and the added
+  line as code.
+- The reviewer reveals 20 preceding lines above a hunk. → The revealed lines
+  arrive styled, and the reading position holds as it does today.
+- In the dark appearance, a comment on an added line. → Its colour reaches
+  4.5:1 against that line's background; switching the system to light
+  restyles it in place, again at 4.5:1.
+- A `README.md` or a `.json` file's diff. → Plain text exactly as today.
+- A file whose text at one tree cannot be read (context expansion shows its
+  Retry). → The printed diff stays readable as plain text with no further
+  message; after a successful Retry its lines are styled.
+- A reviewer copies three styled lines. → The clipboard holds the same text
+  as from the plain diff: markers and code, no line numbers.
+
+#### UI
+
+No new control, label or message. Change kind stays told by the marker and
+the line's background, and syntax only by the colour of the code's
+characters, so neither depends on the other.
+
+#### Architecture
+
+No Accepted decision is affected
+([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)).
+Styling stays a browser presentation concern on the existing on-demand
+highlighter, fed by the two reads a diff already makes: its printed hunks and
+both sides' file text. The server and its contracts gain nothing. ADR 0008
+gives “Highlight” to the selected Story card, so product words call this
+“syntax styling”, as Intent's documentation does.
+
+Measured during refinement, on Shiki 4.6.0 with the dashboard's colours:
+
+- With today's github-light and github-dark palettes, tokens on added and
+  removed lines fall to 2.4:1 (dark comments) and 2.5–3.7:1 (light keywords,
+  comments and parameters); Intent's own comments read at 3.7:1 dark and
+  4.45:1 light.
+- github-dark-high-contrast reaches 5.4:1 on every line kind. No bundled light
+  palette reaches 4.5:1 on the current 14% line backgrounds;
+  github-light-high-contrast does (5.0:1) with its tokens mixed a quarter
+  toward the text colour on changed lines, or with lighter line backgrounds.
+- Tokenizing a 2,400-line TypeScript file takes about 0.2 s.
