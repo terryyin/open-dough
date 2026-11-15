@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-368#report-a-publication-made-during-supplier-judgment",
+  "title": "Report a publication made while the supplier is being judged",
+  "completedAt": "2026-11-15T11:33:38.414Z",
+  "developer": "Terry Yin",
+  "agent": "Yumi-chan",
+  "host": "claude",
+  "model": "opus"
+}

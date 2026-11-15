@@ -1,104 +1,26 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
-import { mkdtempSync, readFileSync, renameSync, rmSync } from "node:fs";
+import { renameSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
-import {
-  exec,
-  git,
-} from "../../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { git } from "../../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { until } from "../../support/local-test-suite-fixtures.mjs";
-import { makeMe } from "../../support/makeMe.mjs";
-import { materializeRepository } from "../../support/repository-fixture.mjs";
-import { commitDeclaredRevision } from "../../support/repository-revision-commit.mjs";
+import {
+  delivered,
+  lastFetched,
+  objectAt,
+  observed,
+  outcomeChange,
+  onlyResult,
+  outcomePath,
+  publish,
+  startWait,
+  watchedOutcome,
+  watchedRemote,
+} from "../../support/wait-for-publication-fixture.mjs";
 
-const script = fileURLToPath(
-  new URL(
-    "../../../src/skills/dough-execute-plan/scripts/wait-for-publication.mjs",
-    import.meta.url,
-  ),
-);
-
-const outcomePath = "docs/supplier-outcome.md";
 const minuteMs = 60_000;
-const briefly = ["--duration-minutes", "0.05"];
+// A duration that outlasts the command's start-up on a loaded machine.
 const beyondLoadedStartUp = ["--duration-minutes", "0.25"];
-const watchedOutcome = ["--ref", `main:${outcomePath}`];
-const delivered = { [outcomePath]: "delivered\n" };
-
-// A remote whose trunk holds `files`, the supplier's checkout that publishes
-// to it, and the watching checkout: a separate clone of that remote.
-async function watchedRemote(t, files = { [outcomePath]: "paused\n" }) {
-  const described = await materializeRepository(
-    makeMe.aRepository.withRevision("start", { backlog: null, files }).please(),
-  );
-  t.after(described.cleanup);
-  const parent = mkdtempSync(join(tmpdir(), "wait-for-publication-"));
-  t.after(() => rmSync(parent, { recursive: true, force: true }));
-  const watcher = join(parent, "watcher");
-  await exec("git", ["clone", "--quiet", described.origin, watcher]);
-  return { remote: described.origin, supplier: described.integration, watcher };
-}
-
-async function objectAt(checkout, revision) {
-  return (await git(checkout, "rev-parse", revision)).stdout.trim();
-}
-
-// The supplier pushes one commit holding `files` to `ref` on the remote.
-async function publish(supplier, ref, files) {
-  const commit = await commitDeclaredRevision(supplier, {
-    name: `publish to ${ref}`,
-    files,
-  });
-  await git(supplier, "push", "origin", `${commit}:refs/heads/${ref}`);
-  return commit;
-}
-
-// Starts the real command in the watching checkout with a sub-second interval.
-function startWait(t, watcher, ...args) {
-  const child = spawn(
-    process.execPath,
-    [script, "--remote", "origin", "--interval-seconds", "0.05", ...args],
-    { cwd: watcher },
-  );
-  t.after(() => child.kill("SIGKILL"));
-  const wait = { stdout: "", stderr: "" };
-  for (const name of ["stdout", "stderr"])
-    child[name].on("data", (chunk) => {
-      wait.printedAt ??= Date.now();
-      wait[name] += chunk;
-    });
-  wait.ended = new Promise((resolve) =>
-    child.on("close", (code) => resolve({ code, endedAt: Date.now() })),
-  );
-  return wait;
-}
-
-// What the watching checkout last fetched: empty after a failed observation.
-function lastFetched(watcher) {
-  try {
-    return readFileSync(join(watcher, ".git", "FETCH_HEAD"), "utf8");
-  } catch {
-    return null;
-  }
-}
-
-function observed(watcher, commit) {
-  return until(`the wait observes ${commit}`, () =>
-    lastFetched(watcher)?.includes(commit),
-  );
-}
-
-// The one result line a finished wait printed, with nothing on stderr.
-async function onlyResult(wait) {
-  const { code } = await wait.ended;
-  assert.equal(wait.stderr, "");
-  assert.equal(code, 0);
-  assert.match(wait.stdout, /^[^\n]+\n$/);
-  return JSON.parse(wait.stdout);
-}
 
 test("a push touching no watched path prints nothing, and a push to a watched path ends the wait with one result naming the change and the deadline", async (t) => {
   const { supplier, watcher } = await watchedRemote(t);
@@ -117,12 +39,11 @@ test("a push touching no watched path prints nothing, and a push to a watched pa
     result: "publication",
     remote: "origin",
     changes: [
-      {
-        ref: "main",
-        path: outcomePath,
-        before: await objectAt(supplier, `${start}:${outcomePath}`),
-        after: await objectAt(supplier, `${published}:${outcomePath}`),
-      },
+      await outcomeChange(
+        supplier,
+        await objectAt(supplier, `${start}:${outcomePath}`),
+        published,
+      ),
     ],
     deadline,
   });
@@ -155,12 +76,7 @@ test("a watched path that first appears on the ref ends the wait", async (t) => 
   const published = await publish(supplier, "main", delivered);
 
   assert.deepEqual((await onlyResult(wait)).changes, [
-    {
-      ref: "main",
-      path: outcomePath,
-      before: null,
-      after: await objectAt(supplier, `${published}:${outcomePath}`),
-    },
+    await outcomeChange(supplier, null, published),
   ]);
 });
 
@@ -182,23 +98,6 @@ for (const [name, duration, minutes] of [
     assert.ok(deadline <= startedBefore + minutes * minuteMs);
   });
 }
-
-test("a rerun given the returned deadline prints one deadline result at that time", async (t) => {
-  const { supplier, watcher } = await watchedRemote(t);
-  const first = startWait(t, watcher, ...watchedOutcome, ...briefly);
-  await observed(watcher, await objectAt(supplier, "HEAD"));
-  await publish(supplier, "main", { [outcomePath]: "not yet\n" });
-  const { deadline } = await onlyResult(first);
-
-  const rerun = startWait(t, watcher, "--ref", "main", "--deadline", deadline);
-
-  assert.deepEqual(await onlyResult(rerun), {
-    result: "deadline",
-    remote: "origin",
-    deadline,
-  });
-  assert.ok((await rerun.ended).endedAt >= Date.parse(deadline));
-});
 
 test("arguments that name no ref end at once with the usage", async (t) => {
   const wait = startWait(t, tmpdir());

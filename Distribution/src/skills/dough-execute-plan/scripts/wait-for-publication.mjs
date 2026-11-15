@@ -2,6 +2,16 @@
 // or to a path on one named REF:PATH, or until the deadline. It prints
 // nothing while the watched objects are unchanged and exactly one JSON result
 // line when the wait ends.
+//
+// A wait that ends with a publication retains what it last observed in the
+// checkout's Git directory. A later run naming the same remote, refs and
+// --deadline continues that wait: it observes at once and reports every change
+// since that observation, including one made while the result was judged. Any
+// other run takes its own first observation. A wait reads FETCH_HEAD after each
+// fetch, so nothing else fetches in its checkout while it runs: the rerun
+// starts after the judgment rather than during it.
+import { readFile, writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { parseArgs } from "node:util";
 import { isDirectCliEntry } from "./ci-direct-entry.mjs";
@@ -119,22 +129,63 @@ function changesBetween(before, after) {
   );
 }
 
+// The file, per worktree, holding the last observation of a wait that ended
+// with a publication.
+async function retainedPath(checkout) {
+  const found = await git(
+    checkout,
+    "rev-parse",
+    "--git-path",
+    "publication-wait.json",
+  );
+  return resolve(checkout, found.stdout.trim());
+}
+
+// The wait a retained observation belongs to.
+function waitKey({ remote, watched }, deadline) {
+  return JSON.stringify({ remote, watched, deadline });
+}
+
+// The observation retained for this wait; null when another wait, or none
+// readable, was retained.
+async function retainedObservation(file, key, { watched }) {
+  try {
+    const { key: retainedKey, observed } = JSON.parse(
+      await readFile(file, "utf8"),
+    );
+    return retainedKey === key && observed.length === watched.length
+      ? observed
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 // Resolves with the one result of the wait. A first observation that fails
-// rejects; a later one is tried again at the next interval.
+// rejects; a later one, or a continued wait's, is tried again at the next
+// interval.
 async function waitForPublication(checkout, request) {
   const { remote, deadlineMs, intervalMs } = request;
   const deadline = new Date(deadlineMs).toISOString();
-  const start = await observe(checkout, request);
+  const file = await retainedPath(checkout);
+  const key = waitKey(request, deadline);
+  const retained = await retainedObservation(file, key, request);
+  const start = retained ?? (await observe(checkout, request));
+  let pause = retained === null;
   for (;;) {
     const remaining = deadlineMs - Date.now();
     if (remaining <= 0) return { result: "deadline", remote, deadline };
-    await delay(Math.min(intervalMs, remaining));
-    const changes = await observe(checkout, request).then(
-      (now) => changesBetween(start, now),
-      () => [],
-    );
-    if (changes.length > 0)
+    if (pause) await delay(Math.min(intervalMs, remaining));
+    pause = true;
+    const now = await observe(checkout, request).catch(() => start);
+    const changes = changesBetween(start, now);
+    if (changes.length > 0) {
+      // Unretained, the next run takes its own first observation.
+      await writeFile(file, JSON.stringify({ key, observed: now })).catch(
+        () => {},
+      );
       return { result: "publication", remote, changes, deadline };
+    }
   }
 }
 
