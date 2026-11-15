@@ -154,8 +154,11 @@ assignment result, not from the stored history.
 ### Keep usage task facts and freshness consistent across writers
 
 **Identity:** SEED-357#reuse-unchanged-usage-pages-on-repeated-writes
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-357#reuse-unchanged-usage-pages-on-repeated-writes","dependencies":[{"supplier":{"identity":"SEED-357#keep-usage-history-within-a-small-disk-budget","href":"seeds/SEED-357-dashboard-task-token-usage.md#keep-usage-history-within-a-small-disk-budget"},"implementation":"This correction consumes the supplier's canonical session-contribution history through the importer, writeUsageHistory and Token index boundary; it adds launch workflow precedence and proves alternating-writer byte stability without restoring per-response storage.","rationale":"The final repeated-writer proof requires the canonical single-document writer. Starting against the paged writer would require duplicating the supplier's normalization and conversion work; shared direction and reconciliation cannot deliver that missing storage behavior. The existing queued scope already follows this supplier.","condition":"Publish the canonical usage-history-v2 document of tasks, sessions and gaps, preserving existing task totals and the writeUsageHistory batch/importer/Token index entry points, with repeated unchanged writes by the same writer leaving history bytes unchanged.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/630-reuse-unchanged-usage-pages/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/630-reuse-unchanged-usage-pages/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1131bcf144bd98567a4149ff0f37af5f1c2410e74c7e9072093554263d20a3a1","plan":"894eaa9834267b0fcaf734e59fd1363c7a43e43d413e7d3768d0859519984c11"}}
 ```
 
 **Goal.** A retrospective correction of the completed story View token usage
@@ -168,19 +171,24 @@ Usage's "Checked" time and checking indication also keep the freshness
 promises of the corrected story.
 
 **Scope.** A launch task stores its launch record's workflow in both the
-importer and Refresh. "Checked" shows an offline import that wrote after the
-last Refresh. Changing a filter during Refresh keeps the checking indication
-until the Refresh ends. The usage fixture's recovered tasks record the skill
-of their own workflow. This story follows
+importer and Refresh; recovered evidence fills a missing launch workflow,
+and recovered-only tasks keep their skill. After one normalizing write,
+alternating writers over unchanged evidence leave the small history's bytes
+and task totals unchanged. "Checked" shows an offline import that wrote after
+the last Refresh, and a subsequent unchanged Refresh shows its own check
+time. Changing a filter during Refresh keeps the checking indication until
+the Refresh and its selected-cohort reread settle, or shows its failure beside
+the previous chart and check time. The usage fixture's recovered tasks record
+the skill of their own workflow.
+
+The [plan](../slice-plans/630-reuse-unchanged-usage-pages/PLAN.md) holds the
+correction's examples, findings and proof. Execution follows publication of
 [Keep usage history within a small disk budget](#keep-usage-history-within-a-small-disk-budget),
-which removed the paged store. That story's session contributions replace a
-reread session's earlier usage, so the page-stability and tier-on-reread
-corrections this story first carried are met there and are no longer part of
-it. The [plan](../slice-plans/630-reuse-unchanged-usage-pages/PLAN.md) was
-written before that change: its slice 1 is dropped, and the proofs of its
-slices 2 to 4 that observe page files and manifest bytes are replanned
-against the small history before execution. Its findings 2 to 5 and their
-observations still describe this story.
+currently in Taken: its canonical session-contribution document and unchanged
+same-writer writes supply the storage contract this correction consumes.
+Page stability, tier-on-reread reconciliation, conversion, disk reclamation
+and writer latency belong to that supplier. This correction adds no tariff,
+import CLI, chart or storage-format change.
 
 <a id="simplify-token-usage-tests"></a>
 

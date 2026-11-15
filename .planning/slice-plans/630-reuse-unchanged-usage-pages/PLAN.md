@@ -1,328 +1,239 @@
-# Reuse unchanged usage pages on repeated writes
+# Keep usage task facts and freshness consistent across writers
 
 **Identity:** SEED-357#reuse-unchanged-usage-pages-on-repeated-writes
 **Source:** [correction story](../../seeds/SEED-357-dashboard-task-token-usage.md#reuse-unchanged-usage-pages-on-repeated-writes)
 
 ## Source and provenance
 
-This plan is a bounded retrospective correction of the completed story View token usage for dashboard-launched Codex tasks
-(SEED-357#view-token-usage-for-dashboard-launched-tasks), recoverable with
-`git show 103b321ea58cb461e91669658db184b24ba48ee3:.planning/seeds/SEED-357-dashboard-task-token-usage.md`. That
-story was executed through plan 627, recoverable with
-`git show 103b321ea58cb461e91669658db184b24ba48ee3:.planning/slice-plans/627-view-codex-task-token-usage/PLAN.md`, in
-commits `81146589..8c8d35d4`, with slice commits `ccbb06cb`, `5930697d`,
-`65e953de`, `a7087514` and `8c8d35d4`. All five slices passed branch CI. Its
-Learnings for slices 4 and 5 describe the tier reread and the Refresh writer
-that this correction changes.
-
-## Current findings
-
-The findings come from the retrospective. The retrospective made a read-only
-scratch run on an APFS clone of the real store, and the real store was not
-changed.
-
-1. **Refresh grows the store without new evidence.** One Refresh against the
-   clone published 1,491 new pages (1.03 GB), while the referenced store grew
-   from 1.63 GB to 1.64 GB. A second Refresh 47 s later orphaned another 933
-   observation pages (861 MB). In a 40-page sample, 770 rows differed as bytes
-   and none differed as objects: only the JSON key order changed. A third
-   Refresh added 3 pages. Pages are content-addressed and never deleted
-   (`dashboard/server/usageSnapshotPublication.ts`). New rows land in the last
-   page of up to 256 partitions (`dashboard/server/usageSnapshot.ts`). The
-   real store already holds 2.79 GB of unreferenced pages against 1.63 GB
-   referenced, all from imports.
-   - **Row bytes.** `reconcileObservation`
-     (`dashboard/server/usageReconciliation.ts`) builds its result in a field
-     order different from the record schema. A row the writer reads but does
-     not reconcile is reserialized from its schema-parsed value
-     (`parseValue`), so it takes the schema order. A response reconciled by
-     one write and carried by the next therefore changes bytes, and so does
-     the reverse.
-   - **Tier.** Rereading a rollout imported before tiers were kept adds a
-     second measurement that differs only in `settings.serviceTier`.
-     `reconcileMeasurements` (`dashboard/server/usageMeasurements.ts`) lets only
-     completion metadata be acquired. Any other settings difference is
-     competing evidence.
-2. **The offline import and Refresh store opposite workflows for launch tasks.**
-   In the real store this affects 370 Codex launch tasks. The importer runs
-   `canonicalUsageTasks([...catalog, ...recovered])`, and `mergeUsageTask`
-   (`dashboard/server/usageTaskReconciliation.ts`) lets
-   `incoming.workflow` win. That leaves the recovered skill name
-   (`dough-story-refinement` 205, `dough-execute-plan` 165), while the
-   launch records say `refinement` or `execution`. A Refresh flips them to
-   workflow ids, and the next import flips them back. The comment on
-   `launchWorkflowOf` (`dashboard/server/tokenIndexTask.ts`) does not match
-   this. No test stores a launch task with a skill-name workflow, which is the
-   real production shape.
-3. **"Checked" can understate freshness after an offline import.**
-   `lastUsageCheck` (`dashboard/server/usageCheck.ts`) prefers
-   `usage-check.json` over the manifest time. An import after a Refresh is
-   therefore in the chart, but Checked still shows the older Refresh time.
-4. **Changing a filter during Refresh ends the checking indication early.** In
-   `dashboard/src/SystemSettingsUsage.tsx`, the cohort read's `.finally`
-   clears `checking`. That hides the note and re-enables Refresh while the run
-   continues.
-5. **Fixture trap.** `e2e/configuration/usageFixtureStore.ts` writes
-   `workflow: recovered ? "dough-execute-plan" : workflow`, so a recovered
-   Refinement fixture silently becomes Execution.
+Bounded retrospective correction of View token usage for dashboard-launched
+Codex tasks (SEED-357#view-token-usage-for-dashboard-launched-tasks). Recover
+its story and plan 627 at `103b321ea58cb461e91669658db184b24ba48ee3`, paths
+`.planning/seeds/SEED-357-dashboard-task-token-usage.md` and
+`.planning/slice-plans/627-view-codex-task-token-usage/PLAN.md`. Execution was
+`81146589..8c8d35d4`; all five slices passed branch CI. The earlier version of
+this plan, including the original page and tier findings, is recoverable at
+`63964802b3ddb17133af0e05ee5325b5f0284ec5` at this plan's path.
 
 ## Goal and scope
 
-A usage write over native evidence that is already stored leaves that evidence's
-bytes unchanged. The write may be a Refresh, an import, or both in turn. After
-one normalizing write, a further write over the same evidence publishes no new
-page file and leaves the manifest identical. Usage's "Checked" and checking
-indication meet the corrected story's Freshness promise.
+For Terry, an import and Refresh agree on a launch task's workflow and leave
+unchanged evidence unchanged, while Usage accurately shows when its history was
+checked and whether Refresh is still running.
 
-Included:
+Included: launch workflow precedence, normalization of previously stored skill
+spellings on launch tasks, recovered-only workflow preservation, recovered
+fixture workflows, Checked after a later import, and checking through filter
+changes and the Refresh's selected-cohort reread or failure.
 
-- byte-stable rows;
-- a tier first learned on a reread recorded on the existing measurement;
-- one stored workflow for launch tasks across the importer and Refresh;
-- "Checked" reflecting a later import;
-- a checking indication that survives a filter change;
-- the fixture trap.
+Exclusions: storage representation, page reclamation, tier reconciliation,
+writer latency and budget measurement belong to
+[Keep usage history within a small disk budget](../631-keep-usage-history-small/PLAN.md).
+No tariff, import CLI or chart redesign. Its session-contribution history
+replaces this plan's former page-stability slice; no page-file proof remains.
 
-Exclusions (deferred, not rejected): reclaiming pages that no manifest
-references, including the existing ~2.8 GB of orphans, and skipping untouched
-partitions to cut writer latency. These belong to separate writer-level work
-that the wrap-up advises. Also excluded: any change to the importer's command
-line, to the tariff, or to the chart.
+### Prerequisite and consuming contract
 
-Assumptions: the first write after this correction lands normalizes the real
-store once. It republishes the pages whose rows change order and the 370 launch
-tasks whose workflow changes. That one-time cost is accepted.
+The story's recorded dependency waits for the small-history supplier to publish
+its canonical `usage-history-v2` document of tasks, sessions and gaps, with
+unchanged same-writer writes leaving bytes unchanged and existing task totals
+preserved. It is currently Taken, not delivered in this checkout. This plan
+consumes that outcome through `writeUsageHistory(batch)`, the importer and the
+Token index boundary. The supplier keeps those entry points; response-level
+`readImported` assertions are not part of this correction's proof.
 
-## Preserved promises and constraints
+A shared direction or simultaneous edits cannot supply the missing canonical
+writer: proving alternating-writer stability on today's paged writer would
+require taking over the supplier's normalization and conversion work. That is
+why execution waits. Consuming the document and proving alternating writers
+are this story's work, not conditions the supplier must implement to unblock it.
 
-The corrected story's Scope, Key examples and Required restrictions still hold.
-These are the ones this correction touches:
+## Current findings
 
-- **Refresh** reads only changed rollouts and counts each response once,
-  including when it overlaps an import. Refreshing again with no new rollout
-  activity changes no value. A failed Refresh keeps the previous chart, its
-  check time and a readable error.
-- **Tier restriction:** "A response at a speed tier the tariff does not price
-  stays unpriced rather than priced at standard rates". A rollout with no
-  recorded tier is priced at the standard rate. Competing evidence stays
-  inspectable and is never added together (`dashboard/USAGE-HISTORY.md`).
-- **Launch workflow** cohorts. Execution, Refinement and Ad hoc select the
-  same tasks whether a task's stored workflow is a workflow id or, for a
-  recovered task, its skill.
-- **Pages.** Pages are immutable and a manifest is published atomically.
-  ADR 0008 holds: no database.
+1. Import recovers a skill name after loading the launch catalog, and
+   `mergeUsageTask` lets incoming workflow win. Refresh restores the launch's
+   workflow id. The retrospective saw 370 affected Codex launch tasks; this is
+   a pre-conversion count, not a claim about a later store.
+2. `lastUsageCheck` prefers `usage-check.json` even when a later import changed
+   the history. Checked therefore understates the evidence in the chart.
+3. The cohort fetch's `.finally` in `SystemSettingsUsage` clears `checking`,
+   even when Refresh is still pending.
+4. `usageFixtureStore.finishedTask` gives every recovered task
+   `dough-execute-plan`, including Refinement fixtures.
+
+## Preserved promises and genuine constraints
+
+- Refresh reads changed rollouts with its existing cutoff and counts usage once;
+  overlapping import and Refresh do not change totals for unchanged evidence.
+- Launch workflow cohorts continue to accept workflow ids and recovered skill
+  names. Launch evidence decides the launch's workflow; recovered evidence may
+  fill a missing one. Recovered-only tasks retain their skill and attribution.
+- A failed Refresh retains the chart and last successful check time beside a
+  readable error; it ends checking. A filter change may load its chosen cohort.
+- No database or new workflow authority, under
+  [Accepted ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+  Local history remains under the supplier's atomic document replacement/lock.
 
 ## Existing solutions and direction
 
-- **Canonical row form.** Reads already yield every row in the schema's field
-  order, through `parseValue` in `dashboard/server/usageSnapshot.ts`. Make it
-  the one stored form. A reconciled row is serialized in the same order as a
-  row carried through unreconciled. Prefer building the reconciled observation
-  in schema order over a second schema parse per written row: the importer
-  writes about 514,000 responses. The slice's spec guards the order against
-  later schema edits.
-- **Tier acquisition** extends the existing rule that "only identical raw
-  evidence can acquire previously absent metadata" in `reconcileMeasurements`.
-  A measurement that lacks `serviceTier` can acquire it from otherwise
-  identical evidence, as `completion` already does. Two different recorded
-  tiers stay competing measurements.
-- **Launch workflow precedence** follows `launchedAt` in `mergeUsageTask`.
-  Launch evidence decides a launch task's workflow, and recovered evidence fills
-  it only when the launch has none. `taskClaims` already normalizes both
-  spellings for conflict detection, and `launchWorkflowOf` still maps a
-  recovered task's skill.
-- **Import check time.** `usage-check.json` is written after a Refresh's store
-  write (`dashboard/server/usageRefresh.ts`). A manifest modified later than
-  that record therefore means another writer published after the Refresh, and
-  so far that writer can only be the importer. The record format needs no
-  change, and records written by the plan 627 code keep working.
-- **No PFE gap:** every change lands in an existing responsibility. No North
-  Star topic is warranted.
+PFE: change the existing owners, rather than introducing parallel facts.
+`launchCatalog`, `canonicalUsageTasks` and `mergeUsageTask` already reconcile
+launch and recovered tasks. Follow the launch precedence used for `launchedAt`
+for workflow, including the missing-value fallback. `taskClaims` already maps
+workflow spellings for conflict detection; `launchWorkflowOf` maps them for
+cohorts. Keep these responsibilities and correct the comment if needed.
+
+`launchWorkflows[workflow].skill` owns the fixture mapping. Intent's checked
+instants describe remote proof retrieval, not usage imports, so they are not a
+replacement for `usageCheck.ts`. Compare the history modification time with the
+check record's modification time to detect a later writer; otherwise return the
+recorded Refresh start time. Comparing the history time only with that start
+would misidentify Refresh's own later store write. Keep legacy check records,
+no-store fallback and the rollout cutoff behavior.
+
+`SystemSettingsUsage` owns both fetch lifecycles. Keep Refresh pending distinct
+from a cohort read settling, and clear checking only once Refresh and its
+current-cohort reread settle, or Refresh fails. Other Intent retrieval states
+have different lifecycles; no shared refresh framework is warranted.
+
+The ADR index and `.planning/NORTH-STAR.md` were read. No temporary topic governs
+this local correction and no new consequential direction is needed.
+
+## Key examples and outside-in proof ownership
+
+| Final-state promise / example | Slice | Observation |
+| --- | --- | --- |
+| Execution and Refinement launches also recovered from directives → import, Refresh, import, Refresh → launch workflows and totals persist | 1 | stored tasks, byte-identical small history after the initial write, boundary cohort points |
+| Existing launch stored with a skill workflow → first write normalizes it → subsequent writers leave bytes unchanged | 1 | inspect history tasks and bytes, plus Token index totals |
+| Launch has no workflow → recovered skill fills it; recovered-only Refinement keeps its skill | 1 | imported tasks and Refinement cohort; recovered Refinement in the existing cohort journey |
+| Refresh at t1 → import adds a finished task at t2 → Checked reflects t2 → unchanged Refresh at t3 shows t3 | 2 | boundary `checkedAt` and tasks, history/check record times |
+| No store, import before any Refresh, legacy check record and failed Refresh | 2 | null, history write time, own Refresh start time, retained successful time/error respectively |
+| Held Refresh → choose Refinement and settle that cohort → still checking → release and settle its reread | 3 | chosen cohort content, checking note and disabled Refresh, then checked state |
+| Held Refresh fails after a filter change | 3 | selected chart/check time retained, readable error and enabled Refresh |
+
+Backend unit proofs start at the importer command and real usage HTTP boundary
+in `dashboard/backend-tests/usage-history/`. Frontend unit proof mounts the real
+Usage page with backend responses substituted at the service boundary. Reuse
+`systemSettingsUsagePage.ts` for browser operations. Existing E2E Usage journeys
+remain the integrated proof; add the recovered-refinement variation to the
+existing cohort journey rather than another journey.
 
 ## Decisive premises and observations
 
-The scratch observations were made on 2026-11-15 in this worktree at
-`8c8d35d4b`, with Node 24.21.0 at a machine load of about 17. Each scratch spec
-ran through the slice's own runner and config:
-`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/backend.playwright.config.ts <scratch spec> --reporter=list`,
-or `dashboard/frontend.playwright.config.ts` for the frontend spec. The
-scratch backend specs reused the setup of
-`dashboard/backend-tests/usage-history/token-index-refresh.spec.ts`: a boundary
-server, `runImport`, and `nativeFile` with `settingsApplied`. Every scratch spec
-was removed before the records were written.
+Observed on 2026-11-15 at `63964802b3ddb17133af0e05ee5325b5f0284ec5` in this
+owned checkout, Node 24.21.0. Commands used one worker under `caffeinate -s -i`
+on AC; host load before launch was 28.92/23.59/16.37, about 12,905 free and
+35,204 speculative 16 KB pages. No full suite or real-store scan was launched.
+All scratch edits were reverted before record writes.
 
-| Consuming operation / premise | Observation and limits |
+Literal runner prefix for these observations:
+`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test`;
+all appended `--workers=1 --reporter=list`.
+
+| Consuming operation / premise | Form, result and limits |
 | --- | --- |
-| Slice 1: alternating writes over unchanged evidence change the manifest | Two launches were imported, and one rollout was aged past the Refresh cutoff. The steps were Refresh, Refresh, import, Refresh, import. The manifest changed at the first Refresh (2 new pages), stayed the same at the second, then changed at every later import and Refresh. Those steps added no new page file because the content-addressed pages of earlier steps were reused. In this small fixture, "no new page file" alone does not detect the flip, so the proof asserts identical manifest bytes as well. The mechanism comes from reading the code plus one observation: zod 4.6.7 `parse` returns schema key order (`{c,b,a}` → `{"a","b","c"}`). |
-| Slice 1: a tier-only reread adds a competing measurement | A rollout was imported without `thread_settings_applied`, then rewritten with `service_tier: "default"`. The next Refresh changed the manifest (1 page) and left 2 measurements, with settings tier `default` and no gap. Later Refreshes and an import left it unchanged. |
-| Slice 1: a response whose recorded tiers differ is priced at the standard rate today | A rollout was imported with tier `default`, then reread with `fast`. Result: 2 measurements, a `contradictory-observed-settings` gap, no observation tier, and the task plotted at index 4,900 with 0 unpriced. The summary takes the tier from `settings.serviceTier ?? null` (`dashboard/server/usageTaskSummary.ts`), so the competing response is priced as unrecorded, at standard. That contradicts the story's tier restriction, so slice 1 closes it. |
-| Slice 2: the import and Refresh flip a launch task's workflow | A launch's rollout had a `$dough-execute-plan` directive and its cwd in the configured project. The workflow went import `dough-execute-plan` → Refresh `execution` → import `dough-execute-plan` → Refresh `execution`, and the manifest changed at each step. The real-store counts (370) are from the retrospective's clone run. |
-| Slice 2: an existing assertion depends on the importer's precedence | `dashboard/backend-tests/usage-history/recovered-corroboration.spec.ts` expects a retained Claude launch joined to its recovered task to store `workflow: "dough-execute-plan"`, and that launch is `.executing`. Under the planned precedence it stores `execution`. Slice 2 changes that expectation deliberately. To find every consumer, the launch-first precedence was applied as a scratch edit to `mergeUsageTask`, the whole `dashboard/backend-tests/usage-history` family was run on the backend config, and the edit was reverted. Result: 57 passed and 1 failed. The failure was exactly that assertion (`workflow` expected `dough-execute-plan`, received `execution`). The fixture store in `e2e/configuration` writes launch tasks with workflow ids, so it is not a consumer of this precedence. |
-| Slice 3: Checked hides a later import | Steps: import, Refresh (`02:49:10.084Z`), then an import with a new finished launch (manifest `02:49:10.819Z`). The chart showed 2 points and `checkedAt` stayed at the Refresh time. |
-| Slice 4: a filter change ends checking during Refresh | A frontend spec served routed answers and held the refresh POST. After Refresh, choosing Refinement re-enabled Refresh within 3 s, and no checking note was left while the POST was still held. |
-| Real-store observation (slice 2) | Slice 2 uses the method recorded in plan 627's slice-5 Learnings: an APFS clone of the store and launch records, with the real `~/.codex` read in place. It is unpaid and read-only toward the real store. Nothing has been observed for it yet, and it is that slice's proof, not a premise. |
+| Slice 1: both writers disagree on workflow | Backend config, scratch `dashboard/backend-tests/usage-history/preparation-writer-consistency.spec.ts`; reused `token-index-refresh`'s boundary server, MakeMe launch/rollout and `runImport`. Rollout cwd was the configured project, with `$dough-execute-plan SEED-7#first`. Import → Refresh → import → Refresh stored `dough-execute-plan`, `execution`, `dough-execute-plan`, `execution`. Passed symptom observation in 12.4 s (runner 29.6 s). This is task reconciliation, unchanged by the supplier's storage unit; no v2 byte proof is claimed here. |
+| Slice 1: precedence consumers | Scratch launch-first precedence in `mergeUsageTask`; backend config and `dashboard/backend-tests/usage-history`. 56 passed, 1 failed in 2.1 min. Sole failure: `recovered-corroboration.spec.ts:74` expected `dough-execute-plan`, received `execution` for a Claude executing launch. Slice 1 intentionally updates it, preserving its attribution and source-removal assertions. Other failures are not excused. |
+| Slice 2: later import is in chart but hidden from Checked | Same backend scratch: second finished launch imported after Refresh `2026-11-15T04:18:04.322Z`; history mtime `04:18:06.510Z`, chart had 2 tasks but `checkedAt` stayed `04:18:04.322Z`. Record is still written after the history by `refreshUsageHistory`; the supplier retains that order. A single document's mtime serves the same write-order comparison as the current manifest. |
+| Slice 3: filter read prematurely clears checking | Frontend config, scratch `dashboard/frontend-tests/preparation-usage-checking.spec.ts`: real Usage page, routed Token index answers and held refresh POST. After checking was observed, selected Refinement and observed its changed average (`2,450` vs `1,450`), then `showsChecked` passed while POST was held. 1 passed, 5.7 s (runner 9.6 s). Release completed the request. |
+| Slice 1: fixture mapping and its observing consumer | Read `finishedTask`, `launchWorkflows` and all five `system-settings-usage*.spec.ts` setups/assertions. Execution recovered fixtures occur in trend/detail journeys; the cohort journey's Refinement fixtures are all launch tasks. None currently observes recovered Refinement. Slice 1 adds that missing discriminating case and verifies failure with the old mapping. |
 
-## Outside-in proof ownership
-
-- **Backend** (`dashboard/backend-tests/usage-history/`). A new sibling spec
-  for repeated writes covers slices 1 and 2, and another covers the check time
-  (slice 3). `token-index-refresh.spec.ts` is at 249 lines, so the Refresh
-  helpers it defines move to a shared usage-history support module when a
-  second spec needs them: `configureOpenDough`, `finished`, `rootRows` and
-  `usageServer`. Resolve the module's convention through
-  [`dough-makeme`](../../../.agents/skills/dough-makeme/SKILL.md). The
-  observable result is page files and manifest bytes after each write, plus
-  stored values and the chart answer. Per the
-  [test automation instructions](../../../AGENTS.md#test-automation), assert
-  no copied constants and no internal call counts.
-- **Frontend** (`dashboard/frontend-tests/`). Slice 4 uses routed answers and a
-  held Refresh request, through the Usage page object
-  `dashboard/tests/support/systemSettingsUsagePage.ts`, resolved through
-  [`dough-page-objects`](../../../.agents/skills/dough-page-objects/SKILL.md).
-- **Integrated journeys** (`e2e/configuration/system-settings-usage*.spec.ts`).
-  These are consumers of the fixture fix in slice 2 and must keep passing. No
-  journey is added.
+Supplier publication, not this observation, establishes the v2 storage contract.
+The dependency blocks execution until that contract is evidenced. Its delivered
+format changes storage below the inspected task merge and HTTP/UI contracts;
+the alternating-writer success test is slice 1's delivery proof, not a claimed
+preparation result. Reconcile changed test helpers with the supplier at start.
 
 ## Ordered slices
 
-### 1. Rewriting unchanged responses publishes no new page
+### 1. Launch and recovered tasks keep the right workflow across writers
 Type: Behavior
 Status: planned
-Proof: new backend spec for repeated usage writes. (a) Store two launches'
-rollouts with an import, one of them older than the Refresh cutoff. Then
-Refresh, Refresh, import, Refresh. Every step after the first import publishes
-no new page file and leaves the manifest bytes identical. (b) Import a rollout
-with no recorded tier, then reread it with `service_tier: "default"`. The first
-Refresh leaves that response with one measurement whose tier is `default`. Each
-later Refresh or import publishes nothing new and keeps the manifest
-identical. (c) Import a response with tier `default`, then reread it as `fast`.
-It keeps both measurements, and its task has no point and counts as unpriced.
-Each case fails on `8c8d35d4` (see premises). Also run the existing
-`backend-tests/usage-history` family and the Refresh spec, whose "no value
-changes" assertions must still hold.
+Proof: new sibling `usage-writer-consistency.spec.ts` imports Execution and
+Refinement launches whose rollouts recover their corresponding skills. Run
+import, Refresh, import, Refresh, including one rollout aged before the cutoff;
+assert launch workflows, unchanged totals and identical history bytes after
+the initial import. Add an existing launch stored with its old skill spelling:
+one write normalizes it, later writes are byte-identical. Cover a launch with
+no workflow and a recovered-only task. Observe cohort membership through the
+HTTP boundary, not fixture-supplied normalization. Run the usage-history family.
+Update the identified Claude assertion, keeping all its other promises.
 
-Behavior: a usage store written once over some native evidence → a Refresh or
-import rereads all or part of that evidence → no page file is added, the
-manifest is byte-identical, every stored value is unchanged, and a tier the
-reread is first to record is kept on the existing measurement. A response with
-two different recorded tiers stays competing evidence and leaves its task
-unpriced. Update `dashboard/USAGE-HISTORY.md` beside the completion-metadata
-enrichment rule: a rescan also records a missing tier, and a write over
-unchanged evidence republishes nothing.
+Behavior: unchanged native evidence → either writer writes → launch workflow
+wins when present, recovered evidence fills its absence, and recovered-only
+tasks keep their skills. Use `launchWorkflows[workflow].skill` in the fixture;
+make one Refinement task recovered in `system-settings-usage-cohort.spec.ts`
+and prove that journey fails with the old mapping. Run all five Usage E2E
+journeys for this shared fixture. Extract `configureOpenDough`, `finished`,
+`rootRollout` and `usageServer` from the 248-line `token-index-refresh` spec
+into one focused support module if still local when the second spec needs them.
+Update `USAGE-HISTORY.md` with workflow precedence and alternating stability.
 
-### 2. A launch task keeps its launch workflow across import and Refresh
+### 2. Checked reflects an import published after the last Refresh
 Type: Behavior
 Status: planned
-Proof: the repeated-writes spec gains a launch whose rollout invoked
-`$dough-execute-plan` from the configured project, so the importer recovers its
-skill. Import, Refresh, import, Refresh: the stored task's workflow is
-`execution` after each step, and every step after the first import publishes
-no new page file and leaves the manifest identical. A second case covers the
-production shape: a store that already holds the launch task with workflow
-`dough-execute-plan`. The first write normalizes it to `execution` and the next
-write publishes nothing new. In both, the chart places the task in the
-Execution cohort. Update the expectation in `recovered-corroboration.spec.ts` to
-`execution` (see premises). The fixture's recovered tasks record their own
-workflow's skill, and the existing `e2e/configuration/system-settings-usage*`
-journeys pass. Real-store observation on an APFS clone, following plan 627's
-slice-5 method: after one normalizing Refresh, a second Refresh with no new
-rollout activity adds no page file and leaves the manifest unchanged. Record
-the page counts and duration in Learnings.
+Proof: new backend `usage-check-freshness.spec.ts` uses the shared boundary and
+import harness: import → Refresh → import a second finished launch → chart
+contains it and `checkedAt` equals the later history mtime → unchanged Refresh
+reports its own start time. Also cover no history, import without a record,
+legacy `{checkedAt}` records, and the existing failed-Refresh preservation case.
+Run the usage-history family and the Usage refresh E2E journey (which already
+observes the shown instant through `showsCheckedAt`).
 
-Behavior: a launch task whose rollout also yields a recovered task → the
-importer and Refresh write it in turn → its stored workflow is the launch
-record's, recovered evidence supplies one only when the launch has none, and
-repeated writes publish nothing new. Make the comment on `launchWorkflowOf`
-accurate. In `e2e/configuration/usageFixtureStore.ts`, a recovered task records
-`launchWorkflows[workflow].skill`.
+Behavior: a valid check record and a later history write → read Usage → Checked
+reflects the later write; otherwise it reflects that Refresh's recorded start.
+Keep `refreshCutoff` unchanged, including its timestamp granularity allowance.
+Update `usageCheck.ts`'s header and the freshness text in `USAGE-HISTORY.md`.
 
-### 3. Checked shows an import that wrote after the last Refresh
+### 3. Checking survives a filter change until Refresh settles
 Type: Behavior
 Status: planned
-Proof: new backend boundary spec for the check time, using the shared Refresh
-helpers. After import and Refresh, the chart's `checkedAt` is the Refresh's.
-An import that adds a finished launch then writes the store, and the chart's
-`checkedAt` becomes the manifest's modification time, later than the Refresh.
-A further Refresh shows its own time again. A Refresh that changed nothing still
-reports its own time, so the existing assertions in `token-index-refresh.spec.ts`
-hold. The page already shows `checkedAt` through the refresh journey's
-`showsCheckedAt`, so no journey is added.
+Proof: new frontend `system-settings-usage-checking.spec.ts` holds the Refresh
+POST, changes Launch workflow, and waits for distinct selected-cohort content.
+`showsChecking` still holds. Release success, hold its selected-cohort reread,
+and keep checking until that answer settles; then `showsChecked`. A failure
+variant retains that cohort's chart/check time and shows its error while
+ending checking. Confirm discrimination against the old cohort `.finally`.
+Run this spec, `system-settings-usage-average.spec.ts`, and the refresh E2E
+journey. No sleeps, timeout increases or `test.slow()`.
 
-Behavior: the last check is the later of two times: the recorded Refresh check,
-and the importer's write when the manifest is newer than `usage-check.json`.
-A Refresh's own store write never moves "Checked" past the time that Refresh
-recorded. Refresh's cutoff is unchanged. Update the header comment of
-`dashboard/server/usageCheck.ts` and the Refresh sentence in
-`dashboard/USAGE-HISTORY.md`.
+Behavior: Refresh in progress → cohort changes/read completions → those reads
+cannot finish Refresh's checking state. Success settles the current cohort's
+reread before enabling Refresh; failure ends checking beside its readable error.
 
-### 4. The checking indication lasts until the Refresh ends
-Type: Behavior
-Status: planned
-Proof: new frontend spec for Usage checking, with routed Token index answers and
-a held `POST /__usage/refresh`. Steps: press Refresh, choose another launch
-workflow, and wait until that cohort's answer has rendered. The checking note
-is still shown and Refresh is still disabled (`showsChecking`). Releasing the
-Refresh then reads the cohort again and ends checking (`showsChecked`). A held
-Refresh that fails ends checking with its error. Assert only after the chosen
-cohort's read has settled in the page, waiting on an observable event, never
-on time. The planning scratch showed the old behavior ending checking within
-3 s, so confirm that the spec fails against the old `.finally`.
+## Current decisions, verification and concern review
 
-Behavior: while a Refresh runs → Terry changes a filter → the chosen cohort
-loads, the checking note shows with it and Refresh stays disabled, until the
-Refresh's own reread settles or the Refresh fails.
-
-## Current decisions
-
-- Execute in Story Branch Mode. No slice acts from trunk.
-- "Same evidence publishes nothing" is observed as page-file names and manifest
-  bytes. Page-file names alone cannot show a flip when earlier pages are reused.
-- Canonical stored row form is the schema field order. Launch evidence decides
-  a launch task's workflow. Recovered-only tasks keep their skill name.
-- Test placement follows plan 627: backend variants in sibling specs under
-  `dashboard/backend-tests/usage-history/`, presentation with controlled
-  answers in `dashboard/frontend-tests/`, and no new spec in the interim
-  `dashboard/tests/` group.
-
-## Learnings
-
-None yet.
-
-## Verification, sizing and concern review
-
-- Local gate: each slice's touched specs and their consumers, using
-  `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config <config> <paths> --reporter=list`.
-  - Slices 1–3: `dashboard/backend.playwright.config.ts` with the whole
-    `dashboard/backend-tests/usage-history` family, because they change
-    reconciliation, task merging or the check time, which every usage-history
-    spec consumes.
-  - Slice 2: also `e2e/playwright.config.ts` with
-    `e2e/configuration/system-settings-usage*.spec.ts` for the fixture change.
-  - Slice 4: `dashboard/frontend.playwright.config.ts` with the new spec and
-    `dashboard/frontend-tests/system-settings-usage-average.spec.ts`.
-  - Every slice: `npm run lint` and `npm run typecheck:dashboard`.
-  - A fresh worktree needs `node scripts/setup-native.mjs npm` and `browser`
-    first.
-  - No whole local suite is required. Hosted CI runs the full suites after
-    publication.
-- Long local runs follow the maintained
-  [macOS sleep guard and power condition](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos):
-  on AC use `caffeinate -s -i`; on battery plug in, or run awake with the lid
-  open under `caffeinate -i` and read the sleep log afterwards.
-- Failure policy: [Failing and flaky tests](../../../AGENTS.md#failing-and-flaky-tests)
-  applies as written, including local/CI differences and owned CI repair.
-- File size: every expected edit is under 250 lines. The largest are
-  `usageSnapshotReconciliation.ts` (220) and `token-index-refresh.spec.ts`
-  (249). The spec is not extended; its helpers move out, which shortens it.
-  New proof goes in new sibling specs.
-- Cumulative design: one rule, the stored form of unchanged evidence, applies
-  to observation rows (slice 1) and task rows (slice 2). Slice 1 extends the
-  existing metadata-acquisition rule and adds no recognizer. Slices 3 and 4 are
-  independent freshness corrections, each with its own proof loop. Nothing is
-  built for page reclamation or partition skipping.
-- Refinement: not needed. There are four Behavior slices, each with one
-  outcome and one proof loop, and no hidden preparation. The helper move happens
-  inside slice 1, where a second spec first needs it.
-- Remaining slice-specific concerns: none identified. Slice 1 is the largest,
-  with three cases in one rule. If it overruns, the competing-tier pricing case
-  (c) can become its own Behavior slice right after it.
+- Story Branch Mode; no slice acts from trunk. Safe stopping points are the
+  three independently proved corrections; no intermediate CI-breaking delivery.
+- Every test source selects MakeMe. Browser sources select page objects;
+  backend sources do not. Resolve actual new paths with the installed selector
+  before authoring. Keep expected bytes/times and held transport outside builders.
+- Before acceptance, run the installed consumer trace with the changed effect
+  terms `workflow`, `checkedAt` and `Checking Codex rollouts for new usage`;
+  inspect enclosing assertions and disposition every consumer. The families
+  above are the minimum owned proof, not a limit on newly affected consumers.
+- Local gate: each slice's focused specs and consumers above, `npm run lint`
+  and `npm run typecheck:dashboard` for the shared test helpers and changed TS
+  contracts. Runner form is the observed prefix above with `--config
+  dashboard/backend.playwright.config.ts`, `dashboard/frontend.playwright.config.ts`
+  or `e2e/playwright.config.ts` and the named paths. A fresh checkout first runs
+  `node scripts/setup-native.mjs npm` and `browser`.
+- Long local gates follow the maintained [macOS sleep guard and power condition](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos):
+  on AC `caffeinate -s -i`; on battery plug in, or run fully awake with lid open
+  under `caffeinate -i` and read the sleep log afterwards. Choose concurrency
+  from current host headroom; the scratch observations used one worker.
+- [Failing and flaky test policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
+  applies as written to local tests and owned CI repair. Hosted CI runs full
+  suites after publication; no whole local suite is required by this plan.
+- Expected edited files currently fit 250 lines: task reconciliation 106,
+  check 82, Usage component 133, fixture 177, corroboration spec 182 and Usage
+  page object 205. The Refresh spec is 248; its helper extraction above avoids
+  growing it past the limit. Recheck sizes after supplier/test-maintenance work.
+- Cumulative design: task precedence stays in reconciliation, write freshness
+  in its existing reader, and pending UI work in the component. Each slice has
+  one proof loop; none recreates the supplier's response or paging machinery.
+- Refinement: not needed; the stale storage slice was removed during planning
+  and the three remaining Behavior slices each own one bounded correction.
+- Remaining slice-specific concerns: none identified. The recorded supplier
+  dependency alone blocks start and is not a readiness concern. No numeric
+  slice limit is supplied; implementation, focused proof and cleanup fit one
+  cohesive loop per slice under the shared sizing rules.
