@@ -242,3 +242,7 @@ Disposition: proved by slice 8: slice-8-evidence.md owned CI repair; actual publ
 Reported: slice 9 — "Final641 gate after slice8 CI repair passes640 jobs but native-stream-replay rejects the new public-entry retention check raw turn.completed literal outside the shared reader."
 Story clause: "Reuse the existing native execution, observation and assessment in acceptance journeys and A/B comparisons."
 Disposition: proved by slice 9: slice-9-evidence.md reached stream-guard correction; actual public-entry uses the sourced reader with preserved nonzero status, complete retained streams and unchanged per-mode assertions; current full replay and Mac/Linux public-entry pass.
+
+## Execution complete
+
+Product advice: no further product change. Test optimization skipped by Terry's explicit instruction. Product/proof review complete with final CI pending; selected process review deferred into wrap-up after the automatic Intent Coverage check.

@@ -1,7 +1,7 @@
 # Slice10: rejected field-assignment experiment
 
 Current accepted parent33736a7201c542226756b7870995d8831cffd13c.
-G7 remains open: no supported causal deadline correction was established.
+At the original return, G7 remained open: no supported causal deadline correction was established. The later developer disposition below supersedes that open optimization requirement.
 The original one-job named aggregate contract and180s job deadline are unchanged.
 No decision is inferred from the unanswered reporting-contract question.
 
