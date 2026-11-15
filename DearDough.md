@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 522. Removed numbers are never reused.
+- Highest allocated local number: 523. Removed numbers are never reused.
 - Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
@@ -673,3 +673,17 @@ Fixture-sized CLI proof passed before the first actual recovery exposed two inde
   - Evidence: [maintained diagnostic receipts](docs/maintainer/usage-history-recovery-diagnostics-2026-11-15.md#scaling-defect-found-during-recovery); local import-reports/2026-11-15 failed-first-runtime.json, lineage-probe.json and census.json. One 249-assistant-row sample produced85256 ancestor references; the later census measured about1.4GB compact values against V8's536870888-character string ceiling.
   - Observed effect: import attempts failed after16m8.681s and6m59.760s before any usage store was created. Execution refined the remaining plan to own bounded storage and restored proof; final default-heap pair and independent reconciliation succeeded.
   - Inference: when a promised recovery spans an existing corpus, cheap corpus-size and lineage-amplification observations should inform persistence feasibility before the first full import. These observations would have exposed both constraints earlier; the record does not measure total avoidable time or imply that all later investigation was waste.
+
+## DD-523 — A new store writer's real-store observation measured time and memory but not store growth
+
+The plan's real-store observation for the dashboard's first frequent writer of the usage store (Refresh) asked for rebuild time, peak RSS and request responsiveness. It did not ask how much the store grew per write. The retrospective's read-only rerun on a clone found each Refresh publishing up to about 1 GB of superseded pages that nothing reclaims, so closure had to plan a correction. Related to DD-522 (whole-corpus effects first seen late); this one had a real-store observation, scoped to the wrong measures.
+
+### Occurrences
+- Execution: SEED-357#view-token-usage-for-dashboard-launched-tasks (plan 627 recoverable from the wrap-up before-cleanup commit; first implementation `ccbb06cbefba7c19d83fee34d5c984f25ade8cc4`)
+  - Timestamp: unknown (2026-11-15; slice 5 real-store observation about 10:20+08:00, retrospective rerun about 10:40+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.99 (checkout-bound installed `.claude/skills/dough-update/VERSION` at the Take `81146589e`)
+  - Evidence: plan 627 "Outside-in proof ownership" names rebuild time, peak RSS and board responsiveness. The slice 5 return reported 57.9 s, 670 MB and p95 8 ms, plus the real store's sha256 unchanged. The retrospective clone run published 1,491 new pages (1.03 GB) while referenced data grew 1.63→1.64 GB, then 933 more pages (861 MB) on a second press. Rows differed only in JSON key order. Correction: `SEED-357#reuse-unchanged-usage-pages-on-repeated-writes`, plan 630.
+  - Observed effect: a delivered, CI-green Refresh that grows the store by up to about 1 GB per press; one correction story, plan and queue entry at closure.
+  - Inference: for a change that makes something a new or more frequent writer of a persistent store, the real-data observation should include bytes written or published and the store's size before and after two consecutive writes. That would have exposed this in the same scratch run, at no extra cost. Whether every writer change needs that measure is not settled here.
