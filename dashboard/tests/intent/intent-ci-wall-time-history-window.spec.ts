@@ -1,4 +1,4 @@
-// Project Intent's CI wall time history in CI status
+// Project Intent's CI time without runner waits history in CI status
 // (../../src/IntentCiHistory.tsx) once the history holds more builds than
 // it shows: of 35 collected measured builds it shows the newest 20 in trunk
 // order, with the gaps among and after them, each with its own reason, and
@@ -148,7 +148,7 @@ test("of 35 measured builds, CI status shows the newest 20 in trunk order with t
   const newest = [...wallSeconds.keys()].slice(15);
   const lastStart = firstStart + 34 * dayMs;
   await expect(buildHistoryReading(shown).heading).toHaveText(
-    `CI wall time history 20 measured builds · ${dayWords(firstStart + 15 * dayMs)}–${dayWords(lastStart)}`,
+    `CI time without runner waits history 20 measured builds · ${dayWords(firstStart + 15 * dayMs)}–${dayWords(lastStart)}`,
   );
   await expect(buildHistoryReading(shown).latest).toHaveText("5 min");
   // The window is the newest 20; there is no other to choose.

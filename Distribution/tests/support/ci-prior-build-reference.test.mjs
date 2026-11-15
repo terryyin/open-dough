@@ -29,11 +29,18 @@ function retained(values, proofAt = () => "present", measureAt) {
       receivedAt: startedAt,
       startedAt,
       completedAt,
-      ...(measure === undefined
+      // When measureAt is supplied, name the measure or omit it explicitly so
+      // the builder's wall-interval default does not fill an absent sample.
+      ...(measureAt === undefined
         ? {}
-        : typeof measure === "number"
-          ? { timeWithoutRunnerWaits: { milliseconds: measure } }
-          : { timeWithoutRunnerWaits: { reason: measure } }),
+        : {
+            timeWithoutRunnerWaits:
+              measure === undefined
+                ? undefined
+                : typeof measure === "number"
+                  ? { milliseconds: measure }
+                  : { reason: measure },
+          }),
     });
     const part = proofAt(n);
     if (part === "absent") continue;

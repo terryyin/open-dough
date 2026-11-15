@@ -90,66 +90,74 @@ or unreadable: Project Intent's **CI status** shows it beside the
 explanation in place of the location tree, and its strip stands above those
 explanations, which **Optimization Candidates** also shows.
 
-Project Intent's **CI status** of trunk also shows the **CI wall time
-history** after **Proof** and before **Check again**; a story branch's CI
-status shows none. It shows a window of the project's dashboard-recorded trunk
-landings: the newest 20 distinct measured builds, in trunk order, with the
-gaps among and after them. Its heading gives the actual count and dates of
-the measured builds it shows (`1 measured build · Nov 5`, or
-`20 measured builds · Oct 16–Nov 4`), then says the history is collected from
-dashboard-recorded landings and gives the latest measured build's CI wall
-time in whole seconds (`6 min 5 s`), as the
+Project Intent's **CI status** of trunk also shows the **CI time without
+runner waits history** after **Proof** and before **Check again**; a story
+branch's CI status shows none. It shows a window of the project's
+dashboard-recorded trunk landings: the newest 20 distinct measured builds, in
+trunk order, with the gaps among and after them. Its heading gives the actual
+count and dates of the measured builds it shows (`1 measured build · Nov 5`,
+or `20 measured builds · Oct 16–Nov 4`), then says the history is collected
+from dashboard-recorded landings and gives the latest measured build's **CI
+time without runner waits** in whole seconds (`5 min`), as the
 [CI timing comparison](dashboard-development-intent-ci-comparison.md) words
-a build's. The [Prior-build average](dashboard-development-intent-ci-reference.md)
-compares the latest represented landing with eligible prior retained builds. An image named “CI wall time by build date”, drawn in the page
-without a chart library, places each measured build at its date and CI wall
-time, higher for longer, and joins them in date order against whole-step time
-words, so a rising, falling or varying line reads at a glance; its words keep
-their size at phone width. A gap breaks the line and gets no point: at its
-landing's recorded date, below the time axis, it is a red × for a failed build
-or else a hollow mark. Pointing at, focusing or tapping a mark shows its date
-and CI wall time or status under the chart: `Nov 5 · Failed build`,
-`Nov 6 · No timing · Cancelled`. **Builds and evidence**, a disclosure reached
-by Tab, lists each point and gap in that order, in words, naming a landing by
-its landed revision's short form and any story it landed for: `a1b2c3d (SEED-9#e)`.
+that measure. The page names the measure capability on its history read; it
+offers no switch to wall time. The
+[Prior-build average](dashboard-development-intent-ci-reference.md) compares
+the latest represented landing with eligible prior retained builds under the
+same measure. An image named “CI time without runner waits by build date”,
+drawn in the page without a chart library, places each measured build at its
+date and that time, higher for longer, and joins them in date order against
+whole-step time words, so a rising, falling or varying line reads at a
+glance; its words keep their size at phone width. A gap breaks the line and
+gets no point: at its landing's recorded date, below the time axis, it is a
+red × for a failed build or else a hollow mark. Pointing at, focusing or
+tapping a mark shows its date and CI time without runner waits or status
+under the chart: `Nov 5 · Failed build`, `Nov 6 · No timing · Cancelled`, or
+for a build whose measure could not be kept, the reason the measure is
+unavailable. **Builds and evidence**, a disclosure reached by Tab, lists each
+point and gap in that order, in words, naming a landing by its landed
+revision's short form and any story it landed for: `a1b2c3d (SEED-9#e)`.
 
 One build is one point, however many landings it measures. A point gives
-its date, CI wall time, each landing it stands for and how, with the build's
-revision -- `exact revision a1b2c3d (SEED-9#e)` for the landed revision's own
-build, `reused equivalent a1b2c3d for b2c3d4e (SEED-9#r1)` for a confirmed
-skip's equivalent build, `later trunk build d6e7f8a for d4e5f6a (SEED-9#f)`
-for the later build a cancelled landing joins -- and its run attempt
-(`Run 41 · attempt 1`, or an adapter's `Attempt <attemptId>`) linked to its
-run. A landing a later build stands for is in that build's point, so it
-breaks nothing, and a build counts once in the heading.
+its date, CI time without runner waits, each landing it stands for and how,
+with the build's revision -- `exact revision a1b2c3d (SEED-9#e)` for the
+landed revision's own build, `reused equivalent a1b2c3d for b2c3d4e
+(SEED-9#r1)` for a confirmed skip's equivalent build, `later trunk build
+d6e7f8a for d4e5f6a (SEED-9#f)` for the later build a cancelled landing
+joins -- and its run attempt (`Run 41 · attempt 1`, or an adapter's
+`Attempt <attemptId>`) linked to its run. A landing a later build stands for
+is in that build's point, so it breaks nothing, and a build counts once in
+the heading.
 
-A gap is one landing with no CI wall time. It gives the date its landing was
-recorded and why, said as _not yet_ while it may still be measured:
-`Pending` and what it waits for, `no CI run yet`, `CI queued or running`,
-`waiting for a later trunk build` (its own build was cancelled),
-`CI proof not read yet` (GitHub has not answered the read of the CI proof of
-the build that would stand for it) or `CI not read yet`, then
-`landed revision` and the landing, and the run attempt it waits on, linked
-to its run, when there is one. Once it never will be measured, it says why,
-and names the build the Landed rule named for it as a point names one, with
-its run linked: `Failed` (the build that measures it failed; a failed run
-can stop early, so its time is never drawn); `Cancelled` (its own build was
-cancelled or timed out, and no later trunk build stands for it: that build,
-`exact revision d4e5f6a (SEED-9#f)`); `No build` (CI did not build its
-revision and no skip was confirmed; no build is named);
-`Equivalent timing unavailable` (a confirmed skip has no equivalent build,
-or its equivalent build has no timing); `No CI proof summary` (a cancelled
-landing's later trunk build has its timing but published no CI proof
-summary, or another path still names that absence without measuring wall
-time); `CI proof expired` or `CI proof unreadable` (that build's CI proof
-expired, or GitHub's answer could not be opened or used); or
-`CI wall time not recorded` (its build passed, but its attempt names no
-start, or a completion before its start). Equal valid bounds are measured zero. A
-confirmed skip whose equivalent build passed with valid start and completion
-reuses that attempt's wall time even when it published no CI proof summary,
-as a CI adapter's never does; missing proof stays explicit for
-proof-dependent figures. A run link that is not a web address is left out,
-keeping the run attempt's words.
+A gap is one landing with no measurement under the history's measure. It
+gives the date its landing was recorded and why, said as _not yet_ while it
+may still be measured: `Pending` and what it waits for, `no CI run yet`,
+`CI queued or running`, `waiting for a later trunk build` (its own build was
+cancelled), `CI proof not read yet` (GitHub has not answered the read of the
+CI proof of the build that would stand for it), `CI not read yet`, or **CI
+time without runner waits not read yet**, then `landed revision` and the
+landing, and the run attempt it waits on, linked to its run, when there is
+one. Once it never will be measured, it says why, and names the build the
+Landed rule named for it as a point names one, with its run linked:
+`Failed` (the build that measures it failed; a failed run can stop early, so
+its time is never drawn); `Cancelled` (its own build was cancelled or timed
+out, and no later trunk build stands for it: that build, `exact revision
+d4e5f6a (SEED-9#f)`); `No build` (CI did not build its revision and no skip
+was confirmed; no build is named); `Equivalent timing unavailable` (a
+confirmed skip has no equivalent build, or its equivalent build has no
+timing); `No CI proof summary` (a cancelled landing's later trunk build has
+its timing but published no CI proof summary, or another path still names
+that absence without measuring); `CI proof expired` or `CI proof
+unreadable` (that build's CI proof expired, or GitHub's answer could not be
+opened or used); `CI wall time not recorded` (its build passed, but its
+attempt names no start, or a completion before its start); or **CI time
+without runner waits unavailable** with the kept reason (for example a
+custom CI adapter that supplies no job graph). Equal valid bounds are
+measured zero. A confirmed skip whose equivalent build passed with valid
+start and completion reuses that attempt's timing even when it published no
+CI proof summary, as a CI adapter's never does; missing proof stays explicit
+for proof-dependent figures. A run link that is not a web address is left
+out, keeping the run attempt's words.
 So a keyboard, a screen reader and a phone get the same evidence without
 colour. With no measured build it says “No dashboard-recorded landings have
 been measured yet.” and draws nothing, still listing any gap. The current

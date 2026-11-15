@@ -136,6 +136,8 @@ export async function keepRetainedMeasureGapHistory(
           runUrl: `https://ci.invalid/runs/${String(entry.runId)}`,
           startedAt: entry.start,
           completedAt: entry.end,
+          // Retained without the measure so collection supplies it.
+          timeWithoutRunnerWaits: undefined,
         })
         .please(),
     );

@@ -156,13 +156,13 @@ test("keeps CI time without runner waits with a collected build once, answers 5 
       );
       return measured?.entries.flatMap((entry) =>
         entry.kind === "point"
-          ? [{ revision: entry.revision, wallTimeMs: entry.wallTimeMs }]
+          ? [{ revision: entry.revision, timeMs: entry.timeMs }]
           : [],
       );
     })
     .toEqual([
-      { revision: shortRevision, wallTimeMs: 5 * 60_000 },
-      { revision: longRevision, wallTimeMs: 5 * 60_000 },
+      { revision: shortRevision, timeMs: 5 * 60_000 },
+      { revision: longRevision, timeMs: 5 * 60_000 },
     ]);
   expect(jobsReads(github.calls).sort()).toEqual(["41/1/1", "42/1/1"]);
 
@@ -178,11 +178,11 @@ test("keeps CI time without runner waits with a collected build once, answers 5 
   ).toEqual([
     expect.objectContaining({
       revision: shortRevision,
-      wallTimeMs: 6.5 * 60_000,
+      timeMs: 6.5 * 60_000,
     }),
     expect.objectContaining({
       revision: longRevision,
-      wallTimeMs: 10 * 60_000,
+      timeMs: 10 * 60_000,
     }),
   ]);
   for (const entry of landedCiHistorySchema.parse(wall.body).entries) {

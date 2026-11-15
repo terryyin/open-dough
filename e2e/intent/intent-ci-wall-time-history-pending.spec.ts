@@ -1,5 +1,5 @@
 import { attemptLink } from "../../dashboard/tests/ciEvidenceLabelsPage.ts";
-// Project Intent's CI wall time history in CI status
+// Project Intent's CI time without runner waits history in CI status
 // (../../dashboard/src/IntentCiHistory.tsx) while a landing's CI is pending, on a real
 // bare origin (../../dashboard/tests/support/startOrigin.ts) whose dashboard collects the
 // landings this machine's launch records name and checks pending ones again
@@ -45,7 +45,7 @@ import type { StartOrigin } from "../../dashboard/tests/support/startOrigin.ts";
 import type { Page } from "@playwright/test";
 
 // How many times the page has asked for the trunk's CI status judgment
-// afresh, and for the CI wall time history, so far.
+// afresh, and for the CI time without runner waits history, so far.
 function intentCiReads(page: Page) {
   const reads = { judgment: 0, history: 0 };
   page.on("request", (request) => {
@@ -93,6 +93,7 @@ test.describe("checking pending landings again", () => {
     const { landing } = landedTrunk(
       origin,
       [
+        { title: "ci", kind: "ci-workflow" },
         { title: "first", kind: "code" },
         { title: "second", kind: "code" },
       ],
@@ -142,7 +143,7 @@ test.describe("checking pending landings again", () => {
 
     await test.step("CI status shows the pending gap after the last point, linked to its run", async () => {
       await expect(heading).toHaveText(
-        "CI wall time history 1 measured build · Nov 5",
+        "CI time without runner waits history 1 measured build · Nov 5",
       );
       await expect(buildHistoryReading(history).chart).toBeVisible();
       await showBuildHistoryEvidence(history);
@@ -198,7 +199,7 @@ test.describe("checking pending landings again", () => {
         `Nov 5 · 7 min 10 s · exact revision ${shortSha(second.revision)} · Run 42 · attempt 1`,
       ]);
       await expect(heading).toHaveText(
-        "CI wall time history 2 measured builds · Nov 5",
+        "CI time without runner waits history 2 measured builds · Nov 5",
       );
       expect(reads).toEqual({ judgment: 2, history: 2 });
     });

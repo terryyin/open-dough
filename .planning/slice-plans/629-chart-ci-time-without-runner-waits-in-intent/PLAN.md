@@ -138,14 +138,8 @@ follow-up's reference are calculated from wall time as before.
 
 ### 4. Project Intent's CI status shows the history by the measure
 Type: Behavior
-Status: planned
-Proof: `dashboard/tests/intent/intent-ci-wall-time-history*.spec.ts`,
-`dashboard/frontend-tests/intent-ci-compact-readout.spec.ts`,
-`e2e/intent/intent-ci-wall-time-history*.spec.ts`,
-`e2e/intent/intent-ci-prior-build-average.spec.ts` and
-`intent-ci-prior-build-states.spec.ts` updated to the measure;
-`e2e/intent/intent-ci-done-prior-build.spec.ts` and
-`dashboard/tests/intent/intent-ci-done-*` green with wall-time wording.
+Status: done
+Proof: intent wall-time-history*, compact readout, e2e wall-time-history*, prior-build-average/states updated to the measure; Done prior-build and intent-ci-done-* green with wall wording. Local integrated/frontend/e2e focused runs passed (agent report).
 
 Behavior: the collected history holds the builds of the three key examples →
 a developer opens Project Intent's **CI status** → the page reads the history
@@ -233,7 +227,7 @@ describe the project history by its measure.
 ### G1. Page still reads wall time until Intent names the measure
 Reported: slice 1 — "The page still asks without the capability, so it shows wall time until slice 4."
 Story clause: "Use that measure for the chart points and their readouts, **Latest measured build**, the selected landing’s time, and the times in **Builds and evidence**."
-Disposition: interim until slices 4
+Disposition: proved by slice 4: useIntentCiHistory names historyMeasure; IntentCiHistory + e2e prior-build-states and wall-time-history specs
 
 ### G2. Prior-build average still from wall time until the measure reference
 Reported: slice 1 — "The answer's reference is still the wall-time one until slice 3."

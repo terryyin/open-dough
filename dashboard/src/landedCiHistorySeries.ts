@@ -1,16 +1,17 @@
-// Collected CI wall time as the shared chart's dated series
-// (`./historyChartSeries.ts`): each measured build a point, each gap a dated mark
-// with its status words, and a gap starting a new line segment. Project CI
-// status draws its whole window. A Done endpoint's glance read
+// Collected CI history as the shared chart's dated series
+// (`./historyChartSeries.ts`): each measured build a point under the history's
+// measure, each gap a dated mark with its status words, and a gap starting a
+// new line segment. Project CI status draws its whole window by CI time
+// without runner waits. A Done endpoint's glance read
 // (`./ciDoneWallTimeHistory.ts`) answers only the verified observations
-// through it, so its chart marks the build selected for it and newer
-// landings never enter it.
+// through it under wall time, so its chart marks the build selected for it
+// and newer landings never enter it.
 import {
   buildDateWords,
   gapReasonWords,
   plainWords,
   pointLandingsWords,
-  pointWallTimeWords,
+  pointTimeWords,
 } from "./ciHistoryWords.ts";
 import type {
   HistoryChartEntry,
@@ -29,10 +30,10 @@ import {
 export function landedHistorySeries(
   entries: readonly MeasuredEntry[],
   options: {
-    readonly label?: string;
+    readonly label: string;
     readonly averageMs?: number | undefined;
     readonly isSelected?: (entry: MeasuredEntry) => boolean;
-  } = {},
+  },
 ): HistoryChartSeries {
   let segment = 0;
   const builds = entries.map((entry): HistoryChartEntry => {
@@ -43,10 +44,10 @@ export function landedHistorySeries(
         kind: "point",
         key,
         date: entry.startedAt,
-        value: entry.wallTimeMs,
+        value: entry.timeMs,
         segment: String(segment),
         selected,
-        description: `${buildDateWords(entry.startedAt)} · ${pointWallTimeWords(entry)} · ${plainWords(pointLandingsWords(entry))}`,
+        description: `${buildDateWords(entry.startedAt)} · ${pointTimeWords(entry)} · ${plainWords(pointLandingsWords(entry))}`,
       };
     segment++;
     return {
@@ -58,7 +59,7 @@ export function landedHistorySeries(
     };
   });
   return {
-    label: options.label ?? "CI wall time by build date",
+    label: options.label,
     entries: builds,
     axis: wallTimeAxis,
     reference: priorAverageReference(wallTimeAxis, options.averageMs),

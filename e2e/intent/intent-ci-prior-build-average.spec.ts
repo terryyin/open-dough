@@ -30,6 +30,7 @@ import {
 import {
   landedTrunk,
   passedFrom,
+  publishCiWorkflow,
   trunkRun,
 } from "../../dashboard/tests/support/landedCiTrunk.ts";
 import { retainedProofs } from "../../dashboard/tests/support/scopeHistoryCollection.ts";
@@ -48,6 +49,7 @@ test("project history explains its five-build average, strict slow exclusion and
   origin,
   github,
 }) => {
+  await publishCiWorkflow(origin);
   const seconds = [100, 100, 100, 100, 115, 116, 120];
   const names = Array.from(seconds.keys(), (n) => `average-${n}`);
   const trunk = landedTrunk(

@@ -7,8 +7,8 @@
 // story's CI comparison (`./useIntentCiComparison.ts`) with each endpoint's
 // proof summary (`./useIntentCiComparisonEntries.ts`); or a Taken Story Branch
 // story's live judgment plus provisional comparison. Beside the trunk's
-// judgment it reads the project's collected CI wall time history
-// (`./useIntentCiHistory.ts`) with each read of that judgment. Intent's CI
+// judgment it reads the project's collected CI time without runner waits
+// history (`./useIntentCiHistory.ts`) with each read of that judgment. Intent's CI
 // status homepage (`./IntentCiStatus.tsx`), a selected entry's or folder's Summary
 // (`./IntentScopeProof.tsx`), and a selected file's Proof
 // (`./IntentFileProof.tsx`) all read it, so selecting, drilling and returning

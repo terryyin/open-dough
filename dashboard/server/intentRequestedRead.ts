@@ -2,7 +2,7 @@
 // boundary (`./requestedRead.ts`): locations, Test Optimization Candidates,
 // CI status (`./intentCiStatusRead.ts`), the CI proof of the run a CI status
 // judgment named (`./intentCiProofRead.ts`), a story's CI comparison, the
-// project's collected CI wall time history (`./intentCiHistoryRead.ts`), or a
+// project's collected CI history (`./intentCiHistoryRead.ts`), or a
 // refusal when `intent` is present but unknown. Each known kind parses in its
 // own module.
 

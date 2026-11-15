@@ -45,19 +45,62 @@ export const attemptTimingBasis = "attempt-start";
  * }} AdapterProofCollectorAttempt
  */
 
+/**
+ * CI time without runner waits equal to the attempt's wall interval, when
+ * start and completion are present. Specs that assert an absent measure must
+ * name `timeWithoutRunnerWaits` explicitly (including `undefined` to omit it).
+ * @param {Pick<KeptBuild, "startedAt" | "completedAt">} build
+ * @returns {KeptBuild["timeWithoutRunnerWaits"] | undefined}
+ */
+export function wallIntervalMeasureOf(build) {
+  const { startedAt, completedAt } = build;
+  if (startedAt === undefined || completedAt === undefined) return undefined;
+  const milliseconds = Date.parse(completedAt) - Date.parse(startedAt);
+  return Number.isFinite(milliseconds) && milliseconds >= 0
+    ? { milliseconds }
+    : undefined;
+}
+
+/**
+ * When `stated` does not name `timeWithoutRunnerWaits`, a passed build keeps
+ * the wall interval as that measure so history specs that only rename the
+ * measure stay numeric. Naming the field (including `undefined`) wins.
+ * @template {KeptBuild} Build
+ * @param {object} stated
+ * @param {Build} build
+ * @returns {Build}
+ */
+export function withDefaultWallIntervalMeasure(stated, build) {
+  if (
+    "timeWithoutRunnerWaits" in stated ||
+    build.state !== "pass" ||
+    build.timeWithoutRunnerWaits !== undefined
+  )
+    return build;
+  const measure = wallIntervalMeasureOf(build);
+  return measure === undefined
+    ? build
+    : /** @type {Build} */ ({ ...build, timeWithoutRunnerWaits: measure });
+}
+
 export class KeptBuildBuilder {
   /**
    * Stated retained-build facts; attempt-start timing is incidental unless
-   * the case overrides or clears `timingBasis`.
+   * the case overrides or clears `timingBasis`. A passed build whose case
+   * does not name `timeWithoutRunnerWaits` keeps the wall interval as that
+   * measure so history specs that only rename the measure stay numeric.
    * @template {KeptBuild} Facts @param {Facts} facts
    */
   with(facts) {
     return {
       please: () =>
-        /** @type {Facts} */ ({
-          timingBasis: attemptTimingBasis,
-          ...facts,
-        }),
+        withDefaultWallIntervalMeasure(
+          facts,
+          /** @type {Facts} */ ({
+            timingBasis: attemptTimingBasis,
+            ...facts,
+          }),
+        ),
     };
   }
 }

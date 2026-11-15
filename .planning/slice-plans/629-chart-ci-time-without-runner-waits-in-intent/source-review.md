@@ -8,19 +8,19 @@
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | A developer reading the history chart in Project Intent’s CI status can see whether CI execution is getting faster or slower independently of the time jobs spend waiting for runners. | slice 4 |  |
-| 2 | Use the existing **CI time without runner waits** from the CI timing comparison throughout the CI history section. | slice 4 |  |
+| 1 | A developer reading the history chart in Project Intent’s CI status can see whether CI execution is getting faster or slower independently of the time jobs spend waiting for runners. | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |
+| 2 | Use the existing **CI time without runner waits** from the CI timing comparison throughout the CI history section. | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |
 | 3 | The measure uses the longest dependency chain of job durations, accounting for parallel work and excluding runner waits both before and between jobs. | slice 1 | observed: landed-ci-history-time-without-runner-waits.spec.ts: two dependent jobs → 5 min via timeWithoutRunnerWaitsOf |
-| 4 | Use that measure for the following surfaces: | slice 4 |  |
-| 4.1 | chart points and their readouts | slice 4 |  |
-| 4.2 | **Latest measured build** | slice 4 |  |
-| 4.3 | the selected landing’s time | slice 4 |  |
-| 4.4 | the times in **Builds and evidence** | slice 4 |  |
+| 4 | Use that measure for the following surfaces: | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |
+| 4.1 | chart points and their readouts | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |
+| 4.2 | **Latest measured build** | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |
+| 4.3 | the selected landing’s time | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |
+| 4.4 | the times in **Builds and evidence** | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |
 | 5 | Calculate from the same measure: | slice 3 | observed: ci-prior-build-reference.test.mjs + ci-project-measure-reference.spec.ts; Done/follow-up wall specs green |
 | 5.1 | the **Prior-build average** | slice 3 | observed: ci-prior-build-reference.test.mjs + ci-project-measure-reference.spec.ts; Done/follow-up wall specs green |
 | 5.2 | its sample count and evidence | slice 3 | observed: ci-prior-build-reference.test.mjs + ci-project-measure-reference.spec.ts; Done/follow-up wall specs green |
 | 5.3 | the elapsed and percentage change against that average | slice 3 | observed: ci-prior-build-reference.test.mjs + ci-project-measure-reference.spec.ts; Done/follow-up wall specs green |
-| 6 | Label the history and its chart to identify the measure. | slice 4 |  |
+| 6 | Label the history and its chart to identify the measure. | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |
 | 7 | Retain the measure for the build attempt the history point represents. | slice 1 | observed: landedCiRetainedProof/collection keep timeWithoutRunnerWaits on kept build |
 | 8 | When the retained evidence cannot supply a measurement, show a gap with its reason. | slice 2 | observed: landed-ci-history-measure-gaps.spec.ts: final gap with reason + build; pending when unanswered |
 | 9 | When the retained evidence cannot supply a measurement, exclude that build from the chart’s prior-build average. | slice 3 | observed: ci-prior-build-reference.test.mjs + ci-project-measure-reference.spec.ts; Done/follow-up wall specs green |
@@ -38,12 +38,12 @@
 | 16 | A prior build is eligible when it meets the existing rule and has the measure. | slice 3 | observed: ci-prior-build-reference.test.mjs + ci-project-measure-reference.spec.ts; Done/follow-up wall specs green |
 | 17 | A build without the measure is a gap that names the build and the reason the measure is unavailable. | slice 2 | observed: measure-gaps.spec: final gap names build and reason |
 | 18 | for example a custom CI adapter that supplies no job graph | slice 2 | observed: measure-gaps.spec: adapter no job graph final gap |
-| 19 | Scope limits — these keep wall time: | slice 4 |  |
-| 19.1 | the selected Done story’s **CI wall time history** | slice 4 |  |
+| 19 | Scope limits — these keep wall time: | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |
+| 19.1 | the selected Done story’s **CI wall time history** | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |
 | 19.2 | the automatic CI follow-up rule and its saved references | slice 3 | observed: ci-prior-build-reference.test.mjs + ci-project-measure-reference.spec.ts; Done/follow-up wall specs green |
 | 19.3 | Proof’s **CI wall time** | slice 1 | observed: Proof CI wall time paths untouched; no Proof surface edits |
-| 20 | The history shows one measure; it offers no switch between the two. | slice 4 |  |
-| 21 | A two-minute job runs before a three-minute dependent job. The first waits 30 seconds for a runner and the second waits a minute. The chart shows **5 min** for the build. | slice 4 |  |
+| 20 | The history shows one measure; it offers no switch between the two. | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |
+| 21 | A two-minute job runs before a three-minute dependent job. The first waits 30 seconds for a runner and the second waits a minute. The chart shows **5 min** for the build. | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |
 | 22 | Longer runner waits alone leave that value at **5 min**. | slice 1 | observed: spec: short and long runner waits both read 5 min when measure named |
-| 23 | Five eligible prior builds each measured **5 min** without runner waits. The latest landing measures **4 min**. Its plotted point and build readouts show **4 min**, the chart’s reference line and the prior-build readout show **5 min** using five builds, and the UI shows **−1 min (−20%)** against that average. | slice 4 |  |
-| 24 | A retained build has wall time and lacks the evidence needed to calculate time without runner waits. Its chart mark explains that the measure is unavailable. The average uses the eligible builds with the measure. | slice 4 |  |
+| 23 | Five eligible prior builds each measured **5 min** without runner waits. The latest landing measures **4 min**. Its plotted point and build readouts show **4 min**, the chart’s reference line and the prior-build readout show **5 min** using five builds, and the UI shows **−1 min (−20%)** against that average. | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |
+| 24 | A retained build has wall time and lacks the evidence needed to calculate time without runner waits. Its chart mark explains that the measure is unavailable. The average uses the eligible builds with the measure. | slice 4 | observed: Intent CI status measure UI + e2e/intent prior-build-states and wall-time-history specs; Done wall wording green |

@@ -1,16 +1,19 @@
-// Words of Project Intent's CI wall time history (`./IntentCiHistory.tsx`):
-// how many measured builds it shows, a build's or landing's date as the
-// reader's clock has it, a point's CI wall time in whole seconds, as the story
-// CI comparison words a build's (`./storyCiComparisonWording.ts`), how a
-// build stands for the landings it names -- the landed revision's own build
-// and a later trunk build in the comparison's words, a confirmed skip's
-// equivalent build in the story's "reused equivalent", where the comparison
-// says "equivalent build", with the build's revision -- each landing named
-// by its landed revision and the story it landed for, why a gap has no CI
-// wall time, as not yet or as never, and the run attempt a point was
-// measured from or a gap names, as Proof names one (`./CiEvidenceLabels.tsx`).
-// Revisions are kept apart in the words so the page can set them as code;
-// the chart's hover gives the same words as plain text.
+// Words of Project Intent's CI history (`./IntentCiHistory.tsx`) and the Done
+// wall-time history that shares them: how many measured builds it shows, a
+// build's or landing's date as the reader's clock has it, a point's time under
+// the history's measure in whole seconds, as the story CI comparison words a
+// build's (`./storyCiComparisonWording.ts`), how a build stands for the
+// landings it names -- the landed revision's own build and a later trunk build
+// in the comparison's words, a confirmed skip's equivalent build in the
+// story's "reused equivalent", where the comparison says "equivalent build",
+// with the build's revision -- each landing named by its landed revision and
+// the story it landed for, why a gap has no measurement, as not yet or as
+// never, and the run attempt a point was measured from or a gap names, as
+// Proof names one (`./CiEvidenceLabels.tsx`). Revisions are kept apart in the
+// words so the page can set them as code; the chart's hover gives the same
+// words as plain text. Project CI status measure titles live with the measure
+// capability (`./ciHistoryMeasureCapability.ts`); Done keeps wall-time history
+// titles of its own.
 
 import type { BaseCiRunIdentity } from "./baseCiConfirmation.ts";
 import { shortSha } from "./baseCiWording.ts";
@@ -40,9 +43,9 @@ export function buildDateWords(at: string): string {
   return buildDate.format(new Date(at));
 }
 
-// A point's CI wall time: "6 min 5 s".
-export function pointWallTimeWords(point: MeasuredPoint): string {
-  return wholeSecondWords(point.wallTimeMs);
+// A point's time under the history's measure: "6 min 5 s".
+export function pointTimeWords(point: MeasuredPoint): string {
+  return wholeSecondWords(point.timeMs);
 }
 
 // Words that name revisions: each revision apart, for the page to set as

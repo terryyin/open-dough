@@ -58,7 +58,7 @@ test("accepted landing order keeps a middle gap while reversed build dates retai
   // measured span independently uses the actual minimum and maximum dates.
   const heading = buildHistoryReading(shown).heading;
   await expect(heading).toHaveText(
-    `CI wall time history 2 measured builds · ${dayWords(cStart)}–${dayWords(aStart)}`,
+    `CI time without runner waits history 2 measured builds · ${dayWords(cStart)}–${dayWords(aStart)}`,
   );
   await expect(heading.locator("time").nth(0)).toHaveAttribute(
     "datetime",

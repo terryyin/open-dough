@@ -1,5 +1,6 @@
-// One responsive dated chart for collected history. Project CI status and a
-// Done CI comparison supply wall time (`./landedCiHistorySeries.ts`); scope
+// One responsive dated chart for collected history. Project CI status supplies
+// CI time without runner waits and a Done CI comparison supplies wall time
+// (`./landedCiHistorySeries.ts`); scope
 // Proof supplies precise execution time, compatible segments and its builds
 // without timing; System settings → Usage supplies each finished task's
 // Token index with its moving average as the trend. All use the same

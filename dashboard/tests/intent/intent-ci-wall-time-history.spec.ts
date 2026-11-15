@@ -1,5 +1,5 @@
 import { expectCiAnswer } from "../intentCiStatusPage.ts";
-// Project Intent's CI wall time history in CI status
+// Project Intent's CI time without runner waits history in CI status
 // (../../src/IntentCiHistory.tsx), on a real bare origin
 // (../support/startOrigin.ts) whose dashboard collects recorded landings'
 // CI: once a landing is collected, CI status shows its measured build beside
@@ -32,23 +32,29 @@ import {
 } from "../intentCiHistoryPage.ts";
 import { proofOf } from "../intentCiProofPage.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
+import { historyMeasure } from "../../src/ciHistoryMeasureCapability.ts";
 import {
   collectingLandedCi,
   landedCiHistory,
   resultToLand,
 } from "../support/landedCiHistory.ts";
-import { passedBetween, trunkRun } from "../support/landedCiTrunk.ts";
+import {
+  passedBetween,
+  publishCiWorkflow,
+  trunkRun,
+} from "../support/landedCiTrunk.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { originMain } from "../support/sessionDialog.ts";
 import { land } from "../support/startSessionLandingContext.ts";
 
 test.use({ extraEnv: collectingLandedCi });
 
-test("a collected landing's exact build is a point of CI wall time beside the trunk's judgment and Proof, listed with its date, wall time, exact revision and run, by keyboard on a phone", async ({
+test("a collected landing's exact build is a point of CI time without runner waits beside the trunk's judgment and Proof, listed with its date, that time, exact revision and run, by keyboard on a phone", async ({
   page,
   dashboard,
   origin,
 }) => {
+  await publishCiWorkflow(origin);
   const { record, revision } = await resultToLand(dashboard, "landed.txt");
   await publishTrunk(page, origin, () => [
     trunkRun(
@@ -58,10 +64,14 @@ test("a collected landing's exact build is a point of CI wall time beside the tr
     ),
   ]);
   land(record, origin, dashboard.home);
-  // Collected without Intent, or any page, open.
+  // Collected without Intent, or any page, open. The page names the measure.
   await expect
-    .poll(() => landedCiHistory(dashboard))
-    .toMatchObject({ body: { entries: [{ kind: "point", revision }] } });
+    .poll(() => landedCiHistory(dashboard, undefined, historyMeasure.value))
+    .toMatchObject({
+      body: {
+        entries: [{ kind: "point", revision, timeMs: 6 * 60_000 + 5_000 }],
+      },
+    });
 
   await page.setViewportSize({ width: 390, height: 844 });
   const panel = await openProjectCiStatus(page);
@@ -79,7 +89,7 @@ test("a collected landing's exact build is a point of CI wall time beside the tr
 
   const history = historyOf(panel);
   await expect(buildHistoryReading(history).heading).toHaveText(
-    "CI wall time history 1 measured build · Nov 5",
+    "CI time without runner waits history 1 measured build · Nov 5",
   );
   await expect(history).toContainText(
     "Collected from dashboard-recorded landings",
@@ -131,7 +141,7 @@ test("a project with no recorded landing says no landing has been measured yet, 
   ]);
   const history = historyOf(panel);
   await expect(buildHistoryReading(history).heading).toHaveText(
-    "CI wall time history",
+    "CI time without runner waits history",
   );
   await expect(history).toContainText(
     "No dashboard-recorded landings have been measured yet.",

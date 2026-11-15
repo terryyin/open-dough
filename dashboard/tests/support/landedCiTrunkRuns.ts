@@ -145,16 +145,42 @@ export function trunkActions(
       route,
     );
     if (listedJobs?.[1] !== undefined && listedJobs[2] !== undefined) {
-      const listed = jobs[`${listedJobs[1]}/${listedJobs[2]}`];
-      if (listed !== undefined)
+      const attemptKey = `${listedJobs[1]}/${listedJobs[2]}`;
+      const listed = jobs[attemptKey];
+      // An explicit empty listing stays empty. When the case does not name
+      // jobs for a completed run, serve one "check" job spanning the run so
+      // CI time without runner waits equals wall time for comparisonCiWorkflow.
+      const answered =
+        listed ??
+        (() => {
+          const run = runs.find(
+            ({ id, databaseId, attempt }) =>
+              String(id ?? databaseId) === listedJobs[1] &&
+              String(attempt ?? 1) === listedJobs[2],
+          );
+          if (
+            run?.startedAt === undefined ||
+            run.completedAt === undefined ||
+            run.conclusion !== "success"
+          )
+            return undefined;
+          return [
+            {
+              name: "check",
+              started_at: run.startedAt,
+              completed_at: run.completedAt,
+            },
+          ];
+        })();
+      if (answered !== undefined)
         return {
           status: 200,
           contentType: "application/json; charset=utf-8",
           body: JSON.stringify({
-            jobs: listed.map((job) =>
+            jobs: answered.map((job) =>
               apiJob(job as Parameters<typeof apiJob>[0]),
             ),
-            total_count: listed.length,
+            total_count: answered.length,
           }),
         };
     }

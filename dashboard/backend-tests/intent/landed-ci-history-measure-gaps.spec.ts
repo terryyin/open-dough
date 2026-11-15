@@ -74,7 +74,7 @@ test("retained builds are supplied; answered reasons are final gaps; unanswered 
     retainedMeasureGapCases.map((entry) =>
       expect.objectContaining({
         revision: landings[entry.name].revision,
-        wallTimeMs: 120_000,
+        timeMs: 120_000,
       }),
     ),
   );

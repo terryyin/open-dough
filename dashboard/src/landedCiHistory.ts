@@ -1,13 +1,14 @@
-// Project Intent's CI wall time history as the local authenticated read
-// boundary answers it (`../server/intentCiHistoryRead.ts`) and CI status
-// shows it (`./IntentCiHistory.tsx`): the window of the project's
-// dashboard-recorded trunk landings as one ordered list, oldest first, of
-// points and gaps. A point is one measured build: its revision, the run
-// attempt it was measured from, that attempt's start and completion, from
-// which its CI wall time is read, and the landings it measures, each with
+// Project Intent's CI history as the local authenticated read boundary
+// answers it (`../server/intentCiHistoryRead.ts`) and CI status shows it
+// (`./IntentCiHistory.tsx`): the window of the project's dashboard-recorded
+// trunk landings as one ordered list, oldest first, of points and gaps. A
+// point is one measured build: its revision, the run attempt it was measured
+// from, that attempt's start and completion, and one time under the history's
+// measure (CI time without runner waits when the project read names that
+// measure; CI wall time otherwise), and the landings it measures, each with
 // how -- its own landed revision's build (exact), a confirmed skip's reused
 // equivalent build (equivalent), or the later trunk build a cancelled
-// landing joins (later). A gap is one landing with no CI wall time, and why:
+// landing joins (later). A gap is one landing with no measurement, and why:
 // pending, not measured yet, with what it waits for and the run attempt it
 // waits on; or, finally, the build that measures it failed, its own build was
 // cancelled with no later trunk build to stand for it, CI did not build it,
@@ -202,9 +203,11 @@ export const landedCiEntryKey = (entry: LandedCiEntry): string =>
       ].join("#")
     : ["gap", entry.revision, entry.receivedAt].join("#");
 
-// A point as CI status shows it: with the CI wall time its attempt's start
-// and completion give, which every point the boundary answers has.
-export type MeasuredPoint = LandedCiPoint & { readonly wallTimeMs: number };
+// A point as a history shows it: with one time under that history's measure
+// (CI time without runner waits for a measure-naming project read; CI wall
+// time for Done and other wall-time reads), which every point the boundary
+// answers has.
+export type MeasuredPoint = LandedCiPoint & { readonly timeMs: number };
 
 export type MeasuredEntry = MeasuredPoint | LandedCiGap;
 
@@ -232,7 +235,7 @@ export function measuredHistoryOf(
     const ms =
       entry.timeMs ?? historyWallTimeMs(entry.startedAt, entry.completedAt);
     if (ms === undefined) return undefined;
-    entries.push({ ...entry, wallTimeMs: ms });
+    entries.push({ ...entry, timeMs: ms });
   }
   return {
     entries,

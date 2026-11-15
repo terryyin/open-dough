@@ -12,8 +12,7 @@
 // what the icon stands for where the short words leave it out ("Revision"
 // before `abc1234`), the short words, then any fuller words, unseen too and
 // shown on hover. The labels naming an attempt both Proof and a Summary show
-// live here, with the words naming an attempt, which the CI wall time history
-// says too.
+// live here, with the words naming an attempt, which the CI history says too.
 
 import type { ReactNode } from "react";
 import {

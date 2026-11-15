@@ -1,4 +1,4 @@
-// Project Intent's CI wall time history in CI status
+// Project Intent's CI time without runner waits history in CI status
 // (../../dashboard/src/IntentCiHistory.tsx) for landings the CI timing comparison's
 // Landed rule measures by a later trunk build, or not at all, on a real bare
 // origin (../../dashboard/tests/support/startOrigin.ts) whose dashboard collects the landings
@@ -21,7 +21,7 @@ import {
   expectLinksByKeyboard,
   publishTrunk,
   runLink,
-  wallTimeChart,
+  measureHistoryChart,
 } from "../../dashboard/tests/intentCiHistoryPage.ts";
 import { expectNoSidewaysScrollIn } from "../../dashboard/tests/pageLayout.ts";
 import {
@@ -52,6 +52,7 @@ test("a cancelled landing joins the later trunk build's point a landing there al
   const { landing, landings } = landedTrunk(
     origin,
     [
+      { title: "ci", kind: "ci-workflow" },
       { title: "b", kind: "code" },
       { title: "f", kind: "code" },
       { title: "g", kind: "code" },
@@ -113,7 +114,7 @@ test("a cancelled landing joins the later trunk build's point a landing there al
 
   // d6 is counted once, for G and for F.
   await expect(buildHistoryReading(history).heading).toHaveText(
-    "CI wall time history 2 measured builds · Nov 5",
+    "CI time without runner waits history 2 measured builds · Nov 5",
   );
   const sha = shortSha;
   await expect(buildEvidenceRows(builds)).toHaveText([
@@ -127,7 +128,7 @@ test("a cancelled landing joins the later trunk build's point a landing there al
   const chart = await chartOf(history);
   expect(chart.points).toHaveLength(2);
   expect(chart.strokes).toEqual([2]);
-  const marks = wallTimeChart(history);
+  const marks = measureHistoryChart(history);
   await expect(marks.failed).toHaveCount(1);
   await expect(marks.unavailable).toHaveCount(0);
   await expect(marks.marks).toHaveCount(3);

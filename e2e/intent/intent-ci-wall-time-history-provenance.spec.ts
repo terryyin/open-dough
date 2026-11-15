@@ -1,4 +1,4 @@
-// Project Intent's CI wall time history in CI status
+// Project Intent's CI time without runner waits history in CI status
 // (../../dashboard/src/IntentCiHistory.tsx) for landings the CI timing comparison's
 // Landed rule measures by their own build or a confirmed skip's equivalent
 // build, or not at all, on a real bare origin (../../dashboard/tests/support/startOrigin.ts)
@@ -152,7 +152,7 @@ test("an execution's exact build and the refinements reusing it are one point na
 
   // Three builds measured: R1, R2, R3 and R4 add none of their own.
   await expect(buildHistoryReading(history).heading).toHaveText(
-    "CI wall time history 3 measured builds · Nov 5",
+    "CI time without runner waits history 3 measured builds · Nov 5",
   );
   const sha = shortSha;
   await expect(buildEvidenceRows(builds)).toHaveText([

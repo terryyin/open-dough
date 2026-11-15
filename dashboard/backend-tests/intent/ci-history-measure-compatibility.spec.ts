@@ -58,7 +58,6 @@ test("a project read that names the measure answers kept CI time without runner 
   expect(named?.entries.filter((entry) => entry.kind === "point")).toEqual([
     expect.objectContaining({
       revision: measured.revision,
-      wallTimeMs: 5 * 60_000,
       timeMs: 5 * 60_000,
     }),
   ]);

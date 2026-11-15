@@ -60,6 +60,7 @@ async function keepAdapterPassWithoutMeasure(
       runUrl: `https://ci.invalid/builds/${facts.title}`,
       startedAt: attempt.startedAt,
       completedAt: attempt.completedAt,
+      timeWithoutRunnerWaits: undefined,
     })
     .please();
   await keepLandedCiHistory(

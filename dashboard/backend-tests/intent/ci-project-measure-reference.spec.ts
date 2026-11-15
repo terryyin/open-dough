@@ -38,7 +38,7 @@ test("a measure-naming project read averages five priors at 5 min against a 4 mi
       startedAt,
       completedAt: new Date(Date.parse(startedAt) + wallMs).toISOString(),
       ...(index === 2
-        ? {}
+        ? { timeWithoutRunnerWaits: undefined }
         : { timeWithoutRunnerWaits: { milliseconds: measureMs } }),
     });
     builder.proofFor(
