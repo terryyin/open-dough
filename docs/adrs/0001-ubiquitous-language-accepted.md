@@ -9,6 +9,7 @@
 **Revised:** 2026-10-27, at Terry Yin's direction, to reference the dashboard UI concepts.
 2026-10-29, at Terry Yin's direction, to define scope limits and required restrictions.
 2026-11-14, at Terry Yin's direction, to name Open Dough Distribution.
+2026-11-15, at Terry Yin's direction, to name its maintainer evaluation tooling home.
 
 **Decision makers:** Terry Yin
 
@@ -31,7 +32,7 @@ published skills, rules, templates, or runtime references.
 | --- | --- |
 | Client project | A project using installed Open Dough guidance; Open Dough itself can fill this role. |
 | Guidance | Rules, skills, and supporting instructions that direct development work. |
-| Open Dough Distribution (Distribution) | The part of Open Dough that develops, delivers, and verifies the guidance installed into projects. Its source and tests live in `Distribution/src/` and `Distribution/tests/`. **Distribution Tests** is their shared Intent and CI group. |
+| Open Dough Distribution (Distribution) | The part of Open Dough that develops, delivers, and verifies the guidance installed into projects. Guidance source and checks live in `Distribution/src/` and `Distribution/tests/`; maintainer evaluation tooling lives in `Distribution/evaluation/`. **Distribution Tests** is their shared Intent and CI group. |
 | Release | An immutable, versioned Open Dough source snapshot as defined by ADR 0003. |
 | Client payload | The guidance and supporting runtime files declared for installation by a release. |
 | Client installation | A release's managed content installed in a project in the supported tool layouts, with its installation record. |
