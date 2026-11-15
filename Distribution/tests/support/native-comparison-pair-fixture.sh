@@ -9,10 +9,10 @@
 #
 #   native_comparison_pair_fixture SOURCE_DIR WORK
 #     Creates WORK/source (that repository, one commit on main), WORK/payloads
-#     (a clone of SOURCE_DIR whose HEAD is the baseline payload) and
+#     (the complete managed payload in its own release repository) and
 #     WORK/bin/codex (the paused-supplier substitute). Leaves
 #     native_comparison_fixture_entry (the command running the copied entry)
-#     and native_comparison_fixture_baseline (SOURCE_DIR's HEAD).
+#     and native_comparison_fixture_baseline (that payload repository's HEAD).
 #   native_comparison_fixture_rule WORK RULE [FAULT]
 #     Commits, on the baseline payload, guidance naming the substitute's RULE
 #     and, when given, its host FAULT (native-agent-paused-supplier.sh), and
@@ -68,8 +68,12 @@ native_comparison_pair_fixture() {
   # a link to /private/var).
   native_comparison_fixture_entry=("${BASH}"
     "$(cd -- "${work}/source" && pwd -P)/Distribution/tests/native-comparison/native-comparison.sh")
-  git clone -q --shared --no-checkout "${source_dir}" "${work}/payloads" || return
-  native_comparison_fixture_baseline=$(git -C "${source_dir}" rev-parse HEAD) || return
+  # The subjects install the complete real payload; unrelated maintainer tests,
+  # docs and dashboard files need not be archived again for every frozen arm.
+  node "${source_dir}/Distribution/tests/support/release-source.mjs" "${work}/payloads" << 'RELEASE' || return
+{"revisions":[{"name":"Comparison payload","release":{"version":"0.1.0","taggedAt":"2026-11-14T00:00:00Z","marker":"comparison-payload"}}]}
+RELEASE
+  native_comparison_fixture_baseline=$(git -C "${work}/payloads" rev-parse HEAD) || return
   cp -- "${source_dir}/Distribution/tests/support/native-agent-paused-supplier.sh" "${work}/bin/codex"
   chmod a+x "${work}/bin/codex"
 }

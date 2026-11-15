@@ -109,6 +109,15 @@ keeps its own preview current too; identify both sources when combined.
 - One classification rule serves all four examples: an unrecorded job is stale
   when trunk names it, otherwise an estimate. No count threshold.
 
+CI-repair checkpoint: the full-payload fixture trial reduced baseline-misses
+62.58→53.22 local seconds (9.36s/15%), below its proposed15s lead target.
+The agent models remaining23.1s/7.3s overages, not CI proof; this alone
+is insufficient to predict both aggregate breaches fixed; repeated full-payload setup was not the whole bottleneck.
+Retain this independently useful, coverage-preserving improvement; finish all
+11 consumers, publish once, then use actual CI family evidence before choosing
+a distinct repeated-session/cached-setup experiment. Budget goal is unchanged;
+no dependent experiment is authorized by a passing local lead alone.
+
 ## Decisive premises
 
 | Premise | Consuming operation | Observation (fd397339a, 2026-11-15) | Result |
@@ -130,96 +139,68 @@ failure policy.
 
 ## Execution context
 
-Established start reused; no second claim. Story Branch Mode in
+Story Branch Mode; owned worktree reused at
 `/Users/terryyin/git/open-dough/.worktrees/see-stale-test-duration-estimates-before-relying`,
-branch `codex/see-stale-test-duration-estimates-before-relying`, reused owned
-worktree. Starting revision `2c71a1ea5e01fc57dd6d1a21fd615534a94e9689`;
-claim and candidate `b2a86929c6f7c893aff8add58cf23e4b17c07ca2` accepted on
-`origin/main` and the execution branch. Publisher
-`dashboard-territory.local-open-dough`; agent Akiho-chan. Integration checkout
-was not supplied. Increments target the execution branch; closure targets
-`origin/main`. Replanning permission retains existing planning authority.
-
-Checkout setup: `npm ci` at the unchanged lockfile succeeded;
-`PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh Distribution/tests/support/test-shares.test.mjs`
-succeeded. Selective formatting is `npm run format`; the tracked pre-commit
-hook is check-only and owns staged lint plus dashboard typecheck for scripts.
-No generation or project summary applies to these runner-only changes.
-
-CI observer: GitHub Actions, verified `ci.yml` (CI, workflow 351271804),
-repository `terryyin/open-dough`, target
-`codex/see-stale-test-duration-estimates-before-relying`, checkout as above.
-Coordinator `akiho-seed374`; directory `/tmp/dough-ci-501/watch-XyK0xC`,
-PID 40279, stream session 13119, yielded cell `g448:12`. The claim on trunk
-is `pendingCi: unobserved`; this observer owns only branch increments.
-
-Proof selection: focused Node and shell checks on this macOS host; no full
-local suite or browser workload is needed. No competing owned heavy proof
-is known. Reconsider if a slice requires heavy verification.
+branch `codex/see-stale-test-duration-estimates-before-relying`; origin/main trunk.
+Starting revision `2c71a1ea5e01fc57dd6d1a21fd615534a94e9689`; claim
+`b2a86929c6f7c893aff8add58cf23e4b17c07ca2`, accepted on trunk and branch.
+Publisher `dashboard-territory.local-open-dough`, agent Akiho-chan. Integration
+checkout not supplied. Increments target branch; closure targets origin/main.
+Replanning retains existing authority. Exact-checkout `npm ci` succeeded;
+Bash5 focused command passed. Selective formatter `npm run format`; check-only
+hook owns staged lint and dashboard typecheck. No generation/project summary.
+CI: GitHub ci.yml (CI,351271804), terryyin/open-dough execution branch.
+Observer coordinator akiho-seed374, directory `/tmp/dough-ci-501/watch-XyK0xC`,
+PID40279, stream session13119, yielded cell g448:12. Claim trunk CI unobserved.
+Focused Node/shell proof on localmac; no full local suite/browser workload.
+Heavy proof is reconsidered with host/load evidence before launch.
 
 ## Accepted execution evidence
 
-All focused commands use `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh`
-with the complete literal paths on their slice Proof lines.
+Commands use `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh` plus the
+complete literal paths in slice Proof lines; source-review rows retain each
+source-expected result and its actual observing assertion.
 
-- Slice1: eight listed checks passed; exact CLI share labels, tie/median and
-  retained-run allocation/headroom, browser inventory, copied-runner and split
-  execution inspected. `python3 /tmp/dough-slice1-compare-preview.py` matched
-  status/stdout/stderr byte for byte on preserved mixed/current/fixed inventory
-  and error inputs. Consumer trace `/tmp/dough-slice1-consumer-trace.md` covers
-  relocated formatter/budget reader/label parser; all actual callers updated.
-  Independent refactor: already clean; approximately5 active minutes. Published
-  `02705787579d078863b1f7db65cc2616774cab54`, base claim, execution branch.
-- Slice2: four listed checks plus `Distribution/tests/support/share-deal.test.mjs`
-  passed. Actual CLI assertions in `share-preview-stale.test.mjs` observe all
-  four source examples and one-job threshold/only-affected-share behavior.
-  Original indexed timings and feature-group labels preserve all historical
-  rows. Source-review rows retain individual expected/actual locations. Trace
-  `/tmp/dough-slice2-consumer-trace.md` covers every formatter consumer; shared
-  allocation/factor/budget unchanged. Independent refactor: already clean.
-  Formatter caught helper parameter reassignment; local-path repair stayed
-  within that return/trace, and the stale-preview focused check passed again.
-  Approximately12 active minutes. Published
-  `40895f9b444868e537703b2146b76aa456688a5e`, base slice1, execution branch.
-- Slice3: five listed checks passed; inspected real Git/scratch-repo command
-  assertions for2stale shell/Node jobs, added and locally promoted estimates,
-  helper exclusion, assumed headroom, missing-ref exact failure, override and
-  substitute success. Existing classification/spec/error assertions pass.
-  Trace `/tmp/dough-slice3-consumer-trace.md` covers default/Git/glob effects;
-  copied-runner closure exercised, unchanged share/factor/deal proof reused.
-  Documentation matches last-fetched origin/main and no-fetch behavior.
-  Approximately13 active minutes. Independent refactor removed duplicated discovery
-  policy: temporary empty tracked candidates and trunk patterns are listed by
-  the real Bash runner, with cleanup in finally and inherited membership split
-  cleared. Seven focused checks passed (slice3 Proof paths plus
-  `Distribution/tests/test-runner/test-runner-bash.sh` and
-  `Distribution/tests/test-runner/test-runner-split.sh`); the trunk test passed
-  again after the split adjustment. Hidden/promoted/aggregate cases inspected.
-  Trace `/tmp/dough-refactor3-consumer-trace.md`: actual/copy callers covered,
-  unchanged allocation/refresh proof retained. About12 refactor minutes; no
-  open gap. Final freshness unchanged at `7bb999227`.
+- Slice1: eight listed checks passed; exact CLI share labels, tie/median,
+  retained-run headroom, browser inventory, copied-runner and split inspected.
+  `python3 /tmp/dough-slice1-compare-preview.py` matched status/stdout/stderr
+  bytewise on preserved mixed/current/fixed inventory and errors. Trace
+  `/tmp/dough-slice1-consumer-trace.md` covers relocated formatter, budget and
+  label parser; all actual callers updated. Independent refactor clean;5active
+  minutes. Published02705787579d078863b1f7db65cc2616774cab54, base claim.
+- Slice2: four listed checks plus share-deal.test.mjs passed. Five real CLI
+  cases cover all four source examples and one-job/affected-share behavior.
+  Original indexed timings and grouped labels retain all historical rows.
+  Trace `/tmp/dough-slice2-consumer-trace.md` covers actual formatter callers;
+  unchanged allocation/factor/budget proof retained. Refactor clean; formatter
+  parameter-reassignment repair stayed in accepted paths/trace and its focused
+  test passed again.12active minutes. Published40895f9b444868e537703b2146b76aa456688a5e, base slice1.
+- Slice3: five listed checks plus runner-bash/runner-split passed. Inspected
+  real Git cases:2stale shell/Node, added/promoted/hidden/aggregate estimates,
+  helper exclusion, assumed headroom, exact ref failure, override/substitutes.
+  Independent refactor replaced duplicated discovery with the real runner over
+  empty tracked candidates and trunk patterns; finally cleanup and inherited
+  membership split clearing inspected. Trunk check passed again after split
+  adjustment. Traces `/tmp/dough-slice3-consumer-trace.md` and
+  `/tmp/dough-refactor3-consumer-trace.md`: actual/copy callers covered,
+  unchanged allocation/refresh proof retained.13implementation/12refactor active
+  minutes. Publishedfedc827300415a5e452d38e373c130ef8dbbcd62, base slice2.
+- Slice4: existing refresh over exact HEAD baseline in
+  `/tmp/dough374-times-sNXoAW/primary-main` used mainrun43725762081 at
+  86b3f67877e5f6024d42cb8696c39fe1a4a08bec (639 jobs matching trunk) plus only
+  three added rows from run43729355694/slice3 (all3Distribution jobs succeeded).
+  Source headers identify both and factor0.842. Actual default preview passed:
+  642recorded,0unrecorded, headroom17.5/17.5/17.6, no stale/estimates. Inspected
+  retained verification input `verify-current-list.mjs` and final-coverage.json
+  beside temp baseline: actual runner all642 exactly once, shares212/213/217.
+  Factor command passed; `/tmp/dough-slice4-consumer-trace.md` accounts for
+  preview/partition/factor; algorithms reuse accepted proof. Refactor clean,
+  six files below250;8active minutes. Publisheddd641ae5f213befa009dfdc21d27bc924adb0daf, base slice3.
 
-Slice3 published `fedc827300415a5e452d38e373c130ef8dbbcd62`, base slice2,
-execution branch. The same branch observer covers every publication. CI run43727102378/1 was
-cancelled when slice2 run43728001510 was created on the same branch under
-workflow supersession. Bounded inspection: all non-cancelled jobs succeeded;
-only e2e2/6, e2e5/6 and ci-proof cancelled. No failed job to repair.
-
-Slice4: existing refresh from exact HEAD baseline in
-`/tmp/dough374-times-sNXoAW/primary-main` used main run43725762081 at
-`86b3f67877e5f6024d42cb8696c39fe1a4a08bec` (639 jobs matching trunk),
-plus only3 added-test rows from run43729355694 at slice3 SHA (all3 Distribution
-jobs succeeded). Result runner factor0.842. Actual default preview passed with
-642 recorded/0 unrecorded; headroom17.5/17.5/17.6, no stale/estimate lines.
-Inspected `verify-current-list.mjs` and `final-coverage.json` beside that temp
-directory: actual list and real runner cover all642 exactly once, shares
-212/213/217. Runner-factor command passed; trace
-`/tmp/dough-slice4-consumer-trace.md` covers current preview/partition/factor,
-unchanged algorithms reuse accepted proof. G1 closed with real added timings.
-Independent refactor: already clean; all6 files below250, whitespace passed;
-about8 active implementation minutes. Whole-check await for slice3 ended
-pending/timeout after10minutes; observer still live and final CI remains open.
-Final source freshness unchanged at `7bb999227`.
+All increments target execution branch with the same observer. Slice1 and
+slice3 attempts were superseded: bounded job inspection found no failed job.
+Execution-complete records050ed2038783b07ac96249ba94d3d90f999d8e0a published
+on branch, base slice4. Final source freshness was unchanged at70594e768.
 
 ## Story obligations
 
@@ -245,3 +226,23 @@ on slice4 publication. Proven supersession, no failed job to repair.
 ## Execution complete
 
 Product advice: no change.
+
+## CI repair in progress
+
+Completion for050ed203 returned failure on basisdd641ae5, observer retained.
+Run43730867890/1: share2 total953.8>926; share3 total947.8>926 and
+baseline-misses67.8>64 at recorded speed. Final diagnostic has exactly2failed
+jobs; full budget logs account for unrecognized-format inventory gaps.
+Fresh repair agent investigates repeated baseline setup; no other owner known.
+Stash save was clean (no entry); record
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-zaqh2Y/record.json`.
+Proof decision: localmac AC, load5.22/6.21/8.36,58% memory free; no known
+competing owned proof. Reconsider before each expensive attempt.
+Retained candidate: pair fixture uses existing release materializer; independent
+`PATH="/opt/homebrew/bin:$PATH" bash /tmp/dough374-verify-comparison-payload.sh`
+passed370 managed paths/bytes,391fixture vs6849source files. All11 real fixture
+consumers passed under Bash5,2jobs,caffeinate-s-i on AC; literal command and
+observations retained in repair return and `/tmp/dough374-ci-repair-family-proof.log`.
+Inspected session-count, frozen archive, verdict, provenance and payload-tree
+assertions; source feature proof and product advice remain valid.10active minutes.
+Independent refactor clean; unchanged proof retained; final freshness aabd7c58.
