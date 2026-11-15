@@ -11,7 +11,7 @@ test.beforeEach(async ({ page }) => {
 const day = (date: number) =>
   `2026-11-${String(date).padStart(2, "0")}T12:00:00.000Z`;
 
-test("ten eligible tasks draw their one moving average value", async ({
+test("ten eligible tasks draw their one rolling median value", async ({
   page,
 }) => {
   const answer = makeMe.aTokenIndexAnswer
@@ -20,13 +20,14 @@ test("ten eligible tasks draw their one moving average value", async ({
         1_000, 1_100, 1_200, 1_300, 1_400, 1_500, 1_600, 1_700, 1_800, 1_900,
       ],
     })
+    .withTrend([{ at: day(10), value: 1_450 }])
     .please();
   await page.route(
     (url) => url.pathname === usageTokenIndexEndpoint,
     (route) => route.fulfill({ json: answer }),
   );
   const usage = await visitUsage(page);
-  await usage.showsAverage("1,450");
+  await usage.showsMedian("1,450");
 });
 
 test("partial and unpriced tasks explain a sparse trend, and an empty cohort explains its absence", async ({
@@ -53,8 +54,8 @@ test("partial and unpriced tasks explain a sparse trend, and an empty cohort exp
   );
   await usage.showsPointCount(10);
   await usage.showsPartialPoints(1);
-  await usage.showsNoAverage(
-    "An average needs 10 eligible tasks; none is available in this period",
+  await usage.showsNoMedian(
+    "A rolling median needs 10 eligible tasks; none is available in this period",
   );
   await usage.selectPoint("Nov 5 · 1,400 · Partial", "pointer");
   await usage.showsFact("Coverage", "Partial · Worker usage missing");

@@ -1,4 +1,4 @@
-// Unpriced tasks are counted; missing usage stays partial and out of the average.
+// Unpriced tasks are counted; missing usage stays partial and out of the median.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
@@ -37,7 +37,7 @@ test("standard and unrecorded tiers are priced; an unrated model or fast worker 
   expect(answer.unpriced).toBe(2);
 });
 
-test("only complete tasks, including a measured zero, fill the ten-task moving-average window", async ({
+test("only complete tasks, including a measured zero, fill the ten-task rolling median window", async ({
   home,
 }) => {
   const eligibleDays = [1, 3, 5, 7, 9, 10, 11, 12, 13, 14, 15];
@@ -119,7 +119,7 @@ test("only complete tasks, including a measured zero, fill the ten-task moving-a
       .map(({ id }) => id),
   ).toEqual(eligibleDays.map((date) => `eligible-${date}`));
   expect(answer.average).toEqual([
-    { at: day(14), value: 3_555 },
+    { at: day(14), value: 3_700 },
     { at: day(15), value: 4_200 },
   ]);
   expect(answer.unpriced).toBe(0);

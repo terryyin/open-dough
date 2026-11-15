@@ -8,7 +8,7 @@ import {
   writeTaskUsage,
 } from "../../tests/usage-history/tokenIndexHarness.ts";
 
-test("calendar bounds select tasks and unpriced counts after the true historical average", async ({
+test("calendar bounds select tasks and unpriced counts after the historical rolling median", async ({
   machine,
 }) => {
   const tasks = [...Array<number>(9).keys()].map((at) =>

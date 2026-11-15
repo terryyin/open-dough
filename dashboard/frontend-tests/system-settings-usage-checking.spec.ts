@@ -13,6 +13,7 @@ import { visitUsage } from "../tests/support/systemSettingsUsagePage.ts";
 
 const oldCheck = "2026-11-15T09:00:00.000Z";
 const nextCheck = "2026-11-15T10:00:00.000Z";
+const tenthTask = "2026-11-10T12:00:00.000Z";
 const executions = () =>
   makeMe.aTokenIndexAnswer
     .with({
@@ -20,6 +21,7 @@ const executions = () =>
         1_000, 1_100, 1_200, 1_300, 1_400, 1_500, 1_600, 1_700, 1_800, 1_900,
       ],
     })
+    .withTrend([{ at: tenthTask, value: 1_450 }])
     .checkedAt(oldCheck)
     .please();
 const refinements = (at: string, extra = 0) =>
@@ -30,6 +32,7 @@ const refinements = (at: string, extra = 0) =>
         2_000, 2_100, 2_200, 2_300, 2_400, 2_500, 2_600, 2_700, 2_800, 2_900,
       ].map((value) => value + extra),
     })
+    .withTrend([{ at: tenthTask, value: 2_450 + extra }])
     .checkedAt(at)
     .please();
 
@@ -69,7 +72,7 @@ test("checking survives a selected cohort read and waits for Refresh's selected-
       ),
   );
   const usage = await visitUsage(page);
-  await usage.showsAverage("1,450");
+  await usage.showsMedian("1,450");
   await usage.refresh();
   await refresh.held.received;
   await usage.showsChecking();
@@ -77,14 +80,14 @@ test("checking survives a selected cohort read and waits for Refresh's selected-
   await selection.held.received;
   await usage.showsChecking();
   selection.held.release();
-  await usage.showsAverage("2,450");
+  await usage.showsMedian("2,450");
   await usage.showsChecking();
   refresh.held.release();
   await reread.held.received;
   await usage.showsChecking();
-  await usage.showsAverage("2,450");
+  await usage.showsMedian("2,450");
   reread.held.release();
-  await usage.showsAverage("3,450");
+  await usage.showsMedian("3,450");
   await usage.showsCheckedAt(nextCheck);
   await usage.showsChecked();
 });
@@ -118,18 +121,18 @@ test("a failed Refresh after a filter change retains the selected chart and time
       ),
   );
   const usage = await visitUsage(page);
-  await usage.showsAverage("1,450");
+  await usage.showsMedian("1,450");
   await usage.refresh();
   await refresh.held.received;
   await usage.choose("Launch workflow", "Refinement");
-  await usage.showsAverage("2,450");
+  await usage.showsMedian("2,450");
   await usage.showsCheckedAt(selectedCheck);
   await usage.showsChecking();
   refresh.held.release();
   await usage.showsProblem(
     "Usage could not be refreshed: rollouts unavailable.",
   );
-  await usage.showsAverage("2,450");
+  await usage.showsMedian("2,450");
   await usage.showsCheckedAt(selectedCheck);
   await usage.showsChecked();
 });

@@ -95,7 +95,7 @@ async function importedLaunches(
   return { imported, transcripts, usage, coverage };
 }
 
-test("a Claude launch refreshed before its first response is partial until a later Refresh finds its response, then joins the moving average", async ({
+test("a Claude launch refreshed before its first response is partial until a later Refresh finds its response, then joins the rolling median", async ({
   machine,
 }) => {
   const { imported, transcripts, usage, coverage } = await importedLaunches(
@@ -125,7 +125,7 @@ test("a Claude launch refreshed before its first response is partial until a lat
   await usage.refresh();
   expect(rootGaps()).toEqual(["auxiliary-usage-not-covered"]);
   expect(await coverage("SEED-7#claude-10")).toEqual({ kind: "measured" });
-  // Ten measured launches of 1,950 each: the one average point, at the tenth's
+  // Ten measured launches of 1,950 each: the one median point, at the tenth's
   // end.
   expect((await usage.chart("?tool=claude")).average).toEqual([
     { at: day(10), value: 1_950 },

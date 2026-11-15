@@ -72,7 +72,7 @@ test("Usage shows the finished-task trend and opens a task from the chosen cohor
   await usage.showsPoints(
     [...Array<number>(10).keys()].map((at) => `Nov ${String(at + 1)} · 1,950`),
   );
-  await usage.showsAverage("1,950");
+  await usage.showsMedian("1,950");
   await usage.showsTariff(
     "Codex rate card read 2026-11-15 · standard speed · GPT-6.1 Sol input-token equivalents",
   );

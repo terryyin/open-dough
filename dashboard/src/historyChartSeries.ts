@@ -43,12 +43,15 @@ export type HistoryChartSeries = {
   // Fallback when no ordinary point exists; absent for timing charts.
   readonly emptyScaleMaximum?: number;
   // This trend is read against ordinary points without determining their scale.
-  readonly independentTrend?: { readonly label: string };
+  readonly independentTrend?: {
+    readonly label: string;
+    readonly shortLabel: string;
+  };
   // A level drawn as the dashed line, such as CI's prior-build average.
   readonly reference?:
     { readonly value: number; readonly label: string } | undefined;
   // A dated trend drawn as the line instead of joining the points, such as
-  // Usage's moving average; a trend of one value is a short level at it.
+  // Usage's rolling median; a trend of one value is a short level at it.
   readonly trend?: readonly { readonly date: string; readonly value: number }[];
 };
 

@@ -47,7 +47,7 @@ const response = (at: number, output: number) => ({
   usage: usage(output),
 });
 
-test("Claude launches whose root or worker transcript is gone are partial with that gap and out of the moving average, while launches with only the background-work limit stay measured", async ({
+test("Claude launches whose root or worker transcript is gone are partial with that gap and out of the rolling median, while launches with only the background-work limit stay measured", async ({
   machine,
 }) => {
   const measured = [...Array<number>(10).keys()].map((at) => at + 1);
@@ -123,8 +123,8 @@ test("Claude launches whose root or worker transcript is gone are partial with t
       .filter(({ coverage }) => coverage.kind === "measured")
       .map(({ identity }) => identity),
   ).toEqual(measured.map((at) => `SEED-7#claude-${at}`));
-  // Indices 1,450 + 500×k for k = 1…10: their mean is 4,200, the only
-  // average point, at the tenth measured launch's end.
+  // Indices 1,450 + 500×k for k = 1…10: their median is 4,200, the only
+  // median point, at the tenth measured launch's end.
   expect(answer.average).toEqual([
     { at: "2026-11-14T20:00:00.000Z", value: 4_200 },
   ]);

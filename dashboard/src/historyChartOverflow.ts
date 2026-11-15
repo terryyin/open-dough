@@ -55,7 +55,7 @@ export function placeOverflows(
           const value = series.axis.words(point.value);
           return [
             {
-              ...place(`Avg ↑ ${value}`, point.date),
+              ...place(`${independent.shortLabel} ↑ ${value}`, point.date),
               x: x(point.date),
               readout: `${buildDateWords(point.date)} · ${independent.label} above scale · ${value}`,
             },

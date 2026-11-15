@@ -3,7 +3,7 @@
 // (`./landedCiHistorySeries.ts`); scope
 // Proof supplies precise execution time, compatible segments and its builds
 // without timing; System settings → Usage supplies each finished task's
-// Token index with its moving average as the trend. All use the same
+// Token index with its rolling median as the trend. All use the same
 // placement and marks (`./historyChartLayout.ts`, `./HistoryChartPlot.tsx`):
 // a gap never acquires a numeric point or joining stroke. Every mark is also
 // a button laid over the drawing, in history order, so pointer, keyboard focus
@@ -130,7 +130,7 @@ export function HistoryChart({
       {layout !== undefined && layout.trendOverflows.length > 0 && (
         <ul
           className="history-chart-trend-values"
-          aria-label="Above-scale averages"
+          aria-label="Above-scale trend values"
         >
           {layout.trendOverflows.map((point, index) => (
             <li key={index}>{point.readout}</li>

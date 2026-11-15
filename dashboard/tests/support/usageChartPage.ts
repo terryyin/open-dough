@@ -15,17 +15,17 @@ export function usageChart(page: Page) {
   );
   const large = chart.drawing.locator(".history-chart-overflow");
   return {
-    async showsLatestAverage(value: string) {
-      await expect(page.locator(".usage-average strong")).toHaveText(value);
+    async showsLatestMedian(value: string) {
+      await expect(page.locator(".usage-median strong")).toHaveText(value);
     },
-    async showsAverageOverflow(
+    async showsMedianOverflow(
       labels: readonly string[],
       readouts: readonly string[],
     ) {
       const overflow = chart.drawing.locator(".history-chart-trend-overflow");
       await expect(overflow.locator("text")).toHaveText([...labels]);
       const values = chart.box.getByRole("list", {
-        name: "Above-scale averages",
+        name: "Above-scale trend values",
       });
       await expect(values.getByRole("listitem")).toHaveText([...readouts]);
       await expect(values.getByRole("button")).toHaveCount(0);
@@ -34,16 +34,16 @@ export function usageChart(page: Page) {
         await expectReadableContrast(text);
       }
     },
-    async showsAverageAtLargeDate() {
-      const average = await centreOf(
+    async showsMedianAtLargeDate() {
+      const median = await centreOf(
         chart.drawing.locator(".history-chart-trend-overflow path").first(),
       );
-      expect(average.x).toBeCloseTo(
+      expect(median.x).toBeCloseTo(
         (await centreOf(large.first().locator("path"))).x,
         1,
       );
     },
-    async showsDistinctAverageAboveDots() {
+    async showsDistinctMedianAboveDots() {
       const line = chart.line;
       await expect(line).toHaveCount(1);
       const paint = await line.evaluate(
@@ -74,7 +74,7 @@ export function usageChart(page: Page) {
       ).toBe(true);
       await expectChartMarkContrast(line);
     },
-    async showsSeparatedAverageLevels() {
+    async showsSeparatedMedianLevels() {
       await expect(chart.line).toHaveAttribute(
         "d",
         /^M[^ML]+L[^ML]+ M[^ML]+L[^ML]+$/,

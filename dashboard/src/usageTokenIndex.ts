@@ -1,7 +1,7 @@
 // System settings → Usage's answer: one Token index point per finished,
 // priced dashboard-launched task of the chosen cohort, in end-time order, each
 // with the detail the view shows when it is selected and its coverage; how
-// many tasks are unpriced; the trailing moving average, the tariff version
+// many tasks are unpriced; the rolling median, the tariff version
 // that weighed them, when the usage was last checked and the Model and Effort
 // options the observed tasks offer (`../server/usageBoundary.ts`). The cohort
 // travels as the request's query, spelled here for both sides. Refresh
@@ -14,8 +14,8 @@ export const usageRefreshEndpoint = "/__usage/refresh";
 
 export type UsageRefreshAnswer = { readonly checkedAt: string };
 
-// How many of the latest eligible tasks the moving average spans.
-export const movingAverageTasks = 10;
+// How many of the latest eligible tasks the rolling median spans.
+export const rollingMedianTasks = 10;
 
 // The launch workflows a cohort selects: the dashboard's story workflows and
 // its ad hoc sessions.
@@ -188,8 +188,9 @@ export type TokenIndexAnswer = {
   // How many finished tasks of the cohort have no point because a response
   // lacks a rate under the tariff, such as an unknown model or speed tier.
   readonly unpriced: number;
-  // From the tenth eligible task on, the mean of each one's latest ten
+  // From the tenth eligible task on, the median of each one's latest ten
   // eligible tasks: priced and measured with no known gap. Earlier history still
   // contributes; only observations in the requested period are returned.
+  // Keep the existing wire name for the trend.
   readonly average: readonly { readonly at: string; readonly value: number }[];
 };

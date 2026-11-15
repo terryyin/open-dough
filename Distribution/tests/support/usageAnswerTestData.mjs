@@ -7,6 +7,8 @@ const sol = { id: "gpt-6.1-sol", name: "GPT-6.1 Sol" };
 
 export class TokenIndexAnswerBuilder {
   #indexes = [1_950];
+  /** @type {TokenIndexAnswer["average"]} */
+  #trend = [];
   /** @type {Map<number, Partial<TokenIndexTask>>} */
   #details = new Map();
   #unpriced = 0;
@@ -20,6 +22,12 @@ export class TokenIndexAnswerBuilder {
   /** @param {{ indexes: readonly number[] }} facts */
   with({ indexes }) {
     this.#indexes = [...indexes];
+    return this;
+  }
+
+  /** @param {TokenIndexAnswer["average"]} points */
+  withTrend(points) {
+    this.#trend = structuredClone(points);
     return this;
   }
 
@@ -82,7 +90,6 @@ export class TokenIndexAnswerBuilder {
       coverage: { kind: "measured" },
       ...this.#details.get(at),
     }));
-    const measured = tasks.filter((task) => task.coverage.kind === "measured");
     return structuredClone({
       cohort: this.#cohort,
       options: this.#options,
@@ -90,19 +97,7 @@ export class TokenIndexAnswerBuilder {
       checkedAt: this.#checkedAt,
       tasks,
       unpriced: this.#unpriced,
-      average: measured.flatMap((task, at) =>
-        at < 9
-          ? []
-          : [
-              {
-                at: task.endedAt,
-                value:
-                  measured
-                    .slice(at - 9, at + 1)
-                    .reduce((sum, each) => sum + each.index, 0) / 10,
-              },
-            ],
-      ),
+      average: this.#trend,
     });
   }
 }

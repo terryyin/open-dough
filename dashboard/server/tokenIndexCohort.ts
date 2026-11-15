@@ -3,13 +3,13 @@
 // chosen tool ran, of a project configured now, hidden ones included, in the
 // chosen launch workflow and, when chosen, with that primary observed model
 // and effort, weighed under one tariff version and placed at its reported
-// outcome time, or else its last recorded activity, with the trailing moving
-// average of the eligible ones: priced, with no recorded gap. An unpriced
+// outcome time, or else its last recorded activity, with the rolling median
+// of the eligible ones: priced, with no recorded gap. An unpriced
 // task has no point and is only counted. The Model and Effort options are the
 // primary settings the tool's finished tasks show in any launch workflow, so
 // switching workflow keeps every choice on offer.
 import {
-  movingAverageTasks,
+  rollingMedianTasks,
   type TokenIndexAnswer,
   type TokenIndexCohort,
 } from "../src/usageTokenIndex.ts";
@@ -73,11 +73,17 @@ export function tokenIndexCohort(
     );
   // Partial tasks' missing usage would pull the trend down.
   const eligible = tasks.filter((task) => task.coverage.kind === "measured");
-  const average = eligible.flatMap((task, at) => {
-    if (at + 1 < movingAverageTasks) return [];
-    const latest = eligible.slice(at + 1 - movingAverageTasks, at + 1);
-    const total = latest.reduce((sum, each) => sum + each.index, 0);
-    return [{ at: task.endedAt, value: total / movingAverageTasks }];
+  const median = eligible.flatMap((task, at) => {
+    if (at + 1 < rollingMedianTasks) return [];
+    const sorted = eligible
+      .slice(at + 1 - rollingMedianTasks, at + 1)
+      .map(({ index }) => index)
+      .sort((a, b) => a - b);
+    const middle = rollingMedianTasks / 2;
+    const middleTotal = sorted
+      .slice(middle - 1, middle + 1)
+      .reduce((sum, value) => sum + value, 0);
+    return [{ at: task.endedAt, value: middleTotal / 2 }];
   });
   return {
     cohort,
@@ -95,6 +101,6 @@ export function tokenIndexCohort(
       ({ value, endedAt }) =>
         value === "unpriced" && inUsagePeriod(endedAt, period),
     ).length,
-    average: average.filter(({ at }) => inUsagePeriod(at, period)),
+    average: median.filter(({ at }) => inUsagePeriod(at, period)),
   };
 }

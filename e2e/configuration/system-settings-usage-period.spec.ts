@@ -10,7 +10,7 @@ import { visitUsage } from "../../dashboard/tests/support/systemSettingsUsagePag
 
 test.use({ timezoneId: "America/New_York" });
 
-test("30 to 7 to 1 local days selects the dated tasks and keeps earlier history in the average", async ({
+test("30 to 7 to 1 local days selects the dated tasks and keeps earlier history in the median", async ({
   page,
 }) => {
   await page.clock.install({ time: new Date("2026-11-15T18:00:00.000Z") });
@@ -66,7 +66,7 @@ test("30 to 7 to 1 local days selects the dated tasks and keeps earlier history 
     await usage.showsCohortNote(
       "16 tasks · 5 partial · 1 unpriced · Last 30 days",
     );
-    await usage.showsAverage("1,950");
+    await usage.showsMedian("1,950");
     await usage.selectPoint("Nov 8 · 1,950 · Partial", "pointer");
     await usage.chooseDays("7");
     await usage.showsPoints([
@@ -79,13 +79,13 @@ test("30 to 7 to 1 local days selects the dated tasks and keeps earlier history 
       "5 tasks · 3 partial · 1 unpriced · Last 7 days",
     );
     await usage.showsNoDetail();
-    await usage.showsAverage("1,950");
+    await usage.showsMedian("1,950");
     await usage.chooseDays("1");
     await usage.showsCohortNote("2 tasks · 1 partial · Last 1 day");
     await usage.showsPoints(["Nov 15 · 1,950 · Partial", "Nov 15 · 1,950"]);
-    await usage.showsAverage("1,950");
+    await usage.showsMedian("1,950");
     await usage.chooseDays("30");
-    await usage.showsAverage("1,950");
+    await usage.showsMedian("1,950");
   } finally {
     await machine.close();
   }

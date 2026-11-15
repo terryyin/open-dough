@@ -51,7 +51,7 @@ test("local calendar requests retain the last valid day view through invalid inp
   expect(requests.at(-1)?.get("from")).toBe("2026-11-09T05:00:00.000Z");
 });
 
-test("empty periods explain their counts and do not show an old average", async ({
+test("empty periods explain their counts and do not show an old median", async ({
   page,
 }) => {
   await page.clock.install({ time: new Date("2026-11-15T18:00:00.000Z") });
@@ -70,7 +70,7 @@ test("empty periods explain their counts and do not show an old average", async 
   await usage.showsNoPoints(
     "No priced finished task matches in the last 30 days.",
   );
-  await usage.showsNoAverage(
-    "An average needs 10 eligible tasks; none is available in this period",
+  await usage.showsNoMedian(
+    "A rolling median needs 10 eligible tasks; none is available in this period",
   );
 });

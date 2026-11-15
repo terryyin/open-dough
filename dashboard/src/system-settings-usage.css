@@ -1,7 +1,7 @@
 /* System settings' views (./SystemSettings.tsx): General and Usage as a row
    of pressed buttons under the bar, and Usage's Token index
    (./SystemSettingsUsage.tsx): its heading with Refresh, its filters, the
-   chart's head with the moving average's figure (./TokenIndexTrend.tsx), the
+   chart's head with the rolling median's figure (./TokenIndexTrend.tsx), the
    shared chart (./history-chart.css) and its legend with the tariff version,
    and the selected task's detail (./UsageTaskDetail.tsx). */
 .settings-views {
@@ -78,13 +78,13 @@
   font-weight: var(--weight-strong);
 }
 
-.usage-average {
+.usage-median {
   display: grid;
   justify-items: end;
   margin: 0;
 }
 
-.usage-average strong {
+.usage-median strong {
   font-size: var(--text-xl);
   font-variant-numeric: tabular-nums;
 }
@@ -124,7 +124,7 @@
   color: var(--caution);
 }
 
-.usage-swatch-average {
+.usage-swatch-median {
   background: var(--history-chart-trend);
   width: 15px;
   height: 2px;
@@ -174,7 +174,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .usage-average {
+  .usage-median {
     justify-items: start;
   }
 }

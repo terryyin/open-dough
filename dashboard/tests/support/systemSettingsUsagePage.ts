@@ -131,22 +131,22 @@ export function usageView(page: Page) {
         trend.locator(".usage-chart-head p.settings-note"),
       ).toHaveText(words);
     },
-    // The latest moving average's figure, with its line drawn across some
+    // The latest rolling median's figure, with its line drawn across some
     // width, even for a single value.
-    async showsAverage(figure: string) {
-      const average = trend.locator(".usage-average");
-      await expect(average.locator("strong")).toHaveText(figure);
-      await expect(average).toContainText("10-task moving average");
+    async showsMedian(figure: string) {
+      const median = trend.locator(".usage-median");
+      await expect(median.locator("strong")).toHaveText(figure);
+      await expect(median).toContainText("10-task rolling median");
       await expect(chart.line).toHaveCount(1);
       await expect
         .poll(async () => (await chart.line.boundingBox())?.width ?? 0)
         .toBeGreaterThan(0);
     },
     // No figure and no line, with the words saying why.
-    async showsNoAverage(words: string) {
-      const average = trend.locator(".usage-average");
-      await expect(average.locator("strong")).toHaveText("—");
-      await expect(average).toContainText(words);
+    async showsNoMedian(words: string) {
+      const median = trend.locator(".usage-median");
+      await expect(median.locator("strong")).toHaveText("—");
+      await expect(median).toContainText(words);
       await expect(chart.line).toHaveCount(0);
     },
     // No chart, with the words saying why.

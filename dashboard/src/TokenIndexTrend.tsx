@@ -1,8 +1,8 @@
 // System settings → Usage's Token index trend for one cohort's answer
 // (`./usageTokenIndex.ts`): one point per task over its end time on the
 // shared history chart (`./HistoryChart.tsx`), partial ones hollow, the
-// true trailing moving average above dots, independent of their scale; ↑ labels
-// and dated values identify average overflow. The cohort note counts partial
+// rolling median above dots, independent of their scale; ↑ labels and dated
+// values identify median overflow. The cohort note counts partial
 // tasks and the unpriced ones, which have no point, and the tariff version
 // that weighed them; a tool whose usage leaves known work out names that work
 // once for its cohort. Selecting a point by pointer or keyboard shows that
@@ -14,14 +14,14 @@ import type { HistoryChartSeries } from "./historyChartSeries.ts";
 import { HistoryChart } from "./HistoryChart.tsx";
 import { partialWords, UsageTaskDetail } from "./UsageTaskDetail.tsx";
 import {
-  movingAverageTasks,
+  rollingMedianTasks,
   type TokenIndexAnswer,
   type UsageTool,
 } from "./usageTokenIndex.ts";
 
 const largeTaskThreshold = 50_000_000;
 const largeTaskWords = "Large task above 50 million";
-const movingAverageWords = `${String(movingAverageTasks)}-task moving average`;
+const rollingMedianWords = `${String(rollingMedianTasks)}-task rolling median`;
 // Claude Code's background work never reaches its transcripts.
 const excludedWork: Partial<Record<UsageTool, string>> = {
   claude:
@@ -37,7 +37,7 @@ function series(
     axis: countAxis,
     selectedLabel: "Selected task",
     emptyScaleMaximum: largeTaskThreshold,
-    independentTrend: { label: movingAverageWords },
+    independentTrend: { label: rollingMedianWords, shortLabel: "Median" },
     entries: answer.tasks.map((task) => {
       const partial = task.coverage.kind === "partial";
       return {
@@ -99,14 +99,14 @@ export function TokenIndexTrend({
               {cohortNote(answer)} · Last {periodWords}
             </p>
           </div>
-          <p className="usage-average">
+          <p className="usage-median">
             <strong>
               {latest === undefined ? "—" : countWords(latest.value)}
             </strong>
             <span className="settings-note">
               {latest === undefined
-                ? `An average needs ${String(movingAverageTasks)} eligible tasks; none is available in this period`
-                : movingAverageWords}
+                ? `A rolling median needs ${String(rollingMedianTasks)} eligible tasks; none is available in this period`
+                : rollingMedianWords}
             </span>
           </p>
         </div>
@@ -144,7 +144,7 @@ export function TokenIndexTrend({
               <i className="usage-swatch usage-swatch-partial" /> {partialWords}
             </span>
             <span>
-              <i className="usage-swatch usage-swatch-average" /> Moving average
+              <i className="usage-swatch usage-swatch-median" /> Rolling median
               (↑ above scale)
             </span>
           </p>

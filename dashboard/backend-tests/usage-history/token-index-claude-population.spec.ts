@@ -1,4 +1,4 @@
-// The Claude Code cohort's population and moving average follow the Codex
+// The Claude Code cohort's population and rolling median follow the Codex
 // cohort's rules. Default Claude task responses run Claude Opus 5.5 (Anthropic
 // API list prices read 2026-11-15: input $4, cache read $0.20, output $20 per
 // 1M tokens), so 1,000 uncached, 9,000 read and O output tokens weigh
@@ -68,7 +68,7 @@ test("retained, Done-marked and recovered Claude dashboard tasks are each their 
   ]);
 });
 
-test("the Claude Code moving average spans its ten latest eligible tasks, leaving an unpriced fast task out", async ({
+test("the Claude Code rolling median spans its ten latest eligible tasks, leaving an unpriced fast task out", async ({
   machine,
 }) => {
   const priced = [...Array<number>(10).keys()].map((at) =>
@@ -99,6 +99,6 @@ test("the Claude Code moving average spans its ten latest eligible tasks, leavin
   const answer = cohort({ tool: "claude" });
   expect(answer.unpriced).toBe(1);
   // Indices 1,950, 2,450, … 6,450 (1,450 + 500×k for k = 1…10):
-  // their mean is 1,450 + 500×5.5 = 4,200.
+  // their median is 1,450 + 500×5.5 = 4,200.
   expect(answer.average).toEqual([{ at: day(10), value: 4_200 }]);
 });
