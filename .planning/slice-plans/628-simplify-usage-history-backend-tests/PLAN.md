@@ -237,3 +237,17 @@ Family after slice 1 focused run: **46 passed** (was 47).
 - Sizing: each slice is one group of 2–7 specs, one builder concern and one
   proof loop of about 80 s. Slices 1 and 2 also create a builder.
 - Slice-plan refinement was not needed; remaining concerns: none identified.
+
+## Execution complete
+
+Product advice:
+1. Incidental time noise relocated, not fully quieted — ~18 family specs still
+   stamp `usageHistoryDefaultAt` because shared `aLaunchRecord` defaults remain
+   before the import window; usage-history launch helpers could keep incidental
+   launch time out of cases without product change.
+2. Measured bar met (47→46 tests, 4481→4445 lines); further consolidation toward
+   a “much shorter” reading cost is a separate product choice, not a failed
+   measured promise.
+3. No new backlog item from this review. Process review deferred into wrap-up
+   (Intent Coverage then process). Hosted CI on tip `9a87a57b2` remains pending
+   at retrospective time.
