@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "viktor-chan",
+  "email": "viktor-chan@example.org",
+  "identity": "SEED-357#reuse-unchanged-usage-pages-on-repeated-writes",
+  "mode": "story-branch",
+  "branch": "codex/keep-usage-task-facts-and-freshness-consistent-a",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
