@@ -20,6 +20,7 @@ import {
   type GapReveal,
 } from "./diffContextExpansion.ts";
 import type { DiffLineSide } from "./DiffLineNumber.tsx";
+import type { DiffLineTokens } from "./diffLineTokens.ts";
 import { ContextGap, diffLineItems } from "./StoryReviewContextGap.tsx";
 import { parsedUnifiedDiff, type UnifiedDiff } from "./unifiedDiff.ts";
 import "./story-review-diff.css";
@@ -53,6 +54,7 @@ function numberDigits(
 export function DiffLines({
   printed,
   sides,
+  lineTokens,
   textProblem,
   contextReading,
   onRetryText,
@@ -60,6 +62,8 @@ export function DiffLines({
 }: {
   readonly printed: string;
   readonly sides: FileLineSides | undefined;
+  // Each line's syntax tokens, or none while it reads as plain text.
+  readonly lineTokens: DiffLineTokens;
   readonly textProblem?: string;
   // Whether the file text the omitted lines come from is still being read.
   readonly contextReading: boolean;
@@ -151,6 +155,7 @@ export function DiffLines({
         gap={gap}
         reveal={reveals[gap.id] ?? emptyReveal}
         sides={sides}
+        lineTokens={lineTokens}
         beforeFirst={gap.afterHunk < 0}
         trailing={gap.afterHunk === hunks.length - 1}
         onReveal={(next, preserve) => {
@@ -202,7 +207,7 @@ export function DiffLines({
                 {hunk.header}
               </li>
               {hunk.lines.flatMap((line, at) =>
-                diffLineItems(line, String(at), lineMenu),
+                diffLineItems(line, String(at), lineTokens(line), lineMenu),
               )}
             </ol>
             {after !== undefined && renderGap(after)}

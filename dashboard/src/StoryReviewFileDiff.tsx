@@ -2,13 +2,16 @@
 // snapshot (`./storyReviewContract.ts`) from its *from* tree in the comparison shown:
 // printed hunks via `./StoryReviewDiffLines.tsx`, with omitted unchanged lines
 // available from the same comparison's file text (`./diffContextExpansion.ts`)
-// as disposable presentation state. Both are fixed by the two trees, so the
-// page asks each once (`./useReviewRead.ts`); an unavailable answer is asked
-// again. When a Done story offers line Follow up, DiffLines opens that line's
-// menu and this file mounts the same Start session dialog for the line.
+// as disposable presentation state, and every line's code syntax-styled from
+// that text by the file's path (`./diffLineTokens.ts`). Both are fixed by the
+// two trees, so the page asks each once (`./useReviewRead.ts`); an
+// unavailable answer is asked again. When a Done story offers line Follow up,
+// DiffLines opens that line's menu and this file mounts the same Start
+// session dialog for the line.
 
 import { useState } from "react";
 import { textLines } from "./diffContextExpansion.ts";
+import { useDiffLineTokens } from "./diffLineTokens.ts";
 import type { DiffLineSide } from "./DiffLineNumber.tsx";
 import { useDoneStoryFollowUp } from "./doneStoryFollowUp.ts";
 import {
@@ -96,13 +99,12 @@ export function FileDiff({
     reviewedFileTextSchema,
     { round: textRound, enabled: textEnabled, fixed: textFixed },
   );
+  const text = textRead.answer?.kind === "text" ? textRead.answer : undefined;
   const sides =
-    textRead.answer?.kind === "text"
-      ? {
-          baseline: textLines(textRead.answer.baseline),
-          tree: textLines(textRead.answer.tree),
-        }
-      : undefined;
+    text === undefined
+      ? undefined
+      : { baseline: textLines(text.baseline), tree: textLines(text.tree) };
+  const lineTokens = useDiffLineTokens(file.path, text);
   const textProblem =
     textRead.problem ??
     (textRead.answer?.kind === "unavailable"
@@ -122,6 +124,7 @@ export function FileDiff({
         <DiffLines
           printed={answer.printed}
           sides={sides}
+          lineTokens={lineTokens}
           contextReading={textRead.reading}
           {...(sides === undefined && textProblem !== undefined
             ? { textProblem }

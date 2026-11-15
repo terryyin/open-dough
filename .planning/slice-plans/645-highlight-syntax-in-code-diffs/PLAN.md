@@ -140,7 +140,7 @@ pinning palette values.
 
 ### 2. A file diff styles its code by the file's language
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/frontend-tests/review/story-review-diff-syntax.spec.ts`
 (≤250 lines, page-object locators beside `tests/support/reviewPanes.ts`) as in
 the proof table; `... --reporter=list review/ dashboard-system-appearance`;
@@ -170,6 +170,15 @@ keep 4.5:1 in both appearances; a `.md` diff stays plain.
   extension aliases, renamed paths and a plain unsupported file through
   frontend review responses. Do not test a second highlighter stand-in.
 - Reword `STORY-REVIEW-FILES.md` and the `sourceHighlight.ts` header.
+
+Accepted: `diffLineTokens.ts` reads each side's tokens through the shared
+hook and renders through `SourceTokens`; three frontend specs
+(`story-review-diff-syntax*.spec.ts`) observe line kinds, comment and string
+context, 20 revealed lines, plain-twin equality of markers, numbers,
+backgrounds, accessible and copied text, 4.5:1 in both appearances, equality
+with Intent's computed token styles, and path mapping. A diff-only colour
+rule failed the equality check. A line whose tokens do not spell its text
+stays plain.
 
 ### 3. Styling arrives without disturbing the diff
 Type: Behavior

@@ -34,7 +34,14 @@ diffs, each line number is a control that opens a small menu naming the line
 (for example “Old line 85”) and offering Follow up for that line and side,
 including revealed context lines; the menu holds only Follow up until story
 notes add more. Line numbers stay outside copied code and off the Tab order
-(`src/DiffLineNumber.tsx`, `src/StoryReviewDiffLines.tsx`). Beside a file's
+(`src/DiffLineNumber.tsx`, `src/StoryReviewDiffLines.tsx`). A diff's code
+carries the same syntax styling as Intent's source reading, chosen by the
+file's path (a renamed file by its new path; a file of another language reads
+as plain text): removed lines are styled as they read in the old file's whole
+text and every other line, revealed context included, as in the new file's
+(`src/diffLineTokens.ts`, `src/sourceHighlight.ts`). Markers and backgrounds
+keep telling the change kind, and copied and assistive-technology text stays
+the line's plain code. Beside a file's
 name its row shows how many lines its diff adds and removes (`+2 −1`), and
 its control is described by them in words (`2 lines added, 1 line removed`).
 The snapshot reads them with `git diff --numstat -M -z` over the same _from_

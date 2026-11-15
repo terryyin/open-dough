@@ -1,11 +1,12 @@
-// On-demand source highlighting for every source reader (through
-// `./useSourceHighlight.ts`): Shiki's core and JavaScript engine, with each
-// Intent syntax hint's grammar and the github-light-high-contrast and
+// On-demand syntax styling for every source reader -- Intent's source reading
+// (`./SourceLines.tsx`) and story-review file diffs (`./diffLineTokens.ts`) --
+// through `./useSourceHighlight.ts`: Shiki's core and JavaScript engine, with
+// each supported grammar and the github-light-high-contrast and
 // github-dark-high-contrast palettes loaded only when first needed.
-// `sourceLanguage` maps an Intent syntax hint (+ path for typescript/.tsx) to
-// the Shiki language id. Failure leaves the caller with
-// plain text and no error surface. Both theme colours ship on each token so
-// CSS can follow the system appearance without re-tokenization.
+// `sourceLanguage` maps an Intent syntax hint (+ path for typescript/.tsx) and
+// `pathLanguage` a diffed file's path to the Shiki language id. Failure leaves
+// the caller with plain text and no error surface. Both theme colours ship on
+// each token so CSS can follow the system appearance without re-tokenization.
 
 import { createHighlighterCore, type HighlighterCore } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
@@ -48,6 +49,29 @@ function loadHighlighter(): Promise<HighlighterCore> {
   return highlighter;
 }
 
+// A file path's extension → Shiki language id, over the same grammars;
+// any other file reads as plain text.
+const extensionLanguages: Readonly<Record<string, string>> = {
+  ts: "typescript",
+  mts: "typescript",
+  cts: "typescript",
+  tsx: "tsx",
+  js: "javascript",
+  mjs: "javascript",
+  cjs: "javascript",
+  jsx: "javascript",
+  java: "java",
+  py: "python",
+  sh: "shell",
+  bash: "shell",
+  feature: "gherkin",
+};
+
+export function pathLanguage(path: string): string | undefined {
+  const extension = /\.([^./]+)$/.exec(path)?.[1];
+  return extension === undefined ? undefined : extensionLanguages[extension];
+}
+
 // Intent syntax hint (+ path for typescript/.tsx) → Shiki language id.
 // `shell` is an alias registered by the shellscript grammar.
 export function sourceLanguage(hint: string, path: string): string | undefined {
@@ -59,7 +83,7 @@ export function sourceLanguage(hint: string, path: string): string | undefined {
     case "shell":
       return hint;
     case "typescript":
-      return path.endsWith(".tsx") ? "tsx" : "typescript";
+      return pathLanguage(path) === "tsx" ? "tsx" : "typescript";
     default:
       return undefined;
   }
@@ -93,8 +117,9 @@ async function ensureLanguage(
   await pending;
 }
 
-// Token lines for `text` in a Shiki language id from `sourceLanguage`, or
-// `undefined` when the language is unsupported or loading/tokenization fails.
+// Token lines for `text` in a Shiki language id from `sourceLanguage` or
+// `pathLanguage`, or `undefined` when the language is unsupported or
+// loading/tokenization fails.
 export async function highlightSourceLines(
   text: string,
   language: string,

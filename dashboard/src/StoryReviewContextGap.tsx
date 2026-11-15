@@ -13,6 +13,9 @@ import {
   type GapReveal,
 } from "./diffContextExpansion.ts";
 import { DiffLineNumber, type DiffLineSide } from "./DiffLineNumber.tsx";
+import type { DiffLineTokens } from "./diffLineTokens.ts";
+import type { SourceTokenLine } from "./sourceHighlight.ts";
+import { SourceTokens } from "./SourceTokens.tsx";
 import type { DiffLine } from "./unifiedDiff.ts";
 
 const lineMarkers: Record<DiffLine["kind"], string> = {
@@ -28,10 +31,12 @@ export type DiffLineMenu = {
   readonly onFollowUp: (side: DiffLineSide, line: number) => void;
 };
 
-// One printed or revealed diff line (and its optional no-newline note).
+// One printed or revealed diff line (and its optional no-newline note): its
+// marker, then its code as syntax tokens or, without them, plain text.
 export function diffLineItems(
   line: DiffLine,
   key: string,
+  tokens: SourceTokenLine | undefined,
   menu?: DiffLineMenu,
 ) {
   const number = (side: DiffLineSide, value: number | undefined) => {
@@ -65,7 +70,7 @@ export function diffLineItems(
       {number("new", line.newNumber)}
       <span className="story-review-line-code">
         {lineMarkers[line.kind]}
-        {line.text}
+        {tokens === undefined ? line.text : <SourceTokens tokens={tokens} />}
       </span>
     </li>,
     ...(line.noNewlineAtEnd === true
@@ -82,6 +87,7 @@ export function ContextGap({
   gap,
   reveal,
   sides,
+  lineTokens,
   beforeFirst,
   trailing,
   onReveal,
@@ -90,6 +96,7 @@ export function ContextGap({
   readonly gap: DiffGap;
   readonly reveal: GapReveal;
   readonly sides: FileLineSides;
+  readonly lineTokens: DiffLineTokens;
   readonly beforeFirst: boolean;
   readonly trailing: boolean;
   readonly onReveal: (next: GapReveal, preserve: "up" | "down") => void;
@@ -115,7 +122,12 @@ export function ContextGap({
       }
     >
       {start.flatMap((line) =>
-        diffLineItems(line, `s-${String(line.oldNumber)}`, lineMenu),
+        diffLineItems(
+          line,
+          `s-${String(line.oldNumber)}`,
+          lineTokens(line),
+          lineMenu,
+        ),
       )}
       {remaining > 0 && (
         <li className="story-review-expand" data-gap={gap.id}>
@@ -148,7 +160,12 @@ export function ContextGap({
         </li>
       )}
       {end.flatMap((line) =>
-        diffLineItems(line, `e-${String(line.oldNumber)}`, lineMenu),
+        diffLineItems(
+          line,
+          `e-${String(line.oldNumber)}`,
+          lineTokens(line),
+          lineMenu,
+        ),
       )}
     </ol>
   );
