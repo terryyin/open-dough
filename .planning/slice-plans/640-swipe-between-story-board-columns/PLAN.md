@@ -235,13 +235,13 @@ is retained; no explicit overrun option was supplied.
 CI: GitHub Actions, terryyin/open-dough, verified `ci.yml` (CI), target
 `codex/swipe-between-story-board-columns-on-mobile`. Runtime checkout identity
 matches. Observer coordinator `tsukasa-seed373`, directory
-`/tmp/dough-ci-501/watch-AHutaa`, PID 85835, stream session 51394,
-yielded cell `g400:12`. Claim trunk CI remains unobserved by this branch observer.
+`/tmp/dough-ci-501/watch-hMcAXy`, PID 37554, stream session 76622,
+yielded cell `g400:128`. Claim trunk CI remains unobserved by this branch observer.
 
 Slice 1 accepted/published on the execution branch as
 `645bd13fc880d3289a5191708e7e7ed0abd93b68`, suffix base
 `972eedb87836d50639ff6c865ccb624dc94de00e`; observer reused.
-This is slice 2's retained previously published base and current candidate.
+Latest accepted base: `389627535ef9fc9ec5bf0809508c4c377b0d18e9`; exact branch CI passed.
 
 ## Execution complete
 

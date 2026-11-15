@@ -113,6 +113,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: Required passages were omitted; targeted section reads recovered them without losing command/proof ownership.
   - Inference: Recurring output-scoping deviation under existing targeted-retrieval guidance; isolated elapsed and token saving are unmeasured.
 
+- Execution: SEED-373#swipe-between-story-board-columns (plan 640; first implementation `645bd13fc880d3289a5191708e7e7ed0abd93b68`)
+  - Timestamp: unknown (2026-11-15 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.101 (checkout-bound installed marker at established claim `972eedb87836d50639ff6c865ccb624dc94de00e`)
+  - Evidence: Launch `bce8b320-f942-4732-a7b7-9acc3976b0f3`: coordinator startup/delegation batches were truncated; reading `/tmp/seed373-swipe-consumers.md` reported 88,895 original tokens, followed by a still-broad projection reporting 46,269. This retrospective also combined reads reporting 15,927 and 14,083 original tokens and retrieved smaller code/evidence passages afterward.
+  - Observed effect: Broad reads omitted requested material and needed narrower recovery; source commitments, command identities and terminal proof remained recoverable.
+  - Inference: Recurrence of the existing output-scoping deviation, including in this review, under targeted-retrieval guidance. Mandatory review itself is not classified as waste; isolated elapsed cost and total token saving are unmeasured.
+
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
 
 Former local code: DD-257. [Meaning, evidence and response](docs/maintainer/findings/ODF-314.md).
@@ -221,6 +229,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: Passing behavioral/type checks and an independent refactor return still required mechanical lint repairs; typecheck and independent proof-reuse review then passed before the formatter retry.
   - Inference: The coordinator-owned formatter caught the strict-lint findings safely; no failed candidate was committed or pushed.
 
+- Execution: SEED-373#swipe-between-story-board-columns (plan 640; first implementation `645bd13fc880d3289a5191708e7e7ed0abd93b68`)
+  - Timestamp: unknown (2026-11-15 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.101 (checkout-bound installed marker at established claim `972eedb87836d50639ff6c865ccb624dc94de00e`)
+  - Evidence: Before slice 1 publication `645bd13fc`, guarded fresh refused formatting on `no-param-reassign` in `board-swipe.spec.ts` after focused proof and independent refactor. Both briefs reserved formatter/hook-owned lint to the coordinator. The equivalent `Object.assign(frontendServices, { backlog: largeBacklog })` repair and unchanged-proof rationale are retained at `389627535:.planning/slice-plans/640-swipe-between-story-board-columns/execution-evidence.md`.
+  - Observed effect: Commit/publication were withheld for one mechanical repair and fresh-preparation retry; scenario data and observing assertions remained unchanged.
+  - Inference: Same late authored-file lint feedback as ODF-329. An earlier read-only check might shorten feedback, but no isolated saving was measured.
+
 ## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
 
 Former local code: DD-349. [Meaning, evidence and response](docs/maintainer/findings/ODF-362.md).
@@ -232,6 +248,20 @@ Former local code: DD-349. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-387. Former local code: DD-401. Former local code: DD-394 (`6c354905e`), renumbered in merge `966aad8b1`. Two local facets enter this gate: closure commitments owned by completion or wrap-up but allocated to the last slice must be observed before its done transition (DD-387), and a Story Branch rollout slice released from trunk without a step landing the earlier slices (DD-401). [Meaning, evidence and response](docs/maintainer/findings/ODF-333.md).
 
 [Occurrences retained in the catalog](docs/maintainer/findings/ODF-333.md).
+
+## ODF-330 — Hand-built delivery inputs omit an unchanged plan from ownedPaths
+
+[Meaning, retained unchanged-plan evidence and current response](docs/maintainer/findings/ODF-330.md).
+
+### Occurrences
+
+- Execution: SEED-373#swipe-between-story-board-columns (plan 640; first implementation `645bd13fc880d3289a5191708e7e7ed0abd93b68`)
+  - Timestamp: unknown (2026-11-15 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.101 (checkout-bound installed marker at established claim `972eedb87836d50639ff6c865ccb624dc94de00e`)
+  - Evidence: Coordinator repair-delivery receipt before `389627535ef9fc9ec5bf0809508c4c377b0d18e9` refused context because the unchanged active plan was absent from `ownedPaths`; no generation, formatting, commit or push ran. Adding the plan to `/tmp/seed373-repair-preparation.json` allowed fresh delivery. `execution-increment-preparation.mjs:90` requires that path even when its slice is already done; `fresh-increment.md` describes staged plan evidence but not this unchanged-plan case.
+  - Observed effect: One contained preparation refusal and corrected-input retry; accepted proof and the repair candidate were preserved.
+  - Inference: Matches the unchanged-plan omission facet already retained in ODF-330, not its porcelain-trimming mechanism. Making the unconditional plan-path input explicit is a candidate clarification; no delivery-tool defect or measured saving is established.
 
 ## ODF-337 — Fresh delivery ownedPaths cannot stage a deleted rename source
 
@@ -261,6 +291,14 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: /tmp/seed369-slice1-consumer-trace.md at the slice-1 return included generic PLAN.md/source-review basenames; tool 2905b6 reported 57,196 original tokens and truncation after the coordinator printed the trace.
   - Observed effect: The generated trace mixed actual Usage consumers with hundreds of historical planning/name collisions; focused consumer excerpts recovered the relevant dispositions.
   - Inference: The generator breadth and the coordinator's full trace read both contributed; no isolated saving was measured.
+
+- Execution: SEED-373#swipe-between-story-board-columns (plan 640; first implementation `645bd13fc880d3289a5191708e7e7ed0abd93b68`)
+  - Timestamp: unknown (2026-11-15 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.101 (checkout-bound installed marker at established claim `972eedb87836d50639ff6c865ccb624dc94de00e`)
+  - Evidence: `/tmp/seed373-swipe-consumers.md` derives `PLAN.md` and `source-review.md` from changed planning records while tracing Board paging/swipe effects. The independent indicator refactor returned `/tmp/seed373-indicators-refactor-consumers.md` with all 1,022 located rows dispositioned; source acceptance and affected consumer runs are retained at `389627535:.planning/slice-plans/640-swipe-between-story-board-columns/execution-evidence.md`.
+  - Observed effect: Implementation and refactor tracing carried unrelated planning/history/guidance matches through dispositions; no missed affected consumer is established.
+  - Inference: Recurrence of automatic generic-term breadth, distinct from the coordinator printing oversized output (ODF-264). A narrower generated listing could reduce disposition work without removing indirect proof; isolated saving is unmeasured.
 
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
