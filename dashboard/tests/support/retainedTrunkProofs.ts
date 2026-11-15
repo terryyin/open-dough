@@ -68,6 +68,7 @@ export function retainedTrunkProofs(
         startedAt,
         completedAt: new Date(Date.parse(startedAt) + 30_000).toISOString(),
         proof,
+        timeWithoutRunnerWaits: { milliseconds: ms },
       })
       .please();
     return { landing, key, ms, build };
