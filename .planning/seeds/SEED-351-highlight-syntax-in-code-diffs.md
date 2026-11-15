@@ -14,14 +14,15 @@ scope: story
 
 **Identity:** SEED-351#highlight-syntax-in-code-diffs
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/645-highlight-syntax-in-code-diffs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1e41802aafe6a6f403bcd51aac130049deb150fe5cbb1073ca315efc99e7827b","plan":"9195d64877d133df0aa3d9b4ae17262e7a9f1f611b307791ecf2cdb68ad3ad6b"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/645-highlight-syntax-in-code-diffs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a3d91fdf6e09d606f3388b63840107ca0b6a549012004c53df8d467fdb74466f","plan":"5a86eed1fc6db6994203058a139d1d8510f0c468e4fc6a11b9d66cff5ee3e8c1"}}
 ```
 
 #### Goal
 
 A developer reviewing a story in the dashboard reads each file diff with its
 code's syntax styled, so the structure of the code is quick to scan while the
-change stays as easy to follow as it is today.
+change stays as easy to follow as it is today. Moving between Intent's source
+reading and a diff presents the same syntax language and appearance.
 
 #### Scope
 
@@ -29,6 +30,14 @@ A [story review](../../dashboard/STORY-REVIEW-FILES.md) file diff styles the
 code of its lines with the token colours Intent's source reading uses
 (`dashboard/src/sourceHighlight.ts`), for every comparison a review shows.
 
+- **Shared solution and appearance.** Intent's source reading and story-review
+  diffs use one syntax-highlighting solution: grammar loading, whole-text
+  tokenization, token representation, rendering and token styling each have
+  one shared owner. Matching code in the same language, lexical context and
+  system appearance has the same token colours and syntax styles in both
+  views, including added, removed and revealed lines. This prevents competing
+  implementations and confusing colour meanings between readers. Any palette
+  adjustment needed for readability applies to both views together.
 - **Language.** The file's path selects the grammar among those the dashboard
   already loads: TypeScript (`.ts`, `.mts`, `.cts`), TSX (`.tsx`), JavaScript
   (`.js`, `.mjs`, `.cjs`, `.jsx`), Java (`.java`), Python (`.py`), shell
@@ -47,7 +56,7 @@ code of its lines with the token colours Intent's source reading uses
   against the composed background of its line, on added, removed and unchanged
   lines, in the light and the dark appearance. A system appearance change
   restyles the tokens already shown. Intent's source reading and diffs keep
-  one token palette, so Intent's tokens take the same colours.
+  one token palette and style rule, with no diff-only token colour adjustment.
 - **Arrival.** The diff shows as plain text first, as today. Styling arrives
   when the file's text and grammar are read, without moving the reading
   position, closing an open line menu, or collapsing revealed context. When
@@ -67,6 +76,11 @@ Deferred promises:
 
 #### Key examples
 
+- Intent and a diff show the same TypeScript code containing a keyword,
+  identifier, string and comment. → Corresponding tokens have identical
+  colours and syntax styles in source, unchanged, added and removed lines;
+  switching the system appearance changes both readers together. The diff
+  still retains its change markers, line numbers and change backgrounds.
 - A modified `.ts` file's diff has added, removed and unchanged lines holding
   `const` and a quoted string. → On each kind of line the keyword and the
   string take different colours from each other and from plain identifiers;
@@ -100,9 +114,10 @@ characters, so neither depends on the other.
 No Accepted decision is affected
 ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)).
 Styling stays a browser presentation concern on the existing on-demand
-highlighter, fed by the two reads a diff already makes: its printed hunks and
-both sides' file text. The server and its contracts gain nothing. ADR 0008
-gives “Highlight” to the selected Story card, so product words call this
+highlighter and shared source-token rendering, fed by the two reads a diff
+already makes: its printed hunks and both sides' file text. Only selecting the
+old or new token line belongs to the diff. The server and its contracts gain
+nothing. ADR 0008 gives “Highlight” to the selected Story card, so product words call this
 “syntax styling”, as Intent's documentation does.
 
 Measured during refinement, on Shiki 4.6.0 with the dashboard's colours:
@@ -111,8 +126,9 @@ Measured during refinement, on Shiki 4.6.0 with the dashboard's colours:
   removed lines fall to 2.4:1 (dark comments) and 2.5–3.7:1 (light keywords,
   comments and parameters); Intent's own comments read at 3.7:1 dark and
   4.45:1 light.
-- github-dark-high-contrast reaches 5.4:1 on every line kind. No bundled light
-  palette reaches 4.5:1 on the current 14% line backgrounds;
-  github-light-high-contrast does (5.0:1) with its tokens mixed a quarter
-  toward the text colour on changed lines, or with lighter line backgrounds.
+- Browser samples across all seven supported grammars: github-dark-high-contrast
+  reaches at least 5.39:1 on source and all diff line backgrounds;
+  github-light-high-contrast reaches at least 4.94:1 with its tokens mixed
+  25% toward the text colour everywhere, including Intent source. The same
+  shared foreground rule works without changing diff backgrounds.
 - Tokenizing a 2,400-line TypeScript file takes about 0.2 s.

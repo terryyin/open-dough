@@ -10,8 +10,9 @@ styled while the change stays as easy to follow as today. The story section
 owns the scope, deferred promises and key examples; this plan adds none.
 
 Assumptions: path extension alone selects the grammar; one token palette
-serves Intent's source reading and diffs; no server, contract or new
-dependency changes (Shiki 4.6.0 already ships the grammars and palettes).
+and syntax style serves Intent's source reading and diffs; no server,
+contract or new dependency changes (Shiki 4.6.0 already ships the grammars
+and palettes).
 
 ## Existing solution and direction
 
@@ -26,7 +27,16 @@ expansion. The diff gains no second highlighter, token model or read.
   line number, removed lines from the old side and all others from the new
   side. Printed and revealed lines share it through `diffLineItems`.
 - The token `<span>` rendering moves out of `SourceLines.tsx` into one shared
-  component both readers use, with `source-lines.css`'s token rule.
+  component both readers use. Its shared stylesheet owns token styling;
+  source and diff stylesheets own their line layout and backgrounds.
+- The whole-text highlighting effect in `SourceLines.tsx` becomes a shared
+  hook, retaining plain-first rendering and cancellation of obsolete results.
+  Intent uses it once and a diff uses it for each side. The diff owns only
+  selecting the side and indexing the token line, not another highlighting
+  lifecycle, token model, renderer or colour rule.
+- High-contrast GitHub palettes with the light foregrounds mixed 25% toward
+  `--text` through that shared token rule keep all readers consistent and
+  readable on today's backgrounds. No diff-specific foreground override.
 - New logic lives in new modules; expected edits touch no file over 250
   lines (`StoryReviewDiffLines.tsx` 214, `StoryReviewContextGap.tsx` 155,
   `StoryReviewFileDiff.tsx` 156, `SourceLines.tsx` 116, `sourceHighlight.ts`
@@ -38,21 +48,31 @@ expansion. The diff gains no second highlighter, token model or read.
   since “Highlight” names the selected Story card. North Star
   ([contrast](../../../docs/dashboard-ux-ui-north-star.md)): 4.5:1 for text.
 
+## Current decisions
+
+The developer requires one cohesive rendering solution and the same syntax
+appearance in source and diff reviews. Matching code, language, lexical
+context and system appearance means equal computed token colours and syntax
+styles, even on added and removed lines. Diff markers, gutters and backgrounds
+keep conveying change kind. Intent's explicit syntax hint and the diff's path
+are different inputs to the existing grammar registry, not separate engines.
+
 ## Proof ownership
 
 | Promise (story scope / example) | Owning slice and observable proof |
 | --- | --- |
-| Readable colours in Intent; one palette | 1: appearance spec: a keyword and a comment token in Intent source reach 4.5:1 in dark and light, and still change colour with the system appearance. |
+| Readable colours in Intent; shared rendering and lifecycle | 1: appearance spec: a keyword and a comment token in Intent source reach 4.5:1 in dark and light, and still change colour with the system appearance. Existing Intent browsing and target/recovery journeys preserve source text and navigation after extraction. |
+| Same solution and external syntax appearance | 1–2: code review traces both readers through the shared highlighter, hook, token component and stylesheet; slice 2 frontend journey supplies identical whole-file text to Intent and a diff and compares computed foregrounds and syntax styles for keyword, identifier, string and comment tokens on every line kind in dark, then light. Deliberately changing only the diff's token colour must fail this comparison. |
 | Language by path; lines styled per side; multi-line comment; removed string vs added code; revealed context; change kind kept; copy unchanged; plain for other files | 2: new frontend spec with controlled diff and text answers: keyword and string colours differ on an added, a removed and an unchanged line; a hunk inside a comment is comment-coloured; the removed line is string-coloured where the added one is not; 20 revealed lines carry tokens; line text, markers, numbers and backgrounds equal the plain diff's; selected text of three lines equals the plain text; a `.md` diff has no token element. |
 | Readable colours on changed lines, both appearances, live switch | 2: same spec: `expectReadableContrast` on a comment and a keyword token on added, removed and unchanged lines in dark, then light after `setColorScheme`, with no new diff or text request. |
-| Arrival; unavailable text; no message | 3: same spec file: with the text answer held the printed lines show plain and complete; released, they gain tokens with the code scroller's position unchanged; an unavailable text answer leaves plain lines and only the existing context problem and Retry; after Retry answers text, lines gain tokens. |
+| Arrival; unavailable text or grammar; no message | 3: frontend cases hold text and the grammar module independently: printed lines show plain and complete; released, they gain tokens without changing scroll position, revealed context or an open line menu. Unavailable text leaves plain lines and only the existing context problem and Retry; after Retry answers text, lines gain tokens. A failed grammar load leaves plain code and no added message. |
 | Unchanged line menus, Follow up, context expansion, binary notes | 2–3: `e2e/review/story-review-diff-context.spec.ts`, `story-review-diff-line-follow-up.spec.ts` and `story-review-panes.spec.ts` stay green unchanged. |
 | Maintained words | 2: `STORY-REVIEW-FILES.md` describes syntax styling of diffs; `sourceHighlight.ts`'s header names the palettes in use. |
 
 ## Decisive premises
 
-Observed on 2026-11-15 at `f03e95948` in the preparation workspace, with the
-integration checkout's `node_modules` linked for the observation (same
+Retained observations on 2026-11-15 at `f03e95948` in the preparation workspace,
+with the integration checkout's `node_modules` linked for the observation (same
 `package-lock.json`) and the link and scratch edits removed afterwards.
 Playwright ran as
 `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/frontend.playwright.config.ts --reporter=list <selection>`.
@@ -60,17 +80,29 @@ Playwright ran as
 | Premise | Consuming operation | Observation and result |
 | --- | --- | --- |
 | Today's palettes fail 4.5:1 on changed lines | Slices 1–2 palette choice | Scratch Node script: Shiki 4.6.0 `codeToTokensWithThemes` over TypeScript, Python, Java, shell and Gherkin samples, WCAG ratio against `--surface`/`--raised-surface` with `--ready`/`--problem` mixed at 14% (`appearance.css`, `story-review-diff.css`). github-light: 2.5–3.7 on changed lines, 3.2–4.45 plain; github-dark: 2.4–2.9 on changed lines, 3.35 plain (comments). Confirmed. |
-| A shipped palette pair reaches 4.5:1 | Slices 1–2 | Same script over all bundled themes: `github-dark-high-contrast` ≥5.4 on every line kind; `github-light-high-contrast` ≥4.65 plain and 3.65 on changed lines (comment `#66707b`), ≥4.97 once its tokens are mixed 25% toward `--text` there. Both modules exist in `node_modules/@shikijs/themes/dist`. Sample-based: a grammar scope outside the samples could differ, and slice 2's browser contrast assertions are the proof. |
-| The palette swap keeps Intent's appearance proof | Slice 1 | Scratch edit of `sourceHighlight.ts` to the two high-contrast palettes, then `dashboard-system-appearance`: 1 passed (its build includes the edit: built-app specs build per run). Reverted. |
+| A shared foreground rule reaches 4.5:1 without diff-only styling | Slices 1–2 | Fresh observation at `7286966d4`, 2026-11-15: scratch `sourceHighlight.ts` uses both high-contrast palettes; `source-lines.css` mixes light tokens 25% toward `--text` for all readers. `node --input-type=module` calls the real `highlightSourceLines` on samples of all seven grammars, then Playwright Chromium `setContent` paints their eight resulting colours per appearance using the actual `appearance.css`, `source-lines.css`, `story-review-diff.css`. `composedColours.ts` measures unchanged/added/removed over both `--surface` and `--raised-surface`: minimum 4.9498 light, 5.3911 dark; computed foregrounds identical across all line kinds/surfaces. This is palette feasibility, not proof of the unimplemented diff integration. |
+| The shared palette keeps Intent's appearance proof and fixes unreadable comments | Slice 1 | Fresh scratch comment assertion using existing `sourceToken` and `expectReadableContrast` in `dashboard-system-appearance`, same literal Playwright command above: fails at 3.7291 with today's palette; passes (1 test, 5.9 s) with both high-contrast palettes and the shared light adjustment. It reads comment and keyword in both appearances and switches live. Scratch edits and dependency symlink reverted before preparation writes. |
+| Grammar arrival/failure can be observed at the browser boundary | Slice 3 | At `7286966d4`, scratch appearance spec aborts `/assets/typescript-[^/]+\.js`, observes that request, then checks complete plain source text, zero token spans and no added failure text: 1 passed (8.4 s), same Playwright command/profile. `intent-purpose-case.spec.ts` already holds/releases the corresponding Gherkin module while checking target-line position; reuse that interception pattern. All scratch edits reverted. |
 | A frontend spec can supply a diff and both sides' text by path | Slices 2–3 proof route | Read `tests/support/frontendStoryReviewRoutes.ts`: `fileByPath`, `textByPath`, held and queued answers for both endpoints. Ran `review/`: 3 passed, opening a review and its file diff through these routes. Token rendering in a built-app spec is observed by the appearance spec above. |
 | Composed line backgrounds are measurable | Slice 2 contrast proof | Read `tests/accessibleReading.ts`: `expectReadableContrast` composes translucent backgrounds up the parent chain (`colorBehind`), the same translucent `color-mix(… transparent)` form as `.story-review-added`. Existing specs already measure text over such fills this way (`dashboard-system-appearance`, 1 passed above; `intent-ci-cues-dark-contrast`). |
 | Whole-side tokenization is quick enough to need no cap | Slice 2 | Scratch Node timing: a 2,446-line TypeScript text tokenized in about 0.2 s. |
 
+The retained paths that these observations consume are unchanged between
+`f03e95948` and `7286966d4` (checked with `git diff` on the highlighter,
+source/diff CSS, appearance spec, colour helpers and frontend review routes).
+The CSS probe uses the exact consuming rules and both possible backing
+surfaces; ancestry affects contrast only through those composed backgrounds.
+It proves the shared palette approach on the samples; execution still owns
+actual source/diff equality and contrast proof through the mounted app.
+
 ## Concerns
 
-Slice-plan refinement was not needed: three slices, each with its own proof
-loop, exercising one token-per-side-line rule. This review found no remaining
-slice-specific concern.
+Slice-plan refinement ran: retain all three boundaries. Slice 1 delivers
+readable source through the common pipeline, slice 2 integrates the common
+pipeline into diffs, and slice 3 isolates asynchronous preservation/recovery
+risk. The cumulative rule stays token-line lookup by side and line number;
+later cases extend its observations, not its model. Three slices are below
+the eight-slice limit; this review found no remaining slice-specific concern.
 
 ## Ordered slices
 
@@ -83,13 +115,19 @@ Proof: `dashboard/frontend-tests/dashboard-system-appearance.spec.ts` gains a
 comment in its highlighted fixture and asserts the keyword and the comment
 token at 4.5:1 in dark and in light;
 `npx playwright test --config dashboard/frontend.playwright.config.ts --reporter=list dashboard-system-appearance`;
+`npm run test:e2e -- --reporter=list intent/intent-code-browse intent/intent-gherkin-browse`;
+`npm run test:dashboard:integrated -- --reporter=list intent/intent-source-target-recovery intent/intent-purpose-case`;
 `npm run typecheck:dashboard`; `npm run lint`.
 
 Behavior: Intent source with a comment, dark or light appearance → every
 token reads at 4.5:1 on the source surface and still follows a live
 appearance change. `sourceHighlight.ts` loads `github-light-high-contrast`
 and `github-dark-high-contrast` in place of the two palettes it loads now.
-Write the failing comment assertion first.
+The shared token stylesheet applies the same light adjustment in every
+reader. Extract token rendering and the whole-text highlighting hook from
+`SourceLines.tsx`, with Intent using both immediately. Keep line wrappers,
+copyable text and target-line navigation unchanged. Write the failing comment
+assertion first; extraction must not add a second span renderer or effect.
 
 ### 2. A file diff styles its code by the file's language
 Type: Behavior
@@ -112,23 +150,32 @@ keep 4.5:1 in both appearances; a `.md` diff stays plain.
   from `FileLineSides`' source text) and answers a line's tokens by kind and
   number; `FileDiff` passes the file's path; `diffLineItems` renders the
   marker followed by the shared token component, or the plain text.
-- CSS: on `.story-review-added` and `.story-review-removed`, the light token
-  colour is mixed toward `--text` by the least amount the contrast assertions
-  need (25% measured).
+- Use slice 1's shared highlighting hook for each side; tokenization is on
+  whole text, never individual printed hunks or revealed chunks. Reuse the
+  existing grammar loaders and token model. Path mapping lives beside
+  `sourceLanguage`, delegating to the same supported grammars.
+- Reuse the shared token stylesheet unchanged. Compare actual computed
+  colours, font weight/style and text decoration with Intent for matching
+  token roles, including added/removed lines, in both appearances. Also
+  exercise representative path mapping for each supported grammar, the listed
+  extension aliases, renamed paths and a plain unsupported file through
+  frontend review responses. Do not test a second highlighter stand-in.
 - Reword `STORY-REVIEW-FILES.md` and the `sourceHighlight.ts` header.
 
 ### 3. Styling arrives without disturbing the diff
 Type: Behavior
 Status: planned
-Proof: cases added to `story-review-diff-syntax.spec.ts` (or a sibling when
-it would pass 250 lines) as in the proof table; same commands as slice 2.
+Proof: cases in `story-review-diff-syntax-arrival.spec.ts`, using existing
+held/queued answers and browser module interception for grammar failure, as
+in the proof table; same commands as slice 2.
 
 Behavior: the diff shows before its text or grammar is read → plain complete
-lines; styling arrives → same scroll position, revealed context and line
-numbers; a side's text is unavailable → plain lines with only the existing
-context problem and Retry, styled after a successful Retry. Correct whatever
-the held-answer and Retry cases show; when slice 2's implementation already
-satisfies them, the slice delivers the proof alone.
+lines; styling arrives → same scroll position, revealed context, line
+numbers and open line menu; a side's text is unavailable → plain lines with
+only the existing context problem and Retry, styled after a successful Retry. Correct whatever
+the held-answer, grammar failure and Retry cases show within the shared
+pipeline; when slice 2's implementation already satisfies them, the slice
+delivers the discriminating preservation/recovery proof alone.
 
 ## Local gates and execution discipline
 
