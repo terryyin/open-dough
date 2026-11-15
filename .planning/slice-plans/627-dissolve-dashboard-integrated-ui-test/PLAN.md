@@ -310,3 +310,16 @@ showed that an inventory batch above about 2.5–3k interim lines, or one
 needing several new Frontend substitute families, exceeds one agent slice.
 Launches became slices 2–5; the story was then split after slice 6, leaving
 six delivered slices, each one conversion outcome with one proof loop.
+
+## Execution complete
+
+Product advice: no change to backlog order; SEED-334#finish-dissolving-integrated-ui-test
+is already queued first. When it is refined, size its slices from this
+execution's evidence — about 11 small specs or one new Frontend substitute
+family per agent slice — and reorganize `dashboard/tests/support/frontendServiceState.ts`
+(240 lines) and `frontendServiceSubstitutes.ts` (244) by responsibility before
+adding the session, terminal and Intent answers they will need. The 70 new
+Frontend and E2E spec files have no duration-list rows until CI timing is
+refreshed, so their shards are dealt at the median meanwhile. Watch the
+`revision-stream` "two streaming pages" case: its one CI stall is unexplained,
+and its failure attachments now name the stalled layer if it recurs.
