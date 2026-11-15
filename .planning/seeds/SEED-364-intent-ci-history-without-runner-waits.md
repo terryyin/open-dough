@@ -16,7 +16,7 @@ scope: story
 **Identity:** SEED-364#chart-ci-time-without-runner-waits
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/629-chart-ci-time-without-runner-waits-in-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4e5dcad15ab460c7bb65598f2c13b04a3fd4cc1edae36c983cc63a9df6b1684a","plan":"4ac1e6b830efb45e8f40116f0813b6e6ec459dce242aceff29d37b6b2673a1ec"}}
 ```
 
 #### Goal
@@ -42,6 +42,27 @@ history and its chart to identify the measure.
 Retain the measure for the build attempt the history point represents.
 When the retained evidence cannot supply a measurement, show a gap with
 its reason and exclude it from the chart’s prior-build average.
+
+Background collection obtains the measure once for each build attempt it
+retains, as the comparison calculates it for that attempt, and keeps the
+answer, a time or the reason there is none, with that build. It supplies
+the same for builds the history already holds, from their same recorded
+attempt, so the chart keeps its existing points where CI still answers.
+A read CI leaves unanswered is asked again at a later pass. Reading the
+history still asks CI nothing.
+
+Which landings and builds the history holds, how a build stands for its
+landings, the 20-build window, failed and pending gaps, and the reference’s
+median and 15% rule with its five-build minimum stay as they are. A prior
+build is eligible when it meets the existing rule and has the measure. A
+build without the measure is a gap that names the build and the reason the
+measure is unavailable, for example a custom CI adapter that supplies no
+job graph.
+
+Scope limits: the selected Done story’s **CI wall time history**, the
+[automatic CI follow-up](../../docs/dashboard-ci-follow-up.md) rule and its
+saved references, and Proof’s **CI wall time** keep wall time. The history
+shows one measure; it offers no switch between the two.
 
 #### Key examples
 
