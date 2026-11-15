@@ -49,10 +49,16 @@ native_comparison_fixture_git() {
 }
 
 native_comparison_pair_fixture() {
-  local source_dir=$1 work=$2 file
+  local source_dir=$1 work=$2 file runtime
+  local runtime_inputs=()
   mkdir -p -- "${work}/source" "${work}/bin"
+  # Case setup uses the shared domain factory. Its actual runtime imports may
+  # reach source encoders/contracts as well as test support; retain that closure.
+  runtime=$(node "${source_dir}/Distribution/tests/support/native-import-closure.mjs" \
+    "${source_dir}" Distribution/tests/support/makeMe.mjs) || return
+  mapfile -t runtime_inputs <<< "${runtime}"
   git -C "${source_dir}" ls-files --cached --others --exclude-standard --deduplicate -- \
-    "${native_comparison_fixture_paths[@]}" | while IFS= read -r file; do
+    "${native_comparison_fixture_paths[@]}" "${runtime_inputs[@]}" | while IFS= read -r file; do
     [[ ! -e ${source_dir}/${file} ]] || printf '%s\0' "${file}"
   done | (cd -- "${source_dir}" && tar --null -T - -cf -) | tar -xf - -C "${work}/source" || return
   native_comparison_fixture_git "${work}/source" init -q || return

@@ -22,17 +22,17 @@ Failure policy: [AGENTS.md#failing-and-flaky-tests](../../../AGENTS.md#failing-a
 | S008 | Terry’s authorization permits a bounded differential investigation after the forced-wake probe found no worthwhile narrow removal. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; source user watch follow-up, real handle, empty nonterminal receipts and different completed-turn path |
 | S009 | Compare the original prolonged supplier pause with the fresh execution. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; source user watch follow-up, real handle, empty nonterminal receipts and different completed-turn path |
 | S010 | Identify conditions that kept the original coordinator requesting model work while the fresh execution held. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; source user watch follow-up, real handle, empty nonterminal receipts and different completed-turn path |
-| S011 | Reproduce the missing condition before choosing an optimization. | slice 3 |  |
+| S011 | Reproduce the missing condition before choosing an optimization. |  | G2 |
 | S012 | Distinguish evidence of an already-resolved problem from evidence that extraction omitted its cause. | slice 2 | observed: differential-investigation.md: Judgment and Guidance and host comparison; explicit limits retain uncertainty and reject current-fix/reproduction inference |
 | S013 | Preserve uncertainty when available traces cannot settle that distinction. | slice 2 | observed: differential-investigation.md: Judgment and Guidance and host comparison; explicit limits retain uncertainty and reject current-fix/reproduction inference |
-| S014 | Retain the existing paused-supplier forced-wake and unblocked-supplier cases as agreement regressions. | slice 3 |  |
-| S015 | Retain those cases as preservation regressions. | slice 3 |  |
-| S016 | Retain those cases as continuation regressions. | slice 3 |  |
+| S014 | Retain the existing paused-supplier forced-wake and unblocked-supplier cases as agreement regressions. | slice 3 | observed: Distribution/tests/native-comparison-paused-supplier.sh and native-comparison-unblocked-supplier.sh: retained agreement regressions passed in the 22-check run. |
+| S015 | Retain those cases as preservation regressions. | slice 3 | observed: Distribution/tests/native-comparison-paused-supplier.sh and native-comparison-unblocked-supplier.sh: partial-work preservation and rejection cases passed. |
+| S016 | Retain those cases as continuation regressions. | slice 3 | observed: Distribution/tests/native-comparison-paused-supplier.sh and native-comparison-unblocked-supplier.sh: qualifying continuation/proof and duplicate-continuation rejection passed. |
 | S017 | The forced-wake case does not establish whether normal waiting creates or suppresses unnecessary model requests. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; forced wakes do not exercise in-flight watch or establish production frequency |
-| S018 | Any new reproducer exercises normal wait/resume. | slice 3 |  |
-| S019 | Any new reproducer preserves the original trace’s identified causal condition. | slice 3 |  |
-| S020 | Demonstrate unwanted baseline behavior before implementation. | slice 3 |  |
-| S021 | Demonstrate unwanted baseline behavior before further paid comparison. | slice 3 |  |
+| S018 | Any new reproducer exercises normal wait/resume. |  | G2 |
+| S019 | Any new reproducer preserves the original trace’s identified causal condition. |  | G2 |
+| S020 | Demonstrate unwanted baseline behavior before implementation. |  | G2 |
+| S021 | Demonstrate unwanted baseline behavior before further paid comparison. |  | G2 |
 | S022 | Select one evidenced, targeted reduction. | slice 4 | G1 |
 | S023 | Prefer deletion. | slice 4 |  |
 | S024 | Prefer existing commands. | slice 4 |  |
@@ -84,9 +84,9 @@ Failure policy: [AGENTS.md#failing-and-flaky-tests](../../../AGENTS.md#failing-a
 | S070 | Identify the missing trigger or retain an evidenced uncertainty. | slice 2 | observed: differential-investigation.md: Evidence locators and What kept returning control to the model; source user watch follow-up, real handle, empty nonterminal receipts and different completed-turn path |
 | S071 | Do not assume the differing executions establish a fix. | slice 2 | observed: differential-investigation.md: Judgment and Guidance and host comparison; explicit limits retain uncertainty and reject current-fix/reproduction inference |
 | S072 | Do not assume they establish a representative reproduction. | slice 2 | observed: differential-investigation.md: Judgment and Guidance and host comparison; explicit limits retain uncertainty and reject current-fix/reproduction inference |
-| S073 | Example: a trigger-matching reproducer must show unchanged-baseline repeated model activity through normal wait/resume before considering one targeted optimization. | slice 3 |  |
-| S074 | Controlled-host checks establish harness behavior. | slice 3 |  |
-| S075 | Controlled-host checks do not substitute for a native model-behavior result. | slice 3 |  |
+| S073 | Example: a trigger-matching reproducer must show unchanged-baseline repeated model activity through normal wait/resume before considering one targeted optimization. |  | G2 |
+| S074 | Controlled-host checks establish harness behavior. | slice 3 | observed: Distribution/tests/native-comparison-inflight.sh and native-comparison-supplier-watch.sh: active-turn delivery, preserved hold, once-only continuation/proof, cleanup and native refusal passed controlled renewal. |
+| S075 | Controlled-host checks do not substitute for a native model-behavior result. | slice 3 | observed: reproducer-design.md: native observations remain unknown; supplier-watch/case.bash refuses the native route, and native-comparison-supplier-watch.sh observes that refusal. |
 | S076 | Select the working acceptance bar during refinement, before measurement. | slice 4 |  |
 | S077 | Require at least 20% fewer total processed tokens on the blocked case. | slice 4 |  |
 | S078 | Permit no blocked-case increase in model requests. | slice 4 |  |
@@ -100,7 +100,7 @@ Failure policy: [AGENTS.md#failing-and-flaky-tests](../../../AGENTS.md#failing-a
 | S086 | Make no statistical claim. | slice 4 |  |
 | S087 | Make no billing claim. | slice 4 |  |
 | S088 | Follow the cited ADR 0010 definition of improvement. | slice 4 |  |
-| S089 | Freeze current pre-change source as the baseline. | slice 3 |  |
+| S089 | Freeze current pre-change source as the baseline. |  | G2 |
 | S090 | Match the current task across comparison arms. | slice 4 |  |
 | S091 | Match events. | slice 4 |  |
 | S092 | Match the assessor. | slice 4 |  |
@@ -109,7 +109,7 @@ Failure policy: [AGENTS.md#failing-and-flaky-tests](../../../AGENTS.md#failing-a
 | S095 | Match the model. | slice 4 |  |
 | S096 | Match model settings. | slice 4 |  |
 | S097 | Match publication authority. | slice 4 |  |
-| S098 | Capture fresh baseline evidence. | slice 3 |  |
+| S098 | Capture fresh baseline evidence. |  | G2 |
 | S099 | Do not compare against the abandoned implementation. | slice 4 |  |
 | S100 | Include coordinator effort in cost accounting. | slice 4 |  |
 | S101 | Include owned-worker effort in cost accounting. | slice 4 |  |
@@ -142,7 +142,7 @@ Failure policy: [AGENTS.md#failing-and-flaky-tests](../../../AGENTS.md#failing-a
 | S128 | Two journeys are consumed and three remain. | slice 2 | observed: differential-investigation.md: Inspection and acceptance evidence; retained logs/Git only, no native launch and budget remains2used/3unspent |
 | S129 | The new investigation grants no additional native budget. | slice 2 | observed: differential-investigation.md: Inspection and acceptance evidence; retained logs/Git only, no native launch and budget remains2used/3unspent |
 | S130 | Prefer retained traces before paid native work. | slice 2 | observed: differential-investigation.md: Inspection and acceptance evidence; retained logs/Git only, no native launch and budget remains2used/3unspent |
-| S131 | Prefer controlled checks before paid native work. | slice 3 |  |
+| S131 | Prefer controlled checks before paid native work. | slice 3 | observed: reproducer-design.md Controlled acceptance: credential-free focused proof completed without another native journey. |
 | S132 | Before a paid launch, reserve journeys needed for its stated learning. | slice 4 |  |
 | S133 | Before a paid launch, reserve journeys needed for required remaining comparisons. | slice 4 |  |
 | S134 | Do not start a comparison that cannot finish within the authorized allocation. | slice 4 |  |

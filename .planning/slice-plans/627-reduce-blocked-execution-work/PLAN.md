@@ -97,6 +97,27 @@ No new event-delivery runtime, daemon or general context protocol is authorized.
 If reproduction needs such a consequential change, retain the concrete evidence
 and decision instead of inventing it. Update remaining work from the result.
 
+The [reviewed reproducer design](reproducer-design.md) assigns in-flight
+scheduling, supplier fixtures, supervision and decoding to their existing owners.
+Controlled-clock delivery and cleanup checks proceed first. Native observation
+intervals require a scoped decision under AGENTS.md's elapsed-time prohibition;
+that decision and the full evaluation allocation remain pending. No native run
+or product optimization is authorized by this preparation record.
+
+Controlled preparation passed the new in-flight and supplier-watch checks,
+existing supplier regressions and affected retention/ownership checks. It proves
+delivery during an active substitute command, hold preservation, exactly-once
+continuation/proof and cleanup, without native model observations. The broader
+run exposed two repaired defects: duplicate input recovery and an incomplete
+MakeMe runtime in the source fixture; targeted renewal passed. Native launch
+stays disabled pending authentic handle/exposure decoding, compact phase-evidence
+replay, the observation interval decision and complete evaluation allocation.
+Slice 3 remains planned; this is a publishable controlled increment, not its
+native acceptance or a saving/non-regression result.
+Independent refactoring consolidated owned-run setup and lifecycle in
+`native-run-owned.sh`; ten affected checks passed, followed by four source-loading,
+fixture and identity renewals after extraction. Unchanged proof remains accepted.
+
 ### 4. Make one supported change and judge the matched result
 Type: Behavior
 Status: planned
@@ -210,3 +231,9 @@ Commitment: S022
 Reported: slice 1 — "The native baseline was invalidated by a false-positive harness-inspection detector and stopped; complete-task usage and a worthwhile removal remain unproved."
 Story clause: "Unknown usage remains unknown and cannot support a token-saving verdict."
 Disposition: receiving slice 4
+
+### G2. Native reproduction and comparison inputs remain unproved
+Reported: slice 3 — "Actual watch exposure, repeated native model activity, the observation interval and a fresh frozen baseline remain open."
+Story clause: "Any new reproducer must exercise the normal wait/resume path, preserve the causal condition found in the original trace, and demonstrate the unwanted baseline behavior before an implementation or further paid comparison."
+Disposition: return
+Commitment: S011, S018, S019, S020, S021, S073, S089, S098

@@ -118,7 +118,7 @@ event '{type:"turn.started"}'
 # A consuming check may supply a workspace-aware command generator. Keep its
 # command's native stream encoding at this substitute's existing boundary.
 if [[ -n ${NATIVE_AGENT_PAUSED_SUPPLIER_CONTEXT_COMMAND-} ]]; then
-  context_command=$("${NATIVE_AGENT_PAUSED_SUPPLIER_CONTEXT_COMMAND}" "${workspace}")
+  context_command=$("${NATIVE_AGENT_PAUSED_SUPPLIER_CONTEXT_COMMAND}" "${workspace}" "${resumed}")
   call context "${context_command}"
 fi
 if [[ ${rule} == claim-only ]]; then

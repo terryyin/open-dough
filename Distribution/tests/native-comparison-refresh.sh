@@ -17,6 +17,7 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 source "${source_dir}/Distribution/tests/support/native-comparison-pair-fixture.sh"
 source "${source_dir}/Distribution/tests/support/native-observation.sh"
 source "${source_dir}/Distribution/tests/support/native-comparison-basis-verdict.sh"
+source "${source_dir}/Distribution/tests/support/native-comparison-basis.sh"
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
 
 work=$(mktemp -d)
@@ -93,7 +94,10 @@ moved=${source_repo}/Moved/tests/native-comparison/paused-supplier/comparisons
 
 # Each record recovers its own basis from its hashes, at the paths of then,
 # and reports itself unchanged.
-recover first "${moved}/first.txt"
+recover first "${moved}/first.txt" || {
+  cat "${work}/first.out" >&2
+  exit 1
+}
 grep -Fqx "record-history: unchanged since ${kept_a}" "${work}/first.out"
 grep -Fqx "named-revision: ${basis_a} holds the recorded inputs" "${work}/first.out"
 grep -Fqx "case-basis-revision: ${basis_a}" "${work}/first.out"
@@ -106,6 +110,16 @@ grep -Fqx "case-input-hash: ${assessment_a%% *} ${case_dir}/assess.bash" "${firs
 recover second "${moved}/second.txt"
 grep -Fqx "case-basis-revision: ${basis_b}" "${work}/second.out"
 report_is second "${second}"
+
+# The same dependency can be named by both the case and supervision. Recovery
+# preserves a consistently repeated input rather than treating its blob as lost.
+cp "${first}" "${moved}/repeated.txt"
+repeated_input=$(sed -n '/^case-input-hash: /{p;q;}' "${first}")
+printf '%s\n' "${repeated_input}" >> "${moved}/repeated.txt"
+commit 'Keep a record with a repeated dependency' > /dev/null
+recover repeated "${moved}/repeated.txt"
+grep -Fqx "case-basis-revision: ${basis_a}" "${work}/repeated.out"
+report_is repeated "${moved}/repeated.txt"
 
 # Drift keeps a rerun from repeating the first comparison; it is stated, and
 # the report stays the one observed.
@@ -156,3 +170,17 @@ no-recorded-inputs inputs recorded-inputs: 0 | names no input hashes
 unmatched-inputs basis case-basis-revision: none | no commit of this repository holds the recorded inputs
 relabeled-record record record-history: edited since 0000000000000000000000000000000000000000 (2 versions) | changed after it was added
 EOF
+
+# A contradictory hash for that same path remains unrecoverable. Project the
+# actual observed basis into the passing recovery's one declared basis signal.
+cp "${moved}/repeated.txt" "${moved}/conflicting.txt"
+printf '%s\n' "${repeated_input}" | sed -E 's/[0-9a-f]{64}/0000000000000000000000000000000000000000000000000000000000000000/' \
+  >> "${moved}/conflicting.txt"
+conflicting_basis() {
+  native_comparison_basis_observe "${moved}/conflicting.txt" "${source_repo}" "${work}/payloads" > "${work}/conflicting.basis"
+  awk 'NR == FNR { if ($1 == "case-basis-revision:") basis = $0; next }
+    $1 == "case-basis-revision:" { print basis; next } { print }' \
+    "${work}/conflicting.basis" "${work}/first.observations"
+}
+native_assessor_rejects_observed conflicting-dependency basis "${work}/conflicting.observations" \
+  conflicting_basis -- fail 'no commit of this repository holds the recorded inputs'

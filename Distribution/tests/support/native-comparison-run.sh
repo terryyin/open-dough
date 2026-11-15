@@ -35,6 +35,9 @@
 # retention) and optionally case_cleanup ROOT, which prints its own fields; its
 # assess.bash defines case_assess OBSERVATIONS, leaving case_assess_status
 # and case_assess_reason.
+# Optional case_prepare_run ROOT SCRATCH may refuse before any model starts.
+# case_prepare_turn ROOT TURN STREAM SCRATCH may supply the supervisor's
+# native_run_controller_command; case_observe_stopped observes an ended attempt.
 #
 # Leaves native_comparison_status (pass or fail), _reason and _attempt (the
 # retained attempt directory, when RESULTS_DIR is given). Codex only so far;
@@ -49,10 +52,12 @@ source "${native_comparison_support_dir}/native-observation.sh"
 source "${native_comparison_support_dir}/native-result-retain.sh"
 source "${native_comparison_support_dir}/delivery-evidence-native-payload.sh"
 source "${native_comparison_support_dir}/native-comparison-retain.sh"
+source "${native_comparison_support_dir}/native-comparison-turn.sh"
 
 # The files that decide how a case journey runs, beside the case's own files.
 native_comparison_inputs=(
   Distribution/tests/support/native-comparison-run.sh
+  Distribution/tests/support/native-comparison-turn.sh
   Distribution/tests/support/native-comparison-retain.sh
   Distribution/tests/support/native-codex.sh
   Distribution/tests/support/native-codex-session.mjs
@@ -73,52 +78,6 @@ native_comparison_seconds() {
   awk -v start="$1" -v end="$2" 'BEGIN { printf "%.1f\n", (end - start) / 1000000 }'
 }
 
-# Runs turn TURN with PROMPT: a fresh session for turn 1, else a resumed
-# native_comparison_thread. Prints the runner's turn fields; a turn whose
-# stream does not show it completing in this session is not completed.
-native_comparison_turn() {
-  local turn=$1 prompt=$2 start status=completed thread stopped=''
-  transcript="${native_comparison_controller}/events-turn-${turn}.jsonl"
-  output_file="${native_comparison_controller}/response-turn-${turn}.md"
-  : > "${transcript}"
-  start=$(native_comparison_now)
-  if [[ ${turn} -eq 1 ]]; then
-    native_codex_build_command "${native_comparison_workspace}" "${output_file}" \
-      "${prompt}" "${transcript}"
-    native_run_owned_or_fail "${transcript}" "${native_stderr}" '' \
-      "${native_codex_command[@]}" || true
-  else
-    native_codex_build_resume_command "${native_comparison_thread}" \
-      "${output_file}" "${prompt}"
-    native_run_owned_or_fail "${transcript}" "${native_stderr}" \
-      "${native_comparison_workspace}" "${native_codex_command[@]}" || true
-  fi
-  native_run_classify_stream codex "${transcript}"
-  case ${native_run_outcome} in
-    timeout) status=timeout stopped="no completion within the ${native_case_deadline:-3600} s deadline; the runner stopped the session" ;;
-    failed) status=failed stopped=${native_run_failure_reason} ;;
-    *) ;;
-  esac
-  if [[ ${native_run_stream_status} != complete ]]; then
-    [[ ${status} != completed ]] || status=incomplete
-    stopped+=${stopped:+; }${native_run_stream_reason}
-  fi
-  thread=$(native_host_stream codex "${transcript}" thread)
-  if [[ ${status} == completed && -z ${thread} ]]; then
-    status=incomplete stopped='the stream names no session thread'
-  elif [[ ${status} == completed && ${turn} -ne 1 && ${thread} != "${native_comparison_thread}" ]]; then
-    status=incomplete
-    stopped="the stream names thread ${thread}, not the resumed ${native_comparison_thread}: it is not this session's evidence"
-  fi
-  [[ ${turn} -ne 1 ]] || native_comparison_thread=${thread}
-  printf 'turn-%s-status: %s\n' "${turn}" "${status}"
-  printf 'turn-%s-thread: %s\n' "${turn}" "${thread}"
-  printf 'turn-%s-seconds: %s\n' "${turn}" \
-    "$(native_comparison_seconds "${start}" "$(native_comparison_now)")"
-  [[ -z ${stopped} ]] || printf 'turn-%s-stopped: %s\n' "${turn}" "${stopped}"
-  [[ ${status} == completed ]]
-}
-
 # Ends a journey that started no session, in WORK, for REASON: its
 # observations and verdict say so, and nothing is retained.
 native_comparison_unstarted() {
@@ -134,6 +93,7 @@ native_comparison_run_case() {
   native_comparison_reason=
   native_comparison_attempt=
   (
+    unset -f case_prepare_run case_prepare_turn case_adjust_overlay case_observe_stopped
     source "${case_path}/case.bash"
     source "${case_path}/assess.bash"
     start=$(native_comparison_now)
@@ -164,6 +124,10 @@ native_comparison_run_case() {
     wake=
     [[ ! -f ${case_path}/wake.txt ]] || wake=$(< "${case_path}/wake.txt")
     native_codex_prepare "${root}" "${source_dir}"
+    if declare -F case_prepare_run > /dev/null && ! case_prepare_run "${root}" "${native_comparison_controller}"; then
+      native_comparison_unstarted "${case_name}" "${work}" "${case_prepare_reason:-the case refused this host route}"
+      exit 0
+    fi
     native_run_capture_version codex --version
     # Match literal controller/source roots and relative harness paths, not an
     # ordinary workspace ancestor that happens to be named native-comparison.
@@ -182,7 +146,13 @@ native_comparison_run_case() {
         turn=$((turn + 1))
         printf 'turn-%s-event: %s\n' "${turn}" "${event}" >> "${observations}"
         case_apply_event "${root}" "${event}" "${native_comparison_controller}"
-        native_comparison_turn "${turn}" "${wake}" >> "${observations}" || break
+        if ! native_comparison_turn "${turn}" "${wake}" >> "${observations}"; then
+          if declare -F case_observe_stopped > /dev/null; then
+            case_observe_stopped "${root}" "${turn}" "${transcript}" \
+              "${native_comparison_controller}" "${harness}" >> "${observations}"
+          fi
+          break
+        fi
         case_observe "${root}" "${turn}" "${transcript}" \
           "${native_comparison_controller}" "${harness}" >> "${observations}"
       done

@@ -94,7 +94,6 @@ native_comparison_basis_lacks() {
   for index in "${!native_comparison_basis_paths[@]}"; do
     path=${native_comparison_basis_paths[index]}
     blob=${blobs[${path}]-}
-    unset 'blobs[${path}]'
     if [[ -z ${blob} ]]; then
       lacking=$((lacking + 1))
       continue
@@ -105,6 +104,10 @@ native_comparison_basis_lacks() {
     [[ ${native_comparison_basis_digests[${blob}]} == "${native_comparison_basis_hashes[index]}" ]] \
       || lacking=$((lacking + 1))
   done
+  # Case and supervision manifests may name the same file. Check every
+  # recorded hash against its Git blob before removing the path: consistent
+  # repetitions are valid, and a conflicting repetition must still fail.
+  for path in "${native_comparison_basis_paths[@]}"; do unset 'blobs[${path}]'; done
   printf '%s\n' "$((lacking + ${#blobs[@]}))"
 }
 

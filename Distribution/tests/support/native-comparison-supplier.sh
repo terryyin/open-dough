@@ -22,6 +22,7 @@ case_git() {
 
 case_overlay() {
   cp -R -- "${supplier_case_dir}/$1/." "$2/"
+  if declare -F case_adjust_overlay > /dev/null; then case_adjust_overlay "$@"; fi
 }
 
 case_commit() {
@@ -194,7 +195,7 @@ case_continuations() {
 # Prints the turn-N fields of ROOT after turn N, whose stream is STREAM, with
 # SCRATCH for the observer's own copies and HARNESS a pattern naming the
 # controller's paths. Turn status and thread come from the runner.
-case_observe() {
+supplier_case_observe() {
   local root=$1 turn=$2 stream=$3 scratch=$4 harness=$5
   local workspace="${root}/workspace" file partial=preserved slice3=partial
   local remote=unchanged integrations filings sessions
@@ -230,3 +231,5 @@ case_observe() {
   printf 'turn-%s-commands: %s\n' "${turn}" \
     "$(native_host_stream codex "${stream}" commands | wc -l | tr -d ' ')"
 }
+
+case_observe() { supplier_case_observe "$@"; }
