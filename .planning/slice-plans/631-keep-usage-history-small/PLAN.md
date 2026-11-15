@@ -210,7 +210,7 @@ every response of each session read") and the removed per-response promises.
 
 ### 4. The first write shrinks an existing store to the budget
 Type: Behavior
-Status: planned
+Status: done
 Proof: new conversion spec. A paged store written by `writePagedStore`
 (`dashboard/tests/usage-history/earlierStores.ts`), with one extra unreferenced page file → a write →
 tasks, gaps and task totals equal the paged store's, and `usage.json.pages`
@@ -412,6 +412,10 @@ Update the Refresh sentence of `dashboard/USAGE-HISTORY.md`.
     <scratch>/clone-scripts/refresh.mjs` from the worktree. Reading the
     converted document and deriving the summary takes about 0.5 s.
     `dashboard/USAGE-HISTORY.md` is at 250 lines.
+  - Branch CI run 43684582185 passed on `ee7676349`, and run 43682870124 on
+    slice 3's `5756f0a28`. `import-reports/2026-11-15/` (87 files, 42 MB) was
+    then removed from Terry's machine; the empty `import-reports/` folder
+    stays.
 
 ## Verification, sizing and concern review
 
