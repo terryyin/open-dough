@@ -5,7 +5,7 @@ import {
   cursorSession,
 } from "./hostSessionTestData.mjs";
 import { testDataTimestamp } from "./testDataDefaults.mjs";
-import { LaunchOutcomeBuilder } from "./launchOutcomeTestData.mjs";
+import { LaunchReportingBuilder } from "./launchReportingTestData.mjs";
 import { requestFacts } from "./launchRequestTestData.mjs";
 import {
   establishedSessionFacts,
@@ -28,9 +28,10 @@ import {
 // isolated workspace, or its place in the default checkout. Without one the
 // record keeps no established start, preparation or session. The session
 // defaults to a `claude` one named after the title, the start's claim to
-// fixed published facts, and the launch time to a fixed instant. What the
-// launch recorded after it started comes from `LaunchOutcomeBuilder`.
-export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
+// fixed published facts, and the launch time to a fixed instant. Its
+// reporting and stored landing come from `LaunchReportingBuilder`, and what
+// the launch recorded after it started from `LaunchOutcomeBuilder`.
+export class LaunchRecordBuilder extends LaunchReportingBuilder {
   /** @type {import("./launchRequestTestData.mjs").Requested | undefined} */
   #requested;
   /** @type {import("./launchWorkspaceTestData.mjs").StoryBranch | import("./launchWorkspaceTestData.mjs").OneShotBranch | undefined} */
@@ -42,16 +43,12 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
   #firstInput;
   /** @type {import("./launchWorkspaceTestData.mjs").AdHocWorkspace | undefined} */
   #adHocWorkspace;
-  /** @type {NonNullable<LaunchRecord["request"]["reporting"]> | undefined} */
-  #reporting;
   /** @type {LaunchRecord["request"]["model"]} */
   #model;
   /** @type {LaunchRecord["request"]["effort"]} */
   #effort;
   /** @type {LaunchRecord["request"]["options"]} */
   #options;
-  /** @type {LaunchRecord["landing"]} */
-  #landing;
 
   /**
    * A launch of the story by this workflow, in the `open-dough` project
@@ -100,21 +97,6 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
    */
   onStoryBranch(storyBranch) {
     this.#storyBranch = storyBranch;
-    return this;
-  }
-
-  /** @param {NonNullable<LaunchRecord["landing"]>} landing captured comparison */
-  withLanding(landing) {
-    this.#landing = landing;
-    return this;
-  }
-
-  /**
-   * The session reports its completion through this reporting context.
-   * @param {NonNullable<LaunchRecord["request"]["reporting"]>} reporting
-   */
-  reportingThrough(reporting) {
-    this.#reporting = reporting;
     return this;
   }
 
@@ -240,12 +222,13 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
       ...(this.#firstInput && { firstInput: this.#firstInput }),
       ...this.outcomeFacts(this.#launchedAt),
     };
+    const { reporting, landing } = this.reportingFacts();
     const requestField = requestFacts(requested, {
       host: session.host,
       model: this.#model,
       effort: this.#effort,
       options: this.#options,
-      reporting: this.#reporting,
+      reporting,
       policy: requestedPolicy(adHocWorkspace ?? storyBranch),
     });
     return {
@@ -255,7 +238,7 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
         ? establishedSessionFacts(adHocWorkspace)
         : storyBranchFacts(requested, storyBranch)),
       ...launchFacts,
-      ...(this.#landing && { landing: this.#landing }),
+      ...(landing && { landing }),
     };
   }
 }

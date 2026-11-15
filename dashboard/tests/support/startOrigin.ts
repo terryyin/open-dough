@@ -32,6 +32,7 @@ import {
 import {
   dashboardDeveloper,
   type StartRepository,
+  type StartRevisions,
 } from "./startOriginPreparation.ts";
 import {
   otherQueuedIdentity,
@@ -48,6 +49,10 @@ export type StartOrigin = {
   readonly machine: string;
   readonly origin: string;
   readonly project: string;
+  // The commit each revision the description names became on the origin.
+  readonly revisions: StartRevisions;
+  // The commit the description's revision `name` became.
+  revision(name: string): string;
   originGit(...args: string[]): Promise<string>;
   takenProfiles(): Promise<Record<string, unknown>[]>;
   // Runs the real start for another publisher and returns the claimed agent.
@@ -121,8 +126,15 @@ export async function startOrigin(
   const machine = mkdtempSync(path.join(tmpdir(), "dough-start-"));
   const origin = path.join(machine, "origin.git");
   const project = path.join(machine, "home", "git", projectId);
+  let revisions: StartRevisions;
   try {
-    await initializeStartOrigin(origin, project, repository, host, description);
+    revisions = await initializeStartOrigin(
+      origin,
+      project,
+      repository,
+      host,
+      description,
+    );
   } catch (error) {
     rmSync(machine, { recursive: true, force: true });
     throw error;
@@ -157,6 +169,13 @@ export async function startOrigin(
     machine,
     origin,
     project,
+    revisions,
+    revision(name) {
+      const commit = revisions[name];
+      if (commit === undefined)
+        throw new Error(`This origin's description names no revision ${name}`);
+      return commit;
+    },
     originGit,
     takenProfiles,
     holdPushes() {
