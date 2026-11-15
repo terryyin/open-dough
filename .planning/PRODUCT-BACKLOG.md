@@ -30,10 +30,11 @@ intent introduced or affected by a newly developed story.
 
 - [Run and maintain native evaluations as a distinct Distribution tool](seeds/SEED-371-distribution-evaluation-tool.md#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool) — SEED-371#run-and-maintain-native-evaluations-as-a-distinct-distribution-tool ([plan](slice-plans/638-distribution-evaluation-tool/PLAN.md))
 - [Keep Claude coverage gaps current after Refresh](seeds/SEED-359-claude-code-task-token-usage.md#keep-claude-coverage-gaps-current-after-refresh) — SEED-359#keep-claude-coverage-gaps-current-after-refresh ([plan](slice-plans/644-keep-claude-coverage-gaps-current/PLAN.md))
-- [Move Intent CI checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test) — SEED-334#retire-dashboard-integrated-ui-test ([plan](slice-plans/633-retire-dashboard-integrated-ui-test/PLAN.md))
+- [Move Intent CI status and timing checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test) — SEED-334#retire-dashboard-integrated-ui-test ([plan](slice-plans/633-retire-dashboard-integrated-ui-test/PLAN.md))
 
 ## Backlog list
 
+- [Move Intent CI proof, comparison and candidate checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-intent-ci-proof-comparison-and-candidate-checks) — SEED-334#move-intent-ci-proof-comparison-and-candidate-checks
 - [Move Intent reading and review checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-intent-reading-and-review-checks) — SEED-334#move-intent-reading-and-review-checks
 - [Move navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-navigation-checks-and-retire-integrated-ui-test) — SEED-334#move-navigation-checks-and-retire-integrated-ui-test
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
