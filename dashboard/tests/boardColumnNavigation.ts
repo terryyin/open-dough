@@ -6,6 +6,7 @@ import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { box } from "./pageLayout.ts";
+import { strokeByTouch } from "./touchGestures.ts";
 
 // The columns, each a region, and the column paging controls, each naming a hidden
 // column with how many entries it holds.
@@ -107,4 +108,32 @@ export async function expectRowRestsShowing(page: Page, column: ColumnName) {
   const hidden = new RegExp(`(^| )${String(place)}( |$)`);
   await expect(row).not.toHaveAttribute("data-hidden", hidden);
   await expect(row).not.toHaveAttribute("data-sliding");
+}
+
+// Swipe the Board reading surface, optionally starting on a particular card
+// or action. Keep the whole native stroke inside the visible Board.
+export async function swipeBoard(
+  page: Page,
+  direction: "left" | "right",
+  options: { from?: Locator; distance?: number; cancel?: boolean } = {},
+) {
+  const view = await box(page.locator(".board-view"));
+  const target =
+    options.from === undefined ? undefined : await box(options.from);
+  const screen = page.viewportSize() ?? { width: 390, height: 844 };
+  const x = target
+    ? target.x + target.width / 2
+    : view.x + view.width * (direction === "left" ? 0.8 : 0.2);
+  const y = target
+    ? target.y + target.height / 2
+    : Math.min(view.y + 100, screen.height - 40);
+  const room =
+    direction === "left" ? x - view.x - 5 : view.x + view.width - x - 5;
+  const distance = Math.min(options.distance ?? 180, room);
+  await strokeByTouch(
+    page,
+    { x, y },
+    { x: distance * (direction === "left" ? -1 : 1), y: 0 },
+    options.cancel,
+  );
 }

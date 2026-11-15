@@ -11,6 +11,7 @@ import {
   columns,
   columnRegion,
   columnPagingControls,
+  expectRowRestsShowing,
   type ColumnName,
 } from "./boardColumnNavigation.ts";
 
@@ -20,6 +21,7 @@ export {
   columnPagingControl,
   columnPagingControls,
   showColumn,
+  swipeBoard,
   expectRowRestsShowing,
   type ColumnName,
 } from "./boardColumnNavigation.ts";
@@ -76,6 +78,20 @@ export async function expectView(
     expect(Math.abs(at.width - first.width)).toBeLessThanOrEqual(1);
   }
   await expectNoSidewaysScrollAndWholeText(page, cutByDesign);
+}
+
+// The chosen column has arrived, with its whole heading ready for reading.
+export async function expectColumnReading(
+  page: Page,
+  shown: ColumnName,
+  controls: readonly (string | RegExp)[],
+  cutByDesign: readonly string[] = [],
+) {
+  await expectView(page, [shown], controls, cutByDesign);
+  await expectRowRestsShowing(page, shown);
+  await expect(
+    columnRegion(page, shown).getByRole("heading", { level: 2 }),
+  ).toBeInViewport({ ratio: 1 });
 }
 
 // A Backlog card is no narrower than its share of the Board would make it in

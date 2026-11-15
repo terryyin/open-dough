@@ -8,6 +8,7 @@ import { expect, type Locator } from "@playwright/test";
 import { expectReadableContrast } from "./accessibleReading.ts";
 import { tooltipOf } from "./frameIconControl.ts";
 import { box } from "./partArrangement.ts";
+import { tapWhereShown } from "./pageLayout.ts";
 
 // A Story card in `region` (the Board or one of its columns), by its title.
 export const storyCard = (region: Locator, title: string) =>
@@ -28,6 +29,12 @@ export async function enabledStoryCardLaunchActions(card: Locator) {
 
 // A card's Inspect story, by either name it holds.
 export const detailToggle = /^(?:Inspect story|Hide detail)$/;
+export const inspectionToggle = (card: Locator) =>
+  card.getByRole("button", { name: detailToggle });
+
+export async function tapInspectStory(card: Locator) {
+  await tapWhereShown(inspectionToggle(card));
+}
 
 // The card's Review changes action; pressing and waiting stay with its caller.
 export const reviewChanges = (card: Locator) =>
@@ -35,7 +42,7 @@ export const reviewChanges = (card: Locator) =>
 
 // A card's detail, opened unless it is already open.
 export async function inspectedDetail(card: Locator): Promise<Locator> {
-  const toggle = card.getByRole("button", { name: detailToggle });
+  const toggle = inspectionToggle(card);
   await expect(toggle).toBeVisible();
   if ((await toggle.textContent()) === "Inspect story") await toggle.click();
   const detail = card.getByRole("region", { name: /^Detail for / });
@@ -157,7 +164,7 @@ export async function expectActionGlyph(
 // Inspect story's chevron: decorative, pointing right while the detail is
 // closed and turned down while it is open, as `aria-expanded` says.
 export async function expectChevronTurns(card: Locator) {
-  const toggle = card.getByRole("button", { name: detailToggle });
+  const toggle = inspectionToggle(card);
   const turn = () =>
     toggle.locator("svg").evaluate((svg) => getComputedStyle(svg).transform);
   await expectActionGlyph(toggle, "Inspect story", "chevron-right");

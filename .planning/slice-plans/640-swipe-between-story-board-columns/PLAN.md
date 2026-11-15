@@ -3,6 +3,8 @@
 **Identity:** SEED-373#swipe-between-story-board-columns
 **Source:** [Swipe between story board columns on mobile](../../seeds/SEED-373-swipe-between-story-board-columns.md#swipe-between-story-board-columns)
 
+**Source review:** [Source-only commitments](source-review.md)
+
 ## Goal and scope
 
 A developer on a phone swipes across the Development Board to read Backlog,
@@ -102,7 +104,7 @@ bounded browser behavior; emulation does not establish physical-device feel.
 
 ### 1. Swipe through the Board without disrupting reading
 Type: Behavior
-Status: planned
+Status: done
 Proof: Swipe promises above in new `dashboard/frontend-tests/board-swipe.spec.ts`,
 through the built frontend and native Chromium input; maintained paging,
 kept-position and focus/reveal consumers remain green.
@@ -213,3 +215,25 @@ before/after widths; make no measured speed, physical-device or smoothness claim
 - No remaining slice-specific concern was identified in the inspected boundary.
   Existing behavior/proof routes were observed; new behavior remains owned by
   the slices and is not represented as already implemented or proved.
+
+Acceptance details: [Execution evidence](execution-evidence.md).
+
+## Execution context
+
+Story Branch Mode, established owned workspace and branch:
+`/Users/terryyin/git/open-dough/.worktrees/swipe-between-story-board-columns-on-mobile`,
+`codex/swipe-between-story-board-columns-on-mobile`. Remote `origin`, trunk `main`;
+execution publisher `dashboard-territory.local-open-dough`, agent Tsukasa-chan.
+Starting revision `ccc607ace49db3fc27219ca9705a89a859ec8762`;
+accepted claim/published base/candidate `972eedb87836d50639ff6c865ccb624dc94de00e`.
+No second claim. Installed setup: Node 24.21.0, checkout-local locked
+`npm ci --ignore-scripts`, then passing `npm run typecheck:dashboard`.
+Selective formatter is `npm run format`; tracked pre-commit hook is check-only
+staged lint plus dashboard typecheck for scripts. Existing planning authority
+is retained; no explicit overrun option was supplied.
+
+CI: GitHub Actions, terryyin/open-dough, verified `ci.yml` (CI), target
+`codex/swipe-between-story-board-columns-on-mobile`. Runtime checkout identity
+matches. Observer coordinator `tsukasa-seed373`, directory
+`/tmp/dough-ci-501/watch-AHutaa`, PID 85835, stream session 51394,
+yielded cell `g400:12`. Claim trunk CI remains unobserved by this branch observer.

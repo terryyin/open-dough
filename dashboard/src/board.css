@@ -18,6 +18,7 @@
 }
 
 .board-view {
+  touch-action: pan-y pinch-zoom;
   grid-row: 1;
   grid-column: view;
   overflow-x: clip;
