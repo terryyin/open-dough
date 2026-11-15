@@ -87,7 +87,7 @@ and that it reads it as last fetched.
 
 ### 4. Refresh this repository's duration list
 Type: Behavior
-Status: planned
+Status: done
 Proof: `node scripts/test-shares.mjs preview --split-count 3` shows no stale
 statement; the return quotes each share's headroom and any estimate lines.
 
@@ -199,15 +199,32 @@ with the complete literal paths on their slice Proof lines.
   unchanged allocation/refresh proof retained. About12 refactor minutes; no
   open gap. Final freshness unchanged at `7bb999227`.
 
-The same branch observer covers every publication. CI run43727102378/1 was
+Slice3 published `fedc827300415a5e452d38e373c130ef8dbbcd62`, base slice2,
+execution branch. The same branch observer covers every publication. CI run43727102378/1 was
 cancelled when slice2 run43728001510 was created on the same branch under
 workflow supersession. Bounded inspection: all non-cancelled jobs succeeded;
 only e2e2/6, e2e5/6 and ci-proof cancelled. No failed job to repair.
+
+Slice4: existing refresh from exact HEAD baseline in
+`/tmp/dough374-times-sNXoAW/primary-main` used main run43725762081 at
+`86b3f67877e5f6024d42cb8696c39fe1a4a08bec` (639 jobs matching trunk),
+plus only3 added-test rows from run43729355694 at slice3 SHA (all3 Distribution
+jobs succeeded). Result runner factor0.842. Actual default preview passed with
+642 recorded/0 unrecorded; headroom17.5/17.5/17.6, no stale/estimate lines.
+Inspected `verify-current-list.mjs` and `final-coverage.json` beside that temp
+directory: actual list and real runner cover all642 exactly once, shares
+212/213/217. Runner-factor command passed; trace
+`/tmp/dough-slice4-consumer-trace.md` covers current preview/partition/factor,
+unchanged algorithms reuse accepted proof. G1 closed with real added timings.
+Independent refactor: already clean; all6 files below250, whitespace passed;
+about8 active implementation minutes. Whole-check await for slice3 ended
+pending/timeout after10minutes; observer still live and final CI remains open.
+Final source freshness unchanged at `7bb999227`.
 
 ## Story obligations
 
 ### G1. Final refresh covers newly added tests (coordinator discovery)
 Reported: slice 2 — "Coordinator inspection: this story adds tests absent from current main timing artifacts; refreshing main alone can leave them stale once integrated."
 Story clause: "Delivery leaves `Distribution/tests/longest-first` current through the existing refresh, so this repository's own preview reports no stale job."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: /tmp/dough374-times-sNXoAW/after-preview.txt and final-coverage.json;642 recorded,0 unrecorded including all3 new tests; actual runner shares exactly once; source headers name main and story runs
 Commitment: C22
