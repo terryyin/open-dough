@@ -6,25 +6,25 @@
 # whose coordinator owns its CI observer differently; all through the shared
 # supervisor/stream/retention path, followed by their assessor
 # counterexamples. Their live counterparts run through
-#   Distribution/tests/git-publication/git-publication-native.sh --native HOST --case publication/startup-owned-context
-#   Distribution/tests/git-publication/git-publication-native.sh --native HOST --case publication/preparation-land
-#   Distribution/tests/git-publication/git-publication-native.sh --native HOST --case trunk-closure/owned-context
+#   Distribution/evaluation/cases/git-publication/git-publication-native.sh --native HOST --case publication/startup-owned-context
+#   Distribution/evaluation/cases/git-publication/git-publication-native.sh --native HOST --case publication/preparation-land
+#   Distribution/evaluation/cases/git-publication/git-publication-native.sh --native HOST --case trunk-closure/owned-context
 # shellcheck disable=SC2312
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-# shellcheck source=Distribution/tests/support/git-publication-native-run.sh
+# shellcheck source=Distribution/evaluation/cases/git-publication/git-publication-native-run.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/git-publication-native-run.sh"
+source "${source_dir}/Distribution/evaluation/cases/git-publication/git-publication-native-run.sh"
 # shellcheck source=Distribution/tests/support/git-publication-native-suites.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/git-publication-native-suites.sh"
 # shellcheck source=Distribution/tests/support/git-publication-native-substitute-suite.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/git-publication-native-substitute-suite.sh"
-# shellcheck source=Distribution/tests/support/trunk-closure-native-run.sh
+# shellcheck source=Distribution/evaluation/cases/closure/trunk-closure-native-run.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/trunk-closure-native-run.sh"
+source "${source_dir}/Distribution/evaluation/cases/closure/trunk-closure-native-run.sh"
 # shellcheck source=Distribution/tests/support/git-publication-native-owned-context-suite.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/git-publication-native-owned-context-suite.sh"

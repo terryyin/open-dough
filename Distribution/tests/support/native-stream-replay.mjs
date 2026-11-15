@@ -35,7 +35,7 @@ import {
   replayFieldless,
   replayFields,
   replayVerdicts,
-} from "./native-stream-publication-replay.mjs";
+} from "../../evaluation/cases/git-publication/native-stream-publication-replay.mjs";
 import {
   hosts,
   readHostStreamText,

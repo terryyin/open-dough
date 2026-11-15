@@ -5,13 +5,13 @@
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
-source "${source_dir}/Distribution/tests/support/delivery-evidence-native-run.sh"
+source "${source_dir}/Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-run.sh"
 root=$(mktemp -d)
 trap 'rm -rf -- "${root}"' EXIT
 delivery_evidence_create_fixture release "${source_dir}" codex narrowed "${root}" \
   > "${root}/fixture.txt" 2>&1
 workspace=${delivery_evidence_workspace}
-cmp "${source_dir}/Distribution/tests/fixtures/delivery-evidence/release-original-story.md" \
+cmp "${source_dir}/Distribution/evaluation/cases/delivery-evidence/fixtures/release-original-story.md" \
   "${workspace}/.planning/seeds/SEED-120-release-readiness.md"
 delivery_evidence_release_product_observation "${workspace}" > "${root}/narrowed.json"
 python3 - "${root}/narrowed.json" << 'PY'

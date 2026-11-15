@@ -5,14 +5,14 @@
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
-source "${source_dir}/Distribution/tests/support/delivery-evidence-native-run.sh"
-source "${source_dir}/Distribution/tests/support/delivery-evidence-source-quote.sh"
+source "${source_dir}/Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-run.sh"
+source "${source_dir}/Distribution/evaluation/cases/delivery-evidence/delivery-evidence-source-quote.sh"
 root=$(mktemp -d)
 trap 'rm -rf -- "${root}"' EXIT
 delivery_evidence_create_fixture terminal "${source_dir}" claude narrowed "${root}" \
   > "${root}/fixture.txt" 2>&1
 workspace=${delivery_evidence_workspace}
-cmp "${source_dir}/Distribution/tests/fixtures/delivery-evidence/terminal-original-story.md" \
+cmp "${source_dir}/Distribution/evaluation/cases/delivery-evidence/fixtures/terminal-original-story.md" \
   "${workspace}/.planning/seeds/SEED-106-sharadar-search-confidence.md"
 # A real source quote must resolve the fixture's story home for the obligations gate.
 plan=.planning/slice-plans/340-terminal-capacity-reconciliation/PLAN.md

@@ -55,7 +55,7 @@ run_substitute_one_shot_workspace_journeys() {
 # remote trunk, against that journey's passing run above.
 run_substitute_one_shot_review_pushes() {
   local journey=$1 work=${substitute_work}
-  git_publication_suite_counterexamples "${source_dir}/Distribution/tests/support/$2" \
+  git_publication_suite_counterexamples "${source_dir}/Distribution/evaluation/cases/git-publication/$2" \
     "${work}/claude-${journey}.txt"
   substitute_run "${journey}-pushes" claude "${journey}" \
     NATIVE_ONE_SHOT_VARIANT=pushes

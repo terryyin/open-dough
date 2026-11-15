@@ -130,7 +130,7 @@ test("added, removed and unrecorded inputs retain distinct provenance instead of
   );
   const promptModule = join(
     f.candidate,
-    "Distribution/tests/support/git-publication-native-fixture-identity.sh",
+    "Distribution/evaluation/cases/git-publication/git-publication-native-fixture-identity.sh",
   );
   writeFileSync(
     promptModule,

@@ -10,10 +10,10 @@ set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
 source "${source_dir}/Distribution/evaluation/src/native-host-stream.sh"
-source "${source_dir}/Distribution/tests/support/delivery-evidence-native-run.sh"
+source "${source_dir}/Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-run.sh"
 root=$(mktemp -d)
 trap 'rm -rf -- "${root}"' EXIT
-assessor="${source_dir}/Distribution/tests/support/delivery-evidence-amended-native-assess.sh"
+assessor="${source_dir}/Distribution/evaluation/cases/delivery-evidence/delivery-evidence-amended-native-assess.sh"
 native_case_host=claude
 freshness=.claude/skills/dough-execute-plan/scripts/source-freshness.mjs
 freshness_flags="--workspace . --identity 'SEED-042#export-readings' --remote origin --target-ref refs/heads/main"

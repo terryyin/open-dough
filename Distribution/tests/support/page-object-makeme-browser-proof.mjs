@@ -5,8 +5,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import test from "node:test";
-import { createPageObjectMakeMeProject } from "./page-object-makeme-fixture.mjs";
-import { makeMeControlScenario } from "./page-object-makeme-project-files.mjs";
+import { createPageObjectMakeMeProject } from "../../evaluation/cases/page-objects/page-object-makeme-fixture.mjs";
+import { makeMeControlScenario } from "../../evaluation/cases/page-objects/page-object-makeme-project-files.mjs";
 
 test("the installed domain fixture needs independent fresh item setup and preserves causal observations", async (t) => {
   const directory = mkdtempSync(join(tmpdir(), "page-makeme-control-"));

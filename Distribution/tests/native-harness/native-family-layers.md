@@ -53,7 +53,7 @@ Current families, each `<family>-native-<layer>` in `Distribution/tests/support`
   as planless work and as slice 1 of an executable plan: its product commands
   log each run's kind and product-state identity (`-proof-logger`), `-checks`
   replays controlled proof sequences through them, and
-  `Distribution/tests/delivery-evidence/proof-scheduling-native.sh` runs those, the rejected cases and
+  `Distribution/evaluation/cases/delivery-evidence/proof-scheduling-native.sh` runs those, the rejected cases and
   substitute-host runs without credentials, or one paid `--native HOST`
   session per scenario (`--scenario NAME` selects one).
   Compare [scheduling inputs and historical limits](../git-publication/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch) before a paid run.

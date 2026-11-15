@@ -1,8 +1,7 @@
 # Slice 4 — remaining acceptance families
 
-Implementation return is incomplete at the 15-active-minute cap and uncommitted. Base: `21fbaf4efa3c24fd963b6c45883f1d3bacf8962d`.
-No real native host, paid inference, scheduler, timeout, installed payload,
-comparison orchestration, record/archive or source-story changes were made.
+Original family return stopped at the 15-active-minute cap; its preserved movement and bounded correction below were accepted after the terminal renewals. Original base: `21fbaf4efa3c24fd963b6c45883f1d3bacf8962d`.
+No native/paid launch, scheduler, timeout, payload, comparison or evidence semantics changed.
 
 ## Movement and consumer closure
 
@@ -41,10 +40,8 @@ data and historical evidence takes precedence over shortening this existing
 data file. This narrow data exception does not waive the code-size rule.
 All other moved/changed files are at most 250 lines.
 
-`native-publication.md` is split at the settled seam: evaluation acceptance
-guide 216 lines, linked proof-scheduling scenario/history topic 80 lines.
-README preserves ADR guidance and adds actual existing acceptance commands;
-publication advertises `--help`, preparation also keeps its supported listing.
+`native-publication.md` is split into evaluation acceptance (216 lines) and
+linked scheduling proof/history (80). README keeps actual existing commands.
 
 ## Setup and conventions
 
@@ -107,12 +104,11 @@ Raw output: `/tmp/seed371-family-final.log`.
 PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=1 caffeinate -s -i npm test -- Distribution/tests/delivery-evidence/proof-scheduling-native.sh Distribution/tests/support/page-object-native-browser-proof.mjs Distribution/tests/support/page-object-makeme-browser-proof.mjs Distribution/tests/native-harness/native-evidence-identity.sh Distribution/tests/support/native-admission-reuse.test.mjs Distribution/tests/native-harness/native-harness-inspection.sh Distribution/tests/native-comparison/native-comparison-pairs.sh Distribution/tests/native-comparison/native-comparison-baselines.sh
 ```
 
-Terminal 1. Scheduling, identity, admission and inspection passed. Both comparison checks and both browser controls failed; exact outstanding repairs below.
+Terminal 1. Scheduling, identity, admission and inspection passed. Both comparison checks and browser controls failed; repairs below.
 Raw output: `/tmp/seed371-family-delta-proof.log`.
 
-The first two renewal wrappers used zsh's read-only `status` variable after
-`npm test` terminated; this wrapper error is not a successful result. Final
-proof wrappers use `proof_exit` and retain the actual terminal exit.
+Early zsh `status` wrapper errors are not passing proof; final wrappers retain
+actual `proof_exit` terminal receipts.
 
 Dashboard typecheck ran twice, both terminal 0:
 
@@ -191,26 +187,63 @@ The existing G8 seven ADR default guidance branches remain separate.
 G1/G2/G10 observations are pending final proof acceptance by the coordinator.
 No done mark, refactor, commit, formatting, hook-owned lint or publication was run.
 
-## Exact unfinished correction at cap
+## Bounded correction and renewed proof
 
-The final renewal is terminal 1; no launched command remains. Do not accept
-this slice or mark G1/G2/G10 proved until these defects and renewed proof settle:
+Correction base: `d6d6b231093fa39e9fcb05c1d43caaaca2a639a9`.
+The copied comparison source now includes all `evaluation/cases`, retaining
+the existing Git enumeration and deleted-tracked-file filter. Generated controls
+in `browser/` import `../support/library-page.mjs`, `held-read.mjs` and, for
+MakeMe, `makeMe.mjs`. Physical fixture modules still import the canonical
+repository `tests/support/makeMe.mjs`. No scenario/assertion facts changed.
 
-- `native-comparison-pair-fixture.sh` still copies only `cases/adr-awareness`;
-  copied comparison sources therefore omit moved
-  `cases/delivery-evidence/delivery-evidence-native-payload.sh`. Both
-  comparison pairs and baselines fail before their outcome. Include the actual
-  new family import closure while preserving retained records and source facts.
-- Both browser controls now locate actual checkout Playwright, but their
-  generated `browser/control.spec.mjs` imports refer to nonexistent local
-  `./library-page.mjs` and `./held-read.mjs`; the files are under `support/`.
-  Those two incorrect imports already exist on base, which does not exempt
-  their repair under failure policy.
-- The movement's physical-import rewrite also mistakenly changed the MakeMe
-  control template's `./makeMe.mjs` to `../../../tests/support/makeMe.mjs`.
-  Restore generated scenario-local support semantics. A template import must
-  not be rebased as though it were this physical maintainer module's import.
+The literal eight-check command above was renewed after those repairs:
+terminal 0, no failing/output-producing checks. Log:
+`/tmp/seed371-family-correction-proof.log`; explicit exit 0 receipt:
+`/tmp/seed371-family-correction-proof-exit`.
+Pairs reached preserved/regressed outcomes and checked the committed case-basis
+revision, payload trees/digests, independent sessions, same settings and inputs.
+Baselines checked raw-cleanup recovery, immutable capture and unsupported-proof
+refusal. Both real browser controls observed `SCENARIO PASSED`; their deliberate
+wrong expectations still produced actual/expected diagnostics, and MakeMe's
+empty-catalog counterexample still failed. Thus the corrected generated imports
+and copied source execute, rather than merely matching text.
+Scheduling, identity, operational admission/replay and inspection also passed.
+The unchanged terminal delivery caller's passing observation from the 21-check
+batch remains applicable; all 18 moved delivery inputs again match base bytes.
 
-Raw final failure details: `/tmp/seed371-family-delta-proof.log`; explicit exit
-receipt: `/tmp/seed371-family-delta-proof-exit`. Source fixtures and independent
-scenario expectations must retain their facts during this correction.
+Host: awake on AC, load 15.74/13.33/13.15, 41% free memory; one runner worker
+under `caffeinate -s -i`. MakeMe/page-object selection was resolved again for
+the concrete consumers; browser controls select neither convention.
+
+```sh
+PATH=/opt/homebrew/bin:$PATH caffeinate -s -i npm run typecheck:dashboard
+```
+
+Typecheck terminal 0 is recorded in `/tmp/seed371-family-correction-typecheck.log`
+and its matching `-exit` receipt. `git diff --check` passed. Correction trace:
+`/tmp/seed371-family-correction-current-disposed.md` against the correction base;
+unchanged applicable dispositions reuse the earlier maps. The focused delta has
+20 disposed consumers in `/tmp/seed371-family-correction-delta-disposed.md`.
+Other comparison callers reuse the same observed copy/setup boundary; their
+additional outcome/refusal logic is unchanged. Generic dates/symbols/readiness
+matches and historical instructions have no affected executable dependency.
+No command, commit, publication or formatter ownership was transferred.
+
+## Independent refactor
+Seven shell owners cache their physical containing directory once; exact source
+targets, bodies and identity inventories stay unchanged. All43 trace consumers
+are disposed in `/tmp/seed371-family-refactor-consumers-disposed.md`.
+
+```sh
+PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=1 caffeinate -s -i npm test -- Distribution/tests/git-publication/git-publication-native.sh Distribution/tests/git-publication/git-publication-native-substitutes.sh Distribution/tests/git-publication/git-publication-native-one-shot-results.sh Distribution/tests/git-publication/git-publication-native-admission-investigation.sh Distribution/tests/native-harness/native-evidence-identity.sh
+```
+
+Terminal0: `/tmp/seed371-family-refactor-proof.log` and matching `-exit`. Real
+publication/CI/closure counterexamples, all three controlled hosts, one-shot
+results, admission and writer mutations observe the changed common loading.
+Browser/comparison/replay/typecheck setup and assertions stay unchanged and
+reuse the accepted proof above. AwakeAC, one worker, load8.07/44%free;7 active
+minutes. Frozen18 inputs still equal base bytes; independent refactor complete.
+
+Delivery formatter stopped before commit on six wrapper SC2312 warnings; separate checked dirname/cd assignments retain exec targets/arguments. Independent delta review is clean. Literal renewal, terminal0: `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=1 caffeinate -s -i npm test -- Distribution/tests/git-publication/git-publication-native.sh Distribution/tests/git-publication/execution-worktree-preparation-native.sh Distribution/tests/delivery-evidence/proof-scheduling-native.sh Distribution/tests/product-backlog/product-backlog-native.sh Distribution/tests/installation/dough-update-local-guidance-rejection.sh`; `/tmp/seed371-wrapper-repair-proof.log` and matching `-exit`.
+MakeMe wrapper renewal, terminal0: `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=1 caffeinate -s -i npm test -- Distribution/tests/makeme/makeme-native-use.sh`; `/tmp/seed371-wrapper-makeme-proof.log` and `-exit`. Same actual default setup/observations as above; formatter-only import/call wrapping preserves behavior.

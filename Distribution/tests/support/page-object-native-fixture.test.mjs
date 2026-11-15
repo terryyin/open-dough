@@ -4,8 +4,8 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { createPageObjectProject } from "./page-object-native-fixture.mjs";
-import { createPageObjectRefactorProject } from "./page-object-native-refactor-fixture.mjs";
+import { createPageObjectProject } from "../../evaluation/cases/page-objects/page-object-native-fixture.mjs";
+import { createPageObjectRefactorProject } from "../../evaluation/cases/page-objects/page-object-native-refactor-fixture.mjs";
 
 test("the native fixture installs one candidate in each existing host layout with distinct entries", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "page-object-layout-"));

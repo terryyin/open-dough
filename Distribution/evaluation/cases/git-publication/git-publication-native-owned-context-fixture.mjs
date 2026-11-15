@@ -1,0 +1,121 @@
+// Builds an owned-context publication native-journey fixture: a repository
+// with no default checkout, only its Git directory and one retained owned
+// worktree, then prints its coordinates as JSON.
+//
+// The project's installed guidance is committed and pushed to trunk before
+// the retained worktree is created, so that worktree and every workspace made
+// from trunk hold it. Another writer then advances trunk, leaving the
+// retained worktree clean and behind.
+//
+// startup-owned-context: trunk queues Ready stories A and B with the
+// project's durable setup and command, which leave their markers in the
+// fixture root; the retained worktree also holds an uncommitted,
+// ready-looking local copy of Story A's section that differs from the
+// published one. The session is to start a new owned workspace.
+//
+// preparation-land: trunk queues Ready A and B and, last, rough Story C,
+// not yet refined; the retained worktree is the owned preparation workspace,
+// carrying the creation record an earlier session's preparation `start`
+// would have written for C.
+//
+// Usage: node git-publication-native-owned-context-fixture.mjs <source-dir>
+//   <journey> <parent> <host>
+import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { ownedWorktreeOnly } from "../../../tests/skills/dough-execute-plan/default-checkout-test-fixtures.mjs";
+import { advanceOriginFromAnotherWriter } from "../../../tests/skills/dough-execute-plan/publication-test-fixtures.mjs";
+import { createdForRef } from "../../../src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs";
+import {
+  computeBasis,
+  recordStoryState,
+} from "../../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
+import {
+  queuedRepositoryWithRoughStory,
+  readyStoryState,
+  roughStoryC,
+  storyA,
+  storyB,
+  storyPlanPath,
+} from "../../../tests/support/queued-repository.mjs";
+import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
+import { queuedReadyStartupRepository } from "../../../tests/support/startup-command-files.mjs";
+
+const [sourceDir, journey, parent, host] = process.argv.slice(2);
+const git = (cwd, ...args) =>
+  execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
+const isStartup = journey === "startup-owned-context";
+if (!isStartup && journey !== "preparation-land")
+  throw new Error(`unknown owned-context journey ${journey}`);
+
+const startingTrunk = isStartup
+  ? queuedReadyStartupRepository({ queued: [storyA, storyB] })
+  : queuedRepositoryWithRoughStory(roughStoryC);
+const trunk = await materializeRepository(startingTrunk.please(), { parent });
+const { fixture, origin, integration } = trunk;
+
+execFileSync(
+  "bash",
+  [
+    join(sourceDir, "install.sh"),
+    "--target",
+    integration,
+    "--source",
+    sourceDir,
+    "--platform",
+    host,
+  ],
+  { stdio: ["ignore", "ignore", "inherit"] },
+);
+git(integration, "add", "-A");
+git(integration, "commit", "-qm", "install Open Dough guidance");
+git(integration, "push", "-q", "origin", "main");
+const installed = git(integration, "rev-parse", "HEAD");
+
+const owned = isStartup
+  ? await ownedWorktreeOnly(trunk, "retained", "work/retained")
+  : await ownedWorktreeOnly(trunk, "prep-c", "prep/c");
+if (!isStartup)
+  git(
+    owned.workspace,
+    "update-ref",
+    createdForRef(roughStoryC.identity),
+    "HEAD",
+  );
+const fetched = await advanceOriginFromAnotherWriter(origin);
+
+// A local copy of Story A's section changed after preparation, with its
+// readiness recorded again over the changed bytes, so it looks ready.
+function writeReadyLookingLocalCopy(workspace) {
+  const seedPath = join(workspace, ".planning/seeds/A.md");
+  const plan = readFileSync(
+    join(workspace, ".planning", storyPlanPath(storyA)),
+    "utf8",
+  );
+  const seed = readFileSync(seedPath, "utf8").replace(
+    "Execute A.",
+    "Changed locally after preparation.",
+  );
+  const recorded = recordStoryState(
+    seed,
+    { ...readyStoryState(storyA), expectedBasis: computeBasis(seed, plan) },
+    { planSource: plan },
+  );
+  writeFileSync(seedPath, recorded.source);
+}
+
+if (isStartup) writeReadyLookingLocalCopy(owned.workspace);
+
+process.stdout.write(
+  JSON.stringify({
+    root: fixture,
+    origin,
+    repository: owned.repository,
+    retained: owned.workspace,
+    workspace: isStartup ? join(fixture, "native-execution") : owned.workspace,
+    branch: isStartup ? "exec/native-startup" : owned.branch,
+    identity: isStartup ? storyA.identity : roughStoryC.identity,
+    installed,
+    base: fetched,
+  }),
+);

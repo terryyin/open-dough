@@ -51,7 +51,7 @@ source "${native_comparison_runtime_dir}/native-run-supervise.sh"
 source "${native_comparison_runtime_dir}/native-codex.sh"
 source "${native_comparison_runtime_dir}/native-observation.sh"
 source "${native_comparison_runtime_dir}/native-result-retain.sh"
-source "${native_comparison_support_dir}/delivery-evidence-native-payload.sh"
+source "${native_comparison_support_dir}/../../evaluation/cases/delivery-evidence/delivery-evidence-native-payload.sh"
 source "${native_comparison_support_dir}/native-comparison-retain.sh"
 source "${native_comparison_support_dir}/native-comparison-turn.sh"
 
@@ -63,7 +63,7 @@ native_comparison_inputs=(
   Distribution/evaluation/src/native-codex.sh
   Distribution/evaluation/src/native-codex-session.mjs
   Distribution/evaluation/src/native-observation.sh
-  Distribution/tests/support/delivery-evidence-native-payload.sh
+  Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-payload.sh
 )
 
 native_comparison_now() {

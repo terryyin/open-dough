@@ -8,9 +8,9 @@ import test from "node:test";
 import {
   assessRefactorGuidance,
   assessRefactoredTests,
-} from "./makeme-native-refactor-assess.mjs";
-import { createMakeMeRefactorFixture } from "./makeme-native-refactor-fixture.mjs";
-import { codexSkillExpansion } from "./makeme-native-codex-expansion.mjs";
+} from "../../evaluation/cases/makeme/makeme-native-refactor-assess.mjs";
+import { createMakeMeRefactorFixture } from "../../evaluation/cases/makeme/makeme-native-refactor-fixture.mjs";
+import { codexSkillExpansion } from "../../evaluation/cases/makeme/makeme-native-codex-expansion.mjs";
 
 const source = fileURLToPath(new URL("../../..", import.meta.url));
 

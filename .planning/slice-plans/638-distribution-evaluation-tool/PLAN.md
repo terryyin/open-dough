@@ -33,10 +33,10 @@ Runtime belongs in src, scenarios/fixtures/assessors in cases, tool checks and t
 | Existing acceptance cases run from the tool home; example 3 | 4: migrated entry and real setup/observer/assessor/retention exercised with controlled hosts; replay, isolation, timeout and failure checks retain their verdicts. |
 | Same comparison selection, outcomes and limits; example 4 | 5: catalog filters, substitute pairs, refusal and incomplete-run checks through the new comparison entry. |
 | Earlier evidence remains recoverable; example 5 | 5: both original `20261114T045440-*.txt` records recover basis `9c20a8086fe48e2bd60f283f478607440a057216`; recovery prints original bytes. Frozen-baseline checks reassess after raw cleanup without changing archive integrity. |
-| Focused checks and explicit native invocation; examples 1, 3 | 6: focused command runs only evaluation checks; disabled assessor fails it; a real-host launch tripwire is untouched. Controlled host substitutes stay allowed. |
-| Combined Intent/CI proof, once per check; example 2 | 6: combined discovery equals the union of both roots across all shares; actual shell/file and Node-case outcomes from both roots reach the single Distribution proof summary. |
-| Installed guidance and unrelated content unchanged; example 6 | 1–6: declared-payload enumeration and installed-byte checks remain green, including install-omits-internal and payload-declaration-links; final diff contains no installed-guidance or payload-declaration changes. |
-| Callers, discovery and maintained instructions use the new home | Each moving slice: consumer trace and relevant consumers; 6: README commands and final stale-live-path search. Historical evidence keeps its paths. |
+| Focused checks and explicit native invocation; examples 1, 3 | 7: focused command runs only evaluation checks; disabled assessor fails it; a real-host launch tripwire is untouched. Controlled host substitutes stay allowed. |
+| Combined Intent/CI proof, once per check; example 2 | 7: combined discovery equals the union of both roots across all shares; actual shell/file and Node-case outcomes from both roots reach the single Distribution proof summary. |
+| Installed guidance and unrelated content unchanged; example 6 | 1–7: declared-payload enumeration and installed-byte checks remain green, including install-omits-internal and payload-declaration-links; final diff contains no installed-guidance or payload-declaration changes. |
+| Callers, discovery and maintained instructions use the new home | Each moving slice: consumer trace and relevant consumers; 7: README commands and final stale-live-path search. Historical evidence keeps its paths. |
 
 ## Preparation evidence
 
@@ -61,36 +61,12 @@ Status: done
 Proof: [retained runtime observations and explicit acceptance returns](slice-3-evidence.md);
 supervision, identity, snapshots, shim discovery and existing one-shot groups.
 
-Move the remaining actual shared runtime modules to `evaluation/src/` using
-attempt 2's classified map and compatible repairs, preserving slice 1's reader.
-Keep native identity source/inventory/supervision test inputs in support.
-Update module-relative shell sources, copied-source fixture roots, import closure,
-identity lists and executable-owner shim discovery. G7 is an independent
-named-aggregate correction owned by slice 7; preserve its unchanged behavior here.
-This immediately enables slice 4's remaining families from their final home.
-
 ### 4. Invoke remaining acceptance families from their home
 Type: Behavior
-Status: planned
-Proof: [family migration, controlled journeys and interim boundaries](slice-4-evidence.md);
+Status: done
+Proof: [family migration, corrected copy/generated imports and controlled journeys](slice-4-evidence.md);
 rejection/replay, identity/lifecycle,
 updated-use adapters, typecheck and declared-payload checks.
-
-Existing case and host options → documented evaluation entry → same isolated
-setup/observation/assessment/retention/cleanup. Move remaining reusable families
-to `evaluation/cases/` using attempt 1's compatible edits, preserving ADR and
-shared-runtime repairs. Separate automated branches; checks stay old until slice 6.
-Update shell/generated sources, fixture closures, identities and guards together.
-Keep comparison orchestration temporarily old. Complete acceptance commands.
-Split oversized `native-publication.md`: acceptance-running guide under evaluation
-and linked proof-scheduling scenarios/evidence in tests; both <=250 lines.
-
-The 175-file movement is parked and reusable; [attempt 4](attempt-4.md) retains
-15 active minutes and proof. Remaining execution is bounded to copied comparison
-closure and generated browser-control imports, then their narrow renewal.
-Generated project imports resolve from scenario files, not repository modules.
-Do not repeat the completed movement or alter frozen inputs.
-
 
 ### 5. Run comparisons and recover earlier evidence
 Type: Behavior
@@ -100,7 +76,7 @@ and byte comparisons of moved tracked records/archives.
 
 Existing comparison selection/record → new comparison entry → same selection,
 quality-first outcomes/limits, or original basis/record with no native launch.
-Move orchestration to src and cases to cases/comparison; checks stay until slice 6.
+Move orchestration to src and cases to cases/comparison; checks stay until slice 7.
 Update snapshots, Git-basis enumeration and current-assessor lookup together.
 Never rewrite task/basis inputs, archives, streams, hashes or historical paths.
 Recover both `20261114T045440-*` records and reassess archives after raw cleanup
@@ -109,7 +85,21 @@ commands, retaining historical links. Align plan 621 paths only; move its dated
 provenance/findings/PFE into a linked non-executable evidence reference so both
 files stay <=250 lines. No queued correction behavior is implemented.
 
-### 6. Check the tool independently and retain combined CI proof
+### 6. Separate automated checks from operational cases
+Type: Structure
+Status: planned
+Proof: existing defaults, changed-family counterexamples, and native entry
+selection/lifecycle retain their observations after responsibility extraction.
+
+Extract the seven ADR guidance defaults and remaining mixed default branches
+into their current test homes. Extract the 26 inventoried counterexample
+functions into test support; operational cases must not import test-only
+counterexamples. Keep reusable setup/observation/assessment in cases, canonical
+builders shared, and all assertion facts/entry options unchanged. Existing
+routine wrappers execute actual extracted bodies. No discovery change here.
+G8/G11 remain open until the final tool-test relocation in slice 7.
+
+### 7. Check the tool independently and retain combined CI proof
 Type: Behavior
 Status: planned
 Proof: focused command and broken-assessor/runner failure, native-host tripwire,
@@ -125,7 +115,7 @@ Intent sources to executable checks only. Exercise shell/Node outcomes through
 real CI fragments/summary including failures. Complete README prerequisites,
 commands/evidence limits and live navigation. Run final suite and 3-share preview.
 
-### 7. Settle named one-shot aggregate execution
+### 8. Settle named one-shot aggregate execution
 Type: Behavior
 Status: planned
 Proof: the selected aggregate retains every scenario, reports under the chosen
@@ -137,6 +127,10 @@ selection promises one job per named file; expanding to its three existing
 jobs changes reporting. Await the pending human contract choice before changing
 that path. [Measured cause, scope and required proof](attempt-3.md) retain both
 failed and passing observations; a passing retry is no repair.
+
+The remaining broad checking slice is split: extraction has its own unchanged
+default/operational proof loop, then focused discovery and combined CI share
+one loop. Existing inventories support both; eight slices preserve all outcomes.
 
 ## Frozen case evidence
 
@@ -175,7 +169,7 @@ failed and passing observations; a passing retry is no repair.
 - Cumulative design: one execution/observation/assessment implementation serves
   both acceptance and comparison; one scheduler serves focused and combined
   checks. Interim acceptance/comparison checks stay at their old test locations
-  until slice 6, with imports updated in each moving slice; slice 6 removes
+  until slice 7, with imports updated in each moving slice; slice 7 removes
   that temporary layout. Every delivered boundary must pass CI.
 - First attempt overran; [attempt and sizing evidence](attempt-1.md) preserves
   elapsed time, proof, failures and parked changes. Refined to four bounded
@@ -193,12 +187,12 @@ failed and passing observations; a passing retry is no repair.
 ### G1. Admission fixture path after relocation
 Reported: slice 1 — "admission reuse fixture copies the old background CI native probe path"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: slice-4-evidence.md renewed admission/identity proof; copied case closure includes the actual CI probe and admission compare produces current identity, replay pass and complete input correspondence.
 
 ### G2. Counterexample assessor paths after relocation
 Reported: slice 1 — "owned-context and one-shot counterexamples resolve assessors beside old support"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: slice-4-evidence.md publication owned-context and all three one-shot group suites; dynamic counterexamples load actual relocated assessor modules and reject each deliberately altered observation.
 
 ### G3. Browser selection after relocation
 Reported: slice 1 — "browser-group-shards reports zero selected actual specs for every browser group"
@@ -223,12 +217,12 @@ Disposition: proved by slice 1: slice-1-evidence.md command 1; native-admission-
 ### G7. One-shot safety deadline
 Reported: slice 1 — "one-shot aggregate hit the existing 180-second safety deadline during the broad selected gate"
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
-Disposition: receiving slice 7
+Disposition: receiving slice 8
 
 ### G8. Mixed default-check bodies in moved ADR entries
 Reported: slice 2 — "Routine test entries remain at old paths and currently dispatch mixed default branches in the moved cases (interim extraction needed in slice 6)."
 Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
-Disposition: interim until slices 2, 6
+Disposition: interim until slices 2, 6, 7
 
 ### G9. Delivery identity omits the actual native entry
 Reported: slice 3 — "native_result_journey_input_hash_lines hashes the thin routine delivery wrapper instead of the moved native entry; current listed-input mutation tests miss that omission."
@@ -238,9 +232,9 @@ Disposition: proved by slice 3: slice-3-evidence.md red expectation followed by 
 ### G10. Operational retained-attempt and publication replay closure
 Reported: slice 3 — "Operational admission reuse imports a shared retained-attempt reader and family-owned publication stream/replay helpers from tests/support."
 Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
-Disposition: interim until slices 3, 4
+Disposition: proved by slice 4: slice-4-evidence.md renewed operational admission/replay and inspection; dynamic assessment imports actual case-owned fields/replay, observes pass and unavailable-assessor states, and preserves retained artifact bytes.
 
 ### G11. Remaining-family check bodies and dependencies in cases
 Reported: slice 4 — "Native entries retain default automated branches behind old thin wrappers; CI, closure and one-shot run modules also still source test-only counterexamples."
 Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
-Disposition: interim until slices 4, 6
+Disposition: interim until slices 4, 6, 7

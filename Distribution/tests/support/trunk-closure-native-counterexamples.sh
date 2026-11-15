@@ -90,7 +90,7 @@ run_trunk_closure_observation_counterexamples() {
   # recorder, loaded only here so the paid assessor path holds no substitute.
   # shellcheck source=Distribution/tests/support/native-agent-admission.sh
   # shellcheck disable=SC1091
-  source "${trunk_closure_assess_file%/*}/native-agent-admission.sh"
+  source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-agent-admission.sh"
   mkdir -p "${mailbox}/coverage"
   [[ $(native_completion_registered "${mailbox}" "${sha}") == false ]]
   printf '{"sha":"%s","state":"undiscovered"}\n' "${sha}" \

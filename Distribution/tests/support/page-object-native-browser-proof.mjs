@@ -4,8 +4,8 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { createPageObjectProject } from "./page-object-native-fixture.mjs";
-import { controlScenario } from "./page-object-native-project-files.mjs";
+import { createPageObjectProject } from "../../evaluation/cases/page-objects/page-object-native-fixture.mjs";
+import { controlScenario } from "../../evaluation/cases/page-objects/page-object-native-project-files.mjs";
 
 test("the native browser fixture preserves held reads and expected/actual diagnostics", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "page-object-control-"));

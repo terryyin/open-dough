@@ -102,7 +102,7 @@ story_closure_retire_counterexamples() {
   # recorder, loaded only here so the paid assessor path holds no substitute.
   # shellcheck source=Distribution/tests/support/native-agent-admission.sh
   # shellcheck disable=SC1091
-  source "${story_closure_assess_file%/*}/native-agent-admission.sh"
+  source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/native-agent-admission.sh"
   : > "${story_closure_node_log}"
   for host in codex cursor claude; do
     admission_events='' admission_tool=0 stream="${work}/${host}.jsonl"

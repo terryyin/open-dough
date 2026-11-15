@@ -7,8 +7,8 @@
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
-source "${source_dir}/Distribution/tests/support/delivery-evidence-native-run.sh"
-source "${source_dir}/Distribution/tests/support/delivery-evidence-source-quote.sh"
+source "${source_dir}/Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-run.sh"
+source "${source_dir}/Distribution/evaluation/cases/delivery-evidence/delivery-evidence-source-quote.sh"
 root=$(mktemp -d)
 trap 'rm -rf -- "${root}"' EXIT
 story=${delivery_evidence_drift_story}
@@ -16,7 +16,7 @@ plan=${delivery_evidence_drift_plan}
 delivery_evidence_create_fixture drift "${source_dir}" claude narrowed "${root}" \
   > "${root}/fixture.txt" 2>&1
 workspace=${delivery_evidence_workspace}
-cmp "${source_dir}/Distribution/tests/fixtures/delivery-evidence/drift-original-story.md" \
+cmp "${source_dir}/Distribution/evaluation/cases/delivery-evidence/fixtures/drift-original-story.md" \
   "${workspace}/${story}"
 
 # The request names source, plan and return only, never the narrowed items.
@@ -81,7 +81,7 @@ for scenario in corrected amended-corrected; do
   delivery_evidence_drift_product_observation "${delivery_evidence_workspace}" \
     > "${root}/control-${scenario}.json"
   python3 - "${delivery_evidence_workspace}" "${scenario}" "${root}/control-${scenario}.json" \
-    "${source_dir}/Distribution/tests/fixtures/delivery-evidence/drift-human-amendment.md" \
+    "${source_dir}/Distribution/evaluation/cases/delivery-evidence/fixtures/drift-human-amendment.md" \
     "${story}" "${plan}" << 'PY'
 import json, sys
 from pathlib import Path

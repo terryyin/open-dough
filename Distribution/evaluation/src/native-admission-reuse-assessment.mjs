@@ -25,8 +25,8 @@ const assessmentScript = `
 import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 const [candidate, stream, host] = process.argv.slice(2);
-const fieldsModule = await import(pathToFileURL(join(candidate, 'Distribution/tests/support/git-publication-native-stream-fields.mjs')));
-const replay = await import(pathToFileURL(join(candidate, 'Distribution/tests/support/native-stream-publication-replay.mjs')));
+const fieldsModule = await import(pathToFileURL(join(candidate, 'Distribution/evaluation/cases/git-publication/git-publication-native-stream-fields.mjs')));
+const replay = await import(pathToFileURL(join(candidate, 'Distribution/evaluation/cases/git-publication/native-stream-publication-replay.mjs')));
 const fields = new Map(fieldsModule.publicationStreamFields('admission-investigation', host, stream).map(([key,value]) => [key,String(value)]));
 const verdict = replay.reassessVerdicts([replay.replayedAttempt(stream, fields)])[0];
 process.stdout.write(JSON.stringify({verdict, streamFields:Object.fromEntries(fields)}));

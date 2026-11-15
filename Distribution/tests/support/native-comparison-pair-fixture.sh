@@ -33,7 +33,7 @@ native_comparison_fixture_paths=(
   Distribution/tests/native-comparison
   Distribution/tests/support
   Distribution/evaluation/src
-  Distribution/evaluation/cases/adr-awareness
+  Distribution/evaluation/cases
   Distribution/tests/helpers
   scripts/owned-process-group.bash
 )

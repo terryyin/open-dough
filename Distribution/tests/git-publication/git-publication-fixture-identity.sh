@@ -23,7 +23,7 @@ printf '\nsource "$(dirname -- "${BASH_SOURCE[0]}")/open-dough-identity-probe.sh
 git -C "${identity_source}" add -- "${installer_probe}"
 families=(startup admission one-shot owned-context)
 fixture_helper=Distribution/tests/support/repositoryTestData.mjs
-escalation=Distribution/tests/support/git-publication-native-one-shot-escalation-fixture.mjs
+escalation=Distribution/evaluation/cases/git-publication/git-publication-native-one-shot-escalation-fixture.mjs
 # The real writers owned-context journeys run: one advances the origin, the
 # other leaves only the retained worktree.
 other_writer=Distribution/tests/skills/dough-execute-plan/publication-test-fixtures.mjs
@@ -44,7 +44,7 @@ family_identity() {
     # shellcheck disable=SC2034 # Read by the sourced identity writer.
     native_case_host=codex
     # shellcheck disable=SC1091
-    source "${identity_source}/Distribution/tests/support/git-publication-native-run.sh"
+    source "${identity_source}/Distribution/evaluation/cases/git-publication/git-publication-native-run.sh"
     git_publication_write_evidence_identity "$1"
   )
 }
@@ -66,27 +66,27 @@ installer_inputs+=' install.sh VERSION CHANGELOG.md
   Distribution/src/skills/dough-product-backlog/assets/codex-hooks-guard.json'
 family_inputs=(
   "startup|${installer_inputs} ${fixture_helper}
-  Distribution/tests/support/git-publication-native-startup-fixture.mjs
+  Distribution/evaluation/cases/git-publication/git-publication-native-startup-fixture.mjs
   Distribution/tests/support/repository-fixture.mjs
   Distribution/tests/support/queued-repository.mjs
   Distribution/tests/support/startup-command-files.mjs
   Distribution/src/skills/dough-execute-plan/scripts/execution-start.mjs"
   "admission|${installer_inputs} ${fixture_helper}
-  Distribution/tests/support/git-publication-native-admission-fixture.mjs
+  Distribution/evaluation/cases/git-publication/git-publication-native-admission-fixture.mjs
   Distribution/tests/support/repository-fixture.mjs
   Distribution/tests/support/queued-repository.mjs
   Distribution/tests/support/startup-command-files.mjs
   Distribution/tests/skills/dough-execute-plan/workspace-publication-admission-fixtures.mjs
   Distribution/src/skills/dough-execute-plan/scripts/execution-start.mjs"
   "one-shot|${installer_inputs} ${fixture_helper}
-  Distribution/tests/support/git-publication-native-one-shot-fixture.mjs
+  Distribution/evaluation/cases/git-publication/git-publication-native-one-shot-fixture.mjs
   Distribution/tests/support/repository-fixture.mjs
   Distribution/tests/support/queued-repository.mjs
   Distribution/tests/support/startup-command-files.mjs
   Distribution/src/skills/dough-execute-plan/scripts/one-shot-queued-repository.mjs
   ${escalation}"
   "owned-context|${installer_inputs} ${fixture_helper}
-  Distribution/tests/support/git-publication-native-owned-context-fixture.mjs
+  Distribution/evaluation/cases/git-publication/git-publication-native-owned-context-fixture.mjs
   Distribution/tests/support/repository-fixture.mjs
   Distribution/tests/support/queued-repository.mjs
   Distribution/tests/support/startup-command-files.mjs
@@ -111,7 +111,7 @@ if ! grep -Fq 'from "../src/notes.mjs"' "${identity_source}/${escalation}"; then
 fi
 closure_status=0
 node "${identity_source}/Distribution/evaluation/src/native-import-closure.mjs" "${identity_source}" \
-  Distribution/tests/support/git-publication-native-one-shot-fixture.mjs \
+  Distribution/evaluation/cases/git-publication/git-publication-native-one-shot-fixture.mjs \
   > "${identity_out}/one-shot-closure" 2> "${identity_out}/one-shot-closure.err" \
   || closure_status=$?
 if ((closure_status)) || ! grep -qx "${escalation}" "${identity_out}/one-shot-closure" \
@@ -188,7 +188,7 @@ retained_journey() {
   (
     set +e
     # shellcheck disable=SC1091
-    source "${identity_source}/Distribution/tests/support/git-publication-native-run.sh"
+    source "${identity_source}/Distribution/evaluation/cases/git-publication/git-publication-native-run.sh"
     native_case_results_dir=$1
     git_publication_create_fixture_for() {
       git_publication_fixture_root=$2

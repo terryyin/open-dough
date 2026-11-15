@@ -49,7 +49,7 @@ run_substitute_owned_context_journey() {
   owned_context_journey=${journey}
   owned_context_observe > "${git_publication_fixture_root}/passing.txt"
   git_publication_suite_counterexamples \
-    "${source_dir}/Distribution/tests/support/git-publication-native-${journey}.sh" \
+    "${source_dir}/Distribution/evaluation/cases/git-publication/git-publication-native-${journey}.sh" \
     "${git_publication_fixture_root}/passing.txt"
   if [[ ${journey} == startup-owned-context ]]; then
     run_startup_owned_context_counterexamples

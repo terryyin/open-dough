@@ -19,11 +19,11 @@ if [[ ${1-} == --version || ${2-} == --version ]]; then
   exit 0
 fi
 
-delivery_evidence_support_dir=${NATIVE_AGENT_SCHEDULING_SUPPORT}
+delivery_evidence_support_dir=$(cd -- "${NATIVE_AGENT_SCHEDULING_SUPPORT}/../../evaluation/cases/delivery-evidence" && pwd)
 # shellcheck disable=SC1091
 source "${delivery_evidence_support_dir}/delivery-evidence-scheduling-native-scenario-content.sh"
 # shellcheck disable=SC1091
-source "${delivery_evidence_support_dir}/delivery-evidence-scheduling-native-checks.sh"
+source "${NATIVE_AGENT_SCHEDULING_SUPPORT}/delivery-evidence-scheduling-native-checks.sh"
 delivery_evidence_scheduling_play "${PWD}" \
   "${NATIVE_AGENT_SCHEDULING_SEQUENCE:-corrected}" > /dev/null 2>&1
 jq -n -c '{type:"assistant",message:{content:[{type:"tool_use",id:"suite",name:"Bash",input:{command:"bin/suite.sh"}}]}}'

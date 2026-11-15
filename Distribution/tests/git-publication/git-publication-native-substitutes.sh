@@ -6,14 +6,14 @@
 # journeys through the shared supervisor/stream/retention path. One-shot,
 # owned-context and admission substitutes keep their own jobs. Live
 # counterparts run through
-#   Distribution/tests/git-publication/git-publication-native.sh --native HOST --case …
+#   Distribution/evaluation/cases/git-publication/git-publication-native.sh --native HOST --case …
 # shellcheck disable=SC2312
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-# shellcheck source=Distribution/tests/support/git-publication-native-run.sh
+# shellcheck source=Distribution/evaluation/cases/git-publication/git-publication-native-run.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/git-publication-native-run.sh"
+source "${source_dir}/Distribution/evaluation/cases/git-publication/git-publication-native-run.sh"
 # shellcheck source=Distribution/tests/support/git-publication-native-suites.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/git-publication-native-suites.sh"

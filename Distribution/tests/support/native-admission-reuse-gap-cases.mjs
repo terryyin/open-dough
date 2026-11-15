@@ -113,7 +113,7 @@ test("missing artifacts, unreadable candidate inputs and unavailable assessor ar
   rmSync(
     join(
       f.candidate,
-      "Distribution/tests/support/native-stream-publication-replay.mjs",
+      "Distribution/evaluation/cases/git-publication/native-stream-publication-replay.mjs",
     ),
   );
   const result = compare(f);

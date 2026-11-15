@@ -6,15 +6,15 @@
 # counterexamples. With a group name it runs that group alone, as its wrapper
 # (tests/git-publication-native-one-shot-<group>.sh) does for the suite. Their
 # live counterparts run through
-#   Distribution/tests/git-publication/git-publication-native.sh --native HOST --case publication/one-shot-*
-#   Distribution/tests/git-publication/git-publication-native.sh --native HOST --case preparation/one-shot-refinement
+#   Distribution/evaluation/cases/git-publication/git-publication-native.sh --native HOST --case publication/one-shot-*
+#   Distribution/evaluation/cases/git-publication/git-publication-native.sh --native HOST --case preparation/one-shot-refinement
 # shellcheck disable=SC2312
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-# shellcheck source=Distribution/tests/support/git-publication-native-run.sh
+# shellcheck source=Distribution/evaluation/cases/git-publication/git-publication-native-run.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/git-publication-native-run.sh"
+source "${source_dir}/Distribution/evaluation/cases/git-publication/git-publication-native-run.sh"
 # shellcheck source=Distribution/tests/support/git-publication-native-suites.sh
 # shellcheck disable=SC1091
 source "${source_dir}/Distribution/tests/support/git-publication-native-suites.sh"

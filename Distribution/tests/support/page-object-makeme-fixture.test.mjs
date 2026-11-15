@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { createPageObjectMakeMeProject } from "./page-object-makeme-fixture.mjs";
+import { createPageObjectMakeMeProject } from "../../evaluation/cases/page-objects/page-object-makeme-fixture.mjs";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 

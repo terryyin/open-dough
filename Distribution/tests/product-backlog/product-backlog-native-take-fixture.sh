@@ -4,9 +4,9 @@
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-# shellcheck source=Distribution/tests/support/product-backlog-native-take.sh
+# shellcheck source=Distribution/evaluation/cases/product-backlog/product-backlog-native-take.sh
 # shellcheck disable=SC1091
-source "${source_dir}/Distribution/tests/support/product-backlog-native-take.sh"
+source "${source_dir}/Distribution/evaluation/cases/product-backlog/product-backlog-native-take.sh"
 
 work_dir=$(mktemp -d)
 trap 'rm -rf -- "${work_dir}"' EXIT

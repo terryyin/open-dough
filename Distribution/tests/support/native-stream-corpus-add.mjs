@@ -31,7 +31,7 @@ import { copyFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
-import { publicationStreamFields } from "./git-publication-native-stream-fields.mjs";
+import { publicationStreamFields } from "../../evaluation/cases/git-publication/git-publication-native-stream-fields.mjs";
 import {
   joinContinuations,
   strings,
@@ -40,7 +40,7 @@ import {
   noFieldsVerdict,
   reassessVerdicts,
   replayedAttempt,
-} from "./native-stream-publication-replay.mjs";
+} from "../../evaluation/cases/git-publication/native-stream-publication-replay.mjs";
 import { defaultCorpus, draftMarker } from "./native-stream-replay.mjs";
 import {
   readRetainedAttempt,

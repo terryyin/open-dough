@@ -8,7 +8,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { publicationStreamFields } from "./git-publication-native-stream-fields.mjs";
+import { publicationStreamFields } from "../../evaluation/cases/git-publication/git-publication-native-stream-fields.mjs";
 
 const start = "node execution-start.mjs start --identity SEED-A#a";
 const conflict = '{"ok":false,"status":"conflict","owner":"rival"}';

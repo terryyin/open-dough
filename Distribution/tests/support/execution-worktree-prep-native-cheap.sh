@@ -2,9 +2,10 @@
 # Cheap credential-free contracts for tests/execution-worktree-preparation-native.sh.
 # shellcheck disable=SC1091,SC2034,SC2154,SC2310,SC2312
 
-prep_native_observation_dir="${prep_native_support_dir}/execution-worktree-prep-native-observations"
+prep_native_check_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+prep_native_observation_dir="${prep_native_check_support_dir}/execution-worktree-prep-native-observations"
 # shellcheck source=Distribution/tests/support/native-assessor-counterexample.sh
-source "${prep_native_support_dir}/native-assessor-counterexample.sh"
+source "${prep_native_check_support_dir}/native-assessor-counterexample.sh"
 
 assert_observation_passes() {
   local file=$1
@@ -51,7 +52,7 @@ run_cheap_assessor_contracts() {
     "${prep_native_observation_dir}/traces-without-stream-commands.json" \
     'setup then project command'
 
-  node "${prep_native_support_dir}/execution-worktree-prep-native-flat.mjs" \
+  node "${prep_native_check_support_dir}/../../evaluation/cases/git-publication/execution-worktree-prep-native-flat.mjs" \
     "${prep_native_observation_dir}/fresh-pass.json" > "${passing}"
   native_assessor_counterexamples "${prep_native_assess_js}" "${passing}" \
     --verdict prep_native_flat_status prep_native_flat_reason \
@@ -76,7 +77,7 @@ run_cheap_assessor_contracts() {
   local claiming="${work}/claiming-pass.flat"
   jq '.responseText = "I ran npm ci and prepared the worktree, then ran npm run prove."' \
     "${prep_native_observation_dir}/fresh-pass.json" > "${work}/claiming-pass.json"
-  node "${prep_native_support_dir}/execution-worktree-prep-native-flat.mjs" \
+  node "${prep_native_check_support_dir}/../../evaluation/cases/git-publication/execution-worktree-prep-native-flat.mjs" \
     "${work}/claiming-pass.json" > "${claiming}"
   native_assessor_counterexamples "${prep_native_assess_js}" "${claiming}" \
     --verdict prep_native_flat_status prep_native_flat_reason \

@@ -54,7 +54,7 @@ export function candidateIdentity(candidate, host) {
     [
       "-e",
       "-c",
-      'source_dir=$1; native_case_host=$2; source "$source_dir/Distribution/tests/support/git-publication-native-run.sh"; git_publication_write_evidence_identity admission',
+      'source_dir=$1; native_case_host=$2; source "$source_dir/Distribution/evaluation/cases/git-publication/git-publication-native-run.sh"; git_publication_write_evidence_identity admission',
       "admission-reuse",
       candidate,
       host,

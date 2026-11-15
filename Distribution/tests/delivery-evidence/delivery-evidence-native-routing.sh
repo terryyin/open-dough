@@ -3,9 +3,9 @@
 # shellcheck disable=SC1091,SC2034,SC2154,SC2310,SC2312
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-source "${source_dir}/Distribution/tests/support/git-publication-native-run.sh"
-source "${source_dir}/Distribution/tests/support/delivery-evidence-native-run.sh"
-source "${source_dir}/Distribution/tests/support/git-publication-native-host.sh"
+source "${source_dir}/Distribution/evaluation/cases/git-publication/git-publication-native-run.sh"
+source "${source_dir}/Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-run.sh"
+source "${source_dir}/Distribution/evaluation/cases/git-publication/git-publication-native-host.sh"
 root=$(mktemp -d)
 trap 'rm -rf -- "${root}"' EXIT
 native_case_host=codex
@@ -19,7 +19,7 @@ done
 delivery_evidence_case_has_scenario drift narrowed
 delivery_evidence_case_has_scenario drift amended-corrected
 status=0
-bash "${source_dir}/Distribution/tests/git-publication/git-publication-native.sh" \
+bash "${source_dir}/Distribution/evaluation/cases/git-publication/git-publication-native.sh" \
   --native codex --case delivery-evidence/missing > "${root}/unknown.txt" 2>&1 || status=$?
 [[ ${status} -eq 2 ]]
 grep -q "unknown native case 'delivery-evidence/missing'" "${root}/unknown.txt"

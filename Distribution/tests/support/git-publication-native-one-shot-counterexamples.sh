@@ -47,7 +47,7 @@ run_one_shot_state_counterexamples() {
   git_publication_fixture_observe_one_shot "${journey}" complete \
     "${transcript}" "${host}" > "${passing}"
   git_publication_suite_counterexamples \
-    "${source_dir}/Distribution/tests/support/git-publication-native-one-shot.sh" "${passing}"
+    "${source_dir}/Distribution/evaluation/cases/git-publication/git-publication-native-one-shot.sh" "${passing}"
 
   commit=$(one_shot_commit "${tip}^{tree}" "${tip}" 'second commit')
   git -C "${origin}" update-ref refs/heads/main "${commit}"
@@ -156,7 +156,7 @@ run_one_shot_unobserved_counterexamples() {
   }
   unobserved_observe > "${root}/passing.txt"
   git_publication_suite_counterexamples \
-    "${source_dir}/Distribution/tests/support/git-publication-native-one-shot.sh" \
+    "${source_dir}/Distribution/evaluation/cases/git-publication/git-publication-native-one-shot.sh" \
     "${root}/passing.txt"
 
   observed="${root}/ci-attached.jsonl"

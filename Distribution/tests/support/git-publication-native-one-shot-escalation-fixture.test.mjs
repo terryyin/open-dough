@@ -12,7 +12,7 @@ import { test } from "node:test";
 const source = fileURLToPath(new URL("../../../", import.meta.url));
 const dispatcher = join(
   source,
-  "Distribution/tests/support/git-publication-native-one-shot-fixture.mjs",
+  "Distribution/evaluation/cases/git-publication/git-publication-native-one-shot-fixture.mjs",
 );
 const renamePaths = ["src/settings.mjs", "src/notes.mjs", "docs/settings.md"];
 

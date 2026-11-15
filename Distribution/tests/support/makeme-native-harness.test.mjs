@@ -8,8 +8,8 @@ import { fileURLToPath } from "node:url";
 import {
   assessAuthoredTests,
   assessGuidance,
-} from "./makeme-native-assess.mjs";
-import { createMakeMeNativeFixture } from "./makeme-native-fixture.mjs";
+} from "../../evaluation/cases/makeme/makeme-native-assess.mjs";
+import { createMakeMeNativeFixture } from "../../evaluation/cases/makeme/makeme-native-fixture.mjs";
 
 const source = fileURLToPath(new URL("../../..", import.meta.url));
 

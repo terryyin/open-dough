@@ -35,13 +35,13 @@ Run a fresh authoring task, with `codex`, `cursor` or `claude` and a new absolut
 artifact directory outside the source checkout:
 
 ```sh
-caffeinate -s -i bash Distribution/tests/support/page-object-native-run.sh codex on /tmp/page-object-codex-on
-caffeinate -s -i bash Distribution/tests/support/page-object-native-run.sh codex off /tmp/page-object-codex-off
-caffeinate -s -i bash Distribution/tests/support/page-object-native-run.sh codex refactor /tmp/page-object-codex-refactor
-caffeinate -s -i bash Distribution/tests/support/page-object-native-run.sh claude installed /tmp/page-object-claude-installed
-caffeinate -s -i bash Distribution/tests/support/page-object-native-run.sh claude both /tmp/page-object-claude-both
-caffeinate -s -i bash Distribution/tests/support/page-object-native-run.sh codex makeme-only /tmp/page-object-codex-makeme
-caffeinate -s -i bash Distribution/tests/support/page-object-native-run.sh claude neither /tmp/page-object-claude-neither
+caffeinate -s -i bash Distribution/evaluation/cases/page-objects/page-object-native-run.sh codex on /tmp/page-object-codex-on
+caffeinate -s -i bash Distribution/evaluation/cases/page-objects/page-object-native-run.sh codex off /tmp/page-object-codex-off
+caffeinate -s -i bash Distribution/evaluation/cases/page-objects/page-object-native-run.sh codex refactor /tmp/page-object-codex-refactor
+caffeinate -s -i bash Distribution/evaluation/cases/page-objects/page-object-native-run.sh claude installed /tmp/page-object-claude-installed
+caffeinate -s -i bash Distribution/evaluation/cases/page-objects/page-object-native-run.sh claude both /tmp/page-object-claude-both
+caffeinate -s -i bash Distribution/evaluation/cases/page-objects/page-object-native-run.sh codex makeme-only /tmp/page-object-codex-makeme
+caffeinate -s -i bash Distribution/evaluation/cases/page-objects/page-object-native-run.sh claude neither /tmp/page-object-claude-neither
 ```
 
 `on` selects the browser entry and leaves the legacy entry off. `off` creates a

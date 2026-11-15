@@ -62,11 +62,11 @@ land_inputs=(
 response_input=Distribution/evaluation/src/native-response-field.sh
 journey_inputs=(
   'prep_native_input_hash_lines|
-  Distribution/tests/support/execution-worktree-prep-native-locked-node-repository.mjs
-  Distribution/tests/support/execution-worktree-prep-native-wrapper-repository.mjs
+  Distribution/evaluation/cases/git-publication/execution-worktree-prep-native-locked-node-repository.mjs
+  Distribution/evaluation/cases/git-publication/execution-worktree-prep-native-wrapper-repository.mjs
   Distribution/tests/support/makeMe.mjs Distribution/tests/support/repository-fixture.mjs Distribution/tests/support/repositoryTestData.mjs'
   'take_write_evidence_inputs|
-  Distribution/tests/support/product-backlog-native-facts.mjs Distribution/tests/support/makeMe.mjs
+  Distribution/evaluation/cases/product-backlog/product-backlog-native-facts.mjs Distribution/tests/support/makeMe.mjs
   Distribution/tests/support/queued-repository.mjs Distribution/tests/support/published-plan.mjs
   Distribution/tests/support/slicePlanTestData.mjs Distribution/tests/support/hostHookSettingsTestData.mjs'
   'native_result_journey_input_hash_lines|
@@ -78,7 +78,7 @@ journey_inputs=(
   "git_publication_write_evidence_identity land-default-checkout|${land_inputs[*]}
   Distribution/src/skills/dough-execute-plan/references/publish-the-candidate.md"
   "trunk_closure_write_evidence_identity|${land_inputs[*]} ${response_input}
-  Distribution/tests/support/native-closure-repository.mjs Distribution/tests/support/native-closure-ci.mjs
+  Distribution/evaluation/cases/closure/native-closure-repository.mjs Distribution/evaluation/cases/closure/native-closure-ci.mjs
   Distribution/tests/support/makeMe.mjs Distribution/tests/support/repositoryTestData.mjs Distribution/tests/support/ciRunTestData.mjs
   Distribution/src/skills/dough-execute-plan/references/wrap-up-closure-publication.md
   Distribution/src/skills/dough-story-wrap-up/scripts/trunk-closure.mjs
@@ -87,7 +87,7 @@ journey_inputs=(
   Distribution/src/skills/dough-execute-plan/scripts/ci-host-hook.mjs
   Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-rebase.mjs"
   "story_closure_write_evidence_identity|${land_inputs[*]} ${response_input}
-  Distribution/tests/support/native-closure-repository.mjs Distribution/tests/support/native-closure-ci.mjs
+  Distribution/evaluation/cases/closure/native-closure-repository.mjs Distribution/evaluation/cases/closure/native-closure-ci.mjs
   Distribution/tests/support/makeMe.mjs Distribution/tests/support/repositoryTestData.mjs Distribution/tests/support/ciRunTestData.mjs
   Distribution/src/skills/dough-execute-plan/references/wrap-up-closure-publication.md
   Distribution/src/skills/dough-product-backlog/scripts/product-backlog-git-driver.mjs"

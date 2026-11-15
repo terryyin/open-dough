@@ -5,13 +5,13 @@
 set -euo pipefail
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 source "${source_dir}/Distribution/tests/support/native-assessor-counterexample.sh"
-source "${source_dir}/Distribution/tests/support/delivery-evidence-native-run.sh"
+source "${source_dir}/Distribution/evaluation/cases/delivery-evidence/delivery-evidence-native-run.sh"
 root=$(mktemp -d)
 trap 'rm -rf -- "${root}"' EXIT
 delivery_evidence_create_fixture original "${source_dir}" claude narrowed "${root}" \
   > "${root}/fixture.txt" 2>&1
 workspace=${delivery_evidence_workspace}
-cmp "${source_dir}/Distribution/tests/fixtures/delivery-evidence/readiness-original-story.md" \
+cmp "${source_dir}/Distribution/evaluation/cases/delivery-evidence/fixtures/readiness-original-story.md" \
   "${workspace}/.planning/seeds/SEED-138-computed-execution-readiness.md"
 (cd "${workspace}" && node --test tests/readiness.test.mjs) > "${root}/narrowed.txt" 2>&1
 delivery_evidence_original_product_observation "${workspace}" > "${root}/narrowed.json"
@@ -31,7 +31,7 @@ JS
 delivery_evidence_create_fixture original "${source_dir}" claude corrected "${root}" \
   > "${root}/corrected-fixture.txt" 2>&1
 workspace=${delivery_evidence_workspace}
-cmp "${source_dir}/Distribution/tests/fixtures/delivery-evidence/readiness-original-story.md" \
+cmp "${source_dir}/Distribution/evaluation/cases/delivery-evidence/fixtures/readiness-original-story.md" \
   "${workspace}/.planning/seeds/SEED-138-computed-execution-readiness.md"
 (cd "${workspace}" && node --test tests/readiness.test.mjs) > "${root}/corrected.txt" 2>&1
 delivery_evidence_original_product_observation "${workspace}" > "${root}/corrected.json"
