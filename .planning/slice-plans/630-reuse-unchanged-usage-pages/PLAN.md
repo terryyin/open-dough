@@ -33,19 +33,15 @@ replaces this plan's former page-stability slice; no page-file proof remains.
 
 ### Prerequisite and consuming contract
 
-The story's recorded dependency waits for the small-history supplier to publish
-its canonical `usage-history-v2` document of tasks, sessions and gaps, with
-unchanged same-writer writes leaving bytes unchanged and existing task totals
-preserved. It is currently Taken, not delivered in this checkout. This plan
-consumes that outcome through `writeUsageHistory(batch)`, the importer and the
-Token index boundary. The supplier keeps those entry points; response-level
-`readImported` assertions are not part of this correction's proof.
-
-A shared direction or simultaneous edits cannot supply the missing canonical
-writer: proving alternating-writer stability on today's paged writer would
-require taking over the supplier's normalization and conversion work. That is
-why execution waits. Consuming the document and proving alternating writers
-are this story's work, not conditions the supplier must implement to unblock it.
+The small-history supplier is delivered (accepted at
+`03a69f1988ebab8c596a20dec52a333cc10ab48e`; dependency `satisfied`). Its
+canonical `usage-history-v2` document of tasks, sessions and gaps replaces each
+read session's contribution and leaves the document's bytes, inode and mtime
+unchanged when nothing in it changes. This plan consumes that outcome through
+`writeUsageHistory(batch)`, the importer and the Token index boundary;
+response-level `readImported` assertions are not part of this correction's
+proof. Proving alternating-writer stability on that document is this story's
+work.
 
 ## Current findings
 
@@ -120,7 +116,20 @@ proof; the backend cohort case owns the recovered-refinement variation.
 
 ## Decisive premises and observations
 
-Observed on 2026-11-15 at `63964802b3ddb17133af0e05ee5325b5f0284ec5` in this
+Rechecked on 2026-11-15 at `c9225e89644060f33c86b25523f5c66044935a99`, after
+the supplier landed, by reading the delivered sources: `mergeUsageTask` still
+lets incoming workflow win (`usageTaskReconciliation.ts`, `workflow:
+incoming.workflow ?? old.workflow`) while `canonicalUsageTasks` now indexes
+records but merges through it unchanged; `lastUsageCheck` still prefers the
+record; `usageRefresh.ts` still writes the history before `recordUsageCheck`,
+and an unchanged write leaves the document's mtime as it was, so a record
+newer than the document marks Refresh's own check; `SystemSettingsUsage`'s
+cohort `.finally` still clears `checking`. The Claude corroboration assertion
+expecting `dough-execute-plan` moved to the second `expect` block of its first
+case. The runtime observations below predate the supplier; none depended on
+paged storage.
+
+Originally observed on 2026-11-15 at `63964802b3ddb17133af0e05ee5325b5f0284ec5` in this
 owned checkout, Node 24.21.0. Commands used one worker under `caffeinate -s -i`
 on AC; host load before launch was 28.92/23.59/16.37, about 12,905 free and
 35,204 speculative 16 KB pages. No full suite or real-store scan was launched.
@@ -133,16 +142,15 @@ all appended `--workers=1 --reporter=list`.
 | Consuming operation / premise | Form, result and limits |
 | --- | --- |
 | Slice 1: both writers disagree on workflow | Backend config, scratch `dashboard/backend-tests/usage-history/preparation-writer-consistency.spec.ts`; reused `token-index-refresh`'s boundary server, MakeMe launch/rollout and `runImport`. Rollout cwd was the configured project, with `$dough-execute-plan SEED-7#first`. Import → Refresh → import → Refresh stored `dough-execute-plan`, `execution`, `dough-execute-plan`, `execution`. Passed symptom observation in 12.4 s (runner 29.6 s). This is task reconciliation, unchanged by the supplier's storage unit; no v2 byte proof is claimed here. |
-| Slice 1: precedence consumers | Scratch launch-first precedence in `mergeUsageTask`; backend config and `dashboard/backend-tests/usage-history`. 56 passed, 1 failed in 2.1 min. Sole failure: `recovered-corroboration.spec.ts:74` expected `dough-execute-plan`, received `execution` for a Claude executing launch. Slice 1 intentionally updates it, preserving its attribution and source-removal assertions. Other failures are not excused. |
+| Slice 1: precedence consumers | Scratch launch-first precedence in `mergeUsageTask`; backend config and `dashboard/backend-tests/usage-history`. 56 passed, 1 failed in 2.1 min. Sole failure: `recovered-corroboration.spec.ts`'s first case expected `dough-execute-plan`, received `execution` for a Claude executing launch. Slice 1 intentionally updates it, preserving its attribution and source-removal assertions. Other failures are not excused. |
 | Slice 2: later import is in chart but hidden from Checked | Same backend scratch: second finished launch imported after Refresh `2026-11-15T04:18:04.322Z`; history mtime `04:18:06.510Z`, chart had 2 tasks but `checkedAt` stayed `04:18:04.322Z`. Record is still written after the history by `refreshUsageHistory`; the supplier retains that order. A single document's mtime serves the same write-order comparison as the current manifest. |
 | Slice 3: filter read prematurely clears checking | Frontend config, scratch `dashboard/frontend-tests/preparation-usage-checking.spec.ts`: real Usage page, routed Token index answers and held refresh POST. After checking was observed, selected Refinement and observed its changed average (`2,450` vs `1,450`), then `showsChecked` passed while POST was held. 1 passed, 5.7 s (runner 9.6 s). Release completed the request. |
 | Slice 1: fixture mapping and its observing consumer | Read `finishedTask`, `launchWorkflows` and all five `system-settings-usage*.spec.ts` setups/assertions. Execution recovered fixtures occur in trend/detail journeys; the cohort journey's Refinement fixtures are all launch tasks. None currently observes recovered Refinement. Slice 1 adds that missing discriminating case and verifies failure with the old mapping. |
 
 Supplier publication, not this observation, establishes the v2 storage contract.
-The dependency blocks execution until that contract is evidenced. Its delivered
-format changes storage below the inspected task merge and HTTP/UI contracts;
-the alternating-writer success test is slice 1's delivery proof, not a claimed
-preparation result. Reconcile changed test helpers with the supplier at start.
+That contract is now evidenced. Its format changes storage below the
+inspected task merge and HTTP/UI contracts; the alternating-writer success test
+is slice 1's delivery proof, not a claimed preparation result.
 
 ## Ordered slices
 
@@ -225,16 +233,15 @@ reread before enabling Refresh; failure ends checking beside its readable error.
 - [Failing and flaky test policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
   applies as written to local tests and owned CI repair. Hosted CI runs full
   suites after publication; no whole local suite is required by this plan.
-- Expected edited files currently fit 250 lines: task reconciliation 106,
-  check 82, Usage component 133, fixture 177, corroboration spec 182 and Usage
-  page object 205. The Refresh spec is 248; its helper extraction above avoids
-  growing it past the limit. Recheck sizes after supplier/test-maintenance work.
+- Expected edited files fit 250 lines at `c9225e89`: task reconciliation 138,
+  check 82, Usage component 133, corroboration spec 182, Refresh spec 135,
+  `tokenIndexHarness.ts` 186 and Usage page object 201.
 - Cumulative design: task precedence stays in reconciliation, write freshness
   in its existing reader, and pending UI work in the component. Each slice has
   one proof loop; none recreates the supplier's response or paging machinery.
 - Refinement: not needed; the stale storage slice was removed during planning
   and the three remaining Behavior slices each own one bounded correction.
-- Remaining slice-specific concerns: none identified. The recorded supplier
-  dependency alone blocks start and is not a readiness concern. No numeric
+- Remaining slice-specific concerns: none identified. The supplier dependency
+  is satisfied. No numeric
   slice limit is supplied; implementation, focused proof and cleanup fit one
   cohesive loop per slice under the shared sizing rules.
