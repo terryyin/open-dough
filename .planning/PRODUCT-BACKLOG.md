@@ -30,10 +30,10 @@ intent introduced or affected by a newly developed story.
 
 - [Reduce total model work during blocked execution](seeds/SEED-356-reduce-blocked-execution-effort.md#reduce-total-model-work-during-blocked-execution) — SEED-356#reduce-total-model-work-during-blocked-execution ([plan](slice-plans/627-reduce-blocked-execution-work/PLAN.md))
 - [Dissolve Dashboard Integrated UI Test into E2E and unit tests](seeds/SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks) — SEED-334#focus-detailed-dashboard-ui-checks ([plan](slice-plans/627-dissolve-dashboard-integrated-ui-test/PLAN.md))
+- [Keep usage history within a small disk budget](seeds/SEED-357-dashboard-task-token-usage.md#keep-usage-history-within-a-small-disk-budget) — SEED-357#keep-usage-history-within-a-small-disk-budget ([plan](slice-plans/631-keep-usage-history-small/PLAN.md))
 
 ## Backlog list
 
-- [Keep usage history within a small disk budget](seeds/SEED-357-dashboard-task-token-usage.md#keep-usage-history-within-a-small-disk-budget) — SEED-357#keep-usage-history-within-a-small-disk-budget
 - [Keep usage task facts and freshness consistent across writers](seeds/SEED-357-dashboard-task-token-usage.md#reuse-unchanged-usage-pages-on-repeated-writes) — SEED-357#reuse-unchanged-usage-pages-on-repeated-writes
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
 - [Chart CI time without runner waits in Intent](seeds/SEED-364-intent-ci-history-without-runner-waits.md#chart-ci-time-without-runner-waits) — SEED-364#chart-ci-time-without-runner-waits
