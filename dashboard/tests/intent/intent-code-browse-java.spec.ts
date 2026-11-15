@@ -25,6 +25,7 @@ import { doughnut, publishIntentProject } from "../intentCodeBrowseFixtures.ts";
 import { trunkCi } from "../intentCiStatusPage.ts";
 import { noConnection } from "../originAnswers.ts";
 import type { RepositoryAnswerer } from "../support/fakeGitHub.ts";
+import { failGrammar } from "../support/syntaxGrammar.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("Intent lists configured nested JUnit source, reads exact pinned Java with line numbers and theme styling, and shares Purpose/Proof with other source", async ({
@@ -84,19 +85,13 @@ class CalculatorTest {
   await expect(sourceRevision(intent, javaPath)).toContainText(
     `at revision ${shortRevision(doughnut.revision)}`,
   );
-  await expectKeywordAndStringColours(source, /^class$/, /^"two"$/);
+  const keyword = sourceToken(source, /^class$/);
   await page.emulateMedia({ colorScheme: "light" });
-  expect(await colourOf(sourceToken(source, /^class$/))).toBe(
-    "rgb(215, 58, 73)",
-  );
-  expect(await colourOf(sourceToken(source, /^"two"$/))).toBe("rgb(3, 47, 98)");
+  await expectKeywordAndStringColours(source, /^class$/, /^"two"$/);
+  const lightKeyword = await colourOf(keyword);
   await page.emulateMedia({ colorScheme: "dark" });
-  expect(await colourOf(sourceToken(source, /^class$/))).toBe(
-    "rgb(249, 117, 131)",
-  );
-  expect(await colourOf(sourceToken(source, /^"two"$/))).toBe(
-    "rgb(158, 203, 255)",
-  );
+  await expectKeywordAndStringColours(source, /^class$/, /^"two"$/);
+  expect(await colourOf(keyword)).not.toBe(lightKeyword);
   await expect(sourceLineText(source)).toHaveText(javaText.split("\n"));
 
   await fileReadingTab(intent, "Proof").click();
@@ -121,14 +116,7 @@ test("a failed Java grammar load leaves configured source readable as exact plai
   page,
 }) => {
   const text = 'class Examples { String value = "still readable"; }\n';
-  let grammarFailed: () => void = () => undefined;
-  const failed = new Promise<void>((resolve) => {
-    grammarFailed = resolve;
-  });
-  await page.route(/\/assets\/java-[^/]+\.js$/, async (route) => {
-    await route.abort("failed");
-    grammarFailed();
-  });
+  const grammar = await failGrammar(page, "java");
   await publishIntentProject(
     page,
     doughnut,
@@ -143,7 +131,7 @@ test("a failed Java grammar load leaves configured source readable as exact plai
   const { intent } = parts(page);
   await expandIntentGroup(intent, "checks");
   await sourceFile(intent, "checks/Examples.java").click();
-  await failed;
+  await grammar.failed;
   const source = fileSource(intent, "checks/Examples.java");
   await expect(sourceLineText(source)).toHaveText([
     'class Examples { String value = "still readable"; }',

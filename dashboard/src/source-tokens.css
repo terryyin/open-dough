@@ -1,0 +1,15 @@
+/* Shared syntax token colours (`./SourceTokens.tsx`) for every source
+   reader. Shiki's GitHub high-contrast palettes ride as custom properties;
+   light foregrounds mix 25% toward `--text` so tokens keep 4.5:1 on the
+   dashboard's light surfaces, and dark ones select through the system
+   appearance without re-tokenization. */
+
+.source-token {
+  color: color-mix(in srgb, var(--shiki-light) 75%, var(--text));
+}
+
+@media (prefers-color-scheme: dark) {
+  .source-token {
+    color: var(--shiki-dark, var(--shiki-light));
+  }
+}

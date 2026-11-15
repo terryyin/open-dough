@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-351_highlight-syntax-in-code-diffs.json",
+      "identity": "SEED-351#highlight-syntax-in-code-diffs",
+      "completedAt": "2026-11-15T15:46:32.664Z",
+      "blob": "e97f5753234cbac7d25f8f6d9abe5865070ee79d"
+    },
+    {
       "fileName": "SEED-376_show-affected-consumer-proof-at-acceptance.json",
       "identity": "SEED-376#show-affected-consumer-proof-at-acceptance",
       "completedAt": "2026-11-15T15:34:26.156Z",

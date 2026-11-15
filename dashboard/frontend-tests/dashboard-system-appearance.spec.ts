@@ -7,8 +7,8 @@ import {
 // System colour-scheme appearance for the dashboard frame and Intent source:
 // dark Board/card/badge, Sessions, Side panel chrome, dialog, settings, focus,
 // and recovery text stay readable; highlighted and plain source follow the
-// preference without re-tokenization; light restores today's colours; reading
-// state survives the change. No dashboard appearance switch.
+// preference without re-tokenization, with tokens readable in both; light
+// restores the light frame; reading state survives the change. No dashboard appearance switch.
 
 import {
   expect,
@@ -42,7 +42,8 @@ import { frontendRevision } from "../tests/support/frontendServiceState.ts";
 
 const highlightedPath = "dashboard/tests/example.spec.ts";
 const plainPath = "dashboard/checks/notes.check";
-const highlightedSource = 'export const message = "hello";\n';
+const highlightedSource =
+  '// greets the reader\nexport const message = "hello";\n';
 const plainSource = "plain recovery note\n";
 
 test("the dashboard frame and Intent source follow the system appearance together", async ({
@@ -168,8 +169,10 @@ test("the dashboard frame and Intent source follow the system appearance togethe
     const source = fileSource(intent, highlightedPath);
     await expect(source).toContainText('export const message = "hello";');
     const exportToken = sourceToken(source, /^export$/);
+    const commentToken = sourceToken(source, /greets the reader/);
     await expect(exportToken).toBeVisible();
     await expectReadableContrast(exportToken);
+    await expectReadableContrast(commentToken);
     await expectReadableContrast(sourceLineNumbers(source).first());
     const darkExport = await colourOf(exportToken);
 
@@ -198,6 +201,8 @@ test("the dashboard frame and Intent source follow the system appearance togethe
     await expectLightSurface(page);
     const lightExport = await colourOf(exportToken);
     expect(lightExport).not.toBe(darkExport);
+    await expectReadableContrast(exportToken);
+    await expectReadableContrast(commentToken);
     await expectProjectChoice(page, "Open Dough");
     await expect(intentChoice).toBeChecked();
     await expect(development).not.toBeChecked();
