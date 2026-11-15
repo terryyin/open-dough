@@ -1,12 +1,13 @@
 // Process/filesystem/window boundary for usage-import journeys. Built Codex and
 // Claude sessions come from MakeMe; raw nativeFile stays for layout under proof.
 import { execFileSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
 import type { UsageHistory } from "../../server/usageHistory.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 
 const repository = fileURLToPath(new URL("../../../", import.meta.url));
 const command = path.join(repository, "dashboard/server/importUsageHistory.ts");
@@ -77,6 +78,10 @@ export function keepOperationalLaunch(
   keepLaunchStore(home, { "open-dough": [record] });
 }
 
+/** Where `runImport` has the import write the responses it read. */
+export const responsesFile = (home: string) =>
+  path.join(home, "import-responses.json");
+
 export function runImport(
   home: string,
   nativeRoot: string,
@@ -96,6 +101,8 @@ export function runImport(
         nativeRoot,
         "--since",
         "2026-09-16T00:00:00+08:00",
+        "--responses",
+        responsesFile(home),
         ...extra,
       ],
       {
@@ -108,7 +115,27 @@ export function runImport(
   );
 }
 
+/**
+ * Tasks and gaps from the history, with the responses and task assignments
+ * the latest successful `runImport` read: none before the first one.
+ */
 export function readImported(home: string, extra: string[] = []): UsageHistory {
+  const file = responsesFile(home);
+  const responses: UsageResponses = existsSync(file)
+    ? (JSON.parse(readFileSync(file, "utf8")) as UsageResponses)
+    : { observations: {}, associations: {} };
+  return {
+    ...readStoredRows(home, extra),
+    observations: responses.observations,
+    associations: responses.associations,
+  };
+}
+
+/** The history with the response rows it stores, whichever writer stored them. */
+export function readStoredRows(
+  home: string,
+  extra: string[] = [],
+): UsageHistory {
   return JSON.parse(
     execFileSync(
       process.execPath,

@@ -9,7 +9,7 @@ import {
 } from "../../server/usageHistory.ts";
 import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  readImported,
+  readStoredRows,
   runImport,
   writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
@@ -55,7 +55,7 @@ for (const format of ["legacy", "paged"]) {
         .please(),
     );
     runImport(home, root);
-    const old = readImported(home);
+    const old = readStoredRows(home);
     const task = Object.values(old.tasks)[0];
     assert(task);
     // Exact old wire shape is the migration contract: no assignment evidence.
@@ -89,7 +89,7 @@ for (const format of ["legacy", "paged"]) {
     );
     const bytes = readFileSync(file, "utf8");
     const report = runImport(home, root);
-    const corrected = readImported(home);
+    const corrected = readStoredRows(home);
     expect(corrected.tasks[task.id]).toMatchObject({
       id: task.id,
       launchedAt: null,
@@ -131,6 +131,6 @@ for (const format of ["legacy", "paged"]) {
     expect(readFileSync(file, "utf8")).toBe(bytes);
     expect(JSON.stringify(corrected)).not.toContain("PRIVATE-");
     runImport(home, root);
-    expect(readImported(home)).toEqual(corrected);
+    expect(readStoredRows(home)).toEqual(corrected);
   });
 }

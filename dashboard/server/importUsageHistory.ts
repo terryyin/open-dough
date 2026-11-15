@@ -18,6 +18,7 @@ try {
       home: { type: "string" },
       store: { type: "string" },
       since: { type: "string" },
+      responses: { type: "string" },
       "claude-root": { type: "string", multiple: true },
       "codex-root": { type: "string", multiple: true },
     },
@@ -27,7 +28,7 @@ try {
     !["import", "read"].includes(positionals[0] ?? "")
   )
     throw new Error(
-      "Choose import or read; options: --home --store --since --codex-root --claude-root (repeatable)",
+      "Choose import or read; options: --home --store --since --responses --codex-root --claude-root (repeatable)",
     );
   const home = path.resolve(values.home ?? homedir());
   const store = path.resolve(values.store ?? usageHistoryFile(home));
@@ -42,6 +43,9 @@ try {
       home,
       store,
       since: values.since ?? usageHistorySince,
+      ...(values.responses
+        ? { responses: path.resolve(values.responses) }
+        : {}),
       claudeRoots: (
         values["claude-root"] ?? [path.join(home, ".claude/projects")]
       ).map((root) => path.resolve(root)),

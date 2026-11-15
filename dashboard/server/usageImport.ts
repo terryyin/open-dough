@@ -3,10 +3,9 @@ import { readUsageReportHistory } from "./usageReportSnapshot.ts";
 import { usageImportSummary } from "./usageImportReport.ts";
 import { nativeTaskActivity } from "./nativeTaskActivity.ts";
 import { recoveredUsageTasks } from "./recoveredUsageTasks.ts";
-import {
-  canonicalUsageTasks,
-  mergeUsageTask,
-} from "./usageTaskReconciliation.ts";
+import { mergeUsageTask } from "./usageTaskReconciliation.ts";
+import { usageResponseResolution } from "./usageResponseResolution.ts";
+import { writeUsageResponses } from "./usageResponsesFile.ts";
 import type { NativeTaskFact } from "./nativeTaskFacts.ts";
 // Explicit, offline import. Native evidence is streamed; only compact response
 // observations are retained. Operational launch readers never invoke this path.
@@ -51,6 +50,8 @@ export type UsageImportOptions = {
   claudeRoots?: string[];
   since: string;
   store?: string;
+  // Where to write the responses this import read; nothing when absent.
+  responses?: string;
 };
 export async function importUsageHistory(options: UsageImportOptions) {
   const since = Date.parse(options.since);
@@ -168,7 +169,11 @@ async function collectUsageHistory(
   const excludedObservations = observations.size - relevant.length;
   observations.clear();
   for (const item of relevant) observations.set(item.id, item);
-  const tasks = canonicalUsageTasks([...taskMap.values(), ...recovered]);
+  const resolution = usageResponseResolution([
+    ...taskMap.values(),
+    ...recovered,
+  ]);
+  const tasks = resolution.tasks;
   for (const observation of observations.values()) {
     if (observation.host === "claude") {
       const resolved = claudeAssociation(observation, tasks, claude);
@@ -192,6 +197,17 @@ async function collectUsageHistory(
     { tasks, observations: [...observations.values()], associations, gaps },
     store,
   );
+  if (options.responses)
+    await writeUsageResponses(
+      options.responses,
+      observations.values(),
+      associations.map((association) =>
+        resolution.resolve(
+          association,
+          observations.get(association.observationId),
+        ),
+      ),
+    );
   return {
     files,
     excludedTasks: excludedTasks.size,

@@ -1,7 +1,4 @@
-import {
-  hasUsageAssignment,
-  eligibleUsageAssociation,
-} from "./usageTaskAssignment.ts";
+import { usageResponseResolution } from "./usageResponseResolution.ts";
 import {
   usageSnapshotInputs,
   canonicalGapPartitions,
@@ -11,13 +8,8 @@ import { acquireWriteLock, releaseWriteLock } from "./machineJsonLock.ts";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import {
-  canonicalUsageTasks,
-  sameUsageTask,
-} from "./usageTaskReconciliation.ts";
-import {
   reconcileAssociation,
   reconcileObservation,
-  uniqueFacts,
 } from "./usageReconciliation.ts";
 import {
   responseKey,
@@ -65,26 +57,12 @@ export async function writeUsageSnapshot(
     const incomingTasks = (batch.tasks ?? []).map(
       (value) => parseValue("tasks", value) as UsageTask,
     );
-    const tasks = canonicalUsageTasks([...previousTasks, ...incomingTasks]);
-    const eligible = new Set(
-      tasks.filter(hasUsageAssignment).map((task) => task.id),
-    );
+    const {
+      tasks,
+      alias: aliasAssociation,
+      resolve,
+    } = usageResponseResolution([...previousTasks, ...incomingTasks]);
     const taskIds = new Set(tasks.map((task) => task.id));
-    const aliases = new Map<string, string>();
-    for (const task of [...previousTasks, ...incomingTasks]) {
-      const matches = tasks.filter(
-        (item) => item.id === task.id || sameUsageTask(item, task),
-      );
-      const [match] = matches;
-      if (matches.length === 1 && match) aliases.set(task.id, match.id);
-    }
-    const aliasAssociation = (value: UsageAssociation): UsageAssociation => ({
-      ...value,
-      taskId: value.taskId ? (aliases.get(value.taskId) ?? value.taskId) : null,
-      candidates: uniqueFacts(
-        value.candidates.map((id) => aliases.get(id) ?? id),
-      ),
-    });
     const { inputs, orders } = usageSnapshotInputs(batch, tasks);
     const associatedTasks = new Set<string>();
     async function merge(
@@ -178,21 +156,10 @@ export async function writeUsageSnapshot(
         },
       );
       for (const [id, row] of associations) {
-        const association = eligibleUsageAssociation(
-          aliasAssociation(row[1] as UsageAssociation),
-          eligible,
+        const association = resolve(
+          row[1] as UsageAssociation,
+          observations.get(id)?.[1] as UsageObservation | undefined,
         );
-        if (
-          (
-            observations.get(id)?.[1] as UsageObservation | undefined
-          )?.gaps.includes("contradictory-lineage")
-        ) {
-          association.taskId = null;
-          association.gaps = uniqueFacts([
-            ...association.gaps,
-            "contradictory-lineage",
-          ]);
-        }
         row[1] = association;
         if (association.taskId) associatedTasks.add(association.taskId);
       }

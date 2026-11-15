@@ -2,6 +2,7 @@
 
 **Identity:** SEED-357#keep-usage-history-within-a-small-disk-budget
 **Source:** [story](../../seeds/SEED-357-dashboard-task-token-usage.md#keep-usage-history-within-a-small-disk-budget)
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -131,7 +132,7 @@ journey spec is added: the page's observable output does not change.
 
 ### 1. An import writes the responses it read to a named file
 Type: Behavior
-Status: planned
+Status: done
 Proof: `runImport` in `dashboard/tests/usage-history/importHarness.ts` names a
 responses file and `readImported` returns tasks and gaps from `read` with
 observations and associations from that file. The 45 tests the scratch showed
@@ -273,7 +274,29 @@ Update the Refresh sentence of `dashboard/USAGE-HISTORY.md`.
 
 ## Learnings
 
-None yet.
+- Execution: Story Branch Mode on `claude/keep-usage-history-within-a-small-disk-budget`,
+  claim `5a97baeb3` accepted on `origin/main`.
+- Slice 1 (accepted 2026-11-15; usage-history family 58 passed, the five
+  `system-settings-usage*` e2e specs 5 passed, lint and typecheck clean):
+  - Shared resolution: `usageResponseResolution(known)` in
+    `dashboard/server/usageResponseResolution.ts` returns `{ tasks, alias,
+    resolve }`; `resolve(association, observation)` applies alias, eligibility
+    and contradictory lineage. The writer and the importer both call it.
+  - Responses file: `UsageResponses = { observations, associations }` keyed by
+    response id, written by `writeUsageResponses` (`usageResponsesFile.ts`)
+    after the store write succeeds. The harness path is `responsesFile(home)`.
+  - The stored-rows harness function is `readStoredRows(home)`. Its callers are
+    11 tests in eight specs plus one line of `import-responses.spec.ts`; slice
+    3 removes it. The split was 46 unchanged and 11 switched: the
+    `usage-snapshots` codec-budget case passes on the responses file.
+  - `readImported` returns no responses before the first successful import.
+  - The file's associations come from this scan alone. A response charged by
+    an earlier import and since rejected has its old candidate in the stored
+    row and none in the file; both carry no task. Slice 3's contributions
+    take candidates from the batch, so check that case there.
+  - `dashboard/USAGE-HISTORY.md` is at 250 lines, and its options paragraph is
+    wrapped at 100 columns to stay there. Slice 3 removes the paged-store text
+    and returns that paragraph to the file's 80-column wrap.
 
 ## Verification, sizing and concern review
 

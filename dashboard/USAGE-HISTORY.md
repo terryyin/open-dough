@@ -17,18 +17,18 @@ node dashboard/server/importUsageHistory.ts import \
 node dashboard/server/importUsageHistory.ts read
 ```
 
-`--home <directory>` selects the machine home containing retained and operational
-launch evidence. `--codex-root <directory>` selects an active Codex rollout root
-and may be repeated; its defaults are `<home>/.codex/sessions` and
-`<home>/.codex/archived_sessions`. Both plain `.jsonl` and zstd `.jsonl.zst`
-rollouts are streamed. `--store <file>`
-selects an explicit alternate usage manifest for both commands; its pages live
-beside it in `<file>.pages/`. `--since` uses
-recorded response timestamps, including in-window responses of older sessions;
-the default cutoff above is midnight Singapore time, not UTC midnight. `--claude-root <directory>` selects a Claude transcript root and may be repeated;
-its default is `<home>/.claude/projects`. Native
-inputs are read only. No API request, native session launch, billing lookup or
-workflow mutation occurs. Use an isolated home/store for fixture experiments.
+`--home <directory>` selects the machine home containing retained and operational launch evidence.
+`--codex-root <directory>` selects an active Codex rollout root and may be repeated; its defaults
+are `<home>/.codex/sessions` and `<home>/.codex/archived_sessions`. Both plain `.jsonl` and zstd
+`.jsonl.zst` rollouts are streamed. `--store <file>` selects an explicit alternate usage manifest
+for both commands; its pages live beside it in `<file>.pages/`. `--since` uses recorded response
+timestamps, including in-window responses of older sessions; the default cutoff above is midnight
+Singapore time, not UTC midnight. `--claude-root <directory>` selects a Claude transcript root and
+may be repeated; its default is `<home>/.claude/projects`. `--responses <file>` makes an import also
+write the responses it read to that file: `observations` and `associations`, keyed by response, hold
+each response once with its measurements and resolved task. Nothing reads the file back; the native
+files stay the evidence. Native inputs are read only. No API request, native session launch, billing
+lookup or workflow mutation occurs. Use an isolated home/store for fixture experiments.
 
 The retained-launch path reads active and archived Codex response usage,
 including compressed rollouts and explicitly linked descendants, plus Claude

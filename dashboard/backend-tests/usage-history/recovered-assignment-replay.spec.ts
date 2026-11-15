@@ -9,7 +9,7 @@ import {
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
-  readImported,
+  readStoredRows,
   runImport,
   writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
@@ -40,15 +40,15 @@ test("rejected assignment survives missing inputs, later genuine assignment rest
     .please();
   writeCodexSession(root, rejected);
   runImport(home, root);
-  const corrected = readImported(home);
+  const corrected = readStoredRows(home);
   const task = Object.values(corrected.tasks)[0];
   assert(task);
   expect(task.launchedAt).toBeNull();
   expect(taskUsage(corrected, task.id).requests).toBe(0);
   rmSync(root, { recursive: true });
-  expect(readImported(home)).toEqual(corrected);
+  expect(readStoredRows(home)).toEqual(corrected);
   runImport(home, root);
-  const missing = readImported(home);
+  const missing = readStoredRows(home);
   expect(missing.tasks).toEqual(corrected.tasks);
   expect(missing.observations).toEqual(corrected.observations);
   expect(missing.associations).toEqual(corrected.associations);
@@ -73,7 +73,7 @@ test("rejected assignment survives missing inputs, later genuine assignment rest
       .please(),
   );
   runImport(home, root);
-  const supported = readImported(home);
+  const supported = readStoredRows(home);
   expect(Object.keys(supported.tasks)).toEqual([task.id]);
   expect(supported.tasks[task.id]).toMatchObject({
     launchedAt: "2026-11-14T10:00:00.000Z",
@@ -90,7 +90,7 @@ test("rejected assignment survives missing inputs, later genuine assignment rest
   const operational = `${home}/.open-dough/dashboard/agent-launches.json`;
   const bytes = readFileSync(operational, "utf8");
   runImport(home, root);
-  const retained = readImported(home);
+  const retained = readStoredRows(home);
   expect(retained.tasks[task.id]).toMatchObject({
     kind: "launch",
     launchedAt: launchAt,
@@ -102,5 +102,5 @@ test("rejected assignment survives missing inputs, later genuine assignment rest
   expect(readFileSync(operational, "utf8")).toBe(bytes);
   rmSync(root, { recursive: true });
   runImport(home, root);
-  expect(readImported(home).tasks[task.id]).toEqual(retained.tasks[task.id]);
+  expect(readStoredRows(home).tasks[task.id]).toEqual(retained.tasks[task.id]);
 });

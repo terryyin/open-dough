@@ -1,0 +1,140 @@
+# Source review
+
+Launch: a fresh general-purpose reviewer without conversation inheritance,
+2026-11-15, before the first implementation delegation. Input: only the
+selected story section of
+[SEED-357](../../seeds/SEED-357-dashboard-task-token-usage.md#keep-usage-history-within-a-small-disk-budget)
+(Goal, Scope, Key examples, Architecture), with the instruction to read
+nothing else, change nothing, and return numbered individual commitments and
+exclusions.
+
+Exclusions returned:
+
+- X1: Responses that belong to no task are not kept once read. (Positive promises: 12.1, 12.2.)
+- X2: Per-response inspection of the stored history ends with the per-response rows. (Positive promises: 12.3, 12.4.)
+- X3: Compacting the task catalog's provenance (`fieldSources`, `fieldClaims`, `sources`, `assignmentEvidence`) "was considered and left out". (Positive promises: 12.5, 12.6.)
+- X4: `import-reports/2026-11-15/` (42 MB) is one-off evidence of the 2026-11-15 recovery that no dashboard code writes; "The dashboard gains no import-report writer or cleaner." (Positive promises: 12.7, 12.8.)
+- X5: The launch workflow a task stores stays with "Keep usage task facts and freshness consistent across writers" (`#reuse-unchanged-usage-pages-on-repeated-writes`).
+- X6: The "Checked" time after an import stays with that same story.
+- X7: The checking indication stays with that same story.
+- X8: Until that story, an import and a Refresh in turn can still rewrite a launch task's workflow.
+- X9: The history does not keep each session's file list (stated in the Budget; also listed as 3.4).
+- X10: The dashboard does not keep the native evidence a second time; it stays in the hosts' own session files (stated in Scope; also listed as 2.1).
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1.1 | Goal: Terry, who views token usage on a machine with months of agent history, gets the Usage view from a usage history that takes very little disk space. | slice 5 | |
+| 1.2 | Goal: "Usage shows a few numbers per finished task, so what the dashboard keeps for it is sized by the number of tasks and native sessions, in megabytes". | slice 5 | |
+| 1.3 | Goal: what the dashboard keeps "stays that size however often usage is checked". | slice 5 | |
+| 2.1 | Scope: "The native evidence the rows were read from stays in the hosts' own session files and is not the dashboard's to keep a second time." (Context, measured read-only on Terry's machine on 2026-11-15: `usage.json.pages` holds 4.4 GB in 6,053 files; 2.8 GB / 3,737 files referenced by nothing; 1.6 GB in use = 0.99 GB per-response observations + 0.49 GB per-response associations for 514,444 responses (641,591 measurements) from 9,719 native sessions in 12,513 files, against 16.6 MB for 2,925 tasks and 2.8 MB for 12,922 gaps; grouped by task, model, effort, speed tier and root or worker the responses come to 3,207 totals.) | slice 3 | |
+| 3.1 | Budget: "The whole usage history for that present evidence takes at most 25 MB" (the evidence measured on Terry's machine on 2026-11-15). | slice 4 | |
+| 3.2 | Budget component: the task catalog and coverage gaps "as they are today (19.4 MB)". | slice 4 | |
+| 3.3 | Budget component: "at most 5 MB for session contributions" (qualification: 4.4 MB when built from the present store with each session's file list included). | slice 4 | |
+| 3.4 | Budget: each session's file list is something "the history does not keep". | slice 3 | |
+| 3.5 | Budget: "A new task adds under 10 KB." | slice 3 | |
+| 3.6 | Budget: "A check that finds no new evidence adds nothing." | slice 5 | |
+| 4.1 | The history keeps tasks with their attribution facts. | slice 3 | |
+| 4.2 | The history keeps coverage gaps. | slice 3 | |
+| 4.3 | The history keeps one contribution per native session whose responses name a task. | slice 3 | |
+| 4.4 | A contribution is what those responses add to each task, by model. | slice 3 | |
+| 4.5 | A contribution is what those responses add to each task, by effort. | slice 3 | |
+| 4.6 | A contribution is what those responses add to each task, by speed tier. | slice 3 | |
+| 4.7 | A contribution records response count. | slice 3 | |
+| 4.8 | A contribution records the four token categories. | slice 3 | |
+| 4.9 | A contribution records the responses missing each category. | slice 3 | |
+| 4.10 | A contribution records latest activity. | slice 3 | |
+| 4.11 | "Whether a contribution is root or worker usage follows from its session and the task's." | slice 3 | |
+| 4.12 | "No per-response row is stored." | slice 3 | |
+| 5.1 | "Reading a session again replaces that session's earlier contribution". | slice 3 | |
+| 5.2 | A response is counted once however often it is read by Refresh. | slice 5 | |
+| 5.3 | A response is counted once however often it is read by the offline import. | slice 3 | |
+| 5.4 | A response is counted once when read by both Refresh and the offline import in turn. | slice 5 | |
+| 5.5 | A response that appears in several files of one session is counted once (qualification: observed for 301 Claude responses). | slice 5 | |
+| 5.6 | A response in a rollout that moved from live to archived is counted once. | slice 3 | |
+| 6.1 | A session whose native files have since been removed keeps its stored contribution. | slice 3 | |
+| 6.2 | That session's tasks keep their totals. | slice 3 | |
+| 7.1 | The first Refresh with this story's dashboard converts the existing store. | slice 4 | |
+| 7.2 | The first import with this story's dashboard converts the existing store (alternative as written: "The first Refresh or import"). | slice 4 | |
+| 7.3 | Conversion carries over every task. | slice 4 | |
+| 7.4 | Conversion carries over every gap. | slice 4 | |
+| 7.5 | Conversion carries over every total. | slice 4 | |
+| 7.6 | Conversion then removes `usage.json.pages` whole. | slice 4 | |
+| 7.7 | The removal includes the unreferenced files. | slice 4 | |
+| 7.8 | A failed conversion leaves the earlier history readable. | slice 4 | |
+| 7.9 | An interrupted conversion leaves the earlier history readable. | slice 4 | |
+| 7.10 | After a failed or interrupted conversion, "the next check finishes the removal". | slice 4 | |
+| 8.1 | A Refresh with no new rollout activity leaves the history's bytes unchanged. | slice 5 | |
+| 8.2 | Such a Refresh "records only its check time". | slice 5 | |
+| 8.3 | Such a Refresh "finishes in the time it takes to see that no rollout changed". | slice 5 | |
+| 8.4 | That is under 2 s on Terry's machine (qualification: "in place of the 12–16 s the current writer spends"). | slice 5 | |
+| 8.5 | "An import over unchanged evidence also leaves the history's bytes unchanged." | slice 5 | |
+| 9.1 | For the same native evidence, Usage keeps showing the same tasks as before. | slice 3 | |
+| 9.2 | For the same native evidence, Usage keeps showing the same Token index values as before. | slice 3 | |
+| 9.3 | For the same native evidence, Usage keeps showing the same filters as before. | slice 3 | |
+| 9.4 | For the same native evidence, Usage keeps showing the same "usage missing" coverage as before. | slice 3 | |
+| 9.5 | For the same native evidence, Usage keeps showing the same "Outcome unknown" detail as before. | slice 3 | |
+| 9.6 | Conflicting measurements of one response still leave the affected category unknown. | slice 3 | |
+| 9.7 | Conflicting measurements still leave the affected category with its gap. | slice 3 | |
+| 9.8 | Conflicting measurements never yield a chosen value. | slice 3 | |
+| 9.9 | Conflicting measurements never yield a summed value. | slice 3 | |
+| 10.1 | "The same budget holds for every host whose usage this history records". | slice 3 | |
+| 10.2 | That includes Claude Code usage from SEED-359 (view-claude-code-task-token-usage). | slice 3 | |
+| 11.1 | The importer's result reports tasks from the history. | slice 3 | |
+| 11.2 | The importer's result reports gaps from the history. | slice 3 | |
+| 11.3 | The importer's result reports totals from the history. | slice 3 | |
+| 11.4 | The importer's result reports response-level counts from the evidence that import read. | slice 3 | |
+| 11.5 | The importer's `read` command reports tasks from the history. | slice 3 | |
+| 11.6 | The importer's `read` command reports gaps from the history. | slice 3 | |
+| 11.7 | The importer's `read` command reports totals from the history. | slice 3 | |
+| 11.8 | The importer's `read` command reports response-level counts from the evidence that import read (source sentence covers "The importer's result and its `read` command" jointly). | slice 3 | |
+| 11.9 | "`dashboard/USAGE-HISTORY.md` describes the history as it then is." | slice 5 | |
+| 12.1 | (From scope limit X1) The import result still counts responses that belong to no task, for the evidence it read. | slice 3 | |
+| 12.2 | (From scope limit X1) A later import assigns such responses "only while their native files exist". | slice 3 | |
+| 12.3 | (From scope limit X2) "An import can write the responses it read, with their measurements and task assignment, to a file the developer names". | slice 1 | observed: dashboard/backend-tests/usage-history/import-responses.spec.ts: observations and associations keyed by the three response ids, measurements with native source, resolved taskId per response |
+| 12.4 | (From scope limit X2) "the native files stay the evidence". | slice 1 | observed: import-responses.spec.ts: rollout bytes equal before and after import, measurement source is the native file; dashboard/USAGE-HISTORY.md options paragraph |
+| 12.5 | (From scope limit X3) The task catalog's provenance (`fieldSources`, `fieldClaims`, `sources` and `assignmentEvidence`; 14.3 MB of the 16.6 MB) keeps its present form. | slice 3 | |
+| 12.6 | (From scope limit X3) "the budget covers it" (the uncompacted provenance). | slice 4 | |
+| 12.7 | (From scope limit X4) Delivery of this story removes `import-reports/2026-11-15/` (42 MB) from Terry's machine once. | slice 4 | |
+| 12.8 | (From scope limit X4) Delivery updates the recovery receipt (`docs/maintainer/usage-history-recovery-2026-11-15.md`) that points at it. | slice 4 | |
+| 13.1 | Example Conversion — given a store like Terry's (1.6 GB of referenced pages beside 2.8 GB of unreferenced ones), after the first Refresh: Usage shows the same tasks as before. | slice 4 | |
+| 13.2 | Example Conversion: Usage shows the same Token index values as before. | slice 4 | |
+| 13.3 | Example Conversion: `usage.json.pages` is gone. | slice 4 | |
+| 13.4 | Example Conversion: the history takes at most 25 MB. | slice 4 | |
+| 14.1 | Example Nothing new — given a converted history and no rollout activity since the last check, Refresh twice: the history's bytes are identical after each. | slice 5 | |
+| 14.2 | Example Nothing new: only the "Checked" time moves. | slice 5 | |
+| 15.1 | Example New responses — a finished task's rollout gains three responses, then Refresh: the task's totals rise by exactly those three. | slice 5 | |
+| 15.2 | Example New responses: a second Refresh changes no value. | slice 5 | |
+| 15.3 | Example New responses: an import after that changes no value. | slice 5 | |
+| 16.1 | Example Evidence removed — a task's rollout is deleted after it was read, then Refresh, then import: the task keeps its totals. | slice 3 | |
+| 16.2 | Example Evidence removed: the task keeps its point in the chart. | slice 3 | |
+| 17.1 | Example Moved rollout — a rollout read under the live Codex sessions is archived, then import: its responses are counted once. | slice 3 | |
+| 18.1 | Example Worker and second task — one session carries two tasks and a worker session joins the first; after import and Refresh: each task's totals hold its own responses. | slice 3 | |
+| 18.2 | Example Worker and second task: the worker's responses are under the first task. | slice 3 | |
+| 18.3 | Example Worker and second task: the worker's responses appear as worker usage. | slice 3 | |
+| 19.1 | Example Conflicting measurements — one response measured twice with different output counts: its task shows output as missing coverage. | slice 3 | |
+| 19.2 | Example Conflicting measurements: not a sum. | slice 3 | |
+| 20.1 | Example Growth — one new finished task with a 400-response rollout: the history grows by under 10 KB. | slice 3 | |
+| 21.1 | Architecture: the unit of stored usage changes from the response to the session contribution: "what one native session, read whole from all its files, adds to each task". | slice 3 | |
+| 21.2 | Architecture: "Reading stays as it is." | slice 3 | |
+| 21.3 | Architecture: the host readers still work on responses in memory. | slice 3 | |
+| 21.4 | Architecture: lineage still works on responses in memory. | slice 3 | |
+| 21.5 | Architecture: assignment still works on responses in memory. | slice 3 | |
+| 21.6 | Architecture: they still reconcile repeated rows there (`reconcileObservation`). | slice 3 | |
+| 21.7 | Architecture: they still reconcile competing measurements there (`reconcileMeasurements`). | slice 3 | |
+| 21.8 | Architecture: what changes is the write: the responses of each session read are summed into that session's contribution. | slice 3 | |
+| 21.9 | Architecture: that contribution replaces the stored one. | slice 3 | |
+| 21.10 | Architecture: task totals are the sum of contributions (which `usageTaskSummary.ts` derives today from every response on each manifest change). | slice 2 | |
+| 21.11 | Architecture: the summary keeps its place. | slice 2 | |
+| 21.12 | Architecture: the summary keeps its separate process. | slice 2 | |
+| 21.13 | Architecture: the summary now derives from contributions without reading a response. | slice 3 | |
+| 21.14 | Architecture: "The paged snapshot and its partition reconciliation have one small successor." | slice 3 | |
+| 21.15 | Architecture: a contribution keeps the candidate tasks its responses named. | slice 3 | |
+| 21.16 | Architecture: so a task that loses its assignment later still withdraws its usage without the native files. | slice 3 | |
+| 21.17 | Architecture: a task that regains its assignment later still regains its usage without the native files. | slice 3 | |
+| 21.18 | Architecture: ADR 0008 holds — a machine-local document. | slice 3 | |
+| 21.19 | Architecture: under the existing lock. | slice 3 | |
+| 21.20 | Architecture: atomically replaced. | slice 3 | |
+| 21.21 | Architecture: no database. | slice 3 | |
+| 21.22 | Architecture: specs that assert per-response facts read them from the reader and assignment result, not from the stored history. | slice 3 | |

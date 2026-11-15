@@ -4,7 +4,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { taskUsage, usageHistoryFile } from "../../server/usageHistory.ts";
 import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
-  readImported,
+  readStoredRows,
   runImport,
   writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
@@ -39,7 +39,7 @@ test("legacy effective association without candidates survives beside a rejected
     );
   }
   runImport(home, root);
-  const prior = readImported(home);
+  const prior = readStoredRows(home);
   for (const task of Object.values(prior.tasks)) delete task.assignmentEvidence;
   const valid = Object.values(prior.tasks).find(
     (task) => task.sessionId === "valid-legacy",
@@ -66,7 +66,7 @@ test("legacy effective association without candidates survives beside a rejected
       .please(),
   );
   runImport(home, root);
-  const after = readImported(home);
+  const after = readStoredRows(home);
   expect(after.observations).toEqual(prior.observations);
   expect(taskUsage(after, valid.id).tokens.output).toBe(6);
   expect(after.associations[association.observationId]).toMatchObject({
@@ -96,7 +96,7 @@ test("independent retained assignment sources preserve eligibility when their na
       .please(),
   );
   runImport(home, root);
-  const prior = readImported(home);
+  const prior = readStoredRows(home);
   const task = Object.values(prior.tasks)[0];
   assert(task);
   // Old decoder retained both field sources while its monotonic start kept the wrapper time.
@@ -119,7 +119,7 @@ test("independent retained assignment sources preserve eligibility when their na
       .please(),
   );
   runImport(home, root);
-  const after = readImported(home);
+  const after = readStoredRows(home);
   expect(after.tasks[task.id]).toMatchObject({
     launchedAt: null,
     workflow: "dough-slice-planning",
@@ -132,5 +132,5 @@ test("independent retained assignment sources preserve eligibility when their na
   expect(after.observations).toEqual(prior.observations);
   rmSync(root, { recursive: true });
   runImport(home, root);
-  expect(readImported(home).associations).toEqual(after.associations);
+  expect(readStoredRows(home).associations).toEqual(after.associations);
 });

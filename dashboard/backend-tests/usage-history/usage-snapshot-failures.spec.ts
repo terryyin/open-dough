@@ -13,6 +13,7 @@ import {
 import {
   keepOperationalLaunch,
   readImported,
+  readStoredRows,
   runImport,
   writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
@@ -209,7 +210,7 @@ test("cross-process writers reconcile accepted updates after waiting for the sha
   first.child.disconnect();
   expect((await first.exited)[0]).toBe(0);
   expect((await second.exited)[0]).toBe(0);
-  const after = readImported(home);
+  const after = readStoredRows(home);
   expect(
     Object.values(after.observations).map((item) => item.tokens.output),
   ).toEqual([2, 3]);

@@ -29,7 +29,7 @@ import { projectConfigurationFile } from "../../tests/support/projectConfigurati
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { systemSettingsMachine } from "../../tests/support/systemSettingsMachine.ts";
 import {
-  readImported,
+  readStoredRows,
   runImport,
   writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
@@ -182,7 +182,7 @@ test("Refresh reads rollouts changed since its last check and the workers they s
     ["SEED-7#first", "measured"],
     ["SEED-7#second", "measured"],
   ]);
-  const refreshed = assignments(readImported(home));
+  const refreshed = assignments(readStoredRows(home));
   expect(Object.keys(refreshed)).not.toContain(
     responseKey("codex", "first", "first-late"),
   );
@@ -196,7 +196,7 @@ test("Refresh reads rollouts changed since its last check and the workers they s
     filter: (source) => !path.basename(source).startsWith("usage"),
   });
   runImport(imported, path.join(imported, ".codex/sessions"));
-  const full = assignments(readImported(imported));
+  const full = assignments(readStoredRows(imported));
   for (const [id, task] of Object.entries(refreshed))
     expect([id, full[id]]).toEqual([id, task]);
 

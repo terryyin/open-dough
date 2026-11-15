@@ -6,7 +6,7 @@ import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import { expect, test } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
   nodeProcess,
-  readImported,
+  readStoredRows,
   runImport,
   writeClaudeSession,
 } from "../../tests/usage-history/importHarness.ts";
@@ -45,7 +45,7 @@ function keepLaunch(home: string) {
 }
 
 function observation(home: string) {
-  const values = Object.values(readImported(home).observations);
+  const values = Object.values(readStoredRows(home).observations);
   expect(values).toHaveLength(1);
   const [value] = values;
   assert(value);
@@ -127,13 +127,13 @@ test("enriches existing raw measurements in place and keeps terminal evidence ac
     home,
     `const { writeUsageHistory } = await import('./dashboard/server/usageHistory.ts'); await writeUsageHistory({ observations: [${JSON.stringify(collector)}] });`,
   );
-  const collected = readImported(home);
+  const collected = readStoredRows(home);
   expect(observation(home).tokens.output).toBe(690);
   expect(observation(home).measurements).toHaveLength(6);
   rmSync(claudeRoot, { recursive: true });
   rmSync(copiedRoot, { recursive: true });
   runImport(home, root, ["--claude-root", claudeRoot]);
-  expect(Object.values(readImported(home).observations)).toEqual(
+  expect(Object.values(readStoredRows(home).observations)).toEqual(
     Object.values(collected.observations),
   );
 });
