@@ -6,8 +6,9 @@
 ## Provenance and findings
 
 Retrospective correction of
-[View token usage for dashboard-launched Claude Code tasks](../../seeds/SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage)
-(plan 636; commits `83276a56`, `65210f8d`, `3f463b92`, `bbc0be6e`, landed in
+View token usage for dashboard-launched Claude Code tasks
+(`5c16998bc:.planning/seeds/SEED-359-claude-code-task-token-usage.md#view-claude-code-task-token-usage`,
+plan `5c16998bc:.planning/slice-plans/636-claude-code-task-token-usage/PLAN.md`; commits `83276a56`, `65210f8d`, `3f463b92`, `bbc0be6e`, landed in
 `1e56a8f4`). Outcome review of `200392236..bbc0be6e` on 2026-11-15 found,
 and the coordinator confirmed in the code:
 
@@ -47,7 +48,7 @@ and the coordinator confirmed in the code:
 
 ## Preserved promises and constraints
 
-- Every SEED-359 promise stays as observed in plan 636's source review,
+- Every SEED-359 promise stays as observed in plan 636's source review (`5c16998bc:.planning/slice-plans/636-claude-code-task-token-usage/source-review.md`),
   including: a missing root transcript or worker that stays missing marks the
   task partial; the auxiliary limit is one cohort note, never a task gap; a
   session read again replaces its contribution; an unchanged Refresh leaves

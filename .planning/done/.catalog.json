@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-359_view-claude-code-task-token-usage.json",
+      "identity": "SEED-359#view-claude-code-task-token-usage",
+      "completedAt": "2026-11-15T12:51:44.770Z",
+      "blob": "c3eadeb532039be16ee176d7e17e75442d2a76d7"
+    },
+    {
       "fileName": "SEED-369_make-recent-token-usage-easier-to-read.json",
       "identity": "SEED-369#make-recent-token-usage-easier-to-read",
       "completedAt": "2026-11-15T10:10:26.486Z",
