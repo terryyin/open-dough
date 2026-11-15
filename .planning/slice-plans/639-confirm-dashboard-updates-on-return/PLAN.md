@@ -151,6 +151,10 @@ Accepted slice-2 evidence (12 active minutes; CI pause excluded):
 - `npm run typecheck:dashboard && npm run build:dashboard`: pass. Receipt-disabled mutation `/tmp/seed372-check-mutation-proof.json` selected one focus case and failed for absent green; exact restoration preceded 108-case pass. Consumer trace `/tmp/seed372-check-consumers.md` dispositioned. Existing page owner imported unchanged; no shared support change. Independent refactor: already clean, no edits or reruns.
 
 
+## Execution complete
+
+Product advice: no change. The amended logo-border outcome is delivered; no product correction or queue change is supported.
+
 ## Verification, comparison and consumer trace
 
 Before test changes apply [AGENTS.md test automation](../../../AGENTS.md#test-automation)
@@ -197,10 +201,7 @@ focus/geometry in the new journey; make no broader traffic or latency claim.
   or health authority. Existing source/return boundaries decide callback validity.
 - No human checkpoint, trunk-only product operation or blocking dependency is
   required. The separate GitHub-retry story is not a prerequisite.
-- Slice-plan refinement was not needed: two delivery-mode increments share one
-  state rule, each has a usable boundary and one outside-in proof loop, and
-  the explicit interim fallback boundary is removed by slice 2. Two slices are
-  within the eight-slice limit; both target 15 active minutes.
+- Two bounded delivery slices completed; no replanning or ADR exception.
 
 ## Learnings
 
@@ -218,7 +219,8 @@ is its user-facing confirmation boundary and projection.
 - Starting revision `2470e5ef6c784b273b3587fc640923d14809fe2b`; accepted claim
   `c124365d015aec64b5186160980db9205b11955a`. Slice 1 accepted on the story
   branch at `1fc77eab2eee607e85106a7ecd6942a517aa3c4c`; repair accepted at
-  `70fb3664d14ad41779bcb4b1badc879e79c51d02` on that base.
+  `70fb3664d14ad41779bcb4b1badc879e79c51d02` on that base. Slice 2 accepted
+  at `02b5fa6840d9dc03afc4e5441a3aad70afdd5f9d` on the repair.
 - Setup: locked `npm ci --ignore-scripts` and `npm run typecheck:dashboard` passed
   in this checkout at the current lockfile. Hook is check-only staged lint and
   dashboard typecheck; selective formatter is `npm run format` (changed and new files only).
