@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-359#keep-claude-coverage-gaps-current-after-refresh
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/643-keep-claude-coverage-gaps-current/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/644-keep-claude-coverage-gaps-current/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"077b2592278f8d3a96280662de91265e700196327802a4c551aad8c1efd5fea1","plan":"83fdd4f5ada428fb3135ae345cd8b99429b186f12e20bd2a4319b7e9c04020cb"}}
 ```
 
 **Goal.** Terry, reading System settings → Usage, sees a dashboard launch
@@ -37,4 +37,4 @@ product promise; Codex answers and the offline import's results stay as
 they are for unchanged native files.
 
 Plan:
-[643-keep-claude-coverage-gaps-current](../slice-plans/643-keep-claude-coverage-gaps-current/PLAN.md).
+[644-keep-claude-coverage-gaps-current](../slice-plans/644-keep-claude-coverage-gaps-current/PLAN.md).

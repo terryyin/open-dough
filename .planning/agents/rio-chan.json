@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Rio-chan",
-  "email": "rio-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-359#keep-claude-coverage-gaps-current-after-refresh",
-  "host": "claude",
-  "model": "opus"
-}

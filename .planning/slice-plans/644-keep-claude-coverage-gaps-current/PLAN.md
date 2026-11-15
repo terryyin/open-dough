@@ -68,6 +68,28 @@ and the coordinator confirmed in the code:
 | 3: contract names split and tier | 1: `USAGE-HISTORY.md` sentences reworded; file ≤250 lines. |
 | 4: redundant E2E | 2: E2E test 1 and test 2's checking step removed; the surviving test 2 still imports, chooses Claude Code, Refreshes and shows the new point; frontend and backend specs named above still pass. |
 
+## Decisive premises
+
+Observed on 2026-11-15 at `8f15d06a8` in the preparation workspace with a
+scratch spec beside `token-index-refresh-claude.spec.ts`, built from its
+helpers and run as
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/backend.playwright.config.ts --reporter=list <scratch spec>`
+(the slice's runner and config), then removed.
+
+| Premise | Consuming operation | Observation and result |
+| --- | --- | --- |
+| Finding 1 holds | Slice 1's first proof case | Refresh with launch 2 running and its root holding only the launch input; rewrite the root with one response, finish the launch, Refresh. `Chart `?tool=claude` shows `SEED-7#claude-2` `partial`, gaps `["missing-root-transcript-usage"]`, index 1,700; the store still holds that gap. Confirmed. |
+| Finding 2 holds | Slice 1's worker case | A worker whose `subagents/agent-worker.jsonl` spawns a nested worker with no transcript: the store keeps `missing-worker-evidence` sourced at that subagent file, yet the chart shows `SEED-7#claude-2` `measured`. A first-level worker's gap is sourced at its spawn in the root `<session>.jsonl` and does reach the task, so the failing case is a worker spawned from a worker. Confirmed. |
+| A re-read session has a batch observation | Slice 1's replacement rule | The second Refresh above stored launch 2's response under `claude:claude-2`, the `sessionKey` `writeUsageHistory` uses for `replaced`; Claude and Codex gaps carry `host` and `sessionId` (`claudeCoverage`, `codexUsageLineage.ts` `no-response-usage-evidence`), or a native source that `containingClaudeSession` / `containingCodexThread` maps. |
+| Proof commands run here | Slices 1–2 | Same date and revision, same env prefix: the backend config above ran its spec; `npx playwright test --config dashboard/frontend.playwright.config.ts --reporter=list system-settings-usage` passed 17; `npx tsc --build dashboard/tsconfig.json` passed; `npx playwright test --config e2e/playwright.config.ts --reporter=list --list configuration/system-settings-usage` selects both `system-settings-usage-tools.spec.ts` journeys and the two `system-settings-usage.spec.ts` ones. The E2E run itself needs this worktree's `node scripts/setup-native.mjs` stages first, as every E2E run here does. |
+| E2E test 1 is redundant | Slice 2 | Read: its tariff, tool choice and model offers are asserted by `system-settings-usage-tool.spec.ts` (frontend) and its Claude weighing by `token-index-claude.spec.ts`; test 2 keeps real import → choose Claude Code → Refresh. A removal changes no product outcome. |
+
+## Concerns
+
+Slice-plan refinement was not needed: two slices with distinct proof owners
+and no special-case accumulation. This review found no remaining
+slice-specific concern.
+
 ## Ordered slices
 
 Each slice targets 15 active minutes.
