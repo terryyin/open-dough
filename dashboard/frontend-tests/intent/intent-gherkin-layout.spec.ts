@@ -1,26 +1,25 @@
-import { filesColumn } from "../intentModePage.ts";
-import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
+import { filesColumn } from "../../tests/intentModePage.ts";
+import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // Intent Gherkin layout: the height below the banner, left-edge location
 // browser, and independent pane scrolling
-// (`../intentGherkinBrowseFixtures.ts`, ../../src/IntentBrowser.tsx).
+// (`../../tests/intentGherkinBrowseFixtures.ts`, ../../src/IntentBrowser.tsx).
 
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
-import { box } from "../partArrangement.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
-import {
-  doughnut,
-  doughnutSettings,
-  publishIntentProject,
-} from "../intentGherkinBrowseFixtures.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
+import { box } from "../../tests/partArrangement.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
+import { doughnut } from "../../tests/intentGherkinBrowseFixtures.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
   intentReadingPane,
-} from "../intentPerspectivePage.ts";
+} from "../../tests/intentPerspectivePage.ts";
 
 test("Intent fills the height below the banner; the location browser meets the left edge and it and the reading pane scroll on their own", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 600 });
   const cases = Object.fromEntries(
@@ -31,7 +30,18 @@ test("Intent fills the height below the banner; the location browser meets the l
         : `Feature: Case ${n}\n`,
     ]),
   );
-  await publishIntentProject(page, doughnut, doughnutSettings, cases);
+  putFrontendIntentSources(
+    frontendServices,
+    doughnut,
+    [
+      makeMe.anIntentLocation
+        .at("e2e_test/features")
+        .ofKind("gherkin")
+        .selecting(...Object.keys(cases))
+        .please(),
+    ],
+    cases,
+  );
 
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);

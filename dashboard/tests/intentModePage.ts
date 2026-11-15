@@ -13,6 +13,10 @@ export function candidatesRecord(intent: Locator) {
   });
 }
 
+// One recorded candidate offering source files in Project Intent.
+export const candidateEntry = (intent: Locator, name: string) =>
+  candidatesRecord(intent).getByRole("article", { name });
+
 export async function expectCandidatesRevision(
   intent: Locator,
   revision: string,

@@ -1,3 +1,4 @@
+import { putFrontendFolderSources } from "../../tests/support/frontendIntentSources.ts";
 // Intent location toggle/name selection shows a summary page
 // (../../src/IntentBrowser.tsx, ../../src/IntentSummary.tsx,
 // ../../src/IntentLocationGroup.tsx): toggle opens or closes without moving selection;
@@ -6,37 +7,30 @@
 // lists its immediate folders and files in the tree's order; their CI proof:
 // ../../../e2e/intent/intent-summary-ci-proof.spec.ts. Folder controls, keyboard, and toggle
 // reader preservation: ./intent-entry-folder-summaries-folders.spec.ts.
-// Review changes keeps disclosure-only folders (./story-review-tree*.spec.ts).
+// Review changes keeps disclosure-only folders (../../../e2e/review/story-review-tree*.spec.ts).
 
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
 import {
   expandIntentGroup,
   intentGroupToggle,
   intentLocationName,
   purposeRegion,
-} from "../intentPerspectivePage.ts";
-import { expectChildNames } from "../intentScopeProofPage.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import { expectChildNames } from "../../tests/intentScopeProofPage.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
 import {
   featuresPath,
   packagedPath,
-  publishIntentProject,
   pygardon,
-  pygardonFeatureSources,
-  pygardonSettings,
-} from "../intentEntryFolderSummariesFixtures.ts";
+} from "../../tests/intentEntryFolderSummariesFixtures.ts";
 
 test("Intent location toggle/name select a summary without opening on first name click", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishIntentProject(
-    page,
-    pygardon,
-    pygardonSettings,
-    pygardonFeatureSources,
-  );
+  putFrontendFolderSources(frontendServices, pygardon);
 
   await openUntilRead(page, "/?project=pygardon");
   const { intent, intentChoice } = parts(page);

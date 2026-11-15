@@ -1,10 +1,11 @@
-import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
+import { putFrontendFolderSources } from "../../tests/support/frontendIntentSources.ts";
+import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // Intent folder toggle/name selection, keyboard operation, and toggle reader
 // preservation (../../src/StoryReviewFileTree.tsx, ../../src/IntentBrowser.tsx).
 // Location toggle/name: ./intent-entry-folder-summaries.spec.ts.
 
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
@@ -13,32 +14,25 @@ import {
   intentGroupToggle,
   intentLocationName,
   purposeRegion,
-} from "../intentPerspectivePage.ts";
-import { expectChildNames } from "../intentScopeProofPage.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import { expectChildNames } from "../../tests/intentScopeProofPage.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
 import {
   featuresPath,
   jobsFolder,
   packagedPath,
-  publishIntentProject,
   pygardon,
-  pygardonFeatureSources,
-  pygardonSettings,
   reportsFolder,
   stooqPath,
   topFeaturePath,
-} from "../intentEntryFolderSummariesFixtures.ts";
+} from "../../tests/intentEntryFolderSummariesFixtures.ts";
 
 test("Intent folder toggle/name, keyboard, and location toggle preserve the reader", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishIntentProject(
-    page,
-    pygardon,
-    pygardonSettings,
-    pygardonFeatureSources,
-  );
+  putFrontendFolderSources(frontendServices, pygardon);
 
   await openUntilRead(page, "/?project=pygardon");
   const { intent, intentChoice } = parts(page);

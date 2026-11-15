@@ -1,5 +1,7 @@
-import { storySummary } from "../intentModePage.ts";
-import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
+import { storySummary } from "../../tests/intentModePage.ts";
+import { fileSource, sourceFile } from "../../tests/intentCodeBrowsePage.ts";
 // Intent location groups expand exclusively
 // (../../src/IntentPerspective.tsx): start collapsed, one open body at a time,
 // all-closed reachable, Purpose survives toggle collapse, empty/unsupported
@@ -10,8 +12,8 @@ import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // selected background across that width, while an expanded one shows only
 // its open toggle.
 
-import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
+import { expect, test } from "../../tests/support/frontendApp.ts";
+import { parts } from "../../tests/dashboardPage.ts";
 import {
   collapseIntentGroup,
   expandIntentFolders,
@@ -19,27 +21,58 @@ import {
   expectIntentGroupsCollapsed,
   intentGroupToggle,
   intentLocationName,
-} from "../intentPerspectivePage.ts";
-import { locationHeaderLookAt } from "../intentLocationHeaderLook.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+} from "../../tests/intentPerspectivePage.ts";
+import { locationHeaderLookAt } from "../../tests/intentLocationHeaderLook.ts";
+import { openUntilRead } from "../../tests/pageRequestNotes.ts";
 import {
   doughnut,
-  exclusiveSettings,
   packagedFeature,
-  publishIntentProject,
   recallFeature,
-} from "../intentGherkinBrowseFixtures.ts";
+} from "../../tests/intentGherkinBrowseFixtures.ts";
 
 test("Intent group sections start collapsed, expand exclusively, keep Purpose across collapse, leave nested folders local, and stand apart from their rows", async ({
   page,
+  frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await publishIntentProject(page, doughnut, exclusiveSettings, {
-    "e2e_test/features/recall/recall_note.feature": recallFeature,
-    "e2e_test/packaged/features/packaged.feature": packagedFeature,
-    "empty_features/README.md": "# no features here\n",
-    "frontend/src/app.ts": "export {}\n",
-  });
+  putFrontendIntentSources(
+    frontendServices,
+    doughnut,
+    [
+      makeMe.anIntentLocation
+        .at("e2e_test/features")
+        .ofKind("gherkin")
+        .selecting("e2e_test/features/recall/recall_note.feature")
+        .please(),
+      makeMe.anIntentLocation
+        .at("e2e_test/packaged/features")
+        .ofKind("gherkin")
+        .selecting("e2e_test/packaged/features/packaged.feature")
+        .please(),
+      {
+        ...makeMe.anIntentLocation
+          .at("empty_features")
+          .ofKind("gherkin")
+          .selecting()
+          .please(),
+        problem: "no-matching-files",
+      },
+      {
+        ...makeMe.anIntentLocation
+          .at("frontend/src")
+          .ofKind("unfamiliar-language")
+          .selecting()
+          .please(),
+        problem: "unsupported-kind",
+      },
+    ],
+    {
+      "e2e_test/features/recall/recall_note.feature": recallFeature,
+      "e2e_test/packaged/features/packaged.feature": packagedFeature,
+      "empty_features/README.md": "# no features here\n",
+      "frontend/src/app.ts": "export {}\n",
+    },
+  );
 
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
