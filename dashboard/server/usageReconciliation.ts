@@ -21,6 +21,18 @@ export function uniqueFacts<T>(facts: readonly T[]): T[] {
     return true;
   });
 }
+// Collects responses read into `observations` by id, a response read again
+// reconciled with itself.
+export async function collectResponses(
+  responses: AsyncIterable<UsageObservation>,
+  observations: Map<string, UsageObservation>,
+) {
+  for await (const observation of responses)
+    observations.set(
+      observation.id,
+      reconcileObservation(observations.get(observation.id), observation),
+    );
+}
 export function reconcileObservation(
   previous: UsageObservation | undefined,
   incoming: UsageObservation,

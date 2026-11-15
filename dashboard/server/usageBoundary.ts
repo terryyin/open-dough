@@ -4,8 +4,9 @@
 // each retained launch's record says it ended now (./retainedUsageTasks.ts),
 // for every project configured now, hidden ones included, under the chosen
 // tool's tariff (./usageTariffs.ts), with the last check time
-// (./usageCheck.ts). A POST to Refresh brings in the Codex usage written since
-// then (./usageRefreshRun.ts) and answers the new check time.
+// (./usageCheck.ts). A POST to Refresh brings in the Codex and Claude Code
+// usage written since then (./usageRefreshRun.ts) and answers the new check
+// time.
 import type { IncomingMessage } from "node:http";
 import { homedir } from "node:os";
 import {

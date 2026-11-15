@@ -3,6 +3,7 @@ import { parseArgs } from "node:util";
 import { homedir } from "node:os";
 import path from "node:path";
 import {
+  claudeUsageRoots,
   codexUsageRoots,
   importUsageHistory,
   usageHistorySince,
@@ -41,9 +42,9 @@ try {
       ...(values.responses
         ? { responses: path.resolve(values.responses) }
         : {}),
-      claudeRoots: (
-        values["claude-root"] ?? [path.join(home, ".claude/projects")]
-      ).map((root) => path.resolve(root)),
+      claudeRoots: (values["claude-root"] ?? claudeUsageRoots(home)).map(
+        (root) => path.resolve(root),
+      ),
       codexRoots: (values["codex-root"] ?? codexUsageRoots(home)).map((root) =>
         path.resolve(root),
       ),

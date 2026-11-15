@@ -204,7 +204,7 @@ export function usageView(page: Page) {
       ).toBeDisabled();
       await expect(
         view.getByRole("status").filter({ hasText: "Checking" }),
-      ).toHaveText("Checking Codex rollouts for new usage…");
+      ).toHaveText("Checking for new usage…");
     },
     // The Refresh finished: it can be pressed again and no note says
     // checking.

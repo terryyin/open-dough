@@ -181,7 +181,7 @@ export type TokenIndexAnswer = {
     readonly efforts: readonly string[];
   };
   readonly tariff: { readonly version: string; readonly label: string };
-  // When Codex rollouts were last checked for usage; null before any import.
+  // When usage was last checked; null before any import.
   readonly checkedAt: string | null;
   // Priced tasks in the requested period (all history without bounds), including partial ones.
   readonly tasks: readonly TokenIndexTask[];

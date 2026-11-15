@@ -180,7 +180,7 @@ check how the real launches with a missing root transcript show.
 
 ### 4. Refresh brings in new Claude usage
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 3; Backend `token-index-refresh` new cases (new Claude
 launch with a worker, repeated unchanged Refresh byte-stable, duplicate
 transcript response once, unrelated Claude session ignored); E2E Refresh case
@@ -194,6 +194,15 @@ description in `dashboard/USAGE-HISTORY.md` (250 lines now): reword the
 Codex-only sentences in place, or move the Usage-view paragraph to the Token
 index document SEED-369 adds if it has landed, keeping both files within the
 size check.
+
+Delivered: `usageRefresh.ts` has one reading step per host (`codexReading`,
+`claudeReading` with the importer's Claude reader, lineage, association and
+coverage), one batch write; `usageRefreshFiles.ts` selects changed sessions
+for both; `claudeUsageRoots(home)` is shared with the importer. Checking text
+is "Checking for new usage…". Proof: backend
+`token-index-refresh-claude.spec.ts` (88 in `usage-history`), frontend (17),
+E2E Usage journeys incl. a Claude Refresh (5). A partly written row read
+mid-task stores a `malformed-native-row` gap, which marks nothing partial.
 
 ### 5. Price this machine's Claude history and validate natively
 Type: Behavior

@@ -1,7 +1,8 @@
-// When this machine's Codex rollouts were last checked for usage: the small
-// check record beside the usage store that a Refresh (./usageRefresh.ts)
-// writes once its evidence is in the store. A Refresh records the time it
-// began, so a rollout written while it read is read again by the next one.
+// When this machine's Codex rollouts and Claude Code transcripts were last
+// checked for usage: the small check record beside the usage store that a
+// Refresh (./usageRefresh.ts) writes once its evidence is in the store. A
+// Refresh records the time it began, so a file written while it read is read
+// again by the next one.
 // Checked shows a later offline import's document modification time, otherwise
 // Refresh's recorded start. The record's mtime distinguishes Refresh's own
 // history write from a later import. With neither history nor record, never.

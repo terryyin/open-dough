@@ -29,7 +29,7 @@ import {
   writeUsageHistory,
   usageHistoryFile,
 } from "./usageHistory.ts";
-import { reconcileObservation } from "./usageReconciliation.ts";
+import { collectResponses } from "./usageReconciliation.ts";
 import {
   type UsageGap,
   type UsageObservation,
@@ -37,11 +37,15 @@ import {
   type UsageTask,
 } from "./usageRecords.ts";
 
-// Where this machine's Codex keeps its rollouts, live and archived, under
-// `home`, and the earliest response the usage history keeps.
+// Where this machine's Codex keeps its rollouts, live and archived, and its
+// Claude Code its transcripts, under `home`, and the earliest response the
+// usage history keeps.
 export const codexUsageRoots = (home: string) => [
   path.join(home, ".codex/sessions"),
   path.join(home, ".codex/archived_sessions"),
+];
+export const claudeUsageRoots = (home: string) => [
+  path.join(home, ".claude/projects"),
 ];
 export const usageHistorySince = "2026-09-16T00:00:00+08:00";
 
@@ -114,12 +118,7 @@ async function collectUsageHistory(
     for (const root of roots) {
       for await (const file of nativeUsageFiles(root, gaps)) {
         files++;
-        for await (const observation of read(file)) {
-          observations.set(
-            observation.id,
-            reconcileObservation(observations.get(observation.id), observation),
-          );
-        }
+        await collectResponses(read(file), observations);
       }
     }
   };

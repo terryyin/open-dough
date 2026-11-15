@@ -1,7 +1,6 @@
 import { claudeTaskReader, type NativeTaskSink } from "./nativeTaskFacts.ts";
 // Native rows are read transiently. Never retain message content, tool input or
 // provider request bodies; only API identity, counters and structured lineage.
-import path from "node:path";
 import { claudeCounters } from "./claudeUsageCounters.ts";
 import {
   recordClaudeNode,
@@ -9,6 +8,7 @@ import {
   type ClaudeLineage,
 } from "./claudeUsageLineage.ts";
 import {
+  nativeUsageFileName,
   nativeUsageLines,
   objectOf,
   stringOf,
@@ -31,7 +31,7 @@ export async function* claudeUsage(
   taskSink?: NativeTaskSink,
 ): AsyncGenerator<UsageObservation> {
   const taskReader = claudeTaskReader(taskSink);
-  const filename = path.basename(file).replace(/\.jsonl(?:\.zst)?$/, "");
+  const filename = nativeUsageFileName(file);
   for await (const { row, line } of nativeUsageLines(file, gaps)) {
     const sessionId = stringOf(row["sessionId"]);
     const agentId = stringOf(row["agentId"]);

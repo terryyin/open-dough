@@ -19,6 +19,11 @@ export const timestampOf = (value: unknown): string | undefined => {
     ? new Date(text).toISOString()
     : undefined;
 };
+// The native usage files a traversal yields, and a file's name without that
+// `.jsonl` or `.jsonl.zst` extension.
+const nativeUsageExtension = /\.jsonl(?:\.zst)?$/;
+export const nativeUsageFileName = (file: string) =>
+  path.basename(file).replace(nativeUsageExtension, "");
 export async function* nativeUsageFiles(
   root: string,
   gaps: UsageGap[],
@@ -38,7 +43,7 @@ export async function* nativeUsageFiles(
   )) {
     const file = path.join(root, entry.name);
     if (entry.isDirectory()) yield* nativeUsageFiles(file, gaps);
-    else if (entry.isFile() && /\.jsonl(?:\.zst)?$/.test(entry.name))
+    else if (entry.isFile() && nativeUsageExtension.test(entry.name))
       yield file;
   }
 }

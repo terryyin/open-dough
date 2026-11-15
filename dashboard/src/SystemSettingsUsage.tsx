@@ -2,9 +2,9 @@
 // tasks for the cohort its filters choose (`./usageTokenIndex.ts`) as its
 // trend (`./TokenIndexTrend.tsx`) within recent local calendar days, and when
 // the usage was last checked. Days remain separate from cohort identity.
-// Refresh brings in the Codex usage written since then; meanwhile the trend
-// stays with a checking note, and a failed Refresh keeps it and its check
-// time beside the error. The trend is an observation; it claims neither an
+// Refresh brings in the Codex and Claude Code usage written since then;
+// meanwhile the trend stays with a checking note, and a failed Refresh keeps
+// it and its check time beside the error. The trend is an observation; it claims neither an
 // improvement nor a bill.
 import { useEffect, useState } from "react";
 import { localSettingRequest } from "./localSettingRequest.ts";
@@ -153,7 +153,7 @@ export function SystemSettingsUsage() {
       )}
       {checking && (
         <p role="status" className="settings-note">
-          Checking Codex rollouts for new usage…
+          Checking for new usage…
         </p>
       )}
     </section>
