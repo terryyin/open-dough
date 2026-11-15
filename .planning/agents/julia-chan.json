@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Julia-chan",
+  "email": "julia-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-373#swipe-between-story-board-columns",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
