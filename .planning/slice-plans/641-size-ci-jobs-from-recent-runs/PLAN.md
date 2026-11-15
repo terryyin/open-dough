@@ -180,6 +180,16 @@ reconsideration pointer is gone; `npm run lint` passes. The refactor pass cut
 the section's field-by-field line description, which duplicated the script's
 header comment.
 
+## Execution complete
+
+Product advice: keep the 18-job layout; the report said `keep` for every
+group. After the duration-list refresh the three Distribution shares predict
+898-899 of their 926 job-second ceiling, so that budget, not the 320-second
+deadline, is the nearest Distribution limit: the next added check time there
+calls for test-second reduction, which the suite-optimization story owns,
+rather than a fourth share. The frontend job has the least deadline headroom
+(8 s); under the rule it gains a job only after a deadline failure on `main`.
+
 ## Verification and consumer trace
 
 Before test changes apply [AGENTS.md test automation](../../../AGENTS.md#test-automation)

@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 534. Removed numbers are never reused.
+- Highest allocated local number: 535. Removed numbers are never reused.
 - Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
@@ -236,6 +236,15 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: guarded fresh tool 097080 refused formatting before commit: unused Array.from parameters and forbidden non-null assertions in usagePeriod and new Backend/E2E specs; final implementation 30697cc105d3ee6c0a35043b5deda789f1671711.
   - Observed effect: Passing behavioral/type checks and an independent refactor return still required mechanical lint repairs; typecheck and independent proof-reuse review then passed before the formatter retry.
   - Inference: The coordinator-owned formatter caught the strict-lint findings safely; no failed candidate was committed or pushed.
+
+- Execution: SEED-355#reconsider-further-ci-reduction (plan `641-size-ci-jobs-from-recent-runs`; first implementation `87a2177e54bd82660553db65c3a55d30ffef64c3`)
+  - Timestamp: unknown (2026-11-15, minutes before publication of `87a2177e5`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.101 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: session `d81ffbc7-18fb-40bb-b4bb-03bf572bd9e3`; the slice 1 refactor pass introduced a `skip_reason` global set in reader functions and reported `shellcheck -x` clean; the first guarded fresh refused formatting with SC2034 in `scripts/ci-test-times.sh` and `scripts/ci-job-times.sh`. The coordinator added function-level directives, reran the focused checks and retried.
+  - Observed effect: one refused preparation and one short repair round before accepted `87a2177e5`; none in the two later slices, whose brief named SC2034.
+  - Inference: the agents' `shellcheck -x` run did not match the project lint's invocation, so a clean local check still missed the delivery finding.
 
 ## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
 
@@ -968,3 +977,16 @@ The record CLI can link several source-review rows to one Story obligation, but 
   - Evidence: coordinator recorded C31 with new G2, then C32/C33 with `--obligation G2`; guarded fresh tool 7ab4f2 refused `mismatched-commitment` for C32/C33. At accepted revision 4b1c7984c4ad5c2f9ef634db89400dcd5d9697a1, the plan's G2 reverse link was repaired to C31,C32,C33. Installed story-obligation-source-review-record.mjs defaults entry.commitments to the current id; the CLI exposes no plural entry-commitments option.
   - Observed effect: one records-only preparation failure and targeted CLI/source inspection occurred before commit; product code/proof stayed unchanged. The corrected obligation check and publication passed.
   - Inference: a later tool change could maintain the complete reverse link or avoid emitting a partial optional link. This execution records evidence only; it implements no process change.
+
+## DD-535 — A preview's high unrecorded count went unread before adding a check to a thin share
+A plan premise and its slice return read the allocation preview's per-share headroom but not its unrecorded count, which the share documentation names as the sign of a stale duration list. Adding one check moved the bytewise unrecorded deal and pushed one share over its job-second budget in CI.
+
+### Occurrences
+- Execution: SEED-355#reconsider-further-ci-reduction (plan `641-size-ci-jobs-from-recent-runs`; first implementation `87a2177e54bd82660553db65c3a55d30ffef64c3`)
+  - Timestamp: 2026-11-15T12:47:52Z (CI budget breach)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.101 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: PLAN.md premise "A new check file fits its Distribution share" quoted 178.2 s preview headroom; the slice 1 return and coordinator A/B used the same preview, which listed 26 unrecorded jobs at 1.5 s. Run 43715261434 at `96e739ef0` failed `Distribution Tests (3/3)` at 935.9 job-seconds of 926 (shares 554/779/1025 s observed); repair `3445cf469` refreshed `Distribution/tests/longest-first`, after which the preview showed one unrecorded job and 898-899 s a share.
+  - Observed effect: one failed CI run, one superseded run and one repair commit; the shares were already thin in `ci-test-times.sh`, which the coordinator judged against the preview's predicted headroom.
+  - Inference: the preview's headroom is only as good as the list; checking its unrecorded count before trusting a thin share would likely have prompted the refresh before the push.
