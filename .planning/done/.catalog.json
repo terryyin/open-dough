@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-334_move-intent-reading-and-review-checks.json",
+      "identity": "SEED-334#move-intent-reading-and-review-checks",
+      "completedAt": "2026-11-15T19:51:01.155Z",
+      "blob": "55876676dc988b1adcb3f28bf2f55bf31ab4a5cb"
+    },
+    {
       "fileName": "SEED-351_highlight-syntax-in-code-diffs.json",
       "identity": "SEED-351#highlight-syntax-in-code-diffs",
       "completedAt": "2026-11-15T15:46:32.664Z",

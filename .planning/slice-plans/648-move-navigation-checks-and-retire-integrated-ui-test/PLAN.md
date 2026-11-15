@@ -11,7 +11,7 @@ Maps original plan 633 slices 5–8 at `f03e959480b2a04a7194b072cf71aa9da55ee1a9
 All 41 navigation specs / 6,516 lines retain every distinct assertion in
 Frontend, Backend or representative E2E homes. CI and other Intent are owned by
 [plan 651](../651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md) and
-[plan 647](../647-move-intent-reading-and-review-checks/PLAN.md).
+[the completed reading/review conversion](../../done/SEED-334_move-intent-reading-and-review-checks.json).
 Navigation can start independently; retirement requires those outcomes on
 trunk and every interim product case to have another maintained home.
 The first half's five-folder conversion is delivered (`bfd4e7815`, closed

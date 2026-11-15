@@ -15,8 +15,8 @@ no new behavior or speed claim.
 
 ## Retrospective input and provenance
 
-Correction of [the reading/review conversion](../647-move-intent-reading-and-review-checks/PLAN.md)
-and its [review manifest](../647-move-intent-reading-and-review-checks/execution-context.md).
+Correction of [the reading/review conversion](https://github.com/terryyin/open-dough/blob/ce066347444bb41bf036d27412eac26c29becc8b/.planning/slice-plans/647-move-intent-reading-and-review-checks/PLAN.md)
+and its [review manifest](https://github.com/terryyin/open-dough/blob/ce066347444bb41bf036d27412eac26c29becc8b/.planning/slice-plans/647-move-intent-reading-and-review-checks/execution-context.md).
 Reviewed implementation ends at `e3a4103b2d735afa95b51171697aeeadb249519a`.
 The native opener retained a caller at slice6 (`76ff4d6`), then slices7/8
 converted the last native consumers. At e3a4103 its definition has no caller:
