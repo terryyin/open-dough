@@ -98,11 +98,15 @@ test("a specific model or effort keeps the tasks whose root responses mostly ran
   await writeUsageHistory(makeMe.aUsageHistory.with({ tasks }).please(), store);
   const summary = await deriveUsageTaskSummary(store);
   const cohort = (choice: Partial<TokenIndexCohort>) =>
-    tokenIndexCohort(summary, ["open-dough"], codexTariff, {
-      ...defaultCohort,
-      workflow: "refinement",
-      ...choice,
-    });
+    tokenIndexCohort(
+      summary,
+      {
+        projects: new Map([["open-dough", "Open Dough"]]),
+        launches: new Map(),
+        tariff: codexTariff,
+      },
+      { ...defaultCohort, workflow: "refinement", ...choice },
+    );
   const ids = (choice: Partial<TokenIndexCohort>) =>
     cohort(choice).tasks.map((task) => task.id);
 

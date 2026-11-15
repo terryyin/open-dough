@@ -1,5 +1,7 @@
 // Import only retained launch facts. Do not fabricate native launch requests or
-// let source recovery mutate operational/workflow state.
+// let source recovery mutate operational/workflow state. The same retained
+// records also say how each launch ended now (`retainedLaunchEnds`), which the
+// Usage view reads when it decides which tasks are finished.
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { launchRecordSchema, type LaunchRecord } from "../src/launchRecord.ts";
@@ -8,6 +10,32 @@ import { machineDashboardDirectory } from "./machineHome.ts";
 import { readLaunchHistory, launchHistoryDirectory } from "./launchHistory.ts";
 import { objectOf } from "./nativeUsageFiles.ts";
 import { type UsageTask, type UsageSource } from "./usageRecords.ts";
+
+// The usage task id of a retained launch.
+function retainedTaskId(project: string, record: LaunchRecord): string {
+  return JSON.stringify([
+    project,
+    record.session.host,
+    record.session.sessionId,
+    record.firstInput?.turnId ?? record.launchedAt,
+  ]);
+}
+
+function reportedOutcome(record: LaunchRecord): UsageTask["outcome"] {
+  return record.completion
+    ? {
+        kind:
+          record.completion.outcome === "completed"
+            ? "reported-complete"
+            : "reported-incomplete",
+        at: record.completion.receivedAt,
+        attention: record.completion.message.length > 0,
+        ...(record.returnedToBacklog === record.completion.receipt
+          ? { disposition: "returned-to-backlog" as const }
+          : {}),
+      }
+    : null;
+}
 
 function retainedTask(
   project: string,
@@ -24,12 +52,7 @@ function retainedTask(
   if (policy !== undefined) requested.policy = policy;
   const subject = launchSubject(record.request);
   return {
-    id: JSON.stringify([
-      project,
-      record.session.host,
-      record.session.sessionId,
-      rootTurnId ?? record.launchedAt,
-    ]),
+    id: retainedTaskId(project, record),
     kind: "launch",
     project,
     host: record.session.host,
@@ -43,19 +66,7 @@ function retainedTask(
     origin: "dashboard",
     ...(reporting ? { launchReference: reporting.reference } : {}),
     requested,
-    outcome: record.completion
-      ? {
-          kind:
-            record.completion.outcome === "completed"
-              ? "reported-complete"
-              : "reported-incomplete",
-          at: record.completion.receivedAt,
-          attention: record.completion.message.length > 0,
-          ...(record.returnedToBacklog === record.completion.receipt
-            ? { disposition: "returned-to-backlog" as const }
-            : {}),
-        }
-      : null,
+    outcome: reportedOutcome(record),
     fieldSources: Object.fromEntries(
       [
         "project",
@@ -76,8 +87,16 @@ function retainedTask(
     gaps: ["retained-native-evidence-only"],
   };
 }
-export async function retainedUsageTasks(home: string): Promise<UsageTask[]> {
-  const tasks: UsageTask[] = [];
+type RetainedRecord = {
+  readonly project: string;
+  readonly record: LaunchRecord;
+  readonly source: UsageSource;
+};
+
+// Every launch record this machine keeps, operational ones first, then
+// launch history's.
+async function retainedRecords(home: string): Promise<RetainedRecord[]> {
+  const retained: RetainedRecord[] = [];
   const file = path.join(
     machineDashboardDirectory(home),
     "agent-launches.json",
@@ -94,22 +113,55 @@ export async function retainedUsageTasks(home: string): Promise<UsageTask[]> {
     for (const raw of records) {
       // Unresolved creation records have no session and are not launches.
       if (!objectOf(raw)["session"]) continue;
-      const task = retainedTask(project, launchRecordSchema.parse(raw), {
-        kind: "operational",
-        file,
+      retained.push({
+        project,
+        record: launchRecordSchema.parse(raw),
+        source: { kind: "operational", file },
       });
-      if (task) tasks.push(task);
     }
   }
-  for (const entry of await readLaunchHistory(home)) {
-    const task = retainedTask(entry.project, entry.record, {
-      kind: "history",
-      file: path.join(
-        launchHistoryDirectory(home),
-        `${entry.leftAt.slice(0, 7)}.jsonl`,
-      ),
+  for (const entry of await readLaunchHistory(home))
+    retained.push({
+      project: entry.project,
+      record: entry.record,
+      source: {
+        kind: "history",
+        file: path.join(
+          launchHistoryDirectory(home),
+          `${entry.leftAt.slice(0, 7)}.jsonl`,
+        ),
+      },
     });
-    if (task) tasks.push(task);
+  return retained;
+}
+
+export async function retainedUsageTasks(home: string): Promise<UsageTask[]> {
+  return (await retainedRecords(home)).flatMap(
+    ({ project, record, source }) =>
+      retainedTask(project, record, source) ?? [],
+  );
+}
+
+// How a retained launch ended as its record says now: its reported outcome
+// and when the developer marked it done, if either.
+export type RetainedLaunchEnd = {
+  readonly outcome: UsageTask["outcome"];
+  readonly doneAt: string | null;
+};
+
+// Each retained launch's end, by its usage task id. A launch kept both in
+// the operational document and in history ends as either record says.
+export async function retainedLaunchEnds(
+  home: string,
+): Promise<ReadonlyMap<string, RetainedLaunchEnd>> {
+  const ends = new Map<string, RetainedLaunchEnd>();
+  for (const { project, record } of await retainedRecords(home)) {
+    const id = retainedTaskId(project, record);
+    const prior = ends.get(id);
+    ends.set(id, {
+      outcome: prior?.outcome ?? reportedOutcome(record),
+      doneAt: prior?.doneAt ?? record.doneAt ?? null,
+    });
   }
-  return tasks;
+  return ends;
 }

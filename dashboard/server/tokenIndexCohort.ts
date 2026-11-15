@@ -1,56 +1,25 @@
 // One cohort's Token index chart from the per-task usage summary
-// (./usageTaskSummary.ts): each finished task of a project configured now,
-// hidden ones included, in the chosen launch workflow and, when chosen, with
-// that primary observed model and effort, weighed under one tariff version
-// (./tokenIndex.ts) and placed at its reported outcome time, or else its last
-// recorded activity, with the trailing moving average. A recovered task has
-// no open session, so it is finished; a retained launch is finished once it
-// reports an outcome. The Model and Effort options are the primary settings
-// the finished tasks show in any launch workflow, so switching workflow keeps
-// every choice on offer.
-import { launchWorkflowNames, launchWorkflows } from "../src/launchWorkflow.ts";
+// (./usageTaskSummary.ts): each finished task (./tokenIndexTask.ts) of a
+// project configured now, hidden ones included, in the chosen launch workflow
+// and, when chosen, with that primary observed model and effort, weighed
+// under one tariff version and placed at its reported outcome time, or else
+// its last recorded activity, with the trailing moving average. The Model
+// and Effort options are the primary settings the finished tasks show in any
+// launch workflow, so switching workflow keeps every choice on offer.
 import {
   movingAverageTasks,
-  usageWorkflowOf,
   type TokenIndexAnswer,
   type TokenIndexCohort,
-  type TokenIndexTask,
-  type UsageWorkflow,
 } from "../src/usageTokenIndex.ts";
-import { tokenIndex } from "./tokenIndex.ts";
-import type { SummaryTask, UsageTaskSummary } from "./usageTaskSummary.ts";
-import type { UsageTariff } from "./usageTariffs.ts";
-
-// A retained launch records its workflow; a recovered task, the skill its
-// directive invoked.
-function launchWorkflowOf(workflow: string | null): UsageWorkflow | undefined {
-  return (
-    usageWorkflowOf(workflow) ??
-    launchWorkflowNames.find((name) => launchWorkflows[name].skill === workflow)
-  );
-}
-
-const finished = (task: SummaryTask) =>
-  task.kind === "recovered" || task.outcome !== null;
-
-// The value most of the task's root conversation responses ran with, counted
-// by response; workers do not decide it, and a tie leaves it unknown (null).
-function primarySetting(
-  task: SummaryTask,
-  setting: "model" | "effort",
-): string | null {
-  const counts = new Map<string | null, number>();
-  for (const group of task.usage)
-    if (group.root)
-      counts.set(
-        group[setting],
-        (counts.get(group[setting]) ?? 0) + group.responses,
-      );
-  const [first, second] = [...counts].sort((a, b) => b[1] - a[1]);
-  return first !== undefined && (second === undefined || first[1] > second[1])
-    ? first[0]
-    : null;
-}
+import {
+  finishedTask,
+  launchWorkflowOf,
+  primarySetting,
+  tokenIndexTask,
+  usageModel,
+  type UsageReading,
+} from "./tokenIndexTask.ts";
+import type { UsageTaskSummary } from "./usageTaskSummary.ts";
 
 const matches = (chosen: string | null, primary: string | null) =>
   chosen === null || chosen === primary;
@@ -65,34 +34,16 @@ function observed(values: readonly (string | null)[]): string[] {
     .map(([value]) => value);
 }
 
-function point(
-  task: SummaryTask,
-  tariff: UsageTariff,
-): TokenIndexTask | undefined {
-  const index = tokenIndex(task.usage, tariff);
-  const endedAt = task.outcome?.at ?? task.lastActivityAt;
-  if (index === undefined || endedAt === null || task.project === null)
-    return undefined;
-  return {
-    id: task.id,
-    project: task.project,
-    identity: task.identity,
-    title: task.title,
-    endedAt,
-    index,
-  };
-}
-
 export function tokenIndexCohort(
   summary: UsageTaskSummary,
-  configuredProjects: readonly string[],
-  tariff: UsageTariff,
+  reading: UsageReading,
   cohort: TokenIndexCohort,
 ): TokenIndexAnswer {
-  const projects = new Set(configuredProjects);
-  const population = summary.tasks.filter(
-    (task) =>
-      task.project !== null && projects.has(task.project) && finished(task),
+  const { projects, launches, tariff } = reading;
+  const population = summary.tasks.flatMap((task) =>
+    task.project !== null && projects.has(task.project)
+      ? (finishedTask(task, launches) ?? [])
+      : [],
   );
   const tasks = population
     .filter(
@@ -101,7 +52,7 @@ export function tokenIndexCohort(
         matches(cohort.model, primarySetting(task, "model")) &&
         matches(cohort.effort, primarySetting(task, "effort")),
     )
-    .flatMap((task) => point(task, tariff) ?? [])
+    .flatMap((task) => tokenIndexTask(task, reading) ?? [])
     .sort(
       (a, b) =>
         Date.parse(a.endedAt) - Date.parse(b.endedAt) ||
@@ -118,7 +69,7 @@ export function tokenIndexCohort(
     options: {
       models: observed(
         population.map((task) => primarySetting(task, "model")),
-      ).map((id) => ({ id, name: tariff.models[id]?.name ?? id })),
+      ).map((id) => usageModel(id, tariff)),
       efforts: observed(
         population.map((task) => primarySetting(task, "effort")),
       ),

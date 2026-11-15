@@ -1,6 +1,7 @@
 // The derived per-task summary the Usage view reads instead of the usage
 // store (ADR 0008: a rebuildable cache beside the store, no database). It
-// keeps each dashboard-origin Codex task's facts and its uniquely associated
+// keeps each dashboard-origin Codex task's facts, finished or not, with the
+// model and effort its launch requested, and its uniquely associated
 // responses' stored counters and their count, summed per observed model,
 // effort and whether the response is the root conversation's or a worker's;
 // the counts decide a task's primary observed setting. Every associated
@@ -19,7 +20,7 @@ import type {
 } from "./usageRecords.ts";
 import { unvalidatedValues, type Collection } from "./usageSnapshot.ts";
 
-export const summaryFormat = "usage-task-summary-v2";
+export const summaryFormat = "usage-task-summary-v3";
 
 export type SummaryCounters = {
   readonly uncachedInput: number;
@@ -40,6 +41,10 @@ export type SummaryTask = Pick<
   UsageTask,
   "id" | "kind" | "project" | "workflow" | "identity" | "title"
 > & {
+  readonly requested: {
+    readonly model: string | null;
+    readonly effort: string | null;
+  };
   readonly outcome: NonNullable<UsageTask["outcome"]> | null;
   // The task's or its latest response's recorded activity.
   readonly lastActivityAt: string | null;
@@ -147,6 +152,10 @@ export async function deriveUsageTaskSummary(
       workflow: task.workflow,
       identity: task.identity,
       title: task.title,
+      requested: {
+        model: task.requested.model ?? null,
+        effort: task.requested.effort ?? null,
+      },
       outcome: task.outcome ?? null,
       lastActivityAt: later(activity.get(task.id) ?? null, task.lastActivityAt),
       usage: [...(usage.get(task.id)?.values() ?? [])],

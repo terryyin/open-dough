@@ -2,7 +2,8 @@
    of pressed buttons under the bar, and Usage's Token index
    (./SystemSettingsUsage.tsx): its filters, the chart's head with the moving
    average's figure, the shared chart (./history-chart.css) and its legend
-   with the tariff version. */
+   with the tariff version, and the selected task's detail
+   (./UsageTaskDetail.tsx). */
 .settings-views {
   box-sizing: border-box;
   display: flex;
@@ -114,6 +115,44 @@
   width: 15px;
   height: 2px;
   border-radius: 0;
+}
+
+.usage-detail {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--raised-surface);
+}
+
+.usage-detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.usage-detail h3 {
+  font-size: var(--text-md);
+  font-weight: var(--weight-strong);
+  overflow-wrap: anywhere;
+}
+
+.usage-detail dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+}
+
+.usage-detail dt {
+  color: var(--quiet);
+  font-size: var(--text-sm);
+}
+
+.usage-detail dd {
+  margin: 0;
 }
 
 @container settings (max-width: 40rem) {

@@ -1,5 +1,6 @@
 // System settings → Usage's answer: one Token index point per finished
-// dashboard-launched task of the chosen cohort, in end-time order, with the
+// dashboard-launched task of the chosen cohort, in end-time order, each with
+// the detail the view shows when it is selected, with the
 // trailing moving average, the tariff version that weighed them, when the
 // usage was last checked and the Model and Effort options the observed tasks
 // offer (`../server/usageBoundary.ts`). The cohort travels as the request's
@@ -62,14 +63,40 @@ export function requestedCohort(
   };
 }
 
+// A model by its id and the name the tariff gives it, or else its id.
+export type UsageModel = { readonly id: string; readonly name: string };
+
+// A model and effort, each null when unknown.
+export type UsageSetting = {
+  readonly model: UsageModel | null;
+  readonly effort: string | null;
+};
+
+// How a task's session reported it ended.
+export type UsageTaskOutcome = {
+  readonly kind: "reported-complete" | "reported-incomplete";
+  readonly attention?: boolean;
+  readonly disposition?: "returned-to-backlog";
+};
+
+// How completely the task's usage was measured.
+export type UsageTaskCoverage = { readonly kind: "measured" };
+
 export type TokenIndexTask = {
   readonly id: string;
-  readonly project: string;
+  readonly project: { readonly id: string; readonly label: string };
   readonly identity: string | null;
   readonly title: string | null;
+  readonly workflow: UsageWorkflow;
+  // Null when no outcome was reported.
+  readonly outcome: UsageTaskOutcome | null;
   // The reported outcome time, or else the last recorded activity.
   readonly endedAt: string;
+  // What the launch asked for, and what most root responses ran with.
+  readonly requested: UsageSetting;
+  readonly observed: UsageSetting;
   readonly index: number;
+  readonly coverage: UsageTaskCoverage;
 };
 
 export type TokenIndexAnswer = {
@@ -77,7 +104,7 @@ export type TokenIndexAnswer = {
   // The primary observed models, by id and name, and efforts of the tool's
   // finished tasks in every launch workflow, most common first.
   readonly options: {
-    readonly models: readonly { readonly id: string; readonly name: string }[];
+    readonly models: readonly UsageModel[];
     readonly efforts: readonly string[];
   };
   readonly tariff: { readonly version: string; readonly label: string };

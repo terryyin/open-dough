@@ -1,9 +1,11 @@
 // System settings → Usage's local JSON endpoint: the Token index chart of the
 // Codex cohort its query selects (./tokenIndexCohort.ts) from the latest
-// per-task usage summary (./usageTaskSummaryCache.ts), for every project
-// configured now, hidden ones included, under the Codex tariff
+// per-task usage summary (./usageTaskSummaryCache.ts) and how each retained
+// launch's record says it ended now (./retainedUsageTasks.ts), for every
+// project configured now, hidden ones included, under the Codex tariff
 // (./usageTariffs.ts).
 import type { IncomingMessage } from "node:http";
+import { homedir } from "node:os";
 import {
   requestedCohort,
   usageTokenIndexEndpoint,
@@ -12,6 +14,7 @@ import {
 import { RefusedRequest } from "./localOrigin.ts";
 import { localJsonEndpoints } from "./localJsonEndpoints.ts";
 import { configuredProjects } from "./projectConfiguration.ts";
+import { retainedLaunchEnds } from "./retainedUsageTasks.ts";
 import { tokenIndexCohort } from "./tokenIndexCohort.ts";
 import { usageHistoryFile } from "./usageHistory.ts";
 import { currentUsageTaskSummary } from "./usageTaskSummaryCache.ts";
@@ -25,11 +28,19 @@ async function answer(req: IncomingMessage): Promise<TokenIndexAnswer> {
   );
   if (cohort === undefined)
     throw new RefusedRequest(400, "Choose a known launch workflow.");
-  const summary = await currentUsageTaskSummary(usageHistoryFile());
+  const [summary, launches] = await Promise.all([
+    currentUsageTaskSummary(usageHistoryFile()),
+    retainedLaunchEnds(homedir()),
+  ]);
   return tokenIndexCohort(
     summary,
-    configuredProjects().map((project) => project.id),
-    codexTariff,
+    {
+      projects: new Map(
+        configuredProjects().map(({ id, label }) => [id, label]),
+      ),
+      launches,
+      tariff: codexTariff,
+    },
     cohort,
   );
 }

@@ -226,8 +226,11 @@ test("a later tariff version weighs the same derived counters again", async () =
 
   const reweighed = tokenIndexCohort(
     await deriveUsageTaskSummary(store),
-    ["open-dough"],
-    later,
+    {
+      projects: new Map([["open-dough", "Open Dough"]]),
+      launches: new Map(),
+      tariff: later,
+    },
     defaultCohort,
   );
 

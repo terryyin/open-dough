@@ -1,14 +1,17 @@
-// The usage store the System settings → Usage journeys open: finished
-// dashboard Codex tasks of Open Dough written into the server's HOME, and
-// what each journey expects the page to read for them, its point's readout
-// and the moving average's figure, from the task's counters under the
-// product's tariff.
+// The usage store the System settings → Usage journeys open: dashboard Codex
+// tasks of Open Dough written into the server's HOME, stated directly or as
+// an import of their launch records stores them, and what each journey
+// expects the page to read for them, its point's readout and the moving
+// average's figure, from the task's counters under the product's tariff.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   usageHistoryFile,
   writeUsageHistory,
 } from "../../dashboard/server/usageHistory.ts";
-import type { UsageTokens } from "../../dashboard/server/usageRecords.ts";
+import type {
+  UsageTask,
+  UsageTokens,
+} from "../../dashboard/server/usageRecords.ts";
 import { codexTariff } from "../../dashboard/server/usageTariffs.ts";
 
 export const sol = "gpt-6.1-sol";
@@ -44,44 +47,76 @@ function indexOf(responses: readonly Response[]): number {
   return credits / (reference?.input ?? NaN);
 }
 
-// A finished dashboard Codex task of Open Dough ending on day `day` of
-// November, a recovered one recording the skill its workflow ran, and the
-// readout its point shows.
-export function finishedTask(
-  name: string,
-  workflow: "execution" | "refinement",
-  day: number,
+// A stored task with its responses, the last of them at `endedAt`, and the
+// readout its point shows when it ends then.
+function storedTask(
+  task: Pick<UsageTask, "id"> & Partial<UsageTask>,
   responses: readonly Response[],
-  { recovered = false }: { readonly recovered?: boolean } = {},
+  endedAt: string,
 ) {
-  const endedAt = `2026-11-${String(day).padStart(2, "0")}T12:00:00.000Z`;
   const index = indexOf(responses);
   return {
     history: {
-      task: {
-        id: name.toLowerCase().replaceAll(" ", "-"),
-        kind: recovered ? ("recovered" as const) : ("launch" as const),
-        origin: "dashboard" as const,
-        project: "open-dough",
-        workflow: recovered ? "dough-execute-plan" : workflow,
-        title: name,
-        ...(recovered
-          ? { outcome: null, lastActivityAt: endedAt }
-          : { outcome: { kind: "reported-complete" as const, at: endedAt } }),
-      },
-      responses,
+      task,
+      responses: responses.map((response) => ({ at: endedAt, ...response })),
     },
     index,
     readout: `${dayWords(endedAt)} · ${figureWords(index)}`,
   };
 }
 
-export type FinishedTask = ReturnType<typeof finishedTask>;
+export type StoredTask = ReturnType<typeof storedTask>;
+
+// A finished dashboard Codex task of Open Dough ending on day `day` of
+// November unless another month is stated, a recovered one recording the
+// skill its workflow ran.
+export function finishedTask(
+  name: string,
+  workflow: "execution" | "refinement",
+  day: number,
+  responses: readonly Response[],
+  {
+    recovered = false,
+    month = "2026-11",
+  }: { readonly recovered?: boolean; readonly month?: string } = {},
+) {
+  const endedAt = `${month}-${String(day).padStart(2, "0")}T12:00:00.000Z`;
+  return storedTask(
+    {
+      id: name.toLowerCase().replaceAll(" ", "-"),
+      kind: recovered ? "recovered" : "launch",
+      origin: "dashboard",
+      project: "open-dough",
+      workflow: recovered ? "dough-execute-plan" : workflow,
+      title: name,
+      ...(recovered
+        ? { outcome: null, lastActivityAt: endedAt }
+        : { outcome: { kind: "reported-complete", at: endedAt } }),
+    },
+    responses,
+    endedAt,
+  );
+}
+
+// A launch as an import of its launch record stores it (`task`, from
+// ../../dashboard/server/retainedUsageTasks.ts), last active at
+// `lastActivityAt`, which places it unless it reported an outcome.
+export function launchedTask(
+  task: UsageTask,
+  responses: readonly Response[],
+  lastActivityAt: string,
+) {
+  return storedTask(
+    { ...task, lastActivityAt },
+    responses,
+    task.outcome?.at ?? lastActivityAt,
+  );
+}
 
 // Writes the tasks as the usage store in `home`, and returns its file.
 export async function writeUsageStore(
   home: string,
-  tasks: readonly FinishedTask[],
+  tasks: readonly StoredTask[],
 ) {
   const store = usageHistoryFile(home);
   await writeUsageHistory(
@@ -93,9 +128,12 @@ export async function writeUsageStore(
   return store;
 }
 
-export const readouts = (tasks: readonly FinishedTask[]) =>
+// The task's Token index as its detail reads it.
+export const indexWords = (task: StoredTask) => figureWords(task.index);
+
+export const readouts = (tasks: readonly StoredTask[]) =>
   tasks.map(({ readout }) => readout);
 
 // The latest ten tasks' mean index, as its figure.
-export const averageOf = (tasks: readonly FinishedTask[]) =>
+export const averageOf = (tasks: readonly StoredTask[]) =>
   figureWords(tasks.slice(-10).reduce((sum, { index }) => sum + index, 0) / 10);

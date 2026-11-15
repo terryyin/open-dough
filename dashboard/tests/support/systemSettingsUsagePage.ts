@@ -1,9 +1,9 @@
 // System settings → Usage (../../src/SystemSettingsUsage.tsx) as Terry
 // meets it: its view beside General, the cohort its filters show and offer,
 // choosing a filter's option, the Token index points on the shared history
-// chart (../historyChartPage.ts), the
-// moving average's figure, the tariff version and the check time. Scenarios
-// supply every expected value.
+// chart (../historyChartPage.ts), the moving average's figure, the tariff
+// version, the check time, and the detail of a point selected by pointer or
+// keyboard. Scenarios supply every expected value.
 import type { Page } from "@playwright/test";
 import { historyChart } from "../historyChartPage.ts";
 import { expect } from "../dashboardTest.ts";
@@ -37,6 +37,18 @@ export async function openUsage(page: Page) {
   return usageView(page);
 }
 
+// What the selected task's detail reads: its heading, the line naming its
+// project, story, tool and launch workflow, and each fact by its term, in
+// order. `Ended` is the end instant (ISO) and the outcome's words.
+export type TaskDetail = {
+  readonly title: string;
+  readonly about: string;
+  readonly facts: readonly (
+    | readonly [term: string, words: string]
+    | readonly ["Ended", { readonly at: string; readonly outcome: string }]
+  )[];
+};
+
 export function usageView(page: Page) {
   const view = page.getByRole("region", { name: "Token index", exact: true });
   const trend = view.getByRole("region", {
@@ -49,6 +61,10 @@ export function usageView(page: Page) {
   );
   const filter = (label: string) =>
     view.getByRole("combobox", { name: label, exact: true });
+  const detail = view.getByRole("region", {
+    name: "Selected task",
+    exact: true,
+  });
   return {
     // The chosen option of each filter, by its label.
     async showsCohort(cohort: Readonly<Record<string, string>>) {
@@ -77,6 +93,44 @@ export function usageView(page: Page) {
       await expect(average.locator("strong")).toHaveText(figure);
       await expect(average).toContainText("10-task moving average");
       await expect(chart.line).toHaveCount(1);
+    },
+    // Selects the point read as `readout`, pressing it by pointer or, once
+    // focused, with Enter; it shows as the one selected point.
+    async selectPoint(readout: string, by: "pointer" | "keyboard") {
+      const mark = chart.mark(readout);
+      if (by === "pointer") await mark.click();
+      else {
+        await mark.focus();
+        await page.keyboard.press("Enter");
+      }
+      await expect(
+        chart.box.getByRole("button", { pressed: true }),
+      ).toHaveAccessibleName(readout.replace(" · ", " · Selected task · "));
+      await expect(detail).toBeVisible();
+    },
+    async showsDetail({ title, about, facts }: TaskDetail) {
+      await expect(detail.getByRole("heading")).toHaveText(title);
+      await expect(detail.locator(".settings-note")).toHaveText(about);
+      await expect(detail.locator("dt")).toHaveText(
+        facts.map(([term]) => term),
+      );
+      for (const [at, [, words]] of facts.entries()) {
+        const fact = detail.locator("dd").nth(at);
+        if (typeof words === "string") await expect(fact).toHaveText(words);
+        else {
+          await expect(fact.locator("time")).toHaveAttribute(
+            "datetime",
+            words.at,
+          );
+          await expect(fact).toHaveText(new RegExp(` · ${words.outcome}$`));
+        }
+      }
+    },
+    // Closes the detail; focus returns to the point read as `readout`.
+    async closeDetail(readout: string) {
+      await detail.getByRole("button", { name: "Close", exact: true }).click();
+      await expect(detail).toHaveCount(0);
+      await expect(chart.mark(readout)).toBeFocused();
     },
     async showsTariff(label: string) {
       await expect(trend.getByText(label, { exact: true })).toBeVisible();

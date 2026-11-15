@@ -146,6 +146,7 @@ export class UsageAssociationBuilder {
  *   effort?: string,
  *   worker?: true,
  *   turnId?: string,
+ *   at?: string,
  *   tokens: Partial<UsageTokens>,
  * }} TaskResponseFacts
  */
@@ -157,7 +158,8 @@ export class UsageAssociationBuilder {
  */
 
 // A usage store's tasks, each with its uniquely associated responses: each
-// the root conversation's, in its first turn unless stated, or a worker's.
+// the root conversation's, in its first turn unless stated, or a worker's,
+// at the observation builder's time unless stated.
 // A task's session is its id unless stated.
 export class UsageHistoryBuilder {
   /** @param {{ tasks: readonly TaskHistoryFacts[] }} facts */
@@ -177,6 +179,7 @@ export class UsageHistoryBuilder {
                 ...(response.worker ? { parentSessionId: task.sessionId } : {}),
                 responseId: `response-${String(index)}`,
                 ...(response.turnId ? { turnId: response.turnId } : {}),
+                ...(response.at ? { at: response.at } : {}),
                 settings: {
                   model: response.model,
                   ...(response.effort ? { effort: response.effort } : {}),

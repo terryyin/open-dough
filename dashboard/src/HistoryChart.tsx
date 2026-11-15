@@ -6,7 +6,10 @@
 // placement and marks (`./historyChartLayout.ts`, `./HistoryChartPlot.tsx`):
 // a gap never acquires a numeric point or joining stroke. Every mark is also
 // a button laid over the drawing, in history order, so pointer, keyboard focus
-// and touch each show its short date and value or status in one readout.
+// and touch each show its short date and value or status in one readout. A
+// chart whose entries can be chosen, such as Usage's tasks, also chooses the
+// entry of a mark pressed by pointer, Enter or Space; its owner marks that
+// entry selected and can return focus to the pressed mark.
 
 import { useLayoutEffect, useRef, useState } from "react";
 import { isMeasured, type HistoryChartSeries } from "./historyChartSeries.ts";
@@ -41,10 +44,19 @@ function useBoxWidth() {
 
 const isSelected = (mark: ChartMark) => mark.entry.selected === true;
 
+// Chooses the entry `key`, whose mark is the button `mark`.
+export type ChooseEntry = (key: string, mark: HTMLButtonElement) => void;
+
 // The marks as buttons over the drawing and the readout of the one the reader
 // last pointed at, focused or tapped; the selected entry's, or else the
 // latest entry's, until then.
-function MarkReadout({ layout }: { readonly layout: ChartLayout }) {
+function MarkReadout({
+  layout,
+  onChoose,
+}: {
+  readonly layout: ChartLayout;
+  readonly onChoose: ChooseEntry | undefined;
+}) {
   const [inspected, setInspected] = useState<string>();
   const shown =
     layout.marks.find((mark) => mark.entry.key === inspected) ??
@@ -65,10 +77,16 @@ function MarkReadout({ layout }: { readonly layout: ChartLayout }) {
               className="history-chart-mark"
               aria-label={mark.readout}
               aria-current={mark === shown ? "true" : undefined}
+              aria-pressed={
+                onChoose === undefined ? undefined : isSelected(mark)
+              }
               style={{ left: mark.x, top: mark.y }}
               onPointerEnter={inspect}
               onFocus={inspect}
-              onClick={inspect}
+              onClick={(event) => {
+                inspect();
+                onChoose?.(key, event.currentTarget);
+              }}
             />
           );
         })}
@@ -82,8 +100,10 @@ function MarkReadout({ layout }: { readonly layout: ChartLayout }) {
 
 export function HistoryChart({
   series,
+  onChoose,
 }: {
   readonly series: HistoryChartSeries;
+  readonly onChoose?: ChooseEntry;
 }) {
   const { box, width } = useBoxWidth();
   const layout =
@@ -101,7 +121,9 @@ export function HistoryChart({
         >
           {layout !== undefined && <HistoryChartPlot layout={layout} />}
         </svg>
-        {layout !== undefined && <MarkReadout layout={layout} />}
+        {layout !== undefined && (
+          <MarkReadout layout={layout} onChoose={onChoose} />
+        )}
       </div>
     </div>
   );

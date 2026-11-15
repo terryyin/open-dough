@@ -122,7 +122,7 @@ root setting. Ad hoc is included as a workflow option.
 
 ### 3. A point opens its task detail
 Type: Behavior
-Status: planned
+Status: done
 Proof: integrated journey: two launches of one story, one returned to the
 backlog and one completed, give two points with their own details. Points are
 selectable by keyboard and by pointer. A recovered task without an outcome
@@ -173,7 +173,10 @@ updates. Overlap with an offline import counts each response once.
 
 - Execute in Story Branch Mode; no slice acts from trunk.
 - Usage reads only the derived summary. The full store is read only by
-  summary rebuilds and refreshes, in a separate process.
+  summary rebuilds and refreshes, in a separate process. Since slice 3, the
+  chart request also reads the current launch records
+  (`retainedLaunchEnds`) for the finished rule. The summary stays a pure
+  derivation of the store.
 - Fixture tariffs in tests come from the tariff data the product uses or from a
   test-built version. Assertions compare observed index values with arithmetic
   on the fixture's counters, never with copied rate constants.
@@ -222,6 +225,24 @@ updates. Overlap with an offline import counts each response once.
   Backend variants go in sibling specs under
   `dashboard/backend-tests/usage-history/`, since `token-index.spec.ts` is
   near 250 lines. Store contents are built with `makeMe.aUsageHistory`.
+- **Slice 3 (accepted).** Finished is decided on each request from the
+  launch records (`dashboard/server/tokenIndexTask.ts`). A launch marked done,
+  or one that reports after import, appears on the next Usage open without a
+  rebuild, and the record's current outcome overrides an earlier imported
+  one. Hashing `agent-launches.json` into the summary key was rejected: the
+  file is 8.4 MB and changes constantly, so almost every open would trigger a
+  3.4 s rebuild. On this machine, `retainedLaunchEnds` read 1,352 real
+  launches in 71–184 ms per call, about what Board requests already pay. The
+  detail rides on `TokenIndexTask`. Coverage is `measured` ("No known gaps")
+  until slice 4 adds a partial kind through `UsageTaskCoverage` and
+  `coverageWords`. `HistoryChart` takes an optional `onChoose`, and only
+  charts that pass it expose `aria-pressed`. The summary is
+  `usage-task-summary-v3` (requested model and effort).
+- Outcome words share `reportedOutcomeLabel` and `returnedToBacklogLabel`
+  in `dashboard/src/completionReport.ts`. The selected point lives in
+  `TokenIndexTrend`, which unmounts on a filter change. Slice 5's Refresh
+  keeps the chart mounted, so it must keep or clear the selection
+  deliberately.
 - With exactly 10 eligible tasks, the moving average has one value and the
   chart draws no line. Slice 4 owns that boundary with "Fewer than 10".
 - Local proof under external load (about 28): 3 integrated chart-consumer

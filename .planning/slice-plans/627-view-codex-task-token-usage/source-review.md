@@ -13,16 +13,16 @@ allocation.
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | 1.1 | Terry can now and then check whether the price-weighted usage of finished dashboard-launched Codex tasks is trending up or down for one launch workflow | slice 5 | |
-| 1.2 | Terry can inspect any single task behind the trend | slice 3 | |
+| 1.2 | Terry can inspect any single task behind the trend | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts selectPoint + showsDetail: any point opens its task detail |
 | 1.3 | The trend is an observation that informs workflow decisions under ADR 0010; it makes no improvement or billing claim | slice 1 | observed: dashboard/src/SystemSettingsUsage.tsx: index, average, tariff and check time only; no improvement or billing wording |
 | 2.1 | A point is one finished task with `origin: dashboard` and host Codex in the usage records | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts finished Codex executions…: native and unknown origin tasks absent from answer; dashboard/server/usageTaskSummary.ts host codex + origin dashboard filter |
 | 2.2 | Points come from any project configured at view time | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts: retired-project task (not configured) absent, open-dough present |
 | 2.3 | Hidden projects are included | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts: hidden doughnut project's with-worker task present |
 | 2.4 | Retained launches count | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts: 11 launch tasks plotted; dashboard/backend-tests/usage-history/token-index.spec.ts launch tasks plotted |
 | 2.5 | Recovered dashboard tasks count | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts: recovered day-0 task (dough-execute-plan workflow) plotted |
-| 2.6 | A task is finished once it has a reported outcome or its launch is marked done | slice 3 | |
-| 2.7 | A recovered task has no open session, so it is finished | slice 3 | |
-| 2.8 | Each launch of the same story is its own point | slice 3 | |
+| 2.6 | A task is finished once it has a reported outcome or its launch is marked done | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-detail.spec.ts test 1: reported-not-done plotted, done-not-reported plotted, neither not plotted; e2e/configuration/system-settings-usage-detail.spec.ts third launch plotted after marked done |
+| 2.7 | A recovered task has no open session, so it is finished | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-detail.spec.ts test 1 recovered task plotted with null outcome; e2e/configuration/system-settings-usage-detail.spec.ts recovered point |
+| 2.8 | Each launch of the same story is its own point | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts two launches of one story give two points with own details |
 | 2.9 | The x position is the reported outcome time, or else the last recorded activity | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts showsPoints: launches at outcome date, recovered task at last activity date |
 | 3.1 | Usage is a separate System settings view beside the existing settings | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts expectGeneralSettingsShown/openUsage: Usage view beside General, existing Projects settings under General |
 | 3.2 | It shows one chart: Token index per finished task | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts showsPoints: 12 Token index marks on the chart |
@@ -40,21 +40,21 @@ allocation.
 | 3.11 | Workers still contribute their usage at their own model's rates | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts: Astra worker weighted at Astra rates in with-worker index; e2e/configuration/system-settings-usage.spec.ts Nov 8 readout |
 | 3.12 | This story offers only Codex in Tool | slice 1 | observed: dashboard/src/SystemSettingsUsage.tsx Tool select offers only Codex; e2e/configuration/system-settings-usage.spec.ts showsCohort |
 | 3.13 | Claude Code and Cursor add their own cohorts later | slice 1 | observed: no Claude Code or Cursor cohort built (dashboard/server/usageTaskSummary.ts codex-only) |
-| 4.1 | A point can be selected by pointer | slice 3 | |
-| 4.2 | A point can be selected by keyboard | slice 3 | |
-| 4.3.1 | Detail shows the story title when known | slice 3 | |
-| 4.3.2 | Detail shows the story identity when known | slice 3 | |
-| 4.3.3 | Detail shows the project | slice 3 | |
-| 4.3.4 | Detail shows the launch workflow | slice 3 | |
-| 4.3.5 | Detail shows the outcome, or "Outcome unknown" | slice 3 | |
-| 4.3.6 | Detail shows the end time | slice 3 | |
-| 4.3.7 | Detail shows the requested model when known | slice 3 | |
-| 4.3.8 | Detail shows the requested effort when known | slice 3 | |
-| 4.3.9 | Detail shows the primary observed model | slice 3 | |
-| 4.3.10 | Detail shows the primary observed effort | slice 3 | |
-| 4.3.11 | Detail shows the index | slice 3 | |
-| 4.3.12 | Detail shows the coverage | slice 3 | |
-| 4.4 | The chart response carries the detail it needs | slice 3 | |
+| 4.1 | A point can be selected by pointer | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts selectPoint(…, pointer) presses the mark and shows detail |
+| 4.2 | A point can be selected by keyboard | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts selectPoint(…, keyboard) Enter on focused mark; closeDetail returns focus to the point |
+| 4.3.1 | Detail shows the story title when known | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts showsDetail heading is the story title |
+| 4.3.2 | Detail shows the story identity when known | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts showsDetail line includes SEED-42 identity |
+| 4.3.3 | Detail shows the project | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts showsDetail line includes project label Open Dough |
+| 4.3.4 | Detail shows the launch workflow | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts showsDetail line includes launch workflow Execution |
+| 4.3.5 | Detail shows the outcome, or "Outcome unknown" | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts Returned to backlog, Completed, Outcome unknown |
+| 4.3.6 | Detail shows the end time | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts Ended time[datetime] |
+| 4.3.7 | Detail shows the requested model when known | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts Requested model GPT-6.1 Sol; absent for recovered task; dashboard/backend-tests/usage-history/token-index-detail.spec.ts requested Astra |
+| 4.3.8 | Detail shows the requested effort when known | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts requested high effort; dashboard/backend-tests/usage-history/token-index-detail.spec.ts requested high |
+| 4.3.9 | Detail shows the primary observed model | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts Observed model; dashboard/backend-tests/usage-history/token-index-detail.spec.ts observed |
+| 4.3.10 | Detail shows the primary observed effort | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts Observed effort; dashboard/backend-tests/usage-history/token-index-detail.spec.ts observed |
+| 4.3.11 | Detail shows the index | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts Token index figure in detail |
+| 4.3.12 | Detail shows the coverage | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts Coverage No known gaps (partial variant owned by slice 4 commitments 5.6, 16.1) |
+| 4.4 | The chart response carries the detail it needs | slice 3 | observed: dashboard/src/usageTokenIndex.ts TokenIndexTask carries every detail field in the chart answer |
 | 5.1 | Measure the entire task as far as the evidence allows | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts with-worker index sums root, resumed turn and worker responses |
 | 5.2 | Include all uniquely associated responses | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts with-worker index sums every associated response |
 | 5.2.1 | …including resumed turns | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts resumed-turn response included in with-worker index |
@@ -115,11 +115,11 @@ allocation.
 | 12.3 | Deferred: tasks of unknown origin | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts unknown-origin task absent |
 | 12.4 | Deferred: tasks of native origin | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts native-origin task absent |
 | 12.5 | Deferred: unassigned usage | slice 1 | observed: dashboard/server/usageTaskSummary.ts reads only associations with a dashboard Codex task |
-| 12.6 | Deferred: a browsable task history | slice 3 | |
-| 12.7 | Deferred: task lists | slice 3 | |
-| 12.8 | Deferred: a separate task-detail service | slice 3 | |
-| 12.9 | Deferred: per-session usage on Board or Sessions sidebar entries | slice 3 | |
-| 12.10 | Deferred: live in-progress usage | slice 3 | |
+| 12.6 | Deferred: a browsable task history | slice 3 | observed: no task history built (dashboard/src/UsageTaskDetail.tsx shows one task) |
+| 12.7 | Deferred: task lists | slice 3 | observed: no task list built |
+| 12.8 | Deferred: a separate task-detail service | slice 3 | observed: no task-detail service; detail rides on GET /__usage/token-index |
+| 12.9 | Deferred: per-session usage on Board or Sessions sidebar entries | slice 3 | observed: no per-session usage on Board or Sessions sidebar |
+| 12.10 | Deferred: live in-progress usage | slice 3 | observed: no live in-progress usage: unfinished launches not plotted (dashboard/backend-tests/usage-history/token-index-detail.spec.ts test 1) |
 | 12.11 | Deferred: automatic or scheduled refresh | slice 5 | |
 | 12.12 | Deferred: billing reconciliation | slice 5 | |
 | 12.13 | Deferred: account usage APIs | slice 5 | |
@@ -132,9 +132,9 @@ allocation.
 | 14.2 | A GPT-6 Astra worker inside a GPT-6.1 Sol task is weighted at Astra's rates | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts with-worker Astra worker at Astra rates; e2e/configuration/system-settings-usage.spec.ts Nov 8 readout |
 | 14.3 | Switching to Refinement changes the points and the average | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts choose Launch workflow Refinement: showsPoints(refinements), showsAverage(averageOf(refinements)) |
 | 14.4 | Choosing GPT-6 Astra keeps only tasks whose root mostly ran on Astra | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts choose Model GPT-6 Astra: showsPoints(astraRefinements) |
-| 15.1 | A story launched twice (once returned to the backlog, once completed) shows two points with their own outcomes | slice 3 | |
-| 15.2 | A recovered October task without a reported outcome is a point with "Outcome unknown" | slice 3 | |
-| 15.3 | A launch not marked done and with no reported outcome is not plotted yet | slice 3 | |
+| 15.1 | A story launched twice (once returned to the backlog, once completed) shows two points with their own outcomes | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts story launched twice: Returned to backlog and Completed points |
+| 15.2 | A recovered October task without a reported outcome is a point with "Outcome unknown" | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts recovered October task shows Outcome unknown |
+| 15.3 | A launch not marked done and with no reported outcome is not plotted yet | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-detail.spec.ts test 1 and e2e/configuration/system-settings-usage-detail.spec.ts: unfinished launch not plotted until marked done |
 | 16.1 | An unattributed worker gap gives a partial mark, "Partial" with the gap in detail, and the task stays out of the line | slice 4 | |
 | 16.2 | One fast-tier response gives no point and adds one unpriced task to the cohort note | slice 4 | |
 | 16.3 | Nine eligible tasks show the points and "Fewer than 10 eligible tasks" | slice 4 | |
