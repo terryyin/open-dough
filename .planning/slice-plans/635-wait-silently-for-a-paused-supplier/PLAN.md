@@ -2,6 +2,7 @@
 
 **Identity:** SEED-368#reduce-model-work-during-prolonged-supplier-waiting
 **Source:** [story](../../seeds/SEED-368-third-blocked-execution-attempt.md#reduce-model-work-during-prolonged-supplier-waiting)
+**Source review:** [source commitments](source-review.md)
 
 ## Goal and scope
 
@@ -65,7 +66,7 @@ from `/opt/homebrew/bin`; scratch files reverted.
 
 ### 1. A watched publication or the deadline ends one silent wait
 Type: Behavior
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh Distribution/tests/skills/dough-execute-plan/wait-for-publication.test.mjs`, red before the command exists; `bash scripts/test.sh Distribution/tests/installation/payload-declaration-links.sh`.
 
 Behavior: a checkout with a reachable remote → `wait-for-publication.mjs`
@@ -133,5 +134,23 @@ guidance otherwise. The evidence the story observed moves here from the seed.
   open under `caffeinate -i` and read the sleep log afterwards.
 - [Failing and flaky test policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
   applies as written, in every delegation brief and repair handoff.
+- Slice 1 delivered contract, for slice 2: run in the watching checkout
+  `node <installed-execute-plan>/scripts/wait-for-publication.mjs --remote REMOTE --ref REF [--ref REF]... [--path PATH]... [--duration-minutes MINUTES | --deadline ISO_TIME]`.
+  It prints one JSON line and exits 0: `{"result":"publication","remote",…,"changes":[{"ref","path"?,"before","after"}],"deadline"}`
+  or `{"result":"deadline","remote","deadline"}`; pass the returned `deadline`
+  to `--deadline` on a rerun. A first unreadable observation exits 1; a usage
+  error exits 2. The observation interval defaults to 60 seconds
+  (`--interval-seconds`), chosen in slice 1. Each run compares against its own
+  first observation.
+- Slice 1 accepted proof: the focused test (10 tests) and the payload
+  declaration and installation checks named in its return; refactor pass
+  complete.
 - Refinement: not needed; three slices, each one outcome and one proof loop.
 - Remaining slice-specific concerns: none identified in this review.
+
+## Story obligations
+
+### G1. A second fetch in the watching checkout can end the wait early
+Reported: slice 1 — "Another process fetching in the same checkout between its fetch and its `rev-parse` could cause a spurious publication result. The cost is one extra judgment and a rerun."
+Story clause: "at no other time"
+Disposition: no user cost "the unchanged wait costs almost no model work": `FETCH_HEAD` belongs to one worktree, and the holding coordinator runs no command in it while it awaits the wait (the other fetching scripts run only inside coordinator operations), so nothing reaches the window in a watch; if something did, the wait ends once, the unchanged agreement keeps the hold, and the rerun continues to the same deadline.
