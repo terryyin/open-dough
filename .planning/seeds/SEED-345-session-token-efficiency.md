@@ -182,7 +182,7 @@ commitment.
   kept 315 hand-backs, median 7.8k characters, for the whole session.
 - **Effort and boundary.** Medium, medium confidence. Keep every required
   proof row ([ODF-314](../../docs/maintainer/findings/ODF-314.md)). The
-  [source-review bookkeeping story](SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises)
+  [source-review bookkeeping story](https://github.com/terryyin/open-dough/blob/b6b6d04c9162a30619c3fd59c8e220d523455004/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises)
   owns promise allocation.
   [Output and diagnostic evidence](../../docs/maintainer/session-token-efficiency-research.md#2-return-decision-sized-evidence-and-retain-the-full-artifacts)
 

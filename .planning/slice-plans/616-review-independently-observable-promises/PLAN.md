@@ -217,10 +217,10 @@ CI run 43733702195's Board launch synchronization repair and faithful failing ob
 - Originating/execution checkout: `/Users/terryyin/git/open-dough/.worktrees/record-source-review-evidence-once-per-independe`; owned branch `codex/record-source-review-evidence-once-per-independe`.
 - Default integration checkout: `/Users/terryyin/git/open-dough`; authorized target `origin/main`.
 - Established claim accepted on trunk and execution branch: `7bb9992277410f6b5c3ba8da0b461c3c61939a84`; starting revision `65fcf1bafe89d591f3b387c2cefd361c72f7b510`; initial candidate equals claim.
-- Latest accepted branch revision: `c6eabcac7f6301062c756df32b45831b0072f8fe`; suffix base `10cebdb8e804c52626805b1e42164985229680e4`; observer reused. Slice 1 delivery repaired an EOF blank line before its successful commit; semantic proof unchanged.
+- Latest accepted branch revision: `b6b6d04c9162a30619c3fd59c8e220d523455004`; suffix base `c6eabcac7f6301062c756df32b45831b0072f8fe`; observer reused. Slice 1 delivery repaired an EOF blank line before its successful commit; semantic proof unchanged.
 - Setup: locked `npm ci --no-audit --no-fund` and `npm run --silent lint -- --staged` passed in this checkout. Check-only commit hook owns staged lint and dashboard typecheck for scripts. Selective formatter: `npm run format`; prose triggers no generation. Runner needs Bash 5: `PATH="/opt/homebrew/bin:$PATH" npm test -- …`.
 - Replanning: no new overrun permission; retain existing planning authority; changed scope/consequential decisions stop the affected work.
-- CI: GitHub `terryyin/open-dough`, verified `ci.yml` / `CI`, remote execution branch. Codex coordinator `sola-chan-616`; `/tmp/dough-ci-501/watch-hqI9ru`; PID `71264`; session `83233`; yielded cell `g464:11`. Claim trunk CI is unobserved by this branch observer. Retain for every increment/repair.
+- CI: GitHub `terryyin/open-dough`, verified `ci.yml` / `CI`, remote execution branch. Codex coordinator `sola-chan-616`; `/tmp/dough-ci-501/watch-hqI9ru`; PID `71264`; session `83233`; yielded cell `g464:11`. Claim trunk CI was unobserved by this branch observer. Execution completion: b6b6d04 passed exact run 43736382092/1 with confirmed shutdown; this observer ended.
 
 ## Accepted slice evidence
 

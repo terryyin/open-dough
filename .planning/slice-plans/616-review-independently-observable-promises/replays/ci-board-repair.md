@@ -53,7 +53,9 @@ memory and AC power. One worker under the maintained sleep guard was bounded;
 another worktree's named proof remained with its unknown owner. Native setup
 check passed with matching pinned Node/Playwright and Chromium 158.0.8127.18.
 No timeout override, sleep or rerun-until-green was used. Active repair about
-five minutes. Original guidance/replay proof remains valid; final applicable
-CI after repair publication is still required.
+five minutes. Original guidance/replay proof remains valid. Exact branch CI
+for `b6b6d04c9162a30619c3fd59c8e220d523455004` succeeded in run
+[43736382092/1](https://github.com/terryyin/open-dough/actions/runs/43736382092),
+with confirmed observer shutdown. Trunk integration still needs its own receipt.
 Independent refactor completed with no edits; all 84 consumer dispositions and
 the accepted native proof remained applicable, with no rerun.
