@@ -32,6 +32,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Fixed pattern shards for the Distribution suite](seeds/SEED-381-fixed-ci-test-shards.md#fixed-pattern-shards-for-the-distribution-suite) — SEED-381#fixed-pattern-shards-for-the-distribution-suite
+- [Fixed shards for browser tests and on-demand rebalancing](seeds/SEED-381-fixed-ci-test-shards.md#fixed-shards-for-browser-tests-and-on-demand-rebalancing) — SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing
 - [Speed up the slowest dashboard frontend unit tests](seeds/SEED-380-speed-up-the-slowest-dashboard-frontend-unit-tests.md#speed-up-the-slowest-dashboard-frontend-unit-tests) — SEED-380#speed-up-the-slowest-dashboard-frontend-unit-tests
 - [Review changes from completed ad hoc sessions](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions) — SEED-379#review-changes-from-completed-ad-hoc-sessions
 - [Restore three-share test budget headroom](seeds/SEED-378-restore-three-share-test-budget-headroom.md#restore-three-share-test-budget-headroom) — SEED-378#restore-three-share-test-budget-headroom
