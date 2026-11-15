@@ -1,6 +1,7 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import assert from "node:assert/strict";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { repository, until } from "./local-test-suite-fixtures.mjs";
+import { repository, succeeded, until } from "./local-test-suite-fixtures.mjs";
 
 // How many controlled checks have marked their start in `observation`.
 export function startedChecks(observation) {
@@ -73,6 +74,41 @@ export function repositoryAtSlotGate(t, project, observation, limit, env = {}) {
     env,
   );
   return { ...run, gate: atGate() };
+}
+
+// Holds every job slot with work still queued, checks that reading, releases,
+// and finishes so every queued check eventually starts. `expectedDispatched`
+// is an exact count, or `"bounded"` for at least one and fewer than all.
+export async function repositoryThroughHeldSlots(
+  t,
+  project,
+  observation,
+  { limit, env = {}, totalChecks, expectedDispatched },
+) {
+  const label = path.basename(observation);
+  const run = repositoryAtSlotGate(t, project, observation, limit, env);
+  const started = () => startedChecks(observation);
+  const dispatched = await run.gate;
+  if (expectedDispatched === "bounded") {
+    assert.ok(
+      dispatched >= 1,
+      `${label}: at least one job dispatched (${dispatched})`,
+    );
+    assert.ok(
+      dispatched < totalChecks,
+      `${label}: fewer than all ${totalChecks} jobs before a slot frees (${dispatched})`,
+    );
+  } else {
+    assert.equal(dispatched, expectedDispatched, `${label}: jobs dispatched`);
+  }
+  await until(
+    `${label}: ${dispatched} jobs entered`,
+    () => started() === dispatched || run.child.exitCode !== null,
+  );
+  assert.equal(started(), dispatched, run.output());
+  writeFileSync(path.join(observation, "release"), "");
+  await succeeded(run);
+  assert.equal(started(), totalChecks);
 }
 
 // `gate` resolves with the admission record id of the live owner that blocks

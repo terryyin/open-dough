@@ -4,9 +4,7 @@
 // behind its closed Refinement options disclosure, with its label and summary,
 // and follows a changed definition with no code change; selecting entries
 // shows their flags in the command line under Command details and starts the
-// session with those flags, and nothing selected is today's dialog and launch. No other dialog offers options. The
-// definition this repository ships is checked against the shared schema in
-// ../../backend-tests/launches/agent-launch-options-rules.spec.ts.
+// session with those flags, and nothing selected is today's dialog and launch. No other dialog offers options.
 // The synthetic `claude` (./fixtures/fake-claude) stands in for the real one.
 // How the boundary honors a selection is ../../backend-tests/launches/agent-launch-options-boundary.spec.ts.
 

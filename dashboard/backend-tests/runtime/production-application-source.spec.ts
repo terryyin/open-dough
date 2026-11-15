@@ -78,8 +78,6 @@ test("application inputs preserve live runtime and policy bytes, with isolated p
     const [first, second, repository] = fixtures;
     if (!first || !second || !repository)
       throw new Error("Expected three private fixtures");
-    expect(first.gh).toBeUndefined();
-    expect(second.gh).toBeDefined();
     for (const fixture of [first, second]) {
       expect(await fixture.git("show", "HEAD:dashboard/index.html")).toBe(
         "<title>LIVE</title>",

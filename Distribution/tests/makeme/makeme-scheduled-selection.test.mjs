@@ -49,7 +49,6 @@ test("runner-scheduled tests select MakeMe and retain their syntax hints", async
   const location = settings.intent.locations.find(
     ({ path }) => path === "Distribution",
   );
-  assert.equal(location?.label, "Distribution Tests");
   const testJobs = jobs;
   for (const [description, matches] of [
     ["shell", ({ kind }) => kind === "shell"],

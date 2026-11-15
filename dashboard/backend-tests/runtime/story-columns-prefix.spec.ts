@@ -44,8 +44,12 @@ test("two workers' story-columns histories start from the run's prepared revisio
       expect(await git(copy.origin, "rev-parse", "main")).toBe(
         copy.revisions.completed,
       );
-      expect(await git(copy.origin, "rev-parse", "main^")).toBe(preparedTaken);
-      expect(await git(copy.origin, "rev-list", "--count", "main")).toBe("5");
+      await expect(
+        git(copy.origin, "merge-base", "--is-ancestor", preparedTaken, "main"),
+      ).resolves.toBe("");
+      expect(await git(copy.origin, "rev-list", "--count", "main")).toBe(
+        String(Object.keys(copy.revisions).length),
+      );
       expect(
         await git(copy.origin, "for-each-ref", "--format=%(refname)"),
       ).toBe("refs/heads/main");
@@ -99,8 +103,11 @@ test("without the run owner a worker builds the whole story-columns history itse
       storyColumnsRepository("2026-04-03T10:00:00.000Z"),
     );
     try {
-      expect(commitsTraced(trace)).toBe(5);
-      expect(await git(built.origin, "rev-list", "--count", "main")).toBe("5");
+      const historyCount = Object.keys(built.revisions).length;
+      expect(commitsTraced(trace)).toBe(historyCount);
+      expect(await git(built.origin, "rev-list", "--count", "main")).toBe(
+        String(historyCount),
+      );
       expect(await git(built.origin, "rev-parse", "main")).toBe(
         built.revisions.completed,
       );

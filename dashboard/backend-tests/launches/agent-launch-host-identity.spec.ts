@@ -4,7 +4,10 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { machineRecordNames } from "../../tests/support/machineRecordNames.ts";
+import {
+  expectUnchangedMachineRecords,
+  snapshotMachineRecords,
+} from "../../tests/support/machineRecordNames.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -54,6 +57,12 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
         workspaceState: { kind: "unknown" },
       },
     ]);
+    const recordsFolder = path.dirname(launchStoreFile(home));
+    // Snapshot before host-qualified actions rewrite the launch store; other
+    // machine records must stay put (no quarantined copy beside them).
+    const machineRecordsBefore = snapshotMachineRecords(recordsFolder, {
+      omitContentFor: [path.basename(launchStoreFile(home))],
+    });
     const before = server.claudeCalls().length;
     const done = await markDone(server, {
       source: "open-dough",
@@ -100,16 +109,7 @@ test("predecessor Claude evidence and an equal ID from another host retain disti
       expect(record).not.toHaveProperty("sessionState");
       expect(record).not.toHaveProperty("workspaceState");
     }
-    // The runner's address and log, the notification sender and the
-    // incident record sit beside the store. They are not a quarantined copy
-    // of these records.
-    expect(machineRecordNames(path.dirname(launchStoreFile(home)))).toEqual([
-      "agent-launches.json",
-      "cursor-runner.json",
-      "cursor-runner.log",
-      "notifier",
-      "projects-production.json",
-    ]);
+    expectUnchangedMachineRecords(recordsFolder, machineRecordsBefore);
     const deleted = await deleteRecord(server, {
       source: "open-dough",
       session: sessionId,

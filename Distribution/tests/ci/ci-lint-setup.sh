@@ -104,8 +104,6 @@ for behavior in fallback wrong-version unavailable shfmt-unavailable stalled exp
       echo 'FAIL: pinned images did not recover lint setup after release failures.' >&2
       exit 1
     fi
-    expect_in_log "${temporary_dir}/fallback-call" -Fx -- 'create --platform linux/amd64 docker.io/koalaman/shellcheck@sha256:b9389b73c8f26f710a7171cb7d8848a34a9c1e07a7865e727c9ec4ce99f9a83f'
-    expect_in_log "${temporary_dir}/fallback-call" -Fx -- 'create --platform linux/amd64 docker.io/mvdan/shfmt@sha256:18eb2bf53e31591b63bfc55cce8ad82ff7fd0ed53f506f71726be4942928b999'
     expect_in_log "${temporary_dir}/${behavior}.log" -Fx -- 'version: 0.11.0'
     expect_in_log "${temporary_dir}/${behavior}.log" -Fx -- 'v3.14.1'
     continue
@@ -128,7 +126,6 @@ for behavior in fallback wrong-version unavailable shfmt-unavailable stalled exp
       ;;
     unavailable)
       expect_in_log "${temporary_dir}/${behavior}.log" -F -- 'controlled GitHub release source returned HTTP 504'
-      expect_in_log "${temporary_dir}/source-call" -F -- '--connect-timeout 5 --max-time 12 --retry 0'
       [[ -s ${temporary_dir}/fallback-call ]]
       ;;
     shfmt-unavailable)

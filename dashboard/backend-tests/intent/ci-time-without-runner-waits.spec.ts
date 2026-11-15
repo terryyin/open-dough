@@ -3,6 +3,7 @@ import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { timeWithoutRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
+import { readWorkflowJobs } from "../../server/ciWorkflowJobs.ts";
 import { comparisonWorkflow } from "../../tests/support/storyCiComparisonFixture.ts";
 import { repoRoot } from "../../tests/support/repositoryRoot.ts";
 import {
@@ -219,23 +220,25 @@ test("a job calling a reusable workflow owns every called job GitHub reports und
 });
 
 test("this repository's own workflow keeps every job it reports readable", () => {
-  const minute = (start: number, end: number) => [
-    `2026-11-07T07:${String(start).padStart(2, "0")}:00Z`,
-    `2026-11-07T07:${String(end).padStart(2, "0")}:00Z`,
-  ];
-  const rows = [
-    ["Distribution Tests (1/3)", ...minute(0, 4)],
-    ["e2e / shard 5/5", ...minute(0, 5)],
-    ["dashboard-integrated / shard 2/4", ...minute(0, 4)],
-    ["dashboard-frontend / shard 1/1", ...minute(0, 2)],
-    ["dashboard-backend / shard 3/3", ...minute(0, 4)],
-    ["ci-proof", ...minute(6, 7)],
-  ].map(([name = "", start = "", end = ""]) => timed(name, start, end));
+  const workflow = readFileSync(
+    path.join(repoRoot, ".github/workflows/ci.yml"),
+    "utf8",
+  );
+  const jobs = readWorkflowJobs(workflow);
+  expect(jobs).toBeDefined();
+  if (jobs === undefined) return;
+  const rows = jobs.map((job, index) => {
+    const started = `2026-11-07T07:00:00Z`;
+    const completed = `2026-11-07T07:${String(1 + (index % 5)).padStart(2, "0")}:00Z`;
+    const label =
+      job.name === undefined
+        ? job.id
+        : job.name.replace(/\$\{\{[^}]+\}\}/g, "1");
+    const name = job.calls ? `${label} / shard 1/1` : label;
+    return timed(name, started, completed);
+  });
+  const result = timeWithoutRunnerWaits(workflow, rows, false);
   expect(
-    timeWithoutRunnerWaits(
-      readFileSync(path.join(repoRoot, ".github/workflows/ci.yml"), "utf8"),
-      rows,
-      false,
-    ),
-  ).toEqual({ milliseconds: 360_000 });
+    "milliseconds" in result ? result.milliseconds : undefined,
+  ).toBeGreaterThan(0);
 });

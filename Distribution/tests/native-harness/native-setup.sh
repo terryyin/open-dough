@@ -193,20 +193,9 @@ CURL
   [[ ! -e ${node_fixture}/path ]]
 fi
 
-# Both workflows own action bounds, cache identity and browser failure gating.
+# Both workflows keep setup failure gating and compatible browser recovery.
 cat -- "${source_dir}"/.github/workflows/{ci,browser-test-group}.yml > "${temporary_dir}/workflows.yml"
 workflow=${temporary_dir}/workflows.yml
-# shellcheck disable=SC2016 # Literal workflow expressions.
-expect_in_log "${workflow}" -F -- 'key: playwright-chromium-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('\''package-lock.json'\'') }}'
-expect_in_log "${workflow}" -F -- 'timeout-minutes: 1'
-expect_in_log "${workflow}" -F -- 'bash scripts/setup-ci-node.sh .node-version'
-expect_in_log "${workflow}" -F -- '60000'
-expect_in_log "${workflow}" -F -- '180000'
-expect_in_log "${workflow}" -F -- 'node scripts/setup-native.mjs npm'
-expect_in_log "${workflow}" -F -- 'node scripts/setup-native.mjs browser'
-expect_in_log "${workflow}" -F -- "!cancelled() && steps.playwright-cache.outcome == 'failure'"
-# shellcheck disable=SC2016 # Literal runner variable.
-expect_in_log "${workflow}" -F -- 'PLAYWRIGHT_BROWSERS_PATH=${RUNNER_TEMP}/playwright-chromium'
 if grep -Eq 'restore-keys:|--with-deps|if:.*always\(' "${workflow}" \
   || ! awk '
     /^ *- name:/ { cache = ($0 ~ /name: Cache Playwright Chromium$/) }

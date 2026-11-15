@@ -122,15 +122,6 @@ export const summaryStep = steps(workflowJobs.get("ci-proof")).find((step) =>
   step.includes("uses: ./.github/actions/ci-proof-summary\n"),
 );
 
-// The summary action's optional frontend proof upload step body, when present.
-export const frontendProofUploadStep = summaryAction.includes(
-  "name: Keep the frontend test proof\n",
-)
-  ? summaryAction.slice(
-      summaryAction.indexOf("    - name: Keep the frontend test proof\n"),
-    )
-  : "";
-
 // JOB's PART on the runner TEMP as ci.yml declares it: its fragments step's
 // inputs, and where its suite step has the runner write a report named by
 // the step's environment VARIABLE. PARTS replaces the job's part count when a
