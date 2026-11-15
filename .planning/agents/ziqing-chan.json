@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-369#make-recent-token-usage-easier-to-read",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
