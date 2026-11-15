@@ -45,6 +45,7 @@ export function ConfiguredDashboard({
     parseRoute(window.location, projects).route.source,
   );
   const {
+    connection,
     source,
     work,
     shown,
@@ -88,8 +89,7 @@ export function ConfiguredDashboard({
     onDashboardReady({ source, select: selectProject });
   });
 
-  // Intent replaces Development's content and keeps its view to return to;
-  // the mounted Board, the Sessions sidebar and the Side panel stay.
+  // Intent and roster replace content; the mounted Board and Side panel stay.
   const showsIntent = source !== undefined && route.perspective === "intent";
   const showsRoster =
     source !== undefined && !showsIntent && route.view === "roster";
@@ -114,6 +114,7 @@ export function ConfiguredDashboard({
             navigate={openFollowUp}
           />
           <DashboardBanner
+            connection={connection}
             source={source}
             perspective={route.perspective}
             onOpenSettings={onOpenSettings}

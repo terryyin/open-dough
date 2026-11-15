@@ -3,19 +3,21 @@
 **Identity:** SEED-372#see-dashboard-connection-status-on-return
 **Source:** [See dashboard connection status when returning to the window](../../seeds/SEED-372-dashboard-connection-status-on-return.md#see-dashboard-connection-status-on-return)
 
+**Source review:** [Source commitments](source-review.md)
+
 ## Goal and scope
 
-A returning developer sees a small yellow/green dot showing whether dashboard
-update delivery has been confirmed since the latest return. A received stream
+A returning developer sees the door logo border in yellow while awaiting confirmation, green when dashboard
+update delivery has been confirmed since the latest return, and red after known
+delivery loss. A received stream
 message or successful HTTP fallback check supplies confirmation. Window focus
 and document reveal reset it; earlier successes and opening alone cannot.
 Preserve an already-held stream, passive waiting, hidden-page suspension,
 stream-slot limits, recovery pacing, rate limits, and the displayed snapshot.
-Known delivery loss clears confirmation through the existing health signals.
+Known delivery loss clears confirmation and turns the border red through existing health signals.
 
 No added focus-triggered request, forced healthy reconnect, heartbeat protocol,
-new health timeout, upstream retry redesign, manual reconnect control, additional
-color, or per-section health system. Green means post-return delivery, not that
+new health timeout, upstream retry redesign, manual reconnect control, per-section health system. Green means post-return delivery, not that
 all displayed data is current. Existing freshness/error cues retain their own
 meaning. This plan authorizes no implementation by itself.
 
@@ -41,7 +43,7 @@ PFE at `21c2bad7f48c25ab1c900d7ad4a8fb884524ba15`:
 | HTTP fallback delivery | Extend `revisionCheckSchedule.ts` through the same confirmation boundary; ordinary successful answers confirm. Preserve its existing reveal, cancellation, pace and rate-limit rules. |
 | Page suspension | Reuse `pageVisibility.ts` for hidden/revealed state. Window focus is a separate return signal; do not feed a new focus generation into delivery-effect dependencies and thereby reopen a healthy stream. |
 | Selected-source observation | Keep one ephemeral confirmation state with the active source and return generation alongside `publishedObservation.ts`. Ignore callbacks from a departed source/connection. Do not copy snapshot retrieval time into confirmation. |
-| Display and accessible meaning | Integrate the small noninteractive dot with `PublishedReadStatus.tsx`/existing dashboard chrome. Supply accessible unconfirmed/confirmed-since-return wording, keep focus and geometry stable, and preserve existing announcements and problems. |
+| Display and accessible meaning | Color the existing `ProductMark.tsx` door outline through `SessionsButton` in the dashboard chrome. Supply accessible awaiting/confirmed/disconnected wording, keep focus and geometry stable, and preserve existing announcements and problems. |
 | Terminal connection feedback | `useTerminalRecovery.ts` owns a different connection and user-operated reconnect. Reuse no terminal status as dashboard health. |
 
 Expected TS/UI files are currently below 250 lines: `revisionStreamSchedule.ts`
@@ -67,22 +69,13 @@ than a full suite. Both strict verdicts passed. No scratch edit remains.
 | --- | --- | --- |
 | A focus return can retain the real stream without prompting an update (slice 1). | Command A's disposable `preparation:` browser probe opened the real preview, held the origin's next listing, dispatched window blur/focus, and advanced page time one second. | Zero extra stream opens or `since` requests. The probe was removed before record writes; the new indicator still needs slice 1 proof. |
 | Hide/reveal reaches the actual release and reopen owners (slice 1). | Command A's maintained `revision-stream-visibility.spec.ts` case observed request failure on hide, sole-subscriber listing cessation, then reopened delivery and an answer on reveal. | Passed; no assumption that visible loss of focus is document hiding. |
-| Existing recovery can retain content and recover without a new timer (slice 1). | Command A's maintained failed-opens case in `revision-stream-lost.spec.ts` observed 45-second silence, paced reopens, snapshot retention and eventual catch-up. | Passed. New dot transitions remain owned by the new journey, not this baseline. |
+| Existing recovery can retain content and recover without a new timer (slice 1). | Command A's maintained failed-opens case in `revision-stream-lost.spec.ts` observed 45-second silence, paced reopens, snapshot retention and eventual catch-up. | Passed. New logo border transitions remain owned by the new journey, not this baseline. |
 | HTTP fallback has a working prompt reveal and subsequent pace (slice 2). | Command B ran both `auto-refresh-visibility.spec.ts` browser journeys against the real preview/server/fake GitHub boundary, including an outstanding content read across hide/reveal. | Two passed: no hidden checks, one prompt reveal check, pace resumed, stale wait ignored and later revision displayed. Focus-only confirmation must add no request. |
-| Status changes have existing enclosing observers (both slices). | Inspected `dashboardParts.ts` (`notice` selects all explicit polite live regions) and `dashboardPage.ts` (`expectSnapshotButtons` checks whole-page button counts; snapshot helpers assert retained revision/time and membership). | Add no interactive dot control. Preserve announcement meaning and inspect aggregate consumers when adding status text. These reads locate obligations, not evidence that a new rendering already passes them. |
+| Status changes have existing enclosing observers (both slices). | Inspected `dashboardParts.ts` (`notice` selects all explicit polite live regions) and `dashboardPage.ts` (`expectSnapshotButtons` checks whole-page button counts; snapshot helpers assert retained revision/time and membership). | Add no interactive logo border control. Preserve announcement meaning and inspect aggregate consumers when adding status text. These reads locate obligations, not evidence that a new rendering already passes them. |
 
-```sh
-# A: three passing cases, including disposable preparation instrumentation
-OPEN_DOUGH_E2E_PROOF_RECORD=/tmp/seed372-baseline-proof.json caffeinate -s -i npm run test:e2e -- e2e/observation/revision-stream-return.spec.ts e2e/observation/revision-stream-visibility.spec.ts e2e/observation/revision-stream-lost.spec.ts --grep 'preparation:|hiding closes|failed stream opens' --workers=1
-# B: two maintained HTTP fallback journeys
-OPEN_DOUGH_E2E_PROOF_RECORD=/tmp/seed372-fallback-proof.json caffeinate -s -i npm run test:e2e -- e2e/observation/auto-refresh-visibility.spec.ts --workers=1
-```
-
-Command A is a retained observation, not a directly replayable final test:
-its disposable probe has been deleted. Execution supplies the new maintained
-journey and independently records its result. No paid, credentialed, native
-developer-operated, or infrastructure probe is required. The new confirmation
-projection is implementation work, not a claim that it exists today.
+The seed retains literal baseline commands A and B. A's disposable probe was
+removed; execution supplies maintained new behavior proof. No paid,
+credentialed, native or infrastructure probe is required.
 
 ## Outside-in proof ownership
 
@@ -92,19 +85,19 @@ projection is implementation work, not a claim that it exists today.
 | Preserve a healthy held stream and wait passively | Slice 1: record stream identity/open count before return; retain it through confirmation. Do not supply confirmation through a fixture or directly invoke the new state owner. |
 | Resume a missing stream, wait through establishment, recover while retaining snapshot | Slice 1: hide/reveal and failed-open recovery cases with opening held separately from first data; yellow until data, snapshot revision/time and focus retained. Reuse existing controlled page clock and stream boundary. |
 | Latest return wins; stale source/connection cannot confirm current delivery | Slice 1: return twice around a held answer, then switch sources while an earlier answer is outstanding; only receipt on the active observation after its latest return can confirm. Deliberate read/cleanup does not manufacture a failure. |
-| Known delivery loss clears confirmation; upstream freshness stays separate | Slice 1: confirm, stop delivery, advance the existing silence bound or deliver transport failure, observe yellow and existing recovery; a received upstream problem must retain its own notice and snapshot evidence. |
+| Known delivery loss clears confirmation; upstream freshness stays separate | Slice 1: confirm, stop delivery, advance the existing silence bound or deliver transport failure, observe red and existing recovery; a received upstream problem must retain its own notice and snapshot evidence. |
 | HTTP fallback follows the same receipt rule without extra traffic | Slice 2: occupy stream slots using the established fixture, return focus after an earlier successful check, observe yellow until the next normal successful response, then green. Hide/reveal retains exactly its existing prompt check and pacing; failed/cancelled responses do not confirm. |
 | Small accessible signal, no focus movement or disruptive layout/announcement change | Slice 1 and retained by slice 2: observe text alternative and visible color, keyboard focus, existing read/failure announcements, snapshot retrieval time and whole-page button counts at the real page boundary. |
 
 Disable each new transition in a scratch change during execution to show its
 new journey fails, then restore and pass. Existing baseline tests alone are
-not discrimination for the new dot.
+not discrimination for the new logo border.
 
 ## Ordered slices
 
 ### 1. Confirm a streaming dashboard after returning
 Type: Behavior
-Status: planned
+Status: done
 Proof: Stream promises in the table through new
 `e2e/observation/revision-stream-return.spec.ts`, plus existing stream
 visibility/lost/stopped journeys and reached rendering consumers.
@@ -117,17 +110,26 @@ stays yellow. Repeat returns, source departure and transport loss keep the
 signal truthful while existing content and feedback stay readable.
 
 Introduce the single source-scoped confirmation owner and bind actual receipt
-and transport-loss events to it. Render the dot with accessible meaning and
+and transport-loss events to it. Color the existing door outline with accessible meaning and
 preserve the current read/failure feedback. Keep cleanup and callback freshness
 with their lifecycle owners. Judge receipt against the current return boundary,
 not the generation when the stream opened or check began: a held operation's
 answer received after return can confirm it. Apply any necessary cohesive observation/chrome
 extraction within this slice. Update the maintained observation contract.
 
-Interim boundary: HTTP-check pages keep their current feedback and no new dot
+Interim boundary: HTTP-check pages keep their current feedback and no new logo border
 until immediately following slice 2 joins them to the same confirmation owner.
 Do not introduce a second state model or change fallback scheduling meanwhile.
 One stream-confirmation proof loop; target 15 active minutes, commands excluded.
+
+Accepted slice-1 evidence (11 active minutes):
+- `OPEN_DOUGH_E2E_PROOF_RECORD=/tmp/seed372-stream-accepted-proof.json caffeinate -s -i npm run test:e2e -- e2e/observation/revision-stream-return.spec.ts --workers=1`: six strict passes. Real held answers/headers, source switch, error/silence, focus/reveal, snapshot, geometry, focus and aggregate announcement assertions inspected.
+- `OPEN_DOUGH_E2E_PROOF_RECORD=/tmp/seed372-stream-final-proof.json caffeinate -s -i npm run test:e2e -- e2e/observation/revision-stream-return.spec.ts e2e/observation/revision-stream-visibility.spec.ts e2e/observation/revision-stream-lost.spec.ts e2e/observation/revision-stream-stopped.spec.ts e2e/navigation/dashboard-header.spec.ts e2e/navigation/dashboard-header-compact.spec.ts e2e/sessions/sessions-sidebar.spec.ts --workers=1`: 12 strict passes; nonexistent E2E header paths selected nothing, covered below instead.
+- `OPEN_DOUGH_E2E_PROOF_RECORD=/tmp/seed372-header-proof.json caffeinate -s -i npm run test:dashboard:integrated -- dashboard/tests/navigation/dashboard-header.spec.ts dashboard/tests/navigation/dashboard-header-compact.spec.ts dashboard/tests/navigation/frame-board-look.spec.ts --workers=1`: exit 0; inspected actual header/frame assertions. That E2E environment variable produced no integrated JSON.
+- `npm run typecheck:dashboard && npm run build:dashboard`: pass. New-test-only later synchronization edits preserve maintained consumer proof.
+- `/tmp/seed372-mutation-{focus,receipt,loss}-v2-proof.json`: each selected one test and failed at its intended accessible transition; restored six-case command above passed. Earlier zero-selection mutations and stale proof-file runs are not evidence.
+- Independent refactor complete: extracted `e2e/observation/connectionMark.ts`; six strict passes with `OPEN_DOUGH_E2E_PROOF_RECORD=/tmp/seed372-stream-refactor-proof.json caffeinate -s -i npm run test:e2e -- e2e/observation/revision-stream-return.spec.ts --workers=1`. Consumers `/tmp/seed372-stream-consumers.md` and `/tmp/seed372-refactor-consumers.md` dispositioned. Screenshots `/tmp/seed372-logo-{yellow,green,red}.png` inspected: silhouette colors, stable mark.
+- Source freshness unchanged at trunk `de9dff847bb65d54a8eff6b51d6e3386f30d4302`; intervening work is other stories' preparation/Take, no dashboard or named GitHub-retry sibling change.
 
 ### 2. Confirm updates through the existing HTTP fallback
 Type: Behavior
@@ -144,7 +146,7 @@ without a false confirmation from a cancelled or departed operation.
 
 Bind the existing successful check response to the same receipt operation used
 by the stream; preserve source identity, cancellation and the current pace.
-Enable the dot for fallback pages, remove slice 1's interim boundary and finish
+Enable the logo border for fallback pages, remove slice 1's interim boundary and finish
 the maintained observation contract. One fallback-confirmation proof loop;
 target 15 active minutes, commands excluded.
 
@@ -208,3 +210,39 @@ Window focus and document visibility are distinct. Reusing visibility to reset
 confirmation could restart the transport effect and violate the healthy-stream
 example. The conventional liveness mechanism already exists; the missing work
 is its user-facing confirmation boundary and projection.
+
+## Execution context
+
+- Mode: story-branch; identity SEED-372#see-dashboard-connection-status-on-return;
+  publisher dashboard-territory.local-open-dough; agent Ai-chan.
+- Owned checkout: `/Users/terryyin/git/open-dough/.worktrees/see-dashboard-connection-status-when-returning-t`;
+  branch `codex/see-dashboard-connection-status-when-returning-t`; remote `origin`; trunk `main`.
+- Starting revision `2470e5ef6c784b273b3587fc640923d14809fe2b`; accepted claim
+  and candidate `c124365d015aec64b5186160980db9205b11955a`. No second start.
+- Setup: locked `npm ci --ignore-scripts` and `npm run typecheck:dashboard` passed
+  in this checkout at the current lockfile. Hook is check-only staged lint and
+  dashboard typecheck; selective formatter is `npm run format` (changed and new files only).
+- Replanning: preserve existing planning authority; two planned slices, each
+  bounded to 15 active minutes. No scope expansion authorized.
+- Human amendment: Terry replaced the dot with the door logo border and selected
+  yellow for awaiting connection, green for confirmed delivery, red for known
+  disconnection. This changes presentation and adds a projection of existing loss
+  signals; return confirmation and passive delivery rules remain.
+- CI: GitHub Actions `ci.yml` (verified active, name CI); observes origin's story
+  branch. Coordinator `ai-chan-seed372`, directory `/tmp/dough-ci-501/watch-TtK0jr`,
+  PID 78623, session 29886, yielded cell `g388:7`, launched from this checkout.
+  Claim publication on trunk has pendingCi unobserved by this story-branch observer.
+
+Proof decision: this Mac on AC, load 6.14/5.97/5.78 and 56% free memory;
+other agent and shell work exists, exact workloads unknown. Slice owners run
+focused E2E observation at one worker under `caffeinate -s -i`, then reached
+consumers. Reconsider on changed load, failures, or expanded shared-support scope.
+
+
+## Story obligations
+
+### G1. HTTP fallback indication awaits slice 2
+Reported: slice 1 — "HTTP fallback retains existing feedback and has no new border status until slice 2."
+Story clause: "Apply the same confirmation rule when the existing slot budget selects HTTP checks."
+Disposition: receiving slice 2
+Commitment: 27

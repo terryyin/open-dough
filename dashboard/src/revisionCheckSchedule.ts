@@ -51,6 +51,8 @@ export type RevisionDeliveryAnswers = RevisionAnswerHandlers & {
   readonly visibility: Visibility;
   // Observation's chosen delivery; only `"check"` asks here.
   readonly delivery: RevisionDelivery;
+  readonly onReceived: () => void;
+  readonly onDeliveryLost: () => void;
 };
 
 export function useRevisionCheckSchedule({

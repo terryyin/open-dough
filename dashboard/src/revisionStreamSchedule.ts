@@ -44,6 +44,8 @@ export function useRevisionStreamSchedule({
   readSettled,
   visibility,
   delivery,
+  onReceived,
+  onDeliveryLost,
   onChanged,
   onUnchanged,
   onBranchesMoved,
@@ -145,6 +147,7 @@ export function useRevisionStreamSchedule({
       if (closed) {
         return;
       }
+      onDeliveryLost();
       stopHolding();
       if (report) {
         reactToRevisionCheckFailure(lostStreamProblem(), handlers);
@@ -170,6 +173,7 @@ export function useRevisionStreamSchedule({
           if (typeof data !== "string") {
             return;
           }
+          onReceived();
           const check = revisionCheckFromStreamData(
             data,
             shownRevision,

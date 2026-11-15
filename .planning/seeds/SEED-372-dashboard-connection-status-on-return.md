@@ -26,8 +26,10 @@ than a success remembered from before it.
 
 #### Scope
 
-- Show the requested small yellow/green connection dot. Returning focus to an
-  already visible browser window, or revealing a hidden dashboard page, starts
+- Use the border surrounding the door logo to show connection status: yellow
+  while awaiting confirmation, green when delivery is confirmed since return,
+  and red on a known delivery loss. Returning focus to an already visible
+  browser window, or revealing a hidden dashboard page, starts
   an unconfirmed period: yellow until a new live-update message or successful
   fallback check response is received. A previously received answer cannot
   confirm this return.
@@ -45,12 +47,13 @@ than a success remembered from before it.
   that schedule, including its prompt check after document reveal; window
   focus alone adds no request. Slot availability does not create a different
   user-facing health policy.
-- A known delivery loss clears confirmation and uses existing recovery. Reuse
-  the current silence deadline rather than adding another health timer.
+- A known delivery loss clears confirmation, turns the logo border red, and
+  uses existing recovery. Reuse the current silence deadline rather than
+  adding another health timer.
 
 Deferred promises: new heartbeats, server-side freshness/retry work, a maximum
-time to green, manual reconnect controls, additional connection colors, and
-per-section connection indicators. These are delivery limits, not restrictions
+time to green, manual reconnect controls, and per-section connection indicators.
+These are delivery limits, not restrictions
 on naturally supported behavior. The explicit prohibition on a prompt request
 for an already-open stream preserves the requested passive confirmation and
 avoids unnecessary observation traffic.
@@ -58,17 +61,17 @@ avoids unnecessary observation traffic.
 #### Key examples
 
 - A visible window has received a message, then loses focus → the developer
-  returns focus → the dot is yellow; the earlier message cannot make it green.
+  returns focus → the logo border is yellow; the earlier message cannot make it green.
 - The same stream is still open → no new message has arrived after return →
-  the dot stays yellow, the same stream is retained, and no request is sent to
-  prompt an update. Its first new message turns the dot green even
+  the logo border stays yellow, the same stream is retained, and no request is sent to
+  prompt an update. Its first new message turns the logo border green even
   when the published revision is unchanged.
 - The page was hidden and released its stream, or the stream has failed → the
   developer returns → the existing eligibility/recovery path resumes delivery;
-  the dot stays yellow through opening and turns green on the first new
+  the logo border stays yellow through opening and turns green on the first new
   message, with the last snapshot still available.
 - An opening succeeds but no new message arrives, or another return
-  occurs before confirmation → the dot stays yellow until a new message
+  occurs before confirmation → the logo border stays yellow until a new message
   arrives after the latest return. Opening or replaying an old success is not
   confirmation.
 - A page has no stream slot and uses HTTP checks → the developer returns →
@@ -77,10 +80,12 @@ avoids unnecessary observation traffic.
 
 #### Interaction and architecture
 
-The small dot conveys unconfirmed versus confirmed-since-return. Give those
+The door logo border conveys awaiting confirmation, confirmed-since-return,
+and disconnected after known delivery loss. Give those
 meanings accessible text as well as color, without requiring an action or
-moving keyboard focus. Exact placement and component choice belong to
-implementation; no layout change is selected here.
+moving keyboard focus. Use the existing door logo outline, keeping its geometry
+stable. Terry explicitly selected this placement and the red disconnected state
+during execution.
 
 Keep the confirmation boundary independent of transport ownership and snapshot
 freshness. Resetting confirmation on focus must not restart the stream effect
@@ -96,7 +101,7 @@ backend status and heartbeat migration.
 
 #### Exploration, challenge, and investigation
 
-The selected user's dot and passive confirmation are existing direction, not
+The selected user's logo border and passive confirmation are existing direction, not
 proposals introduced by this refinement. Compare mechanisms against the same
 goal and that no-prompt constraint:
 
@@ -119,7 +124,7 @@ not supply the stronger confirmation this story requests.
 
 Map its roles directly: existing revision messages/check responses are incoming
 activity, the revision stream scheduler already owns the silence watchdog and
-recovery, and the dot projects confirmation. Returning starts a new confirmation
+recovery, and the logo border projects confirmation. Returning starts a new confirmation
 period without restarting the transport. Existing periodic revision messages
 serve the role that a heartbeat would otherwise fill; no new heartbeat or
 framework is needed. The conventional mechanism does not by itself require
@@ -127,7 +132,7 @@ confirmation after every focus return: that stricter boundary comes from this
 seed's existing examples. Its limit remains that a message establishes receipt,
 not upstream freshness, and supplies no guaranteed time to green.
 
-Strongest challenge: a green "connection" dot could be read as "all dashboard
+Strongest challenge: a green "connection" border could be read as "all dashboard
 data is current" even though it establishes only post-return delivery. Keep
 that distinction in its accessible meaning and preserve independent snapshot
 and failure cues; expanding this into end-to-end freshness would change the
@@ -149,7 +154,7 @@ Facts observed in this owned workspace on 2026-11-15 at
   [lost-stream journey](../../e2e/observation/revision-stream-lost.spec.ts)
   passed: the 45-second silence deadline retained the snapshot, paced reopens,
   and recovered on an answer. Reuse this owner rather than adding a reconnect
-  timer for the dot.
+  timer for the logo border.
 - Both [HTTP visibility journeys](../../e2e/observation/auto-refresh-visibility.spec.ts)
   passed: hidden pages stopped checks; reveal checked once promptly and then
   resumed its pace, including reveal while a content read was outstanding.

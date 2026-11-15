@@ -1,7 +1,5 @@
-// The selected project's observation, apart from how the page presents it:
-// which project is observed, its last snapshot (`./snapshotRetrieval.ts`), the
-// latest attempt (`./observationAttempt.ts`), and focus kept across a
-// snapshot's replacement. Reads happen on opening, on selecting a project,
+// The selected project, last snapshot, latest attempt, and retained focus.
+// Reads happen on opening, on selecting a project,
 // when launch reconciliation asks to read afresh, and when a scheduled
 // revision check (`./revisionCheckSchedule.ts`) finds the selected ref naming
 // another commit; when it finds a story branch the shown progress is read from
@@ -32,9 +30,7 @@ import { useObservationRecoveryWait } from "./observationRecoveryWait.ts";
 import { useSnapshotRetrieval } from "./snapshotRetrieval.ts";
 import { shownSnapshotOf } from "./startupReconciliation.ts";
 import { useObservationAttempt } from "./observationAttempt.ts";
-import { useRevisionCheckSchedule } from "./revisionCheckSchedule.ts";
-import { useRevisionStreamSchedule } from "./revisionStreamSchedule.ts";
-import { useRevisionDelivery } from "./revisionStreamSlot.ts";
+import { useObservedRevisionDelivery } from "./observedRevisionDelivery.ts";
 import {
   focusedStoryCard,
   restoreSnapshotFocus,
@@ -179,14 +175,12 @@ export function usePublishedObservation(
       },
     });
 
-  const delivery = useRevisionDelivery(visibility !== "hidden");
-  const revisionAnswers = {
+  const connection = useObservedRevisionDelivery({
     source,
     shownRevision: work?.revision,
     watchedHeads,
     readSettled: checksMayRun,
     visibility,
-    delivery,
     onChanged: askRead,
     onBranchesMoved: askMovedProgress,
     onUnchanged: () => {
@@ -197,9 +191,7 @@ export function usePublishedObservation(
       fail(error);
       settleRevealed();
     },
-  } as const;
-  useRevisionCheckSchedule(revisionAnswers);
-  useRevisionStreamSchedule(revisionAnswers);
+  });
 
   useLayoutEffect(() => {
     deferredFocus.current = restoreSnapshotFocus(
@@ -233,6 +225,7 @@ export function usePublishedObservation(
   };
 
   return {
+    connection,
     source,
     work,
     shown,

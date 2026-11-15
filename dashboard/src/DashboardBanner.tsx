@@ -6,15 +6,18 @@ import { ProjectSelect } from "./ProjectSelect.tsx";
 import { PerspectiveSelect } from "./PerspectiveSelect.tsx";
 import type { DashboardPerspective } from "./dashboardRouteUrl.ts";
 import { SessionsButton } from "./SessionsSidebar.tsx";
+import type { DashboardConnection } from "./dashboardConnection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 export function DashboardBanner({
+  connection,
   source,
   perspective,
   onOpenSettings,
   onSelect,
   onSelectPerspective,
 }: {
+  readonly connection?: DashboardConnection | undefined;
   readonly source: PublishedSource | undefined;
   readonly perspective: DashboardPerspective;
   readonly onOpenSettings: () => void;
@@ -36,8 +39,15 @@ export function DashboardBanner({
   }, []);
 
   return (
-    <header className="banner" ref={banner}>
+    <header className="banner" ref={banner} data-connection={connection}>
       <SessionsButton />
+      {connection !== undefined && (
+        <span
+          role="img"
+          className="visually-hidden"
+          aria-label={`Dashboard connection: ${connection === "awaiting" ? "awaiting updates since return" : connection === "connected" ? "updates received since return" : "disconnected"}`}
+        />
+      )}
       {source !== undefined && (
         <>
           <PerspectiveSelect

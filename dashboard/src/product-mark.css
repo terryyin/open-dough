@@ -13,3 +13,14 @@
 .icon-button .product-mark {
   margin-block: 0;
 }
+
+/* Follow the mark's alpha silhouette without changing its size or hit area. */
+.banner[data-connection="awaiting"] { --connection-border: #eab308; }
+.banner[data-connection="connected"] { --connection-border: #22c55e; }
+.banner[data-connection="disconnected"] { --connection-border: #ef4444; }
+.banner[data-connection] .product-mark {
+  filter: drop-shadow(1px 0 0 var(--connection-border))
+    drop-shadow(-1px 0 0 var(--connection-border))
+    drop-shadow(0 1px 0 var(--connection-border))
+    drop-shadow(0 -1px 0 var(--connection-border));
+}
