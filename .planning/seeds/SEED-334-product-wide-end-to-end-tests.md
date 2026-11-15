@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-334#move-intent-ci-proof-comparison-and-candidate-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 651."],"basis":{"document":"b796cb68d52b56fd6c2f59016103fe94830384009d2578187031ad254026e013"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/651-move-intent-ci-proof-comparison-and-candidate-checks/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 651."],"basis":{"document":"b796cb68d52b56fd6c2f59016103fe94830384009d2578187031ad254026e013","plan":"6647d64578ff985e497901dfe7896f0d90c787e0bd35a27f35e67e53b4c9e036"}}
 ```
 
 - **For / why.** A maintainer retains CI proof, story comparison, scope glance
@@ -57,7 +57,7 @@ scope: story
 
 **Identity:** SEED-334#move-navigation-checks-and-retire-integrated-ui-test
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 648."],"basis":{"document":"9280aac9f17802babf39236f42c83ee8ff1a1b1e59eee244fdfb510c3427f8b8"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/648-move-navigation-checks-and-retire-integrated-ui-test/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement and realignment of provisional plan 648."],"basis":{"document":"9280aac9f17802babf39236f42c83ee8ff1a1b1e59eee244fdfb510c3427f8b8","plan":"15a802d02de3098fc31b63ba8f7cb005a714e74bef5ec17ceab720ccbbb7b010"}}
 ```
 
 - **For / why.** A maintainer keeps board/frame/selection/reference protection

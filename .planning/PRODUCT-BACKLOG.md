@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Extend syntax styling in code diffs](seeds/SEED-377-extend-syntax-styling-in-code-diffs.md#extend-syntax-styling-in-code-diffs) — SEED-377#extend-syntax-styling-in-code-diffs
 - [Remove the obsolete native revision opener](seeds/SEED-334-product-wide-end-to-end-tests.md#remove-obsolete-native-revision-opener) — SEED-334#remove-obsolete-native-revision-opener
 - [Move Intent CI proof, comparison and candidate checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-intent-ci-proof-comparison-and-candidate-checks) — SEED-334#move-intent-ci-proof-comparison-and-candidate-checks
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
