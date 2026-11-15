@@ -259,6 +259,30 @@ Refresh → no store write, only the check record. Refresh reads every file of
 a changed session, so the session's contribution is whole when replaced.
 Update the Refresh sentence of `dashboard/USAGE-HISTORY.md`.
 
+## Execution complete
+
+Product advice: no correction is needed. For later work:
+
+- [Keep usage task facts and freshness consistent across writers](../../seeds/SEED-357-dashboard-task-token-usage.md#reuse-unchanged-usage-pages-on-repeated-writes)
+  was written against the paged writer. Pages no longer exist, so its
+  refinement starts from the history document: what remains is the launch
+  workflow an import and a Refresh write in turn, the "Checked" time after an
+  import, and the checking indication.
+- The e2e group no longer fits five shards on a slow runner (run 43681477553).
+  The capacity decision is the developer's: move one shard from
+  `dashboard-integrated` to `e2e`, or add a sixth e2e shard.
+- `dashboard/USAGE-HISTORY.md` is at the 250-line limit. Its next change needs
+  it split by responsibility: the import command, the stored history, the
+  report definitions.
+- The story sentence on what the importer's result and `read` report was read
+  as: `read` prints the history with its totals, and the import result gives
+  task and gap counts from the history with response counts from the scan
+  (obligation G2).
+- A removal of `usage.json.pages` that keeps failing makes every write report
+  failure after the document is stored. Whether such a write should succeed
+  with a warning is undecided.
+- Process review is deferred into wrap-up with the Intent Coverage report.
+
 ## Current decisions
 
 - Execute in Story Branch Mode. No slice acts from trunk. The removal in
