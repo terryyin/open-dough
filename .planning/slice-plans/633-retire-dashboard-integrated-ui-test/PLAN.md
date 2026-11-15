@@ -185,6 +185,16 @@ and a legacy case in `-units.spec.ts` (6 passed). Changing the `later:` wording 
 `dashboard/src/ciHistoryWords.ts` failed old `gap-build`/`provenance` and new
 `gaps`/`provenance` homes; restored, all passed. Integrated: 98 files.
 
+## Execution complete
+
+Product advice: no product change. The delivered conversions protect CI status,
+wall-time history and scope timing history at their owning boundaries. For the
+remainder story (plan 651): refine it with proof split across slices, and
+separate the published-project arrangements (story board, unconfigured
+Doughnut) from the CI-status answer family in `frontendCiStatusAnswers.ts`
+before proof extends that module. Process review is deferred into wrap-up with
+the Intent Coverage check.
+
 ## Premises, observations and sizing review
 
 Observed 2026-11-15 in this owned checkout at `f03e959480b2a04a7194b072cf71aa9da55ee1a9`:
