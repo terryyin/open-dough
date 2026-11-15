@@ -16,7 +16,7 @@ scope: story
 **Identity:** SEED-356#reduce-total-model-work-during-blocked-execution
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/627-reduce-blocked-execution-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"60ca4acff7080f11380fef4338b0a5f7b5b50b9ff497d90d19c1c0f3f745846f","plan":"9274306cb52f147dde32ae102d4ecc63f951131ba4f6c2dfc6ce307d92f59fbf"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/627-reduce-blocked-execution-work/PLAN.md","assessment":"not-ready","reasons":["The later fresh blocked pair and unblocked pair require four native journeys but three remain; a complete paid comparison allocation is not settled. The authorized trace investigation continues without native spending."],"basis":{"document":"b63a64a44fa892ca0213addefdb6e6ecec7e0aca3d1d334a0c0ac33562544d41","plan":"c3a21e34aeb7b9525bad1f62df76883a95bda2062037aef0f7c466cb75d4a53e"}}
 ```
 
 #### Goal
@@ -28,21 +28,31 @@ retained context are the outcome; added automation alone is not improvement.
 
 #### Scope
 
-Terry's 2026-11-15 second-attempt instruction selects a smaller, simplification-first
-increment. Reduce repeated reading, reconstruction or bookkeeping on the existing
-blocked continuation path, including its cost after qualification. Select one
-reduction from a fresh baseline. Prefer deletion and existing commands; a small
-script is justified only when it replaces observed repetitive mechanical work
-and removes the corresponding agent procedure. Do not add both paths.
+Terry's 2026-11-15 "Go ahead, update the plan and continue" authorizes a
+bounded differential investigation after the forced-wake probe found no
+worthwhile narrow removal. Compare the original prolonged supplier pause with
+the fresh execution, identify the conditions that made the original coordinator
+keep requesting model work while the fresh execution held, and reproduce the
+missing condition before choosing an optimization. Distinguish evidence that
+the problem is already resolved from evidence that the extracted case omitted
+its cause. Preserve uncertainty when the available traces cannot settle it.
 
-Use the updated **paused-supplier** forced-wake case and **unblocked-supplier**
-ordinary-work case. This increment evaluates cheaper handling of the existing
-wakes; automatic supplier-event delivery and skipped-wake proof are deferred.
-This replaces the earlier event-driven-variant requirement under Terry's explicit
-instruction to leave further ideas for later. No daemon, enrollment protocol,
-second execution record, general accounting system or broad execution-guidance
-rewrite belongs to this increment. Running-verification efficiency and general
-phase loading remain with their existing sibling stories.
+Keep the existing paused-supplier forced-wake and unblocked-supplier cases as
+agreement, preservation and continuation regressions. The forced-wake case does
+not establish whether normal waiting creates or suppresses unnecessary model
+requests. Any new reproducer must exercise the normal wait/resume path, preserve
+the causal condition found in the original trace, and demonstrate the unwanted
+baseline behavior before an implementation or further paid comparison.
+
+Then select one evidenced, targeted reduction. Prefer deletion and existing
+commands; a small script is justified only when it replaces observed repetitive
+mechanical work and removes the corresponding agent procedure. Do not add both
+paths. Count cost through qualification and final proof. Investigation does not
+authorize a new daemon, enrollment protocol, second execution record, general
+accounting system or broad execution-guidance rewrite. Automatic supplier-event
+delivery remains deferred; no event-delivery runtime is authorized by this
+investigation. Running-verification efficiency and general phase loading remain
+with their existing sibling stories.
 
 Preserve the exact supplier agreement, partial work and applicable accepted
 proof, execution ownership, authority, publication and CI rules. Publication or
@@ -66,6 +76,16 @@ Codex case, not a cross-host claim.
 - The supplier already qualifies at entry → finish the same partial work once →
   no blocked-path setup tax beyond the evaluation allowance.
 
+- The original session repeatedly waits while its supplier cannot progress,
+  but the fresh fixture holds and ends its turn → compare actual context,
+  available handles, instructions and guidance revisions → identify the missing
+  trigger or retain an evidenced uncertainty; do not assume either a fix or a
+  representative reproduction.
+- A proposed reproducer matches that trigger → the unchanged baseline exhibits
+  the unwanted repeated model activity through its normal wait/resume path →
+  only then consider one targeted optimization. Controlled-host checks establish
+  harness behavior; they do not substitute for a native model-behavior result.
+
 #### Evaluation and stopping rule
 
 Working acceptance bar, selected during refinement before measurement:
@@ -82,17 +102,22 @@ assessor, host/version, model/settings and publication authority matched. Captur
 fresh baseline evidence; do not compare against the abandoned implementation.
 Count coordinator and owned workers from setup through final proof and recovery;
 report requests, cached input, uncached input, output and interventions separately.
-Unknown usage remains unknown and cannot support a token-saving verdict. The
-representative blocked schedule is initial hold plus unchanged, nonqualifying
-and qualifying wakes; it makes no claim about production block frequency.
+Unknown usage remains unknown and cannot support a token-saving verdict. The forced-wake schedule remains evidence for initial hold plus unchanged,
+nonqualifying and qualifying handling; it makes no claim about production block
+frequency or reproduction of the prolonged pause. The differential investigation
+owns the new reproduction profile before any further comparison.
 
 Budget: at most five native journeys, including the invalid initial baseline
 and four additional journeys approved by Terry on 2026-11-15 with
 "approved. continue": one fresh baseline and candidate per case. Worker effort,
 automatic baseline reacquisition and invalid attempts still count. Run the
-blocked comparison first. This extension changes no quality or keep/stop bar.
-Stop before implementation if its fresh baseline exposes no plausible worthwhile
-removal. Stop the candidate on failed quality, insufficient usage, a missed bar
+blocked comparison first. This extension changes no quality or keep/stop bar. Two journeys are consumed
+and three remain; the new investigation grants no additional native budget.
+Prefer retained traces and controlled checks first. Before a paid launch, reserve
+the journeys needed for its stated learning and required remaining comparisons;
+do not start a comparison that cannot finish within the authorized allocation.
+Stop before optimization implementation if the baseline does not reproduce the
+targeted unwanted behavior or exposes no plausible worthwhile removal. Stop the candidate on failed quality, insufficient usage, a missed bar
 or exhausted budget; retain observations and revert only candidate-owned product
 changes. Do not expand the design or rerun for a favorable result. A negative or
 inconclusive result is learning, not achieved improvement; further work needs a

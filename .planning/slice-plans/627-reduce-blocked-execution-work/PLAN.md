@@ -7,22 +7,18 @@
 
 ## Goal and decisions
 
-Remove one observed source of repeated model work on blocked continuation;
-keep it only if complete-task tokens fall at least 20%, requests/interventions
-do not rise, and unblocked tokens rise no more than 5% with no extra
-requests/interventions. Preserve all case outcomes and proof. The source owns
-the full criteria and amended five-journey budget. No event-driven runtime, new state
-protocol or general phase-loading rewrite. This plan authorizes no execution.
+Explain and reproduce the original prolonged-pause failure before selecting one
+targeted reduction. Terry authorized this plan update and continuation on
+2026-11-15 after the differential-review recommendation. The forced-wake result
+is a valid narrow opportunity stop, not a falsification of the original
+long-wait hypothesis or a measured non-regression result. Preserve that evidence.
 
-Reuse the existing execution context and dependency interpretation:
-`dough-execute-plan/SKILL.md` (continue/recover), `product-backlog.mjs
-read-dependencies`, and the supplier-resolution procedure. PFE found these
-already own context reuse and exact-condition judgment; CI notification and
-dashboard session transport own different lifecycles and are not needed here.
-Delete redundant blocked-path procedure first. Add a compact mechanical helper
-only if the baseline justifies it, using existing readers and replacing the
-agent steps rather than adding a second representation. Keep judgment with the
-agent. No new North Star direction is needed.
+Keep the source's gain/quality bars and five-journey cap (2 used, 3 remaining).
+This continuation begins with retained traces and controlled checks, with no
+paid launch or product optimization until the causal condition and reproduction
+are established. A new runtime, protocol or general phase-loading rewrite is not
+selected. Retain the existing context/dependency/supplier-resolution owners;
+revisit PFE only if the investigation supports a changed responsibility.
 
 Follow Accepted ADRs [0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md),
 [0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md) and
@@ -53,49 +49,73 @@ The invalid observation below settles that probe's stop branch; the missing
 usable baseline and selection stay owned by G1 and slice 2. Terry's 2026-11-15
 "approved. continue" grants four additional native journeys after that stop.
 
-### 2. Simplify that path and keep only an observed improvement
+### 2. Explain the original pause versus the fresh hold
+Type: Behavior
+Status: done
+Proof: an evidence-linked comparison identifies context, instructions, active
+handles, wait results, canonical agreement timing, supplier state and guidance
+revisions in both sessions;
+it separates a demonstrated trigger from unproved explanations.
+
+Read the original coordinator around its supplier-pause acknowledgement and
+447-request wait, and the fresh four-turn capture. Retain only bounded excerpts,
+counts and raw locators in a linked investigation record. Determine whether the
+original loop had a live wait/observer or supplier-agent handle absent from the
+fixture, whether instructions/guidance changed, and what lets the fresh session
+hold and end. These are questions, not assumed causes. Reuse the corrected
+native reader and existing evidence; no paid session or product edit in this
+slice. If evidence is insufficient, name the smallest missing observation.
+
+Accepted [differential investigation](differential-investigation.md): the original
+already completed an attention handoff before the explicit “you watch it”
+follow-up. Its live publication watch then returned empty nonterminal receipts
+while the supplier was paused. The fixture omits that follow-up/resource and
+starts with a dependency block added by the later human correction. Captured
+stop/no-empty-call guidance matches; no intervening fix is established. The
+record gives exact raw locators and the next normal-watch reproduction profile.
+Delivery disposition: `records-only`; no product/test edit or refactor needed.
+
+### 3. Establish a faithful reproducer or an evidenced current resolution
 Type: Behavior
 Status: planned
-Proof: unchanged/nonqualifying wakes preserve the block and partial work;
-qualification continues once with final owned and independent proof; complete
-blocked and unblocked comparisons meet the source's numerical criteria.
+Proof: the reproducer preserves the observed causal condition, exercises normal
+wait/resume and detects unwanted repeated model work; a current baseline must
+exhibit that behavior before any optimization. Alternatively, evidence explains
+why current behavior already resolves the original failure.
 
-**Stopped before optimization under source S01:** the passing fresh baseline
-and corrected complete accounting expose no single in-scope removal plausibly
-worth 20% of whole-task work. The unchanged wake uses two commands and the
-supplier procedure is read once and reused. Qualification is 82% of observed
-cost, largely required proof/delivery; generic tracing and phase loading are
-excluded. No candidate or helper was implemented. Two of five native journeys
-are used; three remain unspent. Further product work requires a new direction,
-not another run for a favorable result. The case-local opportunity record below
-retains the evidence and limits. This slice and the product goal remain incomplete.
+Use slice 2's [minimum profile](differential-investigation.md#minimum-next-reproduction-profile)
+to update the smallest maintained case/harness boundary. Supplier events must
+arrive during an active watch turn; the existing after-turn event loop cannot
+stand in for that condition. Reapply PFE before adding an in-flight harness seam.
+Keep forced-wake and ordinary-supplier cases as correctness regressions. Do not
+encode the expected decision in the agent prompt. Controlled checks validate
+inputs, observation, rejection cases and retention; they do not prove native
+model behavior. Preserve partial work, exact supplier judgment, one qualifying
+continuation and owned/independent proof. Before any native probe, make the
+expensive-proof decision and reserve its full remaining evaluation allocation.
+No new event-delivery runtime, daemon or general context protocol is authorized.
+If reproduction needs such a consequential change, retain the concrete evidence
+and decision instead of inventing it. Update remaining work from the result.
 
-Implement the one selected reduction and remove its displaced procedure.
-Walk the story's examples using AGENTS.md's skill behavior review. If a helper
-is needed, protect its observable result and changed/missing-evidence behavior
-with focused tests under the installed MakeMe convention; no configuration-only
-assertions. Preserve shared host-neutral behavior without a new native adapter.
+### 4. Make one supported change and judge the matched result
+Type: Behavior
+Status: planned
+Proof: baseline reproduces the targeted failure; candidate preserves outcomes and
+proof, reduces whole-task blocked tokens at least 20% without more requests or
+interventions, and adds no more than 5% unblocked tokens with no extra requests
+or interventions. No gain is inferred from unchanged guidance or one baseline.
 
-Commit the candidate for the harness. Run the maintained
-[comparison](../../../Distribution/tests/native-comparison-baselines.md#compare-another-candidate-with-saved-evidence)
-with `--case paused-supplier --baseline <same SHA> --candidate <candidate SHA>
---reuse-baseline <saved file> --require-usage --arms sequential --model
-gpt-6.1-sol --effort xhigh`, declaring the source's gain/quality criteria.
-Keep inputs/runtime fixed: an applicability miss automatically acquires another
-baseline. Reserve up to two journeys before each comparison. If the blocked
-comparison passes and two journeys remain, run **unblocked-supplier** with the
-same baseline/candidate SHAs and settings, replacing `--reuse-baseline` with
-`--fresh-pair --save-baseline <new file>`. This refreshes that baseline and
-measures overhead together. Stop if the budget cannot cover the remaining
-comparison. Do not modify the cases to favor the candidate.
-
-Export candidate evidence with `--export-baseline <pair attempt> --arm candidate
---save-baseline <new file>`. Compare `.usage.totals.total_tokens` and
-`.usage.responses | length`; report cached/uncached input, output and human
-interventions separately. Gain/quality flags record intent, not numeric gates:
-judge the thresholds explicitly. Retain a compact keep/stop result and usable
-baselines at the case evidence locations. On a miss, revert candidate-owned
-product changes, preserve evidence and stop without claiming improvement.
+Only select this slice after the faithful baseline and a plausible targeted
+removal exist. Prefer deletion and existing owners; a helper replaces its
+observed agent procedure. Retain full coordinator/worker usage and recovery
+cost. Use the maintained comparison/export path under matched task, events,
+assessor, host/version, settings and authority. Reader changes invalidate reuse
+of the earlier capture; do not rewrite input hashes or waive compatibility.
+A fresh blocked pair and unblocked pair need four journeys, exceeding the three
+currently remaining: settle a concrete evaluation allocation before any paid
+comparison rather than silently extending the cap. On failed quality, unknown
+usage, missed bar or exhausted allocation, revert only candidate product edits
+and retain the result; no favorable rerun or design expansion.
 
 ## Proof, premises and delivery
 
@@ -121,9 +141,9 @@ product changes, preserve evidence and stop without claiming improvement.
   focused proof, coordinator commit/publication and asynchronous CI repair use
   `dough-execute-plan`; stop after the bounded experiment rather than grow it.
 
-Original two-slice sizing is retained: a bounded opportunity probe and one
-cohesive change with its keep/stop comparison. Prefer removal and keep each
-changed responsibility coherent; no numeric slice time limit was supplied.
+Remaining work has three separate proof loops: differential explanation, faithful
+reproduction/current-resolution judgment, then one conditional measured change.
+No numeric slice time limit was supplied; use the source’s native budget.
 
 ## Execution context
 
@@ -145,9 +165,10 @@ and typechecks script changes without mutation.
 
 CI observer: GitHub `terryyin/open-dough`, `ci.yml` (CI, id 351271804), target
 `codex/reduce-total-model-work-during-blocked-execution`, coordinator `seed356-darren`,
-resumed cell `g318:3`, session `86745`, directory `/tmp/dough-ci-501/watch-uhj6iR`, PID 67905;
-the prior observer stopped cleanly. Checkout-bound runtime; claim CI is unobserved
-on trunk and must not be registered on this branch observer.
+current cell `g326:5`, session `23532`, directory `/tmp/dough-ci-501/watch-eh23m4`, PID 49861;
+prior observation completed exact CI for `64a9b6db05a9b6771fe038f91fc09238879c6dbe`
+with confirmed shutdown. Checkout-bound runtime; do not register the trunk claim
+on this execution-branch observer.
 
 Expensive-proof decision: Territory.local, AC, fully awake, natural load 4.98/4.67/3.80,
 48 GiB RAM with memory_pressure reporting 65% free. Codex 0.169.0; run one
@@ -179,12 +200,13 @@ retains literal commands, per-turn costs, raw evidence, observed no-removal
 judgment, repair proof and visible evaluation cost. Reader changes remain
 material for comparison reuse; no compatibility exemption or provenance rewrite
 was introduced. No additional native run or candidate comparison was launched.
-The authorized preimplementation stop is retained; no improvement is claimed.
+The narrow probe stop remains historical evidence. The newly authorized
+differential investigation resumes at slice 2; no improvement is claimed.
 
 ## Story obligations
 
 ### G1. No usable fresh baseline or supported reduction
+Commitment: S022
 Reported: slice 1 — "The native baseline was invalidated by a false-positive harness-inspection detector and stopped; complete-task usage and a worthwhile removal remain unproved."
 Story clause: "Unknown usage remains unknown and cannot support a token-saving verdict."
-Disposition: excluded "Stop before implementation if its fresh baseline exposes no plausible worthwhile removal."
-Commitment: C03
+Disposition: receiving slice 4
