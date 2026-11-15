@@ -14,6 +14,9 @@ scope: story
 ### Keep Claude coverage gaps current after Refresh
 
 **Identity:** SEED-359#keep-claude-coverage-gaps-current-after-refresh
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/643-keep-claude-coverage-gaps-current/PLAN.md"}
+```
 
 **Goal.** Terry, reading System settings → Usage, sees a dashboard launch
 marked partial only while its usage is actually missing: a Refresh taken
