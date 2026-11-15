@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
+import { readFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  taskUsage,
-  usageHistoryFile,
-  writeUsageHistory,
-} from "../../server/usageHistory.ts";
+import { taskUsage } from "../../server/usageHistory.ts";
 import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  legacyHistory,
+  writeLegacyStore,
+  writePagedStore,
+} from "../../tests/usage-history/earlierStores.ts";
 import {
   readImported,
   runImport,
@@ -18,8 +18,10 @@ import { configuredRepository } from "../../tests/usage-history/recoveryHarness.
 const wrapper =
   "<recommended_plugins>PRIVATE-INJECTED-CONTEXT</recommended_plugins>\n# AGENTS.md instructions\n<INSTRUCTIONS>PRIVATE-RULES</INSTRUCTIONS>\n<environment_context>private environment</environment_context>\n<system-reminder>PRIVATE-SYSTEM-CONTEXT</system-reminder>";
 
+// The store an earlier dashboard left holds the response rows; the corrected
+// import reads none of them again.
 for (const format of ["legacy", "paged"]) {
-  test(`${format} wrapper correction withdraws old charges while preserving every observation and candidate`, async ({
+  test(`${format} wrapper correction withdraws old charges while keeping the session's contribution and its candidate`, async ({
     home,
     root,
   }) => {
@@ -56,11 +58,11 @@ for (const format of ["legacy", "paged"]) {
     );
     runImport(home, root);
     const old = readImported(home);
+    expect(taskUsage(old, Object.keys(old.tasks)[0] ?? "").requests).toBe(1);
     const task = Object.values(old.tasks)[0];
     assert(task);
     // Exact old wire shape is the migration contract: no assignment evidence.
-    delete (task as typeof task & { assignmentEvidence?: unknown })
-      .assignmentEvidence;
+    delete task.assignmentEvidence;
     task.title = "Independent retained title";
     task.fieldSources = {
       ...task.fieldSources,
@@ -70,13 +72,9 @@ for (const format of ["legacy", "paged"]) {
       ...task.fieldClaims,
       title: [{ value: task.title, sources: task.fieldSources.title ?? [] }],
     };
-    if (format === "legacy") {
-      mkdirSync(path.dirname(usageHistoryFile(home)), { recursive: true });
-      writeFileSync(usageHistoryFile(home), JSON.stringify(old));
-    } else {
-      writeFileSync(usageHistoryFile(home), JSON.stringify(old));
-      await writeUsageHistory({}, usageHistoryFile(home));
-    }
+    // Exact old wire shapes with their response rows are the starting point.
+    if (format === "legacy") writeLegacyStore(home, legacyHistory(old));
+    else writePagedStore(home, legacyHistory(old));
     writeCodexSession(
       root,
       rollout()
@@ -111,21 +109,18 @@ for (const format of ["legacy", "paged"]) {
     expect(corrected.tasks[task.id]?.fieldClaims?.title).toEqual(
       task.fieldClaims.title,
     );
-    expect(corrected.observations).toEqual(old.observations);
-    for (const [id, association] of Object.entries(old.associations)) {
-      expect(corrected.associations[id]).toMatchObject({
-        taskId: null,
-        candidates: association.candidates,
-        sources: association.sources,
-        gaps: expect.arrayContaining(["unsupported-task-assignment"]),
-      });
-    }
+    expect(corrected.format).toBe("usage-history-v2");
+    expect(corrected.sessions[`codex:${session}`]?.entries).toMatchObject([
+      { candidates: [task.id], responses: 1, tokens: { output: 7 } },
+    ]);
     expect(taskUsage(corrected, task.id).requests).toBe(0);
+    // The response was not read again, so the import counts none.
     expect(report).toMatchObject({
+      observations: 0,
       summary: {
         unsupportedAssignmentTasks: 1,
         configuredWork: { tasks: 0 },
-        unassignedUsage: { observations: 1, tokens: { output: 7 } },
+        unassignedUsage: { observations: 0 },
       },
     });
     expect(readFileSync(file, "utf8")).toBe(bytes);

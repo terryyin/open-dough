@@ -52,11 +52,15 @@ Claude workload stayed running; no other owned heavy proof ran concurrently.
 | `terminal-first`: 2026-11-14T21:32:16.737760Z → 2026-11-14T21:39:37.000460Z | 440.195 s | 4,295,213,056 bytes | 0 |
 | `terminal-repeat`: 2026-11-14T21:41:36.740712Z → 2026-11-14T21:48:55.035602Z | 438.244 s | 4,482,842,624 bytes | 0 |
 
-The machine store is `~/.open-dough/dashboard/launch-history/usage.json`, with
+The machine store was `~/.open-dough/dashboard/launch-history/usage.json`, with
 immutable bounded pages in `usage.json.pages/`. The final 183,523-byte manifest
-references 2,316 pages totaling 1,625,082,672 bytes; the largest is 1,048,575 bytes.
-Imports use its shared document
-lock and atomic manifest replacement. Native sources remained read only; no native
+referenced 2,316 pages totaling 1,625,082,672 bytes; the largest was 1,048,575 bytes.
+Imports used its shared document
+lock and atomic manifest replacement. That paged store has since given way to
+one history document without response rows: the first write of
+[Keep usage history within a small disk budget](../../dashboard/USAGE-HISTORY.md)
+carries the tasks, gaps and task totals over and removes `usage.json.pages/`.
+Native sources remained read only; no native
 session, provider API, scheduler, operational launch or workflow write was made.
 
 Before the live pair, all 47 actual-CLI usage-history cases passed with the default
@@ -145,7 +149,7 @@ its project, workflow, identity, title, start, origin and outcome stayed unchang
 All 270 formerly configured Claude output conflicts settled from explicit
 native terminal measurements, including the independently inspected partial
 3/8/4 → terminal 690/843/1083 examples. The complete assessment, not an
-extrapolation from those three, is in `terminal-first-evidence-audit.json`.
+extrapolation from those three, was in `terminal-first-evidence-audit.json`.
 Across all populations, 11,598 old normalized output values changed;
 input/cache counters did not. Each change is explained by completion metadata:
 progressive-only values become unknown final output, and terminal evidence
@@ -177,7 +181,8 @@ The first capacity baseline’s 513,761 IDs/640,908 measurements were already
 preserved exactly by the saved pre-phase comparison. The new full raw-subset
 comparison preserves that chain; a direct 512-ID/730-measurement baseline check
 across all partitions also found no missing raw facts or association candidates.
-Original manifests and immutable pages remain retained; no corpus-wide string
+Original manifests and immutable pages were retained at the time and are removed
+as described under Reproduction and runtime and below; no corpus-wide string
 or cloned history was built. Earlier streamed CLI export exceeded V8’s string
 limit successfully; that historical capacity observation is linked above.
 
@@ -221,14 +226,21 @@ response charges. Unassigned usage remains outside configured task totals.
 Local retention, unavailable native sources and progressive-only Claude output
 limit completeness; no provider-wide, pricing or billing completeness is claimed.
 
-Exact machine-local evidence lives under the store’s `import-reports/2026-11-15/`:
-`terminal-first-*` and `terminal-repeat-*` retain commands, source manifests,
-UTC boundaries, runtime/resources, scan reports, immutable snapshot manifests,
-fresh independent summaries, ID/raw comparisons and full normalized metadata.
-`terminal-reconcile.mjs` and `terminal-evidence-audit.mjs` retain the bounded
-comparison procedures. `slice7-metadata-inspection.json` and
-`final-claude-conflict-inspection-summary.json` retain source hashes and selected
-row metadata without bodies. Historical receipts keep their original labels.
+Exact machine-local evidence lived under the store’s `import-reports/2026-11-15/`
+(42 MB) and was removed from the machine with the story
+“Keep usage history within a small disk budget” (SEED-357), which also ended the
+per-response rows and pages that evidence compared. No dashboard code wrote or
+read that folder. It held: `terminal-first-*` and `terminal-repeat-*` with
+commands, source manifests, UTC boundaries, runtime/resources, scan reports,
+immutable snapshot manifests, fresh independent summaries, ID/raw comparisons and
+full normalized metadata; `terminal-reconcile.mjs` and
+`terminal-evidence-audit.mjs`, the bounded comparison procedures, with
+`terminal-first-evidence-audit.json` cited above; and
+`slice7-metadata-inspection.json` and
+`final-claude-conflict-inspection-summary.json`, source hashes and selected row
+metadata without bodies. The figures in this receipt are what remains of it; the
+native session files stay the evidence. Historical receipts keep their original
+labels.
 
 Only explicit offline recovery ran. Cursor history, collection scheduling,
 new usage/history UI, pricing/billing reconciliation and unavailable-source

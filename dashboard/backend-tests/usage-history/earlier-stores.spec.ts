@@ -1,9 +1,13 @@
-// Physical storage cannot impose a whole-document serialization limit on facts.
+// A store an earlier dashboard wrote, whole-document v1 or paged, is the
+// starting history; `read` prints the history document; and the responses an
+// import read are written without one whole-scan string.
+import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { taskUsage } from "../../server/usageHistory.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import {
   test,
   expect,
@@ -13,6 +17,7 @@ import {
   keepOperationalLaunch,
   nodeProcess,
   readImported,
+  responsesFile,
   runImport,
   writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
@@ -27,7 +32,7 @@ const boundedCodec = `data:text/javascript,${encodeURIComponent(`
   };
 `)}`;
 
-test("legacy v1 facts migrate without losing evidence and survive removal of native inputs", ({
+test("a legacy v1 store is read as the starting history, keeps its tasks, gaps and totals in the document a write stores, and survives removal of native inputs", ({
   home,
   root,
 }) => {
@@ -52,6 +57,8 @@ test("legacy v1 facts migrate without losing evidence and survive removal of nat
   );
   runImport(home, root);
   const prior = readImported(home);
+  const [launched] = Object.values(prior.tasks);
+  assert(launched);
   mkdirSync(path.dirname(file), { recursive: true });
   // Literal v1 wire representation is the compatibility promise under proof.
   writeFileSync(
@@ -67,7 +74,13 @@ test("legacy v1 facts migrate without losing evidence and survive removal of nat
       ],
     }),
   );
-  expect(readImported(home).tasks.legacy?.title).toBe("Retained title");
+  const started = readImported(home);
+  expect(started.format).toBe("usage-history-v2");
+  expect(started.tasks.legacy?.title).toBe("Retained title");
+  expect(taskUsage(started, launched.id)).toMatchObject({
+    requests: 1,
+    tokens: { output: 4 },
+  });
   keepOperationalLaunch(home, launch("new-session", "turn"));
   writeCodexSession(
     root,
@@ -88,12 +101,21 @@ test("legacy v1 facts migrate without losing evidence and survive removal of nat
     sessionId: "legacy-session",
   });
   expect(
-    Object.values(after.observations).map((item) => item.tokens.output),
-  ).toEqual([4, 7]);
-  for (const [id, value] of Object.entries(prior.observations))
-    expect(after.observations[id]).toEqual(value);
-  for (const [id, value] of Object.entries(prior.associations))
-    expect(after.associations[id]).toEqual(value);
+    Object.values(after.tasks).map(
+      (item) => taskUsage(after, item.id).tokens.output,
+    ),
+  ).toEqual([4, null, 7]);
+  // `read` prints the document the write stored, which holds no response.
+  const { observations, associations, ...document } = after;
+  expect(Object.keys(observations)).toHaveLength(2);
+  expect(Object.keys(associations)).toHaveLength(2);
+  expect(JSON.parse(readFileSync(file, "utf8"))).toEqual(document);
+  expect(Object.keys(document).sort()).toEqual([
+    "format",
+    "gaps",
+    "sessions",
+    "tasks",
+  ]);
   nodeProcess(
     home,
     `const { rmSync } = await import('node:fs'); rmSync(${JSON.stringify(root)}, { recursive: true });`,
@@ -101,7 +123,7 @@ test("legacy v1 facts migrate without losing evidence and survive removal of nat
   expect(readImported(home)).toEqual(after);
 });
 
-test("actual import and fresh export retain all records when whole-history strings exceed the codec budget", ({
+test("an import writes the responses it read beyond the codec budget one at a time, beside a history that keeps their totals", ({
   home,
   root,
 }) => {
@@ -117,34 +139,13 @@ test("actual import and fresh export retain all records when whole-history strin
   }
   writeCodexSession(root, rollout.please());
   runImport(home, root, [], ["--import", boundedCodec]);
-  const output = execFileSync(
-    process.execPath,
-    [
-      "--import",
-      boundedCodec,
-      "dashboard/server/importUsageHistory.ts",
-      "read",
-      "--home",
-      home,
-    ],
-    { encoding: "utf8", maxBuffer: 8 * 1024 * 1024 },
-  );
-  expect(Buffer.byteLength(output)).toBeGreaterThan(budget);
-  const history = JSON.parse(output) as ReturnType<typeof readImported>;
-  expect(Object.values(history.observations)).toHaveLength(300);
+  expect(statSync(responsesFile(home)).size).toBeGreaterThan(budget);
+  const responses = JSON.parse(
+    readFileSync(responsesFile(home), "utf8"),
+  ) as UsageResponses;
+  expect(Object.values(responses.observations)).toHaveLength(300);
   expect(
-    Object.values(history.observations).reduce(
-      (sum, item) => sum + (item.tokens.output ?? 0),
-      0,
-    ),
-  ).toBe(900);
-  expect(
-    Object.values(history.associations).every(
-      (item) => item.taskId && history.tasks[item.taskId],
-    ),
-  ).toBe(true);
-  expect(
-    Object.values(history.observations).every((item) =>
+    Object.values(responses.observations).every((item) =>
       item.measurements.some(
         (measurement) =>
           measurement.source.file === path.join(root, "bounded.jsonl") &&
@@ -152,11 +153,23 @@ test("actual import and fresh export retain all records when whole-history strin
       ),
     ),
   ).toBe(true);
+  const history = readImported(home);
+  const [task] = Object.values(history.tasks);
+  assert(task);
+  expect(
+    Object.values(responses.associations).every(
+      (item) => item.taskId === task.id,
+    ),
+  ).toBe(true);
+  expect(taskUsage(history, task.id)).toMatchObject({
+    requests: 300,
+    tokens: { output: 900 },
+  });
   runImport(home, root, [], ["--import", boundedCodec]);
   expect(readImported(home)).toEqual(history);
 });
 
-test("an earlier paged snapshot and reordered gap replay retain one equivalent coverage fact", ({
+test("an earlier paged store and reordered gap replay retain one equivalent coverage fact", ({
   home,
   root,
 }) => {

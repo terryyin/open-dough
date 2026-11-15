@@ -67,10 +67,15 @@ export function reconcileTaskAssignment(
   ]);
   return result;
 }
-export function eligibleUsageAssociation(
-  association: UsageAssociation,
+// The tasks a response, or a session contribution's entry, names.
+export type NamedTasks = Pick<
+  UsageAssociation,
+  "taskId" | "candidates" | "gaps"
+>;
+export function eligibleUsageAssociation<Named extends NamedTasks>(
+  association: Named,
   eligible: ReadonlySet<string>,
-): UsageAssociation {
+): Named {
   const auditCandidates = uniqueFacts([
     ...association.candidates,
     ...(association.taskId ? [association.taskId] : []),

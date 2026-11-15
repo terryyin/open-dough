@@ -132,8 +132,10 @@ test("resolves only the unique numbered historical plan and retains pinned sourc
   runImport(home, root);
   const withoutSources = readImported(home);
   expect(withoutSources.tasks).toEqual(history.tasks);
-  expect(withoutSources.observations).toEqual(history.observations);
-  expect(withoutSources.associations).toEqual(history.associations);
+  expect(withoutSources.sessions).toEqual(history.sessions);
+  expect(taskUsage(withoutSources, resolved.id).tokens.output).toBe(7);
+  // That import read no response.
+  expect(withoutSources.observations).toEqual({});
   expect(withoutSources.gaps).toEqual(
     expect.arrayContaining([
       expect.objectContaining({ code: "native-source-unavailable" }),

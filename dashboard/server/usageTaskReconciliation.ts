@@ -91,16 +91,48 @@ export function mergeUsageTask(
   };
   return { ...merged, gaps: merged.gaps.filter((gap) => !settled[gap]) };
 }
+// The task records kept so far, found by what a record can share with one:
+// its id, or its host and session, without which no two are the same task.
+// Reconciling a history's thousands of records stays linear in their number.
+export function usageTaskIndex(known: readonly UsageTask[] = []) {
+  const tasks: UsageTask[] = [];
+  const positions = new Map<string, number[]>();
+  const keys = (task: UsageTask) => [
+    JSON.stringify([task.id]),
+    JSON.stringify([task.host, task.sessionId]),
+  ];
+  // Keeps `task` as a further record, or at `position` in place of the
+  // record it was merged from.
+  const keep = (task: UsageTask, position = tasks.length) => {
+    tasks[position] = task;
+    for (const key of keys(task)) {
+      const sharing = positions.get(key);
+      if (sharing === undefined) positions.set(key, [position]);
+      else if (!sharing.includes(position)) sharing.push(position);
+    }
+  };
+  for (const task of known) keep(task);
+  // Where the one kept record that is `task` stands: nowhere when none is,
+  // and when several are, which leaves the task its own record.
+  const only = (task: UsageTask): number | undefined => {
+    const matches = [
+      ...new Set(keys(task).flatMap((key) => positions.get(key) ?? [])),
+    ].filter((position) => {
+      const item = tasks[position];
+      return (
+        item !== undefined && (item.id === task.id || sameUsageTask(item, task))
+      );
+    });
+    return matches.length === 1 ? matches[0] : undefined;
+  };
+  return { tasks, keep, only };
+}
 export function canonicalUsageTasks(tasks: UsageTask[]) {
-  const result: UsageTask[] = [];
+  const kept = usageTaskIndex();
   for (const task of tasks) {
-    const matches = result.filter(
-      (item) => item.id === task.id || sameUsageTask(item, task),
-    );
-    if (matches.length === 1 && matches[0]) {
-      const index = result.indexOf(matches[0]);
-      result[index] = mergeUsageTask(matches[0], task);
-    } else result.push(reconcileTaskAssignment(reconcileTaskClaims(task)));
+    const position = kept.only(task);
+    const old = position === undefined ? undefined : kept.tasks[position];
+    kept.keep(mergeUsageTask(old, task), position);
   }
-  return result;
+  return kept.tasks;
 }

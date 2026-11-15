@@ -110,9 +110,17 @@ test("keeps explicit resumed launch boundaries separate, permits evidenced follo
       source: { kind: "native", file: "collector://claude/message" },
     })),
   };
+  // A writer passes every response of the session it read, with its tasks.
+  const session = {
+    observations: Object.values({
+      ...history.observations,
+      [replay.id]: replay,
+    }),
+    associations: Object.values(history.associations),
+  };
   nodeProcess(
     home,
-    `const {writeUsageHistory}=await import('./dashboard/server/usageHistory.ts'); await writeUsageHistory({observations:[${JSON.stringify(replay)}]});`,
+    `const {writeUsageHistory}=await import('./dashboard/server/usageHistory.ts'); await writeUsageHistory(${JSON.stringify(session)});`,
   );
   expect(taskUsage(readImported(home), first.id).tokens.output).toBe(10);
   writeClaudeSession(claudeRoot, [

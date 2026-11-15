@@ -1,5 +1,7 @@
-// Dashboard-owned request evidence. Native observations and task associations
-// are separate so collector/import overlap cannot charge one response twice.
+// Dashboard-owned usage records. A response's native observation and its task
+// association are what the readers produce and a writer passes
+// (`UsageBatch`); the history keeps tasks, coverage gaps and each session's
+// contribution (./usageContributions.ts), and no response.
 import { z } from "zod";
 
 const counter = z.number().int().nonnegative().nullable();
@@ -155,13 +157,6 @@ export const usageGapSchema = z.object({
   sessionId: z.string().optional(),
   host: z.enum(["codex", "claude"]).optional(),
 });
-export const usageHistorySchema = z.object({
-  version: z.literal(1),
-  tasks: z.record(z.string(), usageTaskSchema),
-  observations: z.record(z.string(), usageObservationSchema),
-  associations: z.record(z.string(), usageAssociationSchema),
-  gaps: z.array(usageGapSchema),
-});
 export type UsageTokens = z.infer<typeof usageTokensSchema>;
 export type UsageSource = z.infer<typeof usageSourceSchema>;
 export type UsageSettings = z.infer<typeof usageSettingsSchema>;
@@ -170,13 +165,19 @@ export type UsageMeasurement = UsageObservation["measurements"][number];
 export type UsageTask = z.infer<typeof usageTaskSchema>;
 export type UsageAssociation = z.infer<typeof usageAssociationSchema>;
 export type UsageGap = z.infer<typeof usageGapSchema>;
-export type UsageHistory = z.infer<typeof usageHistorySchema>;
 export type UsageBatch = {
   tasks?: UsageTask[];
   observations?: UsageObservation[];
   associations?: UsageAssociation[];
   gaps?: UsageGap[];
 };
+// The four disjoint token categories a response's usage is summed in.
+export const usageTokenCategories = [
+  "uncachedInput",
+  "cacheRead",
+  "cacheWrite",
+  "output",
+] as const satisfies readonly (keyof UsageTokens)[];
 export const emptyUsageTokens = (): UsageTokens => ({
   uncachedInput: null,
   cacheRead: null,
@@ -185,13 +186,6 @@ export const emptyUsageTokens = (): UsageTokens => ({
   reasoningOutput: null,
   cacheWrite5m: null,
   cacheWrite1h: null,
-});
-export const emptyUsageHistory = (): UsageHistory => ({
-  version: 1,
-  tasks: {},
-  observations: {},
-  associations: {},
-  gaps: [],
 });
 export const responseKey = (
   host: string,

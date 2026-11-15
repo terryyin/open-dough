@@ -109,7 +109,7 @@ export function codexAssociation(
     !observation.gaps.includes("contradictory-lineage")
   )
     observation.gaps.push("contradictory-lineage");
-  const candidates = observation.gaps.includes("contradictory-lineage")
+  const named = observation.gaps.includes("contradictory-lineage")
     ? []
     : tasks.filter(
         (task) =>
@@ -121,13 +121,17 @@ export function codexAssociation(
           [task.rootTurnId, ...(task.nativeTurns ?? [])].some(
             (turn) =>
               turn === observation.rootTurnId || turn === observation.turnId,
-          ) &&
-          hasUsageAssignment(task),
+          ),
       );
+  const candidates = named.filter(hasUsageAssignment);
   return {
     observationId: observation.id,
     taskId: candidates.length === 1 ? (candidates[0]?.id ?? null) : null,
-    candidates: candidates.map((task) => task.id),
+    // Tasks whose assignment does not hold stay named when no other task is,
+    // so the response returns to one that regains it.
+    candidates: (candidates.length > 0 ? candidates : named).map(
+      (task) => task.id,
+    ),
     sources: uniqueFacts([
       ...chain.sources,
       ...candidates.flatMap(usageTaskJoinSources),

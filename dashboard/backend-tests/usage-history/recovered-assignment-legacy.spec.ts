@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
-import { rmSync, writeFileSync } from "node:fs";
+import { rmSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage, usageHistoryFile } from "../../server/usageHistory.ts";
+import { taskUsage } from "../../server/usageHistory.ts";
 import { test, expect } from "../../tests/usage-history/retainedUsageTest.ts";
+import {
+  legacyHistory,
+  writeLegacyStore,
+} from "../../tests/usage-history/earlierStores.ts";
 import {
   readImported,
   runImport,
@@ -54,8 +58,7 @@ test("legacy effective association without candidates survives beside a rejected
   assert(association);
   association.candidates = [];
   // Literal legacy effective-only association is the compatibility promise.
-  const store = usageHistoryFile(home);
-  writeFileSync(store, JSON.stringify(prior));
+  writeLegacyStore(home, legacyHistory(prior));
   rmSync(`${root}/valid-legacy.jsonl`);
   writeCodexSession(
     root,
@@ -67,13 +70,17 @@ test("legacy effective association without candidates survives beside a rejected
   );
   runImport(home, root);
   const after = readImported(home);
-  expect(after.observations).toEqual(prior.observations);
-  expect(taskUsage(after, valid.id).tokens.output).toBe(6);
-  expect(after.associations[association.observationId]).toMatchObject({
-    taskId: valid.id,
-    candidates: [valid.id],
-    sources: association.sources,
+  expect(after.observations).toEqual({});
+  expect(taskUsage(after, valid.id)).toMatchObject({
+    requests: 1,
+    tokens: { output: 6 },
   });
+  expect(after.sessions["codex:valid-legacy"]?.entries).toMatchObject([
+    { candidates: [valid.id], responses: 1 },
+  ]);
+  expect(after.sessions["codex:bad-legacy"]?.entries).toMatchObject([
+    { candidates: [invalid.id], responses: 1 },
+  ]);
   expect(taskUsage(after, invalid.id).requests).toBe(0);
 });
 
@@ -109,7 +116,7 @@ test("independent retained assignment sources preserve eligibility when their na
       { kind: "native", file, line: 4 },
     ],
   };
-  writeFileSync(usageHistoryFile(home), JSON.stringify(prior));
+  writeLegacyStore(home, legacyHistory(prior));
   writeCodexSession(
     root,
     makeMe.aCodexRollout
@@ -129,8 +136,9 @@ test("independent retained assignment sources preserve eligibility when their na
     "unsupported-task-assignment",
   );
   expect(taskUsage(after, task.id).tokens.output).toBe(8);
-  expect(after.observations).toEqual(prior.observations);
+  expect(after.observations).toEqual({});
   rmSync(root, { recursive: true });
   runImport(home, root);
-  expect(readImported(home).associations).toEqual(after.associations);
+  expect(readImported(home).sessions).toEqual(after.sessions);
+  expect(taskUsage(readImported(home), task.id).tokens.output).toBe(8);
 });

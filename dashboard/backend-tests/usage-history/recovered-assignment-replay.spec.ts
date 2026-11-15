@@ -50,8 +50,8 @@ test("rejected assignment survives missing inputs, later genuine assignment rest
   runImport(home, root);
   const missing = readImported(home);
   expect(missing.tasks).toEqual(corrected.tasks);
-  expect(missing.observations).toEqual(corrected.observations);
-  expect(missing.associations).toEqual(corrected.associations);
+  expect(missing.sessions).toEqual(corrected.sessions);
+  expect(taskUsage(missing, task.id).requests).toBe(0);
   writeCodexSession(
     root,
     makeMe.aCodexRollout
@@ -102,5 +102,7 @@ test("rejected assignment survives missing inputs, later genuine assignment rest
   expect(readFileSync(operational, "utf8")).toBe(bytes);
   rmSync(root, { recursive: true });
   runImport(home, root);
-  expect(readImported(home).tasks[task.id]).toEqual(retained.tasks[task.id]);
+  const removed = readImported(home);
+  expect(removed.tasks[task.id]).toEqual(retained.tasks[task.id]);
+  expect(taskUsage(removed, task.id).tokens.output).toBe(9);
 });

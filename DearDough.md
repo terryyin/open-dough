@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 525. Removed numbers are never reused.
+- Highest allocated local number: 531. Removed numbers are never reused.
 - Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
@@ -688,7 +688,7 @@ Fixture-sized CLI proof passed before the first actual recovery exposed two inde
   - Tool: Codex
   - Model: gpt-6.1-sol
   - Open Dough release: 0.3.99 (checkout-bound installed marker at accepted Take a2bf0f9625455299ad0f8776e1be915aa6d8e797)
-  - Evidence: [maintained diagnostic receipts](docs/maintainer/usage-history-recovery-diagnostics-2026-11-15.md#scaling-defect-found-during-recovery); local import-reports/2026-11-15 failed-first-runtime.json, lineage-probe.json and census.json. One 249-assistant-row sample produced85256 ancestor references; the later census measured about1.4GB compact values against V8's536870888-character string ceiling.
+  - Evidence: [maintained diagnostic receipts](docs/maintainer/usage-history-recovery-diagnostics-2026-11-15.md#scaling-defect-found-during-recovery); local import-reports/2026-11-15 failed-first-runtime.json, lineage-probe.json and census.json (that folder has since been removed from the machine). One 249-assistant-row sample produced85256 ancestor references; the later census measured about1.4GB compact values against V8's536870888-character string ceiling.
   - Observed effect: import attempts failed after16m8.681s and6m59.760s before any usage store was created. Execution refined the remaining plan to own bounded storage and restored proof; final default-heap pair and independent reconciliation succeeded.
   - Inference: when a promised recovery spans an existing corpus, cheap corpus-size and lineage-amplification observations should inform persistence feasibility before the first full import. These observations would have exposed both constraints earlier; the record does not measure total avoidable time or imply that all later investigation was waste.
 
@@ -733,3 +733,87 @@ A test relocation's acceptance compared each implementer's interim-to-new mappin
   - Evidence: interim `dashboard/tests/sessions/agent-launch-story-card-done.spec.ts` at `245c4feed` (refused mark asserts `dashboard.claudeStopCalls()` empty); converted `dashboard/frontend-tests/sessions/agent-launch-story-card-done.spec.ts` at `64e07ab2c`; `dashboard/backend-tests/sessions/agent-launch-done-refusal.spec.ts` covered only unrecorded, other-project and malformed refusals. Slice 6's returned mapping row named the Frontend home without listing the dropped server observation. Intent Coverage on `c7e680efb` returned Caught for the UI path and noted that reduction unprobed.
   - Observed effect: the loss was repaired before closure with a Backend case in `agent-launch-done-refusal.spec.ts` (missing project folder: 404, no claude call, session unmarked and busy); scratch breaks of the folder refusal and of an early `claude stop` each failed it. Probe cost about 201 s; the repair and its refactor pass added two delegated agents.
   - Inference: a mechanical interim-assertion inventory per relocated case (each `expect` → new location, or an existing proof that asserts it) would likely have exposed the loss at slice acceptance. Story obligations G2 and G1 show acceptance did verify the losses an implementer reported; this loss was not reported.
+
+## DD-526 — A plan promised specs would pass unchanged while its own premise row listed them as dependents of the removed storage
+
+A plan that removes stored rows named a spec family as passing unchanged in its proof table, although its premise table listed one of those specs among the tests that read the stored rows, and other "unchanged" specs read the removed page directory or fields the new store does not keep.
+
+### Occurrences
+- Execution: SEED-357#keep-usage-history-within-a-small-disk-budget (plan `631-keep-usage-history-small`; first implementation `a23dcc3014807378a3d518461e7e8a00f72c8d2b`)
+  - Timestamp: unknown (slice 3 on 2026-11-15, before the trunk merge committed 13:31:26+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.99 at Take `5a97baeb3`; 0.3.100 from the trunk merge `f74ff9a76`
+  - Evidence: plan 631 at `59de4d5c1`: proof-ownership row "`token-index*.spec.ts` … unchanged" against the premise row listing `token-index-refresh` (1); the slice 3 agent's two mid-slice messages; plan Learnings for slice 3.
+  - Observed effect: the implementation agent stopped twice for rulings on four specs (`token-index-refresh`, `token-index` `storeFiles`, `claude-usage` cache-write split, `claude-coverage` partial replay); each got a minimal edit and was reported as a deviation.
+  - Inference: comparing the "unchanged" list with the premise table's dependents and a grep for the removed directory and fields at planning time would likely have named these edits in the slice. The cost was two coordinator round trips; no rework followed.
+
+## DD-527 — A plan decision that stored candidates keep assignment corrections working was proved only without a reread between loss and regain
+
+The plan relied on stored candidate task ids to let a task withdraw and regain usage without native files. The readers drop a task without a holding assignment when they name candidates, so the first reread after a rejection removed the candidate; the existing proofs never reread between rejection and regain.
+
+### Occurrences
+- Execution: SEED-357#keep-usage-history-within-a-small-disk-budget (plan `631-keep-usage-history-small`; first implementation `a23dcc3014807378a3d518461e7e8a00f72c8d2b`)
+  - Timestamp: unknown (slice 3 on 2026-11-15)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.99 at Take `5a97baeb3`; 0.3.100 from the trunk merge `f74ff9a76`
+  - Evidence: plan 631 Current decisions ("Contributions keep candidate task ids …"); the slice 3 agent's scratch spec; `dashboard/backend-tests/usage-history/recovered-assignment-rescanned.spec.ts` and the candidate change in `codexUsageLineage.ts` / `claudeUsageLineage.ts` at `5756f0a28`.
+  - Observed effect: the slice 1 acceptance had noted the divergence as a learning; the slice 3 agent reproduced the loss and the coordinator ruled the reader change, which the plan had described as "Reading stays".
+  - Inference: while native files exist every check rereads the session, so the unproved sequence was the ordinary one. Stating the sequence a withdraw/regain promise must survive (loss, reread, evidence removed, regain) in the plan would likely have placed the reader change there.
+
+## DD-528 — A latency premise timed one suspected cost, and the promised figure failed on a cost nobody had measured
+
+A story promised an idle check under two seconds. Planning timed only listing the native files (0.13 s) and left the rest of the operation as an unverified remainder for the last slice, where the whole operation took 2.5 to 2.7 s because of quadratic task matching.
+
+### Occurrences
+- Execution: SEED-357#keep-usage-history-within-a-small-disk-budget (plan `631-keep-usage-history-small`; first implementation `a23dcc3014807378a3d518461e7e8a00f72c8d2b`)
+  - Timestamp: unknown (slice 5 on 2026-11-15)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.99 at Take `5a97baeb3`; 0.3.100 from the trunk merge `f74ff9a76`
+  - Evidence: plan 631 premise row "Slice 5: seeing that no rollout changed is fast"; slice 5 Learnings (CPU profile, `usageTaskIndex` in `usageTaskReconciliation.ts` at `b6c9b8d46`).
+  - Observed effect: the last slice added an index the plan had not named and reached 0.98 to 1.22 s; an equivalence run over the real clone covered the change.
+  - Inference: one timed run of the existing operation on a clone during planning would have shown the 2.5 s floor and its location. The plan did flag the remainder and tell the slice to return the figure, which bounded the risk.
+
+## DD-529 — A hosted suite-deadline cutoff named no failing test, and a group left without margin by sibling conversions failed on an unrelated story's merge
+
+After trunk conversions grew the e2e group by about a quarter, each of five shards carried about 1,100 list-seconds against a 320 s cutoff. A slow runner took one shard to the cutoff on this story's trunk-merge revision; the failure diagnostic reported `no-recognized-failure` for the job.
+
+### Occurrences
+- Execution: SEED-357#keep-usage-history-within-a-small-disk-budget (plan `631-keep-usage-history-small`; first implementation `a23dcc3014807378a3d518461e7e8a00f72c8d2b`)
+  - Timestamp: 2026-11-15T05:37:27Z (cutoff in the job log)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.99 at Take `5a97baeb3`; 0.3.100 from the trunk merge `f74ff9a76`
+  - Evidence: CI run 43681477553 attempt 1, job `e2e / shard 2/5` on `f74ff9a76`; `ci-github-diagnostic.mjs failure` inventory gap; proof fragments of runs 43681477553, 43679953950 and 43678012127; `dashboard/tests/shards.md` at `80e759cfc`.
+  - Observed effect: a delegated analysis compared per-spec times across runs (1.42 to 1.94 times slower, other shards faster) and returned a capacity decision; the developer chose to move one shard from the integrated group to e2e, and run 43688468922 finished the six e2e shards in 173 to 240 s.
+  - Inference: the conversions that grew the group recorded passing runs at 287 and 288 s, so the margin was already gone when they landed. A margin check against the cutoff when a group grows, and a diagnostic that reads the cutoff message and the unfinished cases from the proof fragment, would likely have moved this to the story that caused it.
+
+## DD-530 — Trunk rewrote tests an accepted, uncommitted slice had edited, and the coordinator improvised the reconciliation
+
+Freshness settlement reported an amended plan while an accepted slice sat uncommitted. Trunk had rewritten test files that slice and an earlier slice edited. The guidance absorbs record amendments and names sibling checks, but gives no sequence for bringing trunk's product changes under uncommitted accepted work.
+
+### Occurrences
+- Execution: SEED-357#keep-usage-history-within-a-small-disk-budget (plan `631-keep-usage-history-small`; first implementation `a23dcc3014807378a3d518461e7e8a00f72c8d2b`)
+  - Timestamp: 2026-11-15T13:31:26+08:00 (trunk merge commit `f74ff9a76`)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.99 at Take `5a97baeb3`; 0.3.100 from the trunk merge `f74ff9a76`
+  - Evidence: source-freshness `amended` result at trunk `1bf7aedd0`; local ref `wip-631-slice3` (commit `87d0615be`, deleted after delivery); merge `f74ff9a76`; slice 3 delta report; plan Learnings "Trunk reconciliation".
+  - Observed effect: the coordinator committed the slice to a local ref, reset the branch, merged trunk, proved and published the merge, applied the slice with `git cherry-pick -n`, and resumed the slice's agent to resolve two conflicts and one unflagged break in trunk's new harness. The slice then passed on the merged tree.
+  - Inference: the sequence worked and kept the merge and the slice as separate published revisions, but it used a reset the delegation rules forbid to agents and rested on the coordinator's judgment. Whether this matches DD-502 or DD-520 is uncertain: those concern the backlog adapter and proving a merge before committing it.
+
+## DD-531 — A cloned home changed the measured store size because stored sources carry the home's absolute path
+
+A plan asked for a size budget to be observed by running the real operation against an APFS clone in a scratch home. Launch-record sources in the store hold absolute paths under the real home, so the clone's different path duplicated sources for 1,021 tasks and the document measured 26.0 MB against a 25 MB budget.
+
+### Occurrences
+- Execution: SEED-357#keep-usage-history-within-a-small-disk-budget (plan `631-keep-usage-history-small`; first implementation `a23dcc3014807378a3d518461e7e8a00f72c8d2b`)
+  - Timestamp: unknown (slice 4 on 2026-11-15)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.99 at Take `5a97baeb3`; 0.3.100 from the trunk merge `f74ff9a76`
+  - Evidence: plan 631 slice 4 Learnings: 26,033,157 bytes in the literal clone, 24,277,565 with stored paths rewritten to the clone's, 22,871,902 for the pure conversion.
+  - Observed effect: the slice 4 agent traced the excess to the path difference, built a second clone with rewritten paths and a control clone, and reported the three figures; the budget was accepted on the measured 24.3 MB.
+  - Inference: practice worth keeping: path-guarded scripts that refuse any home but the scratch clones, and a before/after digest of the real store. A clone observation of a store that records absolute paths needs the paths rewritten or the figure corrected.

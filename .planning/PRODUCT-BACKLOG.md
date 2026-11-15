@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Reduce total model work during blocked execution](seeds/SEED-356-reduce-blocked-execution-effort.md#reduce-total-model-work-during-blocked-execution) — SEED-356#reduce-total-model-work-during-blocked-execution ([plan](slice-plans/627-reduce-blocked-execution-work/PLAN.md))
-- [Keep usage history within a small disk budget](seeds/SEED-357-dashboard-task-token-usage.md#keep-usage-history-within-a-small-disk-budget) — SEED-357#keep-usage-history-within-a-small-disk-budget ([plan](slice-plans/631-keep-usage-history-small/PLAN.md))
 
 ## Backlog list
 

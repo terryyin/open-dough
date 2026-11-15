@@ -1,6 +1,6 @@
 // The latest per-task usage summary (./usageTaskSummary.ts) for the running
 // dashboard. A request reads only the summary file beside the store and the
-// store's small manifest, to tell whether the summary still derives from it.
+// store document's bytes, to tell whether the summary still derives from it.
 // When it is missing, unreadable, of another format or derived from another
 // store document, a separate process (./usageTaskSummaryMain.ts) rebuilds it
 // off this server's event loop (./usageProcess.ts); concurrent requests share

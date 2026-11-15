@@ -27,7 +27,7 @@ changes and the Refresh's selected-cohort reread or failure.
 
 Exclusions: storage representation, page reclamation, tier reconciliation,
 writer latency and budget measurement belong to
-[Keep usage history within a small disk budget](../631-keep-usage-history-small/PLAN.md).
+Keep usage history within a small disk budget.
 No tariff, import CLI or chart redesign. Its session-contribution history
 replaces this plan's former page-stability slice; no page-file proof remains.
 

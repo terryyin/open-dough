@@ -163,10 +163,16 @@ test("imports retained Claude root and explicitly joined worker messages once ac
       cacheRead: 26,
       cacheWrite: 18,
       output: 15,
-      cacheWrite5m: 3,
-      cacheWrite1h: 7,
     }),
   );
+  // The history keeps the four categories; the cache-write split stays with
+  // the responses read.
+  const split = (name: "cacheWrite5m" | "cacheWrite1h") =>
+    Object.values(history.observations).reduce(
+      (sum, item) => sum + (item.tokens[name] ?? 0),
+      0,
+    );
+  expect([split("cacheWrite5m"), split("cacheWrite1h")]).toEqual([3, 7]);
   const observed = new Map(
     Object.values(history.observations).map((item) => [item.responseId, item]),
   );
