@@ -17,11 +17,13 @@ import {
   finishedTask,
   launchWorkflowOf,
   primarySetting,
+  taskEndedAt,
   tokenIndexTask,
   usageModel,
   type UsageReading,
 } from "./tokenIndexTask.ts";
 import type { UsageTaskSummary } from "./usageTaskSummary.ts";
+import { inUsagePeriod, type UsagePeriod } from "../src/usagePeriod.ts";
 
 const matches = (chosen: string | null, primary: string | null) =>
   chosen === null || chosen === primary;
@@ -40,6 +42,7 @@ export function tokenIndexCohort(
   summary: UsageTaskSummary,
   reading: UsageReading,
   cohort: TokenIndexCohort,
+  period?: UsagePeriod,
 ): Omit<TokenIndexAnswer, "checkedAt"> {
   const { projects, launches, tariff } = reading;
   const population = summary.tasks.flatMap((task) =>
@@ -54,8 +57,12 @@ export function tokenIndexCohort(
         matches(cohort.model, primarySetting(task, "model")) &&
         matches(cohort.effort, primarySetting(task, "effort")),
     )
-    .map((task) => tokenIndexTask(task, reading));
+    .map((task) => ({
+      value: tokenIndexTask(task, reading),
+      endedAt: taskEndedAt(task),
+    }));
   const tasks = weighed
+    .map(({ value }) => value)
     .filter((task) => typeof task === "object")
     .sort(
       (a, b) =>
@@ -81,8 +88,11 @@ export function tokenIndexCohort(
       ),
     },
     tariff: { version: tariff.version, label: tariff.label },
-    tasks,
-    unpriced: weighed.filter((task) => task === "unpriced").length,
-    average,
+    tasks: tasks.filter((task) => inUsagePeriod(task.endedAt, period)),
+    unpriced: weighed.filter(
+      ({ value, endedAt }) =>
+        value === "unpriced" && inUsagePeriod(endedAt, period),
+    ).length,
+    average: average.filter(({ at }) => inUsagePeriod(at, period)),
   };
 }

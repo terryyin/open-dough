@@ -42,7 +42,7 @@
 
 .usage-filters {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--space-2);
 }
 
@@ -53,7 +53,8 @@
   font-size: var(--text-sm);
 }
 
-.usage-filters select {
+.usage-filters select,
+.usage-filters input {
   width: 100%;
 }
 
@@ -124,6 +125,7 @@
 }
 
 .usage-swatch-average {
+  background: var(--history-chart-trend);
   width: 15px;
   height: 2px;
   border-radius: 0;

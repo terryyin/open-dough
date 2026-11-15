@@ -20,6 +20,18 @@ function Mark({
 }) {
   const { x, y, entry } = mark;
   const { selectedLabel } = layout;
+  if (mark.overflow !== undefined)
+    return (
+      <g className="history-chart-overflow" data-key={entry.key}>
+        <path
+          className="history-chart-large"
+          d={`M${String(x - 5)} ${String(y - 5)} l10 10 m0 -10 l-10 10`}
+        />
+        <text x={mark.overflow.labelX} y={y - 10} textAnchor="middle">
+          {mark.overflow.label}
+        </text>
+      </g>
+    );
   if (entry.kind === "gap")
     return (
       <g>
@@ -37,15 +49,15 @@ function Mark({
               className="history-chart-gap-marker"
               x1={x}
               x2={x}
-              y1={plotTop}
-              y2={plotBottom}
+              y1={plotTop + layout.overflowHeight}
+              y2={plotBottom + layout.overflowHeight}
             />
             <text
               x={Math.max(
                 layout.plotLeft + 38,
                 Math.min(x, layout.plotEnd - 38),
               )}
-              y={plotTop}
+              y={plotTop + layout.overflowHeight}
               textAnchor="middle"
             >
               {`${selectedLabel} gap`}
@@ -108,14 +120,33 @@ export function HistoryChartPlot({ layout }: { readonly layout: ChartLayout }) {
           <line x1={plotLeft} x2={plotEnd} y1={reference.y} y2={reference.y} />
         </g>
       )}
-      {layout.line !== "" && (
+      {!layout.trendOnTop && layout.line !== "" && (
         <path className="history-chart-line" d={layout.line} />
       )}
       {layout.marks.map((mark) => (
         <Mark key={mark.entry.key} mark={mark} layout={layout} />
       ))}
+      {layout.trendOnTop && layout.line !== "" && (
+        <path
+          className="history-chart-line history-chart-trend"
+          d={layout.line}
+        />
+      )}
+      {layout.trendOverflows.map((point, index) => (
+        <g className="history-chart-trend-overflow" key={index}>
+          <path d={`M${point.x - 5} ${point.y + 3} l5 -6 l5 6`} />
+          <text x={point.labelX} y={point.y - 10} textAnchor="middle">
+            {point.label}
+          </text>
+        </g>
+      ))}
       {layout.dates.map(({ x, words }) => (
-        <text key={words} x={x} y={dateBaseline} textAnchor="middle">
+        <text
+          key={words}
+          x={x}
+          y={dateBaseline + layout.overflowHeight}
+          textAnchor="middle"
+        >
           {words}
         </text>
       ))}

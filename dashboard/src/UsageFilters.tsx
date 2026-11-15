@@ -57,7 +57,7 @@ export function UsageFilters({
 }) {
   const specific = (value: string) => (value === broad ? null : value);
   return (
-    <div className="usage-filters">
+    <>
       <Filter
         name="Tool"
         value={cohort.tool}
@@ -106,6 +106,6 @@ export function UsageFilters({
           onChoose({ ...cohort, effort: specific(effort) });
         }}
       />
-    </div>
+    </>
   );
 }

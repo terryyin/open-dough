@@ -15,6 +15,7 @@
   --history-chart-words: var(--quiet);
   --history-chart-failed: var(--problem);
   --history-chart-partial: var(--caution);
+  --history-chart-trend: var(--caution);
 }
 
 .history-chart-chart {
@@ -120,3 +121,22 @@
   stroke-width: 2;
   stroke-dasharray: 6 4;
 }
+
+/* A numeric overflow remains a task, distinct from a build without timing. */
+.history-chart-large {
+  fill: none;
+  stroke: var(--problem);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.history-chart-overflow-button { width: 32px; height: 32px; }
+.history-chart-overflow text { fill: var(--text); }
+
+/* An independent trend paints above task marks; ↑ is numeric overflow, not an action. */
+.history-chart-trend, .history-chart-trend-overflow path {
+  fill: none;
+  stroke: var(--history-chart-trend);
+  stroke-width: 2.5;
+}
+.history-chart-trend-overflow text { fill: var(--text); }
+.history-chart-trend-values { padding-inline: var(--space-4); overflow-wrap: anywhere; }

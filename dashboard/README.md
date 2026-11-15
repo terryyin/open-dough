@@ -90,7 +90,7 @@ Observe one project at a time using the banner's tab-shaped **Project** choices.
 The selected choice is highlighted; Tab reaches it and arrow keys switch projects.
 Open **System settings → Projects** to add or remove projects and inspect their
 repository and local checkout paths, including when the project list is empty.
-[Project configuration](PROJECT-CONFIGURATION.md) describes validation, saved
+[Usage](USAGE-TOKEN-INDEX.md) charts recent task tokens. [Project configuration](PROJECT-CONFIGURATION.md) describes validation, saved
 order, environment-specific storage, removal and retained sessions.
 **System settings → OpenAI** saves, replaces, or removes this machine's general
 OpenAI access. [OpenAI access](OPENAI-ACCESS.md) covers private storage, shared

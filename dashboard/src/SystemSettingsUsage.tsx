@@ -1,6 +1,7 @@
 // System settings → Usage: the Token index of finished dashboard-launched
 // tasks for the cohort its filters choose (`./usageTokenIndex.ts`) as its
-// trend (`./TokenIndexTrend.tsx`), and when the usage was last checked.
+// trend (`./TokenIndexTrend.tsx`) within recent local calendar days, and when
+// the usage was last checked. Days remain separate from cohort identity.
 // Refresh brings in the Codex usage written since then; meanwhile the trend
 // stays with a checking note, and a failed Refresh keeps it and its check
 // time beside the error. The trend is an observation; it claims neither an
@@ -11,6 +12,8 @@ import { Moment } from "./Moment.tsx";
 import { refusalMessage } from "./refusalMessage.ts";
 import { TokenIndexTrend } from "./TokenIndexTrend.tsx";
 import { UsageFilters } from "./UsageFilters.tsx";
+import { UsageDays } from "./UsageDays.tsx";
+import { recentUsagePeriod } from "./usagePeriod.ts";
 import {
   defaultCohort,
   tokenIndexUrl,
@@ -22,6 +25,7 @@ import "./system-settings-usage.css";
 
 export function SystemSettingsUsage() {
   const [cohort, setCohort] = useState(defaultCohort);
+  const [days, setDays] = useState(30);
   const [answer, setAnswer] = useState<TokenIndexAnswer>();
   // The latest answer's Model and Effort options stay on offer while the
   // next cohort loads.
@@ -35,7 +39,9 @@ export function SystemSettingsUsage() {
   const checking = refreshPending || readAfterRefresh !== refreshed;
   useEffect(() => {
     const controller = new AbortController();
-    void fetch(tokenIndexUrl(cohort), { signal: controller.signal })
+    void fetch(tokenIndexUrl(cohort, recentUsagePeriod(days)), {
+      signal: controller.signal,
+    })
       .then(async (response) => {
         const body: unknown = await response.json();
         if (!response.ok)
@@ -58,7 +64,7 @@ export function SystemSettingsUsage() {
     return () => {
       controller.abort();
     };
-  }, [cohort, refreshed]);
+  }, [cohort, days, refreshed]);
   const refresh = () => {
     setRefreshPending(true);
     setProblem(undefined);
@@ -101,7 +107,18 @@ export function SystemSettingsUsage() {
           Refresh
         </button>
       </div>
-      <UsageFilters cohort={cohort} options={options} onChoose={choose} />
+      <div className="usage-filters">
+        <UsageDays
+          days={days}
+          onChoose={(next) => {
+            if (next === days) return;
+            setDays(next);
+            setAnswer(undefined);
+            setProblem(undefined);
+          }}
+        />
+        <UsageFilters cohort={cohort} options={options} onChoose={choose} />
+      </div>
       {problem !== undefined && (
         <div role="alert" className="settings-problem">
           {problem}
@@ -115,7 +132,7 @@ export function SystemSettingsUsage() {
         )
       ) : (
         <>
-          <TokenIndexTrend answer={answer} />
+          <TokenIndexTrend answer={answer} days={days} />
           <p className="settings-note">
             {answer.checkedAt === null ? (
               "Not checked yet"

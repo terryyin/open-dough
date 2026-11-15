@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-369_make-recent-token-usage-easier-to-read.json",
+      "identity": "SEED-369#make-recent-token-usage-easier-to-read",
+      "completedAt": "2026-11-15T10:10:26.486Z",
+      "blob": "59a76b5c59e4b132e08a670af22e1160a14872bc"
+    },
+    {
       "fileName": "SEED-368_reduce-model-work-during-prolonged-supplier-waiting.json",
       "identity": "SEED-368#reduce-model-work-during-prolonged-supplier-waiting",
       "completedAt": "2026-11-15T09:55:56.509Z",

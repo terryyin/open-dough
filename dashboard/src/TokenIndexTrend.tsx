@@ -1,7 +1,8 @@
 // System settings → Usage's Token index trend for one cohort's answer
 // (`./usageTokenIndex.ts`): one point per task over its end time on the
 // shared history chart (`./HistoryChart.tsx`), partial ones hollow, the
-// trailing moving average as its trend, the cohort note counting the partial
+// true trailing moving average above dots, independent of their scale; ↑ labels
+// and dated values identify average overflow. The cohort note counts partial
 // tasks and the unpriced ones, which have no point, and the tariff version
 // that weighed them. Selecting a point by pointer or keyboard shows that
 // task's detail (`./UsageTaskDetail.tsx`); a new answer for the same cohort,
@@ -16,6 +17,10 @@ import {
   type TokenIndexAnswer,
 } from "./usageTokenIndex.ts";
 
+const largeTaskThreshold = 50_000_000;
+const largeTaskWords = "Large task above 50 million";
+const movingAverageWords = `${String(movingAverageTasks)}-task moving average`;
+
 function series(
   answer: TokenIndexAnswer,
   selected: string | undefined,
@@ -24,6 +29,8 @@ function series(
     label: "Token index per finished task by end date",
     axis: countAxis,
     selectedLabel: "Selected task",
+    emptyScaleMaximum: largeTaskThreshold,
+    independentTrend: { label: movingAverageWords },
     entries: answer.tasks.map((task) => {
       const partial = task.coverage.kind === "partial";
       return {
@@ -31,6 +38,9 @@ function series(
         key: task.id,
         date: task.endedAt,
         value: task.index,
+        ...(task.index > largeTaskThreshold
+          ? { overflow: largeTaskWords }
+          : {}),
         description: `${task.title ?? task.identity ?? "Untitled task"} · ${countWords(task.index)}${partial ? ` · ${partialWords}` : ""}`,
         selected: task.id === selected,
         ...(partial ? { partial: partialWords } : {}),
@@ -58,8 +68,10 @@ function cohortNote({ tasks, unpriced }: TokenIndexAnswer): string {
 
 export function TokenIndexTrend({
   answer,
+  days,
 }: {
   readonly answer: TokenIndexAnswer;
+  readonly days: number;
 }) {
   // The selected task and its point's button, which Close focuses again.
   const [chosen, setChosen] = useState<{
@@ -68,13 +80,16 @@ export function TokenIndexTrend({
   }>();
   const selected = answer.tasks.find((task) => task.id === chosen?.key);
   const latest = answer.average.at(-1);
+  const periodWords = `${days} ${days === 1 ? "day" : "days"}`;
   return (
     <>
       <section className="usage-chart" aria-label="Token index trend">
         <div className="usage-chart-head">
           <div>
             <h3>Token index per task</h3>
-            <p className="settings-note">{cohortNote(answer)}</p>
+            <p className="settings-note">
+              {cohortNote(answer)} · Last {periodWords}
+            </p>
           </div>
           <p className="usage-average">
             <strong>
@@ -82,16 +97,16 @@ export function TokenIndexTrend({
             </strong>
             <span className="settings-note">
               {latest === undefined
-                ? `Fewer than ${String(movingAverageTasks)} eligible tasks`
-                : `${String(movingAverageTasks)}-task moving average`}
+                ? `An average needs ${String(movingAverageTasks)} eligible tasks; none is available in this period`
+                : movingAverageWords}
             </span>
           </p>
         </div>
         {answer.tasks.length === 0 ? (
           <p className="settings-empty">
             {answer.unpriced === 0
-              ? "No finished task matches."
-              : "No priced finished task matches."}
+              ? `No finished task matches in the last ${periodWords}.`
+              : `No priced finished task matches in the last ${periodWords}.`}
           </p>
         ) : (
           <HistoryChart
@@ -101,6 +116,17 @@ export function TokenIndexTrend({
             }}
           />
         )}
+        {answer.tasks.length > 0 &&
+          answer.tasks.every((task) => task.index > largeTaskThreshold) && (
+            <p className="settings-note">
+              No ordinary task points in this period; every priced task is above
+              50 million.
+            </p>
+          )}
+        <p className="settings-note">
+          × {largeTaskWords}; labels show actual values. Partial coverage
+          remains marked.
+        </p>
         <div className="usage-chart-foot">
           <p className="usage-legend">
             <span>
@@ -111,6 +137,7 @@ export function TokenIndexTrend({
             </span>
             <span>
               <i className="usage-swatch usage-swatch-average" /> Moving average
+              (↑ above scale)
             </span>
           </p>
           <p className="settings-note">{answer.tariff.label}</p>

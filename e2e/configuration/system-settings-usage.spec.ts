@@ -24,7 +24,8 @@ const sol = "gpt-6.1-sol";
 const day = (date: number) =>
   `2026-11-${String(date).padStart(2, "0")}T12:00:00.000Z`;
 let fixture: ReturnType<typeof systemSettingsMachine>;
-test.beforeEach(() => {
+test.beforeEach(async ({ page }) => {
+  await page.clock.install({ time: new Date("2026-11-15T12:00:00.000Z") });
   fixture = systemSettingsMachine();
 });
 test.afterEach(async () => fixture.close());
@@ -130,6 +131,8 @@ test("Refresh keeps the chart while checking, adds new launch usage, and preserv
   const usage = await visitUsage(page, server.baseURL);
   await usage.showsPoints(["Nov 3 · 1,950"]);
   await usage.showsCheckedAt(importedAt);
+  await usage.chooseDays("20");
+  await usage.showsPoints(["Nov 3 · 1,950"]);
 
   const lock = `${store}.lock`;
   mkdirSync(lock);
@@ -143,6 +146,7 @@ test("Refresh keeps the chart while checking, adds new launch usage, and preserv
   }
   await usage.showsPoints(["Nov 3 · 1,950", "Nov 6 · 1,950"]);
   await usage.showsChecked();
+  await usage.showsDays("20");
   const { checkedAt } = JSON.parse(
     readFileSync(usageCheckFile(store), "utf8"),
   ) as { checkedAt: string };
@@ -156,4 +160,5 @@ test("Refresh keeps the chart while checking, adds new launch usage, and preserv
   await usage.showsChecked();
   await usage.showsPoints(["Nov 3 · 1,950", "Nov 6 · 1,950"]);
   await usage.showsCheckedAt(checkedAt);
+  await usage.showsDays("20");
 });
