@@ -203,13 +203,12 @@ history or a manifest naming page files in `usage.json.pages/`, is read as the
 starting history, its response rows summed into contributions. The first write,
 an import's or a Refresh's, stores the document in its place, then removes
 `usage.json.pages/` whole; a failed removal is finished by the next write. Back
-up `usage.json` alone. System settings → Usage reads its derived
-`usage-task-summary.json`: a separate process rebuilds it when absent or the
-document changes, without writing history. Current launch records say whether
-a launch finished. Refresh (`server/usageRefresh.ts`) rereads known Codex sessions'
-rollouts changed since `usage-check.json`, or writes only its check record.
-Checked shows a later history write, otherwise the recorded Refresh start time;
-the record's mtime distinguishes Refresh's own history write from a later import.
+up `usage.json` alone. System settings → Usage reads its derived `usage-task-summary.json`: a separate process rebuilds it when absent or
+the document changes, without writing history. Current launch records say whether a launch finished. Refresh (`server/usageRefresh.ts`)
+rereads known Codex sessions' rollouts changed since `usage-check.json`, or writes only its check record. Checked shows a later history
+write, otherwise the recorded Refresh start time; the record's mtime distinguishes Refresh's own history write from a later import. The view
+keeps Checking active through filter loads and Refresh's current-cohort reread. A failure retains the selected chart and Checked time beside
+its error, then enables Refresh.
 
 The import result counts tasks and gaps from the history, and responses, also
 in `summary`, from the evidence this import read. `configuredWork` contains
