@@ -62,18 +62,18 @@ allocation.
 | 5.2.3 | …including background work | slice 1 | observed: dashboard/server/usageTaskSummary.ts deriveUsageTaskSummary: every associated observation summed, no turn or status filter |
 | 5.2.4 | …including failed work | slice 1 | observed: dashboard/server/usageTaskSummary.ts deriveUsageTaskSummary: every associated observation summed, no turn or status filter |
 | 5.2.5 | …including cancelled work | slice 1 | observed: dashboard/server/usageTaskSummary.ts deriveUsageTaskSummary: every associated observation summed, no turn or status filter |
-| 5.3 | *Partial* = the task's own records or gaps show missing usage | slice 4 | |
-| 5.3e | Partial examples: a missing worker, an unattributable response | slice 4 | |
-| 5.4 | *Unpriced* = any associated response lacks a tariff rate | slice 4 | |
-| 5.4e | Unpriced examples: an unknown model, a non-standard speed tier | slice 4 | |
-| 5.5 | A partial task appears with a distinct mark | slice 4 | |
-| 5.6 | A partial task's gap appears in the detail | slice 4 | |
-| 5.7 | An unpriced task has no point | slice 4 | |
-| 5.8 | An unpriced task is counted in the cohort note | slice 4 | |
-| 5.9 | Neither partial nor unpriced tasks enter the moving average | slice 4 | |
-| 5.10 | A measured zero stays a zero point | slice 4 | |
-| 5.11 | Fewer than 10 eligible tasks show no line | slice 4 | |
-| 5.12 | …and the view says so | slice 4 | |
+| 5.3 | *Partial* = the task's own records or gaps show missing usage | slice 4 | observed: dashboard/backend-tests/usage-history/token-index-eligibility.spec.ts test 2: missing worker, missing counts, unattributed response, no response make the task partial |
+| 5.3e | Partial examples: a missing worker, an unattributable response | slice 4 | observed: dashboard/backend-tests/usage-history/token-index-eligibility.spec.ts test 2 missing worker and unattributable response; e2e/configuration/system-settings-usage-coverage.spec.ts worker gap |
+| 5.4 | *Unpriced* = any associated response lacks a tariff rate | slice 4 | observed: dashboard/backend-tests/usage-history/token-index-eligibility.spec.ts test 1: fast-tier worker and unrated model make tasks unpriced |
+| 5.4e | Unpriced examples: an unknown model, a non-standard speed tier | slice 4 | observed: dashboard/backend-tests/usage-history/token-index-eligibility.spec.ts test 1 unknown model and fast speed tier |
+| 5.5 | A partial task appears with a distinct mark | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts showsPartialPoints(1): partial point drawn with a distinct hollow mark |
+| 5.6 | A partial task's gap appears in the detail | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts showsFact(Coverage, Partial · Worker usage missing) |
+| 5.7 | An unpriced task has no point | slice 4 | observed: dashboard/backend-tests/usage-history/token-index-eligibility.spec.ts test 1 unpriced tasks have no point; e2e/configuration/system-settings-usage-coverage.spec.ts showsPoints excludes the fast-tier task |
+| 5.8 | An unpriced task is counted in the cohort note | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts showsCohortNote(11 tasks · 1 partial · 1 unpriced); dashboard/backend-tests/usage-history/token-index-eligibility.spec.ts unpriced 2 |
+| 5.9 | Neither partial nor unpriced tasks enter the moving average | slice 4 | observed: dashboard/backend-tests/usage-history/token-index-eligibility.spec.ts test 2 average over the eligible tasks only; e2e/configuration/system-settings-usage-coverage.spec.ts partial excluded leaves 10 points without average line |
+| 5.10 | A measured zero stays a zero point | slice 4 | observed: dashboard/backend-tests/usage-history/token-index-eligibility.spec.ts test 2 measured zero task has index 0 |
+| 5.11 | Fewer than 10 eligible tasks show no line | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts showsNoAverage: line count 0 below 10 eligible |
+| 5.12 | …and the view says so | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts showsNoAverage(Fewer than 10 eligible tasks) |
 | 6.1 | Opening Usage shows the latest derived result | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts: opening Usage shows the derived summary's points |
 | 6.2 | …with the time it was last checked | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts showsCheckedAt: Checked <time> equals summary checkedAt |
 | 6.3 | **Refresh** reads Codex rollouts changed since that check | slice 5 | |
@@ -104,12 +104,12 @@ allocation.
 | 9.2 | The tariff version is named in the view | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts showsTariff(codexTariff.label) |
 | 9.3 | Raw observations and pricing inputs stay unchanged | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts storeFiles(store) identical after derivation, rebuild and reweighing |
 | 9.4 | Another tariff version recomputes the same history | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts later tariff reweighs the same summary counters |
-| 10.1 | A response at a speed tier the tariff does not price stays unpriced, not priced at standard rates | slice 4 | |
-| 10.2 | Rationale: the rate card charges fast tiers 2–8×, so a standard price would understate the response | slice 4 | |
-| 10.3 | The native reader keeps the thread's applied service tier | slice 4 | |
-| 10.4 | A rollout with no recorded tier is priced at the standard rate | slice 4 | |
-| 10.5 | Evidence: on 2026-11-15, 51 of 2,786 plain rollouts since 2026-09-15 had no tier field; every recorded tier was `default` | slice 4 | |
-| 11.1 | Partial and unpriced tasks stay out of the moving average (their missing usage would pull the trend down) | slice 4 | |
+| 10.1 | A response at a speed tier the tariff does not price stays unpriced, not priced at standard rates | slice 4 | observed: dashboard/backend-tests/usage-history/token-index-eligibility.spec.ts test 1 fast-tier response leaves the task unpriced |
+| 10.2 | Rationale: the rate card charges fast tiers 2–8×, so a standard price would understate the response | slice 4 | observed: dashboard/server/usageTariffs.ts speedTier standard records only default; other tiers unpriced |
+| 10.3 | The native reader keeps the thread's applied service tier | slice 4 | observed: dashboard/backend-tests/usage-history/codex-usage.spec.ts service tier test: responses keep service tier fast after thread_settings_applied |
+| 10.4 | A rollout with no recorded tier is priced at the standard rate | slice 4 | observed: dashboard/backend-tests/usage-history/codex-usage.spec.ts service tier test no tier when none recorded; dashboard/backend-tests/usage-history/token-index-eligibility.spec.ts test 1 unrecorded tier indexes as default |
+| 10.5 | Evidence: on 2026-11-15, 51 of 2,786 plain rollouts since 2026-09-15 had no tier field; every recorded tier was `default` | slice 4 | observed: plan Decisive premises row Tariff and tier (premise evidence) |
+| 11.1 | Partial and unpriced tasks stay out of the moving average (their missing usage would pull the trend down) | slice 4 | observed: dashboard/backend-tests/usage-history/token-index-eligibility.spec.ts test 2 partial and unpriced excluded from the average |
 | 12.1 | Deferred: Claude Code cohorts | slice 1 | observed: no Claude Code cohort built |
 | 12.2 | Deferred: Cursor cohorts | slice 1 | observed: no Cursor cohort built |
 | 12.3 | Deferred: tasks of unknown origin | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts unknown-origin task absent |
@@ -126,7 +126,7 @@ allocation.
 | 12.14 | Deferred: other tariffs | slice 5 | |
 | 13.1 | The existing usage store, offline importer and its recovery receipt supply the history | slice 1 | observed: summary derives from the existing usage store (dashboard/server/usageTaskSummary.ts) |
 | 13.2 | This story adds no database (ADR 0008) | slice 1 | observed: summary is a rebuildable JSON file beside the store; no database (dashboard/server/usageTaskSummaryCache.ts) |
-| 13.3 | All retained Codex rollouts observed on 2026-11-15 are at the default speed tier | slice 4 | |
+| 13.3 | All retained Codex rollouts observed on 2026-11-15 are at the default speed tier | slice 4 | observed: plan Decisive premises row Tariff and tier; real store responses carry no tier and price as standard |
 | 13.4 | Dashboard-origin Codex tasks use GPT-6.1 Sol and GPT-6 Astra | slice 1 | observed: dashboard/server/usageTariffs.ts prices GPT-6.1 Sol and GPT-6 Astra |
 | 14.1 | Codex + Execution + All models + Any effort: each finished Execution task is one point | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts: 12 finished Execution tasks, 12 points with Codex/Execution/All models/Any effort |
 | 14.2 | A GPT-6 Astra worker inside a GPT-6.1 Sol task is weighted at Astra's rates | slice 1 | observed: dashboard/backend-tests/usage-history/token-index.spec.ts with-worker Astra worker at Astra rates; e2e/configuration/system-settings-usage.spec.ts Nov 8 readout |
@@ -135,9 +135,9 @@ allocation.
 | 15.1 | A story launched twice (once returned to the backlog, once completed) shows two points with their own outcomes | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts story launched twice: Returned to backlog and Completed points |
 | 15.2 | A recovered October task without a reported outcome is a point with "Outcome unknown" | slice 3 | observed: e2e/configuration/system-settings-usage-detail.spec.ts recovered October task shows Outcome unknown |
 | 15.3 | A launch not marked done and with no reported outcome is not plotted yet | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-detail.spec.ts test 1 and e2e/configuration/system-settings-usage-detail.spec.ts: unfinished launch not plotted until marked done |
-| 16.1 | An unattributed worker gap gives a partial mark, "Partial" with the gap in detail, and the task stays out of the line | slice 4 | |
-| 16.2 | One fast-tier response gives no point and adds one unpriced task to the cohort note | slice 4 | |
-| 16.3 | Nine eligible tasks show the points and "Fewer than 10 eligible tasks" | slice 4 | |
+| 16.1 | An unattributed worker gap gives a partial mark, "Partial" with the gap in detail, and the task stays out of the line | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts worker gap: partial mark, Partial with gap in detail, out of the line |
+| 16.2 | One fast-tier response gives no point and adds one unpriced task to the cohort note | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts fast-tier task has no point and adds one unpriced to the cohort note |
+| 16.3 | Nine eligible tasks show the points and "Fewer than 10 eligible tasks" | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts showsNoAverage(Fewer than 10 eligible tasks) with points shown; dashboard/frontend-tests/system-settings-usage-average.spec.ts 10 eligible draw a line |
 | 17.1 | After a new Execution launch finishes, Refresh adds its point and updates the check time | slice 5 | |
 | 17.2 | Refreshing again without new rollout activity changes no value | slice 5 | |
 | 17.3 | An importer run overlapping earlier responses leaves each response counted once | slice 5 | |
@@ -148,9 +148,9 @@ allocation.
 | 19.2 | The filter is labeled **Launch workflow** (ADR 0008 concept name), not "Task type" | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts offers(Launch workflow, …): select labelled Launch workflow (dashboard/src/UsageFilters.tsx) |
 | 19.3 | Workflow options are Execution, Refinement and Ad hoc (the dashboard launches no separate slice planning) | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts Launch workflow options Execution, Refinement, Ad hoc |
 | 19.4 | Effort lists the observed levels (e.g. xhigh, ultra, high, max, medium), not the mockup's example pair | slice 2 | observed: e2e/configuration/system-settings-usage-cohort.spec.ts Effort options are the observed levels xhigh, high, medium; dashboard/backend-tests/usage-history/token-index-cohort.spec.ts efforts high, medium, ultra, xhigh |
-| 19.5 | Coverage wording follows the mockup: a cohort note with partial and unpriced counts | slice 4 | |
+| 19.5 | Coverage wording follows the mockup: a cohort note with partial and unpriced counts | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts cohort note N tasks · N partial · N unpriced |
 | 19.6 | Freshness wording follows the mockup: "Checked" with the time | slice 1 | observed: e2e/configuration/system-settings-usage.spec.ts showsCheckedAt: Checked with time |
-| 19.7 | An empty cohort says that no finished task matches | slice 4 | |
+| 19.7 | An empty cohort says that no finished task matches | slice 4 | observed: e2e/configuration/system-settings-usage-coverage.spec.ts Refinement cohort shows No finished task matches. |
 | 20.1 | Reading the usage store is a new responsibility for the running dashboard (until now only the offline importer reads it) | slice 1 | observed: dashboard/server/usageBoundary.ts GET /__usage/token-index reads the summary in the running dashboard |
 | 20.2 | Measured read-only scan on 2026-11-15: 3.4 s, 387 MB, no schema validation; 2,316 pages, 514,444 responses, 513 dashboard-origin Codex tasks | slice 1 | observed: plan Decisive premises row Derivation placement (premise data) |
 | 20.3 | Derive the chart off the request path | slice 1 | observed: dashboard/server/usageTaskSummaryCache.ts: request reads summary + manifest only |

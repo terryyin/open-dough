@@ -27,10 +27,11 @@ import { CursorCliConfigBuilder } from "./cursorCliConfigTestData.mjs";
 import { RunningCursorSessionsBuilder } from "./runningCursorSessionsTestData.mjs";
 import {
   UsageAssociationBuilder,
-  UsageHistoryBuilder,
   UsageObservationBuilder,
   UsageTaskBuilder,
 } from "./usageHistoryTestData.mjs";
+import { UsageHistoryBuilder } from "./usageStoreTestData.mjs";
+import { TokenIndexAnswerBuilder } from "./usageAnswerTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 
 /** @typedef {import("../../../dashboard/server/startStore.ts").StartRecord} StartRecord */
@@ -48,6 +49,7 @@ import { copyFacts } from "./factBuilder.mjs";
  * @property {UsageObservationBuilder} aUsageObservation
  * @property {UsageAssociationBuilder} aUsageAssociation
  * @property {UsageHistoryBuilder} aUsageHistory
+ * @property {TokenIndexAnswerBuilder} aTokenIndexAnswer
  * @property {FactBuilder<StartRecord>} aStartRecord
  * @property {import("./launchTestData.mjs").LaunchRecordBuilder} aLaunchRecord
  * @property {import("./launchRequestTestData.mjs").LaunchRequestBuilder} aLaunchRequest
@@ -96,6 +98,12 @@ export function launchMakeMeProperties() {
       enumerable: true,
       get() {
         return new UsageHistoryBuilder();
+      },
+    },
+    aTokenIndexAnswer: {
+      enumerable: true,
+      get() {
+        return new TokenIndexAnswerBuilder();
       },
     },
     aStartRecord: {

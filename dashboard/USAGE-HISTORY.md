@@ -63,10 +63,10 @@ task uses host, session and native task turn; later metadata does not change its
 identity. Matching retained turn or launch-reference evidence enriches that same
 task, including Claude launches whose retained key uses launch time. Requested model,
 effort, workflow options and policy stay on the task. Observed model, effort,
-approval policy and sandbox stay on response observations, so settings may
-change within one task without rewriting its launch request. Launch source
-references point to operational or retained history files. The importer copies
-no launch instructions, prompts or transcript bodies into usage records.
+approval policy, sandbox and Codex `service_tier` stay on response observations,
+so settings may change within one task without rewriting its launch request.
+Launch source references point to operational or retained history files. The importer
+copies no launch instructions, prompts or transcript bodies into usage records.
 
 Recovered tasks have `kind: recovered`, nullable project/workflow/identity/title
 and launch time, per-field `fieldSources`, and explicit gaps. A configured

@@ -111,6 +111,17 @@
   background: var(--history-chart-mark);
 }
 
+.usage-swatch-partial {
+  border: 1.5px solid var(--history-chart-partial);
+  border-radius: 1px;
+  background: var(--raised-surface);
+  transform: rotate(45deg);
+}
+
+.usage-partial {
+  color: var(--caution);
+}
+
 .usage-swatch-average {
   width: 15px;
   height: 2px;

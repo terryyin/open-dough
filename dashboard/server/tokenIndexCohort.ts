@@ -3,9 +3,11 @@
 // project configured now, hidden ones included, in the chosen launch workflow
 // and, when chosen, with that primary observed model and effort, weighed
 // under one tariff version and placed at its reported outcome time, or else
-// its last recorded activity, with the trailing moving average. The Model
-// and Effort options are the primary settings the finished tasks show in any
-// launch workflow, so switching workflow keeps every choice on offer.
+// its last recorded activity, with the trailing moving average of the
+// eligible ones: priced, with no recorded gap. An unpriced task has no point
+// and is only counted. The Model and Effort options are the primary settings
+// the finished tasks show in any launch workflow, so switching workflow keeps
+// every choice on offer.
 import {
   movingAverageTasks,
   type TokenIndexAnswer,
@@ -45,22 +47,26 @@ export function tokenIndexCohort(
       ? (finishedTask(task, launches) ?? [])
       : [],
   );
-  const tasks = population
+  const weighed = population
     .filter(
       (task) =>
         launchWorkflowOf(task.workflow) === cohort.workflow &&
         matches(cohort.model, primarySetting(task, "model")) &&
         matches(cohort.effort, primarySetting(task, "effort")),
     )
-    .flatMap((task) => tokenIndexTask(task, reading) ?? [])
+    .map((task) => tokenIndexTask(task, reading));
+  const tasks = weighed
+    .filter((task) => typeof task === "object")
     .sort(
       (a, b) =>
         Date.parse(a.endedAt) - Date.parse(b.endedAt) ||
         a.id.localeCompare(b.id),
     );
-  const average = tasks.flatMap((task, at) => {
+  // Partial tasks' missing usage would pull the trend down.
+  const eligible = tasks.filter((task) => task.coverage.kind === "measured");
+  const average = eligible.flatMap((task, at) => {
     if (at + 1 < movingAverageTasks) return [];
-    const latest = tasks.slice(at + 1 - movingAverageTasks, at + 1);
+    const latest = eligible.slice(at + 1 - movingAverageTasks, at + 1);
     const total = latest.reduce((sum, each) => sum + each.index, 0);
     return [{ at: task.endedAt, value: total / movingAverageTasks }];
   });
@@ -77,6 +83,7 @@ export function tokenIndexCohort(
     tariff: { version: tariff.version, label: tariff.label },
     checkedAt: summary.checkedAt,
     tasks,
+    unpriced: weighed.filter((task) => task === "unpriced").length,
     average,
   };
 }

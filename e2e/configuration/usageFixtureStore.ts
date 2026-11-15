@@ -28,6 +28,7 @@ export type Response = {
   readonly model: string;
   readonly effort: string;
   readonly worker?: true;
+  readonly serviceTier?: string;
   readonly tokens: Counters;
 };
 
@@ -47,21 +48,24 @@ function indexOf(responses: readonly Response[]): number {
   return credits / (reference?.input ?? NaN);
 }
 
-// A stored task with its responses, the last of them at `endedAt`, and the
-// readout its point shows when it ends then.
+// A stored task with its responses, the last of them at `endedAt`, and any
+// worker gaps its import records, and the readout its point shows when it
+// ends then, partial with such a gap.
 function storedTask(
   task: Pick<UsageTask, "id"> & Partial<UsageTask>,
   responses: readonly Response[],
   endedAt: string,
+  workerGaps: readonly string[] = [],
 ) {
   const index = indexOf(responses);
   return {
     history: {
       task,
       responses: responses.map((response) => ({ at: endedAt, ...response })),
+      workerGaps,
     },
     index,
-    readout: `${dayWords(endedAt)} · ${figureWords(index)}`,
+    readout: `${dayWords(endedAt)} · ${figureWords(index)}${workerGaps.length === 0 ? "" : " · Partial"}`,
   };
 }
 
@@ -69,7 +73,7 @@ export type StoredTask = ReturnType<typeof storedTask>;
 
 // A finished dashboard Codex task of Open Dough ending on day `day` of
 // November unless another month is stated, a recovered one recording the
-// skill its workflow ran.
+// skill its workflow ran, with any worker gaps its import records.
 export function finishedTask(
   name: string,
   workflow: "execution" | "refinement",
@@ -78,7 +82,12 @@ export function finishedTask(
   {
     recovered = false,
     month = "2026-11",
-  }: { readonly recovered?: boolean; readonly month?: string } = {},
+    workerGaps = [],
+  }: {
+    readonly recovered?: boolean;
+    readonly month?: string;
+    readonly workerGaps?: readonly string[];
+  } = {},
 ) {
   const endedAt = `${month}-${String(day).padStart(2, "0")}T12:00:00.000Z`;
   return storedTask(
@@ -95,6 +104,7 @@ export function finishedTask(
     },
     responses,
     endedAt,
+    workerGaps,
   );
 }
 

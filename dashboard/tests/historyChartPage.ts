@@ -28,6 +28,7 @@ export function historyChart(scope: Locator, name: string) {
     readout: box.locator(".history-chart-readout"),
     measured: drawing.locator("circle.history-chart-point"),
     selected: drawing.locator("path.history-chart-point"),
+    partial: drawing.locator(".history-chart-partial"),
     failed: drawing.locator(".history-chart-failed"),
     unavailable: drawing.locator(".history-chart-unavailable"),
     line: drawing.locator(".history-chart-line"),

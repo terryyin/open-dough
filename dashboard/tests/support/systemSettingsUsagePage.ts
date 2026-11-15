@@ -1,7 +1,8 @@
 // System settings → Usage (../../src/SystemSettingsUsage.tsx) as Terry
 // meets it: its view beside General, the cohort its filters show and offer,
-// choosing a filter's option, the Token index points on the shared history
-// chart (../historyChartPage.ts), the moving average's figure, the tariff
+// choosing a filter's option, the cohort note's counts, the Token index
+// points on the shared history chart (../historyChartPage.ts), partial ones
+// hollow, the moving average's figure or why there is none, the tariff
 // version, the check time, and the detail of a point selected by pointer or
 // keyboard. Scenarios supply every expected value.
 import type { Page } from "@playwright/test";
@@ -87,12 +88,38 @@ export function usageView(page: Page) {
       for (const readout of readouts)
         await expect(chart.mark(readout)).toBeVisible();
     },
-    // The latest moving average's figure, with its line drawn.
+    // How many partial points the chart draws hollow.
+    async showsPartialPoints(count: number) {
+      await expect(chart.partial).toHaveCount(count);
+    },
+    // The cohort note's counts, such as "11 tasks · 1 partial · 1 unpriced".
+    async showsCohortNote(words: string) {
+      await expect(
+        trend.locator(".usage-chart-head p.settings-note"),
+      ).toHaveText(words);
+    },
+    // The latest moving average's figure, with its line drawn across some
+    // width, even for a single value.
     async showsAverage(figure: string) {
       const average = trend.locator(".usage-average");
       await expect(average.locator("strong")).toHaveText(figure);
       await expect(average).toContainText("10-task moving average");
       await expect(chart.line).toHaveCount(1);
+      await expect
+        .poll(async () => (await chart.line.boundingBox())?.width ?? 0)
+        .toBeGreaterThan(0);
+    },
+    // No figure and no line, with the words saying why.
+    async showsNoAverage(words: string) {
+      const average = trend.locator(".usage-average");
+      await expect(average.locator("strong")).toHaveText("—");
+      await expect(average).toContainText(words);
+      await expect(chart.line).toHaveCount(0);
+    },
+    // No chart, with the words saying why.
+    async showsNoPoints(words: string) {
+      await expect(trend.getByText(words, { exact: true })).toBeVisible();
+      await expect(chart.marks).toHaveCount(0);
     },
     // Selects the point read as `readout`, pressing it by pointer or, once
     // focused, with Enter; it shows as the one selected point.
@@ -125,6 +152,13 @@ export function usageView(page: Page) {
           await expect(fact).toHaveText(new RegExp(` · ${words.outcome}$`));
         }
       }
+    },
+    // The selected task's fact named `term`, read as `words`.
+    async showsFact(term: string, words: string) {
+      const fact = detail
+        .locator("dl > div")
+        .filter({ has: page.getByText(term, { exact: true }) });
+      await expect(fact.locator("dd")).toHaveText(words);
     },
     // Closes the detail; focus returns to the point read as `readout`.
     async closeDetail(readout: string) {

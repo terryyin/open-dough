@@ -137,7 +137,7 @@ recovered task.
 
 ### 4. Partial and unpriced tasks stay visible and out of the average
 Type: Behavior
-Status: planned
+Status: done
 Proof: backend spec: a built rollout with
 `thread_settings_applied.service_tier: "fast"` yields responses whose observed
 tier is `fast`; one without the field yields no tier. Integrated journey: a
@@ -243,8 +243,29 @@ updates. Overlap with an offline import counts each response once.
   `TokenIndexTrend`, which unmounts on a filter change. Slice 5's Refresh
   keeps the chart mounted, so it must keep or clear the selection
   deliberately.
-- With exactly 10 eligible tasks, the moving average has one value and the
-  chart draws no line. Slice 4 owns that boundary with "Fewer than 10".
+- **Slice 4 (accepted).** Partial means the evidence shows missing usage,
+  and only these gap codes count (`usageCoverageGaps` in
+  `dashboard/src/usageTokenIndex.ts`): `missing-worker-evidence`,
+  `incomplete-worker-evidence`, `no-response-usage-evidence`,
+  `unsupported-response-counters`, `unresolved-task-association`,
+  `missing-token-components` and `no-attributable-response-usage`. A
+  non-measured response, or a task with no response, is also partial.
+  `ambiguous-worker-evidence` and `unresolved-worker-evidence` are left out.
+  They say a spawn record matched no single worker, while workers still join
+  their task through `parent_thread_id`. Counting them made 257 of 513 real
+  tasks partial (read-only check of the real store); without them, 0 are.
+  Gap attribution lives in `dashboard/server/usageTaskGaps.ts`. The tariff
+  prices `speedTier: { name: "standard", recorded: ["default"] }`, and an
+  unrecorded tier prices as standard. Observations keep the raw
+  `settings.serviceTier`, and reconciliation merges it. The summary is
+  `usage-task-summary-v4`: groups per (model, effort, tier, root or worker),
+  plus task gaps. A real-store rebuild now takes 8.3 s and 325 MB under load
+  of about 8; slice 5 re-measures. A trend with one value draws a short level
+  line, so only fewer than 10 eligible tasks show no line. A cohort with only
+  unpriced tasks says "No priced finished task matches." For slice 5:
+  rereading a rollout imported before tiers were kept adds one measurement
+  per response that differs only in `serviceTier`. Counters dedupe, so the
+  index is unchanged.
 - Local proof under external load (about 28): 3 integrated chart-consumer
   specs timed out at 2 workers before any chart was drawn, and passed 5 of 5
   at 1 worker. Hosted CI is the verdict; a recurrence there is owed a repair.

@@ -82,6 +82,7 @@ export function reconcileObservation(
     "effort",
     "approvalPolicy",
     "sandbox",
+    "serviceTier",
   ] as const) {
     const values = uniqueFacts(
       measurements

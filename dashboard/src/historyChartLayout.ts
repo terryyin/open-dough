@@ -4,7 +4,8 @@
 // line's strokes. Measured points sit on the value axis, a measured zero
 // included; CI builds without timing sit on their own row below it, and
 // every such build breaks the line, as does a change of compatible segment.
-// A series with a trend draws the trend as its line instead.
+// A series with a trend draws the trend as its line instead, a trend of one
+// value as a short level at its point.
 import { buildDateWords, selectedLandingWords } from "./ciHistoryWords.ts";
 import {
   isMeasured,
@@ -68,19 +69,37 @@ function lineThrough(marks: readonly ChartMark[]): string {
   return moves.length < 2 ? "" : moves.join(" ");
 }
 
+// An entry's value on the axis, then any partial words, or a build's status.
+function valueWords(
+  entry: HistoryChartEntry,
+  axis: HistoryChartSeries["axis"],
+): string {
+  if (!isMeasured(entry)) return entry.words;
+  const value = axis.words(entry.value);
+  return entry.partial === undefined ? value : `${value} · ${entry.partial}`;
+}
+
+// Half the width of a one-value trend's level, as wide as a point's mark
+// and ring on each side.
+const levelReach = 8;
+
 function trendThrough(
   trend: NonNullable<HistoryChartSeries["trend"]>,
   x: (date: string) => number,
   y: (value: number) => number,
 ): string {
-  return trend.length < 2
-    ? ""
-    : trend
-        .map(
-          ({ date, value }, index) =>
-            `${index === 0 ? "M" : "L"}${String(x(date))} ${String(y(value))}`,
-        )
-        .join(" ");
+  const [only] = trend;
+  if (trend.length === 1 && only !== undefined) {
+    const at = x(only.date);
+    const level = String(y(only.value));
+    return `M${String(at - levelReach)} ${level} L${String(at + levelReach)} ${level}`;
+  }
+  return trend
+    .map(
+      ({ date, value }, index) =>
+        `${index === 0 ? "M" : "L"}${String(x(date))} ${String(y(value))}`,
+    )
+    .join(" ");
 }
 
 export function chartLayout(
@@ -122,7 +141,7 @@ export function chartLayout(
     entry,
     x: x(entry.date),
     y: isMeasured(entry) ? y(entry.value) : gapRow,
-    readout: `${buildDateWords(entry.date)} · ${selected(entry.selected)}${isMeasured(entry) ? axis.words(entry.value) : entry.words}`,
+    readout: `${buildDateWords(entry.date)} · ${selected(entry.selected)}${valueWords(entry, axis)}`,
   }));
   const dated: { x: number; words: string }[] = [];
   const middle =

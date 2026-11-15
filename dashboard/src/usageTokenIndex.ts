@@ -1,10 +1,10 @@
-// System settings → Usage's answer: one Token index point per finished
-// dashboard-launched task of the chosen cohort, in end-time order, each with
-// the detail the view shows when it is selected, with the
-// trailing moving average, the tariff version that weighed them, when the
-// usage was last checked and the Model and Effort options the observed tasks
-// offer (`../server/usageBoundary.ts`). The cohort travels as the request's
-// query, spelled here for both sides.
+// System settings → Usage's answer: one Token index point per finished,
+// priced dashboard-launched task of the chosen cohort, in end-time order, each
+// with the detail the view shows when it is selected and its coverage; how
+// many tasks are unpriced; the trailing moving average, the tariff version
+// that weighed them, when the usage was last checked and the Model and Effort
+// options the observed tasks offer (`../server/usageBoundary.ts`). The cohort
+// travels as the request's query, spelled here for both sides.
 import { launchWorkflowNames } from "./launchWorkflow.ts";
 
 export const usageTokenIndexEndpoint = "/__usage/token-index";
@@ -79,8 +79,34 @@ export type UsageTaskOutcome = {
   readonly disposition?: "returned-to-backlog";
 };
 
-// How completely the task's usage was measured.
-export type UsageTaskCoverage = { readonly kind: "measured" };
+// The recorded gaps that show usage missing from a task
+// (`../server/usageTaskGaps.ts`): a worker its root spawned with no usage
+// evidence or no responses; a session of the task with no response usage or
+// only unsupported counters; a response it may own that could not be
+// attributed to one task; a response missing token counts; or no attributable
+// response at all. A spawn whose worker cannot be told apart from others
+// (`ambiguous-` or `unresolved-worker-evidence`) shows no usage missing: the
+// worker's responses still join the task through their own lineage.
+export const usageCoverageGaps = [
+  "missing-worker-evidence",
+  "incomplete-worker-evidence",
+  "no-response-usage-evidence",
+  "unsupported-response-counters",
+  "unresolved-task-association",
+  "missing-token-components",
+  "no-attributable-response-usage",
+] as const;
+
+export type UsageCoverageGap = (typeof usageCoverageGaps)[number];
+
+export const isUsageCoverageGap = (code: string): code is UsageCoverageGap =>
+  (usageCoverageGaps as readonly string[]).includes(code);
+
+// How completely the task's usage was measured: with no known gap, or
+// partially, with the gaps that show missing usage.
+export type UsageTaskCoverage =
+  | { readonly kind: "measured" }
+  | { readonly kind: "partial"; readonly gaps: readonly UsageCoverageGap[] };
 
 export type TokenIndexTask = {
   readonly id: string;
@@ -109,7 +135,12 @@ export type TokenIndexAnswer = {
   };
   readonly tariff: { readonly version: string; readonly label: string };
   readonly checkedAt: string;
+  // Every priced task, partial ones included.
   readonly tasks: readonly TokenIndexTask[];
-  // From the tenth task on, the mean of each task's latest ten.
+  // How many finished tasks of the cohort have no point because a response
+  // lacks a rate under the tariff, such as an unknown model or speed tier.
+  readonly unpriced: number;
+  // From the tenth eligible task on, the mean of each one's latest ten
+  // eligible tasks: priced and measured with no known gap.
   readonly average: readonly { readonly at: string; readonly value: number }[];
 };

@@ -4,15 +4,17 @@
    ring of the box's surface around each point, a recessive grid and quiet
    axis words. They are drawn from the frame's own tokens in either colour
    scheme, so they keep their contrast with whatever surface the frame gives
-   the box, which has no surface of its own for a dark scheme. Each mark's
-   button lies over its drawing; its readout follows the plot. CI builds
-   without timing sit on their own row below the value axis. */
+   the box, which has no surface of its own for a dark scheme. A partial
+   point is hollow in the caution colour. Each mark's button lies over its
+   drawing; its readout follows the plot. CI builds without timing sit on
+   their own row below the value axis. */
 :root {
   --history-chart-mark: var(--accent);
   --history-chart-ring: var(--raised-surface);
   --history-chart-grid: var(--line);
   --history-chart-words: var(--quiet);
   --history-chart-failed: var(--problem);
+  --history-chart-partial: var(--caution);
 }
 
 .history-chart-chart {
@@ -51,6 +53,14 @@
   fill: var(--history-chart-mark);
   stroke: var(--history-chart-ring);
   stroke-width: 2;
+}
+
+/* A point whose value is known to be incomplete: hollow, in caution. */
+.history-chart-partial {
+  fill: var(--history-chart-ring);
+  stroke: var(--history-chart-partial);
+  stroke-width: 2;
+  stroke-linejoin: round;
 }
 
 .history-chart-failed {

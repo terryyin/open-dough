@@ -3,8 +3,9 @@
 // (./usageTokenIndex.ts): its story title and identity when known, project,
 // tool and launch workflow, its Token index, primary observed model and
 // effort, the model and effort its launch requested when known, its end time
-// with its outcome or "Outcome unknown", and its coverage. Close hands focus
-// back to the task's point.
+// with its outcome or "Outcome unknown", and its coverage: "No known gaps",
+// or "Partial" with the recorded gaps that show usage missing. Close hands
+// focus back to the task's point.
 import type { ReactNode } from "react";
 import { countWords } from "./chartValueAxis.ts";
 import {
@@ -17,6 +18,7 @@ import { hostName } from "./sessionCapabilities.ts";
 import type {
   TokenIndexCohort,
   TokenIndexTask,
+  UsageCoverageGap,
   UsageSetting,
   UsageTaskCoverage,
   UsageTaskOutcome,
@@ -49,9 +51,23 @@ function requestedWords({ model, effort }: UsageSetting): string | undefined {
   return words === "" ? undefined : words;
 }
 
-const coverageWords: Record<UsageTaskCoverage["kind"], string> = {
-  measured: "No known gaps",
+export const partialWords = "Partial";
+
+const gapWords: Record<UsageCoverageGap, string> = {
+  "missing-worker-evidence": "Worker usage missing",
+  "incomplete-worker-evidence": "Worker usage incomplete",
+  "no-response-usage-evidence": "Session usage missing",
+  "unsupported-response-counters": "Unsupported usage counters",
+  "unresolved-task-association": "Unattributed response",
+  "missing-token-components": "Token counts missing",
+  "no-attributable-response-usage": "No attributed response",
 };
+
+// "No known gaps", or "Partial" with the gaps that show usage missing.
+const coverageWords = (coverage: UsageTaskCoverage) =>
+  coverage.kind === "measured"
+    ? "No known gaps"
+    : `${partialWords} · ${coverage.gaps.map((gap) => gapWords[gap]).join(", ")}`;
 
 function Fact({
   term,
@@ -104,7 +120,15 @@ export function UsageTaskDetail({
         <Fact term="Ended">
           <Moment at={new Date(task.endedAt)} /> · {outcomeWords(task.outcome)}
         </Fact>
-        <Fact term="Coverage">{coverageWords[task.coverage.kind]}</Fact>
+        <Fact term="Coverage">
+          <span
+            className={
+              task.coverage.kind === "partial" ? "usage-partial" : undefined
+            }
+          >
+            {coverageWords(task.coverage)}
+          </span>
+        </Fact>
       </dl>
     </section>
   );

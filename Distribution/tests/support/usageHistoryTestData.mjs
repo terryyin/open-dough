@@ -29,6 +29,11 @@ export class UsageTaskBuilder {
 /** @typedef {import("../../../dashboard/server/usageRecords.ts").UsageObservation} UsageObservation */
 /** @typedef {import("../../../dashboard/server/usageRecords.ts").UsageAssociation} UsageAssociation */
 /** @typedef {import("../../../dashboard/server/usageRecords.ts").UsageTokens} UsageTokens */
+
+// The Codex rollout a session's rows are read from.
+/** @param {string} sessionId */
+export const rolloutOf = (sessionId) =>
+  `/home/.codex/sessions/${sessionId}.jsonl`;
 /**
  * @typedef {Pick<UsageObservation, "sessionId" | "responseId"> &
  *   Partial<Pick<UsageObservation, "settings" | "at" | "parentSessionId" | "turnId">> &
@@ -98,7 +103,7 @@ export class UsageObservationBuilder {
             {
               source: {
                 kind: "native",
-                file: `/home/.codex/sessions/${facts.sessionId}.jsonl`,
+                file: rolloutOf(facts.sessionId),
                 line: 1,
               },
               settings,
@@ -123,7 +128,8 @@ export class UsageObservationBuilder {
   }
 }
 
-// A response's unique task association.
+// A response's unique task association, or one left ambiguous among several
+// candidate tasks.
 export class UsageAssociationBuilder {
   /** @param {{ observation: UsageObservation, task: { id: string } }} facts */
   with({ observation, task }) {
@@ -138,70 +144,20 @@ export class UsageAssociationBuilder {
       }),
     };
   }
-}
 
-/**
- * @typedef {{
- *   model: string,
- *   effort?: string,
- *   worker?: true,
- *   turnId?: string,
- *   at?: string,
- *   tokens: Partial<UsageTokens>,
- * }} TaskResponseFacts
- */
-/**
- * @typedef {{
- *   task: Pick<UsageTask, "id"> & Partial<UsageTask>,
- *   responses: readonly TaskResponseFacts[],
- * }} TaskHistoryFacts
- */
-
-// A usage store's tasks, each with its uniquely associated responses: each
-// the root conversation's, in its first turn unless stated, or a worker's,
-// at the observation builder's time unless stated.
-// A task's session is its id unless stated.
-export class UsageHistoryBuilder {
-  /** @param {{ tasks: readonly TaskHistoryFacts[] }} facts */
-  with({ tasks: histories }) {
+  /**
+   * @param {{ observation: UsageObservation, tasks: readonly { id: string }[] }} facts
+   */
+  ambiguousAmong({ observation, tasks }) {
     return {
-      please: () => {
-        const parts = histories.map(({ task: taskFacts, responses }) => {
-          const task = new UsageTaskBuilder()
-            .with({ sessionId: taskFacts.id, ...taskFacts })
-            .please();
-          const observations = responses.map((response, index) =>
-            new UsageObservationBuilder()
-              .with({
-                sessionId: response.worker
-                  ? `${task.sessionId}-worker`
-                  : task.sessionId,
-                ...(response.worker ? { parentSessionId: task.sessionId } : {}),
-                responseId: `response-${String(index)}`,
-                ...(response.turnId ? { turnId: response.turnId } : {}),
-                ...(response.at ? { at: response.at } : {}),
-                settings: {
-                  model: response.model,
-                  ...(response.effort ? { effort: response.effort } : {}),
-                },
-                tokens: response.tokens,
-              })
-              .please(),
-          );
-          return { task, observations };
-        });
-        return {
-          tasks: parts.map(({ task }) => task),
-          observations: parts.flatMap(({ observations }) => observations),
-          associations: parts.flatMap(({ task, observations }) =>
-            observations.map((observation) =>
-              new UsageAssociationBuilder()
-                .with({ observation, task })
-                .please(),
-            ),
-          ),
-        };
-      },
+      /** @returns {UsageAssociation} */
+      please: () => ({
+        observationId: observation.id,
+        taskId: null,
+        candidates: tasks.map((task) => task.id),
+        sources: [],
+        gaps: ["ambiguous-task-association"],
+      }),
     };
   }
 }

@@ -7,7 +7,8 @@
 // without rederiving it. A finished task's point carries the detail the view
 // shows when it is selected: its story, project, launch workflow, outcome,
 // end time, requested and primary observed model and effort, its index under
-// one tariff version (./tokenIndex.ts) and its coverage.
+// one tariff version (./tokenIndex.ts) and its coverage, with the recorded
+// gaps that make it partial.
 import { launchWorkflowNames, launchWorkflows } from "../src/launchWorkflow.ts";
 import {
   usageWorkflowOf,
@@ -88,18 +89,19 @@ function setting(
   return { model: model === null ? null : usageModel(model, tariff), effort };
 }
 
-// The finished task's point and detail; undefined when it cannot be placed
-// or weighed.
+// The finished task's point and detail, partial when its recorded gaps show
+// usage missing; "unpriced" when a response has no rate under the tariff;
+// undefined when it cannot be placed.
 export function tokenIndexTask(
   task: SummaryTask,
   { projects, tariff }: UsageReading,
-): TokenIndexTask | undefined {
+): TokenIndexTask | "unpriced" | undefined {
   const index = tokenIndex(task.usage, tariff);
+  if (index === undefined) return "unpriced";
   const endedAt = task.outcome?.at ?? task.lastActivityAt;
   const label = task.project === null ? undefined : projects.get(task.project);
   const workflow = launchWorkflowOf(task.workflow);
   if (
-    index === undefined ||
     endedAt === null ||
     task.project === null ||
     label === undefined ||
@@ -129,6 +131,9 @@ export function tokenIndexTask(
       tariff,
     ),
     index,
-    coverage: { kind: "measured" },
+    coverage:
+      task.gaps.length === 0
+        ? { kind: "measured" }
+        : { kind: "partial", gaps: task.gaps },
   };
 }

@@ -51,6 +51,9 @@ export async function* codexUsage(
     string,
     { settings: UsageSettings; source: UsageSource }
   >();
+  // The service tier the thread's latest applied settings record; later
+  // responses run at it. Settings that record none leave responses without.
+  let serviceTier: string | undefined;
   for await (const { row, line } of nativeUsageLines(file, gaps)) {
     taskReader(row, { kind: "native", file, line });
     const payload = objectOf(row["payload"]);
@@ -103,6 +106,14 @@ export async function* codexUsage(
         source: { kind: "native", file, line },
       });
     }
+    if (
+      row["type"] === "event_msg" &&
+      payload["type"] === "thread_settings_applied" &&
+      (stringOf(payload["thread_id"]) ?? owner) === owner
+    )
+      serviceTier = stringOf(
+        objectOf(payload["thread_settings"])["service_tier"],
+      );
     if (row["type"] === "turn_context") {
       const turn = stringOf(payload["turn_id"]);
       if (turn)
@@ -148,7 +159,10 @@ export async function* codexUsage(
       gaps: counterGaps,
     } = codexCounters(objectOf(payload["usage"]));
     const context = turnId ? settings.get(turnId) : undefined;
-    const observedSettings = context?.settings ?? {};
+    const observedSettings: UsageSettings = {
+      ...context?.settings,
+      ...(serviceTier ? { serviceTier } : {}),
+    };
     const lineage = {
       ...(turnId ? { turnId } : {}),
       ...(rootTurnId ? { rootTurnId } : {}),

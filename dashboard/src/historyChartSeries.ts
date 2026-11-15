@@ -13,6 +13,10 @@ export type HistoryChartPoint = {
   readonly description: string;
   readonly segment?: string;
   readonly selected?: boolean;
+  // Words for a point whose value is known to be incomplete, such as a Usage
+  // task with missing usage ("Partial"); it is drawn hollow and its readout
+  // ends with them.
+  readonly partial?: string;
 };
 
 // A dated build with no timing: a failed build, or any other unavailable
@@ -38,7 +42,7 @@ export type HistoryChartSeries = {
   readonly reference?:
     { readonly value: number; readonly label: string } | undefined;
   // A dated trend drawn as the line instead of joining the points, such as
-  // Usage's moving average.
+  // Usage's moving average; a trend of one value is a short level at it.
   readonly trend?: readonly { readonly date: string; readonly value: number }[];
 };
 

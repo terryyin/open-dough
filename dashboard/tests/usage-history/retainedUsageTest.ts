@@ -40,6 +40,18 @@ export const context = (turn: string, model: string, effort: string) => ({
   type: "turn_context",
   payload: { turn_id: turn, model, effort },
 });
+// The thread settings Codex records as applied, at `serviceTier` when stated.
+export const settingsApplied = (thread: string, serviceTier?: string) => ({
+  type: "event_msg",
+  payload: {
+    type: "thread_settings_applied",
+    thread_id: thread,
+    thread_settings: {
+      model: "gpt-6.1-sol",
+      ...(serviceTier === undefined ? {} : { service_tier: serviceTier }),
+    },
+  },
+});
 export const response = (
   session: string,
   turn: string,

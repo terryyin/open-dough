@@ -19,7 +19,13 @@ export type UsageTariff = {
   readonly label: string;
   readonly source: string;
   readonly readOn: string;
-  readonly speedTier: "standard";
+  // The speed tier it prices and the service tiers a host records for it. A
+  // response recorded at another tier has no rate here; one with no recorded
+  // tier is at this one.
+  readonly speedTier: {
+    readonly name: "standard";
+    readonly recorded: readonly string[];
+  };
   // Index units are this model's input-token equivalents.
   readonly reference: { readonly model: string };
   readonly models: Readonly<Record<string, TariffModel>>;
@@ -33,7 +39,8 @@ export const codexTariff2026_11_15: UsageTariff = {
     "Codex rate card read 2026-11-15 · standard speed · GPT-6.1 Sol input-token equivalents",
   source: "https://learn.chatgpt.com/docs/pricing#token-rates",
   readOn: "2026-11-15",
-  speedTier: "standard",
+  // Codex records standard speed as its `default` service tier.
+  speedTier: { name: "standard", recorded: ["default"] },
   reference: { model: "gpt-6.1-sol" },
   models: {
     "gpt-6.1-sol": {

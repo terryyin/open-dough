@@ -1,10 +1,15 @@
 // SVG marks for one placed dated series (`./historyChartLayout.ts`): the
 // value grid, the dashed reference level, the line, a filled point per
-// measured entry or a diamond for the selected one, and on the row below the
-// axis a red × per failed build or a hollow mark per other build without
-// timing. A selected build without timing is also marked across the plot.
+// measured entry, a hollow diamond for a partial one, a larger diamond for
+// the selected one, and on the row below the axis a red × per failed build
+// or a hollow mark per other build without timing. A selected build without
+// timing is also marked across the plot.
 import type { ChartLayout, ChartMark } from "./historyChartLayout.ts";
 import { dateBaseline, plotBottom, plotTop } from "./historyChartLayout.ts";
+
+// A diamond centred on (x, y), `reach` from its centre to each corner.
+const diamond = (x: number, y: number, reach: number) =>
+  `M${String(x)} ${String(y - reach)} l${String(reach)} ${String(reach)} l${String(-reach)} ${String(reach)} l${String(-reach)} ${String(-reach)} Z`;
 
 function Mark({
   mark,
@@ -50,16 +55,20 @@ function Mark({
       </g>
     );
   if (entry.selected !== true)
-    return (
+    return entry.partial === undefined ? (
       <circle className="history-chart-point" cx={x} cy={y} r={4}>
         <title>{entry.description}</title>
       </circle>
+    ) : (
+      <path className="history-chart-partial" d={diamond(x, y, 5)}>
+        <title>{entry.description}</title>
+      </path>
     );
   return (
     <g>
       <path
-        className="history-chart-point"
-        d={`M${String(x)} ${String(y - 6)} l6 6 l-6 6 l-6 -6 Z`}
+        className={`history-chart-point${entry.partial === undefined ? "" : " history-chart-partial"}`}
+        d={diamond(x, y, 6)}
       >
         <title>{entry.description}</title>
       </path>

@@ -2,7 +2,9 @@
 // tasks for the cohort its filters choose (`./usageTokenIndex.ts`), one point
 // per task over its end time on the shared history chart
 // (`./HistoryChart.tsx`) with the trailing moving average as its trend, the
-// tariff version that weighed them and when the usage was last checked.
+// tariff version that weighed them and when the usage was last checked. A
+// partial task's point is hollow and stays out of the average; the cohort
+// note counts the partial tasks and the unpriced ones, which have no point.
 // Selecting a point by pointer or keyboard shows that task's detail
 // (`./UsageTaskDetail.tsx`) from the same answer. The trend is an
 // observation; it claims neither an improvement nor a bill.
@@ -13,7 +15,7 @@ import { HistoryChart } from "./HistoryChart.tsx";
 import { Moment } from "./Moment.tsx";
 import { refusalMessage } from "./refusalMessage.ts";
 import { UsageFilters } from "./UsageFilters.tsx";
-import { UsageTaskDetail } from "./UsageTaskDetail.tsx";
+import { partialWords, UsageTaskDetail } from "./UsageTaskDetail.tsx";
 import {
   defaultCohort,
   movingAverageTasks,
@@ -31,16 +33,36 @@ function series(
     label: "Token index per finished task by end date",
     axis: countAxis,
     selectedLabel: "Selected task",
-    entries: answer.tasks.map((task) => ({
-      kind: "point",
-      key: task.id,
-      date: task.endedAt,
-      value: task.index,
-      description: `${task.title ?? task.identity ?? "Untitled task"} · ${countWords(task.index)}`,
-      selected: task.id === selected,
-    })),
+    entries: answer.tasks.map((task) => {
+      const partial = task.coverage.kind === "partial";
+      return {
+        kind: "point",
+        key: task.id,
+        date: task.endedAt,
+        value: task.index,
+        description: `${task.title ?? task.identity ?? "Untitled task"} · ${countWords(task.index)}${partial ? ` · ${partialWords}` : ""}`,
+        selected: task.id === selected,
+        ...(partial ? { partial: partialWords } : {}),
+      };
+    }),
     trend: answer.average.map(({ at, value }) => ({ date: at, value })),
   };
+}
+
+// How many tasks the cohort finished, then how many of them are partial and
+// how many unpriced, when any are.
+function cohortNote({ tasks, unpriced }: TokenIndexAnswer): string {
+  const total = tasks.length + unpriced;
+  const partial = tasks.filter(
+    (task) => task.coverage.kind === "partial",
+  ).length;
+  return [
+    `${String(total)} task${total === 1 ? "" : "s"}`,
+    partial === 0 ? undefined : `${String(partial)} partial`,
+    unpriced === 0 ? undefined : `${String(unpriced)} unpriced`,
+  ]
+    .filter((each) => each !== undefined)
+    .join(" · ");
 }
 
 function TokenIndexTrend({ answer }: { readonly answer: TokenIndexAnswer }) {
@@ -51,16 +73,13 @@ function TokenIndexTrend({ answer }: { readonly answer: TokenIndexAnswer }) {
   }>();
   const selected = answer.tasks.find((task) => task.id === chosen?.key);
   const latest = answer.average.at(-1);
-  const count = answer.tasks.length;
   return (
     <>
       <section className="usage-chart" aria-label="Token index trend">
         <div className="usage-chart-head">
           <div>
             <h3>Token index per task</h3>
-            <p className="settings-note">
-              {count} task{count === 1 ? "" : "s"}
-            </p>
+            <p className="settings-note">{cohortNote(answer)}</p>
           </div>
           <p className="usage-average">
             <strong>
@@ -73,8 +92,12 @@ function TokenIndexTrend({ answer }: { readonly answer: TokenIndexAnswer }) {
             </span>
           </p>
         </div>
-        {count === 0 ? (
-          <p className="settings-empty">No finished task matches.</p>
+        {answer.tasks.length === 0 ? (
+          <p className="settings-empty">
+            {answer.unpriced === 0
+              ? "No finished task matches."
+              : "No priced finished task matches."}
+          </p>
         ) : (
           <HistoryChart
             series={series(answer, selected?.id)}
@@ -87,6 +110,9 @@ function TokenIndexTrend({ answer }: { readonly answer: TokenIndexAnswer }) {
           <p className="usage-legend">
             <span>
               <i className="usage-swatch" /> Task
+            </span>
+            <span>
+              <i className="usage-swatch usage-swatch-partial" /> {partialWords}
             </span>
             <span>
               <i className="usage-swatch usage-swatch-average" /> Moving average
