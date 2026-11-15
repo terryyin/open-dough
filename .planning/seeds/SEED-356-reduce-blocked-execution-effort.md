@@ -86,9 +86,11 @@ Unknown usage remains unknown and cannot support a token-saving verdict. The
 representative blocked schedule is initial hold plus unchanged, nonqualifying
 and qualifying wakes; it makes no claim about production block frequency.
 
-Budget: at most four native journeys (one baseline and candidate per case;
-worker effort also counts), including automatic
-baseline reacquisition or invalid attempts. Run the blocked comparison first.
+Budget: at most five native journeys, including the invalid initial baseline
+and four additional journeys approved by Terry on 2026-11-15 with
+"approved. continue": one fresh baseline and candidate per case. Worker effort,
+automatic baseline reacquisition and invalid attempts still count. Run the
+blocked comparison first. This extension changes no quality or keep/stop bar.
 Stop before implementation if its fresh baseline exposes no plausible worthwhile
 removal. Stop the candidate on failed quality, insufficient usage, a missed bar
 or exhausted budget; retain observations and revert only candidate-owned product

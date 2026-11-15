@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { ownedWorkerProof } from "../native-comparison/paused-supplier/owned-proof.mjs";
+import { readCodexSession } from "./native-host-stream.mjs";
 
 const source = fileURLToPath(new URL("../../..", import.meta.url));
 const record = (type, payload) => ({
@@ -24,6 +25,7 @@ function fixture(
     cwd,
     status = 0,
     copied = false,
+    forked = false,
     unresolved = false,
     fakeReceipt = false,
   } = {},
@@ -69,6 +71,17 @@ function fixture(
       id: "worker",
       source: { subagent: { thread_spawn: { parent_thread_id: parent } } },
     }),
+    ...(forked
+      ? [
+          record("session_meta", { id: "coordinator", source: "exec" }),
+          record("event_msg", { type: "task_started", turn_id: "current" }),
+          record("event_msg", { type: "turn_aborted", turn_id: "current" }),
+          record("event_msg", {
+            type: "thread_settings_applied",
+            thread_id: "worker",
+          }),
+        ]
+      : []),
     context(copied ? "copied-parent-turn" : "worker-turn", effectiveCwd),
     record("response_item", {
       type: "custom_tool_call",
@@ -122,12 +135,16 @@ test("paused-supplier observer accepts proof from the current owned worker inste
   assert.equal(caseProof(f), "passed");
 });
 
-test("worker proof excludes foreign ownership, another workspace, an earlier root turn and fork replay", (t) => {
+test("proof from a forked worker keeps its ownership after copied parent metadata", (t) => {
+  const f = fixture(t, { forked: true });
+  assert.equal(caseProof(f), "passed");
+});
+
+test("worker proof excludes foreign ownership, another workspace and an earlier root turn", (t) => {
   for (const facts of [
     { parent: "foreign" },
     { cwd: "/another-project" },
     { rootTurn: "earlier" },
-    { copied: true },
   ]) {
     const f = fixture(t, facts);
     assert.equal(
@@ -135,6 +152,20 @@ test("worker proof excludes foreign ownership, another workspace, an earlier roo
       "none",
     );
   }
+});
+
+test("fork replay remains auditable without becoming current worker proof", (t) => {
+  const f = fixture(t, { copied: true, forked: true });
+  const saved = readCodexSession(join(f.directory, "rollout-01-worker.jsonl"));
+  const proof = saved.calls.find(
+    (call) => call.command === "node --test tests/*.test.mjs",
+  );
+  assert.equal(proof.turn, "copied-parent-turn");
+  assert.equal(proof.exitCode, 0);
+  assert.equal(
+    ownedWorkerProof("coordinator", f.workspace, f.directory),
+    "none",
+  );
 });
 
 test("worker proof preserves failed and unresolved command outcomes and ignores receipt-shaped stdout", (t) => {

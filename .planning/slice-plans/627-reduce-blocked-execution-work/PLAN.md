@@ -11,7 +11,7 @@ Remove one observed source of repeated model work on blocked continuation;
 keep it only if complete-task tokens fall at least 20%, requests/interventions
 do not rise, and unblocked tokens rise no more than 5% with no extra
 requests/interventions. Preserve all case outcomes and proof. The source owns
-the full criteria and four-journey budget. No event-driven runtime, new state
+the full criteria and amended five-journey budget. No event-driven runtime, new state
 protocol or general phase-loading rewrite. This plan authorizes no execution.
 
 Reuse the existing execution context and dependency interpretation:
@@ -50,8 +50,8 @@ and the qualifying turn. Record baseline SHA, runtime/settings, cost and the
 selected removal here. If no reduction is supported, do not build a helper.
 This paid probe owns native availability, fresh cost and opportunity uncertainty.
 The invalid observation below settles that probe's stop branch; the missing
-usable baseline and selection stay owned by G1 and slice 2, which cannot start
-without a new budget decision. Do not rerun the native probe in this execution.
+usable baseline and selection stay owned by G1 and slice 2. Terry's 2026-11-15
+"approved. continue" grants four additional native journeys after that stop.
 
 ### 2. Simplify that path and keep only an observed improvement
 Type: Behavior
@@ -60,11 +60,15 @@ Proof: unchanged/nonqualifying wakes preserve the block and partial work;
 qualification continues once with final owned and independent proof; complete
 blocked and unblocked comparisons meet the source's numerical criteria.
 
-**Stopped before implementation:** the invalid baseline consumed one of four
-journeys. The complete remaining comparison needs four journeys, exceeding the
-remaining three. No removal was selected; no product optimization was started.
-A new human decision is required before this slice or any further native run.
-G1 requires a passing, complete fresh baseline before selecting a reduction.
+**Stopped before optimization under source S01:** the passing fresh baseline
+and corrected complete accounting expose no single in-scope removal plausibly
+worth 20% of whole-task work. The unchanged wake uses two commands and the
+supplier procedure is read once and reused. Qualification is 82% of observed
+cost, largely required proof/delivery; generic tracing and phase loading are
+excluded. No candidate or helper was implemented. Two of five native journeys
+are used; three remain unspent. Further product work requires a new direction,
+not another run for a favorable result. The case-local opportunity record below
+retains the evidence and limits. This slice and the product goal remain incomplete.
 
 Implement the one selected reduction and remove its displaced procedure.
 Walk the story's examples using AGENTS.md's skill behavior review. If a helper
@@ -117,11 +121,9 @@ product changes, preserve evidence and stop without claiming improvement.
   focused proof, coordinator commit/publication and asynchronous CI repair use
   `dough-execute-plan`; stop after the bounded experiment rather than grow it.
 
-Refinement was not needed: one paid opportunity probe and one cohesive change
-with its keep/stop comparison. No remaining slice-boundary or design concern;
-the paid premises are explicitly bounded by slice 1. Expected entry files are
-at or below 250 lines (execution SKILL 247, dependency command 87, supplier
-procedure 250); prefer removal, keeping any changed responsibility coherent.
+Original two-slice sizing is retained: a bounded opportunity probe and one
+cohesive change with its keep/stop comparison. Prefer removal and keep each
+changed responsibility coherent; no numeric slice time limit was supplied.
 
 ## Execution context
 
@@ -134,7 +136,7 @@ revision `81146589ef7832d100f1f0a4557f5169d01b9f07`, accepted claim and pre-chan
 baseline `45f965a1bb59f049f9828097971d7621c13c64d6`, confirmed on `origin/main`
 and the execution branch. Authorized target is `origin/main`; ordinary delivery
 uses the remote execution branch. No second Take. No numeric slice limit supplied;
-retain the source's four-journey hard budget and existing planning authority.
+retain the source's amended five-journey hard budget and existing planning authority.
 
 Checkout-owned locked npm and browser setup plus native prerequisite check and
 `npm run typecheck:dashboard` passed with Node 24.21.0 and Chromium 158.0.8127.18.
@@ -156,93 +158,33 @@ authentication, usage completeness and opportunity remain slice 1's probe.
 Owner: slice 1 worker through terminal result. Reconsider on contention, failure,
 missing usage, or before another journey. No optimization implementation until baseline judgment.
 
-## Slice 1 observation — invalid native baseline, 2026-11-15
+## Probe evidence and resumed measurement
 
-The one authorized baseline froze `45f965a1bb59f049f9828097971d7621c13c64d6`
-(not the abandoned implementation), with native Codex 0.169.0, Node 24.21.0,
-`gpt-6.1-sol` / `xhigh`, AC power and `caffeinate -s -i`. Prelaunch load was
-4.35/4.45/3.84 with 65% memory free; recorded journey load was 4.15/4.41/3.83
-to 6.23/5.54/4.65. Literal launch:
+The [initial probe and detector-repair history](probe-history.md) retains the
+invalid journey, literal commands, raw evidence, deterministic proof and CI repair.
+The repaired increment `863ea5690d85f9f2da3ade7a370426ac20b44ad2` is published on
+the execution branch and covered by the resumed observer above.
 
-```sh
-env PATH="/opt/homebrew/bin:$PATH" TMPDIR=/Users/terryyin/tmp/native-comparison \
-  caffeinate -s -i Distribution/tests/native-comparison.sh --native codex \
-  --case paused-supplier --baseline 45f965a1bb59f049f9828097971d7621c13c64d6 \
-  --model gpt-6.1-sol --effort xhigh \
-  --save-baseline Distribution/tests/native-comparison/paused-supplier/comparisons/seed356-20261114T233327Z-baseline.json \
-  --results-dir /Users/terryyin/tmp/seed356-native-results
-```
+The resumed paused-supplier journey (2/5) passed all four behavioral turns.
+[Original export](../../../Distribution/tests/native-comparison/paused-supplier/comparisons/seed356-resumed-baseline-863ea5690.json)
+remains unknown and byte-identical; a shared reader defect misidentified forked
+workers after copied parent metadata. Eight focused checks and independent
+refactoring validate the bounded repair. A new [corrected export](../../../Distribution/tests/native-comparison/paused-supplier/comparisons/seed356-resumed-baseline-863ea5690-accounting-corrected.json)
+replays the same complete raw attempt, preserving capture hashes and input
+manifest: 77 responses, 8,861,703 processed tokens, 8,614,144 cached input,
+213,172 uncached input, 34,387 output, zero native developer interventions.
 
-Terminal exit 2; no usable baseline was exported. The
-[case-local stop record](../../../Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T233920-362e-stop.md)
-retains the outcome, exact false-positive commands, partial usage and budget
-judgment. Raw attempt:
-`/Users/terryyin/tmp/seed356-native-results/codex/native-comparison/paused-supplier/20261114T233920-362e`.
-Turns 1–3 held correctly; ordinary absolute workspace reads matched the bare
-`native-comparison` detector. No harness source was read. The failed observation
-stays unchanged. The coordinator stopped the exact owned Codex group with
-`owned_process_group_terminate 97955 97955 15`; the controller retained the
-interrupted turn 4, exporter refused it, and all owned PIDs ended.
-
-Whole-task usage is unknown (`retainedUsage.status: unknown`, `totals: null`);
-26 observed responses total 1,468,842 partial tokens, not a complete-task result.
-No optimization/helper was started and no saving is supported. One invalid
-journey of four is consumed; a fresh blocked pair plus unblocked pair need four
-more, exceeding three remaining. Stop before any further native run or selection;
-a new human budget decision is required. The discovered detector defect is
-repaired only with deterministic proof below.
-
-### Accepted deterministic repair proof
-
-The new `Distribution/tests/native-harness-inspection.sh` failed before repair
-with `turn 1 inspected the native harness`. Its controlled host actually reads
-installed guidance by absolute workspace path. After narrowing the runner's
-generated detector to literal controller/source roots and relative harness paths,
-the four-turn legitimate-read journey passes; six source/controller/relative/mixed
-inspection journeys are rejected by the unchanged observer/assessors.
-
-Passing terminal command (session 82047, exit 0):
-
-```sh
-env PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh \
-  Distribution/tests/native-harness-inspection.sh \
-  Distribution/tests/native-comparison-paused-supplier.sh \
-  Distribution/tests/native-comparison-unblocked-supplier.sh \
-  Distribution/tests/native-comparison-doughnut-title-precedence.sh \
-  Distribution/tests/native-comparison-pairs.sh \
-  Distribution/tests/native-comparison-baselines.sh
-```
-
-Coordinator inspection confirms `check_journey` observes the actual assessor
-verdict and inspection rejection reason. The shared detector API, task/events,
-assessors and runtime guidance remain unchanged. Consumer trace:
-`/tmp/seed356-inspection-consumer-trace.md`, all 23 consumers dispositioned.
-The changed runner's three case families, pair and baseline entry points are
-covered by the above checks; the owned-proof-only caller never reaches the
-changed pattern construction. Historical archives stay byte-identical.
-The [case-local stop record](../../../Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T233920-362e-stop.md)
-retains the bounded result and visible evaluation costs.
-
-Independent refactor returned `## REFACTOR COMPLETE`: one literal-root escape
-pass and shared relative-path suffix, with no API or assertion change. All six
-checks above passed again (session 68295, exit 0), using
-`env PATH="/opt/homebrew/bin:$PATH" OPEN_DOUGH_TEST_JOBS=2 caffeinate -s -i bash scripts/test.sh`
-with the same six paths. Territory.local was on AC at natural load 16.71/9.65/6.64,
-62% memory free; reduced concurrency preserved coverage. Trace:
-`/tmp/seed356-refactor-consumer-trace.md`. Refactor elapsed approximately six
-minutes; no further native journey. `git diff --check` passed.
-
-CI run `43655558326/1` found inline stream encoding and rejection-helper guard
-violations in the new test. Repair reuses the shared substitute encoder and
-`native_assessor_rejects_observed`, without guard/detector/assessor changes.
-Terminal proof (session 99864, exit 0, fourteen checks):
-`env PATH="/opt/homebrew/bin:$PATH" OPEN_DOUGH_TEST_JOBS=1 caffeinate -s -i bash scripts/test.sh Distribution/tests/native-harness-inspection.sh Distribution/tests/native-stream-replay.sh Distribution/tests/native-assessor-counterexample-guard.sh Distribution/tests/native-comparison-*.sh`.
-Trace `/tmp/seed356-ci-guard-consumer-trace.md` covers shared fixture defaults and faults.
+The [opportunity and stop record](../../../Distribution/tests/native-comparison/paused-supplier/comparisons/seed356-resumed-baseline-863ea5690-opportunity.md)
+retains literal commands, per-turn costs, raw evidence, observed no-removal
+judgment, repair proof and visible evaluation cost. Reader changes remain
+material for comparison reuse; no compatibility exemption or provenance rewrite
+was introduced. No additional native run or candidate comparison was launched.
+The authorized preimplementation stop is retained; no improvement is claimed.
 
 ## Story obligations
 
 ### G1. No usable fresh baseline or supported reduction
 Reported: slice 1 — "The native baseline was invalidated by a false-positive harness-inspection detector and stopped; complete-task usage and a worthwhile removal remain unproved."
 Story clause: "Unknown usage remains unknown and cannot support a token-saving verdict."
-Disposition: receiving slice 2
-Commitment: C08, E16
+Disposition: excluded "Stop before implementation if its fresh baseline exposes no plausible worthwhile removal."
+Commitment: C03

@@ -67,14 +67,18 @@ export function readCodexSession(file) {
   const pending = new Map();
   let context = {},
     thread,
-    parentThread;
+    parentThread,
+    recordThread;
   for (const line of readFileSync(file, "utf8").split("\n")) {
     if (line.trim() === "") continue;
     const row = JSON.parse(line);
     const value = row.payload ?? {};
     if (row.type === "session_meta") {
-      thread = value.id;
-      parentThread = value.source?.subagent?.thread_spawn?.parent_thread_id;
+      if (thread === undefined) {
+        thread = value.id;
+        parentThread = value.source?.subagent?.thread_spawn?.parent_thread_id;
+      }
+      recordThread = value.id;
     } else if (row.type === "turn_context") {
       context = { turn: value.turn_id, cwd: value.cwd };
       contexts.push(context);
@@ -105,8 +109,15 @@ export function readCodexSession(file) {
         ),
       });
     } else if (row.type === "event_msg") {
-      if (value.type === "task_started") startedTurns.push(value.turn_id);
-      if (value.type === "task_complete") completedTurns.push(value.turn_id);
+      // A fork copies parent metadata and turns after its own first metadata.
+      // Preserve that history's contexts/calls, but its lifecycle belongs to
+      // the parent until an explicit settings event resumes this thread.
+      if (value.type === "thread_settings_applied")
+        recordThread = value.thread_id;
+      if (recordThread === thread) {
+        if (value.type === "task_started") startedTurns.push(value.turn_id);
+        if (value.type === "task_complete") completedTurns.push(value.turn_id);
+      }
     } else if (row.type === "response_item") {
       if (["custom_tool_call", "function_call"].includes(value.type)) {
         pending.set(value.call_id, { value, context });
