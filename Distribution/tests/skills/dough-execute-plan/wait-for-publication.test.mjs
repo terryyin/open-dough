@@ -5,11 +5,11 @@ import test from "node:test";
 import { git } from "../../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { until } from "../../support/local-test-suite-fixtures.mjs";
 import {
-  beyondLoadedStartUp,
   delivered,
   lastFetched,
   objectAt,
   observed,
+  outcomeChange,
   onlyResult,
   outcomePath,
   publish,
@@ -19,6 +19,8 @@ import {
 } from "../../support/wait-for-publication-fixture.mjs";
 
 const minuteMs = 60_000;
+// A duration that outlasts the command's start-up on a loaded machine.
+const beyondLoadedStartUp = ["--duration-minutes", "0.25"];
 
 test("a push touching no watched path prints nothing, and a push to a watched path ends the wait with one result naming the change and the deadline", async (t) => {
   const { supplier, watcher } = await watchedRemote(t);
@@ -37,12 +39,11 @@ test("a push touching no watched path prints nothing, and a push to a watched pa
     result: "publication",
     remote: "origin",
     changes: [
-      {
-        ref: "main",
-        path: outcomePath,
-        before: await objectAt(supplier, `${start}:${outcomePath}`),
-        after: await objectAt(supplier, `${published}:${outcomePath}`),
-      },
+      await outcomeChange(
+        supplier,
+        await objectAt(supplier, `${start}:${outcomePath}`),
+        published,
+      ),
     ],
     deadline,
   });
@@ -75,12 +76,7 @@ test("a watched path that first appears on the ref ends the wait", async (t) => 
   const published = await publish(supplier, "main", delivered);
 
   assert.deepEqual((await onlyResult(wait)).changes, [
-    {
-      ref: "main",
-      path: outcomePath,
-      before: null,
-      after: await objectAt(supplier, `${published}:${outcomePath}`),
-    },
+    await outcomeChange(supplier, null, published),
   ]);
 });
 

@@ -23,8 +23,6 @@ const script = fileURLToPath(
 export const outcomePath = "docs/supplier-outcome.md";
 export const watchedOutcome = ["--ref", `main:${outcomePath}`];
 export const delivered = { [outcomePath]: "delivered\n" };
-// A duration that outlasts the command's start-up on a loaded machine.
-export const beyondLoadedStartUp = ["--duration-minutes", "0.25"];
 
 // A remote whose trunk holds `files`, the supplier's checkout that publishes
 // to it, and the watching checkout: a separate clone of that remote.
@@ -52,6 +50,17 @@ export async function publish(supplier, ref, files) {
   });
   await git(supplier, "push", "origin", `${commit}:refs/heads/${ref}`);
   return commit;
+}
+
+// The one change a publication of `commit` to the outcome on main makes, from
+// the `before` object.
+export async function outcomeChange(supplier, before, commit) {
+  return {
+    ref: "main",
+    path: outcomePath,
+    before,
+    after: await objectAt(supplier, `${commit}:${outcomePath}`),
+  };
 }
 
 // Starts the real command in the watching checkout, passing `args` (refs,

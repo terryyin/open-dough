@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  beyondLoadedStartUp,
   delivered,
   objectAt,
   observed,
   onlyResult,
+  outcomeChange,
   outcomePath,
   publish,
   startWait,
@@ -48,22 +48,15 @@ test("a supplier that publishes a slice and then its completion while the previo
   assert.deepEqual(await onlyResult(rerun), {
     result: "publication",
     remote: "origin",
-    changes: [
-      {
-        ref: "main",
-        path: outcomePath,
-        before: changes[0].after,
-        after: await objectAt(supplier, `${completed}:${outcomePath}`),
-      },
-    ],
+    changes: [await outcomeChange(supplier, changes[0].after, completed)],
     deadline,
   });
 });
 
-test("a rerun given the returned deadline with nothing published since prints nothing until one deadline result at that time", async (t) => {
-  const { watcher, deadline } = await nonqualifyingResult(
+test("a rerun given the returned deadline with nothing published since prints nothing for the change already reported, and ends on the next one from the object that result reported", async (t) => {
+  const { supplier, watcher, changes, deadline } = await nonqualifyingResult(
     t,
-    beyondLoadedStartUp,
+    beyondJudgment,
   );
 
   const rerun = startWait(
@@ -73,28 +66,35 @@ test("a rerun given the returned deadline with nothing published since prints no
     "--deadline",
     deadline,
   );
+  const unrelated = await publish(supplier, "main", { "src/other.md": "x\n" });
+  await observed(watcher, unrelated);
+  assert.equal(rerun.stdout + rerun.stderr, "");
+  const completed = await publish(supplier, "main", delivered);
 
   assert.deepEqual(await onlyResult(rerun), {
-    result: "deadline",
+    result: "publication",
     remote: "origin",
+    changes: [await outcomeChange(supplier, changes[0].after, completed)],
     deadline,
   });
-  assert.ok(rerun.printedAt >= Date.parse(deadline));
 });
 
-test("a wait with a new duration after a publication result takes its own first observation and stays silent to its own deadline across the push before it", async (t) => {
+test("a wait with a new duration after a publication result takes its own first observation and stays silent across the push before it", async (t) => {
   const { supplier, watcher, deadline } = await nonqualifyingResult(t, []);
-  await publish(supplier, "main", delivered);
+  const further = await publish(supplier, "main", delivered);
 
-  const fresh = startWait(
-    t,
-    watcher,
-    ...watchedOutcome,
-    ...beyondLoadedStartUp,
-  );
+  const fresh = startWait(t, watcher, ...watchedOutcome, ...beyondJudgment);
+  await observed(watcher, further);
+  assert.equal(fresh.stdout + fresh.stderr, "");
+  const next = await publish(supplier, "main", { [outcomePath]: "again\n" });
 
   const result = await onlyResult(fresh);
-  assert.equal(result.result, "deadline");
+  assert.deepEqual(result.changes, [
+    await outcomeChange(
+      supplier,
+      await objectAt(supplier, `${further}:${outcomePath}`),
+      next,
+    ),
+  ]);
   assert.notEqual(result.deadline, deadline);
-  assert.ok(fresh.printedAt >= Date.parse(result.deadline));
 });
