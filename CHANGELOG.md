@@ -1,3 +1,15 @@
+## 0.3.101 - 2026-11-15
+
+- Limit a new slice plan to eight slices. Split an over-limit feature story before readiness. During execution, splitting the current slice can raise the limit to ten. When work must stop, close a delivered outcome only if it has independent proof and can safely stand on its own; the remainder needs a separate authorized start.
+- Give each slice 15 active minutes across handoffs and resumes. Time inside running commands, the refactor pass, and CI repair are excluded. The proof-wait guide uses existing host waits and a deadline, and asks execution to reassess repeated failures before trying again. Active time is still tracked by the agent.
+- Move focused dashboard configuration, launch, session, and token-index checks to smaller suites, while keeping product-wide journeys in E2E. Add an opt-in revision stream trace for diagnosing stalled observations.
+
+The Promoted payload has 369 files: one new proof-wait reference, 15 revised files, and no retired paths. Dashboard and test changes are in the source repository.
+
+The self-installation baseline, payload declaration and links, public installation, execution payload update, all-tool installation, and host-hook checks passed. [Hosted trunk CI passed all 18 jobs at `60d0fe69a`](https://github.com/terryyin/open-dough/actions/runs/43687158526); the net changes after that revision only affect planning records. The behavior review covered over-limit preparation, a delivered split with independent proof, a stopped split with missing proof, and active-time carryover during a proof wait.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), this guidance revision uses existing host wait facilities and reuses evidence for unchanged installation, discovery, and hook integrations. No fresh native workflow acceptance or release exception is claimed. Freshness ordering and oversized-file reorganization remain separately pending for their unchanged guidance.
+
 ## 0.3.100 - 2026-11-15
 
 - Shorten the skill descriptions loaded into agent context. Findings maintenance and triage stay available by explicit invocation and are excluded from automatic discovery.
