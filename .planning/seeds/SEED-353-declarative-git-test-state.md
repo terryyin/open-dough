@@ -4,133 +4,227 @@ status: active
 planted: 2026-11-14
 planted_during: Terry reviewed Git setup in the file-diff follow-up admission test
 trigger_when: selected from the product backlog
-scope: story
+scope: nine stories
 ---
 
 # SEED-353 — Declarative Git test state
 
+## Parent goal and retained scope
+
+Developers should read the repository facts and relationships explaining dashboard tests without reconstructing routine Git, files, configuration or incidental identifiers. Terry approved smaller stories preserving the full migration on 2026-11-15. The original identity now names the first outcome; all original scope is allocated below. No executable plan or completed slices existed to partition, and nothing is marked delivered by the split.
+
+Shared scope and correctness requirements:
+
+- Audit direct and indirect arrangement throughout `dashboard/backend-tests/`, `e2e/`, affected `dashboard/tests/` and support. A scan is a starting point, not the boundary; preserve purposes and independent assertions.
+- Use the one shared `makeMe` entry and existing repository/launch/landing builders for meaningful files, refs, authorship, ordered parents, exact bytes and workspace state. Extend current owners for demonstrated needs; no imperative scripts in builder spelling or second representation of those facts.
+- Harnesses retain filesystem, Git, installation, environment and cleanup. Materialize only on demand; preserve prepared-prefix/template reuse and private mutable refs, objects, config, index and files. Expose named revision/workspace results instead of incidental `rev-parse` setup.
+- Builders derive related incidental IDs, preferring fixed defaults where isolation permits and internal uniqueness when needed. Specs neither import `randomUUID` for defaults nor create, extract or pass an incidental UUID just to relate construction steps. Explicit meaningful differences, malformed IDs and real launch-returned reporting contexts remain intact.
+- Keep actions under proof and independent observations visible: post-observation publication, competing writers, failed pushes, ref movement and destructive operations remain actions. Preserve staging, dirty state, authorship, topology and byte distinctions explaining each case.
+- Update the [test-data architecture guide](../../Distribution/tests/test-data-architecture.md) for delivered capabilities. Apply selected MakeMe/page-object conventions, [ADR 0002's direct domain mapping](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution) and [ADR 0008's published/local distinction](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state).
+
+Under [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md), compare representative cases before/after. Keep readable construction only when its benefit justifies builder complexity without weaker proof, lost isolation or eager preparation. No speedup is promised; claim one only if measured. Each plan carries the shared [failure policy](../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+
+## Allocation, order and preparation
+
+| Order | Receiving story | Original promises and scenario ownership |
+| --- | --- | --- |
+| 1 | [Declare landed-file follow-up state through MakeMe](#declare-git-test-state-through-makeme) | Original admission example; named fixture revisions; launch → landing → file relationships. |
+| 2 | [Declare Intent comparison histories through MakeMe](#declare-intent-comparison-histories) | Intent/CI comparison, source selection, build provenance and timing-history arrangement. |
+| 3 | [Declare local worktree review state through MakeMe](#declare-local-worktree-review-state) | Worktree content, staged/unstaged/untracked/ignored state, modes, renames, binary and context fixtures. |
+| 4 | [Declare merged review histories through MakeMe](#declare-merged-review-histories) | Story-branch commit/range comparisons, parent order, trunk integrations and conflict resolutions. |
+| 5 | [Declare trunk review authorship through MakeMe](#declare-trunk-review-authorship) | Trunk-mode own/foreign history, rewritten histories, attribution and review marks. |
+| 6 | [Declare completed-story review histories through MakeMe](#declare-completed-story-review-histories) | Completion publication/attribution, merge edits and incomplete-history/capture fallback starting state. |
+| 7 | [Declare retained landing and recovery state through MakeMe](#declare-retained-landing-recovery-state) | Story-branch/one-shot authority, captures, binding/refusal and recovery arrangement. |
+| 8 | [Declare launch and session repository state through MakeMe](#declare-launch-session-repository-state) | Other launch/start/continuation/follow-up and session-association histories and incidental identities. |
+| 9 | [Declare runtime and observation repository state through MakeMe](#declare-runtime-observation-repository-state) | Runtime/publication/source fixtures, Git-file/process observations, private-copy isolation and cleanup. |
+
+The first retains the Preparing identity and queue position for Terry's concrete example. Queue the rest directly after it: Intent aligns with the backlog's Purpose/proof direction; review increases topology risk; delivery, launches and runtime follow. Preserve unrelated order and Taken ownership. Shared code creates no blocking dependency; each outcome remains useful if later work is cancelled.
+
+Only the first is refined/planned. Later stories resume through story refinement; no mapped original slices require provisional plans. Indirect setup and defaults belong to the receiving scenario purpose, including newly discovered candidates. No general S/M/L bands are established (SEED-345's concern host workflows), so none are invented. The first is the smallest inspected proof loop; completed histories and runtime isolation have broader setup risk.
+
+## Existing solution and evidence
+
+Reuse the [repository builder](../../Distribution/tests/support/repositoryTestData.mjs), [materializer](../../Distribution/tests/support/repository-fixture.mjs) and [installed-origin layer](../../dashboard/tests/support/startOriginPreparation.ts): they already own named history, ordered parents, authors/files/workspaces, deferred construction, reuse and private copies. Another framework, renamed imperative helpers or doing nothing retains the duplication.
+
+The 2026-11-15 scan at `d25751dd51970273d7e5622b21cb66209a14e083` found 104 candidate specs (50 backend, 44 E2E, 10 integrated), matching `git`, `commitAll`, `commitAllAs`, `writeAt` calls or `randomUUID`. Actions/observations are included; differently named indirect setup is omitted. Eight repository checks passed; the first plan retains consuming-route probes. Neither establishes a full migration or speedup.
+
 <a id="declare-git-test-state-through-makeme"></a>
 
-### Declare Git test state through MakeMe
+### Declare landed-file follow-up state through MakeMe
 
 **Identity:** SEED-353#declare-git-test-state-through-makeme
-
 ```json dough-story-state
-{ "schemaVersion": 1, "refinement": "not-refined", "approach": "unselected" }
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/642-declare-landed-file-follow-up-state/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b3ca08778593da6c776c293b9cb7db03ab6e493bf1881d21cffb57d2d1c9d99c","plan":"419c6d5da2a98c223b18c6ccc687b4764d1385c5b0ab2e46ee3c1426918dc4a8"}}
 ```
 
-**For / why.** A developer reading or changing a dashboard test should see the
-repository facts and relationships that explain its behavior. Routine file
-writes, commits, pushes, checkout configuration and incidental identifiers
-currently obscure those facts and repeat defaults. Express construction through
-MakeMe and defer Git work to the owning fixture when the state is needed.
+**Goal.** A developer understands the landed-file admission setup from its
+comparison, two-line file and related launch, with routine Git and UUID wiring
+removed from the scenario.
 
-#### Evaluation and starting evidence
+**Scope.** Migrate the landed-run success case in
+`dashboard/backend-tests/launches/agent-launch-follow-up-file-admission.spec.ts`.
+Expose named base/tip results through prepared/private origins; builders derive
+launch, landing and file references without spec-level UUID creation, extraction
+or passing. Preserve meaningful/real reporting contexts, deferred harness-owned
+construction, sharing and isolation. Update the architecture guide. Other cases,
+including refusal cases' completed-history arrangement, migrate under their
+receiving stories; retain and run their independent assertions here.
 
-Terry identified the setup in
-[`agent-launch-follow-up-file-admission.spec.ts`](../../dashboard/backend-tests/launches/agent-launch-follow-up-file-admission.spec.ts):
-read `HEAD` as a base, write `delivered.txt`, commit, push, read the new `HEAD`,
-generate a random reporting reference, and repeat that reference in a launch,
-landing and file context. Only the two-line file, comparison and related launch
-matter to the admission example.
+**Key examples.** A named `base` → `delivered` comparison adds exactly
+`line one\nline two\n` in `delivered.txt`. Building its launch, landing and
+line-2 new-side follow-up derives one reporting reference; the HTTP action
+admits and names that comparison in the launched instruction. Removing line 2
+or referring to an unrelated launch refuses admission. Existing absent-path,
+absent-side, out-of-range-line and supplied-context refusals still start no host.
+Two callers of the same description may edit, publish or clean one private copy
+without changing the other's starting state or a later caller's baseline.
 
-Assessment at `de290b98d80a70253eced530de41048c602c3164` supports the renovation:
+**Safe stopping point.** One readable admission example and reusable construction,
+independent of later migration. No speedup claim or open human decision.
 
-- The shared [`makeMe.aRepository`](../../Distribution/tests/support/repositoryTestData.mjs)
-  already describes named revisions, files, parent order, authors, trunk and an
-  unpublished workspace. Its builder performs no Git work. The
-  [materializer](../../Distribution/tests/support/repository-fixture.mjs) supplies
-  Git defaults, publishes history, returns named commit IDs, reuses templates
-  and gives each caller its own mutable copy.
-- [`originRepository`](../../dashboard/tests/support/preparationPage.ts) already
-  accepts a description. Its [start-origin harness](../../dashboard/tests/support/startOrigin.ts)
-  supplies installation and machine setup, but does not expose named revision
-  IDs to cases. Extend the existing construction boundary where needed.
-- Backend and E2E specs share
-  [`storyReviewWorktree.ts`](../../dashboard/tests/support/storyReviewWorktree.ts),
-  [`storyReviewTrunkCommits.ts`](../../dashboard/tests/support/storyReviewTrunkCommits.ts)
-  and completed-story setup. E2E has the same construction issue; for example,
-  [`story-review-commit-trunk.spec.ts`](../../e2e/review/story-review-commit-trunk.spec.ts)
-  writes and commits extra history to arrange its comparison.
-- A static scan found calls named `git`, `commitAll`, `commitAllAs` or `writeAt`
-  in 45 backend, 44 E2E and 10 integrated UI spec files. Imports of `randomUUID`
-  occur in 11, 2 and 1 files respectively. These are discovery candidates,
-  including actions and observations; indirect helpers and differently named
-  operations need inspection too. The frontend specs had none of these matches.
-- A disposable real-Git probe declared `base` and `delivered` revisions with
-  `delivered.txt` containing `line one\nline two\n`. It verified deferred
-  materialization, the named parent and tip, publication to a bare origin, the
-  exact two-line addition, reuse of the same revision IDs, isolation of copies,
-  and cleanup. Existing landing-context defaults also supplied a valid UUID
-  without importing `randomUUID`. The probe still passed that reference into
-  the launch and landing explicitly; automatic propagation through builder
-  relationships remains required implementation work in this story.
-- All nine existing tests in `repository-description.test.mjs`,
-  `repository-fixture.test.mjs`, `repository-graph.test.mjs` and
-  `repository-snapshot-isolation.test.mjs` passed with `node --test`. These
-  files are under `Distribution/tests/support/`.
+<a id="declare-intent-comparison-histories"></a>
 
-This validates feasibility, not a completed migration or a measured suite speedup.
+### Declare Intent comparison histories through MakeMe
 
-#### Scope and boundaries
+**Identity:** SEED-353#declare-intent-comparison-histories
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
 
-- Renovate Git arrangement throughout `dashboard/backend-tests/`, `e2e/` and
-  affected `dashboard/tests/` specs and their supporting helpers in this one
-  story. Audit direct commands and indirect setup, rather than treating the
-  scan above as the complete scope. Reuse the one shared MakeMe entry point and
-  existing repository, launch and landing builders.
-- Declare the state a test needs, including relevant history, files, refs and
-  workspace state. Keep file creation, Git execution, installation, environment
-  and resource cleanup with their harness owners. Avoid a builder that merely
-  renames an imperative write/add/commit/push sequence.
-- Defer materialization until the fixture needs the requested state. Preserve
-  existing prepared-prefix and template reuse and independent mutable copies.
-  Use named materialization results for base/tip/workspace facts so cases need
-  no incidental `rev-parse` calls or configuration defaults.
-- Builders own incidental identifiers and derive consistent relationships.
-  Prefer deterministic defaults where isolation allows; generate uniqueness
-  internally only where required. Specs do not import `randomUUID` to arrange
-  defaults. Related construction steps associate a landing and file context
-  with their launch through builder relationships; the builders allocate and
-  reuse that launch's reference internally. A spec does not create, extract or
-  pass an incidental UUID between those steps merely to keep their references
-  equal. Moving UUID generation into a helper while leaving that manual wiring
-  in the spec does not complete the improvement. When identity differences or
-  malformed IDs are under proof, state those relationships or literal values
-  explicitly. Preserve real reporting contexts returned by actual launches.
-- Keep the action being tested and independent Git observations outside
-  construction. Publication after a first observation, competing writers,
-  failed pushes, ref movement and destructive operations remain visible when
-  their transition is the behavior under proof. Declarative setup must preserve
-  meaningful authorship, topology, staging, dirty state and exact file bytes.
-- The [test data architecture guide](../../Distribution/tests/test-data-architecture.md)
-  already explains how to declare Git starting state with MakeMe and keep Git
-  actions under test visible. Review it against the resulting builders and
-  fixtures after the migration and update it where needed. Continue to honor
-  the selected MakeMe and browser page-object conventions. Preserve the
-  distinction between published facts and machine-local evidence required by
-  [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
-  and direct domain mapping in
-  [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution).
+**For / why.** A developer can read the compared revisions, proof sources and
+build provenance directly in Intent scenarios across backend, E2E and remaining
+integrated tests. Include indirect `storyCiComparison*`, retained-Intent and
+completed-Intent setup; reuse completed-history owners instead of duplicating them.
+**Evaluation.** Named compared revisions and their actual workflow/configuration
+bytes yield the same displayed or HTTP proof, source-selection and timing rows;
+later publication after an observation remains a visible action.
+**Safe stopping point.** Intent construction is readable with unchanged independent
+CI/source/proof assertions; other review/launch families need not migrate first.
 
-#### Evaluable outcome
+<a id="declare-local-worktree-review-state"></a>
 
-The file-follow-up admission case and representative backend and E2E history
-cases express their distinguishing facts through MakeMe, with incidental Git
-setup and random UUID imports removed. In the file-follow-up admission example,
-the launch, landing and file context refer to the same launch without a local
-reference variable or explicit UUID passing between construction steps. Their
-original admission, comparison, publication and refusal assertions still prove
-the same behavior independently.
-Complete the same migration across the scoped suites and shared setup, leaving
-only justified actions and observations at case level; remove superseded helpers.
+### Declare local worktree review state through MakeMe
 
-Keep the result when cases are easier to read and maintain without replacing
-duplication with comparable builder complexity, weakening proof or isolation, or
-adding eager preparation. Compare representative cases before and after; claim
-runtime savings only if measured, following
-[ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md). Run the
-affected suite gates under the project's
-[failing and flaky test policy](../../AGENTS.md#failing-and-flaky-tests).
-This item queues the renovation; implementation planning and execution remain
-future work.
+**Identity:** SEED-353#declare-local-worktree-review-state
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / why.** A developer sees which local files/index/workspace facts explain
+review and refresh. Include uncommitted, nested/large/context, rename, mode and
+binary starting state in `storyReviewWorktree.ts` and its callers across tiers.
+**Evaluation.** Declared committed, staged, unstaged, untracked and ignored bytes
+produce the same review and independent Git status/index results. A later edit,
+stage or commit being observed stays explicit in the scenario.
+**Safe stopping point.** Local-content review fixtures are declarative and isolated;
+no trunk-attribution or completed-history migration is required for their value.
+
+<a id="declare-merged-review-histories"></a>
+
+### Declare merged review histories through MakeMe
+
+**Identity:** SEED-353#declare-merged-review-histories
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / why.** A developer reads story-branch commit/range comparisons from named
+parents and file changes rather than setup scripts. Include `storyReviewTrunk.ts`,
+commit/range/mark/admission helpers and their backend/E2E/integrated consumers.
+**Evaluation.** Clean integration, conflicted resolution, destination-baseline
+resolution and renamed-path histories preserve exact shown edits, ancestry and
+trunk flags; actions that change a previously observed comparison stay visible.
+**Safe stopping point.** Story-branch topology setup has one shared declarative
+owner while unrelated trunk-mode and completed scenarios remain unchanged.
+
+<a id="declare-trunk-review-authorship"></a>
+
+### Declare trunk review authorship through MakeMe
+
+**Identity:** SEED-353#declare-trunk-review-authorship
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / why.** A developer reads own versus foreign Trunk Mode changes directly
+from authored revision facts. Include `storyReviewTrunkMode.ts`, older-Git,
+rewritten-line, own-since, flagged-history and worktree-ambiguity starting state.
+**Evaluation.** Declared agent/developer authors, Takes, interleaving and rewritten
+history preserve own-change comparisons, marks and ambiguity/refusal results;
+Git observations remain independent of the description's renderer.
+**Safe stopping point.** Trunk attribution setup is readable without changing
+publication/refresh transitions or waiting for completed-story migration.
+
+<a id="declare-completed-story-review-histories"></a>
+
+### Declare completed-story review histories through MakeMe
+
+**Identity:** SEED-353#declare-completed-story-review-histories
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / why.** A developer can see a completed story's claim, authors, completion
+and merge relationships. Include `completedPublishedStory.ts`, its merge/input
+helpers, published-file follow-ups and completed-review consumers across tiers.
+**Evaluation.** Declared completion and interleaved/own/foreign merge histories
+preserve completion comparisons, attribution, file admission and gap/fallback
+refusals. Keep real publication/capture where that operation is the tested action.
+**Safe stopping point.** Readable published-completion setup independent of local
+activity; retained-run recovery remains separate.
+
+<a id="declare-retained-landing-recovery-state"></a>
+
+### Declare retained landing and recovery state through MakeMe
+
+**Identity:** SEED-353#declare-retained-landing-recovery-state
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / why.** A developer sees which launch, authority and comparison a retained
+landing belongs to. Include story-branch and one-shot contexts, captures, binding,
+retention, recovery and later-publication starting state and indirect helpers.
+**Evaluation.** Related builder facts share their launch internally; deliberate
+mismatch, missing objects and stale authority remain explicit. Capture, refused
+push, retry and destructive cleanup under proof stay real visible operations.
+**Safe stopping point.** Readable landing/recovery setup with unchanged refusal
+and retained-evidence assertions.
+
+<a id="declare-launch-session-repository-state"></a>
+
+### Declare launch and session repository state through MakeMe
+
+**Identity:** SEED-353#declare-launch-session-repository-state
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / why.** A developer reads other launch/start/continuation/follow-up and
+session-association cases from their repository and related-record facts. Include
+remaining incidental UUID defaults, ambiguous/competing histories and shared setup.
+**Evaluation.** Named initial history and internally related IDs retain the same
+launch, continuation and session-association/refusal results; actual starts and
+returned reporting contexts stay the evidence where their behavior is under proof.
+**Safe stopping point.** Launch/session setup is declarative with no change to
+host, local-session or published-assignment meanings.
+
+<a id="declare-runtime-observation-repository-state"></a>
+
+### Declare runtime and observation repository state through MakeMe
+
+**Identity:** SEED-353#declare-runtime-observation-repository-state
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**For / why.** A developer can read runtime/source/publication, Git-file identity,
+process and fixture-isolation scenarios from their starting facts. Include scoped
+runtime/observation helpers and differently named indirect repository construction.
+**Evaluation.** Declared starting state preserves publication/source selection and
+independent identity/process observations. Isolation cases still mutate, publish,
+corrupt and clean private copies as their visible actions and observe peers.
+**Safe stopping point.** Runtime/observation construction is readable with sharing,
+cleanup and mutation proof intact. Check direct and indirect candidates across the
+original roots against this allocation; migrate this story's residue and retain
+other unfinished stories' obligations rather than claiming them complete.

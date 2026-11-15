@@ -38,7 +38,15 @@ intent introduced or affected by a newly developed story.
 
 - [Move Intent and navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#retire-dashboard-integrated-ui-test) — SEED-334#retire-dashboard-integrated-ui-test
 - [Prefer E2E tests to drive development and optimize the retained suite before completion](seeds/SEED-365-e2e-development-and-test-optimization.md#drive-development-with-e2e-and-optimize-the-suite) — SEED-365#drive-development-with-e2e-and-optimize-the-suite
-- [Declare Git test state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-git-test-state-through-makeme) — SEED-353#declare-git-test-state-through-makeme
+- [Declare landed-file follow-up state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-git-test-state-through-makeme) — SEED-353#declare-git-test-state-through-makeme
+- [Declare Intent comparison histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-intent-comparison-histories) — SEED-353#declare-intent-comparison-histories
+- [Declare local worktree review state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-local-worktree-review-state) — SEED-353#declare-local-worktree-review-state
+- [Declare merged review histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-merged-review-histories) — SEED-353#declare-merged-review-histories
+- [Declare trunk review authorship through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-trunk-review-authorship) — SEED-353#declare-trunk-review-authorship
+- [Declare completed-story review histories through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-completed-story-review-histories) — SEED-353#declare-completed-story-review-histories
+- [Declare retained landing and recovery state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-retained-landing-recovery-state) — SEED-353#declare-retained-landing-recovery-state
+- [Declare launch and session repository state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-launch-session-repository-state) — SEED-353#declare-launch-session-repository-state
+- [Declare runtime and observation repository state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-runtime-observation-repository-state) — SEED-353#declare-runtime-observation-repository-state
 - [Highlight syntax in code diffs](seeds/SEED-351-highlight-syntax-in-code-diffs.md#highlight-syntax-in-code-diffs) — SEED-351#highlight-syntax-in-code-diffs
 - [Close native comparison harness gaps](seeds/SEED-346-native-ab-comparisons.md#close-native-comparison-harness-gaps) — SEED-346#close-native-comparison-harness-gaps
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
