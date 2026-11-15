@@ -16,7 +16,7 @@ finish() {
   rm -rf -- "${work}"
 }
 trap finish EXIT
-mkdir -p "${work}/bin" "${work}/pass" "${work}/early" "${work}/native"
+mkdir -p "${work}/bin" "${work}/pass" "${work}/early"
 cp "${source_dir}/Distribution/tests/support/native-agent-paused-supplier.sh" "${work}/bin/codex"
 cp "${source_dir}/Distribution/tests/helpers/wait-for.bash" "${work}/bin/wait-for.bash"
 cat > "${work}/bin/context" << 'SCRIPT'
@@ -111,7 +111,7 @@ grep -Fqx 'turn-2-publication-2-event: qualifying' "${work}/reassess.txt"
 grep -Fqx 'turn-2-before-partial-work: preserved' "${work}/reassess.txt"
 grep -Fqx 'turn-2-hold-supplier-reader: absent' "${work}/reassess.txt"
 
-# Matching includes configured producer windows and ordered publications,
+# Matching includes the controlled release driver and ordered publications,
 # independent of their real completion times and without additional turns.
 source "${source_dir}/Distribution/tests/support/native-comparison-pair.sh"
 mkdir -p "${work}/pair/baseline" "${work}/pair/candidate"
@@ -130,6 +130,11 @@ native_comparison_pair_observe_arm "${work}/pair" candidate 2 '' > "${work}/pair
 # passing journey. A scripted reduction of work cannot erase these outcomes.
 case_path="${source_dir}/Distribution/tests/native-comparison/supplier-watch"
 source "${case_path}/assess.bash"
+# Immutable exports keep their retired schedule label and remain assessable.
+sed 's/producer-schedule: controlled-fifo/producer-schedule: fixed-180s-180s/' \
+  "${passing}" > "${work}/legacy-observations.txt"
+case_assess "${work}/legacy-observations.txt"
+[[ ${case_assess_status} == pass ]]
 native_assessor_counterexamples "${case_path}/assess.bash" "${passing}" \
   --verdict case_assess_status case_assess_reason -- case_assess
 native_assessor_rejects_field_rows << 'CASES'
@@ -231,10 +236,3 @@ grep -Fqx 'unstarted: supplier-watch permits only the controlled supplier substi
   "${work}/different/run/observations.txt"
 [[ $(native_comparison_fixture_sessions "${work}/different") -eq 0 ]]
 [[ -z ${native_comparison_attempt} && ! -e ${work}/different/results ]]
-
-# Native selection chooses only the approved fixed schedule. This checks the
-# route decision without starting a model, timer or paid journey.
-source "${case_path}/case.bash"
-native_codex_isolate=1
-case_prepare_run
-[[ ${watch_clock_mode} == native ]]

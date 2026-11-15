@@ -49,7 +49,11 @@ case_assess() {
   fi
   [[ $(watch_field turn-2-status) == completed && $(watch_field turn-2-thread) == "${thread}" ]] || return 0
   events="$(watch_field turn-2-publication-1-event) $(watch_field turn-2-publication-2-event)"
-  [[ $(watch_field turn-2-producer-schedule) == fixed-180s-180s ]] || return 0
+  # The retired label remains readable in immutable historical exports.
+  case $(watch_field turn-2-producer-schedule) in
+    controlled-fifo | fixed-180s-180s) ;;
+    *) return 0 ;;
+  esac
   [[ ${events} == 'nonqualifying qualifying' ]] || {
     case_assess_reason='in-flight publication schedule is incomplete'
     return 0

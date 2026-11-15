@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
-# Fixed native windows, or an explicitly advanced controlled clock.
+# An explicitly advanced controlled supplier-publication driver.
 # shellcheck disable=SC1091,SC2034,SC2154,SC2312 # Case and retained fixture state.
 set -euo pipefail
 case_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "${case_dir}/../../support/native-comparison-run.sh"
 source "${case_dir}/case.bash"
-root=$1 stream=$2 scratch=$3 mode=$4 clock=$5 started=$6
+root=$1 stream=$2 scratch=$3 clock=$4
 source "${scratch}/case-evidence/watch-state.bash"
 # Source the domain publisher directly: this case's public event is the watch request.
 source "${case_dir}/../../support/native-comparison-supplier.sh"
-[[ ${mode} != controlled ]] || printf '%s\n' "${BASHPID}" > "${clock}/controller-pid"
+printf '%s\n' "${BASHPID}" > "${clock}/controller-pid"
 # Own the clock child explicitly: publisher failure must not leave a pipeline
 # parent waiting for its still-blocked clock. Clock failure closes this FIFO.
 clock_pipe="${scratch}/watch-clock.pipe"
 mkfifo "${clock_pipe}"
-node "${case_dir}/clock.mjs" "${mode}" "${clock}" "${started}" > "${clock_pipe}" &
+node "${case_dir}/clock.mjs" "${clock}" > "${clock_pipe}" &
 clock_pid=$!
 finish_clock() {
   kill "${clock_pid}" 2> /dev/null || true
@@ -46,7 +46,7 @@ while read -r event; do
     supplier_case_observe "${root}" 2-hold "${stream}" "${scratch}" "${harness}" \
       >> "${scratch}/case-evidence/watch-observations.txt"
   fi
-  [[ ${mode} != controlled ]] || printf '%s\n' "${case_remote_main}" > "${clock}/${event}"
+  printf '%s\n' "${case_remote_main}" > "${clock}/${event}"
 done < "${clock_pipe}"
 [[ ${index} -eq 2 ]]
 wait "${clock_pid}"

@@ -1,29 +1,32 @@
 # Supplier publication during an active watch
 
-This case preserves the pre-correction ad-hoc supplier agreement, partial
-consumer work and paused supplier. An ordinary continuation turn is followed by
-one actual new watch request. Its controller publishes nonqualifying and
-qualifying Git states during that turn, independently of model polling.
+This controlled diagnostic preserves the pre-correction ad-hoc supplier agreement,
+partial consumer work and paused supplier. An ordinary continuation turn is
+followed by one new watch request. Its controller publishes nonqualifying and
+qualifying Git states during that turn, independently of substitute-host activity.
+It is not a qualified performance benchmark. The native profile is retired:
+selecting it refuses before any model starts. The
+[maintained findings](../../../../docs/maintainer/blocked-execution-experiment-findings.md)
+retain the investigation outcome and recoverable historical evidence.
 
 ## Selection
 
 - workflow: blocked execution after a developer requests supplier monitoring
 - behavior: independent in-flight producer events and exactly one continuation
 - environment: isolated small Node project and local Git remote
-- hosts: codex; the exact controlled substitute proves the harness only
-- prerequisites: Bash 5, Git, Node 24, jq; explicit authorization for native use
+- hosts: codex controlled substitute only; native execution is retired
+- prerequisites: Bash 5, Git, Node 24, jq; exact controlled substitute and external FIFO driver
 - decisions and proof: paused/early-publication hold, partial-work preservation,
   qualifying continuation once with independent and executed proof
-- duration: native releases at 180 and 360 seconds from the watch-request turn;
-  cheap checks advance an external FIFO clock
+- duration: controlled checks release events through an external FIFO without waiting for time to pass
 
 ## Evidence boundary
 
-The approved native windows belong only to this case. The safety deadline
-remains separate. A clock/controller failure stops the owned model; an ended
-model retires the controller and clock. There is no automatic resume or
-fabricated in-flight process. A clean ended hold is not-reproduced with
-qualifying continuation unobserved and cannot pass full matched quality.
+The generic safety deadline remains separate from event release. A driver or
+controller failure stops the owned substitute host; an ended host retires the
+controller and driver. There is no automatic resume or fabricated in-flight
+process. A clean ended hold leaves qualifying continuation unobserved and cannot
+pass full quality.
 
 The controller snapshots partial work before publication and after the
 nonqualifying publication, retaining ordered event/commit/time receipts outside
@@ -31,22 +34,17 @@ the task workspace. A begin receipt precedes snapshot/publication work; completi
 receipts remain separate. Unchanged windows end at each begin receipt, with the
 second starting after first-publication completion. Invalid bounds stay unknown.
 Numeric phase fields survive compact export/reassessment
-without becoming extra native turns. Pair matching includes the configured
-schedule and publication order.
+without becoming extra turns. Pair matching includes the release driver and
+publication order. The assessor can still read the retired schedule label in
+immutable historical exports; it grants no execution authority.
 
 The shared saved-session reader supplies authentic owner-attributed launches,
 wait receipts and response re-entry. Compact evidence retains hashed identities,
 raw row locators and confirmed live spans as exposure lower bounds.
 Unobserved exposure remains unknown. A generic live handle is not
 proof of a genuine supplier watch: its private launch/resource must be reviewed.
-The frozen candidate signal requires at least two genuine empty nonterminal
+The retained diagnostic signal requires at least two genuine empty nonterminal
 receipts on the same owned supplier watch, each followed by a distinct owned
 model response before supplier facts change. One liveness check does not qualify.
-This pre-launch choice detects repetition within the approved window: three
-55-second waits need 165 seconds, leaving only 15 seconds for setup/reasoning.
 Missing or unsupported evidence stays unknown. Scripted checks and retained
 trace calibration establish no new native behavior or saving.
-
-Before a paid launch, freeze inputs and reserve the complete approved native
-allocation. See SEED-356's plan and `reproducer-design.md`. The original paused
-forced-wake and ordinary unblocked cases remain correctness regressions.

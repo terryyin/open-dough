@@ -8,18 +8,17 @@ case_empty_events=''
 case_adjust_overlay() { node "${watch_case_dir}/project.mjs" "$@"; }
 case_materialize() { supplier_case_materialize "$@"; }
 
-# The real route uses the approved windows; only exact controlled substitute
-# bytes may select an external FIFO clock. Neither route changes model prompts.
+# The native profile is retired. Exact controlled substitute bytes and an
+# external FIFO release driver keep this diagnostic available without a model.
 case_prepare_run() {
+  case_prepare_reason='supplier-watch native profile is retired; use the controlled diagnostic checks; no session started'
   if [[ ${native_codex_isolate:-0} -eq 1 ]]; then
-    watch_clock_mode=native
-    return 0
+    return 1
   fi
   case_prepare_reason='supplier-watch permits only the controlled supplier substitute; no session started'
   cmp -s "$(command -v codex)" "${watch_case_dir}/../../support/native-agent-paused-supplier.sh" || return 1
   case_prepare_reason='supplier-watch requires an explicit controlled release clock; no session started'
   [[ -n ${NATIVE_COMPARISON_CONTROL_CLOCK-} && -p ${NATIVE_COMPARISON_CONTROL_CLOCK}/advance ]] || return 1
-  watch_clock_mode=controlled
 }
 case_apply_event() { [[ $2 == watch ]]; }
 
@@ -31,9 +30,9 @@ case_prepare_turn() {
     printf '%s=%q\n' "${name}" "${!name}"
   done > "${scratch}/case-evidence/watch-state.bash"
   printf 'turn-2-watch-start-ms: %s\n' "$((started / 1000))" > "${scratch}/case-evidence/watch-observations.txt"
-  printf 'turn-2-producer-schedule: fixed-180s-180s\n' >> "${scratch}/case-evidence/watch-observations.txt"
+  printf 'turn-2-producer-schedule: controlled-fifo\n' >> "${scratch}/case-evidence/watch-observations.txt"
   native_run_controller_command=("${BASH}" "${watch_case_dir}/control.bash"
-    "${root}" "${stream}" "${scratch}" "${watch_clock_mode}" "${NATIVE_COMPARISON_CONTROL_CLOCK-}" "$((started / 1000))")
+    "${root}" "${stream}" "${scratch}" "${NATIVE_COMPARISON_CONTROL_CLOCK}")
 }
 
 case_observe() {
@@ -46,7 +45,7 @@ case_observe() {
       || cat "${scratch}/case-evidence/watch-observations.txt"
     native_run_classify_stream codex "${stream}"
     printf 'turn-2-watch-stream: %s\n' "${native_run_stream_status}"
-    printf 'turn-2-watch-reproduction: %s\n' "$([[ ${watch_clock_mode} == native ]] && echo unreviewed-native-handles || echo unobserved-controlled-host)"
+    printf 'turn-2-watch-reproduction: unobserved-controlled-host\n'
     local saved sessions
     sessions=$(native_comparison_sessions_root)
     saved=$(node "${watch_case_dir}/../../support/native-codex-session.mjs" "${native_comparison_thread}" "${sessions}" 2> /dev/null | sed -n 's/^codex-session-file: //p') || saved=''

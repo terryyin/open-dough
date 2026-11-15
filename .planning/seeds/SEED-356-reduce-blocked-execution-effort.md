@@ -16,135 +16,56 @@ scope: story
 **Identity:** SEED-356#reduce-total-model-work-during-blocked-execution
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/627-reduce-blocked-execution-work/PLAN.md","assessment":"not-ready","reasons":["The approved native baseline passed quality but did not demonstrate repeated empty waits or a plausible targeted 20% removal. The source stopping rule now applies: no optimization or further paid work without a new decision. Three journeys remain; a fresh complete blocked/unblocked comparison needs four."],"basis":{"document":"a19d3ff24e89627e57aa310b228754e2390e853acc68b79b8f1ed2170c9a2d35","plan":"715756886398c9bfc0fd6b963585cc4ed1a0980220996249edb28fc764fa88f1"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/627-reduce-blocked-execution-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c53eccaf83454d84ad14a239f470be4ef48fb382a58dc2c852ba5487be0e8408","plan":"8a4a40eb5f8595429639e4a166f8e1d13c28154ad1bb74967c4983f922ae3e0a"}}
 ```
 
 #### Goal
 
-For a developer whose authorized execution waits on a supplier, significantly
-reduce complete-task model work while preserving partial work, accepted proof,
-correct supplier judgment and one qualifying continuation. Less work and less
-retained context are the outcome; added automation alone is not improvement.
+Conclude the second attempt as a completed investigation and validated native
+comparison infrastructure repairs. Preserve the evidence needed for a third
+attempt; do not claim the original model-work reduction was achieved.
 
 #### Scope
 
-Terry's 2026-11-15 "Go ahead, update the plan and continue" authorizes a
-bounded differential investigation after the forced-wake probe found no
-worthwhile narrow removal. Compare the original prolonged supplier pause with
-the fresh execution, identify the conditions that made the original coordinator
-keep requesting model work while the fresh execution held, and reproduce the
-missing condition before choosing an optimization. Distinguish evidence that
-the problem is already resolved from evidence that the extracted case omitted
-its cause. Preserve uncertainty when the available traces cannot settle it.
+Terry's 2026-11-15 early-convergence instruction supersedes the remaining
+optimization/comparison scope: keep the recommended repairs, drop the current
+native benchmark profile and unused paid comparisons, queue a successor clearly
+marked as the third try, and complete ordinary story wrap-up.
 
-Keep the existing paused-supplier forced-wake and unblocked-supplier cases as
-agreement, preservation and continuation regressions. The forced-wake case does
-not establish whether normal waiting creates or suppresses unnecessary model
-requests. Any new reproducer must exercise the normal wait/resume path, preserve
-the causal condition found in the original trace, and demonstrate the unwanted
-baseline behavior before an implementation or further paid comparison.
+Keep the corrected harness-inspection detector, fork/worker usage ownership,
+exact-byte baseline recovery/provenance and preparation efficiencies, controlled
+in-flight supplier publication with owned cleanup, authentic receipt observation,
+and the focused regression proof for those responsibilities. Preserve current
+supplier agreement, partial-work and exactly-once continuation regressions.
 
-Then select one evidenced, targeted reduction. Prefer deletion and existing
-commands; a small script is justified only when it replaces observed repetitive
-mechanical work and removes the corresponding agent procedure. Do not add both
-paths. Count cost through qualification and final proof. Investigation does not
-authorize a new daemon, enrollment protocol, second execution record, general
-accounting system or broad execution-guidance rewrite. Automatic supplier-event
-delivery remains deferred; no event-delivery runtime is authorized by this
-investigation. Running-verification efficiency and general phase loading remain
-with their existing sibling stories.
+Retire the two-by-180-second native supplier-watch schedule and its native paid
+entry. Keep the controlled supplier-watch case and generic in-flight/receipt
+support as tested infrastructure. The current case is a diagnostic asset, not
+a qualified performance benchmark. Run no further native journey, candidate,
+unblocked comparison or optimization in this attempt.
 
-Preserve the exact supplier agreement, partial work and applicable accepted
-proof, execution ownership, authority, publication and CI rules. Publication or
-a passing diagnostic alone does not satisfy an unmet agreement. Missing or
-changed evidence requires honest reassessment; retained context cannot justify
-stale satisfaction or a duplicate writer. General guidance remains shared across
-Codex, Cursor and Claude Code; the measured saving is limited to the observed
-Codex case, not a cross-host claim.
+Preserve lasting findings, immutable evidence identities and recoverable Git
+links before deleting spent planning/history and case-local attempt artifacts.
+Queue a new canonical successor with the original beneficiary/outcome, third-try
+warning, known failures, retained infrastructure, exposure/opportunity gates and
+need for a fresh explicit evaluation budget. Do not execute the successor.
+
+Close this identity as investigation and infrastructure work completed, with
+optimization deferred. Use the ordinary proof, independent refactor, review,
+publication, target CI and wrap-up cleanup gates. No quality or failure-policy
+exception was authorized by early convergence.
 
 #### Key examples
 
-- Partial work is blocked and supplier evidence is unchanged → the same session
-  wakes → keep the work and block, reusing still-valid context rather than
-  rebuilding the execution history.
-- The supplier publishes an early implementation but still lacks the agreed
-  stability proof → reassess the changed evidence → remain blocked; do not
-  reroute the partial work around its supplier.
-- Qualifying supplier evidence arrives → continue the authorized slice once →
-  integrate once, preserve applicable proof and finish with passing independent
-  and execution-owned proof. Count this continuation's cost too.
-- The supplier already qualifies at entry → finish the same partial work once →
-  no blocked-path setup tax beyond the evaluation allowance.
-
-- The original session repeatedly waits while its supplier cannot progress,
-  but the fresh fixture holds and ends its turn → compare actual context,
-  available handles, instructions and guidance revisions → identify the missing
-  trigger or retain an evidenced uncertainty; do not assume either a fix or a
-  representative reproduction.
-- A proposed reproducer matches that trigger → the unchanged baseline exhibits
-  the unwanted repeated model activity through its normal wait/resume path →
-  only then consider one targeted optimization. Controlled-host checks establish
-  harness behavior; they do not substitute for a native model-behavior result.
-
-#### Evaluation and stopping rule
-
-Working acceptance bar, selected during refinement before measurement:
-**at least 20% fewer total processed tokens on the blocked case**, no increase
-in model requests or developer interventions, and **at most 5% token overhead
-on the unblocked case**, with no request/intervention increase there either.
-Both arms must satisfy the current case assessors and decisive proof. This is a
-bounded keep/stop decision from one stochastic observation per arm, not a
-statistical or billing claim, following
-[ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
-
-Freeze current pre-change source as the baseline, keeping current task, events,
-assessor, host/version, model/settings and publication authority matched. Capture
-fresh baseline evidence; do not compare against the abandoned implementation.
-Count coordinator and owned workers from setup through final proof and recovery;
-report requests, cached input, uncached input, output and interventions separately.
-Unknown usage remains unknown and cannot support a token-saving verdict. The forced-wake schedule remains evidence for initial hold plus unchanged,
-nonqualifying and qualifying handling; it makes no claim about production block
-frequency or reproduction of the prolonged pause. The differential investigation
-owns the new reproduction profile before any further comparison.
-
-Budget: at most six native journeys. Terry's latest 2026-11-15
-"approved" raises the earlier five-journey cap by one. Two journeys are consumed
-and four remain, reserved for a fresh blocked baseline/candidate pair and an
-unblocked baseline/candidate pair. Worker effort, automatic baseline
-reacquisition and invalid attempts still count. Run the blocked comparison
-first. This extension changes no quality or keep/stop bar.
-
-For the supplier-watch native case only, that approval grants two fixed
-180-second observation windows: the first starts with the watch-request turn
-and ends with nonqualifying publication; the second ends with qualifying
-publication. Releases are independent of model polling. This is a scoped
-exception to AGENTS.md's elapsed-time prohibition for these native observations;
-cheap checks still advance a controlled clock. Retain actual watch exposure;
-insufficient or unknown exposure cannot establish a fix or disprove the hypothesis.
-Prefer retained traces and controlled checks first. Before a paid launch, reserve
-the journeys needed for its stated learning and required remaining comparisons;
-do not start a comparison that cannot finish within the authorized allocation.
-Stop before optimization implementation if the baseline does not reproduce the
-targeted unwanted behavior or exposes no plausible worthwhile removal. Stop the candidate on failed quality, insufficient usage, a missed bar
-or exhausted budget; retain observations and revert only candidate-owned product
-changes. Do not expand the design or rerun for a favorable result. A negative or
-inconclusive result is learning, not achieved improvement; further work needs a
-new decision. Evaluation and implementation effort remain visible costs.
-
-#### Evidence from the abandoned attempt
-
-SEED-345 was abandoned and reverted; revision
-`56000581b9b4cd65984e681b8c849b59e23503b2` recovers it, not a starting architecture.
-Its [matched comparison](../../Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T102744-1921.txt)
-preserved the outcome after a delegated-proof observer correction, but
-[tokens](../../Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T102744-1921-tokens.md)
-rose 8,386,947 → 13,434,290 (+60.2%) and requests 80 → 94. All four turns were
-forced; no wake was saved. Added guidance, setup and recovery context carried
-forward: about 79% of excess tokens occurred after qualification. Causal
-allocation is unproved. Known native evaluation alone used at least 29,369,243
-tokens. The retained independent observer fix shows
-[0% token difference on the same subjects](../../Distribution/tests/native-comparison/paused-supplier/comparisons/20261114T102744-1921-observer-ab.json).
-These findings justify removing work and bounding this attempt, not restoring
-its runtime or weakening proof.
+- The native supplier-watch profile is selected for paid execution → refuse
+  before starting a model and explain its retirement; controlled checks remain usable.
+- Controlled supplier events arrive during an active substitute turn → retain
+  partial work on nonqualification, continue once on qualification, and clean up
+  model/controller resources on completion or failure.
+- The next developer reads the successor → sees this is the third try, the
+  hypothesis is unproven, 11.92% is a hypothetical direct-charge envelope rather
+  than saved tokens, and the old schedule/budget are not renewed authority.
+- Wrap-up completes → keep maintained repairs and research, queue the successor,
+  remove spent execution records with Git recovery, and report the actual outcome.
 
 **Plan:** [627 — Reduce blocked execution work](../slice-plans/627-reduce-blocked-execution-work/PLAN.md).
