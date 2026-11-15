@@ -203,6 +203,9 @@ and retained-evidence assertions.
 **For / why.** A developer reads other launch/start/continuation/follow-up and
 session-association cases from their repository and related-record facts. Include
 remaining incidental UUID defaults, ambiguous/competing histories and shared setup.
+Two overlaps are left for this story to weigh as it migrates their callers:
+`withCapturedLanding` beside `withLanding(builder)`, and the installation
+re-exports `startOriginPreparation.ts` keeps for its importers.
 **Evaluation.** Named initial history and internally related IDs retain the same
 launch, continuation and session-association/refusal results; actual starts and
 returned reporting contexts stay the evidence where their behavior is under proof.

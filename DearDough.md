@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 534. Removed numbers are never reused.
+- Highest allocated local number: 535. Removed numbers are never reused.
 - Recovery: `726de30444471bd59858e76867fa8e84d527a934:DearDough.md` contains the exact log before whitespace-only retention for SEED-342 (no finding or occurrence facts removed); `f0dd36f7f59b4deb1b09616edc422c012af3dad5:DearDough.md` contains the exact log before the latest retention (including DD-490 and DD-482's SEED-318 occurrence, removed then); `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the log before the retention before it (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
@@ -968,3 +968,17 @@ The record CLI can link several source-review rows to one Story obligation, but 
   - Evidence: coordinator recorded C31 with new G2, then C32/C33 with `--obligation G2`; guarded fresh tool 7ab4f2 refused `mismatched-commitment` for C32/C33. At accepted revision 4b1c7984c4ad5c2f9ef634db89400dcd5d9697a1, the plan's G2 reverse link was repaired to C31,C32,C33. Installed story-obligation-source-review-record.mjs defaults entry.commitments to the current id; the CLI exposes no plural entry-commitments option.
   - Observed effect: one records-only preparation failure and targeted CLI/source inspection occurred before commit; product code/proof stayed unchanged. The corrected obligation check and publication passed.
   - Inference: a later tool change could maintain the complete reverse link or avoid emitting a partial optional link. This execution records evidence only; it implements no process change.
+
+## DD-535 — A plan named an HTTP case as the gate for a relationship its route never checks
+
+A plan named one real HTTP admission case as the externally observed gate for "launch reporting and stored landing use one reference", and its premise faults covered only the file's reference. Admission finds the landed run by the launch's reporting reference and never compares the landing's own reference, so the planned scratch fault (landing tied to another launch) still admitted. Possibly related to DD-497 and DD-526, where a premise or proof row stood in for an unobserved outcome.
+
+### Occurrences
+- Execution: SEED-353#declare-git-test-state-through-makeme (first implementation 45b877d7f20bc961237b2e643746d8a99329da1d)
+  - Timestamp: 2026-11-15T20:59+08:00 (slice 2 return; minute precision from the implementer's report)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at claim e89fd11be7167d240ad9b34a1e6b5aaeae5f7d55; product VERSION is not used as guidance provenance)
+  - Evidence: plan 642 proof row "the same HTTP case remains the externally observed gate" and premise D (file reference only); slice 2 scratch fault with `.forLaunch("5555…")` on the landing admitted; `dashboard/server/storyReviewRunAdmission.ts` looks runs up by `request.reporting.reference`. The coordinator returned 6.2 to slice 2, and the derived landing became maintained proof through `completed-story-association.spec.ts` (fault answered `absent`) in `64fc1d169`.
+  - Observed effect: one extra delegation round of about 2.5 active minutes plus association backend, E2E and integrated runs. Product scope and outcome were unchanged.
+  - Inference: a preparation fault on the landing reference, as cheap as premise D, would have chosen the association consumer as the gate during planning.
