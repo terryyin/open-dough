@@ -29,7 +29,10 @@ export function SystemSettingsUsage() {
   const [problem, setProblem] = useState<string>();
   // Each Refresh that brought usage in reads the cohort again.
   const [refreshed, setRefreshed] = useState(0);
-  const [checking, setChecking] = useState(false);
+  // Only a settled read of that Refresh's current cohort can finish checking.
+  const [readAfterRefresh, setReadAfterRefresh] = useState(0);
+  const [refreshPending, setRefreshPending] = useState(false);
+  const checking = refreshPending || readAfterRefresh !== refreshed;
   useEffect(() => {
     const controller = new AbortController();
     void fetch(tokenIndexUrl(cohort), { signal: controller.signal })
@@ -50,14 +53,14 @@ export function SystemSettingsUsage() {
         },
       )
       .finally(() => {
-        if (!controller.signal.aborted) setChecking(false);
+        if (!controller.signal.aborted) setReadAfterRefresh(refreshed);
       });
     return () => {
       controller.abort();
     };
   }, [cohort, refreshed]);
   const refresh = () => {
-    setChecking(true);
+    setRefreshPending(true);
     setProblem(undefined);
     void localSettingRequest(
       usageRefreshEndpoint,
@@ -66,10 +69,11 @@ export function SystemSettingsUsage() {
     ).then(
       () => {
         setRefreshed((count) => count + 1);
+        setRefreshPending(false);
       },
       (error: unknown) => {
         setProblem(error instanceof Error ? error.message : String(error));
-        setChecking(false);
+        setRefreshPending(false);
       },
     );
   };
@@ -121,12 +125,12 @@ export function SystemSettingsUsage() {
               </>
             )}
           </p>
-          {checking && (
-            <p role="status" className="settings-note">
-              Checking Codex rollouts for new usage…
-            </p>
-          )}
         </>
+      )}
+      {checking && (
+        <p role="status" className="settings-note">
+          Checking Codex rollouts for new usage…
+        </p>
       )}
     </section>
   );

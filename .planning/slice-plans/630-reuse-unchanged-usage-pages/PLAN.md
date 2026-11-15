@@ -167,7 +167,7 @@ granularity allowance. Update `usageCheck.ts`'s header and the freshness text in
 
 ### 3. Checking survives a filter change until Refresh settles
 Type: Behavior
-Status: planned
+Status: done
 Proof: new frontend `system-settings-usage-checking.spec.ts` holds the Refresh
 POST, changes Launch workflow, and waits for distinct selected-cohort content.
 `showsChecking` still holds. Release success, hold its selected-cohort reread,
@@ -222,24 +222,28 @@ readable error.
 
 Established Story Branch execution in this linked worktree:
 `/Users/terryyin/git/open-dough/.worktrees/keep-usage-task-facts-and-freshness-consistent-a`, branch
-`codex/keep-usage-task-facts-and-freshness-consistent-a`, reused at `95578800875568e449ea9394db88b1bb49d9e409`;
-starting revision `689e125384e403c461df8d4eba5482fadec1ed1f`. Publisher `dashboard-territory.local-open-dough`,
-agent `viktor-chan`. Originating and execution checkout are this worktree; optional integration/default checkout
-is `/Users/terryyin/git/open-dough`. Remote `origin`, authorized trunk `refs/heads/main`; increments target the
-named story branch. Claim accepted on trunk and branch at `95578800875568e449ea9394db88b1bb49d9e409`; claim
-trunk CI is unobserved. Replanning authority unchanged; no explicit no-replan restriction. Three slices fit the
-eight-slice cap, each 15 active minutes.
+`codex/keep-usage-task-facts-and-freshness-consistent-a`, reused at `95578800875568e449ea9394db88b1bb49d9e409`; starting revision
+`689e125384e403c461df8d4eba5482fadec1ed1f`. Publisher `dashboard-territory.local-open-dough`, agent `viktor-chan`. Originating and execution checkout
+are this worktree; optional integration/default checkout is `/Users/terryyin/git/open-dough`. Remote `origin`, authorized trunk `refs/heads/main`;
+increments target the named story branch. Claim accepted on trunk and branch at `95578800875568e449ea9394db88b1bb49d9e409`; claim trunk CI is
+unobserved. Replanning authority unchanged; no explicit no-replan restriction. Three slices fit the eight-slice cap, each 15 active minutes.
 
-Checkout setup: Node 24.21.0; `node scripts/setup-native.mjs npm`, `browser` and `check` passed here against
-current package-lock. Chromium 158.0.8127.18. Selective formatter is `npm run format`; check-only pre-commit
-owns staged lint and dashboard typecheck. No generated skills/artifacts are implicated.
+Checkout setup: Node 24.21.0; `node scripts/setup-native.mjs npm`, `browser` and `check` passed here against current package-lock. Chromium
+158.0.8127.18. Selective formatter is `npm run format`; check-only pre-commit owns staged lint and dashboard typecheck. No generated skills/artifacts
+are implicated.
 
-CI observer: GitHub Actions `ci.yml` (verified workflow 351271804, name CI), repository `terryyin/open-dough`,
-target the story branch above, coordinator `seed357-consistency`, directory `/tmp/dough-ci-501/watch-z2Qww5`,
-PID 57934, stream session 71145, yielded cell `g363:13`, launched from this exact checkout. Host is Codex.
-Integrated-state completion follows the checked-in declaration.
+CI observer: GitHub Actions `ci.yml` (verified workflow 351271804, name CI), repository `terryyin/open-dough`, target the story branch above,
+coordinator `seed357-consistency`, directory `/tmp/dough-ci-501/watch-z2Qww5`, PID 57934, stream session 71145, yielded cell `g363:13`, launched from
+this exact checkout. Host is Codex. Integrated-state completion follows the checked-in declaration.
 
-Expensive-proof decision: local host on AC, load 6.27/5.24/6.69 at setup; run only focused planned families
-serially with one worker under `caffeinate -s -i`; do not run a whole local suite. No competing proof is owned
-by this coordinator. Implementation/refactor owners must recheck headroom before heavy launches; reconsider for
-host contention or unexpectedly slow proof.
+Expensive-proof decision: local host on AC, load 6.27/5.24/6.69 at setup; run only focused planned families serially with one worker under `caffeinate
+-s -i`; do not run a whole local suite. No competing proof is owned by this coordinator. Implementation/refactor owners must recheck headroom before
+heavy launches; reconsider for host contention or unexpectedly slow proof.
+
+## Story obligations
+
+### G1. Observe the selected cohort check time distinctly
+Reported: slice 3 — "Acceptance found the failure fixture uses the same check time for Execution and Refinement, so it cannot distinguish preservation of the selected cohort time."
+Story clause: "shows its failure beside the previous chart and check time"
+Disposition: proved by slice 3: system-settings-usage-checking.spec.ts failure now supplies selectedCheck09:30 distinct from Execution09:00 and showsCheckedAt(selectedCheck) before and after POST failure; 2 cases passed 4.0s
+Commitment: 6l

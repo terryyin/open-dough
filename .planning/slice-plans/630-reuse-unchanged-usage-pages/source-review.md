@@ -38,18 +38,18 @@ and 7h–7k explicitly preserve existing scope.
 | 3a | “Checked” reflects an offline import that wrote after the last Refresh. | slice 2 | observed: usage-check-freshness.spec.ts later import: chart.checkedAt equals history mtime and both task identities present |
 | 3b | A subsequent unchanged Refresh displays that Refresh’s own check time. | slice 2 | observed: usage-check-freshness.spec.ts unchanged Refresh: chart.checkedAt equals returned Refresh start, history bytes unchanged |
 | 3c | The named fallback cases preserve the applicable fallback or previous successful time. | slice 2 | observed: usage-check-freshness.spec.ts null/import/legacy boundaries; token-index-refresh.spec.ts failed Refresh preserves check-record and summary bytes |
-| 4a | Changing a filter while Refresh is running keeps the checking indication active while Refresh remains unsettled. | slice 3 |  |
-| 4b | The checking indication also persists until the selected-cohort reread settles. | slice 3 |  |
-| 4c | If Refresh fails, the prior chart remains available. | slice 3 |  |
-| 4d | If Refresh fails, the last successful check time remains available. | slice 3 |  |
-| 4e | The failure appears as a readable error beside that chart and check time. | slice 3 |  |
-| 4f | Failed Refresh ends the checking indication. | slice 3 |  |
-| 4g | Refresh is enabled after the failure, as stated in the failure journey. | slice 3 |  |
-| 4h | A filter change may load the chosen cohort. | slice 3 |  |
-| 5a | Local history remains under the existing atomic document replacement mechanism. | slice 3 |  |
-| 5b | Local history remains under the existing lock. | slice 3 |  |
-| 5c | The correction introduces no database. | slice 3 |  |
-| 5d | The correction introduces no new workflow authority. | slice 3 |  |
+| 4a | Changing a filter while Refresh is running keeps the checking indication active while Refresh remains unsettled. | slice 3 | observed: system-settings-usage-checking.spec.ts held POST and held filter load, showsChecking before/after selected average |
+| 4b | The checking indication also persists until the selected-cohort reread settles. | slice 3 | observed: system-settings-usage-checking.spec.ts held selected-cohort reread keeps checking/chart until release |
+| 4c | If Refresh fails, the prior chart remains available. | slice 3 | observed: system-settings-usage-checking.spec.ts failed Refresh retains selected 2,450 average |
+| 4d | If Refresh fails, the last successful check time remains available. | slice 3 | observed: system-settings-usage-checking.spec.ts selectedCheck09:30 differs from Execution09:00 and persists after failure |
+| 4e | The failure appears as a readable error beside that chart and check time. | slice 3 | observed: system-settings-usage-checking.spec.ts showsProblem beside selected chart and check time |
+| 4f | Failed Refresh ends the checking indication. | slice 3 | observed: system-settings-usage-checking.spec.ts showsChecked asserts note absent after failure |
+| 4g | Refresh is enabled after the failure, as stated in the failure journey. | slice 3 | observed: system-settings-usage-checking.spec.ts showsChecked asserts Refresh enabled after failure |
+| 4h | A filter change may load the chosen cohort. | slice 3 | observed: system-settings-usage-checking.spec.ts chosen Refinement average differs from Execution |
+| 5a | Local history remains under the existing atomic document replacement mechanism. | slice 3 | observed: final diff: usageHistoryDocument.ts and durableJsonReplacement.ts writers unchanged; 74-case backend family passes |
+| 5b | Local history remains under the existing lock. | slice 3 | observed: final diff: usage writer lock unchanged; usage-history-write-failures.spec.ts cross-process lock proof passes |
+| 5c | The correction introduces no database. | slice 3 | observed: final diff: existing task merge/check reader/component updated, no database introduced |
+| 5d | The correction introduces no new workflow authority. | slice 3 | observed: final diff: launch workflow remains launch evidence with recovered fallback, new writer-consistency tests pass |
 | 6a | Execution and Refinement launches recovered from directives → import → Refresh → import → Refresh: launch workflows persist. | slice 1 | observed: usage-writer-consistency.spec.ts alternating Execution/Refinement taskFacts expectations |
 | 6b | The same journey preserves totals. | slice 1 | observed: usage-writer-consistency.spec.ts per-task output totals and unchanged history bytes |
 | 6c | An existing launch stored with a skill workflow → first write normalizes it → subsequent alternating writers leave bytes unchanged. | slice 1 | observed: usage-writer-consistency.spec.ts exact legacy skill spelling, normalizing import then byte-identical writes |
@@ -58,23 +58,23 @@ and 7h–7k explicitly preserve existing scope.
 | 6f | Refresh at t1 → import adds a finished task at t2 → “Checked” reflects t2. | slice 2 | observed: usage-check-freshness.spec.ts first Refresh then second finished launch import, HTTP tasks and later checkedAt |
 | 6g | Continuing that journey with an unchanged Refresh at t3 → “Checked” displays t3. | slice 2 | observed: usage-check-freshness.spec.ts subsequent unchanged Refresh own checkedAt, exact history bytes retained |
 | 6h | No store, import before any Refresh, a legacy check record, and failed Refresh exercise fallback/previous-successful-time behavior. | slice 2 | observed: usage-check-freshness.spec.ts fallback case and token-index-refresh.spec.ts unreadable-store failure; E2E Refresh shows prior successful check time |
-| 6i | Hold Refresh → choose Refinement → settle the cohort load: checking remains active. | slice 3 |  |
-| 6j | Release that Refresh → settle its selected-cohort reread: this supplies the remaining settlement boundary for checking. | slice 3 |  |
-| 6k | Hold Refresh → change filter → Refresh fails: retain the selected chart. | slice 3 |  |
-| 6l | In that failure journey, retain the selected check time. | slice 3 |  |
-| 6m | In that failure journey, show a readable error. | slice 3 |  |
-| 6n | In that failure journey, leave Refresh enabled. | slice 3 |  |
+| 6i | Hold Refresh → choose Refinement → settle the cohort load: checking remains active. | slice 3 | observed: system-settings-usage-checking.spec.ts held POST, Refinement load then selected average and showsChecking |
+| 6j | Release that Refresh → settle its selected-cohort reread: this supplies the remaining settlement boundary for checking. | slice 3 | observed: system-settings-usage-checking.spec.ts release POST then hold reread, only showsChecked after release |
+| 6k | Hold Refresh → change filter → Refresh fails: retain the selected chart. | slice 3 | observed: system-settings-usage-checking.spec.ts failed POST preserves selected average |
+| 6l | In that failure journey, retain the selected check time. |  | G1 |
+| 6m | In that failure journey, show a readable error. | slice 3 | observed: system-settings-usage-checking.spec.ts failed POST shows readable error |
+| 6n | In that failure journey, leave Refresh enabled. | slice 3 | observed: system-settings-usage-checking.spec.ts showsChecked after failed POST asserts enabled Refresh |
 | 7a | The canonical session-contribution document. | slice 1 | observed: session-contributions.spec.ts one canonical document, consumed by writer-consistency readUsageHistory |
 | 7b | Unchanged writes by the same writer. | slice 1 | observed: repeated-checks.spec.ts unchanged same-writer history remains identical; alternating-writer spec consumes same guarantee |
-| 7c | Page stability. | slice 3 |  |
-| 7d | Tier-on-reread reconciliation. | slice 3 |  |
-| 7e | Conversion. | slice 3 |  |
-| 7f | Disk reclamation. | slice 3 |  |
-| 7g | Writer latency. | slice 3 |  |
-| 7h | No tariff change. | slice 3 |  |
-| 7i | No import CLI change. | slice 3 |  |
-| 7j | No chart change. | slice 3 |  |
-| 7k | No storage-format change. | slice 3 |  |
+| 7c | Page stability. | slice 3 | observed: final diff excludes page stability; supplier storage remains untouched |
+| 7d | Tier-on-reread reconciliation. | slice 3 | observed: final diff excludes tier reconciliation; supplier storage remains untouched |
+| 7e | Conversion. | slice 3 | observed: final diff excludes conversion; unchanged conversion cases pass in backend family |
+| 7f | Disk reclamation. | slice 3 | observed: final diff excludes disk reclamation; supplier storage remains untouched |
+| 7g | Writer latency. | slice 3 | observed: final diff excludes writer latency measurement and budgeting |
+| 7h | No tariff change. | slice 3 | observed: final diff: no tariff change; existing Token index pricing tests pass |
+| 7i | No import CLI change. | slice 3 | observed: final diff: importer command interface unchanged; real importer exercised by backend family |
+| 7j | No chart change. | slice 3 | observed: final diff: TokenIndexTrend and chart design unchanged; existing display/detail frontend tests pass |
+| 7k | No storage-format change. | slice 3 | observed: final diff: usage-history-v2 format unchanged; canonical document and earlier-conversion tests pass |
 
 ## Slice 1 acceptance
 
@@ -144,3 +144,39 @@ Refactor 2: independent `/root/refactor2` returned `## REFACTOR COMPLETE`,
 none — already clean; no tests rerun, accepted proof and consumer dispositions
 unchanged. Final freshness unchanged at baffb006077e01d09f7393ac7bbda0ee20c48923;
 only unrelated preparation/Take records arrived since the earlier sibling check.
+
+## Slice 3 acceptance
+
+Slice 2 accepted on remote story branch at `0f5a89506e61137c08c253e0a6eae101b28ca6b1`, suffix base `6343cc5b8ea6416488914b4567d48e785feed53b`.
+Source held-request journeys match independent transport holds in the mounted
+Usage page: selected load stays checking before and after distinct average,
+POST success waits for current-cohort reread, and failure retains selected
+chart/time beside error then enables Refresh and removes the note. Source
+4a also holds while selected content is loading. Original component failed.
+Acceptance gap G1 identified identical cohort timestamps; the corrected failure
+case uses distinct selected time and observes it before/after failed POST.
+No remaining gap; storage/supplier exclusions and no redesign promises were
+checked against the complete correction diff and retained backend/display proof.
+
+Terminal commands (serial one worker under sleep guard):
+- `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/frontend.playwright.config.ts dashboard/frontend-tests/system-settings-usage-checking.spec.ts dashboard/frontend-tests/system-settings-usage.spec.ts --workers=1 --reporter=list` — 5 passed, 10.0s.
+- `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config dashboard/frontend.playwright.config.ts dashboard/frontend-tests/system-settings-usage-checking.spec.ts --workers=1 --reporter=list` — 2 passed, 4.0s after G1 proof correction; product and prior display/E2E boundaries unchanged.
+- `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node node_modules/playwright/cli.js test --config e2e/playwright.config.ts e2e/configuration/system-settings-usage.spec.ts --grep 'Refresh keeps' --workers=1 --reporter=list` — selected 1 Refresh journey, 1 passed, 5.9s; actual chart/checking/checked-time/error observations inspected.
+
+Trace `/tmp/seed357-slice3-consumer-trace.md`, base 0f5a89506e61137c08c253e0a6eae101b28ca6b1,
+terms Checking Codex rollouts for new usage/showsChecking/showsCheckedAt: all
+85 rows disposed. Mounted UI, shared answer builder and page-object consumers
+run; integrated Refresh now complete. Backend producers and Intent/CI timestamps
+unchanged. AC load 16.96/11.54/9.03 at E2E launch, only one bounded journey run;
+no competing proof owned. Freshness unchanged at a04e3f0450874d08d2a3cee998942ef8ba73c2f2,
+incoming only unrelated Take; supplier included. Implementation active time 13m.
+
+CI intermediate run 43696337622 (6343cc5) was cancelled after newer run
+43697055295 (0f5a895) began, under ci.yml cancel-in-progress. Completed jobs
+succeeded, no failed steps; remaining jobs cancelled. Proven supersession,
+not a failed proof waiver. Final target CI remains an execution/closure gate.
+
+Refactor 3: independent `/root/refactor3` returned `## REFACTOR COMPLETE`,
+none — already clean; unchanged proof and trace reused, no test rerun.
+Final freshness unchanged at 46c637448f613e63cd841ae237f1b4f6eed26830;
+only unrelated preparation arrived since the earlier named-supplier check.
