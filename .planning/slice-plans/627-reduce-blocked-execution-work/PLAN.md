@@ -43,7 +43,7 @@ assimilated into maintained research before cleanup.
 
 ### 3. Retire the inadequate native profile and preserve the third-try handoff
 Type: Behavior
-Status: planned
+Status: done
 Proof: selecting supplier-watch for native execution refuses before any model
 starts; controlled in-flight/publication/cleanup, receipt and archive checks
 remain passing. A queued canonical successor explicitly identifies the third
@@ -104,3 +104,8 @@ last published d510a0dcc14f5275dc273c3b8e652eb806b21330.
 The prior execution observer watch-MRhWE3 stopped with records CI unobserved;
 The re-armed observer uses coordinator seed356-darren, cell g352:6, session
 15306, directory /tmp/dough-ci-501/watch-jg8KoH, PID 75351, for this convergence. Preserve dashboard launch/landing context.
+
+Independent product/proof retrospective at b34cc7ffd found no supported
+correction. Product advice: retain repairs/research and queued SEED-368 third
+attempt; original reduction unachieved. Process remains selected/deferred until
+wrap-up supplies automatic Intent Coverage and its disposition.
