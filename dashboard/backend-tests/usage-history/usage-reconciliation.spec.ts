@@ -1,20 +1,18 @@
 // Native and collector overlap reconcile one response while preserving conflicts.
 import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   expect,
   test,
   launch,
-  meta,
-  context,
-  response,
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
   keepOperationalLaunch,
-  nativeFile,
   nodeProcess,
   readImported,
   runImport,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 
 test.describe("response usage reconciliation", () => {
@@ -23,22 +21,25 @@ test.describe("response usage reconciliation", () => {
     root,
   }) => {
     keepOperationalLaunch(home, launch("enrich", "turn"));
-    const partial = response("enrich", "turn", "one", {
-      input_tokens: 50,
-      output_tokens: 2,
-    });
-    const file = nativeFile(root, "enrich", [meta("enrich"), partial]);
+    const partial = makeMe.aCodexRollout
+      .forSession("enrich")
+      .withResponse("turn", "one", { input_tokens: 50, output_tokens: 2 })
+      .please();
+    const file = writeCodexSession(root, partial);
     runImport(home, root);
-    nativeFile(root, "enrich", [
-      meta("enrich"),
-      partial,
-      response("enrich", "turn", "one", {
-        input_tokens: 50,
-        cached_input_tokens: 40,
-        cache_write_input_tokens: 0,
-        output_tokens: 2,
-      }),
-    ]);
+    writeCodexSession(
+      root,
+      makeMe.aCodexRollout
+        .forSession("enrich")
+        .withResponse("turn", "one", { input_tokens: 50, output_tokens: 2 })
+        .withResponse("turn", "one", {
+          input_tokens: 50,
+          cached_input_tokens: 40,
+          cache_write_input_tokens: 0,
+          output_tokens: 2,
+        })
+        .please(),
+    );
     runImport(home, root);
     const enriched = readImported(home);
     expect(Object.values(enriched.observations)).toHaveLength(1);
@@ -82,19 +83,19 @@ test.describe("response usage reconciliation", () => {
         output: 2,
       }),
     );
+    const [conflict] = makeMe.aCodexRollout
+      .forSession("enrich")
+      .withResponse("turn", "one", {
+        input_tokens: 50,
+        cached_input_tokens: 42,
+        cache_write_input_tokens: 0,
+        output_tokens: 2,
+      })
+      .rows();
+    assert(conflict);
     writeFileSync(
       file,
-      `${
-        readFileSync(file, "utf8") +
-        JSON.stringify(
-          response("enrich", "turn", "one", {
-            input_tokens: 50,
-            cached_input_tokens: 42,
-            cache_write_input_tokens: 0,
-            output_tokens: 2,
-          }),
-        )
-      }\n`,
+      `${readFileSync(file, "utf8") + JSON.stringify(conflict)}\n`,
     );
     runImport(home, root);
     const [conflicted] = Object.values(readImported(home).observations);
@@ -119,19 +120,22 @@ test.describe("response usage reconciliation", () => {
     root,
   }) => {
     keepOperationalLaunch(home, launch("conflict", "turn"));
-    const used = response("conflict", "turn", "one", {
+    const used = {
       input_tokens: 10,
       cached_input_tokens: 0,
       cache_write_input_tokens: 0,
       output_tokens: 2,
-    });
-    nativeFile(root, "conflict", [
-      meta("conflict"),
-      context("turn", "model-a", "low"),
-      used,
-      context("turn", "model-b", "low"),
-      used,
-    ]);
+    };
+    writeCodexSession(
+      root,
+      makeMe.aCodexRollout
+        .forSession("conflict")
+        .withTurnContext("turn", "model-a", "low")
+        .withResponse("turn", "one", used)
+        .withTurnContext("turn", "model-b", "low")
+        .withResponse("turn", "one", used)
+        .please(),
+    );
     runImport(home, root);
     const [observation] = Object.values(readImported(home).observations);
     assert(observation);
@@ -141,11 +145,14 @@ test.describe("response usage reconciliation", () => {
     expect(observation.measurements.map((item) => item.settings.model)).toEqual(
       ["model-a", "model-b"],
     );
-    nativeFile(root, "conflict", [
-      meta("conflict"),
-      used,
-      response("conflict", "another-turn", "one", { output_tokens: 2 }),
-    ]);
+    writeCodexSession(
+      root,
+      makeMe.aCodexRollout
+        .forSession("conflict")
+        .withResponse("turn", "one", used)
+        .withResponse("another-turn", "one", { output_tokens: 2 })
+        .please(),
+    );
     runImport(home, root);
     const history = readImported(home);
     expect(Object.values(history.observations)).toHaveLength(1);

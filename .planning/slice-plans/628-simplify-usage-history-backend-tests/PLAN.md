@@ -2,6 +2,7 @@
 
 **Identity:** SEED-362#simplify-usage-history-backend-tests
 **Source:** [selected story](../../seeds/SEED-362-simplify-usage-history-backend-tests.md#simplify-usage-history-backend-tests)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -82,7 +83,7 @@ Assertions that only restate builder output are not added
 
 ### 1. Codex import and persistence cases read as their facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: inventory and scratch-break records for the group; family green; the
 group's specs import no `at` and build rollouts through `makeMe`.
 
@@ -157,6 +158,62 @@ lines than 47 and 4,481, recorded in this plan.
   follow the builders already on trunk.
 - No local whole suite is required. Hosted CI runs the full suites after
   publication.
+
+## Story obligations
+
+### G1. Harness still exports at for unmigrated family
+Reported: slice 1 — "Temporary: harness still exports at (aliased to usageHistoryDefaultAt) for family specs not yet on builder defaults."
+Story clause: "Its default timestamp is no longer exported to cases."
+Disposition: interim until slices 2, 3, 4, 5
+Commitment: 11
+
+### G2. Temporary meta/context/response helpers remain
+Reported: slice 1 — "Temporary row helpers meta/context/response remain for family specs not yet on makeMe.aCodexRollout; Codex-group cases call the builder."
+Story clause: "Codex rollouts and Claude transcripts, with their user, assistant, worker and session-meta rows, come from MakeMe builders whose defaults keep the data valid, including in-window timestamps."
+Disposition: interim until slices 2, 3, 4, 5
+
+## Slice 1 inventory (Codex group)
+
+Starting size for this group (before edits): 7 specs, 1,175 lines, 16 tests
+as Playwright lists them (including the parameterized page/manifest pair as
+two). Grouping after migration: keep `codex-usage` and `codex-coverage`
+separate (a single merged file exceeded the 250-line check), plus
+`retained-usage`, `usage-reconciliation`, `usage-persistence` (isolation only),
+`usage-snapshots`, `usage-snapshot-failures` (publication + concurrency, with
+the former persistence atomic-fail case folded in).
+
+| Starting test | Distinct behaviors (as assertions observe) | Surviving test |
+| --- | --- | --- |
+| `codex-usage`: attributes own responses and explicit descendants across compressed archives and successive task turns once | Own response charged with uncached/cache-read/write/output components; successive root turns charged separately; out-of-window response excluded (`2026-09-15T15:59:59.000Z`); explicit worker + grandchild descendants charged via parent chain and `root_turn_id`; `.zst` archive measurement source; unrelated turn responses stay observed; ambiguous worker → `unresolved-task-association`; root measurement source path; import idempotence on this archive setup | `codex-usage`: same title; idempotence kept here (archive setup is not equivalent to retained-usage) |
+| `codex-coverage`: keeps independent responses through damaged files and reports unsupported, missing and incomplete native evidence | Truncated JSONL → `malformed-native-row`; unsupported `token_count` event not charged; spawn without worker file → `missing-worker-evidence`; incomplete child meta-only → `incomplete-worker-evidence`; bad `.zst` → `native-source-unreadable`; absent root → `native-source-unavailable`; `last_token_usage` only → `unsupported-response-counters` and null output; partial path response counted with `missing-session-metadata`; valid damaged-file responses still sum | `codex-coverage`: same title |
+| `codex-coverage`: refuses contradictory parent lineage instead of charging a worker to a task | Contradictory spawn vs `parent_thread_id` → `contradictory-lineage`, null association, task uncharged | `codex-coverage`: same title |
+| `retained-usage`: persists operational and retained launches, disjoint counters and changed observed settings across fresh reads and reruns | Operational + retained launches both become tasks; requested model/effort; disjoint token components including reasoning; changed observed model/effort across `turn_context`; duplicate response rows count once; partial coverage / `missing-token-components`; `taskUsage` aggregation; import idempotence; history survives native-root removal | `retained-usage`: same title |
+| `retained-usage`: keeps unavailable usage unknown and fills the gap when native response evidence becomes available | `no-attributable-response-usage` and null output with meta-only; gap clears and `output: 0` counts once evidence appears | `retained-usage`: same title |
+| `usage-reconciliation`: enriches partial measurements, reconciles a collector replay and retains conflicting facts without increasing totals | Partial → enriched counters on reimport; collector replay restores requested settings without raising totals; contradictory measurements null conflicting components and keep both reports | `usage-reconciliation`: same title |
+| `usage-reconciliation`: keeps conflicting observed settings and lineage evidence without selecting a winner or double charging | Conflicting models → undefined model, kept effort, `contradictory-observed-settings`; same `response_id` on different turns → null association + `contradictory-lineage`; single observation | `usage-reconciliation`: same title |
+| `usage-persistence`: preserves prior readable history on failed persistence and retries once | Injected `usage.json` rename failure exits 1 with stderr; prior history unchanged; retry adds the new response once; second rerun stays put | `usage-snapshot-failures`: `${failure}` publication failure… (manifest case covers rename of `usage.json`; page case remains distinct). Scratch-break required if setup drift is material. |
+| `usage-persistence`: ordinary operational reads and writes never open native usage or imported history | Launch store read/replace never touches `launch-history` usage paths or `.codex/` | `usage-persistence`: same title (sole remaining case in that file) |
+| `usage-snapshots`: legacy v1 facts migrate without losing evidence and survive removal of native inputs | v1 document migrates retained title/gap; new import adds alongside; prior observations/associations intact; survives native removal | `usage-snapshots`: same title |
+| `usage-snapshots`: actual import and fresh export retain all records when whole-history strings exceed the codec budget | 300 responses import/export under bounded `JSON.stringify`; associations intact; source file/line present; rerun equal | `usage-snapshots`: same title |
+| `usage-snapshots`: an earlier paged snapshot and reordered gap replay retain one equivalent coverage fact | Old paged wire migrates one gap; reordered write collapses to one equivalent fact | `usage-snapshots`: same title |
+| `usage-snapshot-failures`: page/manifest publication failure keeps the previous snapshot readable and retry retains each response once | Injected page or manifest rename failure; prior readable; broken orphan pages ignored; retry keeps each response once | `usage-snapshot-failures`: same titles (plus folded persistence atomic-fail observations on the manifest path) |
+| `usage-snapshot-failures`: a reader holding the earlier manifest stays coherent while another process publishes | Held-open snapshot still shows prior responses while a concurrent import publishes newer ones | `usage-snapshot-failures`: same title |
+| `usage-snapshot-failures`: cross-process writers reconcile accepted updates after waiting for the shared publication lock | Two imports under lock wait both land; one task id; both responses | `usage-snapshot-failures`: same title |
+
+Scratch-break records (when a moved assertion sits on materially different setup) live under
+`.planning/slice-plans/628-simplify-usage-history-backend-tests/slice-1-scratch-breaks.md`.
+
+### Slice 1 concision (Codex group)
+
+| Metric | Before | After |
+| --- | --- | --- |
+| Spec files | 7 | 7 (`codex-usage` / `codex-coverage` kept separate for the 250-line check) |
+| Lines (`wc -l`) | 1,175 | 1,187 (Prettier wrap on builder chains; net readability via builders) |
+| Tests (Playwright list) | 16 | 15 (persistence atomic-fail folded into snapshot-failures) |
+| `at` imports in group | via helpers | none |
+| `nativeFile(` in group | many | 3, all layout under proof (`.zst` archive path, partial path, empty broken file) |
+
+Family after slice 1 focused run: **46 passed** (was 47).
 
 ## Verification, sizing and concern review
 

@@ -3,19 +3,19 @@ import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { zstdCompressSync } from "node:zlib";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { taskUsage } from "../../server/usageHistory.ts";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import {
   expect,
   test,
   launch,
-  meta,
-  response,
 } from "../../tests/usage-history/retainedUsageTest.ts";
 import {
   nativeFile,
   readImported,
   runImport,
+  writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
 
 test("attributes own responses and explicit descendants across compressed archives and successive task turns once", ({
@@ -32,66 +32,84 @@ test("attributes own responses and explicit descendants across compressed archiv
       launch(parent, "second-task"),
     ],
   });
-  const earlier = {
-    ...response(parent, "first-task", "old", { output_tokens: 900 }),
-    timestamp: "2026-09-15T15:59:59.000Z",
-  };
-  const own = response(parent, "first-task", "root-own", {
+  const own = {
     input_tokens: 100,
     cached_input_tokens: 60,
     cache_write_input_tokens: 10,
     output_tokens: 7,
-  });
-  nativeFile(root, parent, [
-    meta(parent),
-    earlier,
-    own,
-    response(parent, "second-task", "next-own", { output_tokens: 11 }),
-    response(parent, "unrelated", "unrelated", { output_tokens: 500 }),
-  ]);
-  const workerMeta = {
-    type: "session_meta",
-    payload: {
-      id: worker,
-      parent_thread_id: parent,
-      source: { subagent: { thread_spawn: { parent_thread_id: parent } } },
-    },
   };
-  const child = response(worker, "worker-turn", "worker-own", {
-    output_tokens: 13,
-  });
-  child.payload.root_turn_id = "first-task";
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession(parent)
+      .withResponse(
+        "first-task",
+        "old",
+        { output_tokens: 900 },
+        {
+          timestamp: "2026-09-15T15:59:59.000Z",
+        },
+      )
+      .withResponse("first-task", "root-own", own)
+      .withResponse("second-task", "next-own", { output_tokens: 11 })
+      .withResponse("unrelated", "unrelated", { output_tokens: 500 })
+      .please(),
+  );
+  const parentOwn = makeMe.aCodexRollout
+    .forSession(parent)
+    .withResponse("first-task", "root-own", own)
+    .please();
+  const parentMeta = parentOwn.find((row) => row.type === "session_meta");
+  const parentResponse = parentOwn.find(
+    (row) => row.type === "token_usage_record",
+  );
+  const workerRows = makeMe.aCodexRollout
+    .forSession(worker)
+    .spawnedFrom(parent)
+    .withResponse(
+      "worker-turn",
+      "worker-own",
+      { output_tokens: 13 },
+      {
+        rootTurnId: "first-task",
+      },
+    )
+    .please();
+  const workerResponse = workerRows.find(
+    (row) => row.type === "token_usage_record",
+  );
   const archive = path.join(home, "archives");
+  assert(parentMeta && parentResponse && workerResponse);
   const plain = nativeFile(archive, `rollout-2026-11-14T10-00-00-${worker}`, [
-    meta(parent),
-    own,
-    workerMeta,
-    child,
-    child,
+    parentMeta,
+    parentResponse,
+    ...workerRows,
+    workerResponse,
   ]);
   writeFileSync(`${plain}.zst`, zstdCompressSync(readFileSync(plain)));
-  const descendant = response(grandchild, "grandchild-turn", "grandchild-own", {
-    output_tokens: 17,
-  });
-  descendant.payload.root_turn_id = "first-task";
-  nativeFile(root, grandchild, [
-    {
-      type: "session_meta",
-      payload: { id: grandchild, parent_thread_id: worker },
-    },
-    descendant,
-  ]);
-  const uncertain = response(ambiguous, "worker-turn", "uncertain", {
-    output_tokens: 1000,
-  });
-  uncertain.payload.root_turn_id = "worker-turn";
-  nativeFile(root, ambiguous, [
-    {
-      type: "session_meta",
-      payload: { id: ambiguous, parent_thread_id: parent },
-    },
-    uncertain,
-  ]);
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession(grandchild)
+      .withParent(worker)
+      .withResponse(
+        "grandchild-turn",
+        "grandchild-own",
+        { output_tokens: 17 },
+        {
+          rootTurnId: "first-task",
+        },
+      )
+      .please(),
+  );
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession(ambiguous)
+      .withParent(parent)
+      .withResponse("worker-turn", "uncertain", { output_tokens: 1000 })
+      .please(),
+  );
   runImport(home, root, ["--codex-root", archive]);
   const history = readImported(home);
   const first = Object.values(history.tasks).find(
