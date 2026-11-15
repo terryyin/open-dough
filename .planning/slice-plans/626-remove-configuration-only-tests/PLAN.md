@@ -170,7 +170,7 @@ returned paths and settings; keep the selection runs);
 
 ### 5. Shipped product data changes need no test edits
 Type: Behavior
-Status: planned
+Status: done
 Proof: scratch changes: add a fifth project to `dashboard/server/projectConfigurationSeed.ts`,
 add one more machine record file the dashboard writes at start, add a summary
 to `refinement-options.json`, change one icon size declaration → e2e and
@@ -224,6 +224,10 @@ keep that the tab and touch icons are declared and serve the supplied bytes).
 - `main^ === preparedTaken` also froze a single post-prefix commit; reshaped to
   an ancestor check so the +1-commit probe is valid. Share-deal example 4
   preview counts must use `deal.unrecordedCount`, not raw stale line count.
+- Backend launches sibling `agent-launch-host-identity.spec.ts` had the same
+  literal machine-record table; included under same-family rule. Preview icon
+  proof must corrupt `generateBundle` output (`configureServer` alone does not
+  affect e2e preview).
 
 ## Accepted proof (slice 1)
 
@@ -266,6 +270,23 @@ keep that the tab and touch icons are declared and serve the supplied bytes).
   `pageObjects: false` still fail selection/history proof.
 - Unmodified owned family + `typecheck:dashboard` green. Refactor: none —
   already clean.
+
+## Accepted proof (slice 5)
+
+- +5th seed project, +startup machine record, +refinement summary entry, icon
+  sizes 32→64 → backend launches, integrated options, and listed e2e specs green.
+- Seed skip, foreign machine-record wipe, and wrong icon bytes still fail.
+- Host-identity sibling reshaped to before/after; wipe regression fails.
+- Unmodified families + typecheck green. Refactor: shared machine-record
+  before/after helpers; project-remove ≤250; focused e2e/backend re-verified.
+
+## Product advice (for execution-complete / reporting)
+
+AGENTS.md#test-automation already rejects pure restatements. Still not
+explicit for authors: (a) a check that two settings agree is not a restatement
+and stays; (b) a behavior expectation that copies a configured value should
+derive it from that configuration. Suggest one focused clarification covering
+both. AGENTS.md was not edited in this story.
 
 ## Verification, sizing and concern review
 

@@ -16,6 +16,7 @@ import { identity, title } from "../../dashboard/tests/agentLaunchBoundary.ts";
 import { settings } from "../../dashboard/tests/support/systemSettingsPage.ts";
 import { expectFrameIconControl } from "../../dashboard/tests/frameIconControl.ts";
 import { openUntilRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { productionSeedProjects } from "../../dashboard/server/projectConfigurationSeed.ts";
 
 let fixture: ReturnType<typeof projectConfigurationMachine>;
 test.beforeEach(() => {
@@ -23,7 +24,7 @@ test.beforeEach(() => {
 });
 test.afterEach(async () => fixture.close());
 
-test("production seeds its four projects and shows a previously saved session", async ({
+test("production seeds its projects and shows a previously saved session", async ({
   page,
 }) => {
   keepLaunchStore(machineHome(fixture.machine), {
@@ -38,51 +39,26 @@ test("production seeds its four projects and shows a previously saved session", 
   const records = readFileSync(launchStoreFile(machineHome(fixture.machine)));
   const server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
+  const projectRadios = page
+    .getByRole("radiogroup", { name: "Project" })
+    .getByRole("radio");
+  await expect(projectRadios).toHaveCount(productionSeedProjects.length);
+  const firstSeed = productionSeedProjects[0];
+  if (firstSeed === undefined) {
+    throw new Error("production seed projects must include a default project");
+  }
   await expect(
-    page.getByRole("radiogroup", { name: "Project" }).getByRole("radio"),
-  ).toHaveCount(4);
-  await expect(
-    page.getByRole("radio", { name: "Open Dough", exact: true }),
+    page.getByRole("radio", {
+      name: firstSeed.label,
+      exact: true,
+    }),
   ).toBeChecked();
   await expect(
     page.getByRole("region", { name: "Taken", exact: true }),
   ).toContainText(title);
   expect(
     JSON.parse(readFileSync(fixture.configurationFile("preview"), "utf8")),
-  ).toEqual([
-    {
-      id: "open-dough",
-      label: "Open Dough",
-      repository: "terryyin/open-dough",
-      ref: "main",
-      backlogPath: ".planning/PRODUCT-BACKLOG.md",
-      localPath: "~/git/open-dough",
-    },
-    {
-      id: "doughnut",
-      label: "Doughnut",
-      repository: "nerds-odd-e/doughnut",
-      ref: "main",
-      backlogPath: ".planning/PRODUCT-BACKLOG.md",
-      localPath: "~/git/doughnut",
-    },
-    {
-      id: "pygardon",
-      label: "Pygardon",
-      repository: "terryyin/pygardon",
-      ref: "main",
-      backlogPath: ".planning/PRODUCT-BACKLOG.md",
-      localPath: "~/git/pygardon",
-    },
-    {
-      id: "terry-talks",
-      label: "Terry Talks",
-      repository: "terryyin/terry-talks",
-      ref: "master",
-      backlogPath: ".planning/PRODUCT-BACKLOG.md",
-      localPath: "~/git/terry-talks",
-    },
-  ]);
+  ).toEqual([...productionSeedProjects]);
   expect(readFileSync(launchStoreFile(machineHome(fixture.machine)))).toEqual(
     records,
   );
