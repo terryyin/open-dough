@@ -245,4 +245,4 @@ Disposition: proved by slice 9: slice-9-evidence.md reached stream-guard correct
 
 ## Execution complete
 
-Product advice: no further product change. Test optimization skipped by Terry's explicit instruction. Product/proof review complete with final CI pending; selected process review deferred into wrap-up after the automatic Intent Coverage check.
+Product advice: no further product change. Test optimization skipped by Terry's explicit instruction. Product/proof review complete with final CI pending; selected process review completed in wrap-up after Caught Intent Coverage, with ODF-150/264 occurrences retained.
