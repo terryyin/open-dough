@@ -25,6 +25,7 @@ export function DashboardBanner({
   readonly onSelectPerspective: (next: DashboardPerspective) => void;
 }) {
   const banner = useRef<HTMLElement>(null);
+  const connectionLabel = `Dashboard connection: ${connection === "awaiting" ? "awaiting updates since return" : connection === "connected" ? "updates received since return" : "disconnected"}`;
 
   // Keep the banner footprint available to layout measurements.
   useLayoutEffect(() => {
@@ -45,8 +46,10 @@ export function DashboardBanner({
         <span
           role="img"
           className="visually-hidden"
-          aria-label={`Dashboard connection: ${connection === "awaiting" ? "awaiting updates since return" : connection === "connected" ? "updates received since return" : "disconnected"}`}
-        />
+          aria-label={connectionLabel}
+        >
+          {connectionLabel}
+        </span>
       )}
       {source !== undefined && (
         <>
