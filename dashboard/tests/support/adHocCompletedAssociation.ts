@@ -18,7 +18,6 @@ import {
   completedStoryAssociationSchema,
   type CompletedStoryAssociationAnswer,
 } from "../../src/completedStoryAssociation.ts";
-import type { LaunchLanding } from "../../src/launchLanding.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { advanceCompletedTrunk } from "./completedPublishedStory.ts";
 import { publishCompletedStory } from "./completedStoryPublication.ts";
@@ -73,7 +72,8 @@ export type AdHocAssociationLandingOverride = {
 
 // Completes Story A with Claim-Publisher = `reference`, retires the worktree
 // and branch, optionally advances trunk, and keeps a storyless ad hoc record
-// whose landing is that completion (Pygardon shape).
+// whose landing is that completion (Pygardon shape), related to the same
+// launch unless the override names another launch reference.
 export async function retainAdHocCompletedStory(
   dashboard: DashboardServer,
   origin: StartOrigin,
@@ -135,7 +135,7 @@ export async function retainAdHocCompletedStory(
     "retired-ad-hoc-workspace",
   );
   rmSync(retiredWorkspace, { recursive: true, force: true });
-  const landing: LaunchLanding = makeMe.aLaunchLanding
+  const landing = makeMe.aLaunchLanding
     .capturedFrom({
       repository: landingOverride?.repository ?? origin.project,
       remote: "origin",
@@ -144,12 +144,12 @@ export async function retainAdHocCompletedStory(
         identity: landingOverride.identity,
       }),
     })
-    .forLaunch(landingOverride?.reference ?? reference)
     .comparing({
       base: landingOverride?.base ?? claim,
       revision: landingOverride?.revision ?? completion,
-    })
-    .please();
+    });
+  if (landingOverride?.reference !== undefined)
+    landing.forLaunch(landingOverride.reference);
   const record = makeMe.aLaunchRecord
     .adHoc({ instruction: title, title })
     .reportingThrough({
@@ -161,7 +161,7 @@ export async function retainAdHocCompletedStory(
       workspace: retiredWorkspace,
       branch: "ad-hoc/retired",
     })
-    .withCapturedLanding(landing)
+    .withLanding(landing)
     .completedWith({ message: "Landed the ad hoc completion." })
     .markedDone()
     .launchedAt(new Date(Date.now() - 60_000).toISOString())

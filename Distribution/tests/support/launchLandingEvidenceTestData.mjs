@@ -117,9 +117,26 @@ export class LaunchLandingBuilder {
     return this;
   }
 
+  /**
+   * The landing of the launch reporting under `reference`, unless it states
+   * its own launch.
+   * @param {string | undefined} reference
+   * @returns {LaunchLanding}
+   */
+  pleaseFor(reference) {
+    return this.#complete({
+      ...(reference !== undefined && { reference }),
+      ...this.#landing,
+    });
+  }
+
   /** @returns {LaunchLanding} */
   please() {
-    const { base, revision, ...landing } = this.#landing;
+    return this.#complete(this.#landing);
+  }
+
+  /** @param {Partial<Omit<LaunchLanding, "receivedAt">>} stated */
+  #complete({ base, revision, ...landing }) {
     if (base === undefined || revision === undefined)
       throw new Error("state .comparing({ base, revision })");
     return {

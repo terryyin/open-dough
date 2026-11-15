@@ -138,7 +138,7 @@ revision name failed the shared-prefix check. Refactor pass: no edits.
 
 ### 2. Associate the stored landing with its launch
 Type: Behavior
-Status: planned
+Status: done
 Proof: Launch/landing relationship row and existing explicit-context consumers;
 the same HTTP case remains the externally observed gate.
 
@@ -150,6 +150,20 @@ Perform the cohesive launch-builder extraction described above; keep canonical
 records and type-only production imports. No new relationship registry or eager
 work. One launch-to-landing loop, target 15 active minutes, commands excluded.
 Interim: the file context may still read/pass that reference until slice 3.
+
+Accepted 2026-11-15: `LaunchReportingBuilder` (`launchReportingTestData.mjs`)
+owns `reportingThrough` and `withLanding`; an omitted reporting reference is
+allocated at completion, and a landing passed as its builder takes that
+reference through `pleaseFor` unless it states `forLaunch`. The admission
+route finds the landed run by the launch's reporting reference only, so it
+discriminates 6.1 (unrelated launch reference refused) but not the landing's
+own reference; `adHocCompletedAssociation.ts` now uses the derived landing and
+`completed-story-association.spec.ts` discriminates 6.2 (broken derivation
+answers `absent`). `withLanding` and the older `withCapturedLanding` both set
+the landing; slice 3's guide names the builder form. Proof: 14 association +
+admission, 159 reached backend, 22 E2E, 5 integrated, 89 Distribution node and
+10 native-import-closure tests; typecheck and eslint. Refactor: one JSDoc
+typedef.
 
 ### 3. Associate the file follow-up with its launch
 Type: Behavior
@@ -218,3 +232,10 @@ repair handoffs. Execution retains its required final CI ownership.
   work with mapped proof, not claims that they already exist.
 - No blocking dependency, human-owned decision or trunk-only operation. Later
   receiving stories remain unrefined/unselected; this plan grants none execution.
+
+## Story obligations
+
+### G1. File context reads the launch's reference (first reported in slice 2)
+Reported: slice 2 — "the file context reads `record.request.reporting.reference` until slice 3."
+Story clause: "builders derive launch, landing and file references without spec-level UUID creation, extraction or passing"
+Disposition: interim until slices 3

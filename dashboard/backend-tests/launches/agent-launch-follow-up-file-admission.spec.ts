@@ -5,7 +5,6 @@
 // and identity: agent-launch-follow-up-file.spec.ts.
 
 import path from "node:path";
-import { randomUUID } from "node:crypto";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { accept, launch } from "../../tests/agentLaunchBoundary.ts";
@@ -52,25 +51,20 @@ test.describe("after a delivered two-line file", () => {
         files: doneStoryFiles([storyA], completedAt),
       }),
     );
-    const reference = randomUUID();
     const record = storyALaunch()
       .onStoryBranch({
         workspace: path.join(dashboard.home, "retired", "landed-follow-up"),
         branch: "claude/landed-follow-up",
       })
-      .reportingThrough({
-        origin: dashboard.origin,
-        reference,
-        command: "claude",
-      })
-      .please();
-    record.landing = makeMe.aLaunchLanding
-      .capturedFrom({
-        repository: origin.project,
-        identity: queuedIdentity,
-      })
-      .forLaunch(reference)
-      .comparing({ base, revision: tree })
+      .reportingThrough({ origin: dashboard.origin, command: "claude" })
+      .withLanding(
+        makeMe.aLaunchLanding
+          .capturedFrom({
+            repository: origin.project,
+            identity: queuedIdentity,
+          })
+          .comparing({ base, revision: tree }),
+      )
       .please();
     keepLaunchRecords(dashboard, [record]);
     const file = {
@@ -78,7 +72,9 @@ test.describe("after a delivered two-line file", () => {
       kind: "landed" as const,
       baseline: base,
       tree,
-      reference,
+      ...(record.request.reporting && {
+        reference: record.request.reporting.reference,
+      }),
       line: 2,
       side: "new" as const,
     };
