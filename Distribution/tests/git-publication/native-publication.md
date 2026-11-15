@@ -4,8 +4,9 @@
 
 ## Proof-scheduling scenarios: compare inputs before launch
 
-`Distribution/evaluation/cases/delivery-evidence/proof-scheduling-native.sh` checks `delivery-evidence/scheduling` without
-credentials by default. A separately authorized paid run selects
+`Distribution/evaluation/tests/delivery-evidence/proof-scheduling-native.sh` checks `delivery-evidence/scheduling` without
+credentials. A separately authorized paid run uses
+`Distribution/evaluation/cases/delivery-evidence/proof-scheduling-native.sh` and selects
 `--native HOST --scenario stylesheet-extraction` or `--scenario planned-extraction`;
 omitting `--scenario` runs both. Read the comparison below before choosing.
 Neither scenario currently establishes a faithful delegated-implementer replay.
@@ -73,8 +74,8 @@ remains settled; this comparison authorizes no paid run or remedy.
 
 ## Native family layers
 
-[Family authoring and shared helpers](../native-harness/native-family-layers.md) describe the layers.
+[Family authoring and shared helpers](../../evaluation/native-family-layers.md) describe the layers.
 
 ## Rejected cases
 
-[Assessor counterexample rules](../native-harness/native-family-layers.md#rejected-cases) apply to all families.
+[Assessor counterexample rules](../../evaluation/native-family-layers.md#rejected-cases) apply to all families.

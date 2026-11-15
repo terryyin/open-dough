@@ -140,6 +140,13 @@ check-only responsibility and G13 guard can close8;9 retains combined/default/
 three-share/navigation/installation promises and10 retains G7. The old owned
 CI observer finishedbudget_expired; CI not claimed, completion recovery remains.
 
+Publication20432e7e856618a221dc2e9469b482a4d1d4dc61 accepted, hooks passed.
+Post-formatter comparison against the exact preserved candidate outside known
+continuation edits found only test-jobs.sh array spacing/indentation changed;
+its actual focused discovery output remains byte-identical70 jobs. All326
+frozen hashes still exact and no unowned source change. Current CI unobserved
+under the already-reported finished observer; final recovery remains required.
+
 ## Owned CI repair after delivery
 
 Recovered observer diagnostics account for every failed job in registered attempts

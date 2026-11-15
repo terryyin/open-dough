@@ -56,7 +56,7 @@ npm run test:dashboard:backend
 ```
 
 Use `npm test` for the whole shell/Node suite, or name the checks being verified
-as described in [the runner guide](../README.md). Repeating unchanged checks does
+as described in [the runner guide](../tests/README.md). Repeating unchanged checks does
 not run npm setup, browser downloads or a system package manager. When
 `package-lock.json` changes, repeat both acquisition stages before checking.
 Every browser test group run that serves the app builds production assets from

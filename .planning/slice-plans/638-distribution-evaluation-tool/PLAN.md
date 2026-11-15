@@ -12,7 +12,7 @@ The seed owns the six key examples. No new host, qualification, experiment, perf
 
 ## Existing solution and direction
 
-Reuse the existing [family layers](../../../Distribution/tests/native-harness/native-family-layers.md), sole reader/replay corpus, supervision, identity/retention and comparison catalog/pair/baseline/recovery owners. Add no parallel runner, reader, registry or scheduler. [Original PFE and layout evidence](preparation-evidence.md#original-selected-solution-and-direction) remains valid.
+Reuse the existing [family layers](../../../Distribution/evaluation/native-family-layers.md), sole reader/replay corpus, supervision, identity/retention and comparison catalog/pair/baseline/recovery owners. Add no parallel runner, reader, registry or scheduler. [Original PFE and layout evidence](preparation-evidence.md#original-selected-solution-and-direction) remains valid.
 
 Runtime belongs in src, scenarios/fixtures/assessors in cases, tool checks and test-only substitutes/counterexamples/replay inputs in tests. Classify actual responsibility/imports. Keep MakeMe/repository/install builders canonical and follow their real closure. The existing scripts/test.sh remains the one scheduler, preserving selection, admission, deadlines, reports and split allocation.
 
@@ -66,13 +66,7 @@ Type: Structure
 Status: done
 Proof: [Preserved generic extraction and actual observations](slice-6-evidence.md).
 
-Reuse the parked 27-module/44-function extraction and five tool defaults.
-Keep signals/reusable helpers in cases, check bodies/bootstrap in tests; native
-paths load no check-only helpers. Restore exact compatible work, settle every
-consumer purpose and missing continuation, and repair only reached paths.
-Observe actual native-entry invocation/identity as well as sourced helpers.
-[Attempt6](attempt-6.md) retains15 active minutes; remaining proof/correction
-is bounded to that candidate (target8 active minutes), never a repeated move.
+Reuse the parked 27-module/44-function extraction and five tool defaults. Keep signals/reusable helpers in cases, check bodies/bootstrap in tests; native paths load no check-only helpers. Restore exact compatible work, settle every consumer purpose and missing continuation, and repair only reached paths. Observe actual native-entry invocation/identity as well as sourced helpers. [Attempt6](attempt-6.md) retains15 active minutes; remaining proof/correction is bounded to that candidate (target8 active minutes), never a repeated move.
 
 ### 7. Separate guidance defaults at shared native fixture seams
 Type: Structure
@@ -100,9 +94,8 @@ and focused proof target8 active minutes after the original15-minute attempt.
 
 ### 9. Maintain the documented tool with combined CI proof
 Type: Behavior
-Status: planned
-Proof: maintained navigation and commands, same-group mixed-root file/Node-case
-pass/fail summary, three-share union, installation limits and final default suite.
+Status: done
+Proof: [Current641/2226 passing gate, maintained guides, shared producer/share union and payload limits](slice-9-evidence.md).
 
 Complete README prerequisites, native options/evidence limits and live navigation
 from the retained candidate. Extend real CI proof and discovery regressions:
@@ -246,3 +239,8 @@ Disposition: proved by slice 8: slice-8-evidence.md owned CI repair; six real re
 Reported: slice 8 — "Actual public CLI retained publication record omits changed git-publication-native-host.sh; existing identity membership expectations miss it."
 Story clause: "preserve case selection, host support, outcome and failure semantics, supervision, retention and evidence identity during the move."
 Disposition: proved by slice 8: slice-8-evidence.md owned CI repair; actual public CLI record matches current dispatcher SHA, all six derived profiles observe membership/content changes, and admission reuse consumers pass.
+
+### G16. Retention check bypasses the sole stream reader
+Reported: slice 9 — "Final641 gate after slice8 CI repair passes640 jobs but native-stream-replay rejects the new public-entry retention check raw turn.completed literal outside the shared reader."
+Story clause: "Reuse the existing native execution, observation and assessment in acceptance journeys and A/B comparisons."
+Disposition: proved by slice 9: slice-9-evidence.md reached stream-guard correction; actual public-entry uses the sourced reader with preserved nonzero status, complete retained streams and unchanged per-mode assertions; current full replay and Mac/Linux public-entry pass.

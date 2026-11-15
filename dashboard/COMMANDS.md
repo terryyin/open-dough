@@ -1,6 +1,6 @@
 # Dashboard commands
 
-Run these from the repository root after the [native setup](../Distribution/tests/native-harness/native-setup.md).
+Run these from the repository root after the [native setup](../Distribution/evaluation/native-setup.md).
 
 | Command                       | Purpose                                                                                    |
 | ----------------------------- | ------------------------------------------------------------------------------------------ |

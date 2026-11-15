@@ -3,17 +3,18 @@
 This manually invoked, paid check observes ordinary browser test work against
 `Distribution/src/skills/dough-page-objects`. It uses the existing writable host launch
 profiles, owned native supervision and shared stream reader. Follow
-[maintainer guidance](../../../AGENTS.md) and [native setup](native-setup.md).
+[maintainer guidance](../../AGENTS.md) and [native setup](native-setup.md).
 
-Prepare the current checkout's locked dependencies and browser first. On macOS
-use Bash 5 on `PATH`; on AC power run one native session at a time under
-`caffeinate -s -i` after checking host load and competing work. Authentication
+Prepare the current checkout's locked dependencies and browser first. Follow
+the maintained [macOS sleep guard and power condition](../tests/local-test-resources.md#machine-sleep-on-macos).
+Use Bash 5 on `PATH`; run one native session at a time after checking host load
+and competing work. Authentication
 must already work in each native CLI. A credential failure needs the developer;
 do not substitute recorded streams or alter activation to produce a pass.
 
-The deterministic fixture-layout check is part of the ordinary suite. Its
-separate browser control is selected explicitly because the shell/Node CI jobs
-do not install Chromium:
+The deterministic fixture-layout checks and browser controls are part of both
+the focused evaluation command and the ordinary Distribution suite. CI prepares
+the locked Chromium prerequisite. To select those controls explicitly:
 
 ```sh
 npm test -- Distribution/evaluation/tests/page-objects/page-object-native-fixture.test.mjs Distribution/evaluation/tests/page-objects/page-object-makeme-fixture.test.mjs
@@ -99,5 +100,5 @@ files and agent self-report do not establish application.
 
 Retain the candidate hashes, native version, prompt, terminal stream status,
 actual observations, and unmet requirements in the active plan. Follow
-[ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) for per-host
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) for per-host
 assessment, justified reuse and retirement of spent artifacts.

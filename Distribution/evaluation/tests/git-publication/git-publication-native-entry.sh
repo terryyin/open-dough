@@ -81,7 +81,8 @@ check_retention_variant() (
   assert_retained_publication "${attempt}"
   # Version probes alone do not prove execution of the controlled host body.
   grep -q '^codex exec ' "${variant_home}/sentinel.log"
-  grep -Fq 'turn.completed' "${attempt}/events.jsonl"
+  stream_status=$(native_host_stream codex "${attempt}/events.jsonl" status)
+  [[ ${stream_status} == complete ]]
   grep -Fxq 'remote-accepted: true' "${attempt}/observations.txt"
   if [[ ${variant} == failure ]]; then
     [[ ${status} -ne 0 && ! -e ${owned_work} ]]

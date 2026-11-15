@@ -8,7 +8,8 @@ native harness's node-call log. The reader returns the started commands
 (continuations joined, and split at command separators for matching),
 outputs, the final response, and the stream status: complete, truncated,
 missing, or unknown. `Distribution/evaluation/tests/native-harness/native-stream-replay.sh` fails any shell or JS
-file under `tests/` or `scripts/` that holds a host event literal outside the
+file under `Distribution/tests/`, `Distribution/evaluation/` or `scripts/`
+that holds a host event literal outside the
 reader and an exact list of shape writers
 (`Distribution/evaluation/tests/native-harness/support/native-stream-guard.mjs`), such as substitute agents and
 counterexample stream builders.
@@ -40,9 +41,9 @@ field, and its schema is not rewritten. Expectations are reviewed, never
 written by the reader; a `corrected:` line cites a harness fault where the
 reader is right and the retained observation was wrong. Replay is not native
 behavioral evidence
-([ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md) §2);
-[native publication](../git-publication/native-publication.md) describes adding an accepted run.
+([ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) §2);
+[native publication](../tests/git-publication/native-publication.md) describes adding an accepted run.
 
 For `publication/admission-investigation`, use the
-[retained-result comparison and impact review](../git-publication/native-admission-reuse.md)
+[retained-result comparison and impact review](../tests/git-publication/native-admission-reuse.md)
 before deciding whether existing evidence justifies reuse on its own host.
