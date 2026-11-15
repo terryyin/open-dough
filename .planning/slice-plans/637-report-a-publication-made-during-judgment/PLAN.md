@@ -2,6 +2,7 @@
 
 **Identity:** SEED-368#report-a-publication-made-during-supplier-judgment
 **Source:** [story](../../seeds/SEED-368-third-blocked-execution-attempt.md#report-a-publication-made-during-supplier-judgment)
+**Source review:** [source-only review](source-review.md)
 
 ## Source and provenance
 
@@ -111,8 +112,9 @@ wait-for-publication.mjs --remote origin --ref … --deadline|--duration-minutes
 
 ### 1. The wait command's test harness is shared by more than one test file
 Type: Structure
-Status: planned
+Status: done
 Proof: `bash scripts/test.sh Distribution/tests/skills/dough-execute-plan/wait-for-publication.test.mjs` passes with the same ten tests; the test file is shorter than 250 lines.
+Accepted: helpers moved unchanged into `Distribution/tests/support/wait-for-publication-fixture.mjs`; the test file is 171 lines; the focused command exits 0 and `node --test` on the file passes 10 of 10; refactor pass made no edits.
 
 Move the watched-remote fixture, `publish`, `startWait`, `observed` and
 `onlyResult` from `wait-for-publication.test.mjs` into one support module
