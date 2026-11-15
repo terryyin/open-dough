@@ -14,7 +14,10 @@ import { sourceReview } from "./story-obligations-test-fixtures.mjs";
 // fixtures: the verbatim story section, the narrowed plan whose Current
 // decision keeps held and ordered symbols in history (slices 1-3 done), and
 // the reviewer's numbered return with commitment 21's six filters as items.
-const fixtures = new URL("../../fixtures/delivery-evidence/", import.meta.url);
+const fixtures = new URL(
+  "../../../evaluation/cases/delivery-evidence/fixtures/",
+  import.meta.url,
+);
 const fixtureText = (name) => readFileSync(new URL(name, fixtures), "utf8");
 export const currentDecision =
   "The excluded list carries filter outcomes; held and ordered symbols stay in history with their existing reasons.";

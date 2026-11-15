@@ -6,17 +6,9 @@
 
 ## Goal and scope
 
-A maintainer finds and runs native acceptance and A/B evaluation tooling from
-`Distribution/evaluation/`, and checks that tool independently with
-`npm run test:evaluation`. Ordinary CI still proves both test sets under
-Distribution Tests. Preserve the existing explicit native options, supported
-hosts, isolation, outcomes, retention, replay and historical evidence.
+A maintainer finds and runs native acceptance and A/B evaluation tooling from `Distribution/evaluation/`, and checks that tool independently with `npm run test:evaluation`. Ordinary CI still proves both test sets under Distribution Tests. Preserve the existing explicit native options, supported hosts, isolation, outcomes, retention, replay and historical evidence.
 
-The seed owns the six key examples. No new host, qualification, experiment,
-performance claim, release, client-payload change or separate Intent entry is
-included. No paid session is required or authorized by this preparation.
-The queued [comparison corrections](../621-close-native-comparison-harness-gaps/PLAN.md)
-keep their behavior and proof; this story only aligns their location references.
+The seed owns the six key examples. No new host, qualification, experiment, performance claim, release, client-payload change or separate Intent entry is included. No paid session is required or authorized by this preparation. The queued [comparison corrections](../621-close-native-comparison-harness-gaps/PLAN.md) keep their behavior and proof; this story only aligns their location references.
 
 ## Existing solution and direction
 
@@ -40,8 +32,7 @@ Runtime belongs in src, scenarios/fixtures/assessors in cases, tool checks and t
 
 ## Preparation evidence
 
-[Original decisive premises, commands and observations](preparation-evidence.md)
-remain applicable except for the sizing assumption corrected below.
+[Original decisive premises, commands and observations](preparation-evidence.md) remain applicable except for the sizing assumption corrected below.
 
 ## Ordered slices
 
@@ -234,7 +225,6 @@ Reported: slice 4 — "Native entries retain default automated branches behind o
 Story clause: "Give the tool one home under `Distribution/evaluation/`, with `src/` for implementation, `cases/` for reusable scenarios and their assessors, `tests/` for automated checks of the tool, and a maintainer `README.md`."
 Disposition: proved by slice 8: slice-8-evidence.md all generic check bodies/defaults/counterexamples assembled only in tool tests, native fixture/preflight responsibilities retained; actual focused70 and publication assembly renewal pass.
 
-
 ### G12. Current baseline consumer purposes after supplier placement
 Reported: slice 5 — "Acceptance found that six baseline consumer observations precede the final supplier shared-input path change; fresh-pair setup alone does not observe their current archive reuse, refusal and provenance purposes."
 Story clause: "preserve case selection, host support, outcome and failure semantics, supervision, retention and evidence identity during the move."
@@ -246,3 +236,13 @@ Reported: slice 6 — "Closure inspection found that native-stream-guard.mjs sca
 Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
 Disposition: proved by slice 8: slice-8-evidence.md old Git guard red for evaluation stray, current Git pathspec/writer/corpus closure and actual stray/stale-writer replay negatives pass in three-file gate and full70; no filesystem fallback.
 Commitment: C31
+
+### G14. Recovered CI and default-suite failures
+Reported: slice 8 — "Retained registered CI attempts fail six drift cases at the retired fixture path and the Linux public entry scratch guard; final default suite also rejects the now-valid second Chromium cache."
+Story clause: "Update affected callers, discovery, documentation and evidence-recovery paths."
+Disposition: proved by slice 8: slice-8-evidence.md owned CI repair; six real replay cases, every-cache guard controls and Linux public-entry red/green preserve strict scratch and retained evidence semantics.
+
+### G15. Publication identity omits the host runner
+Reported: slice 8 — "Actual public CLI retained publication record omits changed git-publication-native-host.sh; existing identity membership expectations miss it."
+Story clause: "preserve case selection, host support, outcome and failure semantics, supervision, retention and evidence identity during the move."
+Disposition: proved by slice 8: slice-8-evidence.md owned CI repair; actual public CLI record matches current dispatcher SHA, all six derived profiles observe membership/content changes, and admission reuse consumers pass.

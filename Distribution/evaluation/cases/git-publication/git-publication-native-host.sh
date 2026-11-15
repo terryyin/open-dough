@@ -18,7 +18,7 @@ host_fresh_journeys() {
   esac
 }
 
-run_native_host() {
+run_native_host() (
   local host=$1
   local selected_case=${2-}
   local requested_results=${3-}
@@ -28,6 +28,11 @@ run_native_host() {
     exit 1
   }
   work=$(mktemp -d)
+  # A separate result home retains the evidence, so release only this run's
+  # scratch on success or failure. Default results and explicit KEEP stay put.
+  trap 'if [[ -n ${requested_results} && -z ${GIT_PUBLICATION_KEEP:-} ]]; then
+    rm -rf -- "${work}"
+  fi' EXIT
   if [[ -n ${requested_results} ]]; then
     native_result_require_writable "${requested_results}"
     results_dir=${native_case_results_dir}
@@ -126,7 +131,7 @@ run_native_host() {
     exit 1
   fi
   echo "PASS: ${host} selected native journeys assessed from observable state."
-}
+)
 
 native_case_known() {
   case $1 in

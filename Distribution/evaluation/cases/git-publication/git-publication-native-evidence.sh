@@ -20,6 +20,7 @@ git_publication_write_evidence_identity() {
       printf 'assessor-identity: Distribution/evaluation/cases/git-publication/git-publication-native-assess.sh\n'
       native_result_input_hash_lines \
         Distribution/evaluation/cases/git-publication/git-publication-native.sh \
+        Distribution/evaluation/cases/git-publication/git-publication-native-host.sh \
         Distribution/evaluation/cases/git-publication/git-publication-native-assess.sh \
         Distribution/evaluation/cases/git-publication/git-publication-native-startup-assess.sh \
         Distribution/evaluation/cases/git-publication/git-publication-native-candidate-assess.sh \

@@ -196,12 +196,10 @@ fi
 # Both workflows keep setup failure gating and compatible browser recovery.
 cat -- "${source_dir}"/.github/workflows/{ci,browser-test-group}.yml > "${temporary_dir}/workflows.yml"
 workflow=${temporary_dir}/workflows.yml
-if grep -Eq 'restore-keys:|--with-deps|if:.*always\(' "${workflow}" \
-  || ! awk '
-    /^ *- name:/ { cache = ($0 ~ /name: Cache Playwright Chromium$/) }
-    /continue-on-error:/ { count++; if (!cache || $0 !~ /continue-on-error: true$/) exit 1 }
-    END { if (count != 1) exit 1 }
-  ' "${workflow}"; then
+# shellcheck source=Distribution/tests/native-harness/support/native-workflow-cache-guard.bash
+# shellcheck disable=SC1091
+source "${source_dir}/Distribution/tests/native-harness/support/native-workflow-cache-guard.bash"
+if ! native_workflow_cache_guard "${workflow}"; then
   echo 'FAIL: CI weakens setup failure gating or uses incompatible browser recovery.' >&2
   exit 1
 fi

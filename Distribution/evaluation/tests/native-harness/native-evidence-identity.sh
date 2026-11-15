@@ -103,6 +103,10 @@ journey_inputs=(
   Distribution/tests/support/story-preparation.mjs
   Distribution/tests/skills/dough-execute-plan/workspace-publication-admission-fixtures.mjs'
 )
+for profile in publication startup admission one-shot owned-context land-default-checkout; do
+  journey_inputs+=("git_publication_write_evidence_identity ${profile}|
+  Distribution/evaluation/cases/git-publication/git-publication-native-host.sh")
+done
 for entry in "${journey_inputs[@]}"; do
   for index in "${!identity_writers[@]}"; do
     [[ ${identity_writers[index]#* } == "${entry%%|*}" ]] || continue

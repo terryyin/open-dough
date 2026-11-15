@@ -139,3 +139,60 @@ Original source-only101 commitments retained; current19 compare above. G8/G11
 check-only responsibility and G13 guard can close8;9 retains combined/default/
 three-share/navigation/installation promises and10 retains G7. The old owned
 CI observer finishedbudget_expired; CI not claimed, completion recovery remains.
+
+## Owned CI repair after delivery
+
+Recovered observer diagnostics account for every failed job in registered attempts
+43728414307/1 (ed6f4c8),43733640542/1 (71825a2),43743881262/1 (ac99019)
+and43746063599/1 (4fecfc7); all inventories complete with no gaps. Six drift
+cases read the retired fixture path; later two attempts additionally fail the
+Linux public-entry scratch predicate. The subsequent641-job local gate also
+rejects the valid second Chromium cache. These are repository defects, with no
+infrastructure waiver or passing-rerun disposition.
+
+G14: drift replay now reads the existing cases/delivery-evidence fixtures.
+NativeSetup validates each compatible Chromium cache and preserves ordinary
+acquisition/validation failure gates;17 controlled guard variants cover one/two/three
+valid blocks and malformed second blocks/unrelated tolerance. The public host
+runner now owns an EXIT cleanup subshell: separate results survive success and
+failure while scratch is removed; default results and explicit KEEP survive.
+Linux red reaches all original record/artifact assertions, then exposes owned
+scratch. Current Linux green retains the same strict scratch predicate.
+
+G15: actual public CLI diagnostics exposed missing host-dispatcher membership.
+The publication identity now includes native-host.sh; its five derived profiles
+inherit the same input. Current identity test observes membership and input-byte
+sensitivity for all six. Actual CLI records independently match current SHA256.
+Permanent public-entry variants observe default work/results retained, KEEP work
+plus external evidence retained, and nonzero host failure with failed record,
+all four external artifacts retained and owned work removed. Controlled Codex
+exec sentinel, completed stream and real fixture Git acceptance prove body use.
+No frozen record is relabelled; all326 original hashes remain exact.
+
+Terminal commands (Homebrew PATH, fully awake AC, caffeinate -s -i, one worker):
+
+- `OPEN_DOUGH_TEST_JOBS=1 caffeinate -s -i bash scripts/test.sh Distribution/tests/skills/dough-execute-plan/story-obligations-drift-replay.test.mjs Distribution/tests/native-harness/native-setup.sh Distribution/evaluation/tests/git-publication/git-publication-native-entry.sh`:0 after causal repairs (pre-fix drift/guard gate1).
+- `OPEN_DOUGH_TEST_JOBS=1 caffeinate -s -i bash scripts/test.sh Distribution/evaluation/tests/git-publication/git-publication-native-entry.sh Distribution/evaluation/tests/native-harness/native-evidence-identity.sh`:0, all new variants plus current identity.
+- `DOCKER_CONTEXT=colima CI=true OPEN_DOUGH_TEST_JOBS=1 caffeinate -s -i bash scripts/ci-container.sh Distribution/evaluation/tests/git-publication/git-publication-native-entry.sh`:0 after owned-scratch red1; Ubuntu24.04 aarch64/Git2.56/Node24.21, no x64 claim.
+- `OPEN_DOUGH_TEST_JOBS=1 caffeinate -s -i bash scripts/test.sh Distribution/evaluation/tests/git-publication/git-publication-fixture-identity.sh Distribution/evaluation/tests/native-harness/native-admission-reuse.test.mjs`:0, current membership/hash comparison and fail-closed retention consumers.
+- `OPEN_DOUGH_TEST_JOBS=1 caffeinate -s -i bash scripts/test.sh Distribution/evaluation/tests/delivery-evidence/delivery-evidence-native-routing.sh Distribution/evaluation/tests/delivery-evidence/proof-scheduling-native.sh`:0, actual changed dispatch consumers.
+
+Exact diagnostics, commands, terminal logs and complete consumer dispositions:
+`/tmp/seed371-ci-repair/HANDOFF.md` and
+`/tmp/seed371-ci-retention-proof/HANDOFF.md`. Original repair and supplemental
+proof are separate bounded returns; supplemental10.3active minutes. Corrected
+test-authoring failures (Mac TMPDIR assumption and nonempty success stdout)
+remain in those logs. No full-suite or final CI success is inferred here.
+
+Independent CI refactor: one test-local retained-envelope helper replaces duplicate
+host/case/current-hash/artifact assertions; each mode keeps its status/path/scratch
+observations. Renewed Mac and maintained Linux public-entry checks both0;
+all other proof boundaries unchanged. Refactor complete, approximately4active
+minutes; `/tmp/seed371-ci-repair-refactor/HANDOFF.md` retains541 dispositions.
+
+Guarded preparation stopped before commit on two formatter findings in that
+same test: missing case default and masked find status. Coordinator mechanical
+repair stays within the accepted refactor's paths/trace, adding no helper or
+representation. Unknown test variant now fails explicitly; find status is
+preserved separately. Same Mac and Linux public-entry commands above both0
+again; other proof unchanged. Preparation retry retains the same owned input.
