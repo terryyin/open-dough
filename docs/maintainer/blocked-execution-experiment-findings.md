@@ -52,6 +52,9 @@ Observed locally on 2026-11-15 without a paid run:
 
 ### Check the next real supplier watch
 
+The [post-release observation stories](../../.planning/seeds/SEED-389-verify-silent-supplier-wait.md)
+track the review of real watches on Codex and Claude Code independently.
+
 Judge the next real supplier watch from its coordinator's session trace: the
 Codex rollout or Claude Code transcript, located and read as the
 [Codex audit](session-token-efficiency-research.md#codex-audit) and

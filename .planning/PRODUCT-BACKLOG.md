@@ -45,6 +45,8 @@ intent introduced or affected by a newly developed story.
 - [Tell compared Usage tools apart and drop stale read errors](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#tell-compared-usage-tools-apart) — SEED-383#tell-compared-usage-tools-apart
 - [Submit and close the dashboard terminal](seeds/SEED-385-submit-and-close-the-dashboard-terminal.md#submit-and-close-the-dashboard-terminal) — SEED-385#submit-and-close-the-dashboard-terminal
 - [Keep Review changes focused on the diff](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-changes-focused-on-the-diff) — SEED-384#keep-review-changes-focused-on-the-diff
+- [Verify the silent supplier wait in Codex](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-use) — SEED-389#verify-silent-supplier-wait-in-use
+- [Verify the silent supplier wait in Claude Code](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-claude-code) — SEED-389#verify-silent-supplier-wait-in-claude-code
 - [Keep Default main ad hoc session changes for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review) — SEED-379#keep-default-main-session-changes-for-review
 - [Keep own-branch ad hoc session results for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review) — SEED-379#keep-own-branch-session-results-for-review
 - [Move Intent CI proof, comparison and candidate checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-intent-ci-proof-comparison-and-candidate-checks) — SEED-334#move-intent-ci-proof-comparison-and-candidate-checks
