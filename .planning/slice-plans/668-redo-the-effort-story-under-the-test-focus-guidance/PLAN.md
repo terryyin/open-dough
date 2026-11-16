@@ -114,7 +114,7 @@ replanning.
 
 ### 2. Shared cold inputs leave navigation its default case budget
 Type: Structure
-Status: planned
+Status: done
 Proof: [owned CI correction and proof](ci-repair.md).
 
 Behavior: a preview worker prepares immutable app/server inputs in the existing
@@ -133,6 +133,10 @@ All 19 failed navigation cases and the Cursor-survivor consequence stay owned
 until their demonstrated repair and applicable CI are accepted. A passing
 unchanged local run is no disposition. If the same failures remain after this
 changed condition, retain them and refine only the affected remaining repair.
+
+Hosted acceptance: exact repair `d59ab3e8`, run 43899583428/1, success;
+[proof and restoration](ci-repair.md#applicable-hosted-acceptance).
+Refactor disposition for this completion update: records-only.
 
 ### 3. B's test changes are read beside A's
 Type: Behavior

@@ -91,3 +91,13 @@ is the selected PFE result; observed hook-only startup is held separate. The
 next attempt gets 15 active minutes; completed compatible read-budget and
 runner cleanup edits remain in place. No story, claim or backlog identity is
 created. The current source review is unchanged; allocations move with owners.
+
+## CI repair publication and return
+
+Accepted repair `d59ab3e84d48eed3cb987f89a6232b1ffa17612b` extends published
+research `5ea5ca123ecc8b5b87321adb69a3920bcec8f732`, both accepted on
+`refs/heads/codex/redo-the-effort-story-under-the-test-focus-guida`. Same
+observer `/tmp/dough-ci-501/watch-nVUAv2`. Exact applicable run 43899583428/1
+succeeded; await-revision session 67819 ended with that receipt. Stash restore
+returned resumed with no OID or application. Research slice 3 may resume the
+same inventory agent from its seven active minutes and frozen A/B inputs.

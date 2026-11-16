@@ -140,3 +140,19 @@ Independent refactor completed: only record links/owner references changed;
 all runtime proof reused, no extra tests. Cohesive record extraction keeps PLAN,
 context and observations under 250 lines. Source freshness unchanged at d288b03f.
 Progress publication leaves slice 2 planned and owns all 19 hosted failures.
+
+## Applicable hosted acceptance
+
+`ci-mailbox.mjs await-revision /tmp/dough-ci-501/watch-nVUAv2 d59ab3e84d48eed3cb987f89a6232b1ffa17612b`
+returned terminal exit 0, source `exact`, verdict `success`, run
+[43899583428](https://github.com/terryyin/open-dough/actions/runs/43899583428),
+attempt 1, on the recorded execution branch. The unchanged CI selection now
+passes after the demonstrated budget/lifecycle repairs; the original 19
+navigation failures, Cursor survivor and read-budget failure are settled on
+this actual revision. No passing unchanged retry was substituted for a repair.
+The five independent override cold-clock gaps remain unmodified observations,
+not claimed warmed or known failures in this repaired cohort.
+
+Installed stash restore returned `resumed`, OID null, applied false: the clean
+original research state needed no restoration. Observer remains live for later
+publications. CI repair work stays outside the frozen A/B measurement windows.
