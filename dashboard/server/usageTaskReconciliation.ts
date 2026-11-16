@@ -4,14 +4,20 @@ import { reconcileTaskClaims, taskClaims } from "./usageTaskClaims.ts";
 import { uniqueFacts } from "./usageReconciliation.ts";
 import type { UsageTask } from "./usageRecords.ts";
 
-export function sameUsageTask(a: UsageTask, b: UsageTask) {
-  if (a.host !== b.host || a.sessionId !== b.sessionId) return false;
-
-  return (
-    (a.rootTurnId !== undefined &&
-      [b.rootTurnId, ...(b.nativeTurns ?? [])].includes(a.rootTurnId)) ||
+// How kept record `a` is task `b`: the same task when they share an id, or a
+// host session and a root turn or launch reference; continued when `a` only
+// started in a turn `b` continues.
+function usageTaskMatch(a: UsageTask, b: UsageTask) {
+  if (a.id === b.id) return "same";
+  if (a.host !== b.host || a.sessionId !== b.sessionId) return undefined;
+  if (
+    (a.rootTurnId !== undefined && a.rootTurnId === b.rootTurnId) ||
     (a.launchReference !== undefined && a.launchReference === b.launchReference)
-  );
+  )
+    return "same";
+  if (a.rootTurnId !== undefined && b.nativeTurns?.includes(a.rootTurnId))
+    return "continued";
+  return undefined;
 }
 export function mergeUsageTask(
   old: UsageTask | undefined,
@@ -116,17 +122,19 @@ export function usageTaskIndex(known: readonly UsageTask[] = []) {
   };
   for (const task of known) keep(task);
   // Where the one kept record that is `task` stands: nowhere when none is,
-  // and when several are, which leaves the task its own record.
+  // and when several are, which leaves the task its own record. A record
+  // that is the same task stands before one that `task` only continues.
   const only = (task: UsageTask): number | undefined => {
     const matches = [
       ...new Set(keys(task).flatMap((key) => positions.get(key) ?? [])),
-    ].filter((position) => {
+    ].flatMap((position) => {
       const item = tasks[position];
-      return (
-        item !== undefined && (item.id === task.id || sameUsageTask(item, task))
-      );
+      const match = item && usageTaskMatch(item, task);
+      return match ? [{ position, match }] : [];
     });
-    return matches.length === 1 ? matches[0] : undefined;
+    const same = matches.filter(({ match }) => match === "same");
+    const chosen = same.length > 0 ? same : matches;
+    return chosen.length === 1 ? chosen[0]?.position : undefined;
   };
   return { tasks, keep, only };
 }

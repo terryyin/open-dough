@@ -187,6 +187,21 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
   union, so re-sinking the extended active fact needed no merge code. A Claude
   bookkeeping input (such as a `/model` wrapper) now extends the active task;
   it has no responses, so it adds no cost.
+- Slice 2 (2026-11-16), copy import: 746.7 s, peak 3.8 GB, store 24.4 → 30.3 MB.
+  SEED-192's execution 0.14M → 6.99M (transcript 6.99M); 95 of 112 Claude Code
+  executions with a later input match their transcript cost within
+  max(1%, 1,000); Codex launches with an unclaimed later developer turn 154 → 0.
+  But 17 of 424 Codex launches fell to 0 (G1): a stored placeholder task rooted
+  on a continued turn made the extended fact match two kept records, so
+  `usageTaskIndex.only` kept a duplicate. Repaired after slice 1: a kept record
+  sharing the id, root turn or launch reference now wins over one matched only
+  through a continued turn (`usageTaskMatch`); proof is the
+  `token-index-developer-reply-codex.spec.ts` case "a reply turn that opens with
+  host-injected context counts once in the launch on every import" (fails at
+  `dcd69ec`), usage-history 99/99, and a narrowed reimport of the two Codex
+  example threads (`01a1d22f` 6.23M → 31.31M, no duplicate). Compare every
+  launch's index before and after an import (job-tmp `compare.ts`), not only
+  the target launches.
 
 ## Story obligations
 
@@ -201,3 +216,13 @@ Reported: slice 1 — "Native-session recovery changes are deferred by the story
 Story clause: "Changing how sessions started outside the dashboard are recovered as tasks."
 Disposition: excluded "Changing how sessions started outside the dashboard are recovered as tasks."
 Commitment: X3
+
+### G1. Extended Codex launches lose all usage to a duplicate recovered task
+Reported: slice 2 — "17 of 424 Codex dashboard launches now show a Token index of 0, and both of the story's Codex example threads are among them."
+Story clause: "A later developer input in a launch's session belongs to that launch"
+Disposition: return
+
+### G2. A launch whose later turns include a worker without a recorded model becomes unpriced (first reported in slice 2)
+Reported: slice 2 — "The `01a1d285-5f73` launch's index is unknown, not 0. Its later work includes a worker entry with no model (2 responses, model `null`), so the index cannot be priced."
+Story clause: "Which launches Usage shows, the tariff, pricing, coverage gaps, and the chart and task detail stay as they are."
+Disposition: excluded "Which launches Usage shows, the tariff, pricing, coverage gaps, and the chart and task detail stay as they are."

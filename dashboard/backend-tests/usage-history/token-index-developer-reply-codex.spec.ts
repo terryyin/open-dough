@@ -4,6 +4,7 @@ import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keepLaunchStore } from "../../tests/support/launchStore.ts";
 import {
+  readImported,
   runImport,
   writeCodexSession,
 } from "../../tests/usage-history/importHarness.ts";
@@ -32,13 +33,14 @@ const codexReply = () =>
 async function codexUsage(
   machine: Parameters<typeof usageServer>[0],
   rollouts: object[][],
+  imports = 1,
 ) {
   const { home } = machine;
   const sessions = path.join(home, ".codex/sessions");
   keepLaunchStore(home, { "open-dough": [finished("first")] });
   for (const rows of rollouts)
     writeCodexSession(path.join(sessions, "2026/11/14"), rows);
-  runImport(home, sessions);
+  for (let i = 0; i < imports; i++) runImport(home, sessions);
   await (await usageServer(machine)).refresh();
   return (await storedUsage(home)).get("SEED-7#first");
 }
@@ -49,6 +51,33 @@ test("a Codex reply turn's responses count in the launch", async ({
   expect(await codexUsage(machine, [codexReply().please()])).toMatchObject([
     { root: true, responses: 2, tokens: { output: 400 } },
   ]);
+});
+
+test("a reply turn that opens with host-injected context counts once in the launch on every import", async ({
+  machine,
+}) => {
+  const rollout = makeMe.aCodexRollout
+    .forSession("first")
+    .withTurnContext("first-turn", sol, "xhigh")
+    .withDeveloperInput("/dough-execute-plan SEED-7#first")
+    .withResponse("first-turn", "first-100", counters(100))
+    .withTurnContext("reply-turn", sol, "xhigh")
+    .withDeveloperInput("<environment_context>restart</environment_context>")
+    .withResponse("reply-turn", "reply-300", counters(300))
+    .withDeveloperInput("yes")
+    .withResponse("reply-turn", "reply-500", counters(500))
+    .please();
+  expect(await codexUsage(machine, [rollout], 2)).toMatchObject([
+    { root: true, responses: 3, tokens: { output: 900 } },
+  ]);
+  const { tasks, associations } = readImported(machine.home);
+  const launches = Object.values(tasks).filter(
+    (task) => task.rootTurnId === "first-turn",
+  );
+  expect(launches).toHaveLength(1);
+  expect(
+    new Set(Object.values(associations).map(({ taskId }) => taskId)),
+  ).toEqual(new Set([launches[0]?.id]));
 });
 
 test("a Codex worker spawned in the reply turn counts once in the launch", async ({
