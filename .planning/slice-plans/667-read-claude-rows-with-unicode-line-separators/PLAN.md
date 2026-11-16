@@ -2,6 +2,7 @@
 
 **Identity:** SEED-388#read-claude-rows-with-unicode-line-separators
 **Source:** [Selected story](../../seeds/SEED-388-measure-and-control-agent-launch-cost.md#read-claude-rows-with-unicode-line-separators)
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -55,7 +56,7 @@ tmp directory.
 
 ### 1. Count native rows that contain Unicode line separators
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new Claude Code and Codex cases and the whole
 `dashboard/backend-tests/usage-history` directory; typecheck and lint; the
 real-store import figure above.
@@ -84,4 +85,13 @@ start fully awake and run it under `caffeinate -s -i` on AC power.
 
 ## Learnings
 
-None beyond the preparation observations above.
+- Refresh shares the reader, so promise 4 got its own Refresh case
+  (`token-index-refresh-line-separators.spec.ts`); the Refresh gap spec was
+  already 234 lines.
+- The real-store import restored the counts (SEED-124 execution 12.74M →
+  15.42M, 435 responses, no task gaps) but left all 3,316 stored
+  `malformed-native-row` gaps. `reconciledGaps` drops a stored gap only through
+  its `host`, and the reader's gaps carry none, so no reread replaces them. The
+  new reader reads all 79 of their files without a gap. They mark no task
+  partial; the import report still lists them under `retainedGapProvenance`.
+  Repairing stored history is excluded from this story.
