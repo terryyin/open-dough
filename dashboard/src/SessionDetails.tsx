@@ -33,9 +33,8 @@ export function SessionDetails({
   readonly storyCardAssignments?: readonly AgentAssignment[] | undefined;
   readonly modelInDetails?: boolean;
 }) {
-  const { startedWords, modelWords, optionsWords, policyWords } = launchSubject(
-    record.request,
-  );
+  const { startedWords, modelWords, effortWords, optionsWords, policyWords } =
+    launchSubject(record.request);
   const { hostOperations } = usePageSessions();
   // A local-only Done attempts no native naming, so it claims none.
   const nativelyNamed =
@@ -53,6 +52,7 @@ export function SessionDetails({
         <Moment at={new Date(record.launchedAt)} />
       </p>
       {modelInDetails && modelWords !== undefined && <p>{modelWords}</p>}
+      {effortWords !== undefined && <p>{effortWords}</p>}
       {open && (
         <SessionAssignment
           record={record}

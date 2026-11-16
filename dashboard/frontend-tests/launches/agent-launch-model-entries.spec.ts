@@ -2,7 +2,9 @@
 // session -- its story's card, Taken, the Sessions sidebar -- the entry reads
 // "Model: <Name> (requested)" for a launch record that asked for a model and
 // says nothing for Default, and a reload reads the line again from the
-// record. Synthetic machine answers only; that a launch keeps the model it
+// record. Its Session details name the effort the launch passed, "Effort:
+// <level> (requested)", and a record kept without one shows no effort line.
+// Synthetic machine answers only; that a launch keeps the model it
 // was asked for is ../../backend-tests/launches/agent-launch-model-boundary.spec.ts
 // and the dialog sending it is ../../../e2e/launches/agent-launch-model.spec.ts.
 
@@ -16,9 +18,11 @@ import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts
 import {
   parts,
   sessionEntriesIn,
+  sessionIdLineOf,
   storyCardSessions,
 } from "../../tests/dashboardPage.ts";
 import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
+import { sessionDetails } from "../../tests/support/sessionEntryDisclosure.ts";
 import { readyStory } from "../../tests/launchJourney.ts";
 import {
   expectTooltipLine,
@@ -113,3 +117,37 @@ test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, 
     await expectTooltipLine(sidebar.getByRole("listitem"), requested("Sonnet"));
   });
 });
+
+for (const [effort, words] of [
+  ["max", "Effort: max (requested)"],
+  [undefined, undefined],
+] as const) {
+  test(`a story session ${
+    effort === undefined
+      ? "recorded without an effort shows no effort line"
+      : `started at ${effort} names it`
+  } in its Session details, through a reload`, async ({
+    page,
+    frontendServices,
+  }) => {
+    const launch = frontendStoryLaunch("executing", readyStory);
+    const record = (
+      effort === undefined ? launch : launch.requestingEffort(effort)
+    ).please();
+    frontendServices.answerMachine(working(record));
+
+    await throughReload(page, async () => {
+      const entry = storyCardSessions(backlogLaunchers(page).card(readyStory));
+      await expect(entry).toHaveCount(1);
+      await sessionDetails(entry);
+      await expect(
+        sessionIdLineOf(entry, record.session.sessionId),
+      ).toBeVisible();
+      if (words === undefined) {
+        await expect(entry).not.toContainText("Effort:");
+      } else {
+        await expect(entry.getByText(words, { exact: true })).toBeVisible();
+      }
+    });
+  });
+}

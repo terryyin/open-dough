@@ -142,7 +142,7 @@ max name their relative cost; Start sends the shown level.
 
 ### 3. Session details name the effort a session was started with
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 3 row above, plus `dashboard/frontend-tests/sessions/compact-session-entry.spec.ts`.
 
 Behavior: a launch record with an effort → Session details read "Effort:
