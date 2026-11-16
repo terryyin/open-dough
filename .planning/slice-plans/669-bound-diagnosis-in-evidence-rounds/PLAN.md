@@ -137,7 +137,7 @@ clock.
 
 ### 3. Run CI repair diagnosis in the same rounds
 Type: Behavior
-Status: planned
+Status: done
 Proof: behavior review, walking the CI example.
 
 Behavior: an owned CI failure is delegated for repair. The repair brief
@@ -204,3 +204,11 @@ concern. This review identified no human decision needed before Take.
   `start --slice K --split-from K`, which the real clock starts at zero.
   Proof: key-example behavior review; `bash scripts/test.sh` on
   `read-budget.test.mjs` and `payload-declaration-links.sh` exit 0.
+- Slice 3 (2.2 active minutes): CI repair step 4 sends an unknown cause into
+  rounds with the record the brief carries; delegation passes the record
+  path and any earlier record of the same failure; the CI-repair pause
+  sentence leaves the interrupted slice paused while the repair's diagnosis
+  keeps its own time in rounds. The existing step 5 order already delivers a
+  committed-code fix before restoring parked work. Proof: CI repair key
+  example behavior review; read-budget, payload links and the three
+  ci-monitor readers' tests exit 0.

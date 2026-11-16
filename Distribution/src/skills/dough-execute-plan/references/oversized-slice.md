@@ -33,8 +33,8 @@ The coordinator owns `start` and `pause`:
   refused while another slice is running; pause that slice first.
 - `pause` when the implementer returns, the slice is accepted, or execution
   stops for the coordinator or a human, including a CI repair pause. Review,
-  the refactor pass and CI repair run while the clock is paused and add no
-  time.
+  the refactor pass and CI repair add no time to the paused slice; a repair's
+  diagnosis keeps its own time in [rounds](diagnosis-rounds.md).
 - Every brief and every resume, also a replacement implementer's, carries the
   `remainingMinutes` that `start` or `status` reports.
 - A slice refined or retitled while unfinished keeps its time under the same

@@ -83,7 +83,9 @@ Give the agent:
   focused commands with the runtime wrapper, each run through that `run` form. Carry the
   [failure policy](failure-policy.md) and this project's additions by link or verbatim, not as a weaker paraphrase such as "fix or
   report"; pass a known failure's attribution as diagnosis evidence, separate
-  from the repair responsibility that policy assigns. Proof the plan or
+  from the repair responsibility that policy assigns. For a diagnosis in
+  [rounds](diagnosis-rounds.md), CI repair included, pass its record's path and
+  any existing record of the same failure. Proof the plan or
   coordinator names is a minimum: require the agent to trace the changed
   effect into its consumers with the installed
   [consumer-trace script](../scripts/consumer-trace.mjs),
