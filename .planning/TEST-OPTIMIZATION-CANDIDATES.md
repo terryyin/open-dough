@@ -15,7 +15,7 @@
 - **Unique protection:** the pace of revision checks (`expectSteadyPace`'s
   bound) and every journey's wait for the page's next periodic check.
 - **Alternatives tried:** a 1 s step between the first and last fine 250 ms
-  steps (about 20 round trips per check), SEED-380 slice 2: round 1 was
+  steps (about 20 round trips per check), 2026-11-16: round 1 was
   inconclusive (load rose 8.9 → 13.3); round 2 before 33.2, 44.1, 35.7 s,
   after 29.4, 33.5, 28.8 s, every pair lower but 33.5 above 33.2, so it
   missed the keep rule by 0.3 s and was undone. A planning probe with a

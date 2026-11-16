@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 539. Removed numbers are never reused.
+- Highest allocated local number: 542. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-537, DD-539).
 - Occurrence history is partial.
 
@@ -74,3 +74,48 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: coordinator launch a6f339d0-f7b7-4741-81af-665f3195db73 combined CI/delivery/fresh-increment guidance with runtime files in a tool result reporting 14823 original tokens and truncation; a later combined backlog/record-preparation/closure-publication result reported 11701 and truncation. Targeted code/reference reads subsequently recovered affected decisions. The automatic discovery probe independently caught the complete-root omission and restored cleanly (469635 ms invocation-to-report; 7.715 s all focused commands; agent/human effort unavailable).
   - Observed effect: broad outputs omitted requested passages and required bounded recovery, including in the closing review. Command handles, rejected measurements, exact reversion, CI completion and probe restoration remained recoverable.
   - Inference: recurrence of known output-scoping deviation under existing targeted-reading guidance. Mandatory reviews themselves are not called waste; the avoidable share and isolated elapsed/token saving are unmeasured.
+
+## DD-540 — A strict all-runs keep rule cannot resolve a mid-size test speed-up under local noise
+
+A test-optimization plan kept a change only when, over three alternating pairs at one worker, every after-run beat every before-run. Unchanged runs of the affected cases spread wider than the change's likely effect, so a consistent pairwise drop was undone.
+
+### Occurrences
+
+- Execution: SEED-380#speed-up-the-slowest-dashboard-frontend-unit-tests (first implementation 3b8848a2ab182d34b1b0034090ea2a2d8430fe74; retained execution records at 7bb49ed863be027a9cdb054c749ca4f95e714ab6:.planning/slice-plans/653-speed-up-the-slowest-dashboard-frontend-unit-tests/)
+  - Timestamp: unknown (2026-11-16, slice 2)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at claim d9c35d51faedbdcd77f4ce68d833132d2a28d164)
+  - Evidence: plan 653 slice 2 Result in 7bb49ed. 19 cases at `--workers=1`: before 33.2, 44.1, 35.7 s, after 29.4, 33.5, 28.8 s (−19% summed, every pair lower), refused because 33.5 > 33.2. The planning probe showed the same direction (every changed run lower).
+  - Observed effect: the change (61 → 20 page round trips per revision check) was undone. It stays a live candidate in `.planning/TEST-OPTIMIZATION-CANDIDATES.md`.
+  - Inference: with an 11 s spread among unchanged runs, "every after below every before" over three pairs rejects effects near 10–20%. A pairwise or more-pairs criterion might have kept it. Whether the gain is real stays unmeasured.
+
+## DD-541 — Bounding removable cost from a trace before editing settles a speed experiment without an edit
+
+A test-speed slice that first traced the unchanged cases, grouped by call, could bound the most the tactic could remove. When that bound was under the keep threshold, the slice ended without building or timing a change.
+
+### Occurrences
+
+- Execution: SEED-380#speed-up-the-slowest-dashboard-frontend-unit-tests (first implementation 3b8848a2ab182d34b1b0034090ea2a2d8430fe74; retained execution records at 7bb49ed863be027a9cdb054c749ca4f95e714ab6:.planning/slice-plans/653-speed-up-the-slowest-dashboard-frontend-unit-tests/)
+  - Timestamp: unknown (2026-11-16, slices 3 and 5)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at claim d9c35d51faedbdcd77f4ce68d833132d2a28d164)
+  - Evidence: plan 653 slice 3 Result (reads at most about 1 s against a 3.1 s bar, no edit) and slice 5 Result (waits about 0.35 s of 9.4 s; a trial measured −1.4%) in 7bb49ed.
+  - Observed effect: slice 3 made no edit and was delivered as a records-only finding. Slice 5's measured trial matched its bound.
+  - Inference: a useful practice for planned speed experiments. Slices 1 and 2 timed without such a bound first; whether one would have avoided their work is not established.
+
+## DD-542 — A trunk-wide CI failure owned by another story holds a finished story's final CI
+
+The story was delivered with every dashboard, e2e and integrated job green, but its final completion receipt failed. The only failure was the Distribution suite's total time budget, red on `main` since before the story began, which another Taken story was removing. The execution stopped for the developer and resumed after that story landed.
+
+### Occurrences
+
+- Execution: SEED-380#speed-up-the-slowest-dashboard-frontend-unit-tests (first implementation 3b8848a2ab182d34b1b0034090ea2a2d8430fe74; retained execution records at 7bb49ed863be027a9cdb054c749ca4f95e714ab6:.planning/slice-plans/653-speed-up-the-slowest-dashboard-frontend-unit-tests/)
+  - Timestamp: unknown (2026-11-16, final completion)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at claim d9c35d51faedbdcd77f4ce68d833132d2a28d164)
+  - Evidence: CI runs 43786112787, 43788508552, 43789763452 and 43792139474 failed only Distribution Tests on `OVER BUDGET` (933–1003 s against 926 s), as `main` runs did from 43774458324 on. SEED-381 closed at c4882f0c3 and removed the budget.
+  - Observed effect: four failure notifications were classified as another owner's, then a developer stop and a watch for the other story's landing before wrap-up could resume.
+  - Inference: the failure policy correctly avoided a duplicate repair. The cost was waiting, not rework.
