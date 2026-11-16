@@ -152,26 +152,42 @@ test("a Claude Code reply after the launch's completion report still counts in t
   expect(index).toEqual([["SEED-7#claude", 4_900]]);
 });
 
-test("a workflow typed after a Claude Code execution takes its own turns and later replies; no response counts twice", ({
-  machine,
-}) => {
-  const stored = importClaude(
-    machine.home,
-    claudeSession()
-      .withUser({ uuid: "reply", content: "1" })
-      .withAssistant(response("after-reply", 300))
-      .withUser({ uuid: "land", content: "/dough-land" })
-      .withAssistant(response("landing", 700))
-      .withUser({ uuid: "ok", content: "ok" })
-      .withAssistant(response("after-ok", 900))
-      .please(),
-  );
-  expect(outputs(stored, (task) => task.workflow ?? "none")).toEqual({
-    execution: 400,
-    "dough-land": 1_600,
+// The workflow is typed as text or as a slash command, which Claude Code wraps
+// without a <command-args> element when given no arguments.
+for (const [form, typeLanding] of [
+  [
+    "workflow typed",
+    (session: ReturnType<typeof claudeSession>) =>
+      session.withUser({ uuid: "land", content: "/dough-land" }),
+  ],
+  [
+    "slash workflow without arguments",
+    (session: ReturnType<typeof claudeSession>) =>
+      session.withSlashCommand({ uuid: "land", name: "dough-land" }),
+  ],
+] as const) {
+  test(`a Claude Code ${form} after an execution takes its own turns and later replies; no response counts twice`, ({
+    machine,
+  }) => {
+    const stored = importClaude(
+      machine.home,
+      typeLanding(
+        claudeSession()
+          .withUser({ uuid: "reply", content: "1" })
+          .withAssistant(response("after-reply", 300)),
+      )
+        .withAssistant(response("landing", 700))
+        .withUser({ uuid: "ok", content: "ok" })
+        .withAssistant(response("after-ok", 900))
+        .please(),
+    );
+    expect(outputs(stored, (task) => task.workflow ?? "none")).toEqual({
+      execution: 400,
+      "dough-land": 1_600,
+    });
+    expect(Object.keys(stored.associations)).toHaveLength(4);
   });
-  expect(Object.keys(stored.associations)).toHaveLength(4);
-});
+}
 
 test("another dashboard launch's reporting context after a Claude Code reply takes its own turns and later replies; no response counts twice", ({
   machine,

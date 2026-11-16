@@ -109,3 +109,27 @@ test("a Codex worker spawned in the reply turn counts once in the launch", async
     }),
   ]);
 });
+
+test("a reply turn's compaction response, recorded before its turn context, counts at that turn's model", async ({
+  machine,
+}) => {
+  // Codex starts the turn, records its compaction's usage and the compacted
+  // history, and only then writes the turn's `turn_context` and the input.
+  const rollout = makeMe.aCodexRollout
+    .forSession("first")
+    .withTurnContext("first-turn", sol, "xhigh")
+    .withDeveloperInput("/dough-execute-plan SEED-7#first")
+    .withResponse("first-turn", "first-100", counters(100))
+    .withRow({
+      type: "event_msg",
+      payload: { type: "task_started", turn_id: "reply-turn" },
+    })
+    .withResponse("reply-turn", "compaction-300", counters(300))
+    .withRow({ type: "compacted", payload: { message: "" } })
+    .withTurnContext("reply-turn", sol, "xhigh")
+    .withDeveloperInput("yes")
+    .please();
+  expect(await codexUsage(machine, [rollout])).toMatchObject([
+    { root: true, model: sol, responses: 2, tokens: { output: 400 } },
+  ]);
+});

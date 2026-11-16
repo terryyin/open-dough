@@ -6,9 +6,10 @@ import type { UsageTask } from "./usageRecords.ts";
 function directive(text: string) {
   // Anchored invocations only: AGENTS, injected skills, quotes and transcripts
   // containing a skill name cannot manufacture a task or historical reference.
+  // A command typed without arguments has no <command-args> element.
   const readable = usageUnfencedText(text).trim();
   const command =
-    /^(?:<command-message>[^<]*<\/command-message>\s*)?<command-name>\/(dough-[a-z-]+)<\/command-name>[\s\S]*?<command-args>([^<]*)<\/command-args>/.exec(
+    /^(?:<command-message>[^<]*<\/command-message>\s*)?<command-name>\/(dough-[a-z-]+)<\/command-name>(?:[\s\S]*?<command-args>([^<]*)<\/command-args>|\s*$)/.exec(
       readable,
     );
   const workflow = /^(?:\$|\/)(dough-[a-z-]+)\b([^\n]*)/.exec(readable);

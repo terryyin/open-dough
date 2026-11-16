@@ -22,6 +22,7 @@ import {
   type CodexLineage,
 } from "./codexUsageLineage.ts";
 
+type TurnSettings = { settings: UsageSettings; source: UsageSource };
 function settingsOf(payload: Record<string, unknown>): UsageSettings {
   const result: UsageSettings = {};
   const model = stringOf(payload["model"]);
@@ -47,13 +48,16 @@ export async function* codexUsage(
   let ownMetadata = false;
   let parentSessionId: string | undefined;
   const spawned = new Set<string>();
-  const settings = new Map<
-    string,
-    { settings: UsageSettings; source: UsageSource }
-  >();
+  const settings = new Map<string, TurnSettings>();
   // The service tier the thread's latest applied settings record; later
   // responses run at it. Settings that record none leave responses without.
   let serviceTier: string | undefined;
+  // A turn-start compaction's response is recorded before its turn's
+  // turn_context; it waits for that turn's settings or the end of the file.
+  const awaitingTurn = new Map<
+    string,
+    Array<(context?: TurnSettings) => UsageObservation>
+  >();
   for await (const { row, line } of nativeUsageLines(file, gaps)) {
     taskReader(row, { kind: "native", file, line });
     const payload = objectOf(row["payload"]);
@@ -116,11 +120,16 @@ export async function* codexUsage(
       );
     if (row["type"] === "turn_context") {
       const turn = stringOf(payload["turn_id"]);
-      if (turn)
-        settings.set(turn, {
+      if (turn) {
+        const context: TurnSettings = {
           settings: settingsOf(payload),
           source: { kind: "native", file, line },
-        });
+        };
+        settings.set(turn, context);
+        for (const observe of awaitingTurn.get(turn) ?? [])
+          yield observe(context);
+        awaitingTurn.delete(turn);
+      }
     }
     if (row["type"] !== "token_usage_record") continue;
     const sessionId = stringOf(payload["thread_id"]);
@@ -158,39 +167,47 @@ export async function* codexUsage(
       tokens,
       gaps: counterGaps,
     } = codexCounters(objectOf(payload["usage"]));
-    const context = turnId ? settings.get(turnId) : undefined;
-    const observedSettings: UsageSettings = {
-      ...context?.settings,
-      ...(serviceTier ? { serviceTier } : {}),
-    };
+    const tier = serviceTier;
     const lineage = {
       ...(turnId ? { turnId } : {}),
       ...(rootTurnId ? { rootTurnId } : {}),
       ...(parentSessionId ? { parentSessionId } : {}),
       at,
     };
-    yield reconcileObservation(undefined, {
-      id: responseKey("codex", sessionId, responseId),
-      host: "codex",
-      sessionId,
-      responseId,
-      ...lineage,
-      scope: "response",
-      settings: observedSettings,
-      measurements: [
-        {
-          source: { kind: "native", file, line },
-          settings: observedSettings,
-          ...(context ? { settingsSource: context.source } : {}),
-          ...lineage,
-          definition: "codex-inclusive-input",
-          reported,
-          tokens,
-        },
-      ],
-      tokens,
-      coverage: "partial",
-      gaps: counterGaps,
-    });
+    const observe = (context?: TurnSettings): UsageObservation => {
+      const observedSettings: UsageSettings = {
+        ...context?.settings,
+        ...(tier ? { serviceTier: tier } : {}),
+      };
+      return reconcileObservation(undefined, {
+        id: responseKey("codex", sessionId, responseId),
+        host: "codex",
+        sessionId,
+        responseId,
+        ...lineage,
+        scope: "response",
+        settings: observedSettings,
+        measurements: [
+          {
+            source: { kind: "native", file, line },
+            settings: observedSettings,
+            ...(context ? { settingsSource: context.source } : {}),
+            ...lineage,
+            definition: "codex-inclusive-input",
+            reported,
+            tokens,
+          },
+        ],
+        tokens,
+        coverage: "partial",
+        gaps: counterGaps,
+      });
+    };
+    const context = turnId ? settings.get(turnId) : undefined;
+    if (turnId && !context)
+      awaitingTurn.set(turnId, [...(awaitingTurn.get(turnId) ?? []), observe]);
+    else yield observe(context);
   }
+  for (const pending of awaitingTurn.values())
+    for (const observe of pending) yield observe();
 }

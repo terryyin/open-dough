@@ -202,6 +202,19 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
   example threads (`01a1d22f` 6.23M → 31.31M, no duplicate). Compare every
   launch's index before and after an import (job-tmp `compare.ts`), not only
   the target launches.
+- Slice 2 rerun at `5145a57`, real store recomputed (backup
+  `~/.open-dough/dashboard/launch-history/usage.json.before-SEED-388-202611161656`):
+  no index decreased; SEED-192 6.99M; 93 of 111 Claude Code executions match;
+  0 Codex launches with an unclaimed later turn; SEED-324 31.31M. Two further
+  defects surfaced and were repaired: G2, a turn-start compaction response is
+  recorded before its turn's `turn_context`, so `codexUsage.ts` gave it no model
+  and 11 launches became unpriced (no chart point); it now waits for that
+  turn's settings in the same file (narrowed reimport: SEED-285 57.41M,
+  SEED-073 80.26M, SEED-144 5.63M, all priced). G3, Claude Code writes an
+  argless slash workflow without `<command-args>`, so `/dough-land` did not
+  start another task (SEED-133 2.07× its transcript); the wrapper pattern now
+  accepts it when nothing follows `</command-name>`. Both repairs have
+  failing-first cases; usage-history 101/101.
 
 ## Story obligations
 
@@ -222,7 +235,12 @@ Reported: slice 2 — "17 of 424 Codex dashboard launches now show a Token index
 Story clause: "A later developer input in a launch's session belongs to that launch"
 Disposition: return
 
-### G2. A launch whose later turns include a worker without a recorded model becomes unpriced (first reported in slice 2)
-Reported: slice 2 — "The `01a1d285-5f73` launch's index is unknown, not 0. Its later work includes a worker entry with no model (2 responses, model `null`), so the index cannot be priced."
-Story clause: "Which launches Usage shows, the tariff, pricing, coverage gaps, and the chart and task detail stay as they are."
-Disposition: excluded "Which launches Usage shows, the tariff, pricing, coverage gaps, and the chart and task detail stay as they are."
+### G2. A launch whose later turns include a response without a recorded model becomes unpriced (first reported in slice 2)
+Reported: slice 2 — "11 Codex launches became unpriced, all for the G2 cause"
+Story clause: "A developer or maintainer reading System settings → Usage sees the whole cost of a dashboard launch on Claude Code or Codex"
+Disposition: return
+
+### G3. A Claude Code workflow command without arguments does not start another task
+Reported: slice 2 — "The `/dough-land` input did not start another task."
+Story clause: "a recognised Open Dough workflow invocation or another dashboard launch's reporting context"
+Disposition: return
