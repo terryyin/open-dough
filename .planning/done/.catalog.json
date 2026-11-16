@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-334_remove-obsolete-native-revision-opener.json",
+      "identity": "SEED-334#remove-obsolete-native-revision-opener",
+      "completedAt": "2026-11-16T04:08:55.420Z",
+      "blob": "8009392a81897c4e75c91b5e6dbcfbfc807fad1a"
+    },
+    {
       "fileName": "SEED-380_speed-up-the-slowest-dashboard-frontend-unit-tests.json",
       "identity": "SEED-380#speed-up-the-slowest-dashboard-frontend-unit-tests",
       "completedAt": "2026-11-16T03:18:47.829Z",

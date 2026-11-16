@@ -151,22 +151,3 @@ recorded names. No new group, removal of the interim group, runner, CI job or
 speed claim.
 
 **Plan:** [Keep one browser test group roster](../slice-plans/617-keep-one-browser-test-group-roster/PLAN.md)
-
-<a id="remove-obsolete-native-revision-opener"></a>
-
-### Remove the obsolete native revision opener
-
-**Identity:** SEED-334#remove-obsolete-native-revision-opener
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/652-remove-obsolete-native-revision-opener/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"63b7a208e2988cbef4959de21849079954de4de45b0d6bdc67170350322ab0da","plan":"30a498a148a04a3b617f5185c4d61022695d218c7e0c95a4c6bdf80f35a0c5e8"}}
-```
-
-**Goal:** A test maintainer has one live revision opener after the reading/review
-conversion, without an unused native publication entry in the shared browser helper.
-
-**Scope:** Bounded retrospective cleanup: delete the uncalled native
-`openWithFeatureSelected` and its unused imports while preserving live shared
-browser/data exports, the Frontend opener, real E2E publishers and product behavior.
-No runner, query, cache, fixture-data or timeout changes.
-
-**Plan:** [Remove the obsolete native revision opener](../slice-plans/652-remove-obsolete-native-revision-opener/PLAN.md)
