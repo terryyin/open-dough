@@ -7,8 +7,9 @@
 # repository-relative. A run without the group's artifacts is skipped, a run
 # under an older layout still counts, and files no longer discovered are
 # ignored. With no usable run, or when gh fails, it says why and exits 1. It
-# writes nothing outside its own temporary directory. A `gh` stand-in serves
-# fixture runs, so the check never reaches GitHub.
+# writes nothing outside its own temporary directory. Its proposals are
+# ci-shard-proposal.sh's; here no single change helps, so each says balanced.
+# A `gh` stand-in serves fixture runs, so the check never reaches GitHub.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
@@ -18,9 +19,6 @@ source "${source_dir}/Distribution/tests/helpers/expect-in-log.bash"
 # shellcheck disable=SC1091
 # shellcheck source=Distribution/tests/helpers/expect-report.bash
 source "${source_dir}/Distribution/tests/helpers/expect-report.bash"
-# shellcheck disable=SC1091
-# shellcheck source=Distribution/tests/helpers/copy-runner.bash
-source "${source_dir}/Distribution/tests/helpers/copy-runner.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 fake="${temporary_dir}/gh"
@@ -28,78 +26,10 @@ repository="${temporary_dir}/repository"
 scratch="${temporary_dir}/tmp"
 mkdir -p -- "${fake}/bin" "${fake}/runs" "${scratch}"
 
-# The stand-in logs its calls, prints the `--jq` listing from fixture `listing`
-# (or fails with `list-error`), applies an artifacts call's `--jq` filter to
-# the run's fixture artifact directories, and copies those matching a
-# download's pattern into its directory.
-cat > "${fake}/bin/gh" << 'STANDIN'
-#!/usr/bin/env bash
-set -euo pipefail
-printf '%s\n' "$*" >> "${FAKE_GH}/calls"
-case "$1 $2" in
-  'run list')
-    if [[ -f ${FAKE_GH}/list-error ]]; then
-      cat -- "${FAKE_GH}/list-error" >&2
-      exit 1
-    fi
-    cat -- "${FAKE_GH}/listing"
-    ;;
-  api\ *)
-    run=${2#*/runs/}
-    run=${run%%/*}
-    mkdir -p -- "${FAKE_GH}/runs/${run}"
-    find "${FAKE_GH}/runs/${run}" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; \
-      | jq -R '{name: ., expired: false}' | jq -s '{artifacts: .}' | jq -r "$4"
-    ;;
-  'run download')
-    mkdir -p -- "$7"
-    for artifact in "${FAKE_GH}/runs/$3"/*/; do
-      name=$(basename -- "${artifact}")
-      # shellcheck disable=SC2053 # The pattern is gh's artifact-name glob.
-      [[ ${name} != $5 ]] || cp -R -- "${artifact}" "$7/${name}"
-    done
-    ;;
-  *) exit 2 ;;
-esac
-STANDIN
-chmod +x "${fake}/bin/gh"
+# shellcheck disable=SC1091
+# shellcheck source=Distribution/tests/helpers/shard-balance-fixture.bash
+source "${source_dir}/Distribution/tests/helpers/shard-balance-fixture.bash"
 
-# Lists runs as gh's `--jq` listing prints them, newest first: `RUN CREATED`.
-list_runs() {
-  : > "${fake}/listing"
-  while (($#)); do
-    printf '%s\t%s\n' "$1" "$2" >> "${fake}/listing"
-    shift 2
-  done
-}
-
-# Gives run RUN the artifact NAME holding FILE, one `<seconds><TAB><label>`
-# row per remaining `SECONDS LABEL` pair.
-times_artifact() {
-  local run=$1 name=$2 file=$3
-  shift 3
-  mkdir -p -- "${fake}/runs/${run}/${name}"
-  : > "${fake}/runs/${run}/${name}/${file}"
-  while (($#)); do
-    printf '%s\t%s\n' "$1" "$2" >> "${fake}/runs/${run}/${name}/${file}"
-    shift 2
-  done
-}
-
-# Creates empty files at the repository-relative paths given.
-discovered() {
-  local path
-  for path in "$@"; do
-    mkdir -p -- "$(dirname -- "${repository}/${path}")"
-    : > "${repository}/${path}"
-  done
-}
-
-copy_runner "${repository}"
-cp -- "${source_dir}/scripts/ci-shard-balance.mjs" "${source_dir}/scripts/ci-shard-times.mjs" \
-  "${repository}/scripts/"
-mkdir -p -- "${repository}/dashboard/tests/support" "${repository}/.github/workflows"
-cp -- "${source_dir}/dashboard/tests/support/testFiles.mjs" "${repository}/dashboard/tests/support/"
 cat > "${repository}/.github/workflows/ci.yml" << 'WORKFLOW'
 jobs:
   distribution-tests:
@@ -152,15 +82,6 @@ times_artifact 301 dashboard-backend-times-2 browser-times.txt 60 backend-tests/
 times_artifact 304 test-times-1 test-times.txt 30 Distribution/tests/alpha/one.sh
 times_artifact 304 test-times-2 test-times.txt 50 Distribution/tests/beta/two.sh
 
-# Runs the copied command for GROUP with the stand-in, logging to <name>.log and
-# setting command_status for expect_report.
-# shellcheck disable=SC2034
-run_balance() {
-  command_status=0
-  (cd "${repository}" && PATH="${fake}/bin:${PATH}" FAKE_GH="${fake}" TMPDIR="${scratch}" \
-    node scripts/ci-shard-balance.mjs "$2") > "${temporary_dir}/$1.log" 2>&1 || command_status=$?
-}
-
 run_balance e2e e2e
 expect_report e2e 0 << 'REPORT'
 Shard totals for e2e: 3 successful ci.yml runs on main, 2026-11-12T10:00:00Z to 2026-11-14T10:00:00Z (1 without e2e times artifacts skipped).
@@ -173,6 +94,7 @@ Untimed files (no run timed them): 1
   e2e/new.spec.ts
 Slow files (each over a tenth of the even total, 10 s; candidates for a faster test): 1
   276 s e2e/runtime/slow.spec.ts
+Balanced: no single pattern change lowers the slowest shard (285 s) by a twentieth of the even total (5 s); no diff proposed.
 REPORT
 expect_in_log "${fake}/calls" -x -F -- "run list --workflow ci.yml --branch main --status success --limit 5 --json databaseId,createdAt --jq .[] | \"\(.databaseId)\t\(.createdAt)\""
 expect_in_log "${fake}/calls" -F -- 'run download 302 --pattern e2e-times-* --dir'
@@ -188,6 +110,7 @@ Untimed files (no run timed them): none
 Slow files (each over a tenth of the even total, 5 s; candidates for a faster test): 2
   60 s dashboard/backend-tests/runtime/r.spec.ts
   40 s dashboard/backend-tests/launches/l.spec.ts
+Balanced: no single pattern change lowers the slowest shard (60 s) by a twentieth of the even total (3 s); no diff proposed.
 REPORT
 
 run_balance distribution distribution-tests
@@ -202,6 +125,7 @@ Untimed files (no run timed them): 1
 Slow files (each over a tenth of the even total, 4 s; candidates for a faster test): 2
   50 s Distribution/tests/beta/two.sh
   30 s Distribution/tests/alpha/one.sh
+Balanced: no single pattern change lowers the slowest shard (50 s) by a twentieth of the even total (2 s); no diff proposed.
 REPORT
 
 list_runs 304 2026-11-11T10:00:00Z

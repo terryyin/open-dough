@@ -109,7 +109,9 @@ removes every group's inherited split before launching them.
 file of each group runs in exactly one of its CI shards and both refusals.
 `node scripts/ci-shard-balance.mjs <group>` reports a group's shard totals
 and slowest files from recent `main` runs' times when a maintainer asks to
-rebalance.
+rebalance, and prints the one pattern change that most lowers the slowest
+shard as a `ci.yml` diff, or says the shards are balanced; it applies
+nothing.
 
 Within an E2E Test shard, two complementary native Playwright projects queue
 the serial `runtime/production-watcher*.spec.ts` chains before ordinary files.

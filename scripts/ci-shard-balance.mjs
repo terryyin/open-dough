@@ -12,7 +12,9 @@
 // under the patterns now in ci.yml (scripts/test-share-declaration.mjs reads
 // them; scripts/test-share-matrix.mjs selects each shard's files), the even
 // total, the discovered files no run timed, and the slow files: each alone over
-// a tenth of the even total, a candidate for a faster test. Files a run timed
+// a tenth of the even total, a candidate for a faster test. After the report
+// it prints scripts/ci-shard-proposal.mjs's one pattern change as a diff to
+// ci.yml, or says the shards are balanced; it applies nothing. Files a run timed
 // that are no longer discovered are ignored, so a run under an older layout
 // still counts. Job counts are scripts/ci-job-times.sh's question.
 //
@@ -31,6 +33,7 @@ import { tmpdir } from "node:os";
 import { join, posix } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dashboardSpecFiles } from "../dashboard/tests/support/testFiles.mjs";
+import { formatProposal, proposeChange } from "./ci-shard-proposal.mjs";
 import { NoTimesError, median, readRecentTimes } from "./ci-shard-times.mjs";
 import {
   readJobInput,
@@ -106,7 +109,7 @@ const sum = (values) => values.reduce((total, value) => total + value, 0);
 
 /**
  * Each shard's files and total seconds under `declaration`, the even total,
- * the untimed files and the slow files, from each discovered file's median.
+ * the untimed files, the slow files and each timed file's median.
  * @param {ReturnType<typeof readShareDeclaration>} declaration
  * @param {string[]} discovered repository-relative files
  * @param {Map<string, number[]>} seconds repository-relative label → per-run seconds
@@ -135,6 +138,7 @@ export function shardReport(declaration, discovered, seconds) {
     slow: [...medians]
       .filter(([, value]) => value > even / 10)
       .sort(([a, x], [b, y]) => y - x || (a < b ? -1 : 1)),
+    medians,
   };
 }
 
@@ -202,7 +206,12 @@ function main(args) {
       ]),
     );
     const report = shardReport(declaration, sources.discovered, seconds);
-    process.stdout.write(`${formatReport(group, times, report).join("\n")}\n`);
+    const change = proposeChange(report, text, WORKFLOW, group);
+    const lines = [
+      ...formatReport(group, times, report),
+      ...formatProposal(report, change),
+    ];
+    process.stdout.write(`${lines.join("\n")}\n`);
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }

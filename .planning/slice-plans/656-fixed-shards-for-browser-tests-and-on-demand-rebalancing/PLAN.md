@@ -227,7 +227,7 @@ moves no story, and reorganizing a queued seed belongs to its own resplit.
 
 ### 7. Propose the smallest pattern change
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 2's check gains fixtures for an uneven group (a diff moving one
 pattern, and one taking a folder out of the rest), an even group (no diff)
 and Distribution's matrix form; `git apply --check` accepts each printed
@@ -363,6 +363,17 @@ premises are bounded by the early probe in slice 5.
   ci-lint-setup, ci-shard-balance, local-test-suite and test-runner-split;
   backend `spec-times`, `ci-time-without-runner-waits`, `runner-ownership`;
   typecheck.
+- Slice 7: `scripts/ci-shard-proposal.mjs` ranks every allowed single change
+  (move one pattern, including to the last shard; or one new folder or
+  file-name-prefix pattern from the rest) by the slowest, then next-slowest
+  total, revalidates the rewritten workflow through slice 1's module, and
+  prints a `git apply`-able diff or "Balanced". Fixtures share
+  `Distribution/tests/helpers/shard-balance-fixture.bash`. Unpaid real runs,
+  2026-11-16, `ci.yml` bytes unchanged: `distribution-tests` even 701: 547,
+  889, 669, balanced because shard 2's only pattern is
+  `Distribution/evaluation/**` and neither allowed change can lower it (a
+  manual split of that folder is the maintainer's move); `e2e` even 779:
+  839, 774, 789, 773, 680, 820, balanced.
 
 ## Story obligations
 

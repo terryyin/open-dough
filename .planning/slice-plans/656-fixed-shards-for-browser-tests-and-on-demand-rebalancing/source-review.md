@@ -68,12 +68,12 @@ returned `X` ids.
 | 11a | The script prints each shard's total seconds under the patterns currently in `ci.yml`. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh expect_report per-shard totals under the fixture ci.yml patterns; real run in Learnings |
 | 11b | The script lists apart the files the runs did not time. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh e2e and distribution cases: Untimed files list |
 | 11c | The script prints the notably slow files (those that alone carry a large part of an even shard) as candidates for a faster test rather than a move. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh e2e case: Slow files over a tenth of the even total |
-| 11d | The script prints the smallest pattern change that brings the slowest shard closest to the even total, as a unified diff to `ci.yml`. | slice 7 | |
-| 11e.1 | Allowed change form: one existing pattern moved to another shard. | slice 7 | |
-| 11e.2 | Allowed change form: one new folder or file pattern taken out of the last shard's rest. | slice 7 | |
-| 11f | When no single change improves the slowest shard notably, the script says the shards are balanced and prints no diff. | slice 7 | |
+| 11d | The script prints the smallest pattern change that brings the slowest shard closest to the even total, as a unified diff to `ci.yml`. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh e2e/backend/distribution cases print one unified diff (git apply --check) and the slowest-shard change |
+| 11e.1 | Allowed change form: one existing pattern moved to another shard. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh e2e case moves e2e/moved/** from shard 4 to the last shard; distribution case moves a pattern from shard 2 to 1 |
+| 11e.2 | Allowed change form: one new folder or file pattern taken out of the last shard's rest. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh dashboard-backend case gives shard 1 dashboard/backend-tests/runtime/** from the rest |
+| 11f | When no single change improves the slowest shard notably, the script says the shards are balanced and prints no diff. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh applied case and ci-shard-balance.sh reports: Balanced line, no diff |
 | 12a | The script only reads: it starts no run. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh fixture tree and TMPDIR unchanged after runs; script only lists/downloads via gh |
-| 12b | The script changes no file. | slice 7 | |
+| 12b | The script changes no file. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh workflow bytes cmp-equal and fixture tree unchanged after every run; real runs left ci.yml md5 unchanged |
 | 12c | The maintainer applies the diff. | slice 8 | |
 | 12d.1 | The skill says when to use it. | slice 8 | |
 | 12d.2 | The skill says how to invoke it. | slice 8 | |
@@ -84,7 +84,7 @@ returned `X` ids.
 | 15 | Qualification: the `chromium-deployments` and `chromium` Playwright projects keep queueing the serial production chains first inside whichever shard their files belong to. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs E2E's two projects split each shard with production chains first |
 | 16a | Qualification: the per-spec times reporter is kept. | slice 6 | observed: dashboard/tests/support/specTimes.ts reporter kept; intent/spec-times.spec.ts green |
 | 16b | Qualification: the times form of the artifacts is kept (they are the rebalancing input). | slice 6 | observed: intent/spec-times.spec.ts asserts the <seconds><TAB><file> times form |
-| 17a | Qualification: the script proposes one change per invocation. | slice 7 | |
+| 17a | Qualification: the script proposes one change per invocation. | slice 7 | observed: scripts/ci-shard-proposal.mjs proposeChange returns one change; Distribution/tests/ci/ci-shard-proposal.sh one diff per run |
 | 17b | A maintainer wanting more applies it and invokes the script again. | slice 8 | |
 | 18a | Example: adding `e2e/new-area/first.spec.ts` and nothing else → CI runs it once, in the last E2E shard. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs new-area/first.spec.ts lands only in shard 6 |
 | 18b | Example: no list or preview step precedes that push. | slice 6 | observed: dashboard/tests/shards.md has no preview step; scripts/share-preview.mjs deleted |
@@ -94,16 +94,16 @@ returned `X` ids.
 | 20c | Same example: the failure names one overlapping spec file and both shards. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs overlap message names one spec and shares 1 and 2 |
 | 21 | Example: last spec moved out of `dashboard/tests/intent`, pattern left behind → integrated configuration fails naming the pattern that matches no spec file. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs removing dashboard/tests/intent fails: pattern dashboard/tests/intent/** of share 1 matches no check |
 | 22 | Example: `OPEN_DOUGH_E2E_SPLIT=2/6 npm run test:e2e` locally → runs exactly the spec files CI's second E2E shard runs. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs per-shard selection equals the declared CI shard; slice 4 return --list run for 2/6 |
-| 23a | Example: skill invoked for `e2e` with fourth shard 1,050 s, sixth 600 s, even 820 → prints the six totals. | slice 7 | |
-| 23b | Same example: prints the slow files. | slice 7 | |
-| 23c | Same example: prints a `ci.yml` diff moving one pattern from the fourth shard to the sixth. | slice 7 | |
-| 23d | Same example: `ci.yml` on disk is unchanged. | slice 7 | |
-| 24a | Example: invoked again after applying that diff → prints totals, says balanced, no diff. | slice 7 | |
-| 24b | Example: invoked for a group whose shards are already close → prints totals, says balanced, no diff. | slice 7 | |
+| 23a | Example: skill invoked for `e2e` with fourth shard 1,050 s, sixth 600 s, even 820 → prints the six totals. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh e2e case runs the 23 fixture (six shards, 4th 1,050, 6th 600, even 820) through the same report; ci-shard-balance.sh asserts the whole printed report (every shard total) |
+| 23b | Same example: prints the slow files. | slice 7 | observed: Distribution/tests/ci/ci-shard-balance.sh e2e case asserts the Slow files lines of the same report the proposal follows |
+| 23c | Same example: prints a `ci.yml` diff moving one pattern from the fourth shard to the sixth. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh e2e case diff moves one pattern from shard 4 to shard 6 |
+| 23d | Same example: `ci.yml` on disk is unchanged. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh e2e case workflow bytes unchanged |
+| 24a | Example: invoked again after applying that diff → prints totals, says balanced, no diff. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh applied case: after git apply of the e2e diff, rerun says balanced, no diff |
+| 24b | Example: invoked for a group whose shards are already close → prints totals, says balanced, no diff. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh and ci-shard-balance.sh close fixtures say balanced with no diff; real e2e run balanced |
 | 25 | Example: a recent run's times artifacts from an older shard layout still count, because totals come from applying current patterns to each file's seconds. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh e2e case: run 302 under an older 2-shard layout counts under current patterns |
 | 26a | Example: no successful `main` run still holds the group's times artifacts → script fails saying so. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh unusable case: no run holds the artifacts, exit 1 with reason |
-| 26b | Same example: script proposes nothing. | slice 7 | |
-| 27 | Example: skill invoked for the Distribution suite → same report and proposal over the `distribution-tests` matrix and its `test-times-<i>` artifacts. | slice 7 | |
+| 26b | Same example: script proposes nothing. | slice 7 | observed: Distribution/tests/ci/ci-shard-balance.sh unusable case exits 1 before any proposal |
+| 27 | Example: skill invoked for the Distribution suite → same report and proposal over the `distribution-tests` matrix and its `test-times-<i>` artifacts. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh distribution-tests matrix case: report and tests: diff |
 | 28a | Architecture: `ci.yml` is the one owner of shard membership for all five groups. | slice 4 | observed: .github/workflows/ci.yml comment and declarations: ci.yml owns membership for all five groups |
 | 28b | The module that reads the `distribution-tests` matrix for the Node runner becomes the one reader for every group. | slice 4 | observed: dashboard/tests/support/testFiles.mjs and scripts/test-jobs.sh both select through test-share-matrix.mjs/test-share-declaration.mjs |
 | 28c | Each browser configuration asks that module for its shard's spec files and is told only the shard number. | slice 4 | observed: dashboard/tests/support/runnerConfig.mjs prepareFocusedRun passes job + split variable; configurations name only their job |
@@ -134,8 +134,8 @@ returned `X` ids.
 | X3 | Exclusion: `scripts/ci-job-times.sh` and the job-count rule in `dashboard/tests/shards.md` are not removed or replaced. | slice 6 | observed: scripts/ci-job-times.sh and shards.md job-count rule kept |
 | X4 | Exclusion: shards are not declared as Playwright projects or by any means other than spec patterns. | slice 4 | observed: .github/workflows/ci.yml shards declared only by specs patterns |
 | X5 | Exclusion: the per-spec times reporter and the times artifact form are not removed. | slice 6 | observed: specTimes.ts reporter and browser-times.txt form kept |
-| X6 | Exclusion: the script does not propose more than one change per invocation. | slice 7 | |
-| X7 | Exclusion: the script does not start runs, change files, or apply its own diff. | slice 7 | |
+| X6 | Exclusion: the script does not propose more than one change per invocation. | slice 7 | observed: scripts/ci-shard-proposal.mjs proposes a single change |
+| X7 | Exclusion: the script does not start runs, change files, or apply its own diff. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh no writes; script prints the diff only |
 | X8 | Exclusion: the script does not record per-file seconds in the repository, and nothing gives shard balance an automatic owner. | slice 8 | |
 | X9 | Exclusion: released `CHANGELOG.md` entries and the done-story catalog stay unedited. | slice 6 | observed: CHANGELOG.md and .planning/done untouched by slice 6 |
 | X10 | Exclusion: the job-count report is not folded into the rebalancing script. | slice 2 | observed: scripts/ci-shard-balance.mjs has no job-count reporting; ci-job-times.sh unchanged and green |
