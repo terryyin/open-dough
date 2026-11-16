@@ -59,8 +59,8 @@ proof, or slice scope.
 | 36 | The review boundary admits either subject through one admission path. | slice 1 | observed: storyReviewRequest.ts one entry admitting identity or session |
 | 37 | No review request supplies a repository path. | slice 1 | observed: reviewedWorkQuery omits repository; requireExactQuery lists only subject keys |
 | 38 | No review request supplies a workspace path. | slice 1 | observed: reviewedWorkQuery omits workspace; requireExactQuery lists only subject keys |
-| 39 | A file read names the retained pair and one of its literal changed paths. | slice 3 | |
-| 40 | That path set includes a rename’s old path. | slice 3 | |
+| 39 | A file read names the retained pair and one of its literal changed paths. | slice 3 | observed: ad-hoc-review.spec.ts rename file admit: query names pair + oldPath; diff/text returned |
+| 40 | That path set includes a rename’s old path. | slice 3 | observed: ad-hoc-review.spec.ts rename oldPath admitted via landedFileQuery for renamed file |
 | 41 | A launch record’s retained comparisons are its change evidence. | slice 1 | observed: landedStoryReview uses record.landing as change evidence |
 | 42 | For this story, that evidence is the launch record’s one landing. | slice 1 | observed: ad-hoc landed answer uses that one landing; no other comparison |
 | 43 | The ad hoc review reuses the landed-run comparison reader. | slice 1 | observed: storyReviewSnapshot.ts calls landedStoryReview for session run |

@@ -1,9 +1,9 @@
-// A review names an exact project and work identity, never a repository path.
-// Workspace review follows reviewWorkspaceOf; a named historical completion or
-// landed run follows retained publication or launch evidence. File reads name
-// hexadecimal comparison objects and literal changed paths, including a
-// rename's old path. Historical reads must match that comparison's pair and
-// file list through admitHistoricalReviewedFile.
+// A review names an exact project and reviewed-work subject (story identity or
+// session), never a repository path. Workspace review follows reviewWorkspaceOf;
+// a named historical completion or landed run follows retained publication or
+// launch evidence. File reads name hexadecimal comparison objects and literal
+// changed paths, including a rename's old path. Historical reads must match that
+// comparison's pair and file list through admitHistoricalReviewedFile.
 // Marking is a same-origin POST of the workspace snapshot's tree and baseline.
 // Commit ranges name listed fromTree/fromBaseline and tree/baseline points;
 // the range reader confirms their objects exist. Uncommitted changes compare
@@ -31,6 +31,10 @@ import { requireExactQuery } from "./sessionAdmission.ts";
 import type { AdmittedStoryReviewMark } from "./storyReviewMarks.ts";
 import { admitHistoricalReviewedFile } from "./storyReviewHistoricalFileAdmission.ts";
 import { queriedReviewIdentity } from "./storyReviewRunAdmission.ts";
+import {
+  queriedReviewedSessionSubject,
+  reviewedWorkSubjectQuery,
+} from "./reviewedWorkSubjectAdmission.ts";
 
 // One admitted comparison identity for printed diff or revision file text.
 export interface AdmittedReviewedFile {
@@ -112,11 +116,13 @@ async function admitReviewedFile(
   kind: AdmittedReviewedFile["kind"],
   label: "file diff" | "file text",
 ): Promise<AdmittedReviewedFile> {
+  const subject = reviewedWorkSubjectQuery(url);
+  if (subject.kind === "session" && !url.searchParams.has("reference"))
+    throw new RefusedRequest(400, `The ${label} request is malformed.`);
   requireExactQuery(
     url,
     [
-      "source",
-      "identity",
+      ...subject.keys,
       "baseline",
       "tree",
       "path",
@@ -158,10 +164,12 @@ async function admitReviewedFile(
     return { kind, ...admitted };
   }
   if (url.searchParams.has("reference")) {
-    const { source, identity } = queriedReviewIdentity(url);
+    const named =
+      subject.kind === "session"
+        ? queriedReviewedSessionSubject(url)
+        : queriedReviewIdentity(url);
     const admitted = await admitHistoricalReviewedFile({
-      source,
-      identity,
+      ...named,
       reference: url.searchParams.get("reference") ?? "",
       ...file,
     });

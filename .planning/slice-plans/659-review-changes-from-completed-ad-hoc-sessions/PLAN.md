@@ -155,7 +155,7 @@ Learning: default launches have no established place; session admission must sho
 ### 3. An ad hoc review's file diff and file text are admitted
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the same spec, further tests; `backend-tests/review/story-review-file-text-admission.spec.ts` and `-refusal.spec.ts` stay green.
 
 Behavior: the answer of slice 1 → a file diff request and a file text request
@@ -166,6 +166,11 @@ existing “does not belong to this captured run” answer.
 
 `admitHistoricalReviewedFile` resolves the run from the subject instead of
 only from a story identity.
+
+Accepted proof (2026-11-16):
+- `ad-hoc-review.spec.ts` → 7 passed (rename oldPath admit; foreign path/pair/reference refuse).
+- `dashboard/backend-tests/review/` → 98 passed (plan's `-refusal.spec.ts` name does not exist as a file; coverage is in this suite).
+Learning: shared subject URL admission lives in `reviewedWorkSubjectAdmission.ts` for review and file reads.
 
 ### 4. The review panel takes a reviewed-work subject
 

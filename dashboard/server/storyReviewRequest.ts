@@ -8,7 +8,6 @@ import {
 } from "../src/storyReviewLandedRun.ts";
 import { establishedPlace } from "../src/establishedPlace.ts";
 import { launchSubject } from "../src/launchWorkflow.ts";
-import { reviewedSessionSubjectSchema } from "../src/reviewedWorkSubject.ts";
 import { queriedRun } from "./storyReviewRunAdmission.ts";
 import { resolvedWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 import { directoryState } from "./sessionWorkspace.ts";
@@ -16,10 +15,10 @@ import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import {
-  knownSource,
-  namedKeptSession,
-  requireExactQuery,
-} from "./sessionAdmission.ts";
+  queriedReviewedSessionSubject,
+  reviewedWorkSubjectQuery,
+} from "./reviewedWorkSubjectAdmission.ts";
+import { namedKeptSession, requireExactQuery } from "./sessionAdmission.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 
 interface AdmittedWorkspaceReview {
@@ -77,17 +76,10 @@ export type AdmittedStoryReview =
 
 async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
   requireExactQuery(url, ["source", "host", "session"], "review");
-  const parsed = reviewedSessionSubjectSchema.safeParse({
-    source: url.searchParams.get("source"),
-    host: url.searchParams.get("host"),
-    session: url.searchParams.get("session"),
-  });
-  if (!parsed.success)
-    throw new RefusedRequest(400, "The review session is malformed.");
-  const source = knownSource(parsed.data.source);
+  const { source, host, session } = queriedReviewedSessionSubject(url);
   const record = await namedKeptSession(source, {
-    host: parsed.data.host,
-    sessionId: parsed.data.session,
+    host,
+    sessionId: session,
   });
   if (launchSubject(record.request).identity !== undefined)
     throw new RefusedRequest(
@@ -206,14 +198,7 @@ async function identityReviewRequest(url: URL): Promise<AdmittedStoryReview> {
 export async function storyReviewRequest(
   url: URL,
 ): Promise<AdmittedStoryReview> {
-  const namesStory = url.searchParams.has("identity");
-  const namesSession = url.searchParams.has("session");
-  if (namesStory && namesSession)
-    throw new RefusedRequest(
-      400,
-      "The review names both a story and a session.",
-    );
-  if (namesSession) return sessionReviewRequest(url);
-  if (namesStory) return identityReviewRequest(url);
-  throw new RefusedRequest(400, "The review request is malformed.");
+  const subject = reviewedWorkSubjectQuery(url);
+  if (subject.kind === "session") return sessionReviewRequest(url);
+  return identityReviewRequest(url);
 }
