@@ -53,16 +53,9 @@ commit hook. No new local response was selected.
    recurrence after the fix. Shared interaction helpers still allow a click
    before all page reads settle. Retain that qualified residual, not a claim
    that the repaired specs still fail.
-3. **Suite timing and diagnosis — DD-279 response implemented, hosted outcome unobserved; DD-275 open, unqueued.** [DD-279](#dd-279)
-   records two shard deadlines in one execution; a refreshed duration list and
-   twelve shares repair those runs, while duration ordering still ages without
-   a refresh step.
-   SEED-151#balance-test-shares answers it with one allocator that deals by
-   recorded duration and previews the deal before a push; its hosted outcome
-   is unobserved. [DD-275](#dd-275) records one separate execution whose
-   within-run load was unobserved. These are related diagnostic/margin concerns,
-   not one demonstrated cause. The repaired individual timeout DD-280 and
-   shell budget breach DD-283 are removed below.
+3. **Suite diagnosis — DD-275 open, unqueued.** [DD-275](#dd-275) records one
+   execution whose within-run load was unobserved. The repaired individual
+   timeout DD-280 and shell budget breach DD-283 are removed below.
 4. **Shell observation reliability — open, unqueued.** [DD-187](#dd-187)
    records one Linux SIGPIPE repair cycle. The named observer was fixed;
    early-exit pipelines remain in two repository test helpers. Those are
@@ -71,14 +64,6 @@ commit hook. No new local response was selected.
 ## Dashboard specs can lose a mouse press to a reflow (open, unqueued)
 
 <a id="dd-278"></a> [DD-278 — Two dashboard specs lost a mouse press to a reflow between press and release, on two CI runs in one day](docs/maintainer/project-test-findings.md#dd-278).
-
-## Dashboard shards run at their time ceiling (response implemented, hosted outcome unobserved)
-
-<a id="dd-279"></a>
-
-### DD-279 — A dashboard shard reached its 320-second deadline after one spec file was added
-
-[Retained findings, response, measured allocation, observation criterion and occurrence evidence](docs/maintainer/project-test-findings.md#dd-279): one allocator deals the dashboard shards by recorded duration (`61d16b66`, `34f3192f` and the slice 3 commit of SEED-151#balance-test-shares); the refreshed dashboard list predicts twelve shards within one spec file of each other where the positional deal measured 462.5 to 686.4, and the landed revision's run 40189712361 measured 458.0 to 694.2 with per-shard runner speed ratios 0.74 to 1.18; resolution waits on ten `main` runs with file-set changes and no allocation-owned breach.
 
 ## Concurrent dashboard runs lost a run's result file (open, unqueued)
 

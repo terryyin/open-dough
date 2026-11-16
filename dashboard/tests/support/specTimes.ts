@@ -1,8 +1,8 @@
 // One run's seconds per spec file, the dashboard's counterpart of the Node
 // runner's times file: one `<seconds><TAB><file>` line per spec file that
-// ran, in the times form of scripts/share-deal.mjs (`formatTimes`), from which
-// a group's duration list such as `e2e/longest-first` is refreshed. A
-// file's seconds sum test attempts and their beforeAll/afterAll hooks once,
+// ran, in the times form of scripts/spec-times-format.mjs (`formatTimes`),
+// which scripts/ci-shard-balance.mjs reads from CI's artifacts. A file's
+// seconds sum test attempts and their beforeAll/afterAll hooks once,
 // including the tests it registers through a module it imports (a case
 // module), which Playwright places under the spec file's suite while their
 // own `location.file` is the module; `<file>` is the spec's path relative to
@@ -19,7 +19,7 @@ import type {
 } from "@playwright/test/reporter";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { formatTimes } from "../../../scripts/share-deal.mjs";
+import { formatTimes } from "../../../scripts/spec-times-format.mjs";
 
 export class SpecTimes {
   private readonly milliseconds = new Map<string, number>();

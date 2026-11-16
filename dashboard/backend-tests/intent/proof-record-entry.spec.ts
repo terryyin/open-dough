@@ -47,7 +47,7 @@ for (const entry of [
     const excludingSplit = splitExcluding(nestedTarget, {
       directory: "dashboard",
       root: "backend-tests",
-      durations: "backend.longest-first",
+      job: "dashboard-backend",
     });
     let run: ReturnType<typeof startProofCommand>;
     try {

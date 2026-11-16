@@ -1,9 +1,8 @@
 # CI shards of the browser test groups
 
-How CI runs each browser test group as its own shard jobs: the split that
-deals each shard its spec files by recorded duration and its preview, the
-times each shard keeps for refreshing the group's duration list, the deadline
-each shard runs under, and how many jobs each group keeps. The
+How CI runs each browser test group as its own shard jobs: the spec files
+each shard declares, the times each shard keeps, the deadline each shard runs
+under, and how many jobs each group keeps. The
 [README](README.md) owns the groups and how each runs as a whole; the
 Distribution suite's shares are the `distribution-tests` matrix in
 `.github/workflows/ci.yml`
@@ -13,18 +12,18 @@ Distribution suite's shares are the `distribution-tests` matrix in
 
 `.github/workflows/ci.yml` gives each group one job calling
 `.github/workflows/browser-test-group.yml` with the group's own inputs: its
-npm command, settings prefix, root (its outputs and its CI proof entry) and
-shard matrix.
+npm command, settings prefix, root (its outputs and its CI proof entry),
+shard matrix and each shard's spec patterns.
 The shared workflow holds no group's value, so changing one group's shards or
 settings leaves the others' selection, settings and timing untouched
 (`Distribution/tests/support/ci-browser-groups.test.mjs`).
 
-| Job | Command | Settings prefix | Duration list | Shards |
-| --- | --- | --- | --- | --- |
-| `e2e` | `npm run test:e2e` | `OPEN_DOUGH_E2E` | `e2e/longest-first` | 6 |
-| `dashboard-integrated` | `npm run test:dashboard:integrated` | `OPEN_DOUGH_DASHBOARD_INTEGRATED` | `dashboard/integrated.longest-first` | 4 |
-| `dashboard-frontend` | `npm run test:dashboard:frontend` | `OPEN_DOUGH_DASHBOARD_FRONTEND` | `dashboard/frontend.longest-first` | 1 |
-| `dashboard-backend` | `npm run test:dashboard:backend` | `OPEN_DOUGH_DASHBOARD_BACKEND` | `dashboard/backend.longest-first` | 3 |
+| Job | Command | Settings prefix | Shards |
+| --- | --- | --- | --- |
+| `e2e` | `npm run test:e2e` | `OPEN_DOUGH_E2E` | 6 |
+| `dashboard-integrated` | `npm run test:dashboard:integrated` | `OPEN_DOUGH_DASHBOARD_INTEGRATED` | 4 |
+| `dashboard-frontend` | `npm run test:dashboard:frontend` | `OPEN_DOUGH_DASHBOARD_FRONTEND` | 1 |
+| `dashboard-backend` | `npm run test:dashboard:backend` | `OPEN_DOUGH_DASHBOARD_BACKEND` | 3 |
 
 These counts make 19 jobs: 14 browser jobs, three Distribution shares, one
 `lint` job and one proof job, 18 of them at once before the proof job against
@@ -37,18 +36,14 @@ The sixth E2E shard came from integrated after the 320-second cutoff of E2E
 shard 2/5 in
 [run 43681477553](https://github.com/terryyin/open-dough/actions/runs/43681477553).
 Specs moving from integrated into `e2e/` had grown E2E from 3,175 to 4,014
-observed test-seconds a run, and its balanced five-shard deal carried about
-1,100 recorded spec-seconds a shard. That shard's runner took 1.4 to 1.9 times
-trunk's seconds on every spec, 1,111 test-seconds in all, and five cases were
-unfinished at the deadline; trunk's
+observed test-seconds a run, about 1,100 spec-seconds a shard at five shards.
+That shard's runner took 1.4 to 1.9 times trunk's seconds on every spec,
+1,111 test-seconds in all, and five cases were unfinished at the deadline;
+trunk's
 [run 43679953950](https://github.com/terryyin/open-dough/actions/runs/43679953950)
-had already finished two E2E shards in 287 and 288 seconds. The maintained
-deal gives six E2E shards 914 to 926 recorded spec-seconds each and four
-integrated shards 892 to 906, below the 956 integrated's former fifth shard
-gave it. Known exposure: the slowest integrated shard seen at five shards,
-266 seconds, scales to roughly 330 at four on an equally slow runner. This
-capacity move keeps tests, workers, the job count and reviewed deadlines; it
-claims no minimum count or whole-workflow speedup; [the job count](#the-job-count)
+had already finished two E2E shards in 287 and 288 seconds. This capacity move
+keeps tests, workers, the job count and reviewed deadlines; it claims no
+minimum count or whole-workflow speedup; [the job count](#the-job-count)
 sizes the layout.
 Each `ci-proof` declaration (`<entry>=<shards>:case`) follows its matrix.
 
@@ -73,8 +68,8 @@ data.
 
 Remove a job when the report says `could drop one`; the following `main` runs
 are the check, and a deadline failure restores the count. Add a job only after
-a job of that group is ended by the deadline on `main` and neither a refreshed
-duration list nor a faster spec restores its headroom. Verdict time is never a
+a job of that group is ended by the deadline on `main` and neither moving
+spec patterns between its shards nor a faster spec restores its headroom. Verdict time is never a
 reason: it is the slowest job plus runner wait, the account runs 20 jobs at
 once, and more jobs lengthen the wait. Runner demand below this layout comes
 from fewer test-seconds, as checks leave Dashboard Integrated UI Test or the
@@ -93,31 +88,32 @@ short; the group counts stay as they were.
 
 ## The split
 
-A group's CI shard sets its `<prefix>_SPLIT=i/n` to select shard `i` of `n`
-whole spec files of the group. Its duration list, beside its configuration,
-records one `<seconds><TAB><file>` row per spec, longest first, with paths
-relative to the configuration's directory: `e2e/` for E2E Test (`intent/…`),
-`dashboard/` for the three dashboard groups (`tests/…`, `frontend-tests/…`,
-`backend-tests/…`). A list may also index named parts with header lines
-`# Include: <relative-path>`; the reader combines their rows before the
-unchanged deal. The E2E, integrated and backend lists index two parts by
-feature folder: `-agents` for `launches/`, `sessions/` and `terminals/`, and
-`-project` for the rest. Other `#` lines are comments. `support/testFiles.mjs`
-finds every spec file under the group's root recursively, never entering the
-`test-results/` and `playwright-report/` output a run writes there while
-reloading workers discover again, so a new file needs no registration. It
-hands those files, its list and its split to `scripts/share-deal.mjs`, which
-deals them, a spec file being a job: recorded files go longest first (equal
-seconds bytewise) to the shard with the smallest predicted total (ties to the
-lower shard), whatever order they are discovered in; one the list does not
-record is dealt after the recorded files in bytewise order at their median
-seconds until the list is next refreshed (below). Names matching no spec are
-ignored. A list line that is not `<seconds><TAB><file>` fails the
-configuration naming the file, line and content before any test is selected,
-as a malformed split does. With the variable unset, a group's command runs every spec of its
-group. Independent proof subprocesses choose their own selection; their
-harness (`support/proofRecordRun.ts`) removes every group's inherited split
-before launching them.
+A group's CI shard sets its `<prefix>_SPLIT=i/n` to select shard `i` of `n`.
+The group's job in `.github/workflows/ci.yml` declares the shards: `shards`
+lists them and `specs` gives each shard but the last its repository-relative
+glob patterns, folder (`e2e/intent/**`) or file-name prefix
+(`dashboard/tests/navigation/board-*`), and the last shard runs the rest. A
+one-shard group declares no pattern. `support/testFiles.mjs` finds every spec
+file under the group's root recursively, never entering the `test-results/`
+and `playwright-report/` output a run writes there while reloading workers
+discover again, so a new file needs no registration: it runs in the shard
+whose pattern matches it, or in the last shard. The configuration selects its
+shard through `scripts/test-share-matrix.mjs`, the selector the Distribution
+suite's matrix uses, and refuses before any test is selected a spec that two
+shards' patterns match, naming the file and both shards, and a pattern that
+matches no spec, naming it, as it refuses a malformed split. With the variable unset, a
+group's command runs every spec of its group. Independent proof subprocesses
+choose their own selection; their harness (`support/proofRecordRun.ts`)
+removes every group's inherited split before launching them.
+`Distribution/tests/support/browser-group-shards.test.mjs` proves every spec
+file of each group runs in exactly one of its CI shards and both refusals.
+A maintainer who asks to rebalance a group uses the
+[rebalance-ci-shards](../../.agents/skills/rebalance-ci-shards/SKILL.md)
+skill: `node scripts/ci-shard-balance.mjs <group>` reports the group's shard
+totals and slowest files from recent `main` runs' times and prints the one
+pattern change that most lowers the slowest shard as a `ci.yml` diff, or says
+the shards are balanced. The script applies nothing; the skill applies the
+diff only when the maintainer accepts it.
 
 Within an E2E Test shard, two complementary native Playwright projects queue
 the serial `runtime/production-watcher*.spec.ts` chains before ordinary files.
@@ -131,49 +127,6 @@ leaving the remaining global capacity for ordinary checks. CI keeps its
 CPU-derived concurrency; this project bound changes no shard, selected file,
 case budget or journey.
 
-### Preview before pushing
-
-Before pushing a change that adds, removes or renames a spec file, preview
-the deal CI will run for its group, from the repository root:
-
-```sh
-node scripts/test-shares.mjs preview --split-count 6 --spec-dir e2e
-node scripts/test-shares.mjs preview --split-count 4 --spec-dir dashboard \
-  --root tests --list dashboard/integrated.longest-first
-```
-
-`--spec-dir` is the configuration's directory, `--root` the group's root under
-it (default `.`), and `--list` its duration list (default
-`<spec-dir>/longest-first`). The preview discovers the spec files as the
-configuration does and prints each shard's predicted seconds (its `share i/n`
-line; the preview's jobs are spec files), then every unrecorded file with its
-shard and the assumed seconds. It prints no headroom line: the shard's
-deadline (below) is wall-clock under parallel workers, not a sum of
-test-seconds, so balanced predictions are what the preview shows. The
-predictions use recorded CI seconds, never local timing. A high unrecorded
-count means the list is stale; refresh it from a recent `main` run's
-`<group>-times-<shard>` artifacts (below), every file of that group. Observed
-seconds are scaled to the existing list's runner speed (divided by the run's
-factor against that list); when the list does not yet exist or no measurable
-common file is available, times stay as observed:
-
-```sh
-gh run download RUN_ID -p 'e2e-times-*' -D DIR
-node scripts/test-shares.mjs refresh --list e2e/longest-first \
-  --source 'run RUN_ID at REVISION, DATE' DIR/e2e-times-*/browser-times.txt
-```
-
-The refresh keeps an index's parts and each known spec's part, writes the same
-new `# Source:` to each list (naming the runner factor or that it was
-unavailable), and keeps new specs in the index until they are organized.
-Duration lists and CI timing artifacts retain their ordinary TSV form. No part
-changes a spec's recorded seconds or shard assignment.
-`Distribution/tests/support/browser-group-shards.test.mjs` proves each group's deal: every
-spec file in exactly one of its group's CI shards and the preview listing a
-new spec as unrecorded in the shard the deal gives it;
-`Distribution/tests/support/dashboard-test-files.test.mjs` proves the deal itself and a
-malformed list line failing the configuration.
-
 ## Each shard's times
 
 Each CI shard sets its group's `<prefix>_TIMES` to a file the quiet reporter
@@ -184,15 +137,13 @@ durations plus each executed `beforeAll`/`afterAll` hook once, to a tenth.
 Test-scoped setup and teardown are already in each test duration and are never
 added a second time. Tests registered through an imported case module count
 under the spec file Playwright ran, not the module. `<file>` is its path
-relative to the configuration's directory, the label the group's duration list
-carries. A failed or deadline-ended shard still records what completed; a
+relative to the configuration's directory. A failed or deadline-ended shard still records what completed; a
 `--list` run writes nothing, and a run without the variable writes no times
-file. CI keeps the file for seven days as artifact `<group>-times-<shard>`
+file. CI keeps the file for 90 days as artifact `<group>-times-<shard>`
 (`e2e`, `dashboard-integrated`, `dashboard-frontend`, `dashboard-backend`),
-under the same condition as the Playwright report, and one run's artifacts of
-a group are the source its list is refreshed from, with observed seconds
-scaled to the list's runner speed as above. Its form is the Node runner's
-`test-times-<share>` form, so one refresh procedure serves every list.
+under the same condition as the Playwright report; `scripts/ci-shard-balance.mjs`
+reads these artifacts. Its form is the Node runner's `test-times-<share>`
+form.
 
 ## The deadline
 

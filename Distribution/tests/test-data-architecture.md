@@ -112,11 +112,6 @@ explicitly. Compose existing launch, request, host-session and attempt builders
 for their facts; the review document's fence and storage remain harness work.
 [Feedback builders](support/feedbackTestData.mjs)
 
-Use `makeMe.jobDurations.with(entries).please()` for recorded job durations.
-It returns the runner's `Map<label, seconds>` directly. Keep allocation actions,
-expected shares and exact timing-list/parser examples in the case, independent
-of the arranged map. [Duration builder](support/jobDurationTestData.mjs)
-
 Build a kept launch with `makeMe.aLaunchRecord`: the requested story or
 instruction, the host session (the request takes the session's host), the
 workspace its start established, and when it was launched. Dashboard tests keep

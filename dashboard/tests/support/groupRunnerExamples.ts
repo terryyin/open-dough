@@ -1,6 +1,6 @@
 // Each runner owning one group, with one quick case of its own as its
 // arguments; `config`, `directory` (the config's testDir) and `root` are
-// relative to the repository, `durations` to `directory`.
+// relative to the repository; `job` is its CI job in .github/workflows/ci.yml.
 export const groupRunnerExamples = [
   {
     name: "Dashboard Integrated UI Test",
@@ -9,7 +9,7 @@ export const groupRunnerExamples = [
     prefix: "OPEN_DOUGH_DASHBOARD_INTEGRATED",
     directory: "dashboard",
     root: "dashboard/tests",
-    durations: "integrated.longest-first",
+    job: "dashboard-integrated",
     spec: "navigation/board-paging.spec.ts",
     grep: "with reduced motion asked for, a move shows the next column at once",
   },
@@ -20,7 +20,7 @@ export const groupRunnerExamples = [
     prefix: "OPEN_DOUGH_DASHBOARD_FRONTEND",
     directory: "dashboard",
     root: "dashboard/frontend-tests",
-    durations: "frontend.longest-first",
+    job: "dashboard-frontend",
     spec: "control-reachability-observation.spec.ts",
     grep: "a control revealed by earlier scrolling is still checked",
   },
@@ -31,7 +31,7 @@ export const groupRunnerExamples = [
     prefix: "OPEN_DOUGH_DASHBOARD_BACKEND",
     directory: "dashboard",
     root: "dashboard/backend-tests",
-    durations: "backend.longest-first",
+    job: "dashboard-backend",
     spec: "launches/agent-launch-options-rules.spec.ts",
     grep: "accepts a definition with or without groups and focuses",
   },
@@ -42,7 +42,7 @@ export const groupRunnerExamples = [
     prefix: "OPEN_DOUGH_E2E",
     directory: "e2e",
     root: "e2e",
-    durations: "longest-first",
+    job: "e2e",
     spec: "runtime/browser-identity.spec.ts",
     grep: "tab, bookmark and touch icons",
   },

@@ -80,7 +80,7 @@ Confirmed repaired and removed from the active project findings:
 
 Current-source recheck also retains the quiet reporter's silent output and
 passing-directory removal, the two DD-187 pipeline helpers, the DD-278
-unsettled-click exposure, DD-279's static `longest-first` plus twelve-share
+unsettled-click exposure, DD-279's static duration order plus twelve-share
 matrix, and DD-275's endpoint-only load samples. No current post-repair failure
 is invented from those residuals. General premise, delegation, refactor,
 acceptance and CI-repair lessons (including DD-258, DD-262, DD-264, DD-266/267,

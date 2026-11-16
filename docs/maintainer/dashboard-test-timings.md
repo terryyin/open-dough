@@ -121,9 +121,7 @@ no valid speed baseline. Full-suite coverage is measured by hosted CI.
 GitHub run pages retain job timestamps and per-shard Playwright HTML reports
 as workflow artifacts, subject to their retention policy. HTML reports retain
 case selection, worker count, elapsed time, native-input steps and browser
-observations. The committed hook-inclusive duration lists were refreshed with
-`scripts/test-shares.mjs refresh` from the two baseline reports, including
-exact `beforeAll`/`afterAll` hooks once per execution.
+observations.
 
 Raw downloads, strict local records, exact commands and analysis outputs for
 this measurement were retained outside Git under

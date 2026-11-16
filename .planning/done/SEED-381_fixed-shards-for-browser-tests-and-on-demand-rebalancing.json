@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing",
+  "title": "Fixed shards for browser tests and on-demand rebalancing",
+  "completedAt": "2026-11-16T06:32:22.968Z",
+  "developer": "Terry Yin",
+  "agent": "Mihiro-chan",
+  "host": "claude",
+  "model": "opus",
+  "intentCoverage": {
+    "report": "Verdict: Caught.\n\nStory: SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing (plan 656). Revision: 8b33b170c47a8dbd3dbee9e49a98c1217ce9b4eb, in a detached scratch worktree since removed.\n\nPromise checked: \"Loading a group's configuration fails, before any test is selected, when a spec file matches the patterns of two shards, naming the file and the shards.\"\n\nFault: in scripts/test-share-matrix.mjs `selectShare`, the overlap refusal block was deleted; fixtures and assertions untouched.\n\nWrong behavior, observed independently: a scratch call of `selectShare` with shard 1 `e2e/a/**` and shard 2 `e2e/a/x.spec.ts` raised no error; the overlapping file went silently to shard 2.\n\nRuns: `node --test Distribution/tests/support/browser-group-shards.test.mjs Distribution/tests/support/dashboard-declared-shards.test.mjs Distribution/tests/support/test-share-workflow.test.mjs` (Node 24.21.0). Baseline 30/30 pass. Faulted 26 pass, 4 fail (\"Missing expected exception\"):\n1. browser-group-shards.test.mjs \"overlapping E2E patterns fail every shard and the unsplit run before any test is selected, naming one spec and both shards\" (real ci.yml with an injected overlap).\n2. dashboard-declared-shards.test.mjs \"a spec two shards match fails the configuration with a split, naming it and both shards\".\n3. dashboard-declared-shards.test.mjs \"a spec two shards match fails the configuration without a split, naming it and both shards\".\n4. test-share-workflow.test.mjs \"a caller job's overlapping patterns are refused by the one selection rule\".\nThe \"<group>'s CI shards match every one of its actual specs exactly once\" tests still passed, as expected: the real ci.yml has no overlap for this fault to reach.\n\nRestoration: edit reverted from an EXIT trap; clean tree at 8b33b170c; rerun 30/30 pass; scratch worktree removed.\n\nNext proof action: none for this promise and fault.\n\nCost: test runtime baseline 455 ms, faulted 374 ms, restored 387 ms; invocation-to-report 42,954 ms measured; agent effort unavailable.\n\nWrap-up disposition: 8b33b170c47a8dbd3dbee9e49a98c1217ce9b4eb, Caught, no follow-up.\n"
+  }
+}

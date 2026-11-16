@@ -182,7 +182,14 @@ jobs:
 
   # The browser test groups, which `npm test` never discovers: each is its own
   # producer (./browser-test-group.yml) with its own command, settings,
-  # shards, duration list, outputs and CI proof entry (Distribution/tests/README.md).
+  # shards, outputs and CI proof entry (Distribution/tests/README.md).
+  # This file owns each group's shard membership: `shards` lists the shards and
+  # `specs` gives each shard but the last its repository-relative glob
+  # patterns over the specs the group's configuration discovers under `root`;
+  # the last shard runs the rest, and a one-shard group declares none. The
+  # configuration reads them (dashboard/tests/support/testFiles.mjs), refuses a
+  # spec two shards match or a pattern matching no spec before any test starts,
+  # and `<settings>_SPLIT=<i>/<n>` runs shard i locally as here.
   e2e:
     uses: ./.github/workflows/browser-test-group.yml
     with:
@@ -193,6 +200,12 @@ jobs:
       # Capacity move from integrated, the job layout and its sizing rule:
       # dashboard/tests/shards.md#the-job-count.
       shards: "[1, 2, 3, 4, 5, 6]"
+      specs: |
+        1: e2e/launches/agent-* e2e/configuration/**
+        2: e2e/sessions/agent-* e2e/stories/**
+        3: e2e/intent/** e2e/runtime/**
+        4: e2e/observation/** e2e/terminals/**
+        5: e2e/review/** e2e/launches/responsive-*
   dashboard-integrated:
     uses: ./.github/workflows/browser-test-group.yml
     with:
@@ -201,6 +214,11 @@ jobs:
       settings: OPEN_DOUGH_DASHBOARD_INTEGRATED
       root: dashboard/tests
       shards: "[1, 2, 3, 4]"
+      # `navigation` outweighs an even shard, so it divides by file-name prefix.
+      specs: |
+        1: dashboard/tests/intent/**
+        2: dashboard/tests/navigation/board-* dashboard/tests/navigation/source-*
+        3: dashboard/tests/navigation/story-* dashboard/tests/navigation/side-* dashboard/tests/navigation/notification-*
   dashboard-frontend:
     uses: ./.github/workflows/browser-test-group.yml
     with:
@@ -217,6 +235,9 @@ jobs:
       settings: OPEN_DOUGH_DASHBOARD_BACKEND
       root: dashboard/backend-tests
       shards: "[1, 2, 3]"
+      specs: |
+        1: dashboard/backend-tests/launches/** dashboard/backend-tests/runtime/** dashboard/backend-tests/review/**
+        2: dashboard/backend-tests/sessions/** dashboard/backend-tests/observation/** dashboard/backend-tests/terminals/** dashboard/backend-tests/configuration/**
 
   # One CI proof summary per run attempt once the proof jobs settle, however they
   # ended, against declared Intent locations, parts and units their reports give.

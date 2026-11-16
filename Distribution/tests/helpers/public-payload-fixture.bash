@@ -8,6 +8,7 @@ internal_skill_names=(
   reconcile-retrospective-findings
   triage-retrospective-findings
   author-open-dough-skills
+  rebalance-ci-shards
 )
 
 # install.sh's assembled managed_files declaration is the single source of

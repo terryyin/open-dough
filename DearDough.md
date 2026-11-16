@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 545. Removed numbers are never reused.
+- Highest allocated local number: 548. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -28,6 +28,14 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: slice8 repair 4856382 added a public retention check reading raw turn.completed. Mac/Linux public-entry and identity/retention consumer proof passed, but omitted the repository-wide native-stream guard. Slice9 full gate then failed that guard after 1099.8 s, with 640 of 641 jobs and all 2226 Node cases passing; slice9 evidence at 3163559 retains its exact verdict. Repair 33736a7 uses native_host_stream status, passes targeted full replay/public-entry on Mac and public-entry on Linux, then passes 641/2226 in the renewed full gate.
   - Observed effect: a new observation reached an unchanged global stream invariant outside the selected retention consumer checks; one later full-gate failure/correction cycle was required. Earlier same-execution stale fixture/cache-guard misses also required reached consumer repairs.
   - Inference: matches ODF-150's missed affected-consumer proof, including global validators. Earlier selection of the existing shared-stream guard could have exposed this before the whole gate; isolated time/token saving is unmeasured, and the required final full gate is not classified as waste.
+- Execution: SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing (plan 656; first implementation 3ee71a8b9)
+  - Timestamp: 2026-11-16T04:41:00Z (failed CI job end)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `7eb0efc50`; no release inferred from product VERSION)
+  - Evidence: slice 4 (`cee9c1db2`) made each browser Playwright configuration read its job from `.github/workflows/ci.yml` at load. Its consumer trace and focused proof ran the shard, CI-proof and runner tests but not `local-test-suite*.test.mjs`, whose fixture `ci.yml` (`Distribution/tests/support/local-test-suite-checkout.mjs`) declared only `distribution-tests`. CI run 43805225551 failed Distribution Tests 3/3 ("no dashboard-integrated job"); repair `05f7ef4f0` declared the browser jobs in the fixture.
+  - Observed effect: one CI failure and repair cycle on the branch; no trunk impact.
+  - Inference: the changed effect was "configuration load reads the real workflow", whose consumers include every fixture that loads a configuration; tracing importers of the changed modules did not reach that fixture. Slice 1 and 2 returns had already listed `local-test-suite-checkout.mjs` as a consumer of the runner copy.
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -208,3 +216,55 @@ E2E specs and the contract document in 15 active minutes.
   - Evidence: implementer returned at about 22 active minutes with E2E migration and contract document undone (E2E tools spec broken); the coordinator retained the slice and continued the same agent (about 8 more minutes); slice 2 "Overrun" note at `488cd602f:.planning/slice-plans/658-compare-codex-and-claude-code-token-usage/PLAN.md`.
   - Observed effect: about 30 active minutes against 15; no work was discarded; delivery stayed CI-green.
   - Inference: the plan named every consumer, but sizing did not count the E2E migrations as work; retained compatible work avoided waste. Cost is the agent's elapsed time only; tokens not measured.
+
+## DD-546 — A plan's size decisions omit a long planning record its removal slice edits
+
+A Structure slice that corrects passages across many records recorded a
+reorganization decision for the oversized finding catalogs it edits, but not
+for an oversized queued seed it also edits, so the refactor pass's 250-line
+gate stopped for a human decision.
+
+### Occurrences
+
+- Execution: SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing (plan 656; first implementation 3ee71a8b9)
+  - Timestamp: unknown (2026-11-16, after slice 6's full local suite)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `7eb0efc50`; no release inferred from product VERSION)
+  - Evidence: plan 656 slice 6 named the duration-list mention in `SEED-300` (392 lines) and gave a seam decision only for `ProjectFindings.md`, `project-test-findings.md` and `project-findings-history.md`; the slice 6 refactor pass returned a jidoka stop; Terry chose "seam per story", recorded in slice 6 at `6348334e6`.
+  - Observed effect: one human question and a held slice 6 delivery; the two-word edit shipped after the decision.
+  - Inference: planning checked size for files it reorganizes, not for every file a sweep of references edits; a sweep slice can list each over-limit file with its seam before readiness.
+
+## DD-547 — A sibling story landed first on files this story's seed says it rewrites first
+
+The selected story's seed said SEED-382 "follows" it because both rewrite the
+browser jobs' configuration, but SEED-382 was taken and closed on trunk during
+this execution.
+
+### Occurrences
+
+- Execution: SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing (plan 656; first implementation 3ee71a8b9)
+  - Timestamp: unknown (2026-11-16; SEED-382 closed on trunk at `2371b6f58` before slice 6's delivery)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `7eb0efc50`; no release inferred from product VERSION)
+  - Evidence: `.planning/seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md` named this story as its predecessor; trunk changed `.github/workflows/ci.yml`, `browser-test-group.yml` and `dashboard/tests/shards.md`; the branch merged `main` at `d5e8ec4f2` with two conflicts and reran merged-state proof; source freshness absorbed SEED-382's closure amendment to this story's scope limit.
+  - Observed effect: one mid-execution merge, two hand-resolved conflicts and a focused merged-state proof run; CI stayed green.
+  - Inference: a "follows" note in a seed is not a blocking dependency, so the backlog let the sibling start; recording it as a prerequisite would have serialized them. Cost is modest here.
+
+## DD-548 — Removal and CI-switch slices overran with proof complete
+
+Two slices finished all planned proof but ran past 15 active minutes: the slice
+switching every browser configuration and its consumers to the declared shards,
+and the slice deleting the deal and correcting about 30 documents and records.
+
+### Occurrences
+
+- Execution: SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing (plan 656; first implementation 3ee71a8b9)
+  - Timestamp: unknown (2026-11-16)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `7eb0efc50`; no release inferred from product VERSION)
+  - Evidence: slice 4 return "about 20 minutes"; slice 6 return "about 25 minutes, not counting the 37-minute suite run"; both recorded in plan 656 Learnings at `6348334e6`.
+  - Observed effect: no discarded work; both slices delivered with accepted proof.
+  - Inference: like DD-545, sizing counted the core change but not the consumer and document sweep each slice owned; a sweep across many files may deserve its own slice.

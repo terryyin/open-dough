@@ -43,9 +43,8 @@ when unfiltered. Select files or tests as with any group, for example
 `npx playwright test --config <repository>/dashboard/frontend.playwright.config.ts`
 behaves the same from any working directory.
 
-CI runs this group as its own producer, the `dashboard-frontend` job, dealt
-by its own duration list (`../frontend.longest-first`), and publishes its
-cases under the **Dashboard Frontend Test** entry and the frontend test proof
+CI runs this group as its own producer, the `dashboard-frontend` job, and
+publishes its cases under the **Dashboard Frontend Test** entry and the frontend test proof
 artifact.
 
 The [dashboard test guide](../tests/README.md) owns placement across the

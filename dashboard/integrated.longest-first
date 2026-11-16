@@ -1,9 +1,0 @@
-# Dashboard Integrated UI Test spec durations, <seconds><TAB><file> relative to dashboard/, in the included parts.
-# Preview/refresh: dashboard/tests/shards.md. Source lines identify the CI run
-# and runner normalization used to refresh the root and each included part.
-# Include: integrated.longest-first-agents
-# Include: integrated.longest-first-project
-# Source: run 43575040009/1 at 55da0eecf6803945b66d5a23b00dd7802374550d, 2026-11-14 (runner factor 0.669)
-13.9	tests/intent/intent-scope-glance.spec.ts
-8.4	tests/intent/intent-ci-proof-grouped-location.spec.ts
-7.3	tests/intent/intent-ci-proof-accessibility.spec.ts

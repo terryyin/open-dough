@@ -39,9 +39,9 @@ as with any group, for example
 `npx playwright test --config <repository>/dashboard/backend.playwright.config.ts`
 behaves the same from any working directory.
 
-CI runs this group as its own producer, the `dashboard-backend` job's shards,
-dealt by its own duration list (`../backend.longest-first`), and publishes
-its cases under the **Dashboard Backend Test** entry.
+CI runs this group as its own producer, the `dashboard-backend` job's shards
+([CI shards](../tests/shards.md)), and publishes its cases under the
+**Dashboard Backend Test** entry.
 
 ## Placement
 

@@ -60,8 +60,8 @@ Type: Behavior
 Status: provisional
 Proof: no `dashboard/tests/**/*.spec.ts` product cases remain; only E2E,
 Frontend and Backend are current. Remove the Intent location, npm command,
-Playwright config, `dashboard-integrated` producer/shards, duration lists and
-live tooling/placement references. Keep all still-imported shared support and
+Playwright config, `dashboard-integrated` producer/shards and live
+tooling/placement references. Keep all still-imported shared support and
 `integratedStateCompletion`. Old artifacts/sources remain readable at their
 revision, absent from current proof, with gaps instead of fabricated numeric
 comparisons or dead links. Use explicit old/current/different-scope fixtures.
@@ -69,7 +69,7 @@ comparisons or dead links. Use explicit old/current/different-scope fixtures.
 ## Retirement consumers and refinement inputs
 
 Trace `.planning/open-dough.json`, `package.json`, `.github/workflows/ci.yml`,
-`dashboard/integrated.playwright.config.ts`, `integrated.longest-first*`,
+`dashboard/integrated.playwright.config.ts`,
 `dashboard/tests/support/groupRunnerExamples.ts`, `runnerConfig.mjs`,
 `integratedGlobalSetup.ts`, `Distribution/tests/support/browserGroupConfigs.mjs`,
 `scripts/{dashboard-repeat.sh,ci-container.sh}`, CI repeat fixtures and current

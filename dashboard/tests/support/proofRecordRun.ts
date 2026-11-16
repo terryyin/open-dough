@@ -7,7 +7,11 @@ import { pathToFileURL } from "node:url";
 import type { DashboardProofRecord } from "./proofRecordTypes.ts";
 import { spawnGroupLeader, endGroup } from "./processGroup.ts";
 import { repoRoot } from "./repositoryRoot.ts";
-import { dashboardTestMatch } from "./testFiles.mjs";
+import {
+  ciGroupSelection,
+  dashboardTestMatch,
+  declaredShards,
+} from "./testFiles.mjs";
 
 export const proofFixtures = path.join(
   repoRoot,
@@ -35,30 +39,38 @@ export function readProof(file: string | undefined): DashboardProofRecord {
   return JSON.parse(readFileSync(file, "utf8")) as DashboardProofRecord;
 }
 
-// A share of one group's own deal that does not select `target`: its `root`
-// under its configuration's `directory` (relative to the repository), dealt
-// by its own `durations` list there. A nested run handed that share through
-// any variable it must not read proves it ignores that variable.
+// A split of one group's own CI shards that does not select `target`: its
+// `root` under its configuration's `directory` (relative to the repository),
+// sharded as its `job` declares in .github/workflows/ci.yml. A nested run
+// handed that split through any variable it must not read proves it ignores
+// that variable. A one-shard group has no such shard, so it gets a split its
+// configuration refuses, which fails a run that reads it.
 export function splitExcluding(
   target: string,
   group: {
     readonly directory: string;
     readonly root: string;
-    readonly durations: string;
+    readonly job: string;
   },
 ): string {
-  const selection = {
-    roots: [group.root],
-    splitVariable: "the excluding split",
-    durations: group.durations,
-  };
-  return dashboardTestMatch(
-    pathToFileURL(`${path.join(repoRoot, group.directory)}/`),
-    "1/2",
-    selection,
-  ).some((pattern: RegExp) => pattern.test(target))
-    ? "2/2"
-    : "1/2";
+  const selection = ciGroupSelection(
+    group.root,
+    "the excluding split",
+    group.job,
+  );
+  const shards = declaredShards(selection);
+  const count = shards.length;
+  const excluding = shards.find(
+    (shard) =>
+      !dashboardTestMatch(
+        pathToFileURL(`${path.join(repoRoot, group.directory)}/`),
+        `${shard}/${String(count)}`,
+        selection,
+      ).some((pattern: RegExp) => pattern.test(target)),
+  );
+  return excluding === undefined
+    ? `${String(count + 1)}/${String(count + 1)}`
+    : `${excluding}/${String(count)}`;
 }
 
 export function startProofCommand(

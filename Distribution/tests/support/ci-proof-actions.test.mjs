@@ -180,7 +180,7 @@ test("a browser group's shard that ran no test is a reported zero, while a shard
       [[`${cwd}/dashboard/backend-tests/server.spec.ts`, "expected", [50]]],
       4,
     ),
-    // Shard 2's deal selected no spec; its run completed and recorded none.
+    // Shard 2 selected no spec; its run completed and recorded none.
     keepGroupPart(run, backend, 2, [], 4),
     // Shard 3's runner ended before writing its record.
     keepGroupPart(run, backend, 3, undefined, 4),

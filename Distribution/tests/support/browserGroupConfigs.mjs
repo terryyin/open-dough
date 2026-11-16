@@ -1,7 +1,7 @@
 // Each browser test group as ci.yml runs it (./ci-proof-action-fixtures.mjs
 // `browserGroups`), joined to the npm script its job names and the
 // Playwright configuration that script runs: the settings prefix, testDir
-// (`directory`, repository-relative), root and duration list the
+// (`directory`, repository-relative), root and CI job (`configuredJob`) the
 // configuration hands prepareFocusedRun
 // (dashboard/tests/support/runnerConfig.mjs).
 import { readFileSync } from "node:fs";
@@ -23,15 +23,15 @@ export const browserGroupConfigs = browserGroups.map(({ job, inputs }) => {
   return {
     job,
     inputs,
-    // Its times file names specs relative to testDir; the deal, relative to
-    // the directory handed to prepareFocusedRun.
-    timesRelativeToDeal:
+    // Its times file names specs relative to testDir, which is the directory
+    // handed to prepareFocusedRun.
+    timesRelativeToDirectory:
       config !== undefined && /\n {2}testDir: "\.",\n/.test(read(config)),
     shards: JSON.parse(inputs.shards).length,
     config,
     prefix: run?.[1],
     directory: config && dirname(config),
     root: run?.[2],
-    durations: run?.[3],
+    configuredJob: run?.[3],
   };
 });

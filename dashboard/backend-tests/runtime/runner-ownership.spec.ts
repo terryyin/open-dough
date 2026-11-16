@@ -41,7 +41,7 @@ const entries = [
 
 // One runner's own quick case started through `entry`, handed every other
 // runner's settings as its CI shard sets them: a share that would exclude the
-// target from this runner's own deal, a record, a times file, and a deadline
+// target from this runner's own shard, a record, a times file, and a deadline
 // already passed. Reading any of them would deselect the target, write
 // elsewhere or fail the run.
 function startOwnSelection(

@@ -4,8 +4,8 @@
 // and that command runs the group's own configuration with the same settings
 // prefix and root. Changing one group's shards or settings therefore changes no
 // other group's selection or settings. The fragments these producers keep:
-// ./ci-proof-declaration.test.mjs; each group's deal:
-// ./dashboard-test-files.test.mjs.
+// ./ci-proof-declaration.test.mjs; each group's declared shards:
+// ./browser-group-shards.test.mjs.
 import assert from "node:assert/strict";
 import { posix } from "node:path";
 import test from "node:test";
@@ -15,8 +15,10 @@ import { browserGroupConfigs } from "./browserGroupConfigs.mjs";
 test("each browser group's job names its own command, settings, root and shards", () => {
   for (const group of browserGroupConfigs) {
     const { inputs, directory, root, shards, prefix } = group;
-    // Its times file and its duration list label specs alike.
-    assert.equal(group.timesRelativeToDeal, true, group.config);
+    // Its times file labels specs relative to its configuration's directory.
+    assert.equal(group.timesRelativeToDirectory, true, group.config);
+    // Its configuration selects the shards its own job declares.
+    assert.equal(group.configuredJob, group.job, group.config);
     // Job settings agree with the configuration's prefix.
     assert.equal(inputs.settings, prefix, group.config);
     // Its root, holding its outputs and naming its proof entry, is its

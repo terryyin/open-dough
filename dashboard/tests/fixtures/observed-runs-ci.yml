@@ -103,7 +103,7 @@ jobs:
           OPEN_DOUGH_TEST_OUTCOMES: ${{ runner.temp }}/test-outcomes.txt
         run: exec npm run test
       # The test runner's per-job seconds for this job's share on this runner,
-      # for calibrating the time budget and longest-first.
+      # for calibrating the time budget and rebalancing the shares.
       - name: Keep per-job test times
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
@@ -127,10 +127,9 @@ jobs:
   # The dashboard's browser suite, which `npm test` never discovers, runs
   # against controlled GitHub responses (no credentials, no live project
   # contents) as one Playwright shard job per matrix shard, each running its
-  # deal of the spec files (dashboard/tests/shards.md) and failing on its own
+  # share of the spec files (dashboard/tests/shards.md) and failing on its own
   # failing test. The shard-independent type-check runs once, in the last
-  # share, whose predicted load the deal keeps within one spec file of the
-  # others. The suite's globalSetup builds the dashboard, failing the shard
+  # share. The suite's globalSetup builds the dashboard, failing the shard
   # when the build fails.
   dashboard:
     name: dashboard (${{ matrix.shard }}/${{ strategy.job-total }})
@@ -185,7 +184,7 @@ jobs:
           OPEN_DOUGH_DASHBOARD_PROOF_RECORD: ${{ runner.temp }}/dashboard-proof.json
         run: npm run test:dashboard
       # This shard's per-spec-file seconds, written however the run ended, for
-      # refreshing dashboard/longest-first (dashboard/tests/shards.md).
+      # rebalancing the shards (dashboard/tests/shards.md).
       - name: Keep per-spec dashboard times
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
