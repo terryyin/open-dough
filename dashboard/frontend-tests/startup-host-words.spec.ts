@@ -11,16 +11,17 @@ import { putFrontendMachine } from "../tests/support/frontendServiceState.ts";
 import { readyStory } from "../tests/launchJourney.ts";
 import { parts } from "../tests/dashboardPage.ts";
 import { recoveryOf } from "../tests/responsiveRecovery.ts";
-import { reloadUntilRead } from "../tests/pageRequestNotes.ts";
+import { installFrontendLaunchBoundary } from "../tests/support/frontendLaunchSubstitutes.ts";
 
 test("without a reported phase, story startup keeps its host and the installed start's Preparing versus Starting choice", async ({
   page,
   frontendServices,
 }) => {
-  await openFrontendTakenBacklog(page);
+  const boundary = await installFrontendLaunchBoundary(page);
   const starting = parts(page).backlog.getByRole("article", {
     name: readyStory,
   });
+  let opened = false;
   for (const host of ["claude", "codex"] as const) {
     for (const workflow of ["execution", "refinement"] as const) {
       for (const establishes of [false, true]) {
@@ -46,7 +47,12 @@ test("without a reported phase, story startup keeps its host and the installed s
             host: request.host,
           });
         putFrontendMachine(frontendServices, answer.please());
-        await reloadUntilRead(page);
+        // The first startup opens the board; each later one replaces the
+        // previous on the machine, and the page reads the machine again when
+        // told.
+        if (opened) await boundary.tellChanged();
+        else await openFrontendTakenBacklog(page);
+        opened = true;
         const words = establishes
           ? `Preparing ${workflow}…`
           : `Starting ${workflow} in ${host === "claude" ? "Claude Code" : "Codex"}…`;

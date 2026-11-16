@@ -282,7 +282,7 @@ execution prerequisite on another story.
   [preparation retry](../../e2e/launches/agent-launch-preparation-codex-retry.spec.ts#L78),
   [responsive access](../../dashboard/frontend-tests/launches/responsive-session-access.spec.ts#L102),
   [recovery verification](../../e2e/launches/responsive-session-recovery-verification.spec.ts#L93),
-  [frontend startup words](../../dashboard/frontend-tests/startup-host-words.spec.ts#L52).
+  [frontend startup words](../../dashboard/frontend-tests/startup-host-words.spec.ts#L59).
   Two siblings of this finding remain. `recoveryOf` is a pure alias of
   `parts(page).startupRecovery` in both `responsiveRecovery.ts` and
   `claudeVerification.ts`. `agent-launch-claude-verification`,

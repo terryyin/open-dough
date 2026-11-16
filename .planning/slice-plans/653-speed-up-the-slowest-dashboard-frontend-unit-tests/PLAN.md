@@ -162,7 +162,7 @@ possible.
 
 ### 4. Check startup host words without reloading per host
 Type: Structure
-Status: planned
+Status: done
 Proof: `startup-host-words.spec.ts` by the measure; one scratch wording break
 still fails.
 
@@ -170,6 +170,14 @@ The slowest case in its file reloads eight times (3.1 s) and evaluates 49
 times (3.1 s). Arrange each host's startup through the service substitutes on
 one loaded page where the wording does not depend on a fresh load; keep one
 reload where reload behavior is the fact.
+
+Result (2026-11-16): kept. The startup case opens the board once and makes
+the page read each later host arrangement through the launch boundary's
+`tellChanged()` instead of `reloadUntilRead`: reloads 8 → 0, evaluations
+47 → 9, fulfilled requests 125 → 27. Three alternating pairs at
+`--workers=1`, load 3–4: file sums before 2.87, 3.78, 3.69 s; after 2.05,
+2.79, 1.73 s (−36%, every after below every before). A scratch "Codexx" in
+`startPhaseWords` failed the case at `startup-host-words.spec.ts:59`.
 
 ### 5. Shorten Recently done paging and shared-room cases
 Type: Structure
@@ -245,3 +253,8 @@ Disposition: no user cost "Dashboard contributors get faster local frontend test
 Reported: slice 3 — "The cost that one-evaluation reads could remove is at most about 1 s, or about 1.5%."
 Story clause: "Given a tried change whose before and after times differ by no more than the unchanged cases' own variation, the change is undone and reported as no demonstrated gain."
 Disposition: no user cost "Dashboard contributors get faster local frontend test feedback while keeping the same behavioral protection.": the removable cost is under a second of feedback time and the tests stay unchanged with their protection
+
+### G4. Startup words read on a fresh load for one host arrangement only (slice 4)
+Reported: slice 4 — "Fresh-load wording is now proven for one combination only: claude, execution, not establishing."
+Story clause: "Check the same observable result and keep real motion or timing in cases that test it."
+Disposition: no user cost "Dashboard contributors get faster local frontend test feedback while keeping the same behavioral protection.": `StartupStatus` renders `startPhaseWords` from the current machine answer on every render with no state set only at page start, so a fresh load and a re-read reach the same words; each step's words differ from the previous step's, so every case still waits for its own answer
