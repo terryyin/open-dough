@@ -154,6 +154,7 @@ jobs:
       - *npm-cache
       - *setup-node
       - *diagnose-node-and-cache
+      # Written out rather than aliased: the workflow checks read `run:` lines.
       - name: Install npm dependencies
         id: npm
         run: node scripts/setup-native.mjs npm

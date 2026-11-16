@@ -113,3 +113,19 @@ below, before the story is Taken.
   that lands second reconciles the text.
 - `bash scripts/ci-job-times.sh` prints each group's slowest job against its
   deadline from the last 10 successful `main` runs.
+
+<a id="type-check-reports-after-a-lint-failure"></a>
+
+### Prove the type-check reports after a lint failure
+
+**Identity:** SEED-382#type-check-reports-after-a-lint-failure
+
+**Goal:** Contributors keep CI's promise that a lint failure does not hide
+the dashboard type-check's own result: a change that makes the `lint` job's
+type-check step depend on lint fails a maintained check.
+
+**Scope:** The maintained workflow check of `ci.yml`'s `lint` job also
+verifies the type-check step's condition. The workflow's behavior and every
+other check stay as they are.
+
+**Plan:** [Prove the type-check reports after a lint failure](../slice-plans/661-type-check-reports-after-a-lint-failure/PLAN.md)
