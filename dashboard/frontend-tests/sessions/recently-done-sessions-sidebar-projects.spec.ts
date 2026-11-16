@@ -10,44 +10,39 @@ import {
   expectTooltipLine,
 } from "../../tests/sessionsSidebarPage.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
-import {
-  observedDone,
-  observedOpen,
-  openFrontendThreeProjects,
-  putFrontendObservedLaunches,
-} from "../../tests/support/frontendRecentlyDoneSidebar.ts";
+import { openFrontendThreeProjects } from "../../tests/support/frontendRecentlyDoneSidebar.ts";
 
 test("of two projects' kept executions, Recently done lists only the one marked Done yesterday, under its project", async ({
   page,
   frontendServices,
 }) => {
   const launchedAt = daysAgo(2);
-  putFrontendObservedLaunches(
-    frontendServices,
-    observedDone(
-      makeMe.aLaunchRecord
-        .executing({
-          identity: "SEED-401#done-yesterday",
-          title: "Doughnut story done yesterday",
-          source: "doughnut",
-        })
-        .inClaudeSession({ sessionId: "doughnut-done-yesterday" })
-        .launchedAt(launchedAt)
-        .markedDoneAt(retainedDoneAt())
-        .please(),
-      "unavailable",
-    ),
-    observedOpen(
-      makeMe.aLaunchRecord
-        .executing({
-          identity: "SEED-301#still-open",
-          title: "Pygardon story still open",
-          source: "pygardon",
-        })
-        .inClaudeSession({ sessionId: "pygardon-still-open" })
-        .launchedAt(launchedAt)
-        .please(),
-    ),
+  frontendServices.answerMachine(
+    makeMe.aMachineAnswer
+      .observingUnavailable(
+        makeMe.aLaunchRecord
+          .executing({
+            identity: "SEED-401#done-yesterday",
+            title: "Doughnut story done yesterday",
+            source: "doughnut",
+          })
+          .inClaudeSession({ sessionId: "doughnut-done-yesterday" })
+          .launchedAt(launchedAt)
+          .markedDoneAt(retainedDoneAt())
+          .please(),
+      )
+      .observingOpen(
+        makeMe.aLaunchRecord
+          .executing({
+            identity: "SEED-301#still-open",
+            title: "Pygardon story still open",
+            source: "pygardon",
+          })
+          .inClaudeSession({ sessionId: "pygardon-still-open" })
+          .launchedAt(launchedAt)
+          .please(),
+      )
+      .please(),
   );
 
   await openFrontendThreeProjects(page, frontendServices);

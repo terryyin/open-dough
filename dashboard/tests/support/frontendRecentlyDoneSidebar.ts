@@ -3,7 +3,7 @@
 
 import type { Page, Request } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { LaunchRecord, LaunchWithState } from "../../src/launchRecord.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { recentlyDoneSessionsInitialLimit } from "../../src/agentLaunch.ts";
 import { cursorRunnerSessionsEndpoint } from "../../src/cursorRunnerSessions.ts";
 import { expectProjectChoice } from "../dashboardPage.ts";
@@ -12,59 +12,14 @@ import { showRecentlyDone } from "../recentlyDoneSessionsSidebarPage.ts";
 import { openRunningList } from "../runningCursorList.ts";
 import { crowd } from "../runningCursorSessionsPage.ts";
 import { expect } from "./frontendApp.ts";
-import {
-  doughnutSource,
-  openDoughSource,
-  putFrontendMachine,
-  pygardonSource,
-  type FrontendServiceState,
-} from "./frontendServiceState.ts";
-
-// Configures Open Dough, Doughnut and Pygardon for a Frontend journey.
-export function putFrontendThreeProjects(services: FrontendServiceState): void {
-  Object.assign(services, {
-    projects: [openDoughSource, doughnutSource, pygardonSource],
-  });
-}
-
-// Observes kept launches as the machine answers them.
-export function putFrontendObservedLaunches(
-  services: FrontendServiceState,
-  ...records: LaunchWithState[]
-): void {
-  putFrontendMachine(
-    services,
-    makeMe.aMachineAnswer.observing(...records).please(),
-  );
-}
-
-export function observedDone(
-  record: LaunchRecord,
-  state: "retained" | "unavailable" = "retained",
-): LaunchWithState {
-  return makeMe.anObservedLaunch
-    .of(record)
-    .withSessionState(
-      state === "unavailable"
-        ? makeMe.aSessionState.unavailable().please()
-        : makeMe.aSessionState.retained("review").please(),
-    )
-    .please();
-}
-
-export function observedOpen(record: LaunchRecord): LaunchWithState {
-  return makeMe.anObservedLaunch
-    .of(record)
-    .withSessionState(makeMe.aSessionState.loaded("working").please())
-    .please();
-}
+import type { FrontendServiceState } from "./frontendServiceState.ts";
 
 // Opens the three-project Frontend page settled on Pygardon.
 export async function openFrontendThreeProjects(
   page: Page,
   services: FrontendServiceState,
 ): Promise<void> {
-  putFrontendThreeProjects(services);
+  services.listThreeProjects();
   await page.goto("/?project=pygardon");
   await expectProjectChoice(page, "Pygardon");
   await expect(
@@ -107,11 +62,11 @@ export async function expandThreeCrowdedFrontend(
       .markedDoneAt(new Date(now - (index + 1) * 60_000).toISOString())
       .please();
   });
-  putFrontendObservedLaunches(
-    services,
-    observedOpen(held),
-    ...openCrowd.map(observedOpen),
-    ...done.map((record) => observedDone(record)),
+  services.answerMachine(
+    makeMe.aMachineAnswer
+      .observingOpen(held, ...openCrowd)
+      .observingDone(...done)
+      .please(),
   );
   const runningSessions = Array.from(Array(crowd).keys(), (index) => ({
     record: {

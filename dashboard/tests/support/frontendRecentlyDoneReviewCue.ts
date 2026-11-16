@@ -4,6 +4,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { MachineAnswerBuilder } from "../../../Distribution/tests/support/machineAnswerTestData.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { recentlyDoneSessionsInitialLimit } from "../../src/agentLaunch.ts";
 import { expectProjectChoice } from "../dashboardPage.ts";
@@ -21,10 +22,6 @@ import {
   selectionLaunchRecords,
   takenElsewhere,
 } from "./frontendRecentlyDoneSelection.ts";
-import {
-  putFrontendObservedLaunches,
-  putFrontendThreeProjects,
-} from "./frontendRecentlyDoneSidebar.ts";
 import {
   putFrontendDoneRecords,
   type FrontendServiceState,
@@ -61,19 +58,24 @@ export function cueSession(
     .please();
 }
 
-function observeReviewCue(record: LaunchRecord) {
+function observeReviewCue(
+  answer: MachineAnswerBuilder,
+  record: LaunchRecord,
+): MachineAnswerBuilder {
   // Cue-session reports open the final report instead of a terminal.
   if (
     typeof record.completion?.message === "string" &&
     record.completion.message.startsWith("Report for ")
   ) {
-    return makeMe.anObservedLaunch
-      .of(record)
-      .withSessionState(makeMe.aSessionState.retained("review").please())
-      .withWorkspace("missing")
-      .please();
+    return answer.observing(
+      makeMe.anObservedLaunch
+        .of(record)
+        .withSessionState(makeMe.aSessionState.retained("review").please())
+        .withWorkspace("missing")
+        .please(),
+    );
   }
-  return observeFrontendSelectionLaunch(record);
+  return observeFrontendSelectionLaunch(answer, record);
 }
 
 // Opens the three-project Frontend page with review-cue sessions and Open
@@ -91,7 +93,7 @@ export async function openFrontendReviewCueSessions(
 ) {
   const now = Date.now();
   const completedAt = new Date(now - 3_600_000).toISOString();
-  putFrontendThreeProjects(services);
+  services.listThreeProjects();
   putFrontendDoneRecords(services, "pygardon", [
     makeMe.aDoneRecord
       .completed({
@@ -116,10 +118,9 @@ export async function openFrontendReviewCueSessions(
     cueSession(duplicateTitle, 21),
     ...extra,
   ];
-  putFrontendObservedLaunches(
-    services,
-    ...launches.map((record) => observeReviewCue(record)),
-  );
+  const answer = makeMe.aMachineAnswer;
+  for (const record of launches) observeReviewCue(answer, record);
+  services.answerMachine(answer.please());
   const reports = await installFrontendFinalReport(page, {
     kind: "available",
     turnId: "selection-report",

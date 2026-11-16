@@ -19,9 +19,11 @@ import { doneRecordFileName } from "../../../Distribution/src/skills/dough-produ
 import { describedRevisions } from "../describedRevisions.ts";
 import {
   defaultFrontendPublishedFiles,
+  doughnutSource,
   frontendPublishedWith,
   frontendRevision,
   openDoughSource,
+  pygardonSource,
   takenBacklogMarkdown,
   type FrontendStories,
 } from "./frontendPublishedFixtures.ts";
@@ -62,6 +64,13 @@ export type FrontendServiceState = {
   // Heads of the story branches a revision check watches, when a case
   // arranges them; unarranged, a check names no branch heads.
   branchHeads?: Record<string, string>;
+  // The machine's sessions answer from now on (`makeMe.aMachineAnswer`);
+  // undefined keeps them unread.
+  answerMachine(machine: MachineAnswer | undefined): void;
+  // The host status answer from now on; undefined keeps it unread.
+  answerHostStatus(hostStatus: HostStatus | undefined): void;
+  // Open Dough, Doughnut and Pygardon configured, in that order.
+  listThreeProjects(): void;
 };
 
 export function defaultFrontendServiceState(
@@ -71,7 +80,7 @@ export function defaultFrontendServiceState(
     readonly machine?: MachineAnswer;
   } = {},
 ): FrontendServiceState {
-  return {
+  const state: FrontendServiceState = {
     projects: [...(options.projects ?? [openDoughSource])],
     revision: frontendRevision,
     backlog: options.backlog ?? takenBacklogMarkdown,
@@ -96,7 +105,17 @@ export function defaultFrontendServiceState(
       .with({ cpuPercent: 12, freeBytes: 64_000_000_000 })
       .please(),
     doneBySource: {},
+    answerMachine(machine) {
+      state.machine = machine;
+    },
+    answerHostStatus(hostStatus) {
+      state.hostStatus = hostStatus;
+    },
+    listThreeProjects() {
+      state.projects = [openDoughSource, doughnutSource, pygardonSource];
+    },
   };
+  return state;
 }
 
 // Arranges the done catalog and bodies one source's authenticated reads answer.
@@ -156,13 +175,6 @@ export function machineOffering(definition: OptionsDefinition): MachineAnswer {
     ...offeredShape(definition),
   };
   return makeMe.aMachineAnswer.offering(offered).please();
-}
-
-export function putFrontendHostStatus(
-  services: FrontendServiceState,
-  hostStatus: HostStatus | undefined,
-): void {
-  Object.assign(services, { hostStatus });
 }
 
 export function putFrontendCandidates(

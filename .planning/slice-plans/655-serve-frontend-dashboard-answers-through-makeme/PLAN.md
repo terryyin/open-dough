@@ -64,7 +64,7 @@ production `offeredShape`, which a builder may not import at runtime.
 
 ### 1. Observed launches as machine answer steps
 
-Status: planned
+Status: done
 Type: Structure
 
 Add the three observing steps and the fixture's `answerMachine`,
@@ -77,6 +77,11 @@ sidebar specs and their support modules (`frontendRecentlyDone*.ts`,
 
 Proof: the converted specs and every spec importing a changed support module
 pass.
+
+Accepted: 72 frontend specs reaching the changed modules, 150 passed. Where a
+launch's observed kind depends on its own data, support modules add each
+record to one `makeMe.aMachineAnswer` in a loop. `putFrontendThreeProjects`
+became the fixture step `listThreeProjects()` in place of a projects list.
 
 ### 2. Machine answers through the fixture
 
