@@ -20,38 +20,115 @@ two corrections come first.
 
 <a id="count-claude-code-work-after-a-developer-reply"></a>
 
-### Count a launch's work after a developer reply
+### Count a dashboard launch's work after a developer reply
 
 **Identity:** SEED-388#count-claude-code-work-after-a-developer-reply
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/665-count-launch-work-after-a-developer-reply/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c2a37d487bc531ca6d7a19974b5806e6b43064c2f60fafa59ffb873bc54feb08","plan":"0ddf0a6791ebad8416ee337380771d2d67074586c4a2b10880e7f0d11e211ab4"}}
 ```
 
-- **Scope and beneficiary.** Correction to the delivered Codex and Claude Code
-  task usage in System settings → Usage. A developer reading Usage sees the
-  whole cost of a launch, including the work after they answered or nudged it.
-- **Evaluation.** Given a launch whose session receives developer input after
-  its first turn, its Token index includes the root and subagent responses of
-  later turns that continue that launch until it ends, and no turn of another
-  launch or unrelated task in the same session. Later-turn workers count once,
-  excluding copied ancestor responses. A launch with a single input keeps its
-  value. Re-measured over the 30 days to 2026-11-16, the 82 affected Claude Code
-  executions match their launch-window transcript cost. Codex acceptance covers
-  the SEED-324 supplier-watch continuation and Doughnut SEED-073 checkpoint
-  replies below, plus a separate-launch exclusion and a single-input control.
-  Ambiguous ownership stays an explained gap rather than charging every turn
-  within a time window to the launch.
-- **Priority.** First. Every story in
-  [SEED-345](SEED-345-session-token-efficiency.md) is judged on this index. Today
-  it omits continuing human-input turns: affected Claude Code executions show
-  a median of 0.53 of their cost, and SEED-192#open-development-intent-frame
-  shows 0.14M against 7.0M after a reply of "1" in its second minute. The
-  executions that need a developer are often the costliest.
-- **Effort and boundary.** Shared correction, with sizing confirmed during
-  refinement. Both sampled hosts' launch records keep a single `nativeTurns`
-  entry. The evidence establishes the undercount, not a safe association rule
-  for every later input; refinement resolves that rule for each host.
-  [Usage index undercount](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#usage-index-undercount)
+#### Goal
+
+A developer or maintainer reading System settings → Usage sees the whole cost
+of a dashboard launch on Claude Code or Codex, including the work after they
+answered, chose an option or nudged it. Every
+[SEED-345](SEED-345-session-token-efficiency.md) story is judged per tool on
+this index, and today the launches that needed a developer, often the
+costliest, show only part of their cost.
+
+#### Scope
+
+- **A reply continues its launch.** A later developer input in a launch's
+  session belongs to that launch: its root and subagent (Claude Code) or worker
+  (Codex) responses count in the launch's Token index. One rule serves both
+  tools. A later-turn worker counts once; responses a worker copies from its
+  ancestors are not its own.
+- **Until another task starts.** The launch keeps later inputs until an input
+  in the same session starts another task: a recognised Open Dough workflow
+  invocation or another dashboard launch's reporting context. From then on the
+  turns belong to that task, and no response counts in two tasks.
+- **Ambiguous ownership stays a gap.** A response whose turn no task can be
+  shown to own stays an explained coverage gap; no turn is charged to a
+  launch by time window alone.
+- **After a completion report.** A reported completion does not end the
+  launch. Reason: the developer often continues the same work after an early
+  report, such as landing or a CI repair.
+- **Unchanged.** A launch with a single input keeps its value. Which launches
+  Usage shows, the tariff, pricing, coverage gaps, and the chart and task
+  detail stay as they are.
+- **History.** Retained records are recomputed from the native transcripts
+  still on the machine. A launch whose transcripts are gone keeps its recorded
+  value.
+
+**Scope limits (deferred promises):**
+
+- Splitting a launch's cost by turn or showing the developer's inputs in task
+  detail.
+- Changing how sessions started outside the dashboard are recovered as tasks.
+
+#### Key examples
+
+- **Claude Code reply.** SEED-192#open-development-intent-frame's execution
+  shows 0.14M today. The developer answered "1" two minutes into a ten-hour
+  execution. → Its index includes every root and subagent response after that
+  answer, close to its 7.0M transcript cost.
+- **Codex reply.** A Codex refinement launch asks a question and the developer
+  answers "yes" in a new turn. → The responses of that turn count in the
+  launch's index; today about half the launch's usage records belong to no
+  task.
+- **After completion.** An execution reports completion; the developer then
+  types "merge the changes and land", and later "retry". → Both turns count in
+  that execution.
+- **Another task.** After an execution, the developer types `/dough-land` in
+  the same session. → That turn and its successors count in the land task, and
+  the execution's index stops before it.
+- **Codex supplier watch.** Open Dough SEED-324#close-landed-ci-repeat-check-gaps
+  (thread `01a1d22f…`) shows 6.23M. The developer answered "OK", then "you
+  watch it", and asked about the wait. → The later root responses, another
+  22.36M before workers, count in that launch.
+- **Codex checkpoints.** Doughnut SEED-073#keep-answered-questions-with-their-tracker
+  (thread `01a1d285…`) shows 29.84M. The developer answered "yes", "LGTM",
+  "go ahead" and "approved" at checkpoints. → The later root responses,
+  another 25.35M before workers, count in that launch.
+- **Single input.** A launch that receives no later input. → Its value is
+  unchanged.
+
+#### Evaluation
+
+Re-measured over the 30 days to 2026-11-16 from retained transcripts:
+
+- the 82 Claude Code executions with a later developer input match their
+  transcript cost from launch until the next task-starting input; and
+- none of the 84 Codex launches with a later developer turn leaves that turn's
+  responses without a task, and the two Codex examples gain their later-turn
+  root and worker responses.
+
+#### Architecture
+
+- **Owner.** Turn membership becomes one rule in the shared native task fact
+  reading, recorded in each task's `nativeTurns`, which both tools'
+  association already reads. A Claude Code response already climbs to the
+  input that began its turn; a Codex response already names its turn. Neither
+  association adds a separate rule.
+- **One active task.** The reader's notion of the active task serves turn
+  membership and completion-receipt joining alike. Today the Claude Code
+  reader drops its active task at a plain reply and the Codex reader keeps it,
+  so the two tools differ.
+- **Considered.** Walking Claude Code's parent links past a reply to the
+  launch's input covers only Claude Code, since Codex turns have no parent
+  link. A time window per session would attribute responses without native
+  turn evidence.
+
+#### Evidence
+
+- [Usage index undercount](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#usage-index-undercount):
+  82 of 265 Claude Code executions, median 0.53 of their cost.
+- Codex, observed 2026-11-16 from retained sessions and
+  `~/.open-dough/dashboard/launch-history/usage.json`: 84 of 266 Codex launches
+  since 2026-10-17 (42 executions, 33 refinements) have a later developer turn
+  that no task claims.
+- Claude Code, same observation: 19 later inputs came after a reported
+  completion and continued the same work; 4 started another task.
 
 **Codex evidence, rechecked 2026-11-16.** Native `token_usage_record` rows were
 deduplicated by response ID, restricted to the containing thread and the

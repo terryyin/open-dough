@@ -32,7 +32,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
-- [Count a launch's work after a developer reply](seeds/SEED-388-measure-and-control-agent-launch-cost.md#count-claude-code-work-after-a-developer-reply) — SEED-388#count-claude-code-work-after-a-developer-reply
+- [Count a dashboard launch's work after a developer reply](seeds/SEED-388-measure-and-control-agent-launch-cost.md#count-claude-code-work-after-a-developer-reply) — SEED-388#count-claude-code-work-after-a-developer-reply
 - [Show and keep the effort a Claude Code launch runs with](seeds/SEED-388-measure-and-control-agent-launch-cost.md#show-the-effort-a-launch-runs-with) — SEED-388#show-the-effort-a-launch-runs-with
 - [Compare agent effort on comparable runs](seeds/SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs) — SEED-345#compare-agent-effort-on-comparable-runs
 - [Count a slice's active time without the agent's own clock](seeds/SEED-367-bounded-slice-active-time.md#count-slice-active-time-deterministically) — SEED-367#count-slice-active-time-deterministically
