@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-379#review-changes-from-completed-ad-hoc-sessions",
+  "title": "Review changes from completed ad hoc sessions",
+  "completedAt": "2026-11-16T11:27:53.319Z",
+  "developer": "Terry Yin",
+  "agent": "Eimi-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "unavailable": "Automatic Intent Coverage was not requested: no protection-risk test removal or rewrite."
+  }
+}

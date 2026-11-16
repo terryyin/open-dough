@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-379_review-changes-from-completed-ad-hoc-sessions.json",
+      "identity": "SEED-379#review-changes-from-completed-ad-hoc-sessions",
+      "completedAt": "2026-11-16T11:27:53.319Z",
+      "blob": "ae371ed525a06684f03a3175845d4e730207220d"
+    },
+    {
       "fileName": "SEED-334_remove-obsolete-native-revision-opener.json",
       "identity": "SEED-334#remove-obsolete-native-revision-opener",
       "completedAt": "2026-11-16T04:08:55.420Z",
