@@ -10,9 +10,11 @@ export type HostDescription = {
   // A host without a model catalog may list its fixed reasoning efforts,
   // offered whatever the model. A launch that chooses none is given the
   // host's default effort when it names one, so its session and record keep
-  // the effort passed.
+  // the effort passed. A dialog opens on that default and names it as Open
+  // Dough's; other efforts may name their measured cost beside them.
   readonly efforts?: readonly string[];
   readonly defaultEffort?: string;
+  readonly effortCosts?: Readonly<Record<string, string>>;
   readonly skillSigil?: string;
   readonly uncertaintyHint?: string;
   readonly nativeCheckAdvice?: string;
@@ -58,6 +60,13 @@ export const hostDescriptions = {
     },
     efforts: ["low", "medium", "high", "xhigh", "max"],
     defaultEffort: "medium",
+    // Median Opus slice-agent cost relative to medium, measured November
+    // 2026; none was measured for low.
+    effortCosts: {
+      high: "about 3× the cost of medium",
+      xhigh: "about 3× the cost of medium",
+      max: "about 7× the cost of medium",
+    },
     uncertaintyHint: "Check `claude agents` for it.",
     nativeCheckAdvice:
       "Check `claude agents` before continuing: continuing starts its session again unless its kept evidence resumes it.",

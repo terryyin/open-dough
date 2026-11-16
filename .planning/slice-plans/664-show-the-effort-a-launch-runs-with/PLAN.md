@@ -129,7 +129,7 @@ about 21 minutes, over target on those mechanical consumers.
 
 ### 2. The launch dialog opens Claude Code on medium and names the cost of higher levels
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 2 row above, plus `agent-launch-native-effort.spec.ts`,
 `agent-launch-dialog-layout.spec.ts` and
 `agent-launch-start-session-layout.spec.ts` under

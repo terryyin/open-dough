@@ -4,8 +4,8 @@
 // chosen model reaches the synthetic `claude`
 // (../../dashboard/tests/fixtures/fake-claude) as `--model`; another proves
 // Default starts without `--model`, and a launched choice does not carry into
-// the next opening. Claude Code's Reasoning effort offers its own setting and
-// five levels, and a chosen one reaches `claude` as `--effort`. The real
+// the next opening. Claude Code's Reasoning effort opens on Open Dough's
+// default among five levels, and a chosen one reaches `claude` as `--effort`. The real
 // `claude` is never reached. How the launch boundary takes a model across
 // request kinds is
 // ../../dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts;
@@ -106,18 +106,17 @@ test("the execution dialog offers Claude Code's efforts whatever the model, and 
   await action.open();
   const effort = effortOf(action.dialog);
   const efforts = [
-    "Use your Claude Code setting",
     "low",
-    "medium",
-    "high",
-    "xhigh",
-    "max",
+    "medium (Open Dough default)",
+    "high (about 3× the cost of medium)",
+    "xhigh (about 3× the cost of medium)",
+    "max (about 7× the cost of medium)",
   ];
   await expect(effort.locator("option")).toHaveText(efforts);
-  await expect(effort).toHaveValue("");
+  await expect(effort).toHaveValue("medium");
   await modelOf(action.dialog).selectOption({ label: "Opus" });
   await expect(effort.locator("option")).toHaveText(efforts);
-  await effort.selectOption({ label: "high" });
+  await effort.selectOption("high");
   await action.dialog.getByRole("button", { name: "Start" }).click();
 
   await expect(action.dialog).toBeHidden();
