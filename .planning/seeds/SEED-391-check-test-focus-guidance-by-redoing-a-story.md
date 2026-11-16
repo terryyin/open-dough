@@ -15,7 +15,7 @@ scope: one story
 
 **Identity:** SEED-391#redo-the-effort-story-under-the-test-focus-guidance
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"793989d55b2212a608081c086453a2c88d53d50781c822912456da43e3607e8c","plan":"0d203b7349a7176f1f4e7393729d148b47ac7432321f48e002c7c5561b31270e"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/668-redo-the-effort-story-under-the-test-focus-guidance/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9d14096ea2a337a294b9f544518cc4c9c8ed1d65660230cb1dbe5dc8d6096a21","plan":"2903474ba2a525823ff1bbde4e4e96a3e107ce7b392aa5c2e624ee0595fb496c"}}
 ```
 
 #### Goal
@@ -51,18 +51,25 @@ check, and made two comment-only edits. The coordinator was session
 effort with 20 subagent transcripts; its brief, returns, active time and cost
 are read from that transcript. Nothing is rerun for A.
 
-**B, the execution rerun.** One fresh session executes
+**B, the execution rerun (Codex first).** Terry authorized “can we do codex
+first?” after the Claude launch refused the scratch directory on 2026-11-16.
+The first execution and planning replay now use Codex with its configured
+model and effort, recorded from the launched sessions. The refused Claude
+attempt is retained; the matched Claude replay remains pending its trust
+prerequisite after this Codex-first run. One fresh Codex session executes
 `.planning/slice-plans/664-show-the-effort-a-launch-runs-with/PLAN.md` as it
 stood at A's Take `4b75c2888` (`3b1479996` plus the backlog claim), through
 its execution-complete record. It stops there: no wrap-up, retrospective or
 landing.
 
-- *One variable.* The scratch workspace is `4b75c2888` with only the
+- *Historical guidance patch.* The scratch workspace is `4b75c2888` with only the
   `934a51a30` patch applied to its installed skill copies (`.agents/skills`
   and `.claude/skills`). Between `3b1479996` and that commit the skill source
   changed in 19 other files (slice clock, diagnosis rounds and others), so
   installing the whole current source would change more than the guidance
-  under test and would time B by a different method than A. Three of the four
+  under test. Codex is a second changed factor versus A, so this first run
+  tests guidance mechanisms across hosts rather than isolating its effect.
+  Three of the four
   patched files are unchanged since `3b1479996`; `executable-proof.md` differs
   by one line outside the patched paragraph.
 - *A session that does not know the comparison.* The coordinator's own brief is
@@ -70,15 +77,17 @@ landing.
   received, with the scratch workspace and revisions in place of A's, without
   its dashboard reporting context and without publication authority, and
   nothing from this seed, A's result, or the later test repair `0724558d6`.
-  Its workspace history ends at the patched Take. It runs on A's model and
-  effort.
+  Its workspace history ends at the patched Take. Codex uses its configured
+  defaults; no Claude model, effort or memory is represented as equivalent.
+  Its input uses Codex's skill invocation syntax and names the installed
+  scratch skill. Neither this amendment nor the comparison is given to B.
 - *Nothing leaves the scratch workspace.* Its remote is a scratch repository;
   the real remote, trunk, backlog and dashboard receive nothing from B. B has
   no hosted CI; its local gates are the plan's.
 - The plan's proof names no paid native-host run, and B adds none.
 
 **P, the planning replay.** At `0e6b0f3dc`, where the effort story is refined,
-with its plan removed and the same patch applied, one fresh session slice-plans
+with its plan removed and the same patch applied, one fresh Codex session slice-plans
 the story. The resulting plan is read and not executed. The delivered plan
 budgets nine specs' exact command lines as a mechanical slice 1 update; P
 shows whether planning now puts a Structure slice ahead of that change.
@@ -93,8 +102,10 @@ that was read and changed nothing. Beside them:
   its value updated;
 - positional, count, whole-list and whole-object assertions the run adds;
 - parameterized tests whose body branches on the case;
-- active time and cost of B beside A's, measured the same way from both
-  transcripts.
+- active time of B beside A's, using one stated transcript definition where
+  both hosts expose the needed timing; token usage and cost with their own
+  provider's recorded billing basis. Missing cost is explicitly unavailable,
+  never inferred by applying Claude prices to Codex tokens.
 
 **Limits the result states.**
 
@@ -106,13 +117,17 @@ that was read and changed nothing. Beside them:
 - One run of each kind cannot separate the guidance from run-to-run variation.
   A recommendation rests on a traced moment; the counts, time and cost are
   context and support no effect size.
-- B and P run with today's user memory, in which
-  `focused-proof-through-test-runner` changed after A ran; the result names
-  any observed moment it could explain.
+- A used Claude; B and P now use Codex and its available user context. The
+  result records the effective host, model, effort and memory/context
+  differences; it names observed moments they could explain. The preserved
+  Claude memory includes `focused-proof-through-test-runner`, changed after
+  A, but copying it for the refused attempt does not prove Codex loaded it.
+  Host/model differences prevent attributing A/B differences to guidance alone.
 - B commits locally and has no hosted CI, where A published its story branch
   and watched CI.
 
-**Deferred.** Executing P's plan; repeating B or rerunning A for a variance
+**Deferred.** The matched Claude execution/planning replay; executing P's
+plan; repeating B or rerunning A for a variance
 baseline; replaying only the refactor pass on A's slice 1 change.
 
 #### Key examples
@@ -143,7 +158,10 @@ baseline; replaying only the refactor pass on A's slice 1 change.
 
 #### Direction
 
-Considered against the same goal:
+The original preparation compared the options below. Terry's Codex-first
+amendment supersedes their same-host assumption; the historical guidance
+patch and five observation moments remain selected. Considered against the
+same goal:
 
 | Option | Shows | Does not show | Cost |
 | --- | --- | --- | --- |
