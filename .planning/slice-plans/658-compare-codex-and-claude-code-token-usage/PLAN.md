@@ -291,3 +291,14 @@ usable view change with its own proof loop. Three slices stay below eight.
 Both behaviors extend one cohort/series/placement model; neither pools medians,
 duplicates geometry nor changes stored measurements. No slice-specific concern
 remains after the metric decision and the observations above.
+
+## Execution complete
+
+Product advice: retain the backlog order. The retrospective found a stale
+failure alert after returning to a failed selection and colour-only tool marks
+with a misleading legend; they are planned as the correction
+[Tell compared Usage tools apart and drop stale read errors](../../seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#tell-compared-usage-tools-apart)
+(plan 662). The comparison keeps tool-relative units, so it adds no evidence
+of tool efficiency. SEED-360's Cursor usage would add a third named trace and
+reference unit through the same chart contract. Process review is deferred
+into wrap-up with Intent Coverage.

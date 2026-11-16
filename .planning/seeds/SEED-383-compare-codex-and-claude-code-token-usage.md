@@ -126,3 +126,24 @@ Accepted decisions was found. Terry's metric decision preserves the existing
 calculation responsibility and requires no new shared store or North Star topic.
 
 No goal, scope or metric decision remains open.
+
+<a id="tell-compared-usage-tools-apart"></a>
+
+### Tell compared Usage tools apart and drop stale read errors
+
+**Identity:** SEED-383#tell-compared-usage-tools-apart
+
+#### Goal
+
+A developer comparing Codex and Claude Code in System settings → Usage can tell
+the two tools' marks apart without relying on colour, and sees a read failure
+only while it still describes the shown selection. This corrects the delivered
+comparison; it adds no promise about the product's intent.
+
+#### Scope
+
+Correct the comparison's stale failure alert, its colour-only mark identity and
+legend, prove that answers for an old selection never join a new one, and align
+the Usage contract text with the delivered behaviour.
+
+[Correction plan](../slice-plans/662-tell-compared-usage-tools-apart/PLAN.md)
