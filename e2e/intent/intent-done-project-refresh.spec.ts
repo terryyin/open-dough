@@ -2,7 +2,7 @@ import { showLatestRevision } from "../../dashboard/tests/intentReadRecoveryPage
 // A real Done story keeps its historical endpoints and saved assessment
 // across all its tabs while Project Intent independently notices a push.
 // Historical file/tab/reading-place continuity through project refresh:
-// ../../dashboard/frontend-tests/intent/intent-done-project-refresh-reading.spec.ts.
+// ../../dashboard/frontend-tests/intent/intent-done-project-refresh.spec.ts.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { pausePageClock } from "../../dashboard/tests/autoRefreshJourney.ts";

@@ -201,7 +201,7 @@ sending wheels to the previous scroller (shortening it failed
 
 ### 6. Keep one proof per rule among the group's twin cases
 Type: Structure
-Status: planned
+Status: done
 Proof: per removal, the surviving case named and one scratch break failing it;
 family before/after by the measure.
 
@@ -209,6 +209,18 @@ Candidates: `intent-done-project-refresh-proof` and `-reading`;
 `intent-source-target-recovery` held and failed; `final-report-touch-divider`
 landscape and desktop; the two `agent-terminal-touch-application-scroll`
 swipes. Merge only what proves the same rule twice; distinct outcomes stay.
+
+Result (2026-11-16): `intent-done-project-refresh-proof` and `-reading` proved
+the same return-after-refresh rule; they are merged into
+`intent/intent-done-project-refresh.spec.ts`, keeping every assertion of
+both once. A scratch `useState` selection failed both originals and the
+survivor at the same `aria-pressed` assertion (survivor `:131`); a scratch
+unkept Proof tab failed `-proof` and the survivor (`:157`). Three alternating
+pairs, load 7–8: 7.4, 8.3, 7.6 s for the two cases against 5.4, 5.2, 5.5 s
+for the survivor (−31%, two cases → one). Kept distinct: held versus failed
+source-target recovery (different failure modes), landscape versus desktop
+divider (the short-height rule), and the `?1000h` and `?1002h` swipes (one
+`wheelTracking` entry each).
 
 ### 7. Report the gain and record what remains
 Type: Structure
@@ -272,3 +284,8 @@ Disposition: no user cost "Dashboard contributors get faster local frontend test
 Reported: slice 5 — "Decision: undo, no demonstrated gain."
 Story clause: "Given a tried change whose before and after times differ by no more than the unchanged cases' own variation, the change is undone and reported as no demonstrated gain."
 Disposition: no user cost "Dashboard contributors get faster local frontend test feedback while keeping the same behavioral protection.": the removable wait is about 0.35 s and the cases stay unchanged with their protection
+
+### G6. The merged case checks the return only after cycling the Done tabs (slice 6)
+Reported: slice 6 — "The survivor now checks the restore after cycling the tabs, and no longer checks it without that cycle."
+Story clause: "Given two cases in the group that prove the same rule, one is removed or merged only after the surviving case is shown to catch the same failure."
+Disposition: no user cost "Dashboard contributors get faster local frontend test feedback while keeping the same behavioral protection.": the cycle ends on the same Changed tests tab without reselecting the file, so the return reads the same kept selection and tab as without it, and both scratch breaks of that rule still fail the survivor
