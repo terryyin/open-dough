@@ -12,6 +12,33 @@ scope: three stories
 Evidence: [long-running slice categories](../long-slice-categories.md) from
 Claude Code and Codex executions in the 30 days to 2026-11-15.
 
+<a id="discard-time-after-an-ended-session"></a>
+
+### Discard a slice's clock time after its session ended
+
+**Identity:** SEED-367#discard-time-after-an-ended-session
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Scope and beneficiary.** A developer whose execution session ended in the
+  middle of a slice gets that slice's active time back without the idle gap
+  until the next session. The coordinator resuming the slice can discard the
+  time since the ended session's last slice-clock command, so the resumed slice
+  reports no overrun that did not happen. A new coordinator is not left needing
+  `pause` merely to start a different slice.
+- **Evaluation.** Proposal to validate during refinement: a slice left running
+  by an ended session, resumed hours later, reports only the active time up to
+  that session's last clock command plus the new session's time. Pausing when
+  execution stops for the coordinator or a human keeps its current behavior.
+- **Priority.** First: every real execution that uses the clock can end a
+  session mid-slice, and the false overrun would mislead the slice limit the
+  clock exists to enforce.
+- **Effort and boundary.** Small. Follow-up from closing
+  SEED-367#count-slice-active-time-deterministically at `29270e9c3`. Changes
+  only how a dead session's running slice is settled on resume.
+
 <a id="bound-diagnosis-in-evidence-rounds"></a>
 
 ### Bound flaky-test and CI-failure diagnosis in evidence rounds

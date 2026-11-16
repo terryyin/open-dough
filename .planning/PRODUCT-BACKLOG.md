@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Discard a slice's clock time after its session ended](seeds/SEED-367-bounded-slice-active-time.md#discard-time-after-an-ended-session) — SEED-367#discard-time-after-an-ended-session
 - [Bound flaky-test and CI-failure diagnosis in evidence rounds](seeds/SEED-367-bounded-slice-active-time.md#bound-diagnosis-in-evidence-rounds) — SEED-367#bound-diagnosis-in-evidence-rounds
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets
