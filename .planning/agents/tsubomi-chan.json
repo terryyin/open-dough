@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsubomi-chan",
+  "email": "tsubomi-chan@example.org",
+  "identity": "SEED-381#fixed-pattern-shards-for-the-distribution-suite",
+  "mode": "story-branch",
+  "branch": "claude/fixed-pattern-shards-for-the-distribution-suite",
+  "host": "claude",
+  "model": "opus"
+}

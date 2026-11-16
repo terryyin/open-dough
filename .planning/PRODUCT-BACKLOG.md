@@ -29,10 +29,10 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Speed up the slowest dashboard frontend unit tests](seeds/SEED-380-speed-up-the-slowest-dashboard-frontend-unit-tests.md#speed-up-the-slowest-dashboard-frontend-unit-tests) — SEED-380#speed-up-the-slowest-dashboard-frontend-unit-tests ([plan](slice-plans/653-speed-up-the-slowest-dashboard-frontend-unit-tests/PLAN.md))
+- [Fixed pattern shards for the Distribution suite](seeds/SEED-381-fixed-ci-test-shards.md#fixed-pattern-shards-for-the-distribution-suite) — SEED-381#fixed-pattern-shards-for-the-distribution-suite ([plan](slice-plans/654-fixed-pattern-shards-for-the-distribution-suite/PLAN.md))
 
 ## Backlog list
 
-- [Fixed pattern shards for the Distribution suite](seeds/SEED-381-fixed-ci-test-shards.md#fixed-pattern-shards-for-the-distribution-suite) — SEED-381#fixed-pattern-shards-for-the-distribution-suite
 - [Fixed shards for browser tests and on-demand rebalancing](seeds/SEED-381-fixed-ci-test-shards.md#fixed-shards-for-browser-tests-and-on-demand-rebalancing) — SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing
 - [Review changes from completed ad hoc sessions](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions) — SEED-379#review-changes-from-completed-ad-hoc-sessions
 - [Extend syntax styling in code diffs](seeds/SEED-377-extend-syntax-styling-in-code-diffs.md#extend-syntax-styling-in-code-diffs) — SEED-377#extend-syntax-styling-in-code-diffs
