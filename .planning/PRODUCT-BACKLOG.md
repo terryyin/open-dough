@@ -36,7 +36,6 @@ intent introduced or affected by a newly developed story.
 - [Fixed shards for browser tests and on-demand rebalancing](seeds/SEED-381-fixed-ci-test-shards.md#fixed-shards-for-browser-tests-and-on-demand-rebalancing) — SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing
 - [Speed up the slowest dashboard frontend unit tests](seeds/SEED-380-speed-up-the-slowest-dashboard-frontend-unit-tests.md#speed-up-the-slowest-dashboard-frontend-unit-tests) — SEED-380#speed-up-the-slowest-dashboard-frontend-unit-tests
 - [Review changes from completed ad hoc sessions](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions) — SEED-379#review-changes-from-completed-ad-hoc-sessions
-- [Restore three-share test budget headroom](seeds/SEED-378-restore-three-share-test-budget-headroom.md#restore-three-share-test-budget-headroom) — SEED-378#restore-three-share-test-budget-headroom
 - [Extend syntax styling in code diffs](seeds/SEED-377-extend-syntax-styling-in-code-diffs.md#extend-syntax-styling-in-code-diffs) — SEED-377#extend-syntax-styling-in-code-diffs
 - [Remove the obsolete native revision opener](seeds/SEED-334-product-wide-end-to-end-tests.md#remove-obsolete-native-revision-opener) — SEED-334#remove-obsolete-native-revision-opener
 - [Move Intent CI proof, comparison and candidate checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-intent-ci-proof-comparison-and-candidate-checks) — SEED-334#move-intent-ci-proof-comparison-and-candidate-checks
