@@ -51,7 +51,7 @@ function directive(text: string) {
 }
 export function nativeTaskDirective(
   content: unknown,
-  context: Omit<NativeTaskFact, "workflow" | "origin" | "requested">,
+  context: Omit<NativeTaskFact, "workflow" | "origin" | "requested" | "turns">,
   first: boolean,
   explicitNative = false,
 ): NativeTaskFact | undefined {
@@ -69,6 +69,7 @@ export function nativeTaskDirective(
   if (!text && assignment.injected)
     return {
       ...context,
+      turns: [context.turnId],
       workflow: null,
       origin: "unknown",
       requested: {},
@@ -106,6 +107,7 @@ export function nativeTaskDirective(
   }
   return {
     ...context,
+    turns: [context.turnId],
     assignmentEvidence,
     workflow: invocation?.[1] ?? null,
     ...(storyReferences.length ? { storyReferences } : {}),

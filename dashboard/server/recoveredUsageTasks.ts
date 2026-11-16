@@ -180,7 +180,7 @@ export async function recoveredUsageTasks(
       host: fact.host,
       sessionId: fact.sessionId,
       rootTurnId: fact.turnId,
-      nativeTurns: [fact.turnId],
+      nativeTurns: fact.turns,
       workflow: fact.workflow,
       identity: story?.identity ?? null,
       title: story?.title ?? null,

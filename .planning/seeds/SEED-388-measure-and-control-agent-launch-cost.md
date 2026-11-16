@@ -121,7 +121,7 @@ Re-measured over the 30 days to 2026-11-16 from retained transcripts:
 
 #### Evidence
 
-- [Usage index undercount](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#usage-index-undercount):
+- [Usage index undercount](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#usage-index-undercount):
   82 of 265 Claude Code executions, median 0.53 of their cost.
 - Codex, observed 2026-11-16 from retained sessions and
   `~/.open-dough/dashboard/launch-history/usage.json`: 84 of 266 Codex launches
@@ -141,7 +141,7 @@ input-token equivalents, not raw processed tokens:
   attributed root turn has 235 responses; 1,453 later root responses account
   for another 22.36M. The retained audit describes the developer-requested
   supplier watch and its stop in
-  [the original trace](../../docs/maintainer/blocked-execution-experiment-findings.md#what-the-original-trace-establishes).
+  [the original trace](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/blocked-execution-experiment-findings.md#what-the-original-trace-establishes).
 - Doughnut `SEED-073#keep-answered-questions-with-their-tracker`, thread
   `01a1d285-5f73-77a1-9c74-724be6436d35`: the launch index is 29.84M. Its
   attributed root turn has 635 responses; 1,426 later root responses account

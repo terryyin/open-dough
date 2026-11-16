@@ -24,7 +24,7 @@ export function nativeTaskActivity(
       host: fact.host,
       sessionId: fact.sessionId,
       rootTurnId: fact.turnId,
-      nativeTurns: [fact.turnId],
+      nativeTurns: fact.turns,
       project: null,
       workflow: null,
       identity: null,

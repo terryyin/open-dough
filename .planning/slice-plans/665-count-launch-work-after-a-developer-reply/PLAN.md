@@ -2,6 +2,7 @@
 
 **Identity:** SEED-388#count-claude-code-work-after-a-developer-reply
 **Source:** [Count a dashboard launch's work after a developer reply](../../seeds/SEED-388-measure-and-control-agent-launch-cost.md#count-claude-code-work-after-a-developer-reply)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -85,6 +86,12 @@ Consumers (scratch-observed below): the whole
 
 ## Decisive premises
 
+The [November undercount sample](../../seeds/SEED-388-measure-and-control-agent-launch-cost.md#count-claude-code-work-after-a-developer-reply)
+found that the median Usage index captured 53% of launch-window transcript
+cost for the 82 Claude Code launches with a later developer input, versus
+100% for the 183 with a single input. The Codex story examples count later
+root responses and give lower bounds because later-turn workers were excluded.
+
 | Premise | Consuming operation | Observation and result |
 | --- | --- | --- |
 | A Claude Code reply's responses count in no task today, and extending the launch task's `nativeTurns` from the reader is enough to count them | Slice 1 rule and proof | 2026-11-16, this workspace at `0eb81b520`, integration `node_modules` linked: scratch spec through `runImport` and `usageServer(...).refresh()` / `chart("?tool=claude")` with launch input, response (100 output), human reply "1", response (300 output). Today: `[["SEED-7#claude-1",{"kind":"measured"},1950]]`. With a scratch reader change adding the reply's uuid to the active fact's turns and `nativeTurns: fact.turns ?? [fact.turnId]` in `recoveredUsageTasks.ts` and `nativeTaskActivity.ts`: `4900`. Reverted. |
@@ -108,7 +115,7 @@ Each slice targets 15 active minutes.
 
 ### 1. A developer reply continues its launch until another task starts
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/backend-tests/usage-history/token-index-developer-reply.spec.ts`
 (cases in the proof table for slice 1), through `runImport`,
 `usageServer(...).refresh()` and `chart(...)` / `storedUsage`; then the
@@ -169,4 +176,28 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
 
 ## Learnings
 
-None yet.
+- Slice 1 (2026-11-16): accepted proof is
+  `dashboard/backend-tests/usage-history/token-index-developer-reply.spec.ts`
+  (Claude reply 6,850; reply after completion 4,900; `/dough-land` and a second
+  reporting context each take their own turns, 4 associations) and
+  `token-index-developer-reply-codex.spec.ts` (reply turn 2 responses / 400;
+  reply-turn worker once, 1 / 70); all six fail without the rule. Consumer run
+  of `dashboard/backend-tests/usage-history` 98/98 after the refactor;
+  typecheck and lint pass. Facts sharing a key already merge `nativeTurns` by
+  union, so re-sinking the extended active fact needed no merge code. A Claude
+  bookkeeping input (such as a `/model` wrapper) now extends the active task;
+  it has no responses, so it adds no cost.
+
+## Story obligations
+
+### E1. Per-turn cost split is deferred
+Reported: slice 1 — "Per-turn cost split is deferred by the story"
+Story clause: "Splitting a launch's cost by turn or showing the developer's inputs in task detail."
+Disposition: excluded "Splitting a launch's cost by turn or showing the developer's inputs in task detail."
+Commitment: X1, X2
+
+### E2. Recovery of sessions started outside the dashboard is deferred
+Reported: slice 1 — "Native-session recovery changes are deferred by the story"
+Story clause: "Changing how sessions started outside the dashboard are recovered as tasks."
+Disposition: excluded "Changing how sessions started outside the dashboard are recovered as tasks."
+Commitment: X3

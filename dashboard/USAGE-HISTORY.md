@@ -80,7 +80,7 @@ excluded with source gaps and `excludedUnrelatedTasks` /
 Only an actual user workflow directive or supported host command wrapper supplies
 workflow/story intent. Skill documents, fenced examples and incidental names do
 not. The first user assignment can establish a task with unknown metadata;
-ordinary later Claude follow-ups remain ambiguous. Host-injected plugin lists,
+later plain inputs continue the active task. Host-injected plugin lists,
 AGENTS instructions, environment, skill and system context are classified by
 content part before detecting assignments; genuine text in a mixed message
 survives. A native task-start event alone proves lineage, not human intent.
@@ -138,9 +138,9 @@ retains its native `agentId` and joins its root through a recorded agent result
 and parent UUID chain. A native human input's recorded dashboard reporting
 reference (or a retained native input UUID) binds it to a launch. A repeated
 reference can continue that same launch; a different launch reference selects
-another task in the same session. Unclassified human follow-ups have an unknown
-task boundary and remain unassigned with a lineage gap; their parent
-conversation alone does not establish continuing task scope. Missing workers,
+another task in the same session. A plain developer input adds its turn to the
+active task's `nativeTurns`, even after a completion receipt, until a workflow
+invocation or reporting context starts another task. Missing workers,
 root transcripts, unsupported message identities and auxiliary work remain
 explicit coverage gaps. Additional measurements may fill missing counters.
 Conflicting measured values produce unknown affected counters and a

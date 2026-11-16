@@ -41,12 +41,12 @@ test("joins later Claude retained timestamp identity to one recovered task and p
         usage: { output_tokens: 8 },
       })
       .withUser({
-        uuid: "unknown-followup",
+        uuid: "followup",
         content: "Thanks, tell me more",
       })
       .withAssistant({
-        uuid: "unclassified",
-        messageId: "unclassified",
+        uuid: "followup-answer",
+        messageId: "followup-answer",
         usage: { output_tokens: 100 },
       })
       .please(),
@@ -56,7 +56,7 @@ test("joins later Claude retained timestamp identity to one recovered task and p
   const task = Object.values(initial.tasks)[0];
   assert(task);
   expect(task.origin).toBe("dashboard");
-  expect(taskUsage(initial, task.id).tokens.output).toBe(8);
+  expect(taskUsage(initial, task.id).tokens.output).toBe(108);
   expect(Object.values(initial.tasks)).toHaveLength(1);
   const retained = makeMe.aLaunchRecord
     .executing({ identity: "SEED-42#story", title: "Retained title" })
@@ -79,11 +79,11 @@ test("joins later Claude retained timestamp identity to one recovered task and p
       identity: "SEED-42#story",
     }),
   );
-  expect(taskUsage(enriched, task.id).tokens.output).toBe(8);
+  expect(taskUsage(enriched, task.id).tokens.output).toBe(108);
   rmSync(claude, { recursive: true });
   runImport(home, root, ["--claude-root", claude]);
   expect(readImported(home).tasks[task.id]?.title).toBe("Retained title");
-  expect(taskUsage(readImported(home), task.id).tokens.output).toBe(8);
+  expect(taskUsage(readImported(home), task.id).tokens.output).toBe(108);
 });
 
 test("retains contradictory historical facts and reporting project joins without selecting a current title", async ({
