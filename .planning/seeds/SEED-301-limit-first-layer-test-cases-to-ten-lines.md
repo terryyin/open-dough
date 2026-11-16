@@ -35,3 +35,32 @@ in individual test case bodies and verify that a 10-line case passes and an
 Set up the tooling in dependency order. Use Nix to manage the development
 environment, provide Python through that environment, then add Lizard for
 line counting.
+
+<a id="arrange-ci-comparison-tests-through-makeme"></a>
+
+### Arrange CI comparison frontend tests through MakeMe
+
+**Identity:** SEED-301#arrange-ci-comparison-tests-through-makeme
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planless"}
+```
+
+**Goal:** Dashboard Frontend Tests of the story CI comparison read as short
+scenarios: their data is built through MakeMe builder steps instead of many
+separately imported fact helpers, so each spec imports less and each case
+states only the facts it relies on.
+
+**Scope:** The CI comparison family in `dashboard/frontend-tests` (the Summary
+and Proof comparison specs and their `mountedComparison*Cases.ts`) and the
+data helpers they import from `dashboard/tests/support`: prepared comparison,
+summary scope, mixed, relative and wall-time entries, adapter slots and
+selections. These become steps of one MakeMe builder for a compared story;
+turning prepared proof into the rendered endpoint proofs moves into the
+rendering harness. Expected rows, page objects and serving stay where they
+are. Other frontend families (served dashboard answers, Intent published
+projects, launches and sessions) follow as their own stories.
+
+**Known expectations:** every changed spec keeps its scenario inputs and
+independent expectations and passes; the family's data-building imports from
+`dashboard/tests/support` drop to the builder entry point; superseded helper
+modules are removed.

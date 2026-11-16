@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 - [Speed up the slowest dashboard frontend unit tests](seeds/SEED-380-speed-up-the-slowest-dashboard-frontend-unit-tests.md#speed-up-the-slowest-dashboard-frontend-unit-tests) — SEED-380#speed-up-the-slowest-dashboard-frontend-unit-tests ([plan](slice-plans/653-speed-up-the-slowest-dashboard-frontend-unit-tests/PLAN.md))
 - [Fixed pattern shards for the Distribution suite](seeds/SEED-381-fixed-ci-test-shards.md#fixed-pattern-shards-for-the-distribution-suite) — SEED-381#fixed-pattern-shards-for-the-distribution-suite ([plan](slice-plans/654-fixed-pattern-shards-for-the-distribution-suite/PLAN.md))
+- [Arrange CI comparison frontend tests through MakeMe](seeds/SEED-301-limit-first-layer-test-cases-to-ten-lines.md#arrange-ci-comparison-tests-through-makeme) — SEED-301#arrange-ci-comparison-tests-through-makeme
 
 ## Backlog list
 
