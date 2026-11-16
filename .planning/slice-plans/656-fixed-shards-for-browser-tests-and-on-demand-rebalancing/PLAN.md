@@ -323,6 +323,17 @@ premises are bounded by the early probe in slice 5.
   rest); `dashboard-frontend` 928 in one shard. Playwright `--list` through a
   group configuration needs `--reporter=list`. A workflow input description
   with `` `<shard>: …` `` is invalid YAML that only `prettier --check` caught.
+- Slice 5, run 43805225551 at `cee9c1db2`: GitHub accepted the unread
+  `specs` input (premise settled). Job start to test-step end, seconds,
+  against the bounds: `e2e` 234, 212, 198, 228, 185, 220 (bound 311);
+  `dashboard-backend` 254, 205, 192 (315); `dashboard-integrated` 67, 67, 76,
+  98 (133); `dashboard-frontend` 312 (443). Times artifacts name every
+  discovered spec exactly once: `e2e` 422, integrated 61, frontend 195,
+  backend 495. Distribution Tests (3/3) failed: `local-test-suite*.test.mjs`'s
+  fixture `ci.yml` declared no browser jobs, so loading a configuration
+  refused it; repaired by declaring the four jobs as one-shard caller jobs in
+  `local-test-suite-checkout.mjs` (slice 4's consumer trace had missed that
+  fixture).
 
 ## Story obligations
 
