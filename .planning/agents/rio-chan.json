@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rio-chan",
+  "email": "rio-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-388#replace-native-reader-gaps-on-reread",
+  "host": "claude",
+  "model": "opus"
+}
