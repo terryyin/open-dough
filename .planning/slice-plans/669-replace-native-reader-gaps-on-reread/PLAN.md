@@ -34,8 +34,10 @@ that commit.
 
 PFE: the session-scoped replacement already exists (`reconciledGaps`,
 `gapSessions`); the reader only has to name the host its callers already know.
-`nativeUsageLines` has exactly two callers, `codexUsage.ts` and
-`claudeUsage.ts`. No new module, dependency or ADR topic.
+`nativeUsageLines` has four callers: `codexUsage.ts` and `claudeUsage.ts`,
+whose gaps reach the store, and `agentEffortClaudeWakes.ts` and
+`agentEffortCodexWakes.ts`, which only test whether any gap occurred and keep
+that behavior. No new module, dependency or ADR topic.
 
 ## Proof ownership
 
@@ -52,6 +54,7 @@ Observed 2026-11-16 at `a3553a7ad`, Node v24.21.0.
 
 | Premise / consuming operation | Result and limit |
 | --- | --- |
+| `nativeUsageLines` callers; slice 1 sizing | Four call sites, all in `dashboard/server`; the two agent-effort wake readers count gaps only, so naming the host changes nothing they observe. |
 | A hosted reader gap resolves to its session; slice 1 | `gapSessions` with `host: "claude"` on a `…/<session>/subagents/agent-*.jsonl` path gives the session id; with `host: "codex"` on a `rollout-…-<thread>.jsonl.zst` path gives the thread id. Without a host, `gapSessionKeys` returns none. |
 
 ## Ordered slices
@@ -75,6 +78,11 @@ timeouts and never `test.slow()`. Run
 CI. No long local run: sleep guard
 [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 applies only if one is added.
+
+## Concerns
+
+Refinement not needed: one Behavior slice with its proof cases named. This
+review found no remaining slice-specific concern.
 
 ## Learnings
 

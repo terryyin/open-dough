@@ -24,7 +24,7 @@ on this index at a known effort, so the remaining corrections come first.
 
 **Identity:** SEED-388#replace-native-reader-gaps-on-reread
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/669-replace-native-reader-gaps-on-reread/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/669-replace-native-reader-gaps-on-reread/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4b4e221c433b058be50b8245c725d3bfb8b8d1fd9c4388faa8168c1f4ef4da93","plan":"85538b38d39345f48cbdcbfdd747915497fd967df4919fa47f1936be97c1eeff"}}
 ```
 
 #### Goal
