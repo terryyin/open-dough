@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-388#read-claude-rows-with-unicode-line-separators",
+  "title": "Read Claude Code rows that contain Unicode line separators",
+  "completedAt": "2026-11-16T13:09:32.791Z",
+  "developer": "Terry Yin",
+  "agent": "Nao-chan",
+  "host": "claude"
+}

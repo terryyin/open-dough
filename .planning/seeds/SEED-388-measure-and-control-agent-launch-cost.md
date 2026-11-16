@@ -13,55 +13,36 @@ The [Claude Code usage spike analysis](https://github.com/terryyin/open-dough/bl
 found that the Usage index hid much of the cost of executions that needed a
 developer, and associated an unrequested effort level with roughly three times
 the cost across 11 executions. The index now counts a launch's work after a
-developer reply on both tools, and background agents at any depth; one
-Claude Code reader gap below still loses some responses. The [SEED-345](SEED-345-session-token-efficiency.md)
+developer reply on both tools, background agents at any depth, and rows whose
+text holds Unicode line separators. The [SEED-345](SEED-345-session-token-efficiency.md)
 efficiency trials use the [retained effort command](../../dashboard/AGENT-EFFORT.md)
 on this index at a known effort, so the remaining corrections come first.
 
-<a id="read-claude-rows-with-unicode-line-separators"></a>
+<a id="replace-native-reader-gaps-on-reread"></a>
 
-### Read Claude Code rows that contain Unicode line separators
+### Replace native reader gaps when a session is read again
 
-**Identity:** SEED-388#read-claude-rows-with-unicode-line-separators
+**Identity:** SEED-388#replace-native-reader-gaps-on-reread
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/667-read-claude-rows-with-unicode-line-separators/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"84ed9ddcae96b9fed4b098676169e5c783ffbda8e138887dc200cadbd2250d5c","plan":"6a9ca7bea76624977a5a6e54f01d7ccf6adf02cf10f914afe1cd48fb4029f83e"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/669-replace-native-reader-gaps-on-reread/PLAN.md"}
 ```
 
 #### Goal
 
-A maintainer reading the Usage index sees every response a launch's native
-transcripts record, including a response whose row text contains a raw U+2028
-or U+2029. Today Node's `readline` in `nativeUsageLines`
-(`dashboard/server/nativeUsageFiles.ts`) treats those characters as line ends,
-so the row is recorded as `malformed-native-row`, its response is lost, and
-later rows whose parent link runs through it fail to climb.
-SEED-124#save-pronunciations-as-note-properties shows 12.74M against 15.42M
-(82 of 434 responses missing). This removes the last known Claude Code reader
-gap before the comparable-run measure below relies on the index.
+A maintainer reading the Usage store sees only the reader gaps a session's
+native files still have. Today `malformed-native-row` and
+`native-source-unreadable` gaps carry no host, so a write that reads their
+session again keeps them: a live transcript's half-written last row, seen once
+by Refresh, stays a gap after the row completes, contrary to
+`dashboard/USAGE-HISTORY.md`. Correction of
+SEED-388#read-claude-rows-with-unicode-line-separators.
 
 #### Scope
 
-- The native reader frames rows on newline only, as JSON Lines defines them,
-  so a row with a raw U+2028 or U+2029 is read whole on Codex and Claude Code,
-  in import and Refresh alike. A gap's line number is the file's line.
-- A row that is still not valid JSON stays a `malformed-native-row` gap, and
-  the reader stays bounded in memory: no whole-file read.
-- Existing stores gain the responses on their next `import`, as
-  `dashboard/USAGE-HISTORY.md` recovers a store; Refresh rereads only sessions
-  that changed. Automatic repair of stored history is excluded, as for the
-  nested-agent correction.
-
-#### Key examples
-
-- A Claude Code worker transcript holds a valid assistant row whose text
-  contains U+2028, followed by rows whose parent link runs through it → import
-  → the row's response is counted, the later rows reach their launch, and no
-  `malformed-native-row` gap is recorded for that file.
-- A Codex rollout row containing U+2029 → import → read whole, no gap.
-- A file with a truncated last row → import → that row is still one
-  `malformed-native-row` gap at its own line; earlier responses are counted.
-- After one real-store import, SEED-124's launch counts all its responses and
-  matches its 15.42M transcript cost.
+- Reader gaps name their host, so import and Refresh replace them with the
+  gaps a reread still reports, on Codex and Claude Code alike.
+- Gaps already stored without a host stay as they are: automatic repair of
+  stored history stays excluded.
 
 <a id="name-the-effort-a-session-ran-with"></a>
 

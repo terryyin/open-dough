@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-388_read-claude-rows-with-unicode-line-separators.json",
+      "identity": "SEED-388#read-claude-rows-with-unicode-line-separators",
+      "completedAt": "2026-11-16T13:09:32.791Z",
+      "blob": "8e89d9b68a1c686342c95ac9747737540a40f009"
+    },
+    {
       "fileName": "SEED-345_compare-agent-effort-on-comparable-runs.json",
       "identity": "SEED-345#compare-agent-effort-on-comparable-runs",
       "completedAt": "2026-11-16T12:17:31.438Z",
@@ -2430,12 +2436,6 @@
       "identity": "SEED-136#unify-and-streamline-dashboard-e2e",
       "completedAt": "2026-10-17T22:21:43.448Z",
       "blob": "5d46b3afa459745827ce6512ef4b57a513db968f"
-    },
-    {
-      "fileName": "SEED-138_compute-execution-readiness.json",
-      "identity": "SEED-138#compute-execution-readiness",
-      "completedAt": "2026-10-17T13:02:28.320Z",
-      "blob": "745d6440add96eae2f4cfc9b40b67d888aa4bd52"
     }
   ],
   "unreadable": []

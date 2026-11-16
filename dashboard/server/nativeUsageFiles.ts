@@ -2,7 +2,6 @@
 // never permission to discard independently readable response evidence.
 import { createReadStream } from "node:fs";
 import { readdir } from "node:fs/promises";
-import { createInterface } from "node:readline";
 import { pipeline } from "node:stream/promises";
 import { createZstdDecompress } from "node:zlib";
 import path from "node:path";
@@ -58,10 +57,9 @@ export async function* nativeUsageLines(file: string, gaps: UsageGap[]) {
       : pipeline(source, decoder).catch(() => {
           unreadable = true;
         });
-  const lines = createInterface({ input, crlfDelay: Infinity });
   let line = 0;
   try {
-    for await (const text of lines) {
+    for await (const text of jsonLines(input)) {
       line++;
       if (!text.trim()) continue;
       try {
@@ -76,7 +74,6 @@ export async function* nativeUsageLines(file: string, gaps: UsageGap[]) {
   } catch {
     unreadable = true;
   } finally {
-    lines.close();
     input.destroy();
     source.destroy();
     await decoding;
@@ -86,4 +83,28 @@ export async function* nativeUsageLines(file: string, gaps: UsageGap[]) {
         source: { kind: "native", file },
       });
   }
+}
+// JSON Lines rows end at "\n" alone; readline would also end them at a raw
+// U+2028 or U+2029 inside row text. The 0x0A byte never occurs inside a UTF-8
+// multi-byte sequence, so each frame decodes on its own.
+async function* jsonLines(input: AsyncIterable<Buffer>) {
+  let pending: Buffer[] = [];
+  const frame = (tail: Buffer) => {
+    const text = Buffer.concat([...pending, tail]).toString("utf8");
+    pending = [];
+    return text.endsWith("\r") ? text.slice(0, -1) : text;
+  };
+  for await (const chunk of input) {
+    let start = 0;
+    for (
+      let end = chunk.indexOf(0x0a, start);
+      end !== -1;
+      end = chunk.indexOf(0x0a, start)
+    ) {
+      yield frame(chunk.subarray(start, end));
+      start = end + 1;
+    }
+    if (start < chunk.length) pending.push(chunk.subarray(start));
+  }
+  if (pending.length > 0) yield frame(Buffer.alloc(0));
 }
