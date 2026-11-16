@@ -1,7 +1,7 @@
 // A browser test group's shard from the patterns its CI job declares:
 // support/testFiles.mjs selects through scripts/test-share-matrix.mjs, the
-// rule the Distribution shares use (./test-share-workflow.test.mjs). The deal
-// by duration lists: ./dashboard-test-files.test.mjs.
+// rule the Distribution shares use (./test-share-workflow.test.mjs). Each
+// group's actual specs over its CI shards: ./browser-group-shards.test.mjs.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
@@ -165,5 +165,18 @@ test("a selection naming no job runs every spec under any split", () => {
       matchedSpecs(dashboardTestMatch(testDir, "2/3", fixtureRun), dashboard),
       specs,
     );
+  });
+});
+
+test("a last shard the patterns leave empty selects no spec rather than every spec", () => {
+  const claimed = workflowWith([
+    "1: dashboard/backend-tests/launches/** dashboard/backend-tests/runtime/** dashboard/backend-tests/intent/**",
+    "2: dashboard/backend-tests/sessions/**",
+  ]);
+  withRepository(claimed, ({ testDir, selection }) => {
+    const matches = dashboardTestProjects(testDir, "3/3", selection).flatMap(
+      (project) => project.testMatch,
+    );
+    assert.equal(matches.length, 0);
   });
 });

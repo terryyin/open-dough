@@ -3,7 +3,7 @@
 // configuration (../../integrated.playwright.config.ts,
 // ../../frontend.playwright.config.ts, ../../backend.playwright.config.ts,
 // ../../../e2e/playwright.config.ts) names its own settings prefix, root,
-// duration list and output directory and keeps its own global setup, so no
+// CI job and output directory and keeps its own global setup, so no
 // run reads another runner's split, times, proof record, deadline or output
 // directory, and each selects only its own root's specs (prepareFocusedRun).
 import { availableParallelism } from "node:os";
@@ -15,6 +15,7 @@ import { acquireLocalSuite } from "../../../scripts/local-test-suite.mjs";
 import { fullDashboardSuite } from "./fullSuiteSelection.mjs";
 import { remainingSuiteTime } from "./suiteDeadline.mjs";
 import {
+  ciGroupSelection,
   dashboardTestMatch,
   dashboardTestProjects,
   runOutputs,
@@ -170,33 +171,29 @@ async function prepareGroupRun(variables, outputs) {
 /**
  * Prepares one group's run: it reads only `<prefix>_*` settings, keeps its
  * run directories under its own `root` of `directory` (the configuration's
- * testDir; `.` is the directory itself), and selects only that root's specs,
- * dealt by its own `<prefix>_SPLIT` and the seconds its own duration list
- * (`durations`, relative to `directory`) records for them. Spec labels are
- * relative to `directory`, as its times file names them. `projects`
- * partitions the selection into the `chromium-deployments` production chains
- * and the `chromium` rest (./testFiles.mjs).
+ * testDir; `.` is the directory itself), and selects only that root's specs:
+ * shard i of `<prefix>_SPLIT=<i>/<n>` as its CI `job` in
+ * .github/workflows/ci.yml declares it, or every spec without a split. Spec
+ * labels are relative to `directory`, as its times file names them.
+ * `projects` partitions the selection into the `chromium-deployments`
+ * production chains and the `chromium` rest (./testFiles.mjs).
  * @param {string} prefix
  * @param {URL} directory
  * @param {string} root
- * @param {string} durations
+ * @param {string} job
  * @returns {Promise<{
  *   options: import("@playwright/test").PlaywrightTestConfig,
  *   testMatch: RegExp[],
  *   projects: { name: string, testMatch: RegExp[] }[],
  * }>}
  */
-export async function prepareFocusedRun(prefix, directory, root, durations) {
+export async function prepareFocusedRun(prefix, directory, root, job) {
   const variables = runnerVariables(prefix);
   const run = await prepareGroupRun(
     variables,
     fileURLToPath(new URL(`${root}/`, directory)),
   );
-  const selection = {
-    roots: [root],
-    splitVariable: variables.split,
-    durations,
-  };
+  const selection = ciGroupSelection(root, variables.split, job);
   return {
     options: run.options,
     testMatch: dashboardTestMatch(directory, run.split, selection),

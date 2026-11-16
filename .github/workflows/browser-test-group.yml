@@ -3,13 +3,14 @@ name: Browser test group
 # One Playwright test group's CI producer, called once per group by ci.yml:
 # E2E Test, Dashboard Integrated UI Test, Dashboard Frontend Test and
 # Dashboard Backend Test each run here under their own npm command, settings
-# prefix, shard matrix, duration list, outputs and CI proof entry, so changing
-# one group's shards or settings leaves the others' selection and settings
-# unchanged. Each group runs against controlled GitHub responses (no
-# credentials, no live project contents) as one shard job per matrix shard,
-# each running its deal of the group's spec files (dashboard/tests/shards.md)
-# and failing on its own failing test. Tests that serve the production app
-# share a build within their shard and fail if the build fails.
+# prefix, shard matrix, outputs and CI proof entry, so changing one group's
+# shards or settings leaves the others' selection and settings unchanged.
+# Each group runs against controlled GitHub responses (no credentials, no live
+# project contents) as one shard job per matrix shard, each running the spec
+# files its shard's `specs` patterns in ci.yml select (the last shard the
+# rest; dashboard/tests/support/testFiles.mjs) and failing on its own failing
+# test. Tests that serve the production app share a build within their shard
+# and fail if the build fails.
 on:
   workflow_call:
     inputs:
@@ -33,6 +34,12 @@ on:
         description: The group's shard matrix, a JSON array such as `[1, 2, 3]`.
         type: string
         required: true
+      # ci.yml owns it; the group's configuration reads it there, from the
+      # caller job's declaration, so no step here reads this input.
+      specs:
+        description: Each shard but the last on its own line, its shard number, a colon and its space-separated repository-relative spec glob patterns; the last shard runs the rest. A one-shard group gives none.
+        type: string
+        default: ""
       lint:
         description: Run lint and the dashboard type-check once on this group's runner.
         type: boolean
@@ -152,8 +159,9 @@ jobs:
         run: |
           export "${SETTINGS}_SPLIT=${SPLIT}" "${SETTINGS}_TIMES=${TIMES}" "${SETTINGS}_PROOF_RECORD=${PROOF_RECORD}"
           exec npm run "${COMMAND}"
-      # This shard's per-spec-file seconds, written however the run ended, for
-      # refreshing the group's duration list (dashboard/tests/shards.md).
+      # This shard's per-spec-file seconds, written however the run ended, read
+      # with `gh run download` by scripts/ci-shard-balance.mjs: the input for
+      # moving a pattern between shards when they drift apart.
       - name: Keep per-spec times
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
@@ -161,7 +169,7 @@ jobs:
           name: ${{ inputs.group }}-times-${{ matrix.shard }}
           path: ${{ runner.temp }}/browser-times.txt
           if-no-files-found: ignore
-          retention-days: 7
+          retention-days: 90
       # This shard's test cases of the group's proof entry, from its own
       # proof record (dashboard/tests/proof-record.md).
       - name: Keep the CI proof fragments

@@ -163,7 +163,7 @@ export default {
   projects: dashboardTestProjects(
     new URL(${JSON.stringify(pathToFileURL(`${directory}/`).href)}),
     undefined,
-    { roots: ["."], splitVariable: "UNSET_SPLIT", durations: "longest-first" },
+    { roots: ["."], splitVariable: "UNSET_SPLIT" },
   ),
 };
 `,

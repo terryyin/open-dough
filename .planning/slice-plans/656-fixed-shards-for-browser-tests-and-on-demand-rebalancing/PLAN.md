@@ -138,7 +138,7 @@ use, returns every file. Interim: the real configurations still pass
 
 ### 4. Run CI's browser shards from the workflow
 Type: Behavior
-Status: planned
+Status: done
 Proof: `browser-group-shards.test.mjs` rewritten: every actual spec of each
 group in exactly one of its CI shards, and E2E's two projects partitioning
 each shard; `ci-browser-groups.test.mjs` and the CI proof checks green;
@@ -311,10 +311,22 @@ premises are bounded by the early probe in slice 5.
   2026-11-15T14:11Z–2026-11-16T03:39Z), highest slowest-job seconds (job start
   to end of test step): `e2e` 311, `dashboard-backend` 315,
   `dashboard-integrated` 133, `dashboard-frontend` 443.
+- Slice 4 (about 20 active minutes, over the 15-minute budget with all proof
+  finished): `testFiles.mjs` exports `ciGroupSelection(root, splitVariable,
+  job)`, used by `runnerConfig.mjs` and `proofRecordRun.ts`; the deal cases
+  of `dashboard-test-files.test.mjs` went with the deal call. Starting totals
+  from `node scripts/ci-shard-balance.mjs <group>` on the working tree (5
+  `main` runs, 2026-11-15T17:13Z–2026-11-16T03:39Z, no untimed files): `e2e`
+  even 780: 845, 777, 762, 776, 687, 833; `dashboard-backend` even 698: 739,
+  707, 647; `dashboard-integrated` even 179: 201, 164, 172, 180 (navigation
+  divided as `board-*` `source-*` | `story-*` `side-*` `notification-*` | the
+  rest); `dashboard-frontend` 928 in one shard. Playwright `--list` through a
+  group configuration needs `--reporter=list`. A workflow input description
+  with `` `<shard>: …` `` is invalid YAML that only `prettier --check` caught.
 
 ## Story obligations
 
 ### G1. Real browser configurations still deal by duration lists
 Reported: slice 3 — "Interim deal kept: a selection naming durations (and no job) still deals by its duration list when there is a split."
 Story clause: "each browser configuration asks it for its shard's spec files and is told only the shard number"
-Disposition: interim until slices 4
+Disposition: proved by slice 4: dashboard/tests/support/testFiles.mjs has no deal import; the four configurations pass their job through runnerConfig.mjs prepareFocusedRun; Distribution/tests/support/browser-group-shards.test.mjs selects every real shard from ci.yml

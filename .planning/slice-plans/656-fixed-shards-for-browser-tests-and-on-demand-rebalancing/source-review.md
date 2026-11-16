@@ -16,32 +16,32 @@ returned `X` ids.
 | 1 | Goal: maintainers rebalance every CI test group's shards only when they choose to. | slice 8 | |
 | 2 | Rebalancing is done from recent CI evidence. | slice 8 | |
 | 3 | Every remaining shard is declared as fixed configuration. | slice 8 | |
-| 4a.1 | The `e2e` job in `.github/workflows/ci.yml` declares its shards there. | slice 4 | |
-| 4a.2 | The `dashboard-integrated` job declares its shards in `ci.yml`. | slice 4 | |
-| 4a.3 | The `dashboard-frontend` job declares its shards in `ci.yml`. | slice 4 | |
-| 4a.4 | The `dashboard-backend` job declares its shards in `ci.yml`. | slice 4 | |
-| 4b | Shards are declared the way the `distribution-tests` matrix declares them. | slice 4 | |
-| 4c | Every shard but the last names the spec files it runs as repository-relative folder or file glob patterns. | slice 4 | |
-| 4d | Patterns apply over the spec files the group's configuration already discovers. | slice 4 | |
-| 4e | The last shard names no pattern and runs every discovered spec no earlier shard claims. | slice 4 | |
-| 4f | A one-shard group declares no pattern. | slice 4 | |
-| 4g.1 | Shard counts stay as they are. | slice 4 | |
-| 4g.2 | Job names stay as they are. | slice 4 | |
-| 4g.3 | CI proof parts stay as they are. | slice 4 | |
-| 4g.4 | `<group>-times-<shard>` artifact names stay as they are. | slice 4 | |
+| 4a.1 | The `e2e` job in `.github/workflows/ci.yml` declares its shards there. | slice 4 | observed: .github/workflows/ci.yml e2e specs block |
+| 4a.2 | The `dashboard-integrated` job declares its shards in `ci.yml`. | slice 4 | observed: .github/workflows/ci.yml dashboard-integrated specs block |
+| 4a.3 | The `dashboard-frontend` job declares its shards in `ci.yml`. | slice 4 | observed: .github/workflows/ci.yml dashboard-frontend shards [1], no specs; Distribution/tests/support/browser-group-shards.test.mjs reads it |
+| 4a.4 | The `dashboard-backend` job declares its shards in `ci.yml`. | slice 4 | observed: .github/workflows/ci.yml dashboard-backend specs block |
+| 4b | Shards are declared the way the `distribution-tests` matrix declares them. | slice 4 | observed: .github/workflows/ci.yml caller jobs declare shards+specs read by the same readShareDeclaration as the distribution-tests matrix |
+| 4c | Every shard but the last names the spec files it runs as repository-relative folder or file glob patterns. | slice 4 | observed: .github/workflows/ci.yml specs lines: repository-relative folder/file globs for every shard but the last |
+| 4d | Patterns apply over the spec files the group's configuration already discovers. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs every real spec each configuration discovers is in exactly one CI shard |
+| 4e | The last shard names no pattern and runs every discovered spec no earlier shard claims. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs new-area spec lands only in the last E2E shard; every spec in exactly one shard |
+| 4f | A one-shard group declares no pattern. | slice 4 | observed: .github/workflows/ci.yml dashboard-frontend declares no specs |
+| 4g.1 | Shard counts stay as they are. | slice 4 | observed: .github/workflows/ci.yml shards inputs unchanged |
+| 4g.2 | Job names stay as they are. | slice 4 | observed: .github/workflows/ci.yml job ids unchanged |
+| 4g.3 | CI proof parts stay as they are. | slice 4 | observed: ci-proof-actions/ci-proof-declaration/distribution-ci-proof tests green, proof parts unchanged |
+| 4g.4 | `<group>-times-<shard>` artifact names stay as they are. | slice 4 | observed: .github/workflows/browser-test-group.yml artifact name ${{ inputs.group }}-times-${{ matrix.shard }} unchanged |
 | 5a | Loading a group's configuration fails, before any test is selected, when a spec file matches the patterns of two shards. | slice 3 | observed: Distribution/tests/support/dashboard-declared-shards.test.mjs overlap refusal with and without a split, thrown by dashboardTestMatch/dashboardTestProjects before selection (real configurations: slice 4) |
 | 5b | That overlap failure names the file and the shards. | slice 3 | observed: Distribution/tests/support/dashboard-declared-shards.test.mjs overlap refusal exact message names the spec and shares 1 and 2 |
 | 5c | Loading a group's configuration fails, before any test is selected, when a pattern matches no spec file. | slice 3 | observed: Distribution/tests/support/dashboard-declared-shards.test.mjs unmatched-pattern refusal with and without a split |
 | 5d | That unmatched-pattern failure names the pattern. | slice 3 | observed: Distribution/tests/support/dashboard-declared-shards.test.mjs unmatched-pattern exact message names the pattern |
 | 5e | This is the same rule and the same check the Distribution shares use. | slice 3 | observed: dashboard/tests/support/testFiles.mjs declaredShardFiles calls readShareDeclaration/shareOfSplit/selectShare, the Distribution runner's rule |
-| 6a | A shard is reproducible locally by its number through the group's existing `<prefix>_SPLIT=i/n`. | slice 4 | |
-| 6b | A run without `<prefix>_SPLIT` runs every spec of the group. | slice 4 | |
-| 7a | The starting shards come from recent `main` timing through the rebalancing script. | slice 4 | |
-| 7b | Starting shards use folder patterns first. | slice 4 | |
-| 7c | File-name globs are used only where one folder outweighs an even shard. | slice 4 | |
+| 6a | A shard is reproducible locally by its number through the group's existing `<prefix>_SPLIT=i/n`. | slice 4 | observed: slice 4 return: OPEN_DOUGH_E2E_SPLIT=2/6 playwright --list → 70 files = sessions/agent-* + stories/**; Distribution/tests/support/browser-group-shards.test.mjs per-shard selection from the real ci.yml |
+| 6b | A run without `<prefix>_SPLIT` runs every spec of the group. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs a run without a split takes every spec |
+| 7a | The starting shards come from recent `main` timing through the rebalancing script. | slice 4 | observed: PLAN.md Learnings slice 4: ci-shard-balance.mjs totals for each group on the working tree |
+| 7b | Starting shards use folder patterns first. | slice 4 | observed: .github/workflows/ci.yml backend and e2e shards are folder patterns except where a folder outweighs an even shard |
+| 7c | File-name globs are used only where one folder outweighs an even shard. | slice 4 | observed: .github/workflows/ci.yml file-name globs only for e2e launches/sessions (over an even shard) and integrated navigation (516 s vs even 179 s) |
 | 7d | Starting shards are tuned once from the story's own CI runs. | slice 5 | |
-| 8a | Each shard keeps uploading its `<group>-times-<shard>` artifact. | slice 4 | |
-| 8b | That artifact is now retained for 90 days, as the Distribution `test-times-<i>` artifacts are. | slice 4 | |
+| 8a | Each shard keeps uploading its `<group>-times-<shard>` artifact. | slice 4 | observed: .github/workflows/browser-test-group.yml Keep per-spec times step unchanged |
+| 8b | That artifact is now retained for 90 days, as the Distribution `test-times-<i>` artifacts are. | slice 4 | observed: .github/workflows/browser-test-group.yml retention-days: 90 |
 | 9a.1 | Remove `e2e/longest-first*`. | slice 6 | |
 | 9a.2 | Remove `dashboard/*.longest-first*`. | slice 6 | |
 | 9a.3 | Remove the deal code. | slice 6 | |
@@ -80,20 +80,20 @@ returned `X` ids.
 | 12d.3 | The skill says the next `main` runs are the check of an applied change. | slice 8 | |
 | 13a | Qualification: `scripts/ci-job-times.sh` stays and keeps deciding how many jobs a group has. | slice 6 | |
 | 13b | Qualification: the job-count rule in `dashboard/tests/shards.md` stays and keeps deciding how many jobs a group has. | slice 6 | |
-| 14 | Qualification: shards are declared by spec patterns only. | slice 4 | |
-| 15 | Qualification: the `chromium-deployments` and `chromium` Playwright projects keep queueing the serial production chains first inside whichever shard their files belong to. | slice 4 | |
+| 14 | Qualification: shards are declared by spec patterns only. | slice 4 | observed: .github/workflows/ci.yml shards declared only by specs patterns |
+| 15 | Qualification: the `chromium-deployments` and `chromium` Playwright projects keep queueing the serial production chains first inside whichever shard their files belong to. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs E2E's two projects split each shard with production chains first |
 | 16a | Qualification: the per-spec times reporter is kept. | slice 6 | |
 | 16b | Qualification: the times form of the artifacts is kept (they are the rebalancing input). | slice 6 | |
 | 17a | Qualification: the script proposes one change per invocation. | slice 7 | |
 | 17b | A maintainer wanting more applies it and invokes the script again. | slice 8 | |
-| 18a | Example: adding `e2e/new-area/first.spec.ts` and nothing else → CI runs it once, in the last E2E shard. | slice 4 | |
+| 18a | Example: adding `e2e/new-area/first.spec.ts` and nothing else → CI runs it once, in the last E2E shard. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs new-area/first.spec.ts lands only in shard 6 |
 | 18b | Example: no list or preview step precedes that push. | slice 6 | |
-| 19 | Example: adding `dashboard/backend-tests/launches/new-case.spec.ts` → CI runs it once, in the backend shard whose pattern names that folder. | slice 4 | |
-| 20a | Example: one E2E shard has `e2e/sessions/**`, another `e2e/sessions/agent-*` → `npm run test:e2e` fails before any test starts. | slice 4 | |
-| 20b | Same example: every E2E shard fails before any test starts. | slice 4 | |
-| 20c | Same example: the failure names one overlapping spec file and both shards. | slice 4 | |
-| 21 | Example: last spec moved out of `dashboard/tests/intent`, pattern left behind → integrated configuration fails naming the pattern that matches no spec file. | slice 4 | |
-| 22 | Example: `OPEN_DOUGH_E2E_SPLIT=2/6 npm run test:e2e` locally → runs exactly the spec files CI's second E2E shard runs. | slice 4 | |
+| 19 | Example: adding `dashboard/backend-tests/launches/new-case.spec.ts` → CI runs it once, in the backend shard whose pattern names that folder. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs backend-tests/launches/new-case.spec.ts lands only in the launches/** shard |
+| 20a | Example: one E2E shard has `e2e/sessions/**`, another `e2e/sessions/agent-*` → `npm run test:e2e` fails before any test starts. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs overlapping e2e patterns throw from dashboardTestMatch/dashboardTestProjects with no split, which e2e/playwright.config.ts calls at load before any test |
+| 20b | Same example: every E2E shard fails before any test starts. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs overlap fails every split 1/6..6/6 |
+| 20c | Same example: the failure names one overlapping spec file and both shards. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs overlap message names one spec and shares 1 and 2 |
+| 21 | Example: last spec moved out of `dashboard/tests/intent`, pattern left behind → integrated configuration fails naming the pattern that matches no spec file. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs removing dashboard/tests/intent fails: pattern dashboard/tests/intent/** of share 1 matches no check |
+| 22 | Example: `OPEN_DOUGH_E2E_SPLIT=2/6 npm run test:e2e` locally → runs exactly the spec files CI's second E2E shard runs. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs per-shard selection equals the declared CI shard; slice 4 return --list run for 2/6 |
 | 23a | Example: skill invoked for `e2e` with fourth shard 1,050 s, sixth 600 s, even 820 → prints the six totals. | slice 7 | |
 | 23b | Same example: prints the slow files. | slice 7 | |
 | 23c | Same example: prints a `ci.yml` diff moving one pattern from the fourth shard to the sixth. | slice 7 | |
@@ -104,13 +104,13 @@ returned `X` ids.
 | 26a | Example: no successful `main` run still holds the group's times artifacts → script fails saying so. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh unusable case: no run holds the artifacts, exit 1 with reason |
 | 26b | Same example: script proposes nothing. | slice 7 | |
 | 27 | Example: skill invoked for the Distribution suite → same report and proposal over the `distribution-tests` matrix and its `test-times-<i>` artifacts. | slice 7 | |
-| 28a | Architecture: `ci.yml` is the one owner of shard membership for all five groups. | slice 4 | |
-| 28b | The module that reads the `distribution-tests` matrix for the Node runner becomes the one reader for every group. | slice 4 | |
-| 28c | Each browser configuration asks that module for its shard's spec files and is told only the shard number. | slice 4 | |
+| 28a | Architecture: `ci.yml` is the one owner of shard membership for all five groups. | slice 4 | observed: .github/workflows/ci.yml comment and declarations: ci.yml owns membership for all five groups |
+| 28b | The module that reads the `distribution-tests` matrix for the Node runner becomes the one reader for every group. | slice 4 | observed: dashboard/tests/support/testFiles.mjs and scripts/test-jobs.sh both select through test-share-matrix.mjs/test-share-declaration.mjs |
+| 28c | Each browser configuration asks that module for its shard's spec files and is told only the shard number. | slice 4 | observed: dashboard/tests/support/runnerConfig.mjs prepareFocusedRun passes job + split variable; configurations name only their job |
 | 28d | The rebalancing script asks that module for every shard's files. | slice 2 | observed: scripts/ci-shard-balance.mjs shardReport uses readShareDeclaration + selectShare |
 | 28e | The selection and overlap rules exist once. | slice 6 | |
 | 28f | Each group's shard declaration stays in a form that module reads (no YAML parser in the repository). | slice 1 | observed: scripts/test-share-declaration.mjs readShareDeclaration line reader (matrix and caller `shards`/`specs: \|` forms); Distribution/tests/support/test-share-workflow.test.mjs |
-| 28g | The called `browser-test-group.yml` turns each group's declaration into its matrix. | slice 4 | |
+| 28g | The called `browser-test-group.yml` turns each group's declaration into its matrix. | slice 4 | observed: .github/workflows/browser-test-group.yml matrix from shards input; specs input declared |
 | 28h | No Accepted ADR constrains this. | slice 1 | observed: slice 1 return: docs/adrs 0000-0010 searched for shard/yaml/ci.yml/test-share/split; only 0001:79 and 0007:97, unrelated |
 | 29a | Architecture: shard balance has no automatic owner. | slice 6 | |
 | 29b | The rebalancing script is the only place per-file seconds are read. | slice 6 | |
@@ -120,10 +120,10 @@ returned `X` ids.
 | 30a | Context: folder and file-name patterns can carry the current load. | slice 5 | |
 | 30b | E2E totals about 4,940 s over six shards (~820 each); only `sessions` (1,120) and `launches` (1,094) exceed an even shard, each dividing at its `agent-*` files (555 and 732). | slice 5 | |
 | 30c | Backend totals about 3,210 s over three shards; its nine folders group into about 1,060, 1,055 and 1,090. | slice 5 | |
-| 30d | Integrated's `navigation` divides by file-name prefix. | slice 4 | |
-| 30e | Frontend is one shard. | slice 4 | |
+| 30d | Integrated's `navigation` divides by file-name prefix. | slice 4 | observed: .github/workflows/ci.yml integrated navigation divided by board-/source-/story-/side-/notification- prefixes |
+| 30e | Frontend is one shard. | slice 4 | observed: .github/workflows/ci.yml dashboard-frontend shards [1] |
 | 30f | The longest single spec file is about 150 seconds. | slice 5 | |
-| 31 | Considered (rejected): declaring a shard as a Playwright project — a pattern says the same in the one form all five groups share; E2E projects already queue production chains independently of shard membership. | slice 4 | |
+| 31 | Considered (rejected): declaring a shard as a Playwright project — a pattern says the same in the one form all five groups share; E2E projects already queue production chains independently of shard membership. | slice 4 | observed: .github/workflows/ci.yml no Playwright project per shard; Distribution/tests/support/browser-group-shards.test.mjs E2E projects keep chain queueing |
 | 32 | Considered (rejected): folding the job-count report into the rebalancing script — different questions from different data; the job-count rule has its own readers. | slice 8 | |
 | 33a | Outcome: no duration list or dealing code remains in the repository. | slice 6 | |
 | 33b | Outcome: CI runs every browser spec file exactly once across each group's fixed shards. | slice 5 | |
@@ -132,7 +132,7 @@ returned `X` ids.
 | X1 | Exclusion: shard counts are not changed. | slice 5 | |
 | X2 | Exclusion: deadlines are not changed. Deadline headroom on slow runners belongs to SEED-382. | slice 5 | |
 | X3 | Exclusion: `scripts/ci-job-times.sh` and the job-count rule in `dashboard/tests/shards.md` are not removed or replaced. | slice 6 | |
-| X4 | Exclusion: shards are not declared as Playwright projects or by any means other than spec patterns. | slice 4 | |
+| X4 | Exclusion: shards are not declared as Playwright projects or by any means other than spec patterns. | slice 4 | observed: .github/workflows/ci.yml shards declared only by specs patterns |
 | X5 | Exclusion: the per-spec times reporter and the times artifact form are not removed. | slice 6 | |
 | X6 | Exclusion: the script does not propose more than one change per invocation. | slice 7 | |
 | X7 | Exclusion: the script does not start runs, change files, or apply its own diff. | slice 7 | |
