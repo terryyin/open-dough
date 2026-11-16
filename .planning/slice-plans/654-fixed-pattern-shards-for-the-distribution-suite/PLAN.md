@@ -120,7 +120,7 @@ budget script.
 
 ### 5. Run CI's shares from the matrix
 Type: Behavior
-Status: planned
+Status: done
 Proof: `test-runner-split.sh` rewritten over a fixture with its own workflow
 file: each key example's selection, the two refusals before any check starts,
 and a malformed or out-of-range `OPEN_DOUGH_TEST_SPLIT`;
@@ -203,6 +203,11 @@ to a deleted Distribution passage.
   did (960.8 and 949.6). The normalized budget is what this story removes, so
   the preview and budget removals (formerly slices 5 and 6) now run as slices
   3 and 4, before the matrix wiring; slice 4 is the repair.
+
+- Slice 5 CI proof, run 43788295624 of `f01e8b205` (success): the
+  `test-times-<i>` artifacts name 244, 70 and 328 started checks (906.4,
+  602.8 and 1139.6 job-seconds), 642 together with no label repeated, equal
+  to the unsplit discovery count. Test steps took 230, 155 and 294 s.
 
 ## Readiness and sizing
 
