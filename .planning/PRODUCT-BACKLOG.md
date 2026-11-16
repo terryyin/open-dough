@@ -29,11 +29,11 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Compare agent effort on comparable runs](seeds/SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs) — SEED-345#compare-agent-effort-on-comparable-runs ([plan](slice-plans/666-compare-agent-effort-on-comparable-runs/PLAN.md))
+- [Read Claude Code rows that contain Unicode line separators](seeds/SEED-388-measure-and-control-agent-launch-cost.md#read-claude-rows-with-unicode-line-separators) — SEED-388#read-claude-rows-with-unicode-line-separators ([plan](slice-plans/667-read-claude-rows-with-unicode-line-separators/PLAN.md))
 
 ## Backlog list
 
 - [Group ad hoc follow-ups with their Done story](seeds/SEED-390-group-ad-hoc-follow-ups-with-their-done-story.md#group-ad-hoc-follow-ups-with-their-done-story) — SEED-390#group-ad-hoc-follow-ups-with-their-done-story
-- [Read Claude Code rows that contain Unicode line separators](seeds/SEED-388-measure-and-control-agent-launch-cost.md#read-claude-rows-with-unicode-line-separators) — SEED-388#read-claude-rows-with-unicode-line-separators
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets
 - [Style story-review diffs by Intent syntax hint when the path has no grammar](seeds/SEED-387-deferred-syntax-styling-follow-ups.md#intent-hint-language-for-story-review-diffs) — SEED-387#intent-hint-language-for-story-review-diffs
