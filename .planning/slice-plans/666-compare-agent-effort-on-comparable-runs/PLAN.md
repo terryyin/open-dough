@@ -20,46 +20,7 @@ observations without a new store. [Selected solution and ADR constraints](execut
 
 ## Current decisions
 
-- Input identifies explicit tasks/launches, or native root families and a
-  boundary, with an optional second comparison side and linked continuations.
-  Include selection provenance in output. A listing/diagnostic gives usable
-  identifiers; ambiguous selection is corrected by the maintainer, never by
-  choosing the latest matching story. Do not constrain naturally valid groups
-  to an arbitrary count. The CLI's planned entry is
-  `node dashboard/server/compareAgentEffort.ts`; keep flags in its maintained doc.
-- Task ownership follows the shared reader, including the preceding
-  developer-reply correction when it lands. This story can start independently
-  with accounting/observation work; its later-turn acceptance must consume that
-  shared correction, not implement a private workaround. Queue order alone is
-  not a blocking dependency. The explicit-effort story improves new baselines;
-  old missing effort remains unknown.
-- Agent identity includes the host's worker identity (Claude's `agentId`, not
-  just the root `sessionId`). Total input is Codex's inclusive input, or the sum
-  of Claude's disjoint fresh/read/write input. Reasoning output is a subset,
-  not another output charge. Retain cache lifetime gaps.
-- A peak is the maximum observed request input for that agent and selected
-  boundary. Missing requests make it an observed lower bound, not a complete
-  peak. Group peaks remain per agent. Whole-run and original-window reports
-  are different selections; never compare their totals without that warning.
-- Idle-wake exposure: count an owned request only when its immediately
-  preceding retained tool results establish solely an empty still-running
-  continuation or explicit wait timeout, with no observed progress. Clock-only
-  calls are separate workflow evidence. Mixed results, missing joins or formats
-  that cannot establish this stay unclassified with coverage stated. Counts
-  describe exposure, not a savings claim. Repeated result rows add no request.
-- Cursor's native transcript has no per-request usage and usually no tool
-  results. Report named workflow counts, unavailable token/peak/wake measures,
-  and family/boundary uncertainty. Do not infer live context from bytes or claim
-  a native turn boundary its transcript cannot prove.
-- Guidance version needs historical source evidence; otherwise show unknown.
-  Optional supplied context is explicitly labelled. Requested and observed
-  settings and all changes stay separate; unknown/unequal settings warn without
-  suppressing measured figures. Aggregate/delta only like definitions and hosts.
-- The command never refreshes Usage or writes native/usage/launch records.
-  Missing native files can preserve stored counters with their stored coverage;
-  peaks and tool evidence then remain unavailable. JSON has stable ordering,
-  explicit unknown/partial status and source references; readable output keeps
-  totals, settings and gaps together. Never print transcript bodies.
+[Selection, accounting, evidence and comparison decisions](execution-evidence.md#current-decisions) remain authoritative.
 
 ## Execution context
 
@@ -116,26 +77,32 @@ sources and gaps, with token/context/wake unavailability explicit. Reuse its
 belonging-directory convention and parse recorded dynamic names without a new
 usage-history host schema or a live runner dependency.
 
-### 5. Compare delivered outcomes across explicit execution groups
+### 5. Finish outcome comparisons with independent input coverage
 Type: Behavior
 Status: planned
-Proof: `agent-effort-comparison.spec.ts`; actual CLI reports for all three audit
-samples against the retained replay; shared developer-reply ownership cases;
-focused consumers, typecheck and lint.
+Proof: actual CLI single-member group with complete input and partial wake
+coverage; all agent-effort cases, typecheck and final lint. Reuse the retained
+comparison, ownership, inclusive-input, family and audit proof when unchanged.
 
-Behavior: select baseline/candidate groups and supply outcome/proof/intervention
-context → per-execution and deduplicated group figures, like-metric deltas,
-settings/boundary/coverage differences and no automatic winner. Add the maintained
-command/definitions/examples at `dashboard/AGENT-EFFORT.md`; preserve audit-window
-versus whole-execution distinctions and record the actual sample results here.
+Completed compatible implementation and proof are safely parked in
+`parked-attempt-5/`, inventoried by `parked-attempt-5.json` at base `a399f31a`.
+Restore those exact files, then close G17: identical selected request input
+retains the same per-agent peak coverage in a single report and one-member group,
+even when wake classification is partial. Missing input/requests must still
+qualify the peak as a lower bound. Preserve all comparison notes, deduplication,
+per-host figures and no-winner behavior. This is one remaining proof loop within
+15 active minutes; the previous attempt's 15 minutes remain in history.
+
+The already implemented command/guide and all original audit, grouping and
+later-turn examples remain obligations of this slice; none is dropped or moved.
 
 ## Concerns and cumulative design
 
-Slice-plan refinement was not needed: all five slices extend one derived report,
-using one existing ownership/normalization rule, then host evidence and grouping.
-Each has one outside-in proof loop; no file/layer-only slice or speculative
-framework. The named interim unavailability is replaced by slices 2–4. This
-review identified no remaining slice-specific concern or human pre-Take decision.
+The refined plan keeps five slices extending one derived report and the existing
+ownership/normalization rule. Slices 1–4 are delivered; the parked comparison
+implementation has proof. The remaining slice has one input/wake coverage proof
+loop and preserves the same architecture, scope and outcome. No blocking
+preparation concern or human decision remains.
 
 ## Local gates and execution discipline
 
@@ -155,7 +122,15 @@ this plan until wrap-up, then remove spent evidence through that workflow.
 
 ## Learnings
 
-None beyond the preparation observations above.
+Attempt 5 reached 15 active minutes after implementing and proving the original
+scope, then independent review found G17 (cross-metric coverage interaction).
+The first overrun disproved the assumption that isolated input/wake proof covered
+their composition. All 16 attempt-owned product files are safely parked before
+this rewrite; earlier delivered slices and all coordinator evidence are intact.
+The remaining boundary is Retain: one small source-preserving correction/proof
+loop, five slices total, within the eight-slice cap. Existing planning authority
+permits this in-place unchanged-scope refinement; no new story or permission.
+See [retained attempt evidence](slice-5-evidence.md).
 
 
 ## Story obligations
@@ -214,3 +189,45 @@ Disposition: proved by slice 4: agent-effort-cursor-selection.spec.ts later-user
 Reported: slice 4 — "Source review applicability found no observed model/effort/service-tier representation for the newly supported Cursor host; refactor confirmed the missing named unknowns."
 Story clause: "Name host, service tier"
 Disposition: proved by slice 4: Cursor CLI JSON/readable assertions name unavailable model/effort/serviceTier overall and per agent, observed collection empty with unavailable coverage, requested settings separate
+
+
+### G11. Explicit native family was filtered by project configuration
+Reported: slice 5 — "Actual Codex audit with isolated home yielded zero because the shared scan excluded native family observations as unrelated projects."
+Story clause: "or an explicitly bounded native session family"
+Disposition: return
+
+
+### G12. Known Codex inclusive input is lost without cache breakdown
+Reported: slice 5 — "Acceptance inspection confirmed report totals and peaks sum normalized components and can hide a known native inclusive input count when cache breakdown is absent."
+Story clause: "total input"
+Disposition: return
+Commitment: 6
+
+### G13. Group peak inherits incomplete coverage from only one selection
+Reported: slice 5 — "Acceptance found that group agent peaks copy the largest member peak object even when another selection of the same agent has missing input, losing union coverage and lower-bound qualification."
+Story clause: "peak input per agent"
+Disposition: return
+
+
+### G14. Stored and native selections can double-charge the same task
+Reported: slice 5 — "Acceptance found that group totals can add stored-only and native counters from the same session when a canonical task selection repeats with different evidence roots."
+Story clause: "Repeating a selection cannot double-charge its responses"
+Disposition: return
+Commitment: 14
+
+### G15. Stored session identity is displayed as zero threads
+Reported: slice 5 — "Acceptance found threads0 in stored-only reports despite recoverable stored requests and session identity, because only native response identities were counted."
+Story clause: "Unavailable is not zero"
+Disposition: return
+
+
+### G16. Cursor file aliases can double-charge one transcript
+Reported: slice 5 — "Acceptance found lexical Cursor transcript paths as group identities, so real and symlinked roots can count the same physical transcript twice."
+Story clause: "Repeating a selection cannot double-charge its responses"
+Disposition: return
+
+
+### G17. Wake uncertainty incorrectly changes input peak coverage
+Reported: slice 5 — "Independent refactor and actual CLI reproduction found the same two known-input requests reported observed-maximum alone but observed-lower-bound in a one-member group solely because wake evidence was partial."
+Story clause: "peak input per agent"
+Disposition: return

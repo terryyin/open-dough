@@ -42,6 +42,49 @@ extract the cohesive read phase rather than adding another writer path. The
 other observed readers are below 250 lines. New modules stay cohesive and small;
 do not expand the history schema to retain report-only detail.
 
+## Current decisions
+
+- Input identifies explicit tasks/launches, or native root families and a
+  boundary, with an optional second comparison side and linked continuations.
+  Include selection provenance in output. A listing/diagnostic gives usable
+  identifiers; ambiguous selection is corrected by the maintainer, never by
+  choosing the latest matching story. Do not constrain naturally valid groups
+  to an arbitrary count. The CLI's planned entry is
+  `node dashboard/server/compareAgentEffort.ts`; keep flags in its maintained doc.
+- Task ownership follows the shared reader, including the preceding
+  developer-reply correction when it lands. This story can start independently
+  with accounting/observation work; its later-turn acceptance must consume that
+  shared correction, not implement a private workaround. Queue order alone is
+  not a blocking dependency. The explicit-effort story improves new baselines;
+  old missing effort remains unknown.
+- Agent identity includes the host's worker identity (Claude's `agentId`, not
+  just the root `sessionId`). Total input is Codex's inclusive input, or the sum
+  of Claude's disjoint fresh/read/write input. Reasoning output is a subset,
+  not another output charge. Retain cache lifetime gaps.
+- A peak is the maximum observed request input for that agent and selected
+  boundary. Missing requests make it an observed lower bound, not a complete
+  peak. Group peaks remain per agent. Whole-run and original-window reports
+  are different selections; never compare their totals without that warning.
+- Idle-wake exposure: count an owned request only when its immediately
+  preceding retained tool results establish solely an empty still-running
+  continuation or explicit wait timeout, with no observed progress. Clock-only
+  calls are separate workflow evidence. Mixed results, missing joins or formats
+  that cannot establish this stay unclassified with coverage stated. Counts
+  describe exposure, not a savings claim. Repeated result rows add no request.
+- Cursor's native transcript has no per-request usage and usually no tool
+  results. Report named workflow counts, unavailable token/peak/wake measures,
+  and family/boundary uncertainty. Do not infer live context from bytes or claim
+  a native turn boundary its transcript cannot prove.
+- Guidance version needs historical source evidence; otherwise show unknown.
+  Optional supplied context is explicitly labelled. Requested and observed
+  settings and all changes stay separate; unknown/unequal settings warn without
+  suppressing measured figures. Aggregate/delta only like definitions and hosts.
+- The command never refreshes Usage or writes native/usage/launch records.
+  Missing native files can preserve stored counters with their stored coverage;
+  peaks and tool evidence then remain unavailable. JSON has stable ordering,
+  explicit unknown/partial status and source references; readable output keeps
+  totals, settings and gaps together. Never print transcript bodies.
+
 ## Proof ownership
 
 All new CLI specs invoke the actual Node entry with isolated homes, retained
@@ -88,3 +131,4 @@ report fields, not premises on which implementation depends.
 - [Slice 2 acceptance and publication](slice-2-evidence.md).
 - [Slice 3 acceptance and publication](slice-3-evidence.md).
 - [Slice 4 acceptance and publication](slice-4-evidence.md).
+- [Slice 5 retained attempt and remaining proof](slice-5-evidence.md).

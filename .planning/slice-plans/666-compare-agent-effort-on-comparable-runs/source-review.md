@@ -27,7 +27,7 @@ suffice; no new paid sessions. Compare outcome/proof before interpreting effort.
 | 3 | Selection identifies “the task and its native turn boundary, or an explicitly bounded native session family.” | slice 1 | observed: agent-effort-report.spec.ts selected launch and bounded Claude family: task turn/native family half-open bounds |
 | 4 | Ambiguous matches are “explained for correction rather than silently choosing the latest run.” | slice 1 | observed: agent-effort-coverage.spec.ts ambiguous story: error names exact usable task ids |
 | 5 | Reports include requests. Published-audit reproduction retains original windows and family boundaries; the Codex SEED-324 family `01a1d22f…` example expects **2,083 requests** in its original audit window. | slice 5 | |
-| 6 | Reports include total input. | slice 1 | observed: agent-effort-report.spec.ts selected launch totalInput140 and Claude disjoint64; agent-effort-coverage.spec.ts partial input24 |
+| 6 | Reports include total input. |  | G12 |
 | 7 | Reports include cached input. | slice 1 | observed: agent-effort-report.spec.ts selected launch cachedInput70; agent-effort-coverage.spec.ts missing cached counter unavailable |
 | 8 | Reports include uncached input. | slice 1 | observed: agent-effort-report.spec.ts selected launch uncachedInput60; agent-effort-coverage.spec.ts known fresh components under missing cache reads |
 | 9 | Reports include recorded cache writes, “including lifetime splits.” | slice 1 | observed: agent-effort-report.spec.ts bounded Claude cache lifetimes=6/14; agent-effort-coverage.spec.ts missing lifetime known3/7 partial |
@@ -35,7 +35,7 @@ suffice; no new paid sessions. Compare outcome/proof before interpreting effort.
 | 11 | Reports include peak input per agent. “Peaks are maxima, never summed across agents.” The Claude Code SEED-324 session `296b888d…` example expects a coordinator peak of **752,562 input tokens**. |  | G2 |
 | 12 | Reports include observed idle-wake requests. Their counts “use an explicit conservative evidence rule and describe exposure, not requests proved wasteful.” |  | G3 |
 | 13 | “Failed, cancelled and later-turn work stays in its owning execution.” |  | G1 |
-| 14 | Responses are counted once: “copied ancestor responses and repeated streaming rows count once,” and “Repeating a selection cannot double-charge its responses.” | slice 5 | |
+| 14 | Responses are counted once: “copied ancestor responses and repeated streaming rows count once,” and “Repeating a selection cannot double-charge its responses.” |  | G14 |
 | 15 | “Requested and observed model/effort are distinct.” In the Claude Code example, “the request at launch does not replace those facts.” | slice 2 | observed: agent-effort-settings.spec.ts requested vs observed Codex settings; agent-effort-cursor.spec.ts requested null separate from unavailable observed model/effort coverage |
 | 16 | “Observed changes remain visible.” For Claude Code session `296b888d…`, **Fable/medium** and **Opus/high** are reported separately. | slice 2 | observed: agent-effort-peaks.spec.ts Claude maxima distributions; claude-sample-summary.json122Fable/medium+158Opus/high |
 | 17 | Reports name the host. | slice 1 | observed: agentEffortReport.ts host from selected task or explicit host; bounded Claude test observes definition/host selection |

@@ -1,0 +1,86 @@
+{
+  "base": "a399f31a68a40b71c4b864329c503f4cebf0feeb",
+  "activeMinutes": 15,
+  "files": [
+    {
+      "path": "dashboard/backend-tests/usage-history/agent-effort-coverage.spec.ts",
+      "tracked": true,
+      "sha256": "d390bbf4c56c5b4600e70f643b4f86e3a95e7c5bd814472a87f6249a5b860dd2"
+    },
+    {
+      "path": "dashboard/server/agentEffortObservations.ts",
+      "tracked": true,
+      "sha256": "c6946285729d6d69430b40b37ab250a1b6d993f5dbb02b362a35067c5f8df29d"
+    },
+    {
+      "path": "dashboard/server/agentEffortReport.ts",
+      "tracked": true,
+      "sha256": "29a8de7aafa89d3e771f24d34b983aa0dbb348350c5df1791ebf4066a9b7099b"
+    },
+    {
+      "path": "dashboard/server/agentEffortTotals.ts",
+      "tracked": true,
+      "sha256": "accf9c10ccd06f2c0d4fa3778742c8dcac17165c86ee644c107c562472108af1"
+    },
+    {
+      "path": "dashboard/server/compareAgentEffort.ts",
+      "tracked": true,
+      "sha256": "dc71a7686ae14875eb77b85a302ee766731de3994317483cd25008e414fc1820"
+    },
+    {
+      "path": "dashboard/server/usageScan.ts",
+      "tracked": true,
+      "sha256": "28594246905a79a0ad067a0c60717d318b0bd551fa74f46150c0a05e55586cb1"
+    },
+    {
+      "path": "dashboard/tests/usage-history/agentEffortHarness.ts",
+      "tracked": true,
+      "sha256": "496c723255913d45a3722ddbad20aa2a68073721fca76afb32cb55709f7e56e2"
+    },
+    {
+      "path": "dashboard/AGENT-EFFORT.md",
+      "tracked": false,
+      "sha256": "3554da7912e69950a94c83d554e3af8436fdef475a1a4d21b8854a4c0c5a6e50"
+    },
+    {
+      "path": "dashboard/backend-tests/usage-history/agent-effort-comparison.spec.ts",
+      "tracked": false,
+      "sha256": "327d68900f6670f39562094c30a9dfeeafac2a723dbf4200197227bdeef9ae24"
+    },
+    {
+      "path": "dashboard/backend-tests/usage-history/agent-effort-group-coverage.spec.ts",
+      "tracked": false,
+      "sha256": "6831b46d23bbad868a5945a6f99fc0f27fce9292ad2d6b2109625fcb4d167a86"
+    },
+    {
+      "path": "dashboard/backend-tests/usage-history/agent-effort-native-family.spec.ts",
+      "tracked": false,
+      "sha256": "d27e18d317ed76914deec2a0ccf2232be6060a9f5519a8fb0a70eb08d3ea0306"
+    },
+    {
+      "path": "dashboard/backend-tests/usage-history/agent-effort-ownership.spec.ts",
+      "tracked": false,
+      "sha256": "646849260da415db15a90ffdc78aeff5aac23cdb6511cf799948b9bbba276f33"
+    },
+    {
+      "path": "dashboard/server/agentEffortComparison.ts",
+      "tracked": false,
+      "sha256": "4f59eca9b13b16c82b2e04f6943ee00b8f5c9b21bb79630742af0375a53cd99d"
+    },
+    {
+      "path": "dashboard/server/agentEffortComparisonGroup.ts",
+      "tracked": false,
+      "sha256": "42367b6b4423f119210fbe7718c97dc130b14ccb5245bd9eac3bbc275e03bdfe"
+    },
+    {
+      "path": "dashboard/server/agentEffortNativeSummary.ts",
+      "tracked": false,
+      "sha256": "8a92f393592e2e62db5f02515943c90dca03a06ae4ce4c45aa0c9be4df929323"
+    },
+    {
+      "path": "dashboard/server/agentEffortRequest.ts",
+      "tracked": false,
+      "sha256": "7ddf10e8044c394d50ebc2410dbc935dadd1192262e298b7bb52cbae5aa81872"
+    }
+  ]
+}

@@ -93,7 +93,7 @@ index at a known effort, so the corrections come first.
 
 **Identity:** SEED-345#compare-agent-effort-on-comparable-runs
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/666-compare-agent-effort-on-comparable-runs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"29cda17cb37f21448f3943dd0d56a84227fe031259be5cd834a60356b2002e36","plan":"fec8b797d9a96f2ae8edf72a79b00ca8aa205b84db2fff7ef9dce9dfab397833"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/666-compare-agent-effort-on-comparable-runs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c43577a2a512c4439f86193febe8fccfb63f46413af93bb4052778ffb02ae591","plan":"9973b4d28ce35c20740cf1aaea2b630da2f87c872a1f56aacecd4d2e524f51a7"}}
 ```
 
 #### Goal
