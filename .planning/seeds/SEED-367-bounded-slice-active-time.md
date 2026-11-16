@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-15
 planted_during: Terry made 15 active minutes the single slice limit, with running commands, refactoring and CI repair excluded
 trigger_when: selected from the product backlog
-scope: two stories
+scope: three stories
 ---
 
 # SEED-367 — Keep slices within their active time
@@ -34,7 +34,7 @@ Claude Code and Codex executions in the 30 days to 2026-11-15.
   without the agent running `date`. A command run through it also writes the
   exit file that [waiting for proof](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md)
   uses.
-- **Priority.** First in the efficiency group: the slice limit depends on it.
+- **Priority.** First of the slice-limit stories: the limit depends on it.
   Under Pygardon's 10-minute stop rule, 35 of 382 Claude Code implementers
   spent more than 10 model minutes; 11 reported the budget and 13 checked the
   clock more than once. In Doughnut, 5 went over and none reported it.
@@ -66,13 +66,47 @@ Claude Code and Codex executions in the 30 days to 2026-11-15.
   when the last one confirmed or refuted a hypothesis; after three rounds it
   stops for a human. A confirmed cause makes the fix an ordinary slice, and each
   CI run tests a stated hypothesis.
-- **Priority.** After the clock, which it uses, and split-story continuation.
+- **Priority.** Directly after the clock, which it uses, and ahead of
+  split-story continuation, because unbounded repair recurred in every usage
+  rise.
   Successful Claude Code diagnoses took 20–45 model minutes, so a plain
   15-minute stop would cut most of them off. Beyond that more time rarely
   helped: flaky-test slices were fixed in 4 of 7 at 10–15 model minutes and 7 of
   16 at 15–25. One CI-timeout repair ran 82 model minutes over 269 turns for
   $39, and 11 CI repairs above 25 model minutes cost $249 of $625.
+  Single unbounded repair agents appeared in all three usage rises from
+  2026-10-25 to 2026-11-15, at 7.0–9.8M input-token equivalents each, and repair
+  agents carried 22.8M of SEED-334's 80.7M
+  ([unbounded diagnosis](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#runaway-diagnosis)).
 - **Effort and boundary.** Medium, low confidence. Refinement first reads about
   ten full diagnosis transcripts to check the round size, the three-round cap
-  and the record fields. Failures under machine load stay with the
-  unavailable-proof-conditions path.
+  and the record fields. Failures under machine load belong to
+  [waiting for a quiet machine](#wait-for-a-quiet-machine-before-load-sensitive-proof).
+
+<a id="wait-for-a-quiet-machine-before-load-sensitive-proof"></a>
+
+### Wait for a quiet machine before load-sensitive proof
+
+**Identity:** SEED-367#wait-for-a-quiet-machine-before-load-sensitive-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Scope and beneficiary.** Shared execution. A developer whose story needs
+  proof that only holds on a quiet machine, such as full browser suites,
+  product-wide end-to-end runs or native comparisons, is asked to engage when
+  the machine is busy. Agents no longer keep running, diagnosing and repairing
+  failures that the load caused.
+- **Evaluation.** Proposal to validate during refinement: when load-sensitive
+  proof is due and the machine is measurably loaded, the execution records
+  that proof as pending, stops and asks the developer, instead of rerunning,
+  sleeping or starting repair agents. A failure that reproduces on a quiet
+  machine stays a defect under the
+  [failure policy](../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+  Compare test runs, repair-agent cost and interventions on matched stories.
+- **Priority.** After the SEED-345 efficiency stories, because the mechanism
+  is still unclear. SEED-334's product-wide end-to-end execution made 410 test
+  runs, and repair agents carried 22.8M of its 80.7M.
+- **Effort and boundary.** Medium, low confidence. Refinement first decides
+  which proof is load-sensitive and how load is measured.
+  [Waiting and test-heavy stories](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#waiting)

@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-14
 planted_during: Terry Yin requested Codex, Cursor and Claude Code token-efficiency audits and retention of their reconciled findings
 trigger_when: Terry selects an efficiency story for refinement
-scope: seven stories
+scope: six stories
 ---
 
 # SEED-345 — Improve session token efficiency across Open Dough projects
@@ -29,7 +29,8 @@ host whose evidence leads; a host adaptation stays inside the shared story
 unless only one host shows the mechanism. Keep the existing proof and approval
 boundaries in each story. Stories that change how much context an agent
 carries are measured trials: a change that loses judgment or proof is no gain.
-Model and effort choice stays research until quality can be compared.
+Model and effort choice and their measurement live in
+[SEED-388](SEED-388-measure-and-control-agent-launch-cost.md).
 
 Effort bands are relative. Small means one scoped host workflow. Medium means
 a shared workflow with a representative host comparison. They carry no time
@@ -37,63 +38,9 @@ commitment.
 
 ## Proposed stories in priority order
 
-<a id="compare-agent-effort-on-comparable-runs"></a>
+Each trial is judged with the
+[comparable-run measure](SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs).
 
-### Compare agent effort on comparable runs
-
-**Identity:** SEED-345#compare-agent-effort-on-comparable-runs
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
-```
-
-- **Scope and beneficiary.** Shared maintainer measurement. A maintainer can
-  compare two executions' agent effort per host without writing a new audit.
-- **Evaluation.** Given retained local history for one execution, the
-  maintainer obtains its requests, input, cached input, cache writes where the
-  host records them, output, peak context per agent, idle-wake requests and
-  role split for coordinator and workers. Where a host retains no usage, the
-  result says so and reports the agreed workflow counts instead. The three
-  audits' published figures for a sampled execution are reproduced.
-- **Priority.** First. Every later story is judged on comparable runs, and
-  each audit rebuilt its own accounting. The resume story can start from
-  Codex's native usage before this exists.
-- **Effort and boundary.** Medium, high confidence; the audits' methods are
-  recorded. Read-only over local history; no quota or invoice claim.
-  [Method and accounting](../../docs/maintainer/session-token-efficiency-research.md#window-scope-and-method)
-- **Existing measure.** System settings → Usage already prices each finished
-  dashboard launch per tool, for Codex and Claude Code, from the shared usage
-  records. A launch's Token index counts only that launch's responses, so it
-  can be below the Claude session's `cost-state` total when the session also
-  ran other turns: compare launch indices, not session totals.
-
-<a id="finish-slices-within-a-bounded-working-context"></a>
-
-### Finish slices within a bounded working context
-
-**Identity:** SEED-345#finish-slices-within-a-bounded-working-context
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
-```
-
-- **Scope and beneficiary.** Shared measured trial. A developer's long story
-  reaches the same results while no coordinator or implementer context keeps
-  growing to several hundred thousand tokens.
-- **Evaluation.** On comparable long executions, slices finish within a
-  bounded working context, either through earlier scope decisions or by
-  continuing from recorded execution state at a slice boundary. Outcomes,
-  proof, judgment and interventions match the baseline; peak context and
-  total effort fall. A loss of needed judgment rejects the variant.
-- **Priority.** Second. It is the largest cost driver on both hosts that
-  report tokens: 7,586 Codex requests at or above 250k input, and 54% of
-  Claude Code coordinator cost in such requests. In the 2026-11-15
-  re-measurement, 20 Claude Code workers above 150 requests carried 35% of
-  worker cost. Slice boundaries chosen at planning time are the lower-risk
-  variant to try first.
-- **Effort and boundary.** Medium, low confidence. Builds on oversized-slice
-  handling ([ODF-206](../../docs/maintainer/findings/ODF-206.md),
-  [ODF-260](../../docs/maintainer/findings/ODF-260.md)). Host mechanisms such
-  as compaction settings are trial variants, not defaults.
-  [Context growth](../../docs/maintainer/session-token-efficiency-research.md#5-bound-how-long-one-context-keeps-growing)
 
 <a id="start-implementers-from-a-role-sized-tool-set"></a>
 
@@ -115,7 +62,7 @@ commitment.
   any host configuration this needs. Results, proof and hand-backs match a
   comparable baseline while worker start context and total worker effort
   fall. A worker that needs a withheld tool reports the gap.
-- **Priority.** Third. In the 2026-11-15 re-measurement, the Artifact tool
+- **Priority.** First. In the 2026-11-15 re-measurement, the Artifact tool
   definition alone was about 37k characters, roughly a quarter of the 40.5k
   token subagent start, written and re-read on every subagent request:
   about $45 of $1,005 subagent list-price cost across 16 executions. It
@@ -127,35 +74,40 @@ commitment.
   outside this story; skill descriptions belong to the phase-guidance story.
   [Start floor](../../docs/maintainer/session-token-efficiency-research.md#cc5-every-subagent-pays-a-fixed-start-up-floor)
 
-<a id="get-long-verification-results-without-empty-wakes"></a>
+<a id="finish-slices-within-a-bounded-working-context"></a>
 
-### Get long verification results without empty wakes
+### Finish slices within a bounded working context
 
-**Identity:** SEED-345#get-long-verification-results-without-empty-wakes
+**Identity:** SEED-345#finish-slices-within-a-bounded-working-context
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-- **Scope and beneficiary.** Shared, with Codex evidence leading and a Claude
-  Code cache-lifetime adaptation. A developer gets the terminal result of a
-  genuinely running verification at less cost while it runs.
-- **Evaluation.** While a selected proof command or delegated run is still
-  running, its owner obtains the exact terminal result and failure evidence
-  without model requests that only observe “still running”. A wait expected
-  to outlast the host's cache lifetime is owned where waking or the host's
-  completion notification costs least. Keep the overdue, cancellation and
-  CI completion behavior. Compare idle-wake requests, rebuilds and total
-  effort on matched runs, with the same proof decisions.
-- **Priority.** Fourth. Codex recorded 2,303 requests (446.5M tokens, 7.6%)
-  after empty subprocess output or agent-wait timeouts. Claude Code paid
-  about $96 of list-price worker rebuilds after five-to-sixty-minute waits.
-- **Effort and boundary.** Medium, medium confidence. Distinct from a paused
-  supplier, which the first story owns. Keep the five-minute Claude Code
-  subagent cache; a longer lifetime cost more than it saved. Starts from the
-  per-host [wait for proof](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md)
-  guidance and measures what it leaves.
-  [Waiting](../../docs/maintainer/session-token-efficiency-research.md#1-wake-the-coordinator-for-results-changes-and-bounded-deadlines)
-  and [cache](../../docs/maintainer/session-token-efficiency-research.md#cc2-cache-lifetime-avoid-the-rebuild-keep-the-five-minute-default) evidence
+- **Scope and beneficiary.** Shared measured trial. A developer's long story
+  reaches the same results while no coordinator or implementer context keeps
+  growing to several hundred thousand tokens.
+- **Evaluation.** On comparable long executions, slices finish within a
+  bounded working context, either through earlier scope decisions or by
+  continuing from recorded execution state at a slice boundary. Outcomes,
+  proof, judgment and interventions match the baseline; peak context and
+  total effort fall. A loss of needed judgment rejects the variant.
+- **Priority.** Second, after the role-sized tool set, because the 8-slice cap
+  and `medium` effort removed most of the cost below. It was the largest cost driver on both hosts that
+  report tokens: 7,586 Codex requests at or above 250k input, and 54% of
+  Claude Code coordinator cost in such requests. In the 2026-11-15
+  re-measurement, 20 Claude Code workers above 150 requests carried 35% of
+  worker cost. Slice boundaries chosen at planning time are the lower-risk
+  variant to try first. That re-measurement ran at effort `high`. At `medium`,
+  0–2% of slice agents exceeded 150 turns in every period from 2026-10-17 to
+  2026-11-16. Coordinator peaks of 550–890k came from 9–12-slice plans and
+  from `max` effort. Since the 8-slice cap, the median coordinator peak is
+  293k ([spike analysis](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#state-on-2026-11-16)).
+  Re-baseline at `medium` before sizing this trial.
+- **Effort and boundary.** Medium, low confidence. Builds on oversized-slice
+  handling ([ODF-206](../../docs/maintainer/findings/ODF-206.md),
+  [ODF-260](../../docs/maintainer/findings/ODF-260.md)). Host mechanisms such
+  as compaction settings are trial variants, not defaults.
+  [Context growth](../../docs/maintainer/session-token-efficiency-research.md#5-bound-how-long-one-context-keeps-growing)
 
 <a id="reach-a-proof-decision-from-retained-evidence"></a>
 
@@ -177,7 +129,7 @@ commitment.
   proof gap, and points to its full report on disk. The same repair or
   acceptance decision follows with fewer rereads or reruns and less evidence
   in model context. Missing or incomplete proof is exposed.
-- **Priority.** Fifth. SEED-332 lost the traces needed to diagnose earlier
+- **Priority.** Third. SEED-332 lost the traces needed to diagnose earlier
   failures, and truncated output recurred (ODF-264). Claude Code coordinators
   kept 315 hand-backs, median 7.8k characters, for the whole session.
 - **Effort and boundary.** Medium, medium confidence. Keep every required
@@ -185,6 +137,41 @@ commitment.
   [source-review bookkeeping story](https://github.com/terryyin/open-dough/blob/b6b6d04c9162a30619c3fd59c8e220d523455004/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises)
   owns promise allocation.
   [Output and diagnostic evidence](../../docs/maintainer/session-token-efficiency-research.md#2-return-decision-sized-evidence-and-retain-the-full-artifacts)
+
+<a id="get-long-verification-results-without-empty-wakes"></a>
+
+### Get long verification results without empty wakes
+
+**Identity:** SEED-345#get-long-verification-results-without-empty-wakes
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Scope and beneficiary.** Shared, with Codex evidence leading and a Claude
+  Code cache-lifetime adaptation. A developer gets the terminal result of a
+  genuinely running verification at less cost while it runs.
+- **Evaluation.** While a selected proof command or delegated run is still
+  running, its owner obtains the exact terminal result and failure evidence
+  without model requests that only observe “still running”. A wait expected
+  to outlast the host's cache lifetime is owned where waking or the host's
+  completion notification costs least. Keep the overdue, cancellation and
+  CI completion behavior. Compare idle-wake requests, rebuilds and total
+  effort on matched runs, with the same proof decisions.
+- **Priority.** Fourth, after the proof decision, because the 2026-11-15
+  waiting rules took most of its saving. Codex recorded 2,303 requests (446.5M tokens, 7.6%)
+  after empty subprocess output or agent-wait timeouts. Claude Code paid
+  about $96 of list-price worker rebuilds after five-to-sixty-minute waits.
+  The 2026-11-15 rules on waiting without polling and on the silent supplier
+  wait cut shell `sleep` calls from 18.4 per execution (Nov 13–15) to 3.4.
+  Measure what remains against that new baseline
+  ([waiting](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#waiting)).
+- **Effort and boundary.** Medium, medium confidence. Distinct from a paused
+  supplier, which the first story owns. Keep the five-minute Claude Code
+  subagent cache; a longer lifetime cost more than it saved. Starts from the
+  per-host [wait for proof](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md)
+  guidance and measures what it leaves.
+  [Waiting](../../docs/maintainer/session-token-efficiency-research.md#1-wake-the-coordinator-for-results-changes-and-bounded-deadlines)
+  and [cache](../../docs/maintainer/session-token-efficiency-research.md#cc2-cache-lifetime-avoid-the-rebuild-keep-the-five-minute-default) evidence
 
 <a id="load-execution-guidance-for-the-current-phase"></a>
 
@@ -202,7 +189,7 @@ commitment.
   it is in rather than the whole reference tree, and re-reads a boundary only
   when it changed. Skill descriptions listed in every session stay short while
   naming their triggers. Compare guidance read and coordinator context.
-- **Priority.** Sixth. Coordinators read about 21 execute-plan files on
+- **Priority.** Fifth. Coordinators read about 21 execute-plan files on
   Cursor and about 20 (roughly 250k characters) on Claude Code; Codex's
   first reference batch truncated in SEED-342. Every execution pays this,
   but the 2026-11-15 re-measurement put the carried guidance at about $2
@@ -229,20 +216,13 @@ commitment.
   changed information, it retrieves it or reports the gap. Compare first-tool
   distribution and transcript size across comparable Cursor slices with the
   same promises, proof and acceptance.
-- **Priority.** Seventh. Forty-five of 55 Cursor implementers opened the
+- **Priority.** Sixth. Forty-five of 55 Cursor implementers opened the
   coordinator skill first. Claude Code implementers did not, and Cursor
   retains no per-request usage to size the saving.
 - **Effort and boundary.** Small, medium confidence. Independent review and
   role-specific reads keep their purpose.
   [Cursor handoff evidence](../../docs/maintainer/session-token-efficiency-research.md#c1-avoid-paying-twice-for-large-task-prompts-and-skill-re-reads)
 
-## Research kept without a story
-
-Model and effort per role. Dashboard launches choose them per session on all
-three hosts. Fable 5.2 carried 33% of Claude Code list-price cost on 21% of
-requests, and its usage limit stalled four executions. No retained evidence
-compares outcome quality by model or effort, so a story waits for that
-comparison. [Model evidence](../../docs/maintainer/session-token-efficiency-research.md#cc1-model-choice-sets-the-price-of-each-unit-of-work)
 
 ## Ordering and scope reduction
 

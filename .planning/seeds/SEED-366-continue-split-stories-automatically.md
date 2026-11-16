@@ -31,7 +31,7 @@ scope: story
   reasons or an unsatisfied dependency, or the original wrap-up stopped or
   failed, nothing starts and the dashboard shows why. A developer can turn
   automatic continuation off.
-- **Priority.** Directly after the slice clock. It counters the risk that the
+- **Priority.** After the slice clock and bounded diagnosis. It counters the risk that the
   limit makes agents merge slices to stay under it: once the remainder starts
   on its own, going over costs almost nothing. With the limit at eight, about 18 of 240 Claude Code executions in the
   30 days to 2026-11-15 would have split, each needing a manual start after
