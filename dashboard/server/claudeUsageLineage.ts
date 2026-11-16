@@ -4,6 +4,10 @@ import { usageTaskJoinSources } from "./usageTaskJoinSources.ts";
 // A directory is not a worker join; only native agent-result evidence joins it.
 import { claudeAncestry } from "./claudeUsageAncestry.ts";
 import {
+  type ClaudeReading,
+  ownReplayedReadings,
+} from "./claudeUsageReplay.ts";
+import {
   claudeNodeKey as nodeKey,
   claudeWorkerKey as workerKey,
 } from "./claudeUsageKeys.ts";
@@ -100,7 +104,8 @@ export function claudeAssociation(
   tasks: UsageTask[],
   lineage: ClaudeLineage,
 ): { observation: UsageObservation; association: UsageAssociation } {
-  const enriched = structuredClone(observation);
+  let enriched = structuredClone(observation);
+  const readings: ClaudeReading[] = [];
   const candidates: string[] = [];
   const sources: UsageSource[] = [];
   const roots: string[] = [];
@@ -120,6 +125,11 @@ export function claudeAssociation(
       measurement.agentId,
       measurement.nativeRowId,
     );
+    readings.push({
+      agent: measurement.agentId ?? "",
+      transcripts: chain.transcripts,
+      unresolved: chain.unresolved,
+    });
     sources.push(...chain.sources);
     unresolved ||= chain.unresolved;
     unresolvedNamed ||= chain.unresolved;
@@ -150,6 +160,8 @@ export function claudeAssociation(
       sources.push(...matches.flatMap(usageTaskJoinSources));
     }
   }
+  if (readings.length === enriched.measurements.length)
+    enriched = ownReplayedReadings(enriched, readings);
   const unique = uniqueFacts(candidates);
   // Tasks whose assignment does not hold stay named when no other task is,
   // so the response returns to one that regains it.

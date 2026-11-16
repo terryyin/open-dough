@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Compare agent effort on comparable runs](seeds/SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs) — SEED-345#compare-agent-effort-on-comparable-runs ([plan](slice-plans/666-compare-agent-effort-on-comparable-runs/PLAN.md))
-- [Count a Claude Code background agent started by a subagent](seeds/SEED-388-measure-and-control-agent-launch-cost.md#count-nested-claude-background-agent-work) — SEED-388#count-nested-claude-background-agent-work ([plan](slice-plans/670-count-nested-claude-background-agent-work/PLAN.md))
 
 ## Backlog list
 
