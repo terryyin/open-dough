@@ -45,7 +45,7 @@ jobs:
           - share: 1
             tests: Distribution/tests/skills/dough-execute-plan/**
           - share: 2
-            tests: Distribution/evaluation/** Distribution/tests/installation/**
+            tests: Distribution/evaluation/**
     steps:
       - uses: actions/checkout@v7
         with:

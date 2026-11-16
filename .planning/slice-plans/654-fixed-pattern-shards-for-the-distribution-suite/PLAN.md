@@ -209,6 +209,17 @@ to a deleted Distribution passage.
   602.8 and 1139.6 job-seconds), 642 together with no label repeated, equal
   to the unsplit discovery count. Test steps took 230, 155 and 294 s.
 
+- Slice 6, move 1 (`3a77b873d`): `Distribution/tests/installation/**` joined
+  share 2. Run 43789276896 attempt 1: 135, 194 and 130 s (528.5, 757.5 and
+  500.3 job-seconds; 244 + 100 + 298 = 642 checks, none repeated). Attempt 2
+  of the same revision: 138, 270 and 170 s; share 2's same 100 checks took
+  1051.3 job-seconds, 1.39 times attempt 1. Run 43788295624 had run share 1's
+  same 244 checks at 906.4, 1.71 times. Runner speed varies 1.4–1.7 times
+  between runs, so even shares of about 595 job-seconds reach about 260 s on
+  the slowest runner seen. Move 2 returns installation to the last share,
+  the single-pattern move with the smallest largest share (528, 599 and 658
+  in attempt 1's units).
+
 ## Readiness and sizing
 
 Refinement not needed: seven slices, each one outcome with one proof loop;
