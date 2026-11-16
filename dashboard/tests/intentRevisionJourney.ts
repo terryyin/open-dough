@@ -1,16 +1,13 @@
 import { fileSource, sourceFile } from "./intentCodeBrowsePage.ts";
-// Intent's revision journeys: Pygardon published with Intent locations and
-// its jobs feature selected, on a paused clock, with a trunk that moves on
-// demand, and the Intent reads the page makes meanwhile.
+// Intent's revision journeys: Pygardon's published files with Intent
+// locations, its jobs feature selected, and the Intent reads the page makes.
 
 import type { Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
-import { openUntilRead, untilPageReadsAnswered } from "./pageRequestNotes.ts";
+import { openUntilRead } from "./pageRequestNotes.ts";
 import { expandIntentGroup } from "./intentPerspectivePage.ts";
-import { pausePageClock, passTimeUntilChecked } from "./autoRefreshJourney.ts";
-import { publishMovingFiles } from "./publishedFiles.ts";
 import { pygardon } from "./intentCodeBrowseFixtures.ts";
 import {
   featurePath,
@@ -57,8 +54,8 @@ export const publishedFiles = (features: Readonly<Record<string, string>>) => ({
   ...features,
 });
 
-// Shared browser entry and selected-reading precondition for both real and
-// controlled published-source revision journeys.
+// Shared browser entry and selected-reading precondition for revision
+// journeys.
 export async function openJobsFeature(page: Page) {
   await openUntilRead(page, "/?project=pygardon&perspective=intent");
   const { intent } = parts(page);
@@ -68,31 +65,4 @@ export async function openJobsFeature(page: Page) {
   const source = fileSource(intent, featurePath);
   await expect(source).toContainText("Scenario: Archive a job");
   return { intent, feature, source };
-}
-
-// Pygardon published at `pygardon.revision` with the jobs feature selected
-// and its Purpose read, on a page whose clock is paused; `moveTrunk` publishes
-// a newer revision and lets the page observe it.
-export async function openWithFeatureSelected(
-  page: Page,
-  files: Readonly<Record<string, string>>,
-) {
-  await page.setViewportSize({ width: 1280, height: 600 });
-  await pausePageClock(page);
-  const origin = publishMovingFiles(page, {
-    repository: pygardon.repository,
-    ref: pygardon.ref,
-    revision: pygardon.revision,
-    files,
-  });
-  const { intent, feature, source } = await openJobsFeature(page);
-  const moveTrunk = async (
-    revision: string,
-    moved: Readonly<Record<string, string>>,
-  ) => {
-    origin.moveTrunk({ revision, files: moved });
-    await passTimeUntilChecked(page);
-    await untilPageReadsAnswered(page);
-  };
-  return { moveTrunk, intent, feature, source };
 }

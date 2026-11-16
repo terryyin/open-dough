@@ -65,7 +65,7 @@ competing work before expensive proof. Keep defaults and one worker.
 
 ### 1. Keep one live revision journey opener
 Type: Structure
-Status: planned
+Status: done
 
 Remove only the dead native export and resulting unused imports, retaining
 all live browser/data exports and the real publisher. Search the whole product
@@ -75,6 +75,13 @@ controlled-source revision stimulus. This slice directly owns the evidenced
 retrospective residue; it enables no hypothetical behavior.
 Proof: the focused revision and home-activation suites above pass unchanged,
 typechecking passes, and no caller references the removed native export.
+Accepted proof (2026-11-16, at 25c66a1 plus this change): whole-repo search
+found every `openWithFeatureSelected` caller importing the Frontend opener;
+`npm run typecheck:dashboard` and eslint on the module passed; the six revision
+and home-activation spec files passed 12/12 (three home-activation, nine
+revision), one attempt each, `--workers=1` under `caffeinate -s -i` on AC at
+load ~9. The independent refactor pass changed nothing; the four removed
+imports keep other live consumers.
 
 ## Readiness and sizing
 
