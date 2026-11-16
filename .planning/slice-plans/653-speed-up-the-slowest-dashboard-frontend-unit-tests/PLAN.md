@@ -259,6 +259,18 @@ Result (2026-11-16):
   is refreshed from run 43789763452, the delivered revision, because only it
   times the merged and changed files; it had 138 of 195 files unrecorded.
 
+## Execution complete
+
+Product advice: no new story. The kept changes save about 8.5 s of the
+group's CI case time against the 24 s aim; the rest of the slowest group is
+behavior under test or the shared first-on-worker start. The one live lead,
+the revision-check page-time step, stays in
+`.planning/TEST-OPTIMIZATION-CANDIDATES.md` for a quieter-machine or CI-sum
+comparison. Refresh `dashboard/frontend.longest-first` from a `main` run once
+this lands, as `dashboard/tests/shards.md` asks; it was refreshed from this
+branch's run 43789763452. Distribution Tests stay red on the `OVER BUDGET`
+ceiling until SEED-381 removes that budget.
+
 ## Current decisions
 
 - Slices 2–6 are independent experiments; one that shows no gain is undone and
