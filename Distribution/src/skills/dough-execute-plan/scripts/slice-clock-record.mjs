@@ -5,7 +5,8 @@
 // {
 //   schemaVersion: 1,
 //   lastClockCommandAt,   latest start, pause, status, or run start/end time
-//   running: { identity, slice } | null,   one slice runs at a time
+//   running: { identity, slice } | { identity, diagnosis } | null,
+//            one slice or diagnosis round runs at a time
 //   stories: {
 //     [identity]: {
 //       slices: {
@@ -17,6 +18,13 @@
 //         },
 //       },
 //       overruns: [{ slice, detectedAt }],   one per overrun; kept when slices split
+//       diagnoses: {
+//         [name]: {
+//           roundsAuthorized,   3 unless a human authorized more; never lowered
+//           rounds: [{ periods, commands, overrunDetectedAt, overrunReportedTo }],
+//                   one per start, as slices keep them; never reset
+//         },
+//       },
 //     },
 //   },
 // }
@@ -25,7 +33,7 @@
 // A new session can settle them at lastClockCommandAt; older records use
 // their latest stored period or command timestamp. Host hooks do not move it.
 // `slice-clock-slices.mjs` holds what the entries mean: a slice's active time
-// and its overrun.
+// and its overrun; `slice-clock-diagnosis.mjs` holds the rounds' rules.
 import { execFileSync } from "node:child_process";
 import {
   mkdirSync,

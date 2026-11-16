@@ -2,6 +2,7 @@
 
 **Identity:** SEED-367#bound-diagnosis-in-evidence-rounds
 **Source:** [Selected story](../../seeds/SEED-367-bounded-slice-active-time.md#bound-diagnosis-in-evidence-rounds)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -106,7 +107,7 @@ Each slice targets 15 active minutes, including its focused proof and cleanup.
 
 ### 1. Count a diagnosis's rounds on the slice clock
 Type: Behavior
-Status: planned
+Status: done
 Proof: `slice-clock-diagnosis.test.mjs`; all `slice-clock*.test.mjs`.
 
 Behavior: a diagnosis is started round after round in the same checkout by
@@ -184,4 +185,13 @@ concern. This review identified no human decision needed before Take.
 
 ## Learnings
 
-None beyond the preparation observations above.
+- Slice 1 (4.8 active minutes): rounds live at
+  `stories[identity].diagnoses[name]` in the clock record. Shared active-time
+  arithmetic moved to `slice-clock-active-time.mjs` and the `run` body to
+  `slice-clock-run.mjs`; the install payload declares all three new scripts.
+  Accepted proof: `node --test Distribution/tests/skills/dough-execute-plan/slice-clock*.test.mjs`
+  (32 pass) and `payload-declaration-links.sh`. Untested internals left as
+  is: a `run` outliving its round (pinned to its round), and
+  `--rounds-authorized` on an already-running diagnosis taking effect only at
+  the next round start; a stop always pauses first, so the human's
+  authorization arrives on a fresh start.
