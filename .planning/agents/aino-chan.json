@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Aino-chan",
+  "email": "aino-chan@example.org",
+  "identity": "SEED-334#remove-obsolete-native-revision-opener",
+  "mode": "story-branch",
+  "branch": "claude/remove-the-obsolete-native-revision-opener",
+  "host": "claude",
+  "model": "opus"
+}
