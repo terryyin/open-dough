@@ -13,7 +13,8 @@ copy_runner() {
   mkdir -p -- "${fixture}/scripts" "${fixture}/Distribution/tests/helpers" \
     "${fixture}/Distribution/evaluation/tests"
   cp -- "${runner_source}/scripts/test.sh" "${runner_source}/scripts/test-jobs.sh" \
-    "${runner_source}/scripts/test-share-matrix.mjs" "${runner_source}/scripts/share-deal.mjs" \
+    "${runner_source}/scripts/test-share-matrix.mjs" "${runner_source}/scripts/test-share-declaration.mjs" \
+    "${runner_source}/scripts/share-deal.mjs" \
     "${runner_source}/scripts/duration-list.mjs" "${runner_source}/scripts/local-test-suite.mjs" \
     "${runner_source}/scripts/local-test-processes.mjs" \
     "${runner_source}"/scripts/*.bash "${fixture}/scripts/"

@@ -2,6 +2,7 @@
 
 **Identity:** SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing
 **Source:** [Fixed shards for browser tests and on-demand rebalancing](../../seeds/SEED-381-fixed-ci-test-shards.md#fixed-shards-for-browser-tests-and-on-demand-rebalancing)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -69,7 +70,7 @@ reporter's output form; more than one proposed change per invocation; released
 
 ### 1. Read any group's shards from the workflow
 Type: Structure
-Status: planned
+Status: done
 Proof: a new `Distribution/tests/support` node test over workflow text and
 small label sets; `test-share-matrix.test.mjs` and `test-runner-split.sh`
 unchanged and green.
@@ -275,3 +276,15 @@ Refinement not needed: eight slices, each one outcome with one proof loop;
 slice 6 is deletion bounded by the importer observation above. Remaining
 slice-specific concerns: none identified. The unused-input and wall-time
 premises are bounded by the early probe in slice 5.
+
+## Learnings
+
+- Slice 1: the readers passed 250 lines, so `scripts/test-share-declaration.mjs`
+  reads both declaration forms (`readShareDeclaration(text, file, job)`) and
+  `scripts/test-share-matrix.mjs` keeps selection and the CLI.
+  `Distribution/tests/helpers/copy-runner.bash` copies the new module into
+  every runner fixture. Accepted proof: `node --test
+  Distribution/tests/support/test-share-workflow.test.mjs
+  Distribution/tests/support/test-share-matrix.test.mjs`, `bash scripts/test.sh`
+  over those two, `test-runner-split.sh`, `test-runner-bash.sh` and the
+  copy-runner consumers.
