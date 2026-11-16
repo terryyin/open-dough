@@ -42,23 +42,23 @@ returned `X` ids.
 | 7d | Starting shards are tuned once from the story's own CI runs. | slice 5 | observed: PLAN.md Learnings slice 5: runs 43805225551 and 43806607572 kept the starting shards after both story runs fit their bounds |
 | 8a | Each shard keeps uploading its `<group>-times-<shard>` artifact. | slice 4 | observed: .github/workflows/browser-test-group.yml Keep per-spec times step unchanged |
 | 8b | That artifact is now retained for 90 days, as the Distribution `test-times-<i>` artifacts are. | slice 4 | observed: .github/workflows/browser-test-group.yml retention-days: 90 |
-| 9a.1 | Remove `e2e/longest-first*`. | slice 6 | |
-| 9a.2 | Remove `dashboard/*.longest-first*`. | slice 6 | |
-| 9a.3 | Remove the deal code. | slice 6 | |
-| 9a.4 | Remove duration-list reading code. | slice 6 | |
-| 9a.5 | Remove preview code. | slice 6 | |
-| 9a.6 | Remove refresh code. | slice 6 | |
-| 9a.7 | Remove `scripts/share-deal.mjs`. | slice 6 | |
-| 9a.8 | Remove `scripts/share-preview.mjs`. | slice 6 | |
-| 9a.9 | Remove `scripts/test-shares.mjs`. | slice 6 | |
-| 9a.10 | Remove what of `scripts/duration-list.mjs` only those scripts use. | slice 6 | |
-| 9a.11 | Remove their tests and fixtures. | slice 6 | |
-| 9b.1 | Remove the deal, preview and refresh passages of `dashboard/tests/shards.md`. | slice 6 | |
-| 9b.2 | Remove every other passage referring to them in group READMEs. | slice 6 | |
-| 9b.3 | ... in configuration comments. | slice 6 | |
-| 9b.4 | ... in maintainer timing documents. | slice 6 | |
-| 9b.5 | ... in queued stories' seeds and plans. | slice 6 | |
-| 9c | Remove maintainer findings entries that describe the deal or a refreshed duration list as the current response. | slice 6 | |
+| 9a.1 | Remove `e2e/longest-first*`. | slice 6 | observed: e2e/longest-first* deleted; slice 6 proof grep (git grep -i longest-first\|share-deal\|share-preview\|test-shares\|duration.list\|durations:) leaves only CHANGELOG, .planning/done, this story, historical finding/evidence records |
+| 9a.2 | Remove `dashboard/*.longest-first*`. | slice 6 | observed: dashboard/*.longest-first* deleted; slice 6 proof grep (git grep -i longest-first\|share-deal\|share-preview\|test-shares\|duration.list\|durations:) leaves only CHANGELOG, .planning/done, this story, historical finding/evidence records |
+| 9a.3 | Remove the deal code. | slice 6 | observed: scripts/share-deal.mjs deleted; testFiles.mjs has no deal |
+| 9a.4 | Remove duration-list reading code. | slice 6 | observed: scripts/duration-list.mjs reading code gone; only scripts/spec-times-format.mjs formatTimes remains |
+| 9a.5 | Remove preview code. | slice 6 | observed: scripts/share-preview.mjs deleted |
+| 9a.6 | Remove refresh code. | slice 6 | observed: refresh passages and code gone; slice 6 proof grep (git grep -i longest-first\|share-deal\|share-preview\|test-shares\|duration.list\|durations:) leaves only CHANGELOG, .planning/done, this story, historical finding/evidence records |
+| 9a.7 | Remove `scripts/share-deal.mjs`. | slice 6 | observed: scripts/share-deal.mjs deleted |
+| 9a.8 | Remove `scripts/share-preview.mjs`. | slice 6 | observed: scripts/share-preview.mjs deleted |
+| 9a.9 | Remove `scripts/test-shares.mjs`. | slice 6 | observed: scripts/test-shares.mjs deleted |
+| 9a.10 | Remove what of `scripts/duration-list.mjs` only those scripts use. | slice 6 | observed: scripts/duration-list.mjs reduced and renamed to scripts/spec-times-format.mjs (formatTimes for specTimes.ts) |
+| 9a.11 | Remove their tests and fixtures. | slice 6 | observed: Distribution/tests/support/{share-deal,share-preview,test-shares,duration-list}.test.mjs, job-duration-list.mjs, jobDurationTestData.mjs, makeMe jobDurations deleted |
+| 9b.1 | Remove the deal, preview and refresh passages of `dashboard/tests/shards.md`. | slice 6 | observed: dashboard/tests/shards.md The split section describes ci.yml declarations and refusals; preview section deleted |
+| 9b.2 | Remove every other passage referring to them in group READMEs. | slice 6 | observed: dashboard/tests/README.md, backend/frontend READMEs, e2e/README.md corrected; slice 6 proof grep (git grep -i longest-first\|share-deal\|share-preview\|test-shares\|duration.list\|durations:) leaves only CHANGELOG, .planning/done, this story, historical finding/evidence records |
+| 9b.3 | ... in configuration comments. | slice 6 | observed: dashboard/tests/fixtures/observed-runs-ci.yml comments corrected; configurations and workflows carry no deal comments |
+| 9b.4 | ... in maintainer timing documents. | slice 6 | observed: docs/maintainer/dashboard-test-timings.md refresh sentence removed; dashboard-weight-timings.md deleted |
+| 9b.5 | ... in queued stories' seeds and plans. | slice 6 | observed: SEED-300, SEED-334, plans 617, 648 and 621 evidence corrected |
+| 9c | Remove maintainer findings entries that describe the deal or a refreshed duration list as the current response. | slice 6 | observed: ProjectFindings.md and docs/maintainer/project-test-findings.md DD-279 removed; DD-529 preview sentence removed |
 | 10a | Add a private maintainer skill under `.agents/skills/`. | slice 8 | |
 | 10b | The skill is not distributed by the installer. | slice 8 | |
 | 10c | The skill is backed by one script. | slice 8 | |
@@ -78,16 +78,16 @@ returned `X` ids.
 | 12d.1 | The skill says when to use it. | slice 8 | |
 | 12d.2 | The skill says how to invoke it. | slice 8 | |
 | 12d.3 | The skill says the next `main` runs are the check of an applied change. | slice 8 | |
-| 13a | Qualification: `scripts/ci-job-times.sh` stays and keeps deciding how many jobs a group has. | slice 6 | |
-| 13b | Qualification: the job-count rule in `dashboard/tests/shards.md` stays and keeps deciding how many jobs a group has. | slice 6 | |
+| 13a | Qualification: `scripts/ci-job-times.sh` stays and keeps deciding how many jobs a group has. | slice 6 | observed: scripts/ci-job-times.sh unchanged |
+| 13b | Qualification: the job-count rule in `dashboard/tests/shards.md` stays and keeps deciding how many jobs a group has. | slice 6 | observed: dashboard/tests/shards.md job-count rule kept |
 | 14 | Qualification: shards are declared by spec patterns only. | slice 4 | observed: .github/workflows/ci.yml shards declared only by specs patterns |
 | 15 | Qualification: the `chromium-deployments` and `chromium` Playwright projects keep queueing the serial production chains first inside whichever shard their files belong to. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs E2E's two projects split each shard with production chains first |
-| 16a | Qualification: the per-spec times reporter is kept. | slice 6 | |
-| 16b | Qualification: the times form of the artifacts is kept (they are the rebalancing input). | slice 6 | |
+| 16a | Qualification: the per-spec times reporter is kept. | slice 6 | observed: dashboard/tests/support/specTimes.ts reporter kept; intent/spec-times.spec.ts green |
+| 16b | Qualification: the times form of the artifacts is kept (they are the rebalancing input). | slice 6 | observed: intent/spec-times.spec.ts asserts the <seconds><TAB><file> times form |
 | 17a | Qualification: the script proposes one change per invocation. | slice 7 | |
 | 17b | A maintainer wanting more applies it and invokes the script again. | slice 8 | |
 | 18a | Example: adding `e2e/new-area/first.spec.ts` and nothing else → CI runs it once, in the last E2E shard. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs new-area/first.spec.ts lands only in shard 6 |
-| 18b | Example: no list or preview step precedes that push. | slice 6 | |
+| 18b | Example: no list or preview step precedes that push. | slice 6 | observed: dashboard/tests/shards.md has no preview step; scripts/share-preview.mjs deleted |
 | 19 | Example: adding `dashboard/backend-tests/launches/new-case.spec.ts` → CI runs it once, in the backend shard whose pattern names that folder. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs backend-tests/launches/new-case.spec.ts lands only in the launches/** shard |
 | 20a | Example: one E2E shard has `e2e/sessions/**`, another `e2e/sessions/agent-*` → `npm run test:e2e` fails before any test starts. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs overlapping e2e patterns throw from dashboardTestMatch/dashboardTestProjects with no split, which e2e/playwright.config.ts calls at load before any test |
 | 20b | Same example: every E2E shard fails before any test starts. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs overlap fails every split 1/6..6/6 |
@@ -108,13 +108,13 @@ returned `X` ids.
 | 28b | The module that reads the `distribution-tests` matrix for the Node runner becomes the one reader for every group. | slice 4 | observed: dashboard/tests/support/testFiles.mjs and scripts/test-jobs.sh both select through test-share-matrix.mjs/test-share-declaration.mjs |
 | 28c | Each browser configuration asks that module for its shard's spec files and is told only the shard number. | slice 4 | observed: dashboard/tests/support/runnerConfig.mjs prepareFocusedRun passes job + split variable; configurations name only their job |
 | 28d | The rebalancing script asks that module for every shard's files. | slice 2 | observed: scripts/ci-shard-balance.mjs shardReport uses readShareDeclaration + selectShare |
-| 28e | The selection and overlap rules exist once. | slice 6 | |
+| 28e | The selection and overlap rules exist once. | slice 6 | observed: scripts/test-share-matrix.mjs selectShare is the only selector; share-deal.mjs deleted |
 | 28f | Each group's shard declaration stays in a form that module reads (no YAML parser in the repository). | slice 1 | observed: scripts/test-share-declaration.mjs readShareDeclaration line reader (matrix and caller `shards`/`specs: \|` forms); Distribution/tests/support/test-share-workflow.test.mjs |
 | 28g | The called `browser-test-group.yml` turns each group's declaration into its matrix. | slice 4 | observed: .github/workflows/browser-test-group.yml matrix from shards input; specs input declared |
 | 28h | No Accepted ADR constrains this. | slice 1 | observed: slice 1 return: docs/adrs 0000-0010 searched for shard/yaml/ci.yml/test-share/split; only 0001:79 and 0007:97, unrelated |
-| 29a | Architecture: shard balance has no automatic owner. | slice 6 | |
-| 29b | The rebalancing script is the only place per-file seconds are read. | slice 6 | |
-| 29c | Nothing in the repository records per-file seconds. | slice 6 | |
+| 29a | Architecture: shard balance has no automatic owner. | slice 6 | observed: no deal or refresh remains; dashboard/tests/shards.md names ci-shard-balance.mjs on request |
+| 29b | The rebalancing script is the only place per-file seconds are read. | slice 6 | observed: only scripts/ci-shard-balance.mjs/ci-shard-times.mjs read per-file seconds, from CI artifacts |
+| 29c | Nothing in the repository records per-file seconds. | slice 6 | observed: longest-first lists deleted; no per-file seconds file in the repository |
 | 29d | A shard that grows past its deadline fails that shard. | slice 5 | observed: .github/workflows/browser-test-group.yml per-shard browser run deadline (450 s) unchanged; runs fail only the late shard |
 | 29e | Drift before then is visible through `scripts/ci-job-times.sh`, the job durations, or the script. | slice 8 | |
 | 30a | Context: folder and file-name patterns can carry the current load. | slice 5 | observed: PLAN.md Learnings slice 5: runs 43805225551 and 43806607572 every group within bound under folder and file-name patterns |
@@ -125,18 +125,18 @@ returned `X` ids.
 | 30f | The longest single spec file is about 150 seconds. | slice 5 | observed: slice 4 ci-shard-balance reports: one slow file (over a tenth of the even total) each in e2e and backend |
 | 31 | Considered (rejected): declaring a shard as a Playwright project — a pattern says the same in the one form all five groups share; E2E projects already queue production chains independently of shard membership. | slice 4 | observed: .github/workflows/ci.yml no Playwright project per shard; Distribution/tests/support/browser-group-shards.test.mjs E2E projects keep chain queueing |
 | 32 | Considered (rejected): folding the job-count report into the rebalancing script — different questions from different data; the job-count rule has its own readers. | slice 8 | |
-| 33a | Outcome: no duration list or dealing code remains in the repository. | slice 6 | |
+| 33a | Outcome: no duration list or dealing code remains in the repository. | slice 6 | observed: slice 6 proof grep (git grep -i longest-first\|share-deal\|share-preview\|test-shares\|duration.list\|durations:) leaves only CHANGELOG, .planning/done, this story, historical finding/evidence records |
 | 33b | Outcome: CI runs every browser spec file exactly once across each group's fixed shards. | slice 5 | observed: PLAN.md Learnings slice 5: runs 43805225551 and 43806607572 times artifacts name every discovered spec exactly once in all four groups |
 | 33c | Outcome: each group's slowest shard is no slower than under the deal. | slice 5 | observed: PLAN.md Learnings slice 5: runs 43805225551 and 43806607572 slowest shard per group within the recorded deal-era bound in both runs |
 | 33d | Outcome: a maintainer can rebalance any group by invoking the skill and reviewing its proposed `ci.yml` change. | slice 8 | |
 | X1 | Exclusion: shard counts are not changed. | slice 5 | observed: .github/workflows/ci.yml shards inputs unchanged |
 | X2 | Exclusion: deadlines are not changed. Deadline headroom on slow runners belongs to SEED-382. | slice 5 | observed: .github/workflows/browser-test-group.yml deadlines unchanged |
-| X3 | Exclusion: `scripts/ci-job-times.sh` and the job-count rule in `dashboard/tests/shards.md` are not removed or replaced. | slice 6 | |
+| X3 | Exclusion: `scripts/ci-job-times.sh` and the job-count rule in `dashboard/tests/shards.md` are not removed or replaced. | slice 6 | observed: scripts/ci-job-times.sh and shards.md job-count rule kept |
 | X4 | Exclusion: shards are not declared as Playwright projects or by any means other than spec patterns. | slice 4 | observed: .github/workflows/ci.yml shards declared only by specs patterns |
-| X5 | Exclusion: the per-spec times reporter and the times artifact form are not removed. | slice 6 | |
+| X5 | Exclusion: the per-spec times reporter and the times artifact form are not removed. | slice 6 | observed: specTimes.ts reporter and browser-times.txt form kept |
 | X6 | Exclusion: the script does not propose more than one change per invocation. | slice 7 | |
 | X7 | Exclusion: the script does not start runs, change files, or apply its own diff. | slice 7 | |
 | X8 | Exclusion: the script does not record per-file seconds in the repository, and nothing gives shard balance an automatic owner. | slice 8 | |
-| X9 | Exclusion: released `CHANGELOG.md` entries and the done-story catalog stay unedited. | slice 6 | |
+| X9 | Exclusion: released `CHANGELOG.md` entries and the done-story catalog stay unedited. | slice 6 | observed: CHANGELOG.md and .planning/done untouched by slice 6 |
 | X10 | Exclusion: the job-count report is not folded into the rebalancing script. | slice 2 | observed: scripts/ci-shard-balance.mjs has no job-count reporting; ci-job-times.sh unchanged and green |
 | X11 | Exclusion: the maintainer skill is not distributed by the installer. | slice 8 | |

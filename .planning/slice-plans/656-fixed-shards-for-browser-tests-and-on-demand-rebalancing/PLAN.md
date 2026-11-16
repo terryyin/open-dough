@@ -192,7 +192,7 @@ name every discovered spec file once.
 
 ### 6. Remove the deal, the duration lists and their references
 Type: Structure
-Status: planned
+Status: done
 Proof: the whole Distribution suite once under the local gate above;
 `git grep -n -i -E "longest-first|share-deal|share-preview|test-shares|duration.list|durations:"`
 returns only `CHANGELOG.md` and `.planning/done/`; `spec-times.spec.ts`
@@ -221,6 +221,9 @@ from `docs/maintainer/project-test-findings.md` (356 lines), and the
 `docs/maintainer/findings/` and `project-findings-history.md` passages that
 give the deal as the current response; those catalogs' seam is one finding
 per section, and the edit removes whole sections along it.
+Terry decided on 2026-11-16 that `SEED-300` (392 lines) has the same seam:
+one section per story plus the shared family sections; the two-word edit
+moves no story, and reorganizing a queued seed belongs to its own resplit.
 
 ### 7. Propose the smallest pattern change
 Type: Behavior
@@ -341,6 +344,25 @@ premises are bounded by the early probe in slice 5.
   shard stayed within its bound in both runs, so slice 4's shards are kept
   with no move. E2E shard 3 swung from 198 to 302 between the runs with the
   same files, the runner-speed spread the medians absorb.
+- Slice 6 (about 25 active minutes, over budget, with all proof finished):
+  `scripts/duration-list.mjs` became `scripts/spec-times-format.mjs`
+  (`formatTimes` only); `docs/maintainer/dashboard-weight-timings.md`, a
+  rejected deal-weight experiment nothing linked, was deleted. The whole
+  Distribution suite ran once at load 15–30 on AC power with no sleep (2,242
+  s): only `native-comparison-refresh.sh` (runner's 180 s deadline) and
+  `native-comparison-supplier-watch.sh` (10 s watch wait) failed, both
+  untouched by this story; rerun alone at load ~25 they passed. They are
+  load-sensitive defects for a separate repair. Trunk meanwhile closed
+  SEED-382 (lint left the frontend shard for its own `lint` job); the branch
+  merged `main` at `d5e8ec4f2`, keeping this story's declarations and dropping
+  the frontend-runner lint sentence from `shards.md`. Its source amendment
+  changed only SEED-382's link in a scope limit, no commitment, so the source
+  review stands. Merged-state proof: `bash scripts/test.sh` over
+  browser-group-shards, ci-browser-groups, ci-proof-actions,
+  ci-proof-declaration, distribution-ci-proof, ci-container-workflow,
+  ci-lint-setup, ci-shard-balance, local-test-suite and test-runner-split;
+  backend `spec-times`, `ci-time-without-runner-waits`, `runner-ownership`;
+  typecheck.
 
 ## Story obligations
 

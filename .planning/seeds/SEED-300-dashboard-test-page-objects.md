@@ -202,7 +202,7 @@ North Star direction needs no addition for this test-side change.
   specs and the applicable dashboard gates under the project's
   [failing and flaky test policy](../../AGENTS.md#failing-and-flaky-tests).
 - Since SEED-334 the affected specs are spread over four browser test groups,
-  each with its own command, configuration, duration list and CI shards:
+  each with its own command, configuration and CI shards:
   representative workflows in E2E Test (`e2e/`, `npm run test:e2e`), the
   interim Dashboard Integrated UI Test (`dashboard/tests/`,
   `npm run test:dashboard:integrated`), Dashboard Frontend Test and Dashboard
