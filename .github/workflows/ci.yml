@@ -25,14 +25,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # `npm test` runs one job per matrix share, each running its share of the
-  # discovered checks (OPEN_DOUGH_TEST_SPLIT, Distribution/tests/runner-settings.md), failing
-  # on its own failing check or deadline. The matrix owns share membership:
-  # each included share runs the checks its space-separated, repository-relative
-  # glob `tests` patterns match, and the last share runs the rest. The runner
-  # reads it (scripts/test-share-matrix.mjs) and fails before any check starts
-  # when two shares match one check or a pattern matches none. Everything else
-  # takes the count from strategy.job-total.
+  # Distribution share selection: Distribution/tests/runner-settings.md.
   distribution-tests:
     name: Distribution Tests (${{ matrix.share }}/${{ strategy.job-total }})
     runs-on: ubuntu-24.04
@@ -43,7 +36,7 @@ jobs:
         share: [1, 2, 3]
         include:
           - share: 1
-            tests: Distribution/tests/skills/dough-execute-plan/**
+            tests: Distribution/tests/skills/dough-execute-plan/** Distribution/tests/installation/**
           - share: 2
             tests: Distribution/evaluation/**
     steps:
@@ -180,16 +173,7 @@ jobs:
         id: typecheck
         run: npm run typecheck:dashboard
 
-  # The browser test groups, which `npm test` never discovers: each is its own
-  # producer (./browser-test-group.yml) with its own command, settings,
-  # shards, outputs and CI proof entry (Distribution/tests/README.md).
-  # This file owns each group's shard membership: `shards` lists the shards and
-  # `specs` gives each shard but the last its repository-relative glob
-  # patterns over the specs the group's configuration discovers under `root`;
-  # the last shard runs the rest, and a one-shard group declares none. The
-  # configuration reads them (dashboard/tests/support/testFiles.mjs), refuses a
-  # spec two shards match or a pattern matching no spec before any test starts,
-  # and `<settings>_SPLIT=<i>/<n>` runs shard i locally as here.
+  # Browser producers and shard membership: dashboard/tests/shards.md.
   e2e:
     uses: ./.github/workflows/browser-test-group.yml
     with:
