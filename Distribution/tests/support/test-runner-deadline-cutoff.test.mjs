@@ -1,5 +1,3 @@
-import { makeMe } from "./makeMe.mjs";
-import { durationListText } from "./job-duration-list.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -70,16 +68,8 @@ test("a past CI run cutoff starts no checks and records unfinished outcomes", as
 test("an absolute run cutoff stops running work and leaves queued checks unfinished without invented times", async (t) => {
   const { root, project } = await deadlineRepository(t, {
     files: {
-      [`${fixtureEntry}/running.sh`]: bashHangCheck(),
-      [`${fixtureEntry}/queued.sh`]: bashHangCheck(),
-      [`${fixtureEntry}/longest-first`]: durationListText(
-        makeMe.jobDurations
-          .with([
-            [`${fixtureEntry}/running.sh`, 10],
-            [`${fixtureEntry}/queued.sh`, 9],
-          ])
-          .please(),
-      ),
+      [`${fixtureEntry}/a-running.sh`]: bashHangCheck(),
+      [`${fixtureEntry}/b-queued.sh`]: bashHangCheck(),
     },
   });
   const observation = observeDir(t, root, "mid-cutoff");
@@ -99,7 +89,7 @@ test("an absolute run cutoff stops running work and leaves queued checks unfinis
       OPEN_DOUGH_TEST_OUTCOMES: outcomes,
       OPEN_DOUGH_TEST_JOBS: "1",
     },
-    [`${fixtureEntry}/running.sh`, `${fixtureEntry}/queued.sh`],
+    [`${fixtureEntry}/a-running.sh`, `${fixtureEntry}/b-queued.sh`],
   );
   await awaitReady(observation, run);
   const armed = await readRunDeadlineReady(readyFile);
@@ -112,33 +102,33 @@ test("an absolute run cutoff stops running work and leaves queued checks unfinis
   assert.match(result.output, /RUN DEADLINE: exhausted absolute cutoff/);
   assert.match(
     result.output,
-    new RegExp(`unfinished running: ${fixtureEntry}/running\\.sh`),
+    new RegExp(`unfinished running: ${fixtureEntry}/a-running\\.sh`),
   );
   assert.match(
     result.output,
-    new RegExp(`not started: ${fixtureEntry}/queued\\.sh`),
+    new RegExp(`not started: ${fixtureEntry}/b-queued\\.sh`),
   );
   assert.match(
     result.output,
     new RegExp(
-      `TIMEOUT: ${fixtureEntry}/running\\.sh \\(exhausted run deadline; after [0-9]+\\.[0-9]s\\)`,
+      `TIMEOUT: ${fixtureEntry}/a-running\\.sh \\(exhausted run deadline; after [0-9]+\\.[0-9]s\\)`,
     ),
   );
   assert.ok(!processRunning(pid));
   const timeText = readFileSync(times, "utf8");
   assert.match(
     timeText,
-    new RegExp(`^[0-9]+\\.[0-9]\\t${fixtureEntry}/running\\.sh$`, "m"),
+    new RegExp(`^[0-9]+\\.[0-9]\\t${fixtureEntry}/a-running\\.sh$`, "m"),
   );
-  assert.doesNotMatch(timeText, new RegExp(`${fixtureEntry}/queued\\.sh`));
+  assert.doesNotMatch(timeText, new RegExp(`${fixtureEntry}/b-queued\\.sh`));
   const outcomeText = readFileSync(outcomes, "utf8");
   assert.match(
     outcomeText,
-    new RegExp(`^failed\\t${fixtureEntry}/running\\.sh$`, "m"),
+    new RegExp(`^failed\\t${fixtureEntry}/a-running\\.sh$`, "m"),
   );
   assert.match(
     outcomeText,
-    new RegExp(`^unfinished\\t${fixtureEntry}/queued\\.sh$`, "m"),
+    new RegExp(`^unfinished\\t${fixtureEntry}/b-queued\\.sh$`, "m"),
   );
 
   const { summary, files } = replayCutoffFragments(t, outcomeText, timeText);
@@ -158,6 +148,6 @@ test("an absolute run cutoff stops running work and leaves queued checks unfinis
       ],
     ]),
   );
-  assert.deepEqual(byPath[`${fixtureEntry}/running.sh`], [0, 1, 0, true, 0]);
-  assert.deepEqual(byPath[`${fixtureEntry}/queued.sh`], [0, 0, 1, false, 1]);
+  assert.deepEqual(byPath[`${fixtureEntry}/a-running.sh`], [0, 1, 0, true, 0]);
+  assert.deepEqual(byPath[`${fixtureEntry}/b-queued.sh`], [0, 0, 1, false, 1]);
 });

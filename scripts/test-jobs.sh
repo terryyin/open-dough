@@ -136,16 +136,18 @@ else
   fi
 fi
 
-# `longest-first` records each job's seconds from a CI run (see its header).
-# scripts/test-shares.mjs owns the order and the split: it deals the jobs by
-# those seconds (scripts/share-deal.mjs, Distribution/tests/test-shares.md), so every run
-# of the same checks gets the same order whatever order the file system lists
-# them in, and a split puts every check in exactly one share. A list line that
-# is not `<seconds><TAB><label>` fails the listing naming it, before any job
-# starts.
+# scripts/test-shares.mjs owns the order and the split. An unsplit run starts
+# every check in bytewise path order, whatever order the file system lists
+# them in. A split deals the jobs by the seconds `longest-first` records from
+# a CI run (see its header; scripts/share-deal.mjs,
+# Distribution/tests/test-shares.md), so every check lands in exactly one
+# share. A list line that is not `<seconds><TAB><label>` fails the listing
+# naming it, before any job starts.
 allocator=(node "$(dirname -- "${BASH_SOURCE[0]}")/test-shares.mjs" share)
-[[ ! -f ${metadata_dir}/longest-first ]] || allocator+=(--list "${metadata_dir}/longest-first")
-[[ -z ${split} ]] || allocator+=(--split "${split}")
+if [[ -n ${split} ]]; then
+  [[ ! -f ${metadata_dir}/longest-first ]] || allocator+=(--list "${metadata_dir}/longest-first")
+  allocator+=(--split "${split}")
+fi
 labels=()
 if ((${#discovered[@]} > 0)); then
   printf '%s\0' "${discovered[@]}" | "${allocator[@]}" > "${work_dir}/share"

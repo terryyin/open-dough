@@ -28,8 +28,8 @@ Launch: a fresh general-purpose subagent (no conversation inheritance) on 2026-1
 | 10.1 | The no-match failure names the pattern | slice 1 | observed: Distribution/tests/support/test-share-matrix.test.mjs same case asserts the message names the pattern |
 | 11 | This check is the only sharding automation that remains | slice 7 |  |
 | 12 | A share can be reproduced locally by its number | slice 3 |  |
-| 13 | A run that selects no share runs every check | slice 2 |  |
-| 13.1 | It runs them in bytewise path order | slice 2 |  |
+| 13 | A run that selects no share runs every check | slice 2 | observed: Distribution/tests/test-runner/test-runner-failure-report.sh start-order block: unsplit run starts all five checks |
+| 13.1 | It runs them in bytewise path order | slice 2 | observed: Distribution/tests/test-runner/test-runner-failure-report.sh asserts start order 'Zeta alpha beta gamma node-ordered' against durations ordering otherwise |
 | 14 | Each CI job keeps three time limits, listed in 14.1–14.3 | slice 6 |  |
 | 14.1 | Its plain `timeout-minutes` | slice 6 |  |
 | 14.2 | Its 320-second run cutoff | slice 6 |  |

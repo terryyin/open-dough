@@ -74,7 +74,7 @@ same. Enables slice 3.
 
 ### 2. Start an unsplit run's checks in path order
 Type: Behavior
-Status: planned
+Status: done
 Proof: `test-runner-failure-report.sh` and
 `test-runner-deadline-cutoff.test.mjs`, with every `test-runner-*` and
 `test-runner-deadline-*` check green.

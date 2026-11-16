@@ -6,9 +6,10 @@ can write besides its report.
 The runner runs four jobs at a time locally and one per online CPU in CI; each
 job keeps its own temporary directory. `OPEN_DOUGH_TEST_JOBS` selects another
 count, 1 or more.
-Jobs start in the order `scripts/test-shares.mjs` deals them from the CI
-seconds recorded in `Distribution/tests/longest-first`, longest recorded first;
-`OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of `n` of that deal, and
+An unsplit run starts its jobs in bytewise path order;
+`OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of `n` of the deal
+`scripts/test-shares.mjs` makes from the CI seconds recorded in
+`Distribution/tests/longest-first`, longest recorded first, and
 `OPEN_DOUGH_TEST_TIMES=<file>` writes every started job's wall seconds and
 name, longest first. `OPEN_DOUGH_TEST_OUTCOMES=<file>` writes each selected
 job's outcome and name, tab-separated, for CI's proof fragments, which count

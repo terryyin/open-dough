@@ -24,8 +24,8 @@ keep their existing form.
 
 `Distribution/tests/longest-first` records each job's seconds from one CI run, one
 `<seconds><TAB><label>` line per job, longest first, the form the runner's
-times file prints; `#` lines are its header. `scripts/test-jobs.sh` hands the
-discovered jobs, that list and the split to `scripts/test-shares.mjs`
+times file prints; `#` lines are its header. For a split, `scripts/test-jobs.sh`
+hands the discovered jobs, that list and the split to `scripts/test-shares.mjs`
 (`scripts/share-deal.mjs` holds the deal). Recorded jobs go, longest first
 (equal seconds bytewise), to the share with the smallest predicted total
 (ties to the lower share). A job the list does not name, so a new or renamed
@@ -45,7 +45,7 @@ dealt into its shards by the same rule
 every job lands in exactly one share whatever order the file system lists the
 tests in, and a failure or time is reported only for the share's own jobs. A
 malformed value, or `i` outside `1..n`, fails the run naming the value before
-any job starts. Unset, every job runs, in the deal's order for one share.
+any job starts. Unset, every job runs in bytewise path order.
 
 ## Preview before pushing
 

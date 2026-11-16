@@ -153,16 +153,16 @@ if grep -E -- 'node-quiet|FAIL: .*(first|second)' "${temporary_dir}/node.log"; t
 fi
 rm -- "${checks}/node/node-failing.test.mjs" "${checks}/node/node-noisy.test.mjs"
 
-# Jobs recorded in `longest-first` start first, longest recorded first, then
-# the rest; OPEN_DOUGH_TEST_TIMES receives every job's seconds and label,
-# longest first.
+# An unsplit run starts its jobs in bytewise path order (`Zeta` before
+# `alpha`), whatever durations `longest-first` records; OPEN_DOUGH_TEST_TIMES
+# receives every job's seconds and label, longest first.
 order="${temporary_dir}/order"
-for name in alpha beta gamma; do
+for name in Zeta alpha beta gamma; do
   write_check "${name}.sh" "printf '%s\\n' ${name} >> '${order}'"
 done
 write_node_test node-ordered "appendFileSync('${order}', 'node-ordered\\n');"
 node "${source_dir}/Distribution/tests/support/job-duration-list.mjs" --header '# longest first' \
-  3 "${checks}/gamma.sh" 2 'tests/not-a-job.sh' 1 "${checks}/node/node-ordered.test.mjs" > "${checks}/longest-first"
+  3 "${checks}/gamma.sh" 2 "${checks}/node/node-ordered.test.mjs" 1 "${checks}/Zeta.sh" > "${checks}/longest-first"
 times="${temporary_dir}/times"
 OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_TIMES="${times}" run_suite ordered
 if ((suite_status != 0)) || [[ -s ${temporary_dir}/ordered.log ]]; then
@@ -170,13 +170,13 @@ if ((suite_status != 0)) || [[ -s ${temporary_dir}/ordered.log ]]; then
   cat -- "${temporary_dir}/ordered.log" >&2
   exit 1
 fi
-mapfile -t started < "${order}"
-[[ ${started[0]} == gamma && ${started[1]} == node-ordered && ${#started[@]} -eq 4 ]]
-for name in alpha beta; do
-  grep -q -F -x -- "${name}" "${order}"
-done
+started=$(paste -s -d ' ' -- "${order}")
+if [[ ${started} != 'Zeta alpha beta gamma node-ordered' ]]; then
+  printf 'FAIL: the unsplit run started %s, not in bytewise path order.\n' "${started}" >&2
+  exit 1
+fi
 mapfile -t timed < "${times}"
-[[ ${#timed[@]} -eq 7 ]]
+[[ ${#timed[@]} -eq 8 ]]
 grep -q -E -- "^[0-9]+\.[0-9]"$'\t'"${checks}/node/node-quiet\\.test\\.mjs\$" "${times}"
 sort -r -n -c -- "${times}"
 
