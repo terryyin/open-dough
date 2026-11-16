@@ -227,6 +227,15 @@ STRAY
 expect_guard_failure "${tree}" "${stray}:2: host-event literal item.started outside the shared reader; read the stream through Distribution/evaluation/src/native-host-stream.mjs"
 rm -- "${tree}/${stray}"
 
+# Allowing the Cursor fixture writer still rejects a production reader of its event.
+stray=Distribution/evaluation/src/stray-host-reader.mjs
+mkdir -p "${tree}/$(dirname -- "${stray}")"
+cat > "${tree}/${stray}" << 'STRAY'
+export const readsToolUse = row => row.type === "tool_use";
+STRAY
+expect_guard_failure "${tree}" "${stray}:1: host-event literal tool_use outside the shared reader; read the stream through Distribution/evaluation/src/native-host-stream.mjs"
+rm -- "${tree}/${stray}"
+
 # A listed writer that no longer writes a host shape leaves the list stale.
 stale=Distribution/evaluation/tests/native-harness/native-run-workspace-isolation.sh
 : > "${tree}/${stale}"
