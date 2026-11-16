@@ -19,30 +19,81 @@ Claude Code and Codex executions in the 30 days to 2026-11-15.
 **Identity:** SEED-367#count-slice-active-time-deterministically
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/667-count-slice-active-time-deterministically/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6e411af8ac267ee62e01cce3dadb2035144425a36036b5274609307000255c40","plan":"8c2c1879061733296d3264e9a10c601b88d4a0bdc62e4ca7add322165cd03f31"}}
 ```
 
-- **Scope and beneficiary.** A developer gets the
-  [15-active-minute slice limit](../../Distribution/src/skills/dough-story-decomposition/references/problem-decomposition.md#size-and-escalate-slices)
-  applied the same way on Claude Code, Codex and Cursor, without implementers
-  keeping time themselves.
-- **Evaluation.** From dispatch to return, and across handbacks and resumes,
-  the coordinator and the implementer read the slice's remaining active time
-  from one record under a stable slice identity. Replacing an implementer,
-  refining unfinished work or resuming its handback does not reset elapsed
-  active time. Time inside commands run through it, the refactor pass, CI
-  repair and waits for the coordinator or a human do not count. Every brief and
-  resume carries the same value, and an overrun is detected at the limit
-  without the agent running `date`. A command run through it also writes the
-  exit file that [waiting for proof](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md)
-  uses.
-- **Priority.** First of the slice-limit stories: the limit depends on it.
-  Under Pygardon's 10-minute stop rule, 35 of 382 Claude Code implementers
-  spent more than 10 model minutes; 11 reported the budget and 13 checked the
-  clock more than once. In Doughnut, 5 went over and none reported it.
-- **Effort and boundary.** Medium. A new execute-plan script with tests and a
-  payload declaration; host hooks are a variant on Claude Code and Cursor,
-  while Codex has none. It does not change the limit itself.
+**Goal.** A developer gets the
+[15-active-minute slice limit](../../Distribution/src/skills/dough-story-decomposition/references/problem-decomposition.md#size-and-escalate-slices)
+applied the same way on Claude Code, Codex and Cursor. One slice clock,
+not each agent's own reading of the host clock, decides how much active time a
+slice has used, so an overrun is reported reliably and every brief carries the
+same remaining time. This is the measurement the other slice-limit stories
+build on.
+
+**Scope.**
+
+- One installed execute-plan script keeps a slice clock for each slice under
+  a stable slice identity: the story identity (or the quick execution's
+  identity) plus the slice the coordinator names. The record lives in the
+  execution's local Git state, so a replacement implementer, a resumed
+  handback and a later coordinator session in the same checkout read the same
+  record. Nothing in it is committed.
+- The coordinator starts or resumes the clock when it dispatches or resumes a
+  slice, or begins one itself, and pauses it when the implementer returns, the
+  slice is accepted, or execution stops for the coordinator or a human. Each
+  brief and resume carries the remaining time the clock reports.
+- An implementer runs proof commands through the clock. Time inside such a
+  command does not count, overlapping commands are excluded once, and the
+  command's output and exit status go to the log and exit file that
+  [waiting for proof](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md)
+  waits on. Waiting for proof keeps its per-host instructions and uses the
+  clock's exit file.
+- At or past the limit the clock reports an overrun with the elapsed active
+  time, at the next clock command on every host and, on Claude Code and
+  Cursor, after the next tool call through their host hooks. Codex has no hook,
+  so its detection waits for the next clock command.
+- The refactor pass and CI repair run outside the clock. Refining or renaming
+  an unfinished slice keeps its slice identity and elapsed time. A slice split
+  after an overrun starts new slice clocks. The overrun stays in the story's
+  record, so the coordinator can see a second overrun in the same story.
+- Execute-plan guidance stops asking agents to count active time with the host
+  clock: [track active time](../../Distribution/src/skills/dough-execute-plan/references/oversized-slice.md#track-active-time),
+  delegation briefs and waiting for proof use the clock instead.
+
+Out of scope: changing the 15-minute limit or what counts as active work;
+bounding diagnosis rounds and waiting for proof conditions (the sibling
+stories); measuring model time or cost; enforcing the limit by killing an
+agent or a command. A command started outside the clock still counts as
+active time; the clock does not try to detect it.
+
+**Key examples.**
+
+- A coordinator dispatches slice 3 with nothing recorded. The brief says 15
+  active minutes remain. The implementer works 6 minutes, runs a 9-minute
+  focused suite through the clock and works 4 more minutes. The clock reports
+  10 elapsed and 5 remaining, and the implementer ran no `date`.
+- The implementer returns slice 3 with 11 minutes elapsed for a review fix.
+  The coordinator's 20-minute review is paused time. The resumed brief, and a
+  replacement implementer's brief in the same checkout, both say 4 minutes
+  remain.
+- On Codex an implementer passes 15 active minutes while editing. Its next
+  clock command reports the overrun and the elapsed time, and the implementer
+  returns unfinished work under
+  [handle the overrun](../../Distribution/src/skills/dough-execute-plan/references/oversized-slice.md#handle-the-overrun).
+  On Claude Code the same overrun is reported after the next tool call.
+- After a 13-minute slice is refined in place with a new title, it resumes with
+  2 minutes remaining. After an overrun splits it into two slices, each starts
+  at 15, and the story's record still shows one overrun.
+- A focused suite started through the clock on Cursor exits nonzero. Its exit
+  file holds the status, the blocking wait from waiting for proof ends on it,
+  and the suite's time is excluded.
+- The coordinator runs the refactor pass and repairs CI after slice 3 is
+  accepted. Slice 3's elapsed time does not change.
+
+**Evidence.** Under Pygardon's 10-minute stop rule, 35 of 382 Claude Code
+implementers spent more than 10 model minutes; 11 reported the budget and 13
+checked the clock more than once. In Doughnut, 5 went over and none reported
+it.
 
 <a id="bound-diagnosis-in-evidence-rounds"></a>
 

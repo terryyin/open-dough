@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Sola-chan",
-  "email": "sola-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-367#count-slice-active-time-deterministically",
-  "host": "claude",
-  "model": "opus"
-}
