@@ -154,15 +154,13 @@ fi
 rm -- "${checks}/node/node-failing.test.mjs" "${checks}/node/node-noisy.test.mjs"
 
 # An unsplit run starts its jobs in bytewise path order (`Zeta` before
-# `alpha`), whatever durations `longest-first` records; OPEN_DOUGH_TEST_TIMES
-# receives every job's seconds and label, longest first.
+# `alpha`); OPEN_DOUGH_TEST_TIMES receives every job's seconds and label,
+# longest first.
 order="${temporary_dir}/order"
 for name in Zeta alpha beta gamma; do
   write_check "${name}.sh" "printf '%s\\n' ${name} >> '${order}'"
 done
 write_node_test node-ordered "appendFileSync('${order}', 'node-ordered\\n');"
-node "${source_dir}/Distribution/tests/support/job-duration-list.mjs" --header '# longest first' \
-  3 "${checks}/gamma.sh" 2 "${checks}/node/node-ordered.test.mjs" 1 "${checks}/Zeta.sh" > "${checks}/longest-first"
 times="${temporary_dir}/times"
 OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_TIMES="${times}" run_suite ordered
 if ((suite_status != 0)) || [[ -s ${temporary_dir}/ordered.log ]]; then

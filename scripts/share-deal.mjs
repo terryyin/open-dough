@@ -7,12 +7,12 @@
 // the preview and the refresh; dashboard/tests/support/testFiles.mjs deals
 // each browser test group's spec files through it.
 //
-// A duration list (`Distribution/tests/longest-first` for the Node suite) holds one
-// `<seconds><TAB><label>` line per recorded job, the form the runner's
-// `test-times` artifact prints. duration-list.mjs reads plain lists or indexes
-// with named TSV parts; malformed rows fail before any job runs.
+// A group's duration list (such as `e2e/longest-first`) holds one
+// `<seconds><TAB><label>` line per recorded job, the form a group's times
+// artifact prints. duration-list.mjs reads plain lists or indexes with named
+// TSV parts; malformed rows fail before any job runs.
 //
-// The deal itself is stated in Distribution/tests/test-shares.md ("The deal").
+// The deal is stated in dashboard/tests/shards.md ("The split").
 
 import {
   bytewise,

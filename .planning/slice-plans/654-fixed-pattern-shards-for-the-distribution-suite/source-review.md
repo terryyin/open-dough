@@ -6,8 +6,8 @@ Launch: a fresh general-purpose subagent (no conversation inheritance) on 2026-1
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Maintainers run and change the Distribution suite's CI shares by reading one place: the `distribution-tests` matrix in `.github/workflows/ci.yml` | slice 7 |  |
-| 2 | Maintainers do this without maintaining duration lists, budgets or a dealing algorithm | slice 7 |  |
+| 1 | Maintainers run and change the Distribution suite's CI shares by reading one place: the `distribution-tests` matrix in `.github/workflows/ci.yml` | slice 7 | observed: Distribution/tests/runner-settings.md names the distribution-tests matrix in ci.yml as the one owner of shares |
+| 2 | Maintainers do this without maintaining duration lists, budgets or a dealing algorithm | slice 7 | observed: Distribution/tests/longest-first* and test-shares.md deleted; no Distribution list, budget or deal remains |
 | 3 | Each matrix entry keeps its share number | slice 5 | observed: .github/workflows/ci.yml matrix keeps share: [1, 2, 3] with include entries by share number |
 | 4 | Each matrix entry names the tests it runs as repository-relative folder or file glob patterns | slice 5 | observed: .github/workflows/ci.yml include tests: repository-relative globs; Distribution/tests/test-runner/test-runner-split.sh fixture workflow selections |
 | 4.1 | The patterns apply to the checks the runner already discovers for the Distribution intent entry | slice 1 | observed: Distribution/tests/support/test-share-matrix.test.mjs selects from the labels it is given (runner-discovered checks); wiring to discovery is slice 3 |
@@ -26,7 +26,7 @@ Launch: a fresh general-purpose subagent (no conversation inheritance) on 2026-1
 | 9.1 | The overlap failure names the file and the shares | slice 1 | observed: Distribution/tests/support/test-share-matrix.test.mjs 'a check two shares match is refused naming it and both shares' asserts label and 'shares 1 and 2' |
 | 10 | The same check fails when a pattern matches no check | slice 1 | observed: Distribution/tests/support/test-share-matrix.test.mjs 'a pattern that matches no check is refused naming it, also with no share selected' |
 | 10.1 | The no-match failure names the pattern | slice 1 | observed: Distribution/tests/support/test-share-matrix.test.mjs same case asserts the message names the pattern |
-| 11 | This check is the only sharding automation that remains | slice 7 |  |
+| 11 | This check is the only sharding automation that remains | slice 7 | observed: scripts/test-share-matrix.mjs refusals are the only Distribution sharding automation (git grep slice 7) |
 | 12 | A share can be reproduced locally by its number | slice 5 | observed: Distribution/tests/runner-settings.md: OPEN_DOUGH_TEST_SPLIT=<i>/3 npm test; Distribution/tests/test-runner/test-runner-split.sh expect_share per share |
 | 13 | A run that selects no share runs every check | slice 2 | observed: Distribution/tests/test-runner/test-runner-failure-report.sh start-order block: unsplit run starts all five checks |
 | 13.1 | It runs them in bytewise path order | slice 2 | observed: Distribution/tests/test-runner/test-runner-failure-report.sh asserts start order 'Zeta alpha beta gamma node-ordered' against durations ordering otherwise |
@@ -42,8 +42,8 @@ Launch: a fresh general-purpose subagent (no conversation inheritance) on 2026-1
 | 16 | Each share keeps uploading its `test-times-<i>` artifact | slice 5 | observed: .github/workflows/ci.yml Keep per-job test times step uploads test-times-<i> |
 | 16.1 | The artifact is retained for 90 days | slice 5 | observed: .github/workflows/ci.yml retention-days: 90 |
 | 16.2 | The artifact is the rebalancing input | slice 5 | observed: .github/workflows/ci.yml artifact comment and Distribution/tests/README.md name it the input for moving a pattern |
-| 17 | Everything that only the Distribution suite uses is removed completely, as listed in 17.1–17.16 | slice 7 |  |
-| 17.1 | `Distribution/tests/longest-first*` | slice 7 |  |
+| 17 | Everything that only the Distribution suite uses is removed completely, as listed in 17.1–17.16 | slice 7 | observed: slices 3, 4, 5, 7 removals; final git grep leaves only dashboard-group files, CHANGELOG.md and records |
+| 17.1 | `Distribution/tests/longest-first*` | slice 7 | observed: Distribution/tests/longest-first, -ci, -execution, -skills, -suite, -support deleted |
 | 17.2 | `Distribution/tests/time-budget` | slice 4 | observed: Distribution/tests/time-budget deleted |
 | 17.3 | The `share` command | slice 5 | observed: scripts/test-shares.mjs share command removed; test-shares.test.mjs 'a command other than preview or refresh is refused naming it' |
 | 17.4 | The `runner-factor` command | slice 4 | observed: runner-factor command removed from scripts/test-shares.mjs |
@@ -53,25 +53,25 @@ Launch: a fresh general-purpose subagent (no conversation inheritance) on 2026-1
 | 17.8 | `scripts/test-budget.sh` | slice 4 | observed: scripts/test-budget.sh deleted |
 | 17.9 | `scripts/time-budget.bash` | slice 4 | observed: scripts/time-budget.bash deleted |
 | 17.10 | `scripts/ci-test-times.sh` | slice 4 | observed: scripts/ci-test-times.sh and Distribution/tests/ci/ci-test-times.sh deleted |
-| 17.11 | The tests for these items | slice 7 |  |
-| 17.12 | The fixtures for these items | slice 7 |  |
-| 17.13 | `test-shares.md` | slice 7 |  |
+| 17.11 | The tests for these items | slice 7 | observed: list fixtures removed from test-runner-interrupt.sh, test-runner-deadline-continuation.test.mjs, test-runner-failure-report.sh |
+| 17.12 | The fixtures for these items | slice 7 | observed: job-duration-list.mjs CLI mode removed (module kept for dashboard-group tests) |
+| 17.13 | `test-shares.md` | slice 7 | observed: Distribution/tests/test-shares.md deleted |
 | 17.14 | `time-budget.md` | slice 4 | observed: Distribution/tests/time-budget.md deleted |
-| 17.15 | Every passage that refers to these items | slice 7 |  |
-| 17.16 | Maintainer findings entries that describe the deal or the budget as the current response | slice 7 |  |
+| 17.15 | Every passage that refers to these items | slice 7 | observed: dashboard/tests/shards.md and scripts/share-deal.mjs links into deleted passages reworded; git grep clean of test-shares.md outside records |
+| 17.16 | Maintainer findings entries that describe the deal or the budget as the current response | slice 7 | observed: DD-537 entry and Node-suite budget/deal parts of DD-279 removed from docs/maintainer/project-test-findings.md and ProjectFindings.md |
 | 18 | What the dashboard groups still use stays until the next story removes it, as listed in 18.1–18.6 | slice 3 | observed: scripts/share-deal.mjs, scripts/duration-list.mjs unchanged; refresh command and --spec-dir preview kept |
 | 18.1 | The deal module | slice 3 | observed: scripts/share-deal.mjs unchanged; share-deal.test.mjs green |
 | 18.2 | The duration-list modules | slice 3 | observed: scripts/duration-list.mjs unchanged; duration-list.test.mjs green |
 | 18.3 | The list refresh | slice 3 | observed: scripts/test-shares.mjs refresh command unchanged; test-shares.test.mjs green |
 | 18.4 | The `--spec-dir` preview | slice 3 | observed: share-preview.test.mjs 'preview lists a browser group's root of its spec directory...' green |
 | 18.5 | The tests for these items | slice 3 | observed: browser-group-shards, share-deal, duration-list, dashboard-test-files tests untouched and green |
-| 18.6 | `dashboard/tests/shards.md` | slice 7 |  |
+| 18.6 | `dashboard/tests/shards.md` | slice 7 | observed: dashboard/tests/shards.md kept; only its two links into deleted files changed |
 | 19 | Between this story and the next, no command reports recent per-check CI seconds | slice 4 | observed: scripts/ci-test-times.sh deleted; no remaining per-check seconds command |
 | 19.1 | The retained `test-times-<i>` artifacts are read with `gh run download` | slice 4 | observed: Distribution/tests/README.md and ci.yml artifact comment: read test-times-<i> with gh run download |
 | 19.2 | `scripts/ci-job-times.sh` keeps reporting each share's distance from its run cutoff | slice 4 | observed: scripts/ci-job-times.sh behavior unchanged; Distribution/tests/ci/ci-job-times.sh green |
-| 20 | Released `CHANGELOG.md` entries stay | slice 7 |  |
-| 21 | The done-story catalog stays | slice 7 |  |
-| 21.1 | Both are release and identity records, not descriptions of current behavior | slice 7 |  |
+| 20 | Released `CHANGELOG.md` entries stay | slice 7 | observed: CHANGELOG.md untouched |
+| 21 | The done-story catalog stays | slice 7 | observed: .planning/done/ untouched |
+| 21.1 | Both are release and identity records, not descriptions of current behavior | slice 7 | observed: CHANGELOG.md and .planning/done/ left as records |
 | 22 | A maintainer adds `Distribution/tests/new-area/first.sh` and changes nothing else → CI runs it once, in the last share | slice 5 | observed: Distribution/tests/test-runner/test-runner-split.sh: Distribution/tests/new-area/first.sh runs once in share 3 |
 | 23 | A maintainer adds `Distribution/tests/skills/dough-execute-plan/new-case.test.mjs` → CI runs it once, in the share whose pattern names that folder | slice 5 | observed: Distribution/tests/test-runner/test-runner-split.sh: dough-execute-plan/new-case.test.mjs runs only in share 1 |
 | 23.1 | No list or preview step comes before the push | slice 5 | observed: scripts/test-jobs.sh reads only the workflow matrix; no list or preview input |
@@ -98,4 +98,4 @@ Launch: a fresh general-purpose subagent (no conversation inheritance) on 2026-1
 | 35.2 | Unlike a default route, the last share receives every new folder, so it grows without anyone editing it | slice 6 | observed: last share has no pattern in ci.yml; new folders join it (test-runner-split.sh new-area case) |
 | 36 | Outcome: CI runs every Distribution check exactly once across the fixed shares | slice 6 | observed: runs 43788295624 and 43790894501 test-times artifacts: 642 checks across shares, none repeated, equal to unsplit count |
 | 37 | Outcome: total wall time is comparable to the current split | slice 6 | observed: run 43790894501: slowest test step 236 and 226 s vs 238 s for the dealt split in run 43773156778 |
-| 38 | Outcome: the Distribution suite's code, tests and documents keep no reference to duration lists, deals or the normalized budget | slice 7 |  |
+| 38 | Outcome: the Distribution suite's code, tests and documents keep no reference to duration lists, deals or the normalized budget | slice 7 | observed: git grep -i 'longest-first\|time-budget\|test-shares.md\|runner factor\|OVER BUDGET' hits only dashboard groups, CHANGELOG.md, records |

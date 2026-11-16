@@ -44,23 +44,13 @@ write_blocking_check() {
 echo $1-printed
 read -r _ < '${blocked}'"
 }
-write_check pass-a.sh 'true'
-write_check pass-b.sh 'true'
+write_check a-pass.sh 'true'
+write_check b-pass.sh 'true'
 write_blocking_check never-ending.sh
 
-# One slot and this order make every earlier check end before the next starts,
-# so the passing checks have finished when the never-ending check is ready:
-# the named checks are listed with falling seconds, so they start in the
-# given order, and an unlisted check starts after them.
-order() {
-  local name seconds=$#
-  local -a durations=()
-  for name in "$@"; do
-    durations+=("${seconds}" "${checks}/${name}")
-    seconds=$((seconds - 1))
-  done
-  node "${source_dir}/Distribution/tests/support/job-duration-list.mjs" "${durations[@]}" > "${checks}/longest-first"
-}
+# One slot and bytewise start order make every earlier check end before the
+# next starts, so the passing checks have finished when the never-ending
+# check is ready.
 
 # Job control starts the runner in its own process group with INT not ignored;
 # a non-interactive shell otherwise starts background commands ignoring INT.
@@ -163,12 +153,11 @@ assert_interrupted() {
 }
 
 # TERM: only the never-ending check is listed; the run exits 143.
-order pass-a.sh pass-b.sh
 start_runner term
 await_ready never-ending.sh
 interrupt_runner TERM 143 term
 assert_interrupted term never-ending.sh
-if grep -E -- 'pass-(a|b)|FAIL' "${temporary_dir}/term.log"; then
+if grep -E -- '(a|b)-pass|FAIL' "${temporary_dir}/term.log"; then
   echo 'FAIL: the TERM report listed more than the never-ending check.' >&2
   exit 1
 fi
@@ -177,7 +166,6 @@ fi
 # interrupted, not as failing, beside the check still running; the run
 # exits 130.
 write_blocking_check ended-by-int.sh
-order pass-a.sh ended-by-int.sh pass-b.sh
 start_runner int
 await_ready ended-by-int.sh
 pkill -INT -f -- "${checks}/ended-by-int.sh"
@@ -185,7 +173,7 @@ await_ready never-ending.sh
 interrupt_runner INT 130 int
 assert_interrupted int ended-by-int.sh
 assert_interrupted int never-ending.sh
-if grep -E -- 'pass-(a|b)|FAIL' "${temporary_dir}/int.log"; then
+if grep -E -- '(a|b)-pass|FAIL' "${temporary_dir}/int.log"; then
   echo 'FAIL: the INT report listed a passing check or a failing one.' >&2
   exit 1
 fi

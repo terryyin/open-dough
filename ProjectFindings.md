@@ -15,13 +15,7 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
-**Maintenance assessment (2026-11-15):** [DD-537](docs/maintainer/project-test-findings.md#dd-537)
-adds a Distribution share failure from an apparently roomy preview that used
-median estimates for 26 unrecorded jobs. The immediate duration refresh landed.
-[SEED-374](.planning/seeds/SEED-374-stale-test-duration-estimates.md#see-stale-test-duration-estimates)
-is queued to make the missing timing evidence clear before relying on that
-preview.
-[SEED-375](.planning/seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission)
+**Maintenance assessment (2026-11-15):** [SEED-375](.planning/seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission)
 is queued to protect a live host test-suite owner during container diagnostics
 ([DD-432](#dd-432)). [DD-529](docs/maintainer/project-test-findings.md#dd-529)
 records the browser capacity finding.
@@ -62,9 +56,8 @@ commit hook. No new local response was selected.
 3. **Suite timing and diagnosis — DD-279 response implemented, hosted outcome unobserved; DD-275 open, unqueued.** [DD-279](#dd-279)
    records two shard deadlines in one execution; a refreshed duration list and
    twelve shares repair those runs, while duration ordering still ages without
-   a refresh step. Plan 350 met the same mechanism in the Node suite's share
-   budget (one added test file, repaired by refreshing `tests/longest-first`).
-   SEED-151#balance-test-shares answers both with one allocator that deals by
+   a refresh step.
+   SEED-151#balance-test-shares answers it with one allocator that deals by
    recorded duration and previews the deal before a push; its hosted outcome
    is unobserved. [DD-275](#dd-275) records one separate execution whose
    within-run load was unobserved. These are related diagnostic/margin concerns,
@@ -85,7 +78,7 @@ commit hook. No new local response was selected.
 
 ### DD-279 — A dashboard shard reached its 320-second deadline after one spec file was added
 
-[Retained findings, response, measured allocation, observation criterion and occurrence evidence](docs/maintainer/project-test-findings.md#dd-279): one allocator deals both suites' shares by recorded duration (`61d16b66`, `34f3192f` and the slice 3 commit of SEED-151#balance-test-shares); the refreshed dashboard list predicts twelve shards within one spec file of each other where the positional deal measured 462.5 to 686.4, and the landed revision's run 40189712361 measured 458.0 to 694.2 with per-shard runner speed ratios 0.74 to 1.18; resolution waits on ten `main` runs with file-set changes and no allocation-owned breach.
+[Retained findings, response, measured allocation, observation criterion and occurrence evidence](docs/maintainer/project-test-findings.md#dd-279): one allocator deals the dashboard shards by recorded duration (`61d16b66`, `34f3192f` and the slice 3 commit of SEED-151#balance-test-shares); the refreshed dashboard list predicts twelve shards within one spec file of each other where the positional deal measured 462.5 to 686.4, and the landed revision's run 40189712361 measured 458.0 to 694.2 with per-shard runner speed ratios 0.74 to 1.18; resolution waits on ten `main` runs with file-set changes and no allocation-owned breach.
 
 ## Concurrent dashboard runs lost a run's result file (open, unqueued)
 

@@ -4,9 +4,10 @@ How CI runs each browser test group as its own shard jobs: the split that
 deals each shard its spec files by recorded duration and its preview, the
 times each shard keeps for refreshing the group's duration list, the deadline
 each shard runs under, and how many jobs each group keeps. The
-[README](README.md) owns the groups and how each runs as a whole; the Node
-suite's shares are in
-[Distribution/tests/test-shares.md](../../Distribution/tests/test-shares.md).
+[README](README.md) owns the groups and how each runs as a whole; the
+Distribution suite's shares are the `distribution-tests` matrix in
+`.github/workflows/ci.yml`
+([runner settings](../../Distribution/tests/runner-settings.md)).
 
 ## The producers
 
@@ -97,10 +98,12 @@ finds every spec file under the group's root recursively, never entering the
 `test-results/` and `playwright-report/` output a run writes there while
 reloading workers discover again, so a new file needs no registration. It
 hands those files, its list and its split to `scripts/share-deal.mjs`, which
-deals them by the rule the Node suite's shares follow
-([Distribution/tests/test-shares.md](../../Distribution/tests/test-shares.md#the-deal)), a spec file
-being a job: one the list does not record is dealt after the recorded files
-at their median seconds until the list is next refreshed (below). A list line that is not `<seconds><TAB><file>` fails the
+deals them, a spec file being a job: recorded files go longest first (equal
+seconds bytewise) to the shard with the smallest predicted total (ties to the
+lower shard), whatever order they are discovered in; one the list does not
+record is dealt after the recorded files in bytewise order at their median
+seconds until the list is next refreshed (below). Names matching no spec are
+ignored. A list line that is not `<seconds><TAB><file>` fails the
 configuration naming the file, line and content before any test is selected,
 as a malformed split does. CI runs lint and the dashboard type-check once on the frontend
 runner. With the variable unset, a group's command runs every spec of its

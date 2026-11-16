@@ -152,7 +152,7 @@ patterns and seconds in Learnings.
 
 ### 7. Remove the duration lists and the last references
 Type: Structure
-Status: planned
+Status: done
 Proof: whole suite once under the local gate above; `git grep -n -i -E
 "longest-first|time-budget|test-shares\.md|runner factor|OVER BUDGET"` returns
 only dashboard-group files, `CHANGELOG.md` and `.planning/done/`.
@@ -227,6 +227,9 @@ to a deleted Distribution passage.
   dealt split in run 43773156778. Final patterns: share 1
   `Distribution/tests/skills/dough-execute-plan/**`, share 2
   `Distribution/evaluation/**`, share 3 the rest.
+
+- Slice 7 local gate: `caffeinate -s -i npm test` with Homebrew bash 5, AC
+  power, 2026-11-16 10:34–10:55 +08, load about 6: exit 0, 642 checks.
 
 ## Readiness and sizing
 
