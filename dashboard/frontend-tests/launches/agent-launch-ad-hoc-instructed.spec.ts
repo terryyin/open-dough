@@ -9,7 +9,6 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../../tests/support/frontendApp.ts";
-import { putFrontendMachine } from "../../tests/support/frontendServiceState.ts";
 import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
 import {
   startSession,
@@ -42,19 +41,13 @@ test("an instructed Start session with the Side panel closed leaves it closed an
         .running(false)
         .afterChanges(1)
         .please();
-      putFrontendMachine(
-        frontendServices,
+      frontendServices.answerMachine(
         makeMe.aMachineAnswer
           .answeringAttempts(attempt)
-          .observing(
-            makeMe.anObservedLaunch
-              .of(
-                makeMe.aLaunchRecord
-                  .adHoc({ instruction: text, title: text })
-                  .inClaudeSession({ sessionId, shortId: "instruct" })
-                  .please(),
-              )
-              .withSessionState(makeMe.aSessionState.loaded("working").please())
+          .observingOpen(
+            makeMe.aLaunchRecord
+              .adHoc({ instruction: text, title: text })
+              .inClaudeSession({ sessionId, shortId: "instruct" })
               .please(),
           )
           .please(),

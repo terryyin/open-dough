@@ -23,7 +23,6 @@ import {
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   machineOffering,
-  putFrontendMachine,
   putFrontendStories,
   type FrontendServiceState,
 } from "../../tests/support/frontendServiceState.ts";
@@ -39,7 +38,7 @@ import { longTitle } from "../../tests/longTitleLaunch.ts";
 // shipped refinement options.
 async function openRefinement(page: Page, services: FrontendServiceState) {
   putFrontendStories(services, { notRefinedTitle: longTitle });
-  putFrontendMachine(services, machineOffering(shippedRefinementDefinition()));
+  services.answerMachine(machineOffering(shippedRefinementDefinition()));
   await page.goto("/");
   const { refine, refinementDialog: dialog } = backlogLaunchers(page);
   const launcher = refine(longTitle);

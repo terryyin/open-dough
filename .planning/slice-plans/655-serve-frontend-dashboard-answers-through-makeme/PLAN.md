@@ -85,7 +85,7 @@ became the fixture step `listThreeProjects()` in place of a projects list.
 
 ### 2. Machine answers through the fixture
 
-Status: planned
+Status: done
 Type: Structure
 
 Convert the remaining `putFrontendMachine` callers (launch, terminal,
@@ -93,6 +93,11 @@ startup, settings and session specs and their support modules) to
 `frontendServices.answerMachine`, and remove `putFrontendMachine`.
 
 Proof: the converted specs pass, then the whole frontend suite once.
+
+Accepted: 72 specs reaching the changed modules, 159 passed; the whole
+frontend suite, 455 passed at load about 4. Hand-built observed launches that
+matched a step now use it; Done launches with a missing workspace stay built
+by hand.
 
 ## Current decisions
 

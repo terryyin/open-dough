@@ -5,7 +5,6 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../tests/support/frontendApp.ts";
-import { putFrontendMachine } from "../tests/support/frontendServiceState.ts";
 import { installAttachedTerminalSubstitute } from "../tests/support/frontendServiceSubstitutes.ts";
 import { sessionsSidebarParts } from "../tests/sessionsSidebarPage.ts";
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
@@ -25,22 +24,16 @@ for (const unavailable of ["connecting", "refused"] as const) {
     frontendServices,
   }) => {
     const title = `${unavailable} prompt input`;
-    putFrontendMachine(
-      frontendServices,
+    frontendServices.answerMachine(
       makeMe.aMachineAnswer
-        .observing(
-          makeMe.anObservedLaunch
-            .of(
-              makeMe.aLaunchRecord
-                .executing({ identity: "SEED-901#prompt-input", title })
-                .onStoryBranch({
-                  workspace: "/work/prompt-input",
-                  branch: "codex/prompt-input",
-                })
-                .inClaudeSession({ sessionId: "prompt-1", shortId: "prompt1" })
-                .please(),
-            )
-            .withSessionState(makeMe.aSessionState.loaded("working").please())
+        .observingOpen(
+          makeMe.aLaunchRecord
+            .executing({ identity: "SEED-901#prompt-input", title })
+            .onStoryBranch({
+              workspace: "/work/prompt-input",
+              branch: "codex/prompt-input",
+            })
+            .inClaudeSession({ sessionId: "prompt-1", shortId: "prompt1" })
             .please(),
         )
         .please(),

@@ -4,7 +4,6 @@ import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   doughnutSource,
   openDoughSource,
-  putFrontendMachine,
 } from "../../tests/support/frontendServiceState.ts";
 import { expectProjectChoice } from "../../tests/dashboardPage.ts";
 import { pausePageClockAt } from "../../tests/dashboardTest.ts";
@@ -81,8 +80,7 @@ test("each state has its own border style, thickness, and colour, and its hidden
       .please();
     return makeMe.anObservedLaunch.of(record).withSessionState(state).please();
   });
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer.observing(...observed).please(),
   );
   await page.goto("/?project=doughnut");

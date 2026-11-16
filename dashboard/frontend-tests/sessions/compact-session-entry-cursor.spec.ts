@@ -9,10 +9,7 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../../tests/support/frontendApp.ts";
-import {
-  frontendStoryLaunch,
-  putFrontendMachine,
-} from "../../tests/support/frontendServiceState.ts";
+import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
 import { fulfillJson } from "../../tests/support/frontendSubstituteAnswers.ts";
 import { sessionDetailsControl } from "../../tests/support/sessionEntryDisclosure.ts";
 import {
@@ -37,16 +34,8 @@ test("a working Cursor entry keeps its resume command selectable and reports cop
     })
     .requestingModel("auto")
     .please();
-  putFrontendMachine(
-    frontendServices,
-    makeMe.aMachineAnswer
-      .observing(
-        makeMe.anObservedLaunch
-          .of(record)
-          .withSessionState(makeMe.aSessionState.loaded("working").please())
-          .please(),
-      )
-      .please(),
+  frontendServices.answerMachine(
+    makeMe.aMachineAnswer.observingOpen(record).please(),
   );
   // The Cursor runner holds the session, working.
   await page.route(

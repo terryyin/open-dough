@@ -30,10 +30,7 @@ import {
 import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
 import { notRefinedStory } from "../../tests/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  frontendStoryLaunch,
-  putFrontendMachine,
-} from "../../tests/support/frontendServiceState.ts";
+import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
 import { reviewRegion } from "../../tests/support/storyReviewMark.ts";
 
 async function expectSettledLayout(page: Page) {
@@ -45,24 +42,18 @@ test("the inspection group sits below the launch group, wraps in reading order, 
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
-      .observing(
-        makeMe.anObservedLaunch
-          .of(
-            frontendStoryLaunch("executing", notRefinedStory)
-              .onStoryBranch({
-                workspace: "/tmp/story-review-action",
-                branch: "claude/queued",
-              })
-              .inClaudeSession({
-                sessionId: "story-review-action",
-                shortId: "revact01",
-              })
-              .please(),
-          )
-          .withSessionState(makeMe.aSessionState.loaded("working").please())
+      .observingOpen(
+        frontendStoryLaunch("executing", notRefinedStory)
+          .onStoryBranch({
+            workspace: "/tmp/story-review-action",
+            branch: "claude/queued",
+          })
+          .inClaudeSession({
+            sessionId: "story-review-action",
+            shortId: "revact01",
+          })
           .please(),
       )
       .please(),

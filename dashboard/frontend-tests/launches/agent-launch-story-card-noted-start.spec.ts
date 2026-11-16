@@ -45,7 +45,6 @@ import {
 import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
 import {
   frontendStoryLaunch,
-  putFrontendMachine,
   putFrontendStories,
 } from "../../tests/support/frontendServiceState.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -138,15 +137,9 @@ test.describe("a Backlog card's Starts", () => {
     // Every story queued: the Ready one being prepared, and the one listed
     // first with its execution session open on this machine.
     putFrontendStories(frontendServices, { taken: [], preparing: readyStory });
-    putFrontendMachine(
-      frontendServices,
+    frontendServices.answerMachine(
       makeMe.aMachineAnswer
-        .observing(
-          makeMe.anObservedLaunch
-            .of(frontendStoryLaunch("executing", takenStory).please())
-            .withSessionState(makeMe.aSessionState.loaded("working").please())
-            .please(),
-        )
+        .observingOpen(frontendStoryLaunch("executing", takenStory).please())
         .please(),
     );
     await page.goto("/");

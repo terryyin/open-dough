@@ -11,7 +11,6 @@ import { reviewChanges } from "../storyCardControls.ts";
 import { openFrontendTakenBacklog } from "./frontendApp.ts";
 import {
   frontendStoryLaunch,
-  putFrontendMachine,
   type FrontendServiceState,
 } from "./frontendServiceState.ts";
 import {
@@ -36,24 +35,18 @@ export async function openFrontendStoryReview(
   readonly review: Locator;
   readonly answers: FrontendStoryReview;
 }> {
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
-      .observing(
-        makeMe.anObservedLaunch
-          .of(
-            frontendStoryLaunch("executing", takenStory)
-              .onStoryBranch({
-                workspace: "/tmp/story-review-fe",
-                branch: "claude/taken",
-              })
-              .inClaudeSession({
-                sessionId: "story-review-fe",
-                shortId: "revfe01",
-              })
-              .please(),
-          )
-          .withSessionState(makeMe.aSessionState.loaded("working").please())
+      .observingOpen(
+        frontendStoryLaunch("executing", takenStory)
+          .onStoryBranch({
+            workspace: "/tmp/story-review-fe",
+            branch: "claude/taken",
+          })
+          .inClaudeSession({
+            sessionId: "story-review-fe",
+            shortId: "revfe01",
+          })
           .please(),
       )
       .please(),

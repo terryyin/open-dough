@@ -14,7 +14,6 @@ import type {
 } from "../../src/agentLaunch.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  putFrontendMachine,
   putFrontendStories,
   type FrontendServiceState,
 } from "./frontendServiceState.ts";
@@ -72,14 +71,9 @@ export function frontendAttempt(
       .please();
     const answer = machine(makeMe.aMachineAnswer.answeringAttempts(attempt));
     if (settled !== undefined && "launched" in settled)
-      answer.observing(
-        makeMe.anObservedLaunch
-          .of(settled.launched)
-          .withSessionState(makeMe.aSessionState.loaded("working").please())
-          .please(),
-      );
+      answer.observingOpen(settled.launched);
     const read: MachineAnswer = answer.please();
-    putFrontendMachine(services, read);
+    services.answerMachine(read);
     return attempt;
   };
   return {

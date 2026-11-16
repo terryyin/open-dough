@@ -23,7 +23,6 @@ import { pausePageClockAt } from "../../tests/dashboardTest.ts";
 import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
 import {
   frontendStoryLaunch,
-  putFrontendMachine,
   type FrontendServiceState,
 } from "../../tests/support/frontendServiceState.ts";
 import {
@@ -60,8 +59,7 @@ const execution = frontendStoryLaunch("executing", readyStory).please();
 
 // The machine's read observes the card's execution session in `state`.
 function observeExecution(services: FrontendServiceState, state: SessionState) {
-  putFrontendMachine(
-    services,
+  services.answerMachine(
     makeMe.aMachineAnswer
       .observing(
         makeMe.anObservedLaunch.of(execution).withSessionState(state).please(),

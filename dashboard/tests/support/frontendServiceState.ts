@@ -157,14 +157,6 @@ export function putFrontendDoneRecords(
   putFrontendDonePublication(services, sourceId, { catalog, bodies });
 }
 
-// Mutates substitute answers in place; Object.assign keeps no-param-reassign clean.
-export function putFrontendMachine(
-  services: FrontendServiceState,
-  machine: MachineAnswer | undefined,
-): void {
-  Object.assign(services, { machine });
-}
-
 // The machine's sessions read when Open Dough's installed skill offers its
 // refinement launches in Claude Code the options of `definition`.
 export function machineOffering(definition: OptionsDefinition): MachineAnswer {

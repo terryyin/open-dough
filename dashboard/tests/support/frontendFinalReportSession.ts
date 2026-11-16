@@ -8,10 +8,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
 import { readFinalReportControl } from "../finalReportPages.ts";
 import { cardSessionEntry } from "./frontendCardSessions.ts";
-import {
-  frontendStoryLaunch,
-  putFrontendMachine,
-} from "./frontendServiceState.ts";
+import { frontendStoryLaunch } from "./frontendServiceState.ts";
 import type { FrontendServiceState } from "./frontendServiceState.ts";
 import { installFrontendFinalReport } from "./frontendFinalReportSubstitutes.ts";
 import { installFrontendSessionActions } from "./frontendSessionActions.ts";
@@ -71,10 +68,7 @@ export async function openFrontendUnfinishedReport(
   },
 ) {
   const session = unfinishedRetainedSession();
-  putFrontendMachine(
-    services,
-    makeMe.aMachineAnswer.observing(session).please(),
-  );
+  services.answerMachine(makeMe.aMachineAnswer.observing(session).please());
   const reports = await installFrontendFinalReport(page, report);
   const actions = await installFrontendSessionActions(page, services);
   await openFrontendTakenBacklog(page);

@@ -11,10 +11,7 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../../tests/support/frontendApp.ts";
-import {
-  openDoughSource,
-  putFrontendMachine,
-} from "../../tests/support/frontendServiceState.ts";
+import { openDoughSource } from "../../tests/support/frontendServiceState.ts";
 import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
 import { notRefinedStory, readyStory } from "../../tests/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -44,8 +41,7 @@ test("the execution dialog of a project that establishes a start says Start also
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
       .establishing({
         source: openDoughSource.id,

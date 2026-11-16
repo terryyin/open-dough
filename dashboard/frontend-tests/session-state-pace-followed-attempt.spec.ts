@@ -22,7 +22,6 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../tests/support/frontendApp.ts";
-import { putFrontendMachine } from "../tests/support/frontendServiceState.ts";
 
 const pageTime = (page: Page) => page.evaluate(() => Date.now());
 
@@ -90,8 +89,7 @@ test("a pace begins only once the read that a followed attempt's change asks for
   frontendServices,
 }) => {
   // The machine runs one attempt, of which it has told one change.
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     answering(makeMe.anAcceptedAttempt.adHoc().please(), {
       running: true,
       changes: 1,
@@ -108,8 +106,7 @@ test("a pace begins only once the read that a followed attempt's change asks for
   // after the pace was asked for and the page has had its turns many times
   // over: a pace that did not wait for the change would by then have let
   // page time pass.
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     answering(
       makeMe.anAcceptedAttempt
         .adHoc()

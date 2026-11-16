@@ -5,10 +5,7 @@ import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { openFrontendTakenBacklog } from "./frontendApp.ts";
-import {
-  putFrontendMachine,
-  type FrontendServiceState,
-} from "./frontendServiceState.ts";
+import type { FrontendServiceState } from "./frontendServiceState.ts";
 import { installAttachedTerminalSubstitute } from "./frontendServiceSubstitutes.ts";
 import {
   installFrontendTranscription,
@@ -73,18 +70,8 @@ export async function openFrontendTerminalVoice(
   const first = voiceRecord("Voice session A", "voicea01");
   const second = voiceRecord("Voice session B", "voiceb01");
   const records = options.twoSessions !== false ? [first, second] : [first];
-  putFrontendMachine(
-    frontendServices,
-    makeMe.aMachineAnswer
-      .observing(
-        ...records.map((record) =>
-          makeMe.anObservedLaunch
-            .of(record)
-            .withSessionState(makeMe.aSessionState.loaded("working").please())
-            .please(),
-        ),
-      )
-      .please(),
+  frontendServices.answerMachine(
+    makeMe.aMachineAnswer.observingOpen(...records).please(),
   );
   const program =
     options.application === undefined
