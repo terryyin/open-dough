@@ -28,16 +28,17 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Serve frontend dashboard answers through MakeMe](seeds/SEED-301-limit-first-layer-test-cases-to-ten-lines.md#serve-frontend-dashboard-answers-through-makeme) — SEED-301#serve-frontend-dashboard-answers-through-makeme ([plan](slice-plans/655-serve-frontend-dashboard-answers-through-makeme/PLAN.md))
 - [Fixed shards for browser tests and on-demand rebalancing](seeds/SEED-381-fixed-ci-test-shards.md#fixed-shards-for-browser-tests-and-on-demand-rebalancing) — SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing ([plan](slice-plans/656-fixed-shards-for-browser-tests-and-on-demand-rebalancing/PLAN.md))
+- [Review changes from completed ad hoc sessions](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions) — SEED-379#review-changes-from-completed-ad-hoc-sessions ([plan](slice-plans/659-review-changes-from-completed-ad-hoc-sessions/PLAN.md))
+- [Extend syntax styling in code diffs](seeds/SEED-377-extend-syntax-styling-in-code-diffs.md#extend-syntax-styling-in-code-diffs) — SEED-377#extend-syntax-styling-in-code-diffs ([plan](slice-plans/660-extend-syntax-styling-in-code-diffs/PLAN.md))
 
 ## Backlog list
 
-- [Compare Codex and Claude Code token usage](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#compare-codex-and-claude-code-token-usage) — SEED-383#compare-codex-and-claude-code-token-usage
-- [Keep browser test jobs inside their deadline on slow runners](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#browser-test-job-headroom-on-slow-runners) — SEED-382#browser-test-job-headroom-on-slow-runners
-- [Review changes from completed ad hoc sessions](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions) — SEED-379#review-changes-from-completed-ad-hoc-sessions
-- [Extend syntax styling in code diffs](seeds/SEED-377-extend-syntax-styling-in-code-diffs.md#extend-syntax-styling-in-code-diffs) — SEED-377#extend-syntax-styling-in-code-diffs
-- [Remove the obsolete native revision opener](seeds/SEED-334-product-wide-end-to-end-tests.md#remove-obsolete-native-revision-opener) — SEED-334#remove-obsolete-native-revision-opener
+- [Tell compared Usage tools apart and drop stale read errors](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#tell-compared-usage-tools-apart) — SEED-383#tell-compared-usage-tools-apart
+- [Submit and close the dashboard terminal](seeds/SEED-385-submit-and-close-the-dashboard-terminal.md#submit-and-close-the-dashboard-terminal) — SEED-385#submit-and-close-the-dashboard-terminal
+- [Keep Review changes focused on the diff](seeds/SEED-384-keep-review-changes-focused-on-the-diff.md#keep-review-changes-focused-on-the-diff) — SEED-384#keep-review-changes-focused-on-the-diff
+- [Keep Default main ad hoc session changes for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-default-main-session-changes-for-review) — SEED-379#keep-default-main-session-changes-for-review
+- [Keep own-branch ad hoc session results for review](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#keep-own-branch-session-results-for-review) — SEED-379#keep-own-branch-session-results-for-review
 - [Move Intent CI proof, comparison and candidate checks out of Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-intent-ci-proof-comparison-and-candidate-checks) — SEED-334#move-intent-ci-proof-comparison-and-candidate-checks
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
 - [Move navigation checks out and retire Dashboard Integrated UI Test](seeds/SEED-334-product-wide-end-to-end-tests.md#move-navigation-checks-and-retire-integrated-ui-test) — SEED-334#move-navigation-checks-and-retire-integrated-ui-test
@@ -87,3 +88,5 @@ intent introduced or affected by a newly developed story.
 - [View token usage for dashboard-launched Cursor tasks](seeds/SEED-360-cursor-task-token-usage.md#view-cursor-task-token-usage) — SEED-360#view-cursor-task-token-usage
 - [Remove old dashboard deployments automatically](seeds/SEED-370-remove-old-dashboard-deployments.md#remove-old-dashboard-deployments-automatically) — SEED-370#remove-old-dashboard-deployments-automatically
 - [Publish Intent projects through MakeMe](seeds/SEED-301-limit-first-layer-test-cases-to-ten-lines.md#publish-intent-projects-through-makeme) — SEED-301#publish-intent-projects-through-makeme
+- [Prove the type-check reports after a lint failure](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#type-check-reports-after-a-lint-failure) — SEED-382#type-check-reports-after-a-lint-failure
+- [Reorder backlog stories in the dashboard](seeds/SEED-386-reorder-backlog-stories-in-the-dashboard.md#reorder-backlog-stories-in-the-dashboard) — SEED-386#reorder-backlog-stories-in-the-dashboard

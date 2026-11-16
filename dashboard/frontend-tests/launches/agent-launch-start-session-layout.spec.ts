@@ -31,7 +31,6 @@ import {
 } from "../../tests/support/frontendApp.ts";
 import {
   openDoughSource,
-  putFrontendMachine,
   type FrontendServiceState,
 } from "../../tests/support/frontendServiceState.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -53,7 +52,7 @@ async function openStartSession(page: Page) {
 // session with no story in Claude Code, so every Session choice is offered.
 function establishingSessions(services: FrontendServiceState) {
   const answer = makeMe.aMachineAnswer.please();
-  putFrontendMachine(services, {
+  services.answerMachine({
     ...answer,
     sessionPolicies: [
       { source: openDoughSource.id, workflow: "ad-hoc", host: "claude" },

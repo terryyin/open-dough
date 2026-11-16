@@ -11,7 +11,10 @@ attempt to change so pages reread without polling hosts. Each observation of an
 owned attempt counts the changes told so far (`changes`), and a wait naming that
 count (`seen`) answers at once when the attempt has changed since, so a change
 told between a page's read and its next wait is not missed. On another server a
-running attempt waits the same bounded interval before rereading machine facts. While a story's attempt
+running attempt waits the same bounded interval before rereading machine facts. An
+attempt this server has saved with its own worker but does not hold yet
+answers at once instead, so a wait asked during admission is not held for the
+interval. While a story's attempt
 is unresolved (running, or in need of reconciliation as below), another request
 for that story, from any workflow, is refused, and only that attempt's
 continuation resumes it; the page protects the story by the same rule

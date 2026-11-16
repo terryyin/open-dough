@@ -34,8 +34,8 @@ test("the rolling median is distinct above dots and never enlarges ordinary geom
   await usage.showsPointCount(3);
   expect(await chart.ordinarySeparation()).toBeCloseTo(separation, 1);
   await chart.showsMedianOverflow(
-    ["Median ↑ 8,000,000"],
-    ["Nov 3 · 10-task rolling median above scale · 8,000,000"],
+    ["Codex Median ↑ 8,000,000"],
+    ["Nov 3 · Codex · 10-task rolling median above scale · 8,000,000"],
   );
   await chart.showsMedianAtLargeDate();
   answer = makeMe.aTokenIndexAnswer
@@ -73,7 +73,7 @@ test("the chart shows a one-million median and the sixty-five-million task separ
   await usage.showsMedian("1,000,000");
   await chart.hasAxis(["0", "500K", "1M"]);
   await chart.showsLarge(
-    ["Nov 10 · 65,000,000 · Large task above 50 million"],
+    ["Nov 10 · Codex · 65,000,000 · Large task above 50 million"],
     ["65,000,000"],
   );
 });
@@ -114,8 +114,8 @@ test("an in-scale median breaks across above-scale observations and all-large me
   await chart.hasAxis(["0", "25M", "50M"]);
   await chart.showsLatestMedian("65,000,000");
   await chart.showsMedianOverflow(
-    ["Median ↑ 65,000,000"],
-    ["Nov 10 · 10-task rolling median above scale · 65,000,000"],
+    ["Codex Median ↑ 65,000,000"],
+    ["Nov 10 · Codex · 10-task rolling median above scale · 65,000,000"],
   );
 });
 
@@ -143,17 +143,17 @@ for (const [name, viewport, deviceScaleFactor] of [
       await usage.chooseDays("7");
       await usage.showsDays("7");
       await chart.showsMedianOverflow(
-        ["Median ↑ 65,000,000"],
-        ["Nov 10 · 10-task rolling median above scale · 65,000,000"],
+        ["Codex Median ↑ 65,000,000"],
+        ["Nov 10 · Codex · 10-task rolling median above scale · 65,000,000"],
       );
       await chart.fitsReadingWindow();
       await usage.selectPoint(
-        "Nov 10 · 65,000,000 · Large task above 50 million",
+        "Nov 10 · Codex · 65,000,000 · Large task above 50 million",
         "touch",
       );
       await usage.showsFact("Token index", "65,000,000");
       await usage.closeDetail(
-        "Nov 10 · 65,000,000 · Large task above 50 million",
+        "Nov 10 · Codex · 65,000,000 · Large task above 50 million",
       );
     });
   });

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Maria-chan",
-  "email": "maria-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-383#compare-codex-and-claude-code-token-usage",
-  "host": "codex",
-  "model": "gpt-6.1-sol"
-}

@@ -6,10 +6,6 @@ import { storyA } from "../../../Distribution/tests/support/queued-repository.mj
 import type { FrontendServiceState } from "./frontendServiceState.ts";
 import { prepareFrontendDoneIntent } from "./frontendIntentDoneStory.ts";
 import {
-  observedDone,
-  putFrontendObservedLaunches,
-} from "./frontendRecentlyDoneSidebar.ts";
-import {
   frontendFileDiff,
   frontendReviewSnapshot,
 } from "./frontendStoryReview.ts";
@@ -37,18 +33,19 @@ export async function prepareFrontendDoneReview(
         .please(),
     ],
   });
-  putFrontendObservedLaunches(
-    services,
-    observedDone(
-      makeMe.aLaunchRecord
-        .executing({ ...storyA, title: "Retained Done session" })
-        .onStoryBranch({
-          workspace: "/tmp/retained-done",
-          branch: "claude/done",
-        })
-        .markedDone()
-        .please(),
-    ),
+  services.answerMachine(
+    makeMe.aMachineAnswer
+      .observingDone(
+        makeMe.aLaunchRecord
+          .executing({ ...storyA, title: "Retained Done session" })
+          .onStoryBranch({
+            workspace: "/tmp/retained-done",
+            branch: "claude/done",
+          })
+          .markedDone()
+          .please(),
+      )
+      .please(),
   );
   setup.review.answerFile(frontendFileDiff(path, [`+${historical}`]), path);
   const live = frontendReviewSnapshot({ files });

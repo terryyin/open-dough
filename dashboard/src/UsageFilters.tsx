@@ -1,16 +1,13 @@
-// System settings → Usage's cohort filters (`./usageTokenIndex.ts`): one
-// tool (Codex or Claude Code), one launch workflow (Execution, Refinement or
-// Ad hoc), and Model and Effort, each the broad option or one the observed
-// tasks offer.
-import { hostDescriptions } from "./hostDescription.ts";
+// System settings → Usage's filters shared by every selected tool
+// (`./usageComparison.ts`): one launch workflow (Execution, Refinement or Ad
+// hoc), and Model and Effort, each the broad option or one a selected tool's
+// observed tasks offer.
 import { launchKindName } from "./launchWorkflow.ts";
+import type { UsageSelection } from "./usageComparison.ts";
 import {
-  usageToolOf,
-  usageTools,
   usageWorkflowOf,
   usageWorkflows,
   type TokenIndexAnswer,
-  type TokenIndexCohort,
 } from "./usageTokenIndex.ts";
 
 type Choice = { readonly value: string; readonly label: string };
@@ -50,46 +47,35 @@ function Filter({
 }
 
 export function UsageFilters({
-  cohort,
+  selection,
   options,
   onChoose,
 }: {
-  readonly cohort: TokenIndexCohort;
+  readonly selection: UsageSelection;
   // Undefined until the first answer arrives.
   readonly options: TokenIndexAnswer["options"] | undefined;
-  readonly onChoose: (cohort: TokenIndexCohort) => void;
+  readonly onChoose: (selection: UsageSelection) => void;
 }) {
   const specific = (value: string) => (value === broad ? null : value);
   return (
     <>
       <Filter
-        name="Tool"
-        value={cohort.tool}
-        choices={usageTools.map((tool) => ({
-          value: tool,
-          label: hostDescriptions[tool].name,
-        }))}
-        onChoose={(tool) => {
-          onChoose({ ...cohort, tool: usageToolOf(tool) ?? cohort.tool });
-        }}
-      />
-      <Filter
         name="Launch workflow"
-        value={cohort.workflow}
+        value={selection.workflow}
         choices={usageWorkflows.map((workflow) => ({
           value: workflow,
           label: launchKindName(workflow),
         }))}
         onChoose={(workflow) => {
           onChoose({
-            ...cohort,
-            workflow: usageWorkflowOf(workflow) ?? cohort.workflow,
+            ...selection,
+            workflow: usageWorkflowOf(workflow) ?? selection.workflow,
           });
         }}
       />
       <Filter
         name="Model"
-        value={cohort.model ?? broad}
+        value={selection.model ?? broad}
         choices={[
           { value: broad, label: "All models" },
           ...(options?.models ?? []).map(({ id, name }) => ({
@@ -98,12 +84,12 @@ export function UsageFilters({
           })),
         ]}
         onChoose={(model) => {
-          onChoose({ ...cohort, model: specific(model) });
+          onChoose({ ...selection, model: specific(model) });
         }}
       />
       <Filter
         name="Effort"
-        value={cohort.effort ?? broad}
+        value={selection.effort ?? broad}
         choices={[
           { value: broad, label: "Any effort" },
           ...(options?.efforts ?? []).map((effort) => ({
@@ -112,7 +98,7 @@ export function UsageFilters({
           })),
         ]}
         onChoose={(effort) => {
-          onChoose({ ...cohort, effort: specific(effort) });
+          onChoose({ ...selection, effort: specific(effort) });
         }}
       />
     </>

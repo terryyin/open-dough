@@ -37,7 +37,6 @@ import {
   storyBoardCiAnswers,
 } from "../../tests/support/frontendCiStatusAnswers.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
-import { putFrontendMachine } from "../../tests/support/frontendServiceState.ts";
 import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
 
 const adHocTitle = "Open Dough session";
@@ -68,19 +67,12 @@ test("the Side panel's content selects its story for Intent's lens and CI status
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   publishCiStoryBoard(frontendServices);
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
-      .observing(
-        goneWorkspaceSession(failing),
-        goneWorkspaceSession(running),
-        makeMe.anObservedLaunch
-          .of(
-            makeMe.aLaunchRecord
-              .adHoc({ instruction: adHocTitle, title: adHocTitle })
-              .please(),
-          )
-          .withSessionState(makeMe.aSessionState.loaded("working").please())
+      .observing(goneWorkspaceSession(failing), goneWorkspaceSession(running))
+      .observingOpen(
+        makeMe.aLaunchRecord
+          .adHoc({ instruction: adHocTitle, title: adHocTitle })
           .please(),
       )
       .please(),

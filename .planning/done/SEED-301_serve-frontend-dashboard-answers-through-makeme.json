@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-301#serve-frontend-dashboard-answers-through-makeme",
+  "title": "Serve frontend dashboard answers through MakeMe",
+  "completedAt": "2026-11-16T04:07:41.275Z",
+  "developer": "Terry Yin",
+  "agent": "Tsukasa-chan",
+  "host": "claude",
+  "model": "claude-opus-5-5",
+  "intentCoverage": {
+    "report": "**Verdict: Caught.** The rewritten Recently done arrangement still protects the unavailable-session case.\n\n- **Invocation start:** 1794801859292 (Unix epoch ms).\n- **Story and revision:** SEED-301#serve-frontend-dashboard-answers-through-makeme at 3785031e50473170df2ac3dcbd168710bb01239b, in a detached scratch worktree, removed afterwards.\n- **Promise:** with session states set by `makeMe.aMachineAnswer.observingDone(...)` / `.observingUnavailable(...)`, a Done row whose session is unavailable offers no Open, while a kept one still does.\n- **Fault:** in `dashboard/src/launchRecord.ts`, `attachOpens` returned true for unavailable sessions (reached through `SessionsSidebarSessionEntry` → `sessionAccess` → `attachOpens`). Fixtures and assertions untouched.\n- **Command**, from `dashboard/`: `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config frontend.playwright.config.ts --reporter=list frontend-tests/sessions/recently-done-sessions-sidebar.spec.ts`\n- **Baseline:** 2 passed. **Faulted:** 1 failed — `expect(shown.open(olderTitle)).toHaveCount(0)` at line 148 found 1 (the `observingUnavailable` row showed Open); line 147 (the `observingDone` row has one Open) passed first. **Restored:** clean; 2 passed.\n- **Catching assertion:** `recently-done-sessions-sidebar.spec.ts:148`, for the sidebar's Recently done path only.\n- **Next proof action:** none needed.\n- **Costs:** test runtime 15.4 s; invocation to report 59,458 ms; human and agent effort unavailable.\n\nWrap-up disposition: checked 3785031e50473170df2ac3dcbd168710bb01239b, Caught, no follow-up.\n"
+  }
+}

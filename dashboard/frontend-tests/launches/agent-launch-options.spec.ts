@@ -15,10 +15,7 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../../tests/support/frontendApp.ts";
-import {
-  machineOffering,
-  putFrontendMachine,
-} from "../../tests/support/frontendServiceState.ts";
+import { machineOffering } from "../../tests/support/frontendServiceState.ts";
 import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
 import {
   backlogLaunchers,
@@ -64,8 +61,7 @@ test("the execution and session dialogs offer no options", async ({
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     machineOffering(shippedRefinementDefinition()),
   );
   await openFrontendTakenBacklog(page);
@@ -86,7 +82,7 @@ test("choosing No Approach clears the group's choice and leaves the others", asy
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(frontendServices, machineOffering(groupedOptions));
+  frontendServices.answerMachine(machineOffering(groupedOptions));
   await openFrontendTakenBacklog(page);
   const { refine, refinementDialog } = backlogLaunchers(page);
 
@@ -107,8 +103,7 @@ test("until the sessions read answers, refinement is not offered; while the opti
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     machineOffering(shippedRefinementDefinition()),
   );
   const boundary = await installFrontendLaunchBoundary(page);
@@ -149,7 +144,7 @@ test("after a refusal, Cancel drops the kept selection", async ({
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(frontendServices, machineOffering(groupedOptions));
+  frontendServices.answerMachine(machineOffering(groupedOptions));
   const boundary = await installFrontendLaunchBoundary(page, {
     refusal: "Option --c is not one the installed skill defines.",
   });

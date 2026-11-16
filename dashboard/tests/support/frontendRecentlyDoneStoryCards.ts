@@ -18,11 +18,6 @@ import {
 import { doneStorySessions } from "../recentlyDoneSessions.ts";
 import { expect } from "./frontendApp.ts";
 import {
-  observedDone,
-  observedOpen,
-  putFrontendObservedLaunches,
-} from "./frontendRecentlyDoneSidebar.ts";
-import {
   defaultFrontendPublishedFiles,
   frontendRevision,
 } from "./frontendPublishedFixtures.ts";
@@ -90,16 +85,14 @@ export async function openFrontendStoryCardSessions(
   const launches = [...storyCardLaunches(now)].sort(
     (one, other) => Date.parse(one.launchedAt) - Date.parse(other.launchedAt),
   );
-  putFrontendObservedLaunches(
-    services,
-    ...launches.map((record) =>
-      // Closed Done rows nest without Open/actions; unavailable matches the
-      // interim home's unmarked-live Claude listing for those retained records.
-      record.doneAt === undefined
-        ? observedOpen(record)
-        : observedDone(record, "unavailable"),
-    ),
-  );
+  const answer = makeMe.aMachineAnswer;
+  // Closed Done rows nest without Open/actions; unavailable matches the
+  // interim home's unmarked-live Claude listing for those retained records.
+  for (const record of launches) {
+    if (record.doneAt === undefined) answer.observingOpen(record);
+    else answer.observingUnavailable(record);
+  }
+  services.answerMachine(answer.please());
   await page.goto("/");
   await expect(
     page.getByRole("button", { name: /Start session in/ }),
@@ -145,11 +138,12 @@ export async function openFrontendActiveStorySessions(
     .launchedAt(at(now, placed.adHocLaunched))
     .markedDoneAt(at(now, 30 * 60_000))
     .please();
-  putFrontendObservedLaunches(
-    services,
-    observedDone(closed),
-    observedOpen(open),
-    observedDone(adHoc),
+  services.answerMachine(
+    makeMe.aMachineAnswer
+      .observingDone(closed)
+      .observingOpen(open)
+      .observingDone(adHoc)
+      .please(),
   );
   await page.goto("/");
   await expect(

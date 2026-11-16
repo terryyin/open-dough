@@ -12,10 +12,7 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../../tests/support/frontendApp.ts";
-import {
-  frontendStoryLaunch,
-  putFrontendMachine,
-} from "../../tests/support/frontendServiceState.ts";
+import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
 import {
   parts,
   sessionEntriesIn,
@@ -36,14 +33,7 @@ const requested = (name: string) => `Model: ${name} (requested)`;
 
 // The machine answers one working session launched from `record`.
 const working = (record: LaunchRecord) =>
-  makeMe.aMachineAnswer
-    .observing(
-      makeMe.anObservedLaunch
-        .of(record)
-        .withSessionState(makeMe.aSessionState.loaded("working").please())
-        .please(),
-    )
-    .please();
+  makeMe.aMachineAnswer.observingOpen(record).please();
 
 // Reads the page's entries, then reads them again after a reload.
 async function throughReload(page: Page, expectWords: () => Promise<void>) {
@@ -64,8 +54,7 @@ for (const [model, name, words] of [
     frontendServices,
   }) => {
     const record = frontendStoryLaunch("executing", readyStory);
-    putFrontendMachine(
-      frontendServices,
+    frontendServices.answerMachine(
       working(
         (model === undefined ? record : record.requestingModel(model)).please(),
       ),
@@ -98,8 +87,7 @@ test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, 
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     working(
       makeMe.aLaunchRecord
         .adHoc({ title: "8 Jan, 10:00" })

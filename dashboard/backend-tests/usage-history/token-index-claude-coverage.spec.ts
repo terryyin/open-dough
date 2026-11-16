@@ -124,8 +124,12 @@ test("Claude launches whose root or worker transcript is gone are partial with t
       .map(({ identity }) => identity),
   ).toEqual(measured.map((at) => `SEED-7#claude-${at}`));
   // Indices 1,450 + 500×k for k = 1…10: their median is 4,200, the only
-  // median point, at the tenth measured launch's end.
+  // median point, at and anchored on the tenth measured launch.
+  const tenth = answer.tasks.find(
+    ({ identity }) => identity === "SEED-7#claude-10",
+  );
+  expect(tenth?.endedAt).toBe("2026-11-14T20:00:00.000Z");
   expect(answer.average).toEqual([
-    { at: "2026-11-14T20:00:00.000Z", value: 4_200 },
+    { at: "2026-11-14T20:00:00.000Z", task: tenth?.id, value: 4_200 },
   ]);
 });

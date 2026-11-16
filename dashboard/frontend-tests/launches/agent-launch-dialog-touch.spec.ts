@@ -6,7 +6,6 @@ import type { Locator } from "@playwright/test";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   machineOffering,
-  putFrontendMachine,
   putFrontendStories,
 } from "../../tests/support/frontendServiceState.ts";
 import { installFrontendLaunchBoundary } from "../../tests/support/frontendLaunchSubstitutes.ts";
@@ -39,8 +38,7 @@ test.describe(`${name} touch launch editing`, () => {
   }) => {
     const boundary = await installFrontendLaunchBoundary(page);
     putFrontendStories(frontendServices, { notRefinedTitle: longTitle });
-    putFrontendMachine(
-      frontendServices,
+    frontendServices.answerMachine(
       machineOffering(shippedRefinementDefinition()),
     );
     await page.goto("/");

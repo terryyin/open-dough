@@ -19,10 +19,7 @@ import {
   openCardSessionTerminal,
 } from "../../tests/support/frontendCardSessions.ts";
 import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
-import {
-  putFrontendMachine,
-  type FrontendServiceState,
-} from "../../tests/support/frontendServiceState.ts";
+import type { FrontendServiceState } from "../../tests/support/frontendServiceState.ts";
 import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
 import {
   headerMarkAsDone,
@@ -35,8 +32,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 // The Ready story's working execution session, shown in the terminal.
 async function openWorkingSession(page: Page, services: FrontendServiceState) {
-  putFrontendMachine(
-    services,
+  services.answerMachine(
     makeMe.aMachineAnswer
       .observing(
         cardSession(

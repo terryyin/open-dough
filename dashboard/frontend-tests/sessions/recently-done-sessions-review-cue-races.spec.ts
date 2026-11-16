@@ -23,11 +23,6 @@ import {
   installFrontendCompletedStoryAssociation,
   installFrontendStoryReviewState,
 } from "../../tests/support/frontendServiceSubstitutes.ts";
-import {
-  observedDone,
-  putFrontendObservedLaunches,
-} from "../../tests/support/frontendRecentlyDoneSidebar.ts";
-import { putFrontendMachine } from "../../tests/support/frontendServiceState.ts";
 
 test("pending local review evidence stays unknown and its pre-save answer cannot restore a cleared cue", async ({
   page,
@@ -95,23 +90,22 @@ for (const replacement of ["project", "association"] as const) {
         .launchedAt(new Date(Date.now() - 60_000).toISOString())
         .markedDone()
         .please();
-    const machine = frontendServices.machine ?? makeMe.aMachineAnswer.please();
-    putFrontendMachine(frontendServices, {
-      ...machine,
-      records: [
-        observedDone(
+    frontendServices.answerMachine(
+      makeMe.aMachineAnswer
+        .observingDone(
           record("doughnut", "b0f19431-05f1-4dc1-b9a4-a492109bd064"),
-        ),
-      ],
-    });
+        )
+        .please(),
+    );
     await page.clock.runFor(checkIntervalMs);
     await held.received;
     await expectSessionReviewCue(shown.row(title), false);
     association.answerNext({ kind: "absent" }, "obsolete-association");
     const source = replacement === "project" ? "pygardon" : "doughnut";
-    putFrontendObservedLaunches(
-      frontendServices,
-      observedDone(record(source, "0143a334-a46a-4faf-981b-a80c80f7cafe")),
+    frontendServices.answerMachine(
+      makeMe.aMachineAnswer
+        .observingDone(record(source, "0143a334-a46a-4faf-981b-a80c80f7cafe"))
+        .please(),
     );
     await page.clock.runFor(checkIntervalMs);
     held.release();

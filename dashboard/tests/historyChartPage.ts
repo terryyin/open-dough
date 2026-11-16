@@ -13,7 +13,7 @@ import { backgroundOf, tokenColour } from "./pageColours.ts";
 export type InspectBy = "pointer" | "touch";
 
 // The chart whose drawing is named `name` within `scope`.
-export function historyChart(scope: Locator, name: string) {
+export function historyChart(scope: Locator, name: string | RegExp) {
   const named = { name, exact: true };
   const box = scope
     .locator(".history-chart-chart")

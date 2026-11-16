@@ -4,11 +4,12 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { MachineAnswerBuilder } from "../../../Distribution/tests/support/machineAnswerTestData.mjs";
 import {
   doneRecordFileName,
   renderDoneRecord,
 } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import type { LaunchRecord, LaunchWithState } from "../../src/launchRecord.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { expectProjectChoice } from "../dashboardPage.ts";
 import {
   recentlyDoneParts,
@@ -16,11 +17,6 @@ import {
 } from "../recentlyDoneSessionsSidebarPage.ts";
 import { expect } from "./frontendApp.ts";
 import { installFrontendFinalReport } from "./frontendFinalReportSubstitutes.ts";
-import {
-  observedDone,
-  putFrontendObservedLaunches,
-  putFrontendThreeProjects,
-} from "./frontendRecentlyDoneSidebar.ts";
 import {
   putFrontendDonePublication,
   putFrontendDoneRecords,
@@ -111,20 +107,23 @@ export function selectionLaunchRecords(
 }
 
 export function observeFrontendSelectionLaunch(
+  answer: MachineAnswerBuilder,
   record: LaunchRecord,
-): LaunchWithState {
+): MachineAnswerBuilder {
   if (record.request.title === report.title) {
-    return makeMe.anObservedLaunch
-      .of(record)
-      .withSessionState(makeMe.aSessionState.retained("review").please())
-      .withWorkspace("missing")
-      .please();
+    return answer.observing(
+      makeMe.anObservedLaunch
+        .of(record)
+        .withSessionState(makeMe.aSessionState.retained("review").please())
+        .withWorkspace("missing")
+        .please(),
+    );
   }
   // Ad hoc without a listed conversation offers no Open (confirmed miss path).
   if (record.request.title === adHoc.title) {
-    return observedDone(record, "unavailable");
+    return answer.observingUnavailable(record);
   }
-  return observedDone(record);
+  return answer.observingDone(record);
 }
 
 // Publishes Pygardon's done story (or names its record unreadable).
@@ -179,12 +178,12 @@ export async function openFrontendSelectionPage(
   } = {},
 ) {
   const now = Date.now();
-  putFrontendThreeProjects(services);
+  services.listThreeProjects();
   putFrontendLinkedDone(services, { unreadableLinkedRecord });
-  putFrontendObservedLaunches(
-    services,
-    ...selectionLaunchRecords(now, newer).map(observeFrontendSelectionLaunch),
-  );
+  const answer = makeMe.aMachineAnswer;
+  for (const record of selectionLaunchRecords(now, newer))
+    observeFrontendSelectionLaunch(answer, record);
+  services.answerMachine(answer.please());
   await installFrontendFinalReport(page, {
     kind: "available",
     turnId: "selection-report",

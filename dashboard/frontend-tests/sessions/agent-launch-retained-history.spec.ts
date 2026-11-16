@@ -9,7 +9,6 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../../tests/support/frontendApp.ts";
-import { putFrontendMachine } from "../../tests/support/frontendServiceState.ts";
 import { fulfillJson } from "../../tests/support/frontendSubstituteAnswers.ts";
 import { sessionDetailsControl } from "../../tests/support/sessionEntryDisclosure.ts";
 import { parts } from "../../tests/dashboardPage.ts";
@@ -41,8 +40,7 @@ test("a failed history read leaves retained sessions as shown and the next openi
     )
     .withSessionState(makeMe.aSessionState.retained("review").please())
     .please();
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer.observing(record).please(),
   );
   // The first history read is told to ask again; later ones answer the

@@ -64,7 +64,7 @@ test("calendar bounds select tasks and unpriced counts after the historical roll
   ).toHaveLength(1);
   expect(one.unpriced).toBe(1);
   expect(one.average).toEqual([
-    { at: "2026-11-15T12:00:00.000Z", value: 1_950 },
+    { at: "2026-11-15T12:00:00.000Z", task: "tenth", value: 1_950 },
   ]);
   const seven = await read("2026-11-09T00:00:00.000Z");
   expect(seven.average).toEqual(one.average);

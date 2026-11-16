@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-334#remove-obsolete-native-revision-opener",
+  "title": "Remove the obsolete native revision opener",
+  "completedAt": "2026-11-16T04:08:55.420Z",
+  "developer": "Terry Yin",
+  "agent": "Aino-chan",
+  "host": "claude",
+  "model": "opus"
+}

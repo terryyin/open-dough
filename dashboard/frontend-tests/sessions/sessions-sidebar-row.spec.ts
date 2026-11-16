@@ -5,7 +5,6 @@ import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   doughnutSource,
   openDoughSource,
-  putFrontendMachine,
 } from "../../tests/support/frontendServiceState.ts";
 import { expectProjectChoice } from "../../tests/dashboardPage.ts";
 import { pausePageClockAt } from "../../tests/dashboardTest.ts";
@@ -53,8 +52,7 @@ test("is one line of title and elapsed time, however long the title, with the re
     .inClaudeSession({ sessionId: "row-long" })
     .launchedAt(launchedAt.toISOString())
     .please();
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
       .observing(
         makeMe.anObservedLaunch
@@ -66,11 +64,8 @@ test("is one line of title and elapsed time, however long the title, with the re
               .please(),
           )
           .please(),
-        makeMe.anObservedLaunch
-          .of(long)
-          .withSessionState(makeMe.aSessionState.loaded("working").please())
-          .please(),
       )
+      .observingOpen(long)
       .please(),
   );
   await page.goto("/?project=doughnut");

@@ -6,7 +6,13 @@
 // and the starts the machine is establishing. Revision envelopes around it
 // are `../../../dashboard/src/machineSessionsRevision.ts`.
 
+import {
+  ObservedLaunchBuilder,
+  SessionStateBuilder,
+} from "./launchObservationTestData.mjs";
+
 /** @typedef {import("../../../dashboard/src/agentLaunch.ts").MachineAnswer} MachineAnswer */
+/** @typedef {import("../../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
 /** @typedef {import("../../../dashboard/src/launchRecord.ts").LaunchWithState} LaunchWithState */
 /** @typedef {import("../../../dashboard/src/launchOutcome.ts").AttemptObservation} AttemptObservation */
 /** @typedef {MachineAnswer["establishingHosts"][number]} EstablishingStart */
@@ -36,6 +42,55 @@ export class MachineAnswerBuilder {
   observing(...records) {
     this.#records.push(...records.map((record) => structuredClone(record)));
     return this;
+  }
+
+  /**
+   * Kept launches whose sessions the host retains for review, as a launch
+   * marked Done is observed.
+   * @param {...LaunchRecord} records
+   */
+  observingDone(...records) {
+    return this.#observingIn(
+      () => new SessionStateBuilder().retained("review"),
+      records,
+    );
+  }
+
+  /**
+   * Kept launches whose sessions the host can no longer report.
+   * @param {...LaunchRecord} records
+   */
+  observingUnavailable(...records) {
+    return this.#observingIn(
+      () => new SessionStateBuilder().unavailable(),
+      records,
+    );
+  }
+
+  /**
+   * Kept launches whose sessions are loaded and working.
+   * @param {...LaunchRecord} records
+   */
+  observingOpen(...records) {
+    return this.#observingIn(
+      () => new SessionStateBuilder().loaded("working"),
+      records,
+    );
+  }
+
+  /**
+   * @param {() => SessionStateBuilder} state
+   * @param {LaunchRecord[]} records
+   */
+  #observingIn(state, records) {
+    return this.observing(
+      ...records.map((record) =>
+        new ObservedLaunchBuilder()
+          .of(record)
+          .withSessionState(state().please())
+          .please(),
+      ),
+    );
   }
 
   /**

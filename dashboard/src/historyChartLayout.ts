@@ -1,20 +1,24 @@
 // Scale and placement of one dated series: value ticks with readable labels
-// from the series' axis (`./chartValueAxis.ts`), a date axis over every
-// entry, each entry's mark in history order with its short readout, and the
-// line's strokes. Measured points sit on the value axis, a measured zero
+// from the series' axis (`./chartValueAxis.ts`), a date or task-order axis
+// (`./historyChartPlacement.ts`), each entry's mark in history order with its
+// short readout, and the line's strokes. Measured points sit on the value axis, a measured zero
 // included; CI builds without timing sit on their own row below it, and
 // every such build breaks the line, as does a change of compatible segment.
-// A series with a trend draws the trend as its line instead, a trend of one
-// value as a short level at its point.
+// A series with trends draws them as its lines instead, a trend of one
+// value as a short level at its point. Every named trace shares these value
+// and date bounds; its marks and trend carry its style slot.
 import {
   placeOverflows,
   type OverflowPlacement,
 } from "./historyChartOverflow.ts";
 import { trendThrough } from "./historyChartTrend.ts";
 import { buildDateWords, selectedLandingWords } from "./ciHistoryWords.ts";
+import { placement } from "./historyChartPlacement.ts";
 import {
   entryValueWords,
   isMeasured,
+  traceSlot,
+  traceWords,
   type HistoryChartEntry,
   type HistoryChartSeries,
 } from "./historyChartSeries.ts";
@@ -27,8 +31,6 @@ export const dateBaseline = 174;
 const plotStart = 56;
 const plotEndRoom = 16;
 export const minimumChartWidth = plotStart + plotEndRoom;
-const dateRoom = 64;
-const dateEdgeRoom = 22;
 
 export type ChartMark = {
   readonly entry: HistoryChartEntry;
@@ -37,6 +39,8 @@ export type ChartMark = {
   // Short date and timing or status, as the reader inspects the mark.
   readonly readout: string;
   readonly overflow: OverflowPlacement | undefined;
+  // The style slot of the point's named trace (`traceSlot`).
+  readonly slot: number;
 };
 
 export type ChartLayout = {
@@ -55,7 +59,10 @@ export type ChartLayout = {
   readonly reference?: { readonly y: number; readonly label: string };
   // Every entry in history order, oldest first.
   readonly marks: readonly ChartMark[];
+  // Strokes joining the points of a series without trends.
   readonly line: string;
+  // Each trend's strokes with its trace's style slot, in trace order.
+  readonly trends: readonly { readonly path: string; readonly slot: number }[];
   readonly trendOnTop: boolean;
   readonly trendOverflows: ReturnType<typeof placeOverflows>["trend"];
   readonly dates: readonly { readonly x: number; readonly words: string }[];
@@ -84,7 +91,7 @@ export function chartLayout(
   series: HistoryChartSeries,
   width: number,
 ): ChartLayout {
-  const { entries, axis, reference, trend } = series;
+  const { entries, axis, reference, trends } = series;
   const plotEnd = width - plotEndRoom;
   const tickWords = axis.tickWords ?? axis.words;
   const ordinary = entries
@@ -96,9 +103,9 @@ export function chartLayout(
       : axis.ticks([
           ...ordinary.map((point) => point.value),
           ...(reference === undefined ? [] : [reference.value]),
-          ...(series.independentTrend === undefined ? (trend ?? []) : []).map(
-            (point) => point.value,
-          ),
+          ...(series.independentTrend === undefined ? (trends ?? []) : [])
+            .flatMap((trend) => trend.points)
+            .map((point) => point.value),
         ]);
   // Whole duration labels can be wider near zero (e.g. 1 min 30 s).
   // Reserve their width so phone readers never lose the leading figures.
@@ -108,15 +115,8 @@ export function chartLayout(
   );
   const lowest = tickValues[0] ?? 0;
   const highest = tickValues.at(-1) ?? lowest + 1;
-  const dates = entries.map((entry) => Date.parse(entry.date));
-  const earliest = Math.min(...dates);
-  const latest = Math.max(...dates);
-  const x = (date: string) =>
-    latest === earliest
-      ? (plotLeft + plotEnd) / 2
-      : plotLeft +
-        ((Date.parse(date) - earliest) / (latest - earliest)) *
-          (plotEnd - plotLeft);
+  const placed = placement(series, plotLeft, plotEnd);
+  const { x } = placed;
   const overflows = placeOverflows(series, x, plotLeft, plotEnd, highest);
   const overflowHeight = overflows.height;
   const y = (value: number) =>
@@ -128,29 +128,14 @@ export function chartLayout(
     is === true ? `${selectedLabel} · ` : "";
   const marks = entries.map((entry): ChartMark => ({
     entry,
-    x: x(entry.date),
+    x: x(entry),
     y:
       overflows.placed.get(entry.key)?.y ??
       (isMeasured(entry) ? y(entry.value) : gapRow + overflowHeight),
     overflow: overflows.placed.get(entry.key),
-    readout: `${buildDateWords(entry.date)} · ${selected(entry.selected)}${entryValueWords(entry, axis)}${isMeasured(entry) && entry.overflow !== undefined ? ` · ${entry.overflow}` : ""}`,
+    slot: isMeasured(entry) ? traceSlot(series, entry.trace) : 0,
+    readout: `${buildDateWords(entry.date)} · ${isMeasured(entry) ? traceWords(entry.trace) : ""}${selected(entry.selected)}${entryValueWords(entry, axis)}${isMeasured(entry) && entry.overflow !== undefined ? ` · ${entry.overflow}` : ""}`,
   }));
-  const dated: { x: number; words: string }[] = [];
-  const middle =
-    marks.length >= 3 && width >= 480 ? [Math.floor(marks.length / 2)] : [];
-  for (const index of [0, ...middle, marks.length - 1]) {
-    const mark = marks[index];
-    if (mark === undefined) continue;
-    const words = buildDateWords(mark.entry.date);
-    const under = Math.min(mark.x, width - dateEdgeRoom);
-    if (
-      dated.some(
-        (each) => each.words === words || Math.abs(each.x - under) < dateRoom,
-      )
-    )
-      continue;
-    dated.push({ x: under, words });
-  }
   return {
     selectedLabel,
     overflowHeight,
@@ -166,17 +151,21 @@ export function chartLayout(
       ? {}
       : { reference: { y: y(reference.value), label: reference.label } }),
     marks,
-    line:
-      trend === undefined
-        ? lineThrough(marks)
-        : trendThrough(
-            trend,
-            x,
-            y,
-            series.independentTrend === undefined ? undefined : highest,
-          ),
+    line: trends === undefined ? lineThrough(marks) : "",
+    trends: (trends ?? []).map((trend) => ({
+      path: trendThrough(
+        trend.points,
+        x,
+        y,
+        series.independentTrend === undefined ? undefined : highest,
+      ),
+      slot: traceSlot(series, trend.trace),
+    })),
     trendOnTop: series.independentTrend !== undefined,
     trendOverflows: overflows.trend,
-    dates: dated,
+    dates: placed.axis(
+      marks.map((mark) => ({ x: mark.x, date: mark.entry.date })),
+      width,
+    ),
   };
 }

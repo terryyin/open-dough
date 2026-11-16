@@ -25,8 +25,12 @@ settings leaves the others' selection, settings and timing untouched
 | `dashboard-frontend` | `npm run test:dashboard:frontend` | `OPEN_DOUGH_DASHBOARD_FRONTEND` | 1 |
 | `dashboard-backend` | `npm run test:dashboard:backend` | `OPEN_DOUGH_DASHBOARD_BACKEND` | 3 |
 
-These counts make 18 jobs: 14 browser jobs, three Distribution shares and one
-proof job. Lint and dashboard type-check share the frontend runner.
+These counts make 19 jobs: 14 browser jobs, three Distribution shares, one
+`lint` job and one proof job, 18 of them at once before the proof job against
+the account's 20. Lint and the dashboard type-check run in `ci.yml`'s `lint`
+job, each as its own step with its own outcome, under that job's own setup
+deadline and 6 minutes; no group's shard runs them, and `ci-proof` does not
+wait for it.
 
 The sixth E2E shard came from integrated after the 320-second cutoff of E2E
 shard 2/5 in
@@ -77,6 +81,11 @@ for every group: one job fewer would overrun the deadline for Distribution
 Tests, backend and integrated, E2E's five-job projection fits the deadline but
 not its reserve, and the frontend job is already one.
 
+Decision, 2026-11-16: lint and the type-check leave the frontend shard for the
+`lint` job, making 19 jobs. On a slow runner they took 150 of the frontend
+shard's 450 seconds and its suite was ended by the deadline two spec files
+short; the group counts stay as they were.
+
 ## The split
 
 A group's CI shard sets its `<prefix>_SPLIT=i/n` to select shard `i` of `n`.
@@ -92,9 +101,8 @@ whose pattern matches it, or in the last shard. The configuration selects its
 shard through `scripts/test-share-matrix.mjs`, the selector the Distribution
 suite's matrix uses, and refuses before any test is selected a spec that two
 shards' patterns match, naming the file and both shards, and a pattern that
-matches no spec, naming it, as it refuses a malformed split. CI runs lint and
-the dashboard type-check once on the frontend runner. With the variable unset,
-a group's command runs every spec of its group. Independent proof subprocesses
+matches no spec, naming it, as it refuses a malformed split. With the variable unset, a
+group's command runs every spec of its group. Independent proof subprocesses
 choose their own selection; their harness (`support/proofRecordRun.ts`)
 removes every group's inherited split before launching them.
 `Distribution/tests/support/browser-group-shards.test.mjs` proves every spec
@@ -135,13 +143,13 @@ form.
 
 ## The deadline
 
-CI records the group's `<prefix>_DEADLINE_MS`, the epoch 320 seconds after
+CI records the group's `<prefix>_DEADLINE_MS`, the epoch 450 seconds after
 the shard job starts, and the config turns what remains of it into
 Playwright's `globalTimeout` (`support/suiteDeadline.mjs`); the build counts
 against it, and local runs without the variable are unbounded. A shard that
 cannot finish by then fails naming the deadline (`Timed out waiting`), still
-within the job's 6 minutes, and its kept report holds the completed
+within the job's 8 minutes, and its kept report holds the completed
 failures' traces and error context and lists unfinished tests as skipped.
-Like the shell suite's run cutoff, the 320 seconds and the job's
+Like the shell suite's run cutoff, the 450 seconds and the job's
 `timeout-minutes` are a reviewed ceiling: a shard that reaches the deadline
 is made faster or rebalanced, not given more time.
