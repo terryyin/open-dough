@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-381_fixed-shards-for-browser-tests-and-on-demand-rebalancing.json",
+      "identity": "SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing",
+      "completedAt": "2026-11-16T06:32:22.968Z",
+      "blob": "6cbc7e165647ccd5a1678c78eef033e2d7e8a641"
+    },
+    {
       "fileName": "SEED-383_compare-codex-and-claude-code-token-usage.json",
       "identity": "SEED-383#compare-codex-and-claude-code-token-usage",
       "completedAt": "2026-11-16T05:40:01.830Z",
