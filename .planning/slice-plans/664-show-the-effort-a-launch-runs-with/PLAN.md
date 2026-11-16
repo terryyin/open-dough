@@ -53,6 +53,12 @@ writes none. No North Star topic is needed.
 
 ## Proof ownership
 
+The [November effort baseline](../../seeds/SEED-388-measure-and-control-agent-launch-cost.md#show-the-effort-a-launch-runs-with)
+measured median Opus slice-agent cost of 0.47M weighted input-token equivalents
+at medium (193 agents), 1.53M at high (54), 1.55M at xhigh (9), and 3.35M
+at max (20). The sample spans different stories and supports approximate
+cost labels. It supplies no estimate for low.
+
 | Promise (story scope / example) | Owning slice and observable proof |
 | --- | --- |
 | Default launch passes `--effort medium` and its record keeps it | 1: `dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts` — the "passes no model or effort" case becomes "passes Open Dough's default effort when none is chosen": story and ad hoc argv contain `--effort medium` after any model, and `record.request.effort` is `medium` |
@@ -93,9 +99,13 @@ remaining slice-specific concern.
 ## Ordered slices
 
 Each slice targets 15 active minutes. Before changing tests, apply MakeMe and
-page-object selection (AGENTS.md). Local gate for each slice: the named specs,
+page-object selection (AGENTS.md) and the
+[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+Local gate for each slice: the named specs,
 `npm run typecheck:dashboard` and `npm run lint`; the full launch backend
-directory runs in slice 1 because the default reaches every launch.
+directory runs in slice 1 because the default reaches every launch. Start
+fully awake and wrap long or full runs on AC power in `caffeinate -s -i`
+([machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)).
 
 ### 1. A Claude Code launch with no chosen effort runs at Open Dough's default
 Type: Behavior

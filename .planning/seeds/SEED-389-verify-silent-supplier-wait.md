@@ -21,17 +21,19 @@ installation containing the wait and its follow-up fix. Include an unchanged
 interval long enough to distinguish the old repeated polling behavior. If
 the available examples are insufficient, record what is missing, defer that
 story in the queue, and continue to the next eligible work. Revisit it when
-more traces are available. Surface clear misses promptly under the
-[recorded live-watch criteria](../../docs/maintainer/blocked-execution-experiment-findings.md#check-the-next-real-supplier-watch).
+more traces are available. Surface clear misses promptly.
 
 Retain each trace reference, installed release, unchanged duration, model wake
 count, cached input share where there are wakes, and publication or deadline
 outcome. Note missed publications, failed continuation, and developer
-interventions. Record a host-specific keep, revise, or remove recommendation,
-or an inconclusive result, in the
-[experiment findings](../../docs/maintainer/blocked-execution-experiment-findings.md).
+interventions. Count only distinct model requests inside the unchanged
+interval. Exclude the launch and result requests and replies to the developer.
+Record a host-specific keep, revise, or remove recommendation, or an
+inconclusive result, in the selected story's plan.
 Use comparable historical waits where available and quantify token savings
-when that comparison supports it.
+when that comparison supports it. The
+[earlier experiment](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/blocked-execution-experiment-findings.md#check-the-next-real-supplier-watch)
+records the trace boundaries, cache accounting, and historical baselines.
 
 <a id="verify-silent-supplier-wait-in-use"></a>
 

@@ -9,7 +9,7 @@ scope: three stories
 
 # SEED-388 — Measure and control what agent launches cost
 
-The [Claude Code usage spike analysis](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md)
+The [Claude Code usage spike analysis](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/claude-code-execution-usage-spikes-2026-11.md)
 found that the Usage index hides much of the cost of executions that needed a
 developer, and associated an unrequested effort level with roughly three times
 the cost across 11 executions. The Codex follow-up below confirms that its
@@ -121,7 +121,7 @@ Re-measured over the 30 days to 2026-11-16 from retained transcripts:
 
 #### Evidence
 
-- [Usage index undercount](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#usage-index-undercount):
+- [Usage index undercount](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#usage-index-undercount):
   82 of 265 Claude Code executions, median 0.53 of their cost.
 - Codex, observed 2026-11-16 from retained sessions and
   `~/.open-dough/dashboard/launch-history/usage.json`: 84 of 266 Codex launches
@@ -141,7 +141,7 @@ input-token equivalents, not raw processed tokens:
   attributed root turn has 235 responses; 1,453 later root responses account
   for another 22.36M. The retained audit describes the developer-requested
   supplier watch and its stop in
-  [the original trace](../../docs/maintainer/blocked-execution-experiment-findings.md#what-the-original-trace-establishes).
+  [the original trace](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/blocked-execution-experiment-findings.md#what-the-original-trace-establishes).
 - Doughnut `SEED-073#keep-answered-questions-with-their-tracker`, thread
   `01a1d285-5f73-77a1-9c74-724be6436d35`: the launch index is 29.84M. Its
   attributed root turn has 635 responses; 1,426 later root responses account
@@ -227,7 +227,7 @@ and would still let a user-level change alter the cost, only visibly.
   2026-11-09 launch that chose `max`, all 11 subagents ran at `max`.
 - `claude --effort` sets the session's effort (Claude Code 2.1.325).
 - The relative costs come from the
-  [effort and model](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#effort-and-model)
+  [effort and model](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#effort-and-model)
   table: median Opus slice agent 0.47 at medium, 1.53 at high, 1.55 at xhigh,
   3.35 at max. These are uncontrolled comparisons across stories.
 
@@ -267,7 +267,7 @@ read.
   native evidence without waiting for this tool.
 - **Effort and boundary.** Medium, high confidence; the audits' methods are
   recorded. Read-only over local history; no quota or invoice claim.
-  [Method and accounting](../../docs/maintainer/session-token-efficiency-research.md#window-scope-and-method)
+  [Method and accounting](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#window-scope-and-method)
 - **Existing measure.** System settings → Usage already prices each finished
   dashboard launch per tool, for Codex and Claude Code, from the shared usage
   records. On Claude Code and the sampled Codex launches it omits continuing
@@ -275,7 +275,7 @@ read.
   [the first story](#count-claude-code-work-after-a-developer-reply) corrects it.
   Effort itself is a large variable: Opus slice agents cost 3.3× at `high` and
   7× at `max` compared with `medium`
-  ([effort and model](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#effort-and-model)).
+  ([effort and model](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#effort-and-model)).
   A comparison therefore needs matched effort.
 
 ## Dropped proposals

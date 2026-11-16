@@ -50,8 +50,9 @@ Follow [ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-acce
 write published skills and rules for the agent working in this project, meaning
 its task's established project, not the Open Dough source or skill directory.
 “Client project,” “client payload,” and promotion are
-maintainer concepts; do not export them as required runtime vocabulary. Keep
-maintenance analysis in maintainer records. When a task needs multiple locations,
+maintainer concepts; do not export them as required runtime vocabulary. Follow
+the repository's [planning records guidance](../../../AGENTS.md#planning-records)
+for maintenance analysis and its evidence. When a task needs multiple locations,
 name the target project, installed skill directory, or Open Dough release source
 explicitly. Preserve required project context and genuine missing-input checks.
 Review descriptions, headings, examples, templates, and linked references for

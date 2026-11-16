@@ -6,7 +6,7 @@ followed by one new watch request. Its controller publishes nonqualifying and
 qualifying Git states during that turn, independently of substitute-host activity.
 It is not a qualified performance benchmark. The native profile is retired:
 selecting it refuses before any model starts. The
-[maintained findings](../../../../../docs/maintainer/blocked-execution-experiment-findings.md)
+[maintained findings](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/blocked-execution-experiment-findings.md)
 retain the investigation outcome and recoverable historical evidence.
 
 ## Selection

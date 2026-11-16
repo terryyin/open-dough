@@ -22,7 +22,7 @@ dependent slice once, with its proof.
 ## Source and extraction
 
 - Source decision: the SEED-324 coordinator's wait on SEED-332 in the
-  [session-efficiency audit](../../../../../docs/maintainer/session-token-efficiency-research.md#1-wake-the-coordinator-for-results-changes-and-bounded-deadlines).
+  [session-efficiency audit](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#1-wake-the-coordinator-for-results-changes-and-bounded-deadlines).
   Its source session is Codex thread `01a1d22f-e0cd-7032-930d-5a9ff3011a64`
   (rollout lines 10404 and 14112 in the author's local Nov 13 history; a
   provenance locator only, never a runtime input): at 2026-11-13 16:41:34 UTC
@@ -180,4 +180,4 @@ has an already-completed supplier and one ordinary root turn. Neither its lack
 of event wakes nor this case's forced wakes demonstrates suppressed wakes or
 event-driven savings. Establish actual watch exposure and unnecessary model
 re-entry in a representative normal-wait observation before a savings comparison.
-See the maintained [blocked-execution findings](../../../../../docs/maintainer/blocked-execution-experiment-findings.md).
+See the maintained [blocked-execution findings](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/blocked-execution-experiment-findings.md).

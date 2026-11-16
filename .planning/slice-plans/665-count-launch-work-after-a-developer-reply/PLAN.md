@@ -85,6 +85,12 @@ Consumers (scratch-observed below): the whole
 
 ## Decisive premises
 
+The [November undercount sample](../../seeds/SEED-388-measure-and-control-agent-launch-cost.md#count-claude-code-work-after-a-developer-reply)
+found that the median Usage index captured 53% of launch-window transcript
+cost for the 82 Claude Code launches with a later developer input, versus
+100% for the 183 with a single input. The Codex story examples count later
+root responses and give lower bounds because later-turn workers were excluded.
+
 | Premise | Consuming operation | Observation and result |
 | --- | --- | --- |
 | A Claude Code reply's responses count in no task today, and extending the launch task's `nativeTurns` from the reader is enough to count them | Slice 1 rule and proof | 2026-11-16, this workspace at `0eb81b520`, integration `node_modules` linked: scratch spec through `runImport` and `usageServer(...).refresh()` / `chart("?tool=claude")` with launch input, response (100 output), human reply "1", response (300 output). Today: `[["SEED-7#claude-1",{"kind":"measured"},1950]]`. With a scratch reader change adding the reply's uuid to the active fact's turns and `nativeTurns: fact.turns ?? [fact.turnId]` in `recoveredUsageTasks.ts` and `nativeTaskActivity.ts`: `4900`. Reverted. |

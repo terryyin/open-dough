@@ -1,9 +1,9 @@
 # Review of ADR 0005's A/B guidance against the native comparison cases
 
-Maintainer record, 2026-11-14. [ADR 0005](../adrs/0005-cross-tool-validation-accepted.md)
+Maintainer record, 2026-11-14. [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)
 section 4 (compare outcomes when choosing an improvement) was written from an
 earlier comparison, before a reusable capability existed. SEED-346 built that
-capability ([native comparison cases](../../Distribution/evaluation/comparison.md))
+capability ([native comparison cases](comparison.md))
 and was asked to review the guidance after its first end-to-end runs. This
 record states whether the guidance fits and recommends changes for a human
 decision. It does not amend the ADR; Terry owns amendment and acceptance.

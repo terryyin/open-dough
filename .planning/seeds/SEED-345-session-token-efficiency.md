@@ -13,7 +13,7 @@ scope: six stories
 
 Developers relying on Open Dough agents should get the same verified results
 with fewer model requests, less repeated context and fewer manual rescues.
-The [cross-host session token efficiency report](../../docs/maintainer/session-token-efficiency-research.md)
+The [cross-host session token efficiency report](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md)
 retains the measurements, examples and evidence limits. Compare results and
 total coordinator and worker effort on comparable work, following
 [Open Dough's definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
@@ -24,7 +24,7 @@ The order weighs measured share of execution cost first, then confidence in
 the saving, then delivery and proof risk; a story that changes carried
 context runs as a measured trial, which contains that risk. Execution carried
 90% of list-price cost in the
-[2026-11-15 re-measurement](../../docs/maintainer/session-token-efficiency-research.md#2026-11-15-re-measurement). Shared stories name the
+[2026-11-15 re-measurement](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#2026-11-15-re-measurement). Shared stories name the
 host whose evidence leads; a host adaptation stays inside the shared story
 unless only one host shows the mechanism. Keep the existing proof and approval
 boundaries in each story. Stories that change how much context an agent
@@ -71,7 +71,7 @@ Each trial is judged with the
   installed kind whose installation, update and coexistence keep their
   checks. Coordinator tools, project instructions and personal memory stay
   outside this story; skill descriptions belong to the phase-guidance story.
-  [Start floor](../../docs/maintainer/session-token-efficiency-research.md#cc5-every-subagent-pays-a-fixed-start-up-floor)
+  [Start floor](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#cc5-every-subagent-pays-a-fixed-start-up-floor)
 
 <a id="finish-slices-within-a-bounded-working-context"></a>
 
@@ -103,7 +103,7 @@ Each trial is judged with the
   0–2% of slice agents exceeded 150 turns in every period from 2026-10-17 to
   2026-11-16. Coordinator peaks of 550–890k came from 9–12-slice plans and
   from `max` effort. Since the 8-slice cap, the median coordinator peak is
-  293k ([spike analysis](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#state-on-2026-11-16)).
+  293k ([spike analysis](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#state-on-2026-11-16)).
   Re-baseline Claude Code at `medium` before sizing this trial. A recent Codex
   SEED-334#move-intent-reading-and-review-checks launch still used 1,548
   attributed requests and reached about 453k coordinator input tokens; later
@@ -116,7 +116,7 @@ Each trial is judged with the
   Compact Codex worker handoffs are another variant within this story, judged
   on coordinator plus worker effort, uncached input and cached input as well
   as quality. A fresh worker that processes fewer tokens can still cost more.
-  [Context growth](../../docs/maintainer/session-token-efficiency-research.md#5-bound-how-long-one-context-keeps-growing)
+  [Context growth](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#5-bound-how-long-one-context-keeps-growing)
 
 <a id="reach-a-proof-decision-from-retained-evidence"></a>
 
@@ -145,7 +145,7 @@ Each trial is judged with the
   proof row ([ODF-314](../../docs/maintainer/findings/ODF-314.md)). The
   [source-review bookkeeping story](https://github.com/terryyin/open-dough/blob/b6b6d04c9162a30619c3fd59c8e220d523455004/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#review-independently-observable-promises)
   owns promise allocation.
-  [Output and diagnostic evidence](../../docs/maintainer/session-token-efficiency-research.md#2-return-decision-sized-evidence-and-retain-the-full-artifacts)
+  [Output and diagnostic evidence](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#2-return-decision-sized-evidence-and-retain-the-full-artifacts)
 
 <a id="get-long-verification-results-without-empty-wakes"></a>
 
@@ -176,14 +176,14 @@ Each trial is judged with the
   cost is gone. Codex's rebaseline counts empty subprocess returns and
   agent-wait timeouts, not only shell sleeps, and records the installed
   guidance version. Measure what remains against those host-specific baselines
-  ([waiting](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#waiting)).
+  ([waiting](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#waiting)).
 - **Effort and boundary.** Medium, medium confidence. Distinct from a paused
   supplier, which the first story owns. Keep the five-minute Claude Code
   subagent cache; a longer lifetime cost more than it saved. Starts from the
   per-host [wait for proof](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md)
   guidance and measures what it leaves.
-  [Waiting](../../docs/maintainer/session-token-efficiency-research.md#1-wake-the-coordinator-for-results-changes-and-bounded-deadlines)
-  and [cache](../../docs/maintainer/session-token-efficiency-research.md#cc2-cache-lifetime-avoid-the-rebuild-keep-the-five-minute-default) evidence
+  [Waiting](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#1-wake-the-coordinator-for-results-changes-and-bounded-deadlines)
+  and [cache](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#cc2-cache-lifetime-avoid-the-rebuild-keep-the-five-minute-default) evidence
 
 <a id="load-execution-guidance-for-the-current-phase"></a>
 
@@ -209,7 +209,7 @@ Each trial is judged with the
 - **Effort and boundary.** Medium, medium confidence. Keep required
   breadth ([ODF-158](../../docs/maintainer/findings/ODF-158.md)) and keep
   boundary rows maintainable ([ODF-446](../../docs/maintainer/findings/ODF-446.md)).
-  [Guidance reads](../../docs/maintainer/session-token-efficiency-research.md#2-return-decision-sized-evidence-and-retain-the-full-artifacts)
+  [Guidance reads](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#2-return-decision-sized-evidence-and-retain-the-full-artifacts)
 
 <a id="start-cursor-slices-from-complete-task-briefs"></a>
 
@@ -233,7 +233,7 @@ Each trial is judged with the
   retains no per-request usage to size the saving.
 - **Effort and boundary.** Small, medium confidence. Independent review and
   role-specific reads keep their purpose.
-  [Cursor handoff evidence](../../docs/maintainer/session-token-efficiency-research.md#c1-avoid-paying-twice-for-large-task-prompts-and-skill-re-reads)
+  [Cursor handoff evidence](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#c1-avoid-paying-twice-for-large-task-prompts-and-skill-re-reads)
 
 ## Ordering and scope reduction
 

@@ -81,7 +81,7 @@ Claude Code and Codex executions in the 30 days to 2026-11-15.
   Single unbounded repair agents appeared in all three usage rises from
   2026-10-25 to 2026-11-15, at 7.0–9.8M input-token equivalents each, and repair
   agents carried 22.8M of SEED-334's 80.7M
-  ([unbounded diagnosis](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#runaway-diagnosis)).
+  ([unbounded diagnosis](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#runaway-diagnosis)).
   Codex also encountered repeated repair and qualification during
   SEED-286#fast-intent-ci-comparison-tests (7,097 attributed requests) and
   Pygardon SEED-145#story-unattended-entry-operation (27 delivered slices).
@@ -128,4 +128,4 @@ Claude Code and Codex executions in the 30 days to 2026-11-15.
 - **Effort and boundary.** Medium, low confidence. Refinement first identifies
   each proof's required and supported conditions and how they are measured;
   it does not introduce a universal quiet-machine gate.
-  [Waiting and test-heavy stories](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#waiting)
+  [Waiting and test-heavy stories](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#waiting)

@@ -132,4 +132,4 @@ The [forced-turn records](../paused-supplier/case.md#reuse-and-limits) retain
 their different scheduling conditions. Neither observation demonstrates
 suppressed wakes or event-driven savings. A blocked-path savings comparison
 requires representative normal waiting and a separately matched candidate. See
-the maintained [blocked-execution findings](../../../../../docs/maintainer/blocked-execution-experiment-findings.md).
+the maintained [blocked-execution findings](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/blocked-execution-experiment-findings.md).

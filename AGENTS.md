@@ -14,6 +14,14 @@ This repository keeps its product backlog in `.planning/PRODUCT-BACKLOG.md`,
 seeds in `.planning/seeds/`, and executable plans (“Slice Plans”) in
 `.planning/slice-plans/<NNN>-<slug>/PLAN.md`.
 
+Keep one-off analysis in the conversation. If upcoming work depends on it,
+capture the decision, baseline, and limits in the seed until a plan exists.
+Keep any working evidence the execution still needs with that plan. For
+evidence shared across stories, link to one recoverable source and carry only
+the relevant excerpt into each plan. Remove spent evidence at wrap-up and use
+Git for recovery. Use `docs/` and `docs/maintainer/` for maintained guidance,
+decisions, and findings with an ongoing owner.
+
 ## Test automation
 
 - Before authoring or changing a test, apply the installed

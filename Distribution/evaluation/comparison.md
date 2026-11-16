@@ -247,4 +247,4 @@ observer, assessors and judge; they never stand in for native behavior.
 reassessment after raw cleanup, complete failures and insufficient proof.
 
 The review of ADR 0005's A/B guidance against these cases' observations is
-in [the native comparison review](../../docs/maintainer/native-comparison-adr-0005-review.md).
+in [the native comparison review](native-comparison-adr-0005-review.md).

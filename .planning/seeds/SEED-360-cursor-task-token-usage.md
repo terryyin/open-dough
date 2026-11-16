@@ -38,7 +38,7 @@ Store usage in the shared [usage records](../../dashboard/USAGE-HISTORY.md).
 - An older launch kept in launch history, from before collection, shows its
   usage as unavailable rather than zero.
 
-The [Cursor research](../../docs/maintainer/dashboard-task-usage-research.md#cursor-cli-20261113-eacade1)
+The [Cursor research](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/dashboard-task-usage-research.md#cursor-cli-20261113-eacade1)
 identifies local parent hooks and an optional Admin API join by each child
 conversation ID. Verify the join on an eligible account if available. Preserve
 useful parent coverage without that access. Cloud Agents has a different

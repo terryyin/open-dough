@@ -21,9 +21,9 @@ export {
   pygardonClipPath,
 } from "./intentCandidatesOtherProjectFixtures.ts";
 
-export const evidenceDocPath = "docs/maintainer/dashboard-test-value-review.md";
+export const evidenceDocPath = ".planning/evidence/test-cost-comparison.md";
 
-export const evidenceDoc = `# Dashboard test value review
+export const evidenceDoc = `# Test cost comparison
 
 Section for candidates evidence.
 `;

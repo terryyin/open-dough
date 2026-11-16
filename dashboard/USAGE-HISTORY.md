@@ -238,9 +238,9 @@ with neither supported dates nor in-window associations are
 and excluded from dated token subtotals. A task with no attributable response has
 unavailable usage, even when its activity date is known.
 
-The [2026-11-15 recovery receipt](../docs/maintainer/usage-history-recovery-2026-11-15.md)
-records the completed machine recovery, repeat reconciliation, categorized counts
-and material coverage limits.
+On 2026-11-15, repeat imports reconciled retained usage across six projects. The
+[recovery receipt](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/usage-history-recovery-2026-11-15.md)
+records category totals, reproduction details, and source coverage limits.
 
 Claude parent traversal retains exact response, human task-boundary and
 worker-join source rows. Intermediate parent links cite their native files;

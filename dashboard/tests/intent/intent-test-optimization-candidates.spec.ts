@@ -145,7 +145,7 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
       .getByRole("link", { name: /source comparison and ROI/i });
     await expect(evidenceLink).toHaveAttribute(
       "href",
-      `https://github.com/${openDough.repository}/blob/${openDough.revision}/docs/maintainer/dashboard-test-value-review.md`,
+      `https://github.com/${openDough.repository}/blob/${openDough.revision}/.planning/evidence/test-cost-comparison.md`,
     );
     await expect(record).toContainText(
       "40e1d2f9:.planning/slice-plans/432-reduce-dashboard-proof-cost/PLAN.md",

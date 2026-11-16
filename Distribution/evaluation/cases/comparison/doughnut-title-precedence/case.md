@@ -34,7 +34,7 @@ assertion catches the fault on the destination ID; the agent is not told so.
 
 ## Source and extraction
 
-- Source replay: the [same-story waiting comparison](../../../../../docs/maintainer/intent-coverage-cost-research.md#same-story-waiting-comparison),
+- Source replay: the [same-story waiting comparison](#same-story-waiting-comparison),
   2026-11-12. Its compared arms are Codex coordinator threads
   `01a1cdf7-3db1-7aa2-92b0-604b8c19594f` (repeated waits) and
   `01a1ce00-0c0c-7d92-9ad9-26a89ebaa663` (one wait), with workers
@@ -186,6 +186,25 @@ stopping the arm's server.
 | Preparation (fetch, seeded caches, payload, setup, own server, migration) | 95.9 |
 | Baseline, faulted and restored commands | 108, 91, 120 |
 | Whole reference journey, with observation and cleanup | 415.6 |
+
+## Same-story waiting comparison
+
+Two historical GPT-6.1 Sol replays used the same pinned source, batched
+proof and fresh worker. Both caught the fault on the destination ID,
+observed six ambiguous links independently and passed after restoration.
+
+| Measure | Repeated 60-second waits | One wait with a 25-minute deadline |
+| --- | ---: | ---: |
+| Coordinator waits | 7 | 1 |
+| Wait-only Standard credit equivalents | 0.91 | 0.15 |
+| Coordinator, including preparation and follow-up | 5.22 | 4.63 |
+| Worker | 7.27 | 6.71 |
+| Combined estimated credits | 12.49 | 11.33 |
+
+The single wait received the report after 6 minutes 55 seconds. The
+estimated total fell 9.3%, with 0.76 of the 1.16-credit difference from
+wait-only responses. Account-wide readings cannot establish an included-quota
+saving. [Full measurement and limits](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/intent-coverage-cost-research.md#same-story-waiting-comparison)
 
 ## Comparisons
 
