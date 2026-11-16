@@ -18,15 +18,23 @@ export function cursorBelongingSubagentsDirectory(
   workspace: string,
   sessionId: string,
 ): string {
-  return path.join(
-    home,
-    ".cursor",
-    "projects",
-    cursorProjectWorkspaceSlug(workspace),
-    "agent-transcripts",
-    sessionId,
-    "subagents",
+  return cursorTranscriptSubagentsDirectory(
+    path.join(
+      home,
+      ".cursor",
+      "projects",
+      cursorProjectWorkspaceSlug(workspace),
+      "agent-transcripts",
+      sessionId,
+    ),
   );
+}
+
+// Both retained observation and liveness use this belonging-directory rule.
+export function cursorTranscriptSubagentsDirectory(
+  sessionDirectory: string,
+): string {
+  return path.join(sessionDirectory, "subagents");
 }
 
 // True when any belonging `subagents/*.jsonl` lacks a `turn_ended` record.

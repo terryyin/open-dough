@@ -39,7 +39,7 @@ commitment.
 ## Proposed stories in priority order
 
 Each trial is judged with the
-[comparable-run measure](SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs).
+[retained effort command](../../dashboard/AGENT-EFFORT.md).
 
 <a id="start-implementers-from-a-role-sized-tool-set"></a>
 

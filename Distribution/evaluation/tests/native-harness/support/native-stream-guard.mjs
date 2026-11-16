@@ -43,6 +43,10 @@ const reader = new Set([
 // read them. Each reason says what the file writes.
 const shapeWriters = new Map([
   [
+    "Distribution/tests/support/cursorTranscriptTestData.mjs",
+    "builds retained Cursor transcript tool calls and results for usage-history proof",
+  ],
+  [
     "Distribution/evaluation/tests/native-harness/guidance-native-entries.sh",
     "substitute Codex writes skill-use acknowledgment and completion for installed rejection proof",
   ],
