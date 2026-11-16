@@ -236,6 +236,33 @@ from 2026-11-12 to 2026-11-15, roughly tripling 11 executions. Today's
 protection is one line in `~/.claude/settings.json` that the product does not
 read.
 
+<a id="name-the-effort-a-session-ran-with"></a>
+
+### Name the effort a Claude Code session actually ran with
+
+**Identity:** SEED-388#name-the-effort-a-session-ran-with
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Scope and beneficiary.** A developer reading a Claude Code session started
+  from the dashboard sees the effort it actually ran with, not only the effort
+  Open Dough requested. Every new launch already passes an explicit effort
+  (default `medium`) and its Session details name it as requested.
+- **Evaluation.** Session details name the observed effort, read from the
+  session's transcript, where Claude Code records it on every response and the
+  Usage records already keep it. Where Claude Code dropped an effort the model
+  does not take, the observed value differs from the requested one and both are
+  shown. A session recorded before efforts were passed shows its observed
+  effort when the transcript has one.
+- **Candidate extensions, unselected.** A Claude Code effort choice in the
+  feedback maintenance setting, and a configurable Open Dough default effort.
+  Role-based model and effort selection was dropped on 2026-11-16. Predicting
+  the effort a session would inherit from Claude Code settings no longer
+  applies to new launches.
+- **Priority.** Last; requested and effective effort agree except for a model
+  that drops an effort.
+
 <a id="compare-agent-effort-on-comparable-runs"></a>
 
 ### Compare agent effort on comparable runs

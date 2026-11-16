@@ -143,7 +143,10 @@ medium” and max “about 7× the cost of medium”, the median Opus slice-agen
 measured in November 2026; low carries no figure. Claude Code itself drops an effort
 a model does not take. The shown level goes as `--effort` for that session only,
 writes no Claude Code configuration, and is reported as requested, never as the
-effective effort, which Claude Code's listing does not expose. Switching
+effective effort, which Claude Code's listing does not expose. Every Claude
+Code launch passes an effort, its own or Open Dough's default given at
+acceptance, rather than inheriting one from Claude Code's settings, so a
+user-level settings change cannot alter what a launch costs. Switching
 hosts and fresh openings return Model to Default and Reasoning effort to the
 host's default; no authentication, trust, approval,
 sandbox or permission setting is overridden by the dashboard.
