@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Compare Codex and Claude Code token usage](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#compare-codex-and-claude-code-token-usage) — SEED-383#compare-codex-and-claude-code-token-usage
 - [Fixed shards for browser tests and on-demand rebalancing](seeds/SEED-381-fixed-ci-test-shards.md#fixed-shards-for-browser-tests-and-on-demand-rebalancing) — SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing
 - [Keep browser test jobs inside their deadline on slow runners](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#browser-test-job-headroom-on-slow-runners) — SEED-382#browser-test-job-headroom-on-slow-runners
 - [Review changes from completed ad hoc sessions](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions) — SEED-379#review-changes-from-completed-ad-hoc-sessions
