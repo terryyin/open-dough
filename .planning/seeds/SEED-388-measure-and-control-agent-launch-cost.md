@@ -158,7 +158,7 @@ using them as corrected launch acceptance values.
 
 **Identity:** SEED-388#show-the-effort-a-launch-runs-with
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/664-show-the-effort-a-launch-runs-with/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b4cd57368aa87f3d4902ce3785a457051e5e06c2d5fd6a345472df26136666b7","plan":"7abd98619a447dda51854b35c7e977d44c131c46649f5078e46bbb7144666e66"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/664-show-the-effort-a-launch-runs-with/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3c1079b621e392fc256bde85c4b09ee6545afc8e3727a29203e4c43e9602e7f7","plan":"7abd98619a447dda51854b35c7e977d44c131c46649f5078e46bbb7144666e66"}}
 ```
 
 **Goal.** A developer starting a Claude Code session from the dashboard knows
