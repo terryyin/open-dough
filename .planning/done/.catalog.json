@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-367_count-slice-active-time-deterministically.json",
+      "identity": "SEED-367#count-slice-active-time-deterministically",
+      "completedAt": "2026-11-16T09:43:59.040Z",
+      "blob": "86b60c3c239034e4cba241453019c58e94979afd"
+    },
+    {
       "fileName": "SEED-388_show-the-effort-a-launch-runs-with.json",
       "identity": "SEED-388#show-the-effort-a-launch-runs-with",
       "completedAt": "2026-11-16T09:25:33.567Z",

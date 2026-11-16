@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Review changes from completed ad hoc sessions](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions) — SEED-379#review-changes-from-completed-ad-hoc-sessions ([plan](slice-plans/659-review-changes-from-completed-ad-hoc-sessions/PLAN.md))
 - [Count a dashboard launch's work after a developer reply](seeds/SEED-388-measure-and-control-agent-launch-cost.md#count-claude-code-work-after-a-developer-reply) — SEED-388#count-claude-code-work-after-a-developer-reply ([plan](slice-plans/665-count-launch-work-after-a-developer-reply/PLAN.md))
 - [Compare agent effort on comparable runs](seeds/SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs) — SEED-345#compare-agent-effort-on-comparable-runs ([plan](slice-plans/666-compare-agent-effort-on-comparable-runs/PLAN.md))
-- [Count a slice's active time without the agent's own clock](seeds/SEED-367-bounded-slice-active-time.md#count-slice-active-time-deterministically) — SEED-367#count-slice-active-time-deterministically ([plan](slice-plans/667-count-slice-active-time-deterministically/PLAN.md))
 
 ## Backlog list
 
