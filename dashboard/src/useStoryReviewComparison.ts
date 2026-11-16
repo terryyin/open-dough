@@ -13,17 +13,19 @@ import {
   type TakenStoryReview,
 } from "./storyReviewContract.ts";
 import { useReviewRead } from "./useReviewRead.ts";
+import {
+  reviewedWorkQuery,
+  type ReviewedWorkSubject,
+} from "./reviewedWorkSubject.ts";
 
 export function useStoryReviewComparison({
-  source,
-  identity,
+  subject,
   snapshot,
   chosen,
   includeUncommitted,
   active,
 }: {
-  readonly source: string;
-  readonly identity: string;
+  readonly subject: ReviewedWorkSubject;
   readonly snapshot: TakenStoryReview | undefined;
   readonly chosen: ShownComparison;
   // Whether all changes include the snapshot's uncommitted changes.
@@ -82,8 +84,7 @@ export function useStoryReviewComparison({
   const range = useReviewRead<ReviewRange>(
     storyReviewRangeEndpoint,
     {
-      source,
-      identity,
+      ...reviewedWorkQuery(subject),
       fromTree: oldest?.fromTree ?? "",
       fromBaseline: oldest?.fromBaseline ?? "",
       tree: newest?.tree ?? "",

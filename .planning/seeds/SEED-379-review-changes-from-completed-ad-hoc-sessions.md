@@ -51,100 +51,26 @@ environment, which Git honours locally, including across a rebase, while each
 host's passing of that environment to its Git commands is unverified; and
 reading each host's transcript, which needs a reader per host.
 
-<a id="review-changes-from-completed-ad-hoc-sessions"></a>
+## Shared review concepts for later stories
 
-### Review changes from completed ad hoc sessions
+A review's subject is a story or an ad hoc session. A story review names its
+project and story identity; an ad hoc review names its project and the
+session. One admission path covers either; no request supplies a repository or
+workspace path. A file read names the retained pair and one of its literal
+changed paths, including a rename's old path.
 
-**Identity:** SEED-379#review-changes-from-completed-ad-hoc-sessions
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/659-review-changes-from-completed-ad-hoc-sessions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d19deb00ff183371eecdd06c7bdc8ac5d3697abac61ce5a5385164bf26c42a68","plan":"02ec29cab5eae6e32e01d0b77813eb9c09c301c2da01bc9c3a59fb18818cb1ba"}}
-```
+A launch record's retained comparisons are its change evidence. Today that is
+its one landing. Later stories add the Default main session's attributed
+commits and the own-branch result as further retained comparisons of the same
+record, read by the same
+[landed-run](../../dashboard/STORY-REVIEW-LANDED-RUNS.md) reader and shown in
+the same panel; the Comparison switch returns when a session holds more than
+one. Observation only: the review reads the saved common Git repository,
+fetches nothing, and writes no ref, index or checkout content.
 
-#### Goal
-
-A developer who marked an ad hoc session done can open **Review changes** from
-its card in **Recently done** and read the change that session's landing
-delivered to trunk, using the evidence the dashboard already retains. This
-makes half of today's completed ad hoc sessions reviewable and gives the later
-stories the action their evidence appears under.
-
-#### Scope
-
-- Every standalone ad hoc session entry in **Recently done** offers **Review
-  changes**, named and drawn as on a done story's card. A session whose launch
-  established no place for a landing offers it too, so an absent comparison is
-  explained where the developer looks for it.
-- The review opens in the page's one side panel with the existing file
-  browser, counts, rename detection, binary explanation, file moves, context
-  expansion, Refresh, Maximize/Restore, Hide files/Show files and Close. Its
-  header names the session by its label. Its context line reads as a landed
-  run's: the launch time, the authorized remote target, and the exact captured
-  base and accepted revision.
-- The comparison is the launch record's retained landing: the fetched trunk
-  tip the publication was accepted onto and the accepted revision. It stays
-  fixed when trunk advances or reverts the result, and after the session's
-  worktree and branch are removed, for as long as the launch record is kept.
-- The review is read-only and holds one comparison: it shows no Comparison
-  switch and no Mark reviewed.
-- Opening the review clears the selected story, as showing a session attached
-  to no story does. Close, or Command+Shift+Escape, returns the keyboard to
-  the entry's **Review changes**, or to the session's entry when that control
-  is no longer shown, and keeps Recently done's shown range and entry counts.
-- Sessions completed before this story with a retained landing are reviewable
-  the same way; nothing is captured anew.
-- Scope limits: an ad hoc row linked to a published Done story keeps opening
-  that story, whose card holds its review; an open ad hoc session's entry
-  gains no review action; Follow up from a file or line of an ad hoc review is
-  deferred, and the entry's own Follow up stays as it is.
-
-#### Key examples
-
-- A session launched with Isolated workspace · Automatically land landed
-  through Dough and was marked done; its worktree is gone and trunk has
-  advanced → **Review changes** on its Recently done entry → the side panel
-  lists the files between the captured base and the accepted revision, and
-  each diff reads as it did at landing.
-- A session completed weeks before this story holds a readable retained
-  landing → **Review changes** → the same comparison.
-- A default launch pushed its work with plain Git and holds no landing →
-  **Review changes** → the panel says that this session's changes were not
-  captured and lists no files.
-- A session holds a retained landing whose saved repository or objects can no
-  longer be read → **Review changes** → the panel explains why the comparison
-  is unavailable and lists no substitute files.
-- A retained landing whose base and accepted revision hold the same content →
-  **Review changes** → the panel says this session's delivered comparison is
-  empty.
-- An ad hoc row that uniquely establishes a published Done story → choosing
-  it reveals that story's card, as before.
-
-#### Architecture
-
-This story is the first of three that give an ad hoc session reviewable
-change evidence, so it names the concepts the later ones grow.
-
-- **Reviewed work.** A review's subject is a story or an ad hoc session. A
-  story review names its project and story identity; an ad hoc review names
-  its project and the session, as the dashboard's other session requests do. The review boundary admits
-  either through one admission path, and no request supplies a repository or
-  workspace path. A file read names the retained pair and one of its literal
-  changed paths, including a rename's old path.
-- **Session change evidence.** A launch record's retained comparisons are its
-  change evidence. Today that is its one landing. The Default main story adds
-  the session's attributed commits and the own-branch story adds its branch
-  result, each as another retained comparison of the same record, read by the
-  same comparison reader and shown in the same panel; the Comparison switch
-  returns when a session holds more than one. This story builds none of that.
-- **One reader and one panel.** The ad hoc review reuses the
-  [landed run](../../dashboard/STORY-REVIEW-LANDED-RUNS.md) comparison reader
-  and the story review's panel, generalizing the panel's subject from a story
-  to reviewed work.
-- **Observation only.**
-  [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them)
-  keeps a launch record as machine-local evidence. The review reads the saved
-  common Git repository, fetches nothing, and writes no ref, index or
-  checkout content. It states what this launch's landing delivered and claims
-  nothing about other work the session may have done.
+Standalone ad hoc Done entries in Recently done already offer **Review
+changes** for that landing (or explain absent, unreadable and empty
+evidence). Linked ad hoc rows still open their published Done story.
 
 <a id="keep-default-main-session-changes-for-review"></a>
 

@@ -11,6 +11,7 @@ import type { CiFollowUpAnswer } from "./ciFollowUp.ts";
 import { readingDoneStory, type DoneDetail } from "./doneDetails.ts";
 import { unreadableDoneRecord } from "./doneRecord.ts";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
+import { AdHocSessionReviewAction } from "./AdHocSessionReviewAction.tsx";
 import { SessionFollowUp, StoryFollowUp } from "./FollowUp.tsx";
 import type { Listed } from "./recentlyDoneView.ts";
 import { SessionEntry } from "./SessionEntry.tsx";
@@ -64,12 +65,18 @@ export function ListedEntry({
         record={each.session}
         onStoryCard={false}
         followUp={
-          <SessionFollowUp
-            record={each.session}
-            project={project}
-            sourceId={sourceId}
-            launches={launches}
-          />
+          <>
+            <AdHocSessionReviewAction
+              record={each.session}
+              sourceId={sourceId}
+            />
+            <SessionFollowUp
+              record={each.session}
+              project={project}
+              sourceId={sourceId}
+              launches={launches}
+            />
+          </>
         }
       />
     );

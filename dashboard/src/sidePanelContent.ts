@@ -10,6 +10,7 @@ import { sessionKey } from "./sessionReference.ts";
 import type { SessionRequest } from "./pageSessions.ts";
 import type { StoryReviewRequest } from "./pageStoryReviews.ts";
 import type { SelectedStory } from "./pageStorySelection.tsx";
+import { reviewedStorySubject } from "./reviewedWorkSubject.ts";
 
 // What the panel shows, and whether it takes the page column's room too.
 // Maximization belongs to the shown content, so new content starts split.
@@ -27,8 +28,12 @@ export const shownSessionOf = (sidePanel: SidePanel | undefined) =>
 // The story the shown content belongs to; none for a session attached to no
 // story.
 export function shownStory(shown: Shown): SelectedStory | undefined {
-  if (!("record" in shown))
-    return { project: shown.source, identity: shown.identity };
+  if (!("record" in shown)) {
+    const story = reviewedStorySubject(shown.subject);
+    return story === undefined
+      ? undefined
+      : { project: story.source, identity: story.identity };
+  }
   const { request } = shown.record;
   const identity = launchSubject(request).identity;
   return identity === undefined

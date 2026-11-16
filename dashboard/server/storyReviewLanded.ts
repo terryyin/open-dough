@@ -3,6 +3,7 @@ import { isEstablishedOneShot } from "../src/launchRecord.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import {
   landedReviewContextSchema,
+  reviewLandedWorkflowSchema,
   type ReviewLandedRun,
 } from "../src/storyReviewLandedRun.ts";
 import { changedFrom } from "./storyReviewFiles.ts";
@@ -53,7 +54,7 @@ export async function landedStoryReview(
   try {
     const files = await changedFrom(landing.base, landing.revision, call);
     const workflow = record.request.workflow;
-    if (workflow !== "execution" && workflow !== "refinement")
+    if (!reviewLandedWorkflowSchema.safeParse(workflow).success)
       return unavailable("This launch's workflow has no landed review.");
     return {
       kind: "landed",

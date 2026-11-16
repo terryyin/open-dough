@@ -28,25 +28,29 @@ import {
   type ReviewedFileDiff,
   type ReviewedFileText,
 } from "./storyReviewContract.ts";
+import {
+  reviewedStoryIdentity,
+  reviewedWorkQuery,
+  type ReviewedWorkSubject,
+} from "./reviewedWorkSubject.ts";
 import { useReviewRead } from "./useReviewRead.ts";
 
-// The story whose review is open.
-export type ReviewedStory = {
-  readonly sourceId: string;
-  readonly identity: string;
+// The reviewed work whose file diff is open: a story or ad hoc session,
+// with the retained pair a historical comparison names.
+export type ReviewedWork = {
+  readonly subject: ReviewedWorkSubject;
   readonly reference?: string;
   readonly completion?: string;
 };
 
 function reviewFileQuery(
-  reviewed: ReviewedStory,
+  reviewed: ReviewedWork,
   from: string,
   tree: string,
   file: ReviewedFile,
 ) {
   return {
-    source: reviewed.sourceId,
-    identity: reviewed.identity,
+    ...reviewedWorkQuery(reviewed.subject),
     ...(reviewed.reference === undefined
       ? {}
       : { reference: reviewed.reference }),
@@ -71,7 +75,7 @@ export function FileDiff({
   tree,
   file,
 }: {
-  readonly reviewed: ReviewedStory;
+  readonly reviewed: ReviewedWork;
   readonly from: string;
   readonly tree: string;
   readonly file: ReviewedFile;
@@ -88,7 +92,7 @@ export function FileDiff({
     readonly line: number;
     readonly side: DiffLineSide;
   }>();
-  const done = useDoneStoryFollowUp(reviewed.identity);
+  const done = useDoneStoryFollowUp(reviewedStoryIdentity(reviewed.subject));
   const canLineFollow =
     done !== undefined &&
     fileFollowUpParts(reviewed, from, tree, file) !== undefined;

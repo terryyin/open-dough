@@ -15,7 +15,7 @@ import { closeSidePanel } from "./sidePanelFrame.ts";
 import { expect } from "./support/preparationPage.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { reviewBody, reviewFeedback } from "./support/reviewContextLine.ts";
-import { reviewRegion } from "./support/storyReviewMark.ts";
+import { comparison, reviewRegion } from "./support/storyReviewMark.ts";
 
 export class StoryReview extends PageObject {
   get #review() {
@@ -30,7 +30,7 @@ export class StoryReview extends PageObject {
     return listedFile(this.#files(list), file);
   }
 
-  // The story the review is headed by.
+  // The story or session the review is headed by.
   expectStory(title: string) {
     return this.cueHere(`Story review: of ${title}`, () =>
       expect(this.#review.getByRole("heading", { level: 2 })).toHaveText(title),
@@ -44,10 +44,75 @@ export class StoryReview extends PageObject {
     );
   }
 
+  // The session id an ad hoc review names beneath its label.
+  expectSession(session: string) {
+    return this.cueHere(`Story review: names session ${session}`, () =>
+      expect(this.#review).toContainText(`Session review ${session}`),
+    );
+  }
+
+  // The landed run's fixed context: launch time, remote target, base and revision.
+  expectLandedContext(facts: {
+    readonly launchedAt: string;
+    readonly remoteTarget: string;
+    readonly base: string;
+    readonly revision: string;
+  }) {
+    return this.cueHere("Story review: shows the landed context", async () => {
+      await expect(
+        this.#review.getByRole("heading", { name: "Landed run", exact: true }),
+      ).toBeVisible();
+      await expect(
+        this.#review.locator(`time[datetime="${facts.launchedAt}"]`),
+      ).toBeVisible();
+      await expect(
+        this.#review.getByText(facts.remoteTarget, { exact: true }),
+      ).toBeVisible();
+      await expect(
+        this.#review.getByText(facts.base, { exact: true }),
+      ).toBeVisible();
+      await expect(
+        this.#review.getByText(facts.revision, { exact: true }),
+      ).toBeVisible();
+    });
+  }
+
+  expectNoComparisonSwitch() {
+    return this.cueHere("Story review: shows no Comparison switch", () =>
+      expect(comparison(this.#review)).toHaveCount(0),
+    );
+  }
+
+  expectNoMarkReviewed() {
+    return this.cueHere("Story review: shows no Mark reviewed", () =>
+      expect(
+        this.#review.getByRole("button", {
+          name: "Mark reviewed",
+          exact: true,
+        }),
+      ).toHaveCount(0),
+    );
+  }
+
+  expectNoLineFollowUp() {
+    return this.cueHere("Story review: shows no line Follow up menu", () =>
+      expect(
+        this.#review.getByRole("button", { name: /^(?:Old|New) line / }),
+      ).toHaveCount(0),
+    );
+  }
+
   // What the review's fixed top says, such as that it is reading.
   expectFeedback(text: string) {
     return this.cueHere(`Story review: says "${text}"`, () =>
       expect(reviewFeedback(this.#review)).toHaveText(text),
+    );
+  }
+
+  // What the body says in place of the file browser, such as an empty comparison.
+  expectBodyText(text: string) {
+    return this.cueHere(`Story review: body says "${text}"`, () =>
+      expect(reviewBody(this.#review)).toHaveText(text),
     );
   }
 

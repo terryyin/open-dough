@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-379_review-changes-from-completed-ad-hoc-sessions.json",
+      "identity": "SEED-379#review-changes-from-completed-ad-hoc-sessions",
+      "completedAt": "2026-11-16T11:27:53.319Z",
+      "blob": "ae371ed525a06684f03a3175845d4e730207220d"
+    },
+    {
       "fileName": "SEED-367_discard-time-after-an-ended-session.json",
       "identity": "SEED-367#discard-time-after-an-ended-session",
       "completedAt": "2026-11-16T10:40:26.904Z",

@@ -7,28 +7,27 @@
 // runs from its own tree when it includes trunk's changes, else from the
 // comparison's *from* tree (`diffStartOf`), in Review changes and Intent alike.
 
-import type { ReviewedStory } from "./StoryReviewFileDiff.tsx";
+import type { ReviewedWork } from "./StoryReviewFileDiff.tsx";
 import type {
   ReviewComparison,
   ReviewedFile,
   StoryReview,
 } from "./storyReviewContract.ts";
+import type { ReviewedWorkSubject } from "./reviewedWorkSubject.ts";
 
 export type ShownStoryComparison = {
-  readonly reviewed: ReviewedStory;
+  readonly reviewed: ReviewedWork;
   readonly comparison: ReviewComparison;
   readonly tree: string;
 };
 
 export function storyComparisonShown({
-  source,
-  identity,
+  subject,
   review,
   comparison,
   tree,
 }: {
-  readonly source: string;
-  readonly identity: string;
+  readonly subject: ReviewedWorkSubject;
   readonly review: StoryReview | undefined;
   // A snapshot's chosen comparison and the tree it reaches.
   readonly comparison: ReviewComparison | undefined;
@@ -37,8 +36,7 @@ export function storyComparisonShown({
   if (review?.kind === "published" || review?.kind === "landed")
     return {
       reviewed: {
-        sourceId: source,
-        identity,
+        subject,
         ...(review.kind === "published"
           ? { completion: review.completion }
           : { reference: review.landing.reference }),
@@ -51,7 +49,7 @@ export function storyComparisonShown({
     comparison !== undefined &&
     tree !== undefined
   )
-    return { reviewed: { sourceId: source, identity }, comparison, tree };
+    return { reviewed: { subject }, comparison, tree };
   return undefined;
 }
 

@@ -2,10 +2,16 @@
 // side panel (`./PageFrame.tsx`), which a story's card reaches without
 // every component between them passing it along. A review is not a session:
 // it has no session mark and no lifecycle action, and showing one detaches
-// whatever session the panel showed without ending it.
+// whatever session the panel showed without ending it. The request names
+// reviewed work: a story identity or an ad hoc session of a project.
 
 import { createContext, useContext } from "react";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
+import {
+  reviewedWorkKey,
+  sameReviewedWorkSubject,
+  type ReviewedWorkSubject,
+} from "./reviewedWorkSubject.ts";
 
 // A workspace comparison a request asks the review to show.
 export type RequestedComparison = {
@@ -13,15 +19,14 @@ export type RequestedComparison = {
   readonly includeUncommitted: boolean;
 };
 
-// A request to review one story of one project: the project and story it
-// names, kept while the dashboard's own selection moves on, and the control
-// that asked, which gets the keyboard back once the review closes. A view
-// showing its own comparison of the story, as Intent does, asks for it, so
-// the review it opens shows the same; without one the review opens on its
-// own default.
+// A request to review one story or ad hoc session of one project: the
+// reviewed-work subject it names, kept while the dashboard's own selection
+// moves on, and the control that asked, which gets the keyboard back once
+// the review closes. A view showing its own comparison of the story, as
+// Intent does, asks for it, so the review it opens shows the same; without
+// one the review opens on its own default.
 export type StoryReviewRequest = {
-  readonly source: string;
-  readonly identity: string;
+  readonly subject: ReviewedWorkSubject;
   readonly title: string;
   readonly control: HTMLElement;
   readonly completed?: boolean;
@@ -45,8 +50,12 @@ export function useOpenStoryReview(): OpenStoryReview {
   return open;
 }
 
-// Whether two requests name the same story of the same project.
-export const sameStory = (
-  one: Pick<StoryReviewRequest, "source" | "identity">,
-  other: Pick<StoryReviewRequest, "source" | "identity">,
-) => one.source === other.source && one.identity === other.identity;
+// Whether two requests name the same reviewed work of the same project.
+export const sameReviewedWork = (
+  one: Pick<StoryReviewRequest, "subject">,
+  other: Pick<StoryReviewRequest, "subject">,
+) => sameReviewedWorkSubject(one.subject, other.subject);
+
+// Remount key for the panel's review: the subject, and historical reading.
+export const storyReviewPanelKey = (request: StoryReviewRequest) =>
+  `${reviewedWorkKey(request.subject)}\n${String(request.historical === true)}`;

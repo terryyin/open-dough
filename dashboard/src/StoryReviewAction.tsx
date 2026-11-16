@@ -13,8 +13,7 @@ import type { LocalWorkspace } from "./localWorkspace.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import { storyComparisonOffered } from "./storyReviewWorkspace.ts";
 import { useOpenStoryReview } from "./pageStoryReviews.ts";
-import { ArrowRight, GitCompare } from "lucide-react";
-import { Icon } from "./Icon.tsx";
+import { ReviewChangesButton } from "./ReviewChangesButton.tsx";
 import "./story-review.css";
 
 export function StoryReviewAction({
@@ -45,24 +44,15 @@ export function StoryReviewAction({
   )
     return null;
   return (
-    <div>
-      <button
-        type="button"
-        className="start-launch-button"
-        onClick={(event) => {
-          openStoryReview({
-            source: sourceId,
-            identity: work.identity,
-            title: work.title,
-            control: event.currentTarget,
-            ...(completed ? { completed } : {}),
-          });
-        }}
-      >
-        <Icon icon={GitCompare} />
-        Review changes
-        <Icon icon={ArrowRight} />
-      </button>
-    </div>
+    <ReviewChangesButton
+      onClick={(event) => {
+        openStoryReview({
+          subject: { source: sourceId, identity: work.identity },
+          title: work.title,
+          control: event.currentTarget,
+          ...(completed ? { completed } : {}),
+        });
+      }}
+    />
   );
 }

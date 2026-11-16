@@ -17,16 +17,9 @@ export function useStoryReviewRequest(
   // How many times Refresh asked for a new snapshot.
   round: number,
 ) {
-  const {
-    source,
-    identity,
-    completed,
-    historical,
-    comparison: asked,
-  } = request;
+  const { subject, completed, historical, comparison: asked } = request;
   const selection = useStoryReviewSelection({
-    source,
-    identity,
+    subject,
     round,
     completed,
     initial: asked?.chosen,
