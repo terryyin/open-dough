@@ -1,5 +1,5 @@
 ---
-id: SEED-386
+id: SEED-387
 status: active
 planted: 2026-11-16
 planted_during: Retaining SEED-377 deferred promises at wrap-up so they are not deleted with that seed
@@ -7,7 +7,7 @@ trigger_when: selected from the product backlog
 scope: story
 ---
 
-# SEED-386 — Deferred syntax styling follow-ups
+# SEED-387 — Deferred syntax styling follow-ups
 
 Retained from SEED-377#extend-syntax-styling-in-code-diffs scope limits after that
 story delivered path grammars for Markdown, JSON, CSS and YAML.
@@ -16,7 +16,7 @@ story delivered path grammars for Markdown, JSON, CSS and YAML.
 
 ### Style story-review diffs by Intent syntax hint when the path has no grammar
 
-**Identity:** SEED-386#intent-hint-language-for-story-review-diffs
+**Identity:** SEED-387#intent-hint-language-for-story-review-diffs
 
 #### Goal
 
@@ -43,7 +43,7 @@ settings revision; current Intent `sources` already use extensions
 
 ### Emphasize the changed words within a changed line
 
-**Identity:** SEED-386#emphasize-changed-words-in-diff-lines
+**Identity:** SEED-387#emphasize-changed-words-in-diff-lines
 
 #### Goal
 
@@ -64,7 +64,7 @@ types.
 
 ### Share one control to turn syntax styling off or choose a palette
 
-**Identity:** SEED-386#shared-syntax-styling-control
+**Identity:** SEED-387#shared-syntax-styling-control
 
 #### Goal
 
