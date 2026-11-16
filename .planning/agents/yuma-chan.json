@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "identity": "SEED-345#compare-agent-effort-on-comparable-runs",
+  "mode": "story-branch",
+  "branch": "codex/compare-agent-effort-on-comparable-runs",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
