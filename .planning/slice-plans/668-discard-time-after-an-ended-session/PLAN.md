@@ -18,6 +18,9 @@
   `origin/codex/discard-a-slice-s-clock-time-after-its-session-e`, suffix base
   `ad2e6f733dc41b7177bd39ab20fb7b0846f41146`; same candidate, no rewrite;
   observer attachment reused. This is the next previously published base.
+- Slice 2 accepted `06f162bebd4e0766f8cbc8f5d1da45e759b6b55f` on the same
+  execution target; suffix base `66ce0a60d6b5ae2f172667c174b0c1154ef6ba97`,
+  no rewrite, same observer. This supersedes the prior published base.
 - Setup: Node v24.21.0; checkout-local `setup-native.mjs npm`, `browser`,
   and `check` passed, Chromium 158.0.8127.18; existing clock proof passed.
   Selective formatter is `npm run format`; check-only pre-commit runs staged
@@ -114,6 +117,33 @@ another. Edit [track active time](../../../Distribution/src/skills/dough-execute
 and the resume paragraph of
 [continue or recover at an execution boundary](../../../Distribution/src/skills/dough-execute-plan/SKILL.md#continue-or-recover-at-an-execution-boundary);
 the stop-time `pause` rule stays as written.
+
+## Execution complete
+
+Product advice: no change. The bounded clock outcome is delivered; retain the
+existing diagnosis story's priority. No product correction or new story needed.
+
+Retrospective: related published revisions are Take `ad2e6f733`, clock
+`66ce0a60d6`, and guidance `06f162bebd`; earlier preparation is provenance,
+other trunk work excluded. Original source examples and all 20 commitments
+match inspected CLI/tests/guidance. No approval/scope change. Arithmetic,
+record persistence and CLI remain cohesive. ADRs 0003/0005/0006 constrain
+source-only authoring and representative behavior proof; no host integration
+or installation contract changed. Unit tests at real CLI/persistence boundary
+drive the outcome; no browser E2E needed, no obsolete or redundant existing
+case found. Refactor/whitespace and 29-test evidence accepted, CI pending.
+
+Process enabled by project config; coordinator conversation/tool results
+support one additional ODF-329 occurrence in `DearDough.md` (334 physical
+lines), no correction plan. Automatic Intent Coverage not selected: no existing
+tests/assertions/discovery removed, relocated or weakened by the aggregate
+change, and no unresolved important-proof concern. New cases were organized
+before first publication, preserving all assertions. No deferred process review.
+
+Older run 43848821204 for `66ce0a60d6` was superseded by run 43849681170 for
+`06f162bebd`; all older jobs succeeded except cancelled ci-proof, with no failed
+job. Same-branch workflow concurrency cancels superseded runs. Latest applicable
+CI remains pending; completion operation owns the wait and shutdown.
 
 ## Concerns and cumulative design
 
