@@ -12,6 +12,7 @@
 //           periods:  [{ startedAt, endedAt | null }],      started .. paused
 //           commands: [{ id, startedAt, endedAt | null }],  run through the clock
 //           overrunDetectedAt,   set once, when the slice is first seen at the limit
+//           overrunReportedTo: [agent],   agents a host hook told of the overrun
 //         },
 //       },
 //       overruns: [{ slice, detectedAt }],   one per overrun; kept when slices split

@@ -184,7 +184,7 @@ zero while the overrun count stays.
 
 ### 4. Report an overrun after the next tool call on Claude Code and Cursor
 Type: Behavior
-Status: planned
+Status: done
 Proof: `Distribution/tests/skills/dough-execute-plan/slice-clock-hook.test.mjs`;
 existing hook registration specs that load `claude-hooks.json` and
 `cursor-hooks.json`, found by the consumer trace.
@@ -247,6 +247,12 @@ on AC wrap any long run in `caffeinate -s -i`.
   it reuses the old number). Every report carries `overrun` and
   `storyOverruns`, plus `message` at the limit. `status` now writes the
   record, so every reader of a report goes through `updateRecord`.
+- Slice 4's hook, `slice-clock-hook.mjs <claude|cursor>`, finds the checkout
+  from the hook input (`cwd`, then Cursor's `workspace_roots`), so a session
+  working in a linked worktree reads that worktree's clock. Its message ends
+  "Stop and return the unfinished work with the elapsed time." A paused slice
+  gives no hook message. This repository's own installed hooks gain the entry
+  at its next Open Dough update.
 - "Slice clock" also names an unrelated dashboard feature
   (`dashboard/src/SliceClock.tsx`); a `slice-clock` consumer trace matches it.
 

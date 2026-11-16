@@ -73,12 +73,25 @@ export function elapsedMs(entry, now) {
   return total;
 }
 
+// Whether `elapsed` active time is at or past the limit.
+function reachesLimit(elapsed) {
+  return elapsed >= sliceLimitMinutes * minuteMs;
+}
+
+// Whether the slice running in the checkout is at or past the limit. It
+// changes nothing, so a reader can ask before it takes the record to report.
+export function runningSliceReachedLimit(record, now) {
+  if (!record.running) return false;
+  const entry = sliceOf(record, record.running);
+  return entry !== undefined && reachesLimit(elapsedMs(entry, now));
+}
+
 // Counts the slice's overrun in its story the first time it is seen at or
 // past the limit, and returns whether the slice has overrun.
 function overrunSeen(record, named, elapsed, now) {
   const story = record.stories[named.identity];
   const entry = story.slices[named.slice];
-  if (elapsed < sliceLimitMinutes * minuteMs) return false;
+  if (!reachesLimit(elapsed)) return false;
   if (entry.overrunDetectedAt === undefined) {
     entry.overrunDetectedAt = now;
     story.overruns = [
@@ -112,4 +125,16 @@ export function sliceReport(record, named, now) {
     ...report,
     message: `slice ${named.slice} of ${named.identity} reached the ${sliceLimitMinutes}-minute limit: ${report.elapsedMinutes} active minutes`,
   };
+}
+
+// The slice's overrun message for `agent`, once per overrun: undefined while
+// the slice is under the limit and after the agent has been told. Seeing the
+// slice at the limit records its overrun, as `sliceReport` does.
+export function overrunMessageFor(record, named, agent, now) {
+  const report = sliceReport(record, named, now);
+  const entry = sliceOf(record, named);
+  const told = entry.overrunReportedTo ?? [];
+  if (!report.overrun || told.includes(agent)) return undefined;
+  entry.overrunReportedTo = [...told, agent];
+  return report.message;
 }

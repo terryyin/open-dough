@@ -8,12 +8,12 @@ import { timeFileSetting } from "../../src/skills/dough-execute-plan/scripts/sli
 import { makeMe } from "./makeMe.mjs";
 import { materializeLocalCheckout } from "./repository-fixture.mjs";
 
-const script = fileURLToPath(
-  new URL(
-    "../../src/skills/dough-execute-plan/scripts/slice-clock.mjs",
-    import.meta.url,
-  ),
+const scripts = new URL(
+  "../../src/skills/dough-execute-plan/scripts/",
+  import.meta.url,
 );
+const script = fileURLToPath(new URL("slice-clock.mjs", scripts));
+const hookScript = fileURLToPath(new URL("slice-clock-hook.mjs", scripts));
 const dispatchedAt = Date.parse("2026-11-16T09:00:00Z");
 
 function isoAt(minute) {
@@ -67,10 +67,10 @@ export async function executionWorktree(t) {
     shellStepTo: (minute) => `echo ${isoAt(minute)} > "$${timeFileSetting}"`,
   };
   time.at(0);
-  // Runs the real clock command in `cwd` as its own process.
-  const clock = (cwd, ...args) =>
+  // Runs a real clock script in `cwd` as its own process.
+  const node = (cwd, args, stdin = "") =>
     new Promise((done, failed) => {
-      const child = spawn(process.execPath, [script, ...args], {
+      const child = spawn(process.execPath, args, {
         cwd,
         env: { ...process.env, [timeFileSetting]: timeFile },
       });
@@ -92,6 +92,19 @@ export async function executionWorktree(t) {
           result: lines.length === 1 ? JSON.parse(lines[0]) : lines,
         });
       });
+      child.stdin.end(stdin);
     });
-  return { main: repository.integration, worktree, scratch, time, clock };
+  const clock = (cwd, ...args) => node(cwd, [script, ...args]);
+  // Answers one host tool call: the host's hook input goes in on stdin. The
+  // hook runs outside the worktree, so only its input names the checkout.
+  const hook = (host, input) =>
+    node(scratch, [hookScript, host], JSON.stringify(input));
+  return {
+    main: repository.integration,
+    worktree,
+    scratch,
+    time,
+    clock,
+    hook,
+  };
 }
