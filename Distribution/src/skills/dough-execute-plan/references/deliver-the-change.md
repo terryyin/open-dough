@@ -57,6 +57,8 @@ Without publication authority, select local-only and retain its receipt.
    and boundaries, accepted proof/consumer trace and inspected setup/observations,
    plus dispositions since the last pass and the expensive-proof decision with
    same-machine competing owned work and the [failure policy](failure-policy.md).
+   State what the change touched as facts, including the count of tests edited
+   outside its subject, and leave the remedies to the pass.
    Keep formatting and hook-owned lint with the coordinator. Uphold
    decide-before-testing, explicit human verification authority and
    whole-product reach beyond the story's files.
@@ -66,7 +68,8 @@ Without publication authority, select local-only and retain its receipt.
    effects. Reuse confirmed unchanged inspection; accept invalidated proof's rerun
    or replacement under **Accept proof**. A refactor stop, missing marker or
    disposition, contradiction or unresolved proof gap prevents commit. Report
-   unnecessary test runs as deviations.
+   unnecessary test runs as deviations, and carry a returned named follow-up
+   with the slice's learnings into wrap-up.
 3. Run triggered generation unless refactoring already regenerated and verified
    compatible output. Fix source, regenerate and validate affected consumers.
 4. Run selective formatting directly once, including a planning-only no-op, before
