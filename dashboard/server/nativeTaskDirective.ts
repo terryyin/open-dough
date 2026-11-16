@@ -6,9 +6,10 @@ import type { UsageTask } from "./usageRecords.ts";
 function directive(text: string) {
   // Anchored invocations only: AGENTS, injected skills, quotes and transcripts
   // containing a skill name cannot manufacture a task or historical reference.
+  // A command typed without arguments has no <command-args> element.
   const readable = usageUnfencedText(text).trim();
   const command =
-    /^(?:<command-message>[^<]*<\/command-message>\s*)?<command-name>\/(dough-[a-z-]+)<\/command-name>[\s\S]*?<command-args>([^<]*)<\/command-args>/.exec(
+    /^(?:<command-message>[^<]*<\/command-message>\s*)?<command-name>\/(dough-[a-z-]+)<\/command-name>(?:[\s\S]*?<command-args>([^<]*)<\/command-args>|\s*$)/.exec(
       readable,
     );
   const workflow = /^(?:\$|\/)(dough-[a-z-]+)\b([^\n]*)/.exec(readable);
@@ -51,7 +52,7 @@ function directive(text: string) {
 }
 export function nativeTaskDirective(
   content: unknown,
-  context: Omit<NativeTaskFact, "workflow" | "origin" | "requested">,
+  context: Omit<NativeTaskFact, "workflow" | "origin" | "requested" | "turns">,
   first: boolean,
   explicitNative = false,
 ): NativeTaskFact | undefined {
@@ -69,6 +70,7 @@ export function nativeTaskDirective(
   if (!text && assignment.injected)
     return {
       ...context,
+      turns: [context.turnId],
       workflow: null,
       origin: "unknown",
       requested: {},
@@ -106,6 +108,7 @@ export function nativeTaskDirective(
   }
   return {
     ...context,
+    turns: [context.turnId],
     assignmentEvidence,
     workflow: invocation?.[1] ?? null,
     ...(storyReferences.length ? { storyReferences } : {}),

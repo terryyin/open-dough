@@ -149,6 +149,12 @@ export class ClaudeTranscriptBuilder {
     return this.#push(row, options.uuid);
   }
 
+  /** @param {{ uuid: string, name: string }} options slash workflow typed without arguments */
+  withSlashCommand({ uuid, name }) {
+    const content = `<command-message>${name}</command-message>\n<command-name>/${name}</command-name>`;
+    return this.withUser({ uuid, origin: { kind: "human" }, content });
+  }
+
   /**
    * Assistant row with usage. Timestamp defaults in-window; parentUuid to the
    * previous uuid.
@@ -158,18 +164,10 @@ export class ClaudeTranscriptBuilder {
     const parentUuid = this.#resolveParent(options);
     /** @type {Record<string, unknown>} */
     const message = { ...(options.message ?? {}) };
-    if (options.messageId !== undefined) {
-      message.id = options.messageId;
-    }
-    if (options.model !== undefined) {
-      message.model = options.model;
-    }
-    if (options.usage !== undefined) {
-      message.usage = options.usage;
-    }
-    if (options.content !== undefined) {
-      message.content = options.content;
-    }
+    if (options.messageId !== undefined) message.id = options.messageId;
+    if (options.model !== undefined) message.model = options.model;
+    if (options.usage !== undefined) message.usage = options.usage;
+    if (options.content !== undefined) message.content = options.content;
     if ("stopReason" in options) {
       message.stop_reason = options.stopReason;
     }

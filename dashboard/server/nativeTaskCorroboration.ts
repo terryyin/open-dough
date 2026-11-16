@@ -1,13 +1,20 @@
-// Corroborating tool results supply facts, never copied command/output bodies.
-// Only a matched read command or structured completion receipt is recognized.
+// Owns a session's active task: a task-starting fact replaces it and a plain
+// developer input extends its turns. Corroborating tool results supply facts,
+// never copied command/output bodies. Only a matched read command or
+// structured completion receipt is recognized.
 import { completionReceiptSchema } from "../src/completionReport.ts";
-import {
-  nativeText,
-  type NativeTaskFact,
-  type NativeTaskSink,
-} from "./nativeTaskFacts.ts";
+import { nativeAssignmentContent } from "./nativeAssignmentContent.ts";
+import type { NativeTaskFact, NativeTaskSink } from "./nativeTaskFacts.ts";
 import { objectOf, stringOf } from "./nativeUsageFiles.ts";
 import type { UsageSource } from "./usageRecords.ts";
+
+function nativeText(content: unknown): string {
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) return "";
+  return content
+    .map((part: unknown) => stringOf(objectOf(part)["text"]) ?? "")
+    .join("\n");
+}
 
 export function nativeTaskCorroboration(sink?: NativeTaskSink) {
   let active: NativeTaskFact | undefined;
@@ -59,8 +66,31 @@ export function nativeTaskCorroboration(sink?: NativeTaskSink) {
       reads.set(id, source);
   };
   return {
-    task(fact: NativeTaskFact | undefined) {
-      active = fact;
+    /** Whether a supported assignment has started a task in this session. */
+    get started() {
+      return active !== undefined;
+    },
+    /**
+     * A developer input: its directive fact, when it has one, is recorded and
+     * a supported one becomes the active task; other genuine text continues
+     * the active task into `turnId`.
+     */
+    input(fact: NativeTaskFact | undefined, content: unknown, turnId: string) {
+      if (!sink) return;
+      if (fact) {
+        sink(fact);
+        if (
+          fact.assignmentEvidence?.some(({ status }) => status === "supported")
+        )
+          active = fact;
+      } else if (
+        active &&
+        !active.turns.includes(turnId) &&
+        nativeAssignmentContent(content).text
+      ) {
+        active = { ...active, turns: [...active.turns, turnId] };
+        sink(active);
+      }
     },
     row(row: Record<string, unknown>, source: UsageSource) {
       const payload = objectOf(row["payload"]);

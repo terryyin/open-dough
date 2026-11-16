@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-388_count-claude-code-work-after-a-developer-reply.json",
+      "identity": "SEED-388#count-claude-code-work-after-a-developer-reply",
+      "completedAt": "2026-11-16T10:10:17.465Z",
+      "blob": "4ca453f0b47a090e3c781dcd277e751ba6d96a22"
+    },
+    {
       "fileName": "SEED-367_count-slice-active-time-deterministically.json",
       "identity": "SEED-367#count-slice-active-time-deterministically",
       "completedAt": "2026-11-16T09:43:59.040Z",

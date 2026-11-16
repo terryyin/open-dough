@@ -80,7 +80,7 @@ excluded with source gaps and `excludedUnrelatedTasks` /
 Only an actual user workflow directive or supported host command wrapper supplies
 workflow/story intent. Skill documents, fenced examples and incidental names do
 not. The first user assignment can establish a task with unknown metadata;
-ordinary later Claude follow-ups remain ambiguous. Host-injected plugin lists,
+later plain inputs continue the active task. Host-injected plugin lists,
 AGENTS instructions, environment, skill and system context are classified by
 content part before detecting assignments; genuine text in a mixed message
 survives. A native task-start event alone proves lineage, not human intent.
@@ -138,9 +138,9 @@ retains its native `agentId` and joins its root through a recorded agent result
 and parent UUID chain. A native human input's recorded dashboard reporting
 reference (or a retained native input UUID) binds it to a launch. A repeated
 reference can continue that same launch; a different launch reference selects
-another task in the same session. Unclassified human follow-ups have an unknown
-task boundary and remain unassigned with a lineage gap; their parent
-conversation alone does not establish continuing task scope. Missing workers,
+another task in the same session. A plain developer input adds its turn to the
+active task's `nativeTurns`, even after a completion receipt, until a workflow
+invocation or reporting context starts another task. Missing workers,
 root transcripts, unsupported message identities and auxiliary work remain
 explicit coverage gaps. Additional measurements may fill missing counters.
 Conflicting measured values produce unknown affected counters and a
@@ -197,14 +197,13 @@ IDs must match `responseKey(host, sessionId, responseId)`.
 `readUsageHistory(file?)` reads without opening native files. The document is
 serialized in one order (tasks and gaps as first recorded, sessions and entries
 sorted), so equal content gives equal bytes. After normalization, alternating
-import and Refresh over unchanged evidence keep history bytes and totals.
-Failed replacements keep prior history readable; retries count each response once. An unreadable document is preserved and refuses automatic
-overwrite. `read` prints the document. An earlier dashboard's store, a version 1
+import and Refresh over unchanged evidence keep history bytes and totals. Failed replacements keep prior history readable; retries count each response once. An unreadable document is preserved and refuses automatic overwrite. `read` prints the document. An earlier dashboard's store, a version 1
 history or a manifest naming page files in `usage.json.pages/`, is read as the
 starting history, its response rows summed into contributions. The first write,
 an import's or a Refresh's, stores the document in its place, then removes
 `usage.json.pages/` whole; a failed removal is finished by the next write. Back
-up `usage.json` alone. System settings → Usage reads its derived `usage-task-summary.json`: a separate process rebuilds it when absent or
+up `usage.json` alone. A task's stored turns only grow across writes, so to apply
+a changed turn rule, restore that backup and import once. System settings → Usage reads its derived `usage-task-summary.json`: a separate process rebuilds it when absent or
 the document changes, without writing history. Current launch records say whether a launch finished. Refresh (`server/usageRefresh.ts`)
 rereads, with the import's readers, every file of each known Codex or Claude session (`<session>/subagents/` workers included) one of
 whose files changed since `usage-check.json`, or writes only its check record. Checked shows a later history write, otherwise the recorded

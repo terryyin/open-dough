@@ -10,6 +10,7 @@ export type NativeTaskFact = {
   host: "codex" | "claude";
   sessionId: string;
   turnId: string;
+  turns: string[];
   cwd?: string | undefined;
   repository?: string | undefined;
   revision?: string | undefined;
@@ -34,13 +35,6 @@ export type NativeTaskFact = {
     | undefined;
 };
 export type NativeTaskSink = (fact: NativeTaskFact) => void;
-export function nativeText(content: unknown): string {
-  if (typeof content === "string") return content;
-  if (!Array.isArray(content)) return "";
-  return content
-    .map((part: unknown) => stringOf(objectOf(part)["text"]) ?? "")
-    .join("\n");
-}
 export function codexTaskReader(owner: string, sink?: NativeTaskSink) {
   let context: Pick<
     NativeTaskFact,
@@ -50,7 +44,6 @@ export function codexTaskReader(owner: string, sink?: NativeTaskSink) {
   let own = false;
   let worker = false;
   let turn: string | undefined;
-  let first = true;
   return (row: Record<string, unknown>, source: UsageSource) => {
     if (!sink) return;
     const payload = objectOf(row["payload"]);
@@ -97,22 +90,13 @@ export function codexTaskReader(owner: string, sink?: NativeTaskSink) {
         at: timestampOf(row["timestamp"]),
         source,
       },
-      first,
+      !corroboration.started,
       objectOf(row["origin"])["kind"] === "native",
     );
-    if (fact) {
-      sink(fact);
-      if (
-        fact.assignmentEvidence?.some((item) => item.status === "supported")
-      ) {
-        corroboration.task(fact);
-        first = false;
-      }
-    }
+    corroboration.input(fact, content, turn);
   };
 }
 export function claudeTaskReader(sink?: NativeTaskSink) {
-  let first = true;
   const corroboration = nativeTaskCorroboration(sink);
   return (row: Record<string, unknown>, source: UsageSource) => {
     if (row["agentId"]) return;
@@ -130,8 +114,9 @@ export function claudeTaskReader(sink?: NativeTaskSink) {
     const turnId = stringOf(row["uuid"]);
     if (!sessionId || !turnId) return;
     const git = objectOf(row["git"]);
+    const content = objectOf(row["message"])["content"];
     const fact = nativeTaskDirective(
-      objectOf(row["message"])["content"],
+      content,
       {
         host: "claude",
         sessionId,
@@ -143,18 +128,9 @@ export function claudeTaskReader(sink?: NativeTaskSink) {
         repository: stringOf(git["repository_url"]),
         contextSource: source,
       },
-      first,
+      !corroboration.started,
       origin === "native",
     );
-    if (fact) {
-      sink(fact);
-      if (
-        fact.assignmentEvidence?.some((item) => item.status === "supported")
-      ) {
-        corroboration.task(fact);
-        first = false;
-      }
-    } else if (nativeText(objectOf(row["message"])["content"]).trim())
-      corroboration.task(undefined);
+    corroboration.input(fact, content, turnId);
   };
 }
