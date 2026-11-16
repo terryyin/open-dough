@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 
 - [Fixed pattern shards for the Distribution suite](seeds/SEED-381-fixed-ci-test-shards.md#fixed-pattern-shards-for-the-distribution-suite) — SEED-381#fixed-pattern-shards-for-the-distribution-suite
 - [Fixed shards for browser tests and on-demand rebalancing](seeds/SEED-381-fixed-ci-test-shards.md#fixed-shards-for-browser-tests-and-on-demand-rebalancing) — SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing
+- [Keep browser test jobs inside their deadline on slow runners](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#browser-test-job-headroom-on-slow-runners) — SEED-382#browser-test-job-headroom-on-slow-runners
 - [Review changes from completed ad hoc sessions](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions) — SEED-379#review-changes-from-completed-ad-hoc-sessions
 - [Extend syntax styling in code diffs](seeds/SEED-377-extend-syntax-styling-in-code-diffs.md#extend-syntax-styling-in-code-diffs) — SEED-377#extend-syntax-styling-in-code-diffs
 - [Remove the obsolete native revision opener](seeds/SEED-334-product-wide-end-to-end-tests.md#remove-obsolete-native-revision-opener) — SEED-334#remove-obsolete-native-revision-opener
