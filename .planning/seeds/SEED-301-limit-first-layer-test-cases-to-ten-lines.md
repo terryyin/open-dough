@@ -42,22 +42,43 @@ line counting.
 
 **Identity:** SEED-301#serve-frontend-dashboard-answers-through-makeme
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/655-serve-frontend-dashboard-answers-through-makeme/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"79232af8186cfffd6e58d648954a06ac2408acd100052e08468c9e6a2f1d0157","plan":"c11f125bf27333c447a9b5963b1cdb9ae600664e8a8ecf85b8dbba76cab4c1ca"}}
 ```
 
-**Goal:** Dashboard Frontend Tests arrange what the substitute dashboard
-services answer through MakeMe builder steps, so a spec states its machine,
-host status, published stories, Intent sources and observed launches without
-importing a separate `putFrontend…` helper for each.
+**Goal:** Dashboard Frontend Tests state what the dashboard's machine
+answers (observed launches, attempts, offers, creations) and the host status
+through MakeMe steps and the `frontendServices` fixture they already hold,
+instead of importing a `putFrontend…` or `observed…` helper for each.
 
-**Scope:** The `frontendServices` arrangement helpers in
-`dashboard/tests/support` (`putFrontendMachine` in 83 places,
-`putFrontendIntentSources`, `putFrontendIntentStory`,
-`putFrontendObservedLaunches`, `putFrontendPublished`, `putFrontendStories`,
-`putFrontendHostStatus`, `putFrontendCandidates`, direct
-`Object.assign(frontendServices, …)`) and their specs. Builders stay free of
-runtime `dashboard/` imports; serving stays a harness fixture, as
-`comparisonServices.serve(story)` does for compared stories.
+**Scope:**
+
+- In: the machine and host answers of `frontendServices`:
+  `putFrontendMachine` (42 files), `putFrontendObservedLaunches`,
+  `observedDone`, `observedOpen`, `putFrontendHostStatus` and
+  `putFrontendThreeProjects`, with their specs and the support modules that
+  wrap them. The observed state of a launch becomes a step of
+  `makeMe.aMachineAnswer` (observing a launch done for review, done with its
+  session unavailable, or open and working); the fixture answers what the
+  case built (`frontendServices.answerMachine(answer)`, `.answerHostStatus`,
+  `.listProjects`), as `comparisonServices.serve(story)` does for compared
+  stories. Builders keep no runtime `dashboard/` import.
+- Out: published project answers (Intent sources, Intent story, published
+  backlog and stories, candidates, done records), which
+  [Publish Intent projects through MakeMe](#publish-intent-projects-through-makeme)
+  takes.
+
+**Key examples:**
+
+- The Recently done sidebar case arranges five launches with one call:
+  `frontendServices.answerMachine(makeMe.aMachineAnswer.observingDone(newest,
+  middle).observingUnavailable(oldestShown, unattached).observingOpen(stillOpen).please())`,
+  and imports neither `putFrontendObservedLaunches`, `observedDone` nor
+  `observedOpen`.
+- A launch case that answers attempts keeps `makeMe.aMachineAnswer.answeringAttempts(…)`
+  and hands it to `frontendServices.answerMachine`, importing no
+  `putFrontendMachine`.
+- An unread machine stays expressible: `frontendServices.answerMachine(undefined)`.
+- Every changed spec keeps its scenario facts and expectations and passes.
 
 <a id="publish-intent-projects-through-makeme"></a>
 
@@ -76,6 +97,10 @@ through MakeMe steps instead of importing many fixture constants and
 
 **Scope:** `dashboard/tests/catalogProjectRecords.ts`,
 `intentCodeBrowseFixtures.ts`, `intentCandidates*Fixtures.ts` and the Intent
-frontend specs importing them. Moving these into
+frontend specs importing them, and the published-project answers of
+`frontendServices` (`putFrontendIntentSources`, `putFrontendFolderSources`,
+`putFrontendIntentStory`, `putFrontendPublished`, `putFrontendStories`,
+`putFrontendCandidates`, `putFrontendDonePublication`,
+`putFrontendDoneRecords`). Moving these into
 `Distribution/tests/support` needs their runtime `dashboard/` imports
 replaced by Distribution renderers first.
