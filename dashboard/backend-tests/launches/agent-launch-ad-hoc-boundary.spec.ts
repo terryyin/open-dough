@@ -15,6 +15,7 @@ import {
   machineSessions,
   openDoughFolder,
 } from "../../tests/agentLaunchBoundary.ts";
+import { claudeLaunch } from "../../tests/support/claudeLaunch.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -38,7 +39,8 @@ test.describe(`agent launch boundary, ad hoc`, () => {
     await server.close();
   });
 
-  // Launches and returns the answered record and the `--bg` call's argv.
+  // Launches and returns the answered record, the `--bg` call's argv and the
+  // launch read from it.
   async function launched(instruction?: string) {
     server.claudeScenario("launched");
     const callsBefore = server.claudeCalls().length;
@@ -57,7 +59,11 @@ test.describe(`agent launch boundary, ad hoc`, () => {
     expect(answer.kind).toBe("launched");
     const call = server.claudeCalls()[callsBefore];
     expect(call?.cwd).toBe(openDoughFolder(server));
-    return { record: answer.record, argv: call?.argv };
+    return {
+      record: answer.record,
+      argv: call?.argv,
+      started: call && claudeLaunch(call),
+    };
   }
 
   test("starts a session named for the text, keeps the label, and lists it", async () => {
@@ -73,9 +79,8 @@ test.describe(`agent launch boundary, ad hoc`, () => {
       "medium",
       text,
     ]);
-    expect(record.request).toEqual({
+    expect(record.request).toMatchObject({
       ...adHocRequest,
-      effort: "medium",
       title: label,
       instruction: text,
     });
@@ -90,14 +95,12 @@ test.describe(`agent launch boundary, ad hoc`, () => {
     ["only spaces", "   "],
   ] as const) {
     test(`starts a session with no prompt for ${blank}, named for the launch time`, async () => {
-      const { record, argv } = await launched(instruction);
+      const { record, started } = await launched(instruction);
 
-      expect(argv).toHaveLength(5);
-      expect(argv?.slice(0, 2)).toEqual(["--bg", "--name"]);
-      expect(argv?.[2]).toBe(
+      expect(started).not.toHaveProperty("instruction");
+      expect(started?.name).toBe(
         `Open Dough · Ad hoc · ${String(record.request["title"])}`,
       );
-      expect(argv?.slice(3)).toEqual(["--effort", "medium"]);
       expect(record.request["title"]).toMatch(timeLabel);
     });
   }
@@ -105,27 +108,23 @@ test.describe(`agent launch boundary, ad hoc`, () => {
   test("cuts a long multi-line text to 40 characters and sends it as typed", async () => {
     const text =
       "Investigate the\n\tslow\t\tbuild step and why\r\nit regressed lately";
-    const { record, argv } = await launched(text);
+    const { record, started } = await launched(text);
 
     expect(record.request["title"]).toBe(
       "Investigate the slow build step and why …",
     );
-    expect(argv).toEqual([
-      "--bg",
-      "--name",
-      `Open Dough · Ad hoc · ${String(record.request["title"])}`,
-      "--effort",
-      "medium",
-      text,
-    ]);
+    expect(started).toMatchObject({
+      name: `Open Dough · Ad hoc · ${String(record.request["title"])}`,
+      instruction: text,
+    });
   });
 
   test("names the session for the launch time when the text holds a control character", async () => {
     const text = "beep\u0007 please";
-    const { record, argv } = await launched(text);
+    const { record, started } = await launched(text);
 
     expect(record.request["title"]).toMatch(timeLabel);
-    expect(argv?.[5]).toBe(text);
+    expect(started?.instruction).toBe(text);
   });
 
   for (const refused of [

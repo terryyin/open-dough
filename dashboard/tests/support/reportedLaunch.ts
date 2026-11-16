@@ -77,7 +77,7 @@ async function reportedLaunch(
     ),
   );
   if (answer.kind !== "launched") throw new Error("The launch did not launch.");
-  const input = dashboard.claudeLaunchCalls()[before]?.argv.at(-1) ?? "";
+  const input = dashboard.claudeLaunches()[before]?.instruction ?? "";
   return {
     sessionId: answer.record.session.sessionId,
     report: reportingThrough(origin, input),

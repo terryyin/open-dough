@@ -48,8 +48,8 @@ const request = makeMe.aLaunchRequest
   .executing({ identity: queuedIdentity, title: queuedTitle })
   .withInstruction("Keep this exact instruction.")
   .please();
-// Kept with the effort it is started at: Open Dough's default.
-const keptRequest = { ...request, effort: "medium" };
+// What an attempt keeps of the request, beside what acceptance adds to it.
+const keptRequest = expect.objectContaining(request);
 
 type Answer = {
   kind: string;

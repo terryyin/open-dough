@@ -17,7 +17,6 @@ import {
   machineSessions,
   openDoughFolder,
   refinementRequest,
-  title,
 } from "../../tests/agentLaunchBoundary.ts";
 import { closeOpenSessions } from "../../tests/openStorySessionSetup.ts";
 import { repoRoot } from "../../tests/support/repositoryRoot.ts";
@@ -75,7 +74,7 @@ test.describe(`agent launch boundary, selected options`, () => {
       ],
     });
 
-  // Launches and returns the answered record and the `--bg` argv.
+  // Launches and returns the answered record and the launch `claude` ran.
   async function launched(body: unknown) {
     await closeOpenSessions(server);
     server.claudeScenario("launched");
@@ -89,7 +88,10 @@ test.describe(`agent launch boundary, selected options`, () => {
     expect(answer.kind).toBe("launched");
     const calls = server.claudeLaunchCalls();
     expect(calls).toHaveLength(callsBefore + 1);
-    return { record: answer.record, argv: calls[callsBefore]?.argv };
+    return {
+      record: answer.record,
+      started: server.claudeLaunches()[callsBefore],
+    };
   }
 
   // The refusal's text, with no `claude` run for it.
@@ -105,20 +107,15 @@ test.describe(`agent launch boundary, selected options`, () => {
   }
 
   test("starts the session with the selected flags in the definition's order, then the developer's text, and keeps them", async () => {
-    const { record, argv } = await launched({
+    const { record, started } = await launched({
       ...refinementRequest,
       options: [borrowed, explored],
       instruction: "go",
     });
 
-    expect(argv).toEqual([
-      "--bg",
-      "--name",
-      `Open Dough · Refinement · ${title}`,
-      "--effort",
-      "medium",
+    expect(started?.instruction).toBe(
       `/${skill} ${launchRequest.identity} ${explored} ${borrowed}\n\ngo`,
-    ]);
+    );
     expect(record.request["options"]).toEqual([explored, borrowed]);
     expect(await machineSessions(server)).toContainEqual(
       expect.objectContaining({
@@ -128,19 +125,16 @@ test.describe(`agent launch boundary, selected options`, () => {
   });
 
   test("selects a focus beside an option with the model before the instruction", async () => {
-    const { argv } = await launched({
+    const { started } = await launched({
       ...refinementRequest,
       model: "opus",
       options: ["--ux-ui", explored],
     });
 
-    expect(argv?.slice(3)).toEqual([
-      "--model",
-      "opus",
-      "--effort",
-      "medium",
-      `/${skill} ${launchRequest.identity} ${explored} --ux-ui`,
-    ]);
+    expect(started).toMatchObject({
+      model: "opus",
+      instruction: `/${skill} ${launchRequest.identity} ${explored} --ux-ui`,
+    });
   });
 
   test("starts as before with no options, and its record has none", async () => {
@@ -148,15 +142,8 @@ test.describe(`agent launch boundary, selected options`, () => {
       refinementRequest,
       { ...refinementRequest, options: [] },
     ]) {
-      const { record, argv } = await launched(body);
-      expect(argv).toEqual([
-        "--bg",
-        "--name",
-        `Open Dough · Refinement · ${title}`,
-        "--effort",
-        "medium",
-        `/${skill} ${launchRequest.identity}`,
-      ]);
+      const { record, started } = await launched(body);
+      expect(started?.instruction).toBe(`/${skill} ${launchRequest.identity}`);
       expect(record.request["options"] ?? []).toEqual([]);
     }
   });
@@ -175,11 +162,13 @@ test.describe(`agent launch boundary, selected options`, () => {
     expect(
       await refused({ ...refinementRequest, options: [explored] }),
     ).toContain(explored);
-    const { argv } = await launched({
+    const { started } = await launched({
       ...refinementRequest,
       options: ["--only"],
     });
-    expect(argv?.at(-1)).toBe(`/${skill} ${launchRequest.identity} --only`);
+    expect(started?.instruction).toBe(
+      `/${skill} ${launchRequest.identity} --only`,
+    );
   });
 
   for (const [kind, remove] of [

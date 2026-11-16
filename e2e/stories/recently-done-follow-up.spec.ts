@@ -142,9 +142,9 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
       }),
     ).toBeVisible();
     await expect(dialog).toBeHidden();
-    const [call, ...others] = dashboard.claudeLaunchCalls();
+    const [started, ...others] = dashboard.claudeLaunches();
     expect(others).toEqual([]);
-    expect(call?.argv.at(-1)).toBe(
+    expect(started?.instruction).toBe(
       [storyContextOf(recoverStory, completedAt, "quiet sessions"), text].join(
         "\n\n",
       ),

@@ -69,7 +69,7 @@ test("deleted early Claude binding cannot be resurrected before attempt settleme
       .poll(() => server.claudeLaunchCalls().length, { timeout: 30_000 })
       .toBe(1);
     const command = /^- reporting command: (.+)$/m.exec(
-      server.claudeLaunchCalls()[0]?.argv.at(-1) ?? "",
+      server.claudeLaunches()[0]?.instruction ?? "",
     )?.[1];
     if (command === undefined) throw new Error("No supplied channel");
     const report = await reportingChild(

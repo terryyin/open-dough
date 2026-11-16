@@ -152,7 +152,7 @@ test("a final report longer than the instruction field's limit is sent whole bes
   );
 
   expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  const input = dashboard.claudeLaunchCalls()[0]?.argv.at(-1) ?? "";
+  const input = dashboard.claudeLaunches()[0]?.instruction ?? "";
   expect(input).toContain(`- Final report (Completed with attention): ${long}`);
   expect(input.split("\n\n")).toContain(text);
 });

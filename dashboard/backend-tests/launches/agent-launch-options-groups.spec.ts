@@ -86,15 +86,15 @@ test.describe(`agent launch boundary, exclusive option groups`, () => {
       .with({ id: "pair", label: "Pair", flags })
       .please();
 
-  const argvOf = async (options: string[]) => {
+  const instructionOf = async (options: string[]) => {
     await closeOpenSessions(server);
     server.claudeScenario("launched");
     const callsBefore = server.claudeLaunchCalls().length;
     const response = await launch(server, { ...refinementRequest, options });
     expect(response.status, response.body).toBe(200);
-    const calls = server.claudeLaunchCalls();
-    expect(calls).toHaveLength(callsBefore + 1);
-    return calls[callsBefore]?.argv.at(-1);
+    const launches = server.claudeLaunches();
+    expect(launches).toHaveLength(callsBefore + 1);
+    return launches[callsBefore]?.instruction;
   };
 
   // The refusal's text, with no `claude` run and no record for it.
@@ -111,7 +111,7 @@ test.describe(`agent launch boundary, exclusive option groups`, () => {
 
   test("launches a free flag beside one flag of the group, in the definition's order", async () => {
     defineWith([group(a, b)]);
-    expect(await argvOf([c, a])).toBe(
+    expect(await instructionOf([c, a])).toBe(
       `/${skill} ${launchRequest.identity} ${a} ${c}`,
     );
   });
@@ -122,7 +122,7 @@ test.describe(`agent launch boundary, exclusive option groups`, () => {
       [[b], b],
       [[c], c],
     ] as const) {
-      expect(await argvOf([...selection])).toBe(
+      expect(await instructionOf([...selection])).toBe(
         `/${skill} ${launchRequest.identity} ${shown}`,
       );
     }
@@ -140,7 +140,7 @@ test.describe(`agent launch boundary, exclusive option groups`, () => {
     defineWith([group(a, b), { ...group(c, "--d"), id: "other" }], {
       focuses: [c, "--d"],
     });
-    expect(await argvOf([a, c])).toBe(
+    expect(await instructionOf([a, c])).toBe(
       `/${skill} ${launchRequest.identity} ${a} ${c}`,
     );
     expect(await refused([c, "--d"])).toContain(`${c} and --d`);

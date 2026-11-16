@@ -83,7 +83,7 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
       );
       expect(dashboard.claudeLaunchCalls()).toHaveLength(2);
       expect(
-        dashboard.claudeLaunchCalls().map((call) => call.argv.at(-1)),
+        dashboard.claudeLaunches().map((each) => each.instruction),
       ).toEqual([
         `/dough-execute-plan SEED-B#b\n\n${draft}`,
         `/dough-execute-plan SEED-B#b\n\n${draft}`,

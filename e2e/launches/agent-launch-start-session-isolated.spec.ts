@@ -145,12 +145,12 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
 
   // The session opened in the worktree; its first message is the block, the
   // reporting context, then the developer's text.
-  const [call, ...others] = dashboard.claudeLaunchCalls();
+  const [started, ...others] = dashboard.claudeLaunches();
   expect(others).toEqual([]);
-  expect(call?.cwd).toBe(realpathSync(worktree(origin.project, slug)));
-  const sent = call?.argv.slice(5) ?? [];
-  expect(sent).toHaveLength(1);
-  const [block, reporting, ...developer] = (sent[0] ?? "").split("\n\n");
+  expect(started?.cwd).toBe(realpathSync(worktree(origin.project, slug)));
+  const [block, reporting, ...developer] = (started?.instruction ?? "").split(
+    "\n\n",
+  );
   expect(block).toBe(sessionBlock(session));
   expectReportingBlock(reporting, record.request, dashboard);
   expect(developer).toEqual([text]);

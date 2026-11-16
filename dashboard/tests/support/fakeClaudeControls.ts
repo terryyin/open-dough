@@ -3,6 +3,7 @@
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { appendedRecords } from "./appendedRecords.ts";
+import { claudeLaunch, type ClaudeLaunch } from "./claudeLaunch.ts";
 import {
   fakeClaudeListing,
   type ClaudeListingControls,
@@ -56,6 +57,8 @@ export type FakeClaudeControls = ClaudeListingControls & {
   // The `claude --bg` launches alone, without the session listings, attaches,
   // stops, and removals the page also runs.
   claudeLaunchCalls(): ClaudeCall[];
+  // Those launches read by option name and instruction (`./claudeLaunch.ts`).
+  claudeLaunches(): ClaudeLaunch[];
   // The native `claude stop` calls alone, oldest first, whatever asked for them.
   claudeStopCalls(): ClaudeCall[];
   // The native `claude rm` calls alone, oldest first.
@@ -168,6 +171,7 @@ export function fakeClaudeControls(
     home,
     claudeCalls,
     claudeLaunchCalls: () => callsOf("--bg"),
+    claudeLaunches: () => callsOf("--bg").map(claudeLaunch),
     claudeStopCalls: () => callsOf("stop"),
     claudeRemovalCalls: () => callsOf("rm"),
     claudeLaunchEnvironments: () =>

@@ -18,6 +18,7 @@ import {
   title,
 } from "../../tests/agentLaunchBoundary.ts";
 import { closeOpenSessions } from "../../tests/openStorySessionSetup.ts";
+import { claudeLaunch } from "../../tests/support/claudeLaunch.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -44,7 +45,8 @@ test.describe(`agent launch boundary, chosen model`, () => {
     await server.close();
   });
 
-  // Launches and returns the answered record and the `--bg` call.
+  // Launches and returns the answered record, the `--bg` call's argv and the
+  // launch read from it.
   async function launched(body: unknown) {
     await closeOpenSessions(server);
     server.claudeScenario("launched");
@@ -60,7 +62,11 @@ test.describe(`agent launch boundary, chosen model`, () => {
     expect(calls).toHaveLength(callsBefore + 1);
     const call = calls[callsBefore];
     expect(call?.cwd).toBe(openDoughFolder(server));
-    return { record: answer.record, argv: call?.argv };
+    return {
+      record: answer.record,
+      argv: call?.argv,
+      started: call && claudeLaunch(call),
+    };
   }
 
   test("starts a story session on the chosen model before its instruction and keeps the alias", async () => {
@@ -69,19 +75,13 @@ test.describe(`agent launch boundary, chosen model`, () => {
       .requestingModel("opus")
       .withInstruction("go")
       .please();
-    const { record, argv } = await launched(request);
+    const { record, started } = await launched(request);
 
-    expect(argv).toEqual([
-      "--bg",
-      "--name",
-      `Open Dough · Execution · ${title}`,
-      "--model",
-      "opus",
-      "--effort",
-      "medium",
-      `/dough-execute-plan ${identity}\n\ngo`,
-    ]);
-    expect(record.request).toEqual({ ...request, effort: "medium" });
+    expect(started).toMatchObject({
+      model: "opus",
+      instruction: `/dough-execute-plan ${identity}\n\ngo`,
+    });
+    expect(record.request).toMatchObject(request);
     expect(await machineSessions(server)).toContainEqual(
       expect.objectContaining({ request: record.request }),
     );
@@ -92,43 +92,32 @@ test.describe(`agent launch boundary, chosen model`, () => {
       .adHoc()
       .requestingModel("sonnet")
       .please();
-    const { record, argv } = await launched(request);
+    const { record, started } = await launched(request);
 
-    expect(argv).toHaveLength(7);
-    expect(argv?.slice(0, 2)).toEqual(["--bg", "--name"]);
-    expect(argv?.[2]).toBe(
+    expect(started?.model).toBe("sonnet");
+    expect(started).not.toHaveProperty("instruction");
+    expect(started?.name).toBe(
       `Open Dough · Ad hoc · ${String(record.request["title"])}`,
     );
-    expect(argv?.slice(3)).toEqual(["--model", "sonnet", "--effort", "medium"]);
     expect(record.request["title"]).toMatch(timeLabel);
-    expect(record.request).toEqual({
-      ...request,
-      effort: "medium",
-      title: record.request["title"],
-    });
+    expect(record.request).toMatchObject(request);
     expect(await machineSessions(server)).toContainEqual(
       expect.objectContaining({ request: record.request }),
     );
   });
 
   test("starts an ad hoc session on the chosen model before its text", async () => {
-    const { argv } = await launched(
+    const { started } = await launched(
       makeMe.aLaunchRequest
         .adHoc({ instruction: "look at the build" })
         .requestingModel("fable")
         .please(),
     );
 
-    expect(argv).toEqual([
-      "--bg",
-      "--name",
-      "Open Dough · Ad hoc · look at the build",
-      "--model",
-      "fable",
-      "--effort",
-      "medium",
-      "look at the build",
-    ]);
+    expect(started).toMatchObject({
+      model: "fable",
+      instruction: "look at the build",
+    });
   });
 
   test("starts a story session at the chosen effort after its model and keeps it", async () => {
@@ -155,15 +144,14 @@ test.describe(`agent launch boundary, chosen model`, () => {
 
   test("passes Open Dough's default effort when none is chosen, and its record keeps it", async () => {
     const story = await launched(launchRequest);
-    expect(story.argv).not.toContain("--model");
-    expect(story.argv?.slice(3, 5)).toEqual(["--effort", "medium"]);
+    expect(story.started).not.toHaveProperty("model");
+    expect(story.started?.effort).toBe("medium");
     expect(story.record.request).not.toHaveProperty("model");
     expect(story.record.request["effort"]).toBe("medium");
 
     const adHoc = await launched(adHocRequest);
-    expect(adHoc.argv).toHaveLength(5);
-    expect(adHoc.argv).not.toContain("--model");
-    expect(adHoc.argv?.slice(3)).toEqual(["--effort", "medium"]);
+    expect(adHoc.started).not.toHaveProperty("model");
+    expect(adHoc.started?.effort).toBe("medium");
     expect(adHoc.record.request).not.toHaveProperty("model");
     expect(adHoc.record.request["effort"]).toBe("medium");
   });

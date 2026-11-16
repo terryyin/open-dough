@@ -141,17 +141,11 @@ export async function typedStart(dashboard: DashboardServer, dialog: Locator) {
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect(dialog).toBeHidden();
   await expect
-    .poll(() => dashboard.claudeLaunchCalls())
-    .toEqual([
+    .poll(() => dashboard.claudeLaunches())
+    .toMatchObject([
       {
-        argv: [
-          "--bg",
-          "--name",
-          "Open Dough · Ad hoc · Keep this work local Review before imple…",
-          "--effort",
-          "medium",
-          text,
-        ],
+        name: "Open Dough · Ad hoc · Keep this work local Review before imple…",
+        instruction: text,
         cwd: realpathSync(path.join(dashboard.home, "git", "open-dough")),
       },
     ]);

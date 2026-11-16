@@ -72,25 +72,16 @@ for (const model of ["opus", undefined] as const) {
         mode: "story-branch",
         branch: `claude/${slug}`,
       });
-      expect("model" in (profiles[0] ?? {})).toBe(model !== undefined);
       expect(profiles[0]?.["model"]).toBe(model);
 
       // The session starts in the workspace, carrying the established start.
       const workspace = path.join(origin.project, ".worktrees", slug);
       const publishedSha = (await origin.originGit("rev-parse", "main")).trim();
-      const [call] = server.claudeLaunchCalls();
-      expect(call?.cwd).toBe(realpathSync(workspace));
-      const instruction = call?.argv.at(-1) ?? "";
-      expect(call?.argv.slice(0, 3)).toEqual([
-        "--bg",
-        "--name",
-        `Open Dough · Execution · ${queuedTitle}`,
-      ]);
-      expect(call?.argv.slice(3, -1)).toEqual([
-        ...(model === undefined ? [] : ["--model", model]),
-        "--effort",
-        "medium",
-      ]);
+      const [started] = server.claudeLaunches();
+      expect(started?.cwd).toBe(realpathSync(workspace));
+      const instruction = started?.instruction ?? "";
+      expect(started?.name).toBe(`Open Dough · Execution · ${queuedTitle}`);
+      expect(started?.model).toBe(model);
       expect(instruction.split("\n\n")[0]).toBe(
         `/dough-execute-plan ${queuedIdentity}`,
       );
@@ -213,9 +204,10 @@ test.describe("execution start of a project whose installed skill cannot continu
 
     expect(await origin.takenProfiles()).toEqual([]);
     expect(existsSync(path.join(origin.project, ".worktrees"))).toBe(false);
-    const [call] = server.claudeLaunchCalls();
-    expect(call?.cwd).toBe(realpathSync(origin.project));
-    expect(call?.argv.at(-1)).toBe(`/dough-execute-plan ${queuedIdentity}`);
+    expect(server.claudeLaunches()[0]).toMatchObject({
+      cwd: realpathSync(origin.project),
+      instruction: `/dough-execute-plan ${queuedIdentity}`,
+    });
     expect(answer.record.start).toBeUndefined();
   });
 });

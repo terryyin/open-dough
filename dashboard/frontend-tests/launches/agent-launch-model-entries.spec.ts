@@ -47,45 +47,53 @@ async function throughReload(page: Page, expectWords: () => Promise<void>) {
   await expectWords();
 }
 
-for (const [model, name, words] of [
-  ["opus", "Opus", requested("Opus")],
-  [undefined, "Default", undefined],
-] as const) {
-  test(`a story session launched on ${name} ${
-    words === undefined ? "shows no model" : "says so"
-  } on its card and in the sidebar, through a reload`, async ({
-    page,
-    frontendServices,
-  }) => {
-    const record = frontendStoryLaunch("executing", readyStory);
-    frontendServices.answerMachine(
-      working(
-        (model === undefined ? record : record.requestingModel(model)).please(),
-      ),
-    );
-    const { recentlyDone } = parts(page);
-    const { sidebar } = sessionsSidebarParts(page);
-
-    await throughReload(page, async () => {
-      const entry = storyCardSessions(backlogLaunchers(page).card(readyStory));
-      await expect(recentlyDone.getByRole("article")).toHaveCount(0);
-      await openSessionsSidebar(page);
-      await expect(entry).toHaveCount(1);
-      await expect(entry).toContainText("Execution");
-      const row = sidebar.getByRole("listitem");
-      await expect(row).toHaveCount(1);
-      const tooltip = sessionsSidebarSessionEntryTooltipOf(row);
-      await expect(tooltip).toHaveAttribute("title", /Execution/);
-      if (words === undefined) {
-        await expect(entry).not.toContainText("Model:");
-        await expect(tooltip).not.toHaveAttribute("title", /Model:/);
-      } else {
-        await expect(entry).toContainText(words);
-        await expectTooltipLine(row, words);
-      }
-    });
-  });
+// A story's one session entry on its card and its row in the open sidebar.
+async function cardEntryAndSidebarRow(page: Page) {
+  const entry = storyCardSessions(backlogLaunchers(page).card(readyStory));
+  await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(0);
+  await openSessionsSidebar(page);
+  await expect(entry).toHaveCount(1);
+  await expect(entry).toContainText("Execution");
+  const row = sessionsSidebarParts(page).sidebar.getByRole("listitem");
+  await expect(row).toHaveCount(1);
+  const tooltip = sessionsSidebarSessionEntryTooltipOf(row);
+  await expect(tooltip).toHaveAttribute("title", /Execution/);
+  return { entry, row, tooltip };
 }
+
+test("a story session launched on Opus says so on its card and in the sidebar, through a reload", async ({
+  page,
+  frontendServices,
+}) => {
+  frontendServices.answerMachine(
+    working(
+      frontendStoryLaunch("executing", readyStory)
+        .requestingModel("opus")
+        .please(),
+    ),
+  );
+
+  await throughReload(page, async () => {
+    const { entry, row } = await cardEntryAndSidebarRow(page);
+    await expect(entry).toContainText(requested("Opus"));
+    await expectTooltipLine(row, requested("Opus"));
+  });
+});
+
+test("a story session launched on Default shows no model on its card and in the sidebar, through a reload", async ({
+  page,
+  frontendServices,
+}) => {
+  frontendServices.answerMachine(
+    working(frontendStoryLaunch("executing", readyStory).please()),
+  );
+
+  await throughReload(page, async () => {
+    const { entry, tooltip } = await cardEntryAndSidebarRow(page);
+    await expect(entry).not.toContainText("Model:");
+    await expect(tooltip).not.toHaveAttribute("title", /Model:/);
+  });
+});
 
 test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, through a reload", async ({
   page,
@@ -118,36 +126,41 @@ test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, 
   });
 });
 
-for (const [effort, words] of [
-  ["max", "Effort: max (requested)"],
-  [undefined, undefined],
-] as const) {
-  test(`a story session ${
-    effort === undefined
-      ? "recorded without an effort shows no effort line"
-      : `started at ${effort} names it`
-  } in its Session details, through a reload`, async ({
-    page,
-    frontendServices,
-  }) => {
-    const launch = frontendStoryLaunch("executing", readyStory);
-    const record = (
-      effort === undefined ? launch : launch.requestingEffort(effort)
-    ).please();
-    frontendServices.answerMachine(working(record));
-
-    await throughReload(page, async () => {
-      const entry = storyCardSessions(backlogLaunchers(page).card(readyStory));
-      await expect(entry).toHaveCount(1);
-      await sessionDetails(entry);
-      await expect(
-        sessionIdLineOf(entry, record.session.sessionId),
-      ).toBeVisible();
-      if (words === undefined) {
-        await expect(entry).not.toContainText("Effort:");
-      } else {
-        await expect(entry.getByText(words, { exact: true })).toBeVisible();
-      }
-    });
-  });
+// A story's one session entry with its Session details open.
+async function entryWithDetails(page: Page, record: LaunchRecord) {
+  const entry = storyCardSessions(backlogLaunchers(page).card(readyStory));
+  await expect(entry).toHaveCount(1);
+  await sessionDetails(entry);
+  await expect(sessionIdLineOf(entry, record.session.sessionId)).toBeVisible();
+  return entry;
 }
+
+test("a story session started at max names it in its Session details, through a reload", async ({
+  page,
+  frontendServices,
+}) => {
+  const record = frontendStoryLaunch("executing", readyStory)
+    .requestingEffort("max")
+    .please();
+  frontendServices.answerMachine(working(record));
+
+  await throughReload(page, async () => {
+    const entry = await entryWithDetails(page, record);
+    await expect(
+      entry.getByText("Effort: max (requested)", { exact: true }),
+    ).toBeVisible();
+  });
+});
+
+test("a story session recorded without an effort shows no effort line in its Session details, through a reload", async ({
+  page,
+  frontendServices,
+}) => {
+  const record = frontendStoryLaunch("executing", readyStory).please();
+  frontendServices.answerMachine(working(record));
+
+  await throughReload(page, async () => {
+    const entry = await entryWithDetails(page, record);
+    await expect(entry).not.toContainText("Effort:");
+  });
+});

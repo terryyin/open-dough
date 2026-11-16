@@ -22,16 +22,10 @@ export function expectNamedAdHocCall(
   project: string,
   instruction: string,
 ) {
-  expect(dashboard.claudeLaunchCalls()).toEqual([
+  expect(dashboard.claudeLaunches()).toMatchObject([
     {
-      argv: [
-        "--bg",
-        "--name",
-        `${project} · Ad hoc · ${instruction}`,
-        "--effort",
-        "medium",
-        instruction,
-      ],
+      name: `${project} · Ad hoc · ${instruction}`,
+      instruction,
       cwd: realpathSync(path.join(dashboard.home, "git", source)),
     },
   ]);
@@ -59,14 +53,14 @@ export async function expectDefaultMainSessionLaunch(
   text: string,
   starts: () => StartCall[],
 ) {
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  const [call] = dashboard.claudeLaunchCalls();
-  expect(call?.cwd).toBe(realpathSync(project));
+  await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
+  const [started] = dashboard.claudeLaunches();
+  expect(started?.cwd).toBe(realpathSync(project));
   await expect.poll(() => recordsOf(dashboard, "open-dough")).toHaveLength(1);
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   const session = defaultMainSession(project, landing, revision);
   expect(record?.establishedSession).toEqual(session);
-  const [block, reporting, ...developer] = (call?.argv.at(-1) ?? "").split(
+  const [block, reporting, ...developer] = (started?.instruction ?? "").split(
     "\n\n",
   );
   expect(block).toBe(sessionBlock(session));

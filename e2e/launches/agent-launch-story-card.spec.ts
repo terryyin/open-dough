@@ -38,14 +38,8 @@ test.use({ projectFolders: ["open-dough"] });
 // folder.
 const launched = (home: string, workflow: string, command: string) => [
   {
-    argv: [
-      "--bg",
-      "--name",
-      `Open Dough · ${workflow} · ${notRefinedStory}`,
-      "--effort",
-      "medium",
-      command,
-    ],
+    name: `Open Dough · ${workflow} · ${notRefinedStory}`,
+    instruction: command,
     cwd: realpathSync(path.join(home, "git", "open-dough")),
   },
 ];
@@ -91,7 +85,7 @@ test("starting sends the instruction after the execution command in the Open Dou
   await expect(entry).toContainText(/Session [0-9a-f]{8}-/);
   await expect(openTerminalControl(entry)).toBeVisible();
 
-  expect(dashboard.claudeLaunchCalls()).toEqual(
+  expect(dashboard.claudeLaunches()).toMatchObject(
     launched(
       dashboard.home,
       "Execution",
@@ -128,7 +122,7 @@ test("starting refinement sends its instruction in the Open Dough folder and lis
   await expect(refine(notRefinedStory)).toBeDisabled();
   await expect(start(notRefinedStory)).toBeDisabled();
 
-  expect(dashboard.claudeLaunchCalls()).toEqual(
+  expect(dashboard.claudeLaunches()).toMatchObject(
     launched(
       dashboard.home,
       "Refinement",
@@ -172,7 +166,7 @@ test.describe("phone touch submission", () => {
     await expect(start(notRefinedStory)).toBeDisabled();
     await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(0);
     await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-    expect(dashboard.claudeLaunchCalls()[0]?.argv.at(-1)).toBe(
+    expect(dashboard.claudeLaunches()[0]?.instruction).toBe(
       `/dough-execute-plan ${notRefinedIdentity}\n\n${draft}`,
     );
     await page.setViewportSize({ width: 844, height: 390 });

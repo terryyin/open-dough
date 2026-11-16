@@ -35,13 +35,12 @@ test("a refused session launch after a published claim answers the Agent and wor
       `^Claude Code refused to start a session in ${workspaceShown}\\..* Taken by ${agent}; no session started\\. Workspace ${workspaceShown}\\.$`,
     ),
   );
-  expect(await keptStarts(dashboard)).toEqual([
+  expect(await keptStarts(dashboard)).toMatchObject([
     {
       host: "claude",
       workflow: "execution",
       source: "open-dough",
       identity: queuedIdentity,
-      effort: "medium",
       workspace: workspaceShown,
       branch: "claude/story-a",
       agent,

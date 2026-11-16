@@ -75,7 +75,7 @@ test("a group is radios with a No choice and other options stay checkboxes, choo
 
   await expect(refinementDialog).toBeHidden();
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(dashboard.claudeLaunchCalls()[0]?.argv.at(-1)).toBe(`${sent} --b --c`);
+  expect(dashboard.claudeLaunches()[0]?.instruction).toBe(`${sent} --b --c`);
 });
 
 const unavailable = [
@@ -139,6 +139,6 @@ for (const { name, change, line } of unavailable) {
 
     await expect(refinementDialog).toBeHidden();
     await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-    expect(dashboard.claudeLaunchCalls()[0]?.argv.at(-1)).toBe(sent);
+    expect(dashboard.claudeLaunches()[0]?.instruction).toBe(sent);
   });
 }

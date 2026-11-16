@@ -33,7 +33,8 @@ reason when the test gives one), done with its process running (`done-live`)
 or exited (`done-exited`), `failed`, or `stopped`, replacing its whole state,
 status, and reason, or forgets it (`forgotten`), and `claudeListingFails`
 makes the listing fail. It records every call's argv and working directory
-(`claudeCalls`, or `claudeLaunchCalls` for the `--bg` launches alone), and
+(`claudeCalls`, or `claudeLaunchCalls` for the `--bg` launches alone, which
+`claudeLaunches` reads by option name and instruction), and
 the part of the environment it started with that the launch environment rule
 reads (`fixtures/fake-host-environment.cjs`): `NODE_ENV`, `PATH`, every
 `npm_*` key, `INIT_CWD`, the spec marker `DOUGH_SPEC_PASSTHROUGH`, and its

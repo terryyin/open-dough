@@ -100,17 +100,11 @@ test("saved settings survive restart; two real clips append once and the reviewe
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
     await expect(dialog).toBeHidden();
     await expect
-      .poll(() => restarted.claudeLaunchCalls())
-      .toEqual([
+      .poll(() => restarted.claudeLaunches())
+      .toMatchObject([
         {
-          argv: [
-            "--bg",
-            "--name",
-            `Open Dough · Execution · ${notRefinedStory}`,
-            "--effort",
-            "medium",
-            `/dough-execute-plan ${notRefinedIdentity}\n\n${edited}`,
-          ],
+          name: `Open Dough · Execution · ${notRefinedStory}`,
+          instruction: `/dough-execute-plan ${notRefinedIdentity}\n\n${edited}`,
           cwd: realpathSync(path.join(restarted.home, "git", "open-dough")),
         },
       ]);
@@ -155,17 +149,11 @@ test("missing-key settings trip retains the launch draft and retry feeds the fin
   await field.fill(edited);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect
-    .poll(() => dashboard.claudeLaunchCalls())
-    .toEqual([
+    .poll(() => dashboard.claudeLaunches())
+    .toMatchObject([
       {
-        argv: [
-          "--bg",
-          "--name",
-          "Open Dough · Ad hoc · Keep my draft Review this first",
-          "--effort",
-          "medium",
-          edited,
-        ],
+        name: "Open Dough · Ad hoc · Keep my draft Review this first",
+        instruction: edited,
         cwd: realpathSync(path.join(dashboard.home, "git", "open-dough")),
       },
     ]);
@@ -191,7 +179,7 @@ test("a transcript bringing the instruction to exactly 4,000 characters, separat
   await expect(field).toHaveValue(combined);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect
-    .poll(() => dashboard.claudeLaunchCalls().map((call) => call.argv.at(-1)))
+    .poll(() => dashboard.claudeLaunches().map((each) => each.instruction))
     .toEqual([`/dough-execute-plan ${notRefinedIdentity}\n\n${combined}`]);
   expect(provider.calls).toHaveLength(1);
 });

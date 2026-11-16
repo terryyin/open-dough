@@ -83,10 +83,10 @@ test.describe("a story start whose launch wait expired", () => {
       reason: "refused",
     });
     expect(dashboard.claudeLaunchCalls()).toHaveLength(2);
-    for (const call of dashboard.claudeLaunchCalls()) {
-      const at = call.argv.indexOf("--effort");
-      expect(call.argv.slice(at, at + 2)).toEqual(["--effort", "max"]);
-    }
+    expect(dashboard.claudeLaunches().map(({ effort }) => effort)).toEqual([
+      "max",
+      "max",
+    ]);
   });
 });
 

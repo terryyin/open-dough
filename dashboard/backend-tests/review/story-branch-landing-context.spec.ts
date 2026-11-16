@@ -104,7 +104,7 @@ test.describe("a claimed Story Branch Mode execution launch", () => {
 
     // The session is told which publication takes the context: the one that
     // first lands its work on trunk.
-    const instruction = server.claudeLaunchCalls()[0]?.argv.at(-1) ?? "";
+    const instruction = server.claudeLaunches()[0]?.instruction ?? "";
     const [, , block] = instruction.split("\n\n");
     expectReportingBlock(block, record.request, server);
   });

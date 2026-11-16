@@ -101,8 +101,11 @@ test("starting with text sends it in the Open Dough folder, and the session read
   await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
 });
 
-for (const blank of ["", "   "]) {
-  test(`starting with ${blank === "" ? "an empty field" : "only spaces"} sends no instruction`, async ({
+for (const [described, blank] of [
+  ["an empty field", ""],
+  ["only spaces", "   "],
+] as const) {
+  test(`starting with ${described} sends no instruction`, async ({
     page,
     dashboard,
     launchJourney,
@@ -116,12 +119,12 @@ for (const blank of ["", "   "]) {
     await dialog.getByRole("button", { name: "Start" }).click();
 
     await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
-    const [call] = dashboard.claudeLaunchCalls();
-    expect(call?.argv).toHaveLength(5);
+    const [started] = dashboard.claudeLaunches();
+    expect(started).not.toHaveProperty("instruction");
     const record = await expectNoSessionEstablishment(dashboard);
     for (const absent of ["instruction", "reporting"])
       expect(record?.request).not.toHaveProperty(absent);
-    expect(call?.argv[2]).toMatch(
+    expect(started?.name).toMatch(
       /^Open Dough · Ad hoc · \d{1,2} \w{3}, \d\d:\d\d$/,
     );
   });

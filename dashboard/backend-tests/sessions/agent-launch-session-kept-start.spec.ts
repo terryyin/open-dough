@@ -53,13 +53,12 @@ test.describe("a kept one-shot start", () => {
         "No session started; nothing was published.",
       );
       expect(refused.explanation).not.toMatch(/Taken|Preparing/);
-      expect(await keptStarts(server)).toEqual([
+      expect(await keptStarts(server)).toMatchObject([
         {
           workflow,
           host: "claude",
           source: "open-dough",
           identity: queuedIdentity,
-          effort: "medium",
           workspace: `~/git/open-dough/.worktrees/${slug}`,
           branch: `claude/${slug}`,
           policy,

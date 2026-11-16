@@ -49,7 +49,7 @@ test("Isolated workspace · Automatically land with no text hands the session it
 
   const { session } = expectLandingHandoff(
     record,
-    dashboard.claudeLaunchCalls()[0]?.argv.at(-1) ?? "",
+    dashboard.claudeLaunches()[0]?.instruction ?? "",
     dashboard,
     origin.project,
   );

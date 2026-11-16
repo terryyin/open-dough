@@ -82,7 +82,7 @@ test.describe("after a delivered two-line file", () => {
     );
 
     expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-    const input = dashboard.claudeLaunchCalls()[0]?.argv.at(-1) ?? "";
+    const input = dashboard.claudeLaunches()[0]?.instruction ?? "";
     expect(input).toContain("- Path: delivered.txt");
     expect(input).toContain(`Landed run ${base} → ${tree}`);
     expect(input).toContain("- Line: 2");

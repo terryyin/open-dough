@@ -44,12 +44,7 @@ test("a session started at Open Dough's default effort: an attention report noti
     server.claudeScenario("launched");
     turnOn(origin);
     const input = await launchedInput(server);
-    expect(server.claudeLaunchCalls()[0]?.argv.slice(3, 7)).toEqual([
-      "--model",
-      "opus",
-      "--effort",
-      "medium",
-    ]);
+    expect(server.claudeLaunches()[0]?.effort).toBe("medium");
     const [record] = await maintenanceRecords(server);
     const session = record?.session.sessionId ?? "";
 

@@ -107,5 +107,5 @@ export async function launchedInput(server: DashboardServer): Promise<string> {
   await expect
     .poll(async () => (await maintenanceRecords(server)).length)
     .toBe(1);
-  return server.claudeLaunchCalls()[0]?.argv.at(-1) ?? "";
+  return server.claudeLaunches()[0]?.instruction ?? "";
 }

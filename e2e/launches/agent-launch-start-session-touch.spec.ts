@@ -121,9 +121,8 @@ test.describe(`${name} touch session editing`, () => {
       .toHaveLength(1);
     expect(
       dashboard
-        .claudeLaunchCalls()[0]
-        ?.argv.at(-1)
-        ?.split("\n\nDashboard reporting context:")[0],
+        .claudeLaunches()[0]
+        ?.instruction?.split("\n\nDashboard reporting context:")[0],
     ).toBe(draft);
     dashboard.releaseHeldClaude();
     const entry = sessionEntriesIn(parts(page).taken);

@@ -59,11 +59,6 @@ const modelOf = (dialog: Locator) =>
 const effortOf = (dialog: Locator) =>
   dialog.getByRole("combobox", { name: "Reasoning effort" });
 
-const modelArgs = (argv: readonly string[]) => {
-  const at = argv.indexOf("--model");
-  return at === -1 ? [] : argv.slice(at, at + 2);
-};
-
 test("the refinement dialog offers Model after the instruction on Default, and choosing Opus starts the session with --model opus", async ({
   page,
   dashboard,
@@ -88,11 +83,10 @@ test("the refinement dialog offers Model after the instruction on Default, and c
   await action.dialog.getByRole("button", { name: "Start" }).click();
 
   await expect(action.dialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  const [call] = dashboard.claudeLaunchCalls();
-  expect(call?.argv[1]).toBe("--name");
-  expect(call?.argv[2]).toContain("Refinement");
-  expect(modelArgs(call?.argv ?? [])).toEqual(["--model", "opus"]);
+  await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
+  const [started] = dashboard.claudeLaunches();
+  expect(started?.name).toContain("Refinement");
+  expect(started?.model).toBe("opus");
 });
 
 test("the execution dialog offers Claude Code's efforts whatever the model, and Opus with high starts the session with --effort high", async ({
@@ -120,15 +114,11 @@ test("the execution dialog offers Claude Code's efforts whatever the model, and 
   await action.dialog.getByRole("button", { name: "Start" }).click();
 
   await expect(action.dialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  const argv = dashboard.claudeLaunchCalls()[0]?.argv ?? [];
-  const at = argv.indexOf("--model");
-  expect(argv.slice(at, at + 4)).toEqual([
-    "--model",
-    "opus",
-    "--effort",
-    "high",
-  ]);
+  await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
+  expect(dashboard.claudeLaunches()[0]).toMatchObject({
+    model: "opus",
+    effort: "high",
+  });
 });
 
 test("the session dialog left on Default starts the session without --model, at Open Dough's default effort", async ({
@@ -143,12 +133,10 @@ test("the session dialog left on Default starts the session without --model, at 
   await action.dialog.getByRole("button", { name: "Start" }).click();
 
   await expect(action.dialog).toBeHidden();
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(dashboard.claudeLaunchCalls()[0]?.argv).not.toContain("--model");
-  expect(dashboard.claudeLaunchCalls()[0]?.argv.slice(3, 5)).toEqual([
-    "--effort",
-    "medium",
-  ]);
+  await expect.poll(() => dashboard.claudeLaunches()).toHaveLength(1);
+  const [started] = dashboard.claudeLaunches();
+  expect(started).not.toHaveProperty("model");
+  expect(started?.effort).toBe("medium");
 });
 
 test("Opus launched from a dialog, the same dialog opens again on Default", async ({
@@ -169,9 +157,9 @@ test("Opus launched from a dialog, the same dialog opens again on Default", asyn
   await expect(modelOf(session.dialog)).toHaveValue("");
   await session.dialog.getByRole("button", { name: "Start" }).click();
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(2);
-  const [first, second] = dashboard.claudeLaunchCalls();
-  expect(modelArgs(first?.argv ?? [])).toEqual(["--model", "opus"]);
-  expect(second?.argv).not.toContain("--model");
+  const [first, second] = dashboard.claudeLaunches();
+  expect(first?.model).toBe("opus");
+  expect(second).not.toHaveProperty("model");
 });
 
 test("a refused launch with Opus says Launch failed beside its action, closes the dialog, and lists no session", async ({

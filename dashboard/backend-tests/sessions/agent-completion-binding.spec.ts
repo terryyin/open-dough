@@ -78,11 +78,9 @@ for (const quiet of [false, true])
         if (command === undefined)
           throw new Error("No real Claude launch context");
         expect(input).toContain(`- launch reference: ${accepted.attempt.id}`);
-        expect(call?.argv.slice(0, 3)).toEqual([
-          "--bg",
-          "--name",
+        expect(server.claudeLaunches()[0]?.name).toBe(
           "Open Dough · Execution · Prepare the queued start",
-        ]);
+        );
         expect(call?.argv).not.toContain("--permission-mode");
         const message = path.join(origin.machine, "early.txt");
         writeFileSync(

@@ -39,7 +39,7 @@ export async function launched(dashboard: DashboardServer, body: object) {
   if (answer.record === undefined) throw new Error("Missing launch record.");
   return {
     record: answer.record,
-    sent: dashboard.claudeLaunchCalls()[calls]?.argv.at(-1) ?? "",
+    sent: dashboard.claudeLaunches()[calls]?.instruction ?? "",
   };
 }
 

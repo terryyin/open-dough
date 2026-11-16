@@ -62,13 +62,12 @@ async function startedSession(dashboard: DashboardServer, project: string) {
   await expect
     .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })
     .toHaveLength(1);
-  const [call] = dashboard.claudeLaunchCalls();
-  expect(call?.cwd).toBe(realpathSync(project));
-  expect(call?.argv.slice(0, 2)).toEqual(["--bg", "--name"]);
+  const [started] = dashboard.claudeLaunches();
+  expect(started?.cwd).toBe(realpathSync(project));
   await expect.poll(() => recordsOf(dashboard, "open-dough")).toHaveLength(1);
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   if (record === undefined) throw new Error("Missing launch record.");
-  return { sent: call?.argv.slice(5) ?? [], record };
+  return { sent: started?.instruction, record };
 }
 
 test("Automatically land with no text names the push beside Start, runs the installed start in the project folder, and hands the session its landing intent", async ({
@@ -122,8 +121,7 @@ test("Automatically land with no text names the push beside Start, runs the inst
   // The first message is the block, then the reporting context, and nothing
   // of the developer's.
   const session = defaultMainSession(origin.project, "auto-land", before);
-  expect(sent).toHaveLength(1);
-  const [block, reporting, ...extra] = (sent[0] ?? "").split("\n\n");
+  const [block, reporting, ...extra] = (sent ?? "").split("\n\n");
   expect(block).toBe(sessionBlock(session));
   expect(extra).toEqual([]);
   expectReportingBlock(reporting, record.request, dashboard);
@@ -135,7 +133,7 @@ test("Automatically land with no text names the push beside Start, runs the inst
   });
   expect(record.request).not.toHaveProperty("instruction");
   expect(record.establishedSession).toEqual(session);
-  expectLandingHandoff(record, sent[0] ?? "", dashboard, origin.project);
+  expectLandingHandoff(record, sent ?? "", dashboard, origin.project);
   for (const absent of ["start", "preparation"])
     expect(record).not.toHaveProperty(absent);
   // The session's entry names the default checkout it was established in.

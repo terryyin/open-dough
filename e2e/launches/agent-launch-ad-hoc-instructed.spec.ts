@@ -86,9 +86,9 @@ test("an instructed Start session leaves the open final report in the Side panel
   await expect(panel).toHaveCount(0);
   expect(terminalSockets).toEqual([]);
   await expect(sessionStateOf(entry)).toHaveText("Working");
-  expect(dashboard.claudeLaunchCalls().map((call) => call.argv.at(-1))).toEqual(
-    [text],
-  );
+  expect(dashboard.claudeLaunches().map((each) => each.instruction)).toEqual([
+    text,
+  ]);
   const { button: sessions, entry: listed } = sessionsSidebarParts(page);
   await sessions.click();
   await expect(listed(text)).toBeVisible();

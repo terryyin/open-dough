@@ -27,7 +27,7 @@ test("initiating and observing pages show Claude Code throughout execution progr
     "execution",
     "claude",
   );
-  expect(dashboard.claudeLaunchCalls()[0]?.argv.at(-1)).toContain(
+  expect(dashboard.claudeLaunches()[0]?.instruction).toContain(
     "- readiness: Changed since readiness review",
   );
 });

@@ -30,6 +30,7 @@ import {
   terminalPanel,
   terminalScreenParts,
 } from "../../dashboard/tests/terminalScreenPage.ts";
+import { claudeLaunch } from "../../dashboard/tests/support/claudeLaunch.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -147,7 +148,9 @@ test("Start session with no text and one image sends the list alone, labels by t
     })
     .toMatch(/^\d{1,2} \w{3}, \d\d:\d\d$/);
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
-  expect(call?.argv[2]).toBe(`Open Dough · Ad hoc · ${record?.request.title}`);
+  expect(call && claudeLaunch(call).name).toBe(
+    `Open Dough · Ad hoc · ${record?.request.title}`,
+  );
   expect(record?.request.attachments).toEqual([attachedPath]);
   expect(record?.request.attachmentDigests).toEqual([
     createHash("sha256").update(pngA).digest("hex"),

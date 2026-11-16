@@ -49,7 +49,7 @@ test("the boundary honors a requested automatic landing with the developer's tex
   expect(answer.record?.establishedSession).toEqual(session);
   expect(answer.record?.request).toMatchObject({ policy: autoLand });
   const [block, reporting, developer, ...extra] = (
-    dashboard.claudeLaunchCalls()[0]?.argv.at(-1) ?? ""
+    dashboard.claudeLaunches()[0]?.instruction ?? ""
   ).split("\n\n");
   expect(block).toBe(sessionBlock(session));
   expectReportingBlock(reporting, answer.record?.request, dashboard);

@@ -161,7 +161,7 @@ test.describe("Start-Continue settlement with incomplete launch-workspace suppor
     const reporting = record.request.reporting;
     expect(reporting?.command).toContain("dashboard-completion.mjs");
     expect(reporting).not.toHaveProperty("landingContext");
-    const instruction = server.claudeLaunchCalls()[0]?.argv.at(-1) ?? "";
+    const instruction = server.claudeLaunches()[0]?.instruction ?? "";
     const reportingBlock = instruction.split("\n\n")[2];
     expectReportingBlock(reportingBlock, record.request, server);
     expect(

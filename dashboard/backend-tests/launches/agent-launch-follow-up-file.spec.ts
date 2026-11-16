@@ -102,7 +102,7 @@ test("a file that includes trunk's changes names that file's own base in the com
   );
 
   expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  expect(dashboard.claudeLaunchCalls()[0]?.argv.at(-1)).toContain(context);
+  expect(dashboard.claudeLaunches()[0]?.instruction).toContain(context);
 });
 
 test("follow-ups of two lines are two launches, and repeating one resumes its kept start", async ({
@@ -169,7 +169,7 @@ test("a blank file follow-up sends the story and file context without a request 
   );
 
   expect(launched.kind, JSON.stringify(launched)).toBe("launched");
-  expectFollowUpInput(dashboard.claudeLaunchCalls()[0]?.argv.at(-1), {
+  expectFollowUpInput(dashboard.claudeLaunches()[0]?.instruction, {
     context,
     request: launched.record?.request,
     server: dashboard,

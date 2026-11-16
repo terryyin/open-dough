@@ -124,7 +124,7 @@ for (const host of ["claude", "codex"] as const) {
     expect(records[0]).toMatchObject({ request });
     if (host === "claude") {
       expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-      expect(dashboard.claudeLaunchCalls()[0]?.argv.at(-1)).toContain(
+      expect(dashboard.claudeLaunches()[0]?.instruction).toContain(
         "Original intent.",
       );
     } else {

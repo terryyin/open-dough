@@ -118,9 +118,9 @@ test("Intent Changed tests old line 85 Follow up starts blank and opens the term
     timeout: launchWaitMs,
   });
   await expect(sidePanelContents(page)).toHaveAccessibleName("Terminal");
-  const [call, ...others] = dashboard.claudeLaunchCalls();
+  const [started, ...others] = dashboard.claudeLaunches();
   expect(others).toEqual([]);
-  const firstInput = call?.argv.at(-1) ?? "";
+  const firstInput = started?.instruction ?? "";
   expect(firstInput).toContain("- Path: dashboard/tests/a.spec.ts");
   expect(firstInput).toMatch(
     /- Comparison: Published completion [a-f0-9]{40} → [a-f0-9]{40}/,

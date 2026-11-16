@@ -102,7 +102,7 @@ test("a launch the boundary refuses says Launch failed naming the option, and th
 
   await expect(refinementDialog).toBeHidden();
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(dashboard.claudeLaunchCalls()[0]?.argv.at(-1)).toBe(`${sent} --a`);
+  expect(dashboard.claudeLaunches()[0]?.instruction).toBe(`${sent} --a`);
 });
 
 test("a kept selection the project no longer offers at all is named, and Start launches default refinement", async ({
@@ -137,5 +137,5 @@ test("a kept selection the project no longer offers at all is named, and Start l
 
   await expect(refinementDialog).toBeHidden();
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(dashboard.claudeLaunchCalls()[0]?.argv.at(-1)).toBe(sent);
+  expect(dashboard.claudeLaunches()[0]?.instruction).toBe(sent);
 });

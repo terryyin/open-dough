@@ -118,25 +118,18 @@ test("a Done session whose workspace is gone offers Read final report and Follow
     timeout: launchWaitMs,
   });
   await expect(sidePanelContents(page)).toHaveCount(0);
-  expect(dashboard.claudeLaunchCalls()).toEqual([
+  expect(dashboard.claudeLaunches()).toMatchObject([
     {
-      argv: [
-        "--bg",
-        "--name",
-        `Open Dough · Ad hoc · ${text}`,
-        "--effort",
-        "medium",
-        [
-          followUpContextOf(retiredTitle, [
-            "- Workflow: Ad hoc",
-            `- Original request: ${retiredTitle}`,
-            `- Final report (Completed with attention): ${report}`,
-            `- Landed at revision: ${landed}`,
-          ]),
-          text,
-        ].join("\n\n"),
-      ],
-      cwd: expect.any(String),
+      name: `Open Dough · Ad hoc · ${text}`,
+      instruction: [
+        followUpContextOf(retiredTitle, [
+          "- Workflow: Ad hoc",
+          `- Original request: ${retiredTitle}`,
+          `- Final report (Completed with attention): ${report}`,
+          `- Landed at revision: ${landed}`,
+        ]),
+        text,
+      ].join("\n\n"),
     },
   ]);
 
@@ -189,11 +182,11 @@ test("a Done session that still opens its terminal offers no Follow up until its
     timeout: launchWaitMs,
   });
   await expect(sidePanelContents(page)).toHaveAccessibleName("Terminal");
-  const [call] = dashboard.claudeLaunchCalls();
-  expect(call?.argv.at(2)).toMatch(
+  const [started] = dashboard.claudeLaunches();
+  expect(started?.name).toMatch(
     /^Open Dough · Ad hoc · \d{1,2} \w{3}, \d\d:\d\d$/,
   );
-  expect(call?.argv.at(-1)).toBe(
+  expect(started?.instruction).toBe(
     followUpContextOf(quietTitle, [
       "- Workflow: Ad hoc",
       `- Original request: ${quietTitle}`,
