@@ -8,6 +8,12 @@
       "blob": "ae371ed525a06684f03a3175845d4e730207220d"
     },
     {
+      "fileName": "SEED-367_bound-diagnosis-in-evidence-rounds.json",
+      "identity": "SEED-367#bound-diagnosis-in-evidence-rounds",
+      "completedAt": "2026-11-16T11:26:15.630Z",
+      "blob": "8e0c09fe362d08044a7ba100ab52d8d0cfeba2c1"
+    },
+    {
       "fileName": "SEED-367_discard-time-after-an-ended-session.json",
       "identity": "SEED-367#discard-time-after-an-ended-session",
       "completedAt": "2026-11-16T10:40:26.904Z",
