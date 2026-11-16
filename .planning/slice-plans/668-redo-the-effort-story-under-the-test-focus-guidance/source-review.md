@@ -27,12 +27,12 @@ without changing behavior. All returned IDs and conditions are retained.
 | 5 | Evaluate named-follow-up guidance at refactor return and completion learnings. Return names smell, concept, file count and representative files and carries into learnings: keep with quoted return. Ineffective-pass example: revise with relied-on sentence. Early narrowing: not exercised (L35, L139–145, L149–151). | slice 6 |  |
 | 6 | Evaluate the slice-1 coordinator refactor brief. Prescribed remedies yield revise with quote; outside-subject count without remedy yields keep (L36, L146–148). | slice 6 |  |
 | 7 | Evaluate planning guidance. Mechanical consumer updates in slice 1 again yield revise; opening with Structure narrowing them yields keep (L37, L152–154). | slice 6 |  |
-| 8 | Identify outside-effort test edits and classify each as loosened or value-updated, including planned value updates as following plan (L101–102, L135–138). | slice 3 |  |
-| 9 | Identify positional assertions B adds (L103). | slice 3 |  |
-| 10 | Identify count assertions B adds (L103). | slice 3 |  |
-| 11 | Identify whole-list assertions B adds (L103). | slice 3 |  |
-| 12 | Identify whole-object assertions B adds (L103). | slice 3 |  |
-| 13 | Identify parameterized tests whose bodies branch on case (L104). | slice 3 |  |
+| 8 | Identify outside-effort test edits and classify each as loosened or value-updated, including planned value updates as following plan (L101–102, L135–138). | slice 3 | observed: test-inventory.md#outside-effort-cases-and-mixed-cases: every changed incidental/mixed spec and reached support consumer classified from frozen A/B sources; actual argv parser inspected without supplied defaults |
+| 9 | Identify positional assertions B adds (L103). | slice 3 | observed: test-inventory.md#addedreplaced-assertion-shapes-obligations-912: positional new/replaced and retained-reader sites separately inventoried for A/B |
+| 10 | Identify count assertions B adds (L103). | slice 3 | observed: test-inventory.md#addedreplaced-assertion-shapes-obligations-912: count sites, units and absence-vs-single-request purposes inspected |
+| 11 | Identify whole-list assertions B adds (L103). | slice 3 | observed: test-inventory.md#addedreplaced-assertion-shapes-obligations-912: whole-list sites and retained expected-value changes separated with actual case intent |
+| 12 | Identify whole-object assertions B adds (L103). | slice 3 | observed: test-inventory.md#addedreplaced-assertion-shapes-obligations-912: changed complete-object forms inspected; explicit zero new forms with existing exact/partial comparisons distinguished |
+| 13 | Identify parameterized tests whose bodies branch on case (L104). | slice 3 | observed: test-inventory.md#case-dependent-branching-obligation-13: changed loop bodies, conditional expressions, support branches and unchanged model-display family inspected; A max/absent and B separated absent source inspected |
 | 14 | Place B active time beside A using one stated transcript definition where both expose the necessary timing (L105–106). | slice 4 |  |
 | 15 | Record token usage with each provider’s recorded billing basis (L106–107). | slice 4 |  |
 | 16 | Record cost with each provider’s recorded billing basis; missing cost explicitly unavailable, never Claude prices for Codex tokens (L106–108). | slice 4 |  |

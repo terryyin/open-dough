@@ -101,3 +101,22 @@ observer `/tmp/dough-ci-501/watch-nVUAv2`. Exact applicable run 43899583428/1
 succeeded; await-revision session 67819 ended with that receipt. Stash restore
 returned resumed with no OID or application. Research slice 3 may resume the
 same inventory agent from its seven active minutes and frozen A/B inputs.
+
+## Measurement decision retained before analysis
+
+Timing uses a common transcript proxy: per-thread elapsed time minus the union
+of timestamped blocking tool-call/result spans. Report coordinator and summed
+child-thread active proxies separately; parallel child time may overlap. This
+is elapsed model/orchestration time visible between tools, not CPU time. State
+uninstrumented gaps or unavailable matching timing rather than claim precision.
+Use only A's selected execution through its completion record and B's native
+thread plus nine children through its terminal record; operator-side CI work
+is outside both. Separate B's additional retrospective window from its four
+slice cutoff (8b9005acc) and completion (57f805ee2).
+
+Deduplicate Claude assistant usage by message.id; use the supplied memory's
+Opus pricing/cache-creation breakdown and actual provider records. Codex's
+cache-read tokens are a subset of input and reasoning a subset of output; use
+recorded cumulative usage without summing repeated cumulative snapshots. Keep
+provider billing distinct and mark a missing Codex dollar cost unavailable.
+Do not infer a guidance-only speed/cost effect across host/model/context changes.

@@ -140,7 +140,7 @@ Refactor disposition for this completion update: records-only.
 
 ### 3. B's test changes are read beside A's
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 3 row above.
 
 Behavior: B has recorded execution completion or stopped → this plan holds,
@@ -202,3 +202,24 @@ Commitment: 1
 Reported: slice 1 — "B performed a coordinator product retrospective at 14:38:18.047–14:40:14.840 UTC, although the trial source excludes it. The exact prompt stopped at the execution-complete record without disabling the skill's earlier retrospective. Only eight plan lines changed after the fourth slice commit; product/test observations are pinned before this extra review."
 Story clause: "no wrap-up, retrospective or landing."
 Disposition: receiving slice 6
+
+
+## Slice 3 observation — frozen test changes inventoried
+
+[The case and assertion inventory](test-inventory.md) records source-review
+obligations 8–13 at A `4b75c2888..eda73008b` and B
+`c629d0d9..8b9005acc`, before B’s later plan-only review. A changes 29 specs
+and two assertion-support files; B changes 15 specs and five support files.
+The table separates incidental consumers, mixed planned effort surfaces and
+direct effort/display proof, classifies final value updates/narrowing, and
+traces B’s semantic command reader to actual recorded argv. Newly introduced
+assertion forms and case-dependent branches have explicit units and limits;
+no guidance recommendation is made here. The CI pause preserved the frozen
+inputs; later CI repairs do not enter either range. No test, lint, format,
+refactor, commit or product/test/guidance edit was made for this observation.
+
+Acceptance: compared the original source promises with the frozen table,
+reader implementation, explicit high fixture and max/absent-effort case bodies.
+Units distinguish specs/support, sites/runtime variants and existing values/new
+assertion shapes. Every outside-subject file/case and supported absence is
+recorded; ids 8–13 accepted. Refactor disposition: records-only.
