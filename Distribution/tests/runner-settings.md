@@ -60,3 +60,7 @@ check that runs the runner itself gives it only the settings it chooses, runs
 all of its own checks, and keeps its own times. CI's shares are the
 matrix's: moving a pattern there is the only edit a rebalance needs, read
 from the shares' `test-times-<i>` artifacts.
+A share's test step takes about its job-seconds divided by the runner's four
+CPUs, but the same checks have run 1.4 to 1.7 times slower from one CI run to
+the next, so judge a share's time over at least two runs before moving a
+pattern.
