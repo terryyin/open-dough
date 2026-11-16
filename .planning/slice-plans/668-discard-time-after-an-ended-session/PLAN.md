@@ -2,6 +2,29 @@
 
 **Identity:** SEED-367#discard-time-after-an-ended-session
 **Source:** [Selected story](../../seeds/SEED-367-bounded-slice-active-time.md#discard-time-after-an-ended-session)
+**Source review:** [Independent source commitments](source-review.md)
+
+## Execution context
+
+- Established start, Story Branch Mode; owned workspace
+  `/Users/terryyin/git/open-dough/.worktrees/discard-a-slice-s-clock-time-after-its-session-e`,
+  branch `codex/discard-a-slice-s-clock-time-after-its-session-e`.
+- Publisher `dashboard-territory.local-open-dough`, agent Kirara-chan;
+  starting revision `6d18d69930a2daa5085a374b73c72f7c9ad710ca`;
+  accepted Take/candidate `ad2e6f733dc41b7177bd39ab20fb7b0846f41146` on
+  `origin/main`; increments target the remote execution branch. Claim CI is
+  unobserved. No second claim or workspace creation.
+- Setup: Node v24.21.0; checkout-local `setup-native.mjs npm`, `browser`,
+  and `check` passed, Chromium 158.0.8127.18; existing clock proof passed.
+  Selective formatter is `npm run format`; check-only pre-commit runs staged
+  lint and dashboard typecheck for script changes. No generation trigger.
+- Replanning retains the selected plan's authority; scope changes need human
+  judgment. Two bounded slices, no conflicting later destructive outcome:
+  settling open timing intervals supports slice 2's new-session instruction.
+- CI: GitHub Actions `terryyin/open-dough`, verified `ci.yml` (CI), story
+  branch target. Coordinator `kirara-seed367`; yielded cell `g615:15`, session
+  `64030`, directory `/tmp/dough-ci-501/watch-WclHzn`, PID `11477`.
+  Runtime and checkout identity match. Reuse this observer for increments.
 
 ## Goal and scope
 
@@ -68,7 +91,7 @@ Each slice targets 15 active minutes, including its focused proof and cleanup.
 
 ### 1. Settle an ended session's running slice when a new session starts
 Type: Behavior
-Status: planned
+Status: done
 Proof: `slice-clock-ended-session.test.mjs`; all `slice-clock*.test.mjs`.
 
 Behavior: a slice left running, possibly inside a dead `run`, by an ended
@@ -109,4 +132,52 @@ these runs take seconds, so start fully awake and wrap any longer run in
 
 ## Learnings
 
-None beyond the preparation observations above.
+### Slice 1 acceptance
+
+Freshness unchanged at `0b60c6dac219e2f807bbb456b0e48f2b1c8f3bae`;
+no named coordinating siblings. Independent source commitments 1–13 and 17–20
+match the CLI implementation and inspected assertions in
+`slice-clock-ended-session.test.mjs`. The fixture supplies real Git worktrees
+and controlled time; the product performs settlement. The dead-run case kills
+the actual wrapper, observes no exit file, then observes closed intervals at
+10:02 and 11 elapsed/4 remaining at 14:03. All source examples are observed.
+
+Proof (Node v24.21.0, awake macOS):
+
+- `node Distribution/src/skills/dough-execute-plan/scripts/slice-clock.mjs run --log /tmp/seed367-slice1-clock-suite.log --exit-file /tmp/seed367-slice1-clock-suite.exit -- node --test Distribution/tests/skills/dough-execute-plan/slice-clock*.test.mjs`
+  — 29 passed, 0 failed.
+- `node Distribution/src/skills/dough-execute-plan/scripts/slice-clock.mjs run --log /tmp/seed367-slice1-clock-runner.log --exit-file /tmp/seed367-slice1-clock-runner.exit -- env PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh Distribution/tests/skills/dough-execute-plan/slice-clock*.test.mjs`
+  — exit 0. Use Homebrew Bash 5; system Bash 3 cannot run the project runner.
+
+Consumer trace: installed `consumer-trace.mjs --checkout "$PWD" --base ad2e6f733dc41b7177bd39ab20fb7b0846f41146 --term after-ended-session --term lastClockCommandAt --term settleEndedSession --term overrunDetectedAt`.
+Clock CLI accounting, pause/isolation (`slice-clock.test.mjs`), continue/refusal
+(`slice-clock-continues.test.mjs`), limits/split/count (`slice-clock-overrun.test.mjs`)
+and host notifications (`slice-clock-hook.test.mjs`) ran with inspected result,
+record and context assertions. New tests observe legacy fallback and hook
+timestamp exclusion. Install declarations and hook entry points are unchanged;
+dashboard SliceClock displays commit age and consumes no active-time record;
+other planning/history trace matches do not consume this contract. Slice 2
+owns the remaining guidance. No acceptance gaps.
+
+An added test teardown initially read scratch state after deletion; it now
+captures the PID and owns cleanup. The first runner invocation used system
+Bash and was corrected to the maintained Bash 5 command above. Final proof is
+green. Coordinator paused slice 1 at 5.6 active minutes, no overrun.
+
+Independent refactor completed: removed a redundant overrun guard, moved five
+compatibility cases into `slice-clock-ended-session-compatibility.test.mjs`,
+and used existing deferred cleanup/awaited process teardown in the shared
+fixture. Source-review paths 5 and 20 follow the moved assertions. Replacement
+proof: the two literal commands above with log/exit basenames
+`seed367-slice1-refactor-clock-suite` and `seed367-slice1-refactor-clock-runner`
+passed (29/29, runner exit 0). Annotated trace at
+`/tmp/seed367-slice1-refactor-consumer-trace.md` disposes every consumer; no gap.
+All changed files remain under 250 formatted lines. Delivery freshness is
+unchanged at the same trunk revision. No generation or project summary applies.
+
+Guarded preparation initially refused six `no-param-reassign` findings; no
+commit/publication occurred. Mechanical repair uses existing `Object.assign`
+for the record updates, wholly within the accepted refactor's traced paths.
+`node --test Distribution/tests/skills/dough-execute-plan/slice-clock*.test.mjs`
+passed 29/29 after that repair. Refactor disposition: already traced; no new
+representation, helper, dependency or path. Freshness rechecked unchanged.

@@ -5,11 +5,14 @@
 // the limit carries `overrun: true` and a message; `storyOverruns` counts the
 // story's overruns, each counted once when first seen.
 //
-//   start --identity ID --slice KEY [--continues OLD-KEY | --split-from OLD-KEY]
+//   start --identity ID --slice KEY [--after-ended-session]
+//       [--continues OLD-KEY | --split-from OLD-KEY]
 //       start the slice, or resume it when paused; with --continues, slice
 //       OLD-KEY of the story becomes KEY first and keeps its elapsed time;
 //       with --split-from, KEY is a new slice split from overrun slice
 //       OLD-KEY, whose clock is dropped first so its key can start at zero
+//       with --after-ended-session, settle the running slice and its open
+//       commands at the last clock command before starting from now
 //   pause                             pause the running slice
 //   status [--identity ID --slice KEY]  report a slice; the running one unless named
 //   run --log FILE --exit-file FILE -- COMMAND [ARG]...
@@ -33,11 +36,12 @@ import {
   dropOverrunSlice,
   ensureSlice,
   isRunning,
+  settleEndedSession,
   sliceOf,
   sliceReport,
 } from "./slice-clock-slices.mjs";
 
-const usage = `Usage: node slice-clock.mjs start --identity ID --slice KEY [--continues OLD-KEY | --split-from OLD-KEY]
+const usage = `Usage: node slice-clock.mjs start --identity ID --slice KEY [--after-ended-session] [--continues OLD-KEY | --split-from OLD-KEY]
        node slice-clock.mjs pause
        node slice-clock.mjs status [--identity ID --slice KEY]
        node slice-clock.mjs run --log FILE --exit-file FILE -- COMMAND [ARG]...`;
@@ -67,12 +71,11 @@ function flags(argv, allowed) {
 }
 
 function start(file, argv) {
-  const { continues, splitFrom, ...name } = flags(argv, [
-    "identity",
-    "slice",
-    "continues",
-    "splitFrom",
-  ]);
+  const afterEndedSession = argv.includes("--after-ended-session");
+  const { continues, splitFrom, ...name } = flags(
+    argv.filter((arg) => arg !== "--after-ended-session"),
+    ["identity", "slice", "continues", "splitFrom"],
+  );
   if (continues !== undefined && splitFrom !== undefined)
     throw new UsageError("name --continues or --split-from, not both");
   const named = namedSlice(name);
@@ -80,6 +83,7 @@ function start(file, argv) {
     throw new UsageError("start needs --identity and --slice");
   return updateRecord(file, (record) => {
     const now = currentTime();
+    if (afterEndedSession) settleEndedSession(record);
     const { running } = record;
     const same = isRunning(record, named);
     if (running && !same)
@@ -96,6 +100,7 @@ function start(file, argv) {
       });
       Object.assign(record, { running: named });
     }
+    Object.assign(record, { lastClockCommandAt: now });
     return { command: "start", ...sliceReport(record, named, now) };
   });
 }
@@ -108,6 +113,7 @@ function pause(file, argv) {
     const now = currentTime();
     sliceOf(record, named).periods.at(-1).endedAt = now;
     Object.assign(record, { running: null });
+    Object.assign(record, { lastClockCommandAt: now });
     return { command: "pause", ...sliceReport(record, named, now) };
   });
 }
@@ -119,7 +125,9 @@ function status(file, argv) {
     if (!named) throw new Error(noneRunning);
     if (sliceOf(record, named) === undefined)
       throw new Error(`no record of slice ${named.slice} of ${named.identity}`);
-    return { command: "status", ...sliceReport(record, named, currentTime()) };
+    const now = currentTime();
+    Object.assign(record, { lastClockCommandAt: now });
+    return { command: "status", ...sliceReport(record, named, now) };
   });
 }
 
@@ -154,20 +162,25 @@ async function run(file, argv) {
   // The slice running when the command starts owns its interval, even when
   // that slice is paused before the command ends.
   const named = updateRecord(file, (record) => {
+    const now = currentTime();
+    Object.assign(record, { lastClockCommandAt: now });
     if (!record.running) return null;
     sliceOf(record, record.running).commands.push({
       id,
-      startedAt: currentTime(),
+      startedAt: now,
       endedAt: null,
     });
     return record.running;
   });
   const exitStatus = await runToEnd(command, args, log);
   const report = updateRecord(file, (record) => {
-    if (!named) return { slice: null };
     const now = currentTime();
-    sliceOf(record, named).commands.find((entry) => entry.id === id).endedAt =
-      now;
+    Object.assign(record, { lastClockCommandAt: now });
+    if (!named) return { slice: null };
+    const command = sliceOf(record, named).commands.find(
+      (entry) => entry.id === id,
+    );
+    command.endedAt ??= now;
     return sliceReport(record, named, now);
   });
   // Written last, so whoever waits on it reads a finished run.
