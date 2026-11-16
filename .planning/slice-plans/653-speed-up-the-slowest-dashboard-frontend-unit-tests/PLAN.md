@@ -181,7 +181,7 @@ the page read each later host arrangement through the launch boundary's
 
 ### 5. Shorten Recently done paging and shared-room cases
 Type: Structure
-Status: planned
+Status: done
 Proof: `sessions/recently-done-sessions-sidebar-paging.spec.ts` and
 `…-sidebar-room.spec.ts` by the measure; one scratch paging break still fails.
 
@@ -189,6 +189,15 @@ The two slowest session cases (9.5 s and 8.0 s) spend most time in retried
 expectations and clicks while 45 sessions page in. Time them unmodified first;
 then use the smallest data that still crosses the paging boundary and wait on
 the page's read being answered rather than on retried expectations.
+
+Result (2026-11-16): no demonstrated gain; undone. The 45 sessions are not a
+cap: the product pages 20, 40, then a short last batch, and paging makes no
+request. Traces bound the removable waits (the two `revealRecentlyDoneThrough`
+polls) at about 0.35 s of the 9.4 s pair; the rest is real steps, the
+first-on-worker start and `wheelToEnd`, whose growing pause lets Chromium stop
+sending wheels to the previous scroller (shortening it failed
+`runningCursorSessionsPage.ts:188`). A one-evaluation reveal measured before
+30.38 s against after 29.94 s (−1.4%, load 2.7–3.9).
 
 ### 6. Keep one proof per rule among the group's twin cases
 Type: Structure
@@ -258,3 +267,8 @@ Disposition: no user cost "Dashboard contributors get faster local frontend test
 Reported: slice 4 — "Fresh-load wording is now proven for one combination only: claude, execution, not establishing."
 Story clause: "Check the same observable result and keep real motion or timing in cases that test it."
 Disposition: no user cost "Dashboard contributors get faster local frontend test feedback while keeping the same behavioral protection.": `StartupStatus` renders `startPhaseWords` from the current machine answer on every render with no state set only at page start, so a fresh load and a re-read reach the same words; each step's words differ from the previous step's, so every case still waits for its own answer
+
+### G5. Recently done paging waits could not reach the keep bar (slice 5)
+Reported: slice 5 — "Decision: undo, no demonstrated gain."
+Story clause: "Given a tried change whose before and after times differ by no more than the unchanged cases' own variation, the change is undone and reported as no demonstrated gain."
+Disposition: no user cost "Dashboard contributors get faster local frontend test feedback while keeping the same behavioral protection.": the removable wait is about 0.35 s and the cases stay unchanged with their protection
