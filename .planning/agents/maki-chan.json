@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Maki-chan",
-  "email": "maki-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-387#intent-hint-language-for-story-review-diffs",
-  "host": "cursor",
-  "model": "auto"
-}
