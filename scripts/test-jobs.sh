@@ -8,11 +8,11 @@
 set -euo pipefail
 # Before any Bash 5 syntax below, so an older bash meets the floor instead.
 # scripts/test.sh has already checked the same PATH bash, so the floor stops
-# here only for a direct run, such as the preview's listing.
+# here only for a direct run, such as a listing of a share.
 # shellcheck disable=SC1091
 # shellcheck source=scripts/bash-floor.bash
 source "$(dirname -- "${BASH_SOURCE[0]}")/bash-floor.bash"
-require_bash_floor 'rerun the preview'
+require_bash_floor 'rerun the listing'
 
 from=${PWD}
 if [[ ${1:-} == --from ]]; then
@@ -20,16 +20,15 @@ if [[ ${1:-} == --from ]]; then
   shift 2
 fi
 
-# OPEN_DOUGH_TEST_SPLIT=<i>/<n> lists only share i of n (see the deal below),
-# so separate runs, such as CI jobs, can divide the checks between them.
-# Unset, every check is listed.
+# OPEN_DOUGH_TEST_SPLIT=<i>/<n> lists only share i of the n shares the
+# workflow matrix declares (see the selection below), so separate runs, such as
+# CI jobs, can divide the discovered checks between them. Named paths run as
+# named, so a split refuses them. Unset, every check is listed.
 split=${OPEN_DOUGH_TEST_SPLIT:-}
-if [[ -n ${split} ]]; then
-  if [[ ! ${split} =~ ^([1-9][0-9]*)/([1-9][0-9]*)$ ]] \
-    || ((BASH_REMATCH[1] > BASH_REMATCH[2])); then
-    printf 'FAIL: OPEN_DOUGH_TEST_SPLIT=%s is not <i>/<n> with i from 1 to n.\n' "${split}" >&2
-    exit 1
-  fi
+if [[ -n ${split} ]] && (($#)); then
+  printf 'FAIL: OPEN_DOUGH_TEST_SPLIT=%s selects a share of the discovered checks, not of named paths; unset it.\n' \
+    "${split}" >&2
+  exit 1
 fi
 
 # scripts/test.sh resolves the test directory once (OPEN_DOUGH_TEST_DIR,
@@ -45,8 +44,6 @@ test_roots=("${test_dir}")
 if [[ ${test_dir} == Distribution/tests ]]; then
   test_roots+=(Distribution/evaluation/tests)
 fi
-metadata_dir=${test_dir}
-[[ ${test_dir} != Distribution/evaluation/tests ]] || metadata_dir=Distribution/tests
 declare -A job_kinds=()
 discovered=()
 # Adds one job once, as the kind given first.
@@ -136,21 +133,24 @@ else
   fi
 fi
 
-# scripts/test-shares.mjs owns the order and the split. An unsplit run starts
-# every check in bytewise path order, whatever order the file system lists
-# them in. A split deals the jobs by the seconds `longest-first` records from
-# a CI run (see its header; scripts/share-deal.mjs,
-# Distribution/tests/test-shares.md), so every check lands in exactly one
-# share. A list line that is not `<seconds><TAB><label>` fails the listing
-# naming it, before any job starts.
-allocator=(node "$(dirname -- "${BASH_SOURCE[0]}")/test-shares.mjs" share)
+# Jobs start in bytewise path order, whatever order the file system lists
+# them in. The `distribution-tests` matrix in the runner's own
+# .github/workflows/ci.yml owns share membership: scripts/test-share-matrix.mjs
+# selects a split's share from its patterns, the last share running the rest.
+# It also checks the matrix in an unsplit run of the whole suite, so a check
+# two shares match, or a pattern that matches no check, fails the listing
+# before any job starts. Named paths and other test directories are not the
+# suite the matrix describes, so they are only ordered.
+workflow=$(dirname -- "${BASH_SOURCE[0]}")/../.github/workflows/ci.yml
+selector=(node "$(dirname -- "${BASH_SOURCE[0]}")/test-share-matrix.mjs" "${workflow}")
 if [[ -n ${split} ]]; then
-  [[ ! -f ${metadata_dir}/longest-first ]] || allocator+=(--list "${metadata_dir}/longest-first")
-  allocator+=(--split "${split}")
+  selector+=("${split}")
+elif (($#)) || [[ ${test_dir} != Distribution/tests || ! -f ${workflow} ]]; then
+  selector=(env LC_ALL=C sort -z)
 fi
 labels=()
 if ((${#discovered[@]} > 0)); then
-  printf '%s\0' "${discovered[@]}" | "${allocator[@]}" > "${work_dir}/share"
+  printf '%s\0' "${discovered[@]}" | "${selector[@]}" > "${work_dir}/share"
   mapfile -d '' -t labels < "${work_dir}/share"
 fi
 for label in "${labels[@]}"; do

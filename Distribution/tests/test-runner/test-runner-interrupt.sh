@@ -101,10 +101,9 @@ expect_quiet_launch() {
 }
 
 # Nested scripts/test.sh sources its environment and modules, runs
-# test-jobs.sh (including the node share allocator), then JOBS=1 runs the
-# ordered prefix checks before the named check touches ready. Under contested
-# CI CPU that lifecycle routinely exceeds 30s; 90s covers it without borrowing
-# the 180s per-job safety ceiling.
+# test-jobs.sh, then JOBS=1 runs the ordered prefix checks before the named
+# check touches ready. Under contested CI CPU that lifecycle routinely exceeds
+# 30s; 90s covers it without borrowing the 180s per-job safety ceiling.
 dump_nested_runner() {
   local log
   [[ ! -e ${launch} ]] || cat -- "${launch}" >&2

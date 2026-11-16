@@ -1,24 +1,16 @@
 #!/usr/bin/env node
-// Command surface of scripts/share-deal.mjs (Distribution/tests/test-shares.md).
-// scripts/test-jobs.sh runs `share`; contributors run `preview` for a browser
-// test group (dashboard/tests/shards.md) and `refresh`.
+// Command surface of scripts/share-deal.mjs: contributors run `preview` for a
+// browser test group (dashboard/tests/shards.md) and `refresh`.
 //
-//   share   [--list FILE] [--split i/n]      labels on stdin, NUL-separated
-//                                            (or one per line); prints the
-//                                            share's labels NUL-separated
 //   preview --split-count N --spec-dir DIR [--root ROOT] [--list FILE]
 //   refresh --list FILE --source TEXT TIMES...
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import {
-  dealShares,
-  parseLabels,
-  parseSplit,
   readDurationList,
   readInput,
   refreshListText,
-  shareLabels,
   TestSharesError,
   writeDurationList,
 } from "./share-deal.mjs";
@@ -44,33 +36,6 @@ function parseArguments(argv, known) {
     }
   }
   return { options, positional };
-}
-
-function readStdin() {
-  return readFileSync(0, "utf8");
-}
-
-function shareCommand(argv) {
-  const { options, positional } = parseArguments(argv, ["list", "split"]);
-  if (positional.length > 0) {
-    throw new TestSharesError(
-      `FAIL: share takes labels on stdin, not ${positional[0]}.`,
-    );
-  }
-  const split =
-    options.split === undefined
-      ? { share: 1, count: 1 }
-      : parseSplit(options.split, "--split");
-  const seconds =
-    options.list === undefined
-      ? new Map()
-      : readDurationList(options.list).seconds;
-  const allocation = dealShares(parseLabels(readStdin()), seconds, split.count);
-  process.stdout.write(
-    shareLabels(allocation, split.share)
-      .map((label) => `${label}\0`)
-      .join(""),
-  );
 }
 
 async function previewCommand(argv) {
@@ -117,7 +82,6 @@ function refreshCommand(argv) {
 }
 
 const commands = {
-  share: shareCommand,
   preview: previewCommand,
   refresh: refreshCommand,
 };

@@ -42,13 +42,13 @@ const labels = [
 ];
 
 let workflows = 0;
-function select(workflowText, share, discovered = labels) {
+function select(workflowText, split, discovered = labels) {
   workflows += 1;
   const workflow = join(scratch, `ci-${workflows}.yml`);
   writeFileSync(workflow, workflowText);
   const result = spawnSync(
     process.execPath,
-    [selector, workflow, ...(share === undefined ? [] : [share])],
+    [selector, workflow, ...(split === undefined ? [] : [split])],
     { encoding: "utf8", input: discovered.map((l) => `${l}\0`).join("") },
   );
   return {
@@ -59,20 +59,20 @@ function select(workflowText, share, discovered = labels) {
 }
 
 test("a pattern share runs the checks its patterns match, nested folders included", () => {
-  const one = select(threeShares, "1");
+  const one = select(threeShares, "1/3");
   assert.equal(one.status, 0, one.stderr);
   assert.deepEqual(one.selected, [
     "skills/plan/deep/a.test.mjs",
     "skills/plan/run.sh",
   ]);
-  assert.deepEqual(select(threeShares, "2").selected, [
+  assert.deepEqual(select(threeShares, "2/3").selected, [
     "evaluation/judge.sh",
     "scripts/ci-proof.sh",
   ]);
 });
 
 test("the last share runs every check no earlier share claims, a new folder included", () => {
-  const last = select(threeShares, "3", [...labels, "newfolder/fresh.sh"]);
+  const last = select(threeShares, "3/3", [...labels, "newfolder/fresh.sh"]);
   assert.equal(last.status, 0, last.stderr);
   assert.deepEqual(last.selected, [
     "newfolder/fresh.sh",
@@ -94,7 +94,7 @@ test("labels come back in bytewise order, whatever order they were discovered in
     "  - share: 1",
     "    tests: skills/plan/**",
   ]);
-  assert.deepEqual(select(workflow, "1", discovered).selected, [
+  assert.deepEqual(select(workflow, "1/2", discovered).selected, [
     "skills/plan/B.sh",
     "skills/plan/_.sh",
     "skills/plan/a.sh",
@@ -123,9 +123,9 @@ const overlapping = workflowWith([
   "  - share: 2",
   "    tests: skills/plan/run.sh",
 ]);
-for (const share of ["1", "3", undefined]) {
-  test(`a check two shares match is refused naming it and both shares (share ${share ?? "unselected"})`, () => {
-    const refused = select(overlapping, share);
+for (const split of ["1/3", "3/3", undefined]) {
+  test(`a check two shares match is refused naming it and both shares (split ${split ?? "unset"})`, () => {
+    const refused = select(overlapping, split);
     assert.equal(refused.status, 1);
     assert.equal(refused.stdout, "");
     assert.equal(
@@ -142,8 +142,8 @@ test("a pattern that matches no check is refused naming it, also with no share s
     "  - share: 1",
     "    tests: skills/plan/** skills/gone/**",
   ]);
-  for (const share of ["2", undefined]) {
-    const refused = select(workflow, share);
+  for (const split of ["2/2", undefined]) {
+    const refused = select(workflow, split);
     assert.equal(refused.status, 1);
     assert.match(
       refused.stderr,
@@ -160,7 +160,7 @@ test("an include share outside the share list is refused", () => {
       "  - share: 4",
       "    tests: skills/**",
     ]),
-    "2",
+    "2/2",
   );
   assert.equal(refused.status, 1);
   assert.equal(
@@ -179,7 +179,7 @@ test("patterns on the last share are refused, since it runs the rest", () => {
       "  - share: 2",
       "    tests: evaluation/**",
     ]),
-    "1",
+    "1/2",
   );
   assert.equal(refused.status, 1);
   assert.equal(
@@ -208,9 +208,23 @@ for (const { form, matrix, message } of [
   test(`a matrix with ${form} is refused rather than read partly`, () => {
     const refused = select(
       workflowWith(["share: [1, 2]", "include:", ...matrix]),
-      "2",
+      "2/2",
     );
     assert.equal(refused.status, 1);
     assert.equal(refused.stderr, `FAIL: ${refused.workflow}: ${message}\n`);
   });
 }
+
+test("a split that is not <i>/<n> of the declared shares is refused naming it", () => {
+  for (const split of ["x", "0/3", "4/3", "1/2", "2/4"]) {
+    const refused = select(threeShares, split);
+    assert.equal(refused.status, 1, split);
+    assert.equal(refused.stdout, "");
+    assert.match(
+      refused.stderr,
+      new RegExp(
+        `OPEN_DOUGH_TEST_SPLIT=${split} is not .* of share: \\[1, 2, 3\\]\\.\\n$`,
+      ),
+    );
+  }
+});

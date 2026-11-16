@@ -27,8 +27,12 @@ concurrency:
 jobs:
   # `npm test` runs one job per matrix share, each running its share of the
   # discovered checks (OPEN_DOUGH_TEST_SPLIT, Distribution/tests/runner-settings.md), failing
-  # on its own failing check or deadline. The matrix lists only the
-  # shares; everything else takes the count from strategy.job-total.
+  # on its own failing check or deadline. The matrix owns share membership:
+  # each included share runs the checks its space-separated, repository-relative
+  # glob `tests` patterns match, and the last share runs the rest. The runner
+  # reads it (scripts/test-share-matrix.mjs) and fails before any check starts
+  # when two shares match one check or a pattern matches none. Everything else
+  # takes the count from strategy.job-total.
   distribution-tests:
     name: Distribution Tests (${{ matrix.share }}/${{ strategy.job-total }})
     runs-on: ubuntu-24.04
@@ -37,6 +41,11 @@ jobs:
       fail-fast: false
       matrix:
         share: [1, 2, 3]
+        include:
+          - share: 1
+            tests: Distribution/tests/skills/dough-execute-plan/**
+          - share: 2
+            tests: Distribution/evaluation/**
     steps:
       - uses: actions/checkout@v7
         with:
@@ -99,7 +108,8 @@ jobs:
           OPEN_DOUGH_TEST_OUTCOMES: ${{ runner.temp }}/test-outcomes.txt
           OPEN_DOUGH_TEST_CASE_OUTCOMES: ${{ runner.temp }}/test-case-outcomes.txt
         run: exec npm run test
-      # Per-job seconds for this share, read with `gh run download`.
+      # Per-job seconds for this share, read with `gh run download`: the input
+      # for moving a pattern between shares when they drift apart.
       - name: Keep per-job test times
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
@@ -107,7 +117,7 @@ jobs:
           name: test-times-${{ matrix.share }}
           path: ${{ runner.temp }}/test-times.txt
           if-no-files-found: ignore
-          retention-days: 7
+          retention-days: 90
       # Each check file contributes its outcome. Node also reports test cases.
       - name: Keep the CI proof fragments
         if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}

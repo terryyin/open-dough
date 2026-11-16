@@ -87,8 +87,8 @@ export function suiteRunnerLayer() {
 }
 
 // The controlled suites a case runs: `count` probe checks that record their
-// start and wait for release, a nested check, and a dashboard probe spec
-// with its configuration.
+// start and wait for release, a nested check, a one-share workflow matrix for
+// a split run, and a dashboard probe spec with its configuration.
 export function controlledSuites(count) {
   const files = {};
   for (let index = 0; index < count; index++)
@@ -113,6 +113,8 @@ exit "\${PROBE_EXIT:-0}"
       backlog: null,
       files: {
         ...files,
+        ".github/workflows/ci.yml":
+          "jobs:\n  distribution-tests:\n    strategy:\n      matrix:\n        share: [1]\n",
         "nested/pass.sh":
           '#!/usr/bin/env bash\nmkdir -p "$OBSERVE"\ntouch "$OBSERVE/start"\n',
         ...Object.fromEntries(

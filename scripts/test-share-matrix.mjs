@@ -15,9 +15,10 @@
 // Only that form is read (the repository has no YAML parser). A check two
 // shares match, or a pattern that matches no check, is refused.
 //
-//   node scripts/test-share-matrix.mjs WORKFLOW [SHARE]
-//     labels on stdin, NUL-separated; prints the share's labels (every label
-//     without SHARE) NUL-terminated in bytewise order.
+//   node scripts/test-share-matrix.mjs WORKFLOW [SPLIT]
+//     labels on stdin, NUL-separated; prints the labels of share i for SPLIT
+//     `<i>/<n>` (OPEN_DOUGH_TEST_SPLIT; n is the declared share count), or
+//     every label without SPLIT, NUL-terminated in bytewise order.
 
 import { readFileSync } from "node:fs";
 import { matchesGlob } from "node:path";
@@ -98,6 +99,27 @@ export function readShareMatrix(text, file) {
   return { file, shares, patterns };
 }
 
+/**
+ * The share number a `<i>/<n>` split selects; refused unless n is the
+ * matrix's share count and i one of its shares.
+ * @param {ReturnType<typeof readShareMatrix>} matrix
+ * @param {string} split
+ */
+export function shareOfSplit({ file, shares }, split) {
+  const parsed = /^([1-9]\d*)\/([1-9]\d*)$/.exec(split);
+  if (
+    !parsed ||
+    Number(parsed[2]) !== shares.length ||
+    !shares.includes(parsed[1])
+  ) {
+    refuse(
+      file,
+      `OPEN_DOUGH_TEST_SPLIT=${split} is not <i>/<n> with n the share count and i a share of share: [${shares.join(", ")}].`,
+    );
+  }
+  return parsed[1];
+}
+
 const bytewise = (a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b));
 
 /**
@@ -105,7 +127,7 @@ const bytewise = (a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b));
  * bytewise order. Refuses an overlap or an unmatched pattern either way.
  * @param {ReturnType<typeof readShareMatrix>} matrix
  * @param {string[]} labels discovered check labels
- * @param {string} [share]
+ * @param {string} [share] one of `matrix.shares` (see shareOfSplit)
  */
 export function selectShare(matrix, labels, share) {
   const { file, shares, patterns } = matrix;
@@ -128,19 +150,16 @@ export function selectShare(matrix, labels, share) {
       }
     }
   }
-  if (share !== undefined && !shares.includes(share)) {
-    refuse(file, `share ${share} is not in share: [${shares.join(", ")}].`);
-  }
   const owner = (label) => claimedBy.get(label) ?? shares.at(-1);
   return [...new Set(labels)]
     .filter((label) => share === undefined || owner(label) === share)
     .sort(bytewise);
 }
 
-function main([workflow, share, ...rest]) {
+function main([workflow, split, ...rest]) {
   if (workflow === undefined || rest.length > 0) {
     throw new ShareMatrixError(
-      "FAIL: test-share-matrix takes WORKFLOW [SHARE], labels on stdin.",
+      "FAIL: test-share-matrix takes WORKFLOW [SPLIT], labels on stdin.",
     );
   }
   let text;
@@ -150,7 +169,9 @@ function main([workflow, share, ...rest]) {
     throw new ShareMatrixError(`FAIL: cannot read ${workflow}.`);
   }
   const labels = readFileSync(0, "utf8").split("\0").filter(Boolean);
-  const selected = selectShare(readShareMatrix(text, workflow), labels, share);
+  const matrix = readShareMatrix(text, workflow);
+  const share = split === undefined ? undefined : shareOfSplit(matrix, split);
+  const selected = selectShare(matrix, labels, share);
   process.stdout.write(selected.map((label) => `${label}\0`).join(""));
 }
 

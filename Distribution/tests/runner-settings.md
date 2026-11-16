@@ -6,10 +6,15 @@ can write besides its report.
 The runner runs four jobs at a time locally and one per online CPU in CI; each
 job keeps its own temporary directory. `OPEN_DOUGH_TEST_JOBS` selects another
 count, 1 or more.
-An unsplit run starts its jobs in bytewise path order;
-`OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of `n` of the deal
-`scripts/test-shares.mjs` makes from the CI seconds recorded in
-`Distribution/tests/longest-first`, longest recorded first, and
+Jobs start in bytewise path order.
+`OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of the `n` shares the
+`distribution-tests` matrix in `.github/workflows/ci.yml` declares: an
+included share runs the checks its `tests` glob patterns match, the last share
+the rest, so `OPEN_DOUGH_TEST_SPLIT=2/3 npm test` reproduces CI's share 2. A
+split of named paths, an `n` other than the declared count, two shares
+matching one check, or a pattern matching none fails before any job starts;
+an unsplit run of the whole suite checks the matrix the same way, while named
+paths and other test directories only keep the order.
 `OPEN_DOUGH_TEST_TIMES=<file>` writes every started job's wall seconds and
 name, longest first. `OPEN_DOUGH_TEST_OUTCOMES=<file>` writes each selected
 job's outcome and name, tab-separated, for CI's proof fragments, which count
@@ -52,6 +57,6 @@ arming. `OPEN_DOUGH_TEST_DISABLE_JOB_DEADLINE=1` skips arming for
 discriminating proof only. Every
 `OPEN_DOUGH_TEST_*` setting stays with the runner that was given it, so a
 check that runs the runner itself gives it only the settings it chooses, runs
-all of its own checks, and keeps its own times. CI's shares, the deal and the
-preview to run before a push that adds, removes or renames a test file are in
-[test-shares.md](test-shares.md).
+all of its own checks, and keeps its own times. CI's shares are the
+matrix's: moving a pattern there is the only edit a rebalance needs, read
+from the shares' `test-times-<i>` artifacts.

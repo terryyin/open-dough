@@ -1,13 +1,11 @@
 // scripts/share-deal.mjs deals a test suite's jobs into CI shares by their
 // recorded durations: it reads the duration list, deals the jobs, selects
-// one share as `<i>/<n>` (`OPEN_DOUGH_TEST_SPLIT`, a
-// browser test group's `<prefix>_SPLIT`, the `share` command's `--split`),
-// and writes the times form a refresh merges. Preview input and text live
+// one share as `<i>/<n>` (a browser test group's `<prefix>_SPLIT`), and
+// writes the times form a refresh merges. Preview input and text live
 // in scripts/share-preview.mjs.
-// scripts/test-shares.mjs is its command surface, run by scripts/test-jobs.sh
-// for the Node runner's share and by a contributor for the preview and the
-// refresh; dashboard/tests/support/testFiles.mjs deals each browser test
-// group's spec files through it.
+// scripts/test-shares.mjs is its command surface, run by a contributor for
+// the preview and the refresh; dashboard/tests/support/testFiles.mjs deals
+// each browser test group's spec files through it.
 //
 // A duration list (`Distribution/tests/longest-first` for the Node suite) holds one
 // `<seconds><TAB><label>` line per recorded job, the form the runner's
@@ -34,20 +32,12 @@ export {
   writeDurationList,
 } from "./duration-list.mjs";
 
-// Labels NUL-separated, or one per line when the text holds no NUL; empty
-// entries are dropped.
-export function parseLabels(text) {
-  const separator = text.includes("\0") ? "\0" : /\r?\n/;
-  return text.split(separator).filter((label) => label !== "");
-}
-
 // Below this, two predicted totals are equal; sums of tenths differ from
 // their exact value by far less, and durations are never this close apart.
 const equalTotals = 1e-9;
 
 // Parses `<i>/<n>` with i from 1 to n into the share and the share count,
-// failing with the setting that carried it (as scripts/test-jobs.sh fails on
-// its own `OPEN_DOUGH_TEST_SPLIT`).
+// failing with the setting that carried it.
 export function parseSplit(value, setting) {
   const match = /^([1-9][0-9]*)\/([1-9][0-9]*)$/.exec(value);
   const share = Number(match?.[1]);
