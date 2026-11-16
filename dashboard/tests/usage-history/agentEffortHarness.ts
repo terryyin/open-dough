@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { agentEffortReport } from "../../server/agentEffortReport.ts";
+import type { compareEffort } from "../../server/agentEffortComparison.ts";
 import type { cursorEffortReport } from "../../server/agentEffortCursor.ts";
 import type { CursorTranscriptBuilder } from "../../../Distribution/tests/support/cursorTranscriptTestData.mjs";
 
@@ -83,3 +84,24 @@ export const bytes = (home: string) =>
         return [file, readFileSync(file, "utf8")];
       }),
   );
+
+export function comparisonReport(home: string, root: string, manifest: string) {
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      [
+        command,
+        "--home",
+        home,
+        "--codex-root",
+        root,
+        "--claude-root",
+        path.join(home, "claude"),
+        "--comparison",
+        manifest,
+        "--json",
+      ],
+      { encoding: "utf8", env: { ...process.env, HOME: home } },
+    ),
+  ) as Awaited<ReturnType<typeof compareEffort>>;
+}

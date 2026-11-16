@@ -43,6 +43,7 @@ test("lost native files retain known stored counters with provenance and named u
     "--task",
     "SEED-358#reconstruct-codex-and-claude-code-usage-history",
   ]);
+  expect(actual.threads).toBe(1);
   expect(actual.totals).toMatchObject({
     requests: { value: 1, status: "partial" },
     totalInput: { value: 20 },

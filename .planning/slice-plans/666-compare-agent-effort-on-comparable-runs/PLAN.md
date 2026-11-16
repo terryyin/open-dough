@@ -79,7 +79,7 @@ usage-history host schema or a live runner dependency.
 
 ### 5. Finish outcome comparisons with independent input coverage
 Type: Behavior
-Status: planned
+Status: done
 Proof: actual CLI single-member group with complete input and partial wake
 coverage; all agent-effort cases, typecheck and final lint. Reuse the retained
 comparison, ownership, inclusive-input, family and audit proof when unchanged.
@@ -122,23 +122,16 @@ this plan until wrap-up, then remove spent evidence through that workflow.
 
 ## Learnings
 
-Attempt 5 reached 15 active minutes after implementing and proving the original
-scope, then independent review found G17 (cross-metric coverage interaction).
-The first overrun disproved the assumption that isolated input/wake proof covered
-their composition. All 16 attempt-owned product files are safely parked before
-this rewrite; earlier delivered slices and all coordinator evidence are intact.
-The remaining boundary is Retain: one small source-preserving correction/proof
-loop, five slices total, within the eight-slice cap. Existing planning authority
-permits this in-place unchanged-scope refinement; no new story or permission.
-See [retained attempt evidence](slice-5-evidence.md).
-
+Attempt 5 reached 15 active minutes; work was safely parked and the unchanged-scope
+plan refined in place. The restored correction used about4 active minutes. See
+[attempt, sizing, proof and G17 evidence](slice-5-evidence.md).
 
 ## Story obligations
 
 ### G1. Plain developer reply ownership awaits shared correction
 Reported: slice 1 — "Task path only propagated candidate-linked gaps; empty-candidate later replies need an explicit ownership gap until the shared correction lands."
 Story clause: "Failed, cancelled and later-turn work stays in its owning execution"
-Disposition: interim until slices 5
+Disposition: proved by slice 5: agent-effort-ownership.spec.ts both-host actual CLI: reply11 plus root7 and failed/cancelled worker3 totals21/requests3, replayed copies once, next-task900 excluded
 Commitment: 13
 
 
@@ -194,40 +187,40 @@ Disposition: proved by slice 4: Cursor CLI JSON/readable assertions name unavail
 ### G11. Explicit native family was filtered by project configuration
 Reported: slice 5 — "Actual Codex audit with isolated home yielded zero because the shared scan excluded native family observations as unrelated projects."
 Story clause: "or an explicitly bounded native session family"
-Disposition: return
+Disposition: proved by slice 5: agent-effort-native-family.spec.ts unrelated project excluded by import but explicit family CLI retains request1/tokens13; actual audit2083 reproduced
 
 
 ### G12. Known Codex inclusive input is lost without cache breakdown
 Reported: slice 5 — "Acceptance inspection confirmed report totals and peaks sum normalized components and can hide a known native inclusive input count when cache breakdown is absent."
 Story clause: "total input"
-Disposition: return
+Disposition: proved by slice 5: agent-effort-comparison.spec.ts known inclusive input123/total130 with cache fields unavailable and peak123 maximum
 Commitment: 6
 
 ### G13. Group peak inherits incomplete coverage from only one selection
 Reported: slice 5 — "Acceptance found that group agent peaks copy the largest member peak object even when another selection of the same agent has missing input, losing union coverage and lower-bound qualification."
 Story clause: "peak input per agent"
-Disposition: return
+Disposition: proved by slice 5: agent-effort-group-coverage.spec.ts narrow/wide/repeated selections yield union2, missingInput1 and peak100 lower bound
 
 
 ### G14. Stored and native selections can double-charge the same task
 Reported: slice 5 — "Acceptance found that group totals can add stored-only and native counters from the same session when a canonical task selection repeats with different evidence roots."
 Story clause: "Repeating a selection cannot double-charge its responses"
-Disposition: return
+Disposition: proved by slice 5: agent-effort-group-coverage.spec.ts native/stored same session contributes once with disjoint worker, group50 not70 and named overlap gap; comparison stored repeats once; ownership copied responses once
 Commitment: 14
 
 ### G15. Stored session identity is displayed as zero threads
 Reported: slice 5 — "Acceptance found threads0 in stored-only reports despite recoverable stored requests and session identity, because only native response identities were counted."
 Story clause: "Unavailable is not zero"
-Disposition: return
+Disposition: proved by slice 5: agent-effort-coverage.spec.ts stored-only request/input counters with known session report threads1, native peaks unavailable
 
 
 ### G16. Cursor file aliases can double-charge one transcript
 Reported: slice 5 — "Acceptance found lexical Cursor transcript paths as group identities, so real and symlinked roots can count the same physical transcript twice."
 Story clause: "Repeating a selection cannot double-charge its responses"
-Disposition: return
+Disposition: proved by slice 5: agent-effort-group-coverage.spec.ts real/symlink Cursor roots retain two executions and one transcript/Todo/agent
 
 
 ### G17. Wake uncertainty incorrectly changes input peak coverage
 Reported: slice 5 — "Independent refactor and actual CLI reproduction found the same two known-input requests reported observed-maximum alone but observed-lower-bound in a one-member group solely because wake evidence was partial."
 Story clause: "peak input per agent"
-Disposition: return
+Disposition: proved by slice 5: agent-effort-group-coverage.spec.ts actual individual and one-member group CLI peaks10 maximum equal while wake1 partial and named gap retained; missing-input lower bound remains

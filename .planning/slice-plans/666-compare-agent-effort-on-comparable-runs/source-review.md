@@ -23,10 +23,10 @@ suffice; no new paid sessions. Compare outcome/proof before interpreting effort.
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | 1 | A read-only local command reports one selected execution. | slice 1 | observed: agent-effort-report.spec.ts selected launch: actual Node CLI/readable+JSON and unchanged home bytes |
-| 2 | The command compares a baseline and candidate. | slice 5 | |
+| 2 | The command compares a baseline and candidate. | slice 5 | observed: agent-effort-comparison.spec.ts explicit continuation groups: actual CLI baseline/candidate reports and readable output |
 | 3 | Selection identifies “the task and its native turn boundary, or an explicitly bounded native session family.” | slice 1 | observed: agent-effort-report.spec.ts selected launch and bounded Claude family: task turn/native family half-open bounds |
 | 4 | Ambiguous matches are “explained for correction rather than silently choosing the latest run.” | slice 1 | observed: agent-effort-coverage.spec.ts ambiguous story: error names exact usable task ids |
-| 5 | Reports include requests. Published-audit reproduction retains original windows and family boundaries; the Codex SEED-324 family `01a1d22f…` example expects **2,083 requests** in its original audit window. | slice 5 | |
+| 5 | Reports include requests. Published-audit reproduction retains original windows and family boundaries; the Codex SEED-324 family `01a1d22f…` example expects **2,083 requests** in its original audit window. | slice 5 | observed: replay-final-cli.mjs original Codex audit window; slice-5-codex-original-audit-window.json requests2083 |
 | 6 | Reports include total input. |  | G12 |
 | 7 | Reports include cached input. | slice 1 | observed: agent-effort-report.spec.ts selected launch cachedInput70; agent-effort-coverage.spec.ts missing cached counter unavailable |
 | 8 | Reports include uncached input. | slice 1 | observed: agent-effort-report.spec.ts selected launch uncachedInput60; agent-effort-coverage.spec.ts known fresh components under missing cache reads |
@@ -60,21 +60,21 @@ suffice; no new paid sessions. Compare outcome/proof before interpreting effort.
 | 36 | Cursor provides reproducible AwaitShell-call counts. | slice 4 | observed: agent-effort-cursor.spec.ts dynamic AwaitShell count1; actual coordinator13 retained occurrences |
 | 37 | Cursor provides reproducible TodoWrite-call counts. SEED-313 session `a6169ce7…` expects **15 TodoWrite calls** from its retained transcript. | slice 4 | observed: agent-effort-cursor.spec.ts2 TodoWrite including nested worker; cursor-sample-summary.json coordinator15 |
 | 38 | Cursor workflow counting resolves “recorded dynamic-tool wrappers.” | slice 4 | observed: agent-effort-cursor.spec.ts direct and dynamic tools count4 dynamic calls and resolved Read/Task/AwaitShell/TodoWrite names |
-| 39 | A comparison shows per-host figures. The linked-continuation example also retains “per-host measures.” | slice 5 | |
-| 40 | A comparison shows deltas “for like, known measures.” | slice 5 | |
-| 41 | A comparison shows settings differences. | slice 5 | |
-| 42 | A comparison shows coverage differences. | slice 5 | |
-| 43 | A comparison includes supplied outcome notes. | slice 5 | |
-| 44 | A comparison includes supplied proof notes. | slice 5 | |
-| 45 | A comparison includes supplied human-intervention notes. | slice 5 | |
-| 46 | A comparison “makes no automatic improvement or causal claim.” In the misleading-saving example, candidate tokens fall while effort differs or supplied proof/intervention notes show more rescue: the report shows those differences and deltas “without declaring an improvement.” | slice 5 | |
+| 39 | A comparison shows per-host figures. The linked-continuation example also retains “per-host measures.” | slice 5 | observed: agent-effort-comparison.spec.ts combined candidate perHost input50 and mixed-host case with separate host totals |
+| 40 | A comparison shows deltas “for like, known measures.” | slice 5 | observed: agent-effort-comparison.spec.ts known Codex delta -50; mixed Codex/Cursor hosts yield no token deltas |
+| 41 | A comparison shows settings differences. | slice 5 | observed: agent-effort-comparison.spec.ts observed high versus low effort produces settings-differences warning with all per-run figures retained |
+| 42 | A comparison shows coverage differences. | slice 5 | observed: agent-effort-group-coverage.spec.ts narrow complete baseline versus wider missing-input candidate asserts coverage-differences warning |
+| 43 | A comparison includes supplied outcome notes. | slice 5 | observed: agent-effort-comparison.spec.ts candidate notes retain supplied linked-smaller-stories outcome |
+| 44 | A comparison includes supplied proof notes. | slice 5 | observed: agent-effort-comparison.spec.ts candidate notes retain supplied less-proof note |
+| 45 | A comparison includes supplied human-intervention notes. | slice 5 | observed: agent-effort-comparison.spec.ts candidate notes retain manual rescue; readable CLI includes it |
+| 46 | A comparison “makes no automatic improvement or causal claim.” In the misleading-saving example, candidate tokens fall while effort differs or supplied proof/intervention notes show more rescue: the report shows those differences and deltas “without declaring an improvement.” | slice 5 | observed: agent-effort-comparison.spec.ts lower input50 versus100 with low versus high effort, less proof/manual rescue, all notes and warning retained, winner absent; comparison warning explicitly rejects automatic improvement/causality |
 | 47 | “Unknown or mismatched evidence does not prevent inspecting the known figures.” In the lost-native-files example, recoverable stored counters remain visible. | slice 1 | observed: agent-effort-coverage.spec.ts lost native file retains stored request1/input20/output4 partial with provenance |
-| 48 | “Explicitly linked split-story continuations can be grouped for one delivered outcome.” | slice 5 | |
-| 49 | Grouping retains each execution’s figures. With “two linked continuation executions on one side and a baseline execution on the other,” the report shows each execution and keeps per-agent peaks. | slice 5 | |
-| 50 | That linked-continuation comparison shows “the deduplicated group total.” | slice 5 | |
-| 51 | Selecting Codex SEED-324 family `01a1d22f…` with the original audit window reproduces **11 threads**. | slice 5 | |
-| 52 | The same selection reproduces **436,806,678 tokens**. | slice 5 | |
-| 53 | Whole-execution figures appear separately from the original audit window. Selecting the entire Codex execution “reports its later work too, with a different boundary explicitly named.” | slice 5 | |
+| 48 | “Explicitly linked split-story continuations can be grouped for one delivered outcome.” | slice 5 | observed: agent-effort-comparison.spec.ts explicit first/second linked continuation members on candidate side |
+| 49 | Grouping retains each execution’s figures. With “two linked continuation executions on one side and a baseline execution on the other,” the report shows each execution and keeps per-agent peaks. | slice 5 | observed: agent-effort-comparison.spec.ts each candidate input30/20/30 retained with per-agent peaks20/30 |
+| 50 | That linked-continuation comparison shows “the deduplicated group total.” | slice 5 | observed: agent-effort-comparison.spec.ts first/second/repeated-first yields deduplicated total50 and requests2 |
+| 51 | Selecting Codex SEED-324 family `01a1d22f…` with the original audit window reproduces **11 threads**. | slice 5 | observed: replay-final-cli.mjs original Codex audit window asserts threads11; slice-5-codex-original-audit-window.json |
+| 52 | The same selection reproduces **436,806,678 tokens**. | slice 5 | observed: replay-final-cli.mjs original Codex audit window asserts totalTokens436806678; corresponding retained JSON |
+| 53 | Whole-execution figures appear separately from the original audit window. Selecting the entire Codex execution “reports its later work too, with a different boundary explicitly named.” | slice 5 | observed: replay-final-cli.mjs separately named original window2083 requests and whole retained family across tasks2101; each selection boundary explicit; task ownership tests separately retain later replies and exclude a next task |
 | 54 | It does not launch agents. | slice 1 | observed: compareAgentEffort.ts → agentEffortReport.ts → usageScan.ts inspected local-only read path, shared native readers/collectResponses/associations; actual CLI unchanged-byte assertions; importer remains sole writer, no state/schema extension |
 | 55 | It does not call provider APIs. | slice 1 | observed: compareAgentEffort.ts → agentEffortReport.ts → usageScan.ts inspected local-only read path, shared native readers/collectResponses/associations; actual CLI unchanged-byte assertions; importer remains sole writer, no state/schema extension |
 | 56 | It does not refresh Usage. | slice 1 | observed: compareAgentEffort.ts → agentEffortReport.ts → usageScan.ts inspected local-only read path, shared native readers/collectResponses/associations; actual CLI unchanged-byte assertions; importer remains sole writer, no state/schema extension |

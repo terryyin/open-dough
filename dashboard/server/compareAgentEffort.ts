@@ -1,14 +1,13 @@
 // Read-only local evidence: node dashboard/server/compareAgentEffort.ts --list
 import { parseArgs } from "node:util";
-import { homedir } from "node:os";
-import path from "node:path";
-import { claudeUsageRoots, codexUsageRoots } from "./usageImport.ts";
-import { agentEffortReport } from "./agentEffortReport.ts";
-import { cursorEffortReport } from "./agentEffortCursor.ts";
+import { readFileSync } from "node:fs";
+import { readEffortRequest } from "./agentEffortRequest.ts";
+import { compareEffort } from "./agentEffortComparison.ts";
 try {
   const { values } = parseArgs({
     options: {
       home: { type: "string" },
+      comparison: { type: "string" },
       store: { type: "string" },
       task: { type: "string" },
       family: { type: "string" },
@@ -25,51 +24,39 @@ try {
       "cursor-root": { type: "string", multiple: true },
     },
   });
-  if (values.host && !["codex", "claude", "cursor"].includes(values.host))
-    throw new Error("--host must be codex, claude or cursor");
-  const home = path.resolve(values.home ?? homedir());
-  const report =
-    values.host === "cursor"
-      ? cursorEffortReport({
-          home,
-          roots: values["cursor-root"],
-          family: values.family,
-          task: values.task,
-          from: values.from,
-          until: values.until,
-          list: values.list,
-          guidanceVersion: values["guidance-version"],
-        })
-      : await agentEffortReport(
-          {
-            home,
-            ...(values.store ? { store: values.store } : {}),
-            since: "1970-01-01T00:00:00.000Z",
-            codexRoots:
-              values["codex-root"] ??
-              (values["codex-file"] ? [] : codexUsageRoots(home)),
-            claudeRoots:
-              values["claude-root"] ??
-              (values["claude-file"] ? [] : claudeUsageRoots(home)),
-            ...(values["codex-file"]
-              ? { codexFiles: values["codex-file"] }
-              : {}),
-            ...(values["claude-file"]
-              ? { claudeFiles: values["claude-file"] }
-              : {}),
-          },
-          {
-            task: values.task,
-            family: values.family,
-            host: values.host as "codex" | "claude" | undefined,
-            from: values.from,
-            until: values.until,
-            list: values.list,
-            guidanceVersion: values["guidance-version"],
-          },
-        );
+  const report = values.comparison
+    ? await compareEffort(
+        JSON.parse(readFileSync(values.comparison, "utf8")),
+        values,
+      )
+    : await readEffortRequest(values);
   if (values.json) console.log(JSON.stringify(report));
-  else if ("selections" in report)
+  else if ("baseline" in report) {
+    console.log(
+      "Exploratory agent effort comparison; no automatic improvement or causal claim",
+    );
+    for (const name of ["baseline", "candidate"] as const) {
+      const group = report[name];
+      console.log(`${name} supplied notes: ${JSON.stringify(group.notes)}`);
+      for (const execution of group.executions) {
+        const { agents, ...summary } = execution;
+        console.log(
+          `${name} execution: ${JSON.stringify({
+            ...summary,
+            agents: agents.map((agent) => ({
+              ...agent,
+              responseIds: undefined,
+            })),
+          })}`,
+        );
+      }
+      console.log(
+        `${name} deduplicated group: ${JSON.stringify(group.perHost)}`,
+      );
+    }
+    console.log(`Deltas: ${JSON.stringify(report.deltas)}`);
+    console.log(`Warnings: ${report.warnings.join("; ")}`);
+  } else if ("selections" in report)
     console.log(JSON.stringify(report.selections, null, 2));
   else {
     console.log(`${report.host} agent effort (${report.definition})`);
@@ -90,8 +77,10 @@ try {
     console.log(`Combined known figures: ${JSON.stringify(report.totals)}`);
     if ("workflow" in report)
       console.log(`Workflow: ${JSON.stringify(report.workflow)}`);
-    for (const agent of report.agents)
+    for (const original of report.agents) {
+      const agent = { ...original, responseIds: undefined };
       console.log(`${agent.role} ${agent.id}: ${JSON.stringify(agent)}`);
+    }
     console.log(`Gaps: ${report.gaps.join(", ")}`);
   }
 } catch (error) {

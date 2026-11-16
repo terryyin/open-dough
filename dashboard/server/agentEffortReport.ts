@@ -2,14 +2,8 @@ import { codexAncestry } from "./codexUsageLineage.ts";
 import { usageHistoryFile } from "./usageHistory.ts";
 import { scanUsageHistory, type UsageScanOptions } from "./usageScan.ts";
 import type { UsageObservation } from "./usageRecords.ts";
-import { effortTotals } from "./agentEffortTotals.ts";
+import { nativeEffortSummary } from "./agentEffortNativeSummary.ts";
 import { effortGroups } from "./agentEffortGroups.ts";
-import {
-  effortWakes,
-  idleWakeRule,
-  effortWakeSummary,
-} from "./agentEffortWakes.ts";
-import { effortAgents } from "./agentEffortObservations.ts";
 
 export type EffortSelection = {
   task?: string | undefined;
@@ -20,9 +14,15 @@ export type EffortSelection = {
   list?: boolean | undefined;
   guidanceVersion?: string | undefined;
 };
+export type EffortEvidence = {
+  responses: UsageObservation[];
+  groups: Awaited<ReturnType<typeof effortGroups>>;
+  gaps: Set<string>;
+};
 export async function agentEffortReport(
   options: UsageScanOptions,
   selection: EffortSelection,
+  observe?: (evidence: EffortEvidence) => void,
 ) {
   const store = options.store ?? usageHistoryFile(options.home);
   const from =
@@ -44,7 +44,11 @@ export async function agentEffortReport(
     (!selection.host || !selection.from || !selection.until)
   )
     throw new Error("Native --family requires --host, --from and --until");
-  const scan = await scanUsageHistory(options, from, store);
+  const scan = await scanUsageHistory(
+    { ...options, retainNativeObservations: Boolean(selection.family) },
+    from,
+    store,
+  );
   const catalog = scan.tasks
     .map(({ id, host, sessionId, rootTurnId, identity, launchedAt }) => ({
       id,
@@ -87,7 +91,9 @@ export async function agentEffortReport(
     const ancestry = codexAncestry(response.sessionId, scan.lineage);
     return !ancestry.contradictory && ancestry.sessions.includes(root);
   };
-  const selected = scan.observations.filter((response) =>
+  const selected = (
+    task ? scan.observations : scan.retainedNativeObservations
+  ).filter((response) =>
     task
       ? associations.get(response.id)?.taskId === task.id
       : familyMember(response),
@@ -155,16 +161,17 @@ export async function agentEffortReport(
       association.gaps.forEach((gap) => gaps.add(gap));
   for (const gap of scan.gaps)
     if (
-      (task !== undefined && gap.taskId === task.id) ||
-      (gap.source !== undefined &&
-        selected.some((response) =>
-          response.measurements.some(
-            (measurement) => measurement.source.file === gap.source?.file,
-          ),
-        )) ||
-      (gap.host === host &&
-        (gap.sessionId === root ||
-          selected.some((response) => response.sessionId === gap.sessionId)))
+      (task !== undefined || gap.code !== "unrelated-project-excluded") &&
+      ((task !== undefined && gap.taskId === task.id) ||
+        (gap.source !== undefined &&
+          selected.some((response) =>
+            response.measurements.some(
+              (measurement) => measurement.source.file === gap.source?.file,
+            ),
+          )) ||
+        (gap.host === host &&
+          (gap.sessionId === root ||
+            selected.some((response) => response.sessionId === gap.sessionId))))
     )
       gaps.add(gap.code);
   const groups = await effortGroups(
@@ -180,60 +187,15 @@ export async function agentEffortReport(
     gaps,
   );
   if (!groups.size) gaps.add("no-attributable-response-usage");
-  const wakes = await effortWakes(responses);
-  const incomplete = [...gaps].some(
-    (gap) =>
-      ![
-        "idle-wake-evidence-unavailable",
-        "auxiliary-usage-not-covered",
-      ].includes(gap),
-  );
-  const agents = effortAgents(groups, responses, incomplete, gaps, wakes);
-  const idleWakeRequests = effortWakeSummary(responses, agents, wakes, gaps);
-  return {
-    format: "agent-effort-v1",
-    scope: "retained-local-evidence",
+  observe?.({ responses, groups, gaps });
+  return nativeEffortSummary({
+    responses,
+    groups,
+    gaps,
+    task,
     host,
-    selection: {
-      kind: task ? "task" : "native-family",
-      taskId: task?.id ?? null,
-      identity: task?.identity ?? null,
-      rootSessionId: root,
-      rootTurnId: task?.rootTurnId ?? null,
-      nativeTurns: task?.nativeTurns ?? null,
-      from: selection.from ?? null,
-      until: selection.until ?? null,
-      boundary: task
-        ? "shared-Usage-task-ownership"
-        : "explicit-half-open-native-family-window",
-    },
-    definition:
-      host === "codex" ? "codex-inclusive-input" : "claude-disjoint-input",
-    accounting:
-      "Input = uncached + cache reads + cache writes. Reasoning output is a subset of output. Partial values are known subtotals; unavailable values are null.",
-    requestedSettings: task?.requested ?? null,
-    guidanceVersion: {
-      value: selection.guidanceVersion ?? null,
-      provenance:
-        selection.guidanceVersion === undefined ? "unknown" : "supplied",
-      evidence:
-        "Historical guidance is unavailable without retained source evidence; the current installation is not historical evidence.",
-    },
-    sources: [
-      ...(task?.sources ?? []),
-      ...agents.flatMap((agent) => agent.sources),
-    ],
+    root,
+    selection,
     unownedResponses,
-    totals: effortTotals(
-      [...groups.values()].flatMap((group) => group.entries),
-      incomplete,
-    ),
-    agents,
-    gaps: [...gaps].sort(),
-    peakInput: null,
-    peakInputRule:
-      "Per-agent observed request maxima; never summed across agents. Missing requests or input counters make observed values lower bounds.",
-    idleWakeRequests,
-    idleWakeRule,
-  };
+  });
 }

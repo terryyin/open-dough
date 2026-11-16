@@ -19,6 +19,7 @@ export function effortAgents(
     (gap) =>
       ![
         "idle-wake-evidence-unavailable",
+        "idle-wake-evidence-partial",
         "auxiliary-usage-not-covered",
         "retained-native-evidence-only",
         "unresolved-native-task-lineage",
@@ -63,7 +64,9 @@ export function effortAgents(
         return response ? [response] : [];
       });
       const input = requests.map(
-        (response) => effortTotals(responseEntries([response])).totalInput,
+        (response) =>
+          effortTotals(responseEntries([response]), false, [response])
+            .totalInput,
       );
       const known = input.flatMap((metric) =>
         metric.value === null ? [] : [metric.value],
@@ -77,7 +80,7 @@ export function effortAgents(
         agentId: group.agentId,
         role: group.role,
         provenance: group.provenance,
-        totals: effortTotals(group.entries, incomplete),
+        totals: effortTotals(group.entries, incomplete, requests),
         observedSettings: [...settings.entries()]
           .sort(([a], [b]) => a.localeCompare(b))
           .map(([, setting]) => setting),

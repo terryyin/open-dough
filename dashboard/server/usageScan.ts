@@ -38,6 +38,7 @@ export type UsageScanOptions = {
   claudeRoots?: string[];
   since: string;
   store?: string;
+  retainNativeObservations?: boolean;
 };
 // The tasks the store keeps, by id, each with its retained launch record's
 // current facts merged in, and every retained launch not stored yet.
@@ -136,6 +137,10 @@ export async function scanUsageHistory(
     }
     return false;
   };
+  // Only explicit family reports need evidence excluded from Usage projects.
+  const retainedNativeObservations = options.retainNativeObservations
+    ? [...observations.values()]
+    : [];
   const relevant = [...observations.values()].filter(
     (item) => !unrelated(item),
   );
@@ -178,6 +183,13 @@ export async function scanUsageHistory(
     excludedObservations,
     tasks,
     observations: [...observations.values()],
+    retainedNativeObservations: retainedNativeObservations.map(
+      (response) =>
+        observations.get(response.id) ??
+        (response.host === "claude"
+          ? claudeAssociation(response, tasks, claude).observation
+          : response),
+    ),
     associations,
     resolvedAssociations: resolved,
     gaps,
