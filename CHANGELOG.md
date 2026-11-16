@@ -1,3 +1,17 @@
+## 0.3.102 - 2026-11-16
+
+- When asked to watch a paused supplier, Execute Plan waits for changes to the named branch or story paths and reports only a publication or the deadline. Continuing a wait keeps its deadline and catches publications made while the previous result was being judged.
+- Source review groups repeated descriptions of one observable promise and keeps independently testable outcomes separate. Acceptance records preserve the source conditions and qualifications. Consumer tracing requires evidence for each affected purpose, including the proof type and any gap, before dependent acceptance. Story Wrap Up queues deferred promises together before removing the spent story section unless the developer drops them.
+- Dashboard Usage compares Codex and Claude Code on one chart, with separate coverage and rolling medians and optional equal spacing by task. The usage store preserves session contributions and avoids rewriting its history when a refresh finds no changes.
+- The dashboard confirms its connection when the window returns, supports swiping between Board columns on mobile, and highlights code and markup in story-review diffs, including Markdown, JSON, CSS, and YAML. Project Intent charts CI time excluding runner waits and labels gaps where that measure is unavailable.
+- Development CI uses fixed test patterns for its shards and runs lint and dashboard type-checking in a dedicated job. Maintainers can assess shard balance on demand. Native evaluation tooling, scenarios, and controlled checks have their own source directory.
+
+The Promoted payload has 370 files. It adds the supplier publication wait command, revises nine guidance files, and retires no paths. Dashboard, CI, and native evaluation tooling changes are in the source repository.
+
+The self-installation baseline, six installation and release-gate checks, twelve supplier publication wait tests, and dashboard type-check passed locally. The guidance review covered a publication arriving during judgment, a proof gap for an affected consumer, repeated source clauses with independent outcomes, and deferred promises at story closure. [Hosted trunk CI passed all 19 jobs at `46decc9b5`](https://github.com/terryyin/open-dough/actions/runs/43818955465). [CI for the exact source candidate `41c5ec468`](https://github.com/terryyin/open-dough/actions/runs/43825604242) was still running at finalization.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), this revision reuses evidence for the existing host wait, installation, discovery, and hook mechanisms. Real-use observations of model wakeups and cached input during the supplier wait are queued for [Codex and Claude Code](.planning/seeds/SEED-389-verify-silent-supplier-wait.md). Freshness ordering and oversized-file reorganization remain separately pending for their unchanged guidance.
+
 ## 0.3.101 - 2026-11-15
 
 - Limit a new slice plan to eight slices. Split an over-limit feature story before readiness. During execution, splitting the current slice can raise the limit to ten. When work must stop, close a delivered outcome only if it has independent proof and can safely stand on its own; the remainder needs a separate authorized start.
