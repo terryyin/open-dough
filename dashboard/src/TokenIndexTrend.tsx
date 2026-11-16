@@ -9,7 +9,10 @@
 // Selecting a point by pointer or keyboard shows that task's detail
 // (`./UsageTaskDetail.tsx`), its tool kept with it since task IDs may repeat
 // across tools; a new answer, as a Refresh brings, keeps it while the task's
-// point remains.
+// point remains. Equal spacing, which the view keeps (`spaced`), gives each
+// shown task one slot in completion order across tools, a tie by tool then
+// task ID, and each median observation its own task's slot; readouts and
+// detail keep the actual completion time.
 import { useState } from "react";
 import { countAxis, countWords } from "./chartValueAxis.ts";
 import type {
@@ -53,18 +56,31 @@ function point(
   };
 }
 
+// Completion order across tools; a tie by tool, then task ID.
+const completionOrder = (
+  a: { readonly tool: UsageTool; readonly task: TokenIndexTask },
+  b: { readonly tool: UsageTool; readonly task: TokenIndexTask },
+) =>
+  Date.parse(a.task.endedAt) - Date.parse(b.task.endedAt) ||
+  usageTools.indexOf(a.tool) - usageTools.indexOf(b.tool) ||
+  a.task.id.localeCompare(b.task.id);
+
 function series(
   answers: readonly TokenIndexAnswer[],
   selected: string | undefined,
+  spaced: boolean,
 ): HistoryChartSeries {
   const entries = answers
     .flatMap(({ cohort, tasks }) =>
-      tasks.map((task) => point(cohort.tool, task, selected)),
+      tasks.map((task) => ({ tool: cohort.tool, task })),
     )
-    // In history order across tools; a tie keeps tool order.
-    .sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+    .sort(completionOrder)
+    .map(({ tool, task }) => point(tool, task, selected));
   return {
-    label: "Token index per finished task by end date",
+    label: spaced
+      ? "Token index per finished task in task order, equally spaced"
+      : "Token index per finished task by end date",
+    ...(spaced ? { order: { axisWords: "Task order, earliest first" } } : {}),
     axis: countAxis,
     selectedLabel: "Selected task",
     emptyScaleMaximum: largeTaskThreshold,
@@ -74,7 +90,11 @@ function series(
     entries,
     trends: answers.map(({ cohort, average }) => ({
       trace: usageToolName(cohort.tool),
-      points: average.map(({ at, value }) => ({ date: at, value })),
+      points: average.map(({ at, task, value }) => ({
+        date: at,
+        value,
+        key: `${cohort.tool}:${task}`,
+      })),
     })),
   };
 }
@@ -82,9 +102,13 @@ function series(
 export function TokenIndexTrend({
   answers,
   days,
+  spaced,
+  onSpace,
 }: {
   readonly answers: readonly TokenIndexAnswer[];
   readonly days: number;
+  readonly spaced: boolean;
+  readonly onSpace: (spaced: boolean) => void;
 }) {
   // The selected task and its point's button, which Close focuses again.
   const [chosen, setChosen] = useState<{
@@ -117,11 +141,22 @@ export function TokenIndexTrend({
             unit, not a common cost or a measure of tool efficiency.
           </p>
         )}
+        <label className="usage-spacing">
+          <input
+            type="checkbox"
+            checked={spaced}
+            onChange={(event) => {
+              onSpace(event.currentTarget.checked);
+            }}
+          />
+          Equal spacing
+        </label>
         {tasks.length > 0 && (
           <HistoryChart
             series={series(
               answers,
               selected && markKey(selected.tool, selected.task),
+              spaced,
             )}
             onChoose={(key, mark) => {
               setChosen({ key, mark });

@@ -172,6 +172,11 @@ export type TokenIndexAnswer = {
   // From the tenth eligible task on, the median of each one's latest ten
   // eligible tasks: priced and measured with no known gap. Earlier history still
   // contributes; only observations in the requested period are returned.
-  // Keep the existing wire name for the trend.
-  readonly average: readonly { readonly at: string; readonly value: number }[];
+  // Keep the existing wire name for the trend. Each observation names the
+  // eligible task it ends with (`task`), completed at `at`.
+  readonly average: readonly {
+    readonly at: string;
+    readonly task: string;
+    readonly value: number;
+  }[];
 };

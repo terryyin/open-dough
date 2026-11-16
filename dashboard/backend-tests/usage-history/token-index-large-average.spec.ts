@@ -27,6 +27,6 @@ test("an isolated 65-million task leaves the ten-task median at one million", as
   const answer = await usage.chart();
   expect(answer.tasks.map((task) => task.index)).toEqual(indexes);
   expect(answer.average).toEqual([
-    { at: "2026-11-10T12:00:00.000Z", value: 1_000_000 },
+    { at: "2026-11-10T12:00:00.000Z", task: "task-9", value: 1_000_000 },
   ]);
 });

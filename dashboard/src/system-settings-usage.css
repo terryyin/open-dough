@@ -70,6 +70,16 @@
   font-size: var(--text-md);
 }
 
+/* Equal spacing gives every shown task one slot in completion order. */
+.usage-spacing {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 44px;
+  color: var(--text);
+  font-size: var(--text-md);
+}
+
 .usage-tools {
   display: grid;
   gap: var(--space-2);

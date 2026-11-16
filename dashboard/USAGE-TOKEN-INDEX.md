@@ -28,6 +28,19 @@ Claude Code's background agent-view summaries, recaps and idle compaction never
 reach transcripts; the Claude Code summary says so in one note under its tariff
 rather than marking every task partial.
 
+**Equal spacing** is off initially; then the horizontal axis is completion
+time and each task stands at its time. Switched on, the axis is **task order**:
+every shown task of the selected tools takes one equal-width slot in
+completion order across tools, equal times ordered by tool (Codex, then Claude
+Code) and then task ID. An unpriced task has no point and so no slot. Filters
+and tool choices rebuild that sequence; Refresh and cohort or day changes keep
+the setting. Spacing changes placement only: values, filtering and median
+membership stay the same, and readouts and task detail keep the actual
+completion time, index and tool. Each median observation (`average`) names the
+eligible task it ends with (`task`, beside its time `at` and `value`), so under
+equal spacing each tool's median, including an above-scale **Median ↑**, stands
+at its own task's slot. Switching off restores every time position.
+
 **Last N days** starts at 30 and selects today plus the previous N−1 local
 calendar days, including the first midnight and excluding tomorrow's midnight.
 It is temporary view state. Cohort changes and Refresh keep the choice. Invalid

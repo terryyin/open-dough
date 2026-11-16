@@ -48,6 +48,8 @@ const CheckedAt = ({ at }: { readonly at: string | null }) =>
 export function SystemSettingsUsage() {
   const [selection, setSelection] = useState(defaultSelection);
   const [days, setDays] = useState(30);
+  // Equal task spacing stays through Refresh and every cohort or day change.
+  const [spaced, setSpaced] = useState(false);
   const [refreshProblem, setRefreshProblem] = useState<string>();
   // Each Refresh that brought usage in reads the selection again.
   const [refreshed, setRefreshed] = useState(0);
@@ -143,7 +145,12 @@ export function SystemSettingsUsage() {
         )
       ) : (
         <>
-          <TokenIndexTrend answers={answers} days={days} />
+          <TokenIndexTrend
+            answers={answers}
+            days={days}
+            spaced={spaced}
+            onSpace={setSpaced}
+          />
           <p className="settings-note">
             <CheckedAt at={checkedAt(answers)} />
           </p>

@@ -5,9 +5,12 @@
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { keepLaunchStore } from "../../dashboard/tests/support/launchStore.ts";
+import { expect } from "../../dashboard/tests/dashboardTest.ts";
 import { test } from "../../dashboard/tests/support/pageTest.ts";
 import { systemSettingsMachine } from "../../dashboard/tests/support/systemSettingsMachine.ts";
 import { visitUsage } from "../../dashboard/tests/support/systemSettingsUsagePage.ts";
+import { usageChart } from "../../dashboard/tests/support/usageChartPage.ts";
+import { usageSpacing } from "../../dashboard/tests/support/usageSpacingPage.ts";
 import {
   runImport,
   writeClaudeSession,
@@ -89,7 +92,7 @@ const writeCodexLaunch = (root: string) =>
       .please(),
   );
 
-test("both tools compare on one chart in their own units, follow a filter, open a task and take a Claude launch from Refresh", async ({
+test("both tools compare on one chart in their own units, follow a filter, open a task, take a Claude launch from Refresh and space tasks equally", async ({
   page,
 }) => {
   const earlier = "5f0c6a52-6a1b-4c39-9f43-0d8b1c2e7a12",
@@ -138,9 +141,25 @@ test("both tools compare on one chart in their own units, follow a filter, open 
   ]);
   await usage.showsChecked();
   await usage.choose("Effort", "Any effort");
-  await usage.showsPoints([
+  const shown = [
     "Nov 6 · Codex · 1,950",
     "Nov 6 · Claude Code · 6,000",
     "Nov 8 · Claude Code · 6,000",
-  ]);
+  ];
+  await usage.showsPoints(shown);
+
+  const spacing = usageSpacing(page);
+  await spacing.space(true);
+  await spacing.showsTaskOrderAxis();
+  const [first, second, third] = await usageChart(page).markCentres(shown);
+  expect((third?.x ?? 0) - (second?.x ?? 0)).toBeCloseTo(
+    (second?.x ?? 0) - (first?.x ?? 0),
+    1,
+  );
+  await usage.selectPoint("Nov 8 · Claude Code · 6,000", "pointer");
+  await usage.showsFact("Token index", "6,000");
+  await usage.showsFact("Ended", { at: day(8), outcome: "Completed" });
+  await spacing.space(false);
+  await spacing.showsDateAxis(["Nov 6", "Nov 8"]);
+  await usage.showsFact("Token index", "6,000");
 });

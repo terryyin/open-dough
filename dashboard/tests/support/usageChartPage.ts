@@ -8,10 +8,13 @@ import {
 } from "../accessibleReading.ts";
 import { expectNoSidewaysScrollAndWholeText } from "../pageLayout.ts";
 import { tokenColour } from "../pageColours.ts";
+// The drawing's name over time or, with equal spacing, in task order.
+export const usageChartName =
+  /^Token index per finished task (by end date|in task order, equally spaced)$/;
 export function usageChart(page: Page) {
   const chart = historyChart(
     page.getByRole("region", { name: "Token index trend", exact: true }),
-    "Token index per finished task by end date",
+    usageChartName,
   );
   const large = chart.drawing.locator(".history-chart-overflow");
   return {

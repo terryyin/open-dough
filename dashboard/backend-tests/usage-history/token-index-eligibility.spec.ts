@@ -119,8 +119,28 @@ test("only complete tasks, including a measured zero, fill the ten-task rolling 
       .map(({ id }) => id),
   ).toEqual(eligibleDays.map((date) => `eligible-${date}`));
   expect(answer.average).toEqual([
-    { at: day(14), value: 3_700 },
-    { at: day(15), value: 4_200 },
+    { at: day(14), task: "eligible-14", value: 3_700 },
+    { at: day(15), task: "eligible-15", value: 4_200 },
   ]);
   expect(answer.unpriced).toBe(0);
+});
+
+test("median observations at a tied completion time each name their own eligible task, in task ID order", async ({
+  home,
+}) => {
+  const task = (id: string, date: number) =>
+    makeMe.aUsageTaskHistory.identifiedAs(id).endedAt(day(date)).please();
+  const earlier = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((date) =>
+    task(`earlier-${date}`, date),
+  );
+  const cohort = await readCohort(
+    home,
+    makeMe.aUsageHistory
+      .with({ tasks: [...earlier, task("tied-b", 10), task("tied-a", 10)] })
+      .please(),
+  );
+  expect(cohort().average).toEqual([
+    { at: day(10), task: "tied-a", value: 1_950 },
+    { at: day(10), task: "tied-b", value: 1_950 },
+  ]);
 });

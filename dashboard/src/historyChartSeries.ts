@@ -42,7 +42,13 @@ export type HistoryChartEntry = HistoryChartPoint | HistoryChartGap;
 export type HistoryChartTrend = {
   // The named trace whose points the trend summarizes.
   readonly trace?: string;
-  readonly points: readonly { readonly date: string; readonly value: number }[];
+  // Each observation's date and value, and the key of the entry it is
+  // anchored on, where the series is placed in order.
+  readonly points: readonly {
+    readonly date: string;
+    readonly value: number;
+    readonly key?: string;
+  }[];
 };
 
 export type HistoryChartSeries = {
@@ -66,6 +72,9 @@ export type HistoryChartSeries = {
   readonly traces?: readonly string[];
   // Trends drawn as lines instead of joining the points.
   readonly trends?: readonly HistoryChartTrend[];
+  // Places each entry in its own equal-width slot in entry order instead of
+  // over time, its axis saying these words (`./historyChartPlacement.ts`).
+  readonly order?: { readonly axisWords: string };
 };
 
 export const isMeasured = (

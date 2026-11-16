@@ -2,6 +2,7 @@
 import type { Page } from "@playwright/test";
 import { historyChart } from "../historyChartPage.ts";
 import { expect } from "../dashboardTest.ts";
+import { usageChartName } from "./usageChartPage.ts";
 import { usageToolsView } from "./usageToolsPage.ts";
 
 export type { UsageToolName } from "./usageToolsPage.ts";
@@ -58,10 +59,7 @@ export function usageView(page: Page) {
     name: "Token index trend",
     exact: true,
   });
-  const chart = historyChart(
-    trend,
-    "Token index per finished task by end date",
-  );
+  const chart = historyChart(trend, usageChartName);
   const filter = (label: string) =>
     view.getByRole("combobox", { name: label, exact: true });
   const detail = view.getByRole("region", {

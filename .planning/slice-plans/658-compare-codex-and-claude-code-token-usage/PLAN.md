@@ -221,7 +221,7 @@ shows only the tool-named error.
 ### 3. Give interleaved tasks equal room without losing their times
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given the selected visible tasks, switching equal spacing on places one task
 per equal-width slot in completion order across tools. Resolve equal times
@@ -243,6 +243,14 @@ consumers and the shared-chart defaults again after this geometry change.
 
 Sizing: 15 active minutes, medium confidence; one placement policy and explicit
 anchors avoid timestamp heuristics and per-tool ordinal axes.
+
+Accepted proof (2026-11-16, about 13 active minutes): backend `token-index*`
+25 passed, including the tied-time anchor case; Usage E2E 4 passed with the real
+spacing control; after refactor, the guarded frontend group with shared-chart
+consumers 44 passed and the tools E2E 1 passed; typecheck clean. Refactor made
+ordered placement require every trend point's anchor (it throws otherwise)
+instead of silently dropping it, since anchors are eligible in-period tasks by
+construction.
 
 ## Local gates and execution policy
 

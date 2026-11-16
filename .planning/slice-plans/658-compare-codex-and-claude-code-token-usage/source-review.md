@@ -11,7 +11,7 @@ Launch: fresh general-purpose subagent (no conversation inheritance) on 2026-11-
 | 1.2 | Qualification: only dashboard-launched tasks count. | slice 2 | observed: backend token-index.spec.ts configured dashboard tasks; token-index-claude.spec.ts finished dashboard launches |
 | 1.3 | Location: System settings → Usage. | slice 2 | observed: e2e system-settings-usage-tools.spec.ts "both tools compare on one chart…" reaches System settings → Usage |
 | 2 | The developer can see when usage occurred. | slice 2 | observed: system-settings-usage-compare.spec.ts "both tools share one time axis…" markCentres on completion-date axis; dated readouts |
-| 3 | When comparing individual tasks, the developer can give closely timed tasks equal room on the chart. | slice 3 |  |
+| 3 | When comparing individual tasks, the developer can give closely timed tasks equal room on the chart. | slice 3 | observed: system-settings-usage-spacing.spec.ts "equal spacing gives each shown task one slot…" equal adjacent gaps across Nov 3 tie and partial/large tasks; e2e system-settings-usage-tools.spec.ts "…space tasks equally" equal gaps with real services |
 | 4 | Tool selection: show Codex, Claude Code, or both together. | slice 2 | observed: system-settings-usage-compare.spec.ts "both tools share one time axis…" showTool both; system-settings-usage-tool.spec.ts tool checkboxes |
 | 4.1 | Codex alone is a valid choice. | slice 2 | observed: existing Usage frontend specs default Codex |
 | 4.2 | Claude Code alone is a valid choice. | slice 2 | observed: system-settings-usage-tool.spec.ts test 1 showsToolSummaries([Claude Code]) after hiding Codex |
@@ -32,30 +32,30 @@ Launch: fresh general-purpose subagent (no conversation inheritance) on 2026-11-
 | 7.3 | Example: turning off a tool removes models offered only by that tool. | slice 2 | observed: system-settings-usage-tool.spec.ts after hiding Codex Model offers [All models, Opus] |
 | 8 | Model selection is kept while any selected tool offers that model. | slice 2 | observed: system-settings-usage-tool.spec.ts Astra kept with both tools; Claude request carries model=astra |
 | 8.1 | Otherwise it returns to All models. Example: return to **All models** when the chosen model is no longer offered. | slice 2 | observed: system-settings-usage-tool.spec.ts choice returns to All models after hiding Codex |
-| 9 | Spacing: switch between (a) a shared completion-time axis and (b) one chronological sequence that gives equal room to every visible task across the selected tools. | slice 3 |  |
+| 9 | Spacing: switch between (a) a shared completion-time axis and (b) one chronological sequence that gives equal room to every visible task across the selected tools. | slice 3 | observed: system-settings-usage-spacing.spec.ts "equal spacing gives each shown task one slot…" on/off round trip between task order and shared time axis |
 | 9.1 | Time view example: both series use the same completion-time axis over the selected period. | slice 2 | observed: system-settings-usage-compare.spec.ts "both tools share one time axis…" markCentres share one completion-time axis across tools |
 | 9.2 | Time view example: tasks that finished at the same time share a horizontal position. | slice 2 | observed: system-settings-usage-compare.spec.ts "both tools share one time axis…" Nov 3 Codex and Claude Code marks share x |
 | 9.3 | Time view example: gaps between tasks are proportional to elapsed time. | slice 2 | observed: system-settings-usage-compare.spec.ts "both tools share one time axis…" x gap ratios ≈1 and ≈5 per day across interleaved tools |
-| 9.4 | Equal-spacing example: each visible task gets one equal-width slot in a single chronological sequence across the selected tools. | slice 3 |  |
-| 9.5 | Equal-spacing example: the axis shows task order. | slice 3 |  |
-| 9.6 | Equal-spacing example: selecting a point still shows the task's actual completion time and token index. | slice 3 |  |
-| 9.7 | Example: turning the option off restores the shared time axis. | slice 3 |  |
-| 10 | Spacing changes only placement. It does not change: | slice 3 |  |
-| 10.1 | task values; | slice 3 |  |
-| 10.2 | filtering; | slice 3 |  |
-| 10.3 | median membership. | slice 3 |  |
+| 9.4 | Equal-spacing example: each visible task gets one equal-width slot in a single chronological sequence across the selected tools. | slice 3 | observed: system-settings-usage-spacing.spec.ts "equal spacing gives each shown task one slot…" all adjacent x gaps equal across both tools, tie Codex then Claude, no slot for unpriced; hiding Codex rebuilds 3 equal slots |
+| 9.5 | Equal-spacing example: the axis shows task order. | slice 3 | observed: system-settings-usage-spacing.spec.ts "equal spacing gives each shown task one slot…" showsTaskOrderAxis: drawing name in task order and axis text Task order, earliest first; narrow cases and e2e system-settings-usage-tools.spec.ts "…space tasks equally" |
+| 9.6 | Equal-spacing example: selecting a point still shows the task's actual completion time and token index. | slice 3 | observed: system-settings-usage-spacing.spec.ts "equal spacing gives each shown task one slot…" detail Ended time[datetime] Nov 3 12:00, Token index 3,000, Claude Code while spaced; e2e system-settings-usage-tools.spec.ts "…space tasks equally" Ended and 6,000 |
+| 9.7 | Example: turning the option off restores the shared time axis. | slice 3 | observed: system-settings-usage-spacing.spec.ts "equal spacing gives each shown task one slot…" off restores every mark x to its time-mode value and date axis Nov 1/4/9; e2e system-settings-usage-tools.spec.ts "…space tasks equally" date axis after off |
+| 10 | Spacing changes only placement. It does not change: | slice 3 | observed: system-settings-usage-spacing.spec.ts "equal spacing gives each shown task one slot…" relative y unchanged, medians unchanged and on own task slots |
+| 10.1 | task values; | slice 3 | observed: system-settings-usage-spacing.spec.ts "equal spacing gives each shown task one slot…" every mark's relative y and readout values unchanged when spaced |
+| 10.2 | filtering; | slice 3 | observed: system-settings-usage-spacing.spec.ts "equal spacing gives each shown task one slot…" point set unchanged when spaced; hiding a tool rebuilds the sequence from the same filter |
+| 10.3 | median membership. | slice 3 | observed: system-settings-usage-spacing.spec.ts "equal spacing gives each shown task one slot…" medians read 2,000 and 3,500 at their own tasks; backend tied-time anchor case in token-index-eligibility.spec.ts |
 | 11 | Keep these understandable: | slice 2 | observed: system-settings-usage-compare.spec.ts "both tools share one time axis…", e2e system-settings-usage-tools.spec.ts "both tools compare on one chart…" tool-named readouts, notes and units |
 | 11.1 | tool identity; | slice 2 | observed: system-settings-usage-compare.spec.ts "both tools share one time axis…" tool-named readouts and detail Open Dough · Claude Code · Execution for shared task-1 |
 | 11.2 | coverage; | slice 2 | observed: system-settings-usage-compare.spec.ts "both tools share one time axis…" showsCohortNote per tool incl. 1 partial |
 | 11.3 | unpriced counts; | slice 2 | observed: system-settings-usage-compare.spec.ts "both tools share one time axis…" showsCohortNote Claude Code 1 unpriced |
 | 11.4 | tariff meaning; | slice 2 | observed: e2e system-settings-usage-tools.spec.ts "both tools compare on one chart…" showsToolNotes real tariff unit labels |
-| 11.5 | actual completion times. | slice 3 |  |
+| 11.5 | actual completion times. | slice 3 | observed: system-settings-usage-spacing.spec.ts "equal spacing gives each shown task one slot…" detail Ended time[datetime] in both modes; readouts keep actual dates |
 | 12 | Keep task inspection available by: | slice 2 | observed: system-settings-usage-compare.spec.ts "both tools share one time axis…" pointer/keyboard and compare narrow touch cases |
 | 12.1 | pointer; | slice 2 | observed: system-settings-usage-compare.spec.ts "both tools share one time axis…" and e2e system-settings-usage-tools.spec.ts "both tools compare on one chart…" pointer selection detail |
 | 12.2 | keyboard; | slice 2 | observed: system-settings-usage-compare.spec.ts "both tools share one time axis…" keyboard selection detail |
 | 12.3 | touch; | slice 2 | observed: compare phone and narrowest reading window hasTouch cases tap Claude Code point, detail, close |
-| 12.4 | closing the detail returns focus/context to its mark ("closing detail back to its mark"). | slice 3 |  |
-| 13 | Narrow screens: tool choices and the spacing control stay usable. Example: both tool choices and the spacing control stay visible and usable on narrow screens. | slice 3 |  |
+| 12.4 | closing the detail returns focus/context to its mark ("closing detail back to its mark"). | slice 3 | observed: system-settings-usage-spacing.spec.ts "equal spacing gives each shown task one slot…" closeDetail returns focus to the mark when spaced and after toggling off; narrow touch open/close |
+| 13 | Narrow screens: tool choices and the spacing control stay usable. Example: both tool choices and the spacing control stay visible and usable on narrow screens. | slice 3 | observed: spacing spec phone 390 px and narrowWindow cases, hasTouch, light/dark, keyboard toggle, visible focus, fitsReadingWindow in both modes; tool choices in compare spec narrow cases |
 | 14 | Keep each tool's existing token-index calculation. | slice 2 | observed: no backend change; backend token-index* 24 passed; e2e system-settings-usage-tools.spec.ts "both tools compare on one chart…" real values 1,950 and 6,000 |
 | 15 | Use a shared numeric vertical scale. Example: a common numeric scale with each tool's reference unit labeled. | slice 2 | observed: system-settings-usage-compare.spec.ts "both tools share one time axis…" equal 4,000 Claude and Codex values at same y |
 | 16 | Name both reference units explicitly: | slice 2 | observed: e2e system-settings-usage-tools.spec.ts "both tools compare on one chart…" showsToolNotes both reference units |

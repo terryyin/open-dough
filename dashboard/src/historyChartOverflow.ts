@@ -1,7 +1,8 @@
-// Above-scale task labels share dated x coordinates; colliding labels/buttons
+// Above-scale task labels share the series' x placement; colliding labels/buttons
 // occupy separate rows, adding room above the ordinary plot rather than hiding.
 // One allocator places every trace's task labels and trend values.
 import { buildDateWords } from "./ciHistoryWords.ts";
+import type { Placeable } from "./historyChartPlacement.ts";
 import {
   entryValueWords,
   isMeasured,
@@ -16,19 +17,19 @@ export type OverflowPlacement = {
 };
 export function placeOverflows(
   series: HistoryChartSeries,
-  x: (date: string) => number,
+  x: (at: Placeable) => number,
   left: number,
   right: number,
   ceiling: number,
 ) {
   const rows: { left: number; right: number }[][] = [];
   const placed = new Map<string, OverflowPlacement>();
-  const place = (label: string, date: string): OverflowPlacement => {
+  const place = (label: string, at: Placeable): OverflowPlacement => {
     const half = Math.min((right - left) / 2, Math.max(22, label.length * 3.5));
-    const labelX = Math.max(left + half, Math.min(x(date), right - half));
+    const labelX = Math.max(left + half, Math.min(x(at), right - half));
     const span = {
-      left: Math.min(x(date) - 16, labelX - half),
-      right: Math.max(x(date) + 16, labelX + half),
+      left: Math.min(x(at) - 16, labelX - half),
+      right: Math.max(x(at) + 16, labelX + half),
     };
     let row = rows.findIndex((items) =>
       items.every(
@@ -44,10 +45,7 @@ export function placeOverflows(
   };
   for (const entry of series.entries) {
     if (!isMeasured(entry) || entry.overflow === undefined) continue;
-    placed.set(
-      entry.key,
-      place(entryValueWords(entry, series.axis), entry.date),
-    );
+    placed.set(entry.key, place(entryValueWords(entry, series.axis), entry));
   }
   const independent = series.independentTrend;
   // Every trace's trend shares the one allocator with the task labels.
@@ -61,11 +59,8 @@ export function placeOverflows(
             const named = trace === undefined ? "" : `${trace} `;
             return [
               {
-                ...place(
-                  `${named}${independent.shortLabel} ↑ ${value}`,
-                  point.date,
-                ),
-                x: x(point.date),
+                ...place(`${named}${independent.shortLabel} ↑ ${value}`, point),
+                x: x(point),
                 slot: traceSlot(series, trace),
                 readout: `${buildDateWords(point.date)} · ${traceWords(trace)}${independent.label} above scale · ${value}`,
               },
