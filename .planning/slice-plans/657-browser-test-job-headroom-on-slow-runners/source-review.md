@@ -14,10 +14,10 @@ commitments, qualifications, examples and exclusions.
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | 1 | Contributors get the same browser test verdict on a slow CI runner as on a typical one. | slice 3 | |
-| 1.1 | A passing revision does not fail because its job ran out of time. | slice 1 | |
+| 1.1 | A passing revision does not fail because its job ran out of time. | slice 1 | observed: CI run 43803202223 of 584b7c742: dashboard-frontend / shard 1/1 success, suite step ended 198 s after its deadline step of 450 s, job 217 s within 8 min |
 | 1.2 | A passing revision does not fail because one of its tests ran out of time. | slice 3 | |
 | 2 | The deadlines stay reviewed ceilings. | slice 1 | observed: .github/workflows/browser-test-group.yml: 450 s deadline step and timeout-minutes 8 unchanged; shards.md 'The deadline' keeps them a reviewed ceiling |
-| 2.1 | The verdict arrives no later than it does today. | slice 1 | |
+| 2.1 | The verdict arrives no later than it does today. | slice 1 | observed: CI run 43803202223 of 584b7c742: dashboard-frontend job 217 s (was 234-443 s on main) and the parallel lint job 163 s, so neither lengthens the verdict |
 | 3 | Lint and the dashboard type-check run in their own CI job, separate from `dashboard-frontend`. | slice 1 | observed: .github/workflows/ci.yml job lint (Lint and type-check): Run lint and Type-check the dashboard steps; ci-container-workflow.sh requires the type-check inside it |
 | 3.1 | That job has its own outcome deadline. | slice 1 | observed: .github/workflows/ci.yml job lint: timeout-minutes 6 |
 | 3.2 | That job has its own setup deadline. | slice 1 | observed: .github/workflows/ci.yml job lint: Start prerequisite acquisition deadline (180 seconds) and *node-deadline (60 s) steps |
@@ -39,10 +39,10 @@ commitments, qualifications, examples and exclusions.
 | 8 | Other groups' exposure to slow runners stays with the existing job-count rule. `e2e` and `dashboard-backend` are not resized. | slice 1 | observed: .github/workflows/ci.yml: e2e shards [1..6], dashboard-backend [1, 2, 3] unchanged |
 | 9 | Finding other tests close to their timeout is deferred. SEED-381's rebalancing skill already promises to flag notably slow tests. | slice 3 | |
 | 10 | Making lint faster is deferred. | slice 1 | observed: diff: scripts/lint.mjs and lint configuration unchanged |
-| 11 | On a runner that slow (lint 122 s vs 79 s, type-check 28 s vs 18 s, suite ending at 289 s vs 177 s with 193 of 195 spec files run), the job starts its suite about 12 s after its deadlines start instead of 162 s. | slice 1 | |
-| 11.1 | On that slow runner, the suite finishes with over 100 s to spare. | slice 1 | |
-| 11.2 | On that slow runner, the job reports the tests' own result, not a timeout. | slice 1 | |
-| 12 | On a typical runner, `dashboard-frontend` reaches the end of its suite about 100 s sooner than today's 234–443 s. Today it is the group closest to its deadline, at 7 s of headroom. | slice 1 | |
+| 11 | On a runner that slow (lint 122 s vs 79 s, type-check 28 s vs 18 s, suite ending at 289 s vs 177 s with 193 of 195 spec files run), the job starts its suite about 12 s after its deadlines start instead of 162 s. | slice 1 | observed: CI run 43803202223 of 584b7c742: dashboard-frontend suite step started 04:18:24, 17 s after the deadline step at 04:18:07 (162 s on run 43797393195) |
+| 11.1 | On that slow runner, the suite finishes with over 100 s to spare. | slice 1 | observed: CI run 43803202223 of 584b7c742: suite ran 181 s ending 198 s into 450; the 1.6x slower suite of run 43797393195 (289 s vs 177 s) scales that to about 307 s, about 143 s to spare |
+| 11.2 | On that slow runner, the job reports the tests' own result, not a timeout. | slice 1 | observed: CI run 43803202223 of 584b7c742: dashboard-frontend job conclusion is the suite step's own success, with no lint or type-check step in it |
+| 12 | On a typical runner, `dashboard-frontend` reaches the end of its suite about 100 s sooner than today's 234–443 s. Today it is the group closest to its deadline, at 7 s of headroom. | slice 1 | observed: CI run 43803202223 of 584b7c742: dashboard-frontend job 217 s against today's 234-443 s; suite end 198 s after deadline start where lint and type-check took about 97 s before it |
 | 13a | A lint or type-check failure fails the new lint and type-check job, which names the failure. | slice 1 | observed: .github/workflows/ci.yml job lint: Run lint and Type-check the dashboard are separate steps; type-check gated only on !cancelled() and npm success |
 | 13b | On a lint or type-check failure, `dashboard-frontend` still reports its suite's result. | slice 1 | observed: .github/workflows/ci.yml: dashboard-frontend has no needs on lint and lint is not in any group's needs; separate jobs |
 | 13c | A suite failure leaves the lint job's result unchanged. | slice 1 | observed: .github/workflows/ci.yml: lint has no needs on any browser group job |

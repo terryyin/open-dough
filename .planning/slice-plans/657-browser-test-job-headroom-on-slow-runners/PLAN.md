@@ -64,7 +64,7 @@ are the alternatives; choosing one replaces slice 1 only.
 
 ### 1. Lint and type-check in their own CI job
 
-Status: planned
+Status: done
 Type: Behavior
 
 Behavior: a pushed revision → CI → a `lint` job runs lint and the dashboard
@@ -93,6 +93,10 @@ pass; `native-setup.sh`, `ci-proof-actions.test.mjs`,
 the workflows, pass. Removing the type-check line from a copy of `ci.yml`
 makes `ci-container-workflow.sh` fail. `ci-lint-setup.sh` runs its checks on
 Linux only, so its first proof is the published revision's CI.
+Published proof: CI run 43803202223 of `584b7c742` succeeded, including
+`ci-lint-setup.sh` on Linux; the `lint` job took 163 s, and the
+`dashboard-frontend` suite started 17 s after its deadline step and ended
+198 s into its 450.
 
 ### 2. Probe: why the continued start did not settle
 
