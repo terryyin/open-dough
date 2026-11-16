@@ -153,6 +153,14 @@ stash record, the diagnosis record and the owed repair.
 - Change the CI-repair pause sentence in track active time so that it covers
   rounds.
 
+## Execution complete
+
+Product advice: no change. The rounds behave as the story describes. Two
+small residues are left for the next edit of the clock: `slice-clock-slices.mjs`
+re-exports `sliceLimitMinutes`, which no file imports from it, and the
+`slice-clock-record.mjs` header still says that file holds a slice's active
+time. `--after-ended-session` settling a running round has no test.
+
 ## Concerns and cumulative design
 
 Slice-plan refinement was not needed. The plan has three slices, each with
