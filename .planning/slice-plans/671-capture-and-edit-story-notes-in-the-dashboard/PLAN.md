@@ -3,6 +3,8 @@
 **Identity:** SEED-348#collect-notes-for-story-follow-ups
 **Source:** [Capture and edit story notes in the dashboard](../../seeds/SEED-348-collect-notes-for-story-follow-ups.md#collect-notes-for-story-follow-ups)
 
+**Source review:** [Independent source promises](source-review.md)
+
 ## Goal and scope
 
 A developer reviewing a story saves notes against it — general ones, and ones
@@ -22,69 +24,7 @@ Preparation authorizes no implementation.
 
 ## Existing solution and direction
 
-Follow [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md):
-machine-local evidence is separate from published story facts, there is no
-server database, and browser storage is disposable. Its
-[one representation per responsibility](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution)
-rule gives one note shape across the store, the wire and the page. No North
-Star topic or new ADR is warranted: the story review state already set this
-shape for local story evidence.
-
-PFE findings and choices:
-
-- **Keeping notes.** Reuse `dashboard/server/machineJsonStore.ts` with a new
-  `story-notes.json` beside `story-review-states.json`, by project id and
-  story identity, as `server/storyReviewStates.ts` does. Notes have no other
-  source, so the store uses the existing `unreadable: "preserve"` choice
-  (today only `server/ciFollowUpStore.ts`): a read answers unreadable and a
-  write refuses, leaving the file. Its refusal message names CI follow-up;
-  change it to name the file's own store.
-- **Requests.** Change `server/projectConfigurationBoundary.ts` to route one
-  more same-origin endpoint, `/__project-configuration/story-notes?id=<project>`,
-  shaped like the review-state one: GET answers the project's notes by story
-  identity, POST carries one change (add, edit or delete) and answers the
-  same. The request names a project and an identity, never a path.
-- **Page state.** Add a page/project owner modeled on
-  `src/storyReviewStates.ts`: one read per project, read again at the shared
-  check interval, a change shown at once from its own answer, an older answer
-  never replacing a newer one. Its failed-save rule is the model for "says so
-  and keeps what was shown".
-- **Diff entry points.** Change the existing owners: `StoryReviewFileHeader.tsx`
-  holds the file-level action beside `StoryFileFollowUp`;
-  `DiffLineNumber.tsx` is the one line menu; `StoryReviewFileDiff.tsx` decides
-  whether a diff has line menus (`canLineFollow`) and mounts the line's
-  dialog. `IntentFileReading.tsx` renders the same header and `FileDiff`, so
-  Intent → Changed tests follows without its own implementation.
-- **Context.** Reuse `fileFollowUpParts` in `StoryAnchoredFollowUp.tsx` for
-  the path, old path, endpoints and the Published completion or landed run
-  name; a workspace comparison adds its own name. A note's context is this
-  one shape whichever diff it came from. The follow-up admission that
-  verifies an anchor against published history is not reused: a note is the
-  developer's words about what the page showed, also for workspace trees no
-  server can verify later.
-- **Dictation.** Reuse `useLaunchInstruction` (`src/LaunchInstruction.tsx`),
-  which already drives recording, transcription, setup and the over-limit
-  transcript review for one text field in one dialog. Its two status
-  sentences end “before Start”; parameterize those words. A note's text
-  therefore takes the same 4,000-character bound as a session instruction.
-- **Dialogs.** Reuse the native `<dialog>` pattern of `LaunchDialog.tsx` and
-  the in-place confirmation of `StoryReviewStateAction.tsx` for Delete. No
-  Side panel kind is added: `pageSidePanel.ts` shows one item at a time, and
-  notes must not detach a terminal or remount a review.
-
-Gap: no product concept holds developer-authored text per story. Add it as
-`storyNote` (contract and schema shared by server and page), the server
-store, the page owner, and one `StoryNotes` control with its dialog.
-
-Expected edits to files near the 250-line check, with their owners:
-
-| File | Lines | Decision |
-| --- | --- | --- |
-| `dashboard/src/IntentFileReading.tsx` | 244 | Not edited. The view a note was taken in reaches the composer through a context Intent provides from a smaller owner, defaulting to Review changes. |
-| `dashboard/src/StoryReview.tsx` | 247 | Not edited. The review's **Notes** control goes in `StoryReviewHeading.tsx` (36). |
-| `dashboard/server/machineJsonStore.ts` | 235 | One message change, no growth. |
-| `dashboard/src/StoryReviewDiffLines.tsx` | 219 | Slice 5 passes the line's text through the existing menu; if it would pass 250, move the menu state (`openMenu`, `lineMenu`) to its own module in that slice, callers `StoryReviewContextGap.tsx` and `diffLineItems` unchanged in behavior. |
-| `dashboard/tests/support/voicePage.ts` | 228 | Slice 8 adds note-dialog helpers in a new support module, not here. |
+See [Existing solution and direction](existing-solution.md); its decisions and evidence apply to every slice.
 
 ## Current decisions
 
@@ -109,39 +49,9 @@ Expected edits to files near the 250-line check, with their owners:
   note**, **Edit**, **Delete**, “The note could not be saved.”, “Note saved
   to this story.”, “Note updated.”, “Note deleted.”
 
-## Proof ownership
+## Proof ownership and decisive premises
 
-| Promise (story scope / example) | Owning slice and observable proof |
-| --- | --- |
-| The server keeps a story's notes by project and identity, on this machine, through a restart | 1: new `dashboard/backend-tests/review/story-notes-admission.spec.ts` (boundary server) — POST an add, GET answers it under its identity with a server-assigned id and time; `story-notes.json` under the run's home holds it; a second boundary server on the same home answers it |
-| Requests name a configured project and a well-formed change; an unreadable file is preserved | 1: same spec — unconfigured project 404, no project 400, a path or unknown field, empty or over-long text, non-JSON, another method: each keeps no note; an unreadable `story-notes.json` reads as unreadable, a POST is refused, and the file's bytes are unchanged |
-| Every story card offers Notes with a count; Story notes lists newest first; a general note is saved with the story alone as context; a card never reviewed | 2: new `dashboard/frontend-tests/stories/story-notes.spec.ts` (built app, new notes substitute) — a Backlog, a Taken and a Recently done card each offer **Notes**; save a general note; listed first; card count becomes 1 |
-| Notes saved from the page are there after a dashboard restart | 2: new `e2e/stories/story-notes-persistence.spec.ts` — save from a card, restart the dashboard server, the card and Story notes show it |
-| A change on one page shows on another at its next read | 2: `story-notes.spec.ts` — the substitute's notes change between reads; count and open list follow at the check interval |
-| No text is not saved | 2: `story-notes.spec.ts` — **Save note** with blank text keeps the composer; no request recorded |
-| A save that could not be kept leaves the composer with its text and says so | 3: new `e2e/stories/story-notes-failed-save.spec.ts` (read-only records directory, as `recently-done-review-state-failed-save.spec.ts`) — composer open, text intact, “The note could not be saved.”; saving again once writable saves and clears it |
-| Unreadable notes are said on the page | 3: `story-notes.spec.ts` — substitute answers unreadable; the card says “The notes could not be read.” and offers no count |
-| Edit changes text and keeps context; Delete asks, cancel keeps, confirm removes from list and count; failed edit or delete leaves the note as it was | 4: `story-notes.spec.ts` — edit, cancel delete, confirm delete, and a refused change each observed in the list, count and announcement; `story-notes-admission.spec.ts` gains edit and delete of a kept note and refusal of an unknown note id |
-| Done story diff: file header and line menu offer Follow up and Add note; file note keeps file and comparison, no line; line note keeps number, side and line text; context shown in composer and on the saved note | 5: new `e2e/review/story-review-diff-add-note.spec.ts` on a Published completion (setup as `story-review-diff-line-follow-up.spec.ts`) — both menu items present; file note and new-side line note saved; each read back in Story notes with path, “Published completion <from> → <tree>”, line, side and text; a revealed context line and an old-side line keep their own text |
-| Follow up from a line still opens its dialog | 5: `e2e/review/story-review-diff-line-follow-up.spec.ts` and `e2e/intent/intent-story-follow-up.spec.ts` stay green |
-| Taken story's workspace review: line numbers gain the menu with Add note only; file header offers Add note; note keeps the workspace comparison's name and endpoints | 6: new `e2e/review/story-review-workspace-add-note.spec.ts` — a Taken story's All changes: menu holds **Add note** and no **Follow up**; saved line note read back with its context |
-| A session with no story offers no Add note | 6: same spec — an ad hoc session's review has no line menu and no file **Add note** |
-| A note taken while Taken is on the Done card after the workspace is removed | 6: `story-notes.spec.ts` — notes kept under an identity are listed from that identity's Recently done card with no launch record or workspace |
-| Intent → Changed tests offers the same; the note says it was taken there | 7: new `e2e/intent/intent-story-add-note.spec.ts` — Add note from a line in Changed tests; saved context's view is “Intent → Changed tests” |
-| Review changes and Intent offer Notes with the count; closing leaves the diff as shown and returns the keyboard | 7: `e2e/review/story-review-diff-add-note.spec.ts` — open **Notes** from the review with a file selected and context revealed; close; same file, same revealed lines, focus on **Notes**; `intent-story-add-note.spec.ts` for Intent's control |
-| Dictate into the note; correct the transcript; same permission, recording, transcription and setup states | 8: new `dashboard/frontend-tests/stories/story-note-voice.spec.ts` with the transcription substitute — record, stop, transcript lands in the note text, edit, save; setup-required offers **Open OpenAI settings** and returns to the composer with its text; an over-limit transcript is reviewed, not appended |
-| Session-instruction dictation unchanged | 8: `dashboard/frontend-tests/launches/session-instruction-voice-*.spec.ts` and `e2e/launches/session-instruction-voice*.spec.ts` stay green |
-| Maintained words | 2: new `dashboard/STORY-NOTES.md`, linked from `dashboard/README.md` and `STORY-CARDS.md`; 3–8 extend it; 5 adds a pointer in `STORY-REVIEW-FILES.md` and `LAUNCH-FOLLOW-UP.md` where they describe the header and line menu |
-
-## Decisive premises
-
-| Premise | Consuming operation | Observation and result |
-| --- | --- | --- |
-| Giving every story review's line numbers the menu changes which existing review and Intent proofs | Slice 6's change to `canLineFollow` | 2026-11-17, this workspace at `55da0e9c7` with the integration checkout's `node_modules` linked: scratch edit made `canLineFollow` true for every story subject in `StoryReviewFileDiff.tsx`, then `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/frontend.playwright.config.ts --reporter=list review/` → 13 passed; `… --config e2e/playwright.config.ts --reporter=list review/ intent/intent-story` → 108 passed, 1 failed: `e2e/review/story-review-diff-context.spec.ts:103` expects no button in a fully revealed gap of a workspace review and now finds the line-number controls. That assertion's promise is that no expansion control remains; slice 6 restates it on the expansion controls (`contextExpansion`). Scratch edit reverted. |
-| Intent → Changed tests renders its diff through `ReviewedFileHeader` and `FileDiff` | Slices 5 and 7 | The same scratch run: the `intent/intent-story` specs ran against the widened menu, and `e2e/intent/intent-story-follow-up.spec.ts` opened a line's menu in Changed tests and passed. `IntentFileReading.tsx:176-189` mounts both components. |
-| A machine store can refuse writes and keep an unreadable file | Slice 1's store | 2026-11-17, read at `55da0e9c7`: `machineJsonStore.ts` `replaceMachineJson` throws before renaming when `store.unreadable === "preserve"`, and `readMachineJson` answers `{ kind: "unreadable" }`; `ciFollowUpStore.ts:120` is its one user. The slice's backend spec observes the file's bytes unchanged, which is the settling proof; nothing later depends on it. |
-| `useLaunchInstruction` needs only a text field ref and a dialog ref | Slice 8's reuse | 2026-11-17, read at `55da0e9c7`: `useLaunchInstruction(field, dialog)` takes those two refs; its other inputs are `launchInstructionLimit`, the `SettingsNavigation` context and two fixed status sentences. The claim is about the hook's parameters, which the read settles; its behavior mounted in the note dialog is slice 8's own proof. |
-| A read-only records directory makes a local save fail observably | Slice 3's e2e | 2026-11-17, this workspace at `55da0e9c7`: `… --config e2e/playwright.config.ts --reporter=list stories/recently-done-review-state-failed-save` → 1 passed. It makes the records directory read-only and observes the sibling store's save fail and recover through the same `replaceMachineJson`. |
+See [Proof ownership and decisive premises](proof-map.md); its decisions and evidence apply to every slice.
 
 ## Concerns
 
@@ -160,7 +70,7 @@ Each slice targets 15 active minutes.
 
 ### 1. The dashboard server keeps a story's notes
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/backend-tests/review/story-notes-admission.spec.ts` (rows
 for slice 1); the CI follow-up store's specs in `dashboard/backend-tests/`
 that name its unreadable evidence; `npm run typecheck:dashboard`;
@@ -177,6 +87,8 @@ is answered as unreadable, refuses a save, and is left as it was.
   `projectConfigurationBoundary.ts`.
 - Generalize the preserve refusal's message in `machineJsonStore.ts`.
 - MakeMe data for a note (AGENTS.md).
+
+Accepted proof: [slice 1](slice-1-proof.md).
 
 ### 2. A story's card keeps general notes
 Type: Behavior
@@ -312,6 +224,10 @@ change diff-line markup every review spec reads, so they also run
 run in hosted CI. The local-gate sleep guard is
 [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos):
 start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
+
+## Execution context
+
+See [Execution context](execution-context.md); its decisions and evidence apply to every slice.
 
 ## Learnings
 
