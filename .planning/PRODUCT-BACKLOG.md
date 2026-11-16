@@ -86,3 +86,5 @@ intent introduced or affected by a newly developed story.
 - [Back up and restore dashboard data](seeds/SEED-361-dashboard-data-backup.md#back-up-and-restore-dashboard-data) — SEED-361#back-up-and-restore-dashboard-data
 - [View token usage for dashboard-launched Cursor tasks](seeds/SEED-360-cursor-task-token-usage.md#view-cursor-task-token-usage) — SEED-360#view-cursor-task-token-usage
 - [Remove old dashboard deployments automatically](seeds/SEED-370-remove-old-dashboard-deployments.md#remove-old-dashboard-deployments-automatically) — SEED-370#remove-old-dashboard-deployments-automatically
+- [Serve frontend dashboard answers through MakeMe](seeds/SEED-301-limit-first-layer-test-cases-to-ten-lines.md#serve-frontend-dashboard-answers-through-makeme) — SEED-301#serve-frontend-dashboard-answers-through-makeme
+- [Publish Intent projects through MakeMe](seeds/SEED-301-limit-first-layer-test-cases-to-ten-lines.md#publish-intent-projects-through-makeme) — SEED-301#publish-intent-projects-through-makeme

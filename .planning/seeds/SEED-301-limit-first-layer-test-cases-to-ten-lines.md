@@ -64,3 +64,47 @@ projects, launches and sessions) follow as their own stories.
 independent expectations and passes; the family's data-building imports from
 `dashboard/tests/support` drop to the builder entry point; superseded helper
 modules are removed.
+
+<a id="serve-frontend-dashboard-answers-through-makeme"></a>
+
+### Serve frontend dashboard answers through MakeMe
+
+**Identity:** SEED-301#serve-frontend-dashboard-answers-through-makeme
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** Dashboard Frontend Tests arrange what the substitute dashboard
+services answer through MakeMe builder steps, so a spec states its machine,
+host status, published stories, Intent sources and observed launches without
+importing a separate `putFrontend…` helper for each.
+
+**Scope:** The `frontendServices` arrangement helpers in
+`dashboard/tests/support` (`putFrontendMachine` in 83 places,
+`putFrontendIntentSources`, `putFrontendIntentStory`,
+`putFrontendObservedLaunches`, `putFrontendPublished`, `putFrontendStories`,
+`putFrontendHostStatus`, `putFrontendCandidates`, direct
+`Object.assign(frontendServices, …)`) and their specs. Builders stay free of
+runtime `dashboard/` imports; serving stays a harness fixture, as
+`comparisonServices.serve(story)` does for compared stories.
+
+<a id="publish-intent-projects-through-makeme"></a>
+
+### Publish Intent projects through MakeMe
+
+**Identity:** SEED-301#publish-intent-projects-through-makeme
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** Intent frontend specs build their published projects (Open Dough,
+Doughnut, Pygardon), settings, candidates records and source revisions
+through MakeMe steps instead of importing many fixture constants and
+`describedRevisions`/`intentSettingsText` separately, as
+`intent-source-target-recovery.spec.ts`'s 53 import lines show.
+
+**Scope:** `dashboard/tests/catalogProjectRecords.ts`,
+`intentCodeBrowseFixtures.ts`, `intentCandidates*Fixtures.ts` and the Intent
+frontend specs importing them. Moving these into
+`Distribution/tests/support` needs their runtime `dashboard/` imports
+replaced by Distribution renderers first.
