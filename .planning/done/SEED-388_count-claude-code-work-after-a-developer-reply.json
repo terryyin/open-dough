@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-388#count-claude-code-work-after-a-developer-reply",
+  "title": "Count a dashboard launch's work after a developer reply",
+  "completedAt": "2026-11-16T10:10:17.465Z",
+  "developer": "Terry Yin",
+  "agent": "Koharu-chan",
+  "host": "claude",
+  "intentCoverage": {
+    "report": "Dough Intent Coverage: SEED-388#count-claude-code-work-after-a-developer-reply, \"Ambiguous ownership stays a gap\" (Claude Code), revision 3f605e083b399718a4d436376aeb11b29f11f38a.\n\nVERDICT: Caught, on the unjoined-worker path. Maintained assertions failed when a Claude response that no task owns was charged to its session's launch.\n\nFault: in dashboard/server/claudeUsageLineage.ts after `uniqueFacts(candidates)`, when no candidate held and exactly one Claude task in the same session held an assignment, the response was charged to that task and `unresolved` cleared (charge by session alone). Dropping `unresolved` alone changes no taskId on this revision, so the caller's first suggestion was revised.\n\nReach: unjoined worker transcripts and root responses whose parent chain ends at a missing row remain unowned; a plain human input before the launch input becomes its own recovered task, so it is owned, not ambiguous.\n\nRuns (scratch worktree at 3f605e083; `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/backend.playwright.config.ts dashboard/backend-tests/usage-history --reporter=list`): baseline 102 passed (101 maintained + scratch witness IC-B); faulted 3 failed — claude-coverage.spec.ts:165 line 215 (orphan worker output charged to the launch: 4 instead of null), token-index-claude-coverage.spec.ts:50 line 113 (lost `no-attributable-response-usage`), witness IC-B (broken-chain root response charged, launch 100 → 170); restored 101 passed, scratch state clean, worktree removed.\n\nNote: no maintained Claude check failed on the broken-parent-chain root path; only the scratch witness did. The removed claude-usage.spec.ts assertions covered a later human input that is now owned by design.\n\nNext proof action: none required for the unjoined-worker path; optionally a maintained Claude check that a broken-chain root response in a launch session stays unowned.\n\nCosts: focused runs about 179 s; human and agent effort unavailable; invocation-to-report 350,185 ms.\n\nWrap-up disposition: 3f605e083, Caught, no follow-up (the next proof action needs no new or stronger proof; the optional broken-chain check is not routed).\n"
+  }
+}

@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Review changes from completed ad hoc sessions](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions) — SEED-379#review-changes-from-completed-ad-hoc-sessions ([plan](slice-plans/659-review-changes-from-completed-ad-hoc-sessions/PLAN.md))
-- [Count a dashboard launch's work after a developer reply](seeds/SEED-388-measure-and-control-agent-launch-cost.md#count-claude-code-work-after-a-developer-reply) — SEED-388#count-claude-code-work-after-a-developer-reply ([plan](slice-plans/665-count-launch-work-after-a-developer-reply/PLAN.md))
 
 ## Backlog list
 
