@@ -1,10 +1,11 @@
-// Tool chooses whose cohort the view reads, keeping the other filters that
-// the chosen tool still offers.
+// The tool selection chooses whose cohorts the view reads, keeping the other
+// filters while any selected tool still offers them.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   requestedCohort,
   usageTokenIndexEndpoint,
 } from "../src/usageTokenIndex.ts";
+import { expect } from "../tests/dashboardTest.ts";
 import { test } from "../tests/support/frontendApp.ts";
 import { visitUsage } from "../tests/support/systemSettingsUsagePage.ts";
 
@@ -17,15 +18,16 @@ test.beforeEach(async ({ page }) => {
   await page.clock.install({ time: new Date("2026-11-15T12:00:00.000Z") });
 });
 
-test("choosing Claude Code reads its cohort under its tariff, keeping the workflow and an effort it ran and resetting a model it did not", async ({
+test("adding Claude Code keeps a Codex-only model, offering both tools' models once; hiding Codex then resets that model and keeps the workflow and a shared effort", async ({
   page,
 }) => {
+  const requests: string[] = [];
   await page.route(
     (url) => url.pathname === usageTokenIndexEndpoint,
     (route) => {
-      const cohort = requestedCohort(
-        new URL(route.request().url()).searchParams,
-      );
+      const query = new URL(route.request().url()).searchParams;
+      requests.push(query.toString());
+      const cohort = requestedCohort(query);
       const answer =
         cohort?.tool === "claude"
           ? makeMe.aTokenIndexAnswer
@@ -46,21 +48,40 @@ test("choosing Claude Code reads its cohort under its tariff, keeping the workfl
     },
   );
   const usage = await visitUsage(page);
-  await usage.offers("Tool", ["Codex", "Claude Code"]);
+  await usage.showsTools({ Codex: true, "Claude Code": false });
   await usage.choose("Launch workflow", "Refinement");
   await usage.choose("Model", astra.name);
   await usage.choose("Effort", "high");
 
-  await usage.choose("Tool", "Claude Code");
+  await usage.showTool("Claude Code", true, "keyboard");
+  await usage.showsToolSummaries(["Codex", "Claude Code"]);
+  await usage.offers("Model", ["All models", sol.name, astra.name, opus.name]);
+  await usage.offers("Effort", ["Any effort", "xhigh", "high", "medium"]);
+  await usage.showsCohort({ Model: astra.name, Effort: "high" });
+  // Each tool reads its own cohort with the same filters and period.
+  const latest = (tool: string) =>
+    [...requests]
+      .reverse()
+      .map((query) => Object.fromEntries(new URLSearchParams(query)))
+      .find((query) => query.tool === tool);
+  expect(latest("claude")).toEqual({
+    ...latest("codex"),
+    tool: "claude",
+    workflow: "refinement",
+    model: astra.id,
+    effort: "high",
+  });
+
+  await usage.showTool("Codex", false);
+  await usage.showsToolSummaries(["Claude Code"]);
   await usage.showsTariff(claudeTariff);
   await usage.showsCohort({
-    Tool: "Claude Code",
     "Launch workflow": "Refinement",
     Model: "All models",
     Effort: "high",
   });
   await usage.offers("Model", ["All models", opus.name]);
-  await usage.selectPoint("Nov 1 · 2,000", "pointer");
+  await usage.selectPoint("Nov 1 · Claude Code · 2,000", "pointer");
   await usage.showsDetail({
     title: "Task 1",
     about: "Open Dough · Claude Code · Refinement",
@@ -104,20 +125,21 @@ test("the Claude Code cohort names, once and in words, the background work it le
     },
   );
   const usage = await visitUsage(page);
-  await usage.showsFootNotes([codexTariff]);
+  await usage.showsToolNotes([codexTariff]);
 
-  await usage.choose("Tool", "Claude Code");
-  await usage.showsFootNotes([
+  await usage.showTool("Codex", false);
+  await usage.showTool("Claude Code", true);
+  await usage.showsToolNotes([
     claudeTariff,
     "Not included: background agent-view row summaries, recaps and idle compaction",
   ]);
   await usage.showsCohortNote("2 tasks · 1 partial · Last 30 days");
-  await usage.selectPoint("Nov 2 · 3,000 · Partial", "pointer");
+  await usage.selectPoint("Nov 2 · Claude Code · 3,000 · Partial", "pointer");
   await usage.showsFact(
     "Coverage",
     "Partial · Root transcript usage missing, No attributed response",
   );
-  await usage.closeDetail("Nov 2 · 3,000 · Partial");
-  await usage.selectPoint("Nov 1 · 2,000", "pointer");
+  await usage.closeDetail("Nov 2 · Claude Code · 3,000 · Partial");
+  await usage.selectPoint("Nov 1 · Claude Code · 2,000", "pointer");
   await usage.showsFact("Coverage", "No known gaps");
 });

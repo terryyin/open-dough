@@ -1,5 +1,6 @@
-// Claude Code chosen over a store the offline import filled from native
-// sessions, and Refresh bringing in a later Claude launch; tariff, model and
+// Codex and Claude Code compared over a store the offline import filled from
+// native sessions: a filter change, a task's detail, each tool's real unit,
+// and Refresh bringing in a later Claude launch; display, tariff, model and
 // pricing variants belong to frontend and backend token-index tests.
 import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
@@ -10,6 +11,7 @@ import { visitUsage } from "../../dashboard/tests/support/systemSettingsUsagePag
 import {
   runImport,
   writeClaudeSession,
+  writeCodexSession,
 } from "../../dashboard/tests/usage-history/importHarness.ts";
 
 const day = (date: number) =>
@@ -63,22 +65,48 @@ const writeClaudeLaunch = (root: string, name: string, reference: string) =>
       .please(),
   );
 
-test("Refresh brings in a Claude launch finished since the last check", async ({
+// A finished Codex launch on Nov 6 whose one GPT-6.1 Sol response at xhigh
+// weighs 1,950 Sol input tokens, as in Usage's Codex journey.
+const codexLaunch = makeMe.aLaunchRecord
+  .executing({ identity: "SEED-9#codex", title: "codex launch" })
+  .inCodexSession({ sessionId: "codex-launch" })
+  .launchedAt(day(6))
+  .withFirstInput({ state: "confirmed", turnId: "first-turn" })
+  .completedWith({ message: "", receivedAt: day(6) })
+  .please();
+const writeCodexLaunch = (root: string) =>
+  writeCodexSession(
+    root,
+    makeMe.aCodexRollout
+      .forSession("codex-launch")
+      .withTurnContext("first-turn", "gpt-6.1-sol", "xhigh")
+      .withResponse("first-turn", "codex-response", {
+        input_tokens: 10_000,
+        cached_input_tokens: 9_000,
+        cache_write_input_tokens: 0,
+        output_tokens: 100,
+      })
+      .please(),
+  );
+
+test("both tools compare on one chart in their own units, follow a filter, open a task and take a Claude launch from Refresh", async ({
   page,
 }) => {
   const earlier = "5f0c6a52-6a1b-4c39-9f43-0d8b1c2e7a12",
     later = "5f0c6a52-6a1b-4c39-9f43-0d8b1c2e7a13";
   const claudeRoot = path.join(fixture.home, ".claude/projects/open-dough");
   keepLaunchStore(fixture.home, {
-    "open-dough": [claudeLaunch("earlier", earlier, 6)],
+    "open-dough": [codexLaunch, claudeLaunch("earlier", earlier, 6)],
   });
   writeClaudeLaunch(claudeRoot, "earlier", earlier);
+  writeCodexLaunch(path.join(fixture.home, ".codex/sessions/2026/11"));
   runImport(fixture.home, path.join(fixture.home, ".codex/sessions"), [
     "--claude-root",
     claudeRoot,
   ]);
   keepLaunchStore(fixture.home, {
     "open-dough": [
+      codexLaunch,
       claudeLaunch("earlier", earlier, 6),
       claudeLaunch("later", later, 8),
     ],
@@ -86,10 +114,33 @@ test("Refresh brings in a Claude launch finished since the last check", async ({
   writeClaudeLaunch(claudeRoot, "later", later);
   const server = await fixture.start("preview");
   const usage = await visitUsage(page, server.baseURL);
-  await usage.choose("Tool", "Claude Code");
-  await usage.showsPoints(["Nov 6 · 6,000"]);
+  await usage.showTool("Claude Code", true);
+  await usage.showsPoints([
+    "Nov 6 · Codex · 1,950",
+    "Nov 6 · Claude Code · 6,000",
+  ]);
+  await usage.showsToolNotes([
+    "Codex rate card read 2026-11-15 · standard speed · GPT-6.1 Sol input-token equivalents",
+    "Anthropic API list prices read 2026-11-15 · standard speed · Claude Opus 5.5 input-token equivalents",
+    "Not included: background agent-view row summaries, recaps and idle compaction",
+  ]);
+  await usage.choose("Effort", "high");
+  await usage.showsPoints(["Nov 6 · Claude Code · 6,000"]);
+  await usage.showsCohortNote("0 tasks · Last 30 days", "Codex");
+  await usage.selectPoint("Nov 6 · Claude Code · 6,000", "pointer");
+  await usage.showsFact("Token index", "6,000");
+  await usage.closeDetail("Nov 6 · Claude Code · 6,000");
 
   await usage.refresh();
-  await usage.showsPoints(["Nov 6 · 6,000", "Nov 8 · 6,000"]);
+  await usage.showsPoints([
+    "Nov 6 · Claude Code · 6,000",
+    "Nov 8 · Claude Code · 6,000",
+  ]);
   await usage.showsChecked();
+  await usage.choose("Effort", "Any effort");
+  await usage.showsPoints([
+    "Nov 6 · Codex · 1,950",
+    "Nov 6 · Claude Code · 6,000",
+    "Nov 8 · Claude Code · 6,000",
+  ]);
 });

@@ -145,7 +145,7 @@ keys must be tool-qualified because the chart keys marks and overflow by them.
 ### 2. Compare selected tools on the shared completion-time chart
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given finished tasks for both tools, selecting Codex, Claude Code or both
 shows only those series with labeled colors, each reference unit and median,
@@ -173,6 +173,50 @@ ratios, not just point counts. Include narrow-screen and keyboard operation.
 
 Sizing: 15 active minutes, medium confidence; existing endpoints and slice 1's
 chart contract avoid new pricing, collection or storage work.
+
+Overrun (2026-11-16, first attempt, about 22 active minutes): the sizing
+assumed the retired Tool select reached only frontend Usage cases; it also
+reaches three E2E specs (`system-settings-usage`, `-period`, `-tools`), and the
+per-tool reads, tool choice, summaries and trace styling took the whole budget.
+Refinement: Retain this slice with its completed, compatible frontend work in
+place (no incompatibility or safety reason to discard it); the remaining work
+below is one proof loop sized at 10 active minutes. Story count stays three.
+
+Completed and proved in the first attempt: `usageComparison.ts`,
+`useUsageAnswers.ts`, `UsageToolChoice.tsx`, `UsageToolSummary.tsx`, Usage view,
+trend, filters and trace CSS; new `system-settings-usage-compare.spec.ts`,
+`usageToolsPage.ts`, updated Usage frontend specs and page objects. The guarded
+frontend group plus shared-chart consumers passed 39/39; typecheck, eslint
+clean. `offeredCohort` was retired (sole consumer replaced).
+
+Remaining for this slice:
+
+- Migrate the E2E specs that used the retired Tool select or untagged
+  readouts (`system-settings-usage.spec.ts`, `-period.spec.ts`, `-tools.spec.ts`)
+  and extend `-tools` to show both tools, change a filter, inspect a task and
+  Refresh through real services; observe the real reference-unit labels there.
+- Update `dashboard/USAGE-TOKEN-INDEX.md` (one chart for one or both tools,
+  tool-relative units on one scale, no common cost or efficiency claim, union
+  offerings with reset after settling, named failed read, explicit empty tool,
+  neither-selected prompt).
+- Remove the duplicated `checkedAt(answers)` in `SystemSettingsUsage.tsx` and an
+  unused `.usage-chart-foot` rule if nothing renders it.
+- Close the reported observation gaps: touch inspection of a compared point in
+  the existing narrow-touch project, the narrowest supported reading width for
+  the tool choices, and finished/dashboard-launched eligibility through the
+  existing backend eligibility cases for both tools.
+
+Accepted proof (2026-11-16, about 30 active minutes in total): guarded
+frontend group with shared-chart consumers 40 passed; Usage E2E
+(`system-settings-usage`, `-period`, `-tools`) 4 passed; backend `token-index*`
+24 passed; typecheck clean. Refactor centralized the default selection and tool
+swatch, renamed `UsageFilters`' prop to `selection` and `showsFootNotes` to
+`showsToolNotes`; Usage frontend (21) and E2E (4) reran green. Learnings for
+slice 3: comparison fixtures need medians inside the ordinary scale (an
+independent median above it draws as ↑ overflow); touch cases need
+`hasTouch`, as the narrow cases in the compare spec do. Accepted product
+choices: readouts always name the tool; a failed read for a new selection
+shows only the tool-named error.
 
 ### 3. Give interleaved tasks equal room without losing their times
 

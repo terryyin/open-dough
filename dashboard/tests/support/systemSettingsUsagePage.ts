@@ -2,6 +2,9 @@
 import type { Page } from "@playwright/test";
 import { historyChart } from "../historyChartPage.ts";
 import { expect } from "../dashboardTest.ts";
+import { usageToolsView } from "./usageToolsPage.ts";
+
+export type { UsageToolName } from "./usageToolsPage.ts";
 
 const viewButton = (page: Page, name: "General" | "Usage") =>
   page
@@ -45,6 +48,10 @@ export type TaskDetail = {
   readonly facts: readonly (readonly [term: string, words: FactWords])[];
 };
 
+// A mark's readout once selected: "Selected task" follows its tool's name.
+const selectedReadout = (readout: string) =>
+  readout.replace(/^([^·]+ · (?:Codex|Claude Code) · )/, "$1Selected task · ");
+
 export function usageView(page: Page) {
   const view = page.getByRole("region", { name: "Token index", exact: true });
   const trend = view.getByRole("region", {
@@ -77,6 +84,7 @@ export function usageView(page: Page) {
     }
   };
   return {
+    ...usageToolsView(page, view, trend, chart),
     async chooseDays(days: string) {
       await view.getByRole("textbox", { name: "Last N days" }).fill(days);
     },
@@ -125,31 +133,6 @@ export function usageView(page: Page) {
     async showsPartialPoints(count: number) {
       await expect(chart.partial).toHaveCount(count);
     },
-    // The cohort note's counts, such as "11 tasks · 1 partial · 1 unpriced".
-    async showsCohortNote(words: string) {
-      await expect(
-        trend.locator(".usage-chart-head p.settings-note"),
-      ).toHaveText(words);
-    },
-    // The latest rolling median's figure, with its line drawn across some
-    // width, even for a single value.
-    async showsMedian(figure: string) {
-      const median = trend.locator(".usage-median");
-      await expect(median.locator("strong")).toHaveText(figure);
-      await expect(median).toContainText("10-task rolling median");
-      await expect(chart.line).toHaveCount(1);
-      await expect
-        .poll(async () => (await chart.line.boundingBox())?.width ?? 0)
-        .toBeGreaterThan(0);
-    },
-    // No figure and no line, with the words saying why.
-    async showsNoMedian(words: string) {
-      const median = trend.locator(".usage-median");
-      await expect(median.locator("strong")).toHaveText("—");
-      await expect(median).toContainText(words);
-      await expect(chart.line).toHaveCount(0);
-    },
-    // No chart, with the words saying why.
     async showsNoPoints(words: string) {
       await expect(trend.getByText(words, { exact: true })).toBeVisible();
       await expect(chart.marks).toHaveCount(0);
@@ -166,7 +149,7 @@ export function usageView(page: Page) {
       }
       await expect(
         chart.box.getByRole("button", { pressed: true }),
-      ).toHaveAccessibleName(readout.replace(" · ", " · Selected task · "));
+      ).toHaveAccessibleName(selectedReadout(readout));
       await expect(detail).toBeVisible();
     },
     async showsDetail({ title, about, facts }: TaskDetail) {
@@ -186,13 +169,6 @@ export function usageView(page: Page) {
     },
     async showsTariff(label: string) {
       await expect(trend.getByText(label, { exact: true })).toBeVisible();
-    },
-    // The notes beneath the chart, in order: the tariff label, then the work
-    // the tool's usage leaves out, when it names any.
-    async showsFootNotes(notes: readonly string[]) {
-      await expect(
-        trend.locator(".usage-chart-foot > p.settings-note"),
-      ).toHaveText(notes);
     },
     async refresh() {
       await view.getByRole("button", { name: "Refresh", exact: true }).click();

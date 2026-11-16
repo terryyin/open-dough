@@ -63,14 +63,16 @@ test("Usage shows the finished-task trend and opens a task from the chosen cohor
   const server = await fixture.start("preview");
   const usage = await visitUsage(page, server.baseURL);
 
+  await usage.showsTools({ Codex: true, "Claude Code": false });
   await usage.showsCohort({
-    Tool: "Codex",
     "Launch workflow": "Execution",
     Model: "All models",
     Effort: "Any effort",
   });
   await usage.showsPoints(
-    [...Array<number>(10).keys()].map((at) => `Nov ${String(at + 1)} · 1,950`),
+    [...Array<number>(10).keys()].map(
+      (at) => `Nov ${String(at + 1)} · Codex · 1,950`,
+    ),
   );
   await usage.showsMedian("1,950");
   await usage.showsTariff(
@@ -81,15 +83,18 @@ test("Usage shows the finished-task trend and opens a task from the chosen cohor
   await usage.offers("Model", ["All models", "GPT-6.1 Sol", "GPT-6 Astra"]);
   await usage.offers("Effort", ["Any effort", "xhigh", "high", "medium"]);
   await usage.choose("Launch workflow", "Refinement");
-  await usage.showsPoints(["Nov 11 · 1,950", "Nov 12 · 12,000"]);
+  await usage.showsPoints([
+    "Nov 11 · Codex · 1,950",
+    "Nov 12 · Codex · 12,000",
+  ]);
   await usage.choose("Model", "GPT-6 Astra");
-  await usage.showsPoints(["Nov 12 · 12,000"]);
+  await usage.showsPoints(["Nov 12 · Codex · 12,000"]);
   await usage.choose("Model", "All models");
   await usage.choose("Effort", "high");
-  await usage.showsPoints(["Nov 11 · 1,950"]);
-  await usage.selectPoint("Nov 11 · 1,950", "pointer");
+  await usage.showsPoints(["Nov 11 · Codex · 1,950"]);
+  await usage.selectPoint("Nov 11 · Codex · 1,950", "pointer");
   await usage.showsFact("Observed model", "GPT-6.1 Sol · high effort");
-  await usage.closeDetail("Nov 11 · 1,950");
+  await usage.closeDetail("Nov 11 · Codex · 1,950");
 });
 
 test("Refresh keeps the chart while checking, adds new launch usage, and preserves the result on failure", async ({
@@ -129,22 +134,22 @@ test("Refresh keeps the chart while checking, adds new launch usage, and preserv
   );
   const server = await fixture.start("preview");
   const usage = await visitUsage(page, server.baseURL);
-  await usage.showsPoints(["Nov 3 · 1,950"]);
+  await usage.showsPoints(["Nov 3 · Codex · 1,950"]);
   await usage.showsCheckedAt(importedAt);
   await usage.chooseDays("20");
-  await usage.showsPoints(["Nov 3 · 1,950"]);
+  await usage.showsPoints(["Nov 3 · Codex · 1,950"]);
 
   const lock = `${store}.lock`;
   mkdirSync(lock);
   try {
     await usage.refresh();
     await usage.showsChecking();
-    await usage.showsPoints(["Nov 3 · 1,950"]);
+    await usage.showsPoints(["Nov 3 · Codex · 1,950"]);
     await usage.showsCheckedAt(importedAt);
   } finally {
     rmSync(lock, { recursive: true });
   }
-  await usage.showsPoints(["Nov 3 · 1,950", "Nov 6 · 1,950"]);
+  await usage.showsPoints(["Nov 3 · Codex · 1,950", "Nov 6 · Codex · 1,950"]);
   await usage.showsChecked();
   await usage.showsDays("20");
   const { checkedAt } = JSON.parse(
@@ -158,7 +163,7 @@ test("Refresh keeps the chart while checking, adds new launch usage, and preserv
     `Usage could not be refreshed: Usage history is unreadable: ${store}`,
   );
   await usage.showsChecked();
-  await usage.showsPoints(["Nov 3 · 1,950", "Nov 6 · 1,950"]);
+  await usage.showsPoints(["Nov 3 · Codex · 1,950", "Nov 6 · Codex · 1,950"]);
   await usage.showsCheckedAt(checkedAt);
   await usage.showsDays("20");
 });

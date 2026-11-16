@@ -1,9 +1,9 @@
 /* System settings' views (./SystemSettings.tsx): General and Usage as a row
    of pressed buttons under the bar, and Usage's Token index
-   (./SystemSettingsUsage.tsx): its heading with Refresh, its filters, the
-   chart's head with the rolling median's figure (./TokenIndexTrend.tsx), the
-   shared chart (./history-chart.css) and its legend with the tariff version,
-   and the selected task's detail (./UsageTaskDetail.tsx). */
+   (./SystemSettingsUsage.tsx): its heading with Refresh, its tool choices and
+   filters, each selected tool's summary with its median and tariff
+   (./UsageToolSummary.tsx), the shared chart (./history-chart.css) and its
+   legend, and the selected task's detail (./UsageTaskDetail.tsx). */
 .settings-views {
   box-sizing: border-box;
   display: flex;
@@ -46,6 +46,48 @@
   gap: var(--space-2);
 }
 
+/* Codex and Claude Code, each shown or hidden on its own. */
+.usage-tools-choice {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.usage-tools-choice legend {
+  padding: 0;
+  color: var(--quiet);
+  font-size: var(--text-sm);
+}
+
+.usage-filters .usage-tools-choice label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text);
+  font-size: var(--text-md);
+}
+
+.usage-tools {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.usage-tool h4 {
+  font-size: var(--text-md);
+  font-weight: var(--weight-strong);
+}
+
+/* Each tool's swatch has its chart trace's colour. */
+.usage-swatch-tool-1 {
+  background: var(--history-chart-trace-1-mark);
+}
+
 .usage-filters label {
   display: grid;
   gap: var(--space-1);
@@ -64,8 +106,7 @@
 }
 
 .usage-heading,
-.usage-chart-head,
-.usage-chart-foot {
+.usage-chart-head {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
