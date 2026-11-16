@@ -48,6 +48,8 @@ import type { StartRepository } from "./startOriginPreparation.ts";
 
 export { expect } from "@playwright/test";
 
+export type FixtureServerMode = "preview" | "boundary";
+
 // No process a test started outlives its worker (./processGroup.ts).
 endDescendantsAtExit();
 
@@ -58,7 +60,7 @@ endDescendantsAtExit();
 // cold shared preparation (coldInputPreparation).
 async function prepareServerInputs(
   host: "claude" | "codex" | undefined,
-  serverMode: "preview" | "boundary",
+  serverMode: FixtureServerMode,
 ) {
   const [artifacts, origins, app, bundle] = await Promise.all([
     import("./runArtifacts.ts"),
@@ -81,6 +83,8 @@ async function prepareServerInputs(
 const workerTest = base.extend<
   object,
   PublishedMainWorkerFixtures & {
+    serverMode: FixtureServerMode;
+    dashboardServerInputsReady: undefined;
     launchJourney: LaunchJourney;
     comparisonRenderer: ComparisonRenderer;
     dashboardPreviewReady: undefined;
@@ -93,6 +97,14 @@ const workerTest = base.extend<
     keptSummaryComparisonStory: StartRepository;
   }
 >({
+  serverMode: ["preview", { scope: "worker", option: true }],
+  dashboardServerInputsReady: [
+    async ({ serverMode }, use) => {
+      await prepareServerInputs(undefined, serverMode);
+      await use(undefined);
+    },
+    coldInputPreparation,
+  ],
   // Reading-only previews need the app and boundaries, with no installed origin.
   dashboardPreviewReady: [
     // eslint-disable-next-line no-empty-pattern

@@ -43,6 +43,7 @@ export const test = base.extend<
   },
   dashboard: async (
     {
+      dashboardServerInputsReady,
       github,
       origin,
       codexProtocol,
@@ -53,6 +54,7 @@ export const test = base.extend<
     },
     use,
   ) => {
+    await Promise.resolve(dashboardServerInputsReady);
     serveOriginBaseCi(github, origin);
     const server = await startDashboardServer({
       ...fixtureServerMode(serverMode),

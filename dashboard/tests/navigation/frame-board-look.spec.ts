@@ -5,9 +5,6 @@
 // scrolling. With no project, Open Dough's mark still leads the banner and
 // System settings. The cards inside the Board are not this look's to change.
 
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
 import { test as machineTest } from "../support/pageTest.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { pausePageClock, passTimeUntilChecked } from "../autoRefreshJourney.ts";
@@ -112,10 +109,8 @@ test("an empty column and a failed read are said in the frame's look, whole in a
 machineTest(
   "no projects configured reads clearly and whole in a narrow window",
   async ({ page }) => {
-    const machine = mkdtempSync(path.join(tmpdir(), "dough-frame-look-"));
     const server = await startDashboardServer({
       mode: "dev",
-      machine,
       prebuilt: sharedDashboardBuild,
       configureDevelopmentProjects: false,
     });
@@ -149,7 +144,6 @@ machineTest(
       await expectProductMark(page.getByRole("banner"));
     } finally {
       await server.close();
-      rmSync(machine, { recursive: true, force: true });
     }
   },
 );

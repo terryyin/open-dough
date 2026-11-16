@@ -20,23 +20,23 @@ without changing behavior. All returned IDs and conditions are retained.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | B produces an execution record through execution completion: one fresh Codex executes historical plan 664 through its execution-complete record. If an unrelated failure stops B, report how far it reached, apply failure policy and mark later moments not exercised (L59–63, L155–157). |  | G1 |
-| 2 | P produces a new slice plan for the refined effort story, and the resulting plan is read (L89–93). | slice 4 |  |
-| 3 | Evaluate shotgun-surgery guidance when slice-1 refactoring meets effort edits in tests about other subjects. Accepting them as clean/concept assertions yields revise with the sentence relied on; loosening what fits and returning the specified follow-up carried into learnings yields keep; narrowing before refactor yields not exercised (L33, L139–145, L149–151). | slice 5 |  |
-| 4 | Evaluate assertion/name matching, one reader in support, and splitting parameterized bodies that branch on case at implementation/refactoring. Nine planned value updates count as following plan; judge new assertions and refactor response. Early narrowing yields keep (L34, L135–138, L149–151). | slice 5 |  |
-| 5 | Evaluate named-follow-up guidance at refactor return and completion learnings. Return names smell, concept, file count and representative files and carries into learnings: keep with quoted return. Ineffective-pass example: revise with relied-on sentence. Early narrowing: not exercised (L35, L139–145, L149–151). | slice 5 |  |
-| 6 | Evaluate the slice-1 coordinator refactor brief. Prescribed remedies yield revise with quote; outside-subject count without remedy yields keep (L36, L146–148). | slice 5 |  |
-| 7 | Evaluate planning guidance. Mechanical consumer updates in slice 1 again yield revise; opening with Structure narrowing them yields keep (L37, L152–154). | slice 5 |  |
-| 8 | Identify outside-effort test edits and classify each as loosened or value-updated, including planned value updates as following plan (L101–102, L135–138). | slice 2 |  |
-| 9 | Identify positional assertions B adds (L103). | slice 2 |  |
-| 10 | Identify count assertions B adds (L103). | slice 2 |  |
-| 11 | Identify whole-list assertions B adds (L103). | slice 2 |  |
-| 12 | Identify whole-object assertions B adds (L103). | slice 2 |  |
-| 13 | Identify parameterized tests whose bodies branch on case (L104). | slice 2 |  |
-| 14 | Place B active time beside A using one stated transcript definition where both expose the necessary timing (L105–106). | slice 3 |  |
-| 15 | Record token usage with each provider’s recorded billing basis (L106–107). | slice 3 |  |
-| 16 | Record cost with each provider’s recorded billing basis; missing cost explicitly unavailable, never Claude prices for Codex tokens (L106–108). | slice 3 |  |
-| 17 | Record effective host/model/effort and memory/context differences and observed moments they could explain. Model/effort come from launched sessions (L56–57, L120–125). | slice 5 |  |
+| 1 | B produces an execution record through execution completion: one fresh Codex executes historical plan 664 through its execution-complete record. If an unrelated failure stops B, report how far it reached, apply failure policy and mark later moments not exercised (L59–63, L155–157). | slice 1 | G1 |
+| 2 | P produces a new slice plan for the refined effort story, and the resulting plan is read (L89–93). | slice 5 |  |
+| 3 | Evaluate shotgun-surgery guidance when slice-1 refactoring meets effort edits in tests about other subjects. Accepting them as clean/concept assertions yields revise with the sentence relied on; loosening what fits and returning the specified follow-up carried into learnings yields keep; narrowing before refactor yields not exercised (L33, L139–145, L149–151). | slice 6 |  |
+| 4 | Evaluate assertion/name matching, one reader in support, and splitting parameterized bodies that branch on case at implementation/refactoring. Nine planned value updates count as following plan; judge new assertions and refactor response. Early narrowing yields keep (L34, L135–138, L149–151). | slice 6 |  |
+| 5 | Evaluate named-follow-up guidance at refactor return and completion learnings. Return names smell, concept, file count and representative files and carries into learnings: keep with quoted return. Ineffective-pass example: revise with relied-on sentence. Early narrowing: not exercised (L35, L139–145, L149–151). | slice 6 |  |
+| 6 | Evaluate the slice-1 coordinator refactor brief. Prescribed remedies yield revise with quote; outside-subject count without remedy yields keep (L36, L146–148). | slice 6 |  |
+| 7 | Evaluate planning guidance. Mechanical consumer updates in slice 1 again yield revise; opening with Structure narrowing them yields keep (L37, L152–154). | slice 6 |  |
+| 8 | Identify outside-effort test edits and classify each as loosened or value-updated, including planned value updates as following plan (L101–102, L135–138). | slice 3 |  |
+| 9 | Identify positional assertions B adds (L103). | slice 3 |  |
+| 10 | Identify count assertions B adds (L103). | slice 3 |  |
+| 11 | Identify whole-list assertions B adds (L103). | slice 3 |  |
+| 12 | Identify whole-object assertions B adds (L103). | slice 3 |  |
+| 13 | Identify parameterized tests whose bodies branch on case (L104). | slice 3 |  |
+| 14 | Place B active time beside A using one stated transcript definition where both expose the necessary timing (L105–106). | slice 4 |  |
+| 15 | Record token usage with each provider’s recorded billing basis (L106–107). | slice 4 |  |
+| 16 | Record cost with each provider’s recorded billing basis; missing cost explicitly unavailable, never Claude prices for Codex tokens (L106–108). | slice 4 |  |
+| 17 | Record effective host/model/effort and memory/context differences and observed moments they could explain. Model/effort come from launched sessions (L56–57, L120–125). | slice 6 |  |
 
 ## Unnumbered context returned by the reviewer
 
