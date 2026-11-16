@@ -44,6 +44,7 @@ import {
   FileRow,
   FileTree,
 } from "./StoryReviewFileTree.tsx";
+import { isReviewedSessionSubject } from "./reviewedWorkSubject.ts";
 
 // What the review says in place of the browser when the comparison shown
 // lists no files.
@@ -53,21 +54,25 @@ function NoChanges({
   commitsReview,
   committedOnly,
   published,
+  sessionSubject,
 }: {
   readonly snapshot?: TakenStoryReview;
   readonly sinceReview: boolean;
   readonly commitsReview: boolean;
   readonly committedOnly: boolean;
   readonly published: boolean;
+  readonly sessionSubject: boolean;
 }) {
-  if (snapshot === undefined)
-    return (
-      <p>
-        {published
-          ? "No changes: this completed story has an empty published comparison."
-          : "No changes: this landed run has an empty delivered comparison."}
-      </p>
-    );
+  if (snapshot === undefined) {
+    let words =
+      "No changes: this landed run has an empty delivered comparison.";
+    if (published)
+      words =
+        "No changes: this completed story has an empty published comparison.";
+    else if (sessionSubject)
+      words = "No changes: this session's delivered comparison is empty.";
+    return <p>{words}</p>;
+  }
   if (commitsReview) return <p>The chosen commits changed nothing.</p>;
   if (committedOnly)
     return (
@@ -163,6 +168,7 @@ export function SnapshotView({
       commitsReview={commitsReview}
       committedOnly={committedOnly}
       published={reviewed.completion !== undefined}
+      sessionSubject={isReviewedSessionSubject(reviewed.subject)}
     />
   ) : (
     <div className="story-review-workarea">

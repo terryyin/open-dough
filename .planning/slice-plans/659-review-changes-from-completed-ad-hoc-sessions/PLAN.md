@@ -218,7 +218,7 @@ Learning: shared `ReviewChangesButton` owns the control markup for story and ad 
 ### 6. The panel explains an ad hoc review without a comparison
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the slice 5 spec, further tests; documentation read.
 
 Behavior: the not-captured, unreadable and empty answers of slice 2 → the
@@ -229,6 +229,10 @@ The slice also brings `dashboard/AGENT-LAUNCH-REVIEW.md`,
 `STORY-REVIEW-LANDED-RUNS.md` and `AGENT-LAUNCH-COMPLETION.md` in line: an
 unattached session's captured landing is reviewed from its Recently done
 entry.
+
+Accepted proof (2026-11-16):
+- `recently-done-ad-hoc-review.spec.ts` → 2 passed (landed + not-captured/unreadable/empty).
+- Docs read: AGENT-LAUNCH-REVIEW, STORY-REVIEW-LANDED-RUNS, AGENT-LAUNCH-COMPLETION describe Recently done ad hoc review.
 
 ## Current decisions
 

@@ -16,7 +16,7 @@ proof, or slice scope.
 | 5 | That control is named as on a done story’s card. | slice 5 | observed: AdHocSessionReviewAction text Review changes like StoryReviewAction |
 | 6 | That control is drawn as on a done story’s card. | slice 5 | observed: AdHocSessionReviewAction start-launch-button + GitCompare icons like story card |
 | 7 | A session whose launch established no place for a landing still offers **Review changes**. | slice 5 | observed: same: noLandingEntry Review changes visible |
-| 8 | When the comparison is absent, that absence is explained where the developer looks for the review. | slice 6 | |
+| 8 | When the comparison is absent, that absence is explained where the developer looks for the review. | slice 6 | observed: recently-done-ad-hoc-review.spec.ts not-captured/unreadable/empty explanations without file browser; Review changes on entry |
 | 9 | Opening the review uses the page’s one side panel. | slice 5 | observed: same: sidePanelPages storyReview opens in page side panel |
 | 10.1 | That panel provides the existing review capability: file browser | slice 5 | observed: same: expectChangedFiles / expectChangedFile file browser |
 | 10.2 | That panel provides the existing review capability: counts | slice 5 | observed: same: expectChangedFiles 1 changed file counts |

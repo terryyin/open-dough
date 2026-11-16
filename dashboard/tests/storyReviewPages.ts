@@ -109,6 +109,13 @@ export class StoryReview extends PageObject {
     );
   }
 
+  // What the body says in place of the file browser, such as an empty comparison.
+  expectBodyText(text: string) {
+    return this.cueHere(`Story review: body says "${text}"`, () =>
+      expect(reviewBody(this.#review)).toHaveText(text),
+    );
+  }
+
   // The changed files list is named by its count, so it appears once the
   // review has read its comparison, which the boundary may take up to its
   // read bound to answer.
