@@ -158,7 +158,7 @@ speed claim.
 
 **Identity:** SEED-334#remove-obsolete-native-revision-opener
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/652-remove-obsolete-native-revision-opener/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"63b7a208e2988cbef4959de21849079954de4de45b0d6bdc67170350322ab0da","plan":"074398d732b52386ff5a8af8f119a9a582f0cf1a00644ebb2d6d84302048e7af"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/652-remove-obsolete-native-revision-opener/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"63b7a208e2988cbef4959de21849079954de4de45b0d6bdc67170350322ab0da","plan":"30a498a148a04a3b617f5185c4d61022695d218c7e0c95a4c6bdf80f35a0c5e8"}}
 ```
 
 **Goal:** A test maintainer has one live revision opener after the reading/review
