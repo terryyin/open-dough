@@ -151,13 +151,13 @@ on its case.
 
 ### 4. B's refactor pass, brief, follow-up, time and cost are read beside A's
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 4 rows above.
 
-Behavior: B has finished → this plan quotes B's slice 1 refactor brief, the
-refactor return's candidates and named follow-ups, and the learnings B's plan
-carries, each beside A's, and states active time plus provider-specific usage/cost for both with the
-method used and unavailable values explicit.
+Behavior: B has finished → accessible first-refactor briefs, returned
+candidates/follow-ups and completion learnings are recorded beside A’s, with
+timing/usage/cost methods and unavailable values explicit. G3 owns the original
+B brief’s readability prerequisite for the final guidance judgment.
 
 ### 5. The planning replay shows how the effort story is planned now
 Type: Behavior
@@ -204,22 +204,21 @@ Story clause: "no wrap-up, retrospective or landing."
 Disposition: receiving slice 6
 
 
-## Slice 3 observation — frozen test changes inventoried
+### G3. Original Codex refactor brief is not readable
+Reported: slice 4 — "B’s first refactor message is encrypted in its root and child logs. Supported native thread/read for both omits its plaintext. Count/remedy wording is unobserved; the final judgment needs readable source or an explicit changed promise. The operator requested the developer’s choice while independent work continues."
+Story clause: "The coordinator's slice 1 refactor brief"
+Disposition: receiving slice 6
+Commitment: 6
+### G4. Intermediate refactor messages are encrypted
+Reported: slice 4 — "Intermediate candidate discussion is encrypted, although the final first-refactor return and actual changed files are readable."
+Story clause: "An Open Dough maintainer can decide, edit by edit"
+Disposition: no user cost "The story's outcome is that evidence and a recommendation per edit": the final return supplies the requested candidate dispositions and named-follow-up result, with actual diff and completion learnings; intermediate private analysis is not a required deliverable.
 
-[The case and assertion inventory](test-inventory.md) records source-review
-obligations 8–13 at A `4b75c2888..eda73008b` and B
-`c629d0d9..8b9005acc`, before B’s later plan-only review. A changes 29 specs
-and two assertion-support files; B changes 15 specs and five support files.
-The table separates incidental consumers, mixed planned effort surfaces and
-direct effort/display proof, classifies final value updates/narrowing, and
-traces B’s semantic command reader to actual recorded argv. Newly introduced
-assertion forms and case-dependent branches have explicit units and limits;
-no guidance recommendation is made here. The CI pause preserved the frozen
-inputs; later CI repairs do not enter either range. No test, lint, format,
-refactor, commit or product/test/guidance edit was made for this observation.
+## Research evidence acceptance
 
-Acceptance: compared the original source promises with the frozen table,
-reader implementation, explicit high fixture and max/absent-effort case bodies.
-Units distinguish specs/support, sites/runtime variants and existing values/new
-assertion shapes. Every outside-subject file/case and supported absence is
-recorded; ids 8–13 accepted. Refactor disposition: records-only.
+- Slice 3: [frozen test inventory](test-inventory.md), ids 8–13 accepted.
+- Slice 4: [refactor and measurements](refactor-and-metrics.md), ids 14–16
+  accepted as provider usage, defined proxies and explicit unavailable totals.
+  [Observation history](execution-observations.md) retains the comparisons.
+  B’s original brief remains G3; final returns supply candidate evidence.
+- Refactor disposition for these updates: records-only.
