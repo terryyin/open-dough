@@ -137,3 +137,10 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
 - Plain companion paths in syntax fixtures must sort before the styled path so
   auto-open does not consume a one-shot unavailable answer (`base.txt` before
   `greet.ts`).
+
+## Execution complete
+
+Product advice: Keep G1–G3 deferred as recorded; at wrap-up, retain those
+remaining deferred promises as follow-up if still wanted. No backlog reorder.
+Process review deferred into wrap-up (Intent Coverage: rewritten path/plain
+assertions). Hosted CI conclusions were conditional at review time.
