@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yua-chan",
+  "email": "yua-chan@example.org",
+  "identity": "SEED-367#count-slice-active-time-deterministically",
+  "mode": "story-branch",
+  "branch": "claude/count-a-slice-s-active-time-without-the-agent-s",
+  "host": "claude",
+  "model": "fable"
+}

@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [Count a dashboard launch's work after a developer reply](seeds/SEED-388-measure-and-control-agent-launch-cost.md#count-claude-code-work-after-a-developer-reply) — SEED-388#count-claude-code-work-after-a-developer-reply ([plan](slice-plans/665-count-launch-work-after-a-developer-reply/PLAN.md))
 - [Show and keep the effort a Claude Code launch runs with](seeds/SEED-388-measure-and-control-agent-launch-cost.md#show-the-effort-a-launch-runs-with) — SEED-388#show-the-effort-a-launch-runs-with ([plan](slice-plans/664-show-the-effort-a-launch-runs-with/PLAN.md))
 - [Compare agent effort on comparable runs](seeds/SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs) — SEED-345#compare-agent-effort-on-comparable-runs ([plan](slice-plans/666-compare-agent-effort-on-comparable-runs/PLAN.md))
+- [Count a slice's active time without the agent's own clock](seeds/SEED-367-bounded-slice-active-time.md#count-slice-active-time-deterministically) — SEED-367#count-slice-active-time-deterministically ([plan](slice-plans/667-count-slice-active-time-deterministically/PLAN.md))
 
 ## Backlog list
 
-- [Count a slice's active time without the agent's own clock](seeds/SEED-367-bounded-slice-active-time.md#count-slice-active-time-deterministically) — SEED-367#count-slice-active-time-deterministically
 - [Bound flaky-test and CI-failure diagnosis in evidence rounds](seeds/SEED-367-bounded-slice-active-time.md#bound-diagnosis-in-evidence-rounds) — SEED-367#bound-diagnosis-in-evidence-rounds
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets
