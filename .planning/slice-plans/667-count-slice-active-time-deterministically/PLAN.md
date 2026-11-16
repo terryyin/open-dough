@@ -209,6 +209,18 @@ overrun. Replace the host-clock counting in `oversized-slice.md#track-active-tim
 the brief items in `delegation.md`, and the log and exit file step in
 `wait-for-proof.md`.
 
+## Execution complete
+
+Product advice: no change to the queue. Two things to judge on the first real
+executions that use the clock, before the sibling slice-limit stories build on
+it:
+
+- A session that ends in the middle of a slice leaves that slice's clock
+  running. The next coordinator in the checkout has to pause it before it can
+  start another slice, and the abandoned time counts toward that slice.
+- A project gets the clock hook entry when its Open Dough installation is next
+  updated; until then its overruns show only at clock commands.
+
 ## Concerns and cumulative design
 
 Slice-plan refinement was not needed: slices 2–4 extend one record and one
