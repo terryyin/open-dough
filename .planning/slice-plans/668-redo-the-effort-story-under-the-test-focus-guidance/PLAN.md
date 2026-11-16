@@ -233,3 +233,10 @@ Disposition: no user cost "The story's outcome is that evidence and a recommenda
 | Oversized named follow-up | [Not exercised in the returned outcome](guidance-result.md#edit-3--named-oversized-follow-up-not-exercised-in-the-returned-outcome): no oversized candidate identified in readable final return/learnings; no claim about encrypted intermediate discussion. |
 | Facts-only brief | [Unassessed](guidance-result.md#edit-4--facts-only-refactor-brief-unassessed): Terry authorized skipping the unavailable brief; its moment occurred (G3), with no verdict. |
 | Structure before default change | [Keep for planning](guidance-result.md#edit-5--structure-before-changing-the-default-keep-for-planning): P's Structure slice 2 immediately precedes default Behavior slice 3; unexecuted. |
+
+## Execution complete
+
+Product advice: Keep the three observed guidance mechanisms within the
+[result's limits](guidance-result.md). Oversized-follow-up handling remains
+untested; the brief is unassessed by Terry's instruction. Guidance revision
+remains Terry's subsequent decision. Product/proof review found no correction.

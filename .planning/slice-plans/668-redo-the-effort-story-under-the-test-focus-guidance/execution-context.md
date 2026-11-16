@@ -158,3 +158,41 @@ session 89771, yielded cell `g694:8`; runtime remains this checkout's
 verified active. Latest published base remains `dee607a08f55febc022340aee1724a40a2c11dba`
 before slice 6 delivery; accepted receipt will name its exact successor.
 Source freshness is unchanged at main `dcb6572131b0de847b02facb8f2d0f3c1033703c`.
+
+## Automatic execution review
+
+Implementation accepted at `4bd95d4345498007f468bff50344e4cbf7ec42ea`.
+The published attribution set is:
+
+| Revision | Attributable result |
+| --- | --- |
+| `5ea5ca123` | Codex-first source amendment and blind execution evidence |
+| `d59ab3e84` | Mandatory read-budget, cold-input and startup-lifetime correction |
+| `494e6b44b` | Exact hosted acceptance of that correction |
+| `4b43d27b1` | Frozen A/B test inventory |
+| `10bfe207f` | Refactor returns, time proxy and provider measurements |
+| `dee607a08` | Blind P planning observation |
+| `4bd95d434` | Final assessment and accepted missing-brief scope |
+
+Other trunk work is excluded; `d288b03f9` is the independently published
+source of the compatible read-budget trim, not another execution increment.
+Review is read-only/unchanged: source promises, allowed omission, frozen
+diffs, accessible returns and P plan support the recommendations. No new
+correction or queue change is identified. ADR 0002 (cohesion), ADR 0005
+(native/comparison evidence) and ADR 0010 (bounded improvement claims) remain
+consistent: existing preparation is reused, and no guidance-only effect is claimed.
+The launch North Star is unchanged; this trial delivers no launch behavior.
+
+Native observations drive this research. The CI correction was driven by
+existing browser failures plus controlled slow-build/startup faults. Its
+unchanged representative UI/server workflows and boundary-only checks retain
+their assertions; immutable worker inputs do not replace per-case state.
+The empty-project case still observes real server configuration, layout and
+settings navigation. No newly evidenced E2E/unit duplication warrants a
+correction; broader navigation migration is already queued in SEED-334.
+
+Process selection is enabled by project configuration. Under wrap-up's
+automatic-check selection, the test/fixture rewrites warrant one Intent
+Coverage check at closure. Process remains selected and deferred until that
+report and dispositions; no process analysis/log write was performed here.
+Explicit scratch retention until Terry reads the result remains effective.
