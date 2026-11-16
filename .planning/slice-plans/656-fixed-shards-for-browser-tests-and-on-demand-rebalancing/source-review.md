@@ -62,17 +62,17 @@ returned `X` ids.
 | 10a | Add a private maintainer skill under `.agents/skills/`. | slice 8 | |
 | 10b | The skill is not distributed by the installer. | slice 8 | |
 | 10c | The skill is backed by one script. | slice 8 | |
-| 10d | The script works for a chosen group: any of the four browser groups or the Distribution suite. | slice 2 | |
-| 10e | The script reads that group's times artifacts from the last successful `ci.yml` runs on `main`. | slice 2 | |
-| 10f | The script takes each file's median seconds across those runs. | slice 2 | |
-| 11a | The script prints each shard's total seconds under the patterns currently in `ci.yml`. | slice 2 | |
-| 11b | The script lists apart the files the runs did not time. | slice 2 | |
-| 11c | The script prints the notably slow files (those that alone carry a large part of an even shard) as candidates for a faster test rather than a move. | slice 2 | |
+| 10d | The script works for a chosen group: any of the four browser groups or the Distribution suite. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh e2e/backend/distribution cases; scripts/ci-shard-balance.mjs parseArguments groups |
+| 10e | The script reads that group's times artifacts from the last successful `ci.yml` runs on `main`. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh gh stand-in asserts the successful main ci.yml run listing (--limit 5) and per-run downloads; real distribution-tests run in Learnings |
+| 10f | The script takes each file's median seconds across those runs. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh e2e case: even-count median of a file timed twice; ci-shard-times.mjs median |
+| 11a | The script prints each shard's total seconds under the patterns currently in `ci.yml`. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh expect_report per-shard totals under the fixture ci.yml patterns; real run in Learnings |
+| 11b | The script lists apart the files the runs did not time. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh e2e and distribution cases: Untimed files list |
+| 11c | The script prints the notably slow files (those that alone carry a large part of an even shard) as candidates for a faster test rather than a move. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh e2e case: Slow files over a tenth of the even total |
 | 11d | The script prints the smallest pattern change that brings the slowest shard closest to the even total, as a unified diff to `ci.yml`. | slice 7 | |
 | 11e.1 | Allowed change form: one existing pattern moved to another shard. | slice 7 | |
 | 11e.2 | Allowed change form: one new folder or file pattern taken out of the last shard's rest. | slice 7 | |
 | 11f | When no single change improves the slowest shard notably, the script says the shards are balanced and prints no diff. | slice 7 | |
-| 12a | The script only reads: it starts no run. | slice 2 | |
+| 12a | The script only reads: it starts no run. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh fixture tree and TMPDIR unchanged after runs; script only lists/downloads via gh |
 | 12b | The script changes no file. | slice 7 | |
 | 12c | The maintainer applies the diff. | slice 8 | |
 | 12d.1 | The skill says when to use it. | slice 8 | |
@@ -100,14 +100,14 @@ returned `X` ids.
 | 23d | Same example: `ci.yml` on disk is unchanged. | slice 7 | |
 | 24a | Example: invoked again after applying that diff → prints totals, says balanced, no diff. | slice 7 | |
 | 24b | Example: invoked for a group whose shards are already close → prints totals, says balanced, no diff. | slice 7 | |
-| 25 | Example: a recent run's times artifacts from an older shard layout still count, because totals come from applying current patterns to each file's seconds. | slice 2 | |
-| 26a | Example: no successful `main` run still holds the group's times artifacts → script fails saying so. | slice 2 | |
+| 25 | Example: a recent run's times artifacts from an older shard layout still count, because totals come from applying current patterns to each file's seconds. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh e2e case: run 302 under an older 2-shard layout counts under current patterns |
+| 26a | Example: no successful `main` run still holds the group's times artifacts → script fails saying so. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh unusable case: no run holds the artifacts, exit 1 with reason |
 | 26b | Same example: script proposes nothing. | slice 7 | |
 | 27 | Example: skill invoked for the Distribution suite → same report and proposal over the `distribution-tests` matrix and its `test-times-<i>` artifacts. | slice 7 | |
 | 28a | Architecture: `ci.yml` is the one owner of shard membership for all five groups. | slice 4 | |
 | 28b | The module that reads the `distribution-tests` matrix for the Node runner becomes the one reader for every group. | slice 4 | |
 | 28c | Each browser configuration asks that module for its shard's spec files and is told only the shard number. | slice 4 | |
-| 28d | The rebalancing script asks that module for every shard's files. | slice 2 | |
+| 28d | The rebalancing script asks that module for every shard's files. | slice 2 | observed: scripts/ci-shard-balance.mjs shardReport uses readShareDeclaration + selectShare |
 | 28e | The selection and overlap rules exist once. | slice 6 | |
 | 28f | Each group's shard declaration stays in a form that module reads (no YAML parser in the repository). | slice 1 | observed: scripts/test-share-declaration.mjs readShareDeclaration line reader (matrix and caller `shards`/`specs: \|` forms); Distribution/tests/support/test-share-workflow.test.mjs |
 | 28g | The called `browser-test-group.yml` turns each group's declaration into its matrix. | slice 4 | |
@@ -138,5 +138,5 @@ returned `X` ids.
 | X7 | Exclusion: the script does not start runs, change files, or apply its own diff. | slice 7 | |
 | X8 | Exclusion: the script does not record per-file seconds in the repository, and nothing gives shard balance an automatic owner. | slice 8 | |
 | X9 | Exclusion: released `CHANGELOG.md` entries and the done-story catalog stay unedited. | slice 6 | |
-| X10 | Exclusion: the job-count report is not folded into the rebalancing script. | slice 2 | |
+| X10 | Exclusion: the job-count report is not folded into the rebalancing script. | slice 2 | observed: scripts/ci-shard-balance.mjs has no job-count reporting; ci-job-times.sh unchanged and green |
 | X11 | Exclusion: the maintainer skill is not distributed by the installer. | slice 8 | |

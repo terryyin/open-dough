@@ -98,7 +98,7 @@ and 3.
 
 ### 2. Report a group's shard totals from recent main runs
 Type: Behavior
-Status: planned
+Status: done
 Proof: a new `Distribution/tests/ci` check with a `gh` stand-in serving
 fixture runs and artifacts, as `Distribution/tests/ci/ci-job-times.sh` does,
 over a fixture workflow and file tree; one unpaid read-only run against
@@ -288,3 +288,15 @@ premises are bounded by the early probe in slice 5.
   Distribution/tests/support/test-share-matrix.test.mjs`, `bash scripts/test.sh`
   over those two, `test-runner-split.sh`, `test-runner-bash.sh` and the
   copy-runner consumers.
+- Slice 2: `scripts/ci-shard-balance.mjs` (report) and `scripts/ci-shard-times.mjs`
+  (gh listing, downloads, median); `readJobInput` reads a job's one-line
+  `with:` input (`root`). `shardReport` returns `{shards, even, untimed, slow}`
+  for slice 7 to build the proposal on. Distribution discovery calls `bash
+  scripts/test-jobs.sh`, so bash 5 must be first on `PATH`. The check copies
+  `dashboard/tests/support/testFiles.mjs` into its fixture; slices 3 and 6
+  must keep its copy list in step with that module's imports. Unpaid real run,
+  2026-11-16, `node scripts/ci-shard-balance.mjs distribution-tests`: 5 runs
+  2026-11-15T17:13Z–2026-11-16T03:39Z; even 788 s over 3 shards; shard 1
+  695 s (244 files, `Distribution/tests/skills/dough-execute-plan/**`), shard 2
+  943 s (70 files, `Distribution/evaluation/**`), shard 3 728 s (330 files);
+  untimed: this story's two new checks; slow files: none.

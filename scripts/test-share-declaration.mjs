@@ -141,6 +141,38 @@ function readCallerInputs(job, block, fail) {
   };
 }
 
+// The lines of job `job`'s block, or undefined when the workflow has no such job.
+function jobBlockOf(text, job) {
+  const lines = text.split("\n");
+  const jobAt = lines.findIndex((line) => line.trim() === `${job}:`);
+  return jobAt < 0 ? undefined : blockAfter(lines, jobAt);
+}
+
+// A job block's `with:` input lines, or undefined when it has none.
+function withInputsOf(jobBlock) {
+  const withAt = jobBlock.findIndex((line) => line.trim() === "with:");
+  return withAt < 0 ? undefined : blockAfter(jobBlock, withAt);
+}
+
+/**
+ * A caller job's one-line `with:` input `name`, such as a browser group's
+ * `root`, or undefined when the job or input is missing.
+ * @param {string} text workflow file text
+ * @param {string} job the job id
+ * @param {string} name the input name
+ */
+export function readJobInput(text, job, name) {
+  const inputs = withInputsOf(jobBlockOf(text, job) ?? []);
+  if (!inputs) return undefined;
+  const childIndent = indentOf(inputs[0] ?? "");
+  const prefix = `${name}: `;
+  const line = inputs.find(
+    (input) =>
+      indentOf(input) === childIndent && input.trim().startsWith(prefix),
+  );
+  return line?.trim().slice(prefix.length).trim();
+}
+
 /**
  * Reads a job's shard declaration: the `distribution-tests` job's matrix, or a
  * browser group's caller job inputs. Either way, the shares in listed order and
@@ -151,18 +183,13 @@ function readCallerInputs(job, block, fail) {
  */
 export function readShareDeclaration(text, file, job = MATRIX_JOB) {
   const fail = (message) => refuse(file, message);
-  const lines = text.split("\n");
-  const jobAt = lines.findIndex((line) => line.trim() === `${job}:`);
-  if (jobAt < 0) fail(`no ${job} job.`);
-  const jobBlock = blockAfter(lines, jobAt);
+  const jobBlock = jobBlockOf(text, job);
+  if (!jobBlock) fail(`no ${job} job.`);
   const matrixAt = jobBlock.findIndex((line) => line.trim() === "matrix:");
-  const withAt = jobBlock.findIndex((line) => line.trim() === "with:");
   if (matrixAt >= 0) {
     return { file, ...readMatrix(job, blockAfter(jobBlock, matrixAt), fail) };
   }
-  if (withAt >= 0) {
-    const inputs = blockAfter(jobBlock, withAt);
-    return { file, ...readCallerInputs(job, inputs, fail) };
-  }
+  const inputs = withInputsOf(jobBlock);
+  if (inputs) return { file, ...readCallerInputs(job, inputs, fail) };
   return fail(`the ${job} job has no matrix or with: inputs.`);
 }
