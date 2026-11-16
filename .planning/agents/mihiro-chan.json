@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Mihiro-chan",
+  "email": "mihiro-chan@example.org",
+  "identity": "SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing",
+  "mode": "story-branch",
+  "branch": "claude/fixed-shards-for-browser-tests-and-on-demand-reb",
+  "host": "claude",
+  "model": "opus"
+}
