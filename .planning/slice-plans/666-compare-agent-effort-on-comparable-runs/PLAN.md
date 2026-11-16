@@ -3,6 +3,8 @@
 **Identity:** SEED-345#compare-agent-effort-on-comparable-runs
 **Source:** [Selected story](../../seeds/SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs)
 
+**Source review:** [Independent commitments](source-review.md)
+
 ## Goal and scope
 
 A maintainer reproduces one execution's effort or compares a baseline and
@@ -88,45 +90,18 @@ do not expand the history schema to retain report-only detail.
   explicit unknown/partial status and source references; readable output keeps
   totals, settings and gaps together. Never print transcript bodies.
 
-## Proof ownership
+## Execution context
 
-All new CLI specs invoke the actual Node entry with isolated homes, retained
-launch records and native fixtures; assert emitted output and unchanged input
-bytes. Use the selected MakeMe builders rather than hand-built host rows.
+- Established Story Branch Mode in `/Users/terryyin/git/open-dough/.worktrees/compare-agent-effort-on-comparable-runs`, branch `codex/compare-agent-effort-on-comparable-runs`, reused owned linked worktree. Remote `origin`, trunk `main`; integration/default checkout `/Users/terryyin/git/open-dough` is separate and untouched.
+- Identity `SEED-345#compare-agent-effort-on-comparable-runs`, publisher `dashboard-territory.local-open-dough`, agent Yuma-chan. Starting revision `fffced8c60680a43399419eb56e98e36b0e43e92`; accepted claim and first published base `f777c4aa2e9f3603a50603fb20e67c95ccbff290`. Claim on trunk has `pendingCi: unobserved`.
+- Exact checkout setup: Node v24.21.0; `node scripts/setup-native.mjs npm` passed with unchanged lockfile; `npm run typecheck:dashboard` passed. Hook `.githooks/pre-commit` is check-only staged lint and dashboard typecheck. Selective formatter `npm run format`; agent commit contract applies.
+- Replanning: preserve existing planned authority; no overrun permission supplied. Five slices are within the eight-slice cap. Implementation agents own 15 active minutes per slice.
+- Observer: GitHub Actions `ci.yml` (verified CI, id 351271804), repository `terryyin/open-dough`, target `codex/compare-agent-effort-on-comparable-runs`, coordinator `yuma-compare-345`. Codex yielded cell `g601:15`, session 67032, PID 52119, directory `/tmp/dough-ci-501/watch-n98g3z`; runtime is this checkout's `.agents/skills/dough-execute-plan`. Integrated-state completion uses the configured push check.
 
-| Source promise / example | Slice and outside-in observation |
-| --- | --- |
-| Read-only selection; root/worker counters; failed, cancelled, later-turn work; own responses once | 1: `dashboard/backend-tests/usage-history/agent-effort-report.spec.ts` runs the CLI over both hosts; duplicate fork/stream rows, a reply, a failed worker and a next task prove boundaries and summed figures. Assert native, launch and usage files unchanged and no new refresh files. Reuse existing coverage/lineage cases as consumers. |
-| Partial history and unavailable counters; ambiguous selection recoverable | 1: same CLI spec removes one native file, supplies conflicting ownership, selects duplicate story matches; known stored counters retain their provenance, other fields show gaps and selection lists identifiers. |
-| Per-agent peaks, mixed observed settings, guidance provenance | 2: same CLI spec with two agents and changing model/effort, inclusive/disjoint input and a missing counter; assert maxima and unknowns. Change today's VERSION independently of the historical input and assert no invented historical version. |
-| Explicit conservative idle-wake exposure | 3: `agent-effort-wakes.spec.ts` CLI fixture with an empty live continuation, timeout, progress, mixed results, clock-only and missing pairing; assert exact owned-request counts, exclusions and coverage. Replay a result and retain the same count. |
-| Cursor workflow substitute and nested workers | 4: `agent-effort-cursor.spec.ts` CLI fixture with direct and CallDynamicTool calls, nested worker, missing worker/result and another task; assert each named count, bytes and unavailable tokens/peaks/wakes with boundary limits. |
-| Paired comparison; fewer tokens with mismatched effort/proof; split continuations | 5: `agent-effort-comparison.spec.ts` compares grouped selections with one repeated member; per-run figures survive, each response adds once, agent peaks are not added, deltas stay within known host/metric definitions, settings/proof/rescue differences are visible and no winner is emitted. |
-| Three audits reproduced on their actual retained samples | 5: actual CLI with the replay's sample identifiers and original Codex window → 2,083 / 436,806,678; Claude coordinator peak 752,562; Cursor TodoWrite 15 / PLAN.md reads 8. Compare JSON against this independent replay, not against current Usage's differently bounded task totals. |
+## Proof and premises
 
-## Decisive premises and preparation observations
-
-Observed 2026-11-16 in this owned checkout at `33633a3157a537789ce712c0c07b47f130db3a41`,
-Node v24.21.0. Dependency access used a temporary symlink to the integration
-checkout's `node_modules`; it is removed before records/landing. No native
-session or API was started. Replay:
-`node .planning/slice-plans/666-compare-agent-effort-on-comparable-runs/observe-retained-evidence.mjs`.
-The original research is recoverable at Git revision `ffdd3dd800a7325237adcfc9c54920956bb63f7b`,
-`docs/maintainer/session-token-efficiency-research.md` (method and sample tables).
-
-| Premise / consuming operation | Result and limit |
-| --- | --- |
-| Shared native counters can reproduce the sampled Codex audit; slices 1/5 | Read-only SQLite index discovery found 11 retained files in the SEED-324 family; `codexUsage` and `collectResponses` read them, with 10 native descendants. Window `[2026-11-12T00:03:56Z, 2026-11-14T00:03:56Z)` yielded 2,083 requests, 435,582,418 input (432,339,840 cached), 1,224,260 output, 436,806,678 total, no read gaps. Matches published 2,083 / 436.81M. This tests counters/family evidence, not task selection or reply ownership. |
-| Native observations retain the per-agent input/settings needed by slice 2 | `claudeUsage` and `collectResponses` read session `296b888d-08b1-4b06-ac2e-24a4462da7d0`: 280 responses, peak 752,562, 122 Fable/medium and 158 Opus/high, standard service tier; no read/counter gaps. Peak matches the audit. Historical requested effort/guidance need their own source; this observation does not infer them. |
-| Cursor's sampled published workflow figures are recoverable; slice 4 | Retained `a6169ce7-5db3-4970-8f00-c8bf8c548fb4` JSONL read: direct/CallDynamicTool names give TodoWrite 15 and PLAN.md Read 8; zero usage-bearing rows. No token or idle-result premise is assumed. |
-| Existing summary is insufficient; slices 1/2/3 | Read `usage-history-v2` (3,040 tasks, 7,196 session contributions), then inspected `usageTaskSummary`'s consuming transformation: it groups token totals/settings/root status and discards request maxima and tool-result evidence. The native reader operations above, rather than the summary, supply those observations. |
-| Read/persist separation is necessary; slice 1 | Existing `importUsageHistory` command and its documented alternate-store/response export route always call `writeUsageHistory` inside `collectUsageHistory`; do not use this writer against live history for the report. New read-only CLI behavior and importer preservation are acceptance proof to add, not existing behavior being claimed. |
-
-No cheap factual premise remains assumed about a paid/live session or an
-unavailable data source. The new selection, wake classification and comparison
-behaviors have discriminating fixture proof above; no existing test is claimed
-to prove them. Unknown historical version and outcome equivalence remain honest
-report fields, not premises on which implementation depends.
+[Retained proof mapping and preparation observations](execution-evidence.md)
+remain authoritative for each slice. Implementation proof is added there.
 
 ## Ordered slices
 
@@ -134,14 +109,15 @@ Each slice targets 15 active minutes, including its focused proof and cleanup.
 
 ### 1. Inspect an execution's combined effort without changing history
 Type: Behavior
-Status: planned
-Proof: `agent-effort-report.spec.ts`, existing usage-history consumers; typecheck.
+Status: done
+Proof: `agent-effort-report.spec.ts`, `agent-effort-coverage.spec.ts`, existing
+usage-history consumers; typecheck.
 
 Behavior: select a Codex/Claude execution → readable/JSON report with attributed
 root/worker requests and counters, settings, source/boundary and gaps; no writes.
 Extract the existing scan from persistence, preserve import/Refresh behavior,
-add explicit selection and diagnostics, and cover later turns through the shared
-reader. Interim: peaks, wakes and Cursor metrics say unavailable until slices
+add explicit selection and diagnostics, and expose unowned family responses as partial ownership evidence. Exact
+later-turn acceptance consumes the shared reader correction in slice 5 (G1). Interim: peaks, wakes and Cursor metrics say unavailable until slices
 2–4; the report does not claim those observations yet.
 
 ### 2. See each agent's observed context and settings
@@ -176,7 +152,8 @@ usage-history host schema or a live runner dependency.
 Type: Behavior
 Status: planned
 Proof: `agent-effort-comparison.spec.ts`; actual CLI reports for all three audit
-samples against the retained replay; focused consumers, typecheck and lint.
+samples against the retained replay; shared developer-reply ownership cases;
+focused consumers, typecheck and lint.
 
 Behavior: select baseline/candidate groups and supply outcome/proof/intervention
 context → per-execution and deduplicated group figures, like-metric deltas,
@@ -211,3 +188,31 @@ this plan until wrap-up, then remove spent evidence through that workflow.
 ## Learnings
 
 None beyond the preparation observations above.
+
+
+## Story obligations
+
+### G1. Plain developer reply ownership awaits shared correction
+Reported: slice 1 — "Task path only propagated candidate-linked gaps; empty-candidate later replies need an explicit ownership gap until the shared correction lands."
+Story clause: "Failed, cancelled and later-turn work stays in its owning execution"
+Disposition: interim until slices 5
+Commitment: 13
+
+
+### G2. Peaks remain unavailable in first increment
+Reported: slice 1 — "First increment intentionally reports per-agent peak input as unavailable until observation is added."
+Story clause: "peak input per agent"
+Disposition: interim until slices 2
+Commitment: 11
+
+### G3. Wake classification remains unavailable in first increment
+Reported: slice 1 — "First increment reports idle-wake evidence unavailable until conservative request-level observation is added."
+Story clause: "observed idle-wake requests"
+Disposition: interim until slices 3
+Commitment: 12
+
+### G4. Cursor support belongs to host workflow slice
+Reported: slice 1 — "First increment accepts Codex and Claude only; Cursor workflow reporting is not implemented yet."
+Story clause: "Cursor reports token usage and unobservable wakes as unavailable"
+Disposition: receiving slice 4
+Commitment: 28
