@@ -83,6 +83,11 @@ revision), one attempt each, `--workers=1` under `caffeinate -s -i` on AC at
 load ~9. The independent refactor pass changed nothing; the four removed
 imports keep other live consumers.
 
+## Execution complete
+
+Product advice: no change. The removal leaves one live revision opener as
+intended; review found no residue, regression or test-boundary concern.
+
 ## Readiness and sizing
 
 One cohesive deletion and one preserved-behavior proof loop; expected under
