@@ -17,10 +17,12 @@ import {
   intentGroupToggle,
   purposeRegion,
   revisionNotice,
+} from "../../tests/intentPerspectivePage.ts";
+import {
   expectReadingOffset,
   intentReadingPane,
   scrollIntentReadingHalfway,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../tests/intentReadingPanePage.ts";
 import { holdAuthenticatedReadsWhere } from "../../tests/holdAuthenticatedReads.ts";
 import { pygardon } from "../../tests/intentCodeBrowseFixtures.ts";
 import {

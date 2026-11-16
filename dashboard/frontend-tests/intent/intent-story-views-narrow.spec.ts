@@ -20,10 +20,8 @@ import {
 import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
 import { ciPanel } from "../../tests/intentCiStatusPage.ts";
 import { box } from "../../tests/partArrangement.ts";
-import {
-  browserRevision,
-  intentReadingPane,
-} from "../../tests/intentPerspectivePage.ts";
+import { browserRevision } from "../../tests/intentPerspectivePage.ts";
+import { intentReadingPane } from "../../tests/intentReadingPanePage.ts";
 import {
   twiceZoomedWindow,
   zoomedWindow,

@@ -21,11 +21,13 @@ import { chooseProject, parts } from "../../tests/dashboardPage.ts";
 import { ciPanel } from "../../tests/intentCiStatusPage.ts";
 import {
   intentGroupToggle,
+  purposeRegion,
+} from "../../tests/intentPerspectivePage.ts";
+import {
   intentReadingPane,
   intentReadingScroll,
-  purposeRegion,
   scrollIntentReadingHalfway,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../tests/intentReadingPanePage.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   chooseStoryTab,

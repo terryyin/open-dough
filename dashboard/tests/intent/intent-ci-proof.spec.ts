@@ -38,10 +38,8 @@ import {
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
 import { parts } from "../dashboardPage.ts";
-import {
-  intentLocationName,
-  intentReadingPane,
-} from "../intentPerspectivePage.ts";
+import { intentLocationName } from "../intentPerspectivePage.ts";
+import { intentReadingPane } from "../intentReadingPanePage.ts";
 import { summaryRegion } from "../intentScopeProofPage.ts";
 
 const notRecorded = "No timings";

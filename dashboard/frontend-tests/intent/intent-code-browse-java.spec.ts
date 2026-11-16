@@ -2,7 +2,7 @@ import { filesToggle, expectFilesShown } from "../../tests/intentModePage.ts";
 import {
   expectReadingOffset,
   scrollIntentReadingHalfway,
-} from "../../tests/intentPerspectivePage.ts";
+} from "../../tests/intentReadingPanePage.ts";
 import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
 import { answerFrontendIntentCi } from "../../tests/support/frontendIntentCi.ts";
 // Configured Java/JUnit source uses Intent's existing browser and Purpose/Proof

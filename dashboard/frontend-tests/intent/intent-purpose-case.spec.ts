@@ -2,7 +2,8 @@ import { filesToggle, expectFilesShown } from "../../tests/intentModePage.ts";
 import {
   intentReadingScroll,
   expectReadingOffset,
-} from "../../tests/intentPerspectivePage.ts";
+  scrollIntentReadingToStart,
+} from "../../tests/intentReadingPanePage.ts";
 import { sourceLineText } from "../../tests/intentCodeBrowsePage.ts";
 import { putFrontendIntentSources } from "../../tests/support/frontendIntentSources.ts";
 // Opening a recorded file from Optimization Candidates shows Purpose
@@ -19,10 +20,7 @@ import {
   chooseOptimizationCandidates,
   intentModeTab,
 } from "../../tests/intentModePage.ts";
-import {
-  intentReadingPane,
-  purposeRegion,
-} from "../../tests/intentPerspectivePage.ts";
+import { purposeRegion } from "../../tests/intentPerspectivePage.ts";
 import {
   expectSourceTargetLine,
   fileSource,
@@ -116,9 +114,7 @@ test("opening a recorded file shows Purpose on its case, reading it once, and op
     await expectReadingOffset(intent, offset);
 
     await test.step("highlighting keeps the reader at the start, opening the recorded file again shows Purpose on its case", async () => {
-      await intentReadingPane(intent).evaluate((el) => {
-        el.scrollTo({ top: 0 });
-      });
+      await scrollIntentReadingToStart(intent);
       await expect(sourceTargetLine(source)).not.toBeInViewport();
       grammar.release();
       await expect(intent.locator(".source-token").first()).toBeAttached();

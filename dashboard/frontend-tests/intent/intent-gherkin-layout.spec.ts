@@ -14,8 +14,8 @@ import { doughnut } from "../../tests/intentGherkinBrowseFixtures.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
-  intentReadingPane,
 } from "../../tests/intentPerspectivePage.ts";
+import { intentReadingPane } from "../../tests/intentReadingPanePage.ts";
 
 test("Intent fills the height below the banner; the location browser meets the left edge and it and the reading pane scroll on their own", async ({
   page,

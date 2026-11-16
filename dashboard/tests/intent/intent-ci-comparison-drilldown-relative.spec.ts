@@ -3,13 +3,12 @@
 import type { Locator } from "@playwright/test";
 import { fileComparisonCell } from "../intentFileProofPage.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { fileReadingTab, proofRegion } from "../intentPerspectivePage.ts";
 import {
-  fileReadingTab,
   intentReadingScroll,
-  proofRegion,
   scrollIntentReadingHalfway,
   intentReadingPane,
-} from "../intentPerspectivePage.ts";
+} from "../intentReadingPanePage.ts";
 import {
   childName,
   scopeComparisonFigure,

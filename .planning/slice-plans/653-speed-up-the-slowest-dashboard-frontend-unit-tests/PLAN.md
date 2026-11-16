@@ -2,6 +2,7 @@
 
 **Identity:** SEED-380#speed-up-the-slowest-dashboard-frontend-unit-tests
 **Source:** [Speed up the slowest dashboard frontend unit tests](../../seeds/SEED-380-speed-up-the-slowest-dashboard-frontend-unit-tests.md#speed-up-the-slowest-dashboard-frontend-unit-tests)
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -86,7 +87,7 @@ the behavior under test.
 
 ### 1. Baseline and animation-free harness
 Type: Structure
-Status: planned
+Status: done
 Proof: suite wall baseline recorded; group files before/after by the measure;
 the three motion specs unchanged and green.
 
@@ -98,6 +99,24 @@ page fixtures (`dashboard/tests/support/pageTest.ts`), leaving
 `dashboard-connection-logo.spec.ts` on real motion. Keep on a measured gain;
 otherwise undo and record no demonstrated gain. Weakness removed: assertions
 delayed by presentation motion. Enables slice 2's cleaner timings.
+
+Result (2026-11-16):
+- Re-rank: the newest green `main` run is still 43773156778; its
+  `dashboard-frontend-playwright-report-1` re-derives 456 cases, the 46 slowest
+  each ≥3.923 s summing 240.0 s over 42 files. No re-rank.
+- Suite wall baseline at `d9c35d51f`, two workers, AC, `caffeinate -s -i`:
+  543.3 s (load 29.6 → 20.0) and 337.6 s (load 18.2 → 12.9; 456 executed,
+  455 passed, 637.6 s summed). The two are not comparable with each other;
+  slice 7 measures before and after itself under matched load.
+- Animation-free stylesheet (verified applied in the page): before sums 193.5,
+  160.3, 167.0 s; after 209.9, 181.0, 143.8 s (load 5–10). No demonstrated
+  gain; undone. Four further group cases need real motion and failed under it:
+  `intent-done-landed-review-mode`, `intent-done-review-modes`,
+  `recently-done-sessions-review-cue-races`, `recently-done-sessions-select`.
+- Failure-policy repair: `intent/intent-purpose-case.spec.ts:43` flaked (6 of
+  10 failed) because a programmatic `scrollTo` does not stop
+  `useKeptReadingScroll`; it now scrolls with the wheel through
+  `scrollIntentReadingToStart` (10 of 10, then three 5 of 5 runs).
 
 ### 2. Reach the next revision check in fewer page-time steps
 Type: Structure
@@ -185,3 +204,10 @@ Refinement not needed: seven slices, each one family and one proof loop, sized
 from scratch probes that took a single edit each. Remaining slice-specific
 concerns: none identified. Slices 3–6 carry measured hypotheses, bounded by
 their own undo rule.
+
+## Story obligations
+
+### G1. Animation-free harness gave no gain (slice 1)
+Reported: slice 1 — "Decision: undo, no demonstrated gain."
+Story clause: "Given a tried change whose before and after times differ by no more than the unchanged cases' own variation, the change is undone and reported as no demonstrated gain."
+Disposition: no user cost "Dashboard contributors get faster local frontend test feedback while keeping the same behavioral protection.": the measured change did not speed the group, so undoing it keeps protection and loses no feedback speed
