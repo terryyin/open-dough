@@ -193,7 +193,7 @@ Learning: client `ReviewedWork` holds the subject; `StoryReviewHeading` and `sto
 ### 5. A Recently done ad hoc entry opens its review
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/frontend-tests/sessions/recently-done-ad-hoc-review.spec.ts` with controlled review answers.
 
 Behavior: a standalone ad hoc Done entry listed without its landing or
@@ -208,6 +208,12 @@ hoc row keeps revealing its story
 
 `RecentlyDoneEntry.tsx` passes the action beside `SessionFollowUp` through
 `SessionEntry`'s existing slot.
+
+Accepted proof (2026-11-16):
+- `recently-done-ad-hoc-review.spec.ts` → 1 passed (landed panel, no Comparison/Mark/line Follow up, close focus, range/counts; no-landing offers action).
+- `recently-done-sessions-select-ad-hoc-check.spec.ts` → 1 passed.
+- After refactor: same + `story-review-action.spec.ts` → 2 passed.
+Learning: shared `ReviewChangesButton` owns the control markup for story and ad hoc actions.
 
 ### 6. The panel explains an ad hoc review without a comparison
 

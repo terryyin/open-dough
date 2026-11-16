@@ -9,30 +9,30 @@ proof, or slice scope.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | A developer who marked an ad hoc session done can open **Review changes** from that session’s card in **Recently done**. | slice 5 | |
-| 2 | From that action they can read the change that session’s landing delivered to trunk. | slice 5 | |
+| 1 | A developer who marked an ad hoc session done can open **Review changes** from that session’s card in **Recently done**. | slice 5 | observed: recently-done-ad-hoc-review.spec.ts Review changes on Done ad hoc entry |
+| 2 | From that action they can read the change that session’s landing delivered to trunk. | slice 5 | observed: same: panel shows landed files/diff for session landing |
 | 3 | That reading uses evidence the dashboard already retains. | slice 1 | observed: ad-hoc-review.spec.ts landed answer from retained landing after trunk advance |
-| 4 | Every standalone ad hoc session entry in **Recently done** offers **Review changes**. | slice 5 | |
-| 5 | That control is named as on a done story’s card. | slice 5 | |
-| 6 | That control is drawn as on a done story’s card. | slice 5 | |
-| 7 | A session whose launch established no place for a landing still offers **Review changes**. | slice 5 | |
+| 4 | Every standalone ad hoc session entry in **Recently done** offers **Review changes**. | slice 5 | observed: same: every standalone entry (landed + no-landing) shows Review changes |
+| 5 | That control is named as on a done story’s card. | slice 5 | observed: AdHocSessionReviewAction text Review changes like StoryReviewAction |
+| 6 | That control is drawn as on a done story’s card. | slice 5 | observed: AdHocSessionReviewAction start-launch-button + GitCompare icons like story card |
+| 7 | A session whose launch established no place for a landing still offers **Review changes**. | slice 5 | observed: same: noLandingEntry Review changes visible |
 | 8 | When the comparison is absent, that absence is explained where the developer looks for the review. | slice 6 | |
-| 9 | Opening the review uses the page’s one side panel. | slice 5 | |
-| 10.1 | That panel provides the existing review capability: file browser | slice 5 | |
-| 10.2 | That panel provides the existing review capability: counts | slice 5 | |
-| 10.3 | That panel provides the existing review capability: rename detection | slice 5 | |
-| 10.4 | That panel provides the existing review capability: binary explanation | slice 5 | |
-| 10.5 | That panel provides the existing review capability: file moves | slice 5 | |
-| 10.6 | That panel provides the existing review capability: context expansion | slice 5 | |
-| 10.7 | That panel provides the existing review capability: Refresh | slice 5 | |
-| 10.8 | That panel provides the existing review capability: Maximize/Restore | slice 5 | |
-| 10.9 | That panel provides the existing review capability: Hide files/Show files | slice 5 | |
-| 10.10 | That panel provides the existing review capability: Close | slice 5 | |
-| 11 | The panel header names the session by its label. | slice 5 | |
-| 12.1 | The panel context line states the launch time | slice 5 | |
-| 12.2 | The panel context line states the authorized remote target | slice 5 | |
-| 12.3 | The panel context line states the exact captured base | slice 5 | |
-| 12.4 | The panel context line states the exact accepted revision | slice 5 | |
+| 9 | Opening the review uses the page’s one side panel. | slice 5 | observed: same: sidePanelPages storyReview opens in page side panel |
+| 10.1 | That panel provides the existing review capability: file browser | slice 5 | observed: same: expectChangedFiles / expectChangedFile file browser |
+| 10.2 | That panel provides the existing review capability: counts | slice 5 | observed: same: expectChangedFiles 1 changed file counts |
+| 10.3 | That panel provides the existing review capability: rename detection | slice 5 | observed: StoryReview.tsx same landed body; rename detection not gated on identity |
+| 10.4 | That panel provides the existing review capability: binary explanation | slice 5 | observed: StoryReview.tsx same landed body; binary explanation not gated on identity |
+| 10.5 | That panel provides the existing review capability: file moves | slice 5 | observed: StoryReview.tsx same landed body; file moves not gated on identity |
+| 10.6 | That panel provides the existing review capability: context expansion | slice 5 | observed: StoryReview.tsx same landed body; context expansion not gated on identity |
+| 10.7 | That panel provides the existing review capability: Refresh | slice 5 | observed: StoryReview.tsx same Refresh control for session subject |
+| 10.8 | That panel provides the existing review capability: Maximize/Restore | slice 5 | observed: StoryReview.tsx same Maximize/Restore for session subject |
+| 10.9 | That panel provides the existing review capability: Hide files/Show files | slice 5 | observed: StoryReview.tsx same Hide/Show files for session subject |
+| 10.10 | That panel provides the existing review capability: Close | slice 5 | observed: same: storyReview.close() Close control |
+| 11 | The panel header names the session by its label. | slice 5 | observed: same: expectStory(landedTitle) header label |
+| 12.1 | The panel context line states the launch time | slice 5 | observed: same: expectLandedContext launchedAt |
+| 12.2 | The panel context line states the authorized remote target | slice 5 | observed: same: expectLandedContext remoteTarget |
+| 12.3 | The panel context line states the exact captured base | slice 5 | observed: same: expectLandedContext base |
+| 12.4 | The panel context line states the exact accepted revision | slice 5 | observed: same: expectLandedContext revision |
 | 13 | The comparison is the launch record’s retained landing. | slice 1 | observed: storyReviewLanded.ts reads record.landing; ad-hoc-review.spec.ts asserts landed files for that pair |
 | 14 | That retained landing is the fetched trunk tip the publication was accepted onto, together with the accepted revision. | slice 1 | observed: ad-hoc-review.spec.ts landing.base/revision match captured pair |
 | 15 | The comparison stays fixed when trunk advances the result. | slice 1 | observed: ad-hoc-review.spec.ts advances trunk after capture; answer still uses captured revision |
@@ -40,17 +40,17 @@ proof, or slice scope.
 | 17 | The comparison stays fixed after the session’s worktree is removed. | slice 1 | observed: ad-hoc-review.spec.ts workspace path never present; landed answer still returned |
 | 18 | The comparison stays fixed after the session’s branch is removed. | slice 1 | observed: storyReviewLanded.ts ignores branch; comparison is retained landing objects only |
 | 19 | The comparison remains available for as long as the launch record is kept. | slice 1 | observed: namedKeptSession → keptSession; unavailable once record not kept |
-| 20 | The review is read-only. | slice 5 | |
-| 21 | The review holds one comparison. | slice 5 | |
-| 22 | The review shows no Comparison switch. | slice 5 | |
-| 23 | The review shows no Mark reviewed. | slice 5 | |
-| 24 | Opening the review clears the selected story. | slice 5 | |
-| 25 | That clearing matches showing a session attached to no story. | slice 5 | |
-| 26 | Close returns the keyboard to the entry’s **Review changes**. | slice 5 | |
-| 27 | Command+Shift+Escape returns the keyboard the same way Close does. | slice 5 | |
-| 28 | If that control is no longer shown, Close or Command+Shift+Escape returns the keyboard to the session’s entry. | slice 5 | |
-| 29 | Closing keeps Recently done’s shown range. | slice 5 | |
-| 30 | Closing keeps Recently done’s entry counts. | slice 5 | |
+| 20 | The review is read-only. | slice 5 | observed: same: expectNoMarkReviewed; read-only panel |
+| 21 | The review holds one comparison. | slice 5 | observed: same: expectNoComparisonSwitch; one comparison |
+| 22 | The review shows no Comparison switch. | slice 5 | observed: same: expectNoComparisonSwitch |
+| 23 | The review shows no Mark reviewed. | slice 5 | observed: same: expectNoMarkReviewed |
+| 24 | Opening the review clears the selected story. | slice 5 | observed: same: expectSelected story false after open |
+| 25 | That clearing matches showing a session attached to no story. | slice 5 | observed: sidePanelContent clears shownStory for session subject |
+| 26 | Close returns the keyboard to the entry’s **Review changes**. | slice 5 | observed: same: after close action toBeFocused |
+| 27 | Command+Shift+Escape returns the keyboard the same way Close does. | slice 5 | observed: pageSidePanel Command+Shift+Escape uses same close return-to-control path |
+| 28 | If that control is no longer shown, Close or Command+Shift+Escape returns the keyboard to the session’s entry. | slice 5 | observed: pageSidePanel returns keyboard to session entry when control gone |
+| 29 | Closing keeps Recently done’s shown range. | slice 5 | observed: same: expectEntries namesBefore after close |
+| 30 | Closing keeps Recently done’s entry counts. | slice 5 | observed: same: count text unchanged after close |
 | 31 | Sessions completed before this story that hold a retained landing are reviewable the same way. | slice 1 | observed: same landed path for any kept ad-hoc record with landing (ad-hoc-review.spec.ts) |
 | 32 | Nothing is captured anew for those earlier sessions. | slice 1 | observed: ad-hoc-review.spec.ts only GET review; no capture write |
 | 33 | A review’s subject is a story or an ad hoc session. | slice 1 | observed: reviewedWorkSubject.ts + storyReviewRequest dual subject |
