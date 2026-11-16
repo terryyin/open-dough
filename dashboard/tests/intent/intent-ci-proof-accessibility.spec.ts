@@ -1,4 +1,4 @@
-import { intentReadingPane } from "../intentPerspectivePage.ts";
+import { intentReadingPane } from "../intentReadingPlacePage.ts";
 import {
   ciProofReading,
   artifactId,

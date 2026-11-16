@@ -2,13 +2,13 @@
 import type { AddressInfo } from "node:net";
 import { fileURLToPath } from "node:url";
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { StrictCiReadingFacts } from "../../tests/support/strictCiReadingTypes.ts";
 
 test("StrictMode reattaches comparison and proof reads after effect cleanup", async ({
   page,
 }, testInfo) => {
-  const facts = preparedComparison();
+  const facts = makeMe.aComparedStory.please();
   const input: StrictCiReadingFacts = {
     source: facts.source,
     identity: facts.identity,

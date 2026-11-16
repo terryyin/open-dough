@@ -1,8 +1,6 @@
 // Summary's real sortable columns use independent signed/count/change examples.
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import { summaryScopeFacts } from "../../tests/support/comparisonScopeFacts.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { scopeFigures, scopeTable } from "../../tests/intentScopeProofPage.ts";
 import {
   expectRenderedSortedBy,
@@ -19,11 +17,10 @@ import { wordsBrokenApart } from "../../tests/wholeWords.ts";
 const entry = "dashboard/tests";
 test("Summary Change keeps unchanged children last in both directions", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, facts.entries);
-  await renderComparison(page, comparisonRenderer, rendered);
+  const story = makeMe.aComparedStory.inSummaryScope();
+  await renderComparison(story.please());
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   const table = scopeTable(summary, entry);
   await expectUnsortedRows(table, [
@@ -33,7 +30,7 @@ test("Summary Change keeps unchanged children last in both directions", async ({
     "renamed.spec.ts",
     "root.spec.ts",
   ]);
-  await renderComparison(page, comparisonRenderer, rendered, {
+  await renderComparison(story.please(), {
     sort: { column: "change", direction: "ascending" },
   });
   await expectRenderedSortedBy(table, "Change", "ascending", [
@@ -43,7 +40,7 @@ test("Summary Change keeps unchanged children last in both directions", async ({
     "folder/",
     "root.spec.ts",
   ]);
-  await renderComparison(page, comparisonRenderer, rendered, {
+  await renderComparison(story.please(), {
     sort: { column: "change", direction: "descending" },
   });
   await expectRenderedSortedBy(table, "Change", "descending", [
@@ -57,15 +54,14 @@ test("Summary Change keeps unchanged children last in both directions", async ({
 
 test("Summary Landed keeps incomparable children last, own figures stationary and the sort while drilling", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, facts.entries);
-  await renderComparison(page, comparisonRenderer, rendered);
+  const story = makeMe.aComparedStory.inSummaryScope();
+  await renderComparison(story.please());
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   const table = scopeTable(summary, entry);
   await expectComparisonScopeRows(summary, entry, entryComparisonRows);
-  await renderComparison(page, comparisonRenderer, rendered, {
+  await renderComparison(story.please(), {
     sort: { column: "landed", direction: "descending" },
   });
   await expectRenderedSortedBy(table, "Landed", "descending", [
@@ -79,15 +75,7 @@ test("Summary Landed keeps incomparable children last, own figures stationary an
     entryComparisonRows[0].slice(2),
   );
   await renderComparison(
-    page,
-    comparisonRenderer,
-    {
-      ...rendered,
-      scope: {
-        ...facts.scope,
-        selection: { path: "dashboard/tests/folder", scope: "folder" },
-      },
-    },
+    story.selecting("dashboard/tests/folder", "folder").please(),
     { sort: { column: "landed", direction: "descending" } },
   );
   const [own, ...children] = folderComparisonRows;
@@ -104,11 +92,10 @@ test("Summary Landed keeps incomparable children last, own figures stationary an
 
 test("the comparison Summary fits at 200% zoom and keeps complete words without sideways scrolling", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, facts.entries);
-  await renderComparison(page, comparisonRenderer, rendered);
+  const story = makeMe.aComparedStory.inSummaryScope();
+  await renderComparison(story.please());
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   const table = scopeTable(summary, entry);
   await expectComparisonScopeRows(summary, entry, entryComparisonRows);

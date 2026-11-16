@@ -13,10 +13,6 @@ import {
   mountComparison,
 } from "../tests/support/comparisonMountPage.ts";
 import {
-  summaryScopeFacts,
-  serveComparison,
-} from "../tests/support/comparisonScopeFacts.ts";
-import {
   expectComparisonScopeRows,
   scopeTable,
 } from "../tests/intentScopeProofPage.ts";
@@ -30,9 +26,9 @@ test("a failed local entry history read keeps the selected Done story and compar
   comparisonServer,
   comparisonServices,
 }) => {
-  const facts = summaryScopeFacts();
-  serveComparison(comparisonServices, facts, facts.entries);
-  const setup = { completion: facts.work.revision };
+  const story = makeMe.aComparedStory.inSummaryScope().please();
+  comparisonServices.serve(story);
+  const setup = { completion: story.work.revision };
   const previous = "1".repeat(40);
   const adapterAttemptId = "opaque-attempt+#";
   const collected = makeMe.aScopeHistoryGlance
@@ -94,7 +90,7 @@ test("a failed local entry history read keeps the selected Done story and compar
   );
   await page.setViewportSize({ width: 390, height: 844 });
   await mountComparison(page, comparisonServer, {
-    ...facts,
+    ...story,
     doneEndpoint: { revision: setup.completion, at: "2026-11-09T00:00:00Z" },
   });
   const summary = page.getByRole("region", { name: "Summary", exact: true });

@@ -1,13 +1,12 @@
 // Actual client owners and authenticated readers, with only HTTP held/replaced.
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
-import { otherComparedStory } from "../../tests/support/comparisonMountSelections.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciComparisonClient } from "../support/ciComparisonClient.ts";
 import { heldResponse } from "../support/ciReadingTransport.ts";
 
 test("a changed selection aborts its held comparison and ignores its late answer", async () => {
-  const first = preparedComparison();
-  const next = otherComparedStory(first);
+  const first = makeMe.aComparedStory.please();
+  const next = makeMe.aComparedStory.ofAnotherStory().please();
   const held = heldResponse();
   const client = ciComparisonClient(first.source, (query) => {
     if (query.get("intent") === "ci-proof")
@@ -55,8 +54,8 @@ test("a changed selection aborts its held comparison and ignores its late answer
 });
 
 test("an old endpoint proof is aborted and cannot replace a new selection after release", async () => {
-  const first = preparedComparison();
-  const next = otherComparedStory(first);
+  const first = makeMe.aComparedStory.please();
+  const next = makeMe.aComparedStory.ofAnotherStory().please();
   const held = heldResponse();
   const client = ciComparisonClient(first.source, (query) => {
     if (query.get("intent") === "ci-comparison")

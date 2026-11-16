@@ -2,23 +2,14 @@ import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
 // Actual sortable headers over canonical endpoint proof, without acquisition setup.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import {
-  mixedEntryFacts,
-  timedEntry,
-  wallComparedFacts,
-} from "../../tests/support/mountedComparisonFacts.ts";
 import { expectRenderedSortedBy } from "../../tests/support/expectSortedColumns.ts";
 import { expectCiComparisonEntryRows } from "../../tests/support/expectCiComparisonEntryRows.ts";
 
 test("Baseline sorts measured durations both ways and keeps gaps last", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = wallComparedFacts();
-  const rendered = comparisonRenderFacts(facts, mixedEntryFacts());
-  const panel = await renderComparison(page, comparisonRenderer, rendered, {
+  const story = makeMe.aComparedStory.wallTimed().withMixedEntries().please();
+  const panel = await renderComparison(story, {
     sort: { column: "baseline", direction: "ascending" },
   });
   const table = comparisonReading(panel).entryTable;
@@ -27,7 +18,7 @@ test("Baseline sorts measured durations both ways and keeps gaps last", async ({
     "dashboard/tests",
     "src/skills",
   ]);
-  await renderComparison(page, comparisonRenderer, rendered, {
+  await renderComparison(story, {
     sort: { column: "baseline", direction: "descending" },
   });
   await expectRenderedSortedBy(table, "Baseline", "descending", [
@@ -38,12 +29,10 @@ test("Baseline sorts measured durations both ways and keeps gaps last", async ({
 });
 
 test("Counts sorts counted-result totals in both directions", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = wallComparedFacts();
-  const rendered = comparisonRenderFacts(facts, mixedEntryFacts());
-  const panel = await renderComparison(page, comparisonRenderer, rendered, {
+  const story = makeMe.aComparedStory.wallTimed().withMixedEntries().please();
+  const panel = await renderComparison(story, {
     sort: { column: "counts", direction: "ascending" },
   });
   const table = comparisonReading(panel).entryTable;
@@ -52,7 +41,7 @@ test("Counts sorts counted-result totals in both directions", async ({
     "tests",
     "dashboard/tests",
   ]);
-  await renderComparison(page, comparisonRenderer, rendered, {
+  await renderComparison(story, {
     sort: { column: "counts", direction: "descending" },
   });
   await expectRenderedSortedBy(table, "Counts", "descending", [
@@ -67,28 +56,32 @@ function signedEntries(
   endpoints: readonly (readonly [number, number, number, number?])[],
 ) {
   const untimed = makeMe.aCiProofEntry.at("e/untimed").please();
+  const timed = (path: string, ms: number) =>
+    makeMe.aCiProofEntry.at(path).counting(1).timed(ms).please();
   return endpoints.map(([big, small, down, added]) => [
-    timedEntry("e/big", big),
-    timedEntry("e/small", small),
-    timedEntry("e/down", down),
+    timed("e/big", big),
+    timed("e/small", small),
+    timed("e/down", down),
     untimed,
-    ...(added === undefined ? [] : [timedEntry("e/added", added)]),
+    ...(added === undefined ? [] : [timed("e/added", added)]),
   ]);
 }
 
 test("signed entry figures keep their precise words and authored initial order", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const rendered = comparisonRenderFacts(
-    wallComparedFacts(),
-    signedEntries([
-      [600_000, 60_000, 300_000],
-      [660_000, 90_000, 280_000, 5_000],
-      [720_000, 100_000, 240_000, 5_000],
-    ]),
+  const panel = await renderComparison(
+    makeMe.aComparedStory
+      .wallTimed()
+      .withEntries(
+        signedEntries([
+          [600_000, 60_000, 300_000],
+          [660_000, 90_000, 280_000, 5_000],
+          [720_000, 100_000, 240_000, 5_000],
+        ]),
+      )
+      .please(),
   );
-  const panel = await renderComparison(page, comparisonRenderer, rendered);
   await expectCiComparisonEntryRows(panel, [
     ["e/big", "1 test case (no change)", "10 min", "+1 min", "+2 min"],
     ["e/small", "1 test case (no change)", "1 min", "+30 s", "+40 s"],
@@ -106,18 +99,19 @@ test("signed entry figures keep their precise words and authored initial order",
 
 for (const column of ["Branch", "Landed"] as const) {
   test(`${column} sorts signed changes rather than duration or percentage and keeps gaps last both ways`, async ({
-    page,
-    comparisonRenderer,
+    renderComparison,
   }) => {
-    const rendered = comparisonRenderFacts(
-      wallComparedFacts(),
-      signedEntries([
-        [600_000, 60_000, 300_000],
-        [660_000, 90_000, 280_000, 5_000],
-        [720_000, 100_000, 240_000, 5_000],
-      ]),
-    );
-    const panel = await renderComparison(page, comparisonRenderer, rendered, {
+    const story = makeMe.aComparedStory
+      .wallTimed()
+      .withEntries(
+        signedEntries([
+          [600_000, 60_000, 300_000],
+          [660_000, 90_000, 280_000, 5_000],
+          [720_000, 100_000, 240_000, 5_000],
+        ]),
+      )
+      .please();
+    const panel = await renderComparison(story, {
       sort: {
         column: column === "Branch" ? "branch" : "landed",
         direction: "ascending",
@@ -131,7 +125,7 @@ for (const column of ["Branch", "Landed"] as const) {
       "e/untimed",
       "e/added",
     ]);
-    await renderComparison(page, comparisonRenderer, rendered, {
+    await renderComparison(story, {
       sort: {
         column: column === "Branch" ? "branch" : "landed",
         direction: "descending",

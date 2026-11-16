@@ -2,9 +2,7 @@ import { fileComparisonCell } from "../../tests/intentFileProofPage.ts";
 import { proofTableRowsNamed } from "../../tests/proofTablePage.ts";
 // Scope-relative scales and Show % are rendered by the production scope frame.
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import { summaryScopeFacts } from "../../tests/support/comparisonScopeFacts.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   scopeComparisonFigure,
   scopeComparisonCell,
@@ -47,20 +45,16 @@ const examples = [
 for (const example of examples) {
   test(`Summary ${example.path} shares its precise relative scale with immediate children`, async ({
     page,
-    comparisonRenderer,
+    renderComparison,
   }) => {
-    const facts = summaryScopeFacts();
-    const rendered = comparisonRenderFacts(facts, facts.entries);
-    await renderComparison(page, comparisonRenderer, {
-      ...rendered,
-      scope: {
-        ...facts.scope,
-        selection: {
-          path: example.path,
-          scope: example.path === "dashboard/tests" ? "location" : "folder",
-        },
-      },
-    });
+    const story = makeMe.aComparedStory
+      .inSummaryScope()
+      .selecting(
+        example.path,
+        example.path === "dashboard/tests" ? "location" : "folder",
+      )
+      .please();
+    await renderComparison(story);
     const summary = page.getByRole("region", { name: "Summary", exact: true });
     const own = scopeComparisonFigure(summary, example.path, "Branch");
     const child = scopeComparisonCell(
@@ -72,123 +66,50 @@ for (const example of examples) {
     await expect(own).toHaveText(example.own);
     await expectMark(own, "slower", example.reach);
     await expectMark(child, "slower", example.childReach);
-    await renderComparison(
-      page,
-      comparisonRenderer,
-      {
-        ...rendered,
-        scope: {
-          ...facts.scope,
-          selection: {
-            path: example.path,
-            scope: example.path === "dashboard/tests" ? "location" : "folder",
-          },
-        },
-      },
-      { showPercent: true },
-    );
+    await renderComparison(story, { showPercent: true });
     await expect(own).toHaveText(example.own + example.percent);
   });
 }
 
 test("file Proof toggles precise percentages without changing its timing geometry", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, facts.entries);
-  await renderComparison(page, comparisonRenderer, {
-    ...rendered,
-    scope: {
-      ...facts.scope,
-      selection: {
-        path: "dashboard/tests/folder/nested/c.spec.ts",
-        scope: "file",
-      },
-    },
-  });
+  const story = makeMe.aComparedStory
+    .inSummaryScope()
+    .selecting("dashboard/tests/folder/nested/c.spec.ts", "file")
+    .please();
+  await renderComparison(story);
   const proof = page.getByRole("region", { name: "Proof", exact: true });
   const branch = fileComparisonCell(
     proof,
     "dashboard/tests/folder/nested/c.spec.ts",
     "Branch",
   );
-  await renderComparison(
-    page,
-    comparisonRenderer,
-    {
-      ...rendered,
-      scope: {
-        ...facts.scope,
-        selection: {
-          path: "dashboard/tests/folder/nested/c.spec.ts",
-          scope: "file",
-        },
-      },
-    },
-    { showPercent: true },
-  );
+  await renderComparison(story, { showPercent: true });
   await expect(branch).toHaveText("+70 ms+21%");
   const before = await expectMark(branch, "slower", 70 / 340 / 0.5);
-  await renderComparison(
-    page,
-    comparisonRenderer,
-    {
-      ...rendered,
-      scope: {
-        ...facts.scope,
-        selection: {
-          path: "dashboard/tests/folder/nested/c.spec.ts",
-          scope: "file",
-        },
-      },
-    },
-    { showPercent: false },
-  );
+  await renderComparison(story, { showPercent: false });
   await expect(branch).toHaveText("+70 ms");
   expect(await markGeometry(branch)).toEqual(before);
 });
 
 test("added and unchanged historical file Proofs distinguish absence from a measured zero", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, facts.entries);
-  await renderComparison(page, comparisonRenderer, {
-    ...rendered,
-    scope: {
-      ...facts.scope,
-      selection: { path: "dashboard/tests/added.spec.ts", scope: "file" },
-    },
-  });
+  const story = makeMe.aComparedStory
+    .inSummaryScope()
+    .selecting("dashboard/tests/added.spec.ts", "file");
+  await renderComparison(story.please());
   const proof = page.getByRole("region", { name: "Proof", exact: true });
-  await renderComparison(
-    page,
-    comparisonRenderer,
-    {
-      ...rendered,
-      scope: {
-        ...facts.scope,
-        selection: { path: "dashboard/tests/added.spec.ts", scope: "file" },
-      },
-    },
-    { showPercent: true },
-  );
+  await renderComparison(story.please(), { showPercent: true });
   await expect(
     fileComparisonCell(proof, "dashboard/tests/added.spec.ts", "Branch"),
   ).toHaveText("800 ms");
   await expect(relativePresentation(proof)).toHaveCount(0);
   await renderComparison(
-    page,
-    comparisonRenderer,
-    {
-      ...rendered,
-      scope: {
-        ...facts.scope,
-        selection: { path: "dashboard/tests/root.spec.ts", scope: "file" },
-      },
-    },
+    story.selecting("dashboard/tests/root.spec.ts", "file").please(),
     { showPercent: true },
   );
   const zero = fileComparisonCell(
@@ -202,22 +123,21 @@ test("added and unchanged historical file Proofs distinguish absence from a meas
 
 test("Show % keeps Summary sort and removed files have no relative marks or later-only rows", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, facts.entries);
-  await renderComparison(page, comparisonRenderer, rendered);
+  const story = makeMe.aComparedStory.inSummaryScope().please();
+  await renderComparison(story);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   const table = scopeTable(summary, "dashboard/tests");
-  await renderComparison(page, comparisonRenderer, rendered, {
+  await renderComparison(story, {
     sort: { column: "landed", direction: "ascending" },
   });
   const order = await rowNames(table).allTextContents();
-  await renderComparison(page, comparisonRenderer, rendered, {
+  await renderComparison(story, {
     showPercent: true,
     sort: { column: "landed", direction: "ascending" },
   });
-  await renderComparison(page, comparisonRenderer, rendered, {
+  await renderComparison(story, {
     showPercent: false,
     sort: { column: "landed", direction: "ascending" },
   });

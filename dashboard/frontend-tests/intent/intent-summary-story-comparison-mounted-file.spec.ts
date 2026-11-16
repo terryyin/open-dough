@@ -2,9 +2,6 @@ import { timeMarks } from "../../tests/support/relativeTimingMarks.ts";
 import { expectFileComparisonRow } from "../../tests/intentFileProofPage.ts";
 // File Proof rules use real scope owners; Purpose and tab return stay integrated.
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import { summaryScopeFacts } from "../../tests/support/comparisonScopeFacts.ts";
 import {
   modifiedFileRow,
   addedFileRow,
@@ -76,27 +73,19 @@ const examples = [
 for (const example of examples) {
   test(`file Proof keeps ${example.name} counts, precise times and source cues`, async ({
     page,
-    comparisonRenderer,
+    renderComparison,
   }) => {
-    const facts = summaryScopeFacts();
-    const changed =
-      example.name === "owning merge modified"
-        ? [
-            ...facts.scope.changed,
-            makeMe.aReviewedFile
-              .with({ kind: "modified", path: example.path })
-              .please(),
-          ]
-        : facts.scope.changed;
-    const rendered = comparisonRenderFacts(facts, facts.entries);
-    await renderComparison(page, comparisonRenderer, {
-      ...rendered,
-      scope: {
-        ...facts.scope,
-        changed,
-        selection: { path: example.path, scope: "file" },
-      },
-    });
+    const story = makeMe.aComparedStory
+      .inSummaryScope()
+      .selecting(example.path, "file");
+    if (example.name === "owning merge modified")
+      story.withChanged(
+        makeMe.aReviewedFile
+          .with({ kind: "modified", path: example.path })
+          .please(),
+      );
+    const facts = story.please();
+    await renderComparison(facts);
     const proof = page.getByRole("region", { name: "Proof", exact: true });
     await expectEvidenceLabels(comparisonLabels(proof, facts.identity), [
       "Baseline No build aaaaaaa",

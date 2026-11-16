@@ -9,7 +9,6 @@ import {
   test,
   mountComparison,
 } from "../tests/support/comparisonMountPage.ts";
-import { summaryScopeFacts } from "../tests/support/comparisonScopeFacts.ts";
 import {
   scopeHistoryPoint,
   serveUnreadProjectCi,
@@ -20,11 +19,12 @@ for (const changed of ["repository", "ref"] as const) {
     page,
     comparisonServer,
   }) => {
-    const facts = summaryScopeFacts();
-    const work = makeMe.aPublishedWork
-      .with({ ...facts.work, retrievedAt: new Date("2026-11-11T07:00:00Z") })
+    const story = makeMe.aComparedStory
+      .inSummaryScope()
+      .withWork({ retrievedAt: new Date("2026-11-11T07:00:00Z") })
       .please();
-    const project = { ...facts, work, identity: undefined };
+    const { work } = story;
+    const project = { ...story, identity: undefined };
     await serveUnreadProjectCi(page, "a".repeat(40));
     let reads = 0;
     await page.route(/intent=ci-history/, async (route) => {
@@ -55,7 +55,7 @@ for (const changed of ["repository", "ref"] as const) {
     await expect(evidence).toContainText("8.0 s");
     const source = makeMe.aPublishedSource
       .with({
-        ...facts.source,
+        ...story.source,
         ...(changed === "repository"
           ? { repository: "example/another-repository" }
           : { ref: "trunk" }),

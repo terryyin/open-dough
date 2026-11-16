@@ -1,21 +1,20 @@
 // Repeated unavailable Baseline answers preserve their query and exact counts.
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
 import { ciComparisonClient } from "../support/ciComparisonClient.ts";
 import { heldResponse } from "../support/ciReadingTransport.ts";
 
 test("two answered Baseline failures retain their query and refresh only the readable proofs", async () => {
-  const facts = preparedComparison();
-  const failed = makeMe.aStoryCiComparison
-    .with({
-      ...facts.answer,
+  const story = makeMe.aComparedStory;
+  const facts = story.please();
+  const failed = story
+    .withAnswer({
       baseline: {
         kind: "unavailable",
         explanation: `head_sha=${"a".repeat(40)}: GitHub is unreachable`,
       },
     })
-    .please();
+    .please().answer;
   let next: ReturnType<typeof heldResponse> | undefined;
   const client = ciComparisonClient(facts.source, (query) =>
     query.get("intent") === "ci-proof"

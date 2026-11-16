@@ -10,7 +10,6 @@ import {
   mountComparison,
   updateComparison,
 } from "../tests/support/comparisonMountPage.ts";
-import { summaryScopeFacts } from "../tests/support/comparisonScopeFacts.ts";
 import {
   scopeHistoryPoint,
   serveUnreadProjectCi,
@@ -20,11 +19,12 @@ test("reentering Intent after a same-head snapshot refresh keeps the observed en
   page,
   comparisonServer,
 }) => {
-  const facts = summaryScopeFacts();
-  const work = makeMe.aPublishedWork
-    .with({ ...facts.work, retrievedAt: new Date("2026-11-11T07:00:00Z") })
+  const story = makeMe.aComparedStory
+    .inSummaryScope()
+    .withWork({ retrievedAt: new Date("2026-11-11T07:00:00Z") })
     .please();
-  const project = { ...facts, work, identity: undefined };
+  const { work } = story;
+  const project = { ...story, identity: undefined };
   await serveUnreadProjectCi(page, "a".repeat(40));
   let reads = 0;
   const through: string[] = [];

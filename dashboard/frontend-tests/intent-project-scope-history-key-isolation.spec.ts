@@ -15,7 +15,6 @@ import {
   givePageItsTurns,
   untilPageReadsAnswered,
 } from "../tests/pageRequestNotes.ts";
-import { summaryScopeFacts } from "../tests/support/comparisonScopeFacts.ts";
 import {
   scopeHistoryPoint,
   serveUnreadProjectCi,
@@ -25,16 +24,16 @@ test("a newer timestamp at the same head issues no history read, and a late old 
   page,
   comparisonServer,
 }) => {
-  const facts = summaryScopeFacts();
   const first = "a".repeat(40);
   const next = "b".repeat(40);
-  const initial = makeMe.aPublishedWork
-    .with({
-      ...facts.work,
+  const story = makeMe.aComparedStory
+    .inSummaryScope()
+    .withWork({
       revision: first,
       retrievedAt: new Date("2026-11-11T07:00:00Z"),
     })
     .please();
+  const initial = story.work;
   await serveUnreadProjectCi(page, "c".repeat(40));
   let release: (() => void) | undefined;
   const held = new Promise<void>((resolve) => {
@@ -66,7 +65,7 @@ test("a newer timestamp at the same head issues no history read, and a late old 
     });
     if (revision === first) answered?.();
   });
-  const project = { ...facts, identity: undefined, work: initial };
+  const project = { ...story, identity: undefined };
   try {
     await mountComparison(page, comparisonServer, project);
     const history = scopeHistory(page);

@@ -9,10 +9,7 @@ import {
   expect,
   mountComparison,
 } from "../../tests/support/comparisonMountPage.ts";
-import {
-  serveComparison,
-  summaryScopeFacts,
-} from "../../tests/support/comparisonScopeFacts.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { childName } from "../../tests/intentScopeProofPage.ts";
 import {
   dashboardTests,
@@ -33,13 +30,16 @@ test("mixed-unit tree and Summary callbacks keep both units through folder and f
   comparisonServer,
   comparisonServices,
 }) => {
-  const facts = summaryScopeFacts();
-  serveComparison(comparisonServices, facts, [
-    [dashboardTests({ cases: true }, 3, 30000, 7000)],
-    [dashboardTests({ cases: true }, 4, 35000, 8000)],
-    [dashboardTests({ cases: true }, 5, 40000, 7000)],
-  ]);
-  await mountComparison(page, comparisonServer, facts);
+  const story = makeMe.aComparedStory
+    .inSummaryScope()
+    .withEntries([
+      [dashboardTests({ cases: true }, 3, 30000, 7000)],
+      [dashboardTests({ cases: true }, 4, 35000, 8000)],
+      [dashboardTests({ cases: true }, 5, 40000, 7000)],
+    ])
+    .please();
+  comparisonServices.serve(story);
+  await mountComparison(page, comparisonServer, story);
   const intent = page.locator("#root");
   await expandIntentFolders(intent, entry);
   const file = intentFile(intent, summaryComparisonChanges.modified);

@@ -1,12 +1,11 @@
 // Asked and answered rounds use actual public readers and counted HTTP requests.
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
 import { ciComparisonClient } from "../support/ciComparisonClient.ts";
 import { heldResponse } from "../support/ciReadingTransport.ts";
 
 test("a held HTTP-failed comparison retries without counting its failure as an answered round", async () => {
-  const facts = preparedComparison();
+  const facts = makeMe.aComparedStory.please();
   const initial = heldResponse();
   const retry = heldResponse();
   let comparisons = 0;
@@ -60,7 +59,7 @@ test("a held HTTP-failed comparison retries without counting its failure as an a
 });
 
 test("an answered unavailable comparison is replaced and advances the successful retry round", async () => {
-  const facts = preparedComparison();
+  const facts = makeMe.aComparedStory.please();
   const unavailable = makeMe.aStoryCiComparison
     .with({
       kind: "unavailable",

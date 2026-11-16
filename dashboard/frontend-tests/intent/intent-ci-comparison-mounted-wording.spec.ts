@@ -3,12 +3,6 @@ import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CiTimeWithoutRunnerWaits } from "../../src/storyCiComparison.ts";
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import {
-  mixedEntryFacts,
-  wallComparedFacts,
-} from "../../tests/support/mountedComparisonFacts.ts";
 import { expectCueState } from "../../tests/support/expectCiComparisonCues.ts";
 import {
   expectAncestorSourceCue,
@@ -23,42 +17,29 @@ import "./mountedComparisonCancelledCases.ts";
 
 for (const unavailable of [false, true]) {
   test(`overall metrics preserve observed counts, whole seconds and ${unavailable ? "unavailable" : "measured"} execution time`, async ({
-    page,
-    comparisonRenderer,
+    renderComparison,
   }) => {
-    const facts = wallComparedFacts();
-    const timed = (
-      slot: typeof facts.answer.baseline,
-      wallMs: number,
-      timing: CiTimeWithoutRunnerWaits,
-    ) => ({
-      ...slot,
+    const timed = (wallMs: number, timing: CiTimeWithoutRunnerWaits) => ({
       completedAt: new Date(
         Date.parse("2026-11-09T00:00:00Z") + wallMs,
       ).toISOString(),
       timeWithoutRunnerWaits: timing,
     });
-    const answer = makeMe.aStoryCiComparison
-      .with({
-        ...facts.answer,
-        baseline: timed(facts.answer.baseline, 299_000, {
-          milliseconds: 295_000,
-        }),
-        branch: timed(facts.answer.branch, 807_000, { milliseconds: 287_000 }),
-        landed: timed(
-          facts.answer.landed,
-          319_000,
-          unavailable
-            ? { reason: "The build's attempt jobs could not be read." }
-            : { milliseconds: 312_000 },
-        ),
-      })
-      .please();
-    const rendered = comparisonRenderFacts(
-      { ...facts, answer },
-      mixedEntryFacts(),
+    const panel = await renderComparison(
+      makeMe.aComparedStory
+        .withBaseline(timed(299_000, { milliseconds: 295_000 }))
+        .withBranch(timed(807_000, { milliseconds: 287_000 }))
+        .withLanded(
+          timed(
+            319_000,
+            unavailable
+              ? { reason: "The build's attempt jobs could not be read." }
+              : { milliseconds: 312_000 },
+          ),
+        )
+        .withMixedEntries()
+        .please(),
     );
-    const panel = await renderComparison(page, comparisonRenderer, rendered);
     await expect(panel.getByRole("heading")).toHaveText([
       /^Baseline compared with /,
       "CI entry timing comparison",
@@ -112,15 +93,12 @@ for (const unavailable of [false, true]) {
 }
 
 test("exact and ancestor source icons retain accessible and hover wording without subjects or run identities", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = wallComparedFacts();
-  const answer = makeMe.aStoryCiComparison
-    .with({
-      ...facts.answer,
-      baseline: {
-        ...facts.answer.baseline,
+  const panel = await renderComparison(
+    makeMe.aComparedStory
+      .wallTimed()
+      .withBaseline({
         selection: "ancestor",
         laterWithoutResult: 2,
         requestedStatus: {
@@ -128,14 +106,10 @@ test("exact and ancestor source icons retain accessible and hover wording withou
           explanation:
             "No build at ddddddd: the workflow at that revision could not be read.",
         },
-      },
-    })
-    .please();
-  const rendered = comparisonRenderFacts(
-    { ...facts, answer },
-    mixedEntryFacts(),
+      })
+      .withMixedEntries()
+      .please(),
   );
-  const panel = await renderComparison(page, comparisonRenderer, rendered);
   const identities = comparisonReading(panel).identities;
   const observed = await sourceIdentityFacts(identities);
   expect(observed).toHaveLength(3);
@@ -196,26 +170,19 @@ for (const [kind, explanation, visible] of [
   ["cancelled", "Cancelled at ddddddd.", true],
 ] as const) {
   test(`${kind} requested status keeps the ancestor source with its intentional visibility`, async ({
-    page,
-    comparisonRenderer,
+    renderComparison,
   }) => {
-    const facts = wallComparedFacts();
-    const answer = makeMe.aStoryCiComparison
-      .with({
-        ...facts.answer,
-        baseline: {
-          ...facts.answer.baseline,
+    const panel = await renderComparison(
+      makeMe.aComparedStory
+        .wallTimed()
+        .withBaseline({
           selection: "ancestor",
           laterWithoutResult: 1,
           requestedStatus: { kind, explanation },
-        },
-      })
-      .please();
-    const rendered = comparisonRenderFacts(
-      { ...facts, answer },
-      mixedEntryFacts(),
+        })
+        .withMixedEntries()
+        .please(),
     );
-    const panel = await renderComparison(page, comparisonRenderer, rendered);
     const identity = comparisonReading(panel).identities.first();
     if (visible) await expect(identity).toContainText(explanation);
     else await expect(identity).not.toContainText(explanation);

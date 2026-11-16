@@ -6,16 +6,15 @@ import {
   mountComparison,
   updateComparison,
 } from "../../tests/support/comparisonMountPage.ts";
-import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
-import { otherComparedStory } from "../../tests/support/comparisonMountSelections.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("a held comparison for an old selection cannot replace the current story's endpoints", async ({
   page,
   comparisonServer,
   comparisonServices,
 }) => {
-  const first = preparedComparison();
-  const next = otherComparedStory(first);
+  const first = makeMe.aComparedStory.please();
+  const next = makeMe.aComparedStory.ofAnotherStory().please();
   const held = comparisonServices.hold();
   Object.assign(comparisonServices, {
     comparison: (params: URLSearchParams) =>
@@ -61,8 +60,8 @@ test("a held endpoint proof for an old story cannot paint the current story's co
   comparisonServer,
   comparisonServices,
 }) => {
-  const first = preparedComparison();
-  const next = otherComparedStory(first);
+  const first = makeMe.aComparedStory.please();
+  const next = makeMe.aComparedStory.ofAnotherStory().please();
   const held = comparisonServices.hold();
   Object.assign(comparisonServices, {
     comparison: (params: URLSearchParams) => ({
@@ -82,7 +81,7 @@ test("a held endpoint proof for an old story cannot paint the current story's co
       return (
         params.get("intent") === "ci-proof" &&
         params.get("run") === "1" &&
-        params.get("revision") === first.answer.baseline.revision
+        params.get("revision") === first.answer.storyStart
       );
     },
   });

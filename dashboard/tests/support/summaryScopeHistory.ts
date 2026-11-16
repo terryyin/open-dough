@@ -1,5 +1,5 @@
 // A Done story's mounted Summary whose selected scope reads one retained
-// timing history: the canonical scope comparison (./comparisonScopeFacts.ts)
+// timing history: the canonical Summary scope story (`makeMe.aComparedStory`)
 // completed at its work revision, and the scope history read answered with
 // what `collectedAt` retains through that completion. Collection and retained
 // projection belong to the integrated journeys.
@@ -9,7 +9,7 @@ import {
   mountComparison,
   type ComparisonServices,
 } from "./comparisonMountPage.ts";
-import { serveComparison, summaryScopeFacts } from "./comparisonScopeFacts.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { FrontendAppServer } from "./frontendAppServer.ts";
 
 export async function openSummaryScopeHistory(
@@ -18,16 +18,16 @@ export async function openSummaryScopeHistory(
   comparisonServices: ComparisonServices,
   collectedAt: (completion: string) => unknown,
 ) {
-  const facts = summaryScopeFacts();
-  serveComparison(comparisonServices, facts, facts.entries);
-  const completion = facts.work.revision;
+  const story = makeMe.aComparedStory.inSummaryScope().please();
+  comparisonServices.serve(story);
+  const completion = story.work.revision;
   const collected = collectedAt(completion);
   await page.route(
     /\/__authenticated-read\?.*intent=ci-history.*scope=/,
     (route) => route.fulfill({ json: collected }),
   );
   await mountComparison(page, comparisonServer, {
-    ...facts,
+    ...story,
     doneEndpoint: { revision: completion, at: "2026-11-09T00:00:00Z" },
   });
   const summary = page.getByRole("region", { name: "Summary", exact: true });

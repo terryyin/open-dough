@@ -10,15 +10,11 @@ import { doneWallTimeHistoryOf } from "../../server/intentCiHistoryRead.ts";
 import { windowedHistory } from "../../server/landedCiMeasuredBuilds.ts";
 import type { ProjectHistory } from "../../server/landedCiHistoryStore.ts";
 import type { ComparisonReply } from "./comparisonMountPage.ts";
-import {
-  comparisonCheckedAt,
-  comparisonIdentity,
-  comparisonRevisions,
-  preparedComparison,
-} from "./comparisonMountFacts.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { DoneTrunk } from "./doneWallReferenceHistory.ts";
 
-const landed = comparisonRevisions[2];
+const story = makeMe.aComparedStory.please();
+const landed = story.work.revision;
 
 // The mounted story's trunk: eight earlier first-parent revisions, its
 // Landed revision, and two later ones.
@@ -30,9 +26,9 @@ export const mountedDoneTrunk: DoneTrunk = {
     "f".repeat(40),
   ],
   endpoint: landed,
-  identity: comparisonIdentity,
+  identity: story.identity,
   repository: "/projects/example/.git",
-  base: comparisonRevisions[0],
+  base: story.answer.storyStart,
 };
 
 export const laterTrunkRevision = "e".repeat(40);
@@ -40,8 +36,8 @@ export const laterTrunkRevision = "e".repeat(40);
 // The prepared Done comparison, published at its Landed revision.
 export function preparedDoneComparison() {
   return {
-    ...preparedComparison(),
-    doneEndpoint: { revision: landed, at: comparisonCheckedAt },
+    ...makeMe.aComparedStory.please(),
+    doneEndpoint: { revision: landed, at: story.answer.checkedAt },
   };
 }
 

@@ -3,108 +3,77 @@ import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
 // Taken stories retain their actual live judgment and provisional endpoint words.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import { takenTrunkComparison } from "../../tests/support/comparisonMountSelections.ts";
-import {
-  mixedEntryFacts,
-  wallComparedFacts,
-  withoutGithubRunIdentity,
-} from "../../tests/support/mountedComparisonFacts.ts";
 
 for (const mode of ["story-branch", "trunk"] as const) {
   for (const adapter of [false, true]) {
     test(`Taken ${mode} keeps ${adapter ? "a completed adapter ancestor while a later attempt runs" : "its live status and provisional measured comparison"}`, async ({
       page,
-      comparisonRenderer,
+      renderComparison,
     }) => {
-      const facts = wallComparedFacts();
-      const taken = takenTrunkComparison(facts);
       const branch = mode === "trunk" ? "main" : "story/a";
-      const work = makeMe.aPublishedWork
-        .with({
-          ...taken.work,
-          taken: taken.work.taken.map((entry) => ({
-            ...entry,
-            ...(entry.owner?.status === "recorded"
-              ? {
-                  owner: {
-                    ...entry.owner,
-                    assignments: entry.owner.assignments.map((profile) => ({
-                      ...profile,
-                      mode,
-                      branch,
-                    })),
-                  },
-                }
-              : {}),
-          })),
-        })
-        .please();
-      const baseline = {
-        ...(adapter
-          ? withoutGithubRunIdentity(facts.answer.baseline)
-          : facts.answer.baseline),
-        completedAt: adapter ? undefined : "2026-11-09T00:04:59Z",
-        startedAt: adapter ? undefined : "2026-11-09T00:00:00Z",
-        timeWithoutRunnerWaits: { milliseconds: 295_000 },
-        ...(adapter
-          ? {
-              runBranch: "main",
-              adapterAttempt: { runId: "baseline", attemptId: "before" },
-            }
-          : {}),
-      };
-      const provisional = {
-        ...(adapter
-          ? withoutGithubRunIdentity(facts.answer.branch)
-          : facts.answer.branch),
-        completedAt: adapter ? "2026-11-09T00:06:30Z" : "2026-11-09T00:13:27Z",
-        timeWithoutRunnerWaits: { milliseconds: 287_000 },
-        ...(adapter
-          ? {
-              selection: "ancestor" as const,
-              laterRunning: true as const,
+      const story = makeMe.aComparedStory;
+      if (adapter) {
+        const noProof = makeMe.aCiProof
+          .unavailable("none", "no proof kept")
+          .please();
+        story
+          .withAdapterAttemptAt(
+            "baseline",
+            { runId: "baseline", attemptId: "before" },
+            {
+              completedAt: undefined,
+              startedAt: undefined,
+              timeWithoutRunnerWaits: { milliseconds: 295_000 },
+            },
+          )
+          .withAdapterAttemptAt(
+            "branch",
+            { attemptId: "complete" },
+            {
+              completedAt: "2026-11-09T00:06:30Z",
+              timeWithoutRunnerWaits: { milliseconds: 287_000 },
+              selection: "ancestor",
+              laterRunning: true,
               runBranch: branch,
-              adapterAttempt: { runId: "pipeline", attemptId: "complete" },
-            }
-          : {}),
-      };
-      const answer = makeMe.aStoryCiComparison
-        .with({
-          ...taken.answer,
-          mode,
-          baseline,
-          branch:
-            mode === "trunk"
-              ? {
-                  kind: "not-applicable",
-                  explanation:
-                    "Branch comparison is not applicable for a Trunk Mode story.",
-                }
-              : provisional,
-          ...(mode === "trunk" ? { provisional } : { provisional: undefined }),
-        })
-        .please();
-      const rendered = adapter
-        ? comparisonRenderFacts({ ...facts, answer, work }, undefined, [
-            makeMe.aCiProof.unavailable("none", "no proof kept").please(),
-            makeMe.aCiProof.unavailable("none", "no proof kept").please(),
-            undefined,
-          ])
-        : comparisonRenderFacts({ ...facts, answer, work }, mixedEntryFacts());
+            },
+          )
+          .withProofs(noProof, noProof, undefined);
+      } else {
+        story
+          .withBaseline({
+            completedAt: "2026-11-09T00:04:59Z",
+            startedAt: "2026-11-09T00:00:00Z",
+            timeWithoutRunnerWaits: { milliseconds: 295_000 },
+          })
+          .withBranch({
+            completedAt: "2026-11-09T00:13:27Z",
+            timeWithoutRunnerWaits: { milliseconds: 287_000 },
+          })
+          .withMixedEntries();
+      }
+      // The Branch build becomes the provisional one in either mode.
+      if (mode === "trunk")
+        story.takenOnTrunk().withAnswer({
+          branch: {
+            kind: "not-applicable",
+            explanation:
+              "Branch comparison is not applicable for a Trunk Mode story.",
+          },
+        });
+      else story.takenOnStoryBranch(branch);
+      const taken = story.please();
       const status = makeMe.anIntentCiStatus
         .with({
           branch,
-          revision: facts.answer.branch.revision,
+          revision: taken.work.revision,
           subject: "live published work",
           state: "pass",
           laterWithoutResult: 0,
-          checkedAt: answer.checkedAt,
+          checkedAt: taken.answer.checkedAt,
           freshness: "fresh",
         })
         .please();
-      const panel = await renderComparison(page, comparisonRenderer, rendered, {
+      const panel = await renderComparison(taken, {
         ...(mode === "story-branch" ? { liveStatus: status } : {}),
       });
       if (mode === "story-branch") {

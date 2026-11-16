@@ -32,8 +32,8 @@ import {
 import {
   fileReadingTab,
   proofRegion,
-  intentReadingPane,
 } from "../../tests/intentPerspectivePage.ts";
+import { intentReadingPane } from "../../tests/intentReadingPlacePage.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   chooseStoryTab,

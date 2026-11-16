@@ -17,11 +17,11 @@ import {
   owningLocation,
 } from "../../src/intentSelectionCoverage.ts";
 import type { ComparisonRenderOptions } from "../support/comparisonRendering.ts";
-import { preparedComparisonEvidence } from "./evidence.ts";
-import type { ComparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
+import { endpointProofsOf, preparedComparisonEvidence } from "./evidence.ts";
+import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
 
 export function comparisonMarkup(
-  facts: ComparisonRenderFacts,
+  facts: ComparedStory,
   options: ComparisonRenderOptions = {},
 ) {
   const preference = {
@@ -29,8 +29,9 @@ export function comparisonMarkup(
     onShowPercent() {},
   };
   const sorting = { sort: options.sort, onSort() {} };
-  const { answer, endpointProofs } = facts;
+  const { answer } = facts;
   if (facts.scope === undefined) {
+    const endpointProofs = endpointProofsOf(facts);
     const target = ciTargetOf(facts.source, facts.work, facts.identity);
     const status = options.liveStatus;
     return renderToStaticMarkup(

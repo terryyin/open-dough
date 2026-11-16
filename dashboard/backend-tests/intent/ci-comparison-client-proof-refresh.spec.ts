@@ -1,12 +1,11 @@
 // All endpoint proofs refresh only with an answered comparison retry.
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
 import { ciComparisonClient } from "../support/ciComparisonClient.ts";
 import { heldResponse } from "../support/ciReadingTransport.ts";
 
 test("only an answered comparison retry advances the three endpoint proof reads", async () => {
-  const facts = preparedComparison();
+  const facts = makeMe.aComparedStory.please();
   const held = heldResponse();
   let comparisons = 0;
   let landedReads = 0;

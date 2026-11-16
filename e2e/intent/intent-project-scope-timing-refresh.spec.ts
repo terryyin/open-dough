@@ -13,9 +13,11 @@ import {
 import {
   fileReadingTab,
   proofRegion,
+} from "../../dashboard/tests/intentPerspectivePage.ts";
+import {
   intentReadingScroll,
   scrollIntentReadingHalfway,
-} from "../../dashboard/tests/intentPerspectivePage.ts";
+} from "../../dashboard/tests/intentReadingPlacePage.ts";
 import { childName } from "../../dashboard/tests/intentScopeProofPage.ts";
 import { openSummary } from "../../dashboard/tests/intentSummaryCiProofFixtures.ts";
 import { passTimeUntilChecked } from "../../dashboard/tests/autoRefreshJourney.ts";

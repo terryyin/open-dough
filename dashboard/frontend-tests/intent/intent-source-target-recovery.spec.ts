@@ -30,11 +30,13 @@ import {
 } from "../../tests/intentModePage.ts";
 import {
   browserRevision,
-  expectReadingOffset,
-  intentReadingScroll,
   purposeRegion,
   revisionNotice,
 } from "../../tests/intentPerspectivePage.ts";
+import {
+  expectReadingOffset,
+  intentReadingScroll,
+} from "../../tests/intentReadingPlacePage.ts";
 import {
   readFailure,
   readRetry,

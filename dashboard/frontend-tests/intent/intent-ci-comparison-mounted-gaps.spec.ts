@@ -6,7 +6,6 @@ import {
   mountComparison,
   type ComparisonReply,
 } from "../../tests/support/comparisonMountPage.ts";
-import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("each failed Baseline Check again holds the button disabled and retains the query and failure reason", async ({
@@ -14,8 +13,8 @@ test("each failed Baseline Check again holds the button disabled and retains the
   comparisonServer,
   comparisonServices,
 }) => {
-  const facts = preparedComparison();
-  const reason = `head_sha=${facts.answer.baseline.revision}: GitHub is unreachable`;
+  const facts = makeMe.aComparedStory.please();
+  const reason = `head_sha=${facts.answer.storyStart}: GitHub is unreachable`;
   const failed = makeMe.aStoryCiComparison
     .with({
       ...facts.answer,

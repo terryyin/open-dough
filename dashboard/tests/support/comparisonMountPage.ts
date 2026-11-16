@@ -7,6 +7,7 @@ import {
 } from "./frontendAppServer.ts";
 import { comparisonMountBuild } from "./comparisonMountArtifact.ts";
 import type { ComparisonMount } from "./comparisonMountTypes.ts";
+import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
 
 export type ComparisonReply = {
   readonly status?: number;
@@ -25,6 +26,9 @@ export type ComparisonServices = {
   status: (
     params: URLSearchParams,
   ) => Promise<ComparisonReply> | ComparisonReply;
+  // Answers the story's comparison, and each run's proof with the entries
+  // the story states for that endpoint.
+  serve(story: ComparedStory): void;
   hold(): {
     readonly promise: Promise<ComparisonReply>;
     resolve(reply: ComparisonReply): void;
@@ -56,6 +60,12 @@ export const test = base.extend<{
       comparison: unarranged,
       proof: unarranged,
       status: unarranged,
+      serve(story) {
+        this.comparison = () => ({ json: story.answer });
+        this.proof = (params) => ({
+          json: story.entryProof(Number(params.get("run"))),
+        });
+      },
       hold() {
         let release: ((reply: ComparisonReply) => void) | undefined;
         const promise = new Promise<ComparisonReply>((resolve) => {

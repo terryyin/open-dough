@@ -6,10 +6,10 @@ import { intentStoryOverlay } from "../../src/intentStoryOverlay.ts";
 import { treeComparisonReadingOf } from "../../src/intentTreeComparison.ts";
 import { reviewedFileWords } from "../../src/StoryReviewFileTree.tsx";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
-import type { ComparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
+import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
 import { preparedComparisonEvidence } from "./evidence.ts";
 
-export function comparisonTreeMarkup(facts: ComparisonRenderFacts) {
+export function comparisonTreeMarkup(facts: ComparedStory) {
   const scope = facts.scope;
   if (scope === undefined) throw new Error("Tree observation needs locations");
   const overlay = intentStoryOverlay(scope.locations, scope.changed);

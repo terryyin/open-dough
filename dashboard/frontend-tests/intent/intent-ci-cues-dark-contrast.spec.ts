@@ -3,9 +3,7 @@
 // backgrounds without expanding the integrated cue journey.
 
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import { summaryScopeFacts } from "../../tests/support/comparisonScopeFacts.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { expectReadableContrast } from "../../tests/accessibleReading.ts";
 import {
   expectDarkSurface,
@@ -18,12 +16,10 @@ import {
 
 test("composed CI cue variants stay readable on dark surfaces", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
   await setColorScheme(page, "dark");
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, facts.entries);
-  await renderComparison(page, comparisonRenderer, rendered);
+  await renderComparison(makeMe.aComparedStory.inSummaryScope().please());
   await expectDarkSurface(page);
 
   const summary = page.getByRole("region", { name: "Summary", exact: true });

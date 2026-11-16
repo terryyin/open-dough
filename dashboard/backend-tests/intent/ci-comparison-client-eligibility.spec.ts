@@ -1,7 +1,6 @@
 // Slots are selected by the real three-endpoint owner before authenticated reads.
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
 import { ciComparisonClient } from "../support/ciComparisonClient.ts";
 
 for (const reason of [
@@ -9,15 +8,14 @@ for (const reason of [
   "The CI adapter did not answer discovery within 2 seconds.",
 ]) {
   test(`unavailable discovery suppresses every endpoint proof: ${reason}`, async () => {
-    const facts = preparedComparison();
     const slot = makeMe.aStoryCiComparisonSlot
       .with({ kind: "unavailable" as const, explanation: reason })
       .please();
-    const answer = makeMe.aStoryCiComparison
-      .with({ ...facts.answer, baseline: slot, branch: slot, landed: slot })
+    const facts = makeMe.aComparedStory
+      .withAnswer({ baseline: slot, branch: slot, landed: slot })
       .please();
     const client = ciComparisonClient(facts.source, () =>
-      Response.json(answer),
+      Response.json(facts.answer),
     );
     try {
       await client.comparison.select(facts.source, facts.identity);
@@ -40,46 +38,25 @@ for (const reason of [
 }
 
 test("only the unambiguous Baseline adapter attempt is read and its invalid proof remains its own", async () => {
-  const facts = preparedComparison();
-  const answer = makeMe.aStoryCiComparison
-    .with({
-      ...facts.answer,
-      baseline: makeMe.aStoryCiComparisonSlot
-        .with({
-          ...facts.answer.baseline,
-          runBranch: "main",
-          adapterAttempt: { runId: "pipeline", attemptId: "1" },
-        })
-        .please(),
-      branch: makeMe.aStoryCiComparisonSlot
-        .with({
-          ...facts.answer.branch,
-          runBranch: "main",
-          adapterAttempt: {
-            runId: "pipeline",
-            attemptId: "2",
-            ambiguous: true,
-          },
-        })
-        .please(),
-      landed: makeMe.aStoryCiComparisonSlot
-        .with({
-          ...facts.answer.landed,
-          revision: "b".repeat(40),
-          runBranch: "main",
-          adapterAttempt: {
-            runId: "pipeline",
-            attemptId: "2",
-            ambiguous: true,
-          },
-        })
-        .please(),
+  const facts = makeMe.aComparedStory
+    .withBaseline({
+      runBranch: "main",
+      adapterAttempt: { runId: "pipeline", attemptId: "1" },
+    })
+    .withBranch({
+      runBranch: "main",
+      adapterAttempt: { runId: "pipeline", attemptId: "2", ambiguous: true },
+    })
+    .withLanded({
+      revision: "b".repeat(40),
+      runBranch: "main",
+      adapterAttempt: { runId: "pipeline", attemptId: "2", ambiguous: true },
     })
     .please();
   const client = ciComparisonClient(facts.source, (query) =>
     Response.json(
       query.get("intent") === "ci-comparison"
-        ? answer
+        ? facts.answer
         : makeMe.anIntentCiProofAnswer
             .with({
               runId: "pipeline",

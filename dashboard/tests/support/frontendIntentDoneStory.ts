@@ -8,7 +8,6 @@ import type { IntentCoverage } from "../../../Distribution/src/skills/dough-prod
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { describedBacklog } from "../describedRevisions.ts";
 import { storyB } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { summaryScopeFacts } from "./comparisonScopeFacts.ts";
 import { answerFrontendIntentComparison } from "./frontendIntentComparison.ts";
 import { answerFrontendIntentCi } from "./frontendIntentCi.ts";
 import { putFrontendIntentStory } from "./frontendIntentStory.ts";
@@ -37,7 +36,9 @@ export async function prepareFrontendDoneIntent(
   } = {},
 ) {
   putFrontendIntentStory(services, { taken: false, workspace: false });
-  const facts = summaryScopeFacts();
+  const facts = makeMe.aComparedStory.inSummaryScope().please();
+  const { scope } = facts;
+  if (scope === undefined) throw new Error("The Summary scope is required");
   const completion = facts.work.revision;
   const completedAt = new Date().toISOString();
   const record = makeMe.aDoneRecord.completed({
@@ -64,7 +65,7 @@ export async function prepareFrontendDoneIntent(
   for (const path of summaryComparisonChangeRevision.remove ?? [])
     Reflect.deleteProperty(landedFiles, path);
   const locations = historical.locations ?? [
-    ...facts.scope.locations,
+    ...scope.locations,
     makeMe.anIntentLocation
       .at("tests")
       .ofKind("shell", ["*.sh"])
@@ -91,7 +92,7 @@ export async function prepareFrontendDoneIntent(
     },
   );
   const published = frontendPublishedReview([
-    ...(historical.changed ?? facts.scope.changed),
+    ...(historical.changed ?? scope.changed),
   ]);
   const review = await installFrontendStoryReview(page, {
     ...published,

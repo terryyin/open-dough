@@ -31,7 +31,11 @@
 // configured browser arguments, so it spreads them in (./browserArgs.ts).
 
 import { test as base } from "@playwright/test";
-import type { ComparisonRenderer } from "./comparisonRendering.ts";
+import type {
+  ComparisonRenderer,
+  ComparisonRenderOptions,
+} from "./comparisonRendering.ts";
+import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
 import type { LaunchJourney } from "../launchJourney.ts";
 import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
 import { endDescendantsAtExit } from "./processGroup.ts";
@@ -74,7 +78,7 @@ async function prepareServerInputs(
 }
 
 // Playwright's worker-only extension takes an empty test-fixture type.
-export const test = base.extend<
+const workerTest = base.extend<
   object,
   PublishedMainWorkerFixtures & {
     launchJourney: LaunchJourney;
@@ -205,5 +209,27 @@ export const test = base.extend<
     await use(page);
     // A spec that closed its page has no handler left to finish.
     if (!page.isClosed()) await page.unrouteAll({ behavior: "wait" });
+  },
+});
+
+// Renders a compared story (`makeMe.aComparedStory`) into the page through
+// the worker's comparison renderer, answering the comparison region; the
+// tree form renders the Intent file tree's comparison readings.
+export const test = workerTest.extend<{
+  renderComparison: (
+    story: ComparedStory,
+    options?: ComparisonRenderOptions,
+  ) => ReturnType<typeof import("./comparisonRendering.ts").renderComparison>;
+  renderComparisonTree: (story: ComparedStory) => Promise<void>;
+}>({
+  renderComparison: async ({ page, comparisonRenderer }, use) => {
+    const { renderComparison } = await import("./comparisonRendering.ts");
+    await use((story, options) =>
+      renderComparison(page, comparisonRenderer, story, options),
+    );
+  },
+  renderComparisonTree: async ({ page, comparisonRenderer }, use) => {
+    const { renderComparisonTree } = await import("./comparisonRendering.ts");
+    await use((story) => renderComparisonTree(page, comparisonRenderer, story));
   },
 });

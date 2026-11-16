@@ -3,11 +3,10 @@ import { test, expect } from "../../tests/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { readIntentCiComparison } from "../../src/authenticatedIntentCiComparisonRead.ts";
 import { readIntentCiProof } from "../../src/authenticatedIntentCiProofRead.ts";
-import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
 import { ciReadingTransport } from "../support/ciReadingTransport.ts";
 
 test("actual authenticated readers preserve encoded numeric and adapter subjects and refuse mismatched answers", async () => {
-  const facts = preparedComparison();
+  const facts = makeMe.aComparedStory.please();
   const numeric = { runId: 2, runAttempt: 1, revision: "b".repeat(40) };
   const adapter = {
     runId: "pipeline+#",
@@ -21,9 +20,9 @@ test("actual authenticated readers preserve encoded numeric and adapter subjects
     checkedAt: facts.answer.checkedAt,
     proof: adapterProof,
   };
-  const otherIdentity = makeMe.aStoryCiComparison
-    .with({ ...facts.answer, identity: "SEED-B#b" })
-    .please();
+  const otherIdentity = makeMe.aComparedStory
+    .withAnswer({ identity: "SEED-B#b" })
+    .please().answer;
   const responses = [
     Response.json(facts.answer),
     Response.json(facts.proof(2)),

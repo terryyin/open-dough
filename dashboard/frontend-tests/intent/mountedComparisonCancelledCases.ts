@@ -2,12 +2,6 @@ import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
 // Cancelled landing gaps keep Branch readable and show their exact reason.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import {
-  mixedEntryFacts,
-  wallComparedFacts,
-} from "../../tests/support/mountedComparisonFacts.ts";
 
 for (const [name, reason, forbidden] of [
   [
@@ -32,29 +26,25 @@ for (const [name, reason, forbidden] of [
   ],
 ] as const) {
   test(`cancelled Landed fallback preserves ${name} explanation without borrowed timing`, async ({
-    page,
-    comparisonRenderer,
+    renderComparison,
   }) => {
-    const facts = wallComparedFacts();
-    const answer = makeMe.aStoryCiComparison
-      .with({
-        ...facts.answer,
-        landed: {
-          kind: "none",
-          explanation: reason,
-          awaitingLaterBuild: true,
-          requestedStatus: {
-            kind: "cancelled",
-            explanation: "Cancelled at ddddddd.",
+    const panel = await renderComparison(
+      makeMe.aComparedStory
+        .wallTimed()
+        .withAnswer({
+          landed: {
+            kind: "none",
+            explanation: reason,
+            awaitingLaterBuild: true,
+            requestedStatus: {
+              kind: "cancelled",
+              explanation: "Cancelled at ddddddd.",
+            },
           },
-        },
-      })
-      .please();
-    const rendered = comparisonRenderFacts(
-      { ...facts, answer },
-      mixedEntryFacts(),
+        })
+        .withMixedEntries()
+        .please(),
     );
-    const panel = await renderComparison(page, comparisonRenderer, rendered);
     const identity = comparisonReading(panel).identities.last();
     await expect(identity).toContainText("Cancelled at ddddddd.");
     await expect(identity).toContainText(reason);

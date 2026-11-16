@@ -8,10 +8,6 @@ import {
   updateComparison,
 } from "../../tests/support/comparisonMountPage.ts";
 import {
-  serveComparison,
-  summaryScopeFacts,
-} from "../../tests/support/comparisonScopeFacts.ts";
-import {
   comparisonLabels,
   expectEvidenceLabels,
   expectLabelInFull,
@@ -19,7 +15,6 @@ import {
   expectObservedNotAttributed,
 } from "../../tests/ciEvidenceLabelsPage.ts";
 import { expectComparisonScopeRows } from "../../tests/intentScopeProofPage.ts";
-import { takenTrunkComparison } from "../../tests/support/comparisonMountSelections.ts";
 import { entryComparisonRows } from "../../tests/support/summaryComparisonExpectedRows.ts";
 
 test("selecting a queued story clears the previous Summary comparison and Baseline column", async ({
@@ -27,8 +22,9 @@ test("selecting a queued story clears the previous Summary comparison and Baseli
   comparisonServer,
   comparisonServices,
 }) => {
-  const facts = summaryScopeFacts();
-  serveComparison(comparisonServices, facts, facts.entries);
+  const story = makeMe.aComparedStory.inSummaryScope();
+  const facts = story.please();
+  comparisonServices.serve(facts);
   await mountComparison(page, comparisonServer, facts);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expectComparisonScopeRows(
@@ -36,24 +32,7 @@ test("selecting a queued story clears the previous Summary comparison and Baseli
     "dashboard/tests",
     entryComparisonRows,
   );
-  const identity = "SEED-B#b";
-  const work = makeMe.aPublishedWork
-    .with({
-      ...facts.work,
-      backlog: [
-        {
-          identity,
-          title: "Story B",
-          canonical: {
-            kind: "external",
-            recorded: "https://example.test/b",
-            url: "https://example.test/b",
-          },
-        },
-      ],
-    })
-    .please();
-  await updateComparison(page, { ...facts, identity, work });
+  await updateComparison(page, story.ofQueuedStory().please());
   await expectNoComparisonFraming(summary);
   await expect(comparisonLabels(summary, facts.identity)).toHaveCount(0);
   await expect(
@@ -69,42 +48,12 @@ test("a Taken Story Branch Summary labels its provisional comparison and not-yet
   comparisonServer,
   comparisonServices,
 }) => {
-  const facts = summaryScopeFacts();
-  const taken = takenTrunkComparison(facts);
-  const assigned = taken.work.taken[0];
-  if (assigned?.owner?.status !== "recorded")
-    throw new Error("A recorded Taken assignment is required");
-  const work = makeMe.aPublishedWork
-    .with({
-      ...taken.work,
-      taken: [
-        {
-          ...assigned,
-          owner: {
-            ...assigned.owner,
-            assignments: assigned.owner.assignments.map((owner) => ({
-              ...owner,
-              mode: "story-branch",
-              branch: "feature/a",
-            })),
-          },
-        },
-      ],
-    })
+  const facts = makeMe.aComparedStory
+    .inSummaryScope()
+    .takenOnStoryBranch()
     .please();
-  const answer = makeMe.aStoryCiComparison
-    .with({
-      ...facts.answer,
-      phase: "taken",
-      landed: {
-        kind: "not-landed",
-        explanation: "The story has not landed yet.",
-      },
-    })
-    .please();
-  serveComparison(comparisonServices, facts, facts.entries);
+  comparisonServices.serve(facts);
   Object.assign(comparisonServices, {
-    comparison: () => ({ json: answer }),
     status: (params: URLSearchParams) => ({
       json:
         params.get("kept") === "1"
@@ -112,7 +61,7 @@ test("a Taken Story Branch Summary labels its provisional comparison and not-yet
           : makeMe.anIntentCiStatus
               .with({
                 branch: "feature/a",
-                revision: facts.answer.branch.revision,
+                revision: facts.work.revision,
                 subject: "branch",
                 state: "unread",
                 laterWithoutResult: 0,
@@ -123,7 +72,7 @@ test("a Taken Story Branch Summary labels its provisional comparison and not-yet
               .please(),
     }),
   });
-  await mountComparison(page, comparisonServer, { ...facts, work });
+  await mountComparison(page, comparisonServer, facts);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   const labels = comparisonLabels(summary, "Story A");
   await expectEvidenceLabels(labels, [

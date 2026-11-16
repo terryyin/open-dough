@@ -17,10 +17,12 @@ import {
   expandIntentGroup,
   expandIntentFolders,
   fileReadingTab,
-  intentReadingScroll,
   revisionNotice,
-  scrollIntentReadingHalfway,
 } from "../../tests/intentPerspectivePage.ts";
+import {
+  intentReadingScroll,
+  scrollIntentReadingHalfway,
+} from "../../tests/intentReadingPlacePage.ts";
 import { prepareFrontendDoneIntent } from "../../tests/support/frontendIntentDoneStory.ts";
 import { selectDoneStoryInIntent } from "../../tests/support/selectDoneStoryInIntent.ts";
 import { advanceFrontendDoneProject } from "../../tests/support/frontendDoneProjectRefresh.ts";

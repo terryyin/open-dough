@@ -24,10 +24,12 @@ import {
 } from "../../tests/intentModePage.ts";
 import {
   fileReadingTab,
-  intentReadingScroll,
   proofRegion,
-  scrollIntentReadingHalfway,
 } from "../../tests/intentPerspectivePage.ts";
+import {
+  intentReadingScroll,
+  scrollIntentReadingHalfway,
+} from "../../tests/intentReadingPlacePage.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   expectStoryTab,

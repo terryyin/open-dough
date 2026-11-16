@@ -2,12 +2,6 @@ import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
 // The actual comparison renders prepared canonical proof answers.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import {
-  mixedEntryFacts,
-  wallComparedFacts,
-} from "../../tests/support/mountedComparisonFacts.ts";
 import {
   expectCiComparisonEntryRows,
   comparedStoryEntryRows,
@@ -17,16 +11,15 @@ import { expectEntryRowCues } from "../../tests/support/expectCiComparisonCues.t
 import { expectUnsortedRows } from "../../tests/support/expectSortedColumns.ts";
 
 test("expired entry proofs keep Branch and Landed wall times and explain absence of the table", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = wallComparedFacts();
-  const rendered = comparisonRenderFacts(facts, undefined, [
-    makeMe.aCiProof.unavailable("expired").please(),
-    makeMe.aCiProof.unavailable("expired").please(),
-    makeMe.aCiProof.unavailable("expired").please(),
-  ]);
-  const panel = await renderComparison(page, comparisonRenderer, rendered);
+  const expired = makeMe.aCiProof.unavailable("expired").please();
+  const panel = await renderComparison(
+    makeMe.aComparedStory
+      .wallTimed()
+      .withProofs(expired, expired, expired)
+      .please(),
+  );
   await expect(comparisonReading(panel).wallTimes.nth(1)).toHaveText(
     "3 min 20 s",
   );
@@ -38,12 +31,11 @@ test("expired entry proofs keep Branch and Landed wall times and explain absence
 });
 
 test("entry rows retain counts, signed whole seconds and independent count and time cues", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = wallComparedFacts();
-  const rendered = comparisonRenderFacts(facts, mixedEntryFacts());
-  const panel = await renderComparison(page, comparisonRenderer, rendered);
+  const panel = await renderComparison(
+    makeMe.aComparedStory.wallTimed().withMixedEntries().please(),
+  );
   const table = comparisonReading(panel).entryTable;
   await expectUnsortedRows(table, ["dashboard/tests", "tests", "src/skills"]);
   await expectCiComparisonEntryRows(panel, comparedStoryEntryRows);
@@ -51,11 +43,8 @@ test("entry rows retain counts, signed whole seconds and independent count and t
 });
 
 test("no duration and an untimed part keep exact accessible gap explanations instead of zero", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = wallComparedFacts();
-  const entries = mixedEntryFacts();
   const partial = makeMe.aCiProofEntry
     .at("tests")
     .holding({
@@ -77,12 +66,16 @@ test("no duration and an untimed part keep exact accessible gap explanations ins
       ],
     })
     .please();
-  entries[0] = [
-    makeMe.aCiProofEntry.at("dashboard/tests").counting(2090).please(),
-    partial,
-  ];
-  const rendered = comparisonRenderFacts(facts, entries);
-  const panel = await renderComparison(page, comparisonRenderer, rendered);
+  const panel = await renderComparison(
+    makeMe.aComparedStory
+      .wallTimed()
+      .withMixedEntries()
+      .withEntriesAt("baseline", [
+        makeMe.aCiProofEntry.at("dashboard/tests").counting(2090).please(),
+        partial,
+      ])
+      .please(),
+  );
   await expectCiComparisonEntryRows(panel, [
     [
       "dashboard/tests",

@@ -6,8 +6,6 @@ import {
   mountComparison,
   updateComparison,
 } from "../../tests/support/comparisonMountPage.ts";
-import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
-import { takenTrunkComparison } from "../../tests/support/comparisonMountSelections.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("a Taken comparison keeps the same observed tip and reads again once that tip changes", async ({
@@ -15,17 +13,16 @@ test("a Taken comparison keeps the same observed tip and reads again once that t
   comparisonServer,
   comparisonServices,
 }) => {
-  const facts = preparedComparison();
-  const taken = takenTrunkComparison(facts);
-  const changed = makeMe.aStoryCiComparison
-    .with({ ...taken.answer, provisional: facts.answer.landed })
-    .please();
+  const story = makeMe.aComparedStory.takenOnTrunk();
+  const taken = story.please();
+  const advanced = story.trunkHeadAdvanced().please();
   Object.assign(comparisonServices, {
     comparison: () => ({
-      json: comparisonServices.comparisons === 1 ? taken.answer : changed,
+      json:
+        comparisonServices.comparisons === 1 ? taken.answer : advanced.answer,
     }),
     proof: (params: URLSearchParams) => ({
-      json: facts.proof(Number(params.get("run"))),
+      json: taken.proof(Number(params.get("run"))),
     }),
   });
   const panel = await mountComparison(page, comparisonServer, taken);
@@ -41,10 +38,7 @@ test("a Taken comparison keeps the same observed tip and reads again once that t
     "bbbbbbb",
   );
   expect(comparisonServices.comparisons).toBe(1);
-  const changedWork = makeMe.aPublishedWork
-    .with({ ...taken.work, revision: facts.answer.landed.revision })
-    .please();
-  await updateComparison(page, { ...taken, work: changedWork });
+  await updateComparison(page, advanced);
   await expect(comparisonReading(panel).identities.nth(2)).toContainText(
     "ccccccc",
   );

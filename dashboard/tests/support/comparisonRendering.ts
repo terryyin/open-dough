@@ -15,15 +15,15 @@ export type ComparisonRenderOptions = {
   readonly sort?: ColumnSort;
   readonly liveStatus?: IntentCiStatus;
 };
+import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
 export type ComparisonMarkup = (
-  facts: ComparisonRenderFacts,
+  facts: ComparedStory,
   options?: ComparisonRenderOptions,
 ) => string;
-import type { ComparisonRenderFacts } from "./comparisonRenderFacts.ts";
 
 export type ComparisonRenderer = {
   readonly markup: ComparisonMarkup;
-  readonly treeMarkup: (facts: ComparisonRenderFacts) => string;
+  readonly treeMarkup: (facts: ComparedStory) => string;
   readonly css: string;
   /** Private Vite optimizer cache for this renderer; removed by close(). */
   readonly viteCacheDir: string;
@@ -92,7 +92,7 @@ export async function createComparisonRenderer(): Promise<ComparisonRenderer> {
 export async function renderComparison(
   page: Page,
   renderer: ComparisonRenderer,
-  facts: ComparisonRenderFacts,
+  facts: ComparedStory,
   options?: ComparisonRenderOptions,
 ) {
   await presentComparison(page, renderer, renderer.markup(facts, options));
@@ -131,7 +131,7 @@ async function presentComparison(
 export async function renderComparisonTree(
   page: Page,
   renderer: ComparisonRenderer,
-  facts: ComparisonRenderFacts,
+  facts: ComparedStory,
 ) {
   await presentComparison(page, renderer, renderer.treeMarkup(facts));
 }

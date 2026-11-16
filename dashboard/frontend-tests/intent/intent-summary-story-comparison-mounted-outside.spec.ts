@@ -1,9 +1,6 @@
 // Primary-endpoint outside evidence is named independently of the visible tree.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import { summaryScopeFacts } from "../../tests/support/comparisonScopeFacts.ts";
 import {
   evidenceLabel,
   evidenceLabels,
@@ -17,9 +14,8 @@ const outsideRow = "Not in the rows above";
 
 test("Summary names the ghost file and unbroken-down part outside its final row, and names Landed for an entry with no file breakdown", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
   const landed = [
     makeMe.aCiProofEntry
       .at("dashboard/tests")
@@ -63,23 +59,17 @@ test("Summary names the ghost file and unbroken-down part outside its final row,
       .please(),
     makeMe.aCiProofEntry.at("tests").counting(1, "file").timed(500).please(),
   ];
-  const rendered = comparisonRenderFacts(facts, [
-    facts.entries[0] ?? [],
-    facts.entries[1] ?? [],
-    landed,
-  ]);
-  const testsLocation = makeMe.anIntentLocation
-    .at("tests")
-    .ofKind("shell", ["*.sh"])
-    .selecting("tests/check.sh")
-    .please();
-  await renderComparison(page, comparisonRenderer, {
-    ...rendered,
-    scope: {
-      ...facts.scope,
-      locations: [...facts.scope.locations, testsLocation],
-    },
-  });
+  const story = makeMe.aComparedStory
+    .inSummaryScope()
+    .withEntriesAt("landed", landed)
+    .withLocations(
+      makeMe.anIntentLocation
+        .at("tests")
+        .ofKind("shell", ["*.sh"])
+        .selecting("tests/check.sh")
+        .please(),
+    );
+  await renderComparison(story.please());
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expect(
     scopeTable(summary, "dashboard/tests")
@@ -104,14 +94,7 @@ test("Summary names the ghost file and unbroken-down part outside its final row,
     "part 2 of 2 has no file breakdown",
   );
   await expect(evidenceLabel(summary, "No file breakdown")).toHaveCount(0);
-  await renderComparison(page, comparisonRenderer, {
-    ...rendered,
-    scope: {
-      ...facts.scope,
-      locations: [...facts.scope.locations, testsLocation],
-      selection: { path: "tests", scope: "location" },
-    },
-  });
+  await renderComparison(story.selecting("tests", "location").please());
   await expect(summary.locator(".intent-summary-path")).toHaveText("tests");
   await expect(evidenceLabels(summary, "About these figures"))
     .toMatchAriaSnapshot(`

@@ -4,10 +4,8 @@ import {
   expectNamedScopeFigures,
 } from "../../tests/intentScopeProofPage.ts";
 import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import { summaryScopeFacts } from "../../tests/support/comparisonScopeFacts.ts";
 import {
   aSpec,
   dashboardTests,
@@ -33,15 +31,13 @@ const folderCounts =
   "4 legacy test results → 7 legacy test results → 5 test cases and 1 test file (legacy unit unknown)";
 
 test("with legacy results at Baseline and at Branch, spelled alike with different totals, the overall Counts and entry row keep both labelled ends readable and say why there is no test case or test file difference (examples 38, 39)", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, legacyAtBaselineAndBranch());
-  const panel = await renderComparison(page, comparisonRenderer, {
-    ...rendered,
-    scope: undefined,
-  });
+  const story = makeMe.aComparedStory
+    .inSummaryScope()
+    .withEntries(legacyAtBaselineAndBranch())
+    .please();
+  const panel = await renderComparison({ ...story, scope: undefined });
   const overall = comparisonReading(panel).overallCounts;
   await expect(overall).toHaveText(
     "6 legacy test results → 7 test cases and 1 test file (legacy unit unknown)",
@@ -57,11 +53,14 @@ test("with legacy results at Baseline and at Branch, spelled alike with differen
 
 test("with legacy results at Baseline and at Branch, spelled alike with different totals, the location Summary's own figures and child rows keep both labelled ends readable and say why there is no difference (examples 38, 39)", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, legacyAtBaselineAndBranch());
-  await renderComparison(page, comparisonRenderer, rendered);
+  await renderComparison(
+    makeMe.aComparedStory
+      .inSummaryScope()
+      .withEntries(legacyAtBaselineAndBranch())
+      .please(),
+  );
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expectNamedScopeFigures(summary, `CI proof of ${entry}`, [
     entryCounts,
@@ -93,14 +92,15 @@ test("with legacy results at Baseline and at Branch, spelled alike with differen
 
 test("with legacy results at Baseline and at Branch, spelled alike with different totals, the changed file's Proof row keeps both labelled ends readable and says why there is no difference (examples 38, 39)", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, legacyAtBaselineAndBranch());
-  await renderComparison(page, comparisonRenderer, {
-    ...rendered,
-    scope: { ...facts.scope, selection: { path: aSpec, scope: "file" } },
-  });
+  await renderComparison(
+    makeMe.aComparedStory
+      .inSummaryScope()
+      .withEntries(legacyAtBaselineAndBranch())
+      .selecting(aSpec, "file")
+      .please(),
+  );
   const intent = page.locator("#root");
   await expectFileComparisonRows(intent, aSpec, [
     [

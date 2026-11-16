@@ -1,8 +1,5 @@
 // Actual scope projections; live navigation and full-app acquisition stay separate.
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import { summaryScopeFacts } from "../../tests/support/comparisonScopeFacts.ts";
 import { expectComparisonScopeRows } from "../../tests/intentScopeProofPage.ts";
 import {
   entryComparisonRows,
@@ -25,17 +22,14 @@ import {
 
 test("nested Summary renders precise endpoint rows for unchanged c.spec.ts", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, facts.entries);
-  await renderComparison(page, comparisonRenderer, {
-    ...rendered,
-    scope: {
-      ...facts.scope,
-      selection: { path: "dashboard/tests/folder/nested", scope: "folder" },
-    },
-  });
+  await renderComparison(
+    makeMe.aComparedStory
+      .inSummaryScope()
+      .selecting("dashboard/tests/folder/nested", "folder")
+      .please(),
+  );
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expect(summary.locator(".intent-summary-path")).toHaveText(
     "dashboard/tests/folder/nested",
@@ -49,20 +43,14 @@ test("nested Summary renders precise endpoint rows for unchanged c.spec.ts", asy
 
 test("file Proof renders precise endpoint rows for unchanged c.spec.ts", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, facts.entries);
-  await renderComparison(page, comparisonRenderer, {
-    ...rendered,
-    scope: {
-      ...facts.scope,
-      selection: {
-        path: "dashboard/tests/folder/nested/c.spec.ts",
-        scope: "file",
-      },
-    },
-  });
+  await renderComparison(
+    makeMe.aComparedStory
+      .inSummaryScope()
+      .selecting("dashboard/tests/folder/nested/c.spec.ts", "file")
+      .please(),
+  );
   const proof = page.getByRole("table", {
     name: "CI proof of dashboard/tests/folder/nested/c.spec.ts",
   });
@@ -73,11 +61,10 @@ test("file Proof renders precise endpoint rows for unchanged c.spec.ts", async (
 
 test("Summary labels stay audible in browse mode and entry cues keep their independent count and duration meanings", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, facts.entries);
-  await renderComparison(page, comparisonRenderer, rendered);
+  const facts = makeMe.aComparedStory.inSummaryScope().please();
+  await renderComparison(facts);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expectEvidenceLabels(comparisonLabels(summary, facts.identity), [
     "Baseline No build aaaaaaa",
@@ -112,17 +99,14 @@ test("Summary labels stay audible in browse mode and entry cues keep their indep
 
 test("folder Summary keeps unchanged and below-threshold cue reasons", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, facts.entries);
-  await renderComparison(page, comparisonRenderer, {
-    ...rendered,
-    scope: {
-      ...facts.scope,
-      selection: { path: "dashboard/tests/folder", scope: "folder" },
-    },
-  });
+  await renderComparison(
+    makeMe.aComparedStory
+      .inSummaryScope()
+      .selecting("dashboard/tests/folder", "folder")
+      .please(),
+  );
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expect(summary.locator(".intent-summary-path")).toHaveText(
     "dashboard/tests/folder",
@@ -141,26 +125,22 @@ test("folder Summary keeps unchanged and below-threshold cue reasons", async ({
 
 test("a nested Summary marks a file changed only by its owning merge while keeping its precise comparison", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
-  const rendered = comparisonRenderFacts(facts, facts.entries);
-  await renderComparison(page, comparisonRenderer, {
-    ...rendered,
-    scope: {
-      ...facts.scope,
-      changed: [
-        ...facts.scope.changed,
+  await renderComparison(
+    makeMe.aComparedStory
+      .inSummaryScope()
+      .withChanged(
         makeMe.aReviewedFile
           .with({
             kind: "modified",
             path: "dashboard/tests/folder/nested/c.spec.ts",
           })
           .please(),
-      ],
-      selection: { path: "dashboard/tests/folder/nested", scope: "folder" },
-    },
-  });
+      )
+      .selecting("dashboard/tests/folder/nested", "folder")
+      .please(),
+  );
   await expectComparisonScopeRows(
     page.getByRole("region", { name: "Summary", exact: true }),
     "dashboard/tests/folder/nested",
@@ -170,22 +150,17 @@ test("a nested Summary marks a file changed only by its owning merge while keepi
 
 test("Summary names a skipped Baseline beside its ancestor and exposes its complete status on hover and to browse reading", async ({
   page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = summaryScopeFacts();
   const skippedAt =
     "Skipped at ddddddd because CI ignores every change since its nearest built ancestor aaaaaaa.";
-  const answer = makeMe.aStoryCiComparison
-    .with({
-      ...facts.answer,
-      baseline: {
-        ...facts.answer.baseline,
-        requestedStatus: { kind: "skipped", explanation: skippedAt },
-      },
+  const facts = makeMe.aComparedStory
+    .inSummaryScope()
+    .withBaseline({
+      requestedStatus: { kind: "skipped", explanation: skippedAt },
     })
     .please();
-  const rendered = comparisonRenderFacts({ ...facts, answer }, facts.entries);
-  await renderComparison(page, comparisonRenderer, rendered);
+  await renderComparison(facts);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expectLabelInFull(
     comparisonLabels(summary, facts.identity),

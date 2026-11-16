@@ -2,17 +2,15 @@
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { createCiComparisonProofs } from "../../src/ciComparisonProofs.ts";
-import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
 import { ciReadingTransport } from "../support/ciReadingTransport.ts";
 
 test("equal slot subjects stay independent while attempt and source-object changes refresh their actual reads", async () => {
-  const facts = preparedComparison();
-  const answer = makeMe.aStoryCiComparison
-    .with({ ...facts.answer, branch: facts.answer.baseline })
-    .please();
-  const retry = makeMe.aStoryCiComparison
-    .with({ ...answer, branch: { ...answer.branch, runAttempt: 2 } })
-    .please();
+  const story = makeMe.aComparedStory;
+  const facts = story.please();
+  const answer = story
+    .withAnswer({ branch: facts.answer.baseline })
+    .please().answer;
+  const retry = story.withBranch({ runAttempt: 2 }).please().answer;
   let correctAttempt = false;
   const transport = ciReadingTransport((query) => {
     const runId = Number(query.get("run"));

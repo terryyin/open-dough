@@ -2,13 +2,6 @@ import { comparisonReading } from "../../tests/intentCiComparisonPage.ts";
 // Endpoint-only gap words; imported by the mounted wording spec.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import {
-  adapterSlot,
-  mixedEntryFacts,
-  wallComparedFacts,
-} from "../../tests/support/mountedComparisonFacts.ts";
 import { expectCiComparisonEntryRows } from "../../tests/support/expectCiComparisonEntryRows.ts";
 
 for (const reason of [
@@ -19,21 +12,15 @@ for (const reason of [
   "The CI adapter gave no job graph: Job history expired!",
 ]) {
   test(`a final timing gap keeps endpoint and wall time: ${reason}`, async ({
-    page,
-    comparisonRenderer,
+    renderComparison,
   }) => {
-    const facts = wallComparedFacts();
-    const answer = makeMe.aStoryCiComparison
-      .with({
-        ...facts.answer,
-        landed: { ...facts.answer.landed, timeWithoutRunnerWaits: { reason } },
-      })
-      .please();
-    const rendered = comparisonRenderFacts(
-      { ...facts, answer },
-      mixedEntryFacts(),
+    const panel = await renderComparison(
+      makeMe.aComparedStory
+        .wallTimed()
+        .withLanded({ timeWithoutRunnerWaits: { reason } })
+        .withMixedEntries()
+        .please(),
     );
-    const panel = await renderComparison(page, comparisonRenderer, rendered);
     await expect(comparisonReading(panel).wallTimes).toHaveText([
       "3 min",
       "3 min 20 s",
@@ -54,21 +41,15 @@ for (const reason of [
 }
 
 test("running Landed retains Branch fallback and its added-entry words", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = wallComparedFacts();
-  const answer = makeMe.aStoryCiComparison
-    .with({
-      ...facts.answer,
-      landed: { ...facts.answer.landed, kind: "running" },
-    })
-    .please();
-  const rendered = comparisonRenderFacts(
-    { ...facts, answer },
-    mixedEntryFacts(),
+  const panel = await renderComparison(
+    makeMe.aComparedStory
+      .wallTimed()
+      .withLanded({ kind: "running" })
+      .withMixedEntries()
+      .please(),
   );
-  const panel = await renderComparison(page, comparisonRenderer, rendered);
   await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Branch",
   );
@@ -97,25 +78,21 @@ test("running Landed retains Branch fallback and its added-entry words", async (
 });
 
 test("unavailable Landed proof retains the Branch counts, time and exact adapter reason", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = wallComparedFacts();
-  const answer = makeMe.aStoryCiComparison
-    .with({
-      ...facts.answer,
-      landed: adapterSlot(facts.answer.landed, { attemptId: "landing" }),
-    })
-    .please();
-  const entries = mixedEntryFacts();
-  const rendered = comparisonRenderFacts({ ...facts, answer }, undefined, [
-    makeMe.aCiProof.summaryFor(facts.proof(1), entries[0]).please(),
-    makeMe.aCiProof.summaryFor(facts.proof(2), entries[1]).please(),
-    makeMe.aCiProof
-      .unavailable("none", "no summary retained for this attempt")
+  const panel = await renderComparison(
+    makeMe.aComparedStory
+      .wallTimed()
+      .withAdapterAttemptAt("landed", { attemptId: "landing" })
+      .withMixedEntries()
+      .withProofAt(
+        "landed",
+        makeMe.aCiProof
+          .unavailable("none", "no summary retained for this attempt")
+          .please(),
+      )
       .please(),
-  ]);
-  const panel = await renderComparison(page, comparisonRenderer, rendered);
+  );
   await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Branch",
   );
@@ -149,16 +126,16 @@ for (const reason of [
   "The CI adapter did not answer discovery within 2 seconds.",
 ]) {
   test(`every endpoint retains the unavailable discovery reason: ${reason}`, async ({
-    page,
-    comparisonRenderer,
+    renderComparison,
   }) => {
-    const facts = wallComparedFacts();
     const slot = { kind: "unavailable" as const, explanation: reason };
-    const answer = makeMe.aStoryCiComparison
-      .with({ ...facts.answer, baseline: slot, branch: slot, landed: slot })
-      .please();
-    const rendered = comparisonRenderFacts({ ...facts, answer }, undefined, []);
-    const panel = await renderComparison(page, comparisonRenderer, rendered);
+    const panel = await renderComparison(
+      makeMe.aComparedStory
+        .wallTimed()
+        .withAnswer({ baseline: slot, branch: slot, landed: slot })
+        .withProofs()
+        .please(),
+    );
     await expect(comparisonReading(panel).identities).toHaveText([
       reason,
       reason,

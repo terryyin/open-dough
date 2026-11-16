@@ -1,23 +1,19 @@
 // Taken observations and source lifetimes through the actual selected-story owner.
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
-import { takenTrunkComparison } from "../../tests/support/comparisonMountSelections.ts";
 import { ciComparisonClient } from "../support/ciComparisonClient.ts";
 import { heldResponse } from "../support/ciReadingTransport.ts";
 
 test("a Taken Trunk comparison ignores the same head and rereads only its changed provisional proof", async () => {
-  const facts = preparedComparison();
-  const taken = takenTrunkComparison(facts);
-  const changed = makeMe.aStoryCiComparison
-    .with({ ...taken.answer, provisional: facts.answer.landed })
-    .please();
+  const story = makeMe.aComparedStory.takenOnTrunk();
+  const facts = story.please();
+  const changed = story.trunkHeadAdvanced().please().answer;
   let comparisons = 0;
   const client = ciComparisonClient(facts.source, (query) => {
     if (query.get("intent") === "ci-proof")
       return Response.json(facts.proof(Number(query.get("run"))));
     comparisons += 1;
-    return Response.json(comparisons === 1 ? taken.answer : changed);
+    return Response.json(comparisons === 1 ? facts.answer : changed);
   });
   try {
     await client.comparison.select(
@@ -56,7 +52,7 @@ test("a Taken Trunk comparison ignores the same head and rereads only its change
 });
 
 test("first or absent heads only record while a new source object rereads and departure ignores a late failure", async () => {
-  const facts = preparedComparison();
+  const facts = makeMe.aComparedStory.please();
   const held = heldResponse();
   let requests = 0;
   const client = ciComparisonClient(facts.source, () => {

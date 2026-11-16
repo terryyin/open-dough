@@ -5,13 +5,6 @@ import {
 // Relative marks and Show % use actual preference state and rendered geometry.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { renderComparison } from "../../tests/support/comparisonRendering.ts";
-import { comparisonRenderFacts } from "../../tests/support/comparisonRenderFacts.ts";
-import {
-  relativeEntryFacts,
-  timedEntry,
-  wallComparedFacts,
-} from "../../tests/support/mountedComparisonFacts.ts";
 import {
   expectMark,
   relativeFigures,
@@ -22,13 +15,31 @@ import {
 } from "../../tests/support/relativeTimingMarks.ts";
 import { rowNames } from "../../tests/support/expectSortedColumns.ts";
 
+// Baseline, Branch and Landed times of entries that slow down, speed up,
+// stay, start at zero or are added.
+const relativeTimes: Record<string, (number | undefined)[]> = {
+  "e/slower": [240_000, 270_000, 300_000],
+  "e/faster": [120_000, 90_000, 60_000],
+  "e/same": [45_000, 45_000, 45_000],
+  "e/zero": [0, 30_000, 30_000],
+  "e/added": [undefined, 30_000, 30_000],
+};
+
+const relativelyTimed = (times = relativeTimes) =>
+  makeMe.aComparedStory.wallTimed().withEntries(
+    [0, 1, 2].map((at) =>
+      Object.entries(times).flatMap(([path, ms]) => {
+        const time = ms[at];
+        if (time === undefined) return [];
+        return [makeMe.aCiProofEntry.at(path).counting(1).timed(time).please()];
+      }),
+    ),
+  );
+
 test("summary and entries share a centred fifty percent scale with faster left and slower right", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = wallComparedFacts();
-  const rendered = comparisonRenderFacts(facts, relativeEntryFacts());
-  const panel = await renderComparison(page, comparisonRenderer, rendered);
+  const panel = await renderComparison(relativelyTimed().please());
   await expect(comparisonEntryCell(panel, "e/slower", "Branch")).toHaveText(
     "+30 s",
   );
@@ -61,12 +72,9 @@ test("summary and entries share a centred fifty percent scale with faster left a
 });
 
 test("measured unchanged time is centred while added and zero-baseline entries have no relative mark", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = wallComparedFacts();
-  const rendered = comparisonRenderFacts(facts, relativeEntryFacts());
-  const panel = await renderComparison(page, comparisonRenderer, rendered);
+  const panel = await renderComparison(relativelyTimed().please());
   await expect(comparisonEntryCell(panel, "e/same", "Landed")).toHaveText(
     "0 s",
   );
@@ -82,22 +90,14 @@ test("measured unchanged time is centred while added and zero-baseline entries h
 });
 
 test("Show % displays every comparable percentage without changing sort or geometry", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const prepared = wallComparedFacts();
-  const answer = makeMe.aStoryCiComparison
-    .with({
-      ...prepared.answer,
-      landed: {
-        ...prepared.answer.landed,
-        timeWithoutRunnerWaits: { reason: "No job graph was recorded." },
-      },
+  const story = relativelyTimed()
+    .withLanded({
+      timeWithoutRunnerWaits: { reason: "No job graph was recorded." },
     })
     .please();
-  const facts = { ...prepared, answer };
-  const rendered = comparisonRenderFacts(facts, relativeEntryFacts());
-  const panel = await renderComparison(page, comparisonRenderer, rendered, {
+  const panel = await renderComparison(story, {
     sort: { column: "landed", direction: "ascending" },
   });
   const toggle = showPercent(panel);
@@ -118,7 +118,7 @@ test("Show % displays every comparable percentage without changing sort or geome
     1, 0, 1,
   ]);
   expect(before.percentages).toEqual([]);
-  await renderComparison(page, comparisonRenderer, rendered, {
+  await renderComparison(story, {
     showPercent: true,
     sort: { column: "landed", direction: "ascending" },
   });
@@ -138,16 +138,13 @@ test("Show % displays every comparable percentage without changing sort or geome
 });
 
 test("a one hundred fifty percent outlier widens every mark's shared scale", async ({
-  page,
-  comparisonRenderer,
+  renderComparison,
 }) => {
-  const facts = wallComparedFacts();
-  const entries = relativeEntryFacts();
-  entries[0].push(timedEntry("e/outlier", 60_000));
-  entries[1].push(timedEntry("e/outlier", 150_000));
-  entries[2].push(timedEntry("e/outlier", 150_000));
-  const rendered = comparisonRenderFacts(facts, entries);
-  const panel = await renderComparison(page, comparisonRenderer, rendered);
+  const story = relativelyTimed({
+    ...relativeTimes,
+    "e/outlier": [60_000, 150_000, 150_000],
+  }).please();
+  const panel = await renderComparison(story);
   const selected = comparisonEntryCell(panel, "e/outlier", "Landed")
     .or(comparisonEntryCell(panel, "e/faster", "Landed"))
     .or(comparisonEntryCell(panel, "e/slower", "Landed"))
@@ -173,7 +170,7 @@ test("a one hundred fifty percent outlier widens every mark's shared scale", asy
     expect(geometry).toBeDefined();
     if (geometry !== undefined) expectMarkGeometry(geometry, direction, reach);
   }
-  await renderComparison(page, comparisonRenderer, rendered, {
+  await renderComparison(story, {
     showPercent: true,
   });
   await expect(

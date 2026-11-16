@@ -21,10 +21,12 @@ import { reviewRegion } from "../../tests/support/storyReviewMark.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
   fileReadingTab,
-  intentReadingScroll,
   proofRegion,
-  scrollIntentReadingHalfway,
 } from "../../tests/intentPerspectivePage.ts";
+import {
+  intentReadingScroll,
+  scrollIntentReadingHalfway,
+} from "../../tests/intentReadingPlacePage.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { expectReviewRead } from "../../tests/support/reviewRead.ts";
 import {

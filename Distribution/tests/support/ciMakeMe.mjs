@@ -30,6 +30,7 @@ import { aRevisionCoverage } from "./ciRevisionCoverageTestData.mjs";
 import { ciReusePolicyMakeMeProperties } from "./ciReusePolicyTestData.mjs";
 import { ciComparisonAnswerMakeMeProperties } from "./ciComparisonAnswerTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
+import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
 
 /** @typedef {import("../../../dashboard/src/ciScopeHistory.ts").ScopeHistoryGlance} ScopeHistoryGlance */
 /** @typedef {import("../../../dashboard/src/storyCiComparisonEntries.ts").ComparisonEndpointProof} ComparisonEndpointProof */
@@ -41,7 +42,10 @@ import { copyFacts } from "./factBuilder.mjs";
 /**
  * CI builders exposed on MakeMe (fresh on each access).
  *
- * @typedef {object} CiMakeMe
+ * @typedef {CiOwnMakeMe & import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe & import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe & import("./comparedStoryTestData.mjs").ComparedStoryMakeMe} CiMakeMe
+ */
+/**
+ * @typedef {object} CiOwnMakeMe
  * @property {FactBuilder<import("../../../dashboard/server/ciFollowUpStore.ts").FollowUpLedger["landings"][string] & { at?: string }>} aCiFollowUpEntry
  * @property {FactBuilder<import("../../../dashboard/server/ciFollowUpStore.ts").RepeatRequest>} aCiRepeatRequest
  * @property {import("./ciProofTestData.mjs").CiProofBuilder} aCiProof
@@ -67,18 +71,6 @@ import { copyFacts } from "./factBuilder.mjs";
  * @property {import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerBuilder} aCiHistoryAnswer
  * @property {import("./ciRunTestData.mjs").CiRunBuilder} aCiRun
  * @property {import("./ciJobTestData.mjs").GitHubJobBuilder} aGitHubJob
- * @property {import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe["aCiReusePolicy"]} aCiReusePolicy
- * @property {import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe["aCiReuseAttempt"]} aCiReuseAttempt
- * @property {import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe["anIntegratedStatePolicy"]} anIntegratedStatePolicy
- * @property {import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe["anAnsweredCiRun"]} anAnsweredCiRun
- * @property {import("./ciComparisonAnswerTestData.mjs").KeptBuildBuilder} aKeptBuild
- * @property {import("./ciComparisonAnswerTestData.mjs").StoryCiComparisonSlotBuilder} aStoryCiComparisonSlot
- * @property {import("./ciComparisonAnswerTestData.mjs").IntentCiProofAnswerBuilder} anIntentCiProofAnswer
- * @property {import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe["aCiProofRun"]} aCiProofRun
- * @property {import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe["aCiAdapterProofAttempt"]} aCiAdapterProofAttempt
- * @property {import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe["aCiProofCollectorRun"]} aCiProofCollectorRun
- * @property {import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe["anAdapterProofCollectorAttempt"]} anAdapterProofCollectorAttempt
- * @property {import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe["anUnusableBuild"]} anUnusableBuild
  * @property {FactBuilder<import("../../../dashboard/src/authenticatedIntentCiStatusRead.ts").IntentCiStatus>} anIntentCiStatus
  */
 
@@ -239,6 +231,7 @@ export function ciMakeMeProperties() {
     },
     ...ciReusePolicyMakeMeProperties(),
     ...ciComparisonAnswerMakeMeProperties(),
+    ...comparedStoryMakeMeProperties(),
     anIntentCiStatus: {
       enumerable: true,
       /** @returns {FactBuilder<import("../../../dashboard/src/authenticatedIntentCiStatusRead.ts").IntentCiStatus>} */

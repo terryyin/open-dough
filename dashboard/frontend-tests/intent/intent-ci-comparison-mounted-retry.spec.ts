@@ -5,7 +5,6 @@ import {
   expect,
   mountComparison,
 } from "../../tests/support/comparisonMountPage.ts";
-import { preparedComparison } from "../../tests/support/comparisonMountFacts.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("Check again disables while a failed whole comparison is read again and recovers its endpoints", async ({
@@ -13,7 +12,7 @@ test("Check again disables while a failed whole comparison is read again and rec
   comparisonServer,
   comparisonServices,
 }) => {
-  const facts = preparedComparison();
+  const facts = makeMe.aComparedStory.please();
   const initial = comparisonServices.hold();
   const retry = comparisonServices.hold();
   Object.assign(comparisonServices, {
@@ -55,7 +54,7 @@ test("Check again retries an unavailable whole answer and replaces its explanati
   comparisonServer,
   comparisonServices,
 }) => {
-  const facts = preparedComparison();
+  const facts = makeMe.aComparedStory.please();
   const unavailable = makeMe.aStoryCiComparison
     .with({
       kind: "unavailable",
@@ -90,7 +89,7 @@ test("Check again reads all endpoint proofs afresh and replaces Branch fallback 
   comparisonServer,
   comparisonServices,
 }) => {
-  const facts = preparedComparison();
+  const facts = makeMe.aComparedStory.please();
   const retry = comparisonServices.hold();
   let landedReads = 0;
   Object.assign(comparisonServices, {

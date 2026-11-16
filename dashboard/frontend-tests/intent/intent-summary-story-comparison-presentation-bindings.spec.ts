@@ -4,10 +4,7 @@ import {
   expect,
   mountComparison,
 } from "../../tests/support/comparisonMountPage.ts";
-import {
-  serveComparison,
-  summaryScopeFacts,
-} from "../../tests/support/comparisonScopeFacts.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   expectSortedBy,
   sortButton,
@@ -20,9 +17,9 @@ test("Summary header bindings route Change, Baseline, Branch and Counts", async 
   comparisonServer,
   comparisonServices,
 }) => {
-  const facts = summaryScopeFacts();
-  serveComparison(comparisonServices, facts, facts.entries);
-  await mountComparison(page, comparisonServer, facts);
+  const story = makeMe.aComparedStory.inSummaryScope().please();
+  comparisonServices.serve(story);
+  await mountComparison(page, comparisonServer, story);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   const table = scopeTable(summary, entry);
   await sortButton(table, "Change").click();

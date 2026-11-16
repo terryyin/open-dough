@@ -5,11 +5,7 @@ import {
   expect,
   mountComparison,
 } from "../../tests/support/comparisonMountPage.ts";
-import { serveComparison } from "../../tests/support/comparisonScopeFacts.ts";
-import {
-  wallComparedFacts,
-  mixedEntryFacts,
-} from "../../tests/support/mountedComparisonFacts.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   expectSortedBy,
   sortButton,
@@ -20,9 +16,9 @@ test("entry header bindings route Baseline, Counts, Branch and Landed with nativ
   comparisonServer,
   comparisonServices,
 }) => {
-  const facts = wallComparedFacts();
-  serveComparison(comparisonServices, facts, mixedEntryFacts());
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const story = makeMe.aComparedStory.wallTimed().withMixedEntries().please();
+  comparisonServices.serve(story);
+  const panel = await mountComparison(page, comparisonServer, story);
   const table = comparisonReading(panel).entryTable;
   const baseline = sortButton(table, "Baseline");
   await baseline.click();

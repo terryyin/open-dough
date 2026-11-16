@@ -7,10 +7,6 @@ import {
   expect,
   mountComparison,
 } from "../../tests/support/comparisonMountPage.ts";
-import {
-  serveComparison,
-  summaryScopeFacts,
-} from "../../tests/support/comparisonScopeFacts.ts";
 import { childName } from "../../tests/intentScopeProofPage.ts";
 
 const variants: readonly ("running" | "no proof")[] = ["running"];
@@ -20,19 +16,12 @@ for (const landed of variants) {
     comparisonServer,
     comparisonServices,
   }) => {
-    const facts = summaryScopeFacts();
-    const answer = makeMe.aStoryCiComparison
-      .with({
-        ...facts.answer,
-        ...(landed === "running"
-          ? { landed: { ...facts.answer.landed, kind: "running" as const } }
-          : {}),
-      })
-      .please();
-    serveComparison(comparisonServices, facts, facts.entries);
+    const story = makeMe.aComparedStory.inSummaryScope();
+    if (landed === "running") story.withLanded({ kind: "running" });
+    const facts = story.please();
+    comparisonServices.serve(facts);
     const standardProof = comparisonServices.proof;
     Object.assign(comparisonServices, {
-      comparison: () => ({ json: answer }),
       proof: (params: URLSearchParams) => {
         if (landed !== "no proof" || params.get("run") !== "3")
           return standardProof(params);

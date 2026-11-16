@@ -1,4 +1,4 @@
-import { intentReadingScroll } from "../intentPerspectivePage.ts";
+import { intentReadingScroll } from "../intentReadingPlacePage.ts";
 import {
   expectSourceTargetLine,
   fileSource,

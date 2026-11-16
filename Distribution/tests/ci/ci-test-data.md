@@ -82,3 +82,20 @@ Keep collector fragment values and deliberately invalid wire inputs literal.
 [Comparison answer builders](../support/ciComparisonAnswerTestData.mjs) ·
 [Landed history builder](../support/landedCiHistoryTestData.mjs) ·
 [Comparison view builders](../support/comparisonViewTestData.mjs)
+
+Build a completed story's comparison, as the Intent comparison reads it, with
+`makeMe.aComparedStory`: the published source and work, the comparison answer
+with passed Baseline, Branch and Landed builds, and each run's proof answer.
+State the case's facts as steps, such as `.wallTimed()`, `.inSummaryScope()`
+(the Summary scope's location, changed files and per-file proof),
+`.withMixedEntries()`, `.withEntriesAt(endpoint, entries)`, `.withProofs(...)`,
+`.withLanded({ kind: "running" })`, `.withAdapterAttemptAt(endpoint, attempt)`,
+`.takenOnTrunk()`, `.trunkHeadAdvanced()` and `.selecting(path, scope)`. A builder kept in a case
+answers a new value at each `.please()`, so one case can render a scope and
+then its folder. The `renderComparison` and `renderComparisonTree` fixtures
+render the built story, turning its published proofs into endpoint proofs
+through the real comparison owner, and `comparisonServices.serve(story)`
+answers its reads in a mounted case.
+[Compared story builder](../support/comparedStoryTestData.mjs) ·
+[Rendering fixtures](../../../dashboard/tests/support/pageTest.ts) ·
+[Mounted services](../../../dashboard/tests/support/comparisonMountPage.ts)
