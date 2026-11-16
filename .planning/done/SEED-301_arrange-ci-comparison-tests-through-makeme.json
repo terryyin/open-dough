@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-301#arrange-ci-comparison-tests-through-makeme",
+  "title": "Arrange CI comparison frontend tests through MakeMe",
+  "completedAt": "2026-11-16T02:55:55.459Z",
+  "developer": "Terry Yin",
+  "agent": "Yumi-chan",
+  "host": "claude",
+  "model": "claude-opus-5-5",
+  "intentCoverage": {
+    "report": "**Verdict: Caught.** The rewritten MakeMe setup still catches a running Landed build being picked as the compared endpoint.\n\n- **Invocation start:** 2026-11-16 10:53:06 +08, from the host clock.\n- **Story and revision:** SEED-301#arrange-ci-comparison-tests-through-makeme at 5b0a88aa775b9a8f1b3ee4fefaf3751d260ac453, in a detached scratch worktree, clean before the probe.\n- **Promise:** while Landed is running, the comparison keeps \"Baseline compared with Branch\".\n- **Fault:** in `comparisonProofOf` (`dashboard/src/storyCiComparisonEntries.ts`), a running slot returned `{ kind: \"checking\" }` instead of `{ kind: \"no-build\", explanation: \"Build is still running.\" }`, so `activeComparisonOf` chose the running Landed slot. This path also exercises the endpoint-proof step that moved into the harness (`endpointProofsOf` calls the real `comparisonProofOf`). Fixtures and assertions untouched.\n- **Command**, from `dashboard/`: `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config frontend.playwright.config.ts --reporter=list frontend-tests/intent/intent-ci-comparison-mounted-wording.spec.ts`\n- **Baseline:** 31 passed, including \"running Landed retains Branch fallback and its added-entry words\" (`mountedComparisonGapCases.ts:43`).\n- **Faulted:** 1 failed, 30 passed: the `activeComparison` check expected \"Baseline compared with Branch\" and got \"Baseline compared with Landed\".\n- **Restored:** `git diff` clean; all 31 passed.\n- **Catching assertion:** `toHaveText` on `comparisonReading(panel).activeComparison`, with data built by `makeMe.aComparedStory.withLanded({ kind: \"running\" })`.\n- **Next proof action:** none needed for this promise.\n- **Costs:** test runtime 14.7 s baseline, 13.4 s faulted, 12.0 s restored; invocation to report 98,507 ms; human and agent effort unavailable.\n\nWrap-up disposition: checked 5b0a88aa775b9a8f1b3ee4fefaf3751d260ac453, Caught, no follow-up.\n"
+  }
+}
