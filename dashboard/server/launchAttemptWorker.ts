@@ -13,6 +13,13 @@ export function attemptWorker(step: Worker["step"], pid = process.pid): Worker {
   };
 }
 
+// This server consumes the attempt's worker result.
+export function workedByThisServer(
+  attempt: Pick<LaunchAttemptRecord, "worker">,
+): boolean {
+  return attempt.worker?.serverPid === process.pid;
+}
+
 // Permission refusal still verifies that the process exists on this machine.
 export function workerAlive(pid: number): boolean {
   try {

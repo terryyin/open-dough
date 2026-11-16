@@ -89,9 +89,8 @@ fixed configuration.
 
 - Shard counts and deadlines are not changed. `scripts/ci-job-times.sh` and
   the job-count rule in `dashboard/tests/shards.md` stay and keep deciding how
-  many jobs a group has;
-  [SEED-382](SEED-382-browser-test-job-headroom-on-slow-runners.md#browser-test-job-headroom-on-slow-runners)
-  owns deadline headroom on slow runners.
+  many jobs a group has; SEED-382, now completed, owned deadline headroom on
+  slow runners.
 - Shards are declared by spec patterns only. The `chromium-deployments` and
   `chromium` Playwright projects keep queueing the serial production chains
   first inside whichever shard their files belong to.

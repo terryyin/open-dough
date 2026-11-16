@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Rio-chan",
-  "email": "rio-chan@example.org",
-  "identity": "SEED-382#browser-test-job-headroom-on-slow-runners",
-  "mode": "story-branch",
-  "branch": "claude/keep-browser-test-jobs-inside-their-deadline-on",
-  "host": "claude"
-}
