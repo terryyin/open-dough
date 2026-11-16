@@ -28,7 +28,9 @@ Claude Code and Codex executions in the 30 days to 2026-11-15.
   keeping time themselves.
 - **Evaluation.** From dispatch to return, and across handbacks and resumes,
   the coordinator and the implementer read the slice's remaining active time
-  from one record. Time inside commands run through it, the refactor pass, CI
+  from one record under a stable slice identity. Replacing an implementer,
+  refining unfinished work or resuming its handback does not reset elapsed
+  active time. Time inside commands run through it, the refactor pass, CI
   repair and waits for the coordinator or a human do not count. Every brief and
   resume carries the same value, and an overrun is detected at the limit
   without the agent running `date`. A command run through it also writes the
@@ -64,8 +66,10 @@ Claude Code and Codex executions in the 30 days to 2026-11-15.
   experiment and result, the leading hypothesis, and the next discriminating
   experiment. Another round starts from that record in a fresh context only
   when the last one confirmed or refuted a hypothesis; after three rounds it
-  stops for a human. A confirmed cause makes the fix an ordinary slice, and each
-  CI run tests a stated hypothesis.
+  stops for a human. The same diagnosis retains its round count, cumulative
+  active effort, hypotheses and results across agents, handbacks, refinements
+  and resumes; a fresh context does not renew its allowance. A confirmed cause
+  makes the fix an ordinary slice, and each CI run tests a stated hypothesis.
 - **Priority.** Directly after the clock, which it uses, and ahead of
   split-story continuation, because unbounded repair recurred in every usage
   rise.
@@ -78,14 +82,20 @@ Claude Code and Codex executions in the 30 days to 2026-11-15.
   2026-10-25 to 2026-11-15, at 7.0–9.8M input-token equivalents each, and repair
   agents carried 22.8M of SEED-334's 80.7M
   ([unbounded diagnosis](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#runaway-diagnosis)).
+  Codex also encountered repeated repair and qualification during
+  SEED-286#fast-intent-ci-comparison-tests (7,097 attributed requests) and
+  Pygardon SEED-145#story-unattended-entry-operation (27 delivered slices).
+  Those are whole-execution figures, not diagnosis-only cost; refinement must
+  distinguish the repair rounds from implementation and useful qualification.
 - **Effort and boundary.** Medium, low confidence. Refinement first reads about
   ten full diagnosis transcripts to check the round size, the three-round cap
-  and the record fields. Failures under machine load belong to
-  [waiting for a quiet machine](#wait-for-a-quiet-machine-before-load-sensitive-proof).
+  and the record fields. First classify machine conditions under
+  [required proof conditions](#wait-for-a-quiet-machine-before-load-sensitive-proof);
+  failures within the required conditions remain defects owned by this path.
 
 <a id="wait-for-a-quiet-machine-before-load-sensitive-proof"></a>
 
-### Wait for a quiet machine before load-sensitive proof
+### Wait for required conditions before load-sensitive proof
 
 **Identity:** SEED-367#wait-for-a-quiet-machine-before-load-sensitive-proof
 ```json dough-story-state
@@ -93,20 +103,29 @@ Claude Code and Codex executions in the 30 days to 2026-11-15.
 ```
 
 - **Scope and beneficiary.** Shared execution. A developer whose story needs
-  proof that only holds on a quiet machine, such as full browser suites,
-  product-wide end-to-end runs or native comparisons, is asked to engage when
-  the machine is busy. Agents no longer keep running, diagnosing and repairing
-  failures that the load caused.
-- **Evaluation.** Proposal to validate during refinement: when load-sensitive
-  proof is due and the machine is measurably loaded, the execution records
-  that proof as pending, stops and asks the developer, instead of rerunning,
-  sleeping or starting repair agents. A failure that reproduces on a quiet
-  machine stays a defect under the
+  load-sensitive proof gets the conditions that proof actually requires,
+  rather than an assumed quiet-machine prerequisite. Agents stop repeated
+  attempts while required power, load or other recorded conditions are
+  unavailable, preserving the proof obligation and its resume condition.
+- **Evaluation.** Proposal to validate during refinement: distinguish three
+  cases before choosing another run. Missing required conditions leave proof
+  pending, with the missing condition and the next eligible action named.
+  A failure outside the proof's supported conditions retains its evidence and
+  needs a bounded conditions judgment. A failure within required conditions
+  stays a defect under the
   [failure policy](../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+  In particular, SEED-340 requires stability at load 30–50: passing on a quiet
+  machine cannot replace that proof or excuse an in-range timeout. Codex
+  SEED-287 also required AC power and a specified load window, not quietness
+  alone. Changing required conditions remains a human-owned proof decision.
+  While conditions are unavailable, do not rerun, poll or dispatch repair
+  agents merely to wait; retain independent work and engage the developer only
+  when their decision or action is needed.
   Compare test runs, repair-agent cost and interventions on matched stories.
 - **Priority.** After the SEED-345 efficiency stories, because the mechanism
   is still unclear. SEED-334's product-wide end-to-end execution made 410 test
   runs, and repair agents carried 22.8M of its 80.7M.
-- **Effort and boundary.** Medium, low confidence. Refinement first decides
-  which proof is load-sensitive and how load is measured.
+- **Effort and boundary.** Medium, low confidence. Refinement first identifies
+  each proof's required and supported conditions and how they are measured;
+  it does not introduce a universal quiet-machine gate.
   [Waiting and test-heavy stories](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#waiting)

@@ -33,6 +33,13 @@ first under ordinary machine load is a flaky test, not a speed preference.
 
 **Identity:** SEED-340#keep-one-time-test-preparation-out-of-case-budgets
 
+**Priority.** Alongside SEED-375's suite-owner correction and before further
+broad test migrations or builder conversions. The usage-spike review found
+repeated setup, load-sensitive timeouts and repair interruptions amplifying
+agent work. This story has a concrete first-case mechanism and named
+consumers; it retains the load 30–50 proof rather than replacing it with a
+quiet-machine pass.
+
 #### Goal
 
 Maintainers get the same verdict from a dashboard browser case whether it runs

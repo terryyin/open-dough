@@ -29,7 +29,7 @@ host whose evidence leads; a host adaptation stays inside the shared story
 unless only one host shows the mechanism. Keep the existing proof and approval
 boundaries in each story. Stories that change how much context an agent
 carries are measured trials: a change that loses judgment or proof is no gain.
-Model and effort choice and their measurement live in
+Explicit launch effort and comparable-run measurement live in
 [SEED-388](SEED-388-measure-and-control-agent-launch-cost.md).
 
 Effort bands are relative. Small means one scoped host workflow. Medium means
@@ -40,7 +40,6 @@ commitment.
 
 Each trial is judged with the
 [comparable-run measure](SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs).
-
 
 <a id="start-implementers-from-a-role-sized-tool-set"></a>
 
@@ -91,10 +90,13 @@ Each trial is judged with the
   continuing from recorded execution state at a slice boundary. Outcomes,
   proof, judgment and interventions match the baseline; peak context and
   total effort fall. A loss of needed judgment rejects the variant.
-- **Priority.** Second, after the role-sized tool set, because the 8-slice cap
-  and `medium` effort removed most of the cost below. It was the largest cost driver on both hosts that
-  report tokens: 7,586 Codex requests at or above 250k input, and 54% of
-  Claude Code coordinator cost in such requests. In the 2026-11-15
+- **Priority.** Second, after the role-sized tool set. Smaller stories remain
+  the preferred policy; use a current baseline under that policy on each host.
+  The 8-slice cap and `medium` effort reduced Claude Code's observed exposure;
+  that does not establish the remaining Codex exposure. It was the largest
+  cost driver on both hosts that report tokens: 7,586 Codex requests at or
+  above 250k input, and 54% of Claude Code coordinator cost in such requests.
+  In the 2026-11-15
   re-measurement, 20 Claude Code workers above 150 requests carried 35% of
   worker cost. Slice boundaries chosen at planning time are the lower-risk
   variant to try first. That re-measurement ran at effort `high`. At `medium`,
@@ -102,11 +104,18 @@ Each trial is judged with the
   2026-11-16. Coordinator peaks of 550–890k came from 9–12-slice plans and
   from `max` effort. Since the 8-slice cap, the median coordinator peak is
   293k ([spike analysis](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#state-on-2026-11-16)).
-  Re-baseline at `medium` before sizing this trial.
+  Re-baseline Claude Code at `medium` before sizing this trial. A recent Codex
+  SEED-334#move-intent-reading-and-review-checks launch still used 1,548
+  attributed requests and reached about 453k coordinator input tokens; later
+  human-turn attribution may add work. Preserve each host's observed settings
+  rather than treating Claude Code's effort change as a Codex result.
 - **Effort and boundary.** Medium, low confidence. Builds on oversized-slice
   handling ([ODF-206](../../docs/maintainer/findings/ODF-206.md),
   [ODF-260](../../docs/maintainer/findings/ODF-260.md)). Host mechanisms such
   as compaction settings are trial variants, not defaults.
+  Compact Codex worker handoffs are another variant within this story, judged
+  on coordinator plus worker effort, uncached input and cached input as well
+  as quality. A fresh worker that processes fewer tokens can still cost more.
   [Context growth](../../docs/maintainer/session-token-efficiency-research.md#5-bound-how-long-one-context-keeps-growing)
 
 <a id="reach-a-proof-decision-from-retained-evidence"></a>
@@ -157,13 +166,16 @@ Each trial is judged with the
   completion notification costs least. Keep the overdue, cancellation and
   CI completion behavior. Compare idle-wake requests, rebuilds and total
   effort on matched runs, with the same proof decisions.
-- **Priority.** Fourth, after the proof decision, because the 2026-11-15
-  waiting rules took most of its saving. Codex recorded 2,303 requests (446.5M tokens, 7.6%)
-  after empty subprocess output or agent-wait timeouts. Claude Code paid
-  about $96 of list-price worker rebuilds after five-to-sixty-minute waits.
-  The 2026-11-15 rules on waiting without polling and on the silent supplier
-  wait cut shell `sleep` calls from 18.4 per execution (Nov 13–15) to 3.4.
-  Measure what remains against that new baseline
+- **Priority.** Fourth, after the proof decision; measure residual exposure
+  under each host's currently installed guidance. Codex recorded 2,303 requests
+  (446.5M tokens, 7.6%) after empty subprocess output or agent-wait timeouts.
+  Claude Code paid about $96 of list-price worker rebuilds after five-to-sixty-minute waits.
+  In Claude Code's later cohort, shell `sleep` calls fell from 18.4 per
+  execution (Nov 13–15) to 3.4 after the waiting changes; the tasks also changed.
+  This is neither a measured Codex saving nor proof that most removable wait
+  cost is gone. Codex's rebaseline counts empty subprocess returns and
+  agent-wait timeouts, not only shell sleeps, and records the installed
+  guidance version. Measure what remains against those host-specific baselines
   ([waiting](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#waiting)).
 - **Effort and boundary.** Medium, medium confidence. Distinct from a paused
   supplier, which the first story owns. Keep the five-minute Claude Code
@@ -223,11 +235,10 @@ Each trial is judged with the
   role-specific reads keep their purpose.
   [Cursor handoff evidence](../../docs/maintainer/session-token-efficiency-research.md#c1-avoid-paying-twice-for-large-task-prompts-and-skill-re-reads)
 
-
 ## Ordering and scope reduction
 
-Each story has its own observable result and can stand alone. If capacity is
-limited, defer the Cursor handoff first, then phase-scoped guidance loading. Use
+Each story stands alone. If capacity is limited, defer the Cursor handoff first,
+then phase-scoped guidance loading. Use
 the delivered [records-only and already-traced rule](../../Distribution/src/skills/dough-execute-plan/references/deliver-the-change.md)
 for eligible reviews; the audit supplies no evidence for a broader review
 exemption. The Pygardon ticket monitor's heartbeat context is a project
@@ -235,6 +246,5 @@ automation outside this seed.
 
 ## Open decisions
 
-Later refinement can choose the ordinary execution and baseline for each
-trial, starting from the highest-evidence host and expanding proof where
-another host exposes a different constraint.
+Refinement chooses each trial's execution and baseline, starting from the
+highest-evidence host and expanding proof for another host's distinct constraint.
