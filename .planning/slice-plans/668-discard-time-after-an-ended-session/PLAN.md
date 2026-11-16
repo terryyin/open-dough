@@ -14,6 +14,10 @@
   accepted Take/candidate `ad2e6f733dc41b7177bd39ab20fb7b0846f41146` on
   `origin/main`; increments target the remote execution branch. Claim CI is
   unobserved. No second claim or workspace creation.
+- Slice 1 accepted `66ce0a60d6b5ae2f172667c174b0c1154ef6ba97` on
+  `origin/codex/discard-a-slice-s-clock-time-after-its-session-e`, suffix base
+  `ad2e6f733dc41b7177bd39ab20fb7b0846f41146`; same candidate, no rewrite;
+  observer attachment reused. This is the next previously published base.
 - Setup: Node v24.21.0; checkout-local `setup-native.mjs npm`, `browser`,
   and `check` passed, Chromium 158.0.8127.18; existing clock proof passed.
   Selective formatter is `npm run format`; check-only pre-commit runs staged
@@ -101,7 +105,7 @@ Update the usage text in `slice-clock.mjs` and the record description.
 
 ### 2. Start in a new session with the ended-session option
 Type: Behavior
-Status: planned
+Status: done
 Proof: behavior review of the changed guidance; `slice-clock*.test.mjs` unchanged.
 
 Behavior: a coordinator resuming execution in a new session → its first `start`
@@ -181,3 +185,23 @@ for the record updates, wholly within the accepted refactor's traced paths.
 `node --test Distribution/tests/skills/dough-execute-plan/slice-clock*.test.mjs`
 passed 29/29 after that repair. Refactor disposition: already traced; no new
 representation, helper, dependency or path. Freshness rechecked unchanged.
+
+### Slice 2 acceptance
+
+Freshness unchanged at `f797a84026576c1dc4d1ccb1a080189cf090e7ea`.
+Source commitments 14–16 match the inspected resume paragraph and Track active
+time: first new-session `start --after-ended-session` for same/different slice;
+last-command settlement, ordinary start with nothing running, and uncounted
+later active time; existing stop/coordinator/human/CI `pause` bullet unchanged.
+Behavior review walked same slice (9 elapsed/6 remaining), different slice
+(prior paused at 9, next zero), and paused resume. No gap or new host discovery
+requirement. Source skill is 250 lines, reference 129.
+
+`node Distribution/src/skills/dough-execute-plan/scripts/slice-clock.mjs run --log /tmp/seed367-slice2-clock-suite.log --exit-file /tmp/seed367-slice2-clock-suite.exit -- node --test Distribution/tests/skills/dough-execute-plan/slice-clock*.test.mjs`
+passed 29/29, no skips. Existing real CLI/time-file/Git fixture and direct
+same/different/paused/dead-run assertions remain unchanged. Annotated trace at
+`/tmp/seed367-slice2-consumer-trace-annotated.md` disposes execution, delegation,
+CI resume, proof-wait and sizing readers via behavior walkthrough, clock
+consumers via suite; installed copies, unchanged payload names and historical
+or unrelated basename matches are excluded. Slice paused at 3.5 active minutes,
+no overrun. No test or generated-artifact edit.
