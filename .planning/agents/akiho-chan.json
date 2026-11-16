@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Akiho-chan",
+  "email": "akiho-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-345#compare-agent-effort-on-comparable-runs",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
