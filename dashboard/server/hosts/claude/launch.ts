@@ -5,7 +5,8 @@ import { reportingInstruction } from "../../reportingInstruction.ts";
 // confirming the session it started through Claude Code's own session
 // listing, and failure in fixed categories. Raw stderr may name local paths or
 // echo configuration and is never forwarded, as with the `gh` boundary
-// (`./ghRead.ts`). Only a model and effort the developer chose are passed; no
+// (`./ghRead.ts`). Only a model the developer chose and the recorded effort
+// (the chosen one, or Open Dough's default given at acceptance) are passed; no
 // permission or session id is: the developer's own Claude Code settings apply
 // otherwise, and `--bg` chooses its own session id, which it prints.
 

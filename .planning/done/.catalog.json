@@ -2,6 +2,24 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-388_count-claude-code-work-after-a-developer-reply.json",
+      "identity": "SEED-388#count-claude-code-work-after-a-developer-reply",
+      "completedAt": "2026-11-16T10:10:17.465Z",
+      "blob": "4ca453f0b47a090e3c781dcd277e751ba6d96a22"
+    },
+    {
+      "fileName": "SEED-367_count-slice-active-time-deterministically.json",
+      "identity": "SEED-367#count-slice-active-time-deterministically",
+      "completedAt": "2026-11-16T09:43:59.040Z",
+      "blob": "86b60c3c239034e4cba241453019c58e94979afd"
+    },
+    {
+      "fileName": "SEED-388_show-the-effort-a-launch-runs-with.json",
+      "identity": "SEED-388#show-the-effort-a-launch-runs-with",
+      "completedAt": "2026-11-16T09:25:33.567Z",
+      "blob": "e23fd33a083f048e2e3278390fbd5860df3b6a87"
+    },
+    {
       "fileName": "SEED-381_fixed-shards-for-browser-tests-and-on-demand-rebalancing.json",
       "identity": "SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing",
       "completedAt": "2026-11-16T06:32:22.968Z",

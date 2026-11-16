@@ -12,37 +12,62 @@ scope: three stories
 Evidence: [long-running slice categories](../long-slice-categories.md) from
 Claude Code and Codex executions in the 30 days to 2026-11-15.
 
-<a id="count-slice-active-time-deterministically"></a>
+<a id="discard-time-after-an-ended-session"></a>
 
-### Count a slice's active time without the agent's own clock
+### Discard a slice's clock time after its session ended
 
-**Identity:** SEED-367#count-slice-active-time-deterministically
+**Identity:** SEED-367#discard-time-after-an-ended-session
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/668-discard-time-after-an-ended-session/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3ef8a5d9d97671362e115ae5a9ce2965744133022df038e3eba8557cd3b96f28","plan":"c3911e09ebca5455d5071705e852b46540278878df3b83532e8926ad20e720ca"}}
 ```
 
-- **Scope and beneficiary.** A developer gets the
-  [15-active-minute slice limit](../../Distribution/src/skills/dough-story-decomposition/references/problem-decomposition.md#size-and-escalate-slices)
-  applied the same way on Claude Code, Codex and Cursor, without implementers
-  keeping time themselves.
-- **Evaluation.** From dispatch to return, and across handbacks and resumes,
-  the coordinator and the implementer read the slice's remaining active time
-  from one record under a stable slice identity. Replacing an implementer,
-  refining unfinished work or resuming its handback does not reset elapsed
-  active time. Time inside commands run through it, the refactor pass, CI
-  repair and waits for the coordinator or a human do not count. Every brief and
-  resume carries the same value, and an overrun is detected at the limit
-  without the agent running `date`. A command run through it also writes the
-  exit file that [waiting for proof](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md)
-  uses.
-- **Priority.** First of the slice-limit stories: the limit depends on it.
-  Under Pygardon's 10-minute stop rule, 35 of 382 Claude Code implementers
-  spent more than 10 model minutes; 11 reported the budget and 13 checked the
-  clock more than once. In Doughnut, 5 went over and none reported it.
-- **Effort and boundary.** Medium. A new execute-plan script with tests and a
-  payload declaration; host hooks are a variant on Claude Code and Cursor,
-  while Codex has none. It does not change the limit itself.
+**Goal.** A developer whose execution session ended in the middle of a slice
+gets that slice's active time back without the idle gap until the next
+session. The coordinator resuming execution settles the ended session's running
+slice at its last clock command, so the
+[slice limit](../../Distribution/src/skills/dough-execute-plan/references/oversized-slice.md#track-active-time)
+reports no overrun that did not happen, and a new coordinator can start a
+different slice without a `pause` it could not have run in time.
+
+**Scope.**
+
+- The slice clock records the time of every clock command in the checkout:
+  `start`, `pause`, `status`, and the start and end of each `run`.
+- A coordinator starting in a new session names that with a `start` option.
+  When a slice is still running in the checkout, the clock then settles it:
+  its open period ends at the last clock command, and a `run` the ended
+  session left open ends there too. The named slice then starts or resumes
+  from now. When nothing is running, the option changes nothing.
+- The resume guidance in
+  [continue or recover at an execution boundary](../../Distribution/src/skills/dough-execute-plan/SKILL.md#continue-or-recover-at-an-execution-boundary)
+  and [track active time](../../Distribution/src/skills/dough-execute-plan/references/oversized-slice.md#track-active-time)
+  tells a coordinator in a new session to start with the option. Pausing when
+  execution stops for the coordinator or a human keeps its current behavior.
+- A slice settled at the limit is reported as an overrun as before; its
+  report now counts only the settled time.
+
+Out of scope: detecting an ended session by itself; counting active time after
+the last clock command (an ended session loses that work, so the settled time
+can undercount); the host hook recording tool calls; changing the limit or
+what counts as active time.
+
+**Key examples.**
+
+- Slice 3 has 9 active minutes at the session's last `status` at 10:00. The
+  session ends with slice 3 running. At 14:00 a new coordinator starts slice 3
+  as a new session: the report gives 9 elapsed and 6 remaining, with no
+  overrun.
+- In the same situation the new coordinator starts slice 4 as a new session,
+  with no `pause`: slice 3 is paused at 9 minutes and slice 4 starts at zero.
+  Without the option the same `start` is still refused while slice 3 runs.
+- Slice 3 has 6 active minutes at 10:00, and an implementer's `run` of a
+  focused suite starts at 10:02. The session ends before the `run` returns. A
+  new coordinator starts slice 3 as a new session at 14:00, and at 14:03
+  `status` reports 11 elapsed and 4 remaining: the period and the `run` end at
+  10:02, so the resumed time counts instead of hiding inside the dead `run`.
+- The previous session paused slice 3 before it ended. A new coordinator
+  starts slice 3 as a new session: it resumes exactly as a plain `start` does.
 
 <a id="bound-diagnosis-in-evidence-rounds"></a>
 

@@ -42,6 +42,8 @@ const launched = (home: string, workflow: string, command: string) => [
       "--bg",
       "--name",
       `Open Dough · ${workflow} · ${notRefinedStory}`,
+      "--effort",
+      "medium",
       command,
     ],
     cwd: realpathSync(path.join(home, "git", "open-dough")),

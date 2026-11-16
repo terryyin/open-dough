@@ -108,7 +108,7 @@ test("selecting Explore and Borrow shows them in the command line and starts the
 
   await expect(refinementDialog).toBeHidden();
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(dashboard.claudeLaunchCalls()[0]?.argv[3]).toBe(
+  expect(dashboard.claudeLaunchCalls()[0]?.argv.at(-1)).toBe(
     `${sent} --explore --borrow`,
   );
 });
@@ -139,5 +139,5 @@ test("a dialog with nothing selected starts as before, and opens again with noth
 
   await expect(refinementDialog).toBeHidden();
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(dashboard.claudeLaunchCalls()[0]?.argv[3]).toBe(sent);
+  expect(dashboard.claudeLaunchCalls()[0]?.argv.at(-1)).toBe(sent);
 });

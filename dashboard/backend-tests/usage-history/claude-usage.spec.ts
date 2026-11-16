@@ -103,7 +103,7 @@ test("imports retained Claude root and explicitly joined worker messages once ac
       .withUser({
         uuid: "later-task",
         origin: { kind: "human" },
-        content: "another task",
+        content: "/dough-land\nprivate landing note",
       })
       .withAssistant({
         uuid: "later-response",
@@ -150,7 +150,9 @@ test("imports retained Claude root and explicitly joined worker messages once ac
   ]);
   runImport(home, root, ["--claude-root", claudeRoot]);
   const history = readImported(home);
-  const task = Object.values(history.tasks)[0];
+  const task = Object.values(history.tasks).find(
+    (item) => item.kind === "launch",
+  );
   assert(task);
   expect(task.requested).toEqual(
     expect.objectContaining({ model: "requested-model", effort: "high" }),
@@ -204,16 +206,15 @@ test("imports retained Claude root and explicitly joined worker messages once ac
     ),
   ).toBe(true);
   expect(next.settings).toEqual({ model: "changed-model", effort: "low" });
-  expect(history.associations[later.id]?.taskId).toBeNull();
-  expect(history.associations[later.id]?.gaps).toContain(
-    "unresolved-task-association",
-  );
-  expect(later.gaps).toContain("unresolved-native-task-lineage");
+  // The later task's response is its own, not the launch's.
+  const laterTask = history.associations[later.id]?.taskId;
+  expect(laterTask).not.toBe(task.id);
+  expect(history.tasks[laterTask ?? ""]?.workflow).toBe("dough-land");
   expect(history.gaps.map((gap) => gap.code)).toContain(
     "auxiliary-usage-not-covered",
   );
   expect(JSON.stringify(history)).not.toMatch(
-    /private launch|private worker|private notification|another task/,
+    /private launch|private worker|private notification|private landing/,
   );
   runImport(home, root, ["--claude-root", claudeRoot]);
   expect(readImported(home)).toEqual(history);

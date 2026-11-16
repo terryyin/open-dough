@@ -41,6 +41,7 @@ test("a refused session launch after a published claim answers the Agent and wor
       workflow: "execution",
       source: "open-dough",
       identity: queuedIdentity,
+      effort: "medium",
       workspace: workspaceShown,
       branch: "claude/story-a",
       agent,

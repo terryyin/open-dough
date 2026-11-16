@@ -106,6 +106,27 @@ export class CodexRolloutBuilder {
   }
 
   /**
+   * A developer input in the current turn, written as Codex writes it: a user
+   * `response_item` and its `user_message` event.
+   * @param {string} text
+   */
+  withDeveloperInput(text) {
+    this.#rows.push(
+      {
+        type: "response_item",
+        timestamp: testDataTimestamp,
+        payload: { type: "message", role: "user", content: [{ text }] },
+      },
+      {
+        type: "event_msg",
+        timestamp: testDataTimestamp,
+        payload: { type: "user_message", message: text },
+      },
+    );
+    return this;
+  }
+
+  /**
    * One response usage record. Timestamp defaults to the in-window incidental
    * time; `root_turn_id` defaults to the turn id.
    * @param {string} turnId

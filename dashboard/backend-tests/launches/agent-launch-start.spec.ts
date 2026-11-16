@@ -86,10 +86,11 @@ for (const model of ["opus", undefined] as const) {
         "--name",
         `Open Dough · Execution · ${queuedTitle}`,
       ]);
-      expect(call?.argv.includes("--model")).toBe(model !== undefined);
-      expect(call?.argv.at(model === undefined ? 3 : 4)).toBe(
-        model === undefined ? instruction : model,
-      );
+      expect(call?.argv.slice(3, -1)).toEqual([
+        ...(model === undefined ? [] : ["--model", model]),
+        "--effort",
+        "medium",
+      ]);
       expect(instruction.split("\n\n")[0]).toBe(
         `/dough-execute-plan ${queuedIdentity}`,
       );

@@ -117,7 +117,7 @@ for (const blank of ["", "   "]) {
 
     await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
     const [call] = dashboard.claudeLaunchCalls();
-    expect(call?.argv).toHaveLength(3);
+    expect(call?.argv).toHaveLength(5);
     const record = await expectNoSessionEstablishment(dashboard);
     for (const absent of ["instruction", "reporting"])
       expect(record?.request).not.toHaveProperty(absent);

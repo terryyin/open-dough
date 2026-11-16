@@ -1,6 +1,7 @@
 // Pre-admission answers for a launch request: matching live work, recoverable
 // ad hoc continuation, follow-up context resolution, and writer/pre-acceptance
-// checks. Deferred starts and refused context reads abandon attachment claims.
+// checks. A new attempt that chose no effort takes its host's default effort.
+// Deferred starts and refused context reads abandon attachment claims.
 
 import {
   laterAttempt,
@@ -9,6 +10,7 @@ import {
   type AgentLaunchRequest,
   type AttemptObservation,
 } from "../src/agentLaunch.ts";
+import { hostDescription } from "../src/hostDescription.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { withFollowUpContext } from "./followUpAdmission.ts";
@@ -56,11 +58,11 @@ export async function acceptLaunchRequest(
       );
     }
   }
-  // A matching attempt already keeps its context. Resolve only the request
-  // that would otherwise be accepted as a new attempt.
+  // A matching attempt already keeps its context and effort. Resolve only the
+  // request that would otherwise be accepted as a new attempt.
   let resolved: AgentLaunchRequest;
   try {
-    resolved = await withFollowUpContext(identified, source);
+    resolved = await withFollowUpContext(withDefaultEffort(identified), source);
   } catch (error) {
     abandonAttachmentClaims(claims);
     throw error;
@@ -72,4 +74,12 @@ export async function acceptLaunchRequest(
   if (answer !== undefined)
     return answerWithoutAttachmentClaims(claims, () => answer);
   return owner.accept(resolved, run, reportingOrigin);
+}
+
+// A new attempt that chose no effort runs at its host's default, if any.
+function withDefaultEffort(request: AgentLaunchRequest): AgentLaunchRequest {
+  const effort = hostDescription(request.host).defaultEffort;
+  return request.effort !== undefined || effort === undefined
+    ? request
+    : { ...request, effort };
 }

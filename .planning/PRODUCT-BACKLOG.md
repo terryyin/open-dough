@@ -29,13 +29,13 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Review changes from completed ad hoc sessions](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions) — SEED-379#review-changes-from-completed-ad-hoc-sessions ([plan](slice-plans/659-review-changes-from-completed-ad-hoc-sessions/PLAN.md))
-- [Count a dashboard launch's work after a developer reply](seeds/SEED-388-measure-and-control-agent-launch-cost.md#count-claude-code-work-after-a-developer-reply) — SEED-388#count-claude-code-work-after-a-developer-reply ([plan](slice-plans/665-count-launch-work-after-a-developer-reply/PLAN.md))
-- [Show and keep the effort a Claude Code launch runs with](seeds/SEED-388-measure-and-control-agent-launch-cost.md#show-the-effort-a-launch-runs-with) — SEED-388#show-the-effort-a-launch-runs-with ([plan](slice-plans/664-show-the-effort-a-launch-runs-with/PLAN.md))
 - [Compare agent effort on comparable runs](seeds/SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs) — SEED-345#compare-agent-effort-on-comparable-runs ([plan](slice-plans/666-compare-agent-effort-on-comparable-runs/PLAN.md))
+- [Discard a slice's clock time after its session ended](seeds/SEED-367-bounded-slice-active-time.md#discard-time-after-an-ended-session) — SEED-367#discard-time-after-an-ended-session ([plan](slice-plans/668-discard-time-after-an-ended-session/PLAN.md))
 
 ## Backlog list
 
-- [Count a slice's active time without the agent's own clock](seeds/SEED-367-bounded-slice-active-time.md#count-slice-active-time-deterministically) — SEED-367#count-slice-active-time-deterministically
+- [Count a Claude Code background agent started by a subagent](seeds/SEED-388-measure-and-control-agent-launch-cost.md#count-nested-claude-background-agent-work) — SEED-388#count-nested-claude-background-agent-work
+- [Read Claude Code rows that contain Unicode line separators](seeds/SEED-388-measure-and-control-agent-launch-cost.md#read-claude-rows-with-unicode-line-separators) — SEED-388#read-claude-rows-with-unicode-line-separators
 - [Bound flaky-test and CI-failure diagnosis in evidence rounds](seeds/SEED-367-bounded-slice-active-time.md#bound-diagnosis-in-evidence-rounds) — SEED-367#bound-diagnosis-in-evidence-rounds
 - [Keep container diagnostics from replacing a live host test-suite owner](seeds/SEED-375-keep-container-diagnostics-from-replacing-host-suite-admission.md#keep-container-diagnostics-from-replacing-host-suite-admission) — SEED-375#keep-container-diagnostics-from-replacing-host-suite-admission
 - [Keep one-time browser test preparation out of case budgets](seeds/SEED-340-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-340#keep-one-time-test-preparation-out-of-case-budgets
@@ -96,3 +96,4 @@ intent introduced or affected by a newly developed story.
 - [Publish Intent projects through MakeMe](seeds/SEED-301-limit-first-layer-test-cases-to-ten-lines.md#publish-intent-projects-through-makeme) — SEED-301#publish-intent-projects-through-makeme
 - [Prove the type-check reports after a lint failure](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#type-check-reports-after-a-lint-failure) — SEED-382#type-check-reports-after-a-lint-failure
 - [Reorder backlog stories in the dashboard](seeds/SEED-386-reorder-backlog-stories-in-the-dashboard.md#reorder-backlog-stories-in-the-dashboard) — SEED-386#reorder-backlog-stories-in-the-dashboard
+- [Name the effort a Claude Code session actually ran with](seeds/SEED-388-measure-and-control-agent-launch-cost.md#name-the-effort-a-session-ran-with) — SEED-388#name-the-effort-a-session-ran-with

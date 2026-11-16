@@ -148,6 +148,8 @@ export async function typedStart(dashboard: DashboardServer, dialog: Locator) {
           "--bg",
           "--name",
           "Open Dough · Ad hoc · Keep this work local Review before imple…",
+          "--effort",
+          "medium",
           text,
         ],
         cwd: realpathSync(path.join(dashboard.home, "git", "open-dough")),

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kirara-chan",
+  "email": "kirara-chan@example.org",
+  "identity": "SEED-367#discard-time-after-an-ended-session",
+  "mode": "story-branch",
+  "branch": "codex/discard-a-slice-s-clock-time-after-its-session-e",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

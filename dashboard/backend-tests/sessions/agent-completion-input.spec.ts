@@ -67,7 +67,7 @@ test("Claude native blank launch gains no reporting instruction despite an insta
       ).kind,
     ).toBe("launched");
     const call = server.claudeLaunchCalls()[0];
-    expect(call?.argv).toHaveLength(3);
+    expect(call?.argv).toHaveLength(5);
     expect(call?.argv.slice(0, 2)).toEqual(["--bg", "--name"]);
     const [record] = (await recordsOf(server, "open-dough")) as LaunchRecord[];
     expect(record?.request.reporting).toBeUndefined();

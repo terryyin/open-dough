@@ -180,6 +180,10 @@ managed_files+=(
   dough-execute-plan/scripts/publication-git.mjs
   dough-execute-plan/scripts/watch-ci-execution.mjs
   dough-execute-plan/scripts/watch-ci.mjs
+  dough-execute-plan/scripts/slice-clock.mjs
+  dough-execute-plan/scripts/slice-clock-hook.mjs
+  dough-execute-plan/scripts/slice-clock-record.mjs
+  dough-execute-plan/scripts/slice-clock-slices.mjs
   dough-execute-plan/scripts/wait-for-publication.mjs
   dough-execute-plan/scripts/workspace-agent-authorship.mjs
   dough-execute-plan/scripts/workspace-publication-claim.mjs

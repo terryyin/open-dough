@@ -68,7 +68,7 @@ async function startedSession(dashboard: DashboardServer, project: string) {
   await expect.poll(() => recordsOf(dashboard, "open-dough")).toHaveLength(1);
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   if (record === undefined) throw new Error("Missing launch record.");
-  return { sent: call?.argv.slice(3) ?? [], record };
+  return { sent: call?.argv.slice(5) ?? [], record };
 }
 
 test("Automatically land with no text names the push beside Start, runs the installed start in the project folder, and hands the session its landing intent", async ({

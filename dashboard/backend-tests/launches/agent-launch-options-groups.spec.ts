@@ -94,7 +94,7 @@ test.describe(`agent launch boundary, exclusive option groups`, () => {
     expect(response.status, response.body).toBe(200);
     const calls = server.claudeLaunchCalls();
     expect(calls).toHaveLength(callsBefore + 1);
-    return calls[callsBefore]?.argv[3];
+    return calls[callsBefore]?.argv.at(-1);
   };
 
   // The refusal's text, with no `claude` run and no record for it.

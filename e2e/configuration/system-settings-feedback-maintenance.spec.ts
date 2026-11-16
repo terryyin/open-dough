@@ -1,11 +1,13 @@
 // System settings → Feedback maintenance: off by default, turned on with a
 // launch-dialog host and model, saved privately on this machine and shown
-// after a reload, turned off by removing its file, and a malformed file
-// reported without being rewritten by a read. Nothing else is written.
+// after a reload with the effort its sessions run at, turned off by removing
+// its file, and a malformed file reported without being rewritten by a read.
+// Nothing else is written.
 import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import { untilPublishedWorkRead } from "../../dashboard/tests/pageRequestNotes.ts";
+import { authorizeFeedbackMaintenance } from "../../dashboard/tests/support/feedbackMaintenanceDue.ts";
 import {
   expectPreservedMachineRecordContents,
   machineRecordNames,
@@ -55,7 +57,7 @@ test("feedback maintenance is off by default, saves a private host and model cho
   await model(page).selectOption({ label: "Opus" });
   await button(page, "Turn on").click();
   await expect(status(page)).toHaveText(
-    "Feedback maintenance: On, Claude Code, Opus",
+    "Feedback maintenance: On, Claude Code, Opus, medium effort",
   );
   expect(readFileSync(file, "utf8")).toBe('{"host":"claude","model":"opus"}\n');
   expect(statSync(file).mode & 0o777).toBe(0o600);
@@ -69,7 +71,7 @@ test("feedback maintenance is off by default, saves a private host and model cho
 
   await page.reload();
   await expect(status(page)).toHaveText(
-    "Feedback maintenance: On, Claude Code, Opus",
+    "Feedback maintenance: On, Claude Code, Opus, medium effort",
   );
   await expect(model(page).locator("option:checked")).toHaveText("Opus");
   await model(page).selectOption({
@@ -77,7 +79,7 @@ test("feedback maintenance is off by default, saves a private host and model cho
   });
   await button(page, "Save feedback maintenance").click();
   await expect(status(page)).toHaveText(
-    "Feedback maintenance: On, Claude Code, default model (your Claude Code setting)",
+    "Feedback maintenance: On, Claude Code, default model (your Claude Code setting), medium effort",
   );
   expect(readFileSync(file, "utf8")).toBe('{"host":"claude"}\n');
 
@@ -113,9 +115,18 @@ test("a malformed feedback maintenance file is reported and left untouched by re
   }
   await button(page, "Turn on").click();
   await expect(status(page)).toHaveText(
-    "Feedback maintenance: On, Claude Code, default model (your Claude Code setting)",
+    "Feedback maintenance: On, Claude Code, default model (your Claude Code setting), medium effort",
   );
   await expect(section(page).getByRole("alert")).toHaveCount(0);
   expect(readFileSync(file, "utf8")).toBe('{"host":"claude"}\n');
   expect(server.claudeCalls()).toEqual([]);
+});
+
+test("a Codex choice without effort names no effort", async ({ page }) => {
+  authorizeFeedbackMaintenance(fixture.home, { host: "codex" });
+  const server = await fixture.start("preview");
+  await page.goto(`${server.baseURL}/?view=settings`);
+  await expect(status(page)).toHaveText(
+    "Feedback maintenance: On, Codex, default model (your Codex setting)",
+  );
 });

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-367#count-slice-active-time-deterministically",
+  "title": "Count a slice's active time without the agent's own clock",
+  "completedAt": "2026-11-16T09:43:59.040Z",
+  "developer": "Terry Yin",
+  "agent": "Yua-chan",
+  "host": "claude",
+  "model": "fable"
+}

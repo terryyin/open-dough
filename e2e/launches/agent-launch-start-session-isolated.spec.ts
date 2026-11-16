@@ -148,7 +148,7 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   const [call, ...others] = dashboard.claudeLaunchCalls();
   expect(others).toEqual([]);
   expect(call?.cwd).toBe(realpathSync(worktree(origin.project, slug)));
-  const sent = call?.argv.slice(3) ?? [];
+  const sent = call?.argv.slice(5) ?? [];
   expect(sent).toHaveLength(1);
   const [block, reporting, ...developer] = (sent[0] ?? "").split("\n\n");
   expect(block).toBe(sessionBlock(session));

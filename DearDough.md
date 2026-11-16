@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 548. Removed numbers are never reused.
+- Highest allocated local number: 551. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -120,6 +120,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: implementation and refactor briefs forbade separate lint. Guarded fresh delivery's `npm run --silent format` then refused slice 2 on shellcheck SC2312 in `test-runner-failure-report.sh` and slice 4 on SC2034 for `times_file` in `scripts/test.sh`. The coordinator repaired each, reran the focused check, and retried delivery (`ea744e9e7`, `30523b21d`).
   - Observed effect: two failed delivery attempts and coordinator-side repairs after refactor passes had reported complete.
   - Inference: same gap as ODF-329, for shell sources: a read-only shellcheck of the agent's own files in the brief would have caught both. Cost was a few minutes each; not measured.
+- Execution: SEED-367#count-slice-active-time-deterministically (plan 667; first implementation `0c454d10b5826b5b9121f8ae7a9bb718579b5269`)
+  - Timestamp: unknown (2026-11-16 +08:00; first delivery attempt, shortly before commit `eb5120217` at 17:07:25)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `f1bff2c54`)
+  - Evidence: the slice 2 implementation and refactor briefs forbade lint. Guarded fresh delivery's `npm run --silent format` refused on six ESLint errors (`no-param-reassign`, `no-return-assign`) in `slice-clock.mjs`, `slice-clock-record.mjs` and `slice-clock-fixture.mjs`. The coordinator repaired them, reran the spec and retried. Briefs for slices 3–5 named the two rules and allowed a read-only `npx eslint`; their four deliveries formatted clean.
+  - Observed effect: one failed delivery attempt and a coordinator-side repair after the refactor pass had reported complete.
+  - Inference: same gap as ODF-329, for JavaScript sources. Naming the project's strict rules and allowing a read-only lint in the brief removed it for the rest of the execution.
 
 ## ODF-169 — Stale replay base includes sibling commits <a id="odf-169"></a>
 
@@ -268,3 +276,67 @@ and the slice deleting the deal and correcting about 30 documents and records.
   - Evidence: slice 4 return "about 20 minutes"; slice 6 return "about 25 minutes, not counting the 37-minute suite run"; both recorded in plan 656 Learnings at `6348334e6`.
   - Observed effect: no discarded work; both slices delivered with accepted proof.
   - Inference: like DD-545, sizing counted the core change but not the consumer and document sweep each slice owned; a sweep across many files may deserve its own slice.
+- Execution: SEED-388#show-the-effort-a-launch-runs-with (plan 664; first implementation 535898511)
+  - Timestamp: 2026-11-16T16:29:00+08:00 (slice 1 return; about 16:08–16:29 local)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.102 (guidance updated at starting revision `3b1479996`)
+  - Evidence: plan 664's premise row ran its scratch default only over backend `launches/` (9 failures) and listed those nine consumers. Slice 1 also had to update about 20 more exact-argv or kept-start assertions in backend `sessions/`, shared test support and `e2e/`; a serial-mode spec hid a second failure behind the first. Slice 1 return reports about 21 minutes; plan 664 slice 1 Learning at `535898511`.
+  - Observed effect: no discarded work; the slice delivered with accepted proof (374 + 256 + 54 passed).
+  - Inference: same sizing gap as above, here seeded by a premise observation scoped to one test directory; a default that changes exact command-line output reaches every suite that pins that output, and serial-mode files undercount failures.
+
+## DD-549 — Guarded delivery refuses a plan the slice left unedited
+
+Guarded fresh delivery for a planned slice marks the slice done itself, but
+refuses with "the plan must be included in ownedPaths" when the coordinator
+lists only the files the slice changed and the plan has no edits of its own yet.
+
+### Occurrences
+
+- Execution: SEED-388#show-the-effort-a-launch-runs-with (plan 664; first implementation 535898511)
+  - Timestamp: unknown (2026-11-16, slice 2 delivery)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.102 (guidance updated at starting revision `3b1479996`)
+  - Evidence: `execution-increment-delivery.mjs fresh` for slice 2 returned `{"ok":false,"operation":"context","error":"the plan must be included in ownedPaths"}` with ownedPaths built from `git status`; adding the plan path succeeded and published `cc59ccb93`.
+  - Observed effect: one refused call and a retry; nothing changed by the refusal.
+  - Inference: the requirement is stated only implicitly in the fresh-increment field table ("Put the plan's other evidence … as your owned edit staged with it"); a coordinator deriving ownedPaths from the working tree misses it whenever a slice adds no plan edit. Minor cost.
+- Execution: SEED-367#count-slice-active-time-deterministically (plan 667; first implementation `0c454d10b5826b5b9121f8ae7a9bb718579b5269`)
+  - Timestamp: unknown (2026-11-16 +08:00; slice 5 delivery, shortly before commit `59352a5a3`)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `f1bff2c54`)
+  - Evidence: `execution-increment-delivery.mjs fresh` for slice 5 returned `{"ok":false,"status":"preparation-refused","operation":"context","error":"the plan must be included in ownedPaths"}`; the plan had no edits of its own because slice 5's observations went to `source-review.md`. Adding the plan path and retrying published the slice.
+  - Observed effect: one refused delivery call; nothing was committed or lost.
+
+## DD-550 — Agents' own active-time estimates ran two to five times the measured time
+
+Implementation and refactor agents that reported an estimated active time
+named figures well above what the host recorded for their whole run. The
+slices timed by the new slice clock had no such gap.
+
+### Occurrences
+
+- Execution: SEED-367#count-slice-active-time-deterministically (plan 667; first implementation `0c454d10b5826b5b9121f8ae7a9bb718579b5269`)
+  - Timestamp: unknown (2026-11-16 +08:00, between 16:59 and 17:35)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `f1bff2c54`)
+  - Evidence: agent returns against the host's recorded run durations. Slice 2 implementer "about 11 minutes, estimated and not clock-measured" against 261 s. Refactor passes "roughly 10", "roughly 12", "6" and "roughly 6 minutes" against 113 s, 158 s, 70 s and 95 s. Slices 3–5 ran under the slice clock from source: 3.4, 3.7 and 1.7 active minutes, each matching its record's periods less its `run` intervals.
+  - Observed effect: no overrun and no wrong stop here, since every slice was far inside 15 minutes. An estimate of this kind near the limit would report an overrun that did not happen, or support a split that was not needed.
+  - Inference: one execution, one model and short slices; the direction on long slices is not observed. Earlier findings that quote an agent's own minutes (DD-545, DD-548) may overstate those overruns.
+
+## DD-551 — A rule over retained history is accepted on fixtures before any real-history comparison
+
+A changed attribution rule passed its fixture specs and full consumer suite and was published, but its first import over this machine's retained history dropped launches to zero. Only an every-record before/after comparison on a copy exposed it, and two more real-data defects followed.
+
+### Occurrences
+
+- Execution: SEED-388#count-claude-code-work-after-a-developer-reply (plan 665; first implementation dcd69ec7b)
+  - Timestamp: 2026-11-16T16:55:00+08:00 (approximate; first copy import evaluated)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take 7de032b23)
+  - Evidence: slice 1 accepted on 5 fixture cases and usage-history 98/98, published dcd69ec7b; slice 2's copy import made 17 of 424 Codex launches 0 (duplicate task on reimport, repaired 5145a57c3); the next run made 11 launches unpriced (turn-start compaction before its turn_context) and kept a `/dough-land` without `<command-args>` in its execution (both repaired 0a58de188). Each real-store import took 9–12.5 min at about 4 GB; a store already written with a defective rule had to be restored from backup because stored task turns only grow.
+  - Observed effect: three repair cycles on the story branch, three full imports of real history plus a restore, and slice 2 over its active budget; no trunk impact.
+  - Inference: the plan's decisive premises sampled simple shapes; a narrowed import of a few real sessions with a per-record comparison, run before accepting slice 1, would likely have found all three defects earlier. Saving is unmeasured.

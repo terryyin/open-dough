@@ -26,7 +26,9 @@ a bill or a claim of improvement. A Claude launch whose root transcript has no
 usage, or whose worker left none, is partial with that gap named in its detail.
 Claude Code's background agent-view summaries, recaps and idle compaction never
 reach transcripts; the Claude Code summary says so in one note under its tariff
-rather than marking every task partial.
+rather than marking every task partial. A launch's index includes its later
+developer turns in the same session, with their workers, until an input starts
+another task.
 
 **Equal spacing** is off initially; then the horizontal axis is completion
 time and each task stands at its time. Switched on, the axis is **task order**:
