@@ -1,0 +1,74 @@
+import { spawn } from "node:child_process";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { timeFileSetting } from "../../src/skills/dough-execute-plan/scripts/slice-clock-record.mjs";
+import { makeMe } from "./makeMe.mjs";
+import { materializeLocalCheckout } from "./repository-fixture.mjs";
+
+const script = fileURLToPath(
+  new URL(
+    "../../src/skills/dough-execute-plan/scripts/slice-clock.mjs",
+    import.meta.url,
+  ),
+);
+const dispatchedAt = Date.parse("2026-11-16T09:00:00Z");
+
+function isoAt(minute) {
+  return new Date(dispatchedAt + minute * 60_000).toISOString();
+}
+
+// A repository with a linked worktree, where an execution runs, and the clock
+// time both read: minutes after the dispatch, moved only by the case.
+export async function executionWorktree(t) {
+  const repository = await materializeLocalCheckout(
+    t,
+    makeMe.aRepository
+      .withRevision("start", { backlog: null, files: { "README.md": "x\n" } })
+      .please(),
+  );
+  const scratch = mkdtempSync(join(tmpdir(), "slice-clock-"));
+  t.after(() => rmSync(scratch, { recursive: true, force: true }));
+  const worktree = join(scratch, "execution");
+  await git(
+    repository.integration,
+    ...["worktree", "add", "--quiet", "-b", "execution", worktree],
+  );
+  const timeFile = join(scratch, "now");
+  const time = {
+    // The clock reads `minute` minutes after the dispatch from now on.
+    at: (minute) => writeFileSync(timeFile, `${isoAt(minute)}\n`),
+    // A shell step that moves the clock time, for a command that takes time.
+    shellStepTo: (minute) => `echo ${isoAt(minute)} > "$${timeFileSetting}"`,
+  };
+  time.at(0);
+  // Runs the real clock command in `cwd` as its own process.
+  const clock = (cwd, ...args) =>
+    new Promise((done, failed) => {
+      const child = spawn(process.execPath, [script, ...args], {
+        cwd,
+        env: { ...process.env, [timeFileSetting]: timeFile },
+      });
+      t.after(() => child.kill("SIGKILL"));
+      let stdout = "";
+      let stderr = "";
+      child.stdout.on("data", (chunk) => {
+        stdout += chunk;
+      });
+      child.stderr.on("data", (chunk) => {
+        stderr += chunk;
+      });
+      child.on("error", failed);
+      child.on("close", (exitStatus) => {
+        const lines = stdout.split("\n").filter(Boolean);
+        done({
+          exitStatus,
+          stderr,
+          result: lines.length === 1 ? JSON.parse(lines[0]) : lines,
+        });
+      });
+    });
+  return { main: repository.integration, worktree, scratch, time, clock };
+}

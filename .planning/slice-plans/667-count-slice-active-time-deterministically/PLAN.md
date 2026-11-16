@@ -158,7 +158,7 @@ repository removed): delivered on both hosts, so slice 4 covers both.
 
 ### 2. Count a slice's active time across handbacks with commands excluded
 Type: Behavior
-Status: planned
+Status: done
 Proof: `Distribution/tests/skills/dough-execute-plan/slice-clock.test.mjs`
 through `bash scripts/test.sh <path>`; payload declaration check
 `bash scripts/test.sh Distribution/tests/installation/payload-declaration-links.sh`.
