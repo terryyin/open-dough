@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yui-chan",
+  "email": "yui-chan@example.org",
+  "identity": "SEED-388#show-the-effort-a-launch-runs-with",
+  "mode": "story-branch",
+  "branch": "claude/show-and-keep-the-effort-a-claude-code-launch-ru",
+  "host": "claude"
+}
