@@ -249,3 +249,13 @@ Accepted proof (2026-11-16):
 Slice-plan refinement was not needed: six slices, each one proof loop within
 the size limit, with every promise owned. This review identified no remaining
 slice-specific concern.
+
+## Execution complete
+
+Product advice: no change. Standalone ad hoc Recently done entries open retained
+landings (or explain absent, unreadable, and empty ones) through session-subject
+admission and the shared review panel; linked ad hoc rows still open their story.
+Keep the next two SEED-379 stories on this action and admission. Optional
+wrap-up knowledge only: STORY-REVIEW-LANDED-RUNS still says review requests name
+the project, story and launch identity, which understates the ad hoc session
+subject.
