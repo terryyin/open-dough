@@ -34,6 +34,8 @@ intent introduced or affected by a newly developed story.
 ## Backlog list
 
 - [Show and keep the effort a Claude Code launch runs with](seeds/SEED-388-measure-and-control-agent-launch-cost.md#show-the-effort-a-launch-runs-with) — SEED-388#show-the-effort-a-launch-runs-with
+- [Count a Claude Code background agent started by a subagent](seeds/SEED-388-measure-and-control-agent-launch-cost.md#count-nested-claude-background-agent-work) — SEED-388#count-nested-claude-background-agent-work
+- [Read Claude Code rows that contain Unicode line separators](seeds/SEED-388-measure-and-control-agent-launch-cost.md#read-claude-rows-with-unicode-line-separators) — SEED-388#read-claude-rows-with-unicode-line-separators
 - [Compare agent effort on comparable runs](seeds/SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs) — SEED-345#compare-agent-effort-on-comparable-runs
 - [Count a slice's active time without the agent's own clock](seeds/SEED-367-bounded-slice-active-time.md#count-slice-active-time-deterministically) — SEED-367#count-slice-active-time-deterministically
 - [Bound flaky-test and CI-failure diagnosis in evidence rounds](seeds/SEED-367-bounded-slice-active-time.md#bound-diagnosis-in-evidence-rounds) — SEED-367#bound-diagnosis-in-evidence-rounds

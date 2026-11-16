@@ -141,7 +141,7 @@ task instead.
 
 ### 2. Retained history shows the whole cost of past launches
 Type: Behavior
-Status: planned
+Status: done
 Proof: a job-tmp script (not committed) over the importer's stored history and
 the retained transcripts reports the three evaluation figures in the proof
 table, first for a copied home, then for this machine's store.
@@ -215,6 +215,14 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
   start another task (SEED-133 2.07× its transcript); the wrapper pattern now
   accepts it when nothing follows `</command-name>`. Both repairs have
   failing-first cases; usage-history 101/101.
+- Slice 2 final (2026-11-16): stored task turns merge by union across imports,
+  so an import with a defect leaves its turns behind. The real store was
+  restored from its pre-story backup and recomputed once at `0a58de1` (530 s,
+  4.1 GB): no launch dropped or became unpriced; SEED-192 6.99M; Claude Code
+  94 of 111 within 1%, 106 within 3%; Codex 0 unclaimed later turns; SEED-324
+  31.31M, SEED-073 80.26M; SEED-133 14.18M vs 14.02M. Terry amended the
+  Evaluation and moved the two remaining reader gaps (second-level background
+  agents; rows split at U+2028/U+2029) to their own queued SEED-388 stories.
 
 ## Story obligations
 
@@ -222,25 +230,35 @@ start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
 Reported: slice 1 — "Per-turn cost split is deferred by the story"
 Story clause: "Splitting a launch's cost by turn or showing the developer's inputs in task detail."
 Disposition: excluded "Splitting a launch's cost by turn or showing the developer's inputs in task detail."
-Commitment: X1, X2
+Commitment: X1
 
 ### E2. Recovery of sessions started outside the dashboard is deferred
 Reported: slice 1 — "Native-session recovery changes are deferred by the story"
 Story clause: "Changing how sessions started outside the dashboard are recovered as tasks."
 Disposition: excluded "Changing how sessions started outside the dashboard are recovered as tasks."
-Commitment: X3
+Commitment: X2
 
 ### G1. Extended Codex launches lose all usage to a duplicate recovered task
 Reported: slice 2 — "17 of 424 Codex dashboard launches now show a Token index of 0, and both of the story's Codex example threads are among them."
 Story clause: "A later developer input in a launch's session belongs to that launch"
-Disposition: return
+Disposition: proved by slice 2: token-index-developer-reply-codex.spec.ts 'a reply turn that opens with host-injected context counts once in the launch on every import'; clean real-store recompute: 0 launches dropped, 01a1d22f 31.31M with no duplicate task
 
 ### G2. A launch whose later turns include a response without a recorded model becomes unpriced (first reported in slice 2)
 Reported: slice 2 — "11 Codex launches became unpriced, all for the G2 cause"
 Story clause: "A developer or maintainer reading System settings → Usage sees the whole cost of a dashboard launch on Claude Code or Codex"
-Disposition: return
+Disposition: proved by slice 2: token-index-developer-reply-codex.spec.ts 'a reply turn's compaction response, recorded before its turn context, counts at that turn's model'; clean real-store recompute: 0 launches became unpriced, 01a1d285 80.26M
 
 ### G3. A Claude Code workflow command without arguments does not start another task
 Reported: slice 2 — "The `/dough-land` input did not start another task."
 Story clause: "a recognised Open Dough workflow invocation or another dashboard launch's reporting context"
-Disposition: return
+Disposition: proved by slice 2: token-index-developer-reply.spec.ts 'a Claude Code slash workflow without arguments after an execution…'; clean real-store recompute: SEED-133 14.18M vs 14.02M to its /dough-land input (was 2.07×)
+
+### G4. Responses of second-level Claude Code background agents climb to no task
+Reported: slice 2 — "SEED-334 loses all responses from second-level subagents."
+Story clause: "the Claude Code executions with a later developer input match their transcript cost from launch until the next task-starting input"
+Disposition: owner changed "second-level background agents and rows split at U+2028/U+2029 move to their own stories"
+
+### G5. Claude Code rows containing U+2028 or U+2029 are split and lost
+Reported: slice 2 — "SEED-124 drops rows that contain U+2028 or U+2029."
+Story clause: "the Claude Code executions with a later developer input match their transcript cost from launch until the next task-starting input"
+Disposition: owner changed "second-level background agents and rows split at U+2028/U+2029 move to their own stories"

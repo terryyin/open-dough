@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-16
 planted_during: Terry Yin asked why Claude Code execution usage rose three times between 2026-10-25 and 2026-11-15
 trigger_when: selected from the product backlog
-scope: three stories
+scope: five stories
 ---
 
 # SEED-388 — Measure and control what agent launches cost
@@ -97,8 +97,11 @@ costliest, show only part of their cost.
 
 Re-measured over the 30 days to 2026-11-16 from retained transcripts:
 
-- the 82 Claude Code executions with a later developer input match their
-  transcript cost from launch until the next task-starting input; and
+- the Claude Code executions with a later developer input match their
+  transcript cost from launch until the next task-starting input, except
+  where a separate reader gap below loses responses (Terry, 2026-11-16:
+  measured 94 of 111 within 1% and 106 within 3%; second-level background
+  agents and rows split at U+2028/U+2029 move to their own stories); and
 - none of the 84 Codex launches with a later developer turn leaves that turn's
   responses without a task, and the two Codex examples gain their later-turn
   root and worker responses.
@@ -151,6 +154,48 @@ The additional figures exclude later-turn workers and are not repaired launch
 totals. Locate these thread IDs in `~/.codex/sessions` or
 `~/.codex/archived_sessions`; match continuation inputs and boundaries before
 using them as corrected launch acceptance values.
+
+<a id="count-nested-claude-background-agent-work"></a>
+
+### Count a Claude Code background agent started by a subagent
+
+**Identity:** SEED-388#count-nested-claude-background-agent-work
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Problem.** A background agent started by a Claude Code subagent
+  (`spawnDepth` 2) has its responses climb to no launch input, and no
+  coverage gap names them. SEED-334#run-and-observe-product-wide-end-to-end-tests
+  shows 56.33M against 74.03M of transcript cost: its 15 second-level agents
+  hold the missing 846 responses (17.70M).
+- **Observed cause.** When a climb reaches the first row of a worker
+  transcript, `dashboard/server/claudeUsageAncestry.ts` looks up the worker
+  join by the original response's agent, not by the agent whose file the row
+  is in, so a climb from a second-level agent revisits its own join and never
+  reaches the root transcript.
+- **Evaluation.** SEED-334's launch matches its transcript cost; a nested
+  agent without a join keeps an explained gap.
+
+<a id="read-claude-rows-with-unicode-line-separators"></a>
+
+### Read Claude Code rows that contain Unicode line separators
+
+**Identity:** SEED-388#read-claude-rows-with-unicode-line-separators
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Problem.** A valid transcript row containing a raw U+2028 or U+2029 is
+  split by Node's `readline` in `nativeUsageLines`
+  (`dashboard/server/nativeUsageFiles.ts`) and recorded as
+  `malformed-native-row`; its response is lost, and later rows whose parent
+  link runs through it fail to climb.
+  SEED-124#save-pronunciations-as-note-properties shows 12.74M against 15.42M
+  (82 of 434 responses missing). The store holds 3,312
+  `malformed-native-row` gaps; how many share this cause is unmeasured.
+- **Evaluation.** Such rows are read whole on Codex and Claude Code, and
+  SEED-124's launch matches its transcript cost.
 
 <a id="show-the-effort-a-launch-runs-with"></a>
 
