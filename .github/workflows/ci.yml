@@ -27,7 +27,7 @@ concurrency:
 jobs:
   # `npm test` runs one job per matrix share, each running its share of the
   # discovered checks (OPEN_DOUGH_TEST_SPLIT, Distribution/tests/runner-settings.md), failing
-  # on its own failing check or time-budget breach. The matrix lists only the
+  # on its own failing check or deadline. The matrix lists only the
   # shares; everything else takes the count from strategy.job-total.
   distribution-tests:
     name: Distribution Tests (${{ matrix.share }}/${{ strategy.job-total }})
@@ -99,7 +99,7 @@ jobs:
           OPEN_DOUGH_TEST_OUTCOMES: ${{ runner.temp }}/test-outcomes.txt
           OPEN_DOUGH_TEST_CASE_OUTCOMES: ${{ runner.temp }}/test-case-outcomes.txt
         run: exec npm run test
-      # Per-job seconds for this share: time-budget calibration and longest-first.
+      # Per-job seconds for this share, read with `gh run download`.
       - name: Keep per-job test times
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7

@@ -102,7 +102,7 @@ read.
 
 ### 4. Remove the normalized time budget
 Type: Behavior
-Status: planned
+Status: done
 Proof: `test-runner-selection.sh` and `test-runner-ci-environment.sh` green; a
 `CI=true` fixture run with a slow check prints no `OVER BUDGET` line and exits
 by its checks alone.

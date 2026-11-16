@@ -79,7 +79,8 @@ function median(values) {
 // shorter jobs are noise against timer resolution.
 export const measurableRecordedSeconds = 2;
 
-// Formats a runner factor for breach lines: at least one decimal, up to three.
+// Formats a runner factor for a list's source note: at least one decimal, up
+// to three.
 export function formatFactor(value) {
   const rounded = Math.round(value * 1000) / 1000;
   if (Number.isInteger(rounded)) {
@@ -90,7 +91,7 @@ export function formatFactor(value) {
 
 // A share's runner factor: the median, over jobs recorded with measurable
 // time, of observed/recorded seconds. With no such job, the factor is 1 and
-// available is false (the breach line says unavailable).
+// available is false (the source note says unavailable).
 export function runnerFactor(recorded, observed) {
   const ratios = [];
   for (const [label, observedSeconds] of observed) {
@@ -109,16 +110,8 @@ export function runnerFactor(recorded, observed) {
   return { factor, available: true };
 }
 
-// `<factor><TAB><label>` for scripts/test-budget.sh: label is `unavailable`
-// or the formatted factor.
-export function formatRunnerFactorLine(recorded, observed) {
-  const { factor, available } = runnerFactor(recorded, observed);
-  const label = available ? formatFactor(factor) : "unavailable";
-  return `${factor}\t${label}\n`;
-}
-
-// Refresh text at the existing list's speed so a refresh neither tightens nor
-// loosens the budget; a new list or no measurable common job stays observed.
+// Refresh text at the existing list's speed so a refresh keeps the list's
+// recorded speed; a new list or no measurable common job stays observed.
 export function refreshListText(existing, times, source) {
   const observed = collectLongestSeconds(times);
   const { factor, available } = existing

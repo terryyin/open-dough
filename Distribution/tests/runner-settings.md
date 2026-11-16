@@ -36,8 +36,7 @@ replacement lets a check identify the current blocking owner, including a
 successor to an earlier observed owner.
 Each scheduled job also carries a fixed 180-second wall-clock safety deadline
 from its start; see [the runner](README.md#runner). That limit stops hung work
-and frees admission when a whole run ends; it is separate from the normalized
-performance budgets in [time-budget.md](time-budget.md).
+and frees admission when a whole run ends.
 In CI, `OPEN_DOUGH_TEST_DEADLINE_MS` is the absolute epoch (milliseconds) for
 the share's 320-second run cutoff established with setup in
 `.github/workflows/ci.yml`, mirroring the browser test groups' model. Local named

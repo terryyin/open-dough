@@ -1,7 +1,7 @@
 # Test shares
 
 CI runs the suite as split jobs, each with `OPEN_DOUGH_TEST_SPLIT=<i>/<n>` set
-to its share; each fails on its own share's failures or budget breach and
+to its share; each fails on its own share's failures or deadlines and
 keeps its times for seven days as workflow artifact `test-times-<i>`.
 `scripts/test-shares.mjs` owns which jobs each share runs and in which order.
 

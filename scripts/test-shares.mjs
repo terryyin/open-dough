@@ -2,21 +2,17 @@
 // Command surface of scripts/share-deal.mjs (Distribution/tests/test-shares.md).
 // scripts/test-jobs.sh runs `share`; contributors run `preview` for a browser
 // test group (dashboard/tests/shards.md) and `refresh`.
-// `runner-factor` prints `<factor><TAB><label>` for scripts/test-budget.sh.
 //
 //   share   [--list FILE] [--split i/n]      labels on stdin, NUL-separated
 //                                            (or one per line); prints the
 //                                            share's labels NUL-separated
 //   preview --split-count N --spec-dir DIR [--root ROOT] [--list FILE]
 //   refresh --list FILE --source TEXT TIMES...
-//   runner-factor [--list FILE] TIMES
 
 import { existsSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import {
   dealShares,
-  formatRunnerFactorLine,
-  parseDurationList,
   parseLabels,
   parseSplit,
   readDurationList,
@@ -120,29 +116,10 @@ function refreshCommand(argv) {
   );
 }
 
-function runnerFactorCommand(argv) {
-  const { options, positional } = parseArguments(argv, ["list"]);
-  if (positional.length !== 1) {
-    throw new TestSharesError(
-      "FAIL: runner-factor needs one times file and optional --list <file>.",
-    );
-  }
-  const recorded =
-    options.list === undefined || !existsSync(options.list)
-      ? new Map()
-      : readDurationList(options.list).seconds;
-  const observed = parseDurationList(
-    readInput(positional[0]),
-    positional[0],
-  ).seconds;
-  process.stdout.write(formatRunnerFactorLine(recorded, observed));
-}
-
 const commands = {
   share: shareCommand,
   preview: previewCommand,
   refresh: refreshCommand,
-  "runner-factor": runnerFactorCommand,
 };
 
 async function main(argv) {

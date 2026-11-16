@@ -16,8 +16,7 @@
 # highest job), that projection's headroom and spread (highest - lowest), and
 # a verdict: `could drop one` when at least 5 runs were counted and the
 # projection's headroom is at least its spread (the reserve for runner-speed
-# variation that Distribution/tests/time-budget.md calls `wide`); otherwise
-# `keep`. A last line gives, over the runs read, each run's runner wait (its
+# variation); otherwise `keep`. A last line gives, over the runs read, each run's runner wait (its
 # longest job creation to start) and verdict time (its first job creation to
 # last job completion), counting every job, lowest to highest; it changes no
 # group line. Runs whose jobs cannot be read are skipped and not counted. Exits 0

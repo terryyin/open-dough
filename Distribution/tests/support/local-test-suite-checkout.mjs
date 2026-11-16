@@ -19,7 +19,7 @@ const framework = pathToFileURL(
 ).href;
 
 // The runner tooling a controlled suite runs, copied from this repository:
-// what `copy_runner` copies, the budget and reporter helpers, the dashboard
+// what `copy_runner` copies, the wait and reporter helpers, the dashboard
 // suite selection and run preparation, and the Dashboard Integrated UI Test,
 // Dashboard Frontend Test, Dashboard Backend Test and E2E Test Playwright
 // configurations importing this repository's framework. Read once per process.
@@ -48,7 +48,6 @@ export function suiteRunnerLayer() {
       ),
     );
     const helpers = copiedLayer(source, [
-      "scripts/test-budget.sh",
       "Distribution/tests/helpers/wait-for.bash",
       "Distribution/tests/support/node-test-failures-reporter.mjs",
       "Distribution/tests/support/node-test-case-outcomes-reporter.mjs",

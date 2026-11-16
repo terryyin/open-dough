@@ -192,6 +192,6 @@ against it, and local runs without the variable are unbounded. A shard that
 cannot finish by then fails naming the deadline (`Timed out waiting`), still
 within the job's 6 minutes, and its kept report holds the completed
 failures' traces and error context and lists unfinished tests as skipped.
-Like the shell suite's `Distribution/tests/time-budget`, the 320 seconds and the job's
+Like the shell suite's run cutoff, the 320 seconds and the job's
 `timeout-minutes` are a reviewed ceiling: a shard that reaches the deadline
 is made faster or rebalanced, not given more time.

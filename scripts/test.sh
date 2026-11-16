@@ -48,8 +48,9 @@ if ((job_slots < 1)); then
 fi
 
 output_root=$(mktemp -d)
-# Each job's seconds and label, longest first; see scripts/test-budget.sh.
+# Each job's seconds and label, longest first.
 # OPEN_DOUGH_TEST_TIMES names this run's file.
+# shellcheck disable=SC2034 # scripts/test-report-jobs.bash writes this file.
 times_file=${OPEN_DOUGH_TEST_TIMES:-${output_root}/times}
 # OPEN_DOUGH_TEST_OUTCOMES names a file that receives each job's reported
 # outcome and label: `passed`, `failed`, or `unfinished` for a selected check
@@ -224,13 +225,5 @@ done
 write_job_times
 write_job_outcomes
 write_case_outcomes
-# The time budget is CI's and the whole suite's (or a split share's): only a CI
-# run (`CI=true`) without chosen checks is judged against it. A run stopped by
-# the absolute cutoff has already failed; still leave reports for artifacts.
-budget=${test_dir}/time-budget
-if ((! run_deadline_hit)); then
-  [[ ${CI:-} != true ]] || (($#)) || [[ ! -f ${budget} ]] \
-    || "${test_bash}" scripts/test-budget.sh "${budget}" "${times_file}" || status=1
-fi
 
 exit "${status}"

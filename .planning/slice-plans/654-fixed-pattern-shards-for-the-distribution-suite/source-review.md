@@ -30,33 +30,33 @@ Launch: a fresh general-purpose subagent (no conversation inheritance) on 2026-1
 | 12 | A share can be reproduced locally by its number | slice 5 |  |
 | 13 | A run that selects no share runs every check | slice 2 | observed: Distribution/tests/test-runner/test-runner-failure-report.sh start-order block: unsplit run starts all five checks |
 | 13.1 | It runs them in bytewise path order | slice 2 | observed: Distribution/tests/test-runner/test-runner-failure-report.sh asserts start order 'Zeta alpha beta gamma node-ordered' against durations ordering otherwise |
-| 14 | Each CI job keeps three time limits, listed in 14.1–14.3 | slice 4 |  |
-| 14.1 | Its plain `timeout-minutes` | slice 4 |  |
-| 14.2 | Its 320-second run cutoff | slice 4 |  |
-| 14.3 | The 180-second per-check safety deadline | slice 4 |  |
-| 15 | The normalized time budget is removed, including the items in 15.1–15.4 | slice 4 |  |
-| 15.1 | `time-budget` | slice 4 |  |
-| 15.2 | Per-job and total ceilings | slice 4 |  |
-| 15.3 | The runner factor | slice 4 |  |
-| 15.4 | `OVER BUDGET` failures | slice 4 |  |
+| 14 | Each CI job keeps three time limits, listed in 14.1–14.3 | slice 4 | observed: .github/workflows/ci.yml distribution-tests keeps timeout-minutes: 6 and the 180/320 s deadline step |
+| 14.1 | Its plain `timeout-minutes` | slice 4 | observed: .github/workflows/ci.yml:35 timeout-minutes: 6 unchanged |
+| 14.2 | Its 320-second run cutoff | slice 4 | observed: .github/workflows/ci.yml OPEN_DOUGH_TEST_DEADLINE_MS started+320000 unchanged; test-runner-deadline-* green |
+| 14.3 | The 180-second per-check safety deadline | slice 4 | observed: per-check safety deadline unchanged; test-runner-deadline-* checks green |
+| 15 | The normalized time budget is removed, including the items in 15.1–15.4 | slice 4 | observed: scripts/test.sh budget step removed; Distribution/tests/test-runner/test-runner-selection.sh full CI run passes with a slow check |
+| 15.1 | `time-budget` | slice 4 | observed: Distribution/tests/time-budget deleted |
+| 15.2 | Per-job and total ceilings | slice 4 | observed: scripts/test-budget.sh (per-job and total ceilings) deleted |
+| 15.3 | The runner factor | slice 4 | observed: runner-factor command and formatRunnerFactorLine removed from scripts/test-shares.mjs and scripts/share-deal.mjs |
+| 15.4 | `OVER BUDGET` failures | slice 4 | observed: Distribution/tests/test-runner/test-runner-selection.sh full-run step asserts exit 0 with empty log under CI=true; scratch break printed OVER BUDGET against 2acd3d1418 |
 | 16 | Each share keeps uploading its `test-times-<i>` artifact | slice 5 |  |
 | 16.1 | The artifact is retained for 90 days | slice 5 |  |
 | 16.2 | The artifact is the rebalancing input | slice 5 |  |
 | 17 | Everything that only the Distribution suite uses is removed completely, as listed in 17.1–17.16 | slice 7 |  |
 | 17.1 | `Distribution/tests/longest-first*` | slice 7 |  |
-| 17.2 | `Distribution/tests/time-budget` | slice 4 |  |
+| 17.2 | `Distribution/tests/time-budget` | slice 4 | observed: Distribution/tests/time-budget deleted |
 | 17.3 | The `share` command | slice 5 |  |
-| 17.4 | The `runner-factor` command | slice 4 |  |
+| 17.4 | The `runner-factor` command | slice 4 | observed: runner-factor command removed from scripts/test-shares.mjs |
 | 17.5 | The Distribution preview, with its budget headroom | slice 3 | observed: scripts/share-preview.mjs keeps only previewFromOptions over --spec-dir; no budget/headroom code; share-preview.test.mjs Distribution cases removed |
 | 17.6 | The preview's trunk inventory | slice 3 | observed: trunkJobLabels and --trunk-labels removed from scripts/share-preview.mjs and test-shares.mjs; share-preview-trunk.test.mjs deleted |
 | 17.7 | The preview's stale-list report | slice 3 | observed: formatPreview has no stale banner/notes; share-preview-stale.test.mjs and stale-share-preview fixtures deleted |
-| 17.8 | `scripts/test-budget.sh` | slice 4 |  |
-| 17.9 | `scripts/time-budget.bash` | slice 4 |  |
-| 17.10 | `scripts/ci-test-times.sh` | slice 4 |  |
+| 17.8 | `scripts/test-budget.sh` | slice 4 | observed: scripts/test-budget.sh deleted |
+| 17.9 | `scripts/time-budget.bash` | slice 4 | observed: scripts/time-budget.bash deleted |
+| 17.10 | `scripts/ci-test-times.sh` | slice 4 | observed: scripts/ci-test-times.sh and Distribution/tests/ci/ci-test-times.sh deleted |
 | 17.11 | The tests for these items | slice 7 |  |
 | 17.12 | The fixtures for these items | slice 7 |  |
 | 17.13 | `test-shares.md` | slice 7 |  |
-| 17.14 | `time-budget.md` | slice 4 |  |
+| 17.14 | `time-budget.md` | slice 4 | observed: Distribution/tests/time-budget.md deleted |
 | 17.15 | Every passage that refers to these items | slice 7 |  |
 | 17.16 | Maintainer findings entries that describe the deal or the budget as the current response | slice 7 |  |
 | 18 | What the dashboard groups still use stays until the next story removes it, as listed in 18.1–18.6 | slice 3 | observed: scripts/share-deal.mjs, scripts/duration-list.mjs unchanged; refresh command and --spec-dir preview kept |
@@ -66,9 +66,9 @@ Launch: a fresh general-purpose subagent (no conversation inheritance) on 2026-1
 | 18.4 | The `--spec-dir` preview | slice 3 | observed: share-preview.test.mjs 'preview lists a browser group's root of its spec directory...' green |
 | 18.5 | The tests for these items | slice 3 | observed: browser-group-shards, share-deal, duration-list, dashboard-test-files tests untouched and green |
 | 18.6 | `dashboard/tests/shards.md` | slice 7 |  |
-| 19 | Between this story and the next, no command reports recent per-check CI seconds | slice 4 |  |
-| 19.1 | The retained `test-times-<i>` artifacts are read with `gh run download` | slice 4 |  |
-| 19.2 | `scripts/ci-job-times.sh` keeps reporting each share's distance from its run cutoff | slice 4 |  |
+| 19 | Between this story and the next, no command reports recent per-check CI seconds | slice 4 | observed: scripts/ci-test-times.sh deleted; no remaining per-check seconds command |
+| 19.1 | The retained `test-times-<i>` artifacts are read with `gh run download` | slice 4 | observed: Distribution/tests/README.md and ci.yml artifact comment: read test-times-<i> with gh run download |
+| 19.2 | `scripts/ci-job-times.sh` keeps reporting each share's distance from its run cutoff | slice 4 | observed: scripts/ci-job-times.sh behavior unchanged; Distribution/tests/ci/ci-job-times.sh green |
 | 20 | Released `CHANGELOG.md` entries stay | slice 7 |  |
 | 21 | The done-story catalog stays | slice 7 |  |
 | 21.1 | Both are release and identity records, not descriptions of current behavior | slice 7 |  |
@@ -79,8 +79,8 @@ Launch: a fresh general-purpose subagent (no conversation inheritance) on 2026-1
 | 24.1 | The overlap check fails before any share's result is trusted | slice 5 |  |
 | 25 | `Distribution/evaluation` is renamed and its pattern is left behind → the check fails, naming the pattern that matches no check | slice 5 |  |
 | 25.1 | The folder does not silently join the last share | slice 5 |  |
-| 26 | A check takes 70 seconds on CI where the removed per-job ceiling was 64 → the share passes | slice 4 |  |
-| 26.1 | Only the 180-second safety deadline or the 320-second run cutoff fails a share for time | slice 4 |  |
+| 26 | A check takes 70 seconds on CI where the removed per-job ceiling was 64 → the share passes | slice 4 | observed: Distribution/tests/test-runner/test-runner-selection.sh full CI run: a check slower than a per-job ceiling passes (scaled 0.3 s vs 0.1 s; break shown against old runner) |
+| 26.1 | Only the 180-second safety deadline or the 320-second run cutoff fails a share for time | slice 4 | observed: scripts/test.sh has only the deadline/cutoff time failures; test-runner-deadline-* green |
 | 27 | A maintainer moves one folder pattern from the last share to the first in `ci.yml` → the next CI run follows it, with no other file to edit | slice 6 |  |
 | 28 | The matrix is the one owner of share membership | slice 5 |  |
 | 29 | The runner's selection reads the shares from the workflow file through one small module | slice 5 |  |
@@ -91,8 +91,8 @@ Launch: a fresh general-purpose subagent (no conversation inheritance) on 2026-1
 | 33 | Share balance has no automatic owner | slice 6 |  |
 | 33.1 | Wall time per share tracks its job-seconds divided by the runner's four CPUs (main run 43773156778: 927, 947 and 619 job-seconds ran in 233, 238 and 155 s) | slice 6 |  |
 | 33.2 | The starting shares total about 743, 845 and 905 job-seconds on that run, so the slowest is predicted near 226 s, against 238 s measured today and the 320-second cutoff | slice 6 |  |
-| 34 | A share that grows past its cutoff fails that share | slice 4 |  |
-| 34.1 | Drift before that point is visible only through `scripts/ci-job-times.sh` or the job durations | slice 4 |  |
+| 34 | A share that grows past its cutoff fails that share | slice 4 | observed: 320 s run cutoff kept; test-runner-deadline-cutoff.test.mjs green |
+| 34.1 | Drift before that point is visible only through `scripts/ci-job-times.sh` or the job durations | slice 4 | observed: scripts/ci-job-times.sh kept as the only drift report; README points to it |
 | 35 | Considered and not chosen: first match wins in matrix order, as in a routing table with a default route, which would make overlap impossible and need no check | slice 1 | observed: scripts/test-share-matrix.mjs selectShare refuses any cross-share overlap instead of first-match-wins |
 | 35.1 | The developer's overlap check is kept, so each share's patterns say what it runs without reading the earlier entries | slice 1 | observed: Distribution/tests/support/test-share-matrix.test.mjs overlap refusal for share 1, share 3 and unselected |
 | 35.2 | Unlike a default route, the last share receives every new folder, so it grows without anyone editing it | slice 6 |  |
