@@ -40,8 +40,7 @@ function StoryOutsideLocations({
       title={outsideWords(outside)}
       onClick={(event) => {
         openStoryReview({
-          source,
-          identity: story.identity,
+          subject: { source, identity: story.identity },
           title: story.title,
           control: event.currentTarget,
           comparison: defaultStoryComparison,

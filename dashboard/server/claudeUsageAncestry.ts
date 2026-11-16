@@ -1,4 +1,6 @@
 // Walk retained parent links once per response, without recursive path copies.
+// Each node key names its own transcript's agent, so a worker's first row joins
+// through that worker's agent result, whether the root or another worker holds it.
 // Intermediate evidence cites its containing files; exact response, task-boundary
 // and worker-join rows remain separately traceable. No transcript bodies survive.
 import { uniqueFacts } from "./usageReconciliation.ts";
@@ -15,6 +17,8 @@ export function claudeAncestry(
   const sources: UsageSource[] = [];
   const files = new Map<string, UsageSource>();
   const roots: { uuid: string; references: string[] }[] = [];
+  // The agents whose transcripts the climb passes through; "" is the root's.
+  const transcripts = new Set<string>();
   const active = new Set<string>();
   const visited = new Set<string>();
   const first = claudeNodeKey(session, agent, uuid);
@@ -46,17 +50,26 @@ export function claudeAncestry(
         file: source.file,
       });
     if (next.key === first || node.boundary) sources.push(...node.sources);
+    const parts: unknown = JSON.parse(next.key);
+    if (!Array.isArray(parts)) {
+      unresolved = true;
+      continue;
+    }
+    const fields: unknown[] = parts;
+    const [, transcriptAgent, nodeUuid] = fields;
+    if (typeof transcriptAgent === "string") transcripts.add(transcriptAgent);
     if (node.boundary) {
-      const parts: unknown = JSON.parse(next.key);
-      if (Array.isArray(parts) && typeof parts[2] === "string")
-        roots.push({ uuid: parts[2], references: node.references });
+      if (typeof nodeUuid === "string")
+        roots.push({ uuid: nodeUuid, references: node.references });
       continue;
     }
     if (node.parents.length) {
       for (const parent of node.parents)
         pending.push({ key: parent, exiting: false });
-    } else if (agent) {
-      const worker = lineage.workers.get(claudeWorkerKey(session, agent));
+    } else if (typeof transcriptAgent === "string" && transcriptAgent) {
+      const worker = lineage.workers.get(
+        claudeWorkerKey(session, transcriptAgent),
+      );
       if (!worker) {
         unresolved = true;
         continue;
@@ -69,6 +82,7 @@ export function claudeAncestry(
   return {
     roots: uniqueFacts(roots),
     sources: uniqueFacts([...files.values(), ...sources]),
+    transcripts: [...transcripts],
     unresolved,
   };
 }

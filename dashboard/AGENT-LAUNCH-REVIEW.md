@@ -7,7 +7,9 @@ A retained **Ad hoc** Recently done sessions row can select the one published Do
 Development reveals that Done card (including outside the Board window); Intent and **Review changes** reuse Board historical comparison and saved Done coverage.
 Absent or ambiguous evidence leaves the session standalone; checking/unknown keep existing retry and supersession.
 Derivation uses server-held records and configured project history only.
-
+A standalone ad hoc Done entry offers **Review changes** for its captured landing;
+missing, unreadable or empty evidence is explained without a file browser
+([landed run review](STORY-REVIEW-LANDED-RUNS.md)).
 
 Every completed-story card in Recently done offers **Review changes**, including
 stories completed in a terminal or on another machine with no local launch.
@@ -239,16 +241,8 @@ Long code lines scroll sideways inside the diff, and file names inside the
 browser, without widening the page. A pane's scroll position can be clamped
 when its enlarged view no longer has enough content below that position.
 
-The [review mark](STORY-REVIEW-MARKS.md) keeps the whole snapshot shown,
-including when uncommitted changes are excluded from the displayed comparison.
-It supplies Changes since the review and explains how integrated trunk changes
-are left out, or why an earlier mark cannot be compared.
-
-The [Commits comparison](STORY-REVIEW-COMMITS.md) lists the snapshot's
-first-parent commits and Uncommitted changes, compares a contiguous range,
-and preserves its chosen endpoints through Refresh.
-
-The [Landed runs comparison](STORY-REVIEW-LANDED-RUNS.md) offers every landed
-refinement or execution run, one-shot or a claimed Story Branch Mode launch's
-trunk integration, alongside the workspace comparisons, using each run's fixed
-delivered pair after retirement.
+The [review mark](STORY-REVIEW-MARKS.md), [Commits comparison](STORY-REVIEW-COMMITS.md)
+and [Landed runs comparison](STORY-REVIEW-LANDED-RUNS.md) extend this panel: marks
+for Changes since the review; Commits for first-parent ranges; Landed runs for each
+retained delivered pair after retirement, including a standalone ad hoc session's
+Recently done **Review changes**.

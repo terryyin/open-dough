@@ -21,13 +21,20 @@ node '<installed-execute-plan>/scripts/slice-clock.mjs' run --log '<log>' --exit
 The coordinator owns `start` and `pause`:
 
 - `start` when it dispatches a slice, resumes one, or begins one itself.
+  For the first `start` in a new coordinator session, add
+  `--after-ended-session`, whether resuming the same slice or starting another.
+  It settles any running slice's open period and every open `run` at the
+  checkout's last clock command, excludes the session gap, then starts the
+  named slice. With nothing running it is ordinary `start`. Nothing detects
+  an ended session automatically; active time after its last clock command is
+  not counted, so the settled time can undercount.
   Starting a paused slice continues its elapsed time: a slice returned at 11
-  elapsed minutes resumes with 4 remaining. `start` is refused while another
-  slice is running; pause that slice first.
+  elapsed minutes resumes with 4 remaining. Without the option, `start` is
+  refused while another slice is running; pause that slice first.
 - `pause` when the implementer returns, the slice is accepted, or execution
   stops for the coordinator or a human, including a CI repair pause. Review,
-  the refactor pass and CI repair run while the clock is paused and add no
-  time.
+  the refactor pass and CI repair add no time to the paused slice; a repair's
+  diagnosis keeps its own time in [rounds](diagnosis-rounds.md).
 - Every brief and every resume, also a replacement implementer's, carries the
   `remainingMinutes` that `start` or `status` reports.
 - A slice refined or retitled while unfinished keeps its time under the same
@@ -36,6 +43,15 @@ The coordinator owns `start` and `pause`:
   `--split-from '<overrun slice>'`; it starts at zero. `storyOverruns` counts
   the story's overruns; at 2 or more,
   [reassess the story boundary](../../dough-story-decomposition/references/problem-decomposition.md#size-and-escalate-slices).
+- `start --identity '<identity>' --diagnosis '<name>'` starts the next round
+  of a diagnosis in place of `--slice`. Its reports add `diagnosis`, `round`,
+  `roundsAuthorized` and `cumulativeMinutes`; `pause`, `status` and `run`
+  treat a running round as a slice. A round at the limit reports
+  `overrun: true` without adding to `storyOverruns`. A start beyond the
+  authorized rounds, 3 by default, is refused; `--rounds-authorized <n>`
+  raises the total only on a human's authorization.
+  [Diagnosis rounds](diagnosis-rounds.md) say when to start a round and when
+  to stop.
 
 The implementer runs each proof command (test, build, measurement) through
 `run` and [waits on its exit file without polling](wait-for-proof.md). Time
@@ -53,6 +69,10 @@ Set an experiment's trial limit and decision criterion before it starts. Lack
 of one coherent behavior or failure to converge also calls for refinement.
 
 ## Handle the overrun
+
+When a slice reaches its limit while diagnosing a failure whose cause is
+unknown, continue in [diagnosis rounds](diagnosis-rounds.md). The
+disposition below applies to other overruns.
 
 Inventory tracked and untracked changes owned by the attempt and preserve
 pre-existing work. Never use broad `git checkout .` or `git clean -fd`. Unclear

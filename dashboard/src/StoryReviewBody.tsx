@@ -10,6 +10,7 @@ import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { SnapshotView } from "./StoryReviewSnapshotView.tsx";
 import { CommitList } from "./StoryReviewCommits.tsx";
 import { storyComparisonShown } from "./storyComparisonShown.ts";
+import type { ReviewedWorkSubject } from "./reviewedWorkSubject.ts";
 
 export function ReviewBody({
   review,
@@ -19,8 +20,7 @@ export function ReviewBody({
   onSelect,
   comparison,
   tree,
-  source,
-  identity,
+  subject,
   headingId,
   browser,
   since,
@@ -33,8 +33,7 @@ export function ReviewBody({
   readonly onSelect: (id: string) => void;
   readonly comparison: ReviewComparison | undefined;
   readonly tree: string | undefined;
-  readonly source: string;
-  readonly identity: string;
+  readonly subject: ReviewedWorkSubject;
   readonly headingId: string;
   readonly browser: FileBrowserPlace;
   readonly since: ReviewComparison | undefined;
@@ -43,8 +42,7 @@ export function ReviewBody({
 }) {
   const snapshot = review?.kind === "snapshot" ? review : undefined;
   const shownComparison = storyComparisonShown({
-    source,
-    identity,
+    subject,
     review,
     comparison,
     tree,

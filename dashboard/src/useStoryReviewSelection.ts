@@ -10,18 +10,20 @@ import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { useReviewRead } from "./useReviewRead.ts";
 import { useDefaultStoryReview } from "./useDefaultStoryReview.ts";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
+import {
+  reviewedWorkQuery,
+  type ReviewedWorkSubject,
+} from "./reviewedWorkSubject.ts";
 
 export function useStoryReviewSelection({
-  source,
-  identity,
+  subject,
   round,
   completed = false,
   enabled = true,
   initial = "since",
   historical: historicalComparison = false,
 }: {
-  readonly source: string;
-  readonly identity: string;
+  readonly subject: ReviewedWorkSubject;
   readonly round: number;
   readonly completed?: boolean | undefined;
   // A disabled selection reads nothing.
@@ -32,8 +34,7 @@ export function useStoryReviewSelection({
   readonly historical?: boolean | undefined;
 }) {
   const defaultRead = useDefaultStoryReview({
-    source,
-    identity,
+    subject,
     round,
     completed,
     historical: historicalComparison,
@@ -74,7 +75,7 @@ export function useStoryReviewSelection({
   const selectedRun = runs.find((run) => run.key === selection.run);
   const runRead = useReviewRead<StoryReview>(
     storyReviewEndpoint,
-    { source, identity, run: selection.run ?? "" },
+    { ...reviewedWorkQuery(subject), run: selection.run ?? "" },
     storyReviewSchema,
     {
       round,

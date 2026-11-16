@@ -1,19 +1,46 @@
-// The slices of a slice clock record: their entries, their active time and
-// their overruns. `slice-clock-record.mjs` describes the record and stores it.
-export const sliceLimitMinutes = 15;
+// The slices of a slice clock record: their entries and their overruns, and
+// what every clock command reports about a slice or a diagnosis round.
+// `slice-clock-record.mjs` describes the record and stores it.
+import {
+  elapsedMs,
+  minutes,
+  reachesLimit,
+  remainingMs,
+  sliceLimitMinutes,
+} from "./slice-clock-active-time.mjs";
+import {
+  diagnosisLabel,
+  roundEndMessage,
+  roundEndSeen,
+  roundFields,
+  roundOf,
+  roundsOf,
+} from "./slice-clock-diagnosis.mjs";
 
-const minuteMs = 60_000;
-
-// Whether the slice is the one running in the checkout.
-export function isRunning(record, { identity, slice }) {
+// Whether the slice or diagnosis is the one running in the checkout.
+export function isRunning(record, named) {
+  const { identity, slice, diagnosis } = named;
+  const { running } = record;
   return (
-    record.running?.identity === identity && record.running.slice === slice
+    running?.identity === identity &&
+    running.slice === slice &&
+    running.diagnosis === diagnosis &&
+    (named.round === undefined ||
+      sliceOf(record, named) === sliceOf(record, running))
   );
 }
 
-// The slice's entry, or undefined when the record has none.
-export function sliceOf(record, { identity, slice }) {
-  return record.stories[identity]?.slices[slice];
+// The slice's entry, or a diagnosis's latest round; undefined when the record
+// has none.
+export function sliceOf(record, named) {
+  if (named.diagnosis !== undefined) return roundOf(record, named);
+  return record.stories[named.identity]?.slices[named.slice];
+}
+
+// How reports and errors name the slice or diagnosis.
+export function labelOf(named) {
+  if (named.diagnosis !== undefined) return diagnosisLabel(named);
+  return `slice ${named.slice} of ${named.identity}`;
 }
 
 // Moves the entry of slice `from` to `named`, so a renumbered slice keeps its
@@ -36,6 +63,25 @@ export function dropOverrunSlice(record, identity, from) {
   if (slices[from]?.overrunDetectedAt !== undefined) delete slices[from];
 }
 
+// Ends the previous session at its last clock command, without observing a
+// new overrun. Legacy records have only period and command timestamps.
+export function settleEndedSession(record) {
+  if (!record.running) return;
+  const timestamps = Object.values(record.stories).flatMap((story) =>
+    [...Object.values(story.slices), ...roundsOf(story)].flatMap(
+      ({ periods, commands }) =>
+        [...periods, ...commands].flatMap(({ startedAt, endedAt }) =>
+          endedAt === null ? [startedAt] : [startedAt, endedAt],
+        ),
+    ),
+  );
+  const endedAt = record.lastClockCommandAt ?? Math.max(...timestamps);
+  const entry = sliceOf(record, record.running);
+  for (const interval of [...entry.periods, ...entry.commands])
+    interval.endedAt ??= endedAt;
+  Object.assign(record, { running: null });
+}
+
 // The slice's entry, added when the record has none.
 export function ensureSlice(record, { identity, slice }) {
   const { stories } = record;
@@ -43,39 +89,6 @@ export function ensureSlice(record, { identity, slice }) {
   const { slices } = stories[identity];
   slices[slice] ??= { periods: [], commands: [] };
   return slices[slice];
-}
-
-// Intervals closed at `now`, sorted and merged so overlaps count once.
-function union(intervals, now) {
-  const merged = [];
-  const closed = intervals
-    .map(({ startedAt, endedAt }) => [startedAt, endedAt ?? now])
-    .sort((a, b) => a[0] - b[0]);
-  for (const [start, end] of closed) {
-    const last = merged.at(-1);
-    if (last !== undefined && start <= last[1])
-      last[1] = Math.max(last[1], end);
-    else merged.push([start, end]);
-  }
-  return merged;
-}
-
-// Active time: the wall time of the slice's periods minus the union of its
-// command intervals inside them.
-export function elapsedMs(entry, now) {
-  const commands = union(entry.commands, now);
-  let total = 0;
-  for (const [start, end] of union(entry.periods, now)) {
-    total += end - start;
-    for (const [from, to] of commands)
-      total -= Math.max(0, Math.min(end, to) - Math.max(start, from));
-  }
-  return total;
-}
-
-// Whether `elapsed` active time is at or past the limit.
-function reachesLimit(elapsed) {
-  return elapsed >= sliceLimitMinutes * minuteMs;
 }
 
 // Whether the slice running in the checkout is at or past the limit. It
@@ -91,39 +104,42 @@ export function runningSliceReachedLimit(record, now) {
 function overrunSeen(record, named, elapsed, now) {
   const story = record.stories[named.identity];
   const entry = story.slices[named.slice];
+  if (entry.overrunDetectedAt !== undefined) return true;
   if (!reachesLimit(elapsed)) return false;
-  if (entry.overrunDetectedAt === undefined) {
-    entry.overrunDetectedAt = now;
-    story.overruns = [
-      ...(story.overruns ?? []),
-      { slice: named.slice, detectedAt: now },
-    ];
-  }
+  entry.overrunDetectedAt = now;
+  story.overruns = [
+    ...(story.overruns ?? []),
+    { slice: named.slice, detectedAt: now },
+  ];
   return true;
 }
 
-// What every clock command reports about one slice. Seeing the slice at the
-// limit records its overrun, so report inside `updateRecord`.
+// What every clock command reports about one slice or diagnosis round.
+// Seeing it at the limit records its end, so report inside `updateRecord`.
 export function sliceReport(record, named, now) {
-  const elapsed = elapsedMs(sliceOf(record, named), now);
-  const minutes = (ms) => Math.round((ms / minuteMs) * 10) / 10;
-  const overrun = overrunSeen(record, named, elapsed, now);
+  const entry = sliceOf(record, named);
+  const elapsed = elapsedMs(entry, now);
+  const round = named.diagnosis !== undefined;
+  const overrun = round
+    ? roundEndSeen(entry, elapsed, now)
+    : overrunSeen(record, named, elapsed, now);
   const report = {
     identity: named.identity,
-    slice: named.slice,
+    ...(round ? roundFields(record, named, now) : { slice: named.slice }),
     state: isRunning(record, named) ? "running" : "paused",
     elapsedMinutes: minutes(elapsed),
-    remainingMinutes: minutes(
-      Math.max(0, sliceLimitMinutes * minuteMs - elapsed),
-    ),
+    remainingMinutes: minutes(remainingMs(elapsed)),
     limitMinutes: sliceLimitMinutes,
     overrun,
     storyOverruns: record.stories[named.identity].overruns?.length ?? 0,
   };
   if (!overrun) return report;
+  const reached = `reached the ${sliceLimitMinutes}-minute limit: ${report.elapsedMinutes} active minutes`;
   return {
     ...report,
-    message: `slice ${named.slice} of ${named.identity} reached the ${sliceLimitMinutes}-minute limit: ${report.elapsedMinutes} active minutes`,
+    message: round
+      ? roundEndMessage(report, reached)
+      : `${labelOf(named)} ${reached}`,
   };
 }
 

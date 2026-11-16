@@ -11,7 +11,10 @@ import {
   sessionPolicySchema,
 } from "./launchRequest.ts";
 
-import { establishedSessionSchema } from "./unattachedSession.ts";
+import {
+  establishedSessionSchema,
+  type EstablishedSession,
+} from "./unattachedSession.ts";
 import { hostSessionSchema } from "./hostSession.ts";
 export {
   hostSessionSchema,
@@ -124,8 +127,9 @@ export function assignedAgent(
 }
 
 // Whether established facts name a one-shot context rather than an assignment.
+// An established session has no tracking and is never one-shot.
 export function isEstablishedOneShot(
-  established: EstablishedContext,
+  established: EstablishedContext | EstablishedSession,
 ): established is Extract<EstablishedContext, { tracking: "one-shot" }> {
   return "tracking" in established;
 }

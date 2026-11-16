@@ -77,6 +77,18 @@ export async function recordedSession(
   }
 }
 
+// A kept session named as other session reads name it, or the unknown-session
+// refusal. Review and similar GETs resolve through this; mutating namedSession
+// adds the request body and folder.
+export async function namedKeptSession(
+  source: PublishedSource,
+  session: SessionReference,
+): Promise<LaunchRecord> {
+  const record = await keptSession(source.id, session);
+  if (record === undefined) throw noSuchSession();
+  return record;
+}
+
 // The recorded session a done mark or a delete names, in its project.
 export async function namedSession(
   req: IncomingMessage,
@@ -111,13 +123,10 @@ export async function unreadReportSession(req: IncomingMessage): Promise<{
     throw new RefusedRequest(400, "The read request is malformed.");
   }
   const source = knownSource(parsed.data.source);
-  const record = await keptSession(source.id, {
+  const record = await namedKeptSession(source, {
     sessionId: parsed.data.session,
     host: parsed.data.host,
   });
-  if (record === undefined) {
-    throw noSuchSession();
-  }
   const { completion } = record;
   if (completion === undefined || !reportUnread(record)) {
     throw new RefusedRequest(400, "This session has no unread report.");

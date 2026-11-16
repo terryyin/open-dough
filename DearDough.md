@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 551. Removed numbers are never reused.
+- Highest allocated local number: 553. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -146,6 +146,21 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: the slice 2 implementation and refactor briefs forbade lint. Guarded fresh delivery's `npm run --silent format` refused on six ESLint errors (`no-param-reassign`, `no-return-assign`) in `slice-clock.mjs`, `slice-clock-record.mjs` and `slice-clock-fixture.mjs`. The coordinator repaired them, reran the spec and retried. Briefs for slices 3–5 named the two rules and allowed a read-only `npx eslint`; their four deliveries formatted clean.
   - Observed effect: one failed delivery attempt and a coordinator-side repair after the refactor pass had reported complete.
   - Inference: same gap as ODF-329, for JavaScript sources. Naming the project's strict rules and allowing a read-only lint in the brief removed it for the rest of the execution.
+- Execution: SEED-367#discard-time-after-an-ended-session (plan 668; first implementation `66ce0a60d6b5ae2f172667c174b0c1154ef6ba97`)
+  - Timestamp: unknown (2026-11-16, first slice delivery before `66ce0a60d6`)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `ad2e6f733dc41b7177bd39ab20fb7b0846f41146`)
+  - Evidence: implementation and refactor briefs forbade hook-owned lint. Guarded fresh delivery refused formatting on six `no-param-reassign` errors in `slice-clock.mjs` and `slice-clock-slices.mjs`, after the independent refactor and 29-test proof. The coordinator used the existing `Object.assign` pattern, reran the 29 clock tests, and retried delivery successfully.
+  - Observed effect: one withheld delivery and coordinator repair after the refactor reported complete; no failed candidate was committed or published.
+  - Inference: another occurrence of ODF-329. Carrying the strict rule into the brief may avoid this rework; the installed workflow reserved lint for the coordinator. Extra cost was not measured.
+- Execution: SEED-367#bound-diagnosis-in-evidence-rounds (plan 669; first implementation `cce82241194e3f8f5e58b84342dfcd92c51d63c8`)
+  - Timestamp: unknown (2026-11-16 +08:00; slice 1 delivery, before commit `cce82241` at 19:02:58)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `2d69b6928`)
+  - Evidence: the slice 1 implementation and refactor briefs forbade lint and named no strict rule, although the plan 667 and 668 rows above recorded the same two `no-param-reassign` sites in this clock. Guarded fresh delivery refused formatting on two `no-param-reassign` errors in the new `slice-clock-diagnosis.mjs`; the coordinator applied the `Object.assign`/destructure pattern, reran the 32 clock tests and retried successfully.
+  - Observed effect: one withheld delivery and a coordinator repair after the refactor pass reported complete; nothing failed was committed.
+  - Inference: the remedy recorded for plan 667 lived only in that execution's briefs, so it did not carry to the next execution on the same files.
 
 ## ODF-169 — Stale replay base includes sibling commits <a id="odf-169"></a>
 
@@ -358,3 +373,35 @@ A changed attribution rule passed its fixture specs and full consumer suite and 
   - Evidence: slice 1 accepted on 5 fixture cases and usage-history 98/98, published dcd69ec7b; slice 2's copy import made 17 of 424 Codex launches 0 (duplicate task on reimport, repaired 5145a57c3); the next run made 11 launches unpriced (turn-start compaction before its turn_context) and kept a `/dough-land` without `<command-args>` in its execution (both repaired 0a58de188). Each real-store import took 9–12.5 min at about 4 GB; a store already written with a defective rule had to be restored from backup because stored task turns only grow.
   - Observed effect: three repair cycles on the story branch, three full imports of real history plus a restore, and slice 2 over its active budget; no trunk impact.
   - Inference: the plan's decisive premises sampled simple shapes; a narrowed import of a few real sessions with a per-record comparison, run before accepting slice 1, would likely have found all three defects earlier. Saving is unmeasured.
+
+## DD-552 — A slice grows a reference already at the 250-line limit that the plan did not size
+
+The plan checked size for the script it reorganized, not for a guidance file
+sitting exactly at the limit that its slice added lines to, so the split was
+designed after implementation instead of in planning.
+
+### Occurrences
+
+- Execution: SEED-367#bound-diagnosis-in-evidence-rounds (plan 669; first implementation `cce82241194e3f8f5e58b84342dfcd92c51d63c8`)
+  - Timestamp: unknown (2026-11-16 +08:00; slice 2 refactor pass, before commit `0f665967` at 19:10:23)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take `2d69b6928`)
+  - Evidence: plan 669 recorded `slice-clock.mjs` at 199 lines and a seam for it, and told slice 2 to edit `execution-decisions.md`, then exactly 250 lines. Slice 2 added four lines; the refactor pass reported 254. The coordinator moved the self-contained live-action section into `live-action-regression-proof.md`, retargeted two links and declared the file in the install payload.
+  - Observed effect: an unplanned structural change inside a behavior slice's delivery; no human stop and no failed delivery.
+  - Inference: the delegation rule triggers only on files already over the limit; a file at the limit that a slice grows needs the same seam decision at planning time. Related to DD-546, which concerns an over-limit file a sweep edits.
+
+## DD-553 — A real-history premise is settled at an intermediate stage, not at the total it predicts
+
+The plan treated "no other loss in the launch" as settled because a scratch replay of the real session showed every measurement reaching a root. The promised result was the launch total. The full real-store import showed a second loss that only task association reveals. A narrowed import of that one session, taking seconds, later reproduced it exactly. Related: [DD-551](#dd-551--a-rule-over-retained-history-is-accepted-on-fixtures-before-any-real-history-comparison).
+
+### Occurrences
+
+- Execution: SEED-388#count-nested-claude-background-agent-work (plan 670; first implementation 669216b05)
+  - Timestamp: 2026-11-16T19:05:00+08:00 (approximate; first real-store import evaluated)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: unknown (checkout-bound installed guidance at Take 20c85d95a)
+  - Evidence: The plan's premise row "No other loss affects SEED-334's launch" was "settled from the analysis". The preparation replay checked climb-to-root only. After the climb fix, the first full import (611 s) read 67.84M, not 74.03M. A scratch import of only session 50829ac2… showed 251 fork-replayed responses marked contradictory-lineage. After a developer decision and the fork-replay rule, the second full import (940 s) read 74.03M.
+  - Observed effect: an extra full real-store import, a diagnosis, and a developer stop with an attention report before the slice could finish. There was no trunk impact.
+  - Inference: settling a premise about a total by running the consuming operation narrowed to the affected sessions would have found the loss during preparation. The saving is about one full import plus a human round trip; the exact figure is unmeasured.

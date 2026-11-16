@@ -127,7 +127,8 @@ context too, whichever landing it chose, since the developer may ask a session
 that waits for review to land later. Its context and capture authority name the
 launch, the session's workspace and branch, and the remote target, with no story
 identity; its landing is admitted and kept by its launch reference alone, on its
-launch record, and no story review lists it. A landing names a story exactly
+launch record. No story review lists it; its Recently done entry offers
+**Review changes** for that landing. A landing names a story exactly
 when its launch does: a story launch's landing without its identity, a story
 named for an unattached launch, and a launch with the default choices, which
 established no session, are refused. The context is named only where the

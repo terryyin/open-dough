@@ -25,7 +25,7 @@ import {
 import type { OpenSessionsSidebarSessionEntry } from "./SessionsSidebarSessionEntry.tsx";
 import { Terminal } from "./Terminal.tsx";
 import { StoryReview } from "./StoryReview.tsx";
-import { StoryReviewsOnPage } from "./pageStoryReviews.ts";
+import { StoryReviewsOnPage, storyReviewPanelKey } from "./pageStoryReviews.ts";
 import { usePageSidePanel } from "./pageSidePanel.ts";
 import { shownRecord } from "./sidePanelContent.ts";
 import { SessionsOnPage, type SessionOperation } from "./pageSessions.ts";
@@ -226,7 +226,7 @@ export function PageFrame({
                           // replacement, reads anew; asking again for the one shown
                           // focuses it and keeps its snapshot until Refresh. Switching
                           // between live and historical reading starts a fresh review.
-                          key={`${storyReview.source}\n${storyReview.identity}\n${String(storyReview.historical === true)}`}
+                          key={storyReviewPanelKey(storyReview)}
                           request={storyReview}
                           maximized={maximized}
                           onMaximize={sidePanel.maximize}

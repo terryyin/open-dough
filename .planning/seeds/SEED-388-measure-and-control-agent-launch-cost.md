@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-16
 planted_during: Terry Yin asked why Claude Code execution usage rose three times between 2026-10-25 and 2026-11-15
 trigger_when: selected from the product backlog
-scope: four stories
+scope: three stories
 ---
 
 # SEED-388 — Measure and control what agent launches cost
@@ -13,32 +13,10 @@ The [Claude Code usage spike analysis](https://github.com/terryyin/open-dough/bl
 found that the Usage index hid much of the cost of executions that needed a
 developer, and associated an unrequested effort level with roughly three times
 the cost across 11 executions. The index now counts a launch's work after a
-developer reply on both tools; two Claude Code reader gaps below still lose
-some responses. The [SEED-345](SEED-345-session-token-efficiency.md)
+developer reply on both tools, and background agents at any depth; one
+Claude Code reader gap below still loses some responses. The [SEED-345](SEED-345-session-token-efficiency.md)
 efficiency trials are judged with the comparable-run measure below, on this
 index at a known effort, so the corrections come first.
-
-<a id="count-nested-claude-background-agent-work"></a>
-
-### Count a Claude Code background agent started by a subagent
-
-**Identity:** SEED-388#count-nested-claude-background-agent-work
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
-```
-
-- **Problem.** A background agent started by a Claude Code subagent
-  (`spawnDepth` 2) has its responses climb to no launch input, and no
-  coverage gap names them. SEED-334#run-and-observe-product-wide-end-to-end-tests
-  shows 56.33M against 74.03M of transcript cost: its 15 second-level agents
-  hold the missing 846 responses (17.70M).
-- **Observed cause.** When a climb reaches the first row of a worker
-  transcript, `dashboard/server/claudeUsageAncestry.ts` looks up the worker
-  join by the original response's agent, not by the agent whose file the row
-  is in, so a climb from a second-level agent revisits its own join and never
-  reaches the root transcript.
-- **Evaluation.** SEED-334's launch matches its transcript cost; a nested
-  agent without a join keeps an explained gap.
 
 <a id="read-claude-rows-with-unicode-line-separators"></a>
 

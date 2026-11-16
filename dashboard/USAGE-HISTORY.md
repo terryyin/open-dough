@@ -134,9 +134,13 @@ shared request ID or streaming row UUID, as the response identity. Repeated
 streaming rows preserve their first and last recorded times; advancing
 timestamps do not contradict task lineage. Claude input counters are already
 disjoint. Cache creation lifetime fields only refine cache writes. A worker
-retains its native `agentId` and joins its root through a recorded agent result
-and parent UUID chain. A native human input's recorded dashboard reporting
-reference (or a retained native input UUID) binds it to a launch. A repeated
+retains its native `agentId` and joins its root through its own recorded agent
+result and parent UUID chain. That result may be in the root transcript or in
+another worker's transcript, at any depth. A forked worker's transcript replays its
+parent's rows with their native identities. A response read from several
+transcripts belongs to the one reading worker whose transcript every reading's
+climb passes through, and is counted once. A native human input's recorded
+dashboard reporting reference (or a retained native input UUID) binds it to a launch. A repeated
 reference can continue that same launch; a different launch reference selects
 another task in the same session. A plain developer input adds its turn to the
 active task's `nativeTurns`, even after a completion receipt, until a workflow

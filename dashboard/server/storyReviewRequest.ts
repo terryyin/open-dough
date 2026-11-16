@@ -1,17 +1,24 @@
 // One authoritative retained-record read supplies both historical choices and
-// the shared workspace opening rule.
+// the shared workspace opening rule. The review names either a story identity
+// or an ad hoc session through one admission path.
 import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import {
   preferredReviewRun,
   type ReviewLandedRun,
 } from "../src/storyReviewLandedRun.ts";
+import { establishedPlace } from "../src/establishedPlace.ts";
+import { launchSubject } from "../src/launchWorkflow.ts";
 import { queriedRun } from "./storyReviewRunAdmission.ts";
 import { resolvedWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { requireExactQuery } from "./sessionAdmission.ts";
+import {
+  queriedReviewedSessionSubject,
+  reviewedWorkSubjectQuery,
+} from "./reviewedWorkSubjectAdmission.ts";
+import { namedKeptSession, requireExactQuery } from "./sessionAdmission.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 
 interface AdmittedWorkspaceReview {
@@ -58,11 +65,47 @@ export type AdmittedStoryReview =
         readonly source: PublishedSource;
         readonly identity: string;
       };
+    }
+  // An ad hoc session kept without a landing: explain before the landed reader,
+  // including default launches that established no place.
+  | {
+      readonly kind: "story-review";
+      readonly landingUnavailable: string;
+      readonly runs: readonly ReviewLandedRun[];
     };
 
-export async function storyReviewRequest(
-  url: URL,
-): Promise<AdmittedStoryReview> {
+async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
+  requireExactQuery(url, ["source", "host", "session"], "review");
+  const { source, host, session } = queriedReviewedSessionSubject(url);
+  const record = await namedKeptSession(source, {
+    host,
+    sessionId: session,
+  });
+  if (launchSubject(record.request).identity !== undefined)
+    throw new RefusedRequest(
+      400,
+      "This session belongs to a story launch and is reviewed by its story.",
+    );
+  if (record.landing === undefined)
+    return {
+      kind: "story-review",
+      landingUnavailable: "This session's changes were not captured.",
+      runs: [],
+    };
+  const established = establishedPlace(record);
+  if (established === undefined)
+    throw new RefusedRequest(
+      404,
+      "This session has no launch workspace to review.",
+    );
+  return {
+    kind: "story-review",
+    run: { record, established },
+    runs: [],
+  };
+}
+
+async function identityReviewRequest(url: URL): Promise<AdmittedStoryReview> {
   requireExactQuery(
     url,
     [
@@ -150,4 +193,12 @@ export async function storyReviewRequest(
       : {}),
     ...(fallback === undefined ? {} : { fallback }),
   };
+}
+
+export async function storyReviewRequest(
+  url: URL,
+): Promise<AdmittedStoryReview> {
+  const subject = reviewedWorkSubjectQuery(url);
+  if (subject.kind === "session") return sessionReviewRequest(url);
+  return identityReviewRequest(url);
 }

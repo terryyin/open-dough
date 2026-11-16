@@ -5,7 +5,10 @@ import { expect, type Locator, type Page } from "@playwright/test";
 export const reviewRegion = (
   page: Page,
   { exact = false }: { exact?: boolean } = {},
-) => page.getByRole("region", { name: "Story review", exact });
+) =>
+  page.getByRole("region", {
+    name: exact ? /^(?:Story|Session) review$/ : /(?:Story|Session) review/,
+  });
 
 // A marked story's comparison switch.
 export const comparison = (review: Locator) =>
