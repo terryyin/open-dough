@@ -1,17 +1,25 @@
 // One authoritative retained-record read supplies both historical choices and
-// the shared workspace opening rule.
+// the shared workspace opening rule. The review names either a story identity
+// or an ad hoc session through one admission path.
 import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import {
   preferredReviewRun,
   type ReviewLandedRun,
 } from "../src/storyReviewLandedRun.ts";
+import { establishedPlace } from "../src/establishedPlace.ts";
+import { launchSubject } from "../src/launchWorkflow.ts";
+import { reviewedSessionSubjectSchema } from "../src/reviewedWorkSubject.ts";
 import { queriedRun } from "./storyReviewRunAdmission.ts";
 import { resolvedWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { shownStartWorkspace } from "./launchWorkspace.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { requireExactQuery } from "./sessionAdmission.ts";
+import {
+  knownSource,
+  namedKeptSession,
+  requireExactQuery,
+} from "./sessionAdmission.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 
 interface AdmittedWorkspaceReview {
@@ -60,9 +68,39 @@ export type AdmittedStoryReview =
       };
     };
 
-export async function storyReviewRequest(
-  url: URL,
-): Promise<AdmittedStoryReview> {
+async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
+  requireExactQuery(url, ["source", "host", "session"], "review");
+  const parsed = reviewedSessionSubjectSchema.safeParse({
+    source: url.searchParams.get("source"),
+    host: url.searchParams.get("host"),
+    session: url.searchParams.get("session"),
+  });
+  if (!parsed.success)
+    throw new RefusedRequest(400, "The review session is malformed.");
+  const source = knownSource(parsed.data.source);
+  const record = await namedKeptSession(source, {
+    host: parsed.data.host,
+    sessionId: parsed.data.session,
+  });
+  if (launchSubject(record.request).identity !== undefined)
+    throw new RefusedRequest(
+      400,
+      "This session belongs to a story launch and is reviewed by its story.",
+    );
+  const established = establishedPlace(record);
+  if (established === undefined)
+    throw new RefusedRequest(
+      404,
+      "This session has no launch workspace to review.",
+    );
+  return {
+    kind: "story-review",
+    run: { record, established },
+    runs: [],
+  };
+}
+
+async function identityReviewRequest(url: URL): Promise<AdmittedStoryReview> {
   requireExactQuery(
     url,
     [
@@ -150,4 +188,19 @@ export async function storyReviewRequest(
       : {}),
     ...(fallback === undefined ? {} : { fallback }),
   };
+}
+
+export async function storyReviewRequest(
+  url: URL,
+): Promise<AdmittedStoryReview> {
+  const namesStory = url.searchParams.has("identity");
+  const namesSession = url.searchParams.has("session");
+  if (namesStory && namesSession)
+    throw new RefusedRequest(
+      400,
+      "The review names both a story and a session.",
+    );
+  if (namesSession) return sessionReviewRequest(url);
+  if (namesStory) return identityReviewRequest(url);
+  throw new RefusedRequest(400, "The review request is malformed.");
 }

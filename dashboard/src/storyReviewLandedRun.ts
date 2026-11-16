@@ -3,19 +3,29 @@
 // landing or its workspace is gone (then as its evidence gap). A claimed launch
 // with a workspace and no landing has not landed.
 import { z } from "zod";
-import { isEstablishedOneShot, type LaunchRecord } from "./launchRecord.ts";
+import {
+  isEstablishedOneShot,
+  type EstablishedContext,
+  type LaunchRecord,
+} from "./launchRecord.ts";
+import type { EstablishedSession } from "./unattachedSession.ts";
 import { launchSubject } from "./launchWorkflow.ts";
 import { launchLandingSchema, type LaunchLanding } from "./launchLanding.ts";
 import { sessionKey } from "./sessionReference.ts";
 
-export function reviewLandedRunsOf<Kept extends LaunchRecord>(
-  records: readonly Kept[] | undefined,
+export type ReviewLandedRun = {
+  readonly record: LaunchRecord;
+  readonly established: EstablishedContext | EstablishedSession;
+};
+
+export function reviewLandedRunsOf(
+  records: readonly LaunchRecord[] | undefined,
   source: string,
   identity: string,
   workspaceGone: (workspace: string) => boolean,
-) {
+): ReviewLandedRun[] {
   return (records ?? [])
-    .flatMap((record) => {
+    .flatMap((record): ReviewLandedRun[] => {
       const established = record.start ?? record.preparation;
       if (
         established === undefined ||
@@ -35,7 +45,6 @@ export function reviewLandedRunsOf<Kept extends LaunchRecord>(
         Date.parse(b.record.launchedAt) - Date.parse(a.record.launchedAt),
     );
 }
-export type ReviewLandedRun = ReturnType<typeof reviewLandedRunsOf>[number];
 // Runs are newest first. Opening, switching to history, and replacing a
 // vanished choice all prefer the newest captured comparison, then its gap.
 export function preferredReviewRun<Run>(
@@ -50,9 +59,14 @@ export function preferredReviewRun<Run>(
 // without the optional reporting handoff use their durable host/session key.
 export const reviewRunKey = (record: LaunchRecord) =>
   record.request.reporting?.reference ?? sessionKey(record.session);
+export const reviewLandedWorkflowSchema = z.enum([
+  "refinement",
+  "execution",
+  "ad-hoc",
+]);
 export const reviewRunChoiceSchema = z.object({
   key: z.string().min(1),
-  workflow: z.enum(["refinement", "execution"]),
+  workflow: reviewLandedWorkflowSchema,
   launchedAt: z.iso.datetime(),
   remote: z.string().min(1),
   target: z.string().min(1),
@@ -82,7 +96,7 @@ export function reviewRunChoice(run: ReviewLandedRun): ReviewRunChoice {
 export const landedReviewContextSchema = launchLandingSchema
   .omit({ repository: true })
   .extend({
-    workflow: z.enum(["refinement", "execution"]),
+    workflow: reviewLandedWorkflowSchema,
     launchedAt: z.iso.datetime(),
   });
 export type LandedReviewContext = z.infer<typeof landedReviewContextSchema>;

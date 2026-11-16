@@ -2,6 +2,7 @@
 
 **Identity:** SEED-379#review-changes-from-completed-ad-hoc-sessions
 **Source:** [Review changes from completed ad hoc sessions](../../seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -114,7 +115,7 @@ Each owning slice keeps them within it by cohesive extraction:
 ### 1. An ad hoc review request answers the retained landing
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `dashboard/backend-tests/review/ad-hoc-review.spec.ts`; `dashboard/backend-tests/review/` stays green.
 
 Behavior: a kept ad hoc record with a landing captured in a real repository,
@@ -128,6 +129,11 @@ an unknown session is refused.
 The subject (`identity` or `session`) is admitted once in
 `storyReviewRequest.ts`; the reader's workflow gate and the two enums admit
 `ad-hoc`.
+
+Accepted proof (2026-11-16):
+- `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test --config dashboard/backend.playwright.config.ts --reporter=list dashboard/backend-tests/review/ad-hoc-review.spec.ts` → 2 passed (landed after worktree gone + trunk advance; refusals for story session, unknown, dual subject; HEAD/index unchanged).
+- same command with `dashboard/backend-tests/review/` → 93 passed.
+Learning: kept Done records older than retention are invisible to `keptSession`; proof uses a fresh `markedDone()`.
 
 ### 2. An ad hoc review explains missing, unreadable and empty evidence
 

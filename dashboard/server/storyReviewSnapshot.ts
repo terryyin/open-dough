@@ -56,10 +56,14 @@ export async function storyReviewResponse(
         return { kind: "unavailable", explanation: request.explanation };
       let local: StoryReview;
       if ("run" in request) {
-        local = {
-          ...(await landedStoryReview(request.run, signal)),
-          selectedRun: reviewRunKey(request.run.record),
-        };
+        local = await landedStoryReview(request.run, signal);
+        // A session subject has no run choices; only a story's retained runs
+        // select one.
+        if (request.runs.length > 0)
+          local = {
+            ...local,
+            selectedRun: reviewRunKey(request.run.record),
+          };
       } else {
         const { sourceId, identity, established, shown } = request;
         local = await storyReviewSnapshot(
