@@ -3,6 +3,7 @@
 // controllable review-state substitute.
 
 import type { Page } from "@playwright/test";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchWithState } from "../../src/launchRecord.ts";
 import { showColumn } from "../boardPage.ts";
 import { parts } from "../dashboardParts.ts";
@@ -18,7 +19,6 @@ import {
   installFrontendDoneBodyReads,
   type FrontendDoneBodyReads,
 } from "./frontendDoneBodyReads.ts";
-import { putFrontendObservedLaunches } from "./frontendRecentlyDoneSidebar.ts";
 import {
   putFrontendDoneRecords,
   type FrontendServiceState,
@@ -55,7 +55,9 @@ export async function openFrontendBoardReview(
 ): Promise<FrontendBoardReview> {
   putFrontendDoneRecords(services, "open-dough", boardReviewDoneRecords(now));
   if (observed.length > 0) {
-    putFrontendObservedLaunches(services, ...observed);
+    services.answerMachine(
+      makeMe.aMachineAnswer.observing(...observed).please(),
+    );
   }
   const review = await installFrontendStoryReviewState(page, {
     "open-dough": reviewed,

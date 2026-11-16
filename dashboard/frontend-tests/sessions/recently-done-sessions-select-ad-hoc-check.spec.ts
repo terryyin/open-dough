@@ -9,11 +9,6 @@ import { expectProjectChoice } from "../../tests/projectChoice.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyTitle } from "../../tests/support/intentStoryPage.ts";
 import { installFrontendCompletedStoryAssociation } from "../../tests/support/frontendServiceSubstitutes.ts";
-import {
-  observedDone,
-  putFrontendObservedLaunches,
-  putFrontendThreeProjects,
-} from "../../tests/support/frontendRecentlyDoneSidebar.ts";
 import { putFrontendDonePublication } from "../../tests/support/frontendServiceState.ts";
 import { showRecentlyDone } from "../../tests/recentlyDoneSessionsSidebarPage.ts";
 import { describedRevisions } from "../../tests/describedRevisions.ts";
@@ -28,7 +23,7 @@ test("an unanswered ad hoc association is superseded by another row, and a faile
   frontendServices,
 }) => {
   const association = await installFrontendCompletedStoryAssociation(page);
-  putFrontendThreeProjects(frontendServices);
+  frontendServices.listThreeProjects();
   const linkedRecord = makeMe.aDoneRecord
     .completed({
       identity: linkedIdentity,
@@ -61,10 +56,8 @@ test("an unanswered ad hoc association is superseded by another row, and a faile
     .adHoc({ instruction: otherTitle, title: otherTitle })
     .markedDoneAt(new Date(Date.now() - 30_000).toISOString())
     .please();
-  putFrontendObservedLaunches(
-    frontendServices,
-    observedDone(linked),
-    observedDone(other),
+  frontendServices.answerMachine(
+    makeMe.aMachineAnswer.observingDone(linked, other).please(),
   );
 
   await pausePageClockAt(page, new Date());

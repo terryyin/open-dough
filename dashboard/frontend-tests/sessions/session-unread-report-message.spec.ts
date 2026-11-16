@@ -13,7 +13,6 @@ import { expect, test } from "../../tests/support/frontendApp.ts";
 import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
 import {
   frontendStoryLaunch,
-  putFrontendMachine,
   type FrontendServiceState,
 } from "../../tests/support/frontendServiceState.ts";
 import { reportedMessage } from "../../tests/support/reportedLaunch.ts";
@@ -43,8 +42,7 @@ function reported(
   message: string,
   receipt = "11111111-1111-4111-8111-111111111111",
 ) {
-  putFrontendMachine(
-    services,
+  services.answerMachine(
     makeMe.aMachineAnswer
       .observing(
         makeMe.anObservedLaunch

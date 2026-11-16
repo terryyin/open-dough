@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Serve frontend dashboard answers through MakeMe](seeds/SEED-301-limit-first-layer-test-cases-to-ten-lines.md#serve-frontend-dashboard-answers-through-makeme) — SEED-301#serve-frontend-dashboard-answers-through-makeme ([plan](slice-plans/655-serve-frontend-dashboard-answers-through-makeme/PLAN.md))
 - [Fixed shards for browser tests and on-demand rebalancing](seeds/SEED-381-fixed-ci-test-shards.md#fixed-shards-for-browser-tests-and-on-demand-rebalancing) — SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing ([plan](slice-plans/656-fixed-shards-for-browser-tests-and-on-demand-rebalancing/PLAN.md))
 - [Keep browser test jobs inside their deadline on slow runners](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#browser-test-job-headroom-on-slow-runners) — SEED-382#browser-test-job-headroom-on-slow-runners ([plan](slice-plans/657-browser-test-job-headroom-on-slow-runners/PLAN.md))
 

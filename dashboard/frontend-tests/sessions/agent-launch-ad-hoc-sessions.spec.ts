@@ -14,7 +14,6 @@ import {
   test,
 } from "../../tests/support/frontendApp.ts";
 import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
-import { putFrontendMachine } from "../../tests/support/frontendServiceState.ts";
 import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
 import { askToDeleteRecord } from "../../tests/support/sessionEntryDisclosure.ts";
 import { takenAdHocSession } from "../../tests/support/startedAdHocSession.ts";
@@ -51,8 +50,7 @@ test("a blocked ad hoc session reads Needs input in Taken and the sidebar, and t
   frontendServices,
 }) => {
   const text = "what is blocking us?";
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
       .observing(
         adHoc(
@@ -86,8 +84,7 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
   frontendServices,
 }) => {
   const unknown = makeMe.aSessionState.unknown().please();
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
       .observing(
         adHoc("the older question", unknown, "2026-01-01T00:00:00.000Z"),
@@ -125,8 +122,7 @@ test("with Open Dough already shown, its Sessions sidebar Session entry brings i
   frontendServices,
 }) => {
   const text = "where is this entry?";
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
       .observing(adHoc(text, makeMe.aSessionState.loaded("working").please()))
       .please(),

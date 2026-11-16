@@ -27,12 +27,7 @@ import {
 import { pausePageClockAt } from "../../tests/dashboardTest.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
-import {
-  observedDone,
-  observedOpen,
-  openFrontendThreeProjects,
-  putFrontendObservedLaunches,
-} from "../../tests/support/frontendRecentlyDoneSidebar.ts";
+import { openFrontendThreeProjects } from "../../tests/support/frontendRecentlyDoneSidebar.ts";
 
 test("finds and opens the newest completed sessions across projects from a collapsed Recently done section", async ({
   page,
@@ -80,13 +75,12 @@ test("finds and opens the newest completed sessions across projects from a colla
     .inClaudeSession({ sessionId: "still-open" })
     .launchedAt(stillOpenLaunchedAt)
     .please();
-  putFrontendObservedLaunches(
-    frontendServices,
-    observedDone(newest),
-    observedDone(middle),
-    observedDone(oldestShown, "unavailable"),
-    observedDone(unattached, "unavailable"),
-    observedOpen(stillOpen),
+  frontendServices.answerMachine(
+    makeMe.aMachineAnswer
+      .observingDone(newest, middle)
+      .observingUnavailable(oldestShown, unattached)
+      .observingOpen(stillOpen)
+      .please(),
   );
   await installAttachedTerminalSubstitute(page);
   await openFrontendThreeProjects(page, frontendServices);
@@ -179,7 +173,7 @@ test("empty and reading states stay distinct, and fewer than 20 shows every Done
   page,
   frontendServices,
 }) => {
-  putFrontendObservedLaunches(frontendServices);
+  frontendServices.answerMachine(makeMe.aMachineAnswer.please());
   await openFrontendThreeProjects(page, frontendServices);
   const shown = await showRecentlyDone(page);
   await expect(shown.body).toContainText("No sessions marked done are listed.");
@@ -197,9 +191,8 @@ test("empty and reading states stay distinct, and fewer than 20 shows every Done
       .markedDoneAt(new Date(now - (index + 1) * 30_000).toISOString())
       .please(),
   );
-  putFrontendObservedLaunches(
-    frontendServices,
-    ...few.map((record) => observedDone(record, "unavailable")),
+  frontendServices.answerMachine(
+    makeMe.aMachineAnswer.observingUnavailable(...few).please(),
   );
   await page.reload();
   await expect(

@@ -14,10 +14,7 @@ import type { LaunchWithState } from "../../src/agentLaunch.ts";
 import { agentDeleteEndpoint } from "../../src/deleteRecord.ts";
 import { agentDoneEndpoint } from "../../src/doneMark.ts";
 import { agentReadEndpoint } from "../../src/readMark.ts";
-import {
-  putFrontendMachine,
-  type FrontendServiceState,
-} from "./frontendServiceState.ts";
+import type { FrontendServiceState } from "./frontendServiceState.ts";
 import {
   answerHeld,
   fulfillJson,
@@ -92,7 +89,7 @@ export async function installFrontendSessionActions(
   const put = (records: readonly LaunchWithState[]) => {
     const { machine } = services;
     if (machine === undefined) throw new Error("The machine was never read.");
-    putFrontendMachine(services, { ...machine, records: [...records] });
+    services.answerMachine({ ...machine, records: [...records] });
   };
   const answer = (action: SessionAction, record: LaunchWithState) => {
     if (action === "delete") {

@@ -8,7 +8,6 @@ import {
 } from "../../tests/support/frontendApp.ts";
 import { installFrontendFinalReport } from "../../tests/support/frontendFinalReportSubstitutes.ts";
 import { retainedMissingWorkspaceSession } from "../../tests/support/frontendFinalReportSession.ts";
-import { putFrontendMachine } from "../../tests/support/frontendServiceState.ts";
 import {
   readFinalReport,
   readFinalReportControl,
@@ -25,8 +24,7 @@ test("changing selection cancels a held report and never shows its text as the n
 }) => {
   const first = retainedMissingWorkspaceSession("held-report-session");
   const second = retainedMissingWorkspaceSession("next-retained-session");
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer.observing(first, second).please(),
   );
   const reports = await installFrontendFinalReport(page, {

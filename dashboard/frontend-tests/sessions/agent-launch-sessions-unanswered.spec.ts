@@ -10,10 +10,7 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../../tests/support/frontendApp.ts";
-import {
-  frontendStoryLaunch,
-  putFrontendMachine,
-} from "../../tests/support/frontendServiceState.ts";
+import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
 import { fulfillJson } from "../../tests/support/frontendSubstituteAnswers.ts";
 import { setPageVisibility } from "../../tests/autoRefreshJourney.ts";
 import { storyCardSessions } from "../../tests/dashboardPage.ts";
@@ -33,16 +30,8 @@ test("a sessions read told to ask again keeps the listed sessions, and a hidden 
   const listed = frontendStoryLaunch("executing", notRefinedStory)
     .inCodexSession({ sessionId: "listed-thread" })
     .please();
-  putFrontendMachine(
-    frontendServices,
-    makeMe.aMachineAnswer
-      .observing(
-        makeMe.anObservedLaunch
-          .of(listed)
-          .withSessionState(makeMe.aSessionState.retained("review").please())
-          .please(),
-      )
-      .please(),
+  frontendServices.answerMachine(
+    makeMe.aMachineAnswer.observingDone(listed).please(),
   );
   await pausePageClockAt(page, new Date());
   const { passOnePace } = await watchRecordReads(page);

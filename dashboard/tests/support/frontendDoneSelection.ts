@@ -14,10 +14,6 @@ import {
   frontendFileDiff,
   frontendPublishedReview,
 } from "./frontendStoryReview.ts";
-import {
-  observedDone,
-  putFrontendObservedLaunches,
-} from "./frontendRecentlyDoneSidebar.ts";
 
 export async function prepareFrontendDoneSelection(
   page: Page,
@@ -49,15 +45,19 @@ export async function prepareFrontendDoneSelection(
       makeMe.aDoneRecord.completed({ ...story, completedAt }).please(),
     ),
   );
-  putFrontendObservedLaunches(
-    services,
-    observedDone(
-      makeMe.aLaunchRecord
-        .executing(storyB)
-        .inClaudeSession({ sessionId: "completed-story-b", shortId: "story-b" })
-        .markedDoneAt(completedAt)
-        .please(),
-    ),
+  services.answerMachine(
+    makeMe.aMachineAnswer
+      .observingDone(
+        makeMe.aLaunchRecord
+          .executing(storyB)
+          .inClaudeSession({
+            sessionId: "completed-story-b",
+            shortId: "story-b",
+          })
+          .markedDoneAt(completedAt)
+          .please(),
+      )
+      .please(),
   );
   const secondCompletion = "d".repeat(40);
   const path = "second/tests/b.spec.ts";

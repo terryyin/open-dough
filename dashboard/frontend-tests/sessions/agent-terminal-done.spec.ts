@@ -18,7 +18,6 @@ import {
   openCardSessionTerminal,
 } from "../../tests/support/frontendCardSessions.ts";
 import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
-import { putFrontendMachine } from "../../tests/support/frontendServiceState.ts";
 import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
 import { directedApplication } from "../../tests/support/terminalSubstituteApplication.ts";
 import {
@@ -37,8 +36,7 @@ test("a refused mark keeps the panel open and says so as a problem, as an ended 
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
       .observing(cardSession("Execution", readyStory, working))
       .please(),
@@ -72,8 +70,7 @@ test("a mark answered after another session replaced the panel leaves the keyboa
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
       .observing(
         cardSession("Execution", readyStory, working),

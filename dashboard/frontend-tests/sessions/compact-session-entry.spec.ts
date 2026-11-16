@@ -13,7 +13,6 @@ import {
 import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
 import {
   frontendStoryLaunch,
-  putFrontendMachine,
   type FrontendServiceState,
 } from "../../tests/support/frontendServiceState.ts";
 import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
@@ -53,8 +52,7 @@ function observe(
   record: LaunchRecord,
   state: SessionState,
 ) {
-  putFrontendMachine(
-    services,
+  services.answerMachine(
     makeMe.aMachineAnswer
       .observing(
         makeMe.anObservedLaunch.of(record).withSessionState(state).please(),
@@ -71,7 +69,7 @@ test("a compact session discloses technical details and secondary actions withou
     .requestingModel("sonnet")
     .please();
   const id = record.session.sessionId;
-  putFrontendMachine(frontendServices, makeMe.aMachineAnswer.please());
+  frontendServices.answerMachine(makeMe.aMachineAnswer.please());
   await installFrontendSessionActions(page, frontendServices);
   await installAttachedTerminalSubstitute(page);
   await openFrontendTakenBacklog(page);

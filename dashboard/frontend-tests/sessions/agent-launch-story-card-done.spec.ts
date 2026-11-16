@@ -18,7 +18,6 @@ import {
   cardSessionEntry,
 } from "../../tests/support/frontendCardSessions.ts";
 import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
-import { putFrontendMachine } from "../../tests/support/frontendServiceState.ts";
 import { sessionAction } from "../../tests/support/sessionEntryDisclosure.ts";
 import { markDoneAnyway } from "../../tests/support/markDone.ts";
 import { parts, sessionEntriesIn } from "../../tests/dashboardPage.ts";
@@ -29,8 +28,7 @@ test("a refused mark keeps the session on its card and says so on its entry", as
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
       .observing(
         cardSession(

@@ -16,7 +16,6 @@ import {
 } from "../../tests/support/frontendApp.ts";
 import { cardSession } from "../../tests/support/frontendCardSessions.ts";
 import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
-import { putFrontendMachine } from "../../tests/support/frontendServiceState.ts";
 import {
   askToDeleteRecord,
   deleteRecordQuestion,
@@ -52,8 +51,7 @@ test("Delete record… on a State unknown entry asks first, Keep and Escape dele
   frontendServices,
 }) => {
   const unknown = readyExecution(makeMe.aSessionState.unknown().please());
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer.observing(unknown).please(),
   );
   const actions = await installFrontendSessionActions(page, frontendServices);
@@ -134,8 +132,7 @@ test("a Session unavailable entry offers Delete record…, asks, and confirming 
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
       .observing(readyExecution(makeMe.aSessionState.unavailable().please()))
       .please(),
@@ -173,8 +170,7 @@ test("a Working or Needs input entry offers no Delete record…", async ({
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
       .observing(
         cardSession(

@@ -11,10 +11,7 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../../tests/support/frontendApp.ts";
-import {
-  frontendStoryLaunch,
-  putFrontendMachine,
-} from "../../tests/support/frontendServiceState.ts";
+import { frontendStoryLaunch } from "../../tests/support/frontendServiceState.ts";
 import { parts, storyCardSessions } from "../../tests/dashboardPage.ts";
 import { backlogLaunchers } from "../../tests/launchStoryCardPage.ts";
 import { notRefinedStory } from "../../tests/launchJourney.ts";
@@ -36,16 +33,8 @@ for (const [what, options, model] of [
     let record = frontendStoryLaunch("refining", notRefinedStory);
     if (options.length > 0) record = record.requestingOptions([...options]);
     if (model !== undefined) record = record.requestingModel(model);
-    putFrontendMachine(
-      frontendServices,
-      makeMe.aMachineAnswer
-        .observing(
-          makeMe.anObservedLaunch
-            .of(record.please())
-            .withSessionState(makeMe.aSessionState.loaded("working").please())
-            .please(),
-        )
-        .please(),
+    frontendServices.answerMachine(
+      makeMe.aMachineAnswer.observingOpen(record.please()).please(),
     );
     const { recentlyDone } = parts(page);
     const expectWords = async () => {

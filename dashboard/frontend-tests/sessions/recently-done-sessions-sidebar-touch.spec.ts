@@ -10,11 +10,7 @@ import {
 } from "../../tests/sessionsSidebarPage.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { phoneLaunchTouchViewport } from "../../tests/touchLaunchPage.ts";
-import {
-  observedDone,
-  openFrontendThreeProjects,
-  putFrontendObservedLaunches,
-} from "../../tests/support/frontendRecentlyDoneSidebar.ts";
+import { openFrontendThreeProjects } from "../../tests/support/frontendRecentlyDoneSidebar.ts";
 
 test.describe("touch Session details for Done entries", () => {
   const phone = phoneLaunchTouchViewport.portrait;
@@ -27,17 +23,17 @@ test.describe("touch Session details for Done entries", () => {
     const doneAt = new Date(Date.now() - 2 * 60_000).toISOString();
     const launchedAt = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
     const title = "Touch done completion age";
-    putFrontendObservedLaunches(
-      frontendServices,
-      observedDone(
-        makeMe.aLaunchRecord
-          .executing({ identity: "SEED-902#touch-done", title })
-          .inClaudeSession({ sessionId: "touch-done-completion" })
-          .launchedAt(launchedAt)
-          .markedDoneAt(doneAt)
-          .please(),
-        "unavailable",
-      ),
+    frontendServices.answerMachine(
+      makeMe.aMachineAnswer
+        .observingUnavailable(
+          makeMe.aLaunchRecord
+            .executing({ identity: "SEED-902#touch-done", title })
+            .inClaudeSession({ sessionId: "touch-done-completion" })
+            .launchedAt(launchedAt)
+            .markedDoneAt(doneAt)
+            .please(),
+        )
+        .please(),
     );
     await openFrontendThreeProjects(page, frontendServices);
     const shown = recentlyDoneParts(page);

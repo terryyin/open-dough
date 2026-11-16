@@ -35,21 +35,7 @@ import {
 } from "../../tests/sessionsSidebarPage.ts";
 import { expect, test } from "../../tests/support/frontendApp.ts";
 import { fulfillJson } from "../../tests/support/frontendSubstituteAnswers.ts";
-import {
-  observedDone,
-  openFrontendThreeProjects,
-  putFrontendObservedLaunches,
-} from "../../tests/support/frontendRecentlyDoneSidebar.ts";
-
-const observeAll = (
-  services: Parameters<typeof putFrontendObservedLaunches>[0],
-  records: readonly LaunchRecord[],
-) => {
-  putFrontendObservedLaunches(
-    services,
-    ...records.map((record) => observedDone(record, "unavailable")),
-  );
-};
+import { openFrontendThreeProjects } from "../../tests/support/frontendRecentlyDoneSidebar.ts";
 
 test("scrolling Recently done reaches all 45 retained sessions and refresh keeps the reached older range", async ({
   page,
@@ -61,7 +47,9 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
   const now = opened.getTime();
   const { titles, records } = fortyFiveDoneSessions(now);
   await preferShortRecentlyDoneBody(page, recentlyDoneHeightKey);
-  observeAll(frontendServices, records);
+  frontendServices.answerMachine(
+    makeMe.aMachineAnswer.observingUnavailable(...records).please(),
+  );
   await openFrontendThreeProjects(page, frontendServices);
   const shown = await showRecentlyDone(page);
   const titlesOf = () => shown.titles.allTextContents();
@@ -167,7 +155,11 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
     );
     await shown.select(removedTitle).focus();
     await expect(shown.select(removedTitle)).toBeFocused();
-    observeAll(frontendServices, [newer, ...withoutRemoved]);
+    frontendServices.answerMachine(
+      makeMe.aMachineAnswer
+        .observingUnavailable(newer, ...withoutRemoved)
+        .please(),
+    );
     await passOnePace();
 
     const shownTitles = await titlesOf();
@@ -202,7 +194,9 @@ test("delayed first session read and a failed refresh keep existing read semanti
   const { passOnePace } = await watchRecordReads(page);
   const { records, titles } = fortyFiveDoneSessions(opened.getTime());
   await preferShortRecentlyDoneBody(page, recentlyDoneHeightKey);
-  observeAll(frontendServices, records);
+  frontendServices.answerMachine(
+    makeMe.aMachineAnswer.observingUnavailable(...records).please(),
+  );
   let releaseFirst = () => {};
   const firstHeld = new Promise<void>((resolve) => {
     releaseFirst = resolve;
@@ -241,7 +235,7 @@ test("delayed first session read and a failed refresh keep existing read semanti
         : route.continue());
     },
   );
-  putFrontendObservedLaunches(frontendServices);
+  frontendServices.answerMachine(makeMe.aMachineAnswer.please());
   await passOnePace();
   await expect(shown.entries).toHaveCount(40);
   await expect(shown.body).not.toContainText("No sessions marked done");

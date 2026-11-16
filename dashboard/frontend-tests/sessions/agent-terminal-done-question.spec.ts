@@ -19,10 +19,7 @@ import {
   openCardSessionTerminal,
 } from "../../tests/support/frontendCardSessions.ts";
 import { installFrontendSessionActions } from "../../tests/support/frontendSessionActions.ts";
-import {
-  doughnutSource,
-  putFrontendMachine,
-} from "../../tests/support/frontendServiceState.ts";
+import { doughnutSource } from "../../tests/support/frontendServiceState.ts";
 import { installAttachedTerminalSubstitute } from "../../tests/support/frontendServiceSubstitutes.ts";
 import {
   expectAsked,
@@ -46,8 +43,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     Object.assign(frontendServices, {
       projects: [...frontendServices.projects, doughnutSource],
     });
-    putFrontendMachine(
-      frontendServices,
+    frontendServices.answerMachine(
       makeMe.aMachineAnswer
         .observing(
           cardSession(
@@ -84,8 +80,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     frontendServices,
   }) => {
     const observe = (activity: "review" | "working") => {
-      putFrontendMachine(
-        frontendServices,
+      frontendServices.answerMachine(
         makeMe.aMachineAnswer
           .observing(
             cardSession(

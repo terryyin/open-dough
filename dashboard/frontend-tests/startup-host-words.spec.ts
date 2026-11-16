@@ -7,7 +7,6 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../tests/support/frontendApp.ts";
-import { putFrontendMachine } from "../tests/support/frontendServiceState.ts";
 import { readyStory } from "../tests/launchJourney.ts";
 import { parts } from "../tests/dashboardPage.ts";
 import { recoveryOf } from "../tests/responsiveRecovery.ts";
@@ -46,7 +45,7 @@ test("without a reported phase, story startup keeps its host and the installed s
             workflow,
             host: request.host,
           });
-        putFrontendMachine(frontendServices, answer.please());
+        frontendServices.answerMachine(answer.please());
         // The first startup opens the board; each later one replaces the
         // previous on the machine, and the page reads the machine again when
         // told.
@@ -81,8 +80,7 @@ test("a recovery host without native-check advice keeps its controls without bor
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer
       .answeringAttempts(
         makeMe.anAttemptObservation

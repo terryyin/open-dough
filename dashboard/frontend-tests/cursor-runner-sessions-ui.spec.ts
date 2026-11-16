@@ -20,10 +20,7 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../tests/support/frontendApp.ts";
-import {
-  putFrontendMachine,
-  type FrontendServiceState,
-} from "../tests/support/frontendServiceState.ts";
+import type { FrontendServiceState } from "../tests/support/frontendServiceState.ts";
 import {
   collapseRunningList,
   openRunningList,
@@ -56,16 +53,8 @@ const noHeldSessions: RunningCursorSessions =
   makeMe.aRunningCursorSessions.please();
 
 function holdCursorSession(frontendServices: FrontendServiceState) {
-  putFrontendMachine(
-    frontendServices,
-    makeMe.aMachineAnswer
-      .observing(
-        makeMe.anObservedLaunch
-          .of(heldRecord)
-          .withSessionState(makeMe.aSessionState.loaded("working").please())
-          .please(),
-      )
-      .please(),
+  frontendServices.answerMachine(
+    makeMe.aMachineAnswer.observingOpen(heldRecord).please(),
   );
 }
 

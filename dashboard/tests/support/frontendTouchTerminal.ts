@@ -6,10 +6,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, openFrontendTakenBacklog } from "./frontendApp.ts";
-import {
-  putFrontendMachine,
-  type FrontendServiceState,
-} from "./frontendServiceState.ts";
+import type { FrontendServiceState } from "./frontendServiceState.ts";
 import { installAttachedTerminalSubstitute } from "./frontendServiceSubstitutes.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
@@ -31,16 +28,8 @@ async function openFrontendTerminal(
   substitute: Substitute,
   press: (control: Locator) => Promise<void>,
 ) {
-  putFrontendMachine(
-    frontendServices,
-    makeMe.aMachineAnswer
-      .observing(
-        makeMe.anObservedLaunch
-          .of(record)
-          .withSessionState(makeMe.aSessionState.loaded("working").please())
-          .please(),
-      )
-      .please(),
+  frontendServices.answerMachine(
+    makeMe.aMachineAnswer.observingOpen(record).please(),
   );
   const traffic = await installAttachedTerminalSubstitute(page, substitute);
   await openFrontendTakenBacklog(page);

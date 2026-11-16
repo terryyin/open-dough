@@ -13,10 +13,6 @@ import {
   expectFigure,
   sessionsSidebarFigures,
 } from "../tests/sessionsSidebarFigures.ts";
-import {
-  putFrontendHostStatus,
-  putFrontendMachine,
-} from "../tests/support/frontendServiceState.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.describe("the Sessions sidebar's title row status", () => {
@@ -26,8 +22,7 @@ test.describe("the Sessions sidebar's title row status", () => {
   }) => {
     await pausePageClockAt(page, new Date());
     // One waiting session so active/waiting counts still render beside host figures.
-    putFrontendMachine(
-      frontendServices,
+    frontendServices.answerMachine(
       makeMe.aMachineAnswer
         .observing(
           makeMe.anObservedLaunch
@@ -45,8 +40,7 @@ test.describe("the Sessions sidebar's title row status", () => {
         )
         .please(),
     );
-    putFrontendHostStatus(
-      frontendServices,
+    frontendServices.answerHostStatus(
       makeMe.aHostStatus.with({ cpuPercent: 24, freeBytes: null }).please(),
     );
     const { passOnePace } = await watchRecordReads(page);
@@ -64,8 +58,7 @@ test.describe("the Sessions sidebar's title row status", () => {
       await expectFigure(waiting, 1, "1 session needs attention");
     });
     await test.step("the next host read one check interval later changes both figures to its values", async () => {
-      putFrontendHostStatus(
-        frontendServices,
+      frontendServices.answerHostStatus(
         makeMe.aHostStatus
           .with({ cpuPercent: 61.4, freeBytes: 1_234_000_000_000 })
           .please(),
@@ -75,8 +68,7 @@ test.describe("the Sessions sidebar's title row status", () => {
       await expectFigure(disk, "1.2 TB", "1.2 TB free");
     });
     await test.step("CPU unread alone: it says so while free disk shows", async () => {
-      putFrontendHostStatus(
-        frontendServices,
+      frontendServices.answerHostStatus(
         makeMe.aHostStatus
           .with({ cpuPercent: null, freeBytes: 110_000_000_000 })
           .please(),
@@ -86,7 +78,7 @@ test.describe("the Sessions sidebar's title row status", () => {
       await expectFigure(disk, "110 GB", "110 GB free");
     });
     await test.step("the host status unanswered: both host figures say unavailable and the counts still show", async () => {
-      putFrontendHostStatus(frontendServices, undefined);
+      frontendServices.answerHostStatus(undefined);
       await passOnePace();
       await expectFigure(cpu, "—", "CPU unavailable");
       await expectFigure(disk, "—", "Free disk unavailable");
@@ -99,9 +91,8 @@ test.describe("the Sessions sidebar's title row status", () => {
     frontendServices,
   }) => {
     await pausePageClockAt(page, new Date());
-    putFrontendMachine(frontendServices, undefined);
-    putFrontendHostStatus(
-      frontendServices,
+    frontendServices.answerMachine(undefined);
+    frontendServices.answerHostStatus(
       makeMe.aHostStatus
         .with({ cpuPercent: 37, freeBytes: 52_000_000_000 })
         .please(),

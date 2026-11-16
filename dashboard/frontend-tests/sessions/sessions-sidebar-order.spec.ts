@@ -4,7 +4,6 @@ import { expect, test } from "../../tests/support/frontendApp.ts";
 import {
   doughnutSource,
   openDoughSource,
-  putFrontendMachine,
 } from "../../tests/support/frontendServiceState.ts";
 import { expectProjectChoice } from "../../tests/dashboardPage.ts";
 import { pausePageClockAt } from "../../tests/dashboardTest.ts";
@@ -75,8 +74,7 @@ test("leads with the sessions that need the developer, earliest launch first, th
         state: makeMe.aSessionState.loaded("working").please(),
       },
     ]);
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     withStates(
       makeMe.aSessionState.loaded("waiting").please(),
       makeMe.aSessionState.loaded("failed").please(),
@@ -101,8 +99,7 @@ test("leads with the sessions that need the developer, earliest launch first, th
   });
 
   await test.step("a working session that needs input joins the attention group at its launch place, and the count rises", async () => {
-    putFrontendMachine(
-      frontendServices,
+    frontendServices.answerMachine(
       withStates(
         makeMe.aSessionState.loaded("waiting").please(),
         makeMe.aSessionState.loaded("failed").please(),

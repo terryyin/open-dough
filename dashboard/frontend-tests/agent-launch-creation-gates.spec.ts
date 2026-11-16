@@ -6,7 +6,6 @@ import {
   openFrontendTakenBacklog,
   test,
 } from "../tests/support/frontendApp.ts";
-import { putFrontendMachine } from "../tests/support/frontendServiceState.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { creationSchema } from "../src/launchCreation.ts";
 import { creationView } from "../server/launchCreation.ts";
@@ -37,8 +36,7 @@ test("the common page displays a stand-in host's supplied inspection arguments",
       unreadableAdvice: "Inspect native history.",
     }),
   });
-  putFrontendMachine(
-    frontendServices,
+  frontendServices.answerMachine(
     makeMe.aMachineAnswer.withCreations(view).please(),
   );
   await openFrontendTakenBacklog(page);
