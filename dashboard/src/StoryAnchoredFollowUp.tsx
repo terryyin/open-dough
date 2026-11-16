@@ -10,12 +10,13 @@ import type { FollowUpFile } from "./followUpRequest.ts";
 import { StoryFollowUpSession } from "./FollowUp.tsx";
 import { usePageLaunches } from "./pageLaunches.ts";
 import type { ReviewedFile } from "./storyReviewFiles.ts";
-import type { ReviewedStory } from "./StoryReviewFileDiff.tsx";
+import type { ReviewedWork } from "./StoryReviewFileDiff.tsx";
+import { reviewedStoryIdentity } from "./reviewedWorkSubject.ts";
 
 // Request anchor and dialog facts for one reviewed file on a Published
 // completion or landed run; undefined on a workspace snapshot.
 export function fileFollowUpParts(
-  reviewed: ReviewedStory,
+  reviewed: ReviewedWork,
   from: string,
   tree: string,
   file: ReviewedFile,
@@ -60,7 +61,7 @@ function DoneStoryAnchoredFollowUp({
   showTrigger = true,
   onClosed,
 }: {
-  readonly reviewed: ReviewedStory;
+  readonly reviewed: ReviewedWork;
   readonly from: string;
   readonly tree: string;
   readonly file: ReviewedFile;
@@ -70,7 +71,7 @@ function DoneStoryAnchoredFollowUp({
   readonly onClosed?: () => void;
 }) {
   const launches = usePageLaunches();
-  const target = useDoneStoryFollowUp(reviewed.identity);
+  const target = useDoneStoryFollowUp(reviewedStoryIdentity(reviewed.subject));
   const parts = fileFollowUpParts(reviewed, from, tree, file, line);
   if (target === undefined || parts === undefined) return null;
   return (
@@ -96,7 +97,7 @@ export function StoryFileFollowUp({
   tree,
   file,
 }: {
-  readonly reviewed: ReviewedStory;
+  readonly reviewed: ReviewedWork;
   readonly from: string;
   readonly tree: string;
   readonly file: ReviewedFile;
@@ -122,7 +123,7 @@ export function StoryLineFollowUp({
   side,
   onClosed,
 }: {
-  readonly reviewed: ReviewedStory;
+  readonly reviewed: ReviewedWork;
   readonly from: string;
   readonly tree: string;
   readonly file: ReviewedFile;

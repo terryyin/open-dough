@@ -51,8 +51,7 @@ export function StoryReviewAction({
         className="start-launch-button"
         onClick={(event) => {
           openStoryReview({
-            source: sourceId,
-            identity: work.identity,
+            subject: { source: sourceId, identity: work.identity },
             title: work.title,
             control: event.currentTarget,
             ...(completed ? { completed } : {}),

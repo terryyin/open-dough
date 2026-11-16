@@ -64,8 +64,8 @@ proof, or slice scope.
 | 41 | A launch record’s retained comparisons are its change evidence. | slice 1 | observed: landedStoryReview uses record.landing as change evidence |
 | 42 | For this story, that evidence is the launch record’s one landing. | slice 1 | observed: ad-hoc landed answer uses that one landing; no other comparison |
 | 43 | The ad hoc review reuses the landed-run comparison reader. | slice 1 | observed: storyReviewSnapshot.ts calls landedStoryReview for session run |
-| 44 | The ad hoc review reuses the story review’s panel. | slice 4 | |
-| 45 | The panel’s subject is generalized from a story to reviewed work. | slice 4 | |
+| 44 | The ad hoc review reuses the story review’s panel. | slice 4 | observed: StoryReview.tsx still opens in PageFrame side panel; frontend review/ recently-done-review and intent-done-review suites green |
+| 45 | The panel’s subject is generalized from a story to reviewed work. | slice 4 | observed: pageStoryReviews StoryReviewRequest.subject + sameReviewedWork; StoryReviewHeading; queries use reviewedWorkQuery |
 | 46 | The review reads the saved common Git repository. | slice 1 | observed: storyReviewLanded.ts cwd is landing.repository; cat-file/changedFrom only |
 | 47 | The review fetches nothing. | slice 1 | observed: no fetch in landedStoryReview; test HEAD unchanged |
 | 48 | The review writes no ref content. | slice 1 | observed: ad-hoc-review.spec.ts HEAD/index unchanged after review |

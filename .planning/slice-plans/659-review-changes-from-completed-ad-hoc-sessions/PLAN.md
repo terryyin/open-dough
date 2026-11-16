@@ -175,7 +175,7 @@ Learning: shared subject URL admission lives in `reviewedWorkSubjectAdmission.ts
 ### 4. The review panel takes a reviewed-work subject
 
 Type: Structure
-Status: planned
+Status: done
 Proof: the frontend review, Recently done review and Intent review specs named under local gates stay green.
 
 Internal change: the client's review request, its sameness comparison, the
@@ -183,6 +183,12 @@ panel key, the default and file read queries, and the header heading take the
 subject `{ source, identity }` or `{ source, session }` instead of a bare
 identity, with the extractions the Architecture table names. Story reviews
 read and render as before. Enables slice 5.
+
+Accepted proof (2026-11-16):
+- `dashboard/frontend-tests/review/` → 10 passed
+- `stories/recently-done-review-*.spec.ts` → 7 passed
+- `intent/intent-done-*review*.spec.ts` → 2 passed
+Learning: client `ReviewedWork` holds the subject; `StoryReviewHeading` and `storyReviewPanelLabel` share the panel title.
 
 ### 5. A Recently done ad hoc entry opens its review
 

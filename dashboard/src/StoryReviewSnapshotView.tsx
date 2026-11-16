@@ -35,7 +35,7 @@ import {
 } from "./storyReviewContract.ts";
 import { diffStartOf } from "./storyComparisonShown.ts";
 import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
-import { FileDiff, type ReviewedStory } from "./StoryReviewFileDiff.tsx";
+import { FileDiff, type ReviewedWork } from "./StoryReviewFileDiff.tsx";
 import { ReviewedFileHeader } from "./StoryReviewFileHeader.tsx";
 import { FileMoves, revealRow } from "./StoryReviewFileMoves.tsx";
 import {
@@ -102,7 +102,7 @@ export function SnapshotView({
   commitsReview = false,
   committedOnly = false,
 }: {
-  readonly reviewed: ReviewedStory;
+  readonly reviewed: ReviewedWork;
   readonly snapshot?: TakenStoryReview;
   // The comparison shown, and whether it is the changes since the review.
   readonly comparison: ReviewComparison;

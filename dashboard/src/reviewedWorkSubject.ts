@@ -27,6 +27,51 @@ export const isReviewedSessionSubject = (
   subject: ReviewedWorkSubject,
 ): subject is ReviewedSessionSubject => "session" in subject;
 
+export const isReviewedStorySubject = (
+  subject: ReviewedWorkSubject,
+): subject is ReviewedStorySubject => !isReviewedSessionSubject(subject);
+
+// The story subject when this names a story; undefined for an ad hoc session.
+export function reviewedStorySubject(
+  subject: ReviewedWorkSubject,
+): ReviewedStorySubject | undefined {
+  return isReviewedStorySubject(subject) ? subject : undefined;
+}
+
+// The story identity when this names a story; undefined for an ad hoc session.
+export function reviewedStoryIdentity(
+  subject: ReviewedWorkSubject,
+): string | undefined {
+  return reviewedStorySubject(subject)?.identity;
+}
+
+// Whether two subjects name the same reviewed work of the same project.
+export function sameReviewedWorkSubject(
+  one: ReviewedWorkSubject,
+  other: ReviewedWorkSubject,
+): boolean {
+  if (isReviewedSessionSubject(one)) {
+    return (
+      isReviewedSessionSubject(other) &&
+      one.source === other.source &&
+      one.host === other.host &&
+      one.session === other.session
+    );
+  }
+  return (
+    !isReviewedSessionSubject(other) &&
+    one.source === other.source &&
+    one.identity === other.identity
+  );
+}
+
+// Stable panel key for one subject; distinct for story vs session of a project.
+export function reviewedWorkKey(subject: ReviewedWorkSubject): string {
+  if (isReviewedSessionSubject(subject))
+    return `${subject.source}\n${subject.host}\n${subject.session}`;
+  return `${subject.source}\n${subject.identity}`;
+}
+
 // The review URL query that names this subject, and nothing else of place.
 export function reviewedWorkQuery(
   subject: ReviewedWorkSubject,

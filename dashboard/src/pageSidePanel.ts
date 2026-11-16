@@ -27,7 +27,7 @@ import {
   type MarkSessionRead,
   type DeleteSessionRecord,
 } from "./pageSessions.ts";
-import { sameStory, type OpenStoryReview } from "./pageStoryReviews.ts";
+import { sameReviewedWork, type OpenStoryReview } from "./pageStoryReviews.ts";
 import type { PageStorySelection } from "./pageStorySelection.tsx";
 import type { RecentlyDoneRange } from "./recentlyDoneRange.ts";
 import {
@@ -118,7 +118,8 @@ export function usePageSidePanel({
   const openStoryReview = useCallback<OpenStoryReview>(
     (request) => {
       setSidePanel((current) =>
-        current?.kind === "story-review" && sameStory(current.request, request)
+        current?.kind === "story-review" &&
+        sameReviewedWork(current.request, request)
           ? { ...current, request }
           : { kind: "story-review", request },
       );

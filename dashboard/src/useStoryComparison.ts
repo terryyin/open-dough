@@ -11,6 +11,7 @@ import type { RequestedComparison } from "./pageStoryReviews.ts";
 import type { StoryReview } from "./storyReviewContract.ts";
 import { useDefaultStoryReview } from "./useDefaultStoryReview.ts";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
+import type { ReviewedStorySubject } from "./reviewedWorkSubject.ts";
 
 // The comparison such a view reads of a workspace: all changes, with its
 // uncommitted changes included as Review changes includes them at every
@@ -41,13 +42,13 @@ export function useStoryComparison({
   readonly problem: string | undefined;
   readonly shown: ShownStoryComparison | undefined;
 } {
+  const subject: ReviewedStorySubject = { source, identity };
   const {
     answer: review,
     reading,
     problem,
   } = useDefaultStoryReview({
-    source,
-    identity,
+    subject,
     round,
     completed,
     enabled,
@@ -55,8 +56,7 @@ export function useStoryComparison({
   });
   const snapshot = review?.kind === "snapshot" ? review : undefined;
   const { comparison, tree } = useStoryReviewComparison({
-    source,
-    identity,
+    subject,
     snapshot,
     ...defaultStoryComparison,
     active: enabled && !completed && review?.selectedRun === undefined,
@@ -72,6 +72,6 @@ export function useStoryComparison({
     review,
     reading,
     problem,
-    shown: storyComparisonShown({ source, identity, review, comparison, tree }),
+    shown: storyComparisonShown({ subject, review, comparison, tree }),
   };
 }

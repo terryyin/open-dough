@@ -5,7 +5,6 @@ import { useEffect, useId, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 import { SidePanelControls } from "./SidePanelControls.tsx";
-import { SidePanelTitle } from "./SidePanelTitle.tsx";
 import type * as Review from "./storyReviewContract.ts";
 import { MarkingControls, requestMarkReviewed } from "./StoryReviewMark.tsx";
 import { ReviewContext, reviewDescription } from "./StoryReviewContext.tsx";
@@ -18,6 +17,11 @@ import { RunChoice } from "./StoryReviewRunChoice.tsx";
 import { ComparisonSwitch } from "./StoryReviewComparison.tsx";
 import { PanelDivider } from "./PanelDivider.tsx";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
+import {
+  StoryReviewHeading,
+  storyReviewPanelLabel,
+} from "./StoryReviewHeading.tsx";
+import { reviewedStorySubject } from "./reviewedWorkSubject.ts";
 import "./frame-controls.css";
 import "./side-panel.css";
 import "./story-review.css";
@@ -37,7 +41,7 @@ export function StoryReview({
   readonly offerMaximize: boolean;
   readonly onClose: () => void;
 }) {
-  const { source, identity, title } = request;
+  const { subject, title } = request;
   const id = useId();
   const headingId = `${id}-heading`;
   const descriptionId = `${id}-description`;
@@ -84,8 +88,7 @@ export function StoryReview({
     tree,
     onSelect,
   } = useStoryReviewComparison({
-    source,
-    identity,
+    subject,
     snapshot: workspace,
     chosen,
     includeUncommitted,
@@ -103,20 +106,20 @@ export function StoryReview({
   useEffect(() => {
     body.current?.focus();
   }, [request]);
+  const storySubject = reviewedStorySubject(subject);
   return (
     <section
       className="side-panel story-review"
-      aria-label="Story review"
+      aria-label={storyReviewPanelLabel(subject)}
       aria-describedby={descriptionId}
     >
       <PanelDivider />
       <SidePanelHeader>
-        <div className="side-panel-names">
-          <SidePanelTitle title={title} id={headingId} />
-          <p className="quiet">
-            Story review <code>{identity}</code>
-          </p>
-        </div>
+        <StoryReviewHeading
+          subject={subject}
+          title={title}
+          headingId={headingId}
+        />
         <div className="side-panel-actions">
           {/* Unavailable while reading, yet still focusable, so the
               keyboard stays on it. */}
@@ -190,7 +193,7 @@ export function StoryReview({
           round={round}
           made={madeHere}
         />
-        {snapshot !== undefined && (
+        {snapshot !== undefined && storySubject !== undefined && (
           <MarkingControls
             snapshot={snapshot}
             shown={shown}
@@ -211,8 +214,8 @@ export function StoryReview({
               const of = snapshot;
               setMarking(true);
               void requestMarkReviewed({
-                source,
-                identity,
+                source: storySubject.source,
+                identity: storySubject.identity,
                 tree: of.tree,
                 baseline: of.baseline,
               }).then((answer) => {
@@ -232,8 +235,7 @@ export function StoryReview({
           onSelect={onSelect}
           comparison={comparison}
           tree={tree}
-          source={source}
-          identity={identity}
+          subject={subject}
           headingId={headingId}
           browser={browser}
           since={since}
