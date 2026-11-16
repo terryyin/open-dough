@@ -142,7 +142,7 @@ appends to Playwright's replayed clock log, which may cost more than the
 
 ### 3. Read layout facts in one page evaluation
 Type: Structure
-Status: planned
+Status: done
 Proof: the family's specs by the measure; one scratch layout break still fails.
 
 Family: `configuration/system-settings-look` (both cases, 209 evaluations),
@@ -151,6 +151,14 @@ Family: `configuration/system-settings-look` (both cases, 209 evaluations),
 `launches/agent-launch-start-session-answer-touch`. Where a case reads many
 elements' geometry or style one call at a time, read them in one evaluation
 through the existing page object and assert the same facts.
+
+Result (2026-11-16): discovery only, no edit. The six family files (17 cases)
+summed 62.7 s at `--workers=1`, load 5. Traces put per-element reads at about
+276 calls / 430 ms and 92 calls / 150 ms in the two read-bound
+`system-settings-look` cases (2.7 s together); the rest is touch, motion and
+clicks under test (`reportGeometry` already reads in one evaluation). Removing
+all read cost stays under the 3.1 s (5%) bar, so no demonstrated gain was
+possible.
 
 ### 4. Check startup host words without reloading per host
 Type: Structure
@@ -232,3 +240,8 @@ Disposition: no user cost "Dashboard contributors get faster local frontend test
 Reported: slice 2 — "no demonstrated gain, edit undone (it missed the criterion by 0.3 s)"
 Story clause: "Given a tried change whose before and after times differ by no more than the unchanged cases' own variation, the change is undone and reported as no demonstrated gain."
 Disposition: no user cost "Dashboard contributors get faster local frontend test feedback while keeping the same behavioral protection.": the measured change did not speed the affected cases beyond their own variation, so undoing it keeps protection and loses no feedback speed
+
+### G3. Batched layout reads could not reach the keep bar (slice 3)
+Reported: slice 3 — "The cost that one-evaluation reads could remove is at most about 1 s, or about 1.5%."
+Story clause: "Given a tried change whose before and after times differ by no more than the unchanged cases' own variation, the change is undone and reported as no demonstrated gain."
+Disposition: no user cost "Dashboard contributors get faster local frontend test feedback while keeping the same behavioral protection.": the removable cost is under a second of feedback time and the tests stay unchanged with their protection
