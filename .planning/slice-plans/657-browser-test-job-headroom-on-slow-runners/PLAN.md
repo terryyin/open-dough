@@ -141,6 +141,13 @@ unsettled attempt this server's own process works on failed without the fix
 the `e2e/launches/` specs pass once (159) under `caffeinate -s -i` on AC
 power.
 
+## Execution complete
+
+Product advice: no change. The restart-recovery stall was a server race, not
+runner speed, so no other group needs time it does not have; the next
+`bash scripts/ci-job-times.sh` reading may let `dashboard-integrated` drop a
+job under the existing rule, returning CI to 18 jobs.
+
 ## Current decisions
 
 - Story Branch Mode.
