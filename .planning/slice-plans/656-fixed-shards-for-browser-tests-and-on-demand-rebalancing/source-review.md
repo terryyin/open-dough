@@ -39,7 +39,7 @@ returned `X` ids.
 | 7a | The starting shards come from recent `main` timing through the rebalancing script. | slice 4 | observed: PLAN.md Learnings slice 4: ci-shard-balance.mjs totals for each group on the working tree |
 | 7b | Starting shards use folder patterns first. | slice 4 | observed: .github/workflows/ci.yml backend and e2e shards are folder patterns except where a folder outweighs an even shard |
 | 7c | File-name globs are used only where one folder outweighs an even shard. | slice 4 | observed: .github/workflows/ci.yml file-name globs only for e2e launches/sessions (over an even shard) and integrated navigation (516 s vs even 179 s) |
-| 7d | Starting shards are tuned once from the story's own CI runs. | slice 5 | |
+| 7d | Starting shards are tuned once from the story's own CI runs. | slice 5 | observed: PLAN.md Learnings slice 5: runs 43805225551 and 43806607572 kept the starting shards after both story runs fit their bounds |
 | 8a | Each shard keeps uploading its `<group>-times-<shard>` artifact. | slice 4 | observed: .github/workflows/browser-test-group.yml Keep per-spec times step unchanged |
 | 8b | That artifact is now retained for 90 days, as the Distribution `test-times-<i>` artifacts are. | slice 4 | observed: .github/workflows/browser-test-group.yml retention-days: 90 |
 | 9a.1 | Remove `e2e/longest-first*`. | slice 6 | |
@@ -115,22 +115,22 @@ returned `X` ids.
 | 29a | Architecture: shard balance has no automatic owner. | slice 6 | |
 | 29b | The rebalancing script is the only place per-file seconds are read. | slice 6 | |
 | 29c | Nothing in the repository records per-file seconds. | slice 6 | |
-| 29d | A shard that grows past its deadline fails that shard. | slice 5 | |
+| 29d | A shard that grows past its deadline fails that shard. | slice 5 | observed: .github/workflows/browser-test-group.yml per-shard browser run deadline (450 s) unchanged; runs fail only the late shard |
 | 29e | Drift before then is visible through `scripts/ci-job-times.sh`, the job durations, or the script. | slice 8 | |
-| 30a | Context: folder and file-name patterns can carry the current load. | slice 5 | |
-| 30b | E2E totals about 4,940 s over six shards (~820 each); only `sessions` (1,120) and `launches` (1,094) exceed an even shard, each dividing at its `agent-*` files (555 and 732). | slice 5 | |
-| 30c | Backend totals about 3,210 s over three shards; its nine folders group into about 1,060, 1,055 and 1,090. | slice 5 | |
+| 30a | Context: folder and file-name patterns can carry the current load. | slice 5 | observed: PLAN.md Learnings slice 5: runs 43805225551 and 43806607572 every group within bound under folder and file-name patterns |
+| 30b | E2E totals about 4,940 s over six shards (~820 each); only `sessions` (1,120) and `launches` (1,094) exceed an even shard, each dividing at its `agent-*` files (555 and 732). | slice 5 | observed: PLAN.md Learnings slice 4: e2e even 780 over six shards, launches/sessions divided at agent-* |
+| 30c | Backend totals about 3,210 s over three shards; its nine folders group into about 1,060, 1,055 and 1,090. | slice 5 | observed: PLAN.md Learnings slice 4: backend folders grouped into 739, 707, 647 |
 | 30d | Integrated's `navigation` divides by file-name prefix. | slice 4 | observed: .github/workflows/ci.yml integrated navigation divided by board-/source-/story-/side-/notification- prefixes |
 | 30e | Frontend is one shard. | slice 4 | observed: .github/workflows/ci.yml dashboard-frontend shards [1] |
-| 30f | The longest single spec file is about 150 seconds. | slice 5 | |
+| 30f | The longest single spec file is about 150 seconds. | slice 5 | observed: slice 4 ci-shard-balance reports: one slow file (over a tenth of the even total) each in e2e and backend |
 | 31 | Considered (rejected): declaring a shard as a Playwright project — a pattern says the same in the one form all five groups share; E2E projects already queue production chains independently of shard membership. | slice 4 | observed: .github/workflows/ci.yml no Playwright project per shard; Distribution/tests/support/browser-group-shards.test.mjs E2E projects keep chain queueing |
 | 32 | Considered (rejected): folding the job-count report into the rebalancing script — different questions from different data; the job-count rule has its own readers. | slice 8 | |
 | 33a | Outcome: no duration list or dealing code remains in the repository. | slice 6 | |
-| 33b | Outcome: CI runs every browser spec file exactly once across each group's fixed shards. | slice 5 | |
-| 33c | Outcome: each group's slowest shard is no slower than under the deal. | slice 5 | |
+| 33b | Outcome: CI runs every browser spec file exactly once across each group's fixed shards. | slice 5 | observed: PLAN.md Learnings slice 5: runs 43805225551 and 43806607572 times artifacts name every discovered spec exactly once in all four groups |
+| 33c | Outcome: each group's slowest shard is no slower than under the deal. | slice 5 | observed: PLAN.md Learnings slice 5: runs 43805225551 and 43806607572 slowest shard per group within the recorded deal-era bound in both runs |
 | 33d | Outcome: a maintainer can rebalance any group by invoking the skill and reviewing its proposed `ci.yml` change. | slice 8 | |
-| X1 | Exclusion: shard counts are not changed. | slice 5 | |
-| X2 | Exclusion: deadlines are not changed. Deadline headroom on slow runners belongs to SEED-382. | slice 5 | |
+| X1 | Exclusion: shard counts are not changed. | slice 5 | observed: .github/workflows/ci.yml shards inputs unchanged |
+| X2 | Exclusion: deadlines are not changed. Deadline headroom on slow runners belongs to SEED-382. | slice 5 | observed: .github/workflows/browser-test-group.yml deadlines unchanged |
 | X3 | Exclusion: `scripts/ci-job-times.sh` and the job-count rule in `dashboard/tests/shards.md` are not removed or replaced. | slice 6 | |
 | X4 | Exclusion: shards are not declared as Playwright projects or by any means other than spec patterns. | slice 4 | observed: .github/workflows/ci.yml shards declared only by specs patterns |
 | X5 | Exclusion: the per-spec times reporter and the times artifact form are not removed. | slice 6 | |

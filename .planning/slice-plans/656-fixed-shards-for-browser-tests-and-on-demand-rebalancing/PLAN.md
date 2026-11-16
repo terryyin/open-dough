@@ -174,7 +174,7 @@ The `ci.yml` and workflow comments say what the declaration owns.
 
 ### 5. Settle the shards from the story's CI runs
 Type: Behavior
-Status: planned
+Status: done
 Proof: two CI runs of the delivered revision or its successors; each shard's
 test-step seconds and each group's artifact file counts recorded in
 Learnings.
@@ -334,6 +334,13 @@ premises are bounded by the early probe in slice 5.
   refused it; repaired by declaring the four jobs as one-shard caller jobs in
   `local-test-suite-checkout.mjs` (slice 4's consumer trace had missed that
   fixture).
+- Slice 5, run 43806607572 at `05f7ef4f0` (success): `e2e` 217, 201, 302,
+  244, 180, 224 (bound 311); `dashboard-backend` 218, 187, 183 (315);
+  `dashboard-integrated` 70, 68, 78, 95 (133); `dashboard-frontend` 303
+  (443); artifacts again name every spec exactly once. Every group's slowest
+  shard stayed within its bound in both runs, so slice 4's shards are kept
+  with no move. E2E shard 3 swung from 198 to 302 between the runs with the
+  same files, the runner-speed spread the medians absorb.
 
 ## Story obligations
 
