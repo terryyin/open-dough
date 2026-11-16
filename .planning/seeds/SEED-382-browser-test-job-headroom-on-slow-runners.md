@@ -14,6 +14,9 @@ scope: story
 ### Prove the type-check reports after a lint failure
 
 **Identity:** SEED-382#type-check-reports-after-a-lint-failure
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/661-type-check-reports-after-a-lint-failure/PLAN.md"}
+```
 
 **Goal:** Contributors keep CI's promise that a lint failure does not hide
 the dashboard type-check's own result: a change that makes the `lint` job's
