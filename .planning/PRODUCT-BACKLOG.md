@@ -89,3 +89,4 @@ intent introduced or affected by a newly developed story.
 - [Remove old dashboard deployments automatically](seeds/SEED-370-remove-old-dashboard-deployments.md#remove-old-dashboard-deployments-automatically) — SEED-370#remove-old-dashboard-deployments-automatically
 - [Publish Intent projects through MakeMe](seeds/SEED-301-limit-first-layer-test-cases-to-ten-lines.md#publish-intent-projects-through-makeme) — SEED-301#publish-intent-projects-through-makeme
 - [Prove the type-check reports after a lint failure](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#type-check-reports-after-a-lint-failure) — SEED-382#type-check-reports-after-a-lint-failure
+- [Reorder backlog stories in the dashboard](seeds/SEED-386-reorder-backlog-stories-in-the-dashboard.md#reorder-backlog-stories-in-the-dashboard) — SEED-386#reorder-backlog-stories-in-the-dashboard
