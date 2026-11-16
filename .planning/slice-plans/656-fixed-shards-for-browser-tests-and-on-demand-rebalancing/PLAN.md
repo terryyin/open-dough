@@ -245,7 +245,7 @@ validation before it is proposed.
 
 ### 8. Rebalance on request through a maintainer skill
 Type: Behavior
-Status: planned
+Status: done
 Proof: the skill's behavior review under
 [author-open-dough-skills](../../../.agents/skills/author-open-dough-skills/SKILL.md);
 the installer's payload checks green, showing the skill is not distributed.
@@ -374,6 +374,12 @@ premises are bounded by the early probe in slice 5.
   `Distribution/evaluation/**` and neither allowed change can lower it (a
   manual split of that folder is the maintainer's move); `e2e` even 779:
   839, 774, 789, 773, 680, 820, balanced.
+- Slice 8: `.agents/skills/rebalance-ci-shards/SKILL.md` with its Claude Code
+  pointer; `public-payload-fixture.bash`'s `internal_skill_names` makes the
+  installation checks prove it stays out of every install. Behavior review
+  walked an unpaid `node scripts/ci-shard-balance.mjs dashboard-backend` run
+  (even 682: 718, 698, 631; balanced). No skill-structure lint exists for
+  `.agents/skills`.
 
 ## Story obligations
 

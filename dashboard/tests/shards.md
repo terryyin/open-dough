@@ -107,11 +107,13 @@ choose their own selection; their harness (`support/proofRecordRun.ts`)
 removes every group's inherited split before launching them.
 `Distribution/tests/support/browser-group-shards.test.mjs` proves every spec
 file of each group runs in exactly one of its CI shards and both refusals.
-`node scripts/ci-shard-balance.mjs <group>` reports a group's shard totals
-and slowest files from recent `main` runs' times when a maintainer asks to
-rebalance, and prints the one pattern change that most lowers the slowest
-shard as a `ci.yml` diff, or says the shards are balanced; it applies
-nothing.
+A maintainer who asks to rebalance a group uses the
+[rebalance-ci-shards](../../.agents/skills/rebalance-ci-shards/SKILL.md)
+skill: `node scripts/ci-shard-balance.mjs <group>` reports the group's shard
+totals and slowest files from recent `main` runs' times and prints the one
+pattern change that most lowers the slowest shard as a `ci.yml` diff, or says
+the shards are balanced. The script applies nothing; the skill applies the
+diff only when the maintainer accepts it.
 
 Within an E2E Test shard, two complementary native Playwright projects queue
 the serial `runtime/production-watcher*.spec.ts` chains before ordinary files.

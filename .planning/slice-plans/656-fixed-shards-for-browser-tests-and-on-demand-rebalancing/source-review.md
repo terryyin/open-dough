@@ -13,9 +13,9 @@ returned `X` ids.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Goal: maintainers rebalance every CI test group's shards only when they choose to. | slice 8 | |
-| 2 | Rebalancing is done from recent CI evidence. | slice 8 | |
-| 3 | Every remaining shard is declared as fixed configuration. | slice 8 | |
+| 1 | Goal: maintainers rebalance every CI test group's shards only when they choose to. | slice 8 | observed: .agents/skills/rebalance-ci-shards/SKILL.md: rebalance only when a maintainer asks; no automatic owner (deal removed in slice 6) |
+| 2 | Rebalancing is done from recent CI evidence. | slice 8 | observed: .agents/skills/rebalance-ci-shards/SKILL.md Run the report: script reads recent successful main runs' times artifacts |
+| 3 | Every remaining shard is declared as fixed configuration. | slice 8 | observed: .github/workflows/ci.yml: distribution-tests matrix, e2e/integrated/backend specs, frontend one shard |
 | 4a.1 | The `e2e` job in `.github/workflows/ci.yml` declares its shards there. | slice 4 | observed: .github/workflows/ci.yml e2e specs block |
 | 4a.2 | The `dashboard-integrated` job declares its shards in `ci.yml`. | slice 4 | observed: .github/workflows/ci.yml dashboard-integrated specs block |
 | 4a.3 | The `dashboard-frontend` job declares its shards in `ci.yml`. | slice 4 | observed: .github/workflows/ci.yml dashboard-frontend shards [1], no specs; Distribution/tests/support/browser-group-shards.test.mjs reads it |
@@ -59,9 +59,9 @@ returned `X` ids.
 | 9b.4 | ... in maintainer timing documents. | slice 6 | observed: docs/maintainer/dashboard-test-timings.md refresh sentence removed; dashboard-weight-timings.md deleted |
 | 9b.5 | ... in queued stories' seeds and plans. | slice 6 | observed: SEED-300, SEED-334, plans 617, 648 and 621 evidence corrected |
 | 9c | Remove maintainer findings entries that describe the deal or a refreshed duration list as the current response. | slice 6 | observed: ProjectFindings.md and docs/maintainer/project-test-findings.md DD-279 removed; DD-529 preview sentence removed |
-| 10a | Add a private maintainer skill under `.agents/skills/`. | slice 8 | |
-| 10b | The skill is not distributed by the installer. | slice 8 | |
-| 10c | The skill is backed by one script. | slice 8 | |
+| 10a | Add a private maintainer skill under `.agents/skills/`. | slice 8 | observed: .agents/skills/rebalance-ci-shards/SKILL.md |
+| 10b | The skill is not distributed by the installer. | slice 8 | observed: Distribution/tests/installation/install-omits-internal.sh and assert-public-payload-install.sh with rebalance-ci-shards in internal_skill_names, green |
+| 10c | The skill is backed by one script. | slice 8 | observed: .agents/skills/rebalance-ci-shards/SKILL.md runs scripts/ci-shard-balance.mjs only |
 | 10d | The script works for a chosen group: any of the four browser groups or the Distribution suite. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh e2e/backend/distribution cases; scripts/ci-shard-balance.mjs parseArguments groups |
 | 10e | The script reads that group's times artifacts from the last successful `ci.yml` runs on `main`. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh gh stand-in asserts the successful main ci.yml run listing (--limit 5) and per-run downloads; real distribution-tests run in Learnings |
 | 10f | The script takes each file's median seconds across those runs. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh e2e case: even-count median of a file timed twice; ci-shard-times.mjs median |
@@ -74,10 +74,10 @@ returned `X` ids.
 | 11f | When no single change improves the slowest shard notably, the script says the shards are balanced and prints no diff. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh applied case and ci-shard-balance.sh reports: Balanced line, no diff |
 | 12a | The script only reads: it starts no run. | slice 2 | observed: Distribution/tests/ci/ci-shard-balance.sh fixture tree and TMPDIR unchanged after runs; script only lists/downloads via gh |
 | 12b | The script changes no file. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh workflow bytes cmp-equal and fixture tree unchanged after every run; real runs left ci.yml md5 unchanged |
-| 12c | The maintainer applies the diff. | slice 8 | |
-| 12d.1 | The skill says when to use it. | slice 8 | |
-| 12d.2 | The skill says how to invoke it. | slice 8 | |
-| 12d.3 | The skill says the next `main` runs are the check of an applied change. | slice 8 | |
+| 12c | The maintainer applies the diff. | slice 8 | observed: .agents/skills/rebalance-ci-shards/SKILL.md Apply only on acceptance |
+| 12d.1 | The skill says when to use it. | slice 8 | observed: .agents/skills/rebalance-ci-shards/SKILL.md opening section and description: when to use |
+| 12d.2 | The skill says how to invoke it. | slice 8 | observed: .agents/skills/rebalance-ci-shards/SKILL.md Run the report: invocations |
+| 12d.3 | The skill says the next `main` runs are the check of an applied change. | slice 8 | observed: .agents/skills/rebalance-ci-shards/SKILL.md Apply only on acceptance: next main runs are the check |
 | 13a | Qualification: `scripts/ci-job-times.sh` stays and keeps deciding how many jobs a group has. | slice 6 | observed: scripts/ci-job-times.sh unchanged |
 | 13b | Qualification: the job-count rule in `dashboard/tests/shards.md` stays and keeps deciding how many jobs a group has. | slice 6 | observed: dashboard/tests/shards.md job-count rule kept |
 | 14 | Qualification: shards are declared by spec patterns only. | slice 4 | observed: .github/workflows/ci.yml shards declared only by specs patterns |
@@ -85,7 +85,7 @@ returned `X` ids.
 | 16a | Qualification: the per-spec times reporter is kept. | slice 6 | observed: dashboard/tests/support/specTimes.ts reporter kept; intent/spec-times.spec.ts green |
 | 16b | Qualification: the times form of the artifacts is kept (they are the rebalancing input). | slice 6 | observed: intent/spec-times.spec.ts asserts the <seconds><TAB><file> times form |
 | 17a | Qualification: the script proposes one change per invocation. | slice 7 | observed: scripts/ci-shard-proposal.mjs proposeChange returns one change; Distribution/tests/ci/ci-shard-proposal.sh one diff per run |
-| 17b | A maintainer wanting more applies it and invokes the script again. | slice 8 | |
+| 17b | A maintainer wanting more applies it and invokes the script again. | slice 8 | observed: .agents/skills/rebalance-ci-shards/SKILL.md: apply this one and invoke the skill again |
 | 18a | Example: adding `e2e/new-area/first.spec.ts` and nothing else → CI runs it once, in the last E2E shard. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs new-area/first.spec.ts lands only in shard 6 |
 | 18b | Example: no list or preview step precedes that push. | slice 6 | observed: dashboard/tests/shards.md has no preview step; scripts/share-preview.mjs deleted |
 | 19 | Example: adding `dashboard/backend-tests/launches/new-case.spec.ts` → CI runs it once, in the backend shard whose pattern names that folder. | slice 4 | observed: Distribution/tests/support/browser-group-shards.test.mjs backend-tests/launches/new-case.spec.ts lands only in the launches/** shard |
@@ -116,7 +116,7 @@ returned `X` ids.
 | 29b | The rebalancing script is the only place per-file seconds are read. | slice 6 | observed: only scripts/ci-shard-balance.mjs/ci-shard-times.mjs read per-file seconds, from CI artifacts |
 | 29c | Nothing in the repository records per-file seconds. | slice 6 | observed: longest-first lists deleted; no per-file seconds file in the repository |
 | 29d | A shard that grows past its deadline fails that shard. | slice 5 | observed: .github/workflows/browser-test-group.yml per-shard browser run deadline (450 s) unchanged; runs fail only the late shard |
-| 29e | Drift before then is visible through `scripts/ci-job-times.sh`, the job durations, or the script. | slice 8 | |
+| 29e | Drift before then is visible through `scripts/ci-job-times.sh`, the job durations, or the script. | slice 8 | observed: .agents/skills/rebalance-ci-shards/SKILL.md: drift shows in ci-job-times.sh, job durations, or the report |
 | 30a | Context: folder and file-name patterns can carry the current load. | slice 5 | observed: PLAN.md Learnings slice 5: runs 43805225551 and 43806607572 every group within bound under folder and file-name patterns |
 | 30b | E2E totals about 4,940 s over six shards (~820 each); only `sessions` (1,120) and `launches` (1,094) exceed an even shard, each dividing at its `agent-*` files (555 and 732). | slice 5 | observed: PLAN.md Learnings slice 4: e2e even 780 over six shards, launches/sessions divided at agent-* |
 | 30c | Backend totals about 3,210 s over three shards; its nine folders group into about 1,060, 1,055 and 1,090. | slice 5 | observed: PLAN.md Learnings slice 4: backend folders grouped into 739, 707, 647 |
@@ -124,11 +124,11 @@ returned `X` ids.
 | 30e | Frontend is one shard. | slice 4 | observed: .github/workflows/ci.yml dashboard-frontend shards [1] |
 | 30f | The longest single spec file is about 150 seconds. | slice 5 | observed: slice 4 ci-shard-balance reports: one slow file (over a tenth of the even total) each in e2e and backend |
 | 31 | Considered (rejected): declaring a shard as a Playwright project — a pattern says the same in the one form all five groups share; E2E projects already queue production chains independently of shard membership. | slice 4 | observed: .github/workflows/ci.yml no Playwright project per shard; Distribution/tests/support/browser-group-shards.test.mjs E2E projects keep chain queueing |
-| 32 | Considered (rejected): folding the job-count report into the rebalancing script — different questions from different data; the job-count rule has its own readers. | slice 8 | |
+| 32 | Considered (rejected): folding the job-count report into the rebalancing script — different questions from different data; the job-count rule has its own readers. | slice 8 | observed: .agents/skills/rebalance-ci-shards/SKILL.md routes job-count questions to scripts/ci-job-times.sh and the shards.md job-count rule |
 | 33a | Outcome: no duration list or dealing code remains in the repository. | slice 6 | observed: slice 6 proof grep (git grep -i longest-first\|share-deal\|share-preview\|test-shares\|duration.list\|durations:) leaves only CHANGELOG, .planning/done, this story, historical finding/evidence records |
 | 33b | Outcome: CI runs every browser spec file exactly once across each group's fixed shards. | slice 5 | observed: PLAN.md Learnings slice 5: runs 43805225551 and 43806607572 times artifacts name every discovered spec exactly once in all four groups |
 | 33c | Outcome: each group's slowest shard is no slower than under the deal. | slice 5 | observed: PLAN.md Learnings slice 5: runs 43805225551 and 43806607572 slowest shard per group within the recorded deal-era bound in both runs |
-| 33d | Outcome: a maintainer can rebalance any group by invoking the skill and reviewing its proposed `ci.yml` change. | slice 8 | |
+| 33d | Outcome: a maintainer can rebalance any group by invoking the skill and reviewing its proposed `ci.yml` change. | slice 8 | observed: .agents/skills/rebalance-ci-shards/SKILL.md covers all five groups; slice 8 behavior review walked a real dashboard-backend run |
 | X1 | Exclusion: shard counts are not changed. | slice 5 | observed: .github/workflows/ci.yml shards inputs unchanged |
 | X2 | Exclusion: deadlines are not changed. Deadline headroom on slow runners belongs to SEED-382. | slice 5 | observed: .github/workflows/browser-test-group.yml deadlines unchanged |
 | X3 | Exclusion: `scripts/ci-job-times.sh` and the job-count rule in `dashboard/tests/shards.md` are not removed or replaced. | slice 6 | observed: scripts/ci-job-times.sh and shards.md job-count rule kept |
@@ -136,7 +136,7 @@ returned `X` ids.
 | X5 | Exclusion: the per-spec times reporter and the times artifact form are not removed. | slice 6 | observed: specTimes.ts reporter and browser-times.txt form kept |
 | X6 | Exclusion: the script does not propose more than one change per invocation. | slice 7 | observed: scripts/ci-shard-proposal.mjs proposes a single change |
 | X7 | Exclusion: the script does not start runs, change files, or apply its own diff. | slice 7 | observed: Distribution/tests/ci/ci-shard-proposal.sh no writes; script prints the diff only |
-| X8 | Exclusion: the script does not record per-file seconds in the repository, and nothing gives shard balance an automatic owner. | slice 8 | |
+| X8 | Exclusion: the script does not record per-file seconds in the repository, and nothing gives shard balance an automatic owner. | slice 8 | observed: .agents/skills/rebalance-ci-shards/SKILL.md: no automatic owner; script writes nothing |
 | X9 | Exclusion: released `CHANGELOG.md` entries and the done-story catalog stay unedited. | slice 6 | observed: CHANGELOG.md and .planning/done untouched by slice 6 |
 | X10 | Exclusion: the job-count report is not folded into the rebalancing script. | slice 2 | observed: scripts/ci-shard-balance.mjs has no job-count reporting; ci-job-times.sh unchanged and green |
-| X11 | Exclusion: the maintainer skill is not distributed by the installer. | slice 8 | |
+| X11 | Exclusion: the maintainer skill is not distributed by the installer. | slice 8 | observed: Distribution/tests/installation/install-omits-internal.sh green with rebalance-ci-shards listed internal |
