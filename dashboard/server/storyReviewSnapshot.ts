@@ -54,6 +54,11 @@ export async function storyReviewResponse(
         );
       if ("explanation" in request)
         return { kind: "unavailable", explanation: request.explanation };
+      if ("landingUnavailable" in request)
+        return {
+          kind: "landing-unavailable",
+          explanation: request.landingUnavailable,
+        };
       let local: StoryReview;
       if ("run" in request) {
         local = await landedStoryReview(request.run, signal);

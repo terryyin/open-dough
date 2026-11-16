@@ -66,6 +66,13 @@ export type AdmittedStoryReview =
         readonly source: PublishedSource;
         readonly identity: string;
       };
+    }
+  // An ad hoc session kept without a landing: explain before the landed reader,
+  // including default launches that established no place.
+  | {
+      readonly kind: "story-review";
+      readonly landingUnavailable: string;
+      readonly runs: readonly ReviewLandedRun[];
     };
 
 async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
@@ -87,6 +94,12 @@ async function sessionReviewRequest(url: URL): Promise<AdmittedStoryReview> {
       400,
       "This session belongs to a story launch and is reviewed by its story.",
     );
+  if (record.landing === undefined)
+    return {
+      kind: "story-review",
+      landingUnavailable: "This session's changes were not captured.",
+      runs: [],
+    };
   const established = establishedPlace(record);
   if (established === undefined)
     throw new RefusedRequest(

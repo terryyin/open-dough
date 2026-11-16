@@ -138,7 +138,7 @@ Learning: kept Done records older than retention are invisible to `keptSession`;
 ### 2. An ad hoc review explains missing, unreadable and empty evidence
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the same spec, further tests.
 
 Behavior: a default launch's record with no landing → “This session's changes
@@ -146,6 +146,11 @@ were not captured.” as `landing-unavailable`, with no files. A landing whose
 saved repository is gone, or whose objects are missing → the reader's existing
 explanations. A landing whose base and revision hold the same tree → `landed`
 with no files.
+
+Accepted proof (2026-11-16):
+- `ad-hoc-review.spec.ts` → 5 passed (not-captured raw JSON; missing repo/objects; empty landed).
+- `dashboard/backend-tests/review/` → 96 passed.
+Learning: default launches have no established place; session admission must short-circuit no-landing before requiring one.
 
 ### 3. An ad hoc review's file diff and file text are admitted
 
