@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hitomi-chan",
+  "email": "hitomi-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-377#extend-syntax-styling-in-code-diffs",
+  "host": "cursor",
+  "model": "auto"
+}
