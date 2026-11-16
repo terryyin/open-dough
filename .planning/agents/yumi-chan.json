@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yumi-chan",
+  "email": "yumi-chan@example.org",
+  "identity": "SEED-367#bound-diagnosis-in-evidence-rounds",
+  "mode": "story-branch",
+  "branch": "claude/bound-flaky-test-and-ci-failure-diagnosis-in-evi",
+  "host": "claude"
+}
