@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-377_extend-syntax-styling-in-code-diffs.json",
+      "identity": "SEED-377#extend-syntax-styling-in-code-diffs",
+      "completedAt": "2026-11-16T06:07:35.574Z",
+      "blob": "fb86728abd372e7c5694c40fab119bef6f1f3bcc"
+    },
+    {
       "fileName": "SEED-334_remove-obsolete-native-revision-opener.json",
       "identity": "SEED-334#remove-obsolete-native-revision-opener",
       "completedAt": "2026-11-16T04:08:55.420Z",

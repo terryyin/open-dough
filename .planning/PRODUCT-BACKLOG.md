@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Keep browser test jobs inside their deadline on slow runners](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#browser-test-job-headroom-on-slow-runners) — SEED-382#browser-test-job-headroom-on-slow-runners ([plan](slice-plans/657-browser-test-job-headroom-on-slow-runners/PLAN.md))
 - [Compare Codex and Claude Code token usage](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#compare-codex-and-claude-code-token-usage) — SEED-383#compare-codex-and-claude-code-token-usage ([plan](slice-plans/658-compare-codex-and-claude-code-token-usage/PLAN.md))
 - [Review changes from completed ad hoc sessions](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions) — SEED-379#review-changes-from-completed-ad-hoc-sessions ([plan](slice-plans/659-review-changes-from-completed-ad-hoc-sessions/PLAN.md))
-- [Extend syntax styling in code diffs](seeds/SEED-377-extend-syntax-styling-in-code-diffs.md#extend-syntax-styling-in-code-diffs) — SEED-377#extend-syntax-styling-in-code-diffs ([plan](slice-plans/660-extend-syntax-styling-in-code-diffs/PLAN.md))
 
 ## Backlog list
 
