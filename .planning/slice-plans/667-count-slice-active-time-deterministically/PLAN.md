@@ -2,6 +2,7 @@
 
 **Identity:** SEED-367#count-slice-active-time-deterministically
 **Source:** [Selected story](../../seeds/SEED-367-bounded-slice-active-time.md#count-slice-active-time-deterministically)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -105,8 +106,8 @@ was started.
 | Premise / consuming operation | Result and limit |
 | --- | --- |
 | Claude Code runs `PostToolUse` command hooks for a subagent's tool calls; slice 4 | Retained subagent transcript `-Users-terryyin-git-open-dough--worktrees-avoid-redundant-board-reads/66e74827-0938-4613-9118-e74e25d30691/subagents/agent-a54e5461d643c209a.jsonl` (Claude Code 2.1.319, 2026-11-08T01:09:39Z) records `hook_success` for `PostToolUse` running `ci-host-hook.mjs claude` with `isSidechain: true`. Settled that the hook runs. |
-| A subagent receives a `PostToolUse` hook's `additionalContext`; slice 4 | Open. Across all retained Claude Code transcripts on this machine, 1,454 `hook_additional_context` attachments appear, none in a `subagents/` transcript; the CI hook emits `{}` there. Only a paid native run settles it: slice 1. |
-| A Cursor subagent receives `postToolUse` `additional_context`; slice 4 | Open; no retained Cursor subagent evidence was read. Slice 1. |
+| A subagent receives a `PostToolUse` hook's `additionalContext`; slice 4 | Settled by slice 1: delivered (Claude Code 2.1.325). |
+| A Cursor subagent receives `postToolUse` `additional_context`; slice 4 | Settled by slice 1: delivered (Cursor agent 2026.11.13-eacade1). |
 | `git rev-parse --git-path open-dough/slice-clock` is per worktree in a linked worktree; slices 2–3 | Ran in this linked worktree: `/Users/terryyin/git/open-dough/.git/worktrees/count-a-slice-s-active-time-without-the-agent-s/open-dough/slice-clock`. Settled. |
 | The payload declaration lists execute-plan scripts individually; slice 2 | Read `src/install/open-dough-execution-payload.sh`: `selected-slice-status.mjs` (line 146) and `wait-for-publication.mjs` (line 183) are listed one per line. A new script needs its own line. |
 
@@ -119,7 +120,7 @@ Each slice targets 15 active minutes, including its focused proof and cleanup.
 
 ### 1. Probe whether hook context reaches Claude Code and Cursor implementers
 Type: Behavior
-Status: planned
+Status: done
 Proof: developer-authorized native observation, retained here with the fields
 from [plan and reuse developer-operated observation](../../../Distribution/src/skills/dough-story-refinement/references/executable-proof.md#plan-and-reuse-developer-operated-observation).
 
@@ -139,6 +140,21 @@ Result per host: delivered or not. A host where it is not delivered stops
 slice 4 for that host. The story example "reported after the next tool call"
 then needs a human scope decision; detection there falls back to clock
 commands. Remove the scratch repository afterwards.
+
+Result (2026-11-16, authorized by the developer for both hosts; scratch
+repository removed): delivered on both hosts, so slice 4 covers both.
+
+- Claude Code 2.1.325, `claude -p --model haiku`, session
+  `579d20a0-f3bf-4d83-a26a-99997e9cf25e`: the subagent quoted the marker after
+  its `Bash` call, and its `subagents/agent-a382d11ed22480119.jsonl` transcript
+  holds a `hook_additional_context` attachment for `PostToolUse`. The hook's
+  input for a subagent tool call carries `agent_id` and `agent_type`; the
+  coordinator's own call carries neither.
+- Cursor agent 2026.11.13-eacade1, `cursor-agent -p --model composer-2.5`,
+  session `e6144a9c-7210-4bfd-9bdc-a31f2b596624`: the subagent's reply was the
+  marker alone. The hook's input for the subagent's `Shell` call has its own
+  `conversation_id`, a `transcript_path` under `subagents/`, an empty `cwd`
+  and the checkout in `workspace_roots`.
 
 ### 2. Count a slice's active time across handbacks with commands excluded
 Type: Behavior
@@ -214,4 +230,14 @@ on AC wrap any long run in `caffeinate -s -i`.
 
 ## Learnings
 
-None beyond the preparation observations above.
+- Slice 2's clock contract, for slices 3–5: `start --identity ID --slice KEY`,
+  `pause`, `status [--identity ID --slice KEY]` and
+  `run --log FILE --exit-file FILE -- COMMAND…`, each printing one JSON line
+  with `state`, `elapsedMinutes`, `remainingMinutes` and `limitMinutes`.
+  `start` refuses while a different slice runs, so a coordinator pauses first.
+  `run` exits with the command's status and still runs it when no slice is
+  running. Reported minutes round to 0.1; compare the limit in milliseconds
+  through `elapsedMs`. Test time comes from `DOUGH_SLICE_CLOCK_TIME_FILE`, a
+  file read at every observation.
+- "Slice clock" also names an unrelated dashboard feature
+  (`dashboard/src/SliceClock.tsx`); a `slice-clock` consumer trace matches it.
