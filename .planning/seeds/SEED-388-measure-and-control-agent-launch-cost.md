@@ -52,26 +52,83 @@ two corrections come first.
 
 **Identity:** SEED-388#show-the-effort-a-launch-runs-with
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/664-show-the-effort-a-launch-runs-with/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b4cd57368aa87f3d4902ce3785a457051e5e06c2d5fd6a345472df26136666b7","plan":"7abd98619a447dda51854b35c7e977d44c131c46649f5078e46bbb7144666e66"}}
 ```
 
-- **Scope and beneficiary.** Dashboard launches on Claude Code. A developer
-  starting a session knows the model and effort it will run with, including
-  when they choose none. A changed user-level Claude Code default no longer
-  silently changes what an Open Dough launch costs.
-- **Evaluation.** Given no explicit effort, the launch dialog and the started
-  session name the effort the launch resolves to before work begins. Given a
-  user-level default of `high`, the developer sees `high` before starting.
-  Choosing `high`, `xhigh` or `max` names its measured relative cost. Refinement
-  decides whether Open Dough also passes its own default effort.
-- **Priority.** Second. Opus launches that requested no effort ran at `high`
-  from 2026-11-12 to 2026-11-15, roughly tripling 11 executions. Today's
-  protection is one line in `~/.claude/settings.json` that the product does not
-  read.
-- **Effort and boundary.** Small, high confidence. Keeps the delivered effort
-  choice at session start. Which effort suits which role stays
+**Goal.** A developer starting a Claude Code session from the dashboard knows
+the effort it will run with before it starts, and a change to their user-level
+Claude Code settings no longer silently changes what an Open Dough launch
+costs. This keeps the efficiency comparisons in
+[SEED-345](SEED-345-session-token-efficiency.md) on a known effort.
+
+**Scope.**
+
+- Every Claude Code session the dashboard starts passes an explicit effort.
+  The launch dialog's Reasoning effort for Claude Code opens on `medium`,
+  marked as Open Dough's default, and offers low, medium, high, xhigh and max.
+  The "Use your Claude Code setting" choice is removed for Claude Code: it is
+  the path whose effort no Open Dough surface can name, and keeping it would
+  keep the silent dependency the goal removes.
+- Choices above `medium` name their measured relative cost beside the level:
+  high and xhigh about 3×, max about 7× the cost of `medium`, as measured on
+  Opus slice agents. `low` names no figure; none was measured.
+- Feedback maintenance sessions started on Claude Code run at the same
+  default, and its status line names that effort.
+- The launch record keeps the effort it passed. A Claude Code session's
+  details name it as the requested effort, beside the requested model.
+  Records from before this change, which kept no effort, show none.
+- Codex and Cursor launches keep their current effort behavior.
+
+**Decision.** Open Dough passes its own default rather than predicting the
+inherited one. Prediction would replicate Claude Code's private settings
+precedence (managed, project, user, per-model `modelSettings`, environment)
+and would still let a user-level change alter the cost, only visibly.
+
+**Deferred promises.**
+
+- Predicting or showing the effort a session would inherit from Claude Code
+  settings.
+- Showing the effort a session actually ran with, read from its transcript.
+  Claude Code records it on every response (`effort`), and the Usage records
+  already keep it. Explicit passing makes the requested value the effective
+  one, except where Claude Code drops an effort a model does not take.
+- A Claude Code effort choice in the feedback maintenance setting, and a
+  configurable Open Dough default. Which effort suits which role stays
   [research](#research-kept-without-a-story).
-  [Effort and model](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#effort-and-model)
+
+**Key examples.**
+
+- **Default launch.** A developer opens Start execution on Claude Code with
+  Opus and leaves Reasoning effort untouched → the dialog shows `medium
+  (Open Dough default)`; the session starts with `--effort medium`, and its
+  Session details name `medium` as the requested effort.
+- **User-level `high`.** `~/.claude/settings.json` sets `effortLevel` or
+  Opus's `modelSettings` effort to `high` → the same untouched launch still
+  runs at `medium`, and so do its subagents, since Claude Code passes the
+  session's effort to them.
+- **Costly choice.** The developer picks `max` → the option reads about 7× the
+  cost of `medium` before starting; the session starts with `--effort max`
+  and its details name `max`.
+- **Feedback maintenance.** Feedback maintenance is On for Claude Code with
+  Default model → its session starts with `--effort medium`, and the status
+  line reads, for example, "On, Claude Code, Default, medium effort".
+- **Older record.** A Claude Code session recorded before this change, with no
+  effort → its details show no effort line.
+
+**Evidence.**
+
+- Claude Code transcripts record each response's resolved effort; in a
+  2026-11-09 launch that chose `max`, all 11 subagents ran at `max`.
+- `claude --effort` sets the session's effort (Claude Code 2.1.325).
+- The relative costs come from the
+  [effort and model](../../docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#effort-and-model)
+  table: median Opus slice agent 0.47 at medium, 1.53 at high, 1.55 at xhigh,
+  3.35 at max. These are uncontrolled comparisons across stories.
+
+**Priority.** Second. Opus launches that requested no effort ran at `high`
+from 2026-11-12 to 2026-11-15, roughly tripling 11 executions. Today's
+protection is one line in `~/.claude/settings.json` that the product does not
+read.
 
 <a id="compare-agent-effort-on-comparable-runs"></a>
 
