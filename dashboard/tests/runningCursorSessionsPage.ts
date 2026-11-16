@@ -172,6 +172,8 @@ export const scrollTopOf = (area: Locator) =>
   area.evaluate((at) => at.scrollTop);
 
 // Scrolls the area with the mouse wheel until it can scroll no further.
+// Accepted cost: the poll's growing pause lets Chromium stop sending wheels to
+// the previously scrolled area; shorter pauses left the area unscrolled.
 export async function wheelToEnd(page: Page, area: Locator) {
   const at = await box(area);
   await page.mouse.move(at.x + at.width / 2, at.y + at.height / 2);

@@ -1,7 +1,9 @@
 import { frontendFileDiff } from "../../tests/support/frontendStoryReview.ts";
 import { showLatestRevision } from "../../tests/intentReadRecoveryPage.ts";
 // Project refresh preserves a real Done story's selected historical Purpose
-// file and reading place, including its preceding cycle through all Done tabs.
+// file and reading place, including its preceding cycle through all Done tabs;
+// choosing Proof then survives a later Project Intent visit and the story keeps
+// its Intent coverage report.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { pausePageClock } from "../../tests/autoRefreshJourney.ts";
@@ -17,6 +19,7 @@ import {
   expandIntentGroup,
   expandIntentFolders,
   fileReadingTab,
+  proofRegion,
   revisionNotice,
 } from "../../tests/intentPerspectivePage.ts";
 import {
@@ -38,7 +41,7 @@ import {
 } from "../../tests/support/intentStoryPage.ts";
 import { lines } from "../../tests/support/storyReviewWorktree.ts";
 
-test("project refresh returns the same Done historical Purpose file and reading place after cycling all Done tabs", async ({
+test("project refresh returns the same Done historical Purpose file and reading place after cycling all Done tabs, then Proof survives a later Project Intent visit", async ({
   page,
   frontendServices,
 }) => {
@@ -133,7 +136,31 @@ test("project refresh returns the same Done historical Purpose file and reading 
     "aria-selected",
     "true",
   );
+  await expect(intentDiffReading(intent).code).toHaveAttribute(
+    "aria-busy",
+    "false",
+  );
   await expect.poll(() => intentReadingScroll(intent)).toBe(offset);
   expect(await readIntentDiff(intent)).toBe(originalDiff);
   await expect(revisions).toHaveText(endpoints);
+  await fileReadingTab(intent, "Proof").click();
+  await expect(proofRegion(intent)).toBeVisible();
+  await openProjectIntent(intent);
+  await expect(browserRevision(intent)).toContainText(
+    laterRevision.slice(0, 7),
+  );
+  await returnToStory(intent);
+  await expect(intentFile(intent, selected)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(fileReadingTab(intent, "Proof")).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await expect(proofRegion(intent)).toBeVisible();
+  await chooseStoryTab(intent, "Intent coverage");
+  await expect(intent.locator(".intent-story-coverage-text")).toHaveText(
+    report,
+  );
 });
