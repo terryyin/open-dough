@@ -161,7 +161,7 @@ B brief’s readability prerequisite for the final guidance judgment.
 
 ### 5. The planning replay shows how the effort story is planned now
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 5 row above.
 
 Behavior: B has finished and scratch P exists → P's session writes its plan
@@ -222,3 +222,5 @@ Disposition: no user cost "The story's outcome is that evidence and a recommenda
   [Observation history](execution-observations.md) retains the comparisons.
   B’s original brief remains G3; final returns supply candidate evidence.
 - Refactor disposition for these updates: records-only.
+- Slice 5: [planning replay](planning-replay.md), commitment 2 accepted:
+  P's Structure slice 2 immediately precedes the default Behavior slice 3.
