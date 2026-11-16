@@ -23,26 +23,24 @@ const durations = () =>
     ])
     .please();
 const description = () =>
-  makeMe.aRepository
-    .withRevision("trunk", {
-      files: {
-        "Distribution/tests/feature/recorded.sh": "#!/usr/bin/env bash\n",
-        "Distribution/tests/feature/stale.sh": "#!/usr/bin/env bash\n",
-        "Distribution/tests/support/stale.test.mjs": "",
-        "Distribution/tests/support/promoted.mjs": "",
-        "Distribution/tests/support/.hidden.test.mjs": "",
-        "Distribution/tests/git-publication/git-publication-native-one-shot.sh":
-          "#!/usr/bin/env bash\n",
-        "Distribution/tests/support/helper.sh": "#!/usr/bin/env bash\n",
-        "Distribution/tests/node-test-files":
-          "Distribution/tests/support/*.test.mjs\n",
-        "Distribution/tests/longest-first": durationListText(durations()),
-        "Distribution/tests/time-budget":
-          "per-job-seconds=10\ntotal-job-seconds=30\n",
-        "scripts/check-self-installation.sh": "#!/usr/bin/env bash\n",
-      },
-    })
-    .please();
+  makeMe.aRepository.withRevision("trunk", {
+    files: {
+      "Distribution/tests/feature/recorded.sh": "#!/usr/bin/env bash\n",
+      "Distribution/tests/feature/stale.sh": "#!/usr/bin/env bash\n",
+      "Distribution/tests/support/stale.test.mjs": "",
+      "Distribution/tests/support/promoted.mjs": "",
+      "Distribution/tests/support/.hidden.test.mjs": "",
+      "Distribution/evaluation/tests/git-publication/git-publication-native-one-shot.sh":
+        "#!/usr/bin/env bash\n",
+      "Distribution/tests/support/helper.sh": "#!/usr/bin/env bash\n",
+      "Distribution/tests/node-test-files":
+        "Distribution/tests/support/*.test.mjs\n",
+      "Distribution/tests/longest-first": durationListText(durations()),
+      "Distribution/tests/time-budget":
+        "per-job-seconds=10\ntotal-job-seconds=30\n",
+      "scripts/check-self-installation.sh": "#!/usr/bin/env bash\n",
+    },
+  });
 
 function copyRunner(checkout) {
   const copied = spawnSync(
@@ -60,7 +58,7 @@ const preview = (checkout, args = [], options = {}) =>
   );
 
 test("default preview marks trunk shell and Node jobs stale while added and newly selected files stay estimates", async (t) => {
-  const repository = await materializeRepository(description());
+  const repository = await materializeRepository(description().please());
   t.after(repository.cleanup);
   const checkout = repository.integration;
   copyRunner(checkout);
@@ -71,7 +69,7 @@ test("default preview marks trunk shell and Node jobs stale while added and newl
   // The file already existed on trunk, but only this change runs it.
   writeFileSync(
     join(checkout, "Distribution/tests/node-test-files"),
-    "Distribution/tests/support/*.test.mjs\nDistribution/tests/support/promoted.mjs\nDistribution/tests/support/.hidden.test.mjs\nDistribution/tests/git-publication/git-publication-native-one-shot.sh\n",
+    "Distribution/tests/support/*.test.mjs\nDistribution/tests/support/promoted.mjs\nDistribution/tests/support/.hidden.test.mjs\nDistribution/evaluation/tests/git-publication/git-publication-native-one-shot.sh\n",
   );
   const result = preview(checkout);
   assert.equal(result.status, 0, result.stderr);
@@ -113,12 +111,66 @@ test("default preview marks trunk shell and Node jobs stale while added and newl
   assert.equal(selected.status, 0, selected.stderr);
   assert.match(
     selected.stdout,
-    /^Stale duration list .*: 2 jobs already on trunk lack recorded seconds\.\n/,
+    /^Stale duration list .*: 1 job already on trunk lacks recorded seconds\.\n/,
+  );
+  assert.match(
+    selected.stdout,
+    /Distribution\/tests\/support\/stale\.test\.mjs \(stale; assumed 1\.0 s\)/,
   );
 });
 
+test("default preview includes evaluation shell and Node jobs already on trunk in its stale count", async (t) => {
+  const repository = await materializeRepository(
+    description()
+      .withRevision("with evaluations", {
+        files: {
+          "Distribution/evaluation/tests/checks/stale.sh":
+            "#!/usr/bin/env bash\n",
+          "Distribution/evaluation/tests/checks/stale.test.mjs": "",
+          "Distribution/tests/node-test-files":
+            "Distribution/tests/support/*.test.mjs\nDistribution/evaluation/tests/checks/*.test.mjs\n",
+        },
+      })
+      .please(),
+  );
+  t.after(repository.cleanup);
+  copyRunner(repository.integration);
+  const result = preview(repository.integration);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(
+    result.stdout,
+    /^Stale duration list .*: 4 jobs already on trunk lack recorded seconds\.\n/,
+  );
+  for (const extension of ["sh", "test.mjs"])
+    assert.ok(
+      result.stdout.includes(
+        `Distribution/evaluation/tests/checks/stale.${extension} (stale; assumed 5.0 s)`,
+      ),
+    );
+});
+
+test("default preview can compare a trunk that has no evaluation jobs", async (t) => {
+  const repository = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("before evaluations", {
+        files: {
+          "Distribution/tests/feature/recorded.sh": "#!/usr/bin/env bash\n",
+          "Distribution/tests/node-test-files": "",
+          "Distribution/tests/longest-first": durationListText(durations()),
+          "scripts/check-self-installation.sh": "#!/usr/bin/env bash\n",
+        },
+      })
+      .please(),
+  );
+  t.after(repository.cleanup);
+  copyRunner(repository.integration);
+  const result = preview(repository.integration);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /2 jobs, 2 recorded, 0 unrecorded/);
+});
+
 test("an unreadable trunk names origin/main and the explicit override; substitutes remain usable", async (t) => {
-  const repository = await materializeLocalCheckout(t, description());
+  const repository = await materializeLocalCheckout(t, description().please());
   const checkout = repository.integration;
   copyRunner(checkout);
   const missing = preview(checkout);

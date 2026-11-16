@@ -84,7 +84,8 @@ function trunkJobLabels(labels) {
       writeFileSync(path, "");
     }
     const patternsPath = "Distribution/tests/node-test-files";
-    mkdirSync(join(directory, "Distribution/tests"), { recursive: true });
+    for (const root of ["Distribution/tests", "Distribution/evaluation/tests"])
+      mkdirSync(join(directory, root), { recursive: true });
     if (files.has(patternsPath)) {
       writeFileSync(
         join(directory, patternsPath),

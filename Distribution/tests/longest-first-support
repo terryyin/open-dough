@@ -1,7 +1,7 @@
 # Recorded CI seconds for support checks.
 # Source: main run 43725762081 at 86b3f67877e5f6024d42cb8696c39fe1a4a08bec; 3 added tests from story run 43729355694 at fedc827300415a5e452d38e373c130ef8dbbcd62 (Distribution Tests 1/3, 2/3, 3/3 succeeded), 2026-11-15 (runner factor 0.842)
 24.6	Distribution/tests/support/local-test-suite-focused-runners.test.mjs
-22.1	Distribution/tests/support/native-admission-reuse.test.mjs
+22.1	Distribution/evaluation/tests/native-harness/native-admission-reuse.test.mjs
 16.9	Distribution/tests/support/format-changed-files.test.mjs
 16.9	Distribution/tests/support/pre-commit-lint-hook.test.mjs
 14.8	Distribution/tests/support/local-test-suite.test.mjs
@@ -23,7 +23,7 @@
 4.4	Distribution/tests/support/test-runner-deadline-continuation.test.mjs
 4.2	Distribution/tests/support/supplier-dependency-correction-satisfied.test.mjs
 4.0	Distribution/tests/support/supplier-dependency-correction-refusal.test.mjs
-3.9	Distribution/tests/support/page-object-makeme-fixture.test.mjs
+3.9	Distribution/evaluation/tests/page-objects/page-object-makeme-fixture.test.mjs
 3.7	Distribution/tests/support/story-dependencies.test.mjs
 3.7	Distribution/tests/support/story-state-sibling-readiness.test.mjs
 3.7	Distribution/tests/support/supplier-integration-revisit.test.mjs
@@ -31,7 +31,7 @@
 3.6	Distribution/tests/support/dashboard-dev-port.test.mjs
 3.0	Distribution/tests/support/supplier-dependency-correction.test.mjs
 2.9	Distribution/tests/support/story-dependencies-refusals.test.mjs
-2.7	Distribution/tests/support/makeme-native-refactor-harness.test.mjs
+2.7	Distribution/evaluation/tests/makeme/makeme-native-refactor-harness.test.mjs
 2.6	Distribution/tests/support/story-state-assessment-refusals.test.mjs
 2.5	Distribution/tests/support/product-backlog-git-merge-conflict.test.mjs
 2.5	Distribution/tests/support/supplier-dependency-refusal.test.mjs
@@ -54,7 +54,7 @@
 1.8	Distribution/tests/support/dashboard-later-trunk-landed.test.mjs
 1.8	Distribution/tests/support/product-backlog-git-merge.test.mjs
 1.8	Distribution/tests/support/product-backlog-merge-order.test.mjs
-1.7	Distribution/tests/support/git-publication-native-one-shot-escalation-fixture.test.mjs
+1.7	Distribution/evaluation/tests/git-publication/git-publication-native-one-shot-escalation-fixture.test.mjs
 1.7	Distribution/tests/support/product-backlog-git-cherry-pick.test.mjs
 1.7	Distribution/tests/support/product-backlog-refresh-refusals.test.mjs
 1.7	Distribution/tests/support/repository-fixture.test.mjs
@@ -68,7 +68,7 @@
 1.4	Distribution/tests/support/test-entry-rules-standalone.test.mjs
 1.3	Distribution/tests/support/consumer-discovery-anchors.test.mjs
 1.3	Distribution/tests/support/landed-ci-history-identity-subject.test.mjs
-1.3	Distribution/tests/support/page-object-native-fixture.test.mjs
+1.3	Distribution/evaluation/tests/page-objects/page-object-native-fixture.test.mjs
 1.3	Distribution/tests/support/product-backlog-direction-refusals.test.mjs
 1.3	Distribution/tests/support/product-backlog-git-merge-agent-credit.test.mjs
 1.3	Distribution/tests/support/product-backlog-merge-identity.test.mjs
@@ -97,7 +97,7 @@
 1.1	Distribution/tests/support/repository-snapshot.test.mjs
 1.1	Distribution/tests/support/test-runner-deadline-cutoff.test.mjs
 1.0	Distribution/tests/support/ci-proof-actions.test.mjs
-1.0	Distribution/tests/support/makeme-native-harness.test.mjs
+1.0	Distribution/evaluation/tests/makeme/makeme-native-harness.test.mjs
 1.0	Distribution/tests/support/product-backlog-complete-credit.test.mjs
 1.0	Distribution/tests/support/product-backlog-git-rebase-clean.test.mjs
 1.0	Distribution/tests/support/repository-graph.test.mjs
@@ -121,7 +121,7 @@
 0.7	Distribution/tests/support/intent-ci-scope-history-units.test.mjs
 0.7	Distribution/tests/support/landed-ci-history-proof-finality.test.mjs
 0.7	Distribution/tests/support/landed-ci-history-proof-versions.test.mjs
-0.7	Distribution/tests/support/native-import-closure.test.mjs
+0.7	Distribution/evaluation/tests/native-harness/native-import-closure.test.mjs
 0.7	Distribution/tests/support/product-backlog-complete-profile.test.mjs
 0.7	Distribution/tests/support/product-backlog-git-done-catalog-agent-credit.test.mjs
 0.7	Distribution/tests/support/product-backlog-git-merge-ancestry.test.mjs
@@ -178,7 +178,7 @@
 0.4	Distribution/tests/support/intent-scope-comparison-unit-names.test.mjs
 0.4	Distribution/tests/support/intent-scope-comparison-wording.test.mjs
 0.4	Distribution/tests/support/intent-scope-proof.test.mjs
-0.4	Distribution/tests/support/native-host-stream.test.mjs
+0.4	Distribution/evaluation/tests/native-harness/native-host-stream.test.mjs
 0.4	Distribution/tests/support/start-eligibility.test.mjs
 0.4	Distribution/tests/support/story-ci-comparison-entry-summaries.test.mjs
 0.4	Distribution/tests/support/test-optimization-candidates.test.mjs
@@ -201,8 +201,8 @@
 0.2	Distribution/tests/support/share-deal.test.mjs
 0.2	Distribution/tests/support/test-entry-rules.test.mjs
 0.1	Distribution/tests/support/ci-browser-groups.test.mjs
-0.1	Distribution/tests/support/git-publication-native-stream-fields.test.mjs
-0.1	Distribution/tests/support/native-codex-session.test.mjs
+0.1	Distribution/evaluation/tests/git-publication/git-publication-native-stream-fields.test.mjs
+0.1	Distribution/evaluation/tests/native-harness/native-codex-session.test.mjs
 0.1	Distribution/tests/support/product-backlog-browser-import.test.mjs
 0.1	Distribution/tests/support/product-backlog-plan-reader-bold.test.mjs
 0.1	Distribution/tests/support/start-eligibility-pure.test.mjs

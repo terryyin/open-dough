@@ -68,7 +68,28 @@ jobs:
           echo '::error::Infrastructure setup: Node or npm cache acquisition failed within its 60-second deadline. Restore GitHub Releases, nodejs.org, or cache connectivity and rerun setup before checks.'
           exit 1
       - name: Install npm dependencies
+        id: npm
         run: node scripts/setup-native.mjs npm
+      - name: Cache Playwright Chromium
+        if: ${{ !cancelled() && steps.npm.outcome == 'success' }}
+        uses: actions/cache@v6
+        id: playwright-cache
+        timeout-minutes: 1
+        continue-on-error: true
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+      - name: Use a clean browser directory after cache failure
+        if: ${{ !cancelled() && steps.playwright-cache.outcome == 'failure' }}
+        run: |
+          echo '::warning::Chromium cache restore failed. Installing the locked browser directly.'
+          echo "PLAYWRIGHT_BROWSERS_PATH=${RUNNER_TEMP}/playwright-chromium" >> "$GITHUB_ENV"
+      - name: Install Playwright Chromium
+        if: ${{ !cancelled() && steps.npm.outcome == 'success' }}
+        id: browser
+        run: node scripts/setup-native.mjs browser
       # Cancellation signals only this step's pid; `exec` makes npm/the runner that process.
       - name: Run Distribution Tests
         id: suite

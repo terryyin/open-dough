@@ -1,6 +1,6 @@
 # Distribution Tests
 
-Prepare [native prerequisites](native-harness/native-setup.md) once per lockfile version.
+Prepare [native prerequisites](../evaluation/native-setup.md) once per lockfile version.
 
 Four browser test groups run with Playwright, each under its own command,
 configuration, setup, settings, outputs and CI producer; `npm test` does not
@@ -54,6 +54,10 @@ if it finds a root-level `.sh` or `.test.mjs` file.
 
 Keep tests for individual skill scripts in `skills/<skill>/` and shared
 harness code and its own checks in `support/`.
+
+Native tooling and its checks live in the [evaluation home](../evaluation/README.md).
+The runner combines both check roots under this same Distribution Tests group;
+`npm run test:evaluation` selects only tool checks through that runner.
 
 ## Test data architecture
 
@@ -197,13 +201,13 @@ copied installer by hand, and checks the older release out with
 
 Native checks read a Claude Code, Codex, or Cursor output stream only through
 one reader, and a replay check holds that reader to retained real streams:
-[native host streams](native-harness/native-host-streams.md).
+[native host streams](../evaluation/native-host-streams.md).
 
 ## Native comparison cases
 
 Versioned examples from real work compare a baseline and a candidate payload
 in fresh native sessions on demand; routine runs use substitute hosts only:
-[native comparison cases](native-comparison/native-comparison.md).
+[native comparison cases](../evaluation/comparison.md).
 
 ## Shared installation and update protections
 

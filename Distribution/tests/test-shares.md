@@ -6,6 +6,13 @@ keeps its times for seven days as workflow artifact `test-times-<i>`.
 `scripts/test-shares.mjs` owns which jobs each share runs, in which order, and
 previews that deal before a push.
 
+Default discovery combines guidance checks in `Distribution/tests/` and tool
+checks in `Distribution/evaluation/tests/`. All three CI shares use that same
+discovery and allocator; every selected file belongs to exactly one share.
+The focused `npm run test:evaluation` command filters this same discovery to
+tool checks. Neither command discovers operational `src/`, `cases/`, fixtures
+or nested feature support as jobs. Named files remain one scheduled job each.
+
 ## The deal
 
 Duration lists may keep their ordinary TSV rows in named parts. Leading

@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+# Controlled native journeys for Trunk Mode completion after final publication.
+# shellcheck disable=SC2034,SC2154,SC2312
+
+trunk_closure_run_case_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck source=Distribution/evaluation/cases/closure/trunk-closure-native-fixture.sh
+# shellcheck disable=SC1091
+source "${trunk_closure_run_case_dir}/trunk-closure-native-fixture.sh"
+# shellcheck source=Distribution/evaluation/cases/closure/trunk-closure-native-assess.sh
+# shellcheck disable=SC1091
+source "${trunk_closure_run_case_dir}/trunk-closure-native-assess.sh"
+# shellcheck source=Distribution/evaluation/cases/closure/trunk-closure-native-observe.sh
+# shellcheck disable=SC1091
+source "${trunk_closure_run_case_dir}/trunk-closure-native-observe.sh"
+# shellcheck source=Distribution/tests/helpers/wait-for.bash
+# shellcheck disable=SC1091
+source "${trunk_closure_run_case_dir}/../../../tests/helpers/wait-for.bash"
+
+trunk_closure_write_evidence_identity() {
+  printf 'helper-identity: Distribution/evaluation/cases/closure/trunk-closure-native-run.sh\n'
+  native_result_print_adapter_identity
+  printf 'fixture-identity: Distribution/evaluation/cases/closure/trunk-closure-native-fixture.sh\n'
+  printf 'assessor-identity: Distribution/evaluation/cases/closure/trunk-closure-native-assess.sh\n'
+  native_result_input_hash_lines \
+    Distribution/evaluation/cases/git-publication/git-publication-native.sh \
+    Distribution/evaluation/cases/git-publication/git-publication-native-host.sh \
+    Distribution/evaluation/cases/closure/trunk-closure-native-run.sh \
+    Distribution/evaluation/cases/closure/trunk-closure-native-assess.sh \
+    Distribution/evaluation/src/closure-native-response.sh \
+    Distribution/evaluation/src/native-response-field.sh \
+    Distribution/evaluation/cases/closure/trunk-closure-native-observe.sh \
+    Distribution/evaluation/src/native-completion-observation.sh \
+    Distribution/evaluation/src/native-observation.sh \
+    Distribution/evaluation/cases/closure/trunk-closure-native-fixture.sh \
+    Distribution/evaluation/cases/closure/trunk-closure-native-arming.sh \
+    Distribution/evaluation/cases/closure/trunk-closure-native-owned-context.sh \
+    Distribution/evaluation/src/native-harness-observation.sh \
+    Distribution/evaluation/src/native-harness-login-shell.sh \
+    Distribution/evaluation/src/native-node-call-recorder.mjs \
+    Distribution/evaluation/cases/git-publication/git-publication-native-shared.sh \
+    Distribution/evaluation/cases/git-publication/git-publication-native-run.sh
+  native_result_supervision_input_hash_lines
+  native_result_input_hash_lines \
+    Distribution/src/skills/dough-execute-plan/references/trunk-publication.md \
+    Distribution/src/skills/dough-execute-plan/references/wrap-up-closure-publication.md \
+    Distribution/src/skills/dough-execute-plan/references/ci-monitor.md \
+    Distribution/src/skills/dough-execute-plan/references/ci-notify-codex.md \
+    Distribution/src/skills/dough-execute-plan/references/ci-completion-wait.md \
+    Distribution/src/skills/dough-execute-plan/references/publish-the-candidate.md \
+    Distribution/src/skills/dough-story-wrap-up/SKILL.md
+  git_publication_closing_input_hash_lines \
+    Distribution/evaluation/cases/closure/native-closure-repository.mjs \
+    Distribution/evaluation/cases/closure/native-closure-ci.mjs \
+    Distribution/src/skills/dough-story-wrap-up/scripts/trunk-closure.mjs \
+    Distribution/src/skills/dough-execute-plan/scripts/execution-increment-delivery.mjs \
+    Distribution/src/skills/dough-execute-plan/scripts/ci-mailbox.mjs
+}
+
+# Per-step controller bound; each step awaits one action of the native agent.
+trunk_closure_wait_limit=360
+
+# The installed `finish`, which runs completion, has started, as the node log
+# or host $1's transcript from the runner shows.
+trunk_closure_complete_seen() {
+  [[ $(trunk_closure_finish_count "${trunk_closure_node_log}" "$1" \
+    "${transcript:-/dev/null}" \
+    "${trunk_closure_candidate_sha}") -ge 1 ]]
+}
+
+trunk_closure_controller() {
+  local scenario=$1 host=$2
+  local remote_sha coverage
+  wait_for publication "${trunk_closure_wait_limit}" \
+    "[[ \$(git ls-remote '${trunk_closure_origin}' refs/heads/main | awk '{print \$1}') == '${trunk_closure_candidate_sha}' ]]" || return
+  printf 'publication\n' >> "${trunk_closure_control_log}"
+  # The product's registration names the observer the later steps follow.
+  wait_for registration "${trunk_closure_wait_limit}" \
+    "trunk_closure_find_observer && [[ \$(native_completion_registered \"\${trunk_closure_mailbox}\" '${trunk_closure_candidate_sha}') == true ]]" || return
+  printf 'registration\n' >> "${trunk_closure_control_log}"
+  coverage="${trunk_closure_mailbox}/coverage/${trunk_closure_candidate_sha}.json"
+  if [[ ${scenario} == source ]]; then
+    wait_for complete-start "${trunk_closure_wait_limit}" \
+      "trunk_closure_complete_seen '${host}'" || return
+    printf 'complete-start\n' >> "${trunk_closure_control_log}"
+    : > "${trunk_closure_release}"
+    printf 'ci-release\n' >> "${trunk_closure_control_log}"
+    wait_for coverage "${trunk_closure_wait_limit}" "grep -q '\"state\":\"success\"' '${coverage}'" || return
+  else
+    wait_for coverage "${trunk_closure_wait_limit}" "grep -q '\"state\":\"not_required\"' '${coverage}'" || return
+    printf 'coverage-not-required\n' >> "${trunk_closure_control_log}"
+    wait_for complete-start "${trunk_closure_wait_limit}" \
+      "trunk_closure_complete_seen '${host}'" || return
+    printf 'complete-start\n' >> "${trunk_closure_control_log}"
+  fi
+  [[ ${scenario} != source ]] || printf 'coverage-success\n' >> "${trunk_closure_control_log}"
+  wait_for shutdown "${trunk_closure_wait_limit}" \
+    "[[ -f '${trunk_closure_mailbox}/result.json' ]] && grep -Eq '\"status\":\"(stopped|finished)\"' '${trunk_closure_mailbox}/result.json'" || return
+  printf 'shutdown\n' >> "${trunk_closure_control_log}"
+  wait_for cleanup "${trunk_closure_wait_limit}" "test -f '${trunk_closure_cleanup_marker}'" || return
+  printf 'cleanup-complete\n' >> "${trunk_closure_control_log}"
+  remote_sha=$(git ls-remote "${trunk_closure_origin}" refs/heads/main | awk '{print $1}')
+  [[ ${remote_sha} == "${trunk_closure_candidate_sha}" ]]
+}
+
+trunk_closure_prompt_for() {
+  if [[ $1 == owned-context ]]; then
+    trunk_closure_owned_context_prompt
+    return
+  fi
+  printf '%s\n' "Use this project's installed Open Dough guidance. Complete the retained Trunk Mode final-closure candidate described in .planning/execution-state.txt, including its authorized publication, CI observation handoff, and local resource cleanup. Preserve the pending human edit in the separate default checkout. Treat the installed guidance and retained project state as the task inputs; do not inspect parent processes or external test-harness source."
+}
+
+trunk_closure_run_journey() {
+  local source_dir=$1 host=$2 scenario=$3 results_dir=$4
+  local root harness prompt controller_pid run_status=0 stop_status=0
+  root=$(mktemp -d)
+  harness=$(mktemp -d)
+  # No session is launched against a fixture whose observer did not arm.
+  if ! trunk_closure_create_fixture "${source_dir}" "${host}" "${scenario}" \
+    "${root}" "${harness}"; then
+    git_publication_assess_status=fail
+    git_publication_assess_reason='the closure fixture did not arm its observer'
+    printf 'error: %s\n' "${git_publication_assess_reason}" >&2
+    trunk_closure_cleanup_fixture
+    rm -rf -- "${root}" "${harness}"
+    return 1
+  fi
+  prompt=$(trunk_closure_prompt_for "${scenario}")
+  native_case_host=${host}
+  native_case_id="trunk-closure/${scenario}"
+  native_case_results_dir=${results_dir}
+  temporary_dir=${root}
+  candidate=${source_dir}
+  transcript="${harness}/events.jsonl"
+  output_file="${harness}/response.md"
+  native_stderr="${harness}/stderr.log"
+  target=${trunk_closure_workspace}
+  native_run_workspace=${trunk_closure_workspace}
+  platform=${host}
+  trunk_closure_forced_stop_file="${harness}/forced-stop.txt"
+  : > "${transcript}"
+  : > "${native_stderr}"
+  trunk_closure_controller "${scenario}" "${host}" &
+  controller_pid=$!
+  git_publication_run_native_command || run_status=$?
+  wait "${controller_pid}" || run_status=1
+  # Observe product shutdown before any fixture cleanup/stop. The controller
+  # found the observer in its own shell; an unregistered closure has none.
+  trunk_closure_find_observer \
+    || trunk_closure_mailbox="${trunk_closure_storage}/unregistered"
+  trunk_closure_observe "${scenario}" "${host}" "${transcript}" "${output_file}" \
+    > "${harness}/observations.txt"
+  native_harness_stop_observers "${source_dir}" "${trunk_closure_storage}" \
+    "${trunk_closure_forced_stop_file}" || stop_status=$?
+  if trunk_closure_assess "${scenario}" "${harness}/observations.txt"; then
+    git_publication_assess_status=pass
+    git_publication_assess_reason='one installed finish: final publication, completion with confirmed shutdown, then worktree and branch retired'
+  else
+    git_publication_assess_status=fail
+    git_publication_assess_reason='Trunk Mode closure ordering was not observed'
+    run_status=1
+  fi
+  git_publication_retain_attempt "${source_dir}" "${prompt}" \
+    "${transcript}" "${output_file}" "${native_stderr}" \
+    "${harness}/observations.txt" trunk-closure
+  printf 'run-status: %s\nassessment-status: %s\nassessment-reason: %s\n' \
+    "${run_status}" "${git_publication_assess_status}" \
+    "${git_publication_assess_reason}"
+  printf 'observations:\n'
+  cat "${harness}/observations.txt"
+  if [[ ${run_status} -ne 0 ]]; then
+    printf 'response:\n'
+    cat "${output_file}" 2> /dev/null || true
+    printf 'stderr:\n'
+    cat "${native_stderr}" 2> /dev/null || true
+  fi
+  unset trunk_closure_forced_stop_file
+  trunk_closure_cleanup_fixture
+  rm -rf -- "${root}" "${harness}"
+  [[ ${stop_status} -eq 0 && ${run_status} -eq 0 ]]
+}

@@ -8,7 +8,8 @@
 copy_runner() {
   local fixture=$1 runner_source
   runner_source=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-  mkdir -p -- "${fixture}/scripts" "${fixture}/Distribution/tests/helpers"
+  mkdir -p -- "${fixture}/scripts" "${fixture}/Distribution/tests/helpers" \
+    "${fixture}/Distribution/evaluation/tests"
   cp -- "${runner_source}/scripts/test.sh" "${runner_source}/scripts/test-jobs.sh" \
     "${runner_source}/scripts/test-shares.mjs" "${runner_source}/scripts/share-deal.mjs" \
     "${runner_source}/scripts/share-preview.mjs" \

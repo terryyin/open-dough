@@ -13,7 +13,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { makeMe } from "./makeMe.mjs";
-import { createPageObjectInstalledProject } from "./page-object-native-installed-fixture.mjs";
+import { createPageObjectInstalledProject } from "../../evaluation/cases/page-objects/page-object-native-installed-fixture.mjs";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 

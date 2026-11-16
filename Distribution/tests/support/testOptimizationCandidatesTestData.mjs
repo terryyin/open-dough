@@ -9,7 +9,7 @@
 // on; the remaining fields are incidental.
 //
 // makeMe registers this builder, and native journeys hash makeMe's runtime
-// import closure as evidence identity (Distribution/tests/support/native-import-closure.mjs),
+// import closure as evidence identity (Distribution/evaluation/src/native-import-closure.mjs),
 // so this module imports no dashboard code: the labels are written as the
 // format reference publishes them
 // (Distribution/src/skills/dough-test-optimization/references/candidate-record.md).

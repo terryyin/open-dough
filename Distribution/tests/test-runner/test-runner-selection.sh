@@ -118,7 +118,7 @@ for share in 1 2 3; do
     "${BASH}" scripts/test-jobs.sh >> "${temporary_dir}/split.jobs"
 done
 for aggregate in git-publication/git-publication-native-one-shot makeme/makeme-native-use; do
-  OPEN_DOUGH_TEST_DIR=Distribution/tests "${BASH}" scripts/test-jobs.sh "Distribution/tests/${aggregate}.sh" \
+  OPEN_DOUGH_TEST_DIR=Distribution/tests "${BASH}" scripts/test-jobs.sh "Distribution/evaluation/tests/${aggregate}.sh" \
     > "${temporary_dir}/${aggregate##*/}.jobs"
 done
 node --input-type=module - "${temporary_dir}" << 'JS'
@@ -129,15 +129,15 @@ const jobs = (name) => readFileSync(`${directory}/${name}.jobs`, 'utf8')
   .split('\0').filter(Boolean);
 const directJobs = {
   'git-publication/git-publication-native-one-shot': [
-    'shell\tDistribution/tests/git-publication/git-publication-native-one-shot-results.sh',
-    'shell\tDistribution/tests/git-publication/git-publication-native-one-shot-reviews.sh',
-    'shell\tDistribution/tests/git-publication/git-publication-native-one-shot-workspaces.sh'],
+    'shell\tDistribution/evaluation/tests/git-publication/git-publication-native-one-shot-results.sh',
+    'shell\tDistribution/evaluation/tests/git-publication/git-publication-native-one-shot-reviews.sh',
+    'shell\tDistribution/evaluation/tests/git-publication/git-publication-native-one-shot-workspaces.sh'],
   'makeme/makeme-native-use': [
-    'node\tDistribution/tests/support/makeme-native-harness.test.mjs',
-    'node\tDistribution/tests/support/makeme-native-refactor-harness.test.mjs'],
+    'node\tDistribution/evaluation/tests/makeme/makeme-native-harness.test.mjs',
+    'node\tDistribution/evaluation/tests/makeme/makeme-native-refactor-harness.test.mjs'],
 };
 for (const [path, direct] of Object.entries(directJobs)) {
-  const aggregate = `shell\tDistribution/tests/${path}.sh`;
+  const aggregate = `shell\tDistribution/evaluation/tests/${path}.sh`;
   for (const listing of ['all', 'split']) {
     const expectCount = (job, expected) => assert.equal(
       jobs(listing).filter((listed) => listed === job).length, expected,

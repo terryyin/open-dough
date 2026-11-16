@@ -11,7 +11,7 @@ Run from the Open Dough checkout containing the comparison aid, with Bash 5
 first on `PATH`:
 
 ```sh
-PATH=/opt/homebrew/bin:$PATH node Distribution/tests/support/native-admission-reuse.mjs \
+PATH=/opt/homebrew/bin:$PATH node Distribution/evaluation/src/native-admission-reuse.mjs \
   --attempt /path/to/retained/attempt \
   --candidate /path/to/candidate/checkout \
   --context /path/to/comparison.json

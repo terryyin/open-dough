@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# The retrospective-correction admission journey for the publication native
+# harness: a follow-up correction the retrospective drafted as a minimal story
+# linked to its plan is accepted, and admission lists that story once, with
+# the plan carried in the same claim and never listed as work of its own.
+# Prompt, assessment and assessor counterexamples. Sourced by
+# git-publication-native-admission.sh.
+# Its rejected cases' signals are declared beside git_publication_assess_admission
+# in git-publication-native-admission.sh, the assessor that dispatches here and
+# the file a suite names to the counterexample helper.
+# shellcheck disable=SC2034,SC2154,SC2312 # Shared fixture and assessor globals.
+
+git_publication_admission_correction_prompt() {
+  local where=$1
+  printf '%s\n' \
+    "Use this project's installed Open Dough guidance. The execution retrospective of the completed story SEED-R#publish-notes found that release notes are listed in file-name order, and wrote its bounded follow-up correction in the originating checkout without publishing it: the story ${NATIVE_ADMISSION_IDENTITY} (seeds/R.md#order-notes) and its correction plan slice-plans/R/PLAN.md. No backlog list holds this work yet. The developer accepts this correction for execution and asks you to take ownership of it now so the team sees it in Taken; implementation happens in a later session, so do not change product code. ${where} Report the outcome."
+}
+
+git_publication_assess_admission_correction() {
+  local obs=$1 key
+  local admit_cli_observed approach story_plan entry_plan plan_in_claim
+  local plan_home_count product_change feature_exists
+  for key in admit-cli-observed approach story-plan entry-plan plan-in-claim \
+    plan-home-count product-change feature-exists; do
+    printf -v "${key//-/_}" '%s' "$(git_publication_assess_field "${obs}" "${key}")"
+  done
+  if [[ ${admit_cli_observed} != true || ${approach} != planned ||
+    -z ${story_plan} || ${entry_plan} != "${story_plan}" ||
+    ${plan_in_claim} != true || ${plan_home_count} != 0 ]]; then
+    git_publication_assess_fail 'correction was not admitted once through its story with its linked plan'
+  elif [[ ${product_change} != false || ${feature_exists} != false ]]; then
+    git_publication_assess_fail 'correction admission changed the product'
+  else
+    git_publication_assess_status=pass
+    git_publication_assess_reason='accepted correction was admitted once through its story with its plan'
+  fi
+}

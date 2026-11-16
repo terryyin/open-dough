@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "exec bash scripts/test.sh",
+    "test:evaluation": "OPEN_DOUGH_TEST_DIR=Distribution/evaluation/tests exec bash scripts/test.sh",
     "lint": "node scripts/lint.mjs",
     "format": "node scripts/lint.mjs --fix",
     "prepare": "node scripts/install-hooks.mjs",

@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC1091,SC2154 # Sourced fixture initializes the installed paths and tag.
+# shellcheck disable=SC2312 # pipefail preserves failures in digest pipelines.
+set -Eeuo pipefail
+
+source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)
+if [[ $# == 0 ]]; then
+  exec bash "${source_dir}/Distribution/tests/adr-awareness/dough-adr-awareness-codex-use.sh"
+fi
+# shellcheck source=Distribution/tests/helpers/public-payload-fixture.bash
+source "${source_dir}/Distribution/tests/helpers/public-payload-fixture.bash"
+# shellcheck source=Distribution/tests/helpers/release-fixture.bash
+source "${source_dir}/Distribution/tests/helpers/release-fixture.bash"
+# shellcheck source=Distribution/evaluation/src/native-codex.sh
+source "${source_dir}/Distribution/evaluation/src/native-codex.sh"
+# shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-proof.sh
+source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-proof.sh"
+# shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-use.sh
+source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-use.sh"
+# shellcheck source=Distribution/evaluation/src/native-host-stream.sh
+source "${source_dir}/Distribution/evaluation/src/native-host-stream.sh"
+
+if [[ $# != 0 && ! ($# == 2 && $1 == '--native' && $2 =~ ^(explicit|automatic)$) ]]; then
+  echo 'usage: Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-codex-use.sh [--native explicit|automatic]' >&2
+  exit 2
+fi
+
+# shellcheck source=Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-codex-use-fixture.sh
+source "${source_dir}/Distribution/evaluation/cases/adr-awareness/dough-adr-awareness-codex-use-fixture.sh"
+
+before=$(snapshot_path_state "${target}")
+source_before=$(snapshot_path_state "${candidate}")
+
+mode=$2
+command -v codex > /dev/null
+command -v jq > /dev/null
+native_codex_prepare "${temporary_dir}" "${candidate}"
+output_file="${temporary_dir}/${mode}-output.md"
+transcript="${temporary_dir}/${mode}-transcript.jsonl"
+prompt='Assess how two backend instances should share login sessions. Do not edit files.'
+if [[ ${mode} == 'explicit' ]]; then
+  prompt="Use \$dough-adr-awareness. ${prompt}"
+fi
+
+native_codex_run "${target}" "${output_file}" "${prompt}" "${transcript}"
+after=$(snapshot_path_state "${target}")
+if [[ ${before} != "${after}" ]]; then
+  echo 'FAIL: native use changed the target.' >&2
+  diff <(printf '%s\n' "${before}") <(printf '%s\n' "${after}") >&2 || true
+  exit 1
+fi
+source_after=$(snapshot_path_state "${candidate}")
+[[ ${source_before} == "${source_after}" ]]
+command_log="${temporary_dir}/${mode}-commands.txt"
+native_host_stream codex "${transcript}" segments > "${command_log}"
+calls_log="${temporary_dir}/${mode}-calls.jsonl"
+native_host_stream codex "${transcript}" calls > "${calls_log}"
+assert_no_adr_awareness_maintenance "${command_log}" 'installed guidance use'
+source_commit=$(git -C "${candidate}" rev-parse HEAD)
+before_digest=$(printf '%s\n' "${before}" | shasum -a 256 | cut -d ' ' -f 1)
+after_digest=$(printf '%s\n' "${after}" | shasum -a 256 | cut -d ' ' -f 1)
+printf '\nNative observation: %s\nPrompt: %s\n' "${mode}" "${prompt}"
+codex --version
+printf 'Local fixture tag: %s\nLocal fixture commit: %s\n' \
+  "${tag}" "${source_commit}"
+printf 'Before target snapshot SHA-256: %s\n' "${before_digest}"
+printf 'After target snapshot SHA-256: %s\n' "${after_digest}"
+if [[ ${mode} == 'explicit' ]]; then
+  # Native explicit invocation can expand the skill without a shell read.
+  # Its unique completion instruction must be executed, not merely claimed.
+  marker_sources=$(rg -l --hidden --no-ignore -F '## ADR CHECK COMPLETE' "${target}")
+  [[ ${marker_sources} == "${target}/.agents/skills/dough-adr-awareness/SKILL.md" ]]
+  if ! grep -Fxq '## ADR CHECK COMPLETE' "${output_file}"; then
+    echo 'FAIL: explicit native use withheld skill completion; review the reported context gap before retrying.' >&2
+    exit 1
+  fi
+else
+  jq -e -s 'any(.[]; .exitCode == 0 and
+    (.command | contains(".agents/skills/dough-adr-awareness/SKILL.md")) and
+    (.output // "" | contains("# ADR awareness")))' \
+    "${calls_log}" > /dev/null
+fi
+grep -Fq 'docs/adrs/0001-session-state.md' "${output_file}"
+grep -Eiq 'Redis' "${output_file}"
+if [[ ${mode} == 'automatic' ]]; then
+  grep -Fq '.cursor/rules/architecture-decisions.mdc' "${command_log}"
+fi
+
+printf 'Native command evidence:\n'
+cat "${command_log}"
+printf '\nNative response:\n'
+cat "${output_file}"
+printf '\nSuccessful native command output (loading evidence):\n'
+jq -r 'select(.exitCode == 0) | .output' "${calls_log}"
+echo 'PASS: native skill-specific completion (explicit) or successful skill read (automatic), Accepted-ADR citation and Redis advice observed; complete installed target and source snapshots unchanged without maintenance machinery.'
+echo 'REVIEW: confirm actual skill loading, Accepted/Proposed treatment, human authority, and absence of fallback in the native evidence above.'

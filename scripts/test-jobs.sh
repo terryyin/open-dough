@@ -41,6 +41,12 @@ if [[ -z ${OPEN_DOUGH_TEST_DIR:-} ]]; then
   exit 1
 fi
 test_dir=${OPEN_DOUGH_TEST_DIR}
+test_roots=("${test_dir}")
+if [[ ${test_dir} == Distribution/tests ]]; then
+  test_roots+=(Distribution/evaluation/tests)
+fi
+metadata_dir=${test_dir}
+[[ ${test_dir} != Distribution/evaluation/tests ]] || metadata_dir=Distribution/tests
 declare -A job_kinds=()
 discovered=()
 # Adds one job once, as the kind given first.
@@ -91,31 +97,37 @@ else
     done
   fi
 
-  find "${test_dir}" -type f -name '*.sh' ! -path "${test_dir}/support/*" -print0 \
-    > "${work_dir}/tests"
+  : > "${work_dir}/tests"
+  for root in "${test_roots[@]}"; do
+    excluded=(! -path "${root}/support/*")
+    [[ ${root} != Distribution/evaluation/tests ]] || excluded+=(! -path "${root}/*/support/*")
+    find "${root}" -type f -name '*.sh' "${excluded[@]}" -print0 >> "${work_dir}/tests"
+  done
   while IFS= read -r -d '' test_file; do
     # An aggregate remains available for explicit focused proof; separately
     # discovered jobs own the same checks here: the one-shot's three group
     # wrappers, the admission's four journey wrappers, and the MakeMe
     # harness's two `node --test` files.
     case ${test_file} in
-      Distribution/tests/git-publication/git-publication-native-one-shot.sh | \
-        Distribution/tests/git-publication/git-publication-native-admission.sh | \
-        Distribution/tests/makeme/makeme-native-use.sh) ;;
+      Distribution/evaluation/tests/git-publication/git-publication-native-one-shot.sh | \
+        Distribution/evaluation/tests/git-publication/git-publication-native-admission.sh | \
+        Distribution/evaluation/tests/makeme/makeme-native-use.sh) ;;
       *) add_job shell "${test_file}" ;;
     esac
   done < "${work_dir}/tests"
 
   # `node-test-files` lists glob patterns, relative to the repository root, of
   # `node --test` files; each matching file is scheduled as its own job.
-  if [[ -f ${test_dir}/node-test-files ]]; then
-    while read -r pattern; do
-      [[ -z ${pattern} || ${pattern} == '#'* ]] && continue
-      while IFS= read -r node_file; do
-        add_job node "${node_file}"
-      done < <(compgen -G "${pattern}" || true)
-    done < "${test_dir}/node-test-files"
-  fi
+  for root in "${test_roots[@]}"; do
+    if [[ -f ${root}/node-test-files ]]; then
+      while read -r pattern; do
+        [[ -z ${pattern} || ${pattern} == '#'* ]] && continue
+        while IFS= read -r node_file; do
+          add_job node "${node_file}"
+        done < <(compgen -G "${pattern}" || true)
+      done < "${root}/node-test-files"
+    fi
+  done
 
   # The suite's own run also checks its installation; a substitute directory
   # replaces the suite's own checks entirely.
@@ -132,7 +144,7 @@ fi
 # is not `<seconds><TAB><label>` fails the listing naming it, before any job
 # starts.
 allocator=(node "$(dirname -- "${BASH_SOURCE[0]}")/test-shares.mjs" share)
-[[ ! -f ${test_dir}/longest-first ]] || allocator+=(--list "${test_dir}/longest-first")
+[[ ! -f ${metadata_dir}/longest-first ]] || allocator+=(--list "${metadata_dir}/longest-first")
 [[ -z ${split} ]] || allocator+=(--split "${split}")
 labels=()
 if ((${#discovered[@]} > 0)); then

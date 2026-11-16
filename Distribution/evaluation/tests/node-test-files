@@ -1,0 +1,3 @@
+# Repository-relative Node check patterns; private helpers are not jobs.
+Distribution/evaluation/tests/*/*.test.mjs
+Distribution/evaluation/tests/page-objects/page-object-*-browser-proof.mjs

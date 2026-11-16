@@ -60,9 +60,13 @@ Open your client project in an AI agent with web and shell access, then ask:
 
 ## Contributing
 
-Use the [native verification setup](Distribution/tests/native-harness/native-setup.md) before running
+Use the [native verification setup](Distribution/evaluation/native-setup.md) before running
 checks in this repository. It pins contributor Node and separates bounded
 installation from repeated checks.
+
+The [maintainer evaluation tool](Distribution/evaluation/README.md) has native
+acceptance and comparison commands, controlled checks and retained evidence.
+It is maintenance material outside the installed payload.
 
 ## Inspiration and name
 
