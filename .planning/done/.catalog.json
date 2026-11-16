@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-388_count-nested-claude-background-agent-work.json",
+      "identity": "SEED-388#count-nested-claude-background-agent-work",
+      "completedAt": "2026-11-16T12:04:19.661Z",
+      "blob": "6944f1b4e7dffbab1ab55f3cf293c05d155164df"
+    },
+    {
       "fileName": "SEED-367_discard-time-after-an-ended-session.json",
       "identity": "SEED-367#discard-time-after-an-ended-session",
       "completedAt": "2026-11-16T10:40:26.904Z",

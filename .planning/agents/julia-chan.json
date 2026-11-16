@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Julia-chan",
-  "email": "julia-chan@example.org",
-  "identity": "SEED-388#count-nested-claude-background-agent-work",
-  "mode": "story-branch",
-  "branch": "claude/count-a-claude-code-background-agent-started-by",
-  "host": "claude"
-}

@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-16
 planted_during: Terry Yin asked why Claude Code execution usage rose three times between 2026-10-25 and 2026-11-15
 trigger_when: selected from the product backlog
-scope: four stories
+scope: three stories
 ---
 
 # SEED-388 — Measure and control what agent launches cost
@@ -13,103 +13,10 @@ The [Claude Code usage spike analysis](https://github.com/terryyin/open-dough/bl
 found that the Usage index hid much of the cost of executions that needed a
 developer, and associated an unrequested effort level with roughly three times
 the cost across 11 executions. The index now counts a launch's work after a
-developer reply on both tools; two Claude Code reader gaps below still lose
-some responses. The [SEED-345](SEED-345-session-token-efficiency.md)
+developer reply on both tools, and background agents at any depth; one
+Claude Code reader gap below still loses some responses. The [SEED-345](SEED-345-session-token-efficiency.md)
 efficiency trials are judged with the comparable-run measure below, on this
 index at a known effort, so the corrections come first.
-
-<a id="count-nested-claude-background-agent-work"></a>
-
-### Count a Claude Code background agent started by a subagent
-
-**Identity:** SEED-388#count-nested-claude-background-agent-work
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/670-count-nested-claude-background-agent-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9e9fcfb1c42e23b9d9cab668bc8b9399ae137dd722795f347179cd7d01621cd1","plan":"28e1d33b52877bf30910080007f6e5dd0d12bc36feab6ee90e2a3da14245dc02"}}
-```
-
-#### Goal
-
-A maintainer reading Usage sees a Claude Code launch's whole cost, including the
-background agents its subagents start. Today a second-level agent's responses
-reach no launch; each is marked with unresolved lineage, but no coverage gap
-names the cause, so a launch such as
-SEED-334#run-and-observe-product-wide-end-to-end-tests shows 56.33M against
-74.03M of transcript cost. Counting them makes the Usage index a trustworthy
-measure for the [SEED-345](SEED-345-session-token-efficiency.md) trials.
-
-#### Scope
-
-- A response in any worker transcript climbs to its launch through each
-  worker's own recorded agent result, whichever transcript holds that result:
-  the root transcript or another worker's. The rule does not depend on depth.
-- A worker whose agent result is missing keeps today's explained gaps: the
-  response stays unassigned with `unresolved-native-task-lineage`, and the
-  worker is named `unjoined-worker-evidence`.
-- Import and Refresh share the rule. An existing usage store gains these
-  responses when it next imports the affected sessions; Refresh rereads only
-  sessions whose files changed since its check, as today.
-
-**Deferred promises:** automatic repair of stored history without an import;
-joining a worker through `subagents/*.meta.json` (`parentAgentId`) when its
-agent result is missing, since a directory or metadata file is not a worker
-join; Codex, whose session climb already follows each spawned thread's own
-parent.
-
-#### Key examples
-
-- **Second-level agent.** In SEED-334's session `50829ac2…`, agent
-  `a3c1825c…` (`spawnDepth` 2) was started by agent `aef2d680…`, whose
-  transcript holds its `async_launched` agent result → its responses join the
-  launch through `aef2d680…`'s agent result in the root transcript. After one
-  import, the launch's Claude Code total matches its 74.03M transcript cost,
-  with all 846 second-level responses counted.
-- **Missing join.** A second-level worker's transcript exists but no
-  transcript holds its agent result → its responses stay unassigned with
-  `unresolved-native-task-lineage`, and `unjoined-worker-evidence` names it.
-- **First-level agent.** A worker started by the coordinator joins through the
-  root transcript exactly as today; its figures do not change.
-
-#### Evidence
-
-- **Observed cause.** `dashboard/server/claudeUsageAncestry.ts`, at a worker
-  transcript's first row, looks up the worker join for the original response's
-  agent rather than for the agent whose transcript the row is in. A
-  second-level climb therefore re-enters its own join in the parent worker,
-  stops as a cycle (`unresolved-native-task-lineage`) and reaches no root.
-- **Replay (2026-11-16, read-only, local).** The product's Claude reader and
-  ancestry, bundled into a scratch script over SEED-334's retained session
-  `50829ac2…`, climbed 311 root and 2,639 worker measurements to a root and
-  left 595 worker measurements unresolved; with a scratch edit using the
-  containing transcript's agent (reverted), all 3,234 worker measurements
-  reached a root. A transcript-level replay found the same split by response
-  (846 at `spawnDepth` 2) and the same loss in two other sessions:
-  `optimize-tests-from-existing-ci-proof` `2a094bd2…` 15 and
-  `serve-fake-github-planning-files…` `0b909568…` 128. 56.33M + 17.70M =
-  74.03M, so no other loss is expected in SEED-334's launch.
-- **Store.** The previous SEED-388 story recomputed this machine's store from a
-  backup with one import (530 s, 4.1 GB); `dashboard/USAGE-HISTORY.md` records
-  the backup-and-import recovery rule.
-
-#### Alternatives, challenge and architecture
-
-Explored: (1) climb with the containing transcript's agent — recommended, a
-one-rule correction that serves any depth; (2) join workers from
-`*.meta.json` `parentAgentId` — rejected as a join source, since it duplicates
-recorded agent-result evidence and contradicts the documented rule that only
-an agent result joins a worker; (3) only add a coverage gap naming
-nested workers — explains the loss but does not count it. Borrowed: a process tree's parent walk asks each
-process for its own parent, never the starting child's. The analogy breaks
-where a Claude row or worker can carry several recorded parents; shared
-ancestors are visited once and cycles stay unresolved, as today.
-
-Strongest doubt: the fix leaves already-stored history short until an import,
-so Refresh alone will not move SEED-334. The evaluation therefore uses one
-import over a backed-up store, as the previous story did. The change stays in
-the Claude reader's lineage and keeps Usage history a derived, local read
-model ([ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md));
-retained native transcripts and synthetic fixtures are sufficient proof, with
-no paid session ([ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md)).
-No Accepted ADR conflict found.
 
 <a id="read-claude-rows-with-unicode-line-separators"></a>
 
