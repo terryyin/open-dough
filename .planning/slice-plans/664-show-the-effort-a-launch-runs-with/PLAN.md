@@ -151,7 +151,7 @@ shows no effort line.
 
 ### 4. Feedback maintenance names the effort its Claude Code sessions run with
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 4 row above.
 
 Behavior: feedback maintenance On for Claude Code with no saved effort → the
