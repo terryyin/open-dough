@@ -3,8 +3,7 @@
 CI runs the suite as split jobs, each with `OPEN_DOUGH_TEST_SPLIT=<i>/<n>` set
 to its share; each fails on its own share's failures or budget breach and
 keeps its times for seven days as workflow artifact `test-times-<i>`.
-`scripts/test-shares.mjs` owns which jobs each share runs, in which order, and
-previews that deal before a push.
+`scripts/test-shares.mjs` owns which jobs each share runs and in which order.
 
 Default discovery combines guidance checks in `Distribution/tests/` and tool
 checks in `Distribution/evaluation/tests/`. All three CI shares use that same
@@ -38,8 +37,9 @@ share starts its recorded jobs longest first, then the unrecorded ones, so the
 longest job does not start last. Listed names that match no job are ignored.
 A list line that is not `<seconds><TAB><label>` fails the run naming the
 file, line and content before any job starts. The dashboard's spec files are
-dealt into its shards by the same rule
-([dashboard/tests/shards.md](../../dashboard/tests/shards.md)).
+dealt into its shards by the same rule, and `preview --spec-dir` shows that
+deal before a push
+([dashboard/tests/shards.md](../../dashboard/tests/shards.md#preview-before-pushing)).
 
 `OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of `n` of that deal, so
 every job lands in exactly one share whatever order the file system lists the
@@ -47,33 +47,13 @@ tests in, and a failure or time is reported only for the share's own jobs. A
 malformed value, or `i` outside `1..n`, fails the run naming the value before
 any job starts. Unset, every job runs in bytewise path order.
 
-## Preview before pushing
+## Refresh the duration list
 
-Before pushing a change that adds, removes or renames a test file, preview the
-deal CI will run, from the repository root:
-
-```sh
-node scripts/test-shares.mjs preview --split-count 3
-```
-
-The split count is the number of `share` entries in the `distribution-tests` job's matrix
-in `.github/workflows/ci.yml`, sized by the
-[job-count rule](../../dashboard/tests/shards.md#the-job-count). The preview lists the suite's jobs through
-`scripts/test-jobs.sh` and prints each share's predicted job-seconds with its
-headroom to `total-job-seconds` in `Distribution/tests/time-budget`, then every unrecorded job with its share and the assumed
-seconds. The predictions use recorded CI seconds, never local timing. With
-the default suite, the preview reads runnable job paths from the last fetched
-remote-tracking `origin/main` with `git ls-tree`, including that revision’s
-`node-test-files` patterns. It does not fetch. `--trunk-labels FILE` (one
-checkout-relative job path per line) supplies a substitute trunk inventory.
-Any unrecorded job that trunk already runs makes the list stale: the preview says so first,
-counts those jobs, and marks each affected share's headroom as resting on
-assumed seconds. A job this change adds stays in its share as an estimate at
-the recorded median; new jobs alone leave the list current and the headroom
-unchanged. A stale preview prints the refresh step below. Refresh from a recent
-successful `main` run's artifacts, every job. Observed seconds are scaled to the existing list's runner
-speed (divided by the run's factor against that list); when the list does not
-yet exist or no measurable common job is available, times stay as observed:
+Refresh `Distribution/tests/longest-first` from a recent successful `main`
+run's artifacts, every job. Observed seconds are scaled to the existing list's
+runner speed (divided by the run's factor against that list); when the list
+does not yet exist or no measurable common job is available, times stay as
+observed:
 
 ```sh
 gh run download RUN_ID -p 'test-times-*' -D DIR
@@ -83,24 +63,12 @@ node scripts/test-shares.mjs refresh --list Distribution/tests/longest-first \
 
 The refresh keeps the header and records the source in its `# Source:` line,
 naming the runner factor or that it was unavailable.
-`OPEN_DOUGH_TEST_DIR=<dir>` and `--test-dir <dir>` preview a substitute
-directory with its own list and budget; `--spec-dir <dir>` previews the
-dashboard's browser/backend spec roots under that common directory instead
-(`--spec-dir dashboard`), with no budget
-([dashboard/tests/shards.md](../../dashboard/tests/shards.md)); `--list`,
-`--budget` and `--labels <file>` (labels one per line) name the inputs
-directly, and without a budget the preview prints no headroom. A preview given
-`--labels`, `--test-dir` or `--spec-dir` without `--trunk-labels` keeps the
-unclassified unrecorded listing, since those inputs do not identify a trunk.
-An unreadable `origin/main` fails naming the ref and `--trunk-labels` override.
 
 ## Proof
 
-`Distribution/tests/support/share-deal-recorded-runs.test.mjs` proves the deal on retained
-CI runs (`Distribution/tests/support/fixtures/node-suite-ci-runs/`),
-`Distribution/tests/support/share-deal.test.mjs` its rules on small inputs,
+`Distribution/tests/support/share-deal.test.mjs` proves the deal's rules on small inputs,
 `Distribution/tests/support/test-shares.test.mjs` the share and refresh commands,
-`Distribution/tests/support/share-preview{,-stale,-trunk}.test.mjs` the preview command, and
+`Distribution/tests/support/share-preview.test.mjs` the `--spec-dir` preview, and
 `Distribution/tests/test-runner/test-runner-split.sh` that the runner's shares follow it. The
 dashboard's spec-file shards use the same allocator through
 `dashboard/tests/support/testFiles.mjs`

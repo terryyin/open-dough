@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 // Command surface of scripts/share-deal.mjs (Distribution/tests/test-shares.md).
-// scripts/test-jobs.sh runs `share`; contributors run `preview` and `refresh`.
+// scripts/test-jobs.sh runs `share`; contributors run `preview` for a browser
+// test group (dashboard/tests/shards.md) and `refresh`.
 // `runner-factor` prints `<factor><TAB><label>` for scripts/test-budget.sh.
 //
 //   share   [--list FILE] [--split i/n]      labels on stdin, NUL-separated
 //                                            (or one per line); prints the
 //                                            share's labels NUL-separated
-//   preview --split-count N [--list FILE] [--budget FILE] [--labels FILE]
-//           [--test-dir DIR | --spec-dir DIR [--root ROOT]]
+//   preview --split-count N --spec-dir DIR [--root ROOT] [--list FILE]
 //   refresh --list FILE --source TEXT TIMES...
 //   runner-factor [--list FILE] TIMES
 
@@ -81,25 +81,18 @@ async function previewCommand(argv) {
   const { options, positional } = parseArguments(argv, [
     "split-count",
     "list",
-    "budget",
-    "labels",
-    "trunk-labels",
-    "test-dir",
     "spec-dir",
     "root",
   ]);
-  if (positional.length > 0 || options["split-count"] === undefined) {
+  if (
+    positional.length > 0 ||
+    options["split-count"] === undefined ||
+    options["spec-dir"] === undefined
+  ) {
     throw new TestSharesError(
-      "FAIL: preview needs --split-count <n>; it takes no positional argument.",
+      "FAIL: preview needs --split-count <n> and --spec-dir <dir>; it takes no positional argument.",
     );
   }
-  if (options["test-dir"] !== undefined && options["spec-dir"] !== undefined) {
-    throw new TestSharesError(
-      "FAIL: preview takes --test-dir or --spec-dir, not both.",
-    );
-  }
-  if (options.root !== undefined && options["spec-dir"] === undefined)
-    throw new TestSharesError("FAIL: preview takes --root with --spec-dir.");
   process.stdout.write(await previewFromOptions(options));
 }
 

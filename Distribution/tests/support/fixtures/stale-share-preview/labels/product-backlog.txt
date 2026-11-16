@@ -1,3 +1,0 @@
-Distribution/tests/product-backlog/product-backlog-native-take-fixture.sh
-Distribution/tests/product-backlog/product-backlog-native.sh
-Distribution/tests/product-backlog/product-backlog-payload-update.sh

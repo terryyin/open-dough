@@ -1,7 +1,0 @@
-Distribution/tests/ci/ci-container-workflow.sh
-Distribution/tests/ci/ci-container.sh
-Distribution/tests/ci/ci-job-times.sh
-Distribution/tests/ci/ci-lint-setup.sh
-Distribution/tests/ci/ci-repeat.sh
-Distribution/tests/ci/ci-test-times.sh
-Distribution/tests/ci/distribution-ci-proof.test.mjs

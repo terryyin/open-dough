@@ -54,7 +54,7 @@ deadline, named-file and reporting contracts as the [shared runner](../tests/REA
 | [Page-object authoring](native-page-objects.md) | Explicit authoring probes and controlled browser proof |
 | [Comparisons](comparison.md) | Case selection, pairs, provenance, recovery and limits |
 | [Baselines](baselines.md) | Frozen evidence and justified reuse |
-| [Combined shares](../tests/test-shares.md) | One discovery/deal and CI preview |
+| [Combined shares](../tests/test-shares.md) | One discovery and deal |
 
 Installation remains governed by the declared payload under
 [ADR 0004](../../docs/adrs/0004-client-installation-and-update-accepted.md).
