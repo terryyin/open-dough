@@ -197,14 +197,13 @@ IDs must match `responseKey(host, sessionId, responseId)`.
 `readUsageHistory(file?)` reads without opening native files. The document is
 serialized in one order (tasks and gaps as first recorded, sessions and entries
 sorted), so equal content gives equal bytes. After normalization, alternating
-import and Refresh over unchanged evidence keep history bytes and totals.
-Failed replacements keep prior history readable; retries count each response once. An unreadable document is preserved and refuses automatic
-overwrite. `read` prints the document. An earlier dashboard's store, a version 1
+import and Refresh over unchanged evidence keep history bytes and totals. Failed replacements keep prior history readable; retries count each response once. An unreadable document is preserved and refuses automatic overwrite. `read` prints the document. An earlier dashboard's store, a version 1
 history or a manifest naming page files in `usage.json.pages/`, is read as the
 starting history, its response rows summed into contributions. The first write,
 an import's or a Refresh's, stores the document in its place, then removes
 `usage.json.pages/` whole; a failed removal is finished by the next write. Back
-up `usage.json` alone. System settings → Usage reads its derived `usage-task-summary.json`: a separate process rebuilds it when absent or
+up `usage.json` alone. A task's stored turns only grow across writes, so to apply
+a changed turn rule, restore that backup and import once. System settings → Usage reads its derived `usage-task-summary.json`: a separate process rebuilds it when absent or
 the document changes, without writing history. Current launch records say whether a launch finished. Refresh (`server/usageRefresh.ts`)
 rereads, with the import's readers, every file of each known Codex or Claude session (`<session>/subagents/` workers included) one of
 whose files changed since `usage-check.json`, or writes only its check record. Checked shows a later history write, otherwise the recorded
