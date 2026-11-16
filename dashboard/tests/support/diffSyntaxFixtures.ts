@@ -62,3 +62,49 @@ export const greetDiff = (path: string) =>
       "",
     ].join("\n"),
   });
+
+// A modified README: the removed fence marker and the added heading sit on
+// consecutive change lines under the same plain paragraph.
+export const readmeText = {
+  kind: "text",
+  baseline: ["plain paragraph", "```", ""].join("\n"),
+  tree: ["plain paragraph", "# Shown", ""].join("\n"),
+} as const satisfies ReviewedFileText;
+
+export const readmeDiff = (path: string) =>
+  reviewedFileDiffSchema.parse({
+    kind: "diff",
+    printed: [
+      `diff --git a/${path} b/${path}`,
+      `--- a/${path}`,
+      `+++ b/${path}`,
+      "@@ -1,2 +1,2 @@",
+      " plain paragraph",
+      "-```",
+      "+# Shown",
+      "",
+    ].join("\n"),
+  });
+
+// A modified stylesheet whose removed rule line holds a custom property and a
+// hex colour value inside the old file's property list.
+export const stylesheetText = {
+  kind: "text",
+  baseline: ["body {", "  --accent: #ff0000;", "}", ""].join("\n"),
+  tree: ["body {", "}", ""].join("\n"),
+} as const satisfies ReviewedFileText;
+
+export const stylesheetDiff = (path: string) =>
+  reviewedFileDiffSchema.parse({
+    kind: "diff",
+    printed: [
+      `diff --git a/${path} b/${path}`,
+      `--- a/${path}`,
+      `+++ b/${path}`,
+      "@@ -1,3 +1,2 @@",
+      " body {",
+      "-  --accent: #ff0000;",
+      " }",
+      "",
+    ].join("\n"),
+  });

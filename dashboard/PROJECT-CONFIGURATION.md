@@ -89,10 +89,10 @@ location, with the same `*` and `**` rules, and an optional `syntax` hint.
 A file belongs to the location when any entry's pattern matches it; no
 extension filter applies, so a new filename convention needs only a new
 pattern. A file takes the hint of the first entry, in declaration order,
-whose pattern matches it. Hints use the kind names above (`typescript` still
-highlights `.tsx` as TSX). A file whose entry has no hint, or a hint Intent
-has no grammar for, stays listed and reads as plain text. Java hints use the
-same Java styling as `kind: "java"`.
+whose pattern matches it. Hints use the kind names above, and also `markdown`, `json`, `css` and
+`yaml` (`typescript` still highlights `.tsx` as TSX). A file whose entry has
+no hint, or a hint Intent has no grammar for, stays listed and reads as plain
+text. Java hints use the same Java styling as `kind: "java"`.
 When `sources` is present it alone selects the location's files; `kind` and
 `include` are then not read. A `sources` list that is not a non-empty list of
 such entries leaves that location out, as a malformed `include` does. The

@@ -19,6 +19,7 @@ import {
 
 const typescript = { code: "const shown: number = 1;", keyword: "const" };
 const javascript = { code: 'const shown = require("x");', keyword: "const" };
+const yaml = { code: "shown: true", keyword: "shown" };
 const styled = [
   { path: "a.ts", ...typescript },
   { path: "a.mts", ...typescript },
@@ -33,12 +34,19 @@ const styled = [
   { path: "a.sh", code: "if true; then echo x; fi", keyword: "if" },
   { path: "a.bash", code: "if true; then echo x; fi", keyword: "if" },
   { path: "a.feature", code: "Feature: Shown", keyword: "Feature" },
+  { path: "README.md", code: "# Shown", keyword: "# Shown" },
+  { path: "data.json", code: '{ "shown": 1 }', keyword: '"shown"' },
+  { path: "a.css", code: "body { margin: 0; }", keyword: "body" },
+  { path: "a.yaml", ...yaml },
+  { path: "a.yml", ...yaml },
 ] as const;
-const plain = [
-  { path: "README.md", code: "const shown = 1;" },
-  { path: "data.json", code: '{ "shown": 1 }' },
-] as const;
+const plain = [{ path: "notes.txt", code: "const shown = 1;" }] as const;
 const renamedStyled = { oldPath: "old.txt", path: "new.ts", ...typescript };
+const renamedYaml = {
+  oldPath: "settings.yaml",
+  path: "settings.yml",
+  ...yaml,
+};
 const renamedPlain = { oldPath: "old.ts", path: "new.txt", ...typescript };
 
 const lines = { added: 1, removed: 0 };
@@ -47,7 +55,7 @@ test("each supported extension and a rename's new path style the diff; other fil
   page,
   frontendServices,
 }) => {
-  const renames = [renamedStyled, renamedPlain];
+  const renames = [renamedStyled, renamedYaml, renamedPlain];
   const files: ReviewedFile[] = [
     ...[...styled, ...plain].map(({ path }) => ({
       kind: "added" as const,
@@ -87,15 +95,20 @@ test("each supported extension and a rename's new path style the diff; other fil
 
   for (const { path, code, keyword } of styled) {
     const line = await shownFile(`Added ${path}`);
-    await expect(codeToken(line, new RegExp(`^${keyword}$`)), path).toHaveText(
-      keyword,
+    const token = new RegExp(
+      `^${keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
     );
+    await expect(codeToken(line, token), path).toHaveText(keyword);
     await expect(line).toHaveText(`+${code}`);
   }
   const renamedLine = await shownFile(
     `Renamed ${renamedStyled.oldPath} → ${renamedStyled.path}`,
   );
   await expect(codeToken(renamedLine, /^const$/)).toBeVisible();
+  const renamedYamlLine = await shownFile(
+    `Renamed ${renamedYaml.oldPath} → ${renamedYaml.path}`,
+  );
+  await expect(codeToken(renamedYamlLine, /^shown$/)).toBeVisible();
 
   for (const { name, code } of [
     ...plain.map(({ path, code }) => ({ name: `Added ${path}`, code })),
