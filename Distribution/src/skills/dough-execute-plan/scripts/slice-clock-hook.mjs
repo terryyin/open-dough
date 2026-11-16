@@ -7,6 +7,11 @@
 // agent that makes a tool call, and `{}` otherwise. Seeing the slice at the
 // limit counts the overrun exactly as a clock command does. It never fails a
 // tool call: whatever goes wrong, it prints `{}` and exits 0.
+//
+// Both hosts deliver this additional context to a subagent as well as to the
+// session's own agent: observed with Claude Code 2.1.325 (`PostToolUse`) and
+// Cursor agent 2026.11.13 (`postToolUse`). A subagent's call carries its own
+// `agent_id` on Claude Code and its own `conversation_id` on Cursor.
 import { isDirectCliEntry } from "./ci-direct-entry.mjs";
 import { checkoutRoot } from "./ci-mailbox.mjs";
 import {
