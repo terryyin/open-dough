@@ -58,9 +58,11 @@ jobs:
           echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( started + 180000 ))" >> "$GITHUB_ENV"
           echo "OPEN_DOUGH_TEST_DEADLINE_MS=$(( started + 320000 ))" >> "$GITHUB_ENV"
       # Restoring the existing npm cache and installing Node share one minute.
-      - name: Start Node and npm cache deadline (60 seconds)
+      - &node-deadline
+        name: Start Node and npm cache deadline (60 seconds)
         run: echo "OPEN_DOUGH_NODE_DEADLINE_MS=$(( $(date +%s) * 1000 + 60000 ))" >> "$GITHUB_ENV"
-      - name: Restore npm cache
+      - &npm-cache
+        name: Restore npm cache
         uses: actions/setup-node@v7
         id: npm-cache
         timeout-minutes: 1
@@ -71,7 +73,8 @@ jobs:
         id: node
         timeout-minutes: 1
         run: bash scripts/setup-ci-node.sh .node-version
-      - name: Diagnose Node acquisition failure
+      - &diagnose-node-and-cache
+        name: Diagnose Node acquisition failure
         if: failure() && (steps.node.outcome == 'failure' || steps.npm-cache.outcome == 'failure')
         run: &diagnose-node |
           echo '::error::Infrastructure setup: Node or npm cache acquisition failed within its 60-second deadline. Restore GitHub Releases, nodejs.org, or cache connectivity and rerun setup before checks.'
@@ -133,6 +136,49 @@ jobs:
           times: ${{ runner.temp }}/test-times.txt
           case-report: ${{ runner.temp }}/test-case-outcomes.txt
 
+  # Lint and the dashboard type-check, each with its own step outcome, in a job
+  # of their own so no browser test group's deadline pays for them.
+  lint:
+    name: Lint and type-check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      # Counts from the job's start, as in the test jobs.
+      - name: Start prerequisite acquisition deadline (180 seconds)
+        run: echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( $(date +%s) * 1000 + 180000 ))" >> "$GITHUB_ENV"
+      - *node-deadline
+      - *npm-cache
+      - *setup-node
+      - *diagnose-node-and-cache
+      - name: Install npm dependencies
+        id: npm
+        run: node scripts/setup-native.mjs npm
+      - name: Install shell lint tools
+        if: ${{ !cancelled() && steps.npm.outcome == 'success' }}
+        id: lint-tools
+        timeout-minutes: 1
+        env:
+          SHELLCHECK_VERSION: "0.11.0"
+          SHFMT_VERSION: "3.14.1"
+        run: bash scripts/setup-lint-tools.sh
+      - name: Diagnose lint tool acquisition failure
+        if: ${{ !cancelled() && steps.lint-tools.outcome == 'failure' }}
+        run: |
+          echo "::error::Infrastructure setup: shell lint tool acquisition failed or exceeded its setup bound. Restore GitHub Releases/Docker Hub connectivity and rerun setup before checks."
+          exit 1
+      - name: Run lint
+        if: ${{ !cancelled() && steps.npm.outcome == 'success' && steps.lint-tools.outcome == 'success' }}
+        id: lint
+        run: exec npm run lint
+      - name: Type-check the dashboard
+        if: ${{ !cancelled() && steps.npm.outcome == 'success' }}
+        id: typecheck
+        run: npm run typecheck:dashboard
+
   # The browser test groups, which `npm test` never discovers: each is its own
   # producer (./browser-test-group.yml) with its own command, settings,
   # shards, duration list, outputs and CI proof entry (Distribution/tests/README.md).
@@ -143,7 +189,7 @@ jobs:
       command: test:e2e
       settings: OPEN_DOUGH_E2E
       root: e2e
-      # Capacity move from integrated, the 18-job layout and its sizing rule:
+      # Capacity move from integrated, the job layout and its sizing rule:
       # dashboard/tests/shards.md#the-job-count.
       shards: "[1, 2, 3, 4, 5, 6]"
   dashboard-integrated:
@@ -162,7 +208,6 @@ jobs:
       settings: OPEN_DOUGH_DASHBOARD_FRONTEND
       root: dashboard/frontend-tests
       shards: "[1]"
-      lint: true
   dashboard-backend:
     uses: ./.github/workflows/browser-test-group.yml
     with:

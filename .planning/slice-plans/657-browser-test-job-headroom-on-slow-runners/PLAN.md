@@ -2,6 +2,7 @@
 
 **Identity:** SEED-382#browser-test-job-headroom-on-slow-runners
 **Source:** [Keep browser test jobs inside their deadline on slow runners](../../seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#browser-test-job-headroom-on-slow-runners)
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -86,6 +87,13 @@ Proof: the local gate passes; on the published revision's CI the `lint` job
 succeeds and the `dashboard-frontend` suite step starts within about 30 s of
 the deadline step.
 
+Accepted local proof, 2026-11-16: the slice's gate command and `npm run lint`
+pass; `native-setup.sh`, `ci-proof-actions.test.mjs`,
+`test-runner-split.sh` and `ci-workflow-path-policy.test.mjs`, which also read
+the workflows, pass. Removing the type-check line from a copy of `ci.yml`
+makes `ci-container-workflow.sh` fail. `ci-lint-setup.sh` runs its checks on
+Linux only, so its first proof is the published revision's CI.
+
 ### 2. Probe: why the continued start did not settle
 
 Status: planned
@@ -128,6 +136,12 @@ test of the named cause fails without the fix and passes with it.
   reconciles `ci.yml`, `browser-test-group.yml` and `shards.md`.
 
 ## Learnings
+
+- Slice 1: the workflow readers (`ci-container-workflow.sh`,
+  `ci-lint-setup.sh`) match `run:` lines, so a step reached through a YAML
+  alias is invisible to them; the `lint` job writes its npm install out in
+  full. macOS system Ruby (`ruby -ryaml`) resolves the workflow's anchors for
+  a structural check; no YAML parser is installed for Node or Python.
 
 ## Readiness and sizing
 
