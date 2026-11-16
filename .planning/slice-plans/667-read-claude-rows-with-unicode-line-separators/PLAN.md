@@ -66,6 +66,14 @@ import or Refresh → the row is read whole, its response and the rows climbing
 through it are counted, and no `malformed-native-row` gap is recorded; a
 genuinely broken row stays a gap at its file line.
 
+## Execution complete
+
+Product advice: no change. The Usage index now counts Claude Code and Codex
+rows that hold U+2028 or U+2029, so the comparable-run measure can rely on it.
+Correction [SEED-388#replace-native-reader-gaps-on-reread](../669-replace-native-reader-gaps-on-reread/PLAN.md)
+makes rereads replace host-less reader gaps; it changes no task coverage, so
+it needs no ordering ahead of that measure.
+
 ## Concerns and cumulative design
 
 Slice-plan refinement was not needed: one reader change with one outside-in

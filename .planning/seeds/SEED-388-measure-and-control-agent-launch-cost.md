@@ -63,6 +63,32 @@ gap before the comparable-run measure below relies on the index.
 - After one real-store import, SEED-124's launch counts all its responses and
   matches its 15.42M transcript cost.
 
+<a id="replace-native-reader-gaps-on-reread"></a>
+
+### Replace native reader gaps when a session is read again
+
+**Identity:** SEED-388#replace-native-reader-gaps-on-reread
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/669-replace-native-reader-gaps-on-reread/PLAN.md"}
+```
+
+#### Goal
+
+A maintainer reading the Usage store sees only the reader gaps a session's
+native files still have. Today `malformed-native-row` and
+`native-source-unreadable` gaps carry no host, so a write that reads their
+session again keeps them: a live transcript's half-written last row, seen once
+by Refresh, stays a gap after the row completes, contrary to
+`dashboard/USAGE-HISTORY.md`. Correction of
+SEED-388#read-claude-rows-with-unicode-line-separators.
+
+#### Scope
+
+- Reader gaps name their host, so import and Refresh replace them with the
+  gaps a reread still reports, on Codex and Claude Code alike.
+- Gaps already stored without a host stay as they are: automatic repair of
+  stored history stays excluded.
+
 <a id="name-the-effort-a-session-ran-with"></a>
 
 ### Name the effort a Claude Code session actually ran with
