@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Serve frontend dashboard answers through MakeMe](seeds/SEED-301-limit-first-layer-test-cases-to-ten-lines.md#serve-frontend-dashboard-answers-through-makeme) — SEED-301#serve-frontend-dashboard-answers-through-makeme ([plan](slice-plans/655-serve-frontend-dashboard-answers-through-makeme/PLAN.md))
-
 ## Backlog list
 
 - [Fixed shards for browser tests and on-demand rebalancing](seeds/SEED-381-fixed-ci-test-shards.md#fixed-shards-for-browser-tests-and-on-demand-rebalancing) — SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing
