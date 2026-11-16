@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hibiki-chan",
+  "email": "hibiki-chan@example.org",
+  "identity": "SEED-377#extend-syntax-styling-in-code-diffs",
+  "mode": "story-branch",
+  "branch": "cursor/extend-syntax-styling-in-code-diffs",
+  "host": "cursor",
+  "model": "auto"
+}
