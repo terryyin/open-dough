@@ -156,3 +156,10 @@ Proof: slice 4 row above.
 
 Behavior: feedback maintenance On for Claude Code with no saved effort → the
 status line names `medium effort`, the host default slice 1 passes.
+
+## Execution complete
+
+Product advice: no change. Every Claude Code launch now passes a named
+effort, so later SEED-345 comparisons run on a known effort; the deferred
+promises (showing the inherited or the actually-run effort, a Claude Code
+effort choice in feedback maintenance) keep their place.
