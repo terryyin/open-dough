@@ -169,6 +169,17 @@ checks (`test-runner-interrupt.sh`, `test-runner-deadline-continuation.test.mjs`
 current response, and reword `dashboard/tests/shards.md` only where it links
 to a deleted Distribution passage.
 
+## Execution complete
+
+Product advice: no change to the queued order. The matrix shares ran within
+236 s on four CI attempts against the 320 s cutoff, so the sibling story
+"Fixed shards for browser tests and on-demand rebalancing" can proceed as
+planned. Its rebalancing needs to tolerate runner speed varying 1.4–1.7 times
+between runs (Learnings, slice 6). Wrap-up: `DearDough.md:11` still lists
+DD-537 among the local CI issues the project findings retain; this story
+deleted that entry. Process review is deferred into wrap-up's Intent
+Coverage check.
+
 ## Current decisions
 
 - The setting stays `OPEN_DOUGH_TEST_SPLIT=<i>/<n>`; job names, proof parts
