@@ -62,7 +62,8 @@ landing comparison was captured, since such a launch may never have landed.
 Missing or unreadable saved repository or objects explain why the comparison is
 unavailable.
 None of these states guesses a baseline or lists substitute files from today's
-trunk. Requests to the same review/file boundary name the project, story and
-landed run's launch identity (the reporting reference or durable host/session key). File reads must name that captured pair and one of its
-literal changed paths, including the exact old path for a rename. No request
+trunk. Requests to the same review/file boundary name either a story (project
+and story identity, with the landed run's launch identity) or an ad hoc session
+(project, host and session); file reads then name that captured pair and one of
+its literal changed paths, including the exact old path for a rename. No request
 can supply a repository or workspace path.
