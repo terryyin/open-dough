@@ -6,7 +6,9 @@
 // attempt settles, and a wait naming the current count answers at the next
 // change. A non-owner that has nothing new to tell consumes the configured
 // change bound (`DOUGH_CHANGE_WAIT_MS`, production default 30 seconds) instead
-// of waking at once. What the page says from those answers is
+// of waking at once, while an unsettled attempt this server's own process
+// works on is answered without that bound even before the server holds it.
+// What the page says from those answers is
 // ../../frontend-tests/launches/agent-launch-story-card-answers.spec.ts and
 // ../../../e2e/launches/agent-launch-second-server.spec.ts.
 
@@ -21,7 +23,9 @@ import {
   attempts,
   launchRequest,
 } from "../../tests/agentLaunchBoundary.ts";
+import { keepMoreAttemptsBesideServer } from "../../tests/acceptedAttempts.ts";
 import { request } from "../../tests/keptExecutionStart.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -151,5 +155,39 @@ test("a non-owner with nothing new to tell consumes the configured change bound"
     await observer?.close();
     await owner?.close();
     origin.cleanup();
+  }
+});
+
+// Admission keeps an attempt with this server's worker before it holds the
+// attempt in memory; a wait asked in between must not take the non-owner
+// bound for a change this server is about to tell.
+test("an unsettled attempt this server's own process works on is answered without the non-owner bound", async () => {
+  const nonOwnerBoundMs = 20_000;
+  const server = await startDashboardServer({
+    mode: "boundary",
+    projectFolders: ["open-dough"],
+    extraEnv: { DOUGH_CHANGE_WAIT_MS: String(nonOwnerBoundMs) },
+  });
+  try {
+    const id = "00000000-0000-4000-8000-0000000000c1";
+    await keepMoreAttemptsBesideServer(server, [
+      makeMe.anAcceptedAttempt
+        .withId(id)
+        .requesting(launchRequest)
+        .workedBy({
+          pid: server.pid,
+          serverPid: server.pid,
+          step: "start",
+          notedAt: new Date().toISOString(),
+        })
+        .please(),
+    ]);
+    const [kept] = await attempts(server);
+    expect(kept).toMatchObject({ id, owned: false, running: true });
+    const began = Date.now();
+    expect(await changedBody(server, id)).toMatchObject({ changed: true });
+    expect(Date.now() - began).toBeLessThan(nonOwnerBoundMs);
+  } finally {
+    await server.close();
   }
 });

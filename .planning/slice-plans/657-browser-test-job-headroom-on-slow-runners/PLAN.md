@@ -118,7 +118,7 @@ observation that showed it.
 
 ### 3. The continued start settles on a slow runner
 
-Status: planned
+Status: done
 Type: Behavior
 
 Behavior: a start a closed server left unsettled → "Continue execution" on a
@@ -132,6 +132,14 @@ timeout.
 Proof: the spec passes with `--repeat-each 20` under the load that slowed or
 stalled it in slice 2, or, when slice 2 could not reproduce the stall, a
 test of the named cause fails without the fix and passes with it.
+
+Accepted proof, 2026-11-16: `agent-launch-change-wait.spec.ts`'s test of an
+unsettled attempt this server's own process works on failed without the fix
+(`changed: false` after its 20 s bound) and passes with it; the backend
+`launches/` specs pass (374); the restart-recovery spec passes 40 of 40 with
+`--repeat-each 20` beside 16 CPU burners (load up to 28, slowest 14.2 s);
+the `e2e/launches/` specs pass once (159) under `caffeinate -s -i` on AC
+power.
 
 ## Current decisions
 

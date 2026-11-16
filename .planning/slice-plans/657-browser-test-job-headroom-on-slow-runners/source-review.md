@@ -13,9 +13,9 @@ commitments, qualifications, examples and exclusions.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Contributors get the same browser test verdict on a slow CI runner as on a typical one. | slice 3 | |
+| 1 | Contributors get the same browser test verdict on a slow CI runner as on a typical one. | slice 3 | observed: slice 1 CI run 43803202223 (suite starts 17 s into 450, ends 198 s) and slice 3's fix of the 30 s change wait with its passing spec and loaded e2e repeat |
 | 1.1 | A passing revision does not fail because its job ran out of time. | slice 1 | observed: CI run 43803202223 of 584b7c742: dashboard-frontend / shard 1/1 success, suite step ended 198 s after its deadline step of 450 s, job 217 s within 8 min |
-| 1.2 | A passing revision does not fail because one of its tests ran out of time. | slice 3 | |
+| 1.2 | A passing revision does not fail because one of its tests ran out of time. | slice 3 | observed: the restart-recovery test's 30 s timeout no longer absorbs a 30 s change wait (change-wait spec), and the frontend suite has its whole 450 s (CI run 43803202223) |
 | 2 | The deadlines stay reviewed ceilings. | slice 1 | observed: .github/workflows/browser-test-group.yml: 450 s deadline step and timeout-minutes 8 unchanged; shards.md 'The deadline' keeps them a reviewed ceiling |
 | 2.1 | The verdict arrives no later than it does today. | slice 1 | observed: CI run 43803202223 of 584b7c742: dashboard-frontend job 217 s (was 234-443 s on main) and the parallel lint job 163 s, so neither lengthens the verdict |
 | 3 | Lint and the dashboard type-check run in their own CI job, separate from `dashboard-frontend`. | slice 1 | observed: .github/workflows/ci.yml job lint (Lint and type-check): Run lint and Type-check the dashboard steps; ci-container-workflow.sh requires the type-check inside it |
@@ -27,17 +27,17 @@ commitments, qualifications, examples and exclusions.
 | 5b | The job bound stays 8 minutes. | slice 1 | observed: .github/workflows/browser-test-group.yml: timeout-minutes: 8 |
 | 5c | No runner-speed measurement is added. | slice 1 | observed: diff dd5f9164a..working tree: no runner-speed measurement added to either workflow |
 | 5d | No scaled deadline is added. | slice 1 | observed: diff dd5f9164a..working tree: deadlines fixed constants, none scaled |
-| 6a | The test at line 47 keeps the default 30-second timeout. | slice 3 | |
-| 6b | The test keeps every current assertion. | slice 3 | |
+| 6a | The test at line 47 keeps the default 30-second timeout. | slice 3 | observed: e2e/launches/responsive-session-recovery-restart.spec.ts unchanged: no timeout override or test.slow() |
+| 6b | The test keeps every current assertion. | slice 3 | observed: e2e/launches/responsive-session-recovery-restart.spec.ts unchanged: every assertion kept |
 | 6c | The test's stall is diagnosed. | slice 2 | observed: PLAN.md Learnings, slice 2: the change-wait race between keepAttemptIf (launchAttemptAdmit.ts) and owned.own(), seen in run 43797393195's trace and network log |
-| 6d | The cause of the stall is fixed. | slice 3 | |
+| 6d | The cause of the stall is fixed. | slice 3 | observed: dashboard/server/launchAttemptChanges.ts changedAttempt: this server's own unowned worker takes owner.changed; agent-launch-change-wait.spec.ts 'an unsettled attempt this server's own process works on is answered without the non-owner bound' failed (changed false after 20 s) without the fix, passes with it |
 | 6.1 | The failed run stalled after the journey reached "Continue execution" on the second page at 10.3 s: the continued start did not settle in the remaining 19.7 s. |  | G1 |
 | 7 | `dashboard/tests/shards.md` describes the resulting layout. | slice 1 | observed: dashboard/tests/shards.md: The job-count paragraph and Decision 2026-11-16 |
 | 7a.1 | It describes the job table and the job count. | slice 1 | observed: dashboard/tests/shards.md: group table unchanged and 'These counts make 19 jobs: 14 browser jobs, three Distribution shares, one lint job and one proof job' |
 | 7a.2 | It describes where lint and the type-check run. | slice 1 | observed: dashboard/tests/shards.md: 'Lint and the dashboard type-check run in ci.yml's lint job' |
 | 7a.3 | It states the deadline the workflow declares. Its deadline section still says 320 s and 6 min, so it is out of date and must be corrected. | slice 1 | observed: dashboard/tests/shards.md 'The deadline': 450 seconds and the job's 8 minutes |
 | 8 | Other groups' exposure to slow runners stays with the existing job-count rule. `e2e` and `dashboard-backend` are not resized. | slice 1 | observed: .github/workflows/ci.yml: e2e shards [1..6], dashboard-backend [1, 2, 3] unchanged |
-| 9 | Finding other tests close to their timeout is deferred. SEED-381's rebalancing skill already promises to flag notably slow tests. | slice 3 | |
+| 9 | Finding other tests close to their timeout is deferred. SEED-381's rebalancing skill already promises to flag notably slow tests. | slice 3 | observed: slice 3 diff touches only launchAttemptChanges.ts and its change-wait spec; no other test searched or retimed |
 | 10 | Making lint faster is deferred. | slice 1 | observed: diff: scripts/lint.mjs and lint configuration unchanged |
 | 11 | On a runner that slow (lint 122 s vs 79 s, type-check 28 s vs 18 s, suite ending at 289 s vs 177 s with 193 of 195 spec files run), the job starts its suite about 12 s after its deadlines start instead of 162 s. | slice 1 | observed: CI run 43803202223 of 584b7c742: dashboard-frontend suite step started 04:18:24, 17 s after the deadline step at 04:18:07 (162 s on run 43797393195) |
 | 11.1 | On that slow runner, the suite finishes with over 100 s to spare. | slice 1 | observed: CI run 43803202223 of 584b7c742: suite ran 181 s ending 198 s into 450; the 1.6x slower suite of run 43797393195 (289 s vs 177 s) scales that to about 307 s, about 143 s to spare |
@@ -46,7 +46,7 @@ commitments, qualifications, examples and exclusions.
 | 13a | A lint or type-check failure fails the new lint and type-check job, which names the failure. | slice 1 | observed: .github/workflows/ci.yml job lint: Run lint and Type-check the dashboard are separate steps; type-check gated only on !cancelled() and npm success |
 | 13b | On a lint or type-check failure, `dashboard-frontend` still reports its suite's result. | slice 1 | observed: .github/workflows/ci.yml: dashboard-frontend has no needs on lint and lint is not in any group's needs; separate jobs |
 | 13c | A suite failure leaves the lint job's result unchanged. | slice 1 | observed: .github/workflows/ci.yml: lint has no needs on any browser group job |
-| 14 | On a runner about 1.2 times slower than typical (`e2e` shard 5/6 of run 43797393195), the continued start settles and the test passes. Before, it waited 19.7 s and timed out at 30 s. | slice 3 | |
+| 14 | On a runner about 1.2 times slower than typical (`e2e` shard 5/6 of run 43797393195), the continued start settles and the test passes. Before, it waited 19.7 s and timed out at 30 s. | slice 3 | observed: e2e restart-recovery spec --repeat-each 20 beside 16 CPU burners (load to 28): 40 of 40 passed, slowest 14.2 s of 30; the window it stalled in now answers at once (change-wait spec) |
 | 15 | The shared browser-group workflow drops its `lint` input. | slice 1 | observed: .github/workflows/browser-test-group.yml inputs: group, command, settings, root, shards |
 | 15.1 | The shared browser-group workflow drops every lint step. | slice 1 | observed: .github/workflows/browser-test-group.yml: no Install shell lint tools, Run lint or Type-check step |
 | 15.2 | The shared workflow runs one group's browser tests and nothing else. | slice 1 | observed: .github/workflows/browser-test-group.yml steps: checkout, deadlines, Node/npm, Chromium, suite, uploads |

@@ -22,7 +22,10 @@ import {
   readableRecordsByProject,
 } from "./launchRecordStore.ts";
 import type { OwnedAttempts } from "./ownedAttempts.ts";
-import { attemptWorkerRunning } from "./launchAttemptWorker.ts";
+import {
+  attemptWorkerRunning,
+  workedByThisServer,
+} from "./launchAttemptWorker.ts";
 import { ownLaunchRecord } from "./ownLaunchRecord.ts";
 
 type Continuation = {
@@ -44,7 +47,7 @@ export function continuationRecord(
   if (found === undefined) return unknownAttempt;
   const held = owned.get(id)?.attempt;
   const supersededWorker =
-    held?.outcome !== undefined && found.worker?.serverPid === process.pid;
+    held?.outcome !== undefined && workedByThisServer(found);
   const machineRunning = !supersededWorker && attemptWorkerRunning(found);
   const unneeded =
     notContinued({ ...found, owned: false, running: machineRunning }) ??

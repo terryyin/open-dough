@@ -1,9 +1,12 @@
 // A bounded wait for an attempt observation to change. Another server's
 // live worker can only be observed after the wait; this server's owner signals
-// changes directly. The timer never settles or changes an attempt.
+// changes directly, and an attempt kept with this server's worker before the
+// owner holds it is answered at once. The timer never settles or changes an
+// attempt.
 import { z } from "zod";
 import type { ChangedAnswer } from "../src/agentLaunch.ts";
 import type { LaunchAttemptOwner } from "./launchAttemptOwner.ts";
+import { workedByThisServer } from "./launchAttemptWorker.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
 // A wait as asked: the attempt, and how many changes the asker's observation
@@ -47,7 +50,9 @@ export async function changedAttempt(
       owner.observation(id) ??
       (await owner.attempts()).attempts.find((attempt) => attempt.id === id);
     const changed =
-      observed?.running === true && !observed.owned
+      observed?.running === true &&
+      !observed.owned &&
+      !workedByThisServer(observed)
         ? await waited
         : await Promise.race([
             owner.changed(id, seen).then(() => true),
