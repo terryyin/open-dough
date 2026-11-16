@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-367#bound-diagnosis-in-evidence-rounds",
+  "title": "Bound flaky-test and CI-failure diagnosis in evidence rounds",
+  "completedAt": "2026-11-16T11:26:15.630Z",
+  "developer": "Terry Yin",
+  "agent": "Yumi-chan",
+  "host": "claude"
+}
