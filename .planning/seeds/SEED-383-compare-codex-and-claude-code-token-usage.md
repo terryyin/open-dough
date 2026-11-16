@@ -132,6 +132,9 @@ No goal, scope or metric decision remains open.
 ### Tell compared Usage tools apart and drop stale read errors
 
 **Identity:** SEED-383#tell-compared-usage-tools-apart
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/662-tell-compared-usage-tools-apart/PLAN.md"}
+```
 
 #### Goal
 
