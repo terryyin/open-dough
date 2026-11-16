@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsukasa-chan",
+  "email": "tsukasa-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-390#group-ad-hoc-follow-ups-with-their-done-story",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
