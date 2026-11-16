@@ -2,10 +2,11 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 // The local launch boundary (../../server/launchBoundary.ts) over raw HTTP,
 // at the boundary server, for an ad hoc session: a project's folder and no story.
 // The server derives the label, names the session `<project> · Ad hoc ·
-// <label>`, starts it with the developer's text as typed or with no prompt at
-// all, and keeps the label as the record's title. Refused requests start no
-// `claude`. Story launches are ./agent-launch-boundary.spec.ts. The synthetic
-// `claude` (../../tests/fixtures/fake-claude) records every call.
+// <label>`, starts it at Open Dough's default effort with the developer's text
+// as typed or with no prompt at all, and keeps the label as the record's
+// title. Refused requests start no `claude`. Story launches are
+// ./agent-launch-boundary.spec.ts. The synthetic `claude`
+// (../../tests/fixtures/fake-claude) records every call.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
@@ -68,10 +69,13 @@ test.describe(`agent launch boundary, ad hoc`, () => {
       "--bg",
       "--name",
       `Open Dough · Ad hoc · ${label}`,
+      "--effort",
+      "medium",
       text,
     ]);
     expect(record.request).toEqual({
       ...adHocRequest,
+      effort: "medium",
       title: label,
       instruction: text,
     });
@@ -88,11 +92,12 @@ test.describe(`agent launch boundary, ad hoc`, () => {
     test(`starts a session with no prompt for ${blank}, named for the launch time`, async () => {
       const { record, argv } = await launched(instruction);
 
-      expect(argv).toHaveLength(3);
+      expect(argv).toHaveLength(5);
       expect(argv?.slice(0, 2)).toEqual(["--bg", "--name"]);
       expect(argv?.[2]).toBe(
         `Open Dough · Ad hoc · ${String(record.request["title"])}`,
       );
+      expect(argv?.slice(3)).toEqual(["--effort", "medium"]);
       expect(record.request["title"]).toMatch(timeLabel);
     });
   }
@@ -109,6 +114,8 @@ test.describe(`agent launch boundary, ad hoc`, () => {
       "--bg",
       "--name",
       `Open Dough · Ad hoc · ${String(record.request["title"])}`,
+      "--effort",
+      "medium",
       text,
     ]);
   });
@@ -118,7 +125,7 @@ test.describe(`agent launch boundary, ad hoc`, () => {
     const { record, argv } = await launched(text);
 
     expect(record.request["title"]).toMatch(timeLabel);
-    expect(argv?.[3]).toBe(text);
+    expect(argv?.[5]).toBe(text);
   });
 
   for (const refused of [

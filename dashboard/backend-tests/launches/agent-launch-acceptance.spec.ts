@@ -48,6 +48,8 @@ const request = makeMe.aLaunchRequest
   .executing({ identity: queuedIdentity, title: queuedTitle })
   .withInstruction("Keep this exact instruction.")
   .please();
+// Kept with the effort it is started at: Open Dough's default.
+const keptRequest = { ...request, effort: "medium" };
 
 type Answer = {
   kind: string;
@@ -98,14 +100,18 @@ test.describe("an accepted launch", () => {
     const answered = await answerOf(accept(server, request));
     expect(answered).toMatchObject({
       kind: "accepted",
-      attempt: { request, publication: { kind: "unknown" }, owned: true },
+      attempt: {
+        request: keptRequest,
+        publication: { kind: "unknown" },
+        owned: true,
+      },
     });
     const id = answered.attempt?.id;
     // Kept with its exact request before the start published anything.
     expect(keptAttempts()).toEqual([
       {
         id,
-        request,
+        request: keptRequest,
         acceptedAt: answered.attempt?.acceptedAt,
         reportingOrigin: server.origin,
         publication: { kind: "unknown" },
@@ -162,7 +168,7 @@ test.describe("an accepted launch", () => {
     }[];
     expect(keptAttempts()[0]).toMatchObject({
       id,
-      request,
+      request: keptRequest,
       outcome: {
         kind: "launched",
         session: { host: "claude", sessionId: record?.session.sessionId },
@@ -227,7 +233,7 @@ test.describe("an accepted launch", () => {
     expect(keptAttempts()).toEqual([
       expect.objectContaining({
         id: answered.attempt?.id,
-        request,
+        request: keptRequest,
         acceptedAt: answered.attempt?.acceptedAt,
         reportingOrigin: server.origin,
         publication: { kind: "unknown" },

@@ -136,13 +136,19 @@ Cursor's Reasoning effort selector stays visible: Default and Auto disable
 it with a hint to choose a specific model; models with listed effort variants
 enable their supported choices. Models without variants keep it disabled with
 an explanation. Returning to a model without selectable effort clears any prior
-effort. Default omits `--model`. Claude Code's Reasoning effort offers “Use your
-Claude Code setting”, which sends nothing, and its static levels low, medium,
-high, xhigh and max, independently of Model; Claude Code itself drops an effort
-a model does not take. A chosen level goes as `--effort` for that session only,
+effort. Default omits `--model`. Claude Code's Reasoning effort offers the static
+levels low, medium, high, xhigh and max, independently of Model, and opens on
+`medium (Open Dough default)`; high and xhigh read “about 3× the cost of
+medium” and max “about 7× the cost of medium”, the median Opus slice-agent cost
+measured in November 2026; low carries no figure. Claude Code itself drops an effort
+a model does not take. The shown level goes as `--effort` for that session only,
 writes no Claude Code configuration, and is reported as requested, never as the
-effective effort, which Claude Code's listing does not expose. Switching
-hosts and fresh openings clear both selections; no authentication, trust, approval,
+effective effort, which Claude Code's listing does not expose. Every Claude
+Code launch passes an effort, its own or Open Dough's default given at
+acceptance, rather than inheriting one from Claude Code's settings, so a
+user-level settings change cannot alter what a launch costs. Switching
+hosts and fresh openings return Model to Default and Reasoning effort to the
+host's default; no authentication, trust, approval,
 sandbox or permission setting is overridden by the dashboard.
 Requested model/options lines describe requests, never the effective model.
 

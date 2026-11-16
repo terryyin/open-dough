@@ -28,6 +28,8 @@ export function expectNamedAdHocCall(
         "--bg",
         "--name",
         `${project} · Ad hoc · ${instruction}`,
+        "--effort",
+        "medium",
         instruction,
       ],
       cwd: realpathSync(path.join(dashboard.home, "git", source)),

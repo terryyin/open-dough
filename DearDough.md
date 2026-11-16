@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 548. Removed numbers are never reused.
+- Highest allocated local number: 549. Removed numbers are never reused.
 - Recovery: `face6fd05b3f5c4f20159db9b41480afbe90d592:DearDough.md` holds the exact pre-maintenance log and its earlier recovery chain. The [catalog](docs/maintainer/finding-names.md) retains reconciled occurrences. The [project findings](ProjectFindings.md) and [review history](docs/maintainer/project-findings-history.md#review-and-recovery) retain the local CI issues (DD-529, DD-539).
 - Occurrence history is partial.
 
@@ -268,3 +268,28 @@ and the slice deleting the deal and correcting about 30 documents and records.
   - Evidence: slice 4 return "about 20 minutes"; slice 6 return "about 25 minutes, not counting the 37-minute suite run"; both recorded in plan 656 Learnings at `6348334e6`.
   - Observed effect: no discarded work; both slices delivered with accepted proof.
   - Inference: like DD-545, sizing counted the core change but not the consumer and document sweep each slice owned; a sweep across many files may deserve its own slice.
+- Execution: SEED-388#show-the-effort-a-launch-runs-with (plan 664; first implementation 535898511)
+  - Timestamp: 2026-11-16T16:29:00+08:00 (slice 1 return; about 16:08–16:29 local)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.102 (guidance updated at starting revision `3b1479996`)
+  - Evidence: plan 664's premise row ran its scratch default only over backend `launches/` (9 failures) and listed those nine consumers. Slice 1 also had to update about 20 more exact-argv or kept-start assertions in backend `sessions/`, shared test support and `e2e/`; a serial-mode spec hid a second failure behind the first. Slice 1 return reports about 21 minutes; plan 664 slice 1 Learning at `535898511`.
+  - Observed effect: no discarded work; the slice delivered with accepted proof (374 + 256 + 54 passed).
+  - Inference: same sizing gap as above, here seeded by a premise observation scoped to one test directory; a default that changes exact command-line output reaches every suite that pins that output, and serial-mode files undercount failures.
+
+## DD-549 — Guarded delivery refuses a plan the slice left unedited
+
+Guarded fresh delivery for a planned slice marks the slice done itself, but
+refuses with "the plan must be included in ownedPaths" when the coordinator
+lists only the files the slice changed and the plan has no edits of its own yet.
+
+### Occurrences
+
+- Execution: SEED-388#show-the-effort-a-launch-runs-with (plan 664; first implementation 535898511)
+  - Timestamp: unknown (2026-11-16, slice 2 delivery)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.102 (guidance updated at starting revision `3b1479996`)
+  - Evidence: `execution-increment-delivery.mjs fresh` for slice 2 returned `{"ok":false,"operation":"context","error":"the plan must be included in ownedPaths"}` with ownedPaths built from `git status`; adding the plan path succeeded and published `cc59ccb93`.
+  - Observed effect: one refused call and a retry; nothing changed by the refusal.
+  - Inference: the requirement is stated only implicitly in the fresh-increment field table ("Put the plan's other evidence … as your owned edit staged with it"); a coordinator deriving ownedPaths from the working tree misses it whenever a slice adds no plan edit. Minor cost.

@@ -67,6 +67,7 @@ test("a compact session discloses technical details and secondary actions withou
 }) => {
   const record = frontendStoryLaunch("executing", readyStory)
     .requestingModel("sonnet")
+    .requestingEffort("medium")
     .please();
   const id = record.session.sessionId;
   frontendServices.answerMachine(makeMe.aMachineAnswer.please());
@@ -90,6 +91,8 @@ test("a compact session discloses technical details and secondary actions withou
   const details = sessionDetailsControl(entry);
   await expect(details).toHaveAttribute("aria-expanded", "false");
   await expect(sessionIdLineOf(entry, id)).toBeHidden();
+  const effort = entry.getByText("Effort: medium (requested)", { exact: true });
+  await expect(effort).toBeHidden();
   await expect(
     entry.getByText("Model: Sonnet (requested)", { exact: true }),
   ).toBeVisible();
@@ -112,6 +115,7 @@ test("a compact session discloses technical details and secondary actions withou
   await page.keyboard.press("Enter");
   await expect(details).toHaveAttribute("aria-expanded", "true");
   await expect(sessionIdLineOf(entry, id)).toBeVisible();
+  await expect(effort).toBeVisible();
   await page.keyboard.press("Space");
   await expect(details).toHaveAttribute("aria-expanded", "false");
   await expect(details).toBeFocused();

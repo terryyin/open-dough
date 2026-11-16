@@ -6,10 +6,12 @@ project and shared findings review that the `maintain-feedback-cycle` skill
 runs in Open Dough. It is **Off** by default. Choose a **Host** and,
 optionally, a **Model** from the same choices the launch dialog offers (Codex
 also offers its reasoning effort), then **Turn on**. The status line reads, for
-example, **Feedback maintenance: On, Claude Code, Opus**; **Default** keeps the
-host's own model setting. Change the choice and **Save feedback maintenance**
-to replace it, or **Turn off** to withdraw it. Host model catalogs are read in
-the configured project whose repository is `terryyin/open-dough`.
+example, **Feedback maintenance: On, Claude Code, Opus, medium effort**;
+**Default** keeps the host's own model setting. Claude Code sessions run at
+Open Dough's default `medium` effort, which the status line names. Change the
+choice and **Save feedback maintenance** to replace it, or **Turn off** to
+withdraw it. Host model catalogs are read in the configured project whose
+repository is `terryyin/open-dough`.
 
 ## When it starts
 

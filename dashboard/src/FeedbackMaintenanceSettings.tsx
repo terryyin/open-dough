@@ -23,7 +23,11 @@ import {
   type FeedbackMaintenanceSetting,
 } from "./feedbackMaintenanceSetting.ts";
 import { hostName } from "./sessionCapabilities.ts";
-import { launchModelName, type HostIdentity } from "./hostDescription.ts";
+import {
+  hostDescription,
+  launchModelName,
+  type HostIdentity,
+} from "./hostDescription.ts";
 import { localSettingRequest } from "./localSettingRequest.ts";
 import { useProjects } from "./projectList.tsx";
 import { useLaunchHostOptions } from "./useLaunchHostOptions.ts";
@@ -55,7 +59,9 @@ function readSetting(): Promise<FeedbackMaintenanceSetting> {
 
 function describe(setting: FeedbackMaintenanceSetting): string {
   if (!setting.enabled) return "Off";
-  const { host, model, effort } = setting.choice;
+  const { host, model } = setting.choice;
+  // A choice without effort runs at the host's default, when it names one.
+  const effort = setting.choice.effort ?? hostDescription(host).defaultEffort;
   return [
     `On, ${hostName(host)}`,
     model === undefined

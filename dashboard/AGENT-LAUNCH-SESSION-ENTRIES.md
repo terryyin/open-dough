@@ -10,11 +10,12 @@ assignment above already names the session's host and model, so the summary
 omits those repeated facts. Different or unrecorded assignments keep the
 session's known launch facts visible; standalone entries also keep them.
 **Session details** retains the host and qualified requested model. It starts
-closed and discloses the launch time, original attribution, requested options
-and policy, local launch provenance, one saved workspace, session ID and manual
-resume command. Where available, **Copy resume command** copies that command;
-failure says so and leaves it selectable. Closing details leaves main access
-available. An open execution session suppresses the story scan's positive
+closed and discloses the launch time, original attribution, the effort the
+launch passed ("Effort: max (requested)"; none on a record kept without one),
+requested options and policy, local launch provenance, one saved workspace,
+session ID and manual resume command. Where available, **Copy resume command**
+copies that command; failure says so and leaves it selectable. Closing details
+leaves main access available. An open execution session suppresses the story scan's positive
 **Ready for execution** badge; its preparation facts remain in **Inspect story**.
 Dependency/readiness warnings and qualified published slice/branch facts remain.
 

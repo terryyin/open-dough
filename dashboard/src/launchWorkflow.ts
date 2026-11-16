@@ -143,9 +143,10 @@ export function storyOf(
 // What a consumer of a launch record needs of its request, spelled once: the
 // title, the work item's identity (none when the request has no card to look
 // up), the kind's name, how its session is said to have started, the model it
-// asked for (none for Default), the options it selected (none when it
-// selected none), spelled as the flags the record kept, and its session
-// policy (none for the default).
+// asked for (none for Default), the effort it passed (none on a record
+// kept without one), the options it selected (none when it selected none),
+// spelled as the flags the record kept, and its session policy (none for
+// the default).
 export function launchSubject(request: RecordedLaunchRequest) {
   const name = launchKindName(request.workflow);
   return {
@@ -159,6 +160,10 @@ export function launchSubject(request: RecordedLaunchRequest) {
       request.model === undefined
         ? undefined
         : `Model: ${launchModelName(request.host, request.model)} (requested)`,
+    effortWords:
+      request.effort === undefined
+        ? undefined
+        : `Effort: ${request.effort} (requested)`,
     optionsWords:
       request.options === undefined || request.options.length === 0
         ? undefined

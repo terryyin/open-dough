@@ -111,7 +111,8 @@ export function LaunchReasoningEffort({
 }
 
 // A host's fixed efforts, offered whatever the model: the host itself drops
-// an effort a model does not take.
+// an effort a model does not take. The dialog opens on the host's default, so
+// no choice leaves the effort to the host's own settings.
 function FixedReasoningEffort({
   id,
   host,
@@ -125,7 +126,12 @@ function FixedReasoningEffort({
   readonly onEffort: (effort: string) => void;
   readonly efforts: readonly string[];
 }) {
-  const setting = `your ${hostName(host)} setting`;
+  const { defaultEffort, effortCosts = {} } = hostDescription(host);
+  const named = (item: string) => {
+    const note =
+      item === defaultEffort ? "Open Dough default" : effortCosts[item];
+    return note === undefined ? item : `${item} (${note})`;
+  };
   return (
     <div className="launch-dialog-field">
       <label htmlFor={`${id}-effort`}>Reasoning effort</label>
@@ -138,17 +144,14 @@ function FixedReasoningEffort({
           onEffort(event.target.value);
         }}
       >
-        <option value="">{`Use ${setting}`}</option>
         {efforts.map((item) => (
           <option key={item} value={item}>
-            {item}
+            {named(item)}
           </option>
         ))}
       </select>
       <p id={`${id}-effort-feedback`} className="quiet" aria-live="polite">
-        {effort === ""
-          ? `${hostName(host)} starts with ${setting}.`
-          : "The chosen effort applies to this session only."}
+        {`${named(effort)} applies to this session only.`}
       </p>
     </div>
   );
