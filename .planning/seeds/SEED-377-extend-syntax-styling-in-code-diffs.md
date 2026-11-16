@@ -75,8 +75,9 @@ further languages by path, keeping every SEED-351 constraint.
 #### Key examples
 
 - A modified `README.md` whose added line holds a Markdown heading and whose
-  removed line holds a fenced code marker. → Heading and fence tokens take
-  distinct colours from plain text; the added line keeps `+` and its ready
+  removed line holds a fenced code marker. → The heading takes a colour
+  distinct from plain text and from the fence; under the shared high-contrast
+  themes the fence may match plain. The added line keeps `+` and its ready
   background, the removed line `-` and its problem background.
 - A `config.json` diff adds a property name and a string value on one line. →
   The name and the string take different colours from each other and from

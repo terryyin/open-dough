@@ -60,6 +60,10 @@ test("each kind name is a hint, with .tsx still highlighted as TSX", () => {
       { include: ["**/*.java"], syntax: "java" },
       { include: ["**/*.py"], syntax: "python" },
       { include: ["**/*.bats"], syntax: "shell" },
+      { include: ["**/*.md"], syntax: "markdown" },
+      { include: ["**/*.json"], syntax: "json" },
+      { include: ["**/*.css"], syntax: "css" },
+      { include: ["**/*.yaml", "**/*.yml"], syntax: "yaml" },
     )
     .please();
   expect(languageOf("t/a.feature", mixed)).toBe("gherkin");
@@ -69,4 +73,9 @@ test("each kind name is a hint, with .tsx still highlighted as TSX", () => {
   expect(languageOf("t/Examples.java", mixed)).toBe("java");
   expect(languageOf("t/a.py", mixed)).toBe("python");
   expect(languageOf("t/a.bats", mixed)).toBe("shell");
+  expect(languageOf("t/a.md", mixed)).toBe("markdown");
+  expect(languageOf("t/a.json", mixed)).toBe("json");
+  expect(languageOf("t/a.css", mixed)).toBe("css");
+  expect(languageOf("t/a.yaml", mixed)).toBe("yaml");
+  expect(languageOf("t/a.yml", mixed)).toBe("yaml");
 });

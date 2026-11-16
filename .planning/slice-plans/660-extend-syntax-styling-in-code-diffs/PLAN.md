@@ -2,6 +2,7 @@
 
 **Identity:** SEED-377#extend-syntax-styling-in-code-diffs
 **Source:** [Extend syntax styling in code diffs](../../seeds/SEED-377-extend-syntax-styling-in-code-diffs.md#extend-syntax-styling-in-code-diffs)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -63,7 +64,7 @@ Each slice targets 15 active minutes.
 
 ### 1. Diffs and Intent style Markdown, JSON, CSS and YAML
 Type: Behavior
-Status: planned
+Status: done
 Proof: update
 `dashboard/frontend-tests/review/story-review-diff-syntax-paths.spec.ts` as in
 the proof table; keep
@@ -92,6 +93,26 @@ appearances stay as SEED-351 left them.
 - Before changing tests, apply MakeMe and page-object selection for the
   dashboard frontend / backend Intent entries.
 
+## Story obligations
+
+### G1. Intent-hint language selection for diffs
+Reported: slice 1 — "Styling a story-review diff by a project's Intent `syntax` hint when the path's extension names no grammar"
+Story clause: "Styling a story-review diff by a project's Intent `syntax` hint when the path's extension names no grammar"
+Disposition: excluded "Styling a story-review diff by a project's Intent `syntax` hint when the path's extension names no grammar"
+Commitment: X1
+
+### G2. Word-level change emphasis
+Reported: slice 1 — "Emphasis of the changed words within a changed line"
+Story clause: "Emphasis of the changed words within a changed line"
+Disposition: excluded "Emphasis of the changed words within a changed line"
+Commitment: X2
+
+### G3. Styling on/off or palette control
+Reported: slice 1 — "A control to turn styling off or choose a palette"
+Story clause: "A control to turn styling off or choose a palette"
+Disposition: excluded "A control to turn styling off or choose a palette"
+Commitment: X3
+
 ## Local gates and execution discipline
 
 Apply the linked
@@ -104,3 +125,15 @@ before test edits. The focused specs above are the local gate; the full
 suites run in hosted CI. The local-gate sleep guard is
 [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos):
 start fully awake; on AC wrap long or full runs in `caffeinate -s -i`.
+
+## Learnings
+
+- Developer-authorized seed amend: Markdown fence may match plain under shared
+  high-contrast themes; heading stays distinct from plain and fence.
+- Appearance proof for new languages lives in
+  `story-review-diff-syntax-appearance-languages.spec.ts` after the post-change
+  file-size split; the TypeScript contrast/Intent-match suite stays in
+  `story-review-diff-syntax-appearance.spec.ts`.
+- Plain companion paths in syntax fixtures must sort before the styled path so
+  auto-open does not consume a one-shot unavailable answer (`base.txt` before
+  `greet.ts`).

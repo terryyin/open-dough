@@ -1,12 +1,14 @@
 // On-demand syntax styling for every source reader -- Intent's source reading
 // (`./SourceLines.tsx`) and story-review file diffs (`./diffLineTokens.ts`) --
 // through `./useSourceHighlight.ts`: Shiki's core and JavaScript engine, with
-// each supported grammar and the github-light-high-contrast and
-// github-dark-high-contrast palettes loaded only when first needed.
-// `sourceLanguage` maps an Intent syntax hint (+ path for typescript/.tsx) and
-// `pathLanguage` a diffed file's path to the Shiki language id. Failure leaves
-// the caller with plain text and no error surface. Both theme colours ship on
-// each token so CSS can follow the system appearance without re-tokenization.
+// each of the eleven path grammars (TypeScript, TSX, JavaScript, Java, Python,
+// shell, Gherkin, Markdown, JSON, CSS, YAML) and the
+// github-light-high-contrast and github-dark-high-contrast palettes loaded only
+// when first needed. `sourceLanguage` maps an Intent syntax hint (+ path for
+// typescript/.tsx) and `pathLanguage` a diffed file's path to the Shiki
+// language id. Failure leaves the caller with plain text and no error surface.
+// Both theme colours ship on each token so CSS can follow the system
+// appearance without re-tokenization.
 
 import { createHighlighterCore, type HighlighterCore } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
@@ -27,6 +29,10 @@ const languageLoaders = {
   java: () => import("@shikijs/langs/java"),
   python: () => import("@shikijs/langs/python"),
   shellscript: () => import("@shikijs/langs/shellscript"),
+  markdown: () => import("@shikijs/langs/markdown"),
+  json: () => import("@shikijs/langs/json"),
+  css: () => import("@shikijs/langs/css"),
+  yaml: () => import("@shikijs/langs/yaml"),
 } as const;
 
 type GrammarModule = keyof typeof languageLoaders;
@@ -65,6 +71,11 @@ const extensionLanguages: Readonly<Record<string, string>> = {
   sh: "shell",
   bash: "shell",
   feature: "gherkin",
+  md: "markdown",
+  json: "json",
+  css: "css",
+  yaml: "yaml",
+  yml: "yaml",
 };
 
 export function pathLanguage(path: string): string | undefined {
@@ -81,6 +92,10 @@ export function sourceLanguage(hint: string, path: string): string | undefined {
     case "java":
     case "python":
     case "shell":
+    case "markdown":
+    case "json":
+    case "css":
+    case "yaml":
       return hint;
     case "typescript":
       return pathLanguage(path) === "tsx" ? "tsx" : "typescript";

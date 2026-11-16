@@ -38,7 +38,7 @@ import type { Locator } from "@playwright/test";
 import type { HeldAnswer } from "../../tests/support/frontendSubstituteAnswers.ts";
 
 const styledPath = "greet.ts";
-const plainPath = "greet.md";
+const plainPath = "base.txt";
 const files = [styledPath, plainPath].map((path) => ({
   kind: "modified" as const,
   path,

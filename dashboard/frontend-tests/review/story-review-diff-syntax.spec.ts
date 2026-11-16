@@ -26,7 +26,7 @@ import {
 } from "../../tests/support/reviewDiffSyntax.ts";
 
 const styledPath = "greet.ts";
-const plainPath = "greet.md";
+const plainPath = "base.txt";
 const hunk = "@@ -27,7 +27,5 @@";
 
 test("a TypeScript diff styles each line by its side's whole text and keeps the plain diff's change facts", async ({
