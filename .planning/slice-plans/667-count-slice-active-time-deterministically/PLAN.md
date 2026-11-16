@@ -196,7 +196,7 @@ an already reported overrun gives `{}`. Only for hosts slice 1 found delivered.
 
 ### 5. Brief, wait and track active time through the slice clock
 Type: Behavior
-Status: planned
+Status: done
 Proof: guidance link and payload checks run by `bash scripts/test.sh` on the
 changed paths; the behavior review under
 [author-open-dough-skills](../../../.agents/skills/author-open-dough-skills/SKILL.md).
