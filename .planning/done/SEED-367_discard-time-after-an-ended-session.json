@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-367#discard-time-after-an-ended-session",
+  "title": "Discard a slice's clock time after its session ended",
+  "completedAt": "2026-11-16T10:40:26.904Z",
+  "developer": "Terry Yin",
+  "agent": "Kirara-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

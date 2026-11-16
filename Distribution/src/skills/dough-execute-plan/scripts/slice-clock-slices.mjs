@@ -36,6 +36,24 @@ export function dropOverrunSlice(record, identity, from) {
   if (slices[from]?.overrunDetectedAt !== undefined) delete slices[from];
 }
 
+// Ends the previous session at its last clock command, without observing a
+// new overrun. Legacy records have only period and command timestamps.
+export function settleEndedSession(record) {
+  if (!record.running) return;
+  const timestamps = Object.values(record.stories).flatMap(({ slices }) =>
+    Object.values(slices).flatMap(({ periods, commands }) =>
+      [...periods, ...commands].flatMap(({ startedAt, endedAt }) =>
+        endedAt === null ? [startedAt] : [startedAt, endedAt],
+      ),
+    ),
+  );
+  const endedAt = record.lastClockCommandAt ?? Math.max(...timestamps);
+  const entry = sliceOf(record, record.running);
+  for (const interval of [...entry.periods, ...entry.commands])
+    interval.endedAt ??= endedAt;
+  Object.assign(record, { running: null });
+}
+
 // The slice's entry, added when the record has none.
 export function ensureSlice(record, { identity, slice }) {
   const { stories } = record;
@@ -91,14 +109,13 @@ export function runningSliceReachedLimit(record, now) {
 function overrunSeen(record, named, elapsed, now) {
   const story = record.stories[named.identity];
   const entry = story.slices[named.slice];
+  if (entry.overrunDetectedAt !== undefined) return true;
   if (!reachesLimit(elapsed)) return false;
-  if (entry.overrunDetectedAt === undefined) {
-    entry.overrunDetectedAt = now;
-    story.overruns = [
-      ...(story.overruns ?? []),
-      { slice: named.slice, detectedAt: now },
-    ];
-  }
+  entry.overrunDetectedAt = now;
+  story.overruns = [
+    ...(story.overruns ?? []),
+    { slice: named.slice, detectedAt: now },
+  ];
   return true;
 }
 

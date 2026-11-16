@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-367_discard-time-after-an-ended-session.json",
+      "identity": "SEED-367#discard-time-after-an-ended-session",
+      "completedAt": "2026-11-16T10:40:26.904Z",
+      "blob": "4a1a788bbec93fb17d4e589ff40ad5dfd87d56d5"
+    },
+    {
       "fileName": "SEED-388_count-claude-code-work-after-a-developer-reply.json",
       "identity": "SEED-388#count-claude-code-work-after-a-developer-reply",
       "completedAt": "2026-11-16T10:10:17.465Z",

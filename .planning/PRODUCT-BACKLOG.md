@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Review changes from completed ad hoc sessions](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-changes-from-completed-ad-hoc-sessions) — SEED-379#review-changes-from-completed-ad-hoc-sessions ([plan](slice-plans/659-review-changes-from-completed-ad-hoc-sessions/PLAN.md))
 - [Compare agent effort on comparable runs](seeds/SEED-388-measure-and-control-agent-launch-cost.md#compare-agent-effort-on-comparable-runs) — SEED-345#compare-agent-effort-on-comparable-runs ([plan](slice-plans/666-compare-agent-effort-on-comparable-runs/PLAN.md))
-- [Discard a slice's clock time after its session ended](seeds/SEED-367-bounded-slice-active-time.md#discard-time-after-an-ended-session) — SEED-367#discard-time-after-an-ended-session ([plan](slice-plans/668-discard-time-after-an-ended-session/PLAN.md))
 
 ## Backlog list
 

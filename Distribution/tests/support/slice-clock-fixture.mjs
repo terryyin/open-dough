@@ -7,6 +7,7 @@ import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git
 import { timeFileSetting } from "../../src/skills/dough-execute-plan/scripts/slice-clock-record.mjs";
 import { makeMe } from "./makeMe.mjs";
 import { materializeLocalCheckout } from "./repository-fixture.mjs";
+import { deferChildExit } from "../skills/dough-execute-plan/fixture-teardown-test-fixtures.mjs";
 
 const scripts = new URL(
   "../../src/skills/dough-execute-plan/scripts/",
@@ -53,7 +54,7 @@ export async function executionWorktree(t) {
       .please(),
   );
   const scratch = mkdtempSync(join(tmpdir(), "slice-clock-"));
-  t.after(() => rmSync(scratch, { recursive: true, force: true }));
+  repository.defer(() => rmSync(scratch, { recursive: true, force: true }));
   const worktree = join(scratch, "execution");
   await git(
     repository.integration,
@@ -68,13 +69,13 @@ export async function executionWorktree(t) {
   };
   time.at(0);
   // Runs a real clock script in `cwd` as its own process.
-  const node = (cwd, args, stdin = "") =>
-    new Promise((done, failed) => {
-      const child = spawn(process.execPath, args, {
-        cwd,
-        env: { ...process.env, [timeFileSetting]: timeFile },
-      });
-      t.after(() => child.kill("SIGKILL"));
+  const launch = (cwd, args, stdin = "") => {
+    const child = spawn(process.execPath, args, {
+      cwd,
+      env: { ...process.env, [timeFileSetting]: timeFile },
+    });
+    deferChildExit(repository, child, "SIGKILL");
+    const finished = new Promise((done, failed) => {
       let stdout = "";
       let stderr = "";
       child.stdout.on("data", (chunk) => {
@@ -94,17 +95,22 @@ export async function executionWorktree(t) {
       });
       child.stdin.end(stdin);
     });
-  const clock = (cwd, ...args) => node(cwd, [script, ...args]);
+    return { child, finished };
+  };
+  const launchClock = (cwd, ...args) => launch(cwd, [script, ...args]);
+  const clock = (cwd, ...args) => launchClock(cwd, ...args).finished;
   // Answers one host tool call: the host's hook input goes in on stdin. The
   // hook runs outside the worktree, so only its input names the checkout.
   const hook = (host, input) =>
-    node(scratch, [hookScript, host], JSON.stringify(input));
+    launch(scratch, [hookScript, host], JSON.stringify(input)).finished;
   return {
     main: repository.integration,
     worktree,
     scratch,
     time,
     clock,
+    launchClock,
+    defer: repository.defer,
     hook,
   };
 }
