@@ -118,7 +118,7 @@ raises the total. Update the usage text and the record description.
 
 ### 2. Diagnose an unexplained failure in rounds once the slice limit is reached
 Type: Behavior
-Status: planned
+Status: done
 Proof: behavior review under [author-open-dough-skills](../../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review), walking the slice examples.
 
 Behavior: an implementer reaches the slice limit while a failure's cause is
@@ -195,3 +195,12 @@ concern. This review identified no human decision needed before Take.
   `--rounds-authorized` on an already-running diagnosis taking effect only at
   the next round start; a stop always pauses first, so the human's
   authorization arrives on a fresh start.
+- Slice 2 (3.1 active minutes): `diagnosis-rounds.md` owns the rounds; the
+  hypothesis-and-stopping-count rule lives in Diagnose failed proof and the
+  rounds link to it. The added lines pushed `execution-decisions.md` from 250
+  to 254, so its self-contained live-action section moved to
+  `live-action-regression-proof.md` (two link consumers retargeted, payload
+  declared). A fix for a cause in parked changes restarts that slice with
+  `start --slice K --split-from K`, which the real clock starts at zero.
+  Proof: key-example behavior review; `bash scripts/test.sh` on
+  `read-budget.test.mjs` and `payload-declaration-links.sh` exit 0.

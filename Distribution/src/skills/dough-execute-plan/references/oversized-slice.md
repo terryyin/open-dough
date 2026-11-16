@@ -50,6 +50,8 @@ The coordinator owns `start` and `pause`:
   `overrun: true` without adding to `storyOverruns`. A start beyond the
   authorized rounds, 3 by default, is refused; `--rounds-authorized <n>`
   raises the total only on a human's authorization.
+  [Diagnosis rounds](diagnosis-rounds.md) say when to start a round and when
+  to stop.
 
 The implementer runs each proof command (test, build, measurement) through
 `run` and [waits on its exit file without polling](wait-for-proof.md). Time
@@ -67,6 +69,10 @@ Set an experiment's trial limit and decision criterion before it starts. Lack
 of one coherent behavior or failure to converge also calls for refinement.
 
 ## Handle the overrun
+
+When a slice reaches its limit while diagnosing a failure whose cause is
+unknown, continue in [diagnosis rounds](diagnosis-rounds.md). The
+disposition below applies to other overruns.
 
 Inventory tracked and untracked changes owned by the attempt and preserve
 pre-existing work. Never use broad `git checkout .` or `git clean -fd`. Unclear

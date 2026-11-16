@@ -180,7 +180,7 @@ the developer carries all of them, rather than discovering them round by round.
 
 Whether a retained native baseline still covers the changed candidate follows
 the correspondence rule in
-[require current regression proof before a live action](../../dough-execute-plan/references/execution-decisions.md#require-current-regression-proof-before-a-live-action).
+[require current regression proof before a live action](../../dough-execute-plan/references/live-action-regression-proof.md).
 A change to text or another detail the observed path renders unchanged keeps
 it: reuse the baseline and prove the changed detail with a regression at the
 emitted source. The acceptance record names the reused baseline and that

@@ -105,7 +105,7 @@ Give the agent:
 - When the slice includes an authorized live action, the plan's named
   regression prerequisite and whether an accepted current observation of it
   already exists. Require the agent apply [require current regression proof
-  before a live action](execution-decisions.md#require-current-regression-proof-before-a-live-action)
+  before a live action](live-action-regression-proof.md)
   at the point it performs that action, not only at coordinator acceptance:
   obtain the missing proof first, or leave the action unperformed and return
   the exact obligation and gap. A passing operational or health check does not

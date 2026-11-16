@@ -30,6 +30,7 @@ managed_files+=(
   dough-execute-plan/references/deferred-process-review.md
   dough-execute-plan/references/deliver-the-change.md
   dough-execute-plan/references/destructive-later-outcome-check.md
+  dough-execute-plan/references/diagnosis-rounds.md
   dough-execute-plan/references/disposable-research.md
   dough-execute-plan/references/established-start.md
   dough-execute-plan/references/established-session.md
@@ -39,6 +40,7 @@ managed_files+=(
   dough-execute-plan/references/finish-or-stop.md
   dough-execute-plan/references/fresh-increment.md
   dough-execute-plan/references/interrupted-delegation.md
+  dough-execute-plan/references/live-action-regression-proof.md
   dough-execute-plan/references/maintain-default-checkout.md
   dough-execute-plan/references/obtain-source-review.md
   dough-execute-plan/references/one-shot.md
