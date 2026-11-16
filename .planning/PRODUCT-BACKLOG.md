@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Fixed shards for browser tests and on-demand rebalancing](seeds/SEED-381-fixed-ci-test-shards.md#fixed-shards-for-browser-tests-and-on-demand-rebalancing) — SEED-381#fixed-shards-for-browser-tests-and-on-demand-rebalancing ([plan](slice-plans/656-fixed-shards-for-browser-tests-and-on-demand-rebalancing/PLAN.md))
 - [Keep browser test jobs inside their deadline on slow runners](seeds/SEED-382-browser-test-job-headroom-on-slow-runners.md#browser-test-job-headroom-on-slow-runners) — SEED-382#browser-test-job-headroom-on-slow-runners ([plan](slice-plans/657-browser-test-job-headroom-on-slow-runners/PLAN.md))
-- [Compare Codex and Claude Code token usage](seeds/SEED-383-compare-codex-and-claude-code-token-usage.md#compare-codex-and-claude-code-token-usage) — SEED-383#compare-codex-and-claude-code-token-usage ([plan](slice-plans/658-compare-codex-and-claude-code-token-usage/PLAN.md))
 
 ## Backlog list
 

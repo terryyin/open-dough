@@ -6,7 +6,10 @@
 ## Provenance
 
 Retrospective of SEED-383#compare-codex-and-claude-code-token-usage
-(plan 658), reviewed commits `6cb3aac` (shared chart named traces), `c575c97`
+(story and plan recoverable at before-cleanup commit `488cd602f9e029c3ce16c2d3aac2f82542223250`:
+`.planning/seeds/SEED-383-compare-codex-and-claude-code-token-usage.md` and
+`.planning/slice-plans/658-compare-codex-and-claude-code-token-usage/PLAN.md`),
+reviewed commits `6cb3aac` (shared chart named traces), `c575c97`
 (tool comparison) and `06ea5e3` (equal spacing), range
 `650971b14..06ea5e342`. Story promises reviewed: "identifies each tool through
 labeled series rather than color alone" (UI and architecture), "Keep tool
@@ -87,13 +90,13 @@ Proof: compare spec asserts each shown tool has a named legend entry matching
 its drawn mark and median style, Claude Code marks differ in shape from Codex
 marks, and Claude Code partial marks keep the caution stroke; light/dark
 contrast and narrow fit cases stay green. Run all `system-settings-usage*`
-frontend cases and the shared-chart consumer specs named in plan 658.
+frontend cases and the shared-chart consumer specs (`intent-ci-history-chart-marks`, `intent-project-ci-history-chart-marks`, `intent-scope-timing-history-*`, `intent/intent-ci-wall-time-history*`).
 
 Sizing: 15 active minutes, medium confidence.
 
 ## Local gates
 
-Guarded one-worker Playwright forms from plan 658 (`caffeinate -s -i env -u
+Guarded one-worker Playwright forms (`caffeinate -s -i env -u
 NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npx playwright test
 --config dashboard/frontend.playwright.config.ts … --workers=1`), typecheck
 `npm run typecheck:dashboard`, eslint/prettier on changed sources. Apply the
