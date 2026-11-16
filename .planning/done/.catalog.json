@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-381_fixed-pattern-shards-for-the-distribution-suite.json",
+      "identity": "SEED-381#fixed-pattern-shards-for-the-distribution-suite",
+      "completedAt": "2026-11-16T03:05:08.926Z",
+      "blob": "f27f1e50df2e7ba158535560370d85a872237525"
+    },
+    {
       "fileName": "SEED-301_arrange-ci-comparison-tests-through-makeme.json",
       "identity": "SEED-301#arrange-ci-comparison-tests-through-makeme",
       "completedAt": "2026-11-16T02:55:55.459Z",

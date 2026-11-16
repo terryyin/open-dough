@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Copies the suite runner, the parts it sources or runs, and the modules those
 # import into a fixture's scripts/ directory, so adding a runner file edits one
-# place.
+# place. A fixture that splits its run supplies its own
+# .github/workflows/ci.yml matrix; share-deal.mjs and duration-list.mjs serve
+# the browser test groups' dashboard/tests/support/testFiles.mjs.
 
 # copy_runner FIXTURE copies the runner into FIXTURE/scripts/, and the helpers
 # those scripts source at runtime (wait-for for the per-job safety deadline).
@@ -11,8 +13,7 @@ copy_runner() {
   mkdir -p -- "${fixture}/scripts" "${fixture}/Distribution/tests/helpers" \
     "${fixture}/Distribution/evaluation/tests"
   cp -- "${runner_source}/scripts/test.sh" "${runner_source}/scripts/test-jobs.sh" \
-    "${runner_source}/scripts/test-shares.mjs" "${runner_source}/scripts/share-deal.mjs" \
-    "${runner_source}/scripts/share-preview.mjs" \
+    "${runner_source}/scripts/test-share-matrix.mjs" "${runner_source}/scripts/share-deal.mjs" \
     "${runner_source}/scripts/duration-list.mjs" "${runner_source}/scripts/local-test-suite.mjs" \
     "${runner_source}/scripts/local-test-processes.mjs" \
     "${runner_source}"/scripts/*.bash "${fixture}/scripts/"

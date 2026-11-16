@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # The Bash floor of the shell checks and of the scripts that list them.
 # Sourced by scripts/test-environment.bash and by scripts/test-jobs.sh, which
-# also runs under a contributor's PATH bash for the preview
-# (scripts/test-shares.mjs), so this file keeps to Bash 3.2 syntax.
+# a contributor may also run directly under their PATH bash, so this file
+# keeps to Bash 3.2 syntax.
 
 # require_bash_floor REMEDY stops with a FAIL naming the bash on PATH and
 # REMEDY ("rerun the tests") when that bash is older than 5; sets test_bash.

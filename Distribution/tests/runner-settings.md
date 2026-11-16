@@ -6,9 +6,15 @@ can write besides its report.
 The runner runs four jobs at a time locally and one per online CPU in CI; each
 job keeps its own temporary directory. `OPEN_DOUGH_TEST_JOBS` selects another
 count, 1 or more.
-Jobs start in the order `scripts/test-shares.mjs` deals them from the CI
-seconds recorded in `Distribution/tests/longest-first`, longest recorded first;
-`OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of `n` of that deal, and
+Jobs start in bytewise path order.
+`OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of the `n` shares the
+`distribution-tests` matrix in `.github/workflows/ci.yml` declares: an
+included share runs the checks its `tests` glob patterns match, the last share
+the rest, so `OPEN_DOUGH_TEST_SPLIT=2/3 npm test` reproduces CI's share 2. A
+split of named paths, an `n` other than the declared count, two shares
+matching one check, or a pattern matching none fails before any job starts;
+an unsplit run of the whole suite checks the matrix the same way, while named
+paths and other test directories only keep the order.
 `OPEN_DOUGH_TEST_TIMES=<file>` writes every started job's wall seconds and
 name, longest first. `OPEN_DOUGH_TEST_OUTCOMES=<file>` writes each selected
 job's outcome and name, tab-separated, for CI's proof fragments, which count
@@ -35,8 +41,7 @@ replacement lets a check identify the current blocking owner, including a
 successor to an earlier observed owner.
 Each scheduled job also carries a fixed 180-second wall-clock safety deadline
 from its start; see [the runner](README.md#runner). That limit stops hung work
-and frees admission when a whole run ends; it is separate from the normalized
-performance budgets in [time-budget.md](time-budget.md).
+and frees admission when a whole run ends.
 In CI, `OPEN_DOUGH_TEST_DEADLINE_MS` is the absolute epoch (milliseconds) for
 the share's 320-second run cutoff established with setup in
 `.github/workflows/ci.yml`, mirroring the browser test groups' model. Local named
@@ -52,6 +57,10 @@ arming. `OPEN_DOUGH_TEST_DISABLE_JOB_DEADLINE=1` skips arming for
 discriminating proof only. Every
 `OPEN_DOUGH_TEST_*` setting stays with the runner that was given it, so a
 check that runs the runner itself gives it only the settings it chooses, runs
-all of its own checks, and keeps its own times. CI's shares, the deal and the
-preview to run before a push that adds, removes or renames a test file are in
-[test-shares.md](test-shares.md).
+all of its own checks, and keeps its own times. CI's shares are the
+matrix's: moving a pattern there is the only edit a rebalance needs, read
+from the shares' `test-times-<i>` artifacts.
+A share's test step takes about its job-seconds divided by the runner's four
+CPUs, but the same checks have run 1.4 to 1.7 times slower from one CI run to
+the next, so judge a share's time over at least two runs before moving a
+pattern.

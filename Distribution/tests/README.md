@@ -81,15 +81,17 @@ silently, it shows each failing test's name, location, error, and its file's
 output, and a passing file's output under `output from passing <file>:`. No
 job starts a worker pool of its own.
 `OPEN_DOUGH_TEST_DIR` names another directory of checks, with its own optional
-`node-test-files`, `longest-first`, and `time-budget`, to run instead of the
+`node-test-files`, to run instead of the
 suite's own, which is how `Distribution/tests/test-runner/test-runner-failure-report.sh` runs
 substitute checks. Chosen paths replace that discovery.
 
 [Runner settings](runner-settings.md) cover the job count, the start order,
 CI's shares, and the `OPEN_DOUGH_TEST_*` settings with what each writes.
 
-The suite's time budget, `Distribution/tests/time-budget`, and how a slice checks a change
-against recent trunk CI timings are in [time-budget.md](time-budget.md).
+Each CI share keeps its per-job seconds for 90 days as artifact
+`test-times-<i>`, the input for moving a matrix pattern between shares; read
+a run's with `gh run download <run-id> --pattern 'test-times-*'`.
+`bash scripts/ci-job-times.sh` reports each share's distance from its run cutoff.
 
 A passing job must write nothing, so a passing suite prints nothing. For each
 failing job the runner prints `FAIL: <job>` and that job's captured output. A

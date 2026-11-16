@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Named checks run alone through the runner: only the chosen shell and
-# `node --test` files start, under the runner's Git environment, and a focused
-# run is not held to the suite's time budget, even on CI. Relative paths resolve from the
+# `node --test` files start, under the runner's Git environment. A CI run of
+# every check passes by its checks alone, however slow one of them is: only the
+# safety deadlines fail a run for time. Relative paths resolve from the
 # caller's directory. A path that is not a file, or not a check's kind, fails
 # the run, naming it, before any check starts.
 set -euo pipefail
@@ -26,7 +27,8 @@ set -euo pipefail
   printf 'maintenance.auto=%s\n' "\$(git config --get maintenance.auto || echo unset)"
 } > '${markers}/chosen'
 CHECK
-# Unchosen checks are slow, so a full run breaches the budget below.
+# The unchosen shell check is the slowest job, so its duration is what a
+# time ceiling on the full run would judge.
 printf '#!/usr/bin/env bash\ntouch -- %q\nsleep 0.3\n' "${markers}/other" \
   > "${checks}/other.sh"
 cat > "${checks}/node/chosen.test.mjs" << CHECK
@@ -40,10 +42,9 @@ import { test } from 'node:test';
 test('other', () => writeFileSync('${markers}/node-other', ''));
 CHECK
 printf '%s\n' "${checks}/node/*.test.mjs" > "${checks}/node-test-files"
-printf 'per-job-seconds=0.1\ntotal-job-seconds=0.2\n' > "${checks}/time-budget"
 
 # Runs the runner over the checks with the given paths, logging to <name>.log,
-# as CI runs it, where the budget applies.
+# as CI runs it.
 run_suite() {
   local name=$1
   shift
@@ -52,9 +53,19 @@ run_suite() {
     > "${temporary_dir}/${name}.log" 2>&1 || suite_status=$?
 }
 
-# The full run breaches the budget, so the focused run's silence is selection.
+# Every check runs and the full CI run passes silently, slow check included.
 run_suite full
-expect_in_log "${temporary_dir}/full.log" -F -- 'OVER BUDGET:'
+if ((suite_status != 0)) || [[ -s ${temporary_dir}/full.log ]]; then
+  printf 'FAIL: the full CI run exited %s or printed output:\n' "${suite_status}" >&2
+  cat -- "${temporary_dir}/full.log" >&2
+  exit 1
+fi
+for marker in chosen node-chosen other node-other; do
+  if [[ ! -e ${markers}/${marker} ]]; then
+    printf 'FAIL: the full run did not run the %s check.\n' "${marker}" >&2
+    exit 1
+  fi
+done
 rm -f -- "${markers}"/*
 
 cd -- "${checks}"

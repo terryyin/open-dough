@@ -32,8 +32,8 @@ environment in `scripts/test-environment.bash`, before any check starts:
   with `Distribution/tests/helpers/private-request-owner.bash`, a node test with
   `Distribution/tests/skills/dough-execute-plan/github-request-owner-test-fixtures.mjs`
   (`Distribution/tests/test-runner/test-runner-github-requests.sh` proves both).
-- **Chosen checks follow the same rules**, silence included, but are not held
-  to the time budget (`Distribution/tests/test-runner/test-runner-selection.sh` proves a chosen run).
+- **Chosen checks follow the same rules**, silence included
+  (`Distribution/tests/test-runner/test-runner-selection.sh` proves a chosen run).
 
 Run named checks through `npm test -- Distribution/tests/<group>/<name>.sh`.
 For check-specific options such as paid runs and inventories, invoke the

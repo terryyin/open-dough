@@ -1,5 +1,3 @@
-import { makeMe } from "./makeMe.mjs";
-import { durationListText } from "./job-duration-list.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -40,14 +38,6 @@ printf '%s\\n' "$$" > "$OBSERVE/second-pid"
 touch "$OBSERVE/second-ready"
 while [[ ! -e $OBSERVE/second-release ]]; do read -r -t 0.05 _ < "$OBSERVE/wakeup" || true; done
 `,
-      "checks/longest-first": durationListText(
-        makeMe.jobDurations
-          .with([
-            ["checks/first.sh", 10],
-            ["checks/second.sh", 9],
-          ])
-          .please(),
-      ),
     },
   });
   const observation = observeDir(t, root, "term-resistant");
@@ -100,14 +90,6 @@ mkdir -p "$OBSERVE"
 touch "$OBSERVE/first-done"
 `,
       "checks/second.sh": bashHangCheck(),
-      "checks/longest-first": durationListText(
-        makeMe.jobDurations
-          .with([
-            ["checks/first.sh", 10],
-            ["checks/second.sh", 9],
-          ])
-          .please(),
-      ),
     },
   });
   const observation = observeDir(t, root, "retire");

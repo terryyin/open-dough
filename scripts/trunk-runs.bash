@@ -1,7 +1,7 @@
 # shellcheck shell=bash
-# The recent trunk runs the CI timing reports read, which of them were used,
-# and their refusal, sourced by scripts/ci-test-times.sh and
-# scripts/ci-job-times.sh after scripts/gh-message.bash.
+# The recent trunk runs the CI job-time report reads, which of them were used,
+# and its refusal, sourced by scripts/ci-job-times.sh after
+# scripts/gh-message.bash.
 
 # Says why no recent trunk timings can be reported, and exits 1.
 no_timings() {

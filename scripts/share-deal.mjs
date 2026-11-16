@@ -1,20 +1,18 @@
 // scripts/share-deal.mjs deals a test suite's jobs into CI shares by their
 // recorded durations: it reads the duration list, deals the jobs, selects
-// one share as `<i>/<n>` (`OPEN_DOUGH_TEST_SPLIT`, a
-// browser test group's `<prefix>_SPLIT`, the `share` command's `--split`),
-// and writes the times form a refresh merges. Preview input and text live
+// one share as `<i>/<n>` (a browser test group's `<prefix>_SPLIT`), and
+// writes the times form a refresh merges. Preview input and text live
 // in scripts/share-preview.mjs.
-// scripts/test-shares.mjs is its command surface, run by scripts/test-jobs.sh
-// for the Node runner's share and by a contributor for the preview and the
-// refresh; dashboard/tests/support/testFiles.mjs deals each browser test
-// group's spec files through it.
+// scripts/test-shares.mjs is its command surface, run by a contributor for
+// the preview and the refresh; dashboard/tests/support/testFiles.mjs deals
+// each browser test group's spec files through it.
 //
-// A duration list (`Distribution/tests/longest-first` for the Node suite) holds one
-// `<seconds><TAB><label>` line per recorded job, the form the runner's
-// `test-times` artifact prints. duration-list.mjs reads plain lists or indexes
-// with named TSV parts; malformed rows fail before any job runs.
+// A group's duration list (such as `e2e/longest-first`) holds one
+// `<seconds><TAB><label>` line per recorded job, the form a group's times
+// artifact prints. duration-list.mjs reads plain lists or indexes with named
+// TSV parts; malformed rows fail before any job runs.
 //
-// The deal itself is stated in Distribution/tests/test-shares.md ("The deal").
+// The deal is stated in dashboard/tests/shards.md ("The split").
 
 import {
   bytewise,
@@ -34,20 +32,12 @@ export {
   writeDurationList,
 } from "./duration-list.mjs";
 
-// Labels NUL-separated, or one per line when the text holds no NUL; empty
-// entries are dropped.
-export function parseLabels(text) {
-  const separator = text.includes("\0") ? "\0" : /\r?\n/;
-  return text.split(separator).filter((label) => label !== "");
-}
-
 // Below this, two predicted totals are equal; sums of tenths differ from
 // their exact value by far less, and durations are never this close apart.
 const equalTotals = 1e-9;
 
 // Parses `<i>/<n>` with i from 1 to n into the share and the share count,
-// failing with the setting that carried it (as scripts/test-jobs.sh fails on
-// its own `OPEN_DOUGH_TEST_SPLIT`).
+// failing with the setting that carried it.
 export function parseSplit(value, setting) {
   const match = /^([1-9][0-9]*)\/([1-9][0-9]*)$/.exec(value);
   const share = Number(match?.[1]);
@@ -79,7 +69,8 @@ function median(values) {
 // shorter jobs are noise against timer resolution.
 export const measurableRecordedSeconds = 2;
 
-// Formats a runner factor for breach lines: at least one decimal, up to three.
+// Formats a runner factor for a list's source note: at least one decimal, up
+// to three.
 export function formatFactor(value) {
   const rounded = Math.round(value * 1000) / 1000;
   if (Number.isInteger(rounded)) {
@@ -90,7 +81,7 @@ export function formatFactor(value) {
 
 // A share's runner factor: the median, over jobs recorded with measurable
 // time, of observed/recorded seconds. With no such job, the factor is 1 and
-// available is false (the breach line says unavailable).
+// available is false (the source note says unavailable).
 export function runnerFactor(recorded, observed) {
   const ratios = [];
   for (const [label, observedSeconds] of observed) {
@@ -109,16 +100,8 @@ export function runnerFactor(recorded, observed) {
   return { factor, available: true };
 }
 
-// `<factor><TAB><label>` for scripts/test-budget.sh: label is `unavailable`
-// or the formatted factor.
-export function formatRunnerFactorLine(recorded, observed) {
-  const { factor, available } = runnerFactor(recorded, observed);
-  const label = available ? formatFactor(factor) : "unavailable";
-  return `${factor}\t${label}\n`;
-}
-
-// Refresh text at the existing list's speed so a refresh neither tightens nor
-// loosens the budget; a new list or no measurable common job stays observed.
+// Refresh text at the existing list's speed so a refresh keeps the list's
+// recorded speed; a new list or no measurable common job stays observed.
 export function refreshListText(existing, times, source) {
   const observed = collectLongestSeconds(times);
   const { factor, available } = existing

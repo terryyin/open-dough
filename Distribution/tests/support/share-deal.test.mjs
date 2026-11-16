@@ -7,7 +7,6 @@ import { formatPreview } from "../../../scripts/share-preview.mjs";
 import { makeMe } from "./makeMe.mjs";
 import {
   dealShares,
-  formatRunnerFactorLine,
   formatSeconds,
   mergeTimes,
   parseDurationList,
@@ -149,20 +148,6 @@ test("runner factor is the median over measurable recorded jobs, else unavailabl
     ),
     { factor: 3, available: true },
   );
-  assert.equal(
-    formatRunnerFactorLine(
-      recorded,
-      makeMe.jobDurations
-        .with([
-          ["a", 20],
-          ["b", 30],
-          ["c", 40],
-          ["tiny", 15],
-        ])
-        .please(),
-    ),
-    "3\t3.0\n",
-  );
   // Even count: mean of the two middle ratios; sub-threshold recorded ignored.
   assert.deepEqual(
     runnerFactor(
@@ -183,13 +168,6 @@ test("runner factor is the median over measurable recorded jobs, else unavailabl
       factor: 1,
       available: false,
     },
-  );
-  assert.equal(
-    formatRunnerFactorLine(
-      recorded,
-      makeMe.jobDurations.with([["tiny", 10]]).please(),
-    ),
-    "1\tunavailable\n",
   );
   assert.deepEqual(
     runnerFactor(
