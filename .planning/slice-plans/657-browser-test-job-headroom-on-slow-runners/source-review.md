@@ -29,9 +29,9 @@ commitments, qualifications, examples and exclusions.
 | 5d | No scaled deadline is added. | slice 1 | observed: diff dd5f9164a..working tree: deadlines fixed constants, none scaled |
 | 6a | The test at line 47 keeps the default 30-second timeout. | slice 3 | |
 | 6b | The test keeps every current assertion. | slice 3 | |
-| 6c | The test's stall is diagnosed. | slice 2 | |
+| 6c | The test's stall is diagnosed. | slice 2 | observed: PLAN.md Learnings, slice 2: the change-wait race between keepAttemptIf (launchAttemptAdmit.ts) and owned.own(), seen in run 43797393195's trace and network log |
 | 6d | The cause of the stall is fixed. | slice 3 | |
-| 6.1 | The failed run stalled after the journey reached "Continue execution" on the second page at 10.3 s: the continued start did not settle in the remaining 19.7 s. | slice 2 | |
+| 6.1 | The failed run stalled after the journey reached "Continue execution" on the second page at 10.3 s: the continued start did not settle in the remaining 19.7 s. |  | G1 |
 | 7 | `dashboard/tests/shards.md` describes the resulting layout. | slice 1 | observed: dashboard/tests/shards.md: The job-count paragraph and Decision 2026-11-16 |
 | 7a.1 | It describes the job table and the job count. | slice 1 | observed: dashboard/tests/shards.md: group table unchanged and 'These counts make 19 jobs: 14 browser jobs, three Distribution shares, one lint job and one proof job' |
 | 7a.2 | It describes where lint and the type-check run. | slice 1 | observed: dashboard/tests/shards.md: 'Lint and the dashboard type-check run in ci.yml's lint job' |

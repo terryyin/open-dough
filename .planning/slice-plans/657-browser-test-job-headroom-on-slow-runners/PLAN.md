@@ -100,7 +100,7 @@ Published proof: CI run 43803202223 of `584b7c742` succeeded, including
 
 ### 2. Probe: why the continued start did not settle
 
-Status: planned
+Status: done
 Type: Structure
 
 Find what the continued start waited on between the "Continue execution"
@@ -146,6 +146,26 @@ test of the named cause fails without the fix and passes with it.
   alias is invisible to them; the `lint` job writes its npm install out in
   full. macOS system Ruby (`ruby -ryaml`) resolves the workflow's anchors for
   a structural check; no YAML parser is installed for Node or Python.
+- Slice 2, cause: `admitLaunchAttempt` keeps the continued attempt
+  (`keepAttemptIf`, `dashboard/server/launchAttemptAdmit.ts`) with this
+  server's worker before `owned.own()` registers it. A
+  `/__agent-launch/changed?attempt=` request in that window finds no owned
+  observation, falls back to the kept record, which reads running and not
+  owned (its worker pid is this live server), and so takes the
+  another-server branch of `changedAttempt`
+  (`dashboard/server/launchAttemptChanges.ts`), sleeping the whole
+  `DOUGH_CHANGE_WAIT_MS` (30 s by default) without rechecking.
+  `settledOutcome`'s second poll, about 50 ms after its first, landed there.
+  Evidence: run 43797393195 `e2e-playwright-report-5` trace: one poll at
+  10.35 s, then nothing until 30.01 s; its network log shows the second
+  page's continue reconciled 1.9 s after the click. Local runs: 40 of 40
+  passed with `--repeat-each 20` alone (load about 5) and with 16 CPU burners
+  (load about 32), settlement median 0.95 s and 1.95 s; the stall did not
+  reproduce. Any viewer asking about a just-accepted attempt in that window
+  waits up to 30 s for a change that already happened, so slice 3 fixes it
+  in the product: this server's own unowned attempt takes `owner.changed`,
+  not the another-server sleep. Its proof is the fallback: a backend test of
+  that window, failing without the fix, beside the e2e repeat.
 
 ## Readiness and sizing
 
@@ -153,3 +173,12 @@ Refinement not needed: three slices, each with one outcome and its own
 proof. Slice 1 is one workflow move with four readers. Remaining concern:
 slice 3's size is unknown until slice 2 names the cause; slice 2 is its
 authorized early probe.
+
+
+## Story obligations
+
+### G1. The continued start did settle; the harness's change wait hung
+Reported: slice 2 — "slice 2 — "the continued attempt settled in about 2 s. What hung for the remaining 19.7 s was the harness's own change-wait request""
+Story clause: "the continued start then did not settle in the remaining 19.7 s"
+Disposition: no user cost "without a passing revision failing because its job or one of its tests ran out of time": the clause misdescribes evidence only; the run's network log shows the continue reconciled 1.9 s after the click, the test still timed out at 30 s, and slice 3 fixes the wait that consumed that time, so the goal and key example are unchanged
+Commitment: 6.1
