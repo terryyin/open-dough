@@ -29,11 +29,11 @@ returned `X` ids.
 | 4g.2 | Job names stay as they are. | slice 4 | |
 | 4g.3 | CI proof parts stay as they are. | slice 4 | |
 | 4g.4 | `<group>-times-<shard>` artifact names stay as they are. | slice 4 | |
-| 5a | Loading a group's configuration fails, before any test is selected, when a spec file matches the patterns of two shards. | slice 3 | |
-| 5b | That overlap failure names the file and the shards. | slice 3 | |
-| 5c | Loading a group's configuration fails, before any test is selected, when a pattern matches no spec file. | slice 3 | |
-| 5d | That unmatched-pattern failure names the pattern. | slice 3 | |
-| 5e | This is the same rule and the same check the Distribution shares use. | slice 3 | |
+| 5a | Loading a group's configuration fails, before any test is selected, when a spec file matches the patterns of two shards. | slice 3 | observed: Distribution/tests/support/dashboard-declared-shards.test.mjs overlap refusal with and without a split, thrown by dashboardTestMatch/dashboardTestProjects before selection (real configurations: slice 4) |
+| 5b | That overlap failure names the file and the shards. | slice 3 | observed: Distribution/tests/support/dashboard-declared-shards.test.mjs overlap refusal exact message names the spec and shares 1 and 2 |
+| 5c | Loading a group's configuration fails, before any test is selected, when a pattern matches no spec file. | slice 3 | observed: Distribution/tests/support/dashboard-declared-shards.test.mjs unmatched-pattern refusal with and without a split |
+| 5d | That unmatched-pattern failure names the pattern. | slice 3 | observed: Distribution/tests/support/dashboard-declared-shards.test.mjs unmatched-pattern exact message names the pattern |
+| 5e | This is the same rule and the same check the Distribution shares use. | slice 3 | observed: dashboard/tests/support/testFiles.mjs declaredShardFiles calls readShareDeclaration/shareOfSplit/selectShare, the Distribution runner's rule |
 | 6a | A shard is reproducible locally by its number through the group's existing `<prefix>_SPLIT=i/n`. | slice 4 | |
 | 6b | A run without `<prefix>_SPLIT` runs every spec of the group. | slice 4 | |
 | 7a | The starting shards come from recent `main` timing through the rebalancing script. | slice 4 | |

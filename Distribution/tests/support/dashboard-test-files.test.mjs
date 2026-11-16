@@ -2,6 +2,7 @@
 // group's spec files through scripts/share-deal.mjs by the seconds in the
 // group's own duration list (dashboard/tests/shards.md). Each group's actual
 // specs over the shards its CI job runs: ./browser-group-shards.test.mjs.
+// A shard from the patterns a CI job declares: ./dashboard-declared-shards.test.mjs.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { makeMe } from "./makeMe.mjs";

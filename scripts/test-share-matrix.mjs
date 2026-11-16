@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-// Selects a CI share's checks from the `distribution-tests` job's shard
-// declaration in a workflow file (scripts/test-share-declaration.mjs reads it):
-// each share but the last runs the checks its glob patterns match, and the last
-// share runs every discovered check no earlier share claims. A check two shares
-// match, or a pattern that matches no check, is refused.
+// Selects a CI share's checks from a job's shard declaration in a workflow
+// file (scripts/test-share-declaration.mjs reads it): each share but the last
+// runs the checks its glob patterns match, and the last share runs every
+// discovered check no earlier share claims. A check two shares match, or a
+// pattern that matches no check, is refused. The command line selects for the
+// `distribution-tests` job; browser groups select through
+// dashboard/tests/support/testFiles.mjs.
 //
 //   node scripts/test-share-matrix.mjs WORKFLOW [SPLIT]
 //     labels on stdin, NUL-separated; prints the labels of share i for SPLIT
@@ -20,12 +22,17 @@ import {
 } from "./test-share-declaration.mjs";
 
 /**
- * The share number a `<i>/<n>` split selects; refused unless n is the
- * declared share count and i one of its shares.
+ * The share number a `<i>/<n>` split selects; refused, naming `setting`, unless
+ * n is the declared share count and i one of its shares.
  * @param {ReturnType<typeof readShareDeclaration>} declaration
  * @param {string} split
+ * @param {string} [setting] the variable that carried the split
  */
-export function shareOfSplit({ file, shares }, split) {
+export function shareOfSplit(
+  { file, shares },
+  split,
+  setting = "OPEN_DOUGH_TEST_SPLIT",
+) {
   const parsed = /^([1-9]\d*)\/([1-9]\d*)$/.exec(split);
   if (
     !parsed ||
@@ -34,7 +41,7 @@ export function shareOfSplit({ file, shares }, split) {
   ) {
     refuse(
       file,
-      `OPEN_DOUGH_TEST_SPLIT=${split} is not <i>/<n> with n the share count and i a share of share: [${shares.join(", ")}].`,
+      `${setting}=${split} is not <i>/<n> with n the share count and i a share of share: [${shares.join(", ")}].`,
     );
   }
   return parsed[1];

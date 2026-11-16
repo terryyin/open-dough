@@ -122,7 +122,7 @@ its temporary directory.
 
 ### 3. Select a browser shard from declared patterns
 Type: Behavior
-Status: planned
+Status: done
 Proof: `Distribution/tests/support/dashboard-test-files.test.mjs` gains cases
 over a fixture directory and fixture workflow: each shard's files, the last
 shard's rest, both refusals with a split and without one, a malformed split,
@@ -300,3 +300,21 @@ premises are bounded by the early probe in slice 5.
   695 s (244 files, `Distribution/tests/skills/dough-execute-plan/**`), shard 2
   943 s (70 files, `Distribution/evaluation/**`), shard 3 728 s (330 files);
   untimed: this story's two new checks; slow files: none.
+- Slice 3: a browser selection names `{ roots, splitVariable, workflow: URL of
+  <repository>/.github/workflows/ci.yml, job }`; `testFiles.mjs`'s
+  `declaredShardFiles` matches repository-relative labels through slice 1's
+  module, and `shareOfSplit` names the runner's own split setting in its
+  refusal. The cases live in `dashboard-declared-shards.test.mjs` (the deal's
+  test file would have passed 250 lines).
+- Slice 5's bounds, recorded before slice 4's push from
+  `bash scripts/ci-job-times.sh` (10 successful `main` runs,
+  2026-11-15T14:11Z–2026-11-16T03:39Z), highest slowest-job seconds (job start
+  to end of test step): `e2e` 311, `dashboard-backend` 315,
+  `dashboard-integrated` 133, `dashboard-frontend` 443.
+
+## Story obligations
+
+### G1. Real browser configurations still deal by duration lists
+Reported: slice 3 — "Interim deal kept: a selection naming durations (and no job) still deals by its duration list when there is a split."
+Story clause: "each browser configuration asks it for its shard's spec files and is told only the shard number"
+Disposition: interim until slices 4

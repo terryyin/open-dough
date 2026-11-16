@@ -1,12 +1,17 @@
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { basename, posix, resolve } from "node:path";
+import { basename, posix, relative, resolve, sep } from "node:path";
 import {
   dealShares,
   parseSplit,
   readDurationList,
   shareLabels,
 } from "../../../scripts/share-deal.mjs";
+import { readShareDeclaration } from "../../../scripts/test-share-declaration.mjs";
+import {
+  selectShare,
+  shareOfSplit,
+} from "../../../scripts/test-share-matrix.mjs";
 
 // The directories a run writes beside its specs: each runner keeps its
 // `test-results/<stamp>/` run directories and CI `playwright-report/<stamp>/` in its
@@ -48,17 +53,54 @@ export function dashboardSpecFiles(directory, roots) {
     .sort();
 }
 
+// The files of `directory` (relative to it) that shard `split` of `job` in
+// `workflow` runs: scripts/test-share-matrix.mjs selects them from the job's
+// declared patterns (scripts/test-share-declaration.mjs reads them), the one
+// rule the Distribution shares use. The patterns are relative to the
+// repository holding `workflow` at `.github/workflows/`, so each file is
+// matched under its repository-relative label. Without a split every file is
+// returned; either way an overlap, a pattern matching no spec, or a split
+// whose n is not the declared shard count throws, naming it, before any test
+// is selected.
+function declaredShardFiles(directory, files, split, selection) {
+  const { workflow, job, splitVariable } = selection;
+  const workflowPath = fileURLToPath(workflow);
+  const repository = fileURLToPath(new URL("../../", workflow));
+  const label = (path) => relative(repository, path).split(sep).join("/");
+  const declaration = readShareDeclaration(
+    readFileSync(workflowPath, "utf8"),
+    label(workflowPath),
+    job,
+  );
+  const share =
+    split === undefined
+      ? undefined
+      : shareOfSplit(declaration, split, splitVariable);
+  const labelled = new Map(
+    files.map((file) => [label(resolve(directory, file)), file]),
+  );
+  return selectShare(declaration, [...labelled.keys()], share).map((label) =>
+    labelled.get(label),
+  );
+}
+
 // Selected spec files for share `split` (`<i>/<n>`, the value of the
-// runner's `splitVariable`) under `testDir`'s `roots`: the files
-// scripts/share-deal.mjs deals to that share by the recorded seconds in the
-// runner's own duration list, `durations` relative to `testDir` (shards.md).
-// A malformed split or list line throws, naming it, before any test is
-// selected.
+// runner's `splitVariable`) under `testDir`'s `roots`. A selection naming a
+// `workflow` (file URL) and `job` runs that job's declared shard
+// (declaredShardFiles). Until the configurations name their job, one naming
+// `durations` gets the files scripts/share-deal.mjs deals to that share by
+// the recorded seconds in the runner's own duration list, `durations`
+// relative to `testDir` (shards.md); a malformed split or list line throws,
+// naming it, before any test is selected. A selection naming neither, as
+// fixture runs use, gets every file.
 /** @returns {string[]} */
-function selectedFiles(testDir, split, { roots, splitVariable, durations }) {
+function selectedFiles(testDir, split, selection) {
+  const { roots, splitVariable, durations, job } = selection;
   const directory = fileURLToPath(testDir);
   const files = dashboardSpecFiles(directory, roots);
-  if (split === undefined) return files;
+  if (job !== undefined)
+    return declaredShardFiles(directory, files, split, selection);
+  if (split === undefined || durations === undefined) return files;
   const { share, count } = parseSplit(split, splitVariable);
   const { seconds } = readDurationList(resolve(directory, durations));
   const allocation = dealShares(files, seconds, count);
@@ -75,13 +117,15 @@ function filePatterns(testDir, files) {
   );
 }
 
-// Selection and dispatch have different jobs: the duration deal chooses each
-// file's shard; native projects queue the long, serial production chains
+// Selection and dispatch have different jobs: the declared shard (or, until
+// the configurations name their job, the duration deal) chooses each file's
+// shard; native projects queue the long, serial production chains
 // (E2E Test's `production-watcher*.spec.ts`) first in the same phase. Local
 // chains share one worker so real installs and builds leave the other global
 // worker for ordinary checks; CI keeps its concurrency. No dependency makes ordinary checks wait for those chains. Complementary
 // matches retain exactly one execution of every selected file. `selection`
-// names a runner's own `roots`, `splitVariable` and `durations`.
+// names a runner's own `roots` and `splitVariable`, and its `workflow` and
+// `job` or its `durations` (selectedFiles).
 export function dashboardTestProjects(testDir, split, selection) {
   const files = selectedFiles(testDir, split, selection);
   const isProductionChain = (file) =>
@@ -102,7 +146,8 @@ export function dashboardTestProjects(testDir, split, selection) {
   ];
 }
 
-// `selection` names a runner's own `roots`, `splitVariable` and `durations`.
+// `selection` names a runner's own `roots` and `splitVariable`, and its
+// `workflow` and `job` or its `durations` (selectedFiles).
 /** @returns {RegExp[]} */
 export function dashboardTestMatch(testDir, split, selection) {
   return filePatterns(testDir, selectedFiles(testDir, split, selection));
