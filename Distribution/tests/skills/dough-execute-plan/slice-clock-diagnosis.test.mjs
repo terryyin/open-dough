@@ -143,3 +143,26 @@ test("proof run through the clock inside a round does not count toward the round
     `dough-execute-plan slice clock: ${roundEnd(1, 3, 15)}. Stop and return the unfinished work with the elapsed time.`,
   );
 });
+
+test("a new session settles a running round at its last clock command and starts the next round with the settled minutes counted", async (t) => {
+  const run = await executionWorktree(t);
+  const { worktree, time, clock } = run;
+  await clock(worktree, "start", ...diagnosis);
+  time.at(10);
+  await clock(worktree, "status");
+
+  time.at(240);
+  const next = await clock(
+    worktree,
+    "start",
+    ...diagnosis,
+    "--after-ended-session",
+  );
+
+  assert.deepEqual(roundReport(next), round(2, 0, 10));
+  time.at(245);
+  assert.deepEqual(
+    roundReport(await clock(worktree, "status", ...diagnosis)),
+    round(2, 5, 15),
+  );
+});

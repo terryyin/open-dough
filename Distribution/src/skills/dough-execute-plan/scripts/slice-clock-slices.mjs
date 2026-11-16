@@ -17,8 +17,6 @@ import {
   roundsOf,
 } from "./slice-clock-diagnosis.mjs";
 
-export { sliceLimitMinutes };
-
 // Whether the slice or diagnosis is the one running in the checkout.
 export function isRunning(record, named) {
   const { identity, slice, diagnosis } = named;
