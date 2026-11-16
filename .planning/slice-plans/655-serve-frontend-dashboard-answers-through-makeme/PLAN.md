@@ -99,6 +99,15 @@ frontend suite, 455 passed at load about 4. Hand-built observed launches that
 matched a step now use it; Done launches with a missing workspace stay built
 by hand.
 
+## Execution complete
+
+Product advice: no defects and no correction. The developer's goal is half
+met: the remaining long import lists come from published-project data (specs
+still set `projects`, `files` or `backlog` directly), which the queued
+SEED-301#publish-intent-projects-through-makeme takes; take it next. A Done
+launch with a missing workspace is still built by hand in six places; a later
+MakeMe step could name it.
+
 ## Current decisions
 
 - Story Branch Mode, in this session's established workspace.
